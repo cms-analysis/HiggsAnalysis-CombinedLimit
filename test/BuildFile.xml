@@ -1,0 +1,3 @@
+<bin file="testhlf.cpp" name="testhlf">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+</bin>
