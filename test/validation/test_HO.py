@@ -5,8 +5,11 @@ M='Hybrid'
 
 ### Test the p-values 
 for R in [ 'CLs', 'CLsplusb' ]:
-    suite += [ (M, '*', MultiOptionTest("Counting_pValues_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30B.txt", M,
-                            "--singlePoint 5 --fork 4 -T 200 --clsAcc=1 --rule=%s" % R,
+    suite += [ (M, 'fast', MultiOptionTest("Counting_pValues_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30B.txt", M,
+                            "--singlePoint 5 --fork 4 -T 500 --clsAcc=0.01 --rule=%s" % R,
+                            {'LEP':'--testStat=LEP', 'TEV':'--testStat=TEV'})) ]
+    suite += [ (M, 'full', MultiOptionTest("Counting_pValues_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30B.txt", M,
+                            "--singlePoint 5 --fork 4 -T 500 --clsAcc=0.002 --rule=%s" % R,
                             {'LEP':'--testStat=LEP', 'TEV':'--testStat=TEV'})) ]
 
 for X in [ "LEP", "TEV" ]:

@@ -30,22 +30,23 @@ if len(args) == 0:
     sys.exit(2)
 dir = options.name if options.name else options.suite
 thisSuite = TestSuite(dir, options, suite)
-if args[0] == "list": 
-    thisSuite.listJobs()
-elif args[0] == "create": 
-    print "Creating test suite in directory",dir
-    thisSuite.createJobs()
-    print "Done."
-elif args[0] == "run": 
-    if options.threads: 
-        thisSuite.runLocallyASync(threads=options.threads)
-    else: 
-        thisSuite.runLocallySync()
-elif args[0] == "submit": 
-    thisSuite.runBatch(options.queue)
-elif args[0] == "report": 
-    thisSuite.report()
-    thisSuite.printIt(options.format,reference=options.reference)
-elif args[0] == "print": 
-    thisSuite.printIt(options.format,reference=options.reference)
-else: RuntimeError, "Unknown command %s" % args[0]
+for cmd in args:
+    if cmd == "list": 
+        thisSuite.listJobs()
+    elif cmd == "create": 
+        print "Creating test suite in directory",dir
+        thisSuite.createJobs()
+        print "Done."
+    elif cmd == "run": 
+        if options.threads: 
+            thisSuite.runLocallyASync(threads=options.threads)
+        else: 
+            thisSuite.runLocallySync()
+    elif cmd == "submit": 
+        thisSuite.runBatch(options.queue)
+    elif cmd == "report": 
+        thisSuite.report()
+        thisSuite.printIt(options.format,reference=options.reference)
+    elif cmd == "print": 
+        thisSuite.printIt(options.format,reference=options.reference)
+    else: RuntimeError, "Unknown command %s" % cmd
