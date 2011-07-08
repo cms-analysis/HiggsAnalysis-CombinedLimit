@@ -22,18 +22,13 @@ public:
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
 protected:
-  static std::string name_;
-
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
   static int         minimizerStrategy_;
   static std::string minos_;
 
+  static std::string plot_, signalPdfNames_, backgroundPdfNames_;
   static float preFitValue_;
-
-  static std::string out_; 
-  static bool        makePlots_;
-  static std::string signalPdfNames_, backgroundPdfNames_;
 };
 
 

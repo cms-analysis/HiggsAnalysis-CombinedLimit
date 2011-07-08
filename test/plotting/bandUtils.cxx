@@ -30,18 +30,14 @@ double quantErr(size_t n, double *vals, double q) {
 }
 
 enum BandType { Mean, Median, Quantile, Observed, Asimov, CountToys, MeanCPUTime, AdHoc };
-double band_safety_crop = 0; 
-bool use_precomputed_quantiles = false; 
-bool zero_is_valid = false;
-enum ObsAvgMode { MeanObs, LogMeanObs, MedianObs };
-ObsAvgMode obs_avg_mode = MeanObs;
+double band_safety_crop = 0; bool use_precomputed_quantiles = false; bool zero_is_valid = false;
 TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType type, double width=0.68) {
     bool isLandS = false;
     if (file == 0) return 0;
     TTree *t = (TTree *) file->Get("limit");
     if (t == 0) t = (TTree *) file->Get("test"); // backwards compatibility
     if (t == 0) { 
-        if ((t = (TTree *) file->Get("T")) != 0) { 
+        if (t = (TTree *) file->Get("T")) { 
             isLandS = true; 
             std::cerr << "Reading L&S tree from " << file->GetName() << std::endl; 
         }
@@ -144,18 +140,8 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
                         summer68 = winter68 = mean;
                     }
                 } else { // if we have multiple, average and report rms (useful e.g. for MCMC)
-                    switch (obs_avg_mode) {
-                        case MeanObs:   x = mean; break;
-                        case MedianObs: x = median; break;
-                        case LogMeanObs: {
-                                 x = 0;
-                                 for (int j = 0; j < nd; ++j) { x += log(data[j]); }
-                                  x = exp(x/nd);
-                             } 
-                             break;
-                    }
                     double rms = 0;
-                    for (int j = 0; j < nd; ++j) { rms += (x-data[j])*(x-data[j]); }
+                    for (int j = 0; j < nd; ++j) { rms += (mean-data[j])*(mean-data[j]); }
                     rms = sqrt(rms/(nd*(nd-1)));
                     summer68 = mean - rms;
                     winter68 = mean + rms;
