@@ -1,18 +1,6 @@
 #!/usr/bin/env python
 import sys
-from TestClasses import *
 
-suite = []
-
-import test_PLC, test_BS, test_MCMC, test_HN, test_HO, test_FC
-suite += test_PLC.suite  # profile likelihood
-suite += test_BS.suite   # bayes simple
-suite += test_MCMC.suite # bayes mcmc
-suite += test_HN.suite   # hybrid new
-suite += test_HO.suite   # hybrid old
-suite += test_FC.suite   # feldman cousins
-
-from TestSuite import *
 from optparse import OptionParser
 parser = OptionParser(usage="usage: %prog [options] command \ncommand = list, create, runLocally, runBatch, report")
 parser.add_option("-M", "--method", dest="method", help="method to test", default="*", metavar="METHOD")
@@ -28,6 +16,26 @@ parser.add_option("-q", "--queue",     dest="queue",  help="queue to run in batc
 if len(args) == 0:
     parser.print_usage()
     sys.exit(2)
+
+sys.argv.append('-b-')
+import ROOT
+ROOT.gROOT.SetBatch(1)
+
+from TestClasses import *
+
+suite = []
+
+import test_AS, test_PLC, test_BS, test_MCMC, test_HN, test_HO, test_FC
+suite += test_AS.suite   # asymptotic CLs
+suite += test_PLC.suite  # profile likelihood
+suite += test_BS.suite   # bayes simple
+suite += test_MCMC.suite # bayes mcmc
+suite += test_HN.suite   # hybrid new
+suite += test_HO.suite   # hybrid old
+suite += test_FC.suite   # feldman cousins
+
+from TestSuite import *
+
 dir = options.name if options.name else options.suite
 thisSuite = TestSuite(dir, options, suite)
 for cmd in args:
