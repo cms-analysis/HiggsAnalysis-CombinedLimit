@@ -12,6 +12,7 @@ parser.add_option("-r", "--reference", dest="reference", help="collate report ag
 parser.add_option("-f", "--format", dest="format", help="format for print output", default="text")
 parser.add_option("-j", "--threads", dest="threads", help="run in parallel on N threads", type="int", default=0)
 parser.add_option("-q", "--queue",     dest="queue",  help="queue to run in batch on", default="8nh")
+parser.add_option("-1", "--nofork",     dest="nofork",  default=False, action="store_true", help="force running on a single CPU")
 (options, args) = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
