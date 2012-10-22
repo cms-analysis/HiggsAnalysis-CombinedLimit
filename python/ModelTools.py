@@ -59,6 +59,7 @@ class ModelBuilder(ModelBuilderBase):
     def __init__(self,datacard,options):
         ModelBuilderBase.__init__(self,options) 
         self.DC = datacard
+        self.doModelBOnly = True
     def setPhysics(self,physicsModel):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
@@ -70,6 +71,7 @@ class ModelBuilder(ModelBuilderBase):
         self.doExpectedEvents()
         self.doIndividualModels()
         self.doCombination()
+        self.physics.done()
         if self.options.bin:
             self.doModelConfigs()
             if self.options.verbose > 1: self.out.Print("V")
@@ -86,7 +88,12 @@ class ModelBuilder(ModelBuilderBase):
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN" or pdf.startswith("shape"):
                 r = "-4,4" if pdf == "shape" else "-7,7"
-                self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], 1" % (n,r,n,r));
+                sig = 1.0;
+                for pn,pf in self.options.nuisancesToRescale:
+                    if re.match(pn, n): 
+                        sig = float(pf); sigscale = sig * (4 if pdf == "shape" else 7)
+                        r = "-%g,%g" % (sigscale,sigscale)
+                self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
@@ -274,7 +281,10 @@ class ModelBuilder(ModelBuilderBase):
         mc_s = ROOT.RooStats.ModelConfig("ModelConfig",       self.out)
         mc_b = ROOT.RooStats.ModelConfig("ModelConfig_bonly", self.out)
         for (l,mc) in [ ('s',mc_s), ('b',mc_b) ]:
-            mc.SetPdf(self.out.pdf("model_"+l))
+            if self.doModelBOnly:
+                mc.SetPdf(self.out.pdf("model_"+l))
+            else:
+                mc.SetPdf(self.out.pdf("model_s"))
             mc.SetParametersOfInterest(self.out.set("POI"))
             mc.SetObservables(self.out.set("observables"))
             if len(self.DC.systs):  mc.SetNuisanceParameters(self.out.set("nuisances"))
