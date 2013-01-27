@@ -204,7 +204,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
             for (int iz = 1, nz = h3.GetNbinsZ(); iz <= nz; ++iz) {
                 x->setVal(h3.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h3.GetYaxis()->GetBinCenter(iy));
-                z->setVal(h3.GetYaxis()->GetBinCenter(iz));
+                z->setVal(h3.GetZaxis()->GetBinCenter(iz));
                 data->add(observables_, weightScale*(asimov ? h3.GetBinContent(ix,iy,iz) : RooRandom::randomGenerator()->Poisson(h3.GetBinContent(ix,iy,iz))) );
             } } }
             }
