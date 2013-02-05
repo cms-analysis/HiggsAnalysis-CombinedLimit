@@ -96,10 +96,13 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     RooAbsData *ret = 0;
     switch (mode_) {
         case Unbinned:
-            if (spec_ == 0) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
-                                              : pdf_->prepareMultiGen(observables_, RooFit::Extended());
-            if (spec_) ret = pdf_->generate(*spec_);
-            else ret = pdf_->generate(observables_, RooFit::Extended());
+            // FIXME: revert back to no prepareMultiGen: extended is broken (truncates the yield!)
+            //if (spec_ == 0) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
+            //                                  : pdf_->prepareMultiGen(observables_, RooFit::Extended());
+            //if (spec_) ret = pdf_->generate(*spec_);
+            //ret = pdf_->generate(observables_, RooFit::Extended());
+            ret = pdf_->generate(observables_, RooFit::Extended());
+            //std::cout << "expected events: " << pdf_->expectedEvents(observables_) << ", observed events: " << ret->numEntries() << std::endl;
             break;
         case Binned:
             { // aka generateBinnedWorkaround
@@ -317,6 +320,8 @@ toymcoptutils::SimPdfGenInfo::~SimPdfGenInfo()
 RooAbsData *  
 toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet* protoData, int forceEvents) 
 {
+    //std::cout << "SimPdfGenInfo::generate called" << std::endl;
+    //utils::printPdf(pdf_);
     RooAbsData *ret = 0;
     TString retName =  TString::Format("%sData", pdf_->GetName());
     if (cat_ != 0) {
