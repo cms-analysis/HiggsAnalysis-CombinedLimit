@@ -336,7 +336,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); r->setConstant(true);
   w->loadSnapshot("clean");
 
-  if ((hint != 0) && (*hint > r->getMin())) {
+  if ((hint != 0) && (*hint > r->getMin()) && testStat_ != "Profile") {
       r->setMax(std::min<double>(3.0 * (*hint), r->getMax()));
       r->setMin(std::max<double>(0.3 * (*hint), r->getMin()));
   }
@@ -663,7 +663,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   if (poi.getSize() == 1) { // here things are a bit more convoluted, although they could probably be cleaned up
       double rVal = ((RooAbsReal*)rVals.first())->getVal();
-      if (testStat_ != "MLZ") r->setMax(rVal); 
+      if (testStat_ != "MLZ" && testStat_ != "Profile") r->setMax(rVal); 
       r->setVal(rVal); 
       if (testStat_ == "LHC" || testStat_ == "Profile") {
         r->setConstant(false); r->setMin(0); 
