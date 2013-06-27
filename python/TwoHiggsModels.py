@@ -1,4 +1,5 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
+import re
 
 ### Scale the signal higgs at MH by 'r'
 ### Scale the backgroud higgs_SM at MH_SM by r_SM
@@ -10,6 +11,7 @@ class TwoHiggsBase(PhysicsModel):
         self.mHSMRange = []
         self.altSignal  = "_SM"
         self.modes = [ "ggH", "qqH", "ttH", "WH", "ZH", "VH" ]
+        self.modes = re.compile('^((gg|qq|tt|W|Z|V)H)')
         self.mHAsPOI   = False
         self.mHSMAsPOI = False
     def getHiggsYieldScaleSM(self,production,decay, energy):
@@ -17,6 +19,8 @@ class TwoHiggsBase(PhysicsModel):
     def getHiggsYieldScale(self,production,decay, energy):
         return "r" ## to be implemented in subclasses
     def getYieldScale(self,bin,process):
+        sigproc = self.modes.findall(process)
+        print sigproc
         if self.DC.isSignal[process] and process in self.modes: 
             (production,decay, energy) = getHiggsProdDecMode(bin,process,self.options)
             return self.getHiggsYieldScale(production,decay, energy)
