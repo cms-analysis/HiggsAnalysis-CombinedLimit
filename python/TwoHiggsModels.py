@@ -10,7 +10,7 @@ class TwoHiggsBase(PhysicsModel):
         self.mHRange = []
         self.mHSMRange = []
         self.altSignal  = "_SM"
-        self.modes = [ "ggH", "qqH", "ttH", "WH", "ZH", "VH" ]
+        self.modes = [ "ggH", "qqH", "ttH", "WH", "ZH", "VH", "VH_htt", "VH_hww" ]
         #self.modes = re.compile('^((gg|qq|tt|W|Z|V)H)')
         self.mHAsPOI   = False
         self.mHSMAsPOI = False
@@ -27,6 +27,8 @@ class TwoHiggsBase(PhysicsModel):
         if process.endswith(self.altSignal) and process.replace(self.altSignal,"") in self.modes: 
             (production,decay, energy) = getHiggsProdDecMode(bin,process.replace("_SM",""),self.options)
             return self.getHiggsYieldScaleSM(production,decay, energy)
+        if self.DC.isSignal[process]:
+            raise RuntimeError, "Found a signal process '%s' that is not among the supported ones: %s" % (process, self.modes)
         return 1;
     def setPhysicsOptionsBase(self,physOptions):
         for po in physOptions:
