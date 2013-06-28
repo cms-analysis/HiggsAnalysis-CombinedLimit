@@ -446,7 +446,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             if (nbins/rebinFactor > 6) nbins = ceil(nbins/rebinFactor);
             ret.push_back(x->frame(RooFit::Title(ds->GetName()), RooFit::Bins(nbins)));
             ret.back()->SetName(ds->GetName());
-            ds->plotOn(ret.back());
+            ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
             if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel));
             if (backgroundSel && strlen(backgroundSel)) pdfi->plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel));
             pdfi->plotOn(ret.back());
@@ -459,7 +459,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
         if (x != 0) {
             ret.push_back(x->frame());
             ret.back()->SetName("data");
-            data.plotOn(ret.back());
+            data.plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
             if (signalSel && strlen(signalSel))         pdf.plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel));
             if (backgroundSel && strlen(backgroundSel)) pdf.plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel));
             pdf.plotOn(ret.back());
