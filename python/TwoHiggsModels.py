@@ -10,7 +10,7 @@ class TwoHiggsBase(PhysicsModel):
         self.mHRange = []
         self.mHSMRange = []
         self.altSignal  = "_SM"
-        self.modes = [ "ggH", "qqH", "ttH", "WH", "ZH", "VH", "VH_htt", "VH_hww" ]
+        self.modes = [ "ggH", "qqH", "ttH", "WH", "ZH", "VH", "WH_htt", "WH_hww" ]
         #self.modes = re.compile('^((gg|qq|tt|W|Z|V)H)')
         self.mHAsPOI   = False
         self.mHSMAsPOI = False
