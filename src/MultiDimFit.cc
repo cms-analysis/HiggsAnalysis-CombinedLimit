@@ -29,6 +29,7 @@ std::vector<RooRealVar *> MultiDimFit::poiVars_;
 std::vector<float>        MultiDimFit::poiVals_;
 RooArgList                MultiDimFit::poiList_;
 float                     MultiDimFit::deltaNLL_ = 0;
+double                     MultiDimFit::absNLL_   = -1;
 unsigned int MultiDimFit::points_ = 50;
 unsigned int MultiDimFit::firstPoint_ = 0;
 unsigned int MultiDimFit::lastPoint_  = std::numeric_limits<unsigned int>::max();
@@ -104,12 +105,21 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
         }
-        if (algo_ != None) Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
+        if (algo_ != None) {
+	  // get the absolute log likelihood (note that we might do this again a few lines below)
+	  RooAbsReal *tmpNll = pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()));
+	  absNLL_ = tmpNll->getVal();
+	  delete tmpNll;
+
+	  Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
+	}
     }
     std::auto_ptr<RooAbsReal> nll;
     if (algo_ != None && algo_ != Singles) {
         nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended())));
+	absNLL_ = nll->getVal();
     } 
+
     switch(algo_) {
         case None: 
             if (verbose > 0) {
@@ -157,6 +167,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
         Combine::addBranch(poi_[i].c_str(), &poiVals_[i], (poi_[i]+"/F").c_str()); 
     }
     Combine::addBranch("deltaNLL", &deltaNLL_, "deltaNLL/F");
+    Combine::addBranch("absNLL",   &absNLL_,   "absNLL/D");
 }
 
 void MultiDimFit::doSingles(RooFitResult &res)
@@ -230,6 +241,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                         true : 
                         minim.minimize(verbose-1);
             if (ok) {
+                absNLL_   = nll.getVal();
                 deltaNLL_ = nll.getVal() - nll0;
                 double qN = 2*(deltaNLL_);
                 double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
@@ -259,6 +271,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 poiVars_[1]->setVal(y);
                 nll.clearEvalErrorLog(); nll.getVal();
                 if (nll.numEvalErrors() > 0) { 
+                    absNLL_ = 9999; 
                     deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                     if (gridType_ == G3x3) {
                         for (int i2 = -1; i2 <= +1; ++i2) {
@@ -266,6 +279,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                                 if (i2 == 0 && j2 == 0) continue;
                                 poiVals_[0] = x + 0.33333333*i2*deltaX;
                                 poiVals_[1] = y + 0.33333333*j2*deltaY;
+				absNLL_ = 9999;
                                 deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                             }
                         }
@@ -276,6 +290,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
                 bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
                 if (ok) {
+                    absNLL_   = nll.getVal();
                     deltaNLL_ = nll.getVal() - nll0;
                     double qN = 2*(deltaNLL_);
                     double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
@@ -294,13 +309,16 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                             poiVals_[1] = y; poiVars_[1]->setVal(y);
                             nll.clearEvalErrorLog(); nll.getVal();
                             if (nll.numEvalErrors() > 0) { 
+                                absNLL_   = 9999;
                                 deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                                 continue;
                             }
                             deltaNLL_ = nll.getVal() - nll0;
+			    absNLL_   = nll.getVal();
                             if (!fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.3) {
                                 minim.minimize(verbose-1);
                                 deltaNLL_ = nll.getVal() - nll0;
+				absNLL_   = nll.getVal();
                             }
                             double qN = 2*(deltaNLL_);
                             double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
