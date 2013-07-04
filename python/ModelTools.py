@@ -177,7 +177,6 @@ class ModelBuilder(ModelBuilderBase):
                     if len(args) == 3: # mean, sigma, range
                         self.doVar("%s%s" % (n,args[2]))
                     else:
-                        sigma = float(args[1])
                         if self.out.var(n):
                           self.out.var(n).setConstant(False)
                           self.out.var(n).setRange(mean-4*float(sigmaL),mean+4*float(sigmaR))
