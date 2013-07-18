@@ -3559,8 +3559,9 @@ RooTsallis::RooTsallis() {}
 
 
 /*************RooaDoubleCBxBW***********/
+
 ClassImp(RooaDoubleCBxBW)
-  
+
 RooaDoubleCBxBW::RooaDoubleCBxBW(){}
 
 RooaDoubleCBxBW::RooaDoubleCBxBW(const char *name, const char *title,
@@ -3573,12 +3574,12 @@ RooaDoubleCBxBW::RooaDoubleCBxBW(const char *name, const char *title,
          RooAbsReal& _width,
          unsigned _nL,
          unsigned _nR,
-         double _thetaL,
-         double _thetaR,
+         RooAbsReal& _thetaL,
+         RooAbsReal& _thetaR,
          bool computeActualCB_=true
          ) :
-  RooAbsPdf(name,title), 
-  x("x","x",this,_x), 
+  RooAbsPdf(name,title),
+  x("x","x",this,_x),
   shift("shift","shift",this,_shift),
   sigma("sigma","sigma",this,_sigma),
   alphaL("alphaL","alphaL",this,_alphaL),
@@ -3587,30 +3588,10 @@ RooaDoubleCBxBW::RooaDoubleCBxBW(const char *name, const char *title,
   width("width","width",this,_width),
   nL(_nL),
   nR(_nR),
-  thetaL(_thetaL),
-  thetaR(_thetaR),
+  thetaL("thetaL","thetaL",this,_thetaL),
+  thetaR("thetaR","thetaR",this,_thetaR),
   computeActualCB(computeActualCB_)
-{ 
-  double al = alphaL; 
-  absaL = fabs((double)al);
-  AL = TMath::Power(nL/absaL,(int)nL)*exp(-0.5*absaL*absaL);
-  BL = nL/absaL-absaL;
-  t0L = -absaL;
-  tsL = (-absaL-thetaL);
-  c1L = ( (AL/TMath::Power(BL-tsL,(int)nL+1))*nL*(tsL-t0L) - AL/TMath::Power(BL-tsL,(int)nL) ) / ((tsL-t0L)*(tsL-t0L));
-  c2L = ( AL/TMath::Power(BL-tsL,(int)nL) - c1L*(tsL-t0L)*(tsL-t0L) ) / (tsL-t0L);
-
-  double ar = alphaR;
-  absaR = fabs((double)ar);
-  AR = TMath::Power(nR/absaR,(int)nR)*exp(-0.5*absaR*absaR);
-  BR = nR/absaR-absaR;
-  t0R = absaR;
-  tsR = (absaR+thetaR);
-  c1R = ( -(AR/TMath::Power(BR+tsR,(int)nR+1))*nR*(tsR-t0R) - AR/TMath::Power(BR+tsR,(int)nR) ) / ((tsR-t0R)*(tsR-t0R));
-  c2R = ( AR/TMath::Power(BR+tsR,(int)nR) - c1R*(tsR-t0R)*(tsR-t0R) ) / (tsR-t0R);
-
-
-  inf = 1000000.0;
+{
 }
 
 RooaDoubleCBxBW::RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name) :
@@ -3624,34 +3605,32 @@ RooaDoubleCBxBW::RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name)
   width("width",this,other.width),
   nL(other.nL),
   nR(other.nR),
-  thetaL(other.thetaL), 
-  thetaR(other.thetaR),
-  computeActualCB(other.computeActualCB) 
+  thetaL("thetaL",this,other.thetaL),
+  thetaR("thetaR",this,other.thetaR),
+  computeActualCB(other.computeActualCB)
 {
-  double al = alphaL; 
-  absaL = fabs((double)al);
-  AL = TMath::Power(nL/absaL,(int)nL)*exp(-0.5*absaL*absaL);
-  BL = nL/absaL-absaL; 
-  t0L = -absaL;
-  tsL = (-absaL-thetaL);
-  c1L = ( (AL/TMath::Power(BL-tsL,(int)nL+1))*nL*(tsL-t0L) - AL/TMath::Power(BL-tsL,(int)nL) ) / ((tsL-t0L)*(tsL-t0L));
-  c2L = ( AL/TMath::Power(BL-tsL,(int)nL) - c1L*(tsL-t0L)*(tsL-t0L) ) / (tsL-t0L);
-
-  double ar = alphaR;
-  absaR = fabs((double)ar);
-  AR = TMath::Power(nR/absaR,(int)nR)*exp(-0.5*absaR*absaR);
-  BR = nR/absaR-absaR;
-  t0R = absaR;
-  tsR = (absaR+thetaR);
-  c1R = ( -(AR/TMath::Power(BR+tsR,(int)nR+1))*nR*(tsR-t0R) - AR/TMath::Power(BR+tsR,(int)nR) ) / ((tsR-t0R)*(tsR-t0R));
-  c2R = ( AR/TMath::Power(BR+tsR,(int)nR) - c1R*(tsR-t0R)*(tsR-t0R) ) / (tsR-t0R);
-
-
-  inf = 1000000.0;
-} 
+}
 
 double RooaDoubleCBxBW::evaluateDoubleCB() const
 {
+
+  double al = alphaL;
+  double absaL = fabs((double)al);
+  double AL = TMath::Power(nL/absaL,(int)nL)*exp(-0.5*absaL*absaL);
+  double BL = nL/absaL-absaL;
+  double t0L = -absaL;
+  double tsL = (-absaL-thetaL);
+  double c1L = ( (AL/TMath::Power(BL-tsL,(int)nL+1))*nL*(tsL-t0L) - AL/TMath::Power(BL-tsL,(int)nL) ) / ((tsL-t0L)*(tsL-t0L));
+  double c2L = ( AL/TMath::Power(BL-tsL,(int)nL) - c1L*(tsL-t0L)*(tsL-t0L) ) / (tsL-t0L);
+
+  double ar = alphaR;
+  double absaR = fabs((double)ar);
+  double AR = TMath::Power(nR/absaR,(int)nR)*exp(-0.5*absaR*absaR);
+  double BR = nR/absaR-absaR;
+  double t0R = absaR;
+  double tsR = (absaR+thetaR);
+  double c1R = ( -(AR/TMath::Power(BR+tsR,(int)nR+1))*nR*(tsR-t0R) - AR/TMath::Power(BR+tsR,(int)nR) ) / ((tsR-t0R)*(tsR-t0R));
+  double c2R = ( AR/TMath::Power(BR+tsR,(int)nR) - c1R*(tsR-t0R)*(tsR-t0R) ) / (tsR-t0R);
 
   double t = (x-(mean+shift))/sigma;
 
@@ -3660,10 +3639,10 @@ double RooaDoubleCBxBW::evaluateDoubleCB() const
 
   if (!computeActualCB) {
     if(t >= -absaL && t <= absaR) polval = 0;
-    else if (t >= (-absaL-thetaL) && t < -absaL) polval = c1L*(t-t0L)*(t-t0L) + c2L*(t-t0L);
-    else if (t <  ( absaR+thetaR) && t >= absaR) polval = c1R*(t-t0R)*(t-t0R) + c2R*(t-t0R);
-    else if (t < (-absaL-thetaL)) polval = AL/TMath::Power(BL-t,(int)nL);
-    else if (t > ( absaR+thetaR)) polval = AR/TMath::Power(BR+t,(int)nR);
+    else if (t >= tsL && t < -absaL) polval = c1L*(t-t0L)*(t-t0L) + c2L*(t-t0L);
+    else if (t <  tsR && t >= absaR) polval = c1R*(t-t0R)*(t-t0R) + c2R*(t-t0R);
+    else if (t <  tsL) polval = AL/TMath::Power(BL-t,(int)nL);
+    else if (t >  tsR) polval = AR/TMath::Power(BR+t,(int)nR);
   }
   else {
     if(t >= -absaL && t <= absaR) polval = 0;
@@ -3675,7 +3654,15 @@ double RooaDoubleCBxBW::evaluateDoubleCB() const
 }
 
 double RooaDoubleCBxBW::evaluatePowerLaw(double lim, unsigned power, bool isLeft) const
-{ 
+{
+  double al = alphaL;
+  double absaL = fabs((double)al);
+  double BL = nL/absaL-absaL;
+
+  double ar = alphaR;
+  double absaR = fabs((double)ar);
+  double BR = nR/absaR-absaR;
+
   double d1 = -mean/width;
   double d2 = (isLeft ? BL*sigma + shift - x : -BR*sigma + shift - x)/width;
   double expr1 = (d1-d2)*(d1-d2)  +  1.0;
@@ -3685,8 +3672,8 @@ double RooaDoubleCBxBW::evaluatePowerLaw(double lim, unsigned power, bool isLeft
   else if (power ==  1) return ((2*d2*atan2((d1 - lim),1.) + 2*d1*atan2((-d1 + lim),1.) + 2*log(fabs(-d2 + lim)) - log(d1*d1 + 1.0 - 2*d1*lim + lim*lim))/ (2*expr1));
 
   else return ( -evaluatePowerLaw(lim, power-2, isLeft) + 2*(d1-d2)*evaluatePowerLaw(lim, power-1, isLeft) - 1.0/((power-1)*pow(lim-d2,power-1)) )  /  expr1;
-} 
-  
+}
+
 double RooaDoubleCBxBW::evaluateVoigtian() const
 {
   double arg = x - mean - shift;
@@ -3696,10 +3683,28 @@ double RooaDoubleCBxBW::evaluateVoigtian() const
   RooComplex z(u,a);
   RooComplex v = RooMath::FastComplexErrFunc(z);
   return atan2(0.,-1.)*v.re()/width;
-} 
+}
 
 double RooaDoubleCBxBW::evaluateQuadratic(double lim1, double lim2, bool isLeft) const
 {
+
+  double al = alphaL;
+  double absaL = fabs((double)al);
+  double AL = TMath::Power(nL/absaL,(int)nL)*exp(-0.5*absaL*absaL);
+  double BL = nL/absaL-absaL;
+  double t0L = -absaL;
+  double tsL = (-absaL-thetaL);
+  double c1L = ( (AL/TMath::Power(BL-tsL,(int)nL+1))*nL*(tsL-t0L) - AL/TMath::Power(BL-tsL,(int)nL) ) / ((tsL-t0L)*(tsL-t0L));
+  double c2L = ( AL/TMath::Power(BL-tsL,(int)nL) - c1L*(tsL-t0L)*(tsL-t0L) ) / (tsL-t0L);
+
+  double ar = alphaR;
+  double absaR = fabs((double)ar);
+  double AR = TMath::Power(nR/absaR,(int)nR)*exp(-0.5*absaR*absaR);
+  double BR = nR/absaR-absaR;
+  double t0R = absaR;
+  double tsR = (absaR+thetaR);
+  double c1R = ( -(AR/TMath::Power(BR+tsR,(int)nR+1))*nR*(tsR-t0R) - AR/TMath::Power(BR+tsR,(int)nR) ) / ((tsR-t0R)*(tsR-t0R));
+  double c2R = ( AR/TMath::Power(BR+tsR,(int)nR) - c1R*(tsR-t0R)*(tsR-t0R) ) / (tsR-t0R);
 
   double c1 = c1R;
   double c2 = c2R;
@@ -3708,7 +3713,7 @@ double RooaDoubleCBxBW::evaluateQuadratic(double lim1, double lim2, bool isLeft)
     c1 = c1L;
     c2 = c2L;
     t0 = t0L;
-  }    
+  }
 
   double sigma2 = sigma*sigma;
   double mean2 = mean*mean;
@@ -3725,19 +3730,29 @@ double RooaDoubleCBxBW::evaluateQuadratic(double lim1, double lim2, bool isLeft)
   return val2 - val1;
 }
 
-
 double RooaDoubleCBxBW::evaluate() const
 {
-  double point1 = (-absaL-thetaL)*(sigma)+shift-x;
+  double al = alphaL;
+  double absaL = fabs((double)al);
+  double AL = TMath::Power(nL/absaL,(int)nL)*exp(-0.5*absaL*absaL);
+  double tsL = (-absaL-thetaL);
+
+  double ar = alphaR;
+  double absaR = fabs((double)ar);
+  double AR = TMath::Power(nR/absaR,(int)nR)*exp(-0.5*absaR*absaR);
+  double tsR = (absaR+thetaR);
+
+  double inf = 1000000.0;
+
+  double point1 = tsL*(sigma)+shift-x;
   double point2 = (-absaL)*(sigma)+shift-x;
   double point3 = ( absaR)*(sigma)+shift-x;
-  double point4 = ( absaR+thetaR)*(sigma)+shift-x;
+  double point4 = tsR*(sigma)+shift-x;
 
   if (width == 0.0) return evaluateDoubleCB();
   else return max(0., (AL*pow(-sigma/width,nL)/width)*(evaluatePowerLaw(point1/width, nL, true) - evaluatePowerLaw(-inf, nL, true))) +  evaluateQuadratic(point1, point2, true) + evaluateVoigtian() + evaluateQuadratic(point3, point4, false) + max(0., (AR*pow(sigma/width, nR)/width)*(evaluatePowerLaw(inf, nR, false) - evaluatePowerLaw(point4/width, nR, false)));
 
 }
-
 
 
 
