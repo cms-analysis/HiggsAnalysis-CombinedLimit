@@ -689,7 +689,7 @@ class RooaDoubleCBxBW : public RooAbsPdf {
  public:
   RooaDoubleCBxBW();
   RooaDoubleCBxBW(const char *name, const char *title,
-        RooAbsReal& _x,
+        RooAbsReal& _x, 
         RooAbsReal& _shift,
         RooAbsReal& _sigma,
         RooAbsReal& _alphaL,
@@ -698,8 +698,8 @@ class RooaDoubleCBxBW : public RooAbsPdf {
         RooAbsReal& _width,
         unsigned _nL,
         unsigned _nR,
-        double _thetaL,
-        double _thetaR,
+        RooAbsReal& _thetaL,
+        RooAbsReal& _thetaR,
         bool _computeActualCB
     );
   RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name=0) ;
@@ -717,25 +717,9 @@ class RooaDoubleCBxBW : public RooAbsPdf {
   RooRealProxy width;
   unsigned nL;
   unsigned nR;
-  double thetaL;
-  double thetaR;
+  RooRealProxy thetaL;
+  RooRealProxy thetaR;
   bool computeActualCB;
-
-  double AL;
-  double BL;
-  double t0L;
-  double tsL;
-  double c1L;
-  double c2L;
-  double absaL;
-  double AR;
-  double BR;
-  double t0R;
-  double tsR;
-  double c1R;
-  double c2R;
-  double absaR;
-  double inf;
 
   Double_t evaluate() const ;
   Double_t evaluateDoubleCB() const ;
