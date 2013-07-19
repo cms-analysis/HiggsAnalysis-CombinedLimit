@@ -29,7 +29,7 @@ import sys
 sys.argv = [ '-b-']
 import ROOT
 ROOT.gROOT.SetBatch(True)
-ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 from HiggsAnalysis.CombinedLimit.ShapeTools     import *

@@ -1,5 +1,5 @@
 import ROOT
-ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so");
+ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gROOT.SetBatch(1)
 #ROOT.gStyle.SetNumberContours(255)
 

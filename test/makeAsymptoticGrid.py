@@ -34,7 +34,7 @@ f.write("cd %s\n"%workingDir)
 f.write("eval `scramv1 runtime -sh`\n")
 		
 f.write("cd -\n")
-f.write("cp -p $CMSSW_BASE/lib/slc5_amd64_gcc472/libHiggsAnalysisCombinedLimit.so . \n" )
+f.write("cp -p $CMSSW_BASE/lib/${CMSSW_ARCH}/libHiggsAnalysisCombinedLimit.{so,dylib} . \n" )
 f.write("mkdir scratch\n")
 f.write("cd scratch\n")
 f.write("cp -p %s . \n" % (wslocation) )
