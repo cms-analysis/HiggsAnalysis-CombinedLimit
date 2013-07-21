@@ -2,6 +2,34 @@
 
 #include <stdexcept>
 
+#include <fstream>
+#include <sstream>
+
+RooSpline1D::RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, const char *path, const unsigned short xcol, const unsigned short ycol, const unsigned short skipLines, const char *algo) :
+        RooAbsReal(name,title),
+        xvar_("xvar","Variable", this, xvar),
+        x_(), y_(), type_(algo),
+        interp_(0)
+{
+        std::ifstream file( path, std::ios::in);
+        std::string line;
+
+        for(int lineno=0; std::getline(file, line); lineno++){
+        	if(lineno<skipLines) continue;
+            std::istringstream ss(line);
+            std::istream_iterator<std::string > begin(ss), end;
+            std::vector<std::string> tokens(begin, end);
+
+            x_.push_back(atof(tokens[xcol].c_str()));
+            y_.push_back(atof(tokens[ycol].c_str()));
+
+//            std::cout << lineno << ": " << line << std::endl;
+        }
+
+        file.close();
+}
+
+
 RooSpline1D::RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, unsigned int npoints, const double *xvals, const double *yvals, const char *algo) :
         RooAbsReal(name,title),
         xvar_("xvar","Variable", this, xvar), 
