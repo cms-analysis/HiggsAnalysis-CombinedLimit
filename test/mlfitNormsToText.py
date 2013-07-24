@@ -7,8 +7,12 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 argv.remove( '-b-' )
 
-if len(argv) == 0: raise RuntimeError, "Usage: hwwNormToText.py mlfit.root";
+if len(argv) == 0: raise RuntimeError, "Usage: mlfitNormsToText.py [ -u ] mlfit.root";
 
+errors = False
+if len(argv) > 2 and argv[1] == "-u": 
+    errors = True
+    argv[1] = argv[2];
 file = ROOT.TFile.Open(argv[1]);
 fit_s = file.Get("norm_fit_s")
 fit_b = file.Get("norm_fit_b")
@@ -20,7 +24,11 @@ while True:
     norm_s = iter.Next()
     if norm_s == None: break;
     norm_b = fit_b.find(norm_s.GetName())
-    m = re.match(r"n_exp_bin(\w+)_proc_(\w+)", norm_s.GetName());
+    m = re.match(r"(\w+)/(\w+)", norm_s.GetName());
+    if m == None: m = re.match(r"n_exp_(?:final_)?(?:bin)+(\w+)_proc_(\w+)", norm_s.GetName());
     if m == None: raise RuntimeError, "Non-conforming object name %s" % norm_s.GetName()
     if norm_b == None: raise RuntimeError, "Missing normalization %s for background fit" % norm_s.GetName()
-    print "%-30s %-30s %7.3f %7.3f" % (m.group(1), m.group(2), norm_s.getVal(), norm_b.getVal())
+    if errors:
+        print "%-30s %-30s %7.3f +/- %7.3f  %7.3f +/- %7.3f" % (m.group(1), m.group(2), norm_s.getVal(), norm_s.getError(), norm_b.getVal(), norm_b.getError())
+    else:
+        print "%-30s %-30s %7.3f %7.3f" % (m.group(1), m.group(2), norm_s.getVal(), norm_b.getVal())
