@@ -5,6 +5,7 @@
 #include <RooDataSet.h>
 #include <RooProduct.h>
 #include "../interface/ProfilingTools.h"
+#include <../interface/RooMultiPdf.h>
 
 //---- Uncomment this to get a '.' printed every some evals
 //#define TRACE_NLL_EVALS
@@ -345,6 +346,17 @@ cacheutils::CachingAddNLL::evaluate() const
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingAddNLL::evaluate called");
 #endif
+
+    // For multi pdf's need to reset the cache if index changed before evaluations
+    for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
+	bool isMultiPdf = itp->pdf()->IsA()->InheritsFrom(RooMultiPdf::Class());
+	if (isMultiPdf) {
+	   	const RooMultiPdf *mpdf = dynamic_cast<const RooMultiPdf*>((*itp).pdf());
+		bool hasChangedPdf = mpdf->checkIndexDirty();
+		if (hasChangedPdf) itp->setDataDirty();
+	}
+    }
+
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
 
     std::vector<RooAbsReal*>::iterator  itc = coeffs_.begin(), edc = coeffs_.end();
@@ -408,7 +420,19 @@ cacheutils::CachingAddNLL::evaluate() const
     //ret += expectedEvents - UInt_t(sumWeights_) * log(expectedEvents); // no, doesn't work with Asimov dataset
     ret += expectedEvents - sumWeights_ * log(expectedEvents);
     ret += zeroPoint_;
-    // std::cout << "     plus extended term: " << ret << std::endl;
+
+    // multipdfs want to add a correction factor to the NLL
+    double correctionFactor = 0;
+    for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
+      bool isMultiPdf = itp->pdf()->IsA()->InheritsFrom(RooMultiPdf::Class());
+      if (isMultiPdf){
+	   const RooMultiPdf *mpdf = dynamic_cast<const RooMultiPdf*>((*itp).pdf());
+	   correctionFactor += mpdf->getCorrection();
+      }
+    }
+    // Add correction 
+    ret+=correctionFactor;
+
     TRACE_NLL("AddNLL for " << pdf_->GetName() << ": " << ret)
     return ret;
 }

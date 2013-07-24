@@ -5,6 +5,8 @@ class RooAbsReal;
 class RooArgSet;
 class RooRealVar;
 #include <RooArgSet.h>
+#include <RooListProxy.h>
+#include <RooSetProxy.h>
 #include "../interface/RooMinimizerOpt.h"
 #include <boost/program_options.hpp>
 
@@ -38,6 +40,9 @@ class CascadeMinimizer {
         const RooArgSet *nuisances_;
 
         bool improveOnce(int verbose);
+
+	void multipleMinimize(const RooArgSet &,bool &,double &,int,bool,int
+		,std::vector<std::vector<bool> > & );
         
         /// options configured from command line
         static boost::program_options::options_description options_;
@@ -69,7 +74,29 @@ class CascadeMinimizer {
 	static std::string defaultMinimizerType_;
 	static std::string defaultMinimizerAlgo_;
 
+    	static bool runShortCombinations; 
         //static void setDefaultIntegrator(RooCategory &cat, const std::string & val) ;
+};
+
+// Singleton Class inside!
+class CascadeMinimizerGlobalConfigs{
+
+	private:
+	  CascadeMinimizerGlobalConfigs(){};
+	  CascadeMinimizerGlobalConfigs(const CascadeMinimizerGlobalConfigs&) {};
+	  CascadeMinimizerGlobalConfigs& operator=(const CascadeMinimizerGlobalConfigs&);
+
+	public:
+
+	  //RooCategory* x;
+	  RooListProxy pdfCategories; 
+ 
+	  static CascadeMinimizerGlobalConfigs& O(){
+
+		static CascadeMinimizerGlobalConfigs singleton;
+		return singleton;
+	  }
+
 };
 
 #endif

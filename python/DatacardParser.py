@@ -37,6 +37,7 @@ def parseCard(file, options):
     if type(file) == type("str"):
         raise RuntimeError, "You should pass as argument to parseCards a file object, stream or a list of lines, not a string"
     ret = Datacard()
+    ret.discretes=[]
     #
     nbins      = -1; 
     nprocesses = -1; 
@@ -152,6 +153,11 @@ def parseCard(file, options):
             ret.flatParamNuisances[lsyst] = True
             #for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
             continue
+ 	elif pdf=="discrete":
+             args = f[2:]
+             ret.discretes.append(lsyst)
+	     continue
+
         else:
             raise RuntimeError, "Unsupported pdf %s" % pdf
         if len(numbers) < len(ret.keyline): raise RuntimeError, "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))
@@ -182,7 +188,7 @@ def parseCard(file, options):
     syst2 = []
     for lsyst,nofloat,pdf,args,errline in ret.systs:
         nonNullEntries = 0 
-        if pdf == "param": # this doesn't have an errline
+        if pdf == "param" or pdf=="discrete": # this doesn't have an errline
             syst2.append((lsyst,nofloat,pdf,args,errline))
             continue
         for (b,p,s) in ret.keyline:

@@ -20,6 +20,7 @@ bool CascadeMinimizer::poiOnlyFit_;
 bool CascadeMinimizer::singleNuisFit_;
 bool CascadeMinimizer::setZeroPoint_ = true;
 bool CascadeMinimizer::oldFallback_ = true;
+bool CascadeMinimizer::runShortCombinations = true;
 float CascadeMinimizer::nuisancePruningThreshold_ = 0;
 std::string CascadeMinimizer::defaultMinimizerType_=ROOT::Math::MinimizerOptions::DefaultMinimizerType();
 std::string CascadeMinimizer::defaultMinimizerAlgo_=ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
@@ -114,6 +115,8 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
    return (iret != 1) ? true : false; 
 }
 
+
+
 bool CascadeMinimizer::minimize(int verbose, bool cascade) 
 {
     if (runtimedef::get("CMIN_CENSURE")) {
@@ -139,9 +142,10 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         minimizer_.reset(new RooMinimizerOpt(nll_));
     }
      // FIXME can be made smarter than this
+    /*
     if (mode_ == Unconstrained && poiOnlyFit_) {
         trivialMinimize(nll_, *poi_, 200);
-    }
+    } This is done inside the multiminimiser now*/
     //if (nuisancePruningThreshold_ != 0) {
     //    RooArgSet pruned; collectIrrelevantNuisances(pruned); 
     //    bool ret = false;
@@ -157,10 +161,205 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     //        }
     //    }
     //    
-    //} 
-    return improve(verbose, cascade);
+    //}
+ 
+    bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
+    if (!doMultipleMini){
+    	if (mode_ == Unconstrained && poiOnlyFit_) {
+       	 trivialMinimize(nll_, *poi_, 200);
+    	} 
+
+    	return improve(verbose, cascade);
+    } 
+
+    // clean parameters before minimization but dont include the pdf indeces of course!
+    RooArgSet reallyCleanParameters;
+    RooArgSet *nllParams=nll_.getParameters((const RooArgSet*)0);
+    nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
+    (nllParams)->snapshot(reallyCleanParameters);
+    // Before each step, reset the parameters back to their prefit state!
+
+    minimizer_->setPrintLevel(verbose-2);  
+    minimizer_->setStrategy(strategy_);
+
+    bool ret=false;
+
+    double minimumNLL = 10;
+    std::vector<std::vector<bool>> contIndex;
+
+    multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex); // start from simplest scan, this is the full scan if runShortCombinations is off
+
+    if (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize() > 1 && runShortCombinations) {
+	
+	multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,1,contIndex);
+	multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,2,contIndex);
+    }
+
+    return ret;
+    
 }
 
+void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingIndeces){
+
+    //RooTrace::active(true);
+    /* Different modes for minimization 
+     Mode 0 -- Generate all combinations but only scan per-index 
+     Mode 1 -- Generate only combinations which are orthogonal from the best fit after mode 0
+	       Remove functions which cause increase in NLL > 10 (except best fit ones from previous mode)
+     Mode 2 -- Full scan over the remaining combinations after mode 1
+    */
+
+
+    RooArgList pdfCategoryIndeces = CascadeMinimizerGlobalConfigs::O().pdfCategories; 
+    int numIndeces = pdfCategoryIndeces.getSize();
+    
+    // create all combinations of indeces 
+    std::vector<int> pdfSizes;
+
+    RooCategory *fPdf;
+
+    std::vector<int> bestIndeces(numIndeces,0);
+
+    // Set to the current best indeces
+    for (int id=0;id<numIndeces;id++) {
+	int c =((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex();
+	bestIndeces[id]=c;
+    } 
+
+    if (mode==0) { // mode 0 makes the indeces
+      contributingIndeces.clear();
+      for (int id=0;id<numIndeces;id++){
+    	int npdf = ((RooCategory*)(pdfCategoryIndeces.at(id)))->numTypes();
+	std::vector<bool> indexFlags(npdf,true);
+	contributingIndeces.push_back(indexFlags);
+      }
+    }
+
+    // now find the number of available pdfs
+    for (int id=0;id<numIndeces;id++){
+    	int npdf = ((RooCategory*)(pdfCategoryIndeces.at(id)))->numTypes();
+	pdfSizes.push_back(npdf);
+    }
+
+    // keep hold of best fitted parameters! 
+    std::auto_ptr<RooArgSet> params;
+    params.reset(nll_.getParameters((const RooArgSet *)0) );
+    params->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
+
+    //take a snapshot of those parameters
+    RooArgSet snap;
+    params->snapshot(snap);
+
+    std::vector<std::vector<int> > myCombos;
+
+    // Get All Permutations of pdfs
+    if ( ( mode==0 && runShortCombinations ) || mode ==1 ) myCombos = utils::generateOrthogonalCombinations(pdfSizes);
+    else myCombos = utils::generateCombinations(pdfSizes);
+
+    // Reorder to start from the "best indeces"
+    if (mode!=0) utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
+
+    int numberOfCombinations = 1;
+    if (mode==1 || mode==0) numberOfCombinations=myCombos.size();
+
+    else {
+    	for (int i=0;i<numIndeces;i++){
+	 int nokpdfs=0;
+      	 for (int j=0;j<pdfSizes[i];j++){
+	   nokpdfs+=contributingIndeces[i][j];
+         }
+	 numberOfCombinations*=nokpdfs;
+	}
+    }
+
+    std::vector<std::vector<int> >::iterator my_it = myCombos.begin();
+    if (mode!=0) my_it++; // already did the best fit case
+  
+
+    int fitCounter = 0;
+    for (;my_it!=myCombos.end(); my_it++){
+
+	     bool isValidCombo = true;
+	
+	     int pdfIndex=0;
+	     // Set the current indeces;
+	     std::vector<int> cit = *my_it;
+	     for (std::vector<int>::iterator it = cit.begin();
+	         it!=cit.end(); it++){
+
+		 isValidCombo *= (contributingIndeces)[pdfIndex][*it];
+		 if (!isValidCombo && runShortCombinations) continue;
+
+	     	 fPdf = (RooCategory*) pdfCategoryIndeces.at(pdfIndex);
+		 fPdf->setIndex(*it);
+		 pdfIndex++;
+	     }
+	
+      if (!isValidCombo && runShortCombinations) continue;
+//    for (int id=0;id<backgroundPdfCategory->numTypes();id++){
+
+      std::cout << std::endl;
+
+      if (fitCounter>0) params->assignValueOnly(reallyCleanParameters); // no need to reset from 0'th fit
+
+      // FIXME can be made smarter than this
+      if (mode_ == Unconstrained && poiOnlyFit_) {
+        trivialMinimize(nll_, *poi_, 200);
+      }
+
+      ret =  improve(verbose, cascade);
+
+      fitCounter++;
+      double thisNllValue = nll_.getVal();
+
+      
+      if ( thisNllValue < minimumNLL ){
+		// Now we insert the correction ! 
+	        minimumNLL = thisNllValue;	
+    		snap.assignValueOnly(*params);
+		// set the best indeces again
+		for (int id=0;id<numIndeces;id++) {
+			bestIndeces[id]=((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex();	
+		}
+      }
+
+      // FIXME this should be made configurable!
+      double maxDeviation = 5;
+
+      if (mode==1 && runShortCombinations){
+
+        if (thisNllValue > minimumNLL+maxDeviation){
+		// Step 1, find out which index just changed 
+		int modid   =0;
+		int modcount=0;
+
+      		for (int id=0;id<numIndeces;id++) {
+			RooCategory* thisCat = (RooCategory*)(pdfCategoryIndeces.at(id));
+			if (thisCat->getIndex()!=bestIndeces[id]){
+				modid=id;
+				modcount++;
+			}
+		}
+		
+		// Step 2, remove its current index from the allowed indexes
+		RooCategory* thisCat = (RooCategory*)(pdfCategoryIndeces.at(modid));
+		int cIndex = thisCat->getIndex();
+		if (cIndex!=bestIndeces[modid]){ // don't remove the best pdf for this index!
+			(contributingIndeces)[modid][cIndex]=false;
+		}
+        }
+     }
+
+    }
+
+    // Assign best values ;
+    for (int id=0;id<numIndeces;id++) {
+	std::cout << bestIndeces[id];
+	((RooCategory*)(pdfCategoryIndeces.at(id)))->setIndex(bestIndeces[id]);	
+    }
+
+    params->assignValueOnly(snap);
+}
 
 void CascadeMinimizer::initOptions() 
 {
@@ -174,6 +373,7 @@ void CascadeMinimizer::initOptions()
         ("cminOldRobustMinimize", boost::program_options::value<bool>(&oldFallback_)->default_value(oldFallback_), "Use the old 'robustMinimize' logic in addition to the cascade")
 	("cminDefaultMinimizerType",boost::program_options::value<std::string>(&defaultMinimizerType_)->default_value(defaultMinimizerType_), "Set the default minimizer Type")
 	("cminDefaultMinimizerAlgo",boost::program_options::value<std::string>(&defaultMinimizerAlgo_)->default_value(defaultMinimizerAlgo_), "Set the default minimizer Algo")
+        ("runAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
         //("cminNuisancePruning", boost::program_options::value<float>(&nuisancePruningThreshold_)->default_value(nuisancePruningThreshold_), "if non-zero, discard constrained nuisances whose effect on the NLL when changing by 0.2*range is less than the absolute value of the threshold; if threshold is negative, repeat afterwards the fit with these floating")
 
         //("cminDefaultIntegratorEpsAbs", boost::program_options::value<double>(), "RooAbsReal::defaultIntegratorConfig()->setEpsAbs(x)")
@@ -195,6 +395,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
     poiOnlyFit_ = vm.count("cminPoiOnlyFit");
     singleNuisFit_ = vm.count("cminSingleNuisFit");
     setZeroPoint_  = vm.count("cminSetZeroPoint");
+    runShortCombinations = !(vm.count("runAllDiscreteCombinations"));
     if (vm.count("cminFallbackAlgo")) {
         vector<string> falls(vm["cminFallbackAlgo"].as<vector<string> >());
         for (vector<string>::const_iterator it = falls.begin(), ed = falls.end(); it != ed; ++it) {

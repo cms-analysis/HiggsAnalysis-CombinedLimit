@@ -38,6 +38,7 @@
 #include <RooRealVar.h>
 #include <RooUniform.h>
 #include <RooWorkspace.h>
+#include <RooCategory.h>
 
 #include <RooStats/HLFactory.h>
 #include <RooStats/RooStatsUtils.h>
@@ -52,6 +53,7 @@
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/AsimovUtils.h"
+#include "../interface/CascadeMinimizer.h"
 
 using namespace RooStats;
 using namespace RooFit;
@@ -254,6 +256,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
         throw std::invalid_argument("Missing Workspace"); 
     }
+
+    // Setup the CascadeMinimizer with discrete nuisances 
+    addDiscreteNuisances(w);
+
+
     if (verbose > 3) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
     RooRealVar *MH = w->var("MH");
     if (MH!=0) {
@@ -526,7 +533,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           {
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
               CloseCoutSentry sentry(verbose < 3);
-              genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));
+              //genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));	
+                std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
+                CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
+                minim.setStrategy(1);
+                minim.minimize();
           }
           utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
           w->saveSnapshot("clean", w->allVars());
@@ -626,4 +637,18 @@ void Combine::commitPoint(bool expected, float quantile) {
 
 void Combine::addBranch(const char *name, void *address, const char *leaflist) {
     tree_->Branch(name,address,leaflist);
+}
+
+void Combine::addDiscreteNuisances(RooWorkspace *w){
+
+    //RooCategory *dummyCat = new RooCategory("dummyCategoryIndex__","A dummy category index");
+    RooArgSet *discreteParameters = (RooArgSet*) w->genobj("discreteParams");
+    //if (discreteParameters->getSize()<1 ){
+	//dummyCat->defineType("dum0",0);
+	//discreteParameters->add(*dummyCat);
+    //}
+ 
+    CascadeMinimizerGlobalConfigs::O().pdfCategories = RooArgList();
+    TIterator *dp = discreteParameters->createIterator();
+    while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
 }
