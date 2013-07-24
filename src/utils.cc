@@ -563,3 +563,67 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
   }
 
 }
+void utils::reorderCombinations(std::vector<std::vector<int> > &vec, const std::vector<int> &max, const std::vector<int> &pos){
+	
+    // Assuming everyone starts from 0, add the start position modulo number of positions
+    std::vector<std::vector<int> >::iterator vit = vec.begin();
+    for (;vit!=vec.end();vit++){
+      std::vector<int>::iterator pit=(*vit).begin();
+      int cp=0;
+      for (;pit!=(*vit).end();pit++){
+  	int newpos = (*pit+pos[cp])%max[cp];
+	*pit=newpos;
+	cp++;
+      }
+    }
+}
+
+std::vector<std::vector<int> > utils::generateOrthogonalCombinations(const std::vector<int> &vec) {
+    int n = vec.size();
+    std::vector< std::vector<int> > result;
+    std::vector<int> idx(n,0);
+    result.push_back(idx);
+    for (int i = 0; i < n; ++i) {    
+      std::vector<int> idx(n,0);
+      bool exit_loop = false;
+      while(exit_loop == false){
+	if (idx[i]+1==vec[i]){
+		exit_loop=true;
+	} else {
+	   ++(idx[i]);
+	   result.push_back(idx);
+	}
+      }                  
+    }                        
+  return result;                                    
+}
+
+
+std::vector<std::vector<int> > utils::generateCombinations(const std::vector<int> &vec) {
+    // Generate all combinations choosing from N sets each of which have Mn values
+    int n = vec.size();
+    std::vector<int> idx(n,0);
+    std::vector< std::vector<int> > result;
+    result.push_back(idx);
+    bool exit_loop = false;
+    while(exit_loop == false){
+      // Find the first index we can increment (if possible)
+      for (int i = 0; i < n; ++i) {
+        if ((idx[i]+1) == vec[i]) {
+          if (i != n-1) {
+            idx[i] = 0;
+          } else {
+            // we're done
+            exit_loop = true;
+            break;
+          }
+        } else {
+          ++(idx[i]);
+          result.push_back(idx);
+          break;
+        }
+      }
+    }
+
+  return result;
+}

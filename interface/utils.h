@@ -89,6 +89,9 @@ namespace utils {
     // Set range of physics model parameters
     void setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params);
 
+    void reorderCombinations(std::vector<std::vector<int> > &, const std::vector<int> &, const std::vector<int> &);
+    std::vector<std::vector<int> > generateCombinations(const std::vector<int> &vec);
+    std::vector<std::vector<int> > generateOrthogonalCombinations(const std::vector<int> &vec);
 }
 
 #endif

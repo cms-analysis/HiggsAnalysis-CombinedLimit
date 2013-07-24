@@ -39,7 +39,9 @@ public:
   static void addBranch(const char *name, void *address, const char *leaflist) ;
 private:
   bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
-  
+ 
+  void addDiscreteNuisances(RooWorkspace *);
+
   boost::program_options::options_description statOptions_, ioOptions_, miscOptions_;
  
   // statistics-related variables

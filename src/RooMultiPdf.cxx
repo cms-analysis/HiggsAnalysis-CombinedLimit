@@ -36,7 +36,7 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
 	count++;
   }
   nPdfs=c.getSize();
-
+  cFactor=0.5; // correction to 2*NLL by default is -> 2*0.5 per param
  _oldIndex=fIndex;
  
 }
@@ -61,18 +61,25 @@ RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
  }
 
  _oldIndex=fIndex;
+  cFactor=other.cFactor; // correction to 2*NLL by default is -> 2*0.5 per param
 }
 
 bool RooMultiPdf::checkIndexDirty() const {
-  
-  return _oldIndex!=x;
-  
+  return _oldIndex!=x;  
+}
+//_____________________________________________________________________________
+void RooMultiPdf::setCorrectionFactor(PenatlyScheme penal){
+  if ( penal==AIC ){
+  	cFactor=1.0;
+  } else if ( penal==PVAL ){
+	cFactor=0.5;
+  }
 }
 //_____________________________________________________________________________
 double RooMultiPdf::getCorrection() const {
 
   double val = ((RooAbsReal*)corr.at(x))->getVal(); 
-  return 0.5*val;  //PVAL correction
+  return cFactor*val;  //PVAL correction
 }
 //_____________________________________________________________________________
 //_____________________________________________________________________________
