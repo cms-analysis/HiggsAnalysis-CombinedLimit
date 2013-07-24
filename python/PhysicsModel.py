@@ -45,6 +45,7 @@ class MultiSignalModel(PhysicsModel):
         self.poiMap  = []
         self.pois    = {}
         self.verbose = False
+        self.factories = []
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
@@ -62,7 +63,9 @@ class MultiSignalModel(PhysicsModel):
                 if "=" in poi:
                     poiname,expr = poi.split("=")
                     poi = expr.replace(";",":")
-                if poiname not in self.pois:
+                    if self.verbose: print "Will create expression ",poiname," with factory ",poi
+                    self.factories.append(poi)
+                elif poiname not in self.pois:
                     if self.verbose: print "Will create a POI ",poiname," with factory ",poi
                     self.pois[poiname] = poi
                 if self.verbose:  print "Mapping ",poiname," to ",maps," patterns"
@@ -71,12 +74,13 @@ class MultiSignalModel(PhysicsModel):
         """Create POI and other parameters, and define the POI set."""
         # --- Higgs Mass as other parameter ----
         poiNames = []
+        # first do all non-factory statements, so all params are defined
         for pn,pf in self.pois.items():
-            if ":" in pf:
-                self.modelBuilder.factory_(pf)
-            else:
-                poiNames.append(pn)
-                self.modelBuilder.doVar(pf)
+            poiNames.append(pn)
+            self.modelBuilder.doVar(pf)
+        # then do all factory statements (so vars are already defined)
+        for pf in self.factories:
+            self.modelBuilder.factory_(pf)
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
                 print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
