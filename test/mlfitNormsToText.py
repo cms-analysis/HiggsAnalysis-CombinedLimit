@@ -24,8 +24,7 @@ while True:
     norm_s = iter.Next()
     if norm_s == None: break;
     norm_b = fit_b.find(norm_s.GetName())
-    m = re.match(r"(\w+)/(\w+)", norm_s.GetName());
-    if m == None: m = re.match(r"n_exp_(?:final_)?(?:bin)+(\w+)_proc_(\w+)", norm_s.GetName());
+    m = re.match(r"n_exp_(?:final_)?(?:bin)+(\w+)_proc_(\w+)", norm_s.GetName());
     if m == None: raise RuntimeError, "Non-conforming object name %s" % norm_s.GetName()
     if norm_b == None: raise RuntimeError, "Missing normalization %s for background fit" % norm_s.GetName()
     if errors:
