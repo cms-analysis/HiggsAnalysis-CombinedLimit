@@ -59,6 +59,9 @@ class MultiSignalModel(PhysicsModel):
                 (maplist,poi) = po.replace("map=","").split(":")
                 maps = maplist.split(",")
                 poiname = re.sub("\[.*","", poi)
+                if "=" in poi:
+                    poiname,expr = poi.split("=")
+                    poi = expr.replace(";",":")
                 if poiname not in self.pois:
                     if self.verbose: print "Will create a POI ",poiname," with factory ",poi
                     self.pois[poiname] = poi
@@ -69,8 +72,11 @@ class MultiSignalModel(PhysicsModel):
         # --- Higgs Mass as other parameter ----
         poiNames = []
         for pn,pf in self.pois.items():
-            poiNames.append(pn)
-            self.modelBuilder.doVar(pf)
+            if ":" in pf:
+                self.modelBuilder.factory_(pf)
+            else:
+                poiNames.append(pn)
+                self.modelBuilder.doVar(pf)
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
                 print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
