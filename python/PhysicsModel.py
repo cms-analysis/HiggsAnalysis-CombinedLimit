@@ -541,11 +541,11 @@ class DoubleRatioHiggs(SMLikeHiggsModel):
         # --- Signal Strength as only POI --- 
         self.modelBuilder.doVar("rho[1,0,4]")
         self.modelBuilder.doVar("Rvf[1,0,4]")
-        self.modelBuilder.doVar("rf_%s[1,0,4]" % self.modes[2])
-        self.modelBuilder.factory_("prod::rf_%s(    rho, r_%s)" % (self.modes[1], self.modes[2]))
-        self.modelBuilder.factory_("prod::rv_%s(Rvf,rho, r_%s)" % (self.modes[1], self.modes[2]))
-        self.modelBuilder.factory_("prod::rv_%s(Rvf,     r_%s)" % (self.modes[2], self.modes[2]))
-        poi = "rho,Rvf,rf_%s" % self.modes[2]
+        self.modelBuilder.doVar("rf_%s[1,0,4]" % self.modes[0])
+        self.modelBuilder.factory_("prod::rf_%s(    rho, rf_%s)" % (self.modes[1], self.modes[0]))
+        self.modelBuilder.factory_("prod::rv_%s(Rvf,rho, rf_%s)" % (self.modes[1], self.modes[0]))
+        self.modelBuilder.factory_("prod::rv_%s(Rvf,     rf_%s)" % (self.modes[0], self.modes[0]))
+        poi = "rho,Rvf,rf_%s" % self.modes[0]
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
