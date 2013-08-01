@@ -11,6 +11,7 @@ class ModelBuilderBase():
     def __init__(self,options):
         self.options = options
         self.out = stdout
+	self.discrete_param_set = []
         if options.bin:
             if options.out == None: options.out = re.sub(".txt$","",options.fileName)+".root"
             options.baseDir = os.path.dirname(options.fileName)
@@ -54,6 +55,8 @@ class ModelBuilderBase():
     def doObj(self,name,type,X):
         if self.options.bin: return self.factory_("%s::%s(%s)" % (type, name, X));
         else: self.out.write("%s = %s(%s);\n" % (name, type, X))
+    def addDiscrete(self,var):
+	self.discrete_param_set.append(var)
 
 class ModelBuilder(ModelBuilderBase):
     """This class defines the actual methods to build a model"""
@@ -86,6 +89,7 @@ class ModelBuilder(ModelBuilderBase):
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
         globalobs = []
+	for cpar in self.DC.discretes: self.addDiscrete(cpar) 
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN" or pdf.startswith("shape"):
                 r = "-4,4" if pdf == "shape" else "-7,7"
@@ -308,6 +312,11 @@ class ModelBuilder(ModelBuilderBase):
             if self.out.set("globalObservables"): mc.SetGlobalObservables(self.out.set("globalObservables"))
             if self.options.verbose > 1: mc.Print("V")
             self.out._import(mc, mc.GetName())
+	discparams = ROOT.RooArgSet("discreteParams")
+	for cpar in self.discrete_param_set:
+		roocpar =  self.out.cat(cpar)
+		discparams.add(self.out.cat(cpar))
+	self.out._import(discparams,discparams.GetName())
         self.out.writeToFile(self.options.out)
     def isShapeSystematic(self,channel,process,syst):
         return False
