@@ -57,7 +57,7 @@ class MultiSignalModel(PhysicsModel):
             if po.startswith("verbose"):
                 self.verbose = True
             if po.startswith("map="):
-                (maplist,poi) = po.replace("map=","").split(":")
+                (maplist,poi) = po.replace("map=","").split(":",1)
                 maps = maplist.split(",")
                 poiname = re.sub("\[.*","", poi)
                 if "=" in poi:
