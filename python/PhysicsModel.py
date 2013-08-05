@@ -65,7 +65,7 @@ class MultiSignalModel(PhysicsModel):
                     poi = expr.replace(";",":")
                     if self.verbose: print "Will create expression ",poiname," with factory ",poi
                     self.factories.append(poi)
-                elif poiname not in self.pois:
+                elif poiname not in self.pois and poi not in [ "1", "0"]:
                     if self.verbose: print "Will create a POI ",poiname," with factory ",poi
                     self.pois[poiname] = poi
                 if self.verbose:  print "Mapping ",poiname," to ",maps," patterns"
@@ -107,6 +107,7 @@ class MultiSignalModel(PhysicsModel):
             for l in list:
                 if re.match(l, string): poi = p
         print "Will scale ", string, " by ", poi
+        if poi in ["1","0"]: return int(poi)
         return poi;
 
 
