@@ -9,7 +9,12 @@
  *
  */
 #include "../interface/FitterAlgoBase.h"
-#include "TTree.h"
+#include <TTree.h>
+#include <RooArgList.h>
+#include <RooFitResult.h>
+#include <boost/utility.hpp>
+#include <map>
+
 class MaxLikelihoodFit : public FitterAlgoBase {
 public:
   MaxLikelihoodFit() ;
@@ -35,8 +40,12 @@ protected:
   static float       rebinFactor_;
   static std::string signalPdfNames_, backgroundPdfNames_;
   static bool        saveNormalizations_;
-  static bool		 saveWorkspace_;
+  static bool        oldNormNames_;
+  static bool        saveShapes_;
+  static bool        saveWithUncertainties_;
+  static bool	     saveWorkspace_;
   static bool        reuseParams_;
+  static bool        customStartingPoint_;
   int currentToy_, nToys;
   int fitStatus_, numbadnll_;
   double mu_, nll_nll0_, nll_bonly_,nll_sb_;
@@ -47,10 +56,51 @@ protected:
 
   TTree *t_fit_b_, *t_fit_sb_;
    
-  void getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out);
+  void getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out);
   void createFitResultTrees(const RooStats::ModelConfig &,bool);
   void setFitResultTrees(const RooArgSet *, double *);
   void setNormsFitResultTrees(const RooArgSet *, double *);
+
+  struct ShapeAndNorm {
+    bool        signal;
+    std::string process;
+    std::string channel;
+    RooArgList  obs;
+    const RooAbsReal *norm;
+    const RooAbsPdf  *pdf;
+  };
+  void getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std::map<std::string, ShapeAndNorm> &shapesAndNorms, const std::string &channel);
+
+  class NuisanceSampler { 
+    public:
+        virtual ~NuisanceSampler() {}
+        virtual void  generate(int ntoys) = 0;
+        virtual const RooAbsCollection & get(int itoy) = 0;
+        virtual const RooAbsCollection & centralValues() = 0;
+  };
+  void getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out, NuisanceSampler &sampler, TDirectory *fOut, const std::string &postfix);
+
+  class CovarianceReSampler : public NuisanceSampler {
+    public:
+        CovarianceReSampler(RooFitResult *res) : res_(res) {}
+        virtual void  generate(int ntoys) {}
+        virtual const RooAbsCollection & get(int) { return res_->randomizePars(); }
+        virtual const RooAbsCollection & centralValues() { return res_->floatParsFinal(); }
+    protected:
+        RooFitResult *res_;
+  };
+  class ToySampler : public NuisanceSampler, boost::noncopyable {
+    public:
+        ToySampler(RooAbsPdf *pdf, const RooArgSet *nuisances) ;    
+        virtual ~ToySampler() ;
+        virtual void  generate(int ntoys);
+        virtual const RooAbsCollection & get(int itoy);
+        virtual const RooAbsCollection & centralValues();
+    private:
+        RooAbsPdf  *pdf_;
+        RooAbsData *data_;
+        RooArgSet  snapshot_; 
+  };
 };
 
 

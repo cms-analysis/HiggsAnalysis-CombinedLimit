@@ -51,6 +51,12 @@ class ShapeBuilder(ModelBuilder):
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                     self.out._import(prodfunc)
                     coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))                    
+                pdf.setStringAttribute("combine.process", p)
+                pdf.setStringAttribute("combine.channel", b)
+                pdf.setAttribute("combine.signal", self.DC.isSignal[p])
+                coeff.setStringAttribute("combine.process", p)
+                coeff.setStringAttribute("combine.channel", b)
+                coeff.setAttribute("combine.signal", self.DC.isSignal[p])
                 pdfs.add(pdf); coeffs.add(coeff)
                 if not self.DC.isSignal[p]:
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
