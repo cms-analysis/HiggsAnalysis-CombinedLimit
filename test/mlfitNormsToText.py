@@ -17,7 +17,7 @@ file = ROOT.TFile.Open(argv[1]);
 prefit = file.Get("norm_prefit")
 fit_s = file.Get("norm_fit_s")
 fit_b = file.Get("norm_fit_b")
-#if prefit == None: raise RuntimeError, "Missing fit_s in %s. Did you run MaxLikelihoodFit with --saveNorm?" % file;
+if prefit == None: stderr.write("Missing fit_s in %s. Did you run MaxLikelihoodFit in a recent-enough version of combine and with --saveNorm?\n" % file);
 if fit_s  == None: raise RuntimeError, "Missing fit_s in %s. Did you run MaxLikelihoodFit with --saveNorm?" % file;
 if fit_b  == None: raise RuntimeError, "Missing fit_b in %s. Did you run MaxLikelihoodFit with --saveNorm?" % file;
 
@@ -31,9 +31,8 @@ while True:
     if m == None: m = re.match(r"n_exp_(?:final_)?(?:bin)+(\w+)_proc_(\w+)", norm_s.GetName());
     if m == None: raise RuntimeError, "Non-conforming object name %s" % norm_s.GetName()
     if norm_b == None: raise RuntimeError, "Missing normalization %s for background fit" % norm_s.GetName()
-    if prefit and norm_p:
-        if errors:
-            print "%-30s %-30s %7.3f +/- %7.3f   %7.3f +/- %7.3f  %7.3f +/- %7.3f" % (m.group(1), m.group(2), norm_p.getVal(), norm_p.getError(), norm_s.getVal(), norm_s.getError(), norm_b.getVal(), norm_b.getError())
+    if prefit and norm_p and errors:
+        print "%-30s %-30s %7.3f +/- %7.3f   %7.3f +/- %7.3f  %7.3f +/- %7.3f" % (m.group(1), m.group(2), norm_p.getVal(), norm_p.getError(), norm_s.getVal(), norm_s.getError(), norm_b.getVal(), norm_b.getError())
     else:
         if errors:
             print "%-30s %-30s %7.3f +/- %7.3f  %7.3f +/- %7.3f" % (m.group(1), m.group(2), norm_s.getVal(), norm_s.getError(), norm_b.getVal(), norm_b.getError())
