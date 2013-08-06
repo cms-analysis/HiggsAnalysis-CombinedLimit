@@ -207,7 +207,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
             for (int i = 1, n = histoSpec_->GetNbinsX(); i <= n; ++i) {
                 x->setVal(histoSpec_->GetXaxis()->GetBinCenter(i));
                 double w = histoSpec_->GetXaxis()->GetBinWidth(i);
-                data->add(observables_,  w*weightScale*(asimov ? histoSpec_->GetBinContent(i) : RooRandom::randomGenerator()->Poisson(histoSpec_->GetBinContent(i))) );
+                data->add(observables_,  weightScale*(asimov ? w*histoSpec_->GetBinContent(i) : RooRandom::randomGenerator()->Poisson(w*histoSpec_->GetBinContent(i))) );
             }
             break;
         case 2:
@@ -218,7 +218,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
                 x->setVal(h2.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h2.GetYaxis()->GetBinCenter(iy));
                 double w = h2.GetXaxis()->GetBinWidth(ix) * h2.GetYaxis()->GetBinWidth(iy);
-                data->add(observables_, w*weightScale*(asimov ? h2.GetBinContent(ix,iy) : RooRandom::randomGenerator()->Poisson(h2.GetBinContent(ix,iy))) );
+                data->add(observables_, weightScale*(asimov ? w*h2.GetBinContent(ix,iy) : RooRandom::randomGenerator()->Poisson(w*h2.GetBinContent(ix,iy))) );
             } }
             }
             break;
@@ -232,7 +232,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
                 y->setVal(h3.GetYaxis()->GetBinCenter(iy));
                 z->setVal(h3.GetZaxis()->GetBinCenter(iz));
                 double w = h3.GetXaxis()->GetBinWidth(ix) * h3.GetYaxis()->GetBinWidth(iy) * h3.GetZaxis()->GetBinWidth(iz);
-                data->add(observables_, w*weightScale*(asimov ? h3.GetBinContent(ix,iy,iz) : RooRandom::randomGenerator()->Poisson(h3.GetBinContent(ix,iy,iz))) );
+                data->add(observables_, weightScale*(asimov ? w*h3.GetBinContent(ix,iy,iz) : RooRandom::randomGenerator()->Poisson(w*h3.GetBinContent(ix,iy,iz))) );
             } } }
             }
     }
