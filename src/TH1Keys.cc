@@ -166,8 +166,8 @@ void TH1Keys::FillH1() const
         cache_ = pdf.createHistogram(GetName(), *x_);
         if (cache_->Integral()) cache_->Scale(1.0/cache_->Integral());
         cache_->Scale(dataset_->sumEntries() * globalScale_);
-        cache_->SetBinContent(0,                     underflow_);
-        cache_->SetBinContent(cache_->GetNbinsX()+1, overflow_);
+        cache_->SetBinContent(0,                     underflow_ * globalScale_);
+        cache_->SetBinContent(cache_->GetNbinsX()+1, overflow_  * globalScale_);
         RooMsgService::instance().setGlobalKillBelow(gKill);
     }
     isCacheGood_ = true;
