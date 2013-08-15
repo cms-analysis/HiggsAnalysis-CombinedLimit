@@ -1,17 +1,11 @@
 /*****************************************************************************
- * Project: RooFit                                                           *
- * Package: RooFitModels                                                     *
- *    File: $Id: RooBernsteinFast.h,v 1.8 2007/05/11 09:13:07 verkerke Exp $
- * Authors:                                                                  *
- *   WV, Wouter Verkerke, UC Santa Barbara, verkerke@slac.stanford.edu       *
- *   DK, David Kirkby,    UC Irvine,         dkirkby@uci.edu                 *
- *                                                                           *
- * Copyright (c) 2000-2005, Regents of the University of California          *
- *                          and Stanford University. All rights reserved.    *
- *                                                                           *
- * Redistribution and use in source and binary forms,                        *
- * with or without modification, are permitted according to the terms        *
- * listed in LICENSE (http://roofit.sourceforge.net/license.txt)             *
+ * RooBernsteinFast
+ * Josh Bendavid (CERN)
+ * Fast templated version of RooBernstein class using SMatrices
+ * 
+ * 
+ *   
+ *       
  *****************************************************************************/
 #ifndef ROO_BERNSTEINFAST
 #define ROO_BERNSTEINFAST
