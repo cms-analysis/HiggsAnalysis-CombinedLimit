@@ -330,10 +330,14 @@ class CountingModelBuilder(ModelBuilder):
     def doObservables(self):
         if len(self.DC.obs):
             self.doComment(" ----- observables (already set to observed values) -----")
-            for b in self.DC.bins: self.doVar("n_obs_bin%s[%f,0,%d]" % (b,self.DC.obs[b],N_OBS_MAX))
+            for b in self.DC.bins: 
+                self.doVar("n_obs_bin%s[%f,0,%d]" % (b,self.DC.obs[b],max(2*self.DC.obs[b],N_OBS_MAX)))
+                self.out.var("n_obs_bin%s"%b).removeMax()
         else:
             self.doComment(" ----- observables -----")
-            for b in self.DC.bins: self.doVar("n_obs_bin%s[0,%d]" % (b,N_OBS_MAX))
+            for b in self.DC.bins: 
+                self.doVar("n_obs_bin%s[0,%d]" % (b,N_OBS_MAX))
+                self.out.var("n_obs_bin%s"%b).removeMax()
         self.doSet("observables", ",".join(["n_obs_bin%s" % b for b in self.DC.bins]))
         if len(self.DC.obs):
             if self.options.bin:
