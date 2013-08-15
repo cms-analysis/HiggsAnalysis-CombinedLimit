@@ -4,7 +4,6 @@ from sys import stderr, stdout
 from math import *
 ROOFIT_EXPR = "expr"
 ROOFIT_EXPR_PDF = "EXPR"
-N_OBS_MAX   = 100000
 
 class ModelBuilderBase():
     """This class defines the basic stuff for a model builder, and it's an interface on top of RooWorkspace::factory or HLF files"""
@@ -330,10 +329,15 @@ class CountingModelBuilder(ModelBuilder):
     def doObservables(self):
         if len(self.DC.obs):
             self.doComment(" ----- observables (already set to observed values) -----")
-            for b in self.DC.bins: self.doVar("n_obs_bin%s[%f,0,%d]" % (b,self.DC.obs[b],N_OBS_MAX))
+            for b in self.DC.bins:
+                self.doVar('n_obs_bin%s[%f]' % (b,self.DC.obs[b]) )
+                self.out.var('n_obs_bin%s'%b).setMin(0)
         else:
             self.doComment(" ----- observables -----")
-            for b in self.DC.bins: self.doVar("n_obs_bin%s[0,%d]" % (b,N_OBS_MAX))
+            for b in self.DC.bins:
+                self.doVar('n_obs_bin%s[1]' % b)
+                self.out.var('n_obs_bin%s'%b).setMin(0)
+            
         self.doSet("observables", ",".join(["n_obs_bin%s" % b for b in self.DC.bins]))
         if len(self.DC.obs):
             if self.options.bin:
