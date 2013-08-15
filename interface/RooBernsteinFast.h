@@ -115,11 +115,18 @@ protected:
     {
 
       _bernvector[0] = 1.0;
+      bool changed = false;
       for (int ipow=1; ipow<=N; ++ipow) {
-        _bernvector[ipow] = static_cast<RooAbsReal*>(_coefList.at(ipow-1))->getVal();
+        double rval = static_cast<RooAbsReal*>(_coefList.at(ipow-1))->getVal();
+        if (_bernvector[ipow] != rval) {
+          _bernvector[ipow] = rval;
+          changed = true;
+        }
       }
       
-      _powvector = _cmatrix*_bernvector;   
+      if (changed) {
+        _powvector = _cmatrix*_bernvector;   
+      }
       
       double xmin = _x.min();
       double xmax = _x.max();
