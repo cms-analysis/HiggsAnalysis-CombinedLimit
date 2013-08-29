@@ -217,6 +217,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
     RooArgSet snap; params->snapshot(snap);
     //snap.Print("V");
     if (n == 1) {
+	// can do a more intellegent spacing of points
         for (unsigned int i = 0; i < points_; ++i) {
             if (i < firstPoint_) continue;
             if (i > lastPoint_)  break;
