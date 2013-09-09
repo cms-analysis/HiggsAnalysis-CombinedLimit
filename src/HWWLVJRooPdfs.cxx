@@ -55,32 +55,6 @@
 #include <iostream>
 using namespace std;
 
-Double_t ErfExp(Double_t x, Double_t c, Double_t offset, Double_t width){
-    if(width<1e-2)width=1e-2;
-    if (c==0)c=-1e-7;
-	return TMath::Exp(c*x)*(1.+TMath::Erf((x-offset)/width))/2. ;
-}
-
-Double_t ErfExp(Double_t x, Double_t x_min, Double_t x_max, Double_t c, Double_t offset, Double_t width){
-    if(width<1e-2)width=1e-2;
-    if (c==0)c=1e-7;
-    double minTerm = (TMath::Exp(c*c*width*width/4+c*offset) * 
-					TMath::Erf((2*x_min-c*width*width-
-							2*offset)/2/width) - 
-					TMath::Exp(c*x_min) * 
-					TMath::Erf((x_min-offset)/width) - 
-					TMath::Exp(c*x_min))/-2/c;
-	double maxTerm = (TMath::Exp(c*c*width*width/4+c*offset) * 
-					TMath::Erf((2*x_max-c*width*width-
-							2*offset)/2/width) - 
-					TMath::Exp(c*x_max) * 
-					TMath::Erf((x_max-offset)/width) - 
-					TMath::Exp(c*x_max))/-2/c;
-	Double_t integral=(maxTerm-minTerm) ;
-	return TMath::Exp(c*x)*(1.+TMath::Erf((x-offset)/width))/2./integral ;
-}
-
-
 Double_t Exp(Double_t x, Double_t c){
 	return TMath::Exp(c*x);
 }
@@ -98,36 +72,41 @@ Double_t Exp(Double_t x, Double_t x_min, Double_t x_max, Double_t c){
 ClassImp(RooErfExpPdf) 
 
 RooErfExpPdf::RooErfExpPdf(const char *name, const char *title, 
-					RooAbsReal& _x,
-					RooAbsReal& _c,
-					RooAbsReal& _offset,
-					RooAbsReal& _width) :
-			RooAbsPdf(name,title), 
-			x("x","x",this,_x),
-			c("c","c",this,_c),
-			offset("offset","offset",this,_offset),
-			width("width","width",this,_width)
+			   RooAbsReal& _x,
+			   RooAbsReal& _c,
+			   RooAbsReal& _offset,
+			   RooAbsReal& _width,
+			   Int_t _onOff) :
+  RooAbsPdf(name,title), 
+  x("x","x",this,_x),
+  c("c","c",this,_c),
+  offset("offset","offset",this,_offset),
+  width("width","width",this,_width),
+  onOff(onOff)
 { 
+  if (_onOff < 0)
+    onOff = -1;
+  else
+    onOff = 1;
 } 
 
 
 RooErfExpPdf::RooErfExpPdf(const RooErfExpPdf& other, const char* name) :  
-	RooAbsPdf(other,name), 
-	x("x",this,other.x),
-	c("c",this,other.c),
-	offset("offset",this,other.offset),
-	width("width",this,other.width)
+  RooAbsPdf(other,name), 
+  x("x",this,other.x),
+  c("c",this,other.c),
+  offset("offset",this,other.offset),
+  width("width",this,other.width),
+  onOff(other.onOff)
 { 
 } 
 
-
-
 Double_t RooErfExpPdf::evaluate() const 
 { 
-	// ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE 
-	// return TMath::Exp(c*x)*(1.+TMath::Erf((x-offset)/width))/2. ; 
-    Double_t width_tmp=width; if(width<1e-2){ width_tmp=1e-2;}
-	return ErfExp(x,c,offset,width_tmp) ; 
+  // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE 
+  // return TMath::Exp(c*x)*(1.+TMath::Erf((x-offset)/width))/2. ; 
+  // Double_t width_tmp=width; if(width<1e-2){ width_tmp=1e-2;}
+  return ErfExp(x,c,offset,width,onOff) ; 
 } 
 
 Int_t RooErfExpPdf::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const  
@@ -148,43 +127,52 @@ Double_t RooErfExpPdf::analyticalIntegral(Int_t code, const char* rangeName) con
 	// THE MEMBER FUNCTION x.min(rangeName) AND x.max(rangeName) WILL RETURN THE INTEGRATION
 	// BOUNDARIES FOR EACH OBSERVABLE x
 
-    Double_t width_tmp=width; if(width<1e-2){ width_tmp=1e-2;}
-	if (code==1) { 
-        Double_t minTerm=0;
-        Double_t maxTerm=0;
-        if(c==0){ 
-            Double_t delta=-1e-7;
-            minTerm = (TMath::Exp(delta*delta*width_tmp*width_tmp/4+delta*offset) * 
-					TMath::Erf((2*x.min(rangeName)-delta*width_tmp*width_tmp-
-							2*offset)/2/width_tmp) - 
-					TMath::Exp(delta*x.min(rangeName)) * 
-					TMath::Erf((x.min(rangeName)-offset)/width_tmp) - 
-					TMath::Exp(delta*x.min(rangeName)))/-2/delta;
-		    maxTerm = (TMath::Exp(delta*delta*width_tmp*width_tmp/4+delta*offset) * 
-					TMath::Erf((2*x.max(rangeName)-delta*width_tmp*width_tmp-
-							2*offset)/2/width_tmp) - 
-					TMath::Exp(delta*x.max(rangeName)) * 
-					TMath::Erf((x.max(rangeName)-offset)/width_tmp) - 
-					TMath::Exp(delta*x.max(rangeName)))/-2/delta;
-        
-        }else{
-            minTerm = (TMath::Exp(c*c*width_tmp*width_tmp/4+c*offset) * 
-					TMath::Erf((2*x.min(rangeName)-c*width_tmp*width_tmp-
-							2*offset)/2/width_tmp) - 
-					TMath::Exp(c*x.min(rangeName)) * 
-					TMath::Erf((x.min(rangeName)-offset)/width_tmp) - 
-					TMath::Exp(c*x.min(rangeName)))/-2/c;
-		    maxTerm = (TMath::Exp(c*c*width_tmp*width_tmp/4+c*offset) * 
-					TMath::Erf((2*x.max(rangeName)-c*width_tmp*width_tmp-
-							2*offset)/2/width_tmp) - 
-					TMath::Exp(c*x.max(rangeName)) * 
-					TMath::Erf((x.max(rangeName)-offset)/width_tmp) - 
-					TMath::Exp(c*x.max(rangeName)))/-2/c;
-        }
-		return (maxTerm-minTerm) ;
-	} 
-	return 0 ; 
+  if (code==1) { 
+    Double_t minTerm(ErfExpIndefIntegral(x.min(rangeName), c, offset, width,
+					 onOff));
+    Double_t maxTerm(ErfExpIndefIntegral(x.max(rangeName), c, offset, width,
+					 onOff));
+    return (maxTerm-minTerm);
+  }
+  return 0 ; 
 } 
+
+Double_t RooErfExpPdf::ErfExp(Double_t x, Double_t c, Double_t offset, 
+			      Double_t width, Int_t onOff) {
+  return TMath::Exp(c*x)*(1.+ onOff*TMath::Erf((x-offset)/width))*0.5 ;
+}
+
+Double_t RooErfExpPdf::ErfExp(Double_t x, Double_t x_min, Double_t x_max, 
+			      Double_t c, Double_t offset, Double_t width,
+			      Int_t onOff) {
+  Double_t minTerm(ErfExpIndefIntegral(x_min, c, offset, width, onOff));
+  Double_t maxTerm(ErfExpIndefIntegral(x_max, c, offset, width, onOff));
+
+  return ErfExp(x, c, offset, width, onOff)/(maxTerm - minTerm);
+}
+
+Double_t RooErfExpPdf::ErfExpIndefIntegral(Double_t x, Double_t c, 
+					   Double_t offset,
+					   Double_t width, Int_t onOff) {
+  Double_t val;
+  if (c==0) 
+    val = ErfIndefIntegral(x, offset, width, onOff);
+  else
+    val = (onOff*TMath::Exp(c*c*width*width/4. + c*offset) *
+	   TMath::Erf((c*width*width + 2*offset - 2*x)/width/2) +
+	   TMath::Exp(c*x) * 
+	   (1 - onOff*TMath::Erf((offset-x)/width)))*0.5/c;
+  
+  return val;
+}
+
+Double_t RooErfExpPdf::ErfIndefIntegral(Double_t x, Double_t offset,
+					Double_t width, Int_t onOff) {
+  static double const rootpi = TMath::Sqrt(TMath::Pi());
+  return (onOff*((x-offset)*TMath::Erf((x-offset)/width) + 
+		 width/rootpi*TMath::Exp(-(x-offset)*(x-offset)/width/width)) + 
+	  x)*0.5;
+}
 
 ClassImp(RooAlpha)
 
@@ -230,9 +218,9 @@ RooAlpha::RooAlpha(const RooAlpha& other, const char* name) :
 
 double RooAlpha::evaluate() const
 {
-    Double_t width_tmp=width; if(width<1e-2){ width_tmp=1e-2;}
-    Double_t widtha_tmp=widtha; if(widtha<1e-2){ widtha_tmp=1e-2;}
-  return ErfExp(x,xmin,xmax,c,offset,width_tmp)/ErfExp(x,xmin,xmax,ca,offseta,widtha_tmp);
+  Double_t width_tmp=width; if(width<1e-2){ width_tmp=1e-2;}
+  Double_t widtha_tmp=widtha; if(widtha<1e-2){ widtha_tmp=1e-2;}
+  return RooErfExpPdf::ErfExp(x,xmin,xmax,c,offset,width_tmp)/RooErfExpPdf::ErfExp(x,xmin,xmax,ca,offseta,widtha_tmp);
 }
 
 
