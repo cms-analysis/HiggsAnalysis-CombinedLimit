@@ -147,7 +147,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       globalData->add(*globalObs);
       RooFitResult *res_prefit = 0;
       {     
-            //CloseCoutSentry sentry(verbose < 2);
+            CloseCoutSentry sentry(verbose < 2);
             res_prefit = nuisancePdf->fitTo(*globalData,
             RooFit::Save(1),
             RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()),
@@ -191,10 +191,9 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   } else if (minos_ != "all") {
     RooArgList minos; 
     res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,1,/*reuseNLL*/ true); 
-    //nll_bonly_=nll->getVal()-nll0;   
-    nll_bonly_ = nll->getVal();
+    nll_bonly_=nll->getVal()-nll0;   
   } else {
-    //CloseCoutSentry sentry(verbose < 2);
+    CloseCoutSentry sentry(verbose < 2);
     res_b = mc_s->GetPdf()->fitTo(data, 
             RooFit::Save(1), 
             RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()), 
@@ -202,8 +201,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
             RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
             constCmdArg_s, minosCmdArg
             );
-    //if (res_b) nll_bonly_ = nll->getVal() - nll0;
-    if (res_b) nll_bonly_ = nll->getVal();
+    if (res_b) nll_bonly_ = nll->getVal() - nll0;
 
   }
 
@@ -264,10 +262,9 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
     res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,1,/*reuseNLL*/ true); 
-    //nll_sb_ = nll->getVal()-nll0;
-    nll_sb_ = nll->getVal();
+    nll_sb_ = nll->getVal()-nll0;
   } else {
-    //CloseCoutSentry sentry(verbose < 2);
+    CloseCoutSentry sentry(verbose < 2);
     res_s = mc_s->GetPdf()->fitTo(data, 
             RooFit::Save(1), 
             RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()), 
@@ -275,8 +272,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
             RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
             constCmdArg_s, minosCmdArg
             );
-    //if (res_s) nll_sb_= nll->getVal()-nll0;
-    if (res_s) nll_sb_= nll->getVal();
+    if (res_s) nll_sb_= nll->getVal()-nll0;
 
   }
   if (res_s) { 
@@ -392,8 +388,6 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 	  ws->writeToFile("MaxLikelihoodFitResult.root");
   }
   std::cout << "nll S+B -> "<<nll_sb_ << "  nll B -> " << nll_bonly_ <<std::endl;
-  std::cout << "dNll -> "<<nll_sb_ - nll_bonly_<< std::endl;
-  std::cout << "Nll0 -> "<<nll0<< std::endl;
   return fitreturn;
 }
 
