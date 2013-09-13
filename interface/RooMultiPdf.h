@@ -59,6 +59,7 @@ arg8=RooCmdArg::none());
 */
   bool checkIndexDirty() const;
   double getCorrection() const;
+  RooAbsPdf *getCurrentPdf() const;
   int getNumPdfs(){return nPdfs;};
   void setCorrectionFactor(PenatlyScheme penal);
 
@@ -75,6 +76,7 @@ protected:
   mutable Int_t _oldIndex;
 
   Double_t evaluate() const;
+  Double_t getLogVal(const RooArgSet *set = 0) const;
   //std::string createCorrectionString();	// should only do this once really
   double cFactor;
 
