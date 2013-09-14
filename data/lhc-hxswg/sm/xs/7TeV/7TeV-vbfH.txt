@@ -1,4 +1,4 @@
-exexmH_GeV  XS_pb          Err_Hi  Err_Lo  Sca_Hi  Sca_Lo  Pdf_Hi  Pdf_Lo
+mH_GeV  XS_pb          Err_Hi  Err_Lo  Sca_Hi  Sca_Lo  Pdf_Hi  Pdf_Lo
 80.0	1.914	+999	-999	+0.6	-0.2	+2.1	-2.1
 81.0	1.894	+999	-999	+0.6	-0.2	+2.1	-2.1
 82.0	1.871	+999	-999	+0.6	-0.2	+2.1	-2.1
