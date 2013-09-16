@@ -100,7 +100,7 @@ Double_t RooMultiPdf::evaluate() const{
   } else {
    	val = cPdf->getVal();
   }
-   val = cPdf->getVal();
+//   val = cPdf->getVal();
   _oldIndex=x;
   return val;
 
