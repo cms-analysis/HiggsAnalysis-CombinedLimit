@@ -258,11 +258,15 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected, doub
   r.setVal(rVal);
   r.setConstant(true);
   if (hasFloatParams_) {
+<<<<<<< HEAD
+      if (!minimD.improve(verbose-2) && picky_) return -999;
+=======
       if (hasDiscreteParams_) {
         if (!minimD.minimize(verbose-2) && picky_) return -999;
       } else {
 	if (!minimD.improve(verbose-2) && picky_) return -999;
       }
+>>>>>>> 2a77559... fixes to calculate limits with workspaces containing multipdfs
       fitFixD_.readFrom(*params_);
       if (verbose >= 2) fitFixD_.Print("V");
   }
@@ -276,11 +280,15 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected, doub
   r.setVal(rVal);
   r.setConstant(true);
   if (hasFloatParams_) {
+<<<<<<< HEAD
+      if (!minimA.improve(verbose-2) && picky_) return -999;
+=======
       if (hasDiscreteParams_) {
         if (!minimA.minimize(verbose-2) && picky_) return -999;
       } else {
 	if (!minimA.improve(verbose-2) && picky_) return -999;
       }
+>>>>>>> 2a77559... fixes to calculate limits with workspaces containing multipdfs
       fitFixA_.readFrom(*params_);
       if (verbose >= 2) fitFixA_.Print("V");
   }
@@ -474,8 +482,12 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
                 bool ok = true;
                 { 
                     CloseCoutSentry sentry2(verbose < 3);
+<<<<<<< HEAD
+                    ok = minim2.improve(verbose-2);
+=======
                     if (hasDiscreteParams_) ok = minim2.minimize(verbose-2);
                     else ok = minim2.improve(verbose-2);
+>>>>>>> 2a77559... fixes to calculate limits with workspaces containing multipdfs
                 }
                 if (!ok && picky_) break; else minosStat = 0;
                 double here = nll.getVal();
@@ -498,8 +510,12 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
                 bool ok = true;
                 { 
                     CloseCoutSentry sentry2(verbose < 3);
+<<<<<<< HEAD
+                    ok = minim2.improve(verbose-2);
+=======
                     if (hasDiscreteParams_) ok = minim2.minimize(verbose-2);
                     else ok = minim2.improve(verbose-2);
+>>>>>>> 2a77559... fixes to calculate limits with workspaces containing multipdfs
                 }
                 if (!ok && picky_) break; else minosStat = 0;
                 double here = nll.getVal();
@@ -554,9 +570,13 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
                     if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\t                         \tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
                     { 
                         CloseCoutSentry sentry2(verbose < 3);
+<<<<<<< HEAD
+                        bool ok = minim2.improve(verbose-2);
+=======
                         bool ok=true;
 			if (hasDiscreteParams_) ok = minim2.minimize(verbose-2);
 			else  ok = minim2.improve(verbose-2);
+>>>>>>> 2a77559... fixes to calculate limits with workspaces containing multipdfs
                         if (!ok && picky_) return std::numeric_limits<float>::quiet_NaN();
                     }
                     double nll_1_prof = nll.getVal();
@@ -598,9 +618,14 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
                double nll_unprof = nll.getVal();
                bool ok = true;
                { 
+<<<<<<< HEAD
+                   CloseCoutSentry sentry2(verbose < 3);
+                   ok = minim2.improve(verbose-2);
+=======
                    CloseCoutSentry sentry2(verbose < 3); 
                    if (hasDiscreteParams_) ok = minim2.minimize(verbose-2);
 		   else ok = minim2.improve(verbose-2);
+>>>>>>> 2a77559... fixes to calculate limits with workspaces containing multipdfs
                }
                if (!ok && picky_) return std::numeric_limits<float>::quiet_NaN();
                double nll_prof = nll.getVal();
