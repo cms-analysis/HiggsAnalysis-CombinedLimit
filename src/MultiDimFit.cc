@@ -36,6 +36,7 @@ bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 bool MultiDimFit::fastScan_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
+bool MultiDimFit::squareDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 
 
@@ -46,6 +47,7 @@ MultiDimFit::MultiDimFit() :
         ("algo",  boost::program_options::value<std::string>()->default_value("none"), "Algorithm to compute uncertainties")
         ("poi,P",   boost::program_options::value<std::vector<std::string> >(&poi_), "Parameters of interest to fit (default = all)")
         ("floatOtherPOIs",   boost::program_options::value<bool>(&floatOtherPOIs_)->default_value(floatOtherPOIs_), "POIs other than the selected ones will be kept freely floating (1) or fixed (0, default)")
+        ("squareDistPoiStep","POI step size based on distance from midpoint (max-min)/2 rather than linear")
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
@@ -75,6 +77,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         algo_ = Stitch2D;
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
     fastScan_ = (vm.count("fastScan") > 0);
+    squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
 }
 
@@ -217,10 +220,18 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
     RooArgSet snap; params->snapshot(snap);
     //snap.Print("V");
     if (n == 1) {
+	// can do a more intellegent spacing of points
         for (unsigned int i = 0; i < points_; ++i) {
             if (i < firstPoint_) continue;
             if (i > lastPoint_)  break;
             double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/points_; 
+	    if (squareDistPoiStep_){
+		// distance between steps goes as ~square of distance from middle or range (could this be changed to from best fit value?)
+		double phalf = (pmax[0]-pmin[0])/2;
+		if (i<(unsigned int)points_/2) x = pmin[0]+TMath::Sqrt(2*i*(phalf)*(phalf)/points_);
+		else x = pmax[0]-TMath::Sqrt(2*(points_-i)*(phalf)*(phalf)/points_);
+	    }
+
             if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
             *params = snap; 
             poiVals_[0] = x;
