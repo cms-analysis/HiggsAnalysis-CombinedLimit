@@ -296,9 +296,14 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	     }
 	
       if (!isValidCombo && runShortCombinations) continue;
-//    for (int id=0;id<backgroundPdfCategory->numTypes();id++){
-
-      std::cout << std::endl;
+      
+      if (verbose>2) {
+	std::cout << "Setting indices := ";
+	for (int id=0;id<numIndeces;id++) {
+		std::cout << ((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex() << " ";
+	}
+        std::cout << std::endl;
+      }
 
       if (fitCounter>0) params->assignValueOnly(reallyCleanParameters); // no need to reset from 0'th fit
 
