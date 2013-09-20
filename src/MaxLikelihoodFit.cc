@@ -611,7 +611,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         // finally reset parameters
         params->assignValueOnly( sampler.centralValues() );
     }
-  g, i = 0; pair != ed; ++pair, ++i) {
+    for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
         RooRealVar *val = new RooRealVar((oldNormNames_ ? pair->first : pair->second.channel+"/"+pair->second.process).c_str(), "", vals[i]);
         val->setError(sumx2[i]);
         out.addOwned(*val); 
@@ -709,7 +709,8 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
 		 std::string name = rrv->GetName();
 		 nuisanceParameters_[count] = 0;
 		 t_fit_sb_->Branch(name.c_str(),&(nuisanceParameters_[count])),Form("%s/Double_t",name.c_str());
-		 t_fit_b_->Branch(name.c_str(),&(nuisanceParameters_[co
+		 t_fit_b_->Branch(name.c_str(),&(nuisanceParameters_[count]),Form("%s/Double_t",name.c_str()));
+		 count++;
           }
 
          }
