@@ -71,6 +71,12 @@ public:
   
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const
     {
+      
+      // No analytical calculation available (yet) of integrals over subranges (as for standard RooBernstein)
+      if (rangeName && strlen(rangeName)) {
+        return 0 ;
+      }      
+      
       if (matchArgs(allVars, analVars, _x)) return 1;
       return 0;
     }
