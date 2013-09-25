@@ -19,6 +19,7 @@
 #include "../interface/RooScaleLOSM.h"
 #include "../interface/rVrFLikelihood.h"
 #include "../interface/RooMultiPdf.h"
+#include "../interface/RooBernsteinFast.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -92,4 +93,11 @@
 #pragma link C++ class RooGaussStepBernstein+;
 #pragma link C++ class rVrFLikelihood+;
 #pragma link C++ class RooMultiPdf+;
+#pragma link C++ class RooBernsteinFast<1>+;
+#pragma link C++ class RooBernsteinFast<2>+;
+#pragma link C++ class RooBernsteinFast<3>+;
+#pragma link C++ class RooBernsteinFast<4>+;
+#pragma link C++ class RooBernsteinFast<5>+;
+#pragma link C++ class RooBernsteinFast<6>+;
+#pragma link C++ class RooBernsteinFast<7>+;
 #endif

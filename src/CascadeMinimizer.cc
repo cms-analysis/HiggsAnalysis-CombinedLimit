@@ -296,9 +296,14 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	     }
 	
       if (!isValidCombo && runShortCombinations) continue;
-//    for (int id=0;id<backgroundPdfCategory->numTypes();id++){
-
-      std::cout << std::endl;
+      
+      if (verbose>2) {
+	std::cout << "Setting indices := ";
+	for (int id=0;id<numIndeces;id++) {
+		std::cout << ((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex() << " ";
+	}
+        std::cout << std::endl;
+      }
 
       if (fitCounter>0) params->assignValueOnly(reallyCleanParameters); // no need to reset from 0'th fit
 
@@ -373,7 +378,7 @@ void CascadeMinimizer::initOptions()
         ("cminOldRobustMinimize", boost::program_options::value<bool>(&oldFallback_)->default_value(oldFallback_), "Use the old 'robustMinimize' logic in addition to the cascade")
 	("cminDefaultMinimizerType",boost::program_options::value<std::string>(&defaultMinimizerType_)->default_value(defaultMinimizerType_), "Set the default minimizer Type")
 	("cminDefaultMinimizerAlgo",boost::program_options::value<std::string>(&defaultMinimizerAlgo_)->default_value(defaultMinimizerAlgo_), "Set the default minimizer Algo")
-        ("runAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
+        ("cminRunAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
         //("cminNuisancePruning", boost::program_options::value<float>(&nuisancePruningThreshold_)->default_value(nuisancePruningThreshold_), "if non-zero, discard constrained nuisances whose effect on the NLL when changing by 0.2*range is less than the absolute value of the threshold; if threshold is negative, repeat afterwards the fit with these floating")
 
         //("cminDefaultIntegratorEpsAbs", boost::program_options::value<double>(), "RooAbsReal::defaultIntegratorConfig()->setEpsAbs(x)")
@@ -395,7 +400,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
     poiOnlyFit_ = vm.count("cminPoiOnlyFit");
     singleNuisFit_ = vm.count("cminSingleNuisFit");
     setZeroPoint_  = vm.count("cminSetZeroPoint");
-    runShortCombinations = !(vm.count("runAllDiscreteCombinations"));
+    runShortCombinations = !(vm.count("cminRunAllDiscreteCombinations"));
     if (vm.count("cminFallbackAlgo")) {
         vector<string> falls(vm["cminFallbackAlgo"].as<vector<string> >());
         for (vector<string>::const_iterator it = falls.begin(), ed = falls.end(); it != ed; ++it) {
