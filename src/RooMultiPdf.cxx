@@ -12,6 +12,7 @@
 
 #include "../interface/RooMultiPdf.h"
 #include "RooRealVar.h"
+#include "RooAddPdf.h"
 
 ClassImp(RooMultiPdf)
 
@@ -82,12 +83,42 @@ double RooMultiPdf::getCorrection() const {
   return cFactor*val;  //PVAL correction
 }
 //_____________________________________________________________________________
+RooAbsPdf* RooMultiPdf::getCurrentPdf() const {
+
+  RooAbsPdf *cPdf = ((RooAbsPdf*)c.at(x)); 
+  return cPdf; 
+}
 //_____________________________________________________________________________
 Double_t RooMultiPdf::evaluate() const{
+
+  double val=0;
   RooAbsPdf *cPdf = ((RooAbsPdf*)c.at(x)); 
-  double val = cPdf->getVal();
+  if (cPdf->IsA()->InheritsFrom(RooAddPdf::Class()))
+  {
+	const RooAddPdf *aPdf = dynamic_cast<const RooAddPdf*>(cPdf);
+	val = aPdf->evaluate();
+  } else {
+   	val = cPdf->getVal();
+  }
+//   val = cPdf->getVal();
   _oldIndex=x;
   return val;
+
 }
 
+//_____________________________________________________________________________
+Double_t  RooMultiPdf::getLogVal(const RooArgSet* nset) const{
+
+  double logval=0;
+  RooAbsPdf *cPdf = ((RooAbsPdf*)c.at(x)); 
+  if (cPdf->IsA()->InheritsFrom(RooAddPdf::Class()))
+  {
+	const RooAddPdf *aPdf = dynamic_cast<const RooAddPdf*>(cPdf);
+	logval = aPdf->getLogVal(nset);
+  } else {
+	logval = cPdf->getLogVal(nset);
+  }
+  _oldIndex=x;
+  return logval;//cPdf->getLogVal(nset);	
+}
 
