@@ -325,7 +325,7 @@ class ShapeBuilder(ModelBuilder):
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if _cache.has_key((channel,process)): return _cache[(channel,process)]
         shapeNominal = self.getShape(channel,process)
-        nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
+        nominalPdf = self.shape2Pdf(shapeNominal,channel,process) if self.options.useHistPdf == "always" else shapeNominal
         if shapeNominal == None: return nominalPdf # no point morphing a fake shape
         morphs = []; shapeAlgo = None
         for (syst,nofloat,pdf,args,errline) in self.DC.systs:
@@ -344,14 +344,25 @@ class ShapeBuilder(ModelBuilder):
                 shapeDown = self.getShape(channel,process,syst+"Down")
                 if shapeUp.ClassName()   != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst %s" % (channel,process,syst)
                 if shapeDown.ClassName() != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst %s" % (channel,process,syst)
-                morphs.append((syst,errline[channel][process],self.shape2Pdf(shapeUp,channel,process),self.shape2Pdf(shapeDown,channel,process)))
-        if len(morphs) == 0: return nominalPdf
+                if self.options.useHistPdf == "always":
+                    morphs.append((syst,errline[channel][process],self.shape2Pdf(shapeUp,channel,process),self.shape2Pdf(shapeDown,channel,process)))
+                else:
+                    morphs.append((syst,errline[channel][process],shapeUp,shapeDown))
+        if len(morphs) == 0:
+            if self.options.useHistPdf == "always":
+                return nominalPdf
+            else:
+                return self.shape2Pdf(shapeNominal,channel,process)
         if shapeAlgo == "shapeN": stderr.write("Warning: the shapeN implementation in RooStats and L&S are different\n")
-        pdfs = ROOT.RooArgList(nominalPdf)
+        pdfs = ROOT.RooArgList(nominalPdf) if self.options.useHistPdf == "always" else ROOT.TList()
+        if self.options.useHistPdf != "always": pdfs.Add(nominalPdf)
         coeffs = ROOT.RooArgList()
         minscale = 1
         for (syst,scale,pdfUp,pdfDown) in morphs:
-            pdfs.add(pdfUp); pdfs.add(pdfDown);
+            if self.options.useHistPdf == "always": 
+                pdfs.add(pdfUp); pdfs.add(pdfDown);
+            else:
+                pdfs.Add(pdfUp); pdfs.Add(pdfDown);
             if scale == 1:
                 coeffs.add(self.out.var(syst))
             else: # must scale it :-/
@@ -364,6 +375,17 @@ class ShapeBuilder(ModelBuilder):
         if shapeAlgo == "shape": shapeAlgo = self.options.defMorph
         if "shapeL" in shapeAlgo: qrange = 0;
         elif "shapeN" in shapeAlgo: qalgo = -1;
+        if self.options.useHistPdf != "always":
+            if nominalPdf.InheritsFrom("TH1"):
+                rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, pdfs, coeffs, qrange, qalgo)
+                _cache[(channel,process)] = rhp
+                return rhp
+            else:
+                nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
+                pdflist = ROOT.RooArgList()
+                for (syst,scale,shapeUp,shapeDown) in morphs:
+                    pdfs.add(self.shape2Pdf(shapeUp,channel,process))
+                    pdfs.add(self.shape2Pdf(shapeDown,channel,process))
         if "2a" in shapeAlgo: # old shape2
             if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
             if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work in one dimension"
@@ -461,9 +483,14 @@ class ShapeBuilder(ModelBuilder):
             return _cache[name]
         if not _cache.has_key(shape.GetName()+"Pdf"):
             if shape.ClassName().startswith("TH1"):
-                rdh = self.shape2Data(shape,channel,process)
-                rhp = self.doObj("%sPdf" % shape.GetName(), "HistPdf", "{%s}, %s" % (self.out.binVar.GetName(), shape.GetName()))
-                _cache[shape.GetName()+"Pdf"] = rhp
+                if self.options.useHistPdf == "never":
+                    list = ROOT.TList(); list.Add(shape);
+                    rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
+                    _cache[shape.GetName()+"Pdf"] = rhp
+                else:
+                    rdh = self.shape2Data(shape,channel,process)
+                    rhp = self.doObj("%sPdf" % shape.GetName(), "HistPdf", "{%s}, %s" % (self.out.binVar.GetName(), shape.GetName()))
+                    _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooAbsPdf"):
                 _cache[shape.GetName()+"Pdf"] = shape
             elif shape.InheritsFrom("RooDataHist"):

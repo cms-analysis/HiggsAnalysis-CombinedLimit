@@ -78,7 +78,7 @@ class FastHisto : public FastTemplate {
                 FastHisto fh(other);
                 swap(fh);
             } else CopyValues(other); 
-            CopyValues(other); return *this;  
+            return *this;  
         }
         ~FastHisto() { delete [] binEdges_; delete [] binWidths_; }
         void swap(FastHisto &other) {

@@ -529,3 +529,229 @@ void FastVerticalInterpHistPdf2D::setupCaches() const {
 }
 
 
+//=============================================================================================
+ClassImp(FastVerticalInterpHistPdf2Base)
+ClassImp(FastVerticalInterpHistPdf2)
+//ClassImp(FastVerticalInterpHistPdf2D)
+
+
+//_____________________________________________________________________________
+FastVerticalInterpHistPdf2Base::FastVerticalInterpHistPdf2Base() :
+    _initBase(false)
+{
+  // Default constructor
+}
+
+
+//_____________________________________________________________________________
+FastVerticalInterpHistPdf2Base::FastVerticalInterpHistPdf2Base(const char *name, const char *title, const RooArgSet &obs, const TList& inFuncList, const RooArgList& inCoefList, Double_t smoothRegion, Int_t smoothAlgo) :
+  RooAbsPdf(name,title),
+  _coefList("coefList","List of coefficients",this), // we should get shapeDirty when coefficients change
+  _smoothRegion(smoothRegion),
+  _smoothAlgo(smoothAlgo),
+  _initBase(false),
+  _morphs(), _morphParams()
+{ 
+  if (inFuncList.GetSize()!=2*inCoefList.getSize()+1) {
+    coutE(InputArguments) << "VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() 
+			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" << endl ;
+    assert(0);
+  }
+
+  TIter funcIter(&inFuncList) ;
+  TObject* func;
+  while((func = (RooAbsArg*)funcIter.Next())) {
+    TH1 *hist = dynamic_cast<TH1*>(func);
+    RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(func);
+    if (!pdf && !hist) {
+      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") function  " << func->GetName() << " is not of type TH1 or RooAbsPdf" << endl;
+      assert(0);
+    }
+    if (pdf) {
+        RooArgSet *params = pdf->getParameters(obs);
+        if (params->getSize() > 0) {
+          coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " has some parameters." << endl;
+          assert(0);
+        }
+        delete params;
+    }
+  }
+
+  TIterator* coefIter = inCoefList.createIterator() ;
+  RooAbsArg* coef;
+  while((coef = (RooAbsArg*)coefIter->Next())) _coefList.add(*coef) ;    
+  delete coefIter;
+}
+
+//_____________________________________________________________________________
+FastVerticalInterpHistPdf2Base::FastVerticalInterpHistPdf2Base(const FastVerticalInterpHistPdf2Base& other, const char* name) :
+  RooAbsPdf(other,name),
+  _coefList("coefList", this, other._coefList),
+  _smoothRegion(other._smoothRegion),
+  _smoothAlgo(other._smoothAlgo),
+  _initBase(other._initBase),
+  _morphs(other._morphs), _morphParams(other._morphParams)
+{
+  // Copy constructor
+}
+
+
+//_____________________________________________________________________________
+FastVerticalInterpHistPdf2Base::~FastVerticalInterpHistPdf2Base()
+{
+  // Destructor
+}
+
+void
+FastVerticalInterpHistPdf2Base::initBase() const 
+{
+    if (_initBase) return;
+
+    TIterator* coefIter = _coefList.createIterator() ;
+    RooAbsArg* coef;
+    while((coef = (RooAbsArg*)coefIter->Next())) {
+        const RooAbsReal *rrv = dynamic_cast<RooAbsReal*>(coef);
+        if (!rrv) {
+            coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << endl;
+            assert(0);
+        }
+        _morphParams.push_back(rrv);
+    }
+    delete coefIter;
+
+
+    _sentry.addVars(_coefList);
+    _sentry.setValueDirty(); 
+    _initBase = true;
+}
+
+FastVerticalInterpHistPdf2::FastVerticalInterpHistPdf2(const char *name, const char *title, const RooRealVar &x, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion, Int_t smoothAlgo) :
+    FastVerticalInterpHistPdf2Base(name,title,RooArgSet(x),funcList,coefList,smoothRegion,smoothAlgo),
+    _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
+    _cache(), _cacheNominal(), _cacheNominalLog()
+{
+    initBase();
+    initNominal(funcList.At(0));
+    _morphs.resize(coefList.getSize());
+    for (int i = 0, n = coefList.getSize(); i < n; ++i) {
+        initComponent(i, funcList.At(2*i+1), funcList.At(2*i+2));
+    }
+}
+
+//_____________________________________________________________________________
+Double_t FastVerticalInterpHistPdf2::evaluate() const 
+{
+  if (!_initBase) initBase();
+  if (_cache.size() == 0) _cache = _cacheNominal; // _cache is not persisted
+  if (!_sentry.good()) syncTotal();
+  return _cache.GetAt(_x);
+}
+
+
+void FastVerticalInterpHistPdf2::initNominal(TObject *templ) {
+    TH1 *hist = dynamic_cast<TH1*>(templ);
+    if (hist) {
+        _cacheNominal = FastHisto(*hist);
+    } else {
+        RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(templ);
+        const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
+        hist = pdf->createHistogram("",x);
+        hist->SetDirectory(0); 
+        _cacheNominal = FastHisto(*hist);
+        delete hist;
+    }
+    _cacheNominal.Normalize();
+    if (_smoothAlgo < 0) {
+        _cacheNominalLog = _cacheNominal;
+        _cacheNominalLog.Log();
+    }
+    _cache = _cacheNominal;
+}
+
+void FastVerticalInterpHistPdf2::initComponent(int dim, TObject *thi, TObject *tlo) {
+    FastHisto hi, lo; 
+    TH1 *histHi = dynamic_cast<TH1*>(thi);
+    TH1 *histLo = dynamic_cast<TH1*>(tlo);
+    if (histHi && histLo) {
+        hi = *histHi; lo = *histLo; 
+    } else {
+        RooAbsPdf *pdfHi = dynamic_cast<RooAbsPdf *>(thi);
+        RooAbsPdf *pdfLo = dynamic_cast<RooAbsPdf *>(tlo);
+        const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
+        histHi = pdfHi->createHistogram("",x); histHi->SetDirectory(0); 
+        histLo = pdfLo->createHistogram("",x); histLo->SetDirectory(0);
+        hi = *histHi; lo = *histLo; 
+        delete histHi; delete histLo; 
+    }
+    //printf("Un-normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    hi.Normalize(); lo.Normalize();
+    //printf("Normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    initMorph(_morphs[dim], _cacheNominal, lo, hi);
+}
+
+void FastVerticalInterpHistPdf2Base::initMorph(Morph &out, const FastTemplate &nominal, FastTemplate &lo, FastTemplate &hi) const {
+    out.sum.Resize(hi.size());
+    out.diff.Resize(hi.size());
+    if (_smoothAlgo < 0)  {
+        hi.LogRatio(nominal); lo.LogRatio(nominal);
+        //printf("Log-ratios for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    } else {
+        hi.Subtract(nominal); lo.Subtract(nominal);
+        //printf("Differences for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    }
+    FastTemplate::SumDiff(hi, lo, out.sum, out.diff);
+    //printf("Sum and diff for dimension %d: \n", dim);  out.sum.Dump(); out.diff.Dump();
+}
+
+
+
+
+void FastVerticalInterpHistPdf2Base::syncTotal(FastTemplate &cache, const FastTemplate &cacheNominal, const FastTemplate &cacheNominalLog) const {
+    /* === how the algorithm works, in theory ===
+     * let  dhi = h_hi - h_nominal
+     *      dlo = h_lo - h_nominal
+     * and x be the morphing parameter
+     * we define alpha = x * 0.5 * ((dhi-dlo) + (dhi+dlo)*smoothStepFunc(x));
+     * which satisfies:
+     *     alpha(0) = 0
+     *     alpha(+1) = dhi 
+     *     alpha(-1) = dlo
+     *     alpha(x >= +1) = |x|*dhi
+     *     alpha(x <= -1) = |x|*dlo
+     *     alpha is continuous and has continuous first and second derivative, as smoothStepFunc has them
+     * === and in practice ===
+     * we already have computed the histogram for diff=(dhi-dlo) and sum=(dhi+dlo)
+     * so we just do template += (0.5 * x) * (diff + smoothStepFunc(x) * sum)
+     * ========================================== */
+
+    // start from nominal
+    cache.CopyValues(_smoothAlgo < 0 ? cacheNominalLog : cacheNominal);
+    //printf("Cache initialized to nominal template: \n");  cacheNominal.Dump();
+
+    // apply all morphs one by one
+    for (int i = 0, ndim = _coefList.getSize(); i < ndim; ++i) {
+        double x = _morphParams[i]->getVal();
+        double a = 0.5*x, b = smoothStepFunc(x);
+        cache.Meld(_morphs[i].diff, _morphs[i].sum, a, b);    
+        //printf("Merged transformation for dimension %d, x = %+5.3f, step = %.3f: \n", i, x, b);  cache.Dump();
+    }
+
+    // if necessary go back to linear scale
+    if (_smoothAlgo < 0) {
+        cache.Exp();
+        //printf("Done exponential tranformation\n");  cache.Dump();
+    } else {
+        cache.CropUnderflows();
+    }
+    
+    // mark as done
+    _sentry.reset();
+}
+
+void FastVerticalInterpHistPdf2::syncTotal() const {
+    FastVerticalInterpHistPdf2Base::syncTotal(_cache, _cacheNominal, _cacheNominalLog);
+
+    // normalize the result
+    _cache.Normalize(); 
+    //printf("Normalized result\n");  _cache.Dump();
+}
