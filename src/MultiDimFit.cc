@@ -203,7 +203,7 @@ void MultiDimFit::doSingles(RooFitResult &res)
 void MultiDimFit::doGrid(RooAbsReal &nll) 
 {
     unsigned int n = poi_.size();
-    if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
+    //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
 
     std::vector<double> p0(n), pmin(n), pmax(n);
@@ -321,6 +321,64 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 }
             }
         }
+
+    } else { // Use utils routine if n > 2 
+
+        unsigned int rootn = ceil(TMath::Power(double(points_),double(1./n)));
+        unsigned int ipoint = 0, nprint = ceil(0.005*TMath::Power((double)rootn,(double)n));
+	
+        RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
+        CloseCoutSentry sentry(verbose < 2);
+	
+	// Create permutations 
+        std::vector<int> axis_points;
+	
+        for (unsigned int poi_i=0;poi_i<n;poi_i++){
+	  axis_points.push_back((int)rootn);
+    	}
+
+        std::vector<std::vector<int> > permutations = utils::generateCombinations(axis_points);
+	// Step through points
+        std::vector<std::vector<int> >::iterator perm_it = permutations.begin();
+	int npermutations = permutations.size();
+    	for (;perm_it!=permutations.end(); perm_it++){
+
+          if (ipoint < firstPoint_) continue;
+          if (ipoint > lastPoint_)  break;
+          *params = snap; 
+
+          if (verbose && (ipoint % nprint == 0)) {
+             fprintf(sentry.trueStdOut(), "Point %d/%d, ",
+                          ipoint,npermutations);
+          }	  
+          for (unsigned int poi_i=0;poi_i<n;poi_i++){
+	    int ip = (*perm_it)[poi_i];
+            double deltaXi = (pmax[poi_i]-pmin[poi_i])/rootn;
+	    double xi = pmin[poi_i]+deltaXi*(ip+0.5);
+            poiVals_[poi_i] = xi; poiVars_[poi_i]->setVal(xi);
+	    if (verbose && (ipoint % nprint == 0)){
+             fprintf(sentry.trueStdOut(), " %s = %f ",
+                          poiVars_[poi_i]->GetName(), xi);
+	    }
+	  }
+	  if (verbose && (ipoint % nprint == 0)) fprintf(sentry.trueStdOut(), "\n");
+
+          nll.clearEvalErrorLog(); nll.getVal();
+          if (nll.numEvalErrors() > 0) { 
+               deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
+	       continue;
+	  }
+          // now we minimize
+          bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
+          bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
+          if (ok) {
+               deltaNLL_ = nll.getVal() - nll0;
+               double qN = 2*(deltaNLL_);
+               double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+               Combine::commitPoint(true, /*quantile=*/prob);
+          }
+	  ipoint++;	
+	} 
     }
 }
 
