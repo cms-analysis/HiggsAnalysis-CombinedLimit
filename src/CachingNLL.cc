@@ -338,6 +338,17 @@ cacheutils::CachingAddNLL::setup_()
         //if (rrv != 0 && !rrv->isConstant()) params_.add(*rrv);
         if (rrv != 0) params_.add(*rrv);
     }
+
+    // For multi pdf's need to reset the cache if index changed before evaluations
+    multiPdfs_.clear();
+    for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
+	bool isMultiPdf = itp->pdf()->IsA()->InheritsFrom(RooMultiPdf::Class());
+	if (isMultiPdf) {
+            const RooMultiPdf *mpdf = dynamic_cast<const RooMultiPdf*>((*itp).pdf());
+            multiPdfs_.push_back(std::make_pair(mpdf, &*itp));
+	}
+    }
+ 
 }
 
 Double_t 
@@ -348,13 +359,11 @@ cacheutils::CachingAddNLL::evaluate() const
 #endif
 
     // For multi pdf's need to reset the cache if index changed before evaluations
-    for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
-	bool isMultiPdf = itp->pdf()->IsA()->InheritsFrom(RooMultiPdf::Class());
-	if (isMultiPdf) {
-	   	const RooMultiPdf *mpdf = dynamic_cast<const RooMultiPdf*>((*itp).pdf());
-		bool hasChangedPdf = mpdf->checkIndexDirty();
-		if (hasChangedPdf) itp->setDataDirty();
-	}
+    if (!multiPdfs_.empty()) {
+        for (std::vector<std::pair<const RooMultiPdf*,CachingPdf*> >::iterator itp = multiPdfs_.begin(), edp = multiPdfs_.end(); itp != edp; ++itp) {
+		bool hasChangedPdf = itp->first->checkIndexDirty();
+		if (hasChangedPdf) itp->second->setDataDirty();
+        }
     }
 
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
@@ -422,16 +431,14 @@ cacheutils::CachingAddNLL::evaluate() const
     ret += zeroPoint_;
 
     // multipdfs want to add a correction factor to the NLL
-    double correctionFactor = 0;
-    for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
-      bool isMultiPdf = itp->pdf()->IsA()->InheritsFrom(RooMultiPdf::Class());
-      if (isMultiPdf){
-	   const RooMultiPdf *mpdf = dynamic_cast<const RooMultiPdf*>((*itp).pdf());
-	   correctionFactor += mpdf->getCorrection();
-      }
+    if (!multiPdfs_.empty()) {
+        double correctionFactor = 0;
+        for (std::vector<std::pair<const RooMultiPdf*,CachingPdf*> >::iterator itp = multiPdfs_.begin(), edp = multiPdfs_.end(); itp != edp; ++itp) {
+            correctionFactor += itp->first->getCorrection();
+        }
+        // Add correction 
+        ret+=correctionFactor;
     }
-    // Add correction 
-    ret+=correctionFactor;
 
     TRACE_NLL("AddNLL for " << pdf_->GetName() << ": " << ret)
     return ret;

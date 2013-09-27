@@ -13,6 +13,8 @@
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooGaussian.h>
+ 
+class RooMultiPdf;
 
 // Part zero: ArgSet checker
 namespace cacheutils {
@@ -96,6 +98,7 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<RooAbsReal*> coeffs_;
         mutable std::vector<CachingPdf>  pdfs_;
         mutable std::vector<RooAbsReal*> integrals_;
+        mutable std::vector<std::pair<const RooMultiPdf*,CachingPdf*> > multiPdfs_;
         mutable std::vector<Double_t> partialSum_;
         mutable bool isRooRealSum_;
         double zeroPoint_;
