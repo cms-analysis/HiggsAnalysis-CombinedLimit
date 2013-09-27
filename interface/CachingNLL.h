@@ -13,6 +13,7 @@
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooGaussian.h>
+#include "../interface/SimpleGaussianConstraint.h"
  
 class RooMultiPdf;
 
@@ -122,16 +123,6 @@ class CachingSimNLL  : public RooAbsReal {
         void clearZeroPoint() ;
         friend class CachingAddNLL;
     private:
-        class SimpleGaussianConstraint : public RooGaussian {
-            public:
-                SimpleGaussianConstraint(const RooGaussian &g) : RooGaussian(g, "") {}
-                double getLogValFast() const { 
-                    Double_t arg = x - mean;  
-                    Double_t sig = sigma ;
-                    return -0.5*arg*arg/(sig*sig);
-                }
-        };
-
         void setup_();
         RooSimultaneous   *pdfOriginal_;
         const RooAbsData  *dataOriginal_;

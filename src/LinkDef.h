@@ -20,6 +20,7 @@
 #include "../interface/rVrFLikelihood.h"
 #include "../interface/RooMultiPdf.h"
 #include "../interface/RooBernsteinFast.h"
+#include "../interface/SimpleGaussianConstraint.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -42,6 +43,7 @@
 #pragma link C++ class CombDataSetFactory+;
 #pragma link C++ class TH1Keys+;
 #pragma link C++ class RooSimultaneousOpt+;
+#pragma link C++ class SimpleGaussianConstraint+;
 #pragma link C++ class SimpleCacheSentry+;
 #pragma link C++ function th1fmorph;
 #pragma link C++ class RooqqZZPdf+;

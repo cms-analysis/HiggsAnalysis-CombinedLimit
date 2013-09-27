@@ -545,11 +545,13 @@ cacheutils::CachingSimNLL::setup_()
     RooSimultaneous *simpdf = factorizedPdf_.get();
     constrainPdfs_.clear(); 
     if (constraints.getSize()) {
-        bool FastConstraints = runtimedef::get("SIMNLL_FASTGAUSS");
-        //constrainPdfs_.push_back(new RooProdPdf("constraints","constraints", constraints));
+        int FastConstraints = runtimedef::get("SIMNLL_FASTGAUSS");
         for (int i = 0, n = constraints.getSize(); i < n; ++i) {
             RooAbsPdf *pdfi = dynamic_cast<RooAbsPdf*>(constraints.at(i));
-            if (FastConstraints && typeid(*pdfi) == typeid(RooGaussian)) {
+            if (typeid(*pdfi) == typeid(SimpleGaussianConstraint)) {
+                constrainPdfsFast_.push_back(static_cast<SimpleGaussianConstraint *>(pdfi));
+                constrainZeroPointsFast_.push_back(0);
+            } else if (FastConstraints && typeid(*pdfi) == typeid(RooGaussian)) {
                 constrainPdfsFast_.push_back(new SimpleGaussianConstraint(dynamic_cast<const RooGaussian&>(*pdfi)));
                 constrainZeroPointsFast_.push_back(0);
             } else {
