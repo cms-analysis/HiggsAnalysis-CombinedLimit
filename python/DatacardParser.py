@@ -16,6 +16,8 @@ def addDatacardParserOptions(parser):
     parser.add_option("-L", "--LoadLibrary", dest="libs",  type="string" , action="append", help="Load these libraries")
     parser.add_option("--poisson",  dest="poisson",  default=0,  type="int",    help="If set to a positive number, binned datasets wih more than this number of entries will be generated using poissonians")
     parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape2N", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
+    parser.add_option("--no-b-only",    dest="noBOnly", default=False, action="store_true", help="Do not save the background-only pdf (saves time)")
+    parser.add_option("--no-optimize-pdfs",    dest="noOptimizePdf", default=False, action="store_true", help="Do not save the RooSimultaneous as RooSimultaneousOpt and Gaussian constraints as SimpleGaussianConstraint")
     parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
     parser.add_option("--X-rescale-nuisance", dest="nuisancesToRescale", type="string", action="append", nargs=2, default=[], help="Rescale by this factor the nuisances that match these regular expressions (the rescaling is applied to the sigma of the gaussian constraint term).")

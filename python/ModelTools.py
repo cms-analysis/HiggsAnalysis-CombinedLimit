@@ -97,7 +97,10 @@ class ModelBuilder(ModelBuilderBase):
                     if re.match(pn, n): 
                         sig = float(pf); sigscale = sig * (4 if pdf == "shape" else 7)
                         r = "-%g,%g" % (sigscale,sigscale)
-                self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
+                if self.options.noOptimizePdf:
+                    self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
+                else:
+                    self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
@@ -311,6 +314,7 @@ class ModelBuilder(ModelBuilderBase):
             if self.out.set("globalObservables"): mc.SetGlobalObservables(self.out.set("globalObservables"))
             if self.options.verbose > 1: mc.Print("V")
             self.out._import(mc, mc.GetName())
+            if self.options.noBOnly: break
 	discparams = ROOT.RooArgSet("discreteParams")
 	for cpar in self.discrete_param_set:
 		roocpar =  self.out.cat(cpar)

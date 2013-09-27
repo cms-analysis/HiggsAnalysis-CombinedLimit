@@ -62,41 +62,47 @@ class ShapeBuilder(ModelBuilder):
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
             if self.options.verbose: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
             sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
-            sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
+            if not self.options.noBOnly: sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             if b in self.pdfModes: 
                 sum_s.setAttribute('forceGen'+self.pdfModes[b].title())
-                sum_b.setAttribute('forceGen'+self.pdfModes[b].title())
+                if not self.options.noBOnly: sum_b.setAttribute('forceGen'+self.pdfModes[b].title())
             if len(self.DC.systs):
                 ## rename the pdfs
-                sum_s.SetName("pdf_bin%s_nuis" % b); sum_b.SetName("pdf_bin%s_bonly_nuis" % b)
+                sum_s.SetName("pdf_bin%s_nuis" % b); 
+                if not self.options.noBOnly: sum_b.SetName("pdf_bin%s_bonly_nuis" % b)
                 # now we multiply by all the nuisances, but avoiding nested products
                 # so we first make a list of all nuisances plus the RooAddPdf
                 sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_s.add(sum_s)
-                sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_b.add(sum_b)
                 # then make RooProdPdf and import it
                 pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s) 
-                pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
+                if not self.options.noBOnly:
+                    sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_b.add(sum_b)
+                    pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
                 if b in self.pdfModes: 
                     pdf_s.setAttribute('forceGen'+self.pdfModes[b].title())
-                    pdf_b.setAttribute('forceGen'+self.pdfModes[b].title())
+                    if not self.options.noBOnly: pdf_b.setAttribute('forceGen'+self.pdfModes[b].title())
                 self.out._import(pdf_s, ROOT.RooFit.RenameConflictNodes(b))
-                self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+                if not self.options.noBOnly:
+                    self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
             else:
                 self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
-                self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+                if not self.options.noBOnly:
+                    self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
     def doCombination(self):
         ## Contrary to Number-counting models, here each channel PDF already contains the nuisances
         ## So we just have to build the combined pdf
         if len(self.DC.bins) > 1 or not self.options.forceNonSimPdf:
             for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
-                simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat)
+                simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat) if self.options.noOptimizePdf else ROOT.RooSimultaneousOpt("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
                     pdfi = self.out.pdf("pdf_bin%s%s" % (b,postfixIn))
                     simPdf.addPdf(pdfi, b)
                 self.out._import(simPdf)
+                if self.options.noBOnly: break
         else:
             self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
-            self.out._import(self.out.pdf("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
+            if not self.options.noBOnly: 
+                self.out._import(self.out.pdf("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
             iter = pars.createIterator()
@@ -468,7 +474,7 @@ class ShapeBuilder(ModelBuilder):
                 for i in range(1,min(shape.GetNbinsX(),self.out.maxbins)+1): 
                     rebinh1.SetBinContent(i, shape.GetBinContent(i))
                 rdh = ROOT.RooDataHist(shape.GetName(), shape.GetName(), ROOT.RooArgList(self.out.binVar), rebinh1)
-                self.out._import(rdh)
+                #self.out._import(rdh)
                 _cache[shape.GetName()] = rdh
             elif shape.ClassName() in ["RooDataHist", "RooDataSet"]:
                 return shape
@@ -489,17 +495,19 @@ class ShapeBuilder(ModelBuilder):
                     _cache[shape.GetName()+"Pdf"] = rhp
                 else:
                     rdh = self.shape2Data(shape,channel,process)
-                    rhp = self.doObj("%sPdf" % shape.GetName(), "HistPdf", "{%s}, %s" % (self.out.binVar.GetName(), shape.GetName()))
+                    #rhp = self.doObj("%sPdf" % shape.GetName(), "HistPdf", "{%s}, %s" % (self.out.binVar.GetName(), shape.GetName()))
+                    rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", ROOT.RooArgSet(self.out.binVar), rdh)
+                    rhp.rdh = rdh # so it doesn't get deleted
                     _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooAbsPdf"):
                 _cache[shape.GetName()+"Pdf"] = shape
             elif shape.InheritsFrom("RooDataHist"):
                 rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", shape.get(), shape) 
-                self.out._import(rhp)
+                #self.out._import(rhp)
                 _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooDataSet"):
                 rkp = ROOT.RooKeysPdf("%sPdf" % shape.GetName(), "", self.out.var(shape.var), shape,3,1.5); 
-                self.out._import(rkp)
+                #self.out._import(rkp)
                 _cache[shape.GetName()+"Pdf"] = rkp
             else: 
                 raise RuntimeError, "shape2Pdf not implemented for %s" % shape.ClassName()
