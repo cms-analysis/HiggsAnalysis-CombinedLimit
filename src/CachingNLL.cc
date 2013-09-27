@@ -284,6 +284,7 @@ cacheutils::CachingAddNLL::clone(const char *name) const
 void
 cacheutils::CachingAddNLL::setup_() 
 {
+    fastExit_ = !runtimedef::get("NO_ADDNLL_FASTEXIT");
     const RooArgSet *obs = data_->get();
     for (int i = 0, n = integrals_.size(); i < n; ++i) delete integrals_[i];
     integrals_.clear();
@@ -407,12 +408,11 @@ cacheutils::CachingAddNLL::evaluate() const
     }
     // then get the final nll
     double ret = 0;
-    bool fastExit = !runtimedef::get("NO_ADDNLL_FASTEXIT");
     for (its = bgs; its != eds ; ++its) {
         if (!isnormal(*its) || *its <= 0) {
             std::cerr << "WARNING: underflow to " << *its << " in " << GetName() << std::endl; 
             if (!CachingSimNLL::noDeepLEE_) logEvalError("Number of events is negative or error"); else CachingSimNLL::hasError_ = true;
-            if (fastExit) { return 9e9; }
+            if (fastExit_) { return 9e9; }
             else *its = 1;
         }
     }
