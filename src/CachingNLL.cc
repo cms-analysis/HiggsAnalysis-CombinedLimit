@@ -407,16 +407,26 @@ cacheutils::CachingAddNLL::evaluate() const
     }
     // then get the final nll
     double ret = 0;
-    bool fastExit = runtimedef::get("ADDNLL_FASTEXIT");
-    for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
+    bool fastExit = !runtimedef::get("NO_ADDNLL_FASTEXIT");
+    for (its = bgs; its != eds ; ++its) {
         if (!isnormal(*its) || *its <= 0) {
             std::cerr << "WARNING: underflow to " << *its << " in " << GetName() << std::endl; 
             if (!CachingSimNLL::noDeepLEE_) logEvalError("Number of events is negative or error"); else CachingSimNLL::hasError_ = true;
-            if (fastExit) { ret += -9e9; break; }
+            if (fastExit) { return 9e9; }
+            else *its = 1;
         }
-        double thispiece = (*itw) * (*its <= 0 ? -9e9 : log( ((*its) / sumCoeff) ));
-        #ifdef ADDNLL_KAHAN_SUM
-        static bool do_kahan = runtimedef::get("ADDNLL_KAHAN_SUM");
+    }
+    #ifndef ADDNLL_KAHAN_SUM
+    // Do the reduction 
+    //      for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
+    //         ret += (*itw) * log( ((*its) / sumCoeff) );
+    //      }
+    ret += vectorized::nll_reduce(partialSum_.size(), &partialSum_[0], &weights_[0], sumCoeff, &workingArea_[0]);
+    #else
+    double compensation = 0;
+    static bool do_kahan = runtimedef::get("ADDNLL_KAHAN_SUM");
+    for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
+        double thispiece = (*itw) * log( ((*its) / sumCoeff) );
         if (do_kahan) {
             double kahan_y = thispiece  - compensation;
             double kahan_t = ret + kahan_y;
@@ -426,10 +436,9 @@ cacheutils::CachingAddNLL::evaluate() const
         } else {
             ret += thispiece;
         }
-        #else
         ret += thispiece;
-        #endif
     }
+    #endif
     // then flip sign
     ret = -ret;
     // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
@@ -489,6 +498,7 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
         #endif
     }
     partialSum_.resize(weights_.size());
+    workingArea_.resize(weights_.size());
     for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
         itp->setDataDirty();
     }

@@ -103,6 +103,7 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<std::pair<const RooMultiPdf*,CachingPdf*> > multiPdfs_;
         mutable std::vector<Double_t> partialSum_;
+        mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_;
         double zeroPoint_;
 };
