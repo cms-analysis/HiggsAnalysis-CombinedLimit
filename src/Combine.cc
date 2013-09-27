@@ -114,6 +114,7 @@ Combine::Combine() :
     miscOptions_.add_options()
       ("newGenerator", po::value<bool>(&newGen_)->default_value(true), "Use new generator code for toys, fixes all issues with binned and mixed generation (equivalent of --newToyMC but affects the top-level toys from option '-t' instead of the ones within the HybridNew)")
       ("optimizeSimPdf", po::value<bool>(&optSimPdf_)->default_value(true), "Turn on special optimizations of RooSimultaneous. On by default, you can turn it off if it doesn't work for your workspace.")
+      ("noMCbonly", po::value<bool>(&noMCbonly_)->default_value(false), "Don't create a background-only modelConfig")
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
@@ -290,7 +291,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         w->import(*optpdf);
         mc->SetPdf(*optpdf);
     }
-    if (mc_bonly == 0) {
+    if (mc_bonly == 0 && !noMCbonly_) {
         std::cerr << "Missing background ModelConfig '" << modelConfigNameB_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
         std::cerr << "Will make one from the signal ModelConfig '" << modelConfigName_ << "' setting signal strenth '" << POI->first()->GetName() << "' to zero"  << std::endl;
         w->factory("_zero_[0]");
@@ -395,7 +396,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           RooArgSet newnuis(*nuisances);
           newnuis.remove(toFreeze, /*silent=*/true, /*byname=*/true);      
           mc->SetNuisanceParameters(newnuis);
-          mc_bonly->SetNuisanceParameters(newnuis);
+          if (mc_bonly) mc_bonly->SetNuisanceParameters(newnuis);
           nuisances = mc->GetNuisanceParameters();
       }
   }
@@ -434,8 +435,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   // make sure these things are set consistently with what we expect
   if (mc->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc->GetNuisanceParameters(), false);
   if (mc->GetGlobalObservables()) utils::setAllConstant(*mc->GetGlobalObservables(), true);
-  if (mc_bonly->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc_bonly->GetNuisanceParameters(), false);
-  if (mc_bonly->GetGlobalObservables()) utils::setAllConstant(*mc_bonly->GetGlobalObservables(), true);
+  if (mc_bonly && mc_bonly->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc_bonly->GetNuisanceParameters(), false);
+  if (mc_bonly && mc_bonly->GetGlobalObservables()) utils::setAllConstant(*mc_bonly->GetGlobalObservables(), true);
 
 
   w->saveSnapshot("clean", w->allVars());
@@ -447,15 +448,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   tree_ = tree;
 
-  bool isExtended = mc_bonly->GetPdf()->canBeExtended();
+  bool isExtended = mc->GetPdf()->canBeExtended();
   RooRealVar *MH = w->var("MH");
   RooAbsData *dobs = w->data(dataset.c_str());
   // Generate with signal model if r or other physics model parameters are defined
-  RooAbsPdf  *genPdf = (expectSignal_ > 0 || setPhysicsModelParameterExpression_ != "") ? mc->GetPdf() : mc_bonly->GetPdf(); 
-  toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); RooRealVar *weightVar_ = 0;
-  if (guessGenMode_ && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
+  RooAbsPdf  *genPdf = (expectSignal_ > 0 || setPhysicsModelParameterExpression_ != "" || !mc_bonly) ? mc->GetPdf() : (mc_bonly ? mc_bonly->GetPdf() : 0); 
+  RooRealVar *weightVar_ = 0; // will be needed for toy generation in some cases
+  if (guessGenMode_ && genPdf && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
-      utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
+      if (mc_bonly) utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
   }
   if (expectSignal_ > 0) { 
     if (POI->find("r")) {
@@ -468,7 +469,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
-    if (iToy == -1) {	
+    if (iToy == -1) {
      if (readToysFromHere != 0){
 	dobs = dynamic_cast<RooAbsData *>(readToysFromHere->Get("toys/toy_asimov"));
 	if (dobs == 0) {
@@ -478,6 +479,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	}
       }
       else{
+        if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
         if (newGen_) {
             if (toysFrequentist_) {
                 w->saveSnapshot("reallyClean", w->allVars());
@@ -491,6 +493,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                     w->saveSnapshot("clean", w->allVars());
                 }
             } else {
+                toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
                 dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
             }
         } else if (isExtended) {
@@ -519,6 +522,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   std::vector<double> limitHistory;
   std::auto_ptr<RooAbsPdf> nuisancePdf;
   if (nToys > 0) {
+    if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
+    toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
     double expLimit = 0;
     unsigned int nLimits = 0;
     w->loadSnapshot("clean");
