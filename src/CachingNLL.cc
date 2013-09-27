@@ -210,6 +210,17 @@ cacheutils::CachingPdf::eval(const RooAbsData &data)
         pdf_->attachDataSet(data);
         const_cast<RooAbsData*>(lastData_)->setDirtyProp(false);
         cache_.clear();
+        nonZeroW_.resize(data.numEntries());
+        nonZeroWEntries_ = 0;
+        for (unsigned int i = 0, n = nonZeroW_.size(); i < n; ++i) {
+            data.get(i);
+            if (data.weight() > 0) {
+                nonZeroWEntries_++;
+                nonZeroW_[i] = (data.weight() > 0);
+            } else {
+                nonZeroW_[i] = 0;
+            }
+        }
     }
     std::pair<std::vector<Double_t> *, bool> hit = cache_.get();
     if (!hit.second) {
@@ -225,13 +236,12 @@ cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> 
     PerfCounter::add("CachingPdf::realFill_ called");
 #endif
     int n = data.numEntries();
-    vals.resize(n); // should be a no-op if size is already >= n.
-    //std::auto_ptr<RooArgSet> params(pdf_->getObservables(*obs)); // for non-smart handling of pointers
+    vals.resize(nonZeroWEntries_); // should be a no-op if size is already >= n.
     std::vector<Double_t>::iterator itv = vals.begin();
-    for (int i = 0; i < n; ++i, ++itv) {
+    for (int i = 0; i < n; ++i) {
+        if (!nonZeroW_[i]) continue;
         data.get(i);
-        //*params = *data.get(i); // for non-smart handling of pointers
-        *itv = pdf_->getVal(obs_);
+        *itv = pdf_->getVal(obs_); ++itv;
         //std::cout << " at i = " << i << " pdf = " << *itv << std::endl;
         TRACE_NLL("PDF value for " << pdf_->GetName() << " is " << *itv << " at this point.") 
         TRACE_POINT2(*obs_,1)
@@ -399,7 +409,6 @@ cacheutils::CachingAddNLL::evaluate() const
     double ret = 0;
     bool fastExit = runtimedef::get("ADDNLL_FASTEXIT");
     for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
-        if (*itw == 0) continue;
         if (!isnormal(*its) || *its <= 0) {
             std::cerr << "WARNING: underflow to " << *its << " in " << GetName() << std::endl; 
             if (!CachingSimNLL::noDeepLEE_) logEvalError("Number of events is negative or error"); else CachingSimNLL::hasError_ = true;
@@ -456,30 +465,30 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
     data_ = &data;
     setValueDirty();
     sumWeights_ = 0.0;
-    weights_.resize(data.numEntries());
-    partialSum_.resize(data.numEntries());
-    std::vector<Double_t>::iterator itw = weights_.begin();
+    weights_.clear(); weights_.reserve(data.numEntries());
     #ifdef ADDNLL_KAHAN_SUM
     double compensation = 0;
     #endif
-    for (int i = 0, n = data.numEntries(); i < n; ++i, ++itw) {
+    for (int i = 0, n = data.numEntries(); i < n; ++i) {
         data.get(i);
-        *itw = data.weight();
+        double w = data.weight();
+        if (w) weights_.push_back(w); 
         #ifdef ADDNLL_KAHAN_SUM
         static bool do_kahan = runtimedef::get("ADDNLL_KAHAN_SUM");
         if (do_kahan) {
-            double kahan_y = *itw - compensation;
+            double kahan_y = w - compensation;
             double kahan_t = sumWeights_ + kahan_y;
             double kahan_d = (kahan_t - sumWeights_);
             compensation = kahan_d - kahan_y;
             sumWeights_  = kahan_t;
         } else {
-            sumWeights_ += *itw;
+            sumWeights_ += w;
         }
         #else
-        sumWeights_ += *itw;
+        sumWeights_ += w;
         #endif
     }
+    partialSum_.resize(weights_.size());
     for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
         itp->setDataDirty();
     }

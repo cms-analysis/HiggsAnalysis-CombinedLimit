@@ -69,6 +69,8 @@ class CachingPdf {
         RooAbsReal *pdf_;
         const RooAbsData *lastData_;
         ValuesCache cache_;
+        std::vector<uint8_t> nonZeroW_;
+        unsigned int         nonZeroWEntries_;
         void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
 };
 
