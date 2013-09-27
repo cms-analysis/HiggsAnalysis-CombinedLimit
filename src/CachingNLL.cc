@@ -605,7 +605,7 @@ cacheutils::CachingSimNLL::evaluate() const
             ret += nllval;
         }
     }
-    if (!constrainPdfs_.empty()) {
+    if (!constrainPdfs_.empty() || !constrainPdfsFast_.empty()) {
         /// ============= GENERIC CONSTRAINTS  =========
         std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 
