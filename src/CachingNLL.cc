@@ -520,8 +520,9 @@ cacheutils::CachingSimNLL::clone(const char *name) const
 
 cacheutils::CachingSimNLL::~CachingSimNLL()
 {
-    for (std::vector<SimpleGaussianConstraint*>::iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it) {
-        delete *it;
+    std::vector<bool>::const_iterator ito = constrainPdfsFastOwned_.begin();
+    for (std::vector<SimpleGaussianConstraint*>::iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++ito) {
+        if (*ito) { delete *it; }
     }
 }
 
@@ -550,9 +551,11 @@ cacheutils::CachingSimNLL::setup_()
             RooAbsPdf *pdfi = dynamic_cast<RooAbsPdf*>(constraints.at(i));
             if (typeid(*pdfi) == typeid(SimpleGaussianConstraint)) {
                 constrainPdfsFast_.push_back(static_cast<SimpleGaussianConstraint *>(pdfi));
+                constrainPdfsFastOwned_.push_back(false);
                 constrainZeroPointsFast_.push_back(0);
             } else if (FastConstraints && typeid(*pdfi) == typeid(RooGaussian)) {
                 constrainPdfsFast_.push_back(new SimpleGaussianConstraint(dynamic_cast<const RooGaussian&>(*pdfi)));
+                constrainPdfsFastOwned_.push_back(true);
                 constrainZeroPointsFast_.push_back(0);
             } else {
                 constrainPdfs_.push_back(pdfi);

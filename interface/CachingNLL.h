@@ -132,6 +132,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::auto_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
         std::vector<SimpleGaussianConstraint *>  constrainPdfsFast_;
+        std::vector<bool>                        constrainPdfsFastOwned_;
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
