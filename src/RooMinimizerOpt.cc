@@ -32,7 +32,7 @@ Int_t RooMinimizerOpt::minimize(const char* type, const char* alg)
     static_cast<RooMinimizerFcnOpt*>(_fcn)->Synchronize(_theFitter->Config().ParamsSettings(),
             _optConst,_verbose) ;
   } else {
-  _fcn->Synchronize(_theFitter->Config().ParamsSettings(),
+    _fcn->Synchronize(_theFitter->Config().ParamsSettings(),
             _optConst,_verbose) ;
   }
 
@@ -273,20 +273,19 @@ Int_t RooMinimizerOpt::minos(const RooArgSet& minosParamList)
 RooMinimizerFcnOpt::RooMinimizerFcnOpt(RooAbsReal *funct, RooMinimizer *context,  bool verbose) :
     RooMinimizerFcn(funct, context, verbose)
 {
-    _vars.resize(_floatParamList->getSize());
-    std::vector<RooRealVar *>::iterator itv = _vars.begin();
-    RooLinkedListIter iter = _floatParamList->iterator();
-    for (TObject *a = iter.Next(); a != 0; a = iter.Next(), ++itv) {
-        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        if (rrv == 0) throw std::logic_error(Form("Float param not a RooRealVar but a %s", a->ClassName()));
-        *itv = rrv; 
-    }
+}
+
+RooMinimizerFcnOpt::RooMinimizerFcnOpt(const RooMinimizerFcnOpt &other) :
+    RooMinimizerFcn(other._funct, other._context, other._verbose),
+    _vars(other._vars), _vals(other._vals)
+{
+
 }
 
 ROOT::Math::IBaseFunctionMultiDim* 
 RooMinimizerFcnOpt::Clone() const
 {
-      return new RooMinimizerFcnOpt(_funct,_context,_verbose);
+      return new RooMinimizerFcnOpt(*this);
 }
 
 double
@@ -294,11 +293,16 @@ RooMinimizerFcnOpt::DoEval(const double * x) const
 {
   // Set the parameter values for this iteration
   for (int index = 0; index < _nDim; index++) {
-      if (_logfile) (*_logfile) << x[index] << " " ;
-      RooRealVar* par = _vars[index];
-      if (par->getVal()!=x[index]) {
+      if (_vals[index]!=x[index]) {
+          RooRealVar* par = _vars[index];
           if (_verbose) cout << par->GetName() << "=" << x[index] << ", " ;
           par->setVal(x[index]);
+          _vals[index] = par->getVal(); // might not work otherwise if x is out of the boundary
+      }
+  }
+  if (_logfile) {
+      for (int index = 0; index < _nDim; index++) {
+          (*_logfile) << x[index] << " " ;
       }
   }
 
@@ -597,6 +601,22 @@ Bool_t RooMinimizerFcnOpt::Synchronize(std::vector<ROOT::Fit::ParameterSettings>
 
   updateFloatVec() ;
 
+  initStdVects();
+
   return 0 ;  
 
+}
+
+void RooMinimizerFcnOpt::initStdVects() const {
+  _vars.resize(_floatParamList->getSize());
+  _vals.resize(_vars.size());
+  std::vector<RooRealVar *>::iterator itv = _vars.begin();
+  std::vector<double>::iterator it = _vals.begin();
+  RooLinkedListIter iter = _floatParamList->iterator();
+  for (TObject *a = iter.Next(); a != 0; a = iter.Next(), ++itv, ++it) {
+      RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+      if (rrv == 0) throw std::logic_error(Form("Float param not a RooRealVar but a %s", a->ClassName()));
+      *itv = rrv; 
+      *it  = rrv->getVal();
+  }
 }

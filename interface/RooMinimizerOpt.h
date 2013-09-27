@@ -25,11 +25,14 @@ class RooMinimizerOpt : public RooMinimizer {
 class RooMinimizerFcnOpt : public RooMinimizerFcn {
     public: 
         RooMinimizerFcnOpt(RooAbsReal *funct, RooMinimizer *context,  bool verbose = false);
+        RooMinimizerFcnOpt(const RooMinimizerFcnOpt &other) ;
         virtual ROOT::Math::IBaseFunctionMultiDim* Clone() const;
         Bool_t Synchronize(std::vector<ROOT::Fit::ParameterSettings>& parameters, Bool_t optConst, Bool_t verbose);
+        void initStdVects() const ;
     protected:
         virtual double DoEval(const double * x) const;
         mutable std::vector<RooRealVar *> _vars;
+        mutable std::vector<double>       _vals;
 };
 
 #endif
