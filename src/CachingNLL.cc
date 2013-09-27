@@ -6,6 +6,7 @@
 #include <RooProduct.h>
 #include "../interface/ProfilingTools.h"
 #include <../interface/RooMultiPdf.h>
+#include "vectorized.h"
 
 //---- Uncomment this to get a '.' printed every some evals
 //#define TRACE_NLL_EVALS
@@ -59,6 +60,7 @@ namespace {
 #define TRACE_POINT(x) 
 #define TRACE_NLL(x) 
 #endif
+
 
 cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection &set) 
 {
@@ -386,10 +388,12 @@ cacheutils::CachingAddNLL::evaluate() const
         // get vals
         const std::vector<Double_t> &pdfvals = itp->eval(*data_);
         // update running sum
-        std::vector<Double_t>::const_iterator itv = pdfvals.begin();
-        for (its = bgs; its != eds; ++its, ++itv) {
-             *its += coeff * (*itv); // sum (n_i * pdf_i)
-        }
+        //    std::vector<Double_t>::const_iterator itv = pdfvals.begin();
+        //    for (its = bgs; its != eds; ++its, ++itv) {
+        //         *its += coeff * (*itv); // sum (n_i * pdf_i)
+        //    }
+        // vectorize to make it faster
+        vectorized::mul_add(pdfvals.size(), coeff, &pdfvals[0], &partialSum_[0]);
     }
     // then get the final nll
     double ret = 0;
