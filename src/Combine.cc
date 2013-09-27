@@ -37,6 +37,7 @@
 #include <RooRandom.h>
 #include <RooRealVar.h>
 #include <RooUniform.h>
+#include <RooGaussian.h>
 #include <RooWorkspace.h>
 #include <RooCategory.h>
 
@@ -54,6 +55,7 @@
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/AsimovUtils.h"
 #include "../interface/CascadeMinimizer.h"
+#include "../interface/ProfilingTools.h"
 
 using namespace RooStats;
 using namespace RooFit;
@@ -302,6 +304,19 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         w->import(*model_b);
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
+    }
+    if (runtimedef::get("UNBOUND_GAUSSIANS") && mc->GetNuisanceParameters() != 0) {
+        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+            if (rrv != 0) {
+                RooAbsPdf *pdf = w->pdf((std::string(a->GetName())+"_Pdf").c_str());
+                if (pdf != 0 && dynamic_cast<RooGaussian *>(pdf) != 0) {
+                    rrv->removeMin();
+                    rrv->removeMax();
+                }
+            }
+        } 
     }
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
