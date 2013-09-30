@@ -14,7 +14,9 @@
 #include <RooSimultaneous.h>
 #include <RooGaussian.h>
 #include "../interface/SimpleGaussianConstraint.h"
- 
+#include <boost/ptr_container/ptr_vector.hpp>
+
+class FastVerticalInterpHistPdfV; 
 class RooMultiPdf;
 
 // Part zero: ArgSet checker
@@ -58,11 +60,11 @@ class CachingPdf {
     public:
         CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
         CachingPdf(const CachingPdf &other) ;
-        ~CachingPdf() ;
+        virtual ~CachingPdf() ;
         const std::vector<Double_t> & eval(const RooAbsData &data) ;
         const RooAbsReal *pdf() const { return pdf_; }
         void  setDataDirty() { lastData_ = 0; }
-    private:
+    protected:
         const RooArgSet *obs_;
         RooAbsReal *pdfOriginal_;
         RooArgSet  pdfPieces_;
@@ -71,7 +73,18 @@ class CachingPdf {
         ValuesCache cache_;
         std::vector<uint8_t> nonZeroW_;
         unsigned int         nonZeroWEntries_;
-        void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
+        virtual void newData_(const RooAbsData &data) ;
+        virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
+};
+class CachingHistPdf : public CachingPdf {  
+    public:
+        CachingHistPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
+        CachingHistPdf(const CachingHistPdf &other) ; 
+        virtual ~CachingHistPdf() ;
+    protected:
+        virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
+        virtual void newData_(const RooAbsData &data) ;
+        FastVerticalInterpHistPdfV *vpdf_;
 };
 
 class CachingAddNLL : public RooAbsReal {
@@ -99,7 +112,7 @@ class CachingAddNLL : public RooAbsReal {
         std::vector<Double_t>  weights_;
         double               sumWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
-        mutable std::vector<CachingPdf>  pdfs_;
+        mutable boost::ptr_vector<CachingPdf>  pdfs_;
         mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<std::pair<const RooMultiPdf*,CachingPdf*> > multiPdfs_;
         mutable std::vector<Double_t> partialSum_;

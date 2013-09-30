@@ -6,6 +6,7 @@
 #include <RooProduct.h>
 #include "../interface/ProfilingTools.h"
 #include <../interface/RooMultiPdf.h>
+#include <../interface/VerticalInterpHistPdf.h>
 #include "vectorized.h"
 
 //---- Uncomment this to get a '.' printed every some evals
@@ -204,30 +205,35 @@ cacheutils::CachingPdf::eval(const RooAbsData &data)
     PerfCounter::add("CachingPdf::eval called");
 #endif
     bool newdata = (lastData_ != &data);
-    if (newdata) {
-        lastData_ = &data;
-        pdf_->optimizeCacheMode(*data.get());
-        pdf_->attachDataSet(data);
-        const_cast<RooAbsData*>(lastData_)->setDirtyProp(false);
-        cache_.clear();
-        nonZeroW_.resize(data.numEntries());
-        nonZeroWEntries_ = 0;
-        for (unsigned int i = 0, n = nonZeroW_.size(); i < n; ++i) {
-            data.get(i);
-            if (data.weight() > 0) {
-                nonZeroWEntries_++;
-                nonZeroW_[i] = (data.weight() > 0);
-            } else {
-                nonZeroW_[i] = 0;
-            }
-        }
-    }
+    if (newdata) newData_(data);
     std::pair<std::vector<Double_t> *, bool> hit = cache_.get();
     if (!hit.second) {
         realFill_(data, *hit.first);
     } 
     return *hit.first;
 }
+
+void
+cacheutils::CachingPdf::newData_(const RooAbsData &data) 
+{
+    lastData_ = &data;
+    pdf_->optimizeCacheMode(*data.get());
+    pdf_->attachDataSet(data);
+    const_cast<RooAbsData*>(lastData_)->setDirtyProp(false);
+    cache_.clear();
+    nonZeroW_.resize(data.numEntries());
+    nonZeroWEntries_ = 0;
+    for (unsigned int i = 0, n = nonZeroW_.size(); i < n; ++i) {
+        data.get(i);
+        if (data.weight() > 0) {
+            nonZeroWEntries_++;
+            nonZeroW_[i] = (data.weight() > 0);
+        } else {
+            nonZeroW_[i] = 0;
+        }
+    }
+}
+
 
 void
 cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> &vals) 
@@ -247,6 +253,47 @@ cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> 
         TRACE_POINT2(*obs_,1)
     }
 }
+
+cacheutils::CachingHistPdf::CachingHistPdf(RooAbsReal *pdf, const RooArgSet *obs) :
+    CachingPdf(pdf,obs), vpdf_(0)
+{
+}
+
+cacheutils::CachingHistPdf::CachingHistPdf(const CachingHistPdf &other) :
+    CachingPdf(other),
+    vpdf_(0)
+{
+}
+
+cacheutils::CachingHistPdf::~CachingHistPdf() 
+{
+    delete vpdf_;
+}
+
+
+void
+cacheutils::CachingHistPdf::newData_(const RooAbsData &data) 
+{
+    lastData_ = &data;
+    pdf_->optimizeCacheMode(*data.get());
+    pdf_->attachDataSet(data);
+    const_cast<RooAbsData*>(lastData_)->setDirtyProp(false);
+    cache_.clear();
+    delete vpdf_;
+    vpdf_ = new FastVerticalInterpHistPdfV(static_cast<const FastVerticalInterpHistPdf &>(*pdf_), data);
+}
+
+
+void
+cacheutils::CachingHistPdf::realFill_(const RooAbsData &data, std::vector<Double_t> &vals) 
+{
+#ifdef DEBUG_CACHE
+    PerfCounter::add("CachingHistPdf::realFill_ called");
+#endif
+    vpdf_->fill(vals);
+}
+
+
 
 cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data) :
     RooAbsReal(name, title),
@@ -285,6 +332,7 @@ void
 cacheutils::CachingAddNLL::setup_() 
 {
     fastExit_ = !runtimedef::get("NO_ADDNLL_FASTEXIT");
+    bool histNll  = runtimedef::get("ADDNLL_HISTNLL");
     const RooArgSet *obs = data_->get();
     for (int i = 0, n = integrals_.size(); i < n; ++i) delete integrals_[i];
     integrals_.clear();
@@ -299,7 +347,11 @@ cacheutils::CachingAddNLL::setup_()
             RooAbsReal * coeff = dynamic_cast<RooAbsReal*>(addpdf->coefList().at(i));
             RooAbsPdf  * pdfi  = dynamic_cast<RooAbsPdf *>(addpdf->pdfList().at(i));
             coeffs_.push_back(coeff);
-            pdfs_.push_back(CachingPdf(pdfi, obs));
+            if (histNll && typeid(*pdfi) == typeid(FastVerticalInterpHistPdf)) {
+                pdfs_.push_back(new CachingHistPdf(pdfi, obs));
+            } else {
+                pdfs_.push_back(new CachingPdf(pdfi, obs));
+            }
         }
     } else if ((sumpdf = dynamic_cast<RooRealSumPdf *>(pdf_)) != 0) {
         isRooRealSum_ = true;
@@ -333,7 +385,7 @@ cacheutils::CachingAddNLL::setup_()
                 } else throw std::logic_error("No part of pdf depends on observables?");
             }
             coeffs_.push_back(coeff);
-            pdfs_.push_back(CachingPdf(funci, obs));
+            pdfs_.push_back(new CachingPdf(funci, obs));
             integrals_.push_back(funci->createIntegral(*obs));
         }
     } else {
@@ -354,7 +406,7 @@ cacheutils::CachingAddNLL::setup_()
 
     // For multi pdf's need to reset the cache if index changed before evaluations
     multiPdfs_.clear();
-    for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
+    for (auto itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
 	bool isMultiPdf = itp->pdf()->IsA()->InheritsFrom(RooMultiPdf::Class());
 	if (isMultiPdf) {
             const RooMultiPdf *mpdf = dynamic_cast<const RooMultiPdf*>((*itp).pdf());
@@ -382,7 +434,7 @@ cacheutils::CachingAddNLL::evaluate() const
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
 
     std::vector<RooAbsReal*>::iterator  itc = coeffs_.begin(), edc = coeffs_.end();
-    std::vector<CachingPdf>::iterator   itp = pdfs_.begin();//,   edp = pdfs_.end();
+    boost::ptr_vector<CachingPdf>::iterator   itp = pdfs_.begin();//,   edp = pdfs_.end();
     std::vector<Double_t>::const_iterator itw, bgw = weights_.begin();//,    edw = weights_.end();
     std::vector<Double_t>::iterator       its, bgs = partialSum_.begin(), eds = partialSum_.end();
     double sumCoeff = 0;
@@ -499,7 +551,7 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
     }
     partialSum_.resize(weights_.size());
     workingArea_.resize(weights_.size());
-    for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
+    for (auto itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
         itp->setDataDirty();
     }
 }

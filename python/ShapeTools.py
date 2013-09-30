@@ -383,15 +383,24 @@ class ShapeBuilder(ModelBuilder):
         elif "shapeN" in shapeAlgo: qalgo = -1;
         if self.options.useHistPdf != "always":
             if nominalPdf.InheritsFrom("TH1"):
-                rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, pdfs, coeffs, qrange, qalgo)
+                rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, pdfs, coeffs, qrange, qalgo)
+                _cache[(channel,process)] = rhp
+                return rhp
+            elif nominalPdf.InheritsFrom("RooHistPdf") or nominalPdf.InheritsFrom("RooDataHist"):
+                nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
+                for (syst,scale,shapeUp,shapeDown) in morphs:
+                    pdfs.Add(self.shape2Pdf(shapeUp,channel,process))
+                    pdfs.Add(self.shape2Pdf(shapeDown,channel,process))
+                rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, pdfs, coeffs, qrange, qalgo)
                 _cache[(channel,process)] = rhp
                 return rhp
             else:
-                nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
                 pdflist = ROOT.RooArgList()
+                nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
                 for (syst,scale,shapeUp,shapeDown) in morphs:
-                    pdfs.add(self.shape2Pdf(shapeUp,channel,process))
-                    pdfs.add(self.shape2Pdf(shapeDown,channel,process))
+                    pdflist.add(self.shape2Pdf(shapeUp,channel,process))
+                    pdflist.add(self.shape2Pdf(shapeDown,channel,process))
+                pdfs = pdflist
         if "2a" in shapeAlgo: # old shape2
             if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
             if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work in one dimension"

@@ -122,6 +122,7 @@ private:
 };
 
 
+struct FastVerticalInterpHistPdfV;
 class FastVerticalInterpHistPdf : public FastVerticalInterpHistPdfBase {
 public:
 
@@ -145,6 +146,7 @@ public:
 
   Bool_t hasCache()     const { return _cache.size() > 0; }
   Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
+  friend class FastVerticalInterpHistPdfV;
 protected:
   RooRealProxy   _x;
 
@@ -162,6 +164,21 @@ protected:
 
 private:
   ClassDef(FastVerticalInterpHistPdf,1) // 
+};
+
+class FastVerticalInterpHistPdfV {
+    public: 
+        FastVerticalInterpHistPdfV(const FastVerticalInterpHistPdf &, const RooAbsData &data) ;
+        void fill(std::vector<Double_t> &out) const ;
+    private:
+        const FastVerticalInterpHistPdf & hpdf_;
+        int begin_, end_, nbins_;
+        struct Block { 
+            int index, begin, end; 
+            Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}
+        };
+        std::vector<Block> blocks_;
+        std::vector<int> bins_;
 };
 
 class FastVerticalInterpHistPdf2D : public FastVerticalInterpHistPdfBase {

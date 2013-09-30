@@ -65,6 +65,14 @@ FastHisto::FastHisto(const FastHisto &other) :
     }
 }
 
+int FastHisto::FindBin(const T &x) const {
+    T *match = std::lower_bound(binEdges_, binEdges_+size_+1, x);
+    if (match == binEdges_) return -1;
+    if (match == binEdges_+size_+1) return size_;
+    return match - binEdges_ - 1;
+}
+
+
 FastHisto::T FastHisto::GetAt(const T &x) const {
     T *match = std::lower_bound(binEdges_, binEdges_+size_+1, x);
     if (match == binEdges_ || match == binEdges_+size_+1) return T(0.0);

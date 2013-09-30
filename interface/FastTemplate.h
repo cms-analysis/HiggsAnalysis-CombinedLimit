@@ -88,6 +88,8 @@ class FastHisto : public FastTemplate {
             std::swap(binEdges_, other.binEdges_);
         }
         T GetAt(const T &x) const ;
+        int FindBin(const T &x) const ;
+        const T & GetBinContent(int bin) const { return values_[bin]; }
         T IntegralWidth() const ;
         void Normalize() {
             T sum = IntegralWidth();
