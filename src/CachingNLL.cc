@@ -14,6 +14,22 @@ namespace cacheutils {
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf,FastVerticalInterpHistPdfV> CachingHistPdf;
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf2,FastVerticalInterpHistPdf2V> CachingHistPdf2;
     typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
+
+    class ReminderSum : public RooAbsReal {
+        public:
+            ReminderSum() {}
+            ReminderSum(const char *name, const char *title, const RooArgList& sumSet) ;
+            ReminderSum(const ReminderSum &other, const char* name = 0) :
+                RooAbsReal(other, name),
+                list_("deps",this,other.list_),
+                terms_(other.terms_) {} 
+            ~ReminderSum() {}
+            virtual TObject* clone(const char* newname) const { return new ReminderSum(*this,newname); }
+        private:
+            RooListProxy list_;
+            std::vector<const RooAbsReal *> terms_;
+            Double_t evaluate() const;
+    };
 }
 
 //---- Uncomment this to get a '.' printed every some evals
@@ -283,6 +299,20 @@ cacheutils::OptimizedCachingPdfT<PdfT,VPdfT>::realFill_(const RooAbsData &data, 
 }
 
 
+cacheutils::ReminderSum::ReminderSum(const char *name, const char *title, const RooArgList& sumSet) :
+    list_("deps","",this)
+{
+    RooLinkedListIter iter(sumSet.iterator());
+    for (RooAbsReal *rar = (RooAbsReal *) iter.Next(); rar != 0; rar = (RooAbsReal *) iter.Next()) {
+        list_.add(*rar);
+        terms_.push_back(rar);
+    }
+}
+Double_t cacheutils::ReminderSum::evaluate() const {
+    Double_t ret = 1.0;
+    for (auto x : terms_) ret -= x->getVal();
+    return ret;
+}
 
 cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data) :
     RooAbsReal(name, title),
@@ -321,23 +351,25 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
 {
     bool histNll  = runtimedef::get("ADDNLL_HISTNLL");
     bool gaussNll  = runtimedef::get("ADDNLL_GAUSSNLL");
-    int npdf = addpdf->coefList().getSize();
+    int npdf = addpdf->pdfList().getSize();
     //std::cout << "Unpacking RooAddPdf " << addpdf->GetName() << " with " << npdf << " components:" << std::endl;
-    if (npdf != addpdf->pdfList().getSize()) {
-        throw std::invalid_argument("Unbalanced RooAddPdf instances are not supported");
+    RooAbsReal *lastcoeff = 0;
+    if (npdf == addpdf->coefList().getSize()) {
+        lastcoeff =  dynamic_cast<RooAbsReal*>(addpdf->coefList().at(npdf-1));
+    } else {
+        prods_.push_back(new ReminderSum("","", addpdf->coefList()));
+        lastcoeff = & prods_.back(); 
     }
     for (int i = 0; i < npdf; ++i) {
-        RooAbsReal * coeff = dynamic_cast<RooAbsReal*>(addpdf->coefList().at(i));
+        RooAbsReal * coeff = (i < npdf-1 ? dynamic_cast<RooAbsReal*>(addpdf->coefList().at(i)) : lastcoeff);
         RooAbsPdf  * pdfi  = dynamic_cast<RooAbsPdf *>(addpdf->pdfList().at(i));
         if (recursive && typeid(*pdfi) == typeid(RooAddPdf)) {
             RooAddPdf *apdfi = static_cast<RooAddPdf*>(pdfi);
-            if (apdfi->coefList().getSize() == apdfi->pdfList().getSize()) {
-                RooArgList list(*coeff);
-                if (basecoeffs.getSize()) list.add(basecoeffs);
-                //std::cout << "    Invoking recursive unpack on " << i << ": RooAddPdf " << apdfi->GetName() << std::endl;
-                addPdfs_(apdfi, recursive, list);
-                continue;
-            }
+            RooArgList list(*coeff);
+            if (basecoeffs.getSize()) list.add(basecoeffs);
+            //std::cout << "    Invoking recursive unpack on " << i << ": RooAddPdf " << apdfi->GetName() << std::endl;
+            addPdfs_(apdfi, recursive, list);
+            continue;
         } 
         if (basecoeffs.getSize() == 0) {
             coeffs_.push_back(coeff);

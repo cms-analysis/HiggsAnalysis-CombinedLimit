@@ -119,7 +119,7 @@ class CachingAddNLL : public RooAbsReal {
         double               sumWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
         mutable boost::ptr_vector<CachingPdf>  pdfs_;
-        mutable boost::ptr_vector<RooProduct>  prods_;
+        mutable boost::ptr_vector<RooAbsReal>  prods_;
         mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<std::pair<const RooMultiPdf*,CachingPdf*> > multiPdfs_;
         mutable std::vector<Double_t> partialSum_;
