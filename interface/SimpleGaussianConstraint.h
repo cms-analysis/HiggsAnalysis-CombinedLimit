@@ -17,10 +17,14 @@ class SimpleGaussianConstraint : public RooGaussian {
         inline virtual ~SimpleGaussianConstraint() { }
 
         double getLogValFast() const { 
-            Double_t arg = x - mean;  
-            //Double_t sig = sigma ;
-            //return -0.5*arg*arg/(sig*sig);
-            return scale_*arg*arg;
+            if (_valueDirty) {
+                Double_t arg = x - mean;  
+                //Double_t sig = sigma ;
+                //return -0.5*arg*arg/(sig*sig);
+                _value = scale_*arg*arg;
+                _valueDirty = false;
+            }
+            return _value;
         }
 
     private:
