@@ -13,6 +13,7 @@
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooGaussian.h>
+#include <RooProduct.h>
 #include "../interface/SimpleGaussianConstraint.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
@@ -106,6 +107,7 @@ class CachingAddNLL : public RooAbsReal {
         RooSetProxy & params() { return params_; }
     private:
         void setup_();
+        void addPdfs_(RooAddPdf *addpdf, bool recursive, const RooArgList & basecoeffs) ;
         RooAbsPdf *pdf_;
         RooSetProxy params_;
         const RooAbsData *data_;
@@ -113,6 +115,7 @@ class CachingAddNLL : public RooAbsReal {
         double               sumWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
         mutable boost::ptr_vector<CachingPdf>  pdfs_;
+        mutable boost::ptr_vector<RooProduct>  prods_;
         mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<std::pair<const RooMultiPdf*,CachingPdf*> > multiPdfs_;
         mutable std::vector<Double_t> partialSum_;

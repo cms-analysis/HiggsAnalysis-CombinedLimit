@@ -328,32 +328,58 @@ cacheutils::CachingAddNLL::clone(const char *name) const
     return new cacheutils::CachingAddNLL(*this, name);
 }
 
+void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, const RooArgList & basecoeffs)
+{
+    bool histNll  = runtimedef::get("ADDNLL_HISTNLL");
+    int npdf = addpdf->coefList().getSize();
+    std::cout << "Unpacking RooAddPdf " << addpdf->GetName() << " with " << npdf << " components:" << std::endl;
+    if (npdf != addpdf->pdfList().getSize()) {
+        throw std::invalid_argument("Unbalanced RooAddPdf instances are not supported");
+    }
+    for (int i = 0; i < npdf; ++i) {
+        RooAbsReal * coeff = dynamic_cast<RooAbsReal*>(addpdf->coefList().at(i));
+        RooAbsPdf  * pdfi  = dynamic_cast<RooAbsPdf *>(addpdf->pdfList().at(i));
+        if (recursive && typeid(*pdfi) == typeid(RooAddPdf)) {
+            RooAddPdf *apdfi = static_cast<RooAddPdf*>(pdfi);
+            if (apdfi->coefList().getSize() == apdfi->pdfList().getSize()) {
+                RooArgList list(*coeff);
+                if (basecoeffs.getSize()) list.add(basecoeffs);
+                std::cout << "    Invoking recursive unpack on " << i << ": RooAddPdf " << apdfi->GetName() << std::endl;
+                addPdfs_(apdfi, recursive, list);
+                continue;
+            }
+        } 
+        if (basecoeffs.getSize() == 0) {
+            coeffs_.push_back(coeff);
+        } else {
+            RooArgList list(*coeff);
+            list.add(basecoeffs);
+            prods_.push_back(new RooProduct("","",list));
+            coeffs_.push_back(&prods_.back());
+        }
+        const RooArgSet *obs = data_->get();
+        std::cout << "    Adding " << i << ": " << pdfi->ClassName() << " " << pdfi->GetName() << std::endl;
+        if (histNll && typeid(*pdfi) == typeid(FastVerticalInterpHistPdf)) {
+            pdfs_.push_back(new CachingHistPdf(pdfi, obs));
+        } else {
+            pdfs_.push_back(new CachingPdf(pdfi, obs));
+        }
+    }
+}
+
 void
 cacheutils::CachingAddNLL::setup_() 
 {
     fastExit_ = !runtimedef::get("NO_ADDNLL_FASTEXIT");
-    bool histNll  = runtimedef::get("ADDNLL_HISTNLL");
-    const RooArgSet *obs = data_->get();
     for (int i = 0, n = integrals_.size(); i < n; ++i) delete integrals_[i];
-    integrals_.clear();
+    integrals_.clear(); pdfs_.clear(); coeffs_.clear(); prods_.clear();
     RooAddPdf *addpdf = 0;
     RooRealSumPdf *sumpdf = 0;
     if ((addpdf = dynamic_cast<RooAddPdf *>(pdf_)) != 0) {
         isRooRealSum_ = false;
-        int npdf = addpdf->coefList().getSize();
-        coeffs_.reserve(npdf);
-        pdfs_.reserve(npdf);
-        for (int i = 0; i < npdf; ++i) {
-            RooAbsReal * coeff = dynamic_cast<RooAbsReal*>(addpdf->coefList().at(i));
-            RooAbsPdf  * pdfi  = dynamic_cast<RooAbsPdf *>(addpdf->pdfList().at(i));
-            coeffs_.push_back(coeff);
-            if (histNll && typeid(*pdfi) == typeid(FastVerticalInterpHistPdf)) {
-                pdfs_.push_back(new CachingHistPdf(pdfi, obs));
-            } else {
-                pdfs_.push_back(new CachingPdf(pdfi, obs));
-            }
-        }
+        addPdfs_(addpdf, runtimedef::get("ADDNLL_RECURSIVE"), RooArgList());
     } else if ((sumpdf = dynamic_cast<RooRealSumPdf *>(pdf_)) != 0) {
+        const RooArgSet *obs = data_->get();
         isRooRealSum_ = true;
         int npdf = sumpdf->coefList().getSize();
         coeffs_.reserve(npdf);
@@ -362,28 +388,6 @@ cacheutils::CachingAddNLL::setup_()
         for (int i = 0; i < npdf; ++i) {
             RooAbsReal * coeff = dynamic_cast<RooAbsReal*>(sumpdf->coefList().at(i));
             RooAbsReal * funci = dynamic_cast<RooAbsReal*>(sumpdf->funcList().at(i));
-            /// Temporarily switch this off, it doesn't work. Don't know why, however.
-            if (0 && typeid(*funci) == typeid(RooProduct)) {
-                RooArgList obsDep, obsInd;
-                obsInd.add(*coeff);
-                utils::factorizeFunc(*obs, *funci, obsDep, obsInd);
-                std::cout << "Entry " << i << ": coef name " << (coeff ? coeff->GetName()   : "null") << 
-                                              "  type " << (coeff ? coeff->ClassName() :  "n/a") << std::endl;
-                std::cout << "       " <<     "; func name " << (funci ? funci->GetName()   : "null") << 
-                                              "  type " << (funci ? funci->ClassName() :  "n/a") << std::endl;
-                std::cout << "Terms depending on observables: " << std::endl; obsDep.Print("V");
-                std::cout << "Terms not depending on observables: " << std::endl; obsInd.Print("V");
-                if (obsInd.getSize() > 1) {
-                    coeff = new RooProduct(TString::Format("%s_x_%s_obsIndep", coeff->GetName(), funci->GetName()), "", RooArgSet(obsInd));
-                    addOwnedComponents(RooArgSet(*coeff));
-                }
-                if (obsDep.getSize() > 1) {
-                    funci = new RooProduct(TString::Format("%s_obsDep", funci->GetName()), "", RooArgSet(obsInd));
-                    addOwnedComponents(RooArgSet(*funci));
-                } else if (obsDep.getSize() == 1) {
-                    funci = (RooAbsReal *) obsDep.first();
-                } else throw std::logic_error("No part of pdf depends on observables?");
-            }
             coeffs_.push_back(coeff);
             pdfs_.push_back(new CachingPdf(funci, obs));
             integrals_.push_back(funci->createIntegral(*obs));
