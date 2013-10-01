@@ -17,7 +17,6 @@
 #include "../interface/SimpleGaussianConstraint.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
-class FastVerticalInterpHistPdfV; 
 class RooMultiPdf;
 
 // Part zero: ArgSet checker
@@ -77,16 +76,21 @@ class CachingPdf {
         virtual void newData_(const RooAbsData &data) ;
         virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
 };
-class CachingHistPdf : public CachingPdf {  
+
+template <typename PdfT, typename VPdfT> 
+class OptimizedCachingPdfT : public CachingPdf {
     public:
-        CachingHistPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
-        CachingHistPdf(const CachingHistPdf &other) ; 
-        virtual ~CachingHistPdf() ;
+        OptimizedCachingPdfT(RooAbsReal *pdf, const RooArgSet *obs) :
+            CachingPdf(pdf,obs), vpdf_(0) {}
+        OptimizedCachingPdfT(const OptimizedCachingPdfT &other) : 
+            CachingPdf(other), vpdf_(0) {}
+        virtual ~OptimizedCachingPdfT() { delete vpdf_; }
     protected:
         virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
         virtual void newData_(const RooAbsData &data) ;
-        FastVerticalInterpHistPdfV *vpdf_;
+        VPdfT *vpdf_;
 };
+
 
 class CachingAddNLL : public RooAbsReal {
     public:

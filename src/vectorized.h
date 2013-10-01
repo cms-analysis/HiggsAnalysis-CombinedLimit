@@ -6,5 +6,8 @@ namespace vectorized {
 
     // nll_reduce = sum ( weights * log(pdfvals/sumCoeff) )
     double nll_reduce(const uint32_t size, double* __restrict__ pdfvals, double const * __restrict__ weights, double sumcoeff, double *  __restrict__ workingArea) ;
+
+    // gaussians
+    void gaussians(const uint32_t size, double mean, double sigma, double norm, const double* __restrict__ xvals, double * __restrict__ out, double * __restrict__ workingArea, double * __restrict__ workingArea2) ;
 }
 

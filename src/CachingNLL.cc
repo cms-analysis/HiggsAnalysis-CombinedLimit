@@ -7,7 +7,13 @@
 #include "../interface/ProfilingTools.h"
 #include <../interface/RooMultiPdf.h>
 #include <../interface/VerticalInterpHistPdf.h>
+#include <../interface/VectorizedGaussian.h>
 #include "vectorized.h"
+
+namespace cacheutils {
+    typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf,FastVerticalInterpHistPdfV> CachingHistPdf;
+    typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
+}
 
 //---- Uncomment this to get a '.' printed every some evals
 //#define TRACE_NLL_EVALS
@@ -254,25 +260,10 @@ cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> 
     }
 }
 
-cacheutils::CachingHistPdf::CachingHistPdf(RooAbsReal *pdf, const RooArgSet *obs) :
-    CachingPdf(pdf,obs), vpdf_(0)
-{
-}
 
-cacheutils::CachingHistPdf::CachingHistPdf(const CachingHistPdf &other) :
-    CachingPdf(other),
-    vpdf_(0)
-{
-}
-
-cacheutils::CachingHistPdf::~CachingHistPdf() 
-{
-    delete vpdf_;
-}
-
-
+template <typename PdfT, typename VPdfT>
 void
-cacheutils::CachingHistPdf::newData_(const RooAbsData &data) 
+cacheutils::OptimizedCachingPdfT<PdfT,VPdfT>::newData_(const RooAbsData &data) 
 {
     lastData_ = &data;
     pdf_->optimizeCacheMode(*data.get());
@@ -280,16 +271,13 @@ cacheutils::CachingHistPdf::newData_(const RooAbsData &data)
     const_cast<RooAbsData*>(lastData_)->setDirtyProp(false);
     cache_.clear();
     delete vpdf_;
-    vpdf_ = new FastVerticalInterpHistPdfV(static_cast<const FastVerticalInterpHistPdf &>(*pdf_), data);
+    vpdf_ = new VPdfT(static_cast<const PdfT &>(*pdf_), data);
 }
 
-
+template <typename PdfT, typename VPdfT>
 void
-cacheutils::CachingHistPdf::realFill_(const RooAbsData &data, std::vector<Double_t> &vals) 
+cacheutils::OptimizedCachingPdfT<PdfT,VPdfT>::realFill_(const RooAbsData &data, std::vector<Double_t> &vals) 
 {
-#ifdef DEBUG_CACHE
-    PerfCounter::add("CachingHistPdf::realFill_ called");
-#endif
     vpdf_->fill(vals);
 }
 
@@ -331,6 +319,7 @@ cacheutils::CachingAddNLL::clone(const char *name) const
 void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, const RooArgList & basecoeffs)
 {
     bool histNll  = runtimedef::get("ADDNLL_HISTNLL");
+    bool gaussNll  = runtimedef::get("ADDNLL_GAUSSNLL");
     int npdf = addpdf->coefList().getSize();
     std::cout << "Unpacking RooAddPdf " << addpdf->GetName() << " with " << npdf << " components:" << std::endl;
     if (npdf != addpdf->pdfList().getSize()) {
@@ -361,6 +350,8 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
         std::cout << "    Adding " << i << ": " << pdfi->ClassName() << " " << pdfi->GetName() << std::endl;
         if (histNll && typeid(*pdfi) == typeid(FastVerticalInterpHistPdf)) {
             pdfs_.push_back(new CachingHistPdf(pdfi, obs));
+        } else if (gaussNll && typeid(*pdfi) == typeid(RooGaussian)) {
+            pdfs_.push_back(new CachingGaussPdf(pdfi, obs));
         } else {
             pdfs_.push_back(new CachingPdf(pdfi, obs));
         }
