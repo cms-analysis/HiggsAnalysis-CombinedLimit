@@ -26,6 +26,7 @@ def addDatacardParserOptions(parser):
     parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
     parser.add_option("--X-allow-no-signal",  dest="allowNoSignal", default=False, action="store_true", help="Allow parsing datacards that contain only backgrounds")
     parser.add_option("--X-allow-no-background",  dest="allowNoBackground", default=False, action="store_true", help="Allow parsing datacards that contain only signal")
+    parser.add_option("--X-optimize-templates",  dest="optimizeExistingTemplates", default=False, action="store_true", help="Optimize templates on the fly (relevant for HZZ)")
 
 
 from HiggsAnalysis.CombinedLimit.Datacard import Datacard

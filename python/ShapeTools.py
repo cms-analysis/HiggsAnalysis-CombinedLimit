@@ -44,6 +44,10 @@ class ShapeBuilder(ModelBuilder):
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
                 (pdf,coeff) = (self.getPdf(b,p), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
+                if self.options.optimizeExistingTemplates:
+                    self.out.dont_delete.append(pdf)
+                    pdf = self.optimizeExistingTemplates(pdf)
+                    self.out.dont_delete.append(pdf)
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
                     prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
@@ -529,4 +533,20 @@ class ShapeBuilder(ModelBuilder):
             if not arg: break
             names.append(arg.GetName())
         return ",".join(names)
+    def optimizeExistingTemplates(self,pdf):
+        if pdf.ClassName() == "FastVerticalInterpHistPdf2D":
+            return ROOT.FastVerticalInterpHistPdf2D2(pdf, "%s_opt" % pdf.GetName())
+        elif pdf.ClassName() == "RooProdPdf" and pdf.pdfList().getSize() == 2:
+            f1 = pdf.pdfList().at(0)
+            f2 = pdf.pdfList().at(1)
+            pdf.Print("")
+            if f2.ClassName() == "FastVerticalInterpHistPdf2D" and f2.conditional():
+                f1 = self.optimizeExistingTemplates(f1)
+                f2 = ROOT.FastVerticalInterpHistPdf2D2(f2, "%s_opt" % f2.GetName()) 
+                ret = ROOT.RooProdPdf("%s_opt" % pdf.GetName(), "", ROOT.RooArgSet(f1), ROOT.RooFit.Conditional(ROOT.RooArgSet(f2),ROOT.RooArgSet(f2.y())))
+                ret.optf2 = f2
+                ret.optf1 = f1
+                print "Optimize %s in \t" % (pdf.GetName()),; ret.Print("")
+                return ret
+        return pdf
 

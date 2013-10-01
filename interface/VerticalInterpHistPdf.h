@@ -12,10 +12,10 @@
 #include "../interface/FastTemplate.h"
 #include <cmath>
 
-#define FastVerticalInterpHistPdf_CopyConstructor
-#define FastVerticalInterpHistPdf_Serializable
-
 class FastVerticalInterpHistPdf;
+class FastVerticalInterpHistPdf2Base;
+class FastVerticalInterpHistPdf2;
+class FastVerticalInterpHistPdf2D2;
 
 class VerticalInterpHistPdf : public RooAbsPdf {
 public:
@@ -85,6 +85,8 @@ public:
 
   /// Must be public, for serialization
   struct Morph { FastTemplate sum; FastTemplate diff; };
+
+  friend class FastVerticalInterpHistPdf2Base;
 protected:
   RooRealProxy   _x;
   RooListProxy _funcList ;   //  List of component FUNCs
@@ -134,11 +136,7 @@ public:
   FastVerticalInterpHistPdf(const FastVerticalInterpHistPdf& other, const char* name=0) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x),
-#ifdef FastVerticalInterpHistPdf_CopyConstructor
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
-#else
-    _cache(), _cacheNominal(), _cacheNominalLog()  {}
-#endif
   virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf(*this,newname) ; }
   virtual ~FastVerticalInterpHistPdf() {}
 
@@ -147,6 +145,7 @@ public:
   Bool_t hasCache()     const { return _cache.size() > 0; }
   Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
   friend class FastVerticalInterpHistPdfV;
+  friend class FastVerticalInterpHistPdf2;
 protected:
   RooRealProxy   _x;
 
@@ -196,21 +195,20 @@ public:
   FastVerticalInterpHistPdf2D(const FastVerticalInterpHistPdf2D& other, const char* name=0) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x), _y("y",this,other._y), _conditional(other._conditional),
-#ifdef FastVerticalInterpHistPdf_CopyConstructor
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
-#else
-    _cache(), _cacheNominal(), _cacheNominalLog()  {}
-#endif
   virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2D(*this,newname) ; }
   virtual ~FastVerticalInterpHistPdf2D() {}
 
-  Double_t evaluate() const ;
-
-  Bool_t selfNormalized() const { return kTRUE; }
+  const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
+  const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
   Bool_t conditional() const { return _conditional; }
+
+  Double_t evaluate() const ;
 
   Bool_t hasCache()     const { return _cache.size() > 0; }
   Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
+
+  friend class FastVerticalInterpHistPdf2D2;
 protected:
   RooRealProxy _x, _y;
   bool _conditional;
@@ -238,6 +236,7 @@ public:
   FastVerticalInterpHistPdf2Base() ;
   FastVerticalInterpHistPdf2Base(const char *name, const char *title, const RooArgSet &obs, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
   FastVerticalInterpHistPdf2Base(const FastVerticalInterpHistPdf2Base& other, const char* name=0) ;
+  explicit FastVerticalInterpHistPdf2Base(const FastVerticalInterpHistPdfBase& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const = 0; 
   virtual ~FastVerticalInterpHistPdf2Base() ;
 
@@ -248,7 +247,7 @@ public:
   const RooArgList& coefList() const { return _coefList ; }
 
   /// Must be public, for serialization
-  struct Morph { FastTemplate sum; FastTemplate diff; };
+  typedef FastVerticalInterpHistPdfBase::Morph Morph;
 protected:
   RooListProxy _coefList ;  //  List of coefficients
   Double_t     _smoothRegion;
@@ -300,13 +299,12 @@ public:
     FastVerticalInterpHistPdf2Base(other, name),
     _x("x",this,other._x),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
+  explicit FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2(*this,newname) ; }
   virtual ~FastVerticalInterpHistPdf2() {}
 
   Double_t evaluate() const ;
 
-  //Bool_t hasCache()     const { return _cache.size() > 0; }
-  //Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
 protected:
   RooRealProxy   _x;
 
@@ -324,6 +322,45 @@ protected:
 private:
   ClassDef(FastVerticalInterpHistPdf2,1) // 
 };
+
+class FastVerticalInterpHistPdf2D2 : public FastVerticalInterpHistPdf2Base {
+public:
+
+  FastVerticalInterpHistPdf2D2() : FastVerticalInterpHistPdf2Base() {}
+  FastVerticalInterpHistPdf2D2(const char *name, const char *title, const RooRealVar &x, const RooRealVar &y, bool conditional, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
+
+  FastVerticalInterpHistPdf2D2(const FastVerticalInterpHistPdf2D2& other, const char* name=0) :
+    FastVerticalInterpHistPdf2Base(other, name),
+    _x("x",this,other._x), _y("y",this,other._y), _conditional(other._conditional),
+    _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
+  explicit FastVerticalInterpHistPdf2D2(const FastVerticalInterpHistPdf2D& other, const char* name=0) ;
+  virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2D2(*this,newname) ; }
+  virtual ~FastVerticalInterpHistPdf2D2() {}
+
+  const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
+  const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
+  Bool_t conditional() const { return _conditional; }
+
+  Double_t evaluate() const ;
+protected:
+  RooRealProxy _x, _y;
+  bool _conditional;
+
+  /// Cache of the result
+  mutable FastHisto2D _cache; //! not to be serialized
+
+  /// Cache of nominal pdf (additive morphing) and its bin-by-bin logarithm (multiplicative)
+  FastHisto2D _cacheNominal; 
+  FastHisto2D _cacheNominalLog; 
+
+  void syncTotal() const ;
+  void initNominal(TObject *nominal) ;
+  void initComponent(int which, TObject *hi, TObject *lo) ;
+
+private:
+  ClassDef(FastVerticalInterpHistPdf2D2,1) // 
+};
+
 
 
 

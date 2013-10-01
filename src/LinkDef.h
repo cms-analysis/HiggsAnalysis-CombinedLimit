@@ -32,13 +32,14 @@
 #pragma link C++ class VerticalInterpHistPdf+;
 #pragma link C++ class FastTemplate+;
 #pragma link C++ class FastHisto+;
+#pragma link C++ class FastHisto2D+;
 #pragma link C++ class FastVerticalInterpHistPdfBase+;
 #pragma link C++ class FastVerticalInterpHistPdfBase::Morph+;
 #pragma link C++ class FastVerticalInterpHistPdf+;
 #pragma link C++ class FastVerticalInterpHistPdf2D+;
-#pragma link C++ class FastVerticalInterpHistPdf2Base::Morph+;
 #pragma link C++ class FastVerticalInterpHistPdf2Base+;
 #pragma link C++ class FastVerticalInterpHistPdf2+;
+#pragma link C++ class FastVerticalInterpHistPdf2D2+;
 #pragma link C++ class AsymPow+;
 #pragma link C++ class CombDataSetFactory+;
 #pragma link C++ class TH1Keys+;
