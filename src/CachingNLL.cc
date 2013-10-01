@@ -12,6 +12,7 @@
 
 namespace cacheutils {
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf,FastVerticalInterpHistPdfV> CachingHistPdf;
+    typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf2,FastVerticalInterpHistPdf2V> CachingHistPdf2;
     typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
 }
 
@@ -321,7 +322,7 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
     bool histNll  = runtimedef::get("ADDNLL_HISTNLL");
     bool gaussNll  = runtimedef::get("ADDNLL_GAUSSNLL");
     int npdf = addpdf->coefList().getSize();
-    std::cout << "Unpacking RooAddPdf " << addpdf->GetName() << " with " << npdf << " components:" << std::endl;
+    //std::cout << "Unpacking RooAddPdf " << addpdf->GetName() << " with " << npdf << " components:" << std::endl;
     if (npdf != addpdf->pdfList().getSize()) {
         throw std::invalid_argument("Unbalanced RooAddPdf instances are not supported");
     }
@@ -333,7 +334,7 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
             if (apdfi->coefList().getSize() == apdfi->pdfList().getSize()) {
                 RooArgList list(*coeff);
                 if (basecoeffs.getSize()) list.add(basecoeffs);
-                std::cout << "    Invoking recursive unpack on " << i << ": RooAddPdf " << apdfi->GetName() << std::endl;
+                //std::cout << "    Invoking recursive unpack on " << i << ": RooAddPdf " << apdfi->GetName() << std::endl;
                 addPdfs_(apdfi, recursive, list);
                 continue;
             }
@@ -347,9 +348,11 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
             coeffs_.push_back(&prods_.back());
         }
         const RooArgSet *obs = data_->get();
-        std::cout << "    Adding " << i << ": " << pdfi->ClassName() << " " << pdfi->GetName() << std::endl;
+        //std::cout << "    Adding " << i << ": " << pdfi->ClassName() << " " << pdfi->GetName() << std::endl;
         if (histNll && typeid(*pdfi) == typeid(FastVerticalInterpHistPdf)) {
             pdfs_.push_back(new CachingHistPdf(pdfi, obs));
+        } else if (histNll && typeid(*pdfi) == typeid(FastVerticalInterpHistPdf2)) {
+            pdfs_.push_back(new CachingHistPdf2(pdfi, obs));
         } else if (gaussNll && typeid(*pdfi) == typeid(RooGaussian)) {
             pdfs_.push_back(new CachingGaussPdf(pdfi, obs));
         } else {
@@ -737,14 +740,27 @@ cacheutils::CachingSimNLL::setData(const RooAbsData &data)
 void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) {
     RooCategory *cat = dynamic_cast<RooCategory *>(data.get()->find(splitCat.GetName()));
     if (cat == 0) throw std::logic_error("Error: no category");
+    std::auto_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) splitCat.Clone());
     int nb = cat->numBins((const char *)0), ne = data.numEntries();
     RooArgSet obs(*data.get()); obs.remove(*cat, true, true);
     RooRealVar weight("_weight_","",1);
     RooArgSet obsplus(obs); obsplus.add(weight);
     if (nb != int(datasets_.size())) throw std::logic_error("Number of categories changed"); // this can happen due to bugs in RooDataSet
     for (int ib = 0; ib < nb; ++ib) {
-        if (datasets_[ib] == 0) datasets_[ib] = new RooDataSet("", "", obsplus, "_weight_");
-        else datasets_[ib]->reset();
+        if (datasets_[ib] == 0) {
+            catClone->setBin(ib);
+            RooAbsPdf *pdf = pdfOriginal_->getPdf(catClone->getLabel());
+            if (pdf) {
+                std::auto_ptr<RooArgSet> myobs(pdf->getObservables(obs));
+                myobs->add(weight);
+                //std::cout << "Observables for bin " << ib << ":"; myobs->Print("");
+                datasets_[ib] = new RooDataSet("", "", *myobs, "_weight_");
+            } else {
+                datasets_[ib] = new RooDataSet("", "", obsplus, "_weight_");
+            }
+        } else {
+            datasets_[ib]->reset();
+        }
     }
     //utils::printRDH((RooAbsData*)&data);
     for (int i = 0; i < ne; ++i) {
