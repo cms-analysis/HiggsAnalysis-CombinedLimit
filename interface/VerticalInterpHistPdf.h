@@ -289,6 +289,7 @@ private:
 };
 
 
+struct FastVerticalInterpHistPdf2V;
 class FastVerticalInterpHistPdf2 : public FastVerticalInterpHistPdf2Base {
 public:
 
@@ -305,6 +306,7 @@ public:
 
   Double_t evaluate() const ;
 
+  friend class FastVerticalInterpHistPdf2V;
 protected:
   RooRealProxy   _x;
 
@@ -322,6 +324,22 @@ protected:
 private:
   ClassDef(FastVerticalInterpHistPdf2,1) // 
 };
+class FastVerticalInterpHistPdf2V {
+    public: 
+        FastVerticalInterpHistPdf2V(const FastVerticalInterpHistPdf2 &, const RooAbsData &data) ;
+        void fill(std::vector<Double_t> &out) const ;
+    private:
+        const FastVerticalInterpHistPdf2 & hpdf_;
+        int begin_, end_, nbins_;
+        struct Block { 
+            int index, begin, end; 
+            Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}
+        };
+        std::vector<Block> blocks_;
+        std::vector<int> bins_;
+};
+
+
 
 class FastVerticalInterpHistPdf2D2 : public FastVerticalInterpHistPdf2Base {
 public:
