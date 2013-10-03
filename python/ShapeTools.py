@@ -38,16 +38,19 @@ class ShapeBuilder(ModelBuilder):
             self.doCombinedDataset()
     def doIndividualModels(self):
         for b in self.DC.bins:
+            print "  + Getting model for bin %s" % (b)
             pdfs   = ROOT.RooArgList(); bgpdfs   = ROOT.RooArgList()
             coeffs = ROOT.RooArgList(); bgcoeffs = ROOT.RooArgList()
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
+                print "  +--- Getting pdf for %s in bin %s" % (p,b)
                 (pdf,coeff) = (self.getPdf(b,p), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                 if self.options.optimizeExistingTemplates:
-                    self.out.dont_delete.append(pdf)
-                    pdf = self.optimizeExistingTemplates(pdf)
-                    self.out.dont_delete.append(pdf)
+                    pdf1 = self.optimizeExistingTemplates(pdf)
+                    if (pdf1 != pdf):
+                        self.out.dont_delete.append(pdf1)
+                        pdf = pdf1
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
                     prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
@@ -335,7 +338,7 @@ class ShapeBuilder(ModelBuilder):
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if _cache.has_key((channel,process)): return _cache[(channel,process)]
         shapeNominal = self.getShape(channel,process)
-        nominalPdf = self.shape2Pdf(shapeNominal,channel,process) if self.options.useHistPdf == "always" else shapeNominal
+        nominalPdf = self.shape2Pdf(shapeNominal,channel,process) if (self.options.useHistPdf == "always" or shapeNominal == None) else shapeNominal
         if shapeNominal == None: return nominalPdf # no point morphing a fake shape
         morphs = []; shapeAlgo = None
         for (syst,nofloat,pdf,args,errline) in self.DC.systs:
@@ -360,6 +363,8 @@ class ShapeBuilder(ModelBuilder):
                     morphs.append((syst,errline[channel][process],shapeUp,shapeDown))
         if len(morphs) == 0:
             if self.options.useHistPdf == "always":
+                if nominalPdf.InheritsFrom("TH1"):
+                    nominalPdf = self.rebinH1(nominalPdf)
                 return nominalPdf
             else:
                 return self.shape2Pdf(shapeNominal,channel,process)
@@ -387,15 +392,22 @@ class ShapeBuilder(ModelBuilder):
         elif "shapeN" in shapeAlgo: qalgo = -1;
         if self.options.useHistPdf != "always":
             if nominalPdf.InheritsFrom("TH1"):
-                rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, pdfs, coeffs, qrange, qalgo)
+                rebins = ROOT.TList()
+                for i in xrange(pdfs.GetSize()):
+                    rebins.Add(self.rebinH1(pdfs.At(i)))
+                rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins, coeffs, qrange, qalgo)
                 _cache[(channel,process)] = rhp
                 return rhp
             elif nominalPdf.InheritsFrom("RooHistPdf") or nominalPdf.InheritsFrom("RooDataHist"):
                 nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
+                pdfs.Clear(); ## now it contains "RooDataHist", it should contain "RooHistPdf"
+                pdfs.Add(nominalPdf)
                 for (syst,scale,shapeUp,shapeDown) in morphs:
                     pdfs.Add(self.shape2Pdf(shapeUp,channel,process))
                     pdfs.Add(self.shape2Pdf(shapeDown,channel,process))
-                rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, pdfs, coeffs, qrange, qalgo)
+                histpdf =  nominalPdf if nominalPdf.InheritsFrom("RooDataHist") else nominalPdf.dataHist()
+                xvar = histpdf.get().first()
+                rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", xvar, pdfs, coeffs, qrange, qalgo)
                 _cache[(channel,process)] = rhp
                 return rhp
             else:
@@ -461,6 +473,11 @@ class ShapeBuilder(ModelBuilder):
                 self.doObj( "systeff_%s_%s_%s" % (channel,process,syst), "AsymPow", "%f,%f,%s" % (kappasScaled[0], kappasScaled[1], syst) ) 
                 terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
         return terms if terms else None;
+    def rebinH1(self,shape):
+        rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", self.out.maxbins, 0.0, float(self.out.maxbins))
+        for i in range(1,min(shape.GetNbinsX(),self.out.maxbins)+1): 
+            rebinh1.SetBinContent(i, shape.GetBinContent(i))
+        return rebinh1;
     def shape2Data(self,shape,channel,process,_cache={}):
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if shape == None:
@@ -483,9 +500,7 @@ class ShapeBuilder(ModelBuilder):
             return _cache[name]
         if not _cache.has_key(shape.GetName()):
             if shape.ClassName().startswith("TH1"):
-                rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", self.out.maxbins, 0.0, float(self.out.maxbins))
-                for i in range(1,min(shape.GetNbinsX(),self.out.maxbins)+1): 
-                    rebinh1.SetBinContent(i, shape.GetBinContent(i))
+                rebinh1 = self.rebinH1(shape)
                 rdh = ROOT.RooDataHist(shape.GetName(), shape.GetName(), ROOT.RooArgList(self.out.binVar), rebinh1)
                 #self.out._import(rdh)
                 _cache[shape.GetName()] = rdh
@@ -508,7 +523,6 @@ class ShapeBuilder(ModelBuilder):
                     _cache[shape.GetName()+"Pdf"] = rhp
                 else:
                     rdh = self.shape2Data(shape,channel,process)
-                    #rhp = self.doObj("%sPdf" % shape.GetName(), "HistPdf", "{%s}, %s" % (self.out.binVar.GetName(), shape.GetName()))
                     rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", ROOT.RooArgSet(self.out.binVar), rdh)
                     rhp.rdh = rdh # so it doesn't get deleted
                     _cache[shape.GetName()+"Pdf"] = rhp
@@ -516,11 +530,9 @@ class ShapeBuilder(ModelBuilder):
                 _cache[shape.GetName()+"Pdf"] = shape
             elif shape.InheritsFrom("RooDataHist"):
                 rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", shape.get(), shape) 
-                #self.out._import(rhp)
                 _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooDataSet"):
                 rkp = ROOT.RooKeysPdf("%sPdf" % shape.GetName(), "", self.out.var(shape.var), shape,3,1.5); 
-                #self.out._import(rkp)
                 _cache[shape.GetName()+"Pdf"] = rkp
             else: 
                 raise RuntimeError, "shape2Pdf not implemented for %s" % shape.ClassName()
