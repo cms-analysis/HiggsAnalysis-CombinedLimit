@@ -611,7 +611,8 @@ FastVerticalInterpHistPdf2Base::FastVerticalInterpHistPdf2Base(const char *name,
 { 
   if (inFuncList.GetSize()!=2*inCoefList.getSize()+1) {
     coutE(InputArguments) << "VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() 
-			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" << endl ;
+			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" 
+                          << "while Nfunc= " << inFuncList.GetSize() << " and Ncoef= " << inCoefList.getSize() <<endl ;
     assert(0);
   }
 
@@ -627,7 +628,9 @@ FastVerticalInterpHistPdf2Base::FastVerticalInterpHistPdf2Base(const char *name,
     if (pdf) {
         RooArgSet *params = pdf->getParameters(obs);
         if (params->getSize() > 0) {
-          coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " has some parameters." << endl;
+          coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " (" << func->ClassName()<<") has some parameters." << endl;
+          obs.Print("");
+          params->Print("");
           assert(0);
         }
         delete params;
@@ -793,6 +796,7 @@ void FastVerticalInterpHistPdf2::initNominal(TObject *templ) {
         delete hist;
     }
     _cacheNominal.Normalize();
+    //printf("Normalized nominal templated: \n");  _cacheNominal.Dump(); 
     if (_smoothAlgo < 0) {
         _cacheNominalLog = _cacheNominal;
         _cacheNominalLog.Log();
@@ -970,7 +974,9 @@ FastVerticalInterpHistPdf2V::FastVerticalInterpHistPdf2V(const FastVerticalInter
         if (!bins.empty() && idx != bins.back() + 1) aligned = false;
         bins.push_back(idx);
     }
-    if (aligned) {
+    if (bins.empty()) {
+        // nothing to do.
+    } else if (aligned) {
         begin_ = bins.front();
         end_   = bins.back()+1;
         //std::cout << "Created FastVerticalInterpHistPdf2V from " << hpdf.GetName() << ", aligned, " << (end_-begin_) << " bins." << std::endl;
