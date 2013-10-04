@@ -363,8 +363,6 @@ class ShapeBuilder(ModelBuilder):
                     morphs.append((syst,errline[channel][process],shapeUp,shapeDown))
         if len(morphs) == 0:
             if self.options.useHistPdf == "always":
-                if nominalPdf.InheritsFrom("TH1"):
-                    nominalPdf = self.rebinH1(nominalPdf)
                 return nominalPdf
             else:
                 return self.shape2Pdf(shapeNominal,channel,process)
@@ -518,6 +516,7 @@ class ShapeBuilder(ModelBuilder):
         if not _cache.has_key(shape.GetName()+"Pdf"):
             if shape.ClassName().startswith("TH1"):
                 if self.options.useHistPdf == "never":
+                    shape = self.rebinH1(shape)
                     list = ROOT.TList(); list.Add(shape);
                     rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
                     _cache[shape.GetName()+"Pdf"] = rhp
