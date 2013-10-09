@@ -550,14 +550,14 @@ class ShapeBuilder(ModelBuilder):
         elif pdf.ClassName() == "RooProdPdf" and pdf.pdfList().getSize() == 2:
             f1 = pdf.pdfList().at(0)
             f2 = pdf.pdfList().at(1)
-            pdf.Print("")
+            #pdf.Print("")
             if f2.ClassName() == "FastVerticalInterpHistPdf2D" and f2.conditional():
                 f1 = self.optimizeExistingTemplates(f1)
                 f2 = ROOT.FastVerticalInterpHistPdf2D2(f2, "%s_opt" % f2.GetName()) 
                 ret = ROOT.RooProdPdf("%s_opt" % pdf.GetName(), "", ROOT.RooArgSet(f1), ROOT.RooFit.Conditional(ROOT.RooArgSet(f2),ROOT.RooArgSet(f2.y())))
                 ret.optf2 = f2
                 ret.optf1 = f1
-                print "Optimize %s in \t" % (pdf.GetName()),; ret.Print("")
+                #print "Optimize %s in \t" % (pdf.GetName()),; ret.Print("")
                 return ret
         return pdf
 
