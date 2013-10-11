@@ -7,6 +7,7 @@ class TwoHypotesisHiggs(PhysicsModel):
         self.mHRange = []
         self.muAsPOI    = False
         self.muFloating = False
+        self.fqqIncluded = False
         self.fqqFloating = False
         self.poiMap  = []
         self.pois    = {}
@@ -32,7 +33,7 @@ class TwoHypotesisHiggs(PhysicsModel):
             print "Will scale ", target, " by ", scale
             return scale;
 
-	elif self.fqqFloating:
+	elif self.fqqIncluded:
 	    ret = self.sigNorms[isAlt]
 	    if isAlt: ret+= self.sigNormsqqH["qqbarH" in process]
             print "Process ", process, " will get scaled by ", ret
@@ -44,11 +45,25 @@ class TwoHypotesisHiggs(PhysicsModel):
     
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
-	    if po == "fqqFloating":
+	    if po == "fqqIncluded":
 		print "Will consider fqq = fraction of qqH in Alt signal (signal strength will be left floating)"
 		# Here alsways setting muFloating if fqq in model, should this be kept optional?
+		self.fqqIncluded = True
+                self.muFloating = True
+	    if po == "fqqFloating":
+		self.fqqIncluded = True
+		self.fqqFloating = True
+		self.fqqRange = "0.","1."
+                self.muFloating = True
+            if po.startswith("fqqRange="):
+		self.fqqIncluded = True
 		self.fqqFloating = True
                 self.muFloating = True
+                self.fqqRange = po.replace("fqqRange=","").split(",")
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "fqq range definition requires two extrema"
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrema for fqq range defined with inverterd order. Second must be larger the first"
             if po == "muAsPOI": 
                 print "Will consider the signal strength as a parameter of interest"
                 self.muAsPOI = True
@@ -104,9 +119,10 @@ class TwoHypotesisHiggs(PhysicsModel):
                 self.modelBuilder.factory_("expr::r_times_x(\"@0*@1\", r, x)")
                 self.sigNorms = { True:'r_times_x', False:'r_times_not_x' }
 
-            	if self.fqqFloating:
+            	if self.fqqIncluded:
 
-			self.modelBuilder.doVar("fqq[0,0,1]");
+			if self.fqqFloating: self.modelBuilder.doVar("fqq[0,%s,%s]" % (self.fqqRange[0],self.fqqRange[1]));
+			else: self.modelBuilder.doVar("fqq[0]");
 	                self.modelBuilder.factory_("expr::r_times_x_times_fqq(\"@0*@1\", r_times_x, fqq)")
         	        self.modelBuilder.factory_("expr::r_times_x_times_not_fqq(\"@0*(1-@1)\", r_times_x, fqq)")
  
