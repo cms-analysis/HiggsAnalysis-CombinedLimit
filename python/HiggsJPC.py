@@ -51,10 +51,14 @@ class TwoHypotesisHiggs(PhysicsModel):
 		self.fqqIncluded = True
                 self.muFloating = True
 	    if po == "fqqFloating":
+		self.fqqIncluded = True
 		self.fqqFloating = True
 		self.fqqRange = "0.","1."
+                self.muFloating = True
             if po.startswith("fqqRange="):
+		self.fqqIncluded = True
 		self.fqqFloating = True
+                self.muFloating = True
                 self.fqqRange = po.replace("fqqRange=","").split(",")
                 if len(self.mHRange) != 2:
                     raise RuntimeError, "fqq range definition requires two extrema"
