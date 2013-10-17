@@ -33,6 +33,22 @@ class RooMinimizerFcnOpt : public RooMinimizerFcn {
         virtual double DoEval(const double * x) const;
         mutable std::vector<RooRealVar *> _vars;
         mutable std::vector<double>       _vals;
+        mutable std::vector<bool  >       _hasOptimzedBounds;
+        struct OptBound {
+            double softMin, softMax, hardMin, hardMax;
+            double transform(double x) const {
+                if (x < softMin) {
+                    double dx = softMin-x; // > 0
+                    return hardMin + ( (softMin-hardMin) + dx ) * std::exp ( -2*dx/(softMin-hardMin) );
+                } else if (x > softMax) { 
+                    double dx = x-softMax;
+                    return hardMax - ( (hardMax-softMax) + dx ) * std::exp ( -2*dx/(hardMax-softMax) );
+                } else {
+                    return x;
+                }
+            }
+        };
+        mutable std::vector<OptBound> _optimzedBounds;
 };
 
 #endif

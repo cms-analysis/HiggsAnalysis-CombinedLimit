@@ -318,6 +318,19 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             }
         } 
     }
+    if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != 0) {
+        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+            //std::cout << (rrv ? "Var" : "Arg") << ": " << a->GetName()  << ": " << a->getAttribute("optimizeBounds") << std::endl;
+            if (rrv != 0 && rrv->getAttribute("optimizeBounds")) {
+                std::cout << "Unboud " << rrv->GetName() << std::endl;
+                rrv->setRange("optimizeBoundRange", rrv->getMin(), rrv->getMax());
+                rrv->removeMin();
+                rrv->removeMax();
+            }
+        } 
+    } 
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
     w = hlf->GetWs();

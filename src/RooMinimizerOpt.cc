@@ -277,7 +277,7 @@ RooMinimizerFcnOpt::RooMinimizerFcnOpt(RooAbsReal *funct, RooMinimizer *context,
 
 RooMinimizerFcnOpt::RooMinimizerFcnOpt(const RooMinimizerFcnOpt &other) :
     RooMinimizerFcn(other._funct, other._context, other._verbose),
-    _vars(other._vars), _vals(other._vals)
+    _vars(other._vars), _vals(other._vals), _hasOptimzedBounds(other._hasOptimzedBounds), _optimzedBounds(other._optimzedBounds)
 {
 
 }
@@ -296,8 +296,14 @@ RooMinimizerFcnOpt::DoEval(const double * x) const
       if (_vals[index]!=x[index]) {
           RooRealVar* par = _vars[index];
           if (_verbose) cout << par->GetName() << "=" << x[index] << ", " ;
-          par->setVal(x[index]);
-          _vals[index] = par->getVal(); // might not work otherwise if x is out of the boundary
+          if (_hasOptimzedBounds[index]) {
+              // boundary transformation done internally
+              par->setVal( _optimzedBounds[index].transform(x[index]) );
+              _vals[index] = x[index];
+          } else {
+              par->setVal(x[index]);
+              _vals[index] = par->getVal(); // might not work otherwise if x is out of the boundary
+          }
       }
   }
   if (_logfile) {
@@ -610,13 +616,26 @@ Bool_t RooMinimizerFcnOpt::Synchronize(std::vector<ROOT::Fit::ParameterSettings>
 void RooMinimizerFcnOpt::initStdVects() const {
   _vars.resize(_floatParamList->getSize());
   _vals.resize(_vars.size());
+  _hasOptimzedBounds.resize(_vars.size());
+  _optimzedBounds.resize(_vars.size());
   std::vector<RooRealVar *>::iterator itv = _vars.begin();
   std::vector<double>::iterator it = _vals.begin();
   RooLinkedListIter iter = _floatParamList->iterator();
-  for (TObject *a = iter.Next(); a != 0; a = iter.Next(), ++itv, ++it) {
+  std::fill(_hasOptimzedBounds.begin(), _hasOptimzedBounds.end(), false);
+  unsigned int i = 0;
+  for (TObject *a = iter.Next(); a != 0; a = iter.Next(), ++itv, ++it, ++i) {
       RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
       if (rrv == 0) throw std::logic_error(Form("Float param not a RooRealVar but a %s", a->ClassName()));
       *itv = rrv; 
       *it  = rrv->getVal();
+      if (rrv->getAttribute("optimizeBounds")) {
+        _hasOptimzedBounds[i] = true;
+        OptBound &b = _optimzedBounds[i];
+        b.hardMax = rrv->getMax("optimizeBoundRange");
+        b.hardMin = rrv->getMin("optimizeBoundRange");
+        double x0 = 0.5*(b.hardMax+b.hardMin);
+        b.softMax = 0.75*b.hardMax + 0.25*x0;
+        b.softMin = 0.75*b.hardMin + 0.25*x0;
+      }
   }
 }

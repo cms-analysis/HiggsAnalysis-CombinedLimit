@@ -104,6 +104,7 @@ class ModelBuilder(ModelBuilderBase):
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
+                if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
             elif pdf == "gmM":
                 val = 0;
                 for c in errline.values(): #list channels
@@ -205,6 +206,7 @@ class ModelBuilder(ModelBuilderBase):
                     self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]))
                     self.out.var("%s_In" % n).setConstant(True)
                 globalobs.append("%s_In" % n)
+                #if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
             if nofloat: 
               self.out.var("%s" % n).setAttribute("globalConstrained",True)
