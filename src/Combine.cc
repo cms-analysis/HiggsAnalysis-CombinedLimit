@@ -150,6 +150,10 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   mass_ = vm["mass"].as<float>();
   saveToys_ = vm.count("saveToys");
   validateModel_ = vm.count("validateModel");
+  if (vm["method"].as<std::string>() == "MultiDimFit" || ( vm["method"].as<std::string>() == "MaxLikelihoodFit" && vm.count("justFit"))) {
+    //CMSDAS new default,
+    if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
+  }
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
