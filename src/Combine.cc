@@ -324,7 +324,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
             //std::cout << (rrv ? "Var" : "Arg") << ": " << a->GetName()  << ": " << a->getAttribute("optimizeBounds") << std::endl;
             if (rrv != 0 && rrv->getAttribute("optimizeBounds")) {
-                std::cout << "Unboud " << rrv->GetName() << std::endl;
+                //std::cout << "Unboud " << rrv->GetName() << std::endl;
                 rrv->setRange("optimizeBoundRange", rrv->getMin(), rrv->getMax());
                 rrv->removeMin();
                 rrv->removeMax();
