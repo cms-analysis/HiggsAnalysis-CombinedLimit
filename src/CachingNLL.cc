@@ -46,6 +46,7 @@ namespace cacheutils {
 //std::map<std::string,double> cacheutils::CachingAddNLL::offsets_;
 bool cacheutils::CachingSimNLL::noDeepLEE_ = false;
 bool cacheutils::CachingSimNLL::hasError_  = false;
+bool cacheutils::CachingSimNLL::optimizeContraints_  = true;
 
 //#define DEBUG_TRACE_POINTS
 #ifdef DEBUG_TRACE_POINTS
@@ -651,10 +652,10 @@ cacheutils::CachingSimNLL::setup_()
     RooSimultaneous *simpdf = factorizedPdf_.get();
     constrainPdfs_.clear(); 
     if (constraints.getSize()) {
-        int FastConstraints = runtimedef::get("SIMNLL_FASTGAUSS");
+        int FastConstraints = optimizeContraints_ && runtimedef::get("SIMNLL_FASTGAUSS");
         for (int i = 0, n = constraints.getSize(); i < n; ++i) {
             RooAbsPdf *pdfi = dynamic_cast<RooAbsPdf*>(constraints.at(i));
-            if (typeid(*pdfi) == typeid(SimpleGaussianConstraint)) {
+            if (optimizeContraints_ && typeid(*pdfi) == typeid(SimpleGaussianConstraint)) {
                 constrainPdfsFast_.push_back(static_cast<SimpleGaussianConstraint *>(pdfi));
                 constrainPdfsFastOwned_.push_back(false);
                 constrainZeroPointsFast_.push_back(0);
@@ -737,6 +738,7 @@ cacheutils::CachingSimNLL::evaluate() const
         itz = constrainZeroPointsFast_.begin();
         for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) { 
             double logpdfval = (*it)->getLogValFast();
+            //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
             ret -= (logpdfval + *itz);
         }
     }

@@ -144,6 +144,7 @@ class CachingSimNLL  : public RooAbsReal {
         static void setNoDeepLogEvalError(bool noDeep) { noDeepLEE_ = noDeep; }
         void setZeroPoint() ; 
         void clearZeroPoint() ;
+        static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         friend class CachingAddNLL;
     private:
         void setup_();
@@ -161,6 +162,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<RooDataSet *>       datasets_;
         static bool noDeepLEE_;
         static bool hasError_;
+        static bool optimizeContraints_;
         std::vector<double> constrainZeroPoints_;
         std::vector<double> constrainZeroPointsFast_;
 };
