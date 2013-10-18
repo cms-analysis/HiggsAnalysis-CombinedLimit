@@ -56,6 +56,9 @@ protected:
   RooFitResult *doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse=true, int ndim=1,bool reuseNLL=false, bool saveFitResult=true) ;
   double findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) ;
   double findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) ;
+
+  void optimizeBounds(const RooWorkspace *w, const RooStats::ModelConfig *mc) ;
+  void restoreBounds(const RooWorkspace *w, const RooStats::ModelConfig *mc) ;
 };
 
 

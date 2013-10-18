@@ -229,6 +229,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
+    if (algo->name() == "MaxLikelihoodFit" || algo->name() == "MultiDimFit") options += " --for-fits";
     //-- Text mode: old default
     //int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -o "+tmpFile+".hlf"); 
     //isTextDatacard = true; fileToLoad = tmpFile+".hlf";
@@ -309,32 +310,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
     }
-    if (runtimedef::get("UNBOUND_GAUSSIANS") && mc->GetNuisanceParameters() != 0) {
-        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
-            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-            if (rrv != 0) {
-                RooAbsPdf *pdf = w->pdf((std::string(a->GetName())+"_Pdf").c_str());
-                if (pdf != 0 && dynamic_cast<RooGaussian *>(pdf) != 0) {
-                    rrv->removeMin();
-                    rrv->removeMax();
-                }
-            }
-        } 
-    }
-    if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != 0) {
-        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
-            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-            //std::cout << (rrv ? "Var" : "Arg") << ": " << a->GetName()  << ": " << a->getAttribute("optimizeBounds") << std::endl;
-            if (rrv != 0 && rrv->getAttribute("optimizeBounds")) {
-                //std::cout << "Unboud " << rrv->GetName() << std::endl;
-                rrv->setRange("optimizeBoundRange", rrv->getMin(), rrv->getMax());
-                rrv->removeMin();
-                rrv->removeMax();
-            }
-        } 
-    } 
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
     w = hlf->GetWs();
