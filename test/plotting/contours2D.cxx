@@ -24,6 +24,8 @@ TH2 *treeToHist2D(TTree *t, TString x, TString y, TString name, TCut cut, double
              h2d->SetBinContent(ix, iy, z);
         }
     }
+    h2d->GetXaxis()->SetTitle(x);
+    h2d->GetYaxis()->SetTitle(y);
     h2d->SetDirectory(0);
     return h2d;
 }
@@ -34,6 +36,7 @@ TList* contourFromTH2(TH2 *h2in, double threshold, int minPoints=20) {
     Double_t contours[1];
     contours[0] = threshold;
     if (h2in->GetNbinsX() * h2in->GetNbinsY() > 10000) minPoints = 50;
+    if (h2in->GetNbinsX() * h2in->GetNbinsY() <= 100) minPoints = 10;
 
     TH2D *h2 = frameTH2D((TH2D*)h2in,threshold);
 
@@ -56,9 +59,10 @@ TList* contourFromTH2(TH2 *h2in, double threshold, int minPoints=20) {
     TList *ret = new TList();
     for(int i = 0; i < conts->GetSize(); i++){
         contLevel = (TList*)conts->At(i);
-        printf("Contour %d has %d Graphs\n", i, contLevel->GetSize());
+        //printf("Contour %d has %d Graphs\n", i, contLevel->GetSize());
         for (int j = 0, n = contLevel->GetSize(); j < n; ++j) {
             TGraph *gr1 = (TGraph*) contLevel->At(j);
+            //printf("\t Graph %d has %d points\n", j, gr1->GetN());
             if (gr1->GetN() > minPoints) ret->Add(gr1->Clone());
             //break;
         }
