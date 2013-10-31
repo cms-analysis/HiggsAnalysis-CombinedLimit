@@ -11,10 +11,11 @@ if len(sys.argv) < 3:
     print "usage: parallelScan.py <arguments to combine>  [ -j processes ]"
     exit()
 
-jobs, points, name = 0, 0, "Test"
+jobs, points, name, method, mass, hadd = 0, 0, "Test", None, 120, False
 ## take out the -n and -j; find the --points
 args = []
 i = 1;
+if sys.argv[i] == "combine": i+= 1
 while i < len(sys.argv):
     if sys.argv[i] == "-j":
         jobs = int(sys.argv[i+1])
@@ -31,6 +32,19 @@ while i < len(sys.argv):
         points = int(sys.argv[i].replace("--points=",""))
         args.append(sys.argv[i]); 
         i += 1
+    elif sys.argv[i] in [ "--mass", "-m" ]:
+        mass = float(sys.argv[i+1])
+        args.append(sys.argv[i]); 
+        args.append(sys.argv[i+1]); 
+        i += 2
+    elif sys.argv[i] in [ "-M", "--method" ]:
+        method = sys.argv[i+1]
+        args.append(sys.argv[i]); 
+        args.append(sys.argv[i+1]); 
+        i += 2
+    elif sys.argv[i] == "--hadd":
+        hadd = True
+        i += 1
     else:
         args.append(sys.argv[i]); 
         i += 1
@@ -46,6 +60,10 @@ if jobs == 0:
     else:
         jobs = cores
         print "Will run with %d jobs (one per core)" % jobs
+if hadd:
+    if not method: 
+        print "Cannot understand what method of combine you are using, so cannot do hadd"
+        exit()
 
 workers = []
 for j in xrange(jobs):
@@ -58,5 +76,14 @@ for j in xrange(jobs):
 for w in workers:
     w.wait()
 
-print "All workers done, now you have to hadd the results yourself."
+if hadd:
+    if not method: 
+        print "Cannot understand what method of combine you are using, so cannot do hadd"
+    else:
+        output = "higgsCombine%s.%s.mH%g.root" % (name,method,mass)
+        input  = "  ".join(["higgsCombine%s.%d.%s.mH%g.root" % (name,j,method,mass) for j in xrange(jobs)])
+        print "All workers done, doing the hadd to make %s out of higgsCombine%s.{0..%d}.%s.mH%g.root" % (output, name,jobs-1,method,mass)
+        os.system("hadd -f %s %s" % (output,input))
+else:
+    print "All workers done, now you have to hadd the results yourself."
     
