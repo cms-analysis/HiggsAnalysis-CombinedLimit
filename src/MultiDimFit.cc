@@ -293,6 +293,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                     Combine::commitPoint(true, /*quantile=*/prob);
                 }
                 if (gridType_ == G3x3) {
+                    bool forceProfile = !fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.5;
                     utils::CheapValueSnapshot center(*params);
                     double x0 = x, y0 = y;
                     for (int i2 = -1; i2 <= +1; ++i2) {
@@ -309,7 +310,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                                 continue;
                             }
                             deltaNLL_ = nll.getVal() - nll0;
-                            if (!fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.3) {
+                            if (forceProfile || (!fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.5)) {
                                 minim.minimize(verbose-1);
                                 deltaNLL_ = nll.getVal() - nll0;
                             }
