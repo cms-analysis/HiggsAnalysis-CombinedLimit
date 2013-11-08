@@ -32,7 +32,7 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
-paramSysts = {}; flatParamNuisances = {}; discreteNuisances = []
+paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}
 cmax = 5 # column width
 if not args:
     raise RuntimeError, "No input datacards specified."
@@ -109,7 +109,10 @@ for ich,fname in enumerate(args):
         flatParamNuisances[K] = True
     # discrete nuisance
     for K in DC.discretes: 
-        discreteNuisances.append(K)
+        if discreteNuisances.has_key(K):
+					raise RuntimeError, "Cannot currently correlate discrete nuisances across categories. Rename %s in one."%K
+        else:
+					discreteNuisances[K] = True
     # put shapes, if available
     if len(DC.shapeMap):
         for b in DC.bins:
@@ -208,5 +211,5 @@ for (pname, pargs) in paramSysts.items():
 for pname in flatParamNuisances.iterkeys(): 
     print "%-12s  flatParam" % pname
 
-for dname in discreteNuisances: 
+for dname in discreteNuisances.iterkeys(): 
     print "%-12s  discrete" % dname
