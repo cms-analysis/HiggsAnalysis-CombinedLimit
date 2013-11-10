@@ -500,6 +500,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                 if (htot == 0) {
                     htot = (TH1*) hist->Clone();
                     htot->SetName("total");
+		    htot->SetTitle(Form("Total signal+background in %s", pair->second.channel.c_str()));
                     htot->SetDirectory(shapesByChannel[pair->second.channel]);
                     TH1 *htot2 = (TH1*) hist->Clone(); htot2->Reset();
                     htot2->SetDirectory(0);
@@ -512,6 +513,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                 if (hpart == 0) {
                     hpart = (TH1*) hist->Clone();
                     hpart->SetName((sig[i] ? "total_signal" : "total_background"));
+		    hpart->SetTitle(Form((sig[i] ? "Total signal in %s" : "Total background in %s"),pair->second.channel.c_str()));
                     hpart->SetDirectory(shapesByChannel[pair->second.channel]);
                     TH1 *hpart2 = (TH1*) hist->Clone(); hpart2->Reset();
                     hpart2->SetDirectory(0);

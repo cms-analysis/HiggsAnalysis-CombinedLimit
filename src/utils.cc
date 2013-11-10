@@ -20,6 +20,7 @@
 #include <RooDataHist.h>
 #include <RooDataSet.h>
 #include <RooRealVar.h>
+#include <RooCategory.h>
 #include <RooProdPdf.h>
 #include <RooProduct.h>
 #include <RooSimultaneous.h>
@@ -478,8 +479,15 @@ void utils::CheapValueSnapshot::readFrom(const RooAbsCollection &src) {
     RooLinkedListIter iter = src.iterator(); int i = 0;
     for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        if (rrv == 0) throw std::invalid_argument("Collection to read from contains a non-RooRealVar");
-        values_[i] = rrv->getVal();
+        if (rrv == 0) {
+          RooCategory *rc = dynamic_cast<RooCategory *>(a);
+	  if (rc == 0){
+		throw std::invalid_argument("Collection to read from contains a non-RooRealVar/RooCategory");
+	  } 
+	  values_[i] = (double)rc->getIndex();
+	} else {
+          values_[i] = rrv->getVal();
+	}
     }
 }
 
@@ -488,14 +496,22 @@ void utils::CheapValueSnapshot::writeTo(const RooAbsCollection &src) const {
         RooLinkedListIter iter = src.iterator();  int i = 0;
         for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-            rrv->setVal(values_[i]);
+	    if (rrv!=0) rrv->setVal(values_[i]);
+	    else {
+		RooCategory *rc = dynamic_cast<RooCategory *>(a);
+		rc->setIndex((int)values_[i]);
+	    }
         }
     } else {
         RooLinkedListIter iter = src_->iterator();  int i = 0;
         for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
             RooAbsArg *a2 = src.find(a->GetName()); if (a2 == 0) continue;
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a2);
-            rrv->setVal(values_[i]);
+            if (rrv!=0) rrv->setVal(values_[i]);
+	    else {
+		RooCategory *rc = dynamic_cast<RooCategory *>(a2);
+		rc->setIndex((int)values_[i]);
+	    }
         }
     }
 }
