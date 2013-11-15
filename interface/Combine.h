@@ -2,6 +2,7 @@
 #define HiggsAnalysis_CombinedLimit_Combine_h
 #include <TString.h>
 #include <boost/program_options.hpp>
+#include "RooArgSet.h"
 
 class TDirectory;
 class TTree;
@@ -41,6 +42,8 @@ private:
   bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
  
   void addDiscreteNuisances(RooWorkspace *);
+  void addNuisances(const RooArgSet *);
+  void addPOI(const RooArgSet *);
 
   boost::program_options::options_description statOptions_, ioOptions_, miscOptions_;
  
