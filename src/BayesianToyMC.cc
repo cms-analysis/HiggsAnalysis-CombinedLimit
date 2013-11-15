@@ -13,6 +13,7 @@
 #include <Math/DistFuncMathCore.h>
 
 #include "../interface/Combine.h"
+#include "../interface/CachingNLL.h"
 #include "../interface/utils.h"
 
 using namespace RooStats;
@@ -75,6 +76,9 @@ bool BayesianToyMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
         if (integrationType_ == "toymc") {
             if (nuisancePdf.get() == 0)  nuisancePdf.reset(utils::makeNuisancePdf(*mc_s));
             bcalc.ForceNuisancePdf(*nuisancePdf);
+            // turn off optimization of constraint terms in the NLL, otherwise
+            // it does not divide properly by the nuisance pdf
+            cacheutils::CachingSimNLL::forceUnoptimizedConstraints();
         }
         // get the interval
         std::auto_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());

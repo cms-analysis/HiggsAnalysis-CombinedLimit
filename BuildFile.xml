@@ -4,6 +4,7 @@
 <use name="roostats"/>
 <use name="histfactory"/>
 <use name="libxml2"/>
+<use name="vdt"/>
 <use   name="boost_program_options"/>
 <use   name="boost_filesystem"/>
 <export>

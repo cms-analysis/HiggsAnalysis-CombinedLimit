@@ -122,7 +122,7 @@ def getHiggsProdDecMode(bin,process,options):
         raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
     #
     foundDecay = None
-    for D in [ "hww", "hzz", "hgg", "htt", "hbb", 'hzg', 'hmm' ]:
+    for D in [ "hww", "hzz", "hgg", "htt", "hbb", 'hzg', 'hmm', 'hinv' ]:
         if D in decaySource:
             if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
             foundDecay = D
@@ -133,6 +133,11 @@ def getHiggsProdDecMode(bin,process,options):
         if D in decaySource:
             if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
             foundEnergy = D
+    if not foundEnergy:
+        for D in [ '7TeV', '8TeV', '14TeV' ]:
+            if D in options.fileName+":"+bin:
+                if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
+                foundEnergy = D
     if not foundEnergy:
         foundEnergy = '7TeV' ## To ensure backward compatibility
         print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)

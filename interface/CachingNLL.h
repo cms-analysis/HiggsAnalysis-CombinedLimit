@@ -13,6 +13,11 @@
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooGaussian.h>
+#include <RooProduct.h>
+#include "../interface/SimpleGaussianConstraint.h"
+#include <boost/ptr_container/ptr_vector.hpp>
+
+class RooMultiPdf;
 
 // Part zero: ArgSet checker
 namespace cacheutils {
@@ -55,19 +60,37 @@ class CachingPdf {
     public:
         CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
         CachingPdf(const CachingPdf &other) ;
-        ~CachingPdf() ;
+        virtual ~CachingPdf() ;
         const std::vector<Double_t> & eval(const RooAbsData &data) ;
         const RooAbsReal *pdf() const { return pdf_; }
         void  setDataDirty() { lastData_ = 0; }
-    private:
+    protected:
         const RooArgSet *obs_;
         RooAbsReal *pdfOriginal_;
         RooArgSet  pdfPieces_;
         RooAbsReal *pdf_;
         const RooAbsData *lastData_;
         ValuesCache cache_;
-        void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
+        std::vector<uint8_t> nonZeroW_;
+        unsigned int         nonZeroWEntries_;
+        virtual void newData_(const RooAbsData &data) ;
+        virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
 };
+
+template <typename PdfT, typename VPdfT> 
+class OptimizedCachingPdfT : public CachingPdf {
+    public:
+        OptimizedCachingPdfT(RooAbsReal *pdf, const RooArgSet *obs) :
+            CachingPdf(pdf,obs), vpdf_(0) {}
+        OptimizedCachingPdfT(const OptimizedCachingPdfT &other) : 
+            CachingPdf(other), vpdf_(0) {}
+        virtual ~OptimizedCachingPdfT() { delete vpdf_; }
+    protected:
+        virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
+        virtual void newData_(const RooAbsData &data) ;
+        VPdfT *vpdf_;
+};
+
 
 class CachingAddNLL : public RooAbsReal {
     public:
@@ -88,16 +111,20 @@ class CachingAddNLL : public RooAbsReal {
         RooSetProxy & params() { return params_; }
     private:
         void setup_();
+        void addPdfs_(RooAddPdf *addpdf, bool recursive, const RooArgList & basecoeffs) ;
         RooAbsPdf *pdf_;
         RooSetProxy params_;
         const RooAbsData *data_;
         std::vector<Double_t>  weights_;
         double               sumWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
-        mutable std::vector<CachingPdf>  pdfs_;
+        mutable boost::ptr_vector<CachingPdf>  pdfs_;
+        mutable boost::ptr_vector<RooAbsReal>  prods_;
         mutable std::vector<RooAbsReal*> integrals_;
+        mutable std::vector<std::pair<const RooMultiPdf*,CachingPdf*> > multiPdfs_;
         mutable std::vector<Double_t> partialSum_;
-        mutable bool isRooRealSum_;
+        mutable std::vector<Double_t> workingArea_;
+        mutable bool isRooRealSum_, fastExit_;
         double zeroPoint_;
 };
 
@@ -117,18 +144,9 @@ class CachingSimNLL  : public RooAbsReal {
         static void setNoDeepLogEvalError(bool noDeep) { noDeepLEE_ = noDeep; }
         void setZeroPoint() ; 
         void clearZeroPoint() ;
+        static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         friend class CachingAddNLL;
     private:
-        class SimpleGaussianConstraint : public RooGaussian {
-            public:
-                SimpleGaussianConstraint(const RooGaussian &g) : RooGaussian(g, "") {}
-                double getLogValFast() const { 
-                    Double_t arg = x - mean;  
-                    Double_t sig = sigma ;
-                    return -0.5*arg*arg/(sig*sig);
-                }
-        };
-
         void setup_();
         RooSimultaneous   *pdfOriginal_;
         const RooAbsData  *dataOriginal_;
@@ -138,11 +156,13 @@ class CachingSimNLL  : public RooAbsReal {
         std::auto_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
         std::vector<SimpleGaussianConstraint *>  constrainPdfsFast_;
+        std::vector<bool>                        constrainPdfsFastOwned_;
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
         static bool noDeepLEE_;
         static bool hasError_;
+        static bool optimizeContraints_;
         std::vector<double> constrainZeroPoints_;
         std::vector<double> constrainZeroPointsFast_;
 };
