@@ -164,7 +164,7 @@ are freely floating. We should cut them down to find which ones are
 
    if (discretesHaveChanged) improve(verbose, cascade); 
    minimumNLL = nll_.getVal();
-   return true;
+   return ret;
 }
 
 bool CascadeMinimizer::minimize(int verbose, bool cascade) 
@@ -247,7 +247,6 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
       int maxIterations = 15; int iterationCounter=0;
       for (;iterationCounter<maxIterations;iterationCounter++){
         iterativeMinimize(minimumNLL,verbose,cascade);
-        if ( minimumNLL > previousNLL ) std::cout << "Iterative Minimize -- Warning -- you seem to have gotten a worse fit now?!" << std::endl;
         if ( fabs(previousNLL-minimumNLL) < discreteMinTol_ ) break; // should be minimizer tolerance
 	previousNLL = minimumNLL ;
       }
@@ -256,11 +255,15 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 
       double minimumNLL = 10;
       std::vector<std::vector<bool>> contIndex;
-      multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex); 
+      multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex);
+ 
+      if (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize() > 1) {
+         multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,1,contIndex);
+         multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,2,contIndex);
+      }
 
     }
     // cheat 
-    ret = true;	
     return ret;
 }
 
@@ -319,7 +322,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     std::vector<std::vector<int> > myCombos;
 
     // Get All Permutations of pdfs
-    if ( ( mode==0 && runShortCombinations ) || mode ==1 ) myCombos = utils::generateOrthogonalCombinations(pdfSizes);
+    if ( ( mode==0 ) /*&& runShortCombinations )*/ || mode ==1 ) myCombos = utils::generateOrthogonalCombinations(pdfSizes);
     else myCombos = utils::generateCombinations(pdfSizes);
 
     // Reorder to start from the "best indeces"
@@ -339,20 +342,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	}
     }
 
-    int FFS=0;
-    std::vector<std::vector<int> >::iterator t_it = myCombos.begin();
-    for (;t_it!=myCombos.end(); t_it++){
-	     std::cout << "Comb #"<<FFS << " ";
-	     std::vector<int> cit = *t_it;
-	     for (std::vector<int>::iterator it = cit.begin();
-	         it!=cit.end(); it++){
-		std::cout << *it << " ";
-	     }
-	     std::cout << std::endl;
-	     FFS ++;
-    }
-	
-
     std::vector<std::vector<int> >::iterator my_it = myCombos.begin();
     if (mode!=0) my_it++; // already did the best fit case
   
@@ -369,14 +358,14 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	         it!=cit.end(); it++){
 
 		 isValidCombo *= (contributingIndeces)[pdfIndex][*it];
-		 if (!isValidCombo && runShortCombinations) continue;
+		 if (!isValidCombo ) /*&& runShortCombinations)*/ continue;
 
 	     	 fPdf = (RooCategory*) pdfCategoryIndeces.at(pdfIndex);
 		 fPdf->setIndex(*it);
 		 pdfIndex++;
 	     }
 	
-      if (!isValidCombo && runShortCombinations) continue;
+      if (!isValidCombo )/*&& runShortCombinations)*/ continue;
       
       if (verbose>2) {
 	std::cout << "Setting indices := ";
@@ -412,7 +401,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
       // FIXME this should be made configurable!
       double maxDeviation = 5;
 
-      if (mode==1 && runShortCombinations){
+      if (mode==1 )/*&& runShortCombinations)*/{
 
         if (thisNllValue > minimumNLL+maxDeviation){
 		// Step 1, find out which index just changed 
