@@ -781,7 +781,20 @@ Double_t FastVerticalInterpHistPdf2D2::evaluate() const
 }
 
 
-
+void FastVerticalInterpHistPdf2::setActiveBins(unsigned int bins) {
+  assert(bins <= _cacheNominal.fullsize());
+  if (_cache.size() == 0) _cache = _cacheNominal; // _cache is not persisted
+  _cache.CropUnderflows(1e-9,false);        // set all bins, also the non-active ones
+  _cacheNominal.CropUnderflows(1e-9,false); // set all bins, also the non-active ones
+  _cache.SetActiveSize(bins);
+  _cacheNominal.SetActiveSize(bins);
+  _cacheNominalLog.SetActiveSize(bins);
+  for (Morph & m : _morphs) {
+    m.sum.SetActiveSize(bins);
+    m.diff.SetActiveSize(bins);
+  }
+  //printf("Setting the number of active bins to be %d/%d for %s\n", bins, _cacheNominal.fullsize(), GetName());
+}
 
 void FastVerticalInterpHistPdf2::initNominal(TObject *templ) {
     TH1 *hist = dynamic_cast<TH1*>(templ);

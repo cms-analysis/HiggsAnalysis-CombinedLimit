@@ -20,7 +20,7 @@ void FastTemplate::Clear() {
 }
 
 void FastTemplate::CopyValues(const FastTemplate &other) {
-    values_ = other.values_;
+    std::copy(other.values_.begin(), other.values_.begin()+size_, values_.begin());
 }
 
 void FastTemplate::CopyValues(const TH1 &other) {
@@ -37,8 +37,8 @@ void FastTemplate::CopyValues(const TH2 &other) {
 }
 
 void FastTemplate::Dump() const {
-    printf("--- dumping template with %d bins (@%p) ---\n", size_+1, (void*)(&values_[0]));
-    for (unsigned int i = 0; i < size_; ++i) printf(" bin %3d: yval = %9.5f\n", i, values_[i]);
+    printf("--- dumping template with %d bins (%d active bins) (@%p) ---\n", int(values_.size()), size_, (void*)(&values_[0]));
+    for (unsigned int i = 0; i < values_.size(); ++i) printf(" bin %3d: yval = %9.5f\n", i, values_[i]);
     printf("\n"); 
 }
 
@@ -64,7 +64,7 @@ FastHisto::FastHisto(const FastHisto &other) :
 int FastHisto::FindBin(const T &x) const {
     auto match = std::lower_bound(binEdges_.begin(), binEdges_.end(), x);
     if (match == binEdges_.begin()) return -1;
-    if (match == binEdges_.end()) return size();
+    if (match == binEdges_.end()) return values_.size();
     return match - binEdges_.begin() - 1;
 }
 
@@ -82,8 +82,8 @@ FastHisto::T FastHisto::IntegralWidth() const {
 }
 
 void FastHisto::Dump() const {
-    printf("--- dumping histo template with %d bins in range %.2f - %.2f (@%p)---\n", size_+1, binEdges_[0], binEdges_[size_], (void*)&values_[0]);
-    for (unsigned int i = 0; i < size_; ++i) {
+    printf("--- dumping histo template with %d bins (%d active) in range %.2f - %.2f (@%p)---\n", int(values_.size()), size_, binEdges_[0], binEdges_[size_], (void*)&values_[0]);
+    for (unsigned int i = 0; i < values_.size(); ++i) {
         printf(" bin %3d, x = %6.2f: yval = %9.5f, width = %6.3f\n", 
                     i, 0.5*(binEdges_[i]+binEdges_[i+1]), values_[i], binWidths_[i]);
     }
@@ -208,6 +208,7 @@ void FastTemplate::Meld(const FastTemplate & diff, const FastTemplate & sum, T x
 
 void FastTemplate::Log() {
     for (unsigned int i = 0; i < size_; ++i) {
+        //if (values_[i] <= 0) printf("WARNING: log(%g) at bin %d of %d bins (%d active bins)\n", values_[i], i, int(values_.size()), size_);
         values_[i] = values_[i] > 0 ? std::log(values_[i]) : T(-999);
     }
 }
@@ -218,8 +219,8 @@ void FastTemplate::Exp() {
     }
 }
 
-void FastTemplate::CropUnderflows(T minimum) {
-    for (unsigned int i = 0; i < size_; ++i) {
+void FastTemplate::CropUnderflows(T minimum, bool activebinsonly) {
+    for (unsigned int i = 0, n = activebinsonly ? size_ : values_.size(); i < n; ++i) {
         if (values_[i] < minimum) values_[i] = minimum;
     }
 }   

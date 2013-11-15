@@ -44,6 +44,10 @@ class FastTemplate {
         void CopyValues(const TH2 &other) ;
         T & operator[](unsigned int i) { return values_[i]; }
         const T & operator[](unsigned int i) const { return values_[i]; }
+        /// return the full size of the template
+        const unsigned int fullsize() const { return values_.size(); }
+        /// return the active size of the template (can be less than the full size if the SetActiveSize
+        /// has been used to inform the code that only the first N bins are not empty)
         const unsigned int size() const { return size_; }
         
         /// *this = log(*this) 
@@ -59,7 +63,11 @@ class FastTemplate {
         /// Does this += x * (diff + (sum)*y)
         void Meld(const FastTemplate & diff, const FastTemplate & sum, T x, T y) ;
         /// protect from underflows (*this = max(*this, minimum));
-        void CropUnderflows(T minimum=1e-9);
+        void CropUnderflows(T minimum=1e-9, bool activebinsonly=true);
+
+        /// Tell the code that only the first N bins of the template are non-empty,
+        /// and so that only those have to be considered when doing operations
+        void SetActiveSize(unsigned int size) { size_ = size; }
 
         void Dump() const ;
     protected:

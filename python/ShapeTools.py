@@ -391,9 +391,15 @@ class ShapeBuilder(ModelBuilder):
         if self.options.useHistPdf != "always":
             if nominalPdf.InheritsFrom("TH1"):
                 rebins = ROOT.TList()
+                maxbins = 0 
                 for i in xrange(pdfs.GetSize()):
-                    rebins.Add(self.rebinH1(pdfs.At(i)))
+                    rebinned = self.rebinH1(pdfs.At(i))
+                    rebins.Add(rebinned)
+                    maxbins = max(maxbins, rebinned._original_bins)
                 rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins, coeffs, qrange, qalgo)
+                if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
+                    #print "Optimizing binning: %d -> %d for %s " % (self.out.maxbins, maxbins, rhp.GetName())
+                    rhp.setActiveBins(maxbins) 
                 _cache[(channel,process)] = rhp
                 return rhp
             elif nominalPdf.InheritsFrom("RooHistPdf") or nominalPdf.InheritsFrom("RooDataHist"):
@@ -475,6 +481,7 @@ class ShapeBuilder(ModelBuilder):
         rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", self.out.maxbins, 0.0, float(self.out.maxbins))
         for i in range(1,min(shape.GetNbinsX(),self.out.maxbins)+1): 
             rebinh1.SetBinContent(i, shape.GetBinContent(i))
+        rebinh1._original_bins = shape.GetNbinsX()
         return rebinh1;
     def shape2Data(self,shape,channel,process,_cache={}):
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"

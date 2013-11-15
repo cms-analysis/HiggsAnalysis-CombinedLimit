@@ -246,6 +246,8 @@ public:
 
   const RooArgList& coefList() const { return _coefList ; }
 
+  virtual void setActiveBins(unsigned int bins) {}
+
   /// Must be public, for serialization
   typedef FastVerticalInterpHistPdfBase::Morph Morph;
 protected:
@@ -304,6 +306,7 @@ public:
   virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2(*this,newname) ; }
   virtual ~FastVerticalInterpHistPdf2() {}
 
+  virtual void setActiveBins(unsigned int bins) ;
   Double_t evaluate() const ;
 
   friend class FastVerticalInterpHistPdf2V;
