@@ -41,9 +41,10 @@ class CascadeMinimizer {
 
         bool improveOnce(int verbose);
 
-	void multipleMinimize(const RooArgSet &,bool &,double &,int,bool,int
+	bool multipleMinimize(const RooArgSet &,bool &,double &,int,bool,int
 		,std::vector<std::vector<bool> > & );
-        
+       
+        bool iterativeMinimize(double &,int,bool); 
         /// options configured from command line
         static boost::program_options::options_description options_;
         /// compact information about an algorithm
@@ -71,6 +72,8 @@ class CascadeMinimizer {
         /// don't do old fallback using robustMinimize 
         static bool oldFallback_;
 
+	static double discreteMinTol_;
+
 	static std::string defaultMinimizerType_;
 	static std::string defaultMinimizerAlgo_;
 
@@ -90,6 +93,8 @@ class CascadeMinimizerGlobalConfigs{
 
 	  //RooCategory* x;
 	  RooListProxy pdfCategories; 
+	  RooListProxy nuisanceParameters; 
+	  RooListProxy parametersOfInterest; 
  
 	  static CascadeMinimizerGlobalConfigs& O(){
 

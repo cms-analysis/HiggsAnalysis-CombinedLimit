@@ -257,9 +257,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         throw std::invalid_argument("Missing Workspace"); 
     }
 
-    // Setup the CascadeMinimizer with discrete nuisances 
-    addDiscreteNuisances(w);
-
 
     if (verbose > 3) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
     RooRealVar *MH = w->var("MH");
@@ -437,6 +434,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (mc_bonly->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc_bonly->GetNuisanceParameters(), false);
   if (mc_bonly->GetGlobalObservables()) utils::setAllConstant(*mc_bonly->GetGlobalObservables(), true);
 
+  // Setup the CascadeMinimizer with discrete nuisances 
+  addDiscreteNuisances(w);
+  // and give him the regular nuisances too
+  addNuisances(nuisances);
+  addPOI(POI);
 
   w->saveSnapshot("clean", w->allVars());
 
@@ -638,15 +640,28 @@ void Combine::commitPoint(bool expected, float quantile) {
 void Combine::addBranch(const char *name, void *address, const char *leaflist) {
     tree_->Branch(name,address,leaflist);
 }
+void Combine::addPOI(const RooArgSet *poi){
+   // RooArgSet *nuisances = (RooArgSet*) w->set("nuisances");
+    CascadeMinimizerGlobalConfigs::O().parametersOfInterest = RooArgList();
+    if (poi != 0) {
+        TIterator *pp = poi->createIterator();
+        while (RooAbsArg *arg = (RooAbsArg*)pp->Next()) (CascadeMinimizerGlobalConfigs::O().parametersOfInterest).add(*arg);
+    }
 
+}
+
+void Combine::addNuisances(const RooArgSet *nuisances){
+   // RooArgSet *nuisances = (RooArgSet*) w->set("nuisances");
+    CascadeMinimizerGlobalConfigs::O().nuisanceParameters = RooArgList();
+    if (nuisances != 0) {
+        TIterator *np = nuisances->createIterator();
+        while (RooAbsArg *arg = (RooAbsArg*)np->Next()) (CascadeMinimizerGlobalConfigs::O().nuisanceParameters).add(*arg);
+    }
+
+}
 void Combine::addDiscreteNuisances(RooWorkspace *w){
 
-    //RooCategory *dummyCat = new RooCategory("dummyCategoryIndex__","A dummy category index");
     RooArgSet *discreteParameters = (RooArgSet*) w->genobj("discreteParams");
-    //if (discreteParameters->getSize()<1 ){
-	//dummyCat->defineType("dum0",0);
-	//discreteParameters->add(*dummyCat);
-    //}
  
     CascadeMinimizerGlobalConfigs::O().pdfCategories = RooArgList();
 
