@@ -579,6 +579,35 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
   }
 
 }
+
+void utils::createSnapshotFromString( const std::string expression, const RooArgSet &allvars, RooArgSet &output, const char *context) {
+    if (expression.find("=") == std::string::npos) {
+        if (allvars.getSize() != 1) throw std::invalid_argument(std::string("Error: the argument to ")+context+" is a single value, but there are multiple variables to choose from");
+        allvars.snapshot(output);
+        errno = 0; // check for errors in str->float conversion
+        ((RooRealVar*)output.first())->setVal(strtod(expression.c_str(),NULL));
+        if (errno != 0) std::invalid_argument(std::string("Error: the argument to ")+context+" is not a valid number.");
+    } else {
+        std::string::size_type eqidx = 0, colidx = 0, colidx2;
+        do {
+            eqidx   = expression.find("=", colidx);
+            colidx2 = expression.find(",", colidx+1);
+            if (eqidx == std::string::npos || (colidx2 != std::string::npos && colidx2 < eqidx)) {
+                throw std::invalid_argument(std::string("Error: the argument to ")+context+" is not in the forms 'value' or 'name1=value1,name2=value2,...'\n");
+            }
+            std::string poiName = expression.substr(colidx, eqidx-colidx);
+            std::string poiVal  = expression.substr(eqidx+1, (colidx2 == std::string::npos ? std::string::npos : colidx2 - eqidx - 1));
+            RooAbsArg *poi = allvars.find(poiName.c_str());
+            if (poi == 0) throw std::invalid_argument(std::string("Error: unknown parameter '")+poiName+"' passed to "+context+".");
+            output.addClone(*poi);
+            errno = 0;
+            output.setRealValue(poi->GetName(), strtod(poiVal.c_str(),NULL));
+            if (errno != 0) throw std::invalid_argument(std::string("Error: invalid value '")+poiVal+"' for parameter '"+poiName+"' passed to "+context+".");
+            colidx = colidx2+1;
+        } while (colidx2 != std::string::npos);
+    }
+}
+
 void utils::reorderCombinations(std::vector<std::vector<int> > &vec, const std::vector<int> &max, const std::vector<int> &pos){
 	
     // Assuming everyone starts from 0, add the start position modulo number of positions
