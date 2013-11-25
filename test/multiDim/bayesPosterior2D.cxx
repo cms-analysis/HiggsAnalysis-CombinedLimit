@@ -44,3 +44,4 @@ void bayesPosterior2D(const char *name, const char *title, double qqHmax=10., do
     fOut->WriteTObject(frame);
     fOut->Close();
 }
+void bayesPosterior2D() {}
