@@ -259,15 +259,14 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
             discreteModelPointSets_.resize(discreteModelPoints_.size());
             for (unsigned int i = 0, n = discreteModelPoints_.size(); i < n; ++i) {
                 utils::createSnapshotFromString(discreteModelPoints_[i], poi, discreteModelPointSets_[i], "--discreteModelPoints");
-                std::cout << "\nDiscrete model point " << (i+1) << std::endl;
-                discreteModelPointSets_[i].Print("V");
+                if (verbose > 1) { std::cout << "\nDiscrete model point " << (i+1) << std::endl; discreteModelPointSets_[i].Print("V"); }
             }
             RooArgSet discretePOI;
             RooLinkedListIter iter = poi.iterator();
             for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
                 if (discreteModelPointSets_[0].find(a->GetName())) discretePOI.add(*a);
             }
-            std::cout << "Discrete POI: " ; discretePOI.Print("");
+            if (verbose > 1) { std::cout << "Discrete POI: " ; discretePOI.Print(""); }
             TestProposal &tprop = static_cast<TestProposal &>(*ownedPdfProp);
             tprop.setDiscreteModels((RooRealVar*)discretePOI.first(), discretePOI, discreteModelPointSets_);
         }
