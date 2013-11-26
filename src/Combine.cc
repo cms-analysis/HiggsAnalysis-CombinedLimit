@@ -150,7 +150,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   mass_ = vm["mass"].as<float>();
   saveToys_ = vm.count("saveToys");
   validateModel_ = vm.count("validateModel");
-  if (vm["method"].as<std::string>() == "MultiDimFit" || ( vm["method"].as<std::string>() == "MaxLikelihoodFit" && vm.count("justFit"))) {
+  if (vm["method"].as<std::string>() == "MultiDimFit" || ( vm["method"].as<std::string>() == "MaxLikelihoodFit" && vm.count("justFit")) || vm["method"].as<std::string>() == "MarkovChainMC") {
     //CMSDAS new default,
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
   }
