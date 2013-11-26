@@ -11,6 +11,7 @@
 #include <TStopwatch.h>
 #include <RooStats/RooStatsUtils.h>
 
+#include <iomanip>
 
 boost::program_options::options_description CascadeMinimizer::options_("Cascade Minimizer options");
 std::vector<CascadeMinimizer::Algo> CascadeMinimizer::fallbacks_;
@@ -22,6 +23,7 @@ bool CascadeMinimizer::setZeroPoint_ = true;
 bool CascadeMinimizer::oldFallback_ = true;
 bool CascadeMinimizer::runShortCombinations = true;
 float CascadeMinimizer::nuisancePruningThreshold_ = 0;
+double CascadeMinimizer::discreteMinTol_ = 0.001;
 std::string CascadeMinimizer::defaultMinimizerType_=ROOT::Math::MinimizerOptions::DefaultMinimizerType();
 std::string CascadeMinimizer::defaultMinimizerAlgo_=ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
 
@@ -32,6 +34,7 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi, 
     strategy_(initialStrategy),
     poi_(poi),
     nuisances_(0)
+    //nuisances_(CascadeMinimizerGlobalConfig::O().nuisanceParameters)
 {
 }
 
@@ -106,7 +109,6 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
 
    //std::cout << "Run Minos in  "; tw.Print(); std::cout << std::endl;
 
-
    if (setZeroPoint_) {
       cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
       if (simnll) simnll->clearZeroPoint();
@@ -115,7 +117,55 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
    return (iret != 1) ? true : false; 
 }
 
+bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool cascade){
 
+/* 
+If there are discrete parameters, first we cycle through them, 
+fixing all parameters which do not depend on them 
+
+step 1, the set which is passed contains all of the parameters which 
+are freely floating. We should cut them down to find which ones are
+
+*/
+   // Do A reasonable fit if something changed before 
+   if ( fabs(minimumNLL - nll_.getVal()) < discreteMinTol_ ) improve(verbose,cascade);
+
+   RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().nuisanceParameters;
+   RooArgSet poi = CascadeMinimizerGlobalConfigs::O().parametersOfInterest;
+   RooArgSet frozen;
+
+   if (nuisances.getSize() >0) frozen.add(nuisances);
+   if (poi.getSize() >0) frozen.add(poi);
+   
+   RooStats::RemoveConstantParameters(&frozen);
+   utils::setAllConstant(frozen,true);
+
+   // remake the minimizer   
+   minimizer_.reset(new RooMinimizerOpt(nll_));
+   cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
+   if (simnll) simnll->setZeroPoint();
+ 
+   RooArgSet reallyCleanParameters;
+   RooArgSet *nllParams=nll_.getParameters((const RooArgSet*)0);
+   nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
+   RooStats::RemoveConstantParameters(nllParams);
+   (nllParams)->snapshot(reallyCleanParameters); 
+
+   // Now cycle and fit
+   bool ret=true;
+   std::vector<std::vector<bool>> contIndex;
+   // start from simplest scan, this is the full scan if runShortCombinations is off
+   bool discretesHaveChanged = multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex); 
+ 
+   if (simnll) simnll->clearZeroPoint();
+
+   utils::setAllConstant(frozen,false);
+   minimizer_.reset(new RooMinimizerOpt(nll_));
+
+   if (discretesHaveChanged) improve(verbose, cascade); 
+   minimumNLL = nll_.getVal();
+   return ret;
+}
 
 bool CascadeMinimizer::minimize(int verbose, bool cascade) 
 {
@@ -124,13 +174,23 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         RooMsgService::instance().setStreamStatus(1,kFALSE);
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
     }
+
+    bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
+    if ( doMultipleMini ) preFit_ = 1;
+
     minimizer_->setPrintLevel(verbose-2);  
     minimizer_->setStrategy(strategy_);
     if (preScan_) minimizer_->minimize("Minuit2","Scan");
-    if (preFit_ && nuisances_ != 0) {
-        RooArgSet frozen(*nuisances_);
+
+    
+    //if (preFit_ && nuisances != 0) {
+    
+    RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().nuisanceParameters;
+    if (preFit_ ) {
+        RooArgSet frozen(nuisances);
         RooStats::RemoveConstantParameters(&frozen);
         utils::setAllConstant(frozen,true);
+
         minimizer_.reset(new RooMinimizerOpt(nll_));
         minimizer_->setPrintLevel(verbose-2);
         minimizer_->setStrategy(preFit_-1);
@@ -163,43 +223,51 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     //    
     //}
  
-    bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
+    //bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
     if (!doMultipleMini){
     	if (mode_ == Unconstrained && poiOnlyFit_) {
        	 trivialMinimize(nll_, *poi_, 200);
     	} 
 
     	return improve(verbose, cascade);
-    } 
+    }     
 
     // clean parameters before minimization but dont include the pdf indeces of course!
     RooArgSet reallyCleanParameters;
     RooArgSet *nllParams=nll_.getParameters((const RooArgSet*)0);
     nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
-    (nllParams)->snapshot(reallyCleanParameters);
+    (nllParams)->snapshot(reallyCleanParameters); // should remove also the nuisance parameters from here!
     // Before each step, reset the parameters back to their prefit state!
-
-    minimizer_->setPrintLevel(verbose-2);  
-    minimizer_->setStrategy(strategy_);
-
-    bool ret=false;
-
-    double minimumNLL = 10;
-    std::vector<std::vector<bool>> contIndex;
-
-    multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex); // start from simplest scan, this is the full scan if runShortCombinations is off
-
-    if (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize() > 1 && runShortCombinations) {
-	
-	multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,1,contIndex);
-	multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,2,contIndex);
-    }
-
-    return ret;
     
+    bool ret = true;
+
+    if (runShortCombinations) {
+      double minimumNLL = 10;
+      double previousNLL = 1;
+      int maxIterations = 15; int iterationCounter=0;
+      for (;iterationCounter<maxIterations;iterationCounter++){
+        iterativeMinimize(minimumNLL,verbose,cascade);
+        if ( fabs(previousNLL-minimumNLL) < discreteMinTol_ ) break; // should be minimizer tolerance
+	previousNLL = minimumNLL ;
+      }
+
+    } else {
+
+      double minimumNLL = 10;
+      std::vector<std::vector<bool>> contIndex;
+      multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex);
+ 
+      if (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize() > 1) {
+         multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,1,contIndex);
+         multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,2,contIndex);
+      }
+
+    }
+    // cheat 
+    return ret;
 }
 
-void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingIndeces){
+bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingIndeces){
 
     //RooTrace::active(true);
     /* Different modes for minimization 
@@ -209,6 +277,7 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
      Mode 2 -- Full scan over the remaining combinations after mode 1
     */
 
+    bool newDiscreteMinimum = false;
 
     RooArgList pdfCategoryIndeces = CascadeMinimizerGlobalConfigs::O().pdfCategories; 
     int numIndeces = pdfCategoryIndeces.getSize();
@@ -253,11 +322,12 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     std::vector<std::vector<int> > myCombos;
 
     // Get All Permutations of pdfs
-    if ( ( mode==0 && runShortCombinations ) || mode ==1 ) myCombos = utils::generateOrthogonalCombinations(pdfSizes);
+    if ( ( mode==0 ) /*&& runShortCombinations )*/ || mode ==1 ) myCombos = utils::generateOrthogonalCombinations(pdfSizes);
     else myCombos = utils::generateCombinations(pdfSizes);
 
     // Reorder to start from the "best indeces"
-    if (mode!=0) utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
+    //if (mode!=0) utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
+    utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
 
     int numberOfCombinations = 1;
     if (mode==1 || mode==0) numberOfCombinations=myCombos.size();
@@ -288,14 +358,14 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	         it!=cit.end(); it++){
 
 		 isValidCombo *= (contributingIndeces)[pdfIndex][*it];
-		 if (!isValidCombo && runShortCombinations) continue;
+		 if (!isValidCombo ) /*&& runShortCombinations)*/ continue;
 
 	     	 fPdf = (RooCategory*) pdfCategoryIndeces.at(pdfIndex);
 		 fPdf->setIndex(*it);
 		 pdfIndex++;
 	     }
 	
-      if (!isValidCombo && runShortCombinations) continue;
+      if (!isValidCombo )/*&& runShortCombinations)*/ continue;
       
       if (verbose>2) {
 	std::cout << "Setting indices := ";
@@ -316,7 +386,6 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
       fitCounter++;
       double thisNllValue = nll_.getVal();
-
       
       if ( thisNllValue < minimumNLL ){
 		// Now we insert the correction ! 
@@ -324,6 +393,7 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     		snap.assignValueOnly(*params);
 		// set the best indeces again
 		for (int id=0;id<numIndeces;id++) {
+			if (bestIndeces[id] != ((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex() ) newDiscreteMinimum = true;
 			bestIndeces[id]=((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex();	
 		}
       }
@@ -331,7 +401,7 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
       // FIXME this should be made configurable!
       double maxDeviation = 5;
 
-      if (mode==1 && runShortCombinations){
+      if (mode==1 )/*&& runShortCombinations)*/{
 
         if (thisNllValue > minimumNLL+maxDeviation){
 		// Step 1, find out which index just changed 
@@ -346,11 +416,13 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 			}
 		}
 		
-		// Step 2, remove its current index from the allowed indexes
-		RooCategory* thisCat = (RooCategory*)(pdfCategoryIndeces.at(modid));
-		int cIndex = thisCat->getIndex();
-		if (cIndex!=bestIndeces[modid]){ // don't remove the best pdf for this index!
+		if (modcount==1){
+		  // Step 2, remove its current index from the allowed indexes
+		  RooCategory* thisCat = (RooCategory*)(pdfCategoryIndeces.at(modid));
+		  int cIndex = thisCat->getIndex();
+		  if (cIndex!=bestIndeces[modid]){ // don't remove the best pdf for this index!
 			(contributingIndeces)[modid][cIndex]=false;
+		  }
 		}
         }
      }
@@ -359,11 +431,10 @@ void CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
     // Assign best values ;
     for (int id=0;id<numIndeces;id++) {
-	std::cout << bestIndeces[id];
 	((RooCategory*)(pdfCategoryIndeces.at(id)))->setIndex(bestIndeces[id]);	
-    }
-
+    } 
     params->assignValueOnly(snap);
+    return newDiscreteMinimum;
 }
 
 void CascadeMinimizer::initOptions() 
@@ -379,6 +450,7 @@ void CascadeMinimizer::initOptions()
 	("cminDefaultMinimizerType",boost::program_options::value<std::string>(&defaultMinimizerType_)->default_value(defaultMinimizerType_), "Set the default minimizer Type")
 	("cminDefaultMinimizerAlgo",boost::program_options::value<std::string>(&defaultMinimizerAlgo_)->default_value(defaultMinimizerAlgo_), "Set the default minimizer Algo")
         ("cminRunAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
+        ("cminDiscreteMinTol", boost::program_options::value<double>(&discreteMinTol_)->default_value(discreteMinTol_), "tolerance on min NLL for discrete combination iterations")
         //("cminNuisancePruning", boost::program_options::value<float>(&nuisancePruningThreshold_)->default_value(nuisancePruningThreshold_), "if non-zero, discard constrained nuisances whose effect on the NLL when changing by 0.2*range is less than the absolute value of the threshold; if threshold is negative, repeat afterwards the fit with these floating")
 
         //("cminDefaultIntegratorEpsAbs", boost::program_options::value<double>(), "RooAbsReal::defaultIntegratorConfig()->setEpsAbs(x)")
