@@ -109,4 +109,15 @@
 #pragma link C++ class RooBernsteinFast<5>+;
 #pragma link C++ class RooBernsteinFast<6>+;
 #pragma link C++ class RooBernsteinFast<7>+;
+#pragma link C++ class RooAnaExpNPdf+;
+#pragma link C++ class RooAlpha42ExpPdf+;
+#pragma link C++ class Roo2ExpPdf+;
+#pragma link C++ class RooExpNPdf+;
+#pragma link C++ class RooAlpha4ExpNPdf+;
+#pragma link C++ class RooExpTailPdf+;
+#pragma link C++ class RooAlpha4ExpTailPdf+;
+#pragma link C++ class RooAlpha4GausExpPdf+;
+#pragma link C++ class RooGausExpPdf+;
+#pragma link C++ class RooDoubleCrystalBall+;
+
 #endif
