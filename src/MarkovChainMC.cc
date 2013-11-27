@@ -26,6 +26,7 @@ class THnSparse;
 #include "../interface/JacknifeQuantile.h"
 
 #include "../interface/ProfilingTools.h"
+#include "../interface/utils.h"
 
 using namespace RooStats;
 using namespace std;
@@ -53,6 +54,7 @@ float MarkovChainMC::proposalHelperUniformFraction_ = 0.0;
 bool  MarkovChainMC::alwaysStepPoi_ = true;
 float MarkovChainMC::cropNSigmas_ = 0;
 int   MarkovChainMC::debugProposal_ = false;
+std::vector<std::string> MarkovChainMC::discreteModelPoints_;
 
 MarkovChainMC::MarkovChainMC() : 
     LimitAlgo("Markov Chain MC specific options") 
@@ -95,6 +97,9 @@ MarkovChainMC::MarkovChainMC() :
         ("noSlimChain", "Include also nuisance parameters in the chain that is saved to file")
         ("mergeChains", "Merge MarkovChains instead of averaging limits")
         ("readChains", "Just read MarkovChains from toysFile instead of running MCMC directly")
+        ("discreteModelPoints",
+                boost::program_options::value<std::vector<std::string> >(&discreteModelPoints_)->multitoken(),
+                "Define multiple points in a subset of the POI space among which to step discretely (works only with ortho and test proposals)");
     ;
 }
 
@@ -249,6 +254,22 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
         break;
     case TestP:
         ownedPdfProp.reset(new TestProposal(proposalHelperWidthRangeDivisor_, alwaysStepPoi_ ? poi : RooArgList()));
+        if (!discreteModelPoints_.empty()) {
+            discreteModelPointSets_.clear(); 
+            discreteModelPointSets_.resize(discreteModelPoints_.size());
+            for (unsigned int i = 0, n = discreteModelPoints_.size(); i < n; ++i) {
+                utils::createSnapshotFromString(discreteModelPoints_[i], poi, discreteModelPointSets_[i], "--discreteModelPoints");
+                if (verbose > 1) { std::cout << "\nDiscrete model point " << (i+1) << std::endl; discreteModelPointSets_[i].Print("V"); }
+            }
+            RooArgSet discretePOI;
+            RooLinkedListIter iter = poi.iterator();
+            for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+                if (discreteModelPointSets_[0].find(a->GetName())) discretePOI.add(*a);
+            }
+            if (verbose > 1) { std::cout << "Discrete POI: " ; discretePOI.Print(""); }
+            TestProposal &tprop = static_cast<TestProposal &>(*ownedPdfProp);
+            tprop.setDiscreteModels((RooRealVar*)discretePOI.first(), discretePOI, discreteModelPointSets_);
+        }
         pdfProp = ownedPdfProp.get();
         break;
   }

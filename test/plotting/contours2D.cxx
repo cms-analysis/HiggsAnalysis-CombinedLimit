@@ -75,7 +75,7 @@ TH2D* frameTH2D(TH2D *in, double threshold){
         //   - pretend that the center of the last bin is on the border if the frame
         //   - add one tiny frame with huge values
         double frameValue = 1000;
-        if (TString(in->GetName()).Contains("bayes")) frameValue = 0.0;
+        if (TString(in->GetName()).Contains("bayes")) frameValue = -1000;
 
 	Double_t xw = in->GetXaxis()->GetBinWidth(1);
 	Double_t yw = in->GetYaxis()->GetBinWidth(1);
