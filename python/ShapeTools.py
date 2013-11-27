@@ -533,6 +533,10 @@ class ShapeBuilder(ModelBuilder):
                     rhp.rdh = rdh # so it doesn't get deleted
                     _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooAbsPdf"):
+                if shape.ClassName() == "RooExtendPdf": 
+                    raise RuntimeError, "Error in channel %s, process %s: pdf %s is a RooExtendPdf, this is not supported" % (channel,process,shape.GetName())
+                elif shape.ClassName() == "RooAddPdf":
+                    self.checkRooAddPdf(channel,process,shape)
                 _cache[shape.GetName()+"Pdf"] = shape
             elif shape.InheritsFrom("RooDataHist"):
                 rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", shape.get(), shape) 
@@ -543,6 +547,15 @@ class ShapeBuilder(ModelBuilder):
             else: 
                 raise RuntimeError, "shape2Pdf not implemented for %s" % shape.ClassName()
         return _cache[shape.GetName()+"Pdf"]
+    def checkRooAddPdf(self,channel,process,pdf):
+        coeflist = pdf.coefList()
+        if (coeflist.getSize() == pdf.pdfList().getSize()-1):
+            return True
+        sum = 0.0
+        for i in xrange(coeflist.getSize()):
+            sum += coeflist.at(i).getVal()
+        if abs(sum-1.0) > 1e-4:
+            raise RuntimeError, "Error in channel %s, process %s: RooAddPdf %s has coefficients that sum up to %g, and not to unity. This is not supported (but it could be supported on request).\n" % (channel,process,pdf.GetName(),sum)
     def argSetToString(self,argset):
         names = []
         it = argset.createIterator()
