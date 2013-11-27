@@ -117,7 +117,10 @@ def getHiggsProdDecMode(bin,process,options):
     """Return a triple of (production, decay, energy)"""
     processSource = process
     decaySource   = options.fileName+":"+bin # by default, decay comes from the datacard name or bin label
-    if "_" in process: (processSource, decaySource) = process.split("_")
+    if "_" in process: 
+        (processSource, decaySource) = process.split("_")
+        if decaySource not in [ "hww", "hzz", "hgg", "htt", "hbb", 'hzg', 'hmm', 'hinv' ]:
+            raise RuntimeError, "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay mode" % (process,decaySource)
     if processSource not in ["ggH", "qqH", "VH", "WH", "ZH", "ttH"]:
         raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
     #
