@@ -84,6 +84,9 @@ namespace utils {
             std::vector<double> values_;
     };
 
+    // Create snapshot from string of values
+    void createSnapshotFromString( const std::string expression, const RooArgSet &allvars, RooArgSet &output, const char *context="createSnapshotFromString");
+
     // Set values of physics model parameters
     void setModelParameters( const std::string & setPhysicsModelParameterExpression, const RooArgSet & params);
     // Set range of physics model parameters

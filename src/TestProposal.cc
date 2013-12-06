@@ -10,7 +10,8 @@
 TestProposal::TestProposal(double divisor, const RooRealVar *alwaysStepMe) : 
     RooStats::ProposalFunction(),
     divisor_(1./divisor),
-    poiDivisor_(divisor_)
+    poiDivisor_(divisor_),
+    discreteModelIndicator_(0)
 {
     alwaysStepMe_.add(*alwaysStepMe);
 }
@@ -19,7 +20,8 @@ TestProposal::TestProposal(double divisor, const RooArgList &alwaysStepMe) :
     RooStats::ProposalFunction(),
     divisor_(1./divisor),
     poiDivisor_(divisor_),
-    alwaysStepMe_(alwaysStepMe)
+    alwaysStepMe_(alwaysStepMe),
+    discreteModelIndicator_(0)
 {
     if (alwaysStepMe.getSize() > 1) poiDivisor_ /= sqrt(double(alwaysStepMe.getSize()));
 }
@@ -32,9 +34,19 @@ void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
    RooLinkedListIter it(xPrime.iterator());
    RooRealVar* var;
    int n = xPrime.getSize(), j = floor(RooRandom::uniform()*n);
+   const RooRealVar *indicatorPrime = discreteModelIndicator_ ? (RooRealVar*)xPrime.find(discreteModelIndicator_->GetName()) : 0;
    for (int i = 0; (var = (RooRealVar*)it.Next()) != NULL; ++i) {
       if (i == j) {
         if (alwaysStepMe_.contains(*var)) break; // don't step twice
+        if (discreteModelIndicator_ != 0) {
+            if (var == indicatorPrime) {
+                int k = floor(RooRandom::uniform()*discreteModelPoints_.size());
+                xPrime.assignValueOnly(discreteModelPoints_[k]); 
+                break;
+            } else if (discreteModelVars_.contains(*var)) {
+                break;
+            } 
+        } 
         double val = var->getVal(), max = var->getMax(), min = var->getMin(), len = max - min;
         val += RooRandom::gaussian() * len * divisor_;
         while (val > max) val -= len;
@@ -51,6 +63,15 @@ void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
             xPrime.Print("V");
             throw std::logic_error("Missing POI in ArgSet");
         }
+        if (discreteModelIndicator_ != 0) {
+            if (var == indicatorPrime) {
+                int k = floor(RooRandom::uniform()*discreteModelPoints_.size());
+                xPrime.assignValueOnly(discreteModelPoints_[k]); 
+                continue;
+            } else if (discreteModelVars_.contains(*var)) {
+                continue;
+            } 
+        } 
         double val = var->getVal(), max = var->getMax(), min = var->getMin(), len = max - min;
         val += RooRandom::gaussian() * len * poiDivisor_;
         while (val > max) val -= len;

@@ -237,8 +237,13 @@ int main(int argc, char **argv) {
 
   if (vm.count("X-fpeMask")) gSystem->SetFPEMask(vm["X-fpeMask"].as<int>());
 
+  // CMSDAS Defaults (you can turn off with --X-rtd <name>=0
+  runtimedef::set("OPTIMIZE_BOUNDS", 1);
+  runtimedef::set("ADDNLL_RECURSIVE", 1);
+  runtimedef::set("ADDNLL_GAUSSNLL", 1);
+  runtimedef::set("ADDNLL_HISTNLL", 1);
+  runtimedef::set("TMCSO_AdaptivePseudoAsimov", 1);
 
-  // if you have libraries, it's time to load them now
   for (vector<string>::const_iterator rtdp = runtimeDefines.begin(), endrtdp = runtimeDefines.end(); rtdp != endrtdp; ++rtdp) {
     std::string::size_type idx = rtdp->find('=');
     if (idx == std::string::npos) {

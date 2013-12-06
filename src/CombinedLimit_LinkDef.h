@@ -20,6 +20,7 @@
 #include "../interface/rVrFLikelihood.h"
 #include "../interface/RooMultiPdf.h"
 #include "../interface/RooBernsteinFast.h"
+#include "../interface/SimpleGaussianConstraint.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -29,13 +30,21 @@
 #pragma link C++ class DebugProposal+;
 #pragma link C++ class VerticalInterpPdf+;
 #pragma link C++ class VerticalInterpHistPdf+;
+#pragma link C++ class FastTemplate+;
+#pragma link C++ class FastHisto+;
+#pragma link C++ class FastHisto2D+;
 #pragma link C++ class FastVerticalInterpHistPdfBase+;
+#pragma link C++ class FastVerticalInterpHistPdfBase::Morph+;
 #pragma link C++ class FastVerticalInterpHistPdf+;
 #pragma link C++ class FastVerticalInterpHistPdf2D+;
+#pragma link C++ class FastVerticalInterpHistPdf2Base+;
+#pragma link C++ class FastVerticalInterpHistPdf2+;
+#pragma link C++ class FastVerticalInterpHistPdf2D2+;
 #pragma link C++ class AsymPow+;
 #pragma link C++ class CombDataSetFactory+;
 #pragma link C++ class TH1Keys+;
 #pragma link C++ class RooSimultaneousOpt+;
+#pragma link C++ class SimpleGaussianConstraint+;
 #pragma link C++ class SimpleCacheSentry+;
 #pragma link C++ function th1fmorph;
 #pragma link C++ class RooqqZZPdf+;
