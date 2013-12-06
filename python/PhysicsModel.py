@@ -589,6 +589,76 @@ class DoubleRatioHiggs(SMLikeHiggsModel):
             return 'rv_'+decay
         raise RuntimeError, "Unknown production mode '%s'" % production
 
+class RatioBRSMHiggs(SMLikeHiggsModel): 
+    "Measure the ratio of BR's for two decay modes" 
+    def __init__(self): 
+        SMLikeHiggsModel.__init__(self)  
+        self.floatMass = False        
+        self.modes = set( ("hbb", "htt", "hgg", "hzz", "hww") ) 
+	self.denominator = "hww" 
+
+    def setPhysicsOptions(self,physOptions): 
+        for po in physOptions: 
+            if po.startswith("denominator="):
+		self.denominator = po.replace("denominator=","") 
+            if po.startswith("higgsMassRange="): 
+                self.floatMass = True 
+                self.mHRange = po.replace("higgsMassRange=","").split(",") 
+                print 'The Higgs mass range:', self.mHRange 
+                if len(self.mHRange) != 2: 
+                    raise RuntimeError, "Higgs mass range definition requires two extrema." 
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]): 
+                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."      
+	self.numerators = tuple(self.modes - set((self.denominator,)))
+	print 'denominator: ',self.denominator
+	print 'numerators: ',self.numerators
+	
+	
+    def doParametersOfInterest(self): 
+        """Create POI out of signal strength, MH and BR's""" 
+        
+	den = self.denominator
+        self.modelBuilder.doVar("r_VF[1,-5,5]")
+        self.modelBuilder.doVar("r_F_%(den)s[1,0,5]" % locals())
+	self.modelBuilder.factory_("prod::r_V_%(den)s(r_VF, r_F_%(den)s)" % locals())
+	
+	pois = []
+	for numerator in self.numerators:
+		names = {'num':numerator,'den':self.denominator}
+		pois.append("r_%(num)s_%(den)s" % names )
+	        self.modelBuilder.doVar("r_%(num)s_%(den)s[1,-5,5]" % names)
+	        self.modelBuilder.factory_("prod::r_F_%(num)s(r_F_%(den)s, r_%(num)s_%(den)s)" % names)
+        	self.modelBuilder.factory_("prod::r_V_%(num)s(r_VF, r_F_%(num)s)" % names)
+
+	poi = ','.join(pois)
+	
+        # --- Higgs Mass as other parameter ---- 
+        if self.floatMass: 
+            if self.modelBuilder.out.var("MH"): 
+                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1])) 
+                self.modelBuilder.out.var("MH").setConstant(False) 
+            else: 
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+            self.modelBuilder.doSet("POI",poi+',MH') 
+        else: 
+            if self.modelBuilder.out.var("MH"): 
+                self.modelBuilder.out.var("MH").setVal(self.options.mass) 
+                self.modelBuilder.out.var("MH").setConstant(True) 
+            else: 
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
+            self.modelBuilder.doSet("POI",poi)     
+
+
+    def getHiggsSignalYieldScale(self,production,decay, energy): 
+#        if decay not in self.numerators and not in self.denominator:
+        if production in ['ggH', 'ttH']:
+	    print '%(production)s/%(decay)s scaled by r_F_%(decay)s'%locals()
+            return 'r_F_'+decay 
+        if production in ['qqH', 'WH', 'ZH', 'VH']: 
+	    print '%(production)s/%(decay)s scaled by r_V_%(decay)s'%locals()
+            return 'r_V_'+decay 
+        raise RuntimeError, "Unknown production mode '%s'" % production 
+
 defaultModel = PhysicsModel()
 multiSignalModel = MultiSignalModel()
 strictSMLikeHiggs = StrictSMLikeHiggsModel()
@@ -600,3 +670,4 @@ thetaVFBRHiggs = ThetaVFBRHiggs()
 floatingXSBRHiggs = FloatingXSBRHiggs()
 floatingHiggsMass = FloatingHiggsMass()
 doubleRatioHiggs = DoubleRatioHiggs()
+ratioBRSMHiggs = RatioBRSMHiggs()
