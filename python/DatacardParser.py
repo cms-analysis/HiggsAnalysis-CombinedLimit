@@ -52,7 +52,7 @@ def parseCard(file, options):
     nprocesses = -1; 
     nuisances  = -1;
     binline = []; processline = []; sigline = []
-
+    shapesUseBin = False
     lineNumber = None
     try:
         for lineNumber,l in enumerate(file):
@@ -70,6 +70,8 @@ def parseCard(file, options):
                 if not ret.shapeMap.has_key(f[2]): ret.shapeMap[f[2]] = {}
                 if ret.shapeMap[f[2]].has_key(f[1]): raise RuntimeError, "Duplicate definition for process '%s', channel '%s'" % (f[1], f[2])
                 ret.shapeMap[f[2]][f[1]] = f[3:]
+                if "$CHANNEL" in l: shapesUseBin = True
+                if f[2] != "*":     shapesUseBin = True
             if f[0] == "Observation" or f[0] == "observation": 
                 ret.obs = [ float(x) for x in f[1:] ]
                 if nbins == -1: nbins = len(ret.obs)
@@ -83,7 +85,7 @@ def parseCard(file, options):
                 binline = []
                 for b in f[1:]:
                     if re.match("[0-9]+", b):
-                        stderr.write("Warning: Bin %(b)s starts with a digit. Will call it 'bin%(b)s' but this may break shapes.\n" % locals())
+                        if shapesUseBin: stderr.write("Warning: Bin %(b)s starts with a digit. Will call it 'bin%(b)s' but this may break shapes.\n" % locals())
                         b = "bin"+b
                         # TODO Here should be some patching of the shapes names in order to not get errors later.
                     binline.append(b)
