@@ -113,19 +113,23 @@ class MultiSignalModel(PhysicsModel):
 
 ### This base class implements signal yields by production and decay mode
 ### Specific models can be obtained redefining getHiggsSignalYieldScale
+SM_HIGG_DECAYS   = [ "hww", "hzz", "hgg", "htt", "hbb", 'hzg', 'hmm', 'hcc', 'hgluglu' ]
+BSM_HIGGS_DECAYS = [ "hinv" ]
+ALL_HIGGS_DECAYS = SM_HIGG_DECAYS + BSM_HIGGS_DECAYS
 def getHiggsProdDecMode(bin,process,options):
     """Return a triple of (production, decay, energy)"""
     processSource = process
     decaySource   = options.fileName+":"+bin # by default, decay comes from the datacard name or bin label
     if "_" in process: 
         (processSource, decaySource) = process.split("_")
-        if decaySource not in [ "hww", "hzz", "hgg", "htt", "hbb", 'hzg', 'hmm', 'hinv' ]:
-            raise RuntimeError, "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay mode" % (process,decaySource)
+        if decaySource not in ALL_HIGGS_DECAYS:
+            print "ERROR", "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
+            #raise RuntimeError, "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
     if processSource not in ["ggH", "qqH", "VH", "WH", "ZH", "ttH"]:
         raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
     #
     foundDecay = None
-    for D in [ "hww", "hzz", "hgg", "htt", "hbb", 'hzg', 'hmm', 'hinv' ]:
+    for D in ALL_HIGGS_DECAYS:
         if D in decaySource:
             if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
             foundDecay = D
@@ -160,6 +164,7 @@ class SMLikeHiggsModel(PhysicsModel):
 class StrictSMLikeHiggsModel(SMLikeHiggsModel):
     "Doesn't do anything more, but validates that the signal process names are correct"
     def getHiggsSignalYieldScale(self,production,decay, energy):
+            if production == "VH": print "WARNING: VH production is deprecated and not supported in coupling fits"
             return "r"
 
 class FloatingHiggsMass(SMLikeHiggsModel):
