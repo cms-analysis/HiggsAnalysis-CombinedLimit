@@ -60,9 +60,11 @@ arg8=RooCmdArg::none());
   bool checkIndexDirty() const;
   double getCorrection() const;
   RooAbsPdf *getCurrentPdf() const;
-  int getNumPdfs(){return nPdfs;};
+  int getNumPdfs() const {return nPdfs;};
   void setCorrectionFactor(PenatlyScheme penal);
-
+  int getCurrentIndex() const ;
+  RooAbsPdf *getPdf(int index) const ;
+  virtual Double_t getValV(const RooArgSet* nset) const ;
 protected:
   RooListProxy c;
   RooListProxy corr;
