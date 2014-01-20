@@ -333,6 +333,7 @@ cacheutils::OptimizedCachingPdfT<PdfT,VPdfT>::realFill_(const RooAbsData &data, 
 
 
 cacheutils::ReminderSum::ReminderSum(const char *name, const char *title, const RooArgList& sumSet) :
+    RooAbsReal(name,title),
     list_("deps","",this)
 {
     RooLinkedListIter iter(sumSet.iterator());
@@ -388,9 +389,10 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
     if (npdf == addpdf->coefList().getSize()) {
         lastcoeff =  dynamic_cast<RooAbsReal*>(addpdf->coefList().at(npdf-1));
     } else {
-        prods_.push_back(new ReminderSum("","", addpdf->coefList()));
+        prods_.push_back(new ReminderSum((std::string("reminder_of_")+addpdf->GetName()).c_str(),"", addpdf->coefList()));
         lastcoeff = & prods_.back(); 
     }
+    //std::cout << "   Last coefficient is a " << lastcoeff->ClassName() << " aka " << typeid(*lastcoeff).name() << ": "; lastcoeff->Print("");
     for (int i = 0; i < npdf; ++i) {
         RooAbsReal * coeff = (i < npdf-1 ? dynamic_cast<RooAbsReal*>(addpdf->coefList().at(i)) : lastcoeff);
         RooAbsPdf  * pdfi  = dynamic_cast<RooAbsPdf *>(addpdf->pdfList().at(i));
@@ -409,6 +411,7 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
             list.add(basecoeffs);
             prods_.push_back(new RooProduct("","",list));
             coeffs_.push_back(&prods_.back());
+            //std::cout << "Coefficient of " << pdfi->GetName() << std::endl; prods_.back().Print("");
         }
         const RooArgSet *obs = data_->get();
         pdfs_.push_back(makeCachingPdf(pdfi,obs));
