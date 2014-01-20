@@ -45,6 +45,9 @@ namespace cacheutils {
 //---- Uncomment this and run with --perfCounters to get cache statistics
 //#define DEBUG_CACHE
 
+//---- Uncomment to dump PDF values inside CachingAddNLL
+//#define LOG_ADDPDFS
+
 //---- Uncomment to enable Kahan's summation (if enabled at runtime with --X-rtd = ...
 // http://en.wikipedia.org/wiki/Kahan_summation_algorithm
 //#define ADDNLL_KAHAN_SUM
@@ -486,17 +489,12 @@ cacheutils::CachingAddNLL::setup_()
         if (rrv != 0) params_.add(*rrv);
     }
 
-    // For multi pdf's need to reset the cache if index changed before evaluations
-    // unless they're being properly treated in the CachingPdf
-    static bool multiNll  = runtimedef::get("ADDNLL_MULTINLL");
     multiPdfs_.clear();
-    if (!multiNll) {
-        for (auto itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
-            bool isMultiPdf = itp->pdf()->IsA()->InheritsFrom(RooMultiPdf::Class());
-            if (isMultiPdf) {
-                const RooMultiPdf *mpdf = dynamic_cast<const RooMultiPdf*>((*itp).pdf());
-                multiPdfs_.push_back(std::make_pair(mpdf, &*itp));
-            }
+    for (auto itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
+        bool isMultiPdf = itp->pdf()->IsA()->InheritsFrom(RooMultiPdf::Class());
+        if (isMultiPdf) {
+            const RooMultiPdf *mpdf = dynamic_cast<const RooMultiPdf*>((*itp).pdf());
+            multiPdfs_.push_back(std::make_pair(mpdf, &*itp));
         }
     }
  
@@ -510,7 +508,9 @@ cacheutils::CachingAddNLL::evaluate() const
 #endif
 
     // For multi pdf's need to reset the cache if index changed before evaluations
-    if (!multiPdfs_.empty()) {
+    // unless they're being properly treated in the CachingPdf
+    static bool multiNll  = runtimedef::get("ADDNLL_MULTINLL");
+    if (!multiNll && !multiPdfs_.empty()) {
         for (std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> >::iterator itp = multiPdfs_.begin(), edp = multiPdfs_.end(); itp != edp; ++itp) {
 		bool hasChangedPdf = itp->first->checkIndexDirty();
 		if (hasChangedPdf) itp->second->setDataDirty();
@@ -536,6 +536,13 @@ cacheutils::CachingAddNLL::evaluate() const
         }
         // get vals
         const std::vector<Double_t> &pdfvals = itp->eval(*data_);
+#ifdef LOG_ADDPDFS
+        printf("%s coefficient %s (%s) = %20.15f\n", itp->pdf()->GetName(), (*itc)->GetName(), (*itc)->ClassName(), coeff);
+        //(*itc)->Print("");
+        for (unsigned int i = 0, n = pdfvals.size(); i < n; ++i) {
+            if (i%84==0) printf("%-80s[%3d] = %20.15f\n", itp->pdf()->GetName(), i, pdfvals[i]);
+        }
+#endif
         // update running sum
         //    std::vector<Double_t>::const_iterator itv = pdfvals.begin();
         //    for (its = bgs; its != eds; ++its, ++itv) {
