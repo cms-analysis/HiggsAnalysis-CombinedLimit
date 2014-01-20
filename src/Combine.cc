@@ -302,6 +302,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (snapshotName_ != "") {
       w->loadSnapshot(snapshotName_.c_str());
+      //make sure mass value used is really the one from the loaded snapshot
+      mass_ = MH->getVal();
     }
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
