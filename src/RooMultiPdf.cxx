@@ -13,6 +13,7 @@
 #include "../interface/RooMultiPdf.h"
 #include "RooRealVar.h"
 #include "RooAddPdf.h"
+#include <stdexcept>
 
 ClassImp(RooMultiPdf)
 
@@ -88,51 +89,39 @@ RooAbsPdf* RooMultiPdf::getCurrentPdf() const {
   RooAbsPdf *cPdf = ((RooAbsPdf*)c.at(x)); 
   return cPdf; 
 }
+RooAbsPdf* RooMultiPdf::getPdf(int index) const {
+    
+  RooAbsPdf *cPdf = ((RooAbsPdf*)c.at(index));
+  return cPdf;
+}
+
+int RooMultiPdf::getCurrentIndex() const {
+    Int_t index = x;
+    return index;
+}
+
+//_____________________________________________________________________________
+Double_t RooMultiPdf::getValV(const RooArgSet* nset) const {
+  RooAbsPdf *cPdf = ((RooAbsPdf*)c.at(x)); 
+  double val = cPdf->getVal(nset);
+  _oldIndex=x;
+  return val;
+}
+
 //_____________________________________________________________________________
 Double_t RooMultiPdf::evaluate() const{
-
-  double val=0;
-  RooAbsPdf *cPdf = ((RooAbsPdf*)c.at(x)); 
-  if (cPdf->IsA()->InheritsFrom(RooAddPdf::Class()))
-  {
-	const RooAddPdf *aPdf = dynamic_cast<const RooAddPdf*>(cPdf);
-	val = aPdf->evaluate();
-  } else {
-   	val = cPdf->getVal();
-  }
-//   val = cPdf->getVal();
-  _oldIndex=x;
-  return val;
-
+  // This is dangerous since if the underlying pdf is a RooAddPdf the meaning of the 
+  // coefficients depends on the normalization set, and we don't really know
+  // how this information is propagated.
+  // So, we just forward the getVal which is anyway the contract for RooMultiPdf.
+  throw std::invalid_argument("RooMultiPdf::evaluate() called\n");
 }
 
 //_____________________________________________________________________________
-Double_t  RooMultiPdf::getValV(const RooArgSet* nset) const{
-  double val=0;
+Double_t  RooMultiPdf::getLogVal(const RooArgSet* nset) const {
   RooAbsPdf *cPdf = ((RooAbsPdf*)c.at(x)); 
-  if (cPdf->IsA()->InheritsFrom(RooAddPdf::Class()))
-  {
-	const RooAddPdf *aPdf = dynamic_cast<const RooAddPdf*>(cPdf);
-	val = aPdf->getValV(nset);
-  } else {
-   	val = cPdf->getValV(nset);
-  }
-  _oldIndex=x; 
-  return val;
-}
-//_____________________________________________________________________________
-Double_t  RooMultiPdf::getLogVal(const RooArgSet* nset) const{
-
-  double logval=0;
-  RooAbsPdf *cPdf = ((RooAbsPdf*)c.at(x)); 
-  if (cPdf->IsA()->InheritsFrom(RooAddPdf::Class()))
-  {
-	const RooAddPdf *aPdf = dynamic_cast<const RooAddPdf*>(cPdf);
-	logval = aPdf->getLogVal(nset);
-  } else {
-	logval = cPdf->getLogVal(nset);
-  }
+  double logval = cPdf->getLogVal(nset);
   _oldIndex=x;
-  return logval;//cPdf->getLogVal(nset);	
+  return logval;	
 }
 
