@@ -106,6 +106,7 @@ Combine::Combine() :
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
       ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a rootfile.")
+      ("snapshotName", po::value<std::string>(&snapshotName_)->default_value(""), "Default snapshot name for pre-fit snapshot for reading or writing to workspace")
       ("modelConfigName",  po::value<std::string>(&modelConfigName_)->default_value("ModelConfig"), "ModelConfig name, when reading it from or writing it to a rootfile.")
       ("modelConfigNameB", po::value<std::string>(&modelConfigNameB_)->default_value("%s_bonly"), "Name of the ModelConfig for b-only hypothesis.\n"
                                                                                                   "If not present, it will be made from the singal model taking zero signal strength.\n"
@@ -307,6 +308,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
     }
+    if (snapshotName_ != "") {
+      w->loadSnapshot(snapshotName_.c_str());
+    }
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
     w = hlf->GetWs();
@@ -449,12 +453,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   addPOI(POI);
 
   w->saveSnapshot("clean", w->allVars());
-
-  if (saveWorkspace_) {
-    w->SetName(workspaceName_.c_str());
-    outputFile->WriteTObject(w,workspaceName_.c_str());
-  }
-
+  
   tree_ = tree;
 
   bool isExtended = mc->GetPdf()->canBeExtended();
@@ -639,6 +638,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         cout << "   95% expected band : " << lo95 << " < r < " << hi95 << endl;
     }
   }
+  
+  if (saveWorkspace_) {
+    w->SetName(workspaceName_.c_str());
+    w->loadSnapshot("clean");
+    outputFile->WriteTObject(w,workspaceName_.c_str());
+  }  
 
 }
 

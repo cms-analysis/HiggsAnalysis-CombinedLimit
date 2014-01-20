@@ -64,6 +64,7 @@ private:
   // input-output related variables
   bool saveWorkspace_;
   std::string workspaceName_;
+  std::string snapshotName_;
   std::string modelConfigName_, modelConfigNameB_;
   bool validateModel_;
   bool saveToys_;
