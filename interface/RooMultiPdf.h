@@ -65,6 +65,8 @@ arg8=RooCmdArg::none());
   int getCurrentIndex() const ;
   RooAbsPdf *getPdf(int index) const ;
   virtual Double_t getValV(const RooArgSet* nset) const ;
+  /// needed since otherwise printValue calls evaluate(), which is taboo
+  virtual void printValue(ostream& os) const { getCurrentPdf()->printValue(os); }
 protected:
   RooListProxy c;
   RooListProxy corr;
