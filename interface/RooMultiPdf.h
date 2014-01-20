@@ -62,7 +62,7 @@ arg8=RooCmdArg::none());
   RooAbsPdf *getCurrentPdf() const;
   int getNumPdfs(){return nPdfs;};
   void setCorrectionFactor(PenatlyScheme penal);
-
+  Double_t getValV(const RooArgSet *nset = 0) const;
 protected:
   RooListProxy c;
   RooListProxy corr;
