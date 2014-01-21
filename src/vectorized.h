@@ -9,5 +9,11 @@ namespace vectorized {
 
     // gaussians
     void gaussians(const uint32_t size, double mean, double sigma, double norm, const double* __restrict__ xvals, double * __restrict__ out, double * __restrict__ workingArea, double * __restrict__ workingArea2) ;
+
+    // exponentials
+    void exponentials(const uint32_t size, double lambda, double norm, const double* __restrict__ xvals, double * __restrict__ out, double * __restrict__ workingArea) ;
+
+    // powers
+    void powers(const uint32_t size, double lambda, double norm, const double* __restrict__ xvals, double * __restrict__ out, double * __restrict__ workingArea) ;
 }
 

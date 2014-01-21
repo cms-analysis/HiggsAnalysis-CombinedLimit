@@ -29,6 +29,8 @@ namespace cacheutils {
         private:
             std::vector<RooRealVar *> vars_;
             std::vector<double> vals_;
+            std::vector<RooCategory *> cats_;
+            std::vector<int> states_;
     };
 
 // Part zero point five: Cache of pdf values for different parameters
@@ -56,14 +58,22 @@ namespace cacheutils {
             Item *items[MaxItems_];
     };
 // Part one: cache all values of a pdf
-class CachingPdf {
+class CachingPdfBase {
+    public:
+        CachingPdfBase() {}
+        virtual ~CachingPdfBase() {}
+        virtual const std::vector<Double_t> & eval(const RooAbsData &data) = 0;
+        virtual const RooAbsReal *pdf() const = 0;
+        virtual void  setDataDirty() = 0;
+};
+class CachingPdf : public CachingPdfBase {
     public:
         CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
         CachingPdf(const CachingPdf &other) ;
         virtual ~CachingPdf() ;
-        const std::vector<Double_t> & eval(const RooAbsData &data) ;
+        virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
         const RooAbsReal *pdf() const { return pdf_; }
-        void  setDataDirty() { lastData_ = 0; }
+        virtual void  setDataDirty() { lastData_ = 0; }
     protected:
         const RooArgSet *obs_;
         RooAbsReal *pdfOriginal_;
@@ -91,6 +101,7 @@ class OptimizedCachingPdfT : public CachingPdf {
         VPdfT *vpdf_;
 };
 
+CachingPdfBase * makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
 
 class CachingAddNLL : public RooAbsReal {
     public:
@@ -118,10 +129,10 @@ class CachingAddNLL : public RooAbsReal {
         std::vector<Double_t>  weights_;
         double               sumWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
-        mutable boost::ptr_vector<CachingPdf>  pdfs_;
+        mutable boost::ptr_vector<CachingPdfBase>  pdfs_;
         mutable boost::ptr_vector<RooAbsReal>  prods_;
         mutable std::vector<RooAbsReal*> integrals_;
-        mutable std::vector<std::pair<const RooMultiPdf*,CachingPdf*> > multiPdfs_;
+        mutable std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> > multiPdfs_;
         mutable std::vector<Double_t> partialSum_;
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;

@@ -33,6 +33,8 @@ public:
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  const RooAbsReal & base() const { return x.arg(); }
+  const RooAbsReal & exponent() const { return c.arg(); }
 
 protected:
   RooRealProxy x;

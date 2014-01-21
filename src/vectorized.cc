@@ -38,3 +38,24 @@ void vectorized::gaussians(const uint32_t size, double mean, double sigma, doubl
         out[i] = inorm*workingArea2[i];
     }
 }
+
+void vectorized::exponentials(const uint32_t size, double lambda, double norm, const double* __restrict__ xvals, double * __restrict__ out, double * __restrict__ workingArea)
+{
+    //out[i] = std::exp(xvals[i]*lambda) * nfact; nfact = 1.0/norm
+    double lognfact = -std::log(norm);
+    for (uint32_t i = 0; i < size; ++i) {
+        workingArea[i] = xvals[i] * lambda + lognfact;
+    }
+    vdt::fast_expv(size, workingArea, out);
+}
+
+void vectorized::powers(const uint32_t size, double exponent, double norm, const double* __restrict__ xvals, double * __restrict__ out, double * __restrict__ workingArea)
+{
+    //out[i] = std::pow(xvals[i],exponent) * nfact; // nfact = 1.0/norm
+    double lognfact = -std::log(norm);
+    vdt::fast_logv(size, xvals, workingArea);
+    for (uint32_t i = 0; i < size; ++i) {
+        workingArea[i] = workingArea[i]*exponent + lognfact;
+    }
+    vdt::fast_expv(size, workingArea, out);
+}
