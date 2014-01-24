@@ -60,9 +60,9 @@ class TwoHypotesisHiggs(PhysicsModel):
 		self.fqqFloating = True
                 self.muFloating = True
                 self.fqqRange = po.replace("fqqRange=","").split(",")
-                if len(self.mHRange) != 2:
+                if len(self.fqqRange) != 2:
                     raise RuntimeError, "fqq range definition requires two extrema"
-                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                elif float(self.fqqRange[0]) >= float(self.fqqRange[1]):
                     raise RuntimeError, "Extrema for fqq range defined with inverterd order. Second must be larger the first"
             if po == "muAsPOI": 
                 print "Will consider the signal strength as a parameter of interest"

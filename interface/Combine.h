@@ -68,7 +68,7 @@ private:
   std::string modelConfigName_, modelConfigNameB_;
   bool validateModel_;
   bool saveToys_;
-  float mass_;
+  double mass_;
 
   // implementation-related variables
   bool compiledExpr_;
