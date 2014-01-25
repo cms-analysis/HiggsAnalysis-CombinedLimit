@@ -696,7 +696,7 @@ RooAbsData * Asymptotic::asimovDataset(RooWorkspace *w, RooStats::ModelConfig *m
     }
     // get asimov dataset and global observables
     RooAbsData *asimovData = (noFitAsimov_  ? asimovutils::asimovDatasetNominal(mc_s, 0.0, verbose) :
-                                              asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov, 0.0, verbose));
+                                              asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov,!bypassFrequentistFit_, 0.0, verbose));
     asimovData->SetName("_Asymptotic_asimovDataset_");
     w->import(*asimovData); // I'm assuming the Workspace takes ownership. Might be false.
     delete asimovData;      //  ^^^^^^^^----- now assuming that the workspace clones.

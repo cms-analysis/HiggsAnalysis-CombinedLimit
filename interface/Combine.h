@@ -21,6 +21,8 @@ extern int verbose;
 extern bool withSystematics;
 extern bool doSignificance_, lowerLimit_;
 extern float cl;
+extern bool bypassFrequentistFit_;
+
 
 class Combine {
 public:
@@ -66,6 +68,7 @@ private:
   std::string workspaceName_;
   std::string snapshotName_;
   std::string modelConfigName_, modelConfigNameB_;
+  bool overrideSnapshotMass_;
   bool validateModel_;
   bool saveToys_;
   double mass_;
