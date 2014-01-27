@@ -23,22 +23,21 @@ RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double 
         return asimov;
 }
 
-RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsData &realdata, RooAbsCollection &snapshot, double poiValue, int verbose) {
+RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsData &realdata, RooAbsCollection &snapshot, bool needsFit, double poiValue, int verbose) {
         RooArgSet  poi(*mc->GetParametersOfInterest());
         RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
         r->setConstant(true); r->setVal(poiValue);
         {
             CloseCoutSentry sentry(verbose < 3);
-            bool needsFit = false; 
             if (mc->GetNuisanceParameters()) {
-                needsFit = true;
+                needsFit &= true;
             } else {
                 // Do we have free parameters anyway that need fitting?
                 std::auto_ptr<RooArgSet> params(mc->GetPdf()->getParameters(realdata));
                 std::auto_ptr<TIterator> iter(params->createIterator());
                 for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
                     RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-                    if ( rrv != 0 && rrv->isConstant() == false ) { needsFit = true; break; }
+                    if ( rrv != 0 && rrv->isConstant() == false ) { needsFit &= true; break; }
                 } 
             }
             if (needsFit) {

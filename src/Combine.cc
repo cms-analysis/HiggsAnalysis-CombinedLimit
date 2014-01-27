@@ -71,6 +71,7 @@ bool withSystematics = 1;
 bool doSignificance_ = 0;
 bool lowerLimit_ = 0;
 float cl = 0.95;
+bool bypassFrequentistFit_ = false;
 TTree *Combine::tree_ = 0;
 
 
@@ -109,6 +110,9 @@ Combine::Combine() :
       ("modelConfigNameB", po::value<std::string>(&modelConfigNameB_)->default_value("%s_bonly"), "Name of the ModelConfig for b-only hypothesis.\n"
                                                                                                   "If not present, it will be made from the singal model taking zero signal strength.\n"
                                                                                                   "A '%s' in the name will be replaced with the modelConfigName.")
+      ("bypassFrequentistFit",   "Skip actual minimization for constructing frequentist toys (eg because loaded snapshot already corresponds to desired postfit)")
+      ("overrideSnapshotMass",   "Override MH loaded from a snapshot with the one passed on the command line")
+
       ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
       ;
@@ -145,6 +149,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
       sprintf(modelBName, modelConfigNameB_.c_str(), modelConfigName_.c_str());
       modelConfigNameB_ = modelBName;
   }
+  bypassFrequentistFit_ = vm.count("bypassFrequentistFit");
+  overrideSnapshotMass_ = vm.count("overrideSnapshotMass");
   mass_ = vm["mass"].as<float>();
   saveToys_ = vm.count("saveToys");
   validateModel_ = vm.count("validateModel");
@@ -301,9 +307,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly->SetPdf(*model_b);
     }
     if (snapshotName_ != "") {
-      w->loadSnapshot(snapshotName_.c_str());
-      //make sure mass value used is really the one from the loaded snapshot
-      mass_ = MH->getVal();
+      bool loaded = w->loadSnapshot(snapshotName_.c_str());
+      assert(loaded);
+      //make sure mass value used is really the one from the loaded snapshot unless explicitly requested to override it
+      if (overrideSnapshotMass_) {
+        MH->setVal(mass_);
+      }
+      else {
+        mass_ = MH->getVal();
+      }
     }
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
@@ -486,7 +498,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 w->saveSnapshot("reallyClean", w->allVars());
                 if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
                 RooArgSet gobsAsimov;
-                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, expectSignal_, verbose);
+                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, expectSignal_, verbose);
                 if (mc->GetGlobalObservables()) {
                     RooArgSet gobs(*mc->GetGlobalObservables());
                     gobs = gobsAsimov;
@@ -540,7 +552,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
                 CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
                 minim.setStrategy(1);
-                minim.minimize();
+                if (!bypassFrequentistFit_) minim.minimize();
           }
           utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
           w->saveSnapshot("clean", w->allVars());
