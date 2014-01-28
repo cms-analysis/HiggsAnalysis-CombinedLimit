@@ -61,7 +61,11 @@ class CvCfHiggs(SMLikeHiggsModel):
             'hww':'hvv',
             'hzz':'hvv',
             'hbb':'hff',
+            'hcc':'hff',
+            'hss':'hff',
             'htt':'hff',
+            'hmm':'hff',
+            'hgluglu':'hff',
             }
         self.productionScaling = {
             'ggH':'CF',
