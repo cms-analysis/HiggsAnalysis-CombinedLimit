@@ -206,7 +206,7 @@ class ShapeBuilder(ModelBuilder):
             if len(shapeObs.keys()) != 1:
                 self.out.binVars = ROOT.RooArgSet()
                 for obs in shapeObs.values():
-                     self.out.binVars.add(obs, False)
+                     self.out.binVars.add(obs, True)
             else:
                 self.out.binVars = shapeObs.values()[0]
             self.out._import(self.out.binVars)
