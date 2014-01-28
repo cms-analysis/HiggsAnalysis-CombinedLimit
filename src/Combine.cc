@@ -686,6 +686,11 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
 
     if (discreteParameters != 0) {
         TIterator *dp = discreteParameters->createIterator();
-        while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
+        while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
+          RooCategory *cat = dynamic_cast<RooCategory*>(arg);
+          if (cat && !cat->isConstant()) {
+            (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
+          }
+        }
     }
 }
