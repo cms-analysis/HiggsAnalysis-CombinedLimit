@@ -125,9 +125,21 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             if (newpdf == 0) { throw std::runtime_error(std::string("ERROR: channel ") + cat->getLabel() + " factorized to zero."); }
             if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
         }
+        if (id == typeid(RooSimultaneousOpt)) {
+            RooSimultaneousOpt &o = dynamic_cast<RooSimultaneousOpt &>(pdf);
+            RooLinkedListIter iter = o.extraConstraints().iterator();
+            if (o.extraConstraints().getSize() > 0) needNew = true;
+            for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+                if (!constraints.contains(*a)) constraints.add(*a);
+            }
+        }
         RooSimultaneous *ret = sim;
         if (needNew) {
-            ret = new RooSimultaneous(TString::Format("%s_obsOnly", pdf.GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
+            if (id == typeid(RooSimultaneousOpt)) {
+                ret = new RooSimultaneousOpt(TString::Format("%s_obsOnly", pdf.GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
+            } else {
+                ret = new RooSimultaneous(TString::Format("%s_obsOnly", pdf.GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
+            }
             for (int ic = 0, nc = nbins; ic < nc; ++ic) {
                 cat->setBin(ic);
                 RooAbsPdf *newpdf = (RooAbsPdf *) factorizedPdfs[ic];
@@ -136,11 +148,6 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             ret->addOwnedComponents(newOwned);
         }
         delete cat;
-        if (id == typeid(RooSimultaneousOpt)) {
-            RooSimultaneousOpt *newret = new RooSimultaneousOpt(*ret);
-            newret->addOwnedComponents(RooArgSet(*ret));
-            ret = newret;
-        }
         copyAttributes(pdf, *ret);
         return ret;
     } else if (pdf.dependsOn(observables)) {
@@ -166,6 +173,13 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
             factorizePdf(observables, *pdfi, obsTerms, constraints);
         }
     } else if (id == typeid(RooSimultaneous) || id == typeid(RooSimultaneousOpt)) {
+        if (id == typeid(RooSimultaneousOpt)) {
+            RooSimultaneousOpt &o = dynamic_cast<RooSimultaneousOpt &>(pdf);
+            RooLinkedListIter iter = o.extraConstraints().iterator();
+            for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+                if (!constraints.contains(*a)) constraints.add(*a);
+            }
+        }
         RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
         RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
         for (int ic = 0, nc = cat->numBins((const char *)0); ic < nc; ++ic) {
