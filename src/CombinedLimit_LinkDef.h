@@ -16,6 +16,7 @@
 #include "../interface/SequentialMinimizer.h"
 #include "../interface/ProcessNormalization.h"
 #include "../interface/RooSpline1D.h"
+#include "../interface/RooSplineND.h"
 #include "../interface/RooScaleLOSM.h"
 #include "../interface/rVrFLikelihood.h"
 #include "../interface/RooMultiPdf.h"
@@ -69,6 +70,7 @@
 #pragma link C++ class cmsmath::SequentialMinimizer+;
 #pragma link C++ class ProcessNormalization+;
 #pragma link C++ class RooSpline1D+;
+#pragma link C++ class RooSplineND+;
 #pragma link C++ class RooScaleLOSM+;
 #pragma link C++ class RooScaleHGamGamLOSM+;
 #pragma link C++ class RooScaleHGluGluLOSM+;
