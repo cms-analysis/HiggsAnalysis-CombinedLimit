@@ -21,7 +21,7 @@ class ModelBuilderBase():
             self.out.dont_delete = []
             if options.verbose == 0:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
-            elif options.verbose < 2:
+            elif options.verbose < 3:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
             if os.environ.has_key('ROOFITSYS'):
                 ROOT.gSystem.AddIncludePath(" -I%s/include " % os.environ['ROOFITSYS'])
@@ -78,8 +78,8 @@ class ModelBuilder(ModelBuilderBase):
         self.physics.done()
         if self.options.bin:
             self.doModelConfigs()
-            if self.options.verbose > 1: self.out.Print("V")
-            if self.options.verbose > 2: 
+            if self.options.verbose > 2: self.out.Print("V")
+            if self.options.verbose > 3: 
                 print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
                 self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
     def doObservables(self):
@@ -316,7 +316,7 @@ class ModelBuilder(ModelBuilderBase):
             mc.SetObservables(self.out.set("observables"))
             if len(self.DC.systs):  mc.SetNuisanceParameters(self.out.set("nuisances"))
             if self.out.set("globalObservables"): mc.SetGlobalObservables(self.out.set("globalObservables"))
-            if self.options.verbose > 1: mc.Print("V")
+            if self.options.verbose > 2: mc.Print("V")
             self.out._import(mc, mc.GetName())
             if self.options.noBOnly: break
 	discparams = ROOT.RooArgSet("discreteParams")
