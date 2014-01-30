@@ -256,10 +256,15 @@ bool utils::setAllConstant(const RooAbsCollection &coll, bool constant) {
     std::auto_ptr<TIterator> iter(coll.createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
         RooRealVar *v = dynamic_cast<RooRealVar *>(a);
+        RooCategory *cv = dynamic_cast<RooCategory *>(a);
         if (v && (v->isConstant() != constant)) {
             changed = true;
             v->setConstant(constant);
         }
+        else if (cv && (cv->isConstant() != constant)) {
+            changed = true;
+            cv->setConstant(constant);
+        }        
     }
     return changed;
 }
