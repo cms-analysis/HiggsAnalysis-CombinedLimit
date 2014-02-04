@@ -507,6 +507,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 w->saveSnapshot("reallyClean", w->allVars());
                 if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
                 RooArgSet gobsAsimov;
+                utils::setAllConstant(*mc->GetParametersOfInterest(), true); // Fix poi, before fit
                 dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, expectSignal_, verbose);
                 if (mc->GetGlobalObservables()) {
                     RooArgSet gobs(*mc->GetGlobalObservables());
