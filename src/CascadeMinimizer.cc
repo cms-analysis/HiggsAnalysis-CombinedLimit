@@ -128,7 +128,7 @@ are freely floating. We should cut them down to find which ones are
 
 */
    // Do A reasonable fit if something changed before 
-   if ( fabs(minimumNLL - nll_.getVal()) < discreteMinTol_ ) improve(verbose,cascade);
+   if ( fabs(minimumNLL - nll_.getVal()) > discreteMinTol_ ) improve(verbose,cascade);
 
    RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().nuisanceParameters;
    RooArgSet poi = CascadeMinimizerGlobalConfigs::O().parametersOfInterest;
