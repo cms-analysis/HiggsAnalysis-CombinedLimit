@@ -242,8 +242,8 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     bool ret = true;
 
     if (runShortCombinations) {
-      double minimumNLL = 10;
-      double previousNLL = 1;
+      double minimumNLL = 10+nll_.getVal();
+      double previousNLL = 1+nll_.getVal();
       int maxIterations = 15; int iterationCounter=0;
       for (;iterationCounter<maxIterations;iterationCounter++){
         iterativeMinimize(minimumNLL,verbose,cascade);
@@ -253,7 +253,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 
     } else {
 
-      double minimumNLL = 10;
+      double minimumNLL = 10+nll_.getVal();
       std::vector<std::vector<bool>> contIndex;
       multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex);
  
