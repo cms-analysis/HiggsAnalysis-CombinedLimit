@@ -18,6 +18,7 @@ def addDatacardParserOptions(parser):
     parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape2N", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
     parser.add_option("--no-b-only","--for-fits",    dest="noBOnly", default=False, action="store_true", help="Do not save the background-only pdf (saves time)")
     parser.add_option("--no-optimize-pdfs",    dest="noOptimizePdf", default=False, action="store_true", help="Do not save the RooSimultaneous as RooSimultaneousOpt and Gaussian constraints as SimpleGaussianConstraint")
+    parser.add_option("--optimize-simpdf-constraints",    dest="moreOptimizeSimPdf", default=False, action="store_true", help="Deeper optimization of RooSimultaneous: add the constraints only at the end (RooFit-incompatible!)")
     #parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="never", help="Use RooHistPdf for TH1s: 'always', 'never' (default), 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
