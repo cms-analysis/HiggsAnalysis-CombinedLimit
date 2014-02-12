@@ -242,8 +242,10 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     bool ret = true;
 
     if (runShortCombinations) {
-      double minimumNLL = 10+nll_.getVal();
-      double previousNLL = 1+nll_.getVal();
+      // Initial fit under current index values
+      improve(verbose, cascade);
+      double minimumNLL  = 10+nll_.getVal();
+      double previousNLL = nll_.getVal();
       int maxIterations = 15; int iterationCounter=0;
       for (;iterationCounter<maxIterations;iterationCounter++){
         iterativeMinimize(minimumNLL,verbose,cascade);
