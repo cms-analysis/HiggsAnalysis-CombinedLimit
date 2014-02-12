@@ -436,6 +436,7 @@ class ShapeBuilder(ModelBuilder):
             else:
                 pdflist = ROOT.RooArgList()
                 nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
+                pdflist.add(nominalPdf)
                 for (syst,scale,shapeUp,shapeDown) in morphs:
                     pdflist.add(self.shape2Pdf(shapeUp,channel,process))
                     pdflist.add(self.shape2Pdf(shapeDown,channel,process))
