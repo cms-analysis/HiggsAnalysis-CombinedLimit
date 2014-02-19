@@ -93,7 +93,7 @@ float       HybridNew::adaptiveToys_ = -1;
 bool        HybridNew::reportPVal_ = false;
 float HybridNew::confidenceToleranceForToyScaling_ = 0.2;
 float HybridNew::maxProbability_ = 0.999;
-#define EPS 1e-9
+#define EPS 1e-6
  
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
@@ -643,6 +643,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   RooArgSet  poi(*mc_s->GetParametersOfInterest()), params(poi);
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
+  double rValOriginal = ((RooAbsReal*)rVals.first())->getVal();
 
   if (poi.getSize() == 1) { // here things are a bit more convoluted, although they could probably be cleaned up
       double rVal = ((RooAbsReal*)rVals.first())->getVal();
@@ -770,7 +771,14 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   }
   if (fitNuisances_ && paramsToFit.get()) { params.add(*paramsToFit); fitMu.writeTo(params); }
   if (fitNuisances_ && paramsToFit.get()) { paramsZero.addClone(*paramsToFit); fitZero.writeTo(paramsZero); }
-  setup.modelConfig.SetSnapshot(params);
+  if (poi.getSize() == 1 && r->getVal() != rValOriginal) {
+    double rTmp = r->getVal();
+    r->setVal(rValOriginal);
+    setup.modelConfig.SetSnapshot(params);
+    r->setVal(rTmp);
+  } else {
+    setup.modelConfig.SetSnapshot(params);
+  }
   setup.modelConfig_bonly.SetSnapshot(paramsZero);
   TString paramsSnapName  = TString::Format("%s_%s_snapshot", setup.modelConfig.GetName(), params.GetName());
   TString paramsZSnapName = TString::Format("%s__snapshot",   setup.modelConfig_bonly.GetName());
