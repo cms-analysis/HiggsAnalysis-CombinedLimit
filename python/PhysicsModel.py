@@ -357,10 +357,14 @@ class FloatingBRHiggs(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.modes = [ "hbb", "htt", "hgg", "hww", "hzz" ]
+        self.modemap = {}
         self.mHRange = []
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("modes="): self.modes = po.replace("modes=","").split(",")
+            if po.startswith("map="): 
+                (mfrom,mto) = po.replace("map=","").split(":")
+                self.modemap[mfrom] = mto
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
@@ -396,8 +400,12 @@ class FloatingBRHiggs(SMLikeHiggsModel):
     def getHiggsSignalYieldScale(self,production,decay, energy):
         if decay in self.modes: 
             return "r_"+decay
-        elif decay not in [ "hbb", "htt", "hgg", "hww", "hzz" ]:
-            raise RuntimeError, "Unknown decay mode '%s'" % decay
+        if decay in self.modemap:
+            if self.modemap[decay] in [ "1", "0" ]:
+                return int(self.modemap[decay])
+            else:
+                return "r_"+self.modemap[decay]
+        raise RuntimeError, "Unknown decay mode '%s'" % decay
 
 class RvfBRHiggs(SMLikeHiggsModel):
     "Float ratio of (VH+qqH)/(ggH+ttH) and BR's"
