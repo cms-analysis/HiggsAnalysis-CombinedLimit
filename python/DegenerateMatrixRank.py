@@ -62,6 +62,12 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
            print item
         #the next part is for the special case, where the ratio (look for your papers) is constant
     def getHiggsSignalYieldScale(self,production,decay, energy):
+        if decay=="hmm":
+        	decay="htt"
+	if decay=="hzg":
+		decay="hgg"
+	if decay in [ "hgluglu", "hcc", "hss", "huu", "hdd" ]:
+		decay="hbb"
         if production == "ggH":
                 return 'mu_'+decay
         elif production == "qqH":
@@ -142,6 +148,12 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
     def getHiggsSignalYieldScale(self,production,decay, energy):
 	#print 'Printing out:', production, decay, energy, 'mu_'+decay
 	#return 'mu_'+decay
+	if decay=="hmm":
+                decay="htt"
+        if decay=="hzg":
+                decay="hgg"
+        if decay in [ "hgluglu", "hcc", "hss", "huu", "hdd" ]:
+                decay="hbb"
 	if production == "ggH":
                 return 'mu_'+decay
         elif production == "qqH":
