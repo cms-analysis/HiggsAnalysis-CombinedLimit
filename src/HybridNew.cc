@@ -291,7 +291,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     }
     if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
     // I don't need to flip the P-values for significances, only for limits
-    hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
+    hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-EPS); // issue with < vs <= in discrete models
     double sig   = hcResult->Significance();
     double sigHi = RooStats::PValueToSignificance( (hcResult->CLb() - hcResult->CLbError()) ) - sig;
     double sigLo = RooStats::PValueToSignificance( (hcResult->CLb() + hcResult->CLbError()) ) - sig;
