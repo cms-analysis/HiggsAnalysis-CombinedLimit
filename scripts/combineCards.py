@@ -13,6 +13,7 @@ parser.add_option("-S", "--force-shape", dest="shape",    default=False, action=
 parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true", help="Replace observation with asimov dataset. Works only for counting experiments")
 parser.add_option("-P", "--prefix", type="string", dest="fprefix", default="",  help="Prefix this to all file names")
 parser.add_option("--xc", "--exclude-channel", type="string", dest="channelVetos", default=[], action="append", help="Exclude channels that match this regexp; can specify multiple ones")
+parser.add_option("--ic", "--include-channel", type="string", dest="channelIncludes", default=[], action="append", help="Only include channels that match this regexp; can specify multiple ones")
 parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
 parser.add_option("--xn-file", "--exclude-nuisances-from-file", type="string", dest="nuisVetoFile", help="Exclude all the nuisances in this file")
 
@@ -51,6 +52,7 @@ for ich,fname in enumerate(args):
     for b in DC.bins:
         bout = label if singlebin else label+b
         if isVetoed(bout,options.channelVetos): continue
+	if not isIncluded(bout,options.channelIncludes): continue
         obskeyline.append(bout)
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
             if DC.isSignal[p] == False: continue
@@ -74,6 +76,7 @@ for ich,fname in enumerate(args):
         for b in DC.bins:
             bout = label if singlebin else label+b
             if isVetoed(bout,options.channelVetos): continue
+	    if not isIncluded(bout,options.channelIncludes): continue
             if not systeffect.has_key(bout): systeffect[bout] = {} 
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 r = str(errline[b][p]);
@@ -118,6 +121,7 @@ for ich,fname in enumerate(args):
         for b in DC.bins:
             bout = label if singlebin else label+b
             if isVetoed(bout,options.channelVetos): continue
+	    if not isIncluded(bout,options.channelIncludes): continue
             p2sMap  = DC.shapeMap[b]   if DC.shapeMap.has_key(b)   else {}
             p2sMapD = DC.shapeMap['*'] if DC.shapeMap.has_key('*') else {}
             for p, x in p2sMap.items():
@@ -140,6 +144,7 @@ for ich,fname in enumerate(args):
         for b in DC.bins:
             bout = label if singlebin else label+b
             if isVetoed(bout,options.channelVetos): continue
+	    if not isIncluded(bout,options.channelIncludes): continue
             obsline += [str(DC.obs[b])]; 
 
 bins = []
