@@ -31,7 +31,7 @@ END_HTML
 #include "RooMsgService.h"
 #include "TMath.h"
 
-#include "AtlasPdfs.h"
+#include "../interface/AtlasPdfs.h"
 
 ClassImp(RooStats::HistFactory::RooBSpline)
 

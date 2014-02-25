@@ -22,7 +22,7 @@
 #include "../interface/RooMultiPdf.h"
 #include "../interface/RooBernsteinFast.h"
 #include "../interface/SimpleGaussianConstraint.h"
-#include "AtlasPdfs.h"
+#include "../interface/AtlasPdfs.h"
 
 
 #ifdef __CINT__
