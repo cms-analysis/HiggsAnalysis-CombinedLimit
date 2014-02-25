@@ -15,12 +15,13 @@ class ModelBuilderBase():
             if options.out == None: options.out = re.sub(".txt$","",options.fileName)+".root"
             options.baseDir = os.path.dirname(options.fileName)
             ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
+            ROOT.TH1.AddDirectory(False)
             self.out = ROOT.RooWorkspace("w","w");
             self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
             self.out.dont_delete = []
             if options.verbose == 0:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
-            elif options.verbose < 2:
+            elif options.verbose < 3:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
             if os.environ.has_key('ROOFITSYS'):
                 ROOT.gSystem.AddIncludePath(" -I%s/include " % os.environ['ROOFITSYS'])
@@ -77,8 +78,8 @@ class ModelBuilder(ModelBuilderBase):
         self.physics.done()
         if self.options.bin:
             self.doModelConfigs()
-            if self.options.verbose > 1: self.out.Print("V")
-            if self.options.verbose > 2: 
+            if self.options.verbose > 2: self.out.Print("V")
+            if self.options.verbose > 3: 
                 print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
                 self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
     def doObservables(self):
@@ -97,10 +98,14 @@ class ModelBuilder(ModelBuilderBase):
                     if re.match(pn, n): 
                         sig = float(pf); sigscale = sig * (4 if pdf == "shape" else 7)
                         r = "-%g,%g" % (sigscale,sigscale)
-                self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
+                if self.options.noOptimizePdf:
+                    self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
+                else:
+                    self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
+                if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
             elif pdf == "gmM":
                 val = 0;
                 for c in errline.values(): #list channels
@@ -202,6 +207,7 @@ class ModelBuilder(ModelBuilderBase):
                     self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]))
                     self.out.var("%s_In" % n).setConstant(True)
                 globalobs.append("%s_In" % n)
+                #if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
             if nofloat: 
               self.out.var("%s" % n).setAttribute("globalConstrained",True)
@@ -310,8 +316,9 @@ class ModelBuilder(ModelBuilderBase):
             mc.SetObservables(self.out.set("observables"))
             if len(self.DC.systs):  mc.SetNuisanceParameters(self.out.set("nuisances"))
             if self.out.set("globalObservables"): mc.SetGlobalObservables(self.out.set("globalObservables"))
-            if self.options.verbose > 1: mc.Print("V")
+            if self.options.verbose > 2: mc.Print("V")
             self.out._import(mc, mc.GetName())
+            if self.options.noBOnly: break
 	discparams = ROOT.RooArgSet("discreteParams")
 	for cpar in self.discrete_param_set:
 		roocpar =  self.out.cat(cpar)

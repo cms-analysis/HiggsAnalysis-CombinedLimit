@@ -78,6 +78,7 @@ private:
   bool makeTempDir_;
   bool rebuildSimPdf_;
   bool optSimPdf_;
+  bool noMCbonly_;
 
   static TTree *tree_;
 };

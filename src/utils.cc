@@ -125,9 +125,21 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             if (newpdf == 0) { throw std::runtime_error(std::string("ERROR: channel ") + cat->getLabel() + " factorized to zero."); }
             if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
         }
+        if (id == typeid(RooSimultaneousOpt)) {
+            RooSimultaneousOpt &o = dynamic_cast<RooSimultaneousOpt &>(pdf);
+            RooLinkedListIter iter = o.extraConstraints().iterator();
+            if (o.extraConstraints().getSize() > 0) needNew = true;
+            for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+                if (!constraints.contains(*a)) constraints.add(*a);
+            }
+        }
         RooSimultaneous *ret = sim;
         if (needNew) {
-            ret = new RooSimultaneous(TString::Format("%s_obsOnly", pdf.GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
+            if (id == typeid(RooSimultaneousOpt)) {
+                ret = new RooSimultaneousOpt(TString::Format("%s_obsOnly", pdf.GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
+            } else {
+                ret = new RooSimultaneous(TString::Format("%s_obsOnly", pdf.GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
+            }
             for (int ic = 0, nc = nbins; ic < nc; ++ic) {
                 cat->setBin(ic);
                 RooAbsPdf *newpdf = (RooAbsPdf *) factorizedPdfs[ic];
@@ -136,11 +148,6 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             ret->addOwnedComponents(newOwned);
         }
         delete cat;
-        if (id == typeid(RooSimultaneousOpt)) {
-            RooSimultaneousOpt *newret = new RooSimultaneousOpt(*ret);
-            newret->addOwnedComponents(RooArgSet(*ret));
-            ret = newret;
-        }
         copyAttributes(pdf, *ret);
         return ret;
     } else if (pdf.dependsOn(observables)) {
@@ -166,6 +173,13 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
             factorizePdf(observables, *pdfi, obsTerms, constraints);
         }
     } else if (id == typeid(RooSimultaneous) || id == typeid(RooSimultaneousOpt)) {
+        if (id == typeid(RooSimultaneousOpt)) {
+            RooSimultaneousOpt &o = dynamic_cast<RooSimultaneousOpt &>(pdf);
+            RooLinkedListIter iter = o.extraConstraints().iterator();
+            for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+                if (!constraints.contains(*a)) constraints.add(*a);
+            }
+        }
         RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
         RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
         for (int ic = 0, nc = cat->numBins((const char *)0); ic < nc; ++ic) {
@@ -584,6 +598,35 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
   }
 
 }
+
+void utils::createSnapshotFromString( const std::string expression, const RooArgSet &allvars, RooArgSet &output, const char *context) {
+    if (expression.find("=") == std::string::npos) {
+        if (allvars.getSize() != 1) throw std::invalid_argument(std::string("Error: the argument to ")+context+" is a single value, but there are multiple variables to choose from");
+        allvars.snapshot(output);
+        errno = 0; // check for errors in str->float conversion
+        ((RooRealVar*)output.first())->setVal(strtod(expression.c_str(),NULL));
+        if (errno != 0) std::invalid_argument(std::string("Error: the argument to ")+context+" is not a valid number.");
+    } else {
+        std::string::size_type eqidx = 0, colidx = 0, colidx2;
+        do {
+            eqidx   = expression.find("=", colidx);
+            colidx2 = expression.find(",", colidx+1);
+            if (eqidx == std::string::npos || (colidx2 != std::string::npos && colidx2 < eqidx)) {
+                throw std::invalid_argument(std::string("Error: the argument to ")+context+" is not in the forms 'value' or 'name1=value1,name2=value2,...'\n");
+            }
+            std::string poiName = expression.substr(colidx, eqidx-colidx);
+            std::string poiVal  = expression.substr(eqidx+1, (colidx2 == std::string::npos ? std::string::npos : colidx2 - eqidx - 1));
+            RooAbsArg *poi = allvars.find(poiName.c_str());
+            if (poi == 0) throw std::invalid_argument(std::string("Error: unknown parameter '")+poiName+"' passed to "+context+".");
+            output.addClone(*poi);
+            errno = 0;
+            output.setRealValue(poi->GetName(), strtod(poiVal.c_str(),NULL));
+            if (errno != 0) throw std::invalid_argument(std::string("Error: invalid value '")+poiVal+"' for parameter '"+poiName+"' passed to "+context+".");
+            colidx = colidx2+1;
+        } while (colidx2 != std::string::npos);
+    }
+}
+
 void utils::reorderCombinations(std::vector<std::vector<int> > &vec, const std::vector<int> &max, const std::vector<int> &pos){
 	
     // Assuming everyone starts from 0, add the start position modulo number of positions

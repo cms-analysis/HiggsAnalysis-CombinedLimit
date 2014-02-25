@@ -93,7 +93,7 @@ float       HybridNew::adaptiveToys_ = -1;
 bool        HybridNew::reportPVal_ = false;
 float HybridNew::confidenceToleranceForToyScaling_ = 0.2;
 float HybridNew::maxProbability_ = 0.999;
-#define EPS 1e-9
+#define EPS 1e-6
  
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
@@ -235,33 +235,9 @@ void HybridNew::validateOptions() {
 
 void HybridNew::setupPOI(RooStats::ModelConfig *mc_s) {
     RooArgSet POI(*mc_s->GetParametersOfInterest());
-    if (rValue_.find("=") == std::string::npos) {
-        if (POI.getSize() != 1) throw std::invalid_argument("Error: the argument to --singlePoint or --signalForSignificance is a single value, but there are multiple POIs");
-        POI.snapshot(rValues_);
-        errno = 0; // check for errors in str->float conversion
-        ((RooRealVar*)rValues_.first())->setVal(strtod(rValue_.c_str(),NULL));
-        if (errno != 0) std::invalid_argument("Error: the argument to --singlePoint or --signalForSignificance is not a valid number.");
-    } else {
-        std::string::size_type eqidx = 0, colidx = 0, colidx2;
-        do {
-            eqidx   = rValue_.find("=", colidx);
-            colidx2 = rValue_.find(",", colidx+1);
-            if (eqidx == std::string::npos || (colidx2 != std::string::npos && colidx2 < eqidx)) {
-                throw std::invalid_argument("Error: the argument to --singlePoint or --signalForSignificance is not in the forms 'value' or 'name1=value1,name2=value2,...'\n");
-            }
-            std::string poiName = rValue_.substr(colidx, eqidx-colidx);
-            std::string poiVal  = rValue_.substr(eqidx+1, (colidx2 == std::string::npos ? std::string::npos : colidx2 - eqidx - 1));
-            RooAbsArg *poi = POI.find(poiName.c_str());
-            if (poi == 0) throw std::invalid_argument("Error: unknown parameter '"+poiName+"' passed to --singlePoint or --signalForSignificance.");
-            rValues_.addClone(*poi);
-            errno = 0;
-            rValues_.setRealValue(poi->GetName(), strtod(poiVal.c_str(),NULL));
-            if (errno != 0) throw std::invalid_argument("Error: invalid value '"+poiVal+"' for parameter '"+poiName+"' passed to --singlePoint or --signalForSignificance.");
-            colidx = colidx2+1;
-        } while (colidx2 != std::string::npos);
-        if (rValues_.getSize() != POI.getSize()) {
-            throw std::invalid_argument("Error: not all parameters of interest specified in  --singlePoint or --signalForSignificance");
-        }
+    utils::createSnapshotFromString(rValue_, POI, rValues_, "--singlePoint or --signalForSignificance");
+    if (rValues_.getSize() != POI.getSize()) {
+        throw std::invalid_argument("Error: not all parameters of interest specified in  --singlePoint or --signalForSignificance");
     }
 }
 
@@ -315,7 +291,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     }
     if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
     // I don't need to flip the P-values for significances, only for limits
-    hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
+    hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-EPS); // issue with < vs <= in discrete models
     double sig   = hcResult->Significance();
     double sigHi = RooStats::PValueToSignificance( (hcResult->CLb() - hcResult->CLbError()) ) - sig;
     double sigLo = RooStats::PValueToSignificance( (hcResult->CLb() + hcResult->CLbError()) ) - sig;
@@ -667,6 +643,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   RooArgSet  poi(*mc_s->GetParametersOfInterest()), params(poi);
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
+  double rValOriginal = ((RooAbsReal*)rVals.first())->getVal();
 
   if (poi.getSize() == 1) { // here things are a bit more convoluted, although they could probably be cleaned up
       double rVal = ((RooAbsReal*)rVals.first())->getVal();
@@ -794,7 +771,14 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   }
   if (fitNuisances_ && paramsToFit.get()) { params.add(*paramsToFit); fitMu.writeTo(params); }
   if (fitNuisances_ && paramsToFit.get()) { paramsZero.addClone(*paramsToFit); fitZero.writeTo(paramsZero); }
-  setup.modelConfig.SetSnapshot(params);
+  if (poi.getSize() == 1 && r->getVal() != rValOriginal) {
+    double rTmp = r->getVal();
+    r->setVal(rValOriginal);
+    setup.modelConfig.SetSnapshot(params);
+    r->setVal(rTmp);
+  } else {
+    setup.modelConfig.SetSnapshot(params);
+  }
   setup.modelConfig_bonly.SetSnapshot(paramsZero);
   TString paramsSnapName  = TString::Format("%s_%s_snapshot", setup.modelConfig.GetName(), params.GetName());
   TString paramsZSnapName = TString::Format("%s__snapshot",   setup.modelConfig_bonly.GetName());

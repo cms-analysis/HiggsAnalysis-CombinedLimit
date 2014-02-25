@@ -16,6 +16,11 @@ def addDatacardParserOptions(parser):
     parser.add_option("-L", "--LoadLibrary", dest="libs",  type="string" , action="append", help="Load these libraries")
     parser.add_option("--poisson",  dest="poisson",  default=0,  type="int",    help="If set to a positive number, binned datasets wih more than this number of entries will be generated using poissonians")
     parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape2N", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
+    parser.add_option("--no-b-only","--for-fits",    dest="noBOnly", default=False, action="store_true", help="Do not save the background-only pdf (saves time)")
+    parser.add_option("--no-optimize-pdfs",    dest="noOptimizePdf", default=False, action="store_true", help="Do not save the RooSimultaneous as RooSimultaneousOpt and Gaussian constraints as SimpleGaussianConstraint")
+    parser.add_option("--optimize-simpdf-constraints",    dest="moreOptimizeSimPdf", default=False, action="store_true", help="Deeper optimization of RooSimultaneous: add the constraints only at the end (RooFit-incompatible!)")
+    #parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")
+    parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="never", help="Use RooHistPdf for TH1s: 'always', 'never' (default), 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
     parser.add_option("--X-rescale-nuisance", dest="nuisancesToRescale", type="string", action="append", nargs=2, default=[], help="Rescale by this factor the nuisances that match these regular expressions (the rescaling is applied to the sigma of the gaussian constraint term).")
     parser.add_option("--X-force-no-simpdf",  dest="forceNonSimPdf", default=False, action="store_true", help="FOR DEBUG ONLY: Do not produce a RooSimultaneous if there is just one channel (note: can affect performance)")
@@ -23,6 +28,11 @@ def addDatacardParserOptions(parser):
     parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
     parser.add_option("--X-allow-no-signal",  dest="allowNoSignal", default=False, action="store_true", help="Allow parsing datacards that contain only backgrounds")
     parser.add_option("--X-allow-no-background",  dest="allowNoBackground", default=False, action="store_true", help="Allow parsing datacards that contain only signal")
+    #parser.add_option("--X-optimize-templates",  dest="optimizeExistingTemplates", default=False, action="store_true", help="Optimize templates on the fly (relevant for HZZ)")
+    #parser.add_option("--X-optimize-bound-nusances",  dest="optimizeBoundNuisances", default=False, action="store_true", help="Flag nuisances to have a different implementation of bounds")
+    parser.add_option("--X-no-optimize-templates",  dest="optimizeExistingTemplates", default=True, action="store_false", help="Don't optimize templates on the fly (relevant for HZZ)")
+    parser.add_option("--X-no-optimize-bound-nusances",  dest="optimizeBoundNuisances", default=True, action="store_false", help="Don't flag nuisances to have a different implementation of bounds")
+    parser.add_option("--X-no-optimize-bins",  dest="optimizeTemplateBins", default=True, action="store_false", help="Don't optimize template bins")
 
 
 from HiggsAnalysis.CombinedLimit.Datacard import Datacard
@@ -43,7 +53,7 @@ def parseCard(file, options):
     nprocesses = -1; 
     nuisances  = -1;
     binline = []; processline = []; sigline = []
-
+    shapesUseBin = False
     lineNumber = None
     try:
         for lineNumber,l in enumerate(file):
@@ -61,6 +71,8 @@ def parseCard(file, options):
                 if not ret.shapeMap.has_key(f[2]): ret.shapeMap[f[2]] = {}
                 if ret.shapeMap[f[2]].has_key(f[1]): raise RuntimeError, "Duplicate definition for process '%s', channel '%s'" % (f[1], f[2])
                 ret.shapeMap[f[2]][f[1]] = f[3:]
+                if "$CHANNEL" in l: shapesUseBin = True
+                if f[2] != "*":     shapesUseBin = True
             if f[0] == "Observation" or f[0] == "observation": 
                 ret.obs = [ float(x) for x in f[1:] ]
                 if nbins == -1: nbins = len(ret.obs)
@@ -74,7 +86,7 @@ def parseCard(file, options):
                 binline = []
                 for b in f[1:]:
                     if re.match("[0-9]+", b):
-                        stderr.write("Warning: Bin %(b)s starts with a digit. Will call it 'bin%(b)s' but this may break shapes.\n" % locals())
+                        if shapesUseBin: stderr.write("Warning: Bin %(b)s starts with a digit. Will call it 'bin%(b)s' but this may break shapes.\n" % locals())
                         b = "bin"+b
                         # TODO Here should be some patching of the shapes names in order to not get errors later.
                     binline.append(b)

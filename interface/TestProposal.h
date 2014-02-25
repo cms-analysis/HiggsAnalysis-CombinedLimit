@@ -6,6 +6,7 @@
 struct RooRealVar;
 
 #include <RooArgSet.h>
+#include <vector>
 
 #include <RooStats/ProposalFunction.h>
 
@@ -15,6 +16,17 @@ class TestProposal : public RooStats::ProposalFunction {
       TestProposal() : RooStats::ProposalFunction() {}
       TestProposal(double divisor, const RooRealVar *alwaysStepMe=0) ;
       TestProposal(double divisor, const RooArgList &alwaysStepMe) ;
+
+      void setDiscreteModels(RooRealVar *indicatorVar, RooArgSet vars, const std::vector<RooArgSet> &points) {
+        discreteModelIndicator_ = indicatorVar;
+        discreteModelVars_.removeAll();
+        discreteModelVars_.add(vars);
+        discreteModelPoints_.resize(points.size());
+        for (unsigned int i = 0, n = points.size(); i < n; ++i) {
+            discreteModelPoints_[i].removeAll();
+            discreteModelPoints_[i].addClone(points[i]);        
+        }
+      } 
 
       // Populate xPrime with a new proposed point
       virtual void Propose(RooArgSet& xPrime, RooArgSet& x);
@@ -31,10 +43,14 @@ class TestProposal : public RooStats::ProposalFunction {
       virtual ~TestProposal() {}
 
       ClassDef(TestProposal,1) // A concrete implementation of ProposalFunction, that uniformly samples the parameter space.
-
+    
     private:
       double divisor_, poiDivisor_;
       RooArgList alwaysStepMe_;
+
+      RooRealVar *discreteModelIndicator_;
+      RooArgSet   discreteModelVars_;
+      std::vector<RooArgSet> discreteModelPoints_;
 };
 
 #endif

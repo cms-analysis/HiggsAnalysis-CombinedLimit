@@ -9,6 +9,7 @@
  *
  */
 #include "../interface/LimitAlgo.h"
+class RooArgSet; 
 
 class BayesianToyMC : public LimitAlgo {
 public:
@@ -29,7 +30,9 @@ private:
   static unsigned int tries_;
   /// Safety factor for hint (integrate up to this number of times the hinted limit)
   static float hintSafetyFactor_;
-  std::pair<double,double> priorPredictiveDistribution(RooStats::ModelConfig *mc, RooAbsData &data);
+
+  static std::vector<std::string> twoPoints_;
+  std::pair<double,double> priorPredictiveDistribution(RooStats::ModelConfig *mc, RooAbsData &data, const RooArgSet *point=0, double *offset=0);
 };
 
 #endif
