@@ -17,7 +17,7 @@
 # . /afs/cern.ch/cms/slc6_amd64_gcc481/external/boost/1.51.0-cms/etc/profile.d/init.sh 
 # export PATH=${PATH}:${PWD}/exe:${PWD}/scripts
 # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/lib
-# export PYTHONPATH=${PYTHONPATH}:${PWD}/python
+# export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python
 #######################################################################
 
 # Boost
