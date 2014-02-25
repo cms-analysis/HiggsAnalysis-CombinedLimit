@@ -34,7 +34,7 @@ ROOTINC = $(shell root-config --incdir)
 CCFLAGS = -D STANDALONE $(ROOTCFLAGS) -I$(BOOST)/include -I$(VDT)/include -g -fPIC
 # CMSSW CXXFLAGS plus -Wno-unused-local-typedefs (otherwise we get a flood of messages from BOOST) plus -Wno-unused-function
 CCFLAGS += -O2 -pedantic -pthread -pipe -Wno-vla -Werror=overflow -Wstrict-overflow -std=c++0x -msse3 -ftree-vectorize -Wno-strict-overflow -Werror=array-bounds -Werror=format-contains-nul -Werror=type-limits -fvisibility-inlines-hidden -fno-math-errno --param vect-max-version-for-alias-checks=50 -fipa-pta -felide-constructors -fmessage-length=0 -ftemplate-depth-300 -Wall -Wno-non-template-friend -Wno-long-long -Wreturn-type -Wunused -Wparentheses -Wno-deprecated -Werror=return-type -Werror=missing-braces -Werror=unused-value -Werror=address -Werror=format -Werror=sign-compare -Werror=write-strings -Werror=delete-non-virtual-dtor -Werror=maybe-uninitialized -Werror=strict-aliasing -Werror=narrowing -Werror=uninitialized -Werror=unused-but-set-variable -Werror=reorder -Werror=unused-variable -Werror=conversion-null -Werror=switch -fdiagnostics-show-option -DBOOST_DISABLE_ASSERTS -Wno-unused-local-typedefs -Wno-unused-function
-LIBS = $(ROOTLIBS) -L$(BOOST)/lib -L$(VDT)/lib -l RooFit -lRooFitCore -l RooStats -l Minuit -l Foam -lboost_filesystem -lboost_program_options -lboost_system -lvdt
+LIBS = $(ROOTLIBS) -L$(BOOST)/lib -L$(VDT)/lib -l RooFit -lRooFitCore -l RooStats -l Minuit -l Foam -lHistFactory -lboost_filesystem -lboost_program_options -lboost_system -lvdt
 
 # Library name -----------------------------------------------------------------
 LIBNAME=HiggsAnalysisCombinedLimit
