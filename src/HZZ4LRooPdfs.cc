@@ -3681,7 +3681,7 @@ double RooaDoubleCBxBW::evaluateVoigtian() const
   double a = 0.5*c*width;
   double u = c*arg;
   RooComplex z(u,a);
-  RooComplex v = RooMath::FastComplexErrFunc(z);
+  RooComplex v = RooMath::ComplexErrFuncFast(z);
   return atan2(0.,-1.)*v.re()/width;
 }
 
