@@ -210,6 +210,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       if (fitOut.get()) {
 	 if (currentToy_< 1)	fitOut->WriteTObject(res_b,"fit_b");
 	 if (withSystematics)	{
+   	        setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
 		setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
 		setFitResultErrorTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_sigma_);
 	 }
@@ -283,6 +284,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 	 if (currentToy_<1) fitOut->WriteTObject(res_s, "fit_s");
 
 	 if (withSystematics)	{
+	   setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
 	   setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
 	   setFitResultErrorTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_sigma_);
 	 }
