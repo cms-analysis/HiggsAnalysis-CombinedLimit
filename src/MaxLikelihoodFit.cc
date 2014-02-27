@@ -654,10 +654,11 @@ void MaxLikelihoodFit::setFitResultErrorTrees(const RooArgSet *args, double * va
          for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
-                 if (minos_=="none")
-           	  vals[count]=rrv->getError();
+                 if (minos_!="all")
+           	  vals[count]=rrv->getError();		 
                  else
-		   vals[count]= (rrv->getAsymErrorHi()+rrv->getAsymErrorLo())/2;
+		   vals[count]= (fabs(rrv->getAsymErrorHi())+fabs(rrv->getAsymErrorLo()))/2;
+                 
 		 count++;
          }
 	 delete iter;
@@ -732,6 +733,7 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
 		 nuisanceParameters_[count] = 0;
+		 nuisanceParameters_sigma_[count] = 0;
 		 t_fit_sb_->Branch(name.c_str(),&(nuisanceParameters_[count])),Form("%s/Double_t",name.c_str());
 		 t_fit_sb_->Branch(("sigma_from_fit_"+name).c_str(),&(nuisanceParameters_sigma_[count])),Form("sigma_from_fit_%s/Double_t",name.c_str());
 		 t_fit_b_->Branch(name.c_str(),&(nuisanceParameters_[count]),Form("%s/Double_t",name.c_str()));
