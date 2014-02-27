@@ -654,7 +654,7 @@ void MaxLikelihoodFit::setFitResultErrorTrees(const RooArgSet *args, double * va
          for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
-                 if (minos_!="none")
+                 if (minos_=="none")
            	  vals[count]=rrv->getError();
                  else
 		   vals[count]= (rrv->getAsymErrorHi()+rrv->getAsymErrorLo())/2;
