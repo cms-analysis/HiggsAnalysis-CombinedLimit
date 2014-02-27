@@ -671,6 +671,7 @@ void MaxLikelihoodFit::setNormsFitResultTrees(const RooArgSet *args, double * va
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);        
 		 //std::string name = rcv->GetName();
          	 vals[count]=rcv->getVal();
+                 count++;  
          }
 	 delete iter;
 	 return;
