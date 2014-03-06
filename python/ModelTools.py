@@ -183,7 +183,14 @@ class ModelBuilder(ModelBuilderBase):
                     if sigmaL[0] != "-" or sigmaR[0] != "+": raise RuntimeError, "Asymmetric parameter uncertainties should be entered as -x/+y"
                     sigmaL = sigmaL[1:]; sigmaR = sigmaR[1:]
                     if len(args) == 3: # mean, sigma, range
-                        self.doVar("%s%s" % (n,args[2]))
+                        if self.out.var(n):
+                          bounds = [float(x) for x in args[2][1:-1].split(",")]
+                          self.out.var(n).setConstant(False)
+                          if (self.out.var(n).getMin() != bounds[0] or self.out.var(n).getMax() != bounds[1]):
+                            print "Resetting range for %s to be [%s,%s] from param statement (was [%s,%s])" % (n, bounds[0], bounds[1], self.out.var(n).getMin(), self.out.var(n).getMax())
+                          self.out.var(n).setRange(bounds[0],bounds[1])
+                        else:
+                          self.doVar("%s%s" % (n,args[2]))
                     else:
                         if self.out.var(n):
                           self.out.var(n).setConstant(False)
@@ -195,7 +202,14 @@ class ModelBuilder(ModelBuilderBase):
                     self.out.var("%s_In" % n).setConstant(True)
                 else:
                     if len(args) == 3: # mean, sigma, range
-                        self.doVar("%s%s" % (n,args[2]))
+                        if self.out.var(n):
+                          bounds = [float(x) for x in args[2][1:-1].split(",")]
+                          self.out.var(n).setConstant(False)
+                          if (self.out.var(n).getMin() != bounds[0] or self.out.var(n).getMax() != bounds[1]):
+                            print "Resetting range for %s to be [%s,%s] from param statement (was [%s,%s])" % (n, bounds[0], bounds[1], self.out.var(n).getMin(), self.out.var(n).getMax())
+                            self.out.var(n).setRange(bounds[0],bounds[1])
+                        else:
+                          self.doVar("%s%s" % (n,args[2]))
                     else:
                         sigma = float(args[1])
                         if self.out.var(n):
