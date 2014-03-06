@@ -651,7 +651,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       r->setVal(rVal); 
       if (testStat_ == "LHC" || testStat_ == "Profile") {
         r->setConstant(false); 
-	if (testStat == "LHC") r->setMin(0); 
+	if (testStat_ == "LHC") r->setMin(0); 
         if (workingMode_ == MakeSignificance || workingMode_ == MakeSignificanceTestStatistics) {
             r->setVal(0);
             // r->removeMax(); // NO, this is done within the test statistics, and knowing the scale of the variable is useful
