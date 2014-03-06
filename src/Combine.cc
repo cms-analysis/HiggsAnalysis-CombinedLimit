@@ -371,6 +371,41 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   const RooArgSet * nuisances = mc->GetNuisanceParameters(); // note: may be null
   if (dynamic_cast<RooRealVar*>(POI->first()) == 0) throw std::invalid_argument("First parameter of interest is not a RooRealVar");
 
+  if (dataset.find(":") != std::string::npos) {
+    std::string filename, wspname, dname;
+    switch (std::count(dataset.begin(), dataset.end(), ':')) {
+        case 2: // file:wsp:dataset
+            filename = dataset.substr(                   0, dataset.find(":"));
+            wspname  = dataset.substr( dataset.find(":")+1, dataset.rfind(":")-dataset.find(":")-1);
+            dname    = dataset.substr(dataset.rfind(":")+1, std::string::npos);
+            if (verbose) std::cout << "Will read dataset '" << dname << "' from workspace '" << wspname << "' of file '" << filename << "'" << std::endl;
+            break;
+        case 1:
+            filename = dataset.substr(                  0, dataset.find(":"));
+            dname    = dataset.substr(dataset.find(":")+1, std::string::npos);
+            if (verbose) std::cout << "Will read dataset '" << dname << "' from file '" << filename << "'" << std::endl;
+            break;
+        default:
+            throw std::invalid_argument("The dataset must be a name, or file:name or file:workspace:name");
+    }
+    if (filename == "" || dname == ":") throw std::invalid_argument("The dataset must be a name, or file:name or file:workspace:name");
+    TDirectory *pwd = gDirectory;
+    TFile      *file = TFile::Open(filename.c_str());
+    RooAbsData *data = 0;
+    if (file == 0) throw  std::invalid_argument(std::string("Cannot open input file: ") + filename);
+    if (wspname.empty()) {
+        data = (RooAbsData *) file->Get(dname.c_str());
+        if (data == 0) throw  std::invalid_argument(std::string("Cannot find a dataset named ")+dname+" in file "+filename);
+    } else {
+        RooWorkspace *win = (RooWorkspace *) file->Get(wspname.c_str());
+        if (win == 0) throw  std::invalid_argument(std::string("Cannot find a workspace named ")+wspname+" in file "+filename);
+        data = (RooAbsData *) win->data(dname.c_str());
+        if (data == 0) throw  std::invalid_argument(std::string("Cannot find a dataset named ")+dname+" in file "+filename+", workspace "+wspname);
+    }
+    w->import(*data, RooFit::Rename(dataset.c_str()));
+    file->Close();
+    pwd->cd();
+  }
   if (w->data(dataset.c_str()) == 0) {
     if (isTextDatacard) { // that's ok: the observables are pre-set to the observed values
       RooDataSet *data_obs = new RooDataSet(dataset.c_str(), dataset.c_str(), *observables); 

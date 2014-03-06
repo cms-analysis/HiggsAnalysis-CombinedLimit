@@ -86,7 +86,7 @@ dirs:
 	@mkdir -p $(LIB_DIR)
 	@mkdir -p $(EXE_DIR)
 	@mkdir -p $(LIB_DIR)/python/HiggsAnalysis
-	@ln -sd ../../../python $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit
+	@ln -sd ../../../python $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit || /bin/true
 	@touch $(LIB_DIR)/python/__init__.py
 	@touch $(LIB_DIR)/python/HiggsAnalysis/__init__.py
 	@touch $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit/__init__.py
