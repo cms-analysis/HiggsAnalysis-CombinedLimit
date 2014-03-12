@@ -27,6 +27,7 @@ class SimpleGaussianConstraint : public RooGaussian {
             return _value;
         }
 
+        static RooGaussian * make(RooGaussian &c) ;
     private:
         double scale_;
         void init() ;
