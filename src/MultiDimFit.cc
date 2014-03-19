@@ -35,6 +35,7 @@ unsigned int MultiDimFit::lastPoint_  = std::numeric_limits<unsigned int>::max()
 bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 bool MultiDimFit::fastScan_ = false;
+bool MultiDimFit::loadedSnapshot_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
@@ -79,6 +80,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     fastScan_ = (vm.count("fastScan") > 0);
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
+    loadedSnapshot_ = !vm["snapshotName"].defaulted();
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -102,20 +104,25 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
  
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
-    std::auto_ptr<RooFitResult> res(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false)); 
-    if (res.get() || keepFailures_) {
+    std::auto_ptr<RooFitResult> res;
+    if ( algo_ == Singles || !loadedSnapshot_ ){
+    	res.reset(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false)); 
+    }
+    if ( loadedSnapshot_ || res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
         }
         if (algo_ != None) Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
     }
+   
+
     std::auto_ptr<RooAbsReal> nll;
     if (algo_ != None && algo_ != Singles) {
         nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended())));
     } 
     
     //set snapshot for best fit
-    w->saveSnapshot("MultiDimFit",w->allVars());
+    if (!loadedSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
     
     switch(algo_) {
         case None: 
