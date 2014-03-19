@@ -182,7 +182,11 @@ void MultiDimFit::doSingles(RooFitResult &res)
         len = std::max<int>(len, poi_[i].length());
     }
     for (int i = 0, n = poi_.size(); i < n; ++i) {
-        RooRealVar *rf = dynamic_cast<RooRealVar*>(res.floatParsFinal().find(poi_[i].c_str()));
+	RooAbsArg *rfloat = res.floatParsFinal().find(poi_[i].c_str());
+	if (!rfloat) {
+		rfloat = res.constPars().find(poi_[i].c_str());
+	}
+        RooRealVar *rf = dynamic_cast<RooRealVar*>(rfloat);
         double bestFitVal = rf->getVal();
 
         double hiErr = +(rf->hasRange("err68") ? rf->getMax("err68") - bestFitVal : rf->getAsymErrorHi());
