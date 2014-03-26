@@ -231,8 +231,11 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_b");
           CovarianceReSampler sampler(res_b);
+	  
+          RooArgSet *norms2 = new RooArgSet();
+	  getNormalizationsSimple(mc_s->GetPdf(), *mc_s->GetObservables(), *norms2);
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_fit_b");
-          setNormsFitResultTrees(norms,processNormalizations_);
+          setNormsFitResultTrees(norms2,processNormalizations_);
 	  delete norms;
       }
 
@@ -308,8 +311,12 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_s");
           CovarianceReSampler sampler(res_s);
+
+          RooArgSet *norms2 = new RooArgSet();
+	  getNormalizationsSimple(mc_s->GetPdf(), *mc_s->GetObservables(), *norms2);
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_fit_s");
-          setNormsFitResultTrees(norms,processNormalizations_);
+
+          setNormsFitResultTrees(norms2,processNormalizations_);
 	  delete norms;
       }
 
@@ -674,6 +681,7 @@ void MaxLikelihoodFit::setNormsFitResultTrees(const RooArgSet *args, double * va
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);        
 		 //std::string name = rcv->GetName();
          	 vals[count]=rcv->getVal();
+		 //		 std::cout<<rcv->GetName()<<" "<<rcv->getVal()<<std::endl;
                  count++;  
          }
 	 delete iter;
@@ -748,6 +756,7 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
          for (TObject *a = iter_no->Next(); a != 0; a = iter_no->Next()) { 
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rcv->GetName();
+		 //		 std::cout<<rcv->GetName()<<" "<<rcv->getVal()<<std::endl;
 		 processNormalizations_[count] = 0;
 		 t_fit_sb_->Branch(name.c_str(),&(processNormalizations_[count])),Form("%s/Double_t",name.c_str());
 		 t_fit_b_->Branch(name.c_str(),&(processNormalizations_[count]),Form("%s/Double_t",name.c_str()));
