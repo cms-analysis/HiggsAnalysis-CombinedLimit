@@ -205,17 +205,30 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
         utils::setAllConstant(frozenParameters, false);
         return ret;
     }
- 
+    
     for (int i = 0, n = rs.getSize(); i < n; ++i) {
         // if this is not the first fit, reset parameters  
         if (i) {
             RooArgSet oldparams(ret->floatParsFinal());
+	    oldparams.add(ret->constPars());
             *allpars = oldparams;
         }
    
+   	//bool fitwasconst = false;
         // get the parameter to scan, amd output variable in fit result
         RooRealVar &r = dynamic_cast<RooRealVar &>(*rs.at(i));
-        RooRealVar &rf = dynamic_cast<RooRealVar &>(*ret->floatParsFinal().find(r.GetName()));
+	RooAbsArg *rfloat = ret->floatParsFinal().find(r.GetName());
+	if (!rfloat) {
+                fprintf(sentry.trueStdOut(), "Skipping %s. Looks like the last fit did not float this parameter. You could try running --algo grid to get the errors.\n",r.GetName());
+		continue ;
+		// Add the constant parameters in case previous fit was last iteration of a "discrete parameters loop"
+		//rfloat = ret->constPars().find(r.GetName());
+		//fitwasconst = true;
+	}
+	//rfloat->Print("V");
+        RooRealVar &rf = dynamic_cast<RooRealVar &>(*rfloat);
+	//if (fitwasconst)rf.setConstant(false);
+	
         double r0 = r.getVal(), rMin = r.getMin(), rMax = r.getMax();
 
        if (!robustFit_) {

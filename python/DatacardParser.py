@@ -43,6 +43,13 @@ def isVetoed(name,vetoList):
         if re.match(pattern,name): return True
     return False
 
+def isIncluded(name,includeList):
+    if not len(includeList): return True
+    for pattern in includeList:
+        if not pattern: continue 
+        if re.match(pattern,name): return True
+    return False
+
 def parseCard(file, options):
     if type(file) == type("str"):
         raise RuntimeError, "You should pass as argument to parseCards a file object, stream or a list of lines, not a string"

@@ -90,7 +90,7 @@ bool CascadeMinimizer::improveOnce(int verbose)
 
 
 bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
-
+   
    minimizer_->setPrintLevel(verbose-1); // for debugging
    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
    std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
@@ -160,9 +160,11 @@ are freely floating. We should cut them down to find which ones are
    if (simnll) simnll->clearZeroPoint();
 
    utils::setAllConstant(frozen,false);
-   minimizer_.reset(new RooMinimizerOpt(nll_));
 
-   if (discretesHaveChanged) improve(verbose, cascade); 
+   if (discretesHaveChanged) { 
+        minimizer_.reset(new RooMinimizerOpt(nll_));
+   	improve(verbose, cascade); 
+   }
    minimumNLL = nll_.getVal();
    return ret;
 }

@@ -43,6 +43,7 @@ protected:
   static bool squareDistPoiStep_;
   static bool fastScan_;
   static bool hasMaxDeltaNLLForProf_;
+  static bool loadedSnapshot_;
   static float maxDeltaNLLForProf_;
 
   // initialize variables
