@@ -132,6 +132,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
           (*it)->Draw(); 
           c1->Print((out_+"/"+(*it)->GetName()+"_prefit.png").c_str());
+          c1->Print((out_+"/"+(*it)->GetName()+"_prefit.C").c_str());
           if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_prefit").c_str());
       }
   }
@@ -223,6 +224,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_b.png").c_str());
+              c1->Print((out_+"/"+(*it)->GetName()+"_fit_b.C").c_str());
               if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_fit_b").c_str());
           }
       }
@@ -248,6 +250,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           corr->SetMarkerSize(res_b->floatParsFinal().getSize() > 10 ? 2 : 1);
           corr->Draw("COLZ TEXT");
           c1->Print((out_+"/covariance_fit_b.png").c_str());
+          c1->Print((out_+"/covariance_fit_b.C").c_str());
           c1->SetLeftMargin(0.16);  c1->SetBottomMargin(0.13);
       	  if (fitOut.get()) fitOut->WriteTObject(corr, "covariance_fit_b");
       }
@@ -303,6 +306,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_s.png").c_str());
+              c1->Print((out_+"/"+(*it)->GetName()+"_fit_s.C").c_str());
               if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_fit_s").c_str());
           }
       }
@@ -329,6 +333,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           corr->SetMarkerSize(res_s->floatParsFinal().getSize() > 10 ? 2 : 1);
           corr->Draw("COLZ TEXT");
           c1->Print((out_+"/covariance_fit_s.png").c_str());
+          c1->Print((out_+"/covariance_fit_s.C").c_str());
           c1->SetLeftMargin(0.16);  c1->SetBottomMargin(0.13);
           if (fitOut.get() ) fitOut->WriteTObject(corr, "covariance_fit_s");
       }
