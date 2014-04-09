@@ -1,15 +1,21 @@
 #include "../interface/RooSplineND.h"
 
-RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char *fName, double eps) :
+RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char *fName, double eps, std::string cutstring) :
   RooAbsReal(name,title),
   vars_("vars","Variables", this)
 {
   ndim_ = vars.getSize();
-  M_    = tree->GetEntries();
+  int nentries  = tree->GetEntries();
+
+  // Get Selection list
+  tree->Draw(">>cutlist",cutstring.c_str());
+  TEventList *keep_points = (TEventList*)gDirectory->Get("cutlist");
+  M_	= keep_points->GetN(); 
 
   std::cout << "RooSplineND -- Num Dimensions == " << ndim_ <<std::endl;
   std::cout << "RooSplineND -- Num Samples    == " << M_ << std::endl;
-  double *b_map = new double(ndim_);
+
+  float *b_map = new float(ndim_);
 
   RooAbsReal *rIt;	
   TIterator *iter = vars.createIterator(); int it_c=0;
@@ -21,25 +27,33 @@ RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, 
     tree->SetBranchAddress(rIt->GetName(),&b_map[it_c]);
     it_c++;
   }
-  // Assume the function val (yi) branch is f
-  double F;
+
+  float F;
   tree->SetBranchAddress(fName,&F);
   std::vector<double> F_vec;
 
-  // Run through tree and store points 
-  for (int i=0;i<M_;i++){
+  // Run through tree and store points if selected
+  int nselect=0;
+  for (int i=0;i<nentries;i++){
+    if ( !(keep_points->Contains(i)) ) continue;
     tree->GetEntry(i);
+    //std::cout <<"Adding point " << i << ", ";
     for (int k=0;k<ndim_;k++){
-      double cval = b_map[k];
-      if (cval < r_map[k].first) r_map[k].first=cval;
-      if (cval > r_map[k].second) r_map[k].second=cval;
-      v_map[k][i] = cval;
+      float cval = b_map[k];
+      //if (cval < r_map[k].first) r_map[k].first=cval;
+      //if (cval > r_map[k].second) r_map[k].second=cval;
+      v_map[k][nselect] = (double)cval;
+      //std::cout << "x" << k << "=" << cval << ", ";
     }
+    //std::cout << "F=" << F << std::endl;
     F_vec.push_back(F);
+    nselect++;
   }
-
+  //std::cout << "... N(selected) = " << nselect << std::endl;
+  keep_points->Reset();
+  tree->SetEventList(0);
   // Try to re-scale axis to even out dimensions.
-  axis_pts_ = TMath::Power(M_,1./ndim_);
+  // axis_pts_ = TMath::Power(M_,1./ndim_);
   eps_= eps;
   calculateWeights(F_vec); 
   delete b_map;	
@@ -130,6 +144,7 @@ TGraph * RooSplineND::getGraph(const char *xvar, double step){
 //_____________________________________________________________________________
 void RooSplineND::calculateWeights(std::vector<double> &f){
 
+  std::cout << "RooSplineND -- Solving for Weights" << std::endl;
   if (M_==0) {
 	w_mean = 0;
 	w_rms = 1;
@@ -149,11 +164,10 @@ void RooSplineND::calculateWeights(std::vector<double> &f){
   }
 
   TVectorD weights(M_);
-  for (int i=0;i<M_;i++){
-    weights[i]=(double)f[i];
-  }
+  for (int i=0;i<M_;i++) weights[i]=f[i];
 
-  TDecompQRH decomp(fMatrix);
+  //TDecompQRH decomp(fMatrix);
+  TDecompChol decomp(fMatrix);
   std::cout << "RooSplineND -- Solving for Weights" << std::endl;
   
   decomp.Solve(weights); // Solution now in weights
@@ -175,7 +189,8 @@ double RooSplineND::getDistSquare(int i, int j){
   for (int k=0;k<ndim_;k++){
     double v_i = v_map[k][i];
     double v_j = v_map[k][j];
-    double dk = axis_pts_*(v_i-v_j)/(r_map[k].second-r_map[k].first);
+    //double dk = axis_pts_*(v_i-v_j)/(r_map[k].second-r_map[k].first);
+    double dk = (v_i-v_j);
     //std::cout << "dimension - " << k << ", Values at pts " << i <<"," << j << " are "<<v_i<< ","<<v_j<< " Distance " <<dk<<std::endl;
     D += dk*dk;
   }
@@ -189,7 +204,8 @@ double RooSplineND::getDistFromSquare(int i) const{
     double v_i = v_map[k][i];
     RooAbsReal *v = (RooAbsReal*)vars_.at(k);
     double v_j = v->getVal();
-    double dk = axis_pts_*(v_i-v_j)/(r_map[k].second-r_map[k].first);
+    //double dk = axis_pts_*(v_i-v_j)/(r_map[k].second-r_map[k].first);
+    double dk = (v_i-v_j);
     D += dk*dk;
   }
   return D; // only ever use square of distance!
@@ -198,7 +214,8 @@ double RooSplineND::getDistFromSquare(int i) const{
 //_____________________________________________________________________________
 double RooSplineND::radialFunc(double d2, double eps) const{
   double expo = (d2/(eps*eps));
-  double retval = 1./(1+(TMath::Power(expo,1.5)));
+  //double retval = 1./(1+(TMath::Power(expo,1.5)));
+  double retval = TMath::Exp(-1*expo);
   return retval;
 }
 //_____________________________________________________________________________

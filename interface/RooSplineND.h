@@ -18,12 +18,15 @@
 #include "TDecompSparse.h"
 #include "TVectorD.h"
 #include "TTree.h"
+#include "TEventList.h"
 #include "TAxis.h"
 #include "TGraph.h"
+#include "TDirectory.h"
 #include "RooRealVar.h"
 
 #include <map>
 #include <vector>
+#include <string>
  
 /**********************************************************************
 Original Author -- Nicholas Wardle
@@ -58,7 +61,7 @@ class RooSplineND : public RooAbsReal {
 
    public:
       RooSplineND() : ndim_(0),M_(0),eps_(3.) {}
-      RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char* fName="f", double eps=3. ) ;
+      RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char* fName="f", double eps=3., std::string cutstring="" ) ;
       RooSplineND(const RooSplineND& other, const char *name) ; 
       RooSplineND(const char *name, const char *title, const RooListProxy &vars, int ndim, int M, double eps, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > & ,double,double) ;
       ~RooSplineND() ;
