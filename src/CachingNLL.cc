@@ -435,6 +435,8 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
     } else if (gaussNll && typeid(*pdf) == typeid(RooGaussian)) {
         return new CachingGaussPdf(pdf, obs);
     } else if (gaussNll && typeid(*pdf) == typeid(RooExponential)) {
+	std::auto_ptr<RooArgSet> params(pdf->getParameters(obs));
+	if(params->getSize()!=1) {return new CachingPdf(pdf,obs);}
         return new CachingExpoPdf(pdf, obs);
     } else if (gaussNll && typeid(*pdf) == typeid(RooPower)) {
         return new CachingPowerPdf(pdf, obs);
