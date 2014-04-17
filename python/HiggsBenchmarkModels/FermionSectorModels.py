@@ -49,6 +49,10 @@ class LambdaduHiggs(SMLikeHiggsModel):
             'hzz':'hvv',
             'hbb':'hdd',
             'htt':'hdd',
+            'hss':'hdd',
+            'hmm':'hdd',
+            'hcc':'huu',
+            'hgluglu':'hgluglu',
             }
         self.productionScaling = {
             'ttH':'ku',
@@ -85,6 +89,7 @@ class LambdaduHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::lambdadu_BRscal_huu("@0*@0/@1", ku, lambdadu_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdadu_BRscal_hdd("@0*@0/@1", kd, lambdadu_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdadu_BRscal_hgg("@0/@1", Scaling_hgg, lambdadu_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdadu_BRscal_hgluglu("@0/@1", Scaling_hgluglu, lambdadu_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdadu_BRscal_hzg("@0/@1", Scaling_hzg, lambdadu_Gscal_tot)')
 
         # verbosity
@@ -157,6 +162,10 @@ class LambdalqHiggs(SMLikeHiggsModel):
             'hzz':'hvv',
             'hbb':'hqq',
             'htt':'hll',
+            'hmm':'hll',
+            'hss':'hqq',
+            'hcc':'hqq',
+            'hgluglu':'hqq',
             }
         self.productionScaling = {
             'ggH':'kq',
