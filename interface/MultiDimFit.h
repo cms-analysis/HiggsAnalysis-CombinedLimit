@@ -46,6 +46,11 @@ protected:
   static bool loadedSnapshot_;
   static float maxDeltaNLLForProf_;
 
+  static std::vector<std::string>  specifiedNuis_;
+  static std::vector<RooRealVar *> specifiedVars_;
+  static std::vector<float>        specifiedVals_;
+  static RooArgList                specifiedList_;
+  static bool saveInactivePOI_;
   // initialize variables
   void initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) ;
 

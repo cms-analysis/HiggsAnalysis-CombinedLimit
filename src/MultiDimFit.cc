@@ -40,6 +40,11 @@ bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 
+ std::vector<std::string>  MultiDimFit::specifiedNuis_;
+ std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
+ std::vector<float>        MultiDimFit::specifiedVals_;
+ RooArgList                MultiDimFit::specifiedList_;
+ bool MultiDimFit::saveInactivePOI_= false;
 
 MultiDimFit::MultiDimFit() :
     FitterAlgoBase("MultiDimFit specific options")
@@ -54,6 +59,8 @@ MultiDimFit::MultiDimFit() :
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
         ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
+	("saveSpecifiedNuis",   boost::program_options::value<std::vector<std::string> >(&specifiedNuis_), "Save specified parameters (default = none)")
+	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
        ;
 }
 
@@ -166,9 +173,46 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
         poiVals_.push_back(rrv->getVal());
         poiList_.add(*rrv);
     }
+
+    if(!specifiedNuis_.empty() && withSystematics){
+	    RooArgSet mcNuis(*mc_s->GetNuisanceParameters());
+	    if(specifiedNuis_.size()==1 && specifiedNuis_[0]=="all"){
+		    specifiedNuis_.clear();
+		    RooLinkedListIter iterN = mc_s->GetNuisanceParameters()->iterator();
+		    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
+			    specifiedNuis_.push_back(a->GetName());
+		    }
+	    }
+	    for (std::vector<std::string>::const_iterator it = specifiedNuis_.begin(), ed = specifiedNuis_.end(); it != ed; ++it) {
+		    RooAbsArg *a = mcNuis.find(it->c_str());
+		    if (a == 0) throw std::invalid_argument(std::string("Nuisance Parameter ")+*it+" not in model.");
+		    if (poiList_.contains(*a)) continue;
+		    RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+		    if (rrv == 0) throw std::invalid_argument(std::string("Nuisance Parameter ")+*it+" not a RooRealVar.");
+		    specifiedVars_.push_back(rrv);
+		    specifiedVals_.push_back(rrv->getVal());
+		    specifiedList_.add(*rrv);
+	    }
+    }
+    if(saveInactivePOI_){
+	    RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
+	    for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
+		    if (poiList_.contains(*a)) continue;
+		    if (specifiedList_.contains(*a)) continue;
+		    RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+		    specifiedNuis_.push_back(a->GetName());
+		    specifiedVars_.push_back(rrv);
+		    specifiedVals_.push_back(rrv->getVal());
+		    specifiedList_.add(*rrv);
+	    }
+    }
+
     // then add the branches to the tree (at the end, so there are no resizes)
     for (int i = 0, n = poi_.size(); i < n; ++i) {
         Combine::addBranch(poi_[i].c_str(), &poiVals_[i], (poi_[i]+"/F").c_str()); 
+    }
+    for (int i = 0, n = specifiedNuis_.size(); i < n; ++i) {
+	Combine::addBranch(specifiedNuis_[i].c_str(), &specifiedVals_[i], (specifiedNuis_[i]+"/F").c_str()); 
     }
     Combine::addBranch("deltaNLL", &deltaNLL_, "deltaNLL/F");
 }
@@ -259,6 +303,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 deltaNLL_ = nll.getVal() - nll0;
                 double qN = 2*(deltaNLL_);
                 double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
         }
@@ -285,6 +332,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 poiVars_[1]->setVal(y);
                 nll.clearEvalErrorLog(); nll.getVal();
                 if (nll.numEvalErrors() > 0) { 
+			for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+				specifiedVals_[j]=specifiedVars_[j]->getVal();
+			}
                     deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                     if (gridType_ == G3x3) {
                         for (int i2 = -1; i2 <= +1; ++i2) {
@@ -292,6 +342,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                                 if (i2 == 0 && j2 == 0) continue;
                                 poiVals_[0] = x + 0.33333333*i2*deltaX;
                                 poiVals_[1] = y + 0.33333333*j2*deltaY;
+				for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+					specifiedVals_[j]=specifiedVars_[j]->getVal();
+				}
                                 deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                             }
                         }
@@ -305,6 +358,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                     deltaNLL_ = nll.getVal() - nll0;
                     double qN = 2*(deltaNLL_);
                     double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+		    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			    specifiedVals_[j]=specifiedVars_[j]->getVal();
+		    }
                     Combine::commitPoint(true, /*quantile=*/prob);
                 }
                 if (gridType_ == G3x3) {
@@ -321,6 +377,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                             poiVals_[1] = y; poiVars_[1]->setVal(y);
                             nll.clearEvalErrorLog(); nll.getVal();
                             if (nll.numEvalErrors() > 0) { 
+				    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+					    specifiedVals_[j]=specifiedVars_[j]->getVal();
+				    }
                                 deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                                 continue;
                             }
@@ -331,6 +390,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                             }
                             double qN = 2*(deltaNLL_);
                             double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+			    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+				    specifiedVals_[j]=specifiedVars_[j]->getVal();
+			    }
                             Combine::commitPoint(true, /*quantile=*/prob);
                         }
                     }
@@ -381,6 +443,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 
           nll.clearEvalErrorLog(); nll.getVal();
           if (nll.numEvalErrors() > 0) { 
+		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
 	       continue;
 	  }
@@ -391,6 +456,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                deltaNLL_ = nll.getVal() - nll0;
                double qN = 2*(deltaNLL_);
                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
                Combine::commitPoint(true, /*quantile=*/prob);
           }
 	  ipoint++;	
@@ -420,6 +488,9 @@ void MultiDimFit::doRandomPoints(RooAbsReal &nll)
             if (ok) {
                 double qN = 2*(nll.getVal() - nll0);
                 double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
         } 
