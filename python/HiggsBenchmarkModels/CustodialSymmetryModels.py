@@ -54,6 +54,10 @@ class LambdaWZHiggs(SMLikeHiggsModel):
             'hzz':'hzz',
             'hbb':'hff',
             'htt':'hff',
+            'hmm':'hff',
+            'hcc':'hff',
+            'hss':'hff',
+            'hgluglu':'hff',
             }
         self.productionScaling = {
             'ggH':'kf',

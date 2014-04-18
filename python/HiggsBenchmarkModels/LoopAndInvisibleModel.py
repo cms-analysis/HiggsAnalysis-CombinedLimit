@@ -60,6 +60,9 @@ class HiggsLoops(SMLikeHiggsModel):
             'hbb':'hxx',
             'htt':'hxx',
             'hmm':'hxx',
+            'hss':'hxx',
+            'hcc':'hxx',
+            'hgluglu':'hgluglu',
             }
 
         if self.doHZg:
@@ -87,6 +90,7 @@ class HiggsLoops(SMLikeHiggsModel):
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hxx("1.0/@0",loopGluonGamma_Gscal_tot)')
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgg("@0*@0/@1", kgamma,  loopGluonGamma_Gscal_tot)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgluglu("@0*@0/@1", kgluon,  loopGluonGamma_Gscal_tot)')
         if self.doHZg:
             self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hzg("@0*@0/@1", kZgamma, loopGluonGamma_Gscal_tot)')
 
@@ -157,6 +161,9 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
             'hbb':'hxx',
             'htt':'hxx',
             'hmm':'hxx',
+            'hss':'hxx',
+            'hcc':'hxx',
+            'hgluglu':'hgluglu',
             }
         
         # SM BR
@@ -172,6 +179,7 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hxx("1.0/@0",loopGluonGamma_Gscal_tot)')
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgg("@0*@0/@1", kgamma, loopGluonGamma_Gscal_tot)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgluglu("@0*@0/@1", kgluon,  loopGluonGamma_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
