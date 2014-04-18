@@ -235,10 +235,13 @@ class ResolvedC6(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::wztbtm_BRscal_hww("@0*@0/@1", CW, wztbtm_Gscal_tot)')
         self.modelBuilder.factory_('expr::wztbtm_BRscal_hzz("@0*@0/@1", CZ, wztbtm_Gscal_tot)')
         self.modelBuilder.factory_('expr::wztbtm_BRscal_hbb("@0*@0/@1", Cb, wztbtm_Gscal_tot)')
+        self.modelBuilder.factory_('expr::wztbtm_BRscal_hss("@0*@0/@1", Cb, wztbtm_Gscal_tot)')
         self.modelBuilder.factory_('expr::wztbtm_BRscal_htt("@0*@0/@1", Ctau, wztbtm_Gscal_tot)')
+        self.modelBuilder.factory_('expr::wztbtm_BRscal_hcc("@0*@0/@1", Ctop, wztbtm_Gscal_tot)')
         self.modelBuilder.factory_('expr::wztbtm_BRscal_hmm("@0*@0/@1", Cmu, wztbtm_Gscal_tot)')
         self.modelBuilder.factory_('expr::wztbtm_BRscal_hgg("@0/@1", Scaling_hgg, wztbtm_Gscal_tot)')
         self.modelBuilder.factory_('expr::wztbtm_BRscal_hzg("@0/@1", Scaling_hzg, wztbtm_Gscal_tot)')
+        self.modelBuilder.factory_('expr::wztbtm_BRscal_hgluglu("@0/@1", Scaling_hgluglu, wztbtm_Gscal_tot)')
         
         self.modelBuilder.out.Print()
 
