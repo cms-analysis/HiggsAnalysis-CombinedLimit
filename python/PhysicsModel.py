@@ -356,7 +356,7 @@ class FloatingBRHiggs(SMLikeHiggsModel):
     "Float independently branching ratios"
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
-        self.modes = [ "hbb", "htt", "hgg", "hww", "hzz" ]
+        self.modes = SM_HIGG_DECAYS   #[ "hbb", "htt", "hgg", "hww", "hzz" ]
         self.modemap = {}
         self.mHRange = []
     def setPhysicsOptions(self,physOptions):
@@ -412,7 +412,7 @@ class RvfBRHiggs(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.floatMass = False        
-        self.modes = [ "hbb", "htt", "hgg", "hww", "hzz" ]
+        self.modes = SM_HIGG_DECAYS #[ "hbb", "htt", "hgg", "hww", "hzz" ]
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("modes="): self.modes = po.replace("modes=","").split(",")
@@ -459,7 +459,7 @@ class ThetaVFBRHiggs(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.floatMass = False        
-        self.modes = [ "hbb", "htt", "hgg", "hww", "hzz" ]
+        self.modes = SM_HIGG_DECAYS #[ "hbb", "htt", "hgg", "hww", "hzz" ]
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("modes="): self.modes = po.replace("modes=","").split(",")
@@ -607,7 +607,7 @@ class RatioBRSMHiggs(SMLikeHiggsModel):
     def __init__(self): 
         SMLikeHiggsModel.__init__(self)  
         self.floatMass = False        
-        self.modes = set( ("hbb", "htt", "hgg", "hzz", "hww") ) 
+        self.modes = SM_HIGG_DECAYS  #set( ("hbb", "htt", "hgg", "hzz", "hww") ) 
 	self.denominator = "hww" 
 
     def setPhysicsOptions(self,physOptions): 
