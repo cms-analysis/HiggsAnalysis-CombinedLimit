@@ -406,6 +406,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
   if (redefineSignalPOIs_ != "") {
       RooArgSet newPOIs(w->argSet(redefineSignalPOIs_.c_str()));
+      TIterator *np = newPOIs.createIterator();
+      while (RooRealVar *arg = (RooRealVar*)np->Next()) arg->setConstant(0);
       if (verbose > 0) std::cout << "Redefining the POIs to be: "; newPOIs.Print("");
       mc->SetParametersOfInterest(newPOIs);
       POI = mc->GetParametersOfInterest();
