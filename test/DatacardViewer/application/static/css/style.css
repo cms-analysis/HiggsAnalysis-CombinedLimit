@@ -1,0 +1,26 @@
+@charset "UTF-8";
+body {
+  padding-top: 60px;
+}
+.handsontable col.rowHeader {
+    width: 400px;
+} 
+td.pass{
+	background-color: #D3D3D3; 
+}
+/* More pointers */
+/*th[data-original-title=""] {
+	cursor: pointer;
+}
+.colHeader{
+	cursor: pointer;	
+}*/
+.handsontable .htDimmed {
+    color: #323232;
+}
+button.fa-bars {
+    text-align: right;
+}
+th.selected{
+	background-color: #87CEEB;
+}

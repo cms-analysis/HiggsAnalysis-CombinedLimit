@@ -1,0 +1,24 @@
+*Works fine:
+htt_mt_0_8TeV.txt +
+htt_mt_1_8TeV.txt +
+htt_mt_2_8TeV.txt +
+htt_mt_3_8TeV.txt +
+htt_mt_5_8TeV.txt +
+hinv_vbf_8TeV.txt +
+hzz4l_2e2muS_8TeV_0.txt +
+hzz4l_4eS_8TeV_0.txt + 
+hzz4l_4muS_8TeV_0.txt +
+*No directories:
+hwwof_0j_shape_8TeV.txt + 
+hwwof_2j_shape_8TeV.txt +
+jcp_hwwof_0j_8TeV.txt +
+ttH_3lBCat_MVA_neg.card.txt +
+ttH_3lBCat_MVA_pos.card.txt +
+
+*Not working:
+*ProcessID and RooWorkspace are not supported
+*Multiple files not reading correctly
+hgg_8TeV_MVA_cat0145.txt - 
+vhbb_Wln_8TeV.txt -
+vhbb_Znn_8TeV.txt -
+

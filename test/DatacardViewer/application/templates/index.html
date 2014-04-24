@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <link rel="shortcut icon" href="../static/img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../static/img/favicon.ico" type="image/x-icon">
+    <!-- Force latest IE rendering engine or ChromeFrame if installed -->
+    <!--[if IE]>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <![endif]-->
+    <meta charset="utf-8">
+    <title>GUI for the exploration of Higgs measurements</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Main bootstrap and jQuery plugins-->
+    <script src="../static/lib/jquery-1.11.0.min.js"></script>
+    <link rel="stylesheet" href="../static/lib/bootstrap-3.1.1-dist/css/bootstrap.min.css">
+    <script src="../static/lib/bootstrap-3.1.1-dist/js/bootstrap.min.js"></script>
+    <!-- CSS Font-awesome styles -->
+    <link rel="stylesheet" href="../static/lib/font-awesome-4.0.3/css/font-awesome.min.css">
+    <!-- Main AngularJS and jQueryUI plugins-->
+    <script src="../static/lib/angular-1.2.13/angular.min.js"></script>
+    <script src="../static/lib/jquery-ui-1.10.4.custom.min.js"></script>
+    <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+    <link rel="stylesheet" href="../static/css/jquery.fileupload.css">
+    <link rel="stylesheet" href="../static/css/jquery.fileupload-ui.css">
+    <!-- CSS adjustments for browsers with JavaScript disabled -->
+    <noscript><link rel="stylesheet" href="../static/css/jquery.fileupload-noscript.css"></noscript>
+    <noscript><link rel="stylesheet" href="../static/css/jquery.fileupload-ui-noscript.css"></noscript>
+    <!-- CSS Bootstrap dialog styles-->
+    <link rel="stylesheet" rel="stylesheet" href="../static/lib/bootstrap-dialog/bootstrap-dialog.min.css">
+    <script src="../static/lib/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+    <!-- CSS Bootstrap sortable styles-->
+    <link rel="stylesheet" rel="stylesheet" href="../static/lib/bootstrap-sortable-1.8.0/bootstrap-sortable.css">
+    <!-- CSS Bootstrap select styles-->
+    <link rel="stylesheet" rel="stylesheet" href="../static/lib/bootstrap-select-1.5.4/bootstrap-select.min.css">
+    <script src="../static/lib/bootstrap-select-1.5.4/bootstrap-select.min.js"></script>
+    
+    <style>
+        /* Hide Angular JS elements before initializing */
+        .ng-cloak {
+            display: none;
+        }
+    </style>
+    <!-- The handsontable plugin -->
+    <script src="http://handsontable.com/dist/jquery.handsontable.full.js"></script>
+    <link rel="stylesheet" media="screen" href="http://handsontable.com/dist/jquery.handsontable.full.css">
+    <!-- The JSRootIO plugin -->
+    <script type="text/javascript" src="../static/js/loadJSRootIO.js"></script>
+    <!-- Generic styles manual overrides-->
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+<div class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-fixed-top .navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand fa fa-home" href="/"> Home</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <form class="navbar-form" role="search">
+                <div class="input-group col-xs-4">
+                    <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </span>  
+                </div>
+            </form>
+            <ul class="nav navbar-nav">
+                <!--Extra Navigation links
+                <li><a href="link">Name</a></li>-->
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="tabs" class="container" data-ng-app="datacardsApp" data-ng-controller="ViewDatacardsController">
+    <h1>Datacards viewer</h1>
+    <ul class="nav nav-tabs"  data-ng-init="refresh()">
+        <li class="active"><a href="#tabs-1" ng-click="refresh()">View Datacards</a></li>
+        <li><a href="#tabs-2">Upload Datacards</a></li>
+        <li><a href="#tabs-3">Tests</a></li>
+        <!--<li><a href="#tabs-3">Extra tab</a></li>-->
+        
+    </ul>
+    <!-- MAIN CONTENT-->
+    <!-- VIEW DATACARDS -->
+    <div id="tabs-1">
+        <ul class="nav nav-pills">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="badge pull-right">{{total}}</span> Datacards<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li ng-repeat="datacard in datacards" ng-click="get_datacard(datacard)"><a href="#">{{datacard}}</a></li>
+              </ul>
+            </li>
+            <!-- <li><a href="#">Analyse</a></li> -->
+        </ul>
+        <h2 align="center" id="filename"></h2>
+        <div id="settings"></div>
+        <div id="datacard"></div>
+        <div id="status"></div><!-- style="display:none" -->
+        <div id="reportHolder" class="column"><!--style="display:none"  -->
+            <div id="report"> </div>
+        </div>
+    </div>
+    <!-- UPLOAD DATACARDS -->
+    <div id="tabs-2">
+        <blockquote>
+            <p>File upload for .txt filetype datacards with multiple file selection, drag&amp;drop support, progress bar.</p>
+        </blockquote>
+        <br>
+        <!-- <div id="main"> for 1 page app -->
+        <!-- The file upload form used as target for the file upload widget -->
+        <form id="main" action="/datacards" method="POST" enctype="multipart/form-data" data-ng-controller="DemoFileUploadController" data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
+            <!-- Redirect browsers with JavaScript disabled to the origin page -->
+            <noscript><input type="hidden" name="redirect" value="/datacards"></noscript>
+            <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+            <div class="row fileupload-buttonbar">
+                <div class="col-lg-7">
+                    <!-- The fileinput-button span is used to style the file input field as button -->
+                    <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Add files...</span>
+                        <input type="file" name="files[]" multiple ng-disabled="disabled">
+                    </span>
+                    <button type="button" class="btn btn-primary start" data-ng-click="submit()">
+                        <i class="glyphicon glyphicon-upload"></i>
+                        <span>Start upload</span>
+                    </button>
+                    <button type="button" class="btn btn-warning cancel" data-ng-click="cancel()">
+                        <i class="glyphicon glyphicon-ban-circle"></i>
+                        <span>Cancel upload</span>
+                    </button>
+                    <!-- The global file processing state -->
+                    <span class="fileupload-process"></span>
+                </div>
+                <!-- The global progress state -->
+                <div class="col-lg-5 fade" data-ng-class="{in: active()}">
+                    <!-- The global progress bar -->
+                    <div class="progress progress-striped active" data-file-upload-progress="progress()"><div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div></div>
+                    <!-- The extended global progress state -->
+                    <div class="progress-extended">&nbsp;</div>
+                </div>
+            </div>
+            <!-- The table listing the files available for upload/download -->
+            <table class="table table-striped files ng-cloak">
+                <tr data-ng-repeat="file in queue" data-ng-class="{'processing': file.$processing()}">
+                    <td data-ng-switch data-on="!!file.thumbnailUrl">
+                        <div class="preview" data-ng-switch-when="true">
+                            <a data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery><img data-ng-src="{{file.thumbnailUrl}}" alt=""></a>
+                        </div>
+                        <div class="preview" data-ng-switch-default data-file-upload-preview="file"></div>
+                    </td>
+                    <td>
+                        <p class="name" data-ng-switch data-on="!!file.url">
+                            <span data-ng-switch-when="true" data-ng-switch data-on="!!file.thumbnailUrl">
+                                <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery>{{file.name}}</a>
+                                <a data-ng-switch-default data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}">{{file.name}}</a>
+                            </span>
+                            <span data-ng-switch-default>{{file.name}}</span>
+                        </p>
+                        <strong data-ng-show="file.error" class="error text-danger">{{file.error}}</strong>
+                    </td>
+                    <td>
+                        <p class="size">{{file.size | formatFileSize}}</p>
+                        <div class="progress progress-striped active fade" data-ng-class="{pending: 'in'}[file.$state()]" data-file-upload-progress="file.$progress()"><div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div></div>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary start" data-ng-click="file.$submit()" data-ng-hide="!file.$submit || options.autoUpload" data-ng-disabled="file.$state() == 'pending' || file.$state() == 'rejected'">
+                            <i class="glyphicon glyphicon-upload"></i>
+                            <span>Start</span>
+                        </button>
+                        <button type="button" class="btn btn-warning cancel" data-ng-click="file.$cancel()" data-ng-hide="!file.$cancel">
+                            <i class="glyphicon glyphicon-ban-circle"></i>
+                            <span>Cancel</span>
+                        </button>
+                        <button data-ng-controller="FileDestroyController" type="button" class="btn btn-danger destroy" data-ng-click="file.$destroy()" data-ng-hide="!file.$destroy">
+                            <i class="glyphicon glyphicon-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <br>
+    </div>
+    <div id="tabs-3">
+        
+    </div>
+    <!-- END OF MAIN CONTENT -->
+    <br>
+<!-- The bootstrap-sortable plugin -->
+<script src="../static/lib/bootstrap-sortable-1.8.0/bootstrap-sortable.js"></script>
+<script src="../static/lib/bootstrap-sortable-1.8.0/moment.min.js"></script>
+<!-- The File Upload helper plugin -->
+<script src="../static/lib/jQuery-fileupload-plugin/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="../static/lib/jQuery-fileupload-plugin/jquery.fileupload.js"></script>
+<!-- The File Upload processing plugin -->
+<script src="../static/lib/jQuery-fileupload-plugin/jquery.fileupload-process.js"></script>
+<!-- The File Upload validation plugin -->
+<script src="../static/lib/jQuery-fileupload-plugin/jquery.fileupload-validate.js"></script>
+<!-- The File Upload Angular JS plugin's module -->
+<script src="../static/lib/jQuery-fileupload-plugin/jquery.fileupload-angular.js"></script>
+<!-- The main DatacardViewer application script -->
+<script src="../static/js/main.js"></script>
+<!-- The AngularJS handler application script -->
+<script src="../static/js/angularApp.js"></script>
+<!-- The jQuery helpers application script -->
+<script src="../static/js/index.js"></script>
+</body> 
+</html>
