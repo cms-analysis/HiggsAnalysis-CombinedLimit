@@ -16,7 +16,7 @@
                 );
                 angular.extend(fileUploadProvider.defaults, {
                     maxFileSize: 50000000,
-                    acceptFileTypes: /(\.|\/)(txt|)$/i
+                    acceptFileTypes: /(\.|\/)(txt|root)$/i
                 });
             }
         ])

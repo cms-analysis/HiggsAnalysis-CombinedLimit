@@ -10,7 +10,7 @@ import paramiko
 # This is the path to the upload directory
 app.config['UPLOAD_FOLDER'] = 'application/uploads/'
 # These are the extension that we are accepting to be uploaded
-app.config['ALLOWED_EXTENSIONS'] = set(['txt'])
+app.config['ALLOWED_EXTENSIONS'] = set(['txt','root'])
 # Maximum size
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
@@ -18,11 +18,11 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
 
-def get_file_size(file):
-    file.seek(0, 2)  # Seek to the end of the file
-    size = file.tell()  # Get the position of EOF
-    file.seek(0)  # Reset the file position to the beginning
-    return size
+# def get_file_size(file):
+#     file.seek(0, 2)  # Seek to the end of the file
+#     size = file.tell()  # Get the position of EOF
+#     file.seek(0)  # Reset the file position to the beginning
+#     return size
 
 def _handleUpload(files):
     if not files:
@@ -35,25 +35,20 @@ def _handleUpload(files):
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             saved_files_urls.append(url_for('uploaded_file', filename=filename))
             filenames.append("%s" % (file.filename))
-            print saved_files_urls[0]
-            print get_file_size(file)
     return filenames
 
 @app.route('/datacards', methods=['POST'])
 def upload_datacards():
     try:
         files = request.files
-        print files
-
         uploaded_files = _handleUpload(files)
-        print uploaded_files
         return jsonify({'files': uploaded_files})
     except:
         raise
         return jsonify({'status': 'error'})
 
 '''
-#Retrieve list of uploaded datacards [TO SHOW AFTER UPLOADS]
+#TODO Retrieve list of uploaded datacards [TO SHOW AFTER UPLOADS]
 @app.route('/datacards', methods = ['GET'])
 def get_datacards_list():
     filenames = []
@@ -146,15 +141,3 @@ def send_file_partial(path, **kwargs):
 @app.route('/datacards/files/<filename>', methods = ['GET','OPTIONS'])
 def get_file(filename):
     return send_file_partial('application/uploads/'+filename, cache_timeout=0 )
-
-'''
-@app.route('/datacads/combinedLimit/<filename>/<options>', methods = ['GET'])
-def get_object(filename, options):
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect('lxplus415', username='aversock', password='')
-    stdin, stdout, stderr = \
-    ssh.exec_command("ls")
-    print stdout.read()
-    return 'hai'
-'''
