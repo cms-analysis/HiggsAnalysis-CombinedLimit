@@ -446,6 +446,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (verbose > 0) std::cout << "Redefining the POIs to be: "; newPOIs.Print("");
       mc->SetParametersOfInterest(newPOIs);
       POI = mc->GetParametersOfInterest();
+      if (nuisances) {
+          RooArgSet newNuis(*nuisances);
+          newNuis.remove(*POI);
+          if (newNuis.getSize() < nuisances->getSize()) {
+              mc->SetNuisanceParameters(newNuis);
+              if (mc_bonly) mc_bonly->SetNuisanceParameters(newNuis);
+              nuisances = mc->GetNuisanceParameters();
+          }
+      } 
   }
   if (freezeNuisances_ != "") {
       RooArgSet toFreeze(w->argSet(freezeNuisances_.c_str()));
