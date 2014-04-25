@@ -81,6 +81,7 @@ function readRootFiles(){
       }
    }
    //TODO multiple files
+   //Use Object to link which file is used, for which histogram
    if (gFile) {
       gFile.Delete();
       delete gFile;
@@ -100,19 +101,6 @@ function displayDirectory(directory, cycle, dir_id) {
 
 function showDirectory(dir_name, cycle, dir_id) {
    gFile.ReadDirectory(dir_name, cycle, dir_id);
-}
-
-function readRootContent(keys){
-   if(keys[0]["className"] == "TDirectoryFile" || keys[0]["className"] == "TDirectory")
-      for (aBin in datacardShapeMap){
-         for (var i = 0;i<keys.length;i++){
-            if (aBin == keys[i]["name"]){
-               showDirectory(aBin, 1, i+1);
-            }
-         }
-      }
-   else
-      readHistograms();
 }
 
 function getHistogramNumber(binProcNuisArr){
@@ -135,6 +123,41 @@ function getHistogramNumber(binProcNuisArr){
    }
 }
 
+//to show single object
+function showObject(obj_name, cycle) {
+   gFile.ReadObject(obj_name, cycle);
+}
+
+//to show three in one array object
+function showThreeObject(obj_name, nuissance, cycle) {
+   gFile.ReadThreeObject(obj_name, nuissance, cycle);
+}
+
+//TODO parse better datacardShapeMap, get separator from map for nuissance
+function readHistograms(){
+   for (aBin in datacardShapeMap){
+      for (aProcess in datacardShapeMap[aBin]){
+         var tempNuis = datacardShapeMap[aBin][aProcess].slice(3);
+         for (var j = 0; j<tempNuis.length; j++){
+            showThreeObject(getHistogramPath(aBin, aProcess, tempNuis[j]), '_'+tempNuis[j], 1);
+         }
+      }
+   }
+}
+
+function readRootContent(keys){
+   if(keys[0]["className"] == "TDirectoryFile" || keys[0]["className"] == "TDirectory")
+      for (aBin in datacardShapeMap){
+         for (var i = 0;i<keys.length;i++){
+            if (aBin == keys[i]["name"]){
+               showDirectory(aBin, 1, i+1);
+            }
+         }
+      }
+   else
+      readHistograms();
+}
+
 function getHistogramPath(aBin, aProcess, aNuissance){
    var path = datacardShapeMap[aBin][aProcess][2];
    path = path.replace("$CHANNEL", aBin);
@@ -142,17 +165,6 @@ function getHistogramPath(aBin, aProcess, aNuissance){
    path = path.replace("$MASS", settings_mass);
    path = path.replace("$SYSTEMATIC", aNuissance);
    return path;
-}
-//TODO parse better datacardShapeMap, add Up/Down/Nominal combined
-function readHistograms(){
-   for (aBin in datacardShapeMap){
-      for (aProcess in datacardShapeMap[aBin]){
-         var tempNuis = datacardShapeMap[aBin][aProcess].slice(3);
-         for (var j = 0; j<tempNuis.length; j++){
-            showObject(getHistogramPath(aBin, aProcess, tempNuis[j])+"Up",1);
-         }
-      }
-   }
 }
 
 function displayListOfKeys(keys) {
@@ -183,25 +195,6 @@ function showElement(element) {
    $(element)[0].scrollIntoView();
 }
 
-function displayRootStatus(msg) {
-   $("#status").append(msg);
-};
-
-function displayStreamerInfos(streamerInfo) {
-   var findElement = $('#report').find('#treeview');
-   if (findElement.length) {
-      var element = findElement[0].parentElement.previousSibling.id;
-      showElement('#'+element);
-   }
-   else {
-      var uid = "uid_accordion_"+(++last_index);
-      var entryInfo = "<h5 id=\""+uid+"\"><a> Streamer Infos </a>&nbsp; </h5><div>\n";
-      entryInfo += "<h6>Streamer Infos</h6><span id='treeview' class='dtree'></span></div>\n";
-      $("#report").append(entryInfo);
-      JSROOTPainter.displayStreamerInfos(streamerInfo, '#treeview');
-   }
-};
-
 function findObject(obj_name) {
    for (var i in obj_list) {
       if (obj_list[i] == obj_name) {
@@ -214,31 +207,21 @@ function findObject(obj_name) {
       }
    }
    return false;
-};
-
-function showObject(obj_name, cycle) {
-   gFile.ReadObject(obj_name, cycle);
-};
+}
 
 function displayCollection(cont, cycle, c_id) {
    var url = $("#urlToLoad").val();
    $("#status").html("file: " + url + "<br/>");
    JSROOTPainter.addCollectionContents(cont, '#status', c_id);
-};
+}
 
 function showCollection(name, cycle, id) {
    gFile.ReadCollection(name, cycle, id);
-};
+}
 
 function readTree(tree_name, cycle, node_id) {
    gFile.ReadObject(tree_name, cycle, node_id);
-};
-
-function displayTree(tree, cycle, node_id) {
-   var url = $("#urlToLoad").val();
-   $("#status").html("file: " + url + "<br/>");
-   JSROOTPainter.displayTree(tree, '#status', node_id);
-};
+}
 
 function displayObject(obj, cycle, idx) {
    if (!obj['_typename'].match(/\bJSROOTIO.TH1/) &&
@@ -257,7 +240,14 @@ function displayObject(obj, cycle, idx) {
    $("#report").append(entryInfo);
    JSROOTPainter.drawObject(obj, idx);
    $("#histogram" + idx).hide();
-};
+}
+
+function displayThreeObject(obj, cycle, idx) {
+   var entryInfo = "<div id='histogram" + idx + "'>\n";
+   $("#report").append(entryInfo);
+   JSROOTPainter.drawThreeObject(obj, idx);
+   $("#histogram" + idx).hide();
+}
 
 function displayMappedObject(obj_name, list_name, offset) {
    var obj = null;

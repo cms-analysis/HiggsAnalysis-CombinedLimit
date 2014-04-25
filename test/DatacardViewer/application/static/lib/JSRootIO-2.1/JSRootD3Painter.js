@@ -2964,6 +2964,7 @@ function createFillPatterns(svg, id, color) {
    JSROOTPainter.drawHistogram1D = function(vis, pad, histo, hframe) {
       var i, gridx = false, gridy = false;
       var options = JSROOTPainter.decodeOptions(histo['fOption'], histo, pad);
+      options.Error = false;
       var draw_all = false;
       if (hframe == null || (hframe['xmin'] < 1e-300 && hframe['xmax'] < 1e-300 &&
           hframe['ymin'] < 1e-300 && hframe['ymax'] < 1e-300)) {
@@ -3999,6 +4000,7 @@ function createFillPatterns(svg, id, color) {
          h = stack['fHists'][0];
          stack['fHistogram'] = new Object();
          stack['fHistogram']['_typename'] = stack['fHists'][0]['_typename'];
+         JSROOTCore.addMethods(stack['fHistogram']);
          stack['fHistogram']['fName'] = "unnamed";
          stack['fHistogram']['fBits'] = 0;
          stack['fHistogram']['TestBit'] = function(bit) { return false };

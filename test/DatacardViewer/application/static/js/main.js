@@ -359,11 +359,16 @@ function build_cell_dialog(button){
     var binProc = button.attr('id').split(":");
     var histNr = getHistogramNumber(binProc);
     var $hist = $("#histogram"+histNr).clone(true);
-    console.log();
     var width;
     var dialog = new BootstrapDialog({ 
         title: function(){
-            return "Histograms";
+            if ($hist.children().length === 0 )
+                if (histograms[binProc] === undefined)
+                    return "Root file not loaded";
+                else
+                    return "Bin: "+binProc[0]+", proccess: "+binProc[1]+", nuissance: "+binProc[2]+" histograms";
+            else
+                return "Bin: "+binProc[0]+", proccess: "+binProc[1]+", nuissance: "+binProc[2]+" histograms";
         },
         message: function(dialog){
             if ($hist.children().length === 0 ){
@@ -378,7 +383,10 @@ function build_cell_dialog(button){
                 if (histograms[binProc] === undefined){
                     histogramsWidth[binProc] = +$("#histogram"+histNr+" svg").attr("width")+40;
                     width = histogramsWidth[binProc];
-                    histograms[binProc] = $("#histogram"+histNr).show();
+                    var html = "<b>Nominal: </b><span style='color:red;'>red</span>, ";
+                    html+="<b>Up</b>: <span style='color:blue;'>blue</span>, ";
+                    html+="<b>Down</b>: <span style='color:green;'>green</span>.";
+                    histograms[binProc] = $("#histogram"+histNr).show().append(html);
                     return histograms[binProc];
                 }
                 else{
@@ -420,7 +428,6 @@ function set_processes_colors(cols){
     } 
 }
 
-//@TODO nuisances with proc/bin to work nicely
 function change_on_events_bin_proc(firstClick, binstoShow, selectedProc){
     var colIndex = 0;
     $("th").each(function() {
@@ -758,7 +765,7 @@ function build_menu(button, rowIndex){
     });
     button.popover('toggle');
 }
-
+//todo buttons build_cell_dialog
 function menu_sort(menuIndex, rowIndex){
     switch(menuIndex)
     {

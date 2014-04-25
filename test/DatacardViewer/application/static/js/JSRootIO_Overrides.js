@@ -1,7 +1,4 @@
 // Overrides: JSRootD3Painter.js
-//
-// core methods overriten for Javascript ROOT Graphics, using d3.js.
-//
 
 JSROOTPainter.displayListOfKeys = function(keys) {
       delete key_tree;
@@ -75,7 +72,8 @@ JSROOTPainter.addDirectoryKeys = function(keys, dir_id) {
       }
       readHistograms();
    };
-   JSROOTPainter.drawObject = function(obj, idx) {
+
+JSROOTPainter.drawThreeObject = function(obj, idx) {
       var i, svg = null;
       function draw(init) {
 
@@ -89,55 +87,10 @@ JSROOTPainter.addDirectoryKeys = function(keys, dir_id) {
          for (i=0; i<func_list.length; ++i) {
             func_list[i]['isDrawn'] = false;
          }
-         if (obj['_typename'].match(/\bTCanvas/)) {
-            svg = JSROOTPainter.drawCanvas(obj, idx);
-            if (init == true)
-               window.setTimeout(function() { $(render_to)[0].scrollIntoView(); }, 50);
-            return;
-         }
          svg = JSROOTPainter.createCanvas($(render_to), idx);
 
          if (svg == null) return false;
-         if (obj['_typename'].match(/\bJSROOTIO.TH1/)) {
-            JSROOTPainter.drawHistogram1D(svg, null, obj, null);
-         }
-         else if (obj['_typename'].match(/\bJSROOTIO.TH2/)) {
-            var renderer = 0;
-            var vid = 'view3d_' + obj['fName'];
-            $('<div><input type="checkbox" id='+vid+' /><label for='+vid+'>View in 3D</label></div>')
-               .css('padding', '10px').css('position', 'absolute').insertBefore( svg[0][0] );
-            $('#'+vid).click(function(e) {
-               if ( $(this).prop('checked') ) {
-                  renderer = JSROOTPainter.drawHistogram2D3D(svg, null, obj, null);
-               } else {
-                  $( svg[0][0] ).show().parent().find( renderer.domElement ).remove();
-               }
-            });
-            JSROOTPainter.drawHistogram2D(svg, null, obj, null);
-         }
-         else if (obj['_typename'].match(/\bJSROOTIO.TH3/)) {
-            JSROOTPainter.drawHistogram3D(svg, null, obj, null);
-         }
-         else if (obj['_typename'].match(/\bJSROOTIO.THStack/)) {
-            JSROOTPainter.drawHStack(svg, null, obj, null)
-         }
-         else if (obj['_typename'].match(/\bJSROOTIO.TProfile/)) {
-            JSROOTPainter.drawProfile(svg, null, obj, null);
-         }
-         else if (obj['_typename'] == 'JSROOTIO.TF1') {
-            JSROOTPainter.drawFunction(svg, null, obj, null);
-         }
-         else if (obj['_typename'].match(/\bTGraph/) ||
-                  obj['_typename'].match(/\bRooHist/) ||
-                  obj['_typename'].match(/\RooCurve/)) {
-            JSROOTPainter.drawGraph(svg, null, obj, null);
-         }
-         else if (obj['_typename'] == 'JSROOTIO.TMultiGraph') {
-            JSROOTPainter.drawMultiGraph(svg, null, obj, null);
-         }
-         else if (typeof(drawUserObject) == 'function') {
-            drawUserObject(obj, svg);
-         }
+         JSROOTPainter.drawHStack(svg, null, obj, null);
       };
       //A better idom for binding with resize is to debounce
       var debounce = function(fn, timeout) {
@@ -152,11 +105,124 @@ JSROOTPainter.addDirectoryKeys = function(keys, dir_id) {
       var debounced_draw = debounce(function() { draw(false); }, 100);
       $(window).resize(debounced_draw);
       draw(true);
-   };
+};
 
 // Overrides: dtree.js
-//
 
 dTree.prototype.add = function(id, pid, name, url, title, target) {
    this.aNodes[this.aNodes.length] = new Node(id, pid, name, url, title, target);
 };
+
+//Overrides: JSRootIOEvolution.js
+function initStackObject(obj_name){
+   obj = {};
+   obj['fHists'] = [];
+   obj['fMaximum'] = -1111;
+   obj['fMinimum'] = -1111;
+   obj['fTitle'] = obj_name;
+   obj['_typename'] = "JSROOTIO.THStack";//JSROOTIO.THStack & JSROOTIO.TH1
+   JSROOTCore.addMethods(obj);
+   obj['buildStack'] = function() {
+      //  build sum of all histograms
+      //  Build a separate list fStack containing the running sum of all histograms
+      if ('fStack' in this) return;
+      if (!'fHists' in this) return;
+      var nhists = this['fHists'].length;
+      if (nhists <= 0) return;
+      this['fStack'] = new Array();
+      var h = JSROOTCore.clone(this['fHists'][0]);
+      this['fStack'].push(h);
+      for (var i=1;i<nhists;i++) {
+         h = JSROOTCore.clone(this['fHists'][i]);
+         h.add(this['fStack'][i-1]);
+         this['fStack'].splice(i, 1, h);
+      }
+   }
+   return obj;
+}
+//              Red/     Blue /Green
+//              Nominal/ Up   /Down
+var stackColors = [632, 600, 416];
+
+JSROOTIO.RootFile.prototype.ReadThreeObject = function(obj_name, nuissance, cycle, node_id) {
+      // read any object from a root file
+      var key = this.GetKey(obj_name.replace(nuissance,''), cycle);
+      var key2 = this.GetKey(obj_name+"Up", cycle);
+      var key3 = this.GetKey(obj_name+"Down", cycle);
+      var colorIndex = 0;
+      var stack = {};
+      stack = initStackObject(obj_name);
+      //stack['fOption'] =
+      if (key == null || key2 == null || key3 == null) return;
+      this.fTagOffset = key.keyLen;
+      var callback = function(file, objbuf) {
+         if (objbuf && objbuf['unzipdata']) {
+            if (key['className'] == 'TCanvas') {
+               var canvas = JSROOTIO.ReadTCanvas(objbuf['unzipdata'], 0);
+               if (canvas && canvas['fPrimitives']) {
+                  if(canvas['fName'] == "")
+                     canvas['fName'] = obj_name;
+                  displayThreeObject(canvas, cycle, obj_index);
+                  obj_list.push(obj_name+cycle);
+                  obj_index++;
+               }
+            }
+            else if (JSROOTIO.GetStreamer(key['className'])) {
+               var obj = {};
+               obj['_typename'] = 'JSROOTIO.' + key['className'];
+               JSROOTIO.GetStreamer(key['className']).Stream(obj, objbuf['unzipdata'], 0);
+               if (key['className'] == 'TFormula') {
+                  JSROOTCore.addFormula(obj);
+               }
+               else if (key['className'] == 'TNtuple' || key['className'] == 'TTree') {
+                  displayTree(obj, cycle, node_id);
+               }
+               else {
+                  JSROOTCore.addMethods(obj);
+                  obj['fLineColor'] = stackColors[colorIndex];
+                  stack['fHists'].push(obj);
+                  if (stack['fHists'].length == 3){
+                     displayThreeObject(stack, cycle, obj_index);
+                     obj_list.push(obj_name+cycle);
+                     obj_index++;
+                  }
+                  colorIndex++;
+               }
+            }
+            delete objbuf['unzipdata'];
+            objbuf['unzipdata'] = null;
+         }
+      };
+      this.ReadObjBuffer(key, callback);
+      this.fTagOffset = key2.keyLen;
+      this.ReadObjBuffer(key2, callback);
+      this.fTagOffset = key3.keyLen;
+      this.ReadObjBuffer(key3, callback);
+};
+
+//options.Error = false; to fix in JSROOTIOEVO
+stackTitleCounter = 0;
+JSROOTPainter.drawTitle = function(vis, histo, pad) {
+   /* draw the title only if we don't draw from a pad (see Olivier for details) */
+   var w = vis.attr("width"), h = vis.attr("height");
+   var font_size = Math.round(0.050 * h);
+   var l_title = this.translateLaTeX(histo['fTitle']);
+
+   if (stackTitleCounter == 1){
+      if (!pad || typeof(pad) == 'undefined') {
+         vis.append("text")
+            .attr("class", "title")
+            .attr("text-anchor", "middle")
+            .attr("x", w/2)
+            .attr("y", 1 + font_size)
+            .attr("font-family", "Arial")
+            .attr("font-size", font_size)
+            .text(l_title.replace("Down", ''));
+      }
+      stackTitleCounter++;
+   }else if(stackTitleCounter == 3){
+      stackTitleCounter = 0;
+   }
+   else
+      stackTitleCounter++;
+}
