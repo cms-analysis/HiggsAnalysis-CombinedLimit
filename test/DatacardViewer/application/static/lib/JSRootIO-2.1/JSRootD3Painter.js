@@ -2964,7 +2964,6 @@ function createFillPatterns(svg, id, color) {
    JSROOTPainter.drawHistogram1D = function(vis, pad, histo, hframe) {
       var i, gridx = false, gridy = false;
       var options = JSROOTPainter.decodeOptions(histo['fOption'], histo, pad);
-      options.Error = false;
       var draw_all = false;
       if (hframe == null || (hframe['xmin'] < 1e-300 && hframe['xmax'] < 1e-300 &&
           hframe['ymin'] < 1e-300 && hframe['ymax'] < 1e-300)) {
