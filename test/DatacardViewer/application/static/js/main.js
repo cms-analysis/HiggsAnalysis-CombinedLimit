@@ -18,8 +18,8 @@ var rowHeaders;
 var rowHeadersMaxWidth;
 var datacardShapeMap;
 var rootjsFiles;
-var settings_mass = 120.7;
-var histograms = {};
+var settings_mass = 127;//120.7;
+var histograms;
 var histogramsWidth = {};
 
 function init_variables(){
@@ -42,6 +42,13 @@ function init_variables(){
     rowHeadersMaxWidth = 0;
     datacardShapeMap = {};
     rootjsFiles = [];
+    histograms = {};
+    //Histogram plots numbering
+    $("#report").empty();
+    if(typeof obj_index !== 'undefined'){
+        obj_index = 0;
+    };
+    
 }
 
 function get_colors(signals){
@@ -364,6 +371,7 @@ function add_cell_dialog_event(button){
 function build_cell_dialog(button){
     var binProc = button.attr('id').split(":");
     var histNr = getHistogramNumber(binProc);
+    console.log(histNr);
     var $hist = $("#histogram"+histNr).clone(true);
     var width;
     var dialog = new BootstrapDialog({ 
