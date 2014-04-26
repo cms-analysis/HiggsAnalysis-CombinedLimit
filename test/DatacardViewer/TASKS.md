@@ -1,11 +1,12 @@
 #List of tasks needed to be done:
-
-+ Add "Others" dialog in nuissances menu.
+Sorted by proprity:
 + Add Multiple root files support. 
 *Suggestion:* create an object to store: filename => keylist.
-+ Improve datacardShapeMap parser.
++ Figure a way out to support root files with "RooWorkspace". 
+*Suggestion:* Update JSRootIO to the newest version when possible, maybe support will be added.
 + Add "Configuration" to application, to adjust settings e.g. "MASS" parameter.
-+ Add Server uploader response to the client. 
++ Redo 3 in 1 plot loading from all to on selected.
++ Improve datacardShapeMap parser.
 + Fix environment for Datacard.py and DatacardParser.py.
-+ Update JSRootIO to the newest version when possible.
-+ Figure a way out to support RooWorkspace
++ Add "Others" dialog in nuissances menu.
++ Add Server uploader response to the client. 
