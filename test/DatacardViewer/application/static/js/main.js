@@ -47,7 +47,13 @@ function init_variables(){
 function get_colors(signals){
     var backgrounds = ["#DDA0DD", "#FCF8E3", "#DFF0D8", "#D9EDF7", "#F2DEDE", "#FFE4C4",
                         "#DEB887", "#BDB76B", "#E9967A", "#8FBC8F", "#CD5C5C", "F08080",
-                        "#20B2AA", "#778899", "#191970", "#FF4500", "#D8BFD8", "#708090"];
+                        "#20B2AA", "#778899", "#191970", "#FF4500", "#D8BFD8", "#708090",
+                        'rgb(122, 142, 153)', 'rgb(104, 130, 150)', 'rgb(109, 122, 132)',
+                        'rgb(124, 153, 209)', 'rgb(127, 127, 155)', 'rgb(170, 165, 191)',
+                        'rgb(211, 206, 135)', 'rgb(221, 186, 135)', 'rgb(188, 158, 130)',
+                        'rgb(198, 153, 124)','rgb(191, 130, 119)', 'rgb(206, 94, 96)',
+                        'rgb(170, 142, 147)','rgb(165, 119, 122)', 'rgb(147, 104, 112)'
+    ];
     var colors = [];
     for(var i=0;i<signals.length;i++)
         colors.push(backgrounds[signals[i]]);
@@ -346,7 +352,7 @@ var cellButtonRenderer = function (instance, td, row, col, prop, value, cellProp
     }else
         td.innerHTML = value;
 };
-//todo
+
 function add_cell_dialog_event(button){
     button.off();
     button.on("click", function(e){
@@ -765,7 +771,7 @@ function build_menu(button, rowIndex){
     });
     button.popover('toggle');
 }
-//todo buttons build_cell_dialog
+
 function menu_sort(menuIndex, rowIndex){
     switch(menuIndex)
     {
@@ -781,7 +787,11 @@ function menu_sort(menuIndex, rowIndex){
         html += "</tr></thead><tbody>";
         for (var j=0;j<content.length;j++ ){
             html += "<tr>";
-            html += '<td data-value ="'+content[j]+'">'+content[j]+"</td>";
+            if (content[j]+"".indexOf("<button") < 0)
+                html += '<td data-value ="'+content[j]+'">'+content[j]+"</td>";
+            else{
+                html += '<td data-value ="'+j+'">'+content[j]+"</td>";
+            }
             html += '<td data-value ="'+bins[cols[j].data]+'">'+bins[cols[j].data]+"</td>";
             html += '<td style="background-color:'+colors[cols[j].data]+'" data-value ="'+processes[cols[j].data]+'">'+processes[cols[j].data]+"</td>";
             html += "</tr>";
@@ -790,7 +800,13 @@ function menu_sort(menuIndex, rowIndex){
 
         BootstrapDialog.show({
             title: 'Datacard table sort by '+nuisances[rowIndex][0]+": "+nuisances[rowIndex][1]+' nuisance',
-            message: html
+            message: function(){
+                var $dialogTable = $(html);
+                $dialogTable.find(":button").each(function(index, button) {
+                    add_cell_dialog_event($(button));
+                });
+                return $dialogTable;
+            }
         });
         break;
     case 1:
@@ -813,7 +829,11 @@ function menu_sort(menuIndex, rowIndex){
         html += "</tr></thead><tbody>";
         for (var j = 0;j<othersValues.length;j++){
             html += "<tr>";
-            html += '<td data-value ="'+othersValues[j]+'">'+othersValues[j]+"</td>";
+            if (othersValues[j]+"".indexOf("<button") < 0)
+                html += '<td data-value ="'+othersValues[j]+'">'+othersValues[j]+"</td>";
+            else{
+                html += '<td data-value ="'+j+'">'+othersValues[j]+"</td>";
+            }
             var temp = "";
             for(var i = 0; i<othersIDs[j].length; i++){
                 temp += bins[cols[othersIDs[j][i]].data]+'/' + processes[cols[othersIDs[j][i]].data]+'; ';
@@ -825,7 +845,13 @@ function menu_sort(menuIndex, rowIndex){
 
         BootstrapDialog.show({
             title: 'Datacard table sort by '+nuisances[rowIndex][0]+": "+nuisances[rowIndex][1]+' nuisance,<br>grouped by value',
-            message: html
+            message: function(){
+                var $dialogTable = $(html);
+                $dialogTable.find(":button").each(function(index, button) {
+                    add_cell_dialog_event($(button));
+                });
+                return $dialogTable;
+            }
         });
         break;
     case 2:
@@ -864,7 +890,13 @@ function menu_sort(menuIndex, rowIndex){
 
         BootstrapDialog.show({
             title: 'Datacard table sort by '+nuisances[rowIndex][0]+": "+nuisances[rowIndex][1]+' nuisance,<br>grouped by process',
-            message: html
+            message: function(){
+                var $dialogTable = $(html);
+                $dialogTable.find(":button").each(function(index, button) {
+                    add_cell_dialog_event($(button));
+                });
+                return $dialogTable;
+            }
         });
         break;
     case 3:
@@ -903,11 +935,17 @@ function menu_sort(menuIndex, rowIndex){
 
         BootstrapDialog.show({
             title: 'Datacard table sort by '+nuisances[rowIndex][0]+": "+nuisances[rowIndex][1]+' nuisance,<br>grouped by bin',
-            message: html
+            message: function(){
+                var $dialogTable = $(html);
+                $dialogTable.find(":button").each(function(index, button) {
+                    add_cell_dialog_event($(button));
+                });
+                return $dialogTable;
+            }
         });
         break;
     case 4:
-        //execute code block 1
+        //TODO OTHERS
         break;
     default:
         //code to be executed if n is different from case 1 and 2
