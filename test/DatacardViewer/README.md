@@ -16,7 +16,7 @@ It can be done by typing in terminal:
    $ pip install Flask
    ~~~
 
-or [building and installing from the sourse](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/master/test/DatacardViewer/libs/flask-0.11)
+or [building and installing from the sourse](libs/flask-0.11)
 
    ~~~ sh
    $ python setup.py build
