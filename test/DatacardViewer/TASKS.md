@@ -10,3 +10,4 @@ Sorted by proprity:
 + Fix environment for Datacard.py and DatacardParser.py.
 + Add "Others" dialog in nuissances menu.
 + Add Server uploader response to the client. 
++ Add smartlinks for datacards.
