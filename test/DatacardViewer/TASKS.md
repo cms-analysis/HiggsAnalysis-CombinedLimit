@@ -1,7 +1,7 @@
 #List of tasks needed to be done:
 
 + Add "Others" dialog in nuissances menu.
-+ Add Multiple root files support
++ Add Multiple root files support. 
 *Suggestion:* create an object to store: filename => keylist.
 + Improve datacardShapeMap parser.
 + Add "Configuration" to application, to adjust settings e.g. "MASS" parameter.
