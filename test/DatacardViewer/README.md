@@ -52,7 +52,6 @@ To configure your web server type:
    ~~~
 ##Documentation
 
-+ [Documentation](documentation.md)
-+ [Information]()
-+ [Tools]()
++ [Documentation](DOCUMENTATION.md)
++ [Tasks](TASKS.md)
 
