@@ -4,8 +4,6 @@ from application import app
 from flask import make_response, send_file, request, Response, url_for, jsonify, send_from_directory, current_app
 from json import JSONEncoder
 from werkzeug import secure_filename
-from functools import update_wrapper
-import paramiko
 
 # This is the path to the upload directory
 app.config['UPLOAD_FOLDER'] = 'application/uploads/'
