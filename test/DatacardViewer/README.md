@@ -29,14 +29,11 @@ It can be done by:
    ~~~
 2) building and installing from the source:
 
-to build:
+to build and install:
    ~~~ sh
-   $ python libs/flask-0.11/setup.py build
-   ~~~
-
-to install
-   ~~~ sh
-   $ sudo python libs/flask-0.11/setup.py install
+   $ cd libs/flask-0.11
+   $ python setup.py build
+   $ sudo python setup.py install
    ~~~
 
 ###Configuring the server
@@ -45,7 +42,7 @@ To configure your web server go to [run.py](run.py) and change IP address.
 
 ###Launching the server
 
-To configure your web server type:
+To launch your web server go back to the DatacardViewer folder and type:
 
    ~~~ sh
    $ python run.py
