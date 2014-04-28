@@ -523,3 +523,17 @@ JSROOTPainter.decodeOptions = function(opt, histo, pad) {
       option.Error = false;
       return option;
    };
+
+JSROOTPainter.createCanvas = function(element, idx) {
+      var w = element.width(), h = w * 0.6666666;
+      var render_to = '#histogram' + idx;
+      d3.select(render_to).style("background-color", 'white');
+      d3.select(render_to).style("width", "100%");
+
+      var svg = d3.select(render_to).append("svg")
+                  .attr("width", w-60)
+                  .attr("height", h)
+                  .style("background-color", 'white');
+      defs = svg.append('svg:defs');
+      return svg;
+   };
