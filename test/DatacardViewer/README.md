@@ -16,11 +16,12 @@ text editor or the root browser.
 ###Setting up a Web server
 
 First of all you, you need to install Flask(A Python Web Microframework). 
-More information: [Flask installation](http://flask.pocoo.org/docs/installation/#installation)
 
 **Requirements:** Python 2.6 or higher.
 
-It can be done by:
+Local instalation guide: [Flask installation](http://flask.pocoo.org/docs/installation/#installation).
+
+System-Wide installation can be done by: 
 
 1) simply typing in terminal:
 
