@@ -5,7 +5,7 @@ Sorted by proprity:
 + Figure a way out to support root files with "RooWorkspace". 
 *Suggestion:* Update JSRootIO to the newest version when possible, maybe support will be added.
 + Add "Configuration" to application, to adjust settings e.g. "MASS" parameter.
-+ Redo "3 in 1" drawing from HSTACK to CUSTOM.
++ Redo "3 in 1" drawing from HStack to Custom.
 + Redo "3 in 1" plot loading from ALL to ON SELECTED.
 + Improve datacardShapeMap parser.
 + Fix environment for Datacard.py and DatacardParser.py.
