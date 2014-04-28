@@ -10,5 +10,6 @@ Sorted by proprity:
 + Improve datacardShapeMap parser.
 + Fix environment for Datacard.py and DatacardParser.py.
 + Add "Others" dialog in nuissances menu.
-+ Add Server uploader response to the client. 
++ Improve current search, to search/sort by bin/proccess/nuissance.
++ Add Server uploader response to the client.
 + Add smartlinks for datacards.
