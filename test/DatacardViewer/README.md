@@ -38,7 +38,8 @@ to build and install:
 
 ###Configuring the server
 
-To configure your web server go to [run.py](run.py) and change IP address. 
+The server automatically configures it self to: "yourExternalIPAddress":5000.
+To configure your web server manually go to [run.py](run.py) and change IP address and/or Port. 
 
 ###Launching the server
 
@@ -47,6 +48,7 @@ To launch your web server go back to the DatacardViewer folder and type:
    ~~~ sh
    $ python run.py
    ~~~
+If it doesn't work, go to [run.py](run.py) and configure it manually.
 ##Documentation
 
 + [Documentation](DOCUMENTATION.md)

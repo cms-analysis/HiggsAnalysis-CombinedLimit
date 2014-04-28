@@ -1,8 +1,9 @@
 #!flask/bin/python
 from application import app
+import urllib2
 
 app.run(
 		debug = True, 
-		host = '137.138.216.35', 
+		host = urllib2.urlopen("http://myip.dnsdynamic.org/").read(), 
 		port = 5000
 	)

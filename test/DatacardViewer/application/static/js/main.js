@@ -371,7 +371,6 @@ function add_cell_dialog_event(button){
 function build_cell_dialog(button){
     var binProc = button.attr('id').split(":");
     var histNr = getHistogramNumber(binProc);
-    console.log(histNr);
     var $hist = $("#histogram"+histNr).clone(true);
     var width;
     var dialog = new BootstrapDialog({ 
@@ -397,9 +396,9 @@ function build_cell_dialog(button){
                 if (histograms[binProc] === undefined){
                     histogramsWidth[binProc] = +$("#histogram"+histNr+" svg").attr("width")+40;
                     width = histogramsWidth[binProc];
-                    var html = "<b>Nominal: </b><span style='color:red;'>red</span>, ";
-                    html+="<b>Up</b>: <span style='color:blue;'>blue</span>, ";
-                    html+="<b>Down</b>: <span style='color:green;'>green</span>.";
+                    var html = "<b>Down</b>:<span style='color:red;'>red</span>, ";
+                    html+="<b>Nominal</b>: <span style='color:blue;'>blue</span>, ";
+                    html+="<b>Up</b>: <span style='color:green;'>green</span>.";
                     histograms[binProc] = $("#histogram"+histNr).show().append(html);
                     return histograms[binProc];
                 }

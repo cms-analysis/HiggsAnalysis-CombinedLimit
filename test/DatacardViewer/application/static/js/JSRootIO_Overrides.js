@@ -142,19 +142,18 @@ function initStackObject(obj_name){
    }
    return obj;
 }
-//              Red/     Blue /Green
-//              Nominal/ Up   /Down
+//                Red/   Blue  /Green
+//               Down/ Nominal /Up
 var stackColors = [632, 600, 416];
 
 JSROOTIO.RootFile.prototype.ReadThreeObject = function(obj_name, nuissance, cycle, node_id) {
       // read any object from a root file
-      var key = this.GetKey(obj_name.replace(nuissance,''), cycle);
-      var key2 = this.GetKey(obj_name+"Up", cycle);
-      var key3 = this.GetKey(obj_name+"Down", cycle);
+      var key = this.GetKey(obj_name+"Down", cycle);
+      var key2 = this.GetKey(obj_name.replace(nuissance,''), cycle);
+      var key3 = this.GetKey(obj_name+"Up", cycle);
       var colorIndex = 0;
       var stack = {};
       stack = initStackObject(obj_name);
-      //stack['fOption'] =
       if (key == null || key2 == null || key3 == null) return;
       this.fTagOffset = key.keyLen;
       var callback = function(file, objbuf) {
@@ -209,7 +208,7 @@ JSROOTPainter.drawTitle = function(vis, histo, pad) {
    var font_size = Math.round(0.050 * h);
    var l_title = this.translateLaTeX(histo['fTitle']);
 
-   if (stackTitleCounter == 1){
+   if (stackTitleCounter == 0){
       if (!pad || typeof(pad) == 'undefined') {
          vis.append("text")
             .attr("class", "title")
