@@ -32,6 +32,7 @@ class SimpleCacheSentry : public RooAbsArg {
         virtual void attachToVStore(RooVectorDataStore& vstore) {}
         virtual void setTreeBranchStatus(TTree& t, Bool_t active) {}
         virtual void fillTreeBranch(TTree& t) {}
+	virtual Bool_t isIdentical(const RooAbsArg& other, Bool_t assumeSameType=kFALSE) ;
     private:
         RooSetProxy _deps;
         ClassDef(SimpleCacheSentry,1) 
