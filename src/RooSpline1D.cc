@@ -54,6 +54,13 @@ RooSpline1D::RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, 
     }
 }
 
+RooSpline1D::RooSpline1D(const RooSpline1D &other, const char *newname) :
+    RooAbsReal(other,newname),
+    xvar_("xvar",this,other.xvar_),
+    x_(other.x_), y_(other.y_), type_(other.type_),
+    interp_(0)
+{
+}
 
 RooSpline1D::~RooSpline1D() 
 {
@@ -63,7 +70,7 @@ RooSpline1D::~RooSpline1D()
 
 TObject *RooSpline1D::clone(const char *newname) const 
 {
-    return new RooSpline1D(newname, this->GetTitle(), const_cast<RooAbsReal &>(xvar_.arg()), x_.size(), &x_[0], &y_[0], type_.c_str());
+    return new RooSpline1D(*this, newname);
 }
 
 void RooSpline1D::init() const {

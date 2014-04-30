@@ -22,6 +22,8 @@
 #include "../interface/RooMultiPdf.h"
 #include "../interface/RooBernsteinFast.h"
 #include "../interface/SimpleGaussianConstraint.h"
+#include "../interface/AtlasPdfs.h"
+
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -122,4 +124,8 @@
 #pragma link C++ class RooGausExpPdf+;
 #pragma link C++ class RooDoubleCrystalBall+;
 
-#endif
+#pragma link C++ class RooStats::HistFactory::RooBSplineBases+;
+#pragma link C++ class RooStats::HistFactory::RooBSpline+;
+#pragma link C++ class RooParamKeysPdf+;
+#pragma link C++ class RooStarMomentMorph+;
+#endif 

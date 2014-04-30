@@ -44,4 +44,15 @@ void SimpleCacheSentry::addFunc(const RooAbsArg &func, const RooArgSet *obs)
     delete deps;
 }
 
+Bool_t SimpleCacheSentry::isIdentical(const RooAbsArg& other, 
+				    Bool_t /*assumeSameType*/) {
+  bool ret = kFALSE;
+  SimpleCacheSentry const& otherSentry = dynamic_cast<SimpleCacheSentry const&>(other);
+  RooAbsCollection * common = _deps.selectCommon(otherSentry._deps);
+  if ( (common->getSize() == otherSentry._deps.getSize()) && 
+       (common->getSize() == _deps.getSize()) )
+    ret = kTRUE;
+  delete common;
+  return ret;
+}
 
