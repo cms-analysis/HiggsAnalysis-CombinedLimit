@@ -36,7 +36,7 @@ public:
   HZZ4L_RooSpinZeroPdf_2D(const char *name, const char *title,
 		       RooAbsReal& _kd,
 		       RooAbsReal& _kdint,
-					 RooAbsReal& _ksmd,
+			   RooAbsReal& _ksmd,
 		       RooAbsReal& _fai1,
 		       RooAbsReal& _fai2,
 		       RooAbsReal& _phi1,
@@ -50,6 +50,16 @@ public:
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
   const RooArgList& coefList() const { return _coefList ; }
+
+  double Integral_T1;
+  double Integral_T2;
+  double Integral_T3;
+  double Integral_T4;
+  double Integral_T5;
+  double Integral_T6;
+  double Integral_T7;
+  double Integral_T8;
+  double Integral_T9;
 
 private:
 
