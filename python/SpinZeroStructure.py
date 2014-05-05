@@ -128,9 +128,11 @@ class SpinZeroHiggs(PhysicsModel):
                     poi = "r"
             else:
                 self.modelBuilder.out.var("r").setAttribute("flatParam")
+        else:
+            self.modelBuilder.doVar("r[1]")
 
         if self.phiai1Floating:
-            self.modelBuilder.doVar("CMS_zz4l_phiai1[0.,0,1]")
+            self.modelBuilder.doVar("CMS_zz4l_phiai1[0.,-3.14159265359,3.14159265359]")
             print "Floating CMS_zz4l_phiai1"
             if self.phiai1POI:
                 print "Treating phiai1 as a POI"
@@ -143,7 +145,7 @@ class SpinZeroHiggs(PhysicsModel):
             print "Fixing CMS_zz4l_phiai1"
 
         if self.phiai2Floating:
-            self.modelBuilder.doVar("CMS_zz4l_phiai2[0.,0,1]")
+            self.modelBuilder.doVar("CMS_zz4l_phiai2[0.,-3.14159265359,3.14159265359]")
             print "Floating CMS_zz4l_phiai2"
             if self.phiai2POI:
                 print "Treating phiai2 as a POI"
