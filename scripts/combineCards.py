@@ -145,7 +145,13 @@ for ich,fname in enumerate(args):
             bout = label if singlebin else label+b
             if isVetoed(bout,options.channelVetos): continue
 	    if not isIncluded(bout,options.channelIncludes): continue
-            obsline += [str(DC.obs[b])]; 
+            obsline += [str(DC.obs[b])];
+    #get the groups - keep nuisances in a set so that they are never repetitions
+    for groupName,nuisanceNames in DC.groups.iteritems():
+        if groupName in groups:
+            groups[groupName].update(set(nuisanceNames))
+        else:
+            groups[groupName] = set(nuisanceNames)
 
 bins = []
 for (b,p,s) in keyline:
@@ -215,6 +221,8 @@ for (pname, pargs) in paramSysts.items():
 
 for pname in flatParamNuisances.iterkeys(): 
     print "%-12s  flatParam" % pname
-
 for dname in discreteNuisances.iterkeys(): 
-    print "%-12s  discrete" % dname
+     print "%-12s  discrete" % dname
+for groupName,nuisanceNames in groups.iteritems():
+    nuisances = ' '.join(nuisanceNames)
+    print '%(groupName)s group = %(nuisances)s' % locals()

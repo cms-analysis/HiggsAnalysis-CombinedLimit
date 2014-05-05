@@ -70,6 +70,14 @@ class ModelBuilder(ModelBuilderBase):
     def doModel(self):
         self.doObservables()
         self.physics.doParametersOfInterest()
+        
+        # set a group attribute on POI variables
+        poiIter = self.out.set('POI').createIterator()
+        poi = poiIter.Next()
+        while poi:
+            self.out.var(poi.GetName()).setAttribute('group_POI',True)
+            poi = poiIter.Next()
+
         self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
         self.doExpectedEvents()
@@ -78,10 +86,10 @@ class ModelBuilder(ModelBuilderBase):
         self.physics.done()
         if self.options.bin:
             self.doModelConfigs()
-            if self.options.verbose > 2: self.out.Print("V")
-            if self.options.verbose > 3: 
-                print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
+            if self.options.verbose > 1: self.out.Print("tv")
+            if self.options.verbose > 2: 
                 self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
+                print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
     def doObservables(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
@@ -89,7 +97,21 @@ class ModelBuilder(ModelBuilderBase):
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
         globalobs = []
-	for cpar in self.DC.discretes: self.addDiscrete(cpar) 
+        # Prepare a dictionary of which group a certain nuisance belongs to
+        groupsFor = {}
+        existingNuisanceNames = tuple(syst[0] for syst in self.DC.systs)
+        for groupName,nuisanceNames in self.DC.groups.iteritems():
+            for nuisanceName in nuisanceNames:
+                if nuisanceName not in existingNuisanceNames:
+                    raise RuntimeError, 'Nuisance group "%(groupName)s" refers to nuisance "%(nuisanceName)s" but it does not exist. Perhaps you misspelled it.' % locals()
+                if nuisanceName in groupsFor:
+                    groupsFor[nuisanceName].append(groupName)
+                else:
+                    groupsFor[nuisanceName] = [ groupName ]
+
+        #print self.DC.groups
+        #print groupsFor
+        for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN" or pdf.startswith("shape"):
                 r = "-4,4" if pdf == "shape" else "-7,7"
@@ -225,6 +247,14 @@ class ModelBuilder(ModelBuilderBase):
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
             if nofloat: 
               self.out.var("%s" % n).setAttribute("globalConstrained",True)
+            # set an attribute related to the group(s) this nuisance belongs to
+            if n in groupsFor:
+                groupNames = groupsFor[n]
+                if self.options.verbose > 1:
+                    print 'Nuisance "%(n)s" is assigned to the following nuisance groups: %(groupNames)s' % locals()
+                for groupName in groupNames:
+                    self.out.var(n).setAttribute('group_'+groupName,True)
+            #self.out.var(n).Print('V')
         if self.options.bin:
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
@@ -242,6 +272,13 @@ class ModelBuilder(ModelBuilderBase):
             self.doSet("nuisances", ",".join(["%s"    % n for (n,nf,p,a,e) in self.DC.systs]))
             self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,nf,p,a,e) in self.DC.systs]))
             self.doSet("globalObservables", ",".join(globalobs))
+	
+        for groupName,nuisanceNames in self.DC.groups.iteritems():
+	    nuisanceargset = ROOT.RooArgSet()
+            for nuisanceName in nuisanceNames:
+		nuisanceargset.add(self.out.var(nuisanceName))
+	    self.out.defineSet("group_%s"%groupName,nuisanceargset)
+
     def doExpectedEvents(self):
         self.doComment(" --- Expected events in each bin, for each process ----")
         for b in self.DC.bins:

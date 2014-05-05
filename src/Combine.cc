@@ -103,6 +103,7 @@ Combine::Combine() :
       ("setPhysicsModelParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")      
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
       ("freezeNuisances", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these nuisance parameters.")      
+      ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
       ;
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
@@ -422,6 +423,22 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           mc->SetNuisanceParameters(newnuis);
           if (mc_bonly) mc_bonly->SetNuisanceParameters(newnuis);
           nuisances = mc->GetNuisanceParameters();
+      }
+  }
+  if (freezeNuisanceGroups_ != "") {
+      std::vector<string> nuisanceGroups;
+      boost::algorithm::split(nuisanceGroups,freezeNuisanceGroups_,boost::algorithm::is_any_of(","));
+      for (std::vector<string>::iterator ng_it=nuisanceGroups.begin();ng_it!=nuisanceGroups.end();ng_it++){
+        RooArgSet toFreeze(*(w->set(Form("group_%s",(*ng_it).c_str()))));
+        if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
+        utils::setAllConstant(toFreeze, true);
+        if (nuisances) {
+          RooArgSet newnuis(*nuisances);
+          newnuis.remove(toFreeze, /*silent=*/true, /*byname=*/true);      
+          mc->SetNuisanceParameters(newnuis);
+          mc_bonly->SetNuisanceParameters(newnuis);
+          nuisances = mc->GetNuisanceParameters();
+       }
       }
   }
 
