@@ -3,6 +3,8 @@
 #include <TString.h>
 #include <boost/program_options.hpp>
 #include "RooArgSet.h"
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 class TDirectory;
 class TTree;
@@ -62,6 +64,7 @@ private:
   std::string setPhysicsModelParameterRangeExpression_;
   std::string redefineSignalPOIs_;
   std::string freezeNuisances_;
+  std::string freezeNuisanceGroups_;
   
   // input-output related variables
   bool saveWorkspace_;
