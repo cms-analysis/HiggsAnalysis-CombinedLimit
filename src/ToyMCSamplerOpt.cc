@@ -146,7 +146,8 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double w
             //printf("generating asimov from %s: bins %d, events %.1f\n",
             //                    pdf_->GetName(), nbins, nev );
             if (nev < 0.01*nbins) {
-                nPA = std::max<int>(100*nev, 1000);
+                //nPA = std::max<int>(100*nev, 1000);
+                nPA = std::max<int>(500*nev, 5000);
                 //printf("generating asimov from %s: bins %d, events %.1f --> pseudo-asimov entries %d\n",
                 //                    pdf_->GetName(), nbins, nev, nPA );
             }

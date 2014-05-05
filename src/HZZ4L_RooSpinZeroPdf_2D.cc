@@ -121,7 +121,7 @@ ClassImp(HZZ4L_RooSpinZeroPdf_2D)
 	   + mysgn2*sqrt((1.-fabs(fai1) - fabs(fai2))*fabs(fai2)) * (cos(phi2)*T5 +sin(phi2)*T8)
 	   + mysgn1*mysgn2*sqrt(fabs(fai1*fai2)) * (cos(phi2-phi1)*T6 + sin(phi2-phi1)*T9); 
    
-   if ( ( fabs(fai1) + fabs(fai2) )>1 || value <= 0. ) return 1.0e-100;
+   if ( ( 1.-fabs(fai1) - fabs(fai2) )<0 || value <= 0. ) return 1.0e-100;
    
    return value ; 
    
@@ -247,7 +247,7 @@ Double_t HZZ4L_RooSpinZeroPdf_2D::analyticalIntegral(Int_t code, const char* ran
 	   + mysgn2*sqrt((1.-fabs(fai1) - fabs(fai2))*fabs(fai2)) * (cos(phi2)*Int_T5 +sin(phi2)*Int_T8)
 	   + mysgn1*mysgn2*sqrt(fabs(fai1*fai2)) * (cos(phi2-phi1)*Int_T6 + sin(phi2-phi1)*Int_T9); 
 
-   if ( ( fabs(fai1) + fabs(fai2) )>1 || integral <= 0. ) integral = 1.0e100;
+   if ( ( 1-fabs(fai1) - fabs(fai2) )<0 || integral <= 0. ) integral = 1.0e100;
 
    return integral;
        }
