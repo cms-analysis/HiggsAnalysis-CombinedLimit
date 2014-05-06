@@ -87,9 +87,10 @@ class MepsHiggs(SMLikeHiggsModel):
                 # AD k = (M/v) eps m^(N(eps-1))
 #                self.modelBuilder.factory_(
 #                    'expr::C%(name)s("@1 * @2 * TMath::Power(@3,@2-1) / @0", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
-                # GP k = (v/M) (m/M)^eps
+#                # GP k = (v/M)^2 (m/M)^(2eps) <-- This is somehow inconsistent: see below.
+                 # AD fixing to match the definition of Ellis et at in 1303.3879. This is also consistent with ATLAS-CONF-2014-010. Perhaps 1207.1693 was bugged?
                 self.modelBuilder.factory_(
-                    'expr::C%(name)s("(@0/@1) * TMath::Power(@3/@1,@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+                     'expr::C%(name)s("(@0/@1) * TMath::Power(@3/@1,2*@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
 
         self.productionScaling = {
             'ttH':'Ctop',
