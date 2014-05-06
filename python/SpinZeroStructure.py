@@ -119,7 +119,7 @@ class SpinZeroHiggs(PhysicsModel):
             print "Fixing CMS_zz4l_fai2"
 
         if self.muFloating:
-            self.modelBuilder.doVar("r[1,0,5]")
+            self.modelBuilder.doVar("r[1,0,200]")
             if self.muAsPOI:
                 print "Treating r as a POI"
                 if self.fai1POI or self.fai2POI:
