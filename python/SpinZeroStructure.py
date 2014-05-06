@@ -13,11 +13,13 @@ class SpinZeroHiggs(PhysicsModel):
         self.fai1Floating = True
         self.fai1POI = True
 
-        self.phiai1Floating = False
-        self.phiai1POI = False
-
         self.fai2Floating = False
         self.fai2POI = False
+
+        self.allowPMF = False
+
+        self.phiai1Floating = False
+        self.phiai1POI = False
 
         self.phiai2Floating = False
         self.phiai2POI = False
@@ -82,6 +84,9 @@ class SpinZeroHiggs(PhysicsModel):
                     print "Will consider phase ai2 as a parameter of interest"
                     self.phiai2POI = True
 
+            if 'allowPMF' in po:
+                self.allowPMF = True
+
             if not self.muAsPOI and not self.fai1POI and not self.fai2POI and not self.phiai1POI and not self.phiai2POI:
                 print "No POIs detected: Switching to default configuration: Floating nuisance mu, floating POI fai1, eveything else fixed"
                 self.muFloating = True
@@ -94,12 +99,16 @@ class SpinZeroHiggs(PhysicsModel):
                 self.fai2POI = False
                 self.phiai2Floating = False
                 self.phiai2POI = False
+                self.allowPMF = False
             
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         if self.fai1Floating:
             self.modelBuilder.doVar("CMS_zz4l_fai1[0.,0,1]")
             print "Floating CMS_zz4l_fai1"
+            if self.allowPMF:
+                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(-1.,1.)
+                print "Allowing negative CMS_zz4l_fai1"
             if self.fai1POI:
                 poi = "CMS_zz4l_fai1"
         else:
@@ -109,6 +118,9 @@ class SpinZeroHiggs(PhysicsModel):
         if self.fai2Floating:
             self.modelBuilder.doVar("CMS_zz4l_fai2[0.,0,1]")
             print "Floating CMS_zz4l_fai2"
+            if self.allowPMF:
+                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(-1.,1.)
+                print "Allowing negative CMS_zz4l_fai2"
             if self.fai2POI:
                 if self.fai1POI:
                     poi += ",CMS_zz4l_fai2"
