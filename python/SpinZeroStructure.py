@@ -104,7 +104,11 @@ class SpinZeroHiggs(PhysicsModel):
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         if self.fai1Floating:
-            self.modelBuilder.doVar("CMS_zz4l_fai1[0.,0,1]")
+            if self.modelBuilder.out.var("CMS_zz4l_fai1"):
+                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(0.,1.)
+                self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
+            else:
+                self.modelBuilder.doVar("CMS_zz4l_fai1[0.,0,1]")
             print "Floating CMS_zz4l_fai1"
             if self.allowPMF:
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(-1.,1.)
@@ -112,11 +116,19 @@ class SpinZeroHiggs(PhysicsModel):
             if self.fai1POI:
                 poi = "CMS_zz4l_fai1"
         else:
-            self.modelBuilder.doVar("CMS_zz4l_fai1[0]")
+            if self.modelBuilder.out.var("CMS_zz4l_fai1"):
+                self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
+                self.modelBuilder.out.var("CMS_zz4l_fai1").setConstant()
+            else:
+                self.modelBuilder.doVar("CMS_zz4l_fai1[0]")
             print "Fixing CMS_zz4l_fai1"
                 
         if self.fai2Floating:
-            self.modelBuilder.doVar("CMS_zz4l_fai2[0.,0,1]")
+            if self.modelBuilder.out.var("CMS_zz4l_fai2"):
+                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(0.,1.)
+                self.modelBuilder.out.var("CMS_zz4l_fai2").setVal(0)
+            else:
+                self.modelBuilder.doVar("CMS_zz4l_fai2[0.,0,1]")
             print "Floating CMS_zz4l_fai2"
             if self.allowPMF:
                 self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(-1.,1.)
@@ -127,11 +139,19 @@ class SpinZeroHiggs(PhysicsModel):
                 else:
                     poi = "CMS_zz4l_fai2"
         else:
-            self.modelBuilder.doVar("CMS_zz4l_fai2[0]")
+            if self.modelBuilder.out.var("CMS_zz4l_fai2"):
+                self.modelBuilder.out.var("CMS_zz4l_fai2").setVal(0)
+                self.modelBuilder.out.var("CMS_zz4l_fai2").setConstant()
+            else:
+                self.modelBuilder.doVar("CMS_zz4l_fai2[0]")
             print "Fixing CMS_zz4l_fai2"
 
         if self.muFloating:
-            self.modelBuilder.doVar("r[1,0,200]")
+            if self.modelBuilder.out.var("r"):
+                self.modelBuilder.out.var("r").setRange(0.,200.)
+                self.modelBuilder.out.var("r").setVal(1)
+            else:
+                self.modelBuilder.doVar("r[1,0,200]")
             if self.muAsPOI:
                 print "Treating r as a POI"
                 if self.fai1POI or self.fai2POI:
@@ -141,10 +161,18 @@ class SpinZeroHiggs(PhysicsModel):
             else:
                 self.modelBuilder.out.var("r").setAttribute("flatParam")
         else:
-            self.modelBuilder.doVar("r[1]")
+            if self.modelBuilder.out.var("r"):
+                self.modelBuilder.out.var("r").setVal(1)
+                self.modelBuilder.out.var("r").setConstant()
+            else:
+                self.modelBuilder.doVar("r[1]")
 
         if self.phiai1Floating:
-            self.modelBuilder.doVar("CMS_zz4l_phiai1[0.,-3.14159265359,3.14159265359]")
+            if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
+                self.modelBuilder.out.var("CMS_zz4l_phiai1").setRange(-3.14159265359,3.14159265359)
+                self.modelBuilder.out.var("CMS_zz4l_phiai1").setVal(0)
+            else:
+                self.modelBuilder.doVar("CMS_zz4l_phiai1[0.,-3.14159265359,3.14159265359]")
             print "Floating CMS_zz4l_phiai1"
             if self.phiai1POI:
                 print "Treating phiai1 as a POI"
@@ -153,11 +181,19 @@ class SpinZeroHiggs(PhysicsModel):
                 else:
                     poi = "CMS_zz4l_phiai1"
         else:
-            self.modelBuilder.doVar("CMS_zz4l_phiai1[0]")
+            if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
+                self.modelBuilder.out.var("CMS_zz4l_phiai1").setVal(0)
+                self.modelBuilder.out.var("CMS_zz4l_phiai1").setConstant()
+            else:
+                self.modelBuilder.doVar("CMS_zz4l_phiai1[0]")
             print "Fixing CMS_zz4l_phiai1"
 
         if self.phiai2Floating:
-            self.modelBuilder.doVar("CMS_zz4l_phiai2[0.,-3.14159265359,3.14159265359]")
+            if self.modelBuilder.out.var("CMS_zz4l_phiai2"):
+                self.modelBuilder.out.var("CMS_zz4l_phiai2").setRange(-3.14159265359,3.14159265359)
+                self.modelBuilder.out.var("CMS_zz4l_phiai2").setVal(0)
+            else:
+                self.modelBuilder.doVar("CMS_zz4l_phiai2[0.,-3.14159265359,3.14159265359]")
             print "Floating CMS_zz4l_phiai2"
             if self.phiai2POI:
                 print "Treating phiai2 as a POI"
@@ -166,7 +202,11 @@ class SpinZeroHiggs(PhysicsModel):
                 else:
                     poi = "CMS_zz4l_phiai2"
         else:
-            self.modelBuilder.doVar("CMS_zz4l_phiai2[0]")
+            if self.modelBuilder.out.var("CMS_zz4l_phiai2"):
+                self.modelBuilder.out.var("CMS_zz4l_phiai2").setVal(0)
+                self.modelBuilder.out.var("CMS_zz4l_phiai2").setConstant()
+            else:
+                self.modelBuilder.doVar("CMS_zz4l_phiai2[0]")
             print "Fixing CMS_zz4l_phiai2"
             
         self.modelBuilder.doSet("POI",poi)
