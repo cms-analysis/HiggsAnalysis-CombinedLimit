@@ -11,26 +11,20 @@ form of ROOT or text files. The amount of information has become too
 text editor or the root browser. 
 
 
-##Instalation
+##Installation
 
 ###Setting up a Web server
 
-First of all you, you need to install Flask(A Python Web Microframework). 
+First of all you, you need to install Flask (a Python Web Microframework). 
 
 **Requirements:** Python 2.6 or higher.
 
-Local instalation guide: [Flask installation](http://flask.pocoo.org/docs/installation/#installation).
+It can be done in two ways:
 
-System-Wide installation can be done by: 
+1) using [Flask Local and System-Wide installation guides](http://flask.pocoo.org/docs/installation/#installation).
 
-1) simply typing in terminal:
+2) or building and installing Flask from the source:
 
-   ~~~ sh
-   $ pip install Flask
-   ~~~
-2) building and installing from the source:
-
-to build and install:
    ~~~ sh
    $ cd libs/flask-0.11
    $ python setup.py build
@@ -40,7 +34,7 @@ to build and install:
 ###Configuring the server
 
 The server automatically configures it self to: "yourExternalIPAddress":5000.
-To configure your web server manually go to [run.py](run.py) and change IP address and/or Port. 
+To configure your web server manually go to [run.py](run.py) and change IP address and/or port. 
 
 ###Launching the server
 
@@ -54,4 +48,3 @@ If it doesn't work, go to [run.py](run.py) and configure it manually.
 
 + [Documentation](DOCUMENTATION.md)
 + [Tasks](TASKS.md)
-
