@@ -1,7 +1,7 @@
 #Datacard Viewer
 
 
-Datacard Viewer is Graphical User Interface tool for exploration of Higgs measurements in datacards.
+Datacard Viewer is a Graphical User Interface tool for exploration of Higgs measurements in datacards.
 
 ##How to use it
 
@@ -16,11 +16,11 @@ The tool works like this:
 
 ###General Requirements
 
-Server side:
+Server side (libraries):
 + Python 2.6 or higher.
 + Flask 0.11 or higher.
 
-Client side:
+Client side (browser):
 + Safari, Chrome, Firefox, Opera.
 + IE8, IE9 or newer.
 
