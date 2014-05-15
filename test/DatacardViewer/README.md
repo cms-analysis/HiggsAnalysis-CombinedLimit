@@ -30,7 +30,7 @@ Flask can be installed in two different ways:
 
 1) using [Flask Local and System-Wide installation guides](http://flask.pocoo.org/docs/installation/#installation).
 
-2) or building and installing Flask System-Wide from the source:
+2) or building and installing System-Wide Flask from the source:
 
    ~~~ sh
    $ cd libs/flask-0.11
