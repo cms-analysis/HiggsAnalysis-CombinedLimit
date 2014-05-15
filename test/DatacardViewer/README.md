@@ -3,20 +3,26 @@
 
 Datacard Viewer is Graphical User Interface tool for exploration of Higgs measurements in datacards.
 
-The Higgs searches and measurements are encoded in complex likelihood functions that comprise
-thousands parameters. For convenience of extracting results, this information is stored in ROOT
-(RooFit) format. On top of that there is a layer of ASCII configuration files describing the contents of the
-ROOT files, which is parsed using Python. Diagnostic information about these inputs is also produced in
-form of ROOT or text files. The amount of information has become too large to inspect manually with a
-text editor or the root browser. 
+##How to use it
 
+The tool works like this:
+
++ Install Flask server on network.
++ Type server's address in a browser.
++ Upload datacards and their ROOT files you want view.
++ View them.
 
 ##Installation
 
 ###General Requirements
 
+Server side:
 + Python 2.6 or higher.
 + Flask 0.11 or higher.
+
+Client side:
++ Safari, Chrome, Firefox, Opera 
++ IE8, IE9 or newer
 
 ###Flask
 
