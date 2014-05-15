@@ -63,3 +63,5 @@ app
 This structure is a mix of Flask and AngularJS structures.
 
 #Documentation
+
++ [Main javascript documentation for future developers](documentation/)
