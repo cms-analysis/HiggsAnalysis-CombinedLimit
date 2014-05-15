@@ -43,7 +43,7 @@ Libraries used to create this tool and links.
 **DatacardViewer Architecture model:**
 ![Alt text](presentation/DatacardViewer_schema.png?raw=true "DatacardViewer Architecture")
 
-**Flask and AngularJS template structure:**
+**DatacardViewer structure:**
 ```
 app
 |-- app.py
@@ -59,4 +59,6 @@ app
 |-- templates
     |-- index.html
 ```
+This structure is a mix of Flask and AngularJS structures.
+
 #Documentation
