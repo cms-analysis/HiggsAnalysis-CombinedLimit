@@ -1,3 +1,14 @@
+/*
+   Function: 
+
+   Loads fileupload module, containing ViewDatacardsController controller.
+   ViewDatacardsController loads the whole application.
+   
+   See Also:
+
+      https://github.com/blueimp/jQuery-File-Upload
+*/
+
 (function () {
     'use strict';
 

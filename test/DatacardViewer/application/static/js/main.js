@@ -22,6 +22,10 @@ var settings_mass = 127;//120.7;
 var histograms;
 var histogramsWidth = {};
 
+/*
+   Function: init_variables
+   Initializes global variables for one datacard.
+*/
 function init_variables(){
     $datacardTable = $('#datacard');
     //Parced main datacard variables
@@ -51,6 +55,20 @@ function init_variables(){
     
 }
 
+/*
+   Function: get_colors
+
+   Associates datacard's processes signals with colors. 
+
+   Parameters:
+
+      signals - Array of signal integers.
+
+   Returns:
+
+      An array of colors for processes.
+
+*/
 function get_colors(signals){
     var backgrounds = ["#DDA0DD", "#FCF8E3", "#DFF0D8", "#D9EDF7", "#F2DEDE", "#FFE4C4",
                         "#DEB887", "#BDB76B", "#E9967A", "#8FBC8F", "#CD5C5C", "F08080",
@@ -67,6 +85,20 @@ function get_colors(signals){
     return colors;
 }
 
+/*
+   Function: eliminateDuplicates
+
+   Eliminates duplicate values from array. 
+
+   Parameters:
+
+      arr - Array of values.
+
+   Returns:
+
+      An array of values without duplicates.
+
+*/
 function eliminateDuplicates(arr){
     obj ={};
     out =[];
@@ -79,6 +111,20 @@ function eliminateDuplicates(arr){
     return out;
 }
 
+/*
+   Function: countDuplicates
+
+   Counts duplicate values in array. 
+
+   Parameters:
+
+      arr - Array of values.
+
+   Returns:
+
+      An object of [values] = count.
+
+*/
 function countDuplicates(arr){
     obj ={};
     out =[];
@@ -94,7 +140,23 @@ function countDuplicates(arr){
     return out;
 }
 
+/*
+   Function: getColDataIndicesOf
 
+   Searches array for a given value and saves that value index in array. 
+   This function is used for dynamic handsontable columns changing.
+   
+   Parameters:
+
+      searchArr - value.
+	  arr - Array of values.
+
+   Returns:
+
+      An array of objects ["data"] = position.
+	  
+
+*/
 function getColDataIndicesOf(searchArr, arr) {
     var indices = [];
     for (var i = 0; i< arr.length; i++){
@@ -104,6 +166,21 @@ function getColDataIndicesOf(searchArr, arr) {
     return indices;
 }
 
+/*
+   Function: getColDataIndicesOf
+
+   Searches array for a given value and saves that value index in array.  
+
+   Parameters:
+
+      searchArr - value.
+	  arr - Array of values.
+
+   Returns:
+
+      An array of positions.
+
+*/
 function getColIndicesOf(searchArr, arr) {
     var indices = [];
     for (var i = 0; i< arr.length; i++){
@@ -129,19 +206,40 @@ String.prototype.insert = function (index, string) {
     return string + this;
 };
 
-//from loadJSRootIO.js
+/*
+   Function: init_JSRootIO
+   Initializes JSRootIO from loadJSRootIO.js file.  
+*/
 function init_JSRootIO(){
     assertPrerequisitesAndRead();
     //TODO mass settings
     //set_settings();
 }
 
+/*
+   Function: show_datacard
+
+   Main function which initializes, parses and generates datacard.  
+
+   Parameters:
+
+      data - a datacard object returned from the server.
+*/
 function show_datacard(data){
     init_variables();
     parse_datacard(data);
     generate_datacard();
 }
 
+/*
+   Function: parse_datacard
+
+   Parses the data from the server into global variables.  
+
+   Parameters:
+
+      data - a datacard object returned from the server.
+*/
 function parse_datacard(data){
     $("h2#filename").html(data.filename);
     for (var abin in data.binsProcessesRates){
@@ -248,6 +346,21 @@ function parse_datacard(data){
         init_JSRootIO();
     }
 }
+
+/*
+   Function: sort_obj_keys
+
+   Sorts object keys and pushes them into array. 
+
+   Parameters:
+
+      obj - Object.
+
+   Returns:
+
+      An array of sorted object keys.
+
+*/
 function sort_obj_keys(obj){
     var keys = [];
     for (k in obj){
@@ -258,6 +371,11 @@ function sort_obj_keys(obj){
     keys.sort();
     return keys;
 }
+
+/*
+   Function: generate_datacard
+   Creates a handsontable with needed functionality (searching, grouping, sorting and menus)
+*/
 function generate_datacard(){
     var tableData = [];
     var tableWidths = [];
@@ -339,12 +457,21 @@ function generate_datacard(){
     add_search_to_table(tableData);
 }
 
+/*
+   Function: processRenderer
+   Dynamically changes the color of all process cells. 
+*/
 var processRenderer = function (instance, td, row, col, prop, value, cellProperties) {
     Handsontable.renderers.TextRenderer.apply(this, arguments);
     $(td).css({
         background: colorsToShow[col]
     });
 };
+
+/*
+   Function: processRenderer
+   Dynamically changes the color of all process cells. 
+*/
 var descriptionRenderer = function (instance, td, row, col, prop, value, cellProperties) {
     var escaped = Handsontable.helper.stringify(value);
     escaped = strip_tags(escaped, '<em><b><a>'); 
@@ -352,6 +479,10 @@ var descriptionRenderer = function (instance, td, row, col, prop, value, cellPro
     return td;
 };
 
+/*
+   Function: cellButtonRenderer
+   Adds buttons to shape cells. 
+*/
 var cellButtonRenderer = function (instance, td, row, col, prop, value, cellProperties) {
     if((value+"").indexOf("<button")>=0){
         td.innerHTML = Handsontable.helper.stringify((value+"").insert(value.indexOf('>'), ' style="width:'+$(td).width()+'px"'));
@@ -360,6 +491,16 @@ var cellButtonRenderer = function (instance, td, row, col, prop, value, cellProp
         td.innerHTML = value;
 };
 
+/*
+   Function: add_cell_dialog_event
+   
+   Adds on click event to shape cell button. 
+   
+   Parameters:
+
+      button - jQuery button object.
+   
+*/
 function add_cell_dialog_event(button){
     button.off();
     button.on("click", function(e){
@@ -368,6 +509,16 @@ function add_cell_dialog_event(button){
     });
 }
 
+/*
+   Function: build_cell_dialog
+   
+   Shows histogram plot inside Bootstrap Dialog.
+   
+   Parameters:
+
+      button - jQuery button object.
+   
+*/
 function build_cell_dialog(button){
     var binProc = button.attr('id').split(":");
     var histNr = getHistogramNumber(binProc);
@@ -414,6 +565,10 @@ function build_cell_dialog(button){
     dialog.open();
 }
 
+/*
+   Function: count_headers_width
+   Counts all nuisances name width in the table.
+*/
 function count_headers_width(){
     var rowIndex = 0;
     $("th").each(function() {
@@ -424,12 +579,25 @@ function count_headers_width(){
         }
     });
 }
-     
+
+/*
+   Function: change_headers_width
+   Changes datacard table nuisance column width.
+*/
 function change_headers_width(){
     $(".handsontable col.rowHeader ").css( "width", rowHeadersMaxWidth + 50);
     $datacardTable.handsontable('getInstance').render();
 }
 
+/*
+   Function: set_processes_colors
+   
+   Dynamically changes process colors after sorting/grouping.
+      
+   Parameters:
+
+      cols - Processes colors array.
+*/
 function set_processes_colors(cols){
     if(typeof(cols)==='undefined')
         colorsToShow = colors;
@@ -441,6 +609,17 @@ function set_processes_colors(cols){
     } 
 }
 
+/*
+   Function: change_on_events_bin_proc
+   
+   Sorts datacard's handsontable by bin -> process.
+      
+   Parameters:
+
+      firstClick - Boolean variable to identify if handsontable cell was clicked for the first time.
+	  binstoShow - Array of bins that have values for selected process.
+	  selectedProc - Array of selected process items to show.
+*/
 function change_on_events_bin_proc(firstClick, binstoShow, selectedProc){
     var colIndex = 0;
     $("th").each(function() {
@@ -481,6 +660,17 @@ function change_on_events_bin_proc(firstClick, binstoShow, selectedProc){
     });
 }
 
+/*
+   Function: change_on_events_proc_bin
+   
+   Sorts datacard's handsontable by process -> bin.
+      
+   Parameters:
+
+      firstClick - Boolean variable to identify if handsontable cell was clicked for the first time.
+	  processestoShow - Array of processes that have values for selected bin.
+	  selectedBin - Array of selected bin items to show.
+*/
 function change_on_events_proc_bin(firstClick, processestoShow, selectedBin){
     var procIndex = 0;
     $("table.htCore tbody tr:first td").each(function() {
@@ -519,6 +709,16 @@ function change_on_events_proc_bin(firstClick, processestoShow, selectedBin){
     });
 }
 
+/*
+   Function: change_on_events_bin
+   
+   Sorts datacard's handsontable by bin.
+      
+   Parameters:
+
+      firstClick - Boolean variable to identify if handsontable cell was clicked for the first time.
+	  lastOffsetColumn - Integer of column offset.
+*/
 function change_on_events_bin(firstClick, lastOffsetColumn){
     var colIndex;
     if (typeof(lastOffsetColumn)!=='undefined')
@@ -570,6 +770,16 @@ function change_on_events_bin(firstClick, lastOffsetColumn){
     });
 }
 
+/*
+   Function: change_on_events_proc
+   
+   Sorts datacard's handsontable by process.
+      
+   Parameters:
+
+      firstClick - Boolean variable to identify if handsontable cell was clicked for the first time.
+	  lastOffsetColumn - Integer of column offset.
+*/
 function change_on_events_proc(firstClick, lastOffsetColumn){
     var procIndex;
     if (typeof(lastOffsetColumn)!=='undefined')
@@ -617,6 +827,16 @@ function change_on_events_proc(firstClick, lastOffsetColumn){
     });
 }
 
+/*
+   Function: change_on_events_nuisances
+   
+   Sorts datacard's handsontable by process.
+      
+   Parameters:
+
+      firstClick - Boolean variable to identify if handsontable cell was clicked for the first time.
+	  selected - jQuery element of selected nuisance.
+*/
 function change_on_events_nuisances(firstClick, selected){
     var rowIndex = 0;
     $("th").each(function() {
@@ -663,6 +883,10 @@ function change_on_events_nuisances(firstClick, selected){
     });
 }
 
+/*
+   Function: remove_select
+   Remove selected style from datacard's handsontable when using search.
+*/
 function remove_select(){
     $("th").each(function() {
         if($(this).html().indexOf('<div class="relative">') < 0
@@ -673,6 +897,10 @@ function remove_select(){
     destroy_popovers();
 }
 
+/*
+   Function: destroy_popovers
+   Remove popover element from datacard.
+*/
 function destroy_popovers(){
     var $popover = $("button.fa-bars").popover({
             selector: '[data-original-title=]'
@@ -680,6 +908,15 @@ function destroy_popovers(){
     $popover.popover('hide');
 }
 
+/*
+   Function: add_menu_events
+   
+   Adds menu event on button click.
+      
+   Parameters:
+
+      button - Selected jQuery button object.
+*/
 function add_menu_events(button){
     button.off();
     button.on("click", function(e){
@@ -700,12 +937,30 @@ function add_menu_events(button){
     });
 }
 
+/*
+   Function: count_header_width
+   
+   Searches for the longest jQuery th element and sets datacard's handsontable nuisance width.
+      
+   Parameters:
+
+      th - Selected jQuery th object.
+*/
 function count_header_width(th){
     var size = th.children().first().textWidth();
     if (rowHeadersMaxWidth < size)
         rowHeadersMaxWidth = size;
 }
 
+/*
+   Function: hide_rows
+   
+   Hides rows of nuisances without values.
+      
+   Parameters:
+
+      cols - Object of datacard's handsontable columns shown.
+*/
 function hide_rows(cols){
     var handsonRows = $("table.htCore tbody tr");
     var toHide = [];
@@ -725,10 +980,23 @@ function hide_rows(cols){
     }
 }
 
+/*
+   Function: show_all_rows
+   Shows all nuisances rows in datacard's handsontable.
+*/
 function show_all_rows(){
     $("table.htCore tbody tr").removeAttr("style");
 }
 
+/*
+   Function: add_search_to_table
+   
+   Adds searching to datacard's handsontable.
+      
+   Parameters:
+
+      tableData - Object of datacard's handsontable cell values.
+*/
 function add_search_to_table(tableData){
     $('#srch-term').off();
     $('#srch-term').on('keyup', function (event) {
@@ -754,6 +1022,16 @@ function add_search_to_table(tableData){
     });
 }
 
+/*
+   Function: build_menu
+   
+   Creates popover menu from a nuisance button with sorting button choices.
+      
+   Parameters:
+
+      button - Selected jQuery button object.
+	  rowIndex - Selected nuisance index.
+*/
 function build_menu(button, rowIndex){
     button.off();
     button.on("click", function(e){
@@ -779,6 +1057,16 @@ function build_menu(button, rowIndex){
     button.popover('toggle');
 }
 
+/*
+   Function: menu_sort
+   
+   On menu click opens Bootstrap Dialog with selected nuisance sorting.
+      
+   Parameters:
+
+      menuIndex - Sorting menu id to show different table.
+	  rowIndex - Selected nuisance index.
+*/
 function menu_sort(menuIndex, rowIndex){
     switch(menuIndex)
     {
