@@ -21,8 +21,8 @@ Server side:
 + Flask 0.11 or higher.
 
 Client side:
-+ Safari, Chrome, Firefox, Opera 
-+ IE8, IE9 or newer
++ Safari, Chrome, Firefox, Opera.
++ IE8, IE9 or newer.
 
 ###Flask
 
