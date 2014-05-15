@@ -40,6 +40,7 @@ bool        MaxLikelihoodFit::oldNormNames_ = false;
 bool        MaxLikelihoodFit::saveShapes_ = false;
 bool        MaxLikelihoodFit::saveWithUncertainties_ = false;
 bool        MaxLikelihoodFit::justFit_ = false;
+bool        MaxLikelihoodFit::skipBOnlyFit_ = false;
 bool        MaxLikelihoodFit::noErrors_ = false;
 bool        MaxLikelihoodFit::reuseParams_ = false;
 bool        MaxLikelihoodFit::customStartingPoint_ = false;
@@ -61,6 +62,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("saveShapes",  "Save post-fit binned shapes")
         ("saveWithUncertainties",  "Save also post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
         ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
+        ("skipBOnlyFit",  "Skip the B-only fit (do only the S+B fit)")
         ("noErrors",  "Don't compute uncertainties on the best fit value")
         ("initFromBonly",  "Use the values of the nuisance parameters from the background only fit as the starting point for the s+b fit")
         ("customStartingPoint",  "Don't set the signal model parameters to zero before the fit")
@@ -94,6 +96,7 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
     saveWithUncertainties_  = vm.count("saveWithUncertainties");
     saveWorkspace_ = vm.count("saveWorkspace");
     justFit_  = vm.count("justFit");
+    skipBOnlyFit_ = vm.count("skipBOnlyFit");
     noErrors_ = vm.count("noErrors");
     reuseParams_ = vm.count("initFromBonly");
     customStartingPoint_ = vm.count("customStartingPoint");
@@ -186,7 +189,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   // Get the nll value on the prefit
   double nll0 = nll->getVal();
 
-  if (justFit_) { 
+  if (justFit_ || skipBOnlyFit_ ) { 
     // skip b-only fit
   } else if (minos_ != "all") {
     RooArgList minos; 
