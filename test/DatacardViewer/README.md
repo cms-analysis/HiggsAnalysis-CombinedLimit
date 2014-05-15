@@ -13,17 +13,18 @@ text editor or the root browser.
 
 ##Installation
 
-###Setting up a Web server
+###General Requirements
 
-First of all you, you need to install Flask (a Python Web Microframework). 
++ Python 2.6 or higher.
++ Flask 0.11 or higher.
 
-**Requirements:** Python 2.6 or higher.
+###Flask
 
-It can be done in two ways:
+Flask can be installed in two different ways:
 
 1) using [Flask Local and System-Wide installation guides](http://flask.pocoo.org/docs/installation/#installation).
 
-2) or building and installing Flask from the source:
+2) or building and installing Flask System-Wide from the source:
 
    ~~~ sh
    $ cd libs/flask-0.11
@@ -44,6 +45,7 @@ To launch your web server go back to the DatacardViewer folder and type:
    $ python run.py
    ~~~
 If it doesn't work, go to [run.py](run.py) and configure it manually.
+
 ##Documentation
 
 + [Documentation](DOCUMENTATION.md)
