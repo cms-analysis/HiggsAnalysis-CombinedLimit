@@ -33,7 +33,7 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
-paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}
+paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}
 cmax = 5 # column width
 if not args:
     raise RuntimeError, "No input datacards specified."
