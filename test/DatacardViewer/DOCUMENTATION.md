@@ -23,6 +23,7 @@ form of ROOT or text files. The amount of information has become too
 text editor or the root browser. 
 
 Datacard Viewer is a Graphical User Interface tool for exploration of Higgs measurements in datacards.
+[More information](presentation/).
 
 ##Technology stack
 
