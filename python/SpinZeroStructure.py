@@ -24,6 +24,8 @@ class SpinZeroHiggs(PhysicsModel):
         self.phiai2Floating = False
         self.phiai2POI = False
 
+        self.HWWcombination = False
+
         self.poiMap = []
         self.pois = {}
         self.verbose = False
@@ -37,11 +39,8 @@ class SpinZeroHiggs(PhysicsModel):
         #print "Bin ",bin
         #print "Process ",process
         if self.DC.isSignal[process]:
-            if self.muFloating:
-                self.my_norm = "r"
-            else:
-                self.my_norm = 1 
-        
+            self.my_norm = "r"
+
             print "Process {0} will scale by {1}".format(process,self.my_norm)
             return self.my_norm
         
@@ -86,6 +85,10 @@ class SpinZeroHiggs(PhysicsModel):
 
             if 'allowPMF' in po:
                 self.allowPMF = True
+
+            if 'HWWcombination' in po:
+                self.HWWcombination = True
+
 
             if not self.muAsPOI and not self.fai1POI and not self.fai2POI and not self.phiai1POI and not self.phiai2POI:
                 print "No POIs detected: Switching to default configuration: Floating nuisance mu, floating POI fai1, eveything else fixed"
@@ -152,6 +155,8 @@ class SpinZeroHiggs(PhysicsModel):
                 self.modelBuilder.out.var("r").setVal(1)
             else:
                 self.modelBuilder.doVar("r[1,0,200]")
+            self.modelBuilder.out.var("r").removeMax()
+            print "Removed maximum of r"
             if self.muAsPOI:
                 print "Treating r as a POI"
                 if self.fai1POI or self.fai2POI:
@@ -208,6 +213,19 @@ class SpinZeroHiggs(PhysicsModel):
             else:
                 self.modelBuilder.doVar("CMS_zz4l_phiai2[0]")
             print "Fixing CMS_zz4l_phiai2"
+
+        if self.HWWcombination:
+            if self.modelBuilder.out.var("CMS_zz4l_alpha"):
+                self.modelBuilder.out.var("CMS_zz4l_alpha").setVal(0.5)
+                print "Found CMS_zz4l_alpha; setting to 0.5"
+            else:
+                self.modelBuilder.doVar("CMS_zz4l_alpha[0.5,-1,1]")
+                print "Creating CMS_zz4l_alpha; setting to 0.5"
+        else:
+            if self.modelBuilder.out.var("CMS_zz4l_alpha"):
+                self.modelBuilder.out.var("CMS_zz4l_alpha").setVal(0)
+                self.modelBuilder.out.var("CMS_zz4l_alpha").setConstant()
+                print "Found CMS_zz4l_alpha; setting to constant 0"
             
         self.modelBuilder.doSet("POI",poi)
         
