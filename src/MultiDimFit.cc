@@ -237,8 +237,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 	if (n == 1) {
 	double a = pmin[0];
 	double b = pmax[0];
-	double x1=0, x2=0, y1, y2, d;
+	double x1 = 0, x2 = 0, y1, y2, d;
 	unsigned int count = 1;
+	bool ok;
 		
 	// Golden section search
         for (unsigned int i = 0; i < points_/2; ++i) {
@@ -249,15 +250,15 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			x1 = a + d;
 			x2 = b - d;
 			
-			
-            *params = snap;
+			*params = snap;
 			poiVals_[0] = x1;
 			poiVars_[0]->setVal(x1);
 			minim.minimize(verbose-1);
 			y1 = nll.getVal();
+			
 			if (verbose > 1) std::cout << "Point " << count << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x1 << std::endl;			
 
-			bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
+			ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (y1 - nll0) > maxDeltaNLLForProf_) ? 
                         true : 
                         minim.minimize(verbose-1);
 			if (ok) {
@@ -275,7 +276,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			y2 = nll.getVal();
 			if (verbose > 1) std::cout << "Point " << count + 1<< "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x2 << std::endl;	
 			
-			ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
+			ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (y2 - nll0) > maxDeltaNLLForProf_) ? 
                         true : 
                         minim.minimize(verbose-1);
 			if (ok) {
@@ -295,62 +296,8 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			a = x1;
 			}
 			std::cout<<x1<<"\n"<<x2<<std::endl;            
-//			double x =  ((points_-1)*(points_-1)*pmin[0]+i*i*(pmax[0]-pmin[0]))/double((points_-1)*(points_-1));
-			//std::cout<<i<<":"<<x<<std::endl;
-//	    if (false){
-		// distance between steps goes as ~square of distance from middle or range (could this be changed to from best fit value?)
-//		double phalf = (pmax[0]-pmin[0])/2;
-//		if (i<(unsigned int)points_/2) x = pmin[0]+TMath::Sqrt(2*i*(phalf)*(phalf)/points_);
-//		else x = pmax[0]-TMath::Sqrt(2*(points_-i)*(phalf)*(phalf)/points_);
-//	    }
-
-			//std::cout<<"(4): "<<nll.getVal()<<std::endl;            
-//			if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
-			//std::cout<<"(8): "<<nll.getVal()<<std::endl;//no change            
-//			*params = snap; 
-			//std::cout<<"(1): "<<nll.getVal()<<std::endl;           //change 
-//			poiVals_[0] = x;
-			//std::cout<<"(7): "<<nll.getVal()<<std::endl;//no chnage
-//           poiVars_[0]->setVal(x);
-			//std::cout<<"(2): "<<nll.getVal()<<std::endl;			//change
-			//std::cout<<x<<"   "<<   nll.getVal() - nll0<<std::endl;         
-			// now we minimize
-//            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
-//                        true : 
-//                        minim.minimize(verbose-1);
-			//std::cout<<"(5): "<<nll.getVal()<<std::endl;            //change
-//			if (ok) {
-//                deltaNLL_ = nll.getVal() - nll0;
-//                double qN = 2*(deltaNLL_);
-//                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-//                Combine::commitPoint(true, /*quantile=*/prob);
-			//std::cout<<"(6): "<<nll.getVal()<<std::endl;//no change
-//            }
         }
-		double min_val = (x1+x2)/double(2);		
-		double x;
-		std::cout<<"quadratic: \n";
-		//quadratic distrbution of points about the minima
-		for (unsigned int k = 0; k<points_ && count < points_;k++){
-			x = ((double(k)-min_val)*(double(k)-min_val) - min_val*min_val)*(pmax[0])/((double(points_-1)-min_val)*(double(points_-1)-min_val) - min_val*min_val);
-			std::cout<<x<<std::endl;
-			count++;
-			*params = snap;			
-			poiVals_[0] = x;
-            poiVars_[0]->setVal(x);
-			minim.minimize(verbose-1);			
-			//y2 = nll.getVal();
-			if (verbose > 1) std::cout << "Point " << count << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;	
-			
-			ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
-                        true : 
-                        minim.minimize(verbose-1);
-			if (ok) {
-                deltaNLL_ = nll.getVal() - nll0;
-                double qN = 2*(deltaNLL_);
-                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-                Combine::commitPoint(true, /*quantile=*/prob);
-		}
+		
 		
 		
     } else if (n == 2) {
