@@ -237,13 +237,14 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 	if (n == 1) {
 	double a = pmin[0];
 	double b = pmax[0];
-	double x1 = 0, x2 = 0, y1, y2, d;
+	double x1 = 0, x2 = 0, y1 = 0, y2 = 0, d;
 	unsigned int count = 1;
 	bool ok;
+	double precision = (pmax[0]-pmin[0])/double(points_);
 		
 	// Golden section search
         for (unsigned int i = 0; i < points_/2; ++i) {
-			if ((b-a)<(pmax[0]-pmin[0])/double(points_)) break;            
+			if ((b-a)<precision) break;            
 			if (i < firstPoint_) continue;
             if (i > lastPoint_)  break;
 			d = (b-a)/double(3);		
@@ -297,6 +298,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			}
 			std::cout<<x1<<"\n"<<x2<<std::endl;            
         }
+        
+		if ((x2-x1) > precision ) std::cout<<"You may want to increase the number of points or decrease the range in another run to improve precision.\n";
+		if ((x2 - pmin[0]) < precision || (pmax[0] - x1) < precision) std::cout<<"The minima appears to lie beyond the given range.\n";
 		
 		
 		
