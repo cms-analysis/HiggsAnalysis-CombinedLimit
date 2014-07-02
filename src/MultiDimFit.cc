@@ -20,6 +20,7 @@
 #include <Math/QuantFuncMathCore.h>
 #include <Math/ProbFunc.h>
 
+
 using namespace RooStats;
 
 MultiDimFit::Algo MultiDimFit::algo_ = None;
@@ -296,11 +297,48 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			else{
 			a = x1;
 			}
-			std::cout<<x1<<"\n"<<x2<<std::endl;            
+			std::cout<<count<<" "<<x1<<"\n"<<count<<" "<<x2<<std::endl;            
         }
         
 		if ((x2-x1) > precision ) std::cout<<"You may want to increase the number of points or decrease the range in another run to improve precision.\n";
 		if ((x2 - pmin[0]) < precision || (pmax[0] - x1) < precision) std::cout<<"The minima appears to lie beyond the given range.\n";
+		count -= 2;
+		//int count_new = count;
+		
+		//quadratic distribution around the minima
+		
+		//double ymin = (y1+y2)/2.0;
+		
+		double x;
+		double pmin = (x1+x2)/2;
+		//unsigned int i_ = (unsigned int)((points_-count)/pmin);
+		//std::cout<<"range of i: "<< i_<<std::endl;
+		for (unsigned int i = 0; i < (points_-count); ++i) {
+            if (i < firstPoint_) continue;
+            if (i > lastPoint_) break;
+	         
+			
+			
+			std::cout<<double(points_-count)/pmin<<"\n";//<<(unsigned int)(-100)<<"\n";
+			if (i<(points_-count)/3) {x = pmin-TMath::Sqrt(i*(pmin)*(pmin)/((points_-count))); std::cout<<i<<" point plotted to the left.\n";}
+			else {x = pmin+TMath::Sqrt((i-(points_-count)/3)*(pmin)*(pmin)/(points_-count));std::cout<<i<<" point plotted to the right.\n";}
+			
+
+            if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+            *params = snap;
+            poiVals_[0] = x;
+            poiVars_[0]->setVal(x);
+            // now we minimize
+            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ?
+                        true :
+                        minim.minimize(verbose-1);
+            if (ok) {
+                deltaNLL_ = nll.getVal() - nll0;
+                double qN = 2*(deltaNLL_);
+                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                Combine::commitPoint(true, /*quantile=*/prob);
+            }
+        }
 		
 		
 		
