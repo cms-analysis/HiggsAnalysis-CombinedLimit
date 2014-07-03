@@ -310,19 +310,52 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 		//double ymin = (y1+y2)/2.0;
 		
 		double x;
-		double pmin = (x1+x2)/2;
+		double xmin = (x1+x2)/2;
 		//unsigned int i_ = (unsigned int)((points_-count)/pmin);
 		//std::cout<<"range of i: "<< i_<<std::endl;
-		for (unsigned int i = 0; i < (points_-count); ++i) {
+		unsigned int points_left = (unsigned int)((points_-count)*xmin/(pmax[0]-pmin[0]));
+		unsigned int points_right = points_-count - points_left; 
+		std::cout<<" points plotted to the right.\n";
+		for (unsigned int i = 1; i < (points_right+1); ++i) {
             if (i < firstPoint_) continue;
             if (i > lastPoint_) break;
 	         
 			
 			
-			std::cout<<double(points_-count)/pmin<<"\n";//<<(unsigned int)(-100)<<"\n";
-			if (i<(points_-count)/3) {x = pmin-TMath::Sqrt(i*(pmin)*(pmin)/((points_-count))); std::cout<<i<<" point plotted to the left.\n";}
-			else {x = pmin+TMath::Sqrt((i-(points_-count)/3)*(pmin)*(pmin)/(points_-count));std::cout<<i<<" point plotted to the right.\n";}
+			//std::cout<<double(points_-count)/pmin<<"\n";//<<(unsigned int)(-100)<<"\n";
+			x = xmin+(pmax[0]-xmin)*i*i/double(points_right*points_right); 
+			//if (x>pmax[0]) break;
+			std::cout<<"for "<<i<<": "<<x<<"\n";
+				
+
+            if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+            *params = snap;
+            poiVals_[0] = x;
+            poiVars_[0]->setVal(x);
+            // now we minimize
+            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ?
+                        true :
+                        minim.minimize(verbose-1);
+            if (ok) {
+                deltaNLL_ = nll.getVal() - nll0;
+                double qN = 2*(deltaNLL_);
+                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                Combine::commitPoint(true, /*quantile=*/prob);
+            }
+        }
+		std::cout<<" points plotted to the left.\n"	;	
+		
+		for (unsigned int i = 1; i < (points_left-1); ++i) {
+            if (i < firstPoint_) continue;
+            if (i > lastPoint_) break;
+	         
 			
+			
+			//std::cout<<double(points_-count)/pmin<<"\n";//<<(unsigned int)(-100)<<"\n";
+			x = xmin+(pmin[0]-xmin)*i*i/double(points_left*points_left); 
+			//if (x<pmin[0]) break;
+			std::cout<<"for "<<i<<": "<<x<<"\n";
+				
 
             if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
             *params = snap;
