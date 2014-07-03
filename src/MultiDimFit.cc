@@ -242,8 +242,8 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 	unsigned int count = 1;
 	bool ok;
 	double precision = (pmax[0]-pmin[0])/double(points_);
-		
-	// Golden section search
+	std::cout<<"Estimating minima. \n";
+	// Golden section search for the minima
         for (unsigned int i = 0; i < points_/2; ++i) {
 			if ((b-a)<precision) break;            
 			if (i < firstPoint_) continue;
@@ -297,36 +297,25 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			else{
 			a = x1;
 			}
-			std::cout<<count<<" "<<x1<<"\n"<<count<<" "<<x2<<std::endl;            
         }
         
 		if ((x2-x1) > precision ) std::cout<<"You may want to increase the number of points or decrease the range in another run to improve precision.\n";
 		if ((x2 - pmin[0]) < precision || (pmax[0] - x1) < precision) std::cout<<"The minima appears to lie beyond the given range.\n";
 		count -= 2;
-		//int count_new = count;
-		
-		//quadratic distribution around the minima
-		
-		//double ymin = (y1+y2)/2.0;
-		
+		std::cout<<"Evaluating neighbourhood.\n";
+
+
+		//now doing quadratic distribution of points around the minima
 		double x;
 		double xmin = (x1+x2)/2;
-		//unsigned int i_ = (unsigned int)((points_-count)/pmin);
-		//std::cout<<"range of i: "<< i_<<std::endl;
 		unsigned int points_left = (unsigned int)((points_-count)*xmin/(pmax[0]-pmin[0]));
 		unsigned int points_right = points_-count - points_left; 
-		std::cout<<" points plotted to the right.\n";
-		for (unsigned int i = 1; i < (points_right+1); ++i) {
+		
+		for (unsigned int i = 1; i < (points_right+1); ++i) {//plotting points on the right of the minima
             if (i < firstPoint_) continue;
             if (i > lastPoint_) break;
-	         
-			
-			
-			//std::cout<<double(points_-count)/pmin<<"\n";//<<(unsigned int)(-100)<<"\n";
+
 			x = xmin+(pmax[0]-xmin)*i*i/double(points_right*points_right); 
-			//if (x>pmax[0]) break;
-			std::cout<<"for "<<i<<": "<<x<<"\n";
-				
 
             if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
             *params = snap;
@@ -343,19 +332,12 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
         }
-		std::cout<<" points plotted to the left.\n"	;	
 		
-		for (unsigned int i = 1; i < (points_left-1); ++i) {
+		for (unsigned int i = 1; i < (points_left-1); ++i) {//plotting points on the left of the minima
             if (i < firstPoint_) continue;
             if (i > lastPoint_) break;
-	         
-			
-			
-			//std::cout<<double(points_-count)/pmin<<"\n";//<<(unsigned int)(-100)<<"\n";
+
 			x = xmin+(pmin[0]-xmin)*i*i/double(points_left*points_left); 
-			//if (x<pmin[0]) break;
-			std::cout<<"for "<<i<<": "<<x<<"\n";
-				
 
             if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
             *params = snap;
