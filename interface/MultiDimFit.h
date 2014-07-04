@@ -41,6 +41,7 @@ protected:
   static unsigned int points_, firstPoint_, lastPoint_;
   static bool floatOtherPOIs_;
   static bool squareDistPoiStep_;
+  static bool quadDistPoiStep_;
   static bool fastScan_;
   static bool hasMaxDeltaNLLForProf_;
   static bool loadedSnapshot_;

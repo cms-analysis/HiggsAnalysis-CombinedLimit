@@ -38,6 +38,7 @@ bool MultiDimFit::fastScan_ = false;
 bool MultiDimFit::loadedSnapshot_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
+bool MultiDimFit::quadDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 
  std::vector<std::string>  MultiDimFit::specifiedNuis_;
@@ -54,6 +55,7 @@ MultiDimFit::MultiDimFit() :
         ("poi,P",   boost::program_options::value<std::vector<std::string> >(&poi_), "Parameters of interest to fit (default = all)")
         ("floatOtherPOIs",   boost::program_options::value<bool>(&floatOtherPOIs_)->default_value(floatOtherPOIs_), "POIs other than the selected ones will be kept freely floating (1) or fixed (0, default)")
         ("squareDistPoiStep","POI step size based on distance from midpoint (max-min)/2 rather than linear")
+        ("quadDistPoiStep","Minimum found using GS algo, POI step based on quadratic from minimum")
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
@@ -86,6 +88,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
     fastScan_ = (vm.count("fastScan") > 0);
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
+    quadDistPoiStep_ = (vm.count("quadDistPoiStep") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
 }
@@ -279,8 +282,133 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
     RooArgSet snap; params->snapshot(snap);
     //snap.Print("V");
     if (n == 1) {
-	// can do a more intellegent spacing of points
-        for (unsigned int i = 0; i < points_; ++i) {
+      if (quadDistPoiStep_){
+	double a = pmin[0];
+	double b = pmax[0];
+	double x1 = 0, x2 = 0, y1 = 0, y2 = 0, d;
+	unsigned int count = 1;
+	bool ok;
+	double precision = (pmax[0]-pmin[0])/double(points_);
+	std::cout<<"Estimating minima. \n";
+	// Golden section search for the minima
+        for (unsigned int i = 0; i < points_/2; ++i) {
+	  if ((b-a)<precision) break;            
+	  if (i < firstPoint_) continue;
+          if (i > lastPoint_)  break;
+	  d = (b-a)/double(3);		
+	  x1 = a + d;
+	  x2 = b - d;
+			
+	  *params = snap;
+	  poiVals_[0] = x1;
+	  poiVars_[0]->setVal(x1);
+	  minim.minimize(verbose-1);
+	  y1 = nll.getVal();
+			
+	  if (verbose > 1) std::cout << "Point " << count << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x1 << std::endl;			
+
+	  ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (y1 - nll0) > maxDeltaNLLForProf_) ? 
+          true : 
+          minim.minimize(verbose-1);
+	  if (ok) {
+                deltaNLL_ = nll.getVal() - nll0;
+                double qN = 2*(deltaNLL_);
+                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+	        for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+		   specifiedVals_[j]=specifiedVars_[j]->getVal();
+	        }
+                Combine::commitPoint(true, /*quantile=*/prob);
+          }			
+			
+	  *params = snap;			
+  	  poiVals_[0] = x2;
+          poiVars_[0]->setVal(x2);
+	  minim.minimize(verbose-1);			
+	  y2 = nll.getVal();
+	  if (verbose > 1) std::cout << "Point " << count + 1<< "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x2 << std::endl;	
+			
+	  ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (y2 - nll0) > maxDeltaNLLForProf_) ? 
+          true : 
+          minim.minimize(verbose-1);
+	  if (ok) {
+                deltaNLL_ = nll.getVal() - nll0;
+                double qN = 2*(deltaNLL_);
+                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+	        for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+		   specifiedVals_[j]=specifiedVars_[j]->getVal();
+	        }
+                Combine::commitPoint(true, /*quantile=*/prob);
+          }			
+	  count += 2;				
+	  if(y1<y2){ b = x2; }
+	  else{ a = x1;}
+        }
+        
+	if ((x2-x1) > precision ) std::cout<<"You may want to increase the number of points or decrease the range in another run to improve precision.\n";
+	if ((x2 - pmin[0]) < precision || (pmax[0] - x1) < precision) std::cout<<"The minima appears to lie beyond the given range.\n";
+	count -= 2;
+	std::cout<<"Evaluating neighbourhood.\n";
+
+
+	//now doing quadratic distribution of points around the minima
+	double x;
+	double xmin = (x1+x2)/2;
+	unsigned int points_left = (unsigned int)((points_-count)*xmin/(pmax[0]-pmin[0]));
+	unsigned int points_right = points_-count - points_left; 
+		
+	for (unsigned int i = 1; i < (points_right+1); ++i) {//plotting points on the right of the minima
+          if (i < firstPoint_) continue;
+          if (i > lastPoint_) break;
+
+	  x = xmin+(pmax[0]-xmin)*i*i/double(points_right*points_right); 
+
+          if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+          *params = snap;
+          poiVals_[0] = x;
+          poiVars_[0]->setVal(x);
+          // now we minimize
+          bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ?
+                      true :
+                      minim.minimize(verbose-1);
+          if (ok) {
+              deltaNLL_ = nll.getVal() - nll0;
+              double qN = 2*(deltaNLL_);
+              double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+	      for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+		   specifiedVals_[j]=specifiedVars_[j]->getVal();
+	      }
+              Combine::commitPoint(true, /*quantile=*/prob);
+          }
+        }
+		
+        for (unsigned int i = 1; i < (points_left-1); ++i) {//plotting points on the left of the minima
+          if (i < firstPoint_) continue;
+          if (i > lastPoint_) break;
+
+	  x = xmin+(pmin[0]-xmin)*i*i/double(points_left*points_left); 
+
+          if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+          *params = snap;
+          poiVals_[0] = x;
+          poiVars_[0]->setVal(x);
+          // now we minimize
+          bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ?
+                      true :
+                      minim.minimize(verbose-1);
+          if (ok) {
+              deltaNLL_ = nll.getVal() - nll0;
+              double qN = 2*(deltaNLL_);
+              double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+	      for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+		   specifiedVals_[j]=specifiedVars_[j]->getVal();
+	      }
+              Combine::commitPoint(true, /*quantile=*/prob);
+          }
+	 }
+	}
+	else{
+	 // can do a more intellegent spacing of points
+         for (unsigned int i = 0; i < points_; ++i) {
             if (i < firstPoint_) continue;
             if (i > lastPoint_)  break;
             double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/points_; 
@@ -309,6 +437,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
         }
+       }
     } else if (n == 2) {
         unsigned int sqrn = ceil(sqrt(double(points_)));
         unsigned int ipoint = 0, nprint = ceil(0.005*sqrn*sqrn);
