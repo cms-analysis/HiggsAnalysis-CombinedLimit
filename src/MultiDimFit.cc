@@ -37,9 +37,8 @@ unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 bool MultiDimFit::fastScan_ = false;
 bool MultiDimFit::loadedSnapshot_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
-bool MultiDimFit::squareDistPoiStep_ = false;
-bool MultiDimFit::quadDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
+float MultiDimFit::plotPower_ = 0.5;
 
  std::vector<std::string>  MultiDimFit::specifiedNuis_;
  std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
@@ -54,8 +53,6 @@ MultiDimFit::MultiDimFit() :
         ("algo",  boost::program_options::value<std::string>()->default_value("none"), "Algorithm to compute uncertainties")
         ("poi,P",   boost::program_options::value<std::vector<std::string> >(&poi_), "Parameters of interest to fit (default = all)")
         ("floatOtherPOIs",   boost::program_options::value<bool>(&floatOtherPOIs_)->default_value(floatOtherPOIs_), "POIs other than the selected ones will be kept freely floating (1) or fixed (0, default)")
-        ("squareDistPoiStep","POI step size based on square root distance from the minimum")
-        ("quadDistPoiStep","POI step based on quadratic distance from minimum")
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
@@ -63,6 +60,7 @@ MultiDimFit::MultiDimFit() :
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
 	("saveSpecifiedNuis",   boost::program_options::value<std::vector<std::string> >(&specifiedNuis_), "Save specified parameters (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
+        ("gridDistributionPower",  boost::program_options::value<float>(&plotPower_)->default_value(plotPower_), "Distribution of points around minimum in 1D grid scan. Default of 0.5 => points distributed ~ sqrt of distance from minimum.")
        ;
 }
 
@@ -87,8 +85,6 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         algo_ = Stitch2D;
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
     fastScan_ = (vm.count("fastScan") > 0);
-    squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
-    quadDistPoiStep_ = (vm.count("quadDistPoiStep") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
 }
@@ -282,7 +278,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
     RooArgSet snap; params->snapshot(snap);
     //snap.Print("V");
     if (n == 1) {
-      	if (quadDistPoiStep_){
+      	if (plotPower_>1){
 	double a = pmin[0];
 	double b = pmax[0];
 	double x1 = 0, x2 = 0, y1 = 0, y2 = 0, d;
@@ -360,7 +356,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
           if (i < firstPoint_) continue;
           if (i > lastPoint_) break;
 
-	  x = xmin+(pmax[0]-xmin)*pow(i/double(points_right),2); 
+	  x = xmin+(pmax[0]-xmin)*pow(i/double(points_right),plotPower_); 
 
           if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
           *params = snap;
@@ -385,7 +381,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
           if (i < firstPoint_) continue;
           if (i > lastPoint_) break;
 
-	  x = xmin+(pmin[0]-xmin)*pow(i/double(points_left),20); 
+	  x = xmin+(pmin[0]-xmin)*pow(i/double(points_left),plotPower_); 
 
           if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
           *params = snap;
@@ -407,7 +403,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 	 }
 	}
 	
-	else if(squareDistPoiStep_){
+	else if(plotPower_<1){
 	 double x;
 	 double xmin_default = poiVars_[0]->getVal();
 	 unsigned int points_left = (unsigned int)((points_)*xmin_default/(pmax[0]-pmin[0]));
@@ -417,7 +413,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
           if (i < firstPoint_) continue;
           if (i > lastPoint_) break;
 
-	  	  x = pmax[0]+(xmin_default-pmax[0])*pow(i/double(points_right),0.1); 
+	  	  x = pmax[0]+(xmin_default-pmax[0])*pow(i/double(points_right),plotPower_); 
 		  if (x<0) std::cout<<"Problem with right.\n";
           if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
           *params = snap;
@@ -442,7 +438,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
           if (i < firstPoint_) continue;
           if (i > lastPoint_) break;
 
-	  	  x = pmin[0]+(xmin_default-pmin[0])*pow(i/double(points_left),0.9); 
+	  	  x = pmin[0]+(xmin_default-pmin[0])*pow(i/double(points_left),plotPower_); 
 		  if (x<0) std::cout<<"Problem with left.\n";
           if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
           *params = snap;
