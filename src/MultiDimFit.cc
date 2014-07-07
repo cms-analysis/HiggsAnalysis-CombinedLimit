@@ -360,7 +360,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
           if (i < firstPoint_) continue;
           if (i > lastPoint_) break;
 
-	  x = xmin+(pmax[0]-xmin)*i*i/double(points_right*points_right); 
+	  x = xmin+(pmax[0]-xmin)*pow(i/double(points_right),2); 
 
           if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
           *params = snap;
@@ -385,7 +385,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
           if (i < firstPoint_) continue;
           if (i > lastPoint_) break;
 
-	  x = xmin+(pmin[0]-xmin)*i*i/double(points_left*points_left); 
+	  x = xmin+(pmin[0]-xmin)*pow(i/double(points_left),20); 
 
           if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
           *params = snap;
@@ -417,7 +417,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
           if (i < firstPoint_) continue;
           if (i > lastPoint_) break;
 
-	  	  x = pmax[0]+(xmin_default-pmax[0])*TMath::Sqrt(i/double(points_right)); 
+	  	  x = pmax[0]+(xmin_default-pmax[0])*pow(i/double(points_right),0.1); 
 		  if (x<0) std::cout<<"Problem with right.\n";
           if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
           *params = snap;
@@ -442,7 +442,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
           if (i < firstPoint_) continue;
           if (i > lastPoint_) break;
 
-	  	  x = pmin[0]+(xmin_default-pmin[0])*TMath::Sqrt(i/double(points_left)); 
+	  	  x = pmin[0]+(xmin_default-pmin[0])*pow(i/double(points_left),0.9); 
 		  if (x<0) std::cout<<"Problem with left.\n";
           if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
           *params = snap;
