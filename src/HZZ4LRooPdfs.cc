@@ -2,14 +2,14 @@
 
 #include "../interface/HZZ4LRooPdfs.h"
 #include "RooAbsReal.h"
-#include "RooRealVar.h"
-#include "RooVoigtian.h"
-#include "RooComplex.h"
-#include "RooMath.h"
 #include "RooAbsCategory.h"
 #include <math.h>
 #include "TMath.h"
 #include <algorithm>
+#include <complex>
+#include "RooRealVar.h"
+#include "RooVoigtian.h"
+#include "RooMath.h"
 
 using namespace TMath;
 
@@ -3680,9 +3680,9 @@ double RooaDoubleCBxBW::evaluateVoigtian() const
   double c = 1./(sqrt(2.)*sigma);
   double a = 0.5*c*width;
   double u = c*arg;
-  RooComplex z(u,a);
-  RooComplex v = RooMath::ComplexErrFuncFast(z);
-  return atan2(0.,-1.)*v.re()/width;
+  std::complex<double> z(u,a);
+  std::complex<double> v(RooMath::erfc_fast(z));
+  return atan2(0.,-1.)*(std::real(v))/width;
 }
 
 double RooaDoubleCBxBW::evaluateQuadratic(double lim1, double lim2, bool isLeft) const
