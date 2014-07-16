@@ -36,6 +36,7 @@ def addDatacardParserOptions(parser):
 
 
 from HiggsAnalysis.CombinedLimit.Datacard import Datacard
+from HiggsAnalysis.CombinedLimit.NuisanceModifier import doEditNuisance
 
 def isVetoed(name,vetoList):
     for pattern in vetoList:
@@ -179,6 +180,13 @@ def parseCard(file, options):
             elif pdf=="discrete":
                 args = f[2:]
                 ret.discretes.append(lsyst)
+                continue
+            elif pdf=="edit":
+                if nuisances != -1: nuisances = -1
+                if options.verbose > 1: print "Before edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
+                if options.verbose > 1: print "Edit command: %s\n" % numbers
+                doEditNuisance(ret, numbers[0], numbers[1:])
+                if options.verbose > 1: print "After edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
                 continue
             elif pdf=="group":
                 # This is not really a pdf type, but a way to be able to name groups of nuisances together
