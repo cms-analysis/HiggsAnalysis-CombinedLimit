@@ -151,12 +151,14 @@ class SpinZeroHiggs(PhysicsModel):
 
         if self.muFloating:
             if self.modelBuilder.out.var("r"):
-                self.modelBuilder.out.var("r").setRange(0.,200.)
+                self.modelBuilder.out.var("r").setRange(0.,400.)
                 self.modelBuilder.out.var("r").setVal(1)
             else:
-                self.modelBuilder.doVar("r[1,0,200]")
-            self.modelBuilder.out.var("r").removeMax()
-            print "Removed maximum of r"
+                self.modelBuilder.doVar("r[1,0,400]")
+            if self.HWWcombination:
+                self.modelBuilder.out.var("r").removeMax()
+                print "Removed maximum of r"
+
             if self.muAsPOI:
                 print "Treating r as a POI"
                 if self.fai1POI or self.fai2POI:

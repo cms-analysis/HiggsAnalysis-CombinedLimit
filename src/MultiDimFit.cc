@@ -279,6 +279,14 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                          fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
                                         ipoint,sqrn*sqrn, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
                 }
+                // shift points at the edge |x|+|y|=1
+                if( fabs(x)+fabs(y)>(1.-deltaX/2.) && fabs(x)+fabs(y)<(1.+deltaX/2.) )// consider that deltaX=deltaY
+                {
+                    if(x>0.) x -= 0.00001;
+                    else if(x<0.) x += 0.00001;
+                    if(y>0.) y -= 0.00001;
+                    else if(y<0.) y += 0.00001;
+                }
                 poiVals_[0] = x;
                 poiVals_[1] = y;
                 poiVars_[0]->setVal(x);
