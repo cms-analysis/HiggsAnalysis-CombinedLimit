@@ -156,7 +156,7 @@ are freely floating. We should cut them down to find which ones are
    std::vector<std::vector<bool>> contIndex;
    // start from simplest scan, this is the full scan if runShortCombinations is off
    //bool discretesHaveChanged = 
-   //multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex); 
+   multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex); 
  
    if (simnll) simnll->clearZeroPoint();
 
