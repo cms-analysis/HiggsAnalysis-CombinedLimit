@@ -155,16 +155,18 @@ are freely floating. We should cut them down to find which ones are
    bool ret=true;
    std::vector<std::vector<bool>> contIndex;
    // start from simplest scan, this is the full scan if runShortCombinations is off
-   bool discretesHaveChanged = multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex); 
+   //bool discretesHaveChanged = 
+   //multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex); 
  
    if (simnll) simnll->clearZeroPoint();
 
    utils::setAllConstant(frozen,false);
 
-   if (discretesHaveChanged) { 
-        minimizer_.reset(new RooMinimizerOpt(nll_));
-   	improve(verbose, cascade); 
-   }
+   //if (discretesHaveChanged) { 
+   // Run one last fully floating fit to maintain RooFitResult
+   minimizer_.reset(new RooMinimizerOpt(nll_));
+   improve(verbose, cascade); 
+   //}
    minimumNLL = nll_.getVal();
    return ret;
 }
