@@ -14,6 +14,7 @@ struct RooSimultaneous;
 struct RooAbsCollection;
 struct RooWorkspace;
 struct RooPlot;
+struct RooRealVar;
 namespace RooStats { class ModelConfig; }
 namespace utils {
     void printRDH(RooAbsData *data) ;
@@ -91,6 +92,9 @@ namespace utils {
     void setModelParameters( const std::string & setPhysicsModelParameterExpression, const RooArgSet & params);
     // Set range of physics model parameters
     void setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params);
+
+    bool checkParameterBoundary( const RooRealVar &);
+    bool checkParameterBoundaries( const RooArgSet &);
 
     void reorderCombinations(std::vector<std::vector<int> > &, const std::vector<int> &, const std::vector<int> &);
     std::vector<std::vector<int> > generateCombinations(const std::vector<int> &vec);
