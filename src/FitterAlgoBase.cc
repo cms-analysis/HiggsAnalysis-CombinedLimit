@@ -162,7 +162,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar
 RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL, bool saveFitResult) {
     RooFitResult *ret = 0;
     if (reuseNLL && nll.get() != 0)((cacheutils::CachingSimNLL&)(*nll)).setData(data);	// reuse nll but swap out the data
-    else nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()))); // make a new nll
+    else nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
 
     double nll0 = nll->getVal();
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
