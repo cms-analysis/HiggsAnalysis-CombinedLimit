@@ -8,6 +8,7 @@
 #include <../interface/RooMultiPdf.h>
 #include <../interface/VerticalInterpHistPdf.h>
 #include <../interface/VectorizedGaussian.h>
+#include <../interface/VectorizedCB.h>
 #include <../interface/VectorizedSimplePdfs.h>
 #include <../interface/CachingMultiPdf.h>
 #include "vectorized.h"
@@ -16,6 +17,7 @@ namespace cacheutils {
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf,FastVerticalInterpHistPdfV> CachingHistPdf;
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf2,FastVerticalInterpHistPdf2V> CachingHistPdf2;
     typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
+    typedef OptimizedCachingPdfT<RooCBShape,VectorizedCBShape> CachingCBPdf;
     typedef OptimizedCachingPdfT<RooExponential,VectorizedExponential> CachingExpoPdf;
     typedef OptimizedCachingPdfT<RooPower,VectorizedPower> CachingPowerPdf;
 
@@ -427,6 +429,7 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
     static bool histNll  = runtimedef::get("ADDNLL_HISTNLL");
     static bool gaussNll  = runtimedef::get("ADDNLL_GAUSSNLL");
     static bool multiNll  = runtimedef::get("ADDNLL_MULTINLL");
+    static bool cbNll  = runtimedef::get("ADDNLL_CBNLL");
 
     if (histNll && typeid(*pdf) == typeid(FastVerticalInterpHistPdf)) {
         return new CachingHistPdf(pdf, obs);
@@ -434,6 +437,8 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
         return new CachingHistPdf2(pdf, obs);
     } else if (gaussNll && typeid(*pdf) == typeid(RooGaussian)) {
         return new CachingGaussPdf(pdf, obs);
+    } else if (cbNll && typeid(*pdf) == typeid(RooCBShape)) {
+        return new CachingCBPdf(pdf, obs);
     } else if (gaussNll && typeid(*pdf) == typeid(RooExponential)) {
 	std::auto_ptr<RooArgSet> params(pdf->getParameters(obs));
 	if(params->getSize()!=1) {return new CachingPdf(pdf,obs);}
