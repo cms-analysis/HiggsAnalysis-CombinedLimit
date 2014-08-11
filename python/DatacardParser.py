@@ -181,7 +181,6 @@ def parseCard(file, options):
                 args = f[2:]
                 ret.discretes.append(lsyst)
                 continue
-<<<<<<< HEAD
 	    elif pdf=="edit":
 		if nuisances != -1: nuisances = -1
 		if options.verbose > 1: print "Before edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
@@ -189,7 +188,6 @@ def parseCard(file, options):
 		doEditNuisance(ret, numbers[0], numbers[1:])
 		if options.verbose > 1: print "After edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
 		continue
-=======
             elif pdf=="group":
                 # This is not really a pdf type, but a way to be able to name groups of nuisances together
                 groupName = lsyst
@@ -215,7 +213,6 @@ def parseCard(file, options):
                         raise RuntimeError, "Will not redefine group '%s'. It previously contained '%s' and you now wanted it to contain '%s'." % (groupName,ret.groups[groupName],groupNuisances)                        
 
                 continue
->>>>>>> 5fae65a000fef313a8db8db5b6bebd7ce4da181b
             else:
                 raise RuntimeError, "Unsupported pdf %s" % pdf
             if len(numbers) < len(ret.keyline): raise RuntimeError, "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))

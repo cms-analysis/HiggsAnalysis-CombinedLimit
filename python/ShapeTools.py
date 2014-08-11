@@ -47,7 +47,7 @@ class ShapeBuilder(ModelBuilder):
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
-                print "  +--- Getting pdf for %s in bin %s" % (p,b)
+                #print "  +--- Getting pdf for %s in bin %s" % (p,b)
                 (pdf,coeff) = (self.getPdf(b,p), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                 if self.options.optimizeExistingTemplates:
                     pdf1 = self.optimizeExistingTemplates(pdf)
@@ -374,14 +374,12 @@ class ShapeBuilder(ModelBuilder):
                 if allowNoSyst and not self.isShapeSystematic(channel,process,syst): continue
                 shapeUp   = self.getShape(channel,process,syst+"Up")
                 shapeDown = self.getShape(channel,process,syst+"Down")
-		print "Mingshui +--- ", shapeUp, shapeDown
                 if shapeUp.ClassName()   != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst %s" % (channel,process,syst)
                 if shapeDown.ClassName() != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst %s" % (channel,process,syst)
                 if self.options.useHistPdf == "always":
                     morphs.append((syst,errline[channel][process],self.shape2Pdf(shapeUp,channel,process),self.shape2Pdf(shapeDown,channel,process)))
                 else:
                     morphs.append((syst,errline[channel][process],shapeUp,shapeDown))
-	print "Mingshui",channel, process, morphs
         if len(morphs) == 0:
             if self.options.useHistPdf == "always":
                 return nominalPdf
@@ -450,7 +448,6 @@ class ShapeBuilder(ModelBuilder):
             xvar = nominalPdf.dataHist().get().first()
             _cache[(channel,process)] = ROOT.VerticalInterpHistPdf("shape%s_%s_%s_morph" % (postFix,channel,process), "", xvar, pdfs, coeffs, qrange, qalgo)
         elif "2" in shapeAlgo:  # new faster shape2
-	    print "shapeAlgo ", shapeAlgo 
             if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
             if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work in one dimension"
             xvar = nominalPdf.dataHist().get().first()

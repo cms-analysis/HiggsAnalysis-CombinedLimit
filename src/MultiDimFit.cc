@@ -136,8 +136,6 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 		}
-		if(w->function("c7_Gscal_tot")) {std::cout<<"Mingshui: c7_Gscal_tot="<<w->function("c7_Gscal_tot")->getVal()<<std::endl;}
-		else{std::cout<<"Mingshui: no c7_Gscal_tot"<<std::endl;}
 		Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
 	}
     }
@@ -163,8 +161,6 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
                 for (int i = 0, n = poi_.size(); i < n; ++i) {
                     printf("   %*s :  %+8.3f\n", len, poi_[i].c_str(), poiVals_[i]);
                 }
-		if(w->function("c7_Gscal_tot")) {std::cout<<"Mingshui: c7_Gscal_tot="<<w->function("c7_Gscal_tot")->getVal()<<std::endl;}
-		else{std::cout<<"Mingshui: no c7_Gscal_tot"<<std::endl;}
             }
             break;
         case Singles: if (res.get()) doSingles(*res); break;
