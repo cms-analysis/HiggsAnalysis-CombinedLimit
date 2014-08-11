@@ -223,18 +223,12 @@ for (pname, pargs) in paramSysts.items():
 for pname in flatParamNuisances.iterkeys(): 
     print "%-12s  flatParam" % pname
 for dname in discreteNuisances.iterkeys(): 
-<<<<<<< HEAD
     print "%-12s  discrete" % dname
+for groupName,nuisanceNames in groups.iteritems():
+    nuisances = ' '.join(nuisanceNames)
+    print '%(groupName)s group = %(nuisances)s' % locals()
 
 if options.editNuisFile:
     file = open(options.editNuisFile, "r")    
     str = file.read();
     print str
-
-
-=======
-     print "%-12s  discrete" % dname
-for groupName,nuisanceNames in groups.iteritems():
-    nuisances = ' '.join(nuisanceNames)
-    print '%(groupName)s group = %(nuisances)s' % locals()
->>>>>>> 5fae65a000fef313a8db8db5b6bebd7ce4da181b
