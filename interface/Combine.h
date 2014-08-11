@@ -22,6 +22,8 @@ extern bool withSystematics;
 extern bool doSignificance_, lowerLimit_;
 extern float cl;
 extern bool bypassFrequentistFit_;
+extern  std::string setPhysicsModelParameterExpression_;
+extern  std::string setPhysicsModelParameterRangeExpression_;
 
 
 class Combine {
@@ -58,8 +60,6 @@ private:
   bool toysFrequentist_;
   float expectSignal_;
   float expectSignalMass_;
-  std::string setPhysicsModelParameterExpression_;
-  std::string setPhysicsModelParameterRangeExpression_;
   std::string redefineSignalPOIs_;
   std::string freezeNuisances_;
   
