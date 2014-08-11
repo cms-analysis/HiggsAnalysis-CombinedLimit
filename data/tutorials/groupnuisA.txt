@@ -1,0 +1,46 @@
+# -S 0 
+# --fastScan (MultiDimFit)
+# --profilingMode (ChannelCompatibilityCheck)
+
+
+imax 1  # number of channels
+jmax 1  # number of processes-1
+kmax *  # number of nuisance parameters
+--------------------------
+bin             hww       
+observation     18        
+-------------------------- 
+bin             hww hww   
+process         ggH bkgww
+process           0   1   
+rate             11   7   
+
+lumi lnN        1.05  -
+theo_ggH lnN	1.10  -
+theo_bkgww lnN	- 1.10
+exp_systww lnN		    1.05 1.05
+MCstatww lnN       1.01 -
+
+theo group = theo_bkgww theo_ggH
+theoB group = theo_bkgww
+theoS group = theo_ggH
+lumi group = lumi
+stat group = MCstatww
+
+#does not exist: error in modeltools
+#dummy group = foobar
+
+#empty error
+#testempty group
+
+#missing [+]=
+#testsyntax group bla bla bla
+#testsyntax group -= bla bla bla
+
+#add before define
+#add group += lumi
+
+equals group = lumi
+equals group += lumi MCstatww
+#redefinition error
+#equals group = theo_ggH

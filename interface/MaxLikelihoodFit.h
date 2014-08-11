@@ -34,7 +34,11 @@ protected:
 
   static std::string minos_;
 
+<<<<<<< HEAD
   static bool justFit_, skipBOnlyFit_, noErrors_;
+=======
+  static bool justFit_,  skipBOnlyFit_, noErrors_;
+>>>>>>> 5fae65a000fef313a8db8db5b6bebd7ce4da181b
   static std::string out_; 
   static bool        makePlots_;
   static float       rebinFactor_;

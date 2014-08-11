@@ -34,7 +34,7 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
-paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}
+paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}
 cmax = 5 # column width
 if not args:
     raise RuntimeError, "No input datacards specified."
@@ -146,7 +146,13 @@ for ich,fname in enumerate(args):
             bout = label if singlebin else label+b
             if isVetoed(bout,options.channelVetos): continue
 	    if not isIncluded(bout,options.channelIncludes): continue
-            obsline += [str(DC.obs[b])]; 
+            obsline += [str(DC.obs[b])];
+    #get the groups - keep nuisances in a set so that they are never repetitions
+    for groupName,nuisanceNames in DC.groups.iteritems():
+        if groupName in groups:
+            groups[groupName].update(set(nuisanceNames))
+        else:
+            groups[groupName] = set(nuisanceNames)
 
 bins = []
 for (b,p,s) in keyline:
@@ -216,8 +222,8 @@ for (pname, pargs) in paramSysts.items():
 
 for pname in flatParamNuisances.iterkeys(): 
     print "%-12s  flatParam" % pname
-
 for dname in discreteNuisances.iterkeys(): 
+<<<<<<< HEAD
     print "%-12s  discrete" % dname
 
 if options.editNuisFile:
@@ -226,3 +232,9 @@ if options.editNuisFile:
     print str
 
 
+=======
+     print "%-12s  discrete" % dname
+for groupName,nuisanceNames in groups.iteritems():
+    nuisances = ' '.join(nuisanceNames)
+    print '%(groupName)s group = %(nuisances)s' % locals()
+>>>>>>> 5fae65a000fef313a8db8db5b6bebd7ce4da181b
