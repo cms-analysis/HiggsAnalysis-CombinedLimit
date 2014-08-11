@@ -181,15 +181,6 @@ def parseCard(file, options):
                 args = f[2:]
                 ret.discretes.append(lsyst)
                 continue
-<<<<<<< HEAD
-	    elif pdf=="edit":
-		if nuisances != -1: nuisances = -1
-		if options.verbose > 1: print "Before edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
-		if options.verbose > 1: print "Edit command: %s\n" % numbers
-		doEditNuisance(ret, numbers[0], numbers[1:])
-		if options.verbose > 1: print "After edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
-		continue
-=======
             elif pdf=="edit":
                 if nuisances != -1: nuisances = -1
                 if options.verbose > 1: print "Before edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
@@ -197,7 +188,6 @@ def parseCard(file, options):
                 doEditNuisance(ret, numbers[0], numbers[1:])
                 if options.verbose > 1: print "After edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
                 continue
->>>>>>> 61f2dea6ddc40c72025dae7c70d7d411fae2269d
             elif pdf=="group":
                 # This is not really a pdf type, but a way to be able to name groups of nuisances together
                 groupName = lsyst
