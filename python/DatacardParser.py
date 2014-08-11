@@ -36,6 +36,7 @@ def addDatacardParserOptions(parser):
 
 
 from HiggsAnalysis.CombinedLimit.Datacard import Datacard
+from HiggsAnalysis.CombinedLimit.NuisanceModifier import doEditNuisance
 
 def isVetoed(name,vetoList):
     for pattern in vetoList:
@@ -179,6 +180,13 @@ def parseCard(file, options):
                 args = f[2:]
                 ret.discretes.append(lsyst)
                 continue
+	    elif pdf=="edit":
+		if nuisances != -1: nuisances = -1
+		if options.verbose > 1: print "Before edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
+		if options.verbose > 1: print "Edit command: %s\n" % numbers
+		doEditNuisance(ret, numbers[0], numbers[1:])
+		if options.verbose > 1: print "After edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
+		continue
             else:
                 raise RuntimeError, "Unsupported pdf %s" % pdf
             if len(numbers) < len(ret.keyline): raise RuntimeError, "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))
