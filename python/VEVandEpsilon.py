@@ -9,6 +9,7 @@ class MepsHiggs(SMLikeHiggsModel):
         self.floatMass = False
         self.MRange = ['150','350']
         self.epsRange = ['-1','1']
+	self.mepschoice = ['1'] 
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
@@ -31,6 +32,12 @@ class MepsHiggs(SMLikeHiggsModel):
                     raise RuntimeError, "epsilon range requires minimal and maximal value"
                 elif float(self.epsRange[0]) >= float(self.epsRange[1]):
                     raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+            if po.startswith("mepschoice="):
+                self.mepschoice= po.replace("mepschoice=","")
+                if len(self.mepschoice) != 1:
+                    raise RuntimeError, "mepsilon parameterization choice requires one value"
+                elif int(self.mepschoice[0]) != 1 and int(self.mepschoice[0]) !=2:
+                    raise RuntimeError, "mepschoice must be 1 (GP) or 2 (Ellis) "
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
@@ -72,24 +79,28 @@ class MepsHiggs(SMLikeHiggsModel):
 
             if name in ('W','Z'):
 #                # Ellis cv == v (mv^(2 e)/M^(1 + 2 e))
-#                self.modelBuilder.factory_(
-#                    'expr::C%(name)s("@0 * TMath::Power(@3,2*@2) / TMath::Power(@1,1+2*@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+		if int(self.mepschoice[0])==2:
+			 self.modelBuilder.factory_(
+                    		'expr::C%(name)s("@0 * TMath::Power(@3,2*@2) / TMath::Power(@1,1+2*@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
 #                # AD k = (M/v) eps m^(N(eps-1))
 #                self.modelBuilder.factory_(
 #                    'expr::C%(name)s("@1 * @2 * TMath::Power(@3,2*(@2-1)) / @0", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
 #                # GP k = (v/M)^2 (m/M)^(2eps) 
-                self.modelBuilder.factory_(
-                    'expr::C%(name)s("TMath::Power(@0/@1,2) * TMath::Power(@3/@1,2*@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+                else: 
+			self.modelBuilder.factory_(
+                    		'expr::C%(name)s("TMath::Power(@0/@1,2) * TMath::Power(@3/@1,2*@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
             else:
 #                # Ellis cf == v (mf^e/M^(1 + e))
-#                self.modelBuilder.factory_(
-#                    'expr::C%(name)s("@0 * TMath::Power(@3,@2) / TMath::Power(@1,1+@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+		if int(self.mepschoice[0])==2:
+			self.modelBuilder.factory_(
+				'expr::C%(name)s("@0 * TMath::Power(@3,@2) / TMath::Power(@1,1+@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
                 # AD k = (M/v) eps m^(N(eps-1))
 #                self.modelBuilder.factory_(
 #                    'expr::C%(name)s("@1 * @2 * TMath::Power(@3,@2-1) / @0", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
                 # GP k = (v/M) (m/M)^eps
-                self.modelBuilder.factory_(
-                    'expr::C%(name)s("(@0/@1) * TMath::Power(@3/@1,@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+		else: 
+                	self.modelBuilder.factory_(
+                    		'expr::C%(name)s("(@0/@1) * TMath::Power(@3/@1,@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
 
         self.productionScaling = {
             'ttH':'Ctop',
@@ -126,6 +137,9 @@ class MepsHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::Meps_BRscal_hmm("@0*@0/@1", Cmu, Meps_Gscal_tot)')
         self.modelBuilder.factory_('expr::Meps_BRscal_hgg("@0/@1", Scaling_hgg, Meps_Gscal_tot)')
         self.modelBuilder.factory_('expr::Meps_BRscal_hzg("@0/@1", Scaling_hzg, Meps_Gscal_tot)')
+        self.modelBuilder.factory_('expr::Meps_BRscal_hcc("@0*@0/@1", Ctau, Meps_Gscal_tot)')
+        self.modelBuilder.factory_('expr::Meps_BRscal_hss("@0*@0/@1", Cb, Meps_Gscal_tot)')
+        self.modelBuilder.factory_('expr::Meps_BRscal_hgluglu("@0*@0/@1", Scaling_hgluglu, Meps_Gscal_tot)')
         
         self.modelBuilder.out.Print()
 
