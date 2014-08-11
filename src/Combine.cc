@@ -76,6 +76,8 @@ float cl = 0.95;
 bool bypassFrequentistFit_ = false;
 TTree *Combine::tree_ = 0;
 
+std::string setPhysicsModelParameterExpression_ = "";
+std::string setPhysicsModelParameterRangeExpression_ = "";
 
 Combine::Combine() :
     statOptions_("Common statistics options"),
@@ -262,6 +264,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
   RooWorkspace *w = 0; RooStats::ModelConfig *mc = 0, *mc_bonly = 0;
   std::auto_ptr<RooStats::HLFactory> hlf(0);
+
   if (isBinary) {
     TFile *fIn = TFile::Open(fileToLoad); 
     garbageCollect.tfile = fIn; // request that we close this file when done
@@ -325,6 +328,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mass_ = MH->getVal();
       }
     }
+  //*********************************************
+  //set physics model parameters    after loading the snapshot
+  //*********************************************
+  if (setPhysicsModelParameterExpression_ != "") {
+      utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
+  }
+
+
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
     w = hlf->GetWs();
@@ -361,6 +372,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (w->set("globalObservables")) mc_bonly->SetGlobalObservables(*w->set("globalObservables"));
     if (w->pdf("prior")) mc_bonly->SetNuisanceParameters(*w->pdf("prior"));
     w->import(*mc_bonly, modelConfigNameB_.c_str());
+    if (setPhysicsModelParameterExpression_ != "") {
+	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
+    }
   }
   gSystem->cd(pwd);
 
@@ -377,7 +391,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       data_obs->add(*observables);
       w->import(*data_obs);
     } else {
-      std::cout << "Dataset " << dataset.c_str() << " not found." << std::endl;
+	    TFile *fIn = TFile::Open(fileToLoad); 
+	    garbageCollect.tfile = fIn; // request that we close this file when done
+	    RooDataSet *data_obs = dynamic_cast<RooDataSet*> (fIn->Get(dataset.c_str())); 
+	    if(data_obs){
+		    data_obs->SetName(dataset.c_str());
+		    w->import(*data_obs);
+	    } else {
+		    std::cout << "Dataset " << dataset.c_str() << " not found." << std::endl;
+	    }
     }
   }
 
@@ -395,25 +417,23 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     r->setVal(0.5*(r->getMin() + r->getMax()));
   }
 
-  //*********************************************
-  //set physics model parameters
-  //*********************************************
   if (setPhysicsModelParameterRangeExpression_ != "") {
       utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
-  }
-  if (setPhysicsModelParameterExpression_ != "") {
-      utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
   }
   if (redefineSignalPOIs_ != "") {
       RooArgSet newPOIs(w->argSet(redefineSignalPOIs_.c_str()));
       TIterator *np = newPOIs.createIterator();
-      while (RooRealVar *arg = (RooRealVar*)np->Next()) arg->setConstant(0);
+      while (RooRealVar *arg = (RooRealVar*)np->Next()) {
+        RooRealVar *rrv = dynamic_cast<RooRealVar *>(arg);
+        if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << arg->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
+	arg->setConstant(0);
+      }
       if (verbose > 0) std::cout << "Redefining the POIs to be: "; newPOIs.Print("");
       mc->SetParametersOfInterest(newPOIs);
       POI = mc->GetParametersOfInterest();
   }
   if (freezeNuisances_ != "") {
-      RooArgSet toFreeze(w->argSet(freezeNuisances_.c_str()));
+      RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
       utils::setAllConstant(toFreeze, true);
       if (nuisances) {
