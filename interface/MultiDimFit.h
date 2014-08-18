@@ -40,11 +40,11 @@ protected:
   // options    
   static unsigned int points_, firstPoint_, lastPoint_;
   static bool floatOtherPOIs_;
-  static bool squareDistPoiStep_;
   static bool fastScan_;
   static bool hasMaxDeltaNLLForProf_;
   static bool loadedSnapshot_;
   static float maxDeltaNLLForProf_;
+  static float plotPower_;
 
   static std::vector<std::string>  specifiedNuis_;
   static std::vector<RooRealVar *> specifiedVars_;
