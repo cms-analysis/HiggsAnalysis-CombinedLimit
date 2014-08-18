@@ -8,8 +8,6 @@
  * For the list of contributors see $ROOTSYS/README/CREDITS.             *
  *************************************************************************/
 
-#include <vector>
-
 #ifndef ROOSTATS_ROOBSPLINEBASES
 #define ROOSTATS_ROOBSPLINEBASES
 
@@ -18,6 +16,7 @@
 #include "RooListProxy.h"
 
 #include <sstream>
+
 
 class RooRealVar;
 class RooArgList ;
@@ -29,7 +28,7 @@ namespace HistFactory{
   public:
 
     RooBSplineBases() ;
-    RooBSplineBases(const char* name, const char* title, int order, std::vector<double>& tValues,
+    RooBSplineBases(const char* name, const char* title, int order, vector<double>& tValues,
 		    RooAbsReal& t, int nrClose=0);
 
     RooBSplineBases(const char *name, const char *title);
@@ -43,15 +42,15 @@ namespace HistFactory{
     int getOrder() const {return _n;}
     //void setWeights(const RooArgList& weights);
     Double_t getBasisVal(int n, int i, bool rebuild=true) const;
-    std::vector<double> getTValues() const {return _tValues;}
-    std::vector<double> getTAry() {return _t_ary;}
+    vector<double> getTValues() const {return _tValues;}
+    vector<double> getTAry() {return _t_ary;}
 
   protected:
 
     void buildTAry() const;
 
     //RooListProxy _controlPoints;
-    std::vector<double> _tValues;
+    vector<double> _tValues;
     //RooListProxy _t_ary;
     int _m;
 /*     mutable double* _t_ary; //[_m] */
@@ -60,8 +59,8 @@ namespace HistFactory{
     int _nrClose;
     //int _nPlusOne;
     //mutable double** _bin; //[_nPlusOne][_m]
-    mutable std::vector<double> _t_ary;
-    mutable std::vector<std::vector<double> > _bin;
+    mutable vector<double> _t_ary;
+    mutable vector<vector<double> > _bin;
 
     Double_t evaluate() const;
 
@@ -70,8 +69,7 @@ namespace HistFactory{
 }
 }
 
-
-
+#endif
 // @(#)root/roostats:$Id: RooBSpline.h 873 2014-02-24 22:16:29Z adye $
 // Author: Aaron Armbruster
 /*************************************************************************
@@ -91,6 +89,7 @@ namespace HistFactory{
 #include "RooSetProxy.h"
 
 //#include "RooStats/HistFactory/RooBSplinePenalty.h"
+//#include "RooBSplineBases.h"
 
 #include "RooObjCacheManager.h"
 #include "RooNumIntConfig.h"
@@ -111,7 +110,7 @@ namespace HistFactory{
     RooBSpline() ;
     RooBSpline(const char* name, const char* title,
 	       const RooArgList& controlPoints, RooBSplineBases& bases, const RooArgSet& vars);
-    //RooBSpline(const char* name, const char* title, int order, std::vector<double>& tValues,
+    //RooBSpline(const char* name, const char* title, int order, vector<double>& tValues,
     //       const RooArgList& controlPoints, RooAbsReal& t, const RooArgSet& vars, int nrClose=0);
 
     RooBSpline(const char *name, const char *title);
@@ -168,12 +167,10 @@ namespace HistFactory{
 }
 
 #endif
-
-#endif
 /*****************************************************************************
  * Project: RooFit                                                           *
  * Package: RooFitModels                                                     *
- *    File: $Id: RooParamKeysPdf.h 873 2014-02-24 22:16:29Z adye $
+ *    File: $Id: RooParamKeysPdf.h 888 2014-08-01 19:54:39Z adye $
  * Authors:                                                                  *
  *   GR, Gerhard Raven,   UC San Diego,        raven@slac.stanford.edu       *
  *   DK, David Kirkby,    UC Irvine,         dkirkby@uci.edu                 *
@@ -204,12 +201,12 @@ public:
   RooParamKeysPdf(
     const char *name, const char *title,
     RooAbsReal& x, RooAbsReal& deltax, 
-    RooDataSet& data, Mirror mirror= NoMirror, Double_t rho=1
+    RooDataSet& data, Mirror mirror= NoMirror, Double_t rho=1, Int_t nPoints=1000
   );
   RooParamKeysPdf(
     const char *name, const char *title,
     RooAbsReal& x, RooAbsReal& deltax, double centralValue, RooAbsReal& multiplicativeShift,
-    RooDataSet& data, Mirror mirror= NoMirror, Double_t rho=1
+    RooDataSet& data, Mirror mirror= NoMirror, Double_t rho=1, Int_t nPoints=1000
   );
   RooParamKeysPdf(const RooParamKeysPdf& other, const char* name=0);
   virtual TObject* clone(const char* newname) const {return new RooParamKeysPdf(*this,newname); }
@@ -237,9 +234,12 @@ private:
   Double_t *_dataWgts; //[_nEvents]
   Double_t *_weights;  //[_nEvents]
   Double_t _sumWgt ;
+  mutable Double_t _normVal ;
   
-  enum { _nPoints = 1000 };
-  Double_t _lookupTable[_nPoints+1];
+  Int_t _nPoints;
+
+  //enum { _nPoints = 1000 };
+  Double_t *_lookupTable; //[_nPoints] 
   
   Double_t g(Double_t x,Double_t sigma) const;
 
@@ -251,8 +251,18 @@ private:
   Double_t _lo, _hi, _binWidth;
   Double_t _rho;
   
-  ClassDef(RooParamKeysPdf,2) // One-dimensional non-parametric kernel estimation p.d.f.
+  ClassDef(RooParamKeysPdf,4) // One-dimensional non-parametric kernel estimation p.d.f.
 };
+
+#ifdef __CINT__
+// Specify schema conversion rule here, rather than in LinkDef1.h, so it is included if we compile with ACLiC.
+#pragma read sourceClass="RooParamKeysPdf" \
+  targetClass="RooParamKeysPdf" \
+  version="[-2]" \
+  source="Double_t _lookupTable[1001]" \
+  target="_nPoints, _lookupTable" \
+  code="{ _nPoints=1000; _lookupTable=new Double_t[_nPoints]; for (Int_t i=0; i<_nPoints; i++) _lookupTable[i]= onfile._lookupTable[i]; }"
+#endif
 
 #endif
 /*****************************************************************************
@@ -338,7 +348,7 @@ protected:
     void calculateFractions(const RooStarMomentMorph& self, Bool_t verbose=kTRUE) const;
     mutable bool _fractionsCalculated;
   } ;
-  mutable RooObjCacheManager _cacheMgr ; //! The cache manager
+  mutable RooObjCacheManager _cacheMgr ; // The cache manager
   mutable RooArgSet* _curNormSet ; //! Current normalization set
 
   friend class CacheElem ; // Cache needs to be able to clear _norm pointer
@@ -372,7 +382,9 @@ protected:
 
   Bool_t _useHorizMorph;
 
-  ClassDef(RooStarMomentMorph,1) // Your description goes here...
+  ClassDef(RooStarMomentMorph,2) // Your description goes here...
 };
  
 #endif
+
+

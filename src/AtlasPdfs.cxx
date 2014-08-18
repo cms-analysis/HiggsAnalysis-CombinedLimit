@@ -1,3 +1,366 @@
+// @(#)root/roostats:$Id: RooBSplineBases.cxx 873 2014-02-24 22:16:29Z adye $
+// Author: Aaron Armbruster
+/*************************************************************************
+ * Copyright (C) 1995-2008, Rene Brun and Fons Rademakers.               *
+ * All rights reserved.                                                  *
+ *                                                                       *
+ * For the licensing terms see $ROOTSYS/LICENSE.                         *
+ * For the list of contributors see $ROOTSYS/README/CREDITS.             *
+ *************************************************************************/
+
+//_________________________________________________
+/*
+BEGIN_HTML
+<p>
+</p>
+END_HTML
+*/
+//
+
+#include "RooFit.h"
+
+#include "Riostream.h"
+#include "Riostream.h"
+#include <math.h>
+#include "TMath.h"
+
+#include "RooAbsReal.h"
+#include "RooRealVar.h"
+#include "RooArgList.h"
+#include "RooMsgService.h"
+#include "TMath.h"
+
+#include "AtlasPdfs.h"
+
+ClassImp(RooStats::HistFactory::RooBSplineBases)
+
+using namespace RooStats;
+using namespace HistFactory;
+
+//_____________________________________________________________________________
+RooBSplineBases::RooBSplineBases()
+{
+  // Default constructor
+//   _t_ary=NULL;
+//   _bin=NULL;
+}
+
+
+//_____________________________________________________________________________
+RooBSplineBases::RooBSplineBases(const char* name, const char* title, int order, vector<double>& tValues,
+				 RooAbsReal& t, int nrClose) :
+  RooAbsReal(name, title),
+  _tValues(tValues),
+  _m(tValues.size()+2*order),
+  //_t_ary(NULL),
+  _t("t_param", "t_param", this, t),
+  _n(order),
+  _nrClose(nrClose)
+  //_nPlusOne(order+1)//,
+  //_bin(NULL)
+{
+  //cout << "in Ctor" << endl;
+  //cout << "t = " << t << endl;
+  buildTAry();
+
+//   _bin=new double*[_n+1];
+//   for (int n=0;n<_n+1;n++)
+//   {
+//     _bin[n] = new double[_m];
+//     for (int i=0;i<_m;i++)
+//     {
+//       _bin[n][i] = 0;
+//     }
+//   }
+
+//   _t_ary = new double[_m];
+//   for (int i=_n;i<_m-_n;i++) // add the main knots
+//   {
+//     _t_ary[i] = tValues[i-_n];
+//     //cout << "Adding main point:   " << i << " = " << _t_ary[i] << endl;
+//   }
+
+//   double firstDelta=_t_ary[_n+1]-_t_ary[_n]; // extrapolate to the lower non-closed knots
+//   for (int i=nrClose;i<_n;i++) 
+//   {
+//     _t_ary[i] = _t_ary[_n]+firstDelta*(i-_n);
+//     //cout << "Adding lower open:   " << i << " = " << _t_ary[i] << endl;
+//   }
+
+//   for (int i=0;i<nrClose;i++) // add the lower closed knots
+//   {
+//     _t_ary[i] = _t_ary[nrClose];
+//     //cout << "Adding lower closed: " << i << " = " << _t_ary[i] << endl;
+//   }
+
+
+//   double lastDelta=_t_ary[_m-_n-1]-_t_ary[_m-_n-2]; //extrapolate the upper non-closed knots
+//   for (int i=_m-_n;i<_m-nrClose;i++) 
+//   {
+//     _t_ary[i] = _t_ary[_m-_n-1]+lastDelta*(i-(_m-_n-1));
+//     //cout << "Adding upper open:   " << i << " = " << _t_ary[i] << endl;
+//   }
+
+//   for (int i=_m-nrClose;i<_m;i++) // add the upper closed knots
+//   {
+//     _t_ary[i] = _t_ary[_m-nrClose-1];
+//     //cout << "Adding upper closed: " << i << " = " << _t_ary[i] << endl;
+//   }
+//   //cout << endl;
+
+//   for (int i=0;i<_m;i++)
+//   {
+//     if (fabs(_t_ary[i]) < pow(10., -9)) _t_ary[i] = 0;
+//   }
+
+  //cout << "out Ctor" << endl;
+
+
+
+  _bin.resize(_n+1);
+  for (int i=0;i<_n+1;i++)
+  {
+    _bin[i].resize(_m);
+  }
+
+}
+
+//_____________________________________________________________________________
+void RooBSplineBases::buildTAry() const
+{
+  //delete[] _t_ary;
+  _t_ary.resize(_m);
+  //cout << "In buildTAry. _m=" << _m << ", _n=" << _n << ", _t_ary.size()=" << _t_ary.size() << endl;
+  //_t_ary = new double[_m];
+  for (int i=_n;i<_m-_n;i++) // add the main knots
+  {
+    _t_ary[i] = _tValues[i-_n];
+    //cout << "Adding main point:   " << i << " = " << _t_ary[i] << endl;
+  }
+
+  double firstDelta=_t_ary[_n+1]-_t_ary[_n]; // extrapolate to the lower non-closed knots
+//   cout << "Starting loop" << endl;
+//   cout << "_nrClose=" << _nrClose << endl;
+  for (int i=_nrClose;i<_n;i++) 
+  {
+    _t_ary[i] = _t_ary[_n]+firstDelta*(i-_n);
+    //cout << "Adding lower open:   " << i << " = " << _t_ary[i] << endl;
+  }
+
+  for (int i=0;i<_nrClose;i++) // add the lower closed knots
+  {
+    _t_ary[i] = _t_ary[_nrClose];
+    //cout << "Adding lower closed: " << i << " = " << _t_ary[i] << endl;
+  }
+
+
+  double lastDelta=_t_ary[_m-_n-1]-_t_ary[_m-_n-2]; //extrapolate the upper non-closed knots
+  for (int i=_m-_n;i<_m-_nrClose;i++) 
+  {
+    _t_ary[i] = _t_ary[_m-_n-1]+lastDelta*(i-(_m-_n-1));
+    //cout << "Adding upper open:   " << i << " = " << _t_ary[i] << endl;
+  }
+
+  for (int i=_m-_nrClose;i<_m;i++) // add the upper closed knots
+  {
+    _t_ary[i] = _t_ary[_m-_nrClose-1];
+    //cout << "Adding upper closed: " << i << " = " << _t_ary[i] << endl;
+  }
+  //cout << endl;
+
+  for (int i=0;i<_m;i++)
+  {
+    if (fabs(_t_ary[i]) < pow(10., -9)) _t_ary[i] = 0;
+  }
+}
+
+//_____________________________________________________________________________
+RooBSplineBases::RooBSplineBases(const char* name, const char* title) :
+  RooAbsReal(name, title)
+{
+  // Constructor of flat polynomial function
+  //_bin=NULL;
+  _bin.resize(_n+1);
+  for (int i=0;i<_n+1;i++)
+  {
+    _bin[i].resize(_m);
+  }
+}
+
+//_____________________________________________________________________________
+RooBSplineBases::RooBSplineBases(const RooBSplineBases& other, const char* name) :
+  RooAbsReal(other, name), 
+  _tValues(other._tValues),
+  _m(other._m),
+  _t("t_param", this, other._t),
+  _n(other._n),
+  _nrClose(other._nrClose),
+  //_nPlusOne(other._nPlusOne),
+  _t_ary(other._t_ary),
+  _bin(other._bin)
+{
+  // Copy constructor
+
+  buildTAry();
+  _bin.resize(_n+1);
+  for (int i=0;i<_n+1;i++)
+  {
+    _bin[i].resize(_m);
+  }
+//   _t_ary = new double[_m];
+//   for (int i=0;i<_m;i++)
+//   {
+//     _t_ary[i] = other._t_ary[i];
+//   }
+//   if (other._bin)
+//   {
+//     _bin=new double*[_n+1];
+//     for (int n=0;n<_n+1;n++)
+//     {
+//       _bin[n] = new double[_m];
+//       for (int i=0;i<_m;i++)
+//       {
+// 	if (other._bin[n])
+// 	{
+// 	  _bin[n][i] = other._bin[n][i];
+// 	}
+// 	else
+// 	{
+// 	  _bin[n][i] = 0;
+// 	}
+//       }
+//     }
+//   }
+}
+
+
+//_____________________________________________________________________________
+RooBSplineBases::~RooBSplineBases() 
+{
+  // Destructor
+  //delete[] _t_ary;
+//   _t_ary=NULL;
+//   if (_bin)
+//   {
+//     for (int i=0;i<_n+1;i++) 
+//     {
+//       delete _bin[i];
+//     _bin[i]=NULL;
+//     }
+//     delete _bin;
+//     _bin=NULL;
+//   }
+}
+
+
+
+
+//_____________________________________________________________________________
+Double_t RooBSplineBases::evaluate() const 
+{
+//   cout << "In eval, _n=" << _n << ", _m=" << _m << ", _nPlusOne=" << _nPlusOne << endl;
+//   cout << "_bin=" << _bin << endl;
+//   cout << "_t_ary=" << _t_ary << endl;
+  if (!_t_ary.size()) buildTAry();
+
+  // Calculate and return value of spline
+  //cout << "In RooBSplineBases::evaluate()" << endl;
+  double t = _t;
+  if (t < _t_ary[_n] || t > _t_ary[_m-_n-1])
+  {
+    if (t > _t_ary[_m-_n-1]) t = _t_ary[_m-_n-1];
+    if (t < _t_ary[_n]) t = _t_ary[_n];
+  }
+
+
+
+
+//build the basis splines
+
+//   if (_bin)
+//   {
+//     //cout << "Deleting bin: " << _bin << endl;
+//     for (int i=0;i<_n+1;i++)
+//     {
+//       //cout << "Deleting bin[" << i << "]: " << _bin[i] << endl;
+//       delete[] _bin[i];
+//       _bin[i]=NULL;
+// //       for (int j=0;j<_m;j++)
+// //       {
+// // 	_bin[i][j]=0;
+// //       }
+//     }
+//     delete[] _bin;
+//     _bin=NULL;
+//   }
+
+//   bool remake=(_bin==NULL);
+//   if (remake) _bin = new double*[_n+1];
+
+//   if (!_bin)
+//   {
+//     _bin=new double*[_n+1];
+//     for (int n=0;n<_n+1;n++)
+//     {
+//       _bin[n] = new double[_m];
+//     }
+//   }
+  //_bin = new double*[_n+1];
+  for (int n=0;n<_n+1;n++)
+  {
+    //cout << "_bin[n] = " << _bin[n] << endl;
+    //if (remake) _bin[n] = new double[_m];
+    //_bin[n] = new double[_m];
+    for (int i=0;i<_m;i++)
+    {
+      //cout << "Resetting to zero" << endl;
+      _bin[n][i] = 0;
+    }
+    for (int i=0;i<_m-n-1;i++)
+    {
+      if (n == 0)
+      {
+	if (t >= _t_ary[i] && t < _t_ary[i+1] && i >= _n && i <= _m-_n-1)
+	{
+	  //cout << "Setting " << i << " to 1" << endl;
+	  _bin[n][i] = 1;
+	}
+      }
+      else
+      {
+	//cout << "Getting term1" << endl;
+	double term1 = 0;
+	if (_t_ary[i+n] - _t_ary[i] > 0.000000000001) term1 = _bin[n-1][i] / (_t_ary[i+n] - _t_ary[i]);
+
+	//cout << "Getting term2" << endl;
+	double term2 = 0;
+	if (_t_ary[i+n+1] - _t_ary[i+1] > 0.0000000000001) term2 = _bin[n-1][i+1] / (_t_ary[i+n+1] - _t_ary[i+1]);
+
+	//cout << "Setting bin" << endl;
+	_bin[n][i] = (t - _t_ary[i]) * term1 + (_t_ary[i+n+1] - t) * term2;
+      }
+      if (_bin[n][i] < 0.000000000001) _bin[n][i] = 0;
+    }
+  }
+  //cout << "Out RooBSplineBases::evaluate()" << endl;
+  return t;
+}
+
+Double_t RooBSplineBases::getBasisVal(int n, int i, bool rebuild) const
+{
+  if (rebuild) getVal();
+//   if (rebuild || !_bin) getVal();
+//   if (!_bin) 
+//   {
+//     getVal();
+//   }
+  if (i >= _m-_n-1) return 0.;
+  //cout << "Getting basis for n=" << n << ", i=" << i << ", rebuild ? " << rebuild << ", order = " << _n << ", name=" << GetName() << endl;  
+  return _bin[n][i];
+}
+
+
+
 // @(#)root/roostats:$Id: RooBSpline.cxx 873 2014-02-24 22:16:29Z adye $
 // Author: Aaron Armbruster
 /*************************************************************************
@@ -31,11 +394,10 @@ END_HTML
 #include "RooMsgService.h"
 #include "TMath.h"
 
-#include "../interface/AtlasPdfs.h"
+//#include "RooBSpline.h"
 
 ClassImp(RooStats::HistFactory::RooBSpline)
 
-using namespace std;
 using namespace RooStats;
 using namespace HistFactory;
 
@@ -448,371 +810,10 @@ RooBSpline::CacheElem::~CacheElem()
 
 
 
-// @(#)root/roostats:$Id: RooBSplineBases.cxx 873 2014-02-24 22:16:29Z adye $
-// Author: Aaron Armbruster
-/*************************************************************************
- * Copyright (C) 1995-2008, Rene Brun and Fons Rademakers.               *
- * All rights reserved.                                                  *
- *                                                                       *
- * For the licensing terms see $ROOTSYS/LICENSE.                         *
- * For the list of contributors see $ROOTSYS/README/CREDITS.             *
- *************************************************************************/
-
-//_________________________________________________
-/*
-BEGIN_HTML
-<p>
-</p>
-END_HTML
-*/
-//
-
-#include "RooFit.h"
-
-#include "Riostream.h"
-#include "Riostream.h"
-#include <math.h>
-#include "TMath.h"
-
-#include "RooAbsReal.h"
-#include "RooRealVar.h"
-#include "RooArgList.h"
-#include "RooMsgService.h"
-#include "TMath.h"
-
-ClassImp(RooStats::HistFactory::RooBSplineBases)
-
-using namespace RooStats;
-using namespace HistFactory;
-
-//_____________________________________________________________________________
-RooBSplineBases::RooBSplineBases()
-{
-  // Default constructor
-//   _t_ary=NULL;
-//   _bin=NULL;
-}
-
-
-//_____________________________________________________________________________
-RooBSplineBases::RooBSplineBases(const char* name, const char* title, int order, vector<double>& tValues,
-				 RooAbsReal& t, int nrClose) :
-  RooAbsReal(name, title),
-  _tValues(tValues),
-  _m(tValues.size()+2*order),
-  //_t_ary(NULL),
-  _t("t_param", "t_param", this, t),
-  _n(order),
-  _nrClose(nrClose)
-  //_nPlusOne(order+1)//,
-  //_bin(NULL)
-{
-  //cout << "in Ctor" << endl;
-  //cout << "t = " << t << endl;
-  buildTAry();
-
-//   _bin=new double*[_n+1];
-//   for (int n=0;n<_n+1;n++)
-//   {
-//     _bin[n] = new double[_m];
-//     for (int i=0;i<_m;i++)
-//     {
-//       _bin[n][i] = 0;
-//     }
-//   }
-
-//   _t_ary = new double[_m];
-//   for (int i=_n;i<_m-_n;i++) // add the main knots
-//   {
-//     _t_ary[i] = tValues[i-_n];
-//     //cout << "Adding main point:   " << i << " = " << _t_ary[i] << endl;
-//   }
-
-//   double firstDelta=_t_ary[_n+1]-_t_ary[_n]; // extrapolate to the lower non-closed knots
-//   for (int i=nrClose;i<_n;i++) 
-//   {
-//     _t_ary[i] = _t_ary[_n]+firstDelta*(i-_n);
-//     //cout << "Adding lower open:   " << i << " = " << _t_ary[i] << endl;
-//   }
-
-//   for (int i=0;i<nrClose;i++) // add the lower closed knots
-//   {
-//     _t_ary[i] = _t_ary[nrClose];
-//     //cout << "Adding lower closed: " << i << " = " << _t_ary[i] << endl;
-//   }
-
-
-//   double lastDelta=_t_ary[_m-_n-1]-_t_ary[_m-_n-2]; //extrapolate the upper non-closed knots
-//   for (int i=_m-_n;i<_m-nrClose;i++) 
-//   {
-//     _t_ary[i] = _t_ary[_m-_n-1]+lastDelta*(i-(_m-_n-1));
-//     //cout << "Adding upper open:   " << i << " = " << _t_ary[i] << endl;
-//   }
-
-//   for (int i=_m-nrClose;i<_m;i++) // add the upper closed knots
-//   {
-//     _t_ary[i] = _t_ary[_m-nrClose-1];
-//     //cout << "Adding upper closed: " << i << " = " << _t_ary[i] << endl;
-//   }
-//   //cout << endl;
-
-//   for (int i=0;i<_m;i++)
-//   {
-//     if (fabs(_t_ary[i]) < pow(10., -9)) _t_ary[i] = 0;
-//   }
-
-  //cout << "out Ctor" << endl;
-
-
-
-  _bin.resize(_n+1);
-  for (int i=0;i<_n+1;i++)
-  {
-    _bin[i].resize(_m);
-  }
-
-}
-
-//_____________________________________________________________________________
-void RooBSplineBases::buildTAry() const
-{
-  //delete[] _t_ary;
-  _t_ary.resize(_m);
-  //cout << "In buildTAry. _m=" << _m << ", _n=" << _n << ", _t_ary.size()=" << _t_ary.size() << endl;
-  //_t_ary = new double[_m];
-  for (int i=_n;i<_m-_n;i++) // add the main knots
-  {
-    _t_ary[i] = _tValues[i-_n];
-    //cout << "Adding main point:   " << i << " = " << _t_ary[i] << endl;
-  }
-
-  double firstDelta=_t_ary[_n+1]-_t_ary[_n]; // extrapolate to the lower non-closed knots
-//   cout << "Starting loop" << endl;
-//   cout << "_nrClose=" << _nrClose << endl;
-  for (int i=_nrClose;i<_n;i++) 
-  {
-    _t_ary[i] = _t_ary[_n]+firstDelta*(i-_n);
-    //cout << "Adding lower open:   " << i << " = " << _t_ary[i] << endl;
-  }
-
-  for (int i=0;i<_nrClose;i++) // add the lower closed knots
-  {
-    _t_ary[i] = _t_ary[_nrClose];
-    //cout << "Adding lower closed: " << i << " = " << _t_ary[i] << endl;
-  }
-
-
-  double lastDelta=_t_ary[_m-_n-1]-_t_ary[_m-_n-2]; //extrapolate the upper non-closed knots
-  for (int i=_m-_n;i<_m-_nrClose;i++) 
-  {
-    _t_ary[i] = _t_ary[_m-_n-1]+lastDelta*(i-(_m-_n-1));
-    //cout << "Adding upper open:   " << i << " = " << _t_ary[i] << endl;
-  }
-
-  for (int i=_m-_nrClose;i<_m;i++) // add the upper closed knots
-  {
-    _t_ary[i] = _t_ary[_m-_nrClose-1];
-    //cout << "Adding upper closed: " << i << " = " << _t_ary[i] << endl;
-  }
-  //cout << endl;
-
-  for (int i=0;i<_m;i++)
-  {
-    if (fabs(_t_ary[i]) < pow(10., -9)) _t_ary[i] = 0;
-  }
-}
-
-//_____________________________________________________________________________
-RooBSplineBases::RooBSplineBases(const char* name, const char* title) :
-  RooAbsReal(name, title)
-{
-  // Constructor of flat polynomial function
-  //_bin=NULL;
-  _bin.resize(_n+1);
-  for (int i=0;i<_n+1;i++)
-  {
-    _bin[i].resize(_m);
-  }
-}
-
-//_____________________________________________________________________________
-RooBSplineBases::RooBSplineBases(const RooBSplineBases& other, const char* name) :
-  RooAbsReal(other, name), 
-  _tValues(other._tValues),
-  _m(other._m),
-  _t("t_param", this, other._t),
-  _n(other._n),
-  _nrClose(other._nrClose),
-  //_nPlusOne(other._nPlusOne),
-  _t_ary(other._t_ary),
-  _bin(other._bin)
-{
-  // Copy constructor
-
-  buildTAry();
-  _bin.resize(_n+1);
-  for (int i=0;i<_n+1;i++)
-  {
-    _bin[i].resize(_m);
-  }
-//   _t_ary = new double[_m];
-//   for (int i=0;i<_m;i++)
-//   {
-//     _t_ary[i] = other._t_ary[i];
-//   }
-//   if (other._bin)
-//   {
-//     _bin=new double*[_n+1];
-//     for (int n=0;n<_n+1;n++)
-//     {
-//       _bin[n] = new double[_m];
-//       for (int i=0;i<_m;i++)
-//       {
-// 	if (other._bin[n])
-// 	{
-// 	  _bin[n][i] = other._bin[n][i];
-// 	}
-// 	else
-// 	{
-// 	  _bin[n][i] = 0;
-// 	}
-//       }
-//     }
-//   }
-}
-
-
-//_____________________________________________________________________________
-RooBSplineBases::~RooBSplineBases() 
-{
-  // Destructor
-  //delete[] _t_ary;
-//   _t_ary=NULL;
-//   if (_bin)
-//   {
-//     for (int i=0;i<_n+1;i++) 
-//     {
-//       delete _bin[i];
-//     _bin[i]=NULL;
-//     }
-//     delete _bin;
-//     _bin=NULL;
-//   }
-}
-
-
-
-
-//_____________________________________________________________________________
-Double_t RooBSplineBases::evaluate() const 
-{
-//   cout << "In eval, _n=" << _n << ", _m=" << _m << ", _nPlusOne=" << _nPlusOne << endl;
-//   cout << "_bin=" << _bin << endl;
-//   cout << "_t_ary=" << _t_ary << endl;
-  if (!_t_ary.size()) buildTAry();
-
-  // Calculate and return value of spline
-  //cout << "In RooBSplineBases::evaluate()" << endl;
-  double t = _t;
-  if (t < _t_ary[_n] || t > _t_ary[_m-_n-1])
-  {
-    if (t > _t_ary[_m-_n-1]) t = _t_ary[_m-_n-1];
-    if (t < _t_ary[_n]) t = _t_ary[_n];
-  }
-
-
-
-
-//build the basis splines
-
-//   if (_bin)
-//   {
-//     //cout << "Deleting bin: " << _bin << endl;
-//     for (int i=0;i<_n+1;i++)
-//     {
-//       //cout << "Deleting bin[" << i << "]: " << _bin[i] << endl;
-//       delete[] _bin[i];
-//       _bin[i]=NULL;
-// //       for (int j=0;j<_m;j++)
-// //       {
-// // 	_bin[i][j]=0;
-// //       }
-//     }
-//     delete[] _bin;
-//     _bin=NULL;
-//   }
-
-//   bool remake=(_bin==NULL);
-//   if (remake) _bin = new double*[_n+1];
-
-//   if (!_bin)
-//   {
-//     _bin=new double*[_n+1];
-//     for (int n=0;n<_n+1;n++)
-//     {
-//       _bin[n] = new double[_m];
-//     }
-//   }
-  //_bin = new double*[_n+1];
-  for (int n=0;n<_n+1;n++)
-  {
-    //cout << "_bin[n] = " << _bin[n] << endl;
-    //if (remake) _bin[n] = new double[_m];
-    //_bin[n] = new double[_m];
-    for (int i=0;i<_m;i++)
-    {
-      //cout << "Resetting to zero" << endl;
-      _bin[n][i] = 0;
-    }
-    for (int i=0;i<_m-n-1;i++)
-    {
-      if (n == 0)
-      {
-	if (t >= _t_ary[i] && t < _t_ary[i+1] && i >= _n && i <= _m-_n-1)
-	{
-	  //cout << "Setting " << i << " to 1" << endl;
-	  _bin[n][i] = 1;
-	}
-      }
-      else
-      {
-	//cout << "Getting term1" << endl;
-	double term1 = 0;
-	if (_t_ary[i+n] - _t_ary[i] > 0.000000000001) term1 = _bin[n-1][i] / (_t_ary[i+n] - _t_ary[i]);
-
-	//cout << "Getting term2" << endl;
-	double term2 = 0;
-	if (_t_ary[i+n+1] - _t_ary[i+1] > 0.0000000000001) term2 = _bin[n-1][i+1] / (_t_ary[i+n+1] - _t_ary[i+1]);
-
-	//cout << "Setting bin" << endl;
-	_bin[n][i] = (t - _t_ary[i]) * term1 + (_t_ary[i+n+1] - t) * term2;
-      }
-      if (_bin[n][i] < 0.000000000001) _bin[n][i] = 0;
-    }
-  }
-  //cout << "Out RooBSplineBases::evaluate()" << endl;
-  return t;
-}
-
-Double_t RooBSplineBases::getBasisVal(int n, int i, bool rebuild) const
-{
-  if (rebuild) getVal();
-//   if (rebuild || !_bin) getVal();
-//   if (!_bin) 
-//   {
-//     getVal();
-//   }
-  if (i >= _m-_n-1) return 0.;
-  //cout << "Getting basis for n=" << n << ", i=" << i << ", rebuild ? " << rebuild << ", order = " << _n << ", name=" << GetName() << endl;  
-  return _bin[n][i];
-}
-
-
-
 /*****************************************************************************
  * Project: RooFit                                                           *
  * Package: RooFitModels                                                     *
- * @(#)root/roofit:$Id: RooParamKeysPdf.cxx 873 2014-02-24 22:16:29Z adye $
+ * @(#)root/roofit:$Id: RooParamKeysPdf.cxx 888 2014-08-01 19:54:39Z adye $
  * Authors:                                                                  *
  *   GR, Gerhard Raven,   UC San Diego,        raven@slac.stanford.edu       *
  *   DK, David Kirkby,    UC Irvine,         dkirkby@uci.edu                 *
@@ -831,6 +832,7 @@ Double_t RooBSplineBases::getBasisVal(int n, int i, bool rebuild) const
 #include "Riostream.h"
 #include "TMath.h"
 
+//#include "RooParamKeysPdf.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 #include "RooRandom.h"
@@ -862,8 +864,8 @@ ClassImp(RooParamKeysPdf)
 
 //_____________________________________________________________________________
   RooParamKeysPdf::RooParamKeysPdf() : _centralValue(0.0), 
-              _nEvents(0), _dataPts(0), _dataWgts(0), _weights(0), _sumWgt(0),
-			     _mirrorLeft(kFALSE), _mirrorRight(kFALSE), 
+                             _nEvents(0), _dataPts(0), _dataWgts(0), _weights(0), _sumWgt(0), _normVal(0), _nPoints(1000),
+			     _lookupTable(0), _mirrorLeft(kFALSE), _mirrorRight(kFALSE), 
 			     _asymLeft(kFALSE), _asymRight(kFALSE)
 { 
   // coverity[UNINIT_CTOR]
@@ -873,7 +875,7 @@ ClassImp(RooParamKeysPdf)
 //_____________________________________________________________________________
 RooParamKeysPdf::RooParamKeysPdf(const char *name, const char *title,
                        RooAbsReal& x, RooAbsReal& deltax, RooDataSet& data,
-                       Mirror mirror, Double_t rho) :
+		       Mirror mirror, Double_t rho, Int_t nPoints) :
   RooAbsPdf(name,title),
   _x("x","Dependent",this,x),
   _deltax("deltax","Dependent",this,deltax),
@@ -884,6 +886,10 @@ RooParamKeysPdf::RooParamKeysPdf(const char *name, const char *title,
   _dataPts(0),
   _dataWgts(0),
   _weights(0),
+  
+  _nPoints(nPoints),
+  _lookupTable(new Double_t[_nPoints]),
+
   _mirrorLeft(mirror==MirrorLeft || mirror==MirrorBoth || mirror==MirrorLeftAsymRight),
   _mirrorRight(mirror==MirrorRight || mirror==MirrorBoth || mirror==MirrorAsymLeftRight),
   _asymLeft(mirror==MirrorAsymLeft || mirror==MirrorAsymLeftRight || mirror==MirrorAsymBoth),
@@ -905,7 +911,7 @@ RooParamKeysPdf::RooParamKeysPdf(const char *name, const char *title,
 //_____________________________________________________________________________
 RooParamKeysPdf::RooParamKeysPdf(const char *name, const char *title,
                        RooAbsReal& x, RooAbsReal& deltax, double centralValue, RooAbsReal& multiplicativeShift, RooDataSet& data,
-                       Mirror mirror, Double_t rho) :
+		       Mirror mirror, Double_t rho, Int_t nPoints) :
   RooAbsPdf(name,title),
   _x("x","Dependent",this,x),
   _deltax("deltax","Dependent",this,deltax),  
@@ -917,6 +923,10 @@ RooParamKeysPdf::RooParamKeysPdf(const char *name, const char *title,
   _dataPts(0),
   _dataWgts(0),
   _weights(0),
+
+  _nPoints(nPoints),
+  _lookupTable(new Double_t[_nPoints]),
+
   _mirrorLeft(mirror==MirrorLeft || mirror==MirrorBoth || mirror==MirrorLeftAsymRight),
   _mirrorRight(mirror==MirrorRight || mirror==MirrorBoth || mirror==MirrorAsymLeftRight),
   _asymLeft(mirror==MirrorAsymLeft || mirror==MirrorAsymLeftRight || mirror==MirrorAsymBoth),
@@ -943,7 +953,8 @@ RooParamKeysPdf::RooParamKeysPdf(const RooParamKeysPdf& other, const char* name)
   _centralValue(other._centralValue),
   _multiplicativeShift("multiplicativeShift",this,other._multiplicativeShift),
   _nEvents(other._nEvents),
-  _dataPts(0), _dataWgts(0), _weights(0), _sumWgt(0),
+  _dataPts(0), _dataWgts(0), _weights(0), _sumWgt(0), _normVal(other._normVal),
+  _nPoints(other._nPoints), _lookupTable(new Double_t[_nPoints]),
   _mirrorLeft( other._mirrorLeft ), _mirrorRight( other._mirrorRight ),
   _asymLeft(other._asymLeft), _asymRight(other._asymRight),
   _rho( other._rho ) {
@@ -965,7 +976,7 @@ RooParamKeysPdf::RooParamKeysPdf(const RooParamKeysPdf& other, const char* name)
 //    }
 
   // copy over the lookup table
-  for (Int_t i= 0; i<_nPoints+1; i++)
+  for (Int_t i= 0; i<_nPoints; i++)
     _lookupTable[i]= other._lookupTable[i];
   
 }
@@ -976,6 +987,7 @@ RooParamKeysPdf::~RooParamKeysPdf() {
   delete[] _dataPts;
   delete[] _dataWgts;
   delete[] _weights;
+  delete[] _lookupTable;
 }
 
 
@@ -996,6 +1008,7 @@ RooParamKeysPdf::LoadDataSet( RooDataSet& data) {
   _dataWgts = new Double_t[_nEvents];
   _weights  = new Double_t[_nEvents];
   _sumWgt = 0 ;
+  _normVal = 0 ;
 
   Double_t x0(0);
   Double_t x1(0);
@@ -1039,8 +1052,11 @@ RooParamKeysPdf::LoadDataSet( RooDataSet& data) {
     if (_weights[j]<hmin) _weights[j]=hmin;
   }
   
-  for (i=0;i<_nPoints+1;++i) 
+  for (i=0;i<_nPoints;++i) {
     _lookupTable[i]=evaluateFull( _lo+Double_t(i)*_binWidth );
+    _normVal += _lookupTable[i];
+  }
+  _normVal *= _binWidth;
 
   
 }
@@ -1061,11 +1077,11 @@ Double_t RooParamKeysPdf::evaluate() const {
     i=0;
     forcePositive = true;
   }
-  if (i>_nPoints-1) {
+  if (i>_nPoints-2) {
 //     cerr << "got point above upper bound:"
 // 	 << Double_t(_x) << " > " << _hi
 // 	 << " -- performing linear extrapolation..." << endl;
-    i=_nPoints-1;
+    i=_nPoints-2;
     forcePositive = true;
   }
   Double_t dx = (Double_t(_x-deltax)-(_lo+i*_binWidth))/_binWidth;
@@ -1145,7 +1161,7 @@ Double_t RooParamKeysPdf::analyticalIntegral(Int_t code, const char* /*rangeName
    assert(code==1) ;
    //if( rangeName == NULL ) return _sumWgt;
 
-   double sumW = 0.0;
+//    double sumW = 0.0;
 //    for( Int_t i=0; i < _nEvents; i++ ) {
 //       if( rangeName == NULL  ||
 //          (_dataPts[i] > _x.min(rangeName)  && _dataPts[i] < _x.max(rangeName))
@@ -1153,14 +1169,16 @@ Double_t RooParamKeysPdf::analyticalIntegral(Int_t code, const char* /*rangeName
 //          sumW += _dataWgts[i]/_weights[i];
 //       }
 //    }
-   for( Int_t i=0; i < _nPoints; i++ ) {
-      sumW += _lookupTable[i];
+//    return sumW;
+   if (_normVal == 0.0) {
+      for( Int_t i=0; i < _nPoints; i++ ) {
+         _normVal += _lookupTable[i];
+      }
+      _normVal *= _binWidth;
+//    cout << ClassName() << "::" << GetName() << " analyticalIntegral = " << _normVal << endl;
    }
-   sumW *= _binWidth;
-   return sumW;
+  return _normVal;
 }
-
-
 
 
 
@@ -1175,6 +1193,7 @@ Double_t RooParamKeysPdf::analyticalIntegral(Int_t code, const char* /*rangeName
 
 #include "Riostream.h" 
 
+//#include "RooStarMomentMorph.h" 
 #include "RooAbsCategory.h" 
 #include "RooRealIntegral.h"
 #include "RooRealConstant.h"
@@ -1183,7 +1202,11 @@ Double_t RooParamKeysPdf::analyticalIntegral(Int_t code, const char* /*rangeName
 #include "RooCustomizer.h"
 #include "RooAddPdf.h"
 #include "RooAddition.h"
+#if ROOT_VERSION_CODE>=ROOT_VERSION(5,34,19)
+#include "RooAbsMoment.h"
+#else
 #include "RooMoment.h"
+#endif
 #include "RooLinearVar.h"
 #include "RooChangeTracker.h"
 #include "RooNumIntConfig.h"
@@ -1221,7 +1244,11 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
 				       const std::vector<double>& nrefpoints, // (-1,1,-1,1)
 				       const Setting& setting) :
   RooAbsPdf(name,title), 
+#if ROOT_VERSION_CODE>=ROOT_VERSION(5,34,19)
+  _cacheMgr(this,10,kTRUE,kTRUE),
+#else
   _cacheMgr(this,10,kFALSE),
+#endif
   _parList("parList","List of fit parameters",this),
   _obsList("obsList","List of variables",this),
   _pdfList("pdfList","List of pdfs",this),
@@ -1240,7 +1267,7 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
   for (Int_t i=0; (par = (RooAbsArg*)parItr->Next()); ++i) {
     if (!dynamic_cast<RooAbsReal*>(par)) {
       coutE(InputArguments) << "RooStarMomentMorph::ctor(" << GetName() << ") ERROR: parameter " << par->GetName() << " is not of type RooAbsReal" << endl ;
-      throw string("RooPolyMorh::ctor() ERROR parameter is not of type RooAbsReal") ;
+      throw string("RooStarMomentMorh::ctor() ERROR parameter is not of type RooAbsReal") ;
     }
     _parList.add(*par) ;
   }
@@ -1252,7 +1279,7 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
   for (Int_t i=0; (var = (RooAbsArg*)obsItr->Next()); ++i) {
     if (!dynamic_cast<RooAbsReal*>(var)) {
       coutE(InputArguments) << "RooStarMomentMorph::ctor(" << GetName() << ") ERROR: variable " << var->GetName() << " is not of type RooAbsReal" << endl ;
-      throw string("RooPolyMorh::ctor() ERROR variable is not of type RooAbsReal") ;
+      throw string("RooStarMomentMorh::ctor() ERROR variable is not of type RooAbsReal") ;
     }
     _obsList.add(*var) ;
   }
@@ -1264,7 +1291,7 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
   for (Int_t i=0; (pdf = dynamic_cast<RooAbsPdf*>(pdfItr->Next())); ++i) {
     if (!pdf) {
       coutE(InputArguments) << "RooStarMomentMorph::ctor(" << GetName() << ") ERROR: pdf " << pdf->GetName() << " is not of type RooAbsPdf" << endl ;
-      throw string("RooPolyMorph::ctor() ERROR pdf is not of type RooAbsPdf") ;
+      throw string("RooStarMomentMorph::ctor() ERROR pdf is not of type RooAbsPdf") ;
     }
     _pdfList.add(*pdf) ;
   }
@@ -1398,7 +1425,7 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
   vector<RooAbsReal*> myrms(nObs,null);      
   vector<RooAbsReal*> mypos(nObs,null);      
   vector<RooAbsReal*> slope(nPdf*nObs,null); 
-  vector<RooAbsReal*> offset1(nPdf*nObs,null); 
+  vector<RooAbsReal*> offsetVar(nPdf*nObs,null); 
   vector<RooAbsReal*> transVar(nPdf*nObs,null); 
   vector<RooAbsReal*> transPdf(nPdf,null);      
 
@@ -1428,47 +1455,26 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
     
     // mean and sigma
     RooArgList obsList(_obsList);
-    for (Int_t i=0; i<nPdf; ++i) {
-      
-      RooAbsPdf* pdf_i=(RooAbsPdf*)_pdfList.at(i);
+    for (Int_t i=0; i<nPdf; ++i) {      
       for (Int_t j=0; j<nObs; ++j) {
 	
-	std::string meanName  = Form("%s_mean_%d_%d",GetName(), i,j);
-	std::string sigmaName = Form("%s_sigma_%d_%d",GetName(),i,j);      
+#if ROOT_VERSION_CODE>=ROOT_VERSION(5,34,19)
+	RooAbsMoment* mom = nObs==1 ?
+#else
+	RooMoment* mom = nObs==1 ?
+#endif
+          ((RooAbsPdf*)_pdfList.at(i))->sigma((RooRealVar&)*obsList.at(j)) :
+          ((RooAbsPdf*)_pdfList.at(i))->sigma((RooRealVar&)*obsList.at(j), obsList);
+
+#if ROOT_VERSION_CODE>=ROOT_VERSION(5,34,19)
+        mom->setLocalNoDirtyInhibit(kTRUE);
+        mom->mean()->setLocalNoDirtyInhibit(kTRUE);
+#endif
 	
-	RooRealVar& var_j=*(RooRealVar*)obsList.at(j);
-
-	if (_obsList.getSize()>1) {
-
-	  //cout<<"using multidimensional moment calculation"<<endl;
-	  
-	  //Create an integral over all observables except the j-th positioned one
-	  RooArgSet * notJ = new RooArgSet( obsList, "notJ" );
-	  notJ->remove( var_j );
-	  RooAbsReal * intTest = pdf_i->createIntegral( *notJ );
-	  
-	  //Get the mean and sigma with respect to the j-th observable
-	  sigmarv[sij(i,j)] = intTest->sigma( var_j );
-	  meanrv [sij(i,j)] = intTest->mean( var_j );
+        sigmarv[sij(i,j)] = mom;
+        meanrv [sij(i,j)] = mom->mean();
+        ownedComps.add(*sigmarv[sij(i,j)]);
 	
-	}
-	else {
-
-	  if (dynamic_cast<RooHistPdf*>(pdf_i)) {
-	    pdf_i->specialIntegratorConfig(kTRUE)->method1D().setLabel("RooBinIntegrator");
-	    //int nbins = ((RooRealVar*)notJ.first())->numBins();
-	    //pdf_i->specialIntegratorConfig(kTRUE)->
-	    //getConfigSection("RooBinIntegrator").setRealValue("numBins",nbins);
-	    
-	  }
-	  
-	  RooMoment* mom = pdf_i->sigma(var_j) ;
-	  
-	  sigmarv[sij(i,j)] = mom ;
-	  meanrv [sij(i,j)] = mom->mean() ;
-	}
-
-	ownedComps.add(*sigmarv[sij(i,j)]) ;
       }
     }    
   
@@ -1524,20 +1530,21 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
 	(RooAbsReal*)new RooConstVar(slopeName.c_str(),slopeName.c_str(),1.0); // 
       
       
-      offset1[sij(i,j)] = _useHorizMorph ? 
+      offsetVar[sij(i,j)] = _useHorizMorph ? 
 	(RooAbsReal*)new RooFormulaVar(offsetName.c_str(),"@0-(@1*@2)",
 				       RooArgList(*meanrv[sij(i,j)],*mypos[j],*slope[sij(i,j)])) : 	
 	(RooAbsReal*)new RooConstVar(offsetName.c_str(),offsetName.c_str(),0.0); // 
       
-      ownedComps.add(RooArgSet(*slope[sij(i,j)],*offset1[sij(i,j)])) ;
+      ownedComps.add(RooArgSet(*slope[sij(i,j)],*offsetVar[sij(i,j)])) ;
       
       // linear transformations, so pdf can be renormalized easily
       var = (RooRealVar*)(_obsItr->Next());
       std::string transVarName = Form("%s_transVar_%d_%d",GetName(),i,j);
-      transVar[sij(i,j)] = new RooLinearVar(transVarName.c_str(),transVarName.c_str(),*var,*slope[sij(i,j)],*offset1[sij(i,j)]);
+      transVar[sij(i,j)] = new RooLinearVar(transVarName.c_str(),transVarName.c_str(),*var,*slope[sij(i,j)],*offsetVar[sij(i,j)]);
 
-      //slope[sij(i,j)]->Print();
-      //offset1[sij(i,j)]->Print();
+      // *** WVE this is important *** this declares that frac effectively depends on the morphing parameters
+      // This will prevent the likelihood optimizers from erroneously declaring terms constant
+      transVar[sij(i,j)]->addServerList((RooAbsCollection&)_parList);
 
       ownedComps.add(*transVar[sij(i,j)]) ;
       cust.replaceArg(*var,*transVar[sij(i,j)]);
