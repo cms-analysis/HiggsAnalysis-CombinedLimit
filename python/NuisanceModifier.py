@@ -21,6 +21,8 @@ def doAddNuisance(datacard, args):
     if len(args) < 5:
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit add process channel name pdf value [ options ]"
     (process, channel, name, pdf, value) = args[:5]
+    if process != "*": cprocess = re.compile(process)
+    if channel != "*": cchannel = re.compile(channel)
     opts = args[5:]
     found = False
     errline = dict([(b,dict([(p,0) for p in datacard.exp[b]])) for b in datacard.bins])
@@ -37,10 +39,10 @@ def doAddNuisance(datacard, args):
         value = float(value)
     foundChann, foundProc = False, False
     for b in errline.keys():
-        if channel == "*" or re.match(channel,b):
+        if channel == "*" or cchannel.search(b):
             foundChann = True
             for p in datacard.exp[b]:
-                if process == "*" or re.match(process,p):
+                if process == "*" or cprocess.search(p):
                     foundProc = True
                     if p in errline[b] and errline[b][p] not in [ 0.0, 1.0 ]:
                         if "addq" in opts:
@@ -60,15 +62,17 @@ def doDropNuisance(datacard, args):
     if len(args) < 3:
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit drop process channel name [ options ]"
     (process, channel, name) = args[:3]
+    if process != "*": cprocess = re.compile(process)
+    if channel != "*": cchannel = re.compile(channel)
     opts = args[3:]
     foundProc = False
     for lsyst,nofloat,pdf,args0,errline in datacard.systs:
         if re.match(name,lsyst):
             for b in errline.keys():
-                if channel == "*" or re.match(channel,b):
+                if channel == "*" or cchannel.search(b):
                     #if channel != "*": foundProc = False
                     for p in datacard.exp[b]:
-                        if process == "*" or re.match(process,p):
+                        if process == "*" or cprocess.search(p):
                             foundProc = True
                             errline[b][p] = 0
             #if channel != "*" and foundProc == False:
@@ -87,6 +91,8 @@ def doRenameNuisance(datacard, args):
     if len(args) < 4:
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"
     (process, channel, oldname, newname) = args[:4]
+    if process != "*": cprocess = re.compile(process)
+    if channel != "*": cchannel = re.compile(channel)
     opts = args[5:]
     for lsyst,nofloat,pdf0,args0,errline0 in datacard.systs[:]:
         lsystnew = re.sub(oldname,newname,lsyst)
@@ -102,11 +108,11 @@ def doRenameNuisance(datacard, args):
                 datacard.systs.append([lsystnew,nofloat,pdf0,args0,errline2])
             foundChann, foundProc = False, False
             for b in errline0.keys():
-                if channel == "*" or re.match(channel,b):
+                if channel == "*" or cchannel.search(b):
                     foundChann = True
                     if channel != "*": foundProc = False
                     for p in datacard.exp[b].keys():
-                        if process == "*" or re.match(process,p):
+                        if process == "*" or cprocess.search(p):
                             foundProc = True
                             if p in errline0[b] and errline2[b][p] not in [ 0.0, 1.0 ]:
                                 if "addq" in opts:
