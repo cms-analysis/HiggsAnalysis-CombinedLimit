@@ -128,7 +128,7 @@ class MepsHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::Meps_BRscal_hzg("@0/@1", Scaling_hzg, Meps_Gscal_tot)')
         self.modelBuilder.factory_('expr::Meps_BRscal_hcc("@0*@0/@1", Ctau, Meps_Gscal_tot)')
         self.modelBuilder.factory_('expr::Meps_BRscal_hss("@0*@0/@1", Cb, Meps_Gscal_tot)')
-        self.modelBuilder.factory_('expr::Meps_BRscal_hgluglu("@0*@0/@1", Scaling_hgluglu, Meps_Gscal_tot)')
+        self.modelBuilder.factory_('expr::Meps_BRscal_hgluglu("@0/@1", Scaling_hgluglu, Meps_Gscal_tot)')
         
         self.modelBuilder.out.Print()
 

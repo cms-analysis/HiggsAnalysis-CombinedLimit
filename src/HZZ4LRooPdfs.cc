@@ -3561,7 +3561,7 @@ RooTsallis::RooTsallis() {}
 /*************RooaDoubleCBxBW***********/
 
 ClassImp(RooaDoubleCBxBW)
- 
+
 RooaDoubleCBxBW::RooaDoubleCBxBW(){}
 
 RooaDoubleCBxBW::RooaDoubleCBxBW(const char *name, const char *title,
@@ -3717,7 +3717,7 @@ double RooaDoubleCBxBW::evaluateQuadratic(double lim1, double lim2, bool isLeft)
     c1 = c1L;
     c2 = c2L;
     t0 = t0L;
-  }   
+  }
 
   double sigma2 = sigma*sigma;
   double mean2 = mean*mean;
@@ -3757,6 +3757,7 @@ double RooaDoubleCBxBW::evaluate() const
   else return max(0., (AL*pow(-sigma/width,nL)/width)*(evaluatePowerLaw(point1/width, nL, true) - evaluatePowerLaw(-inf, nL, true))) +  evaluateQuadratic(point1, point2, true) + evaluateVoigtian() + evaluateQuadratic(point3, point4, false) + max(0., (AR*pow(sigma/width, nR)/width)*(evaluatePowerLaw(inf, nR, false) - evaluatePowerLaw(point4/width, nR, false)));
 
 }
+
 
 
 

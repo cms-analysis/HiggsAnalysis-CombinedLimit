@@ -591,9 +591,9 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
 
-    for (unsigned int i = 0; i < n; ++i) {
-            std::cout<<" Before setting fixed point "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
-    }
+    //for (unsigned int i = 0; i < n; ++i) {
+    //        std::cout<<" Before setting fixed point "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
+    //}
     if (setPhysicsModelParameterExpression_ != "") {
 	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
     }   
@@ -620,10 +620,9 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
 			    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 		    }
 		    Combine::commitPoint(true, /*quantile=*/prob);
-    for (unsigned int i = 0; i < n; ++i) {
-            std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
-    }
-    // now we minimize
+    //for (unsigned int i = 0; i < n; ++i) {
+    //        std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
+    //}
 	    }
     } 
 }
