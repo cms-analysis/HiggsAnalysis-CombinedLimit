@@ -3561,7 +3561,7 @@ RooTsallis::RooTsallis() {}
 /*************RooaDoubleCBxBW***********/
 
 ClassImp(RooaDoubleCBxBW)
- 
+
 RooaDoubleCBxBW::RooaDoubleCBxBW(){}
 
 RooaDoubleCBxBW::RooaDoubleCBxBW(const char *name, const char *title,
