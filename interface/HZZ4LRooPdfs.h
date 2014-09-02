@@ -689,7 +689,7 @@ class RooaDoubleCBxBW : public RooAbsPdf {
  public:
   RooaDoubleCBxBW();
   RooaDoubleCBxBW(const char *name, const char *title,
-        RooAbsReal& _x, 
+        RooAbsReal& _x,
         RooAbsReal& _shift,
         RooAbsReal& _sigma,
         RooAbsReal& _alphaL,
@@ -700,7 +700,8 @@ class RooaDoubleCBxBW : public RooAbsPdf {
         unsigned _nR,
         RooAbsReal& _thetaL,
         RooAbsReal& _thetaR,
-        bool _computeActualCB
+        bool _computeActualCB,
+        bool _tailOnly 
     );
   RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new RooaDoubleCBxBW(*this,newname); }
@@ -720,6 +721,7 @@ class RooaDoubleCBxBW : public RooAbsPdf {
   RooRealProxy thetaL;
   RooRealProxy thetaR;
   bool computeActualCB;
+  bool tailOnly;
 
   Double_t evaluate() const ;
   Double_t evaluateDoubleCB() const ;

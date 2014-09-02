@@ -16,6 +16,7 @@ parser.add_option("--xc", "--exclude-channel", type="string", dest="channelVetos
 parser.add_option("--ic", "--include-channel", type="string", dest="channelIncludes", default=[], action="append", help="Only include channels that match this regexp; can specify multiple ones")
 parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
 parser.add_option("--xn-file", "--exclude-nuisances-from-file", type="string", dest="nuisVetoFile", help="Exclude all the nuisances in this file")
+parser.add_option("--en-file", "--edit-nuisances-from-file", type="string", dest="editNuisFile", help="edit the nuisances in this file")
 
 (options, args) = parser.parse_args()
 options.bin = True # fake that is a binary output, so that we parse shape lines
@@ -222,7 +223,12 @@ for (pname, pargs) in paramSysts.items():
 for pname in flatParamNuisances.iterkeys(): 
     print "%-12s  flatParam" % pname
 for dname in discreteNuisances.iterkeys(): 
-     print "%-12s  discrete" % dname
+    print "%-12s  discrete" % dname
 for groupName,nuisanceNames in groups.iteritems():
     nuisances = ' '.join(nuisanceNames)
     print '%(groupName)s group = %(nuisances)s' % locals()
+
+if options.editNuisFile:
+    file = open(options.editNuisFile, "r")    
+    str = file.read();
+    print str

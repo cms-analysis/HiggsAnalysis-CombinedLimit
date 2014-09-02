@@ -52,9 +52,9 @@ def doAddNuisance(datacard, args):
                     else:
                         errline[b][p] = value
     if not foundChann:
-        sys.sterr.write("Warning: no channel found matching nuisance edit add with args = %s\n" % args)
+        sys.stderr.write("Warning: no channel found matching nuisance edit add with args = %s\n" % args)
     if not foundProc:
-        sys.sterr.write("Warning: no process found matching nuisance edit add with args = %s\n" % args)
+        sys.stderr.write("Warning: no process found matching nuisance edit add with args = %s\n" % args)
 
 def doDropNuisance(datacard, args):
     if len(args) < 3:
@@ -66,21 +66,21 @@ def doDropNuisance(datacard, args):
         if re.match(name,lsyst):
             for b in errline.keys():
                 if channel == "*" or re.match(channel,b):
-                    if channel != "*": foundProc = False
+                    #if channel != "*": foundProc = False
                     for p in datacard.exp[b]:
                         if process == "*" or re.match(process,p):
                             foundProc = True
                             errline[b][p] = 0
-                    if channel != "*" and foundProc == False:
-                        if "ifexists" not in opts:
-                            raise RuntimeError, "Error: nuisance edit drop %s found nothing in channel %s" % (args, channel)
-                        else:
-                            sys.stderr.write("Warning: nuisance edit drop %s found nothing in channel %s\n" % (args, channel))
+            #if channel != "*" and foundProc == False:
+            #    if "ifexists" not in opts:
+            #        raise RuntimeError, "Error: nuisance edit drop %s found nothing in channel %s" % (args, channel)
+            #    else:
+            #        sys.stderr.write("Warning1: nuisance edit drop %s found nothing in channel %s\n" % (args, channel))
     if not foundProc and channel != "*":
         if "ifexists" not in opts:
             raise RuntimeError, "Error: nuisance edit drop %s found nothing" % (args)
         else:
-            sys.stderr.write("Warning: nuisance edit drop %s found nothing\n" % (args))
+            sys.stderr.write("Warning2: nuisance edit drop %s found nothing\n" % (args))
 
 
 def doRenameNuisance(datacard, args):
@@ -120,16 +120,16 @@ def doRenameNuisance(datacard, args):
                             errline0[b][p] = 0
                     if channel != "*" and not foundProc:
                         if "ifexists" not in opts:
-                            raise RuntimeError, "Error: nuisance edit rename %s  found nothing in channel %s" % (args, channel)
+                            raise RuntimeError, "Error: nuisance edit rename %s found nothing in channel %s" % (args, channel)
                         else:
-                            sys.stderr.write("Warning: nuisance edit rename %s  found nothing in channel %s\n" % (args, channel))
+                            sys.stderr.write("Warning: nuisance edit rename %s found nothing in channel %s\n" % (args, channel))
     if not foundProc and channel != "*":
         if "ifexists" not in opts:
             raise RuntimeError, "Error: no process found matching nuisance edit rename with args = %s (and option 'ifexist' not specified)\n" % args
         else:
-            sys.sterr.write("Warning: no process found matching nuisance edit rename with args = %s\n" % args)
+            sys.stderr.write("Warning: no process found matching nuisance edit rename with args = %s\n" % args)
     if not foundChann:
-        sys.sterr.write("Warning: no channel found matching nuisance edit rename with args = %s\n" % args)
+        sys.stderr.write("Warning: no channel found matching nuisance edit rename with args = %s\n" % args)
 
 def doChangeNuisancePdf(datacard, args):
     if len(args) < 2:
@@ -160,11 +160,11 @@ def doChangeNuisancePdf(datacard, args):
                 if "shape" in newpdf:
                     ok = True
             if ok:
-                datacard.systs[i][2] = newpdf 
+                datacard.systs[i][2] = newpdf
             else:
                 raise RuntimeError, "I can't convert pdf %s from pdf %s to %s" % (lsyst,pdf,newpdf)
     if not found:
-        sys.sterr.write("Warning: no pdf found for changepdf with args %s\n" % args)
+        sys.stderr.write("Warning: no pdf found for changepdf with args %s\n" % args)
 
 
 
@@ -179,4 +179,3 @@ def doEditNuisance(datacard, command, args):
         doChangeNuisancePdf(datacard, args)
     else:
         raise RuntimeError, "Error, unknown nuisance edit command %s (args %s)" % (command, args)
-

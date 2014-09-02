@@ -40,6 +40,12 @@ bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 
+  std::string MultiDimFit::saveSpecifiedFuncs_;
+  std::string MultiDimFit::saveSpecifiedNuis_;
+ std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
+ std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
+ std::vector<float>        MultiDimFit::specifiedFuncVals_;
+ RooArgList                MultiDimFit::specifiedFuncList_;
  std::vector<std::string>  MultiDimFit::specifiedNuis_;
  std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
  std::vector<float>        MultiDimFit::specifiedVals_;
@@ -59,7 +65,8 @@ MultiDimFit::MultiDimFit() :
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
         ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
-	("saveSpecifiedNuis",   boost::program_options::value<std::vector<std::string> >(&specifiedNuis_), "Save specified parameters (default = none)")
+	("saveSpecifiedNuis",   boost::program_options::value<std::string>(&saveSpecifiedNuis_)->default_value(""), "Save specified parameters (default = none)")
+	("saveSpecifiedFunc",   boost::program_options::value<std::string>(&saveSpecifiedFuncs_)->default_value(""), "Save specified function values (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
        ;
 }
@@ -77,6 +84,8 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     } else if (algo == "grid" || algo == "grid3x3" ) {
         algo_ = Grid; gridType_ = G1x1;
         if (algo == "grid3x3") gridType_ = G3x3;
+    } else if (algo == "fixed") {
+        algo_ = FixedPoint;
     } else if (algo == "random") {
         algo_ = RandomPoints;
     } else if (algo == "contour2d") {
@@ -115,11 +124,20 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if ( algo_ == Singles || !loadedSnapshot_ ){
     	res.reset(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false)); 
     }
+    if(w->var("r")) {w->var("r")->Print();}
     if ( loadedSnapshot_ || res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
         }
-        if (algo_ != None) Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
+        if (algo_ != None) {
+		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
+		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		}
+		Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
+	}
     }
    
 
@@ -149,6 +167,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         case Cross: doBox(*nll, cl, "box", true); break;
         case Grid: doGrid(*nll); break;
         case RandomPoints: doRandomPoints(*nll); break;
+        case FixedPoint: doFixedPoint(w,*nll); break;
         case Contour2D: doContour2D(*nll); break;
         case Stitch2D: doStitch2D(*nll); break;
     }
@@ -174,13 +193,38 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
         poiList_.add(*rrv);
     }
 
-    if(!specifiedNuis_.empty() && withSystematics){
+    if(saveSpecifiedFuncs_!=""){
+	    char tmp[10240] ;
+	    strlcpy(tmp,saveSpecifiedFuncs_.c_str(),10240) ;
+	    char* token = strtok(tmp,",") ;
+	    while(token) {
+		    RooAbsArg *a = w->arg(token);
+		    if (a == 0) throw std::invalid_argument(std::string("function ")+token+" not in model.");
+		    RooAbsReal *rrv = dynamic_cast<RooAbsReal*>(a);
+		    if (rrv == 0) throw std::invalid_argument(std::string("function ")+token+" not a RooAbsReal.");
+		    specifiedFuncNames_.push_back(token);
+		    specifiedFunc_.push_back(rrv);
+		    specifiedFuncVals_.push_back(rrv->getVal());
+		    specifiedFuncList_.add(*rrv);
+		    token = strtok(0,",") ; 
+	    }
+    }
+
+    if(saveSpecifiedNuis_!="" && withSystematics){
 	    RooArgSet mcNuis(*mc_s->GetNuisanceParameters());
-	    if(specifiedNuis_.size()==1 && specifiedNuis_[0]=="all"){
+	    if(saveSpecifiedNuis_=="all"){
 		    specifiedNuis_.clear();
 		    RooLinkedListIter iterN = mc_s->GetNuisanceParameters()->iterator();
 		    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
 			    specifiedNuis_.push_back(a->GetName());
+		    }
+	    }else{
+		    char tmp[10240] ;
+		    strlcpy(tmp,saveSpecifiedNuis_.c_str(),10240) ;
+		    char* token = strtok(tmp,",") ;
+		    while(token) {
+			    specifiedNuis_.push_back(token);
+			    token = strtok(0,",") ; 
 		    }
 	    }
 	    for (std::vector<std::string>::const_iterator it = specifiedNuis_.begin(), ed = specifiedNuis_.end(); it != ed; ++it) {
@@ -213,6 +257,9 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
     }
     for (int i = 0, n = specifiedNuis_.size(); i < n; ++i) {
 	Combine::addBranch(specifiedNuis_[i].c_str(), &specifiedVals_[i], (specifiedNuis_[i]+"/F").c_str()); 
+    }
+    for (int i = 0, n = specifiedFuncNames_.size(); i < n; ++i) {
+	Combine::addBranch(specifiedFuncNames_[i].c_str(), &specifiedFuncVals_[i], (specifiedFuncNames_[i]+"/F").c_str()); 
     }
     Combine::addBranch("deltaNLL", &deltaNLL_, "deltaNLL/F");
 }
@@ -271,7 +318,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
         pmin[i] = poiVars_[i]->getMin();
         pmax[i] = poiVars_[i]->getMax();
         poiVars_[i]->setConstant(true);
+    std::cout<<" POI: "<<poiVars_[i]->GetName()<<"= "<<p0[i]<<" -> ["<<pmin[i]<<","<<pmax[i]<<"]"<<std::endl;
     }
+
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
     minim.setStrategy(minimizerStrategy_);
@@ -280,10 +329,17 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
     //snap.Print("V");
     if (n == 1) {
 	// can do a more intellegent spacing of points
+	double xbestpoint = (p0[0] - pmin[0]) / ((pmax[0]-pmin[0])/points_) ;
+	if ( lastPoint_ == std::numeric_limits<unsigned int>::max()) lastPoint_ = points_-1;
         for (unsigned int i = 0; i < points_; ++i) {
             if (i < firstPoint_) continue;
             if (i > lastPoint_)  break;
             double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/points_; 
+	    if( xbestpoint > lastPoint_ ){
+		int ireverse = lastPoint_ - i + firstPoint_ ;
+		x = pmin[0] + (ireverse+0.5)*(pmax[0]-pmin[0])/points_; 
+	    }
+
 	    if (squareDistPoiStep_){
 		// distance between steps goes as ~square of distance from middle or range (could this be changed to from best fit value?)
 		double phalf = (pmax[0]-pmin[0])/2;
@@ -291,7 +347,8 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 		else x = pmax[0]-TMath::Sqrt(2*(points_-i)*(phalf)*(phalf)/points_);
 	    }
 
-            if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+            //if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+             std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
             *params = snap; 
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
@@ -305,6 +362,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
 		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
 			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
+		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 		}
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
@@ -335,6 +395,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			for(unsigned int j=0; j<specifiedNuis_.size(); j++){
 				specifiedVals_[j]=specifiedVars_[j]->getVal();
 			}
+			for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+				specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+			}
                     deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                     if (gridType_ == G3x3) {
                         for (int i2 = -1; i2 <= +1; ++i2) {
@@ -344,6 +407,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                                 poiVals_[1] = y + 0.33333333*j2*deltaY;
 				for(unsigned int j=0; j<specifiedNuis_.size(); j++){
 					specifiedVals_[j]=specifiedVars_[j]->getVal();
+				}
+				for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+					specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 				}
                                 deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                             }
@@ -360,6 +426,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                     double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
 		    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
 			    specifiedVals_[j]=specifiedVars_[j]->getVal();
+		    }
+		    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 		    }
                     Combine::commitPoint(true, /*quantile=*/prob);
                 }
@@ -380,6 +449,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 				    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
 					    specifiedVals_[j]=specifiedVars_[j]->getVal();
 				    }
+				    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+					    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+				    }
                                 deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                                 continue;
                             }
@@ -392,6 +464,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                             double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
 			    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
 				    specifiedVals_[j]=specifiedVars_[j]->getVal();
+			    }
+			    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+				    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 			    }
                             Combine::commitPoint(true, /*quantile=*/prob);
                         }
@@ -446,6 +521,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
 			specifiedVals_[j]=specifiedVars_[j]->getVal();
 		}
+		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		}
                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
 	       continue;
 	  }
@@ -458,6 +536,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
 		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
 			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
+		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 		}
                Combine::commitPoint(true, /*quantile=*/prob);
           }
@@ -491,10 +572,59 @@ void MultiDimFit::doRandomPoints(RooAbsReal &nll)
 		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
 			specifiedVals_[j]=specifiedVars_[j]->getVal();
 		}
+		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		}
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
         } 
     }
+}
+void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll) 
+{
+    double nll0 = nll.getVal();
+    for (unsigned int i = 0, n = poi_.size(); i < n; ++i) {
+        poiVars_[i]->setConstant(true);
+    }
+
+    CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    minim.setStrategy(minimizerStrategy_);
+    unsigned int n = poi_.size();
+
+    //for (unsigned int i = 0; i < n; ++i) {
+    //        std::cout<<" Before setting fixed point "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
+    //}
+    if (setPhysicsModelParameterExpression_ != "") {
+	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
+    }   
+
+    for (unsigned int i = 0; i < n; ++i) {
+	    poiVars_[i] -> setConstant(true);
+	    poiVals_[i] = poiVars_[i]->getVal(); 
+            std::cout<<" Evaluating fixed point with "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
+    }
+    // now we minimize
+    {   
+	    CloseCoutSentry sentry(verbose < 3);    
+	    bool ok = minim.minimize(verbose-1);
+	    if (ok) {
+		    nll0Value_ = nll0;
+		    nllValue_ = nll.getVal();
+		    deltaNLL_ = nll.getVal() - nll0;
+		    double qN = 2*(nll.getVal() - nll0);
+		    double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+		    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			    specifiedVals_[j]=specifiedVars_[j]->getVal();
+		    }
+		    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		    }
+		    Combine::commitPoint(true, /*quantile=*/prob);
+    //for (unsigned int i = 0; i < n; ++i) {
+    //        std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
+    //}
+	    }
+    } 
 }
 
 void MultiDimFit::doContour2D(RooAbsReal &nll) 

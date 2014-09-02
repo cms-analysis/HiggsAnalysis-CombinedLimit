@@ -225,6 +225,7 @@ void VerticalInterpHistPdf::setupCaches() const {
 ClassImp(FastVerticalInterpHistPdfBase)
 ClassImp(FastVerticalInterpHistPdf)
 ClassImp(FastVerticalInterpHistPdf2D)
+ClassImp(FastVerticalInterpHistPdf3D)
 
 
 //_____________________________________________________________________________
@@ -335,6 +336,15 @@ Double_t FastVerticalInterpHistPdf2D::evaluate() const
   //return std::max<double>(1e-9, _cache.GetAt(_x, _y));
   return _cache.GetAt(_x, _y);
 }
+Double_t FastVerticalInterpHistPdf3D::evaluate() const 
+{
+  TRACEME()
+  if (_cache.size() == 0) setupCaches();
+
+  if (!_sentry.good() || !_init) syncTotal();
+  //return std::max<double>(1e-9, _cache.GetAt(_x, _y));
+  return _cache.GetAt(_x, _y, _z);
+}
 
 
 
@@ -371,6 +381,24 @@ void FastVerticalInterpHistPdf2D::syncNominal() const {
 }
 
 
+void FastVerticalInterpHistPdf3D::syncNominal() const {
+    TRACEME()
+    RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(_funcList.at(0));
+    const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
+    const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
+    const RooRealVar &z = dynamic_cast<const RooRealVar &>(_z.arg());
+    const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
+    std::auto_ptr<TH1> hist(pdf->createHistogram("", x, RooFit::YVar(y), RooFit::ZVar(z),cond));
+    hist->SetDirectory(0); 
+    _cacheNominal = FastHisto3D(dynamic_cast<TH3F&>(*hist), _conditional);
+    if (_conditional) _cacheNominal.NormalizeXSlices(); 
+    else              _cacheNominal.Normalize(); 
+
+    if (_smoothAlgo < 0) {
+        _cacheNominalLog = _cacheNominal;
+        _cacheNominalLog.Log();
+    }
+}
 
 void FastVerticalInterpHistPdfBase::syncMorph(Morph &out, const FastTemplate &nominal, FastTemplate &lo, FastTemplate &hi) const {
     if (_smoothAlgo < 0)  {
@@ -408,6 +436,26 @@ void FastVerticalInterpHistPdf2D::syncComponents(int dim) const {
     std::auto_ptr<TH1> histLo(pdfLo->createHistogram("", x, RooFit::YVar(y), cond)); histLo->SetDirectory(0);
 
     FastHisto2D hi(dynamic_cast<TH2&>(*histHi), _conditional), lo(dynamic_cast<TH2&>(*histLo), _conditional); 
+    //printf("Un-normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    if (_conditional) {
+        hi.NormalizeXSlices(); lo.NormalizeXSlices();
+    } else {
+        hi.Normalize(); lo.Normalize();
+    }
+    //printf("Normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    syncMorph(_morphs[dim], _cacheNominal, lo, hi);
+}
+void FastVerticalInterpHistPdf3D::syncComponents(int dim) const {
+    RooAbsPdf *pdfHi = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+1));
+    RooAbsPdf *pdfLo = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+2));
+    const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
+    const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
+    const RooRealVar &z = dynamic_cast<const RooRealVar &>(_z.arg());
+    const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
+    std::auto_ptr<TH1> histHi(pdfHi->createHistogram("", x, RooFit::YVar(y),RooFit::ZVar(z), cond)); histHi->SetDirectory(0); 
+    std::auto_ptr<TH1> histLo(pdfLo->createHistogram("", x, RooFit::YVar(y),RooFit::ZVar(z), cond)); histLo->SetDirectory(0);
+
+    FastHisto3D hi(dynamic_cast<TH3&>(*histHi), _conditional), lo(dynamic_cast<TH3&>(*histLo), _conditional); 
     //printf("Un-normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
     if (_conditional) {
         hi.NormalizeXSlices(); lo.NormalizeXSlices();
@@ -479,6 +527,13 @@ void FastVerticalInterpHistPdf2D::syncTotal() const {
     //printf("Normalized result\n");  _cache.Dump();
 }
 
+void FastVerticalInterpHistPdf3D::syncTotal() const {
+    FastVerticalInterpHistPdfBase::syncTotal(_cache, _cacheNominal, _cacheNominalLog);
+    // normalize the result
+    if (_conditional) _cache.NormalizeXSlices(); 
+    else              _cache.Normalize(); 
+    //printf("Normalized result\n");  _cache.Dump();
+}
 
 
 void FastVerticalInterpHistPdf::setupCaches() const {
@@ -518,6 +573,26 @@ void FastVerticalInterpHistPdf2D::setupCaches() const {
         syncComponents(i);
     } 
     _cache = FastHisto2D(_cacheNominal);
+
+    if (_sentry.empty()) _sentry.addVars(_coefList); 
+    syncTotal();
+}
+void FastVerticalInterpHistPdf3D::setupCaches() const {
+    TRACEME()
+    int ndim = _coefList.getSize();
+
+    _morphs.resize(ndim);
+    _morphParams.resize(ndim);
+    syncNominal();
+    //printf("Nominal template has been set up: \n");  _cacheNominal.Dump();
+    _coefIter->Reset();
+    for (int i = 0; i < ndim; ++i) {
+        _morphParams[i] = dynamic_cast<RooAbsReal *>(_coefIter->Next());
+        _morphs[i].sum.Resize(_cacheNominal.size());
+        _morphs[i].diff.Resize(_cacheNominal.size());
+        syncComponents(i);
+    } 
+    _cache = FastHisto3D(_cacheNominal);
 
     if (_sentry.empty()) _sentry.addVars(_coefList); 
     syncTotal();

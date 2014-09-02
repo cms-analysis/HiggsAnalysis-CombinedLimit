@@ -124,6 +124,8 @@ class ModelBuilder(ModelBuilderBase):
                     self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
                 else:
                     self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
+                self.out.var(n).setVal(0)
+                self.out.var(n).setError(1) 
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
@@ -240,6 +242,7 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                           self.doVar("%s[%g,%g]" % (n, mean-4*sigma, mean+4*sigma))
                     self.out.var(n).setVal(mean)
+                    #self.out.var(n).setError(sigma)
                     self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]))
                     self.out.var("%s_In" % n).setConstant(True)
                 globalobs.append("%s_In" % n)
