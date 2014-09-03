@@ -298,11 +298,32 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       mcInt.reset(0);
   }
   if (mcInt.get() == 0) return false;
+
+  // MCMCCalculator calls SetConfidenceLevel on MCMCInterval when creating it
+  // SetConfidenceLevel calls DetermineInterval, which compute the interval from the Markov Chain
+  // for a given confidence level. This results is cached, so if we change the number of burn-in steps
+  // after, it'll have no effect
+  // Clone the MCMCInterval to reset its state, set the number of burn-in steps before calling SetConfidenceLevel
+
+  MCMCInterval* oldInterval = mcInt.get();
+  RooStats::MarkovChain* clonedChain = slimChain(*mc_s->GetParametersOfInterest(), *oldInterval->GetChain());
+  MCMCInterval* newInterval = new MCMCInterval(TString("MCMCIntervalCloned_") + TString(mc.GetName()), RooArgSet(*mc_s->GetParametersOfInterest()), *clonedChain);
+  newInterval->SetUseKeys(oldInterval->GetUseKeys());
+  newInterval->SetIntervalType(oldInterval->GetIntervalType());
+  if (newInterval->GetIntervalType() == MCMCInterval::kTailFraction) {
+    newInterval->SetLeftSideTailFraction(0);
+  }
+  newInterval->SetNumBurnInSteps(burnInSteps_);
+
   if (adaptiveBurnIn_) {
     mcInt->SetNumBurnInSteps(guessBurnInSteps(*mcInt->GetChain()));
   } else if (mcInt->GetChain()->Size() * burnInFraction_ > burnInSteps_) {
     mcInt->SetNumBurnInSteps(mcInt->GetChain()->Size() * burnInFraction_);
   }
+  newInterval->SetConfidenceLevel(oldInterval->ConfidenceLevel());
+
+  mcInt.reset(newInterval);
+
   limit = mcInt->UpperLimit(*r);
 
   if (saveChain_ || mergeChains_) {
