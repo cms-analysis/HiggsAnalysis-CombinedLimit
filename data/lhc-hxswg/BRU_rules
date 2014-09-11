@@ -12,7 +12,7 @@ nuisance edit drop * * BRhiggs_hzz4l
 nuisance edit drop * * CMS_hgg_BR
 
 # adding nuisances according to
-# https://indico.cern.ch/event/317643/contribution/0/material/0/0.pdf#6
+# https://indico.cern.ch/event/317643/contribution/0/material/0/0.pdf#page=6
 
 # Lines come in pairs:
 # - first line takes care of all signal names we know only in cards for given decays
