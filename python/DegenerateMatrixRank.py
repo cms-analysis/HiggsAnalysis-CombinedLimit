@@ -34,7 +34,7 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
 	for decay in self.decays:
             #poi.append('mu_'+decay);
             if decay in self.fixDecays:
-                print "It seems that you set signal strength ggH->"+decay+" as missing, I will set that as POI. Please set it to unity when running HybridNew!"
+                print "It seems that you set signal strength ggH->"+decay+" as missing, I will set that as POI. Please set it to unity when running HybridNew."
                 self.modelBuilder.doVar("mu_%s[1,0,5]" % decay)
                 poi.append('mu_'+decay)
             else:
