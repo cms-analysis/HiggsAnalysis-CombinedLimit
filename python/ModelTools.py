@@ -101,7 +101,10 @@ class ModelBuilder(ModelBuilderBase):
                 if self.options.noOptimizePdf:
                     self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
                 else:
-                    self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
+                    if self.out.var("%s" % n):
+                        self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[0,%s], %g" % (n,n,r,sig));
+                    else:
+                        self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)

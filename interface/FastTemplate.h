@@ -3,6 +3,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TH3.h>
 #include <algorithm>
 #include <vector>
 
@@ -15,6 +16,7 @@ class FastTemplate {
         FastTemplate(const FastTemplate &other) : size_(other.size()), values_(other.values_) {}
         FastTemplate(const TH1 &other) : size_(other.GetNbinsX()), values_(size_) { CopyValues(other); }
         FastTemplate(const TH2 &other) : size_(other.GetNbinsX()*other.GetNbinsY()), values_(size_) { CopyValues(other); }
+        FastTemplate(const TH3 &other) : size_(other.GetNbinsX()*other.GetNbinsY()*other.GetNbinsZ()), values_(size_) { CopyValues(other); }
         FastTemplate & operator=(const FastTemplate &other) { 
             if (&other != this) {
                 size_ = other.size_;
@@ -42,6 +44,7 @@ class FastTemplate {
         void CopyValues(const FastTemplate &other) ;
         void CopyValues(const TH1 &other) ;
         void CopyValues(const TH2 &other) ;
+        void CopyValues(const TH3 &other) ;
         T & operator[](unsigned int i) { return values_[i]; }
         const T & operator[](unsigned int i) const { return values_[i]; }
         /// return the full size of the template
@@ -164,4 +167,56 @@ class FastHisto2D : public FastTemplate {
     
 };
 
+class FastHisto3D : public FastTemplate {
+    public:
+        FastHisto3D() : FastTemplate(), binX_(0), binY_(0), binZ_(0),binEdgesX_(), binEdgesY_(), binEdgesZ_(), binWidths_() {}
+        FastHisto3D(const TH3 &hist, bool normXonly=false) ;
+        FastHisto3D(const FastHisto3D &other) ;
+        FastHisto3D & operator=(const FastHisto3D &other) { 
+            if (binX() != other.binX() || binY() != other.binY() || binZ() != other.binZ()) {
+                size_      = other.size_;
+                values_    = other.values_;
+                binWidths_ = other.binWidths_;
+                binEdgesX_ = other.binEdgesX_;
+                binEdgesY_ = other.binEdgesY_;
+                binEdgesZ_ = other.binEdgesZ_;
+                binX_      = other.binX_;
+                binY_      = other.binY_;
+                binZ_      = other.binZ_;
+            } else CopyValues(other); 
+            return *this; 
+        }
+        ~FastHisto3D() {  }
+        void swap(FastHisto3D &other) {
+            std::swap(size_, other.size_);
+            std::swap(binX_, other.binX_);
+            std::swap(binY_, other.binY_);
+            std::swap(binZ_, other.binZ_);
+            std::swap(values_, other.values_);
+            std::swap(binWidths_, other.binWidths_);
+            std::swap(binEdgesX_, other.binEdgesX_);
+            std::swap(binEdgesY_, other.binEdgesY_);
+            std::swap(binEdgesZ_, other.binEdgesZ_);
+        }
+        T GetAt(const T &x, const T &y, const T &z) const ;
+        T IntegralWidth() const ;
+        unsigned int binX() const { return binX_; }
+        unsigned int binY() const { return binY_; }
+        unsigned int binZ() const { return binZ_; }
+        void Normalize() {
+            T sum = IntegralWidth();
+            if (sum > 0) Scale(1.0f/sum);
+        }
+        /// For each X, normalize along Y
+        void NormalizeXSlices() ;
+
+        void Dump() const ;
+    private:
+        unsigned int binX_, binY_, binZ_;
+        AT binEdgesX_;
+        AT binEdgesY_;
+        AT binEdgesZ_;
+        AT binWidths_;
+    
+};
 #endif
