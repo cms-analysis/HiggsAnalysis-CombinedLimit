@@ -102,7 +102,7 @@ class SMHiggsBuilder:
             scalingName = 'Scaling_'+what
 #            print 'Building '+scalingName
             rooExpr = 'expr::%(scalingName)s(\
-"(@0*@0)*@4  + (@1*@1)*@5 + (@2*@2)*@6 + (@0*@1)*@7 + (@0*@2)*@8 + (@1*@2)*@9 + (@3*@3)*@10 + (@0*@3)*@11 + (@1*@3)*@12 + (@2*@3)*@13",\
+"( (@0*@0)*@4 + (@1*@1)*@5 + (@2*@2)*@6 + (@0*@1)*@7 + (@0*@2)*@8 + (@1*@2)*@9 + (@3*@3)*@10 + (@0*@3)*@11 + (@1*@3)*@12 + (@2*@3)*@13 ) / (@4+@5+@6+@7+@8+@9+@10+@11+@12+@13)",\
  %(Ctop)s, %(Cb)s, %(CW)s, %(Ctau)s,\
  %(prefix)sGamma_tt, %(prefix)sGamma_bb, %(prefix)sGamma_WW,\
  %(prefix)sGamma_tb, %(prefix)sGamma_tW, %(prefix)sGamma_bW,\

@@ -441,6 +441,7 @@ class ShapeBuilder(ModelBuilder):
                     pdflist.add(self.shape2Pdf(shapeUp,channel,process))
                     pdflist.add(self.shape2Pdf(shapeDown,channel,process))
                 pdfs = pdflist
+		
         if "2a" in shapeAlgo: # old shape2
             if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
             if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work in one dimension"

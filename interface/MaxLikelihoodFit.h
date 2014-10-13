@@ -34,7 +34,7 @@ protected:
 
   static std::string minos_;
 
-  static bool justFit_, noErrors_;
+  static bool justFit_,  skipBOnlyFit_, noErrors_;
   static std::string out_; 
   static bool        makePlots_;
   static float       rebinFactor_;

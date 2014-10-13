@@ -5,11 +5,13 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.decays = [ "hbb", "htt", "hgg", "hww", "hzz" ]
         self.productions = ["ggH", "qqH", "VH", "ttH"]
+        self.fixDecays = []
         self.mHRange = []
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("decays="): self.decays = po.replace("decays=","").split(",")
             if po.startswith("productions="): self.productions = po.replace("productions=","").split(",")
+            if po.startswith("fixDecays="): self.fixDecays = po.replace("fixDecays=","").split(",") 
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
@@ -31,7 +33,12 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
 	poi.append('lambdat');
 	for decay in self.decays:
             #poi.append('mu_'+decay);
-            self.modelBuilder.doVar("mu_%s[1,0,5]" % decay)
+            if decay in self.fixDecays:
+                print "It seems that you set signal strength ggH->"+decay+" as missing, I will set that as POI. Please set it to unity when running HybridNew."
+                self.modelBuilder.doVar("mu_%s[1,0,5]" % decay)
+                poi.append('mu_'+decay)
+            else:
+                self.modelBuilder.doVar("mu_%s[1,0,5]" % decay)
             self.modelBuilder.factory_("expr::lambdamu_%s(\"@0*@1\",lambda,mu_%s)" % (decay,decay))
             self.modelBuilder.factory_("expr::lambdavmu_%s(\"@0*@1\",lambdav,mu_%s)" % (decay,decay))
             self.modelBuilder.factory_("expr::lambdatmu_%s(\"@0*@1\",lambdat,mu_%s)" % (decay,decay))
@@ -85,11 +92,13 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.decays = [ "hbb", "htt", "hgg", "hww", "hzz" ]
         self.productions = ["ggH", "qqH", "VH", "ttH"]
+        self.fixDecays = []
 	self.mHRange = []
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("decays="): self.decays = po.replace("decays=","").split(",")
             if po.startswith("productions="): self.productions = po.replace("productions=","").split(",")
+            if po.startswith("fixDecays="): self.fixDecays = po.replace("fixDecays=","").split(",")
 	    if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
@@ -112,7 +121,11 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
                         poi.append('lambdav_'+decay);
                 elif production == "ttH":
                         poi.append('lambdat_'+decay);
-            self.modelBuilder.doVar("mu_%s[1,0,5]" % decay)
+            if decay in self.fixDecays:
+                print "It seems that you set signal strength ggH->"+decay+" as missing, I will set that equal to unity."
+                self.modelBuilder.doVar("mu_%s[1.0]" % decay)
+            else:
+                self.modelBuilder.doVar("mu_%s[1,0,5]" % decay)
 	    self.modelBuilder.doVar("lambda_%s[1,0,10]" % decay)
 	    self.modelBuilder.doVar("lambdav_%s[1,0,10]" % decay)
             self.modelBuilder.doVar("lambdat_%s[1,0,10]" % decay)

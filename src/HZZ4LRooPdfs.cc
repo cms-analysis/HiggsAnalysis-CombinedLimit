@@ -3576,7 +3576,8 @@ RooaDoubleCBxBW::RooaDoubleCBxBW(const char *name, const char *title,
          unsigned _nR,
          RooAbsReal& _thetaL,
          RooAbsReal& _thetaR,
-         bool computeActualCB_=true
+         bool computeActualCB_=true,
+         bool tailOnly_=false
          ) :
   RooAbsPdf(name,title),
   x("x","x",this,_x),
@@ -3590,7 +3591,8 @@ RooaDoubleCBxBW::RooaDoubleCBxBW(const char *name, const char *title,
   nR(_nR),
   thetaL("thetaL","thetaL",this,_thetaL),
   thetaR("thetaR","thetaR",this,_thetaR),
-  computeActualCB(computeActualCB_)
+  computeActualCB(computeActualCB_),
+  tailOnly(tailOnly_)
 {
 }
 
@@ -3607,7 +3609,8 @@ RooaDoubleCBxBW::RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name)
   nR(other.nR),
   thetaL("thetaL",this,other.thetaL),
   thetaR("thetaR",this,other.thetaR),
-  computeActualCB(other.computeActualCB)
+  computeActualCB(other.computeActualCB),
+  tailOnly(other.tailOnly)
 {
 }
 
@@ -3650,7 +3653,8 @@ double RooaDoubleCBxBW::evaluateDoubleCB() const
     else polval = AR/TMath::Power(BR+t,(int)nR) - exp(-0.5*t*t);
   }
 
-  return gaussval + polval;
+  if (tailOnly) return polval;
+  else return gaussval + polval;
 }
 
 double RooaDoubleCBxBW::evaluatePowerLaw(double lim, unsigned power, bool isLeft) const
@@ -3749,7 +3753,7 @@ double RooaDoubleCBxBW::evaluate() const
   double point3 = ( absaR)*(sigma)+shift-x;
   double point4 = tsR*(sigma)+shift-x;
 
-  if (width == 0.0) return evaluateDoubleCB();
+  if (width <= 0.05) return evaluateDoubleCB();
   else return max(0., (AL*pow(-sigma/width,nL)/width)*(evaluatePowerLaw(point1/width, nL, true) - evaluatePowerLaw(-inf, nL, true))) +  evaluateQuadratic(point1, point2, true) + evaluateVoigtian() + evaluateQuadratic(point3, point4, false) + max(0., (AR*pow(sigma/width, nR)/width)*(evaluatePowerLaw(inf, nR, false) - evaluatePowerLaw(point4/width, nR, false)));
 
 }

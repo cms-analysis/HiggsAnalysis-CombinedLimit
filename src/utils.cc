@@ -31,6 +31,8 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
+#include "../interface/CloseCoutSentry.h"
+
 using namespace std;
 
 void utils::printRDH(RooAbsData *data) {
@@ -691,3 +693,40 @@ std::vector<std::vector<int> > utils::generateCombinations(const std::vector<int
 
   return result;
 }
+
+
+bool utils::checkParameterBoundary( const RooRealVar &param ){
+    double vMin = param.getMin();
+    double vMax = param.getMax();
+    double val = param.getVal();
+    double errLo = -1.0 * param.getErrorLo(); 
+    double errHi = param.getErrorHi(); 
+
+    double pullMin = (val-vMin) / (errLo);
+    double pullMax = (vMax-val) / (errHi);
+
+    float nSigma=1.0;
+
+    if(pullMin < nSigma || pullMax < nSigma){
+        CloseCoutSentry::breakFree();
+        std::cout << "  [WARNING] Found "<<param.GetName()<< " at " << std::min(pullMin,pullMax) << " sigma of one of its boundaries:" << std::endl;
+        std::cout << "   "; param.Print();
+        return false;
+    }
+
+    return true;
+}
+
+bool utils::checkParameterBoundaries( const RooArgSet &params ){
+    
+    bool isNoneBad = true;
+
+    RooLinkedListIter iter = params.iterator(); int i = 0;
+    for (RooRealVar *a = (RooRealVar *) iter.Next(); a != 0; a = (RooRealVar *) iter.Next(), ++i) {
+        bool isBad = checkParameterBoundary(*a);
+        isNoneBad &= isBad;
+    }
+
+    return isNoneBad;
+}
+
