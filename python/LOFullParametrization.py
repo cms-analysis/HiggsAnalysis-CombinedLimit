@@ -306,25 +306,40 @@ class PartialWidthsModel(SMLikeHiggsModel):
         self.setup()
     def setup(self):
         self.modelBuilder.doVar("PW_one[1]")
-        self.modelBuilder.factory_("prod::PW_XSscal_WH(r_Zglu,r_WZ)")
-        self.modelBuilder.factory_("expr::PW_lambdaWZ(\"sqrt(@0)\",r_WZ)")
-        self.SMH.makeScaling("qqH", CW='PW_lambdaWZ', CZ="PW_one")
-        self.modelBuilder.factory_("prod::PW_XSscal_qqH_7TeV(Scaling_qqH_7TeV,r_Zglu)")
-        self.modelBuilder.factory_("prod::PW_XSscal_qqH_8TeV(Scaling_qqH_8TeV,r_Zglu)")
+
+	self.modelBuilder.factory_("prod::sr_WZ(r_WZ,r_WZ)")
+	self.modelBuilder.factory_("prod::sr_bZ(r_bZ,r_bZ)")
+	self.modelBuilder.factory_("prod::sr_tZ(r_tZ,r_tZ)")
+	self.modelBuilder.factory_("prod::sr_mZ(r_mZ,r_mZ)")
+	self.modelBuilder.factory_("prod::sr_gZ(r_gZ,r_gZ)")
+	self.modelBuilder.factory_("prod::sr_Zglu(r_Zglu,r_Zglu)")
+	self.modelBuilder.factory_("prod::sr_topglu(r_topglu,r_topglu)")
+	self.modelBuilder.factory_("prod::sc_gluZ(c_gluZ,c_gluZ)")
+
+        self.modelBuilder.factory_("prod::PW_XSscal_WH(sr_Zglu,sr_WZ)")
+        #self.modelBuilder.factory_("expr::PW_lambdaWZ(\"sqrt(@0)\",sr_WZ)")
+        #self.SMH.makeScaling("qqH", CW='PW_lambdaWZ', CZ="PW_one")
+        self.SMH.makeScaling("qqH", CW='r_WZ', CZ="PW_one")
+        self.modelBuilder.factory_("prod::PW_XSscal_qqH_7TeV(Scaling_qqH_7TeV,sr_Zglu)")
+        self.modelBuilder.factory_("prod::PW_XSscal_qqH_8TeV(Scaling_qqH_8TeV,sr_Zglu)")
         self.decayScales_ = {
             'hzz' : 'PW_one',
-            'hww' : 'r_WZ',
-            'hbb' : 'r_bZ',
-            'htt' : 'r_tZ',
-            'hmm' : 'r_mZ',
-            'hgg' : 'r_gZ',
+            'hww' : 'sr_WZ',
+            'hbb' : 'sr_bZ',
+            'htt' : 'sr_tZ',
+            'hmm' : 'sr_mZ',
+            'hgg' : 'sr_gZ',
+	    'hss' : 'sr_bZ',
+	    'hcc' : 'PW_one',   #
+            'hgluglu' : 'PW_one', #
+	    'hzg' : 'PW_one', #
         }
         self.prodScales_ = {
             'ggH' : 'PW_one',
             'qqH' : 'PW_XSscal_qqH',
             'WH'  : 'PW_XSscal_WH',
-            'ZH'  : 'r_Zglu',
-            'ttH' : 'r_topglu',
+            'ZH'  : 'sr_Zglu',
+            'ttH' : 'sr_topglu',
         }
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s" % (production,decay)
@@ -336,6 +351,6 @@ class PartialWidthsModel(SMLikeHiggsModel):
         pscale = self.prodScales_[production]
         if production == "qqH": pscale += "_%s" % energy
         print '[LOFullParametrization::PartialWidthModel]: ', name, production, decay, energy, pscale, dscale
-        self.modelBuilder.factory_("prod::%s(%s,c_gluZ,%s)" % (name, dscale, pscale))
+        self.modelBuilder.factory_("prod::%s(%s,sc_gluZ,%s)" % (name, dscale, pscale))
         return name
 

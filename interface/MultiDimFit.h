@@ -24,7 +24,7 @@ public:
 protected:
   virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
 
-  enum Algo { None, Singles, Cross, Grid, RandomPoints, Contour2D, Stitch2D };
+  enum Algo { None, Singles, Cross, Grid, RandomPoints, Contour2D, Stitch2D, FixedPoint };
   static Algo algo_;
 
   enum GridType { G1x1, G3x3 };
@@ -46,6 +46,12 @@ protected:
   static bool loadedSnapshot_;
   static float maxDeltaNLLForProf_;
 
+  static std::string saveSpecifiedFuncs_;
+  static std::string saveSpecifiedNuis_;
+  static std::vector<std::string>  specifiedFuncNames_;
+  static std::vector<RooAbsReal*> specifiedFunc_;
+  static std::vector<float>        specifiedFuncVals_;
+  static RooArgList                specifiedFuncList_;
   static std::vector<std::string>  specifiedNuis_;
   static std::vector<RooRealVar *> specifiedVars_;
   static std::vector<float>        specifiedVals_;
@@ -58,6 +64,7 @@ protected:
   void doSingles(RooFitResult &res) ;
   void doGrid(RooAbsReal &nll) ;
   void doRandomPoints(RooAbsReal &nll) ;
+  void doFixedPoint(RooWorkspace *w,RooAbsReal &nll) ;
   void doContour2D(RooAbsReal &nll) ;
   void doStitch2D(RooAbsReal &nll) ;
 

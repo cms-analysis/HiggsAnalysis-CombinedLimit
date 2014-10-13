@@ -16,6 +16,7 @@ parser.add_option("--xc", "--exclude-channel", type="string", dest="channelVetos
 parser.add_option("--ic", "--include-channel", type="string", dest="channelIncludes", default=[], action="append", help="Only include channels that match this regexp; can specify multiple ones")
 parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
 parser.add_option("--xn-file", "--exclude-nuisances-from-file", type="string", dest="nuisVetoFile", help="Exclude all the nuisances in this file")
+parser.add_option("--en-file", "--edit-nuisances-from-file", type="string", dest="editNuisFile", help="edit the nuisances in this file")
 
 (options, args) = parser.parse_args()
 options.bin = True # fake that is a binary output, so that we parse shape lines
@@ -33,7 +34,7 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
-paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}
+paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}
 cmax = 5 # column width
 if not args:
     raise RuntimeError, "No input datacards specified."
@@ -145,7 +146,13 @@ for ich,fname in enumerate(args):
             bout = label if singlebin else label+b
             if isVetoed(bout,options.channelVetos): continue
 	    if not isIncluded(bout,options.channelIncludes): continue
-            obsline += [str(DC.obs[b])]; 
+            obsline += [str(DC.obs[b])];
+    #get the groups - keep nuisances in a set so that they are never repetitions
+    for groupName,nuisanceNames in DC.groups.iteritems():
+        if groupName in groups:
+            groups[groupName].update(set(nuisanceNames))
+        else:
+            groups[groupName] = set(nuisanceNames)
 
 bins = []
 for (b,p,s) in keyline:
@@ -215,6 +222,13 @@ for (pname, pargs) in paramSysts.items():
 
 for pname in flatParamNuisances.iterkeys(): 
     print "%-12s  flatParam" % pname
-
 for dname in discreteNuisances.iterkeys(): 
     print "%-12s  discrete" % dname
+for groupName,nuisanceNames in groups.iteritems():
+    nuisances = ' '.join(nuisanceNames)
+    print '%(groupName)s group = %(nuisances)s' % locals()
+
+if options.editNuisFile:
+    file = open(options.editNuisFile, "r")    
+    str = file.read();
+    print str
