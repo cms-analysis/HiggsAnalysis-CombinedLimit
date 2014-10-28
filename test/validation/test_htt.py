@@ -8,8 +8,8 @@ M='MultiDimFit'
 minimizer='--minimizerStrategy=0 --minimizerTolerance=0.1'
 suite += [ (M, 'HTT',
   WorkspaceWithExpectedTest("Summer13_HTT_CV_CF",
-    datacardGlob("htt/125/htt_mt_*_8TeV.txt"), M,
-    '--default-morphing=shape2 -P "HiggsAnalysis.CombinedLimit.HiggsCouplings:cVcF" --PO "cVRange=0:10" --PO "cFRange=0:10"',
+    datacardGlob("htt/125/htt_*_8TeV.txt"), M,
+    '--default-morphing=shape2 -P "HiggsAnalysis.CombinedLimit.HiggsCouplings:cVcF" --PO "cVRange=0:4" --PO "cFRange=0:4"',
     minimizer + ' --algo grid --points 25', 125, ['CV', 'CF'])
   ) ]
 suite += [ (M, 'HTT',
