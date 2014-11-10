@@ -80,21 +80,19 @@ void CombineHarvester::ExtractShapes(std::string const& file,
   mapping[0].pattern = rule;
   mapping[0].syst_pattern = syst_rule;
 
+  // Note that these LoadShapes calls will fail if we encounter
+  // any object that already has shapes
   for (unsigned  i = 0; i < obs_.size(); ++i) {
-    if (!obs_[i]->shape()) {
-      LoadShapes(obs_[i].get(), mapping);
-    }
+    if (obs_[i]->shape() || obs_[i]->data()) continue;
+    LoadShapes(obs_[i].get(), mapping);
   }
   for (unsigned  i = 0; i < procs_.size(); ++i) {
-    if (!procs_[i]->shape()) {
-      LoadShapes(procs_[i].get(), mapping);
-    }
+    if (procs_[i]->shape() || procs_[i]->pdf()) continue;
+    LoadShapes(procs_[i].get(), mapping);
   }
   if (syst_rule == "") return;
   for (unsigned  i = 0; i < nus_.size(); ++i) {
-    if (nus_[i]->shape_d() || nus_[i]->shape_u() || nus_[i]->type() != "shape")
-      continue;
-
+    if (nus_[i]->type() != "shape") continue;
     LoadShapes(nus_[i].get(), mapping);
   }
 }

@@ -123,6 +123,11 @@ std::vector<std::vector<unsigned>> GenerateCombinations(
   unsigned n = vec.size();
   std::vector<unsigned> idx(n, 0);
   std::vector<std::vector<unsigned>> result;
+  // if any one of the elements is zero there are no
+  // combinations to build
+  if (std::find(vec.begin(), vec.end(), 0) != vec.end()) {
+    return result;
+  }
   result.push_back(idx);
   bool exit_loop = false;
   while (exit_loop == false) {

@@ -363,50 +363,47 @@ void CombineHarvester::LoadShapes(Process* entry,
 
 void CombineHarvester::LoadShapes(Nuisance* entry,
                                      std::vector<HistMapping> const& mappings) {
+  if (entry->shape_u() || entry->shape_d()) {
+    throw std::runtime_error(FNERROR("Nuisance already contains a shape"));
+  }
+
+  if (verbosity_ >= 1) {
+    LOGLINE(log(), "Extracting shapes for Nuisance:");
+    log() << Nuisance::PrintHeader << *entry << "\n";
+    LOGLINE(log(), "Mappings:");
+    for (HistMapping const& m : mappings) log() << m << "\n";
+  }
+
+  // Pre-condition #2
+  // ResolveMapping will throw if this fails
   HistMapping const& mapping =
       ResolveMapping(entry->process(), entry->bin(), mappings);
-  mapping.file->cd();
-  if (mapping.IsHist()) {
-    std::string p = mapping.pattern;
-    boost::replace_all(p, "$CHANNEL", entry->bin());
-    boost::replace_all(p, "$BIN", entry->bin());
-    boost::replace_all(p, "$PROCESS", entry->process());
-    boost::replace_all(p, "$MASS", entry->mass());
-    std::string p_s = mapping.syst_pattern;
-    boost::replace_all(p_s, "$CHANNEL", entry->bin());
-    boost::replace_all(p_s, "$BIN", entry->bin());
-    boost::replace_all(p_s, "$PROCESS", entry->process());
-    boost::replace_all(p_s, "$MASS", entry->mass());
-    std::string p_s_hi = p_s;
-    std::string p_s_lo = p_s;
-    boost::replace_all(p_s_hi, "$SYSTEMATIC", entry->name() + "Up");
-    boost::replace_all(p_s_lo, "$SYSTEMATIC", entry->name() + "Down");
-    TH1 *h = dynamic_cast<TH1*>(gDirectory->Get(p.c_str()));
-    // Allow for the possibility that the shapes don't exist (i.e. if this
-    // is a "shape?" entry in the datacard)
-    if (!gDirectory->Get(p_s_hi.c_str())
-        || !gDirectory->Get(p_s_lo.c_str())) return;
-    TH1 *h_u = dynamic_cast<TH1*>(gDirectory->Get(p_s_hi.c_str())->Clone());
-    TH1 *h_d = dynamic_cast<TH1*>(gDirectory->Get(p_s_lo.c_str())->Clone());
-    h_u->SetDirectory(0);
-    h_d->SetDirectory(0);
-    if (h->Integral() > 0.0) {
-      if (h_u->Integral() > 0.0) {
-        entry->set_value_u(h_u->Integral()/h->Integral());
-        h_u->Scale(1.0/h_u->Integral());
-      }
-      if (h_d->Integral() > 0.0) {
-        entry->set_value_d(h_d->Integral()/h->Integral());
-        h_d->Scale(1.0/h_d->Integral());
-      }
-    } else {
-      if (h_u->Integral() > 0.0)  h_u->Scale(1.0/h_u->Integral());
-      if (h_d->Integral() > 0.0)  h_d->Scale(1.0/h_d->Integral());
-    }
-    entry->set_shape_u(std::unique_ptr<TH1>(h_u));
-    entry->set_shape_d(std::unique_ptr<TH1>(h_d));
-    entry->set_asymm(true);
+
+  if (!mapping.IsHist()) {
+    throw std::runtime_error(
+        FNERROR("Resolved mapping is not of histogram type"));
   }
+
+  std::string p = mapping.pattern;
+  boost::replace_all(p, "$CHANNEL", entry->bin());
+  boost::replace_all(p, "$BIN", entry->bin());
+  boost::replace_all(p, "$PROCESS", entry->process());
+  boost::replace_all(p, "$MASS", entry->mass());
+  std::string p_s = mapping.syst_pattern;
+  boost::replace_all(p_s, "$CHANNEL", entry->bin());
+  boost::replace_all(p_s, "$BIN", entry->bin());
+  boost::replace_all(p_s, "$PROCESS", entry->process());
+  boost::replace_all(p_s, "$MASS", entry->mass());
+  std::string p_s_hi = p_s;
+  std::string p_s_lo = p_s;
+  boost::replace_all(p_s_hi, "$SYSTEMATIC", entry->name() + "Up");
+  boost::replace_all(p_s_lo, "$SYSTEMATIC", entry->name() + "Down");
+
+  std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), p);
+  std::unique_ptr<TH1> h_u = GetClonedTH1(mapping.file.get(), p_s_hi);
+  std::unique_ptr<TH1> h_d = GetClonedTH1(mapping.file.get(), p_s_lo);
+
+  entry->SetShapesAndVals(std::move(h_u), std::move(h_d), h.get());
 }
 
 HistMapping const& CombineHarvester::ResolveMapping(

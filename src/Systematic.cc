@@ -99,6 +99,27 @@ Nuisance& Nuisance::operator=(Nuisance other) {
   return (*this);
 }
 
+void Nuisance::SetShapesAndVals(std::unique_ptr<TH1> shape_u,
+                      std::unique_ptr<TH1> shape_d, TH1 const* nominal) {
+  if (!shape_u || !shape_d || !nominal) return;
+  if (nominal->Integral() > 0.0) {
+    if (shape_u->Integral() > 0.0) {
+      this->set_value_u(shape_u->Integral()/nominal->Integral());
+      shape_u->Scale(1.0/shape_u->Integral());
+    }
+    if (shape_d->Integral() > 0.0) {
+      this->set_value_d(shape_d->Integral()/nominal->Integral());
+      shape_d->Scale(1.0/shape_d->Integral());
+    }
+  } else {
+    if (shape_u->Integral() > 0.0)  shape_u->Scale(1.0/shape_u->Integral());
+    if (shape_d->Integral() > 0.0)  shape_d->Scale(1.0/shape_d->Integral());
+  }
+  this->set_shape_u(std::move(shape_u));
+  this->set_shape_d(std::move(shape_d));
+  this->set_asymm(true);
+}
+
 std::ostream& Nuisance::PrintHeader(std::ostream &out) {
   std::string line =
    (boost::format("%-6s %-9s %-6s %-8s %-28s %-3i"
@@ -112,7 +133,7 @@ std::ostream& Nuisance::PrintHeader(std::ostream &out) {
   return out;
 }
 
-std::ostream& operator<< (std::ostream &out, Nuisance &val) {
+std::ostream& operator<< (std::ostream &out, Nuisance const& val) {
   std::string value_fmt;
   if (val.asymm()) {
     value_fmt = (boost::format("%-4.4g/%-4.4g")

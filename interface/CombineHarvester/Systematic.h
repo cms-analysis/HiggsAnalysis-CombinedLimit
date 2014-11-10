@@ -63,7 +63,10 @@ class Nuisance {
   void set_shape_d(std::unique_ptr<TH1> shape_d) { shape_d_ = std::move(shape_d); }
   TH1 const* shape_d() const { return shape_d_.get(); }
 
-  friend std::ostream& operator<< (std::ostream &out, Nuisance &val);
+  void SetShapesAndVals(std::unique_ptr<TH1> shape_u,
+                        std::unique_ptr<TH1> shape_d, TH1 const* nominal);
+
+  friend std::ostream& operator<< (std::ostream &out, Nuisance const& val);
   static std::ostream& PrintHeader(std::ostream &out);
 
  private:
