@@ -76,13 +76,21 @@ void ParseTable(std::map<std::string, TGraph>* graphs, std::string const& file,
 
 void ScaleProcessRate(ch::Process* p,
                       std::map<std::string, TGraph> const* graphs,
-                      std::string const& prod, std::string const& decay) {
-  double mass = boost::lexical_cast<double>(p->mass());
+                      std::string const& prod, std::string const& decay,
+                      std::string const& force_mass) {
+  double mass =
+      boost::lexical_cast<double>(force_mass.size() ? force_mass : p->mass());
   double scale = 1.0;
-  if (prod != "" && graphs->count(prod)) {
+  if (prod != "") {
+    if (!graphs->count(prod))
+      throw std::runtime_error(
+          FNERROR("Requested TGraph " + prod + " not found in map"));
     scale *= graphs->find(prod)->second.Eval(mass);
   }
-  if (decay != "" && graphs->count(decay)) {
+  if (decay != "") {
+    if (!graphs->count(decay))
+      throw std::runtime_error(
+          FNERROR("Requested TGraph " + decay + " not found in map"));
     scale *= graphs->find(decay)->second.Eval(mass);
   }
   p->set_rate(p->rate() * scale);
@@ -157,9 +165,8 @@ std::vector<std::string> ParseFileLines(std::string const& file_name) {
   std::ifstream file;
   file.open(file_name.c_str());
   if (!file.is_open()) {
-    std::cerr << "Warning: File " << file_name << " cannot be opened."
-              << std::endl;
-    return files;
+    throw std::runtime_error(
+        FNERROR("File " + file_name + " could not be opened"));
   }
   std::string line = "";
   while (std::getline(file, line)) {  // while loop through lines

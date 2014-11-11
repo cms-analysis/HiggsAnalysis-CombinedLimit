@@ -100,9 +100,8 @@ void ParseTable(std::map<std::string, TGraph>* graphs, std::string const& file,
 
 void ScaleProcessRate(ch::Process* p,
                       std::map<std::string, TGraph> const* graphs,
-                      std::string const& prod, std::string const& decay);
-
-
+                      std::string const& prod, std::string const& decay,
+                      std::string const& force_mass = "");
 
 // ---------------------------------------------------------------------------
 // Misc
