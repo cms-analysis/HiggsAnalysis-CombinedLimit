@@ -47,6 +47,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "../interface/LimitAlgo.h"
 #include "../interface/utils.h"
@@ -493,7 +494,23 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       std::vector<string> nuisanceGroups;
       boost::algorithm::split(nuisanceGroups,freezeNuisanceGroups_,boost::algorithm::is_any_of(","));
       for (std::vector<string>::iterator ng_it=nuisanceGroups.begin();ng_it!=nuisanceGroups.end();ng_it++){
-        RooArgSet toFreeze(*(w->set(Form("group_%s",(*ng_it).c_str()))));
+        bool freeze_complement=false;
+      	if (boost::algorithm::starts_with((*ng_it),"~")){
+	  freeze_complement=true;
+	  (*ng_it).erase(0,1);
+	} 
+
+        RooArgSet groupNuisances(*(w->set(Form("group_%s",(*ng_it).c_str()))));
+	RooArgSet toFreeze;
+
+	if (freeze_complement) {
+	  RooArgSet still_floating(*mc->GetNuisanceParameters());
+	  still_floating.remove(groupNuisances,true,true);	
+	  toFreeze.add(still_floating);
+	} else {
+	  toFreeze.add(groupNuisances);
+	}
+	
         if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
         utils::setAllConstant(toFreeze, true);
         if (nuisances) {
@@ -788,5 +805,18 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
           }
         }
+    } 
+    // Run through all of the categories in the workspace and look for "pdfindex" -> fall back option 
+    /*else {
+        RooArgSet discreteParameters_C = w->allCats();
+        TIterator *dp = discreteParameters_C.createIterator();
+        while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
+         RooCategory *cat = dynamic_cast<RooCategory*>(arg);
+         if (! (std::string(cat->GetName()).find("pdfindex") != std::string::npos )) continue;
+         if (cat && !cat->isConstant()) {
+            (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
+         }
+	}
     }
+    */
 }
