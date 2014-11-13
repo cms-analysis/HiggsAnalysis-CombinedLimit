@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <iomanip>
 #include <iostream>
 #include <utility>
 #include <algorithm>
@@ -169,8 +170,11 @@ void CombineHarvester::AddBinByBin(double threshold, bool fixed_norm,
         auto nus = std::make_shared<Nuisance>();
         ch::SetProperties(nus.get(), procs_[i].get());
         nus->set_type("shape");
-        nus->set_name("CMS_" + nus->bin() + "_" + nus->process() + "_bin_" +
-                      boost::lexical_cast<std::string>(j));
+        // nus->set_name("CMS_" + nus->bin() + "_" + nus->process() + "_bin_" +
+        //               boost::lexical_cast<std::string>(j));
+        nus->set_name("CMS_" + nus->analysis() + "_" + nus->channel() + "_" +
+                      nus->bin() + "_" + nus->era() + "_" + nus->process() +
+                      "_bin_" + boost::lexical_cast<std::string>(j));
         nus->set_asymm(true);
         TH1 *h_d = static_cast<TH1 *>(h->Clone());
         TH1 *h_u = static_cast<TH1 *>(h->Clone());
@@ -212,8 +216,12 @@ void CombineHarvester::CreateParameterIfEmpty(CombineHarvester *cmb,
 
 void CombineHarvester::MergeBinErrors(double bbb_threshold,
                                       double merge_threshold) {
-  auto bins =
-      this->GenerateSetFromProcs<std::string>(std::mem_fn(&Process::bin));
+  // Reduce merge_threshold very slightly to avoid numerical issues
+  // E.g. two backgrounds each with bin error 1.0. merge_threshold of
+  // 0.5 should not result in merging - but can do depending on
+  // machine and compiler
+  merge_threshold -= 1E-9 * merge_threshold;
+  auto bins = this->bin_set();
   for (auto const& bin : bins) {
     unsigned bbb_added = 0;
     unsigned bbb_removed = 0;

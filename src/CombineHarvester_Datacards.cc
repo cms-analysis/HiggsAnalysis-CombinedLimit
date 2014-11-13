@@ -22,7 +22,7 @@
 #include "CombineTools/interface/MakeUnique.h"
 #include "CombineTools/interface/Utilities.h"
 #include "CombineTools/interface/TFileIO.h"
-#include "CombineTools/interface/algorithm.h"
+#include "CombineTools/interface/Algorithm.h"
 
 namespace ch {
 
