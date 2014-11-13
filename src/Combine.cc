@@ -449,14 +449,34 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       std::vector<string> nuisanceGroups;
       boost::algorithm::split(nuisanceGroups,freezeNuisanceGroups_,boost::algorithm::is_any_of(","));
       for (std::vector<string>::iterator ng_it=nuisanceGroups.begin();ng_it!=nuisanceGroups.end();ng_it++){
-        RooArgSet toFreeze(*(w->set(Form("group_%s",(*ng_it).c_str()))));
+        bool freeze_complement=false;
+      	if (boost::algorithm::starts_with((*ng_it),"^")){
+	  freeze_complement=true;
+	  (*ng_it).erase(0,1);
+	} 
+
+	if (! w->set(Form("group_%s",(*ng_it).c_str()))){
+          std::cerr << "Unknown nuisance group: " << (*ng_it) << std::endl;
+          throw std::invalid_argument("Unknown nuisance group name");
+	}
+        RooArgSet groupNuisances(*(w->set(Form("group_%s",(*ng_it).c_str()))));
+	RooArgSet toFreeze;
+
+	if (freeze_complement) {
+	  RooArgSet still_floating(*mc->GetNuisanceParameters());
+	  still_floating.remove(groupNuisances,true,true);	
+	  toFreeze.add(still_floating);
+	} else {
+	  toFreeze.add(groupNuisances);
+	}
+	
         if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
         utils::setAllConstant(toFreeze, true);
         if (nuisances) {
           RooArgSet newnuis(*nuisances);
           newnuis.remove(toFreeze, /*silent=*/true, /*byname=*/true);      
           mc->SetNuisanceParameters(newnuis);
-          mc_bonly->SetNuisanceParameters(newnuis);
+          if (mc_bonly) mc_bonly->SetNuisanceParameters(newnuis);
           nuisances = mc->GetNuisanceParameters();
        }
       }
