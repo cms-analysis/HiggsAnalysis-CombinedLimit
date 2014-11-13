@@ -495,11 +495,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       boost::algorithm::split(nuisanceGroups,freezeNuisanceGroups_,boost::algorithm::is_any_of(","));
       for (std::vector<string>::iterator ng_it=nuisanceGroups.begin();ng_it!=nuisanceGroups.end();ng_it++){
         bool freeze_complement=false;
-      	if (boost::algorithm::starts_with((*ng_it),"~")){
+      	if (boost::algorithm::starts_with((*ng_it),"^")){
 	  freeze_complement=true;
 	  (*ng_it).erase(0,1);
 	} 
 
+	if (! w->set(Form("group_%s",(*ng_it).c_str()))){
+          std::cerr << "Unknown nuisance group: " << (*ng_it) << std::endl;
+          throw std::invalid_argument("Unknown nuisance group name");
+	}
         RooArgSet groupNuisances(*(w->set(Form("group_%s",(*ng_it).c_str()))));
 	RooArgSet toFreeze;
 
@@ -517,7 +521,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           RooArgSet newnuis(*nuisances);
           newnuis.remove(toFreeze, /*silent=*/true, /*byname=*/true);      
           mc->SetNuisanceParameters(newnuis);
-          mc_bonly->SetNuisanceParameters(newnuis);
+          if (mc_bonly) mc_bonly->SetNuisanceParameters(newnuis);
           nuisances = mc->GetNuisanceParameters();
        }
       }
