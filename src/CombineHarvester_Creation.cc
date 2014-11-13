@@ -147,9 +147,11 @@ void CombineHarvester::AddBinByBin(double threshold, bool fixed_norm,
       if (h->GetBinContent(j) > 0.0) ++n_pop_bins;
     }
     if (n_pop_bins <= 1 && fixed_norm) {
-      std::cout << "Requested fixed_norm but template has <= 1 populated bins, "
-                   "skipping\n";
-      std::cout << *(procs_[i]) << "\n";
+      if (verbosity_ >= 1) {
+        std::cout << "Requested fixed_norm but template has <= 1 populated "
+                     "bins, skipping\n";
+        std::cout << Process::PrintHeader << *(procs_[i]) << "\n";
+      }
       continue;
     }
     for (int j = 1; j <= h->GetNbinsX(); ++j) {
