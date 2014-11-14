@@ -211,7 +211,7 @@ TH1F CombineHarvester::GetShapeInternal(ProcNusMap const& lookup,
       for (int b = 1; b <= proc_shape.GetNbinsX(); ++b) {
         if (proc_shape.GetBinContent(b) < 0.) proc_shape.SetBinContent(b, 0.);
       }
-      proc_shape.Scale(p_rate);
+      proc_shape.Scale(p_rate / proc_shape.Integral());
       if (!shape_init) {
         proc_shape.Copy(shape);
         shape.Reset();
@@ -297,13 +297,16 @@ void CombineHarvester::ShapeDiff(double x,
     TH1 const* nom,
     TH1 const* low,
     TH1 const* high) {
+  //      * we already have computed the histogram for diff=(dhi-dlo) and sum=(dhi+dlo)
+  //      * so we just do template += (0.5 * x) * (diff + smoothStepFunc(x) * sum)
+  //
   double fx = smoothStepFunc(x);
   for (int i = 1; i <= target->GetNbinsX(); ++i) {
     float h = high->GetBinContent(i);
     float l = low->GetBinContent(i);
     float n = nom->GetBinContent(i);
-    target->SetBinContent(
-        i, target->GetBinContent(i) + 0.5 * ((h - l) + (h + l - 2. * n) * fx));
+    target->SetBinContent(i, target->GetBinContent(i) +
+                                 0.5 * x * ((h - l) + (h + l - 2. * n) * fx));
   }
 }
 
