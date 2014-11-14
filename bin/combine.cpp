@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
   runtimedef::set("ADDNLL_RECURSIVE", 1);
   runtimedef::set("ADDNLL_GAUSSNLL", 1);
   runtimedef::set("ADDNLL_HISTNLL", 1);
-  runtimedef::set("TMCSO_AdaptivePseudoAsimov", 1);
+  runtimedef::set("TMCSO_AdaptivePseudoAsimov", 0);
 
   for (vector<string>::const_iterator rtdp = runtimeDefines.begin(), endrtdp = runtimeDefines.end(); rtdp != endrtdp; ++rtdp) {
     std::string::size_type idx = rtdp->find('=');
