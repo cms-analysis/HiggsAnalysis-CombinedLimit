@@ -22,10 +22,13 @@
 #include "../interface/RooMultiPdf.h"
 #include "../interface/RooBernsteinFast.h"
 #include "../interface/SimpleGaussianConstraint.h"
+#include "../interface/RooRealFlooredSumPdf.h"
 #include "../interface/HZZ4L_RooSpinZeroPdf_1D.h"
 #include "../interface/HZZ4L_RooSpinZeroPdf.h"
 #include "../interface/HZZ4L_RooSpinZeroPdf_phase.h"
 #include "../interface/HZZ4L_RooSpinZeroPdf_2D.h"
+#include "../interface/HZZ4L_RooCTauPdf_1D.h"
+#include "../interface/HZZ4L_RooCTauPdf_2D.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -47,10 +50,13 @@
 #pragma link C++ class FastVerticalInterpHistPdf2Base+;
 #pragma link C++ class FastVerticalInterpHistPdf2+;
 #pragma link C++ class FastVerticalInterpHistPdf2D2+;
+#pragma link C++ class RooRealFlooredSumPdf+;
 #pragma link C++ class HZZ4L_RooSpinZeroPdf_1D+;
 #pragma link C++ class HZZ4L_RooSpinZeroPdf+;
 #pragma link C++ class HZZ4L_RooSpinZeroPdf_phase+;
 #pragma link C++ class HZZ4L_RooSpinZeroPdf_2D+;
+#pragma link C++ class HZZ4L_RooCTauPdf_1D+;
+#pragma link C++ class HZZ4L_RooCTauPdf_2D+;
 #pragma link C++ class AsymPow+;
 #pragma link C++ class CombDataSetFactory+;
 #pragma link C++ class TH1Keys+;
