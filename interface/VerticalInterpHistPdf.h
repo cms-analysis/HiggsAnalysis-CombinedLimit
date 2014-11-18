@@ -285,6 +285,7 @@ protected:
 
   // initialize the morphParams and the sentry. to be called by the daughter class, sets also _initBase to true
   void initBase() const ; 
+  virtual Bool_t  importWorkspaceHook(RooWorkspace& ws);
 
 private:
   ClassDef(FastVerticalInterpHistPdf2Base,1) // 
