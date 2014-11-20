@@ -46,6 +46,12 @@ table = {}
 fpf_b = fit_b.floatParsFinal()
 fpf_s = fit_s.floatParsFinal()
 pulls = []
+
+nuis_p_i=0
+# Also make histograms for pull distributions:
+hist_fit_b  = ROOT.TH1F("prefit_fit_b"   ,"B-only fit Nuisances;;#theta ",prefit.getSize(),0,prefit.getSize())
+hist_fit_s  = ROOT.TH1F("prefit_fit_s"   ,"S+B fit Nuisances   ;;#theta ",prefit.getSize(),0,prefit.getSize())
+hist_prefit = ROOT.TH1F("prefit_nuisancs","Prefit Nuisances    ;;#theta ",prefit.getSize(),0,prefit.getSize())
 for i in range(fpf_s.getSize()):
     nuis_s = fpf_s.at(i)
     name   = nuis_s.GetName();
@@ -65,7 +71,22 @@ for i in range(fpf_s.getSize()):
             row += [ " n/a " ]
         else:
             row += [ "%+.2f +/- %.2f" % (nuis_x.getVal(), nuis_x.getError()) ]
+	
             if nuis_p != None:
+	        if options.plotfile: 
+	          if fit_name=='b':
+	    	    nuis_p_i+=1
+	      	    hist_fit_b.SetBinContent(nuis_p_i,nuis_x.getVal())
+	      	    hist_fit_b.SetBinError(nuis_p_i,nuis_x.getError())
+	      	    hist_fit_b.GetXaxis().SetBinLabel(nuis_p_i,name)
+	          if fit_name=='s':
+	      	    hist_fit_s.SetBinContent(nuis_p_i,nuis_x.getVal())
+	      	    hist_fit_s.SetBinError(nuis_p_i,nuis_x.getError())
+	      	    hist_fit_s.GetXaxis().SetBinLabel(nuis_p_i,name)
+		  hist_prefit.SetBinContent(nuis_p_i,mean_p)
+		  hist_prefit.SetBinError(nuis_p_i,sigma_p)
+	      	  hist_prefit.GetXaxis().SetBinLabel(nuis_p_i,name)
+
                 valShift = (nuis_x.getVal() - mean_p)/sigma_p
                 if fit_name == 'b':
                     pulls.append(valShift)
@@ -167,6 +188,7 @@ elif options.format == "html":
 
 if options.plotfile:
     import ROOT
+    fout = ROOT.TFile(options.plotfile,"RECREATE")
     ROOT.gROOT.SetStyle("Plain")
     ROOT.gStyle.SetOptFit(1)
     histogram = ROOT.TH1F("pulls", "Pulls", 60, -3, 3)
@@ -179,4 +201,68 @@ if options.plotfile:
     histogram.SetMarkerSize(2)
     #histogram.Fit("gaus")
     histogram.Draw("pe")
-    canvas.SaveAs(options.plotfile)
+    #canvas.SaveAs(options.plotfile)
+    fout.WriteTObject(canvas)
+
+    canvas_nuis = ROOT.TCanvas("nuisancs", "nuisances", 900, 600)
+    hist_fit_s.SetLineColor(ROOT.kRed)
+    hist_fit_s.SetMarkerColor(ROOT.kRed)
+    hist_fit_b.SetLineColor(ROOT.kBlue)
+    hist_fit_b.SetMarkerColor(ROOT.kBlue)
+    hist_fit_b.SetMarkerStyle(20)
+    hist_fit_s.SetMarkerStyle(20)
+    hist_fit_b.SetMarkerSize(1.0)
+    hist_fit_s.SetMarkerSize(1.0)
+    hist_fit_b.SetLineWidth(2)
+    hist_fit_s.SetLineWidth(2)
+    hist_prefit.SetLineWidth(2)
+    hist_prefit.SetTitle("Nuisance Paramaeters")
+    hist_prefit.SetLineColor(ROOT.kBlack)
+    hist_prefit.SetFillColor(ROOT.kGray)
+    hist_prefit.Draw("E2")
+    hist_prefit.Draw("histsame")
+    hist_fit_b.Draw("E1Psame")
+    hist_fit_s.Draw("E1Psame")
+    canvas_nuis.RedrawAxis()
+    leg=ROOT.TLegend(0.6,0.7,0.89,0.89)
+    leg.SetFillColor(0)
+    leg.SetTextFont(42)
+    leg.AddEntry(hist_prefit,"Prefit","FL")
+    leg.AddEntry(hist_fit_b,"B-only fit","EPL")
+    leg.AddEntry(hist_fit_s,"S+B fit"   ,"EPL")
+    leg.Draw()
+    fout.WriteTObject(canvas_nuis)
+    canvas_pferrs = ROOT.TCanvas("post_fit_errs", "post_fit_errs", 900, 600)
+    hist_fit_e_s = hist_fit_s.Clone()
+    hist_fit_e_b = hist_fit_b.Clone()
+    for b in range(1,hist_fit_e_s.GetNbinsX()+1): 
+      hist_fit_e_s.SetBinContent(b,hist_fit_s.GetBinError(b)/hist_prefit.GetBinError(b))
+      hist_fit_e_b.SetBinContent(b,hist_fit_b.GetBinError(b)/hist_prefit.GetBinError(b))
+      hist_fit_e_s.SetBinError(b,0)
+      hist_fit_e_b.SetBinError(b,0)
+    hist_fit_e_s.SetFillColor(ROOT.kRed)
+    hist_fit_e_b.SetFillColor(ROOT.kBlue)
+    hist_fit_e_s.SetBarWidth(0.4)
+    hist_fit_e_b.SetBarWidth(0.4)
+    hist_fit_e_b.SetBarOffset(0.45)
+    hist_fit_e_b.GetYaxis().SetTitle("#sigma_{#theta}/(#sigma_{#theta} prefit)")
+    hist_fit_e_b.SetTitle("Nuisance Parameter Uncertainty Reduction")
+    hist_fit_e_b.SetMaximum(1.5)
+    hist_fit_e_b.SetMinimum(0)
+    hist_fit_e_b.Draw("bar")
+    hist_fit_e_s.Draw("barsame")
+    leg_rat=ROOT.TLegend(0.6,0.7,0.89,0.89)
+    leg_rat.SetFillColor(0)
+    leg_rat.SetTextFont(42)
+    leg_rat.AddEntry(hist_fit_e_b,"B-only fit","F")
+    leg_rat.AddEntry(hist_fit_e_s,"S+B fit"   ,"F")
+    leg_rat.Draw()
+    line_one = ROOT.TLine(0,1,hist_fit_e_s.GetXaxis().GetXmax(),1)
+    line_one.SetLineColor(1); line_one.SetLineStyle(2); line_one.SetLineWidth(2)
+    line_one.Draw()
+    canvas_pferrs.RedrawAxis()
+
+    fout.WriteTObject(canvas_pferrs)
+
+   
+
