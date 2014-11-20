@@ -722,7 +722,7 @@ bool utils::isParameterAtBoundary( const RooRealVar &param ){
 bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
 
     static std::unordered_map<std::string, unsigned char> timesFoundAtBoundary;
-    bool isAnyBad = true;
+    bool isAnyBad = false;
 
     RooLinkedListIter iter = params.iterator(); int i = 0;
     for (RooRealVar *a = (RooRealVar *) iter.Next(); a != 0; a = (RooRealVar *) iter.Next(), ++i) {
