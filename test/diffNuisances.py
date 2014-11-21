@@ -186,6 +186,18 @@ if options.format == "latex":
 elif options.format == "html":
     print "</table></body></html>"
 
+def getGraph(hist,shift):
+
+   gr = ROOT.TGraphErrors()
+   gr.SetName(hist.GetName())
+   for i in range(hist.GetNbinsX()):
+     x = hist.GetBinCenter(i+1)+shift
+     y = hist.GetBinContent(i+1)
+     e = hist.GetBinError(i+1)
+     gr.SetPoint(i,x,y)
+     gr.SetPointError(i,float(abs(shift))*0.8,e)
+   return gr
+
 if options.plotfile:
     import ROOT
     fout = ROOT.TFile(options.plotfile,"RECREATE")
@@ -205,6 +217,10 @@ if options.plotfile:
     fout.WriteTObject(canvas)
 
     canvas_nuis = ROOT.TCanvas("nuisancs", "nuisances", 900, 600)
+    hist_fit_e_s = hist_fit_s.Clone()
+    hist_fit_e_b = hist_fit_b.Clone()
+    hist_fit_s = getGraph(hist_fit_s,-0.1)
+    hist_fit_b = getGraph(hist_fit_b, 0.1)
     hist_fit_s.SetLineColor(ROOT.kRed)
     hist_fit_s.SetMarkerColor(ROOT.kRed)
     hist_fit_b.SetLineColor(ROOT.kBlue)
@@ -219,11 +235,15 @@ if options.plotfile:
     hist_prefit.SetTitle("Nuisance Paramaeters")
     hist_prefit.SetLineColor(ROOT.kBlack)
     hist_prefit.SetFillColor(ROOT.kGray)
+    hist_prefit.SetMaximum(3)
+    hist_prefit.SetMinimum(-3)
     hist_prefit.Draw("E2")
     hist_prefit.Draw("histsame")
-    hist_fit_b.Draw("E1Psame")
-    hist_fit_s.Draw("E1Psame")
+    hist_fit_b.Draw("EPsame")
+    hist_fit_s.Draw("EPsame")
+    canvas_nuis.SetGridx()
     canvas_nuis.RedrawAxis()
+    canvas_nuis.RedrawAxis('g')
     leg=ROOT.TLegend(0.6,0.7,0.89,0.89)
     leg.SetFillColor(0)
     leg.SetTextFont(42)
@@ -232,12 +252,11 @@ if options.plotfile:
     leg.AddEntry(hist_fit_s,"S+B fit"   ,"EPL")
     leg.Draw()
     fout.WriteTObject(canvas_nuis)
+
     canvas_pferrs = ROOT.TCanvas("post_fit_errs", "post_fit_errs", 900, 600)
-    hist_fit_e_s = hist_fit_s.Clone()
-    hist_fit_e_b = hist_fit_b.Clone()
     for b in range(1,hist_fit_e_s.GetNbinsX()+1): 
-      hist_fit_e_s.SetBinContent(b,hist_fit_s.GetBinError(b)/hist_prefit.GetBinError(b))
-      hist_fit_e_b.SetBinContent(b,hist_fit_b.GetBinError(b)/hist_prefit.GetBinError(b))
+      hist_fit_e_s.SetBinContent(b,hist_fit_e_s.GetBinError(b)/hist_prefit.GetBinError(b))
+      hist_fit_e_b.SetBinContent(b,hist_fit_e_b.GetBinError(b)/hist_prefit.GetBinError(b))
       hist_fit_e_s.SetBinError(b,0)
       hist_fit_e_b.SetBinError(b,0)
     hist_fit_e_s.SetFillColor(ROOT.kRed)
