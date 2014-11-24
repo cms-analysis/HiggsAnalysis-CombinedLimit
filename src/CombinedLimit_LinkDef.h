@@ -3,6 +3,7 @@
 #include "../interface/VerticalInterpPdf.h"
 #include "../interface/VerticalInterpHistPdf.h"
 #include "../interface/AsymPow.h"
+#include "../interface/AsymQuad.h"
 #include "../interface/CombDataSetFactory.h"
 #include "../interface/TH1Keys.h"
 #include "../interface/RooSimultaneousOpt.h"
@@ -58,6 +59,7 @@
 #pragma link C++ class HZZ4L_RooCTauPdf_1D+;
 #pragma link C++ class HZZ4L_RooCTauPdf_2D+;
 #pragma link C++ class AsymPow+;
+#pragma link C++ class AsymQuad+;
 #pragma link C++ class CombDataSetFactory+;
 #pragma link C++ class TH1Keys+;
 #pragma link C++ class RooSimultaneousOpt+;

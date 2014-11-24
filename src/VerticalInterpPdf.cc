@@ -140,7 +140,7 @@ Double_t VerticalInterpPdf::evaluate() const
       }
   }
    
-  return value > 0 ? value : 1E-9 ;
+  return ( value > 0 ? value : 1E-20 );
 }
 
 
@@ -266,12 +266,11 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
   
   Double_t normVal(1) ;
   if (normSet2) {
-    normVal = 0 ;
-
     TIterator* funcNormIter = cache->_funcNormList.createIterator() ;
 
     RooAbsReal* funcNorm = (RooAbsReal*) funcNormIter->Next();
     central = funcNorm->getVal(normSet2) ;
+    normVal = central;
 
     _coefIter->Reset() ;
     while((coef=(RooAbsReal*)_coefIter->Next())) {
@@ -280,11 +279,13 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
       Double_t coefVal = coef->getVal(normSet2) ;
       normVal += interpolate(coefVal, central, funcNormUp, funcNormDn);
     }
-    
+
+    if (normVal==0) normVal=1E-10;
     delete funcNormIter ;      
   }
 
-  return ( value > 0 ? value : 1E-9 ) / normVal;
+  Double_t result = value / normVal;
+  return ( result > 0 ? result : 1E-15 );
 }
 
 Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbsReal *fUp, RooAbsReal *fDn) const  
