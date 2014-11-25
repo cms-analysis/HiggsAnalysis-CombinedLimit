@@ -450,7 +450,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       boost::algorithm::split(nuisanceGroups,freezeNuisanceGroups_,boost::algorithm::is_any_of(","));
       for (std::vector<string>::iterator ng_it=nuisanceGroups.begin();ng_it!=nuisanceGroups.end();ng_it++){
         bool freeze_complement=false;
-      	if (boost::algorithm::starts_with((*ng_it),"^")){
+      	if (((*ng_it).at(0)==std::string("^"))){
 	  freeze_complement=true;
 	  (*ng_it).erase(0,1);
 	} 
