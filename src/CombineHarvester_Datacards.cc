@@ -340,6 +340,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       });
     }
   }
+  std::set<std::string> all_dependents_pars;
   for (auto proc : procs_) {
     if (proc->pdf()) {
       std::string obj_name = std::string(pdf_ws_map[proc->pdf()]->GetName()) +
@@ -347,6 +348,35 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       mappings.push_back({
         proc->process(), proc->bin(), nullptr, obj_name, ""
       });
+
+      // The rest of this is building the list of dependents
+      /**
+       * \todo This reproduces quite a lot of CombineHarvester::ImportParameters
+       */
+      RooAbsData const* data_obj = FindMatchingData(proc.get());
+      RooArgSet *par_list = nullptr;
+      RooArgSet *norm_par_list = nullptr;
+      if (data_obj) {
+        par_list = proc->pdf()->getParameters(data_obj);
+        if (proc->norm()) norm_par_list = proc->norm()->getParameters(data_obj);
+      } else {
+        RooRealVar mx("CMS_th1x" , "CMS_th1x", 0, 1);
+        RooArgSet tmp_set(mx);
+        par_list =  proc->pdf()->getParameters(&tmp_set);
+        if (proc->norm()) norm_par_list = proc->norm()->getParameters(&tmp_set);
+      }
+      auto par_list_it = par_list->createIterator();
+      do {
+        RooRealVar *y = dynamic_cast<RooRealVar*>(**par_list_it);
+        if (y) all_dependents_pars.insert(y->GetName());
+      } while (par_list_it->Next());
+      if (norm_par_list) {
+        auto norm_par_list_it = par_list->createIterator();
+        do {
+          RooRealVar *y = dynamic_cast<RooRealVar*>(**norm_par_list_it);
+          if (y) all_dependents_pars.insert(y->GetName());
+        } while (norm_par_list_it->Next());
+      }
     }
   }
 
@@ -446,6 +476,19 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   txt_file << "\n";
   txt_file << dashes << "\n";
 
+  // Need to write parameters here that feature both in the list of pdf
+  // dependents and nus_set.
+  for (auto par : params_) {
+    Parameter const* p = par.second.get();
+    if (p->err_d() != 0.0 && p->err_u() != 0.0 &&
+        all_dependents_pars.count(p->name()) && nus_set.count(p->name())) {
+      txt_file << boost::format("%-" +
+                                boost::lexical_cast<std::string>(nus_str_len) +
+                                "s param %g %g\n") %
+                      p->name() % p->val() % ((p->err_u() - p->err_d()) / 2.0);
+    }
+  }
+
   for (auto const& nus : nus_set) {
     std::vector<std::string> line(procs_.size() + 2);
     line[0] = nus;
@@ -521,16 +564,21 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     } while (v->Next());
   }
 
-
+  // How to check for params we need to write:
+  // Get a list of all pdf dependents for the processes we've just written
+  // Also need a list of all Nuisance entries we've just written
+  // Then we write param if:
+  //  - it has non-zero errors
+  //  - it appears in the first list
+  //  - it doesn't appear in the second list
   for (auto par : params_) {
-    // if (par.second->err_d() != 0.0 && par.second->err_u() != 0.0 &&
-    //     !nus_set.count(par.second->name())) {
-    if (par.second->err_d() != 0.0 && par.second->err_u() != 0.0 &&
-        ws_vars.count(par.first)) {
-      txt_file << boost::format(
-        "%-"+boost::lexical_cast<std::string>(nus_str_len)+"s param %g %g\n")
-        % par.second->name() % par.second->val() %
-        ((par.second->err_u()-par.second->err_d())/2.0);
+    Parameter const* p = par.second.get();
+    if (p->err_d() != 0.0 && p->err_u() != 0.0 &&
+        all_dependents_pars.count(p->name()) && !nus_set.count(p->name())) {
+      txt_file << boost::format("%-" +
+                                boost::lexical_cast<std::string>(nus_str_len) +
+                                "s param %g %g\n") %
+                      p->name() % p->val() % ((p->err_u() - p->err_d()) / 2.0);
     }
   }
   txt_file.close();

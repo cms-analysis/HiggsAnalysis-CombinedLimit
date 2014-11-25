@@ -113,7 +113,6 @@ class CombineHarvester {
   CombineHarvester& FilterNus(Function func);
   /**@}*/
 
-
   // Set generation
   template<typename T>
   std::set<T> GenerateSetFromProcs(std::function<T(ch::Process const*)> func);
@@ -123,6 +122,17 @@ class CombineHarvester {
 
   template<typename T>
   std::set<T> GenerateSetFromNus(std::function<T(ch::Nuisance const*)> func);
+
+  // An alternative way to do the set generation
+  // template<typename T>
+  // T unwind(T const& x) { return x; }
+
+  // template<typename T>
+  // auto SetFromProcs(T func) -> std::set<decltype(unwind(func(nullptr)))> {
+  //   std::set<decltype(unwind(func(nullptr)))> ret;
+  //   for (auto const& item : procs_) ret.insert(func(item.get()));
+  //   return ret;
+  // };
 
   std::set<std::string> bin_set();
   std::set<int> bin_id_set();
