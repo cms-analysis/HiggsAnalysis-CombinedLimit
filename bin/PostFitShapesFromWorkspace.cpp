@@ -72,8 +72,9 @@ int main(int argc, char* argv[]){
   // Loop through the bins writing the shapes to the output file
   for (auto bin : bins) {
     ch::CombineHarvester cmb_bin = move(cmb.cp().bin({bin}));
+    cmb_bin.SetPdfBins(cmb_bin.GetObservedShape().GetNbinsX());
     pre_shapes[bin]["data_obs"] = cmb_bin.GetObservedShape();
-    auto procs = cmb.process_set();
+    auto procs = cmb_bin.process_set();
     for (auto proc : procs) {
       pre_shapes[bin][proc] =
           cmb_bin.cp().process({proc}).GetShapeWithUncertainty();
@@ -128,8 +129,9 @@ int main(int argc, char* argv[]){
 
     for (auto bin : bins) {
       ch::CombineHarvester cmb_bin = move(cmb.cp().bin({bin}));
+      cmb_bin.SetPdfBins(cmb_bin.GetObservedShape().GetNbinsX());
       post_shapes[bin]["data_obs"] = cmb_bin.GetObservedShape();
-      auto procs = cmb.process_set();
+      auto procs = cmb_bin.process_set();
       for (auto proc : procs) {
         post_shapes[bin][proc] =
             sampling

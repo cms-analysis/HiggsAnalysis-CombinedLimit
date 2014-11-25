@@ -126,6 +126,16 @@ TH1F RebinHist(TH1F const& hist) {
   return shape;
 }
 
+TH1F RestoreBinning(TH1F const& src, TH1F const& ref) {
+  TH1F res = ref;
+  res.Reset();
+  for (int x = 1; x <= res.GetNbinsX(); ++x) {
+    res.SetBinContent(x, src.GetBinContent(x));
+    res.SetBinError(x, src.GetBinError(x));
+  }
+  return res;
+}
+
 std::vector<std::vector<unsigned>> GenerateCombinations(
     std::vector<unsigned> vec) {
   unsigned n = vec.size();
