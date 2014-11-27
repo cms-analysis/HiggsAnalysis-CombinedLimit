@@ -1,10 +1,10 @@
-#include "CombineTools/interface/Nuisance.h"
+#include "CombineTools/interface/Systematic.h"
 #include <iostream>
 #include "boost/format.hpp"
 
 namespace ch {
 
-Nuisance::Nuisance()
+Systematic::Systematic()
     : bin_(""),
       process_(""),
       signal_(false),
@@ -23,9 +23,9 @@ Nuisance::Nuisance()
       shape_d_() {
   }
 
-Nuisance::~Nuisance() { }
+Systematic::~Systematic() { }
 
-void swap(Nuisance& first, Nuisance& second) {
+void swap(Systematic& first, Systematic& second) {
   using std::swap;
   swap(first.bin_, second.bin_);
   swap(first.process_, second.process_);
@@ -45,7 +45,7 @@ void swap(Nuisance& first, Nuisance& second) {
   swap(first.shape_d_, second.shape_d_);
 }
 
-Nuisance::Nuisance(Nuisance const& other)
+Systematic::Systematic(Systematic const& other)
     : bin_(other.bin_),
       process_(other.process_),
       signal_(other.signal_),
@@ -74,7 +74,7 @@ Nuisance::Nuisance(Nuisance const& other)
   shape_d_ = std::unique_ptr<TH1>(h_d);
 }
 
-Nuisance::Nuisance(Nuisance&& other)
+Systematic::Systematic(Systematic&& other)
     : bin_(""),
       process_(""),
       signal_(false),
@@ -94,12 +94,12 @@ Nuisance::Nuisance(Nuisance&& other)
   swap(*this, other);
 }
 
-Nuisance& Nuisance::operator=(Nuisance other) {
+Systematic& Systematic::operator=(Systematic other) {
   swap(*this, other);
   return (*this);
 }
 
-void Nuisance::SetShapesAndVals(std::unique_ptr<TH1> shape_u,
+void Systematic::SetShapesAndVals(std::unique_ptr<TH1> shape_u,
                       std::unique_ptr<TH1> shape_d, TH1 const* nominal) {
   if (!shape_u || !shape_d || !nominal) return;
   if (nominal->Integral() > 0.0) {
@@ -120,7 +120,7 @@ void Nuisance::SetShapesAndVals(std::unique_ptr<TH1> shape_u,
   this->set_asymm(true);
 }
 
-std::ostream& Nuisance::PrintHeader(std::ostream &out) {
+std::ostream& Systematic::PrintHeader(std::ostream &out) {
   std::string line =
    (boost::format("%-6s %-9s %-6s %-8s %-28s %-3i"
     " %-22s %-4i %-40s %-8s %-9s %-10i %-10i")
@@ -133,7 +133,7 @@ std::ostream& Nuisance::PrintHeader(std::ostream &out) {
   return out;
 }
 
-std::ostream& operator<< (std::ostream &out, Nuisance const& val) {
+std::ostream& operator<< (std::ostream &out, Systematic const& val) {
   std::string value_fmt;
   if (val.asymm()) {
     value_fmt = (boost::format("%-4.4g/%-4.4g")

@@ -1,5 +1,5 @@
-#ifndef CombineTools_Nuisance_h
-#define CombineTools_Nuisance_h
+#ifndef CombineTools_Systematic_h
+#define CombineTools_Systematic_h
 #include <memory>
 #include <string>
 #include "TH1.h"
@@ -7,13 +7,13 @@
 
 namespace ch {
 
-class Nuisance {
+class Systematic {
  public:
-  Nuisance();
-  ~Nuisance();
-  Nuisance(Nuisance const& other);
-  Nuisance(Nuisance&& other);
-  Nuisance& operator=(Nuisance other);
+  Systematic();
+  ~Systematic();
+  Systematic(Systematic const& other);
+  Systematic(Systematic&& other);
+  Systematic& operator=(Systematic other);
 
   void set_bin(std::string const& bin) { bin_ = bin; }
   std::string const& bin() const { return bin_; }
@@ -66,7 +66,7 @@ class Nuisance {
   void SetShapesAndVals(std::unique_ptr<TH1> shape_u,
                         std::unique_ptr<TH1> shape_d, TH1 const* nominal);
 
-  friend std::ostream& operator<< (std::ostream &out, Nuisance const& val);
+  friend std::ostream& operator<< (std::ostream &out, Systematic const& val);
   static std::ostream& PrintHeader(std::ostream &out);
 
  private:
@@ -87,7 +87,7 @@ class Nuisance {
   std::unique_ptr<TH1> shape_u_;
   std::unique_ptr<TH1> shape_d_;
 
-  friend void swap(Nuisance& first, Nuisance& second);
+  friend void swap(Systematic& first, Systematic& second);
 };
 }
 
