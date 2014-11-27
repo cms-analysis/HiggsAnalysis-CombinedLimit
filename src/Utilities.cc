@@ -50,7 +50,7 @@ std::vector<ch::Parameter> ExtractSampledFitParameters(
 void SetStandardBinNames(CombineHarvester & cb) {
   cb.ForEachObs(ch::SetStandardBinName<ch::Observation>);
   cb.ForEachProc(ch::SetStandardBinName<ch::Process>);
-  cb.ForEachNus(ch::SetStandardBinName<ch::Nuisance>);
+  cb.ForEachSyst(ch::SetStandardBinName<ch::Systematic>);
 }
 
 // ---------------------------------------------------------------------------

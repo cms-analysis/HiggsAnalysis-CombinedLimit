@@ -10,7 +10,7 @@
 #include "TH1.h"
 #include "CombineTools/interface/Observation.h"
 #include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Nuisance.h"
+#include "CombineTools/interface/Systematic.h"
 #include "CombineTools/interface/Parameter.h"
 #include "CombineTools/interface/Utilities.h"
 
@@ -92,9 +92,9 @@ void CombineHarvester::ExtractShapes(std::string const& file,
     LoadShapes(procs_[i].get(), mapping);
   }
   if (syst_rule == "") return;
-  for (unsigned  i = 0; i < nus_.size(); ++i) {
-    if (nus_[i]->type() != "shape") continue;
-    LoadShapes(nus_[i].get(), mapping);
+  for (unsigned  i = 0; i < systs_.size(); ++i) {
+    if (systs_[i]->type() != "shape") continue;
+    LoadShapes(systs_[i].get(), mapping);
   }
 }
 
@@ -169,37 +169,37 @@ void CombineHarvester::AddBinByBin(double threshold, bool fixed_norm,
       // }
       if (do_bbb) {
         ++bbb_added;
-        auto nus = std::make_shared<Nuisance>();
-        ch::SetProperties(nus.get(), procs_[i].get());
-        nus->set_type("shape");
-        // nus->set_name("CMS_" + nus->bin() + "_" + nus->process() + "_bin_" +
+        auto sys = std::make_shared<Systematic>();
+        ch::SetProperties(sys.get(), procs_[i].get());
+        sys->set_type("shape");
+        // sys->set_name("CMS_" + sys->bin() + "_" + sys->process() + "_bin_" +
         //               boost::lexical_cast<std::string>(j));
-        nus->set_name("CMS_" + nus->analysis() + "_" + nus->channel() + "_" +
-                      nus->bin() + "_" + nus->era() + "_" + nus->process() +
+        sys->set_name("CMS_" + sys->analysis() + "_" + sys->channel() + "_" +
+                      sys->bin() + "_" + sys->era() + "_" + sys->process() +
                       "_bin_" + boost::lexical_cast<std::string>(j));
-        nus->set_asymm(true);
+        sys->set_asymm(true);
         TH1 *h_d = static_cast<TH1 *>(h->Clone());
         TH1 *h_u = static_cast<TH1 *>(h->Clone());
         h_d->SetBinContent(j, val - err);
         if (h_d->GetBinContent(j) < 0.) h_d->SetBinContent(j, 0.);
         h_u->SetBinContent(j, val + err);
         if (fixed_norm) {
-          nus->set_value_d(1.0);
-          nus->set_value_u(1.0);
+          sys->set_value_d(1.0);
+          sys->set_value_u(1.0);
         } else {
-          nus->set_value_d(h_d->Integral()/h->Integral());
-          nus->set_value_u(h_u->Integral()/h->Integral());
+          sys->set_value_d(h_d->Integral()/h->Integral());
+          sys->set_value_u(h_u->Integral()/h->Integral());
         }
         if (h_d->Integral() > 0.0) h_d->Scale(1.0/h_d->Integral());
         if (h_u->Integral() > 0.0) h_u->Scale(1.0/h_u->Integral());
-        if (h_d) nus->set_shape_d(std::unique_ptr<TH1>(h_d));
-        if (h_u) nus->set_shape_u(std::unique_ptr<TH1>(h_u));
+        if (h_d) sys->set_shape_d(std::unique_ptr<TH1>(h_d));
+        if (h_u) sys->set_shape_u(std::unique_ptr<TH1>(h_u));
         CombineHarvester::CreateParameterIfEmpty(other ? other : this,
-                                                 nus->name());
+                                                 sys->name());
         if (other) {
-          other->nus_.push_back(nus);
+          other->systs_.push_back(sys);
         } else {
-          nus_.push_back(nus);
+          systs_.push_back(sys);
         }
       }
     }

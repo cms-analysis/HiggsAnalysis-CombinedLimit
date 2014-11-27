@@ -17,7 +17,7 @@
 #include "RooRealVar.h"
 #include "CombineTools/interface/Observation.h"
 #include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Nuisance.h"
+#include "CombineTools/interface/Systematic.h"
 #include "CombineTools/interface/Parameter.h"
 #include "CombineTools/interface/MakeUnique.h"
 #include "CombineTools/interface/Utilities.h"
@@ -191,18 +191,18 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
     if (start_nuisance_scan && words[i].size()-1 == words[r].size()) {
       for (unsigned p = 2; p < words[i].size(); ++p) {
         if (words[i][p] == "-") continue;
-        auto nus = std::make_shared<Nuisance>();
-        nus->set_bin(words[r-3][p-1]);
+        auto sys = std::make_shared<Systematic>();
+        sys->set_bin(words[r-3][p-1]);
         try {
           int process_id = boost::lexical_cast<int>(words[r-2][p-1]);
-          nus->set_signal(process_id <= 0);
-          nus->set_process(words[r-1][p-1]);
+          sys->set_signal(process_id <= 0);
+          sys->set_process(words[r-1][p-1]);
         } catch(boost::bad_lexical_cast &) {
           int process_id = boost::lexical_cast<int>(words[r-1][p-1]);
-          nus->set_signal(process_id <= 0);
-          nus->set_process(words[r-2][p-1]);
+          sys->set_signal(process_id <= 0);
+          sys->set_process(words[r-2][p-1]);
         }
-        nus->set_name(words[i][0]);
+        sys->set_name(words[i][0]);
         std::string type = words[i][1];
         if (!contains(std::vector<std::string>{"shape", "shape?", "lnN"},
                       type)) {
@@ -210,46 +210,46 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
               "[CombineHarvester::ParseDatacard] Systematic type " + type +
               " not supported");
         }
-        nus->set_type(words[i][1]);
-        nus->set_analysis(analysis);
-        nus->set_era(era);
-        nus->set_channel(channel);
-        nus->set_bin_id(bin_id);
-        nus->set_mass(mass);
-        nus->set_scale(1.0);
+        sys->set_type(words[i][1]);
+        sys->set_analysis(analysis);
+        sys->set_era(era);
+        sys->set_channel(channel);
+        sys->set_bin_id(bin_id);
+        sys->set_mass(mass);
+        sys->set_scale(1.0);
         std::size_t slash_pos = words[i][p].find("/");
         if (slash_pos != words[i][p].npos) {
           // Assume asymmetric of form kDown/kUp
-          nus->set_value_d(
+          sys->set_value_d(
             boost::lexical_cast<double>(words[i][p].substr(0, slash_pos)));
-          nus->set_value_u(
+          sys->set_value_u(
             boost::lexical_cast<double>(words[i][p].substr(slash_pos+1)));
-          nus->set_asymm(true);
+          sys->set_asymm(true);
         } else {
-          nus->set_value_u(boost::lexical_cast<double>(words[i][p]));
-          nus->set_asymm(false);
+          sys->set_value_u(boost::lexical_cast<double>(words[i][p]));
+          sys->set_asymm(false);
         }
-        if (nus->type() == "shape") {
-          nus->set_scale(boost::lexical_cast<double>(words[i][p]));
-          LoadShapes(nus.get(), hist_mapping);
-        } else if (nus->type() == "shape?") {
+        if (sys->type() == "shape") {
+          sys->set_scale(boost::lexical_cast<double>(words[i][p]));
+          LoadShapes(sys.get(), hist_mapping);
+        } else if (sys->type() == "shape?") {
           // This might fail, so we have to "try"
           try {
-            LoadShapes(nus.get(), hist_mapping);
+            LoadShapes(sys.get(), hist_mapping);
           } catch (std::exception & e) {
-            LOGLINE(log(), "Nuisance with shape? did not resolve to a shape");
+            LOGLINE(log(), "Systematic with shape? did not resolve to a shape");
             if (verbosity_ > 0) log() << e.what();
           }
-          if (!nus->shape_u() || !nus->shape_d()) {
-            nus->set_type("lnN");
+          if (!sys->shape_u() || !sys->shape_d()) {
+            sys->set_type("lnN");
           } else {
-            nus->set_type("shape");
-            nus->set_scale(boost::lexical_cast<double>(words[i][p]));
+            sys->set_type("shape");
+            sys->set_scale(boost::lexical_cast<double>(words[i][p]));
           }
         }
 
-        CombineHarvester::CreateParameterIfEmpty(this, nus->name());
-        nus_.push_back(nus);
+        CombineHarvester::CreateParameterIfEmpty(this, sys->name());
+        systs_.push_back(sys);
       }
     }
   }
@@ -274,8 +274,8 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       this->GenerateSetFromObs<std::string>(std::mem_fn(&ch::Observation::bin));
   auto proc_set =
       this->GenerateSetFromProcs<std::string>(std::mem_fn(&ch::Process::process));
-  auto nus_set =
-      this->GenerateSetFromNus<std::string>(std::mem_fn(&ch::Nuisance::name));
+  auto sys_set =
+      this->GenerateSetFromSysts<std::string>(std::mem_fn(&ch::Systematic::name));
   txt_file << "imax    " << bin_set.size()
             << " number of bins\n";
   txt_file << "jmax    " << proc_set.size() - 1
@@ -419,15 +419,15 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   txt_file << "\n";
   txt_file << dashes << "\n";
 
-  auto proc_nus_map = this->GenerateProcNusMap();
-  unsigned nus_str_len = 14;
-  for (auto const& nus : nus_set) {
-    if (nus.length() > nus_str_len) nus_str_len = nus.length();
+  auto proc_sys_map = this->GenerateProcSystMap();
+  unsigned sys_str_len = 14;
+  for (auto const& sys : sys_set) {
+    if (sys.length() > sys_str_len) sys_str_len = sys.length();
   }
-  std::string nus_str_short = boost::lexical_cast<std::string>(nus_str_len);
-  std::string nus_str_long = boost::lexical_cast<std::string>(nus_str_len+9);
+  std::string sys_str_short = boost::lexical_cast<std::string>(sys_str_len);
+  std::string sys_str_long = boost::lexical_cast<std::string>(sys_str_len+9);
 
-  txt_file << boost::format("%-"+nus_str_long+"s") % "bin";
+  txt_file << boost::format("%-"+sys_str_long+"s") % "bin";
   for (auto const& proc : procs_) {
     if (proc->shape()) {
       std::unique_ptr<TH1> h((TH1*)(proc->shape()->Clone()));
@@ -439,14 +439,14 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   }
   txt_file << "\n";
 
-  txt_file << boost::format("%-"+nus_str_long+"s") % "process";
+  txt_file << boost::format("%-"+sys_str_long+"s") % "process";
 
   for (auto const& proc : procs_) {
     txt_file << boost::format("%-15s ") % proc->process();
   }
   txt_file << "\n";
 
-  txt_file << boost::format("%-"+nus_str_long+"s") % "process";
+  txt_file << boost::format("%-"+sys_str_long+"s") % "process";
 
   // Setup process_ids first
   std::map<std::string, int> p_ids;
@@ -469,7 +469,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   txt_file << "\n";
 
 
-  txt_file << boost::format("%-"+nus_str_long+"s") % "rate";
+  txt_file << boost::format("%-"+sys_str_long+"s") % "rate";
   for (auto const& proc : procs_) {
     txt_file << boost::format("%-15.4f ") % proc->no_norm_rate();
   }
@@ -477,60 +477,60 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   txt_file << dashes << "\n";
 
   // Need to write parameters here that feature both in the list of pdf
-  // dependents and nus_set.
+  // dependents and sys_set.
   for (auto par : params_) {
     Parameter const* p = par.second.get();
     if (p->err_d() != 0.0 && p->err_u() != 0.0 &&
-        all_dependents_pars.count(p->name()) && nus_set.count(p->name())) {
+        all_dependents_pars.count(p->name()) && sys_set.count(p->name())) {
       txt_file << boost::format("%-" +
-                                boost::lexical_cast<std::string>(nus_str_len) +
+                                boost::lexical_cast<std::string>(sys_str_len) +
                                 "s param %g %g\n") %
                       p->name() % p->val() % ((p->err_u() - p->err_d()) / 2.0);
     }
   }
 
-  for (auto const& nus : nus_set) {
+  for (auto const& sys : sys_set) {
     std::vector<std::string> line(procs_.size() + 2);
-    line[0] = nus;
+    line[0] = sys;
     bool seen_lnN = false;
     bool seen_shape = false;
     for (unsigned p = 0; p < procs_.size(); ++p) {
       line[p+2] = "-";
-      for (unsigned n = 0; n < proc_nus_map[p].size(); ++n) {
-        ch::Nuisance const* nus_ptr = proc_nus_map[p][n];
-        if (nus_ptr->name() == nus) {
-          if (nus_ptr->type() == "lnN") {
+      for (unsigned n = 0; n < proc_sys_map[p].size(); ++n) {
+        ch::Systematic const* sys_ptr = proc_sys_map[p][n];
+        if (sys_ptr->name() == sys) {
+          if (sys_ptr->type() == "lnN") {
             seen_lnN = true;
             line[p + 2] =
-                nus_ptr->asymm()
-                    ? (boost::format("%g/%g") % nus_ptr->value_d() %
-                       nus_ptr->value_u()).str()
-                    : (boost::format("%g") % nus_ptr->value_u()).str();
+                sys_ptr->asymm()
+                    ? (boost::format("%g/%g") % sys_ptr->value_d() %
+                       sys_ptr->value_u()).str()
+                    : (boost::format("%g") % sys_ptr->value_u()).str();
             break;
           }
-          if (nus_ptr->type() == "shape") {
-            if (!nus_ptr->shape_u() || !nus_ptr->shape_d()) {
+          if (sys_ptr->type() == "shape") {
+            if (!sys_ptr->shape_u() || !sys_ptr->shape_d()) {
               std::stringstream err;
               err << "Trying to write shape uncertainty with missing shapes:\n";
-              err << Nuisance::PrintHeader << *nus_ptr;
+              err << Systematic::PrintHeader << *sys_ptr;
               throw std::runtime_error(FNERROR(err.str()));
             }
             bool add_dir = TH1::AddDirectoryStatus();
             TH1::AddDirectory(false);
             std::unique_ptr<TH1> h_d(
-                static_cast<TH1*>(nus_ptr->shape_d()->Clone()));
-            h_d->Scale(procs_[p]->rate()*nus_ptr->value_d());
-            WriteHistToFile(h_d.get(), &root_file, mappings, nus_ptr->bin(),
-                            nus_ptr->process(), nus_ptr->mass(),
-                            nus_ptr->name(), 1);
+                static_cast<TH1*>(sys_ptr->shape_d()->Clone()));
+            h_d->Scale(procs_[p]->rate()*sys_ptr->value_d());
+            WriteHistToFile(h_d.get(), &root_file, mappings, sys_ptr->bin(),
+                            sys_ptr->process(), sys_ptr->mass(),
+                            sys_ptr->name(), 1);
             std::unique_ptr<TH1> h_u(
-                static_cast<TH1*>(nus_ptr->shape_u()->Clone()));
-            h_u->Scale(procs_[p]->rate()*nus_ptr->value_u());
-            WriteHistToFile(h_u.get(), &root_file, mappings, nus_ptr->bin(),
-                            nus_ptr->process(), nus_ptr->mass(),
-                            nus_ptr->name(), 2);
+                static_cast<TH1*>(sys_ptr->shape_u()->Clone()));
+            h_u->Scale(procs_[p]->rate()*sys_ptr->value_u());
+            WriteHistToFile(h_u.get(), &root_file, mappings, sys_ptr->bin(),
+                            sys_ptr->process(), sys_ptr->mass(),
+                            sys_ptr->name(), 2);
             seen_shape = true;
-            line[p+2] = (boost::format("%g") % nus_ptr->scale()).str();
+            line[p+2] = (boost::format("%g") % sys_ptr->scale()).str();
             TH1::AddDirectory(add_dir);
             break;
           }
@@ -541,7 +541,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     if (!seen_lnN && seen_shape) line[1] = "shape";
     if (seen_lnN && seen_shape) line[1] = "shape?";
     txt_file << boost::format(
-      "%-"+nus_str_short+"s %-7s ")
+      "%-"+sys_str_short+"s %-7s ")
       % line[0] % line[1];
     for (unsigned p = 0; p < procs_.size(); ++p) {
       txt_file << boost::format("%-15s ") % line[p+2];
@@ -566,7 +566,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   // How to check for params we need to write:
   // Get a list of all pdf dependents for the processes we've just written
-  // Also need a list of all Nuisance entries we've just written
+  // Also need a list of all Systematic entries we've just written
   // Then we write param if:
   //  - it has non-zero errors
   //  - it appears in the first list
@@ -574,9 +574,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   for (auto par : params_) {
     Parameter const* p = par.second.get();
     if (p->err_d() != 0.0 && p->err_u() != 0.0 &&
-        all_dependents_pars.count(p->name()) && !nus_set.count(p->name())) {
+        all_dependents_pars.count(p->name()) && !sys_set.count(p->name())) {
       txt_file << boost::format("%-" +
-                                boost::lexical_cast<std::string>(nus_str_len) +
+                                boost::lexical_cast<std::string>(sys_str_len) +
                                 "s param %g %g\n") %
                       p->name() % p->val() % ((p->err_u() - p->err_d()) / 2.0);
     }

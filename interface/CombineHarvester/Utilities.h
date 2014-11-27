@@ -11,7 +11,7 @@
 #include "TGraph.h"
 #include "RooFitResult.h"
 #include "CombineTools/interface/Parameter.h"
-#include "CombineTools/interface/Nuisance.h"
+#include "CombineTools/interface/Systematic.h"
 #include "CombineTools/interface/Process.h"
 #include "CombineTools/interface/Logging.h"
 

@@ -6,7 +6,7 @@
 #include <list>
 #include "CombineTools/interface/Observation.h"
 #include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Nuisance.h"
+#include "CombineTools/interface/Systematic.h"
 #include "CombineTools/interface/Parameter.h"
 #include "CombineTools/interface/Logging.h"
 #include "CombineTools/interface/TFileIO.h"
@@ -21,7 +21,7 @@ void swap(CombineHarvester& first, CombineHarvester& second) {
   using std::swap;
   swap(first.obs_, second.obs_);
   swap(first.procs_, second.procs_);
-  swap(first.nus_, second.nus_);
+  swap(first.systs_, second.systs_);
   swap(first.params_, second.params_);
   swap(first.wspaces_, second.wspaces_);
   swap(first.verbosity_, second.verbosity_);
@@ -31,7 +31,7 @@ void swap(CombineHarvester& first, CombineHarvester& second) {
 CombineHarvester::CombineHarvester(CombineHarvester const& other)
     : obs_(other.obs_.size(), nullptr),
       procs_(other.procs_.size(), nullptr),
-      nus_(other.nus_.size(), nullptr),
+      systs_(other.systs_.size(), nullptr),
       verbosity_(other.verbosity_),
       log_(other.log_) {
   if (verbosity_ >= 3) {
@@ -109,9 +109,9 @@ CombineHarvester::CombineHarvester(CombineHarvester const& other)
 
   // Need to update RooAbsPdf pointers here
 
-  for (std::size_t i = 0; i < nus_.size(); ++i) {
-    if (other.nus_[i]) {
-      nus_[i] = std::make_shared<Nuisance>(*(other.nus_[i]));
+  for (std::size_t i = 0; i < systs_.size(); ++i) {
+    if (other.systs_[i]) {
+      systs_[i] = std::make_shared<Systematic>(*(other.systs_[i]));
     }
   }
   for (auto const& it : other.params_) {
@@ -145,7 +145,7 @@ CombineHarvester CombineHarvester::cp() {
   CombineHarvester cpy;
   cpy.obs_      = obs_;
   cpy.procs_    = procs_;
-  cpy.nus_      = nus_;
+  cpy.systs_    = systs_;
   cpy.params_   = params_;
   cpy.wspaces_  = wspaces_;
   cpy.log_      = log_;
@@ -160,9 +160,9 @@ CombineHarvester & CombineHarvester::PrintAll() {
   std::cout << Process::PrintHeader;
   for (unsigned i = 0; i < procs_.size(); ++i)
       std::cout << *(procs_[i]) << std::endl;
-  std::cout << Nuisance::PrintHeader;
-  for (unsigned i = 0; i < nus_.size(); ++i)
-      std::cout << *(nus_[i]) << std::endl;
+  std::cout << Systematic::PrintHeader;
+  for (unsigned i = 0; i < systs_.size(); ++i)
+      std::cout << *(systs_[i]) << std::endl;
   std::cout << Parameter::PrintHeader;
   for (auto const& it : params_) std::cout << *(it.second) << std::endl;
   return *this;
@@ -361,15 +361,15 @@ void CombineHarvester::LoadShapes(Process* entry,
   }
 }
 
-void CombineHarvester::LoadShapes(Nuisance* entry,
+void CombineHarvester::LoadShapes(Systematic* entry,
                                      std::vector<HistMapping> const& mappings) {
   if (entry->shape_u() || entry->shape_d()) {
-    throw std::runtime_error(FNERROR("Nuisance already contains a shape"));
+    throw std::runtime_error(FNERROR("Systematic already contains a shape"));
   }
 
   if (verbosity_ >= 1) {
-    LOGLINE(log(), "Extracting shapes for Nuisance:");
-    log() << Nuisance::PrintHeader << *entry << "\n";
+    LOGLINE(log(), "Extracting shapes for Systematic:");
+    log() << Systematic::PrintHeader << *entry << "\n";
     LOGLINE(log(), "Mappings:");
     for (HistMapping const& m : mappings) log() << m << "\n";
   }

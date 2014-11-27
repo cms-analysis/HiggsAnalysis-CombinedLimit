@@ -2,7 +2,7 @@
 #define CombineTools_MakeUnique_h
 #include <memory>
 
-namespace ic {
+namespace ch {
 
 template<typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args) {

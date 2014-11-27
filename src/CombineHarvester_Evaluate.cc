@@ -15,7 +15,7 @@
 #include "TH1.h"
 #include "CombineTools/interface/Observation.h"
 #include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Nuisance.h"
+#include "CombineTools/interface/Systematic.h"
 #include "CombineTools/interface/Parameter.h"
 #include "CombineTools/interface/MakeUnique.h"
 #include "CombineTools/interface/Utilities.h"
@@ -28,12 +28,12 @@
 
 namespace ch {
 
-CombineHarvester::ProcNusMap CombineHarvester::GenerateProcNusMap() {
-  ProcNusMap lookup(procs_.size());
-  for (unsigned i = 0; i < nus_.size(); ++i) {
+CombineHarvester::ProcSystMap CombineHarvester::GenerateProcSystMap() {
+  ProcSystMap lookup(procs_.size());
+  for (unsigned i = 0; i < systs_.size(); ++i) {
     for (unsigned j = 0; j < procs_.size(); ++j) {
-      if (MatchingProcess(*(nus_[i]), *(procs_[j]))) {
-        lookup[j].push_back(nus_[i].get());
+      if (MatchingProcess(*(systs_[i]), *(procs_[j]))) {
+        lookup[j].push_back(systs_[i].get());
       }
     }
   }
@@ -41,7 +41,7 @@ CombineHarvester::ProcNusMap CombineHarvester::GenerateProcNusMap() {
 }
 
 double CombineHarvester::GetUncertainty() {
-  auto lookup = GenerateProcNusMap();
+  auto lookup = GenerateProcSystMap();
   double err_sq = 0.0;
   for (auto param_it : params_) {
     double backup = param_it.second->val();
@@ -57,7 +57,7 @@ double CombineHarvester::GetUncertainty() {
 }
 
 double CombineHarvester::GetUncertainty(RooFitResult const* fit, unsigned n_samples) {
-  auto lookup = GenerateProcNusMap();
+  auto lookup = GenerateProcSystMap();
   double rate = GetRateInternal(lookup);
   double err_sq = 0.0;
   auto backup = GetParameters();
@@ -73,7 +73,7 @@ double CombineHarvester::GetUncertainty(RooFitResult const* fit, unsigned n_samp
 }
 
 TH1F CombineHarvester::GetShapeWithUncertainty() {
-  auto lookup = GenerateProcNusMap();
+  auto lookup = GenerateProcSystMap();
   TH1F shape = GetShape();
   for (int i = 1; i <= shape.GetNbinsX(); ++i) {
     shape.SetBinError(i, 0.0);
@@ -97,7 +97,7 @@ TH1F CombineHarvester::GetShapeWithUncertainty() {
 }
 
 TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const* fit, unsigned n_samples) {
-  auto lookup = GenerateProcNusMap();
+  auto lookup = GenerateProcSystMap();
   TH1F shape = GetShapeInternal(lookup);
   for (int i = 1; i <= shape.GetNbinsX(); ++i) {
     shape.SetBinError(i, 0.0);
@@ -120,42 +120,42 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const* fit, unsigned
 }
 
 double CombineHarvester::GetRate() {
-  auto lookup = GenerateProcNusMap();
+  auto lookup = GenerateProcSystMap();
   return GetRateInternal(lookup);
 }
 
 TH1F CombineHarvester::GetShape() {
-  auto lookup = GenerateProcNusMap();
+  auto lookup = GenerateProcSystMap();
   return GetShapeInternal(lookup);
 }
 
 
-double CombineHarvester::GetRateInternal(ProcNusMap const& lookup,
-    std::string const& single_nus) {
+double CombineHarvester::GetRateInternal(ProcSystMap const& lookup,
+    std::string const& single_sys) {
   double rate = 0.0;
   // TH1F tot_shape
   for (unsigned i = 0; i < procs_.size(); ++i) {
     double p_rate = procs_[i]->rate();
     // If we are evaluating the effect of a single parameter
     // check the list of associated nuisances and skip if
-    // this "single_nus" is not in the list
+    // this "single_sys" is not in the list
     // However - we can't skip if the process has a pdf, as
     // we haven't checked what the parameters are
-    if (single_nus != "" && !procs_[i]->pdf()) {
-      if (!ch::any_of(lookup[i], [&](Nuisance const* nus) {
-        return nus->name() == single_nus;
+    if (single_sys != "" && !procs_[i]->pdf()) {
+      if (!ch::any_of(lookup[i], [&](Systematic const* sys) {
+        return sys->name() == single_sys;
       })) continue;
     }
-    for (auto nus_it : lookup[i]) {
-      double x = params_[nus_it->name()]->val();
-      if (nus_it->asymm()) {
+    for (auto sys_it : lookup[i]) {
+      double x = params_[sys_it->name()]->val();
+      if (sys_it->asymm()) {
         if (x >= 0) {
-          p_rate *= std::pow(nus_it->value_u(), x * nus_it->scale());
+          p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
         } else {
-          p_rate *= std::pow(nus_it->value_d(), -1.0 * x * nus_it->scale());
+          p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
         }
       } else {
-        p_rate *= std::pow(nus_it->value_u(), x * nus_it->scale());
+        p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
       }
     }
     rate += p_rate;
@@ -163,8 +163,8 @@ double CombineHarvester::GetRateInternal(ProcNusMap const& lookup,
   return rate;
 }
 
-TH1F CombineHarvester::GetShapeInternal(ProcNusMap const& lookup,
-    std::string const& single_nus) {
+TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
+    std::string const& single_sys) {
   TH1F shape;
   bool shape_init = false;
 
@@ -172,9 +172,9 @@ TH1F CombineHarvester::GetShapeInternal(ProcNusMap const& lookup,
     // Might be able to skip if only interested in one nuisance
     // However - we can't skip if the process has a pdf, as
     // we haven't checked what the parameters are
-    if (single_nus != "" && !procs_[i]->pdf()) {
-      if (!ch::any_of(lookup[i], [&](Nuisance const* nus) {
-        return nus->name() == single_nus;
+    if (single_sys != "" && !procs_[i]->pdf()) {
+      if (!ch::any_of(lookup[i], [&](Systematic const* sys) {
+        return sys->name() == single_sys;
       })) continue;
     }
 
@@ -192,20 +192,20 @@ TH1F CombineHarvester::GetShapeInternal(ProcNusMap const& lookup,
             "[CombineHarvester] TH1 is not a TH1F or a TH1D");
       }
 
-      for (auto nus_it : lookup[i]) {
-        double x = params_[nus_it->name()]->val();
-        if (nus_it->asymm()) {
+      for (auto sys_it : lookup[i]) {
+        double x = params_[sys_it->name()]->val();
+        if (sys_it->asymm()) {
           if (x >= 0) {
-            p_rate *= std::pow(nus_it->value_u(), x * nus_it->scale());
+            p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
           } else {
-            p_rate *= std::pow(nus_it->value_d(), -1.0 * x * nus_it->scale());
+            p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
           }
-          if (nus_it->type() == "shape") {
-            ShapeDiff(x * nus_it->scale(), &proc_shape, procs_[i]->shape(),
-                      nus_it->shape_d(), nus_it->shape_u());
+          if (sys_it->type() == "shape") {
+            ShapeDiff(x * sys_it->scale(), &proc_shape, procs_[i]->shape(),
+                      sys_it->shape_d(), sys_it->shape_u());
           }
         } else {
-          p_rate *= std::pow(nus_it->value_u(), x * nus_it->scale());
+          p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
         }
       }
       for (int b = 1; b <= proc_shape.GetNbinsX(); ++b) {
@@ -225,16 +225,16 @@ TH1F CombineHarvester::GetShapeInternal(ProcNusMap const& lookup,
       TH1::AddDirectory(false);
       TH1F proc_shape = *(dynamic_cast<TH1F*>(procs_[i]->pdf()->createHistogram(
                              var_name.c_str())));
-      for (auto nus_it : lookup[i]) {
-        double x = params_[nus_it->name()]->val();
-        if (nus_it->asymm()) {
+      for (auto sys_it : lookup[i]) {
+        double x = params_[sys_it->name()]->val();
+        if (sys_it->asymm()) {
           if (x >= 0) {
-            p_rate *= std::pow(nus_it->value_u(), x * nus_it->scale());
+            p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
           } else {
-            p_rate *= std::pow(nus_it->value_d(), -1.0 * x * nus_it->scale());
+            p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
           }
         } else {
-          p_rate *= std::pow(nus_it->value_u(), x * nus_it->scale());
+          p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
         }
       }
       proc_shape.Scale(p_rate);
@@ -378,32 +378,32 @@ void CombineHarvester::VariableRebin(std::vector<double> bins) {
       delete copy;
     }
   }
-  for (unsigned i = 0; i < nus_.size(); ++i) {
+  for (unsigned i = 0; i < systs_.size(); ++i) {
     double proc_scale = 1.0;
     for (unsigned j = 0; j < procs_.size(); ++j) {
-      if (MatchingProcess(*(procs_[j]), *(nus_[i].get()))) {
+      if (MatchingProcess(*(procs_[j]), *(systs_[i].get()))) {
         proc_scale = proc_scaling[j];
       }
     }
-    if (nus_[i]->shape_u()) {
-      TH1 *copy = static_cast<TH1*>(nus_[i]->shape_u()->Clone());
+    if (systs_[i]->shape_u()) {
+      TH1 *copy = static_cast<TH1*>(systs_[i]->shape_u()->Clone());
       double rate_before = copy->Integral();
       TH1 *copy2 = copy->Rebin(bins.size()-1, "", &(bins[0]));
       double rate_after = copy2->Integral();
       if (rate_after > 0.) copy2->Scale(1.0/rate_after);
-      nus_[i]->set_shape_u(std::unique_ptr<TH1>(copy2));
-      nus_[i]->set_value_u((rate_after / rate_before) * nus_[i]->value_u() /
+      systs_[i]->set_shape_u(std::unique_ptr<TH1>(copy2));
+      systs_[i]->set_value_u((rate_after / rate_before) * systs_[i]->value_u() /
                            proc_scale);
       delete copy;
     }
-    if (nus_[i]->shape_d()) {
-      TH1 *copy = static_cast<TH1*>(nus_[i]->shape_d()->Clone());
+    if (systs_[i]->shape_d()) {
+      TH1 *copy = static_cast<TH1*>(systs_[i]->shape_d()->Clone());
       double rate_before = copy->Integral();
       TH1 *copy2 = copy->Rebin(bins.size()-1, "", &(bins[0]));
       double rate_after = copy2->Integral();
       if (rate_after > 0.) copy2->Scale(1.0/rate_after);
-      nus_[i]->set_shape_d(std::unique_ptr<TH1>(copy2));
-      nus_[i]->set_value_d((rate_after / rate_before) * nus_[i]->value_d() /
+      systs_[i]->set_shape_d(std::unique_ptr<TH1>(copy2));
+      systs_[i]->set_value_d((rate_after / rate_before) * systs_[i]->value_d() /
                            proc_scale);
       delete copy;
     }
