@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <unordered_map>
 struct RooDataHist;
 struct RooAbsData;
 struct RooAbsPdf;
@@ -93,8 +94,8 @@ namespace utils {
     // Set range of physics model parameters
     void setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params);
 
-    bool checkParameterBoundary( const RooRealVar &);
-    bool checkParameterBoundaries( const RooArgSet &);
+    bool isParameterAtBoundary( const RooRealVar &);
+    bool anyParameterAtBoundaries( const RooArgSet &, int verbosity);
 
     void reorderCombinations(std::vector<std::vector<int> > &, const std::vector<int> &, const std::vector<int> &);
     std::vector<std::vector<int> > generateCombinations(const std::vector<int> &vec);
