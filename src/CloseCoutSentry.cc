@@ -7,6 +7,8 @@ bool CloseCoutSentry::open_ = true;
 int  CloseCoutSentry::fdOut_ = 0;
 int  CloseCoutSentry::fdErr_ = 0;
 FILE * CloseCoutSentry::trueStdOut_ = 0;
+CloseCoutSentry *CloseCoutSentry::owner_ = 0;
+
 
 CloseCoutSentry::CloseCoutSentry(bool silent) :
     silent_(silent), stdOutIsMine_(false)
@@ -20,6 +22,7 @@ CloseCoutSentry::CloseCoutSentry(bool silent) :
             }
             freopen("/dev/null", "w", stdout);
             freopen("/dev/null", "w", stderr);
+            owner_ = this;
         } else {
             silent_ = false; 
         }
@@ -47,6 +50,7 @@ void CloseCoutSentry::reallyClear()
         sprintf(buf, "/dev/fd/%d", fdOut_); freopen(buf, "w", stdout);
         sprintf(buf, "/dev/fd/%d", fdErr_); freopen(buf, "w", stderr);
         open_   = true;
+        owner_ = 0;
         fdOut_ = fdErr_ = 0; 
     }
 }
@@ -54,6 +58,12 @@ void CloseCoutSentry::reallyClear()
 void CloseCoutSentry::breakFree() 
 {
     reallyClear();
+}
+
+FILE *CloseCoutSentry::trueStdOutGlobal()
+{
+    if (!owner_) return stdout;
+    return owner_->trueStdOut();
 }
 
 FILE *CloseCoutSentry::trueStdOut() 

@@ -278,10 +278,11 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
     nllParams->remove(CascadeMinimizerGlobalConfigs::O().parametersOfInterest);
 
-    bool boundariesOk = utils::checkParameterBoundaries(*nllParams);
-    if(!boundariesOk){
-      std::cout << " [WARNING] After the fit some parameters are at their boundary (see above)." << std::endl;
-      std::cout << " [WARNING] Are you sure your model is correct?" << std::endl;
+    bool boundariesNotOk = utils::anyParameterAtBoundaries(*nllParams, verbose);
+    if(boundariesNotOk && verbose >= 1){
+      fprintf(CloseCoutSentry::trueStdOutGlobal(),
+        " [WARNING] After the fit some parameters are at their boundary.\n"
+        " [WARNING] Are you sure your model is correct?\n");
     }
 
     return ret;
