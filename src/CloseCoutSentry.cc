@@ -1,6 +1,7 @@
 #include "../interface/CloseCoutSentry.h"
 
 #include <cstdio>
+#include <cassert>
 #include <unistd.h>
 
 bool CloseCoutSentry::open_ = true;
@@ -22,6 +23,7 @@ CloseCoutSentry::CloseCoutSentry(bool silent) :
             }
             freopen("/dev/null", "w", stdout);
             freopen("/dev/null", "w", stderr);
+            assert(owner_ == 0);
             owner_ = this;
         } else {
             silent_ = false; 
@@ -36,7 +38,10 @@ CloseCoutSentry::~CloseCoutSentry()
 
 void CloseCoutSentry::clear() 
 {
-    if (stdOutIsMine_) { fclose(trueStdOut_); trueStdOut_ = 0; }
+    if (stdOutIsMine_) { 
+        assert(this == owner_);
+        fclose(trueStdOut_); trueStdOut_ = 0; stdOutIsMine_ = false;
+    }
     if (silent_) {
         reallyClear();
         silent_ = false;
@@ -70,6 +75,8 @@ FILE *CloseCoutSentry::trueStdOut()
 {
     if (open_) return stdout;
     if (trueStdOut_) return trueStdOut_;
+    if (owner_ != this && owner_ != 0) return owner_->trueStdOut();
+    assert(owner_ == this);
     stdOutIsMine_ = true;
     char buf[50];
     sprintf(buf, "/dev/fd/%d", fdOut_); trueStdOut_ = fopen(buf, "w");
