@@ -518,10 +518,7 @@ class ShapeBuilder(ModelBuilder):
                     _cache[name] = rdh
                 else:
                     rds = ROOT.RooDataSet(name, name, obs)
-                    if self.DC.obs[channel] == float(int(self.DC.obs[channel])):
-                        for i in range(int(self.DC.obs[channel])): rds.add(obs)
-                    else:
-                        rds.add(obs, self.DC.obs[channel])
+                    rds.add(obs, self.DC.obs[channel])
                     _cache[name] = rds
             return _cache[name]
         if not _cache.has_key(shape.GetName()):
