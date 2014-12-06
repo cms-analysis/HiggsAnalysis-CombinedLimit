@@ -20,45 +20,46 @@
 #include "CombineTools/interface/Utilities.h"
 #include "CombineTools/interface/HistMapping.h"
 
-/*
-To-do list
-[x] pdf norm terms that are (or derive) from RooRealVar should
-    be added to the list of Parameters (and hooked up)
-[ ] Look for areas where interface can be simplified
-  [ ] Set generation
-[!] Add extra "scale" property to Systematic for shapes
-[x] Support unbinned
-[x] Support histogramming for pdfs
- [x] Process will need to link to RooAbsPdf for yield
- [x] Parameter will need to link to RooRealVar
- [x] Update parameter method,i.e. change value of a single paramter
-[ ] Support TF1 extraction for pdfs
-[ ] better handling of param constraint terms
-[ ] migration to offical package
-[x] Any RooAbsPdf, RooAbsData pointers in a copied CombineHarvester point to the previous instance
-[x] Provide a method to redefine binning for Pdfs
-*/
 
 namespace ch {
 
 class CombineHarvester {
  public:
-  // Low-level
+  /**
+   * \name Constructors, destructors and copying
+   *
+   * \details Distinct shallow and deep copying methods are provided. A deep
+   * copy creates a completely independent CombineHarvester instace: all
+   * Observation, Process, Systematic and Parameter objects are cloned, as
+   * well as any histogram objects they may contain and any attached
+   * RooWorkspaces. In a shallow copy these objects are shared with the
+   * original CombineHarvester instance.
+   */
+  /**@{*/
   CombineHarvester();
   ~CombineHarvester();
   CombineHarvester(CombineHarvester const& other);
   CombineHarvester(CombineHarvester&& other);
   CombineHarvester& operator=(CombineHarvester other);
   CombineHarvester cp();
-  CombineHarvester& PrintAll();
-  void SetVerbosity(unsigned verbosity) { verbosity_ = verbosity; }
+  /**@}*/
 
   /**
-   * @name Datacards
-   * @brief Methods for the reading and writing of datacards.
-   * @details As well as reading or writing the plain-text datacard
-   * files these methods also handle the automatic loading and saving
-   * of any TH1 objects or RooWorkspaces.
+   * \name Logging and Printing
+   */
+  /**@{*/
+  CombineHarvester& PrintAll();
+  void SetVerbosity(unsigned verbosity) { verbosity_ = verbosity; }
+  /**@}*/
+
+  /**
+   * \name Datacards
+   *
+   * \brief Methods for the reading and writing of datacards.
+   *
+   * \details As well as reading or writing the plain-text datacard files
+   * these methods also handle the automatic loading and saving of any TH1
+   * objects or RooWorkspaces.
    */
   /**@{*/
   int ParseDatacard(std::string const& filename,
@@ -75,16 +76,21 @@ class CombineHarvester {
   /**@}*/
 
   /**
-   * @name Filters
-   * @brief A collection of methods to filter the Observation, Process and Systematic objects
-   * @details Each method here will remove objects from the Observation, Process and Systematic
-   * collections where the value of the relevant property is not equal to one of those specified
-   * in the list vec. Each methods returns a reference to the class instance, meaning
-   * it is simple to chain multiple filters. Note that filters only act on a set of objects
-   * where that property is defined. For example, the method systs_name will only filter the Systematic
-   * collection, and process will only filter the Process and Systematic collections.
+   * \name Filters
    *
-   * @param vec A vector containing the possible values of the given property.
+   * \brief A collection of methods to filter the Observation, Process and
+   * Systematic objects
+   *
+   * \details Each method here will remove objects from the Observation,
+   * Process and Systematic collections where the value of the relevant
+   * property is not equal to one of those specified in the list vec. Each
+   * methods returns a reference to the class instance, meaning it is simple
+   * to chain multiple filters. Note that filters only act on a set of objects
+   * where that property is defined. For example, the method systs_name will
+   * only filter the Systematic collection, and process will only filter the
+   * Process and Systematic collections.
+   *
+   * \param vec A vector containing the possible values of the given property.
    */
   /**@{*/
   CombineHarvester& bin(std::vector<std::string> const& vec, bool cond = true);
@@ -113,15 +119,37 @@ class CombineHarvester {
   CombineHarvester& FilterSysts(Function func);
   /**@}*/
 
+
+  /**
+   * \name Set producers
+   *
+   * \brief Methods that extract sets of properties from the Observation,
+   * Process and Systematic entries
+   */
+  /**@{*/
   // Set generation
-  template<typename T>
-  std::set<T> GenerateSetFromProcs(std::function<T(ch::Process const*)> func);
+  template <typename T>
+  std::set<T> GenerateSetFromProcs(
+    std::function<T(ch::Process const*)> func);
 
   template<typename T>
-  std::set<T> GenerateSetFromObs(std::function<T(ch::Observation const*)> func);
+  std::set<T> GenerateSetFromObs(
+    std::function<T(ch::Observation const*)> func);
 
-  template<typename T>
-  std::set<T> GenerateSetFromSysts(std::function<T(ch::Systematic const*)> func);
+  template <typename T>
+  std::set<T> GenerateSetFromSysts(
+      std::function<T(ch::Systematic const*)> func);
+
+  std::set<std::string> bin_set();
+  std::set<int> bin_id_set();
+  std::set<std::string> process_set();
+  std::set<std::string> analysis_set();
+  std::set<std::string> era_set();
+  std::set<std::string> channel_set();
+  std::set<std::string> mass_set();
+  std::set<std::string> syst_name_set();
+  std::set<std::string> syst_type_set();
+  /**@}*/
 
   // An alternative way to do the set generation
   // template<typename T>
@@ -134,20 +162,12 @@ class CombineHarvester {
   //   return ret;
   // };
 
-  std::set<std::string> bin_set();
-  std::set<int> bin_id_set();
-  std::set<std::string> process_set();
-  std::set<std::string> analysis_set();
-  std::set<std::string> era_set();
-  std::set<std::string> channel_set();
-  std::set<std::string> mass_set();
-  std::set<std::string> syst_name_set();
-  std::set<std::string> syst_type_set();
-
   /**
-   * @name Modification
-   * @brief Methods to modify existing objects.
-   * @details See the documentation of each method for details
+   * \name Modification
+   *
+   * \brief Methods to modify existing objects.
+   *
+   * \details See the documentation of each method for details
    */
   /**@{*/
   void SetParameters(std::vector<ch::Parameter> params);
@@ -169,11 +189,13 @@ class CombineHarvester {
   /**@}*/
 
   /**
-   * @name Rates and shapes
-   * @brief Methods to calculate total yields and shapes
-   * @details All of these methods are greedy, meaning they will sum
-   * over all available objects and evaluate the effect of all uncertainties.
-   * They should be used at the end of a chain of filter methods to give the
+   * \name Rate, shape and uncertainty evaluation
+   *
+   * \brief Methods to calculate total yields and shapes
+   *
+   * \details All of these methods are greedy, meaning they will sum over all
+   * available objects and evaluate the effect of all uncertainties. They
+   * should be used at the end of a chain of filter methods to give the
    * desired yield, shape or uncertainty.
    */
   /**@{*/
@@ -188,22 +210,26 @@ class CombineHarvester {
   /**@}*/
 
   /**
-   * @name Creating new entries
-   * @brief Methods to create new Observation, Process, Systematic and Parameter objects
-   * @details The general order in which these are run is given below.
+   * \name Creating new entries
    *
-   *    1.  The CombineHarvester::AddObservations and CombineHarvester::AddProcesses methods
-   *        build the desired ch::Observation and ch::Process entries. The rate entries will
-   *        default to zero at this stage, and are determined automatically in step 3.
-   *    2.  The CombineHarvester::AddSyst method will iterate through each ch::Process and
-   *        add a matching ch::Systematic entry, with the name, type and value specfied in the
-   *        method arguments. This method can be used at the end of a chain of filters to only
-   *        create ch::Systematic objects for a subset of processes.
-   *    3.  The method CombineHarvester::ExtractShapes opens a specified ROOT file and uses the
-   *        provided pattern rules to load the TH1 objects for all entries. The TH1 integrals
-   *        are used to set the event rates at this stage.
-   *    4.  Optionally, methods such as  CombineHarvester::AddBinByBin may be used to prepare
-   *        additional entries.
+   * \brief Methods to create new Observation, Process, Systematic and
+   * Parameter objects
+   *
+   * \details The general order in which these are run is given below.
+   *
+   * 1. The AddObservations and AddProcesses methods build the desired
+   *    Observation and ch::Process entries. The rate entries will default to
+   *    zero at this stage, and are determined automatically in step 3.
+   * 2. The AddSyst method will iterate through each Process and add a
+   *    matching Systematic entry, with the name, type and value specfied in
+   *    the method arguments. This method can be used at the end of a chain of
+   *    filters to only create Systematic objects for a subset of processes.
+   * 3. The method CombineHarvester::ExtractShapes opens a specified ROOT file
+   *    and uses the provided pattern rules to load the TH1 objects for all
+   *    entries. The TH1 integrals are used to set the event rates at this
+   *    stage.
+   * 4. Optionally, methods such as AddBinByBin may be used to prepare
+   *      additional entries.
    */
   /**@{*/
   void AddObservations(std::vector<std::string> mass,
@@ -395,8 +421,24 @@ template <class Map>
 void CombineHarvester::AddSyst(CombineHarvester& target,
                                std::string const& name, std::string const& type,
                                Map const& valmap) {
+  // Keep track of which Process entries get a Systematic assigned and which
+  // don't. If verbosity is on we'll print lists of these processes at the end.
+  std::vector<ch::Process *> not_added_procs;
+  std::vector<ch::Process *> added_procs;
+  // Also track which tuples in the map did not get used. Do this by getting the
+  // full map here and then removing elements as they are used to create a
+  // Systematic.
+  auto tuples = valmap.GetTupleSet();
+  if (verbosity_ >= 1) {
+    LOGLINE(log(), name + ":" + type);
+  }
   for (unsigned i = 0; i < procs_.size(); ++i) {
-    if (!valmap.Contains(procs_[i].get())) continue;
+    if (!valmap.Contains(procs_[i].get())) {
+      not_added_procs.push_back(procs_[i].get());
+      continue;
+    }
+    tuples.erase(valmap.GetTuple(procs_[i].get()));
+    added_procs.push_back(procs_[i].get());
     std::string subbed_name = name;
     boost::replace_all(subbed_name, "$BIN", procs_[i]->bin());
     boost::replace_all(subbed_name, "$PROCESS", procs_[i]->process());
@@ -420,6 +462,23 @@ void CombineHarvester::AddSyst(CombineHarvester& target,
     }
     CombineHarvester::CreateParameterIfEmpty(&target, sys->name());
       target.systs_.push_back(sys);
+  }
+  if (tuples.size() && verbosity_ >= 1) {
+    log() << ">> Map keys that were not used to create a Systematic:\n";
+    for (auto s : tuples) {
+      log() << ch::Tuple2String(s) << "\n";
+    }
+  }
+  if (verbosity_ >= 2) {
+    Process::PrintHeader(log());
+    log() << ">> Process entries that did not get a Systematic:\n";
+    for (auto p : not_added_procs) {
+      log() << *p << "\n";
+    }
+    log() << ">> Process entries that did get a Systematic:\n";
+    for (auto p : added_procs) {
+      log() << *p << "\n";
+    }
   }
 }
 }

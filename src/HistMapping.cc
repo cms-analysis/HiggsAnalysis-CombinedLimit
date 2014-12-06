@@ -29,7 +29,7 @@ namespace ch {
   }
 
   std::ostream& operator<<(std::ostream& out, HistMapping const& val) {
-    out << boost::format("%-10s %-30s %-30s %-30s %-30s")
+    out << boost::format("%-7s %-7s %-20s %-20s %-20s")
     % val.process
     % val.category
     % (val.file.get() ? val.file->GetName() : "0")

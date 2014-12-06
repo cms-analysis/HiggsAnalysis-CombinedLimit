@@ -12,6 +12,7 @@
 #include "boost/range/algorithm/find.hpp"
 #include "boost/format.hpp"
 #include "boost/regex.hpp"
+#include "boost/filesystem.hpp"
 #include "TDirectory.h"
 #include "TH1.h"
 #include "RooRealVar.h"
@@ -380,11 +381,16 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     }
   }
 
+  // The ROOT file mapping should be given as a relative path
   std::string file_name = root_file.GetName();
-  std::size_t file_slash_pos = file_name.find_last_of('/');
-  if (file_slash_pos != file_name.npos) {
-    file_name = file_name.substr(file_slash_pos+1);
-  }
+  // Get the full path to the output root file
+  boost::filesystem::path root_file_path =
+      boost::filesystem::canonical(file_name);
+  // Get the full path to the directory containing the txt file
+  boost::filesystem::path txt_file_path =
+      boost::filesystem::canonical(name).parent_path();
+  // Compute the relative path from the txt file to the root file
+  file_name = make_relative(txt_file_path, root_file_path).string();
 
   for (auto const& mapping : mappings) {
     txt_file << boost::format("shapes %s %s %s %s %s\n")

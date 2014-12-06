@@ -8,6 +8,7 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/regex.hpp"
+#include "boost/filesystem.hpp"
 #include "TGraph.h"
 #include "RooFitResult.h"
 #include "CombineTools/interface/Parameter.h"
@@ -144,6 +145,79 @@ std::vector<std::string> ParseFileLines(std::string const& file_name);
 
 std::vector<std::string> MassesFromRange(std::string const& input,
                                          std::string const& fmt = "%.0f");
+
+
+// ---------------------------------------------------------------------------
+// Tuple Printing
+// ---------------------------------------------------------------------------
+// Most of this is just implementation detail, so we'll hide it away in a
+// namespace:
+namespace tupleprint {
+// Have stolen tuple printing routines from here:
+// http://en.cppreference.com/w/cpp/utility/tuple/tuple_cat
+template <class Tuple, std::size_t N>
+struct TuplePrinter {
+  static void print(const Tuple &t, std::stringstream & str) {
+    TuplePrinter<Tuple, N - 1>::print(t, str);
+    str << ", " << std::get<N - 1>(t);
+  }
+};
+
+template <class Tuple>
+struct TuplePrinter<Tuple, 1> {
+  static void print(const Tuple & t, std::stringstream & str) {
+    str << std::get<0>(t);
+  }
+};
+
+// Have to add this because we do make use of empty tuples
+// Would lead to infinite recursion otherwise
+template <class Tuple>
+struct TuplePrinter<Tuple, 0> {
+  static void print(const Tuple & /*t*/, std::stringstream & /*str*/) {  }
+};
+}
+
+/**
+ * Format any std::tuple as a string
+ *
+ * For a tuple containing objects `X0,X1,...,Xn` creates a string of the form
+ * `(x0,x1,...,xn)` where `xi` is the result of the output stream (`<<`)
+ * operator for `Xi`.
+ *
+ * @param t The input std::tuple
+ *
+ * @return A formatted string of the tuple elements
+ */
+template <class... Args>
+std::string Tuple2String(const std::tuple<Args...> &t) {
+  std::stringstream str;
+  str << "(";
+  tupleprint::TuplePrinter<decltype(t), sizeof...(Args)>::print(t, str);
+  str << ")";
+  return str.str();
+}
+
+// ---------------------------------------------------------------------------
+// Filesystem Additions
+// ---------------------------------------------------------------------------
+/**
+ * Determine the relative path from one file to another
+ *
+ * Based on the example given here:
+ * https://svn.boost.org/trac/boost/ticket/6249
+ *
+ * The main use of this function is to determine the relative path from a text
+ * datacard file to its associated ROOT file that must be written in the
+ * histogram mapping lines.
+ *
+ * @param p_from The start point of the relative path
+ * @param p_to The end point of the relative path
+ *
+ * @return Relative path from `p_from` to `p_to`
+ */
+boost::filesystem::path make_relative(boost::filesystem::path p_from,
+                                      boost::filesystem::path p_to);
 }
 
 #endif

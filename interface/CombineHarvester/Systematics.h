@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "CombineTools/interface/Process.h"
+#include "CombineTools/interface/Logging.h"
 
 namespace ch {
 namespace syst {
@@ -73,7 +74,9 @@ namespace syst {
    public:
     SystMap& operator()(std::vector<typename T::type>... input, double val) {
       auto res = ch::syst::detail::cross(input...);
-      for (auto const& a : res) tmap_.insert(std::make_pair(a, val));
+      for (auto const& a : res) {
+        tmap_.insert(std::make_pair(a, val));
+      }
       return *this;
     }
 
@@ -97,12 +100,27 @@ namespace syst {
       return 0.0;
     }
 
-    static SystMap<T...> init(std::vector<typename T::type>... input, double val) {
+    static SystMap<T...> init(std::vector<typename T::type>... input,
+                              double val) {
       SystMap<T...> x;
       return x(input..., val);
     }
 
     bool IsAsymm() const { return false; }
+
+    std::set<std::tuple<typename T::type...>> GetTupleSet() const {
+      std::set<std::tuple<typename T::type...>> res;
+      for (auto const& x : tmap_) res.insert(x.first);
+      return res;
+    }
+
+    std::tuple<typename T::type...> GetTuple(ch::Process *p) const {
+      if (p) {
+        return std::make_tuple(T::get(p)...);
+      } else {
+        throw std::runtime_error(FNERROR("Supplied pointer is null"));
+      }
+    }
   };
 
   template<class... T>
@@ -111,7 +129,8 @@ namespace syst {
     std::map<std::tuple<typename T::type...>, std::pair<double, double>> tmap_;
 
    public:
-    SystMapAsymm& operator()(std::vector<typename T::type>... input, double val_d, double val_u) {
+    SystMapAsymm &operator()(std::vector<typename T::type>... input,
+                             double val_d, double val_u) {
       auto res = ch::syst::detail::cross(input...);
       for (auto const& a : res)
         tmap_.insert(std::make_pair(a, std::make_pair(val_d, val_u)));
@@ -141,12 +160,27 @@ namespace syst {
       }
     }
 
-    static SystMapAsymm<T...> init(std::vector<typename T::type>... input, double val_d, double val_u) {
+    static SystMapAsymm<T...> init(std::vector<typename T::type>... input,
+                                   double val_d, double val_u) {
       SystMapAsymm<T...> x;
       return x(input..., val_d, val_u);
     }
 
     bool IsAsymm() const { return true; }
+
+    std::set<std::tuple<typename T::type...>> GetTupleSet() const {
+      std::set<std::tuple<typename T::type...>> res;
+      for (auto const& x : tmap_) res.insert(x.first);
+      return res;
+    }
+
+    std::tuple<typename T::type...> GetTuple(ch::Process *p) const {
+      if (p) {
+        return std::make_tuple(T::get(p)...);
+      } else {
+        throw std::runtime_error(FNERROR("Supplied pointer is null"));
+      }
+    }
   };
 }
 }

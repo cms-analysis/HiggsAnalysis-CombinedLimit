@@ -197,7 +197,7 @@ void CombineHarvester::LoadShapes(Observation* entry,
     throw std::runtime_error(FNERROR("Observation already contains a shape"));
   }
 
-  if (verbosity_ >= 1) {
+  if (verbosity_ >= 2) {
     LOGLINE(log(), "Extracting shapes for Observation:");
     log() << Observation::PrintHeader << *entry << "\n";
     LOGLINE(log(), "Mappings:");
@@ -213,20 +213,20 @@ void CombineHarvester::LoadShapes(Observation* entry,
   boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
   boost::replace_all(mapping.pattern, "$MASS", entry->mass());
 
-  if (verbosity_ >= 1) {
+  if (verbosity_ >= 2) {
     LOGLINE(log(), "Resolved Mapping:");
     log() << mapping << "\n";
   }
 
   if (mapping.IsHist()) {
-    if (verbosity_ >= 1) LOGLINE(log(), "Mapping type in TH1");
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type in TH1");
     // Pre-condition #3
     // GetClonedTH1 will throw if this fails
     std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), mapping.pattern);
     // Post-conditions #1 and #2
     entry->SetNormShapeAndRate(std::move(h));
   } else if (mapping.IsData()) {
-    if (verbosity_ >= 1) LOGLINE(log(), "Mapping type is RooAbsData");
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooAbsData");
     // Pre-condition #3
     // SetupWorkspace will throw if workspace not found
     StrPair res = SetupWorkspace(mapping);
@@ -276,7 +276,7 @@ void CombineHarvester::LoadShapes(Process* entry,
     throw std::runtime_error(FNERROR("Process already contains a shape"));
   }
 
-  if (verbosity_ >= 1) {
+  if (verbosity_ >= 2) {
     LOGLINE(log(), "Extracting shapes for Process:");
     log() << Process::PrintHeader << *entry << "\n";
     LOGLINE(log(), "Mappings:");
@@ -292,20 +292,20 @@ void CombineHarvester::LoadShapes(Process* entry,
   boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
   boost::replace_all(mapping.pattern, "$MASS", entry->mass());
 
-  if (verbosity_ >= 1) {
+  if (verbosity_ >= 2) {
     LOGLINE(log(), "Resolved Mapping:");
     log() << mapping << "\n";
   }
 
   if (mapping.IsHist()) {
-    if (verbosity_ >= 1) LOGLINE(log(), "Mapping type in TH1");
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type in TH1");
     // Pre-condition #3
     // GetClonedTH1 will throw if this fails
     std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), mapping.pattern);
     // Post-conditions #1 and #2
     entry->SetNormShapeAndRate(std::move(h));
   } else if (mapping.IsPdf()) {
-    if (verbosity_ >= 1) LOGLINE(log(), "Mapping type is RooAbsPdf");
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooAbsPdf");
     // Pre-condition #3
     // SetupWorkspace will throw if workspace not found
     StrPair res = SetupWorkspace(mapping);
@@ -314,7 +314,7 @@ void CombineHarvester::LoadShapes(Process* entry,
     if (!pdf) {
       throw std::runtime_error(FNERROR("RooAbsPdf not found in workspace"));
     }
-    if (verbosity_ >= 1) {
+    if (verbosity_ >= 2) {
       pdf->printStream(log(), pdf->defaultPrintContents(0),
                      pdf->defaultPrintStyle(0), "[LoadShapes] ");
     }
@@ -329,7 +329,7 @@ void CombineHarvester::LoadShapes(Process* entry,
     if (norm) {
       // Post-condition #3
       entry->set_norm(norm);
-      if (verbosity_ >= 1) {
+      if (verbosity_ >= 2) {
         LOGLINE(log(), "Normalisation RooAbsReal found");
         norm->printStream(log(), norm->defaultPrintContents(0),
                           norm->defaultPrintStyle(0), "[LoadShapes] ");
@@ -347,11 +347,11 @@ void CombineHarvester::LoadShapes(Process* entry,
     // Import any paramters of the RooAbsPdf and the RooRealVar
     RooAbsData const* data_obj = FindMatchingData(entry);
     if (data_obj) {
-      if (verbosity_ >= 1) LOGLINE(log(), "Matching RooAbsData has been found");
+      if (verbosity_ >= 2) LOGLINE(log(), "Matching RooAbsData has been found");
       ImportParameters(pdf->getParameters(data_obj));
       if (norm) ImportParameters(norm->getParameters(data_obj));
     } else {
-      if (verbosity_ >= 1)
+      if (verbosity_ >= 2)
         LOGLINE(log(), "No RooAbsData found, assume observable CMS_th1x");
       RooRealVar mx("CMS_th1x" , "CMS_th1x", 0, 1);
       RooArgSet tmp_set(mx);
@@ -367,7 +367,7 @@ void CombineHarvester::LoadShapes(Systematic* entry,
     throw std::runtime_error(FNERROR("Systematic already contains a shape"));
   }
 
-  if (verbosity_ >= 1) {
+  if (verbosity_ >= 2) {
     LOGLINE(log(), "Extracting shapes for Systematic:");
     log() << Systematic::PrintHeader << *entry << "\n";
     LOGLINE(log(), "Mappings:");
@@ -406,6 +406,25 @@ void CombineHarvester::LoadShapes(Systematic* entry,
   entry->SetShapesAndVals(std::move(h_u), std::move(h_d), h.get());
 }
 
+/**
+ * Determines the best-matched HistMapping for a given process
+ *
+ * Given a process `p` and and bin `b`, this function will first call
+ * GenerateShapeMapAttempts to obtain a list of process,bin pairs to search
+ * for in the given vector of HistMapping object. The fist attempt will be for
+ * a mapping that matches `p,b` exactly, followed by the substitution of each
+ * with the wildcard `*`, making a total of four attempts: `p,b`, `*,b`,
+ * `p,*`, `*,*`
+ *
+ *  \pre One of the generated mapping attempts must match exactly with one of
+ *  the supplied HistMapping objects, otherwise an exception will be thrown.
+ *
+ * @param process Process name to match
+ * @param bin Bin name to match
+ * @param mappings Vector of HistMapping objects
+ *
+ * @return A reference to the selected HistMapping object
+ */
 HistMapping const& CombineHarvester::ResolveMapping(
     std::string const& process, std::string const& bin,
     std::vector<HistMapping> const& mappings) {

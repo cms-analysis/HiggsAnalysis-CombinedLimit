@@ -217,4 +217,30 @@ std::vector<std::string> MassesFromRange(std::string const& input,
   }
   return result;
 }
+
+boost::filesystem::path make_relative(boost::filesystem::path p_from,
+                                      boost::filesystem::path p_to) {
+  p_from = boost::filesystem::absolute(p_from);
+  p_to = boost::filesystem::absolute(p_to);
+  boost::filesystem::path ret;
+  boost::filesystem::path::const_iterator itrFrom(p_from.begin()),
+      itrTo(p_to.begin());
+  // Find common base
+  for (boost::filesystem::path::const_iterator toEnd(p_to.end()),
+       fromEnd(p_from.end());
+       itrFrom != fromEnd && itrTo != toEnd && *itrFrom == *itrTo;
+       ++itrFrom, ++itrTo);
+  // Navigate backwards in directory to reach previously found base
+  for (boost::filesystem::path::const_iterator fromEnd(p_from.end());
+       itrFrom != fromEnd; ++itrFrom) {
+    if ((*itrFrom) != ".") ret /= "..";
+  }
+  // Now navigate down the directory branch
+  // ret.append(itrTo, p_to.end());
+  for (boost::filesystem::path::const_iterator toEnd(p_to.end());
+       itrTo != toEnd; ++itrTo) {
+    ret /= *itrTo;
+  }
+  return ret;
+}
 }
