@@ -203,8 +203,8 @@ Double_t RooRealFlooredSumPdf::evaluate() const
 		}
 	}
 
-	// Introduce floor if so requested
-	if (value <= 0 && _doFloor) value = 1.0e-20;
+	// Introduce floor
+	if (value < 1.0e-15 && _doFloor) value = 1.0e-15; // Last IEEE double precision
 
 	return value;
 }
@@ -351,8 +351,8 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 
 		// Warn about coefficient degeneration
 		if (lastCoef<0 || lastCoef>1) {
-			coutW(Eval) << "RooRealFlooredSumPdf::evaluate(" << GetName()
-				<< " WARNING: sum of FUNC coefficients not in range [0-1], value="
+			coutW(Eval) << "RooRealFlooredSumPdf::integral(" << GetName()
+				<< " WARNING: Sum of FUNC coefficients not in range [0-1], value="
 				<< 1 - lastCoef << endl;
 		}
 	}
@@ -382,9 +382,13 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 		}
 	}
 
-	Double_t result = value / normVal;
-	if(result<=0 && _doFloor) result = 1.0e20; // Some very large number
-
+  Double_t result = 0;
+  if(normVal>0) result = value / normVal;
+  if (result<1.0e-10 && _doFloor){
+    coutW(Eval) << "RooRealFlooredSumPdf::integral(" << GetName()
+      << " WARNING: Integral below threshold: " << result << endl;
+    result = 1.0e-10; // A somewhat larger number
+  }
 	return result;
 }
 
@@ -392,7 +396,6 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 //_____________________________________________________________________________
 Double_t RooRealFlooredSumPdf::expectedEvents(const RooArgSet* nset) const
 {
-	//  return getNorm(nset) ;
 	Double_t n = getNorm(nset);
 	if (n < 0) {
 		logEvalError("Expected number of events is negative");

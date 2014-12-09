@@ -119,7 +119,7 @@ Double_t HZZ4L_RooCTauPdf_1D::interpolateIntegral() const{
 Double_t HZZ4L_RooCTauPdf_1D::evaluate() const
 {
 	double value = interpolateBin();
-	if (value <= 0) return 1.0e-100;
+	if (value <= 0) return 1.0e-15;
 	return value;
 }
 Int_t HZZ4L_RooCTauPdf_1D::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const
@@ -134,7 +134,7 @@ Double_t HZZ4L_RooCTauPdf_1D::analyticalIntegral(Int_t code, const char* rangeNa
 	case 1:
 		{
 			double integral = interpolateIntegral();
-			if( integral <= 0 ) integral = 1.0e100;
+			if( integral <= 0 ) integral = 1.0e-10;
 			return integral;
 		}
 	default:

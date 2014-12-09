@@ -140,7 +140,7 @@ Double_t VerticalInterpPdf::evaluate() const
       }
   }
    
-  return ( value > 0 ? value : 1E-20 );
+  return ( value > 0 ? value : 1E-15 ); // Last IEEE double precision
 }
 
 
@@ -280,12 +280,12 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
       normVal += interpolate(coefVal, central, funcNormUp, funcNormDn);
     }
 
-    if (normVal==0) normVal=1E-10;
     delete funcNormIter ;      
   }
 
-  Double_t result = value / normVal;
-  return ( result > 0 ? result : 1E-15 );
+  Double_t result = 0;
+  if(normVal>0) result = value / normVal;
+  return (result > 0 ? result : 1E-10);
 }
 
 Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbsReal *fUp, RooAbsReal *fDn) const  
@@ -335,5 +335,4 @@ Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbs
             return c_up * fUp->getVal() + c_dn * fDn->getVal() + c_cen * central;
         } 
     }
-
 }
