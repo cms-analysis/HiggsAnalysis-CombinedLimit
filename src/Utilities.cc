@@ -243,4 +243,22 @@ boost::filesystem::path make_relative(boost::filesystem::path p_from,
   }
   return ret;
 }
+
+bool HasNegativeBins(TH1 const* h) {
+  bool has_negative = false;
+  for (int i = 1; i <= h->GetNbinsX(); ++i) {
+    if (h->GetBinContent(i) < 0.) {
+      has_negative = true;
+    }
+  }
+  return has_negative;
+}
+
+void ZeroNegativeBins(TH1 *h) {
+  for (int i = 1; i <= h->GetNbinsX(); ++i) {
+    if (h->GetBinContent(i) < 0.) {
+      h->SetBinContent(i, 0.);
+    }
+  }
+}
 }

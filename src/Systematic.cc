@@ -1,6 +1,7 @@
 #include "CombineTools/interface/Systematic.h"
 #include <iostream>
 #include "boost/format.hpp"
+#include "CombineTools/interface/Logging.h"
 
 namespace ch {
 
@@ -99,25 +100,67 @@ Systematic& Systematic::operator=(Systematic other) {
   return (*this);
 }
 
-void Systematic::SetShapesAndVals(std::unique_ptr<TH1> shape_u,
-                      std::unique_ptr<TH1> shape_d, TH1 const* nominal) {
-  if (!shape_u || !shape_d || !nominal) return;
-  if (nominal->Integral() > 0.0) {
-    if (shape_u->Integral() > 0.0) {
-      this->set_value_u(shape_u->Integral()/nominal->Integral());
-      shape_u->Scale(1.0/shape_u->Integral());
-    }
-    if (shape_d->Integral() > 0.0) {
-      this->set_value_d(shape_d->Integral()/nominal->Integral());
-      shape_d->Scale(1.0/shape_d->Integral());
-    }
-  } else {
-    if (shape_u->Integral() > 0.0)  shape_u->Scale(1.0/shape_u->Integral());
-    if (shape_d->Integral() > 0.0)  shape_d->Scale(1.0/shape_d->Integral());
+void Systematic::set_shapes(std::unique_ptr<TH1> shape_u,
+                            std::unique_ptr<TH1> shape_d, TH1 const* nominal) {
+  // Check that the inputs make sense
+  if (bool(shape_u) != bool(shape_d)) {
+    throw std::runtime_error(
+        "shape_u and shape_d must be either both valid or both null");
   }
-  this->set_shape_u(std::move(shape_u));
-  this->set_shape_d(std::move(shape_d));
-  this->set_asymm(true);
+  if (!shape_u && !shape_d) {
+    shape_u_ = nullptr;
+    shape_d_ = nullptr;
+    return;
+  }
+
+  for (int i = 1; i <= shape_u->GetNbinsX(); ++i) {
+    if (shape_u->GetBinContent(i) < 0.) {
+      throw std::runtime_error(
+          FNERROR("shape_u TH1 has a bin with content < 0"));
+    }
+  }
+  for (int i = 1; i <= shape_d->GetNbinsX(); ++i) {
+    if (shape_d->GetBinContent(i) < 0.) {
+      throw std::runtime_error(
+          FNERROR("shape_d TH1 has a bin with content < 0"));
+    }
+  }
+
+  if (nominal) {
+    for (int i = 1; i <= nominal->GetNbinsX(); ++i) {
+      if (nominal->GetBinContent(i) < 0.) {
+        throw std::runtime_error(
+            FNERROR("nominal TH1 has a bin with content < 0"));
+      }
+    }
+  }
+
+  shape_u_ = std::move(shape_u);
+  shape_d_ = std::move(shape_d);
+  shape_u_->SetDirectory(0);
+  shape_d_->SetDirectory(0);
+
+  if (nominal && nominal->Integral() > 0.) {
+    this->set_value_u(shape_u_->Integral() / nominal->Integral());
+    this->set_value_d(shape_d_->Integral() / nominal->Integral());
+  }
+
+  if (shape_u_->Integral() > 0.) shape_u_->Scale(1. / shape_u_->Integral());
+  if (shape_d_->Integral() > 0.) shape_d_->Scale(1. / shape_d_->Integral());
+}
+
+std::unique_ptr<TH1> Systematic::ClonedShapeU() const {
+  if (!shape_u_) return std::unique_ptr<TH1>();
+  std::unique_ptr<TH1> res(static_cast<TH1 *>(shape_u_->Clone()));
+  res->SetDirectory(0);
+  return res;
+}
+
+std::unique_ptr<TH1> Systematic::ClonedShapeD() const {
+  if (!shape_d_) return std::unique_ptr<TH1>();
+  std::unique_ptr<TH1> res(static_cast<TH1 *>(shape_d_->Clone()));
+  res->SetDirectory(0);
+  return res;
 }
 
 std::ostream& Systematic::PrintHeader(std::ostream &out) {

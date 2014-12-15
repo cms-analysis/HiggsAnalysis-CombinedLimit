@@ -22,6 +22,17 @@ class Process {
 
   void set_rate(double const& rate) { rate_ = rate; }
   double rate() const { return norm_ ? norm_->getVal() * rate_ : rate_; }
+
+  /**
+   * Get the process normalisation **without** multiplying by the RooAbsReal
+   * value (in the case that it's present)
+   *
+   * Generally this isn't a very useful method, it just returns the value of
+   * the `rate` class member without multipling by the RooAbsReal term. If the
+   * process has a RooAbsReal attached then this is often an (or the)
+   * important part of determining the total process normalisation. One place
+   * this is useful is writing the rate into the text datacard.
+   */
   double no_norm_rate() const { return rate_; }
 
   void set_process(std::string const& process) { process_ = process; }
@@ -45,18 +56,19 @@ class Process {
   void set_mass(std::string const& mass) { mass_ = mass; }
   std::string const& mass() const { return mass_; }
 
-  void set_shape(std::unique_ptr<TH1> shape) { shape_ = std::move(shape); }
+  void set_shape(std::unique_ptr<TH1> shape, bool set_rate);
   TH1 const* shape() const { return shape_.get(); }
+
+  std::unique_ptr<TH1> ClonedShape() const;
+  std::unique_ptr<TH1> ClonedScaledShape() const;
+
+  TH1F ShapeAsTH1F() const;
 
   void set_pdf(RooAbsPdf* pdf) { pdf_ = pdf; }
   RooAbsPdf const* pdf() const { return pdf_; }
 
   void set_norm(RooAbsReal* norm) { norm_ = norm; }
   RooAbsReal const* norm() const { return norm_; }
-
-  void SetNormShape(std::unique_ptr<TH1> shape);
-
-  void SetNormShapeAndRate(std::unique_ptr<TH1> shape);
 
   friend std::ostream& operator<< (std::ostream &out, Process &val);
   static std::ostream& PrintHeader(std::ostream &out);

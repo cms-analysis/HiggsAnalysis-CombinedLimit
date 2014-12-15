@@ -57,14 +57,18 @@ class Systematic {
   void set_mass(std::string const& mass) { mass_ = mass; }
   std::string const& mass() const { return mass_; }
 
-  void set_shape_u(std::unique_ptr<TH1> shape_u) { shape_u_ = std::move(shape_u); }
+  // void set_shape_u(std::unique_ptr<TH1> shape_u);
   TH1 const* shape_u() const { return shape_u_.get(); }
 
-  void set_shape_d(std::unique_ptr<TH1> shape_d) { shape_d_ = std::move(shape_d); }
+  std::unique_ptr<TH1> ClonedShapeU() const;
+  std::unique_ptr<TH1> ClonedShapeD() const;
+
+
+  // void set_shape_d(std::unique_ptr<TH1> shape_d);
   TH1 const* shape_d() const { return shape_d_.get(); }
 
-  void SetShapesAndVals(std::unique_ptr<TH1> shape_u,
-                        std::unique_ptr<TH1> shape_d, TH1 const* nominal);
+  void set_shapes(std::unique_ptr<TH1> shape_u, std::unique_ptr<TH1> shape_d,
+                  TH1 const* nominal);
 
   friend std::ostream& operator<< (std::ostream &out, Systematic const& val);
   static std::ostream& PrintHeader(std::ostream &out);

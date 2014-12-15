@@ -37,17 +37,18 @@ class Observation {
   void set_mass(std::string const& mass) { mass_ = mass; }
   std::string const& mass() const { return mass_; }
 
-  void set_shape(std::unique_ptr<TH1> shape) { shape_ = std::move(shape); }
+  void set_shape(std::unique_ptr<TH1> shape, bool set_rate);
   TH1 const* shape() const { return shape_.get(); }
+
+  std::unique_ptr<TH1> ClonedShape() const;
+  std::unique_ptr<TH1> ClonedScaledShape() const;
+
+  TH1F ShapeAsTH1F() const;
 
   void set_data(RooAbsData* data) { data_ = data; }
   RooAbsData const* data() const { return data_; }
 
   std::string process() const { return "data_obs"; }
-
-  void SetNormShape(std::unique_ptr<TH1> shape);
-
-  void SetNormShapeAndRate(std::unique_ptr<TH1> shape);
 
   friend std::ostream& operator<< (std::ostream &out, Observation &val);
   static std::ostream& PrintHeader(std::ostream &out);

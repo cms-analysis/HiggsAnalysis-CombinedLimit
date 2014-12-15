@@ -56,7 +56,8 @@ double CombineHarvester::GetUncertainty() {
   return std::sqrt(err_sq);
 }
 
-double CombineHarvester::GetUncertainty(RooFitResult const* fit, unsigned n_samples) {
+double CombineHarvester::GetUncertainty(RooFitResult const* fit,
+                                        unsigned n_samples) {
   auto lookup = GenerateProcSystMap();
   double rate = GetRateInternal(lookup);
   double err_sq = 0.0;
@@ -85,7 +86,8 @@ TH1F CombineHarvester::GetShapeWithUncertainty() {
     param_it.second->set_val(backup+param_it.second->err_u());
     TH1F shape_u = this->GetShapeInternal(lookup, param_it.first);
     for (int i = 1; i <= shape.GetNbinsX(); ++i) {
-      double err = std::fabs(shape_u.GetBinContent(i)-shape_d.GetBinContent(i)) / 2.0;
+      double err =
+          std::fabs(shape_u.GetBinContent(i) - shape_d.GetBinContent(i)) / 2.0;
       shape.SetBinError(i, err*err + shape.GetBinError(i));
     }
     param_it.second->set_val(backup);
@@ -96,7 +98,8 @@ TH1F CombineHarvester::GetShapeWithUncertainty() {
   return shape;
 }
 
-TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const* fit, unsigned n_samples) {
+TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const* fit,
+                                               unsigned n_samples) {
   auto lookup = GenerateProcSystMap();
   TH1F shape = GetShapeInternal(lookup);
   for (int i = 1; i <= shape.GetNbinsX(); ++i) {
@@ -108,7 +111,8 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const* fit, unsigned
     this->UpdateParameters(ch::ExtractSampledFitParameters(*(fit)));
     TH1F rand_shape = this->GetShapeInternal(lookup);
     for (int i = 1; i <= shape.GetNbinsX(); ++i) {
-      double err = std::fabs(rand_shape.GetBinContent(i)-shape.GetBinContent(i));
+      double err =
+          std::fabs(rand_shape.GetBinContent(i) - shape.GetBinContent(i));
       shape.SetBinError(i, err*err + shape.GetBinError(i));
     }
   }
@@ -180,18 +184,7 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
 
     double p_rate = procs_[i]->rate();
     if (procs_[i]->shape()) {
-      TH1F proc_shape;
-      TH1F const* test_f = dynamic_cast<TH1F const*>(procs_[i]->shape());
-      TH1D const* test_d = dynamic_cast<TH1D const*>(procs_[i]->shape());
-      if (test_f) {
-        test_f->Copy(proc_shape);
-      } else if (test_d) {
-        test_d->Copy(proc_shape);
-      } else {
-        throw std::runtime_error(
-            "[CombineHarvester] TH1 is not a TH1F or a TH1D");
-      }
-
+      TH1F proc_shape = procs_[i]->ShapeAsTH1F();
       for (auto sys_it : lookup[i]) {
         double x = params_[sys_it->name()]->val();
         if (sys_it->asymm()) {
@@ -211,7 +204,7 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       for (int b = 1; b <= proc_shape.GetNbinsX(); ++b) {
         if (proc_shape.GetBinContent(b) < 0.) proc_shape.SetBinContent(b, 0.);
       }
-      proc_shape.Scale(p_rate / proc_shape.Integral());
+      proc_shape.Scale(p_rate);
       if (!shape_init) {
         proc_shape.Copy(shape);
         shape.Reset();
@@ -223,8 +216,8 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       std::string var_name = "CMS_th1x";
       if (data_obj) var_name = data_obj->get()->first()->GetName();
       TH1::AddDirectory(false);
-      TH1F proc_shape = *(dynamic_cast<TH1F*>(procs_[i]->pdf()->createHistogram(
-                             var_name.c_str())));
+      TH1F proc_shape = *(dynamic_cast<TH1F*>(
+          procs_[i]->pdf()->createHistogram(var_name.c_str())));
       for (auto sys_it : lookup[i]) {
         double x = params_[sys_it->name()]->val();
         if (sys_it->asymm()) {
@@ -265,16 +258,7 @@ TH1F CombineHarvester::GetObservedShape() {
     TH1F proc_shape;
     double p_rate = obs_[i]->rate();
     if (obs_[i]->shape()) {
-      TH1F const* test_f = dynamic_cast<TH1F const*>(obs_[i]->shape());
-      TH1D const* test_d = dynamic_cast<TH1D const*>(obs_[i]->shape());
-      if (test_f) {
-        test_f->Copy(proc_shape);
-      } else if (test_d) {
-        test_d->Copy(proc_shape);
-      } else {
-        throw std::runtime_error(
-            "[CombineHarvester] TH1 is not a TH1F or a TH1D");
-      }
+      proc_shape = obs_[i]->ShapeAsTH1F();
     } else if (obs_[i]->data()) {
       std::string var_name = obs_[i]->data()->get()->first()->GetName();
       proc_shape = *(dynamic_cast<TH1F*>(obs_[i]->data()->createHistogram(
@@ -297,9 +281,6 @@ void CombineHarvester::ShapeDiff(double x,
     TH1 const* nom,
     TH1 const* low,
     TH1 const* high) {
-  //      * we already have computed the histogram for diff=(dhi-dlo) and sum=(dhi+dlo)
-  //      * so we just do template += (0.5 * x) * (diff + smoothStepFunc(x) * sum)
-  //
   double fx = smoothStepFunc(x);
   for (int i = 1; i <= target->GetNbinsX(); ++i) {
     float h = high->GetBinContent(i);
@@ -352,60 +333,64 @@ std::vector<ch::Parameter> CombineHarvester::GetParameters() const {
 }
 
 void CombineHarvester::VariableRebin(std::vector<double> bins) {
-  std::vector<double> proc_scaling(procs_.size(), 0.0);
+  // We need to keep a record of the Process rates before we rebin. The
+  // reasoning comes from the following scenario: the user might choose a new
+  // binning which excludes some of the existing bins - thus changing the
+  // process normalisation. This is fine, but we also need to adjust the shape
+  // Systematic entries - both the rebinning and the adjustment of the value_u
+  // and value_d shifts.
+  std::vector<double> prev_proc_rates(procs_.size());
+
+  // Also hold on the scaled Process hists *after* the rebinning is done - these
+  // are needed to update the associated Systematic entries
+  std::vector<std::unique_ptr<TH1>> scaled_procs(procs_.size());
+
   for (unsigned i = 0; i < procs_.size(); ++i) {
     if (procs_[i]->shape()) {
-      TH1 *copy = static_cast<TH1*>(procs_[i]->shape()->Clone());
-      double rate_before = copy->Integral();
-      TH1 *copy2 = copy->Rebin(bins.size()-1, "", &(bins[0]));
-      double rate_after = copy2->Integral();
-      if (rate_after > 0.) copy2->Scale(1.0/rate_after);
-      procs_[i]->set_shape(std::unique_ptr<TH1>(copy2));
-      procs_[i]->set_rate(procs_[i]->rate() * (rate_after/rate_before));
-      proc_scaling[i] = rate_after/rate_before;
-      delete copy;
+      // Get the scaled shape here
+      std::unique_ptr<TH1> copy(procs_[i]->ClonedScaledShape());
+      // shape norm should only be "no_norm_rate"
+      prev_proc_rates[i] = procs_[i]->no_norm_rate();
+      std::unique_ptr<TH1> copy2(copy->Rebin(bins.size()-1, "", &(bins[0])));
+      // The process shape & rate will be reset here
+      procs_[i]->set_shape(std::move(copy2), true);
+      scaled_procs[i] = procs_[i]->ClonedScaledShape();
     }
   }
   for (unsigned i = 0; i < obs_.size(); ++i) {
     if (obs_[i]->shape()) {
-      TH1 *copy = static_cast<TH1*>(obs_[i]->shape()->Clone());
-      double rate_before = copy->Integral();
-      TH1 *copy2 = copy->Rebin(bins.size()-1, "", &(bins[0]));
-      double rate_after = copy2->Integral();
-      if (rate_after > 0.) copy2->Scale(1.0/rate_after);
-      obs_[i]->set_shape(std::unique_ptr<TH1>(copy2));
-      obs_[i]->set_rate(obs_[i]->rate() * (rate_after/rate_before));
-      delete copy;
+      std::unique_ptr<TH1> copy(obs_[i]->ClonedScaledShape());
+      std::unique_ptr<TH1> copy2(copy->Rebin(bins.size()-1, "", &(bins[0])));
+      obs_[i]->set_shape(std::move(copy2), true);
     }
   }
   for (unsigned i = 0; i < systs_.size(); ++i) {
-    double proc_scale = 1.0;
+    TH1 const* proc_hist = nullptr;
+    double prev_rate = 0.;
     for (unsigned j = 0; j < procs_.size(); ++j) {
       if (MatchingProcess(*(procs_[j]), *(systs_[i].get()))) {
-        proc_scale = proc_scaling[j];
+        proc_hist = scaled_procs[j].get();
+        prev_rate = prev_proc_rates[j];
       }
     }
-    if (systs_[i]->shape_u()) {
-      TH1 *copy = static_cast<TH1*>(systs_[i]->shape_u()->Clone());
-      double rate_before = copy->Integral();
-      TH1 *copy2 = copy->Rebin(bins.size()-1, "", &(bins[0]));
-      double rate_after = copy2->Integral();
-      if (rate_after > 0.) copy2->Scale(1.0/rate_after);
-      systs_[i]->set_shape_u(std::unique_ptr<TH1>(copy2));
-      systs_[i]->set_value_u((rate_after / rate_before) * systs_[i]->value_u() /
-                           proc_scale);
-      delete copy;
-    }
-    if (systs_[i]->shape_d()) {
-      TH1 *copy = static_cast<TH1*>(systs_[i]->shape_d()->Clone());
-      double rate_before = copy->Integral();
-      TH1 *copy2 = copy->Rebin(bins.size()-1, "", &(bins[0]));
-      double rate_after = copy2->Integral();
-      if (rate_after > 0.) copy2->Scale(1.0/rate_after);
-      systs_[i]->set_shape_d(std::unique_ptr<TH1>(copy2));
-      systs_[i]->set_value_d((rate_after / rate_before) * systs_[i]->value_d() /
-                           proc_scale);
-      delete copy;
+    if (systs_[i]->shape_u() && systs_[i]->shape_d()) {
+      // These hists will be normalised to unity
+      std::unique_ptr<TH1> copy_u(systs_[i]->ClonedShapeU());
+      std::unique_ptr<TH1> copy_d(systs_[i]->ClonedShapeD());
+
+      // If we found a matching Process we will scale this back up to their
+      // initial rates
+      if (proc_hist) {
+        copy_u->Scale(systs_[i]->value_u() * prev_rate);
+        copy_d->Scale(systs_[i]->value_d() * prev_rate);
+      }
+      std::unique_ptr<TH1> copy2_u(
+          copy_u->Rebin(bins.size() - 1, "", &(bins[0])));
+      std::unique_ptr<TH1> copy2_d(
+          copy_d->Rebin(bins.size() - 1, "", &(bins[0])));
+      // If we have proc_hist != nullptr, set_shapes will re-calculate value_u
+      // and value_d for us, before scaling the new hists back to unity
+      systs_[i]->set_shapes(std::move(copy2_u), std::move(copy2_d), proc_hist);
     }
   }
 }

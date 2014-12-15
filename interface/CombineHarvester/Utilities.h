@@ -146,6 +146,9 @@ std::vector<std::string> ParseFileLines(std::string const& file_name);
 std::vector<std::string> MassesFromRange(std::string const& input,
                                          std::string const& fmt = "%.0f");
 
+bool HasNegativeBins(TH1 const* h);
+
+void ZeroNegativeBins(TH1 *h);
 
 // ---------------------------------------------------------------------------
 // Tuple Printing

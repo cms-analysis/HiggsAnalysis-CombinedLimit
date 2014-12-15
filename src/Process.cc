@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "boost/format.hpp"
+#include "CombineTools/interface/Logging.h"
 
 namespace ch {
 
@@ -79,17 +80,64 @@ Process& Process::operator=(Process other) {
   return (*this);
 }
 
-void Process::SetNormShape(std::unique_ptr<TH1> shape) {
-  if (!shape) return;
-  if (shape->Integral() > 0.0) shape->Scale(1.0 / shape->Integral());
-  this->set_shape(std::move(shape));
+void Process::set_shape(std::unique_ptr<TH1> shape, bool set_rate) {
+  // We were given a nullptr - this is fine, and so we're done
+  if (!shape) {
+    // This will safely release any existing TH1 held by shape_
+    shape_ = nullptr;
+    return;
+  }
+  // Otherwise we validate this new hist. First is to check that all bins have
+  // +ve values, otherwise the interpretation as a pdf is tricky
+  for (int i = 1; i <= shape->GetNbinsX(); ++i) {
+    if (shape->GetBinContent(i) < 0.) {
+      throw std::runtime_error(FNERROR("TH1 has a bin with content < 0"));
+    }
+  }
+  // At this point we can safely move the shape in and take ownership
+  shape_ = std::move(shape);
+  // Ensure that root will not try and clean this up
+  shape_->SetDirectory(0);
+  if (set_rate) {
+    this->set_rate(shape_->Integral());
+  }
+  if (shape_->Integral() > 0.) shape_->Scale(1. / shape_->Integral());
 }
 
-void Process::SetNormShapeAndRate(std::unique_ptr<TH1> shape) {
-  if (!shape) return;
-  this->set_rate(shape->Integral());
-  SetNormShape(std::move(shape));
+std::unique_ptr<TH1> Process::ClonedShape() const {
+  if (!shape_) return std::unique_ptr<TH1>();
+  std::unique_ptr<TH1> res(static_cast<TH1 *>(shape_->Clone()));
+  res->SetDirectory(0);
+  return res;
 }
+
+std::unique_ptr<TH1> Process::ClonedScaledShape() const {
+  if (!shape_) return std::unique_ptr<TH1>();
+  std::unique_ptr<TH1> res(ClonedShape());
+  res->Scale(this->no_norm_rate());
+  return res;
+}
+
+TH1F Process::ShapeAsTH1F() const {
+  if (!shape_) {
+    throw std::runtime_error(
+        FNERROR("Process object does not contain a shape"));
+  }
+  TH1F res;
+  // Need to get the shape as a concrete type (TH1F or TH1D)
+  // A nice way to do this is just to use TH1D::Copy into a fresh TH1F
+  TH1F const* test_f = dynamic_cast<TH1F const*>(this->shape());
+  TH1D const* test_d = dynamic_cast<TH1D const*>(this->shape());
+  if (test_f) {
+    test_f->Copy(res);
+  } else if (test_d) {
+    test_d->Copy(res);
+  } else {
+    throw std::runtime_error(FNERROR("TH1 shape is not a TH1F or a TH1D"));
+  }
+  return res;
+}
+
 
 std::ostream& Process::PrintHeader(std::ostream& out) {
   std::string line =

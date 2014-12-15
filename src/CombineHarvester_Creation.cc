@@ -178,8 +178,8 @@ void CombineHarvester::AddBinByBin(double threshold, bool fixed_norm,
                       sys->bin() + "_" + sys->era() + "_" + sys->process() +
                       "_bin_" + boost::lexical_cast<std::string>(j));
         sys->set_asymm(true);
-        TH1 *h_d = static_cast<TH1 *>(h->Clone());
-        TH1 *h_u = static_cast<TH1 *>(h->Clone());
+        std::unique_ptr<TH1> h_d(static_cast<TH1 *>(h->Clone()));
+        std::unique_ptr<TH1> h_u(static_cast<TH1 *>(h->Clone()));
         h_d->SetBinContent(j, val - err);
         if (h_d->GetBinContent(j) < 0.) h_d->SetBinContent(j, 0.);
         h_u->SetBinContent(j, val + err);
@@ -190,10 +190,7 @@ void CombineHarvester::AddBinByBin(double threshold, bool fixed_norm,
           sys->set_value_d(h_d->Integral()/h->Integral());
           sys->set_value_u(h_u->Integral()/h->Integral());
         }
-        if (h_d->Integral() > 0.0) h_d->Scale(1.0/h_d->Integral());
-        if (h_u->Integral() > 0.0) h_u->Scale(1.0/h_u->Integral());
-        if (h_d) sys->set_shape_d(std::unique_ptr<TH1>(h_d));
-        if (h_u) sys->set_shape_u(std::unique_ptr<TH1>(h_u));
+        sys->set_shapes(std::move(h_u), std::move(h_d), nullptr);
         CombineHarvester::CreateParameterIfEmpty(other ? other : this,
                                                  sys->name());
         if (other) {
@@ -225,15 +222,14 @@ void CombineHarvester::MergeBinErrors(double bbb_threshold,
   merge_threshold -= 1E-9 * merge_threshold;
   auto bins = this->bin_set();
   for (auto const& bin : bins) {
-    unsigned bbb_added = 0;
-    unsigned bbb_removed = 0;
+    // unsigned bbb_added = 0;
+    // unsigned bbb_removed = 0;
     CombineHarvester tmp = std::move(this->cp().bin({bin}).histograms());
     if (tmp.procs_.size() == 0) continue;
 
-    std::vector<TH1 *> h_copies(tmp.procs_.size(), nullptr);
+    std::vector<std::unique_ptr<TH1>> h_copies(tmp.procs_.size());
     for (unsigned i = 0; i < h_copies.size(); ++i) {
-      h_copies[i] = static_cast<TH1 *>(tmp.procs_[i]->shape()->Clone());
-      h_copies[i]->Scale(tmp.procs_[i]->rate());
+      h_copies[i] = tmp.procs_[i]->ClonedScaledShape();
     }
 
     for (int i = 1; i <= h_copies[0]->GetNbinsX(); ++i) {
@@ -244,9 +240,9 @@ void CombineHarvester::MergeBinErrors(double bbb_threshold,
         double err = h_copies[j]->GetBinError(i);
         if (val == 0.0 &&  err == 0.0) continue;
         if (val == 0 || (err/val) > bbb_threshold) {
-          bbb_added += 1;
+          // bbb_added += 1;
           tot_bbb_added += (err * err);
-          result.push_back(std::make_pair(err*err, h_copies[j]));
+          result.push_back(std::make_pair(err*err, h_copies[j].get()));
         }
       }
       if (tot_bbb_added == 0.0) continue;
@@ -255,7 +251,7 @@ void CombineHarvester::MergeBinErrors(double bbb_threshold,
       for (unsigned r = 0; r < result.size(); ++r) {
         if ((result[r].first + removed) < (merge_threshold * tot_bbb_added) &&
             r < (result.size() - 1)) {
-          bbb_removed += 1;
+          // bbb_removed += 1;
           removed += result[r].first;
           result[r].second->SetBinError(i, 0.0);
         }
@@ -267,10 +263,7 @@ void CombineHarvester::MergeBinErrors(double bbb_threshold,
       }
     }
     for (unsigned i = 0; i < h_copies.size(); ++i) {
-      if (h_copies[i]->Integral() > 0.) {
-        h_copies[i]->Scale(1. /  h_copies[i]->Integral());
-      }
-      tmp.procs_[i]->set_shape(std::unique_ptr<TH1>(h_copies[i]));
+      tmp.procs_[i]->set_shape(std::move(h_copies[i]), false);
     }
     // std::cout << "BIN: " << bin << std::endl;
     // std::cout << "Total bbb added:    " << bbb_added << "\n";

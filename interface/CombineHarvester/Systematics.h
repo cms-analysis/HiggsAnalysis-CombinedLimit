@@ -114,7 +114,7 @@ namespace syst {
       return res;
     }
 
-    std::tuple<typename T::type...> GetTuple(ch::Process *p) const {
+    auto GetTuple(ch::Process *p) const -> decltype( std::make_tuple(T::get(p)...) ) {
       if (p) {
         return std::make_tuple(T::get(p)...);
       } else {
@@ -174,7 +174,7 @@ namespace syst {
       return res;
     }
 
-    std::tuple<typename T::type...> GetTuple(ch::Process *p) const {
+    auto GetTuple(ch::Process *p) const -> decltype( std::make_tuple(T::get(p)...) ) {
       if (p) {
         return std::make_tuple(T::get(p)...);
       } else {

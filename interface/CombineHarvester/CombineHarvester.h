@@ -272,6 +272,8 @@ class CombineHarvester {
   std::map<std::string, std::shared_ptr<Parameter>> params_;
   std::map<std::string, std::shared_ptr<RooWorkspace>> wspaces_;
 
+  std::map<std::string, bool> flags_;
+
   // ---------------------------------------------------------------
   // typedefs
   // ---------------------------------------------------------------

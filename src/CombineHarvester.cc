@@ -13,7 +13,9 @@
 
 namespace ch {
 
-CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {}
+CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
+  flags_["zero-negative-bins-on-import"] = true;
+}
 
 CombineHarvester::~CombineHarvester() { }
 
@@ -25,6 +27,7 @@ void swap(CombineHarvester& first, CombineHarvester& second) {
   swap(first.params_, second.params_);
   swap(first.wspaces_, second.wspaces_);
   swap(first.verbosity_, second.verbosity_);
+  swap(first.flags_, second.flags_);
   swap(first.log_, second.log_);
 }
 
@@ -32,6 +35,7 @@ CombineHarvester::CombineHarvester(CombineHarvester const& other)
     : obs_(other.obs_.size(), nullptr),
       procs_(other.procs_.size(), nullptr),
       systs_(other.systs_.size(), nullptr),
+      flags_(other.flags_),
       verbosity_(other.verbosity_),
       log_(other.log_) {
   if (verbosity_ >= 3) {
@@ -150,6 +154,7 @@ CombineHarvester CombineHarvester::cp() {
   cpy.wspaces_  = wspaces_;
   cpy.log_      = log_;
   cpy.verbosity_ = verbosity_;
+  cpy.flags_     = flags_;
   return cpy;
 }
 
@@ -224,7 +229,7 @@ void CombineHarvester::LoadShapes(Observation* entry,
     // GetClonedTH1 will throw if this fails
     std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), mapping.pattern);
     // Post-conditions #1 and #2
-    entry->SetNormShapeAndRate(std::move(h));
+    entry->set_shape(std::move(h), true);
   } else if (mapping.IsData()) {
     if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooAbsData");
     // Pre-condition #3
@@ -302,8 +307,16 @@ void CombineHarvester::LoadShapes(Process* entry,
     // Pre-condition #3
     // GetClonedTH1 will throw if this fails
     std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), mapping.pattern);
+
+    if (flags_.at("zero-negative-bins-on-import")) {
+      if (HasNegativeBins(h.get())) {
+        LOGLINE(log(), "Process shape has negative bin => fixing to zero");
+        log() << Process::PrintHeader << *entry << "\n";
+        ZeroNegativeBins(h.get());
+      }
+    }
     // Post-conditions #1 and #2
-    entry->SetNormShapeAndRate(std::move(h));
+    entry->set_shape(std::move(h), true);
   } else if (mapping.IsPdf()) {
     if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooAbsPdf");
     // Pre-condition #3
@@ -403,7 +416,27 @@ void CombineHarvester::LoadShapes(Systematic* entry,
   std::unique_ptr<TH1> h_u = GetClonedTH1(mapping.file.get(), p_s_hi);
   std::unique_ptr<TH1> h_d = GetClonedTH1(mapping.file.get(), p_s_lo);
 
-  entry->SetShapesAndVals(std::move(h_u), std::move(h_d), h.get());
+  if (flags_.at("zero-negative-bins-on-import")) {
+    if (HasNegativeBins(h.get())) {
+      LOGLINE(log(), "Systematic shape has negative bins => fixing to zero");
+      log() << Systematic::PrintHeader << *entry << "\n";
+      ZeroNegativeBins(h.get());
+    }
+
+    if (HasNegativeBins(h_u.get())) {
+      LOGLINE(log(), "Systematic shape_u has negative bins => fixing to zero");
+      log() << Systematic::PrintHeader << *entry << "\n";
+      ZeroNegativeBins(h_u.get());
+    }
+
+    if (HasNegativeBins(h_d.get())) {
+      LOGLINE(log(), "Systematic shape_d has negative bins => fixing to zero");
+      log() << Systematic::PrintHeader << *entry << "\n";
+      ZeroNegativeBins(h_d.get());
+    }
+  }
+
+  entry->set_shapes(std::move(h_u), std::move(h_d), h.get());
 }
 
 /**

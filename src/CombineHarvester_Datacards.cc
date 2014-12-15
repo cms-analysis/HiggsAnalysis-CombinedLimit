@@ -208,8 +208,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         if (!contains(std::vector<std::string>{"shape", "shape?", "lnN"},
                       type)) {
           throw std::runtime_error(
-              "[CombineHarvester::ParseDatacard] Systematic type " + type +
-              " not supported");
+              FNERROR("Systematic type " + type + " not supported"));
         }
         sys->set_type(words[i][1]);
         sys->set_analysis(analysis);
@@ -248,6 +247,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
             sys->set_scale(boost::lexical_cast<double>(words[i][p]));
           }
         }
+        if (sys->type() == "shape") sys->set_asymm(true);
 
         CombineHarvester::CreateParameterIfEmpty(this, sys->name());
         systs_.push_back(sys);
@@ -384,11 +384,13 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   // The ROOT file mapping should be given as a relative path
   std::string file_name = root_file.GetName();
   // Get the full path to the output root file
+  // NOTE: was using canonical here instead of absolute, but not
+  // supported in boost 1.47
   boost::filesystem::path root_file_path =
-      boost::filesystem::canonical(file_name);
+      boost::filesystem::absolute(file_name);
   // Get the full path to the directory containing the txt file
   boost::filesystem::path txt_file_path =
-      boost::filesystem::canonical(name).parent_path();
+      boost::filesystem::absolute(name).parent_path();
   // Compute the relative path from the txt file to the root file
   file_name = make_relative(txt_file_path, root_file_path).string();
 
