@@ -23,6 +23,9 @@
 
 namespace ch {
 
+// Define some useful CombineHarvester-specific typedefs
+typedef std::vector<std::pair<int, std::string>> Categories;
+
 class CombineHarvester {
  public:
   /**
@@ -170,8 +173,12 @@ class CombineHarvester {
    * \details See the documentation of each method for details
    */
   /**@{*/
-  void SetParameters(std::vector<ch::Parameter> params);
-  void UpdateParameters(std::vector<ch::Parameter> params);
+
+  ch::Parameter const* GetParameter(std::string const& name) const;
+  ch::Parameter* GetParameter(std::string const& name);
+
+  void UpdateParameters(std::vector<ch::Parameter> const& params);
+  void UpdateParameters(RooFitResult const* fit);
   std::vector<ch::Parameter> GetParameters() const;
   void RenameParameter(std::string const& oldname, std::string const& newname);
 
@@ -236,14 +243,14 @@ class CombineHarvester {
                        std::vector<std::string> analysis,
                        std::vector<std::string> era,
                        std::vector<std::string> channel,
-                       std::vector<std::pair<int, std::string>> bin);
+                       ch::Categories bin);
 
   void AddProcesses(std::vector<std::string> mass,
                     std::vector<std::string> analysis,
                     std::vector<std::string> era,
                     std::vector<std::string> channel,
                     std::vector<std::string> procs,
-                    std::vector<std::pair<int, std::string>> bin, bool signal);
+                    ch::Categories bin, bool signal);
 
   template <class Map>
   void AddSyst(CombineHarvester & target, std::string const& name,

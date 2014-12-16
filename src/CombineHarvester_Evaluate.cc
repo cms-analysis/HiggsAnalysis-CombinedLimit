@@ -61,10 +61,31 @@ double CombineHarvester::GetUncertainty(RooFitResult const* fit,
   auto lookup = GenerateProcSystMap();
   double rate = GetRateInternal(lookup);
   double err_sq = 0.0;
+
+  // Create a backup copy of the current parameter values
   auto backup = GetParameters();
+
+  // Calling randomizePars() ensures that the RooArgList of sampled parameters
+  // is already created within the RooFitResult
+  RooArgList const& rands = fit->randomizePars();
+
+  // Now create two aligned vectors of the RooRealVar parameters and the
+  // corresponding ch::Parameter pointers
+  int n_pars = rands.getSize();
+  std::vector<RooRealVar const*> r_vec(n_pars, nullptr);
+  std::vector<ch::Parameter*> p_vec(n_pars, nullptr);
+  for (unsigned n = 0; n < p_vec.size(); ++n) {
+    r_vec[n] = dynamic_cast<RooRealVar const*>(rands.at(n));
+    p_vec[n] = GetParameter(r_vec[n]->GetName());
+  }
+
   for (unsigned i = 0; i < n_samples; ++i) {
-    // std::cout << "Sampling " << i << "/" << n_samples << std::endl;
-    this->UpdateParameters(ch::ExtractSampledFitParameters(*(fit)));
+    // Randomise and update values
+    fit->randomizePars();
+    for (int n = 0; n < n_pars; ++n) {
+      if (p_vec[n]) p_vec[n]->set_val(r_vec[n]->getVal());
+    }
+
     double rand_rate = this->GetRateInternal(lookup);
     double err = std::fabs(rand_rate-rate);
     err_sq += (err*err);
@@ -105,10 +126,31 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const* fit,
   for (int i = 1; i <= shape.GetNbinsX(); ++i) {
     shape.SetBinError(i, 0.0);
   }
+  // Create a backup copy of the current parameter values
   auto backup = GetParameters();
+
+  // Calling randomizePars() ensures that the RooArgList of sampled parameters
+  // is already created within the RooFitResult
+  RooArgList const& rands = fit->randomizePars();
+
+  // Now create two aligned vectors of the RooRealVar parameters and the
+  // corresponding ch::Parameter pointers
+  int n_pars = rands.getSize();
+  std::vector<RooRealVar const*> r_vec(n_pars, nullptr);
+  std::vector<ch::Parameter*> p_vec(n_pars, nullptr);
+  for (unsigned n = 0; n < p_vec.size(); ++n) {
+    r_vec[n] = dynamic_cast<RooRealVar const*>(rands.at(n));
+    p_vec[n] = GetParameter(r_vec[n]->GetName());
+  }
+
+  // Main loop through n_samples
   for (unsigned i = 0; i < n_samples; ++i) {
-    // std::cout << "Sampling " << i << "/" << n_samples << std::endl;
-    this->UpdateParameters(ch::ExtractSampledFitParameters(*(fit)));
+    // Randomise and update values
+    fit->randomizePars();
+    for (int n = 0; n < n_pars; ++n) {
+      if (p_vec[n]) p_vec[n]->set_val(r_vec[n]->getVal());
+    }
+
     TH1F rand_shape = this->GetShapeInternal(lookup);
     for (int i = 1; i <= shape.GetNbinsX(); ++i) {
       double err =
@@ -132,7 +174,6 @@ TH1F CombineHarvester::GetShape() {
   auto lookup = GenerateProcSystMap();
   return GetShapeInternal(lookup);
 }
-
 
 double CombineHarvester::GetRateInternal(ProcSystMap const& lookup,
     std::string const& single_sys) {
@@ -291,12 +332,12 @@ void CombineHarvester::ShapeDiff(double x,
   }
 }
 
-void CombineHarvester::SetParameters(std::vector<ch::Parameter> params) {
-  params_.clear();
-  for (unsigned i = 0; i < params.size(); ++i) {
-    params_[params[i].name()] = std::make_shared<ch::Parameter>(params[i]);
-  }
-}
+// void CombineHarvester::SetParameters(std::vector<ch::Parameter> params) {
+//   params_.clear();
+//   for (unsigned i = 0; i < params.size(); ++i) {
+//     params_[params[i].name()] = std::make_shared<ch::Parameter>(params[i]);
+//   }
+// }
 
 void CombineHarvester::RenameParameter(std::string const& oldname,
                                        std::string const& newname) {
@@ -308,7 +349,27 @@ void CombineHarvester::RenameParameter(std::string const& oldname,
   }
 }
 
-void CombineHarvester::UpdateParameters(std::vector<ch::Parameter> params) {
+ch::Parameter const* CombineHarvester::GetParameter(
+    std::string const& name) const {
+  auto it = params_.find(name);
+  if (it != params_.end()) {
+    return it->second.get();
+  } else {
+    return nullptr;
+  }
+}
+
+ch::Parameter* CombineHarvester::GetParameter(std::string const& name) {
+  auto it = params_.find(name);
+  if (it != params_.end()) {
+    return it->second.get();
+  } else {
+    return nullptr;
+  }
+}
+
+void CombineHarvester::UpdateParameters(
+    std::vector<ch::Parameter> const& params) {
   for (unsigned i = 0; i < params.size(); ++i) {
     auto it = params_.find(params[i].name());
     if (it != params_.end()) {
@@ -317,8 +378,27 @@ void CombineHarvester::UpdateParameters(std::vector<ch::Parameter> params) {
       it->second->set_err_u(params[i].err_u());
     } else {
       if (verbosity_ >= 1) {
-        log() << "[UpdateParameters] Parameter \"" << params[i].name()
-              << "\" is not defined\n";
+        LOGLINE(log(), "Parameter " + params[i].name() + " is not defined");
+      }
+    }
+  }
+}
+
+void CombineHarvester::UpdateParameters(RooFitResult const* fit) {
+  // check for fit == null here
+  for (int i = 0; i < fit->floatParsFinal().getSize(); ++i) {
+    RooRealVar const* var =
+        dynamic_cast<RooRealVar const*>(fit->floatParsFinal().at(i));
+    // check for failed cast here
+    auto it = params_.find(std::string(var->GetName()));
+    if (it != params_.end()) {
+      it->second->set_val(var->getVal());
+      it->second->set_err_d(var->getErrorLo());
+      it->second->set_err_u(var->getErrorHi());
+    } else {
+      if (verbosity_ >= 1) {
+        LOGLINE(log(),
+                "Parameter " + std::string(var->GetName()) + " is not defined");
       }
     }
   }
@@ -412,7 +492,5 @@ void CombineHarvester::SetPdfBins(unsigned nbins) {
       }
     }
   }
-
 }
-
 }

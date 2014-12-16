@@ -20,7 +20,7 @@ void CombineHarvester::AddObservations(
     std::vector<std::string> analysis,
     std::vector<std::string> era,
     std::vector<std::string> channel,
-    std::vector<std::pair<int, std::string>> bin) {
+    ch::Categories bin) {
   std::vector<unsigned> lengths = {
       unsigned(mass.size()),
       unsigned(analysis.size()),
@@ -46,7 +46,7 @@ void CombineHarvester::AddProcesses(
     std::vector<std::string> era,
     std::vector<std::string> channel,
     std::vector<std::string> procs,
-    std::vector<std::pair<int, std::string>> bin,
+    ch::Categories bin,
     bool signal) {
   std::vector<unsigned> lengths = {
       unsigned(mass.size()),
