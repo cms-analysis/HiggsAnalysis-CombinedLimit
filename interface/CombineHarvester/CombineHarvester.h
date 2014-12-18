@@ -459,7 +459,7 @@ void CombineHarvester::AddSyst(CombineHarvester& target,
     ch::SetProperties(sys.get(), procs_[i].get());
     sys->set_name(subbed_name);
     sys->set_type(type);
-    if (type == "lnN") {
+    if (type == "lnN" || type == "lnU") {
       sys->set_asymm(valmap.IsAsymm());
       sys->set_value_u(valmap.ValU(procs_[i].get()));
       sys->set_value_d(valmap.ValD(procs_[i].get()));
@@ -470,7 +470,11 @@ void CombineHarvester::AddSyst(CombineHarvester& target,
       sys->set_scale(valmap.ValU(procs_[i].get()));
     }
     CombineHarvester::CreateParameterIfEmpty(&target, sys->name());
-      target.systs_.push_back(sys);
+    if (sys->type() == "lnU") {
+      params_.at(sys->name())->set_err_d(0.);
+      params_.at(sys->name())->set_err_u(0.);
+    }
+    target.systs_.push_back(sys);
   }
   if (tuples.size() && verbosity_ >= 1) {
     log() << ">> Map keys that were not used to create a Systematic:\n";

@@ -76,11 +76,11 @@ void Observation::set_shape(std::unique_ptr<TH1> shape, bool set_rate) {
   }
   // Otherwise we validate this new hist. First is to check that all bins have
   // +ve values, otherwise the interpretation as a pdf is tricky
-  for (int i = 1; i <= shape->GetNbinsX(); ++i) {
-    if (shape->GetBinContent(i) < 0.) {
-      throw std::runtime_error(FNERROR("TH1 has a bin with content < 0"));
-    }
-  }
+  // for (int i = 1; i <= shape->GetNbinsX(); ++i) {
+  //   if (shape->GetBinContent(i) < 0.) {
+  //     throw std::runtime_error(FNERROR("TH1 has a bin with content < 0"));
+  //   }
+  // }
   // At this point we can safely move the shape in and take ownership
   shape_ = std::move(shape);
   // Ensure that root will not try and clean this up

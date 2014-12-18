@@ -113,27 +113,27 @@ void Systematic::set_shapes(std::unique_ptr<TH1> shape_u,
     return;
   }
 
-  for (int i = 1; i <= shape_u->GetNbinsX(); ++i) {
-    if (shape_u->GetBinContent(i) < 0.) {
-      throw std::runtime_error(
-          FNERROR("shape_u TH1 has a bin with content < 0"));
-    }
-  }
-  for (int i = 1; i <= shape_d->GetNbinsX(); ++i) {
-    if (shape_d->GetBinContent(i) < 0.) {
-      throw std::runtime_error(
-          FNERROR("shape_d TH1 has a bin with content < 0"));
-    }
-  }
+  // for (int i = 1; i <= shape_u->GetNbinsX(); ++i) {
+  //   if (shape_u->GetBinContent(i) < 0.) {
+  //     throw std::runtime_error(
+  //         FNERROR("shape_u TH1 has a bin with content < 0"));
+  //   }
+  // }
+  // for (int i = 1; i <= shape_d->GetNbinsX(); ++i) {
+  //   if (shape_d->GetBinContent(i) < 0.) {
+  //     throw std::runtime_error(
+  //         FNERROR("shape_d TH1 has a bin with content < 0"));
+  //   }
+  // }
 
-  if (nominal) {
-    for (int i = 1; i <= nominal->GetNbinsX(); ++i) {
-      if (nominal->GetBinContent(i) < 0.) {
-        throw std::runtime_error(
-            FNERROR("nominal TH1 has a bin with content < 0"));
-      }
-    }
-  }
+  // if (nominal) {
+  //   for (int i = 1; i <= nominal->GetNbinsX(); ++i) {
+  //     if (nominal->GetBinContent(i) < 0.) {
+  //       throw std::runtime_error(
+  //           FNERROR("nominal TH1 has a bin with content < 0"));
+  //     }
+  //   }
+  // }
 
   shape_u_ = std::move(shape_u);
   shape_d_ = std::move(shape_d);

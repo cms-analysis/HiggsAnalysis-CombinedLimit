@@ -76,6 +76,12 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
   bool start_nuisance_scan = false;
   unsigned r = 0;
 
+  // We will allow cards that describe a single bin to have an "observation"
+  // line without a "bin" line above it. We probably won't know the bin name
+  // when we parse this line, so we'll store it here and fix it later
+  std::shared_ptr<ch::Observation> single_obs = nullptr;
+  std::set<std::string> bin_names;
+
   // Loop through the vector of word vectors
   for (unsigned i = 0; i < words.size(); ++i) {
     // Ignore line if it only has one word
@@ -83,7 +89,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
 
     // If the line begins "shapes" then we've
     // found process --> TH1 mapping information
-    if (words[i][0] == "shapes" && words[i].size() >= 5) {
+    if (boost::iequals(words[i][0], "shapes") && words[i].size() >= 5) {
       hist_mapping.push_back(HistMapping());
       hist_mapping.back().process = words[i][1];
       hist_mapping.back().category = words[i][2];
@@ -106,8 +112,8 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
     // the previous line then we've found the entries for data, and
     // can add Observation objects
     if (i >= 1) {
-      if (  words[i][0]     == "observation" &&
-            words[i-1][0]   == "bin" &&
+      if (  boost::iequals(words[i][0], "observation") &&
+            boost::iequals(words[i-1][0], "bin") &&
             words[i].size() == words[i-1].size()) {
         for (unsigned p = 1; p < words[i].size(); ++p) {
           auto obs = std::make_shared<Observation>();
@@ -126,22 +132,40 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
       }
     }
 
+    if (boost::iequals(words[i][0], "observation") &&
+        !boost::iequals(words[i-1][0], "bin") &&
+        words[i].size() == 2 &&
+        single_obs.get() == nullptr) {
+      for (unsigned p = 1; p < words[i].size(); ++p) {
+        single_obs = std::make_shared<Observation>();
+        single_obs->set_bin("");
+        single_obs->set_rate(boost::lexical_cast<double>(words[i][p]));
+        single_obs->set_analysis(analysis);
+        single_obs->set_era(era);
+        single_obs->set_channel(channel);
+        single_obs->set_bin_id(bin_id);
+        single_obs->set_mass(mass);
+      }
+    }
+
     // Similarly look for the lines indicating the different signal
     // and background processes
     // Once these are found save in line index for the rate line as r
     // to we can refer back to these later, then assume that every
     // line that follows is a nuisance parameter
+
     if (i >= 3) {
-      if (  words[i][0]   == "rate" &&
-            words[i-1][0] == "process" &&
-            words[i-2][0] == "process" &&
-            words[i-3][0] == "bin" &&
+      if (  boost::iequals(words[i][0], "rate") &&
+            boost::iequals(words[i-1][0], "process") &&
+            boost::iequals(words[i-2][0], "process") &&
+            boost::iequals(words[i-3][0], "bin") &&
             words[i].size() == words[i-1].size() &&
             words[i].size() == words[i-2].size() &&
             words[i].size() == words[i-3].size()) {
         for (unsigned p = 1; p < words[i].size(); ++p) {
           auto proc = std::make_shared<Process>();
           proc->set_bin(words[i-3][p]);
+          bin_names.insert(words[i-3][p]);
           try {
             int process_id = boost::lexical_cast<int>(words[i-2][p]);
             proc->set_signal(process_id <= 0);
@@ -168,7 +192,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
     }
 
     if (start_nuisance_scan && words[i].size() >= 4) {
-      if (words[i][1] == "param") {
+      if (boost::iequals(words[i][1], "param")) {
         std::string param_name = words[i][0];
         if (!params_.count(param_name))
           params_[param_name] = std::make_shared<Parameter>(Parameter());
@@ -205,7 +229,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         }
         sys->set_name(words[i][0]);
         std::string type = words[i][1];
-        if (!contains(std::vector<std::string>{"shape", "shape?", "lnN"},
+        if (!contains(std::vector<std::string>{"shape", "shape?", "lnN", "lnU"},
                       type)) {
           throw std::runtime_error(
               FNERROR("Systematic type " + type + " not supported"));
@@ -250,8 +274,23 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         if (sys->type() == "shape") sys->set_asymm(true);
 
         CombineHarvester::CreateParameterIfEmpty(this, sys->name());
+        if (sys->type() == "lnU") {
+          params_.at(sys->name())->set_err_d(0.);
+          params_.at(sys->name())->set_err_u(0.);
+        }
         systs_.push_back(sys);
       }
+    }
+  }
+  if (single_obs) {
+    if (bin_names.size() == 1) {
+      single_obs->set_bin(*(bin_names.begin()));
+      LoadShapes(single_obs.get(), hist_mapping);
+      obs_.push_back(single_obs);
+    } else {
+      throw std::runtime_error(FNERROR(
+          "Input card specifies a single observation entry without a bin, but "
+          "multiple bins defined elsewhere"));
     }
   }
   return 0;
@@ -260,7 +299,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
 void CombineHarvester::WriteDatacard(std::string const& name,
                                      std::string const& root_file) {
   TFile file(root_file.c_str(), "RECREATE");
-  CombineHarvester::WriteDatacard(name, root_file);
+  CombineHarvester::WriteDatacard(name, file);
   file.Close();
 }
 
@@ -501,14 +540,16 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     std::vector<std::string> line(procs_.size() + 2);
     line[0] = sys;
     bool seen_lnN = false;
+    bool seen_lnU = false;
     bool seen_shape = false;
     for (unsigned p = 0; p < procs_.size(); ++p) {
       line[p+2] = "-";
       for (unsigned n = 0; n < proc_sys_map[p].size(); ++n) {
         ch::Systematic const* sys_ptr = proc_sys_map[p][n];
         if (sys_ptr->name() == sys) {
-          if (sys_ptr->type() == "lnN") {
-            seen_lnN = true;
+          if (sys_ptr->type() == "lnN" || sys_ptr->type() == "lnU") {
+            if (sys_ptr->type() == "lnN") seen_lnN = true;
+            if (sys_ptr->type() == "lnU") seen_lnU = true;
             line[p + 2] =
                 sys_ptr->asymm()
                     ? (boost::format("%g/%g") % sys_ptr->value_d() %
@@ -545,9 +586,17 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         }
       }
     }
-    if (seen_lnN && !seen_shape) line[1] = "lnN";
-    if (!seen_lnN && seen_shape) line[1] = "shape";
-    if (seen_lnN && seen_shape) line[1] = "shape?";
+    if (seen_lnU) {
+      line[1] = "lnU";
+    } else if (seen_lnN && !seen_shape) {
+      line[1] = "lnN";
+    } else if (!seen_lnN && seen_shape) {
+      line[1] = "shape";
+    } else if (seen_lnN && seen_shape) {
+      line[1] = "shape?";
+    } else {
+      throw std::runtime_error(FNERROR("Systematic type could not be deduced"));
+    }
     txt_file << boost::format(
       "%-"+sys_str_short+"s %-7s ")
       % line[0] % line[1];

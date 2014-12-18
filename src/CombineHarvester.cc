@@ -310,9 +310,9 @@ void CombineHarvester::LoadShapes(Process* entry,
 
     if (flags_.at("zero-negative-bins-on-import")) {
       if (HasNegativeBins(h.get())) {
-        LOGLINE(log(), "Process shape has negative bin => fixing to zero");
+        LOGLINE(log(), "Warning: process shape has negative bins");
         log() << Process::PrintHeader << *entry << "\n";
-        ZeroNegativeBins(h.get());
+        // ZeroNegativeBins(h.get());
       }
     }
     // Post-conditions #1 and #2
@@ -418,21 +418,21 @@ void CombineHarvester::LoadShapes(Systematic* entry,
 
   if (flags_.at("zero-negative-bins-on-import")) {
     if (HasNegativeBins(h.get())) {
-      LOGLINE(log(), "Systematic shape has negative bins => fixing to zero");
+      LOGLINE(log(), "Warning: Systematic shape has negative bins");
       log() << Systematic::PrintHeader << *entry << "\n";
-      ZeroNegativeBins(h.get());
+      // ZeroNegativeBins(h.get());
     }
 
     if (HasNegativeBins(h_u.get())) {
-      LOGLINE(log(), "Systematic shape_u has negative bins => fixing to zero");
+      LOGLINE(log(), "Warning: Systematic shape_u has negative bins");
       log() << Systematic::PrintHeader << *entry << "\n";
-      ZeroNegativeBins(h_u.get());
+      // ZeroNegativeBins(h_u.get());
     }
 
     if (HasNegativeBins(h_d.get())) {
-      LOGLINE(log(), "Systematic shape_d has negative bins => fixing to zero");
+      LOGLINE(log(), "Warning Systematic shape_d has negative bins");
       log() << Systematic::PrintHeader << *entry << "\n";
-      ZeroNegativeBins(h_d.get());
+      // ZeroNegativeBins(h_d.get());
     }
   }
 
@@ -471,7 +471,7 @@ HistMapping const& CombineHarvester::ResolveMapping(
     }
   }
   // If we get this far then we didn't find a valid mapping
-  throw std::runtime_error("ResolveMapping: valid mapping not found");
+  throw std::runtime_error(FNERROR("Valid mapping not found"));
 }
 
 CombineHarvester::StrPairVec CombineHarvester::GenerateShapeMapAttempts(
