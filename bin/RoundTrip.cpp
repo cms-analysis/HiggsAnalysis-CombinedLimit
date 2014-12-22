@@ -49,6 +49,7 @@ int main(int argc, char* argv[]){
   po::notify(vm);
 
   ch::CombineHarvester cmb;
+  // cmb.SetVerbosity(2);
 
   cmb.ParseDatacard(datacard, "", "", "", 0, mass);
 

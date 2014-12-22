@@ -224,7 +224,7 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
     }
 
     double p_rate = procs_[i]->rate();
-    if (procs_[i]->shape()) {
+    if (procs_[i]->shape() || procs_[i]->data()) {
       TH1F proc_shape = procs_[i]->ShapeAsTH1F();
       for (auto sys_it : lookup[i]) {
         double x = params_[sys_it->name()]->val();
@@ -235,8 +235,18 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
             p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
           }
           if (sys_it->type() == "shape") {
-            ShapeDiff(x * sys_it->scale(), &proc_shape, procs_[i]->shape(),
-                      sys_it->shape_d(), sys_it->shape_u());
+            if (sys_it->shape_u() && sys_it->shape_d()) {
+              ShapeDiff(x * sys_it->scale(), &proc_shape, procs_[i]->shape(),
+                        sys_it->shape_d(), sys_it->shape_u());
+            }
+            if (sys_it->data_u() && sys_it->data_d()) {
+              RooDataHist const* nom =
+                  dynamic_cast<RooDataHist const*>(procs_[i]->data());
+              if (nom) {
+                ShapeDiff(x * sys_it->scale(), &proc_shape, nom,
+                          sys_it->data_d(), sys_it->data_u());
+              }
+            }
           }
         } else {
           p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
@@ -259,6 +269,13 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       TH1::AddDirectory(false);
       TH1F proc_shape = *(dynamic_cast<TH1F*>(
           procs_[i]->pdf()->createHistogram(var_name.c_str())));
+      if (!procs_[i]->pdf()->selfNormalized()) {
+        // LOGLINE(log(), "Have a pdf that is not selfNormalized");
+        // std::cout << "Integral: " << proc_shape.Integral() << "\n";
+        if (proc_shape.Integral() > 0.) {
+          proc_shape.Scale(1. / proc_shape.Integral());
+        }
+      }
       for (auto sys_it : lookup[i]) {
         double x = params_[sys_it->name()]->val();
         if (sys_it->asymm()) {
@@ -327,6 +344,26 @@ void CombineHarvester::ShapeDiff(double x,
     float h = high->GetBinContent(i);
     float l = low->GetBinContent(i);
     float n = nom->GetBinContent(i);
+    target->SetBinContent(i, target->GetBinContent(i) +
+                                 0.5 * x * ((h - l) + (h + l - 2. * n) * fx));
+  }
+}
+
+void CombineHarvester::ShapeDiff(double x,
+    TH1F * target,
+    RooDataHist const* nom,
+    RooDataHist const* low,
+    RooDataHist const* high) {
+  double fx = smoothStepFunc(x);
+  for (int i = 1; i <= target->GetNbinsX(); ++i) {
+    high->get(i-1);
+    low->get(i-1);
+    nom->get(i-1);
+    // The RooDataHists are not scaled to unity (unlike in the TH1 case above)
+    // so we have to normalise the bin contents on the fly
+    float h = high->weight() / high->sumEntries();
+    float l = low->weight() / low->sumEntries();
+    float n = nom->weight() / nom->sumEntries();
     target->SetBinContent(i, target->GetBinContent(i) +
                                  0.5 * x * ((h - l) + (h + l - 2. * n) * fx));
   }

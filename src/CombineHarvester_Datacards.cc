@@ -303,6 +303,131 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   file.Close();
 }
 
+void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
+  // Build maps of
+  //  RooAbsData --> RooWorkspace
+  //  RooAbsPdf --> RooWorkspace
+  std::map<RooAbsData const*, RooWorkspace*> data_ws_map;
+  std::map<RooAbsPdf const*, RooWorkspace*> pdf_ws_map;
+  for (auto const& iter : wspaces_) {
+    auto dat = iter.second->allData();
+    for (auto d : dat) {
+      data_ws_map[d] = iter.second.get();
+    }
+    RooArgSet vars = iter.second->allPdfs();
+    auto v = vars.createIterator();
+    do {
+      RooAbsPdf *y = dynamic_cast<RooAbsPdf*>(**v);
+      if (y) pdf_ws_map[iter.second->pdf(y->GetName())] = iter.second.get();
+    } while (v->Next());
+  }
+
+  // For writing TH1s we will hard code a set of patterns for each bin
+  // This assumes that the backgrounds will not depend on "mass" but the
+  // signal will. Will probably want to change this in the future
+  auto bins = this->bin_set();
+  for (auto bin : bins) {
+    unsigned shape_count = std::count_if(procs_.begin(), procs_.end(),
+        [&](std::shared_ptr<ch::Process> p) {
+          return (p->bin() == bin && p->shape() && (!p->signal()));
+        });
+    shape_count += std::count_if(obs_.begin(), obs_.end(),
+        [&](std::shared_ptr<ch::Observation> p) {
+          return (p->bin() == bin && p->shape());
+        });
+
+    if (shape_count > 0) {
+      mappings.push_back({
+        "*", bin, nullptr, bin+"/$PROCESS", bin+"/$PROCESS_$SYSTEMATIC"
+      });
+    }
+
+    CombineHarvester ch_signals =
+        std::move(this->cp().bin({bin}).signals().histograms());
+    auto sig_proc_set = ch_signals.GenerateSetFromProcs<std::string>(
+        std::mem_fn(&ch::Process::process));
+    for (auto sig_proc : sig_proc_set) {
+      mappings.push_back({sig_proc, bin, nullptr,
+                          bin + "/" + sig_proc + "$MASS",
+                          bin + "/" + sig_proc + "$MASS_$SYSTEMATIC"});
+    }
+  }
+
+  // Generate mappings for RooFit objects
+  for (auto bin : bins) {
+    CombineHarvester ch_bin = std::move(this->cp().bin({bin}));
+    for (auto obs : ch_bin.obs_) {
+      if (!obs->data()) continue;
+      std::string obj_name = std::string(data_ws_map[obs->data()]->GetName()) +
+                             ":" + std::string(obs->data()->GetName());
+      mappings.push_back({
+        "data_obs", obs->bin(), nullptr, obj_name, ""
+      });
+    }
+
+    bool prototype_ok = true;
+    HistMapping prototype;
+    std::vector<HistMapping> full_list;
+    auto pmap = ch_bin.GenerateProcSystMap();
+    for (unsigned i = 0; i < ch_bin.procs_.size(); ++i) {
+      ch::Process * proc = ch_bin.procs_[i].get();
+      if (!proc->data() && !proc->pdf()) continue;
+      std::string obj_name;
+      std::string obj_sys_name;
+      if (proc->data()) {
+        obj_name = std::string(data_ws_map[proc->data()]->GetName()) + ":" +
+                   std::string(proc->data()->GetName());
+      }
+      if (proc->pdf()) {
+        obj_name = std::string(pdf_ws_map[proc->pdf()]->GetName()) +
+                   ":" + std::string(proc->pdf()->GetName());
+      }
+      for (unsigned j = 0; j < pmap[i].size(); ++j) {
+        ch::Systematic const* sys = pmap[i][j];
+        if (sys->data_u()) {
+          obj_sys_name = std::string(data_ws_map[sys->data_u()]->GetName()) +
+                         ":" + std::string(sys->data_u()->GetName());
+          boost::replace_all(obj_sys_name, sys->name() + "Up", "$SYSTEMATIC");
+          boost::replace_all(obj_sys_name, sys->process(), "$PROCESS");
+          break;
+        }
+      }
+      boost::replace_all(obj_name, proc->process(), "$PROCESS");
+
+      // If the prototype pattern is already filled, but doesn't equal this
+      // new pattern - then we can't use the prototype
+      if (prototype.pattern.size() && prototype.pattern != obj_name) {
+        prototype_ok = false;
+      }
+
+      if (prototype.syst_pattern.size() && obj_sys_name.size() &&
+          prototype.syst_pattern != obj_sys_name) {
+        prototype_ok = false;
+      }
+
+      if (!prototype.pattern.size()) {
+        prototype.process = "*";
+        prototype.category = bin;
+        prototype.pattern = obj_name;
+      }
+      if (!prototype.syst_pattern.size()) {
+        prototype.syst_pattern = obj_sys_name;
+      }
+
+      full_list.push_back(
+          {proc->process(), proc->bin(), nullptr, obj_name, obj_sys_name});
+    }
+    if (!prototype_ok) {
+      for (auto m : full_list) {
+        mappings.push_back(m);
+      }
+    } else {
+      mappings.push_back(prototype);
+    }
+  }
+}
+
+
 void CombineHarvester::WriteDatacard(std::string const& name,
                                      TFile& root_file) {
   std::ofstream txt_file;
@@ -325,70 +450,16 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
 
   std::vector<HistMapping> mappings;
-  std::map<RooAbsData const*, RooWorkspace*> data_ws_map;
-  std::map<RooAbsPdf const*, RooWorkspace*> pdf_ws_map;
-  for (auto const& iter : wspaces_) {
-    auto dat = iter.second->allData();
-    for (auto d : dat) {
-      data_ws_map[d] = iter.second.get();
-    }
-    RooArgSet vars = iter.second->allPdfs();
-    auto v = vars.createIterator();
-    do {
-      RooAbsPdf *y = dynamic_cast<RooAbsPdf*>(**v);
-      if (y) {
-        pdf_ws_map[iter.second->pdf(y->GetName())] = iter.second.get();
-      }
-    } while (v->Next());
-  }
+  FillHistMappings(mappings);
 
   auto bins =
       this->GenerateSetFromObs<std::string>(std::mem_fn(&ch::Observation::bin));
-  for (auto bin : bins) {
-    unsigned shape_count = std::count_if(procs_.begin(), procs_.end(),
-        [&](std::shared_ptr<ch::Process> p) {
-          return (p->bin() == bin && p->shape() && (!p->signal()));
-        });
-    shape_count += std::count_if(obs_.begin(), obs_.end(),
-        [&](std::shared_ptr<ch::Observation> p) {
-          return (p->bin() == bin && p->shape());
-        });
 
-    if (shape_count > 0) {
-      mappings.push_back({
-        "*", bin, nullptr, bin+"/$PROCESS", bin+"/$PROCESS_$SYSTEMATIC"
-      });
-    }
+  auto proc_sys_map = this->GenerateProcSystMap();
 
-    CombineHarvester ch_signals =
-        std::move(this->cp().bin({bin}).signals().histograms());
-    auto sig_proc_set = ch_signals.GenerateSetFromProcs<std::string>(
-      std::mem_fn(&ch::Process::process));
-    for (auto sig_proc : sig_proc_set) {
-      mappings.push_back({sig_proc, bin, nullptr,
-                          bin + "/" + sig_proc + "$MASS",
-                          bin + "/" + sig_proc + "$MASS_$SYSTEMATIC"});
-    }
-  }
-
-  for (auto obs : obs_) {
-    if (obs->data()) {
-      std::string obj_name = std::string(data_ws_map[obs->data()]->GetName()) +
-                             ":" + std::string(obs->data()->GetName());
-      mappings.push_back({
-        "data_obs", obs->bin(), nullptr, obj_name, ""
-      });
-    }
-  }
   std::set<std::string> all_dependents_pars;
   for (auto proc : procs_) {
     if (proc->pdf()) {
-      std::string obj_name = std::string(pdf_ws_map[proc->pdf()]->GetName()) +
-                             ":" + std::string(proc->pdf()->GetName());
-      mappings.push_back({
-        proc->process(), proc->bin(), nullptr, obj_name, ""
-      });
-
       // The rest of this is building the list of dependents
       /**
        * \todo This reproduces quite a lot of CombineHarvester::ImportParameters
@@ -466,7 +537,6 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   txt_file << "\n";
   txt_file << dashes << "\n";
 
-  auto proc_sys_map = this->GenerateProcSystMap();
   unsigned sys_str_len = 14;
   for (auto const& sys : sys_set) {
     if (sys.length() > sys_str_len) sys_str_len = sys.length();
@@ -477,8 +547,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   txt_file << boost::format("%-"+sys_str_long+"s") % "bin";
   for (auto const& proc : procs_) {
     if (proc->shape()) {
-      std::unique_ptr<TH1> h((TH1*)(proc->shape()->Clone()));
-      h->Scale(proc->rate());
+      std::unique_ptr<TH1> h = proc->ClonedScaledShape();
       WriteHistToFile(h.get(), &root_file, mappings, proc->bin(),
                       proc->process(), proc->mass(), "", 0);
     }
@@ -558,30 +627,33 @@ void CombineHarvester::WriteDatacard(std::string const& name,
             break;
           }
           if (sys_ptr->type() == "shape") {
-            if (!sys_ptr->shape_u() || !sys_ptr->shape_d()) {
-              std::stringstream err;
-              err << "Trying to write shape uncertainty with missing shapes:\n";
-              err << Systematic::PrintHeader << *sys_ptr;
-              throw std::runtime_error(FNERROR(err.str()));
-            }
-            bool add_dir = TH1::AddDirectoryStatus();
-            TH1::AddDirectory(false);
-            std::unique_ptr<TH1> h_d(
-                static_cast<TH1*>(sys_ptr->shape_d()->Clone()));
-            h_d->Scale(procs_[p]->rate()*sys_ptr->value_d());
-            WriteHistToFile(h_d.get(), &root_file, mappings, sys_ptr->bin(),
-                            sys_ptr->process(), sys_ptr->mass(),
-                            sys_ptr->name(), 1);
-            std::unique_ptr<TH1> h_u(
-                static_cast<TH1*>(sys_ptr->shape_u()->Clone()));
-            h_u->Scale(procs_[p]->rate()*sys_ptr->value_u());
-            WriteHistToFile(h_u.get(), &root_file, mappings, sys_ptr->bin(),
-                            sys_ptr->process(), sys_ptr->mass(),
-                            sys_ptr->name(), 2);
             seen_shape = true;
             line[p+2] = (boost::format("%g") % sys_ptr->scale()).str();
-            TH1::AddDirectory(add_dir);
-            break;
+            if (sys_ptr->shape_u() && sys_ptr->shape_d()) {
+              bool add_dir = TH1::AddDirectoryStatus();
+              TH1::AddDirectory(false);
+              std::unique_ptr<TH1> h_d = sys_ptr->ClonedShapeD();
+              h_d->Scale(procs_[p]->rate()*sys_ptr->value_d());
+              WriteHistToFile(h_d.get(), &root_file, mappings, sys_ptr->bin(),
+                              sys_ptr->process(), sys_ptr->mass(),
+                              sys_ptr->name(), 1);
+              std::unique_ptr<TH1> h_u = sys_ptr->ClonedShapeU();
+              h_u->Scale(procs_[p]->rate()*sys_ptr->value_u());
+              WriteHistToFile(h_u.get(), &root_file, mappings, sys_ptr->bin(),
+                              sys_ptr->process(), sys_ptr->mass(),
+                              sys_ptr->name(), 2);
+              TH1::AddDirectory(add_dir);
+              break;
+            } else if (sys_ptr->data_u() && sys_ptr->data_d()) {
+            } else {
+              if (!flags_.at("allow-missing-shapes")) {
+                std::stringstream err;
+                err << "Trying to write shape uncertainty with missing "
+                       "shapes:\n";
+                err << Systematic::PrintHeader << *sys_ptr;
+                throw std::runtime_error(FNERROR(err.str()));
+              }
+            }
           }
         }
       }

@@ -105,7 +105,8 @@ int main(int argc, char* argv[]){
   // for the postfit
   if (postfit) {
     res = new RooFitResult(ch::OpenFromTFile<RooFitResult>(fitresult));
-    cmb.UpdateParameters(ch::ExtractFitParameters(*res));
+    cmb.UpdateParameters(res);
+    // cmb.PrintAll();
 
     if (factors) {
       std::cout << boost::format("\n%-25s %-32s\n") % "Bin" % "Total relative uncert. (postfit)";

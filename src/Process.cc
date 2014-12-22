@@ -18,6 +18,7 @@ Process::Process()
       mass_(""),
       shape_(),
       pdf_(nullptr),
+      data_(nullptr),
       norm_(nullptr) {
   }
 
@@ -36,6 +37,7 @@ void swap(Process& first, Process& second) {
   swap(first.mass_, second.mass_);
   swap(first.shape_, second.shape_);
   swap(first.pdf_, second.pdf_);
+  swap(first.data_, second.data_);
   swap(first.norm_, second.norm_);
 }
 
@@ -50,6 +52,7 @@ Process::Process(Process const& other)
       bin_id_(other.bin_id_),
       mass_(other.mass_),
       pdf_(other.pdf_),
+      data_(other.data_),
       norm_(other.norm_) {
   TH1 *h = nullptr;
   if (other.shape_) {
@@ -71,6 +74,7 @@ Process::Process(Process&& other)
       mass_(""),
       shape_(),
       pdf_(nullptr),
+      data_(nullptr),
       norm_(nullptr) {
   swap(*this, other);
 }
@@ -119,21 +123,28 @@ std::unique_ptr<TH1> Process::ClonedScaledShape() const {
 }
 
 TH1F Process::ShapeAsTH1F() const {
-  if (!shape_) {
+  if (!shape_ && !data_) {
     throw std::runtime_error(
         FNERROR("Process object does not contain a shape"));
   }
   TH1F res;
-  // Need to get the shape as a concrete type (TH1F or TH1D)
-  // A nice way to do this is just to use TH1D::Copy into a fresh TH1F
-  TH1F const* test_f = dynamic_cast<TH1F const*>(this->shape());
-  TH1D const* test_d = dynamic_cast<TH1D const*>(this->shape());
-  if (test_f) {
-    test_f->Copy(res);
-  } else if (test_d) {
-    test_d->Copy(res);
-  } else {
-    throw std::runtime_error(FNERROR("TH1 shape is not a TH1F or a TH1D"));
+  if (this->shape()) {
+    // Need to get the shape as a concrete type (TH1F or TH1D)
+    // A nice way to do this is just to use TH1D::Copy into a fresh TH1F
+    TH1F const* test_f = dynamic_cast<TH1F const*>(this->shape());
+    TH1D const* test_d = dynamic_cast<TH1D const*>(this->shape());
+    if (test_f) {
+      test_f->Copy(res);
+    } else if (test_d) {
+      test_d->Copy(res);
+    } else {
+      throw std::runtime_error(FNERROR("TH1 shape is not a TH1F or a TH1D"));
+    }
+  } else if (this->data()) {
+    std::string var_name = this->data()->get()->first()->GetName();
+    res = *(dynamic_cast<TH1F*>(this->data()->createHistogram(
+                           var_name.c_str())));
+    if (res.Integral() > 0.) res.Scale(1. / res.Integral());
   }
   return res;
 }
@@ -157,7 +168,8 @@ std::ostream& operator<< (std::ostream &out, Process &val) {
              "%-6s %-9s %-6s %-8s %-28s %-3i %-22s %-4i %-10.5g %-10i") %
              val.mass() % val.analysis() % val.era() % val.channel() %
              val.bin() % val.bin_id() % val.process() % val.signal() %
-             val.rate() % (val.shape() != nullptr || val.pdf() != nullptr);
+             val.rate() %
+             (bool(val.shape()) || bool(val.pdf()) || bool(val.data()));
   return out;
 }
 }

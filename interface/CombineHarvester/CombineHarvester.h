@@ -314,7 +314,8 @@ class CombineHarvester {
   StrPairVec GenerateShapeMapAttempts(std::string process,
       std::string category);
 
-  StrPair SetupWorkspace(HistMapping const& mapping);
+  StrPair SetupWorkspace(HistMapping const& mapping,
+                         std::string alt_mapping = "");
 
   void ImportParameters(RooArgSet *vars);
 
@@ -333,6 +334,8 @@ class CombineHarvester {
       std::string const& mass,
       std::string const& nuisance,
       unsigned type);
+
+void FillHistMappings(std::vector<HistMapping> & mappings);
 
   // ---------------------------------------------------------------
   // Private methods for shape/yield evaluation
@@ -356,6 +359,8 @@ class CombineHarvester {
 
   void ShapeDiff(double x, TH1F* target, TH1 const* nom, TH1 const* low,
                  TH1 const* high);
+  void ShapeDiff(double x, TH1F* target, RooDataHist const* nom,
+                 RooDataHist const* low, RooDataHist const* high);
 
   void CreateParameterIfEmpty(CombineHarvester *cmb, std::string const& name);
 };

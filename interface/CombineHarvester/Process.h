@@ -5,6 +5,7 @@
 #include "TH1.h"
 #include "RooAbsPdf.h"
 #include "RooAbsReal.h"
+#include "RooAbsData.h"
 #include "CombineTools/interface/MakeUnique.h"
 
 namespace ch {
@@ -67,6 +68,9 @@ class Process {
   void set_pdf(RooAbsPdf* pdf) { pdf_ = pdf; }
   RooAbsPdf const* pdf() const { return pdf_; }
 
+  void set_data(RooAbsData* data) { data_ = data; }
+  RooAbsData const* data() const { return data_; }
+
   void set_norm(RooAbsReal* norm) { norm_ = norm; }
   RooAbsReal const* norm() const { return norm_; }
 
@@ -86,6 +90,7 @@ class Process {
   std::string mass_;
   std::unique_ptr<TH1> shape_;
   RooAbsPdf* pdf_;
+  RooAbsData* data_;
   RooAbsReal* norm_;
 
 

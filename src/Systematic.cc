@@ -21,7 +21,9 @@ Systematic::Systematic()
       bin_id_(0),
       mass_(""),
       shape_u_(),
-      shape_d_() {
+      shape_d_(),
+      data_u_(nullptr),
+      data_d_(nullptr) {
   }
 
 Systematic::~Systematic() { }
@@ -44,6 +46,8 @@ void swap(Systematic& first, Systematic& second) {
   swap(first.mass_, second.mass_);
   swap(first.shape_u_, second.shape_u_);
   swap(first.shape_d_, second.shape_d_);
+  swap(first.data_u_, second.data_u_);
+  swap(first.data_d_, second.data_d_);
 }
 
 Systematic::Systematic(Systematic const& other)
@@ -60,7 +64,9 @@ Systematic::Systematic(Systematic const& other)
       era_(other.era_),
       channel_(other.channel_),
       bin_id_(other.bin_id_),
-      mass_(other.mass_) {
+      mass_(other.mass_),
+      data_u_(other.data_u_),
+      data_d_(other.data_d_) {
   TH1 *h_u = nullptr;
   if (other.shape_u_) {
     h_u = dynamic_cast<TH1*>(other.shape_u_->Clone());
@@ -91,7 +97,9 @@ Systematic::Systematic(Systematic&& other)
       bin_id_(0),
       mass_(""),
       shape_u_(),
-      shape_d_() {
+      shape_d_(),
+      data_u_(nullptr),
+      data_d_(nullptr) {
   swap(*this, other);
 }
 
@@ -149,6 +157,17 @@ void Systematic::set_shapes(std::unique_ptr<TH1> shape_u,
   if (shape_d_->Integral() > 0.) shape_d_->Scale(1. / shape_d_->Integral());
 }
 
+void Systematic::set_data(RooDataHist* data_u, RooDataHist* data_d,
+                          RooDataHist const* nominal) {
+  if (nominal && nominal->sumEntries() > 0.) {
+    this->set_value_u(data_u->sumEntries() / nominal->sumEntries());
+    this->set_value_d(data_d->sumEntries() / nominal->sumEntries());
+  }
+  data_u_ = data_u;
+  data_d_ = data_d;
+}
+
+
 std::unique_ptr<TH1> Systematic::ClonedShapeU() const {
   if (!shape_u_) return std::unique_ptr<TH1>();
   std::unique_ptr<TH1> res(static_cast<TH1 *>(shape_u_->Clone()));
@@ -197,8 +216,8 @@ std::ostream& operator<< (std::ostream &out, Systematic const& val) {
   % val.name()
   % val.type()
   % value_fmt
-  % bool(val.shape_d())
-  % bool(val.shape_u());
+  % (bool(val.shape_d()) || bool(val.data_d()))
+  % (bool(val.shape_u()) || bool(val.data_u()));
   return out;
 }
 }

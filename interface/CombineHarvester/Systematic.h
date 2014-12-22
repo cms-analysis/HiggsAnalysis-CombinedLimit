@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include "TH1.h"
+#include "RooDataHist.h"
 #include "CombineTools/interface/MakeUnique.h"
 
 namespace ch {
@@ -67,6 +68,13 @@ class Systematic {
   // void set_shape_d(std::unique_ptr<TH1> shape_d);
   TH1 const* shape_d() const { return shape_d_.get(); }
 
+  RooDataHist const* data_u() const { return data_u_; }
+
+  RooDataHist const* data_d() const { return data_d_; }
+
+  void set_data(RooDataHist* data_u, RooDataHist* data_d,
+                RooDataHist const* nominal);
+
   void set_shapes(std::unique_ptr<TH1> shape_u, std::unique_ptr<TH1> shape_d,
                   TH1 const* nominal);
 
@@ -90,6 +98,8 @@ class Systematic {
   std::string mass_;
   std::unique_ptr<TH1> shape_u_;
   std::unique_ptr<TH1> shape_d_;
+  RooDataHist * data_u_;
+  RooDataHist * data_d_;
 
   friend void swap(Systematic& first, Systematic& second);
 };

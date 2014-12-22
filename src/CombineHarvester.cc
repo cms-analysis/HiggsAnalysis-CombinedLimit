@@ -15,6 +15,7 @@ namespace ch {
 
 CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
   flags_["zero-negative-bins-on-import"] = true;
+  flags_["allow-missing-shapes"] = true;
 }
 
 CombineHarvester::~CombineHarvester() { }
@@ -318,21 +319,35 @@ void CombineHarvester::LoadShapes(Process* entry,
     // Post-conditions #1 and #2
     entry->set_shape(std::move(h), true);
   } else if (mapping.IsPdf()) {
-    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooAbsPdf");
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooAbsPdf/RooAbsData");
     // Pre-condition #3
     // SetupWorkspace will throw if workspace not found
     StrPair res = SetupWorkspace(mapping);
+    // Try and get this as RooAbsData first. If this doesn't work try pdf
+    RooAbsData* data = wspaces_[res.first]->data(res.second.c_str());
     RooAbsPdf* pdf = wspaces_[res.first]->pdf(res.second.c_str());
-    // Pre-condition #3
-    if (!pdf) {
-      throw std::runtime_error(FNERROR("RooAbsPdf not found in workspace"));
+    if (data) {
+      if (verbosity_ >= 2) {
+        data->printStream(log(), data->defaultPrintContents(0),
+                       data->defaultPrintStyle(0), "[LoadShapes] ");
+      }
+      entry->set_data(data);
+      entry->set_rate(data->sumEntries());
+    } else if (pdf) {
+      if (verbosity_ >= 2) {
+        pdf->printStream(log(), pdf->defaultPrintContents(0),
+                       pdf->defaultPrintStyle(0), "[LoadShapes] ");
+      }
+      // Post-condition #1
+      entry->set_pdf(pdf);
+    } else { // Pre-condition #3
+      if (flags_.at("allow-missing-shapes")) {
+        LOGLINE(log(), "Warning, shape missing:");
+        log() << Process::PrintHeader << *entry << "\n";
+      } else {
+        throw std::runtime_error(FNERROR("RooAbsPdf not found in workspace"));
+      }
     }
-    if (verbosity_ >= 2) {
-      pdf->printStream(log(), pdf->defaultPrintContents(0),
-                     pdf->defaultPrintStyle(0), "[LoadShapes] ");
-    }
-    // Post-condition #1
-    entry->set_pdf(pdf);
 
     HistMapping norm_mapping = mapping;
     norm_mapping.pattern += "_norm";
@@ -361,14 +376,14 @@ void CombineHarvester::LoadShapes(Process* entry,
     RooAbsData const* data_obj = FindMatchingData(entry);
     if (data_obj) {
       if (verbosity_ >= 2) LOGLINE(log(), "Matching RooAbsData has been found");
-      ImportParameters(pdf->getParameters(data_obj));
+      if (pdf) ImportParameters(pdf->getParameters(data_obj));
       if (norm) ImportParameters(norm->getParameters(data_obj));
     } else {
       if (verbosity_ >= 2)
         LOGLINE(log(), "No RooAbsData found, assume observable CMS_th1x");
       RooRealVar mx("CMS_th1x" , "CMS_th1x", 0, 1);
       RooArgSet tmp_set(mx);
-      ImportParameters(pdf->getParameters(&tmp_set));
+      if (pdf) ImportParameters(pdf->getParameters(&tmp_set));
       if (norm) ImportParameters(norm->getParameters(&tmp_set));
     }
   }
@@ -376,7 +391,8 @@ void CombineHarvester::LoadShapes(Process* entry,
 
 void CombineHarvester::LoadShapes(Systematic* entry,
                                      std::vector<HistMapping> const& mappings) {
-  if (entry->shape_u() || entry->shape_d()) {
+  if (entry->shape_u() || entry->shape_d() ||
+      entry->data_u() || entry->data_d()) {
     throw std::runtime_error(FNERROR("Systematic already contains a shape"));
   }
 
@@ -389,19 +405,12 @@ void CombineHarvester::LoadShapes(Systematic* entry,
 
   // Pre-condition #2
   // ResolveMapping will throw if this fails
-  HistMapping const& mapping =
+  HistMapping mapping =
       ResolveMapping(entry->process(), entry->bin(), mappings);
-
-  if (!mapping.IsHist()) {
-    throw std::runtime_error(
-        FNERROR("Resolved mapping is not of histogram type"));
-  }
-
-  std::string p = mapping.pattern;
-  boost::replace_all(p, "$CHANNEL", entry->bin());
-  boost::replace_all(p, "$BIN", entry->bin());
-  boost::replace_all(p, "$PROCESS", entry->process());
-  boost::replace_all(p, "$MASS", entry->mass());
+  boost::replace_all(mapping.pattern, "$CHANNEL", entry->bin());
+  boost::replace_all(mapping.pattern, "$BIN", entry->bin());
+  boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
+  boost::replace_all(mapping.pattern, "$MASS", entry->mass());
   std::string p_s = mapping.syst_pattern;
   boost::replace_all(p_s, "$CHANNEL", entry->bin());
   boost::replace_all(p_s, "$BIN", entry->bin());
@@ -411,32 +420,59 @@ void CombineHarvester::LoadShapes(Systematic* entry,
   std::string p_s_lo = p_s;
   boost::replace_all(p_s_hi, "$SYSTEMATIC", entry->name() + "Up");
   boost::replace_all(p_s_lo, "$SYSTEMATIC", entry->name() + "Down");
+  if (mapping.IsHist()) {
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is TH1");
+    std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), mapping.pattern);
+    std::unique_ptr<TH1> h_u = GetClonedTH1(mapping.file.get(), p_s_hi);
+    std::unique_ptr<TH1> h_d = GetClonedTH1(mapping.file.get(), p_s_lo);
 
-  std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), p);
-  std::unique_ptr<TH1> h_u = GetClonedTH1(mapping.file.get(), p_s_hi);
-  std::unique_ptr<TH1> h_d = GetClonedTH1(mapping.file.get(), p_s_lo);
+    if (flags_.at("zero-negative-bins-on-import")) {
+      if (HasNegativeBins(h.get())) {
+        LOGLINE(log(), "Warning: Systematic shape has negative bins");
+        log() << Systematic::PrintHeader << *entry << "\n";
+        // ZeroNegativeBins(h.get());
+      }
 
-  if (flags_.at("zero-negative-bins-on-import")) {
-    if (HasNegativeBins(h.get())) {
-      LOGLINE(log(), "Warning: Systematic shape has negative bins");
-      log() << Systematic::PrintHeader << *entry << "\n";
-      // ZeroNegativeBins(h.get());
+      if (HasNegativeBins(h_u.get())) {
+        LOGLINE(log(), "Warning: Systematic shape_u has negative bins");
+        log() << Systematic::PrintHeader << *entry << "\n";
+        // ZeroNegativeBins(h_u.get());
+      }
+
+      if (HasNegativeBins(h_d.get())) {
+        LOGLINE(log(), "Warning: Systematic shape_d has negative bins");
+        log() << Systematic::PrintHeader << *entry << "\n";
+        // ZeroNegativeBins(h_d.get());
+      }
     }
-
-    if (HasNegativeBins(h_u.get())) {
-      LOGLINE(log(), "Warning: Systematic shape_u has negative bins");
-      log() << Systematic::PrintHeader << *entry << "\n";
-      // ZeroNegativeBins(h_u.get());
+    entry->set_shapes(std::move(h_u), std::move(h_d), h.get());
+  } else if (mapping.IsPdf()) {
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooDataHist");
+    StrPair res_nom = SetupWorkspace(mapping);
+    StrPair res_hi = SetupWorkspace(mapping, p_s_hi);
+    StrPair res_lo = SetupWorkspace(mapping, p_s_lo);
+    // Try and get this as RooAbsData first. If this doesn't work try pdf
+    RooDataHist* h = dynamic_cast<RooDataHist*>(
+        wspaces_[res_nom.first]->data(res_nom.second.c_str()));
+    RooDataHist* h_u = dynamic_cast<RooDataHist*>(
+        wspaces_[res_hi.first]->data(res_hi.second.c_str()));
+    RooDataHist* h_d = dynamic_cast<RooDataHist*>(
+        wspaces_[res_lo.first]->data(res_lo.second.c_str()));
+    if (!h || !h_u || !h_d) {
+      if (flags_.at("allow-missing-shapes")) {
+        LOGLINE(log(), "Warning, shape missing:");
+        log() << Systematic::PrintHeader << *entry << "\n";
+      } else {
+        throw std::runtime_error(
+            FNERROR("All shapes must be of type RooDataHist"));
+      }
+    } else {
+      entry->set_data(h_u, h_d, h);
     }
-
-    if (HasNegativeBins(h_d.get())) {
-      LOGLINE(log(), "Warning Systematic shape_d has negative bins");
-      log() << Systematic::PrintHeader << *entry << "\n";
-      // ZeroNegativeBins(h_d.get());
-    }
+  } else {
+    throw std::runtime_error(
+        FNERROR("Resolved mapping is not of TH1 / RooAbsData type"));
   }
-
-  entry->set_shapes(std::move(h_u), std::move(h_d), h.get());
 }
 
 /**
@@ -485,8 +521,8 @@ CombineHarvester::StrPairVec CombineHarvester::GenerateShapeMapAttempts(
 }
 
 std::pair<std::string, std::string> CombineHarvester::SetupWorkspace(
-    HistMapping const& mapping) {
-  std::string p = mapping.pattern;
+    HistMapping const& mapping, std::string alt_mapping) {
+  std::string p = alt_mapping.size() ? alt_mapping : mapping.pattern;
   std::pair<std::string, std::string> res;
   std::size_t colon = p.find_last_of(':');
   if (colon != p.npos) {
