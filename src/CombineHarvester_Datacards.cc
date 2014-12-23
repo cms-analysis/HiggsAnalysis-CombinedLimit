@@ -365,7 +365,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       });
     }
 
-    bool prototype_ok = true;
+    bool prototype_ok = false;
     HistMapping prototype;
     std::vector<HistMapping> full_list;
     auto pmap = ch_bin.GenerateProcSystMap();
@@ -406,6 +406,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       }
 
       if (!prototype.pattern.size()) {
+        prototype_ok = true;
         prototype.process = "*";
         prototype.category = bin;
         prototype.pattern = obj_name;
