@@ -14,11 +14,18 @@
 namespace ch {
 
 CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
+  // if (verbosity_ >= 3) {
+    log() << "[CombineHarvester] Constructor called: " << this << "\n";
+  // }
   flags_["zero-negative-bins-on-import"] = true;
   flags_["allow-missing-shapes"] = true;
 }
 
-CombineHarvester::~CombineHarvester() { }
+CombineHarvester::~CombineHarvester() {
+  // if (verbosity_ >= 3) {
+    log() << "[CombineHarvester] Destructor called: " << this << "\n";
+  // }
+}
 
 void swap(CombineHarvester& first, CombineHarvester& second) {
   using std::swap;
@@ -33,101 +40,103 @@ void swap(CombineHarvester& first, CombineHarvester& second) {
 }
 
 CombineHarvester::CombineHarvester(CombineHarvester const& other)
-    : obs_(other.obs_.size(), nullptr),
-      procs_(other.procs_.size(), nullptr),
-      systs_(other.systs_.size(), nullptr),
+    : obs_(other.obs_),
+      procs_(other.procs_),
+      systs_(other.systs_),
+      params_(other.params_),
+      wspaces_(other.wspaces_),
       flags_(other.flags_),
       verbosity_(other.verbosity_),
       log_(other.log_) {
   if (verbosity_ >= 3) {
-    log() << "[CombineHarvester] Copy-constructor called\n";
+    log() << "[CombineHarvester] Copy-constructor called: " << this << "\n";
   }
 
   // Build a map of workspace object pointers
-  std::map<RooAbsData const*, RooAbsData *> data_map;
-  std::map<RooAbsPdf const*, RooAbsPdf *> pdf_map;
-  std::map<RooRealVar const*, RooRealVar *> var_map;
-  std::map<RooAbsReal const*, RooAbsReal *> real_map;
+  // std::map<RooAbsData const*, RooAbsData *> data_map;
+  // std::map<RooAbsPdf const*, RooAbsPdf *> pdf_map;
+  // std::map<RooRealVar const*, RooRealVar *> var_map;
+  // std::map<RooAbsReal const*, RooAbsReal *> real_map;
 
-  for (auto const& it : other.wspaces_) {
-    if (it.second) {
-      wspaces_.insert({it.first, std::make_shared<RooWorkspace>(*(it.second))});
-      std::list<RooAbsData *> o_data = it.second->allData();
-      RooArgSet const& o_pdf = it.second->allPdfs();
-      RooArgSet const& o_var = it.second->allVars();
-      RooArgSet const& o_real = it.second->allFunctions();
+  // for (auto const& it : other.wspaces_) {
+  //   if (it.second) {
+  //     wspaces_.insert({it.first, std::make_shared<RooWorkspace>(*(it.second))});
+  //     std::list<RooAbsData *> o_data = it.second->allData();
+  //     RooArgSet const& o_pdf = it.second->allPdfs();
+  //     RooArgSet const& o_var = it.second->allVars();
+  //     RooArgSet const& o_real = it.second->allFunctions();
 
-      std::list<RooAbsData *> n_data = wspaces_.at(it.first)->allData();
-      RooArgSet const& n_pdf = wspaces_.at(it.first)->allPdfs();
-      RooArgSet const& n_var = wspaces_.at(it.first)->allVars();
-      RooArgSet const& n_real = wspaces_.at(it.first)->allFunctions();
-      auto o_iter = o_data.begin();
-      auto n_iter = n_data.begin();
-      for (; o_iter != o_data.end(); ++o_iter, ++n_iter) {
-        data_map[*o_iter] = *n_iter;
-      }
-      auto o_pdf_it = o_pdf.createIterator();
-      auto n_pdf_it = n_pdf.createIterator();
-      do {
-        RooAbsPdf *o_pdf_ptr = dynamic_cast<RooAbsPdf*>(**o_pdf_it);
-        RooAbsPdf *n_pdf_ptr = dynamic_cast<RooAbsPdf*>(**n_pdf_it);
-        if (o_pdf_ptr && n_pdf_ptr) pdf_map[o_pdf_ptr] = n_pdf_ptr;
-        n_pdf_it->Next();
-      } while (o_pdf_it->Next());
+  //     std::list<RooAbsData *> n_data = wspaces_.at(it.first)->allData();
+  //     RooArgSet const& n_pdf = wspaces_.at(it.first)->allPdfs();
+  //     RooArgSet const& n_var = wspaces_.at(it.first)->allVars();
+  //     RooArgSet const& n_real = wspaces_.at(it.first)->allFunctions();
+  //     auto o_iter = o_data.begin();
+  //     auto n_iter = n_data.begin();
+  //     for (; o_iter != o_data.end(); ++o_iter, ++n_iter) {
+  //       data_map[*o_iter] = *n_iter;
+  //     }
+  //     auto o_pdf_it = o_pdf.createIterator();
+  //     auto n_pdf_it = n_pdf.createIterator();
+  //     do {
+  //       RooAbsPdf *o_pdf_ptr = dynamic_cast<RooAbsPdf*>(**o_pdf_it);
+  //       RooAbsPdf *n_pdf_ptr = dynamic_cast<RooAbsPdf*>(**n_pdf_it);
+  //       if (o_pdf_ptr && n_pdf_ptr) pdf_map[o_pdf_ptr] = n_pdf_ptr;
+  //       n_pdf_it->Next();
+  //     } while (o_pdf_it->Next());
 
-      auto o_var_it = o_var.createIterator();
-      auto n_var_it = n_var.createIterator();
-      do {
-        RooRealVar *o_var_ptr = dynamic_cast<RooRealVar*>(**o_var_it);
-        RooRealVar *n_var_ptr = dynamic_cast<RooRealVar*>(**n_var_it);
-        if (o_var_ptr && n_var_ptr) var_map[o_var_ptr] = n_var_ptr;
-        n_var_it->Next();
-      } while (o_var_it->Next());
+  //     auto o_var_it = o_var.createIterator();
+  //     auto n_var_it = n_var.createIterator();
+  //     do {
+  //       RooRealVar *o_var_ptr = dynamic_cast<RooRealVar*>(**o_var_it);
+  //       RooRealVar *n_var_ptr = dynamic_cast<RooRealVar*>(**n_var_it);
+  //       if (o_var_ptr && n_var_ptr) var_map[o_var_ptr] = n_var_ptr;
+  //       n_var_it->Next();
+  //     } while (o_var_it->Next());
 
-      auto o_real_it = o_real.createIterator();
-      auto n_real_it = n_real.createIterator();
-      do {
-        RooAbsReal *o_real_ptr = dynamic_cast<RooAbsReal*>(**o_real_it);
-        RooAbsReal *n_real_ptr = dynamic_cast<RooAbsReal*>(**n_real_it);
-        if (o_real_ptr && n_real_ptr) real_map[o_real_ptr] = n_real_ptr;
-        n_real_it->Next();
-      } while (o_real_it->Next());
-    } else {
-      wspaces_.insert({it.first, nullptr});
-    }
-  }
+  //     auto o_real_it = o_real.createIterator();
+  //     auto n_real_it = n_real.createIterator();
+  //     do {
+  //       RooAbsReal *o_real_ptr = dynamic_cast<RooAbsReal*>(**o_real_it);
+  //       RooAbsReal *n_real_ptr = dynamic_cast<RooAbsReal*>(**n_real_it);
+  //       if (o_real_ptr && n_real_ptr) real_map[o_real_ptr] = n_real_ptr;
+  //       n_real_it->Next();
+  //     } while (o_real_it->Next());
+  //   } else {
+  //     wspaces_.insert({it.first, nullptr});
+  //   }
+  // }
 
 
-  for (std::size_t i = 0; i < obs_.size(); ++i) {
-    if (other.obs_[i]) {
-      obs_[i] = std::make_shared<Observation>(*(other.obs_[i]));
-      if (obs_[i]->data()) obs_[i]->set_data(data_map.at(obs_[i]->data()));
-    }
-  }
+  // for (std::size_t i = 0; i < obs_.size(); ++i) {
+  //   if (other.obs_[i]) {
+  //     obs_[i] = std::make_shared<Observation>(*(other.obs_[i]));
+  //     if (obs_[i]->data()) obs_[i]->set_data(data_map.at(obs_[i]->data()));
+  //   }
+  // }
 
-  for (std::size_t i = 0; i < procs_.size(); ++i) {
-    if (other.procs_[i]) {
-      procs_[i] = std::make_shared<Process>(*(other.procs_[i]));
-      if (procs_[i]->pdf()) procs_[i]->set_pdf(pdf_map.at(procs_[i]->pdf()));
-    }
-  }
+  // for (std::size_t i = 0; i < procs_.size(); ++i) {
+  //   if (other.procs_[i]) {
+  //     procs_[i] = std::make_shared<Process>(*(other.procs_[i]));
+  //     if (procs_[i]->pdf()) procs_[i]->set_pdf(pdf_map.at(procs_[i]->pdf()));
+  //   }
+  // }
 
-  // Need to update RooAbsPdf pointers here
+  // // Need to update RooAbsPdf pointers here
 
-  for (std::size_t i = 0; i < systs_.size(); ++i) {
-    if (other.systs_[i]) {
-      systs_[i] = std::make_shared<Systematic>(*(other.systs_[i]));
-    }
-  }
-  for (auto const& it : other.params_) {
-    if (it.second) {
-      params_.insert({it.first, std::make_shared<Parameter>(*(it.second))});
-    } else {
-      params_.insert({it.first, nullptr});
-    }
-  }
+  // for (std::size_t i = 0; i < systs_.size(); ++i) {
+  //   if (other.systs_[i]) {
+  //     systs_[i] = std::make_shared<Systematic>(*(other.systs_[i]));
+  //   }
+  // }
+  // for (auto const& it : other.params_) {
+  //   if (it.second) {
+  //     params_.insert({it.first, std::make_shared<Parameter>(*(it.second))});
+  //   } else {
+  //     params_.insert({it.first, nullptr});
+  //   }
+  // }
 
-  // Need to update RooRealVar pointers here
+  // // Need to update RooRealVar pointers here
 
 }
 

@@ -179,6 +179,7 @@ class CombineHarvester {
 
   void UpdateParameters(std::vector<ch::Parameter> const& params);
   void UpdateParameters(RooFitResult const* fit);
+  void UpdateParameters(RooFitResult const& fit) { UpdateParameters(&fit); }
   std::vector<ch::Parameter> GetParameters() const;
   void RenameParameter(std::string const& oldname, std::string const& newname);
 
@@ -213,6 +214,9 @@ class CombineHarvester {
   TH1F GetShape();
   TH1F GetShapeWithUncertainty();
   TH1F GetShapeWithUncertainty(RooFitResult const* fit, unsigned n_samples);
+  TH1F GetShapeWithUncertainty(RooFitResult const& fit, unsigned n_samples) {
+    return GetShapeWithUncertainty(&fit, n_samples);
+  }
   TH1F GetObservedShape();
   /**@}*/
 
