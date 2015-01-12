@@ -225,6 +225,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       char buff[99]; snprintf(buff, 98, "roostats-XXXXXX");
       int fd = mkstemp(buff); close(fd);
       tmpFile = buff;
+      unlink(tmpFile); // this is to be deleted, since we'll use tmpFile+".root"
   }
 
   bool isTextDatacard = false, isBinary = false;
