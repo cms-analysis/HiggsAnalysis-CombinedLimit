@@ -302,7 +302,8 @@ public:
   FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf2& other, const char* name=0) :
     FastVerticalInterpHistPdf2Base(other, name),
     _x("x",this,other._x),
-    _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
+    _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog),
+    _binScaleList("binList", this, other._binScaleList) {}
   explicit FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2(*this,newname) ; }
   virtual ~FastVerticalInterpHistPdf2() {}
@@ -320,6 +321,8 @@ protected:
   /// Cache of nominal pdf (additive morphing) and its bin-by-bin logarithm (multiplicative)
   FastHisto _cacheNominal; 
   FastHisto _cacheNominalLog; 
+
+  RooListProxy _binScaleList; // Bin scale factors for Barlow-Beeston
 
   void syncTotal() const ;
   void initNominal(TObject *nominal) ;

@@ -417,6 +417,7 @@ class ShapeBuilder(ModelBuilder):
                     rebins.Add(rebinned)
                     maxbins = max(maxbins, rebinned._original_bins)
                 rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins, coeffs, qrange, qalgo)
+                rhp.createBinParams()
                 if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
                     #print "Optimizing binning: %d -> %d for %s " % (self.out.maxbins, maxbins, rhp.GetName())
                     rhp.setActiveBins(maxbins) 

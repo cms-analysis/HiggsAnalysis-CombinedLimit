@@ -754,6 +754,19 @@ Bool_t FastVerticalInterpHistPdf2Base::importWorkspaceHook(RooWorkspace& ws) {
   return kFALSE;
 }
 
+void FastVerticalInterpHistPdf2::createBinParams() {
+  RooArgSet params;
+  for (unsigned i = 0; i < _cacheNominal.size(); ++i) {
+    const char *name = Form("%s_bin_%i", GetName(), i);
+    std::cout << "Creating param: " << name << "\n";
+    RooRealVar *var = new RooRealVar(name, name, 0, 1000);
+    var->setVal(1.);
+    var->setConstant(kTRUE);
+    params.add(*var);
+    _binScaleList.add(*var);
+  }
+  addOwnedComponents(params);
+}
 
 //_____________________________________________________________________________
 FastVerticalInterpHistPdf2Base::~FastVerticalInterpHistPdf2Base()
@@ -787,7 +800,8 @@ FastVerticalInterpHistPdf2Base::initBase() const
 FastVerticalInterpHistPdf2::FastVerticalInterpHistPdf2(const char *name, const char *title, const RooRealVar &x, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion, Int_t smoothAlgo) :
     FastVerticalInterpHistPdf2Base(name,title,RooArgSet(x),funcList,coefList,smoothRegion,smoothAlgo),
     _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
-    _cache(), _cacheNominal(), _cacheNominalLog()
+    _cache(), _cacheNominal(), _cacheNominalLog(),
+    _binScaleList("binList", "", this)
 {
     initBase();
     initNominal(funcList.At(0));
@@ -851,6 +865,13 @@ Double_t FastVerticalInterpHistPdf2::evaluate() const
   if (!_initBase) initBase();
   if (_cache.size() == 0) _cache = _cacheNominal; // _cache is not persisted
   if (!_sentry.good()) syncTotal();
+  if (_binScaleList.getSize() > 0) {
+    int bin = _cache.FindBin(_x);
+    RooRealVar *tmp = static_cast<RooRealVar*>(_binScaleList.at(bin));
+    std::cout << "[FastVerticalInterpHistPdf2::evaluate] " << _x << "\t"
+              << _cache.GetBinContent(bin) << "\t" << tmp->getVal() << "\n";
+    return _cache.GetBinContent(bin) * tmp->getVal();
+  }
   return _cache.GetAt(_x);
 }
 Double_t FastVerticalInterpHistPdf2D2::evaluate() const 
