@@ -229,7 +229,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         }
         sys->set_name(words[i][0]);
         std::string type = words[i][1];
-        if (!contains(std::vector<std::string>{"shape", "shape?", "lnN", "lnU"},
+        if (!contains(std::vector<std::string>{"shape", "shape?", "shapeN2", "lnN", "lnU"},
                       type)) {
           throw std::runtime_error(
               FNERROR("Systematic type " + type + " not supported"));
@@ -253,7 +253,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
           sys->set_value_u(boost::lexical_cast<double>(words[i][p]));
           sys->set_asymm(false);
         }
-        if (sys->type() == "shape") {
+        if (sys->type() == "shape" || sys->type() == "shapeN2") {
           sys->set_scale(boost::lexical_cast<double>(words[i][p]));
           LoadShapes(sys.get(), hist_mapping);
         } else if (sys->type() == "shape?") {
@@ -271,7 +271,8 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
             sys->set_scale(boost::lexical_cast<double>(words[i][p]));
           }
         }
-        if (sys->type() == "shape") sys->set_asymm(true);
+        if (sys->type() == "shape" || sys->type() == "shapeN2")
+          sys->set_asymm(true);
 
         CombineHarvester::CreateParameterIfEmpty(this, sys->name());
         if (sys->type() == "lnU") {
@@ -612,6 +613,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     bool seen_lnN = false;
     bool seen_lnU = false;
     bool seen_shape = false;
+    bool seen_shapeN2 = false;
     for (unsigned p = 0; p < procs_.size(); ++p) {
       line[p+2] = "-";
       for (unsigned n = 0; n < proc_sys_map[p].size(); ++n) {
@@ -627,8 +629,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
                     : (boost::format("%g") % sys_ptr->value_u()).str();
             break;
           }
-          if (sys_ptr->type() == "shape") {
-            seen_shape = true;
+          if (sys_ptr->type() == "shape" || sys_ptr->type() == "shapeN2") {
+            if (sys_ptr->type() == "shape") seen_shape = true;
+            if (sys_ptr->type() == "shapeN2") seen_shapeN2 = true;
             line[p+2] = (boost::format("%g") % sys_ptr->scale()).str();
             if (sys_ptr->shape_u() && sys_ptr->shape_d()) {
               bool add_dir = TH1::AddDirectoryStatus();
@@ -659,7 +662,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         }
       }
     }
-    if (seen_lnU) {
+    if (seen_shapeN2) {
+      line[1] = "shapeN2";
+    } else if (seen_lnU) {
       line[1] = "lnU";
     } else if (seen_lnN && !seen_shape) {
       line[1] = "lnN";

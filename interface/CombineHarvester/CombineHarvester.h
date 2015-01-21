@@ -358,7 +358,7 @@ void FillHistMappings(std::vector<HistMapping> & mappings);
   }
 
   void ShapeDiff(double x, TH1F* target, TH1 const* nom, TH1 const* low,
-                 TH1 const* high);
+                 TH1 const* high, bool linear);
   void ShapeDiff(double x, TH1F* target, RooDataHist const* nom,
                  RooDataHist const* low, RooDataHist const* high);
 
@@ -468,7 +468,7 @@ void CombineHarvester::AddSyst(CombineHarvester& target,
       sys->set_asymm(valmap.IsAsymm());
       sys->set_value_u(valmap.ValU(procs_[i].get()));
       sys->set_value_d(valmap.ValD(procs_[i].get()));
-    } else if (type == "shape") {
+    } else if (type == "shape" || type == "shapeN2") {
       sys->set_asymm(true);
       sys->set_value_u(1.0);
       sys->set_value_d(1.0);

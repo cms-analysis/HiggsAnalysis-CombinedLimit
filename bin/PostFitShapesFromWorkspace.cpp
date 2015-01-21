@@ -61,6 +61,17 @@ int main(int argc, char* argv[]){
   ch::CombineHarvester cmb;
   cmb.ParseDatacard(datacard, "", "", "", 0, mass);
 
+  // Drop any process that has no hist/data/pdf
+  cmb.FilterProcs([&](ch::Process * proc) {
+    bool no_shape = !proc->shape() && !proc->data() && !proc->pdf();
+    if (no_shape) {
+      std::cout << "Filtering process with no shape:\n";
+      std::cout << ch::Process::PrintHeader;
+      std::cout << *proc << "\n";
+    }
+    return no_shape;
+  });
+
   RooFitResult *res = nullptr;
   auto bins = cmb.bin_set();
 
