@@ -66,7 +66,7 @@ class SpinZeroHiggsCTau(PhysicsModel):
             else:
                 print "CTau variable is NOT present, rebuilding"
                 self.modelBuilder.doVar("CMS_zz4l_ctau[0,0,1000]")
-                self.modelBuilder.out.var("CMS_zz4l_ctau").setBins(40)
+                self.modelBuilder.out.var("CMS_zz4l_ctau").setBins(50)
             print "Floating CMS_zz4l_ctau"
             if self.ctauPOI:
                 poi = "CMS_zz4l_ctau"

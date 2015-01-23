@@ -29,6 +29,7 @@
 #include "../interface/HZZ4L_RooSpinZeroPdf_phase.h"
 #include "../interface/HZZ4L_RooSpinZeroPdf_2D.h"
 #include "../interface/HZZ4L_RooCTauPdf_1D.h"
+#include "../interface/HZZ4L_RooCTauPdf_1D_Expanded.h"
 #include "../interface/HZZ4L_RooCTauPdf_2D.h"
 
 #ifdef __CINT__
@@ -57,6 +58,7 @@
 #pragma link C++ class HZZ4L_RooSpinZeroPdf_phase+;
 #pragma link C++ class HZZ4L_RooSpinZeroPdf_2D+;
 #pragma link C++ class HZZ4L_RooCTauPdf_1D+;
+#pragma link C++ class HZZ4L_RooCTauPdf_1D_Expanded+;
 #pragma link C++ class HZZ4L_RooCTauPdf_2D+;
 #pragma link C++ class AsymPow+;
 #pragma link C++ class AsymQuad+;
