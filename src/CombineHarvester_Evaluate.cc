@@ -269,8 +269,10 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       std::string var_name = "CMS_th1x";
       if (data_obj) var_name = data_obj->get()->first()->GetName();
       TH1::AddDirectory(false);
-      TH1F proc_shape = *(dynamic_cast<TH1F*>(
-          procs_[i]->pdf()->createHistogram(var_name.c_str())));
+      TH1F *tmp = dynamic_cast<TH1F*>(
+          procs_[i]->pdf()->createHistogram(var_name.c_str()));
+      TH1F proc_shape = *tmp;
+      delete tmp;
       if (!procs_[i]->pdf()->selfNormalized()) {
         // LOGLINE(log(), "Have a pdf that is not selfNormalized");
         // std::cout << "Integral: " << proc_shape.Integral() << "\n";
@@ -321,8 +323,10 @@ TH1F CombineHarvester::GetObservedShape() {
       proc_shape = obs_[i]->ShapeAsTH1F();
     } else if (obs_[i]->data()) {
       std::string var_name = obs_[i]->data()->get()->first()->GetName();
-      proc_shape = *(dynamic_cast<TH1F*>(obs_[i]->data()->createHistogram(
-                             var_name.c_str())));
+      TH1F *tmp = dynamic_cast<TH1F*>(obs_[i]->data()->createHistogram(
+                             var_name.c_str()));
+      proc_shape = *tmp;
+      delete tmp;
       proc_shape.Scale(1. / proc_shape.Integral());
     }
     proc_shape.Scale(p_rate);

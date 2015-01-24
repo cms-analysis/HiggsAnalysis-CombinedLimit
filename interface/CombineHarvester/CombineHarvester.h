@@ -41,10 +41,37 @@ class CombineHarvester {
   /**@{*/
   CombineHarvester();
   ~CombineHarvester();
+
+  /**
+   * Copy constructor (makes a shallow copy)
+   *
+   * When copying a CombineHarvester instance it is important to remember that
+   * the stored Observation, Process, Systematic and Parameter objects
+   * themselves are not duplicated, rather their pointers are simply copied.
+   * This is called making a *shallow-copy*, and means modifying the contents
+   * of one of these objects in the copied CombineHarvester also modifies it
+   * for the original. However, filtering methods only affect the instance
+   * they are called from. For example, if all the signal Process entries are
+   * filtered from a copied CombineHarvester instance they will remain in the
+   * original instance.
+   */
   CombineHarvester(CombineHarvester const& other);
   CombineHarvester(CombineHarvester&& other);
   CombineHarvester& operator=(CombineHarvester other);
+
+  /**
+   * Creates and returns a shallow copy of the CombineHarvester instance
+   */
   CombineHarvester cp();
+
+  /**
+   * Creates and retunrs a deep copy of the CombineHarvester instance
+   *
+   * Unlike the shallow copy, a deep copy will duplicate every internal
+   * object, including any attached RooWorkspaces. This makes it completely
+   * independent of the original instance.
+   */
+  CombineHarvester deep();
   /**@}*/
 
   /**
