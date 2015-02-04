@@ -132,7 +132,7 @@ RooDataSet *
 toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double weightScale) 
 {
     if (mode_ == Counting) return generateCountingAsimov();
-    static int nPA = runtimedef::get("TMCSO_PseudoAsimov");
+    int nPA = runtimedef::get("TMCSO_PseudoAsimov");
     if (observables_.getSize() > 1 && runtimedef::get("TMCSO_AdaptivePseudoAsimov")) {
         int nbins = 1;
         RooLinkedListIter iter = observables_.iterator(); 
