@@ -326,6 +326,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
   // For writing TH1s we will hard code a set of patterns for each bin
   // This assumes that the backgrounds will not depend on "mass" but the
   // signal will. Will probably want to change this in the future
+  std::set<std::string> hist_bins;
   auto bins = this->bin_set();
   for (auto bin : bins) {
     unsigned shape_count = std::count_if(procs_.begin(), procs_.end(),
@@ -341,6 +342,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       mappings.push_back({
         "*", bin, nullptr, bin+"/$PROCESS", bin+"/$PROCESS_$SYSTEMATIC"
       });
+      hist_bins.insert(bin);
     }
 
     CombineHarvester ch_signals =
@@ -419,7 +421,11 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       full_list.push_back(
           {proc->process(), proc->bin(), nullptr, obj_name, obj_sys_name});
     }
-    if (!prototype_ok) {
+    // There are two reasons we won't want to write a generic mapping
+    // for the processes in this bin:
+    //    1) One or more processes is not described by the prototype mapping
+    //    2) We also have a generic histogram mapping for this bin
+    if (!prototype_ok || hist_bins.count(bin)) {
       for (auto m : full_list) {
         mappings.push_back(m);
       }
