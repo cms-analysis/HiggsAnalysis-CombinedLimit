@@ -9,6 +9,7 @@
 
 #include "TStyle.h"
 #include "TGraph.h"
+#include "TGraph2D.h"
 #include "TCanvas.h"
 #include "TPad.h"
 #include "TLatex.h"
@@ -170,6 +171,22 @@ TH1* MakeRatioHist(TH1* num, TH1* den, bool num_err, bool den_err);
  */
 TGraph TGraphFromTree(TTree* tree, TString const& xvar, TString const& yvar,
                       TString const& selection = "");
+
+/**
+ * Create a TGraph2D from entries in a TTree
+ *
+ * Note that the graph entries will be filled in whichever order they are
+ * found in the TTree. It may be desirable to call `TGraph::Sort` on the
+ * resulting object.
+ *
+ * @param tree Input TTree
+ * @param xvar Branch or expression for the x-values
+ * @param yvar Branch or expression for the y-values
+ * @param zvar Branch or expression for the y-values
+ * @param selection Optional cut string to apply to each entry
+ */
+TGraph2D TGraph2DFromTree(TTree* tree, TString const& xvar, TString const& yvar,
+                          TString const& zvar, TString const& selection = "");
 
 /**
  * Shift all the graph y-values upwards such that there are no negative values
@@ -565,6 +582,13 @@ TGraph TGraphFromTree(TTree * tree, TString const& xvar, TString const& yvar,
                      TString const& selection) {
   tree->Draw(xvar+":"+yvar, selection, "goff");
   TGraph gr(tree->GetSelectedRows(), tree->GetV1(), tree->GetV2());
+  return gr;
+}
+
+TGraph2D TGraph2DFromTree(TTree* tree, TString const& xvar, TString const& yvar,
+                          TString const& zvar, TString const& selection) {
+  tree->Draw(xvar+":"+yvar+":"+zvar, selection, "goff");
+  TGraph2D gr(tree->GetSelectedRows(), tree->GetV1(), tree->GetV2(), tree->GetV3());
   return gr;
 }
 

@@ -1,4 +1,5 @@
 #include <map>
+#include "TSystem.h"
 #include "boost/program_options.hpp"
 #include "boost/format.hpp"
 #include "CombineTools/interface/CombineHarvester.h"
@@ -14,6 +15,8 @@ int main(int argc, char* argv[]){
   string output     = "";
   string output_file = "";
   bool print        = false;
+
+  gSystem->Load("libHiggsAnalysisCombinedLimit.dylib");
 
   po::options_description help_config("Help");
   help_config.add_options()
