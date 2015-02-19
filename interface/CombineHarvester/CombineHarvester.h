@@ -321,7 +321,7 @@ class CombineHarvester {
   // ---------------------------------------------------------------
   unsigned verbosity_;
   std::ostream * log_;
-  std::ostream& log() { return *log_; }
+  std::ostream& log() const { return *log_; }
 
   // ---------------------------------------------------------------
   // Private methods for the shape extraction routines
@@ -383,6 +383,8 @@ void FillHistMappings(std::vector<HistMapping> & mappings);
     double xnorm2 = xnorm*xnorm;
     return 0.125 * xnorm * (xnorm2 * (3.*xnorm2 - 10.) + 15);
   }
+
+  double logKappaForX(double x, double k_low, double k_high) const;
 
   void ShapeDiff(double x, TH1F* target, TH1 const* nom, TH1 const* low,
                  TH1 const* high, bool linear);

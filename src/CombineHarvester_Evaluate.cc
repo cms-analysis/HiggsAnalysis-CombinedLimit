@@ -194,11 +194,8 @@ double CombineHarvester::GetRateInternal(ProcSystMap const& lookup,
     for (auto sys_it : lookup[i]) {
       double x = params_[sys_it->name()]->val();
       if (sys_it->asymm()) {
-        if (x >= 0) {
-          p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
-        } else {
-          p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
-        }
+        p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
+                               sys_it->value_u());
       } else {
         p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
       }
@@ -229,11 +226,8 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       for (auto sys_it : lookup[i]) {
         double x = params_[sys_it->name()]->val();
         if (sys_it->asymm()) {
-          if (x >= 0) {
-            p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
-          } else {
-            p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
-          }
+          p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
+                                 sys_it->value_u());
           if (sys_it->type() == "shape" || sys_it->type() == "shapeN2") {
             bool linear = true;
             if (sys_it->type() == "shapeN2") linear = false;
@@ -283,11 +277,8 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       for (auto sys_it : lookup[i]) {
         double x = params_[sys_it->name()]->val();
         if (sys_it->asymm()) {
-          if (x >= 0) {
-            p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
-          } else {
-            p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
-          }
+          p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
+                                 sys_it->value_u());
         } else {
           p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
         }
@@ -546,5 +537,34 @@ void CombineHarvester::SetPdfBins(unsigned nbins) {
       }
     }
   }
+}
+
+// This implementation "borowed" from
+// HiggsAnalysis/CombinedLimit/src/ProcessNormalization.cc
+double CombineHarvester::logKappaForX(double x, double k_low,
+                                      double k_high) const {
+  if (k_high == 0. || k_low == 0.) {
+    if (verbosity_ >= 1) {
+      LOGLINE(log(), "Have kappa=0.0 (scaling ill-defined), returning 1.0");
+    }
+    return 1.;
+  }
+  if (fabs(x) >= 0.5)
+    return (x >= 0 ? std::pow(k_high, x) : std::pow(k_low, -1.0 * x));
+  // interpolate between log(kappaHigh) and -log(kappaLow)
+  //    logKappa(x) = avg + halfdiff * h(2x)
+  // where h(x) is the 3th order polynomial
+  //    h(x) = (3 x^5 - 10 x^3 + 15 x)/8;
+  // chosen so that h(x) satisfies the following:
+  //      h (+/-1) = +/-1
+  //      h'(+/-1) = 0
+  //      h"(+/-1) = 0
+  double logKhi = std::log(k_high);
+  double logKlo = -std::log(k_low);
+  double avg = 0.5 * (logKhi + logKlo), halfdiff = 0.5 * (logKhi - logKlo);
+  double twox = x + x, twox2 = twox * twox;
+  double alpha = 0.125 * twox * (twox2 * (3 * twox2 - 10.) + 15.);
+  double ret = avg + alpha * halfdiff;
+  return std::exp(ret * x);
 }
 }
