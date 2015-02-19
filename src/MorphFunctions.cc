@@ -15,11 +15,11 @@
 
 namespace ch {
 
-
 void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
                       std::string const& bin, std::string const& process,
                       RooAbsReal& mass_var, std::string const& mass_min,
-                      std::string const& mass_max, bool allow_morph, bool verbose) {
+                      std::string const& mass_max, std::string norm_postfix,
+                      bool allow_morph, bool verbose, TFile * file) {
   using std::set;
   using std::vector;
   using std::string;
@@ -202,12 +202,21 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   for (unsigned mi = 0; mi < m; ++mi) {
     hist_arr[mi][0] =
         std::make_shared<TH1F>(RebinHist(AsTH1F(pr_arr[mi]->shape())));
+    if (file) {
+      file->WriteTObject(pr_arr[mi]->shape(), key + "_" + m_str_vec[mi]);
+    }
     rate_arr[mi] = pr_arr[mi]->rate();
     for (unsigned ssi = 0; ssi < ss; ++ssi) {
       hist_arr[mi][1 + 2 * ssi] =
           std::make_shared<TH1F>(RebinHist(AsTH1F(ss_arr[ssi][mi]->shape_u())));
       hist_arr[mi][2 + 2 * ssi] =
           std::make_shared<TH1F>(RebinHist(AsTH1F(ss_arr[ssi][mi]->shape_d())));
+      if (file) {
+        file->WriteTObject(ss_arr[ssi][mi]->shape_u(),
+                           key + "_" + m_str_vec[mi] + "_" + ss_vec[ssi] + "Up");
+        file->WriteTObject(ss_arr[ssi][mi]->shape_d(),
+                           key + "_" + m_str_vec[mi] + "_" + ss_vec[ssi] + "Down");
+      }
       ss_k_hi_arr[ssi][mi] = ss_arr[ssi][mi]->value_u();
       ss_k_lo_arr[ssi][mi] = ss_arr[ssi][mi]->value_d();
     }
@@ -252,6 +261,10 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   TString interp = "LINEAR";
   RooSpline1D rate_spline("interp_rate_"+key, "", mass_var, m, m_vec.data(),
                           rate_arr.data(), interp);
+  if (file) {
+    TGraph tmp(m, m_vec.data(), rate_arr.data());
+    gDirectory->WriteTObject(&tmp, "interp_rate_"+key);
+  }
   RooArgList rate_prod(rate_spline);
   for (unsigned ssi = 0; ssi < ss; ++ssi) {
     ss_spl_hi_arr[ssi] = std::make_shared<RooSpline1D>("spline_hi_" +
@@ -260,6 +273,12 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
     ss_spl_lo_arr[ssi] = std::make_shared<RooSpline1D>("spline_lo_" +
         key + "_" + ss_vec[ssi], "", mass_var, m, m_vec.data(),
         ss_k_lo_arr[ssi].origin(), interp);
+    if (file) {
+      TGraph tmp_hi(m, m_vec.data(), ss_k_hi_arr[ssi].origin());
+      gDirectory->WriteTObject(&tmp_hi, "spline_hi_" + key + "_" + ss_vec[ssi]);
+      TGraph tmp_lo(m, m_vec.data(), ss_k_lo_arr[ssi].origin());
+      gDirectory->WriteTObject(&tmp_lo, "spline_lo_" + key + "_" + ss_vec[ssi]);
+    }
     ss_asy_arr[ssi] = std::make_shared<AsymPow>("systeff_" +
         key + "_" + ss_vec[ssi], "",
         *(ss_spl_lo_arr[ssi]), *(ss_spl_hi_arr[ssi]),
@@ -309,7 +328,8 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   RooMorphingPdf morph_pdf(morph_name, "", xvar, mass_var, vpdf_list,
                            m_vec, allow_morph, *(data_hist.GetXaxis()),
                            *(proc_hist.GetXaxis()));
-  RooProduct morph_rate(morph_name + "_norm", "", rate_prod);
+  RooProduct morph_rate(morph_name + "_" + TString(norm_postfix), "",
+                        rate_prod);
 
   ws.import(morph_pdf, RooFit::RecycleConflictNodes());
   ws.import(morph_rate, RooFit::RecycleConflictNodes());

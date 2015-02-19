@@ -38,7 +38,9 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
 void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
                       std::string const& bin, std::string const& process,
                       RooAbsReal& mass_var, std::string const& mass_min,
-                      std::string const& mass_max,
-                      bool allow_morph, bool verbose);
+                      std::string const& mass_max, std::string norm_postfix,
+                      bool allow_morph, bool verbose, TFile * file = nullptr);
+
+TGraph GraphFromSpline(RooSpline1D const* spline);
 }
 #endif

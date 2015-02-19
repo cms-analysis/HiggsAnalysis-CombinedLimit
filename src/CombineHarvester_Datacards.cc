@@ -229,7 +229,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         }
         sys->set_name(words[i][0]);
         std::string type = words[i][1];
-        if (!contains(std::vector<std::string>{"shape", "shape?", "lnN", "lnU"},
+        if (!contains(std::vector<std::string>{"shape", "shape?", "shapeN2", "lnN", "lnU"},
                       type)) {
           throw std::runtime_error(
               FNERROR("Systematic type " + type + " not supported"));
@@ -253,7 +253,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
           sys->set_value_u(boost::lexical_cast<double>(words[i][p]));
           sys->set_asymm(false);
         }
-        if (sys->type() == "shape") {
+        if (sys->type() == "shape" || sys->type() == "shapeN2") {
           sys->set_scale(boost::lexical_cast<double>(words[i][p]));
           LoadShapes(sys.get(), hist_mapping);
         } else if (sys->type() == "shape?") {
@@ -271,7 +271,8 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
             sys->set_scale(boost::lexical_cast<double>(words[i][p]));
           }
         }
-        if (sys->type() == "shape") sys->set_asymm(true);
+        if (sys->type() == "shape" || sys->type() == "shapeN2")
+          sys->set_asymm(true);
 
         CombineHarvester::CreateParameterIfEmpty(this, sys->name());
         if (sys->type() == "lnU") {
@@ -325,6 +326,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
   // For writing TH1s we will hard code a set of patterns for each bin
   // This assumes that the backgrounds will not depend on "mass" but the
   // signal will. Will probably want to change this in the future
+  std::set<std::string> hist_bins;
   auto bins = this->bin_set();
   for (auto bin : bins) {
     unsigned shape_count = std::count_if(procs_.begin(), procs_.end(),
@@ -340,6 +342,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       mappings.push_back({
         "*", bin, nullptr, bin+"/$PROCESS", bin+"/$PROCESS_$SYSTEMATIC"
       });
+      hist_bins.insert(bin);
     }
 
     CombineHarvester ch_signals =
@@ -365,7 +368,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       });
     }
 
-    bool prototype_ok = true;
+    bool prototype_ok = false;
     HistMapping prototype;
     std::vector<HistMapping> full_list;
     auto pmap = ch_bin.GenerateProcSystMap();
@@ -406,6 +409,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       }
 
       if (!prototype.pattern.size()) {
+        prototype_ok = true;
         prototype.process = "*";
         prototype.category = bin;
         prototype.pattern = obj_name;
@@ -417,7 +421,11 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       full_list.push_back(
           {proc->process(), proc->bin(), nullptr, obj_name, obj_sys_name});
     }
-    if (!prototype_ok) {
+    // There are two reasons we won't want to write a generic mapping
+    // for the processes in this bin:
+    //    1) One or more processes is not described by the prototype mapping
+    //    2) We also have a generic histogram mapping for this bin
+    if (!prototype_ok || hist_bins.count(bin)) {
       for (auto m : full_list) {
         mappings.push_back(m);
       }
@@ -611,6 +619,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     bool seen_lnN = false;
     bool seen_lnU = false;
     bool seen_shape = false;
+    bool seen_shapeN2 = false;
     for (unsigned p = 0; p < procs_.size(); ++p) {
       line[p+2] = "-";
       for (unsigned n = 0; n < proc_sys_map[p].size(); ++n) {
@@ -626,8 +635,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
                     : (boost::format("%g") % sys_ptr->value_u()).str();
             break;
           }
-          if (sys_ptr->type() == "shape") {
-            seen_shape = true;
+          if (sys_ptr->type() == "shape" || sys_ptr->type() == "shapeN2") {
+            if (sys_ptr->type() == "shape") seen_shape = true;
+            if (sys_ptr->type() == "shapeN2") seen_shapeN2 = true;
             line[p+2] = (boost::format("%g") % sys_ptr->scale()).str();
             if (sys_ptr->shape_u() && sys_ptr->shape_d()) {
               bool add_dir = TH1::AddDirectoryStatus();
@@ -658,7 +668,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         }
       }
     }
-    if (seen_lnU) {
+    if (seen_shapeN2) {
+      line[1] = "shapeN2";
+    } else if (seen_lnU) {
       line[1] = "lnU";
     } else if (seen_lnN && !seen_shape) {
       line[1] = "lnN";

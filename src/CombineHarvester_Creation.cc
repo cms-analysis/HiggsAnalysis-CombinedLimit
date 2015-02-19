@@ -93,7 +93,8 @@ void CombineHarvester::ExtractShapes(std::string const& file,
   }
   if (syst_rule == "") return;
   for (unsigned  i = 0; i < systs_.size(); ++i) {
-    if (systs_[i]->type() != "shape") continue;
+    if (systs_[i]->type() != "shape" && systs_[i]->type() != "shapeN2")
+      continue;
     LoadShapes(systs_[i].get(), mapping);
   }
 }

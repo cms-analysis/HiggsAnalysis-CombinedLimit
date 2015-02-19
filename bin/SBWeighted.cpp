@@ -61,7 +61,7 @@ int main(int argc, char* argv[]){
   po::notify(vm);
 
   ch::CombineHarvester cmb;
-  cmb.SetVerbosity(2);
+  // cmb.SetVerbosity(2);
   for (auto const& d : datacards) {
     cmb.ParseDatacard(d, parse_rule);
   }
@@ -149,6 +149,34 @@ int main(int argc, char* argv[]){
     });
   }
 
+  std::vector<TH1F *> by_chn;
+
+  auto channels = cmb.channel_set();
+
+  THStack stack_bkg;
+
+  for (auto chn : channels) {
+    by_chn.push_back(
+        new TH1F(cmb.cp().channel({chn}).backgrounds().GetShape()));
+    if (chn == "et") by_chn.back()->SetFillColor(TColor::GetColor(84, 166, 226));
+    if (chn == "mt") by_chn.back()->SetFillColor(TColor::GetColor(212, 66,  88));
+    if (chn == "em") by_chn.back()->SetFillColor(TColor::GetColor(201, 198, 116));
+    if (chn == "tt") by_chn.back()->SetFillColor(TColor::GetColor(245, 197, 85));
+    if (chn == "ee") by_chn.back()->SetFillColor(TColor::GetColor(247, 186, 254));
+    if (chn == "mm") by_chn.back()->SetFillColor(TColor::GetColor(112, 142, 122));
+    if (chn == "vhtt") by_chn.back()->SetFillColor(TColor::GetColor(137, 132, 192));
+    if (chn == "et") by_chn.back()->SetTitle("e_{}#tau_{h}");
+    if (chn == "mt") by_chn.back()->SetTitle("#mu_{}#tau_{h}");
+    if (chn == "em") by_chn.back()->SetTitle("e#mu");
+    if (chn == "ee") by_chn.back()->SetTitle("ee");
+    if (chn == "mm") by_chn.back()->SetTitle("#mu#mu");
+    if (chn == "tt") by_chn.back()->SetTitle("#tau_{h}#tau_{h}");
+    if (chn == "vhtt") by_chn.back()->SetTitle("VH");
+    by_chn.back()->SetBinContent(17, 0.);
+    stack_bkg.Add(by_chn.back());
+
+  }
+
   TH1F sb_sig = cmb.cp().signals().GetShape();
   TH1F sb_bkg = cmb.cp().backgrounds().GetShapeWithUncertainty();
   TH1F sb_err = sb_bkg;
@@ -159,7 +187,9 @@ int main(int argc, char* argv[]){
   sb_obs.SetBinContent(17, 0.);
 
   sb_bkg.SetFillColor(18);
-  sb_sig.SetFillColor(46);
+  sb_sig.SetFillColor(kRed);
+  sb_sig.SetFillStyle(3004);
+  sb_sig.SetLineColor(kRed);
 
   int new_idx = CreateTransparentColor(12, 0.4);
   sb_err.SetFillColor(new_idx);
@@ -192,15 +222,19 @@ int main(int argc, char* argv[]){
   if (pads[0]->GetLogy()) h[0]->SetMinimum(0.1);
 
   stack->Draw("histsame");
+  stack_bkg.Draw("histsame");
   sb_err.Draw("e2same");
 
   sb_obs.Draw("esamex0");
 
   FixTopRange(pads[0], GetPadYMax(pads[0]), 0.15);
 
-  TLegend *legend = PositionedLegend(0.30, 0.15, 3, 0.03);
+  TLegend *legend = PositionedLegend(0.30, 0.30, 3, 0.03);
   legend->AddEntry(&sb_obs, "Observed", "pe");
-  legend->AddEntry(&sb_bkg, "Background", "f");
+  // legend->AddEntry(&sb_bkg, "Background", "f");
+  for (auto chn: by_chn) {
+    legend->AddEntry(chn, chn->GetTitle(), "f");
+  }
   legend->AddEntry(&sb_sig, "Signal", "f");
   // legend->AddEntry(&sb_err, "Bkg. Uncertainty", "f");
   legend->Draw();
@@ -209,6 +243,8 @@ int main(int argc, char* argv[]){
     pad->cd();
     FixOverlay();
   }
+
+  DrawTitle(pads[0], "CombineHarvester", 1);
 
 
 

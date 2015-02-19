@@ -142,8 +142,10 @@ TH1F Process::ShapeAsTH1F() const {
     }
   } else if (this->data()) {
     std::string var_name = this->data()->get()->first()->GetName();
-    res = *(dynamic_cast<TH1F*>(this->data()->createHistogram(
-                           var_name.c_str())));
+    TH1F *tmp = dynamic_cast<TH1F*>(this->data()->createHistogram(
+                           var_name.c_str()));
+    res = *tmp;
+    delete tmp;
     if (res.Integral() > 0.) res.Scale(1. / res.Integral());
   }
   return res;

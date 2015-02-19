@@ -194,11 +194,8 @@ double CombineHarvester::GetRateInternal(ProcSystMap const& lookup,
     for (auto sys_it : lookup[i]) {
       double x = params_[sys_it->name()]->val();
       if (sys_it->asymm()) {
-        if (x >= 0) {
-          p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
-        } else {
-          p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
-        }
+        p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
+                               sys_it->value_u());
       } else {
         p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
       }
@@ -229,15 +226,14 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       for (auto sys_it : lookup[i]) {
         double x = params_[sys_it->name()]->val();
         if (sys_it->asymm()) {
-          if (x >= 0) {
-            p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
-          } else {
-            p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
-          }
-          if (sys_it->type() == "shape") {
+          p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
+                                 sys_it->value_u());
+          if (sys_it->type() == "shape" || sys_it->type() == "shapeN2") {
+            bool linear = true;
+            if (sys_it->type() == "shapeN2") linear = false;
             if (sys_it->shape_u() && sys_it->shape_d()) {
               ShapeDiff(x * sys_it->scale(), &proc_shape, procs_[i]->shape(),
-                        sys_it->shape_d(), sys_it->shape_u());
+                        sys_it->shape_d(), sys_it->shape_u(), linear);
             }
             if (sys_it->data_u() && sys_it->data_d()) {
               RooDataHist const* nom =
@@ -267,8 +263,10 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       std::string var_name = "CMS_th1x";
       if (data_obj) var_name = data_obj->get()->first()->GetName();
       TH1::AddDirectory(false);
-      TH1F proc_shape = *(dynamic_cast<TH1F*>(
-          procs_[i]->pdf()->createHistogram(var_name.c_str())));
+      TH1F *tmp = dynamic_cast<TH1F*>(
+          procs_[i]->pdf()->createHistogram(var_name.c_str()));
+      TH1F proc_shape = *tmp;
+      delete tmp;
       if (!procs_[i]->pdf()->selfNormalized()) {
         // LOGLINE(log(), "Have a pdf that is not selfNormalized");
         // std::cout << "Integral: " << proc_shape.Integral() << "\n";
@@ -279,11 +277,8 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       for (auto sys_it : lookup[i]) {
         double x = params_[sys_it->name()]->val();
         if (sys_it->asymm()) {
-          if (x >= 0) {
-            p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
-          } else {
-            p_rate *= std::pow(sys_it->value_d(), -1.0 * x * sys_it->scale());
-          }
+          p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
+                                 sys_it->value_u());
         } else {
           p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
         }
@@ -319,8 +314,10 @@ TH1F CombineHarvester::GetObservedShape() {
       proc_shape = obs_[i]->ShapeAsTH1F();
     } else if (obs_[i]->data()) {
       std::string var_name = obs_[i]->data()->get()->first()->GetName();
-      proc_shape = *(dynamic_cast<TH1F*>(obs_[i]->data()->createHistogram(
-                             var_name.c_str())));
+      TH1F *tmp = dynamic_cast<TH1F*>(obs_[i]->data()->createHistogram(
+                             var_name.c_str()));
+      proc_shape = *tmp;
+      delete tmp;
       proc_shape.Scale(1. / proc_shape.Integral());
     }
     proc_shape.Scale(p_rate);
@@ -338,14 +335,25 @@ void CombineHarvester::ShapeDiff(double x,
     TH1F * target,
     TH1 const* nom,
     TH1 const* low,
-    TH1 const* high) {
+    TH1 const* high,
+    bool linear) {
   double fx = smoothStepFunc(x);
   for (int i = 1; i <= target->GetNbinsX(); ++i) {
     float h = high->GetBinContent(i);
     float l = low->GetBinContent(i);
     float n = nom->GetBinContent(i);
-    target->SetBinContent(i, target->GetBinContent(i) +
-                                 0.5 * x * ((h - l) + (h + l - 2. * n) * fx));
+    if (!linear) {
+      float t = target->GetBinContent(i);
+      target->SetBinContent(i, t > 0. ? std::log(t) : -999.);
+      h = (h > 0. && n > 0.) ? std::log(h/n) : 0.;
+      l = (l > 0. && n > 0.) ? std::log(l/n) : 0.;
+      target->SetBinContent(i, target->GetBinContent(i) +
+                                   0.5 * x * ((h - l) + (h + l) * fx));
+      target->SetBinContent(i, std::exp(target->GetBinContent(i)));
+    } else {
+      target->SetBinContent(i, target->GetBinContent(i) +
+                                   0.5 * x * ((h - l) + (h + l - 2. * n) * fx));
+    }
   }
 }
 
@@ -529,5 +537,34 @@ void CombineHarvester::SetPdfBins(unsigned nbins) {
       }
     }
   }
+}
+
+// This implementation "borowed" from
+// HiggsAnalysis/CombinedLimit/src/ProcessNormalization.cc
+double CombineHarvester::logKappaForX(double x, double k_low,
+                                      double k_high) const {
+  if (k_high == 0. || k_low == 0.) {
+    if (verbosity_ >= 1) {
+      LOGLINE(log(), "Have kappa=0.0 (scaling ill-defined), returning 1.0");
+    }
+    return 1.;
+  }
+  if (fabs(x) >= 0.5)
+    return (x >= 0 ? std::pow(k_high, x) : std::pow(k_low, -1.0 * x));
+  // interpolate between log(kappaHigh) and -log(kappaLow)
+  //    logKappa(x) = avg + halfdiff * h(2x)
+  // where h(x) is the 3th order polynomial
+  //    h(x) = (3 x^5 - 10 x^3 + 15 x)/8;
+  // chosen so that h(x) satisfies the following:
+  //      h (+/-1) = +/-1
+  //      h'(+/-1) = 0
+  //      h"(+/-1) = 0
+  double logKhi = std::log(k_high);
+  double logKlo = -std::log(k_low);
+  double avg = 0.5 * (logKhi + logKlo), halfdiff = 0.5 * (logKhi - logKlo);
+  double twox = x + x, twox2 = twox * twox;
+  double alpha = 0.125 * twox * (twox2 * (3 * twox2 - 10.) + 15.);
+  double ret = avg + alpha * halfdiff;
+  return std::exp(ret * x);
 }
 }

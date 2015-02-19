@@ -41,10 +41,37 @@ class CombineHarvester {
   /**@{*/
   CombineHarvester();
   ~CombineHarvester();
+
+  /**
+   * Copy constructor (makes a shallow copy)
+   *
+   * When copying a CombineHarvester instance it is important to remember that
+   * the stored Observation, Process, Systematic and Parameter objects
+   * themselves are not duplicated, rather their pointers are simply copied.
+   * This is called making a *shallow-copy*, and means modifying the contents
+   * of one of these objects in the copied CombineHarvester also modifies it
+   * for the original. However, filtering methods only affect the instance
+   * they are called from. For example, if all the signal Process entries are
+   * filtered from a copied CombineHarvester instance they will remain in the
+   * original instance.
+   */
   CombineHarvester(CombineHarvester const& other);
   CombineHarvester(CombineHarvester&& other);
   CombineHarvester& operator=(CombineHarvester other);
+
+  /**
+   * Creates and returns a shallow copy of the CombineHarvester instance
+   */
   CombineHarvester cp();
+
+  /**
+   * Creates and retunrs a deep copy of the CombineHarvester instance
+   *
+   * Unlike the shallow copy, a deep copy will duplicate every internal
+   * object, including any attached RooWorkspaces. This makes it completely
+   * independent of the original instance.
+   */
+  CombineHarvester deep();
   /**@}*/
 
   /**
@@ -298,7 +325,7 @@ class CombineHarvester {
   // ---------------------------------------------------------------
   unsigned verbosity_;
   std::ostream * log_;
-  std::ostream& log() { return *log_; }
+  std::ostream& log() const { return *log_; }
 
   // ---------------------------------------------------------------
   // Private methods for the shape extraction routines
@@ -361,8 +388,10 @@ void FillHistMappings(std::vector<HistMapping> & mappings);
     return 0.125 * xnorm * (xnorm2 * (3.*xnorm2 - 10.) + 15);
   }
 
+  double logKappaForX(double x, double k_low, double k_high) const;
+
   void ShapeDiff(double x, TH1F* target, TH1 const* nom, TH1 const* low,
-                 TH1 const* high);
+                 TH1 const* high, bool linear);
   void ShapeDiff(double x, TH1F* target, RooDataHist const* nom,
                  RooDataHist const* low, RooDataHist const* high);
 
@@ -472,7 +501,7 @@ void CombineHarvester::AddSyst(CombineHarvester& target,
       sys->set_asymm(valmap.IsAsymm());
       sys->set_value_u(valmap.ValU(procs_[i].get()));
       sys->set_value_d(valmap.ValD(procs_[i].get()));
-    } else if (type == "shape") {
+    } else if (type == "shape" || type == "shapeN2") {
       sys->set_asymm(true);
       sys->set_value_u(1.0);
       sys->set_value_d(1.0);

@@ -61,6 +61,17 @@ int main(int argc, char* argv[]){
   ch::CombineHarvester cmb;
   cmb.ParseDatacard(datacard, "", "", "", 0, mass);
 
+  // Drop any process that has no hist/data/pdf
+  cmb.FilterProcs([&](ch::Process * proc) {
+    bool no_shape = !proc->shape() && !proc->data() && !proc->pdf();
+    if (no_shape) {
+      std::cout << "Filtering process with no shape:\n";
+      std::cout << ch::Process::PrintHeader;
+      std::cout << *proc << "\n";
+    }
+    return no_shape;
+  });
+
   RooFitResult *res = nullptr;
   auto bins = cmb.bin_set();
 
@@ -98,7 +109,8 @@ int main(int argc, char* argv[]){
     double rate = cmb_bin.cp().backgrounds().GetRate();
     double err  = cmb_bin.cp().backgrounds().GetUncertainty();
     if (factors)
-      std::cout << boost::format("%-25s %-10.5f\n") % bin % (err / rate);
+      std::cout << boost::format("%-25s %-10.5f\n") % bin %
+                       (rate > 0. ? (err / rate) : 0.);
   }
 
   // Here we'll do some horrendous copy-n-paste coding to do the same again
@@ -106,7 +118,6 @@ int main(int argc, char* argv[]){
   if (postfit) {
     res = new RooFitResult(ch::OpenFromTFile<RooFitResult>(fitresult));
     cmb.UpdateParameters(res);
-    // cmb.PrintAll();
 
     if (factors) {
       std::cout << boost::format("\n%-25s %-32s\n") % "Bin" % "Total relative uncert. (postfit)";
@@ -118,7 +129,8 @@ int main(int argc, char* argv[]){
       double err  = sampling ? cmb_bin.cp().backgrounds().GetUncertainty(res, 500)
                              : cmb_bin.cp().backgrounds().GetUncertainty();
       if (factors)
-        std::cout << boost::format("%-25s %-10.5f\n") % bin % (err / rate);
+        std::cout << boost::format("%-25s %-10.5f\n") % bin %
+                         (rate > 0. ? (err / rate) : 0.);
     }
 
     map<string, map<string, TH1F>> post_shapes;
@@ -138,9 +150,12 @@ int main(int argc, char* argv[]){
             sampling
                 ? cmb_bin.cp().process({proc}).GetShapeWithUncertainty(res, 500)
                 : cmb_bin.cp().process({proc}).GetShapeWithUncertainty();
-        if (factors) std::cout << boost::format("%-25s %-20s %-10.5f\n") % bin % proc %
-                         (post_shapes[bin][proc].Integral() /
-                          pre_shapes[bin][proc].Integral());
+        if (factors)
+          std::cout << boost::format("%-25s %-20s %-10.5f\n") % bin % proc %
+                           (pre_shapes[bin][proc].Integral() > 0.
+                                ? (post_shapes[bin][proc].Integral() /
+                                   pre_shapes[bin][proc].Integral())
+                                : 1.0);
       }
       post_shapes[bin]["TotalBkg"] =
           sampling ? cmb_bin.cp().backgrounds().GetShapeWithUncertainty(res, 500)
