@@ -99,7 +99,11 @@ class SpinZeroHiggsCTau(PhysicsModel):
                 self.modelBuilder.out.var("r").setConstant()
             else:
                 self.modelBuilder.doVar("r[1]")
-            
+
+        if self.modelBuilder.out.var("CMS_zz4l_prod"):
+            print "Found production systematic"
+            self.modelBuilder.out.var("CMS_zz4l_prod").setAttribute("flatParam")
+
         self.modelBuilder.doSet("POI",poi)
         
 spinZeroHiggsCTau = SpinZeroHiggsCTau()

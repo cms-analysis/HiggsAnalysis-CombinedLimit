@@ -3,6 +3,7 @@
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h>
+#include <vector>
 #include "TMath.h"
 #include "TH3F.h"
 #include "TAxis.h"
@@ -23,7 +24,7 @@ HZZ4L_RooCTauPdf_1D_Expanded::HZZ4L_RooCTauPdf_1D_Expanded(
 	  double _ctau_min,
 	  double _ctau_max,
 
-    Double_t smoothRegion_ , Int_t smoothAlgo_
+    Double_t smoothRegion_, Int_t smoothAlgo_, Int_t nLinearVariations_
 	  ):
 RooAbsPdf(name, title),
 kd("kd", "kd", this, _kd),
@@ -33,9 +34,11 @@ _coefList("coefList", "List of coefficients", this),
 ctau_min(_ctau_min),
 ctau_max(_ctau_max),
 smoothRegion(smoothRegion_),
-smoothAlgo(smoothAlgo_)
+smoothAlgo(smoothAlgo_),
+nLinearVariations(nLinearVariations_)
 {
   nCoef=0;
+  nFuncs=0;
 
   TIterator* coefIter = inCoefList.createIterator();
   RooAbsArg* coef;
@@ -59,21 +62,29 @@ smoothAlgo(smoothAlgo_)
 	RooAbsArg* func;
 	while ((func = (RooAbsArg*)funcIter->Next())) {
 		if (!dynamic_cast<RooAbsReal*>(func)) {
-			coutE(InputArguments) << "ERROR::HZZ4L_RooCTauPdf_1D_Expanded(" << GetName() << ") funcfions " << func->GetName() << " is not of type RooAbsReal" << endl;
+			coutE(InputArguments) << "ERROR::HZZ4L_RooCTauPdf_1D_Expanded(" << GetName() << ") function " << func->GetName() << " is not of type RooAbsReal" << endl;
 			assert(0);
 		}
 		_funcList.add(*func);
-	}
+    nFuncs++;
+  }
 	delete funcIter;
 
-  int integralArraySize = TMath::Min(_funcList.getSize(), 5*101);
-	nbins_ctau = _funcList.getSize()/(2*nCoef+1);
+  if (nLinearVariations>nCoef){
+    coutE(InputArguments) << "ERROR::HZZ4L_RooCTauPdf_1D_Expanded(" << GetName() << ") number of linear variations (" << nLinearVariations << ") is more than the number of coefficients (" << nCoef << ")!!!" << endl;
+    assert(0);
+  }
+
+  int nTrueSyst = nCoef - nLinearVariations;
+  int integralArraySize = TMath::Min(nFuncs, 9*101);
+  nbins_ctau = nFuncs/((2*nTrueSyst+1)*(2*nLinearVariations+1));
+
 //  cout << "Number of ctau bins: " << nbins_ctau << endl;
   for (int mp=0; mp<integralArraySize; mp++) Integral_T[mp] = dynamic_cast<const RooHistFunc*>(_funcList.at(mp))->analyticalIntegral(1000);
-	for(int mp=nbins_ctau;mp<(5*101);mp++) Integral_T[mp] = Integral_T[nbins_ctau-1];
+	for(int mp=nbins_ctau;mp<(9*101);mp++) Integral_T[mp] = Integral_T[nbins_ctau-1];
 
 //	cout << "Finishing constructor, obtained the following integrals:" << endl;
-//	for(int mp=0;mp<5*101;mp++) cout << "Integral[" << mp << "]: " << Integral_T[mp] << endl;
+//	for(int mp=0;mp<9*101;mp++) cout << "Integral[" << mp << "]: " << Integral_T[mp] << endl;
 }
 
 HZZ4L_RooCTauPdf_1D_Expanded::HZZ4L_RooCTauPdf_1D_Expanded(
@@ -88,11 +99,14 @@ _coefList("coefList", this, other._coefList),
 ctau_min(other.ctau_min),
 ctau_max(other.ctau_max),
 smoothRegion(other.smoothRegion),
-smoothAlgo(other.smoothAlgo)
+smoothAlgo(other.smoothAlgo),
+nLinearVariations(other.nLinearVariations)
 {
   nCoef = _coefList.getSize();
-  nbins_ctau = _funcList.getSize()/(2*nCoef+1);
-  for (int mp=0; mp<(5*101); mp++) Integral_T[mp] = (other.Integral_T)[mp];
+  nFuncs = _funcList.getSize();
+  int nTrueSyst = nCoef - nLinearVariations;
+  nbins_ctau = nFuncs/((2*nTrueSyst+1)*(2*nLinearVariations+1));
+  for (int mp=0; mp<(9*101); mp++) Integral_T[mp] = (other.Integral_T)[mp];
 }
 
 int HZZ4L_RooCTauPdf_1D_Expanded::findNeighborBins() const{
@@ -116,27 +130,59 @@ Double_t HZZ4L_RooCTauPdf_1D_Expanded::interpolateBin() const{
 		lowbin = bincode; highbin = lowbin + 1;
 	}
 
-	Double_t v1_nominal = dynamic_cast<const RooHistFunc*>(_funcList.at(lowbin))->getVal();
-	Double_t v2_nominal = dynamic_cast<const RooHistFunc*>(_funcList.at(highbin))->getVal();
-  Double_t v1 = v1_nominal;
-  Double_t v2 = v2_nominal;
+  int nTrueSyst = nCoef - nLinearVariations;
+  std::vector<Double_t> v1_array;
+  std::vector<Double_t> v2_array;
+  for (int ss=0; ss<(2*nLinearVariations+1); ss++){
+    int iArray[2] ={ lowbin, highbin };
+    int addIndex = (2*nTrueSyst+1)*nbins_ctau*ss;
+    for (int iarr=0; iarr<2; iarr++) iArray[iarr] = iArray[iarr]+addIndex;
 
-  TIterator* coefIter = _coefList.createIterator();
-  RooAbsReal* coef;
-  int numCoef=0;
-  while ((coef=(RooAbsReal*) coefIter->Next())) {
-    Double_t coefVal = coef->getVal();
-    numCoef++;
-    Double_t varUp = dynamic_cast<const RooHistFunc*>(_funcList.at(lowbin + ((2*numCoef-1)*nbins_ctau)))->getVal();
-    Double_t varDn = dynamic_cast<const RooHistFunc*>(_funcList.at(lowbin + (2*numCoef*nbins_ctau)))->getVal();
-    v1 += interpolateVariation(coefVal, v1_nominal, varUp, varDn);
-//    cout << "v1 up: " << varUp << ", down: " << varDn << ". theta: " << coefVal << " so " << v1_nominal << "->" << v1 << endl;
-    varUp = dynamic_cast<const RooHistFunc*>(_funcList.at(highbin + ((2*numCoef-1)*nbins_ctau)))->getVal();
-    varDn = dynamic_cast<const RooHistFunc*>(_funcList.at(highbin + (2*numCoef*nbins_ctau)))->getVal();
-    v2 += interpolateVariation(coefVal, v2_nominal, varUp, varDn);
-//    cout << "v2 up: " << varUp << ", down: " << varDn << ". theta: " << coefVal << " so " << v2_nominal << "->" << v2 << endl;
+    Double_t v1Nom = dynamic_cast<const RooHistFunc*>(_funcList.at(iArray[0]))->getVal();
+    Double_t v2Nom = dynamic_cast<const RooHistFunc*>(_funcList.at(iArray[1]))->getVal();
+    Double_t v1Inst = v1Nom;
+    Double_t v2Inst = v2Nom;
+
+    for (int iSyst=1; iSyst<=nTrueSyst; iSyst++){
+      RooAbsReal* coef = dynamic_cast<RooAbsReal*>(_coefList.at(iSyst-1));
+      Double_t coefVal = coef->getVal();
+
+      int iSystUp = (2*iSyst-1)*nbins_ctau;
+      int iSystDn = 2*iSyst*nbins_ctau;
+
+      Double_t v1_Up = dynamic_cast<const RooHistFunc*>(_funcList.at(iArray[0] + iSystUp))->getVal();
+      Double_t v1_Dn = dynamic_cast<const RooHistFunc*>(_funcList.at(iArray[0] + iSystDn))->getVal();
+      Double_t v2_Up = dynamic_cast<const RooHistFunc*>(_funcList.at(iArray[1] + iSystUp))->getVal();
+      Double_t v2_Dn = dynamic_cast<const RooHistFunc*>(_funcList.at(iArray[1] + iSystDn))->getVal();
+
+      v1Inst += interpolateVariation(coefVal, v1Nom, v1_Up, v1_Dn);
+      v2Inst += interpolateVariation(coefVal, v2Nom, v2_Up, v2_Dn);
+    }
+    v1_array.push_back(v1Inst);
+    v2_array.push_back(v2Inst);
   }
-  delete coefIter;
+
+  Double_t v1_nominal=v1_array[0];
+  Double_t v2_nominal=v2_array[0];
+  Double_t v1=v1_nominal;
+  Double_t v2=v2_nominal;
+  for (int ss=0; ss<nLinearVariations; ss++){
+    RooAbsReal* coef = dynamic_cast<RooAbsReal*>( _coefList.at( nTrueSyst + ss ) );
+    Double_t coefVal = coef->getVal();
+
+    int iLinear_Up = 2*ss+1;
+    int iLinear_Dn = 2*ss+2;
+
+    Double_t v1_variation_up = v1_array[iLinear_Up];
+    Double_t v2_variation_up = v2_array[iLinear_Up];
+    Double_t v1_variation_dn = v1_array[iLinear_Dn];
+    Double_t v2_variation_dn = v2_array[iLinear_Dn];
+
+    v1 += interpolateVariation(coefVal, v1_nominal, v1_variation_up, v1_variation_dn);
+    v2 += interpolateVariation(coefVal, v2_nominal, v2_variation_up, v2_variation_dn);
+  }
+  v1_array.clear();
+  v2_array.clear();
 
 	Double_t fdistance = ( ( (ctau-ctau_min)/gridsize ) - ((double) lowbin) ) / (highbin-lowbin);
 //  cout << "ctau=" << ctau << " => fraction=" << fdistance << endl;
@@ -159,30 +205,65 @@ Double_t HZZ4L_RooCTauPdf_1D_Expanded::interpolateIntegral() const{
 		lowbin = bincode; highbin = lowbin + 1;
 	}
 
-	Double_t v1_nominal = Integral_T[lowbin];
-	Double_t v2_nominal = Integral_T[highbin];
+  int nTrueSyst = nCoef - nLinearVariations;
+  std::vector<Double_t> v1_array;
+  std::vector<Double_t> v2_array;
+  for (int ss=0; ss<(2*nLinearVariations+1); ss++){
+    int iArray[2] ={ lowbin, highbin };
+    int addIndex = (2*nTrueSyst+1)*nbins_ctau*ss;
+    for (int iarr=0; iarr<2; iarr++) iArray[iarr] = iArray[iarr]+addIndex;
 
-  Double_t v1 = v1_nominal;
-  Double_t v2 = v2_nominal;
+    Double_t v1Nom = Integral_T[ iArray[0] ];
+    Double_t v2Nom = Integral_T[ iArray[1] ];
+    Double_t v1Inst = v1Nom;
+    Double_t v2Inst = v2Nom;
 
-  TIterator* coefIter = _coefList.createIterator();
-  RooAbsReal* coef;
-  int numCoef=0;
-  while ((coef=(RooAbsReal*)coefIter->Next())) {
-    Double_t coefVal = coef->getVal();
-    numCoef++;
-    Double_t varUp = Integral_T[lowbin + ((2*numCoef-1)*nbins_ctau)];
-    Double_t varDn = Integral_T[lowbin + (2*numCoef*nbins_ctau)];
-    v1 += interpolateVariation(coefVal, v1_nominal, varUp, varDn);
-    varUp = Integral_T[highbin + ((2*numCoef-1)*nbins_ctau)];
-    varDn = Integral_T[highbin + (2*numCoef*nbins_ctau)];
-    v2 += interpolateVariation(coefVal, v2_nominal, varUp, varDn);
+    for (int iSyst=1; iSyst<=nTrueSyst; iSyst++){
+      RooAbsReal* coef = dynamic_cast<RooAbsReal*>(_coefList.at(iSyst-1));
+      Double_t coefVal = coef->getVal();
+
+      int iSystUp = (2*iSyst-1)*nbins_ctau;
+      int iSystDn = 2*iSyst*nbins_ctau;
+
+//      cout << "Production array: " << ss << "\tSystematic: " << coef->GetName() << " (" << iSyst << ", " << coefVal << ")" << endl;
+
+      Double_t v1_Up = Integral_T[ iArray[0] + iSystUp ];
+      Double_t v1_Dn = Integral_T[ iArray[0] + iSystDn ];
+      Double_t v2_Up = Integral_T[ iArray[1] + iSystUp ];
+      Double_t v2_Dn = Integral_T[ iArray[1] + iSystDn ];
+
+      v1Inst += interpolateVariation(coefVal, v1Nom, v1_Up, v1_Dn);
+      v2Inst += interpolateVariation(coefVal, v2Nom, v2_Up, v2_Dn);
+    }
+    v1_array.push_back(v1Inst);
+    v2_array.push_back(v2Inst);
   }
-  delete coefIter;
 
+  Double_t v1_nominal=v1_array[0];
+  Double_t v2_nominal=v2_array[0];
+  Double_t v1=v1_nominal;
+  Double_t v2=v2_nominal;
+  for (int ss=0; ss<nLinearVariations; ss++){
+    RooAbsReal* coef = dynamic_cast<RooAbsReal*>(_coefList.at(nTrueSyst + ss));
+    Double_t coefVal = coef->getVal();
+
+    int iLinear_Up = 2*ss+1;
+    int iLinear_Dn = 2*ss+2;
+
+//    cout << "Production: " << ss << " -> " << coef->GetName() << " (" << iLinear_Up << ", " << iLinear_Dn << ", " << coefVal << ")" << endl;
+
+    Double_t v1_variation_up = v1_array[iLinear_Up];
+    Double_t v2_variation_up = v2_array[iLinear_Up];
+    Double_t v1_variation_dn = v1_array[iLinear_Dn];
+    Double_t v2_variation_dn = v2_array[iLinear_Dn];
+
+    v1 += interpolateVariation(coefVal, v1_nominal, v1_variation_up, v1_variation_dn);
+    v2 += interpolateVariation(coefVal, v2_nominal, v2_variation_up, v2_variation_dn);
+  }
+  v1_array.clear();
+  v2_array.clear();
 
 	Double_t fdistance = ( ( (ctau-ctau_min)/gridsize ) - ((double) lowbin) ) / (highbin-lowbin);
-
 	result = (1.-fdistance)*v1 + fdistance*v2;
 	return result;
 }

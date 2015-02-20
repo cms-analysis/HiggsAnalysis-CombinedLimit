@@ -43,7 +43,8 @@ public:
 		double _ctau_max,
 
     Double_t smoothRegion_=1.,
-    Int_t smoothAlgo_=0
+    Int_t smoothAlgo_=0,
+    Int_t nLinearVariations_=0
     );
 
 	HZZ4L_RooCTauPdf_1D_Expanded(const HZZ4L_RooCTauPdf_1D_Expanded& other, const char* name = 0);
@@ -56,13 +57,15 @@ public:
   const RooArgList& coefList() const { return _coefList; }
 
   int nCoef;
-	int nbins_ctau;
-	double Integral_T[101*5]; // Only up to 2 coefficients are allowed
+  int nFuncs;
+  int nbins_ctau;
+	double Integral_T[101*9]; // Only up to 2 coefficients are allowed
 	double ctau_min;
 	double ctau_max;
 
   Double_t smoothRegion;
   Int_t smoothAlgo;
+  Int_t nLinearVariations;
 
 private:
 	int findNeighborBins() const; // Returns index_low for ctau pdfs
