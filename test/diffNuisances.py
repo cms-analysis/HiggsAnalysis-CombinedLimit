@@ -65,7 +65,8 @@ for i in range(fpf_s.getSize()):
         row += [ "[%.2f, %.2f]" % (nuis_s.getMin(), nuis_s.getMax()) ]
     else:
         mean_p, sigma_p = (nuis_p.getVal(), nuis_p.getError())
-        if options.abs: row += [ "%.2f +/- %.2f" % (nuis_p.getVal(), nuis_p.getError()) ]
+	if not sigma_p > 0: sigma_p = (nuis_p.getMax()-nuis_p.getMin())/2
+        if options.abs: row += [ "%.6f +/- %.6f" % (nuis_p.getVal(), nuis_p.getError()) ]
     for fit_name, nuis_x in [('b', nuis_b), ('s',nuis_s)]:
         if nuis_x == None:
             row += [ " n/a " ]
@@ -87,10 +88,15 @@ for i in range(fpf_s.getSize()):
 		  hist_prefit.SetBinError(nuis_p_i,sigma_p)
 	      	  hist_prefit.GetXaxis().SetBinLabel(nuis_p_i,name)
 
-                valShift = (nuis_x.getVal() - mean_p)/sigma_p
+                if sigma_p>0: 
+			valShift = (nuis_x.getVal() - mean_p)/sigma_p
+                	sigShift = nuis_x.getError()/sigma_p
+		else :
+			print "No definition for prefit uncertainty %s. Printing absolute shifts"%(nuis_p.GetName())
+			valShift = (nuis_x.getVal() - mean_p)
+                	sigShift = nuis_x.getError()
                 if fit_name == 'b':
                     pulls.append(valShift)
-                sigShift = nuis_x.getError()/sigma_p
                 if options.abs:
                     row[-1] += " (%+4.2fsig, %4.2f)" % (valShift, sigShift)
                 else:
@@ -217,20 +223,20 @@ if options.plotfile:
     fout.WriteTObject(canvas)
 
     canvas_nuis = ROOT.TCanvas("nuisancs", "nuisances", 900, 600)
-    hist_fit_e_s = hist_fit_s.Clone()
-    hist_fit_e_b = hist_fit_b.Clone()
-    hist_fit_s = getGraph(hist_fit_s,-0.1)
-    hist_fit_b = getGraph(hist_fit_b, 0.1)
-    hist_fit_s.SetLineColor(ROOT.kRed)
-    hist_fit_s.SetMarkerColor(ROOT.kRed)
-    hist_fit_b.SetLineColor(ROOT.kBlue)
-    hist_fit_b.SetMarkerColor(ROOT.kBlue)
-    hist_fit_b.SetMarkerStyle(20)
-    hist_fit_s.SetMarkerStyle(20)
-    hist_fit_b.SetMarkerSize(1.0)
-    hist_fit_s.SetMarkerSize(1.0)
-    hist_fit_b.SetLineWidth(2)
-    hist_fit_s.SetLineWidth(2)
+    hist_fit_e_s = hist_fit_s.Clone("errors_s")
+    hist_fit_e_b = hist_fit_b.Clone("errors_b")
+    gr_fit_s = getGraph(hist_fit_s,-0.1)
+    gr_fit_b = getGraph(hist_fit_b, 0.1)
+    gr_fit_s.SetLineColor(ROOT.kRed)
+    gr_fit_s.SetMarkerColor(ROOT.kRed)
+    gr_fit_b.SetLineColor(ROOT.kBlue)
+    gr_fit_b.SetMarkerColor(ROOT.kBlue)
+    gr_fit_b.SetMarkerStyle(20)
+    gr_fit_s.SetMarkerStyle(20)
+    gr_fit_b.SetMarkerSize(1.0)
+    gr_fit_s.SetMarkerSize(1.0)
+    gr_fit_b.SetLineWidth(2)
+    gr_fit_s.SetLineWidth(2)
     hist_prefit.SetLineWidth(2)
     hist_prefit.SetTitle("Nuisance Paramaeters")
     hist_prefit.SetLineColor(ROOT.kBlack)
@@ -239,8 +245,8 @@ if options.plotfile:
     hist_prefit.SetMinimum(-3)
     hist_prefit.Draw("E2")
     hist_prefit.Draw("histsame")
-    hist_fit_b.Draw("EPsame")
-    hist_fit_s.Draw("EPsame")
+    gr_fit_b.Draw("EPsame")
+    gr_fit_s.Draw("EPsame")
     canvas_nuis.SetGridx()
     canvas_nuis.RedrawAxis()
     canvas_nuis.RedrawAxis('g')
@@ -248,13 +254,11 @@ if options.plotfile:
     leg.SetFillColor(0)
     leg.SetTextFont(42)
     leg.AddEntry(hist_prefit,"Prefit","FL")
-    leg.AddEntry(hist_fit_b,"B-only fit","EPL")
-    leg.AddEntry(hist_fit_s,"S+B fit"   ,"EPL")
+    leg.AddEntry(gr_fit_b,"B-only fit","EPL")
+    leg.AddEntry(gr_fit_s,"S+B fit"   ,"EPL")
     leg.Draw()
     fout.WriteTObject(canvas_nuis)
     canvas_pferrs = ROOT.TCanvas("post_fit_errs", "post_fit_errs", 900, 600)
-    hist_fit_e_s = hist_fit_s.Clone()
-    hist_fit_e_b = hist_fit_b.Clone()
     for b in range(1,hist_fit_e_s.GetNbinsX()+1): 
       hist_fit_e_s.SetBinContent(b,hist_fit_s.GetBinError(b)/hist_prefit.GetBinError(b))
       hist_fit_e_b.SetBinContent(b,hist_fit_b.GetBinError(b)/hist_prefit.GetBinError(b))
