@@ -138,6 +138,11 @@ void CombineHarvester::ExtractData(std::string const &ws_name,
 }
 
 void CombineHarvester::AddBinByBin(double threshold, bool fixed_norm,
+                                   CombineHarvester &other) {
+  AddBinByBin(threshold, fixed_norm, &other);
+}
+
+void CombineHarvester::AddBinByBin(double threshold, bool fixed_norm,
                                    CombineHarvester *other) {
   unsigned bbb_added = 0;
   for (unsigned i = 0; i < procs_.size(); ++i) {

@@ -15,7 +15,7 @@ namespace ch {
 
 CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
   // if (verbosity_ >= 3) {
-    log() << "[CombineHarvester] Constructor called: " << this << "\n";
+    // log() << "[CombineHarvester] Constructor called: " << this << "\n";
   // }
   flags_["zero-negative-bins-on-import"] = true;
   flags_["allow-missing-shapes"] = true;
@@ -190,19 +190,36 @@ CombineHarvester CombineHarvester::cp() {
 }
 
 CombineHarvester & CombineHarvester::PrintAll() {
+  return PrintObs().PrintProcs().PrintSysts().PrintParams();
+}
+
+CombineHarvester & CombineHarvester::PrintObs() {
   std::cout << Observation::PrintHeader;
   for (unsigned i = 0; i < obs_.size(); ++i)
-      std::cout << *(obs_[i]) << std::endl;
-  std::cout << Process::PrintHeader;
-  for (unsigned i = 0; i < procs_.size(); ++i)
-      std::cout << *(procs_[i]) << std::endl;
-  std::cout << Systematic::PrintHeader;
-  for (unsigned i = 0; i < systs_.size(); ++i)
-      std::cout << *(systs_[i]) << std::endl;
-  std::cout << Parameter::PrintHeader;
-  for (auto const& it : params_) std::cout << *(it.second) << std::endl;
+      std::cout << *(obs_[i]) << "\n";
   return *this;
 }
+
+CombineHarvester & CombineHarvester::PrintProcs() {
+  std::cout << Process::PrintHeader;
+  for (unsigned i = 0; i < procs_.size(); ++i)
+      std::cout << *(procs_[i]) << "\n";
+  return *this;
+}
+
+CombineHarvester & CombineHarvester::PrintSysts() {
+  std::cout << Systematic::PrintHeader;
+  for (unsigned i = 0; i < systs_.size(); ++i)
+      std::cout << *(systs_[i]) << "\n";
+  return *this;
+}
+
+CombineHarvester & CombineHarvester::PrintParams() {
+  std::cout << Parameter::PrintHeader;
+  for (auto const& it : params_) std::cout << *(it.second) << "\n";
+  return *this;
+}
+
 
 /**
  * \brief Resolve a HistMapping object for the given Observation and load the

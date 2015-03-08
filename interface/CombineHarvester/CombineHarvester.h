@@ -79,6 +79,10 @@ class CombineHarvester {
    */
   /**@{*/
   CombineHarvester& PrintAll();
+  CombineHarvester& PrintObs();
+  CombineHarvester& PrintProcs();
+  CombineHarvester& PrintSysts();
+  CombineHarvester& PrintParams();
   void SetVerbosity(unsigned verbosity) { verbosity_ = verbosity; }
   /**@}*/
 
@@ -107,7 +111,7 @@ class CombineHarvester {
 
   /**
    * \name Filters
-   *
+   * \anchor CH-Filters
    * \brief A collection of methods to filter the Observation, Process and
    * Systematic objects
    *
@@ -142,6 +146,8 @@ class CombineHarvester {
   CombineHarvester& data();
 
   template<typename Function>
+  CombineHarvester& FilterAll(Function func);
+  template<typename Function>
   CombineHarvester& FilterObs(Function func);
   template<typename Function>
   CombineHarvester& FilterProcs(Function func);
@@ -152,7 +158,7 @@ class CombineHarvester {
 
   /**
    * \name Set producers
-   *
+   * \anchor CH-Set-Producers
    * \brief Methods that extract sets of properties from the Observation,
    * Process and Systematic entries
    */
@@ -200,15 +206,26 @@ class CombineHarvester {
    * \details See the documentation of each method for details
    */
   /**@{*/
-
   ch::Parameter const* GetParameter(std::string const& name) const;
   ch::Parameter* GetParameter(std::string const& name);
 
   void UpdateParameters(std::vector<ch::Parameter> const& params);
+
+  /**
+   * Update the parameters to the post-fit values in a RooFitResult
+   *
+   * \deprecated For consistency and compatibility with the python interface,
+   * please use the UpdateParameters(RooFitResult const&) version of this
+   * method instead - this method will be removed in an upcoming release
+   */
   void UpdateParameters(RooFitResult const* fit);
-  void UpdateParameters(RooFitResult const& fit) { UpdateParameters(&fit); }
+  void UpdateParameters(RooFitResult const& fit);
+
   std::vector<ch::Parameter> GetParameters() const;
   void RenameParameter(std::string const& oldname, std::string const& newname);
+
+  template<typename Function>
+  void ForEachObj(Function func);
 
   template<typename Function>
   void ForEachProc(Function func);
@@ -237,13 +254,31 @@ class CombineHarvester {
   double GetRate();
   double GetObservedRate();
   double GetUncertainty();
+
+  /**
+   * Sum all Process yields and evaluate uncertainty by sampling from the fit
+   * convariance matrix
+   *
+   * \deprecated For consistency and compatibility with the python interface,
+   * please use the GetUncertainty(RooFitResult const&, unsigned) version of
+   * this method instead - this method will be removed in an upcoming release
+   */
   double GetUncertainty(RooFitResult const* fit, unsigned n_samples);
+  double GetUncertainty(RooFitResult const& fit, unsigned n_samples);
   TH1F GetShape();
   TH1F GetShapeWithUncertainty();
+
+  /**
+   * Sum all Process shapes and evaluate bin-wise uncertainty by sampling from
+   * the fit convariance matrix
+   *
+   * \deprecated For consistency and compatibility with the python interface,
+   * please use the GetShapeWithUncertainty(RooFitResult const&, unsigned)
+   * version of this method instead - this method will be removed in an
+   * upcoming release
+   */
   TH1F GetShapeWithUncertainty(RooFitResult const* fit, unsigned n_samples);
-  TH1F GetShapeWithUncertainty(RooFitResult const& fit, unsigned n_samples) {
-    return GetShapeWithUncertainty(&fit, n_samples);
-  }
+  TH1F GetShapeWithUncertainty(RooFitResult const& fit, unsigned n_samples);
   TH1F GetObservedShape();
   /**@}*/
 
@@ -294,7 +329,16 @@ class CombineHarvester {
   void ExtractData(std::string const& ws_name, std::string const& rule);
 
   void AddWorkspace(RooWorkspace const* ws);
+
+  /**
+   * Create bin-by-bin uncertainties
+   *
+   * \deprecated Please use the AddBinByBin(double, bool, CombineHarvester &)
+   * interface instead
+   */
   void AddBinByBin(double threshold, bool fixed_norm, CombineHarvester* other);
+  void AddBinByBin(double threshold, bool fixed_norm, CombineHarvester & other);
+
   void MergeBinErrors(double bbb_threshold, double merge_threshold);
   /**@}*/
 
@@ -427,6 +471,13 @@ std::set<T> CombineHarvester::GenerateSetFromSysts(
 }
 
 template<typename Function>
+void CombineHarvester::ForEachObj(Function func) {
+  ForEachObs(func);
+  ForEachProc(func);
+  ForEachSyst(func);
+}
+
+template<typename Function>
 void CombineHarvester::ForEachProc(Function func) {
   for (auto & item: procs_) func(item.get());
 }
@@ -439,6 +490,14 @@ void CombineHarvester::ForEachObs(Function func) {
 template<typename Function>
 void CombineHarvester::ForEachSyst(Function func) {
   for (auto & item: systs_) func(item.get());
+}
+
+template<typename Function>
+CombineHarvester& CombineHarvester::FilterAll(Function func) {
+  FilterObs(func);
+  FilterProcs(func);
+  FilterSysts(func);
+  return *this;
 }
 
 template<typename Function>

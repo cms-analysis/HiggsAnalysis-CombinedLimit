@@ -58,6 +58,11 @@ double CombineHarvester::GetUncertainty() {
 
 double CombineHarvester::GetUncertainty(RooFitResult const* fit,
                                         unsigned n_samples) {
+  return GetUncertainty(*fit, n_samples);
+}
+
+double CombineHarvester::GetUncertainty(RooFitResult const& fit,
+                                        unsigned n_samples) {
   auto lookup = GenerateProcSystMap();
   double rate = GetRateInternal(lookup);
   double err_sq = 0.0;
@@ -67,7 +72,7 @@ double CombineHarvester::GetUncertainty(RooFitResult const* fit,
 
   // Calling randomizePars() ensures that the RooArgList of sampled parameters
   // is already created within the RooFitResult
-  RooArgList const& rands = fit->randomizePars();
+  RooArgList const& rands = fit.randomizePars();
 
   // Now create two aligned vectors of the RooRealVar parameters and the
   // corresponding ch::Parameter pointers
@@ -81,7 +86,7 @@ double CombineHarvester::GetUncertainty(RooFitResult const* fit,
 
   for (unsigned i = 0; i < n_samples; ++i) {
     // Randomise and update values
-    fit->randomizePars();
+    fit.randomizePars();
     for (int n = 0; n < n_pars; ++n) {
       if (p_vec[n]) p_vec[n]->set_val(r_vec[n]->getVal());
     }
@@ -121,6 +126,11 @@ TH1F CombineHarvester::GetShapeWithUncertainty() {
 
 TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const* fit,
                                                unsigned n_samples) {
+  return GetShapeWithUncertainty(*fit, n_samples);
+}
+
+TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const& fit,
+                                               unsigned n_samples) {
   auto lookup = GenerateProcSystMap();
   TH1F shape = GetShapeInternal(lookup);
   for (int i = 1; i <= shape.GetNbinsX(); ++i) {
@@ -131,7 +141,7 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const* fit,
 
   // Calling randomizePars() ensures that the RooArgList of sampled parameters
   // is already created within the RooFitResult
-  RooArgList const& rands = fit->randomizePars();
+  RooArgList const& rands = fit.randomizePars();
 
   // Now create two aligned vectors of the RooRealVar parameters and the
   // corresponding ch::Parameter pointers
@@ -146,7 +156,7 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const* fit,
   // Main loop through n_samples
   for (unsigned i = 0; i < n_samples; ++i) {
     // Randomise and update values
-    fit->randomizePars();
+    fit.randomizePars();
     for (int n = 0; n < n_pars; ++n) {
       if (p_vec[n]) p_vec[n]->set_val(r_vec[n]->getVal());
     }
@@ -429,11 +439,10 @@ void CombineHarvester::UpdateParameters(
   }
 }
 
-void CombineHarvester::UpdateParameters(RooFitResult const* fit) {
-  // check for fit == null here
-  for (int i = 0; i < fit->floatParsFinal().getSize(); ++i) {
+void CombineHarvester::UpdateParameters(RooFitResult const& fit) {
+  for (int i = 0; i < fit.floatParsFinal().getSize(); ++i) {
     RooRealVar const* var =
-        dynamic_cast<RooRealVar const*>(fit->floatParsFinal().at(i));
+        dynamic_cast<RooRealVar const*>(fit.floatParsFinal().at(i));
     // check for failed cast here
     auto it = params_.find(std::string(var->GetName()));
     if (it != params_.end()) {
@@ -447,6 +456,10 @@ void CombineHarvester::UpdateParameters(RooFitResult const* fit) {
       }
     }
   }
+}
+
+void CombineHarvester::UpdateParameters(RooFitResult const* fit) {
+  UpdateParameters(*fit);
 }
 
 std::vector<ch::Parameter> CombineHarvester::GetParameters() const {

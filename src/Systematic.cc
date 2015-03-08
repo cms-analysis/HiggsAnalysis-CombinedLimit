@@ -6,8 +6,7 @@
 namespace ch {
 
 Systematic::Systematic()
-    : bin_(""),
-      process_(""),
+    : Object(),
       signal_(false),
       name_(""),
       type_(""),
@@ -15,11 +14,6 @@ Systematic::Systematic()
       value_d_(0.0),
       scale_(1.0),
       asymm_(false),
-      analysis_(""),
-      era_(""),
-      channel_(""),
-      bin_id_(0),
-      mass_(""),
       shape_u_(),
       shape_d_(),
       data_u_(nullptr),
@@ -30,8 +24,7 @@ Systematic::~Systematic() { }
 
 void swap(Systematic& first, Systematic& second) {
   using std::swap;
-  swap(first.bin_, second.bin_);
-  swap(first.process_, second.process_);
+  swap(static_cast<Object&>(first), static_cast<Object&>(second));
   swap(first.signal_, second.signal_);
   swap(first.name_, second.name_);
   swap(first.type_, second.type_);
@@ -39,11 +32,6 @@ void swap(Systematic& first, Systematic& second) {
   swap(first.value_d_, second.value_d_);
   swap(first.scale_, second.scale_);
   swap(first.asymm_, second.asymm_);
-  swap(first.analysis_, second.analysis_);
-  swap(first.era_, second.era_);
-  swap(first.channel_, second.channel_);
-  swap(first.bin_id_, second.bin_id_);
-  swap(first.mass_, second.mass_);
   swap(first.shape_u_, second.shape_u_);
   swap(first.shape_d_, second.shape_d_);
   swap(first.data_u_, second.data_u_);
@@ -51,8 +39,7 @@ void swap(Systematic& first, Systematic& second) {
 }
 
 Systematic::Systematic(Systematic const& other)
-    : bin_(other.bin_),
-      process_(other.process_),
+    : Object(other),
       signal_(other.signal_),
       name_(other.name_),
       type_(other.type_),
@@ -60,11 +47,6 @@ Systematic::Systematic(Systematic const& other)
       value_d_(other.value_d_),
       scale_(other.scale_),
       asymm_(other.asymm_),
-      analysis_(other.analysis_),
-      era_(other.era_),
-      channel_(other.channel_),
-      bin_id_(other.bin_id_),
-      mass_(other.mass_),
       data_u_(other.data_u_),
       data_d_(other.data_d_) {
   TH1 *h_u = nullptr;
@@ -82,8 +64,7 @@ Systematic::Systematic(Systematic const& other)
 }
 
 Systematic::Systematic(Systematic&& other)
-    : bin_(""),
-      process_(""),
+    : Object(),
       signal_(false),
       name_(""),
       type_(""),
@@ -91,11 +72,6 @@ Systematic::Systematic(Systematic&& other)
       value_d_(0.0),
       scale_(1.0),
       asymm_(false),
-      analysis_(""),
-      era_(""),
-      channel_(""),
-      bin_id_(0),
-      mass_(""),
       shape_u_(),
       shape_d_(),
       data_u_(nullptr),
@@ -185,26 +161,26 @@ std::unique_ptr<TH1> Systematic::ClonedShapeD() const {
 std::ostream& Systematic::PrintHeader(std::ostream &out) {
   std::string line =
    (boost::format("%-6s %-9s %-6s %-8s %-28s %-3i"
-    " %-22s %-4i %-40s %-8s %-9s %-10i %-10i")
+    " %-16s %-4i %-45s %-8s %-13s %-4i %-4i")
     % "mass" % "analysis" % "era" % "channel" % "bin" % "id" % "process" % "sig"
-    % "nuisance" % "type" % "value" % "shape_d" % "shape_u").str();
+    % "nuisance" % "type" % "value" % "sh_d" % "sh_u").str();
   std::string div(line.length(), '-');
-  out << div  << std::endl;
-  out << line << std::endl;
-  out << div  << std::endl;
+  out << div  << "\n";
+  out << line << "\n";
+  out << div  << "\n";
   return out;
 }
 
 std::ostream& operator<< (std::ostream &out, Systematic const& val) {
   std::string value_fmt;
   if (val.asymm()) {
-    value_fmt = (boost::format("%-4.4g/%-4.4g")
+    value_fmt = (boost::format("%.4g/%.4g")
       % val.value_d() % val.value_u()).str();
   } else {
-    value_fmt = (boost::format("%-9.4g") % val.value_u()).str();
+    value_fmt = (boost::format("%.4g") % val.value_u()).str();
   }
   out << boost::format("%-6s %-9s %-6s %-8s %-28s %-3i"
-    " %-22s %-4i %-40s %-8s %-9s %-10i %-10i")
+    " %-16s %-4i %-45s %-8s %-13s %-4i %-4i")
   % val.mass()
   % val.analysis()
   % val.era()

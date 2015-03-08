@@ -6,40 +6,26 @@
 namespace ch {
 
 Observation::Observation()
-    : bin_(""),
+    : Object(),
       rate_(0.0),
-      analysis_(""),
-      era_(""),
-      channel_(""),
-      bin_id_(0),
-      mass_(""),
       shape_(),
       data_(nullptr) {
+    this->set_process("data_obs");
   }
 
 Observation::~Observation() { }
 
 void swap(Observation& first, Observation& second) {
   using std::swap;
-  swap(first.bin_, second.bin_);
+  swap(static_cast<Object&>(first), static_cast<Object&>(second));
   swap(first.rate_, second.rate_);
-  swap(first.analysis_, second.analysis_);
-  swap(first.era_, second.era_);
-  swap(first.channel_, second.channel_);
-  swap(first.bin_id_, second.bin_id_);
-  swap(first.mass_, second.mass_);
   swap(first.shape_, second.shape_);
   swap(first.data_, second.data_);
 }
 
 Observation::Observation(Observation const& other)
-    : bin_(other.bin_),
+    : Object(other),
       rate_(other.rate_),
-      analysis_(other.analysis_),
-      era_(other.era_),
-      channel_(other.channel_),
-      bin_id_(other.bin_id_),
-      mass_(other.mass_),
       data_(other.data_) {
   TH1* h = nullptr;
   if (other.shape_) {
@@ -50,13 +36,8 @@ Observation::Observation(Observation const& other)
 }
 
 Observation::Observation(Observation&& other)
-    : bin_(""),
+    : Object(),
       rate_(0.0),
-      analysis_(""),
-      era_(""),
-      channel_(""),
-      bin_id_(0),
-      mass_(""),
       shape_(),
       data_(nullptr) {
   swap(*this, other);
@@ -127,9 +108,9 @@ TH1F Observation::ShapeAsTH1F() const {
 
 std::ostream& Observation::PrintHeader(std::ostream &out) {
   std::string line =
-    (boost::format("%-6s %-9s %-6s %-8s %-28s %-3i %-26s %-10.5g %-10i")
+    (boost::format("%-6s %-9s %-6s %-8s %-28s %-3i %-21s %-10.5g %-5i")
     % "mass" % "analysis" % "era" % "channel" % "bin" % "id" % "process" %
-    "rate" % "shape/data").str();
+    "rate" % "shape").str();
   std::string div(line.length(), '-');
   out << div << std::endl;
   out << line << std::endl;
@@ -138,7 +119,7 @@ std::ostream& Observation::PrintHeader(std::ostream &out) {
 }
 
 std::ostream& operator<< (std::ostream &out, Observation &val) {
-  out << boost::format("%-6s %-9s %-6s %-8s %-28s %-3i %-26s %-10.5g %-10i")
+  out << boost::format("%-6s %-9s %-6s %-8s %-28s %-3i %-21s %-10.5g %-5i")
   % val.mass()
   % val.analysis()
   % val.era()

@@ -46,7 +46,7 @@ Parameter& Parameter::operator=(Parameter other) {
 
 std::ostream& Parameter::PrintHeader(std::ostream &out) {
   std::string line =
-    (boost::format("%-50s %-10.4f %-10.4f %-10.4f")
+    (boost::format("%-70s %-10.4f %-9.4f %-7.4f")
     % "name" % "value" % "error_d" % "error_u").str();
   std::string div(line.length(), '-');
   out << div << std::endl;
@@ -56,7 +56,7 @@ std::ostream& Parameter::PrintHeader(std::ostream &out) {
 }
 
 std::ostream& operator<< (std::ostream &out, Parameter &val) {
-  out << boost::format("%-50s %-10.4f %-10.4f %-10.4f")
+  out << boost::format("%-70s %-10.4f %-9.4f %-7.4f")
   % val.name()
   % val.val()
   % val.err_d()
