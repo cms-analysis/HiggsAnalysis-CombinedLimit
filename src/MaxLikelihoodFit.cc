@@ -69,7 +69,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
    ;
 
     // setup a few defaults
-    nToys=0; fitStatus_=0; mu_=0;numbadnll_=-1;nll_nll0_=-1; nll_bonly_=-1;nll_sb_=-1;
+    nToys=0; fitStatus_=0; mu_=0; muLoErr_=0; muHiErr_=0; numbadnll_=-1; nll_nll0_=-1; nll_bonly_=-1; nll_sb_=-1;
 }
 
 MaxLikelihoodFit::~MaxLikelihoodFit(){
@@ -332,7 +332,6 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   	nll_nll0_ = -1;
   }
   mu_=r->getVal();
-  if (t_fit_sb_) t_fit_sb_->Fill();
 
   if (res_s) {
       RooRealVar *rf = dynamic_cast<RooRealVar*>(res_s->floatParsFinal().find(r->GetName()));
@@ -344,6 +343,9 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
       if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
       if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
+
+      muLoErr_=loErr;
+      muHiErr_=hiErr;
 
       double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
       double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
@@ -370,6 +372,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
       std::cout << "Fit failed."  << std::endl;
   }
+  if (t_fit_sb_) t_fit_sb_->Fill();
 
   if (currentToy_==nToys-1 || nToys==0 ) {
         
@@ -675,6 +678,12 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
 
 	 t_fit_b_->Branch("mu",&mu_,"mu/Double_t");
 	 t_fit_sb_->Branch("mu",&mu_,"mu/Double_t");
+
+	 t_fit_b_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");
+	 t_fit_sb_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");
+
+	 t_fit_b_->Branch("muHiErr",&muHiErr_,"muHiErr/Double_t");
+	 t_fit_sb_->Branch("muHiErr",&muHiErr_,"muHiErr/Double_t");
 
 	 t_fit_b_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
 	 t_fit_sb_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
