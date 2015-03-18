@@ -564,13 +564,27 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
     if (SetParameterExpression.size() != 2) {
       std::cout << "Error parsing physics model parameter expression : " << SetParameterExpressionList[p] << endl;
     } else {
-      double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
-      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterExpression[0].c_str());      
-      if (tmpParameter) {
-        cout << "Set Default Value of Parameter " << SetParameterExpression[0] 
-             << " To : " << PhysicsParameterValue << "\n";
-        tmpParameter->setVal(PhysicsParameterValue);
-      } else {
+      
+      RooAbsArg  *tmp = (RooAbsArg*)params.find(SetParameterExpression[0].c_str());     
+      if (tmp){
+
+        bool isrvar = tmp->IsA()->InheritsFrom(RooRealVar::Class());  // check its type
+
+        if (isrvar) {
+          RooRealVar *tmpParameter = dynamic_cast<RooRealVar*>(tmp);
+          double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
+          cout << "Set Default Value of Parameter " << SetParameterExpression[0] 
+               << " To : " << PhysicsParameterValue << "\n";
+          tmpParameter->setVal(PhysicsParameterValue);
+        } else {
+          RooCategory *tmpCategory  = dynamic_cast<RooCategory*>(tmp);
+          int PhysicsParameterValue = atoi(SetParameterExpression[1].c_str());
+          cout << "Set Default Index of Parameter " << SetParameterExpression[0] 
+               << " To : " << PhysicsParameterValue << "\n";
+          tmpCategory->setIndex(PhysicsParameterValue);
+	}
+      }
+        else {
         std::cout << "Warning: Did not find a parameter with name " << SetParameterExpression[0] << endl;
       }
     }
