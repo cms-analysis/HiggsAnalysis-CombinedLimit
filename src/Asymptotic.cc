@@ -140,7 +140,8 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
    
   w->loadSnapshot("clean");
   RooAbsData &asimov = *asimovDataset(w, mc_s, mc_b, data);
-
+  w->loadSnapshot("clean");
+  
   r->setConstant(false);
   r->setVal(0.1*r->getMax());
   r->setMin(qtilde_ ? 0 : -r->getMax());
