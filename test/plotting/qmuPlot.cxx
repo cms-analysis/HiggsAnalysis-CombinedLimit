@@ -43,7 +43,7 @@ double tailReal(TTree *t, std::string br, double cv, int mode){
 	ttotal = t->Draw("2*q>>whatever","weight*(type==+1)");
     }
     std::cout << "tpass = " << tpass <<", ttotal = " << ttotal<< std::endl;
-    std::cout << ((double)tpass)/ttotal << std::endl;
+    std::cout << "frac pass = " <<  ((double)tpass)/ttotal << std::endl;
     return ((double)tpass)/ttotal;
 }
 
@@ -95,7 +95,6 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     qO->SetLineColor(kBlack);
     qO->SetLineWidth(3);
 
-    std::cout << "Ok" << std::endl;
     if (invert){ 
     	double clSB = tailReal(t,"qB",qObs,mode);
     	double clB  = tailReal(t,"qS",qObs,mode);
@@ -103,7 +102,6 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     	double clSB = tailReal(t,"qS",qObs,mode);
     	double clB  = tailReal(t,"qB",qObs,mode);
     }
-    std::cout << "Ok" << std::endl;
 
     //double clSB = qS1->Integral(), clB = qB1->Integral(), 
     double clS = clSB/clB;
