@@ -70,6 +70,9 @@ class SpinZeroHiggsCTau(PhysicsModel):
             print "Floating CMS_zz4l_ctau"
             if self.ctauPOI:
                 poi = "CMS_zz4l_ctau"
+            else:
+                self.modelBuilder.out.var("CMS_zz4l_ctau").setAttribute("flatParam")
+
         else:
             if self.modelBuilder.out.var("CMS_zz4l_ctau"):
                 self.modelBuilder.out.var("CMS_zz4l_ctau").setVal(0)
