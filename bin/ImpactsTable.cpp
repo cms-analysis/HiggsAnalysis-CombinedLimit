@@ -3,6 +3,7 @@
 #include <vector>
 #include "boost/format.hpp"
 #include "boost/algorithm/string/replace.hpp"
+#include "boost/program_options.hpp"
 #include "TTree.h"
 #include "TFile.h"
 /*
@@ -12,6 +13,7 @@ to configure its behaviour without modifying the code directly.
 
 using namespace std;
 using boost::format;
+namespace po = boost::program_options;
 
 // Struct holds info on each column in the table
 struct Vals {
@@ -35,7 +37,25 @@ struct Vals {
 
 
 int main(int argc, char* argv[]) {
-  TFile f("impact.root");
+  string input_file = "";
+  unsigned max = 99999;
+  bool do_latex = false;
+  bool do_text = false;
+
+  po::variables_map vm;
+  po::notify(vm);
+  po::options_description config("configuration");
+  config.add_options()
+    ("input,i", po::value<string>(&input_file)->required())
+    ("max,m", po::value<unsigned>(&max)->default_value(max))
+    ("latex,l", po::value<bool>(&do_latex)->implicit_value(true))
+    ("text,t", po::value<bool>(&do_text)->implicit_value(true));
+  po::store(po::command_line_parser(argc, argv)
+    .options(config).allow_unregistered().run(), vm);
+  po::notify(vm);
+
+
+  TFile f(input_file.c_str());
   TTree *t = (TTree*)f.Get("impact");
 
   Vals reader;
@@ -61,45 +81,75 @@ int main(int argc, char* argv[]) {
     t->GetEntry(i);
     reader.parameter = *param_str;
     val_vec.push_back(reader);
-    std::cout << val_vec.back().parameter << "\n";
   }
 
-  unsigned max = 30;
   string fmt = "& %-5.2f & %-5.2f";
+
+  if (do_text) {
+    cout << format("%-70s %-15s | %-15s | %-15s | %-13s | "
+          "%-13s | %-13s\n")
+      % "Parameter"
+      % "Best (obs)"
+      % "Best (post)"
+      % "Best (pre)"
+      % "Impact (obs)"
+      % "Impact (post)"
+      % "Impact (pre)";
+
+    for (unsigned i = 0; i < max && i < val_vec.size(); ++i) {
+      Vals &val = val_vec[i];
+
+      cout << format(
+          "%-70s %7.2f %7.2f | %7.2f %7.2f | %7.2f %7.2f | %7.3f %5i | "
+          "%7.3f %5i | %7.3f %5i\n")
+        % val.parameter
+        % val.par_best
+        % ((val.par_hi - val.par_lo)/2.)
+        % val.par_best_post
+        % ((val.par_hi_post - val.par_lo_post)/2.)
+        % val.par_best_pre
+        % ((val.par_hi_pre - val.par_lo_pre)/2.)
+        % val.impact % val.rank_impact
+        % val.impact_post % val.rank_impact_post
+        % val.impact_pre % val.rank_impact_pre;
+    }
+  }
 
   // Here we'll make use of C++11 "string literals", to avoid having to escape
   // all the latex '\' characters. More info on the format here:
   // https://solarianprogrammer.com/2011/10/16/cpp-11-raw-strings-literals-tutorial/
-  cout << R"(\small)";
-  cout << R"(\begin{tabular}{l)";
-  cout << R"(r@{$ \,\,\pm\,\, $}l)";
-  cout << R"(r@{$ \,\,\pm\,\, $}l)";
-  cout << R"(rrrr)";
-  cout << R"(})" << "\n";
+  if (do_latex) {
+    cout << R"(\small)";
+    cout << R"(\begin{tabular}{l)";
+    cout << R"(r@{$ \,\,\pm\,\, $}l)";
+    cout << R"(r@{$ \,\,\pm\,\, $}l)";
+    cout << R"(rrrr)";
+    cout << R"(})" << "\n";
 
 
-  cout << format("%-60s") % "Nuisance Parameter"
-       << R"(& \multicolumn{2}{c}{$\hat{\theta}$ (obs)})"
-       << R"(& \multicolumn{2}{c}{$\hat{\theta}$ (asimov)})"
-       << R"(& $\Delta\hat{\mu}$ (obs) & Rank)"
-       << R"(& $\Delta\hat{\mu}$ (asimov) & Rank)"
-       << R"(\\)" << "\n" << R"(\hline)" << "\n";
+    cout << format("%-60s") % "Nuisance Parameter"
+         << R"(& \multicolumn{2}{c}{$\hat{\theta}$ (obs)})"
+         << R"(& \multicolumn{2}{c}{$\hat{\theta}$ (asimov)})"
+         << R"(& $\Delta\hat{\mu}$ (obs) & Rank)"
+         << R"(& $\Delta\hat{\mu}$ (asimov) & Rank)"
+         << R"(\\)" << "\n" << R"(\hline)" << "\n";
 
 
-  for (unsigned i = 0; i < max && i < val_vec.size(); ++i) {
-    Vals & val = val_vec[i];
+    for (unsigned i = 0; i < max && i < val_vec.size(); ++i) {
+      Vals & val = val_vec[i];
 
-    boost::replace_all(val.parameter, "_", "\\_");
+      boost::replace_all(val.parameter, "_", "\\_");
 
-    cout << format("%-60s") % val.parameter
-         << format(fmt) % val.par_best % ((val.par_hi - val.par_lo)/2.)
-         << format(fmt) % val.par_best_post % ((val.par_hi_post - val.par_lo_post)/2.)
-         << format("& %-5.3f & %-4i") % val.impact % val.rank_impact
-         << format("& %-5.3f & %-4i") % val.impact_post % val.rank_impact_post
-         << R"(\\)" << "\n";
+      cout << format("%-60s") % val.parameter
+           << format(fmt) % val.par_best % ((val.par_hi - val.par_lo)/2.)
+           << format(fmt) % val.par_best_post % ((val.par_hi_post - val.par_lo_post)/2.)
+           << format("& %-5.3f & %-4i") % val.impact % val.rank_impact
+           << format("& %-5.3f & %-4i") % val.impact_post % val.rank_impact_post
+           << R"(\\)" << "\n";
+    }
+
+    cout << R"(\hline)" << "\n";
+    cout << R"(\end{tabular})" << "\n";
   }
-
-  cout << R"(\hline)" << "\n";
-  cout << R"(\end{tabular})" << "\n";
   return 0;
 }
