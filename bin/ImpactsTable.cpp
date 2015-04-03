@@ -4,6 +4,7 @@
 #include "boost/format.hpp"
 #include "boost/algorithm/string/replace.hpp"
 #include "boost/program_options.hpp"
+#include "boost/regex.hpp"
 #include "TTree.h"
 #include "TFile.h"
 /*
@@ -41,6 +42,7 @@ int main(int argc, char* argv[]) {
   unsigned max = 99999;
   bool do_latex = false;
   bool do_text = false;
+  std::vector<string> filters;
 
   po::variables_map vm;
   po::notify(vm);
@@ -49,10 +51,14 @@ int main(int argc, char* argv[]) {
     ("input,i", po::value<string>(&input_file)->required())
     ("max,m", po::value<unsigned>(&max)->default_value(max))
     ("latex,l", po::value<bool>(&do_latex)->implicit_value(true))
-    ("text,t", po::value<bool>(&do_text)->implicit_value(true));
+    ("text,t", po::value<bool>(&do_text)->implicit_value(true))
+    ("filter", po::value<vector<string>>(&filters)->multitoken());
   po::store(po::command_line_parser(argc, argv)
     .options(config).allow_unregistered().run(), vm);
   po::notify(vm);
+
+  std::vector<boost::regex> rgx;
+  for (auto const& ele : filters) rgx.emplace_back(ele);
 
 
   TFile f(input_file.c_str());
@@ -80,8 +86,30 @@ int main(int argc, char* argv[]) {
   for (unsigned i = 0; i < t->GetEntries(); ++i) {
     t->GetEntry(i);
     reader.parameter = *param_str;
+    std::cout << reader.parameter << "\n";
+    bool matches = false;
+    for (unsigned j = 0; j < rgx.size(); ++j) {
+      if (boost::regex_match((*param_str).Data(), rgx[j])) {
+        matches = true;
+        break;
+      }
+    }
+    if (rgx.size() && !matches) continue;
     val_vec.push_back(reader);
   }
+
+  double tot_obs = 0;
+  double tot_post = 0;
+  double tot_pre = 0;
+  for (unsigned i = 0; i < max && i < val_vec.size(); ++i) {
+    Vals &val = val_vec[i];
+    tot_obs += (val.impact * val.impact);
+    tot_post += (val.impact_post * val.impact_post);
+    tot_pre += (val.impact_pre * val.impact_pre);
+  }
+  tot_obs = std::sqrt(tot_obs);
+  tot_post = std::sqrt(tot_post);
+  tot_pre = std::sqrt(tot_pre);
 
   string fmt = "& %-5.2f & %-5.2f";
 
@@ -151,5 +179,8 @@ int main(int argc, char* argv[]) {
     cout << R"(\hline)" << "\n";
     cout << R"(\end{tabular})" << "\n";
   }
+  std::cout << "Total impact obs:  " << tot_obs << "\n";
+  std::cout << "Total impact post: " << tot_post << "\n";
+  std::cout << "Total impact pre:  " << tot_pre << "\n";
   return 0;
 }
