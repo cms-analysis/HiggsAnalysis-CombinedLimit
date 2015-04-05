@@ -44,4 +44,23 @@ std::string FnError(std::string const& message, std::string const& file,
   res += "\n" + banner;
   return res;
 }
+
+// Implementation of FnTimer ("Function Timer") class
+FnTimer::FnTimer(std::string name) : name_(name), calls_(0), elapsed_(0.) {}
+FnTimer::~FnTimer() {
+  printf(
+      "[Timer] %-40s Calls: %-20u Total [s]: %-20.5g Per-call [s]: %-20.5g\n",
+      name_.c_str(), calls_, elapsed_, elapsed_ / double(calls_));
+}
+FnTimer::Token FnTimer::Inc() {
+  ++calls_;
+  return Token(this);
+}
+void FnTimer::StartTimer() { start_ = std::chrono::system_clock::now(); }
+void FnTimer::StopTimer() {
+  end_ = std::chrono::system_clock::now();
+  elapsed_ += std::chrono::duration<double>(end_ - start_).count();
+}
+FnTimer::Token::Token(FnTimer* src) : src_(src) { src_->StartTimer(); }
+FnTimer::Token::~Token() { src_->StopTimer(); }
 }
