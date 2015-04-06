@@ -130,11 +130,11 @@ CombineHarvester & CombineHarvester::data() {
 
 std::set<std::string> CombineHarvester::bin_set() {
   std::set<std::string> result =
-      this->GenerateSetFromObs<std::string>(std::mem_fn(&ch::Observation::bin));
+      this->SetFromObs(std::mem_fn(&ch::Observation::bin));
   std::set<std::string> result2 =
-      this->GenerateSetFromProcs<std::string>(std::mem_fn(&ch::Process::bin));
+      this->SetFromProcs(std::mem_fn(&ch::Process::bin));
   std::set<std::string> result3 =
-      this->GenerateSetFromSysts<std::string>(std::mem_fn(&ch::Systematic::bin));
+      this->SetFromSysts(std::mem_fn(&ch::Systematic::bin));
   result.insert(result2.begin(), result2.end());
   result.insert(result3.begin(), result3.end());
   return result;
@@ -142,31 +142,31 @@ std::set<std::string> CombineHarvester::bin_set() {
 
 std::set<int> CombineHarvester::bin_id_set() {
   std::set<int> result =
-      this->GenerateSetFromObs<int>(std::mem_fn(&ch::Observation::bin_id));
+      this->SetFromObs(std::mem_fn(&ch::Observation::bin_id));
   std::set<int> result2 =
-      this->GenerateSetFromProcs<int>(std::mem_fn(&ch::Process::bin_id));
+      this->SetFromProcs(std::mem_fn(&ch::Process::bin_id));
   std::set<int> result3 =
-      this->GenerateSetFromSysts<int>(std::mem_fn(&ch::Systematic::bin_id));
+      this->SetFromSysts(std::mem_fn(&ch::Systematic::bin_id));
   result.insert(result2.begin(), result2.end());
   result.insert(result3.begin(), result3.end());
   return result;
 }
 
 std::set<std::string> CombineHarvester::process_set() {
-  std::set<std::string> result = this->GenerateSetFromProcs<std::string>(
+  std::set<std::string> result = this->SetFromProcs(
       std::mem_fn(&ch::Process::process));
-  std::set<std::string> result2 = this->GenerateSetFromSysts<std::string>(
+  std::set<std::string> result2 = this->SetFromSysts(
       std::mem_fn(&ch::Systematic::process));
   result.insert(result2.begin(), result2.end());
   return result;
 }
 
 std::set<std::string> CombineHarvester::analysis_set() {
-  std::set<std::string> result = this->GenerateSetFromObs<std::string>(
+  std::set<std::string> result = this->SetFromObs(
       std::mem_fn(&ch::Observation::analysis));
-  std::set<std::string> result2 = this->GenerateSetFromProcs<std::string>(
+  std::set<std::string> result2 = this->SetFromProcs(
       std::mem_fn(&ch::Process::analysis));
-  std::set<std::string> result3 = this->GenerateSetFromSysts<std::string>(
+  std::set<std::string> result3 = this->SetFromSysts(
       std::mem_fn(&ch::Systematic::analysis));
   result.insert(result2.begin(), result2.end());
   result.insert(result3.begin(), result3.end());
@@ -175,22 +175,22 @@ std::set<std::string> CombineHarvester::analysis_set() {
 
 std::set<std::string> CombineHarvester::era_set() {
   std::set<std::string> result =
-      this->GenerateSetFromObs<std::string>(std::mem_fn(&ch::Observation::era));
+      this->SetFromObs(std::mem_fn(&ch::Observation::era));
   std::set<std::string> result2 =
-      this->GenerateSetFromProcs<std::string>(std::mem_fn(&ch::Process::era));
+      this->SetFromProcs(std::mem_fn(&ch::Process::era));
   std::set<std::string> result3 =
-      this->GenerateSetFromSysts<std::string>(std::mem_fn(&ch::Systematic::era));
+      this->SetFromSysts(std::mem_fn(&ch::Systematic::era));
   result.insert(result2.begin(), result2.end());
   result.insert(result3.begin(), result3.end());
   return result;
 }
 
 std::set<std::string> CombineHarvester::channel_set() {
-  std::set<std::string> result = this->GenerateSetFromObs<std::string>(
+  std::set<std::string> result = this->SetFromObs(
       std::mem_fn(&ch::Observation::channel));
-  std::set<std::string> result2 = this->GenerateSetFromProcs<std::string>(
+  std::set<std::string> result2 = this->SetFromProcs(
       std::mem_fn(&ch::Process::channel));
-  std::set<std::string> result3 = this->GenerateSetFromSysts<std::string>(
+  std::set<std::string> result3 = this->SetFromSysts(
       std::mem_fn(&ch::Systematic::channel));
   result.insert(result2.begin(), result2.end());
   result.insert(result3.begin(), result3.end());
@@ -198,11 +198,11 @@ std::set<std::string> CombineHarvester::channel_set() {
 }
 
 std::set<std::string> CombineHarvester::mass_set() {
-  std::set<std::string> result = this->GenerateSetFromObs<std::string>(
+  std::set<std::string> result = this->SetFromObs(
       std::mem_fn(&ch::Observation::mass));
-  std::set<std::string> result2 = this->GenerateSetFromProcs<std::string>(
+  std::set<std::string> result2 = this->SetFromProcs(
       std::mem_fn(&ch::Process::mass));
-  std::set<std::string> result3 = this->GenerateSetFromSysts<std::string>(
+  std::set<std::string> result3 = this->SetFromSysts(
       std::mem_fn(&ch::Systematic::mass));
   result.insert(result2.begin(), result2.end());
   result.insert(result3.begin(), result3.end());
@@ -210,13 +210,13 @@ std::set<std::string> CombineHarvester::mass_set() {
 }
 
 std::set<std::string> CombineHarvester::syst_name_set() {
-  std::set<std::string> result = this->GenerateSetFromSysts<std::string>(
+  std::set<std::string> result = this->SetFromSysts(
       std::mem_fn(&ch::Systematic::name));
   return result;
 }
 
 std::set<std::string> CombineHarvester::syst_type_set() {
-  std::set<std::string> result = this->GenerateSetFromSysts<std::string>(
+  std::set<std::string> result = this->SetFromSysts(
       std::mem_fn(&ch::Systematic::type));
   return result;
 }

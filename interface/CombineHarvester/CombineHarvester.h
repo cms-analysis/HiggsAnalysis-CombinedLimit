@@ -164,18 +164,6 @@ class CombineHarvester {
    */
   /**@{*/
   // Set generation
-  template <typename T>
-  std::set<T> GenerateSetFromProcs(
-    std::function<T(ch::Process const*)> func);
-
-  template<typename T>
-  std::set<T> GenerateSetFromObs(
-    std::function<T(ch::Observation const*)> func);
-
-  template <typename T>
-  std::set<T> GenerateSetFromSysts(
-      std::function<T(ch::Systematic const*)> func);
-
   std::set<std::string> bin_set();
   std::set<int> bin_id_set();
   std::set<std::string> process_set();
@@ -185,18 +173,55 @@ class CombineHarvester {
   std::set<std::string> mass_set();
   std::set<std::string> syst_name_set();
   std::set<std::string> syst_type_set();
+
+  /**
+   * Fill an std::set with the return values from an arbitrary function
+   *
+   * This method will loop through all ch::Observation, ch::Process and
+   * ch::Systematic entries and call the user-supplied function `func`. The
+   * return value is then inserted into the set. 
+   *
+   * @tparam T A function (or other callable) that must have a single
+   * `ch::Object const*` argument.
+   * @tparam R The return type of the function, which is deduced by using
+   * `std::result_of`, then `std::decay`. The latter is needed to handle
+   * functions that return by reference, i.e. turning a type R& into a type R.
+   */
+  template <typename T,
+            typename R = typename std::decay<
+                typename std::result_of<T(Object const*)>::type>::type>
+  std::set<R> SetFromAll(T func);
+
+  /**
+   * Fill an std::set using only the Observation entries
+   *
+   * \sa SetFromAll
+   */
+  template <typename T,
+            typename R = typename std::decay<
+                typename std::result_of<T(Observation const*)>::type>::type>
+  std::set<R> SetFromObs(T func);
+
+  /**
+   * Fill an std::set using only the Process entries
+   *
+   * \sa SetFromAll
+   */
+  template <typename T,
+            typename R = typename std::decay<
+                typename std::result_of<T(Process const*)>::type>::type>
+  std::set<R> SetFromProcs(T func);
+
+  /**
+   * Fill an std::set using only the Systematic entries
+   *
+   * \sa SetFromAll
+   */
+  template <typename T,
+            typename R = typename std::decay<
+                typename std::result_of<T(Systematic const*)>::type>::type>
+  std::set<R> SetFromSysts(T func);
   /**@}*/
-
-  // An alternative way to do the set generation
-  // template<typename T>
-  // T unwind(T const& x) { return x; }
-
-  // template<typename T>
-  // auto SetFromProcs(T func) -> std::set<decltype(unwind(func(nullptr)))> {
-  //   std::set<decltype(unwind(func(nullptr)))> ret;
-  //   for (auto const& item : procs_) ret.insert(func(item.get()));
-  //   return ret;
-  // };
 
   /**
    * \name Modification
@@ -446,29 +471,35 @@ void FillHistMappings(std::vector<HistMapping> & mappings);
 // ---------------------------------------------------------------
 // Template method implementation
 // ---------------------------------------------------------------
-template<typename T>
-std::set<T> CombineHarvester::GenerateSetFromProcs(
-    std::function<T (ch::Process const*)> func) {
-  std::set<T> ret;
-  for (auto const& item : procs_) ret.insert(func(item.get()));
-  return ret;
-}
-
-template<typename T>
-std::set<T> CombineHarvester::GenerateSetFromObs(
-    std::function<T (ch::Observation const*)> func) {
-  std::set<T> ret;
+template <typename T, typename R>
+std::set<R> CombineHarvester::SetFromAll(T func) {
+  std::set<R> ret;
   for (auto const& item : obs_) ret.insert(func(item.get()));
-  return ret;
-}
-
-template<typename T>
-std::set<T> CombineHarvester::GenerateSetFromSysts(
-    std::function<T (ch::Systematic const*)> func) {
-  std::set<T> ret;
+  for (auto const& item : procs_) ret.insert(func(item.get()));
   for (auto const& item : systs_) ret.insert(func(item.get()));
   return ret;
-}
+};
+
+template <typename T, typename R>
+std::set<R> CombineHarvester::SetFromObs(T func) {
+  std::set<R> ret;
+  for (auto const& item : obs_) ret.insert(func(item.get()));
+  return ret;
+};
+
+template <typename T, typename R>
+std::set<R> CombineHarvester::SetFromProcs(T func) {
+  std::set<R> ret;
+  for (auto const& item : procs_) ret.insert(func(item.get()));
+  return ret;
+};
+
+template <typename T, typename R>
+std::set<R> CombineHarvester::SetFromSysts(T func) {
+  std::set<R> ret;
+  for (auto const& item : systs_) ret.insert(func(item.get()));
+  return ret;
+};
 
 template<typename Function>
 void CombineHarvester::ForEachObj(Function func) {

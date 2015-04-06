@@ -38,7 +38,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   CombineHarvester cb_bp =
       std::move(cb.cp().bin({bin}).process({process}));
 
-  vector<string> masses_all = Set2Vec(cb_bp.GenerateSetFromProcs<string>(
+  vector<string> masses_all = Set2Vec(cb_bp.SetFromProcs(
       std::mem_fn(&ch::Process::mass)));
 
   std::sort(masses_all.begin(), masses_all.end(),

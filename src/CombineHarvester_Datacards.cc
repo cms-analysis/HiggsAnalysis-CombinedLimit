@@ -347,8 +347,8 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
 
     CombineHarvester ch_signals =
         std::move(this->cp().bin({bin}).signals().histograms());
-    auto sig_proc_set = ch_signals.GenerateSetFromProcs<std::string>(
-        std::mem_fn(&ch::Process::process));
+    auto sig_proc_set =
+        ch_signals.SetFromProcs(std::mem_fn(&ch::Process::process));
     for (auto sig_proc : sig_proc_set) {
       mappings.push_back({sig_proc, bin, nullptr,
                           bin + "/" + sig_proc + "$MASS",
@@ -443,12 +443,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   std::string dashes(80, '-');
 
-  auto bin_set =
-      this->GenerateSetFromObs<std::string>(std::mem_fn(&ch::Observation::bin));
-  auto proc_set =
-      this->GenerateSetFromProcs<std::string>(std::mem_fn(&ch::Process::process));
-  auto sys_set =
-      this->GenerateSetFromSysts<std::string>(std::mem_fn(&ch::Systematic::name));
+  auto bin_set = this->SetFromObs(std::mem_fn(&ch::Observation::bin));
+  auto proc_set = this->SetFromProcs(std::mem_fn(&ch::Process::process));
+  auto sys_set = this->SetFromSysts(std::mem_fn(&ch::Systematic::name));
   txt_file << "imax    " << bin_set.size()
             << " number of bins\n";
   txt_file << "jmax    " << proc_set.size() - 1
@@ -460,8 +457,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   std::vector<HistMapping> mappings;
   FillHistMappings(mappings);
 
-  auto bins =
-      this->GenerateSetFromObs<std::string>(std::mem_fn(&ch::Observation::bin));
+  auto bins = this->SetFromObs(std::mem_fn(&ch::Observation::bin));
 
   auto proc_sys_map = this->GenerateProcSystMap();
 

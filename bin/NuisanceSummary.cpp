@@ -54,8 +54,7 @@ int main(int argc, char* argv[]) {
     delete fitresult;
   }
 
-  auto systematics = cmb.GenerateSetFromSysts<std::string>(
-      std::mem_fn(&ch::Systematic::name));
+  auto systematics = cmb.SetFromSysts(std::mem_fn(&ch::Systematic::name));
   std::set<string> ungrouped;
 
 
@@ -131,18 +130,16 @@ int main(int argc, char* argv[]) {
     std::set<double> cleaned_rates;
     ch::CombineHarvester all_syst = cmb.cp()
       .syst_name(p.second);
-    auto chns = all_syst
-      .GenerateSetFromSysts<string>(std::mem_fn(&ch::Systematic::channel));
+    auto chns = all_syst.SetFromSysts(std::mem_fn(&ch::Systematic::channel));
     for (auto const& c : chns) std::cout << " " << c << " ";
     std::cout << "\n";
     std::set<string> all_procs;
-    auto bins = all_syst
-      .GenerateSetFromSysts<string>(std::mem_fn(&ch::Systematic::bin));
+    auto bins = all_syst.SetFromSysts(std::mem_fn(&ch::Systematic::bin));
     for (auto const& bin : bins) {
       ch::CombineHarvester syst_in_bin = all_syst.cp()
         .bin({bin});
-      auto procs = syst_in_bin
-        .GenerateSetFromSysts<string>(std::mem_fn(&ch::Systematic::process));
+      auto procs =
+          syst_in_bin.SetFromSysts(std::mem_fn(&ch::Systematic::process));
       for (auto const& proc : procs) {
         all_procs.insert(proc);
         ch::CombineHarvester syst_in_proc = syst_in_bin.cp()
