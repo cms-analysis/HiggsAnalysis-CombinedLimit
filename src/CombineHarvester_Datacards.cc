@@ -24,6 +24,7 @@
 #include "CombineTools/interface/Utilities.h"
 #include "CombineTools/interface/TFileIO.h"
 #include "CombineTools/interface/Algorithm.h"
+#include "CombineTools/interface/GitVersion.h"
 
 namespace ch {
 
@@ -438,8 +439,18 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
 
 void CombineHarvester::WriteDatacard(std::string const& name,
                                      TFile& root_file) {
+  if (!root_file.IsOpen()) {
+    throw std::runtime_error(FNERROR(
+        std::string("Output ROOT file is not open: ") + root_file.GetName()));
+  }
   std::ofstream txt_file;
   txt_file.open(name);
+  if (!txt_file.is_open()) {
+    throw std::runtime_error(FNERROR("Unable to create file: " + name));
+  }
+
+  txt_file << "# Datacard produced by CombineHarvester with git status: "
+           << ch::GitVersion() << "\n";
 
   std::string dashes(80, '-');
 
