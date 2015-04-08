@@ -335,7 +335,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   //set physics model parameters    after loading the snapshot
   //*********************************************
   if (setPhysicsModelParameterExpression_ != "") {
-      utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
+      RooArgSet allParams(w->allVars());
+      if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
+      utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
+      // also allow for "discrete" parameters to be set 
   }
 
 
