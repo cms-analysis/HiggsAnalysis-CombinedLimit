@@ -1,4 +1,5 @@
 #include "CombineTools/interface/CombineHarvester.h"
+#include <cmath>
 #include <vector>
 #include <map>
 #include <string>
@@ -8,8 +9,6 @@
 #include <fstream>
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string.hpp"
-#include "boost/range/algorithm_ext/erase.hpp"
-#include "boost/range/algorithm/find.hpp"
 #include "boost/format.hpp"
 #include "boost/regex.hpp"
 #include "boost/filesystem.hpp"
@@ -546,8 +545,17 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   }
   txt_file << "\n";
   txt_file << "observation  ";
+  // On the precision of the observation yields: .1f is not sufficient for
+  // combine to be happy if we have some asimov dataset with non-integer values.
+  // We could just always give .4f but this doesn't look nice for the majority
+  // of cards that have real data. Instead we'll check...
+  std::string obs_fmt_int = "%-15.1f ";
+  std::string obs_fmt_flt = "%-15.4f ";
   for (auto const& obs : obs_) {
-    txt_file << boost::format("%-15.1f ") % obs->rate();
+    bool is_float =
+        std::fabs(obs->rate() - std::round(obs->rate())) > 1E-4;
+    txt_file << boost::format(is_float ? obs_fmt_flt : obs_fmt_int)
+        % obs->rate();
   }
   txt_file << "\n";
   txt_file << dashes << "\n";
