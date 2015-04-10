@@ -47,11 +47,45 @@ std::vector<ch::Parameter> ExtractSampledFitParameters(
 // ---------------------------------------------------------------------------
 // Property matching & editing
 // ---------------------------------------------------------------------------
-void SetStandardBinNames(CombineHarvester & cb) {
-  cb.ForEachObs(ch::SetStandardBinName<ch::Observation>);
-  cb.ForEachProc(ch::SetStandardBinName<ch::Process>);
-  cb.ForEachSyst(ch::SetStandardBinName<ch::Systematic>);
+void SetStandardBinNames(CombineHarvester& cb, std::string const& pattern) {
+  cb.ForEachObj([&](ch::Object* obj) {
+    ch::SetStandardBinName(obj, pattern);
+  });
 }
+
+void SetStandardBinName(ch::Object* obj, std::string pattern) {
+  boost::replace_all(pattern, "$BINID",
+                     boost::lexical_cast<std::string>(obj->bin_id()));
+  boost::replace_all(pattern, "$BIN", obj->bin());
+  boost::replace_all(pattern, "$PROCESS", obj->process());
+  boost::replace_all(pattern, "$MASS", obj->mass());
+  boost::replace_all(pattern, "$ERA", obj->era());
+  boost::replace_all(pattern, "$CHANNEL", obj->channel());
+  boost::replace_all(pattern, "$ANALYSIS", obj->analysis());
+  obj->set_bin(pattern);
+}
+
+void SetFromBinName(ch::Object *input, std::string parse_rules) {
+  boost::replace_all(parse_rules, "$ANALYSIS",  "(?<ANALYSIS>\\w+)");
+  boost::replace_all(parse_rules, "$ERA",       "(?<ERA>\\w+)");
+  boost::replace_all(parse_rules, "$CHANNEL",   "(?<CHANNEL>\\w+)");
+  boost::replace_all(parse_rules, "$BINID",     "(?<BINID>\\w+)");
+  boost::replace_all(parse_rules, "$MASS",      "(?<MASS>\\w+)");
+  boost::regex rgx(parse_rules);
+  boost::smatch matches;
+  boost::regex_search(input->bin(), matches, rgx);
+  if (matches.str("ANALYSIS").length())
+    input->set_analysis(matches.str("ANALYSIS"));
+  if (matches.str("ERA").length())
+    input->set_era(matches.str("ERA"));
+  if (matches.str("CHANNEL").length())
+    input->set_channel(matches.str("CHANNEL"));
+  if (matches.str("BINID").length())
+    input->set_bin_id(boost::lexical_cast<int>(matches.str("BINID")));
+  if (matches.str("MASS").length())
+    input->set_mass(matches.str("MASS"));
+}
+
 
 // ---------------------------------------------------------------------------
 // Rate scaling

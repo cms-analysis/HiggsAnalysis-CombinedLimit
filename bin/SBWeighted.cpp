@@ -65,9 +65,7 @@ int main(int argc, char* argv[]){
   for (auto const& d : datacards) {
     cmb.ParseDatacard(d, parse_rule);
   }
-  cmb.ForEachSyst(ch::SetStandardBinName<ch::Systematic>);
-  cmb.ForEachObs(ch::SetStandardBinName<ch::Observation>);
-  cmb.ForEachProc(ch::SetStandardBinName<ch::Process>);
+  ch::SetStandardBinNames(cmb);
 
   RooFitResult* fitresult = nullptr;
   if (fitresult_file.length() && postfit) {

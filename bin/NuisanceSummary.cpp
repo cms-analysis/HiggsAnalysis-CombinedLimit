@@ -40,9 +40,7 @@ int main(int argc, char* argv[]) {
     cmb.ParseDatacard(d, parse_rule);
   }
 
-  cmb.ForEachSyst(ch::SetStandardBinName<ch::Systematic>);
-  cmb.ForEachObs(ch::SetStandardBinName<ch::Observation>);
-  cmb.ForEachProc(ch::SetStandardBinName<ch::Process>);
+  ch::SetStandardBinNames(cmb);
   // cmb.PrintAll();
 
   if (fitresult_file.length()) {
