@@ -116,8 +116,51 @@ std::vector<std::vector<unsigned>> GenerateCombinations(
 
 std::vector<std::string> ParseFileLines(std::string const& file_name);
 
+/**
+ * Generate a vector of mass values using ranges and intervals specified in a
+ * string
+ *
+ * The input string should be of the format:
+ *
+ *     m1-m2:r1,m3,m4,m5-m6:r2,...
+ *
+ * where mi and ri must both be positive. A term like mi-mj:r (where mi must
+ * be < mj) genrates masses starting at mi and increasing by an interval r up
+ * to mj.
+ *
+ * This function returns a vector of ordered mass values converted to strings.
+ *
+ * \note Use the function ch::ValsFromRange if you need to include negative
+ * numbers - this uses a different syntax for the ranges so doesn't suffer
+ * from the amiguity of the `-` sign
+ *
+ * @param input The input string to decode
+ * @param fmt The format specifier for converting floating-point mass values
+ * to strings
+ */
 std::vector<std::string> MassesFromRange(std::string const& input,
                                          std::string const& fmt = "%.0f");
+
+/**
+ * Generate a vector of values using ranges and intervals specified in a
+ * string
+ *
+ * The input string should be of the format:
+ *
+ *     m1:m2|r1,m3,m4,m5:m6|r2,...
+ *
+ * where mi and ri can be positive or negative. A term like mi-mj:r (where mi
+ * must be < mj) genrates values starting at mi and increasing by an interval
+ * r up to mj.
+ *
+ * This function returns a vector of ordered values converted to strings.
+ *
+ * @param input The input string to decode
+ * @param fmt The format specifier for converting floating-point values to
+ * strings
+ */
+std::vector<std::string> ValsFromRange(std::string const& input,
+                                       std::string const& fmt = "%.0f");
 
 bool HasNegativeBins(TH1 const* h);
 

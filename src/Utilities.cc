@@ -252,6 +252,38 @@ std::vector<std::string> MassesFromRange(std::string const& input,
   return result;
 }
 
+std::vector<std::string> ValsFromRange(std::string const& input,
+                                       std::string const& fmt) {
+  std::set<double> mass_set;
+  std::vector<std::string> tokens;
+  boost::split(tokens, input, boost::is_any_of(","));
+  for (auto const& t : tokens) {
+    std::vector<std::string> sub_tokens;
+    boost::split(sub_tokens, t, boost::is_any_of(":|"));
+    if (sub_tokens.size() == 1) {
+      double mass_val = boost::lexical_cast<double>(sub_tokens[0]);
+      mass_set.insert(mass_val);
+    } else if (sub_tokens.size() == 3) {
+      double lo = boost::lexical_cast<double>(sub_tokens[0]);
+      double hi = boost::lexical_cast<double>(sub_tokens[1]);
+      double step = boost::lexical_cast<double>(sub_tokens[2]);
+      if (hi <= lo)
+        throw std::runtime_error(
+            "[ValsFromRange] High mass is smaller than low mass!");
+      double start = lo;
+      while (start < hi + 1E-4) {
+        mass_set.insert(start);
+        start += step;
+      }
+    }
+  }
+  std::vector<std::string> result;
+  for (auto const& m : mass_set) {
+    result.push_back((boost::format(fmt) % m).str());
+  }
+  return result;
+}
+
 boost::filesystem::path make_relative(boost::filesystem::path p_from,
                                       boost::filesystem::path p_to) {
   p_from = boost::filesystem::absolute(p_from);
