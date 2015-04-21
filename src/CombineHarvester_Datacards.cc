@@ -31,11 +31,11 @@ namespace ch {
 // ".*{MASS}/{ANALYSIS}_{CHANNEL}_{BINID}_{ERA}.txt"
 int CombineHarvester::ParseDatacard(std::string const& filename,
     std::string parse_rules) {
-  boost::replace_all(parse_rules, "$ANALYSIS",  "(?<ANALYSIS>\\w+)");
-  boost::replace_all(parse_rules, "$ERA",       "(?<ERA>\\w+)");
-  boost::replace_all(parse_rules, "$CHANNEL",   "(?<CHANNEL>\\w+)");
-  boost::replace_all(parse_rules, "$BINID",     "(?<BINID>\\w+)");
-  boost::replace_all(parse_rules, "$MASS",      "(?<MASS>\\w+)");
+  boost::replace_all(parse_rules, "$ANALYSIS",  "(?<ANALYSIS>[\\w\\.]+)");
+  boost::replace_all(parse_rules, "$ERA",       "(?<ERA>[\\w\\.]+)");
+  boost::replace_all(parse_rules, "$CHANNEL",   "(?<CHANNEL>[\\w\\.]+)");
+  boost::replace_all(parse_rules, "$BINID",     "(?<BINID>[\\w\\.]+)");
+  boost::replace_all(parse_rules, "$MASS",      "(?<MASS>[\\w\\.]+)");
   boost::regex rgx(parse_rules);
   boost::smatch matches;
   boost::regex_search(filename, matches, rgx);
@@ -610,7 +610,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   txt_file << boost::format("%-"+sys_str_long+"s") % "rate";
   for (auto const& proc : procs_) {
-    txt_file << boost::format("%-15.4f ") % proc->no_norm_rate();
+    txt_file << boost::format("%-15.4g ") % proc->no_norm_rate();
   }
   txt_file << "\n";
   txt_file << dashes << "\n";
