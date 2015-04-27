@@ -82,8 +82,8 @@ void RooMorphingPdf::SetAxisInfo() {
 void RooMorphingPdf::Init() const {
   hmap_.clear();
   if (masses_.size() != unsigned(pdfs_.getSize())) {
-    std::cout << "Number of mass points: " << masses_.size() << "\n";
-    std::cout << "Number of pdfs: " << pdfs_.getSize() << "\n";
+    // std::cout << "Number of mass points: " << masses_.size() << "\n";
+    // std::cout << "Number of pdfs: " << pdfs_.getSize() << "\n";
     throw std::runtime_error(
         "RooMorphingPdf: Number of mass points differs from the number of "
         "stored pdfs!");
