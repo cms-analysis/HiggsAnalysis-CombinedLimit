@@ -11,6 +11,7 @@ class Higgswidth(PhysicsModel):
         self.hasACfai1 = False
         self.forbidPMF = False
         self.is2l2nu = False
+        self.useRVoverRF = False
         self.poiMap = []
         self.pois = {}
         self.verbose = False
@@ -26,15 +27,25 @@ class Higgswidth(PhysicsModel):
         elif process == "qqH_b": return "qqH_b_func"
         elif process == "qqH_sbi": return "qqH_sbi_func"
         elif process in ["ggH","ttH"]:
-            if self.RVRFfixed or self.GGsmRVRFfixed:
+            if self.useRVoverRF:
                 return "R"
             else:
-                return "RF"
+                if self.RVRFfixed or self.GGsmRVRFfixed:
+                    return "R"
+                else:
+                    return "RF"
+
         elif process in ["qqH","WH","ZH","VH"]:
-            if self.RVRFfixed or self.GGsmRVRFfixed:
-                return "R"
+            if self.useRVoverRF:
+                if self.RVRFfixed or self.GGsmRVRFfixed:
+                    return "R"
+                else:
+                    return "RRV"
             else:
-                return "RV"
+                if self.RVRFfixed or self.GGsmRVRFfixed:
+                    return "R"
+                else:
+                    return "RV"
         else:
             return 1
             
@@ -52,6 +63,9 @@ class Higgswidth(PhysicsModel):
             if 'is2l2nu' in po:
                 print "Will consider cards in 2l2nu style (separated S, B, S+B+I)"
                 self.is2l2nu = True
+            if 'useRVoverRF' in po:
+                print "Will use RV=RV/RF, R=RF instead"
+                self.useRVoverRF = True
             if 'ACfai1' in po:
                 print "Model will consider fai1 for anomalous couplings onshell and offshell. Notice that it is not going to be the single POI"
                 self.hasACfai1 = True
@@ -80,8 +94,12 @@ class Higgswidth(PhysicsModel):
         if self.GGsmfixed:
             self.modelBuilder.out.var("CMS_zz4l_GGsm").setConstant(True)
             print "Fixing CMS_zz4l_GGsm and R"
-            self.modelBuilder.out.var("R").setConstant(True)
-            poi = "RV,RF"
+            if self.useRVoverRF:
+                self.modelBuilder.out.var("RF").setConstant(True)
+                poi = "RV,R"
+            else:
+                self.modelBuilder.out.var("R").setConstant(True)
+                poi = "RV,RF"
         elif self.GGsmRVRFfixed:
             self.modelBuilder.out.var("CMS_zz4l_GGsm").setConstant(True)
             print "Fixing CMS_zz4l_GGsm and RV, RF"
@@ -93,7 +111,10 @@ class Higgswidth(PhysicsModel):
                 self.modelBuilder.out.var("RV").setConstant(True)
                 self.modelBuilder.out.var("RF").setConstant(True)
             else:
-                self.modelBuilder.out.var("R").setConstant(True)
+                if self.useRVoverRF:
+                    self.modelBuilder.out.var("RF").setConstant(True)
+                else:
+                    self.modelBuilder.out.var("R").setConstant(True)
             poi = "CMS_zz4l_GGsm"
 
         if self.hasACfai1:
@@ -119,7 +140,8 @@ class Higgswidth(PhysicsModel):
         self.modelBuilder.factory_("expr::qqH_b_func(\"1-sqrt(@0*@1*@2)\",R,CMS_zz4l_GGsm,RV)")
         self.modelBuilder.factory_("expr::qqH_sbi_func(\"sqrt(@0*@1*@2)\",R,CMS_zz4l_GGsm,RV)")
         
-        
+        self.modelBuilder.factory_("expr::RRV(\"@0*@1\",R,RV)")
+
         self.modelBuilder.doSet("POI",poi)
         
 higgswidth = Higgswidth()
