@@ -32,7 +32,7 @@ ClassImp(HZZ4L_RooSpinZeroPdf_phase)
   RooAbsArg* func;
   while((func = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
-      coutE(InputArguments) << "ERROR: :HZZ4L_RooSpinZeroPdf_phase(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << endl;
+      coutE(InputArguments) << "ERROR: :HZZ4L_RooSpinZeroPdf_phase(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*func) ;

@@ -62,7 +62,7 @@ public:
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
-  virtual void	printMultiline(ostream& os, Int_t contents, Bool_t verbose = kFALSE, TString indent = "") const ;
+  virtual void	printMultiline(std::ostream& os, Int_t contents, Bool_t verbose = kFALSE, TString indent = "") const ;
 
 protected:
 
