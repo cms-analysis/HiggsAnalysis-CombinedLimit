@@ -277,4 +277,16 @@ void CombineHarvester::MergeBinErrors(double bbb_threshold,
     // std::cout << "Total bbb =======>: " << bbb_added-bbb_removed << "\n";
   }
 }
+
+void CombineHarvester::InsertObservation(ch::Observation const& obs) {
+  obs_.push_back(std::make_shared<ch::Observation>(obs));
+}
+
+void CombineHarvester::InsertProcess(ch::Process const& proc) {
+  procs_.push_back(std::make_shared<ch::Process>(proc));
+}
+
+void CombineHarvester::InsertSystematic(ch::Systematic const& sys) {
+  systs_.push_back(std::make_shared<ch::Systematic>(sys));
+}
 }

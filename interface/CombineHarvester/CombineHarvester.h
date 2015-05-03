@@ -355,6 +355,10 @@ class CombineHarvester {
 
   void AddWorkspace(RooWorkspace const* ws);
 
+  void InsertObservation(ch::Observation const& obs);
+  void InsertProcess(ch::Process const& proc);
+  void InsertSystematic(ch::Systematic const& sys);
+
   /**
    * Create bin-by-bin uncertainties
    *
