@@ -35,6 +35,12 @@ class Parameter {
   void set_err_d(double const& err_d) { err_d_ = err_d; }
   double err_d() const { return err_d_; }
 
+  void set_range_u(double const& range_u) { range_u_ = range_u; }
+  double range_u() const { return range_u_; }
+
+  void set_range_d(double const& range_d) { range_d_ = range_d; }
+  double range_d() const { return range_d_; }
+  
   std::vector<RooRealVar *> & vars() { return vars_; }
 
   friend std::ostream& operator<< (std::ostream &out, Parameter &val);
@@ -45,6 +51,8 @@ class Parameter {
   double val_;
   double err_u_;
   double err_d_;
+  double range_u_;
+  double range_d_;
   std::vector<RooRealVar *> vars_;
   friend void swap(Parameter& first, Parameter& second);
 };

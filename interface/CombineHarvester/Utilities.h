@@ -11,6 +11,7 @@
 #include "boost/filesystem.hpp"
 #include "TGraph.h"
 #include "RooFitResult.h"
+#include "RooArgSet.h"
 #include "CombineTools/interface/Parameter.h"
 #include "CombineTools/interface/Systematic.h"
 #include "CombineTools/interface/Process.h"
@@ -19,6 +20,8 @@
 namespace ch { class CombineHarvester; }
 
 namespace ch {
+RooArgSet ParametersByName(RooAbsReal const* pdf, RooArgSet const* dat_vars);
+
 // ---------------------------------------------------------------------------
 // Paramter extraction/manipulation
 // ---------------------------------------------------------------------------

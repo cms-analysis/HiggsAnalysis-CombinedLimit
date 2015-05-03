@@ -1,6 +1,7 @@
 #include "CombineTools/interface/Parameter.h"
 #include <iostream>
 #include <string>
+#include <limits>
 #include "boost/format.hpp"
 
 namespace ch {
@@ -9,7 +10,9 @@ Parameter::Parameter()
     : name_(""),
       val_(0.0),
       err_u_(1.0),
-      err_d_(-1.0) {
+      err_d_(-1.0),
+      range_u_(std::numeric_limits<double>::max()),
+      range_d_(std::numeric_limits<double>::lowest()) {
   }
 
 Parameter::~Parameter() { }
@@ -20,6 +23,8 @@ void swap(Parameter& first, Parameter& second) {
   swap(first.val_, second.val_);
   swap(first.err_u_, second.err_u_);
   swap(first.err_d_, second.err_d_);
+  swap(first.range_u_, second.range_u_);
+  swap(first.range_d_, second.range_d_);
   swap(first.vars_, second.vars_);
 }
 
@@ -28,6 +33,8 @@ Parameter::Parameter(Parameter const& other)
       val_(other.val_),
       err_u_(other.err_u_),
       err_d_(other.err_d_),
+      range_u_(other.range_u_),
+      range_d_(other.range_d_),
       vars_(other.vars_) {
 }
 
@@ -35,7 +42,9 @@ Parameter::Parameter(Parameter&& other)
     : name_(""),
       val_(0.0),
       err_u_(1.0),
-      err_d_(-1.0) {
+      err_d_(-1.0),
+      range_u_(std::numeric_limits<double>::max()),
+      range_d_(std::numeric_limits<double>::lowest()) {
   swap(*this, other);
 }
 

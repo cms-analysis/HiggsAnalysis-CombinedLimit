@@ -209,6 +209,15 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
           param->set_err_u(+1.0 * boost::lexical_cast<double>(words[i][3]));
           param->set_err_d(-1.0 * boost::lexical_cast<double>(words[i][3]));
         }
+        if (words[i].size() >= 5) {
+          // We have a range
+          std::vector<std::string> tokens;
+          boost::split(tokens, words[i][4], boost::is_any_of("[],"));
+          if (tokens.size() == 4) {
+            param->set_range_d(boost::lexical_cast<double>(tokens[1]));
+            param->set_range_u(boost::lexical_cast<double>(tokens[2]));
+          }
+        }
         continue;  // skip the rest of this now
       }
     }
@@ -438,6 +447,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
 
 void CombineHarvester::WriteDatacard(std::string const& name,
                                      TFile& root_file) {
+  using boost::format;
   if (!root_file.IsOpen()) {
     throw std::runtime_error(FNERROR(
         std::string("Output ROOT file is not open: ") + root_file.GetName()));
@@ -473,34 +483,42 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   std::set<std::string> all_dependents_pars;
   for (auto proc : procs_) {
-    if (proc->pdf()) {
-      // The rest of this is building the list of dependents
-      /**
-       * \todo This reproduces quite a lot of CombineHarvester::ImportParameters
-       */
-      RooAbsData const* data_obj = FindMatchingData(proc.get());
-      RooArgSet *par_list = nullptr;
-      RooArgSet *norm_par_list = nullptr;
-      if (data_obj) {
-        par_list = proc->pdf()->getParameters(data_obj);
-        if (proc->norm()) norm_par_list = proc->norm()->getParameters(data_obj);
-      } else {
-        RooRealVar mx("CMS_th1x" , "CMS_th1x", 0, 1);
-        RooArgSet tmp_set(mx);
-        par_list =  proc->pdf()->getParameters(&tmp_set);
-        if (proc->norm()) norm_par_list = proc->norm()->getParameters(&tmp_set);
+    if (!proc->pdf()) continue;
+    // The rest of this is building the list of dependents
+    /**
+     * \todo This reproduces quite a lot of CombineHarvester::ImportParameters
+     */
+    RooAbsData const* data_obj = FindMatchingData(proc.get());
+    RooArgSet par_list;
+    RooArgSet norm_par_list;
+
+    if (data_obj) {
+      par_list.add(ParametersByName(proc->pdf(), data_obj->get()));
+      if (proc->norm()) {
+        norm_par_list.add(ParametersByName(proc->norm(), data_obj->get()));
       }
-      auto par_list_it = par_list->createIterator();
-      do {
-        RooRealVar *y = dynamic_cast<RooRealVar*>(**par_list_it);
-        if (y) all_dependents_pars.insert(y->GetName());
-      } while (par_list_it->Next());
-      if (norm_par_list) {
-        auto norm_par_list_it = par_list->createIterator();
-        do {
-          RooRealVar *y = dynamic_cast<RooRealVar*>(**norm_par_list_it);
-          if (y) all_dependents_pars.insert(y->GetName());
-        } while (norm_par_list_it->Next());
+    } else {
+      RooRealVar mx("CMS_th1x" , "CMS_th1x", 0, 1);
+      RooArgSet tmp_set(mx);
+      par_list.add(ParametersByName(proc->pdf(), &tmp_set));
+      if (proc->norm()) {
+        norm_par_list.add(ParametersByName(proc->norm(), &tmp_set));
+      }
+    }
+    RooFIter par_list_it = par_list.fwdIterator();
+    RooAbsArg *par_list_var = nullptr;
+    while ((par_list_var = par_list_it.next())) {
+      if (dynamic_cast<RooRealVar*>(par_list_var)) {
+        all_dependents_pars.insert(par_list_var->GetName());
+      }
+    }
+    if (proc->norm()) {
+      RooFIter nm_list_it = norm_par_list.fwdIterator();
+      RooAbsArg *nm_list_var = nullptr;
+      while ((nm_list_var = nm_list_it.next())) {
+        if (dynamic_cast<RooRealVar*>(nm_list_var)) {
+          all_dependents_pars.insert(nm_list_var->GetName());
+        }
       }
     }
   }
@@ -519,7 +537,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   file_name = make_relative(txt_file_path, root_file_path).string();
 
   for (auto const& mapping : mappings) {
-    txt_file << boost::format("shapes %s %s %s %s %s\n")
+    txt_file << format("shapes %s %s %s %s %s\n")
       % mapping.process
       % mapping.category
       % file_name
@@ -535,7 +553,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   // Writing observations
   txt_file << "bin          ";
   for (auto const& obs : obs_) {
-    txt_file << boost::format("%-15s ") % obs->bin();
+    txt_file << format("%-15s ") % obs->bin();
     if (obs->shape()) {
       std::unique_ptr<TH1> h((TH1*)(obs->shape()->Clone()));
       h->Scale(obs->rate());
@@ -554,7 +572,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   for (auto const& obs : obs_) {
     bool is_float =
         std::fabs(obs->rate() - std::round(obs->rate())) > 1E-4;
-    txt_file << boost::format(is_float ? obs_fmt_flt : obs_fmt_int)
+    txt_file << format(is_float ? obs_fmt_flt : obs_fmt_int)
         % obs->rate();
   }
   txt_file << "\n";
@@ -564,28 +582,31 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   for (auto const& sys : sys_set) {
     if (sys.length() > sys_str_len) sys_str_len = sys.length();
   }
+  for (auto const& sys : all_dependents_pars) {
+    if (sys.length() > sys_str_len) sys_str_len = sys.length();
+  }
   std::string sys_str_short = boost::lexical_cast<std::string>(sys_str_len);
   std::string sys_str_long = boost::lexical_cast<std::string>(sys_str_len+9);
 
-  txt_file << boost::format("%-"+sys_str_long+"s") % "bin";
+  txt_file << format("%-"+sys_str_long+"s") % "bin";
   for (auto const& proc : procs_) {
     if (proc->shape()) {
       std::unique_ptr<TH1> h = proc->ClonedScaledShape();
       WriteHistToFile(h.get(), &root_file, mappings, proc->bin(),
                       proc->process(), proc->mass(), "", 0);
     }
-    txt_file << boost::format("%-15s ") % proc->bin();
+    txt_file << format("%-15s ") % proc->bin();
   }
   txt_file << "\n";
 
-  txt_file << boost::format("%-"+sys_str_long+"s") % "process";
+  txt_file << format("%-"+sys_str_long+"s") % "process";
 
   for (auto const& proc : procs_) {
-    txt_file << boost::format("%-15s ") % proc->process();
+    txt_file << format("%-15s ") % proc->process();
   }
   txt_file << "\n";
 
-  txt_file << boost::format("%-"+sys_str_long+"s") % "process";
+  txt_file << format("%-"+sys_str_long+"s") % "process";
 
   // Setup process_ids first
   std::map<std::string, int> p_ids;
@@ -603,14 +624,14 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     }
   }
   for (auto const& proc : procs_) {
-    txt_file << boost::format("%-15s ") % p_ids[proc->process()];
+    txt_file << format("%-15s ") % p_ids[proc->process()];
   }
   txt_file << "\n";
 
 
-  txt_file << boost::format("%-"+sys_str_long+"s") % "rate";
+  txt_file << format("%-"+sys_str_long+"s") % "rate";
   for (auto const& proc : procs_) {
-    txt_file << boost::format("%-15.4g ") % proc->no_norm_rate();
+    txt_file << format("%-15.4g ") % proc->no_norm_rate();
   }
   txt_file << "\n";
   txt_file << dashes << "\n";
@@ -621,10 +642,13 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     Parameter const* p = par.second.get();
     if (p->err_d() != 0.0 && p->err_u() != 0.0 &&
         all_dependents_pars.count(p->name()) && sys_set.count(p->name())) {
-      txt_file << boost::format("%-" +
-                                boost::lexical_cast<std::string>(sys_str_len) +
-                                "s param %g %g\n") %
+      txt_file << format((format("%%-%is param %%g %%g") % sys_str_len).str()) %
                       p->name() % p->val() % ((p->err_u() - p->err_d()) / 2.0);
+      if (p->range_d() != std::numeric_limits<double>::lowest() &&
+          p->range_u() != std::numeric_limits<double>::max()) {
+        txt_file << format(" [%.4g,%.4g]") % p->range_d() % p->range_u();
+      }
+      txt_file << "\n";
     }
   }
 
@@ -645,15 +669,15 @@ void CombineHarvester::WriteDatacard(std::string const& name,
             if (sys_ptr->type() == "lnU") seen_lnU = true;
             line[p + 2] =
                 sys_ptr->asymm()
-                    ? (boost::format("%g/%g") % sys_ptr->value_d() %
+                    ? (format("%g/%g") % sys_ptr->value_d() %
                        sys_ptr->value_u()).str()
-                    : (boost::format("%g") % sys_ptr->value_u()).str();
+                    : (format("%g") % sys_ptr->value_u()).str();
             break;
           }
           if (sys_ptr->type() == "shape" || sys_ptr->type() == "shapeN2") {
             if (sys_ptr->type() == "shape") seen_shape = true;
             if (sys_ptr->type() == "shapeN2") seen_shapeN2 = true;
-            line[p+2] = (boost::format("%g") % sys_ptr->scale()).str();
+            line[p+2] = (format("%g") % sys_ptr->scale()).str();
             if (sys_ptr->shape_u() && sys_ptr->shape_d()) {
               bool add_dir = TH1::AddDirectoryStatus();
               TH1::AddDirectory(false);
@@ -696,11 +720,11 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     } else {
       throw std::runtime_error(FNERROR("Systematic type could not be deduced"));
     }
-    txt_file << boost::format(
+    txt_file << format(
       "%-"+sys_str_short+"s %-7s ")
       % line[0] % line[1];
     for (unsigned p = 0; p < procs_.size(); ++p) {
-      txt_file << boost::format("%-15s ") % line[p+2];
+      txt_file << format("%-15s ") % line[p+2];
     }
     txt_file << "\n";
   }
@@ -731,10 +755,13 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     Parameter const* p = par.second.get();
     if (p->err_d() != 0.0 && p->err_u() != 0.0 &&
         all_dependents_pars.count(p->name()) && !sys_set.count(p->name())) {
-      txt_file << boost::format("%-" +
-                                boost::lexical_cast<std::string>(sys_str_len) +
-                                "s param %g %g\n") %
+      txt_file << format((format("%%-%is param %%g %%g") % sys_str_len).str()) %
                       p->name() % p->val() % ((p->err_u() - p->err_d()) / 2.0);
+      if (p->range_d() != std::numeric_limits<double>::lowest() &&
+          p->range_u() != std::numeric_limits<double>::max()) {
+        txt_file << format(" [%.4g,%.4g]") % p->range_d() % p->range_u();
+      }
+      txt_file << "\n";
     }
   }
   txt_file.close();

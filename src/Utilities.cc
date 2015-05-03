@@ -9,9 +9,37 @@
 #include "RooFitResult.h"
 #include "RooRealVar.h"
 #include "RooDataHist.h"
+#include "RooAbsReal.h"
+#include "RooAbsData.h"
 #include "CombineTools/interface/CombineHarvester.h"
 
 namespace ch {
+
+RooArgSet ParametersByName(RooAbsReal const* pdf, RooArgSet const* dat_vars) {
+  // Get all pdf parameters first
+  // We are expected to manage the memory of the RooArgSet pointer we're given,
+  // so let's use a unique_ptr to ensure it gets cleaned up
+  std::unique_ptr<RooArgSet> all_vars(pdf->getParameters(RooArgSet()));
+  // Get the data variables and fill a set with all the names
+  std::set<std::string> names;
+  RooFIter dat_it = dat_vars->fwdIterator();
+  RooAbsArg *dat_arg = nullptr;
+  while((dat_arg = dat_it.next())) {
+    names.insert(dat_arg->GetName());
+  }
+
+  // Build a new RooArgSet from all_vars, excluding any in names
+  RooArgSet result_set;
+  RooFIter vars_it = all_vars->fwdIterator();
+  RooAbsArg *vars_arg = nullptr;
+  while((vars_arg = vars_it.next())) {
+    if (!names.count(vars_arg->GetName())) {
+      result_set.add(*vars_arg);
+    }
+  }
+  return result_set;
+}
+
 // ---------------------------------------------------------------------------
 // Paramter extraction/manipulation
 // ---------------------------------------------------------------------------

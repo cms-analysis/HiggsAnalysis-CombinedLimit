@@ -423,15 +423,27 @@ void CombineHarvester::LoadShapes(Process* entry,
     RooAbsData const* data_obj = FindMatchingData(entry);
     if (data_obj) {
       if (verbosity_ >= 2) LOGLINE(log(), "Matching RooAbsData has been found");
-      if (pdf) ImportParameters(pdf->getParameters(data_obj));
-      if (norm) ImportParameters(norm->getParameters(data_obj));
+      if (pdf) {
+        RooArgSet argset = ParametersByName(pdf, data_obj->get());
+        ImportParameters(&argset);
+      }
+      if (norm) {
+        RooArgSet argset = ParametersByName(norm, data_obj->get());
+        ImportParameters(&argset);
+      }
     } else {
       if (verbosity_ >= 2)
         LOGLINE(log(), "No RooAbsData found, assume observable CMS_th1x");
       RooRealVar mx("CMS_th1x" , "CMS_th1x", 0, 1);
       RooArgSet tmp_set(mx);
-      if (pdf) ImportParameters(pdf->getParameters(&tmp_set));
-      if (norm) ImportParameters(norm->getParameters(&tmp_set));
+      if (pdf) {
+        RooArgSet argset = ParametersByName(pdf, &tmp_set);
+        ImportParameters(&argset);
+      }
+      if (norm) {
+        RooArgSet argset = ParametersByName(norm, &tmp_set);
+        ImportParameters(&argset);
+      }
     }
   }
 }
