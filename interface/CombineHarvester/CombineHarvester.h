@@ -353,7 +353,7 @@ class CombineHarvester {
                    CombineHarvester* other = nullptr);
   void ExtractData(std::string const& ws_name, std::string const& rule);
 
-  void AddWorkspace(RooWorkspace const* ws);
+  void AddWorkspace(RooWorkspace const* ws, std::string const& key_val = "");
 
   void InsertObservation(ch::Observation const& obs);
   void InsertProcess(ch::Process const& proc);

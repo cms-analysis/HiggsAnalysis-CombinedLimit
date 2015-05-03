@@ -570,25 +570,31 @@ CombineHarvester::StrPairVec CombineHarvester::GenerateShapeMapAttempts(
 std::pair<std::string, std::string> CombineHarvester::SetupWorkspace(
     HistMapping const& mapping, std::string alt_mapping) {
   std::string p = alt_mapping.size() ? alt_mapping : mapping.pattern;
-  std::pair<std::string, std::string> res;
+  std::string filename = std::string(mapping.file->GetName());
+  std::string wsname;
+  std::string objname;
   std::size_t colon = p.find_last_of(':');
   if (colon != p.npos) {
-    res.first = p.substr(0, colon);
-    res.second = p.substr(colon+1);
+    wsname = p.substr(0, colon);
+    objname = p.substr(colon+1);
   } else {
     std::cout << "Something went wrong here\n";
-    return res;
+    return std::make_pair("", "");
   }
-  if (!wspaces_.count(res.first)) {
+  std::string key = filename + ":" + wsname;
+  // Have to handle the case that there are multiple workspaces with the same name
+  // the simple solution is just to key on filename+workspace name
+  if (!wspaces_.count(key)) {
     if (mapping.file) {
       mapping.file->cd();
       RooWorkspace* w =
-          dynamic_cast<RooWorkspace*>(gDirectory->Get(res.first.c_str()));
-      AddWorkspace(w);
+          dynamic_cast<RooWorkspace*>(gDirectory->Get(wsname.c_str()));
+      // Check for failure here
+      AddWorkspace(w, key);
       delete w;
     }
   }
-  return res;
+  return std::make_pair(key, objname);
 }
 
 void CombineHarvester::ImportParameters(RooArgSet *vars) {
