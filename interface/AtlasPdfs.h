@@ -28,7 +28,7 @@ namespace HistFactory{
   public:
 
     RooBSplineBases() ;
-    RooBSplineBases(const char* name, const char* title, int order, vector<double>& tValues,
+    RooBSplineBases(const char* name, const char* title, int order, std::vector<double>& tValues,
 		    RooAbsReal& t, int nrClose=0);
 
     RooBSplineBases(const char *name, const char *title);
@@ -42,15 +42,15 @@ namespace HistFactory{
     int getOrder() const {return _n;}
     //void setWeights(const RooArgList& weights);
     Double_t getBasisVal(int n, int i, bool rebuild=true) const;
-    vector<double> getTValues() const {return _tValues;}
-    vector<double> getTAry() {return _t_ary;}
+    std::vector<double> getTValues() const {return _tValues;}
+    std::vector<double> getTAry() {return _t_ary;}
 
   protected:
 
     void buildTAry() const;
 
     //RooListProxy _controlPoints;
-    vector<double> _tValues;
+    std::vector<double> _tValues;
     //RooListProxy _t_ary;
     int _m;
 /*     mutable double* _t_ary; //[_m] */
@@ -59,8 +59,8 @@ namespace HistFactory{
     int _nrClose;
     //int _nPlusOne;
     //mutable double** _bin; //[_nPlusOne][_m]
-    mutable vector<double> _t_ary;
-    mutable vector<vector<double> > _bin;
+    mutable std::vector<double> _t_ary;
+    mutable std::vector<std::vector<double> > _bin;
 
     Double_t evaluate() const;
 
@@ -110,7 +110,7 @@ namespace HistFactory{
     RooBSpline() ;
     RooBSpline(const char* name, const char* title,
 	       const RooArgList& controlPoints, RooBSplineBases& bases, const RooArgSet& vars);
-    //RooBSpline(const char* name, const char* title, int order, vector<double>& tValues,
+    //RooBSpline(const char* name, const char* title, int order, std::vector<double>& tValues,
     //       const RooArgList& controlPoints, RooAbsReal& t, const RooArgSet& vars, int nrClose=0);
 
     RooBSpline(const char *name, const char *title);
