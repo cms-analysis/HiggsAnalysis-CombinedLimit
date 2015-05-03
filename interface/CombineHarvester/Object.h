@@ -18,6 +18,9 @@ class Object {
   virtual void set_process(std::string const& process) { process_ = process; }
   virtual std::string const& process() const { return process_; }
 
+  void set_signal(bool const& signal) { signal_ = signal; }
+  bool signal() const { return signal_; }
+
   virtual void set_analysis(std::string const& analysis) { analysis_ = analysis; }
   virtual std::string const& analysis() const { return analysis_; }
 
@@ -36,6 +39,7 @@ class Object {
  private:
   std::string bin_;
   std::string process_;
+  bool signal_;
   std::string analysis_;
   std::string era_;
   std::string channel_;

@@ -7,7 +7,6 @@ namespace ch {
 
 Systematic::Systematic()
     : Object(),
-      signal_(false),
       name_(""),
       type_(""),
       value_u_(0.0),
@@ -25,7 +24,6 @@ Systematic::~Systematic() { }
 void swap(Systematic& first, Systematic& second) {
   using std::swap;
   swap(static_cast<Object&>(first), static_cast<Object&>(second));
-  swap(first.signal_, second.signal_);
   swap(first.name_, second.name_);
   swap(first.type_, second.type_);
   swap(first.value_u_, second.value_u_);
@@ -40,7 +38,6 @@ void swap(Systematic& first, Systematic& second) {
 
 Systematic::Systematic(Systematic const& other)
     : Object(other),
-      signal_(other.signal_),
       name_(other.name_),
       type_(other.type_),
       value_u_(other.value_u_),
@@ -65,7 +62,6 @@ Systematic::Systematic(Systematic const& other)
 
 Systematic::Systematic(Systematic&& other)
     : Object(),
-      signal_(false),
       name_(""),
       type_(""),
       value_u_(0.0),

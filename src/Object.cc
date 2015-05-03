@@ -5,6 +5,7 @@ namespace ch {
 Object::Object()
     : bin_(""),
       process_(""),
+      signal_(false),
       analysis_(""),
       era_(""),
       channel_(""),
@@ -18,6 +19,7 @@ void swap(Object& first, Object& second) {
   using std::swap;
   swap(first.bin_, second.bin_);
   swap(first.process_, second.process_);
+  swap(first.signal_, second.signal_);
   swap(first.analysis_, second.analysis_);
   swap(first.era_, second.era_);
   swap(first.channel_, second.channel_);
@@ -27,6 +29,8 @@ void swap(Object& first, Object& second) {
 
 Object::Object(Object const& other)
     : bin_(other.bin_),
+      process_(other.process_),
+      signal_(other.signal_),
       analysis_(other.analysis_),
       era_(other.era_),
       channel_(other.channel_),
@@ -37,6 +41,7 @@ Object::Object(Object const& other)
 Object::Object(Object&& other)
     : bin_(""),
       process_(""),
+      signal_(false),
       analysis_(""),
       era_(""),
       channel_(""),

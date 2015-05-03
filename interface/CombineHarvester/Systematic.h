@@ -17,9 +17,6 @@ class Systematic : public Object {
   Systematic(Systematic&& other);
   Systematic& operator=(Systematic other);
 
-  void set_signal(bool const& signal) { signal_ = signal; }
-  bool signal() const { return signal_; }
-
   void set_name(std::string const& name) { name_ = name; }
   std::string const& name() const { return name_; }
 
@@ -59,7 +56,6 @@ class Systematic : public Object {
   static std::ostream& PrintHeader(std::ostream &out);
 
  private:
-  bool signal_;
   std::string name_;
   std::string type_;
   double value_u_;

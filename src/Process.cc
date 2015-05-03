@@ -9,7 +9,6 @@ namespace ch {
 Process::Process()
     : Object(),
       rate_(0.0),
-      signal_(false),
       shape_(),
       pdf_(nullptr),
       data_(nullptr),
@@ -22,7 +21,6 @@ void swap(Process& first, Process& second) {
   using std::swap;
   swap(static_cast<Object&>(first), static_cast<Object&>(second));
   swap(first.rate_, second.rate_);
-  swap(first.signal_, second.signal_);
   swap(first.shape_, second.shape_);
   swap(first.pdf_, second.pdf_);
   swap(first.data_, second.data_);
@@ -32,7 +30,6 @@ void swap(Process& first, Process& second) {
 Process::Process(Process const& other)
     : Object(other),
       rate_(other.rate_),
-      signal_(other.signal_),
       pdf_(other.pdf_),
       data_(other.data_),
       norm_(other.norm_) {
@@ -47,7 +44,6 @@ Process::Process(Process const& other)
 Process::Process(Process&& other)
     : Object(),
       rate_(0.0),
-      signal_(false),
       shape_(),
       pdf_(nullptr),
       data_(nullptr),
