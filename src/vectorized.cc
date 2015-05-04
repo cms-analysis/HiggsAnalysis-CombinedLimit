@@ -59,3 +59,13 @@ void vectorized::powers(const uint32_t size, double exponent, double norm, const
     }
     vdt::fast_expv(size, workingArea, out);
 }
+
+double vectorized::dot_product(const uint32_t size, double const * __restrict__ vec1, double const *  __restrict__ vec2) {
+    double ret = 0;
+    for (uint32_t i = 0; i < size; ++i) {
+        ret += vec1[i]*vec2[i];
+    }
+    return ret;
+}
+
+

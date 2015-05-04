@@ -126,7 +126,7 @@ class CachingAddNLL : public RooAbsReal {
         RooAbsPdf *pdf_;
         RooSetProxy params_;
         const RooAbsData *data_;
-        std::vector<Double_t>  weights_;
+        std::vector<Double_t>  weights_, binWidths_;
         double               sumWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
         mutable boost::ptr_vector<CachingPdfBase>  pdfs_;
@@ -136,6 +136,7 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<Double_t> partialSum_;
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;
+        mutable int canBasicIntegrals_, basicIntegrals_;
         double zeroPoint_;
 };
 

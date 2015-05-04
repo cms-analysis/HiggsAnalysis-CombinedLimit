@@ -464,11 +464,11 @@ cacheutils::CachingAddNLL::setup_()
     RooAddPdf *addpdf = 0;
     RooRealSumPdf *sumpdf = 0;
     if ((addpdf = dynamic_cast<RooAddPdf *>(pdf_)) != 0) {
-        isRooRealSum_ = false;
+        isRooRealSum_ = false; basicIntegrals_ = 0;
         addPdfs_(addpdf, runtimedef::get("ADDNLL_RECURSIVE"), RooArgList());
     } else if ((sumpdf = dynamic_cast<RooRealSumPdf *>(pdf_)) != 0) {
         const RooArgSet *obs = data_->get();
-        isRooRealSum_ = true;
+        isRooRealSum_ = true;  basicIntegrals_ = canBasicIntegrals_;
         int npdf = sumpdf->coefList().getSize();
         coeffs_.reserve(npdf);
         pdfs_.reserve(npdf);
@@ -476,6 +476,22 @@ cacheutils::CachingAddNLL::setup_()
         for (int i = 0; i < npdf; ++i) {
             RooAbsReal * coeff = dynamic_cast<RooAbsReal*>(sumpdf->coefList().at(i));
             RooAbsReal * funci = dynamic_cast<RooAbsReal*>(sumpdf->funcList().at(i));
+            static int tryfactor = runtimedef::get("ADDNLL_ROOREALSUM_FACTOR"); 
+            RooProduct *prodi = 0;
+            if (tryfactor && ((prodi = dynamic_cast<RooProduct *>(funci)) != 0)) {
+                RooArgList newcoeffs(*coeff), newfuncs; 
+                utils::factorizeFunc(*obs, *funci, newfuncs, newcoeffs);
+                if (newcoeffs.getSize() > 1) {
+                    prods_.push_back(new RooProduct("","",newcoeffs));
+                    coeff = &prods_.back();
+                }
+                if (newfuncs.getSize() > 1) {
+                    prods_.push_back(new RooProduct("","",newfuncs));
+                    funci = &prods_.back();
+                } else {
+                    funci =  dynamic_cast<RooAbsReal *>(newfuncs.first());
+                }
+            }
             coeffs_.push_back(coeff);
             pdfs_.push_back(new CachingPdf(funci, obs));
             integrals_.push_back(funci->createIntegral(*obs));
@@ -531,11 +547,12 @@ cacheutils::CachingAddNLL::evaluate() const
     std::vector<Double_t>::const_iterator itw, bgw = weights_.begin();//,    edw = weights_.end();
     std::vector<Double_t>::iterator       its, bgs = partialSum_.begin(), eds = partialSum_.end();
     double sumCoeff = 0;
+    bool allBasicIntegralsOk = (basicIntegrals_ == 1);
     //std::cout << "Performing evaluation of " << GetName() << std::endl;
     for ( ; itc != edc; ++itp, ++itc ) {
         // get coefficient
         Double_t coeff = (*itc)->getVal();
-        if (isRooRealSum_) {
+        if (isRooRealSum_ && basicIntegrals_ < 2) {
             sumCoeff += coeff * integrals_[itc - coeffs_.begin()]->getVal();
             //std::cout << "  coefficient = " << coeff << ", integral = " << integrals_[itc - coeffs_.begin()]->getVal() << std::endl;
         } else {
@@ -543,6 +560,23 @@ cacheutils::CachingAddNLL::evaluate() const
         }
         // get vals
         const std::vector<Double_t> &pdfvals = itp->eval(*data_);
+        if (basicIntegrals_) {
+            double integral = (binWidths_.size() > 1) ? 
+                                    vectorized::dot_product(pdfvals.size(), &pdfvals[0], &binWidths_[0]) :
+                                    binWidths_.front() * std::accumulate(pdfvals.begin(), pdfvals.end(), 0.0);
+            if (basicIntegrals_ == 1) {
+                double refintegral = integrals_[itc - coeffs_.begin()]->getVal();
+                if (refintegral > 0) {
+                    printf("basic integral match: %+10.6f  %+10.6f  %10.7f %s\n", refintegral, integral, refintegral ? std::abs((integral - refintegral)/refintegral) : 0,  itp->pdf()->GetName());
+                    if (std::abs((integral - refintegral)/refintegral) > 1e-5) {
+                        allBasicIntegralsOk = false;
+                        basicIntegrals_ = 0; // don't waste time on this anymore
+                    }
+                }
+            } else {
+                sumCoeff += coeff*(integral - 1.0); // I had added up coeff before.
+            }
+        }
 #ifdef LOG_ADDPDFS
         printf("%s coefficient %s (%s) = %20.15f\n", itp->pdf()->GetName(), (*itc)->GetName(), (*itc)->ClassName(), coeff);
         //(*itc)->Print("");
@@ -558,6 +592,8 @@ cacheutils::CachingAddNLL::evaluate() const
         // vectorize to make it faster
         vectorized::mul_add(pdfvals.size(), coeff, &pdfvals[0], &partialSum_[0]);
     }
+    // if all basic integrals evaluated ok, use them
+    if (allBasicIntegralsOk) basicIntegrals_ = 2;
     // then get the final nll
     double ret = 0;
     for (its = bgs; its != eds ; ++its) {
@@ -595,7 +631,8 @@ cacheutils::CachingAddNLL::evaluate() const
     ret = -ret;
     // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
     // and add extended term: expected - observed*log(expected);
-    double expectedEvents = (isRooRealSum_ ? pdf_->getNorm(data_->get()) : sumCoeff);
+    static bool expEventsNoNorm = runtimedef::get("ADDNLL_ROOREALSUM_NONORM");
+    double expectedEvents = (isRooRealSum_ && !expEventsNoNorm ? pdf_->getNorm(data_->get()) : sumCoeff);
     if (expectedEvents <= 0) {
         if (!CachingSimNLL::noDeepLEE_) logEvalError("Expected number of events is negative"); else CachingSimNLL::hasError_ = true;
         expectedEvents = 1e-6;
@@ -653,6 +690,30 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
     workingArea_.resize(weights_.size());
     for (auto itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
         itp->setDataDirty();
+    }
+    binWidths_.clear(); canBasicIntegrals_ = 0;
+    if (dynamic_cast<RooRealSumPdf *>(pdf_) != 0 && runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") > 0) {
+        const RooArgSet *obs = data_->get();
+        RooRealVar *xvar = dynamic_cast<RooRealVar *>(obs->first());
+        if (obs->getSize() == 1 && xvar != 0 && xvar->numBins() == data_->numEntries()) {
+            const RooAbsBinning &bins = xvar->getBinning();
+            binWidths_.resize(xvar->numBins());
+            bool all_equal = true;
+            canBasicIntegrals_ = runtimedef::get("ADDNLL_ROOREALSUM_BASICINT");
+            for (unsigned int ibin = 0, nbin = binWidths_.size(); ibin < nbin; ++ibin) {
+                double bc = bins.binCenter(ibin), dc = data_->get(ibin)->getRealValue(xvar->GetName());
+                //printf("bin %3d: center %+8.5f ( data %+8.5f , diff %+8.5f ), width %8.5f\n", ibin, bc, dc, abs(dc-bc)/bins.binWidth(ibin), bins.binWidth(ibin));
+                binWidths_[ibin] = bins.binWidth(ibin);
+                if (std::abs(bc-dc) > 1e-5*binWidths_[ibin]) {
+                    printf("channel %s, for observable %s, bin %d mismatch: binning %+8.5f ( data %+8.5f , diff %+7.8f of width %8.5f\n",
+                        pdf_->GetName(), xvar->GetName(), ibin, bc, dc, std::abs(bc-dc)/binWidths_[ibin], binWidths_[ibin]);
+                    canBasicIntegrals_ = 0; 
+                    break;
+                }
+                if ((ibin > 0) && (binWidths_[ibin] != binWidths_[ibin-1])) all_equal = false;
+            }
+            if (all_equal) binWidths_.resize(1);
+        }
     }
 }
 

@@ -210,7 +210,7 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
         //std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
         std::auto_ptr<TIterator> iter(components.createIterator());
         for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
-            //std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << std::endl;
+            //std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << "(dep obs? " << funci->dependsOn(observables) << ")" << std::endl;
             factorizeFunc(observables, *funci, obsTerms, constraints);
         }
     } else if (func.dependsOn(observables)) {
