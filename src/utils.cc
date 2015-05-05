@@ -103,7 +103,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
             newFactors.add(*newpdf);
         }
-        if (!needNew) { copyAttributes(pdf, *prod); return prod; }
+        if (!needNew && newFactors.getSize() > 1) { copyAttributes(pdf, *prod); return prod; }
         else if (newFactors.getSize() == 0) return 0;
         else if (newFactors.getSize() == 1) {
             RooAbsPdf *ret = (RooAbsPdf *) newFactors.first()->Clone(TString::Format("%s_obsOnly", pdf.GetName()));
