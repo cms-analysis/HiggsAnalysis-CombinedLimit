@@ -17,7 +17,7 @@ class VectorizedCBShape {
             const RooAbsReal & sigmavar() const { return sigma.arg(); }
     };
     public:
-        VectorizedCBShape(const RooCBShape &gaus, const RooAbsData &data) ;
+        VectorizedCBShape(const RooCBShape &gaus, const RooAbsData &data, bool includeZeroWeights=false) ;
         void fill(std::vector<Double_t> &out) const ;
         double getIntegral() const ;
 
