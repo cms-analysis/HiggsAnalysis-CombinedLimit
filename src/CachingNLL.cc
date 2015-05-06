@@ -863,7 +863,7 @@ cacheutils::CachingSimNLL::setup_()
             //RooAbsData *data = (RooAbsData *) dataSets_->FindObject(catClone->getLabel());
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
             if (data == 0) { throw std::logic_error("Error: no data"); }
-            bool includeZeroWeights = (pdf->getAttribute("BinnedLikelihood") && runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && (dynamic_cast<RooRealSumPdf*>(pdf)!=0));
+            bool includeZeroWeights = (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && (dynamic_cast<RooRealSumPdf*>(pdf)!=0));
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data, includeZeroWeights);
             params_.add(pdfs_[ib]->params(), /*silent=*/true); 
         } else { 
@@ -955,7 +955,7 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
         for (int ib = 0; ib < nb; ++ib) {
             catClone->setBin(ib);
             RooAbsPdf *pdf = factorizedPdf_->getPdf(catClone->getLabel());
-            if (pdf->getAttribute("BinnedLikelihood") && (dynamic_cast<RooRealSumPdf*>(pdf)!=0)) {
+            if (dynamic_cast<RooRealSumPdf*>(pdf)!=0) {
                 includeZeroWeights[ib] = 1;
                 includeZeroWeightsAny = true;
             }
