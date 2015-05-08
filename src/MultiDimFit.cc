@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "TMath.h"
+#include "TFile.h"
 #include "RooArgSet.h"
 #include "RooArgList.h"
 #include "RooRandom.h"
@@ -22,6 +23,8 @@
 
 using namespace RooStats;
 
+std::string MultiDimFit::name_ = "";
+std::string MultiDimFit::out_ = ".";
 MultiDimFit::Algo MultiDimFit::algo_ = None;
 MultiDimFit::GridType MultiDimFit::gridType_ = G1x1;
 std::vector<std::string>  MultiDimFit::poi_;
@@ -68,7 +71,8 @@ MultiDimFit::MultiDimFit() :
 	("saveSpecifiedNuis",   boost::program_options::value<std::string>(&saveSpecifiedNuis_)->default_value(""), "Save specified parameters (default = none)")
 	("saveSpecifiedFunc",   boost::program_options::value<std::string>(&saveSpecifiedFuncs_)->default_value(""), "Save specified function values (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
-       ;
+        ("out",                boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put output in")
+      ;
 }
 
 void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm) 
@@ -97,6 +101,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
+    name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -304,6 +309,11 @@ void MultiDimFit::doSingles(RooFitResult &res)
                     poiVals_[i], -loErr, hiErr);
         }
     }
+
+    if (out_ != "none") fitOut.reset(TFile::Open((out_+"/multidimfit"+name_+".root").c_str(), "RECREATE"));
+    fitOut->WriteTObject(&res,"fit");
+    fitOut->cd();
+    fitOut.release()->Close();
 }
 
 void MultiDimFit::doGrid(RooAbsReal &nll) 
