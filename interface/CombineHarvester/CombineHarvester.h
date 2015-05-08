@@ -83,7 +83,8 @@ class CombineHarvester {
   CombineHarvester& PrintProcs();
   CombineHarvester& PrintSysts();
   CombineHarvester& PrintParams();
-  void SetVerbosity(unsigned verbosity) { verbosity_ = verbosity; }
+  inline void SetVerbosity(unsigned verbosity) { verbosity_ = verbosity; }
+  inline unsigned Verbosity() { return verbosity_; }
   /**@}*/
 
   /**
@@ -343,6 +344,10 @@ class CombineHarvester {
                     std::vector<std::string> procs,
                     ch::Categories bin, bool signal);
 
+  void AddSystFromProc(Process const& proc, std::string const& name,
+                       std::string const& type, bool asymm, double val_u,
+                       double val_d);
+
   template <class Map>
   void AddSyst(CombineHarvester & target, std::string const& name,
                std::string const& type, Map const& valmap);
@@ -580,33 +585,10 @@ void CombineHarvester::AddSyst(CombineHarvester& target,
     }
     tuples.erase(valmap.GetTuple(procs_[i].get()));
     added_procs.push_back(procs_[i].get());
-    std::string subbed_name = name;
-    boost::replace_all(subbed_name, "$BIN", procs_[i]->bin());
-    boost::replace_all(subbed_name, "$PROCESS", procs_[i]->process());
-    boost::replace_all(subbed_name, "$MASS", procs_[i]->mass());
-    boost::replace_all(subbed_name, "$ERA", procs_[i]->era());
-    boost::replace_all(subbed_name, "$CHANNEL", procs_[i]->channel());
-    boost::replace_all(subbed_name, "$ANALYSIS", procs_[i]->analysis());
-    auto sys = std::make_shared<Systematic>();
-    ch::SetProperties(sys.get(), procs_[i].get());
-    sys->set_name(subbed_name);
-    sys->set_type(type);
-    if (type == "lnN" || type == "lnU") {
-      sys->set_asymm(valmap.IsAsymm());
-      sys->set_value_u(valmap.ValU(procs_[i].get()));
-      sys->set_value_d(valmap.ValD(procs_[i].get()));
-    } else if (type == "shape" || type == "shapeN2") {
-      sys->set_asymm(true);
-      sys->set_value_u(1.0);
-      sys->set_value_d(1.0);
-      sys->set_scale(valmap.ValU(procs_[i].get()));
-    }
-    CombineHarvester::CreateParameterIfEmpty(&target, sys->name());
-    if (sys->type() == "lnU") {
-      params_.at(sys->name())->set_err_d(0.);
-      params_.at(sys->name())->set_err_u(0.);
-    }
-    target.systs_.push_back(sys);
+    double val_u = valmap.ValU(procs_[i].get());
+    double val_d = valmap.ValD(procs_[i].get());
+    target.AddSystFromProc(*(procs_[i]), name, type, valmap.IsAsymm(),
+                           val_u, val_d);
   }
   if (tuples.size() && verbosity_ >= 1) {
     log() << ">> Map keys that were not used to create a Systematic:\n";

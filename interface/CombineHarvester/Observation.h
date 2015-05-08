@@ -31,7 +31,7 @@ class Observation : public Object {
   void set_data(RooAbsData* data) { data_ = data; }
   RooAbsData const* data() const { return data_; }
 
-  friend std::ostream& operator<< (std::ostream &out, Observation &val);
+  friend std::ostream& operator<< (std::ostream &out, Observation const& val);
   static std::ostream& PrintHeader(std::ostream &out);
 
  private:

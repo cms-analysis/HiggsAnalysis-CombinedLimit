@@ -72,6 +72,39 @@ void CombineHarvester::AddProcesses(
   }
 }
 
+void CombineHarvester::AddSystFromProc(Process const& proc,
+                                       std::string const& name,
+                                       std::string const& type, bool asymm,
+                                       double val_u, double val_d) {
+  std::string subbed_name = name;
+  boost::replace_all(subbed_name, "$BIN", proc.bin());
+  boost::replace_all(subbed_name, "$PROCESS", proc.process());
+  boost::replace_all(subbed_name, "$MASS", proc.mass());
+  boost::replace_all(subbed_name, "$ERA", proc.era());
+  boost::replace_all(subbed_name, "$CHANNEL", proc.channel());
+  boost::replace_all(subbed_name, "$ANALYSIS", proc.analysis());
+  auto sys = std::make_shared<Systematic>();
+  ch::SetProperties(sys.get(), &proc);
+  sys->set_name(subbed_name);
+  sys->set_type(type);
+  if (type == "lnN" || type == "lnU") {
+    sys->set_asymm(asymm);
+    sys->set_value_u(val_u);
+    sys->set_value_d(val_d);
+  } else if (type == "shape" || type == "shapeN2") {
+    sys->set_asymm(true);
+    sys->set_value_u(1.0);
+    sys->set_value_d(1.0);
+    sys->set_scale(val_u);
+  }
+  CreateParameterIfEmpty(this, sys->name());
+  if (sys->type() == "lnU") {
+    params_.at(sys->name())->set_err_d(0.);
+    params_.at(sys->name())->set_err_u(0.);
+  }
+  systs_.push_back(sys);
+}
+
 void CombineHarvester::ExtractShapes(std::string const& file,
                                      std::string const& rule,
                                      std::string const& syst_rule) {

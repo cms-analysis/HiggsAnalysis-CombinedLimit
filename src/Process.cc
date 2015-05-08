@@ -136,7 +136,7 @@ std::ostream& Process::PrintHeader(std::ostream& out) {
   return out;
 }
 
-std::ostream& operator<< (std::ostream &out, Process &val) {
+std::ostream& operator<< (std::ostream &out, Process const& val) {
   out << boost::format(
              "%-6s %-9s %-6s %-8s %-28s %-3i %-16s %-4i %-10.5g %-5i") %
              val.mass() % val.analysis() % val.era() % val.channel() %

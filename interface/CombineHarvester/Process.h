@@ -52,7 +52,7 @@ class Process : public Object {
   void set_norm(RooAbsReal* norm) { norm_ = norm; }
   RooAbsReal const* norm() const { return norm_; }
 
-  friend std::ostream& operator<< (std::ostream &out, Process &val);
+  friend std::ostream& operator<< (std::ostream &out, Process const& val);
   static std::ostream& PrintHeader(std::ostream &out);
 
  private:

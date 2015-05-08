@@ -123,29 +123,29 @@ CombineHarvester CombineHarvester::deep() {
 
 
   for (std::size_t i = 0; i < cpy.obs_.size(); ++i) {
-    if (cpy.obs_[i]) {
+    if (obs_[i]) {
       cpy.obs_[i] = std::make_shared<Observation>(*(obs_[i]));
-      if (cpy.obs_[i]->data())
+      if (obs_[i]->data())
         cpy.obs_[i]->set_data(dat_map.at(obs_[i]->data()));
     }
   }
 
   for (std::size_t i = 0; i < cpy.procs_.size(); ++i) {
-    if (cpy.procs_[i]) {
+    if (procs_[i]) {
       cpy.procs_[i] = std::make_shared<Process>(*(procs_[i]));
-      if (cpy.procs_[i]->pdf())
+      if (procs_[i]->pdf())
         cpy.procs_[i]->set_pdf(pdf_map.at(procs_[i]->pdf()));
-      if (cpy.procs_[i]->data())
+      if (procs_[i]->data())
         cpy.procs_[i]->set_data(dat_map.at(procs_[i]->data()));
-      if (cpy.procs_[i]->norm())
+      if (procs_[i]->norm())
         cpy.procs_[i]->set_norm(fun_map.at(procs_[i]->norm()));
     }
   }
 
   for (std::size_t i = 0; i < cpy.systs_.size(); ++i) {
-    if (cpy.systs_[i]) {
+    if (systs_[i]) {
       cpy.systs_[i] = std::make_shared<Systematic>(*(systs_[i]));
-      if (cpy.systs_[i]->data_u() || cpy.systs_[i]->data_d()) {
+      if (systs_[i]->data_u() || systs_[i]->data_d()) {
         cpy.systs_[i]->set_data(
             static_cast<RooDataHist*>(dat_map.at(systs_[i]->data_u())),
             static_cast<RooDataHist*>(dat_map.at(systs_[i]->data_d())),
