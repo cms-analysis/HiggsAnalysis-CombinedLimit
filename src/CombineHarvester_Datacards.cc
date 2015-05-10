@@ -72,7 +72,10 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
   }
 
   std::vector<HistMapping> hist_mapping;
-  std::map<std::string, RooAbsData*> data_map;
+  // std::map<std::string, RooAbsData*> data_map;
+  std::map<std::string, std::shared_ptr<TFile>> file_store;
+  std::map<std::string, std::shared_ptr<RooWorkspace>> ws_store;
+
   bool start_nuisance_scan = false;
   unsigned r = 0;
 
@@ -91,8 +94,9 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
     // found process --> TH1 mapping information
     if (boost::iequals(words[i][0], "shapes") && words[i].size() >= 5) {
       hist_mapping.push_back(HistMapping());
-      hist_mapping.back().process = words[i][1];
-      hist_mapping.back().category = words[i][2];
+      HistMapping &mapping = hist_mapping.back();
+      mapping.process = words[i][1];
+      mapping.category = words[i][2];
       // The root file path given in the datacard is relative to the datacard
       // path, so we join the path to the datacard with the path to the file
       std::string dc_path;
@@ -102,9 +106,40 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
       } else {
         dc_path = words[i][3];
       }
-      hist_mapping.back().file = std::make_shared<TFile>(dc_path.c_str());
-      hist_mapping.back().pattern = words[i][4];
-      if (words[i].size() > 5) hist_mapping.back().syst_pattern = words[i][5];
+      if (!file_store.count(dc_path))
+        file_store[dc_path] = std::make_shared<TFile>(dc_path.c_str());
+      mapping.file = file_store.at(dc_path);
+      mapping.pattern = words[i][4];
+      if (words[i].size() > 5) mapping.syst_pattern = words[i][5];
+
+      if (mapping.IsPdf()) {
+        std::string store_key =
+            mapping.file->GetName() + mapping.WorkspaceName();
+        if (!ws_store.count(store_key)) {
+          mapping.file->cd();
+          std::shared_ptr<RooWorkspace> ptr(dynamic_cast<RooWorkspace*>(
+              gDirectory->Get(mapping.WorkspaceName().c_str())));
+          if (!ptr) {
+            throw std::runtime_error(FNERROR("Workspace not found in file"));
+          }
+          ws_store[store_key] = ptr;
+        }
+        mapping.ws = SetupWorkspace(*(ws_store[store_key]), true);
+      }
+      if (mapping.IsPdf() && mapping.syst_pattern != "") {
+        std::string store_key =
+            mapping.file->GetName() + mapping.SystWorkspaceName();
+        if (!ws_store.count(store_key)) {
+          mapping.file->cd();
+          std::shared_ptr<RooWorkspace> ptr(dynamic_cast<RooWorkspace*>(
+              gDirectory->Get(mapping.SystWorkspaceName().c_str())));
+          if (!ptr) {
+            throw std::runtime_error(FNERROR("Workspace not found in file"));
+          }
+          ws_store[store_key] = ptr;
+        }
+        mapping.sys_ws = SetupWorkspace(*(ws_store[store_key]), true);
+      }
     }
 
     // Want to check this line and the previous one, so need i >= 1.
@@ -348,9 +383,8 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
         });
 
     if (shape_count > 0) {
-      mappings.push_back({
-        "*", bin, nullptr, bin+"/$PROCESS", bin+"/$PROCESS_$SYSTEMATIC"
-      });
+      mappings.emplace_back("*", bin, bin + "/$PROCESS",
+                            bin + "/$PROCESS_$SYSTEMATIC");
       hist_bins.insert(bin);
     }
 
@@ -359,9 +393,8 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
     auto sig_proc_set =
         ch_signals.SetFromProcs(std::mem_fn(&ch::Process::process));
     for (auto sig_proc : sig_proc_set) {
-      mappings.push_back({sig_proc, bin, nullptr,
-                          bin + "/" + sig_proc + "$MASS",
-                          bin + "/" + sig_proc + "$MASS_$SYSTEMATIC"});
+      mappings.emplace_back(sig_proc, bin, bin + "/" + sig_proc + "$MASS",
+                            bin + "/" + sig_proc + "$MASS_$SYSTEMATIC");
     }
   }
 
@@ -372,9 +405,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       if (!obs->data()) continue;
       std::string obj_name = std::string(data_ws_map[obs->data()]->GetName()) +
                              ":" + std::string(obs->data()->GetName());
-      mappings.push_back({
-        "data_obs", obs->bin(), nullptr, obj_name, ""
-      });
+      mappings.emplace_back("data_obs", obs->bin(), obj_name, "");
     }
 
     bool prototype_ok = false;
@@ -427,8 +458,8 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
         prototype.syst_pattern = obj_sys_name;
       }
 
-      full_list.push_back(
-          {proc->process(), proc->bin(), nullptr, obj_name, obj_sys_name});
+      full_list.emplace_back(proc->process(), proc->bin(), obj_name,
+                             obj_sys_name);
     }
     // There are two reasons we won't want to write a generic mapping
     // for the processes in this bin:

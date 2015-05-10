@@ -4,6 +4,10 @@
 
 namespace ch {
 
+HistMapping::HistMapping(std::string const& p, std::string const& c,
+                         std::string const& pat, std::string const& s_pat)
+    : process(p), category(c), pattern(pat), syst_pattern(s_pat) {}
+
   bool HistMapping::IsHist() const {
     if (pattern.find(':') == pattern.npos) {
       return true;
@@ -25,6 +29,39 @@ namespace ch {
       return true;
     } else {
       return false;
+    }
+  }
+
+  std::string HistMapping::WorkspaceName() const {
+    std::size_t colon = pattern.find_last_of(':');
+    if (colon != pattern.npos) {
+      return pattern.substr(0, colon);
+    } else {
+      return std::string();
+    }
+  }
+  std::string HistMapping::WorkspaceObj() const {
+    std::size_t colon = pattern.find_last_of(':');
+    if (colon != pattern.npos) {
+      return pattern.substr(colon+1);
+    } else {
+      return std::string();
+    }
+  }
+  std::string HistMapping::SystWorkspaceName() const {
+    std::size_t colon = syst_pattern.find_last_of(':');
+    if (colon != syst_pattern.npos) {
+      return syst_pattern.substr(0, colon);
+    } else {
+      return std::string();
+    }
+  }
+  std::string HistMapping::SystWorkspaceObj() const {
+    std::size_t colon = syst_pattern.find_last_of(':');
+    if (colon != syst_pattern.npos) {
+      return syst_pattern.substr(colon+1);
+    } else {
+      return std::string();
     }
   }
 

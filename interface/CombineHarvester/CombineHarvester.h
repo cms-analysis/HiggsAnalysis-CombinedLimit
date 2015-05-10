@@ -354,11 +354,11 @@ class CombineHarvester {
 
   void ExtractShapes(std::string const& file, std::string const& rule,
                      std::string const& syst_rule);
-  void ExtractPdfs(std::string const& ws_name, std::string const& rule,
-                   CombineHarvester* other = nullptr);
+  void ExtractPdfs(CombineHarvester& target, std::string const& ws_name,
+                   std::string const& rule, std::string norm_rule = "");
   void ExtractData(std::string const& ws_name, std::string const& rule);
 
-  void AddWorkspace(RooWorkspace const* ws, std::string const& key_val = "");
+  void AddWorkspace(RooWorkspace const& ws, bool can_rename = false);
 
   void InsertObservation(ch::Observation const& obs);
   void InsertProcess(ch::Process const& proc);
@@ -423,8 +423,8 @@ class CombineHarvester {
   StrPairVec GenerateShapeMapAttempts(std::string process,
       std::string category);
 
-  StrPair SetupWorkspace(HistMapping const& mapping,
-                         std::string alt_mapping = "");
+  std::shared_ptr<RooWorkspace> SetupWorkspace(RooWorkspace const& ws,
+                                    bool can_rename = false);
 
   void ImportParameters(RooArgSet *vars);
 

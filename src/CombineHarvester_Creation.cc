@@ -133,58 +133,25 @@ void CombineHarvester::ExtractShapes(std::string const& file,
   }
 }
 
-void CombineHarvester::AddWorkspace(RooWorkspace const *ws,
-                                    std::string const& key_val) {
-  std::string key = key_val.size() ? key_val : ws->GetName();
-  if (wspaces_.count(key)) return;
-  FNLOGC(log(), verbosity_ >= 1) << "Cloning workspace " << ws->GetName()
-      << " and assigning to key " << key << "\n";
-  // Check if wspace name is already in use, if it is then call it {NAME}X
-  // where X is the first available integer
-  bool name_in_use = false;
-  for (auto const& pair : wspaces_) {
-    if (strcmp(pair.second->GetName(), ws->GetName()) == 0) {
-      name_in_use = true;
-      break;
-    }
-  }
-  std::string new_name;
-  if (name_in_use) {
-    std::set<int> used_ints = {0};
-    std::string src_name(ws->GetName());
-    for (auto const& pair : wspaces_) {
-      std::string test_name(pair.second->GetName());
-      if (test_name.find(src_name) == 0) {
-        std::string postfix = test_name.substr(src_name.size());
-        try {
-          int number = boost::lexical_cast<int>(postfix);
-          used_ints.insert(number);
-        } catch (boost::bad_lexical_cast &e) {
-        }
-      }
-    }
-    new_name = src_name +
-        boost::lexical_cast<std::string>(*(used_ints.rbegin()) + 1);
-    FNLOGC(log(), verbosity_ >= 1) << "Workspace with name " << src_name
-        << " already defined, renaming to " << new_name << "\n";
-  }
-  wspaces_[key] = std::shared_ptr<RooWorkspace>(
-      reinterpret_cast<RooWorkspace *>(ws->Clone()));
-  if (new_name != "") wspaces_[key]->SetName(new_name.c_str());
+void CombineHarvester::AddWorkspace(RooWorkspace const& ws,
+                                    bool can_rename) {
+  SetupWorkspace(ws, can_rename);
 }
 
-void CombineHarvester::ExtractPdfs(std::string const &ws_name,
-                                   std::string const &rule,
-                                   CombineHarvester *other) {
-  CombineHarvester *target = other ? other : this;
+void CombineHarvester::ExtractPdfs(CombineHarvester& target,
+                                   std::string const& ws_name,
+                                   std::string const& rule,
+                                   std::string norm_rule) {
   std::vector<HistMapping> mapping(1);
   mapping[0].process = "*";
   mapping[0].category = "*";
   mapping[0].pattern = ws_name+":"+rule;
+  if (norm_rule != "") mapping[0].syst_pattern = ws_name + ":" + norm_rule;
   if (!wspaces_.count(ws_name)) return;
+  mapping[0].ws = wspaces_.at(ws_name);
   for (unsigned  i = 0; i < procs_.size(); ++i) {
     if (!procs_[i]->pdf()) {
-      target->LoadShapes(procs_[i].get(), mapping);
+      target.LoadShapes(procs_[i].get(), mapping);
     }
   }
 }
@@ -196,6 +163,7 @@ void CombineHarvester::ExtractData(std::string const &ws_name,
   mapping[0].category = "*";
   mapping[0].pattern = ws_name+":"+rule;
   if (!wspaces_.count(ws_name)) return;
+  mapping[0].ws = wspaces_.at(ws_name);
   for (unsigned  i = 0; i < obs_.size(); ++i) {
     if (!obs_[i]->data()) {
       LoadShapes(obs_[i].get(), mapping);

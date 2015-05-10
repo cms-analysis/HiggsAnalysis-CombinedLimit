@@ -282,8 +282,7 @@ void CombineHarvester::LoadShapes(Observation* entry,
     if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooAbsData");
     // Pre-condition #3
     // SetupWorkspace will throw if workspace not found
-    StrPair res = SetupWorkspace(mapping);
-    RooAbsData* dat = wspaces_[res.first]->data(res.second.c_str());
+    RooAbsData* dat = mapping.ws->data(mapping.WorkspaceObj().c_str());
     if (!dat) {
       throw std::runtime_error(FNERROR("RooAbsData not found in workspace"));
     }
@@ -368,11 +367,9 @@ void CombineHarvester::LoadShapes(Process* entry,
   } else if (mapping.IsPdf()) {
     if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooAbsPdf/RooAbsData");
     // Pre-condition #3
-    // SetupWorkspace will throw if workspace not found
-    StrPair res = SetupWorkspace(mapping);
     // Try and get this as RooAbsData first. If this doesn't work try pdf
-    RooAbsData* data = wspaces_[res.first]->data(res.second.c_str());
-    RooAbsPdf* pdf = wspaces_[res.first]->pdf(res.second.c_str());
+    RooAbsData* data = mapping.ws->data(mapping.WorkspaceObj().c_str());
+    RooAbsPdf* pdf = mapping.ws->pdf(mapping.WorkspaceObj().c_str());
     if (data) {
       if (verbosity_ >= 2) {
         data->printStream(log(), data->defaultPrintContents(0),
@@ -397,10 +394,19 @@ void CombineHarvester::LoadShapes(Process* entry,
     }
 
     HistMapping norm_mapping = mapping;
-    norm_mapping.pattern += "_norm";
-    StrPair norm_res = SetupWorkspace(norm_mapping);
+    if (!data && norm_mapping.syst_pattern != "") {
+      // For when we're not parsing a datacard, syst_pattern is being using to
+      // note a different mapping for the normalisation term
+      norm_mapping.pattern = norm_mapping.syst_pattern;
+      boost::replace_all(norm_mapping.pattern, "$CHANNEL", entry->bin());
+      boost::replace_all(norm_mapping.pattern, "$BIN", entry->bin());
+      boost::replace_all(norm_mapping.pattern, "$PROCESS", entry->process());
+      boost::replace_all(norm_mapping.pattern, "$MASS", entry->mass());
+    } else {
+      norm_mapping.pattern += "_norm";
+    }
     RooAbsReal* norm =
-        wspaces_[norm_res.first]->function(norm_res.second.c_str());
+        norm_mapping.ws->function(norm_mapping.WorkspaceObj().c_str());
     if (norm) {
       // Post-condition #3
       entry->set_norm(norm);
@@ -470,7 +476,8 @@ void CombineHarvester::LoadShapes(Systematic* entry,
   boost::replace_all(mapping.pattern, "$BIN", entry->bin());
   boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
   boost::replace_all(mapping.pattern, "$MASS", entry->mass());
-  std::string p_s = mapping.syst_pattern;
+  std::string p_s =
+      mapping.IsPdf() ? mapping.SystWorkspaceObj() : mapping.syst_pattern;
   boost::replace_all(p_s, "$CHANNEL", entry->bin());
   boost::replace_all(p_s, "$BIN", entry->bin());
   boost::replace_all(p_s, "$PROCESS", entry->process());
@@ -507,16 +514,13 @@ void CombineHarvester::LoadShapes(Systematic* entry,
     entry->set_shapes(std::move(h_u), std::move(h_d), h.get());
   } else if (mapping.IsPdf()) {
     if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooDataHist");
-    StrPair res_nom = SetupWorkspace(mapping);
-    StrPair res_hi = SetupWorkspace(mapping, p_s_hi);
-    StrPair res_lo = SetupWorkspace(mapping, p_s_lo);
     // Try and get this as RooAbsData first. If this doesn't work try pdf
-    RooDataHist* h = dynamic_cast<RooDataHist*>(
-        wspaces_[res_nom.first]->data(res_nom.second.c_str()));
-    RooDataHist* h_u = dynamic_cast<RooDataHist*>(
-        wspaces_[res_hi.first]->data(res_hi.second.c_str()));
-    RooDataHist* h_d = dynamic_cast<RooDataHist*>(
-        wspaces_[res_lo.first]->data(res_lo.second.c_str()));
+    RooDataHist* h =
+        dynamic_cast<RooDataHist*>(mapping.sys_ws->data(p_s.c_str()));
+    RooDataHist* h_u =
+        dynamic_cast<RooDataHist*>(mapping.sys_ws->data(p_s_hi.c_str()));
+    RooDataHist* h_d =
+        dynamic_cast<RooDataHist*>(mapping.sys_ws->data(p_s_lo.c_str()));
     if (!h || !h_u || !h_d) {
       if (flags_.at("allow-missing-shapes")) {
         LOGLINE(log(), "Warning, shape missing:");
@@ -579,34 +583,63 @@ CombineHarvester::StrPairVec CombineHarvester::GenerateShapeMapAttempts(
   return result;
 }
 
-std::pair<std::string, std::string> CombineHarvester::SetupWorkspace(
-    HistMapping const& mapping, std::string alt_mapping) {
-  std::string p = alt_mapping.size() ? alt_mapping : mapping.pattern;
-  std::string filename = std::string(mapping.file->GetName());
-  std::string wsname;
-  std::string objname;
-  std::size_t colon = p.find_last_of(':');
-  if (colon != p.npos) {
-    wsname = p.substr(0, colon);
-    objname = p.substr(colon+1);
-  } else {
-    std::cout << "Something went wrong here\n";
-    return std::make_pair("", "");
-  }
-  std::string key = filename + ":" + wsname;
-  // Have to handle the case that there are multiple workspaces with the same name
-  // the simple solution is just to key on filename+workspace name
-  if (!wspaces_.count(key)) {
-    if (mapping.file) {
-      mapping.file->cd();
-      RooWorkspace* w =
-          dynamic_cast<RooWorkspace*>(gDirectory->Get(wsname.c_str()));
-      // Check for failure here
-      AddWorkspace(w, key);
-      delete w;
+std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
+    RooWorkspace const& ws, bool can_rename) {
+  bool name_in_use = false;
+
+  // 1) Does the UUID of this ws match any other ws in the map?
+  for (auto const& it : wspaces_) {
+    // - Yes: just return a ptr to the matched ws
+    if (it.second->uuid() == ws.uuid()) {
+      FNLOGC(log(), verbosity_ >= 1)
+          << "Workspace with name " << it.second->GetName()
+          << " has the same UUID, will use this one\n";
+      return it.second;
+    }
+    if (!name_in_use && strcmp(it.second->GetName(), ws.GetName()) == 0) {
+      name_in_use = true;
     }
   }
-  return std::make_pair(key, objname);
+
+  // 2) No: Ok will clone it in. Is the ws name already in use?
+  if (!name_in_use) {
+    // - No: clone with same name and return
+    wspaces_[std::string(ws.GetName())] = std::shared_ptr<RooWorkspace>(
+        reinterpret_cast<RooWorkspace*>(ws.Clone()));
+    return wspaces_.at(ws.GetName());
+  }
+
+  // 3) Am I allowed to rename (default no)?
+  if (!can_rename) {
+    // - No: throw runtime error
+    throw std::runtime_error(FNERROR("A different workspace with name " +
+                                     std::string(ws.GetName()) +
+                                     " already exists"));
+  }
+
+  // 4) Yes: determine first available nameX, clone, return
+  std::set<int> used_ints = {0};
+  std::string src_name(ws.GetName());
+  for (auto const& it : wspaces_) {
+    std::string test_name(it.second->GetName());
+    if (test_name.find(src_name) == 0) {
+      std::string postfix = test_name.substr(src_name.size());
+      try {
+        int number = boost::lexical_cast<int>(postfix);
+        used_ints.insert(number);
+      } catch (boost::bad_lexical_cast & e) {
+      }
+    }
+  }
+  std::string new_name =
+      src_name + boost::lexical_cast<std::string>(*(used_ints.rbegin()) + 1);
+  FNLOGC(log(), verbosity_ >= 1) << "Workspace with name " << src_name
+                                 << " already defined, renaming to " << new_name
+                                 << "\n";
+
+  wspaces_[new_name] = std::shared_ptr<RooWorkspace>(
+      reinterpret_cast<RooWorkspace*>(ws.Clone(new_name.c_str())));
+  return wspaces_.at(new_name);
 }
 
 void CombineHarvester::ImportParameters(RooArgSet *vars) {
