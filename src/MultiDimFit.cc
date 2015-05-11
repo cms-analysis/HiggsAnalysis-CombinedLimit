@@ -135,7 +135,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::auto_ptr<RooFitResult> res;
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
-    if ( algo_ == Singles || !loadedSnapshot_ ){
+    if ( algo_ <= Singles || !loadedSnapshot_ ){
     	res.reset(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false)); 
     } else {
         // must create the NLL
@@ -146,15 +146,13 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
         }
-        if (algo_ != None) {
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-		Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
-	}
+        for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+          specifiedVals_[j]=specifiedVars_[j]->getVal();
+        }
+        for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+          specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+        }
+        Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
     }
    
     //set snapshot for best fit
@@ -184,8 +182,9 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
                     printf("   %*s :  %+8.3f\n", len, poi_[i].c_str(), poiVals_[i]);
                 }
             }
+            if(res.get()) saveResult(*res);
             break;
-        case Singles: if (res.get()) doSingles(*res); break;
+        case Singles: if (res.get()) { doSingles(*res); saveResult(*res); } break;
         case Cross: doBox(*nll, cl, "box", true); break;
         case Grid: doGrid(w,*nll); break;
         case RandomPoints: doRandomPoints(w,*nll); break;
@@ -864,4 +863,12 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         xv->setConstant(false);
     }
     verbose++; // restore verbosity 
+}
+
+void MultiDimFit::saveResult(RooFitResult &res) {
+  res.Print("V");
+    if (out_ != "none") fitOut.reset(TFile::Open((out_+"/multidimfit"+name_+".root").c_str(), "RECREATE"));
+    fitOut->WriteTObject(&res,"fit");
+    fitOut->cd();
+    fitOut.release()->Close();
 }
