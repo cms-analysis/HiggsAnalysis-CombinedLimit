@@ -5,8 +5,8 @@
 #include <sys/wait.h>
 #include <errno.h>
 
-#include "../interface/HybridNew.h"
-#include "../interface/CascadeMinimizer.h" // must be early
+#include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h" // must be early
 #include <TFile.h>
 #include <TF1.h>
 #include <TKey.h>
@@ -30,18 +30,18 @@
 #include <RooStats/ProfileLikelihoodTestStat.h>
 #include <RooStats/ToyMCSampler.h>
 #include <RooStats/HypoTestPlot.h>
-#include "../interface/Combine.h"
-#include "../interface/CloseCoutSentry.h"
-#include "../interface/RooFitGlobalKillSentry.h"
-#include "../interface/SimplerLikelihoodRatioTestStat.h"
-#include "../interface/ProfiledLikelihoodRatioTestStat.h"
-#include "../interface/SimplerLikelihoodRatioTestStatExt.h"
-#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "../interface/BestFitSigmaTestStat.h"
-#include "../interface/ToyMCSamplerOpt.h"
-#include "../interface/utils.h"
-#include "../interface/ProfileLikelihood.h"
-#include "../interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimplerLikelihoodRatioTestStat.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStat.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimplerLikelihoodRatioTestStatExt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/BestFitSigmaTestStat.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 
 #include <boost/algorithm/string/split.hpp>

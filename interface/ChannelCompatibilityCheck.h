@@ -8,7 +8,7 @@
  *
  *
  */
-#include "../interface/FitterAlgoBase.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FitterAlgoBase.h"
 
 class ChannelCompatibilityCheck : public FitterAlgoBase {
 public:

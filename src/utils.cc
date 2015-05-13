@@ -1,5 +1,5 @@
-#include "../interface/utils.h"
-#include "../interface/RooSimultaneousOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
 
 #include <cstdio>
 #include <iostream>
@@ -32,7 +32,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
-#include "../interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 
 using namespace std;
 

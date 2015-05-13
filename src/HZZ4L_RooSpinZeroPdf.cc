@@ -1,5 +1,5 @@
 #include "Riostream.h" 
-#include "../interface/HZZ4L_RooSpinZeroPdf.h" 
+#include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf.h" 
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h>

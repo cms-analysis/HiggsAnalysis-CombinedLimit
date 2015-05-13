@@ -1,4 +1,4 @@
-#include "../interface/RooSplineND.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooSplineND.h"
 
 RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char *fName, double eps, bool rescale, std::string cutstring) :
   RooAbsReal(name,title),

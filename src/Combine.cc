@@ -1,7 +1,7 @@
 /**************************************
   Simple multiChannel significance & limit calculator
 ***************************************/
-#include "../interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include <cstring>
 #include <cerrno>
 #include <iostream>
@@ -49,14 +49,14 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "../interface/LimitAlgo.h"
-#include "../interface/utils.h"
-#include "../interface/CloseCoutSentry.h"
-#include "../interface/RooSimultaneousOpt.h"
-#include "../interface/ToyMCSamplerOpt.h"
-#include "../interface/AsimovUtils.h"
-#include "../interface/CascadeMinimizer.h"
-#include "../interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 using namespace RooStats;
 using namespace RooFit;

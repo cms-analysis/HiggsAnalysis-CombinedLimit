@@ -3,12 +3,12 @@
 #include <RooStats/HypoTestInverter.h>
 #include <RooStats/HypoTestInverterResult.h>
 #include "RooStats/AsymptoticCalculator.h"
-#include "../interface/AsymptoticNew.h"
-#include "../interface/Combine.h"
-#include "../interface/CloseCoutSentry.h"
-#include "../interface/RooFitGlobalKillSentry.h"
-#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "../interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/AsymptoticNew.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 using namespace RooStats;
 

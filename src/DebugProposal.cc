@@ -1,4 +1,4 @@
-#include "../interface/DebugProposal.h"
+#include "HiggsAnalysis/CombinedLimit/interface/DebugProposal.h"
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
 #include <iostream>

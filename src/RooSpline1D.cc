@@ -1,4 +1,4 @@
-#include "../interface/RooSpline1D.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h"
 
 #include <stdexcept>
 
