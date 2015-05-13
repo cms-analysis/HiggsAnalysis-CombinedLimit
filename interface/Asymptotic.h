@@ -8,8 +8,8 @@
  *
  *
  */
-#include "../interface/LimitAlgo.h"
-#include "../interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include <memory>
 class RooRealVar;
 #include <RooAbsReal.h>

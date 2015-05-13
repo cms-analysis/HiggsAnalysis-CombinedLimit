@@ -9,7 +9,7 @@
  *
  */
 
-#include "../interface/LimitAlgo.h"
+#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
 #include <memory>
 class RooRealVar;
 

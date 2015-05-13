@@ -1,4 +1,4 @@
-#include "../interface/FastTemplate.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
 
 #include <cmath>
 #include <cstdlib>

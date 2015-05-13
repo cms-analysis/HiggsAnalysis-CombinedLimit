@@ -14,7 +14,7 @@
 #include <RooSimultaneous.h>
 #include <RooGaussian.h>
 #include <RooProduct.h>
-#include "../interface/SimpleGaussianConstraint.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;

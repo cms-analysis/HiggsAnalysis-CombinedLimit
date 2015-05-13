@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <cmath>
-#include "../interface/BayesianToyMC.h"
+#include "HiggsAnalysis/CombinedLimit/interface/BayesianToyMC.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooUniform.h"
@@ -13,9 +13,9 @@
 #include "RooStats/RooStatsUtils.h"
 #include <Math/DistFuncMathCore.h>
 
-#include "../interface/Combine.h"
-#include "../interface/CachingNLL.h"
-#include "../interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 using namespace RooStats;
 

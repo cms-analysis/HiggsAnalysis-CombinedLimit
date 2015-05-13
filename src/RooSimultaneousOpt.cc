@@ -1,5 +1,5 @@
-#include "../interface/RooSimultaneousOpt.h"
-#include "../interface/CachingNLL.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 #include <RooCmdConfig.h>
 
 RooAbsReal* 

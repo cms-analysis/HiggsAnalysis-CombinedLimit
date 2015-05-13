@@ -1,4 +1,4 @@
-#include "../interface/TestProposal.h"
+#include "HiggsAnalysis/CombinedLimit/interface/TestProposal.h"
 #include <RooArgSet.h>
 #include <iostream>
 #include <memory>

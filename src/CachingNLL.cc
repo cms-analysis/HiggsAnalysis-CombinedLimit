@@ -1,16 +1,16 @@
-#include "../interface/CachingNLL.h"
-#include "../interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include <stdexcept>
 #include <RooCategory.h>
 #include <RooDataSet.h>
 #include <RooProduct.h>
-#include "../interface/ProfilingTools.h"
-#include <../interface/RooMultiPdf.h>
-#include <../interface/VerticalInterpHistPdf.h>
-#include <../interface/VectorizedGaussian.h>
-#include <../interface/VectorizedCB.h>
-#include <../interface/VectorizedSimplePdfs.h>
-#include <../interface/CachingMultiPdf.h>
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include <HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VectorizedGaussian.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VectorizedCB.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VectorizedSimplePdfs.h>
+#include <HiggsAnalysis/CombinedLimit/interface/CachingMultiPdf.h>
 #include "vectorized.h"
 
 namespace cacheutils {
@@ -53,7 +53,7 @@ namespace cacheutils {
 //---- Uncomment to enable Kahan's summation (if enabled at runtime with --X-rtd = ...
 // http://en.wikipedia.org/wiki/Kahan_summation_algorithm
 //#define ADDNLL_KAHAN_SUM
-#include "../interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 //std::map<std::string,double> cacheutils::CachingAddNLL::offsets_;
 bool cacheutils::CachingSimNLL::noDeepLEE_ = false;

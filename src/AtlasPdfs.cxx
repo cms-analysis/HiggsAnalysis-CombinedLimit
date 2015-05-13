@@ -30,7 +30,7 @@ END_HTML
 #include "RooMsgService.h"
 #include "TMath.h"
 
-#include "../interface/AtlasPdfs.h"
+#include "HiggsAnalysis/CombinedLimit/interface/AtlasPdfs.h"
 
 ClassImp(RooStats::HistFactory::RooBSplineBases)
 
