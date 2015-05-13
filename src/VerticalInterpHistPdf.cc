@@ -49,7 +49,7 @@ VerticalInterpHistPdf::VerticalInterpHistPdf(const char *name, const char *title
 
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1) {
     coutE(InputArguments) << "VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() 
-			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" << endl ;
+			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" << std::endl ;
     assert(0);
   }
 
@@ -58,12 +58,12 @@ VerticalInterpHistPdf::VerticalInterpHistPdf(const char *name, const char *title
   while((func = (RooAbsArg*)funcIter->Next())) {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(func);
     if (!pdf) {
-      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsPdf" << endl;
+      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsPdf" << std::endl;
       assert(0);
     }
     RooArgSet *params = pdf->getParameters(RooArgSet(x));
     if (params->getSize() > 0) {
-      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " has some parameters." << endl;
+      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " has some parameters." << std::endl;
       assert(0);
     }
     delete params;
@@ -75,7 +75,7 @@ VerticalInterpHistPdf::VerticalInterpHistPdf(const char *name, const char *title
   RooAbsArg* coef;
   while((coef = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
-      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << endl;
+      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*coef) ;    
@@ -251,7 +251,7 @@ FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase(const char *name, c
 
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1) {
     coutE(InputArguments) << "VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() 
-			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" << endl ;
+			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" << std::endl ;
     assert(0);
   }
 
@@ -260,12 +260,12 @@ FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase(const char *name, c
   while((func = (RooAbsArg*)funcIter->Next())) {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(func);
     if (!pdf) {
-      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsPdf" << endl;
+      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsPdf" << std::endl;
       assert(0);
     }
     RooArgSet *params = pdf->getParameters(obs);
     if (params->getSize() > 0) {
-      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " has some parameters." << endl;
+      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " has some parameters." << std::endl;
       assert(0);
     }
     delete params;
@@ -277,7 +277,7 @@ FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase(const char *name, c
   RooAbsArg* coef;
   while((coef = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
-      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << endl;
+      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*coef) ;    
@@ -687,7 +687,7 @@ FastVerticalInterpHistPdf2Base::FastVerticalInterpHistPdf2Base(const char *name,
   if (inFuncList.GetSize()!=2*inCoefList.getSize()+1) {
     coutE(InputArguments) << "VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() 
 			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" 
-                          << "while Nfunc= " << inFuncList.GetSize() << " and Ncoef= " << inCoefList.getSize() <<endl ;
+                          << "while Nfunc= " << inFuncList.GetSize() << " and Ncoef= " << inCoefList.getSize() <<std::endl ;
     assert(0);
   }
 
@@ -697,13 +697,13 @@ FastVerticalInterpHistPdf2Base::FastVerticalInterpHistPdf2Base(const char *name,
     TH1 *hist = dynamic_cast<TH1*>(func);
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(func);
     if (!pdf && !hist) {
-      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") function  " << func->GetName() << " is not of type TH1 or RooAbsPdf" << endl;
+      coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") function  " << func->GetName() << " is not of type TH1 or RooAbsPdf" << std::endl;
       assert(0);
     }
     if (pdf) {
         RooArgSet *params = pdf->getParameters(obs);
         if (params->getSize() > 0) {
-          coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " (" << func->ClassName()<<") has some parameters." << endl;
+          coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " (" << func->ClassName()<<") has some parameters." << std::endl;
           obs.Print("");
           params->Print("");
           assert(0);
@@ -771,7 +771,7 @@ FastVerticalInterpHistPdf2Base::initBase() const
     while((coef = (RooAbsArg*)coefIter->Next())) {
         const RooAbsReal *rrv = dynamic_cast<RooAbsReal*>(coef);
         if (!rrv) {
-            coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << endl;
+            coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl;
             assert(0);
         }
         _morphParams.push_back(rrv);

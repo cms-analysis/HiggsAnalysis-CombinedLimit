@@ -23,8 +23,8 @@ class SimpleCacheSentry : public RooAbsArg {
         // base class methods to be implemented
         virtual TObject* clone(const char* newname) const { return new SimpleCacheSentry(*this, newname); }
         virtual RooAbsArg *createFundamental(const char* newname=0) const { return 0; }
-        virtual Bool_t readFromStream(istream& is, Bool_t compact, Bool_t verbose=kFALSE) { return false; }
-        virtual void writeToStream(ostream& os, Bool_t compact) const { }
+        virtual Bool_t readFromStream(std::istream& is, Bool_t compact, Bool_t verbose=kFALSE) { return false; }
+        virtual void writeToStream(std::ostream& os, Bool_t compact) const { }
         virtual Bool_t operator==(const RooAbsArg& other) { return this == &other; }
         virtual void syncCache(const RooArgSet* nset=0) {}
         virtual void copyCache(const RooAbsArg* source, Bool_t valueOnly=kFALSE, Bool_t setValDirty=kTRUE) {}

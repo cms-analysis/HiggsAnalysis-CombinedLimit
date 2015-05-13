@@ -108,7 +108,7 @@ FastHisto2D::FastHisto2D(const TH2 &hist, bool normXonly) :
     binEdgesY_(hist.GetNbinsY()+1),
     binWidths_(size_)
 {
-    TAxis *ax = hist.GetXaxis(), *ay = hist.GetYaxis();
+    const TAxis *ax = hist.GetXaxis(), *ay = hist.GetYaxis();
     for (unsigned int ix = 0; ix < binX_; ++ix) {
         binEdgesX_[ix] = ax->GetBinLowEdge(ix+1);
     }
@@ -183,7 +183,7 @@ FastHisto3D::FastHisto3D(const TH3 &hist, bool normXonly) :
     binEdgesZ_(hist.GetNbinsZ()+1),
     binWidths_(size_)
 {
-    TAxis *ax = hist.GetXaxis(), *ay = hist.GetYaxis(), *az = hist.GetZaxis();
+    const TAxis *ax = hist.GetXaxis(), *ay = hist.GetYaxis(), *az = hist.GetZaxis();
     for (unsigned int ix = 0; ix < binX_; ++ix) {
         binEdgesX_[ix] = ax->GetBinLowEdge(ix+1);
     }

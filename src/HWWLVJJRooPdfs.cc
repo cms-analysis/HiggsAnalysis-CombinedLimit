@@ -20,7 +20,7 @@ RooChebyshevPDF::RooChebyshevPDF(const char *name, const char *title,
   RooAbsReal *coef;
   while ((coef = (RooAbsReal*)cx->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
-      cerr << "Coefficient " << coef->GetName() << " is not good." << endl;
+      std::cerr << "Coefficient " << coef->GetName() << " is not good." << std::endl;
       assert(0);
     }
     coefs.add(*coef);
@@ -172,11 +172,11 @@ double RooErfPdf::indefErfIntegral(double val) const {
     width/rootpi*TMath::Exp(-(val-turnOn)*(val-turnOn)/width/width);
 }
 
-void RooErfPdf::printMultiline(ostream& os, Int_t contents, 
+void RooErfPdf::printMultiline(std::ostream& os, Int_t contents, 
 			       Bool_t verbose, TString indent) const {
   RooAbsPdf::printMultiline(os, contents,verbose,indent);
   os << indent << "--- RooErfPdf --" << '\n';
-  os << indent << "onOff: " << onOff << endl;
+  os << indent << "onOff: " << onOff << std::endl;
 }
 
 ClassImp(RooPowerExpPdf) 
@@ -448,7 +448,7 @@ RooExpPoly::RooExpPoly(const char *name, const char *title,
   RooAbsReal *coef;
   while ((coef = (RooAbsReal*)cx->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
-      cerr << "Coefficient " << coef->GetName() << " is not good." << endl;
+      std::cerr << "Coefficient " << coef->GetName() << " is not good." << std::endl;
       assert(0);
     }
     coefs.add(*coef);
