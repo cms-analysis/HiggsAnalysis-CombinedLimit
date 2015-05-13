@@ -6,6 +6,7 @@
 # keep also in mind processes like ggH_SM in two state searches
 
 # first drop old BR unc implementation from individual analyses
+nuisance edit drop * * BRhiggs_hbb
 nuisance edit drop * * BRhiggs_htt
 nuisance edit drop * * BRhiggs_hvv
 nuisance edit drop * * BRhiggs_hzz4l
