@@ -1,4 +1,4 @@
-#include "../interface/VectorizedGaussian.h"
+#include "HiggsAnalysis/CombinedLimit/interface/VectorizedGaussian.h"
 #include "RooMath.h"
 #include "vectorized.h"
 #include <RooRealVar.h>

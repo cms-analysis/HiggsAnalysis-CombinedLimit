@@ -29,7 +29,7 @@
 #include <math.h>
 #include "TMath.h"
 #include "Math/SpecFunc.h"
-#include "../interface/HZGRooPdfs.h"
+#include "HiggsAnalysis/CombinedLimit/interface/HZGRooPdfs.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 #include "RooArgList.h"

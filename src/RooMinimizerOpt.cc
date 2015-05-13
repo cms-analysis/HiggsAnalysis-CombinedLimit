@@ -1,4 +1,4 @@
-#include "../interface/RooMinimizerOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
 
 #include <stdexcept>
 #include <RooRealVar.h>

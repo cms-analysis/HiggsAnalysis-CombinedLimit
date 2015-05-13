@@ -1,4 +1,4 @@
-#include "../interface/PdfDiagonalizer.h"
+#include "HiggsAnalysis/CombinedLimit/interface/PdfDiagonalizer.h"
 
 #include <cstdio>
 #include <TMatrixDSym.h>

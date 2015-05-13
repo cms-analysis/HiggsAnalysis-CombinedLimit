@@ -33,7 +33,7 @@
 #include "Riostream.h"
 #include "TMath.h"
 
-#include "../interface/RooBernsteinFast.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 #include "RooArgList.h"

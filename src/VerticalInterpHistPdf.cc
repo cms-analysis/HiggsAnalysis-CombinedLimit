@@ -1,4 +1,4 @@
-#include "../interface/VerticalInterpHistPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h"
 
 #include <cassert>
 #include <memory>
@@ -13,7 +13,7 @@
 
 //#define TRACE_CALLS
 #ifdef TRACE_CALLS
-#include "../interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #define TRACEME()   PerfCounter::add( __PRETTY_FUNCTION__ );
 #else
 #define TRACEME() 

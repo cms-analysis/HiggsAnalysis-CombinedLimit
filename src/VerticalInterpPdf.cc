@@ -1,4 +1,4 @@
-#include "../interface/VerticalInterpPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpPdf.h"
 
 #include "RooFit.h"
 #include "Riostream.h"

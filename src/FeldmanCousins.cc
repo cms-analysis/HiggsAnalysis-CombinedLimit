@@ -1,6 +1,6 @@
 #include <stdexcept>
-#include "../interface/FeldmanCousins.h"
-#include "../interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FeldmanCousins.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include <RooRealVar.h>
 #include <RooArgSet.h>
 #include <RooArgSet.h>
