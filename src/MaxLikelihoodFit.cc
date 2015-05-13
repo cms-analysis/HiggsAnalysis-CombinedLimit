@@ -47,7 +47,10 @@ bool        MaxLikelihoodFit::customStartingPoint_ = false;
 
 
 MaxLikelihoodFit::MaxLikelihoodFit() :
-    FitterAlgoBase("MaxLikelihoodFit specific options")
+    FitterAlgoBase("MaxLikelihoodFit specific options"),
+    globalObservables_(0),
+    nuisanceParameters_(0),
+    processNormalizations_(0)
 {
     options_.add_options()
         ("minos",              boost::program_options::value<std::string>(&minos_)->default_value(minos_), "Compute MINOS errors for: 'none', 'poi', 'all'")
