@@ -5,6 +5,20 @@ from math import *
 ROOFIT_EXPR = "expr"
 ROOFIT_EXPR_PDF = "EXPR"
 
+class SafeWorkspaceImporter():
+    """Class that provides the RooWorkspace::import method, but makes sure we call the proper
+       overload of it, since in ROOT 6 sometimes PyROOT calls the wrong one"""
+    def __init__(self,wsp):
+        self.wsp = wsp
+        self.imp = getattr(wsp,"import")
+    def __call__(self,*args):
+        if len(args) != 1:
+            self.imp(*args)
+        elif args[0].Class().InheritsFrom("RooAbsReal") or args[0].Class().InheritsFrom("RooArgSet") or args[0].Class().InheritsFrom("RooAbsData"):
+            self.imp(args[0], ROOT.RooCmdArg()) # force the proper overload to be called
+        else:
+            self.imp(*args)
+
 class ModelBuilderBase():
     """This class defines the basic stuff for a model builder, and it's an interface on top of RooWorkspace::factory or HLF files"""
     def __init__(self,options):
@@ -17,7 +31,8 @@ class ModelBuilderBase():
             ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
             ROOT.TH1.AddDirectory(False)
             self.out = ROOT.RooWorkspace("w","w");
-            self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
+            #self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
+            self.out._import = SafeWorkspaceImporter(self.out)
             self.out.dont_delete = []
             if options.verbose == 0:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
@@ -34,10 +49,13 @@ class ModelBuilderBase():
             global ROOFIT_EXPR;
             ROOFIT_EXPR = "cexpr"            
     def factory_(self,X):
+        if self.options.verbose >= 7:
+            print "RooWorkspace::factory('%s')" % X
         if (len(X) > 1000):
             print "Executing factory with a string of length ",len(X)," > 1000, could trigger a bug: ",X
         ret = self.out.factory(X);
         if ret: 
+            if self.options.verbose >= 7: print " ---> ",ret
             self.out.dont_delete.append(ret)
             return ret
         else:
