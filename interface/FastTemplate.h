@@ -73,6 +73,7 @@ class FastTemplate {
         void SetActiveSize(unsigned int size) { size_ = size; }
 
         void Dump() const ;
+
     protected:
         unsigned int size_;
         AT values_;
@@ -115,6 +116,9 @@ class FastHisto : public FastTemplate {
         }
 
         void Dump() const ;
+
+        T GetMax() const ;
+
     private:
         AT binEdges_;
         AT binWidths_;
@@ -159,6 +163,10 @@ class FastHisto2D : public FastTemplate {
         void NormalizeXSlices() ;
 
         void Dump() const ;
+
+        T GetMaxOnXY() const ;
+        T GetMaxOnX(const T &y) const ;
+        T GetMaxOnY(const T &x) const ;
     private:
         unsigned int binX_, binY_;
         AT binEdgesX_;
