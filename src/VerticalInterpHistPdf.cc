@@ -1132,6 +1132,44 @@ void FastVerticalInterpHistPdf2D2::syncTotal() const {
     //printf("Normalized result\n");  _cache.Dump();
 }
 
+Int_t FastVerticalInterpHistPdf2D2::getMaxVal(const RooArgSet& vars) const {
+    //static int ncalls = 0;
+    //if (++ncalls < 100) {
+    //    std::cout << "Called getMaxVal(" << GetName() << "), x  = " << _x.arg().GetName() << ", y = " << _y.arg().GetName() << ", conditional " << _conditional << std::endl;
+    //    vars.Print("V");
+    //}
+    switch (vars.getSize()) {
+        case 1:
+            if (vars.contains(_x.arg())) return 1; 
+            if (vars.contains(_y.arg())) return 2; 
+            break;
+        case 2:
+            if (vars.contains(_x.arg()) && vars.contains(_y.arg())) {
+                return 3;
+            }
+            break;
+    }
+    return 0;
+}
+
+Double_t FastVerticalInterpHistPdf2D2::maxVal(int code) const {
+    if (!_initBase) initBase();
+    if (_cache.size() == 0) _cache = _cacheNominal;
+    if (!_sentry.good()) syncTotal();
+    switch (code) {
+        case 1:
+            return _cache.GetMaxOnX(_y);
+        case 2:
+            return _cache.GetMaxOnY(_x);
+        case 3:
+            return _cache.GetMaxOnXY();
+    }
+    coutE(InputArguments) << "FastVerticalInterpHistPdf2D2::maxVal(" << GetName() 
+			  << ") unsupported integration code " << code << "\n" << std::endl;
+    assert(0);
+
+}
+
 FastVerticalInterpHistPdf2V::FastVerticalInterpHistPdf2V(const FastVerticalInterpHistPdf2 &hpdf, const RooAbsData &data, bool includeZeroWeights) :
     hpdf_(hpdf),begin_(0),end_(0)
 {
