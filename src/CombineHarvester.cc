@@ -516,7 +516,7 @@ void CombineHarvester::LoadShapes(Systematic* entry,
     if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooDataHist");
     // Try and get this as RooAbsData first. If this doesn't work try pdf
     RooDataHist* h =
-        dynamic_cast<RooDataHist*>(mapping.sys_ws->data(p_s.c_str()));
+        dynamic_cast<RooDataHist*>(mapping.sys_ws->data(mapping.WorkspaceObj().c_str()));
     RooDataHist* h_u =
         dynamic_cast<RooDataHist*>(mapping.sys_ws->data(p_s_hi.c_str()));
     RooDataHist* h_d =
