@@ -11,6 +11,7 @@
 #include <../interface/VectorizedCB.h>
 #include <../interface/VectorizedSimplePdfs.h>
 #include <../interface/CachingMultiPdf.h>
+#include <../interface/Logging.h> // temporary, for debugging
 #include "vectorized.h"
 
 namespace cacheutils {
@@ -125,6 +126,7 @@ cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection &set)
 bool 
 cacheutils::ArgSetChecker::changed(bool updateIfChanged) 
 {
+    LAUNCH_FUNCTION_TIMER(__timer__, __token__) // DEBUG
     bool changed = false;
     std::vector<RooRealVar *>::const_iterator it = vars_.begin(), ed = vars_.end();
     std::vector<double>::iterator itv = vals_.begin();
@@ -182,6 +184,7 @@ void cacheutils::ValuesCache::clear()
 
 std::pair<std::vector<Double_t> *, bool> cacheutils::ValuesCache::get() 
 {
+    LAUNCH_FUNCTION_TIMER(__timer__, __token__) // DEBUG
     int found = -1; bool good = false;
     for (int i = 0; i < size_; ++i) {
         if (items[i]->good) {
@@ -259,6 +262,7 @@ cacheutils::CachingPdf::~CachingPdf()
 const std::vector<Double_t> & 
 cacheutils::CachingPdf::eval(const RooAbsData &data) 
 {
+    LAUNCH_FUNCTION_TIMER(__timer__, __token__) // DEBUG
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingPdf::eval called");
 #endif
@@ -504,12 +508,71 @@ cacheutils::CachingAddNLL::setup_()
             multiPdfs_.push_back(std::make_pair(mpdf, &*itp));
         }
     }
- 
+
+    if (runtimedef::get("ENABLE_BB_LITE")) {
+      // for now put all params_ in the checker
+      bbChecker_ = ArgSetChecker(params_);
+      bbLiteVars_.clear();
+      bbLiteScales_.clear();
+      for (auto itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
+        CachingHistPdf2 * cpdf = dynamic_cast<CachingHistPdf2 *>(&(*itp));
+        if (!cpdf) continue;
+        FastVerticalInterpHistPdf2 const *hpdf =
+            dynamic_cast<FastVerticalInterpHistPdf2 const *>(cpdf->pdf());
+        cpdf->eval(*data_); // to populate the 'bins' vector
+        FastVerticalInterpHistPdf2V const *vpdf = cpdf->vpdf();
+        std::vector<int> bins = vpdf->bins();
+        if (hpdf && hpdf->binVars().getSize() > 0) {
+          std::cout << "Barlow-beeston lite is enabled for CachingAddNLL "
+                    << this->GetName() << "\t" << bins.size() << "\n";
+          unsigned nbins = hpdf->binVars().getSize();
+          bbLiteVars_.reserve(nbins);
+          bbLiteScales_.reserve(nbins);
+          for (unsigned ib = 0; ib < nbins; ++ib) {
+            static_cast<RooRealVar *>(hpdf->binVars().at(ib))->setConstant();
+          }
+          for (unsigned ib = 0; ib < bins.size(); ++ib) {
+            bbLiteVars_.push_back(static_cast<RooRealVar *>(hpdf->binVars().at(bins[ib])));
+            bbLiteVars_.back()->Print();
+            bbLiteScales_.push_back(
+                static_cast<RooConstVar *>(hpdf->binScales().at(bins[ib]))->getVal());
+            bbLiteVars_.back()->removeRange(); // seems to speed up setVal() a bit, but should check
+          }
+          break; // only need to do this once
+        }
+      }
+    } else if (runtimedef::get("BB_TEST_MODE")) {
+      // just for comparison, set to constant bin vars that are aligned with empty data
+      bbLiteVars_.clear();
+      bbLiteScales_.clear();
+      for (auto itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
+        CachingHistPdf2 * cpdf = dynamic_cast<CachingHistPdf2 *>(&(*itp));
+        if (!cpdf) continue;
+        FastVerticalInterpHistPdf2 const *hpdf =
+            dynamic_cast<FastVerticalInterpHistPdf2 const *>(cpdf->pdf());
+        cpdf->eval(*data_);
+        FastVerticalInterpHistPdf2V const *vpdf = cpdf->vpdf();
+        std::vector<int> bins = vpdf->bins();
+        if (hpdf && hpdf->binVars().getSize() > 0) {
+          std::cout << "Barlow-beeston lite vars disabled: "
+                    << this->GetName() << "\t" << bins.size() << "\n";
+          unsigned nbins = hpdf->binVars().getSize();
+          for (unsigned ib = 0; ib < nbins; ++ib) {
+            if (std::find(bins.begin(), bins.end(), ib) == bins.end()) {
+                static_cast<RooRealVar *>(hpdf->binVars().at(ib))->setConstant();
+                hpdf->binVars().at(ib)->Print();
+            }
+          }
+          break;
+        }
+      }        
+    }
 }
 
 Double_t 
 cacheutils::CachingAddNLL::evaluate() const 
 {
+    LAUNCH_FUNCTION_TIMER(__timer__, __token__) // DEBUG
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingAddNLL::evaluate called");
 #endif
@@ -525,6 +588,32 @@ cacheutils::CachingAddNLL::evaluate() const
     }
 
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
+
+    // std::cout << bbLiteVars_.size() << "\t" << partialSum_.size() << "\t" << bbLiteScales_.size() << "\t" << weights_.size() << "\n";
+
+    if (bbLiteVars_.size() > 0 && bbChecker_.changed(true)) {
+        START_TIMER(__section1__, "section1")
+        for (unsigned ib = 0; ib < bbLiteVars_.size(); ++ib) {
+            bbLiteVars_[ib]->setVal(0.); // FIXME: this is the main cause of slow-down
+        }
+        STOP_TIMER(__section1__)
+        START_TIMER(__section2__, "section2")
+        std::vector<RooAbsReal*>::iterator  itc = coeffs_.begin(), edc = coeffs_.end();
+        boost::ptr_vector<CachingPdfBase>::iterator   itp = pdfs_.begin();//,   edp = pdfs_.end();
+        for ( ; itc != edc; ++itp, ++itc ) {
+            Double_t coeff = (*itc)->getVal();
+            const std::vector<Double_t> &pdfvals = itp->eval(*data_);
+            vectorized::mul_add(pdfvals.size(), coeff, &pdfvals[0], &partialSum_[0]);
+        }
+        STOP_TIMER(__section2__)
+        START_TIMER(__section3__, "section3")
+        for (unsigned ib = 0; ib < bbLiteVars_.size(); ++ib) {
+            bbLiteVars_[ib]->setVal(SolveBBLite(partialSum_[ib], bbLiteScales_[ib], weights_[ib]));
+            //FIXME: this setVal() is also slow
+        }
+        STOP_TIMER(__section3__)
+        std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
+    }
 
     std::vector<RooAbsReal*>::iterator  itc = coeffs_.begin(), edc = coeffs_.end();
     boost::ptr_vector<CachingPdfBase>::iterator   itp = pdfs_.begin();//,   edp = pdfs_.end();
@@ -616,6 +705,23 @@ cacheutils::CachingAddNLL::evaluate() const
 
     TRACE_NLL("AddNLL for " << pdf_->GetName() << ": " << ret)
     return ret;
+}
+
+double cacheutils::CachingAddNLL::SolveBBLite(double val, double err, double dat) const {
+  LAUNCH_FUNCTION_TIMER(__timer__, __token__) // DEBUG
+  if (err == 0.) return 0.;
+  double a = 1;
+  double b = val * err * err - 1.;
+  double c = - dat * err * err;
+  double tmp = -0.5 * (b + copysign(1.0, b) * sqrt(b * b - 4. * a * c));
+  double x1 = tmp / a;
+  double x2 = c /tmp;
+  if (std::isnan(x1) || std::isnan(x2) || !((x1 > 0.) != (x2 > 0.))) {
+    std::cout << "something went wrong!: " << x1 << "\t" << x2 << "\n";
+  } 
+  double res = (std::max(x1, x2) - 1.) / err;
+  // std::cout << "exp: " << val << "\terr:" << err << "\tobs: " << dat << "\tres: " << res << "\n";
+  return res;
 }
 
 void 

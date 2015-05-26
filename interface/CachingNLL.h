@@ -95,6 +95,7 @@ class OptimizedCachingPdfT : public CachingPdf {
         OptimizedCachingPdfT(const OptimizedCachingPdfT &other) : 
             CachingPdf(other), vpdf_(0) {}
         virtual ~OptimizedCachingPdfT() { delete vpdf_; }
+        VPdfT const* vpdf() const { return vpdf_; } // need access to this for bb-lite
     protected:
         virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
         virtual void newData_(const RooAbsData &data) ;
@@ -137,6 +138,12 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;
         double zeroPoint_;
+
+        std::vector<RooRealVar *> bbLiteVars_; // store vars here for faster access
+        std::vector<double> bbLiteScales_; // store scales here for faster access
+        double SolveBBLite(double exp, double err, double obs) const;
+        // don't want to solve bins unless the pdf sum has changed
+        mutable ArgSetChecker bbChecker_;
 };
 
 class CachingSimNLL  : public RooAbsReal {
