@@ -125,7 +125,7 @@ def getHiggsProdDecMode(bin,process,options):
         if decaySource not in ALL_HIGGS_DECAYS:
             print "ERROR", "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
             #raise RuntimeError, "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
-    if processSource not in ["ggH", "qqH", "VH", "WH", "ZH", "ttH"]:
+    if processSource not in ["ggH", "qqH", "VH", "WH", "ZH", "ttH", "tHq", "tHW"]:
         raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
     #
     foundDecay = None

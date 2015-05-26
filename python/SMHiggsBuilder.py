@@ -111,6 +111,16 @@ class SMHiggsBuilder:
 )'%locals()
 #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
+        elif what == 'tHq':
+            for sqrts in ('7TeV', '8TeV'):
+                scalingName = 'Scaling_'+what+'_'+sqrts
+                rooExpr = 'expr::%(scalingName)s( "(@0*@0)*3.4  + (@1*@1)*3.56 - (@0*@1)*5.96", %(Ctop)s, %(CW)s)'%locals()
+                self.modelBuilder.factory_(rooExpr)
+        elif what == 'tHW':
+            for sqrts in ('7TeV', '8TeV'):
+                scalingName = 'Scaling_'+what+'_'+sqrts
+                rooExpr = 'expr::%(scalingName)s( "(@0*@0)*1.84  + (@1*@1)*1.57 - (@0*@1)*2.41", %(Ctop)s, %(CW)s)'%locals()
+                self.modelBuilder.factory_(rooExpr)
         else:
             raise RuntimeError, "There is no scaling defined for %(what)s" % locals()
                 
