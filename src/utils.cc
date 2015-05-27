@@ -58,7 +58,7 @@ void utils::printRDH(RooAbsData *data) {
     printf("%4d  ",i);
     for (size_t j = 0; j < nv; ++j) { printf("%16g  ",    bin->getRealValue(varnames[j].c_str())); }
     for (size_t j = 0; j < nc; ++j) { printf("%16.16s  ", bin->getCatLabel(catnames[j].c_str())); }
-    printf("%8.3f\n", data->weight());
+    printf("%12.7f\n", data->weight());
   }
 }
 
