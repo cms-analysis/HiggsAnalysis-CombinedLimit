@@ -12,6 +12,7 @@ class Higgswidth(PhysicsModel):
         self.forbidPMF = False
         self.is2l2nu = False
         self.useRVoverRF = False
+        self.muOffshell = False
         self.poiMap = []
         self.pois = {}
         self.verbose = False
@@ -28,24 +29,45 @@ class Higgswidth(PhysicsModel):
         elif process == "qqH_sbi": return "qqH_sbi_func"
         elif process in ["ggH","ttH"]:
             if self.useRVoverRF:
-                return "R"
+                if self.muOffshell:
+                    return "r"
+                else:
+                    return "R"
             else:
                 if self.RVRFfixed or self.GGsmRVRFfixed:
-                    return "R"
+                    if self.muOffshell:
+                        return "r"
+                    else:
+                        return "R"
                 else:
-                    return "RF"
+                    if self.muOffshell:
+                        return "rf"
+                    else:
+                        return "RF"
 
         elif process in ["qqH","WH","ZH","VH"]:
             if self.useRVoverRF:
                 if self.RVRFfixed or self.GGsmRVRFfixed:
-                    return "R"
+                    if self.muOffshell:
+                        return "r"
+                    else:
+                        return "R"
                 else:
-                    return "RRV"
+                    if self.muOffshell:
+                        return "rrv"
+                    else:
+                        return "RRV"
             else:
                 if self.RVRFfixed or self.GGsmRVRFfixed:
-                    return "R"
+                    if self.muOffshell:
+                        return "r"
+                    else:
+                        return "R"
                 else:
-                    return "RV"
+                    if self.muOffshell:
+                        return "rv"
+                    else:
+                        return "RV"
         else:
             return 1
             
@@ -72,6 +94,10 @@ class Higgswidth(PhysicsModel):
                 if 'forbidPMF' in po:
                     print "Negative real phase will be forbidden for anomalous couplings"
                     self.forbidPMF = True
+            if 'muOffshell' in po:
+                print "Will fix CMS_zz4l_GGsm to 1 and float on-shell and off-shell separately"
+                self.muOffshell = True
+                self.GGsmfixed = True
             
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
@@ -90,6 +116,19 @@ class Higgswidth(PhysicsModel):
         self.modelBuilder.out.var("RF").setVal(1)
         self.modelBuilder.out.var("CMS_zz4l_GGsm").setVal(1)
         self.modelBuilder.out.var("CMS_widthH_kbkg").setVal(1)
+
+        if self.muOffshell:
+            print "Creating r, rv, rf"
+            if not self.modelBuilder.out.var("r"):
+                self.modelBuilder.doVar("r[1.,0.,100.]")
+            if not self.modelBuilder.out.var("rv"):
+                self.modelBuilder.doVar("rv[1.,0.,100.]")
+            if not self.modelBuilder.out.var("rf"):
+                self.modelBuilder.doVar("rf[1.,0.,100.]")
+            self.modelBuilder.out.var("r").setVal(1)
+            self.modelBuilder.out.var("rv").setVal(1)
+            self.modelBuilder.out.var("rf").setVal(1)
+
 
         if self.GGsmfixed:
             self.modelBuilder.out.var("CMS_zz4l_GGsm").setConstant(True)
@@ -139,8 +178,12 @@ class Higgswidth(PhysicsModel):
         self.modelBuilder.factory_("expr::qqH_s_func(\"@0*@1*@2-sqrt(@0*@1*@2)\",R,CMS_zz4l_GGsm,RV)")
         self.modelBuilder.factory_("expr::qqH_b_func(\"1-sqrt(@0*@1*@2)\",R,CMS_zz4l_GGsm,RV)")
         self.modelBuilder.factory_("expr::qqH_sbi_func(\"sqrt(@0*@1*@2)\",R,CMS_zz4l_GGsm,RV)")
-        
-        self.modelBuilder.factory_("expr::RRV(\"@0*@1\",R,RV)")
+
+        if self.useRVoverRF:
+            if self.muOffshell:
+                self.modelBuilder.factory_("expr::rrv(\"@0*@1\",r,rv)")
+            else:
+                self.modelBuilder.factory_("expr::RRV(\"@0*@1\",R,RV)")
 
         self.modelBuilder.doSet("POI",poi)
         
