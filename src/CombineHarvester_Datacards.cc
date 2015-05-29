@@ -318,7 +318,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         if (sys->type() == "shape" || sys->type() == "shapeN2")
           sys->set_asymm(true);
 
-        CombineHarvester::CreateParameterIfEmpty(this, sys->name());
+        CombineHarvester::CreateParameterIfEmpty(sys->name());
         if (sys->type() == "lnU") {
           params_.at(sys->name())->set_err_d(0.);
           params_.at(sys->name())->set_err_u(0.);

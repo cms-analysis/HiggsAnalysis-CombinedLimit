@@ -363,16 +363,32 @@ class CombineHarvester {
   void InsertObservation(ch::Observation const& obs);
   void InsertProcess(ch::Process const& proc);
   void InsertSystematic(ch::Systematic const& sys);
+  void CreateParameterIfEmpty(std::string const& name);
 
   /**
    * Create bin-by-bin uncertainties
    *
-   * \deprecated Please use the AddBinByBin(double, bool, CombineHarvester &)
-   * interface instead
+   * \deprecated Please use the standalone ch::BinByBinFactory tool, defined
+   * in CombineTools/interface/BinByBin.h
    */
   void AddBinByBin(double threshold, bool fixed_norm, CombineHarvester* other);
+
+
+  /**
+   * Create bin-by-bin uncertainties
+   *
+   * \deprecated Please use the standalone ch::BinByBinFactory tool, defined
+   * in CombineTools/interface/BinByBin.h
+   */
   void AddBinByBin(double threshold, bool fixed_norm, CombineHarvester & other);
 
+
+  /**
+   * Merge bin errors within a bin
+   *
+   * \deprecated Please use the standalone ch::BinByBinFactory tool, defined
+   * in CombineTools/interface/BinByBin.h
+   */
   void MergeBinErrors(double bbb_threshold, double merge_threshold);
   /**@}*/
 
@@ -472,8 +488,6 @@ void FillHistMappings(std::vector<HistMapping> & mappings);
                  TH1 const* high, bool linear);
   void ShapeDiff(double x, TH1F* target, RooDataHist const* nom,
                  RooDataHist const* low, RooDataHist const* high);
-
-  void CreateParameterIfEmpty(CombineHarvester *cmb, std::string const& name);
 };
 
 
