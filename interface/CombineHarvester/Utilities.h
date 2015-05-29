@@ -71,14 +71,8 @@ void SetFromBinName(ch::Object *input, std::string parse_rules);
 // ---------------------------------------------------------------------------
 // Rate scaling
 // ---------------------------------------------------------------------------
-
-void ParseTable(std::map<std::string, TGraph>* graphs, std::string const& file,
-                std::vector<std::string> const& fields);
-
-void ScaleProcessRate(ch::Process* p,
-                      std::map<std::string, TGraph> const* graphs,
-                      std::string const& prod, std::string const& decay,
-                      std::string const& force_mass = "");
+TGraph TGraphFromTable(std::string filename, std::string const& x_column,
+                       std::string const& y_column);
 
 // ---------------------------------------------------------------------------
 // Misc

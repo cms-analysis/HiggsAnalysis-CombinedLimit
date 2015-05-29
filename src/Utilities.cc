@@ -118,44 +118,33 @@ void SetFromBinName(ch::Object *input, std::string parse_rules) {
 // ---------------------------------------------------------------------------
 // Rate scaling
 // ---------------------------------------------------------------------------
-void ParseTable(std::map<std::string, TGraph>* graphs, std::string const& file,
-                std::vector<std::string> const& fields) {
-  auto lines = ch::ParseFileLines(file);
-  for (auto const& f : fields) {
-    (*graphs)[f] = TGraph(lines.size());
-  }
-  for (unsigned i = 0; i < lines.size(); ++i) {
+TGraph TGraphFromTable(std::string filename, std::string const& x_column, std::string const& y_column) {
+  auto lines = ch::ParseFileLines(filename);
+  if (lines.size() == 0) throw std::runtime_error(FNERROR("Table is empty"));
+  std::vector<std::string> fields;
+  boost::split(fields, lines[0], boost::is_any_of("\t "),
+               boost::token_compress_on);
+  auto x_it = std::find(fields.begin(), fields.end(), x_column);
+  if (x_it == fields.end())
+    throw std::runtime_error(FNERROR("No column with label " + x_column));
+  auto y_it = std::find(fields.begin(), fields.end(), y_column);
+  if (y_it == fields.end())
+    throw std::runtime_error(FNERROR("No column with label " + y_column));
+  unsigned x_col(x_it - fields.begin());
+  unsigned y_col(y_it - fields.begin());
+  TGraph res(lines.size() - 1);
+  for (unsigned i = 1; i < lines.size(); ++i) {
     std::vector<std::string> words;
     boost::split(words, lines[i], boost::is_any_of("\t "),
                  boost::token_compress_on);
-    double m = boost::lexical_cast<double>(words.at(0));
-    for (unsigned f = 0; f < fields.size(); ++f) {
-      (*graphs)[fields[f]]
-          .SetPoint(i, m, boost::lexical_cast<double>(words.at(f + 1)));
+    if (words.size() != fields.size()) {
+      FNLOG(std::cout) << "Skipped this line:\n" << lines[i] << "\n";
+      continue;
     }
+    res.SetPoint(i, boost::lexical_cast<double>(words.at(x_col)),
+                    boost::lexical_cast<double>(words.at(y_col)));
   }
-}
-
-void ScaleProcessRate(ch::Process* p,
-                      std::map<std::string, TGraph> const* graphs,
-                      std::string const& prod, std::string const& decay,
-                      std::string const& force_mass) {
-  double mass =
-      boost::lexical_cast<double>(force_mass.size() ? force_mass : p->mass());
-  double scale = 1.0;
-  if (prod != "") {
-    if (!graphs->count(prod))
-      throw std::runtime_error(
-          FNERROR("Requested TGraph " + prod + " not found in map"));
-    scale *= graphs->find(prod)->second.Eval(mass);
-  }
-  if (decay != "") {
-    if (!graphs->count(decay))
-      throw std::runtime_error(
-          FNERROR("Requested TGraph " + decay + " not found in map"));
-    scale *= graphs->find(decay)->second.Eval(mass);
-  }
-  p->set_rate(p->rate() * scale);
+  return res;
 }
 
 // ---------------------------------------------------------------------------
