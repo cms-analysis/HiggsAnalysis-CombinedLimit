@@ -45,6 +45,10 @@ void CloneProcsAndSysts(ch::CombineHarvester& src, ch::CombineHarvester& dest,
   CloneProcs(src, dest, func);
   CloneSysts(src, dest, func);
 }
+
+void SplitSyst(ch::CombineHarvester& cb, std::string const& syst_in,
+               std::string const& split1, std::string const& split2,
+               double val1, double val2);
 }
 
 #endif
