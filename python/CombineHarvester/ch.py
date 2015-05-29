@@ -1,5 +1,7 @@
-from libCHCombineTools import *
-import libCHCombineTools
+try:
+    from _combineharvester import *
+except ImportError:
+    raise ImportError('Module is missing: you need to compile the C++ -> python shared library by running make')
 import itertools
 
 # a regular function
@@ -40,8 +42,6 @@ class SystMap:
         self.methodcallers.append(getattr(Process, k))
 
   def __call__(self, *args):
-    print len(args)
-    print len(self.methodcallers)+1
     assert len(args) == len(self.methodcallers)+1
     for element in itertools.product(*(args[:-1])):
       self.tmap[element] = args[-1]
@@ -96,11 +96,11 @@ def AddSyst(self, target, name, type, valmap):
       for proc in added_procs: print proc
 
 # now we turn it into a member function
-CombineHarvester.ParseDatacard = ParseDatacard
-CombineHarvester.AddObservations = AddObservations
-CombineHarvester.AddProcesses = AddProcesses
-CombineHarvester.SetFromAll = SetFromAll
-CombineHarvester.SetFromObs = SetFromObs
-CombineHarvester.SetFromProcs = SetFromProcs
-CombineHarvester.SetFromSysts = SetFromSysts
-CombineHarvester.AddSyst = AddSyst
+_combineharvester.CombineHarvester.ParseDatacard = ParseDatacard
+_combineharvester.CombineHarvester.AddObservations = AddObservations
+_combineharvester.CombineHarvester.AddProcesses = AddProcesses
+_combineharvester.CombineHarvester.SetFromAll = SetFromAll
+_combineharvester.CombineHarvester.SetFromObs = SetFromObs
+_combineharvester.CombineHarvester.SetFromProcs = SetFromProcs
+_combineharvester.CombineHarvester.SetFromSysts = SetFromSysts
+_combineharvester.CombineHarvester.AddSyst = AddSyst
