@@ -712,26 +712,43 @@ std::vector<std::vector<int> > utils::generateCombinations(const std::vector<int
 }
 
 
-bool utils::isParameterAtBoundary( const RooRealVar &param ){
+bool utils::isParameterAtLowerBoundary( const RooRealVar &param ){
 
     double vMin = param.getMin();
-    double vMax = param.getMax();
     double val = param.getVal();
     double errLo = -1.0 * param.getErrorLo(); 
-    double errHi = param.getErrorHi(); 
 
     double pullMin = (val-vMin) / (errLo);
-    double pullMax = (vMax-val) / (errHi);
 
     float nSigma=1.0;
 
-    if(pullMin < nSigma || pullMax < nSigma){
+    if(pullMin < nSigma){
         return true;
     }
     
     return false;
 }
 
+bool utils::isParameterAtUpperBoundary( const RooRealVar &param ){
+
+    double vMax = param.getMax();
+    double val = param.getVal();
+    double errHi = param.getErrorHi(); 
+
+    double pullMax = (vMax-val) / (errHi);
+
+    float nSigma=1.0;
+
+    if(pullMax < nSigma){
+        return true;
+    }
+    
+    return false;
+}
+
+bool utils::isParameterAtBoundary( const RooRealVar &param ){
+  return isParameterAtLowerBoundary(param) || isParameterAtUpperBoundary(param);
+}
 
 bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
 
@@ -740,14 +757,31 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
 
     RooLinkedListIter iter = params.iterator(); int i = 0;
     for (RooRealVar *a = (RooRealVar *) iter.Next(); a != 0; a = (RooRealVar *) iter.Next(), ++i) {
-
-        bool isBad = isParameterAtBoundary(*a);
+      
+        bool atLowerBoundary = isParameterAtLowerBoundary(*a);
+        bool atUpperBoundary = isParameterAtLowerBoundary(*a);
+        bool isBad = atLowerBoundary || atUpperBoundary;
 
         if(isBad){
             std::string varName((*a).GetName());
 
             if( verbosity >= 9 || (timesFoundAtBoundary[varName] < 3 && verbosity > -1) ){
-                fprintf(CloseCoutSentry::trueStdOutGlobal(),"  [WARNING] Found [%s] at boundary. \n", (*a).GetName());
+              
+                fprintf(CloseCoutSentry::trueStdOutGlobal(),"  [WARNING] Found [%s] at ", (*a).GetName());
+
+                if (atLowerBoundary && atUpperBoundary)
+                  fprintf(CloseCoutSentry::trueStdOutGlobal(),"both boundaries");
+                else if (atLowerBoundary)
+                  fprintf(CloseCoutSentry::trueStdOutGlobal(),"lower boundary");
+                else 
+                  // must be at upper boundary
+                  fprintf(CloseCoutSentry::trueStdOutGlobal(),"upper boundary");
+
+                fprintf(CloseCoutSentry::trueStdOutGlobal()," (value: %f %+f%+f range: %f..%f)", a->getVal(), a->getErrorHi(), a->getErrorLo(),
+                        a->getMin(), a->getMax());
+
+                fprintf(CloseCoutSentry::trueStdOutGlobal(),". \n");
+  
                 std::cout << "       "; (*a).Print();
             }
 
