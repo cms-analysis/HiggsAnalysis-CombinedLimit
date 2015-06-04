@@ -52,8 +52,8 @@ class ModelBuilderBase():
     def doSet(self,name,vars):
         if self.options.bin: self.out.defineSet(name,vars)
         else: self.out.write("%s = set(%s);\n" % (name,vars));
-    def doObj(self,name,type,X):
-        if self.out.obj(name): return 1 # Do not try to reproduce constraint term if it exists
+    def doObj(self,name,type,X,ignoreExisting=False):
+        if self.out.obj(name) and ignoreExisting: return 1 # Still complain if not explicitly told to ignore the existing object
         if self.options.bin: return self.factory_("%s::%s(%s)" % (type, name, X));
         else: self.out.write("%s = %s(%s);\n" % (name, type, X))
     def addDiscrete(self,var):
@@ -123,9 +123,9 @@ class ModelBuilder(ModelBuilderBase):
                         r = "-%g,%g" % (sigscale,sigscale)
 		r_exp = "" if self.out.var(n) else "[%s]"%r # Specify range to invoke factory to produce a RooRealVar only if it doesn't already exist
                 if self.options.noOptimizePdf:
-                      self.doObj("%s_Pdf" % n, "Gaussian", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig));
+                      self.doObj("%s_Pdf" % n, "Gaussian", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True); # Use existing constraint since it could be a param
                 else:
-                      self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig));
+                      self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True);# Use existing constraint since it could be a param
                 self.out.var(n).setVal(0)
                 self.out.var(n).setError(1) 
                 globalobs.append("%s_In" % n)
