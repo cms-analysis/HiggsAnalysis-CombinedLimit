@@ -15,6 +15,8 @@ int main(int argc, char **argv) {
     const char *dataset   = "data_obs"; // -D
     const char *modelConfig = "ModelConfig"; // -c
     const char *snapshot    = NULL; // -S
+    const char *tofix       = NULL;
+    const char *tofloat     = NULL;
     int   strategy    = 0; // -s
     float tolerance   = 1; // -t
     float minval      = NAN;
@@ -25,7 +27,7 @@ int main(int argc, char **argv) {
     int   points      = 10;
     bool  allvars = false;
     do {
-        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:m:n:o:P:A");
+        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:X:L:m:n:o:P:A");
         switch (opt) {
             case 'w': workspace = optarg; break;
             case 'D': dataset = optarg; break;
@@ -33,6 +35,8 @@ int main(int argc, char **argv) {
             case 'S': snapshot = optarg; break;
             case 's': strategy = atoi(optarg); break;
             case 't': tolerance = atof(optarg); break;
+            case 'X': tofix = optarg; break;
+            case 'L': tofloat = optarg; break;
             case 'n': points = atoi(optarg); break;
             case 'm': minval = atof(optarg); break;
             case 'M': maxval = atof(optarg); break;
@@ -65,6 +69,23 @@ int main(int argc, char **argv) {
         return 2;
     }
     if (snapshot) w->loadSnapshot(snapshot);
+    if (tofix) {
+        RooArgSet set(w->argSet(tofix));
+        RooLinkedListIter iter = set.iterator();
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+            if (rrv) { std::cout << "Fixing " << a->GetName() << std::endl; rrv->setConstant(true); }
+        }
+    }
+    if (tofloat) {
+        RooArgSet set(w->argSet(tofloat));
+        RooLinkedListIter iter = set.iterator();
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+            if (rrv) { std::cout << "Floating " << a->GetName() << std::endl; rrv->setConstant(false); }
+        }
+    }
+
     RooRealVar *r = w->var(poi);
     if (!std::isnan(minval)) r->setMin(minval);
     if (!std::isnan(maxval)) r->setMax(maxval);
