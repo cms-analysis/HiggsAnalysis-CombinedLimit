@@ -353,6 +353,19 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
             // now we minimize
+            nll.clearEvalErrorLog();
+            deltaNLL_ = nll.getVal() - nll0;
+            if (nll.numEvalErrors() > 0) {
+                deltaNLL_ = 9990;
+		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
+		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		}
+                Combine::commitPoint(true, /*quantile=*/0);
+                continue;
+            }
             bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
                         true : 
                         minim.minimize(verbose-1);
