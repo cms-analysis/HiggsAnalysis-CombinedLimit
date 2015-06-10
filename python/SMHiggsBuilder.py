@@ -2,6 +2,7 @@ from math import *
 from array import array
 import os 
 import ROOT
+from HiggsAnalysis.CombinedLimit.PhysicsModel import ALL_HIGGS_DECAYS
 
 class SMHiggsBuilder:
     def __init__(self,modelBuilder,datadir=None):
@@ -124,8 +125,49 @@ class SMHiggsBuilder:
         else:
             raise RuntimeError, "There is no scaling defined for %(what)s" % locals()
                 
-        
-            
+    def makePartialWidthUncertainties(self):
+        THU_GROUPS = [
+           ('hvv' , [ 'hww', 'hzz' ] ),
+           ('hqq' , [ 'hbb', 'hcc', 'hss' ] ),
+           ('hll' , [ 'htt', 'hmm' ] ),
+           ('hgg' , [ 'hgg' ] ),
+           ('hzg' , [ 'hzg' ] ),
+           ('hgluglu' , [ 'hgluglu' ] ),
+        ]
+        widthUncertainties = {}; widthUncertaintiesKeys = []
+        for line in open(self.brpath+"/WidthUncertainties_126GeV.txt"):
+            if widthUncertaintiesKeys == []:
+                widthUncertaintiesKeys = line.split()[1:]
+            else:
+                fields = line.split()
+                widthUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(widthUncertaintiesKeys, fields[1:])]) 
+        print widthUncertainties
+        print widthUncertaintiesKeys
+        for K in widthUncertaintiesKeys[:-1]:
+            self.modelBuilder.doVar("param_%s[0,-7,7]" % K)
+        for K, DS in THU_GROUPS:
+            self.modelBuilder.doVar("HiggsDecayWidthTHU_%s[0,-7,7]" % K)
+        for D in ALL_HIGGS_DECAYS:
+            #print "For decay %s: " % D,
+            if D not in widthUncertainties:
+                self.modelBuilder.doVar("HiggsDecayWidth_UncertaintyScaling_%s[1]" % D)
+                #print " no uncertainties."
+                continue
+            pnorm = ROOT.ProcessNormalization("HiggsDecayWidth_UncertaintyScaling_%s" %D, "")
+            for K in widthUncertaintiesKeys:
+                if K == "thu":
+                    var = None
+                    for K2, DS in THU_GROUPS:
+                        if D in DS:
+                            var = self.modelBuilder.out.var("HiggsDecayWidthTHU_%s" % K2)
+                            break
+                    if var == None: continue
+                else:
+                    var = self.modelBuilder.out.var("param_%s" % K)
+                #print " [ %+.1f%% from %s ]  " % (widthUncertainties[D][K]*100, var.GetName()),
+                pnorm.addLogNormal(exp(widthUncertainties[D][K]), var)
+            #print "."
+            self.modelBuilder.out._import(pnorm)
     def dump(self,name,xvar,values,logfile):
         xv = self.modelBuilder.out.var(xvar)
         yf = self.modelBuilder.out.function(name)
