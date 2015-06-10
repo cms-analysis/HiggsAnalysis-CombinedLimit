@@ -112,6 +112,11 @@ class SMHiggsBuilder:
 )'%locals()
 #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
+        elif what == 'ggZH':
+            for sqrts in ('7TeV', '8TeV'):
+                scalingName = 'Scaling_'+what+'_'+sqrts
+                rooExpr = 'expr::%(scalingName)s( "(@0*@0)*2.27  + (@1*@1)*0.37 - (@0*@1)*1.44", %(CZ)s, %(Ctop)s)'%locals()
+                self.modelBuilder.factory_(rooExpr)
         elif what == 'tHq':
             for sqrts in ('7TeV', '8TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
