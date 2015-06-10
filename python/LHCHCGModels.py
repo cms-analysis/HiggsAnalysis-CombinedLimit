@@ -31,8 +31,8 @@ CMS_to_LHCHCG_Prod = {
     'ZH': 'qqZH',
     'ggZH': 'ggZH',
     'ttH': 'ttH',
-    'tHq': 'tHq',
-    'tHW': 'tHW',
+    'tHq': 'tHjb',
+    'tHW': 'WtH',
     'bbH': 'bbH',
  } 
 
