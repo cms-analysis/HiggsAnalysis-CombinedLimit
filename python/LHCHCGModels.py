@@ -333,8 +333,11 @@ class Lambdas(SMLikeHiggsModel):
             return name
         dscale = self.decayMap_[decay]
         if production == "ggH": 
-            # fixme bbH
-            self.modelBuilder.factory_("expr::%s(\"@0*@0*   @1*@1\",kappa_gZ,%s)" % (name, dscale))
+            if decay in self.add_bbH:
+                b2g = "R_bbH_ggH_%s_%s[%g]" % (decay, energy, 0.01) 
+                self.modelBuilder.factory_("expr::%s(\"@0*@0*@1*@1*(1+@2*@3*@3*@4*@4)\",kappa_gZ,%s,%s,lambda_bZ,lambda_Zg)" % (name, dscale, b2g))
+            else:
+                self.modelBuilder.factory_("expr::%s(\"@0*@0*   @1*@1\",kappa_gZ,%s)" % (name, dscale))
         else:
             self.modelBuilder.factory_("expr::%s(\"@0*@0*@1*@2*@2\",kappa_gZ,PW_XSscal_%s_%s,%s)" % (name, production, energy, dscale))
         print '[LHC-HCG Lambdas]', name, production, decay, energy,": ",
