@@ -76,7 +76,13 @@ class ShapeBuilder(ModelBuilder):
             if b in self.pdfModes: 
                 sum_s.setAttribute('forceGen'+self.pdfModes[b].title())
                 if not self.options.noBOnly: sum_b.setAttribute('forceGen'+self.pdfModes[b].title())
-            if len(self.DC.systs) and (self.options.noOptimizePdf or not self.options.moreOptimizeSimPdf):
+            addSyst = False
+            if    self.options.moreOptimizeSimPdf == "none":   addSyst = True
+            elif  self.options.moreOptimizeSimPdf == "lhchcg": addSyst = (i > 1)
+            elif  self.options.moreOptimizeSimPdf == "cms":
+                if self.options.noOptimizePdf: raise RuntimeError, "--optimize-simpdf-constraints=cms is incompatible with --no-optimize-pdfs"
+                addSyst = False
+            if len(self.DC.systs) and addSyst:
                 ## rename the pdfs
                 sum_s.SetName("pdf_bin%s_nuis" % b); 
                 if not self.options.noBOnly: sum_b.SetName("pdf_bin%s_bonly_nuis" % b)
@@ -117,7 +123,7 @@ class ShapeBuilder(ModelBuilder):
                 for b in self.DC.bins:
                     pdfi = self.out.pdf("pdf_bin%s%s" % (b,postfixIn))
                     simPdf.addPdf(pdfi, b)
-                if len(self.DC.systs) and (not self.options.noOptimizePdf) and self.options.moreOptimizeSimPdf:
+                if len(self.DC.systs) and (not self.options.noOptimizePdf) and self.options.moreOptimizeSimPdf == "cms":
                     simPdf.addExtraConstraints(self.out.nuisPdfs)
                 if self.options.verbose:
                     stderr.write("Importing combined pdf %s\n" % simPdf.GetName()); stderr.flush()
