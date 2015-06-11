@@ -146,8 +146,6 @@ class SMHiggsBuilder:
             else:
                 fields = line.split()
                 widthUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(widthUncertaintiesKeys, fields[1:])]) 
-        print widthUncertainties
-        print widthUncertaintiesKeys
         for K in widthUncertaintiesKeys[:-1]:
             self.modelBuilder.doVar("param_%s[0,-7,7]" % K)
         for K, DS in THU_GROUPS:
