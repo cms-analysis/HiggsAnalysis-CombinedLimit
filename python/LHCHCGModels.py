@@ -1,5 +1,6 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
+import ROOT
 
 ## Naming conventions
 CMS_to_LHCHCG_Dec = { 
@@ -36,19 +37,21 @@ CMS_to_LHCHCG_Prod = {
     'bbH': 'bbH',
  } 
 
-class SignalStrengths(SMLikeHiggsModel):
-    "Allow different signal strength fits"
+class LHCHCGBaseModel(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.floatMass = False
-        self.POIs = "mu"
         self.add_bbH = [ "hzz", "hgg" ]
-    def setPhysicsOptions(self,physOptions):
+        self.bbH_pdf = "pdf_gg" 
+    def preProcessNuisances(self,nuisances):
+        if self.add_bbH and not any(row for row in nuisances if row[0] == "QCDscale_bbH"):
+            nuisances.append(("QCDscale_bbH",False, "param", [ "0", "1"], [] ) )
+        if self.add_bbH and not any(row for row in nuisances if row[0] == self.bbH_pdf):
+            nuisances.append((pdf_bbH,False, "param", [ "0", "1"], [] ) )
+    def setPhysicsOptionsBase(self,physOptions):
         for po in physOptions:
             if po.startswith("bbh="):
                 self.add_bbH = [d.strip() for d in po.replace("bbh=","").split(",")]
-            if po.startswith("poi="):
-                self.POIs = po.replace("poi=","")
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
@@ -58,23 +61,18 @@ class SignalStrengths(SMLikeHiggsModel):
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
         print "Will add bbH to signals in the following Higgs boson decay modes: %s" % (", ".join(self.add_bbH))
-    def doVar(self,x,constant=True):
-        self.modelBuilder.doVar(x)
-        vname = re.sub(r"\[.*","",x)
-        self.modelBuilder.out.var(vname).setConstant(constant)
-        print "SignalStrengths:: declaring %s as %s, and set to constant" % (vname,x)
-    def doParametersOfInterest(self):
-        """Create POI out of signal strength and MH"""
-        self.doVar("mu[1,0,5]")
-        for X in CMS_to_LHCHCG_Dec.values():
-            self.doVar("mu_BR_%s[1,0,5]" % X)
-        for X in CMS_to_LHCHCG_Prod.values() + [ "ZH", "tH" ]:
-            self.doVar("mu_XS_%s[1,0,5]" % X)
-            self.doVar("mu_XS7_%s[1,0,5]" % X)
-            self.doVar("mu_XS8_%s[1,0,5]" % X)
-        for X in CMS_to_LHCHCG_DecSimple.values():
-            self.doVar("mu_V_%s[1,0,5]" % X)
-            self.doVar("mu_F_%s[1,0,5]" % X)
+    def dobbH(self):
+        self.modelBuilder.doVar("QCDscale_bbH[-7,7]")
+        self.modelBuilder.doVar(self.bbH_pdf+"[-7,7]")
+        scaler7 = ROOT.ProcessNormalization("CMS_bbH_scaler_7TeV","",1.0)
+        scaler8 = ROOT.ProcessNormalization("CMS_bbH_scaler_8TeV","",1.0)
+        self.modelBuilder.out._import(scaler7)
+        self.modelBuilder.out._import(scaler8)
+        self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addAsymmLogNormal(1.0/114.5, 1.106, self.modelBuilder.out.var("QCDscale_bbH"))
+        self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addAsymmLogNormal(1.0/114.8, 1.103, self.modelBuilder.out.var("QCDscale_bbH"))
+        self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addLogNormal(1.061, self.modelBuilder.out.var(self.bbH_pdf))
+        self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addLogNormal(1.062, self.modelBuilder.out.var(self.bbH_pdf))
+    def doMH(self):
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
@@ -87,29 +85,63 @@ class SignalStrengths(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setConstant(True)
             else:
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
+
+class SignalStrengths(LHCHCGBaseModel):
+    "Allow different signal strength fits"
+    def __init__(self):
+        LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+        self.POIs = "mu"
+    def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
+        for po in physOptions:
+            if po.startswith("poi="):
+                self.POIs = po.replace("poi=","")
+    def doVar(self,x,constant=True):
+        self.modelBuilder.doVar(x)
+        vname = re.sub(r"\[.*","",x)
+        self.modelBuilder.out.var(vname).setConstant(constant)
+        print "SignalStrengths:: declaring %s as %s, and set to constant" % (vname,x)
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength and MH"""
+        self.doMH()
+        self.doVar("mu[1,0,5]")
+        for X in CMS_to_LHCHCG_Dec.values():
+            self.doVar("mu_BR_%s[1,0,5]" % X)
+        for X in CMS_to_LHCHCG_Prod.values() + [ "ZH", "tH", "ggHbbH", "ttHtH" ]:
+            self.doVar("mu_XS_%s[1,0,5]" % X)
+            self.doVar("mu_XS7_%s[1,0,5]" % X)
+            self.doVar("mu_XS8_%s[1,0,5]" % X)
+        for X in CMS_to_LHCHCG_DecSimple.values():
+            self.doVar("mu_V_%s[1,0,5]" % X)
+            self.doVar("mu_F_%s[1,0,5]" % X)
         print "Default parameters of interest: ", self.POIs
         self.modelBuilder.doSet("POI",self.POIs)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
     def setup(self):
+        self.dobbH()
         for P in ALL_HIGGS_PROD:
             if P == "VH": continue # skip aggregates 
             for D in SM_HIGG_DECAYS:
                 for E in 7, 8:
-                    terms = [ "mu", "mu_BR_"+CMS_to_LHCHCG_Dec[D] ]
+                    terms = [ "mu", "mu_BR_"+CMS_to_LHCHCG_DecSimple[D] ]
                     # Hack for ggH
                     if D in self.add_bbH and P == "ggH":
-                        b2g = "R_bbH_ggH_%s_%dTeV[%g]" % (D, E, 0.01) 
+                        b2g = "CMS_R_bbH_ggH_%s_%dTeV[%g]" % (D, E, 0.01) 
                         ggs = ",".join([ "mu_XS_ggF", "mu_XS%d_ggF"%E ])
-                        bbs = ",".join([ "mu_XS_bbH", "mu_XS%d_bbH"%E ])
+                        bbs = ",".join([ "mu_XS_bbH", "mu_XS%d_bbH"%E, "CMS_bbH_scaler_%dTeV"%E ])
                         ## FIXME should include the here also logNormal for QCDscale_bbH
                         self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"@1*@2+@0*@3*@4\",%s,%s,%s)' % (D,E,b2g,ggs,bbs))
-                        terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E) ]
+                        terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E),  "mu_XS_ggHbbH", "mu_XS%d_ggHbbH"%E ]
                     else:
+                        if P in [ "ggH", "bbH" ]:
+                            terms += [ "mu_XS_ggHbbH", "mu_XS%d_ggHbbH"%E ]
                         terms += [ "mu_XS_"+CMS_to_LHCHCG_Prod[P],  "mu_XS%d_%s"%(E,CMS_to_LHCHCG_Prod[P])  ]
                     # Summary modes
                     if P in [ "tHW", "tHq" ]:
                         terms += [ "mu_XS_tH", "mu_XS%d_tH"%E ]
+                    if P in [ "tHW", "tHq", "ttH" ]:
+                        terms += [ "mu_XS_ttHtH", "mu_XS%d_ttHtH"%E ]
                     if P in [ "ggZH", "ZH" ]:
                         terms += [ "mu_XS_ZH", "mu_XS%d_ZH"%E ]
                     if P in [ "WH", "ZH", "ggZH" ]:
@@ -125,26 +157,17 @@ class SignalStrengths(SMLikeHiggsModel):
     def getHiggsSignalYieldScale(self,production,decay,energy):
         return "scaling_%s_%s_%s" % (production,decay,energy)
 
-class Kappas(SMLikeHiggsModel):
+
+class Kappas(LHCHCGBaseModel):
     "assume the SM coupling but let the Higgs mass to float"
-    def __init__(self,resolved=True):
-        SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
-        self.floatMass = False
-        self.add_bbH = [ "hzz", "hgg" ]
-        self.doBRU = False
+    def __init__(self,resolved=True,BRU=True):
+        LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+        self.doBRU = BRU
         self.resolved = resolved
     def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
-            if po.startswith("bbh="):
-                self.add_bbH = [ d.strip() for d in po.replace("bbh=","").split(",") ]
-            if po.startswith("higgsMassRange="):
-                self.floatMass = True
-                self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
-                if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+            pass
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("kappa_W[1,0.0,2.0]") 
@@ -161,24 +184,13 @@ class Kappas(SMLikeHiggsModel):
         pois = 'kappa_W,kappa_Z,kappa_tau,kappa_t,kappa_b'
         if not self.resolved:
             pois += ',kappa_g,kappa_gam'
-        if self.floatMass:
-            if self.modelBuilder.out.var("MH"):
-                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
-                self.modelBuilder.out.var("MH").setConstant(False)
-            else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
-            self.modelBuilder.doSet("POI",pois+',MH')
-        else:
-            if self.modelBuilder.out.var("MH"):
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
-                self.modelBuilder.out.var("MH").setConstant(True)
-            else:
-                self.modelBuilder.doVar("MH[%g]" % self.options.mass)
-            self.modelBuilder.doSet("POI",pois)
+        self.doMH()
+        self.modelBuilder.doSet("POI",pois)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
 
     def setup(self):
+        self.dobbH()
         # SM BR
         for d in SM_HIGG_DECAYS + [ "hss" ]: 
             self.SMH.makeBR(d)
@@ -247,8 +259,9 @@ class Kappas(SMLikeHiggsModel):
                 raise RuntimeError, "Decay mode %s not supported" % decay
             if decay == "hss": BRscal = "hbb"
             if production == "ggH" and (decay in self.add_bbH) and energy in ["7TeV","8TeV"]:
-                b2g = "R_bbH_ggH_%s_%s[%g]" % (decay, energy, 0.01) 
-                self.modelBuilder.factory_('expr::%s("(%s + @1*@1*@2)*@3", %s, kappa_b, %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], b2g, BRscal))
+                b2g = "CMS_R_bbH_ggH_%s_%s[%g]" % (decay, energy, 0.01) 
+                b2gs = "CMS_bbH_scaler_%s" % energy
+                self.modelBuilder.factory_('expr::%s("(%s + @1*@1*@2*@3)*@4", %s, kappa_b, %s, %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], b2g, b2gs, BRscal))
             else:
                 self.modelBuilder.factory_('expr::%s("%s*@1", %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], BRscal))
             print '[LHC-HCG Kappas]', name, production, decay, energy,": ",
@@ -256,25 +269,17 @@ class Kappas(SMLikeHiggsModel):
         return name
 
 
-class Lambdas(SMLikeHiggsModel):
-    def __init__(self):
-        SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
-        self.floatMass = False
-        self.add_bbH = [ "hzz", "hgg" ]
+class Lambdas(LHCHCGBaseModel):
+    def __init__(self,BRU=True):
+        LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+        self.doBRU = BRU
     def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
-            if po.startswith("bbh="):
-                self.add_bbH = [ d.strip() for d in po.replace("bbh=","").split(",") ]
-            if po.startswith("higgsMassRange="):
-                self.floatMass = True
-                self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
-                if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+            pass
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
+        self.doMH()
         self.modelBuilder.doVar("lambda_WZ[1,0.0,2.0]") 
         self.modelBuilder.doVar("lambda_Zg[1,0.0,4.0]")
         self.modelBuilder.doVar("lambda_bZ[1,0.0,4.0]")
@@ -298,6 +303,11 @@ class Lambdas(SMLikeHiggsModel):
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
     def setup(self):
+        self.dobbH()
+        # BR uncertainties
+        if self.doBRU:
+            self.SMH.makePartialWidthUncertainties()
+
         self.modelBuilder.doVar("lambda_one[1]")
 
         self.modelBuilder.factory_("expr::lambda_tZ(\"@0/@1\",lambda_tg,lambda_Zg)");
@@ -332,14 +342,23 @@ class Lambdas(SMLikeHiggsModel):
         if self.modelBuilder.out.function(name):
             return name
         dscale = self.decayMap_[decay]
+        if self.doBRU:
+            name += "_noBRU"
         if production == "ggH": 
             if decay in self.add_bbH:
-                b2g = "R_bbH_ggH_%s_%s[%g]" % (decay, energy, 0.01) 
-                self.modelBuilder.factory_("expr::%s(\"@0*@0*@1*@1*(1+@2*@3*@3*@4*@4)\",kappa_gZ,%s,%s,lambda_bZ,lambda_Zg)" % (name, dscale, b2g))
+                b2g = "CMS_R_bbH_ggH_%s_%s[%g]" % (decay, energy, 0.01) 
+                b2gs = "CMS_bbH_scaler_%s" % energy
+                self.modelBuilder.factory_("expr::%s(\"@0*@0*@1*@1*(1+@2*@3*@4*@4*@5*@5)\",kappa_gZ,%s,%s,%s,lambda_bZ,lambda_Zg)" % (name, dscale, b2g, b2gs))
             else:
                 self.modelBuilder.factory_("expr::%s(\"@0*@0*   @1*@1\",kappa_gZ,%s)" % (name, dscale))
         else:
             self.modelBuilder.factory_("expr::%s(\"@0*@0*@1*@2*@2\",kappa_gZ,PW_XSscal_%s_%s,%s)" % (name, production, energy, dscale))
+        if self.doBRU:
+            name = name.replace("_noBRU","")
+            if decay == "hzz":
+                self.modelBuilder.factory_("prod::%s(%s_noBRU, HiggsDecayWidth_UncertaintyScaling_%s)" % (name, name, "hzz"))
+            else:
+                self.modelBuilder.factory_("expr::%s(\"@0*(@1/@2)\", %s_noBRU, HiggsDecayWidth_UncertaintyScaling_%s, HiggsDecayWidth_UncertaintyScaling_%s)" % (name, name, decay, "hzz"))
         print '[LHC-HCG Lambdas]', name, production, decay, energy,": ",
         self.modelBuilder.out.function(name).Print("")
         return name
