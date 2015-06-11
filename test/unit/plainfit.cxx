@@ -14,13 +14,15 @@ int main(int argc, char **argv) {
     const char *dataset   = "data_obs"; // -D
     const char *modelConfig = "ModelConfig"; // -c
     const char *snapshot    = NULL; // -S
+    const char *tofix       = NULL;
+    const char *tofloat     = NULL;
     int   strategy    = 0; // -s
     float tolerance   = 1; // -t
     const char *minos = NULL; // -M
     int   optimize    = 2; // -O
     bool  useFitTo    = false; // -f ( use pdf->fitTo instead of Minimizer )
     do {
-        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:f");
+        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:X:L:f");
         switch (opt) {
             case 'w': workspace = optarg; break;
             case 'D': dataset = optarg; break;
@@ -29,6 +31,8 @@ int main(int argc, char **argv) {
             case 's': strategy = atoi(optarg); break;
             case 't': tolerance = atof(optarg); break;
             case 'M': minos = optarg; break;
+            case 'X': tofix = optarg; break;
+            case 'L': tofloat = optarg; break;
             case 'O': optimize = atoi(optarg); break;
             case 'f': useFitTo = true; break;
             case '?': std::cerr << "Unsupported option. Please see the code. " << std::endl; return 1; break;
@@ -56,6 +60,22 @@ int main(int argc, char **argv) {
         return 2;
     }
     if (snapshot) w->loadSnapshot(snapshot);
+    if (tofix) {
+        RooArgSet set(w->argSet(tofix));
+        RooLinkedListIter iter = set.iterator();
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+            if (rrv) { std::cout << "Fixing " << a->GetName() << std::endl; rrv->setConstant(true); }
+        }
+    }
+    if (tofloat) {
+        RooArgSet set(w->argSet(tofloat));
+        RooLinkedListIter iter = set.iterator();
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+            if (rrv) { std::cout << "Floating " << a->GetName() << std::endl; rrv->setConstant(false); }
+        }
+    }
     RooArgSet poi; if (minos) poi.add(*w->var(minos));
     ROOT::Math::MinimizerOptions::SetDefaultTolerance(tolerance);
     TStopwatch timer;

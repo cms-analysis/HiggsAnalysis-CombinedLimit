@@ -114,8 +114,10 @@ class MultiSignalModel(PhysicsModel):
 ### This base class implements signal yields by production and decay mode
 ### Specific models can be obtained redefining getHiggsSignalYieldScale
 SM_HIGG_DECAYS   = [ "hww", "hzz", "hgg", "htt", "hbb", 'hzg', 'hmm', 'hcc', 'hgluglu' ]
+SM_HIGG_PROD     = [ "ggH", "qqH", "VH", "WH", "ZH", "ttH", "tHq", "tHW", "ggZH" ]
 BSM_HIGGS_DECAYS = [ "hinv" ]
 ALL_HIGGS_DECAYS = SM_HIGG_DECAYS + BSM_HIGGS_DECAYS
+ALL_HIGGS_PROD   = SM_HIGG_PROD
 def getHiggsProdDecMode(bin,process,options):
     """Return a triple of (production, decay, energy)"""
     processSource = process
@@ -125,7 +127,7 @@ def getHiggsProdDecMode(bin,process,options):
         if decaySource not in ALL_HIGGS_DECAYS:
             print "ERROR", "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
             #raise RuntimeError, "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
-    if processSource not in ["ggH", "qqH", "VH", "WH", "ZH", "ttH", "tHq", "tHW"]:
+    if processSource not in ALL_HIGGS_PROD:
         raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
     #
     foundDecay = None
