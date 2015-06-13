@@ -18,11 +18,12 @@ int main(int argc, char **argv) {
     const char *tofloat     = NULL;
     int   strategy    = 0; // -s
     float tolerance   = 1; // -t
+    float mass        = 0; // -m
     const char *minos = NULL; // -M
     int   optimize    = 2; // -O
     bool  useFitTo    = false; // -f ( use pdf->fitTo instead of Minimizer )
     do {
-        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:X:L:f");
+        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:X:L:fm:");
         switch (opt) {
             case 'w': workspace = optarg; break;
             case 'D': dataset = optarg; break;
@@ -30,6 +31,7 @@ int main(int argc, char **argv) {
             case 'S': snapshot = optarg; break;
             case 's': strategy = atoi(optarg); break;
             case 't': tolerance = atof(optarg); break;
+            case 'm': mass = atof(optarg); break;
             case 'M': minos = optarg; break;
             case 'X': tofix = optarg; break;
             case 'L': tofloat = optarg; break;
@@ -60,6 +62,10 @@ int main(int argc, char **argv) {
         return 2;
     }
     if (snapshot) w->loadSnapshot(snapshot);
+    if (mass) {
+        if (w->var("MH")) w->var("MH")->setVal(mass);
+        if (w->var("mH")) w->var("mH")->setVal(mass);
+    }
     if (tofix) {
         RooArgSet set(w->argSet(tofix));
         RooLinkedListIter iter = set.iterator();
