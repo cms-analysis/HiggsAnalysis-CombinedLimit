@@ -7,6 +7,7 @@
 #include "RooMinimizer.h"
 #include "RooStats/ModelConfig.h"
 #include "Math/MinimizerOptions.h"
+#include "Math/IOptions.h"
 
 int main(int argc, char **argv) {
     if (argc <= 1) { printf("Usage: %s file -w workspace(=w) -c modelConfig(=ModelConfig) -D dataset(=data_obs)  -S snapshot  -s strategy(=0) -t tolerance(=1) -M param_to_run_minos_on  \n",argv[0]); return 1; }
@@ -84,6 +85,8 @@ int main(int argc, char **argv) {
     }
     RooArgSet poi; if (minos) poi.add(*w->var(minos));
     ROOT::Math::MinimizerOptions::SetDefaultTolerance(tolerance);
+    ROOT::Math::IOptions & options = ROOT::Math::MinimizerOptions::Default("Minuit2");
+    options.SetValue("StorageLevel", 0);
     TStopwatch timer;
     if (useFitTo) {
         const RooCmdArg & maybeMinos = (minos ? RooFit::Minos(poi) : RooCmdArg::none());
