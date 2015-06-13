@@ -28,7 +28,7 @@ CMS_to_LHCHCG_DecSimple = {
 CMS_to_LHCHCG_Prod = { 
     'ggH': 'ggF',
     'qqH': 'VBF',
-    'WH': 'VH',
+    'WH': 'WH',
     'ZH': 'qqZH',
     'ggZH': 'ggZH',
     'ttH': 'ttH',
@@ -107,7 +107,7 @@ class SignalStrengths(LHCHCGBaseModel):
         self.doVar("mu[1,0,5]")
         for X in CMS_to_LHCHCG_Dec.values():
             self.doVar("mu_BR_%s[1,0,5]" % X)
-        for X in CMS_to_LHCHCG_Prod.values() + [ "ZH", "tH", "ggHbbH", "ttHtH" ]:
+        for X in CMS_to_LHCHCG_Prod.values() + [ "ZH", "tH", "ggHbbH", "ttHtH", "VH" ]:
             self.doVar("mu_XS_%s[1,0,5]" % X)
             self.doVar("mu_XS7_%s[1,0,5]" % X)
             self.doVar("mu_XS8_%s[1,0,5]" % X)
