@@ -103,7 +103,7 @@ def doRenameNuisance(datacard, args):
                 if lsyst2 == lsystnew:
                     found = True
                     errline2 = errline2b
-                if pdf2 != pdf0: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
+                    if pdf2 != pdf0: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
             if not found:
                 datacard.systs.append([lsystnew,nofloat,pdf0,args0,errline2])
             foundChann, foundProc = False, False
