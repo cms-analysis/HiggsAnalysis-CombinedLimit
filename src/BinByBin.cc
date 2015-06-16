@@ -27,8 +27,14 @@ void BinByBinFactory::MergeBinErrors(CombineHarvester &cb) {
     unsigned bbb_removed = 0;
     CombineHarvester tmp = std::move(cb.cp().bin({bin}).histograms());
     std::vector<Process *> procs;
-    tmp.ForEachProc([&](Process *p) { 
-      procs.push_back(p);
+    tmp.ForEachProc([&](Process *p) {
+      if (p->shape()->GetSumw2N() == 0) {
+        std::cout << "Process " << p->process()
+                  << " does not continue the weights information needed for "
+                     "valid errors, skipping\n";
+      } else {
+        procs.push_back(p);
+      }
     });
     if (procs.size() == 0) continue;
 
@@ -88,6 +94,12 @@ void BinByBinFactory::AddBinByBin(CombineHarvester &src, CombineHarvester &dest)
   for (unsigned i = 0; i < procs.size(); ++i) {
     if (!procs[i]->shape()) continue;
     TH1 const* h = procs[i]->shape();
+    if (h->GetSumw2N() == 0) {
+      std::cout << "Process " << procs[i]->process()
+                << " does not continue the weights information needed for "
+                   "valid errors, skipping\n";
+      continue;
+    }
     unsigned n_pop_bins = 0;
     for (int j = 1; j <= h->GetNbinsX(); ++j) {
       if (h->GetBinContent(j) > 0.0) ++n_pop_bins;
