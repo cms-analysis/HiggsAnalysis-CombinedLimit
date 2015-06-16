@@ -114,7 +114,7 @@ class MultiSignalModel(PhysicsModel):
 ### This base class implements signal yields by production and decay mode
 ### Specific models can be obtained redefining getHiggsSignalYieldScale
 SM_HIGG_DECAYS   = [ "hww", "hzz", "hgg", "htt", "hbb", 'hzg', 'hmm', 'hcc', 'hgluglu' ]
-SM_HIGG_PROD     = [ "ggH", "qqH", "VH", "WH", "ZH", "ttH", "tHq", "tHW", "ggZH" ]
+SM_HIGG_PROD     = [ "ggH", "qqH", "VH", "WH", "ZH", "ttH", "tHq", "tHW", "ggZH", "bbH" ]
 BSM_HIGGS_DECAYS = [ "hinv" ]
 ALL_HIGGS_DECAYS = SM_HIGG_DECAYS + BSM_HIGGS_DECAYS
 ALL_HIGGS_PROD   = SM_HIGG_PROD
@@ -348,7 +348,7 @@ class RvRfXSHiggs(SMLikeHiggsModel):
             self.modelBuilder.doSet("POI",'RV,RF')
 
     def getHiggsSignalYieldScale(self,production,decay, energy):
-        if production in ['ggH', 'ttH']:
+        if production in ['ggH', 'ttH', 'bbH']:
             return 'RF'
         if production in ['qqH', 'WH', 'ZH', 'VH']:
             return 'RV'
