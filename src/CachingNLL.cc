@@ -610,6 +610,7 @@ cacheutils::CachingAddNLL::evaluate() const
     // if all basic integrals evaluated ok, use them
     if (allBasicIntegralsOk) basicIntegrals_ = 2;
     // then get the final nll
+    static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
     double ret = 0;
     for (its = bgs; its != eds ; ++its) {
         if (!isnormal(*its) || *its <= 0) {
@@ -627,6 +628,12 @@ cacheutils::CachingAddNLL::evaluate() const
                     std::cout << "WARNING: underflow to " << *its << " in " << pdf_->GetName() << " for zero-entry bin " << its-bgs << std::endl;
                 }
                 *its = 1.0; // arbitrary number, to avoid bad logs
+                continue;
+            }
+            if (gentleNegativePenalty_ && abs(weights_[its-bgs]) < 1e-2) {
+                std::cout << "WARNING: gentle underflow to " << *its << " in " << pdf_->GetName() << " for bin " << its-bgs << ", weight " << weights_[its-bgs] << std::endl; 
+                *its = 1.0; // skip the log
+                ret -= 25;  // add a penalty (negative since we flip 'ret' afterwards)
                 continue;
             }
             std::cout << "WARNING: underflow to " << *its << " in " << pdf_->GetName() << " for bin " << its-bgs << ", weight " << weights_[its-bgs] << std::endl; 
@@ -665,6 +672,7 @@ cacheutils::CachingAddNLL::evaluate() const
     static bool expEventsNoNorm = runtimedef::get("ADDNLL_ROOREALSUM_NONORM");
     double expectedEvents = (isRooRealSum_ && !expEventsNoNorm ? pdf_->getNorm(data_->get()) : sumCoeff);
     if (expectedEvents <= 0) {
+        std::cout << "WARNING: underflow in total event yield for " << pdf_->GetName() << ", expected yield = " << expectedEvents << " (observed: " << sumWeights_ << ")" << std::endl;
         if (!CachingSimNLL::noDeepLEE_) logEvalError("Expected number of events is negative"); else CachingSimNLL::hasError_ = true;
         expectedEvents = 1e-6;
     }
@@ -885,6 +893,7 @@ cacheutils::CachingSimNLL::evaluate() const
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
+    static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
     double ret = 0;
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) {
@@ -899,6 +908,8 @@ cacheutils::CachingSimNLL::evaluate() const
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 
             double pdfval = (*it)->getVal(nuis_);
             if (!isnormal(pdfval) || pdfval <= 0) {
+                std::cout << "WARNING: underflow constraint pdf " << (*it)->GetName() << ", value = " << pdfval << std::endl;
+                if (gentleNegativePenalty_) { ret += 25; continue; }
                 if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero, negative or error").c_str());
                 pdfval = 1e-9;
             }

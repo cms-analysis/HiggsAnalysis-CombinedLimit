@@ -36,6 +36,27 @@
 
 using namespace std;
 
+// This is needed to be able to factorize products in factorizeFunc, since RooProduct::components() strips duplicates
+namespace {
+    class RooProductWithAccessors : public RooProduct {
+        public:
+            RooProductWithAccessors(const RooProduct &other) :
+                RooProduct(other) {}
+            RooArgList realTerms() const { 
+                RooArgList ret;
+                RooFIter compRIter = _compRSet.fwdIterator() ;
+                RooAbsReal* rcomp;
+                while((rcomp=(RooAbsReal*)compRIter.next())) {
+                   ret.add(*rcomp); 
+                }
+                return ret;
+            }
+    };
+    RooArgList factors(const RooProduct &prod) {
+        return RooProductWithAccessors(prod).realTerms();
+    }
+}
+
 void utils::printRDH(RooAbsData *data) {
   std::vector<std::string> varnames, catnames;
   const RooArgSet *b0 = data->get();
@@ -197,7 +218,7 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
         if (!constraints.contains(pdf)) constraints.add(pdf);
     }
 }
-void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
+void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArgList &obsTerms, RooArgList &constraints, bool keepDuplicate, bool debug) {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(&func);
     if (pdf != 0) { 
         factorizePdf(observables, *pdf, obsTerms, constraints, debug); 
@@ -206,17 +227,17 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
     const std::type_info & id = typeid(func);
     if (id == typeid(RooProduct)) {
         RooProduct *prod = dynamic_cast<RooProduct *>(&func);
-        RooArgSet components(prod->components());
+        RooArgList components(::factors(*prod));
         //std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
         std::auto_ptr<TIterator> iter(components.createIterator());
         for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
             //std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << "(dep obs? " << funci->dependsOn(observables) << ")" << std::endl;
-            factorizeFunc(observables, *funci, obsTerms, constraints);
+            factorizeFunc(observables, *funci, obsTerms, constraints, true);
         }
     } else if (func.dependsOn(observables)) {
-        if (!obsTerms.contains(func)) obsTerms.add(func);
+        if (!obsTerms.contains(func) || keepDuplicate) obsTerms.add(func);
     } else {
-        if (!constraints.contains(func)) constraints.add(func);
+        if (!constraints.contains(func) || keepDuplicate) constraints.add(func);
     }
 }
 

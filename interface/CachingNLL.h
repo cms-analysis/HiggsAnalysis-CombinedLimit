@@ -164,6 +164,8 @@ class CachingSimNLL  : public RooAbsReal {
         void clearZeroPoint() ;
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         friend class CachingAddNLL;
+        // trap this call, since we don't care about propagating it to the sub-components
+        virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
     private:
         void setup_();
         RooSimultaneous   *pdfOriginal_;

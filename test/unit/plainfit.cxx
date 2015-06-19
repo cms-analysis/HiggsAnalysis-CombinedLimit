@@ -7,6 +7,7 @@
 #include "RooMinimizer.h"
 #include "RooStats/ModelConfig.h"
 #include "Math/MinimizerOptions.h"
+#include "Math/IOptions.h"
 
 int main(int argc, char **argv) {
     if (argc <= 1) { printf("Usage: %s file -w workspace(=w) -c modelConfig(=ModelConfig) -D dataset(=data_obs)  -S snapshot  -s strategy(=0) -t tolerance(=1) -M param_to_run_minos_on  \n",argv[0]); return 1; }
@@ -18,11 +19,12 @@ int main(int argc, char **argv) {
     const char *tofloat     = NULL;
     int   strategy    = 0; // -s
     float tolerance   = 1; // -t
+    float mass        = 0; // -m
     const char *minos = NULL; // -M
     int   optimize    = 2; // -O
     bool  useFitTo    = false; // -f ( use pdf->fitTo instead of Minimizer )
     do {
-        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:X:L:f");
+        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:X:L:fm:");
         switch (opt) {
             case 'w': workspace = optarg; break;
             case 'D': dataset = optarg; break;
@@ -30,6 +32,7 @@ int main(int argc, char **argv) {
             case 'S': snapshot = optarg; break;
             case 's': strategy = atoi(optarg); break;
             case 't': tolerance = atof(optarg); break;
+            case 'm': mass = atof(optarg); break;
             case 'M': minos = optarg; break;
             case 'X': tofix = optarg; break;
             case 'L': tofloat = optarg; break;
@@ -60,6 +63,10 @@ int main(int argc, char **argv) {
         return 2;
     }
     if (snapshot) w->loadSnapshot(snapshot);
+    if (mass) {
+        if (w->var("MH")) w->var("MH")->setVal(mass);
+        if (w->var("mH")) w->var("mH")->setVal(mass);
+    }
     if (tofix) {
         RooArgSet set(w->argSet(tofix));
         RooLinkedListIter iter = set.iterator();
@@ -78,6 +85,8 @@ int main(int argc, char **argv) {
     }
     RooArgSet poi; if (minos) poi.add(*w->var(minos));
     ROOT::Math::MinimizerOptions::SetDefaultTolerance(tolerance);
+    ROOT::Math::IOptions & options = ROOT::Math::MinimizerOptions::Default("Minuit2");
+    options.SetValue("StorageLevel", 0);
     TStopwatch timer;
     if (useFitTo) {
         const RooCmdArg & maybeMinos = (minos ? RooFit::Minos(poi) : RooCmdArg::none());
