@@ -135,7 +135,7 @@ class SignalStrengths(LHCHCGBaseModel):
                         terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E),  "mu_XS_ggHbbH", "mu_XS%d_ggHbbH"%E ]
                     else:
                         if P in [ "ggH", "bbH" ]:
-                            terms += [ "mu_XS_ggHbbH", "mu_XS%d_ggHbbH"%E ]
+                            terms += [ "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
                         terms += [ "mu_XS_"+CMS_to_LHCHCG_Prod[P],  "mu_XS%d_%s"%(E,CMS_to_LHCHCG_Prod[P])  ]
                     # Summary modes
                     if P in [ "tHW", "tHq" ]:
