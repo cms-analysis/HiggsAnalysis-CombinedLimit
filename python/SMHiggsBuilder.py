@@ -147,9 +147,9 @@ class SMHiggsBuilder:
                 fields = line.split()
                 widthUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(widthUncertaintiesKeys, fields[1:])]) 
         for K in widthUncertaintiesKeys[:-1]:
-            self.modelBuilder.doVar("param_%s[0,-7,7]" % K)
+            self.modelBuilder.doVar("param_%s[-7,7]" % K)
         for K, DS in THU_GROUPS:
-            self.modelBuilder.doVar("HiggsDecayWidthTHU_%s[0,-7,7]" % K)
+            self.modelBuilder.doVar("HiggsDecayWidthTHU_%s[-7,7]" % K)
         for D in ALL_HIGGS_DECAYS:
             #print "For decay %s: " % D,
             if D not in widthUncertainties:
