@@ -107,7 +107,7 @@ class SignalStrengths(LHCHCGBaseModel):
         self.doVar("mu[1,0,5]")
         for X in CMS_to_LHCHCG_Dec.values():
             self.doVar("mu_BR_%s[1,0,5]" % X)
-        for X in CMS_to_LHCHCG_Prod.values() + [ "ZH", "tH", "ggHbbH", "ttHtH", "VH" ]:
+        for X in CMS_to_LHCHCG_Prod.values() + [ "ZH", "tH", "ggFbbH", "ttHtH", "VH" ]:
             self.doVar("mu_XS_%s[1,0,5]" % X)
             self.doVar("mu_XS7_%s[1,0,5]" % X)
             self.doVar("mu_XS8_%s[1,0,5]" % X)
@@ -132,7 +132,7 @@ class SignalStrengths(LHCHCGBaseModel):
                         bbs = ",".join([ "mu_XS_bbH", "mu_XS%d_bbH"%E, "CMS_bbH_scaler_%dTeV"%E ])
                         ## FIXME should include the here also logNormal for QCDscale_bbH
                         self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"@1*@2+@0*@3*@4\",%s,%s,%s)' % (D,E,b2g,ggs,bbs))
-                        terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E),  "mu_XS_ggHbbH", "mu_XS%d_ggHbbH"%E ]
+                        terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E),  "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
                     else:
                         if P in [ "ggH", "bbH" ]:
                             terms += [ "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
