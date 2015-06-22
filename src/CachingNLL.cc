@@ -10,6 +10,7 @@
 #include <../interface/VectorizedGaussian.h>
 #include <../interface/VectorizedCB.h>
 #include <../interface/VectorizedSimplePdfs.h>
+#include <../interface/VectorizedHistFactoryPdfs.h>
 #include <../interface/CachingMultiPdf.h>
 #include "vectorized.h"
 
@@ -434,7 +435,10 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
     static bool histNll  = runtimedef::get("ADDNLL_HISTNLL");
     static bool gaussNll  = runtimedef::get("ADDNLL_GAUSSNLL");
     static bool multiNll  = runtimedef::get("ADDNLL_MULTINLL");
+    static bool prodNll  = runtimedef::get("ADDNLL_PRODNLL");
     static bool cbNll  = runtimedef::get("ADDNLL_CBNLL");
+    static bool hfNll  = runtimedef::get("ADDNLL_HFNLL");
+    static bool verb  = runtimedef::get("ADDNLL_VERBOSE_CACHING");
 
     if (histNll && typeid(*pdf) == typeid(FastVerticalInterpHistPdf)) {
         return new CachingHistPdf(pdf, obs);
@@ -454,7 +458,19 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
         return new CachingMultiPdf(static_cast<RooMultiPdf&>(*pdf), *obs);
     } else if (multiNll && typeid(*pdf) == typeid(RooAddPdf)) {
         return new CachingAddPdf(static_cast<RooAddPdf&>(*pdf), *obs);
+    } else if (prodNll && typeid(*pdf) == typeid(RooProduct)) {
+        return new CachingProduct(static_cast<RooProduct&>(*pdf), *obs);
+    } else if (hfNll && typeid(*pdf) == typeid(RooHistFunc)) {
+        //return new OptimizedCachingPdfT<RooHistFunc,VectorizedHistFunc>(pdf, obs);
+        return new VectorizedHistFunc(static_cast<RooHistFunc&>(*pdf));
+    } else if (hfNll && typeid(*pdf) == typeid(ParamHistFunc)) {
+        return new OptimizedCachingPdfT<ParamHistFunc,VectorizedParamHistFunc>(pdf, obs);
+    } else if (hfNll && typeid(*pdf) == typeid(PiecewiseInterpolation)) {
+        return new CachingPiecewiseInterpolation(static_cast<PiecewiseInterpolation&>(*pdf), *obs);
     } else {
+        if (verb) {
+            std::cout << "I don't have an optimized implementation for " << pdf->ClassName() << " (" << pdf->GetName() << ")" << std::endl;
+        }
         return new CachingPdf(pdf, obs);
     }
 
@@ -498,7 +514,7 @@ cacheutils::CachingAddNLL::setup_()
                 }
             }
             coeffs_.push_back(coeff);
-            pdfs_.push_back(new CachingPdf(funci, obs));
+            pdfs_.push_back(makeCachingPdf(funci, obs));
             pdfs_.back().setIncludeZeroWeights(includeZeroWeights_);
             integrals_.push_back(funci->createIntegral(*obs));
         }
