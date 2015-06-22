@@ -5,6 +5,12 @@ void vectorized::mul_add(const uint32_t size, double coeff, double const * __res
         oarray[i] += coeff * iarray[i];
     } 
 }
+void vectorized::mul_inplace(const uint32_t size, double const * __restrict__ iarray, double* __restrict__ oarray) {
+    for (uint32_t i = 0; i < size; ++i) {
+        oarray[i] *= iarray[i];
+    } 
+}
+
 double vectorized::nll_reduce(const uint32_t size, double* __restrict__ pdfvals, double const * __restrict__ weights, double sumcoeff,  double *  __restrict__ workingArea) {
     double invsum = 1.0/sumcoeff;
     for (uint32_t i = 0; i < size; ++i) {
