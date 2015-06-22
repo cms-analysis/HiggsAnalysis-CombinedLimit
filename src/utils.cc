@@ -52,9 +52,6 @@ namespace {
                 return ret;
             }
     };
-    RooArgList factors(const RooProduct &prod) {
-        return RooProductWithAccessors(prod).realTerms();
-    }
 }
 
 void utils::printRDH(RooAbsData *data) {
@@ -218,6 +215,11 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
         if (!constraints.contains(pdf)) constraints.add(pdf);
     }
 }
+
+
+RooArgList utils::factors(const RooProduct &prod) {
+    return ::RooProductWithAccessors(prod).realTerms();
+}
 void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArgList &obsTerms, RooArgList &constraints, bool keepDuplicate, bool debug) {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(&func);
     if (pdf != 0) { 
@@ -227,7 +229,7 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
     const std::type_info & id = typeid(func);
     if (id == typeid(RooProduct)) {
         RooProduct *prod = dynamic_cast<RooProduct *>(&func);
-        RooArgList components(::factors(*prod));
+        RooArgList components(utils::factors(*prod));
         //std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
         std::auto_ptr<TIterator> iter(components.createIterator());
         for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
