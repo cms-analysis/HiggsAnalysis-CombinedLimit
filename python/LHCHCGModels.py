@@ -131,7 +131,7 @@ class SignalStrengths(LHCHCGBaseModel):
                         ggs = ",".join([ "mu_XS_ggF", "mu_XS%d_ggF"%E ])
                         bbs = ",".join([ "mu_XS_bbH", "mu_XS%d_bbH"%E, "CMS_bbH_scaler_%dTeV"%E ])
                         ## FIXME should include the here also logNormal for QCDscale_bbH
-                        self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"@1*@2+@0*@3*@4\",%s,%s,%s)' % (D,E,b2g,ggs,bbs))
+                        self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"@1*@2+@0*@3*@4*@5\",%s,%s,%s)' % (D,E,b2g,ggs,bbs))
                         terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E),  "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
                     else:
                         if P in [ "ggH", "bbH" ]:
