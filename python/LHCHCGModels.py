@@ -156,7 +156,53 @@ class SignalStrengths(LHCHCGBaseModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         return "scaling_%s_%s_%s" % (production,decay,energy)
+class SignalStrengthRatios(LHCHCGBaseModel):
+    "Allow for fits of ratios of signal strengths"
+    def __init__(self):
+        LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+    def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
+        for po in physOptions:
+            if po.startswith("poi="):
+                self.POIs = po.replace("poi=","")
+    def doVar(self,x,constant=True):
+        self.modelBuilder.doVar(x)
+        vname = re.sub(r"\[.*","",x)
+        self.modelBuilder.out.var(vname).setConstant(constant)
+        print "SignalStrengthRatios:: declaring %s as %s, and set to constant" % (vname,x)
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength ratios and MH"""
+        self.doMH()
+        self.doVar("mu_V_r_F[1,0,5]")
+        for X in CMS_to_LHCHCG_DecSimple.values():
+            self.doVar("mu_F_%s[1,0,5]" % X)
+            self.doVar("mu_V_r_F_%s[1,0,5]" % X)
+        self.POIs = "mu_V_r_F"
+        print "Default parameters of interest: ", self.POIs
+        self.modelBuilder.doSet("POI",self.POIs)
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+    def setup(self):
+        self.dobbH()
+        for E in 7, 8:
+            for D in SM_HIGG_DECAYS:
+                for P in ALL_HIGGS_PROD:
+                    terms = [ "mu_F_"+CMS_to_LHCHCG_DecSimple[D] ]
+                    if P in [ "qqH","VBF", "VH", "WH", "ZH","qqZH", "ggZH" ]:
+                        terms += [ "mu_V_r_F", "mu_V_r_F_"+CMS_to_LHCHCG_DecSimple[D] ]
 
+                    # Hack for ggH
+                    if D in self.add_bbH and P == "ggH":
+                        b2g = "CMS_R_bbH_ggH_%s_%dTeV[%g]" % (D, E, 0.01)
+                        bbs = "CMS_bbH_scaler_%dTeV"%E
+                        self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"1+@0*@1\",%s,%s)' % (D,E,b2g,bbs))
+                        terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E) ]
+
+                    self.modelBuilder.factory_('prod::scaling_%s_%s_%dTeV(%s)' % (P,D,E,",".join(terms)))
+                    self.modelBuilder.out.function('scaling_%s_%s_%dTeV' % (P,D,E)).Print("")
+
+    def getHiggsSignalYieldScale(self,production,decay,energy):
+        return "scaling_%s_%s_%s" % (production,decay,energy)
 
 class Kappas(LHCHCGBaseModel):
     "assume the SM coupling but let the Higgs mass to float"
@@ -370,6 +416,7 @@ class Lambdas(LHCHCGBaseModel):
 
 
 A1 = SignalStrengths()
+A2 = SignalStrengthRatios()
 K1 = Kappas(resolved=True)
 K2 = Kappas(resolved=False)
 L1 = Lambdas()
