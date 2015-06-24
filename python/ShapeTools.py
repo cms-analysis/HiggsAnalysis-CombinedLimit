@@ -14,6 +14,7 @@ class ShapeBuilder(ModelBuilder):
                 ROOT.gSystem.Load(lib)
     	self.wspnames = {}
     	self.wsp = None
+	self.norm_rename_map = {}
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
     ## ------------------------------------------
@@ -315,11 +316,14 @@ class ShapeBuilder(ModelBuilder):
                 if not syst:
                   normname = "%s_norm" % (oname)
                   norm = self.wsp.arg(normname)
+		  if norm==None: 
+			if normname in self.norm_rename_map.keys(): norm = self.wsp.arg(self.norm_rename_map[normname])
                   if norm: 
                     if normname in self.DC.flatParamNuisances: 
                         self.DC.flatParamNuisances[normname] = False # don't warn if not found
                         norm.setAttribute("flatParam")
                     norm.SetName("shape%s_%s_%s%s_norm" % (postFix,process,channel, "_"))
+		    self.norm_rename_map[normname]=norm.GetName()
                     self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
                 if self.options.verbose > 2: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
                 return ret;
