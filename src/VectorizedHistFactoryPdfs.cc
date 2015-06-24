@@ -101,7 +101,7 @@ cacheutils::CachingPiecewiseInterpolation::CachingPiecewiseInterpolation(const P
     const RooArgList & lowList   = pdf.lowList();
     const RooAbsReal & nominal   = fixme.nominal(); 
     const RooArgList & coeffs = pdf.paramList();
-    std::cout << "Making a CachingPiecewiseInterpolation for " << pdf.GetName() << " with " << highList.getSize() << " pdfs, " << coeffs.getSize() << " coeffs." << std::endl;
+    //std::cout << "Making a CachingPiecewiseInterpolation for " << pdf.GetName() << " with " << highList.getSize() << " pdfs, " << coeffs.getSize() << " coeffs." << std::endl;
     positiveDefinite_ = fixme.positiveDefinite();
     cachingPdfNominal_.reset(makeCachingPdf(const_cast<RooAbsReal*>(&nominal),&obs));
     for (int i = 0, n = highList.getSize(); i < n; ++i) {
@@ -111,10 +111,10 @@ cacheutils::CachingPiecewiseInterpolation::CachingPiecewiseInterpolation(const P
         cachingPdfsLow_.push_back(makeCachingPdf(pdfiLo, &obs));
         coeffs_.push_back((RooAbsReal*) coeffs.at(i));
         codes_.push_back(fixme.getInterpCode(i));
-        std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Hi    : " << pdfiHi->ClassName() << " " << pdfiHi->GetName() << " using " << typeid(cachingPdfsHi_.back()).name() << std::endl;
-        std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Hi    : " << pdfiHi->ClassName() << " " << pdfiHi->GetName() << " using " << typeid(cachingPdfsHi_.back()).name() << std::endl;
-        std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Coeff : " << coeffs_.back()->ClassName() << " " << coeffs_.back()->GetName()  << std::endl;
-        std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Code  : " << codes_.back()  << std::endl;
+        //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Hi    : " << pdfiHi->ClassName() << " " << pdfiHi->GetName() << " using " << typeid(cachingPdfsHi_.back()).name() << std::endl;
+        //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Hi    : " << pdfiHi->ClassName() << " " << pdfiHi->GetName() << " using " << typeid(cachingPdfsHi_.back()).name() << std::endl;
+        //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Coeff : " << coeffs_.back()->ClassName() << " " << coeffs_.back()->GetName()  << std::endl;
+        //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Code  : " << codes_.back()  << std::endl;
     }
 }
 
