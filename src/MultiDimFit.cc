@@ -144,12 +144,6 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	}
     }
    
-
-    std::auto_ptr<RooAbsReal> nll;
-    if (algo_ != None && algo_ != Singles) {
-        nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended())));
-    } 
-    
     //set snapshot for best fit
     if (savingSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
     
