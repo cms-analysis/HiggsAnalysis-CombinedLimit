@@ -131,7 +131,7 @@ class SignalStrengths(LHCHCGBaseModel):
                         ggs = ",".join([ "mu_XS_ggF", "mu_XS%d_ggF"%E ])
                         bbs = ",".join([ "mu_XS_bbH", "mu_XS%d_bbH"%E, "CMS_bbH_scaler_%dTeV"%E ])
                         ## FIXME should include the here also logNormal for QCDscale_bbH
-                        self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"@1*@2+@0*@3*@4\",%s,%s,%s)' % (D,E,b2g,ggs,bbs))
+                        self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"@1*@2+@0*@3*@4*@5\",%s,%s,%s)' % (D,E,b2g,ggs,bbs))
                         terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E),  "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
                     else:
                         if P in [ "ggH", "bbH" ]:
@@ -151,6 +151,131 @@ class SignalStrengths(LHCHCGBaseModel):
                         terms += [ "mu_F_"+CMS_to_LHCHCG_DecSimple[D] ]
                     else:
                         terms += [ "mu_V_"+CMS_to_LHCHCG_DecSimple[D] ]
+                    self.modelBuilder.factory_('prod::scaling_%s_%s_%dTeV(%s)' % (P,D,E,",".join(terms)))
+                    self.modelBuilder.out.function('scaling_%s_%s_%dTeV' % (P,D,E)).Print("")
+
+    def getHiggsSignalYieldScale(self,production,decay,energy):
+        return "scaling_%s_%s_%s" % (production,decay,energy)
+class SignalStrengthRatios(LHCHCGBaseModel):
+    "Allow for fits of ratios of signal strengths"
+    def __init__(self):
+        LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+    def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
+        for po in physOptions:
+            if po.startswith("poi="):
+                self.POIs = po.replace("poi=","")
+    def doVar(self,x,constant=True):
+        self.modelBuilder.doVar(x)
+        vname = re.sub(r"\[.*","",x)
+        self.modelBuilder.out.var(vname).setConstant(constant)
+        print "SignalStrengthRatios:: declaring %s as %s, and set to constant" % (vname,x)
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength ratios and MH"""
+        self.doMH()
+        self.doVar("mu_V_r_F[1,0,5]")
+        for X in CMS_to_LHCHCG_DecSimple.values():
+            self.doVar("mu_F_%s[1,0,5]" % X)
+            self.doVar("mu_V_r_F_%s[1,0,5]" % X)
+        self.POIs = "mu_V_r_F"
+        print "Default parameters of interest: ", self.POIs
+        self.modelBuilder.doSet("POI",self.POIs)
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+    def setup(self):
+        self.dobbH()
+        for P in ALL_HIGGS_PROD:
+            if P == "VH": continue # skip aggregates 
+            for D in SM_HIGG_DECAYS:
+                for E in 7, 8:
+                    terms = [ "mu_F_"+CMS_to_LHCHCG_DecSimple[D] ]
+                    if P in [ "qqH","VBF", "VH", "WH", "ZH","qqZH", "ggZH" ]:
+                        terms += [ "mu_V_r_F", "mu_V_r_F_"+CMS_to_LHCHCG_DecSimple[D] ]
+
+                    # Hack for ggH
+                    if D in self.add_bbH and P == "ggH":
+                        b2g = "CMS_R_bbH_ggH_%s_%dTeV[%g]" % (D, E, 0.01)
+                        bbs = "CMS_bbH_scaler_%dTeV"%E
+                        self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"1+@0*@1\",%s,%s)' % (D,E,b2g,bbs))
+                        terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E) ]
+
+                    self.modelBuilder.factory_('prod::scaling_%s_%s_%dTeV(%s)' % (P,D,E,",".join(terms)))
+                    self.modelBuilder.out.function('scaling_%s_%s_%dTeV' % (P,D,E)).Print("")
+
+    def getHiggsSignalYieldScale(self,production,decay,energy):
+        return "scaling_%s_%s_%s" % (production,decay,energy)
+
+class XSBRratios(LHCHCGBaseModel):
+    "Model with the ratios of cross sections and branching ratios "
+    def __init__(self):
+        LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+    def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
+        for po in physOptions:
+            if po.startswith("poi="):
+                self.POIs = po.replace("poi=","")
+    def doVar(self,x,constant=True):
+        self.modelBuilder.doVar(x)
+        vname = re.sub(r"\[.*","",x)
+        self.modelBuilder.out.var(vname).setConstant(constant)
+        print "XSBRratios:: declaring %s as %s, and set to constant" % (vname,x)
+
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength ratios and MH"""
+        self.doMH()
+        self.doVar("mu_XS7_r_XS8_ggF[1,0,5]")
+        self.doVar("mu_XS7_r_XS8_VBF[1,0,5]")
+        self.doVar("mu_XS7_r_XS8_WH[1,0,5]")
+        self.doVar("mu_XS7_r_XS8_ZH[1,0,5]")
+        self.doVar("mu_XS7_r_XS8_ttH[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_ggF_x_BR_WW[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_VBF_r_XS_ggF[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_WH_r_XS_ggF[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_ZH_r_XS_ggF[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_ttH_r_XS_ggF[1,0,5]")
+        self.POIs = "mu_XS_ggF_x_BR_WW,mu_XS_VBF_r_XS_ggF,mu_XS_ttH_r_XS_ggF,mu_XS_WH_r_XS_ggF,mu_XS_ZH_r_XS_ggF"
+        for X in ["ZZ","tautau","bb","gamgam"]:
+            self.modelBuilder.doVar("mu_BR_%s_r_BR_WW[1,0,5]" % X)
+            self.POIs += ",mu_BR_%s_r_BR_WW"%X
+        print "Default parameters of interest: ", self.POIs
+        self.modelBuilder.doSet("POI",self.POIs)
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+    def setup(self):
+        self.dobbH()
+        for P in ALL_HIGGS_PROD:
+            if P == "VH": continue # skip aggregates 
+            for D in SM_HIGG_DECAYS:
+                for E in 7, 8:
+                    terms = [ "mu_XS_ggF_x_BR_WW" ]
+                    if CMS_to_LHCHCG_DecSimple[D] != "WW":
+                        terms += [ "mu_BR_%s_r_BR_WW"%CMS_to_LHCHCG_DecSimple[D] ]
+                    if P in ["ttH","tHq","tHW"]:
+                        terms += [ "mu_XS_ttH_r_XS_ggF" ]
+                    if P in ["ZH","ggZH"]:
+                        terms += [ "mu_XS_ZH_r_XS_ggF" ]
+                    if P in ["WH"]:
+                        terms += [ "mu_XS_WH_r_XS_ggF" ]
+                    if P in ["qqH"]:
+                        terms += [ "mu_XS_VBF_r_XS_ggF" ]
+                    if E == 7:
+                        if P in ["ggH","bbH"]:
+                            terms += [ "mu_XS7_r_XS8_ggF" ]
+                        if P in ["ttH","tHq","tHW"]:
+                            terms += [ "mu_XS7_r_XS8_ttH" ]
+                        if P in ["ZH","ggZH"]:
+                            terms += [ "mu_XS7_r_XS8_ZH" ]
+                        if P in ["WH"]:
+                            terms += [ "mu_XS7_r_XS8_WH" ]
+                        if P in ["qqH"]:
+                            terms += [ "mu_XS7_r_XS8_VBF" ]
+                    # Hack for ggH
+                    if D in self.add_bbH and P == "ggH":
+                        b2g = "CMS_R_bbH_ggH_%s_%dTeV[%g]" % (D, E, 0.01)
+                        bbs = "CMS_bbH_scaler_%dTeV"%E
+                        self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"1+@0*@1\",%s,%s)' % (D,E,b2g,bbs))
+                        terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E) ]
+
                     self.modelBuilder.factory_('prod::scaling_%s_%s_%dTeV(%s)' % (P,D,E,",".join(terms)))
                     self.modelBuilder.out.function('scaling_%s_%s_%dTeV' % (P,D,E)).Print("")
 
@@ -370,6 +495,8 @@ class Lambdas(LHCHCGBaseModel):
 
 
 A1 = SignalStrengths()
+A2 = SignalStrengthRatios()
+B1 = XSBRratios()
 K1 = Kappas(resolved=True)
 K2 = Kappas(resolved=False)
 L1 = Lambdas()
