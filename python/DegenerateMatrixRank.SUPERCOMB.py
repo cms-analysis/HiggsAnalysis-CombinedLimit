@@ -4,7 +4,7 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.decays = [ "hbb", "htt", "hgg", "hww", "hzz" ]
-        self.productions = ["ggH", "qqH", "ZH", "VH", "ttH"]
+        self.productions = ["ggH", "qqH", "ZH", "WH", "ttH"]
         self.fixDecays = []
         self.mHRange = []
     def setPhysicsOptions(self,physOptions):
