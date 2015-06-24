@@ -22,6 +22,7 @@
 #include "../interface/RooMultiPdf.h"
 #include "../interface/RooBernsteinFast.h"
 #include "../interface/SimpleGaussianConstraint.h"
+#include "../interface/SimplePoissonConstraint.h"
 #include "../interface/AtlasPdfs.h"
 #include "../interface/HZZ4L_RooSpinZeroPdf.h"
 #include "../interface/HZZ4L_RooSpinZeroPdf_phase.h"
@@ -56,6 +57,7 @@
 #pragma link C++ class TH1Keys+;
 #pragma link C++ class RooSimultaneousOpt+;
 #pragma link C++ class SimpleGaussianConstraint+;
+#pragma link C++ class SimplePoissonConstraint+;
 #pragma link C++ class SimpleCacheSentry+;
 #pragma link C++ function th1fmorph;
 #pragma link C++ class RooqqZZPdf+;
