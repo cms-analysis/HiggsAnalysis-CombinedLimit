@@ -59,6 +59,8 @@ class CascadeMinimizer {
         static std::vector<Algo> fallbacks_;
         /// do a pre-scan
         static bool preScan_;
+        /// do a pre-fit (with larger tolerance)
+        static double approxPreFit_;
         /// do a pre-fit (w/o nuisances)
         static int preFit_;
         /// do first a fit of only the POI
