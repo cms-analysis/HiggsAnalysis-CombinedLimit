@@ -698,10 +698,108 @@ class LambdasReduced(LHCHCGBaseModel):
         self.modelBuilder.out.function(name).Print("")
         return name
 
+class XSBRratiosAlternative(LHCHCGBaseModel):
+    "Model with the ratios of cross sections and branching ratios "
+    def __init__(self):
+        LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+    def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
+        for po in physOptions:
+            if po.startswith("poi="):
+                self.POIs = po.replace("poi=","")
+    def doVar(self,x,constant=True):
+        self.modelBuilder.doVar(x)
+        vname = re.sub(r"\[.*","",x)
+        self.modelBuilder.out.var(vname).setConstant(constant)
+        print "XSBRratios:: declaring %s as %s, and set to constant" % (vname,x)
+
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength ratios and MH"""
+        self.doMH()
+        self.doVar("mu_XS7_r_XS8_ggF[1,0,5]")
+        self.doVar("mu_XS7_r_XS8_VBF[1,0,5]")
+        self.doVar("mu_XS7_r_XS8_WH[1,0,5]")
+        self.doVar("mu_XS7_r_XS8_ZH[1,0,5]")
+        self.doVar("mu_XS7_r_XS8_ttH[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_ggF_x_BR_WW[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_VBF_x_BR_tautau[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_WH_r_XS_VBF[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_ZH_r_XS_WH[1,0,5]")
+        self.modelBuilder.doVar("mu_XS_ttH_r_XS_ggF[1,0,5]")
+        self.POIs = "mu_XS_ggF_x_BR_WW,mu_XS_VBF_x_BR_tautau,mu_XS_ttH_r_XS_ggF,mu_XS_WH_r_XS_VBF,mu_XS_ZH_r_XS_WH"
+        for X in ["ZZ","tautau","gamgam"]:
+            self.modelBuilder.doVar("mu_BR_%s_r_BR_WW[1,0,5]"%X)
+            self.POIs += ",mu_BR_%s_r_BR_WW"%(X)
+        self.modelBuilder.doVar("mu_BR_bb_r_BR_tautau[1,0,5]")
+        self.POIs += ",mu_BR_bb_r_BR_tautau"
+        print "Default parameters of interest: ", self.POIs
+        self.modelBuilder.doSet("POI",self.POIs)
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+    def setup(self):
+        self.dobbH()
+        for P in ALL_HIGGS_PROD:
+            if P == "VH": continue # skip aggregates 
+            for D in SM_HIGG_DECAYS:
+                for E in 7, 8:
+                    terms = [ ]
+                    if P in ["ggH","bbH", "ttH","tHq","tHW"] and CMS_to_LHCHCG_DecSimple[D] in ["WW","ZZ","gamgam"]:
+                        terms = [ "mu_XS_ggF_x_BR_WW" ]
+                        if CMS_to_LHCHCG_DecSimple[D] in ["ZZ","gamgam"]:
+                            terms += [ "mu_BR_%s_r_BR_WW"%CMS_to_LHCHCG_DecSimple[D] ]
+                        if P in ["ttH", "tHq", "tHW"]:
+                            terms += ["mu_XS_ttH_r_XS_ggF"]
+                    elif P in ["ggH","bbH", "ttH","tHq","tHW"] and CMS_to_LHCHCG_DecSimple[D] in ["tautau","bb"]:
+                        terms = ["mu_XS_ggF_x_BR_WW","mu_BR_tautau_r_BR_WW"]
+                        if CMS_to_LHCHCG_DecSimple[D]=="bb":
+                            terms += ["mu_BR_bb_r_BR_tautau"]
+                        if P in ["ttH", "tHq", "tHW"]:
+                            terms += ["mu_XS_ttH_r_XS_ggF"]
+                    elif P in ["qqH","WH", "ZH", "ggZH"] and CMS_to_LHCHCG_DecSimple[D] in ["WW","ZZ","gamgam"]:
+                        terms = ["mu_XS_VBF_x_BR_tautau","1/BR_tautau_r_BR_WW"]
+                        if CMS_to_LHCHCG_DecSimple[D] in ["ZZ","gamgam"]:
+                            terms += ["mu_BR_%s_r_BR_WW"%CMS_to_LHCHCG_DecSimple[D]]
+                        if P in ["WH","ZH","ggZH"]:
+                            terms += [ "mu_XS_WH_r_XS_VBF" ]
+                            if P in ["ZH","ggZH"]:
+                                terms += [ "mu_XS_ZH_r_XS_WH"]
+                    elif P in ["qqH","WH","ZH","ggZH"] and CMS_to_LHCHCG_DecSimple[D] in ["bb","tautau"]:
+                        terms = [ "mu_XS_VBF_x_BR_tautau" ]
+                        if CMS_to_LHCHCG_DecSimple[D] in ["bb"]:
+                            terms += [ "mu_BR_bb_r_BR_tautau" ]
+                        if P in ["WH","ZH","ggZH"]:
+                            terms += [ "mu_XS_WH_r_XS_VBF" ]
+                            if P in ["ZH","ggZH"]:
+                                terms += [ "mu_XS_ZH_r_XS_WH"]
+                    if E == 7:
+                        if P in ["ggH","bbH"]:
+                            terms += [ "mu_XS7_r_XS8_ggF" ]
+                        if P in ["ttH","tHq","tHW"]:
+                            terms += [ "mu_XS7_r_XS8_ttH" ]
+                        if P in ["ZH","ggZH"]:
+                            terms += [ "mu_XS7_r_XS8_ZH" ]
+                        if P in ["WH"]:
+                            terms += [ "mu_XS7_r_XS8_WH" ]
+                        if P in ["qqH"]:
+                            terms += [ "mu_XS7_r_XS8_VBF" ]
+                    # Hack for ggH
+                    if D in self.add_bbH and P == "ggH":
+                        b2g = "CMS_R_bbH_ggH_%s_%dTeV[%g]" % (D, E, 0.01)
+                        bbs = "CMS_bbH_scaler_%dTeV"%E
+                        self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"1+@0*@1\",%s,%s)' % (D,E,b2g,bbs))
+                        terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E) ]
+
+                    self.modelBuilder.factory_('prod::scaling_%s_%s_%dTeV(%s)' % (P,D,E,",".join(terms)))
+                    self.modelBuilder.out.function('scaling_%s_%s_%dTeV' % (P,D,E)).Print("")
+
+    def getHiggsSignalYieldScale(self,production,decay,energy):
+        return "scaling_%s_%s_%s" % (production,decay,energy)
+
 A1 = SignalStrengths()
 A2 = SignalStrengthRatios()
 B1 = XSBRratios("WW")
 B1ZZ = XSBRratios("ZZ")
+B2 = XSBRratiosAlternative()
 K1 = Kappas(resolved=True)
 K2 = Kappas(resolved=False)
 K3 = KappaVKappaF()
