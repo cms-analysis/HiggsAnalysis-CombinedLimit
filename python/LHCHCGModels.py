@@ -590,6 +590,114 @@ class KappaVKappaF(LHCHCGBaseModel):
             self.modelBuilder.out.function(name).Print("")
         return name
 
+class LambdasReduced(LHCHCGBaseModel):
+    def __init__(self,BRU=True):
+        LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+        self.doBRU = BRU
+    def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
+        for po in physOptions:
+            if po.startswith("BRU="):
+                self.doBRU = (po.replace("BRU=","") in [ "yes", "1", "Yes", "True", "true" ])
+        print "BR uncertainties in partial widths: %s " % self.doBRU
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength and MH"""
+        self.doMH()
+        self.modelBuilder.doVar("lambda_FV[1,0.0,2.0]")
+        self.modelBuilder.doVar("kappa_VV[1,0.0,2.0]")
+        self.modelBuilder.doVar("lambda_du[1,0.0,2.0]")
+        self.modelBuilder.doVar("lambda_Vu[1,0.0,2.0]")
+        self.modelBuilder.doVar("kappa_uu[1,0.0,2.0]")
+        self.modelBuilder.doVar("lambda_lq[1,0.0,2.0]")
+        self.modelBuilder.doVar("lambda_Vq[1,0.0,2.0]")
+        self.modelBuilder.doVar("kappa_qq[1,0.0,2.0]")
+        self.modelBuilder.doSet("POI",'lambda_FV,kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq')
+        if self.floatMass:
+            if self.modelBuilder.out.var("MH"):
+                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
+                self.modelBuilder.out.var("MH").setConstant(False)
+            else:
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
+        else:
+            if self.modelBuilder.out.var("MH"):
+                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                self.modelBuilder.out.var("MH").setConstant(True)
+            else:
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass)
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+    def setup(self):
+        self.dobbH()
+        # BR uncertainties
+        if self.doBRU:
+            self.SMH.makePartialWidthUncertainties()
+
+        self.modelBuilder.factory_("expr::C_b(\"@0*@1\",lambda_du,lambda_FV)");
+        self.modelBuilder.factory_("expr::C_top(\"@0\",lambda_FV)");
+        self.modelBuilder.factory_("expr::C_tau(\"@0*@1*@2\",lambda_lq,lambda_du, lambda_FV)");
+        self.modelBuilder.factory_("expr::C_V(\"@0*@1\",lambda_Vq,lambda_Vu)");
+        self.SMH.makeScaling('ggH', Cb='C_b', Ctop='C_top')
+        self.SMH.makeScaling("tHq", CW='C_V', Ctop="C_top")
+        self.SMH.makeScaling("tHW", CW='C_V', Ctop="C_top")
+        self.SMH.makeScaling("ggZH", CZ='C_V', Ctop="C_top")
+        self.SMH.makeScaling('hgg', Cb='C_b', Ctop='C_top', CW='C_V', Ctau='C_tau')
+        self.SMH.makeScaling('hzg', Cb='C_b', Ctop='C_top', CW='C_V', Ctau='C_tau')
+        self.SMH.makeScaling('hgluglu', Cb='C_b', Ctop='C_top')
+
+        for E in "7TeV", "8TeV":
+            for P in "ggH", "tHq", "tHW", "ggZH":
+                self.modelBuilder.factory_("expr::PW_XSscal_%s_%s(\"@0*@1*@1*@2*@2*@3*@3\",Scaling_%s_%s,kappa_qq, kappa_uu, kappa_VV)"%(P,E,P,E))
+            for P in "qqH", "WH", "ZH":
+                self.modelBuilder.factory_("expr::PW_XSscal_%s_%s(\"@0*@0*@1*@1*@2*@2*@3*@3*@4*@4\", kappa_qq, lambda_Vq, kappa_uu, lambda_Vu, kappa_VV)" % (P,E))
+            self.modelBuilder.factory_("expr::PW_XSscal_ttH_%s(\"@0*@0*@1*@1*@2*@2*@3*@3\",kappa_qq,kappa_uu,kappa_VV,lambda_FV)" % E)
+            self.modelBuilder.factory_("expr::PW_XSscal_bbH_%s(\"@0*@0*@1*@1*@2*@2*@3*@3*@4*@4\",kappa_qq,kappa_uu,lambda_du,kappa_VV,lambda_FV)" % E)
+        self.decayMap_ = {
+            'hww' : 'C_V',
+            'hzz' : 'C_V',
+            'hgg' : 'Scaling_hgg',
+            'hbb' : 'C_b',
+            'htt' : 'C_tau',
+            'hmm' : 'C_tau',
+            'hcc' : 'C_top',     # charm scales as top
+            'hgluglu' : 'Scaling_hgluglu',
+            'hzg'     : 'Scaling_hzg',
+            #'hss' : 'C_b', # strange scales as bottom # not used
+        }
+    def getHiggsSignalYieldScale(self,production,decay,energy):
+        name = "c7_XSBRscal_%s_%s_%s" % (production,decay,energy)
+        if self.modelBuilder.out.function(name):
+            return name
+        dscale = self.decayMap_[decay]
+        if self.doBRU:
+            name += "_noBRU"
+        if production == "ggH":
+            if decay in self.add_bbH:
+                b2g = "CMS_R_bbH_ggH_%s_%s[%g]" % (decay, energy, 0.01)
+                b2gs = "CMS_bbH_scaler_%s" % energy
+                if decay in ["hgg","hgluglu","hzg"]:
+                    self.modelBuilder.factory_("expr::%s(\"@0*@1*(1+@2*@3*@4)\",PW_XSscal_ggH_%s,%s,%s,%s,PW_XSscal_bbH_%s)" % (name, energy, dscale, b2g, b2gs, energy))
+                else:
+                    self.modelBuilder.factory_("expr::%s(\"@0*@1*@1*(1+@2*@3*@4)\",PW_XSscal_ggH_%s,%s,%s,%s,PW_XSscal_bbH_%s)" % (name, energy, dscale, b2g, b2gs, energy))
+            else:
+                if decay in ["hgg","hgluglu","hzg"]:
+                    self.modelBuilder.factory_("expr::%s(\"@0*@1\",PW_XSscal_ggH_%s,%s)" % (name, energy, dscale))
+                else:
+                    self.modelBuilder.factory_("expr::%s(\"@0*@1*@1\",PW_XSscal_ggH_%s,%s)" % (name, energy, dscale))
+        else:
+            if decay in ["hgg","hgluglu","hzg"]:
+                self.modelBuilder.factory_("expr::%s(\"@0*@1\",PW_XSscal_%s_%s,%s)" % (name, production, energy, dscale))
+            else:
+                self.modelBuilder.factory_("expr::%s(\"@0*@1*@1\",PW_XSscal_%s_%s,%s)" % (name, production, energy, dscale))
+        if self.doBRU:
+            name = name.replace("_noBRU","")
+            if decay == "hzz":
+                self.modelBuilder.factory_("prod::%s(%s_noBRU, HiggsDecayWidth_UncertaintyScaling_%s)" % (name, name, "hzz"))
+            else:
+                self.modelBuilder.factory_("expr::%s(\"@0*(@1/@2)\", %s_noBRU, HiggsDecayWidth_UncertaintyScaling_%s, HiggsDecayWidth_UncertaintyScaling_%s)" % (name, name, decay, "hzz"))
+        print '[LHC-HCG Lambdas]', name, production, decay, energy,": ",
+        self.modelBuilder.out.function(name).Print("")
+        return name
+
 A1 = SignalStrengths()
 A2 = SignalStrengthRatios()
 B1 = XSBRratios("WW")
@@ -598,3 +706,4 @@ K1 = Kappas(resolved=True)
 K2 = Kappas(resolved=False)
 K3 = KappaVKappaF()
 L1 = Lambdas()
+L2 = LambdasReduced()
