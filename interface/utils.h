@@ -21,7 +21,7 @@ namespace RooStats { class ModelConfig; }
 namespace utils {
     void printRDH(RooAbsData *data) ;
     void printRAD(const RooAbsData *d) ;
-    void printPdf(RooAbsPdf *pdf) ;
+    void printPdf(const RooAbsReal *pdf) ;
     void printPdf(RooStats::ModelConfig &model) ;
     void printPdf(RooWorkspace *w, const char *pdfName) ;
 

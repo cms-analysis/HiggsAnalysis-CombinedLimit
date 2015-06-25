@@ -85,7 +85,7 @@ void utils::printRAD(const RooAbsData *d) {
   else d->get(0)->Print("V");
 }
 
-void utils::printPdf(RooAbsPdf *pdf) {
+void utils::printPdf(const RooAbsReal *pdf) {
   std::cout << "Pdf " << pdf->GetName() << " parameters." << std::endl;
   std::auto_ptr<RooArgSet> params(pdf->getVariables());
   params->Print("V");
