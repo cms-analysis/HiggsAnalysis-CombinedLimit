@@ -673,9 +673,10 @@ cacheutils::CachingAddNLL::evaluate() const
         if (!CachingSimNLL::noDeepLEE_) logEvalError("Expected number of events is negative"); else CachingSimNLL::hasError_ = true;
         expectedEvents = 1e-6;
     }
-    //ret += expectedEvents - UInt_t(sumWeights_) * log(expectedEvents); // no, doesn't work with Asimov dataset
-    ret += expectedEvents - sumWeights_ * log(expectedEvents);
-    ret += zeroPoint_;
+    // I can add any arbitrary constant that does not depend on the expected events,
+    // so I choose it in order to minimize the number assuming that expectedEvents ~ sumWeights_
+    //    ret += expectedEvents - sumWeights_ * log(expectedEvents);
+    ret += (expectedEvents - sumWeights_)  - sumWeights_ * (log(expectedEvents) - (sumWeights_ ? log(sumWeights_) : 0));
 
     // multipdfs want to add a correction factor to the NLL
     if (!multiPdfs_.empty()) {
@@ -686,6 +687,8 @@ cacheutils::CachingAddNLL::evaluate() const
         // Add correction 
         ret += correctionFactor;
     }
+
+    ret += zeroPoint_;
 
     TRACE_NLL("AddNLL for " << pdf_->GetName() << ": " << ret)
     return ret;
