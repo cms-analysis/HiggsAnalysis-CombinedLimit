@@ -51,9 +51,6 @@ namespace cacheutils {
 //---- Uncomment to dump PDF values inside CachingAddNLL
 //#define LOG_ADDPDFS
 
-//---- Uncomment to enable Kahan's summation (if enabled at runtime with --X-rtd = ...
-// http://en.wikipedia.org/wiki/Kahan_summation_algorithm
-//#define ADDNLL_KAHAN_SUM
 #include "../interface/ProfilingTools.h"
 
 //std::map<std::string,double> cacheutils::CachingAddNLL::offsets_;
@@ -361,11 +358,13 @@ cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, Ro
     pdf_(pdf),
     params_("params","parameters",this),
     includeZeroWeights_(includeZeroWeights),
-    zeroPoint_(0)
+    zeroPoint_(0),
+    constantZeroPoint_(0)
 {
     if (pdf == 0) throw std::invalid_argument(std::string("Pdf passed to ")+name+" is null");
     setData(*data);
     setup_();
+    constantZeroPoint_ = -evaluate();
 }
 
 cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char *name) :
@@ -373,10 +372,12 @@ cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char 
     pdf_(other.pdf_),
     params_("params","parameters",this),
     includeZeroWeights_(other.includeZeroWeights_),
-    zeroPoint_(0)
+    zeroPoint_(0),
+    constantZeroPoint_(0)
 {
     setData(*other.data_);
     setup_();
+    constantZeroPoint_ = -evaluate();
 }
 
 cacheutils::CachingAddNLL::~CachingAddNLL() 
@@ -627,7 +628,7 @@ cacheutils::CachingAddNLL::evaluate() const
     if (allBasicIntegralsOk) basicIntegrals_ = 2;
     // then get the final nll
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
-    double ret = 0;
+    double ret = constantZeroPoint_;
     for (its = bgs; its != eds ; ++its) {
         if (!isnormal(*its) || *its <= 0) {
             if ((weights_[its-bgs] == 0) && (*its == 0)) {
@@ -654,35 +655,15 @@ cacheutils::CachingAddNLL::evaluate() const
             }
             std::cout << "WARNING: underflow to " << *its << " in " << pdf_->GetName() << " for bin " << its-bgs << ", weight " << weights_[its-bgs] << std::endl; 
             if (!CachingSimNLL::noDeepLEE_) logEvalError("Number of events is negative or error"); else CachingSimNLL::hasError_ = true;
-            if (fastExit_) { return 9e9; }
+            if (fastExit_) { std::cout << "FASTEXIT from " << pdf_->GetName() << std::endl; return 9e9; }
             else *its = 1;
         }
     }
-    #ifndef ADDNLL_KAHAN_SUM
     // Do the reduction 
     //      for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
-    //         ret += (*itw) * log( ((*its) / sumCoeff) );
+    //         ret -= (*itw) * log( ((*its) / sumCoeff) );
     //      }
-    ret += vectorized::nll_reduce(partialSum_.size(), &partialSum_[0], &weights_[0], sumCoeff, &workingArea_[0]);
-    #else
-    double compensation = 0;
-    static bool do_kahan = runtimedef::get("ADDNLL_KAHAN_SUM");
-    for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
-        double thispiece = (*itw) * log( ((*its) / sumCoeff) );
-        if (do_kahan) {
-            double kahan_y = thispiece  - compensation;
-            double kahan_t = ret + kahan_y;
-            double kahan_d = (kahan_t - ret);
-            compensation = kahan_d - kahan_y;
-            ret  = kahan_t;
-        } else {
-            ret += thispiece;
-        }
-        ret += thispiece;
-    }
-    #endif
-    // then flip sign
-    ret = -ret;
+    ret -= vectorized::nll_reduce(partialSum_.size(), &partialSum_[0], &weights_[0], sumCoeff, &workingArea_[0]);
     // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
     // and add extended term: expected - observed*log(expected);
     static bool expEventsNoNorm = runtimedef::get("ADDNLL_ROOREALSUM_NONORM");
@@ -703,11 +684,27 @@ cacheutils::CachingAddNLL::evaluate() const
             correctionFactor += itp->first->getCorrection();
         }
         // Add correction 
-        ret+=correctionFactor;
+        ret += correctionFactor;
     }
 
     TRACE_NLL("AddNLL for " << pdf_->GetName() << ": " << ret)
     return ret;
+}
+
+void
+cacheutils::CachingAddNLL::setZeroPoint()
+{
+    zeroPoint_ = 0.0;
+    double eval = evaluate();
+    zeroPoint_ = -eval; 
+    setValueDirty();
+}
+
+void
+cacheutils::CachingAddNLL::clearZeroPoint()
+{
+    zeroPoint_ = 0.0; 
+    setValueDirty();
 }
 
 void 

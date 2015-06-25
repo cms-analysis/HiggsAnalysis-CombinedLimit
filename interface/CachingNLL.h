@@ -122,8 +122,8 @@ class CachingAddNLL : public RooAbsReal {
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
         double  sumWeights() const { return sumWeights_; }
         const RooAbsPdf *pdf() const { return pdf_; }
-        void setZeroPoint() { zeroPoint_ = -this->getVal(); setValueDirty(); }
-        void clearZeroPoint() { zeroPoint_ = 0.0; setValueDirty();  }
+        void setZeroPoint() ;
+        void clearZeroPoint() ;
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }
@@ -145,7 +145,8 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;
         mutable int canBasicIntegrals_, basicIntegrals_;
-        double zeroPoint_;
+        double zeroPoint_; 
+        double constantZeroPoint_; // this is arbitrary and kept constant for all the lifetime of the PDF
 };
 
 class CachingSimNLL  : public RooAbsReal {
