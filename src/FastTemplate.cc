@@ -1,4 +1,5 @@
 #include "../interface/FastTemplate.h"
+#include <../interface/Accumulators.h>
 
 #include <cmath>
 #include <cstdlib>
@@ -6,9 +7,9 @@
 #include <algorithm>
 
 FastTemplate::T FastTemplate::Integral() const {
-    T total = 0;
+    DefaultAccumulator total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i];
-    return total;
+    return total.sum();
 }
 
 void FastTemplate::Scale(T factor) {
@@ -86,9 +87,9 @@ FastHisto::T FastHisto::GetAt(const T &x) const {
 }
 
 FastHisto::T FastHisto::IntegralWidth() const {
-    double total = 0;
+    DefaultAccumulator total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
-    return total;
+    return total.sum();
 }
 
 void FastHisto::Dump() const {
@@ -149,16 +150,17 @@ FastHisto2D::T FastHisto2D::GetAt(const T &x, const T &y) const {
 }
 
 FastHisto2D::T FastHisto2D::IntegralWidth() const {
-    double total = 0;
+    DefaultAccumulator total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
-    return total;
+    return total.sum();
 }
 
 void FastHisto2D::NormalizeXSlices() {
     for (unsigned int ix = 0, offs = 0; ix < binX_; ++ix, offs += binY_) {
        T *values = & values_[offs], *widths = & binWidths_[offs];
-       double total = 0;
-       for (unsigned int i = 0; i < binY_; ++i) total += values[i] * widths[i];
+       DefaultAccumulator totalc = 0;
+       for (unsigned int i = 0; i < binY_; ++i) totalc += values[i] * widths[i];
+       double total = totalc.sum();
        if (total > 0) {
             total = T(1.0)/total;
             for (unsigned int i = 0; i < binY_; ++i) values[i] *= total;
@@ -259,9 +261,9 @@ FastHisto3D::T FastHisto3D::GetAt(const T &x, const T &y, const T &z) const {
 
 
 FastHisto3D::T FastHisto3D::IntegralWidth() const {
-    double total = 0;
+    DefaultAccumulator total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
-    return total;
+    return total.sum();
 }
 
 void FastHisto3D::NormalizeXSlices() {

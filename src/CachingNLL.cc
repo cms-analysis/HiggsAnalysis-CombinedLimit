@@ -12,6 +12,7 @@
 #include <../interface/VectorizedSimplePdfs.h>
 #include <../interface/VectorizedHistFactoryPdfs.h>
 #include <../interface/CachingMultiPdf.h>
+#include <../interface/Accumulators.h>
 #include "vectorized.h"
 
 namespace cacheutils {
@@ -717,30 +718,13 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
     //utils::printRAD(&data);
     data_ = &data;
     setValueDirty();
-    sumWeights_ = 0.0;
     weights_.clear(); weights_.reserve(data.numEntries());
-    #ifdef ADDNLL_KAHAN_SUM
-    double compensation = 0;
-    #endif
     for (int i = 0, n = data.numEntries(); i < n; ++i) {
         data.get(i);
         double w = data.weight();
         if (w || includeZeroWeights_) weights_.push_back(w); 
-        #ifdef ADDNLL_KAHAN_SUM
-        static bool do_kahan = runtimedef::get("ADDNLL_KAHAN_SUM");
-        if (do_kahan) {
-            double kahan_y = w - compensation;
-            double kahan_t = sumWeights_ + kahan_y;
-            double kahan_d = (kahan_t - sumWeights_);
-            compensation = kahan_d - kahan_y;
-            sumWeights_  = kahan_t;
-        } else {
-            sumWeights_ += w;
-        }
-        #else
-        sumWeights_ += w;
-        #endif
     }
+    sumWeights_ = sumDefault(weights_);
     partialSum_.resize(weights_.size());
     workingArea_.resize(weights_.size());
     for (auto itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
@@ -943,7 +927,7 @@ cacheutils::CachingSimNLL::evaluate() const
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
-    double ret = 0;
+    DefaultAccumulator ret = 0;
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) {
             double nllval = (*it)->getVal();
@@ -952,6 +936,7 @@ cacheutils::CachingSimNLL::evaluate() const
         }
     }
     if (!constrainPdfs_.empty() || !constrainPdfsFast_.empty()) {
+        DefaultAccumulator ret2 = 0;
         /// ============= GENERIC CONSTRAINTS  =========
         std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 
@@ -962,31 +947,31 @@ cacheutils::CachingSimNLL::evaluate() const
                 if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero, negative or error").c_str());
                 pdfval = 1e-9;
             }
-            ret -= (log(pdfval) + *itz);
+            ret2 += (log(pdfval) + *itz);
         }
         /// ============= FAST GAUSSIAN CONSTRAINTS  =========
         itz = constrainZeroPointsFast_.begin();
         for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) { 
             double logpdfval = (*it)->getLogValFast();
             //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
-            ret -= (logpdfval + *itz);
+            ret2 += (logpdfval + *itz);
         }
         /// ============= FAST POISSON CONSTRAINTS  =========
         itz = constrainZeroPointsFastPoisson_.begin();
         for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) { 
             double logpdfval = (*it)->getLogValFast();
             //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
-            ret -= (logpdfval + *itz);
+            ret2 += (logpdfval + *itz);
         }
-
+        ret -= ret2.sum();
     }
 #ifdef TRACE_NLL_EVALS
     static unsigned long _trace_ = 0; _trace_++;
     if (_trace_ % 10 == 0)  { putchar('.'); fflush(stdout); }
-    //if (_trace_ % 250 == 0) { printf("               NLL % 10.4f after %10lu evals.\n", ret, _trace_); fflush(stdout); }
+    //if (_trace_ % 250 == 0) { printf("               NLL % 10.4f after %10lu evals.\n", ret.sum(), _trace_); fflush(stdout); }
 #endif
-    TRACE_NLL("SimNLL for " << GetName() << ": " << ret)
-    return ret;
+    TRACE_NLL("SimNLL for " << GetName() << ": " << ret.sum())
+    return ret.sum();
 }
 
 void 
