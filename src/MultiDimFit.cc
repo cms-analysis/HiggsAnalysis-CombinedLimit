@@ -7,6 +7,7 @@
 #include "RooArgList.h"
 #include "RooRandom.h"
 #include "RooAbsData.h"
+#include "RooCategory.h"
 #include "RooFitResult.h"
 #include "../interface/RooMinimizerOpt.h"
 #include <RooStats/ModelConfig.h>
@@ -41,11 +42,16 @@ bool MultiDimFit::squareDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 
   std::string MultiDimFit::saveSpecifiedFuncs_;
+  std::string MultiDimFit::saveSpecifiedIndex_;
   std::string MultiDimFit::saveSpecifiedNuis_;
  std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
  std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
  std::vector<float>        MultiDimFit::specifiedFuncVals_;
  RooArgList                MultiDimFit::specifiedFuncList_;
+ std::vector<std::string>  MultiDimFit::specifiedCatNames_;
+ std::vector<RooCategory*> MultiDimFit::specifiedCat_;
+ std::vector<int>        MultiDimFit::specifiedCatVals_;
+ RooArgList                MultiDimFit::specifiedCatList_;
  std::vector<std::string>  MultiDimFit::specifiedNuis_;
  std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
  std::vector<float>        MultiDimFit::specifiedVals_;
@@ -67,6 +73,7 @@ MultiDimFit::MultiDimFit() :
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
 	("saveSpecifiedNuis",   boost::program_options::value<std::string>(&saveSpecifiedNuis_)->default_value(""), "Save specified parameters (default = none)")
 	("saveSpecifiedFunc",   boost::program_options::value<std::string>(&saveSpecifiedFuncs_)->default_value(""), "Save specified function values (default = none)")
+	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
        ;
 }
@@ -209,6 +216,20 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 		    token = strtok(0,",") ; 
 	    }
     }
+    if(saveSpecifiedIndex_!=""){
+	    char tmp[10240] ;
+	    strlcpy(tmp,saveSpecifiedIndex_.c_str(),10240) ;
+	    char* token = strtok(tmp,",") ;
+	    while(token) {
+		    RooCategory *rrv = w->cat(token);
+		    if (rrv == 0) throw std::invalid_argument(std::string("function ")+token+" not a RooCategory.");
+		    specifiedCatNames_.push_back(token);
+		    specifiedCat_.push_back(rrv);
+		    specifiedCatVals_.push_back(rrv->getIndex());
+		    specifiedCatList_.add(*rrv);
+		    token = strtok(0,",") ; 
+	    }
+    }
 
     if(saveSpecifiedNuis_!="" && withSystematics){
 	    RooArgSet mcNuis(*mc_s->GetNuisanceParameters());
@@ -260,6 +281,9 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
     }
     for (int i = 0, n = specifiedFuncNames_.size(); i < n; ++i) {
 	Combine::addBranch(specifiedFuncNames_[i].c_str(), &specifiedFuncVals_[i], (specifiedFuncNames_[i]+"/F").c_str()); 
+    }
+    for (int i = 0, n = specifiedCatNames_.size(); i < n; ++i) {
+	Combine::addBranch(specifiedCatNames_[i].c_str(), &specifiedCatVals_[i], (specifiedCatNames_[i]+"/I").c_str()); 
     }
     Combine::addBranch("deltaNLL", &deltaNLL_, "deltaNLL/F");
 }
@@ -366,6 +390,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 		}
+		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+		}
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
         }
@@ -398,6 +425,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 				specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 			}
+			for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+				specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+			}
                     deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                     if (gridType_ == G3x3) {
                         for (int i2 = -1; i2 <= +1; ++i2) {
@@ -410,6 +440,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 				}
 				for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 					specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+				}
+				for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+					specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 				}
                                 deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                             }
@@ -429,6 +462,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 		    }
 		    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 			    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		    }
+		    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+			    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 		    }
                     Combine::commitPoint(true, /*quantile=*/prob);
                 }
@@ -452,6 +488,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 				    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 					    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 				    }
+				    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+					    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+				    }
                                 deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
                                 continue;
                             }
@@ -467,6 +506,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			    }
 			    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 				    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+			    }
+			    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+				    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 			    }
                             Combine::commitPoint(true, /*quantile=*/prob);
                         }
@@ -524,6 +566,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 		}
+		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+		}
                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
 	       continue;
 	  }
@@ -539,6 +584,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 		}
 		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		}
+		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 		}
                Combine::commitPoint(true, /*quantile=*/prob);
           }
@@ -574,6 +622,9 @@ void MultiDimFit::doRandomPoints(RooAbsReal &nll)
 		}
 		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		}
+		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 		}
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
@@ -618,6 +669,9 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
 		    }
 		    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
 			    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		    }
+		    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+			    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 		    }
 		    Combine::commitPoint(true, /*quantile=*/prob);
     //for (unsigned int i = 0; i < n; ++i) {
