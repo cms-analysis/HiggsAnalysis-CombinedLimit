@@ -38,7 +38,7 @@ inline double sumWith(const std::vector<double> & vals) {
 
 typedef KahanAccumulator PreciseAccumulator;
 typedef NaiveAccumulator FastAccumulator;
-typedef FastAccumulator DefaultAccumulator;
+typedef PreciseAccumulator DefaultAccumulator;
 
 inline double sumPrecise(const std::vector<double> & vals) {
     return sumWith<PreciseAccumulator>(vals);
