@@ -48,7 +48,7 @@ class SMHiggsBuilder:
             prefix += suffix
 #        self.modelBuilder.doVar('One[1]')
 #        self.modelBuilder.doVar('Zero[0]') 
-        if what == 'qqH':
+        if what.startswith('qqH'):
             for sqrts in ('7TeV', '8TeV'):
                 rooName = prefix+'RVBF_'+sqrts
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'R_VBF_%(sqrts)s.txt'%locals()), ycol=1 )
@@ -61,7 +61,7 @@ class SMHiggsBuilder:
 )'%locals()
 #                print  rooExpr
                 self.modelBuilder.factory_(rooExpr)
-        elif what == 'ggH':
+        elif what.startswith('ggH'):
             structure = {'sigma_tt':2, 'sigma_bb':3, 'sigma_tb':4}
             for sqrts in ('7TeV', '8TeV'):
                 for qty, column in structure.iteritems():
@@ -76,7 +76,7 @@ class SMHiggsBuilder:
 )'%locals()
 #                print  rooExpr
                 self.modelBuilder.factory_(rooExpr)
-        elif what == 'hgluglu':
+        elif what.startswith('hgluglu'):
             structure = {'Gamma_tt':2, 'Gamma_bb':3, 'Gamma_tb':4}
             for qty, column in structure.iteritems():
                 rooName = prefix+qty
@@ -90,7 +90,7 @@ class SMHiggsBuilder:
 )'%locals()
 #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
-        elif what in ['hgg', 'hzg']:
+        elif what.startswith('hgg') or what.startswith('hzg'): #in ['hgg', 'hzg']:
             fileFor = {'hgg':'Gamma_Hgammagamma.txt',
                        'hzg':'Gamma_HZgamma.txt'}
             structure = {'Gamma_tt':2, 'Gamma_bb':3, 'Gamma_WW':4,
@@ -99,7 +99,7 @@ class SMHiggsBuilder:
                          'Gamma_tl':9, 'Gamma_bl':10, 'Gamma_lW':11}
             for qty, column in structure.iteritems():
                 rooName = prefix+qty
-                self.textToSpline(rooName, os.path.join(self.coupPath, fileFor[what]), ycol=column )
+                self.textToSpline(rooName, os.path.join(self.coupPath, fileFor['hgg' if what.startswith('hgg') else 'hzg']), ycol=column )
             scalingName = 'Scaling_'+what
 #            print 'Building '+scalingName
             rooExpr = 'expr::%(scalingName)s(\
@@ -112,23 +112,24 @@ class SMHiggsBuilder:
 )'%locals()
 #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
-        elif what == 'ggZH':
+        elif what.startswith('ggZH'):
             for sqrts in ('7TeV', '8TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
                 rooExpr = 'expr::%(scalingName)s( "(@0*@0)*2.27  + (@1*@1)*0.37 - (@0*@1)*1.44", %(CZ)s, %(Ctop)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
-        elif what == 'tHq':
+        elif what.startswith('tHq'):
             for sqrts in ('7TeV', '8TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
                 rooExpr = 'expr::%(scalingName)s( "(@0*@0)*3.4  + (@1*@1)*3.56 - (@0*@1)*5.96", %(Ctop)s, %(CW)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
-        elif what == 'tHW':
+        elif what.startswith('tHW'):
             for sqrts in ('7TeV', '8TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
                 rooExpr = 'expr::%(scalingName)s( "(@0*@0)*1.84  + (@1*@1)*1.57 - (@0*@1)*2.41", %(Ctop)s, %(CW)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         else:
             raise RuntimeError, "There is no scaling defined for %(what)s" % locals()
+
                 
     def makePartialWidthUncertainties(self):
         THU_GROUPS = [
