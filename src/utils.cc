@@ -625,6 +625,18 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
       
     if (SetParameterRangeExpression.size() != 3) {
       std::cout << "Error parsing physics model parameter expression : " << SetParameterRangeExpressionList[p] << endl;
+    } else if (SetParameterRangeExpression[1] == "-inf" && (
+                    SetParameterRangeExpression[2] == "inf" || 
+                    SetParameterRangeExpression[2] == "+inf") ) {
+      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
+      if (tmpParameter) {
+        cout << "Leave Parameter " << SetParameterRangeExpression[0] 
+             << " freely floating, with no range\n";
+        tmpParameter->removeRange();
+      } else {
+        std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
+      }
+ 
     } else {
       double PhysicsParameterRangeLow = atof(SetParameterRangeExpression[1].c_str());
       double PhysicsParameterRangeHigh = atof(SetParameterRangeExpression[2].c_str());
