@@ -48,10 +48,15 @@ protected:
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
+  static std::string saveSpecifiedIndex_;
   static std::vector<std::string>  specifiedFuncNames_;
   static std::vector<RooAbsReal*> specifiedFunc_;
   static std::vector<float>        specifiedFuncVals_;
   static RooArgList                specifiedFuncList_;
+  static std::vector<std::string>  specifiedCatNames_;
+  static std::vector<RooCategory*> specifiedCat_;
+  static std::vector<int>        specifiedCatVals_;
+  static RooArgList                specifiedCatList_;
   static std::vector<std::string>  specifiedNuis_;
   static std::vector<RooRealVar *> specifiedVars_;
   static std::vector<float>        specifiedVals_;
