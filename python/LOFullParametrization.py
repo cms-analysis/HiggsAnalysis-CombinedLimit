@@ -164,7 +164,11 @@ class C6(SMLikeHiggsModel):
             if decay in ["hbb", "htt"]: BRscal = decay
             if decay in ["hww", "hzz"]: BRscal = "hvv"
             if self.doHZg and decay == "hzg": BRscal = "hzg"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
+            if "Scaling" in XSscal: # already squared, just put XSscal
+                self.modelBuilder.factory_('expr::%s("@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
+            else: # plain coupling, put (XSscal)^2
+                self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
+    
         return name
 
 
