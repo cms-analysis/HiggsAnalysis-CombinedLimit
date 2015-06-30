@@ -9,6 +9,42 @@
 #include "Math/MinimizerOptions.h"
 #include "Math/IOptions.h"
 
+#define CMS_RUNTIME_DEFINES
+#ifdef CMS_RUNTIME_DEFINES
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+void init_rtd() {
+  // CMSDAS Defaults
+  runtimedef::set("OPTIMIZE_BOUNDS", 1);
+  runtimedef::set("ADDNLL_RECURSIVE", 1);
+  runtimedef::set("ADDNLL_GAUSSNLL", 1);
+  runtimedef::set("ADDNLL_HISTNLL", 1);
+  runtimedef::set("ADDNLL_CBNLL", 1);
+  // Optimization for ATLAS HistFactory likelihoods
+  runtimedef::set("ADDNLL_ROOREALSUM_FACTOR",1);
+  runtimedef::set("ADDNLL_ROOREALSUM_NONORM",1);
+  runtimedef::set("ADDNLL_ROOREALSUM_BASICINT",1);
+  runtimedef::set("ADDNLL_ROOREALSUM_KEEPZEROS",1);
+}
+
+void set_rtd(const char *rtd) {
+  std::string rtds(rtd);
+  std::string::size_type idx = rtds.find('=');
+  if (idx == std::string::npos) {
+      runtimedef::set(rtd, 1);
+      std::cout << "Turning on runtime-define " << rtd << std::endl;
+  } else {
+      std::string name  = rtds.substr(0, idx);
+      std::string svalue = rtds.substr(idx+1);
+      int ivalue = atoi( svalue.c_str() );
+      std::cout << "Setting runtime-define " << name << " to " << ivalue << std::endl;
+      runtimedef::set(name, ivalue);
+  }
+}
+#else
+void init_rtd() {}
+void set_rtd(const char *rtd) {}
+#endif
+
 int main(int argc, char **argv) {
     if (argc <= 1) { printf("Usage: %s file -w workspace(=w) -c modelConfig(=ModelConfig) -D dataset(=data_obs)  -S snapshot  -s strategy(=0) -t tolerance(=1) -M param_to_run_minos_on  \n",argv[0]); return 1; }
     const char *workspace = "w"; // -w
@@ -23,8 +59,9 @@ int main(int argc, char **argv) {
     const char *minos = NULL; // -M
     int   optimize    = 2; // -O
     bool  useFitTo    = false; // -f ( use pdf->fitTo instead of Minimizer )
+    init_rtd(); 
     do {
-        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:X:L:fm:");
+        int opt = getopt(argc, argv, "w:D:c:S:s:t:M:O:X:L:fm:R:");
         switch (opt) {
             case 'w': workspace = optarg; break;
             case 'D': dataset = optarg; break;
@@ -38,6 +75,7 @@ int main(int argc, char **argv) {
             case 'L': tofloat = optarg; break;
             case 'O': optimize = atoi(optarg); break;
             case 'f': useFitTo = true; break;
+            case 'R': set_rtd(optarg); break;
             case '?': std::cerr << "Unsupported option. Please see the code. " << std::endl; return 1; break;
         }
         if (opt == -1) break;
@@ -87,6 +125,7 @@ int main(int argc, char **argv) {
     ROOT::Math::MinimizerOptions::SetDefaultTolerance(tolerance);
     ROOT::Math::IOptions & options = ROOT::Math::MinimizerOptions::Default("Minuit2");
     options.SetValue("StorageLevel", 0);
+    RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
     TStopwatch timer;
     if (useFitTo) {
         const RooCmdArg & maybeMinos = (minos ? RooFit::Minos(poi) : RooCmdArg::none());
@@ -102,6 +141,7 @@ int main(int argc, char **argv) {
     } else {
         RooAbsReal *nll = mc->GetPdf()->createNLL(*d, RooFit::Constrain(*mc->GetNuisanceParameters()));
         RooMinimizer minim(*nll);
+        minim.setPrintEvalErrors(0);
         minim.setStrategy(strategy);
         minim.setEps(tolerance);
         minim.setOffsetting(1);
