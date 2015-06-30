@@ -878,5 +878,5 @@ K2 = Kappas(resolved=False)
 K3 = KappaVKappaF()
 L1 = Lambdas()
 L2 = LambdasReduced()
-MassDegenerate = CommonMatrixModel()
+D1 = CommonMatrixModel()
 
