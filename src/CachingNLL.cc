@@ -602,7 +602,7 @@ cacheutils::CachingAddNLL::evaluate() const
         if (basicIntegrals_) {
             double integral = (binWidths_.size() > 1) ? 
                                     vectorized::dot_product(pdfvals.size(), &pdfvals[0], &binWidths_[0]) :
-                                    binWidths_.front() * std::accumulate(pdfvals.begin(), pdfvals.end(), 0.0);
+                                    binWidths_.front() * sumDefault(pdfvals);
             if (basicIntegrals_ == 1) {
                 double refintegral = integrals_[itc - coeffs_.begin()]->getVal();
                 if (refintegral > 0) {
