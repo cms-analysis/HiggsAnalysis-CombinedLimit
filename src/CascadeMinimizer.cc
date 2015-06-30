@@ -93,6 +93,11 @@ bool CascadeMinimizer::improveOnce(int verbose)
     std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
     std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
     bool outcome = false;
+    static int maxcalls = runtimedef::get("MINIMIZER_MaxCalls");
+    if (maxcalls) {
+        minimizer_->setMaxFunctionCalls(maxcalls);
+        minimizer_->setMaxIterations(maxcalls);
+    }
     if (oldFallback_){
         if (optConst) minimizer_->optimizeConst(std::max(0,optConst));
         if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
