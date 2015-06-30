@@ -100,6 +100,10 @@ void FastHisto::Dump() const {
     printf("\n"); 
 }
 
+FastHisto::T FastHisto::GetMax() const {
+    return * std::max(values_.begin(), values_.end());
+}
+
 FastHisto2D::FastHisto2D(const TH2 &hist, bool normXonly) :
     FastTemplate(hist),
     binX_(hist.GetNbinsX()),
@@ -171,6 +175,30 @@ void FastHisto2D::Dump() const {
                      values_[i], binWidths_[i]);
     }
     printf("\n"); 
+}
+
+
+FastHisto2D::T FastHisto2D::GetMaxOnXY() const {
+    return *std::max(values_.begin(), values_.end());
+}
+
+
+FastHisto2D::T FastHisto2D::GetMaxOnX(const T &y) const {
+    auto matchy = std::lower_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
+    if (matchy == binEdgesY_.begin() || matchy == binEdgesY_.end()) return T(0.0);
+    int iy = (matchy - binEdgesY_.begin() - 1);
+    T ret = 0.0;
+    for (unsigned int i = iy; i < size_; i += binY_) {
+        if (ret < values_[i]) ret = values_[i];
+    }
+    return ret;
+}
+
+FastHisto2D::T FastHisto2D::GetMaxOnY(const T &x) const {
+    auto matchx = std::lower_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
+    if (matchx == binEdgesX_.begin() || matchx == binEdgesX_.end()) return T(0.0);
+    int ix = (matchx - binEdgesX_.begin() - 1);
+    return *std::max( &values_[ix * binY_], &values_[(ix+1) * binY_] );
 }
 
 FastHisto3D::FastHisto3D(const TH3 &hist, bool normXonly) :

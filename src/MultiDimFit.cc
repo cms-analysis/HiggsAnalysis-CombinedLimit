@@ -40,6 +40,7 @@ bool MultiDimFit::loadedSnapshot_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
+float MultiDimFit::autoRange_ = -1.0;
 
   std::string MultiDimFit::saveSpecifiedFuncs_;
   std::string MultiDimFit::saveSpecifiedIndex_;
@@ -69,6 +70,7 @@ MultiDimFit::MultiDimFit() :
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
+        ("autoRange", boost::program_options::value<float>(&autoRange_)->default_value(autoRange_), "Set to any X >= 0 to do the scan in the +/- X sigma range (where the sigma is from the initial fit, so it may be fairly approximate)")
         ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
 	("saveSpecifiedNuis",   boost::program_options::value<std::string>(&saveSpecifiedNuis_)->default_value(""), "Save specified parameters (default = none)")
@@ -156,6 +158,17 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     //set snapshot for best fit
     if (!loadedSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
     
+    if (autoRange_ > 0) {
+        std::cout << "Adjusting range of POIs to +/- " << autoRange_ << " standard deviations" << std::endl;
+        for (int i = 0, n = poi_.size(); i < n; ++i) {
+            double val = poiVars_[i]->getVal(), err = poiVars_[i]->getError(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
+            double min1 = std::max(min0, val - autoRange_ * err);
+            double max1 = std::min(max0, val + autoRange_ * err);
+            std::cout << poi_[i] << ": " << val << " +/- " << err << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            poiVars_[i]->setRange(min1, max1);
+        }
+    }
+
     switch(algo_) {
         case None: 
             if (verbose > 0) {
@@ -377,6 +390,19 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
             // now we minimize
+            nll.clearEvalErrorLog();
+            deltaNLL_ = nll.getVal() - nll0;
+            if (nll.numEvalErrors() > 0) {
+                deltaNLL_ = 9990;
+		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
+		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		}
+                Combine::commitPoint(true, /*quantile=*/0);
+                continue;
+            }
             bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
                         true : 
                         minim.minimize(verbose-1);

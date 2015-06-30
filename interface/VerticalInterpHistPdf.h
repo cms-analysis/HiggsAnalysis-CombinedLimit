@@ -363,6 +363,9 @@ public:
   const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
   Bool_t conditional() const { return _conditional; }
 
+  Int_t getMaxVal(const RooArgSet& vars) const ;
+  Double_t maxVal(Int_t code) const ;
+
   Double_t evaluate() const ;
 protected:
   RooRealProxy _x, _y;

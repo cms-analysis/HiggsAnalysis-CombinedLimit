@@ -71,6 +71,8 @@ class CascadeMinimizer {
         static bool setZeroPoint_;
         /// don't do old fallback using robustMinimize 
         static bool oldFallback_;
+        /// storage level for minuit2 (toggles storing of intermediate covariances)
+        static int minuit2StorageLevel_;
 
 	static double discreteMinTol_;
 
