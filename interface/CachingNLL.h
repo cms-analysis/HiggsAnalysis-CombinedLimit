@@ -13,8 +13,10 @@
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooGaussian.h>
+#include <RooPoisson.h>
 #include <RooProduct.h>
 #include "../interface/SimpleGaussianConstraint.h"
+#include "../interface/SimplePoissonConstraint.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
@@ -177,6 +179,8 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<RooAbsPdf *>        constrainPdfs_;
         std::vector<SimpleGaussianConstraint *>  constrainPdfsFast_;
         std::vector<bool>                        constrainPdfsFastOwned_;
+        std::vector<SimplePoissonConstraint *>   constrainPdfsFastPoisson_;
+        std::vector<bool>                        constrainPdfsFastPoissonOwned_;
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
@@ -185,6 +189,7 @@ class CachingSimNLL  : public RooAbsReal {
         static bool optimizeContraints_;
         std::vector<double> constrainZeroPoints_;
         std::vector<double> constrainZeroPointsFast_;
+        std::vector<double> constrainZeroPointsFastPoisson_;
 };
 
 }

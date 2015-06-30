@@ -37,6 +37,7 @@ bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 bool MultiDimFit::fastScan_ = false;
 bool MultiDimFit::loadedSnapshot_ = false;
+bool MultiDimFit::savingSnapshot_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
@@ -106,6 +107,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
+    savingSnapshot_ = (!loadedSnapshot_) && vm.count("saveWorkspace");
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -149,14 +151,8 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	}
     }
    
-
-    std::auto_ptr<RooAbsReal> nll;
-    if (algo_ != None && algo_ != Singles) {
-        nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended())));
-    } 
-    
     //set snapshot for best fit
-    if (!loadedSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
+    if (savingSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
     
     if (autoRange_ > 0) {
         std::cout << "Adjusting range of POIs to +/- " << autoRange_ << " standard deviations" << std::endl;

@@ -10,6 +10,7 @@
 #include <../interface/VectorizedGaussian.h>
 #include <../interface/VectorizedCB.h>
 #include <../interface/VectorizedSimplePdfs.h>
+#include <../interface/VectorizedHistFactoryPdfs.h>
 #include <../interface/CachingMultiPdf.h>
 #include "vectorized.h"
 
@@ -434,7 +435,10 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
     static bool histNll  = runtimedef::get("ADDNLL_HISTNLL");
     static bool gaussNll  = runtimedef::get("ADDNLL_GAUSSNLL");
     static bool multiNll  = runtimedef::get("ADDNLL_MULTINLL");
+    static bool prodNll  = runtimedef::get("ADDNLL_PRODNLL");
     static bool cbNll  = runtimedef::get("ADDNLL_CBNLL");
+    static bool hfNll  = runtimedef::get("ADDNLL_HFNLL");
+    static bool verb  = runtimedef::get("ADDNLL_VERBOSE_CACHING");
 
     if (histNll && typeid(*pdf) == typeid(FastVerticalInterpHistPdf)) {
         return new CachingHistPdf(pdf, obs);
@@ -454,7 +458,19 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
         return new CachingMultiPdf(static_cast<RooMultiPdf&>(*pdf), *obs);
     } else if (multiNll && typeid(*pdf) == typeid(RooAddPdf)) {
         return new CachingAddPdf(static_cast<RooAddPdf&>(*pdf), *obs);
+    } else if (prodNll && typeid(*pdf) == typeid(RooProduct)) {
+        return new CachingProduct(static_cast<RooProduct&>(*pdf), *obs);
+    } else if (hfNll && typeid(*pdf) == typeid(RooHistFunc)) {
+        //return new OptimizedCachingPdfT<RooHistFunc,VectorizedHistFunc>(pdf, obs);
+        return new VectorizedHistFunc(static_cast<RooHistFunc&>(*pdf));
+    } else if (hfNll && typeid(*pdf) == typeid(ParamHistFunc)) {
+        return new OptimizedCachingPdfT<ParamHistFunc,VectorizedParamHistFunc>(pdf, obs);
+    } else if (hfNll && typeid(*pdf) == typeid(PiecewiseInterpolation)) {
+        return new CachingPiecewiseInterpolation(static_cast<PiecewiseInterpolation&>(*pdf), *obs);
     } else {
+        if (verb) {
+            std::cout << "I don't have an optimized implementation for " << pdf->ClassName() << " (" << pdf->GetName() << ")" << std::endl;
+        }
         return new CachingPdf(pdf, obs);
     }
 
@@ -498,7 +514,7 @@ cacheutils::CachingAddNLL::setup_()
                 }
             }
             coeffs_.push_back(coeff);
-            pdfs_.push_back(new CachingPdf(funci, obs));
+            pdfs_.push_back(makeCachingPdf(funci, obs));
             pdfs_.back().setIncludeZeroWeights(includeZeroWeights_);
             integrals_.push_back(funci->createIntegral(*obs));
         }
@@ -801,6 +817,10 @@ cacheutils::CachingSimNLL::~CachingSimNLL()
     for (std::vector<SimpleGaussianConstraint*>::iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++ito) {
         if (*ito) { delete *it; }
     }
+    ito = constrainPdfsFastPoissonOwned_.begin();
+    for (std::vector<SimplePoissonConstraint*>::iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++ito) {
+        if (*ito) { delete *it; }
+    }
     #ifdef TRACE_NLL_EVAL_COUNT
         std::cout << "CachingSimNLLEvalCount: " << ::CachingSimNLLEvalCount << std::endl;
     #endif
@@ -827,16 +847,42 @@ cacheutils::CachingSimNLL::setup_()
     constrainPdfs_.clear(); 
     if (constraints.getSize()) {
         int FastConstraints = optimizeContraints_ && runtimedef::get("SIMNLL_FASTGAUSS");
+        std::map<std::string,unsigned int> constraintsByType;
         for (int i = 0, n = constraints.getSize(); i < n; ++i) {
             RooAbsPdf *pdfi = dynamic_cast<RooAbsPdf*>(constraints.at(i));
+            constraintsByType[pdfi->ClassName()]++;
             if (optimizeContraints_ && typeid(*pdfi) == typeid(SimpleGaussianConstraint)) {
                 constrainPdfsFast_.push_back(static_cast<SimpleGaussianConstraint *>(pdfi));
                 constrainPdfsFastOwned_.push_back(false);
                 constrainZeroPointsFast_.push_back(0);
-            } else if (FastConstraints && typeid(*pdfi) == typeid(RooGaussian)) {
-                constrainPdfsFast_.push_back(new SimpleGaussianConstraint(dynamic_cast<const RooGaussian&>(*pdfi)));
-                constrainPdfsFastOwned_.push_back(true);
-                constrainZeroPointsFast_.push_back(0);
+            } else if (optimizeContraints_ && typeid(*pdfi) == typeid(SimplePoissonConstraint)) {
+                constrainPdfsFastPoisson_.push_back(static_cast<SimplePoissonConstraint *>(pdfi));
+                constrainPdfsFastPoissonOwned_.push_back(false);
+                constrainZeroPointsFastPoisson_.push_back(0);
+            } else if (FastConstraints) {
+                if (typeid(*pdfi) == typeid(RooGaussian)) {
+                     RooAbsPdf *opt = SimpleGaussianConstraint::make(static_cast<RooGaussian&>(*pdfi));
+                     if (typeid(*opt) == typeid(SimpleGaussianConstraint)) {
+                         std::cout << "Constraint " << pdfi->GetName() << " optimized into " << opt->ClassName() << std::endl;
+                         constrainPdfsFast_.push_back(static_cast<SimpleGaussianConstraint*>(opt));
+                         constrainPdfsFastOwned_.push_back(true);
+                         constrainZeroPointsFast_.push_back(0);
+                     } else {
+                         constrainPdfs_.push_back(pdfi);
+                         constrainZeroPoints_.push_back(0);
+                     }
+                } else if (typeid(*pdfi) == typeid(RooPoisson)) {
+                     RooAbsPdf *opt = SimplePoissonConstraint::make(static_cast<RooPoisson&>(*pdfi));
+                     if (typeid(*opt) == typeid(SimplePoissonConstraint)) {
+                         std::cout << "Constraint " << pdfi->GetName() << " optimized into " << opt->ClassName() << std::endl;
+                         constrainPdfsFastPoisson_.push_back(static_cast<SimplePoissonConstraint*>(opt));
+                         constrainPdfsFastPoissonOwned_.push_back(true);
+                         constrainZeroPointsFastPoisson_.push_back(0);
+                     } else {
+                         constrainPdfs_.push_back(pdfi);
+                         constrainZeroPoints_.push_back(0);
+                     }
+                }
             } else {
                 constrainPdfs_.push_back(pdfi);
                 constrainZeroPoints_.push_back(0);
@@ -844,6 +890,9 @@ cacheutils::CachingSimNLL::setup_()
             //std::cout << "Constraint pdf: " << constraints.at(i)->GetName() << std::endl;
             std::auto_ptr<RooArgSet> params(pdfi->getParameters(*dataOriginal_));
             params_.add(*params, false);
+        }
+        for (const auto & p : constraintsByType) {
+            std::cout << "Constraints of type " << p.first << ": " << p.second << std::endl;
         }
     } else {
         std::cerr << "PDF didn't factorize!" << std::endl;
@@ -922,6 +971,14 @@ cacheutils::CachingSimNLL::evaluate() const
             //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
             ret -= (logpdfval + *itz);
         }
+        /// ============= FAST POISSON CONSTRAINTS  =========
+        itz = constrainZeroPointsFastPoisson_.begin();
+        for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) { 
+            double logpdfval = (*it)->getLogValFast();
+            //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
+            ret -= (logpdfval + *itz);
+        }
+
     }
 #ifdef TRACE_NLL_EVALS
     static unsigned long _trace_ = 0; _trace_++;
@@ -1011,6 +1068,11 @@ void cacheutils::CachingSimNLL::setZeroPoint() {
         double logpdfval = (*it)->getLogValFast();
         *itz = -logpdfval;
     }
+    itz = constrainZeroPointsFastPoisson_.begin();
+    for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) {
+        double logpdfval = (*it)->getLogValFast();
+        *itz = -logpdfval;
+    }
     setValueDirty();
 }
 
@@ -1020,6 +1082,7 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
     }
     std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
     std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
+    std::fill(constrainZeroPointsFastPoisson_.begin(), constrainZeroPointsFastPoisson_.end(), 0.0);
     setValueDirty();
 }
 

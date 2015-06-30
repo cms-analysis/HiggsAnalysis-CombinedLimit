@@ -128,6 +128,7 @@ Combine::Combine() :
       ("newGenerator", po::value<bool>(&newGen_)->default_value(true), "Use new generator code for toys, fixes all issues with binned and mixed generation (equivalent of --newToyMC but affects the top-level toys from option '-t' instead of the ones within the HybridNew)")
       ("optimizeSimPdf", po::value<bool>(&optSimPdf_)->default_value(true), "Turn on special optimizations of RooSimultaneous. On by default, you can turn it off if it doesn't work for your workspace.")
       ("noMCbonly", po::value<bool>(&noMCbonly_)->default_value(false), "Don't create a background-only modelConfig")
+      ("noDefaultPrior", po::value<bool>(&noDefaultPrior_)->default_value(false), "Don't create a default uniform prior")
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
@@ -163,10 +164,13 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   mass_ = vm["mass"].as<float>();
   saveToys_ = vm.count("saveToys");
   validateModel_ = vm.count("validateModel");
-  if (vm["method"].as<std::string>() == "MultiDimFit" || ( vm["method"].as<std::string>() == "MaxLikelihoodFit" && vm.count("justFit")) || vm["method"].as<std::string>() == "MarkovChainMC") {
+  const std::string &method = vm["method"].as<std::string>();
+  if (method == "MultiDimFit" || ( method == "MaxLikelihoodFit" && vm.count("justFit")) || method == "MarkovChainMC") {
     //CMSDAS new default,
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
+    if (vm["noDefaultPrior"].defaulted()) noDefaultPrior_ = 1;
   }
+  if (!vm["prior"].defaulted()) noDefaultPrior_ = 0;
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -534,7 +538,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
   }
 
-  if (mc->GetPriorPdf() == 0) {
+  if (mc->GetPriorPdf() == 0 && !noDefaultPrior_) {
       if (prior_ == "flat") {
           RooAbsPdf *prior = new RooUniform("prior","prior",*POI);
           w->import(*prior);

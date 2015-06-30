@@ -16,6 +16,7 @@ struct RooAbsCollection;
 struct RooWorkspace;
 struct RooPlot;
 struct RooRealVar;
+struct RooProduct;
 namespace RooStats { class ModelConfig; }
 namespace utils {
     void printRDH(RooAbsData *data) ;
@@ -42,6 +43,8 @@ namespace utils {
 
     /// factorize a RooAbsReal
     void factorizeFunc(const RooArgSet &observables, RooAbsReal &pdf, RooArgList &obsTerms, RooArgList &otherTerms, bool keepDuplicates = true, bool debug=false);
+    /// workaround for RooProdPdf::components()
+    RooArgList factors(const RooProduct &prod) ;
 
     /// Note: doesn't recompose Simultaneous pdfs properly, for that use factorizePdf method
     RooAbsPdf *makeObsOnlyPdf(RooStats::ModelConfig &model, const char *name="obsPdf") ;
