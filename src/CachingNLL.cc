@@ -12,6 +12,7 @@
 #include <../interface/VectorizedSimplePdfs.h>
 #include <../interface/VectorizedHistFactoryPdfs.h>
 #include <../interface/CachingMultiPdf.h>
+#include <../interface/RooCheapProduct.h>
 #include <../interface/Accumulators.h>
 #include "vectorized.h"
 
@@ -235,7 +236,7 @@ cacheutils::CachingPdf::CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) :
     obs_(obs),
     pdfOriginal_(pdf),
     pdfPieces_(),
-    pdf_(utils::fullCloneFunc(pdf, pdfPieces_)),
+    pdf_(runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_)),
     lastData_(0),
     cache_(*pdf_,*obs_),
     includeZeroWeights_(false)
@@ -246,7 +247,7 @@ cacheutils::CachingPdf::CachingPdf(const CachingPdf &other) :
     obs_(other.obs_),
     pdfOriginal_(other.pdfOriginal_),
     pdfPieces_(),
-    pdf_(utils::fullCloneFunc(pdfOriginal_, pdfPieces_)),
+    pdf_(runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_)),
     lastData_(0),
     cache_(*pdf_,*obs_),
     includeZeroWeights_(other.includeZeroWeights_)
@@ -500,15 +501,20 @@ cacheutils::CachingAddNLL::setup_()
             RooAbsReal * coeff = dynamic_cast<RooAbsReal*>(sumpdf->coefList().at(i));
             RooAbsReal * funci = dynamic_cast<RooAbsReal*>(sumpdf->funcList().at(i));
             static int tryfactor = runtimedef::get("ADDNLL_ROOREALSUM_FACTOR"); 
+            static int cheapprod = runtimedef::get("ADDNLL_ROOREALSUM_CHEAPPROD"); 
             RooProduct *prodi = 0;
             if (tryfactor && ((prodi = dynamic_cast<RooProduct *>(funci)) != 0)) {
                 RooArgList newcoeffs(*coeff), newfuncs; 
                 utils::factorizeFunc(*obs, *funci, newfuncs, newcoeffs);
                 if (newcoeffs.getSize() > 1) {
-                    prods_.push_back(new RooProduct("","",newcoeffs));
+                    if (cheapprod) prods_.push_back(new RooCheapProduct("","",newcoeffs,runtimedef::get("ADDNLL_ROOREALSUM_PRUNECONST")));
+                    else           prods_.push_back(new RooProduct("","",newcoeffs));
                     coeff = &prods_.back();
                 }
                 if (newfuncs.getSize() > 1) {
+                    //-- We don't make cheap products here since it does not implement the binning and analytical integrals
+                    //if (cheapprod) prods_.push_back(new RooCheapProduct("","",newfuncs));
+                    //else           prods_.push_back(new RooProduct("","",newfuncs));
                     prods_.push_back(new RooProduct("","",newfuncs));
                     funci = &prods_.back();
                 } else {
