@@ -29,6 +29,8 @@ namespace utils {
     RooAbsPdf *fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
     // Clone a function and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsReal *fullCloneFunc(const RooAbsReal *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
+    // Clone a function and all it's branch nodes that depends on the observables. on request, clone also leaf nodes (i.e. RooRealVars)
+    RooAbsReal *fullCloneFunc(const RooAbsReal *pdf, const RooArgSet &obs, RooArgSet &holder, bool cloneLeafNodes=false) ;
 
     /// Create a pdf which depends only on observables, and collect the other constraint terms
     /// Will return 0 if it's all constraints, &pdf if it's all observables, or a new pdf if it's something mixed

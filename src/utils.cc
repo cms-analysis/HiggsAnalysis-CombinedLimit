@@ -33,6 +33,7 @@
 #include <boost/algorithm/string/classification.hpp>
 
 #include "../interface/CloseCoutSentry.h"
+#include "../interface/ProfilingTools.h"
 
 using namespace std;
 
@@ -277,6 +278,25 @@ RooAbsReal *utils::fullCloneFunc(const RooAbsReal *pdf, RooArgSet &holder, bool 
   // Find the top level FUNC in the snapshot list
   return (RooAbsReal*) holder.find(pdf->GetName());
 }
+
+RooAbsReal *utils::fullCloneFunc(const RooAbsReal *pdf, const RooArgSet &obs, RooArgSet &holder, bool cloneLeafNodes) {
+  // Clone all FUNC compents by copying all branch nodes
+  RooArgSet tmp("RealBranchNodeList"), toClone;
+  pdf->branchNodeServerList(&tmp);
+  unsigned int nitems = tmp.getSize();
+  RooFIter iter = tmp.fwdIterator();
+  for (RooAbsArg *a = iter.next(); a != 0; a = iter.next()) {
+      if (a == pdf) toClone.add(*a);
+      else if (a->dependsOn(obs)) toClone.add(*a);
+  }
+  unsigned int nobsitems = toClone.getSize();
+  toClone.snapshot(holder, cloneLeafNodes); 
+  if (runtimedef::get("fullCloneFunc_VERBOSE")) std::cout << "For PDF " << pdf->GetName() << ", cloned " << nobsitems << "/" << nitems << " items" << std::endl;
+  // Find the top level FUNC in the snapshot list
+  return (RooAbsReal*) holder.find(pdf->GetName());
+}
+
+
 
 
 void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &allObjects, RooAbsCollection &clients) {
