@@ -11,7 +11,7 @@
 #include <math.h> 
 #include "TMath.h" 
 #include "RooFormulaVar.h"
-#include "RooRealVar.h"
+#include "RooAbsReal.h"
 #include "RooFit.h"
 
 #include "TFile.h"
@@ -32,8 +32,8 @@ RooParametricHist::RooParametricHist(const char *name,
   //SM_shape("SM_shape","SM_shape",this,_SM_shape),
 { 
   TIterator *varIter=_pars.createIterator(); 
-  RooRealVar *fVar;
-  while ( (fVar = (RooRealVar*) varIter->Next()) ){
+  RooAbsReal *fVar;
+  while ( (fVar = (RooAbsReal*)varIter->Next()) ){
 	pars.add(*fVar);
   }
   if ( pars.getSize() != _shape.GetNbinsX() ){
@@ -52,8 +52,8 @@ RooParametricHist::RooParametricHist(const RooParametricHist& other, const char*
   N_bins = other.N_bins;
   //sum    = other.sum;
   TIterator *varIter=other.pars.createIterator(); 
-  RooRealVar *fVar;
-  while ( (fVar = (RooRealVar*) varIter->Next()) ){
+  RooAbsReal *fVar;
+  while ( (fVar = (RooAbsReal*) varIter->Next()) ){
 	pars.add(*fVar);
   }
 
@@ -79,8 +79,8 @@ void RooParametricHist::initializeBins(const TH1 &shape) const {
 double RooParametricHist::getFullSum() const {
     double sum=0;
     TIterator *varIter=pars.createIterator(); 
-    RooRealVar *fVar;
-    while ( (fVar = (RooRealVar*) varIter->Next()) ){
+    RooAbsReal *fVar;
+    while ( (fVar = (RooAbsReal*) varIter->Next()) ){
       sum+=fVar->getVal();	
     }
     return sum;
@@ -108,7 +108,7 @@ Double_t RooParametricHist::analyticalIntegral(Int_t code, const char* rangeName
  double sum=0 ;
  int i ;
  for (i=1 ; i<=N_bins ; i++) {
-   double binVal = (static_cast<RooRealVar*>(pars.at(i-1))->getVal())/widths[i-1]; 
+   double binVal = (static_cast<RooAbsReal*>(pars.at(i-1))->getVal())/widths[i-1]; 
    if (bins[i-1]>=xmin && bins[i]<=xmax) {
       // Bin fully in the integration domain
       sum += (bins[i]-bins[i-1])*binVal ;
@@ -142,7 +142,7 @@ Double_t RooParametricHist::evaluate() const
       if (x>=bins[bin_i] && x < bins[bin_i+1] ) break;
     }
   }
-  RooRealVar *retVar = (RooRealVar*)pars.at(bin_i);
+  RooAbsReal *retVar = (RooAbsReal*)pars.at(bin_i);
   double ret = retVar->getVal() / widths[bin_i];
   cval=ret;
   return ret; 

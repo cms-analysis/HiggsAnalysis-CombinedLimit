@@ -5,7 +5,7 @@
 #include "RooListProxy.h"
 #include "RooAbsPdf.h"
 #include "RooAddition.h"
-#include "RooRealVar.h"
+#include "RooAbsReal.h"
 //#include "RooAbsData.h"
 #include "TH1D.h"
 #include "TH1F.h"
