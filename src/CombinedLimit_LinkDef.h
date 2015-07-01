@@ -20,6 +20,7 @@
 #include "../interface/RooScaleLOSM.h"
 #include "../interface/rVrFLikelihood.h"
 #include "../interface/RooMultiPdf.h"
+#include "../interface/RooParametricHist.h"
 #include "../interface/RooBernsteinFast.h"
 #include "../interface/SimpleGaussianConstraint.h"
 #include "../interface/AtlasPdfs.h"
@@ -114,6 +115,7 @@
 #pragma link C++ class RooGaussStepBernstein+;
 #pragma link C++ class rVrFLikelihood+;
 #pragma link C++ class RooMultiPdf+;
+#pragma link C++ class RooParametricHist+;
 #pragma link C++ class RooBernsteinFast<1>+;
 #pragma link C++ class RooBernsteinFast<2>+;
 #pragma link C++ class RooBernsteinFast<3>+;
