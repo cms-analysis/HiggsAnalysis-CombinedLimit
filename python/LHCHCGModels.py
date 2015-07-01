@@ -795,6 +795,79 @@ class XSBRratiosAlternative(LHCHCGBaseModel):
     def getHiggsSignalYieldScale(self,production,decay,energy):
         return "scaling_%s_%s_%s" % (production,decay,energy)
 
+class CommonMatrixModel(LHCHCGBaseModel):
+    """Model for testing for degenerate states"""
+    def __init__(self):
+        LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+        #set the list of POIs as empty
+        self.POIs = []
+        #set the list of missing ggH measurements as empty 
+        self.fixDecays = []
+    def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
+        for po in physOptions:
+            if po.startswith("fixDecays="): 
+                self.fixDecays = po.replace("fixDecays=","").split(",")
+                for decay in self.fixDecays:
+                    self.fixDecays[self.fixDecays.index(decay)]=CMS_to_LHCHCG_DecSimple[decay] 
+            if po.startswith("poi="):
+                self.POIs = po.replace("poi=","")
+    def doVar(self,x,constant=True):
+        self.modelBuilder.doVar(x)
+        vname = re.sub(r"\[.*","",x)
+        self.modelBuilder.out.var(vname).setConstant(constant)
+        print "DegenerateMatrixModel:: declaring %s as %s, and set to constant" % (vname,x)
+    def doParametersOfInterest(self):
+        """Create POI out of l_j and l_j_i, and mu_i""" 
+        for X in ["VBF", "WH", "ZH", "ttH"]:
+            self.doVar("l_%s[1,0,10]" % X)
+            self.POIs.append("l_%s" %X)
+            for Y in ["gamgam", "WW", "ZZ", "tautau", "bb"]:
+                self.doVar("l_%s_%s[1,0,10]" % (X,Y))
+                self.POIs.append("l_%s_%s" % (X,Y))    
+        for D in ["gamgam", "WW", "ZZ", "tautau", "bb"]:
+            self.modelBuilder.doVar("mu_%s[1,0,5]" % D)
+            if D in self.fixDecays: #If there are any missing ggH measurements, create the mus here and a POI out of it.
+                print "It seems that you set signal strength ggH->"+D+" as missing. Take this into account when running HybridNew and using --redefineSignalPOIs!"
+                self.POIs.append("mu_%s"%D)  
+        print "The possible parameters of interest: ", self.POIs
+        self.modelBuilder.doSet("POI", ",".join(self.POIs))
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+    def setup(self):
+        self.dobbH()
+        for P in ALL_HIGGS_PROD:
+            if P == "VH": continue # skip aggregates 
+            for D in SM_HIGG_DECAYS:
+                for E in 7, 8:   
+                    terms = []
+                    # Hack for ggH
+                    if D in self.add_bbH and P == "ggH":
+                        b2g = "CMS_R_bbH_ggH_%s_%dTeV[%g]" % (CMS_to_LHCHCG_DecSimple[D],E,0.01)
+                        bbs = "CMS_bbH_scaler_%dTeV"%E  
+                        ## FIXME should include the here also logNormal for QCDscale_bbH
+                        self.modelBuilder.factory_("expr::scaler_%s_%dTeV(\"(@0+@1*@2)*@3\",%d,%s,%s,mu_%s)" % (CMS_to_LHCHCG_DecSimple[D],E,1.0,b2g,bbs,CMS_to_LHCHCG_DecSimple[D]))
+                        terms += [ 'scaler_%s_%dTeV' %(CMS_to_LHCHCG_DecSimple[D],E), "mu_"+CMS_to_LHCHCG_DecSimple[D]]
+                    else:
+                        if P in [ "ggH", "bbH" ]:
+                            terms += ["mu_"+CMS_to_LHCHCG_DecSimple[D]]  
+                    # Parametrizations for rest of the rows    
+                    if P == "qqH":
+                        terms += ["mu_"+CMS_to_LHCHCG_DecSimple[D], "l_"+CMS_to_LHCHCG_Prod[P], "l_%s_%s"%(CMS_to_LHCHCG_Prod[P], CMS_to_LHCHCG_DecSimple[D])]
+                    if P in ["ZH", "ggZH"]:
+                    #Will the production mode be now ZH, qqZH or what? See naming conventions... qqHz missing completely in ALL_HIGGS_PROD
+                        terms += ["mu_"+CMS_to_LHCHCG_DecSimple[D], "l_ZH", "l_ZH_%s"%CMS_to_LHCHCG_DecSimple[D]]
+                    if P == "WH":
+                        terms += ["mu_"+CMS_to_LHCHCG_DecSimple[D], "l_"+CMS_to_LHCHCG_Prod[P], "l_%s_%s"%(CMS_to_LHCHCG_Prod[P], CMS_to_LHCHCG_DecSimple[D])]
+                    if P in ["ttH", "tHq", "tHW"]:
+                        terms += ["mu_"+CMS_to_LHCHCG_DecSimple[D], "l_ttH", "l_ttH_%s"%CMS_to_LHCHCG_DecSimple[D]] 
+                    self.modelBuilder.factory_('prod::scaling_%s_%s_%dTeV(%s)' % (P,D,E,",".join(terms)))
+                    self.modelBuilder.out.function('scaling_%s_%s_%dTeV' % (P,D,E)).Print("")
+  
+
+    def getHiggsSignalYieldScale(self,production,decay,energy):
+        return "scaling_%s_%s_%s" % (production,decay,energy)
+
 A1 = SignalStrengths()
 A2 = SignalStrengthRatios()
 B1 = XSBRratios("WW")
@@ -805,3 +878,5 @@ K2 = Kappas(resolved=False)
 K3 = KappaVKappaF()
 L1 = Lambdas()
 L2 = LambdasReduced()
+D1 = CommonMatrixModel()
+
