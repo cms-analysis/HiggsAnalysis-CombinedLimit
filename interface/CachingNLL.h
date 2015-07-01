@@ -13,8 +13,10 @@
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooGaussian.h>
+#include <RooPoisson.h>
 #include <RooProduct.h>
 #include "../interface/SimpleGaussianConstraint.h"
+#include "../interface/SimplePoissonConstraint.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
@@ -120,8 +122,8 @@ class CachingAddNLL : public RooAbsReal {
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
         double  sumWeights() const { return sumWeights_; }
         const RooAbsPdf *pdf() const { return pdf_; }
-        void setZeroPoint() { zeroPoint_ = -this->getVal(); setValueDirty(); }
-        void clearZeroPoint() { zeroPoint_ = 0.0; setValueDirty();  }
+        void setZeroPoint() ;
+        void clearZeroPoint() ;
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }
@@ -143,7 +145,8 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;
         mutable int canBasicIntegrals_, basicIntegrals_;
-        double zeroPoint_;
+        double zeroPoint_; 
+        double constantZeroPoint_; // this is arbitrary and kept constant for all the lifetime of the PDF
 };
 
 class CachingSimNLL  : public RooAbsReal {
@@ -177,6 +180,8 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<RooAbsPdf *>        constrainPdfs_;
         std::vector<SimpleGaussianConstraint *>  constrainPdfsFast_;
         std::vector<bool>                        constrainPdfsFastOwned_;
+        std::vector<SimplePoissonConstraint *>   constrainPdfsFastPoisson_;
+        std::vector<bool>                        constrainPdfsFastPoissonOwned_;
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
@@ -185,6 +190,7 @@ class CachingSimNLL  : public RooAbsReal {
         static bool optimizeContraints_;
         std::vector<double> constrainZeroPoints_;
         std::vector<double> constrainZeroPointsFast_;
+        std::vector<double> constrainZeroPointsFastPoisson_;
 };
 
 }

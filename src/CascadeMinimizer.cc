@@ -17,6 +17,8 @@
 boost::program_options::options_description CascadeMinimizer::options_("Cascade Minimizer options");
 std::vector<CascadeMinimizer::Algo> CascadeMinimizer::fallbacks_;
 bool CascadeMinimizer::preScan_;
+double CascadeMinimizer::approxPreFitTolerance_ = 0;
+int CascadeMinimizer::approxPreFitStrategy_ = 0;
 int  CascadeMinimizer::preFit_ = 0;
 bool CascadeMinimizer::poiOnlyFit_;
 bool CascadeMinimizer::singleNuisFit_;
@@ -45,11 +47,21 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
     minimizer_->setPrintLevel(verbose-1);
    
     minimizer_->setStrategy(strategy_);
+    std::string nominalType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
+    std::string nominalAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
+    float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
+    if (approxPreFitTolerance_ > 0) {
+        double tol = std::max(approxPreFitTolerance_, 10. * nominalTol);
+        if (verbose > 1) std::cout << "Running pre-fit with " << nominalType << "," << nominalAlgo << " and tolerance " << tol << std::endl;
+        ProfileLikelihood::MinimizerSentry minimizerConfig(nominalType+","+nominalAlgo, tol);
+        minimizer_->setEps(tol);
+        minimizer_->setStrategy(approxPreFitStrategy_);
+        improveOnce(verbose-1);
+        minimizer_->setEps(nominalTol);
+        minimizer_->setStrategy(strategy_);
+    }
     bool outcome = improveOnce(verbose-1);
     if (cascade && !outcome && !fallbacks_.empty()) {
-        std::string nominalType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
-        std::string nominalAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
-        float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
         int         nominalStrat(strategy_);
         if (verbose > 0) std::cerr << "Failed minimization with " << nominalType << "," << nominalAlgo << " and tolerance " << nominalTol << std::endl;
         for (std::vector<Algo>::const_iterator it = fallbacks_.begin(), ed = fallbacks_.end(); it != ed; ++it) {
@@ -60,6 +72,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
                 nominalTol  != ROOT::Math::MinimizerOptions::DefaultTolerance()     ||
                 myStrategy  != nominalStrat) {
                 if (verbose > 0) std::cerr << "Will fallback to minimization using " << it->algo << ", strategy " << myStrategy << " and tolerance " << it->tolerance << std::endl;
+                minimizer_->setEps(ROOT::Math::MinimizerOptions::DefaultTolerance());
                 minimizer_->setStrategy(myStrategy);
                 outcome = improveOnce(verbose-2);
                 if (outcome) break;
@@ -80,6 +93,11 @@ bool CascadeMinimizer::improveOnce(int verbose)
     std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
     std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
     bool outcome = false;
+    static int maxcalls = runtimedef::get("MINIMIZER_MaxCalls");
+    if (maxcalls) {
+        minimizer_->setMaxFunctionCalls(maxcalls);
+        minimizer_->setMaxIterations(maxcalls);
+    }
     if (oldFallback_){
         if (optConst) minimizer_->optimizeConst(std::max(0,optConst));
         if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
@@ -87,8 +105,8 @@ bool CascadeMinimizer::improveOnce(int verbose)
     } else {
         cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
         if (simnll) simnll->setZeroPoint();
-        if (optConst) minimizer_->optimizeConst(std::max(0,optConst));
-        if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
+        if ((!simnll) && optConst) minimizer_->optimizeConst(std::max(0,optConst));
+        if ((!simnll) && rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
         int status = minimizer_->minimize(myType.c_str(), myAlgo.c_str());
         if (simnll) simnll->clearZeroPoint();
         outcome = (status == 0);
@@ -476,6 +494,8 @@ void CascadeMinimizer::initOptions()
         ("cminPoiOnlyFit",  "Do first a fit floating only the parameter of interest")
         ("cminPreScan",  "Do a scan before first minimization")
         ("cminPreFit", boost::program_options::value<int>(&preFit_)->default_value(preFit_), "if set to a value N > 0, it will perform a pre-fit with strategy (N-1) with frozen nuisance parameters.")
+        ("cminApproxPreFitTolerance", boost::program_options::value<double>(&approxPreFitTolerance_)->default_value(approxPreFitTolerance_), "If non-zero, do first a pre-fit with this tolerance (or 10 times the final tolerance, whichever is largest)")
+        ("cminApproxPreFitStrategy", boost::program_options::value<int>(&approxPreFitStrategy_)->default_value(approxPreFitStrategy_), "Strategy to use in the pre-fit")
         ("cminSingleNuisFit", "Do first a minimization of each nuisance parameter individually")
         ("cminFallbackAlgo", boost::program_options::value<std::vector<std::string> >(), "Fallback algorithms if the default minimizer fails (can use multiple ones). Syntax is algo[,subalgo][,strategy][:tolerance]")
         ("cminSetZeroPoint", boost::program_options::value<bool>(&setZeroPoint_)->default_value(setZeroPoint_), "Change the reference point of the NLL to be zero during minimization")

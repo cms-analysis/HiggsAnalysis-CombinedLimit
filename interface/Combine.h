@@ -82,6 +82,7 @@ private:
   bool rebuildSimPdf_;
   bool optSimPdf_;
   bool noMCbonly_;
+  bool noDefaultPrior_;
   bool floatAllNuisances_;
   bool freezeAllGlobalObs_;
 
