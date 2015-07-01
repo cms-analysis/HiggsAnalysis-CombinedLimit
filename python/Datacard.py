@@ -30,6 +30,8 @@ class Datacard():
         self.hasShape = False
         ## dirct of {name of uncert, boolean to indicate whether it is a flat parametric uncertainty or not}
         self.flatParamNuisances = {}
+        ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
+        self.frozenNuisances = set()
 
     def list_of_bins(self) :
         """

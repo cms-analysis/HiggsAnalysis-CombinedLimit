@@ -251,7 +251,7 @@ class ModelBuilder(ModelBuilderBase):
                 #if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
             if nofloat: 
-              self.out.var("%s" % n).setAttribute("globalConstrained",True)
+              self.out.var(n).setAttribute("globalConstrained",True)
             # set an attribute related to the group(s) this nuisance belongs to
             if n in groupsFor:
                 groupNames = groupsFor[n]
@@ -260,6 +260,8 @@ class ModelBuilder(ModelBuilderBase):
                 for groupName in groupNames:
                     self.out.var(n).setAttribute('group_'+groupName,True)
             #self.out.var(n).Print('V')
+            if n in self.DC.frozenNuisances:
+                self.out.var(n).setConstant(True)
         if self.options.bin:
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
