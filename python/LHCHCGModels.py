@@ -41,7 +41,7 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.floatMass = False
-        self.add_bbH = [ "hzz", "hgg" ]
+        self.add_bbH = [ "hzz" ]
         self.bbH_pdf = "pdf_gg" 
     def preProcessNuisances(self,nuisances):
         if self.add_bbH and not any(row for row in nuisances if row[0] == "QCDscale_bbH"):
