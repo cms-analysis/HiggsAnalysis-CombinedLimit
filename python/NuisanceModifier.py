@@ -16,13 +16,13 @@ def quadratureAdd(pdf, val1, val2, context=None):
         return ret if val1 > 1 else 1.0/ret
     else:
         raise RuntimeError, "Quadrature add not implemented for pdf %s (at %s)" % (pdf, context)
-            
+
 def doAddNuisance(datacard, args):
     if len(args) < 5:
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit add process channel name pdf value [ options ]"
     (process, channel, name, pdf, value) = args[:5]
     if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel)
+    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
     opts = args[5:]
     found = False
     errline = dict([(b,dict([(p,0) for p in datacard.exp[b]])) for b in datacard.bins])
@@ -63,7 +63,7 @@ def doDropNuisance(datacard, args):
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit drop process channel name [ options ]"
     (process, channel, name) = args[:3]
     if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel)
+    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
     opts = args[3:]
     foundProc = False
     for lsyst,nofloat,pdf,args0,errline in datacard.systs:
@@ -92,8 +92,9 @@ def doRenameNuisance(datacard, args):
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"
     (process, channel, oldname, newname) = args[:4]
     if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel)
-    opts = args[5:]
+    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    opts = args[4:]
+    foundChann, foundProc = False, False
     for lsyst,nofloat,pdf0,args0,errline0 in datacard.systs[:]:
         lsystnew = re.sub(oldname,newname,lsyst)
         if lsystnew != lsyst:
@@ -106,7 +107,6 @@ def doRenameNuisance(datacard, args):
                     if pdf2 != pdf0: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
             if not found:
                 datacard.systs.append([lsystnew,nofloat,pdf0,args0,errline2])
-            foundChann, foundProc = False, False
             for b in errline0.keys():
                 if channel == "*" or cchannel.search(b):
                     foundChann = True
@@ -114,16 +114,17 @@ def doRenameNuisance(datacard, args):
                     for p in datacard.exp[b].keys():
                         if process == "*" or cprocess.search(p):
                             foundProc = True
-                            if p in errline0[b] and errline2[b][p] not in [ 0.0, 1.0 ]:
-                                if "addq" in opts:
-                                    errline2[b][p] = quadratureAdd(pdf0, errline0[b][p], errline2[b][p], context="nuisance edit rename, args = %s" % args)
-                                elif "overwrite" in opts:
-                                    errline2[b][p] = errline0[b][p]
+                            if errline0[b][p] not in [0.0]:
+                                if p in errline0[b] and errline2[b][p] not in [ 0.0, 1.0 ]:
+                                    if "addq" in opts:
+                                        errline2[b][p] = quadratureAdd(pdf0, errline0[b][p], errline2[b][p], context="nuisance edit rename, args = %s" % args)
+                                    elif "overwrite" in opts:
+                                        errline2[b][p] = errline0[b][p]
+                                    else:
+                                        raise RuntimeError, "Can't rename nuisance with args = %s for bin %s, process %s: found existing non-null value %s, and no option 'addq' or 'overwrite' given" % (args,b,p,errline2[b][p])
                                 else:
-                                    raise RuntimeError, "Can't rename nuisance with args = %s for bin %s, process %s: found existing non-null value %s, and no option 'addq' or 'overwrite' given" % (args,b,p,errline2[b][p])
-                            else:
-                                errline2[b][p] = errline0[b][p]
-                            errline0[b][p] = 0
+                                    errline2[b][p] = errline0[b][p]
+                                errline0[b][p] = 0
                     if channel != "*" and not foundProc:
                         if "ifexists" not in opts:
                             raise RuntimeError, "Error: nuisance edit rename %s found nothing in channel %s" % (args, channel)
@@ -177,8 +178,8 @@ def doSplitNuisance(datacard, args):
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit split process channel oldname newname1 newname2 value1 value2"
     (process, channel, oldname, newname1, newname2, value1, value2) = args[:7]
     if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel)
-    opts = args[8:]
+    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    opts = args[7:]
     foundProc = False
     for lsyst,nofloat,pdf,args0,errline in datacard.systs:
         if re.match(oldname,lsyst):
@@ -214,6 +215,46 @@ def doFreezeNuisance(datacard, args):
         else:
             sys.stderr.write("Warning2: nuisance edit freeze %s found nothing\n" % args[0])
 
+def doFlipNuisance(datacard,args):
+    if len(args) < 3:
+        raise RuntimeError, "Missing arguments: the syntax is: nuisance edit flip process channel name [options: ifexists, p2n (only positive to negative), n2p (only negative to positive)]"
+    (process, channel, name) = args[:3]
+    if process != "*": cprocess = re.compile(process)
+    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    opts = args[3:]
+    if "n2p" not in opts and "p2n" not in opts:
+        raise RuntimeError, "Error: nuisance edit flip %s missed option n2p and/or p2n" % (args)
+    foundProc = False
+    for lsyst,nofloat,pdf,args0,errline in datacard.systs:
+        if re.match(name,lsyst):
+            if pdf not in ["lnN"]:
+                raise RuntimeError, "Error: nuisance edit flip %s currently not support pdftype %s" % (args,pdf)
+            for b in errline.keys():
+                if channel == "*" or cchannel.search(b):
+                    for p in datacard.exp[b]:
+                        if process == "*" or cprocess.search(p):
+                            foundProc = True
+                            if errline[b][p] not in [0., 1.]:
+                                if type(errline[b][p]) is list:
+                                    if errline[b][p][0] < 1 :
+                                        if "p2n" in opts:
+                                            errline[b][p][0] = 1./errline[b][p][0]
+                                            errline[b][p][1] = 1./errline[b][p][1]
+                                    elif errline[b][p][0] > 1:
+                                        if "n2p" in opts:
+                                            errline[b][p][0] = 1./errline[b][p][0]
+                                            errline[b][p][1] = 1./errline[b][p][1]
+                                else:
+                                    if errline[b][p] > 1:
+                                        if "p2n" in opts:  errline[b][p] = 1./errline[b][p]
+                                    elif errline[b][p] < 1:
+                                        if "n2p" in opts:  errline[b][p] = 1./errline[b][p]
+
+    if not foundProc and channel != "*":
+        if "ifexists" not in opts:
+            raise RuntimeError, "Error: nuisance edit flip %s found nothing" % (args)
+        else:
+            sys.stderr.write("Warning2: nuisance edit flip %s found nothing\n" % (args))
 
 def doEditNuisance(datacard, command, args):
     if command == "add":
@@ -228,5 +269,8 @@ def doEditNuisance(datacard, command, args):
         doSplitNuisance(datacard, args)
     elif command == "freeze":
         doFreezeNuisance(datacard, args)
+    elif command == "flip":
+        doFlipNuisance(datacard, args)
     else:
         raise RuntimeError, "Error, unknown nuisance edit command %s (args %s)" % (command, args)
+        
