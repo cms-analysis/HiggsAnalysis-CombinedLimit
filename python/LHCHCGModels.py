@@ -42,12 +42,12 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.floatMass = False
         self.add_bbH = [ "hzz" ]
-        self.bbH_pdf = "pdf_gg" 
+        self.bbH_pdf = "pdf_Higgs_gg" 
     def preProcessNuisances(self,nuisances):
         if self.add_bbH and not any(row for row in nuisances if row[0] == "QCDscale_bbH"):
             nuisances.append(("QCDscale_bbH",False, "param", [ "0", "1"], [] ) )
         if self.add_bbH and not any(row for row in nuisances if row[0] == self.bbH_pdf):
-            nuisances.append((pdf_bbH,False, "param", [ "0", "1"], [] ) )
+            nuisances.append((bbH_pdf,False, "param", [ "0", "1"], [] ) )
     def setPhysicsOptionsBase(self,physOptions):
         for po in physOptions:
             if po.startswith("bbh="):
@@ -457,6 +457,7 @@ class Lambdas(LHCHCGBaseModel):
             self.modelBuilder.factory_("expr::PW_XSscal_WH_%s(\"@0*@0*@1*@1\",lambda_Zg,lambda_WZ)" % E)
             self.modelBuilder.factory_("expr::PW_XSscal_ZH_%s(\"@0*@0\",lambda_Zg)" % E)
             self.modelBuilder.factory_("expr::PW_XSscal_ttH_%s(\"@0*@0\",lambda_tg)" % E)
+            self.modelBuilder.factory_("expr::PW_XSscal_bbH_%s(\"@0*@0*@1*@1\",lambda_Zg,lambda_bZ)" % E)
         self.decayMap_ = {
             'hww' : 'lambda_WZ',
             'hzz' : 'lambda_one',
