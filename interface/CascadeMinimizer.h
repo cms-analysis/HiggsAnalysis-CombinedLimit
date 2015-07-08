@@ -16,6 +16,8 @@ class CascadeMinimizer {
         CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi=0, int initialStrategy=0) ;
         // do a new minimization, assuming the initial state is random
         bool minimize(int verbose=0, bool cascade=true);
+        // run hesse
+        bool hesse(int verbose=0);
         // run minos
         bool minos(const RooArgSet &, int verbose = 0 );
         // do a new minimization, assuming a plausible initial state
