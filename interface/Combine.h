@@ -52,7 +52,7 @@ private:
   void addPOI(const RooArgSet *);
 
   boost::program_options::options_description statOptions_, ioOptions_, miscOptions_;
- 
+
   // statistics-related variables
   bool unbinned_, generateBinnedWorkaround_, newGen_, guessGenMode_; 
   float rMin_, rMax_;
@@ -84,7 +84,8 @@ private:
   bool noMCbonly_;
   bool floatAllNuisances_;
   bool freezeAllGlobalObs_;
-
+  std::vector<std::string> librariesToLoad_;
+  
   static TTree *tree_;
 };
 
