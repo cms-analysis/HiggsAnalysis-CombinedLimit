@@ -815,9 +815,6 @@ cacheutils::CachingSimNLL::setup_()
     RooArgList constraints;
     factorizedPdf_.reset(dynamic_cast<RooSimultaneous *>(utils::factorizePdf(*dataOriginal_->get(), *pdfclone, constraints)));
 
-    std::cout<<"[cacheutils]::[CachingSimNLL]::[setup_]::[DEBUG] factorizedPDF"<<endl;
-    factorizedPdf_->Print("V");
-    
     RooSimultaneous *simpdf = factorizedPdf_.get();
     constrainPdfs_.clear(); 
     if (constraints.getSize()) {
@@ -847,7 +844,6 @@ cacheutils::CachingSimNLL::setup_()
         params->Print("V");
         std::cout << "Obs: " << std::endl;
         dataOriginal_->get()->Print("V");
-	std::cout<<" WARNING RELEASE !!!"<<std::endl;
         factorizedPdf_.release();
         simpdf = dynamic_cast<RooSimultaneous *>(pdfclone);
     }
@@ -857,7 +853,6 @@ cacheutils::CachingSimNLL::setup_()
     pdfs_.resize(catClone->numBins(NULL), 0);
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
     datasets_.resize(pdfs_.size(), 0);
-    std::cout<<" AGAIN BEFORE SPLIT"<<endl;
     splitWithWeights(*dataOriginal_, simpdf->indexCat(), true);
     //std::cout << "Pdf " << simpdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << pdfs_.size() << " bins" << std::endl;
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
