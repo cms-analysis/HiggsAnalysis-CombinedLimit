@@ -100,6 +100,6 @@ namespace utils {
     void reorderCombinations(std::vector<std::vector<int> > &, const std::vector<int> &, const std::vector<int> &);
     std::vector<std::vector<int> > generateCombinations(const std::vector<int> &vec);
     std::vector<std::vector<int> > generateOrthogonalCombinations(const std::vector<int> &vec);
+    int countFloating(const RooArgSet &);
 }
-
 #endif

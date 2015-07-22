@@ -763,3 +763,12 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
     
     return isAnyBad;
 }
+
+int utils::countFloating(const RooArgSet &params){
+	int count=0;
+        RooLinkedListIter iter = params.iterator(); int i = 0;
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+		if (!a->isConstant()) count++;
+        }
+	return count;
+}

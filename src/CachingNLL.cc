@@ -951,7 +951,7 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
     RooArgSet obsplus(obs); obsplus.add(weight);
     if (nb != int(datasets_.size())) throw std::logic_error("Number of categories changed"); // this can happen due to bugs in RooDataSet
     std::vector<int> includeZeroWeights(nb,0); bool includeZeroWeightsAny = false;
-    if (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS")) {
+    if (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && factorizedPdf_.get()) {
         for (int ib = 0; ib < nb; ++ib) {
             catClone->setBin(ib);
             RooAbsPdf *pdf = factorizedPdf_->getPdf(catClone->getLabel());
