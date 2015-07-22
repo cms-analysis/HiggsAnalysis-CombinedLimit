@@ -259,7 +259,6 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
       if (q0 == -1) return false;
       limit = (q0 > 0 ? sqrt(2*q0) : (uncapped_ ? -sqrt(-2*q0) : 0));
   } else if (useMinos_) {
-      nullParamValues.Print("v");
       ProfiledLikelihoodTestStatOpt testStat(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), 
                                                    nullParamValues, *mc_s->GetParametersOfInterest(), RooArgList(), RooArgList(), verbose-1,
                                                    uncapped_ ? ProfiledLikelihoodTestStatOpt::signFlipDef : ProfiledLikelihoodTestStatOpt::oneSidedDef);
