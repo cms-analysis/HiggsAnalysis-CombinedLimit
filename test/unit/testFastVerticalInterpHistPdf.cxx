@@ -74,8 +74,9 @@ void testPdfs(RooStats::ModelConfig &mc, RooAbsData *data, int tries, bool perfo
         RooAbsPdf *pdf = (RooAbsPdf *) allPdfs.at(i);
         if (pdf->dependsOn(*obs) && pdf->InheritsFrom("VerticalInterpHistPdf")) {
             std::cout << "Will use pdf " << pdf->GetName() << " (" << pdf->ClassName() << ")" << std::endl;
+#if 0 // --- no longer supported. why?
             VerticalInterpHistPdf &oldpdf = dynamic_cast<VerticalInterpHistPdf &>(*pdf);
-            FastVerticalInterpHistPdf newpdf(oldpdf);
+            FastVerticalInterpHistPdf newpdf(oldpdf,"nil");
             if (performances) {
                 double tslow = testPerformances(oldpdf,*data,*nuisdata);
                 double tfast = testPerformances(newpdf,*data,*nuisdata);
@@ -83,6 +84,7 @@ void testPdfs(RooStats::ModelConfig &mc, RooAbsData *data, int tries, bool perfo
             } else {
                 testFastHistPdf(oldpdf, newpdf, *data, *nuisdata);
             }
+#endif 
         }
     }
 }

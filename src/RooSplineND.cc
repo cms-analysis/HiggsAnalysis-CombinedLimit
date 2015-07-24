@@ -1,9 +1,10 @@
 #include "../interface/RooSplineND.h"
 
-RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char *fName, double eps, std::string cutstring) :
+RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char *fName, double eps, bool rescale, std::string cutstring) :
   RooAbsReal(name,title),
   vars_("vars","Variables", this)
 {
+  rescaleAxis = rescale;
   ndim_ = vars.getSize();
   int nentries  = tree->GetEntries();
 
@@ -40,8 +41,8 @@ RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, 
     //std::cout <<"Adding point " << i << ", ";
     for (int k=0;k<ndim_;k++){
       float cval = b_map[k];
-      //if (cval < r_map[k].first) r_map[k].first=cval;
-      //if (cval > r_map[k].second) r_map[k].second=cval;
+      if (cval < r_map[k].first) r_map[k].first=cval;
+      if (cval > r_map[k].second) r_map[k].second=cval;
       v_map[k][nselect] = (double)cval;
       //std::cout << "x" << k << "=" << cval << ", ";
     }
@@ -53,7 +54,7 @@ RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, 
   keep_points->Reset();
   tree->SetEventList(0);
   // Try to re-scale axis to even out dimensions.
-  // axis_pts_ = TMath::Power(M_,1./ndim_);
+  axis_pts_ = TMath::Power(M_,1./ndim_);
   eps_= eps;
   calculateWeights(F_vec); 
   delete b_map;	
@@ -82,12 +83,13 @@ RooSplineND::RooSplineND(const RooSplineND& other, const char *name) :
   w_    = other.w_;
   v_map = other.v_map; 
   r_map = other.r_map;
-
+  
+  rescaleAxis=other.rescaleAxis;
 }
 //_____________________________________________________________________________
 // Clone Constructor
 RooSplineND::RooSplineND(const char *name, const char *title, const RooListProxy &vars, 
- int ndim, int M, double eps, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > &rmap,double wmean, double wrms) :
+ int ndim, int M, double eps, bool rescale, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > &rmap,double wmean, double wrms) :
  RooAbsReal(name, title),vars_("vars",this,RooListProxy()) 
 {
 
@@ -109,13 +111,14 @@ RooSplineND::RooSplineND(const char *name, const char *title, const RooListProxy
   w_rms  = wrms;
   w_mean = wrms;
   
+  rescaleAxis = rescale;
 }
 
 //_____________________________________________________________________________
 TObject *RooSplineND::clone(const char *newname) const 
 {
     return new RooSplineND(newname, this->GetTitle(), 
-	vars_,ndim_,M_,eps_,w_,v_map,r_map,w_mean,w_rms);
+	vars_,ndim_,M_,eps_,rescaleAxis,w_,v_map,r_map,w_mean,w_rms);
 }
 //_____________________________________________________________________________
 RooSplineND::~RooSplineND() 
@@ -189,8 +192,9 @@ double RooSplineND::getDistSquare(int i, int j){
   for (int k=0;k<ndim_;k++){
     double v_i = v_map[k][i];
     double v_j = v_map[k][j];
-    //double dk = axis_pts_*(v_i-v_j)/(r_map[k].second-r_map[k].first);
-    double dk = (v_i-v_j);
+    double dk; 
+    if (rescaleAxis) dk = axis_pts_*(v_i-v_j)/(r_map[k].second-r_map[k].first);
+    else  dk = (v_i-v_j);
     //std::cout << "dimension - " << k << ", Values at pts " << i <<"," << j << " are "<<v_i<< ","<<v_j<< " Distance " <<dk<<std::endl;
     D += dk*dk;
   }
@@ -204,8 +208,9 @@ double RooSplineND::getDistFromSquare(int i) const{
     double v_i = v_map[k][i];
     RooAbsReal *v = (RooAbsReal*)vars_.at(k);
     double v_j = v->getVal();
-    //double dk = axis_pts_*(v_i-v_j)/(r_map[k].second-r_map[k].first);
-    double dk = (v_i-v_j);
+    double dk; 
+    if (rescaleAxis) dk = axis_pts_*(v_i-v_j)/(r_map[k].second-r_map[k].first);
+    else dk = (v_i-v_j);
     D += dk*dk;
   }
   return D; // only ever use square of distance!

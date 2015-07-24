@@ -74,16 +74,19 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
 bool CascadeMinimizer::improveOnce(int verbose) 
 {
     static int optConst = runtimedef::get("MINIMIZER_optimizeConst");
+    static int rooFitOffset = runtimedef::get("MINIMIZER_rooFitOffset");
     std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
     std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
     bool outcome = false;
     if (oldFallback_){
-        if (optConst) minimizer_->optimizeConst(std::min(0,optConst));
+        if (optConst) minimizer_->optimizeConst(std::max(0,optConst));
+        if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
         outcome = nllutils::robustMinimize(nll_, *minimizer_, verbose, setZeroPoint_);
     } else {
         cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
         if (simnll) simnll->setZeroPoint();
-        if (optConst) minimizer_->optimizeConst(std::min(0,optConst));
+        if (optConst) minimizer_->optimizeConst(std::max(0,optConst));
+        if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
         int status = minimizer_->minimize(myType.c_str(), myAlgo.c_str());
         if (simnll) simnll->clearZeroPoint();
         outcome = (status == 0);
@@ -177,6 +180,7 @@ are freely floating. We should cut them down to find which ones are
 bool CascadeMinimizer::minimize(int verbose, bool cascade) 
 {
     static int optConst = runtimedef::get("MINIMIZER_optimizeConst");
+    static int rooFitOffset = runtimedef::get("MINIMIZER_rooFitOffset");
     if (runtimedef::get("CMIN_CENSURE")) {
         RooMsgService::instance().setStreamStatus(0,kFALSE);
         RooMsgService::instance().setStreamStatus(1,kFALSE);
@@ -204,7 +208,8 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         minimizer_->setStrategy(preFit_-1);
         cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
         if (simnll) simnll->setZeroPoint();
-        if (optConst) minimizer_->optimizeConst(std::min(0,optConst));
+        if (optConst) minimizer_->optimizeConst(std::max(0,optConst));
+        if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
         minimizer_->minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
         if (simnll) simnll->clearZeroPoint();
         utils::setAllConstant(frozen,false);

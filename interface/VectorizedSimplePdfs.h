@@ -8,7 +8,7 @@
 
 class VectorizedExponential {
     public:
-        VectorizedExponential(const RooExponential &pdf, const RooAbsData &data) ;
+        VectorizedExponential(const RooExponential &pdf, const RooAbsData &data, bool includeZeroWeights=false) ;
         void fill(std::vector<Double_t> &out) const ;
     private:
         const RooRealVar * x_;
@@ -19,7 +19,7 @@ class VectorizedExponential {
 
 class VectorizedPower {
     public:
-        VectorizedPower(const RooPower &pdf, const RooAbsData &data) ;
+        VectorizedPower(const RooPower &pdf, const RooAbsData &data, bool includeZeroWeights=false) ;
         void fill(std::vector<Double_t> &out) const ;
     private:
         const RooRealVar * x_;

@@ -312,9 +312,12 @@ RooMinimizerFcnOpt::DoEval(const double * x) const
       }
   }
 
-  // Calculate the function for these parameters
+  // Calculate the function for these parameters  
+  RooAbsReal::setHideOffset(kFALSE) ;
   double fvalue = _funct->getVal();
-  if (RooAbsPdf::evalError() || RooAbsReal::numEvalErrors()>0) {
+  RooAbsReal::setHideOffset(kTRUE) ;
+
+  if (RooAbsPdf::evalError() || RooAbsReal::numEvalErrors()>0 || fvalue>1e30) {
 
     if (_printEvalErrors>=0) {
 
@@ -342,7 +345,7 @@ RooMinimizerFcnOpt::DoEval(const double * x) const
     } 
 
     if (_doEvalErrorWall) {
-      fvalue = _maxFCN ;
+      fvalue = _maxFCN+1 ;
     }
 
     RooAbsPdf::clearEvalError() ;
@@ -356,10 +359,13 @@ RooMinimizerFcnOpt::DoEval(const double * x) const
   if (_logfile) 
     (*_logfile) << setprecision(15) << fvalue << setprecision(4) << endl;
   if (_verbose) {
-    cout << "\nprevFCN = " << setprecision(10) 
+    cout << "\nprevFCN" << (_funct->isOffsetting()?"-offset":"") << " = " << setprecision(10) 
          << fvalue << setprecision(4) << "  " ;
     cout.flush() ;
   }
+
+  _evalCounter++ ;
+
   return fvalue;
 }
 

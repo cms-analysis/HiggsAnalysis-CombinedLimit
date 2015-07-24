@@ -161,7 +161,7 @@ void testCachingSimTestStat(RooStats::ModelConfig &mc, RooAbsData *data, int nat
     mc.GetParametersOfInterest()->snapshot(snap);
     snap.setRealValue("r", 1);
     snap.Print("V");
-    ProfiledLikelihoodTestStatOpt testStat(*mc.GetObservables(), *pdf, mc.GetNuisanceParameters(), snap, RooArgList(), RooArgList(), 0);
+    ProfiledLikelihoodTestStatOpt testStat(*mc.GetObservables(), *pdf, mc.GetNuisanceParameters(), *mc.GetParametersOfInterest(), snap, RooArgList(), RooArgList(), 0);
     std::cout << "value: " << testStat.Evaluate(*data, snap) << std::endl;
 }
 

@@ -61,6 +61,15 @@ void cacheutils::CachingMultiPdf::setDataDirty()
     }
 }
 
+void cacheutils::CachingMultiPdf::setIncludeZeroWeights(bool includeZeroWeights) 
+{
+    for (CachingPdfBase &pdf : cachingPdfs_) {
+        pdf.setIncludeZeroWeights(includeZeroWeights);
+    }
+}
+
+
+
 cacheutils::CachingAddPdf::CachingAddPdf(const RooAddPdf &pdf, const RooArgSet &obs) :
     pdf_(&pdf)
 {
@@ -111,6 +120,13 @@ void cacheutils::CachingAddPdf::setDataDirty()
 {
     for (CachingPdfBase &pdf : cachingPdfs_) {
         pdf.setDataDirty();
+    }
+}
+
+void cacheutils::CachingAddPdf::setIncludeZeroWeights(bool includeZeroWeights) 
+{
+    for (CachingPdfBase &pdf : cachingPdfs_) {
+        pdf.setIncludeZeroWeights(includeZeroWeights);
     }
 }
 
