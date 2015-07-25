@@ -99,6 +99,22 @@ void RooMorphingPdf::Init() const {
   }
   cache_ = FastHisto(TH1F("tmp", "tmp", target_axis_.GetNbins(), 0,
                           static_cast<float>(target_axis_.GetNbins())));
+
+
+  mc_.nbn = morph_axis_.GetNbins();
+  mc_.xminn = (*morph_axis_.GetXbins())[0];
+  mc_.xmaxn = (*morph_axis_.GetXbins())[mc_.nbn];
+
+  mc_.sigdis1.clear();
+  mc_.sigdis2.clear();
+  mc_.sigdisn.clear();
+  mc_.xdisn.clear();
+  mc_.sigdisf.clear();
+  mc_.sigdis1.resize(1 + mc_.nbn);
+  mc_.sigdis2.resize(1 + mc_.nbn);
+  mc_.sigdisn.resize(2 * (1 + mc_.nbn));
+  mc_.xdisn.resize(2 * (1 + mc_.nbn));
+  mc_.sigdisf.resize(mc_.nbn + 1);
   init_ = true;
 }
 
@@ -158,7 +174,6 @@ Double_t RooMorphingPdf::evaluate() const {
     }
   } else {
     if (!(p1->cacheIsGood() && p2->cacheIsGood() && mh == current_mh_)) {
-      //std::cout << "Need to morph!\n";
 
       p1->evaluate();
       p2->evaluate();
@@ -186,17 +201,7 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
   // Supports the cases of non-equidistant as well as equidistant binning
   // and also the case that binning of histograms 1 and 2 is different.
 
-  // AG: We can enforce that these will never change during the lifetime of the
-  // PDF, could store as class data members instead
-  // Also, axis1 == axis2 and nb1 == nb2
-  Int_t nb1 = morph_axis_.GetNbins();
-  Int_t nb2 = morph_axis_.GetNbins();
-  Int_t nbn = morph_axis_.GetNbins();
-
   TArrayD const* bedgesn = morph_axis_.GetXbins();
-
-  Double_t xminn = (*bedgesn)[0];
-  Double_t xmaxn = (*bedgesn)[nbn];
 
   // ......The weights (wt1,wt2) are the complements of the "distances" between
   //       the values of the parameters at the histograms and the desired
@@ -226,7 +231,7 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
     std::cout << "th1morph - Weights: " << wt1 << " " << wt2 << std::endl;
 
   if (idebug >= 1)
-    std::cout << "New hist: " << nbn << " " << xminn << " " << xmaxn
+    std::cout << "New hist: " << mc_.nbn << " " << mc_.xminn << " " << mc_.xmaxn
               << std::endl;
 
   // Treatment for empty histograms: Return an empty histogram
@@ -235,7 +240,7 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
   if (hist1.Integral() <= 0 || hist2.Integral() <= 0) {
     std::cout << "Warning! th1morph detects an empty input histogram. Empty "
             "interpolated histogram returned: " << std::endl;
-    return (TH1F("morphed", "morphed", nbn, xminn, xmaxn));
+    return (TH1F("morphed", "morphed", mc_.nbn, mc_.xminn, mc_.xmaxn));
   }
   if (idebug >= 1)
     std::cout << "Input histogram content sums: " << hist1.Integral() << " "
@@ -255,54 +260,52 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
   // Float_t const* dist1 = hist1.GetArray();
   // Float_t const* dist2 = hist2.GetArray();
 
-  // AG: can re-use these too if nb1 and nb2 are fixed
-  Double_t *sigdis1 = new Double_t[1+nb1];
-  Double_t *sigdis2 = new Double_t[1+nb2];
-  Double_t *sigdisn = new Double_t[2+nb1+nb2];
-  Double_t *xdisn = new Double_t[2+nb1+nb2];
-  Double_t *sigdisf = new Double_t[nbn+1];
+  // AG: Use already-allocated arrays
+  std::fill(mc_.sigdis1.begin(), mc_.sigdis1.end(), 0.);
+  std::fill(mc_.sigdis2.begin(), mc_.sigdis2.end(), 0.);
+  std::fill(mc_.sigdisn.begin(), mc_.sigdisn.end(), 0.);
+  std::fill(mc_.xdisn.begin(), mc_.xdisn.end(), 0.);
+  std::fill(mc_.sigdisf.begin(), mc_.sigdisf.end(), 0.);
+  Double_t *sigdis1 = &(mc_.sigdis1[0]);
+  Double_t *sigdis2 = &(mc_.sigdis2[0]);
+  Double_t *sigdisn = &(mc_.sigdisn[0]);
+  Double_t *xdisn = &(mc_.xdisn[0]);
+  Double_t *sigdisf = &(mc_.sigdisf[0]);
 
-  for (Int_t i = 0; i < 2 + nb1 + nb2; i++)
-    xdisn[i] = 0;  // Start with empty edges
   sigdis1[0] = 0;
   sigdis2[0] = 0;  // Start with cdf=0 at left edge
 
-  for (Int_t i = 0; i < nb1; i++) {  // Remember, bin i has edges at i-1 and
+  for (Int_t i = 0; i < mc_.nbn; i++) {  // Remember, bin i has edges at i-1 and
     sigdis1[i+1] = hist1[i];               // i and i runs from 1 to nb.
-  }
-  for (Int_t i = 0; i < nb2; i++) {
     sigdis2[i+1] = hist2[i];
   }
 
   if (idebug >= 3) {
-    for (Int_t i = 0; i < nb1; i++) {
+    for (Int_t i = 0; i < mc_.nbn; i++) {
       std::cout << i << " dist1" << hist1[i] << std::endl;
     }
-    for (Int_t i = 0; i < nb2; i++) {
+    for (Int_t i = 0; i < mc_.nbn; i++) {
       std::cout << i << " dist2" << hist2[i] << std::endl;
     }
   }
 
   // ......Normalize the distributions to 1 to obtain pdf's and integrate
   //      (sum) to obtain cdf's.
-
-  // AG: We can also pre-compute these CDF values for each input histo
-
   Double_t total = 0;
-  for (Int_t i = 0; i < nb1 + 1; i++) {
+  for (Int_t i = 0; i < mc_.nbn + 1; i++) {
     total += sigdis1[i];
   }
   if (idebug >= 1) std::cout << "Total histogram 1: " << total << std::endl;
-  for (Int_t i = 1; i < nb1 + 1; i++) {
+  for (Int_t i = 1; i < mc_.nbn + 1; i++) {
     sigdis1[i] = sigdis1[i] / total + sigdis1[i - 1];
   }
 
   total = 0.;
-  for (Int_t i = 0; i < nb2 + 1; i++) {
+  for (Int_t i = 0; i < mc_.nbn + 1; i++) {
     total += sigdis2[i];
   }
   if (idebug >= 1) std::cout << "Total histogram 22: " << total << std::endl;
-  for (Int_t i = 1; i < nb2 + 1; i++) {
+  for (Int_t i = 1; i < mc_.nbn + 1; i++) {
     sigdis2[i] = sigdis2[i] / total + sigdis2[i - 1];
   }
 
@@ -314,8 +317,8 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
   // *      above that has the same integral as the last edge.
   // *
 
-  Int_t ix1l = nb1;
-  Int_t ix2l = nb2;
+  Int_t ix1l = mc_.nbn;
+  Int_t ix2l = mc_.nbn;
   while (sigdis1[ix1l - 1] >= sigdis1[ix1l]) {
     ix1l = ix1l - 1;
   }
@@ -483,8 +486,8 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
   // *......We set all the bins following the final edge to the value
   // *      of the final edge.
 
-  x = xmaxn;
-  Int_t ix = nbn;
+  x = mc_.xmaxn;
+  Int_t ix = mc_.nbn;
 
   if (idebug >= 1)
     std::cout << "------> Any final bins to set? " << x << " " << xdisn[nx3]
@@ -536,7 +539,7 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
     } else if (x > xdisn[nx3]) {
       y = 1.;
     } else {
-      while (xdisn[ix3 + 1] <= x && ix3 < 2 * nbn) {
+      while (xdisn[ix3 + 1] <= x && ix3 < 2 * mc_.nbn) {
         ix3 = ix3 + 1;
       }
       Double_t dx2 = morph_axis_.GetBinWidth(morph_axis_.FindFixBin(x));
@@ -566,22 +569,14 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
   // .....Differentiate interpolated cdf and return renormalized result in
   //      new histogram.
 
-  // TH1F morphedhist("morphed", "morphed", nbn, 0, static_cast<float>(nbn));
+  // TH1F morphedhist("morphed", "morphed", mc_.nbn, 0, static_cast<float>(mc_.nbn));
 
-  FastTemplate morphedhist(nbn);
+  FastTemplate morphedhist(mc_.nbn);
 
-  for (ix = nbn - 1; ix > -1; ix--) {
+  for (ix = mc_.nbn - 1; ix > -1; ix--) {
     y = sigdisf[ix + 1] - sigdisf[ix];
     morphedhist[ix] = y;
   }
-
-  // ......Clean up the temporary arrays we allocated.
-
-  delete[] sigdis1;
-  delete[] sigdis2;
-  delete[] sigdisn;
-  delete[] xdisn;
-  delete[] sigdisf;
 
   // ......All done, return the result.
 

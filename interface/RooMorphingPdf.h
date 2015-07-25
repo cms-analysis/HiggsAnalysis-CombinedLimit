@@ -9,15 +9,26 @@
 #include "RooAbsReal.h"
 #include "TH1F.h"
 #include "Rtypes.h"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include "../interface/VerticalInterpHistPdf.h"
-#pragma GCC diagnostic pop
 
 class RooMorphingPdf : public RooAbsPdf {
  protected:
+
+  // Store morphing parameters and allocate arrays
+  // so we don't have to do it every time in ::morph
+  struct MorphCache {
+    Int_t nbn;
+    Double_t xminn;
+    Double_t xmaxn;
+    std::vector<Double_t> sigdis1;
+    std::vector<Double_t> sigdis2;
+    std::vector<Double_t> sigdisn;
+    std::vector<Double_t> xdisn;
+    std::vector<Double_t> sigdisf;
+  };
+
+  mutable MorphCache mc_; //! not to be serialized
+
   RooRealProxy x_;                // The x-axis variable
   RooRealProxy mh_;               // The mass variable
   RooListProxy pdfs_;             // pdfs
@@ -34,7 +45,6 @@ class RooMorphingPdf : public RooAbsPdf {
   typedef std::map<double, FastVerticalInterpHistPdf2*> MassMap;
   typedef MassMap::const_iterator MassMapIter;
   mutable MassMap hmap_;          //! not to be serialized
-
   mutable bool init_;             //! not to be serialized
   mutable FastHisto cache_;       //! not to be serialized
 
