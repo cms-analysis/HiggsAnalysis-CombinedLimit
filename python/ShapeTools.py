@@ -44,11 +44,14 @@ class ShapeBuilder(ModelBuilder):
             #print "  + Getting model for bin %s" % (b)
             pdfs   = ROOT.RooArgList(); bgpdfs   = ROOT.RooArgList()
             coeffs = ROOT.RooArgList(); bgcoeffs = ROOT.RooArgList()
+            if self.options.bbb:
+                (binVarList, binScaleList) = self.createBBLiteVars(b)
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
                 #print "  +--- Getting pdf for %s in bin %s" % (p,b)
                 (pdf,coeff) = (self.getPdf(b,p), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
+                if (self.options.bbb): pdf.setBinParams(binVarList, binScaleList)
                 if self.options.optimizeExistingTemplates:
                     pdf1 = self.optimizeExistingTemplates(pdf)
                     if (pdf1 != pdf):
@@ -503,6 +506,8 @@ class ShapeBuilder(ModelBuilder):
         rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", self.out.maxbins, 0.0, float(self.out.maxbins))
         for i in range(1,min(shape.GetNbinsX(),self.out.maxbins)+1): 
             rebinh1.SetBinContent(i, shape.GetBinContent(i))
+            # Also copy the bin error - needed for creating bbb terms later
+            rebinh1.SetBinError(i, shape.GetBinError(i))
         rebinh1._original_bins = shape.GetNbinsX()
         return rebinh1;
     def shape2Data(self,shape,channel,process,_cache={}):
@@ -601,4 +606,33 @@ class ShapeBuilder(ModelBuilder):
                 #print "Optimize %s in \t" % (pdf.GetName()),; ret.Print("")
                 return ret
         return pdf
+    def createBBLiteVars(self, b):
+        print 'Doing bb-lite for bin ' + b
+        procs = [p for p in self.DC.exp[b].keys() if self.DC.exp[b][p] != 0 and self.physics.getYieldScale(b,p) != 0]
+        print procs
+        ROOT.TH1.SetDefaultSumw2(True)
+        hsum = self.getShape(b,procs[0]).Clone()
+        for p in procs[1:]:
+            hsum.Add(self.getShape(b,p))
+        hsum.Print("range")
+        nbins = hsum.GetNbinsX()
+        binVarList = ROOT.RooArgList()
+        binScaleList = ROOT.RooArgList()
+        for x in range(nbins):
+            binvar = b + '_bbblite_' + str(x)
+            print 'Creating bbb param ' + binvar                
+            self.doObj("%s_Pdf" % binvar, "SimpleGaussianConstraint", "%s[-4,4], %s_In[0,-4,4], %g" % (binvar,binvar,1))
+            self.out.var(binvar).setConstant(False)
+            self.out.var(binvar).setVal(0)
+            self.out.var(binvar).setError(1)
+            self.globalobs.append("%s_In" % binvar)
+            self.out.nuisVars.add(self.out.var(binvar))
+            self.out.nuisPdfs.add(self.out.pdf(binvar+"_Pdf"))
+            scalevar = (hsum.GetBinError(x+1) / hsum.GetBinContent(x+1)) if hsum.GetBinContent(x+1) > 0 else 0.
+            self.doObj("%s_Scale" % binvar, "ConstVar", "%g" % (scalevar))
+            binVarList.add(self.out.var(binvar))
+            binScaleList.add(self.out.function(binvar+'_Scale'))
+        binVarList.Print("v")
+        binScaleList.Print("v")
+        return (binVarList, binScaleList)
 

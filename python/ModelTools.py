@@ -81,8 +81,40 @@ class ModelBuilder(ModelBuilderBase):
 
         self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
+
+        ## This part used to be at the end of doNuisances
+        ## We now attach nuisPdfs and nuisVars to self.out
+        ## so that we can access them in in the shape part
+        if self.options.bin:
+            nuisPdfs = ROOT.RooArgList()
+            nuisVars = ROOT.RooArgSet()
+            for (n,nf,p,a,e) in self.DC.systs:
+                nuisVars.add(self.out.var(n))
+                nuisPdfs.add(self.out.pdf(n+"_Pdf"))
+            self.out.nuisPdfs = nuisPdfs
+            self.out.nuisVars = nuisVars
+
         self.doExpectedEvents()
         self.doIndividualModels()
+
+        ## Do the last part of doNuisances() here instead
+        if self.options.bin:
+            self.out.defineSet("nuisances", self.out.nuisVars)
+            self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", self.out.nuisPdfs)
+            self.out._import(self.out.nuisPdf)
+            gobsVars = ROOT.RooArgSet()
+            for g in self.globalobs: gobsVars.add(self.out.var(g))
+            self.out.defineSet("globalObservables", gobsVars)
+        else: # doesn't work for too many nuisances :-(
+            self.doSet("nuisances", ",".join(["%s"    % n for (n,nf,p,a,e) in self.DC.systs]))
+            self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,nf,p,a,e) in self.DC.systs]))
+            self.doSet("globalObservables", ",".join(self.globalobs))
+        for groupName,nuisanceNames in self.DC.groups.iteritems():
+            nuisanceargset = ROOT.RooArgSet()
+            for nuisanceName in nuisanceNames:
+                nuisanceargset.add(self.out.var(nuisanceName))
+            self.out.defineSet("group_%s"%groupName,nuisanceargset)
+
         self.doCombination()
         self.physics.done()
         if self.options.bin:
@@ -97,7 +129,7 @@ class ModelBuilder(ModelBuilderBase):
     def doNuisances(self):
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
-        globalobs = []
+        self.globalobs = []
         # Prepare a dictionary of which group a certain nuisance belongs to
         groupsFor = {}
         existingNuisanceNames = tuple(syst[0] for syst in self.DC.systs)
@@ -128,7 +160,7 @@ class ModelBuilder(ModelBuilderBase):
                       self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True);# Use existing constraint since it could be a param
                 self.out.var(n).setVal(0)
                 self.out.var(n).setError(1) 
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
                 if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
@@ -143,7 +175,7 @@ class ModelBuilder(ModelBuilderBase):
                 if val == 0: raise RuntimeError, "Error: line %s contains all zeroes"
                 theta = val*val; kappa = 1/theta
                 self.doObj("%s_Pdf" % n, "Gamma", "%s[1,%f,%f], %s_In[%g,%g,%g], %s_scaling[%g], 0" % (n, max(0.01,1-5*val), 1+5*val, n, kappa, 1, 2*kappa+4, n, theta))
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "gmN":
                 if False:
@@ -169,7 +201,7 @@ class ModelBuilder(ModelBuilderBase):
                         #print "Poisson(maxObs = %d, %f) = %g > 1e-12" % (maxObs, args[0]+1, ROOT.TMath.Poisson(maxObs, args[0]+1))
                         maxObs += (sqrt(args[0]) if args[0] > 10 else 2);
                     self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,%f,%f], %s[%f,%f,%f], 1" % (n,args[0],minObs,maxObs,n,args[0]+1,minExp,maxExp))
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "trG":
                 trG_min = -7; trG_max = +7;
@@ -179,7 +211,7 @@ class ModelBuilder(ModelBuilderBase):
                         if v < 0 and 1.0 + trG_max * v < 0: trG_max = -1.0/v;
                 r = "%f,%f" % (trG_min,trG_max);
                 self.doObj("%s_Pdf" % n, "Gaussian", "%s[0,%s], %s_In[0,%s], 1" % (n,r,n,r));
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "lnU":
@@ -199,7 +231,7 @@ class ModelBuilder(ModelBuilderBase):
                     self.doObj("%s_Pdf" % n, ROOFIT_EXPR_PDF, "'1/(2*(1+exp(%f*((@0-@1)-1)))*(1+exp(-%f*((@0-@1)+1))))', %s[0,%s], %s_In[0,%s]" % ( args[0] , args[0] , n, r, n, r)   );
                 else:
                     self.doObj("%s_Pdf" % n, ROOFIT_EXPR_PDF, "'1/(2*(1+exp(%f*(@0-1)))*(1+exp(-%f*(@0+1))))', %s[0,%s], %s_In[0,%s]"  % ( args[0] , args[0] , n, r , n, r)   );
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "param":
@@ -247,7 +279,7 @@ class ModelBuilder(ModelBuilderBase):
                     #self.out.var(n).setError(sigma)
                     self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]),True)
                     self.out.var("%s_In" % n).setConstant(True)
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 #if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
             if nofloat: 
@@ -260,29 +292,6 @@ class ModelBuilder(ModelBuilderBase):
                 for groupName in groupNames:
                     self.out.var(n).setAttribute('group_'+groupName,True)
             #self.out.var(n).Print('V')
-        if self.options.bin:
-            nuisPdfs = ROOT.RooArgList()
-            nuisVars = ROOT.RooArgSet()
-            for (n,nf,p,a,e) in self.DC.systs:
-                nuisVars.add(self.out.var(n))
-                nuisPdfs.add(self.out.pdf(n+"_Pdf"))
-            self.out.defineSet("nuisances", nuisVars)
-            self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", nuisPdfs)
-            self.out._import(self.out.nuisPdf)
-            self.out.nuisPdfs = nuisPdfs
-            gobsVars = ROOT.RooArgSet()
-            for g in globalobs: gobsVars.add(self.out.var(g))
-            self.out.defineSet("globalObservables", gobsVars)
-        else: # doesn't work for too many nuisances :-(
-            self.doSet("nuisances", ",".join(["%s"    % n for (n,nf,p,a,e) in self.DC.systs]))
-            self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,nf,p,a,e) in self.DC.systs]))
-            self.doSet("globalObservables", ",".join(globalobs))
-	
-        for groupName,nuisanceNames in self.DC.groups.iteritems():
-	    nuisanceargset = ROOT.RooArgSet()
-            for nuisanceName in nuisanceNames:
-		nuisanceargset.add(self.out.var(nuisanceName))
-	    self.out.defineSet("group_%s"%groupName,nuisanceargset)
 
     def doExpectedEvents(self):
         self.doComment(" --- Expected events in each bin, for each process ----")
