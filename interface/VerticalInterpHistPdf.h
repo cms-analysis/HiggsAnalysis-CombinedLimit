@@ -86,8 +86,6 @@ public:
   /// Must be public, for serialization
   struct Morph { FastTemplate sum; FastTemplate diff; };
 
-  bool cacheIsGood() const { return _sentry.good() && _init; }
-
   friend class FastVerticalInterpHistPdf2Base;
 protected:
   RooRealProxy   _x;
@@ -146,8 +144,6 @@ public:
 
   Bool_t hasCache()     const { return _cache.size() > 0; }
   Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
-
-  FastHisto const& getCache() const { return _cache; }
   friend class FastVerticalInterpHistPdfV;
   friend class FastVerticalInterpHistPdf2;
 protected:
@@ -265,8 +261,6 @@ protected:
 
   // to check if parameters change
   mutable SimpleCacheSentry _sentry; //! not to be serialized
-
-
 
   // For additive morphing, histograms of (fUp-f0)+(fDown-f0) and (fUp-f0)-(fDown-f0)
   // For multiplicative morphing, log(fUp/f0)+log(fDown/f0),  log(fUp/f0)-log(fDown/f0)
