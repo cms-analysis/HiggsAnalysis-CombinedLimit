@@ -82,8 +82,6 @@ void RooMorphingPdf::SetAxisInfo() {
 void RooMorphingPdf::Init() const {
   hmap_.clear();
   if (masses_.size() != unsigned(pdfs_.getSize())) {
-    // std::cout << "Number of mass points: " << masses_.size() << "\n";
-    // std::cout << "Number of pdfs: " << pdfs_.getSize() << "\n";
     throw std::runtime_error(
         "RooMorphingPdf: Number of mass points differs from the number of "
         "stored pdfs!");
@@ -95,6 +93,12 @@ void RooMorphingPdf::Init() const {
       throw std::runtime_error(
           "RooMorphingPdf: Supplied pdf is not of type "
           "FastVerticalInterpHistPdf2");
+    tpdf->evaluate();
+    if (tpdf->cache().size() != unsigned(morph_axis_.GetNbins())) {
+      throw std::runtime_error(
+          "RooMorphingPdf: Component pdfs must have the same number of bins as "
+          "the TAxis supplied for morphing");
+    }
     hmap_[masses_[i]] = tpdf;
   }
   cache_ = FastHisto(TH1F("tmp", "tmp", target_axis_.GetNbins(), 0,
@@ -166,8 +170,8 @@ Double_t RooMorphingPdf::evaluate() const {
     if (!(p1->cacheIsGood() && mh == current_mh_)) {
       p1->evaluate();
       cache_.Clear();
-      for (unsigned i = 0; i < p1->getCache().size(); ++i) {
-        cache_[rebin_[i]] += p1->getCache()[i];
+      for (unsigned i = 0; i < p1->cache().size(); ++i) {
+        cache_[rebin_[i]] += p1->cache()[i];
       }
       cache_.CropUnderflows();
       cache_.Normalize();
@@ -179,7 +183,7 @@ Double_t RooMorphingPdf::evaluate() const {
       p2->evaluate();
 
       FastTemplate result =
-          morph(p1->getCache(), p2->getCache(), mh_lo, mh_hi, mh);
+          morph(p1->cache(), p2->cache(), mh_lo, mh_hi, mh);
       cache_.Clear();
       for (unsigned i = 0; i < result.size(); ++i) {
         cache_[rebin_[i]] += result[i];

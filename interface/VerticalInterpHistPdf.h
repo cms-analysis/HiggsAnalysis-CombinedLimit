@@ -311,7 +311,7 @@ public:
   virtual void setActiveBins(unsigned int bins) ;
   Double_t evaluate() const ;
 
-  FastHisto const& getCache() const { return _cache; }
+  FastHisto const& cache() const { return _cache; }
 
   friend class FastVerticalInterpHistPdf2V;
 protected:
