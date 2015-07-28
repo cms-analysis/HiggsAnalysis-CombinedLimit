@@ -30,6 +30,8 @@ class Datacard():
         self.hasShape = False
         ## dirct of {name of uncert, boolean to indicate whether it is a flat parametric uncertainty or not}
         self.flatParamNuisances = {}
+        self.rateParams = {}
+        self.rateParamsOrder = [] # important to maintain order user puts in datacard
 
     def list_of_bins(self) :
         """

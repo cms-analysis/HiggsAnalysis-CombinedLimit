@@ -177,6 +177,11 @@ def parseCard(file, options):
                 ret.flatParamNuisances[lsyst] = True
                 #for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
                 continue
+            elif pdf == "rateParam":
+                if len(args) > 6: raise RuntimeError, "Directives of type 'rateParam' can only have a single channel. name rateParam channel process [init / expression vars]. repeat if rate is to affect multiple channels"
+		if len(f)==5: ret.rateParams["%sAND%s"%(f[2],f[3])] = [lsyst,f[4],0]
+		elif len(f)==6: ret.rateParams["%sAND%s"%(f[2],f[3])] = [lsyst,f[4],f[5],1]
+                continue
             elif pdf=="discrete":
                 args = f[2:]
                 ret.discretes.append(lsyst)
@@ -255,7 +260,7 @@ def parseCard(file, options):
     syst2 = []
     for lsyst,nofloat,pdf,args,errline in ret.systs:
         nonNullEntries = 0 
-        if pdf == "param" or pdf=="discrete": # this doesn't have an errline
+        if pdf == "param" or pdf=="discrete" or pdf=="rateParam": # this doesn't have an errline
             syst2.append((lsyst,nofloat,pdf,args,errline))
             continue
         for (b,p,s) in ret.keyline:
