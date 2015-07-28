@@ -1,6 +1,7 @@
 #ifndef SimplePoissonConstraint_h
 #define SimplePoissonConstraint_h
 
+#include <cmath>
 #include <RooPoisson.h>
 
 class SimplePoissonConstraint : public RooPoisson {
