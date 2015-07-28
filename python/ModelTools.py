@@ -337,7 +337,7 @@ class ModelBuilder(ModelBuilderBase):
                     raise RuntimeError, "Physics model returned something which is neither a name, nor 0, nor 1."
 
 		# look for rate param for this bin 
-		if "%s_%s"%(b,p) in self.DC.rateParams.keys():
+		if "%sAND%s"%(b,p) in self.DC.rateParams.keys():
 		    argu = self.DC.rateParams["%sAND%s"%(b,p)][0]
 		    if self.out.arg(argu): factors.append(argu)
 		    else: raise RuntimeError, "No rate parameter found %s, are you sure you defined it correctly in the datacard?"%(argu)
