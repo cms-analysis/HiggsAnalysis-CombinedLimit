@@ -248,6 +248,7 @@ public:
 
   virtual void setActiveBins(unsigned int bins) {}
 
+  bool cacheIsGood() const { return _sentry.good() && _initBase; }
   /// Must be public, for serialization
   typedef FastVerticalInterpHistPdfBase::Morph Morph;
 protected:
@@ -309,6 +310,8 @@ public:
 
   virtual void setActiveBins(unsigned int bins) ;
   Double_t evaluate() const ;
+
+  FastHisto const& cache() const { return _cache; }
 
   friend class FastVerticalInterpHistPdf2V;
 protected:
