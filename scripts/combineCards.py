@@ -34,7 +34,7 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
-paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}
+paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {};
 cmax = 5 # column width
 if not args:
     raise RuntimeError, "No input datacards specified."
@@ -111,12 +111,15 @@ for ich,fname in enumerate(args):
     # flat params
     for K in DC.flatParamNuisances.iterkeys(): 
         flatParamNuisances[K] = True
+    # rate params
+    for K in DC.rateParams.iterkeys():
+	tbin,tproc = K.split("AND")[0],K.split("AND")[1]
+	tbin = label+tbin; nK = tbin+"AND"+tproc
+	rateParams[nK] = DC.rateParams[K]
     # discrete nuisance
     for K in DC.discretes: 
-        if discreteNuisances.has_key(K):
-					raise RuntimeError, "Cannot currently correlate discrete nuisances across categories. Rename %s in one."%K
-        else:
-					discreteNuisances[K] = True
+        if discreteNuisances.has_key(K): raise RuntimeError, "Cannot currently correlate discrete nuisances across categories. Rename %s in one."%K
+        else: discreteNuisances[K] = True
     # put shapes, if available
     if len(DC.shapeMap):
         for b in DC.bins:
@@ -222,6 +225,10 @@ for (pname, pargs) in paramSysts.items():
 
 for pname in flatParamNuisances.iterkeys(): 
     print "%-12s  flatParam" % pname
+for pname in rateParams.iterkeys(): 
+    print "%-12s  rateParam %s"% (rateParams[pname][0],pname.replace("AND"," ")),
+    for p in rateParams[pname][1:-1]: print p,
+    print "\n",
 for dname in discreteNuisances.iterkeys(): 
     print "%-12s  discrete" % dname
 for groupName,nuisanceNames in groups.iteritems():
