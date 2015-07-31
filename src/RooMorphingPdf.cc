@@ -13,13 +13,17 @@ RooMorphingPdf::RooMorphingPdf()
       mh_(RooRealProxy()),
       pdfs_(RooListProxy()),
       masses_(std::vector<double>()),
-      current_mh_(0.),
       can_morph_(false),
       rebin_(TArrayI()),
       target_axis_(TAxis()),
       morph_axis_(TAxis()),
       init_(false),
-      cache_(FastHisto()) {}
+      cache_(FastHisto()),
+      single_point_(false),
+      p1_(nullptr),
+      p2_(nullptr),
+      mh_lo_(0.),
+      mh_hi_(0.) {}
 
 RooMorphingPdf::RooMorphingPdf(const char* name, const char* title,
                                RooRealVar& x, RooAbsReal& mh,
@@ -32,13 +36,17 @@ RooMorphingPdf::RooMorphingPdf(const char* name, const char* title,
       mh_(mh.GetName(), mh.GetTitle(), this, mh),
       pdfs_(pdfs.GetName(), pdfs.GetTitle(), this),
       masses_(masses),
-      current_mh_(-1.),
       can_morph_(can_morph),
       rebin_(TArrayI()),
       target_axis_(target_axis),
       morph_axis_(morph_axis),
       init_(false),
-      cache_(FastHisto()) {
+      cache_(FastHisto()),
+      single_point_(false),
+      p1_(nullptr),
+      p2_(nullptr),
+      mh_lo_(0.),
+      mh_hi_(0.) {
   SetAxisInfo();
   TIterator* pdf_iter = pdfs.createIterator();
   RooAbsArg* pdf;
@@ -53,13 +61,17 @@ RooMorphingPdf::RooMorphingPdf(const RooMorphingPdf& other, const char* name)
       mh_(other.mh_.GetName(), this, other.mh_),
       pdfs_(other.pdfs_.GetName(), this, other.pdfs_),
       masses_(other.masses_),
-      current_mh_(other.current_mh_),
       can_morph_(other.can_morph_),
       rebin_(other.rebin_),
       target_axis_(other.target_axis_),
       morph_axis_(other.morph_axis_),
-      init_(other.init_),
-      cache_(other.cache_) {}
+      init_(false),  // force a re-init if we copy
+      cache_(other.cache_),
+      single_point_(false),
+      p1_(nullptr),
+      p2_(nullptr),
+      mh_lo_(0.),
+      mh_hi_(0.) {}
 
 void RooMorphingPdf::SetAxisInfo() {
   if (!morph_axis_.IsVariableBinSize()) {
@@ -119,16 +131,22 @@ void RooMorphingPdf::Init() const {
   mc_.sigdisn.resize(2 * (1 + mc_.nbn));
   mc_.xdisn.resize(2 * (1 + mc_.nbn));
   mc_.sigdisf.resize(mc_.nbn + 1);
+
+  // We don't know if mh_ is a value or a function,
+  // but luckily the addVars() method will figure it
+  // out for us
+  sentry_.addVars(RooArgList(mh_.arg()));
+  sentry_.setValueDirty();
+
   init_ = true;
 }
 
 Double_t RooMorphingPdf::evaluate() const {
   if (!init_ || hmap_.empty()) Init();
 
-  double mh = mh_;
   // cache is empty: throw exception
-  if (hmap_.empty())
-  {
+  // (something went very wrong...)
+  if (hmap_.empty()) {
     std::cout << "name:   " << this->GetName() << "\n";
     std::cout << "init?:  " << init_ << "\n";
     std::cout << "masses: " << masses_.size() << "\n";
@@ -136,54 +154,53 @@ Double_t RooMorphingPdf::evaluate() const {
     throw std::runtime_error("RooMorphingPdf: Cache is empty!");
   }
 
-  bool single_point = false;
-  FastVerticalInterpHistPdf2 const* p1 = nullptr;
-  FastVerticalInterpHistPdf2 const* p2 = nullptr;
-  double mh_lo = 0.;
-  double mh_hi = 0.;
-
-  MassMapIter upper = hmap_.lower_bound(mh);
-  if (upper == hmap_.begin()) {
-    single_point = true;
-    p1 = upper->second;
-  } else if (upper == hmap_.end()) {
-    single_point = true;
-    --upper;
-    p1 = upper->second;
-  } else {
-    MassMapIter lower = upper;
-    --lower;
-    p1 = lower->second;
-    p2 = upper->second;
-    mh_lo = lower->first;
-    mh_hi = upper->first;
-    if (!can_morph_) {
-      single_point = true;
-      if (fabs(upper->first - mh) <= fabs(mh - lower->first)) {
-        p1 = upper->second;
+  if (!sentry_.good()) {
+    // Mass value has changed so we need to figure out what
+    // new masspoints to take
+    MassMapIter upper = hmap_.lower_bound(mh_);
+    if (upper == hmap_.begin()) {
+      single_point_ = true;
+      p1_ = upper->second;
+    } else if (upper == hmap_.end()) {
+      single_point_ = true;
+      --upper;
+      p1_ = upper->second;
+    } else {
+      MassMapIter lower = upper;
+      --lower;
+      p1_ = lower->second;
+      p2_ = upper->second;
+      mh_lo_ = lower->first;
+      mh_hi_ = upper->first;
+      if (!can_morph_) {
+        single_point_ = true;
+        if (fabs(upper->first - mh_) <= fabs(mh_ - lower->first)) {
+          p1_ = upper->second;
+        } else {
+          p1_ = lower->second;
+        }
       } else {
-        p1 = lower->second;
+        single_point_ = false;
       }
     }
   }
-  if (single_point) {
-    if (!(p1->cacheIsGood() && mh == current_mh_)) {
-      p1->evaluate();
+
+  if (single_point_) {
+    if (!(p1_->cacheIsGood() && sentry_.good())) {
+      p1_->evaluate();
       cache_.Clear();
-      for (unsigned i = 0; i < p1->cache().size(); ++i) {
-        cache_[rebin_[i]] += p1->cache()[i];
+      for (unsigned i = 0; i < p1_->cache().size(); ++i) {
+        cache_[rebin_[i]] += p1_->cache()[i];
       }
       cache_.CropUnderflows();
       cache_.Normalize();
     }
   } else {
-    if (!(p1->cacheIsGood() && p2->cacheIsGood() && mh == current_mh_)) {
-
-      p1->evaluate();
-      p2->evaluate();
-
+    if (!(p1_->cacheIsGood() && p2_->cacheIsGood() && sentry_.good())) {
+      p1_->evaluate();
+      p2_->evaluate();
       FastTemplate result =
-          morph(p1->cache(), p2->cache(), mh_lo, mh_hi, mh);
+          morph(p1_->cache(), p2_->cache(), mh_lo_, mh_hi_, mh_);
       cache_.Clear();
       for (unsigned i = 0; i < result.size(); ++i) {
         cache_[rebin_[i]] += result[i];
@@ -192,7 +209,7 @@ Double_t RooMorphingPdf::evaluate() const {
       cache_.Normalize();
     }
   }
-  current_mh_ = mh;
+  sentry_.reset();
   return cache_.GetAt(x_);
 }
 

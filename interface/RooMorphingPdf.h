@@ -10,6 +10,7 @@
 #include "TH1F.h"
 #include "Rtypes.h"
 #include "../interface/VerticalInterpHistPdf.h"
+#include "../interface/SimpleCacheSentry.h"
 
 class RooMorphingPdf : public RooAbsPdf {
  protected:
@@ -29,11 +30,12 @@ class RooMorphingPdf : public RooAbsPdf {
 
   mutable MorphCache mc_; //! not to be serialized
 
+
   RooRealProxy x_;                // The x-axis variable
   RooRealProxy mh_;               // The mass variable
   RooListProxy pdfs_;             // pdfs
   std::vector<double> masses_;    // mass points
-  mutable double current_mh_;     // The last-used value of the mass
+  mutable SimpleCacheSentry sentry_; //! not to be serialized
   bool can_morph_;                // Allowed to do horizontal morphing
 
   TArrayI rebin_;                 // Rebinning scheme
@@ -48,6 +50,13 @@ class RooMorphingPdf : public RooAbsPdf {
   mutable bool init_;             //! not to be serialized
   mutable FastHisto cache_;       //! not to be serialized
 
+  // Store some transient info about the current point
+  // Only need to refresh this when the mh parameter changes
+  mutable bool single_point_;  //! not to be serialized
+  mutable FastVerticalInterpHistPdf2 const* p1_;  //! not to be serialized
+  mutable FastVerticalInterpHistPdf2 const* p2_;  //! not to be serialized
+  mutable double mh_lo_;  //! not to be serialized
+  mutable double mh_hi_;  //! not to be serialized
 
   void SetAxisInfo();
   void Init() const;
