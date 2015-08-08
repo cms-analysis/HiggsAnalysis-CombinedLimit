@@ -47,6 +47,7 @@ protected:
   static float maxDeltaNLLForProf_;
   static float autoRange_;
   static bool  startFromPreFit_;
+  static float centeredRange_;
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
