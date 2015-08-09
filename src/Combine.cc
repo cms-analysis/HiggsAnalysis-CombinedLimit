@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <unistd.h>
 #include <errno.h>
+#include <regex>
 
 #include <TCanvas.h>
 #include <TFile.h>
@@ -107,6 +108,7 @@ Combine::Combine() :
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
       ("freezeNuisances", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these nuisance parameters.")      
       ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
+      ("freezeNuisanceRegexComplement", po::value<string>(&freezeNuisanceRegexComplement_)->default_value(""), "Set as constant any parameter not matching one of the regular expressions")      
       ;
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
@@ -536,6 +538,31 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           nuisances = mc->GetNuisanceParameters();
        }
       }
+  }
+
+  if (freezeNuisanceRegexComplement_ != "") {
+    std::vector<string> regexStrs;
+    std::vector<std::regex> regexVec;
+    boost::algorithm::split(regexStrs, freezeNuisanceRegexComplement_, boost::algorithm::is_any_of(","));
+    for (auto str : regexStrs) {
+      regexVec.emplace_back(str);
+    }
+    RooArgSet toFreeze;
+    RooArgSet params(*mc->GetNuisanceParameters());
+    RooAbsArg *arg = nullptr;
+    auto iter = params.createIterator();
+    while ((arg = (RooAbsArg*)iter->Next())) {
+      bool matches = false;
+      for (auto const& rgx : regexVec) {
+        if (std::regex_search(std::string(arg->GetName()), rgx)) {
+          matches = true;
+          arg->Print();
+          break;
+        }
+      }
+      if (!matches) toFreeze.add(*arg);
+    }
+    utils::setAllConstant(toFreeze, true);
   }
 
   if (mc->GetPriorPdf() == 0 && !noDefaultPrior_) {

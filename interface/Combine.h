@@ -65,6 +65,7 @@ private:
   std::string redefineSignalPOIs_;
   std::string freezeNuisances_;
   std::string freezeNuisanceGroups_;
+  std::string freezeNuisanceRegexComplement_;
   
   // input-output related variables
   bool saveWorkspace_;
