@@ -49,6 +49,7 @@ protected:
   static bool  startFromPreFit_;
   static float centeredRange_;
 
+  static std::string setPhysicsModelParameterExpression_;
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
   static std::string saveSpecifiedIndex_;
