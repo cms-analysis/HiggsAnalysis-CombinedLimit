@@ -54,7 +54,7 @@ class SMHiggsBuilder:
                 scalingName = 'Scaling_'+what+'_'+sqrts
 #                print 'Building '+ scalingName
                 rooExpr = 'expr::%(scalingName)s(\
-"(@0+ @1 * @2 )/(1+@2)",\
+"(@0*@0 + @1*@1 * @2 )/(1+@2)",\
  %(CW)s, %(CZ)s,\
  %(rooName)s\
 )'%locals()
