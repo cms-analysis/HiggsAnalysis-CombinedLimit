@@ -149,6 +149,7 @@ class SMHiggsBuilder:
                 widthUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(widthUncertaintiesKeys, fields[1:])]) 
         for K in widthUncertaintiesKeys[:-1]:
             self.modelBuilder.doVar("param_%s[-7,7]" % K)
+            if K=="mt": self.modelBuilder.out.var("param_mt").setConstant(True) # fix param_mt until we get a theory dependance for ggH
         for K, DS in THU_GROUPS:
             self.modelBuilder.doVar("HiggsDecayWidthTHU_%s[-7,7]" % K)
         for D in ALL_HIGGS_DECAYS:
