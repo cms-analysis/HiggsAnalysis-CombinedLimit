@@ -52,7 +52,7 @@ class CardWriter {
   /// Must be constructed with text and ROOT file patterns
   CardWriter(std::string const& text_pattern, std::string const& root_pattern);
   /// Write datacards according to patterns, substituting `$TAG` for `tag`
-  void WriteCards(std::string const& tag, ch::CombineHarvester& cmb) const;
+  std::map<std::string, std::set<std::string> > WriteCards(std::string const& tag, ch::CombineHarvester& cmb) const;
   /// Set >= 1 for verbose output, otherwise silent
   CardWriter& SetVerbosity(unsigned v);
   /// Control whether directories can be created if missing
