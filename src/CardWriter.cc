@@ -71,7 +71,7 @@ void CardWriter::MakeDirs(PatternMap const& map) const {
   }
 }
 
-std::map<std::string, std::set<std::string> > CardWriter::WriteCards(std::string const& tag,
+std::map<std::string, CombineHarvester> CardWriter::WriteCards(std::string const& tag,
                        ch::CombineHarvester& cmb) const {
   #ifdef TIME_FUNCTIONS
     LAUNCH_FUNCTION_TIMER(__timer__, __token__)
@@ -107,7 +107,7 @@ std::map<std::string, std::set<std::string> > CardWriter::WriteCards(std::string
       text_map[obj] = Compile(text_pattern_, obj);
     });
 
-  std::map<std::string, std::set<std::string> > datacards;
+  std::map<std::string, CombineHarvester> datacards;
   for (auto const& f : f_map) {
     // Create each ROOT file (overwrite pre-existing)
     FNLOGC(std::cout, v_ > 0) << "Creating file " << f.first << "\n";
@@ -135,7 +135,7 @@ std::map<std::string, std::set<std::string> > CardWriter::WriteCards(std::string
       });
       FNLOGC(std::cout, v_ > 0) << "Creating datacard " << d.first << "\n";
       d_cmb.WriteDatacard(d.first, file);
-      datacards[d.first] = d_cmb.mass_set();
+      datacards[d.first] = d_cmb;
     }
   };
   return datacards;
