@@ -344,7 +344,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   //*********************************************
   if (setPhysicsModelParameterExpression_ != "") {
       RooArgSet allParams(w->allVars());
-      if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
+      //if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
+      allParams.add(w->allCats());
       utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
       // also allow for "discrete" parameters to be set 
   }
