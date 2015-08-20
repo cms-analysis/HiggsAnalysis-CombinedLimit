@@ -64,6 +64,7 @@ private:
   float expectSignalMass_;
   std::string redefineSignalPOIs_;
   std::string freezeNuisances_;
+  std::string floatNuisances_;
   std::string freezeNuisanceGroups_;
   
   // input-output related variables
