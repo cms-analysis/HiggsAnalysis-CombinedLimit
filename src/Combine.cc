@@ -132,7 +132,9 @@ Combine::Combine() :
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
-      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset");
+      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset")
+      ("genBinnedChannels", po::value<std::string>(&genAsBinned_)->default_value(genAsBinned_), "Flag the given channels to be generated binned (irrespectively of how they were flagged at workspace creation)") 
+      ("genUnbinnedChannels", po::value<std::string>(&genAsUnbinned_)->default_value(genAsUnbinned_), "Flag the given channels to be generated unbinned (irrespectively of how they were flagged at workspace creation)") 
       ; 
 }
 
@@ -594,6 +596,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (guessGenMode_ && genPdf && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
       if (mc_bonly) utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
+  }
+  if (!genAsBinned_.empty() || !genAsUnbinned_.empty()) {
+    RooSimultaneous *sim = dynamic_cast<RooSimultaneous*>(genPdf);
+    if (!sim) throw std::invalid_argument("Options genBinnedChannels and genUnbinnedChannels only work for RooSimultaneous pdfs");
+    utils::setChannelGenModes(*sim, genAsBinned_, genAsUnbinned_, verbose);
   }
   if (expectSignal_ > 0) { 
     if (POI->find("r")) {
