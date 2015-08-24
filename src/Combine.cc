@@ -621,6 +621,17 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  readToysFromHere->ls();
 	  return;
 	}
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) {
+            RooAbsCollection *snap = dynamic_cast<RooAbsCollection *>(readToysFromHere->Get("toys/toy_asimov_snapshot"));
+            if (!snap) {
+                std::cerr << "Snapshot of global observables toy_asimov_snapshot not found in " << readToysFromHere->GetName() << ". List follows:\n";
+                readToysFromHere->ls();
+                return;
+            }
+            RooArgSet gobs(*mc->GetGlobalObservables());
+            gobs.assignValueOnly(*snap);
+            w->saveSnapshot("clean", w->allVars());
+        }
       }
       else{
         if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
@@ -634,9 +645,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 if (mc->GetGlobalObservables()) {
                     RooArgSet gobs(*mc->GetGlobalObservables());
                     gobs = gobsAsimov;
-                    utils::setAllConstant(*mc->GetParametersOfInterest(), false);
-                    w->saveSnapshot("clean", w->allVars());
                 }
+                utils::setAllConstant(*mc->GetParametersOfInterest(), false);
+                w->saveSnapshot("clean", w->allVars());
             } else {
                 toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
                 dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
@@ -684,8 +695,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
           w->saveSnapshot("reallyClean", w->allVars());
-          utils::setAllConstant(*mc->GetParametersOfInterest(), true); 
           if (!bypassFrequentistFit_) {
+              utils::setAllConstant(*mc->GetParametersOfInterest(), true); 
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
               CloseCoutSentry sentry(verbose < 3);
               //genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));	
@@ -693,10 +704,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
                 minim.setStrategy(1);
                 minim.minimize();
+                utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
                 w->saveSnapshot("frequentistPreFit", w->allVars());
           }
-          utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
-          w->saveSnapshot("clean", w->allVars());
           systDs = nuisancePdf->generate(*mc->GetGlobalObservables(), nToys);
       } else {
           systDs = nuisancePdf->generate(*nuisances, nToys);
