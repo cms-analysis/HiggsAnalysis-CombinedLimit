@@ -132,7 +132,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::auto_ptr<RooFitResult> res;
-    if ( algo_ == Singles || algo_ == Impact || !loadedSnapshot_ ){
+    if ( algo_ == Singles || algo_ == Impact || algo_==None || !loadedSnapshot_ ){
         res.reset(doFit(pdf, data, ((algo_ == Singles || algo_ == Impact) ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
         if (algo_ == Impact && res.get()) {
             // Set the floating parameters back to the best-fit value
