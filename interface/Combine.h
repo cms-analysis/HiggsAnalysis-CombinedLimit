@@ -55,6 +55,7 @@ private:
  
   // statistics-related variables
   bool unbinned_, generateBinnedWorkaround_, newGen_, guessGenMode_; 
+  std::string genAsBinned_, genAsUnbinned_;
   float rMin_, rMax_;
   std::string prior_;
   bool hintUsesStatOnly_;

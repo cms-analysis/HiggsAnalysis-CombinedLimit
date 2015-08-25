@@ -31,6 +31,7 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <regex>
 
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/ProfilingTools.h"
@@ -488,6 +489,41 @@ void utils::guessChannelMode(RooSimultaneous &simPdf, RooAbsData &simData, bool 
         } else {
             if (verbose) std::cout << " - " << cat.getLabel() << " has " << spl->numEntries() << " num entries of sum " << spl->sumEntries() << ", mark as unbinned" << std::endl;
             pdf->setAttribute("forceGenUnbinned");
+        }
+    }
+}
+
+void
+utils::setChannelGenModes(RooSimultaneous &simPdf, const std::string &binned, const std::string &unbinned, int verbose) {
+    std::regex r_binned(binned, std::regex::ECMAScript);
+    std::regex r_unbinned(unbinned, std::regex::ECMAScript);
+    std::smatch match;
+
+    RooAbsCategoryLValue &cat = const_cast<RooAbsCategoryLValue &>(simPdf.indexCat());
+    for (int i = 0, n = cat.numBins((const char *)0); i < n; ++i) {
+        cat.setBin(i);
+        const std::string & label = cat.getLabel();
+        RooAbsPdf *pdf = simPdf.getPdf(label.c_str());
+        if (!binned.empty() && std::regex_match(label, match, r_binned)) {
+            if (pdf->getAttribute("forceGenUnbinned")) {
+                if (verbose) std::cout << "Overriding generation mode for " << pdf->GetName() << " in " << label << " from unbinned to binned." << std::endl;
+                pdf->setAttribute("forceGenUnbinned", false);
+            } else {
+                if (verbose) std::cout << "Setting generation mode for " << pdf->GetName() << " in " << label << " to binned." << std::endl;
+            }
+            pdf->setAttribute("forceGenBinned");
+        }
+        if (!unbinned.empty() && std::regex_match(label, match, r_unbinned)) {
+            if (pdf->getAttribute("forceGenBinned")) {
+                if (verbose) std::cout << "Overriding generation mode for " << pdf->GetName() << " in " << label << " from binned to unbinned." << std::endl;
+                pdf->setAttribute("forceGenBinned", false);
+            } else {
+                if (verbose) std::cout << "Setting generation mode for " << pdf->GetName() << " in " << label << " to unbinned." << std::endl;
+            }
+            pdf->setAttribute("forceGenUnbinned");
+        }
+        if (!pdf->getAttribute("forceGenUnbinned") && !pdf->getAttribute("forceGenBinned")) {
+            if (verbose > -1) std::cout << "Warning: pdf generation mode for " << pdf->GetName() << " in " << label << " is not set" << std::endl;
         }
     }
 }
