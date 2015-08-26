@@ -18,6 +18,8 @@ class CascadeMinimizer {
         bool minimize(int verbose=0, bool cascade=true);
         // run minos
         bool minos(const RooArgSet &, int verbose = 0 );
+        // run hesse
+        bool hesse(int verbose = 0 );
         // do a new minimization, assuming a plausible initial state
         bool improve(int verbose=0, bool cascade=true);
         // declare nuisance parameters for pre-fit
@@ -39,7 +41,7 @@ class CascadeMinimizer {
         RooRealVar * poi_; 
         const RooArgSet *nuisances_;
 
-        bool improveOnce(int verbose);
+        bool improveOnce(int verbose, bool noHesse=false);
 
 	bool multipleMinimize(const RooArgSet &,bool &,double &,int,bool,int
 		,std::vector<std::vector<bool> > & );
@@ -75,6 +77,8 @@ class CascadeMinimizer {
         static bool setZeroPoint_;
         /// don't do old fallback using robustMinimize 
         static bool oldFallback_;
+        /// call Hesse before or after the minimization 
+        static bool firstHesse_, lastHesse_;
         /// storage level for minuit2 (toggles storing of intermediate covariances)
         static int minuit2StorageLevel_;
 

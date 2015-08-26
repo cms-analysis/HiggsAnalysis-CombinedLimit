@@ -24,6 +24,8 @@ bool CascadeMinimizer::poiOnlyFit_;
 bool CascadeMinimizer::singleNuisFit_;
 bool CascadeMinimizer::setZeroPoint_ = true;
 bool CascadeMinimizer::oldFallback_ = true;
+bool CascadeMinimizer::firstHesse_ = false;
+bool CascadeMinimizer::lastHesse_ = false;
 int  CascadeMinimizer::minuit2StorageLevel_ = 0;
 bool CascadeMinimizer::runShortCombinations = true;
 float CascadeMinimizer::nuisancePruningThreshold_ = 0;
@@ -86,7 +88,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
     return outcome;
 }
 
-bool CascadeMinimizer::improveOnce(int verbose) 
+bool CascadeMinimizer::improveOnce(int verbose, bool noHesse) 
 {
     static int optConst = runtimedef::get("MINIMIZER_optimizeConst");
     static int rooFitOffset = runtimedef::get("MINIMIZER_rooFitOffset");
@@ -107,7 +109,19 @@ bool CascadeMinimizer::improveOnce(int verbose)
         if (simnll) simnll->setZeroPoint();
         if ((!simnll) && optConst) minimizer_->optimizeConst(std::max(0,optConst));
         if ((!simnll) && rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
+        if (firstHesse_ && !noHesse) {
+            minimizer_->setPrintLevel(std::max(0,verbose-3)); 
+            minimizer_->hesse();
+            if (simnll) simnll->updateZeroPoint(); 
+            minimizer_->setPrintLevel(verbose-1); 
+        }
         int status = minimizer_->minimize(myType.c_str(), myAlgo.c_str());
+        if (lastHesse_ && !noHesse) {
+            if (simnll) simnll->updateZeroPoint(); 
+            minimizer_->setPrintLevel(std::max(0,verbose-3)); 
+            status = minimizer_->hesse();
+            minimizer_->setPrintLevel(verbose-1); 
+        }
         if (simnll) simnll->clearZeroPoint();
         outcome = (status == 0);
     }
@@ -134,6 +148,29 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
    int iret = minimizer_->minos(params); 
 
    //std::cout << "Run Minos in  "; tw.Print(); std::cout << std::endl;
+
+   if (setZeroPoint_) {
+      cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+      if (simnll) simnll->clearZeroPoint();
+   }
+
+   return (iret != 1) ? true : false; 
+}
+
+bool CascadeMinimizer::hesse(int verbose ) {
+   
+   minimizer_->setPrintLevel(verbose-1); // for debugging
+   std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
+   std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
+
+   if (setZeroPoint_) {
+      cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+      if (simnll) { 
+         simnll->setZeroPoint();
+      }
+   }
+
+   int iret = minimizer_->hesse(); 
 
    if (setZeroPoint_) {
       cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
@@ -500,6 +537,8 @@ void CascadeMinimizer::initOptions()
         ("cminFallbackAlgo", boost::program_options::value<std::vector<std::string> >(), "Fallback algorithms if the default minimizer fails (can use multiple ones). Syntax is algo[,subalgo][,strategy][:tolerance]")
         ("cminSetZeroPoint", boost::program_options::value<bool>(&setZeroPoint_)->default_value(setZeroPoint_), "Change the reference point of the NLL to be zero during minimization")
         ("cminOldRobustMinimize", boost::program_options::value<bool>(&oldFallback_)->default_value(oldFallback_), "Use the old 'robustMinimize' logic in addition to the cascade")
+        ("cminInitialHesse", boost::program_options::value<bool>(&firstHesse_)->default_value(firstHesse_), "Call Hesse before the minimization")
+        ("cminFinalHesse", boost::program_options::value<bool>(&lastHesse_)->default_value(lastHesse_), "Call Hesse after the minimization")
 	("cminDefaultMinimizerType",boost::program_options::value<std::string>(&defaultMinimizerType_)->default_value(defaultMinimizerType_), "Set the default minimizer Type")
 	("cminDefaultMinimizerAlgo",boost::program_options::value<std::string>(&defaultMinimizerAlgo_)->default_value(defaultMinimizerAlgo_), "Set the default minimizer Algo")
         ("cminRunAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
