@@ -39,9 +39,17 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi, 
     mode_(mode),
     strategy_(initialStrategy),
     poi_(poi),
-    nuisances_(0)
+    nuisances_(0),
+    autoBounds_(false),
+    poisForAutoBounds_(0)
     //nuisances_(CascadeMinimizerGlobalConfig::O().nuisanceParameters)
 {
+}
+
+void CascadeMinimizer::setAutoBounds(const RooArgSet *pois) 
+{
+    autoBounds_ = (pois != 0);
+    poisForAutoBounds_ = pois;
 }
 
 bool CascadeMinimizer::improve(int verbose, bool cascade) 
@@ -53,17 +61,21 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
     std::string nominalAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
     float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
     if (approxPreFitTolerance_ > 0) {
-        double tol = std::max(approxPreFitTolerance_, 10. * nominalTol);
+      double tol = std::max(approxPreFitTolerance_, 10. * nominalTol);
+      do {
         if (verbose > 1) std::cout << "Running pre-fit with " << nominalType << "," << nominalAlgo << " and tolerance " << tol << std::endl;
         ProfileLikelihood::MinimizerSentry minimizerConfig(nominalType+","+nominalAlgo, tol);
         minimizer_->setEps(tol);
         minimizer_->setStrategy(approxPreFitStrategy_);
-        improveOnce(verbose-1);
+        improveOnce(verbose-1, true);
         minimizer_->setEps(nominalTol);
         minimizer_->setStrategy(strategy_);
+      } while (!autoBounds_ || !autoBoundsOk(verbose-1));
     }
-    bool outcome = improveOnce(verbose-1);
-    if (cascade && !outcome && !fallbacks_.empty()) {
+    bool outcome;
+    do {
+      outcome = improveOnce(verbose-1);
+      if (cascade && !outcome && !fallbacks_.empty()) {
         int         nominalStrat(strategy_);
         if (verbose > 0) std::cerr << "Failed minimization with " << nominalType << "," << nominalAlgo << " and tolerance " << nominalTol << std::endl;
         for (std::vector<Algo>::const_iterator it = fallbacks_.begin(), ed = fallbacks_.end(); it != ed; ++it) {
@@ -80,11 +92,8 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
                 if (outcome) break;
             }
         }
-    }
-    if (setZeroPoint_) {
-        cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-        if (simnll) simnll->clearZeroPoint();
-    }
+      }
+    } while (!autoBounds_ || !autoBoundsOk(verbose-1));
     return outcome;
 }
 
@@ -664,3 +673,25 @@ void CascadeMinimizer::trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int
 //        if (std::abs(here-up) < thrsh && std::abs(here-down)  < thrsh) irrelevant.add(*rrv);
 //    }
 //}
+
+bool CascadeMinimizer::autoBoundsOk(int verbose) {
+    RooFIter f = poisForAutoBounds_->fwdIterator();
+    bool ok = true;
+    for (RooAbsArg *a = f.next(); a != 0; a = f.next()) {
+        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+        if (rrv && !rrv->isConstant() && rrv->hasMax() && rrv->hasMin()) {
+            double val = rrv->getVal(), lo = rrv->getMin(), hi = rrv->getMax();
+            if (val < (0.9*lo+0.1*hi)) {
+                ok = false;
+                rrv->setMin(val - (hi-val));
+                if (verbose) std::cout << " POI " << rrv->GetName() << " is at " << val << ", within 10% from the low boundary " << lo << ". Will enlarge range to [ " << rrv->getMin() << " , " << hi << " ]" << std::endl;
+            } else if (val > (0.9*hi+0.1*lo)) {
+                ok = false;
+                rrv->setMax(val + (val-lo));
+                if (verbose) std::cout << " POI " << rrv->GetName() << " is at " << val << ", within 10% from the high boundary " << hi << ". Will enlarge range to [ " << lo << " , " << rrv->getMax() << " ]" << std::endl;
+            }
+        }
+    }
+    if (!ok && verbose) std::cout << "At least one of the POIs was close to the boundary, repeating the fit." << std::endl;;
+    return ok;
+}

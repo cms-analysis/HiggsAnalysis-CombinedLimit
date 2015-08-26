@@ -33,6 +33,7 @@ class CascadeMinimizer {
         static const boost::program_options::options_description & options() { return options_; }
         void trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int points=100) const ;
         //void collectIrrelevantNuisances(RooAbsCollection &irrelevant) const ;
+        void setAutoBounds(const RooArgSet *pois) ; 
     private:
         RooAbsReal & nll_;
         std::auto_ptr<RooMinimizerOpt> minimizer_;
@@ -40,8 +41,12 @@ class CascadeMinimizer {
         int          strategy_;
         RooRealVar * poi_; 
         const RooArgSet *nuisances_;
+        /// automatically enlarge bounds for POIs if they're within 10% from the boundary
+        bool autoBounds_;
+        const RooArgSet *poisForAutoBounds_;
 
         bool improveOnce(int verbose, bool noHesse=false);
+        bool autoBoundsOk(int verbose) ;
 
 	bool multipleMinimize(const RooArgSet &,bool &,double &,int,bool,int
 		,std::vector<std::vector<bool> > & );
