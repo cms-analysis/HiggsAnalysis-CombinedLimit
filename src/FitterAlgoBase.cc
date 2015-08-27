@@ -288,6 +288,8 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
  
             CascadeMinimizer minim2(*nll, CascadeMinimizer::Constrained);
             minim2.setStrategy(minimizerStrategyForMinos_);
+            if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+            if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
 
             std::auto_ptr<RooArgSet> allpars(nll->getParameters((const RooArgSet *)0));
 
