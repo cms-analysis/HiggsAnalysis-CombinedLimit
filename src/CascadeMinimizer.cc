@@ -41,16 +41,24 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi, 
     poi_(poi),
     nuisances_(0),
     autoBounds_(false),
-    poisForAutoBounds_(0)
+    poisForAutoBounds_(0),
+    poisForAutoMax_(0)
     //nuisances_(CascadeMinimizerGlobalConfig::O().nuisanceParameters)
 {
 }
 
 void CascadeMinimizer::setAutoBounds(const RooArgSet *pois) 
 {
-    autoBounds_ = (pois != 0);
     poisForAutoBounds_ = pois;
+    autoBounds_ = (poisForAutoBounds_ != 0 || poisForAutoMax_ != 0);
 }
+
+void CascadeMinimizer::setAutoMax(const RooArgSet *pois) 
+{
+    poisForAutoMax_ = pois;
+    autoBounds_ = (poisForAutoBounds_ != 0 || poisForAutoMax_ != 0);
+}
+
 
 bool CascadeMinimizer::improve(int verbose, bool cascade) 
 {
@@ -70,7 +78,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
         improveOnce(verbose-1, true);
         minimizer_->setEps(nominalTol);
         minimizer_->setStrategy(strategy_);
-      } while (!autoBounds_ || !autoBoundsOk(verbose-1));
+      } while (autoBounds_ && !autoBoundsOk(verbose-1));
     }
     bool outcome;
     do {
@@ -93,7 +101,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
             }
         }
       }
-    } while (!autoBounds_ || !autoBoundsOk(verbose-1));
+    } while (autoBounds_ && !autoBoundsOk(verbose-1));
     return outcome;
 }
 
@@ -675,13 +683,16 @@ void CascadeMinimizer::trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int
 //}
 
 bool CascadeMinimizer::autoBoundsOk(int verbose) {
-    RooFIter f = poisForAutoBounds_->fwdIterator();
     bool ok = true;
-    for (RooAbsArg *a = f.next(); a != 0; a = f.next()) {
+    for (int bothBounds = 0; bothBounds <= 1; ++bothBounds) {
+      const RooArgSet * pois = (bothBounds ? poisForAutoBounds_ : poisForAutoMax_);
+      if (!pois) continue;
+      RooFIter f = pois->fwdIterator();
+      for (RooAbsArg *a = f.next(); a != 0; a = f.next()) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv && !rrv->isConstant() && rrv->hasMax() && rrv->hasMin()) {
             double val = rrv->getVal(), lo = rrv->getMin(), hi = rrv->getMax();
-            if (val < (0.9*lo+0.1*hi)) {
+            if (bothBounds && val < (0.9*lo+0.1*hi)) {
                 ok = false;
                 rrv->setMin(val - (hi-val));
                 if (verbose) std::cout << " POI " << rrv->GetName() << " is at " << val << ", within 10% from the low boundary " << lo << ". Will enlarge range to [ " << rrv->getMin() << " , " << hi << " ]" << std::endl;
@@ -691,6 +702,7 @@ bool CascadeMinimizer::autoBoundsOk(int verbose) {
                 if (verbose) std::cout << " POI " << rrv->GetName() << " is at " << val << ", within 10% from the high boundary " << hi << ". Will enlarge range to [ " << lo << " , " << rrv->getMax() << " ]" << std::endl;
             }
         }
+      }
     }
     if (!ok && verbose) std::cout << "At least one of the POIs was close to the boundary, repeating the fit." << std::endl;;
     return ok;

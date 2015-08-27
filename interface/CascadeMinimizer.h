@@ -34,6 +34,7 @@ class CascadeMinimizer {
         void trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int points=100) const ;
         //void collectIrrelevantNuisances(RooAbsCollection &irrelevant) const ;
         void setAutoBounds(const RooArgSet *pois) ; 
+        void setAutoMax(const RooArgSet *pois) ; 
     private:
         RooAbsReal & nll_;
         std::auto_ptr<RooMinimizerOpt> minimizer_;
@@ -43,7 +44,7 @@ class CascadeMinimizer {
         const RooArgSet *nuisances_;
         /// automatically enlarge bounds for POIs if they're within 10% from the boundary
         bool autoBounds_;
-        const RooArgSet *poisForAutoBounds_;
+        const RooArgSet *poisForAutoBounds_, *poisForAutoMax_;
 
         bool improveOnce(int verbose, bool noHesse=false);
         bool autoBoundsOk(int verbose) ;
