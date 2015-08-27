@@ -771,11 +771,15 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
 
                 if (atLowerBoundary && atUpperBoundary)
                   fprintf(CloseCoutSentry::trueStdOutGlobal(),"both boundaries");
-                else if (atLowerBoundary)
+                else if (atLowerBoundary && !atUpperBoundary)
                   fprintf(CloseCoutSentry::trueStdOutGlobal(),"lower boundary");
-                else 
-                  // must be at upper boundary
+                else if (!atLowerBoundary && atUpperBoundary)
                   fprintf(CloseCoutSentry::trueStdOutGlobal(),"upper boundary");
+		else
+                {
+		  // we can't come here (as long as we are inside if(isBad) { .. } )
+		  // because isBad = atLowerBoundary || atUpperBoundary
+                }
 
                 fprintf(CloseCoutSentry::trueStdOutGlobal()," (value: %f %+f%+f range: %f..%f)", a->getVal(), a->getErrorHi(), a->getErrorLo(),
                         a->getMin(), a->getMax());
