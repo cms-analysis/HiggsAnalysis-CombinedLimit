@@ -759,7 +759,7 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
     for (RooRealVar *a = (RooRealVar *) iter.Next(); a != 0; a = (RooRealVar *) iter.Next(), ++i) {
       
         bool atLowerBoundary = isParameterAtLowerBoundary(*a);
-        bool atUpperBoundary = isParameterAtLowerBoundary(*a);
+        bool atUpperBoundary = isParameterAtUpperBoundary(*a);
         bool isBad = atLowerBoundary || atUpperBoundary;
 
         if(isBad){
