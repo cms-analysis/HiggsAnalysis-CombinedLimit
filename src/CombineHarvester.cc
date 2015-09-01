@@ -604,8 +604,12 @@ std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
   // 2) No: Ok will clone it in. Is the ws name already in use?
   if (!name_in_use) {
     // - No: clone with same name and return
-    wspaces_[std::string(ws.GetName())] = std::shared_ptr<RooWorkspace>(
-        reinterpret_cast<RooWorkspace*>(ws.Clone()));
+    // IMPORTANT: Don't used RooWorkspace::Clone(), it seems to introduce
+    // bugs
+    // wspaces_[std::string(ws.GetName())] = std::shared_ptr<RooWorkspace>(
+    //     reinterpret_cast<RooWorkspace*>(ws.Clone()));
+    wspaces_[std::string(ws.GetName())] =
+        std::make_shared<RooWorkspace>(RooWorkspace(ws));
     return wspaces_.at(ws.GetName());
   }
 
@@ -637,8 +641,12 @@ std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
                                  << " already defined, renaming to " << new_name
                                  << "\n";
 
-  wspaces_[new_name] = std::shared_ptr<RooWorkspace>(
-      reinterpret_cast<RooWorkspace*>(ws.Clone(new_name.c_str())));
+  // wspaces_[new_name] = std::shared_ptr<RooWorkspace>(
+  //     reinterpret_cast<RooWorkspace*>(ws.Clone(new_name.c_str())));
+  std::shared_ptr<RooWorkspace> new_wsp =
+      std::make_shared<RooWorkspace>(RooWorkspace(ws));
+  new_wsp->SetName(new_name.c_str());
+  wspaces_[new_name] = new_wsp;
   return wspaces_.at(new_name);
 }
 
