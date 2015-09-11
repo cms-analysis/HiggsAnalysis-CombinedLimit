@@ -11,6 +11,11 @@
 #include "CombineTools/interface/Logging.h"
 
 namespace ch {
+void ParseCombineWorkspacePy(CombineHarvester& cb, RooWorkspace const& ws,
+                           std::string const& modelcfg,
+                           std::string const& data, bool verbose) {
+  ParseCombineWorkspace(cb, const_cast<RooWorkspace&>(ws), modelcfg, data, verbose);
+}
 
 void ParseCombineWorkspace(CombineHarvester& cb, RooWorkspace& ws,
                            std::string const& modelcfg_name,
@@ -36,7 +41,7 @@ void ParseCombineWorkspace(CombineHarvester& cb, RooWorkspace& ws,
     std::string pdf;
     std::string norm;
   };
-  std::vector<ProcInfo> proc_infos;
+  std::map<std::string, std::vector<ProcInfo>> proc_infos;
 
   RooAbsData *data = ws.data(data_name.c_str());
   // Hard-coded the category as "CMS_channel". Could deduce instead...
@@ -71,7 +76,7 @@ void ParseCombineWorkspace(CombineHarvester& cb, RooWorkspace& ws,
         proc.set_process(jpdf->getStringAttribute("combine.process"));
         proc.set_rate(1.);
         proc.set_signal(jpdf->getAttribute("combine.signal"));
-        proc_infos.push_back(
+        proc_infos[proc.bin()].push_back(
             {proc.bin(), proc.process(), jpdf->GetName(), jcoeff->GetName()});
         cb.InsertProcess(proc);
       }
@@ -82,9 +87,12 @@ void ParseCombineWorkspace(CombineHarvester& cb, RooWorkspace& ws,
   // This loop is slow if we have have a lot of procs
   // Better way would be to filter to each bin, then do all the procs for that
   // bin
-  for (auto const& pinfo: proc_infos) {
-    cb.cp().bin({pinfo.bin}).process({pinfo.proc}).ExtractPdfs(
-        cb, ws.GetName(), pinfo.pdf, pinfo.norm);
+  for (auto b : cb.bin_set()) {
+    auto cb_bin = cb.cp().bin({b});
+      for (auto const& pinfo: proc_infos[b]) {
+        cb_bin.cp().process({pinfo.proc}).ExtractPdfs(
+            cb, ws.GetName(), pinfo.pdf, pinfo.norm);
+      }
   }
 }
 
