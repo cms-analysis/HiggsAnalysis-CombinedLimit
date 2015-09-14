@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <unistd.h>
 #include <errno.h>
+#include <regex>
 
 #include <TCanvas.h>
 #include <TFile.h>
@@ -107,6 +108,8 @@ Combine::Combine() :
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
       ("freezeNuisances", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these nuisance parameters.")      
       ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
+      ("useAttributes", po::value<bool>(&useAttributes_)->default_value(false), "Use RooFit atttributes to build nuisance groups instead of defined sets")      
+      ("freezeNuisanceRegexComplement", po::value<string>(&freezeNuisanceRegexComplement_)->default_value(""), "Set as constant any parameter not matching one of the regular expressions")      
       ;
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
@@ -398,6 +401,24 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   const RooArgSet * nuisances = mc->GetNuisanceParameters(); // note: may be null
   if (dynamic_cast<RooRealVar*>(POI->first()) == 0) throw std::invalid_argument("First parameter of interest is not a RooRealVar");
 
+  if (nuisances && runtimedef::get("ADD_DISCRETE_FALLBACK")) {
+    RooArgSet newNuis;
+    std::string startswith = "u_CMS_Hgg_env_pdf_";
+    TIterator *np = nuisances->createIterator();
+    while (RooRealVar *arg = (RooRealVar*)np->Next()) {
+      if (std::string(arg->GetName()).compare(0, startswith.size(), startswith)) {
+        newNuis.add(*arg);
+      } else {
+        std::cout << "Removed nuisance from set: " << arg->GetName() << "\n";
+      }
+    }
+    if (newNuis.getSize() < nuisances->getSize()) {
+      mc->SetNuisanceParameters(newNuis);
+      if (mc_bonly) mc_bonly->SetNuisanceParameters(newNuis);
+      nuisances = mc->GetNuisanceParameters();
+    }
+  }
+
   if (dataset.find(":") != std::string::npos) {
     std::string filename, wspname, dname;
     switch (std::count(dataset.begin(), dataset.end(), ':')) {
@@ -511,11 +532,21 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  (*ng_it).erase(0,1);
 	} 
 
-	if (! w->set(Form("group_%s",(*ng_it).c_str()))){
+	if (!useAttributes_ && !w->set(Form("group_%s",(*ng_it).c_str()))){
           std::cerr << "Unknown nuisance group: " << (*ng_it) << std::endl;
           throw std::invalid_argument("Unknown nuisance group name");
 	}
-        RooArgSet groupNuisances(*(w->set(Form("group_%s",(*ng_it).c_str()))));
+  RooArgSet groupNuisances;
+  if (useAttributes_ && nuisances) {
+    RooAbsArg *arg = nullptr;
+    auto iter = nuisances->createIterator();
+    while ((arg = (RooAbsArg*)iter->Next())) {
+      arg->attributes().count(*ng_it);
+      if (arg->attributes().count(*ng_it)) groupNuisances.add(*arg);
+    }
+  } else {
+    groupNuisances = RooArgSet(*(w->set(Form("group_%s",(*ng_it).c_str()))));    
+  }
 	RooArgSet toFreeze;
 
 	if (freeze_complement) {
@@ -536,6 +567,31 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           nuisances = mc->GetNuisanceParameters();
        }
       }
+  }
+
+  if (freezeNuisanceRegexComplement_ != "") {
+    std::vector<string> regexStrs;
+    std::vector<std::regex> regexVec;
+    boost::algorithm::split(regexStrs, freezeNuisanceRegexComplement_, boost::algorithm::is_any_of(","));
+    for (auto str : regexStrs) {
+      regexVec.emplace_back(str);
+    }
+    RooArgSet toFreeze;
+    RooArgSet params(*mc->GetNuisanceParameters());
+    RooAbsArg *arg = nullptr;
+    auto iter = params.createIterator();
+    while ((arg = (RooAbsArg*)iter->Next())) {
+      bool matches = false;
+      for (auto const& rgx : regexVec) {
+        if (std::regex_search(std::string(arg->GetName()), rgx)) {
+          matches = true;
+          arg->Print();
+          break;
+        }
+      }
+      if (!matches) toFreeze.add(*arg);
+    }
+    utils::setAllConstant(toFreeze, true);
   }
 
   if (mc->GetPriorPdf() == 0 && !noDefaultPrior_) {
@@ -816,22 +872,24 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
         TIterator *dp = discreteParameters->createIterator();
         while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
           RooCategory *cat = dynamic_cast<RooCategory*>(arg);
-          if (cat && !cat->isConstant()) {
+          if (cat && (!cat->isConstant() || runtimedef::get("ADD_DISCRETE_FALLBACK"))) {
+            std::cout << "Adding discrete " << cat->GetName() << "\n";
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
           }
         }
     } 
     // Run through all of the categories in the workspace and look for "pdfindex" -> fall back option 
-    /*else {
+    else if (runtimedef::get("ADD_DISCRETE_FALLBACK")) {
         RooArgSet discreteParameters_C = w->allCats();
         TIterator *dp = discreteParameters_C.createIterator();
         while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
          RooCategory *cat = dynamic_cast<RooCategory*>(arg);
          if (! (std::string(cat->GetName()).find("pdfindex") != std::string::npos )) continue;
-         if (cat && !cat->isConstant()) {
+         if (cat/* && !cat->isConstant()*/) {
+            std::cout << "Adding discrete " << cat->GetName() << "\n";
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
          }
 	}
     }
-    */
+    
 }

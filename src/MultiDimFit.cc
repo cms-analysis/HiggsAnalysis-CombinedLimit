@@ -47,10 +47,12 @@ bool MultiDimFit::squareDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 float MultiDimFit::autoRange_ = -1.0;
 bool MultiDimFit::doHesse_ = false;
+float MultiDimFit::centeredRange_ = -1.0;
 
   std::string MultiDimFit::saveSpecifiedFuncs_;
   std::string MultiDimFit::saveSpecifiedIndex_;
   std::string MultiDimFit::saveSpecifiedNuis_;
+  std::string MultiDimFit::setPhysicsModelParameterExpression_;
  std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
  std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
  std::vector<float>        MultiDimFit::specifiedFuncVals_;
@@ -77,6 +79,7 @@ MultiDimFit::MultiDimFit() :
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
         ("autoRange", boost::program_options::value<float>(&autoRange_)->default_value(autoRange_), "Set to any X >= 0 to do the scan in the +/- X sigma range (where the sigma is from the initial fit, so it may be fairly approximate)")
+        ("centeredRange", boost::program_options::value<float>(&centeredRange_)->default_value(centeredRange_), "Set to any X >= 0 to do the scan in the +/- X range centered on the nominal value")
         ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
 	("saveSpecifiedNuis",   boost::program_options::value<std::string>(&saveSpecifiedNuis_)->default_value(""), "Save specified parameters (default = none)")
@@ -86,7 +89,8 @@ MultiDimFit::MultiDimFit() :
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
         ("out",                boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put output in")
         ("doHesse","Calculate the covariance matrix with HESSE after the initial fit")
-      ;
+    ("setPhysicsModelParametersForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
+       ;
 }
 
 void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm) 
@@ -173,6 +177,16 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
             double min1 = std::max(min0, val - autoRange_ * err);
             double max1 = std::min(max0, val + autoRange_ * err);
             std::cout << poi_[i] << ": " << val << " +/- " << err << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            poiVars_[i]->setRange(min1, max1);
+        }
+    }
+    if (centeredRange_ > 0) {
+        std::cout << "Adjusting range of POIs to +/- " << centeredRange_ << std::endl;
+        for (int i = 0, n = poi_.size(); i < n; ++i) {
+            double val = poiVars_[i]->getVal(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
+            double min1 = std::max(min0, val - centeredRange_);
+            double max1 = std::min(max0, val + centeredRange_);
+            std::cout << poi_[i] << ": " << val << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
             poiVars_[i]->setRange(min1, max1);
         }
     }
@@ -357,6 +371,12 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     unsigned int n = poi_.size();
     //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
+    if (setPhysicsModelParameterExpression_ != "") {
+        RooArgSet allParams(w->allVars());
+        if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
+        utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
+        // also allow for "discrete" parameters to be set 
+    }
     if (startFromPreFit_) w->loadSnapshot("clean");
 
     std::vector<double> p0(n), pmin(n), pmax(n);
