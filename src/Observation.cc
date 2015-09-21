@@ -72,6 +72,10 @@ void Observation::set_shape(std::unique_ptr<TH1> shape, bool set_rate) {
   if (shape_->Integral() > 0.) shape_->Scale(1. / shape_->Integral());
 }
 
+void Observation::set_shape(TH1 const& shape, bool set_rate) {
+  set_shape(std::unique_ptr<TH1>(static_cast<TH1*>(shape.Clone())), set_rate);
+}
+
 std::unique_ptr<TH1> Observation::ClonedShape() const {
   if (!shape_) return std::unique_ptr<TH1>();
   std::unique_ptr<TH1> res(static_cast<TH1 *>(shape_->Clone()));

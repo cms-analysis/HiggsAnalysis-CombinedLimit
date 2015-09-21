@@ -21,6 +21,9 @@ class Observation : public Object {
   double rate() const { return rate_; }
 
   void set_shape(std::unique_ptr<TH1> shape, bool set_rate);
+
+  void set_shape(TH1 const& shape, bool set_rate);
+  
   TH1 const* shape() const { return shape_.get(); }
 
   std::unique_ptr<TH1> ClonedShape() const;

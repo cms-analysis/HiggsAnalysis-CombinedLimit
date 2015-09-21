@@ -129,6 +129,13 @@ void Systematic::set_shapes(std::unique_ptr<TH1> shape_u,
   if (shape_d_->Integral() > 0.) shape_d_->Scale(1. / shape_d_->Integral());
 }
 
+void Systematic::set_shapes(TH1 const& shape_u, TH1 const& shape_d,
+                            TH1 const& nominal) {
+  set_shapes(std::unique_ptr<TH1>(static_cast<TH1*>(shape_u.Clone())),
+             std::unique_ptr<TH1>(static_cast<TH1*>(shape_d.Clone())),
+             &nominal);
+}
+
 void Systematic::set_data(RooDataHist* data_u, RooDataHist* data_d,
                           RooDataHist const* nominal) {
   if (nominal && nominal->sumEntries() > 0.) {
