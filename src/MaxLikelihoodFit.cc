@@ -155,7 +155,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   if (currentToy_ < 1){
     const RooArgSet *nuis      = mc_s->GetNuisanceParameters();
     const RooArgSet *globalObs = mc_s->GetGlobalObservables();
-    if (!justFit_ && nuis && globalObs ) {
+    if (nuis && globalObs ) {
       std::auto_ptr<RooAbsPdf> nuisancePdf(utils::makeNuisancePdf(*mc_s));
       std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", *globalObs));
       globalData->add(*globalObs);
@@ -184,7 +184,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       globalData.reset();
       delete res_prefit;
     } else if (nuis) {
-      if (save_dir_ ) save_dir_->WriteTObject(nuis->snapshot(), "nuisances_prefit");
+      if (fitOut.get() && currentToy_ < 1) save_dir_->WriteTObject(nuis->snapshot(), "nuisances_prefit");
     }
   }
   
