@@ -11,6 +11,7 @@
 #include "../interface/FitterAlgoBase.h"
 #include <RooRealVar.h>
 #include <vector>
+#include "TFile.h"
 
 class MultiDimFit : public FitterAlgoBase {
 public:
@@ -20,6 +21,8 @@ public:
     return name;
   }
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
+  virtual void setToyNumber(const int iToy) {currentToy_ = iToy;}
+  virtual void setNToys(const int iToy) {nToys_ = iToy;}
 
 protected:
   virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
@@ -36,6 +39,9 @@ protected:
   static RooArgList                poiList_; 
   static unsigned int              nOtherFloatingPoi_; // keep a count of other POIs that we're ignoring, for proper chisquare normalization
   static float                     deltaNLL_;
+	int currentToy_, nToys_;
+  std::auto_ptr<TFile> fitOut_;
+	TDirectory* save_dir_;
 
   // options    
   static unsigned int points_, firstPoint_, lastPoint_;
@@ -45,6 +51,7 @@ protected:
   static bool hasMaxDeltaNLLForProf_;
   static bool loadedSnapshot_;
   static float maxDeltaNLLForProf_;
+	bool save_toys_=false;
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;

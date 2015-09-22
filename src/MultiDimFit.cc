@@ -97,6 +97,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
+		save_toys_ = vm.count("saveToys");
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -104,9 +105,23 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     static int isInit = false;
     if (!isInit) { initOnce(w, mc_s); isInit = true; }
 
+		// if (currentToy_ < 1){
+		// 	fitOut_.reset(TFile::Open("./multiDfit.root", "RECREATE")); 
+		// }
+		// if (nToys_ >= 1) {
+		// 	if (save_toys_) {
+		// 		save_dir_ = fitOut_->mkdir(
+		// 			TString::Format("toy_%d", currentToy_)
+		// 			);
+		// 	}
+		// 	else save_dir_ = fitOut_.get();
+		// }
+		// else save_dir_ = fitOut_.get();
+		
+		
     // Get PDF
     RooAbsPdf &pdf = *mc_s->GetPdf();
-
+		
     // Process POI not in list
     nOtherFloatingPoi_ = 0;
     RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
@@ -137,7 +152,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
 		}
 		Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
-	}
+				}
     }
    
 
