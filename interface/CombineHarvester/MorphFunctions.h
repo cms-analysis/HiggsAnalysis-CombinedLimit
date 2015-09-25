@@ -31,16 +31,16 @@ inline TH1F AsTH1F(TH1 const* hist) {
   return res;
 }
 
-void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
-                      RooAbsReal& mass_var, bool verbose,
-                      std::string norm_postfix = "_norm");
 
 void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
                       std::string const& bin, std::string const& process,
-                      RooAbsReal& mass_var, std::string const& mass_min,
-                      std::string const& mass_max, std::string norm_postfix,
+                      RooAbsReal& mass_var, std::string norm_postfix,
                       bool allow_morph, bool verbose, TFile * file = nullptr);
 
 TGraph GraphFromSpline(RooSpline1D const* spline);
+
+void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
+                         std::vector<double> const& masses, TFile* f);
 }
+
 #endif
