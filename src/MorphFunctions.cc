@@ -480,7 +480,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
                         rate_prod);
 
   // Dump even more plots
-  if (file) MakeMorphDebugPlots(&morph_pdf, &mass_var, m_vec, file);
+  if (file) MakeMorphDebugPlots(&morph_pdf, &mass_var, m_vec, file, &data_hist);
 
   // Load our pdf and norm objects into the workspace
   ws.import(morph_pdf, RooFit::RecycleConflictNodes());
@@ -538,7 +538,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
 }
 
 void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
-                         std::vector<double> const& masses, TFile* f) {
+                         std::vector<double> const& masses, TFile* f, TH1 *ref_bins) {
   RooRealVar *rrv = dynamic_cast<RooRealVar*>(mass);
   if (!rrv) return;
   f->cd();
@@ -548,9 +548,22 @@ void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
     rrv->setVal(masses[i]);
     TH1 * h = pdf->createHistogram("CMS_th1x");
     h->AddDirectory(false);
-    h->SetName(TString::Format("actual_point_%g", masses[i]));
-    gDirectory->WriteTObject(h);
-    delete h;
+    TH1 * h2 = nullptr;
+    if (ref_bins) { 
+      h2 = (TH1*)ref_bins->Clone();
+      h2->Reset();
+      for (int x = 1; x <= h2->GetNbinsX(); ++x) {
+        h2->SetBinContent(x, h->GetBinContent(x));
+      }
+    } else {
+      h2 = h;
+      h = nullptr;
+    }
+    h2->AddDirectory(false);
+    h2->SetName(TString::Format("actual_point_%g", masses[i]));
+    gDirectory->WriteTObject(h2);
+    if (h) delete h;
+    if (h2) delete h2;
   }
   double m = masses.front();
   double step = 1.;
@@ -560,9 +573,22 @@ void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
     rrv->setVal(m);
     TH1* hm = pdf->createHistogram("CMS_th1x");
     hm->AddDirectory(false);
-    hm->SetName(TString::Format("morph_point_%g", m));
-    gDirectory->WriteTObject(hm);
-    delete hm;
+    TH1 * hm2 = nullptr;
+    if (ref_bins) { 
+      hm2 = (TH1*)ref_bins->Clone();
+      hm2->Reset();
+      for (int x = 1; x <= hm2->GetNbinsX(); ++x) {
+        hm2->SetBinContent(x, hm->GetBinContent(x));
+      }
+    } else {
+      hm2 = hm;
+      hm = nullptr;
+    }
+    hm2->AddDirectory(false);
+    hm2->SetName(TString::Format("morph_point_%g", m));
+    gDirectory->WriteTObject(hm2);
+    if (hm) delete hm;
+    if (hm2) delete hm2;
     m += step;
   }
   f->cd();

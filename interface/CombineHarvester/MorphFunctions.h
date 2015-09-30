@@ -40,7 +40,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
 TGraph GraphFromSpline(RooSpline1D const* spline);
 
 void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
-                         std::vector<double> const& masses, TFile* f);
+                         std::vector<double> const& masses, TFile* f, TH1 *ref_bins = nullptr);
 }
 
 #endif
