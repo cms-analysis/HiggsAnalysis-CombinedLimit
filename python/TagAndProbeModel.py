@@ -2,13 +2,9 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 import re
 
 class TagAndProbe(PhysicsModel):
-    def setPhysicsOptions(self,physOptions):
-        for po in physOptions:
-            if po.startswith("anticorrelation="):
-                self.anticorrelation = float(po.replace("anticorrelation=",""))
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
-        self.modelBuilder.doVar("SF[1.0,0.0,1.2]");
+        self.modelBuilder.doVar("SF[1.0,0.0,2.0]");
         self.modelBuilder.doSet("POI","SF")
         if self.options.mass != 0:
             if self.modelBuilder.out.var("MH"):
@@ -33,11 +29,6 @@ class TagAndProbe(PhysicsModel):
                         return "SF"
                 elif re.search("fail",bin):
                         return "fail_scale"
-                else:
-                        poi=1
-                        return int(poi)
-        else:
-                poi=1
-                return int(poi)
+        return 1
 
 tagAndProbe = TagAndProbe()
