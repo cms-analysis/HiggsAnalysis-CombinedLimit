@@ -400,6 +400,24 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   const RooArgSet * nuisances = mc->GetNuisanceParameters(); // note: may be null
   if (dynamic_cast<RooRealVar*>(POI->first()) == 0) throw std::invalid_argument("First parameter of interest is not a RooRealVar");
 
+  if (nuisances && runtimedef::get("ADD_DISCRETE_FALLBACK")) {
+    RooArgSet newNuis;
+    std::string startswith = "u_CMS_Hgg_env_pdf_";
+    TIterator *np = nuisances->createIterator();
+    while (RooRealVar *arg = (RooRealVar*)np->Next()) {
+      if (std::string(arg->GetName()).compare(0, startswith.size(), startswith)) {
+        newNuis.add(*arg);
+      } else {
+        std::cout << "Removed nuisance from set: " << arg->GetName() << "\n";
+      }
+    }
+    if (newNuis.getSize() < nuisances->getSize()) {
+      mc->SetNuisanceParameters(newNuis);
+      if (mc_bonly) mc_bonly->SetNuisanceParameters(newNuis);
+      nuisances = mc->GetNuisanceParameters();
+    }
+  }
+
   if (dataset.find(":") != std::string::npos) {
     std::string filename, wspname, dname;
     switch (std::count(dataset.begin(), dataset.end(), ':')) {
@@ -854,22 +872,24 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
         TIterator *dp = discreteParameters->createIterator();
         while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
           RooCategory *cat = dynamic_cast<RooCategory*>(arg);
-          if (cat && !cat->isConstant()) {
+          if (cat && (!cat->isConstant() || runtimedef::get("ADD_DISCRETE_FALLBACK"))) {
+            std::cout << "Adding discrete " << cat->GetName() << "\n";
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
           }
         }
     } 
     // Run through all of the categories in the workspace and look for "pdfindex" -> fall back option 
-    /*else {
+    else if (runtimedef::get("ADD_DISCRETE_FALLBACK")) {
         RooArgSet discreteParameters_C = w->allCats();
         TIterator *dp = discreteParameters_C.createIterator();
         while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
          RooCategory *cat = dynamic_cast<RooCategory*>(arg);
          if (! (std::string(cat->GetName()).find("pdfindex") != std::string::npos )) continue;
-         if (cat && !cat->isConstant()) {
+         if (cat/* && !cat->isConstant()*/) {
+            std::cout << "Adding discrete " << cat->GetName() << "\n";
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
          }
 	}
     }
-    */
+    
 }
