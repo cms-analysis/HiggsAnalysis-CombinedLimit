@@ -7,7 +7,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TDirectory.h"
-#include "CombineTools/interface/Logging.h"
+#include "CombineHarvester/CombineTools/interface/Logging.h"
 
 namespace ch {
 

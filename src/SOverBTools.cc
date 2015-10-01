@@ -1,4 +1,4 @@
-#include "CombineTools/interface/SOverBTools.h"
+#include "CombineHarvester/CombineTools/interface/SOverBTools.h"
 #include "TH1.h"
 #include "TAxis.h"
 

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "CombineTools/interface/json.h"
+#include "CombineHarvester/CombineTools/interface/json.h"
 
 namespace ch {
 /**

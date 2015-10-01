@@ -5,7 +5,7 @@
 #include <vector>
 #include "TH1.h"
 #include "RooRealVar.h"
-#include "CombineTools/interface/MakeUnique.h"
+#include "CombineHarvester/CombineTools/interface/MakeUnique.h"
 
 namespace ch {
 

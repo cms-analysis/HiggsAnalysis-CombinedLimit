@@ -1,15 +1,15 @@
-#include "CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 #include <list>
-#include "CombineTools/interface/Observation.h"
-#include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Systematic.h"
-#include "CombineTools/interface/Parameter.h"
-#include "CombineTools/interface/Logging.h"
-#include "CombineTools/interface/TFileIO.h"
+#include "CombineHarvester/CombineTools/interface/Observation.h"
+#include "CombineHarvester/CombineTools/interface/Process.h"
+#include "CombineHarvester/CombineTools/interface/Systematic.h"
+#include "CombineHarvester/CombineTools/interface/Parameter.h"
+#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "CombineHarvester/CombineTools/interface/TFileIO.h"
 
 namespace ch {
 

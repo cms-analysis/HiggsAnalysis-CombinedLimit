@@ -4,8 +4,8 @@
 #include <map>
 #include <vector>
 #include <set>
-#include "CombineTools/interface/CombineHarvester.h"
-#include "CombineTools/interface/Object.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/Object.h"
 
 namespace ch {
 

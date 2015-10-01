@@ -1,4 +1,4 @@
-#include "CombineTools/interface/HistMapping.h"
+#include "CombineHarvester/CombineTools/interface/HistMapping.h"
 #include <string>
 #include "boost/format.hpp"
 

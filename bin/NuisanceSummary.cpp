@@ -1,11 +1,11 @@
 #include <string>
 #include <vector>
-#include "CombineTools/interface/CombineHarvester.h"
-#include "CombineTools/interface/Observation.h"
-#include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Systematic.h"
-#include "CombineTools/interface/Utilities.h"
-#include "CombineTools/interface/TFileIO.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/Observation.h"
+#include "CombineHarvester/CombineTools/interface/Process.h"
+#include "CombineHarvester/CombineTools/interface/Systematic.h"
+#include "CombineHarvester/CombineTools/interface/Utilities.h"
+#include "CombineHarvester/CombineTools/interface/TFileIO.h"
 #include "RooFitResult.h"
 #include "boost/format.hpp"
 #include "boost/program_options.hpp"

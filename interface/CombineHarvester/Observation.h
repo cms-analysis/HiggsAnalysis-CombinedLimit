@@ -4,8 +4,8 @@
 #include <string>
 #include "TH1.h"
 #include "RooAbsData.h"
-#include "CombineTools/interface/MakeUnique.h"
-#include "CombineTools/interface/Object.h"
+#include "CombineHarvester/CombineTools/interface/MakeUnique.h"
+#include "CombineHarvester/CombineTools/interface/Object.h"
 
 namespace ch {
 

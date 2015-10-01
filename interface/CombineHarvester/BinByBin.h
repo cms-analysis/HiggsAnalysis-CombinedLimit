@@ -1,7 +1,7 @@
 #ifndef CombineTools_BinByBin_h
 #define CombineTools_BinByBin_h
 #include <string>
-#include "CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
 
 namespace ch {
 /**

@@ -1,4 +1,4 @@
-#include "CombineTools/interface/ParseCombineWorkspace.h"
+#include "CombineHarvester/CombineTools/interface/ParseCombineWorkspace.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "RooAddPdf.h"
 #include "RooProdPdf.h"
 #include "RooStats/ModelConfig.h"
-#include "CombineTools/interface/Logging.h"
+#include "CombineHarvester/CombineTools/interface/Logging.h"
 
 namespace ch {
 void ParseCombineWorkspacePy(CombineHarvester& cb, RooWorkspace const& ws,

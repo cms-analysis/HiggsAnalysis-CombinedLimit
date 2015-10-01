@@ -12,10 +12,10 @@
 #include "TGraph.h"
 #include "RooFitResult.h"
 #include "RooArgSet.h"
-#include "CombineTools/interface/Parameter.h"
-#include "CombineTools/interface/Systematic.h"
-#include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Logging.h"
+#include "CombineHarvester/CombineTools/interface/Parameter.h"
+#include "CombineHarvester/CombineTools/interface/Systematic.h"
+#include "CombineHarvester/CombineTools/interface/Process.h"
+#include "CombineHarvester/CombineTools/interface/Logging.h"
 
 namespace ch { class CombineHarvester; }
 

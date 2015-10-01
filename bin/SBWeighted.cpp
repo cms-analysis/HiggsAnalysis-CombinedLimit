@@ -6,11 +6,11 @@
 #include "boost/format.hpp"
 #include "boost/program_options.hpp"
 
-#include "CombineTools/interface/CombineHarvester.h"
-#include "CombineTools/interface/SOverBTools.h"
-#include "CombineTools/interface/TFileIO.h"
-#include "CombineTools/interface/Plotting.h"
-#include "CombineTools/interface/Plotting_Style.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/SOverBTools.h"
+#include "CombineHarvester/CombineTools/interface/TFileIO.h"
+#include "CombineHarvester/CombineTools/interface/Plotting.h"
+#include "CombineHarvester/CombineTools/interface/Plotting_Style.h"
 
 namespace po = boost::program_options;
 

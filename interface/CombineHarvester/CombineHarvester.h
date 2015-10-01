@@ -13,12 +13,12 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "RooWorkspace.h"
-#include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Systematic.h"
-#include "CombineTools/interface/Parameter.h"
-#include "CombineTools/interface/Observation.h"
-#include "CombineTools/interface/Utilities.h"
-#include "CombineTools/interface/HistMapping.h"
+#include "CombineHarvester/CombineTools/interface/Process.h"
+#include "CombineHarvester/CombineTools/interface/Systematic.h"
+#include "CombineHarvester/CombineTools/interface/Parameter.h"
+#include "CombineHarvester/CombineTools/interface/Observation.h"
+#include "CombineHarvester/CombineTools/interface/Utilities.h"
+#include "CombineHarvester/CombineTools/interface/HistMapping.h"
 
 
 namespace ch {

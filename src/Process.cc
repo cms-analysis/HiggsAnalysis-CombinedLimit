@@ -1,8 +1,8 @@
-#include "CombineTools/interface/Process.h"
+#include "CombineHarvester/CombineTools/interface/Process.h"
 #include <iostream>
 #include <string>
 #include "boost/format.hpp"
-#include "CombineTools/interface/Logging.h"
+#include "CombineHarvester/CombineTools/interface/Logging.h"
 
 namespace ch {
 

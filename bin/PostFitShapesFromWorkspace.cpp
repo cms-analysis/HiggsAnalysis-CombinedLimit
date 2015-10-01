@@ -1,8 +1,8 @@
 #include <map>
 #include "boost/program_options.hpp"
 #include "boost/format.hpp"
-#include "CombineTools/interface/CombineHarvester.h"
-#include "CombineTools/interface/TFileIO.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/TFileIO.h"
 
 namespace po = boost::program_options;
 

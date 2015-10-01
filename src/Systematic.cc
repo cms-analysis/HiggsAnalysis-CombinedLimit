@@ -1,7 +1,7 @@
-#include "CombineTools/interface/Systematic.h"
+#include "CombineHarvester/CombineTools/interface/Systematic.h"
 #include <iostream>
 #include "boost/format.hpp"
-#include "CombineTools/interface/Logging.h"
+#include "CombineHarvester/CombineTools/interface/Logging.h"
 
 namespace ch {
 

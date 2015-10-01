@@ -4,7 +4,7 @@
 #include <vector>
 #include "RooWorkspace.h"
 #include "RooHistPdf.h"
-#include "CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized"
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"

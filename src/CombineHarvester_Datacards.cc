@@ -1,4 +1,4 @@
-#include "CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
 #include <cmath>
 #include <vector>
 #include <map>
@@ -15,15 +15,15 @@
 #include "TDirectory.h"
 #include "TH1.h"
 #include "RooRealVar.h"
-#include "CombineTools/interface/Observation.h"
-#include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Systematic.h"
-#include "CombineTools/interface/Parameter.h"
-#include "CombineTools/interface/MakeUnique.h"
-#include "CombineTools/interface/Utilities.h"
-#include "CombineTools/interface/TFileIO.h"
-#include "CombineTools/interface/Algorithm.h"
-#include "CombineTools/interface/GitVersion.h"
+#include "CombineHarvester/CombineTools/interface/Observation.h"
+#include "CombineHarvester/CombineTools/interface/Process.h"
+#include "CombineHarvester/CombineTools/interface/Systematic.h"
+#include "CombineHarvester/CombineTools/interface/Parameter.h"
+#include "CombineHarvester/CombineTools/interface/MakeUnique.h"
+#include "CombineHarvester/CombineTools/interface/Utilities.h"
+#include "CombineHarvester/CombineTools/interface/TFileIO.h"
+#include "CombineHarvester/CombineTools/interface/Algorithm.h"
+#include "CombineHarvester/CombineTools/interface/GitVersion.h"
 
 namespace ch {
 

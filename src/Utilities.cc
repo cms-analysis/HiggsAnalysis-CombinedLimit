@@ -1,4 +1,4 @@
-#include "CombineTools/interface/Utilities.h"
+#include "CombineHarvester/CombineTools/interface/Utilities.h"
 #include <iostream>
 #include <vector>
 #include <set>
@@ -11,7 +11,7 @@
 #include "RooDataHist.h"
 #include "RooAbsReal.h"
 #include "RooAbsData.h"
-#include "CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
 
 namespace ch {
 

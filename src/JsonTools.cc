@@ -1,4 +1,4 @@
-#include "CombineTools/interface/JsonTools.h"
+#include "CombineHarvester/CombineTools/interface/JsonTools.h"
 
 #include <fstream>
 #include <string>

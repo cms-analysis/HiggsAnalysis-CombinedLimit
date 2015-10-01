@@ -1,4 +1,4 @@
-#include "CombinePdfs/interface/MorphFunctions.h"
+#include "CombineHarvester/CombinePdfs/interface/MorphFunctions.h"
 #include <iostream>
 #include <set>
 #include <vector>
@@ -11,7 +11,7 @@
 #include "RooDataHist.h"
 #include "RooProduct.h"
 #include "RooConstVar.h"
-#include "CombineTools/interface/Logging.h"
+#include "CombineHarvester/CombineTools/interface/Logging.h"
 
 namespace ch {
 

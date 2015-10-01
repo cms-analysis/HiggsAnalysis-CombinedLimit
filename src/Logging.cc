@@ -1,4 +1,4 @@
-#include "CombineTools/interface/Logging.h"
+#include "CombineHarvester/CombineTools/interface/Logging.h"
 #include <string>
 #include <iostream>
 #include "boost/lexical_cast.hpp"

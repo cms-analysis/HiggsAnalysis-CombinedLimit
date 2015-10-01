@@ -1,12 +1,12 @@
-#include "CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
 #include <vector>
 #include <string>
 #include <utility>
 #include <set>
-#include "CombineTools/interface/Observation.h"
-#include "CombineTools/interface/Process.h"
-#include "CombineTools/interface/Systematic.h"
-#include "CombineTools/interface/Algorithm.h"
+#include "CombineHarvester/CombineTools/interface/Observation.h"
+#include "CombineHarvester/CombineTools/interface/Process.h"
+#include "CombineHarvester/CombineTools/interface/Systematic.h"
+#include "CombineHarvester/CombineTools/interface/Algorithm.h"
 
 namespace ch {
 

@@ -1,8 +1,8 @@
-#include "CombineTools/interface/CopyTools.h"
+#include "CombineHarvester/CombineTools/interface/CopyTools.h"
 #include <string>
 #include <vector>
-#include "CombineTools/interface/CombineHarvester.h"
-#include "CombineTools/interface/Systematic.h"
+#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "CombineHarvester/CombineTools/interface/Systematic.h"
 
 
 namespace ch {
