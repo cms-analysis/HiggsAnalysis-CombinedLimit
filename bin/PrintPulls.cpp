@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
   // std::sort(final.begin(), final.end(), ImpactComparator);
   std::sort(final.begin(), final.end(), BvsSBComparator);
   unsigned npulls = final.size();
-  if (max > 0 && max < npulls) npulls = max;
+  if (max > 0 && max < int(npulls)) npulls = max;
 
 
   // Prepare the canvas
@@ -319,7 +319,7 @@ void PullsFromFile(std::string const& filename, std::vector<Pull> & pullvec, boo
   for (unsigned i = 0; i < n; ++i) {
     RooRealVar const* var = dynamic_cast<RooRealVar const*>(list_s.at(i));
     if (!var) continue;
-    if (var->GetName() == "r") continue;
+    if (std::string(var->GetName()) == "r") continue;
     pullvec.push_back(Pull());
     Pull & new_pull = pullvec.back();
     new_pull.name = var->GetName();
