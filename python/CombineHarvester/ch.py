@@ -1,7 +1,16 @@
+# This python module is essentially a thin wrapper around the real module which is embedded
+# in the shared library built by scram from the C++ source code. We import everything from
+# this module below, then attach a few functions that could not easily be wrapped from the
+# C++, but instead are re-implemented in python in terms of other wrapped functions. The
+# most notable example is the AddSyst method. The C++ version relies heavily on templates
+# which is not readily adaptable to python. Instead we write the functionality entirely in a
+# python function, then "attach" this function to the CombineHarvester class.
+
 try:
-    from _combineharvester import *
+    from libCombineHarvesterCombineTools import *
 except ImportError:
     raise ImportError('Module is missing: you need to compile the C++ -> python shared library by running make')
+
 import itertools
 
 # a regular function
@@ -34,6 +43,9 @@ def SetFromSysts(self, func):
     self.ForEachSyst(lambda x : res.add(func(x)))
     return res
 
+# Similar to the C++ implementation. Instead of templating on
+# proxy objects that call the correct Process member functions
+# just pass the function names as strings.
 class SystMap:
   def __init__(self, *args):
       self.methodcallers = []
@@ -95,12 +107,13 @@ def AddSyst(self, target, name, type, valmap):
       print '>> Process entries that did get a Systematic:'
       for proc in added_procs: print proc
 
-# now we turn it into a member function
-_combineharvester.CombineHarvester.ParseDatacard = ParseDatacard
-_combineharvester.CombineHarvester.AddObservations = AddObservations
-_combineharvester.CombineHarvester.AddProcesses = AddProcesses
-_combineharvester.CombineHarvester.SetFromAll = SetFromAll
-_combineharvester.CombineHarvester.SetFromObs = SetFromObs
-_combineharvester.CombineHarvester.SetFromProcs = SetFromProcs
-_combineharvester.CombineHarvester.SetFromSysts = SetFromSysts
-_combineharvester.CombineHarvester.AddSyst = AddSyst
+# Now we turn these free functions into member functions
+# of the CombineHarvester class
+CombineHarvester.ParseDatacard = ParseDatacard
+CombineHarvester.AddObservations = AddObservations
+CombineHarvester.AddProcesses = AddProcesses
+CombineHarvester.SetFromAll = SetFromAll
+CombineHarvester.SetFromObs = SetFromObs
+CombineHarvester.SetFromProcs = SetFromProcs
+CombineHarvester.SetFromSysts = SetFromSysts
+CombineHarvester.AddSyst = AddSyst
