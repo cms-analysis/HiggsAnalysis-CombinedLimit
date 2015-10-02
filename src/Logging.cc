@@ -40,7 +40,7 @@ std::string FnError(std::string const& message, std::string const& file,
   res += "\n" + banner;
   res +=
       "\nPlease report issues at\n  "
-      "https://github.com/cms-analysis/HiggsAnalysis-HiggsToTauTau/issues/new";
+      "https://github.com/cms-analysis/CombineHarvester/issues";
   res += "\n" + banner;
   return res;
 }
