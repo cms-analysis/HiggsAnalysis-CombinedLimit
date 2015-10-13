@@ -193,7 +193,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     // skip b-only fit
   } else if (minos_ != "all") {
     RooArgList minos; 
-    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*reuseNLL*/ true); 
+    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
     nll_bonly_=nll->getVal()-nll0;   
   } else {
     CloseCoutSentry sentry(verbose < 2);
@@ -264,7 +264,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   r->setVal(preFitValue_); r->setConstant(false); 
   if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
-    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*reuseNLL*/ true); 
+    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*ndim*/1,/*reuseNLL*/ true); 
     nll_sb_ = nll->getVal()-nll0;
   } else {
     CloseCoutSentry sentry(verbose < 2);
