@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <sstream>
 #include "boost/algorithm/string.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/regex.hpp"
@@ -112,6 +113,9 @@ std::vector<std::vector<unsigned>> GenerateCombinations(
     std::vector<unsigned> vec);
 
 std::vector<std::string> ParseFileLines(std::string const& file_name);
+
+
+bool is_float(std::string const& str);
 
 /**
  * Generate a vector of mass values using ranges and intervals specified in a
