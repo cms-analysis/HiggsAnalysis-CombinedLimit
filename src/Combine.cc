@@ -325,12 +325,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (snapshotName_ != "") {
       bool loaded = w->loadSnapshot(snapshotName_.c_str());
       assert(loaded);
-      //make sure mass value used is really the one from the loaded snapshot unless explicitly requested to override it
-      if (overrideSnapshotMass_) {
-        MH->setVal(mass_);
-      }
-      else {
-        mass_ = MH->getVal();
+      if (MH){
+        //make sure mass value used is really the one from the loaded snapshot unless explicitly requested to override it
+        if (overrideSnapshotMass_) {
+          MH->setVal(mass_);
+        }
+        else {
+          mass_ = MH->getVal();
+        }
       }
     }
   //*********************************************
