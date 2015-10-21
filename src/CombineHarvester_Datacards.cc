@@ -676,7 +676,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   txt_file << format("%-"+sys_str_long+"s") % "rate";
   for (auto const& proc : procs_) {
-    txt_file << format("%-15.8g ") % proc->no_norm_rate();
+    txt_file << format("%-15.6g ") % proc->no_norm_rate();
   }
   txt_file << "\n";
   txt_file << dashes << "\n";
