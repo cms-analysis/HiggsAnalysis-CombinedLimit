@@ -538,7 +538,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 	int npermutations = permutations.size();
     	for (;perm_it!=permutations.end(); perm_it++){
 
-          if (ipoint < firstPoint_) continue;
+          if (ipoint < firstPoint_) {ipoint++; continue;}
           if (ipoint > lastPoint_)  break;
           *params = snap; 
 
@@ -570,6 +570,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 		}
                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
+               ipoint++;
 	       continue;
 	  }
           // now we minimize
