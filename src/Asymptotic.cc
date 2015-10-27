@@ -172,6 +172,7 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
     fitFreeD_.readFrom(*params_);
     minNllD_ = nllD_->getVal();
   }
+  rBestD_ = r->getVal();
   if (verbose > 0) std::cout << "NLL at global minimum of data: " << minNllD_ << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
   double rErr = std::max<double>(r->getError(), 0.02 * (r->getMax() - r->getMin()));
 
@@ -268,6 +269,17 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected, doub
       if (verbose >= 2) fitFixD_.Print("V");
   }
   double qmu = 2*(nllD_->getVal() - minNllD_); if (qmu < 0) qmu = 0;
+  // qmu is zero when mu < mu^ (CMS NOTE-2011/005)
+  // --> prevents us excluding from below
+  if (what_ == "singlePoint" && rVal < rBestD_) {
+    if (verbose > 0) {
+      std::cout << "Value being tested (" << r.GetName() << " = " << rValue_
+                << ") is lower than the best fit (" << r.GetName() << " = "
+                << rBestD_ << "). Setting q_mu to zero.\n";
+    }
+    qmu = 0.;
+  }
+
 
   CascadeMinimizer minimA(*nllA_, CascadeMinimizer::Constrained, &r);
   minimA.setStrategy(minimizerStrategy_); 
