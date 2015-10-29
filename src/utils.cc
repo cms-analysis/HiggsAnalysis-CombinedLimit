@@ -475,7 +475,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel));
             if (backgroundSel && strlen(backgroundSel)) pdfi->plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel));
             pdfi->plotOn(ret.back());
-            delete ds;
+        //    delete ds;
         }
         delete datasets;
     } else if (pdf.canBeExtended()) {
