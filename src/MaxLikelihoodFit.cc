@@ -497,13 +497,13 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
             hist->Scale(vals[i] / hist->Integral("width"));
             hist->SetDirectory(shapesByChannel[pair->second.channel]);
             shapes[i] = hist;
-            if (saveWithUncertainties_) {
-                shapes2[i] = (TH1*) hist->Clone();
-                shapes2[i]->SetDirectory(0);
-                shapes2[i]->Reset();
-                bins[i] = hist->GetNbinsX();
-                TH1 *&htot = totByCh[pair->second.channel];
-                if (htot == 0) {
+            //if (saveWithUncertainties_) {
+            shapes2[i] = (TH1*) hist->Clone();
+            shapes2[i]->SetDirectory(0);
+            shapes2[i]->Reset();
+            bins[i] = hist->GetNbinsX();
+            TH1 *&htot = totByCh[pair->second.channel];
+            if (htot == 0) {
                     htot = (TH1*) hist->Clone();
                     htot->SetName("total");
 		    htot->SetTitle(Form("Total signal+background in %s", pair->second.channel.c_str()));
@@ -511,12 +511,12 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                     TH1 *htot2 = (TH1*) hist->Clone(); htot2->Reset();
                     htot2->SetDirectory(0);
                     totByCh2[pair->second.channel] = htot2;
-                } else {
+            } else {
                     htot->Add(hist);
-                }
-                sig[i] = pair->second.signal;
-                TH1 *&hpart = (sig[i] ? sigByCh : bkgByCh)[pair->second.channel];
-                if (hpart == 0) {
+            }
+            sig[i] = pair->second.signal;
+            TH1 *&hpart = (sig[i] ? sigByCh : bkgByCh)[pair->second.channel];
+            if (hpart == 0) {
                     hpart = (TH1*) hist->Clone();
                     hpart->SetName((sig[i] ? "total_signal" : "total_background"));
 		    hpart->SetTitle(Form((sig[i] ? "Total signal in %s" : "Total background in %s"),pair->second.channel.c_str()));
@@ -524,10 +524,10 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                     TH1 *hpart2 = (TH1*) hist->Clone(); hpart2->Reset();
                     hpart2->SetDirectory(0);
                     (sig[i] ? sigByCh2 : bkgByCh2)[pair->second.channel] = hpart2;
-                } else {
+            } else {
                     hpart->Add(hist);
-                }
             }
+            //}
         }
     }
     if (saveWithUncertainties_) {
