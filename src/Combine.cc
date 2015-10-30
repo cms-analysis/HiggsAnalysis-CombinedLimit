@@ -492,7 +492,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       } 
   }
   if (floatNuisances_ != "") {
-      RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
+      RooArgSet toFloat((floatNuisances_=="*")?*nuisances:(w->argSet(floatNuisances_.c_str())));
       if (verbose > 0) std::cout << "Set floating the following nuisance parameters: "; toFloat.Print("");
       utils::setAllConstant(toFloat, false);
   }
