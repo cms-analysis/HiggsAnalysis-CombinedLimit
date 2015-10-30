@@ -43,10 +43,11 @@ protected:
   static bool squareDistPoiStep_;
   static bool fastScan_;
   static bool hasMaxDeltaNLLForProf_;
-  static bool loadedSnapshot_, savingSnapshot_;
+  static bool loadedSnapshot_, forceFirstFit_, savingSnapshot_;
   static float maxDeltaNLLForProf_;
   static float autoRange_;
   static bool  startFromPreFit_;
+  static std::string fixedPointPOIs_;
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;

@@ -133,7 +133,9 @@ Combine::Combine() :
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
-      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset");
+      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset")
+      ("genBinnedChannels", po::value<std::string>(&genAsBinned_)->default_value(genAsBinned_), "Flag the given channels to be generated binned (irrespectively of how they were flagged at workspace creation)") 
+      ("genUnbinnedChannels", po::value<std::string>(&genAsUnbinned_)->default_value(genAsUnbinned_), "Flag the given channels to be generated unbinned (irrespectively of how they were flagged at workspace creation)") 
       ; 
 }
 
@@ -400,6 +402,24 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   const RooArgSet * nuisances = mc->GetNuisanceParameters(); // note: may be null
   if (dynamic_cast<RooRealVar*>(POI->first()) == 0) throw std::invalid_argument("First parameter of interest is not a RooRealVar");
 
+  if (nuisances && runtimedef::get("ADD_DISCRETE_FALLBACK")) {
+    RooArgSet newNuis;
+    std::string startswith = "u_CMS_Hgg_env_pdf_";
+    TIterator *np = nuisances->createIterator();
+    while (RooRealVar *arg = (RooRealVar*)np->Next()) {
+      if (std::string(arg->GetName()).compare(0, startswith.size(), startswith)) {
+        newNuis.add(*arg);
+      } else {
+        std::cout << "Removed nuisance from set: " << arg->GetName() << "\n";
+      }
+    }
+    if (newNuis.getSize() < nuisances->getSize()) {
+      mc->SetNuisanceParameters(newNuis);
+      if (mc_bonly) mc_bonly->SetNuisanceParameters(newNuis);
+      nuisances = mc->GetNuisanceParameters();
+    }
+  }
+
   if (dataset.find(":") != std::string::npos) {
     std::string filename, wspname, dname;
     switch (std::count(dataset.begin(), dataset.end(), ':')) {
@@ -602,6 +622,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
       if (mc_bonly) utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
   }
+  if (!genAsBinned_.empty() || !genAsUnbinned_.empty()) {
+    RooSimultaneous *sim = dynamic_cast<RooSimultaneous*>(genPdf);
+    if (!sim) throw std::invalid_argument("Options genBinnedChannels and genUnbinnedChannels only work for RooSimultaneous pdfs");
+    utils::setChannelGenModes(*sim, genAsBinned_, genAsUnbinned_, verbose);
+  }
   if (expectSignal_ > 0) { 
     if (POI->find("r")) {
       ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);     
@@ -621,6 +646,17 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  readToysFromHere->ls();
 	  return;
 	}
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) {
+            RooAbsCollection *snap = dynamic_cast<RooAbsCollection *>(readToysFromHere->Get("toys/toy_asimov_snapshot"));
+            if (!snap) {
+                std::cerr << "Snapshot of global observables toy_asimov_snapshot not found in " << readToysFromHere->GetName() << ". List follows:\n";
+                readToysFromHere->ls();
+                return;
+            }
+            RooArgSet gobs(*mc->GetGlobalObservables());
+            gobs.assignValueOnly(*snap);
+            w->saveSnapshot("clean", w->allVars());
+        }
       }
       else{
         if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
@@ -634,9 +670,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 if (mc->GetGlobalObservables()) {
                     RooArgSet gobs(*mc->GetGlobalObservables());
                     gobs = gobsAsimov;
-                    utils::setAllConstant(*mc->GetParametersOfInterest(), false);
-                    w->saveSnapshot("clean", w->allVars());
                 }
+                utils::setAllConstant(*mc->GetParametersOfInterest(), false);
+                w->saveSnapshot("clean", w->allVars());
             } else {
                 toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
                 dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
@@ -657,6 +693,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (saveToys_) {
 	writeToysHere->WriteTObject(dobs, "toy_asimov");
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+            RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
+            if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
+            // to be seen whether I can delete it or not
+        }
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (MH) MH->setVal(mass_);    
@@ -679,18 +720,18 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
           w->saveSnapshot("reallyClean", w->allVars());
-          utils::setAllConstant(*mc->GetParametersOfInterest(), true); 
-          {
+          if (!bypassFrequentistFit_) {
+              utils::setAllConstant(*mc->GetParametersOfInterest(), true); 
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
               CloseCoutSentry sentry(verbose < 3);
               //genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));	
                 std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
                 CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
                 minim.setStrategy(1);
-                if (!bypassFrequentistFit_) minim.minimize();
+                minim.minimize();
+                utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
+                w->saveSnapshot("frequentistPreFit", w->allVars());
           }
-          utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
-          w->saveSnapshot("clean", w->allVars());
           systDs = nuisancePdf->generate(*mc->GetGlobalObservables(), nToys);
       } else {
           systDs = nuisancePdf->generate(*nuisances, nToys);
@@ -736,6 +777,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  readToysFromHere->ls();
 	  return;
 	}
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) {
+            RooAbsCollection *snap = dynamic_cast<RooAbsCollection *>(readToysFromHere->Get(TString::Format("toys/toy_%d_snapshot",iToy)));
+            if (!snap) {
+                std::cerr << "Snapshot of global observables toy_"<<iToy<<"_snapshot not found in " << readToysFromHere->GetName() << ". List follows:\n";
+                readToysFromHere->ls();
+                return;
+            }
+            vars->assignValueOnly(*snap);
+            w->saveSnapshot("clean", w->allVars());
+        }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
@@ -748,6 +799,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
       if (saveToys_) {
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+            RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
+            writeToysHere->WriteTObject(snap, TString::Format("toy_%d_snapshot", iToy));
+            // to be seen whether I can delete it or not
+        }
       }
       delete absdata_toy;
     }
@@ -823,22 +879,24 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
         TIterator *dp = discreteParameters->createIterator();
         while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
           RooCategory *cat = dynamic_cast<RooCategory*>(arg);
-          if (cat && !cat->isConstant()) {
+          if (cat && (!cat->isConstant() || runtimedef::get("ADD_DISCRETE_FALLBACK"))) {
+            std::cout << "Adding discrete " << cat->GetName() << "\n";
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
           }
         }
     } 
     // Run through all of the categories in the workspace and look for "pdfindex" -> fall back option 
-    /*else {
+    else if (runtimedef::get("ADD_DISCRETE_FALLBACK")) {
         RooArgSet discreteParameters_C = w->allCats();
         TIterator *dp = discreteParameters_C.createIterator();
         while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
          RooCategory *cat = dynamic_cast<RooCategory*>(arg);
          if (! (std::string(cat->GetName()).find("pdfindex") != std::string::npos )) continue;
-         if (cat && !cat->isConstant()) {
+         if (cat/* && !cat->isConstant()*/) {
+            std::cout << "Adding discrete " << cat->GetName() << "\n";
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
          }
 	}
     }
-    */
+    
 }
