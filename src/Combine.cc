@@ -122,6 +122,7 @@ Combine::Combine() :
       ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
       ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(false), "Make all nuisance parameters floating")
+      ("floatNuisances", po::value<string>(&floatNuisances_)->default_value(""), "Set to floating these nuisance parameters (note freeze will take priority over float)")
       ("freezeAllGlobalObs", po::value<bool>(&freezeAllGlobalObs_)->default_value(true), "Make all global observables constant")
       ;
     miscOptions_.add_options()
@@ -345,7 +346,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   //*********************************************
   if (setPhysicsModelParameterExpression_ != "") {
       RooArgSet allParams(w->allVars());
-      if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
+      //if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
+      allParams.add(w->allCats());
       utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
       // also allow for "discrete" parameters to be set 
   }
@@ -508,6 +510,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
               nuisances = mc->GetNuisanceParameters();
           }
       } 
+  }
+  if (floatNuisances_ != "") {
+      RooArgSet toFloat((floatNuisances_=="*")?*nuisances:(w->argSet(floatNuisances_.c_str())));
+      if (verbose > 0) std::cout << "Set floating the following nuisance parameters: "; toFloat.Print("");
+      utils::setAllConstant(toFloat, false);
   }
   if (freezeNuisances_ != "") {
       RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
