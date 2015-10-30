@@ -34,7 +34,7 @@ protected:
 
   static float preFitValue_;
 
-  static bool robustFit_, do95_;
+  static bool robustFit_, do95_, forceRecreateNLL_;
   static float stepSize_;
   static int   maxFailedSteps_;
 

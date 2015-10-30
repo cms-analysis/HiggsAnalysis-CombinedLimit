@@ -48,7 +48,7 @@ protected:
   static bool        customStartingPoint_;
   int currentToy_, nToys;
   int fitStatus_, numbadnll_;
-  double mu_, muLoErr_, muHiErr_, nll_nll0_, nll_bonly_, nll_sb_;
+  double mu_, muErr_, muLoErr_, muHiErr_, nll_nll0_, nll_bonly_, nll_sb_;
   std::auto_ptr<TFile> fitOut;
   double* globalObservables_;
   double* nuisanceParameters_;

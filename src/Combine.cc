@@ -665,7 +665,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     RooDataSet *systDs = 0;
     if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {
       if (nuisances == 0) throw std::logic_error("Running with systematics enabled, but nuisances not defined.");
-      nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ? *mc : *mc_bonly));
+      nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
           w->saveSnapshot("reallyClean", w->allVars());

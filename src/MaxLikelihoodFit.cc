@@ -69,7 +69,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
    ;
 
     // setup a few defaults
-    nToys=0; fitStatus_=0; mu_=0; muLoErr_=0; muHiErr_=0; numbadnll_=-1; nll_nll0_=-1; nll_bonly_=-1; nll_sb_=-1;
+    nToys=0; fitStatus_=0; mu_=0; muErr_=0; muLoErr_=0; muHiErr_=0; numbadnll_=-1; nll_nll0_=-1; nll_bonly_=-1; nll_sb_=-1;
 }
 
 MaxLikelihoodFit::~MaxLikelihoodFit(){
@@ -193,7 +193,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     // skip b-only fit
   } else if (minos_ != "all") {
     RooArgList minos; 
-    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*reuseNLL*/ true); 
+    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
     nll_bonly_=nll->getVal()-nll0;   
   } else {
     CloseCoutSentry sentry(verbose < 2);
@@ -264,7 +264,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   r->setVal(preFitValue_); r->setConstant(false); 
   if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
-    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*reuseNLL*/ true); 
+    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*ndim*/1,/*reuseNLL*/ true); 
     nll_sb_ = nll->getVal()-nll0;
   } else {
     CloseCoutSentry sentry(verbose < 2);
@@ -346,6 +346,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
       muLoErr_=loErr;
       muHiErr_=hiErr;
+      muErr_  =rf->getError();
 
       double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
       double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
@@ -678,6 +679,9 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
 
 	 t_fit_b_->Branch("mu",&mu_,"mu/Double_t");
 	 t_fit_sb_->Branch("mu",&mu_,"mu/Double_t");
+
+	 t_fit_b_->Branch("muErr",&muErr_,"muErr/Double_t");
+	 t_fit_sb_->Branch("muErr",&muErr_,"muErr/Double_t");
 
 	 t_fit_b_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");
 	 t_fit_sb_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");
