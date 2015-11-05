@@ -111,6 +111,8 @@ class SignalStrengths(LHCHCGBaseModel):
             self.doVar("mu_XS_%s[1,0,5]" % X)
             self.doVar("mu_XS7_%s[1,0,5]" % X)
             self.doVar("mu_XS8_%s[1,0,5]" % X)
+            for Y in CMS_to_LHCHCG_Dec.values():
+              self.doVar("mu_XS_%s_BR_%s[1,0,5]" % (X, Y))
         for X in CMS_to_LHCHCG_DecSimple.values():
             self.doVar("mu_V_%s[1,0,5]" % X)
             self.doVar("mu_F_%s[1,0,5]" % X)
@@ -124,6 +126,7 @@ class SignalStrengths(LHCHCGBaseModel):
             if P == "VH": continue # skip aggregates 
             for D in SM_HIGG_DECAYS:
                 for E in 7, 8:
+                    DS = CMS_to_LHCHCG_DecSimple[D]
                     terms = [ "mu", "mu_BR_"+CMS_to_LHCHCG_DecSimple[D] ]
                     # Hack for ggH
                     if D in self.add_bbH and P == "ggH":
@@ -133,19 +136,27 @@ class SignalStrengths(LHCHCGBaseModel):
                         ## FIXME should include the here also logNormal for QCDscale_bbH
                         self.modelBuilder.factory_('expr::ggH_bbH_sum_%s_%dTeV(\"@1*@2+@0*@3*@4*@5\",%s,%s,%s)' % (D,E,b2g,ggs,bbs))
                         terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E),  "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
+                        terms += [ 'mu_XS_ggFbbH_BR_%s' % DS ]
                     else:
                         if P in [ "ggH", "bbH" ]:
                             terms += [ "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
+                            terms += [ "mu_XS_ggFbbH_BR_%s" % DS ]
                         terms += [ "mu_XS_"+CMS_to_LHCHCG_Prod[P],  "mu_XS%d_%s"%(E,CMS_to_LHCHCG_Prod[P])  ]
+                        terms += [ "mu_XS_"+CMS_to_LHCHCG_Prod[P]+"_BR_%s"%DS ]
+
                     # Summary modes
                     if P in [ "tHW", "tHq" ]:
                         terms += [ "mu_XS_tH", "mu_XS%d_tH"%E ]
+                        terms += [ "mu_XS_tH_BR_%s" % DS ]
                     if P in [ "tHW", "tHq", "ttH" ]:
                         terms += [ "mu_XS_ttHtH", "mu_XS%d_ttHtH"%E ]
+                        terms += [ "mu_XS_ttHtH_BR_%s" % DS ]
                     if P in [ "ggZH", "ZH" ]:
                         terms += [ "mu_XS_ZH", "mu_XS%d_ZH"%E ]
+                        terms += [ "mu_XS_ZH_BR_%s" % DS ]
                     if P in [ "WH", "ZH", "ggZH" ]:
                         terms += [ "mu_XS_VH", "mu_XS%d_VH"%E ]
+                        terms += [ "mu_XS_VH_BR_%s" % DS ]
                     # for 2D scans
                     if P in [ "ggH", "ttH", "bbH", "tHq", "tHW" ]:
                         terms += [ "mu_F_"+CMS_to_LHCHCG_DecSimple[D] ]
