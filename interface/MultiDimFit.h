@@ -36,6 +36,10 @@ protected:
   static RooArgList                poiList_; 
   static unsigned int              nOtherFloatingPoi_; // keep a count of other POIs that we're ignoring, for proper chisquare normalization
   static float                     deltaNLL_;
+  static std::string out_; 
+  std::auto_ptr<TFile> fitOut;
+  static std::string name_;
+  static bool doHesse_;
 
   // options    
   static unsigned int points_, firstPoint_, lastPoint_;
@@ -48,7 +52,9 @@ protected:
   static float autoRange_;
   static bool  startFromPreFit_;
   static std::string fixedPointPOIs_;
+  static float centeredRange_;
 
+  static std::string setPhysicsModelParameterExpression_;
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
   static std::string saveSpecifiedIndex_;
@@ -79,6 +85,8 @@ protected:
   // utilities
   /// for each RooRealVar, set a range 'box' from the PL profiling all other parameters
   void doBox(RooAbsReal &nll, double cl, const char *name="box", bool commitPoints=true) ;
+  /// save a file with the RooFitResult inside
+  void saveResult(RooFitResult &res);
 };
 
 

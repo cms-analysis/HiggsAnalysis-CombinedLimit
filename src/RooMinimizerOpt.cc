@@ -639,7 +639,7 @@ void RooMinimizerFcnOpt::initStdVects() const {
       if (rrv == 0) throw std::logic_error(Form("Float param not a RooRealVar but a %s", a->ClassName()));
       *itv = rrv; 
       *it  = rrv->getVal();
-      if (rrv->getAttribute("optimizeBounds")) {
+      if (rrv->getAttribute("optimizeBounds") && rrv->hasRange("optimizeBoundRange")) {
         _hasOptimzedBounds[i] = true;
         OptBound &b = _optimzedBounds[i];
         b.hardMax = rrv->getMax("optimizeBoundRange");

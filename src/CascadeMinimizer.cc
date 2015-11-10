@@ -114,6 +114,20 @@ bool CascadeMinimizer::improveOnce(int verbose)
     return outcome;
 }
 
+bool CascadeMinimizer::hesse(int verbose) {
+   minimizer_->setPrintLevel(verbose-1);
+   if (setZeroPoint_) {
+      cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+      if (simnll) simnll->setZeroPoint();
+   }
+   int iret = minimizer_->hesse();
+   if (setZeroPoint_) {
+      cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+      if (simnll) simnll->clearZeroPoint();
+   }
+   return iret == 0;
+}
+
 
 bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
    

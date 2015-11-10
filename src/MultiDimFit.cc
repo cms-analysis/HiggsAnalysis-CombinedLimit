@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "TMath.h"
+#include "TFile.h"
 #include "RooArgSet.h"
 #include "RooArgList.h"
 #include "RooRandom.h"
@@ -23,6 +24,8 @@
 
 using namespace RooStats;
 
+std::string MultiDimFit::name_ = "";
+std::string MultiDimFit::out_ = ".";
 MultiDimFit::Algo MultiDimFit::algo_ = None;
 MultiDimFit::GridType MultiDimFit::gridType_ = G1x1;
 std::vector<std::string>  MultiDimFit::poi_;
@@ -45,10 +48,13 @@ bool MultiDimFit::squareDistPoiStep_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 float MultiDimFit::autoRange_ = -1.0;
 std::string MultiDimFit::fixedPointPOIs_ = "";
+bool MultiDimFit::doHesse_ = false;
+float MultiDimFit::centeredRange_ = -1.0;
 
   std::string MultiDimFit::saveSpecifiedFuncs_;
   std::string MultiDimFit::saveSpecifiedIndex_;
   std::string MultiDimFit::saveSpecifiedNuis_;
+  std::string MultiDimFit::setPhysicsModelParameterExpression_;
  std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
  std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
  std::vector<float>        MultiDimFit::specifiedFuncVals_;
@@ -76,6 +82,7 @@ MultiDimFit::MultiDimFit() :
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
         ("autoRange", boost::program_options::value<float>(&autoRange_)->default_value(autoRange_), "Set to any X >= 0 to do the scan in the +/- X sigma range (where the sigma is from the initial fit, so it may be fairly approximate)")
 	("fixedPointPOIs",   boost::program_options::value<std::string>(&fixedPointPOIs_)->default_value(""), "Parameter space point for --algo=fixed")
+        ("centeredRange", boost::program_options::value<float>(&centeredRange_)->default_value(centeredRange_), "Set to any X >= 0 to do the scan in the +/- X range centered on the nominal value")
         ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
 	("saveSpecifiedNuis",   boost::program_options::value<std::string>(&saveSpecifiedNuis_)->default_value(""), "Save specified parameters (default = none)")
@@ -84,6 +91,9 @@ MultiDimFit::MultiDimFit() :
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
         ("forceFirstFit", "Force the first fit even if it wouldn't normally happen (e.g. for algo=grid when loading a snapshot)")
+        ("out",                boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put output in")
+        ("doHesse","Calculate the covariance matrix with HESSE after the initial fit")
+    ("setPhysicsModelParametersForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
        ;
 }
 
@@ -115,6 +125,8 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
     savingSnapshot_ = (!loadedSnapshot_) && vm.count("saveWorkspace");
     forceFirstFit_ = (vm.count("forceFirstFit") > 0);
+    name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
+    doHesse_ = (vm.count("doHesse") > 0);
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -141,7 +153,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     std::auto_ptr<RooFitResult> res;
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
     if ( algo_ == Singles || algo_ == None || forceFirstFit_ || !loadedSnapshot_ ){
-    	res.reset(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false)); 
+      res.reset(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, doHesse_, 1, true, doHesse_));
     } else {
         // must create the NLL
         nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true)));
@@ -151,15 +163,13 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
         }
-        if (algo_ != None) {
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-		Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
-	}
+        for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+          specifiedVals_[j]=specifiedVars_[j]->getVal();
+        }
+        for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+          specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+        }
+        Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
     }
    
     //set snapshot for best fit
@@ -172,6 +182,16 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
             double min1 = std::max(min0, val - autoRange_ * err);
             double max1 = std::min(max0, val + autoRange_ * err);
             std::cout << poi_[i] << ": " << val << " +/- " << err << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            poiVars_[i]->setRange(min1, max1);
+        }
+    }
+    if (centeredRange_ > 0) {
+        std::cout << "Adjusting range of POIs to +/- " << centeredRange_ << std::endl;
+        for (int i = 0, n = poi_.size(); i < n; ++i) {
+            double val = poiVars_[i]->getVal(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
+            double min1 = std::max(min0, val - centeredRange_);
+            double max1 = std::min(max0, val + centeredRange_);
+            std::cout << poi_[i] << ": " << val << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
             poiVars_[i]->setRange(min1, max1);
         }
     }
@@ -189,8 +209,9 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
                     printf("   %*s :  %+8.3f\n", len, poi_[i].c_str(), poiVals_[i]);
                 }
             }
+            if(res.get() && doHesse_) saveResult(*res);
             break;
-        case Singles: if (res.get()) doSingles(*res); break;
+        case Singles: if (res.get()) { doSingles(*res); saveResult(*res); } break;
         case Cross: doBox(*nll, cl, "box", true); break;
         case Grid: doGrid(w,*nll); break;
         case RandomPoints: doRandomPoints(w,*nll); break;
@@ -355,6 +376,12 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     unsigned int n = poi_.size();
     //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
+    if (setPhysicsModelParameterExpression_ != "") {
+        RooArgSet allParams(w->allVars());
+        if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
+        utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
+        // also allow for "discrete" parameters to be set 
+    }
     if (startFromPreFit_) w->loadSnapshot("clean");
 
     std::vector<double> p0(n), pmin(n), pmax(n);
@@ -872,4 +899,12 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         xv->setConstant(false);
     }
     verbose++; // restore verbosity 
+}
+
+void MultiDimFit::saveResult(RooFitResult &res) {
+  res.Print("V");
+    if (out_ != "none") fitOut.reset(TFile::Open((out_+"/multidimfit"+name_+".root").c_str(), "RECREATE"));
+    fitOut->WriteTObject(&res,"fit");
+    fitOut->cd();
+    fitOut.release()->Close();
 }
