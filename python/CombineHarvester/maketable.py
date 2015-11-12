@@ -3,13 +3,7 @@ import ROOT as R
 from array import array
 import json
 
-def Tablefrom1DGraph(ta, rootfile, ma_list, filename):
-  tab=int(ta)
-  if (tab==0):
-    return
-  print "Writing table: "+filename
-  mamin=ma_list[0]
-  mamax=ma_list[-1]
+def Tablefrom1DGraph(rootfile, filename):
   graph = [R.TGraph() for i in range(6)]
 
   # Get and sort graphs
@@ -28,29 +22,19 @@ def Tablefrom1DGraph(ta, rootfile, ma_list, filename):
     f.write("--------------------")
   f.write("\n")
 
-  # Calculate massrange, because range() only works for integers
-  masslist=array('d', [0]*tab)
-  fl=float(mamin)
-  distance=(float(mamax)-float(mamin))/float(tab-1)
-  for i in range(tab):
-    masslist[i]=fl
-    fl+=distance
-
   # Get values and write them
   value=array('d', [0]*7)
-  for value[0] in masslist:
+  for i in range(graph[1].GetN()) :
+    value[0] = graph[1].GetX()[i]
     for k in range(6):
-      value[k+1]=graph[k].Eval(value[0])
+      value[k+1]=graph[k].GetY()[i] 
     for k in range(7):
       f.write("%-20s" % str(value[k]))
     f.write("\n")
   f.close()
 
-def TablefromJson(ta, jsonfile, filename):
-  tab=int(ta)
-  if (tab==0):
-    return
-  print "Writing table: "+filename
+
+def TablefromJson(jsonfile, filename):
   with open(jsonfile) as json_file:    
     js = json.load(json_file)
   x = []
@@ -94,36 +78,13 @@ def TablefromJson(ta, jsonfile, filename):
     f.write("--------------------")
   f.write("\n")
   
-  # Calculate massrange, because range() only works for integers
-  mamin = float(x[0])
-  mamax = float(x[-1])
-  masslist=array('d', [0]*tab)
-  fl=float(mamin)
-  distance=(float(mamax)-float(mamin))/float(tab-1)
-  for i in range(tab):
-    masslist[i]=fl
-    fl+=distance
-
-  # Calculate values and write them
-  value=array('d', [0]*7)
-  pas=0
-  for value[0] in masslist:
+  # Write table 
+  i=0
+  for mass in x :
     for k in range(6):
-      i=1
-      value[k+1]=float(-1)
-      while (value[0]-xfory[i][k]>1e-11): # It's possible that the very last point in the masslist differs very slightly from mamax.
-        i+=1
-        if (i==maxpoints[0]): # Incase the value of -2,-1,exp,+1,+2,obs is missing for mamax.
-          pas=1
-          break
-      if (pas==0 and value[0]>=xfory[i-1][k]): # Incase the value of -2,-1,exp,+1,+2,obs is missing for mamin.
-        value[k+1]=(((y[i][k]-y[i-1][k])/(xfory[i][k]-xfory[i-1][k]))*(value[0]-xfory[i-1][k]))+y[i-1][k]
-      else:
-        pas=0
-    for k in range(7):
-      if (value[k]==float(-1)):
-        f.write("%-20s" % "-----")
-      else:
-        f.write("%-20s" % str(value[k]))
+      if k==0:
+        f.write("%-20s" % str(mass))
+      f.write("%-20s" % str(y[i][k]))
     f.write("\n")
+    i+=1
   f.close()
