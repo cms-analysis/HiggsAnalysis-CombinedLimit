@@ -368,6 +368,8 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
 
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+    if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     minim.setStrategy(minimizerStrategy_);
     std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
     RooArgSet snap; params->snapshot(snap);
@@ -638,6 +640,8 @@ void MultiDimFit::doRandomPoints(RooWorkspace *w, RooAbsReal &nll)
     }
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+    if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
     for (unsigned int j = 0; j < points_; ++j) {
@@ -675,6 +679,8 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     }
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+    if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
 
@@ -746,6 +752,8 @@ void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll)
         // ===== Get the best fit x (could also do without profiling??) =====
         xv->setConstant(false);  xv->setVal(x0);
         CascadeMinimizer minimXI(nll, CascadeMinimizer::Unconstrained, xv);
+        if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
         minimXI.setStrategy(minimizerStrategy_);
         {
             CloseCoutSentry sentry(verbose < 3);    
@@ -755,6 +763,8 @@ void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll)
         if (verbose>-1) std::cout << "Best fit " << xv->GetName() << " for  " << yv->GetName() << " = " << yv->getVal() << " is at " << xc << std::endl;
         // ===== Then get the range =====
         CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+        if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
         double xup = findCrossing(minim, nll, *xv, threshold, xc, xMax);
         if (!std::isnan(xup)) { 
             x = xup; y = yv->getVal(); Combine::commitPoint(true, /*quantile=*/1-cl);
@@ -838,6 +848,8 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         RooRealVar *xv = poiVars_[i];
         xv->setConstant(true);
         CascadeMinimizer minimX(nll, CascadeMinimizer::Constrained);
+        if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
         minimX.setStrategy(minimizerStrategy_);
 
         for (unsigned int j = 0; j < n; ++j) poiVars_[j]->setVal(p0[j]);
