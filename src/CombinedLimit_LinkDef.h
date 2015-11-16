@@ -29,6 +29,7 @@
 #include "../interface/HZZ4L_RooSpinZeroPdf_2D.h"
 #include "../interface/HWWLVJJRooPdfs.h"
 
+#include "../interface/ExtendedMinimizer.h"
 #ifdef __CINT__
 #pragma link off all globals;
 #pragma link off all classes;
@@ -155,4 +156,5 @@
 #pragma link C++ class RooErfPdf+;
 #pragma link C++ class RooChebyshevPDF+;
 
+#pragma link C++ class ExtendedMinimizer+;
 #endif 

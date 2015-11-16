@@ -23,7 +23,7 @@ class RooArgList ;
 
 namespace RooStats{
 namespace HistFactory{
-
+  using namespace std;
   class RooBSplineBases : public RooAbsReal {
   public:
 
