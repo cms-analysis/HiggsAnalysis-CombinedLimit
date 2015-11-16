@@ -88,7 +88,7 @@ ProfileLikelihood::MinimizerSentry::MinimizerSentry(const std::string &minimizer
     minimizerTollBackup(ROOT::Math::MinimizerOptions::DefaultTolerance())
 {
   ROOT::Math::MinimizerOptions::SetDefaultTolerance(tolerance);
-  /*if (minimizerAlgo.find(",") != std::string::npos) {
+  if (minimizerAlgo.find(",") != std::string::npos) {
       size_t idx = minimizerAlgo.find(",");
       std::string type = minimizerAlgo.substr(0,idx), algo = minimizerAlgo.substr(idx+1);
       if (verbose > 1) std::cout << "Set default minimizer to " << type << ", algorithm " << algo << std::endl;
@@ -96,7 +96,7 @@ ProfileLikelihood::MinimizerSentry::MinimizerSentry(const std::string &minimizer
   } else {
       if (verbose > 1) std::cout << "Set default minimizer to " << minimizerAlgo << std::endl;
       ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerAlgo.c_str());
-  }*/
+  }
 }
 
 ProfileLikelihood::MinimizerSentry::~MinimizerSentry() 
