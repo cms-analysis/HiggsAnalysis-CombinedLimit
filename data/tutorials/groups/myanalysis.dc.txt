@@ -1,0 +1,58 @@
+Adapted from HIG-15-001/CombinedCards_llbb
+Combination of /nfs/user/acaudron/datacards2HDMyieldsSignal/Mu/123_329.txt, /nfs/user/acaudron/datacards2HDMyieldsSignal/El/123_329.txt
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes *    ch1  FAKE
+shapes *    ch2  FAKE
+----------------------------------------------------------------------------------------------------------------------------------
+bin          ch1    ch2
+#observation  590.746  461.876
+observation  610  440
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                  ch1       ch1       ch1       ch1       ch1       ch1       ch1       ch1       ch1       ch1       ch1       ch1       ch1       ch2       ch2       ch2       ch2       ch2       ch2       ch2       ch2       ch2       ch2       ch2       ch2       ch2
+process                              ModInd    Wtbar     TTSemiMu  ZH125     Zbb3j     WZ        WW        Wt        ZZ        Zxx       Zbb2j     TTFullMu  Zbx       ModInd    Wtbar     ZH125     Zbb3j     Zbb2j     WW        Wt        TTSemiEl  ZZ        Zxx       TTFullEl  WZ        Zbx
+process                              0         1         2         3         4         5         6         7         8         9         10        11        12        0         1         3         4         10        6         7         13        8         9         14        5         12
+rate                                 47.6190   2.5120    0.4860    4.8330    104.3510  1.1300    0.1180    1.8130    8.2660    66.5180   181.0980  133.9830  38.0190   38.9610   0.6850    3.7280    77.6390   141.3770  0.0000    0.8790    0.2080    5.8080    61.9530   103.4070  0.5400    26.6910
+----------------------------------------------------------------------------------------------------------------------------------
+CMS_res_j               lnN          1.01      0.823     1.0       0.994     0.967     0.937     1.0       1.0       1.045     1.013     0.994     0.999     0.95      1.01      1.0       0.996     1.004     0.992     1.0       1.0       1.0       1.035     0.989     1.002     1.133     1.023
+CMS_scale_j             lnN          1.03      0.823     1.08      1.048     0.972     1.053     1.0       1.14      1.156     0.994     0.981     1.015     1.067     1.03      1.0       1.047     0.977     1.028     1.0       0.741     1.183     1.171     1.058     1.012     1.133     0.906
+
+El_SFs                  lnN          -         -         -         -         -         -         -         -         -         -         -         -         -         1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03
+Mu_SFs                  lnN          1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      1.03      -         -         -         -         -         -         -         -         -         -         -         -         -
+
+btagSFs_bcjets          lnN          1.05      1.038     1.017     1.041     1.001     1.051     1.045     1.033     1.045     0.998     0.995     1.002     0.994     1.05      1.028     1.041     1.001     0.996     1.0       1.039     1.012     1.045     0.997     1.002     1.062     1.002
+btagSFs_lightjets       lnN          1.002     1.032     1.003     1.001     1.002     1.067     1.0       1.033     1.008     0.983     0.996     1.002     1.073     1.002     1.069     1.001     1.002     0.996     1.0       1.001     1.004     1.007     0.981     1.002     1.026     1.052
+
+lumi_8TeV               lnN          1.026     1.026     -         1.026     -         1.026     1.026     1.026     1.026     -         -         -         -         1.026     1.026     1.026     -         -         1.026     1.026     -         1.026     -         -         1.026     -
+
+exp group = CMS_res_j CMS_scale_j El_SFs Mu_SFs btagSFs_bcjets btagSFs_lightjets lumi_8TeV
+
+
+bkgNorm1                lnN          -         -         1.0       -         0.99      -         -         -         -         1.08      1.0       1.0       0.99      -         -         -         0.99      1.0       -         -         1.0       -         1.08      1.0       -         0.99
+bkgNorm2                lnN          -         -         1.02      -         0.98      -         -         -         -         0.98      0.99      1.02      0.98      -         -         -         0.98      0.99      -         -         1.02      -         0.98      1.02      -         0.98
+bkgNorm3                lnN          -         -         1.0       -         1.02      -         -         -         -         1.0       0.97      1.0       1.02      -         -         -         1.02      0.97      -         -         1.0       -         1.0       1.0       -         1.02
+bkgNorm4                lnN          -         -         0.98      -         0.98      -         -         -         -         0.99      0.99      0.98      0.98      -         -         -         0.98      0.99      -         -         0.98      -         0.99      0.98      -         0.98
+
+bgexp group = bkgNorm1 bkgNorm2 bkgNorm3
+bg group = bkgNorm1 bkgNorm2 bkgNorm3
+exp group += bkgNorm1 bkgNorm2 bkgNorm3
+
+SIGeff                  lnN          1.021     -         -         -         -         -         -         -         -         -         -         -         -         1.021     -         -         -         -         -         -         -         -         -         -         -         -
+SIGpfd                  lnN          1.06      -         -         -         -         -         -         -         -         -         -         -         -         1.06      -         -         -         -         -         -         -         -         -         -         -         -
+SIGscale                lnN          1.05      -         -         -         -         -         -         -         -         -         -         -         -         1.05      -         -         -         -         -         -         -         -         -         -         -         -
+
+sigtheo group = SIGeff SIGpfd SIGscale
+theo group = SIGeff SIGpfd SIGscale
+
+DY_NLO                  lnN          -         -         -         -         1.048     -         -         -         -         1.041     1.048     -         1.048     -         -         -         1.048     1.048     -         -         -         -         1.041     -         -         1.048
+tWnorm                  lnN          -         1.23      -         -         -         -         -         1.23      -         -         -         -         -         -         1.23      -         -         -         -         1.23      -         -         -         -         -         -
+ZHnorm                  lnN          -         -         -         1.07      -         -         -         -         -         -         -         -         -         -         -         1.07      -         -         -         -         -         -         -         -         -         -
+WZnorm                  lnN          -         -         -         -         -         1.06      -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         1.06      -
+WWnorm                  lnN          -         -         -         -         -         -         1.09      -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -
+ZZnorm                  lnN          -         -         -         -         -         -         -         -         1.11      -         -         -         -         -         -         -         -         -         -         -         -         1.11      -         -         -         -
+
+bgtheo group = DY_NLO WWnorm WZnorm ZHnorm ZZnorm tWnorm
+theo group += DY_NLO WWnorm WZnorm ZHnorm ZZnorm tWnorm
+bg group += DY_NLO WWnorm WZnorm ZHnorm ZZnorm tWnorm
