@@ -6,9 +6,9 @@ The files in this directory are a tutorial on:
 - breaking down uncertainties by freezing groups of nuisances while starting from the snaphot.
 
 The files in this directory are:
-- `[myanalysis.dc.txt](./myanalysis.dc.txt)`: a two-bin counting experiment datacard with some tension built into the observation and multiple nuisance groups defined.
-- `[Makefile](./Makefile)`: an annotated list of all the commands used, as well as the walkthrough of the results.
-- `[MLFUncDiff.py](./MLFUncDiff.py)`: a (rather dump) python script that takes two output files from `MaxLikelihoodFit` and subtracts uncertainties in quadrature.
+- [`myanalysis.dc.txt`](./myanalysis.dc.txt): a two-bin counting experiment datacard with some tension built into the observation and multiple nuisance groups defined.
+- [`Makefile`](./Makefile): an annotated list of all the commands used, as well as the walkthrough of the results.
+- [`MLFUncDiff.py`](./MLFUncDiff.py): a (rather dump) python script that takes two output files from `MaxLikelihoodFit` and subtracts uncertainties in quadrature.
 
 For simplicity, this tutorial does not discuss scans using `-M MultiDimFit --algo=grid`,
 but rather uses `-M MaxLikelihoodFit --robustFit=1`
@@ -16,9 +16,9 @@ to determine the crossings of the likelihood with the 1 sigma levels.
 
 ## Groups of nuisances
 
-Groups of nuisances are defined in the [datacard](./myanalysis.dc.txt).
+Groups of nuisances are defined in the datacard, e.g. [here](./myanalysis.dc.txt#L30), [here](./myanalysis.dc.txt#L38-L40), [here](./myanalysis.dc.txt#L46-L47), and [here](./myanalysis.dc.txt#L56-L58).
 They are parsed when building the binary datacard and result in two actions:
-- creation in the workspace of a `RooArgSet` for each group, containing the concerns nuisance parameters.
+- creation in the workspace of a `RooArgSet` for each group, containing the concerned nuisance parameters.
 - setting of a `group_%s` attribute in each nuisance parameter.
 
 A nuisance parameter can belong to multiple groups of nuisances.
@@ -30,7 +30,7 @@ only individual nuisances can be declared as part of a group.
 
 ## Snapshots
 
-Snapshots are a functionality of `MultiDimFit` that allows to save the result of the fit.
+Snapshots are a functionality of `MultiDimFit` that allows to save the result of the fit, see [here](./Makefile#L115-L118).
 They are essential to extract post-fit uncertainties,
 since the nuisances have to be set to their best-fit values.
 
@@ -49,7 +49,7 @@ systematic uncertainty.
 
 When there are multiple components being disentangled,
 the decomposition can proceed in many ways,
-and an example of extracting the exp. syst. and theo. syst. is given in this tutorial.
+and an example of extracting the exp. syst. and theo. syst. is given in this tutorial, [here](./Makefile#L42-L70)
 
 ## Show me the money
 
