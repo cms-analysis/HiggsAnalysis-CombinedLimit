@@ -234,7 +234,13 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
     if (procs_[i]->shape() || procs_[i]->data()) {
       TH1F proc_shape = procs_[i]->ShapeAsTH1F();
       for (auto sys_it : lookup[i]) {
-        double x = params_[sys_it->name()]->val();
+        auto param_it = params_.find(sys_it->name());
+        if (param_it == params_.end()) {
+          throw std::runtime_error(
+              FNERROR("Parameter " + sys_it->name() +
+                      " not found in CombineHarvester instance"));
+        }
+        double x = param_it->second->val();
         if (sys_it->asymm()) {
           p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
                                  sys_it->value_u());

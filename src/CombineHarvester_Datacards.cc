@@ -393,8 +393,22 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
     auto sig_proc_set =
         ch_signals.SetFromProcs(std::mem_fn(&ch::Process::process));
     for (auto sig_proc : sig_proc_set) {
-      mappings.emplace_back(sig_proc, bin, bin + "/" + sig_proc + "$MASS",
-                            bin + "/" + sig_proc + "$MASS_$SYSTEMATIC");
+      // should only add this mapping if the signal process has a numeric mass
+      // value, otherwise we will write it using the background rule above
+      auto masses = Set2Vec(ch_signals.cp()
+                                .process({sig_proc})
+                                .SetFromProcs(std::mem_fn(&ch::Process::mass)));
+      if (masses.size() != 1) {
+        throw std::runtime_error(FNERROR("Process " + sig_proc + " in bin " +
+                                         bin +
+                                         " has multiple entries with multiple "
+                                         "mass values, this is not supported"));
+
+      }
+      if (is_float(masses[0])) {
+        mappings.emplace_back(sig_proc, bin, bin + "/" + sig_proc + "$MASS",
+                              bin + "/" + sig_proc + "$MASS_$SYSTEMATIC");
+      }
     }
   }
 
@@ -662,7 +676,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   txt_file << format("%-"+sys_str_long+"s") % "rate";
   for (auto const& proc : procs_) {
-    txt_file << format("%-15.4g ") % proc->no_norm_rate();
+    txt_file << format("%-15.6g ") % proc->no_norm_rate();
   }
   txt_file << "\n";
   txt_file << dashes << "\n";

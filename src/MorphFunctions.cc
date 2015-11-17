@@ -18,7 +18,7 @@ namespace ch {
 void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
                       std::string const& bin, std::string const& process,
                       RooAbsReal& mass_var, std::string norm_postfix,
-                      bool allow_morph, bool verbose, TFile * file) {
+                      bool allow_morph, bool verbose, bool force_template_limit, TFile * file) {
   // To keep the code concise we'll make some using-declarations here
   using std::set;
   using std::vector;
@@ -72,6 +72,16 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   // Make a list of the names of shape systematics affecting this process
   vector<string> ss_vec =
       Set2Vec(cb_bp.cp().syst_type({"shape"}).syst_name_set());
+  // Now check if all shape systematics are present for all mass points
+  for (auto const& s : m_str_vec) {
+    if (cb_bp.cp().syst_type({"shape"}).mass({s}).syst_name_set().size() !=
+        ss_vec.size()) {
+      throw std::runtime_error(FNERROR(
+          "Some mass points do not have the full set of shape systematics, "
+          "this is currently unsupported"));
+    }
+  }
+
   unsigned ss = ss_vec.size();  // number of shape systematics
 
   // ls = "lnN systematic"
@@ -366,9 +376,40 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   // Can do more sophistical spline interpolation if we want, but let's use
   // simple LINEAR interpolation for now
   TString interp = "LINEAR";
+  
+  // Here when the force_template_limit option is requested 
+  // we have to add some extra terms to the vector of masses to ensure that 
+  // the signal pdf goes to 0 outside of the MC template range.
+
+  vector<double> new_m_vec(m_vec);
+  // Insert an entry at either end of the vector for a mass just slightly
+  // outside of the range
+  new_m_vec.insert(new_m_vec.begin(),m_vec[0]-1E-6);
+  new_m_vec.push_back(m_vec[m-1]+1E-6);
+  // Create a corresponding rate array with 0 entries for these new masses
+  multi_array<double, 1> new_rate_arr(extents[m+2]);
+  new_rate_arr[0] = 0.0;
+  for(unsigned i = 0; i < m; ++i) new_rate_arr[i+1] = rate_arr[i] ;
+  new_rate_arr[m+1] = 0.0;
+ 
+  if (verbose && force_template_limit) {
+     std::cout << ">>>> Forcing rate to 0 outside of template range:" << "\n";
+     for(unsigned mi = 0; mi < m+2; ++mi) {
+        std::cout << boost::format("%-10.5g") % new_m_vec[mi];
+     }
+     std::cout << "\n";
+     for(unsigned mi = 0; mi < m+2; ++mi) {
+        std::cout << boost::format("%-10.5g") % new_rate_arr[mi];
+     }
+     std::cout << "\n";
+  }
   // Create the 1D spline directly from the rate array
-  RooSpline1D rate_spline("interp_rate_"+key, "", mass_var, m, m_vec.data(),
-                          rate_arr.data(), interp);
+  RooSpline1D rate_spline("interp_rate_"+key, "", mass_var, 
+                        force_template_limit ? m+2 : m, 
+                        force_template_limit ? new_m_vec.data() : m_vec.data(),
+                        force_template_limit ? new_rate_arr.data() : rate_arr.data(),
+                        interp);
+
   if (file) {
     TGraph tmp(m, m_vec.data(), rate_arr.data());
     gDirectory->WriteTObject(&tmp, "interp_rate_"+key);
