@@ -42,14 +42,14 @@ def TablefromJson(jsonfile, filename):
   names = ["mass", "minus2sigma", "minus1sigma", "expected", "plus1sigma", "plus2sigma", "observed"]
   
   # Get list of masses
-  maxpoints = [0 for i in range(7)]
+  maxpoints = 0
   for key in js:
     x.append(float(key))
-    maxpoints[0]+=1
+    maxpoints+=1
 
   # Sort list of masses (Bubblesort-Algorithm. Not very fast when there are many points to be sorted.)
   i=0
-  while (i < maxpoints[0]-1):
+  while (i < maxpoints-1):
     if (x[i+1]<x[i]):
       savex=float(x[i+1])
       x[i+1]=float(x[i])
@@ -59,15 +59,11 @@ def TablefromJson(jsonfile, filename):
     i+=1
 
   # Get values for the masses
-  xfory = [[0.0 for i in range(6)] for j in range(maxpoints[0])] # This is incase the json-file is incomplete (values for -2,-1,exp,+1,+2,obs are missing). If everything is fine, all xfory[i] are the same as x, as well as all maxpoints.
-  y = [[0.0 for i in range(6)] for j in range(maxpoints[0])]
-  for i in range(maxpoints[0]):
+  y = [[0.0 for i in range(6)] for j in range(maxpoints)]
+  for i in range(maxpoints):
     for k in range(6):
-      if jsonnames[k] not in js[str(x[i])]:
-        continue
-      y[maxpoints[k+1]][k]=js[str(x[i])][jsonnames[k]]
-      xfory[maxpoints[k+1]][k]=x[i]
-      maxpoints[k+1]+=1
+      if jsonnames[k] in js[str(x[i])]:
+        y[i][k]=js[str(x[i])][jsonnames[k]]
 
   # Prepare writing values into table
   f = open(filename, 'w')
