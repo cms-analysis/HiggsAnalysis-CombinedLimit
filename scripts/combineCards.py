@@ -114,7 +114,8 @@ for ich,fname in enumerate(args):
     # rate params
     for K in DC.rateParams.iterkeys():
 	tbin,tproc = K.split("AND")[0],K.split("AND")[1]
-	tbin = label; nK = tbin+"AND"+tproc
+	tbin = label if singlebin else label+tbin 
+	nK = tbin+"AND"+tproc
 	rateParams[nK] = DC.rateParams[K]
     # discrete nuisance
     for K in DC.discretes: 
