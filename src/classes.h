@@ -27,6 +27,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_phase.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_2D.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HWWLVJJRooPdfs.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMomentMorphND.h"
 
 namespace {
     struct dictionary {
