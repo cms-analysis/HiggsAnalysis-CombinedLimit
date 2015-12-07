@@ -111,6 +111,7 @@
 	<class name="Triangle" />
 	<class name="VerticalInterpHistPdf" />
 	<class name="VerticalInterpPdf" />
+	<class name="RooMomentMorphND" />
 
         <function name="function th1fmorph" />
 
