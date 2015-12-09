@@ -34,9 +34,9 @@ void testRooMomentMorphND(RooMomentMorphND::Setting morphSetting,Bool_t useHoriz
   w.factory("RooGaussian::gaussian22(obs,188.7,17)");
 
 
-  RooBinning mtopDim(2,0,2);
-  RooBinning jsfDim(2,0,2);
-  RooMomentMorphND::Grid refGrid(mtopDim,jsfDim);
+  RooBinning firstDim(2,0,2);   //#bins = #nodes -1
+  RooBinning secondDim(2,0,2);
+  RooMomentMorphND::Grid refGrid(firstDim,secondDim);
   refGrid.addPdf( *(w.pdf("gaussian00")),0,0);
   refGrid.addPdf( *(w.pdf("gaussian01")),0,1);
   refGrid.addPdf( *(w.pdf("gaussian02")),0,2);
@@ -59,54 +59,47 @@ void testRooMomentMorphND(RooMomentMorphND::Setting morphSetting,Bool_t useHoriz
   //morph the template
   w.import(pdf);
 
-  
-  //for testimng purposes
-  w.factory("RooGaussian::gaussiantest0v50(obs,162.925,15)");
-  w.factory("RooGaussian::gaussiantest0v51(obs,166.250,15)");
-  w.factory("RooGaussian::gaussiantest0v52(obs,169.575,15)");
-
+  //for testing purposes
+  w.factory(Form("RooGaussian::gaussiantest0v5_0(obs,%f,%f)",(156.8+169.05)/2., (15+16)/2.));
+  w.factory(Form("RooGaussian::gaussiantest0v5_1(obs,%f,%f)",(160.0+172.50)/2., (15+16)/2.));
 
   //test the pdf
   TCanvas *c= new TCanvas("c","c",1000,1000);
   c->Divide(2,2);
 
   c->cd(1);
-  RooPlot* frame1 = w.var("obs")->frame(RooFit::Title("Node 1"));
+  RooPlot* frame1 = w.var("obs")->frame();
   w.var("alpha")->setVal(0);
   w.var("beta")->setVal(0);
   w.pdf("gaussian00")->plotOn(frame1, LineColor(kGray), LineStyle(kSolid));
-  w.pdf("gaussian02")->plotOn(frame1, LineColor(kGray), LineStyle(kSolid));
-  w.pdf("gaussian01")->plotOn(frame1, LineColor(kBlue), LineStyle(kSolid));
   w.pdf("morphndpdf")->plotOn(frame1, LineColor(kRed), LineStyle(kDashed));
+  frame1->SetTitle("Closure on (#alpha,#beta)=(0,0) (grid point)");
   frame1->Draw();
 
   c->cd(2);
-  RooPlot* frame2 = w.var("obs")->frame(RooFit::Title("Node 2"));
+  RooPlot* frame2 = w.var("obs")->frame();
   w.var("alpha")->setVal(1);
   w.var("beta")->setVal(2.0);
-  w.pdf("gaussian10")->plotOn(frame2, LineColor(kGray), LineStyle(kSolid));
   w.pdf("gaussian12")->plotOn(frame2, LineColor(kGray), LineStyle(kSolid));
-  w.pdf("gaussian11")->plotOn(frame2, LineColor(kBlue), LineStyle(kSolid));
   w.pdf("morphndpdf")->plotOn(frame2, LineColor(kRed), LineStyle(kDashed));
+  frame2->SetTitle("Closure on (#alpha,#beta)=(1,2) (grid point)");
   frame2->Draw();
 
   c->cd(3);
-  RooPlot* frame3 = w.var("obs")->frame(RooFit::Title("Interpolation, fixed #beta"));
+  RooPlot* frame3 = w.var("obs")->frame();
   w.var("alpha")->setVal(0.5);
   w.var("beta")->setVal(1.0);
-  w.pdf("gaussiantest0v50")->plotOn(frame3, LineColor(kGray), LineStyle(kSolid));
-  w.pdf("gaussiantest0v52")->plotOn(frame3, LineColor(kGray), LineStyle(kSolid));
-  w.pdf("gaussiantest0v51")->plotOn(frame3, LineColor(kBlue), LineStyle(kSolid));
+  w.pdf("gaussiantest0v5_1")->plotOn(frame3, LineColor(kGray), LineStyle(kSolid));
   w.pdf("morphndpdf")->plotOn(frame3, LineColor(kRed), LineStyle(kDashed));
+  frame3->SetTitle("Interpolation to (#alpha,#beta)=(0.5,1.0)");
   frame3->Draw();
 
   c->cd(4);
-  RooPlot* frame4 = w.var("obs")->frame(RooFit::Title("Interpolation, varying #alpha and #beta"));
+  RooPlot* frame4 = w.var("obs")->frame();
   w.var("alpha")->setVal(0.5);
   w.var("beta")->setVal(0.0);
-  w.pdf("gaussiantest0v50")->plotOn(frame4, LineColor(kGray), LineStyle(kSolid));
-  w.pdf("gaussiantest0v52")->plotOn(frame4, LineColor(kGray), LineStyle(kSolid));
-  w.pdf("gaussiantest0v51")->plotOn(frame4, LineColor(kBlue), LineStyle(kSolid));
+  w.pdf("gaussiantest0v5_0")->plotOn(frame4, LineColor(kGray), LineStyle(kSolid));
   w.pdf("morphndpdf")->plotOn(frame4, LineColor(kRed), LineStyle(kDashed));
+  frame4->SetTitle("Interpolation to (#alpha,#beta)=(0.5,0.0)");
   frame4->Draw();
 }
