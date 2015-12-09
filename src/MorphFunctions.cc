@@ -328,6 +328,12 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
       // Store the uncertainty ("kappa") values for the shape systematics
       ss_k_hi_arr[ssi][mi] = ss_arr[ssi][mi]->value_u();
       ss_k_lo_arr[ssi][mi] = ss_arr[ssi][mi]->value_d();
+      // For the normalisation we scale the kappa instead of putting the scaling
+      // parameter as the variable
+      if (std::fabs(ss_scale_arr[ssi] - 1.0) > 1E-6) {
+        ss_k_hi_arr[ssi][mi] = std::pow(ss_arr[ssi][mi]->value_u(), ss_scale_arr[ssi]);
+        ss_k_lo_arr[ssi][mi] = std::pow(ss_arr[ssi][mi]->value_d(), ss_scale_arr[ssi]);
+      }
     }
     // And now the uncertainty values for the lnN systematics that vary with mass
     // We'll force these to be asymmetric even if they're not
@@ -412,7 +418,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
 
   if (file) {
     TGraph tmp(m, m_vec.data(), rate_arr.data());
-    gDirectory->WriteTObject(&tmp, "interp_rate_"+key);
+    file->WriteTObject(&tmp, "interp_rate_"+key);
   }
   // Collect all terms that will go into the total normalisation:
   //   nominal * systeff_1 * systeff_2 * ... * systeff_N
@@ -427,16 +433,16 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
         ss_k_lo_arr[ssi].origin(), interp);
     if (file) {
       TGraph tmp_hi(m, m_vec.data(), ss_k_hi_arr[ssi].origin());
-      gDirectory->WriteTObject(&tmp_hi, "spline_hi_" + key + "_" + ss_vec[ssi]);
+      file->WriteTObject(&tmp_hi, "spline_hi_" + key + "_" + ss_vec[ssi]);
       TGraph tmp_lo(m, m_vec.data(), ss_k_lo_arr[ssi].origin());
-      gDirectory->WriteTObject(&tmp_lo, "spline_lo_" + key + "_" + ss_vec[ssi]);
+      file->WriteTObject(&tmp_lo, "spline_lo_" + key + "_" + ss_vec[ssi]);
     }
     // Then build the AsymPow object for each systematic as a function of the
     // kappas and the nuisance parameter
     ss_asy_arr[ssi] = std::make_shared<AsymPow>("systeff_" +
         key + "_" + ss_vec[ssi], "",
         *(ss_spl_lo_arr[ssi]), *(ss_spl_hi_arr[ssi]),
-         *(reinterpret_cast<RooAbsReal*>(ss_list.at(ssi))));
+         *(ss_scale_var_arr[ssi]));
     rate_prod.add(*(ss_asy_arr[ssi]));
   }
   // Same procedure for the lms normalisation systematics: build the splines
@@ -491,12 +497,19 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
 
   TString vert_name = key + "_";
 
+  // Follow what ShapeTools.py does and set the smoothing region
+  // to the minimum of all of the shape scales
+  double qrange = 1.;
+  for (unsigned ssi = 0; ssi < ss; ++ssi) {
+    if (ss_scale_arr[ssi] < qrange) qrange = ss_scale_arr[ssi];
+  }
+
   for (unsigned mi = 0; mi < m; ++mi) {
     // Construct it with the right binning, the right histograms and the right
     // scaling parameters
     vpdf_arr[mi] = std::make_shared<FastVerticalInterpHistPdf2>(
         vert_name + m_str_vec[mi] + "_vmorph", "", morph_xvar, *(list_arr[mi]),
-        ss_list, 1, 0);
+        ss_list, qrange, 0);
     // Add it to a list that we'll supply to the RooMorphingPdf
     vpdf_list.add(*(vpdf_arr[mi]));
   }
