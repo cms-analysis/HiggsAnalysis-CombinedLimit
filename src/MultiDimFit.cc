@@ -192,6 +192,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
     }
     for (std::vector<std::string>::const_iterator it = poi_.begin(), ed = poi_.end(); it != ed; ++it) {
         RooAbsArg *a = mcPoi.find(it->c_str());
+        if (a == 0) a = w->arg(it->c_str());  // look for the parameter elsewhere
         if (a == 0) throw std::invalid_argument(std::string("Parameter of interest ")+*it+" not in model.");
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv == 0) throw std::invalid_argument(std::string("Parameter of interest ")+*it+" not a RooRealVar.");
