@@ -29,6 +29,7 @@ CombineHarvester& CombineHarvester::bin_id(
 CombineHarvester& CombineHarvester::process(
     std::vector<std::string> const& vec, bool cond) {
   FilterContaining(procs_, vec, std::mem_fn(&Process::process), cond);
+  FilterContaining(obs_, vec, std::mem_fn(&Observation::process), cond);
   FilterContaining(systs_, vec, std::mem_fn(&Systematic::process), cond);
   return *this;
 }
