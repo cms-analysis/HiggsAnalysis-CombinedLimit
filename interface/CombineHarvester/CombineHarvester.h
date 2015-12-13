@@ -131,6 +131,7 @@ class CombineHarvester {
   CombineHarvester& bin(std::vector<std::string> const& vec, bool cond = true);
   CombineHarvester& bin_id(std::vector<int> const& vec, bool cond = true);
   CombineHarvester& process(std::vector<std::string> const& vec, bool cond = true);
+  CombineHarvester& data_process(std::vector<std::string> const& vec, bool cond = true);
   CombineHarvester& analysis(std::vector<std::string> const& vec, bool cond = true);
   CombineHarvester& era(std::vector<std::string> const& vec, bool cond = true);
   CombineHarvester& channel(std::vector<std::string> const& vec, bool cond = true);
