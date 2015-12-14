@@ -12,7 +12,8 @@ Parameter::Parameter()
       err_u_(1.0),
       err_d_(-1.0),
       range_u_(std::numeric_limits<double>::max()),
-      range_d_(std::numeric_limits<double>::lowest()) {
+      range_d_(std::numeric_limits<double>::lowest()),
+      frozen_(false) {
   }
 
 Parameter::~Parameter() { }
@@ -25,6 +26,7 @@ void swap(Parameter& first, Parameter& second) {
   swap(first.err_d_, second.err_d_);
   swap(first.range_u_, second.range_u_);
   swap(first.range_d_, second.range_d_);
+  swap(first.frozen_, second.frozen_);
   swap(first.vars_, second.vars_);
 }
 
@@ -35,6 +37,7 @@ Parameter::Parameter(Parameter const& other)
       err_d_(other.err_d_),
       range_u_(other.range_u_),
       range_d_(other.range_d_),
+      frozen_(other.frozen_),
       vars_(other.vars_) {
 }
 
@@ -44,7 +47,8 @@ Parameter::Parameter(Parameter&& other)
       err_u_(1.0),
       err_d_(-1.0),
       range_u_(std::numeric_limits<double>::max()),
-      range_d_(std::numeric_limits<double>::lowest()) {
+      range_d_(std::numeric_limits<double>::lowest()),
+      frozen_(false) {
   swap(*this, other);
 }
 
@@ -55,8 +59,8 @@ Parameter& Parameter::operator=(Parameter other) {
 
 std::ostream& Parameter::PrintHeader(std::ostream &out) {
   std::string line =
-    (boost::format("%-70s %-10.4f %-9.4f %-7.4f")
-    % "name" % "value" % "error_d" % "error_u").str();
+    (boost::format("%-70s %-10.4f %-9.4f %-7.4f %-6s")
+    % "name" % "value" % "error_d" % "error_u" % "frozen").str();
   std::string div(line.length(), '-');
   out << div << std::endl;
   out << line << std::endl;
@@ -65,11 +69,12 @@ std::ostream& Parameter::PrintHeader(std::ostream &out) {
 }
 
 std::ostream& operator<< (std::ostream &out, Parameter &val) {
-  out << boost::format("%-70s %-10.4f %-9.4f %-7.4f")
+  out << boost::format("%-70s %-10.4f %-9.4f %-7.4f %-6i")
   % val.name()
   % val.val()
   % val.err_d()
-  % val.err_u();
+  % val.err_u()
+  % val.frozen();
   return out;
 }
 }
