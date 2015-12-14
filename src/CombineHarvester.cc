@@ -19,6 +19,7 @@ CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
   // }
   flags_["zero-negative-bins-on-import"] = true;
   flags_["allow-missing-shapes"] = true;
+  flags_["workspaces-use-clone"] = false;
   // std::cout << "[CombineHarvester] Constructor called for " << this << "\n";
 }
 
@@ -51,6 +52,27 @@ CombineHarvester::CombineHarvester(CombineHarvester const& other)
       log_(other.log_) {
   // std::cout << "[CombineHarvester] Copy-constructor called " << &other
   //     << " -> " << this << "\n";
+}
+
+
+void CombineHarvester::SetFlag(std::string const& flag, bool const& value) {
+  auto it = flags_.find(flag);
+  if (it != flags_.end()) {
+    FNLOG(std::cout) << " Changing value of flag \"" << it->first << "\" from " << it->second << " to " << value << "\n";
+    it->second = value;
+  } else {
+    FNLOG(std::cout) << " Created new flag \"" << flag << "\" with value " << value << "\n";
+    flags_[flag] = value;
+  }
+}
+
+bool CombineHarvester::GetFlag(std::string const& flag) const {
+  auto it = flags_.find(flag);
+  if (it != flags_.end()) {
+    return it->second;
+  } else {
+    throw std::runtime_error(FNERROR("Flag " + flag + " is not defined"));
+  }
 }
 
 CombineHarvester CombineHarvester::deep() {
@@ -606,10 +628,13 @@ std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
     // - No: clone with same name and return
     // IMPORTANT: Don't used RooWorkspace::Clone(), it seems to introduce
     // bugs
-    // wspaces_[std::string(ws.GetName())] = std::shared_ptr<RooWorkspace>(
-    //     reinterpret_cast<RooWorkspace*>(ws.Clone()));
-    wspaces_[std::string(ws.GetName())] =
-        std::make_shared<RooWorkspace>(RooWorkspace(ws));
+    if (GetFlag("workspaces-use-clone")) {
+      wspaces_[std::string(ws.GetName())] = std::shared_ptr<RooWorkspace>(
+          reinterpret_cast<RooWorkspace*>(ws.Clone()));      
+    } else {
+      wspaces_[std::string(ws.GetName())] =
+          std::make_shared<RooWorkspace>(RooWorkspace(ws));  
+    }
     return wspaces_.at(ws.GetName());
   }
 
@@ -641,10 +666,13 @@ std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
                                  << " already defined, renaming to " << new_name
                                  << "\n";
 
-  // wspaces_[new_name] = std::shared_ptr<RooWorkspace>(
-  //     reinterpret_cast<RooWorkspace*>(ws.Clone(new_name.c_str())));
-  std::shared_ptr<RooWorkspace> new_wsp =
-      std::make_shared<RooWorkspace>(RooWorkspace(ws));
+  std::shared_ptr<RooWorkspace> new_wsp;
+  if (GetFlag("workspaces-use-clone")) {
+    new_wsp = std::shared_ptr<RooWorkspace>(
+        reinterpret_cast<RooWorkspace*>(ws.Clone(new_name.c_str())));    
+  } else {
+    new_wsp = std::make_shared<RooWorkspace>(RooWorkspace(ws));
+  }
   new_wsp->SetName(new_name.c_str());
   wspaces_[new_name] = new_wsp;
   return wspaces_.at(new_name);
@@ -664,8 +692,13 @@ void CombineHarvester::ImportParameters(RooArgSet *vars) {
         Parameter par;
         par.set_name(y->GetName());
         par.set_val(y->getVal());
-        par.set_err_d(0.0);
-        par.set_err_u(0.0);
+        if (y->hasError() || y->hasAsymError()) {
+          par.set_err_d(y->getErrorLo());
+          par.set_err_u(y->getErrorHi());          
+        } else {
+          par.set_err_d(0.);
+          par.set_err_u(0.);
+        }
         params_[y->GetName()] = std::make_shared<Parameter>(par);
       } else {
         if (verbosity_ >= 1)

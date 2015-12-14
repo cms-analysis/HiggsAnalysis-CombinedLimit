@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <unordered_map>
 #include <list>
 #include <cmath>
 #include <set>
@@ -58,6 +59,14 @@ class CombineHarvester {
   CombineHarvester(CombineHarvester const& other);
   CombineHarvester(CombineHarvester&& other);
   CombineHarvester& operator=(CombineHarvester other);
+
+  /**
+   * Set a named flag value
+   *
+   * Creates the flag if it doesn't already
+   */
+  void SetFlag(std::string const& flag, bool const& value);
+  bool GetFlag(std::string const& flag) const;
 
   /**
    * Creates and returns a shallow copy of the CombineHarvester instance
@@ -404,7 +413,7 @@ class CombineHarvester {
   std::map<std::string, std::shared_ptr<Parameter>> params_;
   std::map<std::string, std::shared_ptr<RooWorkspace>> wspaces_;
 
-  std::map<std::string, bool> flags_;
+  std::unordered_map<std::string, bool> flags_;
 
   // ---------------------------------------------------------------
   // typedefs

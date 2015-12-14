@@ -6,7 +6,7 @@
 
 namespace ch {
 
-#define FNERROR(x) FnError(x, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+#define FNERROR(x) ch::FnError(x, __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
 #define LOGLINE(x, y) LogLine(x, __func__, y)
 
