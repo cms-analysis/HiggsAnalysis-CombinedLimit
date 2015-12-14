@@ -21,6 +21,7 @@ class Parameter {
   std::string const& name() const { return name_; }
 
   void set_val(double const& val) {
+    if (frozen_) return;
     val_ = val;
     for (unsigned i = 0; i < vars_.size(); ++i) {
       vars_[i]->setVal(val);
@@ -40,7 +41,10 @@ class Parameter {
 
   void set_range_d(double const& range_d) { range_d_ = range_d; }
   double range_d() const { return range_d_; }
-  
+
+  void set_frozen(bool const& frozen) { frozen_ = frozen; }
+  bool frozen() const { return frozen_; }
+
   std::vector<RooRealVar *> & vars() { return vars_; }
 
   friend std::ostream& operator<< (std::ostream &out, Parameter &val);
@@ -53,6 +57,7 @@ class Parameter {
   double err_d_;
   double range_u_;
   double range_d_;
+  bool frozen_;
   std::vector<RooRealVar *> vars_;
   friend void swap(Parameter& first, Parameter& second);
 };
