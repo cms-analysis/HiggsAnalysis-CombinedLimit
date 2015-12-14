@@ -15,10 +15,12 @@
 
 namespace ch {
 
+  //! [part1]
 void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
                       std::string const& bin, std::string const& process,
                       RooAbsReal& mass_var, std::string norm_postfix,
                       bool allow_morph, bool verbose, bool force_template_limit, TFile * file) {
+  //! [part1]
   // To keep the code concise we'll make some using-declarations here
   using std::set;
   using std::vector;
@@ -47,6 +49,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   // turn into a RooMorphingPdf
   CombineHarvester cb_bp = cb.cp().bin({bin}).process({process});
 
+  //! [part2]
   // Get a vector of the mass values
   vector<string> m_str_vec = Set2Vec(cb_bp.SetFromProcs(
       std::mem_fn(&ch::Process::mass)));
@@ -67,6 +70,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   }
   // So, we have m mass points to consider
   unsigned m = m_vec.size();
+  //! [part2]
 
   // ss = "shape systematic"
   // Make a list of the names of shape systematics affecting this process
@@ -149,6 +153,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
     }
   }
 
+  //! [part3]
   // We need to build a RooArgList of the vertical morphing parameters for the
   // vertical-interpolation pdf - this will be the same for each mass point so
   // we only build it once
@@ -196,6 +201,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
       }
     }
   }
+  //! [part3]
 
   // Summarise the info on the shape systematics and scale factors
   if (verbose) {
@@ -410,11 +416,13 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
      std::cout << "\n";
   }
   // Create the 1D spline directly from the rate array
+  //! [part4]
   RooSpline1D rate_spline("interp_rate_"+key, "", mass_var, 
                         force_template_limit ? m+2 : m, 
                         force_template_limit ? new_m_vec.data() : m_vec.data(),
                         force_template_limit ? new_rate_arr.data() : rate_arr.data(),
                         interp);
+  //! [part4]
 
   if (file) {
     TGraph tmp(m, m_vec.data(), rate_arr.data());
@@ -522,16 +530,20 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   //   allow_morph: if false will just evaluate to the closest pdf in mass
   //   data_hist.GetXaxis(): The original (non-uniform) target binning
   //   proc_hist.GetXaxis(): The original (non-uniform) morphing binning
+  //! [part5]
   RooMorphingPdf morph_pdf(morph_name, "", xvar, mass_var, vpdf_list,
                            m_vec, allow_morph, *(data_hist.GetXaxis()),
                            *(proc_hist.GetXaxis()));
+  //! [part5]
   // And we can make the final normalisation product
   // The value of norm_postfix is very important. text2workspace will only look
   // for for a term with the pdf name + "_norm". But it might be the user wants
   // to add even more terms to this total normalisation, so we give them the option
   // of using some other suffix.
+  //! [part6]
   RooProduct morph_rate(morph_name + "_" + TString(norm_postfix), "",
                         rate_prod);
+  //! [part6]
 
   // Dump even more plots
   if (file) MakeMorphDebugPlots(&morph_pdf, &mass_var, m_vec, file, &data_hist);
