@@ -136,15 +136,18 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
         }
-        if (algo_ != None) {
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-		Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
+        //if (algo_ != None) {
+	for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+		specifiedVals_[j]=specifiedVars_[j]->getVal();
 	}
+	for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+		specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+	}
+	for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+		specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+	}
+	Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
+	//}
     }
    
 
