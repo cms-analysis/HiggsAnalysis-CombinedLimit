@@ -51,6 +51,14 @@ def isIncluded(name,includeList):
         if re.match(pattern,name): return True
     return False
 
+def addRateParam(lsyst,f,ret):
+
+    if len(f) > 6: raise RuntimeError, "Directives of type 'rateParam' can only have a single channel. name rateParam channel process [init / expression vars]. repeat if rate is to affect multiple channels"
+    if len(f)==5  : tmp_exp = [lsyst,f[4],0]
+    elif len(f)==6: tmp_exp = [lsyst,f[4],f[5],1]
+    if ("%sAND%s"%(f[2],f[3])) in ret.rateParams.keys(): ret.rateParams["%sAND%s"%(f[2],f[3])].append(tmp_exp)
+    else: ret.rateParams["%sAND%s"%(f[2],f[3])] = [tmp_exp]
+
 def parseCard(file, options):
     if type(file) == type("str"):
         raise RuntimeError, "You should pass as argument to parseCards a file object, stream or a list of lines, not a string"
@@ -178,9 +186,22 @@ def parseCard(file, options):
                 #for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
                 continue
             elif pdf == "rateParam":
-                if len(args) > 6: raise RuntimeError, "Directives of type 'rateParam' can only have a single channel. name rateParam channel process [init / expression vars]. repeat if rate is to affect multiple channels"
-		if len(f)==5: ret.rateParams["%sAND%s"%(f[2],f[3])] = [lsyst,f[4],0]
-		elif len(f)==6: ret.rateParams["%sAND%s"%(f[2],f[3])] = [lsyst,f[4],f[5],1]
+	        if f[3]=="*" and f[2]=="*": # all channels 
+		  for c in ret.processes: 
+		   for b in ret.bins:
+		    f_tmp = f[:]
+		    f_tmp[2]=b
+		    f_tmp[3]=c
+	            addRateParam(lsyst,f_tmp,ret)
+	        elif f[3]=="*": # all channels 
+		  for c in ret.processes: 
+		    f_tmp = f[:]; f_tmp[3]=c
+	            addRateParam(lsyst,f_tmp,ret)
+	        elif f[2]=="*": # all channels 
+		  for b in ret.bins:
+		    f_tmp = f[:]; f_tmp[2]=b
+	            addRateParam(lsyst,f_tmp,ret)
+		else : addRateParam(lsyst,f,ret)
                 continue
             elif pdf=="discrete":
                 args = f[2:]
