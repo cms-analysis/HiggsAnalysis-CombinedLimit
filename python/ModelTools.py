@@ -99,9 +99,10 @@ class ModelBuilder(ModelBuilderBase):
     def doRateParams(self):
 	# First do independant parameters, then expressions
 	for rp in self.DC.rateParams.keys():
-	  type = self.DC.rateParams[rp][-1]
+	 for rk in range(len(self.DC.rateParams[rp])):
+	  type = self.DC.rateParams[rp][rk][-1]
 	  if type!=0: continue
-	  argu,argv = self.DC.rateParams[rp][0],self.DC.rateParams[rp][1]
+	  argu,argv = self.DC.rateParams[rp][rk][0],self.DC.rateParams[rp][rk][1]
 	  if self.out.arg(argu): continue
 
 	  self.doVar("%s[%s,0,1]"%(argu,argv))
@@ -110,9 +111,10 @@ class ModelBuilder(ModelBuilderBase):
 	  self.out.var(argu).setAttribute("flatParam")
 
 	for rp in self.DC.rateParams.keys():
-	  type = self.DC.rateParams[rp][-1]
+	 for rk in range(len(self.DC.rateParams[rp])):
+	  type = self.DC.rateParams[rp][rk][-1]
 	  if type!=1: continue
-	  argu,arge,argv = self.DC.rateParams[rp][0],self.DC.rateParams[rp][1],self.DC.rateParams[rp][2]
+	  argu,arge,argv = self.DC.rateParams[rp][rk][0],self.DC.rateParams[rp][rk][1],self.DC.rateParams[rp][rk][2]
 	  if self.out.arg(argu): continue
 	  self.doExp(argu,arge,argv)
 
@@ -338,7 +340,8 @@ class ModelBuilder(ModelBuilderBase):
 
 		# look for rate param for this bin 
 		if "%sAND%s"%(b,p) in self.DC.rateParams.keys():
-		    argu = self.DC.rateParams["%sAND%s"%(b,p)][0]
+		  for rk in range(len(self.DC.rateParams["%sAND%s"%(b,p)])):
+		    argu = self.DC.rateParams["%sAND%s"%(b,p)][rk][0]
 		    if self.out.arg(argu): factors.append(argu)
 		    else: raise RuntimeError, "No rate parameter found %s, are you sure you defined it correctly in the datacard?"%(argu)
 
