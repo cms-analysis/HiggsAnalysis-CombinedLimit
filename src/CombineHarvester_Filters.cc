@@ -33,13 +33,6 @@ CombineHarvester& CombineHarvester::process(
   return *this;
 }
 
-CombineHarvester& CombineHarvester::data_process(
-    std::vector<std::string> const& vec, bool cond) {
-  FilterContaining(obs_, vec, std::mem_fn(&Observation::process), cond);
-  return *this;
-}
-
-
 CombineHarvester& CombineHarvester::process_rgx(
     std::vector<std::string> const& vec, bool cond) {
   FilterContainingRgx(procs_, vec, std::mem_fn(&Process::process), cond);
