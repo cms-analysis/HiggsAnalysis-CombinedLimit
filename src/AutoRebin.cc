@@ -17,9 +17,15 @@ void AutoRebin::Rebin(CombineHarvester &src, CombineHarvester &dest) {
     auto bins = src.bin_set();
     //Perform rebinning separately for each channel-category of the CH instance
     for (auto bin : bins) {
-        //Build histogram containing total of all backgrounds
-        auto src_bkgs = src.cp().bin({bin}).backgrounds(); 
-        TH1F total_bkg = src_bkgs.GetShapeWithUncertainty();
+        //Build histogram containing total of all backgrounds, avoid using
+        //GetShapeWithUncertainty so that possible negative bins are retained
+        //NB need to replace this with data_obs when figure out how
+        TH1F data_obs = src.cp().bin({bin}).GetObservedShape();
+        TH1F total_bkg("","",data_obs.GetNbinsX(), data_obs.GetXaxis()->GetXbins()->GetArray()) ;
+        src.cp().bin({bin}).backgrounds().ForEachProc([&](ch::Process *proc) {
+            total_bkg.Add((proc->ClonedScaledShape()).get());
+        });
+      
         //Find the maximum bin
         int hbin_idx = total_bkg.GetMaximumBin(); 
         int nbins = total_bkg.GetNbinsX();
@@ -68,7 +74,19 @@ void AutoRebin::Rebin(CombineHarvester &src, CombineHarvester &dest) {
         } else std::cout << "[AutoRebin] Did not find any bins to merge for analysis "
         "bin id: " << bin << std::endl;
         
-       dest.cp().bin({bin}).VariableRebin(new_bins); 
+        dest.cp().bin({bin}).VariableRebin(new_bins); 
+        
+        /*TH1F data_obs_new = dest.cp().bin({bin}).GetObservedShape(); 
+        TH1F total_bkg_new("","",data_obs_new.GetNbinsX(), data_obs_new.GetXaxis()->GetXbins()->GetArray()) ;
+        dest.cp().bin({bin}).backgrounds().ForEachProc([&](ch::Process *proc) {
+            total_bkg_new.Add((proc->ClonedScaledShape()).get());
+        });
+        int nbins_new = total_bkg_new.GetNbinsX();
+        for(int i=1; i<=nbins_new+1; ++i) {
+           std::cout << "Bin index: " << i << ", BinLowEdge: " << 
+                total_bkg_new.GetBinLowEdge(i) <<  ", Bin content: " << 
+                total_bkg_new.GetBinContent(i) << std::endl;
+        }*/
     
     }
    
