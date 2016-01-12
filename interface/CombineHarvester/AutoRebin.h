@@ -5,16 +5,14 @@
 
 namespace ch {
 /**
- * Merges bin uncertainties and creates bin-by-bin statistical uncertainties
+ * Tests for any bins below a certain threshold and if they exist merges them
+ * with neighborouring bins
  *
  * Typical usage:
  * 
- *     auto bbb = ch::AutoRebin()
- *         .SetAddThreshold(0.1)
- *         .SetMergeThreshold(0.5)
- *         .SetFixNorm(true);
- *     bbb.MergeBinErrors(cb.cp().backgrounds());
- *     bbb.AddBinByBin(cb.cp().backgrounds(), cb);
+ *     auto rebin = ch::AutoRebin()
+ *         .SetEmptyBinThreshold(0.);
+ *     rebin.Rebin(cb.cp().channel({"tt"}), cb);
  * 
  * See below for details on each class method.
  */
@@ -23,34 +21,35 @@ class AutoRebin {
   AutoRebin();
 
   /**
-   * Create bin-by-bin shape uncertainties for every process in **src**, and
-   * add these to **dest**
-   *
-   * The behaviour of this function is controlled by three parameters:
+   * Work out optimal binning using the total background histogram built from 
+   * **src**, and apply the binning to **dest**
    * 
-   *   * The first is the uncertainty threshold which determines whether a 
-   *     systematic will be created for a given histogram bin
-   *     (\ref SetAddThreshold). For a bin with content \f$x\f$ and bin error
-   *     \f$e\f$, this threshold is thefractional error \f$e/x\f$.
-   *   * The second parameters (\ref SetFixNorm) is a flag that when set to
-   *     `true` will re-normalize the up and down shape templates to have the
-   *     same integral as the nominal. This means the nuisance parameter for
-   *     this bin is only able to change the shape of the distribution: if a
-   *     bin is shifted up, all other bins are shifted down slightly to
-   *     preserve the normalisation. This feature is useful when the
-   *     statistical uncertainty in the process yield is considered as an
-   *     independent nuisance parameter.
-   *   * The third parameters is a pattern-string which prescribes how the
-   *     bin-by-bin uncertainties should be named. By default this is
-   *     `CMS_$ANALYSIS_$CHANNEL_$BIN_$ERA_$PROCESS_bin_$#`, but can be
-   *     changed with \ref SetPattern. Note that the special term `$#`
-   *     should always be included as this is replaced with the bin index.
+   *   * Builds the total background histogram and creates vectors for the
+   *   original binning and the new binning 
+   *
+   *   * Calls the FindNewBinning function passing it the empty new_bins vector,
+   *   the total background histogram, and the condition for what we consider to
+   *   be an empty bin
    */
   void Rebin(CombineHarvester &src, CombineHarvester &dest);
+  /**
+   * Pass through the total background histogram to find bins failing the
+   * required condition ("empty" bins)
+   * 
+   *   * Starts from the bin with maximum bin content and moves left first. For
+   *   any binnings passing the condition their value of BinLowEdge is added to
+   *   new_bins vector.
+   *
+   *   * Then moves from maximum bin content to end of distribution moving right
+   *   and does the same.
+   *
+   *   * Creates new total background hist with the new binning and checks if
+   *   all bins pass the condition. Continues recursively until they all do.
+   */
+  void FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, double bin_condition);
 
   /**
-   * By default this class only produces output on the screen when an error
-   * occurs, set to a value greater than zero for more verbose output
+   * Set to a value greater than zero for more verbose output
    */
   inline AutoRebin& SetVerbosity(unsigned verbosity) {
     v_ = verbosity;
@@ -58,7 +57,7 @@ class AutoRebin {
   }
 
   /**
-   * The threshold for the merging algorithm
+   * The threshold for what we consider an "empty" bin (usually 0)
    */
   inline AutoRebin& SetEmptyBinThreshold(double val) {
     empty_bin_threshold_ = val;
