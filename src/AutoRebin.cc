@@ -101,15 +101,17 @@ void AutoRebin::FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, d
     //of a different choice of bin threshold we make the function recursive.
     bool all_bins = true;
     int nbins_new = total_bkg_new->GetNbinsX();
-    if(v_>0) std::cout << std::endl;
-    if(v_>0) std::cout << "[AutoRebin::FindNewBinning] Producing new histogram with following binning: " << std::endl;
-    for(int i=1; i<=nbins_new+1; ++i) {
-    if(v_>0)  std::cout << "Bin index: " << i << ", BinLowEdge: " << 
-            total_bkg_new->GetBinLowEdge(i) <<  ", Bin content: " << 
-            total_bkg_new->GetBinContent(i) << std::endl;
-       //Last bin is allowed to be failing condition, just there to enclose the
-       //penultimate bin
-       if(total_bkg_new->GetBinContent(i) <= bin_condition && i!=nbins_new+1) all_bins=false;
+    if(nbins_new!=nbins) {
+        if(v_>0) std::cout << std::endl;
+        if(v_>0) std::cout << "[AutoRebin::FindNewBinning] Producing new histogram with following binning: " << std::endl;
+        for(int i=1; i<=nbins_new+1; ++i) {
+        if(v_>0)  std::cout << "Bin index: " << i << ", BinLowEdge: " << 
+                total_bkg_new->GetBinLowEdge(i) <<  ", Bin content: " << 
+                total_bkg_new->GetBinContent(i) << std::endl;
+           //Last bin is allowed to be failing condition, just there to enclose the
+           //penultimate bin
+           if(total_bkg_new->GetBinContent(i) <= bin_condition && i!=nbins_new+1) all_bins=false;
+        }
     }
      
     if(all_bins) return;
