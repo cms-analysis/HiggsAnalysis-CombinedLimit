@@ -226,10 +226,11 @@ for (pname, pargs) in paramSysts.items():
 
 for pname in flatParamNuisances.iterkeys(): 
     print "%-12s  flatParam" % pname
-for pname in rateParams.iterkeys(): 
-    print "%-12s  rateParam %s"% (rateParams[pname][0],pname.replace("AND"," ")),
-    for p in rateParams[pname][1:-1]: print p,
-    print "\n",
+for pname in rateParams.iterkeys():
+    for pk in range(len(rateParams[pname])): 
+     print "%-12s  rateParam %s"% (rateParams[pname][pk][0],pname.replace("AND"," ")),
+     for p in rateParams[pname][pk][1:-1]: print p,
+     print "\n",
 for dname in discreteNuisances.iterkeys(): 
     print "%-12s  discrete" % dname
 for groupName,nuisanceNames in groups.iteritems():
