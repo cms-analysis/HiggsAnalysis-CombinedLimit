@@ -53,7 +53,7 @@ def isIncluded(name,includeList):
 
 def addRateParam(lsyst,f,ret):
 
-    if len(f) > 6: raise RuntimeError, "Directives of type 'rateParam' can only have a single channel. name rateParam channel process [init / expression vars]. repeat if rate is to affect multiple channels"
+    if len(f) > 6 or len(f) < 5: raise RuntimeError, "Error, directives of type 'rateParam' should be of form .. name rateParam channel process initial value OR name rateParam channel process formula args"
     if len(f)==5  : tmp_exp = [lsyst,f[4],0]
     elif len(f)==6: tmp_exp = [lsyst,f[4],f[5],1]
     if ("%sAND%s"%(f[2],f[3])) in ret.rateParams.keys(): ret.rateParams["%sAND%s"%(f[2],f[3])].append(tmp_exp)
