@@ -6,7 +6,7 @@
 
 #include "RooAbsData.h"
 #include "RooAbsPdf.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h" 
+#include "../interface/RooParametricHist.h" 
 
 #include <math.h> 
 #include "TMath.h" 

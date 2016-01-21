@@ -239,7 +239,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     isBinary = true;
   } else {
     TString txtFile = fileToLoad.Data();
-    TString options = TString::Format(" -m %g -D %s", mass_, dataset.c_str());
+    TString options = TString::Format(" -m %f -D %s", mass_, dataset.c_str());
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
@@ -325,12 +325,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (snapshotName_ != "") {
       bool loaded = w->loadSnapshot(snapshotName_.c_str());
       assert(loaded);
-      //make sure mass value used is really the one from the loaded snapshot unless explicitly requested to override it
-      if (overrideSnapshotMass_) {
-        MH->setVal(mass_);
-      }
-      else {
-        mass_ = MH->getVal();
+      if (MH){
+        //make sure mass value used is really the one from the loaded snapshot unless explicitly requested to override it
+        if (overrideSnapshotMass_) {
+          MH->setVal(mass_);
+        }
+        else {
+          mass_ = MH->getVal();
+        }
       }
     }
   //*********************************************
@@ -663,7 +665,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     RooDataSet *systDs = 0;
     if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {
       if (nuisances == 0) throw std::logic_error("Running with systematics enabled, but nuisances not defined.");
-      nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ? *mc : *mc_bonly));
+      nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
           w->saveSnapshot("reallyClean", w->allVars());
@@ -672,7 +674,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
               CloseCoutSentry sentry(verbose < 3);
               //genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));	
-                std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
+                std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
                 CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
                 minim.setStrategy(1);
                 if (!bypassFrequentistFit_) minim.minimize();

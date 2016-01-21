@@ -8,6 +8,7 @@ parser = OptionParser()
 parser.add_option("-f", "--format",  type="string",   dest="format", default="html", help="Format for output number")
 parser.add_option("-m", "--mass",    dest="mass",     default=0,  type="float",  help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.")
 parser.add_option("-D", "--dataset", dest="dataname", default="data_obs",  type="string",  help="Name of the observed dataset")
+parser.add_option("-a", "--all", dest="all", default=False,action='store_true',  help="Report all nuisances (default is only lnN)")
 (options, args) = parser.parse_args()
 options.stat = False
 options.bin = True # fake that is a binary output, so that we parse shape lines
@@ -67,12 +68,14 @@ def commonStems(list, sep="_"):
     
 report = {}; errlines = {}
 for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
-    if pdf != "lnN": continue
+    if not options.all and pdf != "lnN": continue
+    types = []
     minEffect, maxEffect = 999.0, 1.0
     processes = {}
     channels  = []
     errlines[lsyst] = errline
     for b in DC.bins:
+    	types.append(pdf)
         for p in DC.exp[b].iterkeys():
             if errline[b][p] == 0: continue
             channels.append(b)
@@ -83,7 +86,9 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
                 minEffect = min(minEffect, val)
                 maxEffect = max(maxEffect, val)
     channelsShort = commonStems(channels)
-    report[lsyst] = { 'channels':channelsShort, 'bins' : channels, 'processes': sorted(processes.keys()), 'effect':(minEffect,maxEffect) }
+    types = ",".join(set(types))
+    report[lsyst] = { 'channels':channelsShort, 'bins' : channels, 'processes': sorted(processes.keys()), 'effect':("%5.3f"%minEffect,"%5.3f"%maxEffect), 'types':types }
+    if set(types)!=set("lnN") : report[lsyst]['effect'] = ("n/a","n/a")
 
 # Get list
 names = report.keys() 
@@ -121,12 +126,13 @@ function toggleChann(id) {
 </head><body>
 <h1>Nuisance Report</h1>
 <table>
-<tr><th>Nuisance</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
+<tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
 """
     for nuis in names:
         val = report[nuis]
-        print "<tr><td><a name=\"%s\"><b>%s</b></a></td>" % (nuis,nuis)
-        print "<td>%5.3f</td><td>%5.3f</td>" % ( val['effect'][0], val['effect'][1] )
+        print "<tr><td><a name=\"%s\"><b>%s</b></a></td>" % (nuis,nuis+"  ("+val['types']+")")
+        #print "<td>%5.3f</td><td>%5.3f</td>" % ( val['effect'][0],val['effect'][1] )
+        print "<td>%s</td><td>%s</td>" % ( val['effect'][0],val['effect'][1] )
         print "<td>",", ".join(val['processes']), "</td>"
         print "<td>%s" % ", ".join(["%s(%d)" % (k,v) for (k,v) in sorted(val['channels'])]),
         print "<a id=\"%s_chann_toggle\" href=\"#%s\" onclick=\"toggleChann(&quot;%s&quot;)\">[+]</a></td>" % (nuis,nuis,nuis)
@@ -142,11 +148,11 @@ function toggleChann(id) {
 </html>"""
 else:
     if "brief" in options.format:
-        print "%-50s  [%5s, %5s]   %-40s  %-30s" % ("   NUISANCE", " MIN", " MAX", "PROCESSES", "CHANNELS(#SUBCHANNELS)" )
+        print "%-50s  [%5s, %5s]   %-40s  %-30s" % ("   NUISANCE (TYPE)", " MIN", " MAX", "PROCESSES", "CHANNELS(#SUBCHANNELS)" )
         print "%-50s  %14s   %-40s  %-30s" % ("-"*50, "-"*14, "-"*30, "-"*30)
         for nuis in names:
             val = report[nuis]
-            print "%-50s  [%5.3f, %5.3f]   %-40s  %-30s" % ( nuis, val['effect'][0], val['effect'][1], 
+            print "%-50s (%s)  [%s, %s]   %-40s  %-30s" % ( nuis,val['types'], val['effect'][0],val['effect'][1], 
                                                                 ",".join(val['processes']),
                                                                 ",".join(["%s(%d)" % (k,v) for (k,v) in sorted(val['channels'])]))
             
