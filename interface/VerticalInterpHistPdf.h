@@ -167,7 +167,7 @@ private:
 
 class FastVerticalInterpHistPdfV {
     public: 
-        FastVerticalInterpHistPdfV(const FastVerticalInterpHistPdf &, const RooAbsData &data) ;
+        FastVerticalInterpHistPdfV(const FastVerticalInterpHistPdf &, const RooAbsData &data, bool includeZeroWeights=false) ;
         void fill(std::vector<Double_t> &out) const ;
     private:
         const FastVerticalInterpHistPdf & hpdf_;
@@ -248,6 +248,7 @@ public:
 
   virtual void setActiveBins(unsigned int bins) {}
 
+  bool cacheIsGood() const { return _sentry.good() && _initBase; }
   /// Must be public, for serialization
   typedef FastVerticalInterpHistPdfBase::Morph Morph;
 protected:
@@ -310,6 +311,8 @@ public:
   virtual void setActiveBins(unsigned int bins) ;
   Double_t evaluate() const ;
 
+  FastHisto const& cache() const { return _cache; }
+
   friend class FastVerticalInterpHistPdf2V;
 protected:
   RooRealProxy   _x;
@@ -330,7 +333,7 @@ private:
 };
 class FastVerticalInterpHistPdf2V {
     public: 
-        FastVerticalInterpHistPdf2V(const FastVerticalInterpHistPdf2 &, const RooAbsData &data) ;
+        FastVerticalInterpHistPdf2V(const FastVerticalInterpHistPdf2 &, const RooAbsData &data, bool includeZeroWeights=false) ;
         void fill(std::vector<Double_t> &out) const ;
     private:
         const FastVerticalInterpHistPdf2 & hpdf_;

@@ -65,6 +65,7 @@ class CachingPdfBase {
         virtual const std::vector<Double_t> & eval(const RooAbsData &data) = 0;
         virtual const RooAbsReal *pdf() const = 0;
         virtual void  setDataDirty() = 0;
+        virtual void  setIncludeZeroWeights(bool includeZeroWeights) = 0;
 };
 class CachingPdf : public CachingPdfBase {
     public:
@@ -74,6 +75,7 @@ class CachingPdf : public CachingPdfBase {
         virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
         const RooAbsReal *pdf() const { return pdf_; }
         virtual void  setDataDirty() { lastData_ = 0; }
+        virtual void  setIncludeZeroWeights(bool includeZeroWeights) { includeZeroWeights_ = includeZeroWeights;  setDataDirty(); }
     protected:
         const RooArgSet *obs_;
         RooAbsReal *pdfOriginal_;
@@ -83,6 +85,7 @@ class CachingPdf : public CachingPdfBase {
         ValuesCache cache_;
         std::vector<uint8_t> nonZeroW_;
         unsigned int         nonZeroWEntries_;
+        bool                 includeZeroWeights_;
         virtual void newData_(const RooAbsData &data) ;
         virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
 };
@@ -105,7 +108,7 @@ CachingPdfBase * makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
 
 class CachingAddNLL : public RooAbsReal {
     public:
-        CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data) ;
+        CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data, bool includeZeroWeights = false) ;
         CachingAddNLL(const CachingAddNLL &other, const char *name = 0) ;
         virtual ~CachingAddNLL() ;
         virtual CachingAddNLL *clone(const char *name = 0) const ;
@@ -119,6 +122,8 @@ class CachingAddNLL : public RooAbsReal {
         const RooAbsPdf *pdf() const { return pdf_; }
         void setZeroPoint() { zeroPoint_ = -this->getVal(); setValueDirty(); }
         void clearZeroPoint() { zeroPoint_ = 0.0; setValueDirty();  }
+        /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
+        virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }
     private:
         void setup_();
@@ -126,8 +131,9 @@ class CachingAddNLL : public RooAbsReal {
         RooAbsPdf *pdf_;
         RooSetProxy params_;
         const RooAbsData *data_;
-        std::vector<Double_t>  weights_;
+        std::vector<Double_t>  weights_, binWidths_;
         double               sumWeights_;
+        bool includeZeroWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
         mutable boost::ptr_vector<CachingPdfBase>  pdfs_;
         mutable boost::ptr_vector<RooAbsReal>  prods_;
@@ -136,6 +142,7 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<Double_t> partialSum_;
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;
+        mutable int canBasicIntegrals_, basicIntegrals_;
         double zeroPoint_;
 };
 

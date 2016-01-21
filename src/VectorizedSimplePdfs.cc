@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <memory>
 
-VectorizedExponential::VectorizedExponential(const RooExponential &pdf, const RooAbsData &data)
+VectorizedExponential::VectorizedExponential(const RooExponential &pdf, const RooAbsData &data, bool includeZeroWeights)
 {
     RooArgSet obs(*data.get());
     std::auto_ptr<RooArgSet> params(pdf.getParameters(data));
@@ -17,7 +17,7 @@ VectorizedExponential::VectorizedExponential(const RooExponential &pdf, const Ro
     xvals_.reserve(data.numEntries());
     for (unsigned int i = 0, n = data.numEntries(); i < n; ++i) {
         obs.assignValueOnly(*data.get(i), true);
-        if (data.weight()) xvals_.push_back(x_->getVal());        
+        if (data.weight() || includeZeroWeights) xvals_.push_back(x_->getVal());        
     }
     work_.resize(xvals_.size());
 }
@@ -29,7 +29,7 @@ void VectorizedExponential::fill(std::vector<Double_t> &out) const {
     vectorized::exponentials(xvals_.size(), lambda, norm, &xvals_[0], &out[0], &work_[0]);
 }
 
-VectorizedPower::VectorizedPower(const RooPower &pdf, const RooAbsData &data)
+VectorizedPower::VectorizedPower(const RooPower &pdf, const RooAbsData &data, bool includeZeroWeights)
 {
     RooArgSet obs(*data.get());
     if (obs.find(pdf.base()) == 0) throw std::invalid_argument("Dataset does not depend on the base of the power");
@@ -39,7 +39,7 @@ VectorizedPower::VectorizedPower(const RooPower &pdf, const RooAbsData &data)
     xvals_.reserve(data.numEntries());
     for (unsigned int i = 0, n = data.numEntries(); i < n; ++i) {
         obs.assignValueOnly(*data.get(i), true);
-        if (data.weight()) xvals_.push_back(x_->getVal());        
+        if (data.weight() || includeZeroWeights) xvals_.push_back(x_->getVal());        
     }
     work_.resize(xvals_.size());
 }

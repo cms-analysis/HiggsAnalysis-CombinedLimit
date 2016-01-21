@@ -61,9 +61,9 @@ class RooSplineND : public RooAbsReal {
 
    public:
       RooSplineND() : ndim_(0),M_(0),eps_(3.) {}
-      RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char* fName="f", double eps=3., std::string cutstring="" ) ;
+      RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char* fName="f", double eps=3., bool rescale=false, std::string cutstring="" ) ;
       RooSplineND(const RooSplineND& other, const char *name) ; 
-      RooSplineND(const char *name, const char *title, const RooListProxy &vars, int ndim, int M, double eps, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > & ,double,double) ;
+      RooSplineND(const char *name, const char *title, const RooListProxy &vars, int ndim, int M, double eps, bool rescale, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > & ,double,double) ;
       ~RooSplineND() ;
 
       TObject * clone(const char *newname) const ;
@@ -91,6 +91,8 @@ class RooSplineND : public RooAbsReal {
 	double getDistSquare(int i, int j);
 	double getDistFromSquare(int i) const;
 	double radialFunc(double d2, double eps) const;
+
+	bool rescaleAxis;
 	
 
   ClassDef(RooSplineND,1) 

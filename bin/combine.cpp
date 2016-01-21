@@ -244,6 +244,15 @@ int main(int argc, char **argv) {
   runtimedef::set("ADDNLL_HISTNLL", 1);
   runtimedef::set("ADDNLL_CBNLL", 1);
   runtimedef::set("TMCSO_AdaptivePseudoAsimov", 1);
+  // Optimization for bare RooFit likelihoods (--optimizeSimPdf=0)
+  runtimedef::set("MINIMIZER_optimizeConst", 2); 
+  runtimedef::set("MINIMIZER_rooFitOffset", 1); 
+  // Optimization for ATLAS HistFactory likelihoods
+  runtimedef::set("ADDNLL_ROOREALSUM_FACTOR",1);
+  runtimedef::set("ADDNLL_ROOREALSUM_NONORM",1);
+  runtimedef::set("ADDNLL_ROOREALSUM_BASICINT",1);
+  runtimedef::set("ADDNLL_ROOREALSUM_KEEPZEROS",1);
+
 
   for (vector<string>::const_iterator rtdp = runtimeDefines.begin(), endrtdp = runtimeDefines.end(); rtdp != endrtdp; ++rtdp) {
     std::string::size_type idx = rtdp->find('=');

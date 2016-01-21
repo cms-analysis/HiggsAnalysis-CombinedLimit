@@ -69,7 +69,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
    ;
 
     // setup a few defaults
-    nToys=0; fitStatus_=0; mu_=0;numbadnll_=-1;nll_nll0_=-1; nll_bonly_=-1;nll_sb_=-1;
+    nToys=0; fitStatus_=0; mu_=0; muErr_=0; muLoErr_=0; muHiErr_=0; numbadnll_=-1; nll_nll0_=-1; nll_bonly_=-1; nll_sb_=-1;
 		save_dir_=0;
 }
 
@@ -204,7 +204,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     // skip b-only fit
   } else if (minos_ != "all") {
     RooArgList minos; 
-    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*reuseNLL*/ true); 
+    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
     nll_bonly_=nll->getVal()-nll0;   
   } else {
     CloseCoutSentry sentry(verbose < 2);
@@ -275,7 +275,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   r->setVal(preFitValue_); r->setConstant(false); 
   if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
-    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*reuseNLL*/ true); 
+    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*ndim*/1,/*reuseNLL*/ true); 
     nll_sb_ = nll->getVal()-nll0;
   } else {
     CloseCoutSentry sentry(verbose < 2);
@@ -343,7 +343,6 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   	nll_nll0_ = -1;
   }
   mu_=r->getVal();
-  if (t_fit_sb_) t_fit_sb_->Fill();
 
   if (res_s) {
       RooRealVar *rf = dynamic_cast<RooRealVar*>(res_s->floatParsFinal().find(r->GetName()));
@@ -355,6 +354,10 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
       if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
       if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
+
+      muLoErr_=loErr;
+      muHiErr_=hiErr;
+      muErr_  =rf->getError();
 
       double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
       double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
@@ -381,6 +384,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
       std::cout << "Fit failed."  << std::endl;
   }
+  if (t_fit_sb_) t_fit_sb_->Fill();
 
   if (currentToy_==nToys-1 || nToys==0 ) {
         
@@ -505,13 +509,13 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
             hist->Scale(vals[i] / hist->Integral("width"));
             hist->SetDirectory(shapesByChannel[pair->second.channel]);
             shapes[i] = hist;
-            if (saveWithUncertainties_) {
-                shapes2[i] = (TH1*) hist->Clone();
-                shapes2[i]->SetDirectory(0);
-                shapes2[i]->Reset();
-                bins[i] = hist->GetNbinsX();
-                TH1 *&htot = totByCh[pair->second.channel];
-                if (htot == 0) {
+            //if (saveWithUncertainties_) {
+            shapes2[i] = (TH1*) hist->Clone();
+            shapes2[i]->SetDirectory(0);
+            shapes2[i]->Reset();
+            bins[i] = hist->GetNbinsX();
+            TH1 *&htot = totByCh[pair->second.channel];
+            if (htot == 0) {
                     htot = (TH1*) hist->Clone();
                     htot->SetName("total");
 		    htot->SetTitle(Form("Total signal+background in %s", pair->second.channel.c_str()));
@@ -519,12 +523,12 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                     TH1 *htot2 = (TH1*) hist->Clone(); htot2->Reset();
                     htot2->SetDirectory(0);
                     totByCh2[pair->second.channel] = htot2;
-                } else {
+            } else {
                     htot->Add(hist);
-                }
-                sig[i] = pair->second.signal;
-                TH1 *&hpart = (sig[i] ? sigByCh : bkgByCh)[pair->second.channel];
-                if (hpart == 0) {
+            }
+            sig[i] = pair->second.signal;
+            TH1 *&hpart = (sig[i] ? sigByCh : bkgByCh)[pair->second.channel];
+            if (hpart == 0) {
                     hpart = (TH1*) hist->Clone();
                     hpart->SetName((sig[i] ? "total_signal" : "total_background"));
 		    hpart->SetTitle(Form((sig[i] ? "Total signal in %s" : "Total background in %s"),pair->second.channel.c_str()));
@@ -532,10 +536,10 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                     TH1 *hpart2 = (TH1*) hist->Clone(); hpart2->Reset();
                     hpart2->SetDirectory(0);
                     (sig[i] ? sigByCh2 : bkgByCh2)[pair->second.channel] = hpart2;
-                } else {
+            } else {
                     hpart->Add(hist);
-                }
             }
+            //}
         }
     }
     if (saveWithUncertainties_) {
@@ -686,6 +690,15 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
 
 	 t_fit_b_->Branch("mu",&mu_,"mu/Double_t");
 	 t_fit_sb_->Branch("mu",&mu_,"mu/Double_t");
+
+	 t_fit_b_->Branch("muErr",&muErr_,"muErr/Double_t");
+	 t_fit_sb_->Branch("muErr",&muErr_,"muErr/Double_t");
+
+	 t_fit_b_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");
+	 t_fit_sb_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");
+
+	 t_fit_b_->Branch("muHiErr",&muHiErr_,"muHiErr/Double_t");
+	 t_fit_sb_->Branch("muHiErr",&muHiErr_,"muHiErr/Double_t");
 
 	 t_fit_b_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
 	 t_fit_sb_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");

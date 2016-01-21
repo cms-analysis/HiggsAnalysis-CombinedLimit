@@ -82,6 +82,8 @@ private:
   bool rebuildSimPdf_;
   bool optSimPdf_;
   bool noMCbonly_;
+  bool floatAllNuisances_;
+  bool freezeAllGlobalObs_;
 
   static TTree *tree_;
 };

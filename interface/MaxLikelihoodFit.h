@@ -49,7 +49,7 @@ protected:
 	static bool save_toys_;
   int currentToy_, nToys;
   int fitStatus_, numbadnll_;
-  double mu_, nll_nll0_, nll_bonly_,nll_sb_;
+  double mu_, muErr_, muLoErr_, muHiErr_, nll_nll0_, nll_bonly_, nll_sb_;
   std::auto_ptr<TFile> fitOut;
 	TDirectory* save_dir_;
   double* globalObservables_;

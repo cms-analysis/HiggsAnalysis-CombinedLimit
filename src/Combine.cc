@@ -121,6 +121,8 @@ Combine::Combine() :
 
       ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
+      ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(true), "Make all nuisance parameters floating")
+      ("freezeAllGlobalObs", po::value<bool>(&freezeAllGlobalObs_)->default_value(true), "Make all global observables constant")
       ;
     miscOptions_.add_options()
       ("newGenerator", po::value<bool>(&newGen_)->default_value(true), "Use new generator code for toys, fixes all issues with binned and mixed generation (equivalent of --newToyMC but affects the top-level toys from option '-t' instead of the ones within the HybridNew)")
@@ -225,6 +227,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       char buff[99]; snprintf(buff, 98, "roostats-XXXXXX");
       int fd = mkstemp(buff); close(fd);
       tmpFile = buff;
+      unlink(tmpFile); // this is to be deleted, since we'll use tmpFile+".root"
   }
 
   bool isTextDatacard = false, isBinary = false;
@@ -236,7 +239,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     isBinary = true;
   } else {
     TString txtFile = fileToLoad.Data();
-    TString options = TString::Format(" -m %g -D %s", mass_, dataset.c_str());
+    TString options = TString::Format(" -m %f -D %s", mass_, dataset.c_str());
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
@@ -322,19 +325,24 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (snapshotName_ != "") {
       bool loaded = w->loadSnapshot(snapshotName_.c_str());
       assert(loaded);
-      //make sure mass value used is really the one from the loaded snapshot unless explicitly requested to override it
-      if (overrideSnapshotMass_) {
-        MH->setVal(mass_);
-      }
-      else {
-        mass_ = MH->getVal();
+      if (MH){
+        //make sure mass value used is really the one from the loaded snapshot unless explicitly requested to override it
+        if (overrideSnapshotMass_) {
+          MH->setVal(mass_);
+        }
+        else {
+          mass_ = MH->getVal();
+        }
       }
     }
   //*********************************************
   //set physics model parameters    after loading the snapshot
   //*********************************************
   if (setPhysicsModelParameterExpression_ != "") {
-      utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
+      RooArgSet allParams(w->allVars());
+      if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
+      utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
+      // also allow for "discrete" parameters to be set 
   }
 
 
@@ -559,10 +567,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (validateModel_ && verbose) std::cout << "Sanity checks on the model: " << (validModel ? "OK" : "FAIL") << std::endl;
 
   // make sure these things are set consistently with what we expect
-  if (mc->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc->GetNuisanceParameters(), false);
-  if (mc->GetGlobalObservables()) utils::setAllConstant(*mc->GetGlobalObservables(), true);
-  if (mc_bonly && mc_bonly->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc_bonly->GetNuisanceParameters(), false);
-  if (mc_bonly && mc_bonly->GetGlobalObservables()) utils::setAllConstant(*mc_bonly->GetGlobalObservables(), true);
+  if (floatAllNuisances_  && mc->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc->GetNuisanceParameters(), false);
+  if (freezeAllGlobalObs_ && mc->GetGlobalObservables()) utils::setAllConstant(*mc->GetGlobalObservables(), true);
+  if (floatAllNuisances_  && mc_bonly && mc_bonly->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc_bonly->GetNuisanceParameters(), false);
+  if (freezeAllGlobalObs_ && mc_bonly && mc_bonly->GetGlobalObservables()) utils::setAllConstant(*mc_bonly->GetGlobalObservables(), true);
 
   // Setup the CascadeMinimizer with discrete nuisances 
   addDiscreteNuisances(w);
@@ -657,7 +665,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     RooDataSet *systDs = 0;
     if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {
       if (nuisances == 0) throw std::logic_error("Running with systematics enabled, but nuisances not defined.");
-      nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ? *mc : *mc_bonly));
+      nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
           w->saveSnapshot("reallyClean", w->allVars());
@@ -666,7 +674,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
               CloseCoutSentry sentry(verbose < 3);
               //genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));	
-                std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
+                std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
                 CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
                 minim.setStrategy(1);
                 if (!bypassFrequentistFit_) minim.minimize();

@@ -15,6 +15,7 @@ namespace cacheutils {
             virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
             const RooAbsReal *pdf() const { return pdf_; }
             virtual void  setDataDirty() ;
+            virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         protected:
             const RooMultiPdf * pdf_;
             boost::ptr_vector<CachingPdfBase>  cachingPdfs_;
@@ -27,6 +28,7 @@ namespace cacheutils {
             virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
             const RooAbsReal *pdf() const { return pdf_; }
             virtual void  setDataDirty() ;
+            virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         protected:
             const RooAddPdf * pdf_;
             std::vector<const RooAbsReal *> coeffs_;

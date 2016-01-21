@@ -19,8 +19,8 @@
 //#define DEBUG_SM_printf   if (0) printf
 //#define DEBUGV_SM_printf  if (0) printf
 // #define DEBUG_ODM_printf printf
-#define DEBUG_SM_printf  if (fDebug > 1) printf
-#define DEBUGV_SM_printf if (fDebug > 2) printf  
+#define DEBUG_SM_printf  if (PrintLevel() > 1) printf
+#define DEBUGV_SM_printf if (PrintLevel() > 2) printf  
 
 namespace { 
     const double GOLD_R1 = 0.61803399 ;
@@ -384,7 +384,7 @@ bool cmsmath::SequentialMinimizer::improve(int smallsteps)
 
     state_ = Active;
     for (int i = 0; i < bigsteps; ++i) {
-        DEBUG_SM_printf("Start of loop. Strategy %d, State is %s\n",fStrategy,(state_ == Done ? "DONE" : "ACTIVE"));
+        DEBUG_SM_printf("Start of loop. Strategy %d, State is %s\n",Strategy(),(state_ == Done ? "DONE" : "ACTIVE"));
         State newstate = Done;
         int oldActiveWorkers = 0, newActiveWorkers = 0;
         foreach(Worker &w, workers_) {
@@ -404,12 +404,12 @@ bool cmsmath::SequentialMinimizer::improve(int smallsteps)
                 newActiveWorkers++;
             }
         }
-        if (fStrategy >= 2 && newActiveWorkers <= 30) { // arbitrary cut-off
-            DEBUG_SM_printf("Middle of loop. Strategy %d, active workers %d: firing full minimizer\n", fStrategy, newActiveWorkers);
+        if (Strategy() >= 2 && newActiveWorkers <= 30) { // arbitrary cut-off
+            DEBUG_SM_printf("Middle of loop. Strategy %d, active workers %d: firing full minimizer\n", Strategy(), newActiveWorkers);
             if (doFullMinim()) newstate = Done;
         }
         if (newstate == Done) {
-            DEBUG_SM_printf("Middle of loop. Strategy %d, State is %s, active workers %d --> %d \n",fStrategy,(state_ == Done ? "DONE" : "ACTIVE"), oldActiveWorkers, newActiveWorkers);
+            DEBUG_SM_printf("Middle of loop. Strategy %d, State is %s, active workers %d --> %d \n",Strategy(),(state_ == Done ? "DONE" : "ACTIVE"), oldActiveWorkers, newActiveWorkers);
             oldActiveWorkers = 0; newActiveWorkers = 0;
             double y0 = func_->eval();
             std::list<Worker*>::iterator it = doneWorkers.begin();
@@ -434,7 +434,7 @@ bool cmsmath::SequentialMinimizer::improve(int smallsteps)
                     w.nUnaffected = 0;
                     it = doneWorkers.erase(it);
                     newActiveWorkers++;
-                    if (fStrategy == 0) break;
+                    if (Strategy() == 0) break;
                 }
             }
             if (newstate == Active) { // wake up him too
@@ -444,7 +444,7 @@ bool cmsmath::SequentialMinimizer::improve(int smallsteps)
             double y1 = func_->eval();
             edm_ = y0 - y1;
         }
-        DEBUG_SM_printf("End of loop. Strategy %d, State is %s, active workers %d --> %d \n",fStrategy,(state_ == Done ? "DONE" : "ACTIVE"), oldActiveWorkers, newActiveWorkers);
+        DEBUG_SM_printf("End of loop. Strategy %d, State is %s, active workers %d --> %d \n",Strategy(),(state_ == Done ? "DONE" : "ACTIVE"), oldActiveWorkers, newActiveWorkers);
         if (state_ == Done && newstate == Done) {
             DEBUG_SM_printf("Converged after %d big steps\n",i);
             minValue_ = func_->eval();

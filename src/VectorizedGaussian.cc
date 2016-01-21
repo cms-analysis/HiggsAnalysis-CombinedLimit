@@ -4,7 +4,7 @@
 #include <RooRealVar.h>
 #include <stdexcept>
 
-VectorizedGaussian::VectorizedGaussian(const RooGaussian &gaus, const RooAbsData &data)
+VectorizedGaussian::VectorizedGaussian(const RooGaussian &gaus, const RooAbsData &data, bool includeZeroWeights)
 {
     RooArgSet obs(*data.get());
     if (obs.getSize() != 1) throw std::invalid_argument("Multi-dimensional dataset?");
@@ -26,7 +26,7 @@ VectorizedGaussian::VectorizedGaussian(const RooGaussian &gaus, const RooAbsData
     xvals_.reserve(data.numEntries());
     for (unsigned int i = 0, n = data.numEntries(); i < n; ++i) {
         obs.assignValueOnly(*data.get(i), true);
-        if (data.weight()) xvals_.push_back(x->getVal());        
+        if (data.weight() || includeZeroWeights) xvals_.push_back(x->getVal());        
     }
     work_.resize(xvals_.size());
     work2_.resize(xvals_.size());

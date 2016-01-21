@@ -103,7 +103,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
             newFactors.add(*newpdf);
         }
-        if (!needNew) { copyAttributes(pdf, *prod); return prod; }
+        if (!needNew && newFactors.getSize() > 1) { copyAttributes(pdf, *prod); return prod; }
         else if (newFactors.getSize() == 0) return 0;
         else if (newFactors.getSize() == 1) {
             RooAbsPdf *ret = (RooAbsPdf *) newFactors.first()->Clone(TString::Format("%s_obsOnly", pdf.GetName()));
@@ -210,7 +210,7 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
         //std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
         std::auto_ptr<TIterator> iter(components.createIterator());
         for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
-            //std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << std::endl;
+            //std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << "(dep obs? " << funci->dependsOn(observables) << ")" << std::endl;
             factorizeFunc(observables, *funci, obsTerms, constraints);
         }
     } else if (func.dependsOn(observables)) {
@@ -472,9 +472,10 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             ret.push_back(x->frame(RooFit::Title(ds->GetName()), RooFit::Bins(nbins)));
             ret.back()->SetName(ds->GetName());
             ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
-            if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel));
-            if (backgroundSel && strlen(backgroundSel)) pdfi->plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel));
-            pdfi->plotOn(ret.back());
+            if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+            if (backgroundSel && strlen(backgroundSel)) pdfi->plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+	    std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdfi->GetName() << " = " << pdfi->expectedEvents(RooArgSet(*x)) << std::endl;  
+            pdfi->plotOn(ret.back(),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
             delete ds;
         }
         delete datasets;
@@ -485,9 +486,10 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             ret.push_back(x->frame());
             ret.back()->SetName("data");
             data.plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
-            if (signalSel && strlen(signalSel))         pdf.plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel));
-            if (backgroundSel && strlen(backgroundSel)) pdf.plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel));
-            pdf.plotOn(ret.back());
+            if (signalSel && strlen(signalSel))         pdf.plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+            if (backgroundSel && strlen(backgroundSel)) pdf.plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+	    std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdf.GetName() << " = " << pdf.expectedEvents(RooArgSet(*x)) << std::endl;  
+            pdf.plotOn(ret.back(),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
         }
     }
     if (facpdf != &pdf) { delete facpdf; }
@@ -564,13 +566,27 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
     if (SetParameterExpression.size() != 2) {
       std::cout << "Error parsing physics model parameter expression : " << SetParameterExpressionList[p] << endl;
     } else {
-      double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
-      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterExpression[0].c_str());      
-      if (tmpParameter) {
-        cout << "Set Default Value of Parameter " << SetParameterExpression[0] 
-             << " To : " << PhysicsParameterValue << "\n";
-        tmpParameter->setVal(PhysicsParameterValue);
-      } else {
+      
+      RooAbsArg  *tmp = (RooAbsArg*)params.find(SetParameterExpression[0].c_str());     
+      if (tmp){
+
+        bool isrvar = tmp->IsA()->InheritsFrom(RooRealVar::Class());  // check its type
+
+        if (isrvar) {
+          RooRealVar *tmpParameter = dynamic_cast<RooRealVar*>(tmp);
+          double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
+          cout << "Set Default Value of Parameter " << SetParameterExpression[0] 
+               << " To : " << PhysicsParameterValue << "\n";
+          tmpParameter->setVal(PhysicsParameterValue);
+        } else {
+          RooCategory *tmpCategory  = dynamic_cast<RooCategory*>(tmp);
+          int PhysicsParameterValue = atoi(SetParameterExpression[1].c_str());
+          cout << "Set Default Index of Parameter " << SetParameterExpression[0] 
+               << " To : " << PhysicsParameterValue << "\n";
+          tmpCategory->setIndex(PhysicsParameterValue);
+	}
+      }
+        else {
         std::cout << "Warning: Did not find a parameter with name " << SetParameterExpression[0] << endl;
       }
     }
@@ -748,4 +764,13 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
     // }
     
     return isAnyBad;
+}
+
+int utils::countFloating(const RooArgSet &params){
+	int count=0;
+        RooLinkedListIter iter = params.iterator(); int i = 0;
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+		if (!a->isConstant()) count++;
+        }
+	return count;
 }

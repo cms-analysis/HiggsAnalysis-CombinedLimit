@@ -47,6 +47,7 @@ float       FitterAlgoBase::stepSize_ = 0.1;
 bool        FitterAlgoBase::robustFit_ = false;
 int         FitterAlgoBase::maxFailedSteps_ = 5;
 bool        FitterAlgoBase::do95_ = false;
+bool        FitterAlgoBase::forceRecreateNLL_ = false;
 bool        FitterAlgoBase::saveNLL_ = false;
 bool        FitterAlgoBase::keepFailures_ = false;
 bool        FitterAlgoBase::protectUnbinnedChannels_ = false;
@@ -73,6 +74,7 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("saveNLL",  "Save the negative log-likelihood at the minimum in the output tree (note: value is relative to the pre-fit state)")
         ("keepFailures",  "Save the results even if the fit is declared as failed (for NLL studies)")
         ("protectUnbinnedChannels", "Protect PDF from going negative in unbinned channels")
+        ("forceRecreateNLL",  "Always recreate NLL when running on multiple toys rather than re-using nll with new dataset")
     ;
 }
 
@@ -80,6 +82,7 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
 {
     saveNLL_ = vm.count("saveNLL");
     keepFailures_ = vm.count("keepFailures");
+    forceRecreateNLL_ = vm.count("forceRecreateNLL");
     protectUnbinnedChannels_ = vm.count("protectUnbinnedChannels");
     std::string profileMode = vm["profilingMode"].as<std::string>();
     if      (profileMode == "all")           profileMode_ = ProfileAll;
@@ -162,7 +165,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar
 
 RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL, bool saveFitResult) {
     RooFitResult *ret = 0;
-    if (reuseNLL && nll.get() != 0)((cacheutils::CachingSimNLL&)(*nll)).setData(data);	// reuse nll but swap out the data
+    if (reuseNLL && nll.get() != 0 && !forceRecreateNLL_)((cacheutils::CachingSimNLL&)(*nll)).setData(data);	// reuse nll but swap out the data
     else nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
 
     double nll0 = nll->getVal();

@@ -3,6 +3,11 @@ import re
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
 
+# tool to compare fitted nuisance parameters to prefit values.
+#
+# Also used to check for potential problems in RooFit workspaces to be used with combine
+# (see https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks)
+
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 hasHelp = False
 for X in ("-h", "-?", "--help"):
@@ -42,9 +47,14 @@ if fit_b == None or fit_b.ClassName()   != "RooFitResult": raise RuntimeError, "
 if prefit == None or prefit.ClassName() != "RooArgSet":    raise RuntimeError, "File %s does not contain the prefit nuisances 'nuisances_prefit'"  % args[0]
 
 isFlagged = {}
+
+# maps from nuisance parameter name to the row to be printed in the table
 table = {}
+
+# get the fitted parameters
 fpf_b = fit_b.floatParsFinal()
 fpf_s = fit_s.floatParsFinal()
+
 pulls = []
 
 nuis_p_i=0
@@ -52,20 +62,34 @@ nuis_p_i=0
 hist_fit_b  = ROOT.TH1F("prefit_fit_b"   ,"B-only fit Nuisances;;#theta ",prefit.getSize(),0,prefit.getSize())
 hist_fit_s  = ROOT.TH1F("prefit_fit_s"   ,"S+B fit Nuisances   ;;#theta ",prefit.getSize(),0,prefit.getSize())
 hist_prefit = ROOT.TH1F("prefit_nuisancs","Prefit Nuisances    ;;#theta ",prefit.getSize(),0,prefit.getSize())
+
+# loop over all fitted parameters
 for i in range(fpf_s.getSize()):
+
     nuis_s = fpf_s.at(i)
     name   = nuis_s.GetName();
     nuis_b = fpf_b.find(name)
     nuis_p = prefit.find(name)
+
+    # keeps information to be printed about the nuisance parameter
     row = []
+
     flag = False;
     mean_p, sigma_p = 0,0
+
     if nuis_p == None:
+        # nuisance parameter NOT present in the prefit result
         if not options.abs: continue
         row += [ "[%.2f, %.2f]" % (nuis_s.getMin(), nuis_s.getMax()) ]
+
     else:
+        # get best-fit value and uncertainty at prefit for this 
+        # nuisance parameter
         mean_p, sigma_p = (nuis_p.getVal(), nuis_p.getError())
-        if options.abs: row += [ "%.2f +/- %.2f" % (nuis_p.getVal(), nuis_p.getError()) ]
+
+	if not sigma_p > 0: sigma_p = (nuis_p.getMax()-nuis_p.getMin())/2
+        if options.abs: row += [ "%.6f +/- %.6f" % (nuis_p.getVal(), nuis_p.getError()) ]
+
     for fit_name, nuis_x in [('b', nuis_b), ('s',nuis_s)]:
         if nuis_x == None:
             row += [ " n/a " ]
@@ -87,24 +111,63 @@ for i in range(fpf_s.getSize()):
 		  hist_prefit.SetBinError(nuis_p_i,sigma_p)
 	      	  hist_prefit.GetXaxis().SetBinLabel(nuis_p_i,name)
 
-                valShift = (nuis_x.getVal() - mean_p)/sigma_p
+                if sigma_p>0: 
+
+                        # calculate the difference of the nuisance parameter
+                        # w.r.t to the prefit value in terms of the uncertainty
+                        # on the prefit value
+			valShift = (nuis_x.getVal() - mean_p)/sigma_p
+
+                        # ratio of the nuisance parameter's uncertainty
+                        # w.r.t the prefit uncertainty
+                	sigShift = nuis_x.getError()/sigma_p
+
+		else :
+			print "No definition for prefit uncertainty %s. Printing absolute shifts"%(nuis_p.GetName())
+			valShift = (nuis_x.getVal() - mean_p)
+                	sigShift = nuis_x.getError()
                 if fit_name == 'b':
                     pulls.append(valShift)
-                sigShift = nuis_x.getError()/sigma_p
                 if options.abs:
                     row[-1] += " (%+4.2fsig, %4.2f)" % (valShift, sigShift)
                 else:
                     row[-1] = " %+4.2f, %4.2f" % (valShift, sigShift)
+
                 if (abs(valShift) > options.vtol2 or abs(sigShift-1) > options.stol2):
+
+                    # severely report this nuisance:
+                    # 
+                    # the best fit moved by more than 2.0 sigma or the uncertainty (sigma)
+                    # changed by more than 50% (default thresholds) w.r.t the prefit values
+
                     isFlagged[(name,fit_name)] = 2
+
                     flag = True
+
                 elif (abs(valShift) > options.vtol  or abs(sigShift-1) > options.stol):
+
+                    # report this nuisance:
+                    # 
+                    # the best fit moved by more than 0.3 sigma or the uncertainty (sigma)
+                    # changed by more than 10% (default thresholds) w.r.t the prefit values
+
                     if options.all: isFlagged[(name,fit_name)] = 1
+
                     flag = True
+
                 elif options.all:
                     flag = True
+
+    # end of loop over s and b
+
     row += [ "%+4.2f"  % fit_s.correlation(name, options.poi) ]
     if flag or options.all: table[name] = row
+
+#end of loop over all fitted parameters
+
+#----------
+# print the results
+#----------
 
 fmtstring = "%-40s     %15s    %15s  %10s"
 highlight = "*%s*"
@@ -217,20 +280,20 @@ if options.plotfile:
     fout.WriteTObject(canvas)
 
     canvas_nuis = ROOT.TCanvas("nuisancs", "nuisances", 900, 600)
-    hist_fit_e_s = hist_fit_s.Clone()
-    hist_fit_e_b = hist_fit_b.Clone()
-    hist_fit_s = getGraph(hist_fit_s,-0.1)
-    hist_fit_b = getGraph(hist_fit_b, 0.1)
-    hist_fit_s.SetLineColor(ROOT.kRed)
-    hist_fit_s.SetMarkerColor(ROOT.kRed)
-    hist_fit_b.SetLineColor(ROOT.kBlue)
-    hist_fit_b.SetMarkerColor(ROOT.kBlue)
-    hist_fit_b.SetMarkerStyle(20)
-    hist_fit_s.SetMarkerStyle(20)
-    hist_fit_b.SetMarkerSize(1.0)
-    hist_fit_s.SetMarkerSize(1.0)
-    hist_fit_b.SetLineWidth(2)
-    hist_fit_s.SetLineWidth(2)
+    hist_fit_e_s = hist_fit_s.Clone("errors_s")
+    hist_fit_e_b = hist_fit_b.Clone("errors_b")
+    gr_fit_s = getGraph(hist_fit_s,-0.1)
+    gr_fit_b = getGraph(hist_fit_b, 0.1)
+    gr_fit_s.SetLineColor(ROOT.kRed)
+    gr_fit_s.SetMarkerColor(ROOT.kRed)
+    gr_fit_b.SetLineColor(ROOT.kBlue)
+    gr_fit_b.SetMarkerColor(ROOT.kBlue)
+    gr_fit_b.SetMarkerStyle(20)
+    gr_fit_s.SetMarkerStyle(20)
+    gr_fit_b.SetMarkerSize(1.0)
+    gr_fit_s.SetMarkerSize(1.0)
+    gr_fit_b.SetLineWidth(2)
+    gr_fit_s.SetLineWidth(2)
     hist_prefit.SetLineWidth(2)
     hist_prefit.SetTitle("Nuisance Paramaeters")
     hist_prefit.SetLineColor(ROOT.kBlack)
@@ -239,8 +302,8 @@ if options.plotfile:
     hist_prefit.SetMinimum(-3)
     hist_prefit.Draw("E2")
     hist_prefit.Draw("histsame")
-    hist_fit_b.Draw("EPsame")
-    hist_fit_s.Draw("EPsame")
+    gr_fit_b.Draw("EPsame")
+    gr_fit_s.Draw("EPsame")
     canvas_nuis.SetGridx()
     canvas_nuis.RedrawAxis()
     canvas_nuis.RedrawAxis('g')
@@ -248,13 +311,11 @@ if options.plotfile:
     leg.SetFillColor(0)
     leg.SetTextFont(42)
     leg.AddEntry(hist_prefit,"Prefit","FL")
-    leg.AddEntry(hist_fit_b,"B-only fit","EPL")
-    leg.AddEntry(hist_fit_s,"S+B fit"   ,"EPL")
+    leg.AddEntry(gr_fit_b,"B-only fit","EPL")
+    leg.AddEntry(gr_fit_s,"S+B fit"   ,"EPL")
     leg.Draw()
     fout.WriteTObject(canvas_nuis)
     canvas_pferrs = ROOT.TCanvas("post_fit_errs", "post_fit_errs", 900, 600)
-    hist_fit_e_s = hist_fit_s.Clone()
-    hist_fit_e_b = hist_fit_b.Clone()
     for b in range(1,hist_fit_e_s.GetNbinsX()+1): 
       hist_fit_e_s.SetBinContent(b,hist_fit_s.GetBinError(b)/hist_prefit.GetBinError(b))
       hist_fit_e_b.SetBinContent(b,hist_fit_b.GetBinError(b)/hist_prefit.GetBinError(b))

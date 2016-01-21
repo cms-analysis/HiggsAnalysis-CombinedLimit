@@ -103,7 +103,7 @@ def doRenameNuisance(datacard, args):
                 if lsyst2 == lsystnew:
                     found = True
                     errline2 = errline2b
-                if pdf2 != pdf0: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
+                    if pdf2 != pdf0: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
             if not found:
                 datacard.systs.append([lsystnew,nofloat,pdf0,args0,errline2])
             foundChann, foundProc = False, False
@@ -172,7 +172,31 @@ def doChangeNuisancePdf(datacard, args):
     if not found:
         sys.stderr.write("Warning: no pdf found for changepdf with args %s\n" % args)
 
+def doSplitNuisance(datacard, args):
+    if len(args) < 7:
+        raise RuntimeError, "Missing arguments: the syntax is: nuisance edit split process channel oldname newname1 newname2 value1 value2"
+    (process, channel, oldname, newname1, newname2, value1, value2) = args[:7]
+    if process != "*": cprocess = re.compile(process)
+    if channel != "*": cchannel = re.compile(channel)
+    opts = args[8:]
+    foundProc = False
+    for lsyst,nofloat,pdf,args0,errline in datacard.systs:
+        if re.match(oldname,lsyst):
+            for b in errline.keys():
+                if channel == "*" or cchannel.search(b):
+                    for p in datacard.exp[b]:
+                        if process == "*" or cprocess.search(p):
+                            foundProc = True
+                            if errline[b][p] not in [0., 1.]:
+                                doAddNuisance(datacard, [p, b, newname1, pdf, value1, "overwrite"])
+                                doAddNuisance(datacard, [p, b, newname2, pdf, value2, "overwrite"])
+                            errline[b][p] = 0
 
+    if not foundProc and channel != "*":
+        if "ifexists" not in opts:
+            raise RuntimeError, "Error: nuisance edit split %s found nothing" % (args)
+        else:
+            sys.stderr.write("Warning2: nuisance edit split %s found nothing\n" % (args))
 
 def doEditNuisance(datacard, command, args):
     if command == "add":
@@ -183,5 +207,7 @@ def doEditNuisance(datacard, command, args):
         doRenameNuisance(datacard, args)
     elif command == "changepdf":
         doChangeNuisancePdf(datacard, args)
+    elif command == "split":
+        doSplitNuisance(datacard, args)
     else:
         raise RuntimeError, "Error, unknown nuisance edit command %s (args %s)" % (command, args)
