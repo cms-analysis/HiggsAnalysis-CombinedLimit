@@ -55,8 +55,13 @@ class AutoRebin {
    *
    *   * Repeats with new lowest bin until all bins pass threshold
    */
-  void FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, double bin_condition, int mode);
+  void FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, double bin_condition, double bin_uncert_fraction, int mode);
 
+  /**
+   * Return bin with maximum value of fractional error
+   */
+  int GetMaximumFracUncertBin(TH1F &total_bkg);
+  
   /**
    * Set to a value greater than zero for more verbose output
    */
@@ -66,10 +71,20 @@ class AutoRebin {
   }
 
   /**
-   * The threshold for what we consider an "empty" bin (usually 0)
+   * The threshold for which we consider merging bins containing less than this
+   * value
    */
-  inline AutoRebin& SetEmptyBinThreshold(double val) {
-    empty_bin_threshold_ = val;
+  inline AutoRebin& SetBinThreshold(double val) {
+    bin_threshold_ = val;
+    return *this;
+  }
+  
+  /**
+   * The threshold on the bin uncertainty fraction for which we consider merging
+   * bins containing less than this value
+   */
+  inline AutoRebin& SetBinUncertFraction(double val) {
+    bin_uncert_fraction_ = val;
     return *this;
   }
   
@@ -94,7 +109,8 @@ class AutoRebin {
   unsigned v_;
   int rebin_mode_;
   bool perform_rebin_;
-  double empty_bin_threshold_;
+  double bin_threshold_;
+  double bin_uncert_fraction_;
 };
 }
 

@@ -11,7 +11,8 @@ AutoRebin::AutoRebin()
     : v_(0),
       rebin_mode_(0), 
       perform_rebin_(true),
-      empty_bin_threshold_(0.) {}
+      bin_threshold_(0.), 
+      bin_uncert_fraction_(100.) {}
 
 
 void AutoRebin::Rebin(CombineHarvester &src, CombineHarvester &dest) {
@@ -32,12 +33,12 @@ void AutoRebin::Rebin(CombineHarvester &src, CombineHarvester &dest) {
         int nbins = total_bkg.GetNbinsX();
         std::vector<double> init_bins; 
         for(int i=1; i<=nbins+1; ++i) init_bins.push_back(total_bkg.GetBinLowEdge(i));
-        std::cout << "[AutoRebin] Searching for bins failing condition "
+        std::cout << "[AutoRebin] Searching for bins failing conditions "
         "for analysis bin id " << bin << std::endl; 
         std::vector<double> new_bins = init_bins;
         
-        //Call to function to fill new_bins with the updated binning
-        AutoRebin::FindNewBinning(total_bkg, new_bins, empty_bin_threshold_, rebin_mode_);
+        //Call to function to fill new_bins vector with the recommended binning
+        AutoRebin::FindNewBinning(total_bkg, new_bins, bin_threshold_, bin_uncert_fraction_, rebin_mode_);
         
         //Inform user if binning has been modified 
         if(new_bins.size() != init_bins.size()) { 
@@ -53,7 +54,7 @@ void AutoRebin::Rebin(CombineHarvester &src, CombineHarvester &dest) {
                     std::cout << *i << ", "; 
                 std::cout << std::endl; 
             }
-            //Altering binning in CH instance for all distributions
+            //Altering binning in CH instance for all distributions if requested
             if(perform_rebin_) {
                 std::cout << "[AutoRebin] Applying binning to all relevant distributions "
                     "for analysis bin id " << bin << std::endl; 
@@ -65,10 +66,9 @@ void AutoRebin::Rebin(CombineHarvester &src, CombineHarvester &dest) {
 }
 
 
-void AutoRebin::FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, double bin_condition, int mode) {
+void AutoRebin::FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, double bin_condition, double bin_uncert_fraction, int mode) {
     
     bool all_bins = true;
-    TH1F* total_bkg_new;
     //Find the maximum bin
     int hbin_idx = total_bkg.GetMaximumBin();
     int nbins = total_bkg.GetNbinsX();
@@ -76,9 +76,12 @@ void AutoRebin::FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, d
     "using algorithm mode: " << mode << std::endl; 
     
     //Mode 0 is the simplest version of merging algorithm. It loops from the
-    //peak bin left to bin 1 then right to final bin. When the "next" bin fails
+    //peak bin left to bin 1 then right to final bin. When the "next" bin in
+    //either direction fails
     //the threshold, it removes the boundary between the current bin and the
-    //next bin. 
+    //next bin. This will be overly conservative in situations where a better
+    //solution is to sum a subset of subsequent bins to reach the threshold and
+    //will lead to more rebinning than necessary.
     if(mode==0) {
         new_bins.clear();
         //Loop from highest bin, first left and then right, merging bins where
@@ -88,15 +91,20 @@ void AutoRebin::FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, d
         for(int idx=hbin_idx; idx>1; --idx) { 
             if(v_>0) std::cout << "Bin index: " << idx << ", BinLowEdge: " << 
                 total_bkg.GetBinLowEdge(idx) <<  ", Bin content: " << 
-                total_bkg.GetBinContent(idx) << std::endl;
-            if(total_bkg.GetBinContent(idx-1) > bin_condition && idx!=1)
+                total_bkg.GetBinContent(idx) << ", Bin error fraction: " <<
+                total_bkg.GetBinError(idx-1)/total_bkg.GetBinContent(idx-1) << std::endl;
+            if(total_bkg.GetBinContent(idx-1) > bin_condition 
+                && (total_bkg.GetBinError(idx-1)/total_bkg.GetBinContent(idx-1) < bin_uncert_fraction) 
+                && idx!=1)
                 new_bins.push_back(total_bkg.GetBinLowEdge(idx)); 
         } 
         for(int idx=hbin_idx+1; idx<=nbins; ++idx) { 
             if(v_>0) std::cout << "Bin index: " << idx << ", BinLowEdge: " << 
                 total_bkg.GetBinLowEdge(idx) <<  ", Bin content: " << 
-                total_bkg.GetBinContent(idx) << std::endl;
-            if(total_bkg.GetBinContent(idx) > bin_condition)
+                total_bkg.GetBinContent(idx) << ", Bin error fraction: " <<
+                total_bkg.GetBinError(idx)/total_bkg.GetBinContent(idx) << std::endl;
+            if(total_bkg.GetBinContent(idx) > bin_condition
+                && (total_bkg.GetBinError(idx)/total_bkg.GetBinContent(idx) < bin_uncert_fraction))
                 new_bins.push_back(total_bkg.GetBinLowEdge(idx)); 
         }
         //Add to vector the extremal bins, which are untreated in the above 
@@ -108,110 +116,142 @@ void AutoRebin::FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, d
     //right until threshold is met, the final choice being the one which
     //minimises the number of required bin merges.     
     } else if(mode == 1) {
+        //Start from finding the minimum bin and the bin with largest fractional error
         int lbin_idx = total_bkg.GetMinimumBin();
-        if(total_bkg.GetBinContent(lbin_idx) <= bin_condition) {
-            if(v_>0) std::cout << "[AutoRebin::FindNewBinning] Testing bins of total_bkg hist to find"
-            " those failing condition, starting from minimum bin: " << lbin_idx << std::endl; 
+        int herrbin_idx = GetMaximumFracUncertBin(total_bkg);
+        bool bin_tot_flag = total_bkg.GetBinContent(lbin_idx) <= bin_condition; 
+        bool bin_err_flag = total_bkg.GetBinError(herrbin_idx)/total_bkg.GetBinContent(herrbin_idx) >= bin_uncert_fraction;
+        if(bin_tot_flag || bin_err_flag) {
+            //Fix issues with minimal bins in first pass and bin errors after 
+            lbin_idx = (bin_tot_flag ? lbin_idx : herrbin_idx);
+            if(v_>0 && bin_tot_flag) std::cout << "[AutoRebin::FindNewBinning] Testing bins of total_bkg hist to find"
+            " those with entry <= " << bin_condition << ", starting from bin: " << lbin_idx << std::endl; 
+            if(v_>0 && !bin_tot_flag) std::cout << "[AutoRebin::FindNewBinning] Testing bins of total_bkg hist to find"
+            " those with fractional error >= " << bin_uncert_fraction << ", starting from bin: " << lbin_idx << std::endl; 
             //loop left first
             double left_tot = total_bkg.GetBinContent(lbin_idx);
+            double left_err_tot = total_bkg.GetBinError(lbin_idx);
             int idx = lbin_idx - 1;
-            while (left_tot <= bin_condition && idx > 0) {
+            //Note: this logic works so long as bins with 0 entries are merged
+            //first, to give sensible values for the fractional error
+            while (((bin_tot_flag && left_tot <= bin_condition) || (!bin_tot_flag && left_err_tot/left_tot >= bin_uncert_fraction)) && idx > 0) {
+                left_err_tot = sqrt(pow(left_err_tot,2) + pow(total_bkg.GetBinError(idx),2));
                 left_tot = left_tot + total_bkg.GetBinContent(idx);
                 if(v_>0) std::cout << "Moving left, bin index: " << idx << ", BinLowEdge: " << 
                 total_bkg.GetBinLowEdge(idx) <<  ", Bin content: " << 
                 total_bkg.GetBinContent(idx) << ", Running total from combining bins: "
-                << left_tot << " " << std::endl;
+                << left_tot << ", Current fractional error: " << left_err_tot/left_tot << std::endl;
                 --idx;
             }
             int left_bins = lbin_idx - idx;
             double right_tot = total_bkg.GetBinContent(lbin_idx);
+            double right_err_tot = total_bkg.GetBinError(lbin_idx);
             idx = lbin_idx + 1;
             //now try right
-            while (right_tot <= bin_condition && idx < nbins) {
+            while (((bin_tot_flag && right_tot <= bin_condition) || (!bin_tot_flag && right_err_tot/right_tot >= bin_uncert_fraction)) && idx <= nbins) {
+                right_err_tot = sqrt(pow(right_err_tot,2) + pow(total_bkg.GetBinError(idx),2));
                 right_tot = right_tot + total_bkg.GetBinContent(idx);
                 if(v_>0) std::cout << "Moving right, bin index: " << idx << ", BinLowEdge: " << 
                 total_bkg.GetBinLowEdge(idx) <<  ", Bin content: " << 
                 total_bkg.GetBinContent(idx) << ", Running total from combining bins: "
-                << right_tot << " " << std::endl;
+                << right_tot << ", Current fractional error: " << right_err_tot/right_tot << std::endl;
                 ++idx;
             }
             int right_bins = idx - lbin_idx;
+            bool left_pass = bin_tot_flag ? left_tot > bin_condition : left_err_tot/left_tot < bin_uncert_fraction;
+            bool right_pass = bin_tot_flag ? right_tot > bin_condition : right_err_tot/right_tot < bin_uncert_fraction;
             //Decision on which way to merge - remove relevant entries from
-            //binning vector
-            if(left_tot > bin_condition && right_tot <= bin_condition) {
+            //binning vector as applicable
+            if(left_pass && !right_pass) {
                 if(v_>0) std::cout << "Merging left using " << left_bins - 1 << " bins" << std::endl;
                 for(int i = lbin_idx; i > lbin_idx - left_bins + 1; --i) {
                     if(v_>0) std::cout << "Erasing bin low edge for bin " << i << ", BinLowEdge: " << total_bkg.GetBinLowEdge(i) << std::endl;
                     new_bins.erase( std::remove( new_bins.begin(), new_bins.end(), total_bkg.GetBinLowEdge(i)),new_bins.end() );
                 }
-            } else if(left_tot <= bin_condition && right_tot > bin_condition) {
+            } else if(right_pass && !left_pass) {
                 if(v_>0) std::cout << "Merging right using " << right_bins - 1 << " bins" << std::endl;   
                 for(int i = lbin_idx; i < lbin_idx + right_bins - 1; ++i) {
-                    if(v_>0) std::cout << "Erasing bin low edge for bin " << i << ", BinLowEdge: " << total_bkg.GetBinLowEdge(i) << std::endl;
+                    if(v_>0) std::cout << "Erasing bin upper edge for bin " << i << ", BinUpperEdge: " << total_bkg.GetBinLowEdge(i+1) << std::endl;
                     new_bins.erase( std::remove( new_bins.begin(), new_bins.end(), total_bkg.GetBinLowEdge(i+1)),new_bins.end() );
                 }
-            } else if(left_tot > bin_condition && right_tot > bin_condition && left_bins < right_bins) {
+            } else if(left_pass && right_pass && left_bins < right_bins) {
                 if(v_>0) std::cout << "Merging left using " << left_bins - 1 << " bins" << std::endl;
                 for(int i = lbin_idx; i > lbin_idx - left_bins + 1; --i) {
                     if(v_>0) std::cout << "Erasing bin low edge for bin " << i << ", BinLowEdge: " << total_bkg.GetBinLowEdge(i) << std::endl;
                     new_bins.erase( std::remove( new_bins.begin(), new_bins.end(), total_bkg.GetBinLowEdge(i)),new_bins.end() );
                 }
-            } else if(left_tot > bin_condition && right_tot > bin_condition && left_bins > right_bins) {
+            } else if(left_pass && right_pass && left_bins > right_bins) {
                 if(v_>0) std::cout << "Merging right using " <<  right_bins - 1 << " bins" << std::endl;
                 for(int i = lbin_idx; i < lbin_idx + right_bins - 1 ; ++i) {
-                    if(v_>0) std::cout << "Erasing bin low edge for bin " << i << ", BinLowEdge: " << total_bkg.GetBinLowEdge(i) << std::endl;
+                    if(v_>0) std::cout << "Erasing bin upper edge for bin " << i << ", BinUpperEdge: " << total_bkg.GetBinLowEdge(i+1) << std::endl;
                     new_bins.erase( std::remove( new_bins.begin(), new_bins.end(), total_bkg.GetBinLowEdge(i+1)),new_bins.end() );
                 }
-            } else if(left_tot > bin_condition && right_tot > bin_condition && left_bins == right_bins && lbin_idx < hbin_idx) {
+            //In case where left and right are equally good, merge towards the
+            //peak (unclear to me if this is really always better but it generally more
+            //conservative in leading to bins with higher content)
+            } else if(left_pass && right_pass && left_bins == right_bins && lbin_idx < hbin_idx) {
                 if(v_>0) std::cout << "Merging right using " <<  right_bins - 1 << " bins" << std::endl;
                 for(int i = lbin_idx; i < lbin_idx + right_bins - 1; ++i) {
-                    if(v_>0) std::cout << "Erasing bin low edge for bin " << i << ", BinLowEdge: " << total_bkg.GetBinLowEdge(i) << std::endl;
+                    if(v_>0) std::cout << "Erasing bin upper edge for bin " << i << ", BinUpperEdge: " << total_bkg.GetBinLowEdge(i+1) << std::endl;
                     new_bins.erase( std::remove( new_bins.begin(), new_bins.end(), total_bkg.GetBinLowEdge(i+1)),new_bins.end() );
                 }
-            } else if(left_tot > bin_condition && right_tot > bin_condition && left_bins == right_bins && lbin_idx > hbin_idx) {
+            } else if(left_pass && right_pass && left_bins == right_bins && lbin_idx > hbin_idx) {
                 if(v_>0) std::cout << "Merging left using " << left_bins - 1 << " bins" << std::endl;
                 for(int i = lbin_idx; i > lbin_idx - left_bins + 1; --i) {
                     if(v_>0) std::cout << "Erasing bin low edge for bin " << i << ", BinLowEdge: " << total_bkg.GetBinLowEdge(i) << std::endl;
                     new_bins.erase( std::remove( new_bins.begin(), new_bins.end(), total_bkg.GetBinLowEdge(i)),new_bins.end() );
                 }
-            } else if(right_tot <= bin_condition && left_tot <= bin_condition) {
-                std::cout << "[AutoRebin::FindNewBinning] Not possible to pass threshold even merging all bins, exiting without rebinning" << std::endl;
-                return;
+            } else if(!left_pass && !right_pass) {
+                std::cout << "[AutoRebin::FindNewBinning] WARNING: No solution found to satisfy condition, try merging all bins" << std::endl;
+                for(int i = 2; i<=nbins; ++i) new_bins.erase( std::remove( new_bins.begin(), new_bins.end(), total_bkg.GetBinLowEdge(i)),new_bins.end() );
             }
         }
     } else {
-        std::cout << "[AutoRebin::FindNewBinning] Chosen mode " << mode << " not currently supported, exiting without rebinning" << std::endl;
+        std::cout << "[AutoRebin::FindNewBinning] Chosen mode " << mode << " not currently supported, exiting without altering binning" << std::endl;
         return;
     }
+    
+    TH1F* total_bkg_new;
     total_bkg_new = (TH1F*)total_bkg.Rebin(new_bins.size()-1, "total_bkg_new", &new_bins[0]); 
     
-    //Flag checks if all bins now satify the condition. This would be true by
-    //construction for a condition of bin content > 0 if the input histogram 
-    //had no negative bins, but to support negative bins and possibility 
-    //of a different choice of bin threshold we make the function recursive.
+    //Flag checks if all bins now satify the condition after pass through
     int nbins_new = total_bkg_new->GetNbinsX();
     if(nbins_new!=nbins) {
         if(v_>0) std::cout << std::endl;
-        if(v_>0) std::cout << "[AutoRebin::FindNewBinning] Producing new histograms with following binning: " << std::endl;
+        if(v_>0) std::cout << "[AutoRebin::FindNewBinning] New binning found: " << std::endl;
         for(int i=1; i<=nbins_new+1; ++i) {
         if(v_>0)  std::cout << "Bin index: " << i << ", BinLowEdge: " << 
                 total_bkg_new->GetBinLowEdge(i) <<  ", Bin content: " << 
-                total_bkg_new->GetBinContent(i) << std::endl;
+                total_bkg_new->GetBinContent(i) << ", Bin error fraction: " <<
+                total_bkg_new->GetBinError(i)/total_bkg_new->GetBinContent(i) << std::endl;
            //Last bin is allowed to be failing condition, just there to enclose the
            //penultimate bin
-           if(total_bkg_new->GetBinContent(i) <= bin_condition && i!=nbins_new+1) all_bins=false;
+           if((total_bkg_new->GetBinContent(i) <= bin_condition 
+               || total_bkg_new->GetBinError(i)/total_bkg_new->GetBinContent(i) >= bin_uncert_fraction)
+               && i!=nbins_new+1) all_bins=false;
         }
     }
      
     if(all_bins) return;
     //Run function again if all_bins is not true, i.e. if it's possible that not
     //all bins pass condition after one pass 
-    else FindNewBinning(*total_bkg_new, new_bins, bin_condition, mode);
+    else FindNewBinning(*total_bkg_new, new_bins, bin_condition, bin_uncert_fraction, mode);
 
 }
 
 
+int AutoRebin::GetMaximumFracUncertBin(TH1F &total_bkg) {
+   int idx = 1;
+   double maximum = 0;
+   for(int i = 1; i <= total_bkg.GetNbinsX(); ++i){
+       if(total_bkg.GetBinError(i)/total_bkg.GetBinContent(i) > maximum) {
+           maximum = total_bkg.GetBinError(i)/total_bkg.GetBinContent(i);
+           idx = i;
+       }
+   }
 
+   return idx; 
+}
 
 
 
