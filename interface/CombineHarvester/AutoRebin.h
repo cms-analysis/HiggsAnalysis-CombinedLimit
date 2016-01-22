@@ -55,7 +55,8 @@ class AutoRebin {
    *
    *   * Repeats with new lowest bin until all bins pass threshold
    */
-  void FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, double bin_condition, double bin_uncert_fraction, int mode);
+  void FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, 
+     double bin_condition, double bin_uncert_fraction, int mode);
 
   /**
    * Return bin with maximum value of fractional error
