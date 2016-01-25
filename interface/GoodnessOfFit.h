@@ -8,6 +8,10 @@
  *
  *
  */
+#ifndef ROOT_Rtypes
+#include "Rtypes.h"
+#endif
+
 #include "../interface/LimitAlgo.h"
 #include "../interface/ProfileLikelihood.h"
 
@@ -22,6 +26,9 @@ public:
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
   virtual bool runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runAndeDarlKolmSmir(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint, bool kolmo);
+
+  Double_t EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, RooRealVar& observable, double& limit, bool kolmo);
  
 protected:
   static std::string algo_;
@@ -32,6 +39,7 @@ protected:
 
   static float mu_;
   static bool  fixedMu_;
+  static bool  nofit_;
 
   // Return a pdf that matches this data perfectly.
   RooAbsPdf *makeSaturatedPdf(RooAbsData &data);
