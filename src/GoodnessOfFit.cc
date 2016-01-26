@@ -227,7 +227,7 @@ typedef std::pair<Double_t, Double_t> double_pair;
 
 bool sort_pairs (double_pair i, double_pair j) {return (i.first < j.first);}
 
-Double_t GoodnessOfFit::EvaluateADDistance( RooAbsPdf& pdf, RooAbsData& data, RooRealVar& observable, double& limit, bool kolmo) {
+Double_t GoodnessOfFit::EvaluateADDistance( RooAbsPdf& pdf, RooAbsData& data, RooRealVar& observable, double& oldlimit, bool kolmo) {
 
     std::vector<double_pair > data_points;
     Int_t n_data = data.numEntries();
@@ -275,7 +275,11 @@ Double_t GoodnessOfFit::EvaluateADDistance( RooAbsPdf& pdf, RooAbsData& data, Ro
         }
     }
 
-    if (kolmo == 0) test_stat += limit;
+    if (kolmo){
+        if (test_stat < oldlimit) test_stat = oldlimit; // The test statistic of the Kolmogorov-Smirnov test is the maximum of the test statistics of all individual PDFs.
+    }else{
+        test_stat += oldlimit; // The test statistic of the Anderson-Darling test is the sum of the test statistics of all individual PDFs.
+    }
     return test_stat;
 }
 
