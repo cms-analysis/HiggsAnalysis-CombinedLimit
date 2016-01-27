@@ -54,8 +54,11 @@ def isIncluded(name,includeList):
 def addRateParam(lsyst,f,ret):
 
     if len(f) > 6 or len(f) < 5: raise RuntimeError, "Error, directives of type 'rateParam' should be of form .. name rateParam channel process initial value OR name rateParam channel process formula args"
-    if len(f)==5  : tmp_exp = [lsyst,f[4],0]
-    elif len(f)==6: tmp_exp = [lsyst,f[4],f[5],1]
+
+    if len(f)==5  : tmp_exp = [[lsyst,f[4],0],""]    # Case for free parameter with no range
+    elif len(f)==6: 
+    	if '[' in f[-1] and ']' in f[-1]: tmp_exp = [[lsyst,f[4],0],f[-1]]
+    	else: tmp_exp = [[lsyst,f[4],f[5],1],""]
     if ("%sAND%s"%(f[2],f[3])) in ret.rateParams.keys(): ret.rateParams["%sAND%s"%(f[2],f[3])].append(tmp_exp)
     else: ret.rateParams["%sAND%s"%(f[2],f[3])] = [tmp_exp]
 
