@@ -158,6 +158,7 @@ int main(int argc, char* argv[]) {
     for (auto proc : cmb_bin.process_set()) {
       pre_shapes[bin][proc] =
           cmb_bin.cp().process({proc}).GetShapeWithUncertainty();
+          pre_shapes[bin][proc].SetName(proc.c_str());
     }
 
     // The fill total signal and total bkg hists
@@ -178,7 +179,7 @@ int main(int argc, char* argv[]) {
     // Can write these straight into the output file
     outfile.cd();
     for (auto& iter : pre_shapes[bin]) {
-      ch::WriteToTFile(&(iter.second), &outfile, bin + "_prefit/" + iter.first);
+      ch::WriteHistToTFileAndSetName(&(iter.second), &outfile, bin + "_prefit/" + iter.first);
     }
   }
 
@@ -268,7 +269,7 @@ int main(int argc, char* argv[]) {
       outfile.cd();
       // Write the post-fit histograms
       for (auto & iter : post_shapes[bin]) {
-        ch::WriteToTFile(&(iter.second), &outfile,
+        ch::WriteHistToTFileAndSetName(&(iter.second), &outfile,
                          bin + "_postfit/" + iter.first);
       }
     }

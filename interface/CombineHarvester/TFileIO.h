@@ -13,6 +13,8 @@ namespace ch {
 
 std::unique_ptr<TH1> GetClonedTH1(TFile* file, std::string const& path);
 
+void WriteHistToTFileAndSetName(TH1F *ptr, TFile* file, std::string const& path);
+
 template <class T>
 void WriteToTFile(T const* ptr, TFile* file, std::string const& path);
 
@@ -48,6 +50,7 @@ void ch::WriteToTFile(T const* ptr, TFile* file, std::string const& path) {
     gDirectory->cd("/");
   }
 }
+
 
 template <class T>
 T ch::OpenFromTFile(std::string const& fullpath) {
