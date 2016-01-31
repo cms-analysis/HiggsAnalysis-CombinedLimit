@@ -158,7 +158,6 @@ int main(int argc, char* argv[]) {
     for (auto proc : cmb_bin.process_set()) {
       pre_shapes[bin][proc] =
           cmb_bin.cp().process({proc}).GetShapeWithUncertainty();
-          pre_shapes[bin][proc].SetName(proc.c_str());
     }
 
     // The fill total signal and total bkg hists
