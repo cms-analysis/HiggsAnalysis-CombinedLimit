@@ -13,7 +13,7 @@ namespace ch {
 
 std::unique_ptr<TH1> GetClonedTH1(TFile* file, std::string const& path);
 
-void WriteHistToTFileAndSetName(TH1F *ptr, TFile* file, std::string const& path);
+void WriteHistToTFileAndSetName(TH1 *ptr, TFile* file, std::string const& path);
 
 template <class T>
 void WriteToTFile(T const* ptr, TFile* file, std::string const& path);
