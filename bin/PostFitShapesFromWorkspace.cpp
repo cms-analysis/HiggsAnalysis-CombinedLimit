@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
     // Can write these straight into the output file
     outfile.cd();
     for (auto& iter : pre_shapes[bin]) {
-      ch::WriteHistToTFileAndSetName(&(iter.second), &outfile, bin + "_prefit/" + iter.first);
+      ch::WriteToTFile(&(iter.second), &outfile, bin + "_prefit/" + iter.first);
     }
   }
 
@@ -268,7 +268,7 @@ int main(int argc, char* argv[]) {
       outfile.cd();
       // Write the post-fit histograms
       for (auto & iter : post_shapes[bin]) {
-        ch::WriteHistToTFileAndSetName(&(iter.second), &outfile,
+        ch::WriteToTFile(&(iter.second), &outfile,
                          bin + "_postfit/" + iter.first);
       }
     }
