@@ -31,6 +31,4 @@ std::unique_ptr<TH1> GetClonedTH1(TFile* file, std::string const& path) {
   gDirectory = backup_dir;
   return res;
 }
-
-
 }

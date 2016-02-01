@@ -50,7 +50,6 @@ void ch::WriteToTFile(T * ptr, TFile* file, std::string const& path) {
   }
 }
 
-
 template <class T>
 T ch::OpenFromTFile(std::string const& fullpath) {
   std::size_t pos = fullpath.find(':');
