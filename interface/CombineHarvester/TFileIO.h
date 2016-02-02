@@ -14,7 +14,7 @@ namespace ch {
 std::unique_ptr<TH1> GetClonedTH1(TFile* file, std::string const& path);
 
 template <class T>
-void WriteToTFile(T const* ptr, TFile* file, std::string const& path);
+void WriteToTFile(T * ptr, TFile* file, std::string const& path);
 
 // Extracts objects from the form:
 // "path/to/a/file.root:path/to/object"
@@ -28,7 +28,7 @@ T OpenFromTFile(TFile* file, std::string const& path);
 // Template function implementation
 // ------------------------------------------------------------------
 template <class T>
-void ch::WriteToTFile(T const* ptr, TFile* file, std::string const& path) {
+void ch::WriteToTFile(T * ptr, TFile* file, std::string const& path) {
   #ifdef TIME_FUNCTIONS
     LAUNCH_FUNCTION_TIMER(__timer__, __token__)
   #endif
@@ -43,6 +43,7 @@ void ch::WriteToTFile(T const* ptr, TFile* file, std::string const& path) {
       gDirectory->cd(as_vec[i].c_str());
     }
     if (!gDirectory->FindKey(as_vec.back().c_str())) {
+      ptr->SetName(as_vec.back().c_str());
       gDirectory->WriteTObject(ptr, as_vec.back().c_str());
     }
     gDirectory->cd("/");

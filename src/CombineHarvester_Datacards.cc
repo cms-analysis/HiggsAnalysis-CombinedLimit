@@ -813,7 +813,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 }
 
 void CombineHarvester::WriteHistToFile(
-    TH1 const* hist,
+    TH1 * hist,
     TFile * file,
     std::vector<HistMapping> const& mappings,
     std::string const& bin,

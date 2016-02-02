@@ -460,7 +460,7 @@ class CombineHarvester {
   // Private methods for the shape writing routines
   // ---------------------------------------------------------------
   void WriteHistToFile(
-      TH1 const* hist,
+      TH1 * hist,
       TFile * file,
       std::vector<HistMapping> const& mappings,
       std::string const& bin,
