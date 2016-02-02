@@ -80,7 +80,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
             if errline[b][p] == 0: continue
             channels.append(b)
             processes[p] = True
-	    if pdf == "shape" :
+	    if "shape" in pdf :
 		vals = []
 	    	objU,objD,objC = MB.getShape(b,p,lsyst+"Up"), MB.getShape(b,p,lsyst+"Down"), MB.getShape(b,p)
 		if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
@@ -96,8 +96,6 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     channelsShort = commonStems(channels)
     types = ",".join(set(types))
     report[lsyst] = { 'channels':channelsShort, 'bins' : channels, 'processes': sorted(processes.keys()), 'effect':("%5.3f"%minEffect,"%5.3f"%maxEffect), 'types':types }
-    if set(types)!=(set("lnN") or set("shape")) : 
-    	report[lsyst]['effect'] = ("n/a","n/a")
 
 # Get list
 names = report.keys() 
