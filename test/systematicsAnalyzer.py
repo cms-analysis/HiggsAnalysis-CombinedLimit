@@ -76,9 +76,9 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     errlines[lsyst] = errline
     for b in DC.bins:
     	types.append(pdf)
+        channels.append(b)
         for p in DC.exp[b].iterkeys():
             if errline[b][p] == 0: continue
-            channels.append(b)
             processes[p] = True
 	    if "shape" in pdf :
 		vals = []
@@ -109,6 +109,7 @@ namesCMS1   = [ n for n in names if re.match(r"CMS_(eff|scale|fake|res|trig).*",
 namesCMS2   = [ n for n in names if re.match(r"CMS_.*", n) and n not in namesCMS1 ]
 namesRest   = [ n for n in names if n not in namesCommon and n not in namesCMS1 and n not in namesCMS2 ]
 names = namesCommon + namesCMS1 + namesCMS2 + namesRest
+
 if "html" in options.format:
     print """
 <html>
