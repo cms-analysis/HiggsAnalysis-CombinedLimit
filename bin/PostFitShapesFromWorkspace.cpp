@@ -109,6 +109,8 @@ int main(int argc, char* argv[]) {
     if (parts.size() == 1) {
       ch::Parameter *par = cmb.GetParameter(parts[0]);
       if (par) par->set_frozen(true);
+      else throw std::runtime_error(
+        FNERROR("Requested variable to freeze does not exist in workspace"));
     } else {
       if (parts.size() == 2) {
         ch::Parameter *par = cmb.GetParameter(parts[0]);
@@ -116,6 +118,8 @@ int main(int argc, char* argv[]) {
           par->set_val(boost::lexical_cast<double>(parts[1]));
           par->set_frozen(true);
         }
+        else throw std::runtime_error(
+          FNERROR("Requested variable to freeze does not exist in workspace"));
       }
     }
   }
