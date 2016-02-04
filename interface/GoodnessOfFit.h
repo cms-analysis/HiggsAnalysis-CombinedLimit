@@ -40,6 +40,7 @@ protected:
   static float mu_;
   static bool  fixedMu_;
   static bool  nofit_;
+  static bool  makeplot_;
 
   // Return a pdf that matches this data perfectly.
   RooAbsPdf *makeSaturatedPdf(RooAbsData &data);
