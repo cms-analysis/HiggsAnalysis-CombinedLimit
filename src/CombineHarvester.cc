@@ -251,7 +251,8 @@ CombineHarvester & CombineHarvester::PrintParams() {
  *  1. Input Observation must not already store a shape (TH1 or RooAbsData)
  *  2. It must be possible to resolve this input to a single HistMapping
  *     object. See the documentation of CombineHarvester::ResolveMapping for
- *     further details.
+ *     further details. If no mappings have been provided, assume this is a
+ *     counting experiment and return.
  *  3. The resolved HistMapping object must provide a valid TFile. This file
  *     must contain the TH1 or RooAbsData object as directed by the pattern in
  *     the HistMapping after the substitution of the Observation properties.
@@ -281,6 +282,10 @@ void CombineHarvester::LoadShapes(Observation* entry,
 
   // Pre-condition #2
   // ResolveMapping will throw if this fails
+  if (mappings.size() == 0) {
+    if (verbosity_ >= 2) LOGLINE(log(), "No mappings in this card, assuming FAKE");
+    return;
+  }
   HistMapping mapping =
       ResolveMapping(entry->process(), entry->bin(), mappings);
   boost::replace_all(mapping.pattern, "$CHANNEL", entry->bin());
@@ -293,7 +298,9 @@ void CombineHarvester::LoadShapes(Observation* entry,
     log() << mapping << "\n";
   }
 
-  if (mapping.IsHist()) {
+  if (mapping.is_fake) {
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is FAKE");
+  } else if (mapping.IsHist()) {
     if (verbosity_ >= 2) LOGLINE(log(), "Mapping type in TH1");
     // Pre-condition #3
     // GetClonedTH1 will throw if this fails
@@ -359,6 +366,10 @@ void CombineHarvester::LoadShapes(Process* entry,
 
   // Pre-condition #2
   // ResolveMapping will throw if this fails
+  if (mappings.size() == 0) {
+    if (verbosity_ >= 2) LOGLINE(log(), "No mappings in this card, assuming FAKE");
+    return;
+  }
   HistMapping mapping =
       ResolveMapping(entry->process(), entry->bin(), mappings);
   boost::replace_all(mapping.pattern, "$CHANNEL", entry->bin());
@@ -371,8 +382,10 @@ void CombineHarvester::LoadShapes(Process* entry,
     log() << mapping << "\n";
   }
 
-  if (mapping.IsHist()) {
-    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type in TH1");
+  if (mapping.is_fake) {
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is FAKE");
+  } else if (mapping.IsHist()) {
+    if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is TH1");
     // Pre-condition #3
     // GetClonedTH1 will throw if this fails
     std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), mapping.pattern);
@@ -592,6 +605,11 @@ HistMapping const& CombineHarvester::ResolveMapping(
     }
   }
   // If we get this far then we didn't find a valid mapping
+  FNLOG(log()) << "Searching for mapping for (" << bin << "," << process << ")\n";
+  FNLOG(log()) << "Avaiable mappings:\n";
+  for (auto const& m : mappings) {
+    FNLOG(log()) << m << "\n";
+  }
   throw std::runtime_error(FNERROR("Valid mapping not found"));
 }
 

@@ -10,7 +10,7 @@ namespace ch {
 
 #define LOGLINE(x, y) LogLine(x, __func__, y)
 
-#define FNLOG(x) x << "[" << __func__ << "]"
+#define FNLOG(x) x << "[" << __func__ << "] "
 #define FNLOGC(x, y) if (y) x << "[" << __func__ << "] "
 /**
  * \brief Writes a logging message to a given ostream

@@ -117,6 +117,7 @@ class CombineHarvester {
 
   void WriteDatacard(std::string const& name, std::string const& root_file);
   void WriteDatacard(std::string const& name, TFile & root_file);
+  void WriteDatacard(std::string const& name);
   /**@}*/
 
   /**

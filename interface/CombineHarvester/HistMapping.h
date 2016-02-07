@@ -15,6 +15,7 @@ namespace ch {
     std::shared_ptr<TFile> file;
     std::shared_ptr<RooWorkspace> ws;
     std::shared_ptr<RooWorkspace> sys_ws;
+    bool is_fake;
     bool IsHist() const;
     bool IsPdf() const;
     bool IsData() const;
@@ -23,7 +24,7 @@ namespace ch {
     std::string SystWorkspaceName() const;
     std::string SystWorkspaceObj() const;
 
-    HistMapping() = default;
+    HistMapping();
     HistMapping(std::string const& p, std::string const& c,
                 std::string const& pat, std::string const& s_pat);
 

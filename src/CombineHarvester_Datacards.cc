@@ -142,6 +142,17 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
       }
     }
 
+    // We can also have a "FAKE" shape directive
+    // Must be four words long: shapes * * FAKE
+    if (boost::iequals(words[i][0], "shapes") && words[i].size() == 4 &&
+        boost::iequals(words[i][3], "FAKE")) {
+      hist_mapping.push_back(HistMapping());
+      HistMapping &mapping = hist_mapping.back();
+      mapping.process = words[i][1];
+      mapping.category = words[i][2];
+      mapping.is_fake = true;
+    }
+
     // Want to check this line and the previous one, so need i >= 1.
     // If the first word on this line is "observation" and "bin" on
     // the previous line then we've found the entries for data, and
@@ -348,6 +359,12 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   file.Close();
 }
 
+void CombineHarvester::WriteDatacard(std::string const& name) {
+  TFile dummy;
+  CombineHarvester::WriteDatacard(name, dummy);
+  dummy.Close();
+}
+
 void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
   // Build maps of
   //  RooAbsData --> RooWorkspace
@@ -381,11 +398,24 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
         [&](std::shared_ptr<ch::Observation> p) {
           return (p->bin() == bin && p->shape());
         });
+    unsigned counting = std::count_if(
+        procs_.begin(), procs_.end(), [&](std::shared_ptr<ch::Process> p) {
+          return (p->bin() == bin && p->shape() == nullptr &&
+                  p->pdf() == nullptr && p->data() == nullptr);
+        });
+    counting += std::count_if(
+        obs_.begin(), obs_.end(), [&](std::shared_ptr<ch::Observation> p) {
+          return (p->bin() == bin && p->shape() == nullptr &&
+                  p->data() == nullptr);
+        });
 
     if (shape_count > 0) {
       mappings.emplace_back("*", bin, bin + "/$PROCESS",
                             bin + "/$PROCESS_$SYSTEMATIC");
       hist_bins.insert(bin);
+    } else if (counting > 0) {
+      mappings.emplace_back("*", bin, "", "");
+      mappings.back().is_fake = true;
     }
 
     CombineHarvester ch_signals =
@@ -493,7 +523,25 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
 void CombineHarvester::WriteDatacard(std::string const& name,
                                      TFile& root_file) {
   using boost::format;
-  if (!root_file.IsOpen()) {
+
+  // First figure out if this is a counting-experiment only
+  bool is_counting = true;
+  this->ForEachObs([&](ch::Observation *obs) {
+    if (obs->shape() != nullptr || obs->data() != nullptr) {
+      is_counting = false;
+    }
+  });
+  if (is_counting) {
+    this->ForEachProc([&](ch::Process *proc) {
+      if (proc->shape() != nullptr || proc->data() != nullptr ||
+          proc->pdf() != nullptr) {
+        is_counting = false;
+      }
+    });
+  }
+
+  // Allow a non-open ROOT file if this is purely a counting experiment
+  if (!root_file.IsOpen() && !is_counting) {
     throw std::runtime_error(FNERROR(
         std::string("Output ROOT file is not open: ") + root_file.GetName()));
   }
@@ -582,12 +630,19 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   file_name = make_relative(txt_file_path, root_file_path).string();
 
   for (auto const& mapping : mappings) {
-    txt_file << format("shapes %s %s %s %s %s\n")
-      % mapping.process
-      % mapping.category
-      % file_name
-      % mapping.pattern
-      % mapping.syst_pattern;
+    if (!mapping.is_fake) {
+      txt_file << format("shapes %s %s %s %s %s\n")
+        % mapping.process
+        % mapping.category
+        % file_name
+        % mapping.pattern
+        % mapping.syst_pattern;
+    } else {
+      txt_file << format("shapes %s %s %s\n")
+        % mapping.process
+        % mapping.category
+        % "FAKE";
+    }
   }
   txt_file << dashes << "\n";
 
