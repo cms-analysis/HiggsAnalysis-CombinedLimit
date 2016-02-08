@@ -86,10 +86,6 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
   std::shared_ptr<ch::Observation> single_obs = nullptr;
   std::set<std::string> bin_names;
 
-  // If the card has "rateParam" lines then we will use this to point to
-  // an internal workspace for managing all the rateParam objects
-  RooWorkspace *rp_ws = nullptr;
-
   // Loop through the vector of word vectors
   for (unsigned i = 0; i < words.size(); ++i) {
     // Ignore line if it only has one word
@@ -282,52 +278,15 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         }
         log() << "\n";
       }
-      if (!rp_ws && wspaces_.count("_rateParams")) {
-        rp_ws = wspaces_.at("_rateParams").get();
-      }
-      if (!rp_ws) {
-        rp_ws = this->SetupWorkspace(RooWorkspace("_rateParams","_rateParams")).get();
-      }
+
       bool has_range = words[i].size() == 6 && words[i][5][0] == '[';
       std::string param_name = words[i][0];
       // If this is a free param may need to create a Parameter object
       // If the line has 5 words this must be a floating param, otherwise
       // if it has 6 then it's a floating param
       if (words[i].size() == 5 || has_range) {
-        // Parameter doesn't exist in the workspace - let's create it
-        RooRealVar *var = rp_ws->var(param_name.c_str());
-        if (!var) {
-          // The value doesn't matter, our Parameter object will set it laters
-          RooRealVar tmp_var(param_name.c_str(), param_name.c_str(), 0);
-          rp_ws->import(tmp_var);
-          var = rp_ws->var(param_name.c_str());
-          FNLOGC(log(), verbosity_ > 1)
-              << "Created new RooRealVar for rateParam: " << param_name << "\n";
-          if (verbosity_ > 1) var->Print();
-        } else {
-          FNLOGC(log(), verbosity_ > 1)
-              << "Reusing existing RooRealVar for rateParam: " << param_name
-              << "\n";
-        }
-        if (!params_.count(param_name))
-          params_[param_name] = std::make_shared<Parameter>(Parameter());
-        Parameter * param = params_.at(param_name).get();
-        param->set_name(param_name);
-        // If the RooRealVar in the workpsace isn't in the list, add it
-        bool var_in_par = false;
-        for (auto const& ptr : param->vars()) {
-          if (ptr == var) {
-            var_in_par = true;
-            break;
-          }
-        }
-        if (!var_in_par) {
-          param->vars().push_back(var);
-        }
-        // Then this propagates the value to the RooRealVar
-        FNLOGC(log(), verbosity_ > 1) << "Updating parameter from " << param->val();
-        param->set_val(boost::lexical_cast<double>(words[i][4]));
-        if (verbosity_ > 1) log() << " to " << param->val() << "\n";
+        ch::Parameter* param = SetupRateParamVar(
+            param_name, boost::lexical_cast<double>(words[i][4]));
         param->set_err_u(0.);
         param->set_err_d(0.);
         if (has_range) {
@@ -337,23 +296,10 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
             param->set_range_d(boost::lexical_cast<double>(tokens[1]));
             param->set_range_u(boost::lexical_cast<double>(tokens[2]));
             FNLOGC(log(), verbosity_ > 1) << "Setting parameter range to " << words[i][5];
-
           }
         }
       } else if (words[i].size() == 6 && !has_range) {
-        RooAbsReal *form = rp_ws->function(param_name.c_str());
-        // No parameter to make, this is a formula
-        if (!form) {
-          RooFormulaVar formula(param_name.c_str(), param_name.c_str(),
-                                words[i][4].c_str(),
-                                RooArgList(rp_ws->argSet(words[i][5].c_str())));
-          rp_ws->import(formula);
-          form = rp_ws->function(param_name.c_str());
-          FNLOGC(log(), verbosity_ > 1)
-              << "Created new RooFormulaVar for rateParam: " << param_name << "\n";
-          if (verbosity_ > 1) form->Print();
-        }
-
+        SetupRateParamFunc(param_name, words[i][4], words[i][5]);
       }
       for (unsigned p = 1; p < words[r].size(); ++p) {
         bool matches_bin = false;
@@ -777,8 +723,11 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   }
   txt_file << dashes << "\n";
 
-  for (auto ws_it : wspaces_) {
-    ch::WriteToTFile(ws_it.second.get(), &root_file, ws_it.second->GetName());
+  if (!is_counting) {
+    for (auto ws_it : wspaces_) {
+      if (ws_it.first == "_rateParams") continue; // don't write this one
+      ch::WriteToTFile(ws_it.second.get(), &root_file, ws_it.second->GetName());
+    }
   }
 
   // Writing observations
@@ -1023,7 +972,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         }
       }
       txt_file << format("%-" + sys_str_short +
-                         "s %-10s %-10s %-10s %-20s %s") %
+                         "s %-10s %-10s %-10s %-20s %s\n") %
                       rp[0] % "rateParam" % rp[1] % rp[2] % form_str % args;
     }
   }

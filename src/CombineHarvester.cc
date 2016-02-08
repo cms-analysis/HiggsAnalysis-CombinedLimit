@@ -749,4 +749,72 @@ RooAbsData const* CombineHarvester::FindMatchingData(Process const* proc) {
   }
   return data_obj;
 }
+
+ch::Parameter* CombineHarvester::SetupRateParamVar(std::string const& name,
+                                                   double val) {
+  RooWorkspace *ws = nullptr;
+  if (!wspaces_.count("_rateParams")) {
+    ws = this->SetupWorkspace(RooWorkspace("_rateParams","_rateParams")).get();
+  } else {
+    ws = wspaces_.at("_rateParams").get();
+  }
+  // Parameter doesn't exist in the workspace - let's create it
+  RooRealVar *var = ws->var(name.c_str());
+  if (!var) {
+    // The value doesn't matter, our Parameter object will set it later
+    RooRealVar tmp_var(name.c_str(), name.c_str(), 0);
+    ws->import(tmp_var);
+    var = ws->var(name.c_str());
+    FNLOGC(log(), verbosity_ > 1)
+        << "Created new RooRealVar for rateParam: " << name << "\n";
+    if (verbosity_ > 1) var->Print();
+  } else {
+    FNLOGC(log(), verbosity_ > 1)
+        << "Reusing existing RooRealVar for rateParam: " << name << "\n";
+  }
+  if (!params_.count(name))
+    params_[name] = std::make_shared<Parameter>(Parameter());
+  Parameter * param = params_.at(name).get();
+  param->set_name(name);
+  // If the RooRealVar in the workpsace isn't in the list, add it
+  bool var_in_par = false;
+  for (auto const& ptr : param->vars()) {
+    if (ptr == var) {
+      var_in_par = true;
+      break;
+    }
+  }
+  if (!var_in_par) {
+    param->vars().push_back(var);
+  }
+  // Then this propagates the value to the RooRealVar
+  FNLOGC(log(), verbosity_ > 1) << "Updating parameter value from "
+                                << param->val();
+  param->set_val(val);
+  if (verbosity_ > 1) log() << " to " << param->val() << "\n";
+  return param;
+}
+
+void CombineHarvester::SetupRateParamFunc(std::string const& name,
+                                          std::string const& formula,
+                                          std::string const& pars) {
+  RooWorkspace *ws = nullptr;
+  if (!wspaces_.count("_rateParams")) {
+    ws = this->SetupWorkspace(RooWorkspace("_rateParams","_rateParams")).get();
+  } else {
+    ws = wspaces_.at("_rateParams").get();
+  }
+  RooAbsReal *form = ws->function(name.c_str());
+  // No parameter to make, this is a formula
+  if (!form) {
+    RooFormulaVar formularvar(name.c_str(), name.c_str(),
+                          formula.c_str(),
+                          RooArgList(ws->argSet(pars.c_str())));
+    ws->import(formularvar);
+    form = ws->function(name.c_str());
+    FNLOGC(log(), verbosity_ > 1)
+        << "Created new RooFormulaVar for rateParam: " << name << "\n";
+    if (verbosity_ > 1) form->Print();
+  }
+}
 }

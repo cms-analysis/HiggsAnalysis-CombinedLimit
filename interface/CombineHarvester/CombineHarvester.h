@@ -356,7 +356,8 @@ class CombineHarvester {
 
   void AddSystFromProc(Process const& proc, std::string const& name,
                        std::string const& type, bool asymm, double val_u,
-                       double val_d);
+                       double val_d, std::string const& formula,
+                       std::string const& args);
 
   template <class Map>
   void AddSyst(CombineHarvester & target, std::string const& name,
@@ -456,6 +457,9 @@ class CombineHarvester {
 
   RooAbsData const* FindMatchingData(Process const* proc);
 
+  ch::Parameter * SetupRateParamVar(std::string const& name, double val);
+  void SetupRateParamFunc(std::string const& name, std::string const& formula,
+                          std::string const& pars);
 
   // ---------------------------------------------------------------
   // Private methods for the shape writing routines
@@ -611,8 +615,10 @@ void CombineHarvester::AddSyst(CombineHarvester& target,
     added_procs.push_back(procs_[i].get());
     double val_u = valmap.ValU(procs_[i].get());
     double val_d = valmap.ValD(procs_[i].get());
+    std::string formula = valmap.Formula(procs_[i].get());
+    std::string args = valmap.Args(procs_[i].get());
     target.AddSystFromProc(*(procs_[i]), name, type, valmap.IsAsymm(),
-                           val_u, val_d);
+                           val_u, val_d, formula, args);
   }
   if (tuples.size() && verbosity_ >= 1) {
     log() << ">> Map keys that were not used to create a Systematic:\n";
