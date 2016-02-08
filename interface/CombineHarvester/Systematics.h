@@ -249,7 +249,7 @@ namespace syst {
       return x(input..., formula, args);
     }
 
-    bool IsAsymm() const { return true; }
+    bool IsAsymm() const { return false; }
 
     std::set<std::tuple<typename T::type...>> GetTupleSet() const {
       std::set<std::tuple<typename T::type...>> res;
