@@ -41,7 +41,7 @@ else:
 DC = parseCard(file, options)
 if not DC.hasShapes: DC.hasShapes = True
 MB = ShapeBuilder(DC, options)
-
+MB.prepareAllShapes()
 
 def commonStems(list, sep="_"):
     hits = {}
@@ -76,11 +76,19 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     errlines[lsyst] = errline
     for b in DC.bins:
     	types.append(pdf)
+        channels.append(b)
         for p in DC.exp[b].iterkeys():
             if errline[b][p] == 0: continue
-            channels.append(b)
             processes[p] = True
-            vals = errline[b][p] if type(errline[b][p]) == list else [ errline[b][p] ]
+	    if "shape" in pdf :
+		vals = []
+	    	objU,objD,objC = MB.getShape(b,p,lsyst+"Up"), MB.getShape(b,p,lsyst+"Down"), MB.getShape(b,p)
+		if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
+		elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
+		errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
+		vals.append(valU/valC)
+		vals.append(valD/valC)
+            else: vals = errline[b][p] if type(errline[b][p]) == list else [ errline[b][p] ]
             for val in vals:
                 if val < 1: val = 1.0/val
                 minEffect = min(minEffect, val)
@@ -88,7 +96,6 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     channelsShort = commonStems(channels)
     types = ",".join(set(types))
     report[lsyst] = { 'channels':channelsShort, 'bins' : channels, 'processes': sorted(processes.keys()), 'effect':("%5.3f"%minEffect,"%5.3f"%maxEffect), 'types':types }
-    if set(types)!=set("lnN") : report[lsyst]['effect'] = ("n/a","n/a")
 
 # Get list
 names = report.keys() 
@@ -102,6 +109,7 @@ namesCMS1   = [ n for n in names if re.match(r"CMS_(eff|scale|fake|res|trig).*",
 namesCMS2   = [ n for n in names if re.match(r"CMS_.*", n) and n not in namesCMS1 ]
 namesRest   = [ n for n in names if n not in namesCommon and n not in namesCMS1 and n not in namesCMS2 ]
 names = namesCommon + namesCMS1 + namesCMS2 + namesRest
+
 if "html" in options.format:
     print """
 <html>
