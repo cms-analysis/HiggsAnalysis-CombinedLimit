@@ -586,4 +586,43 @@ double CombineHarvester::logKappaForX(double x, double k_low,
   double ret = avg + alpha * halfdiff;
   return std::exp(ret * x);
 }
+
+void CombineHarvester::SetGroup(std::string const& name,
+                                std::vector<std::string> const& patterns) {
+  std::vector<boost::regex> rgx;
+  for (auto const& pt : patterns) rgx.emplace_back(pt);
+  for (auto it = params_.begin(); it != params_.end(); ++it) {
+    std::string par = it->first;
+    auto & groups = it->second->groups();
+    if (groups.count(name)) continue;
+    if (ch::contains_rgx(rgx, par)) {
+      groups.insert(name);
+    };
+  }
+}
+
+void CombineHarvester::RemoveGroup(std::string const& name,
+                                   std::vector<std::string> const& patterns) {
+  std::vector<boost::regex> rgx;
+  for (auto const& pt : patterns) rgx.emplace_back(pt);
+  for (auto it = params_.begin(); it != params_.end(); ++it) {
+    std::string par = it->first;
+    auto & groups = it->second->groups();
+    if (!groups.count(name)) continue;
+    if (ch::contains_rgx(rgx, par)) {
+      groups.erase(name);
+    };
+  }
+}
+
+void CombineHarvester::RenameGroup(std::string const& oldname,
+                                   std::string const& newname) {
+  for (auto it = params_.begin(); it != params_.end(); ++it) {
+    auto & groups = it->second->groups();
+    if (groups.count(oldname)) {
+      groups.erase(oldname);
+      groups.insert(newname);
+    }
+  }
+}
 }

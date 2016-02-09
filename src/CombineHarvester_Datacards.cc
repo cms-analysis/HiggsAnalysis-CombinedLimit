@@ -86,6 +86,9 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
   std::shared_ptr<ch::Observation> single_obs = nullptr;
   std::set<std::string> bin_names;
 
+  // Store the groups that we encounter
+  std::map<std::string, std::set<std::string>> groups;
+
   // Loop through the vector of word vectors
   for (unsigned i = 0; i < words.size(); ++i) {
     // Ignore line if it only has one word
@@ -335,6 +338,18 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         sys->set_mass(mass);
         systs_.push_back(sys);
       }
+      continue;
+    }
+
+    if (start_nuisance_scan && words[i].size() >= 4 &&
+        boost::iequals(words[i][1], "group")) {
+      if (!groups.count(words[i][0])) {
+        groups[words[i][0]] = std::set<std::string>();
+      }
+      for (unsigned ig = 3; ig < words[i].size(); ++ig) {
+        groups[words[i][0]].insert(words[i][ig]);
+      }
+      continue;
     }
 
     if (start_nuisance_scan && words[i].size()-1 == words[r].size()) {
@@ -417,6 +432,11 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
           "Input card specifies a single observation entry without a bin, but "
           "multiple bins defined elsewhere"));
     }
+  }
+
+  // Finally populate the groups
+  for (auto const& grp : groups) {
+    this->SetGroup(grp.first, ch::Set2Vec(grp.second));
   }
   return 0;
 }
@@ -1009,6 +1029,32 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       txt_file << "\n";
     }
   }
+
+  // Finally write the NP groups
+  // We should only consider parameters are either:
+  // - in the list of pdf dependents
+  // - in the list of systematics
+  std::map<std::string, std::set<std::string>> groups;
+  for (auto const& par : params_) {
+    Parameter * p = par.second.get();
+    if (!all_dependents_pars.count(p->name()) && !sys_set.count(p->name())) {
+      continue;
+    }
+    for (auto const& str : p->groups()) {
+      if (!groups.count(str)) {
+        groups[str] = std::set<std::string>();
+      }
+      groups[str].insert(p->name());
+    }
+  }
+  for (auto const& gr : groups) {
+    txt_file << format("%s group =") % gr.first;
+    for (auto const& np : gr.second)  {
+      txt_file << " " << np;
+    }
+    txt_file << "\n";
+  }
+
   txt_file.close();
 }
 
