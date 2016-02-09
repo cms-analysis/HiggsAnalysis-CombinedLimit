@@ -46,6 +46,7 @@ class Parameter {
   bool frozen() const { return frozen_; }
 
   std::vector<RooRealVar *> & vars() { return vars_; }
+  std::set<std::string> & groups() { return groups_; }
 
   friend std::ostream& operator<< (std::ostream &out, Parameter &val);
   static std::ostream& PrintHeader(std::ostream &out);
@@ -59,6 +60,7 @@ class Parameter {
   double range_d_;
   bool frozen_;
   std::vector<RooRealVar *> vars_;
+  std::set<std::string> groups_;
   friend void swap(Parameter& first, Parameter& second);
 };
 }

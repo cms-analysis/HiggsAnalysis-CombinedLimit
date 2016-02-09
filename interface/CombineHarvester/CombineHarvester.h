@@ -274,6 +274,37 @@ class CombineHarvester {
 
   void VariableRebin(std::vector<double> bins);
   void SetPdfBins(unsigned nbins);
+
+  /**
+   * Add parameters to a given group
+   *
+   * A parameter will be added to the given group if its name passes a regex
+   * match with any of the input patterns. A parameter can belong to any
+   * number of groups.
+   *
+   * @param name The group name to set
+   * @param patterns A vector of regex pattern strings
+   */
+  void SetGroup(std::string const& name, std::vector<std::string> const& patterns);
+
+  /**
+   * Remove parameters to a given group
+   *
+   * A parameter will be removed from the given group if its name passes a
+   * regex match with any of the input patterns.
+   *
+   * @param name The group name to remove
+   * @param patterns A vector of regex pattern strings
+   */
+  void RemoveGroup(std::string const& name, std::vector<std::string> const& patterns);
+
+  /**
+   * Rename a nuisance parameter group
+   *
+   * @param oldname The current name
+   * @param newname The new name
+   */
+  void RenameGroup(std::string const& oldname, std::string const& newname);
   /**@}*/
 
   /**
