@@ -76,7 +76,9 @@ void CombineHarvester::AddProcesses(
 void CombineHarvester::AddSystFromProc(Process const& proc,
                                        std::string const& name,
                                        std::string const& type, bool asymm,
-                                       double val_u, double val_d) {
+                                       double val_u, double val_d,
+                                       std::string const& formula,
+                                       std::string const& args) {
   std::string subbed_name = name;
   boost::replace_all(subbed_name, "$BIN", proc.bin());
   boost::replace_all(subbed_name, "$PROCESS", proc.process());
@@ -92,13 +94,28 @@ void CombineHarvester::AddSystFromProc(Process const& proc,
     sys->set_asymm(asymm);
     sys->set_value_u(val_u);
     sys->set_value_d(val_d);
+    CreateParameterIfEmpty(sys->name());
   } else if (type == "shape" || type == "shapeN2") {
     sys->set_asymm(true);
     sys->set_value_u(1.0);
     sys->set_value_d(1.0);
     sys->set_scale(val_u);
+    CreateParameterIfEmpty(sys->name());
+  } else if (type == "rateParam") {
+    sys->set_asymm(false);
+    if (formula == "" && args == "") {
+      SetupRateParamVar(subbed_name, val_u);
+    } else {
+      std::string subbed_args = args;
+      boost::replace_all(subbed_args, "$BIN", proc.bin());
+      boost::replace_all(subbed_args, "$PROCESS", proc.process());
+      boost::replace_all(subbed_args, "$MASS", proc.mass());
+      boost::replace_all(subbed_args, "$ERA", proc.era());
+      boost::replace_all(subbed_args, "$CHANNEL", proc.channel());
+      boost::replace_all(subbed_args, "$ANALYSIS", proc.analysis());
+      SetupRateParamFunc(subbed_name, formula, subbed_args);
+    }
   }
-  CreateParameterIfEmpty(sys->name());
   if (sys->type() == "lnU") {
     params_.at(sys->name())->set_err_d(0.);
     params_.at(sys->name())->set_err_u(0.);
