@@ -28,7 +28,9 @@ public:
   virtual bool runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runAndeDarlKolmSmir(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint, bool kolmo);
 
-  Double_t EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, RooRealVar& observable, double& limit, bool kolmo);
+  void initKS(RooStats::ModelConfig *mc_s);
+
+  double EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, RooRealVar& observable, bool kolmo);
  
 protected:
   static std::string algo_;
@@ -39,8 +41,12 @@ protected:
 
   static float mu_;
   static bool  fixedMu_;
-  static bool  nofit_;
-  static bool  makeplot_;
+  static bool  makePlots_;
+  static TDirectory *plotDir_;
+
+  static std::vector<std::string>  binNames_;
+  static std::vector<float>        qVals_;
+
 
   // Return a pdf that matches this data perfectly.
   RooAbsPdf *makeSaturatedPdf(RooAbsData &data);
