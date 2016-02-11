@@ -12,19 +12,16 @@
 #include <RooDataHist.h>
 #include <RooHistPdf.h>
 #include <TCanvas.h>
-#include <TLegend.h>
 #include <TStyle.h>
 #include <TH2.h>
 #include <TFile.h>
 #include <RooStats/ModelConfig.h>
-#include "RooStats/RooStatsUtils.h"
 #include "RooCategory.h"
 #include "../interface/Combine.h"
 #include "../interface/ProfileLikelihood.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/utils.h"
-#include <fstream>
 #include <numeric>
 
 
@@ -80,20 +77,20 @@ bool GoodnessOfFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
   static bool is_init = false;
   if (algo_ == "AD" || algo_ == "KS") {
     if (!is_init) {
-      initKS(mc_s);
+      initKSandAD(mc_s);
       if (makePlots_) {
         plotDir_ = outputFile ? outputFile->mkdir("GoodnessOfFit") : 0;
       }
       is_init = true;
     }
-    if (algo_ == "AD") return runAndeDarlKolmSmir(w, mc_s, mc_b, data, limit, limitErr, hint, 0);
-    if (algo_ == "KS") return runAndeDarlKolmSmir(w, mc_s, mc_b, data, limit, limitErr, hint, 1);
+    if (algo_ == "AD") return runKSandAD(w, mc_s, mc_b, data, limit, limitErr, hint, 0);
+    if (algo_ == "KS") return runKSandAD(w, mc_s, mc_b, data, limit, limitErr, hint, 1);
   }
 
   return false;  
 }
 
-void GoodnessOfFit::initKS(RooStats::ModelConfig *mc_s) {
+void GoodnessOfFit::initKSandAD(RooStats::ModelConfig *mc_s) {
   RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(mc_s->GetPdf());
   if (sim) {
     std::auto_ptr<RooAbsCategoryLValue> cat(
@@ -109,7 +106,6 @@ void GoodnessOfFit::initKS(RooStats::ModelConfig *mc_s) {
     }
   }
 }
-
 
 bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
   RooAbsPdf *pdf_nominal = mc_s->GetPdf();
@@ -156,8 +152,6 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
       saturated.reset(saturatedPdfi);
   }
 
-  double nll_nominal, nll_saturated;
-
   CloseCoutSentry sentry(verbose < 2);
   // let's assume fits converge, for a while
   const RooCmdArg &minim = RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),
@@ -166,14 +160,15 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   std::auto_ptr<RooFitResult> result_saturated(saturated->fitTo(data, RooFit::Save(1), minim, RooFit::Strategy(minimizerStrategy_), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
   sentry.clear();
 
-  if (result_nominal.get()   == 0 or result_saturated.get() == 0) return false;
-  nll_nominal   = result_nominal->minNll();
-  nll_saturated = result_saturated->minNll();
-
   saturated.reset();
   for (int i = 0, n = tempData_.size(); i < n; ++i) delete tempData_[i]; 
   tempData_.clear();
 
+  if (result_nominal.get()   == 0) return false;
+  if (result_saturated.get() == 0) return false;
+
+  double nll_nominal   = result_nominal->minNll();
+  double nll_saturated = result_saturated->minNll();
   if (fabs(nll_nominal) > 1e10 || fabs(nll_saturated) > 1e10) return false;
   limit = 2*(nll_nominal-nll_saturated);
 
@@ -183,7 +178,7 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
 }
 
 // Code for the Anderson-Darling test originates from https://gist.github.com/neggert/4586791
-bool GoodnessOfFit::runAndeDarlKolmSmir(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint, bool kolmo) { 
+bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint, bool kolmo) { 
   RooAbsPdf *pdf = mc_s->GetPdf();
 
   // Don't want the constraints here
