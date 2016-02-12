@@ -285,7 +285,7 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
 
     int bin = 0;
     for (std::vector<double_pair>::const_iterator d = data_points.begin();
-         d != data_points.end() - 1; d++, ++bin) {
+         d != data_points.end(); d++, ++bin) {
         // observableval = ((d+1)->first + d->first)/2.; // d->first is middle of bin, want upper edge.
       
         // This is a better way to get the upper bin edge in the case where we
@@ -311,6 +311,9 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
         }else{
             bin_prob = current_cdf_val-last_cdf_val;
             distance = s_data*pow((empirical_df-current_cdf_val), 2)/current_cdf_val/(1.-current_cdf_val)*bin_prob;
+            if (current_cdf_val >= 1.0) {
+              distance = 0.;
+            }
             if (verbose >= 3) {
               std::cout << "Observable: " << observableval << "\tdata: " << d->second << "\tedf: " << empirical_df << "\tcdf: " << current_cdf_val << "\tdistance: " << distance << "\n";
             }
