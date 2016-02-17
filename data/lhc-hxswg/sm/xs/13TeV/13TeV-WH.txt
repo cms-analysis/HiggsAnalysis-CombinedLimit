@@ -1,5 +1,5 @@
-mH_GeV  XS_pb       Scale_pos	Scale_neg PDF_plus_alpha_s  XS_W_plus_pb  XS_W_plus_pb
-120.00	1.565E+00	+0.5	-0.6	1.8		    4.233E-01	  2.391E-01	
+mH_GeV  XS_pb       Scale_pos	Scale_neg PDF_plus_alpha_s  XS_W_plus_pb  XS_W_minus_pb
+120.00	1.565E+00	+0.5	-0.6	1.8		              4.233E-01	  2.391E-01	
 120.50	1.545E+00	+0.5	-0.7	1.8                 4.176E-01	  2.357E-01
 121.00	1.525E+00	+0.5	-0.7	1.8                 4.116E-01	  2.324E-01
 121.50	1.505E+00	+0.4	-0.7	1.8                 4.060E-01	  2.291E-01
