@@ -69,6 +69,7 @@ def commonStems(list, sep="_"):
 report = {}; errlines = {}
 for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     if not options.all and pdf != "lnN": continue
+    if not len(errline) : continue
     types = []
     minEffect, maxEffect = 999.0, 1.0
     processes = {}
