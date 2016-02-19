@@ -366,6 +366,7 @@ class ShapeBuilder(ModelBuilder):
             if errline[channel][process] == 0: continue
             allowNoSyst = (pdf[-1] == "?")
             pdf = pdf.replace("?","")
+            if pdf[-1] == "U": pdf = pdf[:-1]
             if shapeAlgo == None:  shapeAlgo = pdf
             elif pdf != shapeAlgo: 
                 errmsg =  "ERROR for channel %s, process %s. " % (channel,process)
