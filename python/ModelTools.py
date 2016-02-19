@@ -145,7 +145,7 @@ class ModelBuilder(ModelBuilderBase):
         #print groupsFor
         for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
-            if pdf == "lnN" or pdf.startswith("shape"):
+            if pdf == "lnN" or (pdf.startswith("shape") and pdf != 'shapeU'):
                 r = "-4,4" if pdf == "shape" else "-7,7"
                 sig = 1.0;
                 for pn,pf in self.options.nuisancesToRescale:
@@ -213,7 +213,7 @@ class ModelBuilder(ModelBuilderBase):
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
-            elif pdf == "lnU":
+            elif pdf == "lnU" or pdf == "shapeU":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[-1,1]" % n);
             elif pdf == "unif":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n,args[0],args[1]))
