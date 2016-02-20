@@ -99,6 +99,8 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         algo_ = Contour2D;
     } else if (algo == "stitch2d") {
         algo_ = Stitch2D;
+    } else if (algo == "impact") {
+        algo_ = Impact;
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
     fastScan_ = (vm.count("fastScan") > 0);
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
@@ -128,8 +130,13 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::auto_ptr<RooFitResult> res;
-    if ( algo_ == Singles || !loadedSnapshot_ ){
-    	res.reset(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false)); 
+    if ( algo_ == Singles || algo_ == Impact || !loadedSnapshot_ ){
+        res.reset(doFit(pdf, data, ((algo_ == Singles || algo_ == Impact) ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
+        if (algo_ == Impact && res.get()) {
+            // Set the floating parameters back to the best-fit value
+            // before we write an entry into the output TTree
+            w->allVars().assignValueOnly(res.get()->floatParsFinal());
+        }
     }
     if(w->var("r")) {w->var("r")->Print();}
     if ( loadedSnapshot_ || res.get() || keepFailures_) {
@@ -180,6 +187,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         case FixedPoint: doFixedPoint(w,*nll); break;
         case Contour2D: doContour2D(*nll); break;
         case Stitch2D: doStitch2D(*nll); break;
+        case Impact: if (res.get()) doImpact(*res, *nll); break;
     }
     
     return true;
@@ -204,7 +212,10 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv == 0) throw std::invalid_argument(std::string("Parameter of interest ")+*it+" not a RooRealVar.");
 	if (!isPoi) {
-		if (rrv->getAttribute("optimizeBounds") ) rrv->setAttribute("optimizeBounds",false);
+		if (rrv->getAttribute("optimizeBounds") ) {
+            rrv->setAttribute("optimizeBounds",false);
+            if (rrv->hasRange("optimizeBoundRange")) rrv->setRange(rrv->getMin("optimizeBoundRange"), rrv->getMax("optimizeBoundRange"));
+        }
 	}
         poiVars_.push_back(rrv);
         poiVals_.push_back(rrv->getVal());
@@ -339,6 +350,91 @@ void MultiDimFit::doSingles(RooFitResult &res)
                     poiVals_[i], -loErr, hiErr);
         }
     }
+}
+
+void MultiDimFit::doImpact(RooFitResult &res, RooAbsReal &nll) {
+  std::cout << "\n --- MultiDimFit ---" << std::endl;
+  std::cout << "Parameter impacts: " << std::endl;
+
+  // Save the initial parameters here to reset between NPs
+  std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
+  RooArgSet init_snap;
+  params->snapshot(init_snap);
+
+  // Save the best-fit values of the saved parameters
+  // we want to measure the impacts on
+  std::vector<float> specifiedVals = specifiedVals_;
+  std::vector<float> impactLo = specifiedVals_;
+  std::vector<float> impactHi = specifiedVals_;
+
+  int len = 9;
+  for (int i = 0, n = poi_.size(); i < n; ++i) {
+    len = std::max<int>(len, poi_[i].length());
+  }
+  printf("  %-*s :   %-21s", len, "Parameter", "Best-fit");
+  for (int i = 0, n = specifiedNuis_.size(); i < n; ++i) {
+    printf("  %-13s", specifiedNuis_[i].c_str());
+  }
+  printf("\n");
+
+
+  for (int i = 0, n = poi_.size(); i < n; ++i) {
+    RooAbsArg *rfloat = res.floatParsFinal().find(poi_[i].c_str());
+    if (!rfloat) {
+      rfloat = res.constPars().find(poi_[i].c_str());
+    }
+    RooRealVar *rf = dynamic_cast<RooRealVar *>(rfloat);
+    double bestFitVal = rf->getVal();
+
+    double hiErr = +(rf->hasRange("err68") ? rf->getMax("err68") - bestFitVal
+                                           : rf->getAsymErrorHi());
+    double loErr = -(rf->hasRange("err68") ? rf->getMin("err68") - bestFitVal
+                                           : rf->getAsymErrorLo());
+      printf("  %-*s : %+8.3f  %+6.3f/%+6.3f", len, poi_[i].c_str(),
+                    bestFitVal, -loErr, hiErr);
+    // Reset all parameters to initial state
+    *params = init_snap;
+    // Then set this NP constant
+    poiVars_[i]->setConstant(true);
+    CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    minim.setStrategy(minimizerStrategy_);
+    // Another snapshot to reset between high and low fits
+    RooArgSet snap;
+    params->snapshot(snap);
+    std::vector<double> doVals = {bestFitVal - loErr, bestFitVal + hiErr};
+    for (unsigned x = 0; x < doVals.size(); ++x) {
+      *params = snap;
+      poiVals_[i] = doVals[x];
+      poiVars_[i]->setVal(doVals[x]);
+      bool ok = minim.minimize(verbose - 1);
+      if (ok) {
+        for (unsigned int j = 0; j < poiVars_.size(); j++) {
+          poiVals_[j] = poiVars_[j]->getVal();
+        }
+        for (unsigned int j = 0; j < specifiedNuis_.size(); j++) {
+          specifiedVals_[j] = specifiedVars_[j]->getVal();
+        }
+        for (unsigned int j = 0; j < specifiedFuncNames_.size(); j++) {
+          specifiedFuncVals_[j] = specifiedFunc_[j]->getVal();
+        }
+        for (unsigned int j = 0; j < specifiedCatNames_.size(); j++) {
+          specifiedCatVals_[j] = specifiedCat_[j]->getIndex();
+        }
+        Combine::commitPoint(true, /*quantile=*/0.32);
+      }
+      for (unsigned int j = 0; j < specifiedNuis_.size(); j++) {
+        if (x == 0) {
+          impactLo[j] = specifiedVars_[j]->getVal() - specifiedVals[j];
+        } else if (x == 1) {
+          impactHi[j] = specifiedVars_[j]->getVal() - specifiedVals[j];
+        }
+      }
+    }
+    for (unsigned j = 0; j < specifiedVals.size(); ++j) {
+        printf("  %+6.3f/%+6.3f", impactLo[j], impactHi[j]);
+    }
+    printf("\n");
+  }
 }
 
 void MultiDimFit::doGrid(RooAbsReal &nll) 
