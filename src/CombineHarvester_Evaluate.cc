@@ -244,7 +244,8 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
         if (sys_it->asymm()) {
           p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
                                  sys_it->value_u());
-          if (sys_it->type() == "shape" || sys_it->type() == "shapeN2") {
+          if (sys_it->type() == "shape" || sys_it->type() == "shapeN2" ||
+              sys_it->type() == "shapeU") {
             bool linear = true;
             if (sys_it->type() == "shapeN2") linear = false;
             if (sys_it->shape_u() && sys_it->shape_d()) {

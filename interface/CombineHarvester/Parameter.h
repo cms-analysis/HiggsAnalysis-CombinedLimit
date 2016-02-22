@@ -42,6 +42,11 @@ class Parameter {
   void set_range_d(double const& range_d) { range_d_ = range_d; }
   double range_d() const { return range_d_; }
 
+  void set_range(double const& range_d, double const& range_u) {
+    set_range_d(range_d);
+    set_range_u(range_u);
+  }
+
   void set_frozen(bool const& frozen) { frozen_ = frozen; }
   bool frozen() const { return frozen_; }
 
