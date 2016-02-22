@@ -772,10 +772,16 @@ ch::Parameter* CombineHarvester::SetupRateParamVar(std::string const& name,
     FNLOGC(log(), verbosity_ > 1)
         << "Reusing existing RooRealVar for rateParam: " << name << "\n";
   }
-  if (!params_.count(name))
+  Parameter * param = nullptr;
+  if (!params_.count(name)) {
     params_[name] = std::make_shared<Parameter>(Parameter());
-  Parameter * param = params_.at(name).get();
-  param->set_name(name);
+    param = params_.at(name).get();
+    param->set_name(name);
+    param->set_err_u(0.);
+    param->set_err_d(0.);
+  } else {
+    param = params_.at(name).get();
+  }
   // If the RooRealVar in the workpsace isn't in the list, add it
   bool var_in_par = false;
   for (auto const& ptr : param->vars()) {

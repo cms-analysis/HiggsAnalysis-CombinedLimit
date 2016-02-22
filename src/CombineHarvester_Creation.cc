@@ -95,7 +95,7 @@ void CombineHarvester::AddSystFromProc(Process const& proc,
     sys->set_value_u(val_u);
     sys->set_value_d(val_d);
     CreateParameterIfEmpty(sys->name());
-  } else if (type == "shape" || type == "shapeN2") {
+  } else if (type == "shape" || type == "shapeN2" || type == "shapeU") {
     sys->set_asymm(true);
     sys->set_value_u(1.0);
     sys->set_value_d(1.0);
@@ -116,7 +116,7 @@ void CombineHarvester::AddSystFromProc(Process const& proc,
       SetupRateParamFunc(subbed_name, formula, subbed_args);
     }
   }
-  if (sys->type() == "lnU") {
+  if (sys->type() == "lnU" || sys->type() == "shapeU") {
     params_.at(sys->name())->set_err_d(0.);
     params_.at(sys->name())->set_err_u(0.);
   }
@@ -145,7 +145,8 @@ void CombineHarvester::ExtractShapes(std::string const& file,
   }
   if (syst_rule == "") return;
   for (unsigned  i = 0; i < systs_.size(); ++i) {
-    if (systs_[i]->type() != "shape" && systs_[i]->type() != "shapeN2")
+    if (systs_[i]->type() != "shape" && systs_[i]->type() != "shapeN2" &&
+        systs_[i]->type() != "shapeU")
       continue;
     LoadShapes(systs_[i].get(), mapping);
   }
