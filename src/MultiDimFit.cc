@@ -101,6 +101,8 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         algo_ = Stitch2D;
     } else if (algo == "impact") {
         algo_ = Impact;
+        if (vm["floatOtherPOIs"].defaulted()) floatOtherPOIs_ = true;
+        if (vm["saveInactivePOI"].defaulted()) saveInactivePOI_ = true;
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
     fastScan_ = (vm.count("fastScan") > 0);
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
