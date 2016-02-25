@@ -646,9 +646,10 @@ void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
     if (h2) delete h2;
   }
   double m = masses.front();
-  double step = 1.;
+  double step = 1;
   if (((masses.back() - masses.front()) / step) > 100.) step = step * 10.;
   if (((masses.back() - masses.front()) / step) > 100.) step = step * 10.;
+  if (((masses.back() - masses.front()) / step) < 10.) step = step/10.;
   while (m <= masses.back()) {
     rrv->setVal(m);
     TH1* hm = pdf->createHistogram("CMS_th1x");
@@ -666,6 +667,8 @@ void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
     }
     hm2->AddDirectory(false);
     hm2->SetName(TString::Format("morph_point_%g", m));
+    //It struggles with m=0, instead adds really small number close to 0
+    if(fabs(m) < 1E-5) hm2->SetName(TString::Format("morph_point_0"));
     gDirectory->WriteTObject(hm2);
     if (hm) delete hm;
     if (hm2) delete hm2;
