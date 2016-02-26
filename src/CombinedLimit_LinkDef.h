@@ -29,6 +29,7 @@
 #include "../interface/HZZ4L_RooSpinZeroPdf_2D.h"
 #include "../interface/HWWLVJJRooPdfs.h"
 #include "../interface/RooMorphingPdf.h"
+#include "../interface/GaussExp.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -156,4 +157,5 @@
 #pragma link C++ class RooPowerExpPdf+;
 #pragma link C++ class RooErfPdf+;
 #pragma link C++ class RooChebyshevPDF+;
+#pragma link C++ class GaussExp+;
 #endif 
