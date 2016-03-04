@@ -121,7 +121,8 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   }
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
-
+  //mc_s->GetParametersOfInterest()->Print();
+  //assert(0);
   TCanvas *c1 = 0;
   if (makePlots_) {
       utils::tdrStyle();
@@ -176,10 +177,10 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       if (fitOut.get() ) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
     }
   }
-  
+ 
   RooFitResult *res_b = 0, *res_s = 0;
   const RooCmdArg &constCmdArg_s = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1); // use something dummy 
-  const RooCmdArg &minosCmdArg = minos_ == "poi" ?  RooFit::Minos(*mc_s->GetParametersOfInterest())   : RooFit::Minos(minos_ != "none"); 
+  //const RooCmdArg &minosCmdArg = minos_ == "poi" ?  RooFit::Minos(*mc_s->GetParametersOfInterest())   : RooFit::Minos(minos_ != "none");  //--> dont use fitTo!
   w->loadSnapshot("clean");
   if (!customStartingPoint_) r->setVal(0.0); 
   r->setConstant(true);
@@ -197,13 +198,10 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     nll_bonly_=nll->getVal()-nll0;   
   } else {
     CloseCoutSentry sentry(verbose < 2);
-    res_b = mc_s->GetPdf()->fitTo(data, 
-            RooFit::Save(1), 
-            RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()), 
-            RooFit::Strategy(minimizerStrategy_),
-            RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
-            constCmdArg_s, minosCmdArg
-            );
+    RooArgList minos = (*mc_s->GetNuisanceParameters()); 
+    minos.add((*mc_s->GetParametersOfInterest()));
+    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
+
     if (res_b) nll_bonly_ = nll->getVal() - nll0;
 
   }
@@ -268,13 +266,9 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     nll_sb_ = nll->getVal()-nll0;
   } else {
     CloseCoutSentry sentry(verbose < 2);
-    res_s = mc_s->GetPdf()->fitTo(data, 
-            RooFit::Save(1), 
-            RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()), 
-            RooFit::Strategy(minimizerStrategy_),
-            RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
-            constCmdArg_s, minosCmdArg
-            );
+    RooArgList minos = (*mc_s->GetNuisanceParameters()); 
+    minos.add((*mc_s->GetParametersOfInterest()));  // Add POI this time 
+    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
     if (res_s) nll_sb_= nll->getVal()-nll0;
 
   }
@@ -335,39 +329,44 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
   if (res_s) {
       RooRealVar *rf = dynamic_cast<RooRealVar*>(res_s->floatParsFinal().find(r->GetName()));
-      double bestFitVal = rf->getVal();
+      if (rf){
+	double bestFitVal = rf->getVal();
 
-      double hiErr = +(rf->hasRange("err68") ? rf->getMax("err68") - bestFitVal : rf->getAsymErrorHi());
-      double loErr = -(rf->hasRange("err68") ? rf->getMin("err68") - bestFitVal : rf->getAsymErrorLo());
-      double maxError = std::max<double>(std::max<double>(hiErr, loErr), rf->getError());
+	double hiErr = +(rf->hasRange("err68") ? rf->getMax("err68") - bestFitVal : rf->getAsymErrorHi());
+	double loErr = -(rf->hasRange("err68") ? rf->getMin("err68") - bestFitVal : rf->getAsymErrorLo());
+	double maxError = std::max<double>(std::max<double>(hiErr, loErr), rf->getError());
 
-      if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
-      if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
+	if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
+	if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
 
-      muLoErr_=loErr;
-      muHiErr_=hiErr;
-      muErr_  =rf->getError();
+	muLoErr_=loErr;
+	muHiErr_=hiErr;
+	muErr_  =rf->getError();
 
-      double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
-      double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
+	double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
+	double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
 
-      limit = bestFitVal;  limitErr = 0;
-      if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.5);
-      limit = bestFitVal - loErr; limitErr = 0;
-      if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.16);
-      limit = bestFitVal + hiErr; limitErr = 0;
-      if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.84);
-      if (do95_ && rf->hasRange("err95") && !noErrors_) {
-        limit = rf->getMax("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.975);
-        limit = rf->getMin("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.025);
-      }
+	limit = bestFitVal;  limitErr = 0;
+	if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.5);
+	limit = bestFitVal - loErr; limitErr = 0;
+	if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.16);
+	limit = bestFitVal + hiErr; limitErr = 0;
+	if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.84);
+	if (do95_ && rf->hasRange("err95") && !noErrors_) {
+	  limit = rf->getMax("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.975);
+	  limit = rf->getMin("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.025);
+	}
 
-      limit = bestFitVal;
-      limitErr = maxError;
-      std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
-      std::cout << "Best fit " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr << "/+" << +hiErr << "  (68% CL)" << std::endl;
-      if (do95_) {
-        std::cout << "         " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr95 << "/+" << +hiErr95 << "  (95% CL)" << std::endl;
+	limit = bestFitVal;
+	limitErr = maxError;
+	std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
+	std::cout << "Best fit " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr << "/+" << +hiErr << "  (68% CL)" << std::endl;
+	if (do95_) {
+	  std::cout << "         " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr95 << "/+" << +hiErr95 << "  (95% CL)" << std::endl;
+	}
+      } else {
+      	std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
+      	std::cout << "Done! fit s+b and fit b should be identical" << std::endl;
       }
   } else {
       std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
