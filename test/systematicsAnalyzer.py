@@ -87,9 +87,14 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
 	    	objU,objD,objC = MB.getShape(b,p,lsyst+"Up"), MB.getShape(b,p,lsyst+"Down"), MB.getShape(b,p)
 		if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
 		elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
-		errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
-		vals.append(valU/valC)
-		vals.append(valD/valC)
+		if valC!=0: 
+			errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
+			vals.append(valU/valC)
+			vals.append(valD/valC)
+		else: 
+			errlines[lsyst][b][p] = "NAN/NAN"
+			vals.append(1.)
+			vals.append(1.)
             else: vals = errline[b][p] if type(errline[b][p]) == list else [ errline[b][p] ]
             for val in vals:
                 if val < 1: val = 1.0/val
