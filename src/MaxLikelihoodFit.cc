@@ -121,8 +121,6 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   }
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
-  //mc_s->GetParametersOfInterest()->Print();
-  //assert(0);
   TCanvas *c1 = 0;
   if (makePlots_) {
       utils::tdrStyle();
@@ -199,7 +197,6 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   } else {
     CloseCoutSentry sentry(verbose < 2);
     RooArgList minos = (*mc_s->GetNuisanceParameters()); 
-    minos.add((*mc_s->GetParametersOfInterest()));
     res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
 
     if (res_b) nll_bonly_ = nll->getVal() - nll0;
