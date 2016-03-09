@@ -16,6 +16,7 @@
 #include "TDirectory.h"
 #include "TH1.h"
 #include "RooRealVar.h"
+#include "RooCategory.h"
 #include "CombineHarvester/CombineTools/interface/Observation.h"
 #include "CombineHarvester/CombineTools/interface/Process.h"
 #include "CombineHarvester/CombineTools/interface/Systematic.h"
@@ -89,7 +90,8 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
   // Store the groups that we encounter
   std::map<std::string, std::set<std::string>> groups;
 
-  // Loop through the vector of word vectors
+  // Do a first pass just for shapes, as some cards
+  // declare observations / processes before the shapes lines
   for (unsigned i = 0; i < words.size(); ++i) {
     // Ignore line if it only has one word
     if (words[i].size() <= 1) continue;
@@ -156,6 +158,12 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
       mapping.category = words[i][2];
       mapping.is_fake = true;
     }
+  }
+
+  // Loop through the vector of word vectors
+  for (unsigned i = 0; i < words.size(); ++i) {
+    // Ignore line if it only has one word
+    if (words[i].size() <= 1) continue;
 
     // Want to check this line and the previous one, so need i >= 1.
     // If the first word on this line is "observation" and "bin" on
@@ -674,6 +682,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   auto proc_sys_map = this->GenerateProcSystMap();
 
   std::set<std::string> all_dependents_pars;
+  std::set<std::string> multipdf_cats;
   for (auto proc : procs_) {
     if (!proc->pdf()) continue;
     // The rest of this is building the list of dependents
@@ -702,6 +711,15 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     while ((par_list_var = par_list_it.next())) {
       if (dynamic_cast<RooRealVar*>(par_list_var)) {
         all_dependents_pars.insert(par_list_var->GetName());
+      }
+      // If this pdf has a RooCategory parameter then it's probably a
+      // RooMultiPdf. We'll need to write a special line in the datacard to
+      // indicate that this is a discrete pdf index. However it's best to be
+      // sure, so we'll use ROOT's string-based RTTI to check the type without
+      // having to link against HiggsAnalysis/CombinedLimit
+      if (dynamic_cast<RooCategory*>(par_list_var) &&
+          proc->pdf()->InheritsFrom("RooMultiPdf")) {
+        multipdf_cats.insert(par_list_var->GetName());
       }
     }
     if (proc->norm()) {
@@ -1034,6 +1052,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       }
       txt_file << "\n";
     }
+  }
+
+  for (auto par : multipdf_cats) {
+    txt_file << format((format("%%-%is discrete\n") % sys_str_len).str()) % par;
   }
 
   // Finally write the NP groups
