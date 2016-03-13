@@ -746,6 +746,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   // Compute the relative path from the txt file to the root file
   file_name = make_relative(txt_file_path, root_file_path).string();
 
+  // Keep track of the workspaces we actually need to write into the
+  // output file
+  std::set<std::string> used_wsps;
+
   for (auto const& mapping : mappings) {
     if (!mapping.is_fake) {
       txt_file << format("shapes %s %s %s %s %s\n")
@@ -754,6 +758,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         % file_name
         % mapping.pattern
         % mapping.syst_pattern;
+      if (mapping.IsPdf() || mapping.IsData()) {
+        used_wsps.insert(mapping.WorkspaceName());
+      }
     } else {
       txt_file << format("shapes %s %s %s\n")
         % mapping.process
@@ -766,6 +773,8 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   if (!is_counting) {
     for (auto ws_it : wspaces_) {
       if (ws_it.first == "_rateParams") continue; // don't write this one
+      // Also skip any workspace that isn't needed for this card
+      if (!used_wsps.count(ws_it.second->GetName())) continue;
       ch::WriteToTFile(ws_it.second.get(), &root_file, ws_it.second->GetName());
     }
   }
