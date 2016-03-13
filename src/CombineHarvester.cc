@@ -22,6 +22,7 @@ CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
   flags_["workspaces-use-clone"] = false;
   flags_["workspace-uuid-recycle"] = true;
   flags_["import-parameter-err"] = true;
+  flags_["filters-use-regex"] = false;
   // std::cout << "[CombineHarvester] Constructor called for " << this << "\n";
 }
 
