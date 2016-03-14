@@ -101,25 +101,29 @@ int main(int argc, char* argv[]) {
   cmb.SetFlag("workspaces-use-clone", true);
   ch::ParseCombineWorkspace(cmb, *ws, "ModelConfig", "data_obs", false);
 
-  vector<string> freeze_vec;
-  boost::split(freeze_vec, freeze_arg, boost::is_any_of(","));
-  for (auto const& item : freeze_vec) {
-    vector<string> parts;
-    boost::split(parts, item, boost::is_any_of("="));
-    if (parts.size() == 1) {
-      ch::Parameter *par = cmb.GetParameter(parts[0]);
-      if (par) par->set_frozen(true);
-      else throw std::runtime_error(
-        FNERROR("Requested variable to freeze does not exist in workspace"));
-    } else {
-      if (parts.size() == 2) {
+  // Only evaluate in case parameters to freeze are provided
+  if(! freeze_arg.empty())
+  {
+    vector<string> freeze_vec;
+    boost::split(freeze_vec, freeze_arg, boost::is_any_of(","));
+    for (auto const& item : freeze_vec) {
+      vector<string> parts;
+      boost::split(parts, item, boost::is_any_of("="));
+      if (parts.size() == 1) {
         ch::Parameter *par = cmb.GetParameter(parts[0]);
-        if (par) {
-          par->set_val(boost::lexical_cast<double>(parts[1]));
-          par->set_frozen(true);
-        }
+        if (par) par->set_frozen(true);
         else throw std::runtime_error(
           FNERROR("Requested variable to freeze does not exist in workspace"));
+      } else {
+        if (parts.size() == 2) {
+          ch::Parameter *par = cmb.GetParameter(parts[0]);
+          if (par) {
+            par->set_val(boost::lexical_cast<double>(parts[1]));
+            par->set_frozen(true);
+          }
+          else throw std::runtime_error(
+            FNERROR("Requested variable to freeze does not exist in workspace"));
+        }
       }
     }
   }
