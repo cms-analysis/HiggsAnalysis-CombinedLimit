@@ -167,6 +167,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
     //CMSDAS new default,
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
   }
+  expectSignalSet_ = !vm["expectSignal"].defaulted();
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -592,12 +593,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
       if (mc_bonly) utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
   }
-  if (expectSignal_ > 0) { 
+  if (nToys != 0) { 
     if (POI->find("r")) {
       ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);     
       if (MH && expectSignalMass_>0.) {
         MH->setVal(expectSignalMass_);        
       }
+    } else if (expectSignalSet_) {
+      std::cerr << "Warning: option --expectSignal only applies to models with "
+                   "the POI \"r\", use --setPhysicsModelParameters to set the "
+                   "values of the POIs for toy generation in this model\n";
     }
   }
 
@@ -620,7 +625,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
                 RooArgSet gobsAsimov;
                 utils::setAllConstant(*mc->GetParametersOfInterest(), true); // Fix poi, before fit
-                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, expectSignal_, verbose);
+                double poiVal = 0.;
+                if (mc->GetParametersOfInterest()->getSize()) {
+                  poiVal = dynamic_cast<RooRealVar *>(mc->GetParametersOfInterest()->first())->getVal();
+                }
+                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, poiVal, verbose);
                 if (mc->GetGlobalObservables()) {
                     RooArgSet gobs(*mc->GetGlobalObservables());
                     gobs = gobsAsimov;
