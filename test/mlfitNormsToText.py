@@ -22,6 +22,9 @@ if fit_s  == None: raise RuntimeError, "Missing fit_s in %s. Did you run MaxLike
 if fit_b  == None: raise RuntimeError, "Missing fit_b in %s. Did you run MaxLikelihoodFit with --saveNorm?" % file;
 
 iter = fit_s.createIterator()
+Headline = "%-30s %-30s     pre-fit   signal+background Fit  bkg-only Fit"%("Channel","Process") if (prefit and errors) else "%-30s %-30s  signal+background Fit  bkg-only Fit"%("Channel","Process")
+print Headline
+
 while True:
     norm_s = iter.Next()
     if norm_s == None: break;
