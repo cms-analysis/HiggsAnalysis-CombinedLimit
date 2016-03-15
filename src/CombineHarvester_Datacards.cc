@@ -815,14 +815,26 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   unsigned sig_id = 0;
   unsigned bkg_id = 1;
   for (unsigned p = 0; p < procs_.size(); ++p) {
-    if (!procs_[p]->signal() && p_ids.count(procs_[p]->process()) == 0) {
-      p_ids[procs_[p]->process()] = bkg_id;
-      ++bkg_id;
+    if (!procs_[p]->signal()) {
+      if (p_ids.count(procs_[p]->process()) == 0) {
+        p_ids[procs_[p]->process()] = bkg_id;
+        ++bkg_id;
+      }
+      else {
+        // check if process was already picked up as signal
+        if (p_ids[procs_[p]->process()] <= 0) throw std::runtime_error(FNERROR("Ambiguous definition of process (" + procs_[p]->process() + ") as both signal and background"));
+      }
     }
     unsigned q = procs_.size() - (p + 1);
-    if (procs_[q]->signal() && p_ids.count(procs_[q]->process()) == 0) {
-      p_ids[procs_[q]->process()] = sig_id;
-      --sig_id;
+    if (procs_[q]->signal()) {
+      if (p_ids.count(procs_[q]->process()) == 0) {
+        p_ids[procs_[q]->process()] = sig_id;
+        --sig_id;
+      }
+      else {
+        // check if process was already picked up as background
+        if (p_ids[procs_[q]->process()] > 0) throw std::runtime_error(FNERROR("Ambiguous definition of process (" + procs_[q]->process() + ") as both signal and background"));
+      }
     }
   }
   for (auto const& proc : procs_) {
