@@ -13,7 +13,8 @@ class RooWorkspace;
 class RooAbsData;
 namespace RooStats { class ModelConfig; }
 
-extern Float_t t_cpu_, t_real_, g_quantileExpected_;
+extern Float_t t_cpu_, t_real_, g_quantileExpected_; 
+extern bool g_fillTree_; 
 //RooWorkspace *writeToysHere = 0;
 extern TDirectory *outputFile;
 extern TDirectory *writeToysHere;
@@ -39,6 +40,9 @@ public:
   
   void run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys);
  
+  /// Stop combine from fillint the tree (some algos need control)
+  static void toggleGlobalFillTree(bool flag=false);
+
   /// Save a point into the output tree. Usually if expected = false, quantile should be set to -1 (except e.g. for saveGrid option of HybridNew)
   static void commitPoint(bool expected, float quantile);
 
