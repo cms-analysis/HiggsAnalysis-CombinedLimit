@@ -61,6 +61,7 @@ private:
   bool toysNoSystematics_;
   bool toysFrequentist_;
   float expectSignal_;
+  bool expectSignalSet_;  // keep track of whether or not expectSignal was defaulted
   float expectSignalMass_;
   std::string redefineSignalPOIs_;
   std::string freezeNuisances_;
