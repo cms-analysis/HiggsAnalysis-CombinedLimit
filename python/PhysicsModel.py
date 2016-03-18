@@ -136,7 +136,7 @@ def getHiggsProdDecMode(bin,process,options):
     if not foundDecay: raise RuntimeError, "Validation Error: decay string %s does not contain any known decay name" % decaySource
     #
     foundEnergy = None
-    for D in [ '7TeV', '8TeV', '13TeV, '14TeV' ]:
+    for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
         if D in decaySource:
             if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
             foundEnergy = D

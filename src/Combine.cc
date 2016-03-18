@@ -344,8 +344,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
       utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
       // also allow for "discrete" parameters to be set 
+      // Possible that MH value was re-set above, so make sure mass is set to the correct value and not over-ridden later.
+      if (w->var("MH")) mass_ = w->var("MH")->getVal();
   }
-
 
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
@@ -487,6 +488,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           }
       } 
   }
+  // Always reset the POIs to floating (post-fit workspaces can actually have them frozen in some cases, in any case they can be re-frozen in the next step 
+  TIterator *pois = POI->createIterator();
+  while (RooRealVar *arg = (RooRealVar*)pois->Next()) {
+      arg->setConstant(0);
+  }
+  
   if (freezeNuisances_ != "") {
       RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
