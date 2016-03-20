@@ -97,6 +97,23 @@ class ModelBuilder(ModelBuilderBase):
                 print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
 
     def doRateParams(self):
+
+    	# First support external functions/parameters 
+	for rp in self.DC.rateParams.keys():
+	 for rk in range(len(self.DC.rateParams[rp])):
+	  type = self.DC.rateParams[rp][rk][0][-1]
+	  if type!=2: continue
+	  argu,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1]
+	  if self.out.arg(argu): continue
+	  fin,wsn = argv.split(":")
+	  try:
+	    fitmp = ROOT.TFile.Open(fin)
+	    wstmp = fitmp.Get(wsn)
+	    self.out._import(wstmp.arg(argu))
+	    fitmp.Close()
+	  except: 
+	    raise RuntimeError, "No File '%s' found for rateParam, or workspace '%s' not in file "%(fin,wsn)
+
 	# First do independant parameters, then expressions
 	for rp in self.DC.rateParams.keys():
 	 for rk in range(len(self.DC.rateParams[rp])):
