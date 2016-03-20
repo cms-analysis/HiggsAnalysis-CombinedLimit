@@ -591,7 +591,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   tree_ = tree;
 
   // Should have the PDF at this point, if not something is really odd?
-  if (!genPdf){
+  if (!(mc->GetPdf())){
 	std::cerr << " FATAL ERROR! PDF not found in ModelConfig (this could be due to having no systematics and running -M MaxLikelihood). \n Try to build the workspace first with text2workspace.py and run with the binary output." << std::endl;
 	assert(0);
   }
