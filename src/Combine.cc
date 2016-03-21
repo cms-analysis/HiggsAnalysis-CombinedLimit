@@ -591,7 +591,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   tree_ = tree;
 
   // Should have the PDF at this point, if not something is really odd?
-  if (!genPdf){
+  if (!(mc->GetPdf())){
 	std::cerr << " FATAL ERROR! PDF not found in ModelConfig (this could be due to having no systematics and running -M MaxLikelihood). \n Try to build the workspace first with text2workspace.py and run with the binary output." << std::endl;
 	assert(0);
   }
@@ -669,6 +669,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (saveToys_) {
 	writeToysHere->WriteTObject(dobs, "toy_asimov");
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+            RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
+            if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
+            // to be seen whether I can delete it or not
+        }
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (MH) MH->setVal(mass_);    
@@ -748,6 +753,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  readToysFromHere->ls();
 	  return;
 	}
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) {
+            RooAbsCollection *snap = dynamic_cast<RooAbsCollection *>(readToysFromHere->Get(TString::Format("toys/toy_%d_snapshot",iToy)));
+            if (!snap) {
+                std::cerr << "Snapshot of global observables toy_"<<iToy<<"_snapshot not found in " << readToysFromHere->GetName() << ". List follows:\n";
+                readToysFromHere->ls();
+                return;
+            }
+            vars->assignValueOnly(*snap);
+            w->saveSnapshot("clean", w->allVars());
+        }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
@@ -760,6 +775,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
       if (saveToys_) {
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+            RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
+            writeToysHere->WriteTObject(snap, TString::Format("toy_%d_snapshot", iToy));
+            // to be seen whether I can delete it or not
+        }
       }
       delete absdata_toy;
     }
