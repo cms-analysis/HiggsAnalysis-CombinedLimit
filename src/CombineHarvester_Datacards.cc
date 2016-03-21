@@ -1077,6 +1077,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     if (!all_dependents_pars.count(p->name()) && !sys_set.count(p->name())) {
       continue;
     }
+    if (p->err_d() == 0.0 && p->err_u() == 0.0) continue;
     for (auto const& str : p->groups()) {
       if (!groups.count(str)) {
         groups[str] = std::set<std::string>();
