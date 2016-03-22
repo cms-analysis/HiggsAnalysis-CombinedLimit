@@ -28,6 +28,9 @@
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_2D.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HWWLVJJRooPdfs.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMomentMorphND.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
+#include "HiggsAnalysis/CombinedLimit/interface/GaussExp.h"
 
 namespace {
     struct dictionary {
