@@ -9,6 +9,7 @@ parser.add_option("-f", "--format",  type="string",   dest="format", default="ht
 parser.add_option("-m", "--mass",    dest="mass",     default=0,  type="float",  help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.")
 parser.add_option("-D", "--dataset", dest="dataname", default="data_obs",  type="string",  help="Name of the observed dataset")
 parser.add_option("-a", "--all", dest="all", default=False,action='store_true',  help="Report all nuisances (default is only lnN)")
+parser.add_option("", "--noshape", dest="noshape", default=False,action='store_true',  help="Counting experiment only (alternatively, build a shape analysis from combineCards.py -S card.txt > newcard.txt )")
 (options, args) = parser.parse_args()
 options.stat = False
 options.bin = True # fake that is a binary output, so that we parse shape lines
@@ -42,7 +43,7 @@ else:
 DC = parseCard(file, options)
 if not DC.hasShapes: DC.hasShapes = True
 MB = ShapeBuilder(DC, options)
-MB.prepareAllShapes()
+if not options.noshape: MB.prepareAllShapes()
 
 def commonStems(list, sep="_"):
     hits = {}
