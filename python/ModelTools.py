@@ -98,7 +98,10 @@ class ModelBuilder(ModelBuilderBase):
 
     def doRateParams(self):
 
-    	# First support external functions/parameters 
+    	# First support external functions/parameters
+	# keep a map of open files/workspaces 
+	open_files = {};
+
 	for rp in self.DC.rateParams.keys():
 	 for rk in range(len(self.DC.rateParams[rp])):
 	  type = self.DC.rateParams[rp][rk][0][-1]
@@ -106,13 +109,22 @@ class ModelBuilder(ModelBuilderBase):
 	  argu,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1]
 	  if self.out.arg(argu): continue
 	  fin,wsn = argv.split(":")
-	  try:
-	    fitmp = ROOT.TFile.Open(fin)
-	    wstmp = fitmp.Get(wsn)
-	    self.out._import(wstmp.arg(argu))
-	    fitmp.Close()
-	  except: 
-	    raise RuntimeError, "No File '%s' found for rateParam, or workspace '%s' not in file "%(fin,wsn)
+	  if (fin,wsn) in open_files: 
+	        wstmp = open_files[(fin,wsn)]
+	        if not wstmp.arg(argu): 
+	         raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
+	        self.out._import(wstmp.arg(argu))
+	  else:
+	    try:
+	      fitmp = ROOT.TFile.Open(fin)
+	      wstmp = fitmp.Get(wsn)
+	      if not wstmp.arg(argu): 
+	       raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
+	      self.out._import(wstmp.arg(argu))
+	      open_files[(fin,wsn)] = wstmp
+	      #fitmp.Close()
+	    except: 
+	      raise RuntimeError, "No File '%s' found for rateParam, or workspace '%s' not in file "%(fin,wsn)
 
 	# First do independant parameters, then expressions
 	for rp in self.DC.rateParams.keys():
