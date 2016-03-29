@@ -39,6 +39,7 @@ bool MultiDimFit::fastScan_ = false;
 bool MultiDimFit::loadedSnapshot_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
+bool MultiDimFit::skipInitialFit_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 
   std::string MultiDimFit::saveSpecifiedFuncs_;
@@ -66,6 +67,7 @@ MultiDimFit::MultiDimFit() :
         ("poi,P",   boost::program_options::value<std::vector<std::string> >(&poi_), "Parameters of interest to fit (default = all)")
         ("floatOtherPOIs",   boost::program_options::value<bool>(&floatOtherPOIs_)->default_value(floatOtherPOIs_), "POIs other than the selected ones will be kept freely floating (1) or fixed (0, default)")
         ("squareDistPoiStep","POI step size based on distance from midpoint (max-min)/2 rather than linear")
+        ("skipInitialFit","Skip initial fit (save time if snapshot is loaded from previous fit)")
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
@@ -106,6 +108,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
     fastScan_ = (vm.count("fastScan") > 0);
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
+    skipInitialFit_ = (vm.count("skipInitialFit") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
 }
@@ -132,14 +135,16 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::auto_ptr<RooFitResult> res;
-    if ( algo_ == Singles || algo_ == Impact || algo_ == None || !loadedSnapshot_ ){
+  //  if ( algo_ == Singles || algo_ == Impact || algo_ == None || !loadedSnapshot_ ){
+    if ( !skipInitialFit_){
         res.reset(doFit(pdf, data, ((algo_ == Singles || algo_ == Impact) ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
         if (algo_ == Impact && res.get()) {
             // Set the floating parameters back to the best-fit value
             // before we write an entry into the output TTree
             w->allVars().assignValueOnly(res.get()->floatParsFinal());
         }
-    }
+    } else std::cout << "MultiDimFit -- Skipping initial global fit" << std::endl;
+
     if(w->var("r")) {w->var("r")->Print();}
     if ( loadedSnapshot_ || res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
