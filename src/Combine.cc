@@ -132,7 +132,8 @@ Combine::Combine() :
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
-      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset");
+      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset")
+      ("trackParameters",   boost::program_options::value<std::string>(&trackParametersNameString_)->default_value(""), "Keep track of parameters in workspace (default = none)")
       ; 
 }
 
@@ -168,6 +169,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
     //CMSDAS new default,
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
   }
+
+
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -323,6 +326,24 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
     }
+
+    // Set up 
+
+    if(trackParametersNameString_!=""){
+		    char tmp[10240] ;
+		    strlcpy(tmp,saveSpecifiedNuis_.c_str(),10240) ;
+		    char* token = strtok(tmp,",") ;
+		    while(token) {
+		    	    RooAbsArg *a = mcNuis.find(it->c_str());
+		    	    if (a == 0) throw std::invalid_argument(std::string("Parameter ")+*it+" not in model.");
+		    		
+			    trackedParametersMap_.insert(std::pair<char*,double>(token,0.));
+			    token = strtok(0,",") ; 
+			    trackedParameters_->Add(*a);
+			    addBranch("param_"+token, &trackedParametersMap_[token], ("param_"+token+"/F").c_str()); 
+		    }
+    }
+    
     if (snapshotName_ != "") {
       bool loaded = w->loadSnapshot(snapshotName_.c_str());
       assert(loaded);
@@ -782,6 +803,14 @@ void Combine::toggleGlobalFillTree(bool flag){
 void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;
     g_quantileExpected_ = quantile;
+
+    // Loop through and check parameter values
+    TIterator *pIt = trackedParameters->createIterator();
+    while (RooAbsArg *arg = (RooAbsArg*)pIt->Next()) {
+        RooRealVar *var = dynamic_cast<RooRealVar*>(arg);
+    	trackedParametersMap[arg->GetName()] = var->getVal();
+    }
+
     if (g_fillTree_) tree_->Fill();
     g_quantileExpected_ = saveQuantile;
 }

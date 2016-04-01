@@ -90,6 +90,11 @@ private:
   bool freezeAllGlobalObs_;
 
   static TTree *tree_;
+
+  RooArgSet *trackedParameters_;
+  std::map<char*,double> trackedParametersMap_;
+  static std::string  trackParametersNameString_;
+
 };
 
 #endif
