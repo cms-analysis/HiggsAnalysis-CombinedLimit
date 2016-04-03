@@ -23,6 +23,13 @@ bool contains(const Range &r, T p) {
   return std::find(boost::begin(r), boost::end(r), p) != boost::end(r);
 }
 
+// This version needed for cases like: contains({"A", "B"}, "B"),
+// which are not implicitly convertible in the above generic version
+template<typename R, typename T>
+bool contains(const std::initializer_list<R> &r, T p) {
+  return std::find(boost::begin(r), boost::end(r), p) != boost::end(r);
+}
+
 template <typename T>
 bool contains_rgx(const std::vector<boost::regex>& r, T p) {
   for (auto const& rgx : r)
