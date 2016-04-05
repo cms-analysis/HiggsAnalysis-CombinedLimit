@@ -16,6 +16,7 @@
 #include "TDirectory.h"
 #include "TH1.h"
 #include "RooRealVar.h"
+#include "RooCategory.h"
 #include "CombineHarvester/CombineTools/interface/Observation.h"
 #include "CombineHarvester/CombineTools/interface/Process.h"
 #include "CombineHarvester/CombineTools/interface/Systematic.h"
@@ -89,7 +90,8 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
   // Store the groups that we encounter
   std::map<std::string, std::set<std::string>> groups;
 
-  // Loop through the vector of word vectors
+  // Do a first pass just for shapes, as some cards
+  // declare observations / processes before the shapes lines
   for (unsigned i = 0; i < words.size(); ++i) {
     // Ignore line if it only has one word
     if (words[i].size() <= 1) continue;
@@ -156,6 +158,12 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
       mapping.category = words[i][2];
       mapping.is_fake = true;
     }
+  }
+
+  // Loop through the vector of word vectors
+  for (unsigned i = 0; i < words.size(); ++i) {
+    // Ignore line if it only has one word
+    if (words[i].size() <= 1) continue;
 
     // Want to check this line and the previous one, so need i >= 1.
     // If the first word on this line is "observation" and "bin" on
@@ -674,6 +682,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   auto proc_sys_map = this->GenerateProcSystMap();
 
   std::set<std::string> all_dependents_pars;
+  std::set<std::string> multipdf_cats;
   for (auto proc : procs_) {
     if (!proc->pdf()) continue;
     // The rest of this is building the list of dependents
@@ -703,6 +712,15 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       if (dynamic_cast<RooRealVar*>(par_list_var)) {
         all_dependents_pars.insert(par_list_var->GetName());
       }
+      // If this pdf has a RooCategory parameter then it's probably a
+      // RooMultiPdf. We'll need to write a special line in the datacard to
+      // indicate that this is a discrete pdf index. However it's best to be
+      // sure, so we'll use ROOT's string-based RTTI to check the type without
+      // having to link against HiggsAnalysis/CombinedLimit
+      if (dynamic_cast<RooCategory*>(par_list_var) &&
+          proc->pdf()->InheritsFrom("RooMultiPdf")) {
+        multipdf_cats.insert(par_list_var->GetName());
+      }
     }
     if (proc->norm()) {
       RooFIter nm_list_it = norm_par_list.fwdIterator();
@@ -728,6 +746,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   // Compute the relative path from the txt file to the root file
   file_name = make_relative(txt_file_path, root_file_path).string();
 
+  // Keep track of the workspaces we actually need to write into the
+  // output file
+  std::set<std::string> used_wsps;
+
   for (auto const& mapping : mappings) {
     if (!mapping.is_fake) {
       txt_file << format("shapes %s %s %s %s %s\n")
@@ -736,6 +758,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         % file_name
         % mapping.pattern
         % mapping.syst_pattern;
+      if (mapping.IsPdf() || mapping.IsData()) {
+        used_wsps.insert(mapping.WorkspaceName());
+      }
     } else {
       txt_file << format("shapes %s %s %s\n")
         % mapping.process
@@ -748,6 +773,8 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   if (!is_counting) {
     for (auto ws_it : wspaces_) {
       if (ws_it.first == "_rateParams") continue; // don't write this one
+      // Also skip any workspace that isn't needed for this card
+      if (!used_wsps.count(ws_it.second->GetName())) continue;
       ch::WriteToTFile(ws_it.second.get(), &root_file, ws_it.second->GetName());
     }
   }
@@ -815,14 +842,26 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   unsigned sig_id = 0;
   unsigned bkg_id = 1;
   for (unsigned p = 0; p < procs_.size(); ++p) {
-    if (!procs_[p]->signal() && p_ids.count(procs_[p]->process()) == 0) {
-      p_ids[procs_[p]->process()] = bkg_id;
-      ++bkg_id;
+    if (!procs_[p]->signal()) {
+      if (p_ids.count(procs_[p]->process()) == 0) {
+        p_ids[procs_[p]->process()] = bkg_id;
+        ++bkg_id;
+      }
+      else {
+        // check if process was already picked up as signal
+        if (p_ids[procs_[p]->process()] <= 0) throw std::runtime_error(FNERROR("Ambiguous definition of process (" + procs_[p]->process() + ") as both signal and background"));
+      }
     }
     unsigned q = procs_.size() - (p + 1);
-    if (procs_[q]->signal() && p_ids.count(procs_[q]->process()) == 0) {
-      p_ids[procs_[q]->process()] = sig_id;
-      --sig_id;
+    if (procs_[q]->signal()) {
+      if (p_ids.count(procs_[q]->process()) == 0) {
+        p_ids[procs_[q]->process()] = sig_id;
+        --sig_id;
+      }
+      else {
+        // check if process was already picked up as background
+        if (p_ids[procs_[q]->process()] > 0) throw std::runtime_error(FNERROR("Ambiguous definition of process (" + procs_[q]->process() + ") as both signal and background"));
+      }
     }
   }
   for (auto const& proc : procs_) {
@@ -1036,6 +1075,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     }
   }
 
+  for (auto par : multipdf_cats) {
+    txt_file << format((format("%%-%is discrete\n") % sys_str_len).str()) % par;
+  }
+
   // Finally write the NP groups
   // We should only consider parameters are either:
   // - in the list of pdf dependents
@@ -1046,6 +1089,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     if (!all_dependents_pars.count(p->name()) && !sys_set.count(p->name())) {
       continue;
     }
+    if (p->err_d() == 0.0 && p->err_u() == 0.0) continue;
     for (auto const& str : p->groups()) {
       if (!groups.count(str)) {
         groups[str] = std::set<std::string>();

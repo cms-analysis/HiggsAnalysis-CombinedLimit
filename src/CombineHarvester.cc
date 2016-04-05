@@ -20,6 +20,9 @@ CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
   flags_["zero-negative-bins-on-import"] = true;
   flags_["allow-missing-shapes"] = true;
   flags_["workspaces-use-clone"] = false;
+  flags_["workspace-uuid-recycle"] = true;
+  flags_["import-parameter-err"] = true;
+  flags_["filters-use-regex"] = false;
   // std::cout << "[CombineHarvester] Constructor called for " << this << "\n";
 }
 
@@ -58,10 +61,10 @@ CombineHarvester::CombineHarvester(CombineHarvester const& other)
 void CombineHarvester::SetFlag(std::string const& flag, bool const& value) {
   auto it = flags_.find(flag);
   if (it != flags_.end()) {
-    FNLOG(std::cout) << " Changing value of flag \"" << it->first << "\" from " << it->second << " to " << value << "\n";
+    FNLOG(std::cout) << "Changing value of flag \"" << it->first << "\" from " << it->second << " to " << value << "\n";
     it->second = value;
   } else {
-    FNLOG(std::cout) << " Created new flag \"" << flag << "\" with value " << value << "\n";
+    FNLOG(std::cout) << "Created new flag \"" << flag << "\" with value " << value << "\n";
     flags_[flag] = value;
   }
 }
@@ -630,7 +633,7 @@ std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
   // 1) Does the UUID of this ws match any other ws in the map?
   for (auto const& it : wspaces_) {
     // - Yes: just return a ptr to the matched ws
-    if (it.second->uuid() == ws.uuid()) {
+    if (it.second->uuid() == ws.uuid() && flags_["workspace-uuid-recycle"]) {
       FNLOGC(log(), verbosity_ >= 1)
           << "Workspace with name " << it.second->GetName()
           << " has the same UUID, will use this one\n";
@@ -710,7 +713,8 @@ void CombineHarvester::ImportParameters(RooArgSet *vars) {
         Parameter par;
         par.set_name(y->GetName());
         par.set_val(y->getVal());
-        if (y->hasError() || y->hasAsymError()) {
+        if ((y->hasError() || y->hasAsymError()) &&
+            flags_["import-parameter-err"]) {
           par.set_err_d(y->getErrorLo());
           par.set_err_u(y->getErrorHi());          
         } else {
