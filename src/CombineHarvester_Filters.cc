@@ -12,9 +12,15 @@ namespace ch {
 
 CombineHarvester& CombineHarvester::bin(
     std::vector<std::string> const& vec, bool cond) {
-  FilterContaining(procs_, vec, std::mem_fn(&Process::bin), cond);
-  FilterContaining(obs_, vec, std::mem_fn(&Observation::bin), cond);
-  FilterContaining(systs_, vec, std::mem_fn(&Systematic::bin), cond);
+  if (GetFlag("filters-use-regex")) {
+    FilterContainingRgx(procs_, vec, std::mem_fn(&Process::bin), cond);
+    FilterContainingRgx(obs_, vec, std::mem_fn(&Observation::bin), cond);
+    FilterContainingRgx(systs_, vec, std::mem_fn(&Systematic::bin), cond);
+  } else {
+    FilterContaining(procs_, vec, std::mem_fn(&Process::bin), cond);
+    FilterContaining(obs_, vec, std::mem_fn(&Observation::bin), cond);
+    FilterContaining(systs_, vec, std::mem_fn(&Systematic::bin), cond);  
+  }
   return *this;
 }
 
@@ -28,8 +34,14 @@ CombineHarvester& CombineHarvester::bin_id(
 
 CombineHarvester& CombineHarvester::process(
     std::vector<std::string> const& vec, bool cond) {
-  FilterContaining(procs_, vec, std::mem_fn(&Process::process), cond);
-  FilterContaining(systs_, vec, std::mem_fn(&Systematic::process), cond);
+  if (GetFlag("filters-use-regex")) {
+    FilterContainingRgx(procs_, vec, std::mem_fn(&Process::process), cond);
+    FilterContainingRgx(systs_, vec, std::mem_fn(&Systematic::process), cond);
+  } else {
+    FilterContaining(procs_, vec, std::mem_fn(&Process::process), cond);
+    FilterContaining(systs_, vec, std::mem_fn(&Systematic::process), cond);
+  }
+
   return *this;
 }
 
@@ -42,45 +54,77 @@ CombineHarvester& CombineHarvester::process_rgx(
 
 CombineHarvester& CombineHarvester::analysis(
     std::vector<std::string> const& vec, bool cond) {
-  FilterContaining(procs_, vec, std::mem_fn(&Process::analysis), cond);
-  FilterContaining(obs_, vec, std::mem_fn(&Observation::analysis), cond);
-  FilterContaining(systs_, vec, std::mem_fn(&Systematic::analysis), cond);
+  if (GetFlag("filters-use-regex")) {
+    FilterContainingRgx(procs_, vec, std::mem_fn(&Process::analysis), cond);
+    FilterContainingRgx(obs_, vec, std::mem_fn(&Observation::analysis), cond);
+    FilterContainingRgx(systs_, vec, std::mem_fn(&Systematic::analysis), cond);
+  } else {
+    FilterContaining(procs_, vec, std::mem_fn(&Process::analysis), cond);
+    FilterContaining(obs_, vec, std::mem_fn(&Observation::analysis), cond);
+    FilterContaining(systs_, vec, std::mem_fn(&Systematic::analysis), cond);
+  }
   return *this;
 }
 
 CombineHarvester& CombineHarvester::era(
     std::vector<std::string> const& vec, bool cond) {
-  FilterContaining(procs_, vec, std::mem_fn(&Process::era), cond);
-  FilterContaining(obs_, vec, std::mem_fn(&Observation::era), cond);
-  FilterContaining(systs_, vec, std::mem_fn(&Systematic::era), cond);
+  if (GetFlag("filters-use-regex")) {
+    FilterContainingRgx(procs_, vec, std::mem_fn(&Process::era), cond);
+    FilterContainingRgx(obs_, vec, std::mem_fn(&Observation::era), cond);
+    FilterContainingRgx(systs_, vec, std::mem_fn(&Systematic::era), cond);
+  } else {
+    FilterContaining(procs_, vec, std::mem_fn(&Process::era), cond);
+    FilterContaining(obs_, vec, std::mem_fn(&Observation::era), cond);
+    FilterContaining(systs_, vec, std::mem_fn(&Systematic::era), cond);
+  }
   return *this;
 }
 
 CombineHarvester& CombineHarvester::channel(
     std::vector<std::string> const& vec, bool cond) {
-  FilterContaining(procs_, vec, std::mem_fn(&Process::channel), cond);
-  FilterContaining(obs_, vec, std::mem_fn(&Observation::channel), cond);
-  FilterContaining(systs_, vec, std::mem_fn(&Systematic::channel), cond);
+  if (GetFlag("filters-use-regex")) {
+    FilterContainingRgx(procs_, vec, std::mem_fn(&Process::channel), cond);
+    FilterContainingRgx(obs_, vec, std::mem_fn(&Observation::channel), cond);
+    FilterContainingRgx(systs_, vec, std::mem_fn(&Systematic::channel), cond);
+  } else {
+    FilterContaining(procs_, vec, std::mem_fn(&Process::channel), cond);
+    FilterContaining(obs_, vec, std::mem_fn(&Observation::channel), cond);
+    FilterContaining(systs_, vec, std::mem_fn(&Systematic::channel), cond);
+  }
   return *this;
 }
 
 CombineHarvester& CombineHarvester::mass(
     std::vector<std::string> const& vec, bool cond) {
-  FilterContaining(procs_, vec, std::mem_fn(&Process::mass), cond);
-  FilterContaining(obs_, vec, std::mem_fn(&Observation::mass), cond);
-  FilterContaining(systs_, vec, std::mem_fn(&Systematic::mass), cond);
+  if (GetFlag("filters-use-regex")) {
+    FilterContainingRgx(procs_, vec, std::mem_fn(&Process::mass), cond);
+    FilterContainingRgx(obs_, vec, std::mem_fn(&Observation::mass), cond);
+    FilterContainingRgx(systs_, vec, std::mem_fn(&Systematic::mass), cond);
+  } else {
+    FilterContaining(procs_, vec, std::mem_fn(&Process::mass), cond);
+    FilterContaining(obs_, vec, std::mem_fn(&Observation::mass), cond);
+    FilterContaining(systs_, vec, std::mem_fn(&Systematic::mass), cond);
+  }
   return *this;
 }
 
 CombineHarvester& CombineHarvester::syst_name(
     std::vector<std::string> const& vec, bool cond) {
-  FilterContaining(systs_, vec, std::mem_fn(&Systematic::name), cond);
+  if (GetFlag("filters-use-regex")) {
+    FilterContainingRgx(systs_, vec, std::mem_fn(&Systematic::name), cond);
+  } else {
+    FilterContaining(systs_, vec, std::mem_fn(&Systematic::name), cond);
+  }
   return *this;
 }
 
 CombineHarvester& CombineHarvester::syst_type(
     std::vector<std::string> const& vec, bool cond) {
-  FilterContaining(systs_, vec, std::mem_fn(&Systematic::type), cond);
+  if (GetFlag("filters-use-regex")) {
+    FilterContainingRgx(systs_, vec, std::mem_fn(&Systematic::type), cond);
+  } else {
+    FilterContaining(systs_, vec, std::mem_fn(&Systematic::type), cond);
+  }
   return *this;
 }
 
