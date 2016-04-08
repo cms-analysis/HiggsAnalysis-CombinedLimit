@@ -162,7 +162,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
 		specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 	}
-	Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
+	Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.); // Combine will not commit a point anymore at -1 so can do it here 
 	//}
     }
    
