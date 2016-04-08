@@ -81,6 +81,11 @@ TTree *Combine::tree_ = 0;
 std::string setPhysicsModelParameterExpression_ = "";
 std::string setPhysicsModelParameterRangeExpression_ = "";
 
+std::string Combine::trackParametersNameString_="";
+
+RooArgSet Combine::trackedParameters_;
+std::map<const char*,float> Combine::trackedParametersMap_;
+
 Combine::Combine() :
     statOptions_("Common statistics options"),
     ioOptions_("Common input-output options"),
@@ -327,23 +332,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly->SetPdf(*model_b);
     }
 
-    // Set up 
-
-    if(trackParametersNameString_!=""){
-		    char tmp[10240] ;
-		    strlcpy(tmp,saveSpecifiedNuis_.c_str(),10240) ;
-		    char* token = strtok(tmp,",") ;
-		    while(token) {
-		    	    RooAbsArg *a = mcNuis.find(it->c_str());
-		    	    if (a == 0) throw std::invalid_argument(std::string("Parameter ")+*it+" not in model.");
-		    		
-			    trackedParametersMap_.insert(std::pair<char*,double>(token,0.));
-			    token = strtok(0,",") ; 
-			    trackedParameters_->Add(*a);
-			    addBranch("param_"+token, &trackedParametersMap_[token], ("param_"+token+"/F").c_str()); 
-		    }
-    }
-    
     if (snapshotName_ != "") {
       bool loaded = w->loadSnapshot(snapshotName_.c_str());
       assert(loaded);
@@ -604,6 +592,31 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   
   tree_ = tree;
 
+  // Set up additional branches 
+  if(trackParametersNameString_!=""){
+    char tmp[10240] ;
+    strlcpy(tmp,trackParametersNameString_.c_str(),10240) ;
+    char* token = strtok(tmp,",") ;
+    while(token) {
+      RooAbsReal *a =(RooAbsReal*)w->obj(token); 
+      if (a == 0) throw std::invalid_argument(std::string("Parameter ")+(token)+" not in model.");
+          
+      Combine::trackedParametersMap_.insert(std::pair<char*,float>(token,-1.));
+
+      std::cout <<  &(Combine::trackedParametersMap_[token]) << std::endl;
+      std::cout << "Map " <<  &(Combine::trackedParametersMap_) << std::endl;
+      trackedParameters_.add(*a);
+
+      token = strtok(0,",") ; 
+    }
+  }
+  
+  for (std::map<const char*,float>::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
+    const char* token = (*it).first;
+    std::cout <<  &(it->second) << std::endl;
+    addBranch((std::string("param_")+token).c_str(), &(it->second), (std::string("param_")+token+std::string("/F")).c_str()); 
+  }
+
   bool isExtended = mc->GetPdf()->canBeExtended();
   RooRealVar *MH = w->var("MH");
   RooAbsData *dobs = w->data(dataset.c_str());
@@ -804,11 +817,12 @@ void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;
     g_quantileExpected_ = quantile;
 
+    std::cout << "Map " <<  &(Combine::trackedParametersMap_) << std::endl;
     // Loop through and check parameter values
-    TIterator *pIt = trackedParameters->createIterator();
-    while (RooAbsArg *arg = (RooAbsArg*)pIt->Next()) {
-        RooRealVar *var = dynamic_cast<RooRealVar*>(arg);
-    	trackedParametersMap[arg->GetName()] = var->getVal();
+    TIterator *pIt = trackedParameters_.createIterator();
+    while (RooAbsReal *var = (RooAbsReal*)pIt->Next()) {
+    	Combine::trackedParametersMap_[var->GetName()] = var->getVal();
+	std::cout <<  	&Combine::trackedParametersMap_[var->GetName()] << std::endl;
     }
 
     if (g_fillTree_) tree_->Fill();

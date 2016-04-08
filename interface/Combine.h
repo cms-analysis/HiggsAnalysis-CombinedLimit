@@ -91,8 +91,8 @@ private:
 
   static TTree *tree_;
 
-  RooArgSet *trackedParameters_;
-  std::map<char*,double> trackedParametersMap_;
+  static RooArgSet trackedParameters_;
+  static std::map<const char*,float> trackedParametersMap_;
   static std::string  trackParametersNameString_;
 
 };
