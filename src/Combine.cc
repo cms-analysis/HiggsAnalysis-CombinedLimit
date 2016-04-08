@@ -83,8 +83,7 @@ std::string setPhysicsModelParameterRangeExpression_ = "";
 
 std::string Combine::trackParametersNameString_="";
 
-RooArgSet Combine::trackedParameters_;
-std::map<const char*,float> Combine::trackedParametersMap_;
+std::vector<std::pair<RooAbsReal*,float> > Combine::trackedParametersMap_;
 
 Combine::Combine() :
     statOptions_("Common statistics options"),
@@ -601,20 +600,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       RooAbsReal *a =(RooAbsReal*)w->obj(token); 
       if (a == 0) throw std::invalid_argument(std::string("Parameter ")+(token)+" not in model.");
           
-      Combine::trackedParametersMap_.insert(std::pair<char*,float>(token,-1.));
-
-      std::cout <<  &(Combine::trackedParametersMap_[token]) << std::endl;
-      std::cout << "Map " <<  &(Combine::trackedParametersMap_) << std::endl;
-      trackedParameters_.add(*a);
-
+      Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(a,a->getVal()));
       token = strtok(0,",") ; 
     }
   }
   
-  for (std::map<const char*,float>::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
-    const char* token = (*it).first;
-    std::cout <<  &(it->second) << std::endl;
-    addBranch((std::string("param_")+token).c_str(), &(it->second), (std::string("param_")+token+std::string("/F")).c_str()); 
+  for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
+    const char * token = (it->first)->GetName();
+    addBranch((std::string("trackedParam_")+token).c_str(), &(it->second), (std::string("trackedParam_")+token+std::string("/F")).c_str()); 
   }
 
   bool isExtended = mc->GetPdf()->canBeExtended();
@@ -817,12 +810,8 @@ void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;
     g_quantileExpected_ = quantile;
 
-    std::cout << "Map " <<  &(Combine::trackedParametersMap_) << std::endl;
-    // Loop through and check parameter values
-    TIterator *pIt = trackedParameters_.createIterator();
-    while (RooAbsReal *var = (RooAbsReal*)pIt->Next()) {
-    	Combine::trackedParametersMap_[var->GetName()] = var->getVal();
-	std::cout <<  	&Combine::trackedParametersMap_[var->GetName()] << std::endl;
+    for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
+	it->second = (it->first)->getVal();
     }
 
     if (g_fillTree_) tree_->Fill();
