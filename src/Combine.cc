@@ -174,7 +174,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
   }
 
-
+  expectSignalSet_ = !vm["expectSignal"].defaulted();
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -352,8 +352,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
       utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
       // also allow for "discrete" parameters to be set 
+      // Possible that MH value was re-set above, so make sure mass is set to the correct value and not over-ridden later.
+      if (w->var("MH")) mass_ = w->var("MH")->getVal();
   }
-
 
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
@@ -495,6 +496,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           }
       } 
   }
+  // Always reset the POIs to floating (post-fit workspaces can actually have them frozen in some cases, in any case they can be re-frozen in the next step 
+  TIterator *pois = POI->createIterator();
+  while (RooRealVar *arg = (RooRealVar*)pois->Next()) {
+      arg->setConstant(0);
+  }
+  
   if (freezeNuisances_ != "") {
       RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
@@ -608,6 +615,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
     const char * token = (it->first)->GetName();
     addBranch((std::string("trackedParam_")+token).c_str(), &(it->second), (std::string("trackedParam_")+token+std::string("/F")).c_str()); 
+  // Should have the PDF at this point, if not something is really odd?
+  if (!(mc->GetPdf())){
+	std::cerr << " FATAL ERROR! PDF not found in ModelConfig (this could be due to having no systematics and running -M MaxLikelihood). \n Try to build the workspace first with text2workspace.py and run with the binary output." << std::endl;
+	assert(0);
   }
 
   bool isExtended = mc->GetPdf()->canBeExtended();
@@ -620,12 +631,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
       if (mc_bonly) utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
   }
-  if (expectSignal_ > 0) { 
+  if (nToys != 0) { 
     if (POI->find("r")) {
       ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);     
       if (MH && expectSignalMass_>0.) {
         MH->setVal(expectSignalMass_);        
       }
+    } else if (expectSignalSet_) {
+      std::cerr << "Warning: option --expectSignal only applies to models with "
+                   "the POI \"r\", use --setPhysicsModelParameters to set the "
+                   "values of the POIs for toy generation in this model\n";
     }
   }
 
@@ -648,7 +663,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
                 RooArgSet gobsAsimov;
                 utils::setAllConstant(*mc->GetParametersOfInterest(), true); // Fix poi, before fit
-                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, expectSignal_, verbose);
+                double poiVal = 0.;
+                if (mc->GetParametersOfInterest()->getSize()) {
+                  poiVal = dynamic_cast<RooRealVar *>(mc->GetParametersOfInterest()->first())->getVal();
+                }
+                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, poiVal, verbose);
                 if (mc->GetGlobalObservables()) {
                     RooArgSet gobs(*mc->GetGlobalObservables());
                     gobs = gobsAsimov;
@@ -675,6 +694,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (saveToys_) {
 	writeToysHere->WriteTObject(dobs, "toy_asimov");
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+            RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
+            if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
+            // to be seen whether I can delete it or not
+        }
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (MH) MH->setVal(mass_);    
@@ -754,6 +778,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  readToysFromHere->ls();
 	  return;
 	}
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) {
+            RooAbsCollection *snap = dynamic_cast<RooAbsCollection *>(readToysFromHere->Get(TString::Format("toys/toy_%d_snapshot",iToy)));
+            if (!snap) {
+                std::cerr << "Snapshot of global observables toy_"<<iToy<<"_snapshot not found in " << readToysFromHere->GetName() << ". List follows:\n";
+                readToysFromHere->ls();
+                return;
+            }
+            vars->assignValueOnly(*snap);
+            w->saveSnapshot("clean", w->allVars());
+        }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
@@ -766,6 +800,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
       if (saveToys_) {
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+            RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
+            writeToysHere->WriteTObject(snap, TString::Format("toy_%d_snapshot", iToy));
+            // to be seen whether I can delete it or not
+        }
       }
       delete absdata_toy;
     }

@@ -1,4 +1,4 @@
-mH_GeV  XS_pb       Scale_pos	Scale_neg
+mH_GeV  XS_pb       Scale_PDF_alpha_S_pos	Scale_PDF_alpha_S_neg
 120.00	5.534E-01	+20.3	-24.4
 120.50	5.471E-01	+20.3	-24.4
 121.00	5.414E-01	+20.4	-24.3
