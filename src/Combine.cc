@@ -75,6 +75,7 @@ bool doSignificance_ = 0;
 bool lowerLimit_ = 0;
 float cl = 0.95;
 bool bypassFrequentistFit_ = false;
+bool g_fillTree_ = true;
 TTree *Combine::tree_ = 0;
 
 std::string setPhysicsModelParameterExpression_ = "";
@@ -678,7 +679,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
-    if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();
+    if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();
   }
   
   std::vector<double> limitHistory;
@@ -768,7 +769,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       w->loadSnapshot("clean");
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
-	tree->Fill();
+	commitPoint(0,g_quantileExpected_);//tree->Fill();
 	++nLimits;
 	expLimit += limit; 
         limitHistory.push_back(limit);
@@ -816,10 +817,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
 }
 
+void Combine::toggleGlobalFillTree(bool flag){
+   g_fillTree_ = flag;
+}
+
 void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;
     g_quantileExpected_ = quantile;
-    tree_->Fill();
+    if (g_fillTree_) tree_->Fill();
     g_quantileExpected_ = saveQuantile;
 }
 
