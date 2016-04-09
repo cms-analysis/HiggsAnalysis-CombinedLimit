@@ -122,7 +122,7 @@ Combine::Combine() :
 
       ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
-      ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(true), "Make all nuisance parameters floating")
+      ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(false), "Make all nuisance parameters floating")
       ("freezeAllGlobalObs", po::value<bool>(&freezeAllGlobalObs_)->default_value(true), "Make all global observables constant")
       ;
     miscOptions_.add_options()

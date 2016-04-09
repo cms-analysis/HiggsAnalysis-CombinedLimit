@@ -198,6 +198,23 @@ def doSplitNuisance(datacard, args):
         else:
             sys.stderr.write("Warning2: nuisance edit split %s found nothing\n" % (args))
 
+def doFreezeNuisance(datacard, args):
+    if len(args) < 1:
+        raise RuntimeError, "Missing arguments: the syntax is: nuisance edit freeze name [ifexists] (name can be a pattern)"
+    pat = re.compile("^"+args[0]+"$")
+    opts = args[1:]
+    found = []
+    for lsyst,nofloat,pdf,args0,errline in datacard.systs:
+        if re.match(pat,lsyst):
+            datacard.frozenNuisances.add(lsyst)
+            found.append(lsyst)
+    if not found:
+        if "ifexists" not in opts:
+            raise RuntimeError, "Error: nuisance edit freeze %s found nothing" % args[0]
+        else:
+            sys.stderr.write("Warning2: nuisance edit freeze %s found nothing\n" % args[0])
+
+
 def doEditNuisance(datacard, command, args):
     if command == "add":
         doAddNuisance(datacard, args)
@@ -209,5 +226,7 @@ def doEditNuisance(datacard, command, args):
         doChangeNuisancePdf(datacard, args)
     elif command == "split":
         doSplitNuisance(datacard, args)
+    elif command == "freeze":
+        doFreezeNuisance(datacard, args)
     else:
         raise RuntimeError, "Error, unknown nuisance edit command %s (args %s)" % (command, args)
