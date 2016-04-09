@@ -175,7 +175,6 @@ class ModelBuilder(ModelBuilderBase):
         for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN" or (pdf.startswith("shape") and pdf != 'shapeU'):
-            if pdf == "lnN" or pdf.startswith("shape"):
                 r = "-4,4" if pdf == "shape" else "-7,7"
                 sig = 1.0;
                 for pn,pf in self.options.nuisancesToRescale:
