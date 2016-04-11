@@ -115,6 +115,8 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
     // one-time initialization of POI variables, TTree branches, ...
+    Combine::toggleGlobalFillTree(true);
+
     static int isInit = false;
     if (!isInit) { initOnce(w, mc_s); isInit = true; }
 
@@ -160,7 +162,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
 		specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 	}
-	Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
+	Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.); // Combine will not commit a point anymore at -1 so can do it here 
 	//}
     }
    
@@ -197,10 +199,14 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         case Impact: if (res.get()) doImpact(*res, *nll); break;
     }
     
+    Combine::toggleGlobalFillTree(false);
     return true;
 }
 
 void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
+
+    // Tell combine not to Fill its tree, we'll do it here;
+
     RooArgSet mcPoi(*mc_s->GetParametersOfInterest());
     if (poi_.empty()) {
         RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
