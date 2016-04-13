@@ -32,6 +32,8 @@ class Datacard():
         self.flatParamNuisances = {}
         self.rateParams = {}
         self.rateParamsOrder = [] # important to maintain order user puts in datacard
+        ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
+        self.frozenNuisances = set()
 
     def list_of_bins(self) :
         """
