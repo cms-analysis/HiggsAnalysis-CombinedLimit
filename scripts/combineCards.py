@@ -119,6 +119,7 @@ for ich,fname in enumerate(args):
 	tbin = label if singlebin else label+tbin 
 	nK = tbin+"AND"+tproc
 	rateParams[nK] = DC.rateParams[K]
+	rateParamsOrder += DC.rateParamsOrder
     # discrete nuisance
     for K in DC.discretes: 
         if discreteNuisances.has_key(K): raise RuntimeError, "Cannot currently correlate discrete nuisances across categories. Rename %s in one."%K

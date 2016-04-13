@@ -106,6 +106,7 @@ class ModelBuilder(ModelBuilderBase):
         self.doExpectedEvents()
         self.doIndividualModels()
         self.doCombination()
+	self.runPostProcesses()
         self.physics.done()
         if self.options.bin:
             self.doModelConfigs()
@@ -113,6 +114,11 @@ class ModelBuilder(ModelBuilderBase):
             if self.options.verbose > 2: 
                 self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
                 print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
+
+
+    def runPostProcesses(self):
+      for n in self.DC.frozenNuisances:
+         self.out.arg(n).setConstant(True)
 
     def doRateParams(self):
 
@@ -338,8 +344,6 @@ class ModelBuilder(ModelBuilderBase):
                 for groupName in groupNames:
                     self.out.var(n).setAttribute('group_'+groupName,True)
             #self.out.var(n).Print('V')
-            if n in self.DC.frozenNuisances:
-                self.out.var(n).setConstant(True)
         if self.options.bin:
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
