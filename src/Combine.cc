@@ -614,9 +614,36 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
       if (mc_bonly) utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
   }
+  // With the value of r we have to handle four cases:
+  //   1) --expectSignal given and r appears in --setPhysicsModelParameters --> prefer expectSignal value but warn user
+  //   2) --expectSignal given and r not in --setPhysicsModelParameters --> use --expectSignal value
+  //   3) --expectSignal not given and r appears in --setPhysicsModelParameters --> use --setPhysicsModelParameters value
+  //   4) --expectSignal not given and r not in --setPhysicsModelParameters --> use default --expectSignal value
   if (nToys != 0) { 
     if (POI->find("r")) {
-      ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);     
+      // Was r also specified in --setPhysicsModelParameters?
+      bool rInParamExp = false;
+      if (setPhysicsModelParameterExpression_ != "") {
+        vector<string> SetParameterExpressionList;
+        boost::split(SetParameterExpressionList, setPhysicsModelParameterExpression_, boost::is_any_of(","));
+        for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
+          vector<string> SetParameterExpression;
+          boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
+          if (SetParameterExpression.size() == 2 && SetParameterExpression[0] == "r") {
+            rInParamExp = true;
+            break;
+          }
+        }
+      }
+      // Set the value of r in cases 1), 2) and 4)
+      if (expectSignalSet_ || (!expectSignalSet_ && !rInParamExp)) {
+        ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
+      }
+      if (expectSignalSet_ && rInParamExp) {
+        std::cerr << "Warning: A value of r is specified in both the --setPhysicsModelParameters "
+                     "and --expectSignal options. The argument of --expectSignal will take "
+                     "precedence\n";
+      }
       if (MH && expectSignalMass_>0.) {
         MH->setVal(expectSignalMass_);        
       }
