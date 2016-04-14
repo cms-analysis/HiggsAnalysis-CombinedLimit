@@ -81,6 +81,10 @@ TTree *Combine::tree_ = 0;
 std::string setPhysicsModelParameterExpression_ = "";
 std::string setPhysicsModelParameterRangeExpression_ = "";
 
+std::string Combine::trackParametersNameString_="";
+
+std::vector<std::pair<RooAbsReal*,float> > Combine::trackedParametersMap_;
+
 Combine::Combine() :
     statOptions_("Common statistics options"),
     ioOptions_("Common input-output options"),
@@ -133,7 +137,8 @@ Combine::Combine() :
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
-      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset");
+      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset")
+      ("trackParameters",   boost::program_options::value<std::string>(&trackParametersNameString_)->default_value(""), "Keep track of parameters in workspace (default = none)")
       ; 
 }
 
@@ -169,6 +174,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
     //CMSDAS new default,
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
   }
+
   expectSignalSet_ = !vm["expectSignal"].defaulted();
 }
 
@@ -325,6 +331,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
     }
+
     if (snapshotName_ != "") {
       bool loaded = w->loadSnapshot(snapshotName_.c_str());
       assert(loaded);
@@ -598,6 +605,23 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   
   tree_ = tree;
 
+  // Set up additional branches 
+  if(trackParametersNameString_!=""){
+    char tmp[10240] ;
+    strlcpy(tmp,trackParametersNameString_.c_str(),10240) ;
+    char* token = strtok(tmp,",") ;
+    while(token) {
+      RooAbsReal *a =(RooAbsReal*)w->obj(token); 
+      if (a == 0) throw std::invalid_argument(std::string("Parameter ")+(token)+" not in model.");
+          
+      Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(a,a->getVal()));
+      token = strtok(0,",") ; 
+    }
+  }
+  
+  for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
+    const char * token = (it->first)->GetName();
+    addBranch((std::string("trackedParam_")+token).c_str(), &(it->second), (std::string("trackedParam_")+token+std::string("/F")).c_str()); 
   // Should have the PDF at this point, if not something is really odd?
   if (!(mc->GetPdf())){
 	std::cerr << " FATAL ERROR! PDF not found in ModelConfig (this could be due to having no systematics and running -M MaxLikelihood). \n Try to build the workspace first with text2workspace.py and run with the binary output." << std::endl;
@@ -858,6 +882,11 @@ void Combine::toggleGlobalFillTree(bool flag){
 void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;
     g_quantileExpected_ = quantile;
+
+    for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
+	it->second = (it->first)->getVal();
+    }
+
     if (g_fillTree_) tree_->Fill();
     g_quantileExpected_ = saveQuantile;
 }

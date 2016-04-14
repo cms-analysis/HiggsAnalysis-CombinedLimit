@@ -3,6 +3,7 @@
 #include <TString.h>
 #include <boost/program_options.hpp>
 #include "RooArgSet.h"
+#include "RooAbsReal.h"
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
@@ -92,6 +93,10 @@ private:
   bool freezeAllGlobalObs_;
 
   static TTree *tree_;
+
+  static std::vector<std::pair<RooAbsReal*,float> > trackedParametersMap_;
+  static std::string  trackParametersNameString_;
+
 };
 
 #endif
