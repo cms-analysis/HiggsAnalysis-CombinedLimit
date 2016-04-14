@@ -622,6 +622,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
     const char * token = (it->first)->GetName();
     addBranch((std::string("trackedParam_")+token).c_str(), &(it->second), (std::string("trackedParam_")+token+std::string("/F")).c_str()); 
+  }
   // Should have the PDF at this point, if not something is really odd?
   if (!(mc->GetPdf())){
 	std::cerr << " FATAL ERROR! PDF not found in ModelConfig (this could be due to having no systematics and running -M MaxLikelihood). \n Try to build the workspace first with text2workspace.py and run with the binary output." << std::endl;
