@@ -133,7 +133,8 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double w
 {
     if (mode_ == Counting) return generateCountingAsimov();
     int nPA = runtimedef::get("TMCSO_PseudoAsimov");
-    if (observables_.getSize() > 1 && runtimedef::get("TMCSO_AdaptivePseudoAsimov")) {
+    int boostAPA = runtimedef::get("TMCSO_AdaptivePseudoAsimov");
+    if (observables_.getSize() > 1 && boostAPA) {
         int nbins = 1;
         RooLinkedListIter iter = observables_.iterator(); 
         for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
@@ -147,7 +148,7 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double w
             //printf("generating asimov from %s: bins %d, events %.1f\n",
             //                    pdf_->GetName(), nbins, nev );
             if (nev < 0.01*nbins) {
-                nPA = std::max<int>(100*nev, 1000);
+                nPA = std::max<int>(100*nev, 1000) * boostAPA;
                 //printf("generating asimov from %s: bins %d, events %.1f --> pseudo-asimov entries %d\n",
                 //                    pdf_->GetName(), nbins, nev, nPA );
             }
