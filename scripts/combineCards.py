@@ -34,7 +34,7 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
-paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {};
+paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {}; rateParamsOrder = set();
 cmax = 5 # column width
 if not args:
     raise RuntimeError, "No input datacards specified."
@@ -119,7 +119,7 @@ for ich,fname in enumerate(args):
 	tbin = label if singlebin else label+tbin 
 	nK = tbin+"AND"+tproc
 	rateParams[nK] = DC.rateParams[K]
-	rateParamsOrder += DC.rateParamsOrder
+	rateParamsOrder.update(DC.rateParamsOrder)
     # discrete nuisance
     for K in DC.discretes: 
         if discreteNuisances.has_key(K): raise RuntimeError, "Cannot currently correlate discrete nuisances across categories. Rename %s in one."%K
