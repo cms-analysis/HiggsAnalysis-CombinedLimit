@@ -517,6 +517,9 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                     htot2->SetDirectory(0);
                     totByCh2[pair->second.channel] = htot2;
 		    TH2F *htot2covar = new TH2F("total_covar","Covariance signal+background",bins[i],0,bins[i],bins[i],0,bins[i]);
+		    htot2covar->GetXaxis()->SetTitle("Bin number");
+		    htot2covar->GetYaxis()->SetTitle("Bin number");
+		    htot2covar->GetZaxis()->SetTitle(Form("covar (%s)",hist->GetYaxis()->GetTitle()));
 		    htot2covar->SetDirectory(0);
 		    totByCh2Covar[pair->second.channel] = htot2covar; 
             } else {
