@@ -624,7 +624,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
             TH2 *covar2 = h->second;
             for (int b = 1, nb = covar2->GetNbinsX(); b <= nb; ++b) {
               for (int bj = 1, nbj = covar2->GetNbinsY(); bj <= nbj; ++bj) {    
-                h->second->SetBinContent(b,bj, std::sqrt(covar2->GetBinContent(b,bj)/ntoys));
+                h->second->SetBinContent(b,bj, (covar2->GetBinContent(b,bj)/ntoys));
 	      }
             }
 	}
