@@ -112,16 +112,16 @@ class ShapeBuilder(ModelBuilder):
         ## Contrary to Number-counting models, here each channel PDF already contains the nuisances
         ## So we just have to build the combined pdf
         if len(self.DC.bins) > 1 or not self.options.forceNonSimPdf:
-            maskList = ROOT.RooArgList()
-            for b in self.DC.bins:
-                maskList.add(self.out.arg(self.physics.getChannelMask(b)))
+            if self.options.doMasks:
+                maskList = ROOT.RooArgList()
+                for b in self.DC.bins:
+                    maskList.add(self.out.arg(self.physics.getChannelMask(b)))
             for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
                 simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat) if self.options.noOptimizePdf else ROOT.RooSimultaneousOpt("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
                     pdfi = self.out.pdf("pdf_bin%s%s" % (b,postfixIn))
                     simPdf.addPdf(pdfi, b)
-                if not self.options.noOptimizePdf:
-                    # maskList.Print()
+                if (not self.options.noOptimizePdf) and self.options.doMasks:
                     simPdf.addChannelMasks(maskList)
                 if len(self.DC.systs) and (not self.options.noOptimizePdf) and self.options.moreOptimizeSimPdf:
                     simPdf.addExtraConstraints(self.out.nuisPdfs)

@@ -596,6 +596,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	assert(0);
   }
 
+  // Print list of channel masks
+  if (verbose >= 2) {
+    RooSimultaneousOpt *simopt = dynamic_cast<RooSimultaneousOpt*>(mc->GetPdf());
+    if (simopt && simopt->channelMasks().getSize() > 0) {
+      std::cout << ">>> Channel masks:\n";
+      simopt->channelMasks().Print("v");
+    }
+  }
+
   bool isExtended = mc->GetPdf()->canBeExtended();
   RooRealVar *MH = w->var("MH");
   RooAbsData *dobs = w->data(dataset.c_str());
