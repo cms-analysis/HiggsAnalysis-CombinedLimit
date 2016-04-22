@@ -114,7 +114,9 @@
 	<class name="Triangle" />
 	<class name="VerticalInterpHistPdf" />
 	<class name="VerticalInterpPdf" />
-
+	<class name="GaussExp" />
+	<class name="RooParametricHist" />
+	<class name="RooMorphingPdf" />
         <function name="function th1fmorph" />
 
 	<class name="CombDataSetFactory"  transient="true" />

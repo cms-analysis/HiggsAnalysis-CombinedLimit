@@ -1,0 +1,29 @@
+Signal Region Datacard -- htsearch category
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+--------------------------------------------------------
+
+shapes data_obs  htsearch   shapes-TH1.root SR_data
+shapes zjets     htsearch   shapes-TH1.root SR_zjets
+shapes wjets     htsearch   shapes-TH1.root SR_wjets
+shapes signal    htsearch   shapes-TH1.root SR_signal 
+
+--------------------------------------------------------
+bin 	     htsearch
+observation  -1 
+--------------------------------------------------------
+bin          		 htsearch     htsearch  htsearch 
+process      		 zjets        wjets     signal 
+process      		 2            1         -1      
+rate        		-1            -1        -1      
+--------------------------------------------------------
+# Normal uncertainties in the signal region 
+lumi	          lnN    -            -         1.05    
+QCDscale	  lnN    -            -         1.20    
+--------------------------------------------------------
+
+z_norm rateParam  htsearch zjets 1 
+w_norm rateParam  htsearch wjets 1 

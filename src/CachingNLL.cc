@@ -886,8 +886,15 @@ cacheutils::CachingSimNLL::evaluate() const
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
     double ret = 0;
-    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
+    unsigned idx = 0;
+    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
         if (*it != 0) {
+            if (channelMasks_.size() > 0 && channelMasks_[idx]->getVal() != 0.) {
+                // std::cout << "Channel " << (*it)->GetName() << " will be masked as " 
+                //     << channelMasks_[idx]->GetName() << " evalutes to " 
+                //     << channelMasks_[idx]->getVal() << "\n";
+                continue;
+            }
             double nllval = (*it)->getVal();
             // what sanity check could I put here?
             ret += nllval;
@@ -928,6 +935,10 @@ cacheutils::CachingSimNLL::setData(const RooAbsData &data)
     //std::cout << "combined data has " << data.numEntries() << " dataset entries (sumw " << data.sumEntries() << ", weighted " << data.isWeighted() << ")" << std::endl;
     //utils::printRAD(&data);
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
+    if (!(RooCategory*)data.get()->find("CMS_channel")) { 
+    	throw  std::logic_error("Error: no category in dataset. You should try to recreate your datacard as a Fake shape -- combineCards.py mycard.txt -S > myshapecard.txt OR rerun with option --forceRecreateNLL");
+	assert(0);
+    }
     splitWithWeights(*dataOriginal_, pdfOriginal_->indexCat(), true);
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         CachingAddNLL *canll = pdfs_[ib];
@@ -951,7 +962,7 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
     RooArgSet obsplus(obs); obsplus.add(weight);
     if (nb != int(datasets_.size())) throw std::logic_error("Number of categories changed"); // this can happen due to bugs in RooDataSet
     std::vector<int> includeZeroWeights(nb,0); bool includeZeroWeightsAny = false;
-    if (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") and factorizedPdf_.get() != NULL ) {
+    if (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && factorizedPdf_.get()) {
         for (int ib = 0; ib < nb; ++ib) {
             catClone->setBin(ib);
             RooAbsPdf *pdf = factorizedPdf_->getPdf(catClone->getLabel());
@@ -1010,6 +1021,20 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
     std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
     std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
     setValueDirty();
+}
+
+void cacheutils::CachingSimNLL::setChannelMasks(const RooArgList &args) {
+    // Here we're assuming that args has the same size and is aligned with
+    // the vector of pdfs. This should be ok because RooSimultaneousOpt does
+    // the validation when it is first given the RooArgList of masking terms,
+    // but maybe we should check here too?
+    std::vector<RooAbsReal *> vars;
+    for (int i = 0; i < args.getSize(); ++i) {
+        RooAbsReal *var = dynamic_cast<RooAbsReal*>(args.at(i));
+        if (!var) return;
+        vars.push_back(var);
+    }
+    channelMasks_ = vars;
 }
 
 RooArgSet* 

@@ -75,10 +75,15 @@ bool doSignificance_ = 0;
 bool lowerLimit_ = 0;
 float cl = 0.95;
 bool bypassFrequentistFit_ = false;
+bool g_fillTree_ = true;
 TTree *Combine::tree_ = 0;
 
 std::string setPhysicsModelParameterExpression_ = "";
 std::string setPhysicsModelParameterRangeExpression_ = "";
+
+std::string Combine::trackParametersNameString_="";
+
+std::vector<std::pair<RooAbsReal*,float> > Combine::trackedParametersMap_;
 
 Combine::Combine() :
     statOptions_("Common statistics options"),
@@ -121,7 +126,8 @@ Combine::Combine() :
 
       ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
-      ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(true), "Make all nuisance parameters floating")
+      ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(false), "Make all nuisance parameters floating")
+      ("floatNuisances", po::value<string>(&floatNuisances_)->default_value(""), "Set to floating these nuisance parameters (note freeze will take priority over float)")
       ("freezeAllGlobalObs", po::value<bool>(&freezeAllGlobalObs_)->default_value(true), "Make all global observables constant")
       ;
     miscOptions_.add_options()
@@ -131,7 +137,8 @@ Combine::Combine() :
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
-      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset");
+      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset")
+      ("trackParameters",   boost::program_options::value<std::string>(&trackParametersNameString_)->default_value(""), "Keep track of parameters in workspace (default = none)")
       ; 
 }
 
@@ -167,6 +174,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
     //CMSDAS new default,
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
   }
+
+  expectSignalSet_ = !vm["expectSignal"].defaulted();
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -239,7 +248,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     isBinary = true;
   } else {
     TString txtFile = fileToLoad.Data();
-    TString options = TString::Format(" -m %g -D %s", mass_, dataset.c_str());
+    TString options = TString::Format(" -m %f -D %s", mass_, dataset.c_str());
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
@@ -322,15 +331,18 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
     }
+
     if (snapshotName_ != "") {
       bool loaded = w->loadSnapshot(snapshotName_.c_str());
       assert(loaded);
-      //make sure mass value used is really the one from the loaded snapshot unless explicitly requested to override it
-      if (overrideSnapshotMass_) {
-        MH->setVal(mass_);
-      }
-      else {
-        mass_ = MH->getVal();
+      if (MH){
+        //make sure mass value used is really the one from the loaded snapshot unless explicitly requested to override it
+        if (overrideSnapshotMass_) {
+          MH->setVal(mass_);
+        }
+        else {
+          mass_ = MH->getVal();
+        }
       }
     }
   //*********************************************
@@ -341,8 +353,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
       utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
       // also allow for "discrete" parameters to be set 
+      // Possible that MH value was re-set above, so make sure mass is set to the correct value and not over-ridden later.
+      if (w->var("MH")) mass_ = w->var("MH")->getVal();
   }
-
 
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
@@ -484,6 +497,18 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           }
       } 
   }
+  // Always reset the POIs to floating (post-fit workspaces can actually have them frozen in some cases, in any case they can be re-frozen in the next step 
+  TIterator *pois = POI->createIterator();
+  while (RooRealVar *arg = (RooRealVar*)pois->Next()) {
+      arg->setConstant(0);
+  }
+
+  if (floatNuisances_ != "") {
+      RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
+      if (verbose > 0) std::cout << "Set floating the following nuisance parameters: "; toFloat.Print("");
+      utils::setAllConstant(toFloat, false);
+  }
+  
   if (freezeNuisances_ != "") {
       RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
@@ -580,6 +605,39 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   
   tree_ = tree;
 
+  // Set up additional branches 
+  if(trackParametersNameString_!=""){
+    char tmp[10240] ;
+    strlcpy(tmp,trackParametersNameString_.c_str(),10240) ;
+    char* token = strtok(tmp,",") ;
+    while(token) {
+      RooAbsReal *a =(RooAbsReal*)w->obj(token); 
+      if (a == 0) throw std::invalid_argument(std::string("Parameter ")+(token)+" not in model.");
+          
+      Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(a,a->getVal()));
+      token = strtok(0,",") ; 
+    }
+  }
+  
+  for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
+    const char * token = (it->first)->GetName();
+    addBranch((std::string("trackedParam_")+token).c_str(), &(it->second), (std::string("trackedParam_")+token+std::string("/F")).c_str()); 
+  }
+  // Should have the PDF at this point, if not something is really odd?
+  if (!(mc->GetPdf())){
+	std::cerr << " FATAL ERROR! PDF not found in ModelConfig (this could be due to having no systematics and running -M MaxLikelihood). \n Try to build the workspace first with text2workspace.py and run with the binary output." << std::endl;
+	assert(0);
+  }
+
+  // Print list of channel masks
+  if (verbose >= 2) {
+    RooSimultaneousOpt *simopt = dynamic_cast<RooSimultaneousOpt*>(mc->GetPdf());
+    if (simopt && simopt->channelMasks().getSize() > 0) {
+      std::cout << ">>> Channel masks:\n";
+      simopt->channelMasks().Print("v");
+    }
+  }
+
   bool isExtended = mc->GetPdf()->canBeExtended();
   RooRealVar *MH = w->var("MH");
   RooAbsData *dobs = w->data(dataset.c_str());
@@ -590,12 +648,43 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
       if (mc_bonly) utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
   }
-  if (expectSignal_ > 0) { 
+  // With the value of r we have to handle four cases:
+  //   1) --expectSignal given and r appears in --setPhysicsModelParameters --> prefer expectSignal value but warn user
+  //   2) --expectSignal given and r not in --setPhysicsModelParameters --> use --expectSignal value
+  //   3) --expectSignal not given and r appears in --setPhysicsModelParameters --> use --setPhysicsModelParameters value
+  //   4) --expectSignal not given and r not in --setPhysicsModelParameters --> use default --expectSignal value
+  if (nToys != 0) { 
     if (POI->find("r")) {
-      ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);     
+      // Was r also specified in --setPhysicsModelParameters?
+      bool rInParamExp = false;
+      if (setPhysicsModelParameterExpression_ != "") {
+        vector<string> SetParameterExpressionList;
+        boost::split(SetParameterExpressionList, setPhysicsModelParameterExpression_, boost::is_any_of(","));
+        for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
+          vector<string> SetParameterExpression;
+          boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
+          if (SetParameterExpression.size() == 2 && SetParameterExpression[0] == "r") {
+            rInParamExp = true;
+            break;
+          }
+        }
+      }
+      // Set the value of r in cases 1), 2) and 4)
+      if (expectSignalSet_ || (!expectSignalSet_ && !rInParamExp)) {
+        ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
+      }
+      if (expectSignalSet_ && rInParamExp) {
+        std::cerr << "Warning: A value of r is specified in both the --setPhysicsModelParameters "
+                     "and --expectSignal options. The argument of --expectSignal will take "
+                     "precedence\n";
+      }
       if (MH && expectSignalMass_>0.) {
         MH->setVal(expectSignalMass_);        
       }
+    } else if (expectSignalSet_) {
+      std::cerr << "Warning: option --expectSignal only applies to models with "
+                   "the POI \"r\", use --setPhysicsModelParameters to set the "
+                   "values of the POIs for toy generation in this model\n";
     }
   }
 
@@ -618,7 +707,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
                 RooArgSet gobsAsimov;
                 utils::setAllConstant(*mc->GetParametersOfInterest(), true); // Fix poi, before fit
-                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, expectSignal_, verbose);
+                double poiVal = 0.;
+                if (mc->GetParametersOfInterest()->getSize()) {
+                  poiVal = dynamic_cast<RooRealVar *>(mc->GetParametersOfInterest()->first())->getVal();
+                }
+                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, poiVal, verbose);
                 if (mc->GetGlobalObservables()) {
                     RooArgSet gobs(*mc->GetGlobalObservables());
                     gobs = gobsAsimov;
@@ -645,11 +738,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (saveToys_) {
 	writeToysHere->WriteTObject(dobs, "toy_asimov");
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+            RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
+            if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
+            // to be seen whether I can delete it or not
+        }
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
-    if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();
+    if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();
   }
   
   std::vector<double> limitHistory;
@@ -663,7 +761,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     RooDataSet *systDs = 0;
     if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {
       if (nuisances == 0) throw std::logic_error("Running with systematics enabled, but nuisances not defined.");
-      nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ? *mc : *mc_bonly));
+      nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
           w->saveSnapshot("reallyClean", w->allVars());
@@ -672,7 +770,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
               CloseCoutSentry sentry(verbose < 3);
               //genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));	
-                std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
+                std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
                 CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
                 minim.setStrategy(1);
                 if (!bypassFrequentistFit_) minim.minimize();
@@ -724,18 +822,33 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  readToysFromHere->ls();
 	  return;
 	}
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) {
+            RooAbsCollection *snap = dynamic_cast<RooAbsCollection *>(readToysFromHere->Get(TString::Format("toys/toy_%d_snapshot",iToy)));
+            if (!snap) {
+                std::cerr << "Snapshot of global observables toy_"<<iToy<<"_snapshot not found in " << readToysFromHere->GetName() << ". List follows:\n";
+                readToysFromHere->ls();
+                return;
+            }
+            vars->assignValueOnly(*snap);
+            w->saveSnapshot("clean", w->allVars());
+        }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
-	tree->Fill();
+	commitPoint(0,g_quantileExpected_);//tree->Fill();
 	++nLimits;
 	expLimit += limit; 
         limitHistory.push_back(limit);
       }
       if (saveToys_) {
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));
+        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+            RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
+            writeToysHere->WriteTObject(snap, TString::Format("toy_%d_snapshot", iToy));
+            // to be seen whether I can delete it or not
+        }
       }
       delete absdata_toy;
     }
@@ -772,10 +885,19 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
 }
 
+void Combine::toggleGlobalFillTree(bool flag){
+   g_fillTree_ = flag;
+}
+
 void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;
     g_quantileExpected_ = quantile;
-    tree_->Fill();
+
+    for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
+	it->second = (it->first)->getVal();
+    }
+
+    if (g_fillTree_) tree_->Fill();
     g_quantileExpected_ = saveQuantile;
 }
 

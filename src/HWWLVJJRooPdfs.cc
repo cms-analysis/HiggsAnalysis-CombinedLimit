@@ -508,13 +508,13 @@ Double_t RooExpPoly::analyticalIntegral(Int_t code,
       double absrootc2(TMath::Sqrt(TMath::Abs(coef2)));
       if (coef2 != 0) {
 	// std::cout << "coef1: " << coef1 << " coef2: " << coef2 << '\n';
-	RooComplex c1(coef1, 0); RooComplex c2(coef2, 0);
-	RooComplex rootc2((coef2 > 0) ? RooComplex(TMath::Sqrt(coef2),0) :
-			  RooComplex(0,TMath::Sqrt(-1*coef2)));
-	RooComplex zmax = c1*0.5/rootc2 + rootc2*x.max(rangeName);
-	RooComplex zmin = c1*0.5/rootc2 + rootc2*x.min(rangeName);
-	double erfimax((coef2 > 0) ? erfi(zmax).re() : erfi(zmax).im());
-	double erfimin((coef2 > 0) ? erfi(zmin).re() : erfi(zmin).im());
+	DoubleComplex_t c1(coef1, 0); DoubleComplex_t c2(coef2, 0);
+	DoubleComplex_t rootc2((coef2 > 0) ? DoubleComplex_t(TMath::Sqrt(coef2),0) :
+			  DoubleComplex_t(0,TMath::Sqrt(-1*coef2)));
+	DoubleComplex_t zmax = c1*0.5/rootc2 + rootc2*x.max(rangeName);
+	DoubleComplex_t zmin = c1*0.5/rootc2 + rootc2*x.min(rangeName);
+	double erfimax((coef2 > 0) ? erfi(zmax).real() : erfi(zmax).imag());
+	double erfimin((coef2 > 0) ? erfi(zmin).real() : erfi(zmin).imag());
 	// if (coef2 < 0) {
 	//   erfimax = TMath::Erf(absrootc2*x.max(rangeName) - 
 	// 		       coef1*0.5/absrootc2);
@@ -541,23 +541,25 @@ Double_t RooExpPoly::analyticalIntegral(Int_t code,
   return val;
 }
 
-RooComplex RooExpPoly::erfi(RooComplex z) {
-  static RooComplex myi(0,1);
-  static RooComplex myone(1,0);
+RooExpPoly::DoubleComplex_t RooExpPoly::erfi(DoubleComplex_t z) {
+  static DoubleComplex_t myi(0,1);
+  static DoubleComplex_t myone(1,0);
 
-  RooComplex zsq(z*z);
-  RooComplex ret(1,0);
+  DoubleComplex_t zsq(z*z);
+  DoubleComplex_t ret(1,0);
   // std::cout << "z: "; z.Print();
-  if (z.im() > 5.)
-    ret =  RooComplex(0., 1.);
-  else if (z.im() < -5.)
-    ret =  RooComplex(0.,-1.);
+  if (z.imag() > 5.)
+    ret =  DoubleComplex_t(0., 1.);
+  else if (z.imag() < -5.)
+    ret =  DoubleComplex_t(0.,-1.);
   else {
-    RooComplex w(RooMath::ComplexErrFunc(z));
+    // For some reason the replacement function is as follows
+    // "[#0] WARN: RooMath::ComplexErrFunc is deprecated, please use RooMath::faddeeva instead."
+    DoubleComplex_t w(RooMath::faddeeva(z));
     // std::cout << "w(z): "; w.Print();
     // std::cout << "zsq: "; zsq.Print();
     // std::cout << "zsq.exp(): "; zsq.exp().Print();
-    ret = myi*(myone - ((zsq.exp())*(w)));
+    ret = myi*(myone - ((std::exp(zsq))*(w)));
   }
 
   // std::cout << "erfi: "; ret.Print();

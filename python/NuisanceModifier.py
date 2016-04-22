@@ -103,7 +103,7 @@ def doRenameNuisance(datacard, args):
                 if lsyst2 == lsystnew:
                     found = True
                     errline2 = errline2b
-                if pdf2 != pdf0: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
+                    if pdf2 != pdf0: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
             if not found:
                 datacard.systs.append([lsystnew,nofloat,pdf0,args0,errline2])
             foundChann, foundProc = False, False
@@ -198,6 +198,34 @@ def doSplitNuisance(datacard, args):
         else:
             sys.stderr.write("Warning2: nuisance edit split %s found nothing\n" % (args))
 
+def doFreezeNuisance(datacard, args):
+    if len(args) < 1:
+        raise RuntimeError, "Missing arguments: the syntax is: nuisance edit freeze name [ifexists] (name can be a pattern)"
+    pat = re.compile("^"+args[0]+"$")
+    opts = args[1:]
+    found = []
+
+    # first check in the list of paramters as flatParam, rateParam or discretes not included in datacard.systs (smaller usually)
+    for lsyst in datacard.flatParamNuisances.keys()+list(datacard.rateParamsOrder)+datacard.discretes:
+         if re.match(pat,lsyst):
+            datacard.frozenNuisances.add(lsyst)
+            found.append(lsyst)
+
+    if not found: 
+      for lsyst,nofloat,pdf,args0,errline in datacard.systs:
+        if re.match(pat,lsyst):
+            datacard.frozenNuisances.add(lsyst)
+            found.append(lsyst)
+
+        
+    # Warn user/exit  
+    if not found:
+        if "ifexists" not in opts:
+            raise RuntimeError, "Error: nuisance edit freeze %s found nothing" % args[0]
+        else:
+            sys.stderr.write("Warning2: nuisance edit freeze %s found nothing\n" % args[0])
+
+
 def doEditNuisance(datacard, command, args):
     if command == "add":
         doAddNuisance(datacard, args)
@@ -209,5 +237,7 @@ def doEditNuisance(datacard, command, args):
         doChangeNuisancePdf(datacard, args)
     elif command == "split":
         doSplitNuisance(datacard, args)
+    elif command == "freeze":
+        doFreezeNuisance(datacard, args)
     else:
         raise RuntimeError, "Error, unknown nuisance edit command %s (args %s)" % (command, args)

@@ -20,6 +20,7 @@ def addDatacardParserOptions(parser):
     parser.add_option("--no-optimize-pdfs",    dest="noOptimizePdf", default=False, action="store_true", help="Do not save the RooSimultaneous as RooSimultaneousOpt and Gaussian constraints as SimpleGaussianConstraint")
     parser.add_option("--optimize-simpdf-constraints",    dest="moreOptimizeSimPdf", default=False, action="store_true", help="Deeper optimization of RooSimultaneous: add the constraints only at the end (RooFit-incompatible!)")
     #parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")
+    parser.add_option("--channel-masks",  dest="doMasks", default=False, action="store_true", help="Create channel-masking RooRealVars")
     parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="never", help="Use RooHistPdf for TH1s: 'always', 'never' (default), 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
     parser.add_option("--X-rescale-nuisance", dest="nuisancesToRescale", type="string", action="append", nargs=2, default=[], help="Rescale by this factor the nuisances that match these regular expressions (the rescaling is applied to the sigma of the gaussian constraint term).")
@@ -50,6 +51,22 @@ def isIncluded(name,includeList):
         if not pattern: continue 
         if re.match(pattern,name): return True
     return False
+
+def addRateParam(lsyst,f,ret):
+
+    if len(f) > 6 or len(f) < 5: raise RuntimeError, "Error, directives of type 'rateParam' should be of form .. name rateParam channel process initial value OR name rateParam channel process formula args"
+    if len(f)==5  :
+        if ".root" in f[4] and ":" in f[4]: ty = 2
+	else: ty=0
+    	tmp_exp = [[lsyst,f[4],ty],""]    # Case for free parameter with no range
+    elif len(f)==6: 
+    	if '[' in f[-1] and ']' in f[-1]: tmp_exp = [[lsyst,f[4],0],f[-1]]
+    	else: tmp_exp = [[lsyst,f[4],f[5],1],""]
+    # check for malformed bin/process 
+    if f[2] not in ret.bins or f[3] not in ret.processes: raise RuntimeError, " No such channel/process '%s/%s', malformed line:\n   %s" % (f[2],f[3], ' '.join(f))
+    if ("%sAND%s"%(f[2],f[3])) in ret.rateParams.keys(): ret.rateParams["%sAND%s"%(f[2],f[3])].append(tmp_exp)
+    else: ret.rateParams["%sAND%s"%(f[2],f[3])] = [tmp_exp]
+    ret.rateParamsOrder.add(lsyst)
 
 def parseCard(file, options):
     if type(file) == type("str"):
@@ -177,6 +194,24 @@ def parseCard(file, options):
                 ret.flatParamNuisances[lsyst] = True
                 #for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
                 continue
+            elif pdf == "rateParam":
+	        if f[3]=="*" and f[2]=="*": # all channels 
+		  for c in ret.processes: 
+		   for b in ret.bins:
+		    f_tmp = f[:]
+		    f_tmp[2]=b
+		    f_tmp[3]=c
+	            addRateParam(lsyst,f_tmp,ret)
+	        elif f[3]=="*": # all channels 
+		  for c in ret.processes: 
+		    f_tmp = f[:]; f_tmp[3]=c
+	            addRateParam(lsyst,f_tmp,ret)
+	        elif f[2]=="*": # all channels 
+		  for b in ret.bins:
+		    f_tmp = f[:]; f_tmp[2]=b
+	            addRateParam(lsyst,f_tmp,ret)
+		else : addRateParam(lsyst,f,ret)
+                continue
             elif pdf=="discrete":
                 args = f[2:]
                 ret.discretes.append(lsyst)
@@ -255,7 +290,7 @@ def parseCard(file, options):
     syst2 = []
     for lsyst,nofloat,pdf,args,errline in ret.systs:
         nonNullEntries = 0 
-        if pdf == "param" or pdf=="discrete": # this doesn't have an errline
+        if pdf == "param" or pdf=="discrete" or pdf=="rateParam": # this doesn't have an errline
             syst2.append((lsyst,nofloat,pdf,args,errline))
             continue
         for (b,p,s) in ret.keyline:

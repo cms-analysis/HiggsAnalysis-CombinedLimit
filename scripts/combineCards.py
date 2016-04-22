@@ -34,7 +34,7 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
-paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}
+paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {}; rateParamsOrder = set();
 cmax = 5 # column width
 if not args:
     raise RuntimeError, "No input datacards specified."
@@ -52,8 +52,9 @@ for ich,fname in enumerate(args):
         label += "_";
     for b in DC.bins:
         bout = label if singlebin else label+b
-        if isVetoed(bout,options.channelVetos): continue
-	if not isIncluded(bout,options.channelIncludes): continue
+	b_in  = label if singlebin else b
+        if isVetoed(b_in,options.channelVetos): continue
+	if not isIncluded(b_in,options.channelIncludes): continue
         obskeyline.append(bout)
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
             if DC.isSignal[p] == False: continue
@@ -76,8 +77,9 @@ for ich,fname in enumerate(args):
             continue
         for b in DC.bins:
             bout = label if singlebin else label+b
-            if isVetoed(bout,options.channelVetos): continue
-	    if not isIncluded(bout,options.channelIncludes): continue
+	    b_in  = label if singlebin else b
+            if isVetoed(b_in,options.channelVetos): continue
+	    if not isIncluded(b_in,options.channelIncludes): continue
             if not systeffect.has_key(bout): systeffect[bout] = {} 
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 r = str(errline[b][p]);
@@ -111,18 +113,24 @@ for ich,fname in enumerate(args):
     # flat params
     for K in DC.flatParamNuisances.iterkeys(): 
         flatParamNuisances[K] = True
+    # rate params
+    for K in DC.rateParams.iterkeys():
+	tbin,tproc = K.split("AND")[0],K.split("AND")[1]
+	tbin = label if singlebin else label+tbin 
+	nK = tbin+"AND"+tproc
+	rateParams[nK] = DC.rateParams[K]
+	rateParamsOrder.update(DC.rateParamsOrder)
     # discrete nuisance
     for K in DC.discretes: 
-        if discreteNuisances.has_key(K):
-					raise RuntimeError, "Cannot currently correlate discrete nuisances across categories. Rename %s in one."%K
-        else:
-					discreteNuisances[K] = True
+        if discreteNuisances.has_key(K): raise RuntimeError, "Cannot currently correlate discrete nuisances across categories. Rename %s in one."%K
+        else: discreteNuisances[K] = True
     # put shapes, if available
     if len(DC.shapeMap):
         for b in DC.bins:
             bout = label if singlebin else label+b
-            if isVetoed(bout,options.channelVetos): continue
-	    if not isIncluded(bout,options.channelIncludes): continue
+	    b_in  = label if singlebin else b
+            if isVetoed(b_in,options.channelVetos): continue
+	    if not isIncluded(b_in,options.channelIncludes): continue
             p2sMap  = DC.shapeMap[b]   if DC.shapeMap.has_key(b)   else {}
             p2sMapD = DC.shapeMap['*'] if DC.shapeMap.has_key('*') else {}
             for p, x in p2sMap.items():
@@ -144,8 +152,9 @@ for ich,fname in enumerate(args):
     elif obsline != None:
         for b in DC.bins:
             bout = label if singlebin else label+b
-            if isVetoed(bout,options.channelVetos): continue
-	    if not isIncluded(bout,options.channelIncludes): continue
+	    b_in  = label if singlebin else b
+            if isVetoed(b_in,options.channelVetos): continue
+	    if not isIncluded(b_in,options.channelIncludes): continue
             obsline += [str(DC.obs[b])];
     #get the groups - keep nuisances in a set so that they are never repetitions
     for groupName,nuisanceNames in DC.groups.iteritems():
@@ -222,6 +231,12 @@ for (pname, pargs) in paramSysts.items():
 
 for pname in flatParamNuisances.iterkeys(): 
     print "%-12s  flatParam" % pname
+for pname in rateParams.iterkeys():
+    for pk in range(len(rateParams[pname])): 
+     print "%-12s  rateParam %s"% (rateParams[pname][pk][0][0],pname.replace("AND"," ")),
+     for p in rateParams[pname][pk][0][1:-1]: print p,
+     print rateParams[pname][pk][1],
+     print "\n",
 for dname in discreteNuisances.iterkeys(): 
     print "%-12s  discrete" % dname
 for groupName,nuisanceNames in groups.iteritems():

@@ -67,10 +67,14 @@ class ModelBuilderBase():
     def doVar(self,vardef):
         if self.options.bin: self.factory_(vardef);
         else: self.out.write(vardef+";\n");
+    def doExp(self,name,expression,vars):
+        if self.options.bin: self.factory_('expr::%s("%s",%s)'%(name,expression,vars));
+        else: self.out.write('%s = expr::%s("%s",%s)'%(name,name,expression,vars)+";\n");
     def doSet(self,name,vars):
         if self.options.bin: self.out.defineSet(name,vars)
         else: self.out.write("%s = set(%s);\n" % (name,vars));
-    def doObj(self,name,type,X):
+    def doObj(self,name,type,X,ignoreExisting=False):
+        if self.out.obj(name) and ignoreExisting: return 1 # Still complain if not explicitly told to ignore the existing object
         if self.options.bin: return self.factory_("%s::%s(%s)" % (type, name, X));
         else: self.out.write("%s = %s(%s);\n" % (name, type, X))
     def addDiscrete(self,var):
@@ -98,9 +102,11 @@ class ModelBuilder(ModelBuilderBase):
 
         self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
+	self.doRateParams()
         self.doExpectedEvents()
         self.doIndividualModels()
         self.doCombination()
+	self.runPostProcesses()
         self.physics.done()
         if self.options.bin:
             self.doModelConfigs()
@@ -108,6 +114,67 @@ class ModelBuilder(ModelBuilderBase):
             if self.options.verbose > 2: 
                 self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
                 print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
+
+
+    def runPostProcesses(self):
+      for n in self.DC.frozenNuisances:
+         self.out.arg(n).setConstant(True)
+
+    def doRateParams(self):
+
+    	# First support external functions/parameters
+	# keep a map of open files/workspaces 
+	open_files = {};
+
+	for rp in self.DC.rateParams.keys():
+	 for rk in range(len(self.DC.rateParams[rp])):
+	  type = self.DC.rateParams[rp][rk][0][-1]
+	  if type!=2: continue
+	  argu,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1]
+	  if self.out.arg(argu): continue
+	  fin,wsn = argv.split(":")
+	  if (fin,wsn) in open_files: 
+	        wstmp = open_files[(fin,wsn)]
+	        if not wstmp.arg(argu): 
+	         raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
+	        self.out._import(wstmp.arg(argu))
+	  else:
+	    try:
+	      fitmp = ROOT.TFile.Open(fin)
+	      wstmp = fitmp.Get(wsn)
+	      if not wstmp.arg(argu): 
+	       raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
+	      self.out._import(wstmp.arg(argu))
+	      open_files[(fin,wsn)] = wstmp
+	      #fitmp.Close()
+	    except: 
+	      raise RuntimeError, "No File '%s' found for rateParam, or workspace '%s' not in file "%(fin,wsn)
+
+	# First do independant parameters, then expressions
+	for rp in self.DC.rateParams.keys():
+	 for rk in range(len(self.DC.rateParams[rp])):
+	  type = self.DC.rateParams[rp][rk][0][-1]
+	  if type!=0: continue
+	  param_range = (self.DC.rateParams[rp][rk][1]).strip('[]')
+	  argu,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1]
+	  if self.out.arg(argu): continue
+
+	  removeRange = (len(param_range)==0)
+	  if param_range == "": param_range = "0,1" 
+	  self.doVar("%s[%s,%s]"%(argu,argv,param_range))
+	  if removeRange: self.out.var(argu).removeRange()
+	  self.out.var(argu).setConstant(False)
+	  self.out.var(argu).setAttribute("flatParam")
+
+	for rp in self.DC.rateParams.keys():
+	 for rk in range(len(self.DC.rateParams[rp])):
+	  type = self.DC.rateParams[rp][rk][0][-1]
+	  if type!=1: continue
+	  argu,arge,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1],self.DC.rateParams[rp][rk][0][2]
+	  if self.out.arg(argu): continue
+	  self.doExp(argu,arge,argv)
+
+
     def doObservables(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
@@ -131,17 +198,18 @@ class ModelBuilder(ModelBuilderBase):
         #print groupsFor
         for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
-            if pdf == "lnN" or pdf.startswith("shape"):
+            if pdf == "lnN" or (pdf.startswith("shape") and pdf != 'shapeU'):
                 r = "-4,4" if pdf == "shape" else "-7,7"
                 sig = 1.0;
                 for pn,pf in self.options.nuisancesToRescale:
                     if re.match(pn, n): 
                         sig = float(pf); sigscale = sig * (4 if pdf == "shape" else 7)
                         r = "-%g,%g" % (sigscale,sigscale)
+		r_exp = "" if self.out.var(n) else "[%s]"%r # Specify range to invoke factory to produce a RooRealVar only if it doesn't already exist
                 if self.options.noOptimizePdf:
-                    self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
+                      self.doObj("%s_Pdf" % n, "Gaussian", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True); # Use existing constraint since it could be a param
                 else:
-                    self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
+                      self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True);# Use existing constraint since it could be a param
                 self.out.var(n).setVal(0)
                 self.out.var(n).setError(1) 
                 globalobs.append("%s_In" % n)
@@ -198,7 +266,7 @@ class ModelBuilder(ModelBuilderBase):
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
-            elif pdf == "lnU":
+            elif pdf == "lnU" or pdf == "shapeU":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[-1,1]" % n);
             elif pdf == "unif":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n,args[0],args[1]))
@@ -240,7 +308,7 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                           self.doVar("%s[%g,%g]" % (n, mean-4*float(sigmaL), mean+4*float(sigmaR)))
                     self.out.var(n).setVal(mean)
-                    self.doObj("%s_Pdf" % n, "BifurGauss", "%s, %s_In[%s,%g,%g], %s, %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaL, sigmaR))
+                    self.doObj("%s_Pdf" % n, "BifurGauss", "%s, %s_In[%s,%g,%g], %s, %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaL, sigmaR),True)
                     self.out.var("%s_In" % n).setConstant(True)
                 else:
                     if len(args) == 3: # mean, sigma, range
@@ -261,13 +329,13 @@ class ModelBuilder(ModelBuilderBase):
                           self.doVar("%s[%g,%g]" % (n, mean-4*sigma, mean+4*sigma))
                     self.out.var(n).setVal(mean)
                     #self.out.var(n).setError(sigma)
-                    self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]))
+                    self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]),True)
                     self.out.var("%s_In" % n).setConstant(True)
                 globalobs.append("%s_In" % n)
                 #if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
             if nofloat: 
-              self.out.var("%s" % n).setAttribute("globalConstrained",True)
+              self.out.var(n).setAttribute("globalConstrained",True)
             # set an attribute related to the group(s) this nuisance belongs to
             if n in groupsFor:
                 groupNames = groupsFor[n]
@@ -325,8 +393,17 @@ class ModelBuilder(ModelBuilderBase):
                     factors.append(scale)
                 else:
                     raise RuntimeError, "Physics model returned something which is neither a name, nor 0, nor 1."
+
+		# look for rate param for this bin 
+		if "%sAND%s"%(b,p) in self.DC.rateParams.keys():
+		  for rk in range(len(self.DC.rateParams["%sAND%s"%(b,p)])):
+		    argu = self.DC.rateParams["%sAND%s"%(b,p)][rk][0][0]
+		    if self.out.arg(argu): factors.append(argu)
+		    else: raise RuntimeError, "No rate parameter found %s, are you sure you defined it correctly in the datacard?"%(argu)
+
                 for (n,nofloat,pdf,args,errline) in self.DC.systs:
                     if pdf == "param":continue
+                    if pdf == "rateParam":continue
                     if not errline[b].has_key(p): continue
                     if errline[b][p] == 0.0: continue
                     if pdf.startswith("shape") and pdf.endswith("?"): # might be a lnN in disguise
@@ -362,7 +439,9 @@ class ModelBuilder(ModelBuilderBase):
                     procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b,p), "", nominal)
                     for kappa, thetaName in logNorms: procNorm.addLogNormal(kappa, self.out.function(thetaName))
                     for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
-                    for factorName in factors: procNorm.addOtherFactor(self.out.function(factorName))
+                    for factorName in factors:
+		    	if self.out.function(factorName): procNorm.addOtherFactor(self.out.function(factorName))
+			else: procNorm.addOtherFactor(self.out.var(factorName))
                     self.out._import(procNorm)
     def doIndividualModels(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""

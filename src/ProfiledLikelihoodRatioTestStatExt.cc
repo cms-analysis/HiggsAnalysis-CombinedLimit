@@ -227,11 +227,14 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
         utils::setAllConstant(poiParams_,true);
     }
     double thisNLL = nullNLL;
+
+    // Check number of floating paramters 
+    int nfloatingpars = utils::countFloating(*(nll_->getParameters( (const RooArgSet*) 0)));
     if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
         // must do constrained fit (if there's something to fit besides XS)
         //std::cout << "PERFORMING CONSTRAINED FIT " << r->GetName() << " == " << r->getVal() << std::endl;
         if (do_debug) std::cout << "NLL shift from unconstrained fit before re-profiling: " << nll_->getVal() - nullNLL << std::endl;    
-        thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
+        thisNLL = (nfloatingpars > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
         if (thisNLL - nullNLL < -0.02) { 
             DBG(DBG_PLTestStat_main, (printf("  --> constrained fit is better... will repeat unconstrained fit\n")))
             utils::setAllConstant(poiParams_,false);
@@ -338,10 +341,12 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
         r->setVal(initialR); 
         r->setConstant(true);
         double thisNLL = nullNLL, sign = +1.0;
+    	int nfloatingpars = utils::countFloating(*(nll_->getParameters( (const RooArgSet*) 0)));
         if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
             // must do constrained fit (if there's something to fit besides XS)
             //std::cout << "PERFORMING CONSTRAINED FIT " << r->GetName() << " == " << r->getVal() << std::endl;
-            thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
+            thisNLL = (nfloatingpars > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
+            //thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
             if (thisNLL - nullNLL < 0 && thisNLL - nullNLL >= -EPS) {
                 thisNLL = nullNLL;
             } else if (thisNLL - nullNLL < 0) {

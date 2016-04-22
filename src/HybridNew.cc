@@ -527,6 +527,11 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       }
       limitPlot_->Draw("AP");
       expoFit.Draw("SAME");
+
+      // label the axes
+      limitPlot_->GetXaxis()->SetTitle("r");
+      limitPlot_->GetYaxis()->SetTitle("CL_{s}");
+
       TLine line(limitPlot_->GetX()[0], clsTarget, limitPlot_->GetX()[limitPlot_->GetN()-1], clsTarget);
       line.SetLineColor(kRed); line.SetLineWidth(2); line.Draw();
       line.DrawLine(limit, 0, limit, limitPlot_->GetY()[0]);

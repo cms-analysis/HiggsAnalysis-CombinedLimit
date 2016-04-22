@@ -1,0 +1,24 @@
+Control Region Datacard (Dimuon) -- htsearch category
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+--------------------------------------------------------
+
+shapes data_obs  htsearch   shapes-TH1.root CR_dimu_data
+shapes zll       htsearch   shapes-TH1.root CR_dimu_zll
+
+--------------------------------------------------------
+bin 	     htsearch
+observation  -1 
+--------------------------------------------------------
+bin          		 htsearch    
+process      		 zll       
+process      		 2           
+rate        		-1           
+--------------------------------------------------------
+# Normal uncertainties in the signal region 
+muonEfficiency    lnN    1.20
+--------------------------------------------------------
+z_norm rateParam  htsearch zll 1 

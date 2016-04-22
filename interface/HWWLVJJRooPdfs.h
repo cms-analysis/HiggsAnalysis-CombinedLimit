@@ -11,8 +11,8 @@
 //#include "RooAbsCategory.h"
 #include "TH1D.h"
 #include "TProfile2D.h"
-#include "RooComplex.h"
- 
+#include <complex> 
+
 class RooChebyshevPDF : public RooAbsPdf {
 public:
 
@@ -213,7 +213,10 @@ public:
 			      const char *rangeName = 0) const;
   Double_t analyticalIntegral(Int_t code, const char *rangeName = 0) const;
 
-  static RooComplex erfi(RooComplex xval);
+  //Emuation of deprecated RooComplex (that used Double_t)
+  typedef std::complex<Double_t> DoubleComplex_t;
+
+  static DoubleComplex_t erfi(DoubleComplex_t xval);
 protected:
 
   RooRealProxy x ;
