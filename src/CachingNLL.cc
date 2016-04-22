@@ -886,8 +886,15 @@ cacheutils::CachingSimNLL::evaluate() const
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
     double ret = 0;
-    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
+    unsigned idx = 0;
+    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
         if (*it != 0) {
+            if (channelMasks_.size() > 0 && channelMasks_[idx]->getVal() != 0.) {
+                // std::cout << "Channel " << (*it)->GetName() << " will be masked as " 
+                //     << channelMasks_[idx]->GetName() << " evalutes to " 
+                //     << channelMasks_[idx]->getVal() << "\n";
+                continue;
+            }
             double nllval = (*it)->getVal();
             // what sanity check could I put here?
             ret += nllval;
@@ -1014,6 +1021,20 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
     std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
     std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
     setValueDirty();
+}
+
+void cacheutils::CachingSimNLL::setChannelMasks(const RooArgList &args) {
+    // Here we're assuming that args has the same size and is aligned with
+    // the vector of pdfs. This should be ok because RooSimultaneousOpt does
+    // the validation when it is first given the RooArgList of masking terms,
+    // but maybe we should check here too?
+    std::vector<RooAbsReal *> vars;
+    for (int i = 0; i < args.getSize(); ++i) {
+        RooAbsReal *var = dynamic_cast<RooAbsReal*>(args.at(i));
+        if (!var) return;
+        vars.push_back(var);
+    }
+    channelMasks_ = vars;
 }
 
 RooArgSet* 

@@ -163,6 +163,7 @@ class CachingSimNLL  : public RooAbsReal {
         void setZeroPoint() ; 
         void clearZeroPoint() ;
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
+        void setChannelMasks(RooArgList const& args);
         friend class CachingAddNLL;
     private:
         void setup_();
@@ -183,6 +184,7 @@ class CachingSimNLL  : public RooAbsReal {
         static bool optimizeContraints_;
         std::vector<double> constrainZeroPoints_;
         std::vector<double> constrainZeroPointsFast_;
+        std::vector<RooAbsReal*> channelMasks_;
 };
 
 }
