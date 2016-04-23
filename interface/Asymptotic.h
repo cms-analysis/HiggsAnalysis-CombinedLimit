@@ -8,8 +8,8 @@
  *
  *
  */
-#include "../interface/LimitAlgo.h"
-#include "../interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include <memory>
 class RooRealVar;
 #include <RooAbsReal.h>
@@ -58,7 +58,7 @@ private:
   //mutable std::auto_ptr<RooFitResult> fitFixD_,  fitFixA_;
   utils::CheapValueSnapshot fitFreeD_, fitFreeA_, fitFixD_,  fitFixA_;
 
-  mutable double                      minNllD_,  minNllA_;
+  mutable double                      minNllD_,  minNllA_, rBestD_;
   mutable RooArgSet snapGlobalObsData, snapGlobalObsAsimov;
 
   float calculateLimitFromGrid(RooRealVar *, double, double);

@@ -8,8 +8,8 @@
 #include "RooRealProxy.h"
 #include "RooListProxy.h"
 #include "TH1.h"
-#include "../interface/SimpleCacheSentry.h"
-#include "../interface/FastTemplate.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
 #include <cmath>
 
 class FastVerticalInterpHistPdf;
@@ -248,6 +248,7 @@ public:
 
   virtual void setActiveBins(unsigned int bins) {}
 
+  bool cacheIsGood() const { return _sentry.good() && _initBase; }
   /// Must be public, for serialization
   typedef FastVerticalInterpHistPdfBase::Morph Morph;
 protected:
@@ -309,6 +310,8 @@ public:
 
   virtual void setActiveBins(unsigned int bins) ;
   Double_t evaluate() const ;
+
+  FastHisto const& cache() const { return _cache; }
 
   friend class FastVerticalInterpHistPdf2V;
 protected:

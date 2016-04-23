@@ -1,4 +1,4 @@
-#include "../interface/JacknifeQuantile.h"
+#include "HiggsAnalysis/CombinedLimit/interface/JacknifeQuantile.h"
 #include <cmath>
 #include <stdexcept>
 #include <iostream>

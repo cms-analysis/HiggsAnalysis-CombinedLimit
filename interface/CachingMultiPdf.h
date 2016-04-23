@@ -1,8 +1,8 @@
 #ifndef CachingMultiPdf_h
 #define CachingMultiPdf_h
 
-#include "../interface/RooMultiPdf.h"
-#include "../interface/CachingNLL.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 #include <RooAbsData.h>
 #include <RooAddPdf.h>
 #include <RooProduct.h>

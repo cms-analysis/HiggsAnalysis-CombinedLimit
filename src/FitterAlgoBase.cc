@@ -1,4 +1,4 @@
-#include "../interface/FitterAlgoBase.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FitterAlgoBase.h"
 #include <limits>
 #include <cmath>
 
@@ -13,21 +13,21 @@
 #include "RooGaussian.h"
 #include "RooConstVar.h"
 #include "RooPlot.h"
-#include "../interface/RooMinimizerOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TH2.h"
 #include "TFile.h"
 #include <RooStats/ModelConfig.h>
-#include "../interface/Combine.h"
-#include "../interface/ProfileLikelihood.h"
-#include "../interface/CascadeMinimizer.h"
-#include "../interface/CloseCoutSentry.h"
-#include "../interface/utils.h"
-#include "../interface/ToyMCSamplerOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
 
-#include "../interface/ProfilingTools.h"
-#include "../interface/CachingNLL.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 
 #include <Math/MinimizerOptions.h>
 #include <Math/QuantFuncMathCore.h>
@@ -47,6 +47,7 @@ float       FitterAlgoBase::stepSize_ = 0.1;
 bool        FitterAlgoBase::robustFit_ = false;
 int         FitterAlgoBase::maxFailedSteps_ = 5;
 bool        FitterAlgoBase::do95_ = false;
+bool        FitterAlgoBase::forceRecreateNLL_ = false;
 bool        FitterAlgoBase::saveNLL_ = false;
 bool        FitterAlgoBase::keepFailures_ = false;
 bool        FitterAlgoBase::protectUnbinnedChannels_ = false;
@@ -77,6 +78,7 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("protectUnbinnedChannels", "Protect PDF from going negative in unbinned channels")
         ("autoBoundsPOIs", boost::program_options::value<std::string>(&autoBoundsPOIs_)->default_value(autoBoundsPOIs_), "Adjust bounds for the POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
         ("autoMaxPOIs", boost::program_options::value<std::string>(&autoMaxPOIs_)->default_value(autoMaxPOIs_), "Adjust maxima for the POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
+        ("forceRecreateNLL",  "Always recreate NLL when running on multiple toys rather than re-using nll with new dataset")
     ;
 }
 
@@ -84,6 +86,7 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
 {
     saveNLL_ = vm.count("saveNLL");
     keepFailures_ = vm.count("keepFailures");
+    forceRecreateNLL_ = vm.count("forceRecreateNLL");
     protectUnbinnedChannels_ = vm.count("protectUnbinnedChannels");
     std::string profileMode = vm["profilingMode"].as<std::string>();
     if      (profileMode == "all")           profileMode_ = ProfileAll;
@@ -184,9 +187,12 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar
 
 RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL, bool saveFitResult) {
     RooFitResult *ret = 0;
-    if (!reuseNLL) nll.reset(); // first delete the old one, to avoid using more memory
-    if (reuseNLL && nll.get() != 0)((cacheutils::CachingSimNLL&)(*nll)).setData(data);	// reuse nll but swap out the data
-    else nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
+    if (reuseNLL && nll.get() != 0 && !forceRecreateNLL_) {
+        ((cacheutils::CachingSimNLL&)(*nll)).setData(data); // reuse nll but swap out the data
+    } else {
+        nll.reset(); // first delete the old one, to avoid using more memory, even if temporarily
+        nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
+    }
 
     double nll0 = nll->getVal();
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);

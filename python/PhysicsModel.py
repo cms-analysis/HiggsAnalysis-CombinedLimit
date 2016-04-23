@@ -35,6 +35,14 @@ class PhysicsModel:
     def getYieldScale(self,bin,process):
         "Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don't scale, and set to zero)"
         return "r" if self.DC.isSignal[process] else 1;
+    def getChannelMask(self, bin):
+        "Return the name of a RooAbsReal to mask the given bin (args != 0 => masked)"
+        name = 'mask_%s' % bin
+        # Check that the mask expression does't exist already, it might do
+        # if it was already defined in the datacard
+        if not self.modelBuilder.out.arg(name):
+            self.modelBuilder.doVar('%s[0]' % name)
+        return name
     def done(self):
         "Called after creating the model, except for the ModelConfigs"
         pass
@@ -138,12 +146,12 @@ def getHiggsProdDecMode(bin,process,options):
     if not foundDecay: raise RuntimeError, "Validation Error: decay string %s does not contain any known decay name" % decaySource
     #
     foundEnergy = None
-    for D in [ '7TeV', '8TeV', '14TeV' ]:
+    for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
         if D in decaySource:
             if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
             foundEnergy = D
     if not foundEnergy:
-        for D in [ '7TeV', '8TeV', '14TeV' ]:
+        for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
             if D in options.fileName+":"+bin:
                 if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
                 foundEnergy = D

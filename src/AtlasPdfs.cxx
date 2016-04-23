@@ -30,7 +30,7 @@ END_HTML
 #include "RooMsgService.h"
 #include "TMath.h"
 
-#include "../interface/AtlasPdfs.h"
+#include "HiggsAnalysis/CombinedLimit/interface/AtlasPdfs.h"
 
 ClassImp(RooStats::HistFactory::RooBSplineBases)
 
@@ -47,7 +47,7 @@ RooBSplineBases::RooBSplineBases()
 
 
 //_____________________________________________________________________________
-RooBSplineBases::RooBSplineBases(const char* name, const char* title, int order, vector<double>& tValues,
+RooBSplineBases::RooBSplineBases(const char* name, const char* title, int order, std::vector<double>& tValues,
 				 RooAbsReal& t, int nrClose) :
   RooAbsReal(name, title),
   _tValues(tValues),
@@ -59,8 +59,8 @@ RooBSplineBases::RooBSplineBases(const char* name, const char* title, int order,
   //_nPlusOne(order+1)//,
   //_bin(NULL)
 {
-  //cout << "in Ctor" << endl;
-  //cout << "t = " << t << endl;
+  //std::cout << "in Ctor" << std::endl;
+  //std::cout << "t = " << t << std::endl;
   buildTAry();
 
 //   _bin=new double*[_n+1];
@@ -77,20 +77,20 @@ RooBSplineBases::RooBSplineBases(const char* name, const char* title, int order,
 //   for (int i=_n;i<_m-_n;i++) // add the main knots
 //   {
 //     _t_ary[i] = tValues[i-_n];
-//     //cout << "Adding main point:   " << i << " = " << _t_ary[i] << endl;
+//     //std::cout << "Adding main point:   " << i << " = " << _t_ary[i] << std::endl;
 //   }
 
 //   double firstDelta=_t_ary[_n+1]-_t_ary[_n]; // extrapolate to the lower non-closed knots
 //   for (int i=nrClose;i<_n;i++) 
 //   {
 //     _t_ary[i] = _t_ary[_n]+firstDelta*(i-_n);
-//     //cout << "Adding lower open:   " << i << " = " << _t_ary[i] << endl;
+//     //std::cout << "Adding lower open:   " << i << " = " << _t_ary[i] << std::endl;
 //   }
 
 //   for (int i=0;i<nrClose;i++) // add the lower closed knots
 //   {
 //     _t_ary[i] = _t_ary[nrClose];
-//     //cout << "Adding lower closed: " << i << " = " << _t_ary[i] << endl;
+//     //std::cout << "Adding lower closed: " << i << " = " << _t_ary[i] << std::endl;
 //   }
 
 
@@ -98,22 +98,22 @@ RooBSplineBases::RooBSplineBases(const char* name, const char* title, int order,
 //   for (int i=_m-_n;i<_m-nrClose;i++) 
 //   {
 //     _t_ary[i] = _t_ary[_m-_n-1]+lastDelta*(i-(_m-_n-1));
-//     //cout << "Adding upper open:   " << i << " = " << _t_ary[i] << endl;
+//     //std::cout << "Adding upper open:   " << i << " = " << _t_ary[i] << std::endl;
 //   }
 
 //   for (int i=_m-nrClose;i<_m;i++) // add the upper closed knots
 //   {
 //     _t_ary[i] = _t_ary[_m-nrClose-1];
-//     //cout << "Adding upper closed: " << i << " = " << _t_ary[i] << endl;
+//     //std::cout << "Adding upper closed: " << i << " = " << _t_ary[i] << std::endl;
 //   }
-//   //cout << endl;
+//   //std::cout << std::endl;
 
 //   for (int i=0;i<_m;i++)
 //   {
 //     if (fabs(_t_ary[i]) < pow(10., -9)) _t_ary[i] = 0;
 //   }
 
-  //cout << "out Ctor" << endl;
+  //std::cout << "out Ctor" << std::endl;
 
 
 
@@ -130,27 +130,27 @@ void RooBSplineBases::buildTAry() const
 {
   //delete[] _t_ary;
   _t_ary.resize(_m);
-  //cout << "In buildTAry. _m=" << _m << ", _n=" << _n << ", _t_ary.size()=" << _t_ary.size() << endl;
+  //std::cout << "In buildTAry. _m=" << _m << ", _n=" << _n << ", _t_ary.size()=" << _t_ary.size() << std::endl;
   //_t_ary = new double[_m];
   for (int i=_n;i<_m-_n;i++) // add the main knots
   {
     _t_ary[i] = _tValues[i-_n];
-    //cout << "Adding main point:   " << i << " = " << _t_ary[i] << endl;
+    //std::cout << "Adding main point:   " << i << " = " << _t_ary[i] << std::endl;
   }
 
   double firstDelta=_t_ary[_n+1]-_t_ary[_n]; // extrapolate to the lower non-closed knots
-//   cout << "Starting loop" << endl;
-//   cout << "_nrClose=" << _nrClose << endl;
+//   std::cout << "Starting loop" << std::endl;
+//   std::cout << "_nrClose=" << _nrClose << std::endl;
   for (int i=_nrClose;i<_n;i++) 
   {
     _t_ary[i] = _t_ary[_n]+firstDelta*(i-_n);
-    //cout << "Adding lower open:   " << i << " = " << _t_ary[i] << endl;
+    //std::cout << "Adding lower open:   " << i << " = " << _t_ary[i] << std::endl;
   }
 
   for (int i=0;i<_nrClose;i++) // add the lower closed knots
   {
     _t_ary[i] = _t_ary[_nrClose];
-    //cout << "Adding lower closed: " << i << " = " << _t_ary[i] << endl;
+    //std::cout << "Adding lower closed: " << i << " = " << _t_ary[i] << std::endl;
   }
 
 
@@ -158,15 +158,15 @@ void RooBSplineBases::buildTAry() const
   for (int i=_m-_n;i<_m-_nrClose;i++) 
   {
     _t_ary[i] = _t_ary[_m-_n-1]+lastDelta*(i-(_m-_n-1));
-    //cout << "Adding upper open:   " << i << " = " << _t_ary[i] << endl;
+    //std::cout << "Adding upper open:   " << i << " = " << _t_ary[i] << std::endl;
   }
 
   for (int i=_m-_nrClose;i<_m;i++) // add the upper closed knots
   {
     _t_ary[i] = _t_ary[_m-_nrClose-1];
-    //cout << "Adding upper closed: " << i << " = " << _t_ary[i] << endl;
+    //std::cout << "Adding upper closed: " << i << " = " << _t_ary[i] << std::endl;
   }
-  //cout << endl;
+  //std::cout << std::endl;
 
   for (int i=0;i<_m;i++)
   {
@@ -258,13 +258,13 @@ RooBSplineBases::~RooBSplineBases()
 //_____________________________________________________________________________
 Double_t RooBSplineBases::evaluate() const 
 {
-//   cout << "In eval, _n=" << _n << ", _m=" << _m << ", _nPlusOne=" << _nPlusOne << endl;
-//   cout << "_bin=" << _bin << endl;
-//   cout << "_t_ary=" << _t_ary << endl;
+//   std::cout << "In eval, _n=" << _n << ", _m=" << _m << ", _nPlusOne=" << _nPlusOne << std::endl;
+//   std::cout << "_bin=" << _bin << std::endl;
+//   std::cout << "_t_ary=" << _t_ary << std::endl;
   if (!_t_ary.size()) buildTAry();
 
   // Calculate and return value of spline
-  //cout << "In RooBSplineBases::evaluate()" << endl;
+  //std::cout << "In RooBSplineBases::evaluate()" << std::endl;
   double t = _t;
   if (t < _t_ary[_n] || t > _t_ary[_m-_n-1])
   {
@@ -279,10 +279,10 @@ Double_t RooBSplineBases::evaluate() const
 
 //   if (_bin)
 //   {
-//     //cout << "Deleting bin: " << _bin << endl;
+//     //std::cout << "Deleting bin: " << _bin << std::endl;
 //     for (int i=0;i<_n+1;i++)
 //     {
-//       //cout << "Deleting bin[" << i << "]: " << _bin[i] << endl;
+//       //std::cout << "Deleting bin[" << i << "]: " << _bin[i] << std::endl;
 //       delete[] _bin[i];
 //       _bin[i]=NULL;
 // //       for (int j=0;j<_m;j++)
@@ -308,12 +308,12 @@ Double_t RooBSplineBases::evaluate() const
   //_bin = new double*[_n+1];
   for (int n=0;n<_n+1;n++)
   {
-    //cout << "_bin[n] = " << _bin[n] << endl;
+    //std::cout << "_bin[n] = " << _bin[n] << std::endl;
     //if (remake) _bin[n] = new double[_m];
     //_bin[n] = new double[_m];
     for (int i=0;i<_m;i++)
     {
-      //cout << "Resetting to zero" << endl;
+      //std::cout << "Resetting to zero" << std::endl;
       _bin[n][i] = 0;
     }
     for (int i=0;i<_m-n-1;i++)
@@ -322,27 +322,27 @@ Double_t RooBSplineBases::evaluate() const
       {
 	if (t >= _t_ary[i] && t < _t_ary[i+1] && i >= _n && i <= _m-_n-1)
 	{
-	  //cout << "Setting " << i << " to 1" << endl;
+	  //std::cout << "Setting " << i << " to 1" << std::endl;
 	  _bin[n][i] = 1;
 	}
       }
       else
       {
-	//cout << "Getting term1" << endl;
+	//std::cout << "Getting term1" << std::endl;
 	double term1 = 0;
 	if (_t_ary[i+n] - _t_ary[i] > 0.000000000001) term1 = _bin[n-1][i] / (_t_ary[i+n] - _t_ary[i]);
 
-	//cout << "Getting term2" << endl;
+	//std::cout << "Getting term2" << std::endl;
 	double term2 = 0;
 	if (_t_ary[i+n+1] - _t_ary[i+1] > 0.0000000000001) term2 = _bin[n-1][i+1] / (_t_ary[i+n+1] - _t_ary[i+1]);
 
-	//cout << "Setting bin" << endl;
+	//std::cout << "Setting bin" << std::endl;
 	_bin[n][i] = (t - _t_ary[i]) * term1 + (_t_ary[i+n+1] - t) * term2;
       }
       if (_bin[n][i] < 0.000000000001) _bin[n][i] = 0;
     }
   }
-  //cout << "Out RooBSplineBases::evaluate()" << endl;
+  //std::cout << "Out RooBSplineBases::evaluate()" << std::endl;
   return t;
 }
 
@@ -355,7 +355,7 @@ Double_t RooBSplineBases::getBasisVal(int n, int i, bool rebuild) const
 //     getVal();
 //   }
   if (i >= _m-_n-1) return 0.;
-  //cout << "Getting basis for n=" << n << ", i=" << i << ", rebuild ? " << rebuild << ", order = " << _n << ", name=" << GetName() << endl;  
+  //std::cout << "Getting basis for n=" << n << ", i=" << i << ", rebuild ? " << rebuild << ", order = " << _n << ", name=" << GetName() << std::endl;  
   return _bin[n][i];
 }
 
@@ -423,12 +423,12 @@ RooBSpline::RooBSpline(const char* name, const char* title,
   _vars("observables","List of observables",this),
   _cacheMgr(this,10)
 {
-  //cout << "in Ctor" << endl;
-  //cout << "t = " << t << endl;
+  //std::cout << "in Ctor" << std::endl;
+  //std::cout << "t = " << t << std::endl;
 
   if (_m-2*_n != controlPoints.getSize())
   {
-    cout << "ERROR::Nr t values (" << _m-2*_n << ") != nr control points (" << controlPoints.getSize() << ")" << endl;
+    std::cout << "ERROR::Nr t values (" << _m-2*_n << ") != nr control points (" << controlPoints.getSize() << ")" << std::endl;
   }
 
   //bool even = fabs(_n/2-_n/2.) < 0.0000000001;
@@ -439,11 +439,11 @@ RooBSpline::RooBSpline(const char* name, const char* title,
   while((point = (RooAbsArg*)pointIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(point)) {
       coutE(InputArguments) << "RooBSpline::ctor(" << GetName() << ") ERROR: control point " << point->GetName() 
-			    << " is not of type RooAbsReal" << endl ;
+			    << " is not of type RooAbsReal" << std::endl ;
       assert(0) ;
     }
     //RooAbsReal* pointReal = (RooAbsReal*)point;
-    //cout << "Adding control point " << point->GetName() << ", has val " << pointReal->getVal() << endl;
+    //std::cout << "Adding control point " << point->GetName() << ", has val " << pointReal->getVal() << std::endl;
     _controlPoints.add(*point) ;
     if (first) 
     {
@@ -462,13 +462,13 @@ RooBSpline::RooBSpline(const char* name, const char* title,
   TIterator* varItr = vars.createIterator();
   RooAbsArg* arg;
   while ((arg=(RooAbsArg*)varItr->Next())) {
-    //cout << "======== Adding "<<arg->GetName()<<" to list of _vars of "<<name<<"." << endl;
+    //std::cout << "======== Adding "<<arg->GetName()<<" to list of _vars of "<<name<<"." << std::endl;
     _vars.add(*arg);
   }
-//   cout << "all _vars: " << endl;
+//   std::cout << "all _vars: " << std::endl;
 //   _vars.Print("V");
   delete varItr;
-  //cout << "out Ctor" << endl;
+  //std::cout << "out Ctor" << std::endl;
 }
 
 //_____________________________________________________________________________
@@ -517,10 +517,10 @@ RooBSpline::~RooBSpline()
 //_____________________________________________________________________________
 Double_t RooBSpline::evaluate() const 
 {
-  //cout << "In RooBSpline::evaluate(): " << GetName() << endl;
+  //std::cout << "In RooBSpline::evaluate(): " << GetName() << std::endl;
   // Calculate and return value of spline
 
-  //cout << "computing S" << endl;
+  //std::cout << "computing S" << std::endl;
   RooBSplineBases* bases = (RooBSplineBases*)&_bases.arg();
   bases->getVal(); // build the basis polynomials
   bool useWeight = _weights.getSize();
@@ -535,7 +535,7 @@ Double_t RooBSpline::evaluate() const
       int p=i;
       //if (even && i > 0) p=i-1;
       RooAbsReal* point = (RooAbsReal*)_controlPoints.at(p);
-      //cout << "name=" << GetName() << ", point addy=" << point << endl;
+      //std::cout << "name=" << GetName() << ", point addy=" << point << std::endl;
       double weight = 1.0;
       if (useWeight)
       {
@@ -546,7 +546,7 @@ Double_t RooBSpline::evaluate() const
     }
   }
 
-  //cout << "Out RooBSpline::evaluate()" << endl;
+  //std::cout << "Out RooBSpline::evaluate()" << std::endl;
   return S;
 }
 
@@ -562,7 +562,7 @@ void RooBSpline::setWeights(const RooArgList& weights)
   while((point = (RooAbsArg*)pointIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(point)) {
       coutE(InputArguments) << "RooBSpline::ctor(" << GetName() << ") ERROR: control point " << point->GetName() 
-			    << " is not of type RooAbsReal" << endl ;
+			    << " is not of type RooAbsReal" << std::endl ;
       assert(0) ;
     }
     _weights.add(*point) ;
@@ -586,7 +586,7 @@ void RooBSpline::setWeights(const RooArgList& weights)
 //_____________________________________________________________________________
 Bool_t RooBSpline::setBinIntegrator(RooArgSet& allVars) 
 {
-  //cout << "In RooBSpline::setBinIntegrator" << endl;
+  //std::cout << "In RooBSpline::setBinIntegrator" << std::endl;
   if(allVars.getSize()==1){
     RooAbsReal* temp = const_cast<RooBSpline*>(this);
     temp->specialIntegratorConfig(kTRUE)->method1D().setLabel("RooBinIntegrator")  ;
@@ -594,7 +594,7 @@ Bool_t RooBSpline::setBinIntegrator(RooArgSet& allVars)
     temp->specialIntegratorConfig(kTRUE)->getConfigSection("RooBinIntegrator").setRealValue("numBins",nbins);
     return true;
   }else{
-    cout << "Currently BinIntegrator only knows how to deal with 1-d "<<endl;
+    std::cout << "Currently BinIntegrator only knows how to deal with 1-d "<<std::endl;
     return false;
   }
   return false;
@@ -605,14 +605,14 @@ Bool_t RooBSpline::setBinIntegrator(RooArgSet& allVars)
 Int_t RooBSpline::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& analVars, 
 					  const RooArgSet* normSet, const char* rangeName) const 
 {
-//   cout << "In RooBSpline["<<GetName()<<"]::getAnalyticalIntegralWN" << endl;
-//   cout << "allVars:" << endl;
+//   std::cout << "In RooBSpline["<<GetName()<<"]::getAnalyticalIntegralWN" << std::endl;
+//   std::cout << "allVars:" << std::endl;
 //   allVars.Print("V");
-//   cout << "analVars:" << endl;
+//   std::cout << "analVars:" << std::endl;
 //   analVars.Print("V");
-//   cout << "_vars:" << endl;
+//   std::cout << "_vars:" << std::endl;
 //   _vars.Print("V");
-//   cout << "--- end ---" << endl;
+//   std::cout << "--- end ---" << std::endl;
   
   if (_forceNumInt) return 0 ;
 
@@ -650,7 +650,7 @@ Int_t RooBSpline::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& analVar
 //_____________________________________________________________________________
 Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet*/,const char* rangeName) const 
 {
-  //cout << "In RooBSpline::analyticalIntegralWN" << endl;
+  //std::cout << "In RooBSpline::analyticalIntegralWN" << std::endl;
   double integral = 0;
   if (code == 1)
   {
@@ -699,7 +699,7 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
      CacheElem *cache = (CacheElem*) _cacheMgr.getObjByIndex(code-2);
      if (cache==0) {
        // cache got sterilized, trigger repopulation of this slot, then try again...
-       //cout << "Cache got sterilized" << endl;
+       //std::cout << "Cache got sterilized" << std::endl;
        std::auto_ptr<RooArgSet> vars( getParameters(RooArgSet()) );
        std::auto_ptr<RooArgSet> iset(  _cacheMgr.nameSet2ByIndex(code-2)->select(*vars) );
        RooArgSet dummy;
@@ -726,7 +726,7 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
          int p=i;
          //if (even && i > 0) p=i-1;
          //RooAbsReal* point = (RooAbsReal*)_controlPoints.at(p);
-         //cout << "name=" << GetName() << endl;
+         //std::cout << "name=" << GetName() << std::endl;
          double weight = 1.0;
          if (useWeight)
          {
@@ -737,14 +737,14 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
 
          RooAbsReal* intReal = (RooAbsReal*)cache->_I.at(p);   //point->createIntegral(_vars,*normSet);
          S += basis * intReal->getVal() * weight;
-         //cout << "adding "<<intReal->getVal()<<" to integral" << endl;
+         //std::cout << "adding "<<intReal->getVal()<<" to integral" << std::endl;
          //delete intReal;
        }
      }
      
      integral = S;
   }
-  //cout << "Spline " << GetName() << " has integral " << integral << " obtained with code "<< code << endl;
+  //std::cout << "Spline " << GetName() << " has integral " << integral << " obtained with code "<< code << std::endl;
   return integral;
 }
 
@@ -753,7 +753,7 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
 // {
 //   if (name == "")
 //   {
-//     stringstream nameStr;
+//     std::stringstream nameStr;
 //     nameStr << GetName() << "_penalty";
 //     name = nameStr.str().c_str();
 //   }
@@ -761,11 +761,11 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
 //   RooArgList controlPoints;
 //   for (int i=_n/2;i<_controlPoints.getSize()-(_n+1)/2;i++)
 //   {
-//     //cout << "adding point with val " << ((RooAbsReal*)_controlPoints.at(i))->getVal() << endl;
+//     //std::cout << "adding point with val " << ((RooAbsReal*)_controlPoints.at(i))->getVal() << std::endl;
 //     controlPoints.add(*_controlPoints.at(i));
 //   }
 
-//   vector<double> tValues;
+//   std::vector<double> tValues;
 //   for (int i=_n;i<_m-_n;i++)
 //   {
 //     tValues.push_back(_t_ary[i]);
@@ -783,7 +783,7 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
 //       weights.add(*_weights.at(i));
 //       counter++;
 //     }
-//     //cout << "added " << counter << " weights" << endl;
+//     //std::cout << "added " << counter << " weights" << std::endl;
 //     pen->setWeights(weights);
 //   }
 
@@ -1071,16 +1071,16 @@ Double_t RooParamKeysPdf::evaluate() const {
   Int_t i = (Int_t)floor((Double_t(_x-deltax)-_lo)/_binWidth);
   bool forcePositive = false; // this is just to suppress warning for values outside of range.
   if (i<0) {
-//     cerr << "got point below lower bound:"
+//     std::cerr << "got point below lower bound:"
 // 	 << Double_t(_x) << " < " << _lo
-// 	 << " -- performing linear extrapolation..." << endl;
+// 	 << " -- performing linear extrapolation..." << std::endl;
     i=0;
     forcePositive = true;
   }
   if (i>_nPoints-2) {
-//     cerr << "got point above upper bound:"
+//     std::cerr << "got point above upper bound:"
 // 	 << Double_t(_x) << " > " << _hi
-// 	 << " -- performing linear extrapolation..." << endl;
+// 	 << " -- performing linear extrapolation..." << std::endl;
     i=_nPoints-2;
     forcePositive = true;
   }
@@ -1175,7 +1175,7 @@ Double_t RooParamKeysPdf::analyticalIntegral(Int_t code, const char* /*rangeName
          _normVal += _lookupTable[i];
       }
       _normVal *= _binWidth;
-//    cout << ClassName() << "::" << GetName() << " analyticalIntegral = " << _normVal << endl;
+//    std::cout << ClassName() << "::" << GetName() << " analyticalIntegral = " << _normVal << std::endl;
    }
   return _normVal;
 }
@@ -1267,7 +1267,7 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
   for (Int_t i=0; (par = (RooAbsArg*)parItr->Next()); ++i) {
     if (!dynamic_cast<RooAbsReal*>(par)) {
       coutE(InputArguments) << "RooStarMomentMorph::ctor(" << GetName() << ") ERROR: parameter " << par->GetName() << " is not of type RooAbsReal" << endl ;
-      throw string("RooStarMomentMorh::ctor() ERROR parameter is not of type RooAbsReal") ;
+      throw std::string("RooStarMomentMorh::ctor() ERROR parameter is not of type RooAbsReal") ;
     }
     _parList.add(*par) ;
   }
@@ -1279,7 +1279,7 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
   for (Int_t i=0; (var = (RooAbsArg*)obsItr->Next()); ++i) {
     if (!dynamic_cast<RooAbsReal*>(var)) {
       coutE(InputArguments) << "RooStarMomentMorph::ctor(" << GetName() << ") ERROR: variable " << var->GetName() << " is not of type RooAbsReal" << endl ;
-      throw string("RooStarMomentMorh::ctor() ERROR variable is not of type RooAbsReal") ;
+      throw std::string("RooStarMomentMorh::ctor() ERROR variable is not of type RooAbsReal") ;
     }
     _obsList.add(*var) ;
   }
@@ -1291,7 +1291,7 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
   for (Int_t i=0; (pdf = dynamic_cast<RooAbsPdf*>(pdfItr->Next())); ++i) {
     if (!pdf) {
       coutE(InputArguments) << "RooStarMomentMorph::ctor(" << GetName() << ") ERROR: pdf " << pdf->GetName() << " is not of type RooAbsPdf" << endl ;
-      throw string("RooStarMomentMorph::ctor() ERROR pdf is not of type RooAbsPdf") ;
+      throw std::string("RooStarMomentMorph::ctor() ERROR pdf is not of type RooAbsPdf") ;
     }
     _pdfList.add(*pdf) ;
   }
@@ -1420,14 +1420,14 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
   Int_t nPdf = _pdfList.getSize();
 
   RooAbsReal* null = 0 ;
-  vector<RooAbsReal*> meanrv(nPdf*nObs,null);
-  vector<RooAbsReal*> sigmarv(nPdf*nObs,null); 
-  vector<RooAbsReal*> myrms(nObs,null);      
-  vector<RooAbsReal*> mypos(nObs,null);      
-  vector<RooAbsReal*> slope(nPdf*nObs,null); 
-  vector<RooAbsReal*> offsetVar(nPdf*nObs,null); 
-  vector<RooAbsReal*> transVar(nPdf*nObs,null); 
-  vector<RooAbsReal*> transPdf(nPdf,null);      
+  std::vector<RooAbsReal*> meanrv(nPdf*nObs,null);
+  std::vector<RooAbsReal*> sigmarv(nPdf*nObs,null); 
+  std::vector<RooAbsReal*> myrms(nObs,null);      
+  std::vector<RooAbsReal*> mypos(nObs,null);      
+  std::vector<RooAbsReal*> slope(nPdf*nObs,null); 
+  std::vector<RooAbsReal*> offsetVar(nPdf*nObs,null); 
+  std::vector<RooAbsReal*> transVar(nPdf*nObs,null); 
+  std::vector<RooAbsReal*> transPdf(nPdf,null);      
 
   RooArgSet ownedComps ;
 
@@ -1630,15 +1630,15 @@ Double_t RooStarMomentMorph::evaluate() const
 
   Double_t ret = cache->_sumPdf->getVal(_pdfList.nset());
   if (ret<0.) ret=0.;
-  /*cout<<"(RSMM) "<<this->GetName();
+  /*std::cout<<"(RSMM) "<<this->GetName();
   _parItr->Reset();  
   for (Int_t j=0; j<_parList.getSize(); j++) {    
     RooRealVar* m = (RooRealVar*)(_parItr->Next());
-    cout<<", par="<<m->getVal();
+    std::cout<<", par="<<m->getVal();
   }
 
-  cout<<", m4l="<<_obsList.getRealValue("m4l");
-  cout<<":  "<<ret<<endl;
+  std::cout<<", m4l="<<_obsList.getRealValue("m4l");
+  std::cout<<":  "<<ret<<std::endl;
   //exit(3);
   */
 
@@ -1719,8 +1719,8 @@ void RooStarMomentMorph::CacheElem::calculateFractions(const RooStarMomentMorph&
     }
   default:
     {
-      cerr << "RooStarMomentMorph::calculateFractions() ERROR: only Linear Setting implemented!" << endl;
-      throw string("RooStarMomentMorph::calculateFractions() ERROR only Linear Setting implemented") ;   
+      std::cerr << "RooStarMomentMorph::calculateFractions() ERROR: only Linear Setting implemented!" << std::endl;
+      throw std::string("RooStarMomentMorph::calculateFractions() ERROR only Linear Setting implemented") ;   
       break;
     }
   }
@@ -1745,7 +1745,7 @@ void RooStarMomentMorph::CacheElem::calculateFractions(const RooStarMomentMorph&
   //     ((RooRealVar*)frac(i))->setVal(ffrac);
   //     // fractions for rms and mean
   //     ((RooRealVar*)frac(nPdf+i))->setVal(ffrac);
-  //     if (verbose) { cout << ffrac << endl; }
+  //     if (verbose) { std::cout << ffrac << std::endl; }
   //   }
   
   //   // various mode settings
@@ -1912,7 +1912,7 @@ Bool_t RooStarMomentMorph::setBinIntegrator(RooArgSet& allVars)
     temp->specialIntegratorConfig(kTRUE)->getConfigSection("RooBinIntegrator").setRealValue("numBins",nbins);
     return true;
   }else{
-    cout << "Currently BinIntegrator only knows how to deal with 1-d "<<endl;
+    std::cout << "Currently BinIntegrator only knows how to deal with 1-d "<<std::endl;
     return false;
   }
   return false;

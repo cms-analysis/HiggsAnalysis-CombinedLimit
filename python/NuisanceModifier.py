@@ -205,10 +205,21 @@ def doFreezeNuisance(datacard, args):
     pat = re.compile("^"+args[0]+"$")
     opts = args[1:]
     found = []
-    for lsyst,nofloat,pdf,args0,errline in datacard.systs:
+
+    # first check in the list of paramters as flatParam, rateParam or discretes not included in datacard.systs (smaller usually)
+    for lsyst in datacard.flatParamNuisances.keys()+list(datacard.rateParamsOrder)+datacard.discretes:
+         if re.match(pat,lsyst):
+            datacard.frozenNuisances.add(lsyst)
+            found.append(lsyst)
+
+    if not found: 
+      for lsyst,nofloat,pdf,args0,errline in datacard.systs:
         if re.match(pat,lsyst):
             datacard.frozenNuisances.add(lsyst)
             found.append(lsyst)
+
+        
+    # Warn user/exit  
     if not found:
         if "ifexists" not in opts:
             raise RuntimeError, "Error: nuisance edit freeze %s found nothing" % args[0]

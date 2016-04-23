@@ -1,4 +1,4 @@
-#include "../interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 // we try to stick to pure C within the signal handlers
 #include <stdio.h>

@@ -1,4 +1,4 @@
-#include "../interface/VerticalInterpPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpPdf.h"
 
 #include "RooFit.h"
 #include "Riostream.h"
@@ -41,7 +41,7 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
 
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1) {
     coutE(InputArguments) << "VerticalInterpPdf::VerticalInterpPdf(" << GetName() 
-			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" << endl ;
+			  << ") number of pdfs and coefficients inconsistent, must have Nfunc=1+2*Ncoef" << std::endl ;
     assert(0);
   }
 
@@ -49,7 +49,7 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
   RooAbsArg* func;
   while((func = (RooAbsArg*)funcIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
-      coutE(InputArguments) << "ERROR: VerticalInterpPdf::VerticalInterpPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << endl;
+      coutE(InputArguments) << "ERROR: VerticalInterpPdf::VerticalInterpPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _funcList.add(*func) ;
@@ -60,7 +60,7 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
   RooAbsArg* coef;
   while((coef = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
-      coutE(InputArguments) << "ERROR: VerticalInterpPdf::VerticalInterpPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << endl;
+      coutE(InputArguments) << "ERROR: VerticalInterpPdf::VerticalInterpPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*coef) ;    
@@ -173,7 +173,7 @@ Bool_t VerticalInterpPdf::checkObservables(const RooArgSet* nset) const
   while((func = (RooAbsReal*)_funcIter->Next())) { 
     if (func->observableOverlaps(nset,*coef)) {
       coutE(InputArguments) << "VerticalInterpPdf::checkObservables(" << GetName() << "): ERROR: coefficient " << coef->GetName() 
-			    << " and FUNC " << func->GetName() << " have one or more observables in common" << endl ;
+			    << " and FUNC " << func->GetName() << " have one or more observables in common" << std::endl ;
       return true;
     }
   }

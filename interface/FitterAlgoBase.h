@@ -8,8 +8,8 @@
  *
  *
  */
-#include "../interface/LimitAlgo.h"
-#include "../interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
 class RooFitResult;
 class RooMinimizer;
 class RooCmdArg;
@@ -34,7 +34,7 @@ protected:
 
   static float preFitValue_;
 
-  static bool robustFit_, do95_;
+  static bool robustFit_, do95_, forceRecreateNLL_;
   static float stepSize_;
   static int   maxFailedSteps_;
 

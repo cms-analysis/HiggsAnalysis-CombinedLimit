@@ -15,8 +15,8 @@
 #include <RooGaussian.h>
 #include <RooPoisson.h>
 #include <RooProduct.h>
-#include "../interface/SimpleGaussianConstraint.h"
-#include "../interface/SimplePoissonConstraint.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
@@ -168,6 +168,7 @@ class CachingSimNLL  : public RooAbsReal {
         void clearZeroPoint() ;
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
+        void setChannelMasks(RooArgList const& args);
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
         virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
@@ -193,6 +194,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<double> constrainZeroPoints_;
         std::vector<double> constrainZeroPointsFast_;
         std::vector<double> constrainZeroPointsFastPoisson_;
+        std::vector<RooAbsReal*> channelMasks_;
 };
 
 }

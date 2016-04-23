@@ -7,7 +7,7 @@ class RooRealVar;
 #include <RooArgSet.h>
 #include <RooListProxy.h>
 #include <RooSetProxy.h>
-#include "../interface/RooMinimizerOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
 #include <boost/program_options.hpp>
 
 class CascadeMinimizer {

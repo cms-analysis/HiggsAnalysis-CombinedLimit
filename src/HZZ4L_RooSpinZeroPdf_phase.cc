@@ -1,5 +1,5 @@
 #include "Riostream.h" 
-#include "../interface/HZZ4L_RooSpinZeroPdf_phase.h" 
+#include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_phase.h" 
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h>
@@ -32,7 +32,7 @@ ClassImp(HZZ4L_RooSpinZeroPdf_phase)
   RooAbsArg* func;
   while((func = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
-      coutE(InputArguments) << "ERROR: :HZZ4L_RooSpinZeroPdf_phase(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << endl;
+      coutE(InputArguments) << "ERROR: :HZZ4L_RooSpinZeroPdf_phase(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*func) ;

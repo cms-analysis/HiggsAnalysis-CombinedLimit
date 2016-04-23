@@ -1,4 +1,4 @@
-#include "../interface/SequentialMinimizer.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SequentialMinimizer.h"
 
 #include <cmath>
 #include <stdexcept>
@@ -12,7 +12,7 @@
 #include <Math/MinimizerOptions.h>
 #include <Math/Factory.h>
 #include <boost/foreach.hpp>
-#include "../interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #define foreach BOOST_FOREACH
 
 #define DEBUG_ODM_printf if (0) printf

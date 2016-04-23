@@ -1,4 +1,4 @@
-#include "../interface/SimpleGaussianConstraint.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
 
 #include <string>
 #include <memory>

@@ -1,9 +1,9 @@
-#include "../interface/CascadeMinimizer.h"
-#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "../interface/ProfileLikelihood.h"
-#include "../interface/CloseCoutSentry.h"
-#include "../interface/utils.h"
-#include "../interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 #include <Math/MinimizerOptions.h>
 #include <Math/IOptions.h>

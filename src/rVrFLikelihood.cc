@@ -1,4 +1,4 @@
-#include "../interface/rVrFLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/rVrFLikelihood.h"
 #include <cstdio>
 
 rVrFLikelihood::rVrFLikelihood(const char *name, const char *title) :

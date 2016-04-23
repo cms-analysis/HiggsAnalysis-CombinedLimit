@@ -1,4 +1,4 @@
-#include "../interface/MaxLikelihoodFit.h"
+#include "HiggsAnalysis/CombinedLimit/interface/MaxLikelihoodFit.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooRandom.h"
@@ -16,15 +16,16 @@
 #include "TH2.h"
 #include "TFile.h"
 #include <RooStats/ModelConfig.h>
-#include "../interface/Combine.h"
-#include "../interface/ProfileLikelihood.h"
-#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "../interface/CloseCoutSentry.h"
-#include "../interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 
 #include <Math/MinimizerOptions.h>
 
+#include <iomanip>
 using namespace RooStats;
 
 std::string MaxLikelihoodFit::name_ = "";
@@ -33,6 +34,7 @@ std::string MaxLikelihoodFit::out_ = ".";
 bool        MaxLikelihoodFit::makePlots_ = false;
 bool        MaxLikelihoodFit::saveWorkspace_ = false;
 float       MaxLikelihoodFit::rebinFactor_ = 1.0;
+int         MaxLikelihoodFit::numToysForShapes_ = 200;
 std::string MaxLikelihoodFit::signalPdfNames_     = "shapeSig*";
 std::string MaxLikelihoodFit::backgroundPdfNames_ = "shapeBkg*";
 bool        MaxLikelihoodFit::saveNormalizations_ = false;
@@ -47,7 +49,10 @@ bool        MaxLikelihoodFit::customStartingPoint_ = false;
 
 
 MaxLikelihoodFit::MaxLikelihoodFit() :
-    FitterAlgoBase("MaxLikelihoodFit specific options")
+    FitterAlgoBase("MaxLikelihoodFit specific options"),
+    globalObservables_(0),
+    nuisanceParameters_(0),
+    processNormalizations_(0)
 {
     options_.add_options()
         ("minos",              boost::program_options::value<std::string>(&minos_)->default_value(minos_), "Compute MINOS errors for: 'none', 'poi', 'all'")
@@ -61,6 +66,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
 //        ("saveWorkspace",       "Save post-fit pdfs and data to MaxLikelihoodFitResults.root")
         ("saveShapes",  "Save post-fit binned shapes")
         ("saveWithUncertainties",  "Save also post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
+        ("numToysForShapes", boost::program_options::value<int>(&numToysForShapes_)->default_value(numToysForShapes_),  "Choose number of toys for re-sampling of the covariance (for shapes with uncertainties)")
         ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
         ("skipBOnlyFit",  "Skip the B-only fit (do only the S+B fit)")
         ("noErrors",  "Don't compute uncertainties on the best fit value")
@@ -69,7 +75,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
    ;
 
     // setup a few defaults
-    nToys=0; fitStatus_=0; mu_=0; muLoErr_=0; muHiErr_=0; numbadnll_=-1; nll_nll0_=-1; nll_bonly_=-1; nll_sb_=-1;
+    currentToy_=0; nToys=0; fitStatus_=0; mu_=0; muLoErr_=0; muHiErr_=0; numbadnll_=-1; nll_nll0_=-1; nll_bonly_=-1; nll_sb_=-1;
 }
 
 MaxLikelihoodFit::~MaxLikelihoodFit(){
@@ -121,7 +127,6 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   }
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
-
   TCanvas *c1 = 0;
   if (makePlots_) {
       utils::tdrStyle();
@@ -176,10 +181,10 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       if (fitOut.get() ) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
     }
   }
-  
+ 
   RooFitResult *res_b = 0, *res_s = 0;
   const RooCmdArg &constCmdArg_s = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1); // use something dummy 
-  const RooCmdArg &minosCmdArg = minos_ == "poi" ?  RooFit::Minos(*mc_s->GetParametersOfInterest())   : RooFit::Minos(minos_ != "none"); 
+  //const RooCmdArg &minosCmdArg = minos_ == "poi" ?  RooFit::Minos(*mc_s->GetParametersOfInterest())   : RooFit::Minos(minos_ != "none");  //--> dont use fitTo!
   w->loadSnapshot("clean");
   if (!customStartingPoint_) r->setVal(0.0); 
   r->setConstant(true);
@@ -193,17 +198,13 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     // skip b-only fit
   } else if (minos_ != "all") {
     RooArgList minos; 
-    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*reuseNLL*/ true); 
+    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
     nll_bonly_=nll->getVal()-nll0;   
   } else {
     CloseCoutSentry sentry(verbose < 2);
-    res_b = mc_s->GetPdf()->fitTo(data, 
-            RooFit::Save(1), 
-            RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()), 
-            RooFit::Strategy(minimizerStrategy_),
-            RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
-            constCmdArg_s, minosCmdArg
-            );
+    RooArgList minos = (*mc_s->GetNuisanceParameters()); 
+    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
+
     if (res_b) nll_bonly_ = nll->getVal() - nll0;
 
   }
@@ -264,17 +265,13 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   r->setVal(preFitValue_); r->setConstant(false); 
   if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
-    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*reuseNLL*/ true); 
+    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*ndim*/1,/*reuseNLL*/ true); 
     nll_sb_ = nll->getVal()-nll0;
   } else {
     CloseCoutSentry sentry(verbose < 2);
-    res_s = mc_s->GetPdf()->fitTo(data, 
-            RooFit::Save(1), 
-            RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()), 
-            RooFit::Strategy(minimizerStrategy_),
-            RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
-            constCmdArg_s, minosCmdArg
-            );
+    RooArgList minos = (*mc_s->GetNuisanceParameters()); 
+    minos.add((*mc_s->GetParametersOfInterest()));  // Add POI this time 
+    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
     if (res_s) nll_sb_= nll->getVal()-nll0;
 
   }
@@ -335,38 +332,44 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
   if (res_s) {
       RooRealVar *rf = dynamic_cast<RooRealVar*>(res_s->floatParsFinal().find(r->GetName()));
-      double bestFitVal = rf->getVal();
+      if (rf){
+	double bestFitVal = rf->getVal();
 
-      double hiErr = +(rf->hasRange("err68") ? rf->getMax("err68") - bestFitVal : rf->getAsymErrorHi());
-      double loErr = -(rf->hasRange("err68") ? rf->getMin("err68") - bestFitVal : rf->getAsymErrorLo());
-      double maxError = std::max<double>(std::max<double>(hiErr, loErr), rf->getError());
+	double hiErr = +(rf->hasRange("err68") ? rf->getMax("err68") - bestFitVal : rf->getAsymErrorHi());
+	double loErr = -(rf->hasRange("err68") ? rf->getMin("err68") - bestFitVal : rf->getAsymErrorLo());
+	double maxError = std::max<double>(std::max<double>(hiErr, loErr), rf->getError());
 
-      if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
-      if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
+	if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
+	if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
 
-      muLoErr_=loErr;
-      muHiErr_=hiErr;
+	muLoErr_=loErr;
+	muHiErr_=hiErr;
+	muErr_  =rf->getError();
 
-      double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
-      double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
+	double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
+	double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
 
-      limit = bestFitVal;  limitErr = 0;
-      if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.5);
-      limit = bestFitVal - loErr; limitErr = 0;
-      if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.16);
-      limit = bestFitVal + hiErr; limitErr = 0;
-      if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.84);
-      if (do95_ && rf->hasRange("err95") && !noErrors_) {
-        limit = rf->getMax("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.975);
-        limit = rf->getMin("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.025);
-      }
+	limit = bestFitVal;  limitErr = 0;
+	if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.5);
+	limit = bestFitVal - loErr; limitErr = 0;
+	if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.16);
+	limit = bestFitVal + hiErr; limitErr = 0;
+	if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.84);
+	if (do95_ && rf->hasRange("err95") && !noErrors_) {
+	  limit = rf->getMax("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.975);
+	  limit = rf->getMin("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.025);
+	}
 
-      limit = bestFitVal;
-      limitErr = maxError;
-      std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
-      std::cout << "Best fit " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr << "/+" << +hiErr << "  (68% CL)" << std::endl;
-      if (do95_) {
-        std::cout << "         " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr95 << "/+" << +hiErr95 << "  (95% CL)" << std::endl;
+	limit = bestFitVal;
+	limitErr = maxError;
+	std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
+	std::cout << "Best fit " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr << "/+" << +hiErr << "  (68% CL)" << std::endl;
+	if (do95_) {
+	  std::cout << "         " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr95 << "/+" << +hiErr95 << "  (95% CL)" << std::endl;
+	}
+      } else {
+      	std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
+      	std::cout << "Done! fit s+b and fit b should be identical" << std::endl;
       }
   } else {
       std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
@@ -472,6 +475,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
     getShapesAndNorms(pdf,obs, snm, "");
     typedef std::map<std::string,ShapeAndNorm>::const_iterator IT;
     typedef std::map<std::string,TH1*>::const_iterator IH;
+    typedef std::map<std::string,TH2*>::const_iterator IH2;
     // create directory structure for shapes
     TDirectory *shapeDir = fOut && saveShapes_ ? fOut->mkdir((std::string("shapes")+postfix).c_str()) : 0;
     std::map<std::string,TDirectory*> shapesByChannel;
@@ -486,6 +490,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
     std::vector<TH1*>   shapes(snm.size(), 0), shapes2(snm.size(), 0);
     std::vector<int>    bins(snm.size(), 0), sig(snm.size(), 0);
     std::map<std::string,TH1*> totByCh, totByCh2, sigByCh, sigByCh2, bkgByCh, bkgByCh2;
+    std::map<std::string,TH2*> totByCh2Covar;
     IT bg = snm.begin(), ed = snm.end(), pair; int i;
     for (pair = bg, i = 0; pair != ed; ++pair, ++i) {  
         vals[i] = pair->second.norm->getVal();
@@ -497,13 +502,13 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
             hist->Scale(vals[i] / hist->Integral("width"));
             hist->SetDirectory(shapesByChannel[pair->second.channel]);
             shapes[i] = hist;
-            if (saveWithUncertainties_) {
-                shapes2[i] = (TH1*) hist->Clone();
-                shapes2[i]->SetDirectory(0);
-                shapes2[i]->Reset();
-                bins[i] = hist->GetNbinsX();
-                TH1 *&htot = totByCh[pair->second.channel];
-                if (htot == 0) {
+            //if (saveWithUncertainties_) {
+            shapes2[i] = (TH1*) hist->Clone();
+            shapes2[i]->SetDirectory(0);
+            shapes2[i]->Reset();
+            bins[i] = hist->GetNbinsX();
+            TH1 *&htot = totByCh[pair->second.channel];
+            if (htot == 0) {
                     htot = (TH1*) hist->Clone();
                     htot->SetName("total");
 		    htot->SetTitle(Form("Total signal+background in %s", pair->second.channel.c_str()));
@@ -511,12 +516,18 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                     TH1 *htot2 = (TH1*) hist->Clone(); htot2->Reset();
                     htot2->SetDirectory(0);
                     totByCh2[pair->second.channel] = htot2;
-                } else {
+		    TH2F *htot2covar = new TH2F("total_covar","Covariance signal+background",bins[i],0,bins[i],bins[i],0,bins[i]);
+		    htot2covar->GetXaxis()->SetTitle("Bin number");
+		    htot2covar->GetYaxis()->SetTitle("Bin number");
+		    htot2covar->GetZaxis()->SetTitle(Form("covar (%s)",hist->GetYaxis()->GetTitle()));
+		    htot2covar->SetDirectory(0);
+		    totByCh2Covar[pair->second.channel] = htot2covar; 
+            } else {
                     htot->Add(hist);
-                }
-                sig[i] = pair->second.signal;
-                TH1 *&hpart = (sig[i] ? sigByCh : bkgByCh)[pair->second.channel];
-                if (hpart == 0) {
+            }
+            sig[i] = pair->second.signal;
+            TH1 *&hpart = (sig[i] ? sigByCh : bkgByCh)[pair->second.channel];
+            if (hpart == 0) {
                     hpart = (TH1*) hist->Clone();
                     hpart->SetName((sig[i] ? "total_signal" : "total_background"));
 		    hpart->SetTitle(Form((sig[i] ? "Total signal in %s" : "Total background in %s"),pair->second.channel.c_str()));
@@ -524,14 +535,15 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                     TH1 *hpart2 = (TH1*) hist->Clone(); hpart2->Reset();
                     hpart2->SetDirectory(0);
                     (sig[i] ? sigByCh2 : bkgByCh2)[pair->second.channel] = hpart2;
-                } else {
+            } else {
                     hpart->Add(hist);
-                }
             }
+            //}
         }
     }
     if (saveWithUncertainties_) {
-        int ntoys = 200;
+        int ntoys = numToysForShapes_;
+
         sampler.generate(ntoys);
         std::auto_ptr<RooArgSet> params(pdf->getParameters(obs));
         // prepare histograms for running sums
@@ -565,8 +577,14 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
             // now add up the deviations in this toy
             for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) {
                 TH1 *target = totByCh2[h->first], *reference = totByCh[h->first];
+                TH2 *targetCovar = totByCh2Covar[h->first];
                 for (int b = 1, nb = target->GetNbinsX(); b <= nb; ++b) {
-                    target->AddBinContent(b, std::pow(h->second->GetBinContent(b) - reference->GetBinContent(b), 2));
+		    double deltaBi = h->second->GetBinContent(b) - reference->GetBinContent(b);
+                    target->AddBinContent(b, std::pow(deltaBi, 2));
+                    for (int bj = 1, nbj = target->GetNbinsX(); bj <= nbj; ++bj) {
+		      double deltaBj = h->second->GetBinContent(bj) - reference->GetBinContent(bj);
+		      targetCovar->AddBinContent(targetCovar->GetBin(b,bj),deltaBj*deltaBi);  // covariance
+		    }
                 }
             }
             for (IH h = sigByCh1.begin(), eh = sigByCh1.end(); h != eh; ++h) {
@@ -595,12 +613,22 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         }
         // and the same for the total histograms
         for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h) {
-            TH1 *sum2 = totByCh2[h->first];
+            TH1 *sum2   = totByCh2[h->first];
             for (int b = 1, nb = sum2->GetNbinsX(); b <= nb; ++b) {
                 h->second->SetBinError(b, std::sqrt(sum2->GetBinContent(b)/ntoys));
             }
             delete sum2; delete totByCh1[h->first];
         }
+	// same for covariance matrix 
+        for (IH2 h = totByCh2Covar.begin(), eh = totByCh2Covar.end(); h != eh; ++h) {
+            TH2 *covar2 = h->second;
+            for (int b = 1, nb = covar2->GetNbinsX(); b <= nb; ++b) {
+              for (int bj = 1, nbj = covar2->GetNbinsY(); bj <= nbj; ++bj) {    
+                h->second->SetBinContent(b,bj, (covar2->GetBinContent(b,bj)/ntoys));
+	      }
+            }
+	}
+
         for (IH h = sigByCh.begin(), eh = sigByCh.end(); h != eh; ++h) {
             TH1 *sum2 = sigByCh2[h->first];
             for (int b = 1, nb = sum2->GetNbinsX(); b <= nb; ++b) {
@@ -616,6 +644,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
             delete sum2; delete bkgByCh1[h->first];
         }
         totByCh1.clear(); totByCh2.clear(); sigByCh1.clear(); sigByCh2.clear(); bkgByCh1.clear(); bkgByCh2.clear();
+	totByCh2.clear();
         // finally reset parameters
         params->assignValueOnly( sampler.centralValues() );
     }
@@ -630,6 +659,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
         for (IH h = sigByCh.begin(), eh = sigByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
         for (IH h = bkgByCh.begin(), eh = bkgByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
+        for (IH2 h = totByCh2Covar.begin(), eh = totByCh2Covar.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
     }
 }
 
@@ -678,6 +708,9 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
 
 	 t_fit_b_->Branch("mu",&mu_,"mu/Double_t");
 	 t_fit_sb_->Branch("mu",&mu_,"mu/Double_t");
+
+	 t_fit_b_->Branch("muErr",&muErr_,"muErr/Double_t");
+	 t_fit_sb_->Branch("muErr",&muErr_,"muErr/Double_t");
 
 	 t_fit_b_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");
 	 t_fit_sb_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");

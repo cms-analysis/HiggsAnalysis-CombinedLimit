@@ -5,6 +5,20 @@ from math import *
 ROOFIT_EXPR = "expr"
 ROOFIT_EXPR_PDF = "EXPR"
 
+class SafeWorkspaceImporter():
+    """Class that provides the RooWorkspace::import method, but makes sure we call the proper
+       overload of it, since in ROOT 6 sometimes PyROOT calls the wrong one"""
+    def __init__(self,wsp):
+        self.wsp = wsp
+        self.imp = getattr(wsp,"import")
+    def __call__(self,*args):
+        if len(args) != 1:
+            self.imp(*args)
+        elif args[0].Class().InheritsFrom("RooAbsReal") or args[0].Class().InheritsFrom("RooArgSet") or args[0].Class().InheritsFrom("RooAbsData"):
+            self.imp(args[0], ROOT.RooCmdArg()) # force the proper overload to be called
+        else:
+            self.imp(*args)
+
 class ModelBuilderBase():
     """This class defines the basic stuff for a model builder, and it's an interface on top of RooWorkspace::factory or HLF files"""
     def __init__(self,options):
@@ -17,7 +31,8 @@ class ModelBuilderBase():
             ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
             ROOT.TH1.AddDirectory(False)
             self.out = ROOT.RooWorkspace("w","w");
-            self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
+            #self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
+            self.out._import = SafeWorkspaceImporter(self.out)
             self.out.dont_delete = []
             if options.verbose == 0:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
@@ -34,10 +49,13 @@ class ModelBuilderBase():
             global ROOFIT_EXPR;
             ROOFIT_EXPR = "cexpr"            
     def factory_(self,X):
+        if self.options.verbose >= 7:
+            print "RooWorkspace::factory('%s')" % X
         if (len(X) > 1000):
             print "Executing factory with a string of length ",len(X)," > 1000, could trigger a bug: ",X
         ret = self.out.factory(X);
         if ret: 
+            if self.options.verbose >= 7: print " ---> ",ret
             self.out.dont_delete.append(ret)
             return ret
         else:
@@ -49,6 +67,9 @@ class ModelBuilderBase():
     def doVar(self,vardef):
         if self.options.bin: self.factory_(vardef);
         else: self.out.write(vardef+";\n");
+    def doExp(self,name,expression,vars):
+        if self.options.bin: self.factory_('expr::%s("%s",%s)'%(name,expression,vars));
+        else: self.out.write('%s = expr::%s("%s",%s)'%(name,name,expression,vars)+";\n");
     def doSet(self,name,vars):
         if self.options.bin: self.out.defineSet(name,vars)
         else: self.out.write("%s = set(%s);\n" % (name,vars));
@@ -81,9 +102,11 @@ class ModelBuilder(ModelBuilderBase):
 
         self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
+	self.doRateParams()
         self.doExpectedEvents()
         self.doIndividualModels()
         self.doCombination()
+	self.runPostProcesses()
         self.physics.done()
         if self.options.bin:
             self.doModelConfigs()
@@ -91,6 +114,67 @@ class ModelBuilder(ModelBuilderBase):
             if self.options.verbose > 2: 
                 self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
                 print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
+
+
+    def runPostProcesses(self):
+      for n in self.DC.frozenNuisances:
+         self.out.arg(n).setConstant(True)
+
+    def doRateParams(self):
+
+    	# First support external functions/parameters
+	# keep a map of open files/workspaces 
+	open_files = {};
+
+	for rp in self.DC.rateParams.keys():
+	 for rk in range(len(self.DC.rateParams[rp])):
+	  type = self.DC.rateParams[rp][rk][0][-1]
+	  if type!=2: continue
+	  argu,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1]
+	  if self.out.arg(argu): continue
+	  fin,wsn = argv.split(":")
+	  if (fin,wsn) in open_files: 
+	        wstmp = open_files[(fin,wsn)]
+	        if not wstmp.arg(argu): 
+	         raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
+	        self.out._import(wstmp.arg(argu))
+	  else:
+	    try:
+	      fitmp = ROOT.TFile.Open(fin)
+	      wstmp = fitmp.Get(wsn)
+	      if not wstmp.arg(argu): 
+	       raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
+	      self.out._import(wstmp.arg(argu))
+	      open_files[(fin,wsn)] = wstmp
+	      #fitmp.Close()
+	    except: 
+	      raise RuntimeError, "No File '%s' found for rateParam, or workspace '%s' not in file "%(fin,wsn)
+
+	# First do independant parameters, then expressions
+	for rp in self.DC.rateParams.keys():
+	 for rk in range(len(self.DC.rateParams[rp])):
+	  type = self.DC.rateParams[rp][rk][0][-1]
+	  if type!=0: continue
+	  param_range = (self.DC.rateParams[rp][rk][1]).strip('[]')
+	  argu,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1]
+	  if self.out.arg(argu): continue
+
+	  removeRange = (len(param_range)==0)
+	  if param_range == "": param_range = "0,1" 
+	  self.doVar("%s[%s,%s]"%(argu,argv,param_range))
+	  if removeRange: self.out.var(argu).removeRange()
+	  self.out.var(argu).setConstant(False)
+	  self.out.var(argu).setAttribute("flatParam")
+
+	for rp in self.DC.rateParams.keys():
+	 for rk in range(len(self.DC.rateParams[rp])):
+	  type = self.DC.rateParams[rp][rk][0][-1]
+	  if type!=1: continue
+	  argu,arge,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1],self.DC.rateParams[rp][rk][0][2]
+	  if self.out.arg(argu): continue
+	  self.doExp(argu,arge,argv)
+
+
     def doObservables(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
@@ -114,7 +198,7 @@ class ModelBuilder(ModelBuilderBase):
         #print groupsFor
         for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
-            if pdf == "lnN" or pdf.startswith("shape"):
+            if pdf == "lnN" or (pdf.startswith("shape") and pdf != 'shapeU'):
                 r = "-4,4" if pdf == "shape" else "-7,7"
                 sig = 1.0;
                 for pn,pf in self.options.nuisancesToRescale:
@@ -182,7 +266,7 @@ class ModelBuilder(ModelBuilderBase):
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
-            elif pdf == "lnU":
+            elif pdf == "lnU" or pdf == "shapeU":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[-1,1]" % n);
             elif pdf == "unif":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n,args[0],args[1]))
@@ -311,8 +395,17 @@ class ModelBuilder(ModelBuilderBase):
                     factors.append(scale)
                 else:
                     raise RuntimeError, "Physics model returned something which is neither a name, nor 0, nor 1."
+
+		# look for rate param for this bin 
+		if "%sAND%s"%(b,p) in self.DC.rateParams.keys():
+		  for rk in range(len(self.DC.rateParams["%sAND%s"%(b,p)])):
+		    argu = self.DC.rateParams["%sAND%s"%(b,p)][rk][0][0]
+		    if self.out.arg(argu): factors.append(argu)
+		    else: raise RuntimeError, "No rate parameter found %s, are you sure you defined it correctly in the datacard?"%(argu)
+
                 for (n,nofloat,pdf,args,errline) in self.DC.systs:
                     if pdf == "param":continue
+                    if pdf == "rateParam":continue
                     if not errline[b].has_key(p): continue
                     if errline[b][p] == 0.0: continue
                     if pdf.startswith("shape") and pdf.endswith("?"): # might be a lnN in disguise
@@ -348,7 +441,9 @@ class ModelBuilder(ModelBuilderBase):
                     procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b,p), "", nominal)
                     for kappa, thetaName in logNorms: procNorm.addLogNormal(kappa, self.out.function(thetaName))
                     for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
-                    for factorName in factors: procNorm.addOtherFactor(self.out.function(factorName))
+                    for factorName in factors:
+		    	if self.out.function(factorName): procNorm.addOtherFactor(self.out.function(factorName))
+			else: procNorm.addOtherFactor(self.out.var(factorName))
                     self.out._import(procNorm)
     def doIndividualModels(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""

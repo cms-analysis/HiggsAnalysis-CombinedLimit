@@ -1,19 +1,20 @@
-#include "../interface/CachingNLL.h"
-#include "../interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include <stdexcept>
 #include <RooCategory.h>
 #include <RooDataSet.h>
 #include <RooProduct.h>
-#include "../interface/ProfilingTools.h"
-#include <../interface/RooMultiPdf.h>
-#include <../interface/VerticalInterpHistPdf.h>
-#include <../interface/VectorizedGaussian.h>
-#include <../interface/VectorizedCB.h>
-#include <../interface/VectorizedSimplePdfs.h>
-#include <../interface/VectorizedHistFactoryPdfs.h>
-#include <../interface/CachingMultiPdf.h>
-#include <../interface/RooCheapProduct.h>
-#include <../interface/Accumulators.h>
+
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include <HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VectorizedGaussian.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VectorizedCB.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VectorizedSimplePdfs.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VectorizedHistFactoryPdfs.h>
+#include <HiggsAnalysis/CombinedLimit/interface/CachingMultiPdf.h>
+#include <HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h>
+#include <HiggsAnalysis/CombinedLimit/interface/Accumulators.h>
 #include "vectorized.h"
 
 namespace cacheutils {
@@ -53,7 +54,7 @@ namespace cacheutils {
 //---- Uncomment to dump PDF values inside CachingAddNLL
 //#define LOG_ADDPDFS
 
-#include "../interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 //std::map<std::string,double> cacheutils::CachingAddNLL::offsets_;
 bool cacheutils::CachingSimNLL::noDeepLEE_ = false;
@@ -832,7 +833,7 @@ cacheutils::CachingSimNLL::setup_()
 
     RooArgList constraints;
     factorizedPdf_.reset(dynamic_cast<RooSimultaneous *>(utils::factorizePdf(*dataOriginal_->get(), *pdfclone, constraints)));
-    
+
     RooSimultaneous *simpdf = factorizedPdf_.get();
     constrainPdfs_.clear(); 
     if (constraints.getSize()) {
@@ -934,8 +935,15 @@ cacheutils::CachingSimNLL::evaluate() const
 #endif
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
     DefaultAccumulator ret = 0;
-    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
+    unsigned idx = 0;
+    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
         if (*it != 0) {
+            if (channelMasks_.size() > 0 && channelMasks_[idx]->getVal() != 0.) {
+                // std::cout << "Channel " << (*it)->GetName() << " will be masked as " 
+                //     << channelMasks_[idx]->GetName() << " evalutes to " 
+                //     << channelMasks_[idx]->getVal() << "\n";
+                continue;
+            }
             double nllval = (*it)->getVal();
             // what sanity check could I put here?
             ret += nllval;
@@ -987,6 +995,10 @@ cacheutils::CachingSimNLL::setData(const RooAbsData &data)
     //std::cout << "combined data has " << data.numEntries() << " dataset entries (sumw " << data.sumEntries() << ", weighted " << data.isWeighted() << ")" << std::endl;
     //utils::printRAD(&data);
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
+    if (!(RooCategory*)data.get()->find("CMS_channel")) { 
+    	throw  std::logic_error("Error: no category in dataset. You should try to recreate your datacard as a Fake shape -- combineCards.py mycard.txt -S > myshapecard.txt OR rerun with option --forceRecreateNLL");
+	assert(0);
+    }
     splitWithWeights(*dataOriginal_, pdfOriginal_->indexCat(), true);
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         CachingAddNLL *canll = pdfs_[ib];
@@ -1010,7 +1022,7 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
     RooArgSet obsplus(obs); obsplus.add(weight);
     if (nb != int(datasets_.size())) throw std::logic_error("Number of categories changed"); // this can happen due to bugs in RooDataSet
     std::vector<int> includeZeroWeights(nb,0); bool includeZeroWeightsAny = false;
-    if (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS")) {
+    if (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && factorizedPdf_.get()) {
         for (int ib = 0; ib < nb; ++ib) {
             catClone->setBin(ib);
             RooAbsPdf *pdf = factorizedPdf_->getPdf(catClone->getLabel());
@@ -1077,6 +1089,20 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
     setValueDirty();
 }
 
+void cacheutils::CachingSimNLL::setChannelMasks(const RooArgList &args) {
+    // Here we're assuming that args has the same size and is aligned with
+    // the vector of pdfs. This should be ok because RooSimultaneousOpt does
+    // the validation when it is first given the RooArgList of masking terms,
+    // but maybe we should check here too?
+    std::vector<RooAbsReal *> vars;
+    for (int i = 0; i < args.getSize(); ++i) {
+        RooAbsReal *var = dynamic_cast<RooAbsReal*>(args.at(i));
+        if (!var) return;
+        vars.push_back(var);
+    }
+    channelMasks_ = vars;
+}
+
 RooArgSet* 
 cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t valueOnly) const 
 {
@@ -1087,4 +1113,4 @@ RooArgSet*
 cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
     return new RooArgSet(params_); 
-}
+

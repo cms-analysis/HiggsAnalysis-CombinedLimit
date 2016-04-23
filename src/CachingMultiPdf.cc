@@ -1,4 +1,4 @@
-#include "../interface/CachingMultiPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CachingMultiPdf.h"
 #include "vectorized.h"
 #include "../interface/utils.h"
 

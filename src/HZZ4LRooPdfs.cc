@@ -1,6 +1,6 @@
 #include "Riostream.h"
 
-#include "../interface/HZZ4LRooPdfs.h"
+#include "HiggsAnalysis/CombinedLimit/interface/HZZ4LRooPdfs.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 #include "RooVoigtian.h"
@@ -3926,7 +3926,7 @@ double RooaDoubleCBxBW::evaluate() const
   double point4 = tsR*(sigma)+shift-x;
 
   if (width == 0.0) return evaluateDoubleCB();
-  else return max(0., (AL*pow(-sigma/width,nL)/width)*(evaluatePowerLaw(point1/width, nL, true) - evaluatePowerLaw(-inf, nL, true))) +  evaluateQuadratic(point1, point2, true) + evaluateVoigtian() + evaluateQuadratic(point3, point4, false) + max(0., (AR*pow(sigma/width, nR)/width)*(evaluatePowerLaw(inf, nR, false) - evaluatePowerLaw(point4/width, nR, false)));
+  else return std::max(0., (AL*pow(-sigma/width,nL)/width)*(evaluatePowerLaw(point1/width, nL, true) - evaluatePowerLaw(-inf, nL, true))) +  evaluateQuadratic(point1, point2, true) + evaluateVoigtian() + evaluateQuadratic(point3, point4, false) + std::max(0., (AR*pow(sigma/width, nR)/width)*(evaluatePowerLaw(inf, nR, false) - evaluatePowerLaw(point4/width, nR, false)));
 
 }
 

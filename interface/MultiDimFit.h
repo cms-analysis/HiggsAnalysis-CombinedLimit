@@ -8,7 +8,7 @@
  *
  *
  */
-#include "../interface/FitterAlgoBase.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FitterAlgoBase.h"
 #include <RooRealVar.h>
 #include <vector>
 
@@ -24,7 +24,7 @@ public:
 protected:
   virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
 
-  enum Algo { None, Singles, Cross, Grid, RandomPoints, Contour2D, Stitch2D, FixedPoint };
+  enum Algo { None, Singles, Cross, Grid, RandomPoints, Contour2D, Stitch2D, FixedPoint, Impact };
   static Algo algo_;
 
   enum GridType { G1x1, G3x3 };
@@ -41,6 +41,7 @@ protected:
   static unsigned int points_, firstPoint_, lastPoint_;
   static bool floatOtherPOIs_;
   static bool squareDistPoiStep_;
+  static bool skipInitialFit_;
   static bool fastScan_;
   static bool hasMaxDeltaNLLForProf_;
   static bool loadedSnapshot_, forceFirstFit_, savingSnapshot_;
@@ -75,6 +76,7 @@ protected:
   void doFixedPoint(RooWorkspace *w, RooAbsReal &nll) ;
   void doContour2D(RooWorkspace *w, RooAbsReal &nll) ;
   void doStitch2D(RooWorkspace *w, RooAbsReal &nll) ;
+  void doImpact(RooFitResult &res, RooAbsReal &nll) ;
 
   // utilities
   /// for each RooRealVar, set a range 'box' from the PL profiling all other parameters
