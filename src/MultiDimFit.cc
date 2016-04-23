@@ -874,8 +874,8 @@ void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll)
         // ===== Get the best fit x (could also do without profiling??) =====
         xv->setConstant(false);  xv->setVal(x0);
         CascadeMinimizer minimXI(nll, CascadeMinimizer::Unconstrained, xv);
-        if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
-        if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
+        if (!autoBoundsPOIs_.empty()) minimXI.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minimXI.setAutoMax(&autoMaxPOISet_); 
         minimXI.setStrategy(minimizerStrategy_);
         {
             CloseCoutSentry sentry(verbose < 3);    
@@ -970,8 +970,8 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         RooRealVar *xv = poiVars_[i];
         xv->setConstant(true);
         CascadeMinimizer minimX(nll, CascadeMinimizer::Constrained);
-        if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
-        if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
+        if (!autoBoundsPOIs_.empty()) minimX.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minimX.setAutoMax(&autoMaxPOISet_); 
         minimX.setStrategy(minimizerStrategy_);
 
         for (unsigned int j = 0; j < n; ++j) poiVars_[j]->setVal(p0[j]);

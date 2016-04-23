@@ -4,7 +4,7 @@
 #include <RooHistFunc.h>
 #include <RooStats/HistFactory/ParamHistFunc.h>
 #include <RooStats/HistFactory/PiecewiseInterpolation.h>
-#include "../interface/CachingNLL.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 
 namespace cacheutils {
     class VectorizedHistFunc : public CachingPdfBase {

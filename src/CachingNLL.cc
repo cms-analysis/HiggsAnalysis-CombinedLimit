@@ -1113,4 +1113,5 @@ RooArgSet*
 cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
     return new RooArgSet(params_); 
+}
 
