@@ -126,12 +126,21 @@ class BinByBinFactory {
     return *this;
   }
 
+  /**
+   * Construct approximate Poisson uncertainties instead of default Gaussian
+   */
+  inline BinByBinFactory& SetPoissonErrors(bool poisson_errors) {
+    poisson_errors_ = poisson_errors;
+    return *this;
+  }
+
  private:
   std::string pattern_;
   unsigned v_;
   double bbb_threshold_;
   double merge_threshold_;
   bool fix_norm_;
+  bool poisson_errors_;
 };
 }
 

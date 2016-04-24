@@ -4,6 +4,7 @@
 #include <vector>
 #include "boost/format.hpp"
 #include "boost/lexical_cast.hpp"
+#include "Math/QuantFunc.h"
 
 namespace ch {
 
@@ -12,7 +13,8 @@ BinByBinFactory::BinByBinFactory()
       v_(0),
       bbb_threshold_(0.),
       merge_threshold_(0.),
-      fix_norm_(true) {}
+      fix_norm_(true),
+      poisson_errors_(false) {}
 
 
 void BinByBinFactory::MergeBinErrors(CombineHarvester &cb) {
@@ -116,6 +118,8 @@ void BinByBinFactory::AddBinByBin(CombineHarvester &src, CombineHarvester &dest)
       bool do_bbb = false;
       double val = h->GetBinContent(j);
       double err = h->GetBinError(j);
+      double err_lo = err;
+      double err_hi = err;
       if (val == 0. && err > 0.) do_bbb = true;
       if (val > 0. && (err / val) > bbb_threshold_) do_bbb = true;
       // if (h->GetBinContent(j) <= 0.0) {
@@ -125,6 +129,21 @@ void BinByBinFactory::AddBinByBin(CombineHarvester &src, CombineHarvester &dest)
       //   }
       //   continue;
       // }
+
+      if (do_bbb && poisson_errors_ && val > 0.) {
+        double n_evt_float = (val*val) / (err*err);
+        unsigned n_evt = std::floor(0.5 + n_evt_float);
+        if (n_evt == 0) n_evt = 1;
+        double cl = 0.68;
+        // For now use the exact poisson interval, it's generally more conservative
+        // than the interval based on the likelihood
+        err_hi = ROOT::Math::gamma_quantile((1.-((1.-cl)/2.)), n_evt+1, 1) - n_evt;
+        err_lo = n_evt - ROOT::Math::gamma_quantile(((1.-cl)/2.), n_evt, 1);
+        // std::cout << "Bin " << j << " content: " << val << "\tErr: " << err 
+        //           << "\t EffEvents: " << n_evt_float << "\t" << n_evt
+        //           << "\tErrLo: " << (err_lo/n_evt_float)*val
+        //           << "\tErrHi: " << (err_hi/n_evt_float)*val << "\n";
+      }
       if (do_bbb) {
         ++bbb_added;
         ch::Systematic sys;
@@ -143,9 +162,9 @@ void BinByBinFactory::AddBinByBin(CombineHarvester &src, CombineHarvester &dest)
         sys.set_asymm(true);
         std::unique_ptr<TH1> h_d(static_cast<TH1 *>(h->Clone()));
         std::unique_ptr<TH1> h_u(static_cast<TH1 *>(h->Clone()));
-        h_d->SetBinContent(j, val - err);
+        h_d->SetBinContent(j, val - err_lo);
         if (h_d->GetBinContent(j) < 0.) h_d->SetBinContent(j, 0.);
-        h_u->SetBinContent(j, val + err);
+        h_u->SetBinContent(j, val + err_hi);
         if (fix_norm_) {
           sys.set_value_d(1.0);
           sys.set_value_u(1.0);
