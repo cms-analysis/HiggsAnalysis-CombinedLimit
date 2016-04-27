@@ -47,7 +47,7 @@ void AutoRebin::Rebin(CombineHarvester &src, CombineHarvester &dest) {
       std::cout << "[AutoRebin] Some bins not satisfying requested condition "
       "found for analysis bin " << bin << ", merging with neighbouring bins"
       << std::endl; 
-      // if(v_ > 0) {
+      if(v_ > 0) {
         unsigned i_old = 0;
         unsigned i_new = 0;
         std::cout << (
@@ -82,7 +82,7 @@ void AutoRebin::Rebin(CombineHarvester &src, CombineHarvester &dest) {
         //         i != new_bins.end(); ++i) 
         //     std::cout << *i << ", "; 
         // std::cout << std::endl; 
-      // }
+      }
       //Altering binning in CH instance for all distributions if requested
       if(perform_rebin_) {
         std::cout << "[AutoRebin] Applying binning to all relevant distributions "
