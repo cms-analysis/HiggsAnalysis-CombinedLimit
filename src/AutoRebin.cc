@@ -47,17 +47,42 @@ void AutoRebin::Rebin(CombineHarvester &src, CombineHarvester &dest) {
       std::cout << "[AutoRebin] Some bins not satisfying requested condition "
       "found for analysis bin " << bin << ", merging with neighbouring bins"
       << std::endl; 
-      if(v_>0) { 
-        std::cout << "Original binning: " << std::endl; 
-        for (std::vector<double>::const_iterator i =
-        init_bins.begin(); i != init_bins.end(); ++i) std::cout << *i << ", ";
-        std::cout << std::endl; 
-        std::cout << "New binning: " << std::endl; 
-        for (std::vector<double>::const_iterator i = new_bins.begin(); 
-                i != new_bins.end(); ++i) 
-            std::cout << *i << ", "; 
-        std::cout << std::endl; 
-      }
+      // if(v_ > 0) {
+        unsigned i_old = 0;
+        unsigned i_new = 0;
+        std::cout << (
+          boost::format("%-21s %-10s %-21s\n") % "Init Edges/Widths" % "Content" % "New Edges/Widths");
+
+        for (; i_old < init_bins.size(); ++i_old) {
+          double i_old_width = (i_old < (init_bins.size() - 1))
+                                   ? (init_bins[i_old + 1] - init_bins[i_old])
+                                   : 0.;
+          std::cout << (
+            boost::format("%-10.0f %-10.0f %-10.2g") % init_bins[i_old] % i_old_width % total_bkg.GetBinContent(i_old+1));
+          bool new_aligned = (i_new < new_bins.size()) ? std::fabs(init_bins[i_old] - new_bins[i_new]) < 1E-8 : false;
+          if (new_aligned) {
+            double i_new_width = (i_new < (new_bins.size() - 1))
+                                     ? (new_bins[i_new + 1] - new_bins[i_new])
+                                     : 0.;
+
+            std::cout << (
+              boost::format("%-10.0f %-10.0f\n") % new_bins[i_new] % i_new_width);
+            ++i_new;
+          } else {
+            std::cout << (
+              boost::format("%-10s %-10s\n") % "-" % "-");
+          }
+        }
+        // std::cout << "Original binning: " << std::endl; 
+        // for (std::vector<double>::const_iterator i =
+        // init_bins.begin(); i != init_bins.end(); ++i) std::cout << *i << ", ";
+        // std::cout << std::endl; 
+        // std::cout << "New binning: " << std::endl; 
+        // for (std::vector<double>::const_iterator i = new_bins.begin(); 
+        //         i != new_bins.end(); ++i) 
+        //     std::cout << *i << ", "; 
+        // std::cout << std::endl; 
+      // }
       //Altering binning in CH instance for all distributions if requested
       if(perform_rebin_) {
         std::cout << "[AutoRebin] Applying binning to all relevant distributions "
@@ -125,12 +150,26 @@ void AutoRebin::FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins,
   //Mode 1 finds bins below threshold, then tries merging with bins left or
   //right until threshold is met, the final choice being the one which
   //minimises the number of required bin merges.     
-  } else if(mode == 1) {
+  } else if(mode == 1 || mode == 2) {
     //Start from finding the minimum bin and the bin with largest fractional
     //error
-    int lbin_idx = total_bkg.GetMinimumBin();
+    int lbin_idx = 0;
+    if (mode == 1) {
+      lbin_idx = total_bkg.GetMinimumBin();
+    } else if (mode == 2) {
+      double maxval = std::numeric_limits<double>::max();
+      // loop through bins from left to right - we take the rightmost
+      // bin in the case multiple bins are tied on the smallest value
+      for (int idx = 1; idx <= total_bkg.GetNbinsX(); ++idx) {
+        if (total_bkg.GetBinContent(idx) <= maxval) {
+          lbin_idx = idx;
+          maxval = total_bkg.GetBinContent(idx);
+        }
+      }
+    }
+
     int herrbin_idx = GetMaximumFracUncertBin(total_bkg);
-    bool bin_tot_flag = total_bkg.GetBinContent(lbin_idx) <= bin_condition; 
+    bool bin_tot_flag = total_bkg.GetBinContent(lbin_idx) <= bin_condition;
     bool bin_err_flag = total_bkg.GetBinError(herrbin_idx)/
             total_bkg.GetBinContent(herrbin_idx) >= bin_uncert_fraction;
     if(bin_tot_flag || bin_err_flag) {
@@ -180,6 +219,7 @@ void AutoRebin::FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins,
             left_err_tot/left_tot < bin_uncert_fraction;
       bool right_pass = bin_tot_flag ? right_tot > bin_condition : 
             right_err_tot/right_tot < bin_uncert_fraction;
+      if (mode == 2) right_pass = false;  // never merge right in mode 2
       //Decision on which way to merge - remove relevant entries from
       //binning vector as applicable
       if(left_pass && !right_pass) {
