@@ -143,6 +143,8 @@ void BinByBinFactory::AddBinByBin(CombineHarvester &src, CombineHarvester &dest)
         //           << "\t EffEvents: " << n_evt_float << "\t" << n_evt
         //           << "\tErrLo: " << (err_lo/n_evt_float)*val
         //           << "\tErrHi: " << (err_hi/n_evt_float)*val << "\n";
+        err_hi = (err_hi/n_evt_float) * val;
+        err_lo = (err_lo/n_evt_float) * val;
       }
       if (do_bbb) {
         ++bbb_added;
