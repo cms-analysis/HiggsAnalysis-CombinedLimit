@@ -23,19 +23,19 @@ class SMHiggsBuilder:
             makeXS("WH", energy); makeXS("ZH", energy);
             self.modelBuilder.factory_('sum::SM_XS_VH_'+energy+'(SM_XS_WH_'+energy+',SM_XS_ZH_'+energy+')')
     def makeTotalWidth(self):
-        self.textToSpline("SM_GammaTot", os.path.join(self.brpath,"BR.txt"), ycol=6);
+        self.textToSpline("SM_GammaTot", os.path.join(self.brpath,"BR4.txt"), ycol=12);
     def makeBR(self,decay):
-        if decay == "hww": self.textToSpline("SM_BR_hww", os.path.join(self.brpath, "BR.txt"), ycol=4);
-        if decay == "hzz": self.textToSpline("SM_BR_hzz", os.path.join(self.brpath, "BR.txt"), ycol=5);
-        if decay == "hgg": self.textToSpline("SM_BR_hgg", os.path.join(self.brpath, "BR.txt"), ycol=2);
-        if decay == "hzg": self.textToSpline("SM_BR_hzg", os.path.join(self.brpath, "BR.txt"), ycol=3);
-        if decay == "hbb": self.textToSpline("SM_BR_hbb", os.path.join(self.brpath, "BR1.txt"), ycol=1);
-        if decay == "htt": self.textToSpline("SM_BR_htt", os.path.join(self.brpath, "BR1.txt"), ycol=2);
-        if decay == "hmm": self.textToSpline("SM_BR_hmm", os.path.join(self.brpath, "BR1.txt"), ycol=3);
-        if decay == "hss": self.textToSpline("SM_BR_hss", os.path.join(self.brpath, "BR1.txt"), ycol=4);
-        if decay == "hcc": self.textToSpline("SM_BR_hcc", os.path.join(self.brpath, "BR1.txt"), ycol=5);
-        if decay == "hgluglu": self.textToSpline("SM_BR_hgluglu", os.path.join(self.brpath, "BR.txt"),   ycol=1);
-        if decay == "htoptop": self.textToSpline("SM_BR_htoptop", os.path.join(self.brpath, "BR1.txt"), ycol=6);
+        if decay == "hww": self.textToSpline("SM_BR_hww", os.path.join(self.brpath, "BR4.txt"), ycol=10);
+        if decay == "hzz": self.textToSpline("SM_BR_hzz", os.path.join(self.brpath, "BR4.txt"), ycol=11);
+        if decay == "hgg": self.textToSpline("SM_BR_hgg", os.path.join(self.brpath, "BR4.txt"), ycol=8);
+        if decay == "hzg": self.textToSpline("SM_BR_hzg", os.path.join(self.brpath, "BR4.txt"), ycol=9);
+        if decay == "hbb": self.textToSpline("SM_BR_hbb", os.path.join(self.brpath, "BR4.txt"), ycol=1);
+        if decay == "htt": self.textToSpline("SM_BR_htt", os.path.join(self.brpath, "BR4.txt"), ycol=2);
+        if decay == "hmm": self.textToSpline("SM_BR_hmm", os.path.join(self.brpath, "BR4.txt"), ycol=3);
+        if decay == "hss": self.textToSpline("SM_BR_hss", os.path.join(self.brpath, "BR4.txt"), ycol=5);
+        if decay == "hcc": self.textToSpline("SM_BR_hcc", os.path.join(self.brpath, "BR4.txt"), ycol=4);
+        if decay == "hgluglu": self.textToSpline("SM_BR_hgluglu", os.path.join(self.brpath, "BR4.txt"), ycol=7);
+        if decay == "htoptop": self.textToSpline("SM_BR_htoptop", os.path.join(self.brpath, "BR4.txt"), ycol=6);
     def makePartialWidth(self,decay):
         self.makeTotalWidth(); 
         self.makeBR(decay);
@@ -48,7 +48,7 @@ class SMHiggsBuilder:
 #        self.modelBuilder.doVar('One[1]')
 #        self.modelBuilder.doVar('Zero[0]') 
         if what == 'qqH':
-            for sqrts in ('7TeV', '8TeV'):
+            for sqrts in ('7TeV', '8TeV', '13TeV'):
                 rooName = prefix+'RVBF_'+sqrts
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'R_VBF_%(sqrts)s.txt'%locals()), ycol=1 )
                 scalingName = 'Scaling_'+what+'_'+sqrts
