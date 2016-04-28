@@ -14,7 +14,7 @@ class SafeWorkspaceImporter():
     def __call__(self,*args):
         if len(args) != 1:
             self.imp(*args)
-        elif args[0].Class().InheritsFrom("RooAbsReal") or args[0].Class().InheritsFrom("RooArgSet") or args[0].Class().InheritsFrom("RooAbsData"):
+        elif args[0].Class().InheritsFrom("RooAbsReal") or args[0].Class().InheritsFrom("RooArgSet") or args[0].Class().InheritsFrom("RooAbsData") or args[0].Class().InheritsFrom("RooCategory")::
             self.imp(args[0], ROOT.RooCmdArg()) # force the proper overload to be called
         else:
             self.imp(*args)
