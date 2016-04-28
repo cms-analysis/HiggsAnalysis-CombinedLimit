@@ -48,7 +48,7 @@ class SMHiggsBuilder:
 #        self.modelBuilder.doVar('One[1]')
 #        self.modelBuilder.doVar('Zero[0]') 
         if what == 'qqH':
-            for sqrts in ('7TeV', '8TeV', '13TeV'):
+            for sqrts in ('7TeV', '8TeV'):
                 rooName = prefix+'RVBF_'+sqrts
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'R_VBF_%(sqrts)s.txt'%locals()), ycol=1 )
                 scalingName = 'Scaling_'+what+'_'+sqrts
