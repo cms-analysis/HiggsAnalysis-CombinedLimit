@@ -68,8 +68,10 @@ def commonStems(list, sep="_"):
     ret.sort()
     return ret 
     
-report = {}; errlines = {}
+report = {}; errlines = {}; outParams = {}
 for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
+    if ("param" in pdf) or ("Param" in pdf) or ("discrete" in pdf): 
+    	 if options.all: outParams[lsyst]=[pdf,pdfargs]
     if not options.all and pdf != "lnN": continue
     if not len(errline) : continue
     types = []
@@ -157,6 +159,9 @@ function toggleChann(id) {
         print "\t<td colspan=\"5\"><table class=\"channDetails\">" 
         for x in sorted(val["bins"]): print "\t\t<tr><td>%s</td><td>%s</td></li>" % (x, ", ".join(["%s(%s)"%(k,v) for (k,v) in errlines[nuis][x].iteritems() if v != 0]))
         print "\t</table></td>"
+        print "</tr>\n"
+    for x in outParams.keys():
+        print "\t\t<tr><td><b>%s(%s)</b></td><td>%s</td></li>" % (x,  outParams[x][0] , ", ".join([a for a in outParams[x][1]]))
         print "</tr>\n"
     print """
 </table>
