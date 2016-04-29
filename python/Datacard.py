@@ -37,7 +37,10 @@ class Datacard():
 
 	# Allows for nuisance renaming 
 	self.systematicsShapeMap = {}
-	
+
+        # Keep edits 
+	self.nuisanceEditLines = []
+
     def list_of_bins(self) :
         """
         Return the list of all bins in the datacard.

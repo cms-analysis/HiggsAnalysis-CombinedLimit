@@ -109,11 +109,11 @@ def doRenameNuisance(datacard, args):
                 datacard.systs.append([lsystnew,nofloat,pdf0,args0,errline2])
             foundChann, foundProc = False, False
             for b in errline0.keys():
-                if channel == "*" or cchannel.search(b):
+                if channel == "*" or cchannel.match(b):
                     foundChann = True
                     if channel != "*": foundProc = False
                     for p in datacard.exp[b].keys():
-                        if process == "*" or cprocess.search(p):
+                        if process == "*" or cprocess.match(p):
                             foundProc = True
     			    if "shape" in pdf0 : datacard.systematicsShapeMap[newname,b,p]=oldname
                             if p in errline0[b] and errline2[b][p] not in [ 0.0, 1.0 ]:
