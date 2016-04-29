@@ -380,8 +380,10 @@ class ShapeBuilder(ModelBuilder):
                 raise RuntimeError, errmsg+" One can use only one morphing algorithm for a given shape";
             if errline[channel][process] != 0:
                 if allowNoSyst and not self.isShapeSystematic(channel,process,syst): continue
-                shapeUp   = self.getShape(channel,process,syst+"Up")
-                shapeDown = self.getShape(channel,process,syst+"Down")
+		systShapeName = syst
+		if (syst,channel,process) in self.DC.systematicsShapeMap.keys(): systShapeName = self.DC.systematicsShapeMap[(syst,channel,process)]
+                shapeUp   = self.getShape(channel,process,systShapeName+"Up")
+                shapeDown = self.getShape(channel,process,systShapeName+"Down")
                 if shapeUp.ClassName()   != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst %s" % (channel,process,syst)
                 if shapeDown.ClassName() != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst %s" % (channel,process,syst)
                 if self.options.useHistPdf == "always":
@@ -464,7 +466,9 @@ class ShapeBuilder(ModelBuilder):
             _cache[(channel,process)] = ROOT.VerticalInterpPdf("shape%s_%s_%s_morph" % (postFix,channel,process), "", pdfs, coeffs, qrange, qalgo)
         return _cache[(channel,process)]
     def isShapeSystematic(self,channel,process,syst):
-        shapeUp = self.getShape(channel,process,syst+"Up",allowNoSyst=True)    
+    	systShapeName = syst
+	if (syst,channel,process) in self.DC.systematicsShapeMap.keys(): systShapeName = self.DC.systematicsShapeMap[(syst,channel,process)]
+        shapeUp = self.getShape(channel,process,systShapeName+"Up",allowNoSyst=True)    
         return shapeUp != None
     def getExtraNorm(self,channel,process):
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
@@ -487,8 +491,10 @@ class ShapeBuilder(ModelBuilder):
             if "shape" not in pdf: continue
             if errline[channel][process] != 0:
                 if pdf[-1] == "?" and not self.isShapeSystematic(channel,process,syst): continue
-                shapeUp   = self.getShape(channel,process,syst+"Up")
-                shapeDown = self.getShape(channel,process,syst+"Down")
+		systShapeName = syst
+	        if (syst,channel,process) in self.DC.systematicsShapeMap.keys(): systShapeName = self.DC.systematicsShapeMap[(syst,channel,process)]
+                shapeUp   = self.getShape(channel,process,systShapeName+"Up")
+                shapeDown = self.getShape(channel,process,systShapeName+"Down")
                 if shapeUp.ClassName()   != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst" % (channel,process,syst)
                 if shapeDown.ClassName() != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst" % (channel,process,syst)
                 kappaUp,kappaDown = 1,1

@@ -95,6 +95,7 @@ def doRenameNuisance(datacard, args):
     if channel != "*": cchannel = re.compile(channel)
     opts = args[5:]
     for lsyst,nofloat,pdf0,args0,errline0 in datacard.systs[:]:
+
         lsystnew = re.sub(oldname,newname,lsyst)
         if lsystnew != lsyst:
             found = False
@@ -114,6 +115,7 @@ def doRenameNuisance(datacard, args):
                     for p in datacard.exp[b].keys():
                         if process == "*" or cprocess.search(p):
                             foundProc = True
+    			    if "shape" in pdf0 : datacard.systematicsShapeMap[newname,b,p]=oldname
                             if p in errline0[b] and errline2[b][p] not in [ 0.0, 1.0 ]:
                                 if "addq" in opts:
                                     errline2[b][p] = quadratureAdd(pdf0, errline0[b][p], errline2[b][p], context="nuisance edit rename, args = %s" % args)
