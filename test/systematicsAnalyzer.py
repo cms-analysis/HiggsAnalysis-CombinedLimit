@@ -83,14 +83,14 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
         for p in DC.exp[b].iterkeys():
             if errline[b][p] == 0: continue
             processes[p] = True
-	    if "shape" in pdf :
+	    if "shape" in pdf and MB.isShapeSystematic(b,p,lsyst):
 		vals = []
 
 		systShapeName = lsyst
 		if (lsyst,b,p) in DC.systematicsShapeMap.keys(): systShapeName = DC.systematicsShapeMap[(lsyst,b,p)]
 
-	    	objU,objD,objC = MB.getShape(b,p,lsystShapeName+"Up"), MB.getShape(b,p,lsystShapeName+"Down"), MB.getShape(b,p)
-
+	    	objU,objD,objC = MB.getShape(b,p,systShapeName+"Up"), MB.getShape(b,p,systShapeName+"Down"), MB.getShape(b,p)
+	 
 		if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
 		elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
 
