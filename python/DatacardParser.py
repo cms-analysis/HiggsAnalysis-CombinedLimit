@@ -74,6 +74,7 @@ def parseCard(file, options):
     ret = Datacard()
     ret.discretes=[]
     ret.groups={}
+ 
     #
     nbins      = -1; 
     nprocesses = -1; 
@@ -81,6 +82,10 @@ def parseCard(file, options):
     binline = []; processline = []; sigline = []
     shapesUseBin = False
     lineNumber = None
+
+    try: getattr(options,"evaluateEdits")
+    except: setattr(options,"evaluateEdits",True)
+
     try:
         for lineNumber,l in enumerate(file):
             f = l.split();
@@ -205,11 +210,11 @@ def parseCard(file, options):
 	        elif f[3]=="*": # all channels 
 		  for c in ret.processes: 
 		    f_tmp = f[:]; f_tmp[3]=c
-	            addRateParam(lsyst,f_tmp,ret)
-	        elif f[2]=="*": # all channels 
+		    addRateParam(lsyst,f_tmp,ret)
+	        elif f[2]=="*": # all bins
 		  for b in ret.bins:
 		    f_tmp = f[:]; f_tmp[2]=b
-	            addRateParam(lsyst,f_tmp,ret)
+		    addRateParam(lsyst,f_tmp,ret)
 		else : addRateParam(lsyst,f,ret)
                 continue
             elif pdf=="discrete":
@@ -218,10 +223,14 @@ def parseCard(file, options):
                 continue
             elif pdf=="edit":
                 if nuisances != -1: nuisances = -1
-                if options.verbose > 1: print "Before edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
-                if options.verbose > 1: print "Edit command: %s\n" % numbers
-                doEditNuisance(ret, numbers[0], numbers[1:])
-                if options.verbose > 1: print "After edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
+		if options.evaluateEdits :
+                  if options.verbose > 1: print "Before edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
+                  if options.verbose > 1: print "Edit command: %s\n" % numbers
+                  doEditNuisance(ret, numbers[0], numbers[1:])
+                  if options.verbose > 1: print "After edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
+		else:  
+			if numbers[0] in ["changepdf","freeze"]: ret.nuisanceEditLines.append([numbers[0],numbers[1:]])
+			else: ret.nuisanceEditLines.append([numbers[0],numbers[1],numbers[2],numbers[3:]])
                 continue
             elif pdf=="group":
                 # This is not really a pdf type, but a way to be able to name groups of nuisances together

@@ -95,6 +95,7 @@ def doRenameNuisance(datacard, args):
     if channel != "*": cchannel = re.compile(channel)
     opts = args[5:]
     for lsyst,nofloat,pdf0,args0,errline0 in datacard.systs[:]:
+
         lsystnew = re.sub(oldname,newname,lsyst)
         if lsystnew != lsyst:
             found = False
@@ -103,17 +104,18 @@ def doRenameNuisance(datacard, args):
                 if lsyst2 == lsystnew:
                     found = True
                     errline2 = errline2b
-                    if pdf2 != pdf0: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
+                    if pdf2 != pdf0 and pdf2 not in ['lnN']: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
             if not found:
                 datacard.systs.append([lsystnew,nofloat,pdf0,args0,errline2])
             foundChann, foundProc = False, False
             for b in errline0.keys():
-                if channel == "*" or cchannel.search(b):
+                if channel == "*" or cchannel.match(b):
                     foundChann = True
                     if channel != "*": foundProc = False
                     for p in datacard.exp[b].keys():
-                        if process == "*" or cprocess.search(p):
+                        if process == "*" or cprocess.match(p):
                             foundProc = True
+    			    if "shape" in pdf0 : datacard.systematicsShapeMap[newname,b,p]=oldname
                             if p in errline0[b] and errline2[b][p] not in [ 0.0, 1.0 ]:
                                 if "addq" in opts:
                                     errline2[b][p] = quadratureAdd(pdf0, errline0[b][p], errline2[b][p], context="nuisance edit rename, args = %s" % args)
