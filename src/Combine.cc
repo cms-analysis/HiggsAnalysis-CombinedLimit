@@ -331,6 +331,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
     }
+    
+    // Specific settings should be executed before user specified ranges!
+    RooRealVar *r = (RooRealVar*)POI->first();
+    if (!isnan(rMin_)) r->setMin(rMin_);
+    if (!isnan(rMax_)) r->setMax(rMax_);
+    if (!isnan(rMin_) || !isnan(rMax_)) {
+     r->setVal(0.5*(r->getMin() + r->getMax()));
+    }
 
     if (snapshotName_ != "") {
       bool loaded = w->loadSnapshot(snapshotName_.c_str());
@@ -345,19 +353,23 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
       }
     }
-  //*********************************************
-  //set physics model parameters    after loading the snapshot
-  //*********************************************
-  if (setPhysicsModelParameterExpression_ != "") {
+  
+    //*********************************************
+    //set physics model parameters    after loading the snapshot
+    //*********************************************
+    if (setPhysicsModelParameterExpression_ != "") {
       RooArgSet allParams(w->allVars());
       if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
       utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
       // also allow for "discrete" parameters to be set 
       // Possible that MH value was re-set above, so make sure mass is set to the correct value and not over-ridden later.
       if (w->var("MH")) mass_ = w->var("MH")->getVal();
-  }
+    }
 
   } else {
+    std::cerr << "HLF not validated" << std::endl;
+    assert(0);
+    
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
     w = hlf->GetWs();
     if (w == 0) {
@@ -466,12 +478,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
 
-  RooRealVar *r = (RooRealVar*)POI->first();
-  if (!isnan(rMin_)) r->setMin(rMin_);
-  if (!isnan(rMax_)) r->setMax(rMax_);
-  if (!isnan(rMin_) || !isnan(rMax_)) {
-    r->setVal(0.5*(r->getMin() + r->getMax()));
-  }
 
   if (setPhysicsModelParameterRangeExpression_ != "") {
       utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
