@@ -85,9 +85,15 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
             processes[p] = True
 	    if "shape" in pdf :
 		vals = []
-	    	objU,objD,objC = MB.getShape(b,p,lsyst+"Up"), MB.getShape(b,p,lsyst+"Down"), MB.getShape(b,p)
+
+		systShapeName = lsyst
+		if (lsyst,b,p) in DC.systematicsShapeMap.keys(): systShapeName = DC.systematicsShapeMap[(lsyst,b,p)]
+
+	    	objU,objD,objC = MB.getShape(b,p,lsystShapeName+"Up"), MB.getShape(b,p,lsystShapeName+"Down"), MB.getShape(b,p)
+
 		if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
 		elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
+
 		if valC!=0: 
 			errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
 			vals.append(valU/valC)
