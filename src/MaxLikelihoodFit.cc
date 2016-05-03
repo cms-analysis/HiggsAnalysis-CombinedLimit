@@ -740,7 +740,7 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
          typedef std::map<std::string,ShapeAndNorm>::const_iterator IT;
          IT bg = snm.begin(), ed = snm.end(), pair; int i;
          for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
-           RooRealVar *val = new RooRealVar((oldNormNames_ ? pair->first : pair->second.channel+"/"+pair->second.process).c_str(), "", 0.);
+           RooRealVar *val = new RooRealVar(pair->first.c_str(), "", 0.);
            //val->setError(sumx2[i]);
            norms->addOwned(*val); 
          }
