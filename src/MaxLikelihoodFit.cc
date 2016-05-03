@@ -427,7 +427,6 @@ void MaxLikelihoodFit::getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &
         RooArgList list(add->coefList());  
         for (int i = 0, n = list.getSize(); i < n; ++i) {
             RooAbsReal *coeff = (RooAbsReal *) list.at(i);
-	    std::cout << i << " Adding coeff " << coeff->GetName() << std::endl; 
             out.addOwned(*(new RooRealVar(coeff->GetName(), "", coeff->getVal())));
         }
         return;
@@ -652,10 +651,8 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         params->assignValueOnly( sampler.centralValues() );
     }
 
-    // Did the author bother to ensure order of norms is correct ?
     for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
         RooRealVar *val = new RooRealVar((oldNormNames_ ? pair->first : pair->second.channel+"/"+pair->second.process).c_str(), "", vals[i]);
-	std::cout << " In the end now we set " << val->GetName() << " to  " << i << ", " << vals[i] << std::endl;
         val->setError(sumx2[i]);
         out.addOwned(*val); 
         if (shapes[i]) shapesByChannel[pair->second.channel]->WriteTObject(shapes[i]);
@@ -785,7 +782,7 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rcv->GetName();
 		 processNormalizations_[count] = 0;
-		 std::cout << " Creating the TREE -- " << count << ", Branch Name =  " << name << ", Param name " << rcv->GetName() << std::endl; 
+		 //std::cout << " Creating the TREE -- " << count << ", Branch Name =  " << name << ", Param name " << rcv->GetName() << std::endl; 
 		 t_fit_sb_->Branch(name.c_str(),&(processNormalizations_[count])),Form("%s/Double_t",name.c_str());
 		 t_fit_b_->Branch(name.c_str(),&(processNormalizations_[count]),Form("%s/Double_t",name.c_str()));
 		 count++;
