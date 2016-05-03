@@ -401,6 +401,8 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 }
 
 void MaxLikelihoodFit::getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out) {
+    std::cout << " Someone called MaxLikelihoodFit::getNormalizationsSimple but the order of the set returned will be different from any use case so far, do you really want to use it? " << std::endl;
+    assert(0);
     RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(pdf);
     if (sim != 0) {
         RooAbsCategoryLValue &cat = const_cast<RooAbsCategoryLValue &>(sim->indexCat());
@@ -422,9 +424,10 @@ void MaxLikelihoodFit::getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &
     }
     RooAddPdf *add = dynamic_cast<RooAddPdf *>(pdf);
     if (add != 0) {
-        RooArgList list(add->coefList());
+        RooArgList list(add->coefList());  
         for (int i = 0, n = list.getSize(); i < n; ++i) {
             RooAbsReal *coeff = (RooAbsReal *) list.at(i);
+	    std::cout << i << " Adding coeff " << coeff->GetName() << std::endl; 
             out.addOwned(*(new RooRealVar(coeff->GetName(), "", coeff->getVal())));
         }
         return;
@@ -648,8 +651,11 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         // finally reset parameters
         params->assignValueOnly( sampler.centralValues() );
     }
+
+    // Did the author bother to ensure order of norms is correct ?
     for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
         RooRealVar *val = new RooRealVar((oldNormNames_ ? pair->first : pair->second.channel+"/"+pair->second.process).c_str(), "", vals[i]);
+	std::cout << " In the end now we set " << val->GetName() << " to  " << i << ", " << vals[i] << std::endl;
         val->setError(sumx2[i]);
         out.addOwned(*val); 
         if (shapes[i]) shapesByChannel[pair->second.channel]->WriteTObject(shapes[i]);
@@ -686,7 +692,8 @@ void MaxLikelihoodFit::setNormsFitResultTrees(const RooArgSet *args, double * va
 	 int count=0;
 	 
          for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
-                 RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);        
+                 RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);   
+		 std::cout << "index " << count << ", Name " << rcv->GetName() << ", val " <<  rcv->getVal() << std::endl;
 		 //std::string name = rcv->GetName();
 		 vals[count]=rcv->getVal();
 		 count++;
@@ -728,8 +735,18 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
 
 	 int count=0; 
          // fill the maps for the nuisances, and global observables
-         RooArgSet *norms = new RooArgSet();
-         getNormalizationsSimple(mc.GetPdf(), *mc.GetObservables(), *norms);
+         RooArgSet *norms= new RooArgSet();
+         //getNormalizationsSimple(mc.GetPdf(), *mc.GetObservables(), *norms);  <-- This is useless as the order is messed up !
+
+         std::map<std::string,ShapeAndNorm> snm;
+         getShapesAndNorms(mc.GetPdf(),*mc.GetObservables(), snm, "");
+         typedef std::map<std::string,ShapeAndNorm>::const_iterator IT;
+         IT bg = snm.begin(), ed = snm.end(), pair; int i;
+         for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
+           RooRealVar *val = new RooRealVar((oldNormNames_ ? pair->first : pair->second.channel+"/"+pair->second.process).c_str(), "", 0.);
+           //val->setError(sumx2[i]);
+           norms->addOwned(*val); 
+         }
  
          processNormalizations_ = new double[norms->getSize()];
 
@@ -768,6 +785,7 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rcv->GetName();
 		 processNormalizations_[count] = 0;
+		 std::cout << " Creating the TREE -- " << count << ", Branch Name =  " << name << ", Param name " << rcv->GetName() << std::endl; 
 		 t_fit_sb_->Branch(name.c_str(),&(processNormalizations_[count])),Form("%s/Double_t",name.c_str());
 		 t_fit_b_->Branch(name.c_str(),&(processNormalizations_[count]),Form("%s/Double_t",name.c_str()));
 		 count++;
