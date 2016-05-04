@@ -128,6 +128,9 @@ class C6(SMLikeHiggsModel):
         # SM BR
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]: self.SMH.makeBR(d)
 
+        self.SMH.makeScaling("tHq", CW='kV', Ctop="ktop")
+        self.SMH.makeScaling("tHW", CW='kV', Ctop="ktop")
+
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::c6_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)') 
         self.modelBuilder.factory_('expr::c6_Gscal_tau("@0*@0 * (@1+@2)", ktau, SM_BR_htt, SM_BR_hmm)') 
@@ -156,11 +159,16 @@ class C6(SMLikeHiggsModel):
             XSscal = "kgluon"
             if production in ["WH","ZH","VH","qqH"]: XSscal = "kV" 
             if production == "ttH": XSscal = "ktop"
+            if production in [ "tHq", "tHW" ]: XSscal = "Scaling_%s_%s" % (production, energy)
             BRscal = "hgg"
             if decay in ["hbb", "htt"]: BRscal = decay
             if decay in ["hww", "hzz"]: BRscal = "hvv"
             if self.doHZg and decay == "hzg": BRscal = "hzg"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
+            if "Scaling" in XSscal: # already squared, just put XSscal
+                self.modelBuilder.factory_('expr::%s("@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
+            else: # plain coupling, put (XSscal)^2
+                self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
+    
         return name
 
 

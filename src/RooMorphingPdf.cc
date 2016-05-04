@@ -1,4 +1,4 @@
-#include "../interface/RooMorphingPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf.h"
 #include <stdexcept>
 #include <vector>
 #include "RooHistPdf.h"

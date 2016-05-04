@@ -37,10 +37,15 @@ bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 bool MultiDimFit::fastScan_ = false;
 bool MultiDimFit::loadedSnapshot_ = false;
+bool MultiDimFit::forceFirstFit_ = false;
+bool MultiDimFit::savingSnapshot_ = false;
+bool MultiDimFit::startFromPreFit_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
 bool MultiDimFit::skipInitialFit_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
+float MultiDimFit::autoRange_ = -1.0;
+std::string MultiDimFit::fixedPointPOIs_ = "";
 
   std::string MultiDimFit::saveSpecifiedFuncs_;
   std::string MultiDimFit::saveSpecifiedIndex_;
@@ -71,12 +76,16 @@ MultiDimFit::MultiDimFit() :
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
+        ("autoRange", boost::program_options::value<float>(&autoRange_)->default_value(autoRange_), "Set to any X >= 0 to do the scan in the +/- X sigma range (where the sigma is from the initial fit, so it may be fairly approximate)")
+	("fixedPointPOIs",   boost::program_options::value<std::string>(&fixedPointPOIs_)->default_value(""), "Parameter space point for --algo=fixed")
         ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
 	("saveSpecifiedNuis",   boost::program_options::value<std::string>(&saveSpecifiedNuis_)->default_value(""), "Save specified parameters (default = none)")
 	("saveSpecifiedFunc",   boost::program_options::value<std::string>(&saveSpecifiedFuncs_)->default_value(""), "Save specified function values (default = none)")
 	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
+	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
+        ("forceFirstFit", "Force the first fit even if it wouldn't normally happen (e.g. for algo=grid when loading a snapshot)")
        ;
 }
 
@@ -111,6 +120,8 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     skipInitialFit_ = (vm.count("skipInitialFit") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
+    savingSnapshot_ = (!loadedSnapshot_) && vm.count("saveWorkspace");
+    forceFirstFit_ = (vm.count("forceFirstFit") > 0);
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -137,7 +148,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::auto_ptr<RooFitResult> res;
-  //  if ( algo_ == Singles || algo_ == Impact || algo_ == None || !loadedSnapshot_ ){
+    if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
     if ( !skipInitialFit_){
         res.reset(doFit(pdf, data, ((algo_ == Singles || algo_ == Impact) ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
         if (algo_ == Impact && res.get()) {
@@ -145,7 +156,11 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
             // before we write an entry into the output TTree
             w->allVars().assignValueOnly(res.get()->floatParsFinal());
         }
-    } else std::cout << "MultiDimFit -- Skipping initial global fit" << std::endl;
+    } else {
+        std::cout << "MultiDimFit -- Skipping initial global fit" << std::endl;
+        // must still create the NLL
+        nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true)));
+    }
 
     if(w->var("r")) {w->var("r")->Print();}
     if ( loadedSnapshot_ || res.get() || keepFailures_) {
@@ -166,15 +181,20 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	//}
     }
    
-
-    std::auto_ptr<RooAbsReal> nll;
-    if (algo_ != None && algo_ != Singles) {
-        nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended())));
-    } 
-    
     //set snapshot for best fit
-    if (!loadedSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
+    if (savingSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
     
+    if (autoRange_ > 0) {
+        std::cout << "Adjusting range of POIs to +/- " << autoRange_ << " standard deviations" << std::endl;
+        for (int i = 0, n = poi_.size(); i < n; ++i) {
+            double val = poiVars_[i]->getVal(), err = poiVars_[i]->getError(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
+            double min1 = std::max(min0, val - autoRange_ * err);
+            double max1 = std::min(max0, val + autoRange_ * err);
+            std::cout << poi_[i] << ": " << val << " +/- " << err << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            poiVars_[i]->setRange(min1, max1);
+        }
+    }
+
     switch(algo_) {
         case None: 
             if (verbose > 0) {
@@ -191,11 +211,11 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
             break;
         case Singles: if (res.get()) doSingles(*res); break;
         case Cross: doBox(*nll, cl, "box", true); break;
-        case Grid: doGrid(*nll); break;
-        case RandomPoints: doRandomPoints(*nll); break;
+        case Grid: doGrid(w,*nll); break;
+        case RandomPoints: doRandomPoints(w,*nll); break;
         case FixedPoint: doFixedPoint(w,*nll); break;
-        case Contour2D: doContour2D(*nll); break;
-        case Stitch2D: doStitch2D(*nll); break;
+        case Contour2D: doContour2D(w,*nll); break;
+        case Stitch2D: doStitch2D(w,*nll); break;
         case Impact: if (res.get()) doImpact(*res, *nll); break;
     }
     
@@ -450,11 +470,13 @@ void MultiDimFit::doImpact(RooFitResult &res, RooAbsReal &nll) {
   }
 }
 
-void MultiDimFit::doGrid(RooAbsReal &nll) 
+
+void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll) 
 {
     unsigned int n = poi_.size();
     //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
+    if (startFromPreFit_) w->loadSnapshot("clean");
 
     std::vector<double> p0(n), pmin(n), pmax(n);
     for (unsigned int i = 0; i < n; ++i) {
@@ -467,6 +489,8 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+    if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     minim.setStrategy(minimizerStrategy_);
     std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
     RooArgSet snap; params->snapshot(snap);
@@ -497,6 +521,19 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
             // now we minimize
+            nll.clearEvalErrorLog();
+            deltaNLL_ = nll.getVal() - nll0;
+            if (nll.numEvalErrors() > 0) {
+                deltaNLL_ = 9990;
+		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+			specifiedVals_[j]=specifiedVars_[j]->getVal();
+		}
+		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+		}
+                Combine::commitPoint(true, /*quantile=*/0);
+                continue;
+            }
             bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
                         true : 
                         minim.minimize(verbose-1);
@@ -716,14 +753,17 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
     }
 }
 
-void MultiDimFit::doRandomPoints(RooAbsReal &nll) 
+void MultiDimFit::doRandomPoints(RooWorkspace *w, RooAbsReal &nll) 
 {
     double nll0 = nll.getVal();
+    if (startFromPreFit_) w->loadSnapshot("clean");
     for (unsigned int i = 0, n = poi_.size(); i < n; ++i) {
         poiVars_[i]->setConstant(true);
     }
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+    if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
     for (unsigned int j = 0; j < points_; ++j) {
@@ -755,18 +795,24 @@ void MultiDimFit::doRandomPoints(RooAbsReal &nll)
 void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll) 
 {
     double nll0 = nll.getVal();
+    if (startFromPreFit_) w->loadSnapshot("clean");
     for (unsigned int i = 0, n = poi_.size(); i < n; ++i) {
         poiVars_[i]->setConstant(true);
     }
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+    if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
 
     //for (unsigned int i = 0; i < n; ++i) {
     //        std::cout<<" Before setting fixed point "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
     //}
-    if (setPhysicsModelParameterExpression_ != "") {
+    if (fixedPointPOIs_ != "") {
+	    utils::setModelParameters( fixedPointPOIs_, w->allVars());
+    } else if (setPhysicsModelParameterExpression_ != "") {
+            std::cout << " --fixedPointPOIs option not used, so will use the argument of --setPhysicsModelParameters instead" << std::endl;
 	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
     }   
 
@@ -802,7 +848,7 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     } 
 }
 
-void MultiDimFit::doContour2D(RooAbsReal &nll) 
+void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll) 
 {
     if (poi_.size() != 2) throw std::logic_error("Contour2D works only in 2 dimensions");
     RooRealVar *xv = poiVars_[0]; double x0 = poiVals_[0]; float &x = poiVals_[0];
@@ -828,6 +874,8 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
         // ===== Get the best fit x (could also do without profiling??) =====
         xv->setConstant(false);  xv->setVal(x0);
         CascadeMinimizer minimXI(nll, CascadeMinimizer::Unconstrained, xv);
+        if (!autoBoundsPOIs_.empty()) minimXI.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minimXI.setAutoMax(&autoMaxPOISet_); 
         minimXI.setStrategy(minimizerStrategy_);
         {
             CloseCoutSentry sentry(verbose < 3);    
@@ -837,6 +885,8 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
         if (verbose>-1) std::cout << "Best fit " << xv->GetName() << " for  " << yv->GetName() << " = " << yv->getVal() << " is at " << xc << std::endl;
         // ===== Then get the range =====
         CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+        if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
         double xup = findCrossing(minim, nll, *xv, threshold, xc, xMax);
         if (!std::isnan(xup)) { 
             x = xup; y = yv->getVal(); Combine::commitPoint(true, /*quantile=*/1-cl);
@@ -853,7 +903,7 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
     verbose++; // restore verbosity
 }
 
-void MultiDimFit::doStitch2D(RooAbsReal &nll)
+void MultiDimFit::doStitch2D(RooWorkspace *, RooAbsReal &nll)
 {
     if (poi_.size() != 2) throw std::logic_error("Contour2D works only in 2 dimensions");
     //RooRealVar *xv = poiVars_[0]; double x0 = poiVals_[0]; float &x = poiVals_[0];
@@ -920,6 +970,8 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         RooRealVar *xv = poiVars_[i];
         xv->setConstant(true);
         CascadeMinimizer minimX(nll, CascadeMinimizer::Constrained);
+        if (!autoBoundsPOIs_.empty()) minimX.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minimX.setAutoMax(&autoMaxPOISet_); 
         minimX.setStrategy(minimizerStrategy_);
 
         for (unsigned int j = 0; j < n; ++j) poiVars_[j]->setVal(p0[j]);

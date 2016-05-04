@@ -43,6 +43,8 @@ protected:
   RooArgSet parametersToFreeze_;
 
   static bool  saveNLL_, keepFailures_, protectUnbinnedChannels_;
+  static std::string autoBoundsPOIs_, autoMaxPOIs_;
+  RooArgSet autoBoundsPOISet_, autoMaxPOISet_;
   static double nllValue_, nll0Value_;
   std::auto_ptr<RooAbsReal> nll;
   // method that is implemented in the subclass

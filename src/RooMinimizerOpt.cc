@@ -333,9 +333,14 @@ RooMinimizerFcnOpt::DoEval(const double * x) const
       RooRealVar* var ;
       Bool_t first(kTRUE) ;
       ooccoutW(_context,Minimization) << "Parameter values: " ;
+      int nparam(0);
       while((var=(RooRealVar*)iter->Next())) {
         if (first) { first = kFALSE ; } else ooccoutW(_context,Minimization) << ", " ;
         ooccoutW(_context,Minimization) << var->GetName() << "=" << var->getVal() ;
+        if (++nparam > 20)  {
+            ooccoutW(_context,Minimization) << " [... others are suppressed; change RooMinimizerOpt code to put them back]" ;
+            break;
+        }
       }
       delete iter ;
       ooccoutW(_context,Minimization) << endl ;

@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Accumulators.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -6,9 +7,9 @@
 #include <algorithm>
 
 FastTemplate::T FastTemplate::Integral() const {
-    T total = 0;
+    DefaultAccumulator total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i];
-    return total;
+    return total.sum();
 }
 
 void FastTemplate::Scale(T factor) {
@@ -86,9 +87,9 @@ FastHisto::T FastHisto::GetAt(const T &x) const {
 }
 
 FastHisto::T FastHisto::IntegralWidth() const {
-    double total = 0;
+    DefaultAccumulator total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
-    return total;
+    return total.sum();
 }
 
 void FastHisto::Dump() const {
@@ -98,6 +99,10 @@ void FastHisto::Dump() const {
                     i, 0.5*(binEdges_[i]+binEdges_[i+1]), values_[i], binWidths_[i]);
     }
     printf("\n"); 
+}
+
+FastHisto::T FastHisto::GetMax() const {
+    return * std::max(values_.begin(), values_.end());
 }
 
 FastHisto2D::FastHisto2D(const TH2 &hist, bool normXonly) :
@@ -145,16 +150,17 @@ FastHisto2D::T FastHisto2D::GetAt(const T &x, const T &y) const {
 }
 
 FastHisto2D::T FastHisto2D::IntegralWidth() const {
-    double total = 0;
+    DefaultAccumulator total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
-    return total;
+    return total.sum();
 }
 
 void FastHisto2D::NormalizeXSlices() {
     for (unsigned int ix = 0, offs = 0; ix < binX_; ++ix, offs += binY_) {
        T *values = & values_[offs], *widths = & binWidths_[offs];
-       double total = 0;
-       for (unsigned int i = 0; i < binY_; ++i) total += values[i] * widths[i];
+       DefaultAccumulator totalc = 0;
+       for (unsigned int i = 0; i < binY_; ++i) totalc += values[i] * widths[i];
+       double total = totalc.sum();
        if (total > 0) {
             total = T(1.0)/total;
             for (unsigned int i = 0; i < binY_; ++i) values[i] *= total;
@@ -171,6 +177,30 @@ void FastHisto2D::Dump() const {
                      values_[i], binWidths_[i]);
     }
     printf("\n"); 
+}
+
+
+FastHisto2D::T FastHisto2D::GetMaxOnXY() const {
+    return *std::max(values_.begin(), values_.end());
+}
+
+
+FastHisto2D::T FastHisto2D::GetMaxOnX(const T &y) const {
+    auto matchy = std::lower_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
+    if (matchy == binEdgesY_.begin() || matchy == binEdgesY_.end()) return T(0.0);
+    int iy = (matchy - binEdgesY_.begin() - 1);
+    T ret = 0.0;
+    for (unsigned int i = iy; i < size_; i += binY_) {
+        if (ret < values_[i]) ret = values_[i];
+    }
+    return ret;
+}
+
+FastHisto2D::T FastHisto2D::GetMaxOnY(const T &x) const {
+    auto matchx = std::lower_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
+    if (matchx == binEdgesX_.begin() || matchx == binEdgesX_.end()) return T(0.0);
+    int ix = (matchx - binEdgesX_.begin() - 1);
+    return *std::max( &values_[ix * binY_], &values_[(ix+1) * binY_] );
 }
 
 FastHisto3D::FastHisto3D(const TH3 &hist, bool normXonly) :
@@ -231,9 +261,9 @@ FastHisto3D::T FastHisto3D::GetAt(const T &x, const T &y, const T &z) const {
 
 
 FastHisto3D::T FastHisto3D::IntegralWidth() const {
-    double total = 0;
+    DefaultAccumulator total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
-    return total;
+    return total.sum();
 }
 
 void FastHisto3D::NormalizeXSlices() {

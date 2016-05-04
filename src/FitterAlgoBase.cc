@@ -51,6 +51,8 @@ bool        FitterAlgoBase::forceRecreateNLL_ = false;
 bool        FitterAlgoBase::saveNLL_ = false;
 bool        FitterAlgoBase::keepFailures_ = false;
 bool        FitterAlgoBase::protectUnbinnedChannels_ = false;
+std::string FitterAlgoBase::autoBoundsPOIs_ = "";
+std::string FitterAlgoBase::autoMaxPOIs_ = "";
 double       FitterAlgoBase::nllValue_ = std::numeric_limits<double>::quiet_NaN();
 double       FitterAlgoBase::nll0Value_ = std::numeric_limits<double>::quiet_NaN();
 FitterAlgoBase::ProfilingMode FitterAlgoBase::profileMode_ = ProfileAll;
@@ -74,6 +76,8 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("saveNLL",  "Save the negative log-likelihood at the minimum in the output tree (note: value is relative to the pre-fit state)")
         ("keepFailures",  "Save the results even if the fit is declared as failed (for NLL studies)")
         ("protectUnbinnedChannels", "Protect PDF from going negative in unbinned channels")
+        ("autoBoundsPOIs", boost::program_options::value<std::string>(&autoBoundsPOIs_)->default_value(autoBoundsPOIs_), "Adjust bounds for the POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
+        ("autoMaxPOIs", boost::program_options::value<std::string>(&autoMaxPOIs_)->default_value(autoMaxPOIs_), "Adjust maxima for the POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
         ("forceRecreateNLL",  "Always recreate NLL when running on multiple toys rather than re-using nll with new dataset")
     ;
 }
@@ -147,6 +151,24 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   }
 
   optimizeBounds(w,mc_s);
+  if (!autoBoundsPOIs_.empty()) {
+      autoBoundsPOISet_.removeAll();
+      if (autoBoundsPOIs_ == "*") {
+          autoBoundsPOISet_.add(*mc_s->GetParametersOfInterest());
+      } else {
+          autoBoundsPOISet_.add(w->argSet(autoBoundsPOIs_.c_str())); 
+      }
+      if (verbose) { std::cout << "POIs with automatic range setting: "; autoBoundsPOISet_.Print(""); } 
+  }
+  if (!autoMaxPOIs_.empty()) {
+      autoMaxPOISet_.removeAll();
+      if (autoMaxPOIs_ == "*") {
+          autoMaxPOISet_.add(*mc_s->GetParametersOfInterest());
+      } else {
+          autoMaxPOISet_.add(w->argSet(autoMaxPOIs_.c_str())); 
+      }
+      if (verbose) { std::cout << "POIs with automatic max setting: "; autoMaxPOISet_.Print(""); } 
+  }
   bool ret = runSpecific(w, mc_s, mc_b, *theData, limit, limitErr, hint);
   if (protectUnbinnedChannels_) { 
     // destroy things in the proper order
@@ -165,8 +187,12 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar
 
 RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL, bool saveFitResult) {
     RooFitResult *ret = 0;
-    if (reuseNLL && nll.get() != 0 && !forceRecreateNLL_)((cacheutils::CachingSimNLL&)(*nll)).setData(data);	// reuse nll but swap out the data
-    else nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
+    if (reuseNLL && nll.get() != 0 && !forceRecreateNLL_) {
+        ((cacheutils::CachingSimNLL&)(*nll)).setData(data); // reuse nll but swap out the data
+    } else {
+        nll.reset(); // first delete the old one, to avoid using more memory, even if temporarily
+        nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
+    }
 
     double nll0 = nll->getVal();
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
@@ -174,6 +200,8 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, rs.getSize() ? dynamic_cast<RooRealVar*>(rs.first()) : 0);
     minim.setStrategy(minimizerStrategy_);
     minim.setErrorLevel(delta68);
+    if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+    if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     CloseCoutSentry sentry(verbose < 3);    
     if (verbose>1) std::cout << "do first Minimization " << std::endl;
     TStopwatch tw; 
@@ -189,6 +217,11 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     sentry.clear();
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
     if (verbose > 1 && ret != 0 && (saveFitResult || rs.getSize())) { ret->Print("V");  }
+
+    // I'm done here
+    if (rs.getSize() == 0 && parametersToFreeze_.getSize() == 0) {
+        return ret;
+    }
 
     std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
 
@@ -261,6 +294,8 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
  
             CascadeMinimizer minim2(*nll, CascadeMinimizer::Constrained);
             minim2.setStrategy(minimizerStrategyForMinos_);
+            if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+            if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
 
             std::auto_ptr<RooArgSet> allpars(nll->getParameters((const RooArgSet *)0));
 
