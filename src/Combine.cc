@@ -353,7 +353,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
       }
     }
-  
+    
+    if (setPhysicsModelParameterRangeExpression_ != "") {
+      utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
+    }
     //*********************************************
     //set physics model parameters    after loading the snapshot
     //*********************************************
@@ -478,10 +481,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
 
-
-  if (setPhysicsModelParameterRangeExpression_ != "") {
-      utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
-  }
   if (redefineSignalPOIs_ != "") {
       RooArgSet newPOIs(w->argSet(redefineSignalPOIs_.c_str()));
       TIterator *np = newPOIs.createIterator();
