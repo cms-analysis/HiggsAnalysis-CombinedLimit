@@ -37,7 +37,6 @@ bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 bool MultiDimFit::fastScan_ = false;
 bool MultiDimFit::loadedSnapshot_ = false;
-bool MultiDimFit::forceFirstFit_ = false;
 bool MultiDimFit::savingSnapshot_ = false;
 bool MultiDimFit::startFromPreFit_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
@@ -85,7 +84,6 @@ MultiDimFit::MultiDimFit() :
 	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
-        ("forceFirstFit", "Force the first fit even if it wouldn't normally happen (e.g. for algo=grid when loading a snapshot)")
        ;
 }
 
@@ -121,7 +119,6 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
     savingSnapshot_ = (!loadedSnapshot_) && vm.count("saveWorkspace");
-    forceFirstFit_ = (vm.count("forceFirstFit") > 0);
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 

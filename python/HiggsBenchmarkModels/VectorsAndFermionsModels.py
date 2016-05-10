@@ -339,7 +339,7 @@ class CvCfInvHiggs(SMLikeHiggsModel):
         self.SMH.makeScaling('hgg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
         self.SMH.makeScaling('hzg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
 
-	# make a nice ggZH scaler
+	# make a ggZH scaler
 	self.modelBuilder.factory_('expr::Scaling_ggZH("(@0*@0)*2.27  + (@1*@1)*0.37 - (@0*@1)*1.64", CV, CF)')
 
         # Ideas for a cleaner future
@@ -370,11 +370,12 @@ class CvCfInvHiggs(SMLikeHiggsModel):
             return name
         
         BRscal = self.decayScaling[decay]
-        if production == "ggZH": self.modelBuilder.factory_('expr::%s("@0* @1", %s, CvCf_BRscal_%s)' % (name,"Scaling_ggZH",BRscal))
-
-	else :
+	if production in self.productionScaling.keys(): # Simple scalings 
         	XSscal = self.productionScaling[production]
 		self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, CvCf_BRscal_%s)' % (name, XSscal, BRscal))
+	else: 
+		self.SMH.makeScaling("ggZH", Cb='CF', Ctop='CF', Ctau='CF', CW='CV', CZ='CV')
+		name+="_%s"%energy
 
         return name
 
