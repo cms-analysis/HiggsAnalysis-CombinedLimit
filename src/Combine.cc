@@ -359,7 +359,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
       }
     }
-  
+    
+    if (setPhysicsModelParameterRangeExpression_ != "") {
+      utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
+    }
     //*********************************************
     //set physics model parameters    after loading the snapshot
     //*********************************************
@@ -503,10 +506,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
 
-
-  if (setPhysicsModelParameterRangeExpression_ != "") {
-      utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
-  }
   if (redefineSignalPOIs_ != "") {
       RooArgSet newPOIs(w->argSet(redefineSignalPOIs_.c_str()));
       TIterator *np = newPOIs.createIterator();
@@ -806,7 +805,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     unsigned int nLimits = 0;
     w->loadSnapshot("clean");
     RooDataSet *systDs = 0;
-    if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {
+    RooArgSet allFloatingParameters = w->allVars(); 
+    allFloatingParameters.remove(*mc->GetParametersOfInterest());
+    int nFloatingNonPoiParameters = utils::countFloating(allFloatingParameters); 
+    if (nFloatingNonPoiParameters && !toysNoSystematics_ && (readToysFromHere == 0)) {
       if (nuisances == 0) throw std::logic_error("Running with systematics enabled, but nuisances not defined.");
       nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
