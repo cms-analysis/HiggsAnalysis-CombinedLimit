@@ -110,6 +110,7 @@
 	<class name="RooqqZZPdf_v2" />
 	<class name="SimpleCacheSentry" />
 	<class name="SimpleGaussianConstraint" />
+	<class name="SimplePoissonConstraint" />
 	<class name="TH1Keys" />
 	<class name="Triangle" />
 	<class name="VerticalInterpHistPdf" />

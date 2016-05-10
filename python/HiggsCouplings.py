@@ -5,8 +5,9 @@ from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.CSquared import CSquaredHi
 cSq = CSquaredHiggs()
 
 # CVCF models
-from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.VectorsAndFermionsModels import CvCfHiggs, CvCfXgHiggs, CfXgHiggs
+from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.VectorsAndFermionsModels import CvCfHiggs, CvCfXgHiggs, CfXgHiggs, CvCfInvHiggs
 cVcF = CvCfHiggs()
+cVcFInv = CvCfInvHiggs()
 #cVcFxG = CvCfXgHiggs()
 #cFxG = CfXgHiggs()
 
@@ -42,4 +43,7 @@ c6 = C6()
 c7 = C7()
 partialWidths = PartialWidthsModel()
 
+# Model with full LO parametrization 
+from HiggsAnalysis.CombinedLimit.VEVandEpsilon import ResolvedC6
+resolvedC6 = ResolvedC6()
 

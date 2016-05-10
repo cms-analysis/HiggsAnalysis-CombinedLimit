@@ -6,7 +6,7 @@
 
 #include "Riostream.h"
 
-#include "../interface/RooMomentMorphND.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMomentMorphND.h"
 #include "RooAbsCategory.h"
 #include "RooRealIntegral.h"
 #include "RooRealConstant.h"

@@ -43,6 +43,9 @@ for b in DC.bins:
     exps = {}
     for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
         exps[p] = [ e, [] ]
+        if exps[p][0] < 0:
+            s0 = MB.getShape(b,p)
+            if s0.InheritsFrom("TH1"): exps[p][0] = s0.Integral()
     for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
         if pdf in ('param', 'flatParam'): continue
         # begin skip systematics

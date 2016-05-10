@@ -344,6 +344,8 @@ class ModelBuilder(ModelBuilderBase):
                 for groupName in groupNames:
                     self.out.var(n).setAttribute('group_'+groupName,True)
             #self.out.var(n).Print('V')
+            if n in self.DC.frozenNuisances:
+                self.out.var(n).setConstant(True)
         if self.options.bin:
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()

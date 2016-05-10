@@ -31,10 +31,30 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <regex>
 
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 using namespace std;
+
+// This is needed to be able to factorize products in factorizeFunc, since RooProduct::components() strips duplicates
+namespace {
+    class RooProductWithAccessors : public RooProduct {
+        public:
+            RooProductWithAccessors(const RooProduct &other) :
+                RooProduct(other) {}
+            RooArgList realTerms() const { 
+                RooArgList ret;
+                RooFIter compRIter = _compRSet.fwdIterator() ;
+                RooAbsReal* rcomp;
+                while((rcomp=(RooAbsReal*)compRIter.next())) {
+                   ret.add(*rcomp); 
+                }
+                return ret;
+            }
+    };
+}
 
 void utils::printRDH(RooAbsData *data) {
   std::vector<std::string> varnames, catnames;
@@ -58,7 +78,7 @@ void utils::printRDH(RooAbsData *data) {
     printf("%4d  ",i);
     for (size_t j = 0; j < nv; ++j) { printf("%16g  ",    bin->getRealValue(varnames[j].c_str())); }
     for (size_t j = 0; j < nc; ++j) { printf("%16.16s  ", bin->getCatLabel(catnames[j].c_str())); }
-    printf("%8.3f\n", data->weight());
+    printf("%12.7f\n", data->weight());
   }
 }
 
@@ -67,7 +87,7 @@ void utils::printRAD(const RooAbsData *d) {
   else d->get(0)->Print("V");
 }
 
-void utils::printPdf(RooAbsPdf *pdf) {
+void utils::printPdf(const RooAbsReal *pdf) {
   std::cout << "Pdf " << pdf->GetName() << " parameters." << std::endl;
   std::auto_ptr<RooArgSet> params(pdf->getVariables());
   params->Print("V");
@@ -197,7 +217,12 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
         if (!constraints.contains(pdf)) constraints.add(pdf);
     }
 }
-void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
+
+
+RooArgList utils::factors(const RooProduct &prod) {
+    return ::RooProductWithAccessors(prod).realTerms();
+}
+void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArgList &obsTerms, RooArgList &constraints, bool keepDuplicate, bool debug) {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(&func);
     if (pdf != 0) { 
         factorizePdf(observables, *pdf, obsTerms, constraints, debug); 
@@ -206,17 +231,17 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
     const std::type_info & id = typeid(func);
     if (id == typeid(RooProduct)) {
         RooProduct *prod = dynamic_cast<RooProduct *>(&func);
-        RooArgSet components(prod->components());
+        RooArgList components(utils::factors(*prod));
         //std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
         std::auto_ptr<TIterator> iter(components.createIterator());
         for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
             //std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << "(dep obs? " << funci->dependsOn(observables) << ")" << std::endl;
-            factorizeFunc(observables, *funci, obsTerms, constraints);
+            factorizeFunc(observables, *funci, obsTerms, constraints, true);
         }
     } else if (func.dependsOn(observables)) {
-        if (!obsTerms.contains(func)) obsTerms.add(func);
+        if (!obsTerms.contains(func) || keepDuplicate) obsTerms.add(func);
     } else {
-        if (!constraints.contains(func)) constraints.add(func);
+        if (!constraints.contains(func) || keepDuplicate) constraints.add(func);
     }
 }
 
@@ -254,6 +279,25 @@ RooAbsReal *utils::fullCloneFunc(const RooAbsReal *pdf, RooArgSet &holder, bool 
   // Find the top level FUNC in the snapshot list
   return (RooAbsReal*) holder.find(pdf->GetName());
 }
+
+RooAbsReal *utils::fullCloneFunc(const RooAbsReal *pdf, const RooArgSet &obs, RooArgSet &holder, bool cloneLeafNodes) {
+  // Clone all FUNC compents by copying all branch nodes
+  RooArgSet tmp("RealBranchNodeList"), toClone;
+  pdf->branchNodeServerList(&tmp);
+  unsigned int nitems = tmp.getSize();
+  RooFIter iter = tmp.fwdIterator();
+  for (RooAbsArg *a = iter.next(); a != 0; a = iter.next()) {
+      if (a == pdf) toClone.add(*a);
+      else if (a->dependsOn(obs)) toClone.add(*a);
+  }
+  unsigned int nobsitems = toClone.getSize();
+  toClone.snapshot(holder, cloneLeafNodes); 
+  if (runtimedef::get("fullCloneFunc_VERBOSE")) std::cout << "For PDF " << pdf->GetName() << ", cloned " << nobsitems << "/" << nitems << " items" << std::endl;
+  // Find the top level FUNC in the snapshot list
+  return (RooAbsReal*) holder.find(pdf->GetName());
+}
+
+
 
 
 void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &allObjects, RooAbsCollection &clients) {
@@ -449,6 +493,41 @@ void utils::guessChannelMode(RooSimultaneous &simPdf, RooAbsData &simData, bool 
     }
 }
 
+void
+utils::setChannelGenModes(RooSimultaneous &simPdf, const std::string &binned, const std::string &unbinned, int verbose) {
+    std::regex r_binned(binned, std::regex::ECMAScript);
+    std::regex r_unbinned(unbinned, std::regex::ECMAScript);
+    std::smatch match;
+
+    RooAbsCategoryLValue &cat = const_cast<RooAbsCategoryLValue &>(simPdf.indexCat());
+    for (int i = 0, n = cat.numBins((const char *)0); i < n; ++i) {
+        cat.setBin(i);
+        const std::string & label = cat.getLabel();
+        RooAbsPdf *pdf = simPdf.getPdf(label.c_str());
+        if (!binned.empty() && std::regex_match(label, match, r_binned)) {
+            if (pdf->getAttribute("forceGenUnbinned")) {
+                if (verbose) std::cout << "Overriding generation mode for " << pdf->GetName() << " in " << label << " from unbinned to binned." << std::endl;
+                pdf->setAttribute("forceGenUnbinned", false);
+            } else {
+                if (verbose) std::cout << "Setting generation mode for " << pdf->GetName() << " in " << label << " to binned." << std::endl;
+            }
+            pdf->setAttribute("forceGenBinned");
+        }
+        if (!unbinned.empty() && std::regex_match(label, match, r_unbinned)) {
+            if (pdf->getAttribute("forceGenBinned")) {
+                if (verbose) std::cout << "Overriding generation mode for " << pdf->GetName() << " in " << label << " from binned to unbinned." << std::endl;
+                pdf->setAttribute("forceGenBinned", false);
+            } else {
+                if (verbose) std::cout << "Setting generation mode for " << pdf->GetName() << " in " << label << " to unbinned." << std::endl;
+            }
+            pdf->setAttribute("forceGenUnbinned");
+        }
+        if (!pdf->getAttribute("forceGenUnbinned") && !pdf->getAttribute("forceGenBinned")) {
+            if (verbose > -1) std::cout << "Warning: pdf generation mode for " << pdf->GetName() << " in " << label << " is not set" << std::endl;
+        }
+    }
+}
+
 std::vector<RooPlot *>
 utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel, const char *backgroundSel, float rebinFactor) {
     std::vector<RooPlot *> ret;
@@ -604,6 +683,18 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
       
     if (SetParameterRangeExpression.size() != 3) {
       std::cout << "Error parsing physics model parameter expression : " << SetParameterRangeExpressionList[p] << endl;
+    } else if (SetParameterRangeExpression[1] == "-inf" && (
+                    SetParameterRangeExpression[2] == "inf" || 
+                    SetParameterRangeExpression[2] == "+inf") ) {
+      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
+      if (tmpParameter) {
+        cout << "Leave Parameter " << SetParameterRangeExpression[0] 
+             << " freely floating, with no range\n";
+        tmpParameter->removeRange();
+      } else {
+        std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
+      }
+ 
     } else {
       double PhysicsParameterRangeLow = atof(SetParameterRangeExpression[1].c_str());
       double PhysicsParameterRangeHigh = atof(SetParameterRangeExpression[2].c_str());

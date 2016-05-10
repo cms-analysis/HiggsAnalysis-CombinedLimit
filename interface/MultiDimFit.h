@@ -44,8 +44,11 @@ protected:
   static bool skipInitialFit_;
   static bool fastScan_;
   static bool hasMaxDeltaNLLForProf_;
-  static bool loadedSnapshot_;
+  static bool loadedSnapshot_,  savingSnapshot_;
   static float maxDeltaNLLForProf_;
+  static float autoRange_;
+  static bool  startFromPreFit_;
+  static std::string fixedPointPOIs_;
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
@@ -68,11 +71,11 @@ protected:
 
   // variables
   void doSingles(RooFitResult &res) ;
-  void doGrid(RooAbsReal &nll) ;
-  void doRandomPoints(RooAbsReal &nll) ;
-  void doFixedPoint(RooWorkspace *w,RooAbsReal &nll) ;
-  void doContour2D(RooAbsReal &nll) ;
-  void doStitch2D(RooAbsReal &nll) ;
+  void doGrid(RooWorkspace *w, RooAbsReal &nll) ;
+  void doRandomPoints(RooWorkspace *w, RooAbsReal &nll) ;
+  void doFixedPoint(RooWorkspace *w, RooAbsReal &nll) ;
+  void doContour2D(RooWorkspace *w, RooAbsReal &nll) ;
+  void doStitch2D(RooWorkspace *w, RooAbsReal &nll) ;
   void doImpact(RooFitResult &res, RooAbsReal &nll) ;
 
   // utilities

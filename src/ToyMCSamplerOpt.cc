@@ -365,7 +365,7 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
                 RooDataSet *wdata = new RooDataSet(data->GetName(), "", obs, "_weight_");
                 for (int i = 0, n = data->numEntries(); i < n; ++i) {
                     obs = *data->get(i);
-                    if (data->weight()) wdata->add(obs, data->weight());
+                    wdata->add(obs, data->weight());
                 }
                 //std::cout << "DataHist was " << std::endl; utils::printRAD(data);
                 delete data;

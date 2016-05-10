@@ -10,7 +10,7 @@
 
 #include "Riostream.h" 
 
-#include "../interface/GaussExp.h" 
+#include "HiggsAnalysis/CombinedLimit/interface/GaussExp.h" 
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h> 
