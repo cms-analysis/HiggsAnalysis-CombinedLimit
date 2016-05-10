@@ -324,6 +324,7 @@ class CvCfInvHiggs(SMLikeHiggsModel):
             'hss':'hff',
             'htt':'hff',
             'hmm':'hff',
+            'hinv':'hinv',
             'hgluglu':'hff',
             }
         self.productionScaling = {
@@ -337,6 +338,9 @@ class CvCfInvHiggs(SMLikeHiggsModel):
         
         self.SMH.makeScaling('hgg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
         self.SMH.makeScaling('hzg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
+
+	# make a nice ggZH scaler
+	self.modelBuilder.factory_('expr::Scaling_ggZH("(@0*@0)*2.27  + (@1*@1)*0.37 - (@0*@1)*1.64", CV, CF)')
 
         # Ideas for a cleaner future
         #        self.SMH.makeScaling('hww', 'CV*CV') -> Scaling_hww("@0*@0",CV)
@@ -356,6 +360,7 @@ class CvCfInvHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::CvCf_BRscal_hzg("@0/@1", Scaling_hzg, CvCf_Gscal_tot)')
         self.modelBuilder.factory_('expr::CvCf_BRscal_hff("@0*@0/@1", CF, CvCf_Gscal_tot)')
         self.modelBuilder.factory_('expr::CvCf_BRscal_hvv("@0*@0/@1", CV, CvCf_Gscal_tot)')
+        self.modelBuilder.factory_('expr::CvCf_BRscal_hinv("@0", BRInvUndet)')
         
         self.modelBuilder.out.Print()
     def getHiggsSignalYieldScale(self,production,decay,energy):
@@ -364,8 +369,12 @@ class CvCfInvHiggs(SMLikeHiggsModel):
         if self.modelBuilder.out.function(name):
             return name
         
-        XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
-        self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, CvCf_BRscal_%s)' % (name, XSscal, BRscal))
+        if production == "ggZH": self.modelBuilder.factory_('expr::%s("@0* @1", %s, CvCf_BRscal_%s)' % (name,"Scaling_ggZH",BRscal))
+
+	else :
+        	XSscal = self.productionScaling[production]
+		self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, CvCf_BRscal_%s)' % (name, XSscal, BRscal))
+
         return name
 
