@@ -113,17 +113,17 @@ class SMHiggsBuilder:
 #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
         elif what.startswith('ggZH'):
-            for sqrts in ('7TeV', '8TeV'):
+            for sqrts in ('7TeV', '8TeV','13TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
                 rooExpr = 'expr::%(scalingName)s( "(@0*@0)*2.27  + (@1*@1)*0.37 - (@0*@1)*1.64", %(CZ)s, %(Ctop)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith('tHq'):
-            for sqrts in ('7TeV', '8TeV'):
+            for sqrts in ('7TeV', '8TeV','13TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
                 rooExpr = 'expr::%(scalingName)s( "(@0*@0)*3.4  + (@1*@1)*3.56 - (@0*@1)*5.96", %(Ctop)s, %(CW)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith('tHW'):
-            for sqrts in ('7TeV', '8TeV'):
+            for sqrts in ('7TeV', '8TeV','13 TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
                 rooExpr = 'expr::%(scalingName)s( "(@0*@0)*1.84  + (@1*@1)*1.57 - (@0*@1)*2.41", %(Ctop)s, %(CW)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
