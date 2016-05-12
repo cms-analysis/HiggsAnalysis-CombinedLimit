@@ -14,7 +14,8 @@ BinByBinFactory::BinByBinFactory()
       bbb_threshold_(0.),
       merge_threshold_(0.),
       fix_norm_(true),
-      poisson_errors_(false) {}
+      poisson_errors_(false),
+      merge_zero_bins_(true) {}
 
 
 void BinByBinFactory::MergeBinErrors(CombineHarvester &cb) {
@@ -51,7 +52,8 @@ void BinByBinFactory::MergeBinErrors(CombineHarvester &cb) {
       for (unsigned j = 0; j < h_copies.size(); ++j) {
         double val = h_copies[j]->GetBinContent(i);
         double err = h_copies[j]->GetBinError(i);
-        if (val == 0.0 &&  err == 0.0) continue;
+        if (val == 0.0 && err == 0.0) continue;
+        if (val == 0.0 && !merge_zero_bins_) continue;
         if (val == 0 || (err/val) > bbb_threshold_) {
           bbb_added += 1;
           tot_bbb_added += (err * err);

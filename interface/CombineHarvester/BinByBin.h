@@ -134,6 +134,14 @@ class BinByBinFactory {
     return *this;
   }
 
+  /**
+   * Construct approximate Poisson uncertainties instead of default Gaussian
+   */
+  inline BinByBinFactory& SetMergeZeroBins(bool merge) {
+    merge_zero_bins_ = merge;
+    return *this;
+  }
+
  private:
   std::string pattern_;
   unsigned v_;
@@ -141,6 +149,7 @@ class BinByBinFactory {
   double merge_threshold_;
   bool fix_norm_;
   bool poisson_errors_;
+  bool merge_zero_bins_;
 };
 }
 
