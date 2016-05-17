@@ -2,6 +2,7 @@
 #include "boost/program_options.hpp"
 #include "boost/format.hpp"
 #include "TSystem.h"
+#include "TH2F.h"
 #include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
 #include "CombineHarvester/CombineTools/interface/ParseCombineWorkspace.h"
 #include "CombineHarvester/CombineTools/interface/TFileIO.h"
@@ -25,6 +26,7 @@ int main(int argc, char* argv[]) {
   bool factors      = false;
   unsigned samples  = 500;
   std::string freeze_arg = "";
+  bool covariance   = false;
 
   po::options_description help_config("Help");
   help_config.add_options()
@@ -62,7 +64,10 @@ int main(int argc, char* argv[]) {
       "Print tables of background shifts and relative uncertainties")
     ("freeze",
       po::value<string>(&freeze_arg)->default_value(freeze_arg),
-      "Format PARAM1,PARAM2=X,PARAM3=Y where the values X and Y are optional");
+      "Format PARAM1,PARAM2=X,PARAM3=Y where the values X and Y are optional")
+    ("covariance",
+      po::value<bool>(&covariance)->default_value(covariance)->implicit_value(true),
+      "Save the covariance and correlation matrices of the process yields");
 
   if (sampling && !postfit) {
     throw logic_error(
@@ -201,6 +206,12 @@ int main(int argc, char* argv[]) {
       double err = cmb_bin.cp().backgrounds().GetUncertainty();
       cout << boost::format("%-25s %-10.5f\n") % bin %
                   (rate > 0. ? (err / rate) : 0.);
+      for (auto proc : cmb_bin.process_set()) {
+        double prate = cmb_bin.cp().process({proc}).GetRate();
+        double perr = cmb_bin.cp().process({proc}).GetUncertainty();
+        cout << boost::format("  %-23s %-10.5f\n") % proc %
+                    (prate > 0. ? (perr / prate) : 0.);
+      }
     }
   }
 
@@ -217,15 +228,25 @@ int main(int argc, char* argv[]) {
       cout << string(58, '-') << "\n";
       for (auto bin : bins) {
         ch::CombineHarvester cmb_bkgs = cmb.cp().bin({bin}).backgrounds();
+        ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
         double rate = cmb_bkgs.GetRate();
         double err = sampling ? cmb_bkgs.GetUncertainty(res, samples)
                               : cmb_bkgs.GetUncertainty();
         cout << boost::format("%-25s %-10.5f\n") % bin %
                     (rate > 0. ? (err / rate) : 0.);
+        for (auto proc : cmb_bin.process_set()) {
+          double prate = cmb_bin.cp().process({proc}).GetRate();
+          double perr =  sampling ? cmb_bin.cp().process({proc}).GetUncertainty(res, samples)
+                                  : cmb_bin.cp().process({proc}).GetUncertainty();
+          cout << boost::format("  %-23s %-10.5f\n") % proc %
+                      (prate > 0. ? (perr / prate) : 0.);
+        }
       }
     }
 
     map<string, map<string, TH1F>> post_shapes;
+    map<string, TH2F> post_yield_cov;
+    map<string, TH2F> post_yield_cor;
     // As we calculate the post-fit yields can also print out the post/pre scale
     // factors
     if (factors) {
@@ -253,6 +274,10 @@ int main(int argc, char* argv[]) {
                                            : 1.0);
         }
       }
+      if (sampling && covariance) {
+        post_yield_cov[bin] = cmb_bin.GetRateCovariance(res, samples);
+        post_yield_cor[bin] = cmb_bin.GetRateCorrelation(res, samples);
+      }
       // Fill the total sig. and total bkg. hists
       auto cmb_bkgs = cmb_bin.cp().backgrounds();
       auto cmb_sigs = cmb_bin.cp().signals();
@@ -278,6 +303,14 @@ int main(int argc, char* argv[]) {
       for (auto & iter : post_shapes[bin]) {
         ch::WriteToTFile(&(iter.second), &outfile,
                          bin + "_postfit/" + iter.first);
+      }
+      for (auto & iter : post_yield_cov) {
+        ch::WriteToTFile(&(iter.second), &outfile,
+                         iter.first+"_cov");
+      }
+      for (auto & iter : post_yield_cor) {
+        ch::WriteToTFile(&(iter.second), &outfile,
+                         iter.first+"_cor");
       }
     }
   }
