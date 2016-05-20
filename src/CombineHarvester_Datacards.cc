@@ -655,7 +655,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   std::string dashes(80, '-');
 
-  auto bin_set = this->SetFromObs(std::mem_fn(&ch::Observation::bin));
+  auto bin_set = this->SetFromProcs(std::mem_fn(&ch::Process::bin));
   auto proc_set = this->SetFromProcs(std::mem_fn(&ch::Process::process));
   std::set<std::string> sys_set;
   std::set<std::string> rateparam_set;
@@ -780,32 +780,34 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   }
 
   // Writing observations
-  txt_file << "bin          ";
-  for (auto const& obs : obs_) {
-    txt_file << format("%-15s ") % obs->bin();
-    if (obs->shape()) {
-      std::unique_ptr<TH1> h((TH1*)(obs->shape()->Clone()));
-      h->Scale(obs->rate());
-      WriteHistToFile(h.get(), &root_file, mappings, obs->bin(), "data_obs",
-                      obs->mass(), "", 0);
+  if (obs_.size() > 0) {
+    txt_file << "bin          ";
+    for (auto const& obs : obs_) {
+      txt_file << format("%-15s ") % obs->bin();
+      if (obs->shape()) {
+        std::unique_ptr<TH1> h((TH1*)(obs->shape()->Clone()));
+        h->Scale(obs->rate());
+        WriteHistToFile(h.get(), &root_file, mappings, obs->bin(), "data_obs",
+                        obs->mass(), "", 0);
+      }
     }
+    txt_file << "\n";
+    txt_file << "observation  ";
+    // On the precision of the observation yields: .1f is not sufficient for
+    // combine to be happy if we have some asimov dataset with non-integer values.
+    // We could just always give .4f but this doesn't look nice for the majority
+    // of cards that have real data. Instead we'll check...
+    std::string obs_fmt_int = "%-15.1f ";
+    std::string obs_fmt_flt = "%-15.4f ";
+    for (auto const& obs : obs_) {
+      bool is_float =
+          std::fabs(obs->rate() - std::round(obs->rate())) > 1E-4;
+      txt_file << format(is_float ? obs_fmt_flt : obs_fmt_int)
+          % obs->rate();
+    }
+    txt_file << "\n";
+    txt_file << dashes << "\n";
   }
-  txt_file << "\n";
-  txt_file << "observation  ";
-  // On the precision of the observation yields: .1f is not sufficient for
-  // combine to be happy if we have some asimov dataset with non-integer values.
-  // We could just always give .4f but this doesn't look nice for the majority
-  // of cards that have real data. Instead we'll check...
-  std::string obs_fmt_int = "%-15.1f ";
-  std::string obs_fmt_flt = "%-15.4f ";
-  for (auto const& obs : obs_) {
-    bool is_float =
-        std::fabs(obs->rate() - std::round(obs->rate())) > 1E-4;
-    txt_file << format(is_float ? obs_fmt_flt : obs_fmt_int)
-        % obs->rate();
-  }
-  txt_file << "\n";
-  txt_file << dashes << "\n";
 
   unsigned sys_str_len = 14;
   for (auto const& sys : sys_set) {
