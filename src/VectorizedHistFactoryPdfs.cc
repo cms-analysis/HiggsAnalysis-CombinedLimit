@@ -130,18 +130,18 @@ const std::vector<Double_t> & cacheutils::CachingPiecewiseInterpolation::eval(co
     work_.resize(size);
     std::copy(nominal.begin(), nominal.end(), work_.begin());
     for (int i = 0, n =  coeffs_.size(); i < n; ++i) {
-        const std::vector<Double_t> & hi = cachingPdfsHi_[i].eval(data);
-        const std::vector<Double_t> & lo = cachingPdfsLow_[i].eval(data);
         double param = coeffs_[i]->getVal();
         int    code  = codes_[i];
         switch(code){
             case 0: 
                 {
                     if (param > 0) {
+                        const std::vector<Double_t> & hi = cachingPdfsHi_[i].eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] += param * (hi[j] - nominal[j]);
                         }
                     } else {
+                        const std::vector<Double_t> & lo = cachingPdfsLow_[i].eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] += param * (nominal[j] - lo[j]);
                         }
@@ -150,10 +150,12 @@ const std::vector<Double_t> & cacheutils::CachingPiecewiseInterpolation::eval(co
             case 2:
                 {
                     if (param > 0) {
+                        const std::vector<Double_t> & hi = cachingPdfsHi_[i].eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] *= std::pow(hi[j]/nominal[j], param);
                         }
                     } else {
+                        const std::vector<Double_t> & lo = cachingPdfsLow_[i].eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] *= std::pow(lo[j]/nominal[j], -param);
                         }
@@ -162,14 +164,18 @@ const std::vector<Double_t> & cacheutils::CachingPiecewiseInterpolation::eval(co
             case 4:
                 {
                     if (param > 1.) {
+                        const std::vector<Double_t> & hi = cachingPdfsHi_[i].eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] += param * (hi[j] - nominal[j]);
                         }
                     } else if (param < -1.){
+                        const std::vector<Double_t> & lo = cachingPdfsLow_[i].eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] += param * (nominal[j] - lo[j]);
                         }
                     } else {
+                        const std::vector<Double_t> & hi = cachingPdfsHi_[i].eval(data);
+                        const std::vector<Double_t> & lo = cachingPdfsLow_[i].eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             double eps_plus  = (hi[j]-nominal[j]);
                             double eps_minus = (nominal[j] - lo[j]);
