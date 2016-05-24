@@ -80,6 +80,8 @@ void CombineHarvester::AddSystFromProc(Process const& proc,
                                        std::string const& formula,
                                        std::string const& args) {
   std::string subbed_name = name;
+  boost::replace_all(subbed_name, "$BINID",
+                     boost::lexical_cast<std::string>(proc.bin_id()));
   boost::replace_all(subbed_name, "$BIN", proc.bin());
   boost::replace_all(subbed_name, "$PROCESS", proc.process());
   boost::replace_all(subbed_name, "$MASS", proc.mass());
@@ -107,6 +109,8 @@ void CombineHarvester::AddSystFromProc(Process const& proc,
       SetupRateParamVar(subbed_name, val_u);
     } else {
       std::string subbed_args = args;
+      boost::replace_all(subbed_args, "$BINID",
+                         boost::lexical_cast<std::string>(proc.bin_id()));
       boost::replace_all(subbed_args, "$BIN", proc.bin());
       boost::replace_all(subbed_args, "$PROCESS", proc.process());
       boost::replace_all(subbed_args, "$MASS", proc.mass());
