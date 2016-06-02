@@ -23,6 +23,7 @@
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/utils.h"
 #include <numeric>
+#include <memory>
 
 
 #include <Math/MinimizerOptions.h>
@@ -129,7 +130,9 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
           if (pdfi == 0) continue;
           RooAbsData *datai = (RooAbsData *) datasets->FindObject(cat->getLabel());
           if (datai == 0) throw std::runtime_error(std::string("Error: missing dataset for category label ")+cat->getLabel());
-          RooAbsPdf *saturatedPdfi = makeSaturatedPdf(*datai);
+          std::unique_ptr<RooArgSet> data_observables(pdfi->getObservables(datai));
+          std::unique_ptr<RooAbsData> data_reduced(datai->reduce(*data_observables));
+          RooAbsPdf *saturatedPdfi = makeSaturatedPdf(*data_reduced);
           //delete datai;
           if (constraints.getSize() > 0) {
             RooArgList terms(constraints); terms.add(*saturatedPdfi);
