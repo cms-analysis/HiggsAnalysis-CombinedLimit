@@ -14,6 +14,7 @@
 
 #include <TIterator.h>
 #include <TString.h>
+#include <TMath.h>
 
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
@@ -28,6 +29,7 @@
 #include <RooWorkspace.h>
 #include <RooPlot.h>
 #include <RooStats/ModelConfig.h>
+#include <RooRandom.h>
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -575,6 +577,10 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
         if (isrvar) {
           RooRealVar *tmpParameter = dynamic_cast<RooRealVar*>(tmp);
           double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
+          if(tmpParameter->getMin() > PhysicsParameterValue || tmpParameter->getMax() < PhysicsParameterValue) {
+            //if beyond limit throw exception
+            throw std::runtime_error("Error: trying to force paramenter " + SetParameterExpression[0] + " beyond its foreseen limit");
+          }
           cout << "Set Default Value of Parameter " << SetParameterExpression[0] 
                << " To : " << PhysicsParameterValue << "\n";
           tmpParameter->setVal(PhysicsParameterValue);
@@ -612,6 +618,41 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
         cout << "Set Range of Parameter " << SetParameterRangeExpression[0] 
              << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
         tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
+      } else {
+        std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
+      }
+    }
+  }
+
+}
+
+void utils::randomInitParameters(const std::string & expr, const RooArgSet & params) {
+
+  vector<string> SetParameterRangeExpressionList;  
+  boost::split(SetParameterRangeExpressionList, expr, boost::is_any_of(":"));
+  for (UInt_t p = 0; p < SetParameterRangeExpressionList.size(); ++p) {
+    vector<string> SetParameterRangeExpression;
+    boost::split(SetParameterRangeExpression, SetParameterRangeExpressionList[p], boost::is_any_of("=,"));
+    
+    if (SetParameterRangeExpression.size() != 3) {
+      std::cout << "Error parsing physics model parameter expression : " << SetParameterRangeExpressionList[p] << endl;
+    } else {
+      double mean  = atof(SetParameterRangeExpression[1].c_str());
+      double sigma = atof(SetParameterRangeExpression[2].c_str());
+      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
+      if (tmpParameter) {
+        double min = tmpParameter->getMin();
+        double max = tmpParameter->getMax();
+        if(mean < min || mean > max) {
+          throw std::runtime_error("Error: trying to sample parameter " + SetParameterRangeExpression[0] + " beyond its foreseen limit");
+        }
+        double rndm = 0;
+        do {
+          rndm = RooRandom::randomGenerator()->Gaus(mean, sigma);
+        } while(rndm <= min || rndm >= max);
+        
+        tmpParameter->setVal(rndm);
+        std::cout << "init prameter " << SetParameterRangeExpression[0] << " to " << tmpParameter->getVal() << std::endl;
       } else {
         std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
       }

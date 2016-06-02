@@ -37,6 +37,7 @@ protected:
   static bool justFit_,  skipBOnlyFit_, noErrors_;
   static std::string out_; 
   static bool        makePlots_;
+  static bool        saveNLL_;
   static float       rebinFactor_;
   static std::string signalPdfNames_, backgroundPdfNames_;
   static bool        saveNormalizations_;
@@ -47,6 +48,8 @@ protected:
   static bool        reuseParams_;
   static bool        customStartingPoint_;
 	static bool save_toys_;
+  static std::string initExpr_;
+  static std::string randomInitExpr_;  
   int currentToy_, nToys;
   int fitStatus_, numbadnll_;
   double mu_, muErr_, muLoErr_, muHiErr_, nll_nll0_, nll_bonly_, nll_sb_;

@@ -93,6 +93,7 @@ namespace utils {
     void setModelParameters( const std::string & setPhysicsModelParameterExpression, const RooArgSet & params);
     // Set range of physics model parameters
     void setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params);
+    void randomInitParameters(const std::string & expr, const RooArgSet & params);
 
     bool isParameterAtBoundary( const RooRealVar &);
     bool anyParameterAtBoundaries( const RooArgSet &, int verbosity);
