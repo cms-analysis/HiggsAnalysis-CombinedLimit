@@ -102,6 +102,7 @@ class ModelBuilder(ModelBuilderBase):
 
         self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
+	self.doExtArgs()
 	self.doRateParams()
         self.doExpectedEvents()
         self.doIndividualModels()
@@ -119,6 +120,28 @@ class ModelBuilder(ModelBuilderBase):
     def runPostProcesses(self):
       for n in self.DC.frozenNuisances:
          self.out.arg(n).setConstant(True)
+
+    def doExtArgs(self):
+	open_files = {};
+	for rp in self.DC.extArgs.keys():
+	  if self.out.arg(rp): continue
+	  argv = self.DC.extArgs[rp][-1]
+	  fin,wsn = argv.split(":")
+	  if (fin,wsn) in open_files: 
+	        wstmp = open_files[(fin,wsn)]
+	        if not wstmp.arg(rp): 
+	         raise RuntimeError, "No parameter '%s' found for extArg in workspace %s from file %s"%(rp,wsn,fin)
+	        self.out._import(wstmp.arg(rp))
+	  else:
+	    try:
+	      fitmp = ROOT.TFile.Open(fin)
+	      wstmp = fitmp.Get(wsn)
+	      if not wstmp.arg(rp): 
+	       raise RuntimeError, "No parameter '%s' found for extArg in workspace %s from file %s"%(rp,wsn,fin)
+	      self.out._import(wstmp.arg(rp))
+	      open_files[(fin,wsn)] = wstmp
+	    except: 
+	      raise RuntimeError, "No File '%s' found for extArg, or workspace '%s' not in file "%(fin,wsn)
 
     def doRateParams(self):
 
@@ -333,6 +356,8 @@ class ModelBuilder(ModelBuilderBase):
                     self.out.var("%s_In" % n).setConstant(True)
                 globalobs.append("%s_In" % n)
                 #if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
+	    elif pdf == "extArg" : continue  
+
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
             if nofloat: 
               self.out.var(n).setAttribute("globalConstrained",True)
