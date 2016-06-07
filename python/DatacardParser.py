@@ -199,6 +199,10 @@ def parseCard(file, options):
                 ret.flatParamNuisances[lsyst] = True
                 #for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
                 continue
+	    elif pdf == "extArg": 
+	        # look for additional parameters in workspaces 
+	        ret.extArgs[lsyst]=f[:]
+	    	continue 
             elif pdf == "rateParam":
 	        if f[3]=="*" and f[2]=="*": # all channels 
 		  for c in ret.processes: 

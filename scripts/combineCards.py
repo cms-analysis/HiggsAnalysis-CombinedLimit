@@ -36,6 +36,7 @@ obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
 paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {}; rateParamsOrder = set();
+extArgs = {};
 nuisanceEdits = []; 
 
 cmax = 5 # column width
@@ -116,6 +117,8 @@ for ich,fname in enumerate(args):
     # flat params
     for K in DC.flatParamNuisances.iterkeys(): 
         flatParamNuisances[K] = True
+    for K in DC.extArgs.keys(): 
+        extArgs[K] = DC.extArgs[K]
     # rate params
     for K in DC.rateParams.iterkeys():
 	tbin,tproc = K.split("AND")[0],K.split("AND")[1]
@@ -256,7 +259,8 @@ for pname in rateParams.iterkeys():
      print "\n",
 for dname in discreteNuisances.iterkeys(): 
     print "%-12s  discrete" % dname
-
+for ext in extArgs.iterkeys(): 
+    print "%s" % ' '.join(extArgs[ext])
 for groupName,nuisanceNames in groups.iteritems():
     nuisances = ' '.join(nuisanceNames)
     print '%(groupName)s group = %(nuisances)s' % locals()
