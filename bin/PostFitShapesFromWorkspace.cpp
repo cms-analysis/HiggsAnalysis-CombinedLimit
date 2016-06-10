@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
   unsigned samples  = 500;
   std::string freeze_arg = "";
   bool covariance   = false;
+  string data       = "data_obs";
 
   po::options_description help_config("Help");
   help_config.add_options()
@@ -37,6 +38,9 @@ int main(int argc, char* argv[]) {
     ("workspace,w",
       po::value<string>(&workspace)->required(),
       "The input workspace-containing file [REQUIRED]")
+    ("dataset",
+      po::value<string>(&data)->default_value(data),
+      "The input dataset name")
     ("datacard,d",
       po::value<string>(&datacard),
       "The input datacard, only used for rebinning")
@@ -104,7 +108,7 @@ int main(int argc, char* argv[]) {
   // Create CH instance and parse the workspace
   ch::CombineHarvester cmb;
   cmb.SetFlag("workspaces-use-clone", true);
-  ch::ParseCombineWorkspace(cmb, *ws, "ModelConfig", "data_obs", false);
+  ch::ParseCombineWorkspace(cmb, *ws, "ModelConfig", data, false);
 
   // Only evaluate in case parameters to freeze are provided
   if(! freeze_arg.empty())
