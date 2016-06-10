@@ -62,6 +62,7 @@ arg8=RooCmdArg::none());
   RooAbsPdf *getCurrentPdf() const;
   int getNumPdfs() const {return nPdfs;};
   void setCorrectionFactor(PenatlyScheme penal);
+  void setCorrectionFactor(double penal);
   int getCurrentIndex() const ;
   RooAbsPdf *getPdf(int index) const ;
   virtual Double_t getValV(const RooArgSet* nset) const ;
