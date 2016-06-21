@@ -202,6 +202,9 @@ double CombineHarvester::GetRateInternal(ProcSystMap const& lookup,
       })) continue;
     }
     for (auto sys_it : lookup[i]) {
+      if (sys_it->type() == "rateParam") {
+        continue;  // don't evaluate this for now
+      }
       double x = params_[sys_it->name()]->val();
       if (sys_it->asymm()) {
         p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
@@ -234,6 +237,9 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
     if (procs_[i]->shape() || procs_[i]->data()) {
       TH1F proc_shape = procs_[i]->ShapeAsTH1F();
       for (auto sys_it : lookup[i]) {
+        if (sys_it->type() == "rateParam") {
+          continue;  // don't evaluate this for now
+        }
         auto param_it = params_.find(sys_it->name());
         if (param_it == params_.end()) {
           throw std::runtime_error(
@@ -292,6 +298,9 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
         }
       }
       for (auto sys_it : lookup[i]) {
+        if (sys_it->type() == "rateParam") {
+          continue;  // don't evaluate this for now
+        }
         double x = params_[sys_it->name()]->val();
         if (sys_it->asymm()) {
           p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
