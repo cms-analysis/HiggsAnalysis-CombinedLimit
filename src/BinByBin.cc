@@ -168,6 +168,7 @@ void BinByBinFactory::AddBinByBin(CombineHarvester &src, CombineHarvester &dest)
         std::unique_ptr<TH1> h_u(static_cast<TH1 *>(h->Clone()));
         h_d->SetBinContent(j, val - err_lo);
         if (h_d->GetBinContent(j) < 0.) h_d->SetBinContent(j, 0.);
+        if (!(h_d->Integral() > 0.)) h_d->SetBinContent(j,0.00001*h->Integral());
         h_u->SetBinContent(j, val + err_hi);
         if (fix_norm_) {
           sys.set_value_d(1.0);
