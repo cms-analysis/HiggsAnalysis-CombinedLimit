@@ -125,14 +125,21 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 
     // Process POI not in list
     nOtherFloatingPoi_ = 0;
+    int nConstPoi=0;
     RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
+    std::string setConstPOI;
     for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
         if (poiList_.contains(*a)) continue;
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << a->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
         rrv->setConstant(!floatOtherPOIs_);
+	if (!floatOtherPOIs_) {
+		setConstPOI+=std::string(rrv->GetName())+", ";
+		nConstPoi++;
+	}
         if (floatOtherPOIs_) nOtherFloatingPoi_++;
     }
+    if (nConstPoi>0) std::cout << "Following POIs have been set constant (use --floatOtherPOIs to let them float): " << setConstPOI << std::endl;
  
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
