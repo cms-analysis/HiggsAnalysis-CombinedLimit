@@ -1,3 +1,39 @@
+TLine *getMedian(TH1F *b){
+	double medx[1] ={0.5};
+	double medy[1] ={0.};
+
+	b->GetQuantiles(1,medy,medx);
+	std::cout << " Median - bonly " << medy[0] << std::endl;
+	int binc = b->FindBin(medy[0]);
+	TLine *l = new TLine(medy[0],b->GetMinimum(),medy[0],b->GetBinContent(binc));
+	l->SetLineColor(1);
+	l->SetLineStyle(2);
+	return l;
+}
+
+TH1F *getQuantHist(TH1F *b, double qMin, double qMax){
+	
+	TH1F *hist68 = (TH1F*) b->Clone();
+	hist68->SetName(Form("%s_%g_%g",b->GetName(),qMin,qMax));
+
+	double medx[2] ={qMin,qMax};
+	double medy[2] ={0.,0.};
+
+	b->GetQuantiles(2,medy,medx);
+	std::cout << Form(" Quantiles, %g,%g - bonly ",medx[0],medx[1]) << medy[0] << ", " << medy[1] << std::endl;
+
+	for (int bin=1;bin<=b->GetNbinsX();bin++){
+		double binc = b->GetBinCenter(bin);
+		if (binc < medy[0] || binc > medy[1] ) {
+			hist68->SetBinContent(bin,0) ;
+		}
+	}
+	
+	hist68->SetFillStyle(3001);
+	return hist68;
+}
+
+
 TPaveText *cmsprel;
 void spam(const char *text=0, double x1=0.17, double y1=0.89, double x2=0.58, double y2=0.94, int textAlign=12, bool fill=true, float fontSize=0) {
    if (TString(text).Contains("#splitline")) {
@@ -48,28 +84,40 @@ double tailReal(TTree *t, std::string br, double cv, int mode){
 }
 
 TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int invert=0,int rebin=0) {
-    if (gFile == 0) { std::cerr << "You must have a file open " << std::endl; return; }
+    if (gFile == 0) { std::cerr << "You must have a file open " << std::endl; return 0; }
     TTree *t = (TTree *) gFile->Get("q");
-    if (t == 0) { std::cerr << "File " << gFile->GetName() << " does not contain a tree called 'q'" << std::endl; return; }
+    if (t == 0) { std::cerr << "File " << gFile->GetName() << " does not contain a tree called 'q'" << std::endl; return 0; }
 
     TCanvas *c1 = new TCanvas("c1","c1");
     c1->SetBottomMargin(0.15);
     
+    TH1F *qB;
+    TH1F *qS;
+
     if (mode==0) t->Draw("max(2*q,0)>>qB","weight*(type==-1)");
     else t->Draw("2*q>>qB","weight*(type==-1)");
+
+    if (invert) { // swap null for alt!
+       qS = (TH1F*) gROOT->FindObject("qB")->Clone();
+       qS->SetName("NullHyp");
+       qS->Print();  // in root6, without this Print, the integral is 0?!?!?!
+    } else { 
+       qB = (TH1F*) gROOT->FindObject("qB")->Clone();
+       qB->SetName("NullHyp");
+       qB->Print();
+    }
 
     if (mode==0) t->Draw("max(2*q,0)>>qS","weight*(type==+1)","SAME");
     else t->Draw("2*q>>qS","weight*(type==+1)","SAME");
 
-    TH1F *qB;
-    TH1F *qS;
-
     if (invert) { // swap null for alt!
-       qB = (TH1F*) gROOT->FindObject("qS")->Clone();
-       qS = (TH1F*) gROOT->FindObject("qB")->Clone(); 
+       qB = (TH1F*) gROOT->FindObject("qS")->Clone(); 
+       qB->SetName("AltHyp");
+       qB->Print();
     } else { 
-       qB = (TH1F*) gROOT->FindObject("qB")->Clone();
        qS = (TH1F*) gROOT->FindObject("qS")->Clone();
+       qS->SetName("AltHyp");
+       qS->Print();
     }
     double yMin = 4.9/qB->Integral();
 
@@ -95,12 +143,14 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     qO->SetLineColor(kBlack);
     qO->SetLineWidth(3);
 
+    double clSB;
+    double clB;
     if (invert){ 
-    	double clSB = tailReal(t,"qB",qObs,mode);
-    	double clB  = tailReal(t,"qS",qObs,mode);
+    	clSB = tailReal(t,"qB",qObs,mode);
+    	clB  = tailReal(t,"qS",qObs,mode);
     } else {
-    	double clSB = tailReal(t,"qS",qObs,mode);
-    	double clB  = tailReal(t,"qB",qObs,mode);
+    	clSB = tailReal(t,"qS",qObs,mode);
+    	clB  = tailReal(t,"qB",qObs,mode);
     }
 
     //double clSB = qS1->Integral(), clB = qB1->Integral(), 
@@ -149,22 +199,36 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     leg2->AddEntry("",  Form("CL_{s}   = %.4f", clS), "");
 
     qB->Draw();
+
+    // Draw bands on the Background distribution 
+    TLine *median_b  = getMedian(qB); 
+    TH1F *oneSig    = getQuantHist(qB,0.16,0.84);   oneSig->SetFillColor(kGreen+1);
+    TH1F *twoSig    = getQuantHist(qB,0.025,0.975); twoSig->SetFillColor(kYellow);
+    twoSig->Draw("histFsame");
+    oneSig->Draw("histFsame");
+    //qB->Draw("same");
+
     qS->Draw("SAME"); 
     qS1->Draw("HIST SAME"); 
     qB1->Draw("HIST SAME"); 
     qO->Draw(); 
     qB->Draw("AXIS SAME");
     qB->GetYaxis()->SetRangeUser(yMin, 2.0);
+    median_b->Draw();
     leg1->Draw();
     leg2->Draw();
     qB->SetTitle("");
     qB->GetYaxis()->SetTitle("");
     qB->GetXaxis()->SetTitle(Form("q_{%s}(%s = %g, m_{H} = %g GeV)",poinam.c_str(),poinam.c_str(),poival,mass));
     qB->GetXaxis()->SetTitleOffset(1.05);
+
+
     //c1->Print(Form("qmu_example_%.1f.pdf",mass));
     //c1->Print(Form("qmu_example_%.1f.png",mass));
     //c1->Print(Form("qmu_example_%.1f.eps",mass));
+
     c1->SetName(Form("qmu_%.1f_%g",mass,poival));
+
     return c1;
 
 }
