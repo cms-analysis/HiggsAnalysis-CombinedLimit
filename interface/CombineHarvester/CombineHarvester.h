@@ -347,6 +347,9 @@ class CombineHarvester {
   TH1F GetShapeWithUncertainty(RooFitResult const* fit, unsigned n_samples);
   TH1F GetShapeWithUncertainty(RooFitResult const& fit, unsigned n_samples);
   TH1F GetObservedShape();
+
+  TH2F GetRateCovariance(RooFitResult const& fit, unsigned n_samples);
+  TH2F GetRateCorrelation(RooFitResult const& fit, unsigned n_samples);
   /**@}*/
 
   /**

@@ -2,6 +2,7 @@
 #include "boost/program_options.hpp"
 #include "boost/format.hpp"
 #include "TSystem.h"
+#include "TH2F.h"
 #include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
 #include "CombineHarvester/CombineTools/interface/ParseCombineWorkspace.h"
 #include "CombineHarvester/CombineTools/interface/TFileIO.h"
@@ -25,6 +26,8 @@ int main(int argc, char* argv[]) {
   bool factors      = false;
   unsigned samples  = 500;
   std::string freeze_arg = "";
+  bool covariance   = false;
+  string data       = "data_obs";
 
   po::options_description help_config("Help");
   help_config.add_options()
@@ -35,6 +38,9 @@ int main(int argc, char* argv[]) {
     ("workspace,w",
       po::value<string>(&workspace)->required(),
       "The input workspace-containing file [REQUIRED]")
+    ("dataset",
+      po::value<string>(&data)->default_value(data),
+      "The input dataset name")
     ("datacard,d",
       po::value<string>(&datacard),
       "The input datacard, only used for rebinning")
@@ -62,7 +68,10 @@ int main(int argc, char* argv[]) {
       "Print tables of background shifts and relative uncertainties")
     ("freeze",
       po::value<string>(&freeze_arg)->default_value(freeze_arg),
-      "Format PARAM1,PARAM2=X,PARAM3=Y where the values X and Y are optional");
+      "Format PARAM1,PARAM2=X,PARAM3=Y where the values X and Y are optional")
+    ("covariance",
+      po::value<bool>(&covariance)->default_value(covariance)->implicit_value(true),
+      "Save the covariance and correlation matrices of the process yields");
 
   if (sampling && !postfit) {
     throw logic_error(
@@ -99,7 +108,7 @@ int main(int argc, char* argv[]) {
   // Create CH instance and parse the workspace
   ch::CombineHarvester cmb;
   cmb.SetFlag("workspaces-use-clone", true);
-  ch::ParseCombineWorkspace(cmb, *ws, "ModelConfig", "data_obs", false);
+  ch::ParseCombineWorkspace(cmb, *ws, "ModelConfig", data, false);
 
   // Only evaluate in case parameters to freeze are provided
   if(! freeze_arg.empty())
@@ -226,6 +235,8 @@ int main(int argc, char* argv[]) {
     }
 
     map<string, map<string, TH1F>> post_shapes;
+    map<string, TH2F> post_yield_cov;
+    map<string, TH2F> post_yield_cor;
     // As we calculate the post-fit yields can also print out the post/pre scale
     // factors
     if (factors) {
@@ -253,6 +264,10 @@ int main(int argc, char* argv[]) {
                                            : 1.0);
         }
       }
+      if (sampling && covariance) {
+        post_yield_cov[bin] = cmb_bin.GetRateCovariance(res, samples);
+        post_yield_cor[bin] = cmb_bin.GetRateCorrelation(res, samples);
+      }
       // Fill the total sig. and total bkg. hists
       auto cmb_bkgs = cmb_bin.cp().backgrounds();
       auto cmb_sigs = cmb_bin.cp().signals();
@@ -278,6 +293,14 @@ int main(int argc, char* argv[]) {
       for (auto & iter : post_shapes[bin]) {
         ch::WriteToTFile(&(iter.second), &outfile,
                          bin + "_postfit/" + iter.first);
+      }
+      for (auto & iter : post_yield_cov) {
+        ch::WriteToTFile(&(iter.second), &outfile,
+                         iter.first+"_cov");
+      }
+      for (auto & iter : post_yield_cor) {
+        ch::WriteToTFile(&(iter.second), &outfile,
+                         iter.first+"_cor");
       }
     }
   }

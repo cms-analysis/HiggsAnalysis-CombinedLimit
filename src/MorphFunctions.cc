@@ -6,6 +6,7 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/format.hpp"
 #include "boost/multi_array.hpp"
+#include "TGraphErrors.h"
 #include "RooFitResult.h"
 #include "RooRealVar.h"
 #include "RooDataHist.h"
@@ -280,6 +281,9 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   // We also need the array of process yields vs mass, because this will have to
   // be interpolated too
   multi_array<double, 1> rate_arr(extents[m]);
+  // Also store the yield uncertainty - we don't actually need this for the signal
+  // model, but will include it in the debug TGraph
+  multi_array<double, 1> rate_unc_arr(extents[m]);
   // The vertical-interpolation PDF needs the TH1 inputs in the format of a TList
   multi_array<std::shared_ptr<TList>, 1> list_arr(extents[m]);
   // Combine always treats the normalisation part of shape systematics as
@@ -319,6 +323,8 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
     }
     // Store the process rate
     rate_arr[mi] = pr_arr[mi]->rate();
+    auto proc_hist = pr_arr[mi]->ClonedScaledShape();
+    proc_hist->IntegralAndError(1, proc_hist->GetNbinsX(), rate_unc_arr[mi]);
     // Do the same for the Up and Down shapes
     for (unsigned ssi = 0; ssi < ss; ++ssi) {
       hist_arr[mi][1 + 2 * ssi] =
@@ -439,7 +445,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   //! [part4]
 
   if (file) {
-    TGraph tmp(m, m_vec.data(), rate_arr.data());
+    TGraphErrors tmp(m, m_vec.data(), rate_arr.data(), nullptr, rate_unc_arr.data());
     file->WriteTObject(&tmp, "interp_rate_"+key);
   }
   // Collect all terms that will go into the total normalisation:

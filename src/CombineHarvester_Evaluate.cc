@@ -13,6 +13,7 @@
 #include "boost/format.hpp"
 #include "TDirectory.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "CombineHarvester/CombineTools/interface/Observation.h"
 #include "CombineHarvester/CombineTools/interface/Process.h"
 #include "CombineHarvester/CombineTools/interface/Systematic.h"
@@ -173,6 +174,99 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const& fit,
   }
   this->UpdateParameters(backup);
   return shape;
+}
+
+TH2F CombineHarvester::GetRateCovariance(RooFitResult const& fit,
+                                         unsigned n_samples) {
+  auto lookup = GenerateProcSystMap();
+
+  unsigned n = procs_.size();
+  TH1F nom("nominal", "nominal", n, 0, n);
+  TH2F res("covariance", "covariance", n, 0, n, n, 0, n);
+
+  std::vector<CombineHarvester> ch_procs;
+  std::vector<std::string> labels;
+  unsigned nbins = this->bin_set().size();
+
+  for (unsigned i = 0; i < procs_.size(); ++i) {
+    ch_procs.push_back(
+        this->cp().bin({procs_[i]->bin()}).process({procs_[i]->process()}));
+    if (nbins > 1) {
+      labels.push_back(procs_[i]->bin() + "," + procs_[i]->process());
+    } else {
+      labels.push_back(procs_[i]->process());
+    }
+  }
+  for (unsigned i = 0; i < procs_.size(); ++i) {
+    nom.SetBinContent(i + 1, ch_procs[i].GetRate());
+  }
+  auto backup = GetParameters();
+
+  // Calling randomizePars() ensures that the RooArgList of sampled parameters
+  // is already created within the RooFitResult
+  RooArgList const& rands = fit.randomizePars();
+
+  // Now create two aligned vectors of the RooRealVar parameters and the
+  // corresponding ch::Parameter pointers
+  int n_pars = rands.getSize();
+  std::vector<RooRealVar const*> r_vec(n_pars, nullptr);
+  std::vector<ch::Parameter*> p_vec(n_pars, nullptr);
+  for (unsigned n = 0; n < p_vec.size(); ++n) {
+    r_vec[n] = dynamic_cast<RooRealVar const*>(rands.at(n));
+    p_vec[n] = GetParameter(r_vec[n]->GetName());
+  }
+
+  // Main loop through n_samples
+  for (unsigned rnd = 0; rnd < n_samples; ++rnd) {
+    // Randomise and update values
+    fit.randomizePars();
+    for (int n = 0; n < n_pars; ++n) {
+      if (p_vec[n]) p_vec[n]->set_val(r_vec[n]->getVal());
+    }
+
+    for (int i = 1; i <= nom.GetNbinsX(); ++i) {
+      for (int j = 1; j <= nom.GetNbinsX(); ++j) {
+        int x = j;
+        int y = nom.GetNbinsX() - (i - 1);
+        res.GetXaxis()->SetBinLabel(x, labels[j - 1].c_str());
+        res.GetYaxis()->SetBinLabel(y, labels[i - 1].c_str());
+        res.SetBinContent(
+            x, y, res.GetBinContent(x, y) +
+                      (ch_procs[i - 1].GetRate() - nom.GetBinContent(i)) *
+                      (ch_procs[j - 1].GetRate() - nom.GetBinContent(j)));
+      }
+    }
+  }
+
+  for (int i = 1; i <= nom.GetNbinsX(); ++i) {
+    for (int j = 1; j <= nom.GetNbinsX(); ++j) {
+      int x = j;
+      int y = nom.GetNbinsX() - (i - 1);
+      res.SetBinContent(x, y, res.GetBinContent(x, y) / double(n_samples));
+    }
+  }
+  this->UpdateParameters(backup);
+  return res;
+}
+
+TH2F CombineHarvester::GetRateCorrelation(RooFitResult const& fit,
+                                          unsigned n_samples) {
+  TH2F cov = GetRateCovariance(fit, n_samples);
+  TH2F res = cov;
+  res.SetName("correlation");
+  res.SetTitle("correlation");
+  for (int i = 1; i <= cov.GetNbinsX(); ++i) {
+    for (int j = 1; j <= cov.GetNbinsX(); ++j) {
+      int x = j;
+      int y = cov.GetNbinsX() - (i - 1);
+      res.SetBinContent(
+          x, y,
+          cov.GetBinContent(x, y) /
+              (std::sqrt(cov.GetBinContent(i, cov.GetNbinsX() - (i - 1))) *
+               std::sqrt(cov.GetBinContent(j, cov.GetNbinsX() - (j - 1)))));
+    }
+  }
+  return res;
 }
 
 double CombineHarvester::GetRate() {
