@@ -759,21 +759,24 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     unsigned int nLimits = 0;
     w->loadSnapshot("clean");
     RooDataSet *systDs = 0;
-    if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {
+    RooArgSet allFloatingParameters = w->allVars(); 
+    allFloatingParameters.remove(*mc->GetParametersOfInterest());
+    int nFloatingNonPoiParameters = utils::countFloating(allFloatingParameters); 
+    if (nFloatingNonPoiParameters && !toysNoSystematics_ && (readToysFromHere == 0)) {
       if (nuisances == 0) throw std::logic_error("Running with systematics enabled, but nuisances not defined.");
       nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
           w->saveSnapshot("reallyClean", w->allVars());
-          utils::setAllConstant(*mc->GetParametersOfInterest(), true); 
-          {
+          if (!bypassFrequentistFit_){
+              utils::setAllConstant(*mc->GetParametersOfInterest(), true); 
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
               CloseCoutSentry sentry(verbose < 3);
               //genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));	
-                std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
-                CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
-                minim.setStrategy(1);
-                if (!bypassFrequentistFit_) minim.minimize();
+               std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
+               CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
+               minim.setStrategy(1);
+                minim.minimize();
           }
           utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
           w->saveSnapshot("clean", w->allVars());
