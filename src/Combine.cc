@@ -176,6 +176,9 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   }
 
   expectSignalSet_ = !vm["expectSignal"].defaulted();
+  if( vm.count("LoadLibrary") ) {
+    librariesToLoad_ = vm["LoadLibrary"].as<std::vector<std::string> >();
+  }
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -253,6 +256,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
     if (algo->name() == "MaxLikelihoodFit" || algo->name() == "MultiDimFit") options += " --for-fits";
+    for(auto lib2l : librariesToLoad_ ) { options += TString::Format(" --LoadLibrary %s", lib2l.c_str() ); }
     //-- Text mode: old default
     //int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -o "+tmpFile+".hlf"); 
     //isTextDatacard = true; fileToLoad = tmpFile+".hlf";
