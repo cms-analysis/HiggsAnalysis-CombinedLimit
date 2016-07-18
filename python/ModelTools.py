@@ -87,6 +87,7 @@ class ModelBuilder(ModelBuilderBase):
 	self.doRateParams()
         self.doExpectedEvents()
         self.doIndividualModels()
+        self.doNuisancesGroups() # this needs to be called after both doNuisances and doIndividualModels
         self.doCombination()
         self.physics.done()
         if self.options.bin:
@@ -158,20 +159,7 @@ class ModelBuilder(ModelBuilderBase):
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
         globalobs = []
-        # Prepare a dictionary of which group a certain nuisance belongs to
-        groupsFor = {}
-        existingNuisanceNames = tuple(syst[0] for syst in self.DC.systs)
-        for groupName,nuisanceNames in self.DC.groups.iteritems():
-            for nuisanceName in nuisanceNames:
-                if nuisanceName not in existingNuisanceNames:
-                    raise RuntimeError, 'Nuisance group "%(groupName)s" refers to nuisance "%(nuisanceName)s" but it does not exist. Perhaps you misspelled it.' % locals()
-                if nuisanceName in groupsFor:
-                    groupsFor[nuisanceName].append(groupName)
-                else:
-                    groupsFor[nuisanceName] = [ groupName ]
 
-        #print self.DC.groups
-        #print groupsFor
         for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN" or (pdf.startswith("shape") and pdf != 'shapeU'):
@@ -340,11 +328,36 @@ class ModelBuilder(ModelBuilderBase):
             self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,nf,p,a,e) in self.DC.systs]))
             self.doSet("globalObservables", ",".join(globalobs))
 	
+    def doNuisancesGroups(self):
+        # Prepare a dictionary of which group a certain nuisance belongs to
+        groupsFor = {}
+        existingNuisanceNames = tuple(set([syst[0] for syst in self.DC.systs]+self.DC.flatParamNuisances.keys())+self.DC.rateParams.keys()+self.discretes)
+        for groupName,nuisanceNames in self.DC.groups.iteritems():
+            for nuisanceName in nuisanceNames:
+                if nuisanceName not in existingNuisanceNames:
+                    raise RuntimeError, 'Nuisance group "%(groupName)s" refers to nuisance "%(nuisanceName)s" but it does not exist. Perhaps you misspelled it.' % locals()
+                if nuisanceName in groupsFor:
+                    groupsFor[nuisanceName].append(groupName)
+                else:
+                    groupsFor[nuisanceName] = [ groupName ]
+
+        #print self.DC.groups
+        #print groupsFor
+        for n in existingNuisanceNames:
+            # set an attribute related to the group(s) this nuisance belongs to
+            if n in groupsFor:
+                groupNames = groupsFor[n]
+                if self.options.verbose > 1:
+                    print 'Nuisance "%(n)s" is assigned to the following nuisance groups: %(groupNames)s' % locals()
+                for groupName in groupNames:
+                    self.out.var(n).setAttribute('group_'+groupName,True)
+
         for groupName,nuisanceNames in self.DC.groups.iteritems():
 	    nuisanceargset = ROOT.RooArgSet()
             for nuisanceName in nuisanceNames:
 		nuisanceargset.add(self.out.var(nuisanceName))
 	    self.out.defineSet("group_%s"%groupName,nuisanceargset)
+
 
     def doExpectedEvents(self):
         self.doComment(" --- Expected events in each bin, for each process ----")
