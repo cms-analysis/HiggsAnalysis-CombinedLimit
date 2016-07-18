@@ -797,7 +797,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	w->loadSnapshot("clean");
 	if (verbose > 3) utils::printPdf(genPdf);
 	if (withSystematics && !toysNoSystematics_) {
-	  *vars = *systDs->get(iToy-1);
+	  if (systDs->numEntries()>=iToy) *vars = *systDs->get(iToy-1); // Somehow, it can be that nuisances is empty and this will only contain a single toy?
           if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
 	  if (verbose > 3) utils::printPdf(genPdf);
 	}
