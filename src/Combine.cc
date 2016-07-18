@@ -763,7 +763,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     RooDataSet *systDs = 0;
     RooArgSet allFloatingParameters = w->allVars(); 
     allFloatingParameters.remove(*mc->GetParametersOfInterest());
-    int nFloatingNonPoiParameters = utils::countFloating(allFloatingParameters); 
+    int nFloatingNonPoiParameters = utils::countFloating(allFloatingParameters);
     if (nFloatingNonPoiParameters && !toysNoSystematics_ && (readToysFromHere == 0)) {
       if (nuisances == 0) throw std::logic_error("Running with systematics enabled, but nuisances not defined.");
       nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
@@ -782,9 +782,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           }
           utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
           w->saveSnapshot("clean", w->allVars());
-          systDs = nuisancePdf->generate(*mc->GetGlobalObservables(), nToys);
+          if (nuisancePdf.get()) systDs = nuisancePdf->generate(*mc->GetGlobalObservables(), nToys);
       } else {
-          systDs = nuisancePdf->generate(*nuisances, nToys);
+          if (nuisancePdf.get()) systDs = nuisancePdf->generate(*nuisances, nToys);
       } 
     }
     std::auto_ptr<RooArgSet> vars(genPdf->getVariables());
@@ -797,7 +797,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	w->loadSnapshot("clean");
 	if (verbose > 3) utils::printPdf(genPdf);
 	if (withSystematics && !toysNoSystematics_) {
-	  if (systDs->numEntries()>=iToy) *vars = *systDs->get(iToy-1); // Somehow, it can be that nuisances is empty and this will only contain a single toy?
+	  if (systDs) { 
+	  	if (systDs->numEntries()>=iToy)	*vars = *systDs->get(iToy-1); // Somehow, it can be that nuisances is empty and this will only contain a single toy?
+	  }
           if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
 	  if (verbose > 3) utils::printPdf(genPdf);
 	}
