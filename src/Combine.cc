@@ -182,6 +182,9 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   if (!vm["prior"].defaulted()) noDefaultPrior_ = 0;
 
   expectSignalSet_ = !vm["expectSignal"].defaulted();
+  if( vm.count("LoadLibrary") ) {
+    librariesToLoad_ = vm["LoadLibrary"].as<std::vector<std::string> >();
+  }
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -259,6 +262,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
     if (algo->name() == "MaxLikelihoodFit" || algo->name() == "MultiDimFit") options += " --for-fits";
+    for(auto lib2l : librariesToLoad_ ) { options += TString::Format(" --LoadLibrary %s", lib2l.c_str() ); }
     //-- Text mode: old default
     //int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -o "+tmpFile+".hlf"); 
     //isTextDatacard = true; fileToLoad = tmpFile+".hlf";
@@ -513,7 +517,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(arg);
         if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << arg->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
 	arg->setConstant(0);
-	//also set ignoreConstraint flag for constraint PDF 
+	// also set ignoreConstraint flag for constraint PDF 
 	if ( w->pdf(Form("%s_Pdf",arg->GetName())) ) w->pdf(Form("%s_Pdf",arg->GetName()))->setAttribute("ignoreConstraint");
       }
       if (verbose > 0) std::cout << "Redefining the POIs to be: "; newPOIs.Print("");
