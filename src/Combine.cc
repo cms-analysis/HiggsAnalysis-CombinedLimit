@@ -841,7 +841,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	w->loadSnapshot("clean");
 	if (verbose > 3) utils::printPdf(genPdf);
 	if (withSystematics && !toysNoSystematics_) {
-	  *vars = *systDs->get(iToy-1);
+	  if (systDs->numEntries()>=iToy) *vars = *systDs->get(iToy-1);  // this can only contain 1 entry if no nuisances
           if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
 	  if (verbose > 3) utils::printPdf(genPdf);
 	}
