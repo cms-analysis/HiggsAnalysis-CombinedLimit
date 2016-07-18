@@ -153,7 +153,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             RooLinkedListIter iter = o.extraConstraints().iterator();
             if (o.extraConstraints().getSize() > 0) needNew = true;
             for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
-                if (!constraints.contains(*a)) constraints.add(*a);
+                if (!constraints.contains(*a) && (!a->getAttribute("ignoreConstraint")) ) constraints.add(*a);
             }
         }
         RooSimultaneous *ret = sim;
@@ -176,7 +176,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
     } else if (pdf.dependsOn(observables)) {
         return &pdf;
     } else {
-        if (!constraints.contains(pdf)) constraints.add(pdf);
+        if (!constraints.contains(pdf) && (!pdf.getAttribute("ignoreConstraint"))) constraints.add(pdf);
         return 0;
     }
 
@@ -200,7 +200,7 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
             RooSimultaneousOpt &o = dynamic_cast<RooSimultaneousOpt &>(pdf);
             RooLinkedListIter iter = o.extraConstraints().iterator();
             for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
-                if (!constraints.contains(*a)) constraints.add(*a);
+                if (!constraints.contains(*a) && (!a->getAttribute("ignoreConstraint"))) constraints.add(*a);
             }
         }
         RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
@@ -214,7 +214,7 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
     } else if (pdf.dependsOn(observables)) {
         if (!obsTerms.contains(pdf)) obsTerms.add(pdf);
     } else {
-        if (!constraints.contains(pdf)) constraints.add(pdf);
+        if (!constraints.contains(pdf) && (!pdf.getAttribute("ignoreConstraint")) ) constraints.add(pdf);
     }
 }
 
@@ -241,7 +241,7 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
     } else if (func.dependsOn(observables)) {
         if (!obsTerms.contains(func) || keepDuplicate) obsTerms.add(func);
     } else {
-        if (!constraints.contains(func) || keepDuplicate) constraints.add(func);
+        if (( !constraints.contains(func) && (!func.getAttribute("ignoreConstraint")) ) || keepDuplicate) constraints.add(func);
     }
 }
 
