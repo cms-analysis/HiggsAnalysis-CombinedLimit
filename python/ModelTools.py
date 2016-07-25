@@ -369,13 +369,6 @@ class ModelBuilder(ModelBuilderBase):
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
             if nofloat: 
               self.out.var(n).setAttribute("globalConstrained",True)
-            # set an attribute related to the group(s) this nuisance belongs to
-            if n in groupsFor:
-                groupNames = groupsFor[n]
-                if self.options.verbose > 1:
-                    print 'Nuisance "%(n)s" is assigned to the following nuisance groups: %(groupNames)s' % locals()
-                for groupName in groupNames:
-                    self.out.var(n).setAttribute('group_'+groupName,True)
             #self.out.var(n).Print('V')
             if n in self.DC.frozenNuisances:
                 self.out.var(n).setConstant(True)
