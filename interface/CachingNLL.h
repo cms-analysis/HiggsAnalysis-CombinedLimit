@@ -124,6 +124,7 @@ class CachingAddNLL : public RooAbsReal {
         const RooAbsPdf *pdf() const { return pdf_; }
         void setZeroPoint() ;
         void clearZeroPoint() ;
+        void clearConstantZeroPoint() ;
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
@@ -166,6 +167,7 @@ class CachingSimNLL  : public RooAbsReal {
         static void setNoDeepLogEvalError(bool noDeep) { noDeepLEE_ = noDeep; }
         void setZeroPoint() ; 
         void clearZeroPoint() ;
+        void clearConstantZeroPoint() ;
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);

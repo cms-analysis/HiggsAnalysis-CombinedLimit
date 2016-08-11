@@ -19,9 +19,12 @@
 #include <RooStats/ModelConfig.h>
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+
 #include <numeric>
 #include <memory>
 
@@ -156,22 +159,37 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   }
 
   CloseCoutSentry sentry(verbose < 2);
-  // let's assume fits converge, for a while
-  const RooCmdArg &minim = RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),
-                                             ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
-  std::auto_ptr<RooFitResult> result_nominal(pdf_nominal->fitTo(data, RooFit::Save(1), minim, RooFit::Strategy(minimizerStrategy_), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
-  std::auto_ptr<RooFitResult> result_saturated(saturated->fitTo(data, RooFit::Save(1), minim, RooFit::Strategy(minimizerStrategy_), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+
+  const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
+  std::auto_ptr<RooAbsReal> nominal_nll(pdf_nominal->createNLL(data, constrainCmdArg));
+  std::auto_ptr<RooAbsReal> saturated_nll(saturated->createNLL(data, constrainCmdArg));
+
+  CascadeMinimizer minimn(*nominal_nll, CascadeMinimizer::Unconstrained);
+  minimn.setStrategy(minimizerStrategy_);
+  minimn.minimize(verbose-2);
+  // This test is a special case where we are comparing the likelihoods of two
+  // different models and so we can't re-zero the NLL with respect to the
+  // initial parameters.
+  if (dynamic_cast<cacheutils::CachingSimNLL*>(nominal_nll.get())) {
+    static_cast<cacheutils::CachingSimNLL*>(nominal_nll.get())->clearConstantZeroPoint();
+  }
+  double nll_nominal = nominal_nll->getVal();
+
+
+  CascadeMinimizer minims(*saturated_nll, CascadeMinimizer::Unconstrained);
+  minims.setStrategy(minimizerStrategy_);
+  minims.minimize(verbose-2);
+  if (dynamic_cast<cacheutils::CachingSimNLL*>(saturated_nll.get())) {
+    static_cast<cacheutils::CachingSimNLL*>(saturated_nll.get())->clearConstantZeroPoint();
+  }
+  double nll_saturated = saturated_nll->getVal();
+
   sentry.clear();
 
   saturated.reset();
   for (int i = 0, n = tempData_.size(); i < n; ++i) delete tempData_[i]; 
   tempData_.clear();
 
-  if (result_nominal.get()   == 0) return false;
-  if (result_saturated.get() == 0) return false;
-
-  double nll_nominal   = result_nominal->minNll();
-  double nll_saturated = result_saturated->minNll();
   if (fabs(nll_nominal) > 1e10 || fabs(nll_saturated) > 1e10) return false;
   limit = 2*(nll_nominal-nll_saturated);
 
