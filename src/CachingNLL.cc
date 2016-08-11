@@ -718,6 +718,13 @@ cacheutils::CachingAddNLL::clearZeroPoint()
     setValueDirty();
 }
 
+void
+cacheutils::CachingAddNLL::clearConstantZeroPoint()
+{
+    constantZeroPoint_ = 0.0;
+    setValueDirty();
+}
+
 void 
 cacheutils::CachingAddNLL::setData(const RooAbsData &data) 
 {
@@ -1086,6 +1093,13 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
     std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
     std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
     std::fill(constrainZeroPointsFastPoisson_.begin(), constrainZeroPointsFastPoisson_.end(), 0.0);
+    setValueDirty();
+}
+
+void cacheutils::CachingSimNLL::clearConstantZeroPoint() {
+    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
+        if (*it != 0) (*it)->clearConstantZeroPoint();
+    }
     setValueDirty();
 }
 
