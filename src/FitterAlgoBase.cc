@@ -212,7 +212,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     }
     nll0Value_ =  nll0;
     nllValue_ =  nll->getVal() - nll0;
-    nllValue_ =  nll->getVal();
+    //nllValue_ =  nll->getVal(); // Start NLL from FCN!
     if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
     if (doHesse) minim.minimizer().hesse();
     sentry.clear();
