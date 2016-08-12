@@ -51,6 +51,16 @@ public:
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
   const RooArgList& coefList() const { return _coefList ; }
 
+  double Integral_T1;
+  double Integral_T2;
+  double Integral_T3;
+  double Integral_T4;
+  double Integral_T5;
+  double Integral_T6;
+  double Integral_T7;
+  double Integral_T8;
+  double Integral_T9;
+
 private:
 
   ClassDef(HZZ4L_RooSpinZeroPdf_2D,1) // Your description goes here...

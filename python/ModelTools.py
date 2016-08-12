@@ -47,21 +47,21 @@ class ModelBuilderBase():
             stderr.write("\nWARNING: You're not using binary mode. This is is DEPRECATED and NOT SUPPORTED anymore, and can give WRONG results.\n\n")
         if options.cexpr:
             global ROOFIT_EXPR;
-            ROOFIT_EXPR = "cexpr"            
+            ROOFIT_EXPR = "cexpr"
     def factory_(self,X):
         if self.options.verbose >= 7:
             print "RooWorkspace::factory('%s')" % X
         if (len(X) > 1000):
             print "Executing factory with a string of length ",len(X)," > 1000, could trigger a bug: ",X
         ret = self.out.factory(X);
-        if ret: 
+        if ret:
             if self.options.verbose >= 7: print " ---> ",ret
             self.out.dont_delete.append(ret)
             return ret
         else:
             print "ERROR parsing '%s'" % X
             self.out.Print("V");
-            raise RuntimeError, "Error in factory statement" 
+            raise RuntimeError, "Error in factory statement"
     def doComment(self,X):
         if not self.options.bin: self.out.write("// "+X+"\n");
     def doVar(self,vardef):
@@ -83,7 +83,7 @@ class ModelBuilderBase():
 class ModelBuilder(ModelBuilderBase):
     """This class defines the actual methods to build a model"""
     def __init__(self,datacard,options):
-        ModelBuilderBase.__init__(self,options) 
+        ModelBuilderBase.__init__(self,options)
         self.DC = datacard
         self.doModelBOnly = True
     def setPhysics(self,physicsModel):
@@ -92,7 +92,7 @@ class ModelBuilder(ModelBuilderBase):
     def doModel(self):
         self.doObservables()
         self.physics.doParametersOfInterest()
-        
+
         # set a group attribute on POI variables
         poiIter = self.out.set('POI').createIterator()
         poi = poiIter.Next()
@@ -113,7 +113,7 @@ class ModelBuilder(ModelBuilderBase):
         if self.options.bin:
             self.doModelConfigs()
             if self.options.verbose > 1: self.out.Print("tv")
-            if self.options.verbose > 2: 
+            if self.options.verbose > 2:
                 self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
                 print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
 
@@ -129,45 +129,45 @@ class ModelBuilder(ModelBuilderBase):
 	  argv = self.DC.extArgs[rp][-1]
 	  if ":" in argv:
 	    fin,wsn = argv.split(":")
-	    if (fin,wsn) in open_files: 
+	    if (fin,wsn) in open_files:
 		  wstmp = open_files[(fin,wsn)]
-		  if not wstmp.arg(rp): 
+		  if not wstmp.arg(rp):
 		   raise RuntimeError, "No parameter '%s' found for extArg in workspace %s from file %s"%(rp,wsn,fin)
 		  self.out._import(wstmp.arg(rp))
 	    else:
 	      try:
 		fitmp = ROOT.TFile.Open(fin)
 		wstmp = fitmp.Get(wsn)
-		if not wstmp.arg(rp): 
+		if not wstmp.arg(rp):
 		 raise RuntimeError, "No parameter '%s' found for extArg in workspace %s from file %s"%(rp,wsn,fin)
 		self.out._import(wstmp.arg(rp))
 		open_files[(fin,wsn)] = wstmp
-	      except: 
+	      except:
 		raise RuntimeError, "No File '%s' found for extArg, or workspace '%s' not in file "%(fin,wsn)
 	  else:
 	      param_range = ""
 	      param_val   = self.DC.extArgs[rp][-1]
-	      if len(self.DC.extArgs[rp])>3: # range is included: 
+	      if len(self.DC.extArgs[rp])>3: # range is included:
 	        param_range = self.DC.extArgs[rp][-1]
 	        param_val   = self.DC.extArgs[rp][-2]
-	    	if "[" not in param_range: 
+	    	if "[" not in param_range:
 			  raise RuntimeError, "Expected range arguments [min,max] for extArg %s "%(rp)
 	  	param_range = param_range.strip('[]')
-	      
+
 	      removeRange = False
-	      if param_range == "": 
-	      	param_range = "0,1" 
+	      if param_range == "":
+	      	param_range = "0,1"
 		removeRange=True
 
 	      self.doVar("%s[%s,%s]"%(rp,float(param_val),param_range))
 	      if removeRange: self.out.var(rp).removeRange()
 	      self.out.var(rp).setConstant(False)
 	      self.out.var(rp).setAttribute("flatParam")
-	  	
+
     def doRateParams(self):
 
     	# First support external functions/parameters
-	# keep a map of open files/workspaces 
+	# keep a map of open files/workspaces
 	open_files = {};
 
 	for rp in self.DC.rateParams.keys():
@@ -177,21 +177,21 @@ class ModelBuilder(ModelBuilderBase):
 	  argu,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1]
 	  if self.out.arg(argu): continue
 	  fin,wsn = argv.split(":")
-	  if (fin,wsn) in open_files: 
+	  if (fin,wsn) in open_files:
 	        wstmp = open_files[(fin,wsn)]
-	        if not wstmp.arg(argu): 
+	        if not wstmp.arg(argu):
 	         raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
 	        self.out._import(wstmp.arg(argu))
 	  else:
 	    try:
 	      fitmp = ROOT.TFile.Open(fin)
 	      wstmp = fitmp.Get(wsn)
-	      if not wstmp.arg(argu): 
+	      if not wstmp.arg(argu):
 	       raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
 	      self.out._import(wstmp.arg(argu))
 	      open_files[(fin,wsn)] = wstmp
 	      #fitmp.Close()
-	    except: 
+	    except:
 	      raise RuntimeError, "No File '%s' found for rateParam, or workspace '%s' not in file "%(fin,wsn)
 
 	# First do independant parameters, then expressions
@@ -204,7 +204,7 @@ class ModelBuilder(ModelBuilderBase):
 	  if self.out.arg(argu): continue
 
 	  removeRange = (len(param_range)==0)
-	  if param_range == "": param_range = "0,1" 
+	  if param_range == "": param_range = "0,1"
 	  self.doVar("%s[%s,%s]"%(argu,argv,param_range))
 	  if removeRange: self.out.var(argu).removeRange()
 	  self.out.var(argu).setConstant(False)
@@ -228,12 +228,12 @@ class ModelBuilder(ModelBuilderBase):
         globalobs = []
 
         for cpar in self.DC.discretes: self.addDiscrete(cpar)
-        for (n,nofloat,pdf,args,errline) in self.DC.systs: 
+        for (n,nofloat,pdf,args,errline) in self.DC.systs:
             if pdf == "lnN" or (pdf.startswith("shape") and pdf != 'shapeU'):
                 r = "-4,4" if pdf == "shape" else "-7,7"
                 sig = 1.0;
                 for pn,pf in self.options.nuisancesToRescale:
-                    if re.match(pn, n): 
+                    if re.match(pn, n):
                         sig = float(pf); sigscale = sig * (4 if pdf == "shape" else 7)
                         r = "-%g,%g" % (sigscale,sigscale)
 		r_exp = "" if self.out.var(n) else "[%s]"%r # Specify range to invoke factory to produce a RooRealVar only if it doesn't already exist
@@ -242,7 +242,7 @@ class ModelBuilder(ModelBuilderBase):
                 else:
                       self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True);# Use existing constraint since it could be a param
                 self.out.var(n).setVal(0)
-                self.out.var(n).setError(1) 
+                self.out.var(n).setError(1)
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
@@ -250,9 +250,9 @@ class ModelBuilder(ModelBuilderBase):
             elif pdf == "gmM":
                 val = 0;
                 for c in errline.values(): #list channels
-                  for v in c.values():     # list effects in each channel 
+                  for v in c.values():     # list effects in each channel
                     if v != 0:
-                        if val != 0 and v != val: 
+                        if val != 0 and v != val:
                             raise RuntimeError, "Error: line %s contains two different uncertainties %g, %g, which is not supported for gmM" % (n,v,val)
                         val = v;
                 if val == 0: raise RuntimeError, "Error: line %s contains all zeroes"
@@ -268,19 +268,19 @@ class ModelBuilder(ModelBuilderBase):
                     # new version, that creates a poisson with a narrower range (but still +/- 7 sigmas)
                     #print "Searching for bounds for",n,"poisson with obs",args[0]
                     minExp = args[0]+1 if args[0] > 0 else 0;
-                    while (ROOT.TMath.Poisson(args[0], minExp) > 1e-12) and minExp > 0: 
+                    while (ROOT.TMath.Poisson(args[0], minExp) > 1e-12) and minExp > 0:
                         #print "Poisson(%d, minExp = %f) = %g > 1e-12" % (args[0], minExp, ROOT.TMath.Poisson(args[0], minExp))
                         minExp *= 0.8;
                     maxExp = args[0]+1;
-                    while (ROOT.TMath.Poisson(args[0], maxExp) > 1e-12): 
+                    while (ROOT.TMath.Poisson(args[0], maxExp) > 1e-12):
                         #print "Poisson(%d, maxExp = %f) = %g > 1e-12" % (args[0], maxExp, ROOT.TMath.Poisson(args[0], maxExp))
                         maxExp *= 1.2;
                     minObs = args[0];
-                    while minObs > 0 and (ROOT.TMath.Poisson(minObs, args[0]+1) > 1e-12): 
+                    while minObs > 0 and (ROOT.TMath.Poisson(minObs, args[0]+1) > 1e-12):
                         #print "Poisson(minObs = %d, %f) = %g > 1e-12" % (minObs, args[0]+1, ROOT.TMath.Poisson(minObs, args[0]+1))
                         minObs -= (sqrt(args[0]) if args[0] > 10 else 1);
                     maxObs = args[0]+2;
-                    while (ROOT.TMath.Poisson(maxObs, args[0]+1) > 1e-12): 
+                    while (ROOT.TMath.Poisson(maxObs, args[0]+1) > 1e-12):
                         #print "Poisson(maxObs = %d, %f) = %g > 1e-12" % (maxObs, args[0]+1, ROOT.TMath.Poisson(maxObs, args[0]+1))
                         maxObs += (sqrt(args[0]) if args[0] > 10 else 2);
                     self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,%f,%f], %s[%f,%f,%f], 1" % (n,args[0],minObs,maxObs,n,args[0]+1,minExp,maxExp))
@@ -319,7 +319,7 @@ class ModelBuilder(ModelBuilderBase):
                     self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "param":
                 mean = float(args[0])
-                if "/" in args[1]: 
+                if "/" in args[1]:
                     sigmaL,sigmaR = args[1].split("/")
                     if sigmaL[0] != "-" or sigmaR[0] != "+": raise RuntimeError, "Asymmetric parameter uncertainties should be entered as -x/+y"
                     sigmaL = sigmaL[1:]; sigmaR = sigmaR[1:]
@@ -364,10 +364,10 @@ class ModelBuilder(ModelBuilderBase):
                     self.out.var("%s_In" % n).setConstant(True)
                 globalobs.append("%s_In" % n)
                 #if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
-	    elif pdf == "extArg" : continue  
+	    elif pdf == "extArg" : continue
 
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
-            if nofloat: 
+            if nofloat:
               self.out.var(n).setAttribute("globalConstrained",True)
             #self.out.var(n).Print('V')
             if n in self.DC.frozenNuisances:
@@ -389,7 +389,7 @@ class ModelBuilder(ModelBuilderBase):
             self.doSet("nuisances", ",".join(["%s"    % n for (n,nf,p,a,e) in self.DC.systs]))
             self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,nf,p,a,e) in self.DC.systs]))
             self.doSet("globalObservables", ",".join(globalobs))
-	
+
     def doNuisancesGroups(self):
         # Prepare a dictionary of which group a certain nuisance belongs to
         groupsFor = {}
@@ -431,7 +431,7 @@ class ModelBuilder(ModelBuilderBase):
                     continue
                 # get model-dependent scale factor
                 scale = self.physics.getYieldScale(b,p)
-                if scale == 0:  
+                if scale == 0:
                     self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, 0))
                     continue
                 # collect multiplicative corrections
@@ -442,12 +442,12 @@ class ModelBuilder(ModelBuilderBase):
                 alogNorms = [] # (kappaLo, kappaHi, RooAbsReal) asymm lnN
                 if scale == 1:
                     pass
-                elif type(scale) == str: 
+                elif type(scale) == str:
                     factors.append(scale)
                 else:
                     raise RuntimeError, "Physics model returned something which is neither a name, nor 0, nor 1."
 
-		# look for rate param for this bin 
+		# look for rate param for this bin
 		if "%sAND%s"%(b,p) in self.DC.rateParams.keys():
 		  for rk in range(len(self.DC.rateParams["%sAND%s"%(b,p)])):
 		    argu = self.DC.rateParams["%sAND%s"%(b,p)][rk][0][0]
@@ -482,7 +482,7 @@ class ModelBuilder(ModelBuilderBase):
                                                     args[0], errline[b][p], self.DC.exp[b][p], n)
                         if gamma != None:
                             raise RuntimeError, "More than one gmN uncertainty for the same bin and process (second one is %s)" % n
-                        gamma = n; nominal = errline[b][p]; 
+                        gamma = n; nominal = errline[b][p];
                     else: raise RuntimeError, "Unsupported pdf %s" % pdf
                 # optimize constants
                 if len(factors) + len(logNorms) + len(alogNorms) == 0:
@@ -507,7 +507,7 @@ class ModelBuilder(ModelBuilderBase):
         if self.options.out == None: raise RuntimeException
         for nuis,warn in self.DC.flatParamNuisances.iteritems():
             if self.out.var(nuis): self.out.var(nuis).setAttribute("flatParam")
-            elif warn: stderr.write("Missing variable %s declared as flatParam, will create one!\n" % nuis)	
+            elif warn: stderr.write("Missing variable %s declared as flatParam, will create one!\n" % nuis)
         mc_s = ROOT.RooStats.ModelConfig("ModelConfig",       self.out)
         mc_b = ROOT.RooStats.ModelConfig("ModelConfig_bonly", self.out)
         for (l,mc) in [ ('s',mc_s), ('b',mc_b) ]:
@@ -536,7 +536,7 @@ class CountingModelBuilder(ModelBuilder):
     """ModelBuilder to make a counting experiment"""
     def __init__(self,datacard,options):
         ModelBuilder.__init__(self,datacard,options)
-        if datacard.hasShapes: 
+        if datacard.hasShapes:
             raise RuntimeError, "You're using a CountingModelBuilder for a model that has shapes"
     def doObservables(self):
         if len(self.DC.obs):
@@ -549,7 +549,7 @@ class CountingModelBuilder(ModelBuilder):
             for b in self.DC.bins:
                 self.doVar('n_obs_bin%s[1]' % b)
                 self.out.var('n_obs_bin%s'%b).setMin(0)
-            
+
         self.doSet("observables", ",".join(["n_obs_bin%s" % b for b in self.DC.bins]))
         if len(self.DC.obs):
             if self.options.bin:
@@ -574,7 +574,7 @@ class CountingModelBuilder(ModelBuilder):
                 self.doObj("%s_b_%d" % (prefix,i), "PROD", ",".join(["pdf_bin%s_bonly" % self.DC.bins[j] for j in range(10*i,min(nbins,10*i+10))]))
             self.doObj("%s_s" % prefix, "PROD", ",".join([prefix+"_s_%d" % i for i in range(nblocks)]))
             self.doObj("%s_b" % prefix, "PROD", ",".join([prefix+"_b_%d" % i for i in range(nblocks)]))
-        else: 
+        else:
             self.doObj("%s_s" % prefix, "PROD", ",".join(["pdf_bin%s"       % b for b in self.DC.bins]))
             self.doObj("%s_b" % prefix, "PROD", ",".join(["pdf_bin%s_bonly" % b for b in self.DC.bins]))
         if len(self.DC.systs): # multiply by nuisances if needed

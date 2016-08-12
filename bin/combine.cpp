@@ -238,12 +238,13 @@ int main(int argc, char **argv) {
   if (vm.count("X-fpeMask")) gSystem->SetFPEMask(vm["X-fpeMask"].as<int>());
 
   // CMSDAS Defaults (you can turn off with --X-rtd <name>=0
-  runtimedef::set("OPTIMIZE_BOUNDS", 1);
+//  runtimedef::set("OPTIMIZE_BOUNDS", 1);
   runtimedef::set("ADDNLL_RECURSIVE", 1);
   runtimedef::set("ADDNLL_GAUSSNLL", 1);
   runtimedef::set("ADDNLL_HISTNLL", 1);
   runtimedef::set("ADDNLL_CBNLL", 1);
   runtimedef::set("TMCSO_AdaptivePseudoAsimov", 1);
+  //runtimedef::set("TMCSO_AdaptivePseudoAsimov", 0); Turn off for generating asimov (slower)
   // Optimization for bare RooFit likelihoods (--optimizeSimPdf=0)
   runtimedef::set("MINIMIZER_optimizeConst", 2); 
   runtimedef::set("MINIMIZER_rooFitOffset", 1); 
