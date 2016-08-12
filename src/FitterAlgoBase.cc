@@ -211,8 +211,8 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
        std::cout << "Minimized in : " ; tw.Print();
     }
     nll0Value_ =  nll0;
-    nllValue_ =  nll->getVal() - nll0;
-    //nllValue_ =  nll->getVal(); // Start NLL from FCN!
+    //nllValue_ =  nll->getVal() - nll0;
+    nllValue_ =  nll->getVal(); // Start NLL from FCN!
     if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
     if (doHesse) minim.minimizer().hesse();
     sentry.clear();
