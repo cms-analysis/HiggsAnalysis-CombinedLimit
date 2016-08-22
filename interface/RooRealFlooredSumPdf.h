@@ -8,6 +8,7 @@
 #define ROOREALFLOOREDSUMPDF
 
 
+#include <iostream>
 #include "RooAbsReal.h"
 #include "RooAbsPdf.h"
 #include "RooRealVar.h"
@@ -22,7 +23,6 @@
 #include "RooDataHist.h"
 #include "RooHistFunc.h"
 
-using namespace RooFit;
 
 class RooRealFlooredSumPdf : public RooAbsPdf {
 public:
@@ -53,7 +53,7 @@ public:
 		return expectedEvents(&nset);
 	}
 
-	void printMetaArgs(ostream& os) const;
+	void printMetaArgs(std::ostream& os) const;
 
 
 	virtual std::list<Double_t>* binBoundaries(RooAbsRealLValue& /*obs*/, Double_t /*xlo*/, Double_t /*xhi*/) const;

@@ -1,5 +1,6 @@
 <lcgdict>
 	<class name="AsymPow" />
+	<class name="AsymQuad" />
 	<class name="FastHisto" />
 	<class name="FastHisto2D" />
 	<class name="FastHisto3D" />
@@ -12,7 +13,11 @@
 	<class name="FastVerticalInterpHistPdf3D" />
 	<class name="FastVerticalInterpHistPdfBase" />
 	<class name="FastVerticalInterpHistPdfBase::Morph" />
+	<class name="HZZ4L_RooCTauPdf_1D" />
+	<class name="HZZ4L_RooCTauPdf_1D_Expanded" />
+	<class name="HZZ4L_RooCTauPdf_2D" />
 	<class name="HZZ4L_RooSpinZeroPdf" />
+	<class name="HZZ4L_RooSpinZeroPdf_1D" />
 	<class name="HZZ4L_RooSpinZeroPdf_2D" />
 	<class name="HZZ4L_RooSpinZeroPdf_phase" />
 	<class name="ProcessNormalization" />
@@ -73,6 +78,7 @@
 	<class name="RooPowerFunction" />
 	<class name="RooPowerLaw" />
 	<class name="RooQCDPdf" />
+	<class name="RooRealFlooredSumPdf" />
 	<class name="RooRelBW" />
 	<class name="RooRelBW1" />
 	<class name="RooRelBWHighMass" />

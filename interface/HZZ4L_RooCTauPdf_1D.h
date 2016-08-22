@@ -18,7 +18,6 @@
 #include "RooDataHist.h"
 #include "RooHistFunc.h"
 
-using namespace RooFit;
 
 class HZZ4L_RooCTauPdf_1D : public RooAbsPdf {
 protected:

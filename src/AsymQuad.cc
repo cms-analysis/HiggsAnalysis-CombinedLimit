@@ -28,7 +28,7 @@ smoothAlgo_(smoothAlgo)
   RooAbsArg* func;
   while ((func = (RooAbsArg*)funcIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
-      coutE(InputArguments) << "ERROR: AsymQuad::AsymQuad(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << endl;
+      coutE(InputArguments) << "ERROR: AsymQuad::AsymQuad(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _funcList.add(*func);
@@ -39,7 +39,7 @@ smoothAlgo_(smoothAlgo)
   RooAbsArg* coef;
   while ((coef = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
-      coutE(InputArguments) << "ERROR: AsymQuad::AsymQuad(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << endl;
+      coutE(InputArguments) << "ERROR: AsymQuad::AsymQuad(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*coef);

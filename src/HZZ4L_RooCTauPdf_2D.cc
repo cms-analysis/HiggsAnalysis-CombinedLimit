@@ -9,6 +9,8 @@
 #include "RooDataHist.h"
 
 using namespace TMath;
+using namespace RooFit;
+using namespace std;
 
 ClassImp(HZZ4L_RooCTauPdf_2D) 
 

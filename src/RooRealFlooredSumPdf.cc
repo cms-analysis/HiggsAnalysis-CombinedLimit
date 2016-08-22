@@ -22,9 +22,9 @@
 #include <algorithm>
 
 using namespace std;
-
-
+using namespace RooFit;
 using namespace TMath;
+
 
 ClassImp(RooRealFlooredSumPdf)
 
