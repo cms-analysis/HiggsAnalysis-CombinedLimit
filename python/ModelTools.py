@@ -286,6 +286,12 @@ class ModelBuilder(ModelBuilderBase):
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
+            elif pdf == "constr":
+		v=self.options.verbose
+		self.options.verbose=10# force debug this line
+		self.doObj("%s_Pdf"%n, "Gaussian"," ".join(args),True)
+		self.options.verbose=v
+                #self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]),True)
             elif pdf == "param":
                 mean = float(args[0])
                 if "/" in args[1]: 
@@ -348,7 +354,7 @@ class ModelBuilder(ModelBuilderBase):
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
             for (n,nf,p,a,e) in self.DC.systs:
-                nuisVars.add(self.out.var(n))
+		if p!= "constr": nuisVars.add(self.out.var(n))
                 nuisPdfs.add(self.out.pdf(n+"_Pdf"))
             self.out.defineSet("nuisances", nuisVars)
             self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", nuisPdfs)
@@ -403,6 +409,7 @@ class ModelBuilder(ModelBuilderBase):
 
                 for (n,nofloat,pdf,args,errline) in self.DC.systs:
                     if pdf == "param":continue
+                    if pdf == "constr":continue
                     if pdf == "rateParam":continue
                     if not errline[b].has_key(p): continue
                     if errline[b][p] == 0.0: continue
