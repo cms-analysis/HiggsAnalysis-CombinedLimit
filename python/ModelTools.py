@@ -236,11 +236,19 @@ class ModelBuilder(ModelBuilderBase):
                     if re.match(pn, n): 
                         sig = float(pf); sigscale = sig * (4 if pdf == "shape" else 7)
                         r = "-%g,%g" % (sigscale,sigscale)
+                        print 'Rescale %s to %s' % (n, sig)
+                sig = '%g' % sig
+                is_func = False
+                for pn,pf in self.options.nuisanceFunctions:
+                    if re.match(pn, n):
+                        is_func = True
+                        sig = pf
+                        print 'Rescale %s as %s' % (n, sig)
 		r_exp = "" if self.out.var(n) else "[%s]"%r # Specify range to invoke factory to produce a RooRealVar only if it doesn't already exist
-                if self.options.noOptimizePdf:
-                      self.doObj("%s_Pdf" % n, "Gaussian", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True); # Use existing constraint since it could be a param
+                if self.options.noOptimizePdf or is_func:
+                      self.doObj("%s_Pdf" % n, "Gaussian", "%s%s, %s_In[0,%s], %s" % (n,r_exp,n,r,sig),True); # Use existing constraint since it could be a param
                 else:
-                      self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True);# Use existing constraint since it could be a param
+                      self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %s" % (n,r_exp,n,r,sig),True);# Use existing constraint since it could be a param
                 self.out.var(n).setVal(0)
                 self.out.var(n).setError(1) 
                 globalobs.append("%s_In" % n)
