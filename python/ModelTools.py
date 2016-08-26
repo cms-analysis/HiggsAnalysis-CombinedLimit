@@ -236,17 +236,21 @@ class ModelBuilder(ModelBuilderBase):
                     if re.match(pn, n): 
                         sig = float(pf); sigscale = sig * (4 if pdf == "shape" else 7)
                         r = "-%g,%g" % (sigscale,sigscale)
-                        print 'Rescale %s to %s' % (n, sig)
                 sig = '%g' % sig
                 is_func = False
                 for pn,pf in self.options.nuisanceFunctions:
                     if re.match(pn, n):
                         is_func = True
                         sig = pf
-                        print 'Rescale %s as %s' % (n, sig)
+                        if self.options.verbose > 1:
+                            print 'Rescaling %s constraint as %s' % (n, sig)
 		r_exp = "" if self.out.var(n) else "[%s]"%r # Specify range to invoke factory to produce a RooRealVar only if it doesn't already exist
                 if self.options.noOptimizePdf or is_func:
                       self.doObj("%s_Pdf" % n, "Gaussian", "%s%s, %s_In[0,%s], %s" % (n,r_exp,n,r,sig),True); # Use existing constraint since it could be a param
+                      if is_func:
+                        boundHi = self.doObj("%s_BoundHi" % n, "prod", "5, %s" % sig)
+                        boundLo = self.doObj("%s_BoundLo" % n, "prod", "-5, %s" % sig)
+                        self.out.var(n).setRange(boundLo, boundHi)
                 else:
                       self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %s" % (n,r_exp,n,r,sig),True);# Use existing constraint since it could be a param
                 self.out.var(n).setVal(0)
@@ -254,7 +258,7 @@ class ModelBuilder(ModelBuilderBase):
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
-                if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
+                if self.options.optimizeBoundNuisances and not is_func: self.out.var(n).setAttribute("optimizeBounds")
             elif pdf == "gmM":
                 val = 0;
                 for c in errline.values(): #list channels
