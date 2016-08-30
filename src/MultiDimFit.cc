@@ -502,7 +502,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     if (n == 1) {
 	// can do a more intellegent spacing of points
 	double xbestpoint = (p0[0] - pmin[0]) / ((pmax[0]-pmin[0])/points_) ;
-	if ( lastPoint_ == std::numeric_limits<unsigned int>::max()) lastPoint_ = points_-1;
+	if ( lastPoint_ == std::numeric_limits<unsigned int>::max()) lastPoint_ = points_;
         for (unsigned int i = 0; i <= points_; ++i) {
             if (i < firstPoint_) continue;
             if (i > lastPoint_)  break;
