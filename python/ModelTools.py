@@ -371,8 +371,8 @@ class ModelBuilder(ModelBuilderBase):
                     self.doObj("%s_Pdf" % n, "BifurGauss", "%s, %s_In[%s,%g,%g], %s, %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStrL, sigmaStrR),True)
                     self.out.var("%s_In" % n).setConstant(True)
                     if is_func_scaled:
-                        self.doExp("%s_BoundHi" % n, "@0+%g*@1" % (self.out.var(n).getMax() - mean), "%s_In, %s" % (n, func_scaler))
-                        self.doExp("%s_BoundLo" % n, "@0-%g*@1" % (mean - self.out.var(n).getMin()), "%s_In, %s" % (n, func_scaler))
+                        self.doExp("%s_BoundHi" % n, "%g+%g*@0" % (mean, self.out.var(n).getMax() - mean), "%s" % (func_scaler))
+                        self.doExp("%s_BoundLo" % n, "%g-%g*@0" % (mean, mean - self.out.var(n).getMin()), "%s" % (func_scaler))
                         self.out.var(n).setRange(self.out.function('%s_BoundLo' % n), self.out.function('%s_BoundHi' % n))
                 else:
                     if len(args) == 3: # mean, sigma, range
@@ -400,8 +400,8 @@ class ModelBuilder(ModelBuilderBase):
                     self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStr),True)
                     self.out.var("%s_In" % n).setConstant(True)
                     if is_func_scaled:
-                        boundHi = self.doExp("%s_BoundHi" % n, "@0+%g*@1" % (self.out.var(n).getMax() - mean), "%s_In, %s" % (n, func_scaler))
-                        boundLo = self.doExp("%s_BoundLo" % n, "@0-%g*@1" % (mean - self.out.var(n).getMin()), "%s_In, %s" % (n, func_scaler))
+                        boundHi = self.doExp("%s_BoundHi" % n, "%g+%g*@0" % (mean, self.out.var(n).getMax() - mean), "%s" % (func_scaler))
+                        boundLo = self.doExp("%s_BoundLo" % n, "%g-%g*@0" % (mean, mean - self.out.var(n).getMin()), "%s" % (func_scaler))
                         self.out.var(n).setRange(self.out.function('%s_BoundLo' % n), self.out.function('%s_BoundHi' % n))
                 globalobs.append("%s_In" % n)
                 #if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
