@@ -23,17 +23,13 @@ ClassImp(VBFHZZ4L_RooSpinZeroPdf)
                                                    RooAbsReal& _kd,
                                                    RooAbsReal& _kdint,
                                                    RooAbsReal& _ksmd,
-                                                   RooAbsReal& _fai,
-                                                   double _sigmaioversigma1_HZZ4L,
+                                                   RooAbsReal& _a1,
+                                                   RooAbsReal& _ai,
                                                    const RooArgList& inCoefList):
    RooAbsPdf(name,title),
    kd("kd","kd",this,_kd),
    kdint("kdint","kdint",this,_kdint),
    ksmd("ksmd","ksmd",this,_ksmd),
-   fai("fai","fai",this,_fai),
-   sigmaioversigma1_HZZ4L("sigmaioversigma1_HZZ4L", "sigmaioversigma1_HZZ4L", _sigmaioversigma1_HZZ4L),
-   _a1("_a1", "_a1", "(@0>0 ? 1 : -1) * sqrt(1-@0)", RooArgList(fai.arg())),
-   _ai("_ai", "_ai", "(@0>0 ? 1 : -1) * sqrt(@0/@1)", RooArgList(fai.arg(), sigmaioversigma1_HZZ4L)),
    a1("a1","a1",this,_a1),
    ai("ai","ai",this,_ai),
   _coefList("coefList","List of funcficients",this)
@@ -63,13 +59,8 @@ ClassImp(VBFHZZ4L_RooSpinZeroPdf)
    kd("kd",this,other.kd),
    kdint("kdint",this,other.kdint),
    ksmd("ksmd",this,other.ksmd),
-   fai("fai",this,other.fai),
-   sigmaioversigma1_HZZ4L(other.sigmaioversigma1_HZZ4L),
-   //construct _a1 and _ai over again so they refer to this one's fai
-   _a1("_a1", "_a1", "(@0>0 ? 1 : -1) * sqrt(1-@0)", RooArgList(fai.arg())),
-   _ai("_ai", "_ai", "(@0>0 ? 1 : -1) * sqrt(@0/@1)", RooArgList(fai.arg(), sigmaioversigma1_HZZ4L)),
-   a1("a1","a1",this,_a1),
-   ai("ai","ai",this,_ai),
+   a1("a1",this,other.a1),
+   ai("ai",this,other.ai),
   _coefList("coefList",this,other._coefList)
  {
          Integral_T1 = other.Integral_T1;

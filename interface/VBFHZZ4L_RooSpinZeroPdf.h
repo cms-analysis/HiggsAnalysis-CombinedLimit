@@ -27,9 +27,7 @@ protected:
   RooRealProxy kd ;
   RooRealProxy kdint ;
   RooRealProxy ksmd ;
-  RooRealProxy fai ;
   RooConstVar sigmaioversigma1_HZZ4L;
-  RooFormulaVar _a1, _ai;
   RooRealProxy a1, ai;
   RooListProxy _coefList ;  //  List of funcficients
 //  TIterator* _coefIter ;    //! Iterator over funcficient lis
@@ -40,8 +38,8 @@ public:
                        RooAbsReal& _kd,
                        RooAbsReal& _kdint,
                        RooAbsReal& _ksmd,
-                       RooAbsReal& _fai,
-                       double _sigmaioversigma1_HZZ4L,
+                       RooAbsReal& _a1,
+                       RooAbsReal& _ai,
                        const RooArgList& inCoefList);
 
   VBFHZZ4L_RooSpinZeroPdf(const VBFHZZ4L_RooSpinZeroPdf& other, const char* name=0) ;
