@@ -1,4 +1,4 @@
-import re
+import re, fnmatch
 from sys import stderr
 
 globalNuisances = re.compile('(lumi|pdf_(qqbar|gg|qg)|QCDscale_(ggH|qqH|VH|ggH1in|ggH2in|VV)|UEPS|FakeRate|CMS_(eff|fake|trigger|scale|res)_([gemtjb]|met))')
@@ -204,21 +204,15 @@ def parseCard(file, options):
 	        ret.extArgs[lsyst]=f[:]
 	    	continue 
             elif pdf == "rateParam":
-	        if f[3]=="*" and f[2]=="*": # all channels 
+	        if ("*" in f[3]) or ("*" in f[2]): # all channels/processes
 		  for c in ret.processes: 
 		   for b in ret.bins:
+		    if (not fnmatch.fnmatch(c, f[3])): continue
+		    if (not fnmatch.fnmatch(b, f[2])): continue
 		    f_tmp = f[:]
 		    f_tmp[2]=b
 		    f_tmp[3]=c
 	            addRateParam(lsyst,f_tmp,ret)
-	        elif f[3]=="*": # all channels 
-		  for c in ret.processes: 
-		    f_tmp = f[:]; f_tmp[3]=c
-		    addRateParam(lsyst,f_tmp,ret)
-	        elif f[2]=="*": # all bins
-		  for b in ret.bins:
-		    f_tmp = f[:]; f_tmp[2]=b
-		    addRateParam(lsyst,f_tmp,ret)
 		else : addRateParam(lsyst,f,ret)
                 continue
             elif pdf=="discrete":
