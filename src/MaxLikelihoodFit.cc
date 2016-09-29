@@ -547,14 +547,10 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         }
     }
 
-    std::vector<int> binsOverall(totByCh.size(),0);
     int totalBins = 0;
-    unsigned int iHist = 0;
 
     for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h) {
-	binsOverall[iHist] = h->second->GetNbinsX();
-	totalBins += binsOverall[iHist];
-	iHist++;
+	totalBins +=  h->second->GetNbinsX();
     }
 
     //Total covariance
@@ -570,11 +566,10 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
     TH1D* sigOverall = new TH1D("total_signal","Total signal",totalBins,0,totalBins);
     sigOverall->SetDirectory(0);
     int iBinOverall = 1;
-    iHist = 0;
     //Map to hold info on bins across channels
     std::map<TString,int> binMap;
     for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h){
-	for (int iBin = 0; iBin < binsOverall[iHist]; iBin++){
+	for (int iBin = 0; iBin < h->second->GetNbinsX(); iBin++,iBinOverall++){
 	    TString label = Form("%s_%d",h->first.c_str(),iBin);
 	    binMap[label] = iBinOverall;
 	    totOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
@@ -588,9 +583,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
 
 	    totOverall2Covar->GetXaxis()->SetBinLabel(iBinOverall,label);
 	    totOverall2Covar->GetYaxis()->SetBinLabel(iBinOverall,label);
-	    iBinOverall++;
 	}
-	iHist++;
     }
 
     if (saveWithUncertainties_) {
