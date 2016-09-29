@@ -559,7 +559,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
     totOverall2Covar->GetYaxis()->SetTitle("Bin number");
     totOverall2Covar->SetDirectory(0);
     //Total background
-    TH1D* totOverall = new TH1D("total overall","signal+background",totalBins,0,totalBins);
+    TH1D* totOverall = new TH1D("total_overall","signal+background",totalBins,0,totalBins);
     totOverall->SetDirectory(0);
     TH1D* bkgOverall = new TH1D("total_background","Total background",totalBins,0,totalBins);
     bkgOverall->SetDirectory(0);
