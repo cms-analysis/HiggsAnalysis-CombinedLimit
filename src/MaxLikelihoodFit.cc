@@ -40,6 +40,7 @@ std::string MaxLikelihoodFit::backgroundPdfNames_ = "shapeBkg*";
 bool        MaxLikelihoodFit::saveNormalizations_ = false;
 bool        MaxLikelihoodFit::oldNormNames_ = false;
 bool        MaxLikelihoodFit::saveShapes_ = false;
+bool        MaxLikelihoodFit::saveOverallShapes_ = false;
 bool        MaxLikelihoodFit::saveWithUncertainties_ = false;
 bool        MaxLikelihoodFit::justFit_ = false;
 bool        MaxLikelihoodFit::skipBOnlyFit_ = false;
@@ -65,6 +66,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("oldNormNames",  "Name the normalizations as in the workspace, and not as channel/process")
 //        ("saveWorkspace",       "Save post-fit pdfs and data to MaxLikelihoodFitResults.root")
         ("saveShapes",  "Save post-fit binned shapes")
+        ("saveOverallShapes",  "Save total shapes (and covariance if used with saveWithUncertainties) across all channels")
         ("saveWithUncertainties",  "Save also post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
         ("numToysForShapes", boost::program_options::value<int>(&numToysForShapes_)->default_value(numToysForShapes_),  "Choose number of toys for re-sampling of the covariance (for shapes with uncertainties)")
         ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
@@ -96,7 +98,8 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
     applyOptionsBase(vm);
     makePlots_ = vm.count("plots");
     name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
-    saveShapes_  = vm.count("saveShapes");
+    saveOverallShapes_  = vm.count("saveOverallShapes");
+    saveShapes_  = saveOverallShapes_ || vm.count("saveShapes");
     saveNormalizations_  = saveShapes_ || vm.count("saveNormalizations");
     oldNormNames_  = vm.count("oldNormNames");
     saveWithUncertainties_  = vm.count("saveWithUncertainties");
@@ -646,20 +649,22 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
 		}
 	    }
             // deviations across channels in this toy
-	    for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) {
-		TH1 *reference = totByCh[h->first];
-		for (IH h2 = totByCh1.begin();h2 != h; ++h2) {
-		    TH1 *reference2 = totByCh[h2->first];
-		    for (int b = 1, nb = reference->GetNbinsX(); b <= nb; ++b) {
-			double deltaBi = h->second->GetBinContent(b) - reference->GetBinContent(b);
-			int binX = b - 1;
-			TString xLabel = Form("%s_%d",h->first.c_str(),binX);
-			for (int bj = 1, nb2 = reference2->GetNbinsX(); bj <= nb2; ++bj) {
-			    int binY = bj - 1;
-			    double deltaBj = h2->second->GetBinContent(bj) - reference2->GetBinContent(bj);
-			    TString yLabel = Form("%s_%d",h2->first.c_str(),binY);
-			    totOverall2Covar->Fill(xLabel,yLabel,deltaBj*deltaBi);
-			    totOverall2Covar->Fill(yLabel,xLabel,deltaBj*deltaBi);
+	    if (saveOverallShapes_){
+		for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) {
+		    TH1 *reference = totByCh[h->first];
+		    for (IH h2 = totByCh1.begin();h2 != h; ++h2) {
+			TH1 *reference2 = totByCh[h2->first];
+			for (int b = 1, nb = reference->GetNbinsX(); b <= nb; ++b) {
+			    double deltaBi = h->second->GetBinContent(b) - reference->GetBinContent(b);
+			    int binX = b - 1;
+			    TString xLabel = Form("%s_%d",h->first.c_str(),binX);
+			    for (int bj = 1, nb2 = reference2->GetNbinsX(); bj <= nb2; ++bj) {
+				int binY = bj - 1;
+				double deltaBj = h2->second->GetBinContent(bj) - reference2->GetBinContent(bj);
+				TString yLabel = Form("%s_%d",h2->first.c_str(),binY);
+				totOverall2Covar->Fill(xLabel,yLabel,deltaBj*deltaBi);
+				totOverall2Covar->Fill(yLabel,xLabel,deltaBj*deltaBi);
+			    }
 			}
 		    }
 		}
@@ -751,7 +756,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         for (IH2 h = totByCh2Covar.begin(), eh = totByCh2Covar.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
 	//Save total shapes or clean up if not keeping
 	shapeDir->cd();
-	if (saveShapes_){
+	if (saveShapes_ && saveOverallShapes_){
 	    totOverall->Write();
 	    sigOverall->Write();
 	    bkgOverall->Write();
@@ -761,7 +766,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
 	    delete sigOverall;
 	    delete bkgOverall;
 	}
-	if (saveWithUncertainties_){
+	if (saveWithUncertainties_ && saveOverallShapes_){
 	    totOverall2Covar->Write();
 	}
 	else{
