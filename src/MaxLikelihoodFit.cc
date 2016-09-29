@@ -568,6 +568,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
     sigOverall->SetDirectory(0);
     int iBinOverall = 1;
     iHist = 0;
+    //Map to hold info on bins across channels
     std::map<TString,int> binMap;
     for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h){
 	for (int iBin = 0; iBin < binsOverall[iHist]; iBin++){
@@ -622,7 +623,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                     (sig[i] ? sigByCh1 : bkgByCh1)[pair->second.channel]->Add(&*hist);
                 }
             }
-            // now add up the deviations in this toy
+            // now add up the deviations within channels in this toy
             for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) {
                 TH1 *target = totByCh2[h->first], *reference = totByCh[h->first];
                 TH2 *targetCovar = totByCh2Covar[h->first];
@@ -644,7 +645,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
 		    }
 		}
 	    }
-            // deviations across channels
+            // deviations across channels in this toy
 	    for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) {
 		TH1 *reference = totByCh[h->first];
 		for (IH h2 = totByCh1.begin();h2 != h; ++h2) {
@@ -748,11 +749,24 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         for (IH h = sigByCh.begin(), eh = sigByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
         for (IH h = bkgByCh.begin(), eh = bkgByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
         for (IH2 h = totByCh2Covar.begin(), eh = totByCh2Covar.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
+	//Save total shapes or clean up if not keeping
 	shapeDir->cd();
-	totOverall2Covar->Write();
-	totOverall->Write();
-	sigOverall->Write();
-	bkgOverall->Write();
+	if (saveShapes_){
+	    totOverall->Write();
+	    sigOverall->Write();
+	    bkgOverall->Write();
+	}
+	else{
+	    delete totOverall;
+	    delete sigOverall;
+	    delete bkgOverall;
+	}
+	if (saveWithUncertainties_){
+	    totOverall2Covar->Write();
+	}
+	else{
+	    delete totOverall2Covar;
+	}
     }
 }
 
