@@ -514,7 +514,6 @@ class ThetaVFBRHiggs(SMLikeHiggsModel):
         raise RuntimeError, "Unknown production mode '%s'" % production
 
 
-
 class FloatingXSBRHiggs(SMLikeHiggsModel):
     "Float independently cross sections and branching ratios"
     def __init__(self):
