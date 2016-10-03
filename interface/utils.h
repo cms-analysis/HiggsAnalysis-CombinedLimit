@@ -27,7 +27,7 @@ namespace utils {
     void printPdf(const RooAbsReal *pdf) ;
     void printPdf(RooStats::ModelConfig &model) ;
     void printPdf(RooWorkspace *w, const char *pdfName) ;
-    TGraphAsymmErrors * makeDataGraph(TH1 * dataHist);
+    TGraphAsymmErrors * makeDataGraph(TH1 * dataHist, bool asDensity=false);
     //Make a tgraph asym errors from th1 of data
 
     // Clone a pdf and all its branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)

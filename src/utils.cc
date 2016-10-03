@@ -527,7 +527,7 @@ utils::setChannelGenModes(RooSimultaneous &simPdf, const std::string &binned, co
         }
     }
 }
-TGraphAsymmErrors * utils::makeDataGraph(TH1 * dataHist)
+TGraphAsymmErrors * utils::makeDataGraph(TH1 * dataHist, bool asDensity)
 {
     // Properly normalise 
     TGraphAsymmErrors * dataGraph = new TGraphAsymmErrors(dataHist->GetNbinsX());
@@ -542,6 +542,12 @@ TGraphAsymmErrors * utils::makeDataGraph(TH1 * dataHist)
 
 	double errlow  = (yv-dn);
 	double errhigh = (up-yv);
+
+	if (asDensity) {
+		yv/=bw;
+		errlow/=bw;
+		errhigh/=bw;
+	}
 
 	dataGraph->SetPoint(b,dataHist->GetBinCenter(b),yv);
 	dataGraph->SetPointError(b,bw/2,bw/2,errlow,errhigh);

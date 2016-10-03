@@ -495,7 +495,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
 		RooRealVar *x = (RooRealVar*)it->second.obs.at(0);
 		RooDataHist *dataCut = (RooDataHist*)data.reduce(RooFit::Cut(TString("CMS_channel==CMS_channel::"+it->second.channel)));
 		TH1* dH = dataCut->createHistogram("data",*x);
-		TGraphAsymmErrors * dGraph = utils::makeDataGraph(dH);
+		TGraphAsymmErrors * dGraph = utils::makeDataGraph(dH,/*asDensity*/true);
 		datByCh[it->second.channel] = (TGraphAsymmErrors *) dGraph->Clone();
 		datByCh[it->second.channel]->SetNameTitle("data", (it->second.process+" in "+it->second.channel).c_str());
 		delete dH;
