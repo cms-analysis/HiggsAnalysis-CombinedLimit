@@ -576,7 +576,11 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
 	    totOverall->SetBinContent(iBinOverall,h->second->GetBinContent(iBin+1));
 
 	    sigOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
-	    sigOverall->SetBinContent(iBinOverall,sigByCh[h->first]->GetBinContent(iBin+1));
+	    //For signal have to deal with empty channels
+	    std::map<std::string,TH1*>::iterator iH = sigByCh.find(h->first);
+	    if (iH != sigByCh.end()){
+		sigOverall->SetBinContent(iBinOverall,iH->second->GetBinContent(iBin+1));
+	    }
 
 	    bkgOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
 	    bkgOverall->SetBinContent(iBinOverall,bkgByCh[h->first]->GetBinContent(iBin+1));
