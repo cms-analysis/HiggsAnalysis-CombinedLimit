@@ -527,6 +527,27 @@ utils::setChannelGenModes(RooSimultaneous &simPdf, const std::string &binned, co
         }
     }
 }
+TGraphAsymmErrors * utils::makeDataGraph(TH1 * dataHist)
+{
+    // Properly normalise 
+    TGraphAsymmErrors * dataGraph = new TGraphAsymmErrors(dataHist->GetNbinsX());
+    for (int b=1;b <= dataHist->GetNbinsX();b++){
+	double yv = dataHist->GetBinContent(b);
+	double bw = dataHist->GetBinWidth(b);
+
+	double up; 
+	double dn;
+
+	RooHistError::instance().getPoissonInterval(yv,dn,up,1);
+
+	double errlow  = (yv-dn);
+	double errhigh = (up-yv);
+
+	dataGraph->SetPoint(b,dataHist->GetBinCenter(b),yv);
+	dataGraph->SetPointError(b,bw/2,bw/2,errlow,errhigh);
+    }
+    return dataGraph;
+}
 
 std::vector<RooPlot *>
 utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel, const char *backgroundSel, float rebinFactor) {
