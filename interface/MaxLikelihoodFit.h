@@ -80,7 +80,7 @@ protected:
         virtual const RooAbsCollection & get(int itoy) = 0;
         virtual const RooAbsCollection & centralValues() = 0;
   };
-  void getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out, NuisanceSampler &sampler, TDirectory *fOut, const std::string &postfix);
+  void getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out, NuisanceSampler &sampler, TDirectory *fOut, const std::string &postfix,RooAbsData &data);
 
   class CovarianceReSampler : public NuisanceSampler {
     public:
