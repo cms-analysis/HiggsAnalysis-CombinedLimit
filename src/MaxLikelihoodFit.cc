@@ -581,6 +581,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
     sigOverall->SetDirectory(0);
     TH1D* datOverallHist = new TH1D("total_data","Total data",totalBins,0,totalBins);
     datOverallHist->SetDirectory(0);
+
     int iBinOverall = 1;
     //Map to hold info on bins across channels
     std::map<TString,int> binMap;
