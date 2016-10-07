@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractmethod
 import re
 
 ### Class that takes care of building a physics model by combining individual channels and processes together
@@ -6,7 +7,9 @@ import re
 ###   - define other constant model parameters (e.g., "MH")
 ###   - yields a scaling factor for each pair of bin and process (by default, constant for background and linear in "r" for signal)
 ###   - possibly modifies the systematical uncertainties (does nothing by default)
-class PhysicsModel:
+
+class PhysicsModelBase(object):
+    __metaclass__ = ABCMeta
     def __init__(self):
         pass
     def setModelBuilder(self, modelBuilder):
@@ -16,19 +19,9 @@ class PhysicsModel:
         self.options = modelBuilder.options
     def setPhysicsOptions(self,physOptions):
         "Receive a list of strings with the physics options from command line"
-        pass
+    @abstractmethod
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
-        # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("r[1,0,20]");
-        self.modelBuilder.doSet("POI","r")
-        # --- Higgs Mass as other parameter ----
-        if self.options.mass != 0:
-            if self.modelBuilder.out.var("MH"):
-              self.modelBuilder.out.var("MH").removeRange()
-              self.modelBuilder.out.var("MH").setVal(self.options.mass)
-            else:
-              self.modelBuilder.doVar("MH[%g]" % self.options.mass); 
     def preProcessNuisances(self,nuisances):
         "receive the usual list of (name,nofloat,pdf,args,errline) to be edited"
         pass # do nothing by default
@@ -47,21 +40,51 @@ class PhysicsModel:
         "Called after creating the model, except for the ModelConfigs"
         pass
 
-class MultiSignalModel(PhysicsModel):
+class PhysicsModelBase_NiceSubclasses(PhysicsModelBase):
+  """Subclass this so that subclasses work nicer"""
+  def doParametersOfInterest(self):
+    """
+    do not override this if you want subclasses to work nicely.
+    put everything that would have gone here into getPOIList instead.
+    """
+    self.modelBuilder.doSet("POI", ",".join(self.getPOIList))
+
+  @abstractmethod
+  def getPOIList(self):
+    """
+    Create POI and other parameters, and return a list of POI variable names.
+    Make sure to include:
+      pois += super([classname], self).getPOIList()
+    !!!!
+    """
+    return []
+
+class PhysicsModel(object):
+    """Example class with signal strength as only POI"""
+    def getPOIList(self):
+        """Create POI and other parameters, and define the POI set."""
+        pois = []
+        pois += super([classname], self).getPOIList()
+        # --- Signal Strength as only POI --- 
+        self.modelBuilder.doVar("r[1,0,20]");
+        pois.append("r")
+        # --- Higgs Mass as other parameter ----
+        if self.options.mass != 0:
+            if self.modelBuilder.out.var("MH"):
+              self.modelBuilder.out.var("MH").removeRange()
+              self.modelBuilder.out.var("MH").setVal(self.options.mass)
+            else:
+              self.modelBuilder.doVar("MH[%g]" % self.options.mass); 
+
+class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
-        self.mHRange = []
         self.poiMap  = []
         self.pois    = {}
         self.verbose = False
         self.factories = []
+        super(MultiSignalModelBase, self).__init__()
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
-            if po.startswith("higgsMassRange="):
-                self.mHRange = po.replace("higgsMassRange=","").split(",")
-                if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
             if po.startswith("verbose"):
                 self.verbose = True
             if po.startswith("map="):
@@ -78,10 +101,12 @@ class MultiSignalModel(PhysicsModel):
                     self.pois[poiname] = poi
                 if self.verbose:  print "Mapping ",poiname," to ",maps," patterns"
                 self.poiMap.append((poiname, maps))
-    def doParametersOfInterest(self):
+        super(MultiSignalModelBase, self).setPhysicsOptions(physOptions)
+    def getPOIList(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Higgs Mass as other parameter ----
         poiNames = []
+        poiNames += super(MultiSignalModelBase, self).getPOIList()
         # first do all non-factory statements, so all params are defined
         for pn,pf in self.pois.items():
             poiNames.append(pn)
@@ -89,6 +114,36 @@ class MultiSignalModel(PhysicsModel):
         # then do all factory statements (so vars are already defined)
         for pf in self.factories:
             self.modelBuilder.factory_(pf)
+        return poiNames
+
+    def getYieldScale(self,bin,process):
+        string = "%s/%s" % (bin,process)
+        poi = 1
+        for p, list in self.poiMap:
+            for l in list:
+                if re.match(l, string): poi = p
+        print "Will scale ", string, " by ", poi
+        if poi in ["1","0"]: return int(poi)
+        return poi
+
+
+class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
+    def __init__(self):
+        self.mHRange = []
+        super(HiggsMassRangeModel, self).__init__()
+
+    def setPhysicsOptions(self,physOptions):
+        super(HiggsMassRangeModel, self).setPhysicsOptions(physOptions)
+        for po in physOptions:
+            if po.startswith("higgsMassRange="):
+                self.mHRange = po.replace("higgsMassRange=","").split(",")
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+    def getPOIList(self):
+        poiNames = []
+        poiNames += super(HiggsMassRangeModel, self).getPOIList()
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
                 print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
@@ -107,17 +162,10 @@ class MultiSignalModel(PhysicsModel):
             else:
                 print 'MH (not there before) will be assumed to be', self.options.mass
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
-        self.modelBuilder.doSet("POI",",".join(poiNames))
-    def getYieldScale(self,bin,process):
-        string = "%s/%s" % (bin,process)
-        poi = 1
-        for p, list in self.poiMap:
-            for l in list:
-                if re.match(l, string): poi = p
-        print "Will scale ", string, " by ", poi
-        if poi in ["1","0"]: return int(poi)
-        return poi;
+        return poiNames
 
+class MultiSignalModel(MultiSignalModelBase, HiggsMassRangeModel):
+    pass
 
 ### This base class implements signal yields by production and decay mode
 ### Specific models can be obtained redefining getHiggsSignalYieldScale
@@ -163,8 +211,9 @@ def getHiggsProdDecMode(bin,process,options):
 
 
 class SMLikeHiggsModel(PhysicsModel):
+    @abstractmethod
     def getHiggsSignalYieldScale(self, production, decay, energy):
-            raise RuntimeError, "Not implemented"
+        pass
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
         if not self.DC.isSignal[process]: return 1

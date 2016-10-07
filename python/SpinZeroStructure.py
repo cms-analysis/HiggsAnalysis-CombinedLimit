@@ -3,9 +3,9 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 ### This is the base python class to study the SpinZero structure
 
-class SpinZeroHiggs(PhysicsModel):
+class SpinZeroHiggsBase(MultiSignalModelBase):
     def __init__(self):
-        self.mHRange = []
+        super(SpinZeroHiggsBase, self).__init__()
 
         self.muFloating = True
         self.muAsPOI = False
@@ -26,28 +26,18 @@ class SpinZeroHiggs(PhysicsModel):
 
         self.HWWcombination = False
 
-        self.poiMap = []
-        self.pois = {}
-        self.verbose = False
-
     def setModelBuilder(self, modelBuilder):
-        PhysicsModel.setModelBuilder(self,modelBuilder)
+        super(SpinZeroHiggsBase, self).setModelBuilder(modelBuilder)
         self.modelBuilder.doModelBOnly = False
 
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
-        #print "Bin ",bin
-        #print "Process ",process
-        if self.DC.isSignal[process]:
-            self.my_norm = "r"
-
-            print "Process {0} will scale by {1}".format(process,self.my_norm)
-            return self.my_norm
-        
-        elif not self.DC.isSignal[process]: return 1
-            
+        result = super(SpinZeroHiggsBase, self).getYieldScale(bin, process)
+        if result not in (0, 1): print "Process {0} will scale by {1}".format(process,self.my_norm)
+        return result
 
     def setPhysicsOptions(self,physOptions):
+        super(SpinZeroHiggsBase, self).setPhysicsOptions(physOptions)
         for po in physOptions:
             if 'muFixed' in po: 
                 print "Will consider the signal strength as a fixed parameter"
@@ -103,9 +93,12 @@ class SpinZeroHiggs(PhysicsModel):
                 self.phiai2Floating = False
                 self.phiai2POI = False
                 self.allowPMF = False
-            
-    def doParametersOfInterest(self):
-        """Create POI and other parameters, and define the POI set."""
+
+    def getPOIList(self):
+
+        poi = []
+        poi += super(SpinZeroHiggsBase, self).getPOIList()
+
         if self.fai1Floating:
             if self.modelBuilder.out.var("CMS_zz4l_fai1"):
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(0.,1.)
@@ -117,7 +110,7 @@ class SpinZeroHiggs(PhysicsModel):
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(-1.,1.)
                 print "Allowing negative CMS_zz4l_fai1"
             if self.fai1POI:
-                poi = "CMS_zz4l_fai1"
+                poi.append("CMS_zz4l_fai1")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_fai1"):
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
@@ -137,10 +130,7 @@ class SpinZeroHiggs(PhysicsModel):
                 self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(-1.,1.)
                 print "Allowing negative CMS_zz4l_fai2"
             if self.fai2POI:
-                if self.fai1POI:
-                    poi += ",CMS_zz4l_fai2"
-                else:
-                    poi = "CMS_zz4l_fai2"
+                poi.append("CMS_zz4l_fai2")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_fai2"):
                 self.modelBuilder.out.var("CMS_zz4l_fai2").setVal(0)
@@ -148,31 +138,6 @@ class SpinZeroHiggs(PhysicsModel):
             else:
                 self.modelBuilder.doVar("CMS_zz4l_fai2[0]")
             print "Fixing CMS_zz4l_fai2"
-
-        if self.muFloating:
-            if self.modelBuilder.out.var("r"):
-                self.modelBuilder.out.var("r").setRange(0.,400.)
-                self.modelBuilder.out.var("r").setVal(1)
-            else:
-                self.modelBuilder.doVar("r[1,0,400]")
-            if self.HWWcombination:
-                self.modelBuilder.out.var("r").removeMax()
-                print "Removed maximum of r"
-
-            if self.muAsPOI:
-                print "Treating r as a POI"
-                if self.fai1POI or self.fai2POI:
-                    poi += ",r"
-                else:
-                    poi = "r"
-            else:
-                self.modelBuilder.out.var("r").setAttribute("flatParam")
-        else:
-            if self.modelBuilder.out.var("r"):
-                self.modelBuilder.out.var("r").setVal(1)
-                self.modelBuilder.out.var("r").setConstant()
-            else:
-                self.modelBuilder.doVar("r[1]")
 
         if self.phiai1Floating:
             if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
@@ -183,10 +148,7 @@ class SpinZeroHiggs(PhysicsModel):
             print "Floating CMS_zz4l_phiai1"
             if self.phiai1POI:
                 print "Treating phiai1 as a POI"
-                if self.fai1POI or self.fai2POI or self.muAsPOI:
-                    poi += ",CMS_zz4l_phiai1"
-                else:
-                    poi = "CMS_zz4l_phiai1"
+                poi.append("CMS_zz4l_phiai1")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
                 self.modelBuilder.out.var("CMS_zz4l_phiai1").setVal(0)
@@ -204,10 +166,7 @@ class SpinZeroHiggs(PhysicsModel):
             print "Floating CMS_zz4l_phiai2"
             if self.phiai2POI:
                 print "Treating phiai2 as a POI"
-                if self.fai1POI or self.fai2POI or self.muAsPOI or self.phiai1POI:
-                    poi += ",CMS_zz4l_phiai2"
-                else:
-                    poi = "CMS_zz4l_phiai2"
+                poi.append("CMS_zz4l_phiai2")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_phiai2"):
                 self.modelBuilder.out.var("CMS_zz4l_phiai2").setVal(0)
@@ -228,7 +187,60 @@ class SpinZeroHiggs(PhysicsModel):
                 self.modelBuilder.out.var("CMS_zz4l_alpha").setVal(0)
                 self.modelBuilder.out.var("CMS_zz4l_alpha").setConstant()
                 print "Found CMS_zz4l_alpha; setting to constant 0"
-            
-        self.modelBuilder.doSet("POI",poi)
-        
+
+        return poi
+
+class SpinZeroHiggs(SpinZeroHiggsBase):
+    def getPOIList(self):
+        poi = super(SpinZeroHiggs, self).getPOIList()
+        if self.muFloating:
+            if self.modelBuilder.out.var("r"):
+                self.modelBuilder.out.var("r").setRange(0.,400.)
+                self.modelBuilder.out.var("r").setVal(1)
+            else:
+                self.modelBuilder.doVar("r[1,0,400]")
+            if self.HWWcombination:
+                self.modelBuilder.out.var("r").removeMax()
+                print "Removed maximum of r"
+
+            if self.muAsPOI:
+                print "Treating r as a POI"
+                poi.append("r")
+            else:
+                self.modelBuilder.out.var("r").setAttribute("flatParam")
+        else:
+            if self.modelBuilder.out.var("r"):
+                self.modelBuilder.out.var("r").setVal(1)
+                self.modelBuilder.out.var("r").setConstant()
+            else:
+                self.modelBuilder.doVar("r[1]")
+        return poi
+
+class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,MultiSignalModel):
+    def setPhysicsOptions(self, physOptions):
+        for po in physOptions:
+            if po.startswith("map="):
+                break
+        else: #no po started with map --> no manual overriding --> use the defaults
+            if self.muAsPOI:
+                physOptions += [
+                                "map=.*/ggH:r_ggH[1,0,400]",
+                                "map=.*/qqH:r_qqH[1,0,400]",
+                                "map=.*/ZH:r_ZH[1,0,400]",
+                                "map=.*/WH:r_WH[1,0,400]",
+                               ]
+            elif self.muFloating:
+                physOptions += [
+                                "map=.*/ggH:r_ggH=r_ggH[1,0,400]",
+                                "map=.*/qqH:r_qqH=r_qqH[1,0,400]",
+                                "map=.*/ZH:r_ZH=r_ZH[1,0,400]",
+                                "map=.*/WH:r_WH=r_WH[1,0,400]",
+                               ]
+            else:
+                physOptions += [
+                                "map=.*/[gqZW]*H:1"
+                               ]
+        super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(self, physOptions)
+
 spinZeroHiggs = SpinZeroHiggs()
+multiSignalSpinZeroHiggs = MultiSignalSpinZeroHiggs()
