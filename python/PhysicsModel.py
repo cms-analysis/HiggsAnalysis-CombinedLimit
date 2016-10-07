@@ -47,7 +47,7 @@ class PhysicsModelBase_NiceSubclasses(PhysicsModelBase):
     do not override this if you want subclasses to work nicely.
     put everything that would have gone here into getPOIList instead.
     """
-    self.modelBuilder.doSet("POI", ",".join(self.getPOIList))
+    self.modelBuilder.doSet("POI", ",".join(self.getPOIList()))
 
   @abstractmethod
   def getPOIList(self):
