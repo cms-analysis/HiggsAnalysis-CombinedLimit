@@ -87,6 +87,9 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
         for po in physOptions:
             if po.startswith("verbose"):
                 self.verbose = True
+            if po.startswith("turnoff="):   #shorthand:  turnoff=process1,process2,process3 --> map=.*/(process1|process2|process3):0
+                turnoff = po.replace("turnoff=", "").split(",")
+                po = "map=.*/({}):0".format("|".join(turnoff))  #and leads right into the next option
             if po.startswith("map="):
                 (maplist,poi) = po.replace("map=","").split(":",1)
                 maps = maplist.split(",")
@@ -118,14 +121,36 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
 
     def getYieldScale(self,bin,process):
         string = "%s/%s" % (bin,process)
-        poi = 1
+        poi = None
         for p, list in self.poiMap:
             for l in list:
                 if re.match(l, string): poi = p
+        if poi is None:
+            poi = super(MultiSignalModelBase, self).getYieldScale(bin,process)
         print "Will scale ", string, " by ", poi
         if poi in ["1","0"]: return int(poi)
         return poi
 
+class CanTurnOffBkgModel(PhysicsModelBase_NiceSubclasses):
+    """
+    Generally this should be the FIRST superclass given in any subclass
+    If not it might work anyway if the other class's getYieldScale calls super properly
+       but no guarantees
+
+    If --PO nobkg is given, bkg yields will be set to 0
+    """
+    def setPhysicsOptions(self,physOptions):
+        super(CanTurnOffBkgModel, self).setPhysicsOptions(physOptions)
+        for po in physOptions:
+            if "nobkg" in po.lower():
+                self.usebkg = False
+                print "turning off all background"
+    def getYieldScale(self,bin,process):
+        result = super(CanTurnOffBkgModel, self).getYieldScale(bin, process)
+        if not self.usebkg and not self.DC.isSignal[process]:
+            print "turning off {}".format(process)
+            return 0
+        return result
 
 class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
@@ -208,7 +233,6 @@ def getHiggsProdDecMode(bin,process,options):
         print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
     #
     return (processSource, foundDecay, foundEnergy)
-
 
 class SMLikeHiggsModel(PhysicsModel):
     @abstractmethod

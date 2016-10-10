@@ -216,31 +216,32 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
                 self.modelBuilder.doVar("r[1]")
         return poi
 
-class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,MultiSignalModel):
+class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalModel):
     def setPhysicsOptions(self, physOptions):
         for po in physOptions:
             if po.startswith("map="):
                 break
         else: #no po started with map --> no manual overriding --> use the defaults
+              #can still override with e.g. turnoff=ZH,WH
             if self.muAsPOI:
-                physOptions += [
-                                "map=.*ggH:r_ggH[1,0,400]",
-                                "map=.*qqH:r_qqH[1,0,400]",
-                                "map=.*ZH:r_ZH[1,0,400]",
-                                "map=.*WH:r_WH[1,0,400]",
-                               ]
+                physOptions = [
+                               "map=.*/ggH:r_ggH[1,0,400]",
+                               "map=.*/qqH:r_qqH[1,0,400]",
+                               "map=.*/ZH:r_ZH[1,0,400]",
+                               "map=.*/WH:r_WH[1,0,400]",
+                              ] + physOptions
             elif self.muFloating:
-                physOptions += [
-                                "map=.*ggH:r_ggH=r_ggH[1,0,400]",
-                                "map=.*qqH:r_qqH=r_qqH[1,0,400]",
-                                "map=.*ZH:r_ZH=r_ZH[1,0,400]",
-                                "map=.*WH:r_WH=r_WH[1,0,400]",
-                               ]
+                physOptions = [
+                               "map=.*/ggH:r_ggH=r_ggH[1,0,400]",
+                               "map=.*/qqH:r_qqH=r_qqH[1,0,400]",
+                               "map=.*/ZH:r_ZH=r_ZH[1,0,400]",
+                               "map=.*/WH:r_WH=r_WH[1,0,400]",
+                              ] + physOptions
             else:
-                physOptions += [
-                                "map=.*[gqZW]*H:1"
-                               ]
-        super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(self, physOptions)
+                physOptions = [
+                               "map=.*[gqZW]*H:1"
+                              ] + physOptions
+        super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
 
 spinZeroHiggs = SpinZeroHiggs()
 multiSignalSpinZeroHiggs = MultiSignalSpinZeroHiggs()
