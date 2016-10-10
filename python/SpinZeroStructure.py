@@ -3,7 +3,7 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 ### This is the base python class to study the SpinZero structure
 
-class SpinZeroHiggsBase(MultiSignalModelBase):
+class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
         super(SpinZeroHiggsBase, self).__init__()
 
@@ -33,7 +33,7 @@ class SpinZeroHiggsBase(MultiSignalModelBase):
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
         result = super(SpinZeroHiggsBase, self).getYieldScale(bin, process)
-        if result not in (0, 1): print "Process {0} will scale by {1}".format(process,self.my_norm)
+        if result not in (0, 1): print "Process {0} will scale by {1}".format(process,result)
         return result
 
     def setPhysicsOptions(self,physOptions):
@@ -224,21 +224,21 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,MultiSignalModel):
         else: #no po started with map --> no manual overriding --> use the defaults
             if self.muAsPOI:
                 physOptions += [
-                                "map=.*/ggH:r_ggH[1,0,400]",
-                                "map=.*/qqH:r_qqH[1,0,400]",
-                                "map=.*/ZH:r_ZH[1,0,400]",
-                                "map=.*/WH:r_WH[1,0,400]",
+                                "map=.*ggH:r_ggH[1,0,400]",
+                                "map=.*qqH:r_qqH[1,0,400]",
+                                "map=.*ZH:r_ZH[1,0,400]",
+                                "map=.*WH:r_WH[1,0,400]",
                                ]
             elif self.muFloating:
                 physOptions += [
-                                "map=.*/ggH:r_ggH=r_ggH[1,0,400]",
-                                "map=.*/qqH:r_qqH=r_qqH[1,0,400]",
-                                "map=.*/ZH:r_ZH=r_ZH[1,0,400]",
-                                "map=.*/WH:r_WH=r_WH[1,0,400]",
+                                "map=.*ggH:r_ggH=r_ggH[1,0,400]",
+                                "map=.*qqH:r_qqH=r_qqH[1,0,400]",
+                                "map=.*ZH:r_ZH=r_ZH[1,0,400]",
+                                "map=.*WH:r_WH=r_WH[1,0,400]",
                                ]
             else:
                 physOptions += [
-                                "map=.*/[gqZW]*H:1"
+                                "map=.*[gqZW]*H:1"
                                ]
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(self, physOptions)
 
