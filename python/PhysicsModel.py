@@ -139,6 +139,9 @@ class CanTurnOffBkgModel(PhysicsModelBase_NiceSubclasses):
 
     If --PO nobkg is given, bkg yields will be set to 0
     """
+    def __init__(self, *args, **kwargs):
+        self.usebkg = True
+        super(CanTurnOffBkgModel, self).__init__(*args, **kwargs)
     def setPhysicsOptions(self,physOptions):
         super(CanTurnOffBkgModel, self).setPhysicsOptions(physOptions)
         for po in physOptions:
