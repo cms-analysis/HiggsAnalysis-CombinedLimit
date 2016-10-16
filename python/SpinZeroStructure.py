@@ -223,19 +223,19 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
                 break
         else: #no po started with map --> no manual overriding --> use the defaults
               #can still override with e.g. turnoff=ZH,WH
-            if self.muAsPOI:
+            if any("muAsPOI" in po for po in physOptions):
                 physOptions = [
                                "map=.*/ggH:r_ggH[1,0,400]",
-                               "map=.*/qqH:r_qqH[1,0,400]",
-                               "map=.*/ZH:r_ZH[1,0,400]",
-                               "map=.*/WH:r_WH[1,0,400]",
+                               "map=.*/qqH:r_VVH[1,0,400]",
+                               "map=.*/ZH:r_VVH",
+                               "map=.*/WH:r_VVH",
                               ] + physOptions
-            elif self.muFloating:
+            elif not any("muFixed" in po for po in physOptions):
                 physOptions = [
                                "map=.*/ggH:r_ggH=r_ggH[1,0,400]",
-                               "map=.*/qqH:r_qqH=r_qqH[1,0,400]",
-                               "map=.*/ZH:r_ZH=r_ZH[1,0,400]",
-                               "map=.*/WH:r_WH=r_WH[1,0,400]",
+                               "map=.*/qqH:r_VVH=r_VVH[1,0,400]",
+                               "map=.*/ZH:r_VVH",
+                               "map=.*/WH:r_VVH",
                               ] + physOptions
             else:
                 physOptions = [
