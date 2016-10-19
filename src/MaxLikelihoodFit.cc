@@ -598,7 +598,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
 
 	    datOverallHist->GetXaxis()->SetBinLabel(iBinOverall,label);
 	    double x,y;
-	    datByCh[h->first]->GetPoint(iBin+1,x,y);
+	    datByCh[h->first]->GetPoint(iBin,x,y);
 	    datOverallHist->SetBinContent(iBinOverall,y);
 
 	    sigOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
