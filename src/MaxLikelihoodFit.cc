@@ -38,6 +38,7 @@ bool        MaxLikelihoodFit::saveWorkspace_ = false;
 float       MaxLikelihoodFit::rebinFactor_ = 1.0;
 int         MaxLikelihoodFit::numToysForShapes_ = 200;
 std::string MaxLikelihoodFit::signalPdfNames_     = "shapeSig*";
+std::string MaxLikelihoodFit::filterString_     = "";
 std::string MaxLikelihoodFit::backgroundPdfNames_ = "shapeBkg*";
 bool        MaxLikelihoodFit::saveNormalizations_ = false;
 bool        MaxLikelihoodFit::oldNormNames_ = false;
@@ -73,6 +74,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("saveOverallShapes",  "Save total shapes (and covariance if used with saveWithUncertainties) across all channels")
         ("saveWithUncertainties",  "Save also post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
         ("numToysForShapes", boost::program_options::value<int>(&numToysForShapes_)->default_value(numToysForShapes_),  "Choose number of toys for re-sampling of the covariance (for shapes with uncertainties)")
+        ("filterString", boost::program_options::value<std::string>(&filterString_)->default_value(filterString_), "Filter to search for when making covariance and shapes")
         ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
         ("skipBOnlyFit",  "Skip the B-only fit (do only the S+B fit)")
         ("noErrors",  "Don't compute uncertainties on the best fit value")
@@ -464,7 +466,9 @@ void MaxLikelihoodFit::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, s
         RooArgList plist(add->pdfList());
         for (int i = 0, n = clist.getSize(); i < n; ++i) {
             RooAbsReal *coeff = (RooAbsReal *) clist.at(i);
-            ShapeAndNorm &ns = out[coeff->GetName()];
+	    std::string coeffName = coeff->GetName();
+	    if (coeffName.find(filterString_) == std::string::npos) continue; 
+            ShapeAndNorm &ns = out[coeffName];
             ns.norm = coeff;
             ns.pdf = (RooAbsPdf*) plist.at(i);
             ns.channel = (coeff->getStringAttribute("combine.channel") ? coeff->getStringAttribute("combine.channel") : channel.c_str());
