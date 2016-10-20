@@ -227,15 +227,15 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
                 physOptions = [
                                "map=.*/ggH:r_ggH[1,0,400]",
                                "map=.*/qqH:r_VVH[1,0,400]",
-                               "map=.*/ZH:r_VVH",
-                               "map=.*/WH:r_VVH",
+                               "map=.*/ZH:r_VVH=r_VVH",
+                               "map=.*/WH:r_VVH=r_VVH",
                               ] + physOptions
             elif not any("muFixed" in po for po in physOptions):
                 physOptions = [
                                "map=.*/ggH:r_ggH=r_ggH[1,0,400]",
                                "map=.*/qqH:r_VVH=r_VVH[1,0,400]",
-                               "map=.*/ZH:r_VVH",
-                               "map=.*/WH:r_VVH",
+                               "map=.*/ZH:r_VVH=r_VVH",
+                               "map=.*/WH:r_VVH=r_VVH",
                               ] + physOptions
             else:
                 physOptions = [
