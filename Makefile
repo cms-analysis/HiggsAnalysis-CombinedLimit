@@ -1,23 +1,24 @@
 ################################################################################
 # HiggsAnalysis/Combined Limit Makefile                                        #
 #                                                                              #
-# Authors: Danilo Piparo, Giovanni Petrucciani                                 #
+# Authors: Danilo Piparo, Giovanni Petrucciani, Mingshui Chen                  #
 #                                                                              #
 # o Automatic compilation of new programs and classes*.                        #
-# o Automatic generation of CINT dictionaries via rootcint.                    #
+# o Now generate dictionaries by genreflex                                     #
 #                                                                              #
 # * progs should have cpp extension, classes .cc or .cxx, and headers .h       # 
 #                                                                              #
 ################################################################################
 
 ####  SET UP YOUR ENVIRONMENT FIRST WITH ##############################
-# . /afs/cern.ch/cms/slc6_amd64_gcc481/external/gcc/4.8.1/etc/profile.d/init.sh 
-# . /afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.17/x86_64-slc6-gcc48-opt/root/bin/thisroot.sh 
-# . /afs/cern.ch/cms/slc6_amd64_gcc481/cms/vdt/v0.3.2-cms/etc/profile.d/init.sh 
-# . /afs/cern.ch/cms/slc6_amd64_gcc481/external/boost/1.51.0-cms/etc/profile.d/init.sh 
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/gcc/4.9.1-cms/etc/profile.d/init.sh 
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/bin/thisroot.sh
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/vdt/v0.3.2-cms/etc/profile.d/init.sh 
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/boost/1.51.0-cms/etc/profile.d/init.sh 
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/xz/5.2.1/etc/profile.d/init.sh 
 # export PATH=${PATH}:${PWD}/exe:${PWD}/scripts
 # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/lib
-# export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python
+# export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python:${PWD}/lib
 #######################################################################
 
 # Boost
