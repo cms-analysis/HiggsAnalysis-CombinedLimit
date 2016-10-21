@@ -18,7 +18,7 @@
 # . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/xz/5.2.1/etc/profile.d/init.sh 
 # export PATH=${PATH}:${PWD}/exe:${PWD}/scripts
 # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/lib
-# export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python:${PWD}/lib
+# export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python
 #######################################################################
 
 # Boost
