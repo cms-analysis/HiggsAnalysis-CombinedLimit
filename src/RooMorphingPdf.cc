@@ -216,7 +216,7 @@ Double_t RooMorphingPdf::evaluate() const {
 FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
                                    FastTemplate const& hist2, double par1,
                                    double par2, double parinterp) const {
- unsigned idebug = 0;
+ unsigned idebug = 3;
 
   // Extract bin parameters of input histograms 1 and 2.
   // Supports the cases of non-equidistant as well as equidistant binning
@@ -303,10 +303,10 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
 
   if (idebug >= 3) {
     for (Int_t i = 0; i < mc_.nbn; i++) {
-      std::cout << i << " dist1" << hist1[i] << std::endl;
+      std::cout << i << " dist1[" << i << "] " << hist1[i] << std::endl;
     }
     for (Int_t i = 0; i < mc_.nbn; i++) {
-      std::cout << i << " dist2" << hist2[i] << std::endl;
+      std::cout << i << " dist2[" << i << "] " << hist2[i] << std::endl;
     }
   }
 
@@ -325,9 +325,18 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
   for (Int_t i = 0; i < mc_.nbn + 1; i++) {
     total += sigdis2[i];
   }
-  if (idebug >= 1) std::cout << "Total histogram 22: " << total << std::endl;
+  if (idebug >= 1) std::cout << "Total histogram 2: " << total << std::endl;
   for (Int_t i = 1; i < mc_.nbn + 1; i++) {
     sigdis2[i] = sigdis2[i] / total + sigdis2[i - 1];
+  }
+
+  if (idebug >= 3) {
+    for (Int_t i = 0; i < mc_.nbn + 1; i++) {
+      std::cout << i << " sigdis1[" << i << "] " << sigdis1[i] << std::endl;
+    }
+    for (Int_t i = 0; i < mc_.nbn + 1; i++) {
+      std::cout << i << " sigdis2[" << i << "] " << sigdis2[i] << std::endl;
+    }
   }
 
   // *
