@@ -395,8 +395,10 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
                 rInc *= 0.3;
             }
             if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
-            RooArgSet oldparams(checkpoint->floatParsFinal());
-            *allpars = oldparams;
+            if (checkpoint.get()) {
+                RooArgSet oldparams(checkpoint->floatParsFinal());
+                *allpars = oldparams;
+            }
         } else if ((here-there)*(level-there) < 0 && // went wrong
                    fabs(here-there) > 0.1) {         // by more than roundoff
             if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
