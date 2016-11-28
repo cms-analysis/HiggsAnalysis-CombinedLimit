@@ -119,7 +119,7 @@
 	<class name="RooParametricHist" />
 	<class name="RooMorphingPdf" />
         <function name="function th1fmorph" />
-
+  <class name="CMSHistFunc" />
 	<class name="CombDataSetFactory"  transient="true" />
 	<class name="DebugProposal"  transient="true" />
 	<class name="cmsmath::SequentialMinimizer"  transient="true" />
