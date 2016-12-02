@@ -408,6 +408,8 @@ class CombineHarvester {
   void InsertObservation(ch::Observation const& obs);
   void InsertProcess(ch::Process const& proc);
   void InsertSystematic(ch::Systematic const& sys);
+
+  void RenameSystematic(std::string const& old_name, std::string const& new_name);
   void CreateParameterIfEmpty(std::string const& name);
 
   /**
