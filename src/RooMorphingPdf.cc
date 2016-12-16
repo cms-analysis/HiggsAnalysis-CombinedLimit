@@ -216,7 +216,7 @@ Double_t RooMorphingPdf::evaluate() const {
 FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
                                    FastTemplate const& hist2, double par1,
                                    double par2, double parinterp) const {
- unsigned idebug = 3;
+ unsigned idebug = 0;
 
   // Extract bin parameters of input histograms 1 and 2.
   // Supports the cases of non-equidistant as well as equidistant binning
