@@ -44,6 +44,9 @@ int main(int argc, char* argv[]) {
   TH1F *h_ggH160 = (TH1F*)gDirectory->Get("/mt_nobtag/ggH160");
   TH1F *h_ggH160_lo = (TH1F*)gDirectory->Get("/mt_nobtag/ggH160_CMS_scale_t_mt_13TeVDown");
   TH1F *h_ggH160_hi = (TH1F*)gDirectory->Get("/mt_nobtag/ggH160_CMS_scale_t_mt_13TeVUp");
+  TH1F *h_ggH180 = (TH1F*)gDirectory->Get("/mt_nobtag/ggH180");
+  TH1F *h_ggH180_lo = (TH1F*)gDirectory->Get("/mt_nobtag/ggH180_CMS_scale_t_mt_13TeVDown");
+  TH1F *h_ggH180_hi = (TH1F*)gDirectory->Get("/mt_nobtag/ggH180_CMS_scale_t_mt_13TeVUp");
   TH1F *h_dat = (TH1F*)h_ggH140->Clone();
   h_dat->Reset();
   h_dat->FillRandom(h_ggH140, int(h_ggH140->Integral()));
@@ -56,8 +59,8 @@ int main(int argc, char* argv[]) {
   RooRealVar tes("CMS_scale_t_mt_13TeV", "CMS_scale_t_mt_13TeV", 0, -7, 7);
   CMSHistFunc c_ggH("ggH", "ggH", x, *h_ggH140);
 
-  RooRealVar mH("mH", "mH", 150, 140, 160);
-  c_ggH.addHorizontalMorph(mH, TVectorD(2, std::vector<double>{140., 160.}.data()));
+  RooRealVar mH("mH", "mH", 150, 140, 180);
+  c_ggH.addHorizontalMorph(mH, TVectorD(3, std::vector<double>{140., 160., 180.}.data()));
   c_ggH.setVerticalMorphs(RooArgList(tes));
   c_ggH.prepareStorage();
 
@@ -67,43 +70,23 @@ int main(int argc, char* argv[]) {
   c_ggH.setShape(0, 1, 0, 0, *h_ggH160);
   c_ggH.setShape(0, 1, 1, 0, *h_ggH160_lo);
   c_ggH.setShape(0, 1, 1, 1, *h_ggH160_hi);
+  c_ggH.setShape(0, 2, 0, 0, *h_ggH180);
+  c_ggH.setShape(0, 2, 1, 0, *h_ggH180_lo);
+  c_ggH.setShape(0, 2, 1, 1, *h_ggH180_hi);
 
   c_ggH.evaluate();
+  c_ggH.evaluate();
 
-  // TH1F* validate = th1fmorph("test", "test", h_ggH140, h_ggH160, 140., 160., mH.getVal(), 1.0);
-  // validate->Print("range");
-  // TRandom3 rng;
-  // for (unsigned i = 0; i < 1E6; ++i) {
-  //   tes.setVal(rng.Gaus(0, 1));
-  //   c_ggH.evaluate();
-  // }
+  TRandom3 rng;
 
-  // RooRealVar y_ztt("Y_ZTT", "", 1, 0.5, 1.5);
+  for (unsigned r = 0; r < 1E4; ++r) {
+    // mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
+    // mH.Print();
+    tes.setVal(rng.Gaus(0, 1));
+    tes.Print();
+    c_ggH.evaluate();
+  }
 
-  // RooDataHist c_dat("data", "", x, h_dat);
-
-  // RooRealSumPdf pdf("pdf", "", RooArgList(c_ztt), RooArgList(y_ztt), true);
-  // // pdf.Print("v");
-  // // pdf.Print("tree");
-  // RooMsgService::instance().addStream(RooFit::MsgLevel::DEBUG);
-  // RooAbsArg::verboseDirty(true);
-  // x.setVal(5.);
-  // std::cout << pdf.getVal() << "\t" << pdf.getVal(x) << "\n";
-  // x.setVal(15.);
-  // std::cout << pdf.getVal() << "\t" << pdf.getVal(x) << "\n";
-
-
-  // auto *nll = pdf.createNLL(c_dat, RooFit::Extended(true));
-  // nll->Print();
-  // y_ztt.setVal(1.1);
-  // nll->Print();
-
-  // std::cout << "PDF integral: " << pdf.createIntegral(RooArgSet(x))->getVal() << "\n";
-
-
-  // c_ztt.Print("v");
-  // c_ztt.Print("");
-  // c_ztt.Print("v");
 
   return 0;
 }

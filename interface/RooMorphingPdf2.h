@@ -20,28 +20,51 @@ struct CMSVMorphPersistCache {
   FastHisto diff;
 };
 
-struct HMorphCache {
-  Int_t nbn;
-  Double_t xminn;
-  Double_t xmaxn;
-  std::vector<Double_t> sigdis1;
-  std::vector<Double_t> sigdis2;
-  std::vector<Double_t> sigdisn;
-  std::vector<Double_t> xdisn;
-  std::vector<Double_t> sigdisf;
-};
+// struct HMorphCache {
+//   Int_t nbn;
+//   Double_t xminn;
+//   Double_t xmaxn;
+//   std::vector<Double_t> sigdis1;
+//   std::vector<Double_t> sigdis2;
+//   std::vector<Double_t> sigdisn;
+//   std::vector<Double_t> xdisn;
+//   std::vector<Double_t> sigdisf;
+// };
 
-struct HMorphNewGlobalCache {
+struct HMorphGlobalCache {
   std::vector<double> bedgesn;
+  bool single_point = true;
+  unsigned p1 = 0;
+  unsigned p2 = 0;
 };
 
-struct HMorphNewCDFCache {
-  double integral;
+// If horizontal morphing all vmorphs first,
+// once filled this cache will never need to be changed,
+// As the cdfs depend only on the fixed input templates.
+
+// If vertical morphing all hpoints first,
+// This cache will become invalid as soon as the cdf changes.
+
+struct HMorphCache {
   FastTemplate cdf;
+  double integral;
+
   // The interpolation points between this cache and another one
   std::vector<double> x1;
   std::vector<double> x2;
   std::vector<double> y;
+
+  FastTemplate sum;
+  FastTemplate diff;
+
+  FastTemplate step1;
+  FastHisto step2;
+
+
+  bool cdf_set = false;
+  bool interp_set = false;
+  bool step1_set = false;
+  bool step2_set = false;
 };
 
 
@@ -75,6 +98,10 @@ class CMSHistFunc : public RooAbsReal {
 
   void setShape(unsigned hindex, unsigned hpoint, unsigned vindex, unsigned vpoint, TH1 const& hist);
 
+  void setMorphStrategy(unsigned strategy) {
+    morph_strategy_ = strategy;
+  };
+
 
 /*
 
@@ -92,10 +119,11 @@ class CMSHistFunc : public RooAbsReal {
   mutable std::vector<CMSVMorphPersistCache> vmorph_cache_; // !not to be serialized
   unsigned n_h_;
   unsigned n_v_;
-  mutable HMorphCache mc_; //! not to be serialized
-  mutable HMorphNewGlobalCache hmorph_global_cache_; //! not to be serialized
-  mutable std::vector<HMorphNewCDFCache> hmorph_cache_; // !not to be serialized
-
+  // mutable HMorphCache mc_; //! not to be serialized
+  mutable HMorphGlobalCache global_; //! not to be serialized
+  mutable std::vector<HMorphCache> hmorph_cache_; // !not to be serialized
+  unsigned morph_strategy_;
+  mutable int veval = 0;
  private:
   ClassDef(CMSHistFunc, 1)
 
@@ -111,14 +139,16 @@ class CMSHistFunc : public RooAbsReal {
   mutable SimpleCacheSentry vmorph_sentry_; //! not to be serialized
   mutable SimpleCacheSentry hmorph_sentry_; //! not to be serialized
 
-  FastTemplate morph(FastTemplate const& hist1, FastTemplate const& hist2,
+  // FastTemplate morph(FastTemplate const& hist1, FastTemplate const& hist2,
+  //                    double par1, double par2, double parinterp) const;
+
+  FastTemplate morph2(unsigned globalIdx1, unsigned globalIdx2,
                      double par1, double par2, double parinterp) const;
 
-  FastTemplate morph2(FastTemplate const& hist1, FastTemplate const& hist2,
-                     double par1, double par2, double parinterp) const;
+  void setCdf(HMorphCache &c, FastHisto const& h) const;
 
-  void prepareInterpCaches();
-  void prepareInterpCache(HMorphNewCDFCache &c1, HMorphNewCDFCache const&c2);
+  void prepareInterpCaches() const;
+  void prepareInterpCache(HMorphCache &c1, HMorphCache const&c2) const;
   std::vector<std::vector<double>> hpoints_;
 };
 
