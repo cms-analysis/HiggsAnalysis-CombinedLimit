@@ -55,22 +55,6 @@ void CMSHistFunc::prepareStorage() {
   unsigned n_hpoints = 1;
   if (hmorphs_.getSize() == 1) {
     n_hpoints = hpoints_[0].size();
-    // mc_.nbn = cache_.size();
-    // mc_.xminn = cache_.GetEdge(0);
-    // mc_.xmaxn = cache_.GetEdge(mc_.nbn);
-    // mc_.sigdis1.clear();
-    // mc_.sigdis2.clear();
-    // mc_.sigdisn.clear();
-    // mc_.xdisn.clear();
-    // mc_.sigdisf.clear();
-    // mc_.sigdis1.resize(1 + mc_.nbn);
-    // mc_.sigdis2.resize(1 + mc_.nbn);
-    // mc_.sigdisn.resize(2 * (1 + mc_.nbn));
-    // mc_.xdisn.resize(2 * (1 + mc_.nbn));
-    // mc_.sigdisf.resize(mc_.nbn + 1);
-    // FNLOG(std::cout) << "Prepared HMorphCache with nbn = " << mc_.nbn
-    //                  << ", xminn=" << mc_.xminn << ", xmaxn=" << mc_.xmaxn
-    //                  << "\n";
     global_.bedgesn.resize(cache_.size() + 1);
     for (unsigned i = 0; i < global_.bedgesn.size(); ++i) {
      global_.bedgesn[i] = cache_.GetEdge(i);
@@ -302,7 +286,7 @@ void CMSHistFunc::setCdf(HMorphCache& c, FastHisto const& h) const {
 }
 
 Double_t CMSHistFunc::evaluate() const {
-  veval = 1;
+  veval = 2;
   LAUNCH_FUNCTION_TIMER(__timer__, __token__)
   // FNLOG(std::cout) << x_ << "\n";
 
@@ -381,6 +365,14 @@ Double_t CMSHistFunc::evaluate() const {
           hmorph_cache_[idx1].step1.CropUnderflows();
           double ym = y1 + ((y2 - y1) / (x2 - x1)) * (val - x1);
           hmorph_cache_[idx1].step1.Scale(ym/hmorph_cache_[idx1].step1.Integral());
+          if (veval >= 2) {
+            std::cout << "Template left: " << storage_[idx1].Integral() << "\n";
+            storage_[idx1].Dump();
+            std::cout << "Template right: " << storage_[idx2].Integral() << "\n";
+            storage_[idx2].Dump();
+            std::cout << "Template morphed: " << hmorph_cache_[idx1].step1.Integral() << "\n";
+            hmorph_cache_[idx1].step1.Dump();
+          }
         }
         if (v >= 1) {
           FNLOGC(std::cout, veval) << "Setting sumdiff for vmorph " << v << "\n";
@@ -402,9 +394,12 @@ Double_t CMSHistFunc::evaluate() const {
     if (step1 && global_.single_point) {
       FNLOGC(std::cout, veval) << "Checking step 1 (single point)\n";
       for (int v = 0; v < vmorphs_.getSize() + 1; ++v) {
+        unsigned idx = getIdx(0, global_.p1, 0, 0);
+        if (v == 0) {
+          hmorph_cache_[idx].step1 = storage_[idx];
+        }
         if (v >= 1) {
           FNLOGC(std::cout, veval) << "Setting sumdiff for vmorph " << v << "\n";
-          unsigned idx = getIdx(0, global_.p1, 0, 0);
           unsigned idxLo = getIdx(0, global_.p1, v, 0);
           unsigned idxHi = getIdx(0, global_.p1, v, 1);
           FastTemplate lo = storage_[idxLo];
@@ -415,6 +410,10 @@ Double_t CMSHistFunc::evaluate() const {
           hmorph_cache_[idxLo].sum = storage_[idx];
           hmorph_cache_[idxLo].diff = storage_[idx];
           FastTemplate::SumDiff(hi, lo, hmorph_cache_[idxLo].sum, hmorph_cache_[idxLo].diff);
+          if (veval >= 2) {
+            std::cout << "Template nominal: " << storage_[idx].Integral() << "\n";
+            storage_[idx].Dump();
+          }
         }
       }
     }
@@ -422,7 +421,11 @@ Double_t CMSHistFunc::evaluate() const {
     if (step2) {
       FNLOGC(std::cout, veval) << "Checking step 2\n";
       unsigned idx = getIdx(0, global_.p1, 0, 0);
-      hmorph_cache_[idx].step2 = storage_[idx];
+      hmorph_cache_[idx].step2 = hmorph_cache_[idx].step1;
+      if (veval >= 2) {
+        std::cout << "Template before vmorph: " << hmorph_cache_[idx].step2.Integral() << "\n";
+        hmorph_cache_[idx].step2.Dump();
+      }
       for (int v = 0; v < vmorphs_.getSize(); ++v) {
         unsigned vidx = getIdx(0, global_.p1, v+1, 0);
 
@@ -431,14 +434,21 @@ Double_t CMSHistFunc::evaluate() const {
         double a = 0.5*x;
         double b = smoothStepFunc(x);
         hmorph_cache_[idx].step2.Meld(hmorph_cache_[vidx].diff, hmorph_cache_[vidx].sum, a, b);
-
+        if (veval >= 2) {
+          std::cout << "Template after vmorph " << v+1 << ": " << hmorph_cache_[idx].step2.Integral() << "\n";
+          hmorph_cache_[idx].step2.Dump();
+        }
       }
       hmorph_cache_[idx].step2.CropUnderflows();
-      cache_ = hmorph_cache_[idx].step2;
+      cache_.CopyValues(hmorph_cache_[idx].step2);
+      if (veval >= 2) {
+        std::cout << "Final cache: " << cache_.Integral() << "\n";
+        cache_.Dump();
+      }
     }
     vmorph_sentry_.reset();
   }
-  
+
   return cache_.GetAt(x_);
 }
 
@@ -471,7 +481,6 @@ Double_t CMSHistFunc::analyticalIntegral(Int_t code,
 FastTemplate CMSHistFunc::morph2(unsigned globalIdx1, unsigned globalIdx2,
                                  double par1, double par2,
                                  double parinterp) const {
-
   // FIXME not a very elegant way to check if the cache is ready
   // if (hmorph_cache_.at(0).y.size() == 0) {
   //   prepareInterpCaches();

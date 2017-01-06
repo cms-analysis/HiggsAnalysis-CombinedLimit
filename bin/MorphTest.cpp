@@ -78,7 +78,6 @@ int main(int argc, char* argv[]) {
   c_ggH.evaluate();
 
   TRandom3 rng;
-
   for (unsigned r = 0; r < 1E4; ++r) {
     // mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
     // mH.Print();
