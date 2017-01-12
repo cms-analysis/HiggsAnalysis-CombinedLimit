@@ -6,3 +6,7 @@
   <use name="HiggsAnalysis/CombinedLimit"/>
   <use   name="boost_program_options"/>
 </bin>
+<bin file="MorphTest2.cpp" name="MorphTest2">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>

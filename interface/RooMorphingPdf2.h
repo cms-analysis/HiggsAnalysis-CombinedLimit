@@ -1,78 +1,55 @@
 #ifndef RooMorphingPdf2_h
 #define RooMorphingPdf2_h
 #include <map>
-#include <vector>
 #include <ostream>
-#include "RooHistPdf.h"
-#include "RooDataHist.h"
-#include "RooRealProxy.h"
-#include "RooListProxy.h"
-#include "RooArgSet.h"
-#include "RooAbsReal.h"
-#include "TH1F.h"
-#include "Rtypes.h"
+#include <vector>
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Logging.h"
-
-struct CMSVMorphPersistCache {
-  FastHisto sum;
-  FastHisto diff;
-};
-
-// struct HMorphCache {
-//   Int_t nbn;
-//   Double_t xminn;
-//   Double_t xmaxn;
-//   std::vector<Double_t> sigdis1;
-//   std::vector<Double_t> sigdis2;
-//   std::vector<Double_t> sigdisn;
-//   std::vector<Double_t> xdisn;
-//   std::vector<Double_t> sigdisf;
-// };
-
-struct HMorphGlobalCache {
-  std::vector<double> bedgesn;
-  bool single_point = true;
-  unsigned p1 = 0;
-  unsigned p2 = 0;
-};
-
-// If horizontal morphing all vmorphs first,
-// once filled this cache will never need to be changed,
-// As the cdfs depend only on the fixed input templates.
-
-// If vertical morphing all hpoints first,
-// This cache will become invalid as soon as the cdf changes.
-
-struct HMorphCache {
-  FastTemplate cdf;
-  double integral;
-
-  // The interpolation points between this cache and another one
-  std::vector<double> x1;
-  std::vector<double> x2;
-  std::vector<double> y;
-
-  FastTemplate sum;
-  FastTemplate diff;
-
-  FastTemplate step1;
-  FastTemplate step2;
-
-
-  bool cdf_set = false;
-  bool interp_set = false;
-  bool step1_set = false;
-  bool step2_set = false;
-};
-
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
+#include "RooAbsReal.h"
+#include "RooArgSet.h"
+#include "RooDataHist.h"
+#include "RooHistPdf.h"
+#include "RooListProxy.h"
+#include "RooRealProxy.h"
+#include "RooArgProxy.h"
+#include "Rtypes.h"
+#include "TH1F.h"
 
 class CMSHistFunc : public RooAbsReal {
+ private:
+  struct GlobalCache {
+    std::vector<double> bedgesn;
+    bool single_point = true;
+    unsigned p1 = 0;
+    unsigned p2 = 0;
+  };
+
+  struct Cache {
+    FastTemplate cdf;
+    double integral = 0.;
+
+    // The interpolation points between this cache and another one
+    std::vector<double> x1;
+    std::vector<double> x2;
+    std::vector<double> y;
+
+    FastTemplate sum;
+    FastTemplate diff;
+
+    FastTemplate step1;
+    FastTemplate step2;
+
+    bool cdf_set = false;
+    bool interp_set = false;
+    // bool step1_set = false;
+    // bool step2_set = false;
+  };
+
  public:
   CMSHistFunc();
 
-  CMSHistFunc(const char* name, const char* title, RooRealVar & x,
+  CMSHistFunc(const char* name, const char* title, RooRealVar& x,
               TH1 const& hist);
 
   CMSHistFunc(CMSHistFunc const& other, const char* name = 0);
@@ -82,6 +59,15 @@ class CMSHistFunc : public RooAbsReal {
   }
   virtual ~CMSHistFunc() {}
 
+  void addHorizontalMorph(RooAbsReal& hvar, TVectorD hpoints);
+
+  void setVerticalMorphs(RooArgList const& vvars);
+
+  void prepareStorage();
+
+  void setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
+                unsigned vpoint, TH1 const& hist);
+
   Double_t evaluate() const;
 
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
@@ -89,67 +75,151 @@ class CMSHistFunc : public RooAbsReal {
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
                               const char* rangeName = 0) const;
+
   Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
 
-  void addHorizontalMorph(RooAbsReal & hvar, TVectorD hpoints);
-  void setVerticalMorphs(RooArgList const& vvars);
-
-  void prepareStorage();
-
-  void setShape(unsigned hindex, unsigned hpoint, unsigned vindex, unsigned vpoint, TH1 const& hist);
-
-  void setMorphStrategy(unsigned strategy) {
+  inline void setMorphStrategy(unsigned strategy) {
     morph_strategy_ = strategy;
   };
+  inline void setEvalVerbose(unsigned val) { veval = val; };
 
+  inline FastTemplate const& getBinErrors() const { return binerrors_; }
+  inline FastHisto const& getCacheHisto() const { return cache_; }
 
-/*
+  /*
 
-– RooAbsArg::setVerboseEval(Int_t level) • Level 0 – No messages
- Level 1 – Print one-line message each time a normalization integral is recalculated
- Level 2 – Print one-line message each time a PDF is recalculated
- Level 3 – Provide details of convolution integral recalculations
-*/
+  – RooAbsArg::setVerboseEval(Int_t level) • Level 0 – No messages
+   Level 1 – Print one-line message each time a normalization integral is
+  recalculated
+   Level 2 – Print one-line message each time a PDF is recalculated
+   Level 3 – Provide details of convolution integral recalculations
+  */
  protected:
   RooRealProxy x_;
   RooListProxy vmorphs_;
   RooListProxy hmorphs_;
+  std::vector<std::vector<double>> hpoints_;
+  mutable SimpleCacheSentry vmorph_sentry_;  //! not to be serialized
+  mutable SimpleCacheSentry hmorph_sentry_;  //! not to be serialized
+
   mutable FastHisto cache_;
+  FastTemplate binerrors_;
   std::vector<FastHisto> storage_;
-  mutable std::vector<CMSVMorphPersistCache> vmorph_cache_; // !not to be serialized
-  unsigned n_h_;
-  unsigned n_v_;
-  // mutable HMorphCache mc_; //! not to be serialized
-  mutable HMorphGlobalCache global_; //! not to be serialized
-  mutable std::vector<HMorphCache> hmorph_cache_; // !not to be serialized
+
+  mutable GlobalCache global_;         //! not to be serialized
+  mutable std::vector<Cache> mcache_;  //! not to be serialized
+
   unsigned morph_strategy_;
-  mutable int veval = 0;
+  int veval;
+
  private:
+  unsigned getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
+                  unsigned vpoint) const;
+
+  inline double smoothStepFunc(double x) const;
+
+  void setCdf(Cache& c, FastHisto const& h) const;
+
+  void prepareInterpCache(Cache& c1, Cache const& c2) const;
+
+  FastTemplate cdfMorph(unsigned idx, double par1, double par2,
+                        double parinterp) const;
+
   ClassDef(CMSHistFunc, 1)
+};
 
-  unsigned getIdx(unsigned hindex, unsigned hpoint, unsigned vindex, unsigned vpoint) const;
+class CMSHistErrorPropagator : public RooAbsReal {
+public:
+  CMSHistErrorPropagator();
+  CMSHistErrorPropagator(const char* name, const char* title, RooArgSet const& obs,
+                         RooArgList const& funcs, RooArgList const& coeffs,
+                         RooArgList const& binpars);
 
-  inline double smoothStepFunc(double x) const {
-    double _smoothRegion = 1.0;
-    if (fabs(x) >= _smoothRegion) return x > 0 ? +1 : -1;
-    double xnorm = x/_smoothRegion, xnorm2 = xnorm*xnorm;
-    return 0.125 * xnorm * (xnorm2 * (3.*xnorm2 - 10.) + 15);
+  CMSHistErrorPropagator(CMSHistErrorPropagator const& other, const char* name = 0);
+
+  virtual TObject* clone(const char* newname) const {
+    return new CMSHistErrorPropagator(*this, newname);
   }
 
-  mutable SimpleCacheSentry vmorph_sentry_; //! not to be serialized
-  mutable SimpleCacheSentry hmorph_sentry_; //! not to be serialized
+  virtual ~CMSHistErrorPropagator() {;}
 
-  // FastTemplate morph(FastTemplate const& hist1, FastTemplate const& hist2,
-  //                    double par1, double par2, double parinterp) const;
 
-  FastTemplate morph2(unsigned globalIdx1, unsigned globalIdx2,
-                     double par1, double par2, double parinterp) const;
+  // std::vector<double> getErrorMultipliers(unsigned idx);
+  // std::vector<double> const& getErrorAdditions(unsigned idx);
+  void applyErrorShifts(unsigned idx, FastHisto const& nominal, FastHisto & result);
 
-  void setCdf(HMorphCache &c, FastHisto const& h) const;
+  Double_t evaluate() const { return 0.; }
 
-  void prepareInterpCaches() const;
-  void prepareInterpCache(HMorphCache &c1, HMorphCache const&c2) const;
-  std::vector<std::vector<double>> hpoints_;
+
+ protected:
+  RooListProxy funcs_;
+  RooListProxy coeffs_;
+  RooListProxy binpars_;
+  std::vector<CMSHistFunc const*> vfuncs_; //!
+  std::vector<RooAbsReal const*> vcoeffs_; //!
+  std::vector<RooAbsReal const*> vbinpars_; //!
+
+  std::vector<double> coeffvals_; //!
+  std::vector<std::vector<double>> valvec_; //!
+  std::vector<std::vector<double>> err2vec_; //!
+  std::vector<double> valsum_; //!
+  std::vector<double> err2sum_; //!
+  std::vector<double> toterr_; //!
+  std::vector<std::vector<double>> binmods_; //!
+  std::vector<std::vector<double>> scaledbinmods_; //!
+  mutable SimpleCacheSentry sentry_;
+  mutable SimpleCacheSentry binsentry_;
+
+  int v;
+
+  void fillSumAndErr();
+
+
+ private:
+  ClassDef(CMSHistErrorPropagator,1)
+};
+
+class CMSHistFuncWrapper : public RooAbsReal {
+ public:
+  CMSHistFuncWrapper();
+
+  CMSHistFuncWrapper(const char* name, const char* title, RooRealVar& x,
+              CMSHistFunc & func, CMSHistErrorPropagator & err, unsigned idx);
+
+  CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const char* name = 0);
+
+  virtual TObject* clone(const char* newname) const {
+    return new CMSHistFuncWrapper(*this, newname);
+  }
+  virtual ~CMSHistFuncWrapper() {}
+
+  Double_t evaluate() const;
+
+  void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
+                      TString indent) const;
+
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
+                              const char* rangeName = 0) const;
+
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+
+  inline void setEvalVerbose(unsigned val) { veval = val; };
+
+ protected:
+  RooRealProxy x_;
+  RooRealProxy func_;
+  RooArgProxy err_;
+
+  mutable FastHisto cache_;
+  int veval;
+  unsigned idx_;
+  mutable SimpleCacheSentry sentry_;
+
+ private:
+  ClassDef(CMSHistFuncWrapper, 1)
+  mutable CMSHistFunc const* pfunc_;
+  mutable CMSHistErrorPropagator * perr_;
+  int v;
 };
 
 #endif

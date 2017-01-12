@@ -63,6 +63,7 @@ int main(int argc, char* argv[]) {
   c_ggH.addHorizontalMorph(mH, TVectorD(3, std::vector<double>{140., 160., 180.}.data()));
   c_ggH.setVerticalMorphs(RooArgList(tes));
   c_ggH.prepareStorage();
+  c_ggH.setEvalVerbose(1);
 
   c_ggH.setShape(0, 0, 0, 0, *h_ggH140);
   c_ggH.setShape(0, 0, 1, 0, *h_ggH140_lo);
@@ -79,10 +80,10 @@ int main(int argc, char* argv[]) {
 
   TRandom3 rng;
   for (unsigned r = 0; r < 1E4; ++r) {
-    // mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
-    // mH.Print();
-    tes.setVal(rng.Gaus(0, 1));
-    tes.Print();
+    mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
+    mH.Print();
+    // tes.setVal(rng.Gaus(0, 1));
+    // tes.Print();
     c_ggH.evaluate();
   }
 
