@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/MaxLikelihoodFit.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooRandom.h"
@@ -7,6 +8,7 @@
 #include "RooFitResult.h"
 #include "RooFit.h"
 #include "RooSimultaneous.h"
+#include "RooCategory.h"
 #include "RooAddPdf.h"
 #include "RooProdPdf.h"
 #include "RooConstVar.h"
@@ -22,6 +24,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 
@@ -159,17 +162,21 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     const RooArgSet *globalObs = mc_s->GetGlobalObservables();
     if (!justFit_ && nuis && globalObs ) {
       std::auto_ptr<RooAbsPdf> nuisancePdf(utils::makeNuisancePdf(*mc_s));
+      RooCategory dummyCat("dummyCat", "");
+      RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
+      simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
+      // Not sure it's really necessary to have all the globalObs in here now...
       std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", *globalObs));
-      globalData->add(*globalObs);
+      globalData->addColumn(dummyCat);
+      std::auto_ptr<RooAbsReal> nuisanceNLL(simNuisancePdf.RooAbsPdf::createNLL(*globalData, RooFit::Constrain(*nuis)));
+      nuisanceNLL->getVal();
       RooFitResult *res_prefit = 0;
-      {     
+      {
             CloseCoutSentry sentry(verbose < 2);
-            res_prefit = nuisancePdf->fitTo(*globalData,
-            RooFit::Save(1),
-            RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()),
-            RooFit::Strategy(minimizerStrategy_),
-            RooFit::Minos(minos_ == "all")
-            );
+            CascadeMinimizer minim(*nuisanceNLL, CascadeMinimizer::Constrained);
+            minim.minimize();
+            minim.hesse();
+            res_prefit = minim.save();
       }
       if (fitOut.get() ) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
       if (fitOut.get() ) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
