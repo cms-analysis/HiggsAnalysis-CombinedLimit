@@ -165,17 +165,15 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       RooCategory dummyCat("dummyCat", "");
       RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
       simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
-      // Not sure it's really necessary to have all the globalObs in here now...
-      std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", *globalObs));
-      globalData->addColumn(dummyCat);
+      std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
       std::auto_ptr<RooAbsReal> nuisanceNLL(simNuisancePdf.RooAbsPdf::createNLL(*globalData, RooFit::Constrain(*nuis)));
-      nuisanceNLL->getVal();
       RooFitResult *res_prefit = 0;
       {
             CloseCoutSentry sentry(verbose < 2);
             CascadeMinimizer minim(*nuisanceNLL, CascadeMinimizer::Constrained);
             minim.minimize();
             minim.hesse();
+            if (minos_ == "all") minim.minos(*nuis);
             res_prefit = minim.save();
       }
       if (fitOut.get() ) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
