@@ -785,7 +785,8 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         for (IH h = bkgByCh.begin(), eh = bkgByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
         for (IH2 h = totByCh2Covar.begin(), eh = totByCh2Covar.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
 	//Save total shapes or clean up if not keeping
-	shapeDir->cd();
+	if (saveShapes_) shapeDir->cd();
+
 	if (saveShapes_ && saveOverallShapes_){
 	    totOverall->Write();
 	    sigOverall->Write();
