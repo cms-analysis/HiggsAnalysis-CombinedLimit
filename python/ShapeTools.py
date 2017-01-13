@@ -56,7 +56,7 @@ class ShapeBuilder(ModelBuilder):
                         self.out.dont_delete.append(pdf1)
                         pdf = pdf1
                 extranorm = self.getExtraNorm(b,p)
-                if extranorm:
+                if extranorm and self.options.newHist in [0, 2]:
                     prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                     for X in extranorm: prodset.add(self.out.function(X))
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
@@ -72,7 +72,10 @@ class ShapeBuilder(ModelBuilder):
                 if not self.DC.isSignal[p]:
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
-            sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
+            if self.options.newHist >= 1:
+                sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", pdfs,   coeffs, True)
+            else:
+                sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
             sum_s.setAttribute("MAIN_MEASUREMENT") # useful for plain ROOFIT optimization on ATLAS side
             if not self.options.noBOnly: sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             if b in self.pdfModes: 
@@ -431,15 +434,34 @@ class ShapeBuilder(ModelBuilder):
         if self.options.useHistPdf != "always":
             if nominalPdf.InheritsFrom("TH1"):
                 rebins = ROOT.TList()
-                maxbins = 0 
+                maxbins = 0
                 for i in xrange(pdfs.GetSize()):
                     rebinned = self.rebinH1(pdfs.At(i))
                     rebins.Add(rebinned)
                     maxbins = max(maxbins, rebinned._original_bins)
-                rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins, coeffs, qrange, qalgo)
-                if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
-                    #print "Optimizing binning: %d -> %d for %s " % (self.out.maxbins, maxbins, rhp.GetName())
-                    rhp.setActiveBins(maxbins) 
+                if self.options.newHist >= 1:
+                    rhp = ROOT.CMSHistFunc("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins[0])
+                    rhp.setVerticalMorphs(coeffs)
+                    rhp.prepareStorage()
+                    rhp.setShape(0, 0, 0, 0, rebins[0])
+                    for i in xrange(len(coeffs)):
+                        if self.options.newHist in [1]:
+                            rhp.setShape(0, 0, i+1, 0, rebins[2 + i*2])
+                            rhp.setShape(0, 0, i+1, 1, rebins[1 + i*2])
+                        elif self.options.newHist in [2]:
+                            renormLo = rebins[2 + i*2].Clone()
+                            if renormLo.Integral() > 0.:
+                                renormLo.Scale(rebins[0].Integral() / renormLo.Integral())
+                            renormHi = rebins[1 + i*2].Clone()
+                            if renormHi.Integral() > 0.:
+                                renormHi.Scale(rebins[0].Integral() / renormHi.Integral())
+                            rhp.setShape(0, 0, i+1, 0, renormLo)
+                            rhp.setShape(0, 0, i+1, 1, renormHi)
+                else:
+                    rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins, coeffs, qrange, qalgo)
+                    if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
+                        #print "Optimizing binning: %d -> %d for %s " % (self.out.maxbins, maxbins, rhp.GetName())
+                        rhp.setActiveBins(maxbins) 
                 _cache[(channel,process)] = rhp
                 return rhp
             elif nominalPdf.InheritsFrom("RooHistPdf") or nominalPdf.InheritsFrom("RooDataHist"):
@@ -570,7 +592,12 @@ class ShapeBuilder(ModelBuilder):
                 if self.options.useHistPdf == "never":
                     shape = self.rebinH1(shape)
                     list = ROOT.TList(); list.Add(shape);
-                    rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
+                    if self.options.newHist >= 1:
+                        rhp = ROOT.CMSHistFunc("%sPdf" % shape.GetName(), "", self.out.binVar, shape)
+                        rhp.prepareStorage()
+                        rhp.setShape(0, 0, 0, 0, shape)
+                    else:
+                        rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
                     _cache[shape.GetName()+"Pdf"] = rhp
                 else:
                     rdh = self.shape2Data(shape,channel,process)

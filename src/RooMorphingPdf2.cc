@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <vector>
 #include <ostream>
+#include <memory>
 #include "RooHistPdf.h"
 #include "RooDataHist.h"
 #include "RooRealProxy.h"
@@ -46,9 +47,12 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       hmorphs_("hmorphs", this, other.hmorphs_),
       hpoints_(other.hpoints_),
       cache_(other.cache_),
+      binerrors_(other.binerrors_),
       storage_(other.storage_),
       morph_strategy_(other.morph_strategy_),
       veval(other.veval) {
+  hmorph_sentry_.addVars(hmorphs_);
+  vmorph_sentry_.addVars(vmorphs_);
   hmorph_sentry_.setValueDirty();
   vmorph_sentry_.setValueDirty();
 }
@@ -85,9 +89,7 @@ void CMSHistFunc::prepareStorage() {
   }
   unsigned n_vpoints = vmorphs_.getSize();
   storage_.resize(n_hpoints * (1 + n_vpoints * 2));
-  mcache_.resize(n_hpoints * (1 + n_vpoints * 2));
   FNLOGC(std::cout, veval) << "Storage size set to: " << storage_.size() << "\n";
-
   storage_[getIdx(0, 0, 0, 0)] = cache_;
 }
 
@@ -148,6 +150,10 @@ Double_t CMSHistFunc::evaluate() const {
       FNLOGC(std::cout, veval) << "single_point,p1,p2: " << global_.single_point << " " << global_.p1 << " " << global_.p2 << "\n";
     }
     hmorph_sentry_.reset();
+
+    if (step1 || step2) {
+      if (mcache_.size() == 0) mcache_.resize(storage_.size());
+    }
 
     if (step1 && !global_.single_point) {
       FNLOGC(std::cout, veval) << "Checking step 1\n";
@@ -728,7 +734,14 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(
     : RooAbsReal(other, name),
       funcs_("funcs", this, other.funcs_),
       coeffs_("coeffs", this, other.coeffs_),
-      binpars_("binpars", this, other.binpars_) {}
+      binpars_("binpars", this, other.binpars_),
+      v(other.v) {
+  std::unique_ptr<RooArgSet> sentryArgs(other.sentry_.getComponents());
+  sentry_.addVars(*sentryArgs);
+  binsentry_.addVars(binpars_);
+  sentry_.setValueDirty();
+  binsentry_.setValueDirty();
+}
 
 void CMSHistErrorPropagator::fillSumAndErr() {
   FNLOGC(std::cout, v) << "Start of function\n";
@@ -814,7 +827,7 @@ void CMSHistErrorPropagator::applyErrorShifts(unsigned idx,
 
 CMSHistFuncWrapper::CMSHistFuncWrapper()
     : pfunc_(nullptr), perr_(nullptr), v(0) {
-  veval = 0;
+  v = 0;
   idx_ = 0;
 }
 
@@ -824,13 +837,12 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(const char* name, const char* title, RooR
       x_("x", "", this, x),
       func_("func", "", this, func),
       err_("err", "", this, err, true, false),
-      veval(0),
       idx_(idx),
       pfunc_(nullptr),
       perr_(nullptr),
       v(0) {
   cache_ = func.getCacheHisto();
-  RooArgSet obs(x);
+  // RooArgSet obs(x);
   // sentry_.addFunc(err, &obs);
   sentry_.addArg(err);
   // sentry_.addFunc(err, &obs);
@@ -843,7 +855,13 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const ch
       func_("func", this, other.func_),
       err_("err", this, other.err_),
       cache_(other.cache_),
-      veval(other.veval) {}
+      idx_(other.idx_),
+      pfunc_(nullptr),
+      perr_(nullptr),
+      v(other.v) {
+  sentry_.addArg(*err_.absArg());
+  sentry_.setValueDirty();
+}
 
 Double_t CMSHistFuncWrapper::evaluate() const {
   LAUNCH_FUNCTION_TIMER(__timer__, __token__)

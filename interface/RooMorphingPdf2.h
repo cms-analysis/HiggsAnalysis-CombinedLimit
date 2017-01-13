@@ -203,7 +203,7 @@ class CMSHistFuncWrapper : public RooAbsReal {
 
   Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
 
-  inline void setEvalVerbose(unsigned val) { veval = val; };
+  inline void setEvalVerbose(unsigned val) { v = val; };
 
  protected:
   RooRealProxy x_;
@@ -211,7 +211,6 @@ class CMSHistFuncWrapper : public RooAbsReal {
   RooArgProxy err_;
 
   mutable FastHisto cache_;
-  int veval;
   unsigned idx_;
   mutable SimpleCacheSentry sentry_;
 

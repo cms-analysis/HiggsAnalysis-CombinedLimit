@@ -6,6 +6,7 @@
 #include "TFile.h"
 #include "RooRealVar.h"
 #include "RooRealSumPdf.h"
+#include "RooWorkspace.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf2.h"
 #include "HiggsAnalysis/CombinedLimit/interface/th1fmorph.h"
 #include "TRandom3.h"
@@ -15,6 +16,7 @@ namespace po = boost::program_options;
 using namespace std;
 
 int main(int argc, char* argv[]) {
+  RooWorkspace wsp("test");
   TH1::AddDirectory(false);
   // Need this to read combine workspaces
   gSystem->Load("libHiggsAnalysisCombinedLimit");
@@ -69,7 +71,7 @@ int main(int argc, char* argv[]) {
 
   // RooMsgService::instance().addStream(RooFit::MsgLevel::DEBUG);
   // RooAbsArg::verboseDirty(true);
-
+  {
   RooRealVar x("x", "x", h_ZTT->GetXaxis()->GetXmin(), h_ZTT->GetXaxis()->GetXmax());
   RooRealVar tes("CMS_scale_t_mt_13TeV", "CMS_scale_t_mt_13TeV", 0, -7, 7);
   CMSHistFunc c_ZTT("ZTT", "ZTT", x, *h_ZTT);
@@ -115,7 +117,7 @@ int main(int argc, char* argv[]) {
     RooRealVar binvar(TString::Format("bin%i", i), "", 0, -7 , 7);
     binpars.addClone(binvar);
   }
-  binpars.Print("v");
+  // binpars.Print("v");
 
   CMSHistErrorPropagator c_prop("prop", "prop", RooArgSet(x), RooArgList(c_ZTT, c_W, c_TTJ, c_TTT, c_VVJ, c_VVT, c_QCD, c_ZL, c_ZJ),
                                     RooArgList(coeff_ZTT, coeff_W, coeff_TTJ, coeff_TTT, coeff_VVJ, coeff_VVT, coeff_QCD, coeff_ZL, coeff_ZJ), binpars);
@@ -131,6 +133,7 @@ int main(int argc, char* argv[]) {
   CMSHistFuncWrapper c_ZL_wrapper("ZL_wrapper", "ZL_wrapper", x, c_ZL, c_prop, 1);
   CMSHistFuncWrapper c_ZJ_wrapper("ZJ_wrapper", "ZJ_wrapper", x, c_ZJ, c_prop, 1);
 
+  c_ZTT_wrapper.setEvalVerbose(1);
 
   c_ZTT_wrapper.evaluate();
   // x.setVal(3000.);
@@ -145,23 +148,28 @@ int main(int argc, char* argv[]) {
 
   // c_ZTT_wrapper.evaluate();
 
-  TRandom3 rng;
-  for (unsigned r = 0; r < 1E6; ++r) {
-    // RooRealVar &var = (RooRealVar&)binpars[rng.Integer(binpars.getSize())];
-    // RooRealVar &var = (RooRealVar&)binparsx[rng.Integer(binparsx.getSize())];
-    // var.setVal(rng.Uniform(-3, +3));
-    // var.Print();
+  // TRandom3 rng;
+  // for (unsigned r = 0; r < 1E6; ++r) {
+  //   // RooRealVar &var = (RooRealVar&)binpars[rng.Integer(binpars.getSize())];
+  //   // RooRealVar &var = (RooRealVar&)binparsx[rng.Integer(binparsx.getSize())];
+  //   // var.setVal(rng.Uniform(-3, +3));
+  //   // var.Print();
 
-    // mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
-    // mH.Print();
-    // tes.setVal(rng.Gaus(0, 1));
-    coeff_ZTT.setVal(rng.Gaus(1, 0.05));
-    // tes.Print();
-    c_ZTT_wrapper.evaluate();
-    c_W_wrapper.evaluate();
-    // c_ZTT.evaluate();
-    // c_W.evaluate();
+  //   // mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
+  //   // mH.Print();
+  //   // tes.setVal(rng.Gaus(0, 1));
+  //   coeff_ZTT.setVal(rng.Gaus(1, 0.05));
+  //   // tes.Print();
+  //   c_ZTT_wrapper.evaluate();
+  //   c_W_wrapper.evaluate();
+  //   // c_ZTT.evaluate();
+  //   // c_W.evaluate();
+  // }
+
+  // c_ZTT.setEvalVerbose(1);
+  wsp.import(c_ZTT_wrapper);
   }
+  wsp.function("ZTT_wrapper")->Print("tree");
 
 
   return 0;
