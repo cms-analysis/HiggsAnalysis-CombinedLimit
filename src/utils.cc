@@ -549,8 +549,8 @@ TGraphAsymmErrors * utils::makeDataGraph(TH1 * dataHist, bool asDensity)
 		errhigh/=bw;
 	}
 
-	dataGraph->SetPoint(b,dataHist->GetBinCenter(b),yv);
-	dataGraph->SetPointError(b,bw/2,bw/2,errlow,errhigh);
+	dataGraph->SetPoint(b-1,dataHist->GetBinCenter(b),yv);
+	dataGraph->SetPointError(b-1,bw/2,bw/2,errlow,errhigh);
     }
     return dataGraph;
 }

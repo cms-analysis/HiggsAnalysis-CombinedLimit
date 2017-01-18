@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/MaxLikelihoodFit.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooRandom.h"
@@ -7,6 +8,7 @@
 #include "RooFitResult.h"
 #include "RooFit.h"
 #include "RooSimultaneous.h"
+#include "RooCategory.h"
 #include "RooAddPdf.h"
 #include "RooProdPdf.h"
 #include "RooConstVar.h"
@@ -22,6 +24,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 
@@ -38,6 +41,7 @@ bool        MaxLikelihoodFit::saveWorkspace_ = false;
 float       MaxLikelihoodFit::rebinFactor_ = 1.0;
 int         MaxLikelihoodFit::numToysForShapes_ = 200;
 std::string MaxLikelihoodFit::signalPdfNames_     = "shapeSig*";
+std::string MaxLikelihoodFit::filterString_     = "";
 std::string MaxLikelihoodFit::backgroundPdfNames_ = "shapeBkg*";
 bool        MaxLikelihoodFit::saveNormalizations_ = false;
 bool        MaxLikelihoodFit::oldNormNames_ = false;
@@ -73,6 +77,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("saveOverallShapes",  "Save total shapes (and covariance if used with saveWithUncertainties) across all channels")
         ("saveWithUncertainties",  "Save also post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
         ("numToysForShapes", boost::program_options::value<int>(&numToysForShapes_)->default_value(numToysForShapes_),  "Choose number of toys for re-sampling of the covariance (for shapes with uncertainties)")
+        ("filterString", boost::program_options::value<std::string>(&filterString_)->default_value(filterString_), "Filter to search for when making covariance and shapes")
         ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
         ("skipBOnlyFit",  "Skip the B-only fit (do only the S+B fit)")
         ("noErrors",  "Don't compute uncertainties on the best fit value")
@@ -157,17 +162,19 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     const RooArgSet *globalObs = mc_s->GetGlobalObservables();
     if (!justFit_ && nuis && globalObs ) {
       std::auto_ptr<RooAbsPdf> nuisancePdf(utils::makeNuisancePdf(*mc_s));
-      std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", *globalObs));
-      globalData->add(*globalObs);
+      RooCategory dummyCat("dummyCat", "");
+      RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
+      simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
+      std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
+      std::auto_ptr<RooAbsReal> nuisanceNLL(simNuisancePdf.RooAbsPdf::createNLL(*globalData, RooFit::Constrain(*nuis)));
       RooFitResult *res_prefit = 0;
-      {     
+      {
             CloseCoutSentry sentry(verbose < 2);
-            res_prefit = nuisancePdf->fitTo(*globalData,
-            RooFit::Save(1),
-            RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()),
-            RooFit::Strategy(minimizerStrategy_),
-            RooFit::Minos(minos_ == "all")
-            );
+            CascadeMinimizer minim(*nuisanceNLL, CascadeMinimizer::Constrained);
+            minim.minimize();
+            minim.hesse();
+            if (minos_ == "all") minim.minos(*nuis);
+            res_prefit = minim.save();
       }
       if (fitOut.get() ) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
       if (fitOut.get() ) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
@@ -464,7 +471,9 @@ void MaxLikelihoodFit::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, s
         RooArgList plist(add->pdfList());
         for (int i = 0, n = clist.getSize(); i < n; ++i) {
             RooAbsReal *coeff = (RooAbsReal *) clist.at(i);
-            ShapeAndNorm &ns = out[coeff->GetName()];
+	    std::string coeffName = coeff->GetName();
+	    if (coeffName.find(filterString_) == std::string::npos) continue; 
+            ShapeAndNorm &ns = out[coeffName];
             ns.norm = coeff;
             ns.pdf = (RooAbsPdf*) plist.at(i);
             ns.channel = (coeff->getStringAttribute("combine.channel") ? coeff->getStringAttribute("combine.channel") : channel.c_str());
@@ -581,6 +590,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
     sigOverall->SetDirectory(0);
     TH1D* datOverallHist = new TH1D("total_data","Total data",totalBins,0,totalBins);
     datOverallHist->SetDirectory(0);
+
     int iBinOverall = 1;
     //Map to hold info on bins across channels
     std::map<TString,int> binMap;
@@ -593,7 +603,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
 
 	    datOverallHist->GetXaxis()->SetBinLabel(iBinOverall,label);
 	    double x,y;
-	    datByCh[h->first]->GetPoint(iBin+1,x,y);
+	    datByCh[h->first]->GetPoint(iBin,x,y);
 	    datOverallHist->SetBinContent(iBinOverall,y);
 
 	    sigOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
@@ -780,7 +790,8 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         for (IH h = bkgByCh.begin(), eh = bkgByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
         for (IH2 h = totByCh2Covar.begin(), eh = totByCh2Covar.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
 	//Save total shapes or clean up if not keeping
-	shapeDir->cd();
+	if (saveShapes_) shapeDir->cd();
+
 	if (saveShapes_ && saveOverallShapes_){
 	    totOverall->Write();
 	    sigOverall->Write();
