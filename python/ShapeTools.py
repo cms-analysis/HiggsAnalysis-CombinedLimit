@@ -2,6 +2,14 @@ from sys import stdout, stderr
 import os.path
 import ROOT
 
+RooArgSet_add_original = ROOT.RooArgSet.add
+def RooArgSet_add_patched(self, obj, *args, **kwargs):
+    if isinstance(obj, ROOT.RooAbsCollection):
+        return ROOT.RooAbsCollection.add(self, obj, *args, **kwargs)
+    else:
+        return RooArgSet_add_original(self, obj, *args, **kwargs)
+ROOT.RooArgSet.add = RooArgSet_add_patched
+
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
 
 class ShapeBuilder(ModelBuilder):
