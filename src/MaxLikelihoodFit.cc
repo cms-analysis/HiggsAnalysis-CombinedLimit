@@ -1,5 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/MaxLikelihoodFit.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+#include "RooMinimizer.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooRandom.h"

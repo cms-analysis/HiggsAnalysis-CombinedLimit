@@ -406,7 +406,7 @@ double ProfiledLikelihoodTestStatOpt::minNLL(bool constrained, RooRealVar *r)
 }
 
 //============================================================ProfiledLikelihoodRatioTestStatExt
-bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minim, int verbosity, bool zeroPoint) 
+bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosity, bool zeroPoint) 
 {
     static bool do_debug = (runtimedef::get("DEBUG_MINIM") || runtimedef::get("DEBUG_PLTSO") > 1);
     double initialNll = nll.getVal();
@@ -462,7 +462,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minim, int verbo
         } else if (tries != maxtries) {
             std::auto_ptr<RooFitResult> res(do_debug ? minim.save() : 0);
             //PerfCounter::add("Minimizer.save() called for failed minimization"); 
-            if (tries > 0 && minim.edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) {
+            if (tries > 0 && res->edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) {
                 DBG(DBG_PLTestStat_main, (printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
                 if (do_debug) printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
                 COUNT_ONE("nllutils::robustMinimize: accepting fit with bad status but good EDM")

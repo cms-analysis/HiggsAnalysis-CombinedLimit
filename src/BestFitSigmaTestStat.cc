@@ -5,7 +5,8 @@
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include <stdexcept>
 #include <RooRealVar.h>
-#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+//#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+#include <RooMinimizer.h>
 #include <RooFitResult.h>
 #include <RooSimultaneous.h>
 #include <RooCategory.h>

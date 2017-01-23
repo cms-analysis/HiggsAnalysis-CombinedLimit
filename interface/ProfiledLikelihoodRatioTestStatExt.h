@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-class RooMinimizerOpt;
+class RooMinimizer;
 #include <RooAbsPdf.h>
 #include <RooAbsData.h>
 #include <RooArgSet.h>
@@ -13,7 +13,7 @@ class RooMinimizerOpt;
 #include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 
 namespace nllutils {
-    bool robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minimizer, int verbosity=0, bool zeroPoint=false);
+    bool robustMinimize(RooAbsReal &nll, RooMinimizer &minimizer, int verbosity=0, bool zeroPoint=false);
 }
 
 class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {

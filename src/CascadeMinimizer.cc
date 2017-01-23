@@ -35,7 +35,7 @@ std::string CascadeMinimizer::defaultMinimizerAlgo_=ROOT::Math::MinimizerOptions
 
 CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi, int initialStrategy) :
     nll_(nll),
-    minimizer_(new RooMinimizerOpt(nll_)),
+    minimizer_(new RooMinimizer(nll_)),
     mode_(mode),
     strategy_(initialStrategy),
     poi_(poi),
@@ -221,7 +221,7 @@ are freely floating. We should cut them down to find which ones are
    utils::setAllConstant(frozen,true);
 
    // remake the minimizer   
-   minimizer_.reset(new RooMinimizerOpt(nll_));
+   minimizer_.reset(new RooMinimizer(nll_));
    cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
    if (simnll) simnll->setZeroPoint();
  
@@ -244,7 +244,7 @@ are freely floating. We should cut them down to find which ones are
 
    //if (discretesHaveChanged) { 
    // Run one last fully floating fit to maintain RooFitResult
-   minimizer_.reset(new RooMinimizerOpt(nll_));
+   minimizer_.reset(new RooMinimizer(nll_));
    improve(verbose, cascade); 
    //}
    minimumNLL = nll_.getVal();
@@ -277,7 +277,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         RooStats::RemoveConstantParameters(&frozen);
         utils::setAllConstant(frozen,true);
 
-        minimizer_.reset(new RooMinimizerOpt(nll_));
+        minimizer_.reset(new RooMinimizer(nll_));
         minimizer_->setPrintLevel(verbose-2);
         minimizer_->setStrategy(preFit_-1);
         cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
@@ -287,7 +287,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         minimizer_->minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
         if (simnll) simnll->clearZeroPoint();
         utils::setAllConstant(frozen,false);
-        minimizer_.reset(new RooMinimizerOpt(nll_));
+        minimizer_.reset(new RooMinimizer(nll_));
     }
      // FIXME can be made smarter than this
     /*

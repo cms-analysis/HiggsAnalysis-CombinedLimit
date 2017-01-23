@@ -10,7 +10,8 @@
 #include "RooAbsData.h"
 #include "RooCategory.h"
 #include "RooFitResult.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+//#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+#include "RooMinimizer.h"
 #include <RooStats/ModelConfig.h>
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"

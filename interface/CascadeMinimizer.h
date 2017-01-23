@@ -7,7 +7,8 @@ class RooRealVar;
 #include <RooArgSet.h>
 #include <RooListProxy.h>
 #include <RooSetProxy.h>
-#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+//#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+#include "RooMinimizer.h"
 #include <boost/program_options.hpp>
 
 class CascadeMinimizer {
@@ -24,7 +25,7 @@ class CascadeMinimizer {
         bool improve(int verbose=0, bool cascade=true);
         // declare nuisance parameters for pre-fit
         void setNuisanceParameters(const RooArgSet *nuis) { nuisances_ = nuis; }
-        RooMinimizerOpt & minimizer() { return *minimizer_; }
+        RooMinimizer & minimizer() { return *minimizer_; }
         RooFitResult *save() { return minimizer().save(); }
         void  setStrategy(int strategy) { strategy_ = strategy; }
         void  setErrorLevel(float errorLevel) { minimizer_->setErrorLevel(errorLevel); }
@@ -37,7 +38,7 @@ class CascadeMinimizer {
         void setAutoMax(const RooArgSet *pois) ; 
     private:
         RooAbsReal & nll_;
-        std::auto_ptr<RooMinimizerOpt> minimizer_;
+        std::auto_ptr<RooMinimizer> minimizer_;
         Mode         mode_;
         int          strategy_;
         RooRealVar * poi_; 

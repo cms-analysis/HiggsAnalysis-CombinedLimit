@@ -4,7 +4,8 @@
 #include "RooRandom.h"
 #include "RooDataSet.h"
 #include "RooFitResult.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+//#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+#include "RooMinimizer.h"
 #include "TGraph.h"
 #include "TF1.h"
 #include "TFitResult.h"
@@ -292,7 +293,7 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
 
 double ProfileLikelihood::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
     std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
-    RooMinimizerOpt minim(*nll);
+    RooMinimizer minim(*nll);
     minim.setStrategy(0);
     minim.setPrintLevel(verbose-1);
     minim.setErrorLevel(0.5*TMath::ChisquareQuantile(cl,1));
@@ -316,12 +317,12 @@ double ProfileLikelihood::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, 
 std::pair<double,double> ProfileLikelihood::upperLimitBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
     poi.setConstant(false);
     std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
-    RooMinimizerOpt minim0(*nll);
+    RooMinimizer minim0(*nll);
     minim0.setStrategy(0);
     minim0.setPrintLevel(-1);
     nllutils::robustMinimize(*nll, minim0, verbose-2);
     poi.setConstant(true);
-    RooMinimizerOpt minim(*nll);
+    RooMinimizer minim(*nll);
     minim.setPrintLevel(-1);
     if (!nllutils::robustMinimize(*nll, minim, verbose-2)) {
         std::cerr << "Initial minimization failed. Aborting." << std::endl;
