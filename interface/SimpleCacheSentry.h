@@ -8,6 +8,7 @@
 class SimpleCacheSentry : public RooAbsArg {
     public:
         SimpleCacheSentry() ;
+        SimpleCacheSentry(const char *name, const char *title) ;
         SimpleCacheSentry(const RooRealVar &var) ;
         SimpleCacheSentry(const RooAbsCollection &vars) ;
         SimpleCacheSentry(const RooAbsArg &func, const RooArgSet *obs=0) ;

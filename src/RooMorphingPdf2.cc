@@ -14,6 +14,7 @@
 CMSHistFunc::CMSHistFunc() {
   morph_strategy_ = 0;
   veval = 0;
+  initialized_ = false;
 }
 
 CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
@@ -22,10 +23,13 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       x_("x", "", this, x),
       vmorphs_("vmorphs", "", this),
       hmorphs_("hmorphs", "", this),
+      vmorph_sentry_(TString(name) + "_vmorph_sentry", ""),
+      hmorph_sentry_(TString(name) + "_hmorph_sentry", ""),
       cache_(hist),
       binerrors_(FastTemplate(hist.GetNbinsX())),
       morph_strategy_(0),
-      veval(0) {
+      veval(0),
+      initialized_(false) {
   for (unsigned i = 0; i < cache_.size(); ++i) {
     // float c = hist.GetBinContent(i + 1);
     // float e = hist.GetBinError(i + 1);
@@ -36,8 +40,7 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
     // }
     binerrors_[i] = hist.GetBinError(i + 1);
   }
-  hmorph_sentry_.setValueDirty();
-  vmorph_sentry_.setValueDirty();
+  // initialize();
 }
 
 CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
@@ -46,15 +49,36 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       vmorphs_("vmorphs", this, other.vmorphs_),
       hmorphs_("hmorphs", this, other.hmorphs_),
       hpoints_(other.hpoints_),
+      vmorph_sentry_(name ? TString(name) + "_vmorph_sentry"
+                          : TString(other.vmorph_sentry_.GetName()),
+                     ""),
+      hmorph_sentry_(name ? TString(name) + "_hmorph_sentry"
+                          : TString(other.hmorph_sentry_.GetName()),
+                     ""),
       cache_(other.cache_),
       binerrors_(other.binerrors_),
       storage_(other.storage_),
       morph_strategy_(other.morph_strategy_),
-      veval(other.veval) {
+      veval(other.veval),
+      initialized_(false) {
+  // initialize();
+}
+
+void CMSHistFunc::initialize() const {
+  if (initialized_) return;
   hmorph_sentry_.addVars(hmorphs_);
   vmorph_sentry_.addVars(vmorphs_);
   hmorph_sentry_.setValueDirty();
   vmorph_sentry_.setValueDirty();
+  initialized_ = true;
+}
+
+std::unique_ptr<RooArgSet> CMSHistFunc::getSentryArgs() const {
+  initialize();
+  std::unique_ptr<RooArgSet> vargs(vmorph_sentry_.getComponents());
+  std::unique_ptr<RooArgSet> hargs(hmorph_sentry_.getComponents());
+  vargs->add(*hargs);
+  return vargs;
 }
 
 void CMSHistFunc::addHorizontalMorph(RooAbsReal & hvar, TVectorD hpoints) {
@@ -102,8 +126,8 @@ void CMSHistFunc::setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
   storage_.at(idx) = FastHisto(hist);
 }
 
-Double_t CMSHistFunc::evaluate() const {
-  // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
+void CMSHistFunc::updateCache() const {
+  initialize();
 
   if (morph_strategy_ == 0) {
     FNLOGC(std::cout, veval) << "Morphing strategy 0\n";
@@ -266,6 +290,11 @@ Double_t CMSHistFunc::evaluate() const {
     }
     vmorph_sentry_.reset();
   }
+}
+
+Double_t CMSHistFunc::evaluate() const {
+  // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
+  updateCache();
 
   return cache_.GetAt(x_);
 }
@@ -674,7 +703,12 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
 void CMSHistFunc::printMultiline(std::ostream& os, Int_t contents,
                                  Bool_t verbose, TString indent) const {
   RooAbsReal::printMultiline(os, contents, verbose, indent);
+  std::cout << ">> Current cache:\n";
   cache_.Dump();
+  std::cout << ">> Horizontal morphing sentry: " << hmorph_sentry_.good() << "\n";
+  hmorph_sentry_.Print("v");
+  std::cout << ">> Vertical morphing sentry: " << vmorph_sentry_.good() << "\n";
+  vmorph_sentry_.Print("v");
 }
 
 Int_t CMSHistFunc::getAnalyticalIntegral(RooArgSet& allVars,
@@ -689,6 +723,7 @@ Double_t CMSHistFunc::analyticalIntegral(Int_t code,
   // TODO: check how RooHistFunc handles ranges that splice bins
   switch (code) {
     case 1: {
+      updateCache();
       return cache_.IntegralWidth();
     }
   }
@@ -697,14 +732,10 @@ Double_t CMSHistFunc::analyticalIntegral(Int_t code,
   return 0;
 }
 
-
-CMSHistErrorPropagator::CMSHistErrorPropagator() {
-
-}
+CMSHistErrorPropagator::CMSHistErrorPropagator() : v(0), initialized_(false) {}
 
 CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
                                                const char* title,
-                                               RooArgSet const& obs,
                                                RooArgList const& funcs,
                                                RooArgList const& coeffs,
                                                RooArgList const& binpars)
@@ -712,21 +743,14 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
       funcs_("funcs", "", this),
       coeffs_("coeffs", "", this),
       binpars_("binpars", "", this),
-      v(0) {
-  for (int i = 0; i < funcs.getSize(); ++i) {
-    funcs_.add(*funcs.at(i));
-    sentry_.addFunc(*funcs.at(i), &obs);
-  }
-  for (int i = 0; i < coeffs.getSize(); ++i) {
-    coeffs_.add(*coeffs.at(i));
-  }
-  for (int i = 0; i < binpars.getSize(); ++i) {
-    binpars_.add(*binpars.at(i));
-  }
-  sentry_.addVars(coeffs);
-  binsentry_.addVars(binpars);
-  sentry_.setValueDirty();
-  binsentry_.setValueDirty();
+      sentry_(TString(name) + "_sentry", ""),
+      binsentry_(TString(name) + "_binsentry", ""),
+      v(0),
+      initialized_(false) {
+  funcs_.add(funcs);
+  coeffs_.add(coeffs);
+  binpars_.add(binpars);
+  // initialize();
 }
 
 CMSHistErrorPropagator::CMSHistErrorPropagator(
@@ -735,46 +759,63 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(
       funcs_("funcs", this, other.funcs_),
       coeffs_("coeffs", this, other.coeffs_),
       binpars_("binpars", this, other.binpars_),
-      v(other.v) {
-  std::unique_ptr<RooArgSet> sentryArgs(other.sentry_.getComponents());
-  sentry_.addVars(*sentryArgs);
+      sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
+      binsentry_(name ? TString(name) + "_binsentry" : TString(other.binsentry_.GetName()), ""),
+      v(other.v),
+      initialized_(false) {
+  // initialize();
+}
+
+void CMSHistErrorPropagator::initialize() {
+  if (initialized_) return;
+  FNLOGC(std::cout, v) << "Initialising vectors\n";
+  unsigned nf = funcs_.getSize();
+  vfuncs_.resize(nf);
+  vcoeffs_.resize(nf);
+  for (unsigned i = 0; i < nf; ++i) {
+    vfuncs_[i] = dynamic_cast<CMSHistFunc const*>(funcs_.at(i));
+    vcoeffs_[i] = dynamic_cast<RooAbsReal const*>(coeffs_.at(i));
+    auto sargs = vfuncs_[i]->getSentryArgs();
+    std::cout << sargs.get() << "\n";
+    sargs->Print();
+    sentry_.addVars(*sargs);
+  }
+  unsigned nb = vfuncs_[0]->getCacheHisto().size();
+  vbinpars_.resize(nb);
+  for (unsigned i = 0; i < nb; ++i) {
+    vbinpars_[i] = dynamic_cast<RooAbsReal const*>(binpars_.at(i));
+  }
+  valsum_.resize(nb, 0.);
+  err2sum_.resize(nb, 0.);
+  toterr_.resize(nb, 0.);
+  valvec_.resize(nf, std::vector<double>(nb, 0.));
+  err2vec_.resize(nf, std::vector<double>(nb, 0.));
+  binmods_.resize(nf, std::vector<double>(nb, 0.));
+  scaledbinmods_.resize(nf, std::vector<double>(nb, 0.));
+  coeffvals_.resize(nf, 0.);
+
+  sentry_.addVars(coeffs_);
   binsentry_.addVars(binpars_);
+
+  sentry_.Print("v");
+
   sentry_.setValueDirty();
   binsentry_.setValueDirty();
+
+  initialized_ = true;
 }
+
 
 void CMSHistErrorPropagator::fillSumAndErr() {
   FNLOGC(std::cout, v) << "Start of function\n";
 
-  if (vfuncs_.size() == 0) {
-    FNLOGC(std::cout, v) << "Initialising vectors\n";
-    unsigned nf = funcs_.getSize();
-    vfuncs_.resize(nf);
-    vcoeffs_.resize(nf);
-    for (unsigned i = 0; i < nf; ++i) {
-      vfuncs_[i] = dynamic_cast<CMSHistFunc const*>(funcs_.at(i));
-      vcoeffs_[i] = dynamic_cast<RooAbsReal const*>(coeffs_.at(i));
-    }
-    unsigned nb = vfuncs_[0]->getCacheHisto().size();
-    vbinpars_.resize(nb);
-    for (unsigned i = 0; i < nb; ++i) {
-      vbinpars_[i] = dynamic_cast<RooAbsReal const*>(binpars_.at(i));
-    }
-    valsum_.resize(nb, 0.);
-    err2sum_.resize(nb, 0.);
-    toterr_.resize(nb, 0.);
-    valvec_.resize(nf, std::vector<double>(nb, 0.));
-    err2vec_.resize(nf, std::vector<double>(nb, 0.));
-    binmods_.resize(nf, std::vector<double>(nb, 0.));
-    scaledbinmods_.resize(nf, std::vector<double>(nb, 0.));
-    coeffvals_.resize(nf, 0.);
-  }
+  initialize();
 
   FNLOGC(std::cout, v) << "Sentry: " << sentry_.good() << "\n";
   if (!sentry_.good()) {
     for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-      FNLOGC(std::cout, v) << "Triggering evaluate() of function " << i << "\n";
-      vfuncs_[i]->evaluate();
+      FNLOGC(std::cout, v) << "Triggering updateCache() of function " << i << "\n";
+      vfuncs_[i]->updateCache();
       coeffvals_[i] = vcoeffs_[i]->getVal();
     }
     for (unsigned j = 0; j < valsum_.size(); ++j) {
@@ -825,8 +866,15 @@ void CMSHistErrorPropagator::applyErrorShifts(unsigned idx,
   }
 }
 
+std::unique_ptr<RooArgSet> CMSHistErrorPropagator::getSentryArgs() const {
+  // We can do this without initialising because we're going to hand over
+  // the sentry directly
+  std::unique_ptr<RooArgSet> args(new RooArgSet(sentry_, binsentry_));
+  return args;
+}
+
 CMSHistFuncWrapper::CMSHistFuncWrapper()
-    : pfunc_(nullptr), perr_(nullptr), v(0) {
+    : pfunc_(nullptr), perr_(nullptr), v(0), initialized_(false) {
   v = 0;
   idx_ = 0;
 }
@@ -838,15 +886,12 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(const char* name, const char* title, RooR
       func_("func", "", this, func),
       err_("err", "", this, err, true, false),
       idx_(idx),
+      sentry_(TString(name) + "_sentry", ""),
       pfunc_(nullptr),
       perr_(nullptr),
-      v(0) {
+      v(0),
+      initialized_(false) {
   cache_ = func.getCacheHisto();
-  // RooArgSet obs(x);
-  // sentry_.addFunc(err, &obs);
-  sentry_.addArg(err);
-  // sentry_.addFunc(err, &obs);
-  sentry_.setValueDirty();
 }
 
 CMSHistFuncWrapper::CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const char* name)
@@ -856,24 +901,36 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const ch
       err_("err", this, other.err_),
       cache_(other.cache_),
       idx_(other.idx_),
+      sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
       pfunc_(nullptr),
       perr_(nullptr),
-      v(other.v) {
-  sentry_.addArg(*err_.absArg());
-  sentry_.setValueDirty();
+      v(other.v),
+      initialized_(false) {
 }
 
-Double_t CMSHistFuncWrapper::evaluate() const {
+void CMSHistFuncWrapper::initialize() const {
+  if (initialized_) return;
+  pfunc_ = dynamic_cast<CMSHistFunc const*>(&(func_.arg()));
+  perr_ = dynamic_cast<CMSHistErrorPropagator *>(err_.absArg());
+  // sentry_.addArg(*err_.absArg());
+  auto sentry_args = perr_->getSentryArgs();
+  RooFIter iter = sentry_args->fwdIterator() ;
+  RooAbsArg* arg;
+  while((arg = iter.next())) {
+    sentry_.addArg(*arg);
+  }
+  // sentry_args->
+  // sentry_.addArg(*perr_->getSentryArgs()->first());
+  sentry_.setValueDirty();
+  initialized_ = true;
+}
+
+void CMSHistFuncWrapper::updateCache() const {
   LAUNCH_FUNCTION_TIMER(__timer__, __token__)
-
-  FNLOGC(std::cout, v) << "CMSHistFuncWrapper::evaluate()\n";
-
+  FNLOGC(std::cout, v) << "CMSHistFuncWrapper::updateCache()\n";
   FNLOGC(std::cout, v) << pfunc_ << "\t" << perr_ << "\n";
 
-  if (!pfunc_) {
-    pfunc_ = dynamic_cast<CMSHistFunc const*>(&(func_.arg()));
-    perr_ = dynamic_cast<CMSHistErrorPropagator *>(err_.absArg());
-  }
+  initialize();
 
   FNLOGC(std::cout, v) << "Sentry: " << sentry_.good() << "\n";
 
@@ -889,14 +946,20 @@ Double_t CMSHistFuncWrapper::evaluate() const {
     }
   }
   sentry_.reset();
+}
 
+Double_t CMSHistFuncWrapper::evaluate() const {
+  updateCache();
   return cache_.GetAt(x_);
 }
 
 void CMSHistFuncWrapper::printMultiline(std::ostream& os, Int_t contents,
                                  Bool_t verbose, TString indent) const {
   RooAbsReal::printMultiline(os, contents, verbose, indent);
+  std::cout << ">> Current cache:\n";
   cache_.Dump();
+  std::cout << ">> Sentry: " << sentry_.good() << "\n";
+  sentry_.Print("v");
 }
 
 Int_t CMSHistFuncWrapper::getAnalyticalIntegral(RooArgSet& allVars,
@@ -911,6 +974,7 @@ Double_t CMSHistFuncWrapper::analyticalIntegral(Int_t code,
   // TODO: check how RooHistFunc handles ranges that splice bins
   switch (code) {
     case 1: {
+      updateCache();
       return cache_.IntegralWidth();
     }
   }

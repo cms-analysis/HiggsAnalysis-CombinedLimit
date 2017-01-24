@@ -3,6 +3,7 @@
 #include <map>
 #include <ostream>
 #include <vector>
+#include <memory>
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Logging.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
@@ -70,6 +71,10 @@ class CMSHistFunc : public RooAbsReal {
 
   Double_t evaluate() const;
 
+  void updateCache() const;
+
+  std::unique_ptr<RooArgSet> getSentryArgs() const;
+
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
                       TString indent) const;
 
@@ -111,8 +116,11 @@ class CMSHistFunc : public RooAbsReal {
 
   unsigned morph_strategy_;
   int veval;
+  mutable bool initialized_; //! not to be serialized
 
  private:
+  void initialize() const;
+
   unsigned getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
                   unsigned vpoint) const;
 
@@ -131,7 +139,13 @@ class CMSHistFunc : public RooAbsReal {
 class CMSHistErrorPropagator : public RooAbsReal {
 public:
   CMSHistErrorPropagator();
-  CMSHistErrorPropagator(const char* name, const char* title, RooArgSet const& obs,
+
+  // Possibility to add this on a per-bin basis
+  // Different types of bin errors to handle
+  // [0] = Nothing
+  // [1] = Barlow-Beeston
+  // [2] = Mixed
+  CMSHistErrorPropagator(const char* name, const char* title,
                          RooArgList const& funcs, RooArgList const& coeffs,
                          RooArgList const& binpars);
 
@@ -150,6 +164,8 @@ public:
 
   Double_t evaluate() const { return 0.; }
 
+
+  std::unique_ptr<RooArgSet> getSentryArgs() const;
 
  protected:
   RooListProxy funcs_;
@@ -171,7 +187,10 @@ public:
   mutable SimpleCacheSentry binsentry_;
 
   int v;
+  mutable bool initialized_; //! not to be serialized
 
+
+  void initialize();
   void fillSumAndErr();
 
 
@@ -205,6 +224,8 @@ class CMSHistFuncWrapper : public RooAbsReal {
 
   inline void setEvalVerbose(unsigned val) { v = val; };
 
+  void updateCache() const;
+
  protected:
   RooRealProxy x_;
   RooRealProxy func_;
@@ -219,6 +240,11 @@ class CMSHistFuncWrapper : public RooAbsReal {
   mutable CMSHistFunc const* pfunc_;
   mutable CMSHistErrorPropagator * perr_;
   int v;
+  mutable bool initialized_; //! not to be serialized
+
+  void initialize() const;
+
+
 };
 
 #endif
