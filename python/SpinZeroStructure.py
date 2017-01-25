@@ -226,21 +226,18 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
             if any("muAsPOI" in po for po in physOptions):
                 physOptions = [
                                "map=.*/ggH:r_ggH[1,0,400]",
-                               "map=.*/qqH:r_VVH[1,0,400]",
-                               "map=.*/ZH:r_VVH=r_VVH",
-                               "map=.*/WH:r_VVH=r_VVH",
+                               "map=.*/(qq|Z|W)H:r_VVH[1,0,400]",
                               ] + physOptions
             elif not any("muFixed" in po for po in physOptions):
                 physOptions = [
-                               "map=.*/ggH:r_ggH=r_ggH[1,0,400]",
-                               "map=.*/qqH:r_VVH=r_VVH[1,0,400]",
-                               "map=.*/ZH:r_VVH=r_VVH",
-                               "map=.*/WH:r_VVH=r_VVH",
+                               "map=.*/ggH:r_ggH[1,0,400][nuisance]",
+                               "map=.*/(qq|Z|W)H:r_VVH[1,0,400][nuisance]",
                               ] + physOptions
             else:
                 physOptions = [
                                "map=.*[gqZW]*H:1"
                               ] + physOptions
+            physOptions.sort(key=lambda x: x.startswith("verbose"), reverse=True) #put verbose at the beginning
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
 
 spinZeroHiggs = SpinZeroHiggs()

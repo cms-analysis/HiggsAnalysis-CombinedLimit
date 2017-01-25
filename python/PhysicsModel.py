@@ -80,6 +80,7 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
         self.poiMap  = []
         self.pois    = {}
+        self.nuisances = {}
         self.verbose = False
         self.factories = []
         super(MultiSignalModelBase, self).__init__()
@@ -99,9 +100,14 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
                     poi = expr.replace(";",":")
                     if self.verbose: print "Will create expression ",poiname," with factory ",poi
                     self.factories.append(poi)
-                elif poiname not in self.pois and poi not in [ "1", "0"]:
-                    if self.verbose: print "Will create a POI ",poiname," with factory ",poi
-                    self.pois[poiname] = poi
+                elif poiname not in self.pois and poiname not in self.nuisances and poi not in [ "1", "0"]:
+                    if "[nuisance]" in poi:
+                        poi = poi.replace("[nuisance]", "")
+                        if self.verbose: print "Will create a nuisance ",poiname," with factory ",poi
+                        self.nuisances[poiname] = poi
+                    else:
+                        if self.verbose: print "Will create a POI ",poiname," with factory ",poi
+                        self.pois[poiname] = poi
                 if self.verbose:  print "Mapping ",poiname," to ",maps," patterns"
                 self.poiMap.append((poiname, maps))
         super(MultiSignalModelBase, self).setPhysicsOptions(physOptions)
@@ -114,6 +120,9 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
         for pn,pf in self.pois.items():
             poiNames.append(pn)
             self.modelBuilder.doVar(pf)
+        for pn,pf in self.nuisances.items():
+            self.modelBuilder.doVar(pf)
+            self.modelBuilder.out.var(pn).setAttribute("flatParam")
         # then do all factory statements (so vars are already defined)
         for pf in self.factories:
             self.modelBuilder.factory_(pf)
