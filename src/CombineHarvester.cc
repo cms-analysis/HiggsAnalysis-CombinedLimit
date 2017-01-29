@@ -17,7 +17,7 @@ CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
   // if (verbosity_ >= 3) {
     // log() << "[CombineHarvester] Constructor called: " << this << "\n";
   // }
-  flags_["zero-negative-bins-on-import"] = true;
+  flags_["zero-negative-bins-on-import"] = false;
   flags_["allow-missing-shapes"] = true;
   flags_["workspaces-use-clone"] = false;
   flags_["workspace-uuid-recycle"] = true;
@@ -393,11 +393,11 @@ void CombineHarvester::LoadShapes(Process* entry,
     // GetClonedTH1 will throw if this fails
     std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), mapping.pattern);
 
-    if (flags_.at("zero-negative-bins-on-import")) {
-      if (HasNegativeBins(h.get())) {
-        LOGLINE(log(), "Warning: process shape has negative bins");
-        log() << Process::PrintHeader << *entry << "\n";
-        // ZeroNegativeBins(h.get());
+    if (HasNegativeBins(h.get())) {
+      LOGLINE(log(), "Warning: process shape has negative bins");
+      log() << Process::PrintHeader << *entry << "\n";
+      if (flags_.at("zero-negative-bins-on-import")) {
+        ZeroNegativeBins(h.get());
       }
     }
     // Post-conditions #1 and #2
@@ -530,23 +530,27 @@ void CombineHarvester::LoadShapes(Systematic* entry,
     std::unique_ptr<TH1> h_u = GetClonedTH1(mapping.file.get(), p_s_hi);
     std::unique_ptr<TH1> h_d = GetClonedTH1(mapping.file.get(), p_s_lo);
 
-    if (flags_.at("zero-negative-bins-on-import")) {
-      if (HasNegativeBins(h.get())) {
-        LOGLINE(log(), "Warning: Systematic shape has negative bins");
-        log() << Systematic::PrintHeader << *entry << "\n";
-        // ZeroNegativeBins(h.get());
+    if (HasNegativeBins(h.get())) {
+      LOGLINE(log(), "Warning: Systematic shape has negative bins");
+      log() << Systematic::PrintHeader << *entry << "\n";
+      if (flags_.at("zero-negative-bins-on-import")) {
+        ZeroNegativeBins(h.get());
       }
+    }
 
-      if (HasNegativeBins(h_u.get())) {
-        LOGLINE(log(), "Warning: Systematic shape_u has negative bins");
-        log() << Systematic::PrintHeader << *entry << "\n";
-        // ZeroNegativeBins(h_u.get());
+    if (HasNegativeBins(h_u.get())) {
+      LOGLINE(log(), "Warning: Systematic shape_u has negative bins");
+      log() << Systematic::PrintHeader << *entry << "\n";
+      if (flags_.at("zero-negative-bins-on-import")) {
+        ZeroNegativeBins(h_u.get());
       }
+    }
 
-      if (HasNegativeBins(h_d.get())) {
-        LOGLINE(log(), "Warning: Systematic shape_d has negative bins");
-        log() << Systematic::PrintHeader << *entry << "\n";
-        // ZeroNegativeBins(h_d.get());
+    if (HasNegativeBins(h_d.get())) {
+      LOGLINE(log(), "Warning: Systematic shape_d has negative bins");
+      log() << Systematic::PrintHeader << *entry << "\n";
+      if (flags_.at("zero-negative-bins-on-import")) {
+        ZeroNegativeBins(h_d.get());
       }
     }
     entry->set_shapes(std::move(h_u), std::move(h_d), h.get());
