@@ -90,7 +90,7 @@ ClassImp(VBFHZZ4L_RooSpinZeroPdf)
             +               ai*ai*ai*ai * T5
            );
 
-   if ( value <= 0.) return 1.0e-15;
+   if ( value <= 0.) return 1.0e-200;
 
    return value ;
 
@@ -126,7 +126,7 @@ Double_t VBFHZZ4L_RooSpinZeroPdf::analyticalIntegral(Int_t code, const char* ran
                           +               ai*ai*ai*ai * Int_T5
                          );
 
-         if (integral <= 0.) return 1.0e-10;
+         if (integral <= 0.) return 1.0e-200;
          return integral;
        }
 
