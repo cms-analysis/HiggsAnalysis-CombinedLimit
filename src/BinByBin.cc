@@ -15,7 +15,8 @@ BinByBinFactory::BinByBinFactory()
       merge_threshold_(0.),
       fix_norm_(true),
       poisson_errors_(false),
-      merge_zero_bins_(true) {}
+      merge_zero_bins_(true),
+      merge_saturated_bins_(true) {}
 
 
 void BinByBinFactory::MergeBinErrors(CombineHarvester &cb) {
@@ -48,33 +49,45 @@ void BinByBinFactory::MergeBinErrors(CombineHarvester &cb) {
 
     for (int i = 1; i <= h_copies[0]->GetNbinsX(); ++i) {
       double tot_bbb_added = 0.0;
-      std::vector<std::pair<double, TH1 *>> result;
+      std::vector<std::tuple<double, TH1 *, bool>> result;
       for (unsigned j = 0; j < h_copies.size(); ++j) {
         double val = h_copies[j]->GetBinContent(i);
         double err = h_copies[j]->GetBinError(i);
+        // Might exclude this bin from the merging procedure:
+        //  - If the content and error are both zero
         if (val == 0.0 && err == 0.0) continue;
+        //  - If the content is zero (and the error implicitly non-zero)
+        //    only merge if the MergeZeroBins option is true
         if (val == 0.0 && !merge_zero_bins_) continue;
+        //  - Bin participates in the merging if err/val threshold is met
+        //    *OR* if the content is zero but the error > zero.
         if (val == 0 || (err/val) > bbb_threshold_) {
           bbb_added += 1;
-          tot_bbb_added += (err * err);
-          result.push_back(std::make_pair(err*err, h_copies[j].get()));
+          bool can_expand = true;
+          if (!merge_saturated_bins_ && err >= val) {
+            can_expand = false;
+          } else {
+            tot_bbb_added += (err * err);
+          }
+          result.push_back(std::make_tuple(err*err, h_copies[j].get(), can_expand));
         }
       }
       if (tot_bbb_added == 0.0) continue;
       std::sort(result.begin(), result.end());
       double removed = 0.0;
       for (unsigned r = 0; r < result.size(); ++r) {
-        if ((result[r].first + removed) < (merge_threshold * tot_bbb_added) &&
+        if ((std::get<0>(result[r]) + removed) < (merge_threshold * tot_bbb_added) &&
             r < (result.size() - 1)) {
           bbb_removed += 1;
-          removed += result[r].first;
-          result[r].second->SetBinError(i, 0.0);
+          removed += std::get<0>(result[r]);
+          std::get<1>(result[r])->SetBinError(i, 0.0);
         }
       }
       double expand = std::sqrt(1. / (1. - (removed / tot_bbb_added)));
       for (unsigned r = 0; r < result.size(); ++r) {
-        result[r]
-            .second->SetBinError(i, result[r].second->GetBinError(i) * expand);
+        if (!std::get<2>(result[r])) continue;
+        std::get<1>(result[r])->SetBinError(
+            i, std::get<1>(result[r])->GetBinError(i) * expand);
       }
     }
     for (unsigned i = 0; i < h_copies.size(); ++i) {

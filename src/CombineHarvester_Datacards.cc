@@ -1012,7 +1012,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         txt_file << format(" [%.4g,%.4g]") % par->range_d() % par->range_u();
       }
       txt_file << "\n";
-    } else {
+    }
+  }
+  for (auto const& rp : floating_params) {
+    if (!params_.count(rp[0])) {
       // If we don't have a ch::Parameter with this name, then we'll assume
       // this is a function
       RooWorkspace *rp_ws = wspaces_.at("_rateParams").get();

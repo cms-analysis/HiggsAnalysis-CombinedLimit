@@ -135,10 +135,18 @@ class BinByBinFactory {
   }
 
   /**
-   * Construct approximate Poisson uncertainties instead of default Gaussian
+   * Set whether bins with zero content can participate in the merging procedure
    */
   inline BinByBinFactory& SetMergeZeroBins(bool merge) {
     merge_zero_bins_ = merge;
+    return *this;
+  }
+
+  /**
+   * Set whether bins with error >= content participate in the merging procedure
+   */
+  inline BinByBinFactory& SetMergeSaturatedBins(bool merge) {
+    merge_saturated_bins_ = merge;
     return *this;
   }
 
@@ -150,6 +158,7 @@ class BinByBinFactory {
   bool fix_norm_;
   bool poisson_errors_;
   bool merge_zero_bins_;
+  bool merge_saturated_bins_;
 };
 }
 
