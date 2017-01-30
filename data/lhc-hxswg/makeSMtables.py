@@ -3,8 +3,6 @@ import sys
 import logging
 
 stdHeading = ('mH_GeV','XS_pb','Sca_Hi','Sca_Lo','Pdf_alpha_s','Pdf','alpha_s')
-
-
 xsecGroups = {
     'ggH': {'col':'A',  'heading':stdHeading},
     'VBF': {'col':'I',  'heading':stdHeading},
@@ -14,12 +12,23 @@ xsecGroups = {
     'bbH': {'col':'AR', 'heading':('mH_GeV','XS_pb','Sca_Pdf_mb_mub_Hi','Sca_Pdf_mb_mub_Lo')},
     'tH_tchan':  {'col':'AZ', 'heading':stdHeading+('XS_tH_pb','XS_tbarH_pb')},
     'tH_schan':  {'col':'BJ', 'heading':stdHeading+('XS_tH_pb','XS_tbarH_pb')},
-    'total':  {'col':'BT', 'heading':('XS_pb',)},
+    # 'total':  {'col':'BT', 'heading':('XS_pb',)},
     'WminusH_lv':  {'col':'BX',  'heading':stdHeading+('XS_gamma_pb',)},
     'WplusH_lv':  {'col':'CG',  'heading':stdHeading+('XS_gamma_pb',)},
     'ZH_ll':  {'col':'CP',  'heading':stdHeading+('XS_ggZH_pb','XS_gamma_pb')},
     'ZH_vv':  {'col':'CZ',  'heading':stdHeading+('XS_ggZH_pb','XS_gamma_pb')},
     'VBF_qqH_schan':  {'col':'DJ',  'heading':('mH_GeV','XS_pb')},
+    }
+
+reducedHeading = ('mH_GeV','XS_pb','Sca_Hi','Sca_Lo','Pdf_alpha_s')
+xsecGroupsBSM = {
+    'ggH': {'col':'A',  'heading':stdHeading+('1_plus_dEW',)},
+    'VBF': {'col':'J',  'heading':stdHeading},
+    'WH':  {'col':'S',  'heading':reducedHeading},
+    'ZH':  {'col':'AD', 'heading':reducedHeading},
+    'bbH': {'col':'AW', 'heading':('mH_GeV','XS_pb','Sca_Pdf_mb_mub_Hi','Sca_Pdf_mb_mub_Lo')},
+    'WminusH':  {'col':'CF',  'heading':reducedHeading},
+    'WplusH':  {'col':'CO',  'heading':reducedHeading},
     }
 
 specs = {
@@ -41,6 +50,26 @@ specs = {
 'YR4 SM 14TeV' : {
     'rows' : (6,43),
     'groups' : xsecGroups,
+    },
+
+'YR4 BSM 7TeV' : {
+    'rows' : (6,119),
+    'groups' : xsecGroupsBSM,
+    },
+
+'YR4 BSM 8TeV' : {
+    'rows' : (6,119),
+    'groups' : xsecGroupsBSM,
+    },
+
+'YR4 BSM 13TeV' : {
+    'rows' : (6,119),
+    'groups' : xsecGroupsBSM,
+    },
+
+'YR4 BSM 14TeV' : {
+    'rows' : (6,119),
+    'groups' : xsecGroupsBSM,
     },
 
 'YR4 SM BR' : {
@@ -117,14 +146,19 @@ def main(o):
             #dump heading
             heading = props['heading']
             table.append(heading)
-            startRow = spec['rows'][0]
-            endRow = spec['rows'][1]
+            (startRow, endRow) = spec['rows']
             for r in xrange(startRow - 1, endRow):
                 offset = col2num(props['col']) - 1
                 vals = s.row_values(r)[offset:offset+len(heading)]
-                if set(vals) == set(('',)):
+                if set(vals[1:]) == set(('',)):
                     continue
-                table.append(map(formatval,vals))
+                try:
+                    table.append(map(formatval,vals))
+                except ValueError:
+                    print 'Could not parse the followig tuple: '
+                    print vals
+                    raise
+
 
             print_table(table)
 
