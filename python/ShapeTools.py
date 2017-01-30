@@ -42,9 +42,12 @@ class ShapeBuilder(ModelBuilder):
             stderr.write("Creating pdfs for individual modes (%d): " % len(self.DC.bins));
             stderr.flush()
         for i,b in enumerate(self.DC.bins):
+            wrapperpdfsL = []
             #print "  + Getting model for bin %s" % (b)
             pdfs   = ROOT.RooArgList(); bgpdfs   = ROOT.RooArgList()
             coeffs = ROOT.RooArgList(); bgcoeffs = ROOT.RooArgList()
+            wrapperpdfs = ROOT.RooArgList()
+            wrapperbgpdfs = ROOT.RooArgList()
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
@@ -56,7 +59,7 @@ class ShapeBuilder(ModelBuilder):
                         self.out.dont_delete.append(pdf1)
                         pdf = pdf1
                 extranorm = self.getExtraNorm(b,p)
-                if extranorm and self.options.newHist in [0, 2]:
+                if extranorm and self.options.newHist in [0, 2, 3]:
                     prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                     for X in extranorm: prodset.add(self.out.function(X))
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
@@ -73,7 +76,15 @@ class ShapeBuilder(ModelBuilder):
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
             if self.options.newHist >= 1:
-                sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", pdfs,   coeffs, True)
+                if self.options.newHist in [3]:
+                    prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", pdfs, coeffs)
+                    for idx in xrange(pdfs.getSize()):
+                        wrapperpdfsL.append(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', self.out.binVar, pdfs.at(idx), prop, idx))
+                        wrapperpdfs.add(wrapperpdfsL[-1])
+                    print 'done'
+                    sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", wrapperpdfs,   coeffs, True)
+                else:
+                    sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", pdfs,   coeffs, True)
             else:
                 sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
             sum_s.setAttribute("MAIN_MEASUREMENT") # useful for plain ROOFIT optimization on ATLAS side
@@ -448,7 +459,7 @@ class ShapeBuilder(ModelBuilder):
                         if self.options.newHist in [1]:
                             rhp.setShape(0, 0, i+1, 0, rebins[2 + i*2])
                             rhp.setShape(0, 0, i+1, 1, rebins[1 + i*2])
-                        elif self.options.newHist in [2]:
+                        elif self.options.newHist in [2, 3]:
                             renormLo = rebins[2 + i*2].Clone()
                             if renormLo.Integral() > 0.:
                                 renormLo.Scale(rebins[0].Integral() / renormLo.Integral())

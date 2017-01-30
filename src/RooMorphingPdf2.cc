@@ -66,6 +66,8 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
 
 void CMSHistFunc::initialize() const {
   if (initialized_) return;
+  vmorph_sentry_.SetName(TString(this->GetName()) + "_vmorph_sentry");
+  hmorph_sentry_.SetName(TString(this->GetName()) + "_hmorph_sentry");
   hmorph_sentry_.addVars(hmorphs_);
   vmorph_sentry_.addVars(vmorphs_);
   hmorph_sentry_.setValueDirty();
@@ -737,8 +739,7 @@ CMSHistErrorPropagator::CMSHistErrorPropagator() : v(0), initialized_(false) {}
 CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
                                                const char* title,
                                                RooArgList const& funcs,
-                                               RooArgList const& coeffs,
-                                               RooArgList const& binpars)
+                                               RooArgList const& coeffs)
     : RooAbsReal(name, title),
       funcs_("funcs", "", this),
       coeffs_("coeffs", "", this),
@@ -749,7 +750,7 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
       initialized_(false) {
   funcs_.add(funcs);
   coeffs_.add(coeffs);
-  binpars_.add(binpars);
+  // binpars_.add(binpars);
   // initialize();
 }
 
@@ -759,6 +760,7 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(
       funcs_("funcs", this, other.funcs_),
       coeffs_("coeffs", this, other.coeffs_),
       binpars_("binpars", this, other.binpars_),
+      bintypes_(other.bintypes_),
       sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
       binsentry_(name ? TString(name) + "_binsentry" : TString(other.binsentry_.GetName()), ""),
       v(other.v),
@@ -768,6 +770,8 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(
 
 void CMSHistErrorPropagator::initialize() {
   if (initialized_) return;
+  sentry_.SetName(TString(this->GetName()) + "_sentry");
+  binsentry_.SetName(TString(this->GetName()) + "_binsentry");
   FNLOGC(std::cout, v) << "Initialising vectors\n";
   unsigned nf = funcs_.getSize();
   vfuncs_.resize(nf);
@@ -776,15 +780,21 @@ void CMSHistErrorPropagator::initialize() {
     vfuncs_[i] = dynamic_cast<CMSHistFunc const*>(funcs_.at(i));
     vcoeffs_[i] = dynamic_cast<RooAbsReal const*>(coeffs_.at(i));
     auto sargs = vfuncs_[i]->getSentryArgs();
-    std::cout << sargs.get() << "\n";
-    sargs->Print();
+    // std::cout << sargs.get() << "\n";
+    // sargs->Print();
     sentry_.addVars(*sargs);
   }
   unsigned nb = vfuncs_[0]->getCacheHisto().size();
-  vbinpars_.resize(nb);
-  for (unsigned i = 0; i < nb; ++i) {
-    vbinpars_[i] = dynamic_cast<RooAbsReal const*>(binpars_.at(i));
+  vbinpars_.resize(nb, nullptr);
+  for (unsigned j = 0, r = 0; j < nb; ++j) {
+    if (bintypes_.size() && bintypes_[j] == 1) {
+      vbinpars_[j] = dynamic_cast<RooAbsReal const*>(binpars_.at(r));
+      ++r;
+    }
   }
+  // for (unsigned i = 0; i < nb; ++i) {
+  //   vbinpars_[i] = dynamic_cast<RooAbsReal const*>(binpars_.at(i));
+  // }
   valsum_.resize(nb, 0.);
   err2sum_.resize(nb, 0.);
   toterr_.resize(nb, 0.);
@@ -797,7 +807,7 @@ void CMSHistErrorPropagator::initialize() {
   sentry_.addVars(coeffs_);
   binsentry_.addVars(binpars_);
 
-  sentry_.Print("v");
+  // sentry_.Print("v");
 
   sentry_.setValueDirty();
   binsentry_.setValueDirty();
@@ -819,46 +829,91 @@ void CMSHistErrorPropagator::fillSumAndErr() {
       coeffvals_[i] = vcoeffs_[i]->getVal();
     }
     for (unsigned j = 0; j < valsum_.size(); ++j) {
-      valsum_[j] = 0.;
-      err2sum_[j] = 0.;
-      if (v > 1) std::cout << "Bin " << j << "\n";
-      for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-        valvec_[i][j] = vfuncs_[i]->getCacheHisto()[j] * coeffvals_[i];
-        valsum_[j] += valvec_[i][j];
-        double e =  vfuncs_[i]->getBinErrors()[j] * coeffvals_[i];
-        err2vec_[i][j] = e * e;
-        if (v > 1) printf("%.6f/%.6f   ", valvec_[i][j], err2vec_[i][j]);
-        err2sum_[j] += err2vec_[i][j];
-      }
-      toterr_[j] = std::sqrt(err2sum_[j]);
-      if (v > 1) printf(" | %.6f/%.6f/%.6f\n", valsum_[j], err2sum_[j], toterr_[j]);
-      for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-        if (err2sum_[j] > 0. && coeffvals_[i] > 0.) {
-          binmods_[i][j] = (toterr_[j] * err2vec_[i][j]) / (err2sum_[j] * coeffvals_[i]);
-        } else {
-          binmods_[i][j] = 0.;
+      if (bintypes_.size() && bintypes_[j] == 1) {
+        valsum_[j] = 0.;
+        err2sum_[j] = 0.;
+        if (v > 1) std::cout << "Bin " << j << "\n";
+        for (unsigned i = 0; i < vfuncs_.size(); ++i) {
+          valvec_[i][j] = vfuncs_[i]->getCacheHisto()[j] * coeffvals_[i];
+          valsum_[j] += valvec_[i][j];
+          double e =  vfuncs_[i]->getBinErrors()[j] * coeffvals_[i];
+          err2vec_[i][j] = e * e;
+          if (v > 1) printf("%.6f/%.6f   ", valvec_[i][j], err2vec_[i][j]);
+          err2sum_[j] += err2vec_[i][j];
         }
-        if (v > 1) printf("%.6f   ", binmods_[i][j]);
+        toterr_[j] = std::sqrt(err2sum_[j]);
+        if (v > 1) printf(" | %.6f/%.6f/%.6f\n", valsum_[j], err2sum_[j], toterr_[j]);
+        for (unsigned i = 0; i < vfuncs_.size(); ++i) {
+          if (err2sum_[j] > 0. && coeffvals_[i] > 0.) {
+            binmods_[i][j] = (toterr_[j] * err2vec_[i][j]) / (err2sum_[j] * coeffvals_[i]);
+          } else {
+            binmods_[i][j] = 0.;
+          }
+          if (v > 1) printf("%.6f   ", binmods_[i][j]);
+        }
+        if (v > 1) printf("\n");
       }
-      if (v > 1) printf("\n");
     }
     sentry_.reset();
   }
 
   if (!binsentry_.good()) {
-    for (unsigned j = 0; j < valsum_.size(); ++j) {
-      double x = vbinpars_[j]->getVal();
-      for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-        scaledbinmods_[i][j] = binmods_[i][j] * x;
+    // bintypes might have size == 0 if we never ran setupBinPars()
+    for (unsigned j = 0; j < bintypes_.size(); ++j) {
+      if (bintypes_[j] == 1) {
+        double x = vbinpars_[j]->getVal();
+        for (unsigned i = 0; i < vfuncs_.size(); ++i) {
+          scaledbinmods_[i][j] = binmods_[i][j] * x;
+        }
       }
     }
     binsentry_.reset();
   }
 }
 
+RooArgList * CMSHistErrorPropagator::setupBinPars() {
+  RooArgList * res = new RooArgList();
+  if (bintypes_.size()) {
+    std::cout << "setupBinPars() already called for " << this->GetName() << "\n";
+    return res;
+  }
+
+  // First initialize all the storage
+  initialize();
+  // Now fill the bin contents and errors
+  fillSumAndErr();
+
+  bintypes_.resize(valsum_.size(), 0);
+
+  for (unsigned j = 0; j < valsum_.size(); ++j) {
+    if (toterr_[j] > 0.) {
+      bintypes_[j] = 1;
+      RooRealVar var(TString::Format("%s_bin%i", this->GetName(), j), "", 0, -7, 7);
+      res->addClone(var);
+    }
+  }
+
+  binpars_.add(*res);
+  binsentry_.addVars(binpars_);
+  binsentry_.setValueDirty();
+
+  for (unsigned j = 0, r = 0; j < valsum_.size(); ++j) {
+    if (bintypes_[j] == 1) {
+      vbinpars_[j] = dynamic_cast<RooAbsReal const*>(binpars_.at(r));
+      ++r;
+    }
+  }
+
+  return res;
+}
+
+
 void CMSHistErrorPropagator::applyErrorShifts(unsigned idx,
                                               FastHisto const& nominal,
                                               FastHisto& result) {
+  LAUNCH_FUNCTION_TIMER(__timer__, __token__)
+  // We can skip the whole evaluation if there's nothing to evaluate
+  // if (bintypes_.size() == 0) return;
   FNLOGC(std::cout, v) << "Start of function\n";
   fillSumAndErr();
   for (unsigned i = 0; i < result.size(); ++i) {
@@ -869,8 +924,24 @@ void CMSHistErrorPropagator::applyErrorShifts(unsigned idx,
 std::unique_ptr<RooArgSet> CMSHistErrorPropagator::getSentryArgs() const {
   // We can do this without initialising because we're going to hand over
   // the sentry directly
+  sentry_.SetName(TString(this->GetName()) + "_sentry");
+  binsentry_.SetName(TString(this->GetName()) + "_binsentry");
   std::unique_ptr<RooArgSet> args(new RooArgSet(sentry_, binsentry_));
   return args;
+}
+
+void CMSHistErrorPropagator::printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
+                    TString indent) const {
+  RooAbsReal::printMultiline(os, contents, verbose, indent);
+  if (bintypes_.size()) {
+    std::cout << ">> Bin parameters are initialized:\n";
+    for (unsigned i = 0; i < bintypes_.size(); ++i) {
+      std::cout << ">> " << i << "\t" << bintypes_[i]  << "\t" << vbinpars_[i] << "\n";
+    }
+  }
+  std::cout << ">> Sentry: " << sentry_.good() << "\n";
+  sentry_.Print("v");
+
 }
 
 CMSHistFuncWrapper::CMSHistFuncWrapper()
@@ -910,6 +981,7 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const ch
 
 void CMSHistFuncWrapper::initialize() const {
   if (initialized_) return;
+  sentry_.SetName(TString(this->GetName()) + "_sentry");
   pfunc_ = dynamic_cast<CMSHistFunc const*>(&(func_.arg()));
   perr_ = dynamic_cast<CMSHistErrorPropagator *>(err_.absArg());
   // sentry_.addArg(*err_.absArg());
@@ -926,7 +998,6 @@ void CMSHistFuncWrapper::initialize() const {
 }
 
 void CMSHistFuncWrapper::updateCache() const {
-  LAUNCH_FUNCTION_TIMER(__timer__, __token__)
   FNLOGC(std::cout, v) << "CMSHistFuncWrapper::updateCache()\n";
   FNLOGC(std::cout, v) << pfunc_ << "\t" << perr_ << "\n";
 

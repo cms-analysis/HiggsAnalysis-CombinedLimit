@@ -122,8 +122,11 @@ int main(int argc, char* argv[]) {
         "prop", "prop",
         RooArgList(c_ZTT, c_W, c_TTJ, c_TTT, c_VVJ, c_VVT, c_QCD, c_ZL, c_ZJ),
         RooArgList(coeff_ZTT, coeff_W, coeff_TTJ, coeff_TTT, coeff_VVJ,
-                   coeff_VVT, coeff_QCD, coeff_ZL, coeff_ZJ),
-        binpars);
+                   coeff_VVT, coeff_QCD, coeff_ZL, coeff_ZJ));
+
+    auto newbinargs = c_prop.setupBinPars();
+    newbinargs->Print();
+    c_prop.Print("v");
 
     CMSHistFuncWrapper c_ZTT_wrapper("ZTT_wrapper", "ZTT_wrapper", x, c_ZTT, c_prop, 0);
     CMSHistFuncWrapper c_W_wrapper("W_wrapper", "W_wrapper", x, c_W, c_prop, 1);
@@ -149,31 +152,35 @@ int main(int argc, char* argv[]) {
     c_ZTT_wrapper.evaluate();
     c_ZTT_wrapper.evaluate();
 
-    TRandom3 rng;
-    for (unsigned r = 0; r < 1E1; ++r) {
-      RooRealVar &var = (RooRealVar&)binpars[rng.Integer(binpars.getSize())];
-      // RooRealVar &var = (RooRealVar&)binparsx[rng.Integer(binparsx.getSize())];
-      var.setVal(rng.Uniform(-3, +3));
-      var.Print();
+    // TRandom3 rng;
+    // for (unsigned r = 0; r < 1E1; ++r) {
+    //   RooRealVar &var = (RooRealVar&)binpars[rng.Integer(binpars.getSize())];
+    //   // RooRealVar &var = (RooRealVar&)binparsx[rng.Integer(binparsx.getSize())];
+    //   var.setVal(rng.Uniform(-3, +3));
+    //   var.Print();
 
-      // mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
-      // mH.Print();
-      // tes.setVal(rng.Gaus(0, 1));
-      // coeff_ZTT.setVal(rng.Gaus(1, 0.05));
-      // tes.Print();
-      c_ZTT_wrapper.evaluate();
-      c_W_wrapper.evaluate();
-      // c_ZTT.evaluate();
-      // c_W.evaluate();
-    }
+    //   // mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
+    //   // mH.Print();
+    //   // tes.setVal(rng.Gaus(0, 1));
+    //   // coeff_ZTT.setVal(rng.Gaus(1, 0.05));
+    //   // tes.Print();
+    //   c_ZTT_wrapper.evaluate();
+    //   c_W_wrapper.evaluate();
+    //   // c_ZTT.evaluate();
+    //   // c_W.evaluate();
+    // }
 
     // c_ZTT.setEvalVerbose(1);
-    wsp.import(c_ZTT_wrapper);
+    wsp.import(c_prop);
+    // wsp.import(c_W_wrapper);
   }
-  // ((CMSHistFunc *)wsp.function("ZTT"))->setEvalVerbose(0);
+  wsp.Print();
+  // ((CMSHistFunc *)wsp.function("ZTT"))->setEvalVerbose(1);
   // wsp.function("ZTT_wrapper")->Print("");
   // wsp.function("ZTT_wrapper")->Print("v");
   // wsp.function("prop")->Print("v");
+
+  wsp.writeToFile("test_ws.root");
 
   return 0;
 }

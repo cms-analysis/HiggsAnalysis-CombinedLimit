@@ -146,8 +146,7 @@ public:
   // [1] = Barlow-Beeston
   // [2] = Mixed
   CMSHistErrorPropagator(const char* name, const char* title,
-                         RooArgList const& funcs, RooArgList const& coeffs,
-                         RooArgList const& binpars);
+                         RooArgList const& funcs, RooArgList const& coeffs);
 
   CMSHistErrorPropagator(CMSHistErrorPropagator const& other, const char* name = 0);
 
@@ -164,8 +163,12 @@ public:
 
   Double_t evaluate() const { return 0.; }
 
+  RooArgList * setupBinPars();
 
   std::unique_ptr<RooArgSet> getSentryArgs() const;
+
+  void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
+                      TString indent) const;
 
  protected:
   RooListProxy funcs_;
@@ -174,6 +177,7 @@ public:
   std::vector<CMSHistFunc const*> vfuncs_; //!
   std::vector<RooAbsReal const*> vcoeffs_; //!
   std::vector<RooAbsReal const*> vbinpars_; //!
+  std::vector<unsigned> bintypes_;
 
   std::vector<double> coeffvals_; //!
   std::vector<std::vector<double>> valvec_; //!
@@ -183,8 +187,8 @@ public:
   std::vector<double> toterr_; //!
   std::vector<std::vector<double>> binmods_; //!
   std::vector<std::vector<double>> scaledbinmods_; //!
-  mutable SimpleCacheSentry sentry_;
-  mutable SimpleCacheSentry binsentry_;
+  mutable SimpleCacheSentry sentry_; //!
+  mutable SimpleCacheSentry binsentry_; //!
 
   int v;
   mutable bool initialized_; //! not to be serialized
@@ -233,7 +237,7 @@ class CMSHistFuncWrapper : public RooAbsReal {
 
   mutable FastHisto cache_;
   unsigned idx_;
-  mutable SimpleCacheSentry sentry_;
+  mutable SimpleCacheSentry sentry_; //!
 
  private:
   ClassDef(CMSHistFuncWrapper, 1)
