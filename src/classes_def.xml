@@ -119,6 +119,7 @@
 	<class name="RooParametricHist" />
 	<class name="RooMorphingPdf" />
         <function name="function th1fmorph" />
+	<class name="RooDoubleCBFast" />
 
 	<class name="CombDataSetFactory"  transient="true" />
 	<class name="DebugProposal"  transient="true" />
