@@ -1,0 +1,5 @@
+mH_GeV  sigma_ggH_pb        sigma_tt/sigma_ggH  sigma_bb/sigma_ggH  sigma_tb/sigma_ggH sigma_tc/sigma_ggH sigma_bc/sigma_ggH sigma_cc/sigma_ggH
+124.5	1.039	-0.037	0.002	-0.005	0.0004	0.00002
+125	1.039	-0.037	0.002	-0.005	0.0004	0.00002
+125.09	1.039	-0.037	0.002	-0.005	0.0004	0.00002
+125.5	1.039	-0.037	0.002	-0.005	0.0004	0.00002
