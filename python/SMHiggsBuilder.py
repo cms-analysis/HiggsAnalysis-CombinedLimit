@@ -41,7 +41,7 @@ class SMHiggsBuilder:
         self.makeTotalWidth(); 
         self.makeBR(decay);
         self.modelBuilder.factory_('prod::SM_Gamma_%s(SM_GammaTot,SM_BR_%s)' % (decay,decay))
-    def makeScaling(self,what, Cb='Cb', Ctop='Ctop', CW='CW', CZ='CZ', Ctau='Ctau', Cc="Cc",suffix=''):
+    def makeScaling(self,what, Cb='Cb', Ctop='Ctop', CW='CW', CZ='CZ', Ctau='Ctau', Cc="Ctop",suffix=''): # most cases we will treat the charm coupling as top so use this as default
         prefix = 'SM_%(what)s_' % locals()
         if suffix:
             suffix += '_'

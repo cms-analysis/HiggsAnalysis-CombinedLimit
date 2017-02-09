@@ -358,6 +358,8 @@ class Kappas(LHCHCGBaseModel):
             self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_gam)')
             self.modelBuilder.factory_('expr::Scaling_ggH_7TeV("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_ggH_8TeV("@0*@0", kappa_g)')
+            self.modelBuilder.factory_('expr::Scaling_ggH_13TeV("@0*@0", kappa_g)')
+            self.modelBuilder.factory_('expr::Scaling_ggH_14TeV("@0*@0", kappa_g)')
 
         ## partial witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::c7_Gscal_Z("@0*@0*@1*@2", kappa_Z, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz)')
