@@ -90,7 +90,8 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
                 self.verbose = True
             if po.startswith("turnoff="):   #shorthand:  turnoff=process1,process2,process3 --> map=.*/(process1|process2|process3):0
                 turnoff = po.replace("turnoff=", "").split(",")
-                po = "map=.*/({}):0".format("|".join(turnoff))  #and leads right into the next option
+                if turnoff:
+                    po = "map=.*/({}):0".format("|".join(turnoff))  #and leads right into the next option
             if po.startswith("map="):
                 (maplist,poi) = po.replace("map=","").split(":",1)
                 maps = maplist.split(",")
