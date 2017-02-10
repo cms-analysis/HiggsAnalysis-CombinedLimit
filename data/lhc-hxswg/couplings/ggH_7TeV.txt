@@ -1,4 +1,4 @@
-mH_GeV  sigma_ggH_pb        sigma_tt/sigma_ggH  sigma_bb/sigma_ggH  sigma_tb/sigma_ggH sigma_tc/sigma_ggH sigma_bc/sigma_ggH sigma_cc/sigma_ggH
+mH_GeV  c_kt2   c_kb2   c_ktkb  c_ktkc  c_kbkc  c_kc2
 124.5	1.043	0.002	-0.041	-0.005	0.0006	0.00002
 125	1.043	0.002	-0.041	-0.005	0.0006	0.00002
 125.09	1.043	0.002	-0.041	-0.005	0.0006	0.00002
