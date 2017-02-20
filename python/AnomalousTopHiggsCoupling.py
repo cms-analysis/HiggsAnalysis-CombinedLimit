@@ -1,5 +1,5 @@
 from SMHiggsBuilder import *
-#from LHCHCGModels.py import *
+from LHCHCGModels import *
 
 class AnomalousTopHiggsBuilder(SMHiggsBuilder):
 
