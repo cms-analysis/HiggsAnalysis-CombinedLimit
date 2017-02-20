@@ -205,15 +205,22 @@ def produceScan(modelname,extname,proddecaystring,work,energy=""):
 
 	# make 1D scans 
 	it = params.createIterator()
+	allplots = []
 	for j in range(nparams):
 		p = it.Next()
 		if p==None : break		
 	        plot = p.frame()
 		resetVals()
 		func.plotOn(plot)
-		c = ROOT.TCanvas()
-		plot.Draw()
-		c.SaveAs("%s_%s_%s.pdf"%(modelname,proddecay,p.GetName()))
+		allplots.append(plot)
+
+	cc = ROOT.TCanvas("c_PARAM_%s_%s"%(modelname,proddecay),"",1080,600)
+	cc.Divide((nparams+1)//2,2)
+	for j,p in enumerate(allplots):
+		cc.cd(j+1)
+		p.Draw()
+
+	cc.SaveAs("%s_%s.pdf"%(modelname,proddecay))
 
 	# Write The Tree:
 	tr.Write()
