@@ -349,10 +349,10 @@ class Kappas(LHCHCGBaseModel):
         self.SMH.makeScaling('qqH', CW='kappa_W', CZ='kappa_Z')
         self.SMH.makeScaling("tHq", CW='kappa_W', Ctop="kappa_t")
         self.SMH.makeScaling("tHW", CW='kappa_W', Ctop="kappa_t")
-        self.SMH.makeScaling("ggZH", CZ='kappa_Z', Ctop="kappa_t")
+        self.SMH.makeScaling("ggZH", CZ='kappa_Z', Ctop="kappa_t",Cb="kappa_b")
         # resolve loops
         if self.resolved:
-            self.SMH.makeScaling('ggH', Cb='kappa_b', Ctop='kappa_t')
+            self.SMH.makeScaling('ggH', Cb='kappa_b', Ctop='kappa_t', Cc="kappa_t")
             self.SMH.makeScaling('hgluglu', Cb='kappa_b', Ctop='kappa_t')
             self.SMH.makeScaling('hgg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_W', Ctau='kappa_tau')
             self.SMH.makeScaling('hzg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_W', Ctau='kappa_tau')
@@ -391,7 +391,7 @@ class Kappas(LHCHCGBaseModel):
         self.modelBuilder.factory_('expr::c7_BRscal_hzg("@0*@2/@1", Scaling_hzg, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hzg)')
         self.modelBuilder.factory_('expr::c7_BRscal_hgluglu("@0*@2/@1", Scaling_hgluglu, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hgluglu)')
 
-        self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0", BRInvUndet)')
+        self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0", BRinv)')
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s_%s" % (production,decay,energy)
@@ -407,7 +407,7 @@ class Kappas(LHCHCGBaseModel):
             if not self.modelBuilder.out.function("c7_BRscal_"+BRscal):
                 raise RuntimeError, "Decay mode %s not supported" % decay
             if decay == "hss": BRscal = "hbb"
-            if production == "ggH" and (decay in self.add_bbH) and energy in ["7TeV","8TeV"]:
+            if production == "ggH" and (decay in self.add_bbH) and energy in ["7TeV","8TeV","13TeV","14TeV"]:
                 b2g = "CMS_R_bbH_ggH_%s_%s[%g]" % (decay, energy, 0.01) 
                 b2gs = "CMS_bbH_scaler_%s" % energy
                 self.modelBuilder.factory_('expr::%s("(%s + @1*@1*@2*@3)*@4", %s, kappa_b, %s, %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], b2g, b2gs, BRscal))
@@ -468,7 +468,7 @@ class Lambdas(LHCHCGBaseModel):
         self.SMH.makeScaling("qqH", CW='lambda_WZ', CZ="lambda_one")
         self.SMH.makeScaling("tHq", CW='lambda_WZ', Ctop="lambda_tZ")
         self.SMH.makeScaling("tHW", CW='lambda_WZ', Ctop="lambda_tZ")
-        self.SMH.makeScaling("ggZH", CZ='lambda_one', Ctop="lambda_tZ")
+        self.SMH.makeScaling("ggZH", CZ='lambda_one', Ctop="lambda_tZ",Cb="lambda_bZ")
         self.SMH.makeScaling('hzg', Cb='lambda_bZ', Ctop='lambda_tZ', CW='lambda_WZ', Ctau='lambda_tauZ')
         self.modelBuilder.factory_("expr::lambda_gZ(\"1/@0\",lambda_Zg)");
         self.modelBuilder.factory_("expr::sqrt_zgamma(\"sqrt(@0)\",Scaling_hzg)");
@@ -624,9 +624,11 @@ class KappaVKappaF(LHCHCGBaseModel):
         return name
 
 class LambdasReduced(LHCHCGBaseModel):
-    def __init__(self,BRU=True,model=""):
+    def __init__(self,BRU=True,model="",addInvisible=False):
         LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.doBRU = BRU
+        self.model = model
+        self.addInvisible = addInvisible
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
@@ -645,46 +647,49 @@ class LambdasReduced(LHCHCGBaseModel):
         self.modelBuilder.doVar("lambda_Vq[1,0.0,2.0]")
         self.modelBuilder.doVar("kappa_qq[1,0.0,2.0]")
 
-	POIset = 'lambda_FV,kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq'
-        if model=="ldu":
-	  self.modelBuilder.out.var("lamda_du").setConstant(False)
-	  self.modelBuilder.out.var("kappa_uu").setConstant(False)
-	  self.modelBuilder.out.var("lamda_Vu").setConstant(False)
+	self.modelBuilder.doVar("BRinv[0,0,1]")
+        if not self.addInvisible: self.modelBuilder.out.var("BRinv").setConstant(True)
 
-	  self.modelBuilder.out.var("lamda_FV").setConstant(True)
+	POIset = 'lambda_FV,kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq'
+        if self.model=="ldu":
+	  self.modelBuilder.out.var("lambda_du").setConstant(False)
+	  self.modelBuilder.out.var("kappa_uu").setConstant(False)
+	  self.modelBuilder.out.var("lambda_Vu").setConstant(False)
+
+	  self.modelBuilder.out.var("lambda_FV").setConstant(True)
 	  self.modelBuilder.out.var("kappa_VV").setConstant(True)
-	  self.modelBuilder.out.var("lamda_lq").setConstant(True)
-	  self.modelBuilder.out.var("lamda_Vq").setConstant(True)
+	  self.modelBuilder.out.var("lambda_lq").setConstant(True)
+	  self.modelBuilder.out.var("lambda_Vq").setConstant(True)
 	  self.modelBuilder.out.var("kappa_qq").setConstant(True)
 
           POIset = 'lambda_du,lambda_Vu,kappa_uu'
 
-        elif model=="llq": 
+        elif self.model=="llq": 
 	
-	  self.modelBuilder.out.var("lamda_lq").setConstant(False)
-	  self.modelBuilder.out.var("lamda_Vq").setConstant(False)
+	  self.modelBuilder.out.var("lambda_lq").setConstant(False)
+	  self.modelBuilder.out.var("lambda_Vq").setConstant(False)
 	  self.modelBuilder.out.var("kappa_qq").setConstant(False)
 
-	  self.modelBuilder.out.var("lamda_du").setConstant(True)
+	  self.modelBuilder.out.var("lambda_du").setConstant(True)
 	  self.modelBuilder.out.var("kappa_uu").setConstant(True)
-	  self.modelBuilder.out.var("lamda_Vu").setConstant(True)
-	  self.modelBuilder.out.var("lamda_FV").setConstant(True)
+	  self.modelBuilder.out.var("lambda_Vu").setConstant(True)
+	  self.modelBuilder.out.var("lambda_FV").setConstant(True)
 	  self.modelBuilder.out.var("kappa_VV").setConstant(True)
 
           POIset = 'lambda_lq,lambda_Vq,kappa_qq'
 
-        elif model=="lfv": 
+        elif self.model=="lfv": 
 	
 
-	  self.modelBuilder.out.var("lamda_FV").setConstant(False)
+	  self.modelBuilder.out.var("lambda_FV").setConstant(False)
 	  self.modelBuilder.out.var("kappa_VV").setConstant(False)
 
-	  self.modelBuilder.out.var("lamda_lq").setConstant(True)
-	  self.modelBuilder.out.var("lamda_Vq").setConstant(True)
+	  self.modelBuilder.out.var("lambda_lq").setConstant(True)
+	  self.modelBuilder.out.var("lambda_Vq").setConstant(True)
 	  self.modelBuilder.out.var("kappa_qq").setConstant(True)
-	  self.modelBuilder.out.var("lamda_du").setConstant(True)
+	  self.modelBuilder.out.var("lambda_du").setConstant(True)
 	  self.modelBuilder.out.var("kappa_uu").setConstant(True)
-	  self.modelBuilder.out.var("lamda_Vu").setConstant(True)
+	  self.modelBuilder.out.var("lambda_Vu").setConstant(True)
 
           POIset = 'lambda_FV,kappa_VV'
 
@@ -714,15 +719,18 @@ class LambdasReduced(LHCHCGBaseModel):
         self.modelBuilder.factory_("expr::C_top(\"@0\",lambda_FV)");
         self.modelBuilder.factory_("expr::C_tau(\"@0*@1*@2\",lambda_lq,lambda_du, lambda_FV)");
         self.modelBuilder.factory_("expr::C_V(\"@0*@1\",lambda_Vq,lambda_Vu)");
-        self.SMH.makeScaling('ggH', Cb='C_b', Ctop='C_top')
+        self.SMH.makeScaling('ggH', Cb='C_b', Ctop='C_top', Cc="C_top")
         self.SMH.makeScaling("tHq", CW='C_V', Ctop="C_top")
         self.SMH.makeScaling("tHW", CW='C_V', Ctop="C_top")
-        self.SMH.makeScaling("ggZH", CZ='C_V', Ctop="C_top")
+        self.SMH.makeScaling("ggZH", CZ='C_V', Ctop="C_top", Cb="C_b")
         self.SMH.makeScaling('hgg', Cb='C_b', Ctop='C_top', CW='C_V', Ctau='C_tau')
         self.SMH.makeScaling('hzg', Cb='C_b', Ctop='C_top', CW='C_V', Ctau='C_tau')
         self.SMH.makeScaling('hgluglu', Cb='C_b', Ctop='C_top')
 
-        for E in "7TeV", "8TeV":
+	# H->invisible scaling 
+	self.modelBuilder.factory_('expr::Scaling_hinv("@0", BRinv)')
+
+        for E in "7TeV", "8TeV","13TeV","14TeV":
             for P in "ggH", "tHq", "tHW", "ggZH":
                 self.modelBuilder.factory_("expr::PW_XSscal_%s_%s(\"@0*@1*@1*@2*@2*@3*@3\",Scaling_%s_%s,kappa_qq, kappa_uu, kappa_VV)"%(P,E,P,E))
             for P in "qqH", "WH", "ZH":
@@ -739,8 +747,11 @@ class LambdasReduced(LHCHCGBaseModel):
             'hcc' : 'C_top',     # charm scales as top
             'hgluglu' : 'Scaling_hgluglu',
             'hzg'     : 'Scaling_hzg',
+            'hinv'     : 'Scaling_hinv',
             #'hss' : 'C_b', # strange scales as bottom # not used
         }
+
+
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s_%s" % (production,decay,energy)
         if self.modelBuilder.out.function(name):

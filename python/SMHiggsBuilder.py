@@ -76,7 +76,7 @@ class SMHiggsBuilder:
                 self.modelBuilder.factory_(coeffSum)
                 rooExpr = 'expr::%(scalingName)s(\
 "((@0*@0)*@3  + (@1*@1)*@4 + (@0*@1)*@5 + (@0*@2)*@6 + (@1*@2)*@7 + (@2*@2)*@8)/@9 ",\
- %(Ctop)s, %(Cb)s, %(Cc)s\
+ %(Ctop)s, %(Cb)s, %(Cc)s,\
  %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkc_%(sqrts)s, %(prefix)sc_kbkc_%(sqrts)s, %(prefix)sc_kc2_%(sqrts)s, coeff_sum_%(scalingName)s\
 )'%locals()
 #                print  rooExpr
