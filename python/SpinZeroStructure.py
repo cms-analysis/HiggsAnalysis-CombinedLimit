@@ -225,12 +225,12 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
               #can still override with e.g. turnoff=ZH,WH
             if any("muAsPOI" in po for po in physOptions):
                 physOptions = [
-                               "map=.*/ggH:r_ggH[1,0,400]",
+                               "map=.*/(gg|tt)H:r_ffH[1,0,400]",
                                "map=.*/(qq|Z|W)H:r_VVH[1,0,400]",
                               ] + physOptions
             elif not any("muFixed" in po for po in physOptions):
                 physOptions = [
-                               "map=.*/ggH:r_ggH[1,0,400][nuisance]",
+                               "map=.*/(gg|tt)H:r_ffH[1,0,400][nuisance]",
                                "map=.*/(qq|Z|W)H:r_VVH[1,0,400][nuisance]",
                               ] + physOptions
             else:
