@@ -1,0 +1,6 @@
+mH_GeV sigma_tildettildett/sigma_ttH
+123 0.315
+124 0.318
+125 0.330
+126 0.330
+127 0.335
