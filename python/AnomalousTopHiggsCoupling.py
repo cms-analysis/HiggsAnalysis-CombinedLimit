@@ -1,3 +1,11 @@
+# This file contains to classes needed for anomalous top-Higgs coupling fit
+#
+# AnomalousTopHiggsBuilder replaces the makeScaling function of SMHiggsBuilder
+# with one that includes the pseudoscalar coupling modifier Ctildetop
+#
+# KappasAnomalousTopHiggs is a rewrite of the Kappas model in LHCHCGModels
+# which includes the pseudoscalar coupling modifier kappa_tilde_top
+
 from SMHiggsBuilder import *
 from LHCHCGModels import *
 
@@ -8,7 +16,7 @@ class AnomalousTopHiggsBuilder(SMHiggsBuilder):
         if suffix:
             suffix += '_'
             prefix += suffix
-        if what.startswith('qqH'): # change w.r.t. SM: qqH not affected by top-Higgs coupling
+        if what.startswith('qqH'): # no change w.r.t. SM: qqH not affected by top-Higgs coupling
             for sqrts in ('7TeV', '8TeV'):
                 rooName = prefix+'RVBF_'+sqrts
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'R_VBF_%(sqrts)s.txt'%locals()), ycol=1 )
@@ -29,6 +37,7 @@ class AnomalousTopHiggsBuilder(SMHiggsBuilder):
                 for qty, column in structure.iteritems():
                     rooName = prefix+qty+'_'+sqrts
                     self.textToSpline(rooName, os.path.join(self.coupPath, 'ggH_%(sqrts)s.txt'%locals()), ycol=column )
+                # CP violating pseudoscalar admixture
                 for qty, column in structure_CPVtth.iteritems():
                     rooName = prefix+qty+'_'+sqrts
                     self.textToSpline(rooName, os.path.join(self.coupPath, 'ggA_%(sqrts)s.txt'%locals()), ycol=column )
@@ -66,6 +75,7 @@ class AnomalousTopHiggsBuilder(SMHiggsBuilder):
             for qty, column in structure.iteritems():
                 rooName = prefix+qty
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'Gamma_Hgluongluon.txt'), ycol=column )
+            # CP violating pseudoscalar admixture
             for qty, column in structure_CPVtth.iteritems():
                 rooName = prefix+qty
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'Gamma_Agluongluon.txt'), ycol=column )
