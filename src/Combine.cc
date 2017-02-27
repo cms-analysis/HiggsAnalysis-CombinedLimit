@@ -80,8 +80,10 @@ TTree *Combine::tree_ = 0;
 
 std::string setPhysicsModelParameterExpression_ = "";
 std::string setPhysicsModelParameterRangeExpression_ = "";
+std::string defineBackgroundOnlyModelParameterExpression_ = "";
 
 std::string Combine::trackParametersNameString_="";
+std::string Combine::textToWorkspaceString_="";
 
 std::vector<std::pair<RooAbsReal*,float> > Combine::trackedParametersMap_;
 
@@ -109,6 +111,7 @@ Combine::Combine() :
       ("generateBinnedWorkaround", "Make binned datasets generating unbinned ones and then binnning them. Workaround for a bug in RooFit.")
       ("setPhysicsModelParameters", po::value<string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
       ("setPhysicsModelParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")      
+      ("defineBackgroundOnlyModelParameters", po::value<string>(&defineBackgroundOnlyModelParameterExpression_)->default_value(""), "If no background only (null) model is explicitly provided in physics model, one will be defined as these values of the POIs (default is r=0)")      
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
       ("freezeNuisances", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these nuisance parameters.")      
       ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
@@ -142,6 +145,7 @@ Combine::Combine() :
       ("genBinnedChannels", po::value<std::string>(&genAsBinned_)->default_value(genAsBinned_), "Flag the given channels to be generated binned (irrespectively of how they were flagged at workspace creation)") 
       ("genUnbinnedChannels", po::value<std::string>(&genAsUnbinned_)->default_value(genAsUnbinned_), "Flag the given channels to be generated unbinned (irrespectively of how they were flagged at workspace creation)") 
       ("trackParameters",   boost::program_options::value<std::string>(&trackParametersNameString_)->default_value(""), "Keep track of parameters in workspace (default = none)")
+      ("text2workspace",   boost::program_options::value<std::string>(&textToWorkspaceString_)->default_value(""), "Pass along options to text2workspace (default = none)")
       ; 
 }
 
@@ -267,7 +271,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     //int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -o "+tmpFile+".hlf"); 
     //isTextDatacard = true; fileToLoad = tmpFile+".hlf";
     //-- Binary mode: new default 
-    int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -b -o "+tmpFile+".root"); 
+    int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -b -o "+tmpFile+".root "+textToWorkspaceString_); 
     isBinary = true; fileToLoad = tmpFile+".root";
     if (status != 0 || !boost::filesystem::exists(fileToLoad.Data())) {
         throw std::invalid_argument("Failed to convert the input datacard from LandS to RooStats format. The lines above probably contain more information about the error.");
@@ -331,10 +335,33 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (mc_bonly == 0 && !noMCbonly_) {
         std::cerr << "Missing background ModelConfig '" << modelConfigNameB_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
-        std::cerr << "Will make one from the signal ModelConfig '" << modelConfigName_ << "' setting signal strenth '" << POI->first()->GetName() << "' to zero"  << std::endl;
-        w->factory("_zero_[0]");
         RooCustomizer make_model_s(*mc->GetPdf(),"_model_bonly_");
-        make_model_s.replaceArg(*POI->first(), *w->var("_zero_"));
+
+        if (defineBackgroundOnlyModelParameterExpression_ != "") {
+          std::cerr << "Will make one from the signal ModelConfig " << modelConfigName_ << " setting " << std::endl;
+	  vector<string> SetParameterExpressionList;
+	  boost::split(SetParameterExpressionList, defineBackgroundOnlyModelParameterExpression_, boost::is_any_of(","));
+	  for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
+	    vector<string> SetParameterExpression;
+	    boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
+	    if (SetParameterExpression.size() != 2) {
+		  std::cout << "Error parsing background model parameter expression : " << SetParameterExpressionList[p] << endl;
+	    } else {
+	    	std::string expr = SetParameterExpression[0];
+		double expval    = atof(SetParameterExpression[1].c_str());
+        	w->factory(Form("_%s_background_only_[%g]",expr.c_str(),expval));
+
+        	make_model_s.replaceArg(*POI->selectByName(expr.c_str())->first(), *w->var(Form("_%s_background_only_",expr.c_str())));
+		std::cerr << "   " << expr << " to " << expval << std::endl;
+	    }
+	  }
+        } else {
+
+	  std::cerr << "Will make one from the signal ModelConfig '" << modelConfigName_ << "' setting signal strenth '" << POI->first()->GetName() << "' to zero"  << std::endl;
+	  w->factory("_zero_[0]");
+	  make_model_s.replaceArg(*POI->first(), *w->var("_zero_"));
+	}
+
         RooAbsPdf *model_b = dynamic_cast<RooAbsPdf *>(make_model_s.build()); 
         model_b->SetName("_model_bonly_");
         w->import(*model_b);

@@ -28,6 +28,7 @@ extern float cl;
 extern bool bypassFrequentistFit_;
 extern  std::string setPhysicsModelParameterExpression_;
 extern  std::string setPhysicsModelParameterRangeExpression_;
+extern  std::string defineBackgroundOnlyModelParameterExpression_;
 
 
 class Combine {
@@ -99,6 +100,7 @@ private:
 
   static std::vector<std::pair<RooAbsReal*,float> > trackedParametersMap_;
   static std::string  trackParametersNameString_;
+  static std::string  textToWorkspaceString_;
 
 };
 
