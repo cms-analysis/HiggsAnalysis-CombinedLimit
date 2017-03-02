@@ -48,8 +48,8 @@ __import__(physModMod)
 mod = modules[physModMod]
 physics = getattr(mod, physModName)
 if mod     == None: raise RuntimeError, "Physics model module %s not found" % physModMod
-if physics == None or not isinstance(physics, PhysicsModel): 
-    raise RuntimeError, "Physics model %s in module %s not found, or not inheriting from PhysicsModel" % (physModName, physModMod)
+if physics == None or not isinstance(physics, PhysicsModelBase): 
+    raise RuntimeError, "Physics model %s in module %s not found, or not inheriting from PhysicsModelBase" % (physModName, physModMod)
 physics.setPhysicsOptions(options.physOpt)
 ## Attach to the tools, and run
 MB.setPhysics(physics)

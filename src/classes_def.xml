@@ -20,6 +20,7 @@
 	<class name="HZZ4L_RooSpinZeroPdf_1D" />
 	<class name="HZZ4L_RooSpinZeroPdf_2D" />
 	<class name="HZZ4L_RooSpinZeroPdf_phase" />
+	<class name="VBFHZZ4L_RooSpinZeroPdf" />
 	<class name="ProcessNormalization" />
 	<class name="Roo2ExpPdf" />
 	<class name="Roo4lMasses2D" />

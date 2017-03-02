@@ -33,6 +33,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_1D.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_2D.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_phase.h"
+#include "HiggsAnalysis/CombinedLimit/interface/VBFHZZ4L_RooSpinZeroPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HWWLVJJRooPdfs.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMomentMorphND.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf.h"
