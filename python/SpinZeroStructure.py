@@ -223,21 +223,37 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
                 break
         else: #no po started with map --> no manual overriding --> use the defaults
               #can still override with e.g. turnoff=ZH,WH
-            if any("muAsPOI" in po for po in physOptions):
+            if any("muaspoi" in po.lower() or "mufixed" in po.lower() for po in physOptions):
+                raise ValueError("Should use muVAsPOI or mufFixed for MultiSignalSpinZeroHiggs")
+
+            if any("muvaspoi" in po.lower() for po in physOptions):
                 physOptions = [
-                               "map=.*/(gg|tt)H:r_ffH[1,0,400]",
                                "map=.*/(qq|Z|W)H:r_VVH[1,0,400]",
                               ] + physOptions
-            elif not any("muFixed" in po for po in physOptions):
+            elif not any("muvfixed" in po.lower() for po in physOptions):
                 physOptions = [
-                               "map=.*/(gg|tt)H:r_ffH[1,0,400][nuisance]",
                                "map=.*/(qq|Z|W)H:r_VVH[1,0,400][nuisance]",
                               ] + physOptions
             else:
                 physOptions = [
-                               "map=.*[gqZW]*H:1"
+                               "map=.*/(qq|Z|W)H:1"
                               ] + physOptions
+
+            if any("mufaspoi" in po.lower() for po in physOptions):
+                physOptions = [
+                               "map=.*/(gg|tt)H:r_ffH[1,0,400]",
+                              ] + physOptions
+            elif not any("muffixed" in po.lower() for po in physOptions):
+                physOptions = [
+                               "map=.*/(gg|tt)H:r_ffH[1,0,400][nuisance]",
+                              ] + physOptions
+            else:
+                physOptions = [
+                               "map=.*/(gg|tt)H:1"
+                              ] + physOptions
+
             physOptions.sort(key=lambda x: x.startswith("verbose"), reverse=True) #put verbose at the beginning
+
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
 
 spinZeroHiggs = SpinZeroHiggs()
