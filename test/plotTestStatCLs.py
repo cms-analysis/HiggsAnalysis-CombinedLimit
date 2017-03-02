@@ -17,6 +17,8 @@ parser.add_option("-v","--val",default="all",type='str',help="poi values, comma 
 parser.add_option("-r","--rebin",default=0,type='int',help="Rebin the histos by this rebin factor (nbins)")
 parser.add_option("-m","--mass",default=[],action='append',help="mass value(s) (same as -m for combine)")
 parser.add_option("-P","--Print",default=False,action='store_true',help="Just print the toys directory to see whats there")
+parser.add_option("-e","--expected",default=False,action='store_true',help="Replace observation with expected (under alt hyp)")
+parser.add_option("-q","--quantileExpected",default=0.5,type='float',help="Replace observation with expected quantile (under alt hyp, i.e CLb=quantileExpected)")
 parser.add_option("","--doublesided",action='store_true',default=False,help="If 2 sided (i.e LEP style or non-nested hypos e.g for spin)")
 (options,args)=parser.parse_args()
 
@@ -67,7 +69,7 @@ for m in options.mass:
   #ft = ROOT.TFile.Open("tmp_out%s%d.root"%(m,i))
   ft = ROOT.TFile.Open("tmp_out.root")
   print "Plotting ... "
-  can = qmuPlot(float(m),options.poi,float(pv),int(options.doublesided),int(options.invert),options.rebin)
+  can = qmuPlot(float(m),options.poi,float(pv),int(options.doublesided),int(options.invert),options.rebin,options.expected,options.quantileExpected)
   canvases.append(can.Clone())
   ft.Close()
 ofile = ROOT.TFile(options.output,"RECREATE")

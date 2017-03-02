@@ -17,7 +17,7 @@ for X in ("-h", "-?", "--help"):
 argv.append( '-b-' )
 import ROOT
 ROOT.gROOT.SetBatch(True)
-ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
+#ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 argv.remove( '-b-' )
 if hasHelp: argv.append("-h")
 

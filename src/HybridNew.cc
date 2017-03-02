@@ -530,7 +530,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 
       // label the axes
       limitPlot_->GetXaxis()->SetTitle("r");
-      limitPlot_->GetYaxis()->SetTitle("CL_{s}");
+      limitPlot_->GetYaxis()->SetTitle(rule_.c_str());
 
       TLine line(limitPlot_->GetX()[0], clsTarget, limitPlot_->GetX()[limitPlot_->GetN()-1], clsTarget);
       line.SetLineColor(kRed); line.SetLineWidth(2); line.Draw();

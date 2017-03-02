@@ -11,6 +11,14 @@ TLine *getMedian(TH1F *b){
 	return l;
 }
 
+double getMedianVal(TH1F *b){
+	double medx[1] ={0.5};
+	double medy[1] ={0.};
+
+	b->GetQuantiles(1,medy,medx);
+	return medy[0];
+}
+
 TH1F *getQuantHist(TH1F *b, double qMin, double qMax){
 	
 	TH1F *hist68 = (TH1F*) b->Clone();
@@ -83,7 +91,7 @@ double tailReal(TTree *t, std::string br, double cv, int mode){
     return ((double)tpass)/ttotal;
 }
 
-TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int invert=0,int rebin=0) {
+TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int invert=0,int rebin=0, int runExpected_=0, double quantileExpected_=0.5) {
     if (gFile == 0) { std::cerr << "You must have a file open " << std::endl; return 0; }
     TTree *t = (TTree *) gFile->Get("q");
     if (t == 0) { std::cerr << "File " << gFile->GetName() << " does not contain a tree called 'q'" << std::endl; return 0; }
@@ -124,8 +132,16 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     if (mode==0)t->Draw("max(2*q,0)>>qObs","weight*(type==0)");
     else t->Draw("2*q>>qObs","weight*(type==0)");
     double qObs = ((TH1F*) gROOT->FindObject("qObs"))->GetMean();
+    if (runExpected_) {
+      
+      double medx[1] ={quantileExpected_};
+      double medy[1] ={0.};
+      qB->GetQuantiles(1,medy,medx);
+      qObs = medy[0];
+    }
+
     TArrow *qO = new TArrow(qObs, 0.2, qObs, yMin*1.05, 0.01, "---|>");
- 
+    
     if (rebin>0){
 	qB->Rebin(rebin);
 	qS->Rebin(rebin);
@@ -201,7 +217,7 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     qB->Draw();
 
     // Draw bands on the Background distribution 
-    TLine *median_b  = getMedian(qB); 
+    TLine *median_b = getMedian(qB); 
     TH1F *oneSig    = getQuantHist(qB,0.16,0.84);   oneSig->SetFillColor(kGreen+1);
     TH1F *twoSig    = getQuantHist(qB,0.025,0.975); twoSig->SetFillColor(kYellow);
     twoSig->Draw("histFsame");

@@ -527,6 +527,33 @@ utils::setChannelGenModes(RooSimultaneous &simPdf, const std::string &binned, co
         }
     }
 }
+TGraphAsymmErrors * utils::makeDataGraph(TH1 * dataHist, bool asDensity)
+{
+    // Properly normalise 
+    TGraphAsymmErrors * dataGraph = new TGraphAsymmErrors(dataHist->GetNbinsX());
+    for (int b=1;b <= dataHist->GetNbinsX();b++){
+	double yv = dataHist->GetBinContent(b);
+	double bw = dataHist->GetBinWidth(b);
+
+	double up; 
+	double dn;
+
+	RooHistError::instance().getPoissonInterval(yv,dn,up,1);
+
+	double errlow  = (yv-dn);
+	double errhigh = (up-yv);
+
+	if (asDensity) {
+		yv/=bw;
+		errlow/=bw;
+		errhigh/=bw;
+	}
+
+	dataGraph->SetPoint(b-1,dataHist->GetBinCenter(b),yv);
+	dataGraph->SetPointError(b-1,bw/2,bw/2,errlow,errhigh);
+    }
+    return dataGraph;
+}
 
 std::vector<RooPlot *>
 utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel, const char *backgroundSel, float rebinFactor) {
@@ -544,32 +571,41 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             RooAbsPdf *pdfi  = sim->getPdf(ds->GetName());
             std::auto_ptr<RooArgSet> obs(pdfi->getObservables(ds));
             if (obs->getSize() == 0) break;
-            RooRealVar *x = dynamic_cast<RooRealVar *>(obs->first());
-            if (x == 0) continue;
-            int nbins = x->numBins(); if (nbins == 0) nbins = 100;
-            if (nbins/rebinFactor > 6) nbins = ceil(nbins/rebinFactor);
-            ret.push_back(x->frame(RooFit::Title(ds->GetName()), RooFit::Bins(nbins)));
-            ret.back()->SetName(ds->GetName());
-            ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
-            if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
-            if (backgroundSel && strlen(backgroundSel)) pdfi->plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
-	    std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdfi->GetName() << " = " << pdfi->expectedEvents(RooArgSet(*x)) << std::endl;  
-            pdfi->plotOn(ret.back(),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+	    TIterator *obs_iter = obs->createIterator();
+	    //for (int iobs=0;iobs<obs->getSize();iobs++){
+  	    for (RooAbsArg *a = 0; (a = (RooAbsArg *)obs_iter->Next()) != 0; ) {
+	      RooRealVar *x = dynamic_cast<RooRealVar *>(a);
+	      if (x == 0) continue;
+	      int nbins = x->numBins(); if (nbins == 0) nbins = 100;
+	      if (nbins/rebinFactor > 6) nbins = ceil(nbins/rebinFactor);
+	      ret.push_back(x->frame(RooFit::Title(ds->GetName()), RooFit::Bins(nbins)));
+	      ret.back()->SetName(Form("%s_%s",ds->GetName(),x->GetName()));
+	      ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+	      if (backgroundSel && strlen(backgroundSel)) pdfi->plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+	      std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdfi->GetName() << " = " << pdfi->expectedEvents(RooArgSet(*x)) << std::endl;  
+	      pdfi->plotOn(ret.back(),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+	    }
             delete ds;
         }
         delete datasets;
     } else if (pdf.canBeExtended()) {
         std::auto_ptr<RooArgSet> obs(pdf.getObservables(&data));
-        RooRealVar *x = dynamic_cast<RooRealVar *>(obs->first());
-        if (x != 0) {
-            ret.push_back(x->frame());
-            ret.back()->SetName("data");
-            data.plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
-            if (signalSel && strlen(signalSel))         pdf.plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
-            if (backgroundSel && strlen(backgroundSel)) pdf.plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
-	    std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdf.GetName() << " = " << pdf.expectedEvents(RooArgSet(*x)) << std::endl;  
-            pdf.plotOn(ret.back(),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
-        }
+
+	//for (int iobs=0;iobs<obs->getSize();iobs++){
+	TIterator *obs_iter = obs->createIterator();
+  	for (RooAbsArg *a = 0; (a = (RooAbsArg *)obs_iter->Next()) != 0; ) {
+          RooRealVar *x = dynamic_cast<RooRealVar *>(a);
+	  if (x != 0) {
+	      ret.push_back(x->frame());
+	      ret.back()->SetName(Form("data_%s",x->GetName()));
+	      data.plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      if (signalSel && strlen(signalSel))         pdf.plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+	      if (backgroundSel && strlen(backgroundSel)) pdf.plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+	      std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdf.GetName() << " = " << pdf.expectedEvents(RooArgSet(*x)) << std::endl;  
+	      pdf.plotOn(ret.back(),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
+	  }
+	}
     }
     if (facpdf != &pdf) { delete facpdf; }
     return ret;

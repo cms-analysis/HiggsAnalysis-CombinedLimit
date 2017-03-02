@@ -711,7 +711,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
       }
       // Set the value of r in cases 1), 2) and 4)
-      if (expectSignalSet_ || (!expectSignalSet_ && !rInParamExp)) {
+      if (expectSignalSet_ || (!expectSignalSet_ && !rInParamExp && snapshotName_=="" )) {
         ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
       }
       if (expectSignalSet_ && rInParamExp) {

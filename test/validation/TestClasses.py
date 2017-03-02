@@ -95,6 +95,34 @@ def _readRootFileWithExpected(fname):
         f.Close()
         return results
 
+def _readRootFileWithPOI(fname, poi):
+        if os.access(fname, os.R_OK) == False: return { 'status':'aborted', 'comment':'rootfile does not exist' }
+        if os.stat(fname).st_size < 1000:   return { 'status':'aborted', 'comment':'rootfile is smaller than 1kb' }
+        f = ROOT.TFile.Open(fname)
+        if not f: return { 'status':'aborted', 'comment':'rootfile is not readable by ROOT'}
+        t = f.Get("limit")
+        if not t:
+            f.Close()
+            return { 'status':'aborted', 'comment':'rootfile does not contain the tree' }
+        if t.GetEntries() == 0:
+            return { 'status':'aborted', 'comment':'statistical method failed' }
+        results = []
+        prev = ""
+        for i,entry in enumerate(t):
+          point = " "
+          #point = " %3.u " % (i)
+          text = " " 
+          if (poi):
+            for p in poi:
+              text += "%s:%.2f " % (p, getattr(entry, p))
+          if (text == prev): continue
+          point += text
+          nll = entry.deltaNLL
+          results.append( ( point, {'status':'done', 'comment':'', 'limit':float(nll), 'limitErr':0, 't_real':0} ) )
+          prev = text
+        f.Close()
+        return results
+
 def numCPUs_(method,options):
     if "Hybrid" not in method: return 1
     m = re.search(r"--fork\s+(\d+)", options)
@@ -181,6 +209,36 @@ class MultiDatacardWithExpectedTest(MultiDatacardTest):
                     ret['results'][os.path.basename(dc)+postfix] = res
         _summarize(ret)
         return ret
+
+class WorkspaceWithExpectedTest(MultiDatacardTest):
+    def __init__(self,name,datacards,method,ws_options,options,mass,poi=None):
+        MultiDatacardTest.__init__(self,name,datacards,method,options)
+        self._ws_options = ws_options
+        self._cmb_card = "combined.%s.txt" % (self._name)
+        self._cmb_wsp = self._cmb_card.replace(".txt", ".root")
+        self._mass = mass
+        self._poi = poi
+    def createScript(self,dir,file):
+        dc_list = [ ]
+        for dc, mass in self._datacards:
+            datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % dc
+            datacard_base = os.path.splitext(os.path.basename(datacard_full))[0]
+            dc_list.append(datacard_base+"="+datacard_full)
+            if os.access(datacard_full, os.R_OK) == False:
+                raise RuntimeError, "Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % dc
+        file.write("combineCards.py -S %s &> %s\n" % (" ".join(dc_list), self._cmb_card))
+        file.write("text2workspace.py %s -b %s -o %s -m %s\n" % (self._ws_options, self._cmb_card, self._cmb_wsp, self._mass))
+        file.write("echo    %s -n %s -M %s %s -m %s >  %s.%s.log     \n" % (self._cmb_wsp, self._name, self._method, self._options, self._mass, self._name, self._mass));
+        file.write("combine %s -n %s -M %s %s -m %s 2>&1 | cat >> %s.%s.log\n" % (self._cmb_wsp, self._name, self._method, self._options, self._mass, self._name, self._mass));
+    def readOutput(self,dir):
+        if ("MultiDimFit" in self._method):
+          out = _readRootFileWithPOI("%s/higgsCombine%s.%s.mH%s.root" % (dir, self._name, self._method, self._mass), self._poi)
+        else:
+          out = _readRootFileWithExpected("%s/higgsCombine%s.%s.mH%s.root" % (dir, self._name, self._method, self._mass))
+        if type(out) == dict: return out
+        dn = os.path.basename(self._cmb_card)
+        resmap = dict([(dn+x,y) for (x,y) in out])
+        return {'status':'done', 'comment':'', 'results':resmap}
 
 def _summarize(report):
     aborted = sum([ret['status'] == 'aborted' for ret in report['results'].values()])

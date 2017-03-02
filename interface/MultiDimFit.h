@@ -37,6 +37,9 @@ protected:
   static unsigned int              nOtherFloatingPoi_; // keep a count of other POIs that we're ignoring, for proper chisquare normalization
   static float                     deltaNLL_;
 
+  static std::string name_;
+  std::auto_ptr<TFile> fitOut;
+
   // options    
   static unsigned int points_, firstPoint_, lastPoint_;
   static bool floatOtherPOIs_;
@@ -48,6 +51,7 @@ protected:
   static float maxDeltaNLLForProf_;
   static float autoRange_;
   static bool  startFromPreFit_;
+  static bool  saveFitResult_;
   static std::string fixedPointPOIs_;
 
   static std::string saveSpecifiedFuncs_;
@@ -81,6 +85,8 @@ protected:
   // utilities
   /// for each RooRealVar, set a range 'box' from the PL profiling all other parameters
   void doBox(RooAbsReal &nll, double cl, const char *name="box", bool commitPoints=true) ;
+  /// save a file with the RooFitResult inside
+  void saveResult(RooFitResult &res);
 };
 
 
