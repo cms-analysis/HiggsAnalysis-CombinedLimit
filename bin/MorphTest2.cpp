@@ -118,39 +118,51 @@ int main(int argc, char* argv[]) {
     }
     // binpars.Print("v");
 
+    // CMSHistErrorPropagator c_prop(
+    //     "prop", "prop", x,
+    //     RooArgList(c_ZTT, c_W, c_TTJ, c_TTT, c_VVJ, c_VVT, c_QCD, c_ZL, c_ZJ),
+    //     RooArgList(coeff_ZTT, coeff_W, coeff_TTJ, coeff_TTT, coeff_VVJ,
+    //                coeff_VVT, coeff_QCD, coeff_ZL, coeff_ZJ));
+
+
     CMSHistErrorPropagator c_prop(
-        "prop", "prop",
-        RooArgList(c_ZTT, c_W, c_TTJ, c_TTT, c_VVJ, c_VVT, c_QCD, c_ZL, c_ZJ),
-        RooArgList(coeff_ZTT, coeff_W, coeff_TTJ, coeff_TTT, coeff_VVJ,
-                   coeff_VVT, coeff_QCD, coeff_ZL, coeff_ZJ));
+        "prop", "prop", x,
+        RooArgList(c_ZTT, c_W),
+        RooArgList(coeff_ZTT, coeff_W));
 
     auto newbinargs = c_prop.setupBinPars();
     newbinargs->Print();
-    c_prop.Print("v");
 
     CMSHistFuncWrapper c_ZTT_wrapper("ZTT_wrapper", "ZTT_wrapper", x, c_ZTT, c_prop, 0);
     CMSHistFuncWrapper c_W_wrapper("W_wrapper", "W_wrapper", x, c_W, c_prop, 1);
 
-    CMSHistFuncWrapper c_TTJ_wrapper("TTJ_wrapper", "TTJ_wrapper", x, c_TTJ, c_prop, 1);
-    CMSHistFuncWrapper c_TTT_wrapper("TTT_wrapper", "TTT_wrapper", x, c_TTT, c_prop, 1);
-    CMSHistFuncWrapper c_VVJ_wrapper("VVJ_wrapper", "VVJ_wrapper", x, c_VVJ, c_prop, 1);
-    CMSHistFuncWrapper c_VVT_wrapper("VVT_wrapper", "VVT_wrapper", x, c_VVT, c_prop, 1);
-    CMSHistFuncWrapper c_QCD_wrapper("QCD_wrapper", "QCD_wrapper", x, c_QCD, c_prop, 1);
-    CMSHistFuncWrapper c_ZL_wrapper("ZL_wrapper", "ZL_wrapper", x, c_ZL, c_prop, 1);
-    CMSHistFuncWrapper c_ZJ_wrapper("ZJ_wrapper", "ZJ_wrapper", x, c_ZJ, c_prop, 1);
 
-    c_ZTT_wrapper.setEvalVerbose(1);
+    c_ZTT.Print("v");
+    c_W.Print("v");
+    ((RooRealVar*)newbinargs->at(2))->setVal(+2.0);
+    c_prop.evaluate();
+    c_prop.Print("v");
 
+
+    // CMSHistFuncWrapper c_TTJ_wrapper("TTJ_wrapper", "TTJ_wrapper", x, c_TTJ, c_prop, 1);
+    // CMSHistFuncWrapper c_TTT_wrapper("TTT_wrapper", "TTT_wrapper", x, c_TTT, c_prop, 1);
+    // CMSHistFuncWrapper c_VVJ_wrapper("VVJ_wrapper", "VVJ_wrapper", x, c_VVJ, c_prop, 1);
+    // CMSHistFuncWrapper c_VVT_wrapper("VVT_wrapper", "VVT_wrapper", x, c_VVT, c_prop, 1);
+    // CMSHistFuncWrapper c_QCD_wrapper("QCD_wrapper", "QCD_wrapper", x, c_QCD, c_prop, 1);
+    // CMSHistFuncWrapper c_ZL_wrapper("ZL_wrapper", "ZL_wrapper", x, c_ZL, c_prop, 1);
+    // CMSHistFuncWrapper c_ZJ_wrapper("ZJ_wrapper", "ZJ_wrapper", x, c_ZJ, c_prop, 1);
+
+    // c_ZTT_wrapper.setEvalVerbose(1);
     // c_ZTT_wrapper.evaluate();
     // x.setVal(3000.);
     // ((RooRealVar &)binpars[3]).setVal(1.2);
     // ((RooRealVar &)binpars[4]).setVal(-1.5);
-    c_ZTT_wrapper.evaluate();
-    c_W_wrapper.evaluate();
-    c_W_wrapper.evaluate();
-    c_W_wrapper.evaluate();
-    c_ZTT_wrapper.evaluate();
-    c_ZTT_wrapper.evaluate();
+    // c_ZTT_wrapper.evaluate();
+    // c_W_wrapper.evaluate();
+    // c_W_wrapper.evaluate();
+    // c_W_wrapper.evaluate();
+    // c_ZTT_wrapper.evaluate();
+    // c_ZTT_wrapper.evaluate();
 
     // TRandom3 rng;
     // for (unsigned r = 0; r < 1E1; ++r) {
@@ -174,7 +186,7 @@ int main(int argc, char* argv[]) {
     wsp.import(c_prop);
     // wsp.import(c_W_wrapper);
   }
-  wsp.Print();
+  // wsp.Print();
   // ((CMSHistFunc *)wsp.function("ZTT"))->setEvalVerbose(1);
   // wsp.function("ZTT_wrapper")->Print("");
   // wsp.function("ZTT_wrapper")->Print("v");

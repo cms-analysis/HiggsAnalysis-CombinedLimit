@@ -834,6 +834,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           }
           if (nuisancePdf.get()) systDs = nuisancePdf->generate(*mc->GetGlobalObservables(), nToys);
       } else {
+          std::cout << ">> Generating values from nuisance pdf:\n";
           if (nuisancePdf.get()) systDs = nuisancePdf->generate(*nuisances, nToys);
       } 
     }
@@ -849,6 +850,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	if (withSystematics && !toysNoSystematics_) {
 	  if (systDs) {
 	  	if (systDs->numEntries()>=iToy) *vars = *systDs->get(iToy-1);
+      vars->Print();
 	  }
           if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
 	  if (verbose > 3) utils::printPdf(genPdf);

@@ -1,5 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Logging.h"
 #include <stdexcept>
 #include <RooCategory.h>
 #include <RooDataSet.h>
@@ -8,6 +9,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include <HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h>
+#include <HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf2.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedGaussian.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedCB.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedSimplePdfs.h>
@@ -20,6 +22,9 @@
 namespace cacheutils {
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf,FastVerticalInterpHistPdfV> CachingHistPdf;
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf2,FastVerticalInterpHistPdf2V> CachingHistPdf2;
+    typedef OptimizedCachingPdfT<CMSHistFunc, CMSHistFuncV> CachingCMSHistFunc;
+    typedef OptimizedCachingPdfT<CMSHistFuncWrapper, CMSHistFuncWrapperV> CachingCMSHistFuncWrapper;
+    typedef OptimizedCachingPdfT<CMSHistErrorPropagator, CMSHistErrorPropagatorV> CachingCMSHistErrorPropagator;
     typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
     typedef OptimizedCachingPdfT<RooCBShape,VectorizedCBShape> CachingCBPdf;
     typedef OptimizedCachingPdfT<RooExponential,VectorizedExponential> CachingExpoPdf;
@@ -49,7 +54,7 @@ namespace cacheutils {
 //#define TRACE_NLL_EVAL_COUNT
 
 //---- Uncomment this and run with --perfCounters to get cache statistics
-//#define DEBUG_CACHE
+#define DEBUG_CACHE
 
 //---- Uncomment to dump PDF values inside CachingAddNLL
 //#define LOG_ADDPDFS
@@ -304,7 +309,7 @@ cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> 
 #endif
     //std::cout << "CachingPdf::realFill_ called for " << pdf_->GetName() << " (" << pdf_->ClassName() << ")\n";
     //utils::printPdf((RooAbsPdf*)pdf_);
-    
+    // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
     int n = data.numEntries();
     vals.resize(nonZeroWEntries_); // should be a no-op if size is already >= n.
     std::vector<Double_t>::iterator itv = vals.begin();
@@ -440,6 +445,7 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
     static bool gaussNll  = runtimedef::get("ADDNLL_GAUSSNLL");
     static bool multiNll  = runtimedef::get("ADDNLL_MULTINLL");
     static bool prodNll  = runtimedef::get("ADDNLL_PRODNLL");
+    static bool histfuncNll  = runtimedef::get("ADDNLL_HISTFUNCNLL");
     static bool cbNll  = runtimedef::get("ADDNLL_CBNLL");
     static bool hfNll  = runtimedef::get("ADDNLL_HFNLL");
     static bool verb  = runtimedef::get("ADDNLL_VERBOSE_CACHING");
@@ -471,6 +477,12 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
         return new OptimizedCachingPdfT<ParamHistFunc,VectorizedParamHistFunc>(pdf, obs);
     } else if (hfNll && typeid(*pdf) == typeid(PiecewiseInterpolation)) {
         return new CachingPiecewiseInterpolation(static_cast<PiecewiseInterpolation&>(*pdf), *obs);
+    } else if (histfuncNll && typeid(*pdf) == typeid(CMSHistFunc)) {
+        return new CachingCMSHistFunc(pdf, obs);
+    } else if (histfuncNll && typeid(*pdf) == typeid(CMSHistFuncWrapper)) {
+        return new CachingCMSHistFuncWrapper(pdf, obs);
+    } else if (histfuncNll && typeid(*pdf) == typeid(CMSHistErrorPropagator)) {
+        return new CachingCMSHistErrorPropagator(pdf, obs);
     } else {
         if (verb) {
             std::cout << "I don't have an optimized implementation for " << pdf->ClassName() << " (" << pdf->GetName() << ")" << std::endl;
@@ -566,6 +578,8 @@ cacheutils::CachingAddNLL::setIncludeZeroWeights(bool includeZeroWeights)
 Double_t 
 cacheutils::CachingAddNLL::evaluate() const 
 {
+    // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
+
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingAddNLL::evaluate called");
 #endif
@@ -933,6 +947,7 @@ cacheutils::CachingSimNLL::setup_()
 Double_t 
 cacheutils::CachingSimNLL::evaluate() const 
 {
+    LAUNCH_FUNCTION_TIMER(__timer__, __token__)
     TRACE_POINT(params_)
 #ifdef TRACE_NLL_EVAL_COUNT
     ::CachingSimNLLEvalCount++;
@@ -956,6 +971,7 @@ cacheutils::CachingSimNLL::evaluate() const
             ret += nllval;
         }
     }
+
     if (!constrainPdfs_.empty() || !constrainPdfsFast_.empty()) {
         DefaultAccumulator ret2 = 0;
         /// ============= GENERIC CONSTRAINTS  =========

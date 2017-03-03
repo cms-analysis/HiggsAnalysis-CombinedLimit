@@ -254,6 +254,7 @@ int main(int argc, char **argv) {
   runtimedef::set("ADDNLL_ROOREALSUM_KEEPZEROS",1);
   runtimedef::set("ADDNLL_PRODNLL",1);
   runtimedef::set("ADDNLL_HFNLL",1);
+  runtimedef::set("ADDNLL_HISTFUNCNLL",1);
   runtimedef::set("ADDNLL_ROOREALSUM_CHEAPPROD",1);
  
 

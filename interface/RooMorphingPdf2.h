@@ -17,6 +17,8 @@
 #include "Rtypes.h"
 #include "TH1F.h"
 
+class CMSHistFuncV;
+
 class CMSHistFunc : public RooAbsReal {
  private:
   struct GlobalCache {
@@ -91,6 +93,8 @@ class CMSHistFunc : public RooAbsReal {
   inline FastTemplate const& getBinErrors() const { return binerrors_; }
   inline FastHisto const& getCacheHisto() const { return cache_; }
 
+  friend class CMSHistFuncV;
+
   /*
 
   – RooAbsArg::setVerboseEval(Int_t level) • Level 0 – No messages
@@ -136,6 +140,9 @@ class CMSHistFunc : public RooAbsReal {
   ClassDef(CMSHistFunc, 1)
 };
 
+class CMSHistErrorPropagatorV;
+
+
 class CMSHistErrorPropagator : public RooAbsReal {
 public:
   CMSHistErrorPropagator();
@@ -145,7 +152,7 @@ public:
   // [0] = Nothing
   // [1] = Barlow-Beeston
   // [2] = Mixed
-  CMSHistErrorPropagator(const char* name, const char* title,
+  CMSHistErrorPropagator(const char* name, const char* title, RooRealVar& x,
                          RooArgList const& funcs, RooArgList const& coeffs);
 
   CMSHistErrorPropagator(CMSHistErrorPropagator const& other, const char* name = 0);
@@ -161,7 +168,7 @@ public:
   // std::vector<double> const& getErrorAdditions(unsigned idx);
   void applyErrorShifts(unsigned idx, FastHisto const& nominal, FastHisto & result);
 
-  Double_t evaluate() const { return 0.; }
+  Double_t evaluate() const;
 
   RooArgList * setupBinPars();
 
@@ -170,37 +177,50 @@ public:
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
                       TString indent) const;
 
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
+                              const char* rangeName = 0) const;
+
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+
+  friend class CMSHistErrorPropagatorV;
+
  protected:
+  RooRealProxy x_;
   RooListProxy funcs_;
   RooListProxy coeffs_;
   RooListProxy binpars_;
-  std::vector<CMSHistFunc const*> vfuncs_; //!
-  std::vector<RooAbsReal const*> vcoeffs_; //!
-  std::vector<RooAbsReal const*> vbinpars_; //!
+  mutable std::vector<CMSHistFunc const*> vfuncs_; //!
+  mutable std::vector<RooAbsReal const*> vcoeffs_; //!
+  mutable std::vector<RooAbsReal *> vbinpars_; //!
   std::vector<unsigned> bintypes_;
 
-  std::vector<double> coeffvals_; //!
-  std::vector<std::vector<double>> valvec_; //!
-  std::vector<std::vector<double>> err2vec_; //!
-  std::vector<double> valsum_; //!
-  std::vector<double> err2sum_; //!
-  std::vector<double> toterr_; //!
-  std::vector<std::vector<double>> binmods_; //!
-  std::vector<std::vector<double>> scaledbinmods_; //!
+  mutable std::vector<double> coeffvals_; //!
+  mutable std::vector<std::vector<double>> valvec_; //!
+  mutable std::vector<std::vector<double>> err2vec_; //!
+  mutable FastHisto valsum_; //!
+  mutable FastHisto scaledvalsum_; //!
+  mutable std::vector<double> err2sum_; //!
+  mutable std::vector<double> toterr_; //!
+  mutable std::vector<std::vector<double>> binmods_; //!
+  mutable std::vector<std::vector<double>> scaledbinmods_; //!
   mutable SimpleCacheSentry sentry_; //!
   mutable SimpleCacheSentry binsentry_; //!
+  mutable std::vector<double> data_; //!
 
   int v;
   mutable bool initialized_; //! not to be serialized
 
 
-  void initialize();
-  void fillSumAndErr();
+  void initialize() const;
+  void fillSumAndErr(int eval = 0) const;
 
 
  private:
   ClassDef(CMSHistErrorPropagator,1)
 };
+
+class CMSHistFuncWrapperV;
+
 
 class CMSHistFuncWrapper : public RooAbsReal {
  public:
@@ -230,6 +250,8 @@ class CMSHistFuncWrapper : public RooAbsReal {
 
   void updateCache() const;
 
+  friend class CMSHistFuncWrapperV;
+
  protected:
   RooRealProxy x_;
   RooRealProxy func_;
@@ -247,8 +269,60 @@ class CMSHistFuncWrapper : public RooAbsReal {
   mutable bool initialized_; //! not to be serialized
 
   void initialize() const;
+};
 
+class CMSHistFuncV {
+ public:
+  CMSHistFuncV(const CMSHistFunc &,
+                              const RooAbsData& data,
+                              bool includeZeroWeights = false);
+  void fill(std::vector<Double_t>& out) const;
 
+ private:
+  const CMSHistFunc& hpdf_;
+  int begin_, end_, nbins_;
+  struct Block {
+    int index, begin, end;
+    Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}
+  };
+  std::vector<Block> blocks_;
+  std::vector<int> bins_;
+};
+
+class CMSHistFuncWrapperV {
+ public:
+  CMSHistFuncWrapperV(const CMSHistFuncWrapper &,
+                              const RooAbsData& data,
+                              bool includeZeroWeights = false);
+  void fill(std::vector<Double_t>& out) const;
+
+ private:
+  const CMSHistFuncWrapper& hpdf_;
+  int begin_, end_, nbins_;
+  struct Block {
+    int index, begin, end;
+    Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}
+  };
+  std::vector<Block> blocks_;
+  std::vector<int> bins_;
+};
+
+class CMSHistErrorPropagatorV {
+ public:
+  CMSHistErrorPropagatorV(const CMSHistErrorPropagator &,
+                              const RooAbsData& data,
+                              bool includeZeroWeights = false);
+  void fill(std::vector<Double_t>& out) const;
+
+ private:
+  const CMSHistErrorPropagator& hpdf_;
+  int begin_, end_, nbins_;
+  struct Block {
+    int index, begin, end;
+    Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}
+  };
+  std::vector<Block> blocks_;
+  std::vector<int> bins_;
 };
 
 #endif

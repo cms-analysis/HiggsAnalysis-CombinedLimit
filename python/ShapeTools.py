@@ -48,6 +48,8 @@ class ShapeBuilder(ModelBuilder):
             coeffs = ROOT.RooArgList(); bgcoeffs = ROOT.RooArgList()
             wrapperpdfs = ROOT.RooArgList()
             wrapperbgpdfs = ROOT.RooArgList()
+            binconstraints = ROOT.RooArgList()
+            bbb_args = None
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
@@ -59,7 +61,7 @@ class ShapeBuilder(ModelBuilder):
                         self.out.dont_delete.append(pdf1)
                         pdf = pdf1
                 extranorm = self.getExtraNorm(b,p)
-                if extranorm and self.options.newHist in [0, 2, 3]:
+                if extranorm and self.options.newHist in [0, 2, 3, 4, 5, 6]:
                     prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                     for X in extranorm: prodset.add(self.out.function(X))
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
@@ -76,13 +78,32 @@ class ShapeBuilder(ModelBuilder):
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
             if self.options.newHist >= 1:
-                if self.options.newHist in [3]:
-                    prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", pdfs, coeffs)
+                if self.options.newHist in [3, 4, 5, 6]:
+                    prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", self.out.binVar, pdfs, coeffs)
+                    if self.options.newHist in [4, 5, 6]:
+                        bbb_args = prop.setupBinPars()
+                        bbb_args.Print()
+                        for bidx in range(bbb_args.getSize()):
+                            n = bbb_args.at(bidx).GetName()
+                            self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %s" % (n,'[-4,4]',n,'-4,4', '1.0'),True)
+                            binconstraints.add(self.out.pdf('%s_Pdf' % n))
+                            self.out.var(n).setVal(0)
+                            self.out.var(n).setError(1)
+                            self.out.var(n).setAttribute("optimizeBounds")
+                            if self.options.newHist in [6]:
+                                self.out.var(n).setConstant(True)
+                            self.out.var("%s_In" % n).setConstant(True)
                     for idx in xrange(pdfs.getSize()):
                         wrapperpdfsL.append(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', self.out.binVar, pdfs.at(idx), prop, idx))
                         wrapperpdfs.add(wrapperpdfsL[-1])
                     print 'done'
-                    sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", wrapperpdfs,   coeffs, True)
+                    if self.options.newHist in [5, 6]:
+                        if not self.out.var('ONE'):
+                            self.doVar('ONE[1.0]')
+                        sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", ROOT.RooArgList(prop),   ROOT.RooArgList(self.out.var('ONE')), True)
+                    else:
+                        sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", wrapperpdfs,   coeffs, True)
+
                 else:
                     sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", pdfs,   coeffs, True)
             else:
@@ -105,10 +126,13 @@ class ShapeBuilder(ModelBuilder):
                 # now we multiply by all the nuisances, but avoiding nested products
                 # so we first make a list of all nuisances plus the RooAddPdf
                 sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_s.add(sum_s)
+                pdf_bins = ROOT.RooProdPdf('pdfbins_bin%s' % b, '', binconstraints)
+                sumPlusNuis_s.add(pdf_bins)
                 # then make RooProdPdf and import it
                 pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s) 
                 if not self.options.noBOnly:
                     sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_b.add(sum_b)
+                    sumPlusNuis_b.add(pdf_bins)
                     pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
                 if b in self.pdfModes: 
                     pdf_s.setAttribute('forceGen'+self.pdfModes[b].title())
@@ -459,7 +483,7 @@ class ShapeBuilder(ModelBuilder):
                         if self.options.newHist in [1]:
                             rhp.setShape(0, 0, i+1, 0, rebins[2 + i*2])
                             rhp.setShape(0, 0, i+1, 1, rebins[1 + i*2])
-                        elif self.options.newHist in [2, 3]:
+                        elif self.options.newHist in [2, 3, 4, 5, 6]:
                             renormLo = rebins[2 + i*2].Clone()
                             if renormLo.Integral() > 0.:
                                 renormLo.Scale(rebins[0].Integral() / renormLo.Integral())
@@ -560,6 +584,7 @@ class ShapeBuilder(ModelBuilder):
         rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", self.out.maxbins, 0.0, float(self.out.maxbins))
         for i in range(1,min(shape.GetNbinsX(),self.out.maxbins)+1): 
             rebinh1.SetBinContent(i, shape.GetBinContent(i))
+            rebinh1.SetBinError(i, shape.GetBinError(i))
         rebinh1._original_bins = shape.GetNbinsX()
         return rebinh1;
     def shape2Data(self,shape,channel,process,_cache={}):
