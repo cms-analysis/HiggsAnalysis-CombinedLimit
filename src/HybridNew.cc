@@ -93,7 +93,7 @@ float       HybridNew::adaptiveToys_ = -1;
 bool        HybridNew::reportPVal_ = false;
 float HybridNew::confidenceToleranceForToyScaling_ = 0.2;
 float HybridNew::maxProbability_ = 0.999;
-#define EPS 1e-6
+double HybridNew::EPS = 1e-4;
  
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
@@ -195,7 +195,9 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
 
 void HybridNew::applyDefaultOptions() { 
     workingMode_ = MakeLimit;
-    validateOptions(); 
+    validateOptions();
+
+    EPS = ROOT::Math::MinimizerOptions::DefaultTolerance();
 }
 
 void HybridNew::validateOptions() {
