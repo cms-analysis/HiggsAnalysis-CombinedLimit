@@ -100,7 +100,7 @@ Combine::Combine() :
       ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
       ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
       ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
-      ("lhcSignificance", "Compute significance instead of upper limit (works only for some methods)")
+      ("significance", "Compute significance instead of upper limit (works only for some methods)")
       ("lowerLimit",   "Compute the lower limit instead of the upper limit (works only for some methods)")
       ("hintStatOnly", "Ignore systematics when computing the hint")
       ("toysNoSystematics", "Generate all toys with the central value of the nuisance parameters, without fluctuating them")
@@ -160,7 +160,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   if (unbinned_ && generateBinnedWorkaround_) throw std::logic_error("You can't set generateBinnedWorkaround and unbinned options at the same time");
   guessGenMode_ = vm.count("guessGenMode");
   compiledExpr_ = vm.count("compile"); if (compiledExpr_) makeTempDir_ = true;
-  doSignificance_ = vm.count("lhcSignificance");
+  doSignificance_ = vm.count("significance");
   lowerLimit_     = vm.count("lowerLimit");
   hintUsesStatOnly_ = vm.count("hintStatOnly");
   saveWorkspace_ = vm.count("saveWorkspace");
