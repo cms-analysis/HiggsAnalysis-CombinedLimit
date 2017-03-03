@@ -272,11 +272,12 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
 
        if (!robustFit_) {
             if (do95_) {
+	    	int badFitResult = -1;
                 throw std::runtime_error("95% CL errors with Minos are not working at the moment.");
                 minim.setErrorLevel(delta95);
                 minim.improve(verbose-1);
                 minim.setErrorLevel(delta95);
-                if (minim.minos(RooArgSet(r)) != -1) {
+                if (minim.minos(RooArgSet(r)) != badFitResult) {
                     rf.setRange("err95", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                 }
                 minim.setErrorLevel(delta68);

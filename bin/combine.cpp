@@ -16,7 +16,7 @@
 #include "../interface/BayesianToyMC.h"
 #include "../interface/MarkovChainMC.h"
 #include "../interface/FeldmanCousins.h"
-#include "../interface/MaxLikelihoodFit.h"
+#include "../interface/FitDiagnostics.h"
 #include "../interface/Asymptotic.h"
 #include "../interface/AsymptoticNew.h"
 #include "../interface/GoodnessOfFit.h"
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
   algo = new MarkovChainMC();  methods.insert(make_pair(algo->name(), algo));
   algo = new HybridNew();  methods.insert(make_pair(algo->name(), algo));
   algo = new FeldmanCousins();  methods.insert(make_pair(algo->name(), algo));
-  algo = new MaxLikelihoodFit();  methods.insert(make_pair(algo->name(), algo));
+  algo = new FitDiagnostics();  methods.insert(make_pair(algo->name(), algo));
   algo = new Asymptotic();  methods.insert(make_pair(algo->name(), algo));
   algo = new AsymptoticNew();  methods.insert(make_pair(algo->name(), algo));
   algo = new GoodnessOfFit();  methods.insert(make_pair(algo->name(), algo));
@@ -122,6 +122,7 @@ int main(int argc, char **argv) {
     cout << desc;
     map<string, LimitAlgo *>::const_iterator i;
     for(i = methods.begin(); i != methods.end(); ++i) {
+        if ( vm0.count("method") && whichMethod.compare(i->second->name())!=0 ) continue;
         cout << i->second->options() << "\n";
     }
     return 0;
@@ -172,7 +173,7 @@ int main(int argc, char **argv) {
       cerr << "Error when configuring the algorithm " << whichMethod << ":\n\t" << ex.what() << std::endl;
       return 2002;
   }
-  cout << ">>> method used to compute upper limit is " << whichMethod << endl;
+  cout << ">>> method used is " << whichMethod << endl;
 
   if (!whichHintMethod.empty()) {
       map<string, LimitAlgo *>::const_iterator it_hint = methods.find(whichHintMethod);

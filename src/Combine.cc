@@ -100,7 +100,7 @@ Combine::Combine() :
       ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
       ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
       ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
-      ("significance", "Compute significance instead of upper limit (works only for some methods)")
+      ("lhcSignificance", "Compute significance instead of upper limit (works only for some methods)")
       ("lowerLimit",   "Compute the lower limit instead of the upper limit (works only for some methods)")
       ("hintStatOnly", "Ignore systematics when computing the hint")
       ("toysNoSystematics", "Generate all toys with the central value of the nuisance parameters, without fluctuating them")
@@ -160,7 +160,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   if (unbinned_ && generateBinnedWorkaround_) throw std::logic_error("You can't set generateBinnedWorkaround and unbinned options at the same time");
   guessGenMode_ = vm.count("guessGenMode");
   compiledExpr_ = vm.count("compile"); if (compiledExpr_) makeTempDir_ = true;
-  doSignificance_ = vm.count("significance");
+  doSignificance_ = vm.count("lhcSignificance");
   lowerLimit_     = vm.count("lowerLimit");
   hintUsesStatOnly_ = vm.count("hintStatOnly");
   saveWorkspace_ = vm.count("saveWorkspace");
@@ -178,7 +178,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   saveToys_ = vm.count("saveToys");
   validateModel_ = vm.count("validateModel");
   const std::string &method = vm["method"].as<std::string>();
-  if (method == "MultiDimFit" || ( method == "MaxLikelihoodFit" && vm.count("justFit")) || method == "MarkovChainMC") {
+  if (method == "MultiDimFit" || ( method == "FitDiagnostics" && vm.count("justFit")) || method == "MarkovChainMC") {
     //CMSDAS new default,
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
     if (vm["noDefaultPrior"].defaulted()) noDefaultPrior_ = 1;
@@ -265,7 +265,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
-    if (algo->name() == "MaxLikelihoodFit" || algo->name() == "MultiDimFit") options += " --for-fits";
+    if (algo->name() == "FitDiagnostics" || algo->name() == "MultiDimFit") options += " --for-fits";
     for(auto lib2l : librariesToLoad_ ) { options += TString::Format(" --LoadLibrary %s", lib2l.c_str() ); }
     //-- Text mode: old default
     //int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -o "+tmpFile+".hlf"); 
@@ -688,7 +688,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
   // Should have the PDF at this point, if not something is really odd?
   if (!(mc->GetPdf())){
-	std::cerr << " FATAL ERROR! PDF not found in ModelConfig (this could be due to having no systematics and running -M MaxLikelihood). \n Try to build the workspace first with text2workspace.py and run with the binary output." << std::endl;
+	std::cerr << " FATAL ERROR! PDF not found in ModelConfig. \n Try to build the workspace first with text2workspace.py and run with the binary output." << std::endl;
 	assert(0);
   }
 

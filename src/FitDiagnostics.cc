@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/MaxLikelihoodFit.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FitDiagnostics.h"
 #include "RooMinimizer.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
@@ -33,30 +33,29 @@
 #include <iomanip>
 using namespace RooStats;
 
-std::string MaxLikelihoodFit::name_ = "";
-std::string MaxLikelihoodFit::minos_ = "poi";
-std::string MaxLikelihoodFit::out_ = ".";
-bool        MaxLikelihoodFit::makePlots_ = false;
-bool        MaxLikelihoodFit::saveWorkspace_ = false;
-float       MaxLikelihoodFit::rebinFactor_ = 1.0;
-int         MaxLikelihoodFit::numToysForShapes_ = 200;
-std::string MaxLikelihoodFit::signalPdfNames_     = "shapeSig*";
-std::string MaxLikelihoodFit::filterString_     = "";
-std::string MaxLikelihoodFit::backgroundPdfNames_ = "shapeBkg*";
-bool        MaxLikelihoodFit::saveNormalizations_ = false;
-bool        MaxLikelihoodFit::oldNormNames_ = false;
-bool        MaxLikelihoodFit::saveShapes_ = false;
-bool        MaxLikelihoodFit::saveOverallShapes_ = false;
-bool        MaxLikelihoodFit::saveWithUncertainties_ = false;
-bool        MaxLikelihoodFit::justFit_ = false;
-bool        MaxLikelihoodFit::skipBOnlyFit_ = false;
-bool        MaxLikelihoodFit::noErrors_ = false;
-bool        MaxLikelihoodFit::reuseParams_ = false;
-bool        MaxLikelihoodFit::customStartingPoint_ = false;
+std::string FitDiagnostics::name_ = "";
+std::string FitDiagnostics::minos_ = "poi";
+std::string FitDiagnostics::out_ = ".";
+bool        FitDiagnostics::makePlots_ = false;
+float       FitDiagnostics::rebinFactor_ = 1.0;
+int         FitDiagnostics::numToysForShapes_ = 200;
+std::string FitDiagnostics::signalPdfNames_     = "shapeSig*";
+std::string FitDiagnostics::filterString_     = "";
+std::string FitDiagnostics::backgroundPdfNames_ = "shapeBkg*";
+bool        FitDiagnostics::saveNormalizations_ = false;
+bool        FitDiagnostics::oldNormNames_ = false;
+bool        FitDiagnostics::saveShapes_ = false;
+bool        FitDiagnostics::saveOverallShapes_ = false;
+bool        FitDiagnostics::saveWithUncertainties_ = false;
+bool        FitDiagnostics::justFit_ = false;
+bool        FitDiagnostics::skipBOnlyFit_ = false;
+bool        FitDiagnostics::noErrors_ = false;
+bool        FitDiagnostics::reuseParams_ = false;
+bool        FitDiagnostics::customStartingPoint_ = false;
 
 
-MaxLikelihoodFit::MaxLikelihoodFit() :
-    FitterAlgoBase("MaxLikelihoodFit specific options"),
+FitDiagnostics::FitDiagnostics() :
+    FitterAlgoBase("FitDiagnostics specific options"),
     globalObservables_(0),
     nuisanceParameters_(0),
     processNormalizations_(0),
@@ -64,45 +63,44 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
     t_fit_sb_(nullptr)
 {
     options_.add_options()
-        ("minos",              boost::program_options::value<std::string>(&minos_)->default_value(minos_), "Compute MINOS errors for: 'none', 'poi', 'all'")
-        ("out",                boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put output in")
-        ("plots",              "Make plots")
-        ("rebinFactor",        boost::program_options::value<float>(&rebinFactor_)->default_value(rebinFactor_), "Rebin by this factor before plotting (does not affect fitting!)")
-        ("signalPdfNames",     boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ,)")
-        ("backgroundPdfNames", boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
+        ("minos",              	boost::program_options::value<std::string>(&minos_)->default_value(minos_), "Compute MINOS errors for: 'none', 'poi', 'all'")
+        ("noErrors",  	       	"Don't compute uncertainties on the best fit value. Best if using toys (-t N) to evaluate distributions of results")
+        ("out",                	boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
+        ("plots",              	"Make pre/post-fit RooPlots of 1D distributions of observables and fitted models")
+        ("rebinFactor",        	boost::program_options::value<float>(&rebinFactor_)->default_value(rebinFactor_), "Rebin by this factor before plotting (does not affect fitting!)")
+        ("signalPdfNames",     	boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ,)")
+        ("backgroundPdfNames", 	boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
         ("saveNormalizations",  "Save post-fit normalizations of all components of the pdfs")
-        ("oldNormNames",  "Name the normalizations as in the workspace, and not as channel/process")
-//        ("saveWorkspace",       "Save post-fit pdfs and data to MaxLikelihoodFitResults.root")
-        ("saveShapes",  "Save post-fit binned shapes")
-        ("saveOverallShapes",  "Save total shapes (and covariance if used with saveWithUncertainties) across all channels")
-        ("saveWithUncertainties",  "Save also post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
-        ("numToysForShapes", boost::program_options::value<int>(&numToysForShapes_)->default_value(numToysForShapes_),  "Choose number of toys for re-sampling of the covariance (for shapes with uncertainties)")
-        ("filterString", boost::program_options::value<std::string>(&filterString_)->default_value(filterString_), "Filter to search for when making covariance and shapes")
-        ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
-        ("skipBOnlyFit",  "Skip the B-only fit (do only the S+B fit)")
-        ("noErrors",  "Don't compute uncertainties on the best fit value")
-        ("initFromBonly",  "Use the values of the nuisance parameters from the background only fit as the starting point for the s+b fit")
-        ("customStartingPoint",  "Don't set the signal model parameters to zero before the fit")
+        ("oldNormNames",  	"Name the normalizations as in the workspace, and not as channel/process")
+        ("saveShapes",  	"Save pre and post-fit distributions as TH1 in fitDiagnostics.root")
+        ("saveWithUncertainties",  "Save also pre/post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
+        ("saveOverallShapes",  "Save total shapes (and covariance if used with --saveWithUncertainties), ie will produce TH1 (TH2) merging bins across all channels")
+        ("numToysForShapes", 	boost::program_options::value<int>(&numToysForShapes_)->default_value(numToysForShapes_),  "Choose number of toys for re-sampling of the covariance (for shapes with uncertainties)")
+        ("filterString",	boost::program_options::value<std::string>(&filterString_)->default_value(filterString_), "Filter to search for when making covariance and shapes")
+        ("justFit",  		"Just do the S+B fit, don't do the B-only one, don't save output file")
+        ("skipBOnlyFit",  	"Skip the B-only fit (do only the S+B fit)")
+        ("initFromBonly",  	"Use the values of the nuisance parameters from the background only fit as the starting point for the s+b fit. Can help fit convergence")
+        ("customStartingPoint", "Don't set the signal model parameters to zero before the fit. Can help fit convergence")
    ;
 
     // setup a few defaults
     currentToy_=0; nToys=0; fitStatus_=0; mu_=0; muLoErr_=0; muHiErr_=0; numbadnll_=-1; nll_nll0_=-1; nll_bonly_=-1; nll_sb_=-1;
 }
 
-MaxLikelihoodFit::~MaxLikelihoodFit(){
+FitDiagnostics::~FitDiagnostics(){
    // delete the Arrays used to fill the trees;
    delete globalObservables_;
    delete nuisanceParameters_;
    delete processNormalizations_;
 }
 
-void MaxLikelihoodFit::setToyNumber(const int iToy){
+void FitDiagnostics::setToyNumber(const int iToy){
 	currentToy_ = iToy;
 }
-void MaxLikelihoodFit::setNToys(const int iToy){
+void FitDiagnostics::setNToys(const int iToy){
 	nToys = iToy;
 }
-void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map &vm) 
+void FitDiagnostics::applyOptions(const boost::program_options::variables_map &vm) 
 {
     applyOptionsBase(vm);
     makePlots_ = vm.count("plots");
@@ -112,18 +110,16 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
     saveNormalizations_  = saveShapes_ || vm.count("saveNormalizations");
     oldNormNames_  = vm.count("oldNormNames");
     saveWithUncertainties_  = vm.count("saveWithUncertainties");
-    saveWorkspace_ = vm.count("saveWorkspace");
     justFit_  = vm.count("justFit");
     skipBOnlyFit_ = vm.count("skipBOnlyFit");
     noErrors_ = vm.count("noErrors");
     reuseParams_ = vm.count("initFromBonly");
     customStartingPoint_ = vm.count("customStartingPoint");
      
-    if (justFit_) { out_ = "none"; makePlots_ = false; saveNormalizations_ = false; reuseParams_ = false;}
-    // For now default this to true;
+    if (justFit_) { out_ = "none"; makePlots_ = false; saveNormalizations_ = false; reuseParams_ = false, skipBOnlyFit_ = true;}
 }
 
-bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
 
   if (reuseParams_ && minos_!="none"){
 	std::cout << "Cannot reuse b-only fit params when running minos. Parameters will be reset when running S+B fit"<<std::endl;
@@ -132,7 +128,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
   if (!justFit_ && out_ != "none"){
 	if (currentToy_ < 1){
-		fitOut.reset(TFile::Open((out_+"/mlfit"+name_+".root").c_str(), "RECREATE")); 
+		fitOut.reset(TFile::Open((out_+"/fitDiagnostics"+name_+".root").c_str(), "RECREATE")); 
 		createFitResultTrees(*mc_s,withSystematics);
 	}
   }
@@ -199,6 +195,10 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   const RooCmdArg &constCmdArg_s = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1); // use something dummy 
   //const RooCmdArg &minosCmdArg = minos_ == "poi" ?  RooFit::Minos(*mc_s->GetParametersOfInterest())   : RooFit::Minos(minos_ != "none");  //--> dont use fitTo!
   w->loadSnapshot("clean");
+
+
+  /* Background only fit (first POI set to customStartingPoint or 0) ****************************************************************/
+
   if (!customStartingPoint_) r->setVal(0.0); 
   r->setConstant(true);
 
@@ -274,6 +274,9 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   // no longer need res_b
   delete res_b;
 
+  /**********************************************************************************************************************************/
+  /* S+B fit (Signal parameters free to float ) *************************************************************************************/
+
   if (!reuseParams_) w->loadSnapshot("clean"); // Reset, also ensures nll_prefit is same in call to doFit for b and s+b
   r->setVal(preFitValue_); r->setConstant(false); 
   if (minos_ != "all") {
@@ -288,6 +291,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     if (res_s) nll_sb_= nll->getVal()-nll0;
 
   }
+  /**********************************************************************************************************************************/
   if (res_s) { 
       limit    = r->getVal();
       limitErr = r->getError();
@@ -375,17 +379,17 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
 	limit = bestFitVal;
 	limitErr = maxError;
-	std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
+	std::cout << "\n --- FitDiagnostics ---" << std::endl;
 	std::cout << "Best fit " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr << "/+" << +hiErr << "  (68% CL)" << std::endl;
 	if (do95_) {
 	  std::cout << "         " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr95 << "/+" << +hiErr95 << "  (95% CL)" << std::endl;
 	}
       } else {
-      	std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
+      	std::cout << "\n --- FitDiagnostics ---" << std::endl;
       	std::cout << "Done! fit s+b and fit b should be identical" << std::endl;
       }
   } else {
-      std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
+      std::cout << "\n --- FitDiagnostics ---" << std::endl;
       std::cout << "Fit failed."  << std::endl;
   }
   if (t_fit_sb_) t_fit_sb_->Fill();
@@ -402,19 +406,21 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   bool fitreturn = (res_s!=0);
   delete res_s;
 
+  /*
   if(saveWorkspace_){
-	  RooWorkspace *ws = new RooWorkspace("MaxLikelihoodFitResult");
+	  RooWorkspace *ws = new RooWorkspace("FitDiagnosticsResult");
 	  ws->import(*mc_s->GetPdf());
 	  ws->import(data);
-	  std::cout << "Saving pdfs and data to MaxLikelihoodFitResult.root" << std::endl;
-	  ws->writeToFile("MaxLikelihoodFitResult.root");
+	  std::cout << "Saving pdfs and data to FitDiagnosticsResult.root" << std::endl;
+	  ws->writeToFile("FitDiagnosticsResult.root");
   }
-  std::cout << "nll S+B -> "<<nll_sb_ << "  nll B -> " << nll_bonly_ <<std::endl;
+  */
+
   return fitreturn;
 }
 
-void MaxLikelihoodFit::getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out) {
-    std::cout << " Someone called MaxLikelihoodFit::getNormalizationsSimple but the order of the set returned will be different from any use case so far, do you really want to use it? " << std::endl;
+void FitDiagnostics::getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out) {
+    std::cout << " Someone called FitDiagnostics::getNormalizationsSimple but the order of the set returned will be different from any use case so far, do you really want to use it? " << std::endl;
     assert(0);
     RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(pdf);
     if (sim != 0) {
@@ -445,7 +451,7 @@ void MaxLikelihoodFit::getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &
         return;
     }
 }
-void MaxLikelihoodFit::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std::map<std::string,ShapeAndNorm> &out, const std::string &channel) {
+void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std::map<std::string,ShapeAndNorm> &out, const std::string &channel) {
     RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(pdf);
     if (sim != 0) {
         RooAbsCategoryLValue &cat = const_cast<RooAbsCategoryLValue &>(sim->indexCat());
@@ -486,7 +492,7 @@ void MaxLikelihoodFit::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, s
     }
 }
 
-void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out, NuisanceSampler & sampler, TDirectory *fOut, const std::string &postfix,RooAbsData &data) {
+void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out, NuisanceSampler & sampler, TDirectory *fOut, const std::string &postfix,RooAbsData &data) {
     // fill in a map
     std::map<std::string,ShapeAndNorm> snm;
     getShapesAndNorms(pdf,obs, snm, "");
@@ -814,8 +820,8 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
 }
 
 
-//void MaxLikelihoodFit::setFitResultTrees(const RooArgSet *args, std::vector<double> *vals){
-void MaxLikelihoodFit::setFitResultTrees(const RooArgSet *args, double * vals){
+//void FitDiagnostics::setFitResultTrees(const RooArgSet *args, std::vector<double> *vals){
+void FitDiagnostics::setFitResultTrees(const RooArgSet *args, double * vals){
 	
          TIterator* iter(args->createIterator());
 	 int count=0;
@@ -830,7 +836,7 @@ void MaxLikelihoodFit::setFitResultTrees(const RooArgSet *args, double * vals){
 	 return;
 }
 
-void MaxLikelihoodFit::setNormsFitResultTrees(const RooArgSet *args, double * vals){
+void FitDiagnostics::setNormsFitResultTrees(const RooArgSet *args, double * vals){
 	
          TIterator* iter(args->createIterator());
 	 int count=0;
@@ -846,9 +852,11 @@ void MaxLikelihoodFit::setNormsFitResultTrees(const RooArgSet *args, double * va
 	 return;
 }
 
-void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, bool withSys){
+void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool withSys){
 
 	 // Initiate the arrays to store parameters
+
+	 std::string poiName = (dynamic_cast<RooRealVar *>(mc.GetParametersOfInterest()->first()))->GetName();
 
 	 // create TTrees to store fit results:
 	 t_fit_b_  = new TTree("tree_fit_b","tree_fit_b");
@@ -857,17 +865,17 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
     	 t_fit_b_->Branch("fit_status",&fitStatus_,"fit_status/Int_t");
    	 t_fit_sb_->Branch("fit_status",&fitStatus_,"fit_status/Int_t");
 
-	 t_fit_b_->Branch("mu",&mu_,"mu/Double_t");
-	 t_fit_sb_->Branch("mu",&mu_,"mu/Double_t");
+	 t_fit_b_->Branch(poiName.c_str(),&mu_,Form("%s/Double_t",poiName.c_str()));
+	 t_fit_sb_->Branch(poiName.c_str(),&mu_,Form("%s/Double_t",poiName.c_str()));
+	 
+	 t_fit_b_->Branch(Form("%sErr",poiName.c_str()),&muErr_,Form("%sErr/Double_t",poiName.c_str()));
+	 t_fit_sb_->Branch(Form("%sErr",poiName.c_str()),&muErr_,Form("%sErr/Double_t",poiName.c_str()));
 
-	 t_fit_b_->Branch("muErr",&muErr_,"muErr/Double_t");
-	 t_fit_sb_->Branch("muErr",&muErr_,"muErr/Double_t");
+	 t_fit_b_->Branch(Form("%sLoErr",poiName.c_str()),&muLoErr_,Form("%sLoErr/Double_t",poiName.c_str()));
+	 t_fit_sb_->Branch(Form("%sLoErr",poiName.c_str()),&muLoErr_,Form("%sLoErr/Double_t",poiName.c_str()));
 
-	 t_fit_b_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");
-	 t_fit_sb_->Branch("muLoErr",&muLoErr_,"muLoErr/Double_t");
-
-	 t_fit_b_->Branch("muHiErr",&muHiErr_,"muHiErr/Double_t");
-	 t_fit_sb_->Branch("muHiErr",&muHiErr_,"muHiErr/Double_t");
+	 t_fit_b_->Branch(Form("%sHiErr",poiName.c_str()),&muHiErr_,Form("%sHiErr/Double_t",poiName.c_str()));
+	 t_fit_sb_->Branch(Form("%sHiErr",poiName.c_str()),&muHiErr_,Form("%sHiErr/Double_t",poiName.c_str()));
 
 	 t_fit_b_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
 	 t_fit_sb_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
@@ -936,31 +944,31 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, boo
          }
          delete norms;
 
-	std::cout << "Created Branches" <<std::endl;
+	std::cout << "Created Branches for toy diagnostics" <<std::endl;
          return;	
 }
 
-MaxLikelihoodFit::ToySampler::ToySampler(RooAbsPdf *pdf, const RooArgSet *nuisances) :
+FitDiagnostics::ToySampler::ToySampler(RooAbsPdf *pdf, const RooArgSet *nuisances) :
     pdf_(pdf),
     data_(0)
 {
     nuisances->snapshot(snapshot_);
 }
 
-MaxLikelihoodFit::ToySampler::~ToySampler() 
+FitDiagnostics::ToySampler::~ToySampler() 
 {
     delete data_;
 }
 
-void MaxLikelihoodFit::ToySampler::generate(int ntoys) {
+void FitDiagnostics::ToySampler::generate(int ntoys) {
     delete data_;
     data_ = pdf_->generate(snapshot_, ntoys);
 }
 
-const RooAbsCollection & MaxLikelihoodFit::ToySampler::get(int itoy) { 
+const RooAbsCollection & FitDiagnostics::ToySampler::get(int itoy) { 
     return *data_->get(itoy); 
 }
 
-const RooAbsCollection & MaxLikelihoodFit::ToySampler::centralValues() {
+const RooAbsCollection & FitDiagnostics::ToySampler::centralValues() {
     return snapshot_;
 }

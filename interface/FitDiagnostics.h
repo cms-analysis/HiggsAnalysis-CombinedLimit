@@ -1,6 +1,6 @@
-#ifndef HiggsAnalysis_CombinedLimit_MaxLikelihoodFit_h
-#define HiggsAnalysis_CombinedLimit_MaxLikelihoodFit_h
-/** \class MaxLikelihoodFit
+#ifndef HiggsAnalysis_CombinedLimit_FitDiagnostics_h
+#define HiggsAnalysis_CombinedLimit_FitDiagnostics_h
+/** \class FitDiagnostics
  *
  * Do a ML fit of the data with background and signal+background hypothesis and print out diagnostics plots 
  *
@@ -15,14 +15,14 @@
 #include <boost/utility.hpp>
 #include <map>
 
-class MaxLikelihoodFit : public FitterAlgoBase {
+class FitDiagnostics : public FitterAlgoBase {
 public:
-  MaxLikelihoodFit() ;
+  FitDiagnostics() ;
   virtual const std::string & name() const {
-    static const std::string name("MaxLikelihoodFit");
+    static const std::string name("FitDiagnostics");
     return name;
   }
-  ~MaxLikelihoodFit();
+  ~FitDiagnostics();
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
   virtual void setToyNumber(const int) ;
   virtual void setNToys(const int);
