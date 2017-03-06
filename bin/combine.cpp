@@ -5,6 +5,7 @@
 #include <TTree.h>
 #include <RooRandom.h>
 #include <iostream>
+#include <fstream>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -99,7 +100,8 @@ int main(int argc, char **argv) {
   po::positional_options_description p;
   p.add("datacard", -1);
   po::variables_map vm, vm0;
-
+ 
+  
   // parse the first time, using only common options and allow unregistered options 
   try{
     po::store(po::command_line_parser(argc, argv).options(desc).allow_unregistered().run(), vm0);
@@ -124,6 +126,15 @@ int main(int argc, char **argv) {
         cout << i->second->options() << "\n";
     }
     return 0;
+  }
+
+  if (verbose>1){
+   std::ifstream splashFile; splashFile.open("data/splash.txt");
+   while(splashFile.good()) { 
+     std::cout << (char)splashFile.get() ; 
+   }
+   std::cout << std::endl;
+   splashFile.close(); 
   }
 
   // now search for algo, and add option
