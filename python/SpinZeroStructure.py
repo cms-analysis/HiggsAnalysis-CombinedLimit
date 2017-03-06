@@ -39,37 +39,37 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def setPhysicsOptions(self,physOptions):
         super(SpinZeroHiggsBase, self).setPhysicsOptions(physOptions)
         for po in physOptions:
-            if 'muFixed' in po: 
+            if 'muFixed' in po:
                 print "Will consider the signal strength as a fixed parameter"
                 self.muFloating = False
-            elif 'muAsPOI' in po: 
+            elif 'muAsPOI' in po:
                 print "Will consider the signal strength as a parameter of interest"
                 self.muAsPOI = True
 
-            if 'fai1Fixed' in po or 'fai1NotPOI' in po: 
+            if 'fai1Fixed' in po or 'fai1NotPOI' in po:
                 print "CMS_zz4l_fai1 is NOT A POI"
                 self.fai1POI = False
                 if 'fai1Fixed' in po:
                     print "Will fix CMS_zz4l_fai1 to 0"
                     self.fai1Floating = False
-                
-            if 'phiai1Floating' in po or 'phiai1AsPOI' in po: 
+
+            if 'phiai1Floating' in po or 'phiai1AsPOI' in po:
                 print "Will consider phase ai1 as a floating parameter"
                 self.phiai1Floating = True
-                if 'phiai1AsPOI' in po: 
+                if 'phiai1AsPOI' in po:
                     print "Will consider phase ai1 as a parameter of interest"
                     self.phiai1POI = True
 
-            if 'fai2Floating' in po or 'fai2AsPOI' in po: 
+            if 'fai2Floating' in po or 'fai2AsPOI' in po:
                 print "Will float CMS_zz4l_fai2"
                 self.fai2Floating = True
                 if 'fai2AsPOI' in po:
                     self.fai2POI = True
 
-            if 'phiai2Floating' in po or 'phiai2AsPOI' in po: 
+            if 'phiai2Floating' in po or 'phiai2AsPOI' in po:
                 print "Will consider phase ai2 as a floating parameter"
                 self.phiai2Floating = True
-                if 'phiai2AsPOI' in po: 
+                if 'phiai2AsPOI' in po:
                     print "Will consider phase ai2 as a parameter of interest"
                     self.phiai2POI = True
 
@@ -118,7 +118,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
             else:
                 self.modelBuilder.doVar("CMS_zz4l_fai1[0]")
             print "Fixing CMS_zz4l_fai1"
-                
+
         if self.fai2Floating:
             if self.modelBuilder.out.var("CMS_zz4l_fai2"):
                 self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(0.,1.)
@@ -219,10 +219,10 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
 class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalModel):
     def setPhysicsOptions(self, physOptions):
         for po in physOptions:
-            if po.startswith("map="):
+          if po.startswith("map="):
                 break
-        else: #no po started with map --> no manual overriding --> use the defaults
-              #can still override with e.g. turnoff=ZH,WH
+          else: #no po started with map --> no manual overriding --> use the defaults
+            #can still override with e.g. turnoff=ZH,WH
             if any("muAsPOI" in po for po in physOptions):
                 physOptions = [
                                "map=.*/(gg|tt)H:r_ffH[1,0,400]",
