@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
   po::options_description desc("Main options");
   desc.add_options()
     ("datacard,d", po::value<string>(&datacard), "Datacard file (can also be specified directly without the -d or --datacard)")
-    ("method,M",      po::value<string>(&whichMethod)->default_value("ProfileLikelihood"), methodsDesc.c_str())
+    ("method,M",      po::value<string>(&whichMethod)->default_value("AsymptoticCLsLimits"), methodsDesc.c_str())
     ("verbose,v",  po::value<int>(&verbose)->default_value(1), "Verbosity level (-1 = very quiet; 0 = quiet, 1 = verbose, 2+ = debug)")
     ("help,h", "Produce help message")
     ;
@@ -135,6 +135,8 @@ int main(int argc, char **argv) {
    }
    std::cout << std::endl;
    splashFile.close(); 
+  } else {
+   std::cout << " <<< Combine >>> " << std::endl;
   }
 
   // now search for algo, and add option
