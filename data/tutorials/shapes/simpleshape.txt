@@ -1,0 +1,16 @@
+imax 1
+jmax 1
+kmax *
+---------------
+shapes * * simpleshape_input.root w:$PROCESS
+---------------
+bin 1
+observation -1
+------------------------------
+bin          1          1
+process      sig 	bkg
+process      0          1
+rate         1          1
+--------------------------------
+lumi    lnN  1.1       1.0
+sigma   param 1.0      0.1
