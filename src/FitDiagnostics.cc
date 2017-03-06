@@ -142,14 +142,6 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   // Make pre-plots before the fit
   r->setVal(preFitValue_);
-  if (makePlots_) {
-      std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_);
-      for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
-          (*it)->Draw(); 
-          c1->Print((out_+"/"+(*it)->GetName()+"_prefit.png").c_str());
-          if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_prefit").c_str());
-      }
-  }
 
 
   // Determine pre-fit values of nuisance parameters
@@ -185,6 +177,15 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
       nuisancePdf.reset();
       globalData.reset();
+
+      if (makePlots_) {
+	std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_,res_prefit);
+	for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
+	    (*it)->Draw(); 
+	    c1->Print((out_+"/"+(*it)->GetName()+"_prefit.png").c_str());
+	    if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_prefit").c_str());
+	}
+      }
       delete res_prefit;
     } else if (nuis) {
       if (fitOut.get() ) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
@@ -234,8 +235,8 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       }
       numbadnll_=res_b->numInvalidNLL();
 
-      if (makePlots_) {
-          std::vector<RooPlot *> plots = utils::makePlots(*mc_b->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_);
+      if (makePlots_ && currentToy_<1) {
+          std::vector<RooPlot *> plots = utils::makePlots(*mc_b->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_,res_b);
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_b.png").c_str());
@@ -310,8 +311,8 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	 nll_nll0_ =  nll_sb_ -  nll_bonly_;
       }
 
-      if (makePlots_) {
-          std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_);
+      if (makePlots_ && currentToy_<1) {
+          std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_,res_s);
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_s.png").c_str());

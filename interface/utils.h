@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <TGraphAsymmErrors.h>
 #include <RooHistError.h>
+#include <RooFitResult.h>
 #include <TH1.h>
 struct RooDataHist;
 struct RooAbsData;
@@ -80,7 +81,7 @@ namespace utils {
     void tdrStyle() ;
     
     /// make plots, if possible
-    std::vector<RooPlot *> makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel=0, const char *backgroundSel=0, float rebinFactor=1.0);
+    std::vector<RooPlot *> makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel=0, const char *backgroundSel=0, float rebinFactor=1.0, RooFitResult *fitRes=0);
 
     struct CheapValueSnapshot {
         public:
