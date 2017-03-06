@@ -94,7 +94,8 @@ bool        HybridNew::reportPVal_ = false;
 float HybridNew::confidenceToleranceForToyScaling_ = 0.2;
 float HybridNew::maxProbability_ = 0.999;
 double HybridNew::EPS = 1e-4;
- 
+std::string HybridNew::mode_ = "";
+
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
     options_.add_options()
@@ -142,6 +143,7 @@ LimitAlgo("HybridNew specific options") {
         ("importantContours",boost::program_options::value<std::string>(&scaleAndConfidenceSelection_)->default_value(scaleAndConfidenceSelection_), "Throw less toys far from interesting contours , format : CL_1,CL_2,..CL_N (--toysH scaled down when prob is far from any of CL_i) ")
         ("maxProbability", boost::program_options::value<float>(&maxProbability_)->default_value(maxProbability_),  "when point is >  maxProbability countour, don't bother throwing toys")
         ("confidenceTolerance", boost::program_options::value<float>(&confidenceToleranceForToyScaling_)->default_value(confidenceToleranceForToyScaling_),  "Determine what 'far' means for adatptiveToys. (relative in terms of (1-cl))")
+        ("mode", boost::program_options::value<std::string>(&mode_)->default_value(mode_),  "Shortcuts for LHC style running modes. --mode LHC-significance: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=LHC (Q_LHC, modified for discovery) --significance, --mode LHC-limits: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=LHC (Q_LHC, modified for upper limits) --rule CLs, --mode LHC-feldman-cousins: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=PL (Q_Profile, includes boundaries) --rule CLsplusb")
 	
     ;
 }
@@ -155,7 +157,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         g_quantileExpected_ = quantileForExpectedFromGrid_;
     }
 
-
+   
     if (vm.count("frequentist")) {
         genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
         if (vm["testStat"].defaulted()) testStat_ = "LHC";
@@ -166,6 +168,24 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
             }
         }
     }
+
+    mode_ = vm["mode"].as<std::string>();
+    if ( ! vm["mode"].defaulted() ){
+	if (mode_=="LHC-limits"){
+          genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
+          testStat_ = "LHC";
+	  rule_ = "CLs";
+	} else if (mode_=="LHC-significance"){
+          genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
+          testStat_ = "LHC";
+	  doSignificance_=true;
+	} else if (mode_=="LHC-feldman-cousins"){
+          genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
+          testStat_ = "PL";
+	  rule_ = "CLsplusb";
+	}	
+    }
+
     if (genGlobalObs_ && genNuisances_) {
         std::cerr << "ALERT: generating both global observables and nuisance parameters at the same time is not validated." << std::endl;
     }

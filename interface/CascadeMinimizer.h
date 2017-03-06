@@ -36,6 +36,7 @@ class CascadeMinimizer {
         //void collectIrrelevantNuisances(RooAbsCollection &irrelevant) const ;
         void setAutoBounds(const RooArgSet *pois) ; 
         void setAutoMax(const RooArgSet *pois) ; 
+	double tolerance() {return defaultMinimizerTolerance_;};
     private:
         RooAbsReal & nll_;
         std::auto_ptr<RooMinimizer> minimizer_;
@@ -93,6 +94,7 @@ class CascadeMinimizer {
 
 	static std::string defaultMinimizerType_;
 	static std::string defaultMinimizerAlgo_;
+	static double 	   defaultMinimizerTolerance_;
 
     	static bool runShortCombinations; 
         //static void setDefaultIntegrator(RooCategory &cat, const std::string & val) ;

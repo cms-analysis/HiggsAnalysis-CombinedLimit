@@ -823,7 +823,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             // to be seen whether I can delete it or not
         }
     }
-    std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
+    std::cout << "Computing results starting from " << (iToy == 0 ? "observation (a-posteriori)" : "expected outcome (a-priori)") << std::endl;
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();

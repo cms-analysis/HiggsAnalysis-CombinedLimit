@@ -72,7 +72,7 @@ MultiDimFit::MultiDimFit() :
 {
     options_.add_options()
         ("algo",  boost::program_options::value<std::string>()->default_value("none"), "Algorithm to compute uncertainties")
-        ("poi,P",   boost::program_options::value<std::vector<std::string> >(&poi_), "Parameters of interest to fit (default = all)")
+        ("parameters,P",   boost::program_options::value<std::vector<std::string> >(&poi_), "Parameters to fit/scan (default = all parameters of interest)")
         ("floatOtherPOIs",   boost::program_options::value<bool>(&floatOtherPOIs_)->default_value(floatOtherPOIs_), "POIs other than the selected ones will be kept freely floating (1) or fixed (0, default)")
         ("squareDistPoiStep","POI step size based on distance from midpoint (max-min)/2 rather than linear")
         ("skipInitialFit","Skip initial fit (save time if snapshot is loaded from previous fit)")
@@ -443,7 +443,7 @@ void MultiDimFit::doImpact(RooFitResult &res, RooAbsReal &nll) {
     // Then set this NP constant
     poiVars_[i]->setConstant(true);
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
-    minim.setStrategy(minimizerStrategy_);
+    //minim.setStrategy(minimizerStrategy_);
     // Another snapshot to reset between high and low fits
     RooArgSet snap;
     params->snapshot(snap);
@@ -504,7 +504,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
-    minim.setStrategy(minimizerStrategy_);
+    //minim.setStrategy(minimizerStrategy_);
     std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
     RooArgSet snap; params->snapshot(snap);
     //snap.Print("V");
@@ -777,7 +777,7 @@ void MultiDimFit::doRandomPoints(RooWorkspace *w, RooAbsReal &nll)
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
-    minim.setStrategy(minimizerStrategy_);
+    //minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
     for (unsigned int j = 0; j < points_; ++j) {
         for (unsigned int i = 0; i < n; ++i) {
@@ -816,7 +816,7 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
-    minim.setStrategy(minimizerStrategy_);
+    //minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
 
     //for (unsigned int i = 0; i < n; ++i) {
@@ -889,7 +889,7 @@ void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll)
         CascadeMinimizer minimXI(nll, CascadeMinimizer::Unconstrained, xv);
         if (!autoBoundsPOIs_.empty()) minimXI.setAutoBounds(&autoBoundsPOISet_); 
         if (!autoMaxPOIs_.empty()) minimXI.setAutoMax(&autoMaxPOISet_); 
-        minimXI.setStrategy(minimizerStrategy_);
+        //minimXI.setStrategy(minimizerStrategy_);
         {
             CloseCoutSentry sentry(verbose < 3);    
             minimXI.minimize(verbose-1);
@@ -985,7 +985,7 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         CascadeMinimizer minimX(nll, CascadeMinimizer::Constrained);
         if (!autoBoundsPOIs_.empty()) minimX.setAutoBounds(&autoBoundsPOISet_); 
         if (!autoMaxPOIs_.empty()) minimX.setAutoMax(&autoMaxPOISet_); 
-        minimX.setStrategy(minimizerStrategy_);
+        //minimX.setStrategy(minimizerStrategy_);
 
         for (unsigned int j = 0; j < n; ++j) poiVars_[j]->setVal(p0[j]);
         double xMin = findCrossing(minimX, nll, *xv, threshold, p0[i], xv->getMin()); 

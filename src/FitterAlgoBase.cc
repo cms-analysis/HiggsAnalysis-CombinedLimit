@@ -37,11 +37,11 @@
 
 using namespace RooStats;
 
-std::string FitterAlgoBase::minimizerAlgo_ = "Minuit2";
+//std::string FitterAlgoBase::minimizerAlgo_ = "Minuit2";
 std::string FitterAlgoBase::minimizerAlgoForMinos_ = "Minuit2,simplex";
-float       FitterAlgoBase::minimizerTolerance_ = 1e-1;
+//float       FitterAlgoBase::minimizerTolerance_ = 1e-1;
 float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-4;
-int         FitterAlgoBase::minimizerStrategy_  = 1;
+//int         FitterAlgoBase::minimizerStrategy_  = 1;
 int         FitterAlgoBase::minimizerStrategyForMinos_ = 0;
 float       FitterAlgoBase::preFitValue_ = 1.0;
 float       FitterAlgoBase::stepSize_ = 0.1;
@@ -62,9 +62,9 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
     LimitAlgo(title)
 {
     options_.add_options()
-        ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
-        ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
-        ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
+        //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
+        //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
+        //("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("preFitValue",        boost::program_options::value<float>(&preFitValue_)->default_value(preFitValue_),  "Value of signal strength pre-fit")
         ("do95",       boost::program_options::value<bool>(&do95_)->default_value(do95_),  "Compute also 2-sigma interval from delta(nll) = 1.92 instead of 0.5")
         ("robustFit",  boost::program_options::value<bool>(&robustFit_)->default_value(robustFit_),  "Search manually for 1 and 2 sigma bands instead of using Minos")
@@ -98,7 +98,7 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
 }
 
 bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
-  ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
+  //ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
   CloseCoutSentry sentry(verbose < 0);
 
   static bool shouldCreateNLLBranch = saveNLL_;
@@ -199,7 +199,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
     double delta95 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.95,ndim);
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, rs.getSize() ? dynamic_cast<RooRealVar*>(rs.first()) : 0);
-    minim.setStrategy(minimizerStrategy_);
+    //minim.setStrategy(minimizerStrategy_);
     minim.setErrorLevel(delta68);
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
@@ -451,6 +451,7 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
 
     bool unbound = !runtimedef::get("FITTER_BOUND");
     bool neverGiveUp = runtimedef::get("FITTER_NEVER_GIVE_UP");
+    double minimizerTolerance_  = minim.tolerance();
     double stepSize = stepSize_;
     for (int iter = 0; iter < 20; ++iter) {
         rVal = rStart; r.setVal(rVal); 

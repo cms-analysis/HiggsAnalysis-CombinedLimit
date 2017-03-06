@@ -58,6 +58,7 @@ private:
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
   static std::string algo_;
+  static std::string mode_;
   static std::string plot_;
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
