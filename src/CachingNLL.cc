@@ -9,7 +9,9 @@
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include <HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h>
-#include <HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf2.h>
+#include <HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h>
+#include <HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h>
+#include <HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedGaussian.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedCB.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedSimplePdfs.h>
