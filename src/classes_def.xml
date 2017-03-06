@@ -122,6 +122,7 @@
   <class name="CMSHistFunc" />
   <class name="CMSHistErrorPropagator" />
   <class name="CMSHistFuncWrapper" />
+	<class name="RooDoubleCBFast" />
 	<class name="CombDataSetFactory"  transient="true" />
 	<class name="DebugProposal"  transient="true" />
 	<class name="cmsmath::SequentialMinimizer"  transient="true" />

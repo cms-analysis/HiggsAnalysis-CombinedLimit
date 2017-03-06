@@ -162,6 +162,13 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if ( !skipInitialFit_){
         bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
         res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
+        if (!res.get()) {
+            std::cout << "\n " <<std::endl;
+            std::cout << "\n ---------------------------" <<std::endl;
+            std::cout << "\n WARNING: MultiDimFit failed" <<std::endl;
+            std::cout << "\n ---------------------------" <<std::endl;
+            std::cout << "\n " <<std::endl;
+        }
         if (algo_ == Impact && res.get()) {
             // Set the floating parameters back to the best-fit value
             // before we write an entry into the output TTree
