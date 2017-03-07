@@ -132,9 +132,9 @@ RooDataSet *
 toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double weightScale) 
 {
     if (mode_ == Counting) return generateCountingAsimov();
-    int nPA = runtimedef::get("TMCSO_PseudoAsimov");
+    int nPA = runtimedef::get("TMCSO_PseudoAsimov");  // Will trigger the use of weighted data 
     int boostAPA = runtimedef::get("TMCSO_AdaptivePseudoAsimov");
-    if (observables_.getSize() > 1 && boostAPA) {
+    if (boostAPA) {  // trigger adaptive PA (setting boostAPA=1 will just use internal logic)
         int nbins = 1;
         RooLinkedListIter iter = observables_.iterator(); 
         for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {

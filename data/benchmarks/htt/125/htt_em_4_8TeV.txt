@@ -1,0 +1,53 @@
+imax    1     number of categories 
+jmax    9     number of samples minus one 
+kmax    *     number of nuisance parameters 
+------------------------------------------------------------------------------- 
+shapes * * ../common/htt_em.input_8TeV.root $CHANNEL/$PROCESS $CHANNEL/$PROCESS_$SYSTEMATIC 
+shapes ggH * ../common/htt_em.input_8TeV.root $CHANNEL/$PROCESS$MASS $CHANNEL/$PROCESS$MASS_$SYSTEMATIC 
+shapes qqH * ../common/htt_em.input_8TeV.root $CHANNEL/$PROCESS$MASS $CHANNEL/$PROCESS$MASS_$SYSTEMATIC 
+shapes WH * ../common/htt_em.input_8TeV.root $CHANNEL/$PROCESS$MASS $CHANNEL/$PROCESS$MASS_$SYSTEMATIC 
+shapes ZH * ../common/htt_em.input_8TeV.root $CHANNEL/$PROCESS$MASS $CHANNEL/$PROCESS$MASS_$SYSTEMATIC 
+shapes ggH_hww * ../common/htt_em.input_8TeV.root $CHANNEL/$PROCESS$MASS $CHANNEL/$PROCESS$MASS_$SYSTEMATIC 
+shapes qqH_hww * ../common/htt_em.input_8TeV.root $CHANNEL/$PROCESS$MASS $CHANNEL/$PROCESS$MASS_$SYSTEMATIC 
+------------------------------------------------------------------------------- 
+bin                                                 emu_vbf_loose     
+observation                                         112               
+------------------------------------------------------------------------------- 
+bin                                                 emu_vbf_loose    emu_vbf_loose    emu_vbf_loose    emu_vbf_loose    emu_vbf_loose    emu_vbf_loose    emu_vbf_loose    emu_vbf_loose    emu_vbf_loose    emu_vbf_loose     
+process                                             -5               -4               -3               -2               -1               0                1                2                3                4                 
+process                                             ggH              qqH              WH               ZH               ggH_hww          qqH_hww          Ztt              ttbar            EWK              Fakes             
+rate                                                0.65171          2.64591          0.0152973        0.00843232       0.400601         1.53806          54.9513          11.5498          7.93152          16.7155           
+------------------------------------------------------------------------------- 
+lumi_8TeV lnN                                       1.026            1.026            1.026            1.026            1.026            1.026            -                -                1.026            -                 
+CMS_eff_e lnN                                       1.02             1.02             1.02             1.02             1.02             1.02             1.020            1.020            1.020            1.020             
+CMS_scale_e_8TeV shape                                 1                1                1                1                1                1             1.000            -                -                -                 
+CMS_eff_m lnN                                       1.02             1.02             1.02             1.02             1.02             1.02             1.020            1.020            1.020            1.020             
+CMS_scale_j lnN                                      1.1             1.05             1.05             1.05              1.1             1.05             -                1.220            1.210            -                 
+CMS_htt_scale_met_8TeV lnN                          0.98             0.98             0.98             0.98             0.98             0.98             -                1.000            0.980            -                 
+CMS_eff_b_8TeV lnN                                  -                -                -                -                -                -                -                0.970            -                -                 
+pdf_qqbar lnN                                       -                1.036            1.02             1.02             -                1.036            -                -                -                -                 
+pdf_gg lnN                                          1.097            -                -                -                1.097            -                -                -                -                -                 
+QCDscale_ggH2in lnN                                 1.228            -                -                -                1.228            -                -                -                -                -                 
+QCDscale_qqH lnN                                    -                1.018            -                -                -                1.018            -                -                -                -                 
+QCDscale_VH lnN                                     -                -                1.04             1.04             -                -                -                -                -                -                 
+UEPS lnN                                            1.12             1.012            1.012            1.012            1.12             1.012            -                -                -                -                 
+CMS_htt_zttNorm_8TeV lnN                            -                -                -                -                -                -                1.030            -                -                -                 
+CMS_htt_extrap_ztt_emu_vbf_loose_8TeV lnN           -                -                -                -                -                -                1.100            -                -                -                 
+CMS_htt_ttbarNorm_8TeV lnN                          -                -                -                -                -                -                -                1.080            -                -                 
+CMS_htt_ttbarNorm_vbf_loose_8TeV lnN                -                -                -                -                -                -                -                1.100            -                -                 
+CMS_htt_DiBosonNorm_8TeV lnN                        -                -                -                -                -                -                -                -                1.150            -                 
+CMS_htt_fakes_em_8TeV lnN                           -                -                -                -                -                -                -                -                -                1.300             
+CMS_htt_fakes_em_vbf_loose_8TeV lnN                 -                -                -                -                -                -                -                -                -                1.050             
+CMS_htt_em_emu_vbf_loose_8TeV_Fakes_bin_1 shape     -                -                -                -                -                -                -                -                -                1.000             
+CMS_htt_em_emu_vbf_loose_8TeV_Fakes_bin_2 shape     -                -                -                -                -                -                -                -                -                1.000             
+#CMS_htt_em_emu_vbf_loose_8TeV_Fakes_bin_3 shape     -                -                -                -                -                -                -                -                -                1.000             
+#CMS_htt_em_emu_vbf_loose_8TeV_Fakes_bin_4 shape     -                -                -                -                -                -                -                -                -                1.000             
+CMS_htt_em_emu_vbf_loose_8TeV_Fakes_bin_5 shape     -                -                -                -                -                -                -                -                -                1.000             
+CMS_htt_em_emu_vbf_loose_8TeV_Fakes_bin_6 shape     -                -                -                -                -                -                -                -                -                1.000             
+CMS_htt_em_emu_vbf_loose_8TeV_Fakes_bin_8 shape     -                -                -                -                -                -                -                -                -                1.000             
+CMS_htt_em_emu_vbf_loose_8TeV_Fakes_bin_9 shape     -                -                -                -                -                -                -                -                -                1.000             
+CMS_htt_em_emu_vbf_loose_8TeV_Fakes_bin_13 shape    -                -                -                -                -                -                -                -                -                1.000             
+CMS_htt_em_emu_vbf_loose_8TeV_EWK_bin_7 shape       -                -                -                -                -                -                -                -                1.000            -                 
+#CMS_htt_em_emu_vbf_loose_8TeV_EWK_bin_10 shape      -                -                -                -                -                -                -                -                1.000            -                 
+#CMS_htt_em_emu_vbf_loose_8TeV_EWK_bin_11 shape      -                -                -                -                -                -                -                -                1.000            -                 
+CMS_htt_em_emu_vbf_loose_8TeV_EWK_bin_12 shape      -                -                -                -                -                -                -                -                1.000            -                 

@@ -7,6 +7,7 @@ from optparse import OptionParser
 argv.append( '-b-' )
 import ROOT
 ROOT.gROOT.SetBatch(True)
+ROOT.PyConfig.IgnoreCommandLineOptions = True
 argv.remove( '-b-' )
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *

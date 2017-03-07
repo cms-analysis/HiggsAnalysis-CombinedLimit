@@ -115,6 +115,8 @@ def doRenameNuisance(datacard, args):
                     for p in datacard.exp[b].keys():
                         if process == "*" or cprocess.match(p):
                             foundProc = True
+                            if errline0[b][p] in [0.0]:
+                                continue
     			    if "shape" in pdf0 : datacard.systematicsShapeMap[newname,b,p]=oldname
                             if p in errline0[b] and errline2[b][p] not in [ 0.0, 1.0 ]:
                                 if "addq" in opts:

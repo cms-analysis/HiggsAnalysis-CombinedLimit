@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <TGraphAsymmErrors.h>
+#include <RooHistError.h>
+#include <TH1.h>
 struct RooDataHist;
 struct RooAbsData;
 struct RooAbsPdf;
@@ -24,12 +27,14 @@ namespace utils {
     void printPdf(const RooAbsReal *pdf) ;
     void printPdf(RooStats::ModelConfig &model) ;
     void printPdf(RooWorkspace *w, const char *pdfName) ;
+    TGraphAsymmErrors * makeDataGraph(TH1 * dataHist, bool asDensity=false);
+    //Make a tgraph asym errors from th1 of data
 
-    // Clone a pdf and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
+    // Clone a pdf and all its branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsPdf *fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
-    // Clone a function and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
+    // Clone a function and all its branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsReal *fullCloneFunc(const RooAbsReal *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
-    // Clone a function and all it's branch nodes that depends on the observables. on request, clone also leaf nodes (i.e. RooRealVars)
+    // Clone a function and all its branch nodes that depends on the observables. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsReal *fullCloneFunc(const RooAbsReal *pdf, const RooArgSet &obs, RooArgSet &holder, bool cloneLeafNodes=false) ;
 
     /// Create a pdf which depends only on observables, and collect the other constraint terms

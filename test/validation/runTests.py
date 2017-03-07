@@ -26,7 +26,7 @@ from TestClasses import *
 
 suite = []
 
-import test_AS, test_PLC, test_BS, test_BT, test_MCMC, test_HN, test_FC
+import test_AS, test_PLC, test_BS, test_BT, test_MCMC, test_HN, test_FC, test_htt
 suite += test_AS.suite   # asymptotic CLs
 suite += test_PLC.suite  # profile likelihood
 suite += test_BS.suite   # bayes simple
@@ -34,6 +34,7 @@ suite += test_BT.suite   # bayes toymc
 suite += test_MCMC.suite # bayes mcmc
 suite += test_HN.suite   # hybrid new
 suite += test_FC.suite   # feldman cousins
+suite += test_htt.suite  # all htt tests
 
 from TestSuite import *
 
