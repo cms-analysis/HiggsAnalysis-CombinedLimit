@@ -219,26 +219,55 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
 class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalModel):
     def setPhysicsOptions(self, physOptions):
         for po in physOptions:
-          if po.startswith("map="):
+            if po.startswith("map="):
                 break
-          else: #no po started with map --> no manual overriding --> use the defaults
-            #can still override with e.g. turnoff=ZH,WH
-            if any("muAsPOI" in po for po in physOptions):
+        else: #no po started with map --> no manual overriding --> use the defaults
+              #can still override with e.g. turnoff=ZH,WH
+            if any("muaspoi" in po.lower() or "mufixed" in po.lower() for po in physOptions):
+                raise ValueError("Should use muVAsPOI or mufFixed for MultiSignalSpinZeroHiggs")
+
+            if any("muvaspoi" in po.lower() for po in physOptions):
                 physOptions = [
-                               "map=.*/(gg|tt)H:r_ffH[1,0,400]",
                                "map=.*/(qq|Z|W)H:r_VVH[1,0,400]",
                               ] + physOptions
-            elif not any("muFixed" in po for po in physOptions):
+            elif not any("muvfixed" in po.lower() for po in physOptions):
                 physOptions = [
-                               "map=.*/(gg|tt)H:r_ffH[1,0,400][nuisance]",
                                "map=.*/(qq|Z|W)H:r_VVH[1,0,400][nuisance]",
                               ] + physOptions
             else:
                 physOptions = [
-                               "map=.*[gqZW]*H:1"
+                               "map=.*/(qq|Z|W)H:1"
                               ] + physOptions
+
+            if any("mufaspoi" in po.lower() for po in physOptions):
+                physOptions = [
+                               "map=.*/(gg|tt)H:r_ffH[1,0,400]",
+                              ] + physOptions
+            elif not any("muffixed" in po.lower() for po in physOptions):
+                physOptions = [
+                               "map=.*/(gg|tt)H:r_ffH[1,0,400][nuisance]",
+                              ] + physOptions
+            else:
+                physOptions = [
+                               "map=.*/(gg|tt)H:1"
+                              ] + physOptions
+
             physOptions.sort(key=lambda x: x.startswith("verbose"), reverse=True) #put verbose at the beginning
+
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
+
+    def getYieldScale(self,bin,process):
+        result = super(MultiSignalSpinZeroHiggs, self).getYieldScale(bin,process)
+
+        w = self.modelBuilder.out
+
+        if w.function("muVratio") and w.var("r_VVH") and not w.function("muV_scaled"):
+            self.modelBuilder.doExp("muV_scaled", "@0/@1", "r_VVH, muVratio")
+
+        if w.function("mufratio") and w.var("r_ffH") and not w.function("muf_scaled"):
+            self.modelBuilder.doExp("muf_scaled", "@0/@1", "r_ffH, mufratio")
+
+        return result
 
 spinZeroHiggs = SpinZeroHiggs()
 multiSignalSpinZeroHiggs = MultiSignalSpinZeroHiggs()
