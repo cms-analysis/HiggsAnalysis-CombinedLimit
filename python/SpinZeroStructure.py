@@ -218,11 +218,9 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
 
 class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalModel):
     def setPhysicsOptions(self, physOptions):
-        for po in physOptions:
-            if po.startswith("map="):
-                break
-        else: #no po started with map --> no manual overriding --> use the defaults
-              #can still override with e.g. turnoff=ZH,WH
+        if not any(po.startswith("map=") for po in physOptions):
+            #no po started with map --> no manual overriding --> use the defaults
+            #can still override with e.g. turnoff=ZH,WH
             if any("muaspoi" in po.lower() or "mufixed" in po.lower() for po in physOptions):
                 raise ValueError("Should use muVAsPOI or mufFixed for MultiSignalSpinZeroHiggs")
 
