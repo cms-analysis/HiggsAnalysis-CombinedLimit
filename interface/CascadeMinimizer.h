@@ -37,6 +37,7 @@ class CascadeMinimizer {
         void setAutoBounds(const RooArgSet *pois) ; 
         void setAutoMax(const RooArgSet *pois) ; 
 	double tolerance() {return defaultMinimizerTolerance_;};
+	std::string algo() {return defaultMinimizerAlgo_;};
     private:
         RooAbsReal & nll_;
         std::auto_ptr<RooMinimizer> minimizer_;
