@@ -283,10 +283,10 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         elif self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
             self.fix = ["RV", "RF", "R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
             self.float = ["R_{}TeV".format(_) for _ in self.sqrts]
-        elif not scaledifferentsqrtsseparately and self.scalemuvfseparately:
+        elif not self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
             self.fix = ["R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
             self.float = ["RV", "RF"]
-        elif not scaledifferentsqrtsseparately and not self.scalemuvfseparately:
+        elif not self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
             self.fix = ["RV", "RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
             self.float = ["R"]
         else:
@@ -295,17 +295,17 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         return processed
 
     def getPOIList(self):
-        result = super(SpinZeroHiggs, self).getPOIList()
+        result = super(MultiSignalSpinZeroHiggs, self).getPOIList()
 
         for variable in self.fix:
-            if not self.out.var(variable):
+            if not self.modelBuilder.out.var(variable):
                 raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option")
-            self.out.var(variable).setVal(1)
-            self.out.var(variable).setConstant()
+            self.modelBuilder.out.var(variable).setVal(1)
+            self.modelBuilder.out.var(variable).setConstant()
         for variable in self.float:
-            if not self.out.var(variable):
+            if not self.modelBuilder.out.var(variable):
                 raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option")
-            self.out.var(variable).setAttribute("flatParam")
+            self.modelBuilder.out.var(variable).setAttribute("flatParam")
 
         return result
 
