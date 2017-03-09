@@ -7,9 +7,6 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
         super(SpinZeroHiggsBase, self).__init__()
 
-        self.muFloating = True
-        self.muAsPOI = False
-
         self.fai1Floating = True
         self.fai1POI = True
 
@@ -39,13 +36,6 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def setPhysicsOptions(self,physOptions):
         super(SpinZeroHiggsBase, self).setPhysicsOptions(physOptions)
         for po in physOptions:
-            if 'muFixed' in po:
-                print "Will consider the signal strength as a fixed parameter"
-                self.muFloating = False
-            elif 'muAsPOI' in po:
-                print "Will consider the signal strength as a parameter of interest"
-                self.muAsPOI = True
-
             if 'fai1Fixed' in po or 'fai1NotPOI' in po:
                 print "CMS_zz4l_fai1 is NOT A POI"
                 self.fai1POI = False
@@ -78,21 +68,6 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
             if 'HWWcombination' in po:
                 self.HWWcombination = True
-
-
-            if not self.muAsPOI and not self.fai1POI and not self.fai2POI and not self.phiai1POI and not self.phiai2POI:
-                print "No POIs detected: Switching to default configuration: Floating nuisance mu, floating POI fai1, eveything else fixed"
-                self.muFloating = True
-                self.muAsPOI = False
-                self.fai1Floating = True
-                self.fai1POI = True
-                self.phiai1Floating = False
-                self.phiai1POI = False
-                self.fai2Floating = False
-                self.fai2POI = False
-                self.phiai2Floating = False
-                self.phiai2POI = False
-                self.allowPMF = False
 
     def getPOIList(self):
 
@@ -191,6 +166,35 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
         return poi
 
 class SpinZeroHiggs(SpinZeroHiggsBase):
+    def __init__(self):
+        super(SpinZeroHiggs, self).__init__()
+        self.muFloating = True
+        self.muAsPOI = False
+
+    def setPhysicsOptions(self,physOptions):
+        super(SpinZeroHiggs, self).setPhysicsOptions(physOptions)
+        for po in physOptions:
+            if 'muFixed' in po:
+                print "Will consider the signal strength as a fixed parameter"
+                self.muFloating = False
+            elif 'muAsPOI' in po:
+                print "Will consider the signal strength as a parameter of interest"
+                self.muAsPOI = True
+
+        if not self.muAsPOI and not self.fai1POI and not self.fai2POI and not self.phiai1POI and not self.phiai2POI:
+            print "No POIs detected: Switching to default configuration: Floating nuisance mu, floating POI fai1, eveything else fixed"
+            self.muFloating = True
+            self.muAsPOI = False
+            self.fai1Floating = True
+            self.fai1POI = True
+            self.phiai1Floating = False
+            self.phiai1POI = False
+            self.fai2Floating = False
+            self.fai2POI = False
+            self.phiai2Floating = False
+            self.phiai2POI = False
+            self.allowPMF = False
+
     def getPOIList(self):
         poi = super(SpinZeroHiggs, self).getPOIList()
         if self.muFloating:
@@ -217,42 +221,71 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
         return poi
 
 class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalModel):
+    def __init__(self):
+        super(MultiSignalSpinZeroHiggs, self).__init__()
+
+        self.scalemuvfseparately = True
+        self.scaledifferentsqrtsseparately = False
+        self.sqrts = None
+        self.fix = []
+        self.float = []
+        #not doing muAsPOI or fixMu, there are too many permutations.
+        #should just be set when running combine.
+
     def setPhysicsOptions(self, physOptions):
         if not any(po.startswith("map=") for po in physOptions):
             #no po started with map --> no manual overriding --> use the defaults
             #can still override with e.g. turnoff=ZH,WH
-            if any("muaspoi" in po.lower() or "mufixed" in po.lower() for po in physOptions):
-                raise ValueError("Should use muVAsPOI or mufFixed for MultiSignalSpinZeroHiggs")
+            for po in physOptions[:]:
+                if po.lower() == "scalemuvmuftogether":
+                    self.scalemuvfseparately = False
+                    physOptions.remove(po)
+                if po.lower() == "scaledifferentsqrtsseparately":
+                    self.scaledifferentsqrtsseparately = True
+                    physOptions.remove(po)
+                if po.lower().startswith("sqrts="):
+                    if self.sqrts is not None: raise ValueError("Duplicate physicsoption sqrts=?? provided")
+                    self.sqrts = [int(_) for _ in po.replace("sqrts=", "").split(",")]
+                    physOptions.remove(po)
 
-            if any("muvaspoi" in po.lower() for po in physOptions):
-                physOptions = [
-                               "map=.*/(qq|Z|W)H:r_VVH[1,0,400]",
-                              ] + physOptions
-            elif not any("muvfixed" in po.lower() for po in physOptions):
-                physOptions = [
-                               "map=.*/(qq|Z|W)H:r_VVH[1,0,400][nuisance]",
-                              ] + physOptions
-            else:
-                physOptions = [
-                               "map=.*/(qq|Z|W)H:1"
-                              ] + physOptions
+            if self.sqrts is None:
+                raise ValueError("PhysicsOption sqrts=?? is mandatory.  example: sqrts=7,8,13")
 
-            if any("mufaspoi" in po.lower() for po in physOptions):
-                physOptions = [
-                               "map=.*/(gg|tt)H:r_ffH[1,0,400]",
-                              ] + physOptions
-            elif not any("muffixed" in po.lower() for po in physOptions):
-                physOptions = [
-                               "map=.*/(gg|tt)H:r_ffH[1,0,400][nuisance]",
-                              ] + physOptions
-            else:
-                physOptions = [
-                               "map=.*/(gg|tt)H:1"
-                              ] + physOptions
+            physOptions = ["map=.*/(gg|qq|Z|W|tt)H:1"] + physOptions
 
             physOptions.sort(key=lambda x: x.startswith("verbose"), reverse=True) #put verbose at the beginning
 
+            if self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
+                self.fix = ["RV", "RF", "R"] + ["R_{}TeV".format(_) for _ in self.sqrts]
+                self.float = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
+            elif self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
+                self.fix = ["RV", "RF", "R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
+                self.float = ["R_{}TeV".format(_) for _ in self.sqrts]
+            elif not scaledifferentsqrtsseparately and self.scalemuvfseparately:
+                self.fix = ["R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+                self.float = ["RV", "RF"]
+            elif not scaledifferentsqrtsseparately and not self.scalemuvfseparately:
+                self.fix = ["RV", "RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+                self.float = ["R"]
+            else:
+                assert False, "?????"
+
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
+
+    def getPOIList(self):
+        result = super(SpinZeroHiggs, self).getPOIList()
+
+        for variable in self.fix:
+            if not self.out.var(variable):
+                raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option")
+            self.out.var(variable).setVal(1)
+            self.out.var(variable).setConstant()
+        for variable in self.float:
+            if not self.out.var(variable):
+                raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option")
+            self.out.var(variable).setAttribute("flatParam")
+
+        return result
 
     def getYieldScale(self,bin,process):
         result = super(MultiSignalSpinZeroHiggs, self).getYieldScale(bin,process)
