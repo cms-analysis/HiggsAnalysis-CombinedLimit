@@ -59,6 +59,28 @@ class PhysicsModelBase_NiceSubclasses(PhysicsModelBase):
     """
     return []
 
+  def setPhysicsOptions(self,physOptions):
+    """
+    Better error checking: instead of overriding this one, override processPhysicsOptions.
+    It should remove each physicsOption from the list after processing it.
+    """
+    processed = self.processPhysicsOptions(physOptions)
+    processed = set(processed) #remove duplicates
+    for _ in processed:
+        physOptions.remove(_)
+    if physOptions:
+        raise ValueError("Unknown physicsOptions:\n{}".format(physOptions))
+
+  @abstractmethod
+  def processPhysicsOptions(self, physOptions):
+    """
+    Process physics options.  Make sure to return a list of physicsOptions processed,
+    and to include:
+      processed += super([classname], self).processPhysicsOptions(physOptions)
+    !!!!
+    """
+    return []
+
 class PhysicsModel(object):
     """Example class with signal strength as only POI"""
     def getPOIList(self):
@@ -84,14 +106,17 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
         self.verbose = False
         self.factories = []
         super(MultiSignalModelBase, self).__init__()
-    def setPhysicsOptions(self,physOptions):
+    def processPhysicsOptions(self,physOptions):
+        processed = []
         for po in physOptions:
-            if po.startswith("verbose"):
+            if po == "verbose":
                 self.verbose = True
+                processed.append(po)
             if po.startswith("turnoff="):   #shorthand:  turnoff=process1,process2,process3 --> map=.*/(process1|process2|process3):0
                 turnoff = po.replace("turnoff=", "").split(",")
                 if turnoff:
                     po = "map=.*/({}):0".format("|".join(turnoff))  #and leads right into the next option
+                processed.append(po)
             if po.startswith("map="):
                 (maplist,poi) = po.replace("map=","").split(":",1)
                 maps = maplist.split(",")
@@ -111,7 +136,8 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
                         self.pois[poiname] = poi
                 if self.verbose:  print "Mapping ",poiname," to ",maps," patterns"
                 self.poiMap.append((poiname, maps))
-        super(MultiSignalModelBase, self).setPhysicsOptions(physOptions)
+                processed.append(po)
+        return processed + super(MultiSignalModelBase, self).processPhysicsOptions(physOptions)
     def getPOIList(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Higgs Mass as other parameter ----
@@ -152,12 +178,14 @@ class CanTurnOffBkgModel(PhysicsModelBase_NiceSubclasses):
     def __init__(self, *args, **kwargs):
         self.usebkg = True
         super(CanTurnOffBkgModel, self).__init__(*args, **kwargs)
-    def setPhysicsOptions(self,physOptions):
-        super(CanTurnOffBkgModel, self).setPhysicsOptions(physOptions)
+    def processPhysicsOptions(self,physOptions):
+        processed = super(CanTurnOffBkgModel, self).processPhysicsOptions(physOptions)
         for po in physOptions:
-            if "nobkg" in po.lower():
+            if po.lower() == "nobkg":
                 self.usebkg = False
                 print "turning off all background"
+                processed.append(po)
+        return processed
     def getYieldScale(self,bin,process):
         result = super(CanTurnOffBkgModel, self).getYieldScale(bin, process)
         if not self.usebkg and not self.DC.isSignal[process]:
@@ -170,8 +198,8 @@ class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
         self.mHRange = []
         super(HiggsMassRangeModel, self).__init__()
 
-    def setPhysicsOptions(self,physOptions):
-        super(HiggsMassRangeModel, self).setPhysicsOptions(physOptions)
+    def processPhysicsOptions(self,physOptions):
+        processed = super(HiggsMassRangeModel, self).processPhysicsOptions(physOptions)
         for po in physOptions:
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
@@ -179,6 +207,8 @@ class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                processed.append(po)
+        return processed
     def getPOIList(self):
         poiNames = []
         poiNames += super(HiggsMassRangeModel, self).getPOIList()

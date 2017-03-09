@@ -33,41 +33,53 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
         if result not in (0, 1): print "Process {0} will scale by {1}".format(process,result)
         return result
 
-    def setPhysicsOptions(self,physOptions):
-        super(SpinZeroHiggsBase, self).setPhysicsOptions(physOptions)
+    def processPhysicsOptions(self,physOptions):
+        processed = super(SpinZeroHiggsBase, self).processPhysicsOptions(physOptions)
         for po in physOptions:
-            if 'fai1Fixed' in po or 'fai1NotPOI' in po:
+            if po.lower()=='fai1fixed' or po.lower()=='fai1notpoi':
+                if not self.fai1POI: raise ValueError("Specified fai1Fixed and/or fai1NotPOI multiple times!\n{}".format(physOptions))
                 print "CMS_zz4l_fai1 is NOT A POI"
                 self.fai1POI = False
-                if 'fai1Fixed' in po:
+                if po.lower()=='fai1fixed':
                     print "Will fix CMS_zz4l_fai1 to 0"
                     self.fai1Floating = False
+                processed.append(po)
 
-            if 'phiai1Floating' in po or 'phiai1AsPOI' in po:
+            if po.lower()=='phiai1floating' or po.lower()=='phiai1aspoi':
+                if self.phiai1Floating: raise ValueError("Specified phiai1Floating and/or phiai1AsPOI multiple times!\n{}".format(physOptions))
                 print "Will consider phase ai1 as a floating parameter"
                 self.phiai1Floating = True
-                if 'phiai1AsPOI' in po:
+                if po.lower()=='phiai1aspoi':
                     print "Will consider phase ai1 as a parameter of interest"
                     self.phiai1POI = True
+                processed.append(po)
 
-            if 'fai2Floating' in po or 'fai2AsPOI' in po:
+            if po.lower() == 'fai2floating' or po.lower() == 'fai2aspoi':
+                if self.fai2Floating: raise ValueError("Specified fai2Floating and/or fai2AsPOI multiple times!\n{}".format(physOptions))
                 print "Will float CMS_zz4l_fai2"
                 self.fai2Floating = True
-                if 'fai2AsPOI' in po:
+                if po.lower() == 'fai2aspoi':
                     self.fai2POI = True
+                processed.append(po)
 
-            if 'phiai2Floating' in po or 'phiai2AsPOI' in po:
+            if po.lower() == 'phiai2floating' or po.lower() == 'phiai2aspoi':
+                if self.phiai2Floating: raise ValueError("Specified phiai2Floating and/or phiai2AsPOI multiple times!\n{}".format(physOptions))
                 print "Will consider phase ai2 as a floating parameter"
                 self.phiai2Floating = True
-                if 'phiai2AsPOI' in po:
+                if po.lower() == 'phiai2aspoi':
                     print "Will consider phase ai2 as a parameter of interest"
                     self.phiai2POI = True
+                processed.append(po)
 
-            if 'allowPMF' in po:
+            if po.lower() == 'allowpmf':
                 self.allowPMF = True
+                processed.append(po)
 
-            if 'HWWcombination' in po:
+            if po.lower() == 'hwwcombination':
                 self.HWWcombination = True
+                processed.append(po)
+
+        return processed
 
     def getPOIList(self):
 
@@ -171,15 +183,20 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
         self.muFloating = True
         self.muAsPOI = False
 
-    def setPhysicsOptions(self,physOptions):
-        super(SpinZeroHiggs, self).setPhysicsOptions(physOptions)
+    def processPhysicsOptions(self,physOptions):
+        processed = super(SpinZeroHiggs, self).processPhysicsOptions(physOptions)
         for po in physOptions:
-            if 'muFixed' in po:
+            if po.lower() == 'mufixed':
                 print "Will consider the signal strength as a fixed parameter"
                 self.muFloating = False
-            elif 'muAsPOI' in po:
+                processed.append(po)
+            elif po.lower() == 'muaspoi':
                 print "Will consider the signal strength as a parameter of interest"
                 self.muAsPOI = True
+                processed.append(po)
+
+        if self.muAsPOI and not self.muFloating:
+            raise ValueError("Specified both muFixed and muAsPOI!")
 
         if not self.muAsPOI and not self.fai1POI and not self.fai2POI and not self.phiai1POI and not self.phiai2POI:
             print "No POIs detected: Switching to default configuration: Floating nuisance mu, floating POI fai1, eveything else fixed"
@@ -194,6 +211,8 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
             self.phiai2Floating = False
             self.phiai2POI = False
             self.allowPMF = False
+
+        return processed
 
     def getPOIList(self):
         poi = super(SpinZeroHiggs, self).getPOIList()
@@ -236,41 +255,44 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         if not any(po.startswith("map=") for po in physOptions):
             #no po started with map --> no manual overriding --> use the defaults
             #can still override with e.g. turnoff=ZH,WH
-            for po in physOptions[:]:
-                if po.lower() == "scalemuvmuftogether":
-                    self.scalemuvfseparately = False
-                    physOptions.remove(po)
-                if po.lower() == "scaledifferentsqrtsseparately":
-                    self.scaledifferentsqrtsseparately = True
-                    physOptions.remove(po)
-                if po.lower().startswith("sqrts="):
-                    if self.sqrts is not None: raise ValueError("Duplicate physicsoption sqrts=?? provided")
-                    self.sqrts = [int(_) for _ in po.replace("sqrts=", "").split(",")]
-                    physOptions.remove(po)
-
-            if self.sqrts is None:
-                raise ValueError("PhysicsOption sqrts=?? is mandatory.  example: sqrts=7,8,13")
-
             physOptions = ["map=.*/(gg|qq|Z|W|tt)H:1"] + physOptions
-
-            physOptions.sort(key=lambda x: x.startswith("verbose"), reverse=True) #put verbose at the beginning
-
-            if self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
-                self.fix = ["RV", "RF", "R"] + ["R_{}TeV".format(_) for _ in self.sqrts]
-                self.float = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
-            elif self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
-                self.fix = ["RV", "RF", "R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
-                self.float = ["R_{}TeV".format(_) for _ in self.sqrts]
-            elif not scaledifferentsqrtsseparately and self.scalemuvfseparately:
-                self.fix = ["R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
-                self.float = ["RV", "RF"]
-            elif not scaledifferentsqrtsseparately and not self.scalemuvfseparately:
-                self.fix = ["RV", "RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
-                self.float = ["R"]
-            else:
-                assert False, "?????"
-
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
+
+    def processPhysicsOptions(self, physOptions):
+        processed = super(MultiSignalSpinZeroHiggs, self).processPhysicsOptions(physOptions)
+        for po in physOptions:
+            if po.lower() == "scalemuvmuftogether":
+                self.scalemuvfseparately = False
+                processed.append(po)
+            if po.lower() == "scaledifferentsqrtsseparately":
+                self.scaledifferentsqrtsseparately = True
+                processed.append(po)
+            if po.lower().startswith("sqrts="):
+                if self.sqrts is not None: raise ValueError("Duplicate physicsoption sqrts=?? provided")
+                self.sqrts = [int(_) for _ in po.replace("sqrts=", "").split(",")]
+                processed.append(po)
+
+        if self.sqrts is None:
+            raise ValueError("PhysicsOption sqrts=?? is mandatory.  example: sqrts=7,8,13")
+
+        physOptions.sort(key=lambda x: x.startswith("verbose"), reverse=True) #put verbose at the beginning
+
+        if self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
+            self.fix = ["RV", "RF", "R"] + ["R_{}TeV".format(_) for _ in self.sqrts]
+            self.float = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
+        elif self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
+            self.fix = ["RV", "RF", "R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
+            self.float = ["R_{}TeV".format(_) for _ in self.sqrts]
+        elif not scaledifferentsqrtsseparately and self.scalemuvfseparately:
+            self.fix = ["R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+            self.float = ["RV", "RF"]
+        elif not scaledifferentsqrtsseparately and not self.scalemuvfseparately:
+            self.fix = ["RV", "RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+            self.float = ["R"]
+        else:
+            assert False, "?????"
+
+        return processed
 
     def getPOIList(self):
         result = super(SpinZeroHiggs, self).getPOIList()
