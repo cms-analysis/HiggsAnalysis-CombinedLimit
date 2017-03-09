@@ -106,16 +106,21 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
         self.verbose = False
         self.factories = []
         super(MultiSignalModelBase, self).__init__()
+
+    def setPhysicsOptions(self,physOptions):
+        for po in physOptions[:]:
+            if po.startswith("turnoff="):   #shorthand:  turnoff=process1,process2,process3 --> map=.*/(process1|process2|process3):0
+                physOptions.remove(po)
+                turnoff = po.replace("turnoff=", "").split(",")
+                physOptions.append("map=.*/({}):0".format("|".join(turnoff)))
+        super(MultiSignalModelBase, self).setPhysicsOptions(physOptions)
+
     def processPhysicsOptions(self,physOptions):
         processed = []
+        physOptions.sort(key=lambda x: x.startswith("verbose"), reverse=True) #put verbose at the beginning
         for po in physOptions:
             if po == "verbose":
                 self.verbose = True
-                processed.append(po)
-            if po.startswith("turnoff="):   #shorthand:  turnoff=process1,process2,process3 --> map=.*/(process1|process2|process3):0
-                turnoff = po.replace("turnoff=", "").split(",")
-                if turnoff:
-                    po = "map=.*/({}):0".format("|".join(turnoff))  #and leads right into the next option
                 processed.append(po)
             if po.startswith("map="):
                 (maplist,poi) = po.replace("map=","").split(":",1)

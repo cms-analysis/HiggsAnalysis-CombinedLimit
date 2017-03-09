@@ -275,8 +275,6 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         if self.sqrts is None:
             raise ValueError("PhysicsOption sqrts=?? is mandatory.  example: sqrts=7,8,13")
 
-        physOptions.sort(key=lambda x: x.startswith("verbose"), reverse=True) #put verbose at the beginning
-
         if self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
             self.fix = ["RV", "RF", "R"] + ["R_{}TeV".format(_) for _ in self.sqrts]
             self.float = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
