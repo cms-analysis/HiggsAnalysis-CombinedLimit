@@ -309,18 +309,5 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
 
         return result
 
-    def getYieldScale(self,bin,process):
-        result = super(MultiSignalSpinZeroHiggs, self).getYieldScale(bin,process)
-
-        w = self.modelBuilder.out
-
-        if w.function("muVratio") and w.var("r_VVH") and not w.function("muV_scaled"):
-            self.modelBuilder.doExp("muV_scaled", "@0/@1", "r_VVH, muVratio")
-
-        if w.function("mufratio") and w.var("r_ffH") and not w.function("muf_scaled"):
-            self.modelBuilder.doExp("muf_scaled", "@0/@1", "r_ffH, mufratio")
-
-        return result
-
 spinZeroHiggs = SpinZeroHiggs()
 multiSignalSpinZeroHiggs = MultiSignalSpinZeroHiggs()
