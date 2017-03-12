@@ -297,12 +297,12 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
 
         for variable in self.fix:
             if not self.modelBuilder.out.var(variable):
-                raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option")
+                raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable))
             self.modelBuilder.out.var(variable).setVal(1)
             self.modelBuilder.out.var(variable).setConstant()
         for variable in self.float:
             if not self.modelBuilder.out.var(variable):
-                raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option")
+                raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable))
             self.modelBuilder.out.var(variable).setAttribute("flatParam")
 
         return result
