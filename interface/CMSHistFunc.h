@@ -10,6 +10,7 @@
 #include "RooArgProxy.h"
 #include "Rtypes.h"
 #include "TH1F.h"
+#include "TMatrix.h"
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Logging.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
@@ -23,6 +24,10 @@ class CMSHistFunc : public RooAbsReal {
     bool single_point = true;
     unsigned p1 = 0;
     unsigned p2 = 0;
+
+    TMatrixD m;
+    std::vector<double> c_scale;  // coeffs for scaling
+    std::vector<double> c_sum;    // coeffs for summing
   };
 
   struct Cache {
@@ -42,11 +47,25 @@ class CMSHistFunc : public RooAbsReal {
 
     bool cdf_set = false;
     bool interp_set = false;
-    // bool step1_set = false;
-    // bool step2_set = false;
+
+    // For moment morphing
+    double mean;
+    double sigma;
+
+    bool meansig_set = false;
   };
 
  public:
+  enum HorizontalType { Closest, Integral, Moment };
+
+  enum MomentSetting {
+    Linear,
+    NonLinear,
+    NonLinearPosFractions,
+    NonLinearLinFractions,
+    SineLinear
+  };
+
   CMSHistFunc();
 
   CMSHistFunc(const char* name, const char* title, RooRealVar& x,
@@ -84,7 +103,19 @@ class CMSHistFunc : public RooAbsReal {
 
   inline void setMorphStrategy(unsigned strategy) {
     morph_strategy_ = strategy;
+    resetCaches();
   };
+
+  inline void setHorizontalType(CMSHistFunc::HorizontalType htype) {
+    htype_ = htype;
+    resetCaches();
+  };
+
+  inline void setMomentType(CMSHistFunc::MomentSetting mtype) {
+    mtype_ = mtype;
+    resetCaches();
+  };
+
   inline void setEvalVerbose(unsigned val) { veval = val; };
 
   inline FastTemplate const& getBinErrors() const { return binerrors_; }
@@ -112,15 +143,20 @@ class CMSHistFunc : public RooAbsReal {
   FastTemplate binerrors_;
   std::vector<FastHisto> storage_;
 
-  mutable GlobalCache global_;         //! not to be serialized
+  mutable GlobalCache global_;  //! not to be serialized
   mutable std::vector<Cache> mcache_;  //! not to be serialized
 
   unsigned morph_strategy_;
   int veval;
   mutable bool initialized_; //! not to be serialized
 
+  HorizontalType htype_;
+  MomentSetting mtype_;
+
  private:
   void initialize() const;
+
+  void resetCaches();
 
   unsigned getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
                   unsigned vpoint) const;
@@ -128,6 +164,8 @@ class CMSHistFunc : public RooAbsReal {
   inline double smoothStepFunc(double x) const;
 
   void setCdf(Cache& c, FastHisto const& h) const;
+  void setMeanSig(Cache& c, FastHisto const& h) const;
+  void updateMomentFractions(double m) const;
 
   void prepareInterpCache(Cache& c1, Cache const& c2) const;
 

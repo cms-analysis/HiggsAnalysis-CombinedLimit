@@ -10,3 +10,7 @@
   <use name="HiggsAnalysis/CombinedLimit"/>
   <use   name="boost_program_options"/>
 </bin>
+<bin file="MorphTest3.cpp" name="MorphTest3">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>

@@ -8,12 +8,16 @@
 #include "RooAbsReal.h"
 #include "TH1F.h"
 #include "TVector.h"
+#include "TMatrix.h"
 #include "vectorized.h"
+#include "TMath.h"
 
 CMSHistFunc::CMSHistFunc() {
   morph_strategy_ = 0;
   veval = 0;
   initialized_ = false;
+  htype_ = HorizontalType::Closest;
+  mtype_ = MomentSetting::NonLinearPosFractions;
 }
 
 CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
@@ -28,7 +32,9 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       binerrors_(FastTemplate(hist.GetNbinsX())),
       morph_strategy_(0),
       veval(0),
-      initialized_(false) {
+      initialized_(false),
+      htype_(HorizontalType::Moment),
+      mtype_(MomentSetting::Linear) {
   for (unsigned i = 0; i < cache_.size(); ++i) {
     // float c = hist.GetBinContent(i + 1);
     // float e = hist.GetBinError(i + 1);
@@ -59,7 +65,9 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       storage_(other.storage_),
       morph_strategy_(other.morph_strategy_),
       veval(other.veval),
-      initialized_(false) {
+      initialized_(false),
+      htype_(other.htype_),
+      mtype_(other.mtype_) {
   // initialize();
 }
 
@@ -71,7 +79,45 @@ void CMSHistFunc::initialize() const {
   vmorph_sentry_.addVars(vmorphs_);
   hmorph_sentry_.setValueDirty();
   vmorph_sentry_.setValueDirty();
+
+  unsigned n_hpoints = 1;
+  if (hmorphs_.getSize() == 1) {
+    n_hpoints = hpoints_[0].size();
+    global_.bedgesn.resize(cache_.size() + 1);
+    for (unsigned i = 0; i < global_.bedgesn.size(); ++i) {
+     global_.bedgesn[i] = cache_.GetEdge(i);
+    }
+
+    // This portion of code adapted from:
+    // RooMomentMorph.cxx
+    TVectorD dm(n_hpoints);
+    global_.m.ResizeTo(n_hpoints, n_hpoints);
+    // global_.m = TMatrixD(n_hpoints, n_hpoints);
+    TMatrixD M(n_hpoints, n_hpoints);
+
+    for (unsigned i = 0; i < hpoints_[0].size(); ++i) {
+      dm[i] = hpoints_[0][i] - hpoints_[0][0];
+      M(i, 0) = 1.;
+      if (i > 0) M(0, i) = 0.;
+    }
+    for (unsigned i = 1; i < hpoints_[0].size(); ++i) {
+      for (unsigned j = 1; j < hpoints_[0].size(); ++j) {
+        M(i, j) = std::pow(dm[i], (double)j);
+      }
+    }
+    global_.m = M.Invert();
+
+    global_.c_scale.resize(hpoints_[0].size(), 0.);
+    global_.c_sum.resize(hpoints_[0].size(), 0.);
+    // End
+  }
   initialized_ = true;
+}
+
+void CMSHistFunc::resetCaches() {
+  mcache_.clear();
+  hmorph_sentry_.setValueDirty();
+  vmorph_sentry_.setValueDirty();
 }
 
 std::unique_ptr<RooArgSet> CMSHistFunc::getSentryArgs() const {
@@ -107,10 +153,6 @@ void CMSHistFunc::prepareStorage() {
   unsigned n_hpoints = 1;
   if (hmorphs_.getSize() == 1) {
     n_hpoints = hpoints_[0].size();
-    global_.bedgesn.resize(cache_.size() + 1);
-    for (unsigned i = 0; i < global_.bedgesn.size(); ++i) {
-     global_.bedgesn[i] = cache_.GetEdge(i);
-    }
   }
   unsigned n_vpoints = vmorphs_.getSize();
   storage_.resize(n_hpoints * (1 + n_vpoints * 2));
@@ -181,7 +223,132 @@ void CMSHistFunc::updateCache() const {
       if (mcache_.size() == 0) mcache_.resize(storage_.size());
     }
 
-    if (step1 && !global_.single_point) {
+    if (step1 && htype_ == HorizontalType::Moment && !global_.single_point) {
+      FNLOGC(std::cout, veval) << "Checking step 1\n";
+      double val = ((RooRealVar*)(hmorphs_.at(0)))->getVal();
+      updateMomentFractions(val);  // updates fractions in global cache, only depends on hmorph par
+
+      for (int v = 0; v < vmorphs_.getSize() + 1; ++v) {
+        for (int vi = 0; vi < (v == 0 ? 1 : 2); ++vi) {
+          // FNLOGC(std::cout, veval) << "Doing vpoint,vindex = " << v << "\t" << vi << "\n";
+          std::vector<double> means(hpoints_[0].size(), 0.);
+          std::vector<double> sigmas(hpoints_[0].size(), 0.);
+          std::vector<double> slopes(hpoints_[0].size(), 0.);
+          std::vector<double> offsets(hpoints_[0].size(), 0.);
+          for (unsigned hi = 0; hi < hpoints_[0].size(); ++hi) {
+            // define vec of mean vals
+            unsigned idx = getIdx(0, hi, v, vi);
+            if (!mcache_[idx].meansig_set) {
+              setMeanSig(mcache_[idx], storage_[idx]);
+            }
+            means[hi] = mcache_[idx].mean;
+            sigmas[hi] = mcache_[idx].sigma;
+          }
+          double M = vectorized::dot_product(means.size(), &means[0], &global_.c_scale[0]);
+          double C = vectorized::dot_product(sigmas.size(), &sigmas[0], &global_.c_scale[0]);
+
+          unsigned cidx = getIdx(0, global_.p1, v, vi);
+          // The step1 cache might not have been allocated yet...
+          mcache_[cidx].step1.Resize(storage_[cidx].size());
+          mcache_[cidx].step1.Clear();
+
+          for (unsigned hi = 0; hi < hpoints_[0].size(); ++hi) {
+            // We can skip all this if the weight is zero
+            if (global_.c_sum[hi] == 0.) continue;
+
+            slopes[hi] = sigmas[hi] / C;
+            offsets[hi] = means[hi] - (M * slopes[hi]);
+            // if (veval) {
+            //   std::cout << hi << "\t" << hpoints_[0][hi]
+            //             << "\t mean = " << means[hi]
+            //             << "\t sigma = " << sigmas[hi]
+            //             << "\t slope = " << slopes[hi]
+            //             << "\t offset = " << offsets[hi] << "\n";
+            // }
+            unsigned idx = getIdx(0, hi, v, vi);
+
+
+            // TODO: Scope for optimisation here if we know binning is regular?
+            double xl = storage_[idx].GetEdge(0) * slopes[hi] + offsets[hi];
+            int il =  storage_[idx].FindBin(xl);
+            double xh = 0.;
+            int ih = 0;
+            int n = storage_[idx].size();
+
+            if (veval) storage_[idx].Dump();
+
+            for (unsigned ib = 0; ib < storage_[idx].size(); ++ib) {
+
+              double sum = 0.;
+
+              xh = storage_[idx].GetEdge(ib+1) * slopes[hi] + offsets[hi];
+              ih =  storage_[idx].FindBin(xh);
+              // FNLOGC(std::cout, veval) << "Calculating bin " << ib
+              //                          << "\txl = " << xl << "\til = " << il
+              //                          << "\txh = " << xh << "\tih = " << ih
+              //                          << "\n";
+
+              if (il != -1 && il != n && il != ih) {
+                sum += (storage_[idx].GetEdge(il + 1) - xl) * storage_[idx][il];
+                // FNLOGC(std::cout, veval)
+                //     << "Adding from lower edge: to boundary = "
+                //     << storage_[idx].GetEdge(il + 1)
+                //     << "\tcontent = " << storage_[idx][il] << "\n";
+              }
+
+              for (int step = il + 1; step < ih; ++step) {
+                sum += storage_[idx].GetWidth(step) * storage_[idx][step];
+                // FNLOGC(std::cout, veval)
+                //     << "Adding whole bin: bin = "
+                //     << step
+                //     << "\tcontent = " << storage_[idx][step] << "\n";
+              }
+              // Add the fraction of the last bin
+              if (ih != -1 && ih != n && il != ih) {
+                sum += (xh - storage_[idx].GetEdge(ih)) * storage_[idx][ih];
+                // FNLOGC(std::cout, veval)
+                //     << "Adding to upper edge: from boundary = "
+                //     << storage_[idx].GetEdge(ih)
+                //     << "\tcontent = " << storage_[idx][ih] << "\n";
+              }
+
+              if (il == ih && il != -1 && il != n) {
+                sum += (xh - xl) * storage_[idx][il];
+                // FNLOGC(std::cout, veval)
+                //     << "Adding partial bin: bin = "
+                //     << il
+                //     << "\tcontent = " << storage_[idx][il] << "\n";
+              }
+
+              mcache_[cidx].step1[ib] += (global_.c_sum[hi] * sum / storage_[idx].GetWidth(ib));
+              il = ih;
+              xl = xh;
+            }
+          }
+
+          if (veval) mcache_[cidx].step1.Dump();
+        }
+
+        // This next block is identical to the Integral morphing, so should make it common code
+        if (v >= 1) {
+          FNLOGC(std::cout, veval) << "Setting sumdiff for vmorph " << v << "\n";
+          unsigned idx = getIdx(0, global_.p1, 0, 0);
+          unsigned idxLo = getIdx(0, global_.p1, v, 0);
+          unsigned idxHi = getIdx(0, global_.p1, v, 1);
+          FastTemplate lo = mcache_[idxLo].step1;
+          FastTemplate hi = mcache_[idxHi].step1;
+          hi.Subtract(mcache_[idx].step1);
+          lo.Subtract(mcache_[idx].step1);
+          // TODO: could skip the next two lines if .sum and .diff have been set before
+          mcache_[idxLo].sum = mcache_[idx].step1;
+          mcache_[idxLo].diff = mcache_[idx].step1;
+          FastTemplate::SumDiff(hi, lo, mcache_[idxLo].sum, mcache_[idxLo].diff);
+        }
+      }
+      hmorph_sentry_.reset();
+    }
+
+    if (step1 && htype_ == HorizontalType::Integral && !global_.single_point) {
       FNLOGC(std::cout, veval) << "Checking step 1\n";
       for (int v = 0; v < vmorphs_.getSize() + 1; ++v) {
         for (int vi = 0; vi < (v == 0 ? 1 : 2); ++vi) {
@@ -287,7 +454,7 @@ void CMSHistFunc::updateCache() const {
       }
       mcache_[idx].step2.CropUnderflows();
       cache_.CopyValues(mcache_[idx].step2);
-      if (veval >= 2) {
+      if (veval >= 1) {
         std::cout << "Final cache: " << cache_.Integral() << "\n";
         cache_.Dump();
       }
@@ -324,6 +491,99 @@ void CMSHistFunc::setCdf(Cache& c, FastHisto const& h) const {
     c.cdf[i] = h[i - 1] / c.integral + c.cdf[i - 1];
   }
   c.cdf_set = true;
+}
+
+void CMSHistFunc::setMeanSig(Cache& c, FastHisto const& h) const {
+  double iw = 0.;
+  double ixw = 0.;
+  double ixxw = 0.;
+  for (unsigned  i = 0; i < h.size(); ++i) {
+    double x = (h.GetEdge(i + 1) + h.GetEdge(i)) / 2.;
+    iw += h.GetWidth(i) * h[i];
+    ixw += h.GetWidth(i) * h[i] * x;
+    ixxw += h.GetWidth(i) * h[i] * x * x;
+  }
+  c.mean = ixw / iw;
+  c.sigma = (ixxw / iw) - c.mean * c.mean;
+  c.meansig_set = true;
+}
+
+void CMSHistFunc::updateMomentFractions(double m) const {
+  int nPdf = hpoints_[0].size();
+
+  double dm = m - hpoints_[0][0];
+
+  FNLOGC(std::cout, veval) << "dm =  " << dm << "\n";
+  FNLOGC(std::cout, veval) << "mtype =  " << mtype_ << "\n";
+
+  // fully non-linear
+  double sumposfrac = 0.;
+  for (int i = 0; i < nPdf; ++i) {
+    double ffrac = 0.;
+    for (int j = 0; j < nPdf; ++j) {
+      ffrac += global_.m(j, i) * (j == 0 ? 1. : std::pow(dm, (double)j));
+    }
+    if (ffrac >= 0) sumposfrac += ffrac;
+    // fractions for pdf
+    global_.c_sum[i] = ffrac;
+    global_.c_scale[i] = ffrac;
+    // if (verbose) { cout << ffrac << endl; }
+  }
+
+  // various mode settings
+  int imin = global_.p1;
+  int imax = global_.single_point ? global_.p1 : global_.p2;
+  double mfrac =
+      (m - hpoints_[0][imin]) / (hpoints_[0][imax] - hpoints_[0][imin]);
+  switch (mtype_) {
+    case NonLinear:
+      // default already set above
+      break;
+
+    case SineLinear:
+      mfrac = TMath::Sin(TMath::PiOver2() * mfrac);
+    // now fall through to Linear case
+
+    case Linear:
+      for (int i = 0; i < nPdf; ++i) {
+        global_.c_sum[i] = 0.;
+        global_.c_scale[i] = 0.;
+      }
+      if (imax > imin) {  // m in between mmin and mmax
+        global_.c_sum[imin] = 1. - mfrac;
+        global_.c_scale[imin] = 1. - mfrac;
+        global_.c_sum[imax] = mfrac;
+        global_.c_scale[imax] = mfrac;
+      } else if (imax == imin) {  // m outside mmin and mmax
+        global_.c_sum[imin] = 1.;
+        global_.c_scale[imin] = 1.;
+      }
+      break;
+    case NonLinearLinFractions:
+      for (int i = 0; i < nPdf; ++i) {
+        global_.c_sum[i] = 0.;
+      }
+      if (imax > imin) {  // m in between mmin and mmax
+        global_.c_sum[imin] = 1. - mfrac;
+        global_.c_sum[imax] = mfrac;
+      } else if (imax == imin) {  // m outside mmin and mmax
+        global_.c_sum[imin] = 1.;
+      }
+      break;
+    case NonLinearPosFractions:
+      for (Int_t i = 0; i < nPdf; ++i) {
+        if (global_.c_sum[i] < 0) {
+          global_.c_sum[i] = 0;
+        }
+        global_.c_sum[i] = global_.c_sum[i] / sumposfrac;
+      }
+      break;
+  }
+  if (veval) {
+    for (unsigned i = 0; i < global_.c_sum.size(); ++i) {
+      std::cout << hpoints_[0][i] << "\t c_sum = " << global_.c_sum[i] << "\t c_scale = " << global_.c_scale[i] << "\n";
+    }
+  }
 }
 
 void CMSHistFunc::prepareInterpCache(Cache& c1,
