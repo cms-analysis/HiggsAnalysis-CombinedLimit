@@ -35,6 +35,7 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       initialized_(false),
       htype_(HorizontalType::Moment),
       mtype_(MomentSetting::Linear) {
+  prepareStorage();  // Prepare storage of size 1 -> the cache_ will be copied in there
   for (unsigned i = 0; i < cache_.size(); ++i) {
     // float c = hist.GetBinContent(i + 1);
     // float e = hist.GetBinError(i + 1);
