@@ -98,6 +98,8 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                 print "Allowing negative CMS_zz4l_fai1"
             if self.fai1POI:
                 poi.append("CMS_zz4l_fai1")
+            else:
+                self.modelBuilder.out.var("CMS_zz4l_fai1").setAttribute("flatParam")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_fai1"):
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
@@ -118,6 +120,8 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                 print "Allowing negative CMS_zz4l_fai2"
             if self.fai2POI:
                 poi.append("CMS_zz4l_fai2")
+            else:
+                self.modelBuilder.out.var("CMS_zz4l_fai2").setAttribute("flatParam")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_fai2"):
                 self.modelBuilder.out.var("CMS_zz4l_fai2").setVal(0)
@@ -136,6 +140,8 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
             if self.phiai1POI:
                 print "Treating phiai1 as a POI"
                 poi.append("CMS_zz4l_phiai1")
+            else:
+                self.modelBuilder.out.var("CMS_zz4l_phiai1").setAttribute("flatParam")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
                 self.modelBuilder.out.var("CMS_zz4l_phiai1").setVal(0)
@@ -154,6 +160,8 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
             if self.phiai2POI:
                 print "Treating phiai2 as a POI"
                 poi.append("CMS_zz4l_phiai2")
+            else:
+                self.modelBuilder.out.var("CMS_zz4l_phiai2").setAttribute("flatParam")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_phiai2"):
                 self.modelBuilder.out.var("CMS_zz4l_phiai2").setVal(0)
@@ -164,16 +172,18 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         if self.HWWcombination:
             if self.modelBuilder.out.var("CMS_zz4l_alpha"):
-                self.modelBuilder.out.var("CMS_zz4l_alpha").setVal(0.5)
                 print "Found CMS_zz4l_alpha; setting to 0.5"
+                self.modelBuilder.out.var("CMS_zz4l_alpha").setVal(0.5)
             else:
-                self.modelBuilder.doVar("CMS_zz4l_alpha[0.5,-1,1]")
                 print "Creating CMS_zz4l_alpha; setting to 0.5"
+                self.modelBuilder.doVar("CMS_zz4l_alpha[0.5,-1,1]")
+            print "Treating alpha (Rai1) as a POI"
+            poi.append("CMS_zz4l_alpha")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_alpha"):
+                print "Found CMS_zz4l_alpha; setting to constant 0"
                 self.modelBuilder.out.var("CMS_zz4l_alpha").setVal(0)
                 self.modelBuilder.out.var("CMS_zz4l_alpha").setConstant()
-                print "Found CMS_zz4l_alpha; setting to constant 0"
 
         return poi
 
@@ -246,8 +256,8 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         self.scalemuvfseparately = True
         self.scaledifferentsqrtsseparately = False
         self.sqrts = None
-        self.fix = []
-        self.float = []
+        self.fixed = []
+        self.floated = []
         #not doing muAsPOI or fixMu, there are too many permutations.
         #should just be set when running combine.
 
@@ -276,17 +286,17 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
             raise ValueError("PhysicsOption sqrts=?? is mandatory.  example: sqrts=7,8,13")
 
         if self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
-            self.fix = ["RV", "RF", "R"] + ["R_{}TeV".format(_) for _ in self.sqrts]
-            self.float = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
+            self.fixed = ["RV", "RF", "R"] + ["R_{}TeV".format(_) for _ in self.sqrts]
+            self.floated = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
         elif self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
-            self.fix = ["RV", "RF", "R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
-            self.float = ["R_{}TeV".format(_) for _ in self.sqrts]
+            self.fixed = ["RV", "RF", "R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
+            self.floated = ["R_{}TeV".format(_) for _ in self.sqrts]
         elif not self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
-            self.fix = ["R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
-            self.float = ["RV", "RF"]
+            self.fixed = ["R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+            self.floated = ["RV", "RF"]
         elif not self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
-            self.fix = ["RV", "RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
-            self.float = ["R"]
+            self.fixed = ["RV", "RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+            self.floated = ["R"]
         else:
             assert False, "?????"
 
@@ -295,14 +305,26 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
     def getPOIList(self):
         result = super(MultiSignalSpinZeroHiggs, self).getPOIList()
 
-        for variable in self.fix:
+        fixedorfloated = self.fixed+self.floated
+        for variable in fixedorfloated:
             if not self.modelBuilder.out.var(variable):
                 raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable))
-            self.modelBuilder.out.var(variable).setVal(1)
+            if 'r' in variable.lower():
+                print "Setting {} range to [1.,0.,400.]".format(variable)
+                self.modelBuilder.out.var(variable).setRange(0.,400.)
+                self.modelBuilder.out.var(variable).setVal(1)
+            elif "ggsm" in variable.lower():
+                print "Setting {} range to [1.,0.,50.]".format(variable)
+                self.modelBuilder.out.var(variable).setRange(0.,50.)
+                self.modelBuilder.out.var(variable).setVal(1)
+            else:
+                print "Setting {} value to 0".format(variable)
+                self.modelBuilder.out.var(variable).setVal(0)
+        for variable in self.fixed:
+            print "Fixing {}".format(variable)
             self.modelBuilder.out.var(variable).setConstant()
-        for variable in self.float:
-            if not self.modelBuilder.out.var(variable):
-                raise ValueError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable))
+        for variable in self.floated:
+            print "Floating {} and assigning attribute flatParam".format(variable)
             self.modelBuilder.out.var(variable).setAttribute("flatParam")
 
         return result
