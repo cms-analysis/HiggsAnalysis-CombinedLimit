@@ -39,7 +39,7 @@ double vectorized::nll_reduce(const uint32_t size, double* __restrict__ pdfvals,
     }
 
 
-    DefaultAccumulator ret = 0;
+    DefaultAccumulator<double> ret = 0;
     for (uint32_t i = 0; i < size; ++i) {
         ret += pdfvals[i];
     }
@@ -82,7 +82,7 @@ void vectorized::powers(const uint32_t size, double exponent, double norm, const
 }
 
 double vectorized::dot_product(const uint32_t size, double const * __restrict__ vec1, double const *  __restrict__ vec2) {
-    DefaultAccumulator ret = 0;
+    DefaultAccumulator<double> ret = 0;
     for (uint32_t i = 0; i < size; ++i) {
         ret += vec1[i]*vec2[i];
     }

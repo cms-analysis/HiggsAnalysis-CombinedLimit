@@ -7,7 +7,7 @@
 #include <algorithm>
 
 FastTemplate::T FastTemplate::Integral() const {
-    DefaultAccumulator total = 0;
+    DefaultAccumulator<T> total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i];
     return total.sum();
 }
@@ -87,7 +87,7 @@ FastHisto::T FastHisto::GetAt(const T &x) const {
 }
 
 FastHisto::T FastHisto::IntegralWidth() const {
-    DefaultAccumulator total = 0;
+    DefaultAccumulator<T> total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
     return total.sum();
 }
@@ -151,7 +151,7 @@ FastHisto2D::T FastHisto2D::GetAt(const T &x, const T &y) const {
 }
 
 FastHisto2D::T FastHisto2D::IntegralWidth() const {
-    DefaultAccumulator total = 0;
+    DefaultAccumulator<T> total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
     return total.sum();
 }
@@ -159,7 +159,7 @@ FastHisto2D::T FastHisto2D::IntegralWidth() const {
 void FastHisto2D::NormalizeXSlices() {
     for (unsigned int ix = 0, offs = 0; ix < binX_; ++ix, offs += binY_) {
        T *values = & values_[offs], *widths = & binWidths_[offs];
-       DefaultAccumulator totalc = 0;
+       DefaultAccumulator<T> totalc = 0;
        for (unsigned int i = 0; i < binY_; ++i) totalc += values[i] * widths[i];
        double total = totalc.sum();
        if (total > 0) {
@@ -261,7 +261,7 @@ FastHisto3D::T FastHisto3D::GetAt(const T &x, const T &y, const T &z) const {
 }
 
 FastHisto3D::T FastHisto3D::IntegralWidth() const {
-    DefaultAccumulator total = 0;
+    DefaultAccumulator<T> total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
     return total.sum();
 }
