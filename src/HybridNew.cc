@@ -14,6 +14,7 @@
 #include <TCanvas.h>
 #include <TGraphErrors.h>
 #include <TStopwatch.h>
+#include <TRandom3.h>
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooAbsPdf.h"
@@ -168,13 +169,15 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
             }
         }
     }
+    
+	
+    doFC_=false;
 
     mode_ = vm["LHCmode"].as<std::string>();
     if ( ! vm["LHCmode"].defaulted() ){
 	if (mode_=="LHC-limits"){
           genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
           testStat_ = "LHC";
-	  rule_ = "CLs";
 	} else if (mode_=="LHC-significance"){
           genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
           testStat_ = "LHC";
@@ -183,6 +186,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
           genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
           testStat_ = "PL";
 	  rule_ = "CLsplusb";
+	  doFC_ = true;
 	} else {
 	  throw std::invalid_argument(Form("HybridNew: invalid LHCmode %s, only --LHCmode 'LHC-significance', 'LHC-limits', and 'LHC-feldman-cousins' supported\n",mode_.c_str()));
 	}
@@ -229,10 +233,12 @@ void HybridNew::validateOptions() {
     } else if (rule_ == "CLsplusb") {
         CLs_ = false;
     } else if (rule_ == "FC") {
-        CLs_ = false;
+        CLs_  = false;
+	doFC_ = true;
     } else {
         throw std::invalid_argument("HybridNew: Rule must be either 'CLs' or 'CLsplusb'");
     }
+    if (doFC_) noUpdateGrid_ = true; // Needed since addition of points can skew interval 
     if (testStat_ == "SimpleLikelihoodRatio"      || testStat_ == "SLR" ) { testStat_ = "LEP";     }
     if (testStat_ == "RatioOfProfiledLikelihoods" || testStat_ == "ROPL") { testStat_ = "TEV";     }
     if (testStat_ == "ProfileLikelihood"          || testStat_ == "PL")   { testStat_ = "Profile"; }
@@ -379,7 +385,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       if (grid_.size() <= 1) throw std::logic_error("The grid must contain at least 2 points."); 
 
       useGrid();
-
+      
       double minDist=1e3;
       double nearest = 0;
       rMin = limitPlot_->GetX()[0]; 
@@ -388,17 +394,17 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
           double x = limitPlot_->GetX()[i], y = limitPlot_->GetY()[i], ey = limitPlot_->GetErrorY(i);
           if (verbose > 0) printf("  r %.2f: %s = %6.4f +/- %6.4f\n", x, CLs_ ? "CLs" : "CLsplusb", y, ey);
           if (saveGrid_) { limit = x; limitErr = ey; Combine::commitPoint(false, y); }
-          if (y-3*max(ey,0.01) >= clsTarget) { rMin = x; clsMin = CLs_t(y,ey); }
-          if (fabs(y-clsTarget) < minDist) { nearest = x; minDist = fabs(y-clsTarget); }
-          rMax = x; clsMax = CLs_t(y,ey);    
-          if (y+3*max(ey,0.01) <= clsTarget && !fullGrid_) break; 
+	  if (y-3*max(ey,0.01) >= clsTarget) { rMin = x; clsMin = CLs_t(y,ey); }
+	  if (fabs(y-clsTarget) < minDist) { nearest = x; minDist = fabs(y-clsTarget); }
+	  rMax = x; clsMax = CLs_t(y,ey);    
+	  if (y+3*max(ey,0.01) <= clsTarget && !fullGrid_) break; 
       }
       limit = nearest;
       if (verbose > 0) std::cout << " after scan x ~ " << limit << ", bounds [ " << rMin << ", " << rMax << "]" << std::endl;
       limitErr = std::max(limit-rMin, rMax-limit);
       expoFit.SetRange(rMin,rMax);
 
-      if (limitErr < std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
+      if (limitErr < std::max(rAbsAccuracy_, rRelAccuracy_ * limit) && (!doFC_) ) {  // need to look for intervals for FC
           if (verbose > 1) std::cout << "  reached accuracy " << limitErr << " below " << std::max(rAbsAccuracy_, rRelAccuracy_ * limit) << std::endl;
           done = true; 
       }
@@ -494,43 +500,62 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       } while (true);
 
   }
+  std::vector<std::pair<double,double> > points;
 
   if (!done) { // didn't reach accuracy with scan, now do fit
-      double rMinBound, rMaxBound; expoFit.GetRange(rMinBound, rMaxBound);
-      if (verbose) {
-          std::cout << "\n -- HybridNew, before fit -- \n";
-          std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " [" << rMinBound << ", " << rMaxBound << "]\n";
+      // if FC intervals, perform interval searching algo, otherwise, search for upper bound with fitting 
+
+      if (doFC_) { 
+        points  = findIntervalsFromSplines(limitPlot_.get(), clsTarget);// re use CLS_t ?
+	if (points.size()<2) std::cout << " HybridNew -- Found no interval in which " << rule_.c_str() << " is less than target " << cl << ", no crossings found " << std::endl;
+	else std::cout << "HybridNew --  found  " << 100*cl << "%% confidence regions " << std::endl;  
+	for (unsigned int ib=0;ib<points.size()-1;ib+=2){
+		std::cout << "  " << points[ib].first << " (+/-" << points[ib].second << ")"<< " < " << r->GetName() << " < " << points[ib+1].first << " (+/-" << points[ib+1].second << ")" << std::endl;
+
+		// Commit points to limit tree
+		limit = points[ib].first; limitErr = points[ib].second; Combine::commitPoint(false, clsTarget); 
+		limit = points[ib+1].first; limitErr = points[ib+1].second; Combine::commitPoint(false, clsTarget); 
+	}
+      } else {  
+
+	double rMinBound, rMaxBound; expoFit.GetRange(rMinBound, rMaxBound); 
+	if (verbose) {
+	    std::cout << "\n -- HybridNew, before fit -- \n";
+	    std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " [" << rMinBound << ", " << rMaxBound << "]\n";
+	}
+
+	expoFit.FixParameter(0,clsTarget);
+	double clsmaxfirst = clsMax.first;
+	if ( clsmaxfirst == 0.0 ) clsmaxfirst = 0.005;
+	double par1guess = log(clsmaxfirst/clsMin.first)/(rMax-rMin);
+	expoFit.SetParameter(1,par1guess);
+	expoFit.SetParameter(2,limit);
+	limitErr = std::max(fabs(rMinBound-limit), fabs(rMaxBound-limit));
+	int npoints = 0; 
+	for (int j = 0; j < limitPlot_->GetN(); ++j) { 
+	    if (limitPlot_->GetX()[j] >= rMinBound && limitPlot_->GetX()[j] <= rMaxBound) npoints++; 
+	}
+	for (int i = 0, imax = (readHybridResults_ ? 0 : 8); i <= imax; ++i, ++npoints) {
+	    limitPlot_->Sort();
+	    limitPlot_->Fit(&expoFit ,(verbose <= 1 ? "QNR EX0" : "NR EX0")); // For FC, might be more appropriate to fit pol2?
+	    if (verbose) {
+		std::cout << "Fit to " << npoints << " points: " << expoFit.GetParameter(2) << " +/- " << expoFit.GetParError(2) << std::endl; 
+	    }
+	    if ((rMinBound < expoFit.GetParameter(2))  && (expoFit.GetParameter(2) < rMaxBound) && (expoFit.GetParError(2) < 0.5*(rMaxBound-rMinBound))) { 
+		// sanity check fit result
+		  limit = expoFit.GetParameter(2);
+		  limitErr = expoFit.GetParError(2);
+		  if (limitErr < std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) break;
+	    }
+	    // add one point in the interval. 
+	    double rTry = RooRandom::uniform()*(rMaxBound-rMinBound)+rMinBound; 
+	    if (i != imax) eval(w, mc_s, mc_b, data, rTry, true, clsTarget);
+	}
       }
 
-      expoFit.FixParameter(0,clsTarget);
-      double clsmaxfirst = clsMax.first;
-      if ( clsmaxfirst == 0.0 ) clsmaxfirst = 0.005;
-      double par1guess = log(clsmaxfirst/clsMin.first)/(rMax-rMin);
-      expoFit.SetParameter(1,par1guess);
-      expoFit.SetParameter(2,limit);
-      limitErr = std::max(fabs(rMinBound-limit), fabs(rMaxBound-limit));
-      int npoints = 0; 
-      for (int j = 0; j < limitPlot_->GetN(); ++j) { 
-          if (limitPlot_->GetX()[j] >= rMinBound && limitPlot_->GetX()[j] <= rMaxBound) npoints++; 
-      }
-      for (int i = 0, imax = (readHybridResults_ ? 0 : 8); i <= imax; ++i, ++npoints) {
-          limitPlot_->Sort();
-          limitPlot_->Fit(&expoFit,(verbose <= 1 ? "QNR EX0" : "NR EX0"));
-          if (verbose) {
-              std::cout << "Fit to " << npoints << " points: " << expoFit.GetParameter(2) << " +/- " << expoFit.GetParError(2) << std::endl;
-          }
-          if ((rMinBound < expoFit.GetParameter(2))  && (expoFit.GetParameter(2) < rMaxBound) && (expoFit.GetParError(2) < 0.5*(rMaxBound-rMinBound))) { 
-              // sanity check fit result
-              limit = expoFit.GetParameter(2);
-              limitErr = expoFit.GetParError(2);
-              if (limitErr < std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) break;
-          }
-          // add one point in the interval. 
-          double rTry = RooRandom::uniform()*(rMaxBound-rMinBound)+rMinBound; 
-          if (i != imax) eval(w, mc_s, mc_b, data, rTry, true, clsTarget);
-      } 
   }
  
+  if (!doFC_) points.push_back(std::pair<double,double>(limit,limitErr) );  // add single Limit if not FC intervals
   if (!plot_.empty() && limitPlot_.get()) {
       TCanvas *c1 = new TCanvas("c1","c1");
       if (fullGrid_) c1->SetLogy(1);
@@ -544,24 +569,34 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       }
       if (fullGrid_) {
           limitPlot_->GetXaxis()->SetRangeUser(r->getMin(), r->getMax());
-          limitPlot_->GetYaxis()->SetRangeUser(0.05*clsTarget, 1.0);
+          //limitPlot_->GetYaxis()->SetRangeUser(0.05*clsTarget, 1.0);
       } else {
           limitPlot_->GetXaxis()->SetRangeUser(xmin,xmax);
-          limitPlot_->GetYaxis()->SetRangeUser(0.5*clsTarget, 1.5*clsTarget);
+          //limitPlot_->GetYaxis()->SetRangeUser(0.5*clsTarget, 1.5*clsTarget);
       }
+      limitPlot_->SetTitle(Form("HybridNew -- target %s = %g%%",rule_.c_str(),100*(1-clsTarget)));
       limitPlot_->Draw("AP");
-      expoFit.Draw("SAME");
+      if (!done && !doFC_) expoFit.Draw("SAME"); // needed expo fit
 
       // label the axes
-      limitPlot_->GetXaxis()->SetTitle("r");
+      limitPlot_->GetXaxis()->SetTitle(r->GetName());
       limitPlot_->GetYaxis()->SetTitle(rule_.c_str());
 
       TLine line(limitPlot_->GetX()[0], clsTarget, limitPlot_->GetX()[limitPlot_->GetN()-1], clsTarget);
       line.SetLineColor(kRed); line.SetLineWidth(2); line.Draw();
-      line.DrawLine(limit, 0, limit, limitPlot_->GetY()[0]);
+
       line.SetLineWidth(1); line.SetLineStyle(2);
-      line.DrawLine(limit-limitErr, 0, limit-limitErr, limitPlot_->GetY()[0]);
-      line.DrawLine(limit+limitErr, 0, limit+limitErr, limitPlot_->GetY()[0]);
+      double ymax = limitPlot_->GetYaxis()->GetXmax();
+
+      for (unsigned int pb=0;pb<points.size();pb++){
+        double limitLine    = points[pb].first;
+        double limitLineErr = points[pb].second;
+
+        line.DrawLine(limitLine, 0, limitLine, ymax);
+        line.DrawLine(limitLine-limitLineErr, 0, limitLine-limitLineErr, ymax);
+        line.DrawLine(limitLine+limitLineErr, 0, limitLine+limitLineErr, ymax);
+      }
+
       c1->Print(plot_.c_str());
   }
 
@@ -644,7 +679,7 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig
     std::pair<double, double> ret = eval(*hc, rVals, adaptive, clsTarget);
 
     // add to plot 
-    if (limitPlot_.get()) { 
+    if (limitPlot_.get()) {
         limitPlot_->Set(limitPlot_->GetN()+1);
         limitPlot_->SetPoint(limitPlot_->GetN()-1, ((RooAbsReal*)rVals.first())->getVal(), ret.first); 
         limitPlot_->SetPointError(limitPlot_->GetN()-1, 0, ret.second);
@@ -1428,7 +1463,9 @@ void HybridNew::readGrid(TDirectory *toyDir, double rMin, double rMax) {
         std::cout << "GRID, as is." << std::endl;
         typedef std::map<double, RooStats::HypoTestResult *>::iterator point;
         for (point it = grid_.begin(), ed = grid_.end(); it != ed; ++it) {
-            std::cout << "  - " << it->first << "  (CLs = " << it->second->CLs() << " +/- " << it->second->CLsError() << ")" << std::endl;
+	    double clsv = (CLs_) ? it->second->CLs() : it->second->CLsplusb();
+	    double clse = (CLs_) ? it->second->CLsError() : it->second->CLsplusbError();
+            std::cout << "  - " << it->first << Form("  (%s = ",rule_.c_str()) << clsv << " +/- " << clse << ")" << std::endl;
         }
     }
 }
@@ -1483,7 +1520,7 @@ void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
         for (int i = iMin; i <= iMax; ++i) {
             points[i]->second->ResetBit(1);
             if (values[i].first < -2) {
-                if (verbose > 1) std::cout << "   Updaing point " << i << " (r " << points[i]->first << ")" << std::endl; 
+                if (verbose > 1) std::cout << "   Updating point " << i << " (r " << points[i]->first << ")" << std::endl; 
                 updateGridPoint(w, mc_s, mc_b, data, points[i]);
             }
             else if (verbose > 1) std::cout << "   Point " << i << " (r " << points[i]->first << ") was already updated during search." << std::endl; 
@@ -1547,7 +1584,7 @@ void HybridNew::useGrid() {
     int i = 0, n = 0;
     limitPlot_.reset(new TGraphErrors(1));
     for (std::map<double, RooStats::HypoTestResult *>::iterator itg = grid_.begin(), edg = grid_.end(); itg != edg; ++itg, ++i) {
-        if (itg->second->TestBit(1)) continue;
+        //if (itg->second->TestBit(1)) continue; What was this supposed to be protecting against?
         CLs_t val(1,0);
         if (CLs_) {
             if (itg->first > 0) val = eval(*itg->second, itg->first);
@@ -1568,4 +1605,62 @@ void HybridNew::clearGrid() {
     }
     grid_.clear();
 }
+
+std::pair<double,double> HybridNew::interpolateAndUncert(TGraphErrors *gr, double clsTarget){
+   TRandom3 *rnd = new TRandom3();
+   double rv = gr->Eval(clsTarget,(TSpline*)0,"S");
+   double rms=0;
+   TGraphErrors *grtoy = (TGraphErrors*) gr->Clone();
+
+   for (int i=0;i<50;i++){
+	for (int p=0;p<grtoy->GetN();p++){
+	    grtoy->SetPoint(p,rnd->Gaus(grtoy->GetX()[p],grtoy->GetErrorX(p)),grtoy->GetY()[p]);
+	}
+	double rvtoy =  grtoy->Eval(clsTarget,(TSpline*)0,"S");
+	rms+=(rvtoy-rv)*(rvtoy-rv);
+   }
+   rms = TMath::Sqrt(rms)/50;
+   return std::pair<double,double>(rv,rms);
+}
+
+
+std::vector<std::pair<double,double> > HybridNew::findIntervalsFromSplines(TGraphErrors *limitPlot_, double clsTarget){
+
+	// Start by walking along, from left to right of the limit plot 
+	limitPlot_->Sort();
+
+	std::vector<std::pair <double,double> > points ; // interval boundaries 
+
+	int npoints_plot =  limitPlot_->GetN();
+	int previousCross = 0;
+
+	for (int pti = 0; pti<npoints_plot-1; pti++){
+
+	 	if ( ( (limitPlot_->GetY()[pti] < clsTarget) &&  (limitPlot_->GetY()[pti+1] > clsTarget) ) || 
+		     ( (limitPlot_->GetY()[pti] > clsTarget) &&  (limitPlot_->GetY()[pti+1] < clsTarget) )   )
+			{
+			TGraphErrors *reverse = new TGraphErrors(); 
+			int count = 0;
+			for (int tpi=previousCross;tpi<=pti+1;tpi++){
+				reverse->SetPoint(count,limitPlot_->GetY()[tpi],limitPlot_->GetX()[tpi]);
+				reverse->SetPointError(count,limitPlot_->GetErrorY(tpi),0);
+				//std::cout << " Adding local point = " << count << ", "<<limitPlot_->GetY()[tpi] << ", " << limitPlot_->GetX()[tpi] << std::endl;
+				count++;
+			}
+			reverse->Sort();
+			reverse->SetBit(2);
+			std::pair<double,double> res = interpolateAndUncert(reverse,clsTarget); 
+			points.push_back(res);
+			//std::cout << " foind X point r = " << points.back().first << "+/-" <<points.back().second << std::endl; 
+			previousCross = pti+1;
+			//points.push_back(std::pair<double,double>(val,0));
+
+		} else previousCross=pti;
+	}
+	if (limitPlot_->GetY()[0] > clsTarget) 	points.push_back(std::pair<double,double>(limitPlot_->GetX()[0],0));
+	if (limitPlot_->GetY()[npoints_plot-1] > clsTarget)  points.push_back(std::pair<double,double>(limitPlot_->GetX()[npoints_plot-1],0));
+	// print Intervals - currently no estimate on uncertainty, how can we propagate the uncertainty to the 
+	return points;
+}
+
 

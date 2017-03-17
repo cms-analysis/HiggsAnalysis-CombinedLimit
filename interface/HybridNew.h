@@ -13,6 +13,7 @@
 #include <RooStats/ModelConfig.h>
 #include <RooStats/HybridCalculator.h>
 #include <RooStats/ToyMCSampler.h>
+#include <TF1.h>
 
 class RooRealVar;
 class TGraphErrors;
@@ -129,8 +130,13 @@ private:
   void updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool smart, double clsTarget); 
   void updateGridDataFC(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool smart, double clsTarget); 
   std::pair<double,double> updateGridPoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, std::map<double, RooStats::HypoTestResult *>::iterator point);
+  std::pair<double,double> interpolateAndUncert(TGraphErrors *gr, double clsTarget);
+  std::vector<std::pair<double, double> > findIntervalsFromSplines(TGraphErrors *limitPlot_,double clsTarget);
+
+
   void useGrid();
 
+  bool doFC_;
   
 };
 
