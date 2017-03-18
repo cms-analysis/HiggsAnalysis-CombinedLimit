@@ -1,10 +1,14 @@
 <lcgdict>
 	<class name="AsymPow" />
 	<class name="AsymQuad" />
+	<class name="FastTemplate" />
 	<class name="FastHisto" />
 	<class name="FastHisto2D" />
 	<class name="FastHisto3D" />
-	<class name="FastTemplate" />
+	<class name="FastTemplate_f" />
+	<class name="FastHisto_f" />
+	<class name="FastHisto2D_f" />
+	<class name="FastHisto3D_f" />
 	<class name="FastVerticalInterpHistPdf" />
 	<class name="FastVerticalInterpHistPdf2" />
 	<class name="FastVerticalInterpHistPdf2Base" />
@@ -19,6 +23,7 @@
 	<class name="HZZ4L_RooSpinZeroPdf" />
 	<class name="HZZ4L_RooSpinZeroPdf_1D" />
 	<class name="HZZ4L_RooSpinZeroPdf_2D" />
+	<class name="HZZ4L_RooSpinZeroPdf_2D_fast" />
 	<class name="HZZ4L_RooSpinZeroPdf_phase" />
 	<class name="ProcessNormalization" />
 	<class name="Roo2ExpPdf" />

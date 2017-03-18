@@ -4,17 +4,21 @@
 #include <cassert>
 #include <cstdio>
 
-AsymQuad::AsymQuad() {
+AsymQuad::AsymQuad() :
+RooAbsReal(),
+_funcList("funcList", "List of functions", this),
+_coefList("coefList", "List of coefficients", this),
+smoothRegion_(0),
+smoothAlgo_(0)
+{
   _funcIter  = _funcList.createIterator();
   _coefIter  = _coefList.createIterator();
-  smoothAlgo_ = 0;
-  smoothRegion_ = 0;
 }
 
 AsymQuad::AsymQuad(const char *name, const char *title, const RooArgList& inFuncList, const RooArgList& inCoefList, Double_t smoothRegion, Int_t smoothAlgo) :
 RooAbsReal(name, title),
-_funcList("!funcList", "List of functions", this),
-_coefList("!coefList", "List of coefficients", this),
+_funcList("funcList", "List of functions", this),
+_coefList("coefList", "List of coefficients", this),
 smoothRegion_(smoothRegion),
 smoothAlgo_(smoothAlgo)
 {
