@@ -4,12 +4,13 @@
 #include "RooAbsReal.h"
 #include "RooArgSet.h"
 #include "FastTemplate.h"
+#include <iostream>
 #include <cstring>
+#include <cassert>
 
 template <typename T> class FastTemplateFunc_t : public RooAbsReal{
 protected:
   RooListProxy obsList;
-
 
 public:
   FastTemplateFunc_t() : RooAbsReal(), obsList("obsList", "obsList", this){}
@@ -38,20 +39,28 @@ private:
   ClassDef(FastTemplateFunc_t, 1)
 
 };
+typedef FastTemplateFunc_t<Float_t> FastTemplateFunc_f;
+typedef FastTemplateFunc_t<Double_t> FastTemplateFunc_d;
+
 template <typename T> class FastHistoFunc_t : public FastTemplateFunc_t<T>{
 protected:
   FastHisto_t<T> tpl;
   T fullIntegral;
 
 public:
-  FastHistoFunc_t() : FastTemplateFunc_t<T>(){}
-  FastHistoFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto_t<T>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){}
+  FastHistoFunc_t() : FastTemplateFunc_t<T>(), fullIntegral(0){}
+  FastHistoFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto_t<T>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){
+    if ((this->obsList).getSize()!=1){
+      std::cerr << "FastHistoFunc_t::FastHistoFunc_t(" << this->GetName() << "): obsList.size()!=1!" << std::endl;
+      assert(0);
+    }
+  }
   FastHistoFunc_t(const FastHistoFunc_t& other, const char* name=0) : FastTemplateFunc_t<T>(other, name), tpl(other.tpl), fullIntegral(other.fullIntegral){}
   ~FastHistoFunc_t(){}
   TObject* clone(const char* newname) const { return new FastHistoFunc_t(*this, newname); }
 
   Double_t evaluate() const{
-    T x = (T)((this->obsList).at(0)->getVal());
+    T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
     Double_t value=tpl.GetAt(x);
     return value;
   }
@@ -60,8 +69,8 @@ public:
     const Int_t code_prime[1]={ 2 };
     for (int ic=0; ic<(this->obsList).getSize(); ic++){
       if (ic>=1){ code=0; break; }
-      if (dynamic_cast<RooRealVar*>((this->obsList).at(ic))!=0){
-        RooRealVar* var = (this->obsList).at(ic);
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(ic));
+      if (var!=0){
         if (this->matchArgs(allVars, analVars, RooArgSet(*var))) code*=code_prime[ic];
       }
     }
@@ -70,12 +79,12 @@ public:
   }
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
     if (code==0) return evaluate();
-    T xmin = (T)((this->obsList).at(0)->getMin(rangeName));
-    T xmax = (T)((this->obsList).at(0)->getMax(rangeName));
+    T xmin = (T)(dynamic_cast<RooRealVar*>((this->obsList).at(0))->getMin(rangeName));
+    T xmax = (T)(dynamic_cast<RooRealVar*>((this->obsList).at(0))->getMax(rangeName));
     if (
-      fabs((Float_t)(xmin/tpl.GetXmin()-1.))<1e-5
+      fabs((Float_t)(xmin/tpl.GetXmin()-T(1)))<1e-5
       &&
-      fabs((Float_t)(xmax/tpl.GetXmax()-1.))<1e-5
+      fabs((Float_t)(xmax/tpl.GetXmax()-T(1)))<1e-5
       ) return (Double_t)fullIntegral;
     else{
       int binmin = tpl.FindBin(xmin);
@@ -88,8 +97,97 @@ private:
   ClassDef(FastHistoFunc_t, 1)
 
 };
+typedef FastHistoFunc_t<Float_t> FastHistoFunc_f;
+typedef FastHistoFunc_t<Double_t> FastHistoFunc_d;
 
-typedef FastTemplateFunc_t<Float_t> FastTemplateFunc_f;
-typedef FastTemplateFunc_t<Double_t> FastTemplateFunc_d;
+template <typename T> class FastHisto2DFunc_t : public FastTemplateFunc_t<T>{
+protected:
+  FastHisto2D_t<T> tpl;
+  T fullIntegral;
+
+public:
+  FastHisto2DFunc_t() : FastTemplateFunc_t<T>(), fullIntegral(0){}
+  FastHisto2DFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto2D_t<T>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){
+    if ((this->obsList).getSize()!=2){
+      std::cerr << "FastHisto2DFunc_t::FastHisto2DFunc_t(" << this->GetName() << "): obsList.size()!=2!" << std::endl;
+      assert(0);
+    }
+  }
+  FastHisto2DFunc_t(const FastHisto2DFunc_t& other, const char* name=0) : FastTemplateFunc_t<T>(other, name), tpl(other.tpl), fullIntegral(other.fullIntegral){}
+  ~FastHisto2DFunc_t(){}
+  TObject* clone(const char* newname) const { return new FastHisto2DFunc_t(*this, newname); }
+
+  Double_t evaluate() const{
+    T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
+    T y = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(1))->getVal());
+    Double_t value=tpl.GetAt(x, y);
+    return value;
+  }
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const{
+    Int_t code=1;
+    const Int_t code_prime[2]={ 2, 3 };
+    for (int ic=0; ic<(this->obsList).getSize(); ic++){
+      if (ic>=2){ code=0; break; }
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(ic));
+      if (var!=0){
+        if (this->matchArgs(allVars, analVars, RooArgSet(*var))) code*=code_prime[ic];
+      }
+    }
+    if (code==1) code=0;
+    return code;
+  }
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
+    if (code==0) return evaluate();
+    T xmin, xmax, ymin, ymax;
+    if (code%2==0){
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(0));
+      xmin = (T)(var->getMin(rangeName));
+      xmax = (T)(var->getMax(rangeName));
+    }
+    else{
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(0));
+      xmin = (T)(var->getVal());
+      xmax = xmin;
+    }
+    if (code%3==0){
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(1));
+      ymin = (T)(var->getMin(rangeName));
+      ymax = (T)(var->getMax(rangeName));
+    }
+    else{
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(1));
+      ymin = (T)(var->getVal());
+      ymax = ymin;
+    }
+    if (
+      code%6==0
+      &&
+      fabs((Float_t)(xmin/tpl.GetXmin()-T(1)))<1e-5
+      &&
+      fabs((Float_t)(xmax/tpl.GetXmax()-T(1)))<1e-5
+      &&
+      fabs((Float_t)(ymin/tpl.GetYmin()-T(1)))<1e-5
+      &&
+      fabs((Float_t)(ymax/tpl.GetYmax()-T(1)))<1e-5
+      ) return (Double_t)fullIntegral;
+    else{
+      int xbinmin = tpl.FindBinX(xmin);
+      int xbinmax = tpl.FindBinX(xmax);
+      int ybinmin = tpl.FindBinY(ymin);
+      int ybinmax = tpl.FindBinY(ymax);
+      T result = tpl.IntegralWidth(xbinmin, xbinmax, ybinmin, ybinmax);
+      if (code%2!=0) result /= tpl.GetBinWidthX(xbinmin);
+      if (code%3!=0) result /= tpl.GetBinWidthY(ybinmin);
+      return (Double_t)result;
+    }
+  }
+
+private:
+  ClassDef(FastHisto2DFunc_t, 1)
+
+};
+typedef FastHisto2DFunc_t<Float_t> FastHisto2DFunc_f;
+typedef FastHisto2DFunc_t<Double_t> FastHisto2DFunc_d;
+
 
 #endif
