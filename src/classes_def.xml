@@ -27,10 +27,12 @@
 	<class name="FastTemplateFunc_f" />
 	<class name="FastHistoFunc_f" />
 	<class name="FastHisto2DFunc_f" />
+	<class name="FastHisto3DFunc_f" />
 
 	<class name="FastTemplateFunc_d" />
 	<class name="FastHistoFunc_d" />
 	<class name="FastHisto2DFunc_d" />
+	<class name="FastHisto3DFunc_d" />
 
 	<class name="FastVerticalInterpHistPdf" />
 	<class name="FastVerticalInterpHistPdf2" />

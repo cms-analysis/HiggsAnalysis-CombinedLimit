@@ -189,5 +189,112 @@ private:
 typedef FastHisto2DFunc_t<Float_t> FastHisto2DFunc_f;
 typedef FastHisto2DFunc_t<Double_t> FastHisto2DFunc_d;
 
+template <typename T> class FastHisto3DFunc_t : public FastTemplateFunc_t<T>{
+protected:
+  FastHisto3D_t<T> tpl;
+  T fullIntegral;
+
+public:
+  FastHisto3DFunc_t() : FastTemplateFunc_t<T>(), fullIntegral(0){}
+  FastHisto3DFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto3D_t<T>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){
+    if ((this->obsList).getSize()!=3){
+      std::cerr << "FastHisto3DFunc_t::FastHisto3DFunc_t(" << this->GetName() << "): obsList.size()!=3!" << std::endl;
+      assert(0);
+    }
+  }
+  FastHisto3DFunc_t(const FastHisto3DFunc_t& other, const char* name=0) : FastTemplateFunc_t<T>(other, name), tpl(other.tpl), fullIntegral(other.fullIntegral){}
+  ~FastHisto3DFunc_t(){}
+  TObject* clone(const char* newname) const { return new FastHisto3DFunc_t(*this, newname); }
+
+  Double_t evaluate() const{
+    T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
+    T y = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(1))->getVal());
+    T z = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(z))->getVal());
+    Double_t value=tpl.GetAt(x, y, z);
+    return value;
+  }
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const{
+    Int_t code=1;
+    const Int_t code_prime[3]={ 2, 3, 5 };
+    for (int ic=0; ic<(this->obsList).getSize(); ic++){
+      if (ic>=3){ code=0; break; }
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(ic));
+      if (var!=0){
+        if (this->matchArgs(allVars, analVars, RooArgSet(*var))) code*=code_prime[ic];
+      }
+    }
+    if (code==1) code=0;
+    return code;
+  }
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
+    if (code==0) return evaluate();
+    T xmin, xmax, ymin, ymax, zmin, zmax;
+    if (code%2==0){
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(0));
+      xmin = (T)(var->getMin(rangeName));
+      xmax = (T)(var->getMax(rangeName));
+    }
+    else{
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(0));
+      xmin = (T)(var->getVal());
+      xmax = xmin;
+    }
+    if (code%3==0){
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(1));
+      ymin = (T)(var->getMin(rangeName));
+      ymax = (T)(var->getMax(rangeName));
+    }
+    else{
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(1));
+      ymin = (T)(var->getVal());
+      ymax = ymin;
+    }
+    if (code%5==0){
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(2));
+      zmin = (T)(var->getMin(rangeName));
+      zmax = (T)(var->getMax(rangeName));
+    }
+    else{
+      RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(2));
+      zmin = (T)(var->getVal());
+      zmax = zmin;
+    }
+    if (
+      code%30==0
+      &&
+      fabs((Float_t)(xmin/tpl.GetXmin()-T(1)))<1e-5
+      &&
+      fabs((Float_t)(xmax/tpl.GetXmax()-T(1)))<1e-5
+      &&
+      fabs((Float_t)(ymin/tpl.GetYmin()-T(1)))<1e-5
+      &&
+      fabs((Float_t)(ymax/tpl.GetYmax()-T(1)))<1e-5
+      &&
+      fabs((Float_t)(zmin/tpl.GetZmin()-T(1)))<1e-5
+      &&
+      fabs((Float_t)(zmax/tpl.GetZmax()-T(1)))<1e-5
+      ) return (Double_t)fullIntegral;
+    else{
+      int xbinmin = tpl.FindBinX(xmin);
+      int xbinmax = tpl.FindBinX(xmax);
+      int ybinmin = tpl.FindBinY(ymin);
+      int ybinmax = tpl.FindBinY(ymax);
+      int zbinmin = tpl.FindBinZ(zmin);
+      int zbinmax = tpl.FindBinZ(zmax);
+      T result = tpl.IntegralWidth(xbinmin, xbinmax, ybinmin, ybinmax, zbinmin, zbinmax);
+      if (code%2!=0) result /= tpl.GetBinWidthX(xbinmin);
+      if (code%3!=0) result /= tpl.GetBinWidthY(ybinmin);
+      if (code%5!=0) result /= tpl.GetBinWidthZ(zbinmin);
+      return (Double_t)result;
+    }
+  }
+
+private:
+  ClassDef(FastHisto3DFunc_t, 1)
+
+};
+typedef FastHisto3DFunc_t<Float_t> FastHisto3DFunc_f;
+typedef FastHisto3DFunc_t<Double_t> FastHisto3DFunc_d;
+
 
 #endif
