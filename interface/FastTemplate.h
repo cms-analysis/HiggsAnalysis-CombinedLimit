@@ -11,6 +11,7 @@ template <typename T> class FastTemplate_t {
 protected:
         unsigned int size_;
         std::vector<T> values_;
+
 public:
         T Integral() const ;
         void Scale(T factor) ;
@@ -79,21 +80,22 @@ public:
 template <typename T> class FastHisto_t : public FastTemplate_t<T> {
 private:
         std::vector<T> binEdges_;
-        std::vector<T> binWidths_;
+        bool normX_;
+
 public:
         void swap(FastHisto_t<T> &other) {
             std::swap(this->size_, other.size_);
             std::swap(this->values_, other.values_);
-            std::swap(binWidths_, other.binWidths_);
             std::swap(binEdges_, other.binEdges_);
+            std::swap(normX_, other.normX_);
         }
         T GetAt(const T &x) const ;
         int FindBin(const T &x) const ;
-        const T & GetBinContent(int bin) const { return (this->values_)[bin]; }
-        T IntegralWidth() const ;
+        const T & GetBinContent(const unsigned int bin) const { return (this->values_)[bin]; }
+        T IntegralWidth(int binmin=-1, int binmax=-1) const;
         void Normalize() {
             T sum = this->IntegralWidth();
-            if (sum > 0) this->Scale(1.0f/sum);
+            if (sum > T(0)) this->Scale(1.0f/sum);
         }
 
         void Dump() const ;
@@ -102,15 +104,18 @@ public:
 
         const T & GetEdge(unsigned int i) const { return binEdges_[i]; }
         const T & GetWidth(unsigned int i) const { return binWidths_[i]; }
+        T GetBinWidth(const unsigned int bin) const;
+        T GetXmin() const { return (this->size_>0 ? binEdges_[0] : T(0)); }
+        T GetXmax() const { return (this->size_>0 ? binEdges_[this->size_-1] : T(0)); }
 
-        FastHisto_t() : FastTemplate_t<T>(), binEdges_(), binWidths_() {}
-        FastHisto_t(const TH1 &hist);
+        FastHisto_t() : FastTemplate_t<T>(), binEdges_(), normX_(false) {}
+        FastHisto_t(const TH1 &hist, bool normX=false);
         FastHisto_t(const FastHisto_t<T> &other);
         FastHisto_t & operator=(const FastHisto_t<T> &other) {
+          normX_ = other.normX_;
           if (this->size() != other.size()) {
             this->size_ = other.size_;
             this->values_    = other.values_;
-            binWidths_ = other.binWidths_;
             binEdges_  = other.binEdges_;
           }
           else this->CopyValues(other);
@@ -131,24 +136,27 @@ private:
         unsigned int binX_, binY_;
         std::vector<T> binEdgesX_;
         std::vector<T> binEdgesY_;
-        std::vector<T> binWidths_;
+        bool normX_;
+        bool normY_;
+
 public:
         void swap(FastHisto2D_t<T> &other) {
             std::swap(this->size_, other.size_);
             std::swap(binX_, other.binX_);
             std::swap(binY_, other.binY_);
             std::swap(this->values_, other.values_);
-            std::swap(binWidths_, other.binWidths_);
             std::swap(binEdgesX_, other.binEdgesX_);
             std::swap(binEdgesY_, other.binEdgesY_);
+            std::swap(normX_, other.normX_);
+            std::swap(normY_, other.normY_);
         }
         T GetAt(const T &x, const T &y) const ;
-        T IntegralWidth() const ;
+        T IntegralWidth(int xbinmin=-1, int xbinmax=-1, int ybinmin=-1, int ybinmax=-1) const;
         unsigned int binX() const { return binX_; }
         unsigned int binY() const { return binY_; }
         void Normalize() {
             T sum = this->IntegralWidth();
-            if (sum > 0) this->Scale(1.0f/sum);
+            if (sum > T(0)) this->Scale(1.0f/sum);
         }
         /// For each X, normalize along Y
         void NormalizeXSlices() ;
@@ -159,14 +167,26 @@ public:
         T GetMaxOnX(const T &y) const ;
         T GetMaxOnY(const T &x) const ;
 
-        FastHisto2D_t() : FastTemplate_t<T>(), binX_(0), binY_(0), binEdgesX_(), binEdgesY_(), binWidths_() {}
-        FastHisto2D_t(const TH2 &hist, bool normXonly=false);
+        int FindBinX(const T &t) const;
+        int FindBinY(const T &t) const;
+
+        T GetBinWidthX(const unsigned int bin) const;
+        T GetBinWidthY(const unsigned int bin) const;
+
+        T GetXmin() const { return (binX_>0 ? binEdgesX_[0] : T(0)); }
+        T GetYmin() const { return (binY_>0 ? binEdgesY_[0] : T(0)); }
+        T GetXmax() const { return (binX_>0 ? binEdgesX_[binX_-1] : T(0)); }
+        T GetYmax() const { return (binY_>0 ? binEdgesY_[binY_-1] : T(0)); }
+
+        FastHisto2D_t() : FastTemplate_t<T>(), binX_(0), binY_(0), binEdgesX_(), binEdgesY_(), normX_(false), normY_(false) {}
+        FastHisto2D_t(const TH2 &hist, bool normX=false, bool normY_=false);
         FastHisto2D_t(const FastHisto2D_t<T> &other);
         FastHisto2D_t & operator=(const FastHisto2D_t<T> &other) {
+          normX_ = other.normX_;
+          normY_ = other.normY_;
           if (binX() != other.binX() || binY() != other.binY()) {
             this->size_      = other.size_;
             this->values_    = other.values_;
-            binWidths_ = other.binWidths_;
             binEdgesX_ = other.binEdgesX_;
             binEdgesY_ = other.binEdgesY_;
             binX_      = other.binX_;
@@ -184,7 +204,10 @@ private:
         std::vector<T> binEdgesX_;
         std::vector<T> binEdgesY_;
         std::vector<T> binEdgesZ_;
-        std::vector<T> binWidths_;
+        bool normX_;
+        bool normY_;
+        bool normZ_;
+
 public:
         void swap(FastHisto3D_t<T> &other) {
             std::swap(this->size_, other.size_);
@@ -192,33 +215,51 @@ public:
             std::swap(binY_, other.binY_);
             std::swap(binZ_, other.binZ_);
             std::swap(this->values_, other.values_);
-            std::swap(binWidths_, other.binWidths_);
             std::swap(binEdgesX_, other.binEdgesX_);
             std::swap(binEdgesY_, other.binEdgesY_);
             std::swap(binEdgesZ_, other.binEdgesZ_);
+            std::swap(normX_, other.normX_);
+            std::swap(normY_, other.normY_);
+            std::swap(normZ_, other.normZ_);
         }
         T GetAt(const T &x, const T &y, const T &z) const ;
-        T IntegralWidth() const ;
+        T IntegralWidth(int xbinmin=-1, int xbinmax=-1, int ybinmin=-1, int ybinmax=-1, int zbinmin=-1, int zbinmax=-1) const;
         unsigned int binX() const { return binX_; }
         unsigned int binY() const { return binY_; }
         unsigned int binZ() const { return binZ_; }
         void Normalize() {
             T sum = this->IntegralWidth();
-            if (sum > 0) this->Scale(1.0f/sum);
+            if (sum > T(0)) this->Scale(1.0f/sum);
         }
         /// For each X, normalize along Y
         void NormalizeXSlices() ;
 
         void Dump() const ;
 
-        FastHisto3D_t() : FastTemplate_t<T>(), binX_(0), binY_(0), binZ_(0), binEdgesX_(), binEdgesY_(), binEdgesZ_(), binWidths_() {}
-        FastHisto3D_t(const TH3 &hist, bool normXonly=false);
+        int FindBinX(const T &t) const;
+        int FindBinY(const T &t) const;
+        int FindBinZ(const T &t) const;
+
+        T GetBinWidthX(const unsigned int bin) const;
+        T GetBinWidthY(const unsigned int bin) const;
+        T GetBinWidthZ(const unsigned int bin) const;
+        T GetXmin() const { return (binX_>0 ? binEdgesX_[0] : T(0)); }
+        T GetYmin() const { return (binY_>0 ? binEdgesY_[0] : T(0)); }
+        T GetZmin() const { return (binZ_>0 ? binEdgesZ_[0] : T(0)); }
+        T GetXmax() const { return (binX_>0 ? binEdgesX_[binX_-1] : T(0)); }
+        T GetYmax() const { return (binY_>0 ? binEdgesY_[binY_-1] : T(0)); }
+        T GetZmax() const { return (binZ_>0 ? binEdgesZ_[binZ_-1] : T(0)); }
+
+        FastHisto3D_t() : FastTemplate_t<T>(), binX_(0), binY_(0), binZ_(0), binEdgesX_(), binEdgesY_(), binEdgesZ_(), normX_(false), normY_(false), normZ_(false) {}
+        FastHisto3D_t(const TH3 &hist, bool normX=false, bool normY=false, bool normZ=false);
         FastHisto3D_t(const FastHisto3D_t<T> &other);
         FastHisto3D_t & operator=(const FastHisto3D_t<T> &other) {
+          normX_ = other.normX_;
+          normY_ = other.normY_;
+          normZ_ = other.normZ_;
           if (binX() != other.binX() || binY() != other.binY() || binZ() != other.binZ()) {
             this->size_      = other.size_;
             this->values_    = other.values_;
-            binWidths_ = other.binWidths_;
             binEdgesX_ = other.binEdgesX_;
             binEdgesY_ = other.binEdgesY_;
             binEdgesZ_ = other.binEdgesZ_;

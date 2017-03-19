@@ -138,10 +138,10 @@ Int_t HZZ4L_RooSpinZeroPdf_2D_fast::getAnalyticalIntegral(RooArgSet& allVars, Ro
   Int_t code = 1;
   const Int_t code_prime[3]={ 2, 3, 5 };
   for (int ic=0; ic<obsList.getSize(); ic++){
+    if (ic>=3){ code=0; break; }
     if (dynamic_cast<RooRealVar*>(obsList.at(ic))!=0){
       if (matchArgs(allVars, analVars, RooArgSet(*(obsList.at(ic))))) code*=code_prime[ic];
     }
-    if (ic>=3) code=0;
   }
   if (code==1) code=0;
   return code;

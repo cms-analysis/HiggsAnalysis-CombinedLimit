@@ -1,4 +1,18 @@
 <lcgdict>
+	<class name="std::vector<std::vector<Float_t>>" />
+	<class name="std::vector<std::vector<std::vector<Float_t>>>" />
+	<class name="std::vector<std::vector<Float_t>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<Float_t>>>::iterator" />
+	<class name="std::vector<std::vector<Float_t>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<Float_t>>>::const_iterator" />
+
+	<class name="std::vector<std::vector<Double_t>>" />
+	<class name="std::vector<std::vector<std::vector<Double_t>>>" />
+	<class name="std::vector<std::vector<Double_t>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<Double_t>>>::iterator" />
+	<class name="std::vector<std::vector<Double_t>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<Double_t>>>::const_iterator" />
+
 	<class name="AsymPow" />
 	<class name="AsymQuad" />
 	<class name="FastTemplate" />

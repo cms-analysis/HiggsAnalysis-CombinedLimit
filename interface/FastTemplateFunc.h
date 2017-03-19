@@ -2,11 +2,14 @@
 #define HiggsAnalysis_CombinedLimit_FastTplFunc
 
 #include "RooAbsReal.h"
+#include "RooArgSet.h"
 #include "FastTemplate.h"
+#include <cstring>
 
 template <typename T> class FastTemplateFunc_t : public RooAbsReal{
 protected:
   RooListProxy obsList;
+
 
 public:
   FastTemplateFunc_t() : RooAbsReal(), obsList("obsList", "obsList", this){}
@@ -38,25 +41,47 @@ private:
 template <typename T> class FastHistoFunc_t : public FastTemplateFunc_t<T>{
 protected:
   FastHisto_t<T> tpl;
+  T fullIntegral;
 
 public:
   FastHistoFunc_t() : FastTemplateFunc_t<T>(){}
-  FastHistoFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto_t<T>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl){}
-  FastHistoFunc_t(const FastHistoFunc_t& other, const char* name=0) : FastTemplateFunc_t<T>(other, name), tpl(other.tpl){}
+  FastHistoFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto_t<T>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){}
+  FastHistoFunc_t(const FastHistoFunc_t& other, const char* name=0) : FastTemplateFunc_t<T>(other, name), tpl(other.tpl), fullIntegral(other.fullIntegral){}
   ~FastHistoFunc_t(){}
   TObject* clone(const char* newname) const { return new FastHistoFunc_t(*this, newname); }
 
   Double_t evaluate() const{
-    Double_t value=0;
+    T x = (T)((this->obsList).at(0)->getVal());
+    Double_t value=tpl.GetAt(x);
     return value;
   }
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const{
     Int_t code=1;
+    const Int_t code_prime[1]={ 2 };
+    for (int ic=0; ic<(this->obsList).getSize(); ic++){
+      if (ic>=1){ code=0; break; }
+      if (dynamic_cast<RooRealVar*>((this->obsList).at(ic))!=0){
+        RooRealVar* var = (this->obsList).at(ic);
+        if (this->matchArgs(allVars, analVars, RooArgSet(*var))) code*=code_prime[ic];
+      }
+    }
+    if (code==1) code=0;
     return code;
   }
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
-    Double_t value=0;
-    return value;
+    if (code==0) return evaluate();
+    T xmin = (T)((this->obsList).at(0)->getMin(rangeName));
+    T xmax = (T)((this->obsList).at(0)->getMax(rangeName));
+    if (
+      fabs((Float_t)(xmin/tpl.GetXmin()-1.))<1e-5
+      &&
+      fabs((Float_t)(xmax/tpl.GetXmax()-1.))<1e-5
+      ) return (Double_t)fullIntegral;
+    else{
+      int binmin = tpl.FindBin(xmin);
+      int binmax = tpl.FindBin(xmax);
+      return (Double_t)tpl.IntegralWidth(binmin, binmax);
+    }
   }
 
 private:
