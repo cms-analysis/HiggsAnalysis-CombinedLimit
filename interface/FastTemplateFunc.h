@@ -59,6 +59,8 @@ public:
   ~FastHistoFunc_t(){}
   TObject* clone(const char* newname) const { return new FastHistoFunc_t(*this, newname); }
 
+  FastHisto_t<T> getHistogram() const{ return tpl; }
+
   Double_t evaluate() const{
     T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
     Double_t value=tpl.GetAt(x);
@@ -116,6 +118,8 @@ public:
   FastHisto2DFunc_t(const FastHisto2DFunc_t& other, const char* name=0) : FastTemplateFunc_t<T>(other, name), tpl(other.tpl), fullIntegral(other.fullIntegral){}
   ~FastHisto2DFunc_t(){}
   TObject* clone(const char* newname) const { return new FastHisto2DFunc_t(*this, newname); }
+
+  FastHisto2D_t<T> getHistogram() const{ return tpl; }
 
   Double_t evaluate() const{
     T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
@@ -206,10 +210,12 @@ public:
   ~FastHisto3DFunc_t(){}
   TObject* clone(const char* newname) const { return new FastHisto3DFunc_t(*this, newname); }
 
+  FastHisto3D_t<T> getHistogram() const{ return tpl; }
+
   Double_t evaluate() const{
     T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
     T y = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(1))->getVal());
-    T z = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(z))->getVal());
+    T z = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(2))->getVal());
     Double_t value=tpl.GetAt(x, y, z);
     return value;
   }

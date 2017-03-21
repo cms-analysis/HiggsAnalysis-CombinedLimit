@@ -47,7 +47,7 @@ public:
         /// and so that only those have to be considered when doing operations
         void SetActiveSize(unsigned int size) { size_ = size; }
 
-        void Dump() const ;
+        virtual void Dump() const ;
 
         FastTemplate_t() : size_(0), values_() {}
         FastTemplate_t(unsigned int size) : size_(size), values_(size_) {}
@@ -69,7 +69,7 @@ public:
           }
           this->CopyValues(other); return *this;
         }
-        ~FastTemplate_t() {}
+        virtual inline ~FastTemplate_t() {}
         void Resize(unsigned int newsize) {
           if (newsize != size()) {
             size_ = newsize;

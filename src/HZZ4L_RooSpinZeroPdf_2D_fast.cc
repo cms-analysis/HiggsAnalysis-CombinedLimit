@@ -58,7 +58,7 @@ HZZ4L_RooSpinZeroPdf_2D_fast::HZZ4L_RooSpinZeroPdf_2D_fast(
     if (icoef<3) fullIntCode*=code_prime[icoef];
     else{
       fullIntCode=1;
-      if (icoef==3) cout << "HZZ4L_RooSpinZeroPdf_2D_fast(" << GetName() << ") number of observables is grater than 3. Full integration will switch to analytical." << endl;
+      if (icoef==3) cout << "HZZ4L_RooSpinZeroPdf_2D_fast(" << GetName() << ") number of observables is greater than 3. Full integration will switch to analytical." << endl;
     }
     icoef++;
   }
@@ -94,13 +94,14 @@ HZZ4L_RooSpinZeroPdf_2D_fast::HZZ4L_RooSpinZeroPdf_2D_fast(
 
 
 Float_t HZZ4L_RooSpinZeroPdf_2D_fast::interpolateFcn(Int_t code, const char* /*rangeName*/) const{
-  Float_t fa1 = (1.-fabs(fai1) - fabs(fai2)); if (fa1<0.) return 0;
-
-  DefaultAccumulator<Float_t> value = 0;
-  Float_t sgn_fai1 = (fai1<0. ? 1. : -1.);
-  Float_t sgn_fai2 = (fai2<0. ? 1. : -1.);
   Float_t absfai1 = fabs(fai1);
   Float_t absfai2 = fabs(fai2);
+
+  Float_t fa1 = (1.-absfai1 - absfai2); if (fa1<0.) return 0;
+
+  DefaultAccumulator<Float_t> value = 0;
+  Float_t sgn_fai1 = (fai1>=0. ? 1. : -1.);
+  Float_t sgn_fai2 = (fai2>=0. ? 1. : -1.);
   vector<Float_t> coefs; coefs.reserve(9);
   coefs.push_back((Float_t)fa1);
   coefs.push_back((Float_t)absfai1);
