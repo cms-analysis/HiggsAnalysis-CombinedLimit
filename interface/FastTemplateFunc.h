@@ -60,6 +60,7 @@ public:
   TObject* clone(const char* newname) const { return new FastHistoFunc_t(*this, newname); }
 
   FastHisto_t<T> getHistogram() const{ return tpl; }
+  const Int_t getFullIntegralCode() const{ return 2; }
 
   Double_t evaluate() const{
     T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
@@ -120,6 +121,7 @@ public:
   TObject* clone(const char* newname) const { return new FastHisto2DFunc_t(*this, newname); }
 
   FastHisto2D_t<T> getHistogram() const{ return tpl; }
+  const Int_t getFullIntegralCode() const{ return /*2*3*/6; }
 
   Double_t evaluate() const{
     T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
@@ -211,6 +213,7 @@ public:
   TObject* clone(const char* newname) const { return new FastHisto3DFunc_t(*this, newname); }
 
   FastHisto3D_t<T> getHistogram() const{ return tpl; }
+  const Int_t getFullIntegralCode() const{ return /*2*3*5*/30; }
 
   Double_t evaluate() const{
     T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());

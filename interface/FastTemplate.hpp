@@ -5,6 +5,40 @@
 #include <cstdio>
 #include <algorithm>
 
+
+namespace {
+    template<typename T> void copyVector(const std::vector<T>& source, std::vector<T>& target, const unsigned int n){
+        std::copy(source.begin(), source.begin()+n, target.begin());
+    }
+
+    /// need the __restrict__ to make them work 
+    template<typename T> void subtract(T * __restrict__ out, unsigned int n, T  const * __restrict__ ref) {
+        for (unsigned int i = 0; i < n; ++i) out[i] -= ref[i];
+    }
+    template<typename T> void logratio(T * __restrict__ out, unsigned int n, T  const * __restrict__ ref) {
+        for (unsigned int i = 0; i < n; ++i) {
+            out[i] = (out[i] > 0 && ref[i] > 0) ? std::log(out[i]/ref[i]) : 0;
+        }
+    }
+    template<typename T> void sumdiff(T * __restrict__ sum, T * __restrict__ diff,
+                 unsigned int n, 
+                 const T  * __restrict__ h1, const T  * __restrict__ h2) {
+        //printf("sumdiff(sum = %p, diff = %p, n = %d, h1 = %p, h2 = %p\n", (void*)sum, (void*)diff, n, (void*)h1, (void*)h2);
+        for (unsigned int i = 0; i < n; ++i) {
+            sum[i]  = h1[i] + h2[i];
+            diff[i] = h1[i] - h2[i];
+            //printf("%3d: sum = %.6f, diff = %.6f, h1 = %.6f, h2 = %.6f\n", i, sum[i], diff[i], h1[i], h2[i]);
+        }
+    }
+    template<typename T> void meld(T * __restrict__ out, unsigned int n, T  const * __restrict__ diff, T  const * __restrict__ sum, T x, T y) {
+        for (unsigned int i = 0; i < n; ++i) {
+            out[i] += x*(diff[i] + y*sum[i]);
+        }
+    }
+}
+
+
+
 template<typename T> T FastTemplate_t<T>::Integral() const {
     DefaultAccumulator<T> total = 0;
     for (unsigned int i = 0; i < this->size_; ++i) total += (this->values_)[i];
@@ -381,33 +415,6 @@ template<typename T> void FastHisto3D_t<T>::Dump() const {
   printf("\n");
 }
 
-
-namespace { 
-    /// need the __restrict__ to make them work 
-    template<typename T> void subtract(T * __restrict__ out, unsigned int n, T  const * __restrict__ ref) {
-        for (unsigned int i = 0; i < n; ++i) out[i] -= ref[i];
-    }
-    template<typename T> void logratio(T * __restrict__ out, unsigned int n, T  const * __restrict__ ref) {
-        for (unsigned int i = 0; i < n; ++i) {
-            out[i] = (out[i] > 0 && ref[i] > 0) ? std::log(out[i]/ref[i]) : 0;
-        }
-    }
-    template<typename T> void sumdiff(T * __restrict__ sum, T * __restrict__ diff,
-                 unsigned int n, 
-                 const T  * __restrict__ h1, const T  * __restrict__ h2) {
-        //printf("sumdiff(sum = %p, diff = %p, n = %d, h1 = %p, h2 = %p\n", (void*)sum, (void*)diff, n, (void*)h1, (void*)h2);
-        for (unsigned int i = 0; i < n; ++i) {
-            sum[i]  = h1[i] + h2[i];
-            diff[i] = h1[i] - h2[i];
-            //printf("%3d: sum = %.6f, diff = %.6f, h1 = %.6f, h2 = %.6f\n", i, sum[i], diff[i], h1[i], h2[i]);
-        }
-    }
-    template<typename T> void meld(T * __restrict__ out, unsigned int n, T  const * __restrict__ diff, T  const * __restrict__ sum, T x, T y) {
-        for (unsigned int i = 0; i < n; ++i) {
-            out[i] += x*(diff[i] + y*sum[i]);
-        }
-    }
-}
 
 template<typename T> void FastTemplate_t<T>::Subtract(const FastTemplate_t & ref) {
     subtract(&(this->values_)[0], this->size_, &ref[0]);

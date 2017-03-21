@@ -62,12 +62,13 @@ public:
           }
           return *this;
         }
-        FastTemplate_t<T> & operator=(const TH1 &other) {
+        virtual FastTemplate_t<T> & operator=(const TH1 &other) {
           if (size() != unsigned(other.GetNbinsX())) {
             size_ = other.GetNbinsX();
             values_.resize(size_);
           }
-          this->CopyValues(other); return *this;
+          this->CopyValues(other);
+          return *this;
         }
         virtual inline ~FastTemplate_t() {}
         void Resize(unsigned int newsize) {
@@ -105,8 +106,16 @@ public:
         const T & GetEdge(unsigned int i) const { return binEdges_[i]; }
         const T & GetWidth(unsigned int i) const { return binWidths_[i]; }
         T GetBinWidth(const unsigned int bin) const;
-        T GetXmin() const { return (this->size_>0 ? binEdges_[0] : T(0)); }
-        T GetXmax() const { return (this->size_>0 ? binEdges_[this->size_-1] : T(0)); }
+        T GetXmin(const int bin=-1) const {
+          if (this->size_==0) return T(0);
+          else if (bin>=0 && bin<(int)this->size_) return binEdges_[bin];
+          else return binEdges_[0];
+        }
+        T GetXmax(const int bin=-1) const {
+          if (this->size_==0) return T(0);
+          else if (bin>=0 && bin<(int)this->size_) return binEdges_[bin+1];
+          else return binEdges_[this->size_];
+        }
 
         FastHisto_t() : FastTemplate_t<T>(), binEdges_(), normX_(false) {}
         FastHisto_t(const TH1 &hist, bool normX=false);
@@ -173,10 +182,26 @@ public:
         T GetBinWidthX(const unsigned int bin) const;
         T GetBinWidthY(const unsigned int bin) const;
 
-        T GetXmin() const { return (binX_>0 ? binEdgesX_[0] : T(0)); }
-        T GetYmin() const { return (binY_>0 ? binEdgesY_[0] : T(0)); }
-        T GetXmax() const { return (binX_>0 ? binEdgesX_[binX_-1] : T(0)); }
-        T GetYmax() const { return (binY_>0 ? binEdgesY_[binY_-1] : T(0)); }
+        T GetXmin(const int bin=-1) const {
+          if (binX_==0) return T(0);
+          else if (bin>=0 && bin<(int)binX_) return binEdgesX_[bin];
+          else return binEdgesX_[0];
+        }
+        T GetXmax(const int bin=-1) const {
+          if (binX_==0) return T(0);
+          else if (bin>=0 && bin<(int)binX_) return binEdgesX_[bin+1];
+          else return binEdgesX_[binX_];
+        }
+        T GetYmin(const int bin=-1) const {
+          if (binY_==0) return T(0);
+          else if (bin>=0 && bin<(int)binY_) return binEdgesY_[bin];
+          else return binEdgesY_[0];
+        }
+        T GetYmax(const int bin=-1) const {
+          if (binY_==0) return T(0);
+          else if (bin>=0 && bin<(int)binY_) return binEdgesY_[bin+1];
+          else return binEdgesY_[binY_];
+        }
 
         FastHisto2D_t() : FastTemplate_t<T>(), binX_(0), binY_(0), binEdgesX_(), binEdgesY_(), normX_(false), normY_(false) {}
         FastHisto2D_t(const TH2 &hist, bool normX=false, bool normY_=false);
@@ -243,12 +268,36 @@ public:
         T GetBinWidthX(const unsigned int bin) const;
         T GetBinWidthY(const unsigned int bin) const;
         T GetBinWidthZ(const unsigned int bin) const;
-        T GetXmin() const { return (binX_>0 ? binEdgesX_[0] : T(0)); }
-        T GetYmin() const { return (binY_>0 ? binEdgesY_[0] : T(0)); }
-        T GetZmin() const { return (binZ_>0 ? binEdgesZ_[0] : T(0)); }
-        T GetXmax() const { return (binX_>0 ? binEdgesX_[binX_-1] : T(0)); }
-        T GetYmax() const { return (binY_>0 ? binEdgesY_[binY_-1] : T(0)); }
-        T GetZmax() const { return (binZ_>0 ? binEdgesZ_[binZ_-1] : T(0)); }
+        T GetXmin(const int bin=-1) const {
+          if (binX_==0) return T(0);
+          else if (bin>=0 && bin<(int)binX_) return binEdgesX_[bin];
+          else return binEdgesX_[0];
+        }
+        T GetXmax(const int bin=-1) const {
+          if (binX_==0) return T(0);
+          else if (bin>=0 && bin<(int)binX_) return binEdgesX_[bin+1];
+          else return binEdgesX_[binX_];
+        }
+        T GetYmin(const int bin=-1) const {
+          if (binY_==0) return T(0);
+          else if (bin>=0 && bin<(int)binY_) return binEdgesY_[bin];
+          else return binEdgesY_[0];
+        }
+        T GetYmax(const int bin=-1) const {
+          if (binY_==0) return T(0);
+          else if (bin>=0 && bin<(int)binY_) return binEdgesY_[bin+1];
+          else return binEdgesY_[binY_];
+        }
+        T GetZmin(const int bin=-1) const {
+          if (binZ_==0) return T(0);
+          else if (bin>=0 && bin<(int)binZ_) return binEdgesZ_[bin];
+          else return binEdgesZ_[0];
+        }
+        T GetZmax(const int bin=-1) const {
+          if (binZ_==0) return T(0);
+          else if (bin>=0 && bin<(int)binZ_) return binEdgesZ_[bin+1];
+          else return binEdgesZ_[binZ_];
+        }
 
         FastHisto3D_t() : FastTemplate_t<T>(), binX_(0), binY_(0), binZ_(0), binEdgesX_(), binEdgesY_(), binEdgesZ_(), normX_(false), normY_(false), normZ_(false) {}
         FastHisto3D_t(const TH3 &hist, bool normX=false, bool normY=false, bool normZ=false);

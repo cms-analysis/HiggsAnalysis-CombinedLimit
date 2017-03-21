@@ -48,9 +48,12 @@
 	<class name="HZZ4L_RooSpinZeroPdf" />
 	<class name="HZZ4L_RooSpinZeroPdf_1D" />
 	<class name="HZZ4L_RooSpinZeroPdf_2D" />
-	<class name="HZZ4L_RooSpinZeroPdf_2D_fast" />
 	<class name="HZZ4L_RooSpinZeroPdf_phase" />
 	<class name="VBFHZZ4L_RooSpinZeroPdf" />
+	<class name="HZZ4L_RooSpinZeroPdf_1D_fast" />
+	<class name="HZZ4L_RooSpinZeroPdf_2D_fast" />
+	<class name="HZZ4L_RooSpinZeroPdf_phase_fast" />
+	<class name="VVHZZ4L_RooSpinZeroPdf_1D_fast" />
 	<class name="ProcessNormalization" />
 	<class name="Roo2ExpPdf" />
 	<class name="Roo4lMasses2D" />

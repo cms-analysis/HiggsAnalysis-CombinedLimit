@@ -1,4 +1,4 @@
-#include <HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_2D_fast.h>
+#include <HiggsAnalysis/CombinedLimit/interface/VVHZZ4L_RooSpinZeroPdf_1D_fast.h>
 #include <HiggsAnalysis/CombinedLimit/interface/FastTemplateFunc.h>
 #include <cmath>
 #include <cassert>
@@ -10,30 +10,21 @@ using namespace std;
 using namespace RooFit;
 
 
-HZZ4L_RooSpinZeroPdf_2D_fast::HZZ4L_RooSpinZeroPdf_2D_fast() :
+VVHZZ4L_RooSpinZeroPdf_1D_fast::VVHZZ4L_RooSpinZeroPdf_1D_fast() :
 RooAbsPdf(),
 fai1("fai1", "fai1", this),
-fai2("fai2", "fai2", this),
-phi1("phi1", "phi1", this),
-phi2("phi2", "phi2", this),
 obsList("obsList", "List of pdf observables", this),
 coefList("coefList", "List of pdf components", this)
 {}
 
-HZZ4L_RooSpinZeroPdf_2D_fast::HZZ4L_RooSpinZeroPdf_2D_fast(
+VVHZZ4L_RooSpinZeroPdf_1D_fast::VVHZZ4L_RooSpinZeroPdf_1D_fast(
   const char *name, const char *title,
   RooAbsReal& in_fai1,
-  RooAbsReal& in_fai2,
-  RooAbsReal& in_phi1,
-  RooAbsReal& in_phi2,
   const RooArgList& inObsList,
   const RooArgList& inCoefList
   ) :
   RooAbsPdf(name, title),
   fai1("fai1", "fai1", this, in_fai1),
-  fai2("fai2", "fai2", this, in_fai2),
-  phi1("phi1", "phi1", this, in_phi1),
-  phi2("phi2", "phi2", this, in_phi2),
   obsList("obsList", "List of pdf observables", this),
   coefList("coefList", "List of pdf components", this)
 {
@@ -41,7 +32,7 @@ HZZ4L_RooSpinZeroPdf_2D_fast::HZZ4L_RooSpinZeroPdf_2D_fast(
   RooAbsArg* coef;
   while ((coef = (RooAbsArg*)coefIter->Next())){
     if (!dynamic_cast<RooAbsReal*>(coef)){
-      coutE(InputArguments) << "HZZ4L_RooSpinZeroPdf_2D_fast(" << GetName() << ") observable " << coef->GetName() << " is not of type RooAbsReal" << endl;
+      coutE(InputArguments) << "VVHZZ4L_RooSpinZeroPdf_1D_fast(" << GetName() << ") observable " << coef->GetName() << " is not of type RooAbsReal" << endl;
       assert(0);
     }
     obsList.add(*coef);
@@ -52,7 +43,7 @@ HZZ4L_RooSpinZeroPdf_2D_fast::HZZ4L_RooSpinZeroPdf_2D_fast(
   coef=0;
   while ((coef = (RooAbsArg*)coefIter->Next())){
     if (!dynamic_cast<FastTemplateFunc_f*>(coef)){
-      coutE(InputArguments) << "HZZ4L_RooSpinZeroPdf_2D_fast(" << GetName() << ") component " << coef->GetName() << " is not of type FastTemplateFunc_f" << endl;
+      coutE(InputArguments) << "VVHZZ4L_RooSpinZeroPdf_1D_fast(" << GetName() << ") component " << coef->GetName() << " is not of type FastTemplateFunc_f" << endl;
       assert(0);
     }
     coefList.add(*coef);
@@ -61,42 +52,34 @@ HZZ4L_RooSpinZeroPdf_2D_fast::HZZ4L_RooSpinZeroPdf_2D_fast(
 }
 
 
-HZZ4L_RooSpinZeroPdf_2D_fast::HZZ4L_RooSpinZeroPdf_2D_fast(
-  const HZZ4L_RooSpinZeroPdf_2D_fast& other, const char* name
+VVHZZ4L_RooSpinZeroPdf_1D_fast::VVHZZ4L_RooSpinZeroPdf_1D_fast(
+  const VVHZZ4L_RooSpinZeroPdf_1D_fast& other, const char* name
   ) :
   RooAbsPdf(other, name),
   fai1("fai1", this, other.fai1),
-  fai2("fai2", this, other.fai2),
-  phi1("phi1", this, other.phi1),
-  phi2("phi2", this, other.phi2),
   obsList("obsList", this, other.obsList),
   coefList("coefList", this, other.coefList)
 {}
 
 
-Float_t HZZ4L_RooSpinZeroPdf_2D_fast::interpolateFcn(Int_t code, const char* rangeName) const{
+Float_t VVHZZ4L_RooSpinZeroPdf_1D_fast::interpolateFcn(Int_t code, const char* rangeName) const{
   Float_t absfai1 = fabs(fai1);
-  Float_t absfai2 = fabs(fai2);
-  Float_t fa1 = (1.-absfai1 - absfai2);
+  Float_t fa1 = 1.-absfai1;
   
   if (fa1<0.) return 0;
 
   DefaultAccumulator<Float_t> value = 0;
   Float_t sgn_fai1 = (fai1>=0. ? 1. : -1.);
-  Float_t sgn_fai2 = (fai2>=0. ? 1. : -1.);
 
-  vector<Float_t> coefs; coefs.reserve(9);
-  coefs.push_back((Float_t)fa1);
-  coefs.push_back((Float_t)absfai1);
-  coefs.push_back((Float_t)absfai2);
-  coefs.push_back((Float_t)sgn_fai1*sqrt(fa1*absfai1)*cos(phi1));
-  coefs.push_back((Float_t)sgn_fai1*sqrt(fa1*absfai2)*cos(phi2));
-  coefs.push_back((Float_t)sgn_fai1*sgn_fai2*sqrt(absfai1*absfai2)*cos(phi2-phi1));
-  coefs.push_back((Float_t)sgn_fai1*sqrt(fa1*absfai1)*sin(phi1));
-  coefs.push_back((Float_t)sgn_fai1*sqrt(fa1*absfai2)*sin(phi2));
-  coefs.push_back((Float_t)sgn_fai1*sgn_fai2*sqrt(absfai1*absfai2)*sin(phi2-phi1));
+  vector<Float_t> coefs; coefs.reserve(5);
+  coefs.push_back((Float_t)pow(fa1, 2)); // a1**4
+  coefs.push_back((Float_t)sgn_fai1*sqrt(pow(fa1, 3)*fai1)); // a1**3 x ai1
+  coefs.push_back((Float_t)(fa1*fai1)); // a1**2 x ai1**2
+  coefs.push_back((Float_t)sgn_fai1*sqrt(fa1*pow(fai1, 3))); // a1 x ai1**3
+  coefs.push_back((Float_t)pow(fai1, 2)); // ai1**4
+
   if (coefList.getSize() != (Int_t)coefs.size()){
-    cerr << "HZZ4L_RooSpinZeroPdf_2D_fast::interpolateFcn: coefList.getSize()=" << coefList.getSize() << " != coefs.size()=" << coefs.size() << endl;
+    cerr << "VVHZZ4L_RooSpinZeroPdf_1D_fast::interpolateFcn: coefList.getSize()=" << coefList.getSize() << " != coefs.size()=" << coefs.size() << endl;
     assert(0);
   }
 
@@ -110,22 +93,22 @@ Float_t HZZ4L_RooSpinZeroPdf_2D_fast::interpolateFcn(Int_t code, const char* ran
   Float_t result = value.sum();
   return result;
 }
-Double_t HZZ4L_RooSpinZeroPdf_2D_fast::evaluate() const{
+Double_t VVHZZ4L_RooSpinZeroPdf_1D_fast::evaluate() const{
   Double_t value = interpolateFcn(0);
   if (value<=0.) return 1e-15;
   return value;
 }
-Int_t HZZ4L_RooSpinZeroPdf_2D_fast::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName) const{
+Int_t VVHZZ4L_RooSpinZeroPdf_1D_fast::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName) const{
   Int_t code = 0;
   if (coefList.getSize()>0) code = dynamic_cast<const FastTemplateFunc_f*>(coefList.at(0))->getAnalyticalIntegral(allVars, analVars, rangeName);
   return code;
 }
-Double_t HZZ4L_RooSpinZeroPdf_2D_fast::analyticalIntegral(Int_t code, const char* rangeName) const{
+Double_t VVHZZ4L_RooSpinZeroPdf_1D_fast::analyticalIntegral(Int_t code, const char* rangeName) const{
   Double_t value = interpolateFcn(code, rangeName);
   if (value<=0.) return 1e-10;
   return value;
 }
 
 
-ClassImp(HZZ4L_RooSpinZeroPdf_2D_fast)
+ClassImp(VVHZZ4L_RooSpinZeroPdf_1D_fast)
 
