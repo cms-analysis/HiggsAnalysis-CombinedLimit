@@ -88,6 +88,10 @@ void CombineHarvester::AddSystFromProc(Process const& proc,
   boost::replace_all(subbed_name, "$ERA", proc.era());
   boost::replace_all(subbed_name, "$CHANNEL", proc.channel());
   boost::replace_all(subbed_name, "$ANALYSIS", proc.analysis());
+  std::map<std::string,std::string> attrs = proc.all_attributes();
+  for( const auto it : attrs){
+      boost::replace_all(subbed_name, "$ATTR("+it.first+")",proc.attribute(it.first));
+  }
   auto sys = std::make_shared<Systematic>();
   ch::SetProperties(sys.get(), &proc);
   sys->set_name(subbed_name);
@@ -117,6 +121,9 @@ void CombineHarvester::AddSystFromProc(Process const& proc,
       boost::replace_all(subbed_args, "$ERA", proc.era());
       boost::replace_all(subbed_args, "$CHANNEL", proc.channel());
       boost::replace_all(subbed_args, "$ANALYSIS", proc.analysis());
+      for( const auto it : attrs){
+          boost::replace_all(subbed_args, "$ATTR("+it.first+")",proc.attribute(it.first));
+      }
       SetupRateParamFunc(subbed_name, formula, subbed_args);
     }
   }
