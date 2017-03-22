@@ -50,6 +50,14 @@ Object::Object(Object&& other)
   swap(*this, other);
 }
 
+void Object::set_attribute(std::string const& attr_label, std::string const& attr_value){
+    if(attributes_.count(attr_label)>0){
+        attributes_[attr_label]=attr_value;
+    } else {
+        attributes_.insert(std::pair<std::string,std::string>(attr_label,attr_value));
+    }
+}
+
 Object& Object::operator=(Object other) {
   swap(*this, other);
   return (*this);

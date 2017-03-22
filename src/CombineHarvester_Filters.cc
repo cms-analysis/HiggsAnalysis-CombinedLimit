@@ -108,6 +108,21 @@ CombineHarvester& CombineHarvester::mass(
   return *this;
 }
 
+CombineHarvester& CombineHarvester::attr(
+    std::vector<std::string> const& vec, std::string attr_label, bool cond) {
+  if (GetFlag("filters-use-regex")) {
+    FilterContainingRgx(procs_, vec, std::mem_fn(&Process::attribute), attr_label, cond);
+    FilterContainingRgx(obs_, vec, std::mem_fn(&Observation::attribute), attr_label, cond);
+    FilterContainingRgx(systs_, vec, std::mem_fn(&Systematic::attribute), attr_label, cond);
+  } else {
+    FilterContaining(procs_, vec, std::mem_fn(&Process::attribute), attr_label, cond);
+    FilterContaining(obs_, vec, std::mem_fn(&Observation::attribute), attr_label, cond);
+    FilterContaining(systs_, vec, std::mem_fn(&Systematic::attribute), attr_label, cond);  
+  }
+  return *this;
+}
+
+
 CombineHarvester& CombineHarvester::syst_name(
     std::vector<std::string> const& vec, bool cond) {
   if (GetFlag("filters-use-regex")) {
