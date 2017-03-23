@@ -25,6 +25,7 @@ void swap(Object& first, Object& second) {
   swap(first.channel_, second.channel_);
   swap(first.bin_id_, second.bin_id_);
   swap(first.mass_, second.mass_);
+  swap(first.attributes_, second.attributes_);
 }
 
 Object::Object(Object const& other)
@@ -35,7 +36,8 @@ Object::Object(Object const& other)
       era_(other.era_),
       channel_(other.channel_),
       bin_id_(other.bin_id_),
-      mass_(other.mass_) {
+      mass_(other.mass_),
+      attributes_(other.attributes_) {
 }
 
 Object::Object(Object&& other)
