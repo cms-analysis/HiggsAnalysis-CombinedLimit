@@ -31,6 +31,7 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string.hpp>
 #include <regex>
 
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
@@ -725,17 +726,49 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
     } else {
       double PhysicsParameterRangeLow = atof(SetParameterRangeExpression[1].c_str());
       double PhysicsParameterRangeHigh = atof(SetParameterRangeExpression[2].c_str());
-      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
-      if (tmpParameter) {
-        cout << "Set Range of Parameter " << SetParameterRangeExpression[0] 
-             << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
-        tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
-      } else {
-        std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
+
+      // check for wildcard character *
+      if (SetParameterRangeExpression[0].find("*") != std::string::npos) {
+
+          std::string reg_esp = "^"; 
+          reg_esp += boost::replace_all_copy(SetParameterRangeExpression[0], "*", ".*");
+          reg_esp += "$";
+          std::regex rgx(reg_esp.c_str(),std::regex::ECMAScript);
+
+          std::cout<<"interpreting "<<SetParameterRangeExpression[0]<<" as regex "<<reg_esp<<std::endl;
+
+          std::auto_ptr<TIterator> iter(params.createIterator());
+          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+              RooRealVar *tmpParameter = dynamic_cast<RooRealVar *>(a);
+              //string varname = tmpParameter->GetName();
+              const std::string &target = tmpParameter->GetName();
+              std::smatch match;
+              if (std::regex_match(target, match, rgx)) {
+                  std::string isconst="";
+                  if (tmpParameter->isConstant()) {
+                      isconst="Constant ";
+                  }
+                  cout << "Set Range of "<<isconst<<"Parameter " << target
+                       << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
+                  tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
+              }
+
+          }
+      }       
+      
+      else {
+          RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
+          if (tmpParameter) {
+              cout << "Set Range of Parameter " << SetParameterRangeExpression[0] 
+                   << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
+              tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
+          } else {
+              std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
+          }
       }
     }
-  }
 
+  }
 }
 
 void utils::createSnapshotFromString( const std::string expression, const RooArgSet &allvars, RooArgSet &output, const char *context) {
