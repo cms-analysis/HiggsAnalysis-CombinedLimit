@@ -54,6 +54,24 @@ void FilterContainingRgx(Input& in, Filter const& filter, Converter fn,
     return cond != ch::contains_rgx(rgx, fn(p));
   });
 }
+
+template <typename Input, typename Filter, typename Converter, typename Funcarg>
+void FilterContaining(Input& in, Filter const& filter, Converter fn, Funcarg arg,
+                      bool cond) {
+  boost::remove_erase_if(in, [&](typename Input::value_type const& p) {
+    return cond != ch::contains(filter, fn(p,arg));
+  });
+}
+
+template <typename Input, typename Filter, typename Converter, typename Funcarg>
+void FilterContainingRgx(Input& in, Filter const& filter, Converter fn, Funcarg arg,
+                         bool cond) {
+  std::vector<boost::regex> rgx;
+  for (auto const& ele : filter) rgx.emplace_back(ele);
+  boost::remove_erase_if(in, [&](typename Input::value_type const& p) {
+    return cond != ch::contains_rgx(rgx, fn(p,arg));
+  });
+}
 }
 
 #endif

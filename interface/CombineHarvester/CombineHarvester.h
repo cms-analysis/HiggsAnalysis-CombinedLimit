@@ -145,6 +145,7 @@ class CombineHarvester {
   CombineHarvester& era(std::vector<std::string> const& vec, bool cond = true);
   CombineHarvester& channel(std::vector<std::string> const& vec, bool cond = true);
   CombineHarvester& mass(std::vector<std::string> const& vec, bool cond = true);
+  CombineHarvester& attr(std::vector<std::string> const& vec,std::string attr_label, bool cond = true);
   CombineHarvester& syst_name(std::vector<std::string> const& vec, bool cond = true);
   CombineHarvester& syst_type(std::vector<std::string> const& vec, bool cond = true);
 

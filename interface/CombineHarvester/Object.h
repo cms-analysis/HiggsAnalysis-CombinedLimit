@@ -1,6 +1,7 @@
 #ifndef CombineTools_Object_h
 #define CombineTools_Object_h
 #include <string>
+#include <map>
 
 namespace ch {
 
@@ -36,6 +37,11 @@ class Object {
   virtual void set_mass(std::string const& mass) { mass_ = mass; }
   virtual std::string const& mass() const { return mass_; }
 
+  virtual void set_attribute(std::string const& attr_label, std::string const& attr_value);
+  virtual void delete_attribute(std::string const& attr_label) { attributes_.erase(attr_label); }
+  virtual std::map<std::string,std::string> const& all_attributes() const { return attributes_;}
+  virtual std::string const attribute(std::string const& attr_label) const { return attributes_.count(attr_label) >0 ? attributes_.at(attr_label) : "" ; }
+
  private:
   std::string bin_;
   std::string process_;
@@ -45,6 +51,7 @@ class Object {
   std::string channel_;
   int bin_id_;
   std::string mass_;
+  std::map<std::string,std::string> attributes_;
   friend void swap(Object& first, Object& second);
 };
 }
