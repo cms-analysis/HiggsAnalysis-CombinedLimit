@@ -228,8 +228,19 @@ RooArgList * CMSHistErrorPropagator::setupBinPars() {
 
   bintypes_.resize(valsum_.size(), 0);
 
+
+
+  std::cout << "Analysing bin errors for: " << this->GetName() << "\n";
+
   for (unsigned j = 0; j < valsum_.size(); ++j) {
+    std::cout << "Bin " << j << ": contents=" << valsum_[j] << " error=" << toterr_[j] << "\n";
     if (toterr_[j] > 0.) {
+      double alpha = (toterr_[j] * toterr_[j]) / valsum_[j];
+      double n = valsum_[j] / alpha;
+      double nround = int(n + 0.5);
+      double alpharound = valsum_[j] / nround;
+      std::cout << " -- equivalent events:         " << n << " +/- " << std::sqrt(n) << " alpha = " << alpha << "\n";
+      std::cout << " -- equivalent events (round): " << nround << " +/- " << std::sqrt(nround) << " alpha = " << alpharound << "\n";
       bintypes_[j] = 1;
       RooRealVar var(TString::Format("%s_bin%i", this->GetName(), j), "", 0, -7, 7);
       res->addClone(var);
