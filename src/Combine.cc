@@ -143,7 +143,7 @@ Combine::Combine() :
       ("guessGenMode", "Guess if to generate binned or unbinned based on dataset")
       ("genBinnedChannels", po::value<std::string>(&genAsBinned_)->default_value(genAsBinned_), "Flag the given channels to be generated binned (irrespectively of how they were flagged at workspace creation)") 
       ("genUnbinnedChannels", po::value<std::string>(&genAsUnbinned_)->default_value(genAsUnbinned_), "Flag the given channels to be generated unbinned (irrespectively of how they were flagged at workspace creation)") 
-      ("trackParameters",   boost::program_options::value<std::string>(&trackParametersNameString_)->default_value(""), "Keep track of parameters in workspace (default = none)")
+      ("trackParameters",   boost::program_options::value<std::string>(&trackParametersNameString_)->default_value(""), "Keep track of parameters in workspace, also accepts regexp with syntax 'rgx{<my regexp>}' (default = none)")
       ; 
 }
 
@@ -675,11 +675,31 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     strlcpy(tmp,trackParametersNameString_.c_str(),10240) ;
     char* token = strtok(tmp,",") ;
     while(token) {
-      RooAbsReal *a =(RooAbsReal*)w->obj(token); 
-      if (a == 0) throw std::invalid_argument(std::string("Parameter ")+(token)+" not in model.");
-          
-      Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(a,a->getVal()));
-      token = strtok(0,",") ; 
+      if (boost::starts_with(token, "rgx{") && boost::ends_with(token, "}")) {
+          std::string tokenstr(token);
+          std::string reg_esp = tokenstr.substr(4, tokenstr.size()-5);
+          std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
+          std::regex rgx( reg_esp, std::regex::ECMAScript);
+
+          RooArgSet allParams(w->allVars());
+          std::auto_ptr<TIterator> iter(allParams.createIterator());
+          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+              RooAbsReal *tmp = dynamic_cast<RooAbsReal *>(a);
+              const std::string &target = tmp->GetName();
+              std::smatch match;
+              if (std::regex_match(target, match, rgx)) {
+                  if (tmp->isConstant()) continue;
+                  Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(tmp,tmp->getVal()));
+              }
+          }
+          token = strtok(0,",") ;
+      } else {
+          RooAbsReal *a =(RooAbsReal*)w->obj(token); 
+          if (a == 0) throw std::invalid_argument(std::string("Parameter ")+(token)+" not in model.");
+          Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(a,a->getVal()));
+          token = strtok(0,",") ;
+      } 
+
     }
   }
   
