@@ -44,7 +44,7 @@ public:
 
   Double_t evaluate() const;
 
-  RooArgList * setupBinPars();
+  RooArgList * setupBinPars(double poissonThreshold);
 
   std::unique_ptr<RooArgSet> getSentryArgs() const;
 
@@ -65,12 +65,10 @@ public:
   RooListProxy binpars_;
   mutable std::vector<CMSHistFunc const*> vfuncs_; //!
   mutable std::vector<RooAbsReal const*> vcoeffs_; //!
-  mutable std::vector<RooAbsReal *> vbinpars_; //!
-  std::vector<unsigned> bintypes_;
+  mutable std::vector<std::vector<RooAbsReal *>> vbinpars_; //!
+  std::vector<std::vector<unsigned>> bintypes_;
 
   mutable std::vector<double> coeffvals_; //!
-  mutable std::vector<std::vector<double>> valvec_; //!
-  mutable std::vector<std::vector<double>> err2vec_; //!
   mutable FastHisto valsum_; //!
   mutable FastHisto scaledvalsum_; //!
   mutable std::vector<double> err2sum_; //!

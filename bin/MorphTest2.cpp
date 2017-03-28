@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
         RooArgList(c_ZTT, c_W),
         RooArgList(coeff_ZTT, coeff_W));
 
-    auto newbinargs = c_prop.setupBinPars();
+    auto newbinargs = c_prop.setupBinPars(0.);
     newbinargs->Print();
 
     CMSHistFuncWrapper c_ZTT_wrapper("ZTT_wrapper", "ZTT_wrapper", x, c_ZTT, c_prop, 0);

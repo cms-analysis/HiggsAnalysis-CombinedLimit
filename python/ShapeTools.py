@@ -1,6 +1,7 @@
 from sys import stdout, stderr
 import os.path
 import ROOT
+from math import *
 
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
 
@@ -70,6 +71,8 @@ class ShapeBuilder(ModelBuilder):
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
+                if self.DC.isSignal[p]:
+                    pdf.setAttribute('skipForErrorSum')
                 coeff.setStringAttribute("combine.process", p)
                 coeff.setStringAttribute("combine.channel", b)
                 coeff.setAttribute("combine.signal", self.DC.isSignal[p])
@@ -81,17 +84,31 @@ class ShapeBuilder(ModelBuilder):
                 if self.options.newHist in [3, 4, 5, 6]:
                     prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", self.out.binVar, pdfs, coeffs)
                     if self.options.newHist in [4, 5, 6]:
-                        bbb_args = prop.setupBinPars()
+                        bbb_args = prop.setupBinPars(5.)
                         bbb_args.Print()
                         for bidx in range(bbb_args.getSize()):
-                            n = bbb_args.at(bidx).GetName()
-                            self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %s" % (n,'[-4,4]',n,'-4,4', '1.0'),True)
+                            arg = bbb_args.at(bidx)
+                            n = arg.GetName()
+                            self.out._import(arg)
+                            if arg.getAttribute("createGaussianConstraint"):
+                                self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[0,%s], %s" % (n, n, '-7,7', '1.0'), True)
+                                self.out.var(n).setVal(0)
+                                self.out.var(n).setError(1)
+                                self.out.var(n).setAttribute("optimizeBounds")
+                                if self.options.newHist in [6] and arg.getAttribute("forBarlowBeeston"):
+                                    self.out.var(n).setConstant(True)
+                            elif arg.getAttribute("createPoissonConstraint"):
+                                nom = arg.getVal()
+                                pval = ROOT.Math.normal_cdf_c(7)
+                                minObs = nom
+                                while minObs > 0 and (ROOT.TMath.Poisson(minObs, nom + 1) > pval):
+                                    minObs -= (sqrt(nom) if nom > 10 else 1)
+                                maxObs = nom + 2
+                                while (ROOT.TMath.Poisson(maxObs, nom + 1) > pval):
+                                    #print "Poisson(maxObs = %d, %f) = %g > 1e-12" % (maxObs, args[0]+1, ROOT.TMath.Poisson(maxObs, args[0]+1))
+                                    maxObs += (sqrt(nom) if nom > 10 else 2)
+                                self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,%f,%f], %s, 1" % (n, nom, minObs, maxObs, n))
                             binconstraints.add(self.out.pdf('%s_Pdf' % n))
-                            self.out.var(n).setVal(0)
-                            self.out.var(n).setError(1)
-                            self.out.var(n).setAttribute("optimizeBounds")
-                            if self.options.newHist in [6]:
-                                self.out.var(n).setConstant(True)
                             self.out.var("%s_In" % n).setConstant(True)
                     for idx in xrange(pdfs.getSize()):
                         wrapperpdfsL.append(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', self.out.binVar, pdfs.at(idx), prop, idx))
