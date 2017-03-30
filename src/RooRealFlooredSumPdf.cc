@@ -39,6 +39,7 @@ RooRealFlooredSumPdf::RooRealFlooredSumPdf()
   _coefIter  = _coefList.createIterator() ;
   _extended = kFALSE ;
   _doFloor = kTRUE ;
+  _floorVal = 1e-100 ;
 }
 
 
@@ -51,7 +52,8 @@ RooRealFlooredSumPdf::RooRealFlooredSumPdf(const char *name, const char *title) 
   _funcList("!funcList","List of functions",this),
   _coefList("!coefList","List of coefficients",this),
   _extended(kFALSE),
-  _doFloor(kTRUE)
+  _doFloor(kTRUE),
+  _floorVal(1e-100)
 {
   // Constructor with name and title
   _funcIter   = _funcList.createIterator() ;
@@ -68,7 +70,8 @@ _haveLastCoef(kFALSE),
 _funcList("!funcList", "List of functions", this),
 _coefList("!coefList", "List of coefficients", this),
 _extended(extended),
-_doFloor(kTRUE)
+_doFloor(kTRUE),
+_floorVal(1e-100)
 {
 	// Constructor p.d.f implementing sum_i [ coef_i * func_i ], if N_coef==N_func
 	// or sum_i [ coef_i * func_i ] + (1 - sum_i [ coef_i ] )* func_N if Ncoef==N_func-1
@@ -132,12 +135,20 @@ _haveLastCoef(other._haveLastCoef),
 _funcList("!funcList", this, other._funcList),
 _coefList("!coefList", this, other._coefList),
 _extended(other._extended),
-_doFloor(other._doFloor)
+_doFloor(other._doFloor),
+_floorVal(other._floorVal)
 {
 	// Copy constructor
 
 	_funcIter = _funcList.createIterator();
 	_coefIter = _coefList.createIterator();
+}
+
+
+//_____________________________________________________________________________
+void RooRealFlooredSumPdf::setFloor(Double_t val)
+{
+  _floorVal = val;
 }
 
 
@@ -204,7 +215,7 @@ Double_t RooRealFlooredSumPdf::evaluate() const
 	}
 
 	// Introduce floor
-	if (value < 1.0e-15 && _doFloor) value = 1.0e-15; // Last IEEE double precision
+  if (value <= 0. && _doFloor) value = _floorVal;
 
 	return value;
 }
@@ -384,10 +395,10 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 
   Double_t result = 0;
   if(normVal>0) result = value / normVal;
-  if (result<1.0e-10 && _doFloor){
+  if (result<=0. && _doFloor){
     coutW(Eval) << "RooRealFlooredSumPdf::integral(" << GetName()
       << " WARNING: Integral below threshold: " << result << endl;
-    result = 1.0e-10; // A somewhat larger number
+    result = _floorVal;
   }
 	return result;
 }

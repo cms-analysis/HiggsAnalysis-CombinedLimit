@@ -44,6 +44,8 @@ public:
 	const RooArgList& funcList() const { return _funcList; }
 	const RooArgList& coefList() const { return _coefList; }
 
+  void setFloor(Double_t val);
+
 	virtual ExtendMode extendMode() const;
 
 	virtual Double_t expectedEvents(const RooArgSet* nset) const;
@@ -82,6 +84,7 @@ protected:
 	TIterator* _coefIter;    //! Iterator over coefficient list
 	Bool_t _extended;        // Allow use as extended p.d.f.
 	Bool_t _doFloor;
+  Double_t _floorVal;
 
 private:
 

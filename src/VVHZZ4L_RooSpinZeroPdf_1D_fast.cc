@@ -95,7 +95,7 @@ Float_t VVHZZ4L_RooSpinZeroPdf_1D_fast::interpolateFcn(Int_t code, const char* r
 }
 Double_t VVHZZ4L_RooSpinZeroPdf_1D_fast::evaluate() const{
   Double_t value = interpolateFcn(0);
-  if (value<=0.) return 1e-15;
+  if (value<=0.) return 1e-100;
   return value;
 }
 Int_t VVHZZ4L_RooSpinZeroPdf_1D_fast::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName) const{
@@ -105,7 +105,7 @@ Int_t VVHZZ4L_RooSpinZeroPdf_1D_fast::getAnalyticalIntegral(RooArgSet& allVars, 
 }
 Double_t VVHZZ4L_RooSpinZeroPdf_1D_fast::analyticalIntegral(Int_t code, const char* rangeName) const{
   Double_t value = interpolateFcn(code, rangeName);
-  if (value<=0.) return 1e-10;
+  if (value<=0.) return 1e-100;
   return value;
 }
 
