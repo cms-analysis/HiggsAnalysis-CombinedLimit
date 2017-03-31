@@ -630,11 +630,12 @@ class KappaVKappaT(LHCHCGBaseModel):
 
     For tHq multilepton analysis (HIG-17-005)
     """
-    def __init__(self,resolved=True,BRU=True,addInvisible=False):
+    def __init__(self,resolved=True,BRU=True,addInvisible=False,coupleTopTau=False):
         LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.doBRU = BRU
         self.resolved = resolved
         self.addInvisible = addInvisible
+        self.coupleTopTau = coupleTopTau
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
@@ -645,10 +646,13 @@ class KappaVKappaT(LHCHCGBaseModel):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("r[1,0.0,10.0]")
         self.modelBuilder.doVar("kappa_V[1,0.0,2.0]")
-        self.modelBuilder.doVar("kappa_t[1,-4.0,4.0]")
-        self.modelBuilder.doVar("kappa_tau[1,0.0,3.0]")
+        self.modelBuilder.doVar("kappa_t[1,-10.0,10.0]")
         self.modelBuilder.doVar("kappa_mu[1,0.0,5.0]")
-        self.modelBuilder.factory_("expr::kappa_mu_expr(\"@0*@1+(1-@0)*@2\", CMS_use_kmu[0], kappa_mu, kappa_tau)")
+        if not self.coupleTopTau:
+            self.modelBuilder.doVar("kappa_tau[1,0.0,3.0]")
+            self.modelBuilder.factory_("expr::kappa_mu_expr(\"@0*@1+(1-@0)*@2\", CMS_use_kmu[0], kappa_mu, kappa_tau)")
+        else:
+            self.modelBuilder.factory_("expr::kappa_mu_expr(\"@0*@1+(1-@0)*@2\", CMS_use_kmu[0], kappa_mu, kappa_t)")
         self.modelBuilder.doVar("kappa_b[1,0.0,3.0]")
         self.modelBuilder.doVar("kappa_c[1,0.0,3.0]") # treat hcc independently from kappa_t
         if not self.resolved:
@@ -656,7 +660,9 @@ class KappaVKappaT(LHCHCGBaseModel):
             self.modelBuilder.doVar("kappa_gam[1,0.0,2.5]")
         self.modelBuilder.doVar("BRinv[0,0,1]")
         if not self.addInvisible: self.modelBuilder.out.var("BRinv").setConstant(True)
-        pois = 'kappa_V,kappa_tau,kappa_t,kappa_b,kappa_c'
+        pois = 'kappa_V,kappa_t,kappa_b,kappa_c'
+        if not self.coupleTopTau:
+            pois += ',kappa_tau'
         if not self.resolved:
             pois += ',kappa_g,kappa_gam'
         if self.addInvisible: pois+=",BRinv"
@@ -685,8 +691,12 @@ class KappaVKappaT(LHCHCGBaseModel):
         if self.resolved:
             self.SMH.makeScaling('ggH', Cb='kappa_b', Ctop='kappa_t', Cc="kappa_t")
             self.SMH.makeScaling('hgluglu', Cb='kappa_b', Ctop='kappa_t')
-            self.SMH.makeScaling('hgg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_V', Ctau='kappa_tau')
-            self.SMH.makeScaling('hzg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_V', Ctau='kappa_tau')
+            if not self.coupleTopTau:
+                self.SMH.makeScaling('hgg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_V', Ctau='kappa_tau')
+                self.SMH.makeScaling('hzg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_V', Ctau='kappa_tau')
+            else:
+                self.SMH.makeScaling('hgg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_V', Ctau='kappa_t')
+                self.SMH.makeScaling('hzg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_V', Ctau='kappa_t')
         else:
             self.modelBuilder.factory_('expr::Scaling_hgluglu("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_hgg("@0*@0", kappa_gam)')
@@ -699,7 +709,10 @@ class KappaVKappaT(LHCHCGBaseModel):
         ## partial witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::c7_Gscal_Z("@0*@0*@1*@2", kappa_V, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz)')
         self.modelBuilder.factory_('expr::c7_Gscal_W("@0*@0*@1*@2", kappa_V, SM_BR_hww, HiggsDecayWidth_UncertaintyScaling_hww)')
-        self.modelBuilder.factory_('expr::c7_Gscal_tau("@0*@0*@1*@4+@2*@2*@3*@5", kappa_tau, SM_BR_htt, kappa_mu_expr, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_htt, HiggsDecayWidth_UncertaintyScaling_hmm)')
+        if not self.coupleTopTau:
+            self.modelBuilder.factory_('expr::c7_Gscal_tau("@0*@0*@1*@4+@2*@2*@3*@5", kappa_tau, SM_BR_htt, kappa_mu_expr, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_htt, HiggsDecayWidth_UncertaintyScaling_hmm)')
+        else:
+            self.modelBuilder.factory_('expr::c7_Gscal_tau("@0*@0*@1*@4+@2*@2*@3*@5", kappa_t, SM_BR_htt, kappa_mu_expr, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_htt, HiggsDecayWidth_UncertaintyScaling_hmm)')
         self.modelBuilder.factory_('expr::c7_Gscal_top("@0*@0 * @1*@2", kappa_c, SM_BR_hcc, HiggsDecayWidth_UncertaintyScaling_hcc)')
         self.modelBuilder.factory_('expr::c7_Gscal_bottom("@0*@0 * (@1*@3+@2)", kappa_b, SM_BR_hbb, SM_BR_hss, HiggsDecayWidth_UncertaintyScaling_hbb)')
         self.modelBuilder.factory_('expr::c7_Gscal_gluon("  @0  * @1 * @2", Scaling_hgluglu, SM_BR_hgluglu, HiggsDecayWidth_UncertaintyScaling_hgluglu)')
@@ -714,7 +727,10 @@ class KappaVKappaT(LHCHCGBaseModel):
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM)
         self.modelBuilder.factory_('expr::c7_BRscal_hww("@0*@0*@2/@1", kappa_V, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hww)')
         self.modelBuilder.factory_('expr::c7_BRscal_hzz("@0*@0*@2/@1", kappa_V, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hzz)')
-        self.modelBuilder.factory_('expr::c7_BRscal_htt("@0*@0*@2/@1", kappa_tau, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_htt)')
+        if not self.coupleTopTau:
+            self.modelBuilder.factory_('expr::c7_BRscal_htt("@0*@0*@2/@1", kappa_tau, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_htt)')
+        else:
+            self.modelBuilder.factory_('expr::c7_BRscal_htt("@0*@0*@2/@1", kappa_t, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_htt)')
         self.modelBuilder.factory_('expr::c7_BRscal_hmm("@0*@0*@2/@1", kappa_mu_expr, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hmm)')
         self.modelBuilder.factory_('expr::c7_BRscal_hbb("@0*@0*@2/@1", kappa_b, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hbb)')
         self.modelBuilder.factory_('expr::c7_BRscal_hcc("@0*@0*@2/@1", kappa_c, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hcc)')
@@ -1100,3 +1116,4 @@ D1 = CommonMatrixModel()
 
 K4 = KappaVKappaT(resolved=True)
 K5 = KappaVKappaT(resolved=False)
+K6 = KappaVKappaT(resolved=False, coupleTopTau=True)
