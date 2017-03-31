@@ -84,7 +84,7 @@ class ShapeBuilder(ModelBuilder):
                 if self.options.newHist in [3, 4, 5, 6]:
                     prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", self.out.binVar, pdfs, coeffs)
                     if self.options.newHist in [4, 5, 6]:
-                        bbb_args = prop.setupBinPars(5.)
+                        bbb_args = prop.setupBinPars(0)
                         bbb_args.Print()
                         for bidx in range(bbb_args.getSize()):
                             arg = bbb_args.at(bidx)

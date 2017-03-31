@@ -93,15 +93,25 @@ class FnTimer {
   explicit FnTimer(std::string name);
   ~FnTimer();
   Token Inc();
-  void StartTimer();
-  void StopTimer();
+  inline void StartTimer() {
+    start_ = std::chrono::high_resolution_clock::now();
+  }
+  inline void StopTimer() {
+    end_ = std::chrono::high_resolution_clock::now();
+    elapsed_ += std::chrono::duration<double>(end_ - start_).count();
+    start_ = std::chrono::high_resolution_clock::now();
+    end_ = std::chrono::high_resolution_clock::now();
+    elapsed_overhead_ += std::chrono::duration<double>(end_ - start_).count();
+
+  }
 
  private:
   std::string name_;
   unsigned calls_;
-  std::chrono::time_point<std::chrono::system_clock> start_;
-  std::chrono::time_point<std::chrono::system_clock> end_;
+  std::chrono::time_point<std::chrono::high_resolution_clock> start_;
+  std::chrono::time_point<std::chrono::high_resolution_clock> end_;
   double elapsed_;
+  double elapsed_overhead_;
 };
 
 

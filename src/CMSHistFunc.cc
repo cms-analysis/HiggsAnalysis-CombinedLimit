@@ -37,16 +37,8 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       mtype_(MomentSetting::Linear) {
   prepareStorage();  // Prepare storage of size 1 -> the cache_ will be copied in there
   for (unsigned i = 0; i < cache_.size(); ++i) {
-    // float c = hist.GetBinContent(i + 1);
-    // float e = hist.GetBinError(i + 1);
-    // if (c > 0.) {
-    //   binerrors_[i] = e / c;
-    // } else {
-    //   binerrors_[i] = 0.;
-    // }
     binerrors_[i] = hist.GetBinError(i + 1);
   }
-  // initialize();
 }
 
 CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
@@ -171,16 +163,17 @@ void CMSHistFunc::setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
 }
 
 void CMSHistFunc::updateCache() const {
-  // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
-
   initialize();
 
+  // Quick escape if cache is up-to-date
+  if (hmorph_sentry_.good() && vmorph_sentry_.good()) return;
+
   if (morph_strategy_ == 0) {
-    FNLOGC(std::cout, veval) << "Morphing strategy 0\n";
-    FNLOGC(std::cout, veval) << "Number of horizontal morphs: " << hmorphs_.getSize() << "\n";
-    FNLOGC(std::cout, veval) << "Horizontal morph sentry: " << hmorph_sentry_.good() << "\n";
-    FNLOGC(std::cout, veval) << "Vertical morph sentry: " << vmorph_sentry_.good() << "\n";
-    FNLOGC(std::cout, veval) << "single_point,p1,p2: " << global_.single_point << " " << global_.p1 << " " << global_.p2 << "\n";
+    // FNLOGC(std::cout, veval) << "Morphing strategy 0\n";
+    // FNLOGC(std::cout, veval) << "Number of horizontal morphs: " << hmorphs_.getSize() << "\n";
+    // FNLOGC(std::cout, veval) << "Horizontal morph sentry: " << hmorph_sentry_.good() << "\n";
+    // FNLOGC(std::cout, veval) << "Vertical morph sentry: " << vmorph_sentry_.good() << "\n";
+    // FNLOGC(std::cout, veval) << "single_point,p1,p2: " << global_.single_point << " " << global_.p1 << " " << global_.p2 << "\n";
     // Figure out what we're doing:
     //  - singlePoint p1 OR
     //  - h-morphing between p1 and p2
@@ -433,32 +426,32 @@ void CMSHistFunc::updateCache() const {
     }
 
     if (step2) {
-      FNLOGC(std::cout, veval) << "Checking step 2\n";
+      // FNLOGC(std::cout, veval) << "Checking step 2\n";
       unsigned idx = getIdx(0, global_.p1, 0, 0);
       mcache_[idx].step2 = mcache_[idx].step1;
-      if (veval >= 2) {
-        std::cout << "Template before vmorph: " << mcache_[idx].step2.Integral() << "\n";
-        mcache_[idx].step2.Dump();
-      }
+      // if (veval >= 2) {
+      //   std::cout << "Template before vmorph: " << mcache_[idx].step2.Integral() << "\n";
+      //   mcache_[idx].step2.Dump();
+      // }
       for (int v = 0; v < vmorphs_.getSize(); ++v) {
         unsigned vidx = getIdx(0, global_.p1, v+1, 0);
 
         double x = ((RooRealVar&)vmorphs_[v]).getVal();
         //     // std::cout << "Morphing for " << vmorphs_[i].GetName() << " with value: " << x << "\n";
-        double a = 0.5*x;
-        double b = smoothStepFunc(x);
-        mcache_[idx].step2.Meld(mcache_[vidx].diff, mcache_[vidx].sum, a, b);
-        if (veval >= 2) {
-          std::cout << "Template after vmorph " << v+1 << ": " << mcache_[idx].step2.Integral() << "\n";
-          mcache_[idx].step2.Dump();
-        }
+        // double a = 0.5*x;
+        // double b = smoothStepFunc(x);
+        mcache_[idx].step2.Meld(mcache_[vidx].diff, mcache_[vidx].sum, 0.5*x, smoothStepFunc(x));
+        // if (veval >= 2) {
+        //   std::cout << "Template after vmorph " << v+1 << ": " << mcache_[idx].step2.Integral() << "\n";
+        //   mcache_[idx].step2.Dump();
+        // }
       }
       mcache_[idx].step2.CropUnderflows();
       cache_.CopyValues(mcache_[idx].step2);
-      if (veval >= 1) {
-        std::cout << "Final cache: " << cache_.Integral() << "\n";
-        cache_.Dump();
-      }
+      // if (veval >= 1) {
+      //   std::cout << "Final cache: " << cache_.Integral() << "\n";
+      //   cache_.Dump();
+      // }
       vmorph_sentry_.reset();
     }
   }
