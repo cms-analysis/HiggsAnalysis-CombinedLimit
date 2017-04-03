@@ -15,10 +15,14 @@
 
 	<class name="AsymPow" />
 	<class name="AsymQuad" />
+
+	<class name="FastHistoAxis_d" />
 	<class name="FastTemplate" />
 	<class name="FastHisto" />
 	<class name="FastHisto2D" />
 	<class name="FastHisto3D" />
+
+	<class name="FastHistoAxis_f" />
 	<class name="FastTemplate_f" />
 	<class name="FastHisto_f" />
 	<class name="FastHisto2D_f" />

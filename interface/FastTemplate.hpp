@@ -38,6 +38,39 @@ namespace {
 }
 
 
+template<typename T> void FastTemplate_t<T>::Subtract(const FastTemplate_t & ref) {
+    subtract(&(this->values_)[0], this->size_, &ref[0]);
+}
+template<typename T> void FastTemplate_t<T>::LogRatio(const FastTemplate_t & ref) {
+    logratio(&(this->values_)[0], this->size_, &ref[0]);
+}
+template<typename T> void FastTemplate_t<T>::SumDiff(const FastTemplate_t & h1, const FastTemplate_t & h2,
+                           FastTemplate_t & sum, FastTemplate_t & diff) {
+    sumdiff(&sum[0], &diff[0], h1.size_, &h1[0], &h2[0]);
+}
+
+template<typename T> void FastTemplate_t<T>::Meld(const FastTemplate_t & diff, const FastTemplate_t & sum, T x, T y) {
+    meld(&(this->values_)[0], this->size_, &diff[0], &sum[0], x, y);
+}
+
+template<typename T> void FastTemplate_t<T>::Log() {
+    for (unsigned int i = 0; i < this->size_; ++i) {
+        //if ((this->values_)[i] <= 0) printf("WARNING: log(%g) at bin %d of %d bins (%d active bins)\n", (this->values_)[i], i, int((this->values_).size()), this->size_);
+        (this->values_)[i] = (this->values_)[i] > 0 ? std::log((this->values_)[i]) : T(-999);
+    }
+}
+
+template<typename T> void FastTemplate_t<T>::Exp() {
+    for (unsigned int i = 0; i < this->size_; ++i) {
+        (this->values_)[i] = std::exp((this->values_)[i]);
+    }
+}
+
+template<typename T> void FastTemplate_t<T>::CropUnderflows(T minimum, bool activebinsonly) {
+    for (unsigned int i = 0, n = activebinsonly ? this->size_ : (this->values_).size(); i < n; ++i) {
+        if ((this->values_)[i] < minimum) (this->values_)[i] = minimum;
+    }
+}
 
 template<typename T> T FastTemplate_t<T>::Integral() const {
     DefaultAccumulator<T> total = 0;
@@ -86,118 +119,70 @@ template<typename T> void FastTemplate_t<T>::Dump() const {
     printf("\n"); 
 }
 
+
+
+/***************************************/
+/*              FastHisto              */
+/***************************************/
+
 template<typename T> FastHisto_t<T>::FastHisto_t(const TH1 &hist, bool normX) :
     FastTemplate_t<T>(hist),
-    binEdges_(this->size()+1),
+    axis_(*(hist.GetXaxis())),
     normX_(normX)
-{
-    for (unsigned int i = 0, n = this->size(); i < n; ++i) binEdges_[i] = hist.GetBinLowEdge(i+1);
-    binEdges_.back() = hist.GetBinLowEdge(this->size()+1);
-}
-
+{}
 template<typename T> FastHisto_t<T>::FastHisto_t(const FastHisto_t &other) :
     FastTemplate_t<T>(other),
-    binEdges_(other.binEdges_),
+    axis_(other.axis_),
     normX_(other.normX_)
 {}
 
-template<typename T> int FastHisto_t<T>::FindBin(const T &x) const {
-    auto match = std::upper_bound(binEdges_.begin(), binEdges_.end(), x);
-    if (match == binEdges_.begin()) return -1;
-    if (match == binEdges_.end()) return (this->values_).size();
-    return match - binEdges_.begin() - 1;
-}
-
-
-template<typename T> T FastHisto_t<T>::GetAt(const T &x) const {
-    auto match = std::upper_bound(binEdges_.begin(), binEdges_.end(), x);
-    if (match == binEdges_.begin() || match == binEdges_.end()) return T(0.0);
-    return (this->values_)[match - binEdges_.begin() - 1];
-}
-
 template<typename T> T FastHisto_t<T>::IntegralWidth(int binmin, int binmax) const {
     DefaultAccumulator<T> total = 0;
-    for (unsigned int i = 0; i < this->size_; ++i){
+    for (unsigned int i = 0; i < std::min(GetNbinsX(), this->size_); ++i){
       if (binmin>=0 && (int)i<binmin) continue;
       if (binmax>=0 && (int)i>binmax) continue;
-      total += (this->values_)[i] * GetBinWidth(i);
+      total += GetBinContent(i) * GetBinWidth(i);
     }
     return total.sum();
 }
-
 template<typename T> void FastHisto_t<T>::Dump() const {
-  printf("--- dumping histo template with %d bins (%d active) in range %.2f - %.2f (@%p)---\n", int((this->values_).size()), this->size_, binEdges_[0], binEdges_[this->size_], (void*)&(this->values_)[0]);
+  printf("--- dumping histo template with %d bins (%d active) in range %.2f - %.2f (@%p)---\n", int((this->values_).size()), this->size_, axis_[0], axis_[this->size_], (void*)&(this->values_)[0]);
   for (unsigned int i = 0; i < (this->values_).size(); ++i) {
     printf(" bin %3d, x = %6.2f: yval = %9.5f, width = %6.3f\n",
-      i, 0.5*(binEdges_[i]+binEdges_[i+1]), (this->values_)[i], GetBinWidth(i));
+      i, 0.5*(axis_[i]+axis_[i+1]), (this->values_)[i], GetBinWidth(i));
   }
   printf("\n");
 }
-
 template<typename T> T FastHisto_t<T>::GetMax() const {
     return * std::max((this->values_).begin(), (this->values_).end());
 }
 
-template<typename T> T FastHisto_t<T>::GetBinWidth(const unsigned int bin) const{
-  if (normX_) return T(1);
-  else return T(binEdges_.at(bin+1)-binEdges_.at(bin));
-}
+
+
+/***************************************/
+/*             FastHisto2D             */
+/***************************************/
 
 template<typename T> FastHisto2D_t<T>::FastHisto2D_t(const TH2 &hist, bool normX, bool normY) :
     FastTemplate_t<T>(hist),
-    binX_(hist.GetNbinsX()),
-    binY_(hist.GetNbinsY()),
-    binEdgesX_(hist.GetNbinsX()+1),
-    binEdgesY_(hist.GetNbinsY()+1),
+    axisX_(*(hist.GetXaxis())),
+    axisY_(*(hist.GetYaxis())),
     normX_(normX),
     normY_(normY)
-{
-    const TAxis *ax = hist.GetXaxis(), *ay = hist.GetYaxis();
-    for (unsigned int ix = 0; ix < binX_; ++ix) {
-        binEdgesX_[ix] = ax->GetBinLowEdge(ix+1);
-    }
-    binEdgesX_.back() = ax->GetBinLowEdge(binX_+1);
-    for (unsigned int iy = 0; iy < binY_; ++iy) {
-        binEdgesY_[iy] = ay->GetBinLowEdge(iy+1);
-    }
-    binEdgesY_.back() = ay->GetBinLowEdge(binY_+1);
-}
+{}
 
 template<typename T> FastHisto2D_t<T>::FastHisto2D_t(const FastHisto2D_t &other) :
     FastTemplate_t<T>(other),
-    binX_(other.binX_),
-    binY_(other.binY_),
-    binEdgesX_(other.binEdgesX_),
-    binEdgesY_(other.binEdgesY_),
+    axisX_(other.axisX_),
+    axisY_(other.axisY_),
     normX_(other.normX_),
     normY_(other.normY_)
 {}
 
-template<typename T> T FastHisto2D_t<T>::GetAt(const T &x, const T &y) const {
-    auto matchx = std::upper_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
-    if (matchx == binEdgesX_.begin() || matchx == binEdgesX_.end()) return T(0.0);
-    int ix = (matchx - binEdgesX_.begin() - 1);
-    auto matchy = std::upper_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
-    if (matchy == binEdgesY_.begin() || matchy == binEdgesY_.end()) return T(0.0);
-    int iy = (matchy - binEdgesY_.begin() - 1);
-    return (this->values_)[ix * binY_ + iy];
-}
-
-template<typename T> int FastHisto2D_t<T>::FindBinX(const T &t) const {
-  auto match = std::upper_bound(binEdgesX_.begin(), binEdgesX_.end(), t);
-  if (match == binEdgesX_.begin()) return -1;
-  if (match == binEdgesX_.end()) return binX_;
-  return match - binEdgesX_.begin() - 1;
-}
-template<typename T> int FastHisto2D_t<T>::FindBinY(const T &t) const {
-  auto match = std::upper_bound(binEdgesY_.begin(), binEdgesY_.end(), t);
-  if (match == binEdgesY_.begin()) return -1;
-  if (match == binEdgesY_.end()) return binY_;
-  return match - binEdgesY_.begin() - 1;
-}
-
 template<typename T> T FastHisto2D_t<T>::IntegralWidth(int xbinmin, int xbinmax, int ybinmin, int ybinmax) const {
     DefaultAccumulator<T> total = 0;
+    const unsigned int binX_ = GetNbinsX();
+    const unsigned int binY_ = GetNbinsY();
     for (unsigned int ix=0; ix<binX_; ix++){
       if (xbinmin>=0 && (int)ix<xbinmin) continue;
       if (xbinmax>=0 && (int)ix>xbinmax) continue;
@@ -214,24 +199,28 @@ template<typename T> T FastHisto2D_t<T>::IntegralWidth(int xbinmin, int xbinmax,
 
 template<typename T> void FastHisto2D_t<T>::NormalizeXSlices() {
   normX_ = true;
+  const unsigned int binX_ = GetNbinsX();
+  const unsigned int binY_ = GetNbinsY();
   for (unsigned int ix = 0, offs = 0; ix < binX_; ++ix, offs += binY_) {
     T *values = &(this->values_)[offs];
     DefaultAccumulator<T> total = 0;
     for (unsigned int i = 0; i < binY_; ++i) total += values[i] * GetBinWidthY(i);
-    if (total.sum() > T(0)) {
+    if (total.sum()!=T(0)) {
       for (unsigned int i = 0; i < binY_; ++i) values[i] /= total.sum();
     }
   }
 }
 
 template<typename T> void FastHisto2D_t<T>::Dump() const {
+  const unsigned int binX_ = GetNbinsX();
+  const unsigned int binY_ = GetNbinsY();
   printf("--- dumping histo template with %d x %d bins (@%p)---\n", binX_, binY_, (void*)(&(this->values_)[0]));
   for (unsigned int ix=0; ix<binX_; ix++){
     for (unsigned int iy=0; iy<binY_; iy++){
       int i = ix * binY_ +iy;
       printf(" bin %3d, x = %6.2f, y = %6.2f: yval = %9.5f, width = %6.3f\n",
-        i, 0.5*(binEdgesX_[ix]+binEdgesX_[ix+1]),
-        0.5*(binEdgesY_[iy]+binEdgesY_[iy+1]),
+        i, 0.5*(axisX_[ix]+axisX_[ix+1]),
+        0.5*(axisY_[iy]+axisY_[iy+1]),
         (this->values_)[i], GetBinWidthX(ix) * GetBinWidthY(iy));
     }
   }
@@ -243,107 +232,52 @@ template<typename T> T FastHisto2D_t<T>::GetMaxOnXY() const {
 }
 
 template<typename T> T FastHisto2D_t<T>::GetMaxOnX(const T &y) const {
-    auto matchy = std::upper_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
-    if (matchy == binEdgesY_.begin() || matchy == binEdgesY_.end()) return T(0.0);
-    int iy = (matchy - binEdgesY_.begin() - 1);
-    T ret = 0.0;
-    for (unsigned int i = iy; i < this->size_; i += binY_) {
-        if (ret < (this->values_)[i]) ret = (this->values_)[i];
-    }
-    return ret;
+  const unsigned int binX_ = GetNbinsX();
+  const unsigned int binY_ = GetNbinsY();
+  int iy = FindBinY(y);
+  T ret = 0;
+  for (unsigned int i = iy; i < binX_*binY_; i += binY_) {
+    if (ret < (this->values_)[i]) ret = (this->values_)[i];
+  }
+  return ret;
 }
 
 template<typename T> T FastHisto2D_t<T>::GetMaxOnY(const T &x) const {
-    auto matchx = std::upper_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
-    if (matchx == binEdgesX_.begin() || matchx == binEdgesX_.end()) return T(0.0);
-    int ix = (matchx - binEdgesX_.begin() - 1);
-    return *std::max( &(this->values_)[ix * binY_], &(this->values_)[(ix+1) * binY_] );
+  const unsigned int binY_ = GetNbinsY();
+  int ix = FindBinX(x);
+  return *std::max( &(this->values_)[ix * binY_], &(this->values_)[(ix+1) * binY_] );
 }
 
-template<typename T> T FastHisto2D_t<T>::GetBinWidthX(const unsigned int bin) const{
-  if (normX_) return T(1);
-  else return T(binEdgesX_.at(bin+1)-binEdgesX_.at(bin));
-}
-template<typename T> T FastHisto2D_t<T>::GetBinWidthY(const unsigned int bin) const{
-  if (normY_) return T(1);
-  else return T(binEdgesY_.at(bin+1)-binEdgesY_.at(bin));
-}
 
+/***************************************/
+/*             FastHisto3D             */
+/***************************************/
 
 template<typename T> FastHisto3D_t<T>::FastHisto3D_t(const TH3 &hist, bool normX, bool normY, bool normZ) :
     FastTemplate_t<T>(hist),
-    binX_(hist.GetNbinsX()),
-    binY_(hist.GetNbinsY()),
-    binZ_(hist.GetNbinsZ()),
-    binEdgesX_(hist.GetNbinsX()+1),
-    binEdgesY_(hist.GetNbinsY()+1),
-    binEdgesZ_(hist.GetNbinsZ()+1),
+    axisX_(*(hist.GetXaxis())),
+    axisY_(*(hist.GetYaxis())),
+    axisZ_(*(hist.GetZaxis())),
     normX_(normX),
     normY_(normY),
     normZ_(normZ)
-{
-    const TAxis *ax = hist.GetXaxis(), *ay = hist.GetYaxis(), *az = hist.GetZaxis();
-    for (unsigned int ix = 0; ix < binX_; ++ix) {
-        binEdgesX_[ix] = ax->GetBinLowEdge(ix+1);
-    }
-    binEdgesX_.back() = ax->GetBinLowEdge(binX_+1);
-    for (unsigned int iy = 0; iy < binY_; ++iy) {
-        binEdgesY_[iy] = ay->GetBinLowEdge(iy+1);
-    }
-    binEdgesY_.back() = ay->GetBinLowEdge(binY_+1);
-    for (unsigned int iz = 0; iz < binZ_; ++iz) {
-        binEdgesZ_[iz] = az->GetBinLowEdge(iz+1);
-    }
-    binEdgesZ_.back() = az->GetBinLowEdge(binZ_+1);
-}
+{}
 
 template<typename T> FastHisto3D_t<T>::FastHisto3D_t(const FastHisto3D_t &other) :
     FastTemplate_t<T>(other),
-    binX_(other.binX_),
-    binY_(other.binY_),
-    binZ_(other.binZ_),
-    binEdgesX_(other.binEdgesX_),
-    binEdgesY_(other.binEdgesY_),
-    binEdgesZ_(other.binEdgesZ_),
+    axisX_(other.axisX_),
+    axisY_(other.axisY_),
+    axisZ_(other.axisZ_),
     normX_(other.normX_),
     normY_(other.normY_),
     normZ_(other.normZ_)
 {}
 
-template<typename T> T FastHisto3D_t<T>::GetAt(const T &x, const T &y, const T &z) const {
-    auto matchx = std::upper_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
-    if (matchx == binEdgesX_.begin() || matchx == binEdgesX_.end()) return T(0.0);
-    int ix = (matchx - binEdgesX_.begin() - 1);
-    auto matchy = std::upper_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
-    if (matchy == binEdgesY_.begin() || matchy == binEdgesY_.end()) return T(0.0);
-    int iy = (matchy - binEdgesY_.begin() - 1);
-    auto matchz = std::upper_bound(binEdgesZ_.begin(), binEdgesZ_.end(), z);
-    if (matchz == binEdgesZ_.begin() || matchz == binEdgesZ_.end()) return T(0.0);
-    int iz = (matchz - binEdgesZ_.begin() - 1);
-    return (this->values_)[(ix * binY_ +iy)*binZ_ + iz];
-}
-
-template<typename T> int FastHisto3D_t<T>::FindBinX(const T &t) const {
-  auto match = std::upper_bound(binEdgesX_.begin(), binEdgesX_.end(), t);
-  if (match == binEdgesX_.begin()) return -1;
-  if (match == binEdgesX_.end()) return binX_;
-  return match - binEdgesX_.begin() - 1;
-}
-template<typename T> int FastHisto3D_t<T>::FindBinY(const T &t) const {
-  auto match = std::upper_bound(binEdgesY_.begin(), binEdgesY_.end(), t);
-  if (match == binEdgesY_.begin()) return -1;
-  if (match == binEdgesY_.end()) return binY_;
-  return match - binEdgesY_.begin() - 1;
-}
-template<typename T> int FastHisto3D_t<T>::FindBinZ(const T &t) const {
-  auto match = std::upper_bound(binEdgesZ_.begin(), binEdgesZ_.end(), t);
-  if (match == binEdgesZ_.begin()) return -1;
-  if (match == binEdgesZ_.end()) return binZ_;
-  return match - binEdgesZ_.begin() - 1;
-}
-
 template<typename T> T FastHisto3D_t<T>::IntegralWidth(int xbinmin, int xbinmax, int ybinmin, int ybinmax, int zbinmin, int zbinmax) const {
     DefaultAccumulator<T> total = 0;
+    const unsigned int binX_ = GetNbinsX();
+    const unsigned int binY_ = GetNbinsY();
+    const unsigned int binZ_ = GetNbinsZ();
     for (unsigned int ix=0; ix<binX_; ix++){
       if (xbinmin>=0 && (int)ix<xbinmin) continue;
       if (xbinmax>=0 && (int)ix>xbinmax) continue;
@@ -365,6 +299,9 @@ template<typename T> T FastHisto3D_t<T>::IntegralWidth(int xbinmin, int xbinmax,
 
 template<typename T> void FastHisto3D_t<T>::NormalizeXSlices() {
   normX_ = true;
+  const unsigned int binX_ = GetNbinsX();
+  const unsigned int binY_ = GetNbinsY();
+  const unsigned int binZ_ = GetNbinsZ();
   for (unsigned int ix = 0, offs = 0; ix < binX_; ++ix, offs += (binY_*binZ_)) {
     T *values = &(this->values_)[offs];
     DefaultAccumulator<T> total = 0;
@@ -375,7 +312,7 @@ template<typename T> void FastHisto3D_t<T>::NormalizeXSlices() {
         total += values[i*binZ_+j] * widthY * widthZ;
       }
     }
-    if (total.sum() > T(0)) {
+    if (total.sum() != T(0)) {
       for (unsigned int i = 0; i < binY_; ++i) {
         for (unsigned int j = 0; j < binZ_; ++j) {
           values[i*binZ_+j] /= total.sum();
@@ -385,29 +322,19 @@ template<typename T> void FastHisto3D_t<T>::NormalizeXSlices() {
   }
 }
 
-template<typename T> T FastHisto3D_t<T>::GetBinWidthX(const unsigned int bin) const{
-  if (normX_) return T(1);
-  else return T(binEdgesX_.at(bin+1)-binEdgesX_.at(bin));
-}
-template<typename T> T FastHisto3D_t<T>::GetBinWidthY(const unsigned int bin) const{
-  if (normY_) return T(1);
-  else return T(binEdgesY_.at(bin+1)-binEdgesY_.at(bin));
-}
-template<typename T> T FastHisto3D_t<T>::GetBinWidthZ(const unsigned int bin) const{
-  if (normZ_) return T(1);
-  else return T(binEdgesZ_.at(bin+1)-binEdgesZ_.at(bin));
-}
-
 template<typename T> void FastHisto3D_t<T>::Dump() const {
+  const unsigned int binX_ = GetNbinsX();
+  const unsigned int binY_ = GetNbinsY();
+  const unsigned int binZ_ = GetNbinsZ();
   printf("--- dumping histo template with %d x %d y %d bins (@%p)---\n", binX_, binY_, binZ_, (void*)(&(this->values_)[0]));
   for (unsigned int ix=0; ix<binX_; ix++){
     for (unsigned int iy=0; iy<binY_; iy++){
       for (unsigned int iz=0; iz<binZ_; iz++){
         int i = (ix * binY_ +iy)*binZ_ + iz;
         printf(" bin %3d, x = %6.2f, y = %6.2f, z = %6.2f : zval = %9.5f, width = %6.3f\n",
-          i, 0.5*(binEdgesX_[ix]+binEdgesX_[ix+1]),
-          0.5*(binEdgesY_[iy]+binEdgesY_[iy+1]),
-          0.5*(binEdgesZ_[iz]+binEdgesZ_[iz+1]),
+          i, 0.5*(axisX_[ix]+axisX_[ix+1]),
+          0.5*(axisY_[iy]+axisY_[iy+1]),
+          0.5*(axisZ_[iz]+axisZ_[iz+1]),
           (this->values_)[i], GetBinWidthX(ix) * GetBinWidthY(iy) * GetBinWidthZ(iz));
       }
     }
@@ -416,50 +343,19 @@ template<typename T> void FastHisto3D_t<T>::Dump() const {
 }
 
 
-template<typename T> void FastTemplate_t<T>::Subtract(const FastTemplate_t & ref) {
-    subtract(&(this->values_)[0], this->size_, &ref[0]);
-}
-template<typename T> void FastTemplate_t<T>::LogRatio(const FastTemplate_t & ref) {
-    logratio(&(this->values_)[0], this->size_, &ref[0]);
-}
-template<typename T> void FastTemplate_t<T>::SumDiff(const FastTemplate_t & h1, const FastTemplate_t & h2,
-                           FastTemplate_t & sum, FastTemplate_t & diff) {
-    sumdiff(&sum[0], &diff[0], h1.size_, &h1[0], &h2[0]);
-}
-
-template<typename T> void FastTemplate_t<T>::Meld(const FastTemplate_t & diff, const FastTemplate_t & sum, T x, T y) {
-    meld(&(this->values_)[0], this->size_, &diff[0], &sum[0], x, y);
-}
-
-template<typename T> void FastTemplate_t<T>::Log() {
-    for (unsigned int i = 0; i < this->size_; ++i) {
-        //if ((this->values_)[i] <= 0) printf("WARNING: log(%g) at bin %d of %d bins (%d active bins)\n", (this->values_)[i], i, int((this->values_).size()), this->size_);
-        (this->values_)[i] = (this->values_)[i] > 0 ? std::log((this->values_)[i]) : T(-999);
-    }
-}
-
-template<typename T> void FastTemplate_t<T>::Exp() {
-    for (unsigned int i = 0; i < this->size_; ++i) {
-        (this->values_)[i] = std::exp((this->values_)[i]);
-    }
-}
-
-template<typename T> void FastTemplate_t<T>::CropUnderflows(T minimum, bool activebinsonly) {
-    for (unsigned int i = 0, n = activebinsonly ? this->size_ : (this->values_).size(); i < n; ++i) {
-        if ((this->values_)[i] < minimum) (this->values_)[i] = minimum;
-    }
-}
-
+typedef FastHistoAxis_t<Double_t> FastHistoAxis_d;
 typedef FastTemplate_t<Double_t> FastTemplate_d;
 typedef FastHisto_t<Double_t> FastHisto_d;
 typedef FastHisto2D_t<Double_t> FastHisto2D_d;
 typedef FastHisto3D_t<Double_t> FastHisto3D_d;
 
+typedef FastHistoAxis_t<Float_t> FastHistoAxis_f;
 typedef FastTemplate_t<Float_t> FastTemplate_f;
 typedef FastHisto_t<Float_t> FastHisto_f;
 typedef FastHisto2D_t<Float_t> FastHisto2D_f;
 typedef FastHisto3D_t<Float_t> FastHisto3D_f;
 
+typedef FastHistoAxis_d FastHistoAxis;
 typedef FastTemplate_d FastTemplate;
 typedef FastHisto_d FastHisto;
 typedef FastHisto2D_d FastHisto2D;
