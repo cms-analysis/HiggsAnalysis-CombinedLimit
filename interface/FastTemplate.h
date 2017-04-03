@@ -8,56 +8,56 @@
 #include <vector>
 
 
-template <typename T> class FastHistoAxis_t {
+template <typename U> class FastHistoAxis_t {
 protected:
-  std::vector<T> binEdges_;
+  std::vector<U> binEdges_;
 
 public:
   FastHistoAxis_t() : binEdges_(){}
-  FastHistoAxis_t(unsigned int size_) : binEdges_(size_, T(0)){}
+  FastHistoAxis_t(unsigned int size_) : binEdges_(size_, U(0)){}
   FastHistoAxis_t(const TAxis& axis){
     int nbins = axis.GetNbins();
-    for (int ix=0; ix<=nbins; ++ix) binEdges_.push_back(T(axis.GetBinLowEdge(ix+1)));
+    for (int ix=0; ix<=nbins; ++ix) binEdges_.push_back(U(axis.GetBinLowEdge(ix+1)));
   }
-  FastHistoAxis_t(const FastHistoAxis_t<T>& other) : binEdges_(other.binEdges_){}
-  FastHistoAxis_t(const std::vector<T>& other) : binEdges_(other){}
+  FastHistoAxis_t(const FastHistoAxis_t<U>& other) : binEdges_(other.binEdges_){}
+  FastHistoAxis_t(const std::vector<U>& other) : binEdges_(other){}
   virtual inline ~FastHistoAxis_t(){}
 
   unsigned int size() const { return binEdges_.size(); }
   unsigned int GetNbins() const{ int s=size(); return (unsigned int)std::max(s-1, 0); }
 
   void resize(unsigned int newsize){ if (newsize != size()) binEdges_.resize(newsize); }
-  void swap(const FastHistoAxis_t<T>& other){ std::swap(binEdges_, other.binEdges_); }
+  void swap(const FastHistoAxis_t<U>& other){ std::swap(binEdges_, other.binEdges_); }
 
-  T& operator[](unsigned int i) { return binEdges_.at(i); }
-  const T& operator[](unsigned int i) const { return binEdges_.at(i); }
-  FastHistoAxis_t<T>& operator=(const FastHistoAxis_t<T>& other){ binEdges_ = other.binEdges_; return *this; }
-  FastHistoAxis_t<T>& operator=(const TAxis& axis){
-    FastHistoAxis_t<T> other(axis);
+  U& operator[](unsigned int i) { return binEdges_.at(i); }
+  const U& operator[](unsigned int i) const { return binEdges_.at(i); }
+  FastHistoAxis_t<U>& operator=(const FastHistoAxis_t<U>& other){ binEdges_ = other.binEdges_; return *this; }
+  FastHistoAxis_t<U>& operator=(const TAxis& axis){
+    FastHistoAxis_t<U> other(axis);
     swap(other);
     return *this;
   }
 
-  int FindBin(const T& x) const{
+  int FindBin(const U& x) const{
     if (x==binEdges_.at(size()-1) && size()>1) return (int)(size()-2);
     auto bbegin = binEdges_.begin();
     auto bend = binEdges_.end();
     auto match = std::upper_bound(bbegin, bend, x);
     return match - bbegin - 1;
   }
-  T GetBinWidth(const unsigned int bin) const{
-    if (size()==0) return T(0);
+  U GetBinWidth(const unsigned int bin) const{
+    if (size()==0) return U(0);
     else if (bin>=0 && bin<size()-1) return (binEdges_[bin+1]-binEdges_[bin]);
-    else return T(1);
+    else return U(1);
   }
-  T GetBinLowEdge(const int bin=-1) const {
-    if (size()==0) return T(0);
+  U GetBinLowEdge(const int bin=-1) const {
+    if (size()==0) return U(0);
     else if (bin>=0 && bin<(int)size()) return binEdges_[bin];
     else if (bin>=(int)size()) return binEdges_[size()-1];
     else return binEdges_[0];
   }
-  T GetBinUpEdge(const int bin=-1) const {
-    if (size()==0) return T(0);
+  U GetBinUpEdge(const int bin=-1) const {
+    if (size()==0) return U(0);
     else if (bin>=0 && bin<(int)(size()-1)) return binEdges_[bin+1];
     else if (bin>=(int)(size()-1)) return binEdges_[size()-1];
     else return binEdges_[0];
@@ -136,32 +136,34 @@ public:
           }
         }
 };
-template <typename T> class FastHisto_t : public FastTemplate_t<T> {
+template <typename T, typename U> class FastHisto_t : public FastTemplate_t<T> {
 private:
-        FastHistoAxis_t<T> axis_;
+        FastHistoAxis_t<U> axis_;
         bool normX_;
 
 public:
-        void swap(FastHisto_t<T> &other) {
+        void swap(FastHisto_t<T,U> &other) {
             std::swap(this->size_, other.size_);
             std::swap(this->values_, other.values_);
             std::swap(axis_, other.axis_);
             std::swap(normX_, other.normX_);
         }
 
-        int FindBin(const T &x) const { return axis_.FindBin(x); }
+        int FindBin(const U &x) const { return axis_.FindBin(x); }
         unsigned int GetNbinsX() const { return axis_.GetNbins(); }
-        T GetBinWidth(const unsigned int bin) const { if (normX_) return T(1); else return axis_.GetBinWidth(bin); }
-        T GetXmin(const int bin=-1) const { return axis_.GetBinLowEdge(bin); }
-        T GetXmax(const int bin=-1) const { return axis_.GetBinUpEdge(bin); }
+        U GetBinWidth(const unsigned int bin) const { if (normX_) return U(1); else return axis_.GetBinWidth(bin); }
+        U GetXmin(const int bin=-1) const { return axis_.GetBinLowEdge(bin); }
+        U GetXmax(const int bin=-1) const { return axis_.GetBinUpEdge(bin); }
         const T& GetBinContent(const unsigned int bin) const { return (this->values_).at(bin); }
         T& GetBinContent(const unsigned int bin) { return (this->values_).at(bin); }
-        T GetAt(const T &x) const { int bin = FindBin(x); if (bin<0) return T(0); else return GetBinContent((unsigned int)bin); }
+        T GetAt(const U &x) const { int bin = FindBin(x); if (bin<0) return T(0); else return GetBinContent((unsigned int)bin); }
 
+        //this should really be least significant of T and U
+        //typically that would be T
         T IntegralWidth(int binmin=-1, int binmax=-1) const ;
         void Normalize() {
             T sum = this->IntegralWidth();
-            if (sum!=T(0)) this->Scale(1.0f/sum);
+            if (sum!=T(0)) this->Scale(T(1)/sum);
         }
         T GetMax() const ;
 
@@ -172,8 +174,8 @@ public:
 
         FastHisto_t() : FastTemplate_t<T>(), axis_(), normX_(false) {}
         FastHisto_t(const TH1 &hist, bool normX=false);
-        FastHisto_t(const FastHisto_t<T> &other);
-        FastHisto_t<T>& operator=(const FastHisto_t<T> &other) {
+        FastHisto_t(const FastHisto_t<T,U> &other);
+        FastHisto_t<T,U>& operator=(const FastHisto_t<T,U> &other) {
           normX_ = other.normX_;
           if (this->size() != other.size()) {
             this->size_ = other.size_;
@@ -183,25 +185,25 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        FastHisto_t<T>& operator=(const TH1 &other) {
+        FastHisto_t<T,U>& operator=(const TH1 &other) {
           if ((int)this->size() != other.GetNbinsX()) {
-            FastHisto_t<T> fh(other);
+            FastHisto_t<T,U> fh(other);
             swap(fh);
           }
           else this->CopyValues(other);
           return *this;
         }
-        ~FastHisto_t<T>(){}
+        ~FastHisto_t<T,U>(){}
 };
-template <typename T> class FastHisto2D_t : public FastTemplate_t<T> {
+template <typename T, typename U> class FastHisto2D_t : public FastTemplate_t<T> {
 private:
-        FastHistoAxis_t<T> axisX_;
-        FastHistoAxis_t<T> axisY_;
+        FastHistoAxis_t<U> axisX_;
+        FastHistoAxis_t<U> axisY_;
         bool normX_;
         bool normY_;
 
 public:
-        void swap(FastHisto2D_t<T> &other) {
+        void swap(FastHisto2D_t<T,U> &other) {
             std::swap(this->size_, other.size_);
             std::swap(this->values_, other.values_);
             std::swap(axisX_, other.axisX_);
@@ -210,17 +212,17 @@ public:
             std::swap(normY_, other.normY_);
         }
 
-        int FindBinX(const T &x) const { return axisX_.FindBin(x); }
+        int FindBinX(const U &x) const { return axisX_.FindBin(x); }
         unsigned int GetNbinsX() const { return axisX_.GetNbins(); }
-        T GetBinWidthX(const unsigned int bin) const { if (normX_) return T(1); else return axisX_.GetBinWidth(bin); }
-        T GetXmin(const int bin=-1) const { return axisX_.GetBinLowEdge(bin); }
-        T GetXmax(const int bin=-1) const { return axisX_.GetBinUpEdge(bin); }
+        U GetBinWidthX(const unsigned int bin) const { if (normX_) return U(1); else return axisX_.GetBinWidth(bin); }
+        U GetXmin(const int bin=-1) const { return axisX_.GetBinLowEdge(bin); }
+        U GetXmax(const int bin=-1) const { return axisX_.GetBinUpEdge(bin); }
 
-        int FindBinY(const T &y) const { return axisY_.FindBin(y); }
+        int FindBinY(const U &y) const { return axisY_.FindBin(y); }
         unsigned int GetNbinsY() const { return axisY_.GetNbins(); }
-        T GetBinWidthY(const unsigned int bin) const { if (normY_) return T(1); else return axisY_.GetBinWidth(bin); }
-        T GetYmin(const int bin=-1) const { return axisY_.GetBinLowEdge(bin); }
-        T GetYmax(const int bin=-1) const { return axisY_.GetBinUpEdge(bin); }
+        U GetBinWidthY(const unsigned int bin) const { if (normY_) return U(1); else return axisY_.GetBinWidth(bin); }
+        U GetYmin(const int bin=-1) const { return axisY_.GetBinLowEdge(bin); }
+        U GetYmax(const int bin=-1) const { return axisY_.GetBinUpEdge(bin); }
 
         const T& GetBinContent(const unsigned int ix, const unsigned int iy) const {
           const unsigned int bin = ix * GetNbinsY() + iy;
@@ -230,7 +232,7 @@ public:
           const unsigned int bin = ix * GetNbinsY() + iy;
           return (this->values_).at(bin);
         }
-        T GetAt(const T &x, const T &y) const {
+        T GetAt(const U &x, const U &y) const {
           int xbin = FindBinX(x);
           int ybin = FindBinY(y);
           if (xbin<0 || ybin<0) return T(0);
@@ -242,7 +244,7 @@ public:
         unsigned int binY() const { return GetNbinsY(); }
         void Normalize() {
             T sum = this->IntegralWidth();
-            if (sum!=T(0)) this->Scale(1.0f/sum);
+            if (sum!=T(0)) this->Scale(T(1)/sum);
         }
 
         // For each X, normalize along Y
@@ -251,13 +253,13 @@ public:
         void Dump() const ;
 
         T GetMaxOnXY() const ;
-        T GetMaxOnX(const T &y) const ;
-        T GetMaxOnY(const T &x) const ;
+        T GetMaxOnX(const U &y) const ;
+        T GetMaxOnY(const U &x) const ;
 
         FastHisto2D_t() : FastTemplate_t<T>(), axisX_(), axisY_(), normX_(false), normY_(false) {}
         FastHisto2D_t(const TH2 &hist, bool normX=false, bool normY_=false);
-        FastHisto2D_t(const FastHisto2D_t<T> &other);
-        FastHisto2D_t<T> & operator=(const FastHisto2D_t<T> &other) {
+        FastHisto2D_t(const FastHisto2D_t<T,U> &other);
+        FastHisto2D_t<T,U> & operator=(const FastHisto2D_t<T,U> &other) {
           normX_ = other.normX_;
           normY_ = other.normY_;
           if (GetNbinsX() != other.GetNbinsX() || GetNbinsY() != other.GetNbinsY()) {
@@ -269,9 +271,9 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        FastHisto2D_t<T>& operator=(const TH2 &other) {
+        FastHisto2D_t<T,U>& operator=(const TH2 &other) {
           if (GetNbinsX() != other.GetNbinsX() || GetNbinsY() != other.GetNbinsY()) {
-            FastHisto2D_t<T> fh(other);
+            FastHisto2D_t<T,U> fh(other);
             swap(fh);
           }
           else this->CopyValues(other);
@@ -280,17 +282,17 @@ public:
         ~FastHisto2D_t(){}
 };
 
-template <typename T> class FastHisto3D_t : public FastTemplate_t<T> {
+template <typename T, typename U> class FastHisto3D_t : public FastTemplate_t<T> {
 private:
-        FastHistoAxis_t<T> axisX_;
-        FastHistoAxis_t<T> axisY_;
-        FastHistoAxis_t<T> axisZ_;
+        FastHistoAxis_t<U> axisX_;
+        FastHistoAxis_t<U> axisY_;
+        FastHistoAxis_t<U> axisZ_;
         bool normX_;
         bool normY_;
         bool normZ_;
 
 public:
-        void swap(FastHisto3D_t<T> &other) {
+        void swap(FastHisto3D_t<T,U> &other) {
             std::swap(this->size_, other.size_);
             std::swap(this->values_, other.values_);
             std::swap(axisX_, other.axisX_);
@@ -301,23 +303,23 @@ public:
             std::swap(normZ_, other.normZ_);
         }
 
-        int FindBinX(const T &x) const { return axisX_.FindBin(x); }
+        int FindBinX(const U &x) const { return axisX_.FindBin(x); }
         unsigned int GetNbinsX() const { return axisX_.GetNbins(); }
-        T GetBinWidthX(const unsigned int bin) const { if (normX_) return T(1); else return axisX_.GetBinWidth(bin); }
-        T GetXmin(const int bin=-1) const { return axisX_.GetBinLowEdge(bin); }
-        T GetXmax(const int bin=-1) const { return axisX_.GetBinUpEdge(bin); }
+        U GetBinWidthX(const unsigned int bin) const { if (normX_) return U(1); else return axisX_.GetBinWidth(bin); }
+        U GetXmin(const int bin=-1) const { return axisX_.GetBinLowEdge(bin); }
+        U GetXmax(const int bin=-1) const { return axisX_.GetBinUpEdge(bin); }
 
-        int FindBinY(const T &y) const { return axisY_.FindBin(y); }
+        int FindBinY(const U &y) const { return axisY_.FindBin(y); }
         unsigned int GetNbinsY() const { return axisY_.GetNbins(); }
-        T GetBinWidthY(const unsigned int bin) const { if (normY_) return T(1); else return axisY_.GetBinWidth(bin); }
-        T GetYmin(const int bin=-1) const { return axisY_.GetBinLowEdge(bin); }
-        T GetYmax(const int bin=-1) const { return axisY_.GetBinUpEdge(bin); }
+        U GetBinWidthY(const unsigned int bin) const { if (normY_) return U(1); else return axisY_.GetBinWidth(bin); }
+        U GetYmin(const int bin=-1) const { return axisY_.GetBinLowEdge(bin); }
+        U GetYmax(const int bin=-1) const { return axisY_.GetBinUpEdge(bin); }
 
-        int FindBinZ(const T &y) const { return axisZ_.FindBin(y); }
+        int FindBinZ(const U &y) const { return axisZ_.FindBin(y); }
         unsigned int GetNbinsZ() const { return axisZ_.GetNbins(); }
-        T GetBinWidthZ(const unsigned int bin) const { if (normZ_) return T(1); else return axisZ_.GetBinWidth(bin); }
-        T GetZmin(const int bin=-1) const { return axisZ_.GetBinLowEdge(bin); }
-        T GetZmax(const int bin=-1) const { return axisZ_.GetBinUpEdge(bin); }
+        U GetBinWidthZ(const unsigned int bin) const { if (normZ_) return U(1); else return axisZ_.GetBinWidth(bin); }
+        U GetZmin(const int bin=-1) const { return axisZ_.GetBinLowEdge(bin); }
+        U GetZmax(const int bin=-1) const { return axisZ_.GetBinUpEdge(bin); }
 
         const T& GetBinContent(const unsigned int ix, const unsigned int iy, const unsigned int iz) const {
           const unsigned int bin = (ix * GetNbinsY() +iy)*GetNbinsZ() + iz;
@@ -327,7 +329,7 @@ public:
           const unsigned int bin = (ix * GetNbinsY() +iy)*GetNbinsZ() + iz;
           return (this->values_).at(bin);
         }
-        T GetAt(const T &x, const T &y, const T &z) const {
+        T GetAt(const U &x, const U &y, const U &z) const {
           int xbin = FindBinX(x);
           int ybin = FindBinY(y);
           int zbin = FindBinZ(z);
@@ -341,7 +343,7 @@ public:
         unsigned int binZ() const { return GetNbinsZ(); }
         void Normalize() {
             T sum = this->IntegralWidth();
-            if (sum!=T(0)) this->Scale(1.0f/sum);
+            if (sum!=T(0)) this->Scale(U(1)/sum);
         }
         // For each X, normalize along Y
         void NormalizeXSlices() ;
@@ -350,8 +352,8 @@ public:
 
         FastHisto3D_t() : FastTemplate_t<T>(), axisX_(), axisY_(), axisZ_(), normX_(false), normY_(false), normZ_(false) {}
         FastHisto3D_t(const TH3 &hist, bool normX=false, bool normY=false, bool normZ=false);
-        FastHisto3D_t(const FastHisto3D_t<T> &other);
-        FastHisto3D_t<T>& operator=(const FastHisto3D_t<T> &other) {
+        FastHisto3D_t(const FastHisto3D_t<T,U> &other);
+        FastHisto3D_t<T,U>& operator=(const FastHisto3D_t<T,U> &other) {
           normX_ = other.normX_;
           normY_ = other.normY_;
           normZ_ = other.normZ_;
@@ -365,9 +367,9 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        FastHisto2D_t<T>& operator=(const TH3 &other) {
+        FastHisto3D_t<T,U>& operator=(const TH3 &other) {
           if (GetNbinsX() != other.GetNbinsX() || GetNbinsY() != other.GetNbinsY() || GetNbinsZ() != other.GetNbinsZ()) {
-            FastHisto3D_t<T> fh(other);
+            FastHisto3D_t<T,U> fh(other);
             swap(fh);
           }
           else this->CopyValues(other);

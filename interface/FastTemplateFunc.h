@@ -42,14 +42,14 @@ private:
 typedef FastTemplateFunc_t<Float_t> FastTemplateFunc_f;
 typedef FastTemplateFunc_t<Double_t> FastTemplateFunc_d;
 
-template <typename T> class FastHistoFunc_t : public FastTemplateFunc_t<T>{
+template <typename T, typename U> class FastHistoFunc_t : public FastTemplateFunc_t<T>{
 protected:
-  FastHisto_t<T> tpl;
+  FastHisto_t<T,U> tpl;
   T fullIntegral;
 
 public:
   FastHistoFunc_t() : FastTemplateFunc_t<T>(), fullIntegral(0){}
-  FastHistoFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto_t<T>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){
+  FastHistoFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto_t<T,U>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){
     if ((this->obsList).getSize()!=1){
       std::cerr << "FastHistoFunc_t::FastHistoFunc_t(" << this->GetName() << "): obsList.size()!=1!" << std::endl;
       assert(0);
@@ -59,7 +59,7 @@ public:
   ~FastHistoFunc_t(){}
   TObject* clone(const char* newname) const { return new FastHistoFunc_t(*this, newname); }
 
-  FastHisto_t<T> getHistogram() const{ return tpl; }
+  FastHisto_t<T,U> getHistogram() const{ return tpl; }
   const Int_t getFullIntegralCode() const{ return 2; }
 
   Double_t evaluate() const{
@@ -82,12 +82,12 @@ public:
   }
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
     if (code==0) return evaluate();
-    T xmin = (T)(dynamic_cast<RooRealVar*>((this->obsList).at(0))->getMin(rangeName));
-    T xmax = (T)(dynamic_cast<RooRealVar*>((this->obsList).at(0))->getMax(rangeName));
+    U xmin = (U)(dynamic_cast<RooRealVar*>((this->obsList).at(0))->getMin(rangeName));
+    U xmax = (U)(dynamic_cast<RooRealVar*>((this->obsList).at(0))->getMax(rangeName));
     if (
-      fabs((Float_t)(xmin/tpl.GetXmin()-T(1)))<1e-5
+      std::abs((Float_t)(xmin/tpl.GetXmin()-U(1)))<1e-5
       &&
-      fabs((Float_t)(xmax/tpl.GetXmax()-T(1)))<1e-5
+      std::abs((Float_t)(xmax/tpl.GetXmax()-U(1)))<1e-5
       ) return (Double_t)fullIntegral;
     else{
       int binmin = tpl.FindBin(xmin);
@@ -100,17 +100,17 @@ private:
   ClassDef(FastHistoFunc_t, 1)
 
 };
-typedef FastHistoFunc_t<Float_t> FastHistoFunc_f;
-typedef FastHistoFunc_t<Double_t> FastHistoFunc_d;
+typedef FastHistoFunc_t<Float_t, Double_t> FastHistoFunc_f;
+typedef FastHistoFunc_t<Double_t,Double_t> FastHistoFunc_d;
 
-template <typename T> class FastHisto2DFunc_t : public FastTemplateFunc_t<T>{
+template <typename T, typename U> class FastHisto2DFunc_t : public FastTemplateFunc_t<T>{
 protected:
-  FastHisto2D_t<T> tpl;
+  FastHisto2D_t<T,U> tpl;
   T fullIntegral;
 
 public:
   FastHisto2DFunc_t() : FastTemplateFunc_t<T>(), fullIntegral(0){}
-  FastHisto2DFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto2D_t<T>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){
+  FastHisto2DFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto2D_t<T,U>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){
     if ((this->obsList).getSize()!=2){
       std::cerr << "FastHisto2DFunc_t::FastHisto2DFunc_t(" << this->GetName() << "): obsList.size()!=2!" << std::endl;
       assert(0);
@@ -120,12 +120,12 @@ public:
   ~FastHisto2DFunc_t(){}
   TObject* clone(const char* newname) const { return new FastHisto2DFunc_t(*this, newname); }
 
-  FastHisto2D_t<T> getHistogram() const{ return tpl; }
+  FastHisto2D_t<T,U> getHistogram() const{ return tpl; }
   const Int_t getFullIntegralCode() const{ return /*2*3*/6; }
 
   Double_t evaluate() const{
-    T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
-    T y = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(1))->getVal());
+    U x = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
+    U y = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(1))->getVal());
     Double_t value=tpl.GetAt(x, y);
     return value;
   }
@@ -144,37 +144,37 @@ public:
   }
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
     if (code==0) return evaluate();
-    T xmin, xmax, ymin, ymax;
+    U xmin, xmax, ymin, ymax;
     if (code%2==0){
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(0));
-      xmin = (T)(var->getMin(rangeName));
-      xmax = (T)(var->getMax(rangeName));
+      xmin = (U)(var->getMin(rangeName));
+      xmax = (U)(var->getMax(rangeName));
     }
     else{
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(0));
-      xmin = (T)(var->getVal());
+      xmin = (U)(var->getVal());
       xmax = xmin;
     }
     if (code%3==0){
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(1));
-      ymin = (T)(var->getMin(rangeName));
-      ymax = (T)(var->getMax(rangeName));
+      ymin = (U)(var->getMin(rangeName));
+      ymax = (U)(var->getMax(rangeName));
     }
     else{
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(1));
-      ymin = (T)(var->getVal());
+      ymin = (U)(var->getVal());
       ymax = ymin;
     }
     if (
       code%6==0
       &&
-      fabs((Float_t)(xmin/tpl.GetXmin()-T(1)))<1e-5
+      fabs((Float_t)(xmin/tpl.GetXmin()-U(1)))<1e-5
       &&
-      fabs((Float_t)(xmax/tpl.GetXmax()-T(1)))<1e-5
+      fabs((Float_t)(xmax/tpl.GetXmax()-U(1)))<1e-5
       &&
-      fabs((Float_t)(ymin/tpl.GetYmin()-T(1)))<1e-5
+      fabs((Float_t)(ymin/tpl.GetYmin()-U(1)))<1e-5
       &&
-      fabs((Float_t)(ymax/tpl.GetYmax()-T(1)))<1e-5
+      fabs((Float_t)(ymax/tpl.GetYmax()-U(1)))<1e-5
       ) return (Double_t)fullIntegral;
     else{
       int xbinmin = tpl.FindBinX(xmin);
@@ -192,17 +192,17 @@ private:
   ClassDef(FastHisto2DFunc_t, 1)
 
 };
-typedef FastHisto2DFunc_t<Float_t> FastHisto2DFunc_f;
-typedef FastHisto2DFunc_t<Double_t> FastHisto2DFunc_d;
+typedef FastHisto2DFunc_t<Float_t, Double_t> FastHisto2DFunc_f;
+typedef FastHisto2DFunc_t<Double_t,Double_t> FastHisto2DFunc_d;
 
-template <typename T> class FastHisto3DFunc_t : public FastTemplateFunc_t<T>{
+template <typename T, typename U> class FastHisto3DFunc_t : public FastTemplateFunc_t<T>{
 protected:
-  FastHisto3D_t<T> tpl;
+  FastHisto3D_t<T,U> tpl;
   T fullIntegral;
 
 public:
   FastHisto3DFunc_t() : FastTemplateFunc_t<T>(), fullIntegral(0){}
-  FastHisto3DFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto3D_t<T>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){
+  FastHisto3DFunc_t(const char *name, const char *title, RooArgList& inObsList, FastHisto3D_t<T,U>& inTpl) : FastTemplateFunc_t<T>(name, title, inObsList), tpl(inTpl), fullIntegral(tpl.IntegralWidth()){
     if ((this->obsList).getSize()!=3){
       std::cerr << "FastHisto3DFunc_t::FastHisto3DFunc_t(" << this->GetName() << "): obsList.size()!=3!" << std::endl;
       assert(0);
@@ -212,13 +212,13 @@ public:
   ~FastHisto3DFunc_t(){}
   TObject* clone(const char* newname) const { return new FastHisto3DFunc_t(*this, newname); }
 
-  FastHisto3D_t<T> getHistogram() const{ return tpl; }
+  FastHisto3D_t<T,U> getHistogram() const{ return tpl; }
   const Int_t getFullIntegralCode() const{ return /*2*3*5*/30; }
 
   Double_t evaluate() const{
-    T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
-    T y = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(1))->getVal());
-    T z = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(2))->getVal());
+    U x = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
+    U y = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(1))->getVal());
+    U z = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(2))->getVal());
     Double_t value=tpl.GetAt(x, y, z);
     return value;
   }
@@ -237,51 +237,51 @@ public:
   }
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
     if (code==0) return evaluate();
-    T xmin, xmax, ymin, ymax, zmin, zmax;
+    U xmin, xmax, ymin, ymax, zmin, zmax;
     if (code%2==0){
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(0));
-      xmin = (T)(var->getMin(rangeName));
-      xmax = (T)(var->getMax(rangeName));
+      xmin = (U)(var->getMin(rangeName));
+      xmax = (U)(var->getMax(rangeName));
     }
     else{
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(0));
-      xmin = (T)(var->getVal());
+      xmin = (U)(var->getVal());
       xmax = xmin;
     }
     if (code%3==0){
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(1));
-      ymin = (T)(var->getMin(rangeName));
-      ymax = (T)(var->getMax(rangeName));
+      ymin = (U)(var->getMin(rangeName));
+      ymax = (U)(var->getMax(rangeName));
     }
     else{
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(1));
-      ymin = (T)(var->getVal());
+      ymin = (U)(var->getVal());
       ymax = ymin;
     }
     if (code%5==0){
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(2));
-      zmin = (T)(var->getMin(rangeName));
-      zmax = (T)(var->getMax(rangeName));
+      zmin = (U)(var->getMin(rangeName));
+      zmax = (U)(var->getMax(rangeName));
     }
     else{
       RooRealVar* var = dynamic_cast<RooRealVar*>((this->obsList).at(2));
-      zmin = (T)(var->getVal());
+      zmin = (U)(var->getVal());
       zmax = zmin;
     }
     if (
       code%30==0
       &&
-      fabs((Float_t)(xmin/tpl.GetXmin()-T(1)))<1e-5
+      fabs((Float_t)(xmin/tpl.GetXmin()-U(1)))<1e-5
       &&
-      fabs((Float_t)(xmax/tpl.GetXmax()-T(1)))<1e-5
+      fabs((Float_t)(xmax/tpl.GetXmax()-U(1)))<1e-5
       &&
-      fabs((Float_t)(ymin/tpl.GetYmin()-T(1)))<1e-5
+      fabs((Float_t)(ymin/tpl.GetYmin()-U(1)))<1e-5
       &&
-      fabs((Float_t)(ymax/tpl.GetYmax()-T(1)))<1e-5
+      fabs((Float_t)(ymax/tpl.GetYmax()-U(1)))<1e-5
       &&
-      fabs((Float_t)(zmin/tpl.GetZmin()-T(1)))<1e-5
+      fabs((Float_t)(zmin/tpl.GetZmin()-U(1)))<1e-5
       &&
-      fabs((Float_t)(zmax/tpl.GetZmax()-T(1)))<1e-5
+      fabs((Float_t)(zmax/tpl.GetZmax()-U(1)))<1e-5
       ) return (Double_t)fullIntegral;
     else{
       int xbinmin = tpl.FindBinX(xmin);
@@ -302,8 +302,8 @@ private:
   ClassDef(FastHisto3DFunc_t, 1)
 
 };
-typedef FastHisto3DFunc_t<Float_t> FastHisto3DFunc_f;
-typedef FastHisto3DFunc_t<Double_t> FastHisto3DFunc_d;
+typedef FastHisto3DFunc_t<Float_t, Double_t> FastHisto3DFunc_f;
+typedef FastHisto3DFunc_t<Double_t,Double_t> FastHisto3DFunc_d;
 
 
 #endif

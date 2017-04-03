@@ -125,18 +125,18 @@ template<typename T> void FastTemplate_t<T>::Dump() const {
 /*              FastHisto              */
 /***************************************/
 
-template<typename T> FastHisto_t<T>::FastHisto_t(const TH1 &hist, bool normX) :
+template<typename T, typename U> FastHisto_t<T,U>::FastHisto_t(const TH1 &hist, bool normX) :
     FastTemplate_t<T>(hist),
     axis_(*(hist.GetXaxis())),
     normX_(normX)
 {}
-template<typename T> FastHisto_t<T>::FastHisto_t(const FastHisto_t &other) :
+template<typename T, typename U> FastHisto_t<T,U>::FastHisto_t(const FastHisto_t &other) :
     FastTemplate_t<T>(other),
     axis_(other.axis_),
     normX_(other.normX_)
 {}
 
-template<typename T> T FastHisto_t<T>::IntegralWidth(int binmin, int binmax) const {
+template<typename T, typename U> T FastHisto_t<T,U>::IntegralWidth(int binmin, int binmax) const {
     DefaultAccumulator<T> total = 0;
     for (unsigned int i = 0; i < std::min(GetNbinsX(), this->size_); ++i){
       if (binmin>=0 && (int)i<binmin) continue;
@@ -145,7 +145,7 @@ template<typename T> T FastHisto_t<T>::IntegralWidth(int binmin, int binmax) con
     }
     return total.sum();
 }
-template<typename T> void FastHisto_t<T>::Dump() const {
+template<typename T, typename U> void FastHisto_t<T,U>::Dump() const {
   printf("--- dumping histo template with %d bins (%d active) in range %.2f - %.2f (@%p)---\n", int((this->values_).size()), this->size_, axis_[0], axis_[this->size_], (void*)&(this->values_)[0]);
   for (unsigned int i = 0; i < (this->values_).size(); ++i) {
     printf(" bin %3d, x = %6.2f: yval = %9.5f, width = %6.3f\n",
@@ -153,7 +153,7 @@ template<typename T> void FastHisto_t<T>::Dump() const {
   }
   printf("\n");
 }
-template<typename T> T FastHisto_t<T>::GetMax() const {
+template<typename T, typename U> T FastHisto_t<T,U>::GetMax() const {
     return * std::max((this->values_).begin(), (this->values_).end());
 }
 
@@ -163,7 +163,7 @@ template<typename T> T FastHisto_t<T>::GetMax() const {
 /*             FastHisto2D             */
 /***************************************/
 
-template<typename T> FastHisto2D_t<T>::FastHisto2D_t(const TH2 &hist, bool normX, bool normY) :
+template<typename T, typename U> FastHisto2D_t<T,U>::FastHisto2D_t(const TH2 &hist, bool normX, bool normY) :
     FastTemplate_t<T>(hist),
     axisX_(*(hist.GetXaxis())),
     axisY_(*(hist.GetYaxis())),
@@ -171,7 +171,7 @@ template<typename T> FastHisto2D_t<T>::FastHisto2D_t(const TH2 &hist, bool normX
     normY_(normY)
 {}
 
-template<typename T> FastHisto2D_t<T>::FastHisto2D_t(const FastHisto2D_t &other) :
+template<typename T, typename U> FastHisto2D_t<T,U>::FastHisto2D_t(const FastHisto2D_t &other) :
     FastTemplate_t<T>(other),
     axisX_(other.axisX_),
     axisY_(other.axisY_),
@@ -179,7 +179,7 @@ template<typename T> FastHisto2D_t<T>::FastHisto2D_t(const FastHisto2D_t &other)
     normY_(other.normY_)
 {}
 
-template<typename T> T FastHisto2D_t<T>::IntegralWidth(int xbinmin, int xbinmax, int ybinmin, int ybinmax) const {
+template<typename T, typename U> T FastHisto2D_t<T,U>::IntegralWidth(int xbinmin, int xbinmax, int ybinmin, int ybinmax) const {
     DefaultAccumulator<T> total = 0;
     const unsigned int binX_ = GetNbinsX();
     const unsigned int binY_ = GetNbinsY();
@@ -197,7 +197,7 @@ template<typename T> T FastHisto2D_t<T>::IntegralWidth(int xbinmin, int xbinmax,
     return total.sum();
 }
 
-template<typename T> void FastHisto2D_t<T>::NormalizeXSlices() {
+template<typename T, typename U> void FastHisto2D_t<T,U>::NormalizeXSlices() {
   normX_ = true;
   const unsigned int binX_ = GetNbinsX();
   const unsigned int binY_ = GetNbinsY();
@@ -211,7 +211,7 @@ template<typename T> void FastHisto2D_t<T>::NormalizeXSlices() {
   }
 }
 
-template<typename T> void FastHisto2D_t<T>::Dump() const {
+template<typename T, typename U> void FastHisto2D_t<T,U>::Dump() const {
   const unsigned int binX_ = GetNbinsX();
   const unsigned int binY_ = GetNbinsY();
   printf("--- dumping histo template with %d x %d bins (@%p)---\n", binX_, binY_, (void*)(&(this->values_)[0]));
@@ -227,11 +227,11 @@ template<typename T> void FastHisto2D_t<T>::Dump() const {
   printf("\n");
 }
 
-template<typename T> T FastHisto2D_t<T>::GetMaxOnXY() const {
+template<typename T, typename U> T FastHisto2D_t<T,U>::GetMaxOnXY() const {
     return *std::max((this->values_).begin(), (this->values_).end());
 }
 
-template<typename T> T FastHisto2D_t<T>::GetMaxOnX(const T &y) const {
+template<typename T, typename U> T FastHisto2D_t<T,U>::GetMaxOnX(const U &y) const {
   const unsigned int binX_ = GetNbinsX();
   const unsigned int binY_ = GetNbinsY();
   int iy = FindBinY(y);
@@ -242,7 +242,7 @@ template<typename T> T FastHisto2D_t<T>::GetMaxOnX(const T &y) const {
   return ret;
 }
 
-template<typename T> T FastHisto2D_t<T>::GetMaxOnY(const T &x) const {
+template<typename T, typename U> T FastHisto2D_t<T,U>::GetMaxOnY(const U &x) const {
   const unsigned int binY_ = GetNbinsY();
   int ix = FindBinX(x);
   return *std::max( &(this->values_)[ix * binY_], &(this->values_)[(ix+1) * binY_] );
@@ -253,7 +253,7 @@ template<typename T> T FastHisto2D_t<T>::GetMaxOnY(const T &x) const {
 /*             FastHisto3D             */
 /***************************************/
 
-template<typename T> FastHisto3D_t<T>::FastHisto3D_t(const TH3 &hist, bool normX, bool normY, bool normZ) :
+template<typename T, typename U> FastHisto3D_t<T,U>::FastHisto3D_t(const TH3 &hist, bool normX, bool normY, bool normZ) :
     FastTemplate_t<T>(hist),
     axisX_(*(hist.GetXaxis())),
     axisY_(*(hist.GetYaxis())),
@@ -263,7 +263,7 @@ template<typename T> FastHisto3D_t<T>::FastHisto3D_t(const TH3 &hist, bool normX
     normZ_(normZ)
 {}
 
-template<typename T> FastHisto3D_t<T>::FastHisto3D_t(const FastHisto3D_t &other) :
+template<typename T, typename U> FastHisto3D_t<T,U>::FastHisto3D_t(const FastHisto3D_t &other) :
     FastTemplate_t<T>(other),
     axisX_(other.axisX_),
     axisY_(other.axisY_),
@@ -273,7 +273,7 @@ template<typename T> FastHisto3D_t<T>::FastHisto3D_t(const FastHisto3D_t &other)
     normZ_(other.normZ_)
 {}
 
-template<typename T> T FastHisto3D_t<T>::IntegralWidth(int xbinmin, int xbinmax, int ybinmin, int ybinmax, int zbinmin, int zbinmax) const {
+template<typename T, typename U> T FastHisto3D_t<T,U>::IntegralWidth(int xbinmin, int xbinmax, int ybinmin, int ybinmax, int zbinmin, int zbinmax) const {
     DefaultAccumulator<T> total = 0;
     const unsigned int binX_ = GetNbinsX();
     const unsigned int binY_ = GetNbinsY();
@@ -297,7 +297,7 @@ template<typename T> T FastHisto3D_t<T>::IntegralWidth(int xbinmin, int xbinmax,
     return total.sum();
 }
 
-template<typename T> void FastHisto3D_t<T>::NormalizeXSlices() {
+template<typename T, typename U> void FastHisto3D_t<T,U>::NormalizeXSlices() {
   normX_ = true;
   const unsigned int binX_ = GetNbinsX();
   const unsigned int binY_ = GetNbinsY();
@@ -322,7 +322,7 @@ template<typename T> void FastHisto3D_t<T>::NormalizeXSlices() {
   }
 }
 
-template<typename T> void FastHisto3D_t<T>::Dump() const {
+template<typename T, typename U> void FastHisto3D_t<T,U>::Dump() const {
   const unsigned int binX_ = GetNbinsX();
   const unsigned int binY_ = GetNbinsY();
   const unsigned int binZ_ = GetNbinsZ();
@@ -345,15 +345,15 @@ template<typename T> void FastHisto3D_t<T>::Dump() const {
 
 typedef FastHistoAxis_t<Double_t> FastHistoAxis_d;
 typedef FastTemplate_t<Double_t> FastTemplate_d;
-typedef FastHisto_t<Double_t> FastHisto_d;
-typedef FastHisto2D_t<Double_t> FastHisto2D_d;
-typedef FastHisto3D_t<Double_t> FastHisto3D_d;
+typedef FastHisto_t<Double_t,Double_t> FastHisto_d;
+typedef FastHisto2D_t<Double_t,Double_t> FastHisto2D_d;
+typedef FastHisto3D_t<Double_t,Double_t> FastHisto3D_d;
 
 typedef FastHistoAxis_t<Float_t> FastHistoAxis_f;
 typedef FastTemplate_t<Float_t> FastTemplate_f;
-typedef FastHisto_t<Float_t> FastHisto_f;
-typedef FastHisto2D_t<Float_t> FastHisto2D_f;
-typedef FastHisto3D_t<Float_t> FastHisto3D_f;
+typedef FastHisto_t<Float_t,Double_t> FastHisto_f;
+typedef FastHisto2D_t<Float_t,Double_t> FastHisto2D_f;
+typedef FastHisto3D_t<Float_t,Double_t> FastHisto3D_f;
 
 typedef FastHistoAxis_d FastHistoAxis;
 typedef FastTemplate_d FastTemplate;
