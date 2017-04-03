@@ -136,7 +136,7 @@ public:
           }
         }
 };
-template <typename T, typename U> class FastHisto_t : public FastTemplate_t<T> {
+template <typename T, typename U=Double_t> class FastHisto_t : public FastTemplate_t<T> {
 private:
         FastHistoAxis_t<U> axis_;
         bool normX_;
@@ -195,7 +195,7 @@ public:
         }
         ~FastHisto_t<T,U>(){}
 };
-template <typename T, typename U> class FastHisto2D_t : public FastTemplate_t<T> {
+template <typename T, typename U=Double_t> class FastHisto2D_t : public FastTemplate_t<T> {
 private:
         FastHistoAxis_t<U> axisX_;
         FastHistoAxis_t<U> axisY_;
@@ -282,7 +282,7 @@ public:
         ~FastHisto2D_t(){}
 };
 
-template <typename T, typename U> class FastHisto3D_t : public FastTemplate_t<T> {
+template <typename T, typename U=Double_t> class FastHisto3D_t : public FastTemplate_t<T> {
 private:
         FastHistoAxis_t<U> axisX_;
         FastHistoAxis_t<U> axisY_;

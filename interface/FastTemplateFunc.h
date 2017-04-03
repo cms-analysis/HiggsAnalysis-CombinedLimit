@@ -42,7 +42,7 @@ private:
 typedef FastTemplateFunc_t<Float_t> FastTemplateFunc_f;
 typedef FastTemplateFunc_t<Double_t> FastTemplateFunc_d;
 
-template <typename T, typename U> class FastHistoFunc_t : public FastTemplateFunc_t<T>{
+template <typename T, typename U=Double_t> class FastHistoFunc_t : public FastTemplateFunc_t<T>{
 protected:
   FastHisto_t<T,U> tpl;
   T fullIntegral;
@@ -100,10 +100,10 @@ private:
   ClassDef(FastHistoFunc_t, 1)
 
 };
-typedef FastHistoFunc_t<Float_t, Double_t> FastHistoFunc_f;
-typedef FastHistoFunc_t<Double_t,Double_t> FastHistoFunc_d;
+typedef FastHistoFunc_t<Float_t> FastHistoFunc_f;
+typedef FastHistoFunc_t<Double_t> FastHistoFunc_d;
 
-template <typename T, typename U> class FastHisto2DFunc_t : public FastTemplateFunc_t<T>{
+template <typename T, typename U=Double_t> class FastHisto2DFunc_t : public FastTemplateFunc_t<T>{
 protected:
   FastHisto2D_t<T,U> tpl;
   T fullIntegral;
@@ -192,10 +192,10 @@ private:
   ClassDef(FastHisto2DFunc_t, 1)
 
 };
-typedef FastHisto2DFunc_t<Float_t, Double_t> FastHisto2DFunc_f;
-typedef FastHisto2DFunc_t<Double_t,Double_t> FastHisto2DFunc_d;
+typedef FastHisto2DFunc_t<Float_t> FastHisto2DFunc_f;
+typedef FastHisto2DFunc_t<Double_t> FastHisto2DFunc_d;
 
-template <typename T, typename U> class FastHisto3DFunc_t : public FastTemplateFunc_t<T>{
+template <typename T, typename U=Double_t> class FastHisto3DFunc_t : public FastTemplateFunc_t<T>{
 protected:
   FastHisto3D_t<T,U> tpl;
   T fullIntegral;
@@ -302,8 +302,8 @@ private:
   ClassDef(FastHisto3DFunc_t, 1)
 
 };
-typedef FastHisto3DFunc_t<Float_t, Double_t> FastHisto3DFunc_f;
-typedef FastHisto3DFunc_t<Double_t,Double_t> FastHisto3DFunc_d;
+typedef FastHisto3DFunc_t<Float_t> FastHisto3DFunc_f;
+typedef FastHisto3DFunc_t<Double_t> FastHisto3DFunc_d;
 
 
 #endif

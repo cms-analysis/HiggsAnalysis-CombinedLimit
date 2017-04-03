@@ -345,15 +345,15 @@ template<typename T, typename U> void FastHisto3D_t<T,U>::Dump() const {
 
 typedef FastHistoAxis_t<Double_t> FastHistoAxis_d;
 typedef FastTemplate_t<Double_t> FastTemplate_d;
-typedef FastHisto_t<Double_t,Double_t> FastHisto_d;
-typedef FastHisto2D_t<Double_t,Double_t> FastHisto2D_d;
-typedef FastHisto3D_t<Double_t,Double_t> FastHisto3D_d;
+typedef FastHisto_t<Double_t> FastHisto_d;
+typedef FastHisto2D_t<Double_t> FastHisto2D_d;
+typedef FastHisto3D_t<Double_t> FastHisto3D_d;
 
 typedef FastHistoAxis_t<Float_t> FastHistoAxis_f;
 typedef FastTemplate_t<Float_t> FastTemplate_f;
-typedef FastHisto_t<Float_t,Double_t> FastHisto_f;
-typedef FastHisto2D_t<Float_t,Double_t> FastHisto2D_f;
-typedef FastHisto3D_t<Float_t,Double_t> FastHisto3D_f;
+typedef FastHisto_t<Float_t> FastHisto_f;
+typedef FastHisto2D_t<Float_t> FastHisto2D_f;
+typedef FastHisto3D_t<Float_t> FastHisto3D_f;
 
 typedef FastHistoAxis_d FastHistoAxis;
 typedef FastTemplate_d FastTemplate;
