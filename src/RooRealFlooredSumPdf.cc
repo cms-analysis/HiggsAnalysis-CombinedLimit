@@ -363,7 +363,7 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 		// Warn about coefficient degeneration
 		if (lastCoef<0 || lastCoef>1) {
 			coutW(Eval) << "RooRealFlooredSumPdf::integral(" << GetName()
-				<< " WARNING: Sum of FUNC coefficients not in range [0-1], value="
+				<< ") WARNING: Sum of FUNC coefficients not in range [0-1], value="
 				<< 1 - lastCoef << endl;
 		}
 	}
@@ -397,7 +397,7 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
   if(normVal>0) result = value / normVal;
   if (result<=0. && _doFloor){
     coutW(Eval) << "RooRealFlooredSumPdf::integral(" << GetName()
-      << " WARNING: Integral below threshold: " << result << endl;
+      << ") WARNING: Integral " << result << " below threshold." << endl;
     result = _floorVal;
   }
 	return result;
