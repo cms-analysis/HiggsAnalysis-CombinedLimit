@@ -95,25 +95,34 @@ Double_t AsymQuad::interpolate(Double_t theta_, Double_t valueCenter_, Double_t 
   if (smoothAlgo_<0) return 0;
   else{
     if (fabs(theta_)>=smoothRegion_) return theta_ * (theta_ > 0 ? valueHigh_ - valueCenter_ : valueCenter_ - valueLow_);
-
-    Double_t c_up  = 0;
-    Double_t c_dn  = 0;
-    Double_t c_cen = 0;
-
-    if (smoothAlgo_ != 1) {
+    if (smoothAlgo_ == 0) {
       // Quadratic interpolation null at zero and continuous at boundaries but not smooth at boundaries
-      c_up  = +theta_ * (smoothRegion_ + theta_) / (2 * smoothRegion_);
-      c_dn  = -theta_ * (smoothRegion_ - theta_) / (2 * smoothRegion_);
-      c_cen = -theta_ * theta_ / smoothRegion_;
+      Double_t c_up  = +theta_ * (smoothRegion_ + theta_) / (2 * smoothRegion_);
+      Double_t c_dn  = -theta_ * (smoothRegion_ - theta_) / (2 * smoothRegion_);
+      Double_t c_cen = -theta_ * theta_ / smoothRegion_;
+      return c_up * valueHigh_ + c_dn * valueLow_ + c_cen * valueCenter_;
     }
-    else{
+    else if (smoothAlgo_ == 1){
       // Quadratic interpolation that is everywhere differentiable but not null at zero
-      c_up  = (smoothRegion_ + theta_) * (smoothRegion_ + theta_) / (4 * smoothRegion_);
-      c_dn  = (smoothRegion_ - theta_) * (smoothRegion_ - theta_) / (4 * smoothRegion_);
-      c_cen = -c_up - c_dn;
+      Double_t c_up  = (smoothRegion_ + theta_) * (smoothRegion_ + theta_) / (4 * smoothRegion_);
+      Double_t c_dn  = (smoothRegion_ - theta_) * (smoothRegion_ - theta_) / (4 * smoothRegion_);
+      Double_t c_cen = -c_up - c_dn;
+      return c_up * valueHigh_ + c_dn * valueLow_ + c_cen * valueCenter_;
     }
-    return c_up * valueHigh_ + c_dn * valueLow_ + c_cen * valueCenter_;
+    else/* if (smoothAlgo_ == 2)*/{
+      // Quadratic interpolation that is everywhere differentiable and null at zero
+      Double_t cnorm = theta_/smoothRegion_;
+      Double_t cnorm2 = pow(cnorm, 2);
+      Double_t hi = valueHigh_ - valueCenter_;
+      Double_t lo = valueLow_ - valueCenter_;
+      Double_t sum = hi+lo;
+      Double_t diff = hi-lo;
+      Double_t a = theta_/2.; // cnorm*smoothRegion_
+      Double_t b = 0.125 * cnorm * (cnorm2 * (3.*cnorm2 - 10.) + 15.);
+      Double_t result = a*(diff + b*sum);
+      return result;
+    }
   }
-} 
+}
 
 ClassImp(AsymQuad)
