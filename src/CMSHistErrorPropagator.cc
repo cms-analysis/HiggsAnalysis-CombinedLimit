@@ -81,8 +81,8 @@ void CMSHistErrorPropagator::initialize() const {
   }
   valsum_ = vfuncs_[0]->getCacheHisto();
   valsum_.Clear();
-  scaledvalsum_ = vfuncs_[0]->getCacheHisto();
-  scaledvalsum_.Clear();
+  cache_ = vfuncs_[0]->getCacheHisto();
+  cache_.Clear();
   err2sum_.resize(nb, 0.);
   toterr_.resize(nb, 0.);
   binmods_.resize(nf, std::vector<double>(nb, 0.));
@@ -101,7 +101,7 @@ void CMSHistErrorPropagator::initialize() const {
 }
 
 
-void CMSHistErrorPropagator::fillSumAndErr(int eval) const {
+void CMSHistErrorPropagator::updateCache(int eval) const {
   // IMPORTANT: Need to check if we are transitioning from eval=1 to eval=0
 
 
@@ -123,7 +123,7 @@ void CMSHistErrorPropagator::fillSumAndErr(int eval) const {
       vectorized::mul_add_sqr(valsum_.size(), coeffvals_[i], &(vfuncs_[i]->getBinErrors()[0]), &err2sum_[0]);
     }
     vectorized::sqrt(valsum_.size(), &err2sum_[0], &toterr_[0]);
-    scaledvalsum_ = valsum_;
+    cache_ = valsum_;
 
     if (eval == 0) {
       for (unsigned j = 0; j < valsum_.size(); ++j) {
@@ -153,7 +153,7 @@ void CMSHistErrorPropagator::fillSumAndErr(int eval) const {
   if (!binsentry_.good()) {
     // bintypes might have size == 0 if we never ran setupBinPars()
     for (unsigned j = 0; j < bintypes_.size(); ++j) {
-      scaledvalsum_[j] = valsum_[j];
+      cache_[j] = valsum_[j];
       if (bintypes_[j][0] == 0) {
         continue;
       } else if (bintypes_[j][0] == 1) {
@@ -178,7 +178,7 @@ void CMSHistErrorPropagator::fillSumAndErr(int eval) const {
           vbinpars_[j][0]->valueClientMIterator().next()->setValueDirty();
         }
         double x = vbinpars_[j][0]->getVal();
-        scaledvalsum_[j] += toterr_[j] * x;
+        cache_[j] += toterr_[j] * x;
         // Only fill the scaledbinmods if we're in eval == 0 mode (i.e. need to
         // propagate to wrappers)
         if (eval == 0) {
@@ -192,17 +192,17 @@ void CMSHistErrorPropagator::fillSumAndErr(int eval) const {
             // Poisson: this is a multiplier on the process yield
             scaledbinmods_[i][j] = ((vbinpars_[j][i]->getVal() - 1.) *
                  vfuncs_[i]->getCacheHisto()[j] * coeffvals_[i]);
-            scaledvalsum_[j] += scaledbinmods_[i][j];
+            cache_[j] += scaledbinmods_[i][j];
           } else if (bintypes_[j][i] == 3) {
             // Gaussian This is the addition of the scaled error
             scaledbinmods_[i][j] = vbinpars_[j][i]->getVal() * vfuncs_[i]->getBinErrors()[j] * coeffvals_[i];
-            scaledvalsum_[j] += scaledbinmods_[i][j];
+            cache_[j] += scaledbinmods_[i][j];
           }
         }
       }
     }
     RooAbsArg::setDirtyInhibit(false);
-    scaledvalsum_.CropUnderflows();
+    cache_.CropUnderflows();
     binsentry_.reset();
   }
 }
@@ -217,7 +217,7 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
   // First initialize all the storage
   initialize();
   // Now fill the bin contents and errors
-  fillSumAndErr(1); // the arg (1) forces fillSumAndError to fill the caches for all bins
+  updateCache(1); // the arg (1) forces updateCacheor to fill the caches for all bins
 
   bintypes_.resize(valsum_.size(), std::vector<unsigned>(1, 0));
 
@@ -380,7 +380,7 @@ void CMSHistErrorPropagator::applyErrorShifts(unsigned idx,
   // We can skip the whole evaluation if there's nothing to evaluate
   // if (bintypes_.size() == 0) return;
   FNLOGC(std::cout, v) << "Start of function\n";
-  fillSumAndErr();
+  updateCache(0);
   for (unsigned i = 0; i < result.size(); ++i) {
     result[i] = nominal[i] + scaledbinmods_[idx][i];
   }
@@ -396,8 +396,8 @@ std::unique_ptr<RooArgSet> CMSHistErrorPropagator::getSentryArgs() const {
 }
 
 Double_t CMSHistErrorPropagator::evaluate() const {
-  fillSumAndErr(1);
-  return scaledvalsum_.GetAt(x_);
+  updateCache(1);
+  return cache_.GetAt(x_);
 }
 
 
@@ -417,7 +417,7 @@ void CMSHistErrorPropagator::printMultiline(std::ostream& os, Int_t contents, Bo
   std::cout << ">> Current cache:\n";
   valsum_.Dump();
   std::cout << ">> Current cache (bin scaled):\n";
-  scaledvalsum_.Dump();
+  cache_.Dump();
   std::cout << ">> Sentry: " << sentry_.good() << "\n";
   sentry_.Print("v");
 
@@ -435,8 +435,8 @@ Double_t CMSHistErrorPropagator::analyticalIntegral(Int_t code,
   // TODO: check how RooHistFunc handles ranges that splice bins
   switch (code) {
     case 1: {
-      fillSumAndErr(1);
-      return scaledvalsum_.IntegralWidth();
+      updateCache(1);
+      return cache_.IntegralWidth();
     }
   }
 
@@ -444,73 +444,15 @@ Double_t CMSHistErrorPropagator::analyticalIntegral(Int_t code,
   return 0;
 }
 
-CMSHistErrorPropagatorV::CMSHistErrorPropagatorV(const CMSHistErrorPropagator& hpdf, const RooAbsData& data,
-                           bool includeZeroWeights)
-    : hpdf_(hpdf), begin_(0), end_(0) {
-  hpdf.fillSumAndErr(1);
-  hpdf.data_.resize(hpdf.scaledvalsum_.size(), 0.);
-  std::vector<int> bins;
-  RooArgSet obs(hpdf.x_.arg());
+void CMSHistErrorPropagator::setData(RooAbsData const& data) const {
+  updateCache(1);
+  data_.clear();
+  data_.resize(cache_.size(), 0.);
+  RooArgSet obs(x_.arg());
   const RooRealVar& x = static_cast<const RooRealVar&>(*obs.first());
-  bool aligned = true;
   for (int i = 0, n = data.numEntries(); i < n; ++i) {
     obs = *data.get(i);
-    if (data.weight() == 0 && !includeZeroWeights) continue;
-    int idx = hpdf.scaledvalsum_.FindBin(x.getVal());
-    hpdf.data_[idx] = data.weight();
-    if (!bins.empty() && idx != bins.back() + 1) aligned = false;
-    bins.push_back(idx);
-  }
-  if (bins.empty()) {
-    // nothing to do.
-  } else if (aligned) {
-    begin_ = bins.front();
-    end_ = bins.back() + 1;
-    // std::cout << "Created CMSHistErrorPropagatorV from " << hpdf.GetName() << ",
-    // aligned, " << (end_-begin_) << " bins." << std::endl;
-  } else {
-    nbins_ = bins.size();
-    bins_.swap(bins);
-    blocks_.clear();
-    int start = bins_[0], istart = 0;
-    for (int i = 1, n = bins_.size(); i < n; ++i) {
-      if (bins_[i] != bins_[i - 1] + 1) {
-        blocks_.push_back(Block(istart, start, bins_[i - 1] + 1));
-        start = bins_[i];
-        istart = i;
-      }
-    }
-    blocks_.push_back(Block(istart, start, bins_.back() + 1));
-    if (blocks_.size() < 4 * bins_.size()) {
-      // std::cout << "Created CMSHistErrorPropagatorV from " << hpdf.GetName() << ",
-      // block-aligned, " << bins_.size() << " bins, " <<  blocks_.size() << "
-      // blocks." << std::endl;
-      bins_.clear();
-    } else {
-      // std::cout << "Created CMSHistErrorPropagatorV from " << hpdf.GetName() << ",
-      // non-aligned, " << bins_.size() << " bins, " <<  blocks_.size() << "
-      // blocks." << std::endl;
-      blocks_.clear();
-    }
+    int idx = cache_.FindBin(x.getVal());
+    data_[idx] = data.weight();
   }
 }
-
-void CMSHistErrorPropagatorV::fill(std::vector<Double_t>& out) const {
-  hpdf_.fillSumAndErr(1);
-  if (begin_ != end_) {
-    out.resize(end_ - begin_);
-    std::copy(&hpdf_.scaledvalsum_.GetBinContent(begin_),
-              &hpdf_.scaledvalsum_.GetBinContent(end_), out.begin());
-  } else if (!blocks_.empty()) {
-    out.resize(nbins_);
-    for (auto b : blocks_)
-      std::copy(&hpdf_.scaledvalsum_.GetBinContent(b.begin),
-                &hpdf_.scaledvalsum_.GetBinContent(b.end), out.begin() + b.index);
-  } else {
-    out.resize(bins_.size());
-    for (int i = 0, n = bins_.size(); i < n; ++i) {
-      out[i] = hpdf_.scaledvalsum_.GetBinContent(bins_[i]);
-    }
-  }
-}
-

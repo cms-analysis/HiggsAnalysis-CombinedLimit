@@ -9,6 +9,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include <HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h>
+#include <HiggsAnalysis/CombinedLimit/interface/CMSHistV.h>
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h>
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h>
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h>
@@ -24,9 +25,9 @@
 namespace cacheutils {
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf,FastVerticalInterpHistPdfV> CachingHistPdf;
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf2,FastVerticalInterpHistPdf2V> CachingHistPdf2;
-    typedef OptimizedCachingPdfT<CMSHistFunc, CMSHistFuncV> CachingCMSHistFunc;
-    typedef OptimizedCachingPdfT<CMSHistFuncWrapper, CMSHistFuncWrapperV> CachingCMSHistFuncWrapper;
-    typedef OptimizedCachingPdfT<CMSHistErrorPropagator, CMSHistErrorPropagatorV> CachingCMSHistErrorPropagator;
+    typedef OptimizedCachingPdfT<CMSHistFunc, CMSHistV<CMSHistFunc>> CachingCMSHistFunc;
+    typedef OptimizedCachingPdfT<CMSHistFuncWrapper, CMSHistV<CMSHistFuncWrapper>> CachingCMSHistFuncWrapper;
+    typedef OptimizedCachingPdfT<CMSHistErrorPropagator, CMSHistV<CMSHistErrorPropagator>> CachingCMSHistErrorPropagator;
     typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
     typedef OptimizedCachingPdfT<RooCBShape,VectorizedCBShape> CachingCBPdf;
     typedef OptimizedCachingPdfT<RooExponential,VectorizedExponential> CachingExpoPdf;
@@ -374,6 +375,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, Ro
     if (pdf == 0) throw std::invalid_argument(std::string("Pdf passed to ")+name+" is null");
     setData(*data);
     setup_();
+    propagateData();
     constantZeroPoint_ = -evaluate();
 }
 
@@ -387,6 +389,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char 
 {
     setData(*other.data_);
     setup_();
+    propagateData();
     constantZeroPoint_ = -evaluate();
 }
 
@@ -784,6 +787,16 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
             if (all_equal) binWidths_.resize(1);
         } else {
             printf("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d\n", pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries());
+        }
+    }
+    propagateData();
+}
+
+void cacheutils::CachingAddNLL::propagateData() {
+    for (auto const& funci : pdfs_) {
+        if (typeid(*(funci.pdf())) == typeid(CMSHistErrorPropagator)) {
+            printf("Passing data to %s\n", funci.pdf()->GetName());
+            (static_cast<CMSHistErrorPropagator const*>(funci.pdf()))->setData(*data_);
         }
     }
 }

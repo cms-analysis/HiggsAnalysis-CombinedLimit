@@ -8,14 +8,14 @@
 #include "RooListProxy.h"
 #include "RooRealProxy.h"
 #include "RooArgProxy.h"
+#include "RooAbsData.h"
 #include "Rtypes.h"
 #include "TH1F.h"
 #include "TMatrix.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Logging.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
-
-class CMSHistFuncV;
 
 class CMSHistFunc : public RooAbsReal {
  private:
@@ -121,7 +121,7 @@ class CMSHistFunc : public RooAbsReal {
   inline FastTemplate const& getBinErrors() const { return binerrors_; }
   inline FastHisto const& getCacheHisto() const { return cache_; }
 
-  friend class CMSHistFuncV;
+  friend class CMSHistV<CMSHistFunc>;
 
   /*
 
@@ -175,22 +175,5 @@ class CMSHistFunc : public RooAbsReal {
   ClassDef(CMSHistFunc, 1)
 };
 
-class CMSHistFuncV {
- public:
-  CMSHistFuncV(const CMSHistFunc &,
-                              const RooAbsData& data,
-                              bool includeZeroWeights = false);
-  void fill(std::vector<Double_t>& out) const;
-
- private:
-  const CMSHistFunc& hpdf_;
-  int begin_, end_, nbins_;
-  struct Block {
-    int index, begin, end;
-    Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}
-  };
-  std::vector<Block> blocks_;
-  std::vector<int> bins_;
-};
 
 #endif

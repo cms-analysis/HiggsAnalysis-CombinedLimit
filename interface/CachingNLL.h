@@ -128,6 +128,8 @@ class CachingAddNLL : public RooAbsReal {
         void clearZeroPoint() ;
         void clearConstantZeroPoint() ;
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
+
+        void propagateData();
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }

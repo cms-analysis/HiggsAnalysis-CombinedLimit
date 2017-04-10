@@ -14,8 +14,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
-
-class CMSHistFuncWrapperV;
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
 
 class CMSHistFuncWrapper : public RooAbsReal {
  public:
@@ -45,7 +44,7 @@ class CMSHistFuncWrapper : public RooAbsReal {
 
   void updateCache() const;
 
-  friend class CMSHistFuncWrapperV;
+  friend class CMSHistV<CMSHistFuncWrapper>;
 
  protected:
   RooRealProxy x_;
@@ -64,24 +63,6 @@ class CMSHistFuncWrapper : public RooAbsReal {
   mutable bool initialized_; //! not to be serialized
 
   void initialize() const;
-};
-
-class CMSHistFuncWrapperV {
- public:
-  CMSHistFuncWrapperV(const CMSHistFuncWrapper &,
-                              const RooAbsData& data,
-                              bool includeZeroWeights = false);
-  void fill(std::vector<Double_t>& out) const;
-
- private:
-  const CMSHistFuncWrapper& hpdf_;
-  int begin_, end_, nbins_;
-  struct Block {
-    int index, begin, end;
-    Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}
-  };
-  std::vector<Block> blocks_;
-  std::vector<int> bins_;
 };
 
 #endif
