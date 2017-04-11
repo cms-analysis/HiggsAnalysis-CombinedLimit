@@ -20,7 +20,6 @@
 class CMSHistFunc : public RooAbsReal {
  private:
   struct GlobalCache {
-    std::vector<double> bedgesn;
     bool single_point = true;
     unsigned p1 = 0;
     unsigned p2 = 0;
@@ -28,6 +27,10 @@ class CMSHistFunc : public RooAbsReal {
     TMatrixD m;
     std::vector<double> c_scale;  // coeffs for scaling
     std::vector<double> c_sum;    // coeffs for summing
+    std::vector<double> means;
+    std::vector<double> sigmas;
+    std::vector<double> slopes;
+    std::vector<double> offsets;
   };
 
   struct Cache {
@@ -69,7 +72,7 @@ class CMSHistFunc : public RooAbsReal {
   CMSHistFunc();
 
   CMSHistFunc(const char* name, const char* title, RooRealVar& x,
-              TH1 const& hist);
+              TH1 const& hist, bool divideByWidth = true);
 
   CMSHistFunc(CMSHistFunc const& other, const char* name = 0);
 
@@ -143,7 +146,7 @@ class CMSHistFunc : public RooAbsReal {
 
   mutable FastHisto cache_;
   FastTemplate binerrors_;
-  std::vector<FastHisto> storage_;
+  std::vector<FastTemplate> storage_;
 
   mutable GlobalCache global_;  //! not to be serialized
   mutable std::vector<Cache> mcache_;  //! not to be serialized
@@ -154,6 +157,8 @@ class CMSHistFunc : public RooAbsReal {
 
   HorizontalType htype_;
   MomentSetting mtype_;
+
+  bool divide_by_width_;
 
  private:
   void initialize() const;
@@ -166,14 +171,16 @@ class CMSHistFunc : public RooAbsReal {
 
   inline double smoothStepFunc(double x) const;
 
-  void setCdf(Cache& c, FastHisto const& h) const;
-  void setMeanSig(Cache& c, FastHisto const& h) const;
+  void setCdf(Cache& c, FastTemplate const& h) const;
+  void setMeanSig(Cache& c, FastTemplate const& h) const;
   void updateMomentFractions(double m) const;
 
   void prepareInterpCache(Cache& c1, Cache const& c2) const;
 
   FastTemplate cdfMorph(unsigned idx, double par1, double par2,
                         double parinterp) const;
+
+  double integrateTemplate(FastTemplate const& t) const;
 
   ClassDef(CMSHistFunc, 1)
 };

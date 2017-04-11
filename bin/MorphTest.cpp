@@ -16,6 +16,18 @@ namespace po = boost::program_options;
 
 using namespace std;
 
+
+TH1F * RebinHist(TH1F * hist) {
+  // TH1::AddDirectory(0);
+  // TH1F* shape = new TH1F("tmp", "tmp", hist->GetNbinsX(), 0.,
+  //            static_cast<float>(hist->GetNbinsX()));
+  // for (int i = 1; i <= hist->GetNbinsX(); ++i) {
+  //   shape->SetBinContent(i, hist->GetBinContent(i));
+  // }
+  // return shape;
+  return hist;
+}
+
 int main(int argc, char* argv[]) {
   TH1::AddDirectory(false);
   // Need this to read combine workspaces
@@ -40,16 +52,18 @@ int main(int argc, char* argv[]) {
   po::notify(vm);
 
   TFile fshapes("htt_mt.inputs-mssm-13TeV-mttot.root");
-  TH1F *h_ggH140 = (TH1F*)gDirectory->Get("/mt_nobtag/ggH140");
-  TH1F *h_ggH140_lo = (TH1F*)gDirectory->Get("/mt_nobtag/ggH140_CMS_scale_t_mt_13TeVDown");
-  TH1F *h_ggH140_hi = (TH1F*)gDirectory->Get("/mt_nobtag/ggH140_CMS_scale_t_mt_13TeVUp");
-  TH1F *h_ggH160 = (TH1F*)gDirectory->Get("/mt_nobtag/ggH160");
-  TH1F *h_ggH160_lo = (TH1F*)gDirectory->Get("/mt_nobtag/ggH160_CMS_scale_t_mt_13TeVDown");
-  TH1F *h_ggH160_hi = (TH1F*)gDirectory->Get("/mt_nobtag/ggH160_CMS_scale_t_mt_13TeVUp");
-  TH1F *h_ggH180 = (TH1F*)gDirectory->Get("/mt_nobtag/ggH180");
-  TH1F *h_ggH180_lo = (TH1F*)gDirectory->Get("/mt_nobtag/ggH180_CMS_scale_t_mt_13TeVDown");
-  TH1F *h_ggH180_hi = (TH1F*)gDirectory->Get("/mt_nobtag/ggH180_CMS_scale_t_mt_13TeVUp");
+  TH1F *h_ggH140 = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH140"));
+  TH1F *h_ggH140_lo = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH140_CMS_scale_t_mt_13TeVDown"));
+  TH1F *h_ggH140_hi = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH140_CMS_scale_t_mt_13TeVUp"));
+  TH1F *h_ggH160 = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH160"));
+  TH1F *h_ggH160_lo = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH160_CMS_scale_t_mt_13TeVDown"));
+  TH1F *h_ggH160_hi = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH160_CMS_scale_t_mt_13TeVUp"));
+  TH1F *h_ggH180 = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH180"));
+  TH1F *h_ggH180_lo = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH180_CMS_scale_t_mt_13TeVDown"));
+  TH1F *h_ggH180_hi = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH180_CMS_scale_t_mt_13TeVUp"));
   TH1F *h_dat = (TH1F*)h_ggH140->Clone();
+
+
   h_dat->Reset();
   h_dat->FillRandom(h_ggH140, int(h_ggH140->Integral()));
   // TH1F *h_dat = (TH1F*)gDirectory->Get("/mt_nobtag/data_obs");
@@ -80,17 +94,17 @@ int main(int argc, char* argv[]) {
   c_ggH.setShape(0, 2, 1, 1, *h_ggH180_hi);
 
   c_ggH.evaluate();
-  mH.setVal(176);
-  c_ggH.evaluate();
+  // c_ggH.evaluate();
+  c_ggH.Print("v");
 
-  TRandom3 rng;
-  for (unsigned r = 0; r < 1E6; ++r) {
-    mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
-    // mH.Print();
-    // tes.setVal(rng.Gaus(0, 1));
-    // tes.Print();
-    c_ggH.evaluate();
-  }
+  // TRandom3 rng;
+  // for (unsigned r = 0; r < 1E6; ++r) {
+  //   mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
+  //   // mH.Print();
+  //   // tes.setVal(rng.Gaus(0, 1));
+  //   // tes.Print();
+  //   c_ggH.evaluate();
+  // }
 
 
   return 0;

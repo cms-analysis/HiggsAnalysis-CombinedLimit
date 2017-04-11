@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Accumulators.h"
 #include <vector>
 #include <ostream>
 #include <memory>
@@ -18,10 +19,11 @@ CMSHistFunc::CMSHistFunc() {
   initialized_ = false;
   htype_ = HorizontalType::Integral;
   mtype_ = MomentSetting::NonLinearPosFractions;
+  divide_by_width_ = true;
 }
 
 CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
-                         TH1 const& hist)
+                         TH1 const& hist, bool divide_by_width)
     : RooAbsReal(name, title),
       x_("x", "", this, x),
       vmorphs_("vmorphs", "", this),
@@ -34,10 +36,19 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       veval(0),
       initialized_(false),
       htype_(HorizontalType::Integral),
-      mtype_(MomentSetting::Linear) {
+      mtype_(MomentSetting::Linear),
+      divide_by_width_(divide_by_width) {
+  if (divide_by_width_) {
+    for (unsigned i = 0; i < cache_.size(); ++i) {
+      cache_[i] /= cache_.GetWidth(i);
+    }
+  }
   prepareStorage();  // Prepare storage of size 1 -> the cache_ will be copied in there
   for (unsigned i = 0; i < cache_.size(); ++i) {
     binerrors_[i] = hist.GetBinError(i + 1);
+    if (divide_by_width_) {
+      binerrors_[i] /= cache_.GetWidth(i);
+    }
   }
 }
 
@@ -82,10 +93,6 @@ void CMSHistFunc::setGlobalCache() const {
   unsigned n_hpoints = 1;
   if (hmorphs_.getSize() == 1) {
     n_hpoints = hpoints_[0].size();
-    global_.bedgesn.resize(cache_.size() + 1);
-    for (unsigned i = 0; i < global_.bedgesn.size(); ++i) {
-     global_.bedgesn[i] = cache_.GetEdge(i);
-    }
 
     // This portion of code adapted from:
     // RooMomentMorph.cxx
@@ -108,6 +115,10 @@ void CMSHistFunc::setGlobalCache() const {
     global_.c_scale.resize(hpoints_[0].size(), 0.);
     global_.c_sum.resize(hpoints_[0].size(), 0.);
     // End
+    global_.means.resize(hpoints_[0].size(), 0.);
+    global_.sigmas.resize(hpoints_[0].size(), 0.);
+    global_.slopes.resize(hpoints_[0].size(), 0.);
+    global_.offsets.resize(hpoints_[0].size(), 0.);
   }
 }
 
@@ -175,6 +186,11 @@ void CMSHistFunc::setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
                            << " vindex: " << vindex << " vpoint: " << vpoint
                            << " mapped to idx: " << idx << "\n";
   storage_.at(idx) = FastHisto(hist);
+  if (divide_by_width_) {
+    for (unsigned i = 0; i < storage_[idx].size(); ++i) {
+      storage_.at(idx)[i] /= cache_.GetWidth(i);
+    }
+  }
 }
 
 void CMSHistFunc::updateCache() const {
@@ -183,50 +199,51 @@ void CMSHistFunc::updateCache() const {
   // Quick escape if cache is up-to-date
   if (hmorph_sentry_.good() && vmorph_sentry_.good()) return;
 
-  if (morph_strategy_ == 0) {
-    // FNLOGC(std::cout, veval) << "Morphing strategy 0\n";
-    // FNLOGC(std::cout, veval) << "Number of horizontal morphs: " << hmorphs_.getSize() << "\n";
-    // FNLOGC(std::cout, veval) << "Horizontal morph sentry: " << hmorph_sentry_.good() << "\n";
-    // FNLOGC(std::cout, veval) << "Vertical morph sentry: " << vmorph_sentry_.good() << "\n";
-    // FNLOGC(std::cout, veval) << "single_point,p1,p2: " << global_.single_point << " " << global_.p1 << " " << global_.p2 << "\n";
-    // Figure out what we're doing:
-    //  - singlePoint p1 OR
-    //  - h-morphing between p1 and p2
-    bool step1 = !hmorph_sentry_.good();
-    bool step2 = !vmorph_sentry_.good();
+  // FNLOGC(std::cout, veval) << "Morphing strategy 0\n";
+  // FNLOGC(std::cout, veval) << "Number of horizontal morphs: " << hmorphs_.getSize() << "\n";
+  // FNLOGC(std::cout, veval) << "Horizontal morph sentry: " << hmorph_sentry_.good() << "\n";
+  // FNLOGC(std::cout, veval) << "Vertical morph sentry: " << vmorph_sentry_.good() << "\n";
+  // FNLOGC(std::cout, veval) << "single_point,p1,p2: " << global_.single_point << " " << global_.p1 << " " << global_.p2 << "\n";
+  // Figure out what we're doing:
+  //  - singlePoint p1 OR
+  //  - h-morphing between p1 and p2
+  bool step1 = !hmorph_sentry_.good();
+  bool step2 = !vmorph_sentry_.good();
 
-    if (step1 && hmorphs_.getSize() == 1) {
-      double val = ((RooRealVar*)(hmorphs_.at(0)))->getVal();
-      FNLOGC(std::cout, veval) << "Updating horizontal points...\n";
-      FNLOGC(std::cout, veval) << "Horizontal morph parameter is: " << val << "\n";
-      auto upper = std::lower_bound(hpoints_[0].begin(), hpoints_[0].end(), val);
-      if (upper == hpoints_[0].begin()) {
-        global_.p1 = 0;
+  if (step1 && hmorphs_.getSize() == 1) {
+    double val = ((RooRealVar*)(hmorphs_.at(0)))->getVal();
+    FNLOGC(std::cout, veval) << "Updating horizontal points...\n";
+    FNLOGC(std::cout, veval) << "Horizontal morph parameter is: " << val << "\n";
+    auto upper = std::lower_bound(hpoints_[0].begin(), hpoints_[0].end(), val);
+    if (upper == hpoints_[0].begin()) {
+      global_.p1 = 0;
+      global_.single_point = true;
+    } else if (upper == hpoints_[0].end()) {
+      global_.p1 = hpoints_[0].size() - 1;
+      global_.single_point = true;
+    } else {
+      auto lower = upper;
+      --lower;
+      global_.p1 = lower - hpoints_[0].begin();
+      global_.p2 = upper - hpoints_[0].begin();
+      global_.single_point = false;
+      if (htype_ == HorizontalType::Closest) {
         global_.single_point = true;
-      } else if (upper == hpoints_[0].end()) {
-        global_.p1 = hpoints_[0].size() - 1;
-        global_.single_point = true;
-      } else {
-        auto lower = upper;
-        --lower;
-        global_.p1 = lower - hpoints_[0].begin();
-        global_.p2 = upper - hpoints_[0].begin();
-        global_.single_point = false;
-        if (htype_ == HorizontalType::Closest) {
-          global_.single_point = true;
-          if (fabs(*upper - val) <= fabs(val - *lower)) {
-            global_.p1 = upper - hpoints_[0].begin();
-          } else {
-            global_.p1 = lower - hpoints_[0].begin();
-          }
+        if (fabs(*upper - val) <= fabs(val - *lower)) {
+          global_.p1 = upper - hpoints_[0].begin();
+        } else {
+          global_.p1 = lower - hpoints_[0].begin();
         }
       }
-      FNLOGC(std::cout, veval) << "single_point,p1,p2: " << global_.single_point << " " << global_.p1 << " " << global_.p2 << "\n";
     }
+    FNLOGC(std::cout, veval) << "single_point,p1,p2: " << global_.single_point << " " << global_.p1 << " " << global_.p2 << "\n";
+  }
 
-    if (step1 || step2) {
-      if (mcache_.size() == 0) mcache_.resize(storage_.size());
-    }
+  if (step1 || step2) {
+    if (mcache_.size() == 0) mcache_.resize(storage_.size());
+  }
+
+  if (morph_strategy_ == 0) {
 
     if (step1 && !global_.single_point) {
       FNLOGC(std::cout, veval) << "Checking step 1\n";
@@ -240,21 +257,17 @@ void CMSHistFunc::updateCache() const {
         for (int vi = 0; vi < (v == 0 ? 1 : 2); ++vi) {
           if (htype_ == HorizontalType::Moment) {
             // FNLOGC(std::cout, veval) << "Doing vpoint,vindex = " << v << "\t" << vi << "\n";
-            std::vector<double> means(hpoints_[0].size(), 0.);
-            std::vector<double> sigmas(hpoints_[0].size(), 0.);
-            std::vector<double> slopes(hpoints_[0].size(), 0.);
-            std::vector<double> offsets(hpoints_[0].size(), 0.);
             for (unsigned hi = 0; hi < hpoints_[0].size(); ++hi) {
               // define vec of mean vals
               unsigned idx = getIdx(0, hi, v, vi);
               if (!mcache_[idx].meansig_set) {
                 setMeanSig(mcache_[idx], storage_[idx]);
               }
-              means[hi] = mcache_[idx].mean;
-              sigmas[hi] = mcache_[idx].sigma;
+              global_.means[hi] = mcache_[idx].mean;
+              global_.sigmas[hi] = mcache_[idx].sigma;
             }
-            double M = vectorized::dot_product(means.size(), &means[0], &global_.c_scale[0]);
-            double C = vectorized::dot_product(sigmas.size(), &sigmas[0], &global_.c_scale[0]);
+            double M = vectorized::dot_product(global_.means.size(), &global_.means[0], &global_.c_scale[0]);
+            double C = vectorized::dot_product(global_.sigmas.size(), &global_.sigmas[0], &global_.c_scale[0]);
 
             unsigned cidx = getIdx(0, global_.p1, v, vi);
             // The step1 cache might not have been allocated yet...
@@ -265,8 +278,8 @@ void CMSHistFunc::updateCache() const {
               // We can skip all this if the weight is zero
               if (global_.c_sum[hi] == 0.) continue;
 
-              slopes[hi] = sigmas[hi] / C;
-              offsets[hi] = means[hi] - (M * slopes[hi]);
+              global_.slopes[hi] = global_.sigmas[hi] / C;
+              global_.offsets[hi] = global_.means[hi] - (M * global_.slopes[hi]);
               // if (veval) {
               //   std::cout << hi << "\t" << hpoints_[0][hi]
               //             << "\t mean = " << means[hi]
@@ -278,8 +291,8 @@ void CMSHistFunc::updateCache() const {
 
 
               // TODO: Scope for optimisation here if we know binning is regular?
-              double xl = storage_[idx].GetEdge(0) * slopes[hi] + offsets[hi];
-              int il =  storage_[idx].FindBin(xl);
+              double xl = cache_.GetEdge(0) * global_.slopes[hi] + global_.offsets[hi];
+              int il =  cache_.FindBin(xl);
               double xh = 0.;
               int ih = 0;
               int n = storage_[idx].size();
@@ -290,15 +303,15 @@ void CMSHistFunc::updateCache() const {
 
                 double sum = 0.;
 
-                xh = storage_[idx].GetEdge(ib+1) * slopes[hi] + offsets[hi];
-                ih =  storage_[idx].FindBin(xh);
+                xh = cache_.GetEdge(ib+1) * global_.slopes[hi] + global_.offsets[hi];
+                ih =  cache_.FindBin(xh);
                 // FNLOGC(std::cout, veval) << "Calculating bin " << ib
                 //                          << "\txl = " << xl << "\til = " << il
                 //                          << "\txh = " << xh << "\tih = " << ih
                 //                          << "\n";
 
                 if (il != -1 && il != n && il != ih) {
-                  sum += (storage_[idx].GetEdge(il + 1) - xl) * storage_[idx][il];
+                  sum += (cache_.GetEdge(il + 1) - xl) * storage_[idx][il];
                   // FNLOGC(std::cout, veval)
                   //     << "Adding from lower edge: to boundary = "
                   //     << storage_[idx].GetEdge(il + 1)
@@ -306,7 +319,7 @@ void CMSHistFunc::updateCache() const {
                 }
 
                 for (int step = il + 1; step < ih; ++step) {
-                  sum += storage_[idx].GetWidth(step) * storage_[idx][step];
+                  sum += cache_.GetWidth(step) * storage_[idx][step];
                   // FNLOGC(std::cout, veval)
                   //     << "Adding whole bin: bin = "
                   //     << step
@@ -314,7 +327,7 @@ void CMSHistFunc::updateCache() const {
                 }
                 // Add the fraction of the last bin
                 if (ih != -1 && ih != n && il != ih) {
-                  sum += (xh - storage_[idx].GetEdge(ih)) * storage_[idx][ih];
+                  sum += (xh - cache_.GetEdge(ih)) * storage_[idx][ih];
                   // FNLOGC(std::cout, veval)
                   //     << "Adding to upper edge: from boundary = "
                   //     << storage_[idx].GetEdge(ih)
@@ -329,7 +342,7 @@ void CMSHistFunc::updateCache() const {
                   //     << "\tcontent = " << storage_[idx][il] << "\n";
                 }
 
-                mcache_[cidx].step1[ib] += (global_.c_sum[hi] * sum / storage_[idx].GetWidth(ib));
+                mcache_[cidx].step1[ib] += (global_.c_sum[hi] * sum / cache_.GetWidth(ib));
                 il = ih;
                 xl = xh;
               }
@@ -341,18 +354,18 @@ void CMSHistFunc::updateCache() const {
             unsigned idx1 = getIdx(0, global_.p1, v, vi);
             unsigned idx2 = getIdx(0, global_.p2, v, vi);
             if (!mcache_[idx1].cdf_set) {
-              FNLOGC(std::cout, veval) << "Setting cdf for " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
+              // FNLOGC(std::cout, veval) << "Setting cdf for " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
               setCdf(mcache_[idx1], storage_[idx1]);
             }
             if (!mcache_[idx2].cdf_set) {
-              FNLOGC(std::cout, veval) << "Setting cdf for " << 0 << " " << global_.p2 << " " << v << " " << vi << "\n";
+              // FNLOGC(std::cout, veval) << "Setting cdf for " << 0 << " " << global_.p2 << " " << v << " " << vi << "\n";
               setCdf(mcache_[idx2], storage_[idx2]);
             }
             if (!mcache_[idx1].interp_set) {
-              FNLOGC(std::cout, veval) << "Setting interp for " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
+              // FNLOGC(std::cout, veval) << "Setting interp for " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
               prepareInterpCache(mcache_[idx1], mcache_[idx2]);
             }
-            FNLOGC(std::cout, veval) << "Doing horizontal morph for  " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
+            // FNLOGC(std::cout, veval) << "Doing horizontal morph for  " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
             double x1 = hpoints_[0][global_.p1];
             double x2 = hpoints_[0][global_.p2];
             double y1 = mcache_[idx1].integral;
@@ -360,15 +373,15 @@ void CMSHistFunc::updateCache() const {
             mcache_[idx1].step1 = cdfMorph(idx1, x1, x2, val);
             mcache_[idx1].step1.CropUnderflows();
             double ym = y1 + ((y2 - y1) / (x2 - x1)) * (val - x1);
-            mcache_[idx1].step1.Scale(ym/mcache_[idx1].step1.Integral());
-            if (veval >= 2) {
-              std::cout << "Template left: " << storage_[idx1].Integral() << "\n";
-              storage_[idx1].Dump();
-              std::cout << "Template right: " << storage_[idx2].Integral() << "\n";
-              storage_[idx2].Dump();
-              std::cout << "Template morphed: " << mcache_[idx1].step1.Integral() << "\n";
-              mcache_[idx1].step1.Dump();
-            }
+            mcache_[idx1].step1.Scale(ym / integrateTemplate(mcache_[idx1].step1));
+            // if (veval >= 2) {
+            //   std::cout << "Template left: " << storage_[idx1].Integral() << "\n";
+            //   storage_[idx1].Dump();
+            //   std::cout << "Template right: " << storage_[idx2].Integral() << "\n";
+            //   storage_[idx2].Dump();
+            //   std::cout << "Template morphed: " << mcache_[idx1].step1.Integral() << "\n";
+            //   mcache_[idx1].step1.Dump();
+            // }
           }
         }
 
@@ -411,7 +424,7 @@ void CMSHistFunc::updateCache() const {
           mcache_[idxLo].diff = storage_[idx];
           FastTemplate::SumDiff(hi, lo, mcache_[idxLo].sum, mcache_[idxLo].diff);
           if (veval >= 2) {
-            std::cout << "Template nominal: " << storage_[idx].Integral() << "\n";
+            std::cout << "Template nominal: " << integrateTemplate(storage_[idx]) << "\n";
             storage_[idx].Dump();
           }
         }
@@ -472,24 +485,24 @@ inline double CMSHistFunc::smoothStepFunc(double x) const {
   return 0.125 * xnorm * (xnorm2 * (3. * xnorm2 - 10.) + 15);
 }
 
-void CMSHistFunc::setCdf(Cache& c, FastHisto const& h) const {
+void CMSHistFunc::setCdf(Cache& c, FastTemplate const& h) const {
   c.cdf = FastTemplate(h.size() + 1);
-  c.integral = h.Integral();
+  c.integral = integrateTemplate(h);
   for (unsigned i = 1; i < c.cdf.size(); ++i) {
     c.cdf[i] = h[i - 1] / c.integral + c.cdf[i - 1];
   }
   c.cdf_set = true;
 }
 
-void CMSHistFunc::setMeanSig(Cache& c, FastHisto const& h) const {
+void CMSHistFunc::setMeanSig(Cache& c, FastTemplate const& h) const {
   double iw = 0.;
   double ixw = 0.;
   double ixxw = 0.;
   for (unsigned  i = 0; i < h.size(); ++i) {
-    double x = (h.GetEdge(i + 1) + h.GetEdge(i)) / 2.;
-    iw += h.GetWidth(i) * h[i];
-    ixw += h.GetWidth(i) * h[i] * x;
-    ixxw += h.GetWidth(i) * h[i] * x * x;
+    double x = (cache_.GetEdge(i + 1) + cache_.GetEdge(i)) / 2.;
+    iw += cache_.GetWidth(i) * h[i];
+    ixw += cache_.GetWidth(i) * h[i] * x;
+    ixxw += cache_.GetWidth(i) * h[i] * x * x;
   }
   c.mean = ixw / iw;
   c.sigma = (ixxw / iw) - c.mean * c.mean;
@@ -585,8 +598,8 @@ void CMSHistFunc::prepareInterpCache(Cache& c1,
   // *
   int idebug = 0;
 
-  Int_t ix1l = global_.bedgesn.size() - 1;
-  Int_t ix2l = global_.bedgesn.size() - 1;
+  Int_t ix1l = cache_.size();
+  Int_t ix2l = cache_.size();
   while (c1.cdf[ix1l - 1] >= c1.cdf[ix1l]) {
     ix1l = ix1l - 1;
   }
@@ -837,12 +850,12 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
 
   Cache const& c1 = mcache_[idx];
   // HMorphNewCDFCache const& c2 = mcache_[globalIdx2];
-  std::vector<double> const& bedgesn = global_.bedgesn;
+  // std::vector<double> const& bedgesn = global_.bedgesn;
 
-  int nbn = bedgesn.size() - 1;
-  int nbe = bedgesn.size();
+  int nbn = cache_.size();
+  int nbe = cache_.size() + 1;
 
-  double x  = bedgesn.back();
+  double x  = cache_.GetEdge(nbn);
   int ix = nbn;
 
   int nx3 = c1.y.size();
@@ -863,7 +876,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
       std::cout << "   Setting final bins" << ix << " " << x << " "
                 << sigdisf[ix] << std::endl;
     ix = ix - 1;
-    x = bedgesn[ix];
+    x = cache_.GetEdge(ix);
   }
   Int_t ixl = ix + 1;
   if (idebug >= 1) std::cout << " Now ixl=" << ixl << " ix=" << ix << std::endl;
@@ -877,7 +890,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
   // *
 
   ix = 0;
-  x = bedgesn[ix + 1];
+  x = cache_.GetEdge(ix + 1);
   if (idebug >= 1)
     std::cout << "Start setting initial bins at x=" << x << std::endl;
   while (x <= xdisn[0]) {
@@ -886,7 +899,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
       std::cout << "   Setting initial bins " << ix << " " << x << " "
                 << xdisn[1] << " " << sigdisf[ix] << std::endl;
     ix = ix + 1;
-    x = bedgesn[ix + 1];
+    x = cache_.GetEdge(ix + 1);
   }
   Int_t ixf = ix;
 
@@ -899,7 +912,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
   Int_t ix3 = 0;  // Problems with initial edge!!!
   double y = 0;
   for (ix = ixf; ix < ixl; ix++) {
-    x = bedgesn[ix];
+    x = cache_.GetEdge(ix);
     if (x < xdisn[0]) {
       y = 0;
     } else if (x > xdisn[nx3]) {
@@ -951,6 +964,13 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
 
   return morphedhist;
 }
+
+double CMSHistFunc::integrateTemplate(FastTemplate const& t) const {
+  DefaultAccumulator total = 0;
+  for (unsigned int i = 0; i < t.size(); ++i) total += t[i] * cache_.GetWidth(i);
+  return total.sum();
+}
+
 
 void CMSHistFunc::printMultiline(std::ostream& os, Int_t contents,
                                  Bool_t verbose, TString indent) const {
