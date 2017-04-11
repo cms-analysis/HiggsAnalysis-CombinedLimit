@@ -16,7 +16,7 @@ CMSHistFunc::CMSHistFunc() {
   morph_strategy_ = 0;
   veval = 0;
   initialized_ = false;
-  htype_ = HorizontalType::Closest;
+  htype_ = HorizontalType::Integral;
   mtype_ = MomentSetting::NonLinearPosFractions;
 }
 
@@ -33,7 +33,7 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       morph_strategy_(0),
       veval(0),
       initialized_(false),
-      htype_(HorizontalType::Moment),
+      htype_(HorizontalType::Integral),
       mtype_(MomentSetting::Linear) {
   prepareStorage();  // Prepare storage of size 1 -> the cache_ will be copied in there
   for (unsigned i = 0; i < cache_.size(); ++i) {
@@ -212,18 +212,14 @@ void CMSHistFunc::updateCache() const {
         global_.p1 = lower - hpoints_[0].begin();
         global_.p2 = upper - hpoints_[0].begin();
         global_.single_point = false;
-        // mh_lo_ = lower->first;
-        // mh_hi_ = upper->first;
-        // if (!can_morph_) {
-        //   single_point_ = true;
-        //   if (fabs(upper->first - mh_) <= fabs(mh_ - lower->first)) {
-        //     p1_ = upper->second;
-        //   } else {
-        //     p1_ = lower->second;
-        //   }
-        // } else {
-        //   single_point_ = false;
-        // }
+        if (htype_ == HorizontalType::Closest) {
+          global_.single_point = true;
+          if (fabs(*upper - val) <= fabs(val - *lower)) {
+            global_.p1 = upper - hpoints_[0].begin();
+          } else {
+            global_.p1 = lower - hpoints_[0].begin();
+          }
+        }
       }
       FNLOGC(std::cout, veval) << "single_point,p1,p2: " << global_.single_point << " " << global_.p1 << " " << global_.p2 << "\n";
     }
