@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
   RooRealVar tes("CMS_scale_t_mt_13TeV", "CMS_scale_t_mt_13TeV", 0, -7, 7);
   CMSHistFunc c_ggH("ggH", "ggH", x, *h_ggH140);
 
-  c_ggH.setHorizontalType(CMSHistFunc::HorizontalType::Integral);
+  c_ggH.setHorizontalType(CMSHistFunc::HorizontalType::Moment);
 
   RooRealVar mH("mH", "mH", 150, 140, 180);
   c_ggH.addHorizontalMorph(mH, TVectorD(3, std::vector<double>{140., 160., 180.}.data()));

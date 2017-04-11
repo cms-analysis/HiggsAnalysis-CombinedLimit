@@ -228,168 +228,151 @@ void CMSHistFunc::updateCache() const {
       if (mcache_.size() == 0) mcache_.resize(storage_.size());
     }
 
-    if (step1 && htype_ == HorizontalType::Moment && !global_.single_point) {
+    if (step1 && !global_.single_point) {
       FNLOGC(std::cout, veval) << "Checking step 1\n";
       double val = ((RooRealVar*)(hmorphs_.at(0)))->getVal();
-      updateMomentFractions(val);  // updates fractions in global cache, only depends on hmorph par
+
+      if (htype_ == HorizontalType::Moment) {
+        updateMomentFractions(val);  // updates fractions in global cache, only depends on hmorph par        
+      }
 
       for (int v = 0; v < vmorphs_.getSize() + 1; ++v) {
         for (int vi = 0; vi < (v == 0 ? 1 : 2); ++vi) {
-          // FNLOGC(std::cout, veval) << "Doing vpoint,vindex = " << v << "\t" << vi << "\n";
-          std::vector<double> means(hpoints_[0].size(), 0.);
-          std::vector<double> sigmas(hpoints_[0].size(), 0.);
-          std::vector<double> slopes(hpoints_[0].size(), 0.);
-          std::vector<double> offsets(hpoints_[0].size(), 0.);
-          for (unsigned hi = 0; hi < hpoints_[0].size(); ++hi) {
-            // define vec of mean vals
-            unsigned idx = getIdx(0, hi, v, vi);
-            if (!mcache_[idx].meansig_set) {
-              setMeanSig(mcache_[idx], storage_[idx]);
+          if (htype_ == HorizontalType::Moment) {
+            // FNLOGC(std::cout, veval) << "Doing vpoint,vindex = " << v << "\t" << vi << "\n";
+            std::vector<double> means(hpoints_[0].size(), 0.);
+            std::vector<double> sigmas(hpoints_[0].size(), 0.);
+            std::vector<double> slopes(hpoints_[0].size(), 0.);
+            std::vector<double> offsets(hpoints_[0].size(), 0.);
+            for (unsigned hi = 0; hi < hpoints_[0].size(); ++hi) {
+              // define vec of mean vals
+              unsigned idx = getIdx(0, hi, v, vi);
+              if (!mcache_[idx].meansig_set) {
+                setMeanSig(mcache_[idx], storage_[idx]);
+              }
+              means[hi] = mcache_[idx].mean;
+              sigmas[hi] = mcache_[idx].sigma;
             }
-            means[hi] = mcache_[idx].mean;
-            sigmas[hi] = mcache_[idx].sigma;
+            double M = vectorized::dot_product(means.size(), &means[0], &global_.c_scale[0]);
+            double C = vectorized::dot_product(sigmas.size(), &sigmas[0], &global_.c_scale[0]);
+
+            unsigned cidx = getIdx(0, global_.p1, v, vi);
+            // The step1 cache might not have been allocated yet...
+            mcache_[cidx].step1.Resize(storage_[cidx].size());
+            mcache_[cidx].step1.Clear();
+
+            for (unsigned hi = 0; hi < hpoints_[0].size(); ++hi) {
+              // We can skip all this if the weight is zero
+              if (global_.c_sum[hi] == 0.) continue;
+
+              slopes[hi] = sigmas[hi] / C;
+              offsets[hi] = means[hi] - (M * slopes[hi]);
+              // if (veval) {
+              //   std::cout << hi << "\t" << hpoints_[0][hi]
+              //             << "\t mean = " << means[hi]
+              //             << "\t sigma = " << sigmas[hi]
+              //             << "\t slope = " << slopes[hi]
+              //             << "\t offset = " << offsets[hi] << "\n";
+              // }
+              unsigned idx = getIdx(0, hi, v, vi);
+
+
+              // TODO: Scope for optimisation here if we know binning is regular?
+              double xl = storage_[idx].GetEdge(0) * slopes[hi] + offsets[hi];
+              int il =  storage_[idx].FindBin(xl);
+              double xh = 0.;
+              int ih = 0;
+              int n = storage_[idx].size();
+
+              if (veval) storage_[idx].Dump();
+
+              for (unsigned ib = 0; ib < storage_[idx].size(); ++ib) {
+
+                double sum = 0.;
+
+                xh = storage_[idx].GetEdge(ib+1) * slopes[hi] + offsets[hi];
+                ih =  storage_[idx].FindBin(xh);
+                // FNLOGC(std::cout, veval) << "Calculating bin " << ib
+                //                          << "\txl = " << xl << "\til = " << il
+                //                          << "\txh = " << xh << "\tih = " << ih
+                //                          << "\n";
+
+                if (il != -1 && il != n && il != ih) {
+                  sum += (storage_[idx].GetEdge(il + 1) - xl) * storage_[idx][il];
+                  // FNLOGC(std::cout, veval)
+                  //     << "Adding from lower edge: to boundary = "
+                  //     << storage_[idx].GetEdge(il + 1)
+                  //     << "\tcontent = " << storage_[idx][il] << "\n";
+                }
+
+                for (int step = il + 1; step < ih; ++step) {
+                  sum += storage_[idx].GetWidth(step) * storage_[idx][step];
+                  // FNLOGC(std::cout, veval)
+                  //     << "Adding whole bin: bin = "
+                  //     << step
+                  //     << "\tcontent = " << storage_[idx][step] << "\n";
+                }
+                // Add the fraction of the last bin
+                if (ih != -1 && ih != n && il != ih) {
+                  sum += (xh - storage_[idx].GetEdge(ih)) * storage_[idx][ih];
+                  // FNLOGC(std::cout, veval)
+                  //     << "Adding to upper edge: from boundary = "
+                  //     << storage_[idx].GetEdge(ih)
+                  //     << "\tcontent = " << storage_[idx][ih] << "\n";
+                }
+
+                if (il == ih && il != -1 && il != n) {
+                  sum += (xh - xl) * storage_[idx][il];
+                  // FNLOGC(std::cout, veval)
+                  //     << "Adding partial bin: bin = "
+                  //     << il
+                  //     << "\tcontent = " << storage_[idx][il] << "\n";
+                }
+
+                mcache_[cidx].step1[ib] += (global_.c_sum[hi] * sum / storage_[idx].GetWidth(ib));
+                il = ih;
+                xl = xh;
+              }
+            }
+
+            if (veval) mcache_[cidx].step1.Dump();
           }
-          double M = vectorized::dot_product(means.size(), &means[0], &global_.c_scale[0]);
-          double C = vectorized::dot_product(sigmas.size(), &sigmas[0], &global_.c_scale[0]);
-
-          unsigned cidx = getIdx(0, global_.p1, v, vi);
-          // The step1 cache might not have been allocated yet...
-          mcache_[cidx].step1.Resize(storage_[cidx].size());
-          mcache_[cidx].step1.Clear();
-
-          for (unsigned hi = 0; hi < hpoints_[0].size(); ++hi) {
-            // We can skip all this if the weight is zero
-            if (global_.c_sum[hi] == 0.) continue;
-
-            slopes[hi] = sigmas[hi] / C;
-            offsets[hi] = means[hi] - (M * slopes[hi]);
-            // if (veval) {
-            //   std::cout << hi << "\t" << hpoints_[0][hi]
-            //             << "\t mean = " << means[hi]
-            //             << "\t sigma = " << sigmas[hi]
-            //             << "\t slope = " << slopes[hi]
-            //             << "\t offset = " << offsets[hi] << "\n";
-            // }
-            unsigned idx = getIdx(0, hi, v, vi);
-
-
-            // TODO: Scope for optimisation here if we know binning is regular?
-            double xl = storage_[idx].GetEdge(0) * slopes[hi] + offsets[hi];
-            int il =  storage_[idx].FindBin(xl);
-            double xh = 0.;
-            int ih = 0;
-            int n = storage_[idx].size();
-
-            if (veval) storage_[idx].Dump();
-
-            for (unsigned ib = 0; ib < storage_[idx].size(); ++ib) {
-
-              double sum = 0.;
-
-              xh = storage_[idx].GetEdge(ib+1) * slopes[hi] + offsets[hi];
-              ih =  storage_[idx].FindBin(xh);
-              // FNLOGC(std::cout, veval) << "Calculating bin " << ib
-              //                          << "\txl = " << xl << "\til = " << il
-              //                          << "\txh = " << xh << "\tih = " << ih
-              //                          << "\n";
-
-              if (il != -1 && il != n && il != ih) {
-                sum += (storage_[idx].GetEdge(il + 1) - xl) * storage_[idx][il];
-                // FNLOGC(std::cout, veval)
-                //     << "Adding from lower edge: to boundary = "
-                //     << storage_[idx].GetEdge(il + 1)
-                //     << "\tcontent = " << storage_[idx][il] << "\n";
-              }
-
-              for (int step = il + 1; step < ih; ++step) {
-                sum += storage_[idx].GetWidth(step) * storage_[idx][step];
-                // FNLOGC(std::cout, veval)
-                //     << "Adding whole bin: bin = "
-                //     << step
-                //     << "\tcontent = " << storage_[idx][step] << "\n";
-              }
-              // Add the fraction of the last bin
-              if (ih != -1 && ih != n && il != ih) {
-                sum += (xh - storage_[idx].GetEdge(ih)) * storage_[idx][ih];
-                // FNLOGC(std::cout, veval)
-                //     << "Adding to upper edge: from boundary = "
-                //     << storage_[idx].GetEdge(ih)
-                //     << "\tcontent = " << storage_[idx][ih] << "\n";
-              }
-
-              if (il == ih && il != -1 && il != n) {
-                sum += (xh - xl) * storage_[idx][il];
-                // FNLOGC(std::cout, veval)
-                //     << "Adding partial bin: bin = "
-                //     << il
-                //     << "\tcontent = " << storage_[idx][il] << "\n";
-              }
-
-              mcache_[cidx].step1[ib] += (global_.c_sum[hi] * sum / storage_[idx].GetWidth(ib));
-              il = ih;
-              xl = xh;
+          if (htype_ == HorizontalType::Integral) {
+            unsigned idx1 = getIdx(0, global_.p1, v, vi);
+            unsigned idx2 = getIdx(0, global_.p2, v, vi);
+            if (!mcache_[idx1].cdf_set) {
+              FNLOGC(std::cout, veval) << "Setting cdf for " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
+              setCdf(mcache_[idx1], storage_[idx1]);
+            }
+            if (!mcache_[idx2].cdf_set) {
+              FNLOGC(std::cout, veval) << "Setting cdf for " << 0 << " " << global_.p2 << " " << v << " " << vi << "\n";
+              setCdf(mcache_[idx2], storage_[idx2]);
+            }
+            if (!mcache_[idx1].interp_set) {
+              FNLOGC(std::cout, veval) << "Setting interp for " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
+              prepareInterpCache(mcache_[idx1], mcache_[idx2]);
+            }
+            FNLOGC(std::cout, veval) << "Doing horizontal morph for  " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
+            double x1 = hpoints_[0][global_.p1];
+            double x2 = hpoints_[0][global_.p2];
+            double y1 = mcache_[idx1].integral;
+            double y2 = mcache_[idx2].integral;
+            mcache_[idx1].step1 = cdfMorph(idx1, x1, x2, val);
+            mcache_[idx1].step1.CropUnderflows();
+            double ym = y1 + ((y2 - y1) / (x2 - x1)) * (val - x1);
+            mcache_[idx1].step1.Scale(ym/mcache_[idx1].step1.Integral());
+            if (veval >= 2) {
+              std::cout << "Template left: " << storage_[idx1].Integral() << "\n";
+              storage_[idx1].Dump();
+              std::cout << "Template right: " << storage_[idx2].Integral() << "\n";
+              storage_[idx2].Dump();
+              std::cout << "Template morphed: " << mcache_[idx1].step1.Integral() << "\n";
+              mcache_[idx1].step1.Dump();
             }
           }
-
-          if (veval) mcache_[cidx].step1.Dump();
         }
 
         // This next block is identical to the Integral morphing, so should make it common code
-        if (v >= 1) {
-          FNLOGC(std::cout, veval) << "Setting sumdiff for vmorph " << v << "\n";
-          unsigned idx = getIdx(0, global_.p1, 0, 0);
-          unsigned idxLo = getIdx(0, global_.p1, v, 0);
-          unsigned idxHi = getIdx(0, global_.p1, v, 1);
-          FastTemplate lo = mcache_[idxLo].step1;
-          FastTemplate hi = mcache_[idxHi].step1;
-          hi.Subtract(mcache_[idx].step1);
-          lo.Subtract(mcache_[idx].step1);
-          // TODO: could skip the next two lines if .sum and .diff have been set before
-          mcache_[idxLo].sum = mcache_[idx].step1;
-          mcache_[idxLo].diff = mcache_[idx].step1;
-          FastTemplate::SumDiff(hi, lo, mcache_[idxLo].sum, mcache_[idxLo].diff);
-        }
-      }
-      hmorph_sentry_.reset();
-    }
-
-    if (step1 && htype_ == HorizontalType::Integral && !global_.single_point) {
-      FNLOGC(std::cout, veval) << "Checking step 1\n";
-      for (int v = 0; v < vmorphs_.getSize() + 1; ++v) {
-        for (int vi = 0; vi < (v == 0 ? 1 : 2); ++vi) {
-          unsigned idx1 = getIdx(0, global_.p1, v, vi);
-          unsigned idx2 = getIdx(0, global_.p2, v, vi);
-          if (!mcache_[idx1].cdf_set) {
-            FNLOGC(std::cout, veval) << "Setting cdf for " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
-            setCdf(mcache_[idx1], storage_[idx1]);
-          }
-          if (!mcache_[idx2].cdf_set) {
-            FNLOGC(std::cout, veval) << "Setting cdf for " << 0 << " " << global_.p2 << " " << v << " " << vi << "\n";
-            setCdf(mcache_[idx2], storage_[idx2]);
-          }
-          if (!mcache_[idx1].interp_set) {
-            FNLOGC(std::cout, veval) << "Setting interp for " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
-            prepareInterpCache(mcache_[idx1], mcache_[idx2]);
-          }
-          FNLOGC(std::cout, veval) << "Doing horizontal morph for  " << 0 << " " << global_.p1 << " " << v << " " << vi << "\n";
-          double val = ((RooRealVar*)(hmorphs_.at(0)))->getVal();
-          double x1 = hpoints_[0][global_.p1];
-          double x2 = hpoints_[0][global_.p2];
-          double y1 = mcache_[idx1].integral;
-          double y2 = mcache_[idx2].integral;
-          mcache_[idx1].step1 = cdfMorph(idx1, x1, x2, val);
-          mcache_[idx1].step1.CropUnderflows();
-          double ym = y1 + ((y2 - y1) / (x2 - x1)) * (val - x1);
-          mcache_[idx1].step1.Scale(ym/mcache_[idx1].step1.Integral());
-          if (veval >= 2) {
-            std::cout << "Template left: " << storage_[idx1].Integral() << "\n";
-            storage_[idx1].Dump();
-            std::cout << "Template right: " << storage_[idx2].Integral() << "\n";
-            storage_[idx2].Dump();
-            std::cout << "Template morphed: " << mcache_[idx1].step1.Integral() << "\n";
-            mcache_[idx1].step1.Dump();
-          }
-        }
         if (v >= 1) {
           FNLOGC(std::cout, veval) << "Setting sumdiff for vmorph " << v << "\n";
           unsigned idx = getIdx(0, global_.p1, 0, 0);
