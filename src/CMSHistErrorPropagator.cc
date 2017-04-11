@@ -404,6 +404,7 @@ Double_t CMSHistErrorPropagator::evaluate() const {
 void CMSHistErrorPropagator::printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
                     TString indent) const {
   RooAbsReal::printMultiline(os, contents, verbose, indent);
+  updateCache();
   if (bintypes_.size()) {
     std::cout << ">> Bin types are:\n";
     for (unsigned j = 0; j < bintypes_.size(); ++j) {
@@ -447,7 +448,7 @@ Double_t CMSHistErrorPropagator::analyticalIntegral(Int_t code,
 void CMSHistErrorPropagator::setData(RooAbsData const& data) const {
   updateCache(1);
   data_.clear();
-  data_.resize(cache_.size(), 0.);
+  data_.resize(cache_.fullsize(), 0.); // fullsize is important here is we've used activeBins
   RooArgSet obs(x_.arg());
   const RooRealVar& x = static_cast<const RooRealVar&>(*obs.first());
   for (int i = 0, n = data.numEntries(); i < n; ++i) {

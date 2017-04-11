@@ -509,6 +509,10 @@ class ShapeBuilder(ModelBuilder):
                                 renormHi.Scale(rebins[0].Integral() / renormHi.Integral())
                             rhp.setShape(0, 0, i+1, 0, renormLo)
                             rhp.setShape(0, 0, i+1, 1, renormHi)
+                    if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
+                        #print "Optimizing binning: %d -> %d for %s " % (self.out.maxbins, maxbins, rhp.GetName())
+                        rhp.setActiveBins(maxbins)
+
                 else:
                     rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins, coeffs, qrange, qalgo)
                     if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
@@ -649,6 +653,8 @@ class ShapeBuilder(ModelBuilder):
                         rhp = ROOT.CMSHistFunc("%sPdf" % shape.GetName(), "", self.out.binVar, shape)
                         rhp.prepareStorage()
                         rhp.setShape(0, 0, 0, 0, shape)
+                        if self.options.optimizeTemplateBins:
+                            rhp.setActiveBins(shape._original_bins)
                     else:
                         rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
                     _cache[shape.GetName()+"Pdf"] = rhp

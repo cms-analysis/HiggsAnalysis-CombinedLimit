@@ -73,6 +73,12 @@ void CMSHistFunc::initialize() const {
   hmorph_sentry_.setValueDirty();
   vmorph_sentry_.setValueDirty();
 
+  setGlobalCache();
+
+  initialized_ = true;
+}
+
+void CMSHistFunc::setGlobalCache() const {
   unsigned n_hpoints = 1;
   if (hmorphs_.getSize() == 1) {
     n_hpoints = hpoints_[0].size();
@@ -85,7 +91,6 @@ void CMSHistFunc::initialize() const {
     // RooMomentMorph.cxx
     TVectorD dm(n_hpoints);
     global_.m.ResizeTo(n_hpoints, n_hpoints);
-    // global_.m = TMatrixD(n_hpoints, n_hpoints);
     TMatrixD M(n_hpoints, n_hpoints);
 
     for (unsigned i = 0; i < hpoints_[0].size(); ++i) {
@@ -104,8 +109,18 @@ void CMSHistFunc::initialize() const {
     global_.c_sum.resize(hpoints_[0].size(), 0.);
     // End
   }
-  initialized_ = true;
 }
+
+void CMSHistFunc::setActiveBins(unsigned bins) {
+  // std::cout << "Setting active bins of " << this->GetName() << " to " << bins << "\n";
+  cache_.SetActiveSize(bins);
+  for (unsigned i = 0; i < storage_.size(); ++i) {
+    storage_[i].SetActiveSize(bins);
+  }
+  resetCaches();
+  setGlobalCache();
+}
+
 
 void CMSHistFunc::resetCaches() {
   mcache_.clear();

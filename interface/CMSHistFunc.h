@@ -84,6 +84,8 @@ class CMSHistFunc : public RooAbsReal {
 
   void prepareStorage();
 
+  void setActiveBins(unsigned bins);
+
   void setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
                 unsigned vpoint, TH1 const& hist);
 
@@ -155,6 +157,7 @@ class CMSHistFunc : public RooAbsReal {
 
  private:
   void initialize() const;
+  void setGlobalCache() const;
 
   void resetCaches();
 
