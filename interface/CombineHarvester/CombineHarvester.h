@@ -409,6 +409,14 @@ class CombineHarvester {
   void InsertObservation(ch::Observation const& obs);
   void InsertProcess(ch::Process const& proc);
   void InsertSystematic(ch::Systematic const& sys);
+
+  /**
+   * Rename a systematic from 'old_name' to 'new_name' and add a parameter
+   * 'new_name' to CH instance 'target' if that parameter doesn't exist yet. 
+   * Usage similar to AddSyst()
+   */
+  void RenameSystematic(CombineHarvester& target, std::string const& old_name, std::string const& new_name);
+
   void CreateParameterIfEmpty(std::string const& name);
 
   /**
