@@ -9,7 +9,7 @@
 #include <RooSimultaneous.h>
 #include <RooStats/ModelConfig.h>
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"

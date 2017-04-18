@@ -41,7 +41,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/BestFitSigmaTestStat.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 
@@ -88,8 +88,8 @@ bool HybridNew::newToyMCSampler_        = true;
 bool HybridNew::rMinSet_                = false; 
 bool HybridNew::rMaxSet_                = false; 
 std::string HybridNew::plot_;
-std::string HybridNew::minimizerAlgo_ = "Minuit2";
-float       HybridNew::minimizerTolerance_ = 1e-2;
+//std::string HybridNew::minimizerAlgo_ = "Minuit2";
+//float       HybridNew::minimizerTolerance_ = 1e-2;
 float       HybridNew::adaptiveToys_ = -1;
 bool        HybridNew::reportPVal_ = false;
 float HybridNew::confidenceToleranceForToyScaling_ = 0.2;
@@ -130,8 +130,8 @@ LimitAlgo("HybridNew specific options") {
                                    "Use optimized test statistics if the likelihood is not extended (works for LEP and TEV test statistics).")
         ("optimizeProductPdf",     boost::program_options::value<bool>(&optimizeProductPdf_)->default_value(optimizeProductPdf_),      
                                    "Optimize the code factorizing pdfs")
-        ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
-        ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
+        //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
+        //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("plot",   boost::program_options::value<std::string>(&plot_), "Save a plot of the result (test statistics distributions or limit scan)")
         ("frequentist", "Shortcut to switch to Frequentist mode (--generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1)")
         ("newToyMCSampler", boost::program_options::value<bool>(&newToyMCSampler_)->default_value(newToyMCSampler_), "Use new ToyMC sampler with support for mixed binned-unbinned generation. On by default, you can turn it off if it doesn't work for your workspace.")
@@ -273,7 +273,11 @@ void HybridNew::setupPOI(RooStats::ModelConfig *mc_s) {
 
 bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
-    ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
+
+    double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
+    std::string minimizerAlgo_       = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
+
+    Significance::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
     perf_totalToysRun_ = 0; // reset performance counter
     if (rValues_.getSize() == 0) setupPOI(mc_s);
     switch (workingMode_) {
@@ -1110,6 +1114,9 @@ std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, 
 
 std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, double rVal) 
 {
+
+    double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
+
     if (testStat_ == "LHCFC") {
         RooStats::SamplingDistribution * bDistribution = hcres.GetNullDistribution(), * sDistribution = hcres.GetAltDistribution();
         const std::vector<Double_t> & bdist   = bDistribution->GetSamplingDistribution();
@@ -1534,6 +1541,7 @@ void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
 void HybridNew::updateGridDataFC(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool smart, double clsTarget_) {
     typedef std::map<double, RooStats::HypoTestResult *>::iterator point;
     std::vector<Double_t> rToUpdate; std::vector<point> pointToUpdate;
+    double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
     for (point it = grid_.begin(), ed = grid_.end(); it != ed; ++it) {
         it->second->ResetBit(1);
         if (it->first == 0 || fabs(it->second->GetTestStatisticData()) <= 2*minimizerTolerance_) {

@@ -9,7 +9,7 @@
  *
  */
 #include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
 class RooFitResult;
 class RooMinimizer;
 class RooCmdArg;

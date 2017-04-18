@@ -11,7 +11,7 @@
 #include <string>
 #include <stdexcept>
 #include <boost/program_options.hpp>
-#include "../interface/ProfileLikelihood.h"
+#include "../interface/Significance.h"
 #include "../interface/HybridNew.h"
 #include "../interface/BayesianFlatPrior.h"
 #include "../interface/BayesianToyMC.h"
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   Combine combiner;
 
   map<string, LimitAlgo *> methods;
-  algo = new ProfileLikelihood(); methods.insert(make_pair(algo->name(), algo));
+  algo = new Significance(); methods.insert(make_pair(algo->name(), algo));
   algo = new BayesianFlatPrior(); methods.insert(make_pair(algo->name(), algo));
   algo = new BayesianToyMC(); methods.insert(make_pair(algo->name(), algo));
   algo = new MarkovChainMC();  methods.insert(make_pair(algo->name(), algo));
@@ -143,6 +143,7 @@ int main(int argc, char **argv) {
   std::map<std::string,std::string> renames ;
   renames["MaxLikelihoodFit"] 	= "FitDiagnostics";
   renames["Asymptotic"] 	= "AsymptoticLimits";
+  renames["ProfileLikelihood"] 	= "Significance";
   map<string, string >::const_iterator it_rename = renames.find(whichMethod);
   if ( it_rename != renames.end())  { 
     cout << " WARNING --  From combine v7, method " << whichMethod << " has been renamed to " << it_rename->second  << endl;

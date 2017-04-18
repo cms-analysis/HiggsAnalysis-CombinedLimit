@@ -21,7 +21,7 @@
 #include "TFile.h"
 #include <RooStats/ModelConfig.h>
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"

@@ -21,7 +21,7 @@
 #include "TFile.h"
 #include <RooStats/ModelConfig.h>
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
@@ -98,7 +98,7 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
 }
 
 bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
-  //ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
+  //Significance::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
   CloseCoutSentry sentry(verbose < 0);
 
   static bool shouldCreateNLLBranch = saveNLL_;
@@ -332,7 +332,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     if (runtimedef::get("FITTER_NEW_CROSSING_ALGO")) {
         return findCrossingNew(minim, nll, r, level, rStart, rBound);
     }
-    ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
+    Significance::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
     if (verbose) std::cout << "Searching for crossing at nll = " << level << " in the interval " << rStart << ", " << rBound << std::endl; 
     double rInc = stepSize_*(rBound - rStart);
     r.setVal(rStart); 
@@ -437,7 +437,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
 }
 
 double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) {
-    ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
+    Significance::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
     CloseCoutSentry sentry(verbose < 3);    
 
     if (verbose) fprintf(sentry.trueStdOut(), "Searching for crossing at nll = %g in the interval [ %g , %g ]\n", level, rStart, rBound);

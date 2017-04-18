@@ -1,6 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
@@ -73,7 +73,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
       double tol = std::max(approxPreFitTolerance_, 10. * nominalTol);
       do {
         if (verbose > 1) std::cout << "Running pre-fit with " << nominalType << "," << nominalAlgo << " and tolerance " << tol << std::endl;
-        ProfileLikelihood::MinimizerSentry minimizerConfig(nominalType+","+nominalAlgo, tol);
+        Significance::MinimizerSentry minimizerConfig(nominalType+","+nominalAlgo, tol);
         minimizer_->setEps(tol);
         minimizer_->setStrategy(approxPreFitStrategy_);
         improveOnce(verbose-1, true);
@@ -88,7 +88,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
         int         nominalStrat(strategy_);
         if (verbose > 0) std::cerr << "Failed minimization with " << nominalType << "," << nominalAlgo << " and tolerance " << nominalTol << std::endl;
         for (std::vector<Algo>::const_iterator it = fallbacks_.begin(), ed = fallbacks_.end(); it != ed; ++it) {
-            ProfileLikelihood::MinimizerSentry minimizerConfig(it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol);
+            Significance::MinimizerSentry minimizerConfig(it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol);
             int myStrategy = it->strategy; if (myStrategy == Algo::default_strategy()) myStrategy = nominalStrat;
             if (nominalType != ROOT::Math::MinimizerOptions::DefaultMinimizerType() ||
                 nominalAlgo != ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo() ||

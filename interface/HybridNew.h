@@ -61,8 +61,8 @@ private:
   static std::string algo_;
   static std::string mode_;
   static std::string plot_;
-  static std::string minimizerAlgo_;
-  static float       minimizerTolerance_;
+//  static std::string minimizerAlgo_;
+//  static float       minimizerTolerance_;
 
   static bool optimizeProductPdf_;
   static bool optimizeTestStatistics_;

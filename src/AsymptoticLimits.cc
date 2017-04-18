@@ -14,7 +14,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
