@@ -27,9 +27,9 @@
 using namespace RooStats;
 using namespace std;
 
-std::string ProfileLikelihood::minimizerAlgo_ = "Minuit2";
+//std::string ProfileLikelihood::minimizerAlgo_ = "Minuit2";
 std::string ProfileLikelihood::minimizerAlgoForBF_ = "Minuit2,simplex";
-float       ProfileLikelihood::minimizerTolerance_ = 1e-2;
+//float       ProfileLikelihood::minimizerTolerance_ = 1e-2;
 float       ProfileLikelihood::minimizerToleranceForBF_ = 1e-4;
 int         ProfileLikelihood::tries_ = 1;
 int         ProfileLikelihood::maxTries_ = 1;
@@ -51,8 +51,8 @@ ProfileLikelihood::ProfileLikelihood() :
     LimitAlgo("Profile Likelihood specific options")
 {
     options_.add_options()
-        ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
-        ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
+        //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
+        //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
         ("tries",              boost::program_options::value<int>(&tries_)->default_value(tries_), "Compute PL limit N times, to check for numerical instabilities")
         ("maxTries",           boost::program_options::value<int>(&maxTries_)->default_value(maxTries_), "Stop trying after N attempts per point")
         ("maxRelDeviation",    boost::program_options::value<float>(&maxRelDeviation_)->default_value(maxOutlierFraction_), "Max absolute deviation of the results from the median")
@@ -81,6 +81,7 @@ void ProfileLikelihood::applyOptions(const boost::program_options::variables_map
     bruteForce_ = vm.count("bruteForce");
     reportPVal_ = vm.count("pvalue");
     mass_ = vm["mass"].as<float>();
+
 }
 
 ProfileLikelihood::MinimizerSentry::MinimizerSentry(const std::string &minimizerAlgo, double tolerance) :
@@ -107,9 +108,10 @@ ProfileLikelihood::MinimizerSentry::~MinimizerSentry()
 }
 
 bool ProfileLikelihood::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
-  MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
+  //MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
   CloseCoutSentry sentry(verbose < 0);
-
+ 
+  double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
   bool success = false;
   std::vector<double> limits; double rMax = r->getMax();  
@@ -188,6 +190,8 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   bool success = false;
   CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
 
+  double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
+
   while (!success) {
     ProfileLikelihoodCalculator plcB(data, *mc_s, 1.0-cl);
     std::auto_ptr<LikelihoodInterval> plInterval;
@@ -252,6 +256,7 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
   plcS.SetNullParameters(nullParamValues);
 
   CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
+  double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
 
   if (bruteForce_) {
       double q0 = -1;
@@ -547,7 +552,7 @@ double ProfileLikelihood::significanceFromScan(RooAbsPdf &pdf, RooAbsData &data,
     double ret = (maxnll - minnll);
     TFitResultPtr res;
     {
-        MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
+        //MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
         res = points->Fit(fit,"S0");
     }
     outputFile->WriteTObject(points);
