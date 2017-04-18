@@ -113,7 +113,7 @@ Combine::Combine() :
       ("setPhysicsModelParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")      
       ("defineBackgroundOnlyModelParameters", po::value<string>(&defineBackgroundOnlyModelParameterExpression_)->default_value(""), "If no background only (null) model is explicitly provided in physics model, one will be defined as these values of the POIs (default is r=0)")      
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
-      ("freezeNuisances", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these nuisance parameters.")      
+      ("freezeParameters", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these parameters.")      
       ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
       ;
     ioOptions_.add_options()
