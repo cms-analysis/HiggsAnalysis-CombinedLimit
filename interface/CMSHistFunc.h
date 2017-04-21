@@ -123,8 +123,8 @@ class CMSHistFunc : public RooAbsReal {
 
   inline void setEvalVerbose(unsigned val) { veval = val; };
 
-  inline FastTemplate const& getBinErrors() const { return binerrors_; }
-  inline FastHisto const& getCacheHisto() const { return cache_; }
+  inline FastTemplate const& errors() const { return binerrors_; }
+  inline FastHisto const& cache() const { return rebin_ ? rebin_cache_ : cache_; }
 
   friend class CMSHistV<CMSHistFunc>;
 
@@ -145,6 +145,7 @@ class CMSHistFunc : public RooAbsReal {
   mutable SimpleCacheSentry hmorph_sentry_;  //! not to be serialized
 
   mutable FastHisto cache_;
+  mutable FastHisto rebin_cache_;
   FastTemplate binerrors_;
   std::vector<FastTemplate> storage_;
 
@@ -154,7 +155,8 @@ class CMSHistFunc : public RooAbsReal {
   unsigned morph_strategy_;
   int veval;
   mutable bool initialized_; //! not to be serialized
-
+  bool rebin_;
+  std::vector<unsigned> rebin_scheme_;
   HorizontalType htype_;
   MomentSetting mtype_;
 
@@ -181,6 +183,8 @@ class CMSHistFunc : public RooAbsReal {
                         double parinterp) const;
 
   double integrateTemplate(FastTemplate const& t) const;
+
+  void applyRebin() const;
 
   ClassDef(CMSHistFunc, 1)
 };

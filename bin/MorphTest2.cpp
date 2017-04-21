@@ -13,9 +13,25 @@
 #include "HiggsAnalysis/CombinedLimit/interface/th1fmorph.h"
 #include "TRandom3.h"
 #include "TVector.h"
+#include "RooBinning.h"
 namespace po = boost::program_options;
 
 using namespace std;
+
+RooRealVar VarFromHist(TString name, TString title, TH1 const& hist) {
+  RooBinning * binning;
+  if (hist.GetXaxis()->GetXbins()) {
+    binning = new RooBinning(hist.GetNbinsX(), hist.GetXaxis()->GetXbins()->GetArray());
+  } else {
+    binning = new RooBinning(hist.GetNbinsX(), hist.GetXaxis()->GetXmin(), hist.GetXaxis()->GetXmax());
+  }
+  RooRealVar x(name, title, hist.GetXaxis()->GetXmin(), hist.GetXaxis()->GetXmax());
+  // x.getBinning().Print();
+  x.setBinning(*binning);
+  delete binning;
+  return x;
+}
+
 
 int main(int argc, char* argv[]) {
   RooWorkspace wsp("test");
@@ -74,7 +90,8 @@ int main(int argc, char* argv[]) {
   // RooMsgService::instance().addStream(RooFit::MsgLevel::DEBUG);
   // RooAbsArg::verboseDirty(true);
   {
-    RooRealVar x("x", "x", h_ZTT->GetXaxis()->GetXmin(), h_ZTT->GetXaxis()->GetXmax());
+    RooRealVar x = VarFromHist("x", "x", *h_ZTT);
+
     RooRealVar tes("CMS_scale_t_mt_13TeV", "CMS_scale_t_mt_13TeV", 0, -7, 7);
     CMSHistFunc c_ZTT("ZTT", "ZTT", x, *h_ZTT);
     RooArgList binparsx;

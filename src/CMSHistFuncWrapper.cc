@@ -25,7 +25,7 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(const char* name, const char* title, RooR
       perr_(nullptr),
       v(0),
       initialized_(false) {
-  cache_ = func.getCacheHisto();
+  cache_ = func.cache();
 }
 
 CMSHistFuncWrapper::CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const char* name)
@@ -70,11 +70,11 @@ void CMSHistFuncWrapper::updateCache() const {
 
   // The ErrorPropagator will send a dirty flag whenever we need to update the cache
   if (!sentry_.good()) {
-    perr_->applyErrorShifts(idx_, pfunc_->getCacheHisto(), cache_);
+    perr_->applyErrorShifts(idx_, pfunc_->cache(), cache_);
     cache_.CropUnderflows();
     // if (v > 1) {
     //   FNLOG(std::cout) << "Updated cache from CMSHistFunc:\n";
-    //   pfunc_->getCacheHisto().Dump();
+    //   pfunc_->cache().Dump();
     //   FNLOG(std::cout) << "After shifts and cropping:\n";
     //   cache_.Dump();
     // }

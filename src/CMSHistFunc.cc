@@ -20,6 +20,7 @@ CMSHistFunc::CMSHistFunc() {
   htype_ = HorizontalType::Integral;
   mtype_ = MomentSetting::NonLinearPosFractions;
   divide_by_width_ = true;
+  rebin_ = false;
 }
 
 CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
@@ -35,6 +36,7 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       morph_strategy_(0),
       veval(0),
       initialized_(false),
+      rebin_(false),
       htype_(HorizontalType::Integral),
       mtype_(MomentSetting::Linear),
       divide_by_width_(divide_by_width) {
@@ -48,6 +50,38 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
     binerrors_[i] = hist.GetBinError(i + 1);
     if (divide_by_width_) {
       binerrors_[i] /= cache_.GetWidth(i);
+    }
+  }
+
+  if (x.getBins() < int(cache_.size()) &&
+      std::fabs(x.getMin() - cache_.GetEdge(0)) < 1E-7 &&
+      std::fabs(x.getMax() - cache_.GetEdge(cache_.size())) < 1E-7) {
+    std::cout << "[" << this->GetName()
+              << "]: histogram binning is finer than observable binning, auto "
+                 "rebinning will be enabled\n";
+    rebin_ = true;
+    TH1F tmp("tmp", "", x.getBins(), x.getBinning().array());
+    tmp.SetDirectory(0);
+    rebin_cache_ = FastHisto(tmp);
+    for (unsigned i = 0; i < cache_.size(); ++i) {
+      unsigned target_bin = rebin_cache_.FindBin((cache_.GetEdge(i) + cache_.GetEdge(i+1)) / 2.);
+      // std::cout << "Rebin: " << i << " [" << cache_.GetEdge(i) << ","
+      //           << cache_.GetEdge(i + 1) << "] --> " << target_bin << " ["
+      //           << rebin_cache_.GetEdge(target_bin) << ","
+      //           << rebin_cache_.GetEdge(target_bin + 1) << "]\n";
+      rebin_scheme_.push_back(target_bin);
+    }
+    applyRebin();
+    binerrors_ = FastTemplate(rebin_cache_.size());
+    binerrors_.Clear();
+    for (unsigned i = 0; i < cache_.size(); ++i) {
+      binerrors_[rebin_scheme_[i]] += std::pow(hist.GetBinError(i + 1), 2.);
+    }
+    for (unsigned i = 0; i < rebin_cache_.size(); ++i) {
+      binerrors_[i] = std::sqrt(binerrors_[i]);
+      if (divide_by_width_) {
+        binerrors_[i] /= rebin_cache_.GetWidth(i);
+      }
     }
   }
 }
@@ -65,11 +99,14 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
                           : TString(other.hmorph_sentry_.GetName()),
                      ""),
       cache_(other.cache_),
+      rebin_cache_(other.rebin_cache_),
       binerrors_(other.binerrors_),
       storage_(other.storage_),
       morph_strategy_(other.morph_strategy_),
       veval(other.veval),
       initialized_(false),
+      rebin_(other.rebin_),
+      rebin_scheme_(other.rebin_scheme_),
       htype_(other.htype_),
       mtype_(other.mtype_) {
   // initialize();
@@ -208,7 +245,7 @@ void CMSHistFunc::updateCache() const {
   //  - singlePoint p1 OR
   //  - h-morphing between p1 and p2
   bool step1 = !hmorph_sentry_.good();
-  bool step2 = !vmorph_sentry_.good();
+  bool step2 = step1 || !vmorph_sentry_.good();
 
   if (step1 && hmorphs_.getSize() == 1) {
     double val = ((RooRealVar*)(hmorphs_.at(0)))->getVal();
@@ -462,13 +499,27 @@ void CMSHistFunc::updateCache() const {
       vmorph_sentry_.reset();
     }
   }
+
+  if (rebin_ && (step1 || step2)) applyRebin();
 }
+
+
+void CMSHistFunc::applyRebin() const {
+  rebin_cache_.Clear();
+  for (unsigned i = 0; i < cache_.size(); ++i) {
+    rebin_cache_[rebin_scheme_[i]] += (cache_[i] * cache_.GetWidth(i));
+  }
+  for (unsigned i = 0; i < rebin_cache_.size(); ++i) {
+    rebin_cache_[i] /= rebin_cache_.GetWidth(i);
+  }
+}
+
 
 Double_t CMSHistFunc::evaluate() const {
   // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
   updateCache();
 
-  return cache_.GetAt(x_);
+  return cache().GetAt(x_);
 }
 
 unsigned CMSHistFunc::getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
@@ -775,22 +826,8 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
                                  double parinterp) const {
   unsigned idebug = 0;
 
-  // Extract bin parameters of input histograms 1 and 2.
-  // Supports the cases of non-equidistant as well as equidistant binning
-  // and also the case that binning of histograms 1 and 2 is different.
- // TArrayD *bedgesn = new TArrayD(cache_.size() + 1);
- // for (int i = 0; i < bedgesn->GetSize(); ++i) {
- //  (*bedgesn)[i] = cache_.GetEdge(i);
- // }
-
-  // ......The weights (wt1,wt2) are the complements of the "distances" between
-  //       the values of the parameters at the histograms and the desired
-  //       interpolation point. For example, wt1=0, wt2=1 means that the
-  //       interpolated histogram should be identical to input histogram 2.
-  //       Check that they make sense. If par1=par2 then we can choose any
-  //       valid set of wt1,wt2 so why not take the average?
-
-  Double_t wt1, wt2;
+  double wt1;
+  double wt2;
   if (par2 != par1) {
     wt1 = 1. - (parinterp - par1) / (par2 - par1);
     wt2 = 1. + (parinterp - par2) / (par2 - par1);
@@ -849,8 +886,6 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
   // *      of the final edge.
 
   Cache const& c1 = mcache_[idx];
-  // HMorphNewCDFCache const& c2 = mcache_[globalIdx2];
-  // std::vector<double> const& bedgesn = global_.bedgesn;
 
   int nbn = cache_.size();
   int nbe = cache_.size() + 1;
@@ -976,7 +1011,7 @@ void CMSHistFunc::printMultiline(std::ostream& os, Int_t contents,
                                  Bool_t verbose, TString indent) const {
   RooAbsReal::printMultiline(os, contents, verbose, indent);
   std::cout << ">> Current cache:\n";
-  cache_.Dump();
+  cache().Dump();
   std::cout << ">> Errors:\n";
   binerrors_.Dump();
   std::cout << ">> Horizontal morphing sentry: " << hmorph_sentry_.good() << "\n";
@@ -998,7 +1033,7 @@ Double_t CMSHistFunc::analyticalIntegral(Int_t code,
   switch (code) {
     case 1: {
       updateCache();
-      return cache_.IntegralWidth();
+      return cache().IntegralWidth();
     }
   }
 

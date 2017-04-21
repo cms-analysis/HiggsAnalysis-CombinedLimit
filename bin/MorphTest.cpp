@@ -6,6 +6,7 @@
 #include "TFile.h"
 #include "RooRealVar.h"
 #include "RooRealSumPdf.h"
+#include "RooBinning.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
@@ -16,6 +17,20 @@ namespace po = boost::program_options;
 
 using namespace std;
 
+
+RooRealVar VarFromHist(TString name, TString title, TH1 const& hist) {
+  RooBinning * binning;
+  if (hist.GetXaxis()->GetXbins()) {
+    binning = new RooBinning(hist.GetNbinsX(), hist.GetXaxis()->GetXbins()->GetArray());
+  } else {
+    binning = new RooBinning(hist.GetNbinsX(), hist.GetXaxis()->GetXmin(), hist.GetXaxis()->GetXmax());
+  }
+  RooRealVar x(name, title, hist.GetXaxis()->GetXmin(), hist.GetXaxis()->GetXmax());
+  // x.getBinning().Print();
+  x.setBinning(*binning);
+  delete binning;
+  return x;
+}
 
 TH1F * RebinHist(TH1F * hist) {
   // TH1::AddDirectory(0);
@@ -63,25 +78,29 @@ int main(int argc, char* argv[]) {
   TH1F *h_ggH180_hi = RebinHist((TH1F*)gDirectory->Get("/mt_nobtag/ggH180_CMS_scale_t_mt_13TeVUp"));
   TH1F *h_dat = (TH1F*)h_ggH140->Clone();
 
-
   h_dat->Reset();
   h_dat->FillRandom(h_ggH140, int(h_ggH140->Integral()));
   // TH1F *h_dat = (TH1F*)gDirectory->Get("/mt_nobtag/data_obs");
-  fshapes.Close();
-  h_ggH140->Print("range");
+  std::vector<double> rebins = {0., 20., 40., 60., 80., 100., 120., 140., 160., 180., 200., 250., 300., 350., 400., 500., 700., 1100., 1500., 1900., 2300., 2700., 3100., 3500., 3900.};
   h_dat->Print("range");
+  h_dat = (TH1F*)h_dat->Rebin(rebins.size() - 1, "", &(rebins[0]));
+  h_dat->Print("range");
+  fshapes.Close();
+  // h_ggH140->Print("range");
+  // h_dat->Print("range");
 
-  RooRealVar x("x", "x", h_ggH140->GetXaxis()->GetXmin(), h_ggH140->GetXaxis()->GetXmax());
+  RooRealVar x = VarFromHist("x", "x", *h_dat);
+  x.Print();
   RooRealVar tes("CMS_scale_t_mt_13TeV", "CMS_scale_t_mt_13TeV", 0, -7, 7);
   CMSHistFunc c_ggH("ggH", "ggH", x, *h_ggH140);
 
-  c_ggH.setHorizontalType(CMSHistFunc::HorizontalType::Moment);
+  c_ggH.setHorizontalType(CMSHistFunc::HorizontalType::Integral);
 
   RooRealVar mH("mH", "mH", 150, 140, 180);
   c_ggH.addHorizontalMorph(mH, TVectorD(3, std::vector<double>{140., 160., 180.}.data()));
   c_ggH.setVerticalMorphs(RooArgList(tes));
   c_ggH.prepareStorage();
-  c_ggH.setEvalVerbose(0);
+  c_ggH.setEvalVerbose(1);
 
   c_ggH.setShape(0, 0, 0, 0, *h_ggH140);
   c_ggH.setShape(0, 0, 1, 0, *h_ggH140_lo);
@@ -98,12 +117,13 @@ int main(int argc, char* argv[]) {
   c_ggH.Print("v");
 
   // TRandom3 rng;
-  // for (unsigned r = 0; r < 1E6; ++r) {
+  // for (unsigned r = 0; r < 3; ++r) {
   //   mH.setVal(rng.Uniform(mH.getMin(), mH.getMax()));
-  //   // mH.Print();
+  //   mH.Print();
   //   // tes.setVal(rng.Gaus(0, 1));
   //   // tes.Print();
   //   c_ggH.evaluate();
+  //   c_ggH.Print("v");
   // }
 
 

@@ -48,6 +48,8 @@ public:
 
   void setData(RooAbsData const& data) const;
 
+  inline FastHisto const& cache() const { return cache_; }
+
   friend class CMSHistV<CMSHistErrorPropagator>;
 
  protected:

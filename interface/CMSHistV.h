@@ -41,7 +41,7 @@ CMSHistV<T>::CMSHistV(const T& hpdf, const RooAbsData& data,
   for (int i = 0, n = data.numEntries(); i < n; ++i) {
     obs = *data.get(i);
     if (data.weight() == 0 && !includeZeroWeights) continue;
-    int idx = hpdf.cache_.FindBin(x.getVal());
+    int idx = hpdf.cache().FindBin(x.getVal());
     if (!bins.empty() && idx != bins.back() + 1) aligned = false;
     bins.push_back(idx);
   }
@@ -84,17 +84,17 @@ void CMSHistV<T>::fill(std::vector<Double_t>& out) const {
   hpdf_.updateCache();
   if (begin_ != end_) {
     out.resize(end_ - begin_);
-    std::copy(&hpdf_.cache_.GetBinContent(begin_),
-              &hpdf_.cache_.GetBinContent(end_), out.begin());
+    std::copy(&hpdf_.cache().GetBinContent(begin_),
+              &hpdf_.cache().GetBinContent(end_), out.begin());
   } else if (!blocks_.empty()) {
     out.resize(nbins_);
     for (auto b : blocks_)
-      std::copy(&hpdf_.cache_.GetBinContent(b.begin),
-                &hpdf_.cache_.GetBinContent(b.end), out.begin() + b.index);
+      std::copy(&hpdf_.cache().GetBinContent(b.begin),
+                &hpdf_.cache().GetBinContent(b.end), out.begin() + b.index);
   } else {
     out.resize(bins_.size());
     for (int i = 0, n = bins_.size(); i < n; ++i) {
-      out[i] = hpdf_.cache_.GetBinContent(bins_[i]);
+      out[i] = hpdf_.cache().GetBinContent(bins_[i]);
     }
   }
 }

@@ -31,8 +31,6 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
       initialized_(false) {
   funcs_.add(funcs);
   coeffs_.add(coeffs);
-  // binpars_.add(binpars);
-  // initialize();
 }
 
 CMSHistErrorPropagator::CMSHistErrorPropagator(
@@ -47,7 +45,6 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(
       binsentry_(name ? TString(name) + "_binsentry" : TString(other.binsentry_.GetName()), ""),
       v(other.v),
       initialized_(false) {
-  // initialize();
 }
 
 void CMSHistErrorPropagator::initialize() const {
@@ -62,11 +59,9 @@ void CMSHistErrorPropagator::initialize() const {
     vfuncs_[i] = dynamic_cast<CMSHistFunc const*>(funcs_.at(i));
     vcoeffs_[i] = dynamic_cast<RooAbsReal const*>(coeffs_.at(i));
     auto sargs = vfuncs_[i]->getSentryArgs();
-    // std::cout << sargs.get() << "\n";
-    // sargs->Print();
     sentry_.addVars(*sargs);
   }
-  unsigned nb = vfuncs_[0]->getCacheHisto().size();
+  unsigned nb = vfuncs_[0]->cache().size();
   vbinpars_.resize(nb);
   if (bintypes_.size()) {
     for (unsigned j = 0, r = 0; j < nb; ++j) {
@@ -79,9 +74,9 @@ void CMSHistErrorPropagator::initialize() const {
       }
     }
   }
-  valsum_ = vfuncs_[0]->getCacheHisto();
+  valsum_ = vfuncs_[0]->cache();
   valsum_.Clear();
-  cache_ = vfuncs_[0]->getCacheHisto();
+  cache_ = vfuncs_[0]->cache();
   cache_.Clear();
   err2sum_.resize(nb, 0.);
   toterr_.resize(nb, 0.);
@@ -119,8 +114,8 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
     valsum_.Clear();
     std::fill(err2sum_.begin(), err2sum_.end(), 0.);
     for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-      vectorized::mul_add(valsum_.size(), coeffvals_[i], &(vfuncs_[i]->getCacheHisto()[0]), &valsum_[0]);
-      vectorized::mul_add_sqr(valsum_.size(), coeffvals_[i], &(vfuncs_[i]->getBinErrors()[0]), &err2sum_[0]);
+      vectorized::mul_add(valsum_.size(), coeffvals_[i], &(vfuncs_[i]->cache()[0]), &valsum_[0]);
+      vectorized::mul_add_sqr(valsum_.size(), coeffvals_[i], &(vfuncs_[i]->errors()[0]), &err2sum_[0]);
     }
     vectorized::sqrt(valsum_.size(), &err2sum_[0], &toterr_[0]);
     cache_ = valsum_;
@@ -132,7 +127,7 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
           // if (v > 1) printf(" | %.6f/%.6f/%.6f\n", valsum_[j], err2sum_[j], toterr_[j]);
           for (unsigned i = 0; i < vfuncs_.size(); ++i) {
             if (err2sum_[j] > 0. && coeffvals_[i] > 0.) {
-              double e =  vfuncs_[i]->getBinErrors()[j] * coeffvals_[i];
+              double e =  vfuncs_[i]->errors()[j] * coeffvals_[i];
               binmods_[i][j] = (toterr_[j] *  e * e) / (err2sum_[j] * coeffvals_[i]);
             } else {
               binmods_[i][j] = 0.;
@@ -191,11 +186,11 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
           if (bintypes_[j][i] == 2) {
             // Poisson: this is a multiplier on the process yield
             scaledbinmods_[i][j] = ((vbinpars_[j][i]->getVal() - 1.) *
-                 vfuncs_[i]->getCacheHisto()[j] * coeffvals_[i]);
+                 vfuncs_[i]->cache()[j] * coeffvals_[i]);
             cache_[j] += scaledbinmods_[i][j];
           } else if (bintypes_[j][i] == 3) {
             // Gaussian This is the addition of the scaled error
-            scaledbinmods_[i][j] = vbinpars_[j][i]->getVal() * vfuncs_[i]->getBinErrors()[j] * coeffvals_[i];
+            scaledbinmods_[i][j] = vbinpars_[j][i]->getVal() * vfuncs_[i]->errors()[j] * coeffvals_[i];
             cache_[j] += scaledbinmods_[i][j];
           }
         }
@@ -250,8 +245,8 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
       if (skip_idx.count(i)) {
         continue;
       }
-      sub_sum += vfuncs_[i]->getCacheHisto()[j] * coeffvals_[i];
-      sub_err += std::pow(vfuncs_[i]->getBinErrors()[j] * coeffvals_[i], 2.);;
+      sub_sum += vfuncs_[i]->cache()[j] * coeffvals_[i];
+      sub_err += std::pow(vfuncs_[i]->errors()[j] * coeffvals_[i], 2.);;
     }
     sub_err = std::sqrt(sub_err);
     if (skipped_procs.size()) {
@@ -281,8 +276,8 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
             vfuncs_[i]->stringAttributes().count("combine.process")
                 ? vfuncs_[i]->getStringAttribute("combine.process")
                 : vfuncs_[i]->GetName();
-        double v_p = vfuncs_[i]->getCacheHisto()[j];
-        double e_p = vfuncs_[i]->getBinErrors()[j];
+        double v_p = vfuncs_[i]->cache()[j];
+        double e_p = vfuncs_[i]->errors()[j];
         std::cout << TString::Format("    %-20s %-15f %-15f %-30s\n", proc.c_str(), v_p, e_p, "");
         // relax the condition of v_p >= e_p slightly due to numerical rounding...
         // Possibilities:
@@ -397,7 +392,7 @@ std::unique_ptr<RooArgSet> CMSHistErrorPropagator::getSentryArgs() const {
 
 Double_t CMSHistErrorPropagator::evaluate() const {
   updateCache(1);
-  return cache_.GetAt(x_);
+  return cache().GetAt(x_);
 }
 
 
@@ -437,7 +432,7 @@ Double_t CMSHistErrorPropagator::analyticalIntegral(Int_t code,
   switch (code) {
     case 1: {
       updateCache(1);
-      return cache_.IntegralWidth();
+      return cache().IntegralWidth();
     }
   }
 
