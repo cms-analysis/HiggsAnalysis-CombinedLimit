@@ -69,6 +69,11 @@ class CMSHistFunc : public RooAbsReal {
     SineLinear
   };
 
+  enum VerticalSetting {
+    QuadLinear,
+    LogQuadLinear
+  };
+
   CMSHistFunc();
 
   CMSHistFunc(const char* name, const char* title, RooRealVar& x,
@@ -121,6 +126,16 @@ class CMSHistFunc : public RooAbsReal {
     resetCaches();
   };
 
+  inline void setVerticalType(CMSHistFunc::VerticalSetting vtype) {
+    vtype_ = vtype;
+    resetCaches();
+  };
+
+  inline void setVerticalSmoothRegion(double val) {
+    vsmooth_par_ = val;
+    resetCaches();
+  };
+
   inline void setEvalVerbose(unsigned val) { veval = val; };
 
   inline FastTemplate const& errors() const { return binerrors_; }
@@ -159,8 +174,11 @@ class CMSHistFunc : public RooAbsReal {
   std::vector<unsigned> rebin_scheme_;
   HorizontalType htype_;
   MomentSetting mtype_;
+  VerticalSetting vtype_;
 
   bool divide_by_width_;
+
+  double vsmooth_par_;
 
  private:
   void initialize() const;

@@ -19,8 +19,10 @@ CMSHistFunc::CMSHistFunc() {
   initialized_ = false;
   htype_ = HorizontalType::Integral;
   mtype_ = MomentSetting::NonLinearPosFractions;
+  vtype_ = VerticalSetting::QuadLinear;
   divide_by_width_ = true;
   rebin_ = false;
+  vsmooth_par_ = 1.0;
 }
 
 CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
@@ -39,7 +41,9 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       rebin_(false),
       htype_(HorizontalType::Integral),
       mtype_(MomentSetting::Linear),
-      divide_by_width_(divide_by_width) {
+      vtype_(VerticalSetting::QuadLinear),
+      divide_by_width_(divide_by_width),
+      vsmooth_par_(1.0) {
   if (divide_by_width_) {
     for (unsigned i = 0; i < cache_.size(); ++i) {
       cache_[i] /= cache_.GetWidth(i);
@@ -108,7 +112,9 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       rebin_(other.rebin_),
       rebin_scheme_(other.rebin_scheme_),
       htype_(other.htype_),
-      mtype_(other.mtype_) {
+      mtype_(other.mtype_),
+      vtype_(other.vtype_),
+      vsmooth_par_(other.vsmooth_par_) {
   // initialize();
 }
 
@@ -430,8 +436,13 @@ void CMSHistFunc::updateCache() const {
           unsigned idxHi = getIdx(0, global_.p1, v, 1);
           FastTemplate lo = mcache_[idxLo].step1;
           FastTemplate hi = mcache_[idxHi].step1;
-          hi.Subtract(mcache_[idx].step1);
-          lo.Subtract(mcache_[idx].step1);
+          if (vtype_ == VerticalSetting::QuadLinear) {
+            hi.Subtract(mcache_[idx].step1);
+            lo.Subtract(mcache_[idx].step1);
+          } else if (vtype_ == VerticalSetting::LogQuadLinear) {
+            hi.LogRatio(mcache_[idx].step1);
+            lo.LogRatio(mcache_[idx].step1);
+          }
           // TODO: could skip the next two lines if .sum and .diff have been set before
           mcache_[idxLo].sum = mcache_[idx].step1;
           mcache_[idxLo].diff = mcache_[idx].step1;
@@ -454,8 +465,13 @@ void CMSHistFunc::updateCache() const {
           unsigned idxHi = getIdx(0, global_.p1, v, 1);
           FastTemplate lo = storage_[idxLo];
           FastTemplate hi = storage_[idxHi];
-          hi.Subtract(storage_[idx]);
-          lo.Subtract(storage_[idx]);
+          if (vtype_ == VerticalSetting::QuadLinear) {
+            hi.Subtract(storage_[idx]);
+            lo.Subtract(storage_[idx]);
+          } else if (vtype_ == VerticalSetting::LogQuadLinear) {
+            hi.LogRatio(storage_[idx]);
+            lo.LogRatio(storage_[idx]);
+          }
           // TODO: could skip the next two lines if .sum and .diff have been set before
           mcache_[idxLo].sum = storage_[idx];
           mcache_[idxLo].diff = storage_[idx];
@@ -473,6 +489,9 @@ void CMSHistFunc::updateCache() const {
       // FNLOGC(std::cout, veval) << "Checking step 2\n";
       unsigned idx = getIdx(0, global_.p1, 0, 0);
       mcache_[idx].step2 = mcache_[idx].step1;
+      if (vtype_ == VerticalSetting::LogQuadLinear) {
+        mcache_[idx].step2.Log();
+      }
       // if (veval >= 2) {
       //   std::cout << "Template before vmorph: " << mcache_[idx].step2.Integral() << "\n";
       //   mcache_[idx].step2.Dump();
@@ -489,6 +508,9 @@ void CMSHistFunc::updateCache() const {
         //   std::cout << "Template after vmorph " << v+1 << ": " << mcache_[idx].step2.Integral() << "\n";
         //   mcache_[idx].step2.Dump();
         // }
+      }
+      if (vtype_ == VerticalSetting::LogQuadLinear) {
+        mcache_[idx].step2.Exp();
       }
       mcache_[idx].step2.CropUnderflows();
       cache_.CopyValues(mcache_[idx].step2);
@@ -530,9 +552,9 @@ unsigned CMSHistFunc::getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
 }
 
 inline double CMSHistFunc::smoothStepFunc(double x) const {
-  double _smoothRegion = 1.0;
-  if (fabs(x) >= _smoothRegion) return x > 0 ? +1 : -1;
-  double xnorm = x / _smoothRegion, xnorm2 = xnorm * xnorm;
+  if (fabs(x) >= vsmooth_par_) return x > 0 ? +1 : -1;
+  double xnorm = x / vsmooth_par_;
+  double xnorm2 = xnorm * xnorm;
   return 0.125 * xnorm * (xnorm2 * (3. * xnorm2 - 10.) + 15);
 }
 

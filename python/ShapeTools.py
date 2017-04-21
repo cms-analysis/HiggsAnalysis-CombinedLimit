@@ -494,6 +494,8 @@ class ShapeBuilder(ModelBuilder):
                 if self.options.newHist >= 1:
                     rhp = ROOT.CMSHistFunc("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins[0])
                     rhp.setVerticalMorphs(coeffs)
+                    rhp.setVerticalType(ROOT.CMSHistFunc.QuadLinear if qalgo >= 0 else ROOT.CMSHistFunc.LogQuadLinear)
+                    rhp.setVerticalSmoothRegion(qrange)
                     rhp.prepareStorage()
                     rhp.setShape(0, 0, 0, 0, rebins[0])
                     for i in xrange(len(coeffs)):
