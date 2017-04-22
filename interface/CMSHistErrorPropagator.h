@@ -16,6 +16,23 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
 
 class CMSHistErrorPropagator : public RooAbsReal {
+private:
+  struct BarlowBeeston {
+    bool init = false;
+    std::vector<unsigned> use;
+    std::vector<double> dat;
+    std::vector<double> valsum;
+    std::vector<double> toterr;
+    std::vector<double> err;
+    std::vector<double> b;
+    std::vector<double> c;
+    std::vector<double> tmp;
+    std::vector<double> x1;
+    std::vector<double> x2;
+    std::vector<double> res;
+    std::vector<RooAbsArg*> dirty_prop;
+    std::vector<RooRealVar*> push_res;
+  };
 public:
   CMSHistErrorPropagator();
 
@@ -73,12 +90,17 @@ public:
   mutable SimpleCacheSentry binsentry_; //!
   mutable std::vector<double> data_; //!
 
+  mutable BarlowBeeston bb_; //!
+
+
   int v;
   mutable bool initialized_; //! not to be serialized
 
 
   void initialize() const;
   void updateCache(int eval = 1) const;
+
+  void runBarlowBeeston() const;
 
 
  private:

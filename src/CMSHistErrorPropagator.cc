@@ -146,32 +146,13 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
 
 
   if (!binsentry_.good()) {
+    if (data_.size()) runBarlowBeeston();
     // bintypes might have size == 0 if we never ran setupBinPars()
     for (unsigned j = 0; j < bintypes_.size(); ++j) {
       cache_[j] = valsum_[j];
       if (bintypes_[j][0] == 0) {
         continue;
       } else if (bintypes_[j][0] == 1) {
-        if (data_.size() && toterr_[j] > 0. && vbinpars_[j][0]->isConstant()) {
-          double err = toterr_[j] / valsum_[j];
-          double b = toterr_[j] * err - 1.;
-          double c = - data_[j] * err * err;
-          double tmp = -0.5 * (b + copysign(1.0, b) * std::sqrt(b * b - 4. * c));
-          double x1 = tmp;
-          double x2 = c /tmp;
-
-          // if (std::isnan(x1) || std::isnan(x2) || !((x1 > 0.) != (x2 > 0.))) {
-          //   std::cout << "something went wrong!: " << "val: " << val << "\terr: " << err << "\tdat: " << data_[j] << "\n";
-          //   std::cout << "something went wrong!: " << x1 << "\t" << x2 << "\n";
-          // }
-
-          // This part is a massive hack, but we can save time by only propagating the dirty flag to the constraint terms
-          RooAbsArg::setDirtyInhibit(true);
-          ((RooRealVar*)vbinpars_[j][0])->setVal((std::max(x1, x2) - 1.) / err);
-          RooAbsArg::setDirtyInhibit(false);
-          // Rely on the first value client being the constraint
-          vbinpars_[j][0]->valueClientMIterator().next()->setValueDirty();
-        }
         double x = vbinpars_[j][0]->getVal();
         cache_[j] += toterr_[j] * x;
         // Only fill the scaledbinmods if we're in eval == 0 mode (i.e. need to
@@ -196,11 +177,62 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
         }
       }
     }
-    RooAbsArg::setDirtyInhibit(false);
     cache_.CropUnderflows();
     binsentry_.reset();
   }
 }
+
+void CMSHistErrorPropagator::runBarlowBeeston() const {
+  if (!bb_.init) {
+    for (unsigned j = 0; j < bintypes_.size(); ++j) {
+      if (bintypes_[j][0] == 1 && vbinpars_[j][0]->isConstant()) {
+        bb_.use.push_back(j);
+        bb_.dirty_prop.push_back(vbinpars_[j][0]->valueClientMIterator().next());
+        bb_.push_res.push_back((RooRealVar*)vbinpars_[j][0]);
+      }
+    }
+    unsigned n = bb_.use.size();
+    bb_.dat.resize(n);
+    bb_.valsum.resize(n);
+    bb_.toterr.resize(n);
+    bb_.err.resize(n);
+    bb_.b.resize(n);
+    bb_.c.resize(n);
+    bb_.tmp.resize(n);
+    bb_.x1.resize(n);
+    bb_.x2.resize(n);
+    bb_.res.resize(n);
+    bb_.init = true;
+  }
+  RooAbsArg::setDirtyInhibit(true);
+
+  const unsigned n = bb_.use.size();
+  for (unsigned j = 0; j < n; ++j) {
+    bb_.dat[j] = data_[bb_.use[j]];
+    bb_.valsum[j] = valsum_[bb_.use[j]];
+    bb_.toterr[j] = toterr_[bb_.use[j]];
+  }
+  // This pragma statement tells (modern) gcc that loop can be safely
+  // vectorized
+  #pragma GCC ivdep
+  for (unsigned j = 0; j < n; ++j) {
+    bb_.err[j] = bb_.toterr[j] / bb_.valsum[j];
+    bb_.b[j] = bb_.toterr[j] * bb_.err[j] - 1.;
+    bb_.c[j] = - bb_.dat[j] * bb_.err[j] * bb_.err[j];
+    bb_.tmp[j] = -0.5 * (bb_.b[j] + copysign(1.0, bb_.b[j]) * std::sqrt(bb_.b[j] * bb_.b[j] - 4. * bb_.c[j]));
+    bb_.x1[j] = bb_.tmp[j];
+    bb_.x2[j] = bb_.c[j] / bb_.tmp[j];
+    bb_.res[j] = (std::max(bb_.x1[j], bb_.x2[j]) - 1.) / bb_.err[j];
+  }
+  for (unsigned j = 0; j < n; ++j) {
+    if (toterr_[bb_.use[j]] > 0.) bb_.push_res[j]->setVal(bb_.res[j]);
+  }
+  RooAbsArg::setDirtyInhibit(false);
+  for (unsigned j = 0; j < n; ++j) {
+    bb_.dirty_prop[j]->setValueDirty();
+  }
+}
+
 
 RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
   RooArgList * res = new RooArgList();
