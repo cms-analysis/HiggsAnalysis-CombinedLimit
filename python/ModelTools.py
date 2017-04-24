@@ -530,7 +530,9 @@ class ModelBuilder(ModelBuilderBase):
                     self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, self.DC.exp[b][p]))
                 else:
                     #print "Process %s of bin %s depends on:\n\tlog-normals: %s\n\tasymm log-normals: %s\n\tother factors: %s\n" % (p,b,logNorms, alogNorms, factors)
-                    if self.options.newHist >= 1:
+                    if self.options.newHist >= 1 and hasattr(self, 'TH1bins') and b in self.TH1bins:
+                        if self.options.verbose > 1:
+                            print 'Bin %s will be built using CMSHistFuncs' % (b)
                         procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b,p), "", 1.)
                     else:
                         procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b,p), "", nominal)

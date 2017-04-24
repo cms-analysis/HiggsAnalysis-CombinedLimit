@@ -28,7 +28,8 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
       sentry_(TString(name) + "_sentry", ""),
       binsentry_(TString(name) + "_binsentry", ""),
       v(0),
-      initialized_(false) {
+      initialized_(false),
+      last_eval_(-1) {
   funcs_.add(funcs);
   coeffs_.add(coeffs);
 }
@@ -44,7 +45,8 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(
       sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
       binsentry_(name ? TString(name) + "_binsentry" : TString(other.binsentry_.GetName()), ""),
       v(other.v),
-      initialized_(false) {
+      initialized_(false),
+      last_eval_(-1) {
 }
 
 void CMSHistErrorPropagator::initialize() const {
@@ -104,7 +106,7 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
   initialize();
 
   // FNLOGC(std::cout, v) << "Sentry: " << sentry_.good() << "\n";
-  if (!sentry_.good()) {
+  if (!sentry_.good() || eval != last_eval_) {
     for (unsigned i = 0; i < vfuncs_.size(); ++i) {
       // FNLOGC(std::cout, v) << "Triggering updateCache() of function " << i << "\n";
       vfuncs_[i]->updateCache();
@@ -120,7 +122,7 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
     vectorized::sqrt(valsum_.size(), &err2sum_[0], &toterr_[0]);
     cache_ = valsum_;
 
-    if (eval == 0) {
+    if (eval == 0 && bintypes_.size()) {
       for (unsigned j = 0; j < valsum_.size(); ++j) {
         if (bintypes_[j][0] == 1) {
           // if (v > 1) std::cout << "Bin " << j << "\n";
@@ -145,7 +147,7 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
   }
 
 
-  if (!binsentry_.good()) {
+  if (!binsentry_.good() || eval != last_eval_) {
     if (data_.size()) runBarlowBeeston();
     // bintypes might have size == 0 if we never ran setupBinPars()
     for (unsigned j = 0; j < bintypes_.size(); ++j) {
@@ -180,6 +182,8 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
     cache_.CropUnderflows();
     binsentry_.reset();
   }
+
+  last_eval_ = eval;
 }
 
 void CMSHistErrorPropagator::runBarlowBeeston() const {
@@ -187,7 +191,16 @@ void CMSHistErrorPropagator::runBarlowBeeston() const {
     for (unsigned j = 0; j < bintypes_.size(); ++j) {
       if (bintypes_[j][0] == 1 && vbinpars_[j][0]->isConstant()) {
         bb_.use.push_back(j);
-        bb_.dirty_prop.push_back(vbinpars_[j][0]->valueClientMIterator().next());
+        RooFIter iter = vbinpars_[j][0]->valueClientMIterator();
+        RooAbsArg *arg = nullptr;
+        while((arg = iter.next())) {
+          if (arg == this || arg == &binsentry_) {
+            // std::cout << "Skipping " << this << " " << this->GetName() << "\n";
+          } else {
+            // std::cout << "Adding " << arg << " " << arg->GetName() << "\n";
+            bb_.dirty_prop.insert(arg);
+          }
+        }
         bb_.push_res.push_back((RooRealVar*)vbinpars_[j][0]);
       }
     }
@@ -228,8 +241,8 @@ void CMSHistErrorPropagator::runBarlowBeeston() const {
     if (toterr_[bb_.use[j]] > 0.) bb_.push_res[j]->setVal(bb_.res[j]);
   }
   RooAbsArg::setDirtyInhibit(false);
-  for (unsigned j = 0; j < n; ++j) {
-    bb_.dirty_prop[j]->setValueDirty();
+  for (RooAbsArg *arg : bb_.dirty_prop) {
+    arg->setValueDirty();
   }
 }
 

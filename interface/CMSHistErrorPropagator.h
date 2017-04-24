@@ -30,7 +30,7 @@ private:
     std::vector<double> x1;
     std::vector<double> x2;
     std::vector<double> res;
-    std::vector<RooAbsArg*> dirty_prop;
+    std::set<RooAbsArg*> dirty_prop;
     std::vector<RooRealVar*> push_res;
   };
 public:
@@ -95,6 +95,8 @@ public:
 
   int v;
   mutable bool initialized_; //! not to be serialized
+
+  mutable int last_eval_; //! not to be serialized
 
 
   void initialize() const;

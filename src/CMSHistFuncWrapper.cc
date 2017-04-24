@@ -71,7 +71,7 @@ void CMSHistFuncWrapper::updateCache() const {
   // The ErrorPropagator will send a dirty flag whenever we need to update the cache
   if (!sentry_.good()) {
     perr_->applyErrorShifts(idx_, pfunc_->cache(), cache_);
-    cache_.CropUnderflows();
+    // cache_.CropUnderflows();
     // if (v > 1) {
     //   FNLOG(std::cout) << "Updated cache from CMSHistFunc:\n";
     //   pfunc_->cache().Dump();
