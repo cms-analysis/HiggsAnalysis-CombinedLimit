@@ -795,8 +795,17 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
 void cacheutils::CachingAddNLL::propagateData() {
     for (auto const& funci : pdfs_) {
         if (typeid(*(funci.pdf())) == typeid(CMSHistErrorPropagator)) {
-            printf("Passing data to %s\n", funci.pdf()->GetName());
+            // printf("Passing data to %s\n", funci.pdf()->GetName());
             (static_cast<CMSHistErrorPropagator const*>(funci.pdf()))->setData(*data_);
+        }
+    }
+}
+
+
+void cacheutils::CachingAddNLL::setAnalyticBarlowBeeston(bool flag) {
+    for (auto const& funci : pdfs_) {
+        if (typeid(*(funci.pdf())) == typeid(CMSHistErrorPropagator)) {
+            (static_cast<CMSHistErrorPropagator const*>(funci.pdf()))->setAnalyticBarlowBeeston(flag);
         }
     }
 }
@@ -1146,6 +1155,13 @@ void cacheutils::CachingSimNLL::setChannelMasks(const RooArgList &args) {
         vars.push_back(var);
     }
     channelMasks_ = vars;
+}
+
+void cacheutils::CachingSimNLL::setAnalyticBarlowBeeston(bool flag) {
+    printf(">> Enabling analytic minimisation of bin-wise statistical uncertainty parameters\n");
+    for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
+        pdfs_[ib]->setAnalyticBarlowBeeston(flag);
+    }
 }
 
 RooArgSet* 

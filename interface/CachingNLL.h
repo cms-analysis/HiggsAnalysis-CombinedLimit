@@ -130,6 +130,7 @@ class CachingAddNLL : public RooAbsReal {
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
 
         void propagateData();
+        void setAnalyticBarlowBeeston(bool flag);
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }
@@ -175,6 +176,7 @@ class CachingSimNLL  : public RooAbsReal {
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);
+        void setAnalyticBarlowBeeston(bool flag);
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
         virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }

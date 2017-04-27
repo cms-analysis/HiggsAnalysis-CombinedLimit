@@ -65,6 +65,8 @@ public:
 
   void setData(RooAbsData const& data) const;
 
+  void setAnalyticBarlowBeeston(bool flag) const;
+
   inline FastHisto const& cache() const { return cache_; }
 
   friend class CMSHistV<CMSHistErrorPropagator>;
@@ -98,6 +100,7 @@ public:
 
   mutable int last_eval_; //! not to be serialized
 
+  mutable bool analytic_bb_; //! not to be serialized
 
   void initialize() const;
   void updateCache(int eval = 1) const;

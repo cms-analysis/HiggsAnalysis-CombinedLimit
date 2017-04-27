@@ -99,9 +99,6 @@ void CMSHistErrorPropagator::initialize() const {
 
 
 void CMSHistErrorPropagator::updateCache(int eval) const {
-  // IMPORTANT: Need to check if we are transitioning from eval=1 to eval=0
-
-
   // FNLOGC(std::cout, v) << "Start of function\n";
   initialize();
 
@@ -148,7 +145,7 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
 
 
   if (!binsentry_.good() || eval != last_eval_) {
-    if (data_.size()) runBarlowBeeston();
+    runBarlowBeeston();
     // bintypes might have size == 0 if we never ran setupBinPars()
     for (unsigned j = 0; j < bintypes_.size(); ++j) {
       cache_[j] = valsum_[j];
@@ -187,36 +184,7 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
 }
 
 void CMSHistErrorPropagator::runBarlowBeeston() const {
-  if (!bb_.init) {
-    for (unsigned j = 0; j < bintypes_.size(); ++j) {
-      if (bintypes_[j][0] == 1 && vbinpars_[j][0]->isConstant()) {
-        bb_.use.push_back(j);
-        RooFIter iter = vbinpars_[j][0]->valueClientMIterator();
-        RooAbsArg *arg = nullptr;
-        while((arg = iter.next())) {
-          if (arg == this || arg == &binsentry_) {
-            // std::cout << "Skipping " << this << " " << this->GetName() << "\n";
-          } else {
-            // std::cout << "Adding " << arg << " " << arg->GetName() << "\n";
-            bb_.dirty_prop.insert(arg);
-          }
-        }
-        bb_.push_res.push_back((RooRealVar*)vbinpars_[j][0]);
-      }
-    }
-    unsigned n = bb_.use.size();
-    bb_.dat.resize(n);
-    bb_.valsum.resize(n);
-    bb_.toterr.resize(n);
-    bb_.err.resize(n);
-    bb_.b.resize(n);
-    bb_.c.resize(n);
-    bb_.tmp.resize(n);
-    bb_.x1.resize(n);
-    bb_.x2.resize(n);
-    bb_.res.resize(n);
-    bb_.init = true;
-  }
+  if (!bb_.init) return;
   RooAbsArg::setDirtyInhibit(true);
 
   const unsigned n = bb_.use.size();
@@ -243,6 +211,61 @@ void CMSHistErrorPropagator::runBarlowBeeston() const {
   RooAbsArg::setDirtyInhibit(false);
   for (RooAbsArg *arg : bb_.dirty_prop) {
     arg->setValueDirty();
+  }
+}
+
+void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
+  // Clear it if it's already initialised
+  if (bb_.init && flag) return;
+  if (bb_.init && !flag) {
+    for (unsigned i = 0; i < bb_.push_res.size(); ++i) {
+      bb_.push_res[i]->setConstant(false);
+    }
+    bb_.use.clear();
+    bb_.dat.clear();
+    bb_.valsum.clear();
+    bb_.toterr.clear();
+    bb_.err.clear();
+    bb_.b.clear();
+    bb_.c.clear();
+    bb_.tmp.clear();
+    bb_.x1.clear();
+    bb_.x2.clear();
+    bb_.res.clear();
+    bb_.dirty_prop.clear();
+    bb_.push_res.clear();
+    bb_.init = false;
+  }
+  if (flag && data_.size()) {
+    for (unsigned j = 0; j < bintypes_.size(); ++j) {
+      if (bintypes_[j][0] == 1 && !vbinpars_[j][0]->isConstant()) {
+        bb_.use.push_back(j);
+        RooFIter iter = vbinpars_[j][0]->valueClientMIterator();
+        RooAbsArg *arg = nullptr;
+        while((arg = iter.next())) {
+          if (arg == this || arg == &binsentry_) {
+            // std::cout << "Skipping " << this << " " << this->GetName() << "\n";
+          } else {
+            // std::cout << "Adding " << arg << " " << arg->GetName() << "\n";
+            bb_.dirty_prop.insert(arg);
+          }
+        }
+        bb_.push_res.push_back((RooRealVar*)vbinpars_[j][0]);
+        bb_.push_res.back()->setConstant(true);
+      }
+    }
+    unsigned n = bb_.use.size();
+    bb_.dat.resize(n);
+    bb_.valsum.resize(n);
+    bb_.toterr.resize(n);
+    bb_.err.resize(n);
+    bb_.b.resize(n);
+    bb_.c.resize(n);
+    bb_.tmp.resize(n);
+    bb_.x1.resize(n);
+    bb_.x2.resize(n);
+    bb_.res.resize(n);
+    bb_.init = true;
   }
 }
 
@@ -497,3 +520,4 @@ void CMSHistErrorPropagator::setData(RooAbsData const& data) const {
     data_[idx] = data.weight();
   }
 }
+
