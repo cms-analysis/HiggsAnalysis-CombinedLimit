@@ -109,8 +109,6 @@ class ShapeBuilder(ModelBuilder):
                         self.out.var("%s_In" % n).setConstant(True)
                         self.extraNuisances.append(self.out.var("%s" % n))
                         self.extraGlobalObservables.append(self.out.var("%s_In" % n))
-                for idx in xrange(pdfs.getSize()):
-                    self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', self.out.binVar, pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes())
                 if not self.out.var('ONE'):
                     self.doVar('ONE[1.0]')
                 sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", ROOT.RooArgList(prop),   ROOT.RooArgList(self.out.var('ONE')), True)
@@ -170,6 +168,9 @@ class ShapeBuilder(ModelBuilder):
                 self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
                 if not self.options.noBOnly:
                     self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+            if self.options.newHist >= 1:
+                for idx in xrange(pdfs.getSize()):
+                    self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', self.out.binVar, pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes())
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
     def doCombination(self):
