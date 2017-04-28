@@ -115,7 +115,7 @@ void ProcessNormalization::dump() const {
     for (unsigned int i = 0; i < logAsymmKappa_.size(); ++i) {
         std::cout << "\t\t kappaLo = " << exp(logAsymmKappa_[i].first) << ", logKappaLo = " << logAsymmKappa_[i].first << 
                      ", kappaHi = " << exp(logAsymmKappa_[i].second) << ", logKappaHi = " << logAsymmKappa_[i].second << 
-                     ", theta = " << thetaList_.at(i)->GetName() << " = " << ((RooAbsReal*)thetaList_.at(i))->getVal() << std::endl;
+                     ", theta = " << asymmThetaList_.at(i)->GetName() << " = " << ((RooAbsReal*)asymmThetaList_.at(i))->getVal() << std::endl;
     }
     std::cout << "\tother terms (" << otherFactorList_.getSize() << "):"  << std::endl;
     for (int i = 0; i < otherFactorList_.getSize(); ++i) {  

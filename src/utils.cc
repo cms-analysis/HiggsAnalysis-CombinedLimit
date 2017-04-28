@@ -31,6 +31,7 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <regex>
 
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
@@ -684,7 +685,44 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
       
     if (SetParameterExpression.size() != 2) {
       std::cout << "Error parsing physics model parameter expression : " << SetParameterExpressionList[p] << endl;
-    } else {
+    } 
+    // check for regex syntax: rgx{regex}                                                                                                                                     
+    else if (boost::starts_with(SetParameterExpression[0], "rgx{") && boost::ends_with(SetParameterExpression[0], "}")) {
+
+        std::string reg_esp = SetParameterExpression[0].substr(4, SetParameterExpression[0].size()-5);
+        std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
+        std::regex rgx( reg_esp, std::regex::ECMAScript);
+
+        std::auto_ptr<TIterator> iter(params.createIterator());
+        for (RooAbsArg *tmp = (RooAbsArg*) iter->Next(); tmp != 0; tmp = (RooAbsArg*) iter->Next()) {
+
+            bool isrvar = tmp->IsA()->InheritsFrom(RooRealVar::Class());  // check its type    
+
+            if (isrvar) {
+                RooRealVar *tmpParameter = dynamic_cast<RooRealVar *>(tmp);
+                const std::string &target = tmpParameter->GetName();
+                std::smatch match;
+                if (std::regex_match(target, match, rgx)) {
+                    double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
+                    cout << "Set Default Value of Parameter " << target
+                     << " To : " << PhysicsParameterValue << "\n";
+                    tmpParameter->setVal(PhysicsParameterValue);
+                }
+            } else {
+                RooCategory *tmpCategory  = dynamic_cast<RooCategory*>(tmp);
+                const std::string &target = tmpCategory->GetName();
+                std::smatch match;
+                if (std::regex_match(target, match, rgx)) {
+                    int PhysicsParameterValue = atoi(SetParameterExpression[1].c_str());
+                    cout << "Set Default Index of Parameter " << target
+                         << " To : " << PhysicsParameterValue << "\n";
+                    tmpCategory->setIndex(PhysicsParameterValue);
+                }
+            }
+        }
+
+    }
+    else {
       
       RooAbsArg  *tmp = (RooAbsArg*)params.find(SetParameterExpression[0].c_str());     
       if (tmp){
@@ -738,17 +776,41 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
     } else {
       double PhysicsParameterRangeLow = atof(SetParameterRangeExpression[1].c_str());
       double PhysicsParameterRangeHigh = atof(SetParameterRangeExpression[2].c_str());
-      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
-      if (tmpParameter) {
-        cout << "Set Range of Parameter " << SetParameterRangeExpression[0] 
-             << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
-        tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
-      } else {
-        std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
+
+      // check for regex syntax: rgx{regex}
+      if (boost::starts_with(SetParameterRangeExpression[0], "rgx{") && boost::ends_with(SetParameterRangeExpression[0], "}")) {
+          
+          std::string reg_esp = SetParameterRangeExpression[0].substr(4, SetParameterRangeExpression[0].size()-5);
+          std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
+          std::regex rgx( reg_esp, std::regex::ECMAScript);
+
+          std::auto_ptr<TIterator> iter(params.createIterator());
+          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+              RooRealVar *tmpParameter = dynamic_cast<RooRealVar *>(a);
+              const std::string &target = tmpParameter->GetName();
+              std::smatch match;
+              if (std::regex_match(target, match, rgx)) {
+                  if (tmpParameter->isConstant()) continue;
+                  cout << "Set Range of Parameter " << target
+                       << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
+                  tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
+              }
+          }
+
+      }         
+      else {
+          RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
+          if (tmpParameter) {
+              cout << "Set Range of Parameter " << SetParameterRangeExpression[0] 
+                   << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
+              tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
+          } else {
+              std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
+          }
       }
     }
-  }
 
+  }
 }
 
 void utils::createSnapshotFromString( const std::string expression, const RooArgSet &allvars, RooArgSet &output, const char *context) {
