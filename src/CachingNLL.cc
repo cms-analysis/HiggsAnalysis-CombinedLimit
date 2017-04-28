@@ -1158,7 +1158,11 @@ void cacheutils::CachingSimNLL::setChannelMasks(const RooArgList &args) {
 }
 
 void cacheutils::CachingSimNLL::setAnalyticBarlowBeeston(bool flag) {
-    printf(">> Enabling analytic minimisation of bin-wise statistical uncertainty parameters\n");
+    if (flag) {
+        printf(">> Enabling analytic minimisation of bin-wise statistical uncertainty parameters\n");
+    } else {
+        printf(">> Disabling analytic minimisation of bin-wise statistical uncertainty parameters\n");
+    }
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         pdfs_[ib]->setAnalyticBarlowBeeston(flag);
     }

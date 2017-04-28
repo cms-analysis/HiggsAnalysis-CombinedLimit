@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
 #include <stdexcept>
 #include <vector>
 #include <ostream>
@@ -521,3 +522,14 @@ void CMSHistErrorPropagator::setData(RooAbsData const& data) const {
   }
 }
 
+RooArgList CMSHistErrorPropagator::wrapperList() const {
+  RooArgList result;
+  for (int i = 0; i < funcs_.getSize(); ++i) {
+    CMSHistFunc const* hf = dynamic_cast<CMSHistFunc const*>(funcs_.at(i));
+    if (hf) {
+      CMSHistFuncWrapper const* wrapper = hf->wrapper();
+      if (wrapper) result.add(*wrapper);
+    }
+  }
+  return result;
+}

@@ -232,7 +232,8 @@ class ShapeBuilder(ModelBuilder):
                         shapeTypes.append("RooAbsPdf");
                 elif shape.ClassName().startswith("TH1"):
                     shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
-                    self.selfNormBins.append(b)
+                    if self.options.newHist >= 1:
+                        self.selfNormBins.append(b)
                     norm = shape.Integral()
                     if p == self.options.dataname: 
                         if self.options.poisson > 0 and norm > self.options.poisson:

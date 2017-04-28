@@ -69,6 +69,10 @@ public:
 
   inline FastHisto const& cache() const { return cache_; }
 
+  RooArgList wrapperList() const;
+  RooArgList const& coefList() const { return coeffs_; }
+  RooArgList const& funcList() const { return funcs_; }
+
   friend class CMSHistV<CMSHistErrorPropagator>;
 
  protected:

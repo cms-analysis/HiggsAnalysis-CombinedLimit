@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Accumulators.h"
 #include <vector>
 #include <ostream>
@@ -1061,4 +1062,14 @@ Double_t CMSHistFunc::analyticalIntegral(Int_t code,
 
   assert(0);
   return 0;
+}
+
+CMSHistFuncWrapper const* CMSHistFunc::wrapper() const {
+  RooFIter iter = this->valueClientMIterator();
+  RooAbsArg *arg = nullptr;
+  while((arg = iter.next())) {
+    CMSHistFuncWrapper const* wrapper = dynamic_cast<CMSHistFuncWrapper const*>(arg);
+    if (wrapper) return wrapper;
+  }
+  return nullptr;
 }
