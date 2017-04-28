@@ -1,6 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FnTimer.h"
 #include <stdexcept>
 #include <RooCategory.h>
 #include <RooDataSet.h>
@@ -57,7 +57,7 @@ namespace cacheutils {
 //#define TRACE_NLL_EVAL_COUNT
 
 //---- Uncomment this and run with --perfCounters to get cache statistics
-#define DEBUG_CACHE
+// #define DEBUG_CACHE
 
 //---- Uncomment to dump PDF values inside CachingAddNLL
 //#define LOG_ADDPDFS
@@ -312,7 +312,6 @@ cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> 
 #endif
     //std::cout << "CachingPdf::realFill_ called for " << pdf_->GetName() << " (" << pdf_->ClassName() << ")\n";
     //utils::printPdf((RooAbsPdf*)pdf_);
-    // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
     int n = data.numEntries();
     vals.resize(nonZeroWEntries_); // should be a no-op if size is already >= n.
     std::vector<Double_t>::iterator itv = vals.begin();
@@ -583,8 +582,6 @@ cacheutils::CachingAddNLL::setIncludeZeroWeights(bool includeZeroWeights)
 Double_t 
 cacheutils::CachingAddNLL::evaluate() const 
 {
-    // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
-
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingAddNLL::evaluate called");
 #endif
@@ -971,7 +968,7 @@ cacheutils::CachingSimNLL::setup_()
 Double_t 
 cacheutils::CachingSimNLL::evaluate() const 
 {
-    LAUNCH_FUNCTION_TIMER(__timer__, __token__)
+    // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
     TRACE_POINT(params_)
 #ifdef TRACE_NLL_EVAL_COUNT
     ::CachingSimNLLEvalCount++;

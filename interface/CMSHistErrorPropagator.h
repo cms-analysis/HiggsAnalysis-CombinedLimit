@@ -10,7 +10,6 @@
 #include "Rtypes.h"
 #include "TH1F.h"
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logging.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
@@ -98,8 +97,6 @@ public:
 
   mutable BarlowBeeston bb_; //!
 
-
-  int v;
   mutable bool initialized_; //! not to be serialized
 
   mutable int last_eval_; //! not to be serialized

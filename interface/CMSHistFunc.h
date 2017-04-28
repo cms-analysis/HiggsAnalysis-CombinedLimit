@@ -14,7 +14,6 @@
 #include "TMatrix.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logging.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
 
 class CMSHistFuncWrapper;
@@ -138,8 +137,6 @@ class CMSHistFunc : public RooAbsReal {
     resetCaches();
   };
 
-  inline void setEvalVerbose(unsigned val) { veval = val; };
-
   inline FastTemplate const& errors() const { return binerrors_; }
   inline FastHisto const& cache() const { return rebin_ ? rebin_cache_ : cache_; }
 
@@ -172,7 +169,6 @@ class CMSHistFunc : public RooAbsReal {
   mutable std::vector<Cache> mcache_;  //! not to be serialized
 
   unsigned morph_strategy_;
-  int veval;
   mutable bool initialized_; //! not to be serialized
   bool rebin_;
   std::vector<unsigned> rebin_scheme_;

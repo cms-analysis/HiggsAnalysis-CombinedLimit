@@ -14,7 +14,9 @@
 #include "RooProduct.h"
 #include "vectorized.h"
 
-CMSHistErrorPropagator::CMSHistErrorPropagator() : v(0), initialized_(false) {}
+#define HFVERBOSE 0
+
+CMSHistErrorPropagator::CMSHistErrorPropagator() : initialized_(false) {}
 
 CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
                                                const char* title,
@@ -28,7 +30,6 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
       binpars_("binpars", "", this),
       sentry_(TString(name) + "_sentry", ""),
       binsentry_(TString(name) + "_binsentry", ""),
-      v(0),
       initialized_(false),
       last_eval_(-1) {
   funcs_.add(funcs);
@@ -45,7 +46,6 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(
       bintypes_(other.bintypes_),
       sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
       binsentry_(name ? TString(name) + "_binsentry" : TString(other.binsentry_.GetName()), ""),
-      v(other.v),
       initialized_(false),
       last_eval_(-1) {
 }
@@ -54,7 +54,9 @@ void CMSHistErrorPropagator::initialize() const {
   if (initialized_) return;
   sentry_.SetName(TString(this->GetName()) + "_sentry");
   binsentry_.SetName(TString(this->GetName()) + "_binsentry");
-  FNLOGC(std::cout, v) << "Initialising vectors\n";
+#if HFVERBOSE > 0
+  std::cout << "Initialising vectors\n";
+#endif
   unsigned nf = funcs_.getSize();
   vfuncs_.resize(nf);
   vcoeffs_.resize(nf);
@@ -90,8 +92,6 @@ void CMSHistErrorPropagator::initialize() const {
   sentry_.addVars(coeffs_);
   binsentry_.addVars(binpars_);
 
-  // sentry_.Print("v");
-
   sentry_.setValueDirty();
   binsentry_.setValueDirty();
 
@@ -100,13 +100,13 @@ void CMSHistErrorPropagator::initialize() const {
 
 
 void CMSHistErrorPropagator::updateCache(int eval) const {
-  // FNLOGC(std::cout, v) << "Start of function\n";
   initialize();
 
-  // FNLOGC(std::cout, v) << "Sentry: " << sentry_.good() << "\n";
+#if HFVERBOSE > 0
+  std::cout << "Sentry: " << sentry_.good() << "\n";
+#endif
   if (!sentry_.good() || eval != last_eval_) {
     for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-      // FNLOGC(std::cout, v) << "Triggering updateCache() of function " << i << "\n";
       vfuncs_[i]->updateCache();
       coeffvals_[i] = vcoeffs_[i]->getVal();
     }
@@ -123,8 +123,10 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
     if (eval == 0 && bintypes_.size()) {
       for (unsigned j = 0; j < valsum_.size(); ++j) {
         if (bintypes_[j][0] == 1) {
-          // if (v > 1) std::cout << "Bin " << j << "\n";
-          // if (v > 1) printf(" | %.6f/%.6f/%.6f\n", valsum_[j], err2sum_[j], toterr_[j]);
+#if HFVERBOSE > 1
+          std::cout << "Bin " << j << "\n";
+          printf(" | %.6f/%.6f/%.6f\n", valsum_[j], err2sum_[j], toterr_[j]);
+#endif
           for (unsigned i = 0; i < vfuncs_.size(); ++i) {
             if (err2sum_[j] > 0. && coeffvals_[i] > 0.) {
               double e =  vfuncs_[i]->errors()[j] * coeffvals_[i];
@@ -132,9 +134,13 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
             } else {
               binmods_[i][j] = 0.;
             }
-            // if (v > 1) printf("%.6f   ", binmods_[i][j]);
+#if HFVERBOSE > 1
+            printf("%.6f   ", binmods_[i][j]);
+#endif
           }
-          // if (v > 1 ) printf("\n");
+#if HFVERBOSE > 1
+          printf("\n");
+#endif
         }
       }
     }
@@ -443,7 +449,7 @@ void CMSHistErrorPropagator::applyErrorShifts(unsigned idx,
                                               FastHisto& result) {
   // We can skip the whole evaluation if there's nothing to evaluate
   // if (bintypes_.size() == 0) return;
-  FNLOGC(std::cout, v) << "Start of function\n";
+  std::cout << "Start of function\n";
   updateCache(0);
   for (unsigned i = 0; i < result.size(); ++i) {
     result[i] = nominal[i] + scaledbinmods_[idx][i];
@@ -533,3 +539,6 @@ RooArgList CMSHistErrorPropagator::wrapperList() const {
   }
   return result;
 }
+
+#undef HFVERBOSE
+

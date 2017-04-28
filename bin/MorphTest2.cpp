@@ -104,7 +104,6 @@ int main(int argc, char* argv[]) {
     // c_ZTT.setVerticalMorphs(RooArgList(binparsx));
     c_ZTT.setVerticalMorphs(vvars);
     c_ZTT.prepareStorage();
-    c_ZTT.setEvalVerbose(0);
     c_ZTT.setShape(0, 0, 0, 0, *h_ZTT);
     c_ZTT.setShape(0, 0, 1, 0, *h_ZTT_lo);
     c_ZTT.setShape(0, 0, 1, 1, *h_ZTT_hi);

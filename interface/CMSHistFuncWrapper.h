@@ -10,7 +10,6 @@
 #include "RooArgProxy.h"
 #include "Rtypes.h"
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logging.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
@@ -40,8 +39,6 @@ class CMSHistFuncWrapper : public RooAbsReal {
 
   Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
 
-  inline void setEvalVerbose(unsigned val) { v = val; };
-
   void updateCache() const;
 
   inline FastHisto const& cache() const { return cache_; }
@@ -61,7 +58,6 @@ class CMSHistFuncWrapper : public RooAbsReal {
   ClassDef(CMSHistFuncWrapper, 1)
   mutable CMSHistFunc const* pfunc_;
   mutable CMSHistErrorPropagator * perr_;
-  int v;
   mutable bool initialized_; //! not to be serialized
 
   void initialize() const;

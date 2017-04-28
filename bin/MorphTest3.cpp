@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
   c_ggH.setMomentType(CMSHistFunc::MomentSetting::NonLinearPosFractions);
   // c_ggH.setVerticalMorphs(RooArgList(tes));
   c_ggH.prepareStorage();
-  c_ggH.setEvalVerbose(0);
+  // c_ggH.setEvalVerbose(0);
 
   c_ggH.setShape(0, 0, 0, 0, *h_ggH140);
   // c_ggH.setShape(0, 0, 1, 0, *h_ggH140_lo);
@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
   c_ggH.evaluate();
   RooWorkspace w("w", "");
 
-  c_ggH.setEvalVerbose(0);
+  // c_ggH.setEvalVerbose(0);
 
   w.import(c_ggH);
 

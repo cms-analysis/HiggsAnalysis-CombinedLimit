@@ -7,9 +7,10 @@
 #include "RooAbsReal.h"
 #include "TH1F.h"
 
+#define HFVERBOSE 0
+
 CMSHistFuncWrapper::CMSHistFuncWrapper()
-    : pfunc_(nullptr), perr_(nullptr), v(0), initialized_(false) {
-  v = 0;
+    : pfunc_(nullptr), perr_(nullptr), initialized_(false) {
   idx_ = 0;
 }
 
@@ -23,7 +24,6 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(const char* name, const char* title, RooR
       sentry_(TString(name) + "_sentry", ""),
       pfunc_(nullptr),
       perr_(nullptr),
-      v(0),
       initialized_(false) {
   cache_ = func.cache();
 }
@@ -38,7 +38,6 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const ch
       sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
       pfunc_(nullptr),
       perr_(nullptr),
-      v(other.v),
       initialized_(false) {
 }
 
@@ -47,48 +46,37 @@ void CMSHistFuncWrapper::initialize() const {
   sentry_.SetName(TString(this->GetName()) + "_sentry");
   pfunc_ = dynamic_cast<CMSHistFunc const*>(&(func_.arg()));
   perr_ = dynamic_cast<CMSHistErrorPropagator *>(err_.absArg());
-  // sentry_.addArg(*err_.absArg());
   auto sentry_args = perr_->getSentryArgs();
   RooFIter iter = sentry_args->fwdIterator() ;
   RooAbsArg* arg;
   while((arg = iter.next())) {
     sentry_.addArg(*arg);
   }
-  // sentry_args->
-  // sentry_.addArg(*perr_->getSentryArgs()->first());
   sentry_.setValueDirty();
   initialized_ = true;
 }
 
 void CMSHistFuncWrapper::updateCache() const {
-  // FNLOGC(std::cout, v) << "CMSHistFuncWrapper::updateCache()\n";
-  // FNLOGC(std::cout, v) << pfunc_ << "\t" << perr_ << "\n";
-
   initialize();
-
-  // FNLOGC(std::cout, v) << "Sentry: " << sentry_.good() << "\n";
 
   // The ErrorPropagator will send a dirty flag whenever we need to update the cache
   if (!sentry_.good()) {
     perr_->applyErrorShifts(idx_, pfunc_->cache(), cache_);
     // cache_.CropUnderflows();
-    // if (v > 1) {
-    //   FNLOG(std::cout) << "Updated cache from CMSHistFunc:\n";
-    //   pfunc_->cache().Dump();
-    //   FNLOG(std::cout) << "After shifts and cropping:\n";
-    //   cache_.Dump();
-    // }
+#if HFVERBOSE > 2
+    std::cout << "Updated cache from CMSHistFunc:\n";
+    pfunc_->cache().Dump();
+    std::cout << "After shifts and cropping:\n";
+    cache_.Dump();
+#endif
   }
   sentry_.reset();
 }
 
 Double_t CMSHistFuncWrapper::evaluate() const {
-  // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
   updateCache();
   return cache_.GetAt(x_);
-  // Just for testing - bypass everything
-  // initialize();
-  // return pfunc_->evaluate();
+
 }
 
 void CMSHistFuncWrapper::printMultiline(std::ostream& os, Int_t contents,
@@ -109,7 +97,6 @@ Int_t CMSHistFuncWrapper::getAnalyticalIntegral(RooArgSet& allVars,
 
 Double_t CMSHistFuncWrapper::analyticalIntegral(Int_t code,
                                          const char* rangeName) const {
-  // TODO: check how RooHistFunc handles ranges that splice bins
   switch (code) {
     case 1: {
       updateCache();
@@ -120,3 +107,5 @@ Double_t CMSHistFuncWrapper::analyticalIntegral(Int_t code,
   assert(0);
   return 0;
 }
+
+#undef HFVERBOSE
