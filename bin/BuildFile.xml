@@ -2,15 +2,3 @@
   <use name="HiggsAnalysis/CombinedLimit"/>
   <use   name="boost_program_options"/>
 </bin>
-<bin file="MorphTest.cpp" name="MorphTest">
-  <use name="HiggsAnalysis/CombinedLimit"/>
-  <use   name="boost_program_options"/>
-</bin>
-<bin file="MorphTest2.cpp" name="MorphTest2">
-  <use name="HiggsAnalysis/CombinedLimit"/>
-  <use   name="boost_program_options"/>
-</bin>
-<bin file="MorphTest3.cpp" name="MorphTest3">
-  <use name="HiggsAnalysis/CombinedLimit"/>
-  <use   name="boost_program_options"/>
-</bin>

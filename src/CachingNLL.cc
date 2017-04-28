@@ -992,7 +992,6 @@ cacheutils::CachingSimNLL::evaluate() const
             ret += nllval;
         }
     }
-
     if (!constrainPdfs_.empty() || !constrainPdfsFast_.empty()) {
         DefaultAccumulator ret2 = 0;
         /// ============= GENERIC CONSTRAINTS  =========

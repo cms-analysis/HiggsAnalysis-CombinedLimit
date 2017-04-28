@@ -122,7 +122,6 @@ class FastHisto : public FastTemplate {
         const T & GetEdge(unsigned int i) const { return binEdges_[i]; }
         const T & GetWidth(unsigned int i) const { return binWidths_[i]; }
 
-
     private:
         AT binEdges_;
         AT binWidths_;

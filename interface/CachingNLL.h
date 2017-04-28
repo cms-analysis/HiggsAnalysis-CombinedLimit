@@ -66,7 +66,6 @@ class CachingPdfBase {
         virtual ~CachingPdfBase() {}
         virtual const std::vector<Double_t> & eval(const RooAbsData &data) = 0;
         virtual const RooAbsReal *pdf() const = 0;
-        virtual const RooAbsReal *pdfOriginal() const { return nullptr; }
         virtual void  setDataDirty() = 0;
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) = 0;
 };
@@ -77,7 +76,6 @@ class CachingPdf : public CachingPdfBase {
         virtual ~CachingPdf() ;
         virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
         const RooAbsReal *pdf() const { return pdf_; }
-        const RooAbsReal *pdfOriginal() const { return pdfOriginal_; }
         virtual void  setDataDirty() { lastData_ = 0; }
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) { includeZeroWeights_ = includeZeroWeights;  setDataDirty(); }
     protected:
@@ -128,7 +126,6 @@ class CachingAddNLL : public RooAbsReal {
         void clearZeroPoint() ;
         void clearConstantZeroPoint() ;
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
-
         void propagateData();
         void setAnalyticBarlowBeeston(bool flag);
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
