@@ -1,3 +1,6 @@
+# Simple parametric shape based on a RooChebyChev background with freely floating normalisation and a RooVoigtian signal model.
+# To run, make sure to add the option `-m 30` since the MH parameter is contained in the input workspace
+
 imax 1
 jmax 1
 kmax *
