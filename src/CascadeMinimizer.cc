@@ -23,7 +23,7 @@ int  CascadeMinimizer::preFit_ = 0;
 bool CascadeMinimizer::poiOnlyFit_;
 bool CascadeMinimizer::singleNuisFit_;
 bool CascadeMinimizer::setZeroPoint_ = true;
-bool CascadeMinimizer::oldFallback_ = true;
+bool CascadeMinimizer::oldFallback_ = false;
 bool CascadeMinimizer::firstHesse_ = false;
 bool CascadeMinimizer::lastHesse_ = false;
 int  CascadeMinimizer::minuit2StorageLevel_ = 0;
@@ -554,7 +554,7 @@ void CascadeMinimizer::initOptions()
         ("cminSingleNuisFit", "Do first a minimization of each nuisance parameter individually")
         ("cminFallbackAlgo", boost::program_options::value<std::vector<std::string> >(), "Fallback algorithms if the default minimizer fails (can use multiple ones). Syntax is algo[,subalgo][,strategy][:tolerance]")
         ("cminSetZeroPoint", boost::program_options::value<bool>(&setZeroPoint_)->default_value(setZeroPoint_), "Change the reference point of the NLL to be zero during minimization")
-        ("cminOldRobustMinimize", boost::program_options::value<bool>(&oldFallback_)->default_value(oldFallback_), "Use the old 'robustMinimize' logic in addition to the cascade")
+        ("cminOldRobustMinimize", boost::program_options::value<bool>(&oldFallback_)->default_value(oldFallback_), "Use the old 'robustMinimize' logic in addition to the cascade (for debug only)")
         ("cminInitialHesse", boost::program_options::value<bool>(&firstHesse_)->default_value(firstHesse_), "Call Hesse before the minimization")
         ("cminFinalHesse", boost::program_options::value<bool>(&lastHesse_)->default_value(lastHesse_), "Call Hesse after the minimization")
 	("cminDefaultMinimizerType",boost::program_options::value<std::string>(&defaultMinimizerType_)->default_value(defaultMinimizerType_), "Set the default minimizer Type")
