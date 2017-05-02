@@ -2,7 +2,7 @@ imax 1
 jmax 1
 kmax *
 ---------------
-shapes * * simpleshape_input.root w:$PROCESS
+shapes * * simple-shapes-parametric_input.root w:$PROCESS
 ---------------
 bin 1
 observation -1
