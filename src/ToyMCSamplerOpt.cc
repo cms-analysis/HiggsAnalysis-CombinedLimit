@@ -142,7 +142,6 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double w
             int mybins = rrv->getBins();
             nbins *= (mybins ? mybins : 100);
         }
-        //printf("generating asimov from %s: bins %d\n", pdf_->GetName(), nbins);
         if (nbins > 5000) {
             double nev = pdf_->expectedEvents(observables_);
             //printf("generating asimov from %s: bins %d, events %.1f\n",
@@ -162,6 +161,7 @@ RooDataSet *
 toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, int nPoints, double weightScale) 
 {
     if (mode_ == Unbinned) {
+        //printf("Generating PseudoAsimov dataset for pdf %s: with %d weighted events\n", pdf_->GetName(), nPoints);
         double expEvents = pdf_->expectedEvents(observables_);
         std::auto_ptr<RooDataSet> data(pdf_->generate(observables_, nPoints));
         if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
@@ -197,7 +197,9 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     if (histoSpec_ == 0) {
         histoSpec_ = pdf_->createHistogram("htemp", *x, ay, az); 
         histoSpec_->SetDirectory(0);
-    } 
+    }
+
+    //printf("Generating Asimov with histogram for pdf %s: in %d x-bins\n", pdf_->GetName(), histoSpec_->GetNbinsX() );
 
     double expectedEvents = pdf_->expectedEvents(observables_);
     histoSpec_->Scale(expectedEvents/ histoSpec_->Integral("width")); 

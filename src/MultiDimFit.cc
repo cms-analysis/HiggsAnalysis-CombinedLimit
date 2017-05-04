@@ -832,7 +832,7 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     if (fixedPointPOIs_ != "") {
 	    utils::setModelParameters( fixedPointPOIs_, w->allVars());
     } else if (setPhysicsModelParameterExpression_ != "") {
-            std::cout << " --fixedPointPOIs option not used, so will use the argument of --setPhysicsModelParameters instead" << std::endl;
+            std::cout << " --fixedPointPOIs option not used, so will use the argument of --setParameters instead" << std::endl;
 	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
     }   
 
