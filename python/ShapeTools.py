@@ -1,6 +1,7 @@
 from sys import stdout, stderr
 import os.path
 import ROOT
+from math import *
 
 RooArgSet_add_original = ROOT.RooArgSet.add
 def RooArgSet_add_patched(self, obj, *args, **kwargs):
@@ -53,6 +54,9 @@ class ShapeBuilder(ModelBuilder):
             #print "  + Getting model for bin %s" % (b)
             pdfs   = ROOT.RooArgList(); bgpdfs   = ROOT.RooArgList()
             coeffs = ROOT.RooArgList(); bgcoeffs = ROOT.RooArgList()
+            sigcoeffs = []
+            binconstraints = ROOT.RooArgList()
+            bbb_args = None
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
@@ -73,16 +77,63 @@ class ShapeBuilder(ModelBuilder):
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
+                if self.DC.isSignal[p]:
+                    pdf.setAttribute('skipForErrorSum')
                 coeff.setStringAttribute("combine.process", p)
                 coeff.setStringAttribute("combine.channel", b)
                 coeff.setAttribute("combine.signal", self.DC.isSignal[p])
                 pdfs.add(pdf); coeffs.add(coeff)
                 if not self.DC.isSignal[p]:
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
+                else:
+                    sigcoeffs.append(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
-            sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
+            if self.options.newHist >= 1:
+                prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", self.out.binVar, pdfs, coeffs)
+                if self.options.newHistBinPars >= 0.:
+                    bbb_args = prop.setupBinPars(self.options.newHistBinPars)
+                    # bbb_args.Print()
+                    for bidx in range(bbb_args.getSize()):
+                        arg = bbb_args.at(bidx)
+                        n = arg.GetName()
+                        self.out._import(arg)
+                        if arg.getAttribute("createGaussianConstraint"):
+                            self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[0,%s], %s" % (n, n, '-7,7', '1.0'), True)
+                            self.out.var(n).setVal(0)
+                            self.out.var(n).setError(1)
+                            if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
+                        elif arg.getAttribute("createPoissonConstraint"):
+                            nom = arg.getVal()
+                            pval = ROOT.Math.normal_cdf_c(7)
+                            minObs = nom
+                            while minObs > 0 and (ROOT.TMath.Poisson(minObs, nom + 1) > pval):
+                                minObs -= (sqrt(nom) if nom > 10 else 1)
+                            maxObs = nom + 2
+                            while (ROOT.TMath.Poisson(maxObs, nom + 1) > pval):
+                                #print "Poisson(maxObs = %d, %f) = %g > 1e-12" % (maxObs, args[0]+1, ROOT.TMath.Poisson(maxObs, args[0]+1))
+                                maxObs += (sqrt(nom) if nom > 10 else 2)
+                            self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,%f,%f], %s, 1" % (n, nom, minObs, maxObs, n))
+                        binconstraints.add(self.out.pdf('%s_Pdf' % n))
+                        self.out.var("%s_In" % n).setConstant(True)
+                        self.extraNuisances.append(self.out.var("%s" % n))
+                        self.extraGlobalObservables.append(self.out.var("%s_In" % n))
+                if not self.out.var('ONE'):
+                    self.doVar('ONE[1.0]')
+                sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", ROOT.RooArgList(prop),   ROOT.RooArgList(self.out.var('ONE')), True)
+                if not self.options.noBOnly:
+                    if not self.out.var('ZERO'):
+                        self.doVar('ZERO[0.0]')
+                    customizer = ROOT.RooCustomizer(prop, "")
+                    for arg in sigcoeffs:
+                        customizer.replaceArg(arg, self.out.var('ZERO'))
+                    prop_b = customizer.build(True)
+                    if len(sigcoeffs):
+                        prop_b.SetName("prop_bin%s_bonly" % b)
+                    sum_b = ROOT.RooRealSumPdf("pdf_bin%s_bonly"       % b,  "", ROOT.RooArgList(prop_b),   ROOT.RooArgList(self.out.var('ONE')), True)
+            else:
+                sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
+                if not self.options.noBOnly: sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             sum_s.setAttribute("MAIN_MEASUREMENT") # useful for plain ROOFIT optimization on ATLAS side
-            if not self.options.noBOnly: sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             if b in self.pdfModes: 
                 sum_s.setAttribute('forceGen'+self.pdfModes[b].title())
                 if not self.options.noBOnly: sum_b.setAttribute('forceGen'+self.pdfModes[b].title())
@@ -99,10 +150,13 @@ class ShapeBuilder(ModelBuilder):
                 # now we multiply by all the nuisances, but avoiding nested products
                 # so we first make a list of all nuisances plus the RooAddPdf
                 sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_s.add(sum_s)
+                pdf_bins = ROOT.RooProdPdf('pdfbins_bin%s' % b, '', binconstraints)
+                sumPlusNuis_s.add(pdf_bins)
                 # then make RooProdPdf and import it
                 pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s) 
                 if not self.options.noBOnly:
                     sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_b.add(sum_b)
+                    sumPlusNuis_b.add(pdf_bins)
                     pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
                 if b in self.pdfModes: 
                     pdf_s.setAttribute('forceGen'+self.pdfModes[b].title())
@@ -122,6 +176,9 @@ class ShapeBuilder(ModelBuilder):
                 self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
                 if not self.options.noBOnly:
                     self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+            if self.options.newHist >= 1:
+                for idx in xrange(pdfs.getSize()):
+                    self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', self.out.binVar, pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes())
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
     def doCombination(self):
@@ -183,6 +240,8 @@ class ShapeBuilder(ModelBuilder):
                         shapeTypes.append("RooAbsPdf");
                 elif shape.ClassName().startswith("TH1"):
                     shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
+                    if self.options.newHist >= 1:
+                        self.selfNormBins.append(b)
                     norm = shape.Integral()
                     if p == self.options.dataname: 
                         if self.options.poisson > 0 and norm > self.options.poisson:
@@ -439,15 +498,40 @@ class ShapeBuilder(ModelBuilder):
         if self.options.useHistPdf != "always":
             if nominalPdf.InheritsFrom("TH1"):
                 rebins = ROOT.TList()
-                maxbins = 0 
+                maxbins = 0
                 for i in xrange(pdfs.GetSize()):
                     rebinned = self.rebinH1(pdfs.At(i))
                     rebins.Add(rebinned)
                     maxbins = max(maxbins, rebinned._original_bins)
-                rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins, coeffs, qrange, qalgo)
-                if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
-                    #print "Optimizing binning: %d -> %d for %s " % (self.out.maxbins, maxbins, rhp.GetName())
-                    rhp.setActiveBins(maxbins) 
+                if self.options.newHist >= 1:
+                    rhp = ROOT.CMSHistFunc("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins[0])
+                    rhp.setVerticalMorphs(coeffs)
+                    rhp.setVerticalType(ROOT.CMSHistFunc.QuadLinear if qalgo >= 0 else ROOT.CMSHistFunc.LogQuadLinear)
+                    rhp.setVerticalSmoothRegion(qrange)
+                    rhp.prepareStorage()
+                    rhp.setShape(0, 0, 0, 0, rebins[0])
+                    for i in xrange(len(coeffs)):
+                        if self.options.newHist in [1]:
+                            rhp.setShape(0, 0, i+1, 0, rebins[2 + i*2])
+                            rhp.setShape(0, 0, i+1, 1, rebins[1 + i*2])
+                        elif self.options.newHist in [2]:
+                            renormLo = rebins[2 + i*2].Clone()
+                            if renormLo.Integral() > 0.:
+                                renormLo.Scale(rebins[0].Integral() / renormLo.Integral())
+                            renormHi = rebins[1 + i*2].Clone()
+                            if renormHi.Integral() > 0.:
+                                renormHi.Scale(rebins[0].Integral() / renormHi.Integral())
+                            rhp.setShape(0, 0, i+1, 0, renormLo)
+                            rhp.setShape(0, 0, i+1, 1, renormHi)
+                    if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
+                        #print "Optimizing binning: %d -> %d for %s " % (self.out.maxbins, maxbins, rhp.GetName())
+                        rhp.setActiveBins(maxbins)
+
+                else:
+                    rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins, coeffs, qrange, qalgo)
+                    if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
+                        #print "Optimizing binning: %d -> %d for %s " % (self.out.maxbins, maxbins, rhp.GetName())
+                        rhp.setActiveBins(maxbins) 
                 _cache[(channel,process)] = rhp
                 return rhp
             elif nominalPdf.InheritsFrom("RooHistPdf") or nominalPdf.InheritsFrom("RooDataHist"):
@@ -490,6 +574,10 @@ class ShapeBuilder(ModelBuilder):
         shapeUp = self.getShape(channel,process,systShapeName+"Up",allowNoSyst=True)    
         return shapeUp != None
     def getExtraNorm(self,channel,process):
+        if channel in self.selfNormBins and self.options.newHist in [1]:
+            if self.options.verbose > 1:
+                print 'Skipping getExtraNorm for (%s,%s)' % (channel, process)
+            return None
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         terms = []
         shapeNominal = self.getShape(channel,process)
@@ -535,6 +623,7 @@ class ShapeBuilder(ModelBuilder):
         rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", self.out.maxbins, 0.0, float(self.out.maxbins))
         for i in range(1,min(shape.GetNbinsX(),self.out.maxbins)+1): 
             rebinh1.SetBinContent(i, shape.GetBinContent(i))
+            rebinh1.SetBinError(i, shape.GetBinError(i))
         rebinh1._original_bins = shape.GetNbinsX()
         return rebinh1;
     def shape2Data(self,shape,channel,process,_cache={}):
@@ -578,7 +667,14 @@ class ShapeBuilder(ModelBuilder):
                 if self.options.useHistPdf == "never":
                     shape = self.rebinH1(shape)
                     list = ROOT.TList(); list.Add(shape);
-                    rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
+                    if self.options.newHist >= 1:
+                        rhp = ROOT.CMSHistFunc("%sPdf" % shape.GetName(), "", self.out.binVar, shape)
+                        rhp.prepareStorage()
+                        rhp.setShape(0, 0, 0, 0, shape)
+                        if self.options.optimizeTemplateBins:
+                            rhp.setActiveBins(shape._original_bins)
+                    else:
+                        rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
                     _cache[shape.GetName()+"Pdf"] = rhp
                 else:
                     rdh = self.shape2Data(shape,channel,process)

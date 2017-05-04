@@ -70,7 +70,8 @@ protected:
     std::string channel;
     RooArgList  obs;
     const RooAbsReal *norm;
-    const RooAbsPdf  *pdf;
+    const RooAbsReal  *pdf;
+    bool isfunc;
   };
   void getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std::map<std::string, ShapeAndNorm> &shapesAndNorms, const std::string &channel);
 
