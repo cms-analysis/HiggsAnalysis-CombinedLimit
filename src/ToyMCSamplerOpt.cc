@@ -129,7 +129,7 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
 }
 
 RooDataSet *  
-toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double weightScale) 
+toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double weightScale,int verbose) 
 {
     if (mode_ == Counting) return generateCountingAsimov();
     int nPA = runtimedef::get("TMCSO_PseudoAsimov");  // Will trigger the use of weighted data 
@@ -153,15 +153,15 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double w
             }
         }
     }
-    if (nPA) return generatePseudoAsimov(weightVar, nPA, weightScale);
-    return generateWithHisto(weightVar, true, weightScale);
+    if (nPA) return generatePseudoAsimov(weightVar, nPA, weightScale, verbose);
+    return generateWithHisto(weightVar, true, weightScale, verbose);
 }
 
 RooDataSet *  
-toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, int nPoints, double weightScale) 
+toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, int nPoints, double weightScale,int verbose) 
 {
     if (mode_ == Unbinned) {
-        //printf("Generating PseudoAsimov dataset for pdf %s: with %d weighted events\n", pdf_->GetName(), nPoints);
+        if ( verbose > 2 ) printf("  ToyMCSamplerOpt -- Generating PseudoAsimov dataset for pdf %s: with %d weighted events\n", pdf_->GetName(), nPoints);
         double expEvents = pdf_->expectedEvents(observables_);
         std::auto_ptr<RooDataSet> data(pdf_->generate(observables_, nPoints));
         if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
@@ -181,7 +181,7 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
 
 
 RooDataSet *  
-toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool asimov, double weightScale) 
+toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool asimov, double weightScale, int verbose) 
 {
     if (mode_ == Counting) return generateCountingAsimov();
     if (observables_.getSize() > 3) throw std::invalid_argument(std::string("ERROR in SinglePdfGenInfo::generateWithHisto for ") + pdf_->GetName() + ", more than 3 observable");
@@ -199,7 +199,12 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
         histoSpec_->SetDirectory(0);
     }
 
-    //printf("Generating Asimov with histogram for pdf %s: in %d x-bins\n", pdf_->GetName(), histoSpec_->GetNbinsX() );
+    if ( verbose > 2 ){
+      printf("  ToyMCSampleOpt  -- Generating Asimov with histogram for pdf %s: in %d x-bins ", pdf_->GetName(), histoSpec_->GetNbinsX() );
+      if (y)  printf(", %d y-bins ",histoSpec_->GetNbinsY() );
+      if (z)  printf(", %d z-bins ",histoSpec_->GetNbinsZ() );
+      printf("\n");
+    }
 
     double expectedEvents = pdf_->expectedEvents(observables_);
     histoSpec_->Scale(expectedEvents/ histoSpec_->Integral("width")); 
@@ -402,7 +407,7 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
 }
 
 RooAbsData *  
-toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar) 
+toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar, int verbose) 
 {
     RooAbsData *ret = 0;
     TString retName =  TString::Format("%sData", pdf_->GetName());
@@ -412,7 +417,7 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar)
             if (pdfs_[i] == 0) continue;
             cat_->setBin(i);
             RooAbsData *&data =  datasetPieces_[cat_->getLabel()]; delete data;
-            data = pdfs_[i]->generateAsimov(weightVar); 
+            data = pdfs_[i]->generateAsimov(weightVar,1,verbose); 
         }
         if (copyData_) { 
             RooArgSet vars(observables_), varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
@@ -432,7 +437,7 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar)
             // toy over-writes the memory of the previous one.
             ret = new RooDataSet(retName, "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
         }
-    } else ret = pdfs_[0]->generateAsimov(weightVar);
+    } else ret = pdfs_[0]->generateAsimov(weightVar,1,verbose);
     //std::cout << "Asimov dataset generated from sim pdf " << pdf_->GetName() << " (sumw? " << ret->sumEntries() << ")" << std::endl; 
     //utils::printRAD(ret);
     return ret;

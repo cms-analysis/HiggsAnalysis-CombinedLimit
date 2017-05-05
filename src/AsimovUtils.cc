@@ -18,7 +18,7 @@ RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double 
         r->setConstant(true); r->setVal(poiValue);
         toymcoptutils::SimPdfGenInfo newToyMC(*mc->GetPdf(), *mc->GetObservables(), false); 
         RooRealVar *weightVar = 0;
-        RooAbsData *asimov = newToyMC.generateAsimov(weightVar); 
+        RooAbsData *asimov = newToyMC.generateAsimov(weightVar,verbose); 
         delete weightVar;
         return asimov;
 }
@@ -55,7 +55,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
         }
         toymcoptutils::SimPdfGenInfo newToyMC(*mc->GetPdf(), *mc->GetObservables(), false); 
         RooRealVar *weightVar = 0;
-        RooAbsData *asimov = newToyMC.generateAsimov(weightVar); 
+        RooAbsData *asimov = newToyMC.generateAsimov(weightVar,verbose); 
         delete weightVar;
 
         // NOW SNAPSHOT THE GLOBAL OBSERVABLES
