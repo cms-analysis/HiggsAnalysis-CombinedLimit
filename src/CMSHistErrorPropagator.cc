@@ -449,7 +449,7 @@ void CMSHistErrorPropagator::applyErrorShifts(unsigned idx,
                                               FastHisto& result) {
   // We can skip the whole evaluation if there's nothing to evaluate
   // if (bintypes_.size() == 0) return;
-  std::cout << "Start of function\n";
+  // std::cout << "Start of function\n";
   updateCache(0);
   for (unsigned i = 0; i < result.size(); ++i) {
     result[i] = nominal[i] + scaledbinmods_[idx][i];
