@@ -77,7 +77,7 @@ class ShapeBuilder(ModelBuilder):
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
-                if self.DC.isSignal[p]:
+                if self.DC.isSignal[p] and not self.options.newHistIncSig:
                     pdf.setAttribute('skipForErrorSum')
                 coeff.setStringAttribute("combine.process", p)
                 coeff.setStringAttribute("combine.channel", b)
@@ -511,10 +511,10 @@ class ShapeBuilder(ModelBuilder):
                     rhp.prepareStorage()
                     rhp.setShape(0, 0, 0, 0, rebins[0])
                     for i in xrange(len(coeffs)):
-                        if self.options.newHist in [1]:
+                        if self.options.newHist in [2]:
                             rhp.setShape(0, 0, i+1, 0, rebins[2 + i*2])
                             rhp.setShape(0, 0, i+1, 1, rebins[1 + i*2])
-                        elif self.options.newHist in [2]:
+                        elif self.options.newHist in [1]:
                             renormLo = rebins[2 + i*2].Clone()
                             if renormLo.Integral() > 0.:
                                 renormLo.Scale(rebins[0].Integral() / renormLo.Integral())
@@ -574,7 +574,7 @@ class ShapeBuilder(ModelBuilder):
         shapeUp = self.getShape(channel,process,systShapeName+"Up",allowNoSyst=True)    
         return shapeUp != None
     def getExtraNorm(self,channel,process):
-        if channel in self.selfNormBins and self.options.newHist in [1]:
+        if channel in self.selfNormBins and self.options.newHist in [2]:
             if self.options.verbose > 1:
                 print 'Skipping getExtraNorm for (%s,%s)' % (channel, process)
             return None
