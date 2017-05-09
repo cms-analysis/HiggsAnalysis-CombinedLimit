@@ -4,6 +4,9 @@
 #include <cassert>
 #include <unistd.h>
 
+#include <stdexcept>
+#include <fcntl.h>
+
 bool CloseCoutSentry::open_ = true;
 int  CloseCoutSentry::fdOut_ = 0;
 int  CloseCoutSentry::fdErr_ = 0;
@@ -21,8 +24,9 @@ CloseCoutSentry::CloseCoutSentry(bool silent) :
                 fdOut_ = dup(1);
                 fdErr_ = dup(2);
             }
-            freopen("/dev/null", "w", stdout);
-            freopen("/dev/null", "w", stderr);
+            int fdTmp_ = open( "/dev/null", O_RDWR );
+            dup2(fdTmp_, 1);
+            dup2(fdTmp_, 2);
             assert(owner_ == 0);
             owner_ = this;
         } else {
@@ -51,9 +55,8 @@ void CloseCoutSentry::clear()
 void CloseCoutSentry::reallyClear() 
 {
     if (fdOut_ != fdErr_) {
-        char buf[50];
-        sprintf(buf, "/dev/fd/%d", fdOut_); freopen(buf, "w", stdout);
-        sprintf(buf, "/dev/fd/%d", fdErr_); freopen(buf, "w", stderr);
+        dup2( fdOut_, 1 );
+        dup2( fdErr_, 2 );
         open_   = true;
         owner_ = 0;
     }
@@ -77,7 +80,6 @@ FILE *CloseCoutSentry::trueStdOut()
     if (owner_ != this && owner_ != 0) return owner_->trueStdOut();
     assert(owner_ == this);
     stdOutIsMine_ = true;
-    char buf[50];
-    sprintf(buf, "/dev/fd/%d", fdOut_); trueStdOut_ = fopen(buf, "w");
+    trueStdOut_ = fdopen( fdOut_, "w" );
     return trueStdOut_;
 }
