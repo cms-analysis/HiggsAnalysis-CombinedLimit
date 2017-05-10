@@ -10,6 +10,8 @@
 bool CloseCoutSentry::open_ = true;
 int  CloseCoutSentry::fdOut_ = 0;
 int  CloseCoutSentry::fdErr_ = 0;
+int  CloseCoutSentry::fdTmp_ = 0;
+int  CloseCoutSentry::fdOutDup_ = 0;
 FILE * CloseCoutSentry::trueStdOut_ = 0;
 CloseCoutSentry *CloseCoutSentry::owner_ = 0;
 
@@ -24,7 +26,7 @@ CloseCoutSentry::CloseCoutSentry(bool silent) :
                 fdOut_ = dup(1);
                 fdErr_ = dup(2);
             }
-            int fdTmp_ = open( "/dev/null", O_RDWR );
+            fdTmp_ = open( "/dev/null", O_RDWR );
             dup2(fdTmp_, 1);
             dup2(fdTmp_, 2);
             assert(owner_ == 0);
@@ -80,6 +82,7 @@ FILE *CloseCoutSentry::trueStdOut()
     if (owner_ != this && owner_ != 0) return owner_->trueStdOut();
     assert(owner_ == this);
     stdOutIsMine_ = true;
-    trueStdOut_ = fdopen( fdOut_, "w" );
+    fdOutDup_ = dup( fdOut_ ); // When clear() calls fclose(trueStdOut_), this makes sure fdOutDup_ gets closed instead of fdOut_
+    trueStdOut_ = fdopen( fdOutDup_, "w" );
     return trueStdOut_;
 }
