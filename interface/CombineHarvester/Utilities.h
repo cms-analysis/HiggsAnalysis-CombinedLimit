@@ -65,6 +65,7 @@ void SetProperties(T * first, U const* second) {
   first->set_channel(second->channel());
   first->set_bin_id(second->bin_id());
   first->set_mass(second->mass());
+  first->set_all_attributes(second->all_attributes());
 }
 
 void SetFromBinName(ch::Object *input, std::string parse_rules);
