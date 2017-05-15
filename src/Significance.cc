@@ -66,10 +66,10 @@ Significance::Significance() :
         ("usePLC",   "Compute PL limit using the ProfileLikelihoodCalculator (not default)")
         ("useMinos", "Compute PL limit using Minos directly, bypassing the ProfileLikelihoodCalculator (default)")
         ("bruteForce", "Compute PL limit by brute force, bypassing the ProfileLikelihoodCalculator and Minos")
-        ("bfAlgo", boost::program_options::value<std::string>(&bfAlgo_)->default_value(bfAlgo_), "NLL scan algorithm used for --bruteForce. Supported values are 'scale' (default), 'stepUp[Twice]', 'stepDown[Twice]'")
+        ("setBruteForceAlgo", boost::program_options::value<std::string>(&bfAlgo_)->default_value(bfAlgo_), "NLL scan algorithm used for --bruteForce. Supported values are 'scale' (default), 'stepUp[Twice]', 'stepDown[Twice]'")
         ("scanPoints", boost::program_options::value<int>(&points_)->default_value(points_), "Points for the scan")
-        ("minimizerAlgoForBF",      boost::program_options::value<std::string>(&minimizerAlgoForBF_)->default_value(minimizerAlgoForBF_), "Choice of minimizer for brute-force search")
-        ("minimizerToleranceForBF", boost::program_options::value<float>(&minimizerToleranceForBF_)->default_value(minimizerToleranceForBF_),  "Tolerance for minimizer when doing brute-force search")
+        ("setBruteForceTypeAndAlgo",      boost::program_options::value<std::string>(&minimizerAlgoForBF_)->default_value(minimizerAlgoForBF_), "Choice of minimizer for brute-force search (default is Minuit2,simplex)")
+        ("setBruteForceTolerance", boost::program_options::value<float>(&minimizerToleranceForBF_)->default_value(minimizerToleranceForBF_),  "Tolerance for minimizer when doing brute-force search")
     ;
 }
 
