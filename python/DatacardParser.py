@@ -122,9 +122,7 @@ def parseCard(file, options):
                 binline = []
                 for b in f[1:]:
                     if re.match("[0-9]+", b):
-                        if shapesUseBin: stderr.write("Warning: Bin %(b)s starts with a digit. Will call it 'bin%(b)s' but this may break shapes.\n" % locals())
-                        b = "bin"+b
-                        # TODO Here should be some patching of the shapes names in order to not get errors later.
+			raise RuntimeError, "Error: Bin %(b)s starts with a digit!" % locals()
                     binline.append(b)
             if f[0] == "process": 
                 if processline == []: # first line contains names
@@ -259,6 +257,12 @@ def parseCard(file, options):
                     else:
                         raise RuntimeError, "Will not redefine group '%s'. It previously contained '%s' and you now wanted it to contain '%s'." % (groupName,ret.groups[groupName],groupNuisances)                        
 
+                continue
+	    elif pdf=="autoMCStats":
+	        if len(f)>3: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats True/False" 
+	        if f[2] not in ['True','False']: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats true/false" 
+    		if lsyst not in ret.bins: raise RuntimeError, " No such channel '%s', malformed line:\n   %s" % (lsyst,' '.join(f))
+	        ret.binParFlags[lsyst]=bool(f[2])
                 continue
             else:
                 raise RuntimeError, "Unsupported pdf %s" % pdf

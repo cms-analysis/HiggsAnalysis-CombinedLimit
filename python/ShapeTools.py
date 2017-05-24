@@ -88,9 +88,9 @@ class ShapeBuilder(ModelBuilder):
                 else:
                     sigcoeffs.append(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
-            if self.options.newHist >= 1:
+            if self.options.newHist >= 1 : 
                 prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", self.out.binVar, pdfs, coeffs)
-                if self.options.newHistBinPars >= 0.:
+                if self.options.newHistBinPars >= 0. and ( b in self.DC.binParFlags.keys() and self.DC.binParFlags[b] ) :
                     bbb_args = prop.setupBinPars(self.options.newHistBinPars)
                     # bbb_args.Print()
                     for bidx in range(bbb_args.getSize()):
@@ -131,6 +131,7 @@ class ShapeBuilder(ModelBuilder):
                         prop_b.SetName("prop_bin%s_bonly" % b)
                     sum_b = ROOT.RooRealSumPdf("pdf_bin%s_bonly"       % b,  "", ROOT.RooArgList(prop_b),   ROOT.RooArgList(self.out.var('ONE')), True)
             else:
+	        print "Is Nice!!!"
                 sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
                 if not self.options.noBOnly: sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             sum_s.setAttribute("MAIN_MEASUREMENT") # useful for plain ROOFIT optimization on ATLAS side

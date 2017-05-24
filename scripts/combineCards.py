@@ -36,7 +36,7 @@ obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
 paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {}; rateParamsOrder = set();
-extArgs = {};
+extArgs = {}; binParFlags = {}
 nuisanceEdits = []; 
 
 cmax = 5 # column width
@@ -119,6 +119,9 @@ for ich,fname in enumerate(args):
         flatParamNuisances[K] = True
     for K in DC.extArgs.keys(): 
         extArgs[K] = DC.extArgs[K]
+    for K in DC.binParFlags.iterkeys(): 
+	tbin = label if singlebin else label+tbin 
+        binParFlags[tbin] = DC.binParFlags[K]
     # rate params
     for K in DC.rateParams.iterkeys():
 	tbin,tproc = K.split("AND")[0],K.split("AND")[1]
@@ -264,6 +267,8 @@ for ext in extArgs.iterkeys():
 for groupName,nuisanceNames in groups.iteritems():
     nuisances = ' '.join(nuisanceNames)
     print '%(groupName)s group = %(nuisances)s' % locals()
+for bpf in binParFlags.iterkeys(): 
+    print "%s autoMCStats %s" % (bpf,binParFlags[bpf])
 
 nuisanceEdits = set(nuisanceEdits)
 for edit in nuisanceEdits: 
