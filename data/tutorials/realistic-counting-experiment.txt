@@ -5,14 +5,14 @@ jmax 3  number of backgrounds
 kmax 5  number of nuisance parameters (sources of systematical uncertainties)
 ------------
 # we have just one channel, in which we observe 0 events
-bin 1
+bin bin1
 observation 0
 ------------
 # now we list the expected events for signal and all backgrounds in that bin
 # the second 'process' line must have a positive number for backgrounds, and 0 for signal
 # then we list the independent sources of uncertainties, and give their effect (syst. error)
 # on each process and bin
-bin              1     1     1     1
+bin             bin1 bin1  bin1  bin1
 process         ggH  qqWW  ggWW  others
 process          0     1     2     3
 rate           1.47  0.63  0.06  0.22
