@@ -57,6 +57,7 @@ class ShapeBuilder(ModelBuilder):
             sigcoeffs = []
             binconstraints = ROOT.RooArgList()
             bbb_args = None
+	    channelBinParFlag = b in self.DC.binParFlags.keys() and self.DC.binParFlags[b]
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
@@ -88,9 +89,9 @@ class ShapeBuilder(ModelBuilder):
                 else:
                     sigcoeffs.append(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
-            if self.options.newHist >= 1 : 
+            if self.options.newHist >= 1 and channelBinParFlag: 
                 prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", self.out.binVar, pdfs, coeffs)
-                if self.options.newHistBinPars >= 0. and ( b in self.DC.binParFlags.keys() and self.DC.binParFlags[b] ) :
+                if self.options.newHistBinPars >= 0.:
                     bbb_args = prop.setupBinPars(self.options.newHistBinPars)
                     # bbb_args.Print()
                     for bidx in range(bbb_args.getSize()):
@@ -131,7 +132,6 @@ class ShapeBuilder(ModelBuilder):
                         prop_b.SetName("prop_bin%s_bonly" % b)
                     sum_b = ROOT.RooRealSumPdf("pdf_bin%s_bonly"       % b,  "", ROOT.RooArgList(prop_b),   ROOT.RooArgList(self.out.var('ONE')), True)
             else:
-	        print "Is Nice!!!"
                 sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
                 if not self.options.noBOnly: sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             sum_s.setAttribute("MAIN_MEASUREMENT") # useful for plain ROOFIT optimization on ATLAS side
@@ -177,7 +177,7 @@ class ShapeBuilder(ModelBuilder):
                 self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
                 if not self.options.noBOnly:
                     self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
-            if self.options.newHist >= 1:
+            if self.options.newHist >= 1 and channelBinParFlag:
                 for idx in xrange(pdfs.getSize()):
                     self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', self.out.binVar, pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes())
         if self.options.verbose:
