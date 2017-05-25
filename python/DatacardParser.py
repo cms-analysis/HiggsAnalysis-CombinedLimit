@@ -261,8 +261,13 @@ def parseCard(file, options):
 	    elif pdf=="autoMCStats":
 	        if len(f)>3: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats True/False" 
 	        if f[2] not in ['True','False']: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats true/false" 
-    		if lsyst not in ret.bins: raise RuntimeError, " No such channel '%s', malformed line:\n   %s" % (lsyst,' '.join(f))
-	        ret.binParFlags[lsyst]=bool(f[2])
+		if "*" in lsyst: 
+		  for b in ret.bins: 
+		    	if (not fnmatch.fnmatch(b, lsyst)): continue
+		  	ret.binParFlags[b]=bool(f[2])
+    		else:
+		  if lsyst not in ret.bins: raise RuntimeError, " No such channel '%s', malformed line:\n   %s" % (lsyst,' '.join(f))
+	          ret.binParFlags[lsyst]=bool(f[2])
                 continue
             else:
                 raise RuntimeError, "Unsupported pdf %s" % pdf
