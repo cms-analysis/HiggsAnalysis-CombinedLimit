@@ -49,7 +49,7 @@ class ShapeBuilder(ModelBuilder):
             sigcoeffs = []
             binconstraints = ROOT.RooArgList()
             bbb_args = None
-	    channelBinParFlag = b in self.DC.binParFlags.keys() and self.DC.binParFlags[b]
+	    channelBinParFlag = b in self.DC.binParFlags.keys() and self.DC.binParFlags[b]>=0
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
@@ -84,10 +84,10 @@ class ShapeBuilder(ModelBuilder):
                 else:
                     sigcoeffs.append(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
-            if self.options.newHist >= 1 and channelBinParFlag: 
+            if channelBinParFlag: 
                 prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", pdfs.at(0).getXVar(), pdfs, coeffs)
-                if self.options.newHistBinPars >= 0.:
-                    bbb_args = prop.setupBinPars(self.options.newHistBinPars)
+                if self.DC.binParFlags[b] >= 0.:
+                    bbb_args = prop.setupBinPars(self.DC.binParFlags[b])
                     # bbb_args.Print()
                     for bidx in range(bbb_args.getSize()):
                         arg = bbb_args.at(bidx)
@@ -175,7 +175,7 @@ class ShapeBuilder(ModelBuilder):
                 self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
                 if not self.options.noBOnly:
                     self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
-            if self.options.newHist >= 1 and channelBinParFlag:
+            if channelBinParFlag:
                 for idx in xrange(pdfs.getSize()):
                     self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
         if self.options.verbose:
@@ -221,6 +221,7 @@ class ShapeBuilder(ModelBuilder):
         self.pdfModes = {}
         for ib,b in enumerate(self.DC.bins):
             databins = {}; bgbins = {}
+	    channelBinParFlag = b in self.DC.binParFlags.keys() and self.DC.binParFlags[b]>=0
             for p in [self.options.dataname]+self.DC.exp[b].keys():
                 if len(self.DC.obs) == 0 and p == self.options.dataname: continue
                 if p != self.options.dataname and self.DC.exp[b][p] == 0: continue
@@ -239,7 +240,7 @@ class ShapeBuilder(ModelBuilder):
                         shapeTypes.append("RooAbsPdf");
                 elif shape.ClassName().startswith("TH1"):
                     shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
-                    if self.options.newHist >= 1:
+                    if channelBinParFlag:
                         self.selfNormBins.append(b)
                     norm = shape.Integral()
                     if p == self.options.dataname: 
@@ -447,6 +448,7 @@ class ShapeBuilder(ModelBuilder):
         nominalPdf = self.shape2Pdf(shapeNominal,channel,process) if (self.options.useHistPdf == "always" or shapeNominal == None) else shapeNominal
         if shapeNominal == None: return nominalPdf # no point morphing a fake shape
         morphs = []; shapeAlgo = None
+	channelBinParFlag = channel in self.DC.binParFlags.keys() and self.DC.binParFlags[channel]>=0
         for (syst,nofloat,pdf,args,errline) in self.DC.systs:
             if not "shape" in pdf: continue
             if errline[channel][process] == 0: continue
@@ -505,7 +507,7 @@ class ShapeBuilder(ModelBuilder):
                     rebinned = self.rebinH1(pdfs.At(i))
                     rebins.Add(rebinned)
                     maxbins = max(maxbins, rebinned._original_bins)
-                if self.options.newHist >= 1:
+                if channelBinParFlag:
                     rhp = ROOT.CMSHistFunc("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins[0])
                     rhp.setVerticalMorphs(coeffs)
                     rhp.setVerticalType(ROOT.CMSHistFunc.QuadLinear if qalgo >= 0 else ROOT.CMSHistFunc.LogQuadLinear)
@@ -659,6 +661,7 @@ class ShapeBuilder(ModelBuilder):
         return _cache[shape.GetName()]
     def shape2Pdf(self,shape,channel,process,_cache={}):
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
+	channelBinParFlag = channel in self.DC.binParFlags.keys() and self.DC.binParFlags[channel]>=0
         if shape == None:
             name = "shape%s_%s_%s" % (postFix,channel,process)
             if not _cache.has_key(name):
@@ -669,7 +672,7 @@ class ShapeBuilder(ModelBuilder):
                 if self.options.useHistPdf == "never":
                     shape = self.rebinH1(shape)
                     list = ROOT.TList(); list.Add(shape);
-                    if self.options.newHist >= 1:
+                    if channelBinParFlag:
                         rhp = ROOT.CMSHistFunc("%sPdf" % shape.GetName(), "", self.out.binVar, shape)
                         rhp.prepareStorage()
                         rhp.setShape(0, 0, 0, 0, shape)

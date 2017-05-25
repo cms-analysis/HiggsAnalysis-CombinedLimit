@@ -21,8 +21,8 @@ def addDatacardParserOptions(parser):
     parser.add_option("--optimize-simpdf-constraints",    dest="moreOptimizeSimPdf", default="none", type="string", help="Handling of constraints in simultaneous pdf: 'none' = add all constraints on all channels (default); 'lhchcg' = add constraints on only the first channel; 'cms' = add constraints to the RooSimultaneousOpt.")
     #parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--channel-masks",  dest="doMasks", default=False, action="store_true", help="Create channel-masking RooRealVars")
-    parser.add_option("--new-hist-mode",  dest="newHist", default=0, type=int, help="Use new CMSHistFunc implementation for TH1 inputs. 1 = shape syst norm factorised as log-normals 2 = not factorised")
-    parser.add_option("--new-hist-binpars",  dest="newHistBinPars", default=-1., type=float, help="Create barlow-beeston-lite style bin stat uncertainties. Revert to per-process poisson uncertainties when uncertainty is below threshold.")
+    parser.add_option("--new-hist-mode",  dest="newHist", default=1, type=int, help="Use new CMSHistFunc implementation for TH1 inputs. 1 = shape syst norm factorised as log-normals 2 = not factorised")
+    #parser.add_option("--new-hist-binpars",  dest="newHistBinPars", default=-1., type=float, help="Create barlow-beeston-lite style bin stat uncertainties. Revert to per-process poisson uncertainties when uncertainty is below threshold.") # handle this in the datacard
     parser.add_option("--new-hist-include-signal",  dest="newHistIncSig", default=False, action="store_true", help="Include the signal processes in the bin error sums used to determine the fallback to per-process poisson uncertainties")
     parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="never", help="Use RooHistPdf for TH1s: 'always', 'never' (default), 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
@@ -259,15 +259,14 @@ def parseCard(file, options):
 
                 continue
 	    elif pdf=="autoMCStats":
-	        if len(f)>3: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats True/False" 
-	        if f[2] not in ['True','False']: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats true/false" 
+	        if len(f)>3: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats threshold" 
 		if "*" in lsyst: 
 		  for b in ret.bins: 
 		    	if (not fnmatch.fnmatch(b, lsyst)): continue
-		  	ret.binParFlags[b]=bool(f[2])
+		  	ret.binParFlags[b]=float(f[2])
     		else:
 		  if lsyst not in ret.bins: raise RuntimeError, " No such channel '%s', malformed line:\n   %s" % (lsyst,' '.join(f))
-	          ret.binParFlags[lsyst]=bool(f[2])
+	          ret.binParFlags[lsyst]=float(f[2])
                 continue
             else:
                 raise RuntimeError, "Unsupported pdf %s" % pdf
