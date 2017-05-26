@@ -52,8 +52,9 @@ class STXSBaseModel(PhysicsModel):
     def preProcessNuisances(self,nuisances):
     	# add here any pre-processed nuisances such as constraint terms for the mass profiling?
     	return 
-    def setPhysicsOptionsBase(self,physOptions):
+    def setPhysicsOptions(self,physOptions):
         for po in physOptions:
+	    print po
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
@@ -68,7 +69,8 @@ class STXSBaseModel(PhysicsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
+	    self.POIs+=",MH"
         else:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
@@ -91,17 +93,20 @@ class StageZero(STXSBaseModel):
     def doVar(self,x,constant=True):
         self.modelBuilder.doVar(x)
         vname = re.sub(r"\[.*","",x)
-        self.modelBuilder.out.var(vname).setConstant(constant)
-        print "SignalStrengths:: declaring %s as %s, and set to constant" % (vname,x)
+        #self.modelBuilder.out.var(vname).setConstant(constant)
+        print "SignalStrengths:: declaring %s as %s" % (vname,x)
     def doParametersOfInterest(self):
         """Create POI out of signal strengths (and MH)"""
-        self.doMH()
+	pois = []
         for X in [ "qqH", "ggH", "ttH", "QQ2HLNU", "QQ2HLL", "VH2HQQ"]:
             self.doVar("r_%s[1,0,10]" % X)
+	    pois.append("r_%s"%X)
+	self.POIs=",".join(pois)
+        self.doMH()
         print "Default parameters of interest: ", self.POIs
         self.modelBuilder.doSet("POI",self.POIs)
-        self.SMH = SMHiggsBuilder(self.modelBuilder)
-        self.setup()
+        #self.SMH = SMHiggsBuilder(self.modelBuilder)
+        #self.setup()
     def setup(self):
 	return 
 
