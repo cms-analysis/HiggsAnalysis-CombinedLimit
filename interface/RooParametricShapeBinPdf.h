@@ -48,9 +48,9 @@ protected:
    Double_t xArray[2000]; // xArray[xBins+1]
    Double_t xMax;        // X max
    Double_t xMin;        // X min
-   Int_t nPars;
    Double_t relTol;      //relative tolerance for numerical integration
    Double_t absTol;      //absolute tolerance for numerical integration
+   Int_t nPars;
 
    Double_t evaluate() const;
 private:
