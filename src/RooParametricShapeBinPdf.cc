@@ -21,9 +21,9 @@ using namespace RooFit;
 
 ClassImp(RooParametricShapeBinPdf)
 //---------------------------------------------------------------------------
-RooParametricShapeBinPdf::RooDijetBinPdf(const char *name, const char *title, const char *formula, 
-			       RooAbsReal& _th1x, RooArgList& _pars, const TH1 &_shape ) : RooAbsPdf(name, title), 
-  th1x("th1x", "th1x Observable", this, _th1x),
+RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char *title, const char *formula, 
+			       RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape ) : RooAbsPdf(name, title), 
+  x("x", "x Observable", this, _x),
   pars("pars","pars",this),
   xBins(0),
   xMax(0),
@@ -44,7 +44,7 @@ RooParametricShapeBinPdf::RooDijetBinPdf(const char *name, const char *title, co
 }
 //---------------------------------------------------------------------------
 RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other, const char* name) : RooAbsPdf(other, name), 
-   th1x("th1x", this, other.th1x),
+   x("x", this, other.x),
    pars("_pars",this,RooListProxy()),
    xBins(other.xBins),
    xMax(other.xMax),
@@ -88,9 +88,11 @@ void RooParametricShapeBinPdf::setAbsTol(double _absTol){
 Double_t RooParametricShapeBinPdf::evaluate() const
 {
   Double_t integral = 0.0;
+  Int_t iBin;
+  for(iBin=0; iBin<xBins; iBin++) {  
+    if (x>=xArray[iBin] && x < xArray[iBin+1] ) break;
+  }
   
-
-  Int_t iBin = (Int_t) th1x;
   if(iBin < 0 || iBin >= xBins) {
     //cout << "in bin " << iBin << " which is outside of range" << endl;
     return 0.0;
@@ -112,7 +114,6 @@ Double_t RooParametricShapeBinPdf::evaluate() const
   myfunc->SetParameters(params);
   func.SetParameters(params);
 
-
   ROOT::Math::Integrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE,absTol,relTol);
   ig.SetFunction(func,false);
   
@@ -127,20 +128,16 @@ Double_t RooParametricShapeBinPdf::evaluate() const
 
 // //---------------------------------------------------------------------------
 Int_t RooParametricShapeBinPdf::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName) const{
-  if (matchArgs(allVars, analVars, th1x)) return 1;
+  if (matchArgs(allVars, analVars, x)) return 1;
   return 0;
 }
 
 // //---------------------------------------------------------------------------
 Double_t RooParametricShapeBinPdf::analyticalIntegral(Int_t code, const char* rangeName) const{
 
-   Double_t th1xMin = th1x.min(rangeName); Double_t th1xMax = th1x.max(rangeName);
-   Int_t iBinMin = (Int_t) th1xMin; Int_t iBinMax = (Int_t) th1xMax;
+   Double_t xRangeMin = x.min(rangeName); Double_t xRangeMax = x.max(rangeName);
 
    Double_t integral = 0.0;
-      
-   //cout <<  "iBinMin = " << iBinMin << ",iBinMax = " << iBinMax << endl;
-
    
    // define the function to be integrated numerically  
    ROOT::Math::WrappedTF1 func(*myfunc);
@@ -158,23 +155,36 @@ Double_t RooParametricShapeBinPdf::analyticalIntegral(Int_t code, const char* ra
    ROOT::Math::Integrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE,absTol,relTol);
    ig.SetFunction(func,false);
     
-
-   if (code==1 && iBinMin<=0 && iBinMax>=xBins){
+   if (code==1 && xRangeMin<=xMin && xRangeMax>=xMax){
      integral = ig.Integral(xMin,xMax);
-     
+     return integral;
    }
-   else if(code==1) { 
-     for (Int_t iBin=iBinMin; iBin<iBinMax; iBin++){
-       
-       if(iBin < 0 || iBin >= xBins) {
-	 integral += 0.0;
-       }
-       else{	 
-	 Double_t xLow = xArray[iBin];
-	 Double_t xHigh = xArray[iBin+1];    
-	 integral += ig.Integral(xLow,xHigh);
+   else if(code==1) {     
+     //Double_t integral = ig.Integral(xRangeMin,xRangeMax);
+     //return integral;
+     for (Int_t iBin=0; iBin<xBins; iBin++){       
+       Double_t xLow = xArray[iBin];
+       Double_t xHigh = xArray[iBin+1];
+       Double_t partial_integral = ig.Integral(xLow,xHigh);
+       if (xLow>=xRangeMin && xHigh<=xRangeMax) {
+     	 // Bin fully in the integration domain
+     	 integral += partial_integral;
+       } else if (xLow<xRangeMin && xHigh>xRangeMax) {
+     	 // Domain is fully contained in this bin
+     	 integral += (xRangeMax-xRangeMin)*partial_integral/(xHigh-xLow);
+     	 // Exit here, this is the last bin to be processed by construction
+     	 return integral;
+       } else if (xLow<xRangeMin && xHigh<=xRangeMax && xHigh>xRangeMin) {
+     	 // Lower domain boundary is in bin
+     	 integral += (xHigh-xRangeMin)*partial_integral/(xHigh-xLow);
+       } else if (xLow>=xRangeMin && xHigh>xRangeMax && xLow<xRangeMax) {
+     	 // Upper domain boundary is in bin
+     	 integral +=  (xRangeMax-xLow)*partial_integral/(xHigh-xLow);
+     	 // Exit here, this is the last bin to be processed by construction
+     	 return integral;
        }
      }
+     return integral;
    } else {
      cout << "WARNING IN RooParametricShapeBinPdf: integration code is not correct" << endl;
      cout << "                           what are you integrating on?" << endl;

@@ -27,7 +27,7 @@ class RooParametricShapeBinPdf : public RooAbsPdf
 public:
    RooParametricShapeBinPdf() {} ;
    RooParametricShapeBinPdf(const char *name, const char *title,  const char *formula, 
-		  RooAbsReal& _th1x, RooArgList& _pars, const TH1 &_shape );
+		  RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape );
    RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other,
       const char* name = 0);
    void setTH1Binning(const TH1& _Hnominal);
@@ -41,7 +41,7 @@ public:
 
 protected:   
 
-   RooRealProxy th1x;        // dependent variable
+   RooRealProxy x;        // dependent variable
    RooListProxy pars;
    TF1 * myfunc;
    Int_t xBins;        // X bins
@@ -54,7 +54,7 @@ protected:
 
    Double_t evaluate() const;
 private:
-   ClassDef(RooParametricShapeBinPdf,1) // RazorDijetBinPdf function
+   ClassDef(RooParametricShapeBinPdf,1) // RooParametricShapeBinPdf function
     
 };
 //---------------------------------------------------------------------------
