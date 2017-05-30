@@ -28,6 +28,8 @@ public:
    RooParametricShapeBinPdf() {} ;
    RooParametricShapeBinPdf(const char *name, const char *title,  const char *formula, 
 		  RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape );
+   RooParametricShapeBinPdf(const char *name, const char *title,  RooAbsReal& _pdf, 
+		  RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape );
    RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other,
       const char* name = 0);
    void setTH1Binning(const TH1& _Hnominal);
