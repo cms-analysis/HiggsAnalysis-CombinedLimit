@@ -142,7 +142,7 @@ Double_t RooParametricShapeBinPdf::evaluate() const
   ROOT::Math::Integrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE,absTol,relTol);
   ig.SetFunction(func,false);
   
-  integral = ig.Integral(xLow,xHigh);
+  integral = ig.Integral(xLow,xHigh) / (xHigh-xLow); //return integral as a density 
   //Double_t total_integral = ig.Integral(xMin,xMax);
 
   if (integral>0.0) {
