@@ -134,6 +134,16 @@ void CombineHarvester::AddSystFromProc(Process const& proc,
   systs_.push_back(sys);
 }
 
+void CombineHarvester::RenameSystematic(CombineHarvester &target, std::string const& old_name,
+                                        std::string const& new_name) {
+ for(unsigned i = 0; i<systs_.size(); ++i){
+    if(systs_[i]->name()==old_name){
+      systs_[i]->set_name(new_name);
+      target.CreateParameterIfEmpty(systs_[i]->name());
+    }
+  }
+}
+
 void CombineHarvester::ExtractShapes(std::string const& file,
                                      std::string const& rule,
                                      std::string const& syst_rule) {
