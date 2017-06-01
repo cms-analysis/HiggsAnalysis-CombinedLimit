@@ -23,6 +23,7 @@ using namespace RooFit;
 
 ClassImp(RooParametricShapeBinPdf)
 //---------------------------------------------------------------------------
+/*
 RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char *title, const char *formula, 
 			       RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape ) : RooAbsPdf(name, title), 
   x("x", "x Observable", this, _x),
@@ -49,6 +50,7 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
   //mypdf.setArg((RooAbsPdf&)* new RooTFnBinding("mypdf","mypdf",myfunc,obs,pars));
   nPars = pars.getSize();
 }
+*/
 //---------------------------------------------------------------------------
 RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char *title, RooAbsReal& _pdf, 
 			       RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape ) : RooAbsPdf(name, title), 
