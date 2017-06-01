@@ -35,6 +35,7 @@ public:
    void setTH1Binning(const TH1& _Hnominal);
    void setAbsTol(double _absTol);
    void setRelTol(double _relTol);
+   RooAbsPdf* getPdf() const;
    virtual TObject* clone(const char* newname) const { return new RooParametricShapeBinPdf(*this,newname); }
    inline virtual ~RooParametricShapeBinPdf() { }
 
@@ -45,6 +46,7 @@ protected:
 
    RooRealProxy x;        // dependent variable
    RooListProxy pars;
+   RooRealProxy mypdf;
    TF1 * myfunc;
    Int_t xBins;        // X bins
    Double_t xArray[2000]; // xArray[xBins+1]
@@ -56,6 +58,19 @@ protected:
 
    Double_t evaluate() const;
 private:
+   virtual RooPlot* plotOn(RooPlot* frame, 
+              const RooCmdArg& arg1=RooCmdArg::none(), const RooCmdArg& arg2=RooCmdArg::none(),
+              const RooCmdArg& arg3=RooCmdArg::none(), const RooCmdArg& arg4=RooCmdArg::none(),
+              const RooCmdArg& arg5=RooCmdArg::none(), const RooCmdArg& arg6=RooCmdArg::none(),
+              const RooCmdArg& arg7=RooCmdArg::none(), const RooCmdArg& arg8=RooCmdArg::none(),
+              const RooCmdArg& arg9=RooCmdArg::none(), const RooCmdArg& arg10=RooCmdArg::none()
+                 ) const {
+     return mypdf.arg().plotOn(frame,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10) ;
+     }
+     virtual RooPlot* plotOn(RooPlot* frame, RooLinkedList& cmdList) const {
+       return mypdf.arg().plotOn(frame,cmdList) ;
+     }
+     
    ClassDef(RooParametricShapeBinPdf,1) // RooParametricShapeBinPdf function
     
 };

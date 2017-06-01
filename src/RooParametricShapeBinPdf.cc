@@ -16,6 +16,7 @@
 #include "Math/IFunction.h"
 #include "Math/Integrator.h"
 #include "Math/GSLIntegrator.h"
+#include "RooTFnBinding.h"
 
 using namespace std;
 using namespace RooFit;
@@ -26,28 +27,7 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
 			       RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape ) : RooAbsPdf(name, title), 
   x("x", "x Observable", this, _x),
   pars("pars","pars",this),
-  xBins(0),
-  xMax(0),
-  xMin(0),
-  relTol(1E-12),
-  absTol(1E-12),
-  nPars(0)
-{
-  memset(&xArray, 0, sizeof(xArray));
-  TIterator *varIter=_pars.createIterator(); 
-  RooAbsReal *fVar;
-  while ( (fVar = (RooAbsReal*)varIter->Next()) ){
-	pars.add(*fVar);
-  }
-  setTH1Binning(_shape);  
-  myfunc = new TF1("myfunc",formula,xMin,xMax);
-  nPars = pars.getSize();
-}
-//---------------------------------------------------------------------------
-RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char *title, RooAbsReal& _pdf, 
-			       RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape ) : RooAbsPdf(name, title), 
-  x("x", "x Observable", this, _x),
-  pars("pars","pars",this),
+  mypdf("mypdf","mypdf",this),
   xBins(0),
   xMax(0),
   xMin(0),
@@ -62,7 +42,34 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
 	pars.add(*fVar);
   }
   setTH1Binning(_shape);
-  RooArgList obs;
+  myfunc = new TF1("myfunc",formula,xMin,xMax);
+  mypdf.setArg((RooAbsPdf&)*bindFunction(myfunc,(RooAbsReal&)x.arg(),pars));
+  //RooListProxy obs;
+  //obs.add(x.arg());
+  //mypdf.setArg((RooAbsPdf&)* new RooTFnBinding("mypdf","mypdf",myfunc,obs,pars));
+  nPars = pars.getSize();
+}
+//---------------------------------------------------------------------------
+RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char *title, RooAbsReal& _pdf, 
+			       RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape ) : RooAbsPdf(name, title), 
+  x("x", "x Observable", this, _x),
+  pars("pars","pars",this),
+  mypdf("mypdf","mypdf", this, _pdf),
+  xBins(0),
+  xMax(0),
+  xMin(0),
+  relTol(1E-12),
+  absTol(1E-12),
+  nPars(0)
+{
+  memset(&xArray, 0, sizeof(xArray));
+  TIterator *varIter=_pars.createIterator(); 
+  RooAbsReal *fVar;
+  while ( (fVar = (RooAbsReal*)varIter->Next()) ){
+	pars.add(*fVar);
+  }
+  setTH1Binning(_shape);
+  RooListProxy obs;
   obs.add(x.arg());
   myfunc = _pdf.asTF(obs,pars);
   nPars = pars.getSize();
@@ -70,7 +77,8 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
 //---------------------------------------------------------------------------
 RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other, const char* name) : RooAbsPdf(other, name), 
    x("x", this, other.x),
-   pars("_pars",this,RooListProxy()),
+   pars("pars",this,RooListProxy()),
+   mypdf("mypdf",this,other.mypdf),
    xBins(other.xBins),
    xMax(other.xMax),
    xMin(other.xMin),
@@ -89,7 +97,6 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPd
 	pars.add(*fVar);
   }
   myfunc = new TF1(*(other.myfunc));
-  
 }
 //---------------------------------------------------------------------------
 void RooParametricShapeBinPdf::setTH1Binning(const TH1 &_Hnominal){
@@ -108,6 +115,11 @@ void RooParametricShapeBinPdf::setRelTol(double _relTol){
 //---------------------------------------------------------------------------
 void RooParametricShapeBinPdf::setAbsTol(double _absTol){
   absTol = _absTol;
+}
+//---------------------------------------------------------------------------
+/// Return the parameteric p.d.f
+RooAbsPdf* RooParametricShapeBinPdf::getPdf() const {
+  return mypdf ? ((RooAbsPdf*)mypdf.absArg()) : 0 ;
 }
 //---------------------------------------------------------------------------
 Double_t RooParametricShapeBinPdf::evaluate() const
