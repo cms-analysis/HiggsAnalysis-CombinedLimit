@@ -80,7 +80,7 @@ MB = None
 	print "DC.exp = 	"		, self.exp                      ,"#",type(self.exp)			
 	print "DC.systs = 	"		, self.systs                    ,"#",type(self.systs)		
 	print "DC.shapeMap = 	"		, self.shapeMap                 ,"#",type(self.shapeMap)		
-	print "DC.hasShapes = 	"		, self.hasShapes                 ,"#",type(self.hasShapes)		
+	print "DC.hasShapes = 	"		, self.hasShapes                ,"#",type(self.hasShapes)		
 	print "DC.flatParamNuisances = "	, self.flatParamNuisances       ,"#",type(self.flatParamNuisances)	
 	print "DC.rateParams = "		, self.rateParams               ,"#",type(self.rateParams)		
 	print "DC.extArgs = 	"		, self.extArgs                  ,"#",type(self.extArgs)		
@@ -96,7 +96,7 @@ MB = None
 ###### User defined options #############################################
 
 options.out 	 = "combine_workspace.root"  	# Output workspace name
-options.fileName = "./data/tutorials/shapes/" 	# Path to input ROOT files 
+options.fileName = "./" 			# Path to input ROOT files 
 options.verbose  = "1" 				# Verbosity
 
 ##########################################################################
