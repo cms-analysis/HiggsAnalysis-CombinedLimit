@@ -58,7 +58,7 @@ from HiggsAnalysis.CombinedLimit.ModelTools import *
 from HiggsAnalysis.CombinedLimit.ShapeTools import *
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
-from sys import argv, stdout, stderr, exit, modules
+from sys import exit
 from optparse import OptionParser
 parser = OptionParser()
 addDatacardParserOptions(parser)
