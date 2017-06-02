@@ -66,6 +66,9 @@ class ShapeBuilder(ModelBuilder):
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                     self.out._import(prodfunc)
                     coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))                    
+                if self.options.newHist >= 1:  # It's better if the CMSHistFunc objects are in the workspace already
+                    self.out._import(pdf)
+                    pdf = self.out.arg(pdf.GetName())
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
@@ -173,7 +176,7 @@ class ShapeBuilder(ModelBuilder):
                     self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
             if self.options.newHist >= 1:
                 for idx in xrange(pdfs.getSize()):
-                    self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes())
+                    self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
     def doCombination(self):
