@@ -1116,4 +1116,8 @@ CMSHistFuncWrapper const* CMSHistFunc::wrapper() const {
   return nullptr;
 }
 
+RooAbsReal const& CMSHistFunc::getXVar() const {
+  return x_.arg();
+}
+
 #undef HFVERBOSE
