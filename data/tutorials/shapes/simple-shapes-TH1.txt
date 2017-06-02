@@ -4,10 +4,10 @@ kmax *
 ---------------
 shapes * * simple-shapes-TH1_input.root $PROCESS $PROCESS_$SYSTEMATIC
 ---------------
-bin 1
+bin bin1
 observation 85
 ------------------------------
-bin             1          1
+bin             bin1       bin1
 process         signal     background
 process         0          1
 rate            10         100
