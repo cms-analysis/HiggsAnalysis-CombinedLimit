@@ -49,7 +49,9 @@ class ShapeBuilder(ModelBuilder):
             sigcoeffs = []
             binconstraints = ROOT.RooArgList()
             bbb_args = None
-	    channelBinParFlag = b in self.DC.binParFlags.keys() and self.DC.binParFlags[b]>=0
+            channelBinParFlag = b in self.DC.binParFlags.keys()
+            if channelBinParFlag:
+                print 'Channel %s will use autoMCStats with settings: event-threshold=%g, include-signal=%i, hist-mode=%i' % ((b,)+self.DC.binParFlags[b])
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
@@ -67,13 +69,13 @@ class ShapeBuilder(ModelBuilder):
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                     self.out._import(prodfunc)
                     coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))                    
-                if self.options.newHist >= 1:  # It's better if the CMSHistFunc objects are in the workspace already
+                if channelBinParFlag:  # It's better if the CMSHistFunc objects are in the workspace already
                     self.out._import(pdf)
                     pdf = self.out.arg(pdf.GetName())
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
-                if self.DC.isSignal[p] and not self.options.newHistIncSig:
+                if channelBinParFlag and self.DC.isSignal[p] and not self.DC.binParFlags[b][1]:
                     pdf.setAttribute('skipForErrorSum')
                 coeff.setStringAttribute("combine.process", p)
                 coeff.setStringAttribute("combine.channel", b)
@@ -86,9 +88,8 @@ class ShapeBuilder(ModelBuilder):
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
             if channelBinParFlag: 
                 prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", pdfs.at(0).getXVar(), pdfs, coeffs)
-                if self.DC.binParFlags[b] >= 0.:
-                    bbb_args = prop.setupBinPars(self.DC.binParFlags[b])
-                    # bbb_args.Print()
+                if self.DC.binParFlags[b][0] >= 0.:
+                    bbb_args = prop.setupBinPars(self.DC.binParFlags[b][0])
                     for bidx in range(bbb_args.getSize()):
                         arg = bbb_args.at(bidx)
                         n = arg.GetName()
@@ -221,7 +222,7 @@ class ShapeBuilder(ModelBuilder):
         self.pdfModes = {}
         for ib,b in enumerate(self.DC.bins):
             databins = {}; bgbins = {}
-	    channelBinParFlag = b in self.DC.binParFlags.keys() and self.DC.binParFlags[b]>=0
+            channelBinParFlag = b in self.DC.binParFlags.keys()
             for p in [self.options.dataname]+self.DC.exp[b].keys():
                 if len(self.DC.obs) == 0 and p == self.options.dataname: continue
                 if p != self.options.dataname and self.DC.exp[b][p] == 0: continue
@@ -448,7 +449,7 @@ class ShapeBuilder(ModelBuilder):
         nominalPdf = self.shape2Pdf(shapeNominal,channel,process) if (self.options.useHistPdf == "always" or shapeNominal == None) else shapeNominal
         if shapeNominal == None: return nominalPdf # no point morphing a fake shape
         morphs = []; shapeAlgo = None
-	channelBinParFlag = channel in self.DC.binParFlags.keys() and self.DC.binParFlags[channel]>=0
+	channelBinParFlag = channel in self.DC.binParFlags.keys()
         for (syst,nofloat,pdf,args,errline) in self.DC.systs:
             if not "shape" in pdf: continue
             if errline[channel][process] == 0: continue
@@ -515,10 +516,10 @@ class ShapeBuilder(ModelBuilder):
                     rhp.prepareStorage()
                     rhp.setShape(0, 0, 0, 0, rebins[0])
                     for i in xrange(len(coeffs)):
-                        if self.options.newHist in [2]:
+                        if self.DC.binParFlags[channel][2] in [2]:
                             rhp.setShape(0, 0, i+1, 0, rebins[2 + i*2])
                             rhp.setShape(0, 0, i+1, 1, rebins[1 + i*2])
-                        elif self.options.newHist in [1]:
+                        elif self.DC.binParFlags[channel][2] in [1]:
                             renormLo = rebins[2 + i*2].Clone()
                             if renormLo.Integral() > 0.:
                                 renormLo.Scale(rebins[0].Integral() / renormLo.Integral())
@@ -578,7 +579,7 @@ class ShapeBuilder(ModelBuilder):
         shapeUp = self.getShape(channel,process,systShapeName+"Up",allowNoSyst=True)    
         return shapeUp != None
     def getExtraNorm(self,channel,process):
-        if channel in self.selfNormBins and self.options.newHist in [2]:
+        if channel in self.selfNormBins and self.DC.binParFlags[channel][2] in [2]:
             if self.options.verbose > 1:
                 print 'Skipping getExtraNorm for (%s,%s)' % (channel, process)
             return None
@@ -661,7 +662,7 @@ class ShapeBuilder(ModelBuilder):
         return _cache[shape.GetName()]
     def shape2Pdf(self,shape,channel,process,_cache={}):
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
-	channelBinParFlag = channel in self.DC.binParFlags.keys() and self.DC.binParFlags[channel]>=0
+	channelBinParFlag = channel in self.DC.binParFlags.keys()
         if shape == None:
             name = "shape%s_%s_%s" % (postFix,channel,process)
             if not _cache.has_key(name):
