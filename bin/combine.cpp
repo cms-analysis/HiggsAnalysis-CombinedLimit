@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
     ("igpMem", "Setup support for memory profiling using IgProf")
     ("perfCounters", "Dump performance counters at end of job")
     ("LoadLibrary,L", po::value<vector<string> >(&librariesToLoad), "Load library through gSystem->Load(...). Can specify multiple libraries using this option multiple times")
-    ("model-point",  po::value<vector<string> >(&modelPoints), "Set model point values with 'PARAM=X', will replace $PARAM with X in datacards. Filename will also be extended with 'paramX'. Can specify multiple times")
+    ("keyword-value",  po::value<vector<string> >(&modelPoints), "Set keyword values with 'WORD=VALUE', will replace $WORD with VALUE in datacards. Filename will also be extended with 'WORDVALUE'. Can specify multiple times")
     ("X-rtd",  po::value<vector<string> >(&runtimeDefines), "Define some constants to be used at runtime (for debugging purposes). The syntax is --X-rtd identifier[=value], where value is an integer and defaults to 1. Can specify multiple times")
     ("X-fpeMask", po::value<int>(), "Set FPE mask: 1=NaN, 2=Div0, 4=Overfl, 8=Underf, 16=Inexact; 7=default")
     ;
@@ -232,15 +232,15 @@ int main(int argc, char **argv) {
   if (vm.count("expectedFromGrid") && !vm["expectedFromGrid"].defaulted()) toyName += TString::Format("quant%.3f.", vm["expectedFromGrid"].as<float>());
   if (vm.count("expected")         && !vm["expected"].defaulted())         toyName += TString::Format("quant%.3f.", vm["expected"].as<float>());
 
-  if (vm.count("model-point") ) {
+  if (vm.count("keyword-value") ) {
     for (vector<string>::const_iterator rmp = modelPoints.begin(), endrmp = modelPoints.end(); rmp != endrmp; ++rmp) {
       std::string::size_type idx = rmp->find('=');
       if (idx == std::string::npos) {
-     	cerr << "No value found for model point :\n\t" << *rmp << " use --model-point PARAMETER=X " << std::endl;
+     	cerr << "No value found for keyword :\n\t" << *rmp << " use --keyword-value WORD=VALUE " << std::endl;
       } else {
         std::string name   = rmp->substr(0, idx);
         std::string svalue = rmp->substr(idx+1);
-        if (verbose > 0) std::cout << "Setting model point " << name << " to " << svalue << std::endl;
+        if (verbose > 0) std::cout << "Setting keyword " << name << " to " << svalue << std::endl;
 	modelParamNameVector_.push_back(name);
 	modelParamValVector_.push_back(svalue);
 	massName += TString(name.c_str())+TString(svalue.c_str())+".";

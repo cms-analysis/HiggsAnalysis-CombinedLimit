@@ -192,8 +192,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
     librariesToLoad_ = vm["LoadLibrary"].as<std::vector<std::string> >();
   }
 
-  if (vm.count("model-point") ) {
-    modelPoints_ = vm["model-point"].as<std::vector<std::string> >();
+  if (vm.count("keyword-value") ) {
+    modelPoints_ = vm["keyword-value"].as<std::vector<std::string> >();
   }
 }
 
@@ -273,7 +273,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
     if (algo->name() == "FitDiagnostics" || algo->name() == "MultiDimFit") options += " --for-fits";
     for(auto lib2l : librariesToLoad_ ) { options += TString::Format(" --LoadLibrary %s", lib2l.c_str() ); }
-    for(auto mp : modelPoints_) {options +=  TString::Format(" --model-point %s", mp.c_str() ) ;}
+    for(auto mp : modelPoints_) {options +=  TString::Format(" --keyword-value %s", mp.c_str() ) ;}
     //-- Text mode: old default
     //int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -o "+tmpFile+".hlf"); 
     //isTextDatacard = true; fileToLoad = tmpFile+".hlf";
