@@ -366,6 +366,8 @@ class ShapeBuilder(ModelBuilder):
 	for mp in self.options.modelparams:
 	   if len(mp.split('='))!=2 : raise RuntimeError, "No value found for model point in %s (use --model-point PARAMTER=X)"%mp 
 	   mpname, mpv = mp.split('=')
+	   protected_kwords =  ["PROCESS","CHANNEL","SYSTEMATIC","MASS"]
+	   if mpname in protected_kwords: raise RuntimeError, "Cannot use the following keywords (already assigned in combine): $"+" $".join(protected_kwords) 
            finalNames = [ fn.replace("$%s"%mpname,mpv) for fn in finalNames ]
         if not _fileCache.has_key(finalNames[0]): 
             trueFName = finalNames[0]
