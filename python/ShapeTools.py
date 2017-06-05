@@ -363,6 +363,10 @@ class ShapeBuilder(ModelBuilder):
             names = [names[0], names[1]]
         strmass = "%d" % self.options.mass if self.options.mass % 1 == 0 else str(self.options.mass)
         finalNames = [ x.replace("$PROCESS",process).replace("$CHANNEL",channel).replace("$SYSTEMATIC",syst).replace("$MASS",strmass) for x in names ]
+	for mp in self.options.modelparams:
+	   if len(mp.split('='))!=2 : raise RuntimeError, "No value found for model point in %s (use --model-point PARAMTER=X)"%mp 
+	   mpname, mpv = mp.split('=')
+           finalNames = [ fn.replace("$%s"%mpname,mpv) for fn in finalNames ]
         if not _fileCache.has_key(finalNames[0]): 
             trueFName = finalNames[0]
             if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self.options.baseDir+"/"+trueFName):
