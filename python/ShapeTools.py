@@ -74,6 +74,9 @@ class ShapeBuilder(ModelBuilder):
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                     self.out._import(prodfunc)
                     coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))                    
+                if self.options.newHist >= 1:  # It's better if the CMSHistFunc objects are in the workspace already
+                    self.out._import(pdf)
+                    pdf = self.out.arg(pdf.GetName())
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
@@ -89,13 +92,14 @@ class ShapeBuilder(ModelBuilder):
                     sigcoeffs.append(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
             if self.options.newHist >= 1:
-                prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", self.out.binVar, pdfs, coeffs)
+                prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", pdfs.at(0).getXVar(), pdfs, coeffs)
                 if self.options.newHistBinPars >= 0.:
                     bbb_args = prop.setupBinPars(self.options.newHistBinPars)
                     # bbb_args.Print()
                     for bidx in range(bbb_args.getSize()):
                         arg = bbb_args.at(bidx)
                         n = arg.GetName()
+                        parname = n
                         self.out._import(arg)
                         if arg.getAttribute("createGaussianConstraint"):
                             self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[0,%s], %s" % (n, n, '-7,7', '1.0'), True)
@@ -113,9 +117,11 @@ class ShapeBuilder(ModelBuilder):
                                 #print "Poisson(maxObs = %d, %f) = %g > 1e-12" % (maxObs, args[0]+1, ROOT.TMath.Poisson(maxObs, args[0]+1))
                                 maxObs += (sqrt(nom) if nom > 10 else 2)
                             self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,%f,%f], %s, 1" % (n, nom, minObs, maxObs, n))
+                            if n.endswith('_prod'):
+                                parname = n[:-5]
                         binconstraints.add(self.out.pdf('%s_Pdf' % n))
                         self.out.var("%s_In" % n).setConstant(True)
-                        self.extraNuisances.append(self.out.var("%s" % n))
+                        self.extraNuisances.append(self.out.var("%s" % parname))
                         self.extraGlobalObservables.append(self.out.var("%s_In" % n))
                 if not self.out.var('ONE'):
                     self.doVar('ONE[1.0]')
@@ -178,7 +184,7 @@ class ShapeBuilder(ModelBuilder):
                     self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
             if self.options.newHist >= 1:
                 for idx in xrange(pdfs.getSize()):
-                    self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', self.out.binVar, pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes())
+                    self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
     def doCombination(self):
@@ -273,6 +279,8 @@ class ShapeBuilder(ModelBuilder):
                     if p == self.options.dataname: self.pdfModes[b] = 'unbinned'
                 elif shape.InheritsFrom("RooAbsPdf"):
                     shapeTypes.append("RooAbsPdf");
+                elif shape.InheritsFrom("CMSHistFunc"):
+                    shapeTypes.append("CMSHistFunc");
                 else: raise RuntimeError, "Currently supporting only TH1s, RooDataHist and RooAbsPdfs"
                 if norm != 0:
                     if p == self.options.dataname:
@@ -379,6 +387,7 @@ class ShapeBuilder(ModelBuilder):
             if self.wsp.ClassName() == "RooWorkspace":
                 ret = self.wsp.data(oname)
                 if not ret: ret = self.wsp.pdf(oname)
+                if not ret: ret = self.wsp.function(oname)
                 if not ret:
                     if allowNoSyst: return None
                     raise RuntimeError, "Object %s in workspace %s in file %s does not exist or it's neither a data nor a pdf" % (oname, wname, finalNames[0])
@@ -584,7 +593,7 @@ class ShapeBuilder(ModelBuilder):
         if shapeNominal == None: 
             # FIXME no extra norm for dummy pdfs (could be changed)
             return None
-        if shapeNominal.InheritsFrom("RooAbsPdf"): 
+        if shapeNominal.InheritsFrom("RooAbsPdf") or shapeNominal.InheritsFrom("CMSHistFunc"): 
             # return nominal multiplicative normalization constant
             normname = "shape%s_%s_%s%s_norm" % (postFix,process,channel, "_")
             if self.out.arg(normname): return [ normname ]
@@ -693,7 +702,9 @@ class ShapeBuilder(ModelBuilder):
             elif shape.InheritsFrom("RooDataSet"):
                 rkp = ROOT.RooKeysPdf("%sPdf" % shape.GetName(), "", self.out.var(shape.var), shape,3,1.5); 
                 _cache[shape.GetName()+"Pdf"] = rkp
-            else: 
+            elif shape.InheritsFrom("CMSHistFunc"):
+                _cache[shape.GetName()+"Pdf"] = shape
+            else:
                 raise RuntimeError, "shape2Pdf not implemented for %s" % shape.ClassName()
         return _cache[shape.GetName()+"Pdf"]
     def checkRooAddPdf(self,channel,process,pdf):
