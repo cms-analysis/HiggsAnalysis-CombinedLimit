@@ -197,8 +197,8 @@ void CMSHistErrorPropagator::runBarlowBeeston() const {
   const unsigned n = bb_.use.size();
   for (unsigned j = 0; j < n; ++j) {
     bb_.dat[j] = data_[bb_.use[j]];
-    bb_.valsum[j] = valsum_[bb_.use[j]];
-    bb_.toterr[j] = toterr_[bb_.use[j]];
+    bb_.valsum[j] = valsum_[bb_.use[j]] * cache_.GetWidth(bb_.use[j]);
+    bb_.toterr[j] = toterr_[bb_.use[j]] * cache_.GetWidth(bb_.use[j]);
   }
   // This pragma statement tells (modern) gcc that loop can be safely
   // vectorized

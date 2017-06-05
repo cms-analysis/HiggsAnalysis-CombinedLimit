@@ -142,6 +142,8 @@ class CMSHistFunc : public RooAbsReal {
 
   CMSHistFuncWrapper const* wrapper() const;
 
+  RooAbsReal const& getXVar() const;
+
   friend class CMSHistV<CMSHistFunc>;
 
   /*
