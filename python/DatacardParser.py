@@ -21,9 +21,6 @@ def addDatacardParserOptions(parser):
     parser.add_option("--optimize-simpdf-constraints",    dest="moreOptimizeSimPdf", default="none", type="string", help="Handling of constraints in simultaneous pdf: 'none' = add all constraints on all channels (default); 'lhchcg' = add constraints on only the first channel; 'cms' = add constraints to the RooSimultaneousOpt.")
     #parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--channel-masks",  dest="doMasks", default=False, action="store_true", help="Create channel-masking RooRealVars")
-    parser.add_option("--new-hist-mode",  dest="newHist", default=0, type=int, help="Use new CMSHistFunc implementation for TH1 inputs. 1 = shape syst norm factorised as log-normals 2 = not factorised")
-    parser.add_option("--new-hist-binpars",  dest="newHistBinPars", default=-1., type=float, help="Create barlow-beeston-lite style bin stat uncertainties. Revert to per-process poisson uncertainties when uncertainty is below threshold.")
-    parser.add_option("--new-hist-include-signal",  dest="newHistIncSig", default=False, action="store_true", help="Include the signal processes in the bin error sums used to determine the fallback to per-process poisson uncertainties")
     parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="never", help="Use RooHistPdf for TH1s: 'always', 'never' (default), 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
     parser.add_option("--X-rescale-nuisance", dest="nuisancesToRescale", type="string", action="append", nargs=2, default=[], help="Rescale by this factor the nuisances that match these regular expressions (the rescaling is applied to the sigma of the gaussian constraint term).")
@@ -122,9 +119,7 @@ def parseCard(file, options):
                 binline = []
                 for b in f[1:]:
                     if re.match("[0-9]+", b):
-                        if shapesUseBin: stderr.write("Warning: Bin %(b)s starts with a digit. Will call it 'bin%(b)s' but this may break shapes.\n" % locals())
-                        b = "bin"+b
-                        # TODO Here should be some patching of the shapes names in order to not get errors later.
+			raise RuntimeError, "Error: Bin %(b)s starts with a digit!" % locals()
                     binline.append(b)
             if f[0] == "process": 
                 if processline == []: # first line contains names
@@ -259,6 +254,20 @@ def parseCard(file, options):
                     else:
                         raise RuntimeError, "Will not redefine group '%s'. It previously contained '%s' and you now wanted it to contain '%s'." % (groupName,ret.groups[groupName],groupNuisances)                        
 
+                continue
+	    elif pdf=="autoMCStats":
+	        if len(f)>5: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats threshold [include-signal = 0] [hist-mode = 0]"
+	        statThreshold = float(f[2])
+	        statIncludeSig = bool(int(f[3])) if len(f) >= 4 else False
+	        statHistMode = int(f[4]) if len(f) >= 5 else 1
+	        statFlags = (statThreshold, statIncludeSig, statHistMode)
+		if "*" in lsyst: 
+		  for b in ret.bins: 
+		    	if (not fnmatch.fnmatch(b, lsyst)): continue
+		  	ret.binParFlags[b]=statFlags
+    		else:
+		  if lsyst not in ret.bins: raise RuntimeError, " No such channel '%s', malformed line:\n   %s" % (lsyst,' '.join(f))
+	          ret.binParFlags[lsyst]=statFlags
                 continue
             else:
                 raise RuntimeError, "Unsupported pdf %s" % pdf
