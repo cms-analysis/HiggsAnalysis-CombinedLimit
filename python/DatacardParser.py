@@ -74,6 +74,8 @@ def parseCard(file, options):
     if type(file) == type("str"):
         raise RuntimeError, "You should pass as argument to parseCards a file object, stream or a list of lines, not a string"
     ret = Datacard()
+
+    # resetting these here to defaults, parseCard will fill them up
     ret.discretes=[]
     ret.groups={}
  

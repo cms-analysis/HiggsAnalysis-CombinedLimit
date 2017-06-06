@@ -27,23 +27,93 @@ class Datacard():
         ## list of [{bin : {process : [input file, path to shape, path to shape for uncertainty]}}]
         self.shapeMap = {}
         ## boolean that indicates whether the datacard contains shapes or not
-        self.hasShape = False
+        self.hasShapes = False
         ## dirct of {name of uncert, boolean to indicate whether it is a flat parametric uncertainty or not}
         self.flatParamNuisances = {}
+	      ## dict of rateParam 
         self.rateParams = {}
+	      ## dict of extArgs 
         self.extArgs = {}
+	      ## maintain the order for rate modifiers
         self.rateParamsOrder = set() 
         ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
         self.frozenNuisances = set()
 
-	# Allows for nuisance renaming 
-	self.systematicsShapeMap = {}
+	      # Allows for nuisance renaming 
+	      self.systematicsShapeMap = {}
 
         # Keep edits 
-	self.nuisanceEditLines = []
+	      self.nuisanceEditLines = []
+  
+        # map of which bins should have automated Barlow-Beeston parameters
+	      self.binParFlags = {}
+        
+	      self.groups = {}
+	      self.discretes = []
 
-	# map of which bins should have automated Barlow-Beeston parameters
-	self.binParFlags = {}
+def print_structure(self):
+	"""
+	Print the contents of the -> should allow for direct text2workspace on python config
+	"""
+	print """
+from HiggsAnalysis.CombinedLimit.DatacardParser import *
+from HiggsAnalysis.CombinedLimit.ModelTools import *
+from HiggsAnalysis.CombinedLimit.ShapeTools import *
+from HiggsAnalysis.CombinedLimit.PhysicsModel import *
+
+from sys import exit
+from optparse import OptionParser
+parser = OptionParser()
+addDatacardParserOptions(parser)
+options,args = parser.parse_args()
+options.bin = True # make a binary workspace
+
+DC = Datacard()
+MB = None
+
+############## Setup the datacard (must be filled in) ###########################
+	"""
+
+	print "DC.bins = 	"		, self.bins			,"#",type(self.bins)		
+	print "DC.obs = 	"		, self.obs                      ,"#",type(self.obs)			
+	print "DC.processes = 	"		, self.processes                ,"#",type(self.processes)		
+	print "DC.signals = 	"		, self.signals                  ,"#",type(self.signals)		
+	print "DC.isSignal = 	"		, self.isSignal                 ,"#",type(self.isSignal)		
+	print "DC.keyline = 	"		, self.keyline                  ,"#",type(self.keyline)		
+	print "DC.exp = 	"		, self.exp                      ,"#",type(self.exp)			
+	print "DC.systs = 	"		, self.systs                    ,"#",type(self.systs)		
+	print "DC.shapeMap = 	"		, self.shapeMap                 ,"#",type(self.shapeMap)		
+	print "DC.hasShapes = 	"		, self.hasShapes                ,"#",type(self.hasShapes)		
+	print "DC.flatParamNuisances = "	, self.flatParamNuisances       ,"#",type(self.flatParamNuisances)	
+	print "DC.rateParams = "		, self.rateParams               ,"#",type(self.rateParams)		
+	print "DC.extArgs = 	"		, self.extArgs                  ,"#",type(self.extArgs)		
+	print "DC.rateParamsOrder 	= "	, self.rateParamsOrder          ,"#",type(self.rateParamsOrder)	
+	print "DC.frozenNuisances 	= "	, self.frozenNuisances          ,"#",type(self.frozenNuisances)	
+	print "DC.systematicsShapeMap = "	, self.systematicsShapeMap      ,"#",type(self.systematicsShapeMap)	
+	print "DC.nuisanceEditLines 	= "	, self.nuisanceEditLines        ,"#",type(self.nuisanceEditLines)	
+  print "DC.binParFlags = "	  , self.binParFlags        ,"#",type(self.binParFlags)	
+	print "DC.groups 	    = "		, self.groups        		,"#",type(self.groups)	
+	print "DC.discretes 	= "		, self.discretes        	,"#",type(self.discretes)	
+
+	print """
+
+###### User defined options #############################################
+
+options.out 	 = "combine_workspace.root"  	# Output workspace name
+options.fileName = "./" 			# Path to input ROOT files 
+options.verbose  = "1" 				# Verbosity
+
+##########################################################################
+
+if DC.hasShapes:
+    MB = ShapeBuilder(DC, options)
+else:
+    MB = CountingModelBuilder(DC, options)
+
+# Set physics models 
+MB.setPhysics(defaultModel)
+MB.doModel()
+	"""
 
     def list_of_bins(self) :
         """

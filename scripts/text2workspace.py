@@ -19,6 +19,7 @@ parser = OptionParser(usage="usage: %prog [options] datacard.txt -o output \nrun
 addDatacardParserOptions(parser)
 parser.add_option("-P", "--physics-model", dest="physModel", default="HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel",  type="string", help="Physics model to use. It should be in the form (module name):(object name)")
 parser.add_option("--PO", "--physics-option", dest="physOpt", default=[],  type="string", action="append", help="Pass a given option to the physics model (can specify multiple times)")
+parser.add_option("", "--dump-datacard", dest="dumpCard", default=False, action='store_true',  help="Print to screen the DataCard as a python config and exit")
 (options, args) = parser.parse_args()
 
 if len(args) == 0:
@@ -35,6 +36,10 @@ else:
 
 ## Parse text file 
 DC = parseCard(file, options)
+
+if options.dumpCard:
+    DC.print_structure()
+    exit()
 
 ## Load tools to build workspace
 MB = None
