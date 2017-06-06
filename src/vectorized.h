@@ -4,6 +4,12 @@ namespace vectorized {
     // oarray += coeff * iarray
     void mul_add(const uint32_t size, double coeff, double const * __restrict__ iarray, double* __restrict__ oarray) ;
 
+    // oarray += (coeff * iarray)^2
+    void mul_add_sqr(const uint32_t size, double coeff, double const * __restrict__ iarray, double* __restrict__ oarray) ;
+
+    // oarray += sqrt(iarray)
+    void sqrt(const uint32_t size, double const * __restrict__ iarray, double* __restrict__ oarray) ;
+
     // oarray *= iarray
     void mul_inplace(const uint32_t size, double const * __restrict__ iarray, double* __restrict__ oarray) ;
 

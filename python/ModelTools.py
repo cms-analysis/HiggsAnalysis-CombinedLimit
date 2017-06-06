@@ -86,6 +86,9 @@ class ModelBuilder(ModelBuilderBase):
         ModelBuilderBase.__init__(self,options) 
         self.DC = datacard
         self.doModelBOnly = True
+        self.selfNormBins = []
+        self.extraNuisances = []
+        self.extraGlobalObservables = []
     def setPhysics(self,physicsModel):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
@@ -397,7 +400,10 @@ class ModelBuilder(ModelBuilderBase):
                     if is_func_scaled:
                         sigmaStr = '%s_WidthScaled' % n
                         self.doObj(sigmaStr, "prod", "%g, %s" % (float(args[1]), func_scaler))
-                    self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStr),True)
+                    if self.options.noOptimizePdf or is_func_scaled:
+                        self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStr),True)
+                    else:
+                        self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStr),True)
                     self.out.var("%s_In" % n).setConstant(True)
                     if is_func_scaled:
                         boundHi = self.doExp("%s_BoundHi" % n, "%g+%g*@0" % (mean, self.out.var(n).getMax() - mean), "%s" % (func_scaler))
@@ -494,7 +500,7 @@ class ModelBuilder(ModelBuilderBase):
 		    argu = self.DC.rateParams["%sAND%s"%(b,p)][rk][0][0]
 		    if self.out.arg(argu): factors.append(argu)
 		    else: raise RuntimeError, "No rate parameter found %s, are you sure you defined it correctly in the datacard?"%(argu)
-
+                selfNormRate = 1.0
                 for (n,nofloat,pdf,args,errline) in self.DC.systs:
                     if pdf == "param":continue
                     if pdf == "rateParam":continue
@@ -524,13 +530,16 @@ class ModelBuilder(ModelBuilderBase):
                         if gamma != None:
                             raise RuntimeError, "More than one gmN uncertainty for the same bin and process (second one is %s)" % n
                         gamma = n; nominal = errline[b][p]; 
+                        selfNormRate = selfNormRate / args[0]
                     else: raise RuntimeError, "Unsupported pdf %s" % pdf
                 # optimize constants
                 if len(factors) + len(logNorms) + len(alogNorms) == 0:
-                    self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, self.DC.exp[b][p]))
+                    norm = selfNormRate if b in self.selfNormBins else self.DC.exp[b][p]
+                    self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, norm))
                 else:
+                    norm = selfNormRate if b in self.selfNormBins else nominal
                     #print "Process %s of bin %s depends on:\n\tlog-normals: %s\n\tasymm log-normals: %s\n\tother factors: %s\n" % (p,b,logNorms, alogNorms, factors)
-                    procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b,p), "", nominal)
+                    procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b,p), "", norm)
                     for kappa, thetaName in logNorms: procNorm.addLogNormal(kappa, self.out.function(thetaName))
                     for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
                     for factorName in factors:
@@ -559,8 +568,18 @@ class ModelBuilder(ModelBuilderBase):
             #if l == 's' or mc.GetPdf().dependsOnValue(self.out.set("POI")):
             mc.SetParametersOfInterest(self.out.set("POI"))
             mc.SetObservables(self.out.set("observables"))
-            if len(self.DC.systs):  mc.SetNuisanceParameters(self.out.set("nuisances"))
-            if self.out.set("globalObservables"): mc.SetGlobalObservables(self.out.set("globalObservables"))
+            nuisancesSet = ROOT.RooArgSet()
+            if self.out.set("nuisances"): nuisancesSet = self.out.set("nuisances")
+            for nuis in self.extraNuisances:
+                nuisancesSet.add(nuis)
+            if nuisancesSet.getSize():
+                mc.SetNuisanceParameters(nuisancesSet)
+            gObsSet = ROOT.RooArgSet()
+            if self.out.set("globalObservables"): gObsSet = self.out.set("globalObservables")
+            for gobs in self.extraGlobalObservables:
+                gObsSet.add(gobs)
+            if gObsSet.getSize():
+                mc.SetGlobalObservables(gObsSet)
             if self.options.verbose > 2: mc.Print("V")
             self.out._import(mc, mc.GetName())
             if self.options.noBOnly: break

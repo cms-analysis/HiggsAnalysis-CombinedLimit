@@ -2,6 +2,9 @@
 
 SimpleCacheSentry::SimpleCacheSentry() :  _deps("deps","deps",this)   {}
 
+SimpleCacheSentry::SimpleCacheSentry(const char *name, const char *title)
+    : RooAbsArg(name, title), _deps("deps", "deps", this) {}
+
 SimpleCacheSentry::SimpleCacheSentry(const RooRealVar &var) :
     _deps("deps","deps",this)   
 {
@@ -45,7 +48,7 @@ void SimpleCacheSentry::addFunc(const RooAbsArg &func, const RooArgSet *obs)
 }
 
 Bool_t SimpleCacheSentry::isIdentical(const RooAbsArg& other, 
-				    Bool_t /*assumeSameType*/) {
+            Bool_t /*assumeSameType*/) {
   bool ret = kFALSE;
   SimpleCacheSentry const& otherSentry = dynamic_cast<SimpleCacheSentry const&>(other);
   RooAbsCollection * common = _deps.selectCommon(otherSentry._deps);
