@@ -400,7 +400,10 @@ class ModelBuilder(ModelBuilderBase):
                     if is_func_scaled:
                         sigmaStr = '%s_WidthScaled' % n
                         self.doObj(sigmaStr, "prod", "%g, %s" % (float(args[1]), func_scaler))
-                    self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStr),True)
+                    if self.options.noOptimizePdf or is_func_scaled:
+                        self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStr),True)
+                    else:
+                        self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStr),True)
                     self.out.var("%s_In" % n).setConstant(True)
                     if is_func_scaled:
                         boundHi = self.doExp("%s_BoundHi" % n, "%g+%g*@0" % (mean, self.out.var(n).getMax() - mean), "%s" % (func_scaler))
