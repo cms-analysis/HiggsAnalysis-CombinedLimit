@@ -43,6 +43,9 @@ int main(int argc, char **argv) {
 
   vector<string> librariesToLoad;
   vector<string> runtimeDefines;
+  vector<string> modelPoints;
+  vector<string> modelParamNameVector_;
+  vector<string> modelParamValVector_;
 
   Combine combiner;
 
@@ -90,6 +93,7 @@ int main(int argc, char **argv) {
     ("igpMem", "Setup support for memory profiling using IgProf")
     ("perfCounters", "Dump performance counters at end of job")
     ("LoadLibrary,L", po::value<vector<string> >(&librariesToLoad), "Load library through gSystem->Load(...). Can specify multiple libraries using this option multiple times")
+    ("keyword-value",  po::value<vector<string> >(&modelPoints), "Set keyword values with 'WORD=VALUE', will replace $WORD with VALUE in datacards. Filename will also be extended with 'WORDVALUE'. Can specify multiple times")
     ("X-rtd",  po::value<vector<string> >(&runtimeDefines), "Define some constants to be used at runtime (for debugging purposes). The syntax is --X-rtd identifier[=value], where value is an integer and defaults to 1. Can specify multiple times")
     ("X-fpeMask", po::value<int>(), "Set FPE mask: 1=NaN, 2=Div0, 4=Overfl, 8=Underf, 16=Inexact; 7=default")
     ;
@@ -227,6 +231,23 @@ int main(int argc, char **argv) {
   TString toyName  = "";  if (runToys > 0 || seed != 123456 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
   if (vm.count("expectedFromGrid") && !vm["expectedFromGrid"].defaulted()) toyName += TString::Format("quant%.3f.", vm["expectedFromGrid"].as<float>());
   if (vm.count("expected")         && !vm["expected"].defaulted())         toyName += TString::Format("quant%.3f.", vm["expected"].as<float>());
+
+  if (vm.count("keyword-value") ) {
+    for (vector<string>::const_iterator rmp = modelPoints.begin(), endrmp = modelPoints.end(); rmp != endrmp; ++rmp) {
+      std::string::size_type idx = rmp->find('=');
+      if (idx == std::string::npos) {
+     	cerr << "No value found for keyword :\n\t" << *rmp << " use --keyword-value WORD=VALUE " << std::endl;
+      } else {
+        std::string name   = rmp->substr(0, idx);
+        std::string svalue = rmp->substr(idx+1);
+        if (verbose > 0) std::cout << "Setting keyword " << name << " to " << svalue << std::endl;
+	modelParamNameVector_.push_back(name);
+	modelParamValVector_.push_back(svalue);
+	massName += TString(name.c_str())+TString(svalue.c_str())+".";
+     }
+    }
+  }
+
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
   TFile *test = new TFile(fileName, "RECREATE"); outputFile = test;
   TTree *t = new TTree("limit", "limit");
@@ -242,6 +263,10 @@ int main(int argc, char **argv) {
   t->Branch("t_cpu",   &t_cpu_,  "t_cpu/F");
   t->Branch("t_real",  &t_real_, "t_real/F");
   t->Branch("quantileExpected",  &g_quantileExpected_, "quantileExpected/F");
+  for (unsigned int mpi=0;mpi<modelParamNameVector_.size();++mpi){
+	std::string name = modelParamNameVector_[mpi];
+  	t->Branch(Form("%s",name.c_str()),  &modelParamValVector_[mpi]);
+  }
   
   writeToysHere = test->mkdir("toys","toys"); 
   if (toysFile != "") readToysFromHere = TFile::Open(toysFile.c_str());

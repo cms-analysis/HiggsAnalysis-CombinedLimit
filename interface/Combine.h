@@ -95,6 +95,7 @@ private:
   bool floatAllNuisances_;
   bool freezeAllGlobalObs_;
   std::vector<std::string> librariesToLoad_;
+  std::vector<std::string> modelPoints_;
   
   static TTree *tree_;
 
