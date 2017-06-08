@@ -39,19 +39,19 @@ class Datacard():
         ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
         self.frozenNuisances = set()
 
-	      # Allows for nuisance renaming 
-	      self.systematicsShapeMap = {}
+	# Allows for nuisance renaming 
+	self.systematicsShapeMap = {}
 
         # Keep edits 
-	      self.nuisanceEditLines = []
+	self.nuisanceEditLines = []
   
         # map of which bins should have automated Barlow-Beeston parameters
-	      self.binParFlags = {}
+	self.binParFlags = {}
         
-	      self.groups = {}
-	      self.discretes = []
+	self.groups = {}
+	self.discretes = []
 
-def print_structure(self):
+    def print_structure(self):
 	"""
 	Print the contents of the -> should allow for direct text2workspace on python config
 	"""
@@ -91,8 +91,8 @@ MB = None
 	print "DC.frozenNuisances 	= "	, self.frozenNuisances          ,"#",type(self.frozenNuisances)	
 	print "DC.systematicsShapeMap = "	, self.systematicsShapeMap      ,"#",type(self.systematicsShapeMap)	
 	print "DC.nuisanceEditLines 	= "	, self.nuisanceEditLines        ,"#",type(self.nuisanceEditLines)	
-  print "DC.binParFlags = "	  , self.binParFlags        ,"#",type(self.binParFlags)	
-	print "DC.groups 	    = "		, self.groups        		,"#",type(self.groups)	
+  	print "DC.binParFlags 	= "	  	, self.binParFlags        	,"#",type(self.binParFlags)	
+	print "DC.groups 	= "		, self.groups        		,"#",type(self.groups)	
 	print "DC.discretes 	= "		, self.discretes        	,"#",type(self.discretes)	
 
 	print """
