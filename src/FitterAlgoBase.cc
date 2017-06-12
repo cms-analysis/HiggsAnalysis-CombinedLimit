@@ -38,11 +38,11 @@
 using namespace RooStats;
 
 //std::string FitterAlgoBase::minimizerAlgo_ = "Minuit2";
-std::string FitterAlgoBase::minimizerAlgoForMinos_ = "Minuit2,simplex";
+std::string FitterAlgoBase::minimizerAlgoForMinos_ = "";
 //float       FitterAlgoBase::minimizerTolerance_ = 1e-1;
-float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-4;
+float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-1;
 //int         FitterAlgoBase::minimizerStrategy_  = 1;
-int         FitterAlgoBase::minimizerStrategyForMinos_ = 0;
+int         FitterAlgoBase::minimizerStrategyForMinos_ = 0;  // also default from CascadeMinimizer
 float       FitterAlgoBase::preFitValue_ = 1.0;
 float       FitterAlgoBase::stepSize_ = 0.1;
 bool        FitterAlgoBase::robustFit_ = false;
@@ -95,6 +95,19 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
     else if (profileMode == "poi")           profileMode_ = ProfilePOI;
     else if (profileMode == "none")          profileMode_ = NoProfiling;
     else throw std::invalid_argument("option 'profilingMode' can only take as values 'all', 'none', 'poi' and 'unconstrained' (at least for now)\n");
+
+    if (!vm.count("setRobustFitAlgo") || vm["setRobustFitAlgo"].defaulted())  {
+       minimizerAlgoForMinos_ = Form("%s,%s",ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()); 
+    }
+    if (!vm.count("setRobustFitTolerance") || vm["setRobustFitTolerance"].defaulted())  {
+        minimizerToleranceForMinos_ = ROOT::Math::MinimizerOptions::DefaultTolerance();  // will reset this to the default from CascadeMinimizer unless set. 
+    }
+/*
+    std::cout << "   Options for Robust Minimizer :: " << std::endl;
+    std::cout << "        Tolerance  " << minimizerToleranceForMinos_  <<std::endl;
+    std::cout << "        Strategy   "  << minimizerStrategyForMinos_  <<std::endl;
+    std::cout << "        Type,Algo  "  << minimizerAlgoForMinos_      <<std::endl;
+*/
 }
 
 bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -336,8 +349,8 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     if (runtimedef::get("FITTER_NEW_CROSSING_ALGO")) {
         return findCrossingNew(minim, nll, r, level, rStart, rBound);
     }
-    double minimizerTolerance_ = minim.tolerance();
-    Significance::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerTolerance_);
+    //double minimizerTolerance_ = minim.tolerance();
+    Significance::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
     if (verbose) std::cout << "Searching for crossing at nll = " << level << " in the interval " << rStart << ", " << rBound << std::endl; 
     double rInc = stepSize_*(rBound - rStart);
     r.setVal(rStart); 
