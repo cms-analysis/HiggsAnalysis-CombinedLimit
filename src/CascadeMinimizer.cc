@@ -4,6 +4,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
 #include <Math/MinimizerOptions.h>
 #include <Math/IOptions.h>
@@ -91,7 +92,10 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
       outcome = improveOnce(verbose-1);
       if (cascade && !outcome && !fallbacks_.empty()) {
         int         nominalStrat(strategy_);
-        if (verbose > 0) std::cerr << "Failed minimization with " << nominalType << "," << nominalAlgo << " and tolerance " << nominalTol << std::endl;
+        if (verbose > 0) {
+		std::cerr << "Failed minimization with " << nominalType << "," << nominalAlgo << " and tolerance " << nominalTol << std::endl;
+		Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Failed minimization with %s, %s and tolerance %g",__LINE__,nominalType.c_str(),nominalAlgo.c_str(),nominalTol)),Logger::kLogLevelDebug);
+	}
         for (std::vector<Algo>::const_iterator it = fallbacks_.begin(), ed = fallbacks_.end(); it != ed; ++it) {
             Significance::MinimizerSentry minimizerConfig(it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol);
             int myStrategy = it->strategy; if (myStrategy == Algo::default_strategy()) myStrategy = nominalStrat;
@@ -99,7 +103,10 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
                 nominalAlgo != ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo() ||
                 nominalTol  != ROOT::Math::MinimizerOptions::DefaultTolerance()     ||
                 myStrategy  != nominalStrat) {
-                if (verbose > 0) std::cerr << "Will fallback to minimization using " << it->algo << ", strategy " << myStrategy << " and tolerance " << it->tolerance << std::endl;
+                if (verbose > 0) { 
+			std::cerr << "Will fallback to minimization using " << it->algo << ", strategy " << myStrategy << " and tolerance " << it->tolerance << std::endl;
+			Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Will fallback to minimization using %s, strategy %d and tolerance %g",__LINE__,(it->algo).c_str(),myStrategy,it->tolerance)),Logger::kLogLevelDebug);
+		}
                 minimizer_->setEps(ROOT::Math::MinimizerOptions::DefaultTolerance());
                 minimizer_->setStrategy(myStrategy);
                 outcome = improveOnce(verbose-2);
@@ -401,10 +408,11 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     nllParams->remove(CascadeMinimizerGlobalConfigs::O().parametersOfInterest);
 
     bool boundariesNotOk = utils::anyParameterAtBoundaries(*nllParams, verbose);
-    if(boundariesNotOk && verbose >= 1){
+    if(boundariesNotOk && verbose > 0){
       fprintf(CloseCoutSentry::trueStdOutGlobal(),
         " [WARNING] After the fit some parameters are at their boundary.\n"
         " [WARNING] Are you sure your model is correct?\n");
+      Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- After fit, some parameters are found at the boundary (within ~1sigma)",__LINE__)),Logger::kLogLevelInfo);
     }
 
     return ret;
@@ -743,6 +751,9 @@ bool CascadeMinimizer::autoBoundsOk(int verbose) {
         }
       }
     }
-    if (!ok && verbose) std::cout << "At least one of the POIs was close to the boundary, repeating the fit." << std::endl;;
+    if (!ok && verbose) { 
+    	std::cout << "At least one of the POIs was close to the boundary, repeating the fit." << std::endl;
+	Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- On checking with autoBounds on, At least one of the POIs was close to the boundary, repeating the fit.",__LINE__)),Logger::kLogLevelDebug);
+    }
     return ok;
 }

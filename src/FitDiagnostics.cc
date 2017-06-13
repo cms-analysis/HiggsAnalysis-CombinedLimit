@@ -990,7 +990,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
          }
          delete norms;
 
-	std::cout << "Created Branches for toy diagnostics" <<std::endl;
+	 //std::cout << "Created Branches for toy diagnostics" <<std::endl;
          return;	
 }
 

@@ -29,6 +29,7 @@
 
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
 #include <Math/MinimizerOptions.h>
 #include <Math/QuantFuncMathCore.h>
@@ -346,7 +347,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
 }
 
 double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) {
-    if (runtimedef::get("FITTER_NEW_CROSSING_ALGO")) {
+    if (!runtimedef::get("FITTER_OLD_CROSSING_ALGO")) {
         return findCrossingNew(minim, nll, r, level, rStart, rBound);
     }
     //double minimizerTolerance_ = minim.tolerance();
@@ -362,7 +363,11 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         ok = minim.improve(verbose-1);
         checkpoint.reset(minim.save());
     }
-    if (!ok) { std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; return NAN; }
+    if (!ok) { 
+    	std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; 
+	if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g",__LINE__,r.GetName(), rStart)),Logger::kLogLevelError);
+	return NAN; 
+	}
     double here = nll.getVal();
     int nfail = 0;
     if (verbose > 0) { printf("      %s      lvl-here  lvl-there   stepping\n", r.GetName()); fflush(stdout); }
@@ -382,7 +387,11 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         }
         if (!ok) { 
             nfail++;
-            if (nfail >= maxFailedSteps_) {  std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; return NAN; }
+            if (nfail >= maxFailedSteps_) {  
+	    	std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; 
+		if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Maximum failed steps (max=%d) reached and Minimization failed at %s = %g ",__LINE__,maxFailedSteps_,r.GetName(), rStart)),Logger::kLogLevelError);
+		return NAN; 
+	    }
             RooArgSet oldparams(checkpoint->floatParsFinal());
             if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
             *allpars = oldparams;
@@ -448,6 +457,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     } while (fabs(rInc) > minimizerToleranceForMinos_*stepSize_*std::max(1.0,rBound-rStart));
     if (fabs(here - level) > 0.01) {
         std::cout << "Error: closed range without finding crossing." << std::endl;
+	if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Closed range without finding crossing! ",__LINE__)),Logger::kLogLevelError);
         return NAN;
     } else {
         return r.getVal();
@@ -463,7 +473,11 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
     //std::auto_ptr<RooArgSet>    allpars(nll.getParameters((const RooArgSet *)0));
     //utils::CheapValueSnapshot checkpoint(*allpars);
     r.setVal(rStart); 
-    if (!minim.improve(verbose-1)) { fprintf(sentry.trueStdOut(), "Error: minimization failed at %s = %g\n", r.GetName(), rStart); return NAN; }
+    if (!minim.improve(verbose-1)) { 
+    	fprintf(sentry.trueStdOut(), "Error: minimization failed at %s = %g\n", r.GetName(), rStart); 
+	if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g",__LINE__,r.GetName(), rStart)),Logger::kLogLevelError);
+	return NAN; 
+    }
     double quadCorr = 0.0;
     double rVal   = rStart;
 
@@ -477,6 +491,7 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
         double yStart = nll.getVal();
         if (nll.numEvalErrors() > 0 || std::isnan(yStart) || std::isinf(yStart)) { 
             fprintf(sentry.trueStdOut(), "Error: logEvalErrors on stat of loop for iteration %d, x %+10.6f\n", iter, rVal); return NAN; 
+	    if (verbose > 0) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- logEvalErrors reported from NLL on start of loop for iteration %d, x %+10.6f",__LINE__, iter, rVal)),Logger::kLogLevelDebug);
         }
         double rInc = stepSize*(rBound - rStart);
         if (rInc == 0) break;
@@ -491,6 +506,7 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
             double y = nll.getVal();
             if (nll.numEvalErrors() > 0 || std::isnan(y) || std::isinf(y) || fabs(y-level) > 1e6) { 
                 if (verbose > 1) fprintf(sentry.trueStdOut(), "logEvalErrors on stepping for iteration %d, set range to [ %+10.6f, %+10.6f ]\n", iter, rStart, rVal);
+		if (verbose > 0) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- logEvalErrors reported from NLL on stepping for iteration %d, set range to  [ %+10.6f, %+10.6f ]",__LINE__, iter, rStart, rVal)),Logger::kLogLevelDebug);
                 rVal -= rInc; r.setVal(rVal);
                 //hiterr = true;
                 hitbound = false;
@@ -528,7 +544,11 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
 
         // now we profile
         double yUnprof = nll.getVal(), yCorr = yUnprof - quadCorr*std::pow(rVal-rStart,2);
-        if (!minim.improve(verbose-1))  { fprintf(sentry.trueStdOut(), "Error: minimization failed at %s = %g\n", r.GetName(), rVal); if (!neverGiveUp) return NAN; }
+        if (!minim.improve(verbose-1))  { 
+		fprintf(sentry.trueStdOut(), "Error: minimization failed at %s = %g\n", r.GetName(), rVal); 
+		if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g",__LINE__,r.GetName(), rVal)),Logger::kLogLevelError);
+		if (!neverGiveUp) return NAN; 
+	}
         double yProf = nll.getVal();
         if (verbose > 1) fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f   yProf  %+10.6f   (P-U) %+10.6f    (P-C) %+10.6f    oldSlope %+10.6f    newSlope %+10.6f\n", 
                                                        rVal, yUnprof-level, yCorr-level, yProf-level, yProf - yUnprof, yProf - yCorr, quadCorr, (yUnprof-yProf)/std::pow(rVal-rStart,2));  
@@ -548,6 +568,7 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
             rStart = rVal; 
             if (hitbound) {
                 fprintf(sentry.trueStdOut(), "Error: closed range at %s = %g without finding any crossing \n", r.GetName(), rVal); 
+		if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Closed range without finding crossing! ",__LINE__)),Logger::kLogLevelError);
                 return rVal; 
             } else {
                 if (verbose > 1) fprintf(sentry.trueStdOut(), " ---> change search window to [ %g , %g ]\n", rStart, rBound);
@@ -561,6 +582,7 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
         }
     }
     fprintf(sentry.trueStdOut(), "Error: search did not converge, will return approximate answer %+.6f\n",rVal); 
+    if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Search for crossing did not converge, will return approximate answer %g",__LINE__,rVal)),Logger::kLogLevelDebug);
     return rVal;
 }
 

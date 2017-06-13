@@ -18,6 +18,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
 #include <boost/bind.hpp>
 
@@ -215,7 +216,11 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   double clsMax = 1, clsMin = 0;
   for (int tries = 0; tries < 5; ++tries) {
     double cls = getCLs(*r, rMax);
-    if (cls == -999) { std::cerr << "Minimization failed in an unrecoverable way" << std::endl; break; }
+    if (cls == -999) { 
+    	std::cerr << "Minimization failed in an unrecoverable way" << std::endl;
+    	if (verbose>0)  Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Minimization failed in an unrecoverable way for calculation of limit",__LINE__)),Logger::kLogLevelError);
+	break; 
+    }
     if (cls < clsTarget) { clsMin = cls; break; }
     if (strictBounds_ && rMax == r->getMax()) {
         std::cout << rule_ << " at upper bound " << r->GetName() << " = " << r->getVal() << " is " << cls << ". Stopping search and using that as a limit.\n" << std::endl; 
@@ -239,7 +244,11 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         limitErr = 0.5*(rMax - rMin);
     }
     double cls = getCLs(*r, limit);
-    if (cls == -999) { std::cerr << "Minimization failed in an unrecoverable way" << std::endl; break; }
+    if (cls == -999) { 
+    	std::cerr << "Minimization failed in an unrecoverable way" << std::endl; 
+	if (verbose>0)  Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Minimization failed in an unrecoverable way for calculation of limit",__LINE__)),Logger::kLogLevelError);
+	break; 
+    }
     if (cls > clsTarget) {
         clsMax = cls;
         rMin = limit;
@@ -392,8 +401,11 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
         res->Print("V");
     }
     if (r->getVal()/r->getMax() > 1e-3) {
-        if (verbose) printf("WARNING: Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero\n",
+        if (verbose) {
+		printf("WARNING: Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero\n",
                 r->GetName(), r->getVal(), r->getVal()/r->getMax(), r->GetName());
+		Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero",__LINE__,r->GetName(), r->getVal(), r->getVal()/r->getMax(), r->GetName())),Logger::kLogLevelDebug);
+	}
     }
 
 
@@ -694,10 +706,12 @@ float AsymptoticLimits::calculateLimitFromGrid(RooRealVar *r , double quantile, 
 	
 	if (!rminfound){
 		std::cout << "Cannot Find r with CL above threshold for quantile " << quantiles[iq] << ", using lowest value of r found" << std::endl;
+		if (verbose) Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Cannot Find r with CL above threshold for quantile %g, using lowest value of r found",__LINE__,quantiles[iq])),Logger::kLogLevelDebug);
 		return rlower;
 	}
 	if (!rmaxfound){
 		std::cout << "Cannot Find r with CL below threshold for quantile " << quantiles[iq] << ", using largest value of r found" << std::endl;
+		if (verbose) Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Cannot Find r with CL below threshold for quantile %g, using largest value of r found",__LINE__,quantiles[iq])),Logger::kLogLevelDebug);
 		return rupper;
 	}
 
