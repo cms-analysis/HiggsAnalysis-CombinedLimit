@@ -94,7 +94,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
         int         nominalStrat(strategy_);
         if (verbose > 0) {
 		std::cerr << "Failed minimization with " << nominalType << "," << nominalAlgo << " and tolerance " << nominalTol << std::endl;
-		Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Failed minimization with %s, %s and tolerance %g",__LINE__,nominalType.c_str(),nominalAlgo.c_str(),nominalTol)),Logger::kLogLevelDebug);
+		Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Failed minimization with %s, %s and tolerance %g",__LINE__,nominalType.c_str(),nominalAlgo.c_str(),nominalTol)),Logger::kLogLevelDebug,__func__);
 	}
         for (std::vector<Algo>::const_iterator it = fallbacks_.begin(), ed = fallbacks_.end(); it != ed; ++it) {
             Significance::MinimizerSentry minimizerConfig(it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol);
@@ -105,7 +105,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
                 myStrategy  != nominalStrat) {
                 if (verbose > 0) { 
 			std::cerr << "Will fallback to minimization using " << it->algo << ", strategy " << myStrategy << " and tolerance " << it->tolerance << std::endl;
-			Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Will fallback to minimization using %s, strategy %d and tolerance %g",__LINE__,(it->algo).c_str(),myStrategy,it->tolerance)),Logger::kLogLevelDebug);
+			Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Will fallback to minimization using %s, strategy %d and tolerance %g",__LINE__,(it->algo).c_str(),myStrategy,it->tolerance)),Logger::kLogLevelDebug,__func__);
 		}
                 minimizer_->setEps(ROOT::Math::MinimizerOptions::DefaultTolerance());
                 minimizer_->setStrategy(myStrategy);
@@ -412,7 +412,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
       fprintf(CloseCoutSentry::trueStdOutGlobal(),
         " [WARNING] After the fit some parameters are at their boundary.\n"
         " [WARNING] Are you sure your model is correct?\n");
-      Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- After fit, some parameters are found at the boundary (within ~1sigma)",__LINE__)),Logger::kLogLevelInfo);
+      Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- After fit, some parameters are found at the boundary (within ~1sigma)",__LINE__)),Logger::kLogLevelInfo,__func__);
     }
 
     return ret;
@@ -753,7 +753,7 @@ bool CascadeMinimizer::autoBoundsOk(int verbose) {
     }
     if (!ok && verbose) { 
     	std::cout << "At least one of the POIs was close to the boundary, repeating the fit." << std::endl;
-	Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- On checking with autoBounds on, At least one of the POIs was close to the boundary, repeating the fit.",__LINE__)),Logger::kLogLevelDebug);
+	Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- On checking with autoBounds on, At least one of the POIs was close to the boundary, repeating the fit.",__LINE__)),Logger::kLogLevelDebug,__func__);
     }
     return ok;
 }

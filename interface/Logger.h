@@ -1,4 +1,10 @@
-// Logger taken from http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470932449.html
+/* 
+ * Logger adapted from 
+ * Professional C++, 2nd Edition, Oct 2011
+ * Marc Gregoire, Nicholas A. Solter, Scott J. Kleper
+ * ISBN: 978-0-470-93244-5
+ * http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470932449.html
+*/
 
 // Logger.h
 #include <iostream>
@@ -7,7 +13,6 @@
 #include <string>
 #include <mutex>
 
-// Definition of a multithread safe singleton logger class
 class Logger
 {
 public:
@@ -24,11 +29,13 @@ public:
 
 	// Logs a single message at the given log level
 	void log(const std::string& inMessage, 
-		const std::string& inLogLevel);
+		const std::string& inLogLevel,
+		const std::string& inFunction);
 
 	// Logs a vector of messages at the given log level
 	void log(const std::vector<std::string>& inMessages, 
-		const std::string& inLogLevel);
+		const std::string& inLogLevel,
+		const std::string& inFunction);
 	
 	void printLog();
 
@@ -54,7 +61,8 @@ protected:
 	// Logs message. The thread should own a lock on sMutex
 	// before calling this function.
 	void logHelper(const std::string& inMessage, 
-		const std::string& inLogLevel);
+		const std::string& inLogLevel,
+		const std::string& inFunction);
 	
 
 private:

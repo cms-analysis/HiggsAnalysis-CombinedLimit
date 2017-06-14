@@ -1,8 +1,11 @@
-// Logger taken from http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470932449.html
+/* 
+ * Logger adapted from 
+ * Professional C++, 2nd Edition, Oct 2011
+ * Marc Gregoire, Nicholas A. Solter, Scott J. Kleper
+ * ISBN: 978-0-470-93244-5
+ * http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470932449.html
+*/
 
-
-// Logger.cpp
-// Implementation of a multithread safe singleton logger class
 #include <stdexcept>
 #include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
@@ -53,23 +56,23 @@ Logger::Logger()
 	} 
 }
 
-void Logger::log(const string& inMessage, const string& inLogLevel)
+void Logger::log(const string& inMessage, const string& inLogLevel, const string& inFunction)
 {
 	lock_guard<mutex> guard(sMutex);
-	logHelper(inMessage, inLogLevel);
+	logHelper(inMessage, inLogLevel, inFunction);
 }
 
-void Logger::log(const vector<string>& inMessages, const string& inLogLevel)
+void Logger::log(const vector<string>& inMessages, const string& inLogLevel, const string& inFunction)
 {
 	lock_guard<mutex> guard(sMutex);
 	for (size_t i = 0; i < inMessages.size(); i++) {
-		logHelper(inMessages[i], inLogLevel);
+		logHelper(inMessages[i], inLogLevel, inFunction);
 	}
 }
 
-void Logger::logHelper(const std::string& inMessage, const std::string& inLogLevel)
+void Logger::logHelper(const std::string& inMessage, const std::string& inLogLevel, const std::string& inFunction)
 {
-	mOutputStream << inLogLevel << ": " << inMessage << endl;
+	mOutputStream << inLogLevel << ": (function: " << inFunction << ") "  << inMessage << endl;
 	if (inLogLevel == kLogLevelInfo)  nLogLevelInfo++;
 	if (inLogLevel == kLogLevelDebug) nLogLevelDebug++;
 	if (inLogLevel == kLogLevelError) nLogLevelError++;

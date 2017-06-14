@@ -195,7 +195,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
 
     if (genGlobalObs_ && genNuisances_) {
         std::cerr << "ALERT: generating both global observables and nuisance parameters at the same time is not validated." << std::endl;
-    	if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d -- generating both global observables and nuisance parameters at the same time is not validated!",__LINE__)),Logger::kLogLevelInfo);
+    	if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d -- generating both global observables and nuisance parameters at the same time is not validated!",__LINE__)),Logger::kLogLevelInfo,__func__);
     }
     if (!vm["singlePoint"].defaulted()) {
         if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
@@ -1423,7 +1423,7 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(const RooAbsCollection & 
         rVals.Print("V");
         if (verbose > 0) toyDir->ls();
         std::cout << "ERROR: parameter point not found in input root file" << std::endl;
-    	if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d -- Parameter point not foung in input root file!",__LINE__)),Logger::kLogLevelError);
+    	if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d -- Parameter point not foung in input root file!",__LINE__)),Logger::kLogLevelError,__func__);
         throw std::invalid_argument("Missing input");
     }
     if (verbose > 0) {
@@ -1458,7 +1458,7 @@ void HybridNew::readGrid(TDirectory *toyDir, double rMin, double rMax) {
         } else if (name.Index("HypoTestResult_") == 0) {
             // let's put a warning here, since results of this form were supported in the past
             std::cout << "HybridNew::readGrid: HypoTestResult with non-conformant name " << name << " will be skipped" << std::endl;
-    	    if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d -- HypoTestResult with non-conformant name %s found when reading grid, it will be skipped",__LINE__,k->GetName())),Logger::kLogLevelDebug);
+    	    if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d -- HypoTestResult with non-conformant name %s found when reading grid, it will be skipped",__LINE__,k->GetName())),Logger::kLogLevelDebug,__func__);
             continue;
         } else continue;
         double rVal = atof(name.Data());

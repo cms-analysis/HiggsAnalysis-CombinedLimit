@@ -954,7 +954,7 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
             }
 	    
             if( verbosity > 0 ){
-            	Logger::instance().log(std::string(Form("utils.cc: %d -- Found parameter %s at boundary (within ~1sigma): %g+/-%g",__LINE__,(*a).GetName(),(*a).getVal(),(*a).getError())),Logger::kLogLevelInfo);
+            	Logger::instance().log(std::string(Form("utils.cc: %d -- Found parameter %s at boundary (within ~1sigma): %g+/-%g",__LINE__,(*a).GetName(),(*a).getVal(),(*a).getError())),Logger::kLogLevelInfo,__func__);
 	    }
 
             timesFoundAtBoundary[varName]++;
