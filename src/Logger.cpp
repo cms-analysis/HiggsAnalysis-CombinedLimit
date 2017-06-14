@@ -50,7 +50,7 @@ Logger::~Logger()
 
 Logger::Logger()
 {
-	mOutputStream.open(kLogFileName, ios_base::app);
+	mOutputStream.open(kLogFileName, ios_base::out);
 	if (!mOutputStream.good()) {
 		throw runtime_error("Unable to initialize the Logger!");
 	} 
