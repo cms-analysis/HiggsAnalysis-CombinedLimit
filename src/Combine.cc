@@ -59,7 +59,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
 using namespace RooStats;
 using namespace RooFit;
@@ -181,6 +180,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   saveToys_ = vm.count("saveToys");
   validateModel_ = vm.count("validateModel");
   const std::string &method = vm["method"].as<std::string>();
+
   if (method == "MultiDimFit" || ( method == "FitDiagnostics" && vm.count("justFit")) || method == "MarkovChainMC") {
     //CMSDAS new default,
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
@@ -228,9 +228,6 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
   } */
   timer.Stop(); t_cpu_ = timer.CpuTime()/60.; t_real_ = timer.RealTime()/60.;
   printf("Done in %.2f min (cpu), %.2f min (real)\n", t_cpu_, t_real_);
-  if (verbose>0) { 
-  	Logger::instance().printLog(); 
-  }
   return ret;
 }
 
