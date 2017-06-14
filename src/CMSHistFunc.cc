@@ -594,7 +594,7 @@ void CMSHistFunc::setCdf(Cache& c, FastTemplate const& h) const {
   c.cdf = FastTemplate(h.size() + 1);
   c.integral = integrateTemplate(h);
   for (unsigned i = 1; i < c.cdf.size(); ++i) {
-    c.cdf[i] = h[i - 1] / c.integral + c.cdf[i - 1];
+    c.cdf[i] = (h[i - 1] * cache_.GetWidth(i-1)) / c.integral + c.cdf[i - 1];
   }
   c.cdf_set = true;
 }
@@ -1039,6 +1039,9 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
                   << std::endl;
         std::cout << "Warning - th1fmorph: Zero slope solving x(y)"
                   << std::endl;
+        // for (unsigned z = 0; z < c1.y.size(); ++z) {
+        //   printf("x %.6f x1 %.6f x2 %.6f y %.6f\n", xdisn[z], c1.x1[z], c1.x2[z], c1.y[z]);
+        // }
       }
     }
     sigdisf[ix] = y;
@@ -1058,7 +1061,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
 
   for (ix = nbn - 1; ix > -1; ix--) {
     y = sigdisf[ix + 1] - sigdisf[ix];
-    morphedhist[ix] = y;
+    morphedhist[ix] = y / cache_.GetWidth(ix);
   }
 
   // ......All done, return the result.
