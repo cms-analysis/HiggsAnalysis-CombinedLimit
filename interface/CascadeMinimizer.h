@@ -14,7 +14,7 @@ class RooRealVar;
 class CascadeMinimizer {
     public:
         enum Mode { Constrained, Unconstrained };
-        CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi=0, int initialStrategy=0) ;
+        CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi=0) ;
         // do a new minimization, assuming the initial state is random
         bool minimize(int verbose=0, bool cascade=true);
         // run minos
@@ -42,7 +42,7 @@ class CascadeMinimizer {
         RooAbsReal & nll_;
         std::auto_ptr<RooMinimizer> minimizer_;
         Mode         mode_;
-        int          strategy_;
+        static int          strategy_;
         RooRealVar * poi_; 
         const RooArgSet *nuisances_;
         /// automatically enlarge bounds for POIs if they're within 10% from the boundary
@@ -96,6 +96,7 @@ class CascadeMinimizer {
 	static std::string defaultMinimizerType_;
 	static std::string defaultMinimizerAlgo_;
 	static double 	   defaultMinimizerTolerance_;
+	//static int 	   defaultMinimizerStrategy_;
 
     	static bool runShortCombinations; 
         //static void setDefaultIntegrator(RooCategory &cat, const std::string & val) ;

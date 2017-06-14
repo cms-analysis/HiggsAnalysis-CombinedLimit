@@ -772,7 +772,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     std::auto_ptr<RooAbsReal> nll(pdfB->createNLL(data, RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     {
         CloseCoutSentry sentry(verbose < 3);
-        CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r, 1);
+        CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r);
         minim.minimize(verbose-3);
         //pdfB->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
         fitZero.readFrom(*paramsToFit);
@@ -787,7 +787,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     }
     {
        CloseCoutSentry sentry(verbose < 3);
-       CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r, 1);
+       CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r);
        minim.minimize(verbose-3);
        //mc_s->GetPdf()->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
        fitMu.readFrom(*paramsToFit);

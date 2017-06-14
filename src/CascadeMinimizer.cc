@@ -33,12 +33,13 @@ double CascadeMinimizer::discreteMinTol_ = 0.001;
 std::string CascadeMinimizer::defaultMinimizerType_="Minuit2"; // default to minuit2 (not always the default !?)
 std::string CascadeMinimizer::defaultMinimizerAlgo_=ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
 double CascadeMinimizer::defaultMinimizerTolerance_=1e-1;  
+int  CascadeMinimizer::strategy_=0;  
 
-CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi, int initialStrategy) :
+CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) :
     nll_(nll),
     minimizer_(new RooMinimizer(nll_)),
     mode_(mode),
-    strategy_(initialStrategy),
+    //strategy_(0),
     poi_(poi),
     nuisances_(0),
     autoBounds_(false),
@@ -597,6 +598,7 @@ void CascadeMinimizer::initOptions()
 	("cminDefaultMinimizerType",boost::program_options::value<std::string>(&defaultMinimizerType_)->default_value(defaultMinimizerType_), "Set the default minimizer Type")
 	("cminDefaultMinimizerAlgo",boost::program_options::value<std::string>(&defaultMinimizerAlgo_)->default_value(defaultMinimizerAlgo_), "Set the default minimizer Algo")
 	("cminDefaultMinimizerTolerance",boost::program_options::value<double>(&defaultMinimizerTolerance_)->default_value(defaultMinimizerTolerance_), "Set the default minimizer Tolerance")
+	("cminDefaultMinimizerStrategy",boost::program_options::value<int>(&strategy_)->default_value(strategy_), "Set the default minimizer (initial) strategy")
         ("cminRunAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
         ("cminDiscreteMinTol", boost::program_options::value<double>(&discreteMinTol_)->default_value(discreteMinTol_), "tolerance on min NLL for discrete combination iterations")
         ("cminM2StorageLevel", boost::program_options::value<int>(&minuit2StorageLevel_)->default_value(minuit2StorageLevel_), "storage level for minuit2 (0 = don't store intermediate covariances, 1 = store them)")
@@ -621,6 +623,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
     singleNuisFit_ = vm.count("cminSingleNuisFit");
     setZeroPoint_  = vm.count("cminSetZeroPoint");
     runShortCombinations = !(vm.count("cminRunAllDiscreteCombinations"));
+
     if (vm.count("cminFallbackAlgo")) {
         vector<string> falls(vm["cminFallbackAlgo"].as<vector<string> >());
         for (vector<string>::const_iterator it = falls.begin(), ed = falls.end(); it != ed; ++it) {
@@ -656,7 +659,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
     
     ROOT::Math::IOptions & options = ROOT::Math::MinimizerOptions::Default("Minuit2");
     options.SetValue("StorageLevel", minuit2StorageLevel_);
-
+    
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer(defaultMinimizerType_.c_str(),defaultMinimizerAlgo_.c_str());
     ROOT::Math::MinimizerOptions::SetDefaultTolerance(defaultMinimizerTolerance_);
 
