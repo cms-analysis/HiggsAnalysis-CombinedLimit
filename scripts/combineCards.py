@@ -56,9 +56,9 @@ for ich,fname in enumerate(args):
         label += "_";
     for b in DC.bins:
         bout = label if singlebin else label+b
-	b_in  = label if singlebin else b
+        b_in  = label if singlebin else b
         if isVetoed(b_in,options.channelVetos): continue
-	if not isIncluded(b_in,options.channelIncludes): continue
+        if not isIncluded(b_in,options.channelIncludes): continue
         obskeyline.append(bout)
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
             if DC.isSignal[p] == False: continue
@@ -121,11 +121,14 @@ for ich,fname in enumerate(args):
         extArgs[K] = DC.extArgs[K]
     # rate params
     for K in DC.rateParams.iterkeys():
-	tbin,tproc = K.split("AND")[0],K.split("AND")[1]
-	tbin = label if singlebin else label+tbin 
-	nK = tbin+"AND"+tproc
-	rateParams[nK] = DC.rateParams[K]
-	rateParamsOrder.update(DC.rateParamsOrder)
+        tbin,tproc = K.split("AND")[0],K.split("AND")[1]
+        b_in = tbin
+        tbin = label if singlebin else label+tbin 
+        if isVetoed(b_in,options.channelVetos): continue
+        if not isIncluded(b_in,options.channelIncludes): continue
+        nK = tbin+"AND"+tproc
+        rateParams[nK] = DC.rateParams[K]
+        rateParamsOrder.update(DC.rateParamsOrder)
     # discrete nuisance
     for K in DC.discretes: 
         if discreteNuisances.has_key(K): raise RuntimeError, "Cannot currently correlate discrete nuisances across categories. Rename %s in one."%K
@@ -134,9 +137,9 @@ for ich,fname in enumerate(args):
     if len(DC.shapeMap):
         for b in DC.bins:
             bout = label if singlebin else label+b
-	    b_in  = label if singlebin else b
+            b_in  = label if singlebin else b
             if isVetoed(b_in,options.channelVetos): continue
-	    if not isIncluded(b_in,options.channelIncludes): continue
+            if not isIncluded(b_in,options.channelIncludes): continue
             p2sMap  = DC.shapeMap[b]   if DC.shapeMap.has_key(b)   else {}
             p2sMapD = DC.shapeMap['*'] if DC.shapeMap.has_key('*') else {}
             for p, x in p2sMap.items():
@@ -158,9 +161,9 @@ for ich,fname in enumerate(args):
     elif obsline != None:
         for b in DC.bins:
             bout = label if singlebin else label+b
-	    b_in  = label if singlebin else b
+            b_in  = label if singlebin else b
             if isVetoed(b_in,options.channelVetos): continue
-	    if not isIncluded(b_in,options.channelIncludes): continue
+            if not isIncluded(b_in,options.channelIncludes): continue
             obsline += [str(DC.obs[b])];
     #get the groups - keep nuisances in a set so that they are never repetitions
     for groupName,nuisanceNames in DC.groups.iteritems():
@@ -177,11 +180,11 @@ for ich,fname in enumerate(args):
         tmp_chan = editline[2]
         tmp_proc = editline[1]
 
-      	if tmp_chan == "*": # all channels 
-	  tmp_chan = "%s(%s)"%(label,"|".join(c for c in DC.bins)) if len (DC.bins)>1 else label 
-	if tmp_proc == "*":
-	  tmp_proc = "(%s)"%("|".join(p for p in DC.processes))
-      	nuisanceEdits.append("%s %s %s %s"%(editline[0],tmp_proc,tmp_chan," ".join(editline[3])))
+        if tmp_chan == "*": # all channels 
+          tmp_chan = "%s(%s)"%(label,"|".join(c for c in DC.bins)) if len (DC.bins)>1 else label 
+        if tmp_proc == "*":
+          tmp_proc = "(%s)"%("|".join(p for p in DC.processes))
+        nuisanceEdits.append("%s %s %s %s"%(editline[0],tmp_proc,tmp_chan," ".join(editline[3])))
 
 bins = []
 for (b,p,s) in keyline:
