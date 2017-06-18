@@ -114,6 +114,7 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       htype_(other.htype_),
       mtype_(other.mtype_),
       vtype_(other.vtype_),
+      divide_by_width_(other.divide_by_width_),
       vsmooth_par_(other.vsmooth_par_) {
   // initialize();
 }
@@ -803,10 +804,13 @@ void CMSHistFunc::prepareInterpCache(Cache& c1,
       x1 = cache_.GetEdge(ix1);
       y = c1.cdf[ix1];
       Double_t x20 = cache_.GetEdge(ix2);
-      Double_t x21 = cache_.GetEdge(ix2 + 1);
       Double_t y20 = c2.cdf[ix2];
-      Double_t y21 = c2.cdf[ix2 + 1];
-
+      Double_t x21 = x20;
+      Double_t y21 = y20;
+      if (ix2 < ix2l) {
+        x21 = cache_.GetEdge(ix2 + 1);
+        y21 = c2.cdf[ix2 + 1];
+      }
       // .....Calculate where the cummulative probability y in distribution 1
       //      intersects between the 2 points from distribution 2 which
       //      bracket it.
@@ -824,9 +828,13 @@ void CMSHistFunc::prepareInterpCache(Cache& c1,
       x2 = cache_.GetEdge(ix2);
       y = c2.cdf[ix2];
       Double_t x10 = cache_.GetEdge(ix1);
-      Double_t x11 = cache_.GetEdge(ix1 + 1);
       Double_t y10 = c1.cdf[ix1];
-      Double_t y11 = c1.cdf[ix1 + 1];
+      Double_t x11 = x10;
+      Double_t y11 = y10;
+      if (ix1 < ix1l) {
+        x11 = cache_.GetEdge(ix1 + 1);
+        y11 = c1.cdf[ix1 + 1];
+      }
 
       // .....Calculate where the cummulative probability y in distribution 2
       //      intersects between the 2 points from distribution 1 which
@@ -871,7 +879,7 @@ void CMSHistFunc::prepareInterpCache(Cache& c1,
     }
   }
 #if HFVERBOSE > 2
-    for (Int_t i = 0; i < nx3; i++) {
+    for (unsigned i = 0; i < c1.y.size(); i++) {
       std::cout << " nx " << i << " " << c1.x1[i] << " " << c1.x2[i] << " " << c1.y[i]
                 << std::endl;
     }
