@@ -186,7 +186,11 @@ class ShapeBuilder(ModelBuilder):
                     self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
             if channelBinParFlag:
                 for idx in xrange(pdfs.getSize()):
-                    self.out._import(ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx), ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+                    wrapper = ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx)
+                    wrapper.setStringAttribute("combine.process", pdfs.at(idx).getStringAttribute("combine.process"))
+                    wrapper.setStringAttribute("combine.channel", pdfs.at(idx).getStringAttribute("combine.channel"))
+                    self.out._import(wrapper, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
     def doCombination(self):

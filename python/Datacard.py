@@ -115,6 +115,9 @@ MB.setPhysics(defaultModel)
 MB.doModel()
 	"""
 
+	# map of which bins should have automated Barlow-Beeston parameters
+	self.binParFlags = {}
+
     def list_of_bins(self) :
         """
         Return the list of all bins in the datacard.
