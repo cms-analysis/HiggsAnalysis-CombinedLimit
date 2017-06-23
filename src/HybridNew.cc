@@ -43,6 +43,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
 
 #include <boost/algorithm/string/split.hpp>
@@ -194,6 +195,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
 
     if (genGlobalObs_ && genNuisances_) {
         std::cerr << "ALERT: generating both global observables and nuisance parameters at the same time is not validated." << std::endl;
+    	if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d -- generating both global observables and nuisance parameters at the same time is not validated!",__LINE__)),Logger::kLogLevelInfo,__func__);
     }
     if (!vm["singlePoint"].defaulted()) {
         if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
@@ -511,7 +513,11 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 
       if (doFC_) { 
         points  = findIntervalsFromSplines(limitPlot_.get(), clsTarget);// re use CLS_t ?
-	if (points.size()<2) std::cout << " HybridNew -- Found no interval in which " << rule_.c_str() << " is less than target " << cl << ", no crossings found " << std::endl;
+	if (points.size()<2) { 
+		std::cout << " HybridNew -- Found no interval in which " << rule_.c_str() << " is less than target " << cl << ", no crossings found " << std::endl;
+		if (verbose)  Logger::instance().log(std::string(Form("HybridNew.cc: %d Found no interval in which %s is less than target %g, no crossing found!",__LINE__,rule_.c_str(),cl)),Logger::kLogLevelError,__func__);
+	}
+
 	else std::cout << "HybridNew --  found  " << 100*cl << "%% confidence regions " << std::endl;  
 	for (unsigned int ib=0;ib<points.size()-1;ib+=2){
 		std::cout << "  " << points[ib].first << " (+/-" << points[ib].second << ")"<< " < " << r->GetName() << " < " << points[ib+1].first << " (+/-" << points[ib+1].second << ")" << std::endl;
@@ -878,6 +884,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
               paramsZero.addClone(*mc_b->GetNuisanceParameters(), true);
           } else {
               std::cerr << "ALERT: using LEP test statistics with --fitNuisances is not validated and most likely broken" << std::endl;
+      	      if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d using LEP test statistics with --fitNuisances is not validated and most likely broken",__LINE__)),Logger::kLogLevelDebug,__func__);
               params.assignValueOnly(*mc_s->GetNuisanceParameters());
               paramsZero.assignValueOnly(*mc_s->GetNuisanceParameters());
           }
@@ -892,6 +899,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
           }
       } else {
           std::cerr << "ALERT: LEP test statistics without optimization not validated." << std::endl;
+      	  if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d LEP test statistics not yet validated.",__LINE__)),Logger::kLogLevelDebug,__func__);
           RooArgSet paramsSnap; params.snapshot(paramsSnap); // needs a snapshot
           setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*pdfB,*factorizedPdf_s));
           ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(paramsZero); // Null is B
@@ -899,6 +907,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       }
   } else if (testStat_ == "TEV") {
       std::cerr << "ALERT: Tevatron test statistics not yet validated." << std::endl;
+      if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d Tevatron test statistics not yet validated.",__LINE__)),Logger::kLogLevelDebug,__func__);
       RooAbsPdf *pdfB = factorizedPdf_b; 
       if (poi.getSize() == 1) pdfB = factorizedPdf_s; // in this case we can remove the arbitrary constant from the test statistics.
       if (optimizeTestStatistics_) {
@@ -1081,6 +1090,11 @@ HybridNew::eval(RooStats::HybridCalculator &hc, const RooAbsCollection & rVals, 
             "\tCLb      = " << hcResult->CLb()      << " +/- " << hcResult->CLbError()      << "\n" <<
             "\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
             std::endl;
+    	Logger::instance().log(std::string(Form("HybridNew.cc: %d -- CLs = %g +/- %g\n\tCLb = %g +/- %g\n\tCLsplusb = %g +/- %g",__LINE__
+	,hcResult->CLs(), hcResult->CLsError()
+	,hcResult->CLb(), hcResult->CLbError()
+	,hcResult->CLsplusb(), hcResult->CLsplusbError()))
+	,Logger::kLogLevelInfo,__func__);
     }
 
     perf_totalToysRun_ += (hcResult->GetAltDistribution()->GetSize() + hcResult->GetNullDistribution()->GetSize());
@@ -1421,6 +1435,7 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(const RooAbsCollection & 
         rVals.Print("V");
         if (verbose > 0) toyDir->ls();
         std::cout << "ERROR: parameter point not found in input root file" << std::endl;
+    	if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d -- Parameter point not foung in input root file!",__LINE__)),Logger::kLogLevelError,__func__);
         throw std::invalid_argument("Missing input");
     }
     if (verbose > 0) {
@@ -1429,6 +1444,12 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(const RooAbsCollection & 
             "\tCLb      = " << ret->CLb()      << " +/- " << ret->CLbError()      << "\n" <<
             "\tCLsplusb = " << ret->CLsplusb() << " +/- " << ret->CLsplusbError() << "\n" <<
             std::endl;
+    	Logger::instance().log(std::string(Form("HybridNew.cc: %d -- CLs = %g +/- %g\n\tCLb = %g +/- %g\n\tCLsplusb = %g +/- %g",__LINE__
+	,ret->CLs(), ret->CLsError()
+	,ret->CLb(), ret->CLbError()
+	,ret->CLsplusb(), ret->CLsplusbError()))
+	,Logger::kLogLevelInfo,__func__);
+
         if (!plot_.empty() && workingMode_ != MakeLimit) {
             HypoTestPlot plot(*ret, 30);
             TCanvas *c1 = new TCanvas("c1","c1");
@@ -1455,6 +1476,7 @@ void HybridNew::readGrid(TDirectory *toyDir, double rMin, double rMax) {
         } else if (name.Index("HypoTestResult_") == 0) {
             // let's put a warning here, since results of this form were supported in the past
             std::cout << "HybridNew::readGrid: HypoTestResult with non-conformant name " << name << " will be skipped" << std::endl;
+    	    if (verbose) Logger::instance().log(std::string(Form("HybridNew.cc: %d -- HypoTestResult with non-conformant name %s found when reading grid, it will be skipped",__LINE__,k->GetName())),Logger::kLogLevelDebug,__func__);
             continue;
         } else continue;
         double rVal = atof(name.Data());
@@ -1583,6 +1605,14 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
             "\tCLb      = " << point->second->CLb()      << " +/- " << point->second->CLbError()      << "\n" <<
             "\tCLsplusb = " << point->second->CLsplusb() << " +/- " << point->second->CLsplusbError() << "\n" <<
             std::endl;
+    }
+    if (verbose){
+    	    Logger::instance().log(std::string(Form("HybridNew.cc: %d -- At %s = %g:\n, \tCLs = %g +/- %g\n\tCLb = %g +/- %g\n\tCLsplusb = %g +/- %g",__LINE__
+	    ,r->GetName(), point->first
+	    ,point->second->CLs(), point->second->CLsError()
+	    ,point->second->CLb(), point->second->CLbError()
+	    ,point->second->CLsplusb(), point->second->CLsplusbError()))
+	    ,Logger::kLogLevelInfo,__func__);
     }
     
     return eval(*point->second, point->first);

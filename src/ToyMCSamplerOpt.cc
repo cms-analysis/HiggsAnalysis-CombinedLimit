@@ -1,5 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 #include <memory>
 #include <stdexcept>
 #include <TH1.h>
@@ -162,6 +163,7 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
 {
     if (mode_ == Unbinned) {
         if ( verbose > 2 ) printf("  ToyMCSamplerOpt -- Generating PseudoAsimov dataset for pdf %s: with %d weighted events\n", pdf_->GetName(), nPoints);
+        if ( verbose > 0 ) Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- Generating PseudoAsimov dataset for pdf %s: with %d weighted events",__LINE__,pdf_->GetName(),nPoints)),Logger::kLogLevelInfo,__func__);
         double expEvents = pdf_->expectedEvents(observables_);
         std::auto_ptr<RooDataSet> data(pdf_->generate(observables_, nPoints));
         if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
@@ -204,6 +206,12 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
       if (y)  printf(", %d y-bins ",histoSpec_->GetNbinsY() );
       if (z)  printf(", %d z-bins ",histoSpec_->GetNbinsZ() );
       printf("\n");
+    }
+
+    if ( verbose >0 ) { 
+    	Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- Generating asimov with histogram for pdf %s: in %d x-bins",__LINE__,pdf_->GetName(),histoSpec_->GetNbinsX())),Logger::kLogLevelInfo,__func__);
+	if (y)  Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- , in %d y-bins",__LINE__,histoSpec_->GetNbinsY())),Logger::kLogLevelInfo,__func__);
+	if (z)  Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- , in %d z-bins",__LINE__,histoSpec_->GetNbinsZ())),Logger::kLogLevelInfo,__func__);
     }
 
     double expectedEvents = pdf_->expectedEvents(observables_);

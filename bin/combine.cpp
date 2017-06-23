@@ -25,6 +25,7 @@
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfilingTools.h"
 #include "../interface/GenerateOnly.h"
+#include "../interface/Logger.h"
 #include <map>
 
 using namespace std;
@@ -75,7 +76,7 @@ int main(int argc, char **argv) {
   desc.add_options()
     ("datacard,d", po::value<string>(&datacard), "Datacard file (can also be specified directly without the -d or --datacard)")
     ("method,M",      po::value<string>(&whichMethod)->default_value("AsymptoticLimits"), methodsDesc.c_str())
-    ("verbose,v",  po::value<int>(&verbose)->default_value(1), "Verbosity level (-1 = very quiet; 0 = quiet, 1 = verbose, 2+ = debug)")
+    ("verbose,v",  po::value<int>(&verbose)->default_value(0), "Verbosity level (-1 = very quiet; 0 = quiet, 1 = verbose, 2+ = debug)")
     ("help,h", "Produce help message")
     ;
   combiner.statOptions().add_options()
@@ -323,6 +324,7 @@ int main(int argc, char **argv) {
 
   try {
      combiner.run(datacard, dataset, limit, limitErr, iToy, t, runToys);
+     if (verbose>0) Logger::instance().printLog(); 
   } catch (std::exception &ex) {
      cerr << "Error when running the combination:\n\t" << ex.what() << std::endl;
      test->Close();

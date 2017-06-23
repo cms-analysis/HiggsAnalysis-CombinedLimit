@@ -36,6 +36,7 @@
 
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
 using namespace std;
 
@@ -951,6 +952,10 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
                 fprintf(CloseCoutSentry::trueStdOutGlobal(),"  [WARNING] Found [%s] at boundary. \n", (*a).GetName());
                 std::cout << "       "; (*a).Print();
             }
+	    
+            if( verbosity > 0 ){
+            	Logger::instance().log(std::string(Form("utils.cc: %d -- Found parameter %s at boundary (within ~1sigma): %g+/-%g",__LINE__,(*a).GetName(),(*a).getVal(),(*a).getError())),Logger::kLogLevelInfo,__func__);
+	    }
 
             timesFoundAtBoundary[varName]++;
         }

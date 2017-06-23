@@ -20,6 +20,7 @@
 #include <HiggsAnalysis/CombinedLimit/interface/CachingMultiPdf.h>
 #include <HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h>
 #include <HiggsAnalysis/CombinedLimit/interface/Accumulators.h>
+#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 #include "vectorized.h"
 
 namespace cacheutils {
@@ -694,6 +695,7 @@ cacheutils::CachingAddNLL::evaluate() const
     double expectedEvents = (isRooRealSum_ && !expEventsNoNorm ? pdf_->getNorm(data_->get()) : sumCoeff);
     if (expectedEvents <= 0) {
         std::cout << "WARNING: underflow in total event yield for " << pdf_->GetName() << ", expected yield = " << expectedEvents << " (observed: " << sumWeights_ << ")" << std::endl;
+    	Logger::instance().log(std::string(Form("CachingNLL.cc: %d -- underflow (expected events <=0) in total event yield for %s, expected yield = %g (observed: %g)",__LINE__,pdf_->GetName(), expectedEvents, sumWeights_)),Logger::kLogLevelInfo,__func__);
         if (!CachingSimNLL::noDeepLEE_) logEvalError("Expected number of events is negative"); else CachingSimNLL::hasError_ = true;
         expectedEvents = 1e-6;
     }
@@ -1000,6 +1002,7 @@ cacheutils::CachingSimNLL::evaluate() const
             double pdfval = (*it)->getVal(nuis_);
             if (!isnormal(pdfval) || pdfval <= 0) {
                 std::cout << "WARNING: underflow constraint pdf " << (*it)->GetName() << ", value = " << pdfval << std::endl;
+    		Logger::instance().log(std::string(Form("CachingNLL.cc: %d -- underflow (pdf evaluates to <=0) of constraint pdf %s, value = %g ",__LINE__,(*it)->GetName(), pdfval)),Logger::kLogLevelInfo,__func__);
                 if (gentleNegativePenalty_) { ret += 25; continue; }
                 if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero, negative or error").c_str());
                 pdfval = 1e-9;

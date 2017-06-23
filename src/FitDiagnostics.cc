@@ -28,6 +28,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
 
 #include <Math/MinimizerOptions.h>
@@ -236,6 +237,8 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	 fitStatus_ = res_b->status();
       }
       numbadnll_=res_b->numInvalidNLL();
+         
+      if ( verbose > 0 ) Logger::instance().log(std::string(Form("FitDiagnostics.cc: %d -- Fit B-only, status = %d, numBadNLL = %d, covariance quality = %d",__LINE__,fitStatus_,numbadnll_,res_b->covQual())),Logger::kLogLevelDebug,__func__);
 
       if (makePlots_ && currentToy_<1) {
           std::vector<RooPlot *> plots = utils::makePlots(*mc_b->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_,res_b);
@@ -309,6 +312,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	 fitStatus_ = res_s->status();
          numbadnll_ = res_s->numInvalidNLL();
 
+         if ( verbose > 0 ) Logger::instance().log(std::string(Form("FitDiagnostics.cc: %d -- Fit S+B, status = %d, numBadNLL = %d, covariance quality = %d",__LINE__,fitStatus_,numbadnll_,res_s->covQual())),Logger::kLogLevelDebug,__func__);
 	 // Additionally store the nll_sb - nll_bonly (=0.5*q0)
 	 nll_nll0_ =  nll_sb_ -  nll_bonly_;
       }
@@ -679,6 +683,8 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     if (saveWithUncertainties_) {
         int ntoys = numToysForShapes_;
 
+        if ( verbose > 0 ) Logger::instance().log(std::string(Form("FitDiagnostics.cc: %d -- Generating toy data for evaluating per-bin uncertainties and covariances with post-fit nuisance parameters with %d toys",__LINE__,ntoys)),Logger::kLogLevelInfo,__func__);
+
         sampler.generate(ntoys);
         std::auto_ptr<RooArgSet> params(pdf->getParameters(obs));
         // prepare histograms for running sums
@@ -990,7 +996,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
          }
          delete norms;
 
-	std::cout << "Created Branches for toy diagnostics" <<std::endl;
+	 //std::cout << "Created Branches for toy diagnostics" <<std::endl;
          return;	
 }
 
