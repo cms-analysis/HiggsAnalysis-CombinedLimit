@@ -136,7 +136,6 @@ Combine::Combine() :
       ("freezeAllGlobalObs", po::value<bool>(&freezeAllGlobalObs_)->default_value(true), "Make all global observables constant")
       ;
     miscOptions_.add_options()
-      ("newGenerator", po::value<bool>(&newGen_)->default_value(true), "Use new generator code for toys, fixes all issues with binned and mixed generation (equivalent of --newToyMC but affects the top-level toys from option '-t' instead of the ones within the HybridNew)")
       ("optimizeSimPdf", po::value<bool>(&optSimPdf_)->default_value(true), "Turn on special optimizations of RooSimultaneous. On by default, you can turn it off if it doesn't work for your workspace.")
       ("noMCbonly", po::value<bool>(&noMCbonly_)->default_value(false), "Don't create a background-only modelConfig")
       ("noDefaultPrior", po::value<bool>(&noDefaultPrior_)->default_value(false), "Don't create a default uniform prior")
@@ -821,7 +820,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  readToysFromHere->ls();
 	  return;
 	}
-        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) {
+        if (toysFrequentist_ && mc->GetGlobalObservables()) {
             RooAbsCollection *snap = dynamic_cast<RooAbsCollection *>(readToysFromHere->Get("toys/toy_asimov_snapshot"));
             if (!snap) {
                 std::cerr << "Snapshot of global observables toy_asimov_snapshot not found in " << readToysFromHere->GetName() << ". List follows:\n";
@@ -835,36 +834,26 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
       else{
         if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
-        if (newGen_) {
-            if (toysFrequentist_) {
-                w->saveSnapshot("reallyClean", w->allVars());
-                if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
-                RooArgSet gobsAsimov;
-                utils::setAllConstant(*mc->GetParametersOfInterest(), true); // Fix poi, before fit
-                double poiVal = 0.;
-                if (mc->GetParametersOfInterest()->getSize()) {
-                  poiVal = dynamic_cast<RooRealVar *>(mc->GetParametersOfInterest()->first())->getVal();
-                }
-                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, poiVal, verbose);
-                if (mc->GetGlobalObservables()) {
-                    RooArgSet gobs(*mc->GetGlobalObservables());
-                    gobs = gobsAsimov;
-                }
-                utils::setAllConstant(*mc->GetParametersOfInterest(), false);
-                w->saveSnapshot("clean", w->allVars());
-            } else {
-                toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
-                dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
+        if (toysFrequentist_) {
+            w->saveSnapshot("reallyClean", w->allVars());
+            if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
+            RooArgSet gobsAsimov;
+            utils::setAllConstant(*mc->GetParametersOfInterest(), true); // Fix poi, before fit
+            double poiVal = 0.;
+            if (mc->GetParametersOfInterest()->getSize()) {
+              poiVal = dynamic_cast<RooRealVar *>(mc->GetParametersOfInterest()->first())->getVal();
             }
-        } else if (isExtended) {
-            if (unbinned_) {
-                throw std::invalid_argument("Asimov datasets can only be generated binned");
-            } else {
-                dobs = genPdf->generateBinned(*observables,RooFit::Extended(),RooFit::Asimov());
+            dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, !bypassFrequentistFit_, poiVal, verbose);
+            if (mc->GetGlobalObservables()) {
+                RooArgSet gobs(*mc->GetGlobalObservables());
+                gobs = gobsAsimov;
             }
-	} else {
-	  dobs = genPdf->generate(*observables,1,RooFit::Asimov());
-	}
+            utils::setAllConstant(*mc->GetParametersOfInterest(), false);
+            w->saveSnapshot("clean", w->allVars());
+        } else {
+            toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
+            dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
+        }
       }
     } else if (dobs == 0) {
       std::cerr << "No observed data '" << dataset << "' in the workspace. Cannot compute limit.\n" << std::endl;
@@ -872,7 +861,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (saveToys_) {
 	writeToysHere->WriteTObject(dobs, "toy_asimov");
-        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+        if (toysFrequentist_ && mc->GetGlobalObservables()) { 
             RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
             if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
             // to be seen whether I can delete it or not
@@ -940,16 +929,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (isExtended) {
-          if (newGen_) {
-            absdata_toy = newToyMC.generate(weightVar_); // as simple as that
-          } else if (unbinned_) {
-    	      absdata_toy = genPdf->generate(*observables,RooFit::Extended());
-          } else if (generateBinnedWorkaround_) {
-              std::auto_ptr<RooDataSet> unbinn(genPdf->generate(*observables,RooFit::Extended()));
-              absdata_toy = new RooDataHist("toy","binned toy", *observables, *unbinn);
-          } else {
-    	      absdata_toy = genPdf->generateBinned(*observables,RooFit::Extended());
-          }
+          absdata_toy = newToyMC.generate(weightVar_); // as simple as that
 	} else {
 	  RooDataSet *data_toy = genPdf->generate(*observables,1);
 	  absdata_toy = data_toy;
@@ -961,7 +941,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  readToysFromHere->ls();
 	  return;
 	}
-        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) {
+        if (toysFrequentist_ && mc->GetGlobalObservables()) {
             RooAbsCollection *snap = dynamic_cast<RooAbsCollection *>(readToysFromHere->Get(TString::Format("toys/toy_%d_snapshot",iToy)));
             if (!snap) {
                 std::cerr << "Snapshot of global observables toy_"<<iToy<<"_snapshot not found in " << readToysFromHere->GetName() << ". List follows:\n";
@@ -983,7 +963,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
       if (saveToys_) {
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));
-        if (toysFrequentist_ && newGen_ && mc->GetGlobalObservables()) { 
+        if (toysFrequentist_ && mc->GetGlobalObservables()) { 
             RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
             writeToysHere->WriteTObject(snap, TString::Format("toy_%d_snapshot", iToy));
             // to be seen whether I can delete it or not
