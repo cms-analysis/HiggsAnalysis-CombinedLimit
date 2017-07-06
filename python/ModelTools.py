@@ -86,6 +86,9 @@ class ModelBuilder(ModelBuilderBase):
         ModelBuilderBase.__init__(self,options)
         self.DC = datacard
         self.doModelBOnly = True
+        self.selfNormBins = []
+        self.extraNuisances = []
+        self.extraGlobalObservables = []
     def setPhysics(self,physicsModel):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
@@ -229,6 +232,20 @@ class ModelBuilder(ModelBuilderBase):
 
         for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs:
+            is_func_scaled = False
+            func_scaler = None
+            for pn,pf in self.options.nuisanceFunctions:
+                if re.match(pn, n):
+                    is_func_scaled = True
+                    func_scaler = pf
+                    if self.options.verbose > 1:
+                        print 'Rescaling %s constraint as %s' % (n, pf)
+            for pn,pf in self.options.nuisanceGroupFunctions:
+                if pn in self.DC.groups and n in self.DC.groups[pn]:
+                    is_func_scaled = True
+                    func_scaler = pf
+                    if self.options.verbose > 1:
+                        print 'Rescaling %s constraint (in group %s) as %s' % (n, pn, pf)
             if pdf == "lnN" or (pdf.startswith("shape") and pdf != 'shapeU'):
                 r = "-4,4" if pdf == "shape" else "-7,7"
                 sig = 1.0;
@@ -236,17 +253,24 @@ class ModelBuilder(ModelBuilderBase):
                     if re.match(pn, n):
                         sig = float(pf); sigscale = sig * (4 if pdf == "shape" else 7)
                         r = "-%g,%g" % (sigscale,sigscale)
+                sig = '%g' % sig
+                if is_func_scaled:
+                    sig = func_scaler
 		r_exp = "" if self.out.var(n) else "[%s]"%r # Specify range to invoke factory to produce a RooRealVar only if it doesn't already exist
-                if self.options.noOptimizePdf:
-                      self.doObj("%s_Pdf" % n, "Gaussian", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True); # Use existing constraint since it could be a param
+                if self.options.noOptimizePdf or is_func_scaled:
+                      self.doObj("%s_Pdf" % n, "Gaussian", "%s%s, %s_In[0,%s], %s" % (n,r_exp,n,r,sig),True); # Use existing constraint since it could be a param
+                      if is_func_scaled:
+                        boundHi = self.doObj("%s_BoundHi" % n, "prod", "5, %s" % sig)
+                        boundLo = self.doObj("%s_BoundLo" % n, "prod", "-5, %s" % sig)
+                        self.out.var(n).setRange(boundLo, boundHi)
                 else:
-                      self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %g" % (n,r_exp,n,r,sig),True);# Use existing constraint since it could be a param
+                      self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s%s, %s_In[0,%s], %s" % (n,r_exp,n,r,sig),True);# Use existing constraint since it could be a param
                 self.out.var(n).setVal(0)
                 self.out.var(n).setError(1)
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
-                if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
+                if self.options.optimizeBoundNuisances and not is_func_scaled: self.out.var(n).setAttribute("optimizeBounds")
             elif pdf == "gmM":
                 val = 0;
                 for c in errline.values(): #list channels
@@ -339,8 +363,20 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                           self.doVar("%s[%g,%g]" % (n, mean-4*float(sigmaL), mean+4*float(sigmaR)))
                     self.out.var(n).setVal(mean)
-                    self.doObj("%s_Pdf" % n, "BifurGauss", "%s, %s_In[%s,%g,%g], %s, %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaL, sigmaR),True)
+
+                    sigmaStrL = sigmaL
+                    sigmaStrR = sigmaR
+                    if is_func_scaled:
+                        sigmaStrL = '%s_WidthScaledL' % n
+                        sigmaStrR = '%s_WidthScaledR' % n
+                        self.doObj(sigmaStrL, "prod", "%g, %s" % (float(sigmaL), func_scaler))
+                        self.doObj(sigmaStrR, "prod", "%g, %s" % (float(sigmaR), func_scaler))
+                    self.doObj("%s_Pdf" % n, "BifurGauss", "%s, %s_In[%s,%g,%g], %s, %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStrL, sigmaStrR),True)
                     self.out.var("%s_In" % n).setConstant(True)
+                    if is_func_scaled:
+                        self.doExp("%s_BoundHi" % n, "%g+%g*@0" % (mean, self.out.var(n).getMax() - mean), "%s" % (func_scaler))
+                        self.doExp("%s_BoundLo" % n, "%g-%g*@0" % (mean, mean - self.out.var(n).getMin()), "%s" % (func_scaler))
+                        self.out.var(n).setRange(self.out.function('%s_BoundLo' % n), self.out.function('%s_BoundHi' % n))
                 else:
                     if len(args) == 3: # mean, sigma, range
                         if self.out.var(n):
@@ -360,8 +396,19 @@ class ModelBuilder(ModelBuilderBase):
                           self.doVar("%s[%g,%g]" % (n, mean-4*sigma, mean+4*sigma))
                     self.out.var(n).setVal(mean)
                     #self.out.var(n).setError(sigma)
-                    self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]),True)
+                    sigmaStr = args[1]
+                    if is_func_scaled:
+                        sigmaStr = '%s_WidthScaled' % n
+                        self.doObj(sigmaStr, "prod", "%g, %s" % (float(args[1]), func_scaler))
+                    if self.options.noOptimizePdf or is_func_scaled:
+                        self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStr),True)
+                    else:
+                        self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaStr),True)
                     self.out.var("%s_In" % n).setConstant(True)
+                    if is_func_scaled:
+                        boundHi = self.doExp("%s_BoundHi" % n, "%g+%g*@0" % (mean, self.out.var(n).getMax() - mean), "%s" % (func_scaler))
+                        boundLo = self.doExp("%s_BoundLo" % n, "%g-%g*@0" % (mean, mean - self.out.var(n).getMin()), "%s" % (func_scaler))
+                        self.out.var(n).setRange(self.out.function('%s_BoundLo' % n), self.out.function('%s_BoundHi' % n))
                 globalobs.append("%s_In" % n)
                 #if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
 	    elif pdf == "extArg" : continue
@@ -453,7 +500,7 @@ class ModelBuilder(ModelBuilderBase):
 		    argu = self.DC.rateParams["%sAND%s"%(b,p)][rk][0][0]
 		    if self.out.arg(argu): factors.append(argu)
 		    else: raise RuntimeError, "No rate parameter found %s, are you sure you defined it correctly in the datacard?"%(argu)
-
+                selfNormRate = 1.0
                 for (n,nofloat,pdf,args,errline) in self.DC.systs:
                     if pdf == "param":continue
                     if pdf == "rateParam":continue
@@ -483,13 +530,16 @@ class ModelBuilder(ModelBuilderBase):
                         if gamma != None:
                             raise RuntimeError, "More than one gmN uncertainty for the same bin and process (second one is %s)" % n
                         gamma = n; nominal = errline[b][p];
+                        selfNormRate = selfNormRate / args[0]
                     else: raise RuntimeError, "Unsupported pdf %s" % pdf
                 # optimize constants
                 if len(factors) + len(logNorms) + len(alogNorms) == 0:
-                    self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, self.DC.exp[b][p]))
+                    norm = selfNormRate if b in self.selfNormBins else self.DC.exp[b][p]
+                    self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, norm))
                 else:
+                    norm = selfNormRate if b in self.selfNormBins else nominal
                     #print "Process %s of bin %s depends on:\n\tlog-normals: %s\n\tasymm log-normals: %s\n\tother factors: %s\n" % (p,b,logNorms, alogNorms, factors)
-                    procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b,p), "", nominal)
+                    procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b,p), "", norm)
                     for kappa, thetaName in logNorms: procNorm.addLogNormal(kappa, self.out.function(thetaName))
                     for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
                     for factorName in factors:
@@ -518,8 +568,18 @@ class ModelBuilder(ModelBuilderBase):
             #if l == 's' or mc.GetPdf().dependsOnValue(self.out.set("POI")):
             mc.SetParametersOfInterest(self.out.set("POI"))
             mc.SetObservables(self.out.set("observables"))
-            if len(self.DC.systs):  mc.SetNuisanceParameters(self.out.set("nuisances"))
-            if self.out.set("globalObservables"): mc.SetGlobalObservables(self.out.set("globalObservables"))
+            nuisancesSet = ROOT.RooArgSet()
+            if self.out.set("nuisances"): nuisancesSet = self.out.set("nuisances")
+            for nuis in self.extraNuisances:
+                nuisancesSet.add(nuis)
+            if nuisancesSet.getSize():
+                mc.SetNuisanceParameters(nuisancesSet)
+            gObsSet = ROOT.RooArgSet()
+            if self.out.set("globalObservables"): gObsSet = self.out.set("globalObservables")
+            for gobs in self.extraGlobalObservables:
+                gObsSet.add(gobs)
+            if gObsSet.getSize():
+                mc.SetGlobalObservables(gObsSet)
             if self.options.verbose > 2: mc.Print("V")
             self.out._import(mc, mc.GetName())
             if self.options.noBOnly: break

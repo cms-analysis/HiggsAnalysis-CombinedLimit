@@ -48,6 +48,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string.hpp> 
+#include <regex>
 
 #include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
@@ -107,10 +109,10 @@ Combine::Combine() :
       ("expectSignalMass", po::value<float>(&expectSignalMass_)->default_value(-99.), "If set to non-zero, generate *signal* toys instead of background ones, with the specified mass.")            
       ("unbinned,U", "Generate unbinned datasets instead of binned ones (works only for extended pdfs)")
       ("generateBinnedWorkaround", "Make binned datasets generating unbinned ones and then binnning them. Workaround for a bug in RooFit.")
-      ("setPhysicsModelParameters", po::value<string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
-      ("setPhysicsModelParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")      
+      ("setPhysicsModelParameters", po::value<string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Also accepts regexp with syntax 'rgx{<my regexp>}'. Example: CV=1.0,CF=1.0:'rgx{^CMS_eff_.*$}'=0.01")      
+      ("setPhysicsModelParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon separated list of parameter ranges. Also accepts regexp with syntax 'rgx{<my regexp>}'. Example: CV=0.0,2.0:CF=0.0,5.0:'rgx{^CMS_eff_.*$}'=-3,3")      
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
-      ("freezeNuisances", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these nuisance parameters.")      
+      ("freezeNuisances", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these nuisance parameters. Also accepts regexp with syntax 'rgx{<my regexp>}'.")      
       ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
       ;
     ioOptions_.add_options()
@@ -141,7 +143,7 @@ Combine::Combine() :
       ("guessGenMode", "Guess if to generate binned or unbinned based on dataset")
       ("genBinnedChannels", po::value<std::string>(&genAsBinned_)->default_value(genAsBinned_), "Flag the given channels to be generated binned (irrespectively of how they were flagged at workspace creation)") 
       ("genUnbinnedChannels", po::value<std::string>(&genAsUnbinned_)->default_value(genAsUnbinned_), "Flag the given channels to be generated unbinned (irrespectively of how they were flagged at workspace creation)") 
-      ("trackParameters",   boost::program_options::value<std::string>(&trackParametersNameString_)->default_value(""), "Keep track of parameters in workspace (default = none)")
+      ("trackParameters",   boost::program_options::value<std::string>(&trackParametersNameString_)->default_value(""), "Keep track of parameters in workspace, also accepts regexp with syntax 'rgx{<my regexp>}' (default = none)")
       ; 
 }
 
@@ -546,6 +548,31 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
   
   if (freezeNuisances_ != "") {
+
+      // expand regexps          
+      while (freezeNuisances_.find("rgx{") != std::string::npos) {          
+          size_t pos1 = freezeNuisances_.find("rgx{");
+          size_t pos2 = freezeNuisances_.find("}",pos1);
+          std::string prestr = freezeNuisances_.substr(0,pos1);
+          std::string poststr = freezeNuisances_.substr(pos2+1,freezeNuisances_.size()-pos2);
+          std::string reg_esp = freezeNuisances_.substr(pos1+4,pos2-pos1-4);
+          
+          std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
+          std::regex rgx( reg_esp, std::regex::ECMAScript);
+          
+          std::string matchingParams="";
+          std::auto_ptr<TIterator> iter(nuisances->createIterator());
+          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+              const std::string &target = a->GetName();
+              std::smatch match;
+              if (std::regex_match(target, match, rgx)) {
+                  matchingParams = matchingParams + target + ",";
+              }
+          }
+          freezeNuisances_ = prestr+matchingParams+poststr;
+          freezeNuisances_ = boost::replace_all_copy(freezeNuisances_, ",,", ","); 
+      }
+
       RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
       utils::setAllConstant(toFreeze, true);
@@ -557,6 +584,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           nuisances = mc->GetNuisanceParameters();
       }
   }
+
   if (freezeNuisanceGroups_ != "") {
       std::vector<string> nuisanceGroups;
       boost::algorithm::split(nuisanceGroups,freezeNuisanceGroups_,boost::algorithm::is_any_of(","));
@@ -647,11 +675,31 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     strlcpy(tmp,trackParametersNameString_.c_str(),10240) ;
     char* token = strtok(tmp,",") ;
     while(token) {
-      RooAbsReal *a =(RooAbsReal*)w->obj(token); 
-      if (a == 0) throw std::invalid_argument(std::string("Parameter ")+(token)+" not in model.");
-          
-      Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(a,a->getVal()));
-      token = strtok(0,",") ; 
+      if (boost::starts_with(token, "rgx{") && boost::ends_with(token, "}")) {
+          std::string tokenstr(token);
+          std::string reg_esp = tokenstr.substr(4, tokenstr.size()-5);
+          std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
+          std::regex rgx( reg_esp, std::regex::ECMAScript);
+
+          RooArgSet allParams(w->allVars());
+          std::auto_ptr<TIterator> iter(allParams.createIterator());
+          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+              RooAbsReal *tmp = dynamic_cast<RooAbsReal *>(a);
+              const std::string &target = tmp->GetName();
+              std::smatch match;
+              if (std::regex_match(target, match, rgx)) {
+                  if (tmp->isConstant()) continue;
+                  Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(tmp,tmp->getVal()));
+              }
+          }
+          token = strtok(0,",") ;
+      } else {
+          RooAbsReal *a =(RooAbsReal*)w->obj(token); 
+          if (a == 0) throw std::invalid_argument(std::string("Parameter ")+(token)+" not in model.");
+          Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(a,a->getVal()));
+          token = strtok(0,",") ;
+      } 
+
     }
   }
   
@@ -711,7 +759,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
       }
       // Set the value of r in cases 1), 2) and 4)
-      if (expectSignalSet_ || (!expectSignalSet_ && !rInParamExp)) {
+      if (expectSignalSet_ || (!expectSignalSet_ && !rInParamExp && snapshotName_=="" )) {
         ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
       }
       if (expectSignalSet_ && rInParamExp) {

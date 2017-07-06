@@ -38,6 +38,10 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
 #include "HiggsAnalysis/CombinedLimit/interface/GaussExp.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooDoubleCBFast.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
 
 namespace {
     struct dictionary {

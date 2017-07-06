@@ -1,4 +1,4 @@
-import re
+import re, fnmatch
 from sys import stderr
 
 globalNuisances = re.compile('(lumi|pdf_(qqbar|gg|qg)|QCDscale_(ggH|qqH|VH|ggH1in|ggH2in|VV)|UEPS|FakeRate|CMS_(eff|fake|trigger|scale|res)_([gemtjb]|met))')
@@ -24,6 +24,8 @@ def addDatacardParserOptions(parser):
     parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="never", help="Use RooHistPdf for TH1s: 'always', 'never' (default), 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
     parser.add_option("--X-rescale-nuisance", dest="nuisancesToRescale", type="string", action="append", nargs=2, default=[], help="Rescale by this factor the nuisances that match these regular expressions (the rescaling is applied to the sigma of the gaussian constraint term).")
+    parser.add_option("--X-nuisance-function", dest="nuisanceFunctions", type="string", action="append", nargs=2, default=[], help="Set the sigma of the gaussian to be a function for the nuisances that match the regular expression")
+    parser.add_option("--X-nuisance-group-function", dest="nuisanceGroupFunctions", type="string", action="append", nargs=2, default=[], help="Set the sigma of the gaussian to be a function for the nuisances in the given group")
     parser.add_option("--X-force-no-simpdf",  dest="forceNonSimPdf", default=False, action="store_true", help="FOR DEBUG ONLY: Do not produce a RooSimultaneous if there is just one channel (note: can affect performance)")
     parser.add_option("--X-no-check-norm",  dest="noCheckNorm", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between datacard norms and shape norms. Will give you nonsensical results if you have shape uncertainties.")
     parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
@@ -117,9 +119,7 @@ def parseCard(file, options):
                 binline = []
                 for b in f[1:]:
                     if re.match("[0-9]+", b):
-                        if shapesUseBin: stderr.write("Warning: Bin %(b)s starts with a digit. Will call it 'bin%(b)s' but this may break shapes.\n" % locals())
-                        b = "bin"+b
-                        # TODO Here should be some patching of the shapes names in order to not get errors later.
+			raise RuntimeError, "Error: Bin %(b)s starts with a digit!" % locals()
                     binline.append(b)
             if f[0] == "process": 
                 if processline == []: # first line contains names
@@ -204,21 +204,15 @@ def parseCard(file, options):
 	        ret.extArgs[lsyst]=f[:]
 	    	continue 
             elif pdf == "rateParam":
-	        if f[3]=="*" and f[2]=="*": # all channels 
+	        if ("*" in f[3]) or ("*" in f[2]): # all channels/processes
 		  for c in ret.processes: 
 		   for b in ret.bins:
+		    if (not fnmatch.fnmatch(c, f[3])): continue
+		    if (not fnmatch.fnmatch(b, f[2])): continue
 		    f_tmp = f[:]
 		    f_tmp[2]=b
 		    f_tmp[3]=c
 	            addRateParam(lsyst,f_tmp,ret)
-	        elif f[3]=="*": # all channels 
-		  for c in ret.processes: 
-		    f_tmp = f[:]; f_tmp[3]=c
-		    addRateParam(lsyst,f_tmp,ret)
-	        elif f[2]=="*": # all bins
-		  for b in ret.bins:
-		    f_tmp = f[:]; f_tmp[2]=b
-		    addRateParam(lsyst,f_tmp,ret)
 		else : addRateParam(lsyst,f,ret)
                 continue
             elif pdf=="discrete":
@@ -260,6 +254,20 @@ def parseCard(file, options):
                     else:
                         raise RuntimeError, "Will not redefine group '%s'. It previously contained '%s' and you now wanted it to contain '%s'." % (groupName,ret.groups[groupName],groupNuisances)                        
 
+                continue
+	    elif pdf=="autoMCStats":
+	        if len(f)>5: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats threshold [include-signal = 0] [hist-mode = 0]"
+	        statThreshold = float(f[2])
+	        statIncludeSig = bool(int(f[3])) if len(f) >= 4 else False
+	        statHistMode = int(f[4]) if len(f) >= 5 else 1
+	        statFlags = (statThreshold, statIncludeSig, statHistMode)
+		if "*" in lsyst: 
+		  for b in ret.bins: 
+		    	if (not fnmatch.fnmatch(b, lsyst)): continue
+		  	ret.binParFlags[b]=statFlags
+    		else:
+		  if lsyst not in ret.bins: raise RuntimeError, " No such channel '%s', malformed line:\n   %s" % (lsyst,' '.join(f))
+	          ret.binParFlags[lsyst]=statFlags
                 continue
             else:
                 raise RuntimeError, "Unsupported pdf %s" % pdf

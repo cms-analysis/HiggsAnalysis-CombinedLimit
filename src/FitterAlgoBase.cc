@@ -214,7 +214,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     //nllValue_ =  nll->getVal() - nll0;
     nllValue_ =  nll->getVal(); // Start NLL from FCN!
     if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
-    if (doHesse) minim.minimizer().hesse();
+    if (doHesse) minim.hesse();
     sentry.clear();
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
     if (verbose > 1 && ret != 0 && (saveFitResult || rs.getSize())) { ret->Print("V");  }
@@ -257,13 +257,17 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
         // get the parameter to scan, amd output variable in fit result
         RooRealVar &r = dynamic_cast<RooRealVar &>(*rs.at(i));
 	RooAbsArg *rfloat = ret->floatParsFinal().find(r.GetName());
-	if (!rfloat) {
+  // r might be a bin-by-bin parameter that was minimzed analytically,
+  // therefore not appearing in floatParsFinal().
+	if (!rfloat && !runtimedef::get("MINIMIZER_analytic")) {
                 fprintf(sentry.trueStdOut(), "Skipping %s. Looks like the last fit did not float this parameter. You could try running --algo grid to get the errors.\n",r.GetName());
 		continue ;
 		// Add the constant parameters in case previous fit was last iteration of a "discrete parameters loop"
 		//rfloat = ret->constPars().find(r.GetName());
 		//fitwasconst = true;
-	}
+	} else if (runtimedef::get("MINIMIZER_analytic")) {
+    rfloat = &r;
+  }
 	//rfloat->Print("V");
         RooRealVar &rf = dynamic_cast<RooRealVar &>(*rfloat);
 	//if (fitwasconst)rf.setConstant(false);
@@ -331,7 +335,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     if (runtimedef::get("FITTER_NEW_CROSSING_ALGO")) {
         return findCrossingNew(minim, nll, r, level, rStart, rBound);
     }
-    ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
+    ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerTolerance_);
     if (verbose) std::cout << "Searching for crossing at nll = " << level << " in the interval " << rStart << ", " << rBound << std::endl; 
     double rInc = stepSize_*(rBound - rStart);
     r.setVal(rStart); 
@@ -396,8 +400,10 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
                 rInc *= 0.3;
             }
             if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
-            RooArgSet oldparams(checkpoint->floatParsFinal());
-            *allpars = oldparams;
+            if (checkpoint.get()) {
+                RooArgSet oldparams(checkpoint->floatParsFinal());
+                *allpars = oldparams;
+            }
         } else if ((here-there)*(level-there) < 0 && // went wrong
                    fabs(here-there) > 0.1) {         // by more than roundoff
             if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));

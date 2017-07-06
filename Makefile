@@ -1,28 +1,29 @@
 ################################################################################
 # HiggsAnalysis/Combined Limit Makefile                                        #
 #                                                                              #
-# Authors: Danilo Piparo, Giovanni Petrucciani                                 #
+# Authors: Danilo Piparo, Giovanni Petrucciani, Mingshui Chen                  #
 #                                                                              #
 # o Automatic compilation of new programs and classes*.                        #
-# o Automatic generation of CINT dictionaries via rootcint.                    #
+# o Now generate dictionaries by genreflex                                     #
 #                                                                              #
 # * progs should have cpp extension, classes .cc or .cxx, and headers .h       # 
 #                                                                              #
 ################################################################################
 
 ####  SET UP YOUR ENVIRONMENT FIRST WITH ##############################
-# . /afs/cern.ch/cms/slc6_amd64_gcc481/external/gcc/4.8.1/etc/profile.d/init.sh 
-# . /afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.17/x86_64-slc6-gcc48-opt/root/bin/thisroot.sh 
-# . /afs/cern.ch/cms/slc6_amd64_gcc481/cms/vdt/v0.3.2-cms/etc/profile.d/init.sh 
-# . /afs/cern.ch/cms/slc6_amd64_gcc481/external/boost/1.51.0-cms/etc/profile.d/init.sh 
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/gcc/4.9.1-cms/etc/profile.d/init.sh 
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/bin/thisroot.sh
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/vdt/v0.3.2-cms/etc/profile.d/init.sh 
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/boost/1.51.0-cms/etc/profile.d/init.sh 
+# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/xz/5.2.1/etc/profile.d/init.sh 
 # export PATH=${PATH}:${PWD}/exe:${PWD}/scripts
 # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/lib
 # export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python
 #######################################################################
 
 # Boost
-BOOST = /afs/cern.ch/cms/slc6_amd64_gcc481/external/boost/1.51.0-cms
-VDT   = /afs/cern.ch/cms/slc6_amd64_gcc481/cms/vdt/v0.3.2-cms
+BOOST = /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/boost/1.51.0-cms
+VDT   = /cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/vdt/v0.3.2-cms
 
 # Compiler and flags -----------------------------------------------------------
 CC = g++
@@ -34,21 +35,20 @@ ROOTINC = $(shell root-config --incdir)
 CCFLAGS = -D STANDALONE $(ROOTCFLAGS) -I$(BOOST)/include -I$(VDT)/include -g -fPIC
 # CMSSW CXXFLAGS plus -Wno-unused-local-typedefs (otherwise we get a flood of messages from BOOST) plus -Wno-unused-function
 CCFLAGS += -O2 -pedantic -pthread -pipe -Wno-vla -Werror=overflow -Wstrict-overflow -std=c++0x -msse3 -ftree-vectorize -Wno-strict-overflow -Werror=array-bounds -Werror=format-contains-nul -Werror=type-limits -fvisibility-inlines-hidden -fno-math-errno --param vect-max-version-for-alias-checks=50 -fipa-pta -felide-constructors -fmessage-length=0 -ftemplate-depth-300 -Wall -Wno-non-template-friend -Wno-long-long -Wreturn-type -Wunused -Wparentheses -Wno-deprecated -Werror=return-type -Werror=missing-braces -Werror=unused-value -Werror=address -Werror=format -Werror=sign-compare -Werror=write-strings -Werror=delete-non-virtual-dtor -Werror=maybe-uninitialized -Werror=strict-aliasing -Werror=narrowing -Werror=uninitialized -Werror=unused-but-set-variable -Werror=reorder -Werror=unused-variable -Werror=conversion-null -Werror=switch -fdiagnostics-show-option -DBOOST_DISABLE_ASSERTS -Wno-unused-local-typedefs -Wno-unused-function
-LIBS = $(ROOTLIBS) -L$(BOOST)/lib -L$(VDT)/lib -l RooFit -lRooFitCore -l RooStats -l Minuit -l Foam -lHistFactory -lboost_filesystem -lboost_program_options -lboost_system -lvdt
+LIBS = $(ROOTLIBS) -L$(BOOST)/lib -L$(VDT)/lib -l RooFit -lRooFitCore -l RooStats -l Minuit -l Foam -lHistFactory -lboost_filesystem -lboost_program_options -lboost_system -lvdt 
 
 # Library name -----------------------------------------------------------------
 LIBNAME=HiggsAnalysisCombinedLimit
 SONAME=lib$(LIBNAME).so
+DICTNAME=$(LIBNAME)_xr
 
 # Linker and flags -------------------------------------------------------------
 LD = g++
 ROOTLDFLAGS   = $(shell root-config --ldflags)
 LDFLAGS       = $(ROOTLDFLAGS) -rdynamic -shared -Wl,-soname,$(SONAME) -fPIC
 
-# Dictionaries filename --------------------------------------------------------
-DICTNAME=cintdictionary
-
 # Directory structure ----------------------------------------------------------
+PARENT_DIR = $(shell pwd)/../../
 SRC_DIR = src
 INC_DIR = interface
 LIB_DIR = lib
@@ -58,31 +58,24 @@ OBJ_DIR = obj
 
 
 # Useful shortcuts -------------------------------------------------------------
-SRCS = $(notdir $(shell ls $(SRC_DIR)/*.cc|grep -v $(DICTNAME) ))
-SRXS = $(notdir $(shell ls $(SRC_DIR)/*.cxx|grep -v $(DICTNAME) ))
-SRCS += $(DICTNAME).cc
+SRCS = $(notdir $(shell ls $(SRC_DIR)/*.cc ))
+SRXS = $(notdir $(shell ls $(SRC_DIR)/*.cxx ))
 OBJS = $(SRCS:.cc=.o) 
 OBJS += $(SRXS:.cxx=.o)
 PROGS = $(notdir $(wildcard ${PROG_DIR}/*.cpp)) 
 EXES = $(PROGS:.cpp=)
 
-# Classes with dicts -----------------------------------------------------------
-DICTHDRS = $(notdir $(shell grep -l ClassDef interface/*h ))
-# Classes with no ClassDef but still with a dict ------------------------------
-DICTHDRS += SequentialMinimizer.h
-# Functions with dicts ---------------------------------------------------------
-DICTHDRS += th1fmorph.h
-
 #Makefile Rules ---------------------------------------------------------------
 .PHONY: clean dirs dict obj lib exe debug
 
 
-all: dirs dict obj lib exe
+all: dirs dict obj lib exe compile_python
 
 #---------------------------------------
 
 dirs:
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(OBJ_DIR)/a
+	@mkdir -p $(SRC_DIR)
 	@mkdir -p $(LIB_DIR)
 	@mkdir -p $(EXE_DIR)
 	@mkdir -p $(LIB_DIR)/python/HiggsAnalysis
@@ -93,22 +86,26 @@ dirs:
 
 #---------------------------------------
 
-dict: dirs $(SRC_DIR)/$(DICTNAME).cc
-$(SRC_DIR)/$(DICTNAME).cc : $(SRC_DIR)/CombinedLimit_LinkDef.h 
+dict: dirs $(OBJ_DIR)/a/$(DICTNAME).cc
+$(OBJ_DIR)/a/$(DICTNAME).cc : $(SRC_DIR)/classes_def.xml
 # 	@echo "\n*** Generating dictionaries ..."
-	rootcint -f $(SRC_DIR)/$(DICTNAME).cc -c -p -I$(INC_DIR) -I$(SRC_DIR) -I$(ROOTINC) $(DICTHDRS) $(SRC_DIR)/CombinedLimit_LinkDef.h
-	mv $(SRC_DIR)/$(DICTNAME).h $(INC_DIR)/$(DICTNAME).h 
+	genreflex $(SRC_DIR)/classes.h -s $(SRC_DIR)/classes_def.xml -o $(OBJ_DIR)/a/$(DICTNAME).cc --deep --fail_on_warnings --rootmap=$(OBJ_DIR)/a/$(DICTNAME).rootmap --rootmap-lib=$(SONAME) -I$(PARENT_DIR) 
+	mv $(OBJ_DIR)/a/$(DICTNAME).rootmap $(LIB_DIR)/
+	mv $(OBJ_DIR)/a/$(DICTNAME)_rdict.pcm $(LIB_DIR)/
 
 #---------------------------------------
 
 obj: dict 
 # 	@echo "\n*** Compiling ..."
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc $(INC_DIR)/%.h
-	$(CC) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -c $< -o $@
+	$(CC) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc $(SRC_DIR)/%.h
-	$(CC) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -c $< -o $@
+	$(CC) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
-	$(CC) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -c $< -o $@
+	$(CC) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
+$(OBJ_DIR)/a/%.o : $(OBJ_DIR)/a/%.cc 
+	$(CC) $(CCFLAGS) -I . -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
+
 
 # this has no header
 $(OBJ_DIR)/tdrstyle.o: $(SRC_DIR)/tdrstyle.cc
@@ -117,17 +114,19 @@ $(OBJ_DIR)/tdrstyle.o: $(SRC_DIR)/tdrstyle.cc
 #---------------------------------------
 
 lib: dirs ${LIB_DIR}/$(SONAME)
-${LIB_DIR}/$(SONAME):$(addprefix $(OBJ_DIR)/,$(OBJS)) 
-# 		@echo "\n*** Building $(SONAME) library:"
-		$(LD) $(LDFLAGS) $(BOOST_INC) $(addprefix $(OBJ_DIR)/,$(OBJS))  $(SOFLAGS) -o $@ $(LIBS)
+${LIB_DIR}/$(SONAME):$(addprefix $(OBJ_DIR)/,$(OBJS)) $(OBJ_DIR)/a/$(DICTNAME).o 
+#	@echo "\n*** Building $(SONAME) library:"
+	$(LD) $(LDFLAGS) $(BOOST_INC) $(addprefix $(OBJ_DIR)/,$(OBJS)) $(OBJ_DIR)/a/$(DICTNAME).o $(SOFLAGS) -o $@ $(LIBS)
 
 #---------------------------------------
 
 exe: $(addprefix $(EXE_DIR)/,$(EXES))
 # 	@echo "\n*** Compiling executables ..."
 $(addprefix $(EXE_DIR)/,$(EXES)) : $(addprefix $(PROG_DIR)/,$(PROGS))
-	$(CC) $< -o $@ $(CCFLAGS) -L $(LIB_DIR) -l $(LIBNAME) -I $(INC_DIR) $(BOOST_INC) $(LIBS)
+	$(CC) $< -o $@ $(CCFLAGS) -L $(LIB_DIR) -l $(LIBNAME) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) $(BOOST_INC) $(LIBS)
 
+compile_python:
+	@python -m compileall -q python 
 
 #---------------------------------------
 
@@ -136,8 +135,7 @@ clean:
 	@rm -rf $(OBJ_DIR) 
 	@rm -rf $(EXE_DIR)
 	@rm -rf $(LIB_DIR)
-	@rm -rf $(SRC_DIR)/$(DICTNAME).cc
-	@rm -rf $(INC_DIR)/$(DICTNAME).h
+	@rm -rf python/*pyc python/*/*pyc
 
 #---------------------------------------
 

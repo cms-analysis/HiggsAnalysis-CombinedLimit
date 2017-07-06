@@ -41,7 +41,7 @@ class SMHiggsBuilder:
         self.makeTotalWidth(); 
         self.makeBR(decay);
         self.modelBuilder.factory_('prod::SM_Gamma_%s(SM_GammaTot,SM_BR_%s)' % (decay,decay))
-    def makeScaling(self,what, Cb='Cb', Ctop='Ctop', CW='CW', CZ='CZ', Ctau='Ctau', suffix=''):
+    def makeScaling(self,what, Cb='Cb', Ctop='Ctop', CW='CW', CZ='CZ', Ctau='Ctau', Cc='Ctop', suffix=''):
         prefix = 'SM_%(what)s_' % locals()
         if suffix:
             suffix += '_'
@@ -49,7 +49,7 @@ class SMHiggsBuilder:
 #        self.modelBuilder.doVar('One[1]')
 #        self.modelBuilder.doVar('Zero[0]') 
         if what.startswith('qqH'):
-            for sqrts in ('7TeV', '8TeV'):
+            for sqrts in ('7TeV', '8TeV','13TeV','14TeV'):
                 rooName = prefix+'RVBF_'+sqrts
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'R_VBF_%(sqrts)s.txt'%locals()), ycol=1 )
                 scalingName = 'Scaling_'+what+'_'+sqrts
@@ -62,17 +62,22 @@ class SMHiggsBuilder:
 #                print  rooExpr
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith('ggH'):
-            structure = {'sigma_tt':2, 'sigma_bb':3, 'sigma_tb':4}
-            for sqrts in ('7TeV', '8TeV'):
+            structure = {'c_kt2':1, 'c_kb2':2, 'c_ktkb':3, 'c_ktkc':4, 'c_kbkc':5, 'c_kc2':6}
+            for sqrts in ('7TeV', '8TeV', '13TeV', '14TeV'):
                 for qty, column in structure.iteritems():
                     rooName = prefix+qty+'_'+sqrts
                     self.textToSpline(rooName, os.path.join(self.coupPath, 'ggH_%(sqrts)s.txt'%locals()), ycol=column )
                 scalingName = 'Scaling_'+what+'_'+sqrts
 #                print 'Building '+scalingName
+		coeffSum = 'expr::coeff_sum_%(scalingName)s(\
+"@0+@1+@2+@3+@4+@5",\
+ %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkc_%(sqrts)s, %(prefix)sc_kbkc_%(sqrts)s, %(prefix)sc_kc2_%(sqrts)s\
+)'%locals()
+                self.modelBuilder.factory_(coeffSum)
                 rooExpr = 'expr::%(scalingName)s(\
-"(@0*@0)*@2  + (@1*@1)*@3 + (@0*@1)*@4",\
- %(Ctop)s, %(Cb)s,\
- %(prefix)ssigma_tt_%(sqrts)s, %(prefix)ssigma_bb_%(sqrts)s, %(prefix)ssigma_tb_%(sqrts)s\
+"((@0*@0)*@3  + (@1*@1)*@4 + (@0*@1)*@5 + (@0*@2)*@6 + (@1*@2)*@7 + (@2*@2)*@8)/@9 ",\
+ %(Ctop)s, %(Cb)s, %(Cc)s,\
+ %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkc_%(sqrts)s, %(prefix)sc_kbkc_%(sqrts)s, %(prefix)sc_kc2_%(sqrts)s, coeff_sum_%(scalingName)s\
 )'%locals()
 #                print  rooExpr
                 self.modelBuilder.factory_(rooExpr)
@@ -113,19 +118,30 @@ class SMHiggsBuilder:
 #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
         elif what.startswith('ggZH'):
-            for sqrts in ('7TeV', '8TeV','13TeV'):
+            structure = {'c_kt2':1, 'c_kb2':2, 'c_kZ2':3, 'c_ktkb':4, 'c_ktkZ':5, 'c_kbkZ':6}
+            for sqrts in ('7TeV','8TeV','13TeV','14TeV'):
+                for qty, column in structure.iteritems():
+                    rooName = prefix+qty+'_'+sqrts
+                    self.textToSpline(rooName, os.path.join(self.coupPath, 'ggZH_%(sqrts)s.txt'%locals()), ycol=column )
                 scalingName = 'Scaling_'+what+'_'+sqrts
-                rooExpr = 'expr::%(scalingName)s( "(@0*@0)*2.27  + (@1*@1)*0.37 - (@0*@1)*1.64", %(CZ)s, %(Ctop)s)'%locals()
+                coeffSum = 'expr::coeff_sum_%(scalingName)s( "@0+@1+@2+@3+@4+@5",\
+		%(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_kZ2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkZ_%(sqrts)s, %(prefix)sc_kbkZ_%(sqrts)s)'%locals()
+                self.modelBuilder.factory_(coeffSum)
+
+                rooExpr = 'expr::%(scalingName)s( "( (@0*@0)*(@3)  + (@1*@1)*(@4) + (@2*@2)*(@5) + (@0*@1)*(@6)  + (@0*@2)*(@7) + (@1*@2)*(@8) )/@9",\
+		%(Ctop)s, %(Cb)s, %(CZ)s, %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_kZ2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkZ_%(sqrts)s, %(prefix)sc_kbkZ_%(sqrts)s, coeff_sum_%(scalingName)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith('tHq'):
-            for sqrts in ('7TeV', '8TeV','13TeV'):
+	    coeffs = {'7TeV':[3.099,3.980,-6.078], '8TeV':[2.984,3.886,-5.870],'13TeV':[2.633,3.578,-5.211],'14TeV':[2.582,3.538,-5.120]}  # coefficients for  kt^{2}, kW^{2}, ktkW @ MH = 125 GeV
+            for sqrts in ('7TeV', '8TeV','13TeV','14TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
-                rooExpr = 'expr::%(scalingName)s( "(@0*@0)*3.4  + (@1*@1)*3.56 - (@0*@1)*5.96", %(Ctop)s, %(CW)s)'%locals()
+                rooExpr = 'expr::%(scalingName)s'%locals()+'( "( (@0*@0)*(%g)  + (@1*@1)*(%g) + (@0*@1)*(%g) )/%g"'%tuple((coeffs[sqrts] + [sum(coeffs[sqrts])] ))+', %(Ctop)s, %(CW)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith('tHW'):
-            for sqrts in ('7TeV', '8TeV','13 TeV'):
+	    coeffs = {'7TeV':[2.306,1.697,-3.003], '8TeV':[2.426,1.818,-3.244],'13TeV':[2.909,2.310,-4.220],'14TeV':[2.988,2.397,-4.385]}  # coefficients for  kt^{2}, kW^{2}, ktkW @ MH = 125 GeV
+            for sqrts in ('7TeV', '8TeV','13TeV','14TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
-                rooExpr = 'expr::%(scalingName)s( "(@0*@0)*1.84  + (@1*@1)*1.57 - (@0*@1)*2.41", %(Ctop)s, %(CW)s)'%locals()
+                rooExpr = 'expr::%(scalingName)s'%locals()+'( "( (@0*@0)*(%g)  + (@1*@1)*(%g) + (@0*@1)*(%g) )/%g"'%tuple((coeffs[sqrts] + [sum(coeffs[sqrts])] ))+', %(Ctop)s, %(CW)s,)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         else:
             raise RuntimeError, "There is no scaling defined for %(what)s" % locals()
