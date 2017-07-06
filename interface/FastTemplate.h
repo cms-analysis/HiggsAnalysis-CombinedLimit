@@ -167,8 +167,8 @@ public:
         }
         T GetMax() const ;
 
-        const T & GetEdge(unsigned int i) const { return GetXmin(i); }
-        const T & GetWidth(unsigned int i) const { return GetBinWidth(i); }
+        U GetEdge(unsigned int i) const { return GetXmin(i); }
+        U GetWidth(unsigned int i) const { return GetBinWidth(i); }
 
         void Dump() const ;
 
