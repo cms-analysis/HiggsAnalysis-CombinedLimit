@@ -10,6 +10,7 @@
 #include "RooSimultaneous.h"
 #include "RooCategory.h"
 #include "RooAddPdf.h"
+#include "RooRealSumPdf.h"
 #include "RooProdPdf.h"
 #include "RooConstVar.h"
 #include "RooPlot.h"
@@ -20,6 +21,7 @@
 #include "TH2.h"
 #include "TFile.h"
 #include <RooStats/ModelConfig.h>
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
@@ -481,8 +483,50 @@ void MaxLikelihoodFit::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, s
             ns.signal  = (coeff->getStringAttribute("combine.process") ? coeff->getAttribute("combine.signal") : (strstr(ns.norm->GetName(),"shapeSig") != 0));
             std::auto_ptr<RooArgSet> myobs(ns.pdf->getObservables(obs));
             ns.obs.add(*myobs);
+            ns.isfunc = false;
         }
         return;
+    }
+    RooRealSumPdf *sum = dynamic_cast<RooRealSumPdf *>(pdf);
+    if (sum != 0) {
+      RooArgList clist(sum->coefList());
+      RooArgList plist(sum->funcList());
+      if (plist.getSize() == 1) {
+         CMSHistErrorPropagator *err = dynamic_cast<CMSHistErrorPropagator*>(plist.at(0));
+         if (err) {
+           clist.removeAll();
+           plist.removeAll();
+           clist.add(err->coefList());
+           plist.add(err->wrapperList());
+         }
+      }
+      for (int i = 0, n = clist.getSize(); i < n; ++i) {
+        RooAbsReal *coeff = (RooAbsReal *) clist.at(i);
+        std::string coeffName = coeff->GetName();
+        if (coeffName.find(filterString_) == std::string::npos) continue;
+        ShapeAndNorm &ns = out[coeffName];
+        RooAbsReal* shape = (RooAbsReal*)plist.at(i);
+        std::auto_ptr<RooArgSet> myobs(shape->getObservables(obs));
+        ns.pdf = shape;
+        TString normProdName = TString::Format("%s_mlf_fullnorm", coeff->GetName());
+        RooAbsReal * normProd = nullptr;
+        if (coeff->ownedComponents()) {
+          normProd = dynamic_cast<RooAbsReal*>(coeff->ownedComponents()->find(normProdName));
+        }
+        if (!normProd) {
+          RooAbsReal* integral = shape->createIntegral(*myobs);
+          normProd = new RooProduct(normProdName, "", RooArgList(*integral, *coeff));
+          normProd->addOwnedComponents(RooArgSet(*integral));
+          coeff->addOwnedComponents(RooArgSet(*normProd));
+        }
+
+        ns.norm = normProd;
+        ns.channel = (coeff->getStringAttribute("combine.channel") ? coeff->getStringAttribute("combine.channel") : channel.c_str());
+        ns.process = (coeff->getStringAttribute("combine.process") ? coeff->getStringAttribute("combine.process") : ns.norm->GetName());
+        ns.signal  = (coeff->getStringAttribute("combine.process") ? coeff->getAttribute("combine.signal") : (strstr(ns.norm->GetName(),"shapeSig") != 0));
+        ns.obs.add(*myobs);
+        ns.isfunc = true;
+      }
     }
 }
 
@@ -525,7 +569,7 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
         //out.addOwned(*(new RooConstVar(pair->first.c_str(), "", pair->second.norm->getVal())));
         if (fOut != 0 && saveShapes_ && pair->second.obs.getSize() == 1) {
             RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
-            TH1* hist = pair->second.pdf->createHistogram("", *x);
+            TH1* hist = pair->second.pdf->createHistogram("", *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
             hist->SetNameTitle(pair->second.process.c_str(), (pair->second.process+" in "+pair->second.channel).c_str());
             hist->Scale(vals[i] / hist->Integral("width"));
             hist->SetDirectory(shapesByChannel[pair->second.channel]);
@@ -648,7 +692,8 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
                 if (saveShapes_ && pair->second.obs.getSize() == 1) {
                     // and also deviations in the shapes
                     RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
-                    std::auto_ptr<TH1> hist(pair->second.pdf->createHistogram(pair->second.pdf->GetName(), *x));
+                    std::auto_ptr<TH1> hist(pair->second.pdf->createHistogram(pair->second.pdf->GetName(), *x,
+                      pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none()));
                     hist->Scale(pair->second.norm->getVal() / hist->Integral("width"));
                     for (int b = 1; b <= bins[i]; ++b) {
                         shapes2[i]->AddBinContent(b, std::pow(hist->GetBinContent(b) - shapes[i]->GetBinContent(b), 2));

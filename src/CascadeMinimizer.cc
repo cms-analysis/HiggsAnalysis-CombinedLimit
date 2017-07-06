@@ -62,6 +62,11 @@ void CascadeMinimizer::setAutoMax(const RooArgSet *pois)
 
 bool CascadeMinimizer::improve(int verbose, bool cascade) 
 {
+    cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+    if (simnllbb && runtimedef::get("MINIMIZER_analytic")) {
+      simnllbb->setAnalyticBarlowBeeston(true);
+      minimizer_.reset(new RooMinimizerOpt(nll_));
+    }
     minimizer_->setPrintLevel(verbose-1);
    
     minimizer_->setStrategy(strategy_);
@@ -102,6 +107,11 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
         }
       }
     } while (autoBounds_ && !autoBoundsOk(verbose-1));
+
+    if (simnllbb && runtimedef::get("MINIMIZER_analytic")) {
+      simnllbb->setAnalyticBarlowBeeston(false);
+      // minimizer_.reset(new RooMinimizerOpt(nll_));
+    }
     return outcome;
 }
 
@@ -148,6 +158,19 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
 
 bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
    
+   cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+   if (simnllbb && runtimedef::get("MINIMIZER_analytic")) {
+      // if one of the barlow-beeston params is in "params", we don't actually
+      // want to freeze it here. Trick is to set all floating ones constant now,
+      // then call setAnalyticBarlowBeeston, which will initiate bb only for the
+      // floating ones, before unfreezing params again.
+      RooArgSet toFreeze(params);
+      RooStats::RemoveConstantParameters(&toFreeze);
+      utils::setAllConstant(toFreeze, true);
+      simnllbb->setAnalyticBarlowBeeston(true);
+      utils::setAllConstant(toFreeze, false);
+      minimizer_.reset(new RooMinimizerOpt(nll_));
+   }
    minimizer_->setPrintLevel(verbose-1); // for debugging
    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
    std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
@@ -171,11 +194,25 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
       if (simnll) simnll->clearZeroPoint();
    }
 
+   if (simnllbb && runtimedef::get("MINIMIZER_analytic")) {
+     simnllbb->setAnalyticBarlowBeeston(false);
+     // minimizer_.reset(new RooMinimizerOpt(nll_));
+   }
+
    return (iret != 1) ? true : false; 
 }
 
 bool CascadeMinimizer::hesse(int verbose ) {
    
+   cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+   if (simnllbb && runtimedef::get("MINIMIZER_analytic")) {
+      // Have to reset and minimize again first to get all parameters in
+      minimizer_.reset(new RooMinimizerOpt(nll_));
+      float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
+      minimizer_->setEps(nominalTol);
+      minimizer_->setStrategy(strategy_);
+      improveOnce(verbose - 1);
+   }
    minimizer_->setPrintLevel(verbose-1); // for debugging
    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
    std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());

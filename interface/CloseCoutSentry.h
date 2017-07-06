@@ -16,7 +16,7 @@ class CloseCoutSentry {
         static FILE *trueStdOutGlobal();
     private:
         bool silent_;
-        static int fdOut_, fdErr_;
+        static int fdOut_, fdErr_, fdTmp_, fdOutDup_;
         static bool open_;
         // always clear, even if I was not the one closing it
         void static reallyClear() ;
