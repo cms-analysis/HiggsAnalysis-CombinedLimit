@@ -131,19 +131,24 @@ class ModelBuilder(ModelBuilderBase):
 	  if self.out.arg(rp): continue
 	  argv = self.DC.extArgs[rp][-1]
 	  if ":" in argv:
-	    fin,wsn = argv.split(":")
+	    split = argv.split(":")
+            importargs = []
+            if "RecycleConflictNodes" in split:
+                split.remove("RecycleConflictNodes")
+                importargs.append(ROOT.RooFit.RecycleConflictNodes())
+            fin, wsn = split
 	    if (fin,wsn) in open_files:
 		  wstmp = open_files[(fin,wsn)]
 		  if not wstmp.arg(rp):
 		   raise RuntimeError, "No parameter '%s' found for extArg in workspace %s from file %s"%(rp,wsn,fin)
-		  self.out._import(wstmp.arg(rp))
+		  self.out._import(wstmp.arg(rp), *importargs)
 	    else:
 	      try:
 		fitmp = ROOT.TFile.Open(fin)
 		wstmp = fitmp.Get(wsn)
 		if not wstmp.arg(rp):
 		 raise RuntimeError, "No parameter '%s' found for extArg in workspace %s from file %s"%(rp,wsn,fin)
-		self.out._import(wstmp.arg(rp))
+		self.out._import(wstmp.arg(rp), *importargs)
 		open_files[(fin,wsn)] = wstmp
 	      except:
 		raise RuntimeError, "No File '%s' found for extArg, or workspace '%s' not in file "%(fin,wsn)
@@ -256,7 +261,7 @@ class ModelBuilder(ModelBuilderBase):
                 sig = '%g' % sig
                 if is_func_scaled:
                     sig = func_scaler
-		r_exp = "" if self.out.var(n) else "[%s]"%r # Specify range to invoke factory to produce a RooRealVar only if it doesn't already exist
+                r_exp = "" if self.out.var(n) else "[%s]"%r # Specify range to invoke factory to produce a RooRealVar only if it doesn't already exist
                 if self.options.noOptimizePdf or is_func_scaled:
                       self.doObj("%s_Pdf" % n, "Gaussian", "%s%s, %s_In[0,%s], %s" % (n,r_exp,n,r,sig),True); # Use existing constraint since it could be a param
                       if is_func_scaled:
@@ -462,10 +467,10 @@ class ModelBuilder(ModelBuilderBase):
                     self.out.var(n).setAttribute('group_'+groupName,True)
 
         for groupName,nuisanceNames in self.DC.groups.iteritems():
-	    nuisanceargset = ROOT.RooArgSet()
+            nuisanceargset = ROOT.RooArgSet()
             for nuisanceName in nuisanceNames:
-		nuisanceargset.add(self.out.var(nuisanceName))
-	    self.out.defineSet("group_%s"%groupName,nuisanceargset)
+                nuisanceargset.add(self.out.var(nuisanceName))
+            self.out.defineSet("group_%s"%groupName,nuisanceargset)
 
 
     def doExpectedEvents(self):
@@ -583,11 +588,11 @@ class ModelBuilder(ModelBuilderBase):
             if self.options.verbose > 2: mc.Print("V")
             self.out._import(mc, mc.GetName())
             if self.options.noBOnly: break
-	discparams = ROOT.RooArgSet("discreteParams")
-	for cpar in self.discrete_param_set:
-		roocpar =  self.out.cat(cpar)
-		discparams.add(self.out.cat(cpar))
-	self.out._import(discparams,discparams.GetName())
+        discparams = ROOT.RooArgSet("discreteParams")
+        for cpar in self.discrete_param_set:
+                roocpar =  self.out.cat(cpar)
+                discparams.add(self.out.cat(cpar))
+        self.out._import(discparams,discparams.GetName())
         self.out.writeToFile(self.options.out)
     def isShapeSystematic(self,channel,process,syst):
         return False
