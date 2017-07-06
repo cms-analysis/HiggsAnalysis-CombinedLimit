@@ -47,6 +47,7 @@ bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
 bool MultiDimFit::skipInitialFit_ = false;
 bool MultiDimFit::saveFitResult_ = false;
+bool MultiDimFit::subtractNLL0_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 float MultiDimFit::autoRange_ = -1.0;
 std::string MultiDimFit::fixedPointPOIs_ = "";
@@ -90,6 +91,7 @@ MultiDimFit::MultiDimFit() :
 	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
+        ("subtractNLL0", boost::program_options::value<bool>(&subtractNLL0_)->default_value(subtractNLL0_), "Subtract the NLL value at the initial scan point from the NLL at all points (default: true)")
 	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
       ;
 }
@@ -885,7 +887,7 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
 	    bool ok = minim.minimize(verbose-1);
 	    if (ok) {
 		    nll0Value_ = nll0;
-		    nllValue_ = nll.getVal();
+		    nllValue_ = nll.getVal() - (subtractNLL0_ ? nll0 : 0);
 		    deltaNLL_ = nll.getVal() - nll0;
 		    double qN = 2*(nll.getVal() - nll0);
 		    double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);

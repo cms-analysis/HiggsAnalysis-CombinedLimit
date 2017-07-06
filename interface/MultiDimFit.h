@@ -53,6 +53,7 @@ protected:
   static float autoRange_;
   static bool  startFromPreFit_;
   static bool  saveFitResult_;
+  static bool  subtractNLL0_;
   static std::string fixedPointPOIs_;
 
   static std::string saveSpecifiedFuncs_;
