@@ -532,7 +532,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
 
             double x;
             {
-              DefaultAccumulator xacc = pmin[0];
+              DefaultAccumulator<double> xacc = pmin[0];
               if (squareDistPoiStep_){
                 // distance between steps goes as ~square of distance from middle or range (could this be changed to from best fit value?)
                 double phalf = (pmax[0]-pmin[0])/2;
@@ -604,8 +604,8 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
 
                 double x, y;
                 {
-                  DefaultAccumulator xacc = pmin[0];
-                  DefaultAccumulator yacc = pmin[1];
+                  DefaultAccumulator<double> xacc = pmin[0];
+                  DefaultAccumulator<double> yacc = pmin[1];
                   if (!includePOIEdges_){
                     xacc += deltaX*0.5;
                     yacc += deltaY*0.5;
