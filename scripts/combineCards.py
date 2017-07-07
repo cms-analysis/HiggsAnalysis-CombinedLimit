@@ -81,9 +81,9 @@ for ich,fname in enumerate(args):
             continue
         for b in DC.bins:
             bout = label if singlebin else label+b
-	    b_in  = label if singlebin else b
+            b_in  = label if singlebin else b
             if isVetoed(b_in,options.channelVetos): continue
-	    if not isIncluded(b_in,options.channelIncludes): continue
+            if not isIncluded(b_in,options.channelIncludes): continue
             if not systeffect.has_key(bout): systeffect[bout] = {}
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 r = str(errline[b][p]);
@@ -120,7 +120,7 @@ for ich,fname in enumerate(args):
     for K in DC.extArgs.keys():
         extArgs[K] = DC.extArgs[K]
     for K in DC.binParFlags.iterkeys():
-	tbin = label if singlebin else label+K
+        tbin = label if singlebin else label+K
         binParFlags[tbin] = DC.binParFlags[K]
     # rate params
     for K in DC.rateParams.iterkeys():
@@ -166,7 +166,7 @@ for ich,fname in enumerate(args):
             bout = label if singlebin else label+b
             b_in  = label if singlebin else b
             if isVetoed(b_in,options.channelVetos): continue
-	    if not isIncluded(b_in,options.channelIncludes): continue
+            if not isIncluded(b_in,options.channelIncludes): continue
             obsline += [FloatToString(DC.obs[b])];
     #get the groups - keep nuisances in a set so that they are never repetitions
     for groupName,nuisanceNames in DC.groups.iteritems():
