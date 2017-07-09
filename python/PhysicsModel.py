@@ -123,7 +123,9 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
                 (maplist,poi) = po.replace("map=","").split(":",1)
                 maps = maplist.split(",")
                 poiname = re.sub("\[.*","", poi)
-                if "=" in poi:
+                if poi == "super":
+                    pass
+                elif "=" in poi:
                     poiname,expr = poi.split("=")
                     poi = expr.replace(";",":")
                     if self.verbose: print "Will create expression ",poiname," with factory ",poi
@@ -136,7 +138,11 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
                     else:
                         if self.verbose: print "Will create a POI ",poiname," with factory ",poi
                         self.pois[poiname] = poi
-                if self.verbose:  print "Mapping ",poiname," to ",maps," patterns"
+                if self.verbose:
+                    if poi == "super":
+                        print "Using super method to get scaling for ", maps, " patterns"
+                    else:
+                        print "Mapping ",poiname," to ",maps," patterns"
                 self.poiMap.append((poiname, maps))
                 processed.append(po)
         return processed + super(MultiSignalModelBase, self).processPhysicsOptions(physOptions)
