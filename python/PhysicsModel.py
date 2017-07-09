@@ -81,22 +81,19 @@ class PhysicsModelBase_NiceSubclasses(PhysicsModelBase):
     """
     return []
 
-class PhysicsModel(object):
+class PhysicsModel(PhysicsModelBase):
     """Example class with signal strength as only POI"""
-    def getPOIList(self):
+    def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
-        pois = []
-        pois += super([classname], self).getPOIList()
-        # --- Signal Strength as only POI --- 
         self.modelBuilder.doVar("r[1,0,20]");
-        pois.append("r")
+        self.modelBuilder.doSet("POI","r")
         # --- Higgs Mass as other parameter ----
         if self.options.mass != 0:
             if self.modelBuilder.out.var("MH"):
               self.modelBuilder.out.var("MH").removeRange()
               self.modelBuilder.out.var("MH").setVal(self.options.mass)
             else:
-              self.modelBuilder.doVar("MH[%g]" % self.options.mass); 
+              self.modelBuilder.doVar("MH[%g]" % self.options.mass);
 
 class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
