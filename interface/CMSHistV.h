@@ -85,16 +85,17 @@ void CMSHistV<T>::fill(std::vector<Double_t>& out) const {
   if (begin_ != end_) {
     out.resize(end_ - begin_);
     std::copy(&hpdf_.cache().GetBinContent(begin_),
-              &hpdf_.cache().GetBinContent(end_), out.begin());
+              (&hpdf_.cache().GetBinContent(end_-1))+1, out.begin());
   } else if (!blocks_.empty()) {
     out.resize(nbins_);
     for (auto b : blocks_)
       std::copy(&hpdf_.cache().GetBinContent(b.begin),
-                &hpdf_.cache().GetBinContent(b.end), out.begin() + b.index);
+                (&hpdf_.cache().GetBinContent(b.end-1))+1, out.begin() + b.index);
   } else {
     out.resize(bins_.size());
     for (int i = 0, n = bins_.size(); i < n; ++i) {
-      out[i] = hpdf_.cache().GetBinContent(bins_[i]);
+      if ((int)hpdf_.cache().GetNbinsX()>bins_[i]) out[i] = hpdf_.cache().GetBinContent(bins_[i]);
+      else out[i]=0;
     }
   }
 }
