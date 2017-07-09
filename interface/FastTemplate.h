@@ -156,7 +156,14 @@ public:
         U GetXmax(const int bin=-1) const { return axis_.GetBinUpEdge(bin); }
         const T& GetBinContent(const unsigned int bin) const { return (this->values_).at(bin); }
         T& GetBinContent(const unsigned int bin) { return (this->values_).at(bin); }
-        T GetAt(const U &x) const { int bin = FindBin(x); if (bin<0) return T(0); else return GetBinContent((unsigned int)bin); }
+        T GetAt(const U &x) const {
+          int bin = FindBin(x);
+          if (bin < 0 || bin >= int((this->values_).size())) {
+            return T(0);
+          } else {
+            return GetBinContent((unsigned int)bin);
+          }
+        }
 
         //this should really be least significant of T and U
         //typically that would be T
