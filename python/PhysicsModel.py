@@ -163,8 +163,10 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
         for p, list in self.poiMap:
             for l in list:
                 if re.match(l, string): poi = p
-        if poi is None:
+        if poi == "super":
             poi = super(MultiSignalModelBase, self).getYieldScale(bin,process)
+        if poi is None:
+            poi = "1"
         print "Will scale ", string, " by ", poi
         if poi in ["1","0"]: return int(poi)
         return poi
