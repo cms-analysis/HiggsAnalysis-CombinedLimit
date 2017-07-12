@@ -195,7 +195,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
 		specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 	}
-	Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.); // Combine will not commit a point anymore at -1 so can do it here 
+	//Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.); // Combine will not commit a point anymore at -1 so can do it here 
 	//}
     }
    
@@ -237,7 +237,8 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         case Stitch2D: doStitch2D(w,*nll); break;
         case Impact: if (res.get()) doImpact(*res, *nll); break;
     }
-    
+    Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.);  
+
     Combine::toggleGlobalFillTree(false);
     return true;
 }
