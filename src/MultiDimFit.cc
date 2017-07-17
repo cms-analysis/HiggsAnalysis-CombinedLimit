@@ -183,12 +183,14 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if(w->var("r")) {w->var("r")->Print();}
     if ( loadedSnapshot_ || res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
-            RooAbsArg *rfloat = (*res).floatParsFinal().find(poi_[i].c_str());
-            if (!rfloat) {
-                rfloat = (*res).constPars().find(poi_[i].c_str());
+            if (res.get()){
+                RooAbsArg *rfloat = (*res).floatParsFinal().find(poi_[i].c_str());
+                if (!rfloat) {
+                    rfloat = (*res).constPars().find(poi_[i].c_str());
+                }
+                RooRealVar *rf = dynamic_cast<RooRealVar*>(rfloat);
+                poiVals_[i] = rf->getVal();//for Singles we store the RooFitResults values
             }
-            RooRealVar *rf = dynamic_cast<RooRealVar*>(rfloat);
-            if (algo_ == Singles) poiVals_[i] = rf->getVal();//for Singles we store the RooFitResults values
             else poiVals_[i] = poiVars_[i]->getVal();
         }
         //if (algo_ != None) {
