@@ -60,6 +60,8 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
+#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+
 using namespace RooStats;
 using namespace RooFit;
 using namespace std;
@@ -676,8 +678,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   if (withSystematics && nuisances == 0) {
-      std::cout << "The signal model has no nuisance parameters. Please run the limit tool with no systematics (option -S 0)." << std::endl;
+      std::cout << "The model has no constrained nuisance parameters. Please run the limit tool with no systematics (option -S 0)." << std::endl;
       std::cout << "To make things easier, I will assume you have done it." << std::endl;
+      if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- The signal model has no constrained nuisance parameters so I have assumed you don't need a pdf for them. Please re-run with -S 0 to be sure!",__LINE__)),Logger::kLogLevelInfo,__func__);
       withSystematics = false;
   } else if (!withSystematics && nuisances != 0) {
     std::cout << "Will set nuisance parameters to constants: " ;
@@ -869,6 +872,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
     }
     std::cout << "Computing results starting from " << (iToy == 0 ? "observation (a-posteriori)" : "expected outcome (a-priori)") << std::endl;
+    if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Computing results starting from %s",__LINE__,(iToy == 0 ? "observation (a-posteriori)" : "expected outcome (a-priori)"))),Logger::kLogLevelInfo,__func__);
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();
@@ -887,7 +891,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     allFloatingParameters.remove(*mc->GetParametersOfInterest());
     int nFloatingNonPoiParameters = utils::countFloating(allFloatingParameters); 
     if (nFloatingNonPoiParameters && !toysNoSystematics_ && (readToysFromHere == 0)) {
-      if (nuisances == 0) throw std::logic_error("Running with systematic variation in toys enabled, but I found floating parameters (which are not POIs) and I need at least one nuisance parameter defined.");
+      if (nuisances == 0) throw std::logic_error("Running with systematic variation in toys enabled, but I found floating parameters (which are not POIs) but no constrain terms have been defined in the datacard. If this is ok, re-run with -S 0");
       nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
@@ -929,6 +933,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           if (expectSignal_) ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
         }
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
+	if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Generating toy %d/%d",__LINE__,iToy,nToys)),Logger::kLogLevelInfo,__func__);
 	if (isExtended) {
           absdata_toy = newToyMC.generate(weightVar_); // as simple as that
 	} else {
