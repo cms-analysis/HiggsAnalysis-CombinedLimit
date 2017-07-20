@@ -159,8 +159,8 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::auto_ptr<RooFitResult> res;
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
+    bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
     if ( !skipInitialFit_){
-        bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
         res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
         if (!res.get()) {
             std::cout << "\n " <<std::endl;
@@ -183,7 +183,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if(w->var("r")) {w->var("r")->Print();}
     if ( loadedSnapshot_ || res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
-            if (res.get()){
+            if (res.get() && doHesse){
                 RooAbsArg *rfloat = (*res).floatParsFinal().find(poi_[i].c_str());
                 if (!rfloat) {
                     rfloat = (*res).constPars().find(poi_[i].c_str());
