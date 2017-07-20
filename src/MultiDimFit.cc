@@ -160,8 +160,8 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::auto_ptr<RooFitResult> res;
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
+    bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
     if ( !skipInitialFit_){
-        bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
         res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
         if (!res.get()) {
             std::cout << "\n " <<std::endl;
@@ -181,11 +181,12 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true)));
     }
 
-    if(w->var("r")) {w->var("r")->Print();}
+    //if(w->var("r")) {w->var("r")->Print();}
     if ( loadedSnapshot_ || res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
-            if (res.get()){
-                RooAbsArg *rfloat = (*res).floatParsFinal().find(poi_[i].c_str());
+            if (res.get() && doHesse ){
+	    	(res.get())->Print("v");
+                RooAbsArg *rfloat = (res.get())->floatParsFinal().find(poi_[i].c_str());
                 if (!rfloat) {
                     rfloat = (*res).constPars().find(poi_[i].c_str());
                 }
@@ -224,19 +225,19 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 
     switch(algo_) {
         case None: 
-            if (verbose > 0) {
-                std::cout << "\n --- MultiDimFit ---" << std::endl;
-                std::cout << "best fit parameter values: "  << std::endl;
-                int len = poi_[0].length();
-                for (int i = 0, n = poi_.size(); i < n; ++i) {
-                    len = std::max<int>(len, poi_[i].length());
-                }
-                for (int i = 0, n = poi_.size(); i < n; ++i) {
-                    printf("   %*s :  %+8.3f\n", len, poi_[i].c_str(), poiVals_[i]);
-                }
+	  {
+            std::cout << "\n --- MultiDimFit ---" << std::endl;
+            std::cout << "best fit parameter values: "  << std::endl;
+            int len = poi_[0].length();
+            for (int i = 0, n = poi_.size(); i < n; ++i) {
+                len = std::max<int>(len, poi_[i].length());
             }
-            if(res.get() && saveFitResult_) saveResult(*res);
-            break;
+            for (int i = 0, n = poi_.size(); i < n; ++i) {
+                printf("   %*s :  %+8.3f\n", len, poi_[i].c_str(), poiVals_[i]);
+            }
+	  }
+          if(res.get() && saveFitResult_) saveResult(*res);
+          break;
         case Singles: if (res.get()) { doSingles(*res); if (saveFitResult_) {saveResult(*res);} } break;
         case Cross: doBox(*nll, cl, "box", true); break;
         case Grid: doGrid(w,*nll); break;

@@ -167,7 +167,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   lowerLimit_     = vm.count("lowerLimit");
   hintUsesStatOnly_ = vm.count("hintStatOnly");
   saveWorkspace_ = vm.count("saveWorkspace");
-  toysNoSystematics_ = vm.count("toysNoSystematics");
+  //toysNoSystematics_ = vm.count("toysNoSystematics");
   if (!withSystematics) toysNoSystematics_ = true;  // if no systematics, also don't expect them for the toys
   toysFrequentist_ = vm.count("toysFrequentist");
   if (toysNoSystematics_ && toysFrequentist_) throw std::logic_error("You can't set toysNoSystematics and toysFrequentist options at the same time");
