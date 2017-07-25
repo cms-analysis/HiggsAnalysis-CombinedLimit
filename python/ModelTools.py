@@ -33,6 +33,7 @@ class ModelBuilderBase():
             self.out = ROOT.RooWorkspace("w","w");
             #self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
             self.out._import = SafeWorkspaceImporter(self.out)
+            self.objstore = {}
             self.out.dont_delete = []
             if options.verbose == 0:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
@@ -47,7 +48,20 @@ class ModelBuilderBase():
             stderr.write("\nWARNING: You're not using binary mode. This is is DEPRECATED and NOT SUPPORTED anymore, and can give WRONG results.\n\n")
         if options.cexpr:
             global ROOFIT_EXPR;
-            ROOFIT_EXPR = "cexpr"            
+            ROOFIT_EXPR = "cexpr"
+    def addObj(self, classtype, name, *args):
+        if name not in self.objstore:
+            self.objstore[name] = classtype(name, *args)
+        return self.objstore[name]
+    def getObj(self, name):
+        if name not in self.objstore:
+            raise RuntimeError, "Requested object %s not found in store" % name
+        return self.objstore[name]
+    def renameObj(self, currName, newName):
+        if currName not in self.objstore:
+            raise RuntimeError, "Requested object %s not found in store" % name
+        self.objstore[currName].SetName(newName)
+        self.objstore[newName] = self.objstore.pop(currName)
     def factory_(self,X):
         if self.options.verbose >= 7:
             print "RooWorkspace::factory('%s')" % X
