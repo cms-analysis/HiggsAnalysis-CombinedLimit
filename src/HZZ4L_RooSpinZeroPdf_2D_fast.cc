@@ -90,10 +90,10 @@ Float_t HZZ4L_RooSpinZeroPdf_2D_fast::interpolateFcn(Int_t code, const char* ran
   coefs.push_back((Float_t)absfai1);
   coefs.push_back((Float_t)absfai2);
   coefs.push_back((Float_t)sgn_fai1*sqrt(fa1*absfai1)*cos(phi1));
-  coefs.push_back((Float_t)sgn_fai1*sqrt(fa1*absfai2)*cos(phi2));
+  coefs.push_back((Float_t)sgn_fai2*sqrt(fa1*absfai2)*cos(phi2));
   coefs.push_back((Float_t)sgn_fai1*sgn_fai2*sqrt(absfai1*absfai2)*cos(phi2-phi1));
   coefs.push_back((Float_t)sgn_fai1*sqrt(fa1*absfai1)*sin(phi1));
-  coefs.push_back((Float_t)sgn_fai1*sqrt(fa1*absfai2)*sin(phi2));
+  coefs.push_back((Float_t)sgn_fai2*sqrt(fa1*absfai2)*sin(phi2));
   coefs.push_back((Float_t)sgn_fai1*sgn_fai2*sqrt(absfai1*absfai2)*sin(phi2-phi1));
   if (coefList.getSize() != (Int_t)coefs.size()){
     cerr << "HZZ4L_RooSpinZeroPdf_2D_fast::interpolateFcn: coefList.getSize()=" << coefList.getSize() << " != coefs.size()=" << coefs.size() << endl;
