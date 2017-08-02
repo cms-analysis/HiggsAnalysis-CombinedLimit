@@ -47,6 +47,7 @@ namespace cacheutils {
             // and it will be up to the caller code to fill the room the new item
             std::pair<std::vector<Double_t> *, bool> get(); 
             void clear();
+            inline void setDirectMode(bool mode) { directMode_ = mode; }
         private:
             struct Item {
                 Item(const RooAbsCollection &set)   : checker(set),   good(false) {}
@@ -58,6 +59,7 @@ namespace cacheutils {
             int size_, maxSize_;
             enum { MaxItems_ = 3 };
             Item *items[MaxItems_];
+            bool directMode_;
     };
 // Part one: cache all values of a pdf
 class CachingPdfBase {
