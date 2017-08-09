@@ -163,14 +163,16 @@ cacheutils::ArgSetChecker::changed(bool updateIfChanged)
 
 cacheutils::ValuesCache::ValuesCache(const RooAbsCollection &params, int size) :
     size_(1),
-    maxSize_(size)
+    maxSize_(size),
+    directMode_(false)
 {
     assert(size <= MaxItems_);
     items[0] = new Item(params);
 }
 cacheutils::ValuesCache::ValuesCache(const RooAbsReal &pdf, const RooArgSet &obs, int size) :
     size_(1),
-    maxSize_(size)
+    maxSize_(size),
+    directMode_(false)
 {
     assert(size <= MaxItems_);
     std::auto_ptr<RooArgSet> params(pdf.getParameters(obs));
@@ -191,6 +193,9 @@ void cacheutils::ValuesCache::clear()
 
 std::pair<std::vector<Double_t> *, bool> cacheutils::ValuesCache::get() 
 {
+    if (directMode_) {
+        return std::pair<std::vector<Double_t> *, bool>(&items[0]->values, false);
+    }
     int found = -1; bool good = false;
     for (int i = 0; i < size_; ++i) {
         if (items[i]->good) {
@@ -250,6 +255,9 @@ cacheutils::CachingPdf::CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) :
     cache_(*pdf_,*obs_),
     includeZeroWeights_(false)
 {
+    if (runtimedef::get("CACHINGPDF_DIRECT") || pdf->getAttribute("CachingPdf_Direct")) {
+        cache_.setDirectMode(true);
+    }
 }
 
 cacheutils::CachingPdf::CachingPdf(const CachingPdf &other) :
@@ -261,6 +269,10 @@ cacheutils::CachingPdf::CachingPdf(const CachingPdf &other) :
     cache_(*pdf_,*obs_),
     includeZeroWeights_(other.includeZeroWeights_)
 {
+    if (runtimedef::get("CACHINGPDF_DIRECT") || other.pdfOriginal_->getAttribute("CachingPdf_Direct")) {
+        cache_.setDirectMode(true);
+    }
+
 }
 
 cacheutils::CachingPdf::~CachingPdf() 
