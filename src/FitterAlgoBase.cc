@@ -103,12 +103,16 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
     if (!vm.count("setRobustFitTolerance") || vm["setRobustFitTolerance"].defaulted())  {
         minimizerToleranceForMinos_ = ROOT::Math::MinimizerOptions::DefaultTolerance();  // will reset this to the default from CascadeMinimizer unless set. 
     }
-/*
-    std::cout << "   Options for Robust Minimizer :: " << std::endl;
-    std::cout << "        Tolerance  " << minimizerToleranceForMinos_  <<std::endl;
-    std::cout << "        Strategy   "  << minimizerStrategyForMinos_  <<std::endl;
-    std::cout << "        Type,Algo  "  << minimizerAlgoForMinos_      <<std::endl;
-*/
+
+    if (robustFit_){
+     if (verbose) {
+    	Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Setting robust fit options to Tolerance=%g / Strategy=%d / Type,Algo=%s (note that defaults of CascadeMinimizer were taken where option not specified)",__LINE__,minimizerToleranceForMinos_,minimizerStrategyForMinos_,minimizerAlgoForMinos_.c_str())),Logger::kLogLevelInfo,__func__);
+     }
+     std::cout << "   Options for Robust Minimizer :: " << std::endl;
+     std::cout << "        Tolerance  " << minimizerToleranceForMinos_  <<std::endl;
+     std::cout << "        Strategy   "  << minimizerStrategyForMinos_  <<std::endl;
+     std::cout << "        Type,Algo  "  << minimizerAlgoForMinos_      <<std::endl;
+    }
 }
 
 bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
