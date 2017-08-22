@@ -65,10 +65,14 @@ class ShapeBuilder(ModelBuilder):
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
                     prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
-                    for X in extranorm: prodset.add(self.out.function(X))
-                    prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
-                    self.out._import(prodfunc)
-                    coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))                    
+                    for X in extranorm:
+                    	# X might already be in the workspace (e.g. _norm term)...
+                    	if self.out.function(X):
+                    		prodset.add(self.out.function(X))
+                    	# ... but usually it's only in our object store (e.g. AsymPow for shape systs)
+                    	else:
+                    		prodset.add(self.getObj(X))
+                    coeff = self.addObj(ROOT.RooProduct, "n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                 if channelBinParFlag:  # It's better if the CMSHistFunc objects are in the workspace already
                     self.out._import(pdf)
                     pdf = self.out.arg(pdf.GetName())
@@ -626,7 +630,10 @@ class ShapeBuilder(ModelBuilder):
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
                 # for convenience, we scale the kappas
                 kappasScaled = [ pow(x, errline[channel][process]) for x in kappaDown,kappaUp ]
-                self.doObj( "systeff_%s_%s_%s" % (channel,process,syst), "AsymPow", "%f,%f,%s" % (kappasScaled[0], kappasScaled[1], syst) ) 
+                obj_kappaDown = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[0], "", float('%f' %  kappasScaled[0]))
+                obj_kappaUp = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[1], "", float('%f' %  kappasScaled[1]))
+                obj_var = self.out.var(syst)
+                self.addObj(ROOT.AsymPow, "systeff_%s_%s_%s" % (channel,process,syst), "", obj_kappaDown, obj_kappaUp, obj_var)
                 terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
         return terms if terms else None;
     def rebinH1(self,shape):
