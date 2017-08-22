@@ -32,6 +32,7 @@ protected:
   static std::string minimizerAlgoForMinos_;
   //static float       minimizerTolerance_, 
   static float 	     minimizerToleranceForMinos_;
+  static float 	     crossingTolerance_;
   //static int         minimizerStrategy_, 
   static int 	     minimizerStrategyForMinos_;
 

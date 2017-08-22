@@ -185,7 +185,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if ( loadedSnapshot_ || res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             if (res.get() && doHesse ){
-	    	(res.get())->Print("v");
+	    	// (res.get())->Print("v");
                 RooAbsArg *rfloat = (res.get())->floatParsFinal().find(poi_[i].c_str());
                 if (!rfloat) {
                     rfloat = (*res).constPars().find(poi_[i].c_str());

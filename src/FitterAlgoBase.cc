@@ -42,6 +42,7 @@ using namespace RooStats;
 std::string FitterAlgoBase::minimizerAlgoForMinos_ = "";
 //float       FitterAlgoBase::minimizerTolerance_ = 1e-1;
 float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-1;
+float       FitterAlgoBase::crossingTolerance_ = 1e-4;
 //int         FitterAlgoBase::minimizerStrategy_  = 1;
 int         FitterAlgoBase::minimizerStrategyForMinos_ = 0;  // also default from CascadeMinimizer
 float       FitterAlgoBase::preFitValue_ = 1.0;
@@ -74,6 +75,7 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("setRobustFitAlgo",      boost::program_options::value<std::string>(&minimizerAlgoForMinos_)->default_value(minimizerAlgoForMinos_), "Choice of minimizer (Minuit vs Minuit2) for profiling in robust fits")
         ("setRobustFitStrategy",  boost::program_options::value<int>(&minimizerStrategyForMinos_)->default_value(minimizerStrategyForMinos_),      "Stragegy for minimizer for profiling in robust fits")
         ("setRobustFitTolerance",  boost::program_options::value<float>(&minimizerToleranceForMinos_)->default_value(minimizerToleranceForMinos_),      "Tolerance for minimizer for profiling in robust fits")
+        ("setCrossingTolerance",  boost::program_options::value<float>(&crossingTolerance_)->default_value(crossingTolerance_),      "Tolerance for finding the NLL crossing in robust fits")
         ("profilingMode", boost::program_options::value<std::string>()->default_value("all"), "What to profile when computing uncertainties: all, none (at least for now).")
         ("saveNLL",  "Save the negative log-likelihood at the minimum in the output tree (note: value is relative to the pre-fit state)")
         ("keepFailures",  "Save the results even if the fit is declared as failed (for NLL studies)")
@@ -351,7 +353,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
 }
 
 double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) {
-    if (!runtimedef::get("FITTER_OLD_CROSSING_ALGO")) {
+    if (runtimedef::get("FITTER_NEW_CROSSING_ALGO")) {
         return findCrossingNew(minim, nll, r, level, rStart, rBound);
     }
     //double minimizerTolerance_ = minim.tolerance();
@@ -405,7 +407,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         double there = here;
         here = nll.getVal();
         if (verbose > 0) { printf("%f    %+.5f  %+.5f    %f\n", rStart, level-here, level-there, rInc); fflush(stdout); }
-        if ( fabs(here - level) < 4*minimizerToleranceForMinos_ ) {
+        if ( fabs(here - level) < 4*crossingTolerance_) {
             // set to the right point with interpolation
             r.setVal(rStart + (level-here)*(level-there)/(here-there));
             return r.getVal();
@@ -458,7 +460,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             }
             checkpoint.reset(minim.save());
         }
-    } while (fabs(rInc) > minimizerToleranceForMinos_*stepSize_*std::max(1.0,rBound-rStart));
+    } while (fabs(rInc) > crossingTolerance_*stepSize_*std::max(1.0,rBound-rStart));
     if (fabs(here - level) > 0.01) {
         std::cout << "Error: closed range without finding crossing." << std::endl;
 	if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Closed range without finding crossing! ",__LINE__)),Logger::kLogLevelError,__func__);
