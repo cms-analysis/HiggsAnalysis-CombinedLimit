@@ -92,6 +92,8 @@ class ShapeBuilder(ModelBuilder):
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
             if channelBinParFlag: 
                 prop = self.addObj(ROOT.CMSHistErrorPropagator, "prop_bin%s" % b, "", pdfs.at(0).getXVar(), pdfs, coeffs)
+                prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", pdfs.at(0).getXVar(), pdfs, coeffs)
+                prop.setAttribute('CachingPdf_Direct', True)
                 if self.DC.binParFlags[b][0] >= 0.:
                     bbb_args = prop.setupBinPars(self.DC.binParFlags[b][0])
                     for bidx in range(bbb_args.getSize()):

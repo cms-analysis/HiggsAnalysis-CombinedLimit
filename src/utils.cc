@@ -532,17 +532,25 @@ TGraphAsymmErrors * utils::makeDataGraph(TH1 * dataHist, bool asDensity)
 {
     // Properly normalise 
     TGraphAsymmErrors * dataGraph = new TGraphAsymmErrors(dataHist->GetNbinsX());
+
+    dataHist->Sumw2(false);
+    dataHist->SetBinErrorOption(TH1::kPoisson);
+
     for (int b=1;b <= dataHist->GetNbinsX();b++){
 	double yv = dataHist->GetBinContent(b);
 	double bw = dataHist->GetBinWidth(b);
 
-	double up; 
-	double dn;
+	//double up; 
+	//double dn;
 
-	RooHistError::instance().getPoissonInterval(yv,dn,up,1);
+	//RooHistError::instance().getPoissonInterval(yv,dn,up,1);
 
-	double errlow  = (yv-dn);
-	double errhigh = (up-yv);
+	//double errlow  = (yv-dn);
+	//double errhigh = (up-yv);
+    //
+    double errlow = dataHist->GetBinErrorLow(b);
+    double errhigh = dataHist->GetBinErrorUp(b);
+
 
 	if (asDensity) {
 		yv/=bw;
@@ -553,6 +561,7 @@ TGraphAsymmErrors * utils::makeDataGraph(TH1 * dataHist, bool asDensity)
 	dataGraph->SetPoint(b-1,dataHist->GetBinCenter(b),yv);
 	dataGraph->SetPointError(b-1,bw/2,bw/2,errlow,errhigh);
     }
+
     return dataGraph;
 }
 
