@@ -158,11 +158,11 @@ class ShapeBuilder(ModelBuilder):
                 pdf_bins = ROOT.RooProdPdf('pdfbins_bin%s' % b, '', binconstraints)
                 sumPlusNuis_s.add(pdf_bins)
                 # then make RooProdPdf and import it
-                pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s)
+                pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s) 
                 if not self.options.noBOnly:
                     sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_b.add(sum_b)
                     sumPlusNuis_b.add(pdf_bins)
-                    pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b)
+                    pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
                 if b in self.pdfModes: 
                     pdf_s.setAttribute('forceGen'+self.pdfModes[b].title())
                     if not self.options.noBOnly: pdf_b.setAttribute('forceGen'+self.pdfModes[b].title())
@@ -170,23 +170,23 @@ class ShapeBuilder(ModelBuilder):
                     if i > 0: stderr.write("\b\b\b\b\b");
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
-                    self.out._import(pdf_s, ROOT.RooFit.RenameConflictNodes(b))
-                    if not self.options.noBOnly:
-                        self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+                self.out._import(pdf_s, ROOT.RooFit.RenameConflictNodes(b))
+                if not self.options.noBOnly:
+                    self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
             else:
                 if self.options.verbose:
                     if i > 0: stderr.write("\b\b\b\b\b");
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
-                    self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
-                    if not self.options.noBOnly:
-                        self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+                self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
+                if not self.options.noBOnly:
+                    self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
             if channelBinParFlag:
                 for idx in xrange(pdfs.getSize()):
                     wrapper = ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx)
                     wrapper.setStringAttribute("combine.process", pdfs.at(idx).getStringAttribute("combine.process"))
                     wrapper.setStringAttribute("combine.channel", pdfs.at(idx).getStringAttribute("combine.channel"))
-                    self.out._import(wrapper, ROOT.RooFit.RecycleConflictNodes())
+                    self.out._import(wrapper, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
 
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
@@ -212,9 +212,9 @@ class ShapeBuilder(ModelBuilder):
                 self.out._import(simPdf)
                 if self.options.noBOnly: break
         else:
-            self.out._import(self.getObj("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
+            self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
             if not self.options.noBOnly: 
-                self.out._import(self.getObj("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
+                self.out._import(self.out.pdf("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
             iter = pars.createIterator()
