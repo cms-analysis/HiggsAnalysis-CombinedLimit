@@ -34,7 +34,7 @@ double CascadeMinimizer::discreteMinTol_ = 0.001;
 std::string CascadeMinimizer::defaultMinimizerType_="Minuit2"; // default to minuit2 (not always the default !?)
 std::string CascadeMinimizer::defaultMinimizerAlgo_=ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
 double CascadeMinimizer::defaultMinimizerTolerance_=1e-1;  
-int  CascadeMinimizer::strategy_=1;  
+int  CascadeMinimizer::strategy_=1; 
 
 CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) :
     nll_(nll),
@@ -72,6 +72,8 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
     }
     minimizer_->setPrintLevel(verbose-1);
    
+    strategy_ = ROOT::Math::MinimizerOptions::DefaultStrategy(); // re-configure 
+
     minimizer_->setStrategy(strategy_);
     std::string nominalType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
     std::string nominalAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
@@ -109,11 +111,12 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
 			Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Will fallback to minimization using %s, strategy %d and tolerance %g",__LINE__,(it->algo).c_str(),myStrategy,it->tolerance)),Logger::kLogLevelDebug,__func__);
 		}
                 minimizer_->setEps(ROOT::Math::MinimizerOptions::DefaultTolerance());
-                minimizer_->setStrategy(myStrategy);
+                minimizer_->setStrategy(myStrategy); 
                 outcome = improveOnce(verbose-2);
                 if (outcome) break;
             }
         }
+	
       }
     } while (autoBounds_ && !autoBoundsOk(verbose-1));
 
@@ -130,6 +133,7 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
     static int rooFitOffset = runtimedef::get("MINIMIZER_rooFitOffset");
     std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
     std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
+    int myStrategy = ROOT::Math::MinimizerOptions::DefaultStrategy();
     bool outcome = false;
     double tol = ROOT::Math::MinimizerOptions::DefaultTolerance();
     static int maxcalls = runtimedef::get("MINIMIZER_MaxCalls");
@@ -142,7 +146,7 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
         if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
         outcome = nllutils::robustMinimize(nll_, *minimizer_, verbose, setZeroPoint_);
     } else {
-        if (verbose+2>0) Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Minimisation configured with Type=%s, Algo=%s, strategy=%d, tolerance=%g",__LINE__,myType.c_str(),myAlgo.c_str(),strategy_,tol)),Logger::kLogLevelInfo,__func__);
+        if (verbose+2>0) Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Minimisation configured with Type=%s, Algo=%s, strategy=%d, tolerance=%g",__LINE__,myType.c_str(),myAlgo.c_str(),myStrategy,tol)),Logger::kLogLevelInfo,__func__);
         cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
         if (simnll) simnll->setZeroPoint();
         if ((!simnll) && optConst) minimizer_->optimizeConst(std::max(0,optConst));
@@ -676,6 +680,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
     ROOT::Math::IOptions & options = ROOT::Math::MinimizerOptions::Default("Minuit2");
     options.SetValue("StorageLevel", minuit2StorageLevel_);
     
+    // Note that the options are not applied again when recreating a CascadeMinimizer so need to set the global attributes (should we make the modifiable options persistant too?)
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer(defaultMinimizerType_.c_str(),defaultMinimizerAlgo_.c_str());
     ROOT::Math::MinimizerOptions::SetDefaultTolerance(defaultMinimizerTolerance_);
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(strategy_);
