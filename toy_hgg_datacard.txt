@@ -1,0 +1,25 @@
+# Datacard example for H->gg like bias study 
+imax 1
+jmax 1
+kmax *
+---------------
+shapes data_obs   * toyhgg_in.root multipdf:roohist_data_mass_cat1_toy1_cutrange__CMS_hgg_mass
+shapes signal      * toyhgg_in.root multipdf:gaus
+shapes background * background_pdfs.root backgrounds:roomultipdf
+---------------
+# take event count from dataset (use -1)
+bin           diphoton 
+observation -1
+---------------
+# 51 expected events from H->gg in the signal (just a simple gaussian)
+# background normalisation freely floating, taken from _norm, so leave rate as 1
+
+bin    diphoton diphoton 
+process signal   background
+process 0    1
+rate    51    1
+
+---------------
+# usual systematics .... note, we advertise the pdf changing parameter as a discrete nuisance
+lumi lnN 1.026   - 
+pdf_index discrete
