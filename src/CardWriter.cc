@@ -56,6 +56,28 @@ auto CardWriter::BuildMap(std::string const& pattern,
       }
       f_map[key] = mappings;
     });
+  auto masses = cmb.cp().mass(wildcard_masses_, false).mass_set();
+  cmb.cp().mass(wildcard_masses_, true)
+    .ForEachObj([&](ch::Object const* obj) {
+      // Build the fully-compiled key
+      std::string key = Compile(pattern, obj, true);
+      for (auto m : masses) {
+        std::string full_key = key;
+        boost::replace_all(full_key, "$MASS", m);
+        if (f_map.count(full_key)) continue;
+        std::set<std::string> mappings;
+        // The fully-compiled pattern always goes in
+        std::string wildcard_key = key;
+        boost::replace_all(wildcard_key, "$MASS", obj->mass());
+        mappings.insert(wildcard_key);
+        f_map[full_key] = mappings;
+      }
+    });
+  for (auto const& it : f_map) {
+    std::cout << it.first << ": ";
+    for (auto const& it2 : it.second) std::cout << it2 << " ";
+    std::cout << "\n";
+  }
   return f_map;
 }
 

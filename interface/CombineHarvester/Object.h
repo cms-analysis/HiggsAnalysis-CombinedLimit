@@ -39,6 +39,7 @@ class Object {
 
   virtual void set_attribute(std::string const& attr_label, std::string const& attr_value);
   virtual void delete_attribute(std::string const& attr_label) { attributes_.erase(attr_label); }
+  virtual void set_all_attributes(std::map<std::string,std::string> const& attrs_) { attributes_ = attrs_;} 
   virtual std::map<std::string,std::string> const& all_attributes() const { return attributes_;}
   virtual std::string const attribute(std::string const& attr_label) const { return attributes_.count(attr_label) >0 ? attributes_.at(attr_label) : "" ; }
 
