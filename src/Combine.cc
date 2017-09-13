@@ -233,19 +233,6 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
   return ret;
 }
 
-namespace { 
-    struct ToCleanUp {
-        TFile *tfile; std::string file, path;
-        ToCleanUp() : tfile(0), file(""), path("") {}
-        ~ToCleanUp() {
-            if (tfile) { tfile->Close(); delete tfile; }
-            if (!file.empty()) {  
-                if (unlink(file.c_str()) == -1) std::cerr << "Failed to delete temporary file " << file << ": " << strerror(errno) << std::endl;
-            }
-            if (!path.empty()) {  boost::filesystem::remove_all(path); }
-        }
-    };
-}
 void Combine::run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys) {
   ToCleanUp garbageCollect; // use this to close and delete temporary files
 

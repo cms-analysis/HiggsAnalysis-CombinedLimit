@@ -276,10 +276,11 @@ void HybridNew::setupPOI(RooStats::ModelConfig *mc_s) {
 bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
 
-    double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
-    std::string minimizerAlgo_       = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
+    //double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
+    //std::string minimizerAlgo_  = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
+    //std::string minimizerType_  = ROOT::Math::MinimizerOptions::DefaultMinimizerType();
 
-    Significance::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
+    //Significance::MinimizerSentry minimizerConfig(minimizerType_+","+minimizerAlgo_, minimizerTolerance_); // These defaults should already be configured via the CascadeMinimizer
     perf_totalToysRun_ = 0; // reset performance counter
     if (rValues_.getSize() == 0) setupPOI(mc_s);
     switch (workingMode_) {
@@ -1293,7 +1294,12 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
     TStopwatch timer;
     std::auto_ptr<RooStats::HypoTestResult> result(0);
     char tmpfile[999]; snprintf(tmpfile, 998, "%s/rstats-XXXXXX", P_tmpdir);
+    
     int fd = mkstemp(tmpfile); close(fd);
+    ToCleanUp garbageCollect;
+    garbageCollect.file = tmpfile;
+    std::cout << tmpfile << std::endl;
+
     unsigned int ich = 0;
     std::vector<UInt_t> newSeeds(fork_);
     for (ich = 0; ich < fork_; ++ich) {
