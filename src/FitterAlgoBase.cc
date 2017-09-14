@@ -193,7 +193,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
         nll.reset(); // first delete the old one, to avoid using more memory, even if temporarily
         nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
     }
-
+   
     double nll0 = nll->getVal();
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
     double delta95 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.95,ndim);
@@ -218,12 +218,14 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
     if (verbose > 1 && ret != 0 && (saveFitResult || rs.getSize())) { ret->Print("V");  }
 
+    std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
+    RooArgSet* bestFitPars = (RooArgSet*)allpars->snapshot() ;
+
     // I'm done here
     if (rs.getSize() == 0 && parametersToFreeze_.getSize() == 0) {
         return ret;
     }
 
-    std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
 
     RooArgSet frozenParameters(parametersToFreeze_);
     RooStats::RemoveConstantParameters(&frozenParameters);
@@ -327,6 +329,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
         }
     }
 
+    *allpars = *bestFitPars;
     return ret;
 }
 
