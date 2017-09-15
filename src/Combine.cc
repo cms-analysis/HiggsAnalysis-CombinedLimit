@@ -856,7 +856,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             w->saveSnapshot("clean", w->allVars());
         } else {
             toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
-            dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
+            dobs = newToyMC.generateAsimov(weightVar_,verbose); // as simple as that
         }
       }
     } else if (dobs == 0) {

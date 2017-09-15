@@ -177,7 +177,7 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
         RooAbsArg::setDirtyInhibit(false); // restore proper propagation of dirty flags
         return rds; 
     } else {
-        return generateWithHisto(weightVar, true);
+        return generateWithHisto(weightVar, true, weightScale, verbose);
     }
 }
 
@@ -425,7 +425,7 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar, int verbose
             if (pdfs_[i] == 0) continue;
             cat_->setBin(i);
             RooAbsData *&data =  datasetPieces_[cat_->getLabel()]; delete data;
-            data = pdfs_[i]->generateAsimov(weightVar,1,verbose); 
+            data = pdfs_[i]->generateAsimov(weightVar,1.,verbose); 
         }
         if (copyData_) { 
             RooArgSet vars(observables_), varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
@@ -445,7 +445,7 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar, int verbose
             // toy over-writes the memory of the previous one.
             ret = new RooDataSet(retName, "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
         }
-    } else ret = pdfs_[0]->generateAsimov(weightVar,1,verbose);
+    } else ret = pdfs_[0]->generateAsimov(weightVar,1.,verbose);
     //std::cout << "Asimov dataset generated from sim pdf " << pdf_->GetName() << " (sumw? " << ret->sumEntries() << ")" << std::endl; 
     //utils::printRAD(ret);
     return ret;
