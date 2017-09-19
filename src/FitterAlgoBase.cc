@@ -285,8 +285,11 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
 		// Add the constant parameters in case previous fit was last iteration of a "discrete parameters loop"
 		//rfloat = ret->constPars().find(r.GetName());
 		//fitwasconst = true;
-	} else if (runtimedef::get("MINIMIZER_analytic")) {
-    rfloat = &r;
+	} else if (!rfloat && runtimedef::get("MINIMIZER_analytic")) {
+    rfloat = ret->constPars().find(r.GetName());
+    if (!rfloat) {
+      fprintf(sentry.trueStdOut(), "Skipping %s. Parameter not found in the RooFitResult.\n",r.GetName());
+    }
   }
 	//rfloat->Print("V");
         RooRealVar &rf = dynamic_cast<RooRealVar &>(*rfloat);
