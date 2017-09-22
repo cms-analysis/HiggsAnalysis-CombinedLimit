@@ -906,7 +906,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 minim.setStrategy(1);
                 minim.minimize();
                 utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
-                w->saveSnapshot("frequentistPreFit", w->allVars());
+                w->saveSnapshot("clean", w->allVars());
           }
           if (nuisancePdf.get()) systDs = nuisancePdf->generate(*mc->GetGlobalObservables(), nToys);
       } else {
