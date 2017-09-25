@@ -906,7 +906,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (verbose>2){
-	  std::cout << "... from parameter values:"<< std::endl 
+	  std::cout << "... from parameter values:"<< std::endl;
 	  w->allVars().Print("v");
 	}
 	if (isExtended) {
