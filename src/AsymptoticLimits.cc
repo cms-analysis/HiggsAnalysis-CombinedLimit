@@ -331,7 +331,10 @@ double AsymptoticLimits::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected
   }
   double CLs  = (CLb == 0 ? 0 : CLsb/CLb);
   sentry.clear();
-  if (verbose > 0) printf("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tCLsb = %7.5f\tCLb  = %7.5f\tCLs  = %7.5f\n", r.GetName(), rVal, qmu, qA, CLsb, CLb, CLs);
+  if (verbose > 0) {
+  	printf("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tCLsb = %7.5f\tCLb  = %7.5f\tCLs  = %7.5f\n", r.GetName(), rVal, qmu, qA, CLsb, CLb, CLs);
+  	Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tCLsb = %7.5f\tCLb  = %7.5f\tCLs  = %7.5f",__LINE__,r.GetName(), rVal, qmu, qA, CLsb, CLb, CLs)),Logger::kLogLevelInfo,__func__);
+  }
 
   if (getAlsoExpected) {
     const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };

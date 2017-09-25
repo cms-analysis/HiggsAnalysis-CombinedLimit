@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <TGraphAsymmErrors.h>
+#include <TString.h>
 #include <RooHistError.h>
 #include <RooFitResult.h>
 #include <TH1.h>
@@ -30,6 +31,9 @@ namespace utils {
     void printPdf(RooWorkspace *w, const char *pdfName) ;
     TGraphAsymmErrors * makeDataGraph(TH1 * dataHist, bool asDensity=false);
     //Make a tgraph asym errors from th1 of data
+    
+    //// print as a string, the name and value of a RooRealVar or RooCategoryVar
+    TString printRooArgAsString(RooAbsArg *a); 
 
     // Clone a pdf and all its branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsPdf *fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;

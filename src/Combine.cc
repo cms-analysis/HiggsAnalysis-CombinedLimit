@@ -933,7 +933,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           if (expectSignal_) ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
         }
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
-	if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Generating toy %d/%d",__LINE__,iToy,nToys)),Logger::kLogLevelInfo,__func__);
+	if (verbose > 2) {
+	  Logger::instance().log(std::string(Form("Combine.cc: %d -- Generating toy %d/%d, from parameter values ... ",__LINE__,iToy,nToys)),Logger::kLogLevelInfo,__func__);
+    	  std::auto_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    	  for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+	  	TString varstring = utils::printRooArgAsString(a);
+	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	  }
+	}
 	if (isExtended) {
           absdata_toy = newToyMC.generate(weightVar_); // as simple as that
 	} else {

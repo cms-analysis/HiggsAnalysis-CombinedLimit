@@ -332,6 +332,21 @@ bool utils::setAllConstant(const RooAbsCollection &coll, bool constant) {
     return changed;
 }
 
+TString utils::printRooArgAsString(RooAbsArg *a){
+    RooRealVar *v = dynamic_cast<RooRealVar *>(a);
+    if (v){
+      std::cout << TString::Format("%s = %g",v->GetName(), v->getVal()) <<std::endl;
+      return TString::Format("%s = %g",v->GetName(), v->getVal());
+    } else {
+      RooCategory *cv = dynamic_cast<RooCategory *>(a);
+      if (cv){
+        std::cout << TString::Format("%s = %d",cv->GetName(), cv->getIndex()) <<std::endl;
+        return TString::Format("%s = %d",cv->GetName(), cv->getIndex());
+      }
+    }
+    return "";
+}
+
 bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
     bool ok = true; std::ostringstream errors; 
     std::auto_ptr<TIterator> iter;
