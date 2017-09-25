@@ -202,6 +202,7 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
         } else {
             hashint = hintAlgo->run(w, mc_s, mc_b, data, hint, hintErr, 0);
         } 
+	w->loadSnapshot("clean");
     }
     limitErr = 0; // start with 0, as some algorithms don't compute it
     ret = algo->run(w, mc_s, mc_b, data, limit, limitErr, (hashint ? &hint : 0));    
