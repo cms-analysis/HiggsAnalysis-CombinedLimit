@@ -31,6 +31,8 @@ CMS_to_LHCHCG_Prod = {
     'ggH': 'ggF',
     'qqH': 'VBF',
     'WH': 'WH',
+    'WPlusH': 'WH',
+    'WMinusH': 'WH',
     'ZH': 'qqZH',
     'ggZH': 'ggZH',
     'ttH': 'ttH',
@@ -68,12 +70,16 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         self.modelBuilder.doVar(self.bbH_pdf+"[-7,7]")
         scaler7 = ROOT.ProcessNormalization("CMS_bbH_scaler_7TeV","",1.0)
         scaler8 = ROOT.ProcessNormalization("CMS_bbH_scaler_8TeV","",1.0)
+        scaler13 = ROOT.ProcessNormalization("CMS_bbH_scaler_13TeV","",1.0)
         self.modelBuilder.out._import(scaler7)
         self.modelBuilder.out._import(scaler8)
+        self.modelBuilder.out._import(scaler13)
         self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addAsymmLogNormal(1.0/114.5, 1.106, self.modelBuilder.out.var("QCDscale_bbH"))
         self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addAsymmLogNormal(1.0/114.8, 1.103, self.modelBuilder.out.var("QCDscale_bbH"))
+        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addAsymmLogNormal(1.0/114.8, 1.103, self.modelBuilder.out.var("QCDscale_bbH")) # FIX ME
         self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addLogNormal(1.061, self.modelBuilder.out.var(self.bbH_pdf))
         self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addLogNormal(1.062, self.modelBuilder.out.var(self.bbH_pdf))
+        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addLogNormal(1.062, self.modelBuilder.out.var(self.bbH_pdf)) # FIX ME
     def doMH(self):
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
@@ -113,6 +119,7 @@ class SignalStrengths(LHCHCGBaseModel):
             self.doVar("mu_XS_%s[1,0,5]" % X)
             self.doVar("mu_XS7_%s[1,0,5]" % X)
             self.doVar("mu_XS8_%s[1,0,5]" % X)
+            self.doVar("mu_XS13_%s[1,0,5]" % X)
             for Y in CMS_to_LHCHCG_Dec.values():
               self.doVar("mu_XS_%s_BR_%s[1,0,5]" % (X, Y))
         for X in CMS_to_LHCHCG_DecSimple.values():
@@ -120,14 +127,17 @@ class SignalStrengths(LHCHCGBaseModel):
             self.doVar("mu_F_%s[1,0,5]" % X)
         print "Default parameters of interest: ", self.POIs
         self.modelBuilder.doSet("POI",self.POIs)
+        print "Do SMHiggsBuilder: "
         self.SMH = SMHiggsBuilder(self.modelBuilder)
+        print "Call setup "
         self.setup()
+        print "setup done "
     def setup(self):
         self.dobbH()
         for P in ALL_HIGGS_PROD:
             if P == "VH": continue # skip aggregates 
             for D in SM_HIGG_DECAYS:
-                for E in 7, 8:
+                for E in 7, 8, 13:
                     DS = CMS_to_LHCHCG_DecSimple[D]
                     terms = [ "mu", "mu_BR_"+CMS_to_LHCHCG_DecSimple[D] ]
                     # Hack for ggH
@@ -140,12 +150,13 @@ class SignalStrengths(LHCHCGBaseModel):
                         terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E),  "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
                         terms += [ 'mu_XS_ggFbbH_BR_%s' % DS ]
                     else:
+                        print P,DS
                         if P in [ "ggH", "bbH" ]:
                             terms += [ "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
                             terms += [ "mu_XS_ggFbbH_BR_%s" % DS ]
                         terms += [ "mu_XS_"+CMS_to_LHCHCG_Prod[P],  "mu_XS%d_%s"%(E,CMS_to_LHCHCG_Prod[P])  ]
                         terms += [ "mu_XS_"+CMS_to_LHCHCG_Prod[P]+"_BR_%s"%DS ]
-
+                        
                     # Summary modes
                     if P in [ "tHW", "tHq" ]:
                         terms += [ "mu_XS_tH", "mu_XS%d_tH"%E ]
@@ -164,6 +175,8 @@ class SignalStrengths(LHCHCGBaseModel):
                         terms += [ "mu_F_"+CMS_to_LHCHCG_DecSimple[D] ]
                     else:
                         terms += [ "mu_V_"+CMS_to_LHCHCG_DecSimple[D] ]
+                    print P,D,E
+                    print terms
                     self.modelBuilder.factory_('prod::scaling_%s_%s_%dTeV(%s)' % (P,D,E,",".join(terms)))
                     self.modelBuilder.out.function('scaling_%s_%s_%dTeV' % (P,D,E)).Print("")
 
@@ -200,7 +213,7 @@ class SignalStrengthRatios(LHCHCGBaseModel):
         for P in ALL_HIGGS_PROD:
             if P == "VH": continue # skip aggregates 
             for D in SM_HIGG_DECAYS:
-                for E in 7, 8:
+                for E in 7, 8, 13:
                     terms = [ "mu_F_"+CMS_to_LHCHCG_DecSimple[D] ]
                     if P in [ "qqH","VBF", "VH", "WH", "ZH","qqZH", "ggZH" ]:
                         terms += [ "mu_V_r_F", "mu_V_r_F_"+CMS_to_LHCHCG_DecSimple[D] ]
@@ -261,7 +274,7 @@ class XSBRratios(LHCHCGBaseModel):
         for P in ALL_HIGGS_PROD:
             if P == "VH": continue # skip aggregates 
             for D in SM_HIGG_DECAYS:
-                for E in 7, 8:
+                for E in 7, 8, 13:
                     terms = [ "mu_XS_ggF_x_BR_%s"%self.denominator ]
                     if CMS_to_LHCHCG_DecSimple[D] != self.denominator:
                         terms += [ "mu_BR_%s_r_BR_%s"%(CMS_to_LHCHCG_DecSimple[D],self.denominator) ]
@@ -618,7 +631,8 @@ class KappaVKappaF(LHCHCGBaseModel):
                 b2gs = "CMS_bbH_scaler_%s" % energy
                 self.modelBuilder.factory_('expr::%s("(%s + @1*@1*@2*@3)*@4", %s, kFkF_%s, %s, %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], CMS_to_LHCHCG_DecSimple[decay], b2g, b2gs, BRscal))
             else:
-                self.modelBuilder.factory_('expr::%s("%s*@1*@2", %s, c7_BRscal_%s,r)' % (name, XSscal[0], XSscal[1], BRscal))
+                #self.modelBuilder.factory_('expr::%s("%s*@1*@2", %s, c7_BRscal_%s,r)' % (name, XSscal[0], XSscal[1], BRscal))
+                self.modelBuilder.factory_('expr::%s("%s*@1", %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], BRscal)) 
             print '[LHC-HCG Kappas]', name, production, decay, energy,": ",
             self.modelBuilder.out.function(name).Print("")
         return name
@@ -973,7 +987,7 @@ class XSBRratiosAlternative(LHCHCGBaseModel):
         for P in ALL_HIGGS_PROD:
             if P == "VH": continue # skip aggregates 
             for D in SM_HIGG_DECAYS:
-                for E in 7, 8:
+                for E in 7, 8, 13:
                     terms = [ ]
                     if P in ["ggH","bbH", "ttH","tHq","tHW"] and CMS_to_LHCHCG_DecSimple[D] in ["WW","ZZ","gamgam"]:
                         terms = [ "mu_XS_ggF_x_BR_WW" ]
@@ -1071,7 +1085,7 @@ class CommonMatrixModel(LHCHCGBaseModel):
         for P in ALL_HIGGS_PROD:
             if P == "VH": continue # skip aggregates 
             for D in SM_HIGG_DECAYS:
-                for E in 7, 8:   
+                for E in 7, 8, 13:   
                     terms = []
                     # Hack for ggH
                     if D in self.add_bbH and P == "ggH":
