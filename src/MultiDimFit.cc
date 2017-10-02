@@ -49,6 +49,8 @@ bool MultiDimFit::saveFitResult_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
 float MultiDimFit::autoRange_ = -1.0;
 std::string MultiDimFit::fixedPointPOIs_ = "";
+float MultiDimFit::centeredRange_ = -1.0;
+
 
 std::string MultiDimFit::saveSpecifiedFuncs_;
 std::string MultiDimFit::saveSpecifiedIndex_;
@@ -81,6 +83,7 @@ MultiDimFit::MultiDimFit() :
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
         ("autoRange", boost::program_options::value<float>(&autoRange_)->default_value(autoRange_), "Set to any X >= 0 to do the scan in the +/- X sigma range (where the sigma is from the initial fit, so it may be fairly approximate)")
 	("fixedPointPOIs",   boost::program_options::value<std::string>(&fixedPointPOIs_)->default_value(""), "Parameter space point for --algo=fixed")
+        ("centeredRange", boost::program_options::value<float>(&centeredRange_)->default_value(centeredRange_), "Set to any X >= 0 to do the scan in the +/- X range centered on the nominal value")
         ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
 	("saveSpecifiedNuis",   boost::program_options::value<std::string>(&saveSpecifiedNuis_)->default_value(""), "Save specified parameters (default = none)")
@@ -219,6 +222,16 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
             double min1 = std::max(min0, val - autoRange_ * err);
             double max1 = std::min(max0, val + autoRange_ * err);
             std::cout << poi_[i] << ": " << val << " +/- " << err << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            poiVars_[i]->setRange(min1, max1);
+        }
+    }
+    if (centeredRange_ > 0) {
+        std::cout << "Adjusting range of POIs to +/- " << centeredRange_ << std::endl;
+        for (int i = 0, n = poi_.size(); i < n; ++i) {
+            double val = poiVars_[i]->getVal(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
+            double min1 = std::max(min0, val - centeredRange_);
+            double max1 = std::min(max0, val + centeredRange_);
+            std::cout << poi_[i] << ": " << val << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
             poiVars_[i]->setRange(min1, max1);
         }
     }
