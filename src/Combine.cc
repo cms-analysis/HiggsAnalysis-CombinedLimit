@@ -190,7 +190,6 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   }
   if (!vm["prior"].defaulted()) noDefaultPrior_ = 0;
 
-  expectSignalSet_ = !vm["expectSignal"].defaulted();
   if( vm.count("LoadLibrary") ) {
     librariesToLoad_ = vm["LoadLibrary"].as<std::vector<std::string> >();
   }
@@ -702,8 +701,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   addNuisances(nuisances);
   addPOI(POI);
 
-  w->saveSnapshot("clean", w->allVars());
-  
   tree_ = tree;
 
   // Set up additional branches 
@@ -800,7 +797,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
       }
       if (expectSignalSet_ && rInParamExp) {
-        std::cerr << "Warning: A value of r is specified in both the --setPhysicsModelParameters "
+        std::cerr << "Warning: A value of r is specified in both the --setParameters "
                      "and --expectSignal options. The argument of --expectSignal will take "
                      "precedence\n";
       }
@@ -809,11 +806,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
     } else if (expectSignalSet_) {
       std::cerr << "Warning: option --expectSignal only applies to models with "
-                   "the POI \"r\", use --setPhysicsModelParameters to set the "
+                   "the POI \"r\", use --setParameters to set the "
                    "values of the POIs for toy generation in this model\n";
     }
   }
 
+
+  // Ok now we're ready to go lets save a "clean snapshot" for the current parameters state
+  w->saveSnapshot("clean", w->allVars());
+  
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
     if (iToy == -1) {
@@ -856,6 +857,17 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             w->saveSnapshot("clean", w->allVars());
         } else {
             toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
+
+	    // print the values of the parameters used to generate the toy
+	    if (verbose > 2) {
+	      Logger::instance().log(std::string(Form("Combine.cc: %d -- Generate Asimov toy from parameter values ... ",__LINE__)),Logger::kLogLevelInfo,__func__);
+    	      std::auto_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    	      for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+	  	TString varstring = utils::printRooArgAsString(a);
+	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	      }
+	    }
+
             dobs = newToyMC.generateAsimov(weightVar_,verbose); // as simple as that
         }
       }
@@ -929,9 +941,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
 	  if (verbose > 3) utils::printPdf(genPdf);
 	}
+	/* No longer need to set this because "clean" state is already set correctly even without toysFrequentist
         if (POI->find("r")) {
           if (expectSignal_) ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
         }
+	*/
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (verbose > 2) {
 	  Logger::instance().log(std::string(Form("Combine.cc: %d -- Generating toy %d/%d, from parameter values ... ",__LINE__,iToy,nToys)),Logger::kLogLevelInfo,__func__);

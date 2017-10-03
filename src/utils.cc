@@ -335,13 +335,11 @@ bool utils::setAllConstant(const RooAbsCollection &coll, bool constant) {
 TString utils::printRooArgAsString(RooAbsArg *a){
     RooRealVar *v = dynamic_cast<RooRealVar *>(a);
     if (v){
-      std::cout << TString::Format("%s = %g",v->GetName(), v->getVal()) <<std::endl;
-      return TString::Format("%s = %g",v->GetName(), v->getVal());
+      return TString::Format("%s = %g %s",v->GetName(), v->getVal(), v->isConstant() ? "(constant)":"");
     } else {
       RooCategory *cv = dynamic_cast<RooCategory *>(a);
       if (cv){
-        std::cout << TString::Format("%s = %d",cv->GetName(), cv->getIndex()) <<std::endl;
-        return TString::Format("%s = %d",cv->GetName(), cv->getIndex());
+        return TString::Format("%s = %d %s",cv->GetName(), cv->getIndex(), cv->isConstant() ? "(constant)":"") ;
       }
     }
     return "";
