@@ -1,6 +1,9 @@
 #ifndef HiggsAnalysis_CombinedLimit_RooMinimizerOpt
 #define HiggsAnalysis_CombinedLimit_RooMinimizerOpt
 
+// the trick below interfere badly with some std stuff
+#include <sstream>
+
 #if defined(ROO_MINIMIZER) || defined(ROO_MINIMIZER_FCN)
    #error "You cannot include RooMinimizer.h or RooMinimizerFcn.h before RooMinimizerOpt.h"
 #else
