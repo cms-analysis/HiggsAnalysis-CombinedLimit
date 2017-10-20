@@ -32,7 +32,7 @@ inline TH1F AsTH1F(TH1 const* hist) {
 }
 
 
-void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
+std::string BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
                       std::string const& bin, std::string const& process,
                       RooAbsReal& mass_var, std::string norm_postfix,
                       bool allow_morph, bool verbose, bool force_template_limit=false, TFile * file = nullptr);

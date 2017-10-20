@@ -394,8 +394,10 @@ void CombineHarvester::LoadShapes(Process* entry,
     std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), mapping.pattern);
 
     if (HasNegativeBins(h.get())) {
-      LOGLINE(log(), "Warning: process shape has negative bins");
-      log() << Process::PrintHeader << *entry << "\n";
+      if (verbosity_ >= 1) {
+        LOGLINE(log(), "Warning: process shape has negative bins");
+        log() << Process::PrintHeader << *entry << "\n";
+      }
       if (flags_.at("zero-negative-bins-on-import")) {
         ZeroNegativeBins(h.get());
       }
@@ -531,24 +533,30 @@ void CombineHarvester::LoadShapes(Systematic* entry,
     std::unique_ptr<TH1> h_d = GetClonedTH1(mapping.file.get(), p_s_lo);
 
     if (HasNegativeBins(h.get())) {
-      LOGLINE(log(), "Warning: Systematic shape has negative bins");
-      log() << Systematic::PrintHeader << *entry << "\n";
+      if (verbosity_ >= 1) {
+        LOGLINE(log(), "Warning: Systematic shape has negative bins");
+        log() << Systematic::PrintHeader << *entry << "\n";
+      }
       if (flags_.at("zero-negative-bins-on-import")) {
         ZeroNegativeBins(h.get());
       }
     }
 
     if (HasNegativeBins(h_u.get())) {
-      LOGLINE(log(), "Warning: Systematic shape_u has negative bins");
-      log() << Systematic::PrintHeader << *entry << "\n";
+      if (verbosity_ >= 1) {
+        LOGLINE(log(), "Warning: Systematic shape_u has negative bins");
+        log() << Systematic::PrintHeader << *entry << "\n";
+      }
       if (flags_.at("zero-negative-bins-on-import")) {
         ZeroNegativeBins(h_u.get());
       }
     }
 
     if (HasNegativeBins(h_d.get())) {
-      LOGLINE(log(), "Warning: Systematic shape_d has negative bins");
-      log() << Systematic::PrintHeader << *entry << "\n";
+      if (verbosity_ >= 1) {
+        LOGLINE(log(), "Warning: Systematic shape_d has negative bins");
+        log() << Systematic::PrintHeader << *entry << "\n";
+      }
       if (flags_.at("zero-negative-bins-on-import")) {
         ZeroNegativeBins(h_d.get());
       }
