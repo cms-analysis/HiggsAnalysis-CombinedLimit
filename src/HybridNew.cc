@@ -1340,6 +1340,7 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
                                           // in 5.27.06 (but not in 5.28)
     }
     if (verbose > 1) { std::cout << "      Evaluation of p-values done in  " << timer.RealTime() << " s" << std::endl; }
+    remove(tmpfile); // Ensure the temporary file is removed -- otherwise it will clog /tmp when running many processes in parallel. True story.
     return result.release();
 }
 
