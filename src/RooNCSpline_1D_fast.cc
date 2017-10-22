@@ -17,6 +17,13 @@ RooNCSplineCore()
 
 RooNCSpline_1D_fast::RooNCSpline_1D_fast(
   const char* name,
+  const char* title
+  ) :
+  RooNCSplineCore(name, title)
+{}
+
+RooNCSpline_1D_fast::RooNCSpline_1D_fast(
+  const char* name,
   const char* title,
   RooAbsReal& inXVar,
   const std::vector<T>& inXList,

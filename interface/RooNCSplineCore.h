@@ -90,7 +90,7 @@ protected:
   virtual T evalSplineSegment(const std::vector<T>& coefs, const T& kappa, const T& tup, const T& tdn, Bool_t doIntegrate=false)const;
 
 
-  ClassDef(RooNCSplineCore, 0)
+  ClassDef(RooNCSplineCore, 1)
 
 };
  

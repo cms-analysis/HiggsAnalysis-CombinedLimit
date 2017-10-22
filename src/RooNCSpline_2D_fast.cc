@@ -19,6 +19,16 @@ theYVar("theYVar", "theYVar", this)
 
 RooNCSpline_2D_fast::RooNCSpline_2D_fast(
   const char* name,
+  const char* title
+  ) :
+  RooNCSplineCore(name, title),
+  rangeYmin(1), rangeYmax(-1),
+  theYVar("theYVar", "theYVar", this)
+{}
+
+
+RooNCSpline_2D_fast::RooNCSpline_2D_fast(
+  const char* name,
   const char* title,
   RooAbsReal& inXVar,
   RooAbsReal& inYVar,

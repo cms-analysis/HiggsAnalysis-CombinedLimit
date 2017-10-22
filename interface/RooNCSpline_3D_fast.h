@@ -35,6 +35,10 @@ public:
   RooNCSpline_3D_fast();
   RooNCSpline_3D_fast(
     const char* name,
+    const char* title
+    );
+  RooNCSpline_3D_fast(
+    const char* name,
     const char* title,
     RooAbsReal& inXVar,
     RooAbsReal& inYVar,
@@ -80,7 +84,7 @@ protected:
   virtual Double_t evaluate()const;
 
 
-  ClassDef(RooNCSpline_3D_fast, 0)
+  ClassDef(RooNCSpline_3D_fast, 1)
 
 };
  

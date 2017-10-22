@@ -21,6 +21,17 @@ theZVar("theZVar", "theZVar", this)
 
 RooNCSpline_3D_fast::RooNCSpline_3D_fast(
   const char* name,
+  const char* title
+  ) :
+  RooNCSplineCore(name, title),
+  rangeYmin(1), rangeYmax(-1),
+  rangeZmin(1), rangeZmax(-1),
+  theYVar("theYVar", "theYVar", this),
+  theZVar("theZVar", "theZVar", this)
+{}
+
+RooNCSpline_3D_fast::RooNCSpline_3D_fast(
+  const char* name,
   const char* title,
   RooAbsReal& inXVar,
   RooAbsReal& inYVar,
