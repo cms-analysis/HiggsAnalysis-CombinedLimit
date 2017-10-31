@@ -7,9 +7,9 @@ class Quadratic(PhysicsModel):
     """Apply process scaling due to EFT operators.
 
     This class takes a dictionary of quadratic fits describing how processes are
-    scaled as a function of an EFT operator's Wilson coefficient
-    and adds it to the workspace. The dictionary values should have the form
-    `(a, b, c)` where `scaling = a + bx + cx^2`.
+    scaled as a function of an EFT operator's Wilson coefficient and adds it to
+    the workspace. For an example coefficient x, dictionary values should have
+    the form `(a, b, c)` where `xsec_NP(x) / xsec_SM = a + bx + cx^2`.
 
     To produce an example dictionary, for coefficient `cuW`:
     >>> import numpy as np
