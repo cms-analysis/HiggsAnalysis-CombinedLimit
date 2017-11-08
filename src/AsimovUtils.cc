@@ -127,6 +127,27 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                     throw std::runtime_error(Form("AsimovUtils: can't find nuisance for constraint term %s", cterm->GetName()));
                 }
                 std::string pdfName(cterm->ClassName());
+                // Handling a special case with the Poisson constraints created by the automatic bin-by-bin tool do not depend on the
+                // mean parameter directly, but rather by a function. We need to set the global observable to the value of this
+                // function and not the parmeter value itself.
+                if ((pdfName == "RooPoisson"  || pdfName == "SimplePoissonConstraint") && !cterm->findServer(*match) && cterm->findServer(rrv)) {
+                    // std::cout << "Special case for " << match->GetName() << ": pdf does not depend on parameter directly\n";
+                    RooFIter sIter = cterm->serverMIterator();
+                    RooAbsArg *server;
+                    while ((server=sIter.next())) {
+                        if (!server->isFundamental()) {
+                            std::auto_ptr<RooArgSet> serverPars(server->getParameters(RooArgSet()));
+                            if (serverPars->contains(*match)) {
+                                RooAbsReal *rServer = dynamic_cast<RooAbsReal*>(server);
+                                if (rServer) {
+                                    //std::cout << "Replacing with value of " << rServer->GetName() << "\n";
+                                    match = rServer;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
                 if (pdfName == "RooGaussian" || pdfName == "SimpleGaussianConstraint"  || pdfName == "RooBifurGauss" || pdfName == "RooPoisson"  || pdfName == "SimplePoissonConstraint" || pdfName == "RooGenericPdf") {
                     // this is easy
                     rrv.setVal(match->getVal());
