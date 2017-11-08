@@ -144,19 +144,27 @@ class ShapeBuilder(ModelBuilder):
             elif  self.options.moreOptimizeSimPdf == "cms":
                 if self.options.noOptimizePdf: raise RuntimeError, "--optimize-simpdf-constraints=cms is incompatible with --no-optimize-pdfs"
                 addSyst = False
-            if len(self.DC.systs) and addSyst:
+            if (len(self.DC.systs) or binconstraints.getSize()) and addSyst:
                 ## rename the pdfs
                 sum_s.SetName("pdf_bin%s_nuis" % b); 
                 if not self.options.noBOnly: sum_b.SetName("pdf_bin%s_bonly_nuis" % b)
                 # now we multiply by all the nuisances, but avoiding nested products
                 # so we first make a list of all nuisances plus the RooAddPdf
-                sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_s.add(sum_s)
+                if len(self.DC.systs):
+                    sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs)
+                else:
+                    sumPlusNuis_s = ROOT.RooArgList()
+                sumPlusNuis_s.add(sum_s)
                 pdf_bins = ROOT.RooProdPdf('pdfbins_bin%s' % b, '', binconstraints)
                 sumPlusNuis_s.add(pdf_bins)
                 # then make RooProdPdf and import it
                 pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s) 
                 if not self.options.noBOnly:
-                    sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_b.add(sum_b)
+                    if len(self.DC.systs):
+                        sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs)
+                    else:
+                        sumPlusNuis_b = ROOT.RooArgList()
+                    sumPlusNuis_b.add(sum_b)
                     sumPlusNuis_b.add(pdf_bins)
                     pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
                 if b in self.pdfModes: 
