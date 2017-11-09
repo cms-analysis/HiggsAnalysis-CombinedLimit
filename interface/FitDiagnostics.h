@@ -64,7 +64,7 @@ protected:
    
   void getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out);
   void createFitResultTrees(const RooStats::ModelConfig &,bool);
-  void resetFitResultTrees();
+  void resetFitResultTrees(bool);
   void setFitResultTrees(const RooArgSet *, double *);
   void setNormsFitResultTrees(const RooArgSet *, double *);
 

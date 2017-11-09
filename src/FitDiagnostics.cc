@@ -221,7 +221,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   // }
   if (t_prefit_) {
       t_prefit_->Fill();
-      resetFitResultTrees();
+      resetFitResultTrees(withSystematics);
   }
  
   RooFitResult *res_b = 0, *res_s = 0;
@@ -316,7 +316,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   mu_=r->getVal();
   if (t_fit_b_) {
       t_fit_b_->Fill();
-      resetFitResultTrees();}
+      resetFitResultTrees(withSystematics);}
   // no longer need res_b
   delete res_b;
 
@@ -450,7 +450,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   }
   if (t_fit_sb_) {
       t_fit_sb_->Fill();
-      resetFitResultTrees();}
+      resetFitResultTrees(withSystematics);}
 
   if (currentToy_==nToys-1 || nToys==0 ) {
         
@@ -935,12 +935,14 @@ void FitDiagnostics::setShapesFitResultTrees(std::map<std::string,ShapeAndNorm> 
     }
 	 return;
 }
-void FitDiagnostics::resetFitResultTrees(){
+void FitDiagnostics::resetFitResultTrees(bool withSys){
 	
 	 for (int count = 0; count < overallNorms_; count ++){
+	     processNormalizations_[count] = -999;
+	     if (withSys){
 		 globalObservables_[count] = -999;
 		 nuisanceParameters_[count] = -999;
-		 processNormalizations_[count] = -999;
+	     }
          }
 	 for (int count = 0; count < overallBins_; count ++){
 		 processNormalizationsShapes_[count] = -999;
