@@ -92,7 +92,7 @@ FitDiagnostics::FitDiagnostics() :
 
     // setup a few defaults
     currentToy_=0; nToys=0; fitStatus_=0; mu_=0; muLoErr_=0; muHiErr_=0; numbadnll_=-1; nll_nll0_=-1; nll_bonly_=-1; nll_sb_=-1;
-    overallBins_=0; overallNorms_=0;
+    overallBins_=0; overallNorms_=0,overallNuis_=0,overallCons_=0;
 }
 
 FitDiagnostics::~FitDiagnostics(){
@@ -939,13 +939,15 @@ void FitDiagnostics::resetFitResultTrees(bool withSys){
 	
 	 for (int count = 0; count < overallNorms_; count ++){
 	     processNormalizations_[count] = -999;
-	     if (withSys){
-		 globalObservables_[count] = -999;
-		 nuisanceParameters_[count] = -999;
-	     }
+         }
+	 for (int count = 0; count < overallCons_; count ++){
+	     globalObservables_[count] = -999;
+         }
+	 for (int count = 0; count < overallNuis_; count ++){
+	     nuisanceParameters_[count] = -999;
          }
 	 for (int count = 0; count < overallBins_; count ++){
-		 processNormalizationsShapes_[count] = -999;
+	     processNormalizationsShapes_[count] = -999;
          }
 	 return;
 }
@@ -1032,7 +1034,9 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
           const RooArgSet *cons = mc.GetGlobalObservables();
           const RooArgSet *nuis = mc.GetNuisanceParameters();
  	  globalObservables_ = new double[cons->getSize()];
+	  overallCons_ = cons->getSize();
 	  nuisanceParameters_= new double[nuis->getSize()];
+	  overallNuis_ = nuis->getSize();
 
           TIterator* iter_c(cons->createIterator());
           for (TObject *a = iter_c->Next(); a != 0; a = iter_c->Next()) { 

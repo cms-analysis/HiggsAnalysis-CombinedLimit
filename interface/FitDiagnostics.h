@@ -51,7 +51,7 @@ protected:
   static bool        reuseParams_;
   static bool        customStartingPoint_;
   int currentToy_, nToys;
-  int overallBins_,overallNorms_;
+  int overallBins_,overallNorms_,overallNuis_,overallCons_;
   int fitStatus_, numbadnll_;
   double mu_, muErr_, muLoErr_, muHiErr_, nll_nll0_, nll_bonly_, nll_sb_;
   std::auto_ptr<TFile> fitOut;
