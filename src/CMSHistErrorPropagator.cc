@@ -376,16 +376,16 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
             double sigma = 7.;
             double rmin = 0.5*ROOT::Math::chisquared_quantile(ROOT::Math::normal_cdf_c(sigma), n_p_r * 2.);
             double rmax = 0.5*ROOT::Math::chisquared_quantile(1. - ROOT::Math::normal_cdf_c(sigma), n_p_r * 2. + 2.);
-            RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i_%s", this->GetName(), j, proc.c_str()), "", 1, rmin/n_p_r, rmax/n_p_r);
-            RooConstVar *cvar = new RooConstVar(TString::Format("%g", n_p_r), "", n_p_r);
+            RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i_%s", this->GetName(), j, proc.c_str()), "", n_p_r, rmin, rmax);
+            RooConstVar *cvar = new RooConstVar(TString::Format("%g", 1. / n_p_r), "", 1. / n_p_r);
             RooProduct *prod = new RooProduct(TString::Format("%s_prod", var->GetName()), "", RooArgList(*var, *cvar));
-            prod->addOwnedComponents(RooArgSet(*var, *cvar));
-            prod->setAttribute("createPoissonConstraint");
-            res->addOwned(*prod);
-            binpars_.add(*var);
+            var->addOwnedComponents(RooArgSet(*prod, *cvar));
+            var->setAttribute("createPoissonConstraint");
+            res->addOwned(*var);
+            binpars_.add(*prod);
 
             std::cout << TString::Format(
-                "      => Product of %s[%.2f,%.2f,%.2f] and const [%.0f] to be poisson constrained\n",
+                "      => Product of %s[%.2f,%.2f,%.2f] and const [%.4f] to be poisson constrained\n",
                 var->GetName(), var->getVal(), var->getMin(), var->getMax(), cvar->getVal());
             bintypes_[j][i] = 2;
           } else {
