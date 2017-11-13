@@ -375,7 +375,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         ok = minim.improve(verbose-1);
         checkpoint.reset(minim.save());
     }
-    if (!ok) { 
+    if (!ok && !keepFailures_) { 
     	std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; 
 	if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g",__LINE__,r.GetName(), rStart)),Logger::kLogLevelError,__func__);
 	return NAN; 
@@ -397,7 +397,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             CloseCoutSentry sentry(verbose < 3);    
             ok = minim.improve(verbose-1);
         }
-        if (!ok) { 
+        if (!ok && !keepFailures_) { 
             nfail++;
             if (nfail >= maxFailedSteps_) {  
 	    	std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; 
