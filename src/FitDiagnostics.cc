@@ -76,8 +76,8 @@ FitDiagnostics::FitDiagnostics() :
         ("rebinFactor",        	boost::program_options::value<float>(&rebinFactor_)->default_value(rebinFactor_), "Rebin by this factor before plotting (does not affect fitting!)")
         ("signalPdfNames",     	boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ,)")
         ("backgroundPdfNames", 	boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
-        ("saveNormalizations",  "Save post-fit normalizations of all components of the pdfs")
-        ("savePredictionsPerToy",  "Save post-fit normalizations of all components of the pdfs")
+        ("saveNormalizations",  "Save post-fit normalizations RooArgSet (single toy only)")
+        ("savePredictionsPerToy",  "Save post-fit normalizations and shapes per toy")
         ("oldNormNames",  	"Name the normalizations as in the workspace, and not as channel/process")
         ("saveShapes",  	"Save pre and post-fit distributions as TH1 in fitDiagnostics.root")
         ("saveWithUncertainties",  "Save also pre/post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
@@ -165,22 +165,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
     const RooArgSet *globalObs = mc_s->GetGlobalObservables();
     if (!justFit_ && nuis && globalObs ) {
       std::auto_ptr<RooAbsPdf> nuisancePdf(utils::makeNuisancePdf(*mc_s));
-      RooCategory dummyCat("dummyCat", "");
-      RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
-      simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
-      std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
-      std::auto_ptr<RooAbsReal> nuisanceNLL(simNuisancePdf.RooAbsPdf::createNLL(*globalData, RooFit::Constrain(*nuis)));
-      RooFitResult *res_prefit = 0;
-      {
-            CloseCoutSentry sentry(verbose < 2);
-            CascadeMinimizer minim(*nuisanceNLL, CascadeMinimizer::Constrained);
-            minim.minimize();
-            minim.hesse();
-            if (minos_ == "all") minim.minos(*nuis);
-            res_prefit = minim.save();
-      }
-      if (fitOut.get() && currentToy_ < 1) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
-      if (fitOut.get() && currentToy_ < 1) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
+      w->loadSnapshot("toyGenSnapshot");
       if (saveNormalizations_) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_prefit");
@@ -202,6 +187,24 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	   setShapesFitResultTrees(snm,processNormalizationsShapes_);
 	   delete norms;
       }
+      w->loadSnapshot("clean");
+      RooCategory dummyCat("dummyCat", "");
+      RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
+      simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
+      std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
+      std::auto_ptr<RooAbsReal> nuisanceNLL(simNuisancePdf.RooAbsPdf::createNLL(*globalData, RooFit::Constrain(*nuis)));
+      RooFitResult *res_prefit = 0;
+       // Fit to nuisance pdf to get fitRes for sampling
+      {
+            CloseCoutSentry sentry(verbose < 2);
+            CascadeMinimizer minim(*nuisanceNLL, CascadeMinimizer::Constrained);
+            minim.minimize();
+            minim.hesse();
+            if (minos_ == "all") minim.minos(*nuis);
+            res_prefit = minim.save();
+      }
+      if (fitOut.get() && currentToy_ < 1) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
+      if (fitOut.get() && currentToy_ < 1) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
 
       nuisancePdf.reset();
       globalData.reset();

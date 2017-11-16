@@ -967,7 +967,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
+      if (!toysFrequentist_) w->saveSnapshot("toyGenSnapshot",w->allVars());
       w->loadSnapshot("clean");
+      if (toysFrequentist_) w->saveSnapshot("toyGenSnapshot",w->allVars());
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
 	commitPoint(0,g_quantileExpected_);//tree->Fill();
