@@ -205,6 +205,8 @@ class ShapeBuilder(ModelBuilder):
     def doCombination(self):
         ## Contrary to Number-counting models, here each channel PDF already contains the nuisances
         ## So we just have to build the combined pdf
+        dupObjs = set()
+        dupNames = set()
         if len(self.DC.bins) > 1 or not self.options.forceNonSimPdf:
             if self.options.doMasks:
                 maskList = ROOT.RooArgList()
@@ -214,6 +216,7 @@ class ShapeBuilder(ModelBuilder):
                 simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat) if self.options.noOptimizePdf else ROOT.RooSimultaneousOpt("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
                     pdfi = self.getObj("pdf_bin%s%s" % (b,postfixIn))
+                    self.RenameDupObjs(dupObjs, dupNames, pdfi, b)
                     simPdf.addPdf(pdfi, b)
                 if (not self.options.noOptimizePdf) and self.options.doMasks:
                     simPdf.addChannelMasks(maskList)
@@ -235,6 +238,21 @@ class ShapeBuilder(ModelBuilder):
                 if arg == None: break;
                 if arg.InheritsFrom("RooRealVar") and arg.GetName() != "r": 
                     arg.setConstant(True);
+
+    def RenameDupObjs(self, dupObjs, dupNames, newObj, postFix):
+        print 'Checking for duplicates in %s' % newObj.GetName()
+        branchNodes = ROOT.RooArgList()
+        newObj.branchNodeServerList(branchNodes)
+        # branchNodes.Print('v')
+        for i in xrange(1, branchNodes.getSize()):
+            arg = branchNodes.at(i)
+            if arg.GetName() in dupNames and arg not in dupObjs:
+                print 'Object %s is duplicated' % arg.GetName()
+                arg.SetName(arg.GetName() + '_%s' % postFix)
+            # if arg.GetName() in dupNames and arg in dupObjs:
+                # print 'Objected %s is repeated' % arg.GetName()
+            dupObjs.add(arg)
+            dupNames.add(arg.GetName())
     ## --------------------------------------
     ## -------- High level helpers ----------
     ## --------------------------------------
