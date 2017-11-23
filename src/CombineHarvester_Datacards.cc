@@ -57,6 +57,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
     std::string const& channel,
     int bin_id,
     std::string const& mass) {
+  TH1::AddDirectory(kFALSE);
   // Load the entire datacard into memory as a vector of strings
   std::vector<std::string> lines = ch::ParseFileLines(filename);
   // Loop through lines, trimming whitespace at the beginning or end
