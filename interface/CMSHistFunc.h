@@ -182,6 +182,9 @@ class CMSHistFunc : public RooAbsReal {
 
   double vsmooth_par_;
 
+  mutable bool fast_vertical_; //! not to be serialized
+  mutable std::vector<double> vertical_prev_vals_; //! not to be serialized
+
  private:
   void initialize() const;
   void setGlobalCache() const;

@@ -323,6 +323,11 @@ namespace {
             out[i] += x*(diff[i] + y*sum[i]);
         }
     }
+    void diffmeld(FastTemplate::T * __restrict__ out, unsigned int n, FastTemplate::T  const * __restrict__ diff, FastTemplate::T  const * __restrict__ sum, FastTemplate::T xNew, FastTemplate::T yNew, FastTemplate::T xOld, FastTemplate::T yOld) {
+        for (unsigned int i = 0; i < n; ++i) {
+            out[i] += (xNew - xOld)*diff[i] + (xNew*yNew - xOld*yOld)*sum[i];
+        }
+    }
 }
 
 void FastTemplate::Subtract(const FastTemplate & ref) {
@@ -338,6 +343,10 @@ void FastTemplate::SumDiff(const FastTemplate & h1, const FastTemplate & h2,
 
 void FastTemplate::Meld(const FastTemplate & diff, const FastTemplate & sum, T x, T y) {
     meld(&values_[0], size_, &diff[0], &sum[0], x, y);
+}
+
+void FastTemplate::DiffMeld(const FastTemplate & diff, const FastTemplate & sum, T xNew, T yNew, T xOld, T yOld) {
+    diffmeld(&values_[0], size_, &diff[0], &sum[0], xNew, yNew, xOld, yOld);
 }
 
 void FastTemplate::Log() {
