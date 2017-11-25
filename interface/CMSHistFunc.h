@@ -184,6 +184,7 @@ class CMSHistFunc : public RooAbsReal {
 
   mutable bool fast_vertical_; //! not to be serialized
   mutable std::vector<double> vertical_prev_vals_; //! not to be serialized
+  mutable std::vector<RooAbsReal*> vmorphs_vec_; //! not to be serialized
 
  private:
   void initialize() const;

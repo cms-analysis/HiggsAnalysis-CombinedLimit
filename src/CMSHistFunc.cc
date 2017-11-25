@@ -1,6 +1,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Accumulators.h"
+
 #include <vector>
 #include <ostream>
 #include <memory>
@@ -130,6 +131,10 @@ void CMSHistFunc::initialize() const {
   vmorph_sentry_.addVars(vmorphs_);
   hmorph_sentry_.setValueDirty();
   vmorph_sentry_.setValueDirty();
+  vmorphs_vec_.resize(vmorphs_.getSize());
+  for (int i = 0; i < vmorphs_.getSize(); ++i) {
+    vmorphs_vec_[i] = (RooAbsReal*)(&vmorphs_[i]);
+  }
 
   setGlobalCache();
 
@@ -544,11 +549,11 @@ void CMSHistFunc::updateCache() const {
 #endif
 
       for (int v = 0; v < vmorphs_.getSize(); ++v) {
-        double x = ((RooRealVar&)vmorphs_[v]).getVal();
+        double x = vmorphs_vec_[v]->getVal();
         // if we're in fast_vertical then need to check if this vmorph value has changed.
         // if it hasn't then we skip immediately. Where do we store the previous values?
         // Globally in the HistFunc, or per cache?
-        if (fast_vertical_ && (x != vertical_prev_vals_[v])) continue;
+        if (fast_vertical_ && (x == vertical_prev_vals_[v])) continue;
 
         unsigned vidx = getIdx(0, global_.p1, v+1, 0);
 
