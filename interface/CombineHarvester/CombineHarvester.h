@@ -500,10 +500,10 @@ class CombineHarvester {
 
   RooAbsData const* FindMatchingData(Process const* proc);
 
-  ch::Parameter * SetupRateParamVar(std::string const& name, double val);
+  ch::Parameter * SetupRateParamVar(std::string const& name, double val, bool is_ext_arg = false);
   void SetupRateParamFunc(std::string const& name, std::string const& formula,
                           std::string const& pars);
-
+  void SetupRateParamWspObj(std::string const& name, std::string const& obj, bool is_ext_arg = false);
   // ---------------------------------------------------------------
   // Private methods for the shape writing routines
   // ---------------------------------------------------------------

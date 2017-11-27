@@ -759,7 +759,7 @@ RooAbsData const* CombineHarvester::FindMatchingData(Process const* proc) {
 }
 
 ch::Parameter* CombineHarvester::SetupRateParamVar(std::string const& name,
-                                                   double val) {
+                                                   double val, bool is_ext_arg) {
   RooWorkspace *ws = nullptr;
   if (!wspaces_.count("_rateParams")) {
     ws = this->SetupWorkspace(RooWorkspace("_rateParams","_rateParams")).get();
@@ -780,6 +780,7 @@ ch::Parameter* CombineHarvester::SetupRateParamVar(std::string const& name,
     FNLOGC(log(), verbosity_ > 1)
         << "Reusing existing RooRealVar for rateParam: " << name << "\n";
   }
+  if (is_ext_arg) var->setAttribute("extArg");
   Parameter * param = nullptr;
   if (!params_.count(name)) {
     params_[name] = std::make_shared<Parameter>(Parameter());
@@ -830,5 +831,18 @@ void CombineHarvester::SetupRateParamFunc(std::string const& name,
         << "Created new RooFormulaVar for rateParam: " << name << "\n";
     if (verbosity_ > 1) form->Print();
   }
+}
+
+void CombineHarvester::SetupRateParamWspObj(std::string const& name,
+                                          std::string const& obj, bool is_ext_arg) {
+  RooWorkspace *ws = nullptr;
+  if (!wspaces_.count("_rateParams")) {
+    ws = this->SetupWorkspace(RooWorkspace("_rateParams","_rateParams")).get();
+  } else {
+    ws = wspaces_.at("_rateParams").get();
+  }
+  ws->import((obj+":"+name).c_str(), RooFit::RecycleConflictNodes());
+  ws->arg(name.c_str())->setStringAttribute("wspSource", obj.c_str());
+  if (is_ext_arg) ws->arg(name.c_str())->setAttribute("extArg");
 }
 }
