@@ -23,6 +23,7 @@ class ShapeBuilder(ModelBuilder):
                 ROOT.gSystem.Load(lib)
     	self.wspnames = {}
     	self.wsp = None
+    	self.extraImports = []
 	self.norm_rename_map = {}
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
@@ -81,9 +82,6 @@ class ShapeBuilder(ModelBuilder):
                     	else:
                     		prodset.add(self.getObj(X))
                     coeff = self.addObj(ROOT.RooProduct, "n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
-                if channelBinParFlag:  # It's better if the CMSHistFunc objects are in the workspace already
-                    self.out._import(pdf)
-                    pdf = self.out.arg(pdf.GetName())
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
@@ -193,12 +191,12 @@ class ShapeBuilder(ModelBuilder):
                     if i > 0: stderr.write("\b\b\b\b\b");
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
-            if channelBinParFlag:
+            if channelBinParFlag and not self.options.noBOnly:
                 for idx in xrange(pdfs.getSize()):
                     wrapper = ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx)
                     wrapper.setStringAttribute("combine.process", pdfs.at(idx).getStringAttribute("combine.process"))
                     wrapper.setStringAttribute("combine.channel", pdfs.at(idx).getStringAttribute("combine.channel"))
-                    self.out._import(wrapper, ROOT.RooFit.RecycleConflictNodes())
+                    self.extraImports.append(wrapper)
 
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
@@ -230,6 +228,9 @@ class ShapeBuilder(ModelBuilder):
             self.out._import(self.getObj("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
             if not self.options.noBOnly: 
                 self.out._import(self.getObj("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
+        for arg in self.extraImports:
+            #print 'Importing extra arg: %s' % arg.GetName()
+            self.out._import(arg, ROOT.RooFit.RecycleConflictNodes())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
             iter = pars.createIterator()
