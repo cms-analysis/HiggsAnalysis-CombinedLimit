@@ -541,10 +541,10 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
 	// can do a more intellegent spacing of points
 	double xbestpoint = (p0[0] - pmin[0]) / ((pmax[0]-pmin[0])/points_) ;
 	if ( lastPoint_ == std::numeric_limits<unsigned int>::max()) lastPoint_ = points_-1;
-        for (unsigned int i = 0; i < points_; ++i) {
+        for (unsigned int i = 0; i <= points_; ++i) {
             if (i < firstPoint_) continue;
             if (i > lastPoint_)  break;
-            double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/points_; 
+            double x =  pmin[0] + (i)*(pmax[0]-pmin[0])/points_; 
 	    if( xbestpoint > lastPoint_ ){
 		int ireverse = lastPoint_ - i + firstPoint_ ;
 		x = pmin[0] + (ireverse+0.5)*(pmax[0]-pmin[0])/points_; 
@@ -601,13 +601,13 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
         CloseCoutSentry sentry(verbose < 2);
         double deltaX =  (pmax[0]-pmin[0])/sqrn, deltaY = (pmax[1]-pmin[1])/sqrn;
-        for (unsigned int i = 0; i < sqrn; ++i) {
-            for (unsigned int j = 0; j < sqrn; ++j, ++ipoint) {
+        for (unsigned int i = 0; i <= sqrn; ++i) {
+            for (unsigned int j = 0; j <= sqrn; ++j, ++ipoint) {
                 if (ipoint < firstPoint_) continue;
                 if (ipoint > lastPoint_)  break;
                 *params = snap; 
-                double x =  pmin[0] + (i+0.5)*deltaX; 
-                double y =  pmin[1] + (j+0.5)*deltaY; 
+                double x =  pmin[0] + (i)*deltaX; 
+                double y =  pmin[1] + (j)*deltaY; 
                 if (verbose && (ipoint % nprint == 0)) {
                          fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
                                         ipoint,sqrn*sqrn, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);

@@ -1,4 +1,4 @@
-from sys import stdout, stderr
+from sys import stdout, stderr, getsizeof
 import os.path
 import ROOT
 from math import *
@@ -205,14 +205,18 @@ class ShapeBuilder(ModelBuilder):
             for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
                 simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat) if self.options.noOptimizePdf else ROOT.RooSimultaneousOpt("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
+                    print "test1",b
                     pdfi = self.out.pdf("pdf_bin%s%s" % (b,postfixIn))
                     simPdf.addPdf(pdfi, b)
                 if (not self.options.noOptimizePdf) and self.options.doMasks:
+                    print "test2"
                     simPdf.addChannelMasks(maskList)
                 if len(self.DC.systs) and (not self.options.noOptimizePdf) and self.options.moreOptimizeSimPdf == "cms":
+                    print "test3"
                     simPdf.addExtraConstraints(self.out.nuisPdfs)
                 if self.options.verbose:
                     stderr.write("Importing combined pdf %s\n" % simPdf.GetName()); stderr.flush()
+                print "size of simPdf",getsizeof(simPdf)
                 self.out._import(simPdf)
                 if self.options.noBOnly: break
         else:
@@ -633,8 +637,8 @@ class ShapeBuilder(ModelBuilder):
                     kappaUp,kappaDown = shapeUp.Integral(),shapeDown.Integral()
                 elif shapeNominal.InheritsFrom("RooDataHist"):
                     kappaUp,kappaDown = shapeUp.sumEntries(),shapeDown.sumEntries()
-                if not kappaUp > 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Up" % (kappaUp, channel,process,syst)
-                if not kappaDown > 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Down" % (kappaDown, channel,process,syst)
+                if not kappaUp >= 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Up" % (kappaUp, channel,process,syst)
+                if not kappaDown >= 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Down" % (kappaDown, channel,process,syst)
                 kappaUp /=normNominal; kappaDown /= normNominal
                 if abs(kappaUp-1) < 1e-3 and abs(kappaDown-1) < 1e-3: continue
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow

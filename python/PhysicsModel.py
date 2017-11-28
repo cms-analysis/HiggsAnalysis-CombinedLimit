@@ -165,6 +165,7 @@ def getHiggsProdDecMode(bin,process,options):
         foundEnergy = '13TeV' ## To ensure 13 TeV combination works
         print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
     #
+    if (processSource=="WPlusH" or processSource=="WMinusH"): processSource = "WH" # treat them the same for now
     return (processSource, foundDecay, foundEnergy)
 
 
@@ -173,7 +174,9 @@ class SMLikeHiggsModel(PhysicsModel):
             raise RuntimeError, "Not implemented"
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
-        if process=="ggH_hww125": return self.getHiggsSignalYieldScale('ggH', 'hww', '13TeV') # hww process in the htt datacard is a background and has an illegal postfix
+        if process=="ggH_hzz": return self.getHiggsSignalYieldScale('ggH', 'hzz', '13TeV') # hzz process in the hww datacard is a background
+        if process=="ggH_hww125": return self.getHiggsSignalYieldScale('ggH', 'hww', '13TeV') # hww process in the htt datacard is a background
+        if process=="qqH_hww125": return self.getHiggsSignalYieldScale('qqH', 'hww', '13TeV') # hww process in the htt datacard is a background
         if process=="H_htt": return self.getHiggsSignalYieldScale('ggH', 'htt', '13TeV') # hack to make combination work, since WW datacrd has an improper naming 
         if not self.DC.isSignal[process]: return 1
         (processSource, foundDecay, foundEnergy) = getHiggsProdDecMode(bin,process,self.options)

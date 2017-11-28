@@ -781,11 +781,12 @@ class KappaVKappaT(LHCHCGBaseModel):
         return name
 
 class LambdasReduced(LHCHCGBaseModel):
-    def __init__(self,BRU=True,model="",addInvisible=False):
+    def __init__(self,BRU=True,model="",addInvisible=False,flipped=False):
         LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.doBRU = BRU
         self.model = model
         self.addInvisible = addInvisible
+        self.flipped = flipped
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
@@ -872,10 +873,17 @@ class LambdasReduced(LHCHCGBaseModel):
         if self.doBRU:
             self.SMH.makePartialWidthUncertainties()
 
-        self.modelBuilder.factory_("expr::C_b(\"@0*@1\",lambda_du,lambda_FV)");
-        self.modelBuilder.factory_("expr::C_top(\"@0\",lambda_FV)");
-        self.modelBuilder.factory_("expr::C_tau(\"@0*@1*@2\",lambda_lq,lambda_du, lambda_FV)");
-        self.modelBuilder.factory_("expr::C_V(\"@0*@1\",lambda_Vq,lambda_Vu)");
+        if (self.flipped):
+            self.modelBuilder.factory_("expr::C_b(\"@0\",lambda_FV)");
+            self.modelBuilder.factory_("expr::C_top(\"@0*@1\",lambda_du,lambda_FV)");
+            self.modelBuilder.factory_("expr::C_tau(\"@0*@1*@2\",lambda_lq,lambda_du,lambda_FV)");
+            self.modelBuilder.factory_("expr::C_V(\"@0*@1\",lambda_Vq,lambda_Vu)");
+        else:
+            self.modelBuilder.factory_("expr::C_b(\"@0*@1\",lambda_du,lambda_FV)");
+            self.modelBuilder.factory_("expr::C_top(\"@0\",lambda_FV)");
+            self.modelBuilder.factory_("expr::C_tau(\"@0*@1*@2\",lambda_lq,lambda_du, lambda_FV)");
+            self.modelBuilder.factory_("expr::C_V(\"@0*@1\",lambda_Vq,lambda_Vu)");
+
         self.SMH.makeScaling('ggH', Cb='C_b', Ctop='C_top', Cc="C_top")
         self.SMH.makeScaling("tHq", CW='C_V', Ctop="C_top")
         self.SMH.makeScaling("tHW", CW='C_V', Ctop="C_top")
@@ -892,8 +900,13 @@ class LambdasReduced(LHCHCGBaseModel):
                 self.modelBuilder.factory_("expr::PW_XSscal_%s_%s(\"@0*@1*@1*@2*@2*@3*@3\",Scaling_%s_%s,kappa_qq, kappa_uu, kappa_VV)"%(P,E,P,E))
             for P in "qqH", "WH", "ZH":
                 self.modelBuilder.factory_("expr::PW_XSscal_%s_%s(\"@0*@0*@1*@1*@2*@2*@3*@3*@4*@4\", kappa_qq, lambda_Vq, kappa_uu, lambda_Vu, kappa_VV)" % (P,E))
-            self.modelBuilder.factory_("expr::PW_XSscal_ttH_%s(\"@0*@0*@1*@1*@2*@2*@3*@3\",kappa_qq,kappa_uu,kappa_VV,lambda_FV)" % E)
-            self.modelBuilder.factory_("expr::PW_XSscal_bbH_%s(\"@0*@0*@1*@1*@2*@2*@3*@3*@4*@4\",kappa_qq,kappa_uu,lambda_du,kappa_VV,lambda_FV)" % E)
+            if (self.flipped):
+                self.modelBuilder.factory_("expr::PW_XSscal_bbH_%s(\"@0*@0*@1*@1*@2*@2*@3*@3\",kappa_qq,kappa_uu,kappa_VV,lambda_FV)" % E)
+                self.modelBuilder.factory_("expr::PW_XSscal_ttH_%s(\"@0*@0*@1*@1*@2*@2*@3*@3*@4*@4\",kappa_qq,kappa_uu,lambda_du,kappa_VV,lambda_FV)" % E)
+            else:
+                self.modelBuilder.factory_("expr::PW_XSscal_ttH_%s(\"@0*@0*@1*@1*@2*@2*@3*@3\",kappa_qq,kappa_uu,kappa_VV,lambda_FV)" % E)
+                self.modelBuilder.factory_("expr::PW_XSscal_bbH_%s(\"@0*@0*@1*@1*@2*@2*@3*@3*@4*@4\",kappa_qq,kappa_uu,lambda_du,kappa_VV,lambda_FV)" % E)
+
         self.decayMap_ = {
             'hww' : 'C_V',
             'hzz' : 'C_V',
@@ -1126,6 +1139,7 @@ K3 = KappaVKappaF(floatbrinv=False)
 K3Inv = KappaVKappaF(floatbrinv=True)
 L1 = Lambdas()
 L2 = LambdasReduced()
+L2flipped = LambdasReduced(flipped=True)
 D1 = CommonMatrixModel()
 
 K4 = KappaVKappaT(resolved=True)

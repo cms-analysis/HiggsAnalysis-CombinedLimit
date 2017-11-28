@@ -633,6 +633,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           for (int k=0; k<(int)nuisToFreeze.size(); k++) {
               std::cout<<nuisToFreeze[k]<<endl;
               if (nuisToFreeze[k]=="") continue;
+              if (!w->fundArg(nuisToFreeze[k].c_str())) {
+                  std::cout<<"WARNING: cannot freeze nuisance parameter "<<nuisToFreeze[k].c_str()<<" if it doesn't exist!"<<std::endl;
+                  continue;
+              }
               const RooAbsArg *arg = (RooAbsArg*)w->fundArg(nuisToFreeze[k].c_str());              
               toFreeze.add(*arg);
           }
