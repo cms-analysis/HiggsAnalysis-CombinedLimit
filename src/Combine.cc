@@ -134,7 +134,7 @@ Combine::Combine() :
       ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
       ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(false), "Make all nuisance parameters floating")
-      ("floatNuisances", po::value<string>(&floatNuisances_)->default_value(""), "Set to floating these nuisance parameters (note freeze will take priority over float)")
+      ("floatParameters", po::value<string>(&floatNuisances_)->default_value(""), "Set to floating these parameters (note freeze will take priority over float)")
       ("freezeAllGlobalObs", po::value<bool>(&freezeAllGlobalObs_)->default_value(true), "Make all global observables constant")
       ;
     miscOptions_.add_options()
@@ -232,19 +232,6 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
   return ret;
 }
 
-namespace { 
-    struct ToCleanUp {
-        TFile *tfile; std::string file, path;
-        ToCleanUp() : tfile(0), file(""), path("") {}
-        ~ToCleanUp() {
-            if (tfile) { tfile->Close(); delete tfile; }
-            if (!file.empty()) {  
-                if (unlink(file.c_str()) == -1) std::cerr << "Failed to delete temporary file " << file << ": " << strerror(errno) << std::endl;
-            }
-            if (!path.empty()) {  boost::filesystem::remove_all(path); }
-        }
-    };
-}
 void Combine::run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys) {
   ToCleanUp garbageCollect; // use this to close and delete temporary files
 
@@ -578,7 +565,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (floatNuisances_ != "") {
       RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
-      if (verbose > 0) std::cout << "Set floating the following nuisance parameters: "; toFloat.Print("");
+      if (verbose > 0) std::cout << "Set floating the following parameters: "; toFloat.Print("");
       utils::setAllConstant(toFloat, false);
   }
   
