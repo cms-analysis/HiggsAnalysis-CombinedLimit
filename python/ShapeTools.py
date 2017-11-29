@@ -76,17 +76,6 @@ class ShapeBuilder(ModelBuilder):
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
                     prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
-<<<<<<< HEAD
-                    for X in extranorm: prodset.add(self.out.function(X))
-                    prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
-                    self.out._import(prodfunc)
-                    prodset.Delete()
-                    prodfunc.Delete()
-                    coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))                    
-                if channelBinParFlag:  # It's better if the CMSHistFunc objects are in the workspace already
-                    self.out._import(pdf)
-                    pdf = self.out.arg(pdf.GetName())
-=======
                     for X in extranorm:
                     	# X might already be in the workspace (e.g. _norm term)...
                     	if self.out.function(X):
@@ -95,7 +84,6 @@ class ShapeBuilder(ModelBuilder):
                     	else:
                     		prodset.add(self.getObj(X))
                     coeff = self.addObj(ROOT.RooProduct, "n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
->>>>>>> andrew/81x-t2w-optimisation
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
@@ -200,44 +188,17 @@ class ShapeBuilder(ModelBuilder):
                     if i > 0: stderr.write("\b\b\b\b\b");
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
-<<<<<<< HEAD
-                self.out._import(pdf_s, ROOT.RooFit.RenameConflictNodes(b))
-                pdf_s.Delete()
-                if not self.options.noBOnly:
-                    self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
-                    sumPlusNuis_b.Delete()
-                    pdf_b.Delete()
-=======
->>>>>>> andrew/81x-t2w-optimisation
             else:
                 if self.options.verbose:
                     if i > 0: stderr.write("\b\b\b\b\b");
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
-<<<<<<< HEAD
-                self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
-                sum_s.Delete()
-                if not self.options.noBOnly:
-                    self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
-                    sum_b.Delete()
-            if channelBinParFlag:
-=======
             if channelBinParFlag and not self.options.noBOnly:
->>>>>>> andrew/81x-t2w-optimisation
                 for idx in xrange(pdfs.getSize()):
                     wrapper = ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx)
                     wrapper.setStringAttribute("combine.process", pdfs.at(idx).getStringAttribute("combine.process"))
                     wrapper.setStringAttribute("combine.channel", pdfs.at(idx).getStringAttribute("combine.channel"))
-<<<<<<< HEAD
-                    self.out._import(wrapper, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())                    
-                    wrapper.Delete()
-                prop.Delete()
-
-            pdfs.Delete(); bgpdfs.Delete(); coeffs.Delete(); bgcoeffs.Delete();
-            binconstraints.Delete();
-=======
                     self.extraImports.append(wrapper)
->>>>>>> andrew/81x-t2w-optimisation
 
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
@@ -254,30 +215,16 @@ class ShapeBuilder(ModelBuilder):
             for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
                 simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat) if self.options.noOptimizePdf else ROOT.RooSimultaneousOpt("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
-<<<<<<< HEAD
-                    print "test1",b
-                    pdfi = self.out.pdf("pdf_bin%s%s" % (b,postfixIn))
-=======
                     pdfi = self.getObj("pdf_bin%s%s" % (b,postfixIn))
                     self.RenameDupObjs(dupObjs, dupNames, pdfi, b)
->>>>>>> andrew/81x-t2w-optimisation
                     simPdf.addPdf(pdfi, b)
                 if (not self.options.noOptimizePdf) and self.options.doMasks:
-                    print "test2"
                     simPdf.addChannelMasks(maskList)
                 if len(self.DC.systs) and (not self.options.noOptimizePdf) and self.options.moreOptimizeSimPdf == "cms":
-                    print "test3"
                     simPdf.addExtraConstraints(self.out.nuisPdfs)
                 if self.options.verbose:
                     stderr.write("Importing combined pdf %s\n" % simPdf.GetName()); stderr.flush()
-<<<<<<< HEAD
-                print "size of simPdf",getsizeof(simPdf)
-                self.out._import(simPdf)
-                simPdf.Delete()
-                maskList.Delete()
-=======
                 self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes())
->>>>>>> andrew/81x-t2w-optimisation
                 if self.options.noBOnly: break
         else:
             self.out._import(self.getObj("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
