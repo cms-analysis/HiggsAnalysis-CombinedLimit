@@ -2,6 +2,8 @@ from sys import stdout, stderr, getsizeof
 import os.path
 import ROOT
 from math import *
+#from guppy import hpy
+#hp = hpy()
 
 RooArgSet_add_original = ROOT.RooArgSet.add
 def RooArgSet_add_patched(self, obj, *args, **kwargs):
@@ -76,6 +78,8 @@ class ShapeBuilder(ModelBuilder):
                     for X in extranorm: prodset.add(self.out.function(X))
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                     self.out._import(prodfunc)
+                    prodset.Delete()
+                    prodfunc.Delete()
                     coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))                    
                 if channelBinParFlag:  # It's better if the CMSHistFunc objects are in the workspace already
                     self.out._import(pdf)
@@ -175,22 +179,32 @@ class ShapeBuilder(ModelBuilder):
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
                 self.out._import(pdf_s, ROOT.RooFit.RenameConflictNodes(b))
+                pdf_s.Delete()
                 if not self.options.noBOnly:
                     self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+                    sumPlusNuis_b.Delete()
+                    pdf_b.Delete()
             else:
                 if self.options.verbose:
                     if i > 0: stderr.write("\b\b\b\b\b");
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
                 self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
+                sum_s.Delete()
                 if not self.options.noBOnly:
                     self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+                    sum_b.Delete()
             if channelBinParFlag:
                 for idx in xrange(pdfs.getSize()):
                     wrapper = ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx)
                     wrapper.setStringAttribute("combine.process", pdfs.at(idx).getStringAttribute("combine.process"))
                     wrapper.setStringAttribute("combine.channel", pdfs.at(idx).getStringAttribute("combine.channel"))
-                    self.out._import(wrapper, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+                    self.out._import(wrapper, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())                    
+                    wrapper.Delete()
+                prop.Delete()
+
+            pdfs.Delete(); bgpdfs.Delete(); coeffs.Delete(); bgcoeffs.Delete();
+            binconstraints.Delete();
 
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
@@ -218,6 +232,8 @@ class ShapeBuilder(ModelBuilder):
                     stderr.write("Importing combined pdf %s\n" % simPdf.GetName()); stderr.flush()
                 print "size of simPdf",getsizeof(simPdf)
                 self.out._import(simPdf)
+                simPdf.Delete()
+                maskList.Delete()
                 if self.options.noBOnly: break
         else:
             self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
@@ -341,17 +357,20 @@ class ShapeBuilder(ModelBuilder):
         if len(self.DC.bins) == 1 and self.options.forceNonSimPdf:
             data = self.getData(self.DC.bins[0],self.options.dataname).Clone(self.options.dataname)
             self.out._import(data)
+            data.Delete()
             return
         if self.out.mode == "binned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
             for b in self.DC.bins: combiner.addSetBin(b, self.getData(b,self.options.dataname))
             self.out.data_obs = combiner.done(self.options.dataname,self.options.dataname)
             self.out._import(self.out.data_obs)
+            combiner.Delete()
         elif self.out.mode == "unbinned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
             for b in self.DC.bins: combiner.addSetAny(b, self.getData(b,self.options.dataname))
             self.out.data_obs = combiner.doneUnbinned(self.options.dataname,self.options.dataname)
             self.out._import(self.out.data_obs)
+            combiner.Delete()
         else: raise RuntimeException, "Only combined datasets are supported"
         #print "Created combined dataset with ",self.out.data_obs.numEntries()," entries, out of:"
         #for b in self.DC.bins: print "  bin", b, ": entries = ", self.getData(b,self.options.dataname).numEntries()
@@ -393,6 +412,7 @@ class ShapeBuilder(ModelBuilder):
             trueFName = finalNames[0]
             if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self.options.baseDir+"/"+trueFName):
                 trueFName = self.options.baseDir+"/"+trueFName;
+            print "OPENING FILE",trueFName
             _fileCache[finalNames[0]] = ROOT.TFile.Open(trueFName)
         file = _fileCache[finalNames[0]]; objname = finalNames[1]
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])
@@ -526,10 +546,13 @@ class ShapeBuilder(ModelBuilder):
         if self.options.useHistPdf != "always":
             if nominalPdf.InheritsFrom("TH1"):
                 rebins = ROOT.TList()
+                rebinsList = []
                 maxbins = 0
                 for i in xrange(pdfs.GetSize()):
                     rebinned = self.rebinH1(pdfs.At(i))
                     rebins.Add(rebinned)
+                    ROOT.SetOwnership(rebinned, True)
+                    rebinsList.append(rebinned)
                     maxbins = max(maxbins, rebinned._original_bins)
                 if channelBinParFlag:
                     rhp = ROOT.CMSHistFunc("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins[0])
@@ -705,6 +728,8 @@ class ShapeBuilder(ModelBuilder):
                     else:
                         rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
                     _cache[shape.GetName()+"Pdf"] = rhp
+                    list.Delete()
+                    rhp.Delete()
                 else:
                     rdh = self.shape2Data(shape,channel,process)
                     rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", ROOT.RooArgSet(self.out.binVar), rdh)
