@@ -25,6 +25,7 @@ class ShapeBuilder(ModelBuilder):
                 ROOT.gSystem.Load(lib)
     	self.wspnames = {}
     	self.wsp = None
+    	self.extraImports = []
 	self.norm_rename_map = {}
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
@@ -75,6 +76,7 @@ class ShapeBuilder(ModelBuilder):
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
                     prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
+<<<<<<< HEAD
                     for X in extranorm: prodset.add(self.out.function(X))
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                     self.out._import(prodfunc)
@@ -84,6 +86,16 @@ class ShapeBuilder(ModelBuilder):
                 if channelBinParFlag:  # It's better if the CMSHistFunc objects are in the workspace already
                     self.out._import(pdf)
                     pdf = self.out.arg(pdf.GetName())
+=======
+                    for X in extranorm:
+                    	# X might already be in the workspace (e.g. _norm term)...
+                    	if self.out.function(X):
+                    		prodset.add(self.out.function(X))
+                    	# ... but usually it's only in our object store (e.g. AsymPow for shape systs)
+                    	else:
+                    		prodset.add(self.getObj(X))
+                    coeff = self.addObj(ROOT.RooProduct, "n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
+>>>>>>> andrew/81x-t2w-optimisation
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
@@ -99,7 +111,7 @@ class ShapeBuilder(ModelBuilder):
                     sigcoeffs.append(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
             if channelBinParFlag: 
-                prop = ROOT.CMSHistErrorPropagator("prop_bin%s" % b, "", pdfs.at(0).getXVar(), pdfs, coeffs)
+                prop = self.addObj(ROOT.CMSHistErrorPropagator, "prop_bin%s" % b, "", pdfs.at(0).getXVar(), pdfs, coeffs)
                 prop.setAttribute('CachingPdf_Direct', True)
                 if self.DC.binParFlags[b][0] >= 0.:
                     bbb_args = prop.setupBinPars(self.DC.binParFlags[b][0])
@@ -132,7 +144,7 @@ class ShapeBuilder(ModelBuilder):
                         self.extraGlobalObservables.append(self.out.var("%s_In" % n))
                 if not self.out.var('ONE'):
                     self.doVar('ONE[1.0]')
-                sum_s = ROOT.RooRealSumPdf("pdf_bin%s"       % b,  "", ROOT.RooArgList(prop),   ROOT.RooArgList(self.out.var('ONE')), True)
+                sum_s = self.addObj(ROOT.RooRealSumPdf, "pdf_bin%s"       % b,  "", ROOT.RooArgList(prop),   ROOT.RooArgList(self.out.var('ONE')), True)
                 if not self.options.noBOnly:
                     if not self.out.var('ZERO'):
                         self.doVar('ZERO[0.0]')
@@ -142,10 +154,11 @@ class ShapeBuilder(ModelBuilder):
                     prop_b = customizer.build(True)
                     if len(sigcoeffs):
                         prop_b.SetName("prop_bin%s_bonly" % b)
-                    sum_b = ROOT.RooRealSumPdf("pdf_bin%s_bonly"       % b,  "", ROOT.RooArgList(prop_b),   ROOT.RooArgList(self.out.var('ONE')), True)
+                    self.objstore[prop_b.GetName()] = prop_b
+                    sum_b = self.addObj(ROOT.RooRealSumPdf, "pdf_bin%s_bonly"       % b,  "", ROOT.RooArgList(prop_b),   ROOT.RooArgList(self.out.var('ONE')), True)
             else:
-                sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
-                if not self.options.noBOnly: sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
+                sum_s = self.addObj(ROOT.RooAddPdf,"pdf_bin%s"       % b,  "",  pdfs,   coeffs)
+                if not self.options.noBOnly: sum_b = self.addObj(ROOT.RooAddPdf, "pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             sum_s.setAttribute("MAIN_MEASUREMENT") # useful for plain ROOFIT optimization on ATLAS side
             if b in self.pdfModes: 
                 sum_s.setAttribute('forceGen'+self.pdfModes[b].title())
@@ -156,21 +169,30 @@ class ShapeBuilder(ModelBuilder):
             elif  self.options.moreOptimizeSimPdf == "cms":
                 if self.options.noOptimizePdf: raise RuntimeError, "--optimize-simpdf-constraints=cms is incompatible with --no-optimize-pdfs"
                 addSyst = False
-            if len(self.DC.systs) and addSyst:
+            if (len(self.DC.systs) or binconstraints.getSize()) and addSyst:
                 ## rename the pdfs
-                sum_s.SetName("pdf_bin%s_nuis" % b); 
-                if not self.options.noBOnly: sum_b.SetName("pdf_bin%s_bonly_nuis" % b)
+                self.renameObj("pdf_bin%s" % b, "pdf_bin%s_nuis" % b)
+                if not self.options.noBOnly:
+                	self.renameObj("pdf_bin%s_bonly" % b, "pdf_bin%s_bonly_nuis" % b)
                 # now we multiply by all the nuisances, but avoiding nested products
                 # so we first make a list of all nuisances plus the RooAddPdf
-                sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_s.add(sum_s)
-                pdf_bins = ROOT.RooProdPdf('pdfbins_bin%s' % b, '', binconstraints)
+                if len(self.DC.systs):
+                    sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs)
+                else:
+                    sumPlusNuis_s = ROOT.RooArgList()
+                sumPlusNuis_s.add(sum_s)
+                pdf_bins = self.addObj(ROOT.RooProdPdf, 'pdfbins_bin%s' % b, "", binconstraints)
                 sumPlusNuis_s.add(pdf_bins)
                 # then make RooProdPdf and import it
-                pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s) 
+                pdf_s = self.addObj(ROOT.RooProdPdf, "pdf_bin%s"       % b, "", sumPlusNuis_s)
                 if not self.options.noBOnly:
-                    sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_b.add(sum_b)
+                    if len(self.DC.systs):
+                        sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs)
+                    else:
+                        sumPlusNuis_b = ROOT.RooArgList()
+                    sumPlusNuis_b.add(sum_b)
                     sumPlusNuis_b.add(pdf_bins)
-                    pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
+                    pdf_b = self.addObj(ROOT.RooProdPdf, "pdf_bin%s_bonly" % b, "", sumPlusNuis_b)
                 if b in self.pdfModes: 
                     pdf_s.setAttribute('forceGen'+self.pdfModes[b].title())
                     if not self.options.noBOnly: pdf_b.setAttribute('forceGen'+self.pdfModes[b].title())
@@ -178,39 +200,52 @@ class ShapeBuilder(ModelBuilder):
                     if i > 0: stderr.write("\b\b\b\b\b");
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
+<<<<<<< HEAD
                 self.out._import(pdf_s, ROOT.RooFit.RenameConflictNodes(b))
                 pdf_s.Delete()
                 if not self.options.noBOnly:
                     self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
                     sumPlusNuis_b.Delete()
                     pdf_b.Delete()
+=======
+>>>>>>> andrew/81x-t2w-optimisation
             else:
                 if self.options.verbose:
                     if i > 0: stderr.write("\b\b\b\b\b");
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
+<<<<<<< HEAD
                 self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
                 sum_s.Delete()
                 if not self.options.noBOnly:
                     self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
                     sum_b.Delete()
             if channelBinParFlag:
+=======
+            if channelBinParFlag and not self.options.noBOnly:
+>>>>>>> andrew/81x-t2w-optimisation
                 for idx in xrange(pdfs.getSize()):
                     wrapper = ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx)
                     wrapper.setStringAttribute("combine.process", pdfs.at(idx).getStringAttribute("combine.process"))
                     wrapper.setStringAttribute("combine.channel", pdfs.at(idx).getStringAttribute("combine.channel"))
+<<<<<<< HEAD
                     self.out._import(wrapper, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())                    
                     wrapper.Delete()
                 prop.Delete()
 
             pdfs.Delete(); bgpdfs.Delete(); coeffs.Delete(); bgcoeffs.Delete();
             binconstraints.Delete();
+=======
+                    self.extraImports.append(wrapper)
+>>>>>>> andrew/81x-t2w-optimisation
 
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
     def doCombination(self):
         ## Contrary to Number-counting models, here each channel PDF already contains the nuisances
         ## So we just have to build the combined pdf
+        dupObjs = set()
+        dupNames = set()
         if len(self.DC.bins) > 1 or not self.options.forceNonSimPdf:
             if self.options.doMasks:
                 maskList = ROOT.RooArgList()
@@ -219,8 +254,13 @@ class ShapeBuilder(ModelBuilder):
             for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
                 simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat) if self.options.noOptimizePdf else ROOT.RooSimultaneousOpt("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
+<<<<<<< HEAD
                     print "test1",b
                     pdfi = self.out.pdf("pdf_bin%s%s" % (b,postfixIn))
+=======
+                    pdfi = self.getObj("pdf_bin%s%s" % (b,postfixIn))
+                    self.RenameDupObjs(dupObjs, dupNames, pdfi, b)
+>>>>>>> andrew/81x-t2w-optimisation
                     simPdf.addPdf(pdfi, b)
                 if (not self.options.noOptimizePdf) and self.options.doMasks:
                     print "test2"
@@ -230,15 +270,22 @@ class ShapeBuilder(ModelBuilder):
                     simPdf.addExtraConstraints(self.out.nuisPdfs)
                 if self.options.verbose:
                     stderr.write("Importing combined pdf %s\n" % simPdf.GetName()); stderr.flush()
+<<<<<<< HEAD
                 print "size of simPdf",getsizeof(simPdf)
                 self.out._import(simPdf)
                 simPdf.Delete()
                 maskList.Delete()
+=======
+                self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes())
+>>>>>>> andrew/81x-t2w-optimisation
                 if self.options.noBOnly: break
         else:
-            self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
+            self.out._import(self.getObj("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
             if not self.options.noBOnly: 
-                self.out._import(self.out.pdf("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
+                self.out._import(self.getObj("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
+        for arg in self.extraImports:
+            #print 'Importing extra arg: %s' % arg.GetName()
+            self.out._import(arg, ROOT.RooFit.RecycleConflictNodes())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
             iter = pars.createIterator()
@@ -247,6 +294,21 @@ class ShapeBuilder(ModelBuilder):
                 if arg == None: break;
                 if arg.InheritsFrom("RooRealVar") and arg.GetName() != "r": 
                     arg.setConstant(True);
+
+    def RenameDupObjs(self, dupObjs, dupNames, newObj, postFix):
+        print 'Checking for duplicates in %s' % newObj.GetName()
+        branchNodes = ROOT.RooArgList()
+        newObj.branchNodeServerList(branchNodes)
+        # branchNodes.Print('v')
+        for i in xrange(1, branchNodes.getSize()):
+            arg = branchNodes.at(i)
+            if arg.GetName() in dupNames and arg not in dupObjs:
+                print 'Object %s is duplicated' % arg.GetName()
+                arg.SetName(arg.GetName() + '_%s' % postFix)
+            # if arg.GetName() in dupNames and arg in dupObjs:
+                # print 'Objected %s is repeated' % arg.GetName()
+            dupObjs.add(arg)
+            dupNames.add(arg.GetName())
     ## --------------------------------------
     ## -------- High level helpers ----------
     ## --------------------------------------
@@ -667,7 +729,10 @@ class ShapeBuilder(ModelBuilder):
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
                 # for convenience, we scale the kappas
                 kappasScaled = [ pow(x, errline[channel][process]) for x in kappaDown,kappaUp ]
-                self.doObj( "systeff_%s_%s_%s" % (channel,process,syst), "AsymPow", "%f,%f,%s" % (kappasScaled[0], kappasScaled[1], syst) ) 
+                obj_kappaDown = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[0], "", float('%f' %  kappasScaled[0]))
+                obj_kappaUp = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[1], "", float('%f' %  kappasScaled[1]))
+                obj_var = self.out.var(syst)
+                self.addObj(ROOT.AsymPow, "systeff_%s_%s_%s" % (channel,process,syst), "", obj_kappaDown, obj_kappaUp, obj_var)
                 terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
         return terms if terms else None;
     def rebinH1(self,shape):
