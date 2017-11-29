@@ -29,6 +29,7 @@ private:
     std::vector<double> x1;
     std::vector<double> x2;
     std::vector<double> res;
+    std::vector<double> gobs;
     std::set<RooAbsArg*> dirty_prop;
     std::vector<RooRealVar*> push_res;
   };

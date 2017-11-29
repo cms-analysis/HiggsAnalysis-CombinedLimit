@@ -11,6 +11,7 @@
 #include "RooAbsReal.h"
 #include "RooAbsData.h"
 #include "RooConstVar.h"
+#include "RooGaussian.h"
 #include "RooProduct.h"
 #include "vectorized.h"
 
@@ -204,13 +205,12 @@ void CMSHistErrorPropagator::runBarlowBeeston() const {
   // vectorized
   #pragma GCC ivdep
   for (unsigned j = 0; j < n; ++j) {
-    bb_.err[j] = bb_.toterr[j] / bb_.valsum[j];
-    bb_.b[j] = bb_.toterr[j] * bb_.err[j] - 1.;
-    bb_.c[j] = - bb_.dat[j] * bb_.err[j] * bb_.err[j];
+    bb_.b[j] = bb_.toterr[j] + (bb_.valsum[j] / bb_.toterr[j]) - bb_.gobs[j];
+    bb_.c[j] = bb_.valsum[j] - bb_.dat[j] - (bb_.valsum[j] / bb_.toterr[j]) * bb_.gobs[j];
     bb_.tmp[j] = -0.5 * (bb_.b[j] + copysign(1.0, bb_.b[j]) * std::sqrt(bb_.b[j] * bb_.b[j] - 4. * bb_.c[j]));
     bb_.x1[j] = bb_.tmp[j];
     bb_.x2[j] = bb_.c[j] / bb_.tmp[j];
-    bb_.res[j] = (std::max(bb_.x1[j], bb_.x2[j]) - 1.) / bb_.err[j];
+    bb_.res[j] = std::max(bb_.x1[j], bb_.x2[j]);
   }
   for (unsigned j = 0; j < n; ++j) {
     if (toterr_[bb_.use[j]] > 0.) bb_.push_res[j]->setVal(bb_.res[j]);
@@ -239,6 +239,7 @@ void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
     bb_.x1.clear();
     bb_.x2.clear();
     bb_.res.clear();
+    bb_.gobs.clear();
     bb_.dirty_prop.clear();
     bb_.push_res.clear();
     bb_.init = false;
@@ -247,6 +248,7 @@ void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
     for (unsigned j = 0; j < bintypes_.size(); ++j) {
       if (bintypes_[j][0] == 1 && !vbinpars_[j][0]->isConstant()) {
         bb_.use.push_back(j);
+        double gobs_val = 0.;
         RooFIter iter = vbinpars_[j][0]->valueClientMIterator();
         RooAbsArg *arg = nullptr;
         while((arg = iter.next())) {
@@ -255,8 +257,14 @@ void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
           } else {
             // std::cout << "Adding " << arg << " " << arg->GetName() << "\n";
             bb_.dirty_prop.insert(arg);
+            auto as_gauss = dynamic_cast<RooGaussian*>(arg);
+            if (as_gauss) {
+              auto gobs = dynamic_cast<RooAbsReal*>(as_gauss->findServer(TString(vbinpars_[j][0]->GetName())+"_In"));
+              if (gobs) gobs_val = gobs->getVal();
+            }
           }
         }
+        bb_.gobs.push_back(gobs_val);
         bb_.push_res.push_back((RooRealVar*)vbinpars_[j][0]);
         bb_.push_res.back()->setConstant(true);
       }
@@ -287,7 +295,7 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
   // First initialize all the storage
   initialize();
   // Now fill the bin contents and errors
-  updateCache(1); // the arg (1) forces updateCacheor to fill the caches for all bins
+  updateCache(1); // the arg (1) forces updateCache to fill the caches for all bins
 
   bintypes_.resize(valsum_.size(), std::vector<unsigned>(1, 0));
 
@@ -376,16 +384,16 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
             double sigma = 7.;
             double rmin = 0.5*ROOT::Math::chisquared_quantile(ROOT::Math::normal_cdf_c(sigma), n_p_r * 2.);
             double rmax = 0.5*ROOT::Math::chisquared_quantile(1. - ROOT::Math::normal_cdf_c(sigma), n_p_r * 2. + 2.);
-            RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i_%s", this->GetName(), j, proc.c_str()), "", 1, rmin/n_p_r, rmax/n_p_r);
-            RooConstVar *cvar = new RooConstVar(TString::Format("%g", n_p_r), "", n_p_r);
+            RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i_%s", this->GetName(), j, proc.c_str()), "", n_p_r, rmin, rmax);
+            RooConstVar *cvar = new RooConstVar(TString::Format("%g", 1. / n_p_r), "", 1. / n_p_r);
             RooProduct *prod = new RooProduct(TString::Format("%s_prod", var->GetName()), "", RooArgList(*var, *cvar));
-            prod->addOwnedComponents(RooArgSet(*var, *cvar));
-            prod->setAttribute("createPoissonConstraint");
-            res->addOwned(*prod);
-            binpars_.add(*var);
+            var->addOwnedComponents(RooArgSet(*prod, *cvar));
+            var->setAttribute("createPoissonConstraint");
+            res->addOwned(*var);
+            binpars_.add(*prod);
 
             std::cout << TString::Format(
-                "      => Product of %s[%.2f,%.2f,%.2f] and const [%.0f] to be poisson constrained\n",
+                "      => Product of %s[%.2f,%.2f,%.2f] and const [%.4f] to be poisson constrained\n",
                 var->GetName(), var->getVal(), var->getMin(), var->getMax(), cvar->getVal());
             bintypes_[j][i] = 2;
           } else {

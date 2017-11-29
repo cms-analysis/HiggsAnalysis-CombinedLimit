@@ -42,6 +42,7 @@ using namespace RooStats;
 std::string FitterAlgoBase::minimizerAlgoForMinos_ = "";
 //float       FitterAlgoBase::minimizerTolerance_ = 1e-1;
 float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-1;
+float       FitterAlgoBase::crossingTolerance_ = 1e-4;
 //int         FitterAlgoBase::minimizerStrategy_  = 1;
 int         FitterAlgoBase::minimizerStrategyForMinos_ = 0;  // also default from CascadeMinimizer
 float       FitterAlgoBase::preFitValue_ = 1.0;
@@ -74,6 +75,7 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("setRobustFitAlgo",      boost::program_options::value<std::string>(&minimizerAlgoForMinos_)->default_value(minimizerAlgoForMinos_), "Choice of minimizer (Minuit vs Minuit2) for profiling in robust fits")
         ("setRobustFitStrategy",  boost::program_options::value<int>(&minimizerStrategyForMinos_)->default_value(minimizerStrategyForMinos_),      "Stragegy for minimizer for profiling in robust fits")
         ("setRobustFitTolerance",  boost::program_options::value<float>(&minimizerToleranceForMinos_)->default_value(minimizerToleranceForMinos_),      "Tolerance for minimizer for profiling in robust fits")
+        ("setCrossingTolerance",  boost::program_options::value<float>(&crossingTolerance_)->default_value(crossingTolerance_),      "Tolerance for finding the NLL crossing in robust fits")
         ("profilingMode", boost::program_options::value<std::string>()->default_value("all"), "What to profile when computing uncertainties: all, none (at least for now).")
         ("saveNLL",  "Save the negative log-likelihood at the minimum in the output tree (note: value is relative to the pre-fit state)")
         ("keepFailures",  "Save the results even if the fit is declared as failed (for NLL studies)")
@@ -103,12 +105,16 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
     if (!vm.count("setRobustFitTolerance") || vm["setRobustFitTolerance"].defaulted())  {
         minimizerToleranceForMinos_ = ROOT::Math::MinimizerOptions::DefaultTolerance();  // will reset this to the default from CascadeMinimizer unless set. 
     }
-/*
-    std::cout << "   Options for Robust Minimizer :: " << std::endl;
-    std::cout << "        Tolerance  " << minimizerToleranceForMinos_  <<std::endl;
-    std::cout << "        Strategy   "  << minimizerStrategyForMinos_  <<std::endl;
-    std::cout << "        Type,Algo  "  << minimizerAlgoForMinos_      <<std::endl;
-*/
+
+    if (robustFit_){
+     if (verbose) {
+    	Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Setting robust fit options to Tolerance=%g / Strategy=%d / Type,Algo=%s (note that defaults of CascadeMinimizer were taken where option not specified)",__LINE__,minimizerToleranceForMinos_,minimizerStrategyForMinos_,minimizerAlgoForMinos_.c_str())),Logger::kLogLevelInfo,__func__);
+     }
+     std::cout << "   Options for Robust Minimizer :: " << std::endl;
+     std::cout << "        Tolerance  " << minimizerToleranceForMinos_  <<std::endl;
+     std::cout << "        Strategy   "  << minimizerStrategyForMinos_  <<std::endl;
+     std::cout << "        Type,Algo  "  << minimizerAlgoForMinos_      <<std::endl;
+    }
 }
 
 bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -208,7 +214,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
         nll.reset(); // first delete the old one, to avoid using more memory, even if temporarily
         nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
     }
-
+   
     double nll0 = nll->getVal();
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
     double delta95 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.95,ndim);
@@ -233,12 +239,14 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
     if (verbose > 1 && ret != 0 && (saveFitResult || rs.getSize())) { ret->Print("V");  }
 
+    std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
+    RooArgSet* bestFitPars = (RooArgSet*)allpars->snapshot() ;
+
     // I'm done here
     if (rs.getSize() == 0 && parametersToFreeze_.getSize() == 0) {
         return ret;
     }
 
-    std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
 
     RooArgSet frozenParameters(parametersToFreeze_);
     RooStats::RemoveConstantParameters(&frozenParameters);
@@ -279,8 +287,11 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
 		// Add the constant parameters in case previous fit was last iteration of a "discrete parameters loop"
 		//rfloat = ret->constPars().find(r.GetName());
 		//fitwasconst = true;
-	} else if (runtimedef::get("MINIMIZER_analytic")) {
-    rfloat = &r;
+	} else if (!rfloat && runtimedef::get("MINIMIZER_analytic")) {
+    rfloat = ret->constPars().find(r.GetName());
+    if (!rfloat) {
+      fprintf(sentry.trueStdOut(), "Skipping %s. Parameter not found in the RooFitResult.\n",r.GetName());
+    }
   }
 	//rfloat->Print("V");
         RooRealVar &rf = dynamic_cast<RooRealVar &>(*rfloat);
@@ -343,11 +354,12 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
         }
     }
 
+    *allpars = *bestFitPars;
     return ret;
 }
 
 double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) {
-    if (!runtimedef::get("FITTER_OLD_CROSSING_ALGO")) {
+    if (runtimedef::get("FITTER_NEW_CROSSING_ALGO")) {
         return findCrossingNew(minim, nll, r, level, rStart, rBound);
     }
     //double minimizerTolerance_ = minim.tolerance();
@@ -363,7 +375,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         ok = minim.improve(verbose-1);
         checkpoint.reset(minim.save());
     }
-    if (!ok) { 
+    if (!ok && !keepFailures_) { 
     	std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; 
 	if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g",__LINE__,r.GetName(), rStart)),Logger::kLogLevelError,__func__);
 	return NAN; 
@@ -385,7 +397,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             CloseCoutSentry sentry(verbose < 3);    
             ok = minim.improve(verbose-1);
         }
-        if (!ok) { 
+        if (!ok && !keepFailures_) { 
             nfail++;
             if (nfail >= maxFailedSteps_) {  
 	    	std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; 
@@ -401,7 +413,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         double there = here;
         here = nll.getVal();
         if (verbose > 0) { printf("%f    %+.5f  %+.5f    %f\n", rStart, level-here, level-there, rInc); fflush(stdout); }
-        if ( fabs(here - level) < 4*minimizerToleranceForMinos_ ) {
+        if ( fabs(here - level) < 4*crossingTolerance_) {
             // set to the right point with interpolation
             r.setVal(rStart + (level-here)*(level-there)/(here-there));
             return r.getVal();
@@ -454,7 +466,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             }
             checkpoint.reset(minim.save());
         }
-    } while (fabs(rInc) > minimizerToleranceForMinos_*stepSize_*std::max(1.0,rBound-rStart));
+    } while (fabs(rInc) > crossingTolerance_*stepSize_*std::max(1.0,rBound-rStart));
     if (fabs(here - level) > 0.01) {
         std::cout << "Error: closed range without finding crossing." << std::endl;
 	if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Closed range without finding crossing! ",__LINE__)),Logger::kLogLevelError,__func__);

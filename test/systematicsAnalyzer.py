@@ -5,7 +5,7 @@ from math import *
 from optparse import OptionParser
 
 parser = OptionParser()
-parser.add_option("-f", "--format",  type="string",   dest="format", default="html", help="Format for output number")
+parser.add_option("-f", "--format",  type="string",   dest="format", default="html", help="Format for output number (choose html or brief)")
 parser.add_option("-m", "--mass",    dest="mass",     default=0,  type="float",  help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.")
 parser.add_option("-p", "--process",    dest="process",     default=None,  type="string",  help="Higgs process to use. Will also be written in the Workspace as RooRealVar 'MH'.")
 parser.add_option("-D", "--dataset", dest="dataname", default="data_obs",  type="string",  help="Name of the observed dataset")
@@ -25,6 +25,7 @@ options.poisson = 0
 options.nuisancesToExclude = []
 options.noJMax = True
 options.allowNoSignal = True
+options.modelparams = [] 
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 import sys
@@ -83,10 +84,12 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     channels  = []
     errlines[lsyst] = errline
     for b in DC.bins:
+        numKeysFound = 0
     	types.append(pdf)
         channels.append(b)
         for p in DC.exp[b].iterkeys():
             if errline[b][p] == 0: continue
+	    numKeysFound+=1
             processes[p] = True
 	    if "shape" in pdf and MB.isShapeSystematic(b,p,lsyst):
 		vals = []
@@ -112,6 +115,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
                 if val < 1: val = 1.0/val
                 minEffect = min(minEffect, val)
                 maxEffect = max(maxEffect, val)
+        if numKeysFound == 0 : channels.remove(b)
     channelsShort = commonStems(channels)
     types = ",".join(set(types))
     report[lsyst] = { 'channels':channelsShort, 'bins' : channels, 'processes': sorted(processes.keys()), 'effect':("%5.3f"%minEffect,"%5.3f"%maxEffect), 'types':types }
@@ -119,7 +123,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
 # Get list
 names = report.keys() 
 if "brief" in options.format:
-    names = [ k for (k,v) in report.iteritems() if len(v["bins"]) > 1 ]
+    names = [ k for (k,v) in report.iteritems()  ]
 if options.process:
     names = [ k for k in names if any(p for p in report[k]['processes'] if re.match(options.process, p)) ]
 if options.grep:

@@ -1,25 +1,30 @@
 import re
 from sys import argv, stdout, stderr, exit
+from optparse import OptionParser
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
-argv.append( '-b-' )
 import ROOT
 ROOT.gROOT.SetBatch(True)
-argv.remove( '-b-' )
 
-if len(argv) == 0: raise RuntimeError, "Usage: mlfitNormsToText.py [ -u ] mlfit.root";
+parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
+parser.add_option("-u", "--uncertainties", default=False, action="store_true", help="Report the uncertainties from the fit(s) too")
+
+(options, args) = parser.parse_args()
+if len(args) == 0:
+    parser.print_usage()
+    exit(1)
 
 errors = False
-if len(argv) > 2 and argv[1] == "-u": 
+if options.uncertainties: 
     errors = True
-    argv[1] = argv[2];
-file = ROOT.TFile.Open(argv[1]);
+
+file = ROOT.TFile.Open(args[0]);
 prefit = file.Get("norm_prefit")
 fit_s = file.Get("norm_fit_s")
 fit_b = file.Get("norm_fit_b")
-if prefit == None: stderr.write("Missing fit_s in %s. Did you run MaxLikelihoodFit in a recent-enough version of combine and with --saveNorm?\n" % file);
-if fit_s  == None: raise RuntimeError, "Missing fit_s in %s. Did you run MaxLikelihoodFit with --saveNorm?" % file;
-if fit_b  == None: raise RuntimeError, "Missing fit_b in %s. Did you run MaxLikelihoodFit with --saveNorm?" % file;
+if prefit == None: stderr.write("Missing fit_s in %s. Did you run FitDiagnostics in a recent-enough version of combine and with --saveNorm?\n" % file);
+if fit_s  == None: raise RuntimeError, "Missing fit_s in %s. Did you run FitDiagnostics with --saveNorm?" % file;
+if fit_b  == None: raise RuntimeError, "Missing fit_b in %s. Did you run FitDiagnostics with --saveNorm?" % file;
 
 iter = fit_s.createIterator()
 Headline = "%-30s %-30s     pre-fit   signal+background Fit  bkg-only Fit"%("Channel","Process") if (prefit and errors) else "%-30s %-30s  signal+background Fit  bkg-only Fit"%("Channel","Process")

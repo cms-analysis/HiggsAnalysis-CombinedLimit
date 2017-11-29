@@ -134,7 +134,7 @@ Combine::Combine() :
       ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
       ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(false), "Make all nuisance parameters floating")
-      ("floatNuisances", po::value<string>(&floatNuisances_)->default_value(""), "Set to floating these nuisance parameters (note freeze will take priority over float)")
+      ("floatParameters", po::value<string>(&floatNuisances_)->default_value(""), "Set to floating these parameters (note freeze will take priority over float)")
       ("freezeAllGlobalObs", po::value<bool>(&freezeAllGlobalObs_)->default_value(true), "Make all global observables constant")
       ;
     miscOptions_.add_options()
@@ -167,7 +167,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   lowerLimit_     = vm.count("lowerLimit");
   hintUsesStatOnly_ = vm.count("hintStatOnly");
   saveWorkspace_ = vm.count("saveWorkspace");
-  //toysNoSystematics_ = vm.count("toysNoSystematics");
+  toysNoSystematics_ = vm.count("toysNoSystematics");
   if (!withSystematics) toysNoSystematics_ = true;  // if no systematics, also don't expect them for the toys
   toysFrequentist_ = vm.count("toysFrequentist");
   if (toysNoSystematics_ && toysFrequentist_) throw std::logic_error("You can't set toysNoSystematics and toysFrequentist options at the same time");
@@ -190,7 +190,6 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   }
   if (!vm["prior"].defaulted()) noDefaultPrior_ = 0;
 
-  expectSignalSet_ = !vm["expectSignal"].defaulted();
   if( vm.count("LoadLibrary") ) {
     librariesToLoad_ = vm["LoadLibrary"].as<std::vector<std::string> >();
   }
@@ -233,19 +232,6 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
   return ret;
 }
 
-namespace { 
-    struct ToCleanUp {
-        TFile *tfile; std::string file, path;
-        ToCleanUp() : tfile(0), file(""), path("") {}
-        ~ToCleanUp() {
-            if (tfile) { tfile->Close(); delete tfile; }
-            if (!file.empty()) {  
-                if (unlink(file.c_str()) == -1) std::cerr << "Failed to delete temporary file " << file << ": " << strerror(errno) << std::endl;
-            }
-            if (!path.empty()) {  boost::filesystem::remove_all(path); }
-        }
-    };
-}
 void Combine::run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys) {
   ToCleanUp garbageCollect; // use this to close and delete temporary files
 
@@ -579,7 +565,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (floatNuisances_ != "") {
       RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
-      if (verbose > 0) std::cout << "Set floating the following nuisance parameters: "; toFloat.Print("");
+      if (verbose > 0) std::cout << "Set floating the following parameters: "; toFloat.Print("");
       utils::setAllConstant(toFloat, false);
   }
   
@@ -702,8 +688,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   addNuisances(nuisances);
   addPOI(POI);
 
-  w->saveSnapshot("clean", w->allVars());
-  
   tree_ = tree;
 
   // Set up additional branches 
@@ -800,7 +784,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
       }
       if (expectSignalSet_ && rInParamExp) {
-        std::cerr << "Warning: A value of r is specified in both the --setPhysicsModelParameters "
+        std::cerr << "Warning: A value of r is specified in both the --setParameters "
                      "and --expectSignal options. The argument of --expectSignal will take "
                      "precedence\n";
       }
@@ -809,11 +793,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
     } else if (expectSignalSet_) {
       std::cerr << "Warning: option --expectSignal only applies to models with "
-                   "the POI \"r\", use --setPhysicsModelParameters to set the "
+                   "the POI \"r\", use --setParameters to set the "
                    "values of the POIs for toy generation in this model\n";
     }
   }
 
+
+  // Ok now we're ready to go lets save a "clean snapshot" for the current parameters state
+  w->saveSnapshot("clean", w->allVars());
+  
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
     if (iToy == -1) {
@@ -856,7 +844,18 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             w->saveSnapshot("clean", w->allVars());
         } else {
             toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
-            dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
+
+	    // print the values of the parameters used to generate the toy
+	    if (verbose > 2) {
+	      Logger::instance().log(std::string(Form("Combine.cc: %d -- Generate Asimov toy from parameter values ... ",__LINE__)),Logger::kLogLevelInfo,__func__);
+    	      std::auto_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    	      for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+	  	TString varstring = utils::printRooArgAsString(a);
+	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	      }
+	    }
+
+            dobs = newToyMC.generateAsimov(weightVar_,verbose); // as simple as that
         }
       }
     } else if (dobs == 0) {
@@ -906,7 +905,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 minim.setStrategy(1);
                 minim.minimize();
                 utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
-                w->saveSnapshot("frequentistPreFit", w->allVars());
+                w->saveSnapshot("clean", w->allVars());
           }
           if (nuisancePdf.get()) systDs = nuisancePdf->generate(*mc->GetGlobalObservables(), nToys);
       } else {
@@ -929,11 +928,20 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
 	  if (verbose > 3) utils::printPdf(genPdf);
 	}
+	/* No longer need to set this because "clean" state is already set correctly even without toysFrequentist
         if (POI->find("r")) {
           if (expectSignal_) ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
         }
+	*/
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
-	if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Generating toy %d/%d",__LINE__,iToy,nToys)),Logger::kLogLevelInfo,__func__);
+	if (verbose > 2) {
+	  Logger::instance().log(std::string(Form("Combine.cc: %d -- Generating toy %d/%d, from parameter values ... ",__LINE__,iToy,nToys)),Logger::kLogLevelInfo,__func__);
+    	  std::auto_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    	  for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+	  	TString varstring = utils::printRooArgAsString(a);
+	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	  }
+	}
 	if (isExtended) {
           absdata_toy = newToyMC.generate(weightVar_); // as simple as that
 	} else {
