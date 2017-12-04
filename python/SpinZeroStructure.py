@@ -255,6 +255,8 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
 
         self.scalemuvfseparately = True
         self.scaledifferentsqrtsseparately = False
+        self.offshell = False
+        self.uservoverrf = False
         self.sqrts = None
         self.fixed = []
         self.floated = []
@@ -281,24 +283,44 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
                 if self.sqrts is not None: raise ValueError("Duplicate physicsoption sqrts=?? provided")
                 self.sqrts = [int(_) for _ in po.replace("sqrts=", "").split(",")]
                 processed.append(po)
+            if po.lower() == "offshell":
+                self.offshell = True
+                processed.append(po)
+            if po.lower() == "uservoverrf":
+                self.uservoverrf = True
+                processed.append(po)
+
+        if self.uservoverrf and not self.scalemuvfseparately:
+            raise ValueError("can't specify both uservoverrf and scalemuvmuftogether")
 
         if self.sqrts is None:
             raise ValueError("PhysicsOption sqrts=?? is mandatory.  example: sqrts=7,8,13")
 
         if self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
-            self.fixed = ["RV", "RF", "R"] + ["R_{}TeV".format(_) for _ in self.sqrts]
-            self.floated = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
+            if self.uservoverrf:
+                self.fixed = ["RV", "RF", "R"] + ["RF_{}TeV".format(_) for _ in self.sqrts]
+                self.floated = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "") for _2 in self.sqrts]
+            else:
+                self.fixed = ["RV", "RF", "R"] + ["R_{}TeV".format(_) for _ in self.sqrts]
+                self.floated = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
         elif self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
             self.fixed = ["RV", "RF", "R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
             self.floated = ["R_{}TeV".format(_) for _ in self.sqrts]
         elif not self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
-            self.fixed = ["R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
-            self.floated = ["RV", "RF"]
+            if self.uservoverrf:
+                self.fixed = ["RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+                self.floated = ["RV", "R"]
+            else:
+                self.fixed = ["R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+                self.floated = ["RV", "RF"]
         elif not self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
             self.fixed = ["RV", "RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
             self.floated = ["R"]
         else:
             assert False, "?????"
+
+        if self.offshell:
+            self.floated.append("GGsm")
 
         return processed
 
