@@ -5,9 +5,6 @@ from math import *
 ROOFIT_EXPR = "expr"
 ROOFIT_EXPR_PDF = "EXPR"
 
-from guppy import hpy
-hp = hpy()
-
 class SafeWorkspaceImporter():
     """Class that provides the RooWorkspace::import method, but makes sure we call the proper
        overload of it, since in ROOT 6 sometimes PyROOT calls the wrong one"""
@@ -111,49 +108,22 @@ class ModelBuilder(ModelBuilderBase):
         self.physics.setModelBuilder(self)
     def doModel(self):
 
-        hp.setrelheap()
-        print "test1"
-        print hp.heap()
         self.doObservables()
-        print "test2"
-        print hp.heap()
         self.physics.doParametersOfInterest()
-        print "test3"
-        print hp.heap()
-        
         # set a group attribute on POI variables
         poiIter = self.out.set('POI').createIterator()
         poi = poiIter.Next()
         while poi:
             self.out.var(poi.GetName()).setAttribute('group_POI',True)
             poi = poiIter.Next()
-        print "test4"
-        print hp.heap()
-
         self.physics.preProcessNuisances(self.DC.systs)
-        print "test5"
-        print hp.heap()
         self.doNuisances()
-        print "test6"
-        print hp.heap()
 	self.doExtArgs()
-        print "test7"
-        print hp.heap()
 	self.doRateParams()
-        print "test8"
-        print hp.heap()
         self.doExpectedEvents()
-        print "test9"
-        print hp.heap()
         self.doIndividualModels()
-        print "test10"
-        print hp.heap()
         self.doNuisancesGroups() # this needs to be called after both doNuisances and doIndividualModels
-        print "test11"
-        print hp.heap()
         self.doCombination()
-        print "test12"
-        print hp.heap()
 	self.runPostProcesses()
         self.physics.done()
         if self.options.bin:

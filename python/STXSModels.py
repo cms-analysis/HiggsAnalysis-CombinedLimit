@@ -9,6 +9,7 @@ ALL_STXS_PROCS = {
 	,"qqH*": 	  "r_qqH"
 	,"ttH*":    	  "r_ttH"
 	,"tH[Wq]*":    	  "r_ttH"
+	,"ggZH_lep*": 	  "r_GG2HLL"
 	,"ZH_lep*": 	  "r_QQ2HLL"
 	,"WH_lep*": 	  "r_QQ2HLNU"
 	,"[VWZ]H_had*":   "r_VH2HQQ"
@@ -103,7 +104,7 @@ class StageZero(STXSBaseModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strengths (and MH)"""
 	pois = []
-        for X in [ "qqH", "ggH", "ttH", "QQ2HLNU", "QQ2HLL", "VH2HQQ"]:
+        for X in [ "qqH", "ggH", "ttH", "QQ2HLNU", "QQ2HLL", "GG2HLL", "VH2HQQ"]:
             self.doVar("r_%s[1,0,10]" % X)
 	    pois.append("r_%s"%X)
 	self.POIs=",".join(pois)

@@ -330,6 +330,22 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         w->import(*optpdf);
         mc->SetPdf(*optpdf);
     }
+    
+    if (redefineSignalPOIs_ != "") {
+        RooArgSet newPOIs(w->argSet(redefineSignalPOIs_.c_str()));
+        TIterator *np = newPOIs.createIterator();
+        while (RooRealVar *arg = (RooRealVar*)np->Next()) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(arg);
+            if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << arg->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
+            arg->setConstant(0);
+            // also set ignoreConstraint flag for constraint PDF 
+            if ( w->pdf(Form("%s_Pdf",arg->GetName())) ) w->pdf(Form("%s_Pdf",arg->GetName()))->setAttribute("ignoreConstraint");
+        }
+        if (verbose > 0) std::cout << "Redefining the POIs to be: "; newPOIs.Print("");
+        mc->SetParametersOfInterest(newPOIs);
+        POI = mc->GetParametersOfInterest();
+    }
+
     if (mc_bonly == 0 && !noMCbonly_) {
         std::cerr << "Missing background ModelConfig '" << modelConfigNameB_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
         RooCustomizer make_model_s(*mc->GetPdf(),"_model_bonly_");
@@ -533,20 +549,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
   }
 
-
   if (redefineSignalPOIs_ != "") {
-      RooArgSet newPOIs(w->argSet(redefineSignalPOIs_.c_str()));
-      TIterator *np = newPOIs.createIterator();
-      while (RooRealVar *arg = (RooRealVar*)np->Next()) {
-        RooRealVar *rrv = dynamic_cast<RooRealVar *>(arg);
-        if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << arg->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
-	arg->setConstant(0);
-	// also set ignoreConstraint flag for constraint PDF 
-	if ( w->pdf(Form("%s_Pdf",arg->GetName())) ) w->pdf(Form("%s_Pdf",arg->GetName()))->setAttribute("ignoreConstraint");
-      }
-      if (verbose > 0) std::cout << "Redefining the POIs to be: "; newPOIs.Print("");
-      mc->SetParametersOfInterest(newPOIs);
-      POI = mc->GetParametersOfInterest();
       if (nuisances) {
           RooArgSet newNuis(*nuisances);
           newNuis.remove(*POI);
@@ -557,6 +560,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           }
       } 
   }
+
   // Always reset the POIs to floating (post-fit workspaces can actually have them frozen in some cases, in any case they can be re-frozen in the next step 
   TIterator *pois = POI->createIterator();
   while (RooRealVar *arg = (RooRealVar*)pois->Next()) {

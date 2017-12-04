@@ -298,7 +298,7 @@ class ShapeBuilder(ModelBuilder):
                             if shape.GetBinContent(i) > 0: bgbins[i] = True
                 elif shape.InheritsFrom("RooDataHist"):
                     shapeTypes.append("RooDataHist"); 
-                    shapeBins.append(shape.numEntries())
+                    #shapeBins.append(shape.numEntries())
                     shapeObs[self.argSetToString(shape.get())] = shape.get()
                     norm = shape.sumEntries()
                     if p == self.options.dataname: 
@@ -740,8 +740,6 @@ class ShapeBuilder(ModelBuilder):
                     else:
                         rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
                     _cache[shape.GetName()+"Pdf"] = rhp
-                    list.Delete()
-                    rhp.Delete()
                 else:
                     rdh = self.shape2Data(shape,channel,process)
                     rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", ROOT.RooArgSet(self.out.binVar), rdh)
