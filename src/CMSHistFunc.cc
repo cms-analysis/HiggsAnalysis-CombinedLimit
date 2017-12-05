@@ -17,6 +17,8 @@
 
 #define HFVERBOSE 0
 
+bool CMSHistFunc::enable_fast_vertical_ = false;
+
 CMSHistFunc::CMSHistFunc() {
   morph_strategy_ = 0;
   initialized_ = false;
@@ -576,7 +578,7 @@ void CMSHistFunc::updateCache() const {
         cache_.Exp();
       }
       cache_.CropUnderflows();
-      fast_vertical_ = true;
+      if (enable_fast_vertical_) fast_vertical_ = true;
 
 #if HFVERBOSE > 0
       std::cout << "Final cache: " << cache_.Integral() << "\n";
@@ -1159,6 +1161,10 @@ CMSHistFuncWrapper const* CMSHistFunc::wrapper() const {
 
 RooAbsReal const& CMSHistFunc::getXVar() const {
   return x_.arg();
+}
+
+void CMSHistFunc::EnableFastVertical() {
+  enable_fast_vertical_ = true;
 }
 
 #undef HFVERBOSE
