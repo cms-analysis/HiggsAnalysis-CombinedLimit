@@ -127,11 +127,8 @@ class SignalStrengths(LHCHCGBaseModel):
             self.doVar("mu_F_%s[1,0,5]" % X)
         print "Default parameters of interest: ", self.POIs
         self.modelBuilder.doSet("POI",self.POIs)
-        print "Do SMHiggsBuilder: "
         self.SMH = SMHiggsBuilder(self.modelBuilder)
-        print "Call setup "
         self.setup()
-        print "setup done "
     def setup(self):
         self.dobbH()
         for P in ALL_HIGGS_PROD:
@@ -150,7 +147,6 @@ class SignalStrengths(LHCHCGBaseModel):
                         terms += [ 'ggH_bbH_sum_%s_%dTeV' % (D,E),  "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
                         terms += [ 'mu_XS_ggFbbH_BR_%s' % DS ]
                     else:
-                        print P,DS
                         if P in [ "ggH", "bbH" ]:
                             terms += [ "mu_XS_ggFbbH", "mu_XS%d_ggFbbH"%E ]
                             terms += [ "mu_XS_ggFbbH_BR_%s" % DS ]
@@ -175,8 +171,6 @@ class SignalStrengths(LHCHCGBaseModel):
                         terms += [ "mu_F_"+CMS_to_LHCHCG_DecSimple[D] ]
                     else:
                         terms += [ "mu_V_"+CMS_to_LHCHCG_DecSimple[D] ]
-                    print P,D,E
-                    print terms
                     self.modelBuilder.factory_('prod::scaling_%s_%s_%dTeV(%s)' % (P,D,E,",".join(terms)))
                     self.modelBuilder.out.function('scaling_%s_%s_%dTeV' % (P,D,E)).Print("")
 
@@ -631,7 +625,6 @@ class KappaVKappaF(LHCHCGBaseModel):
                 b2gs = "CMS_bbH_scaler_%s" % energy
                 self.modelBuilder.factory_('expr::%s("(%s + @1*@1*@2*@3)*@4", %s, kFkF_%s, %s, %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], CMS_to_LHCHCG_DecSimple[decay], b2g, b2gs, BRscal))
             else:
-                #self.modelBuilder.factory_('expr::%s("%s*@1*@2", %s, c7_BRscal_%s,r)' % (name, XSscal[0], XSscal[1], BRscal))
                 self.modelBuilder.factory_('expr::%s("%s*@1", %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], BRscal)) 
             print '[LHC-HCG Kappas]', name, production, decay, energy,": ",
             self.modelBuilder.out.function(name).Print("")

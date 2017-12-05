@@ -590,31 +590,18 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           std::auto_ptr<TIterator> iter(nuisances->createIterator());
           for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
               const std::string &target = a->GetName();
-              std::cout<<target<<endl;
               std::smatch match;
               if (std::regex_match(target, match, rgx)) {
                   matchingParams = matchingParams + target + ",";
-                  std::cout<<"is a match!"<<std::endl;                 
               }
           }
-          std::cout<<"before"<<freezeNuisances_<<std::endl;
+
           freezeNuisances_ = prestr+matchingParams+poststr;
-          std::cout<<"after1"<<freezeNuisances_<<std::endl;
           freezeNuisances_ = boost::replace_all_copy(freezeNuisances_, ",,", ","); 
-          std::cout<<"after2"<<freezeNuisances_<<std::endl;
           
       }
 
-      std::cout<<freezeNuisances_.c_str()<<std::endl;
-//      char* freezeNuisances_char = new char[freezeNuisances_.size()+1];
-//      std::copy(freezeNuisances_.begin(), freezeNuisances_.end(), freezeNuisances_char);
-//      freezeNuisances_char[freezeNuisances_.size()] = '\0';
-//      for (int k=0; k<(int)freezeNuisances_.size()+1; k++) {
-//          std::cout<<freezeNuisances_char[k];
-//          if (freezeNuisances_char[k]=="\0") std::cout<<"FOUND \0" ;
-//      }
-
-//      RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
+      //RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       RooArgSet toFreeze;
       if (freezeNuisances_=="all") {
           toFreeze=*nuisances;
