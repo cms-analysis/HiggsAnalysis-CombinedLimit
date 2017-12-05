@@ -40,10 +40,9 @@ def getSTXSProdDecMode(bin,process,options):
                 if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
                 foundEnergy = D
     if not foundEnergy:
-        #foundEnergy = '7TeV' ## To ensure backward compatibility
         foundEnergy = '13TeV' ## To ensure combination works
         print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
-    #
+
     return (processSource, foundDecay, foundEnergy)
 
 
@@ -82,10 +81,6 @@ class STXSBaseModel(PhysicsModel):
 
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
-        if process=="ggH_hzz": return self.getHiggsSignalYieldScale('ggH', 'hzz', '13TeV') # hzz process in the hww datacard is a background                                                                                    
-        if process=="ggH_hww125": return self.getHiggsSignalYieldScale('ggH', 'hww', '13TeV') # hww process in the htt datacard is a background                                                                                 
-        if process=="qqH_hww125": return self.getHiggsSignalYieldScale('qqH', 'hww', '13TeV') # hww process in the htt datacard is a background                                                                                 
-        if process=="H_htt": return self.getHiggsSignalYieldScale('ggH', 'htt', '13TeV') # hack to make combination work, since WW datacrd has an improper naming 
         if not self.DC.isSignal[process]: return 1
         (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin,process,self.options)
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)

@@ -1,9 +1,7 @@
-from sys import stdout, stderr, getsizeof
+from sys import stdout, stderr
 import os.path
 import ROOT
 from math import *
-#from guppy import hpy
-#hp = hpy()
 
 RooArgSet_add_original = ROOT.RooArgSet.add
 def RooArgSet_add_patched(self, obj, *args, **kwargs):
@@ -366,20 +364,17 @@ class ShapeBuilder(ModelBuilder):
         if len(self.DC.bins) == 1 and self.options.forceNonSimPdf:
             data = self.getData(self.DC.bins[0],self.options.dataname).Clone(self.options.dataname)
             self.out._import(data)
-            data.Delete()
             return
         if self.out.mode == "binned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
             for b in self.DC.bins: combiner.addSetBin(b, self.getData(b,self.options.dataname))
             self.out.data_obs = combiner.done(self.options.dataname,self.options.dataname)
             self.out._import(self.out.data_obs)
-            combiner.Delete()
         elif self.out.mode == "unbinned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
             for b in self.DC.bins: combiner.addSetAny(b, self.getData(b,self.options.dataname))
             self.out.data_obs = combiner.doneUnbinned(self.options.dataname,self.options.dataname)
             self.out._import(self.out.data_obs)
-            combiner.Delete()
         else: raise RuntimeException, "Only combined datasets are supported"
         #print "Created combined dataset with ",self.out.data_obs.numEntries()," entries, out of:"
         #for b in self.DC.bins: print "  bin", b, ": entries = ", self.getData(b,self.options.dataname).numEntries()
@@ -669,8 +664,8 @@ class ShapeBuilder(ModelBuilder):
                     kappaUp,kappaDown = shapeUp.Integral(),shapeDown.Integral()
                 elif shapeNominal.InheritsFrom("RooDataHist"):
                     kappaUp,kappaDown = shapeUp.sumEntries(),shapeDown.sumEntries()
-                if not kappaUp >= 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Up" % (kappaUp, channel,process,syst)
-                if not kappaDown >= 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Down" % (kappaDown, channel,process,syst)
+                if not kappaUp > 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Up" % (kappaUp, channel,process,syst)
+                if not kappaDown > 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Down" % (kappaDown, channel,process,syst)
                 kappaUp /=normNominal; kappaDown /= normNominal
                 if abs(kappaUp-1) < 1e-3 and abs(kappaDown-1) < 1e-3: continue
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
