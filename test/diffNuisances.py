@@ -2,6 +2,7 @@
 import re
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
+import calculate_pulls 
 
 # tool to compare fitted nuisance parameters to prefit values.
 #
@@ -31,6 +32,7 @@ parser.add_option("-A", "--absolute", dest="abs",    default=False,  action="sto
 parser.add_option("-p", "--poi",      dest="poi",    default="r",    type="string",  help="Name of signal strength parameter (default is 'r' as per text2workspace.py)")
 parser.add_option("-f", "--format",   dest="format", default="text", type="string",  help="Output format ('text', 'latex', 'twiki'")
 parser.add_option("-g", "--histogram", dest="plotfile", default=None, type="string", help="If true, plot the pulls of the nuisances to the given file.")
+parser.add_option("", "--pullDef",  dest="pullDef", default="", type="string", help="Choose the definition of the pull, see python/calculate_pulls.py for options")
 
 (options, args) = parser.parse_args()
 if len(args) == 0:
@@ -58,10 +60,11 @@ fpf_s = fit_s.floatParsFinal()
 pulls = []
 
 nuis_p_i=0
+title = "pull" if options.pullDef else "#theta"
 # Also make histograms for pull distributions:
-hist_fit_b  = ROOT.TH1F("prefit_fit_b"   ,"B-only fit Nuisances;;#theta ",prefit.getSize(),0,prefit.getSize())
-hist_fit_s  = ROOT.TH1F("prefit_fit_s"   ,"S+B fit Nuisances   ;;#theta ",prefit.getSize(),0,prefit.getSize())
-hist_prefit = ROOT.TH1F("prefit_nuisancs","Prefit Nuisances    ;;#theta ",prefit.getSize(),0,prefit.getSize())
+hist_fit_b  = ROOT.TH1F("prefit_fit_b"   ,"B-only fit Nuisances;;%s "%title,prefit.getSize(),0,prefit.getSize())
+hist_fit_s  = ROOT.TH1F("prefit_fit_s"   ,"S+B fit Nuisances   ;;%s "%title,prefit.getSize(),0,prefit.getSize())
+hist_prefit = ROOT.TH1F("prefit_nuisancs","Prefit Nuisances    ;;%s "%title,prefit.getSize(),0,prefit.getSize())
 
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
@@ -100,12 +103,22 @@ for i in range(fpf_s.getSize()):
 	        if options.plotfile: 
 	          if fit_name=='b':
 	    	    nuis_p_i+=1
-	      	    hist_fit_b.SetBinContent(nuis_p_i,nuis_x.getVal())
-	      	    hist_fit_b.SetBinError(nuis_p_i,nuis_x.getError())
+		    if options.pullDef and nuis_p!=None:
+		      nx,ne = calculate_pulls.returnPull(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getError(),sigma_p)
+	      	      hist_fit_b.SetBinContent(nuis_p_i,nx)
+	      	      hist_fit_b.SetBinError(nuis_p_i,ne)
+		    else:
+	      	      hist_fit_b.SetBinContent(nuis_p_i,nuis_x.getVal())
+	      	      hist_fit_b.SetBinError(nuis_p_i,nuis_x.getError())
 	      	    hist_fit_b.GetXaxis().SetBinLabel(nuis_p_i,name)
 	          if fit_name=='s':
-	      	    hist_fit_s.SetBinContent(nuis_p_i,nuis_x.getVal())
-	      	    hist_fit_s.SetBinError(nuis_p_i,nuis_x.getError())
+		    if options.pullDef and nuis_p!=None:
+		      nx,ne = calculate_pulls.returnPull(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getError(),sigma_p)
+	      	      hist_fit_s.SetBinContent(nuis_p_i,nx)
+	      	      hist_fit_s.SetBinError(nuis_p_i,ne)
+		    else:
+	      	      hist_fit_s.SetBinContent(nuis_p_i,nuis_x.getVal())
+	      	      hist_fit_s.SetBinError(nuis_p_i,nuis_x.getError())
 	      	    hist_fit_s.GetXaxis().SetBinLabel(nuis_p_i,name)
 		  hist_prefit.SetBinContent(nuis_p_i,mean_p)
 		  hist_prefit.SetBinError(nuis_p_i,sigma_p)
@@ -274,12 +287,10 @@ if options.plotfile:
     histogram.SetTitle("Post-fit nuisance pull distribution")
     histogram.SetMarkerStyle(20)
     histogram.SetMarkerSize(2)
-    #histogram.Fit("gaus")
     histogram.Draw("pe")
-    #canvas.SaveAs(options.plotfile)
     fout.WriteTObject(canvas)
 
-    canvas_nuis = ROOT.TCanvas("nuisancs", "nuisances", 900, 600)
+    canvas_nuis = ROOT.TCanvas("nuisances", "nuisances", 900, 600)
     hist_fit_e_s = hist_fit_s.Clone("errors_s")
     hist_fit_e_b = hist_fit_b.Clone("errors_b")
     gr_fit_s = getGraph(hist_fit_s,-0.1)
