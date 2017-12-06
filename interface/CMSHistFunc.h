@@ -147,7 +147,6 @@ class CMSHistFunc : public RooAbsReal {
   static void EnableFastVertical();
   friend class CMSHistV<CMSHistFunc>;
 
-
   /*
 
   – RooAbsArg::setVerboseEval(Int_t level) • Level 0 – No messages

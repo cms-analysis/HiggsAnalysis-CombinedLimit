@@ -1,7 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Accumulators.h"
-
 #include <vector>
 #include <ostream>
 #include <memory>
@@ -532,9 +531,6 @@ void CMSHistFunc::updateCache() const {
 #endif
 
       unsigned idx = getIdx(0, global_.p1, 0, 0);
-      // So here we have to decide what to do.
-      // I *think* if step1 is false, and fast_vertical is true then we should skip copying the cache.
-      // fast_vertical will need to be false initially
       if (vertical_prev_vals_.size() == 0) {
         vertical_prev_vals_.resize(vmorphs_.getSize());
       }
@@ -553,8 +549,7 @@ void CMSHistFunc::updateCache() const {
       for (int v = 0; v < vmorphs_.getSize(); ++v) {
         double x = vmorphs_vec_[v]->getVal();
         // if we're in fast_vertical then need to check if this vmorph value has changed.
-        // if it hasn't then we skip immediately. Where do we store the previous values?
-        // Globally in the HistFunc, or per cache?
+        // if it hasn't then we skip immediately.
         if (fast_vertical_ && (x == vertical_prev_vals_[v])) continue;
 
         unsigned vidx = getIdx(0, global_.p1, v+1, 0);
