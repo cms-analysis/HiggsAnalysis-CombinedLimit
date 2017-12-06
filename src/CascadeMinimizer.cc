@@ -78,6 +78,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
     std::string nominalType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
     std::string nominalAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
     float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
+    minimizer_->setEps(nominalTol);
     if (approxPreFitTolerance_ > 0) {
       double tol = std::max(approxPreFitTolerance_, 10. * nominalTol);
       do {
