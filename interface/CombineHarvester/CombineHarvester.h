@@ -446,6 +446,8 @@ class CombineHarvester {
   void MergeBinErrors(double bbb_threshold, double merge_threshold);
   /**@}*/
 
+  // void SetAutoMCStats(CombineHarvester &target, double thresh, bool sig=false, int mode=1);
+
  private:
   friend void swap(CombineHarvester& first, CombineHarvester& second);
 
@@ -459,6 +461,22 @@ class CombineHarvester {
   std::map<std::string, std::shared_ptr<RooWorkspace>> wspaces_;
 
   std::unordered_map<std::string, bool> flags_;
+
+  struct AutoMCStatsSettings {
+    double event_threshold;
+    bool include_signal;
+    int hist_mode;
+
+    AutoMCStatsSettings(double thresh, bool sig=false, int mode=1) {
+      event_threshold = thresh;
+      include_signal = sig;
+      hist_mode = mode;
+    }
+
+    AutoMCStatsSettings() : AutoMCStatsSettings(0.) {}
+  };
+
+  std::map<std::string, AutoMCStatsSettings> auto_stats_settings_;
 
   // ---------------------------------------------------------------
   // typedefs

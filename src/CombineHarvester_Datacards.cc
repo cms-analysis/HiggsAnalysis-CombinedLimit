@@ -409,6 +409,26 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
       continue;
     }
 
+    if (start_nuisance_scan && words[i].size() >= 3 &&
+        boost::iequals(words[i][1], "autoMCStats")) {
+      std::vector<std::string> for_bins;
+      if (words[i][0] == "*") {
+        for_bins = Set2Vec(bin_names);
+      } else {
+        for_bins.push_back(words[i][0]);
+      }
+      for (auto const& bin : for_bins) {
+        double thresh = boost::lexical_cast<double>(words[i][2]);
+        if (words[i].size() == 3) {
+          auto_stats_settings_[bin] = AutoMCStatsSettings(thresh);
+        } else if (words[i].size() == 4) {
+          auto_stats_settings_[bin] = AutoMCStatsSettings(thresh, boost::lexical_cast<int>(words[i][3]));
+        } else {
+          auto_stats_settings_[bin] = AutoMCStatsSettings(thresh, boost::lexical_cast<int>(words[i][3]), boost::lexical_cast<int>(words[i][4]));
+        }
+      }
+    }
+
     if (start_nuisance_scan && words[i].size()-1 == words[r].size()) {
       for (unsigned p = 2; p < words[i].size(); ++p) {
         if (words[i][p] == "-") continue;
@@ -1179,6 +1199,13 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   for (auto par : multipdf_cats) {
     txt_file << format((format("%%-%is discrete\n") % sys_str_len).str()) % par;
+  }
+
+  for (auto stat_settings : auto_stats_settings_) {
+    txt_file << format("%s autoMCStats %g %i %i") % stat_settings.first %
+                    stat_settings.second.event_threshold %
+                    stat_settings.second.include_signal %
+                    stat_settings.second.hist_mode;
   }
 
   // Finally write the NP groups
