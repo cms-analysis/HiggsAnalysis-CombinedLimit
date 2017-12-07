@@ -59,6 +59,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
 
 #include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
@@ -821,6 +822,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                    "the POI \"r\", use --setParameters to set the "
                    "values of the POIs for toy generation in this model\n";
     }
+  }
+
+  if (runtimedef::get("FAST_VERTICAL_MORPH")) {
+    CMSHistFunc::EnableFastVertical();
   }
 
 
