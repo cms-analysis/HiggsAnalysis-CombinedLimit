@@ -803,6 +803,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   w->saveSnapshot("clean", w->allVars());
   
   if (nToys <= 0) { // observed or asimov
+    w->saveSnapshot("toyGenSnapshot",w->allVars());
     iToy = nToys;
     if (iToy == -1) {
      if (readToysFromHere != 0){
