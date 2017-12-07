@@ -1,6 +1,10 @@
 # module for calculating various definitions of "pull" 
 # each pull definition must return value, error (even if error is set to 0)
 # the Asym version should return value, err hi, err lo
+import sys
+
+def allowed_methods():
+  return ["relDiffAsym","compatAsym","relDiffAsymErrs"] #only allow asymm versions for now (just symmetrise errors for symmetric version)
 
 def relDiff(x,x0,sx0):
   # Common to plot (x-x0)/sigma_{x0} - i.e difference relative to initial uncertainty
@@ -52,3 +56,4 @@ def returnTitle(method):
   if   method in ["relDiff","relDiffAsym","relDiffAsymErrs"] : return '#hat{#theta}-#theta_{0})/#Delta#theta'
   elif method in ["compat","compatAsym"] : return '#chi^{2} compat.' 
   else: sys.exit("python/calculate_pulls.py -- Error, pulls method %s not understood!"%method)
+

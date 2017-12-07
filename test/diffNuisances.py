@@ -2,7 +2,7 @@
 import re
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
-import calculate_pulls 
+import HiggsAnalysis.CombinedLimit.calculate_pulls as CP 
 
 # tool to compare fitted nuisance parameters to prefit values.
 #
@@ -39,6 +39,8 @@ if len(args) == 0:
     parser.print_usage()
     exit(1)
 
+if options.pullDef!="" and options.pullDef not in CP.allowed_methods(): exit("Method %s not allowed, choose one of [%s]"%(options.pullDef,",".join(CP.allowed_methods())))
+
 file = ROOT.TFile(args[0])
 if file == None: raise RuntimeError, "Cannot open file %s" % args[0]
 fit_s  = file.Get("fit_s")
@@ -61,10 +63,29 @@ pulls = []
 
 nuis_p_i=0
 title = "pull" if options.pullDef else "#theta"
+
+"""
+def getGraph(hist,shift):
+
+   gr = ROOT.TGraphAsymErrors()
+   gr.SetName(hist.GetName())
+   for i in range(hist.GetNbinsX()):
+     x = hist.GetBinCenter(i+1)+shift
+     y = hist.GetBinContent(i+1)
+     e = hist.GetBinError(i+1)
+     gr.SetPoint(i,x,y)
+     gr.SetPointError(i,float(abs(shift))*0.8,e)
+   return gr
+"""
+
 # Also make histograms for pull distributions:
-hist_fit_b  = ROOT.TH1F("prefit_fit_b"   ,"B-only fit Nuisances;;%s "%title,prefit.getSize(),0,prefit.getSize())
-hist_fit_s  = ROOT.TH1F("prefit_fit_s"   ,"S+B fit Nuisances   ;;%s "%title,prefit.getSize(),0,prefit.getSize())
+hist_fit_b  = ROOT.TH1F("fit_b"   ,"B-only fit Nuisances;;%s "%title,prefit.getSize(),0,prefit.getSize())
+hist_fit_s  = ROOT.TH1F("fit_s"   ,"S+B fit Nuisances   ;;%s "%title,prefit.getSize(),0,prefit.getSize())
 hist_prefit = ROOT.TH1F("prefit_nuisancs","Prefit Nuisances    ;;%s "%title,prefit.getSize(),0,prefit.getSize())
+# Store also the *asymmetric* uncertainties
+gr_fit_b    = ROOT.TGraphAsymmErrors(); gr_fit_b.SetTitle("fit_b_g")
+gr_fit_s    = ROOT.TGraphAsymmErrors(); gr_fit_s.SetTitle("fit_b_s")
+
 
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
@@ -78,7 +99,7 @@ for i in range(fpf_s.getSize()):
     row = []
 
     flag = False;
-    mean_p, sigma_p = 0,0
+    mean_p, sigma_p, sigma_pu, sigma_pd = 0,0,0,0
 
     if nuis_p == None:
         # nuisance parameter NOT present in the prefit result
@@ -88,7 +109,8 @@ for i in range(fpf_s.getSize()):
     else:
         # get best-fit value and uncertainty at prefit for this 
         # nuisance parameter
-        mean_p, sigma_p = (nuis_p.getVal(), nuis_p.getError())
+ 	if nuis_p.getErrorLo()==0 : nuis_p.setErrorLo(nuis_p.getErrorHi())
+        mean_p, sigma_p, sigma_pu,sigma_pd = (nuis_p.getVal(), nuis_p.getError(),nuis_p.getErrorHi(),nuis_p.getErrorLo())
 
 	if not sigma_p > 0: sigma_p = (nuis_p.getMax()-nuis_p.getMin())/2
         if options.abs: row += [ "%.6f +/- %.6f" % (nuis_p.getVal(), nuis_p.getError()) ]
@@ -98,28 +120,35 @@ for i in range(fpf_s.getSize()):
             row += [ " n/a " ]
         else:
             row += [ "%+.2f +/- %.2f" % (nuis_x.getVal(), nuis_x.getError()) ]
-	
+
+ 	    if nuis_x.getErrorLo()==0 : nuis_x.setErrorLo(nuis_x.getErrorHi())
             if nuis_p != None:
 	        if options.plotfile: 
 	          if fit_name=='b':
 	    	    nuis_p_i+=1
 		    if options.pullDef and nuis_p!=None:
-		      nx,ne = calculate_pulls.returnPull(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getError(),sigma_p)
-	      	      hist_fit_b.SetBinContent(nuis_p_i,nx)
-	      	      hist_fit_b.SetBinError(nuis_p_i,ne)
+		      nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getErrorHi(),sigma_pu,abs(nuis_x.getErrorLo()),abs(sigma_pd))
+		      gr_fit_b.SetPoint(nuis_p_i-1,nuis_p_i-0.5+0.1,nx)
+		      gr_fit_b.SetPointError(nuis_p_i-1,0,0,ned,neu)
 		    else:
-	      	      hist_fit_b.SetBinContent(nuis_p_i,nuis_x.getVal())
-	      	      hist_fit_b.SetBinError(nuis_p_i,nuis_x.getError())
+		      gr_fit_b.SetPoint(nuis_p_i-1,nuis_p_i-0.5+0.1,nuis_x.getVal())
+		      gr_fit_b.SetPointError(nuis_p_i-1,0,0,abs(nuis_x.getErrorLo()),nuis_x.getErrorHi())
+	      	    hist_fit_b.SetBinContent(nuis_p_i,nuis_x.getVal())
+	      	    hist_fit_b.SetBinError(nuis_p_i,nuis_x.getError())
 	      	    hist_fit_b.GetXaxis().SetBinLabel(nuis_p_i,name)
+	      	    gr_fit_b.GetXaxis().SetBinLabel(nuis_p_i,name)
 	          if fit_name=='s':
 		    if options.pullDef and nuis_p!=None:
-		      nx,ne = calculate_pulls.returnPull(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getError(),sigma_p)
-	      	      hist_fit_s.SetBinContent(nuis_p_i,nx)
-	      	      hist_fit_s.SetBinError(nuis_p_i,ne)
+		      nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getErrorHi(),sigma_pu,abs(nuis_x.getErrorLo()),abs(sigma_pd))
+		      gr_fit_s.SetPoint(nuis_p_i-1,nuis_p_i-0.5-0.1,nx)
+		      gr_fit_s.SetPointError(nuis_p_i-1,0,0,ned,neu)
 		    else:
-	      	      hist_fit_s.SetBinContent(nuis_p_i,nuis_x.getVal())
-	      	      hist_fit_s.SetBinError(nuis_p_i,nuis_x.getError())
+		      gr_fit_s.SetPoint(nuis_p_i-1,nuis_p_i-0.5-0.1,nuis_x.getVal())
+		      gr_fit_s.SetPointError(nuis_p_i-1,0,0,abs(nuis_x.getErrorLo()),nuis_x.getErrorHi())
+	      	    hist_fit_s.SetBinContent(nuis_p_i,nuis_x.getVal())
+	      	    hist_fit_s.SetBinError(nuis_p_i,nuis_x.getError())
 	      	    hist_fit_s.GetXaxis().SetBinLabel(nuis_p_i,name)
+	      	    gr_fit_s.GetXaxis().SetBinLabel(nuis_p_i,name)
 		  hist_prefit.SetBinContent(nuis_p_i,mean_p)
 		  hist_prefit.SetBinError(nuis_p_i,sigma_p)
 	      	  hist_prefit.GetXaxis().SetBinLabel(nuis_p_i,name)
@@ -262,17 +291,6 @@ if options.format == "latex":
 elif options.format == "html":
     print "</table></body></html>"
 
-def getGraph(hist,shift):
-
-   gr = ROOT.TGraphErrors()
-   gr.SetName(hist.GetName())
-   for i in range(hist.GetNbinsX()):
-     x = hist.GetBinCenter(i+1)+shift
-     y = hist.GetBinContent(i+1)
-     e = hist.GetBinError(i+1)
-     gr.SetPoint(i,x,y)
-     gr.SetPointError(i,float(abs(shift))*0.8,e)
-   return gr
 
 if options.plotfile:
     import ROOT
@@ -293,8 +311,8 @@ if options.plotfile:
     canvas_nuis = ROOT.TCanvas("nuisances", "nuisances", 900, 600)
     hist_fit_e_s = hist_fit_s.Clone("errors_s")
     hist_fit_e_b = hist_fit_b.Clone("errors_b")
-    gr_fit_s = getGraph(hist_fit_s,-0.1)
-    gr_fit_b = getGraph(hist_fit_b, 0.1)
+    #gr_fit_s = getGraph(hist_fit_s,-0.1)
+    #gr_fit_b = getGraph(hist_fit_b, 0.1)
     gr_fit_s.SetLineColor(ROOT.kRed)
     gr_fit_s.SetMarkerColor(ROOT.kRed)
     gr_fit_b.SetLineColor(ROOT.kBlue)
