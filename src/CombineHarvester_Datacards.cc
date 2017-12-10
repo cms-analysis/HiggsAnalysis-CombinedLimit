@@ -478,8 +478,10 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
           try {
             LoadShapes(sys.get(), hist_mapping);
           } catch (std::exception & e) {
-            LOGLINE(log(), "Systematic with shape? did not resolve to a shape");
-            if (verbosity_ > 0) log() << e.what();
+            if (verbosity_ > 0) {
+              LOGLINE(log(), "Systematic with shape? did not resolve to a shape");
+              log() << e.what();
+            }
           }
           if (!sys->shape_u() || !sys->shape_d()) {
             sys->set_type("lnN");
