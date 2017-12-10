@@ -446,8 +446,8 @@ class CombineHarvester {
   void MergeBinErrors(double bbb_threshold, double merge_threshold);
   /**@}*/
 
-  // void SetAutoMCStats(CombineHarvester &target, double thresh, bool sig=false, int mode=1);
-
+  void SetAutoMCStats(CombineHarvester &target, double thresh, bool sig=false, int mode=1);
+  void RenameAutoMCStatsBin(std::string const& oldname, std::string const& newname);
  private:
   friend void swap(CombineHarvester& first, CombineHarvester& second);
 

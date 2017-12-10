@@ -845,4 +845,20 @@ void CombineHarvester::SetupRateParamWspObj(std::string const& name,
   ws->arg(name.c_str())->setStringAttribute("wspSource", obj.c_str());
   if (is_ext_arg) ws->arg(name.c_str())->setAttribute("extArg");
 }
+
+void CombineHarvester::SetAutoMCStats(CombineHarvester &target, double thresh, bool sig, int mode) {
+  for (auto const& bin : this->bin_set()) {
+    target.auto_stats_settings_[bin] = AutoMCStatsSettings(thresh, sig, mode);
+  }
+}
+
+void CombineHarvester::RenameAutoMCStatsBin(std::string const& oldname, std::string const& newname) {
+  auto it = auto_stats_settings_.find(oldname);
+  if (it != auto_stats_settings_.end()) {
+    auto_stats_settings_[newname] = it->second;
+    auto_stats_settings_.erase(it);
+  }
+}
+
+
 }
