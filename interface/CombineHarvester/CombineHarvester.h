@@ -448,6 +448,7 @@ class CombineHarvester {
 
   void SetAutoMCStats(CombineHarvester &target, double thresh, bool sig=false, int mode=1);
   void RenameAutoMCStatsBin(std::string const& oldname, std::string const& newname);
+  std::set<std::string> GetAutoMCStatsBins() const;
  private:
   friend void swap(CombineHarvester& first, CombineHarvester& second);
 

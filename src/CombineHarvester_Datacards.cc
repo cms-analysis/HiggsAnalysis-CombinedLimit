@@ -1204,6 +1204,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   }
 
   for (auto stat_settings : auto_stats_settings_) {
+    if (!bin_set.count(stat_settings.first)) continue;
     txt_file << format("%s autoMCStats %g %i %i\n") % stat_settings.first %
                     stat_settings.second.event_threshold %
                     stat_settings.second.include_signal %

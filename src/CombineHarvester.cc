@@ -43,6 +43,7 @@ void swap(CombineHarvester& first, CombineHarvester& second) {
   swap(first.verbosity_, second.verbosity_);
   swap(first.flags_, second.flags_);
   swap(first.log_, second.log_);
+  swap(first.auto_stats_settings_, second.auto_stats_settings_);
 }
 
 CombineHarvester::CombineHarvester(CombineHarvester const& other)
@@ -52,6 +53,7 @@ CombineHarvester::CombineHarvester(CombineHarvester const& other)
       params_(other.params_),
       wspaces_(other.wspaces_),
       flags_(other.flags_),
+      auto_stats_settings_(other.auto_stats_settings_),
       verbosity_(other.verbosity_),
       log_(other.log_) {
   // std::cout << "[CombineHarvester] Copy-constructor called " << &other
@@ -865,5 +867,12 @@ void CombineHarvester::RenameAutoMCStatsBin(std::string const& oldname, std::str
   }
 }
 
+std::set<std::string> CombineHarvester::GetAutoMCStatsBins() const {
+  std::set<std::string> result;
+  for (auto const& it : auto_stats_settings_) {
+    result.insert(it.first);
+  }
+  return result;
+}
 
 }
