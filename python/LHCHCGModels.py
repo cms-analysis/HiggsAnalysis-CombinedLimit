@@ -307,14 +307,11 @@ class XSBRratios(LHCHCGBaseModel):
 
 class Kappas(LHCHCGBaseModel):
     "assume the SM coupling but let the Higgs mass to float"
-    def __init__(self,resolved=True,BRU=True,addInvisible=False,doWidth=False):
+    def __init__(self,resolved=True,BRU=True,addInvisible=False):
         LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.doBRU = BRU
         self.resolved = resolved
         self.addInvisible = addInvisible
-        self.doWidth = doWidth
-        if (self.resolved and self.doWidth):
-            raise RuntimeError, "scanning for width only supported in non-resolved scenario" 
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
@@ -324,25 +321,20 @@ class Kappas(LHCHCGBaseModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("kappa_W[1,0.0,2.0]") 
+        self.modelBuilder.doVar("kappa_Z[1,0.0,2.0]") 
         self.modelBuilder.doVar("kappa_tau[1,0.0,3.0]")
         self.modelBuilder.doVar("kappa_mu[1,0.0,5.0]") 
         self.modelBuilder.factory_("expr::kappa_mu_expr(\"@0*@1+(1-@0)*@2\", CMS_use_kmu[0], kappa_mu, kappa_tau)")
         self.modelBuilder.doVar("kappa_t[1,0.0,4.0]")
         self.modelBuilder.doVar("kappa_b[1,0.0,3.0]")
-        self.modelBuilder.doVar("kappa_Z[1,0.0,2.0]") 
         if not self.resolved:
-            # replace kappa_g in the model with kappa_H if doing width. 
-            if (self.doWidth):  
-                self.modelBuilder.doVar("kappa_H[1,0.0,3.0]")
-            else:
-                self.modelBuilder.doVar("kappa_g[1,0.0,2.0]")
+            self.modelBuilder.doVar("kappa_g[1,0.0,2.0]")
             self.modelBuilder.doVar("kappa_gam[1,0.0,2.5]")
 	self.modelBuilder.doVar("BRinv[0,0,1]")
         if not self.addInvisible: self.modelBuilder.out.var("BRinv").setConstant(True)
         pois = 'kappa_W,kappa_Z,kappa_tau,kappa_t,kappa_b'
         if not self.resolved:
-            if (self.doWidth): pois += ',kappa_H,kappa_gam'
-            else: pois += ',kappa_g,kappa_gam'
+            pois += ',kappa_g,kappa_gam'
 	if self.addInvisible: pois+=",BRinv"
         self.doMH()
         self.modelBuilder.doSet("POI",pois)
@@ -360,15 +352,11 @@ class Kappas(LHCHCGBaseModel):
         else:
             for d in SM_HIGG_DECAYS: 
                 self.modelBuilder.factory_('HiggsDecayWidth_UncertaintyScaling_%s[1.0]' % d)
-
-
-        ## partial witdhs, normalized to the SM one
-        self.modelBuilder.factory_('expr::c7_Gscal_Z("@0*@0*@1*@2", kappa_Z, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz)')
-        self.modelBuilder.factory_('expr::c7_Gscal_W("@0*@0*@1*@2", kappa_W, SM_BR_hww, HiggsDecayWidth_UncertaintyScaling_hww)')
-        self.modelBuilder.factory_('expr::c7_Gscal_tau("@0*@0*@1*@4+@2*@2*@3*@5", kappa_tau, SM_BR_htt, kappa_mu_expr, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_htt, HiggsDecayWidth_UncertaintyScaling_hmm)')
-        self.modelBuilder.factory_('expr::c7_Gscal_top("@0*@0 * @1*@2", kappa_t, SM_BR_hcc, HiggsDecayWidth_UncertaintyScaling_hcc)')
-        self.modelBuilder.factory_('expr::c7_Gscal_bottom("@0*@0 * (@1*@3+@2)", kappa_b, SM_BR_hbb, SM_BR_hss, HiggsDecayWidth_UncertaintyScaling_hbb)')
-        
+        # get VBF, tHq, tHW, ggZH cross section
+        self.SMH.makeScaling('qqH', CW='kappa_W', CZ='kappa_Z')
+        self.SMH.makeScaling("tHq", CW='kappa_W', Ctop="kappa_t")
+        self.SMH.makeScaling("tHW", CW='kappa_W', Ctop="kappa_t")
+        self.SMH.makeScaling("ggZH", CZ='kappa_Z', Ctop="kappa_t",Cb="kappa_b")
         # resolve loops
         if self.resolved:
             self.SMH.makeScaling('ggH', Cb='kappa_b', Ctop='kappa_t', Cc="kappa_t")
@@ -376,27 +364,26 @@ class Kappas(LHCHCGBaseModel):
             self.SMH.makeScaling('hgg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_W', Ctau='kappa_tau')
             self.SMH.makeScaling('hzg', Cb='kappa_b', Ctop='kappa_t', CW='kappa_W', Ctau='kappa_tau')
         else:
+            self.modelBuilder.factory_('expr::Scaling_hgluglu("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_hgg("@0*@0", kappa_gam)')
             self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_gam)')
-            self.modelBuilder.factory_('expr::c7_Gscal_gamma("@0*@1*@4 + @2*@3*@5",  Scaling_hgg, SM_BR_hgg, Scaling_hzg, SM_BR_hzg, HiggsDecayWidth_UncertaintyScaling_hgg, HiggsDecayWidth_UncertaintyScaling_hzg)')
-            if (self.doWidth):
-                self.modelBuilder.factory_('expr::kappa_g2_expr("(@0*(1.0-@1)-@2-@3-@4-@5-@6-@7)/@8", kappa_H, BRinv, c7_Gscal_Z, c7_Gscal_W, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gamma, SM_BR_hgluglu)')
-                self.modelBuilder.factory_('expr::Scaling_hgluglu("@0", kappa_g2_expr)')
-                self.modelBuilder.factory_('expr::Scaling_ggH_7TeV("@0", kappa_g2_expr)')
-                self.modelBuilder.factory_('expr::Scaling_ggH_8TeV("@0", kappa_g2_expr)')
-                self.modelBuilder.factory_('expr::Scaling_ggH_13TeV("@0", kappa_g2_expr)')
-                self.modelBuilder.factory_('expr::Scaling_ggH_14TeV("@0", kappa_g2_expr)')
-            else:
-                self.modelBuilder.factory_('expr::Scaling_hgluglu("@0*@0", kappa_g)')
-                self.modelBuilder.factory_('expr::Scaling_ggH_7TeV("@0*@0", kappa_g)')
-                self.modelBuilder.factory_('expr::Scaling_ggH_8TeV("@0*@0", kappa_g)')
-                self.modelBuilder.factory_('expr::Scaling_ggH_13TeV("@0*@0", kappa_g)')
-                self.modelBuilder.factory_('expr::Scaling_ggH_14TeV("@0*@0", kappa_g)')
-            self.modelBuilder.factory_('expr::c7_Gscal_gluon("  @0  * @1 * @2", Scaling_hgluglu, SM_BR_hgluglu, HiggsDecayWidth_UncertaintyScaling_hgluglu)')
+            self.modelBuilder.factory_('expr::Scaling_ggH_7TeV("@0*@0", kappa_g)')
+            self.modelBuilder.factory_('expr::Scaling_ggH_8TeV("@0*@0", kappa_g)')
+            self.modelBuilder.factory_('expr::Scaling_ggH_13TeV("@0*@0", kappa_g)')
+            self.modelBuilder.factory_('expr::Scaling_ggH_14TeV("@0*@0", kappa_g)')
 
+        ## partial witdhs, normalized to the SM one
+        self.modelBuilder.factory_('expr::c7_Gscal_Z("@0*@0*@1*@2", kappa_Z, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz)')
+        self.modelBuilder.factory_('expr::c7_Gscal_W("@0*@0*@1*@2", kappa_W, SM_BR_hww, HiggsDecayWidth_UncertaintyScaling_hww)')
+        self.modelBuilder.factory_('expr::c7_Gscal_tau("@0*@0*@1*@4+@2*@2*@3*@5", kappa_tau, SM_BR_htt, kappa_mu_expr, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_htt, HiggsDecayWidth_UncertaintyScaling_hmm)')
+        self.modelBuilder.factory_('expr::c7_Gscal_top("@0*@0 * @1*@2", kappa_t, SM_BR_hcc, HiggsDecayWidth_UncertaintyScaling_hcc)')
+        self.modelBuilder.factory_('expr::c7_Gscal_bottom("@0*@0 * (@1*@3+@2)", kappa_b, SM_BR_hbb, SM_BR_hss, HiggsDecayWidth_UncertaintyScaling_hbb)')
+        self.modelBuilder.factory_('expr::c7_Gscal_gluon("  @0  * @1 * @2", Scaling_hgluglu, SM_BR_hgluglu, HiggsDecayWidth_UncertaintyScaling_hgluglu)')
+        self.modelBuilder.factory_('expr::c7_Gscal_gamma("@0*@1*@4 + @2*@3*@5",  Scaling_hgg, SM_BR_hgg, Scaling_hzg, SM_BR_hzg, HiggsDecayWidth_UncertaintyScaling_hgg, HiggsDecayWidth_UncertaintyScaling_hzg)')
         # fix to have all BRs add up to unity
         self.modelBuilder.factory_("sum::c7_SMBRs(%s)" %  (",".join("SM_BR_"+X for X in "hzz hww htt hmm hcc hbb hss hgluglu hgg hzg".split())))
         self.modelBuilder.out.function("c7_SMBRs").Print("")        
+
         ## total witdh, normalized to the SM one
         self.modelBuilder.factory_('expr::c7_Gscal_tot("(@1+@2+@3+@4+@5+@6+@7)/@8/(1-@0)", BRinv, c7_Gscal_Z, c7_Gscal_W, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs)')
 
@@ -412,12 +399,6 @@ class Kappas(LHCHCGBaseModel):
         self.modelBuilder.factory_('expr::c7_BRscal_hgluglu("@0*@2/@1", Scaling_hgluglu, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hgluglu)')
 
         self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0", BRinv)')
-
-        # get VBF, tHq, tHW, ggZH cross section
-        self.SMH.makeScaling('qqH', CW='kappa_W', CZ='kappa_Z')
-        self.SMH.makeScaling("tHq", CW='kappa_W', Ctop="kappa_t")
-        self.SMH.makeScaling("tHW", CW='kappa_W', Ctop="kappa_t")
-        self.SMH.makeScaling("ggZH", CZ='kappa_Z', Ctop="kappa_t",Cb="kappa_b")
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s_%s" % (production,decay,energy)
@@ -1147,7 +1128,6 @@ B2 = XSBRratiosAlternative()
 K1 = Kappas(resolved=True)
 K2 = Kappas(resolved=False)
 K2Inv = Kappas(resolved=False,addInvisible=True)
-K2InvWidth = Kappas(resolved=False,addInvisible=True,doWidth=True)
 K3 = KappaVKappaF(floatbrinv=False)
 K3Inv = KappaVKappaF(floatbrinv=True)
 L1 = Lambdas()
