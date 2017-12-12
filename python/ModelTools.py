@@ -227,13 +227,30 @@ class ModelBuilder(ModelBuilderBase):
 	  self.out.var(argu).setConstant(False)
 	  self.out.var(argu).setAttribute("flatParam")
 
+	# functions are tricky (functions of functions?)
+	toBeCreated = []
 	for rp in self.DC.rateParams.keys():
 	 for rk in range(len(self.DC.rateParams[rp])):
 	  type = self.DC.rateParams[rp][rk][0][-1]
 	  if type!=1: continue
 	  argu,arge,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1],self.DC.rateParams[rp][rk][0][2]
 	  if self.out.arg(argu): continue
-	  self.doExp(argu,arge,argv)
+	  if not reduce(lambda x,y:x*y,[self.out.arg(a)!=None for a in argv.split(",")],1): toBeCreated.append([argu,arge,argv]) 
+	  else: self.doExp(argu,arge,argv)
+
+	# by now we 've probably picked up the majority of the, repeat through list until we get them all
+	tbc = toBeCreated[:]
+	while True:
+	  toBeCreated = tbc[:]
+	  if len(toBeCreated)==0: break
+	  for rp in toBeCreated: 
+	    argu,arge,argv = rp[0],rp[1],rp[2]
+	    if reduce(lambda x,y:x*y,[self.out.arg(a)!=None for a in argv.split(",")],1): 
+	    	self.doExp(argu,arge,argv)
+		tbc.remove([argu,arge,argv])
+	  if len(tbc)==len(toBeCreated): 
+	      print tbc, " -> ", toBeCreated
+	      raise RuntimeError, "Cannot produce following rateParams (dependent parameters not found!) %s"%(",".join([t[0] for t in toBeCreated]))
 
 
     def doObservables(self):
