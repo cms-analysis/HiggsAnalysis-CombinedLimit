@@ -191,6 +191,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   }
   if (!vm["prior"].defaulted()) noDefaultPrior_ = 0;
 
+  expectSignalSet_ = !vm["expectSignal"].defaulted();
+
   if( vm.count("LoadLibrary") ) {
     librariesToLoad_ = vm["LoadLibrary"].as<std::vector<std::string> >();
   }

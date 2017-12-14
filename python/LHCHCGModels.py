@@ -46,7 +46,8 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.floatMass = False
         self.add_bbH = [ ]
-        self.bbH_pdf = "pdf_Higgs_gg" 
+        self.bbH_pdf = "pdf_Higgs_gg"
+        self.promote_hmm = False
     def preProcessNuisances(self,nuisances):
         if self.add_bbH and not any(row for row in nuisances if row[0] == "QCDscale_bbH"):
             nuisances.append(("QCDscale_bbH",False, "param", [ "0", "1"], [] ) )
@@ -54,6 +55,11 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
             nuisances.append((bbH_pdf,False, "param", [ "0", "1"], [] ) )
     def setPhysicsOptionsBase(self,physOptions):
         for po in physOptions:
+            if po.startswith("dohmm="):
+                self.promote_hmm = (po.replace("dohmm=","") in [ "yes", "1", "Yes", "True", "true" ])
+                if self.promote_hmm:
+                    print 'Treating hmm as an independent process'
+                    CMS_to_LHCHCG_DecSimple['hmm'] = 'mumu'
             if po.startswith("bbh="):
                 self.add_bbH = [d.strip() for d in po.replace("bbh=","").split(",")]
             if po.startswith("higgsMassRange="):
@@ -255,7 +261,7 @@ class XSBRratios(LHCHCGBaseModel):
         self.modelBuilder.doVar("mu_XS_ZH_r_XS_ggF[1,0,5]")
         self.modelBuilder.doVar("mu_XS_ttH_r_XS_ggF[1,0,5]")
         self.POIs = "mu_XS_ggF_x_BR_%s,mu_XS_VBF_r_XS_ggF,mu_XS_ttH_r_XS_ggF,mu_XS_WH_r_XS_ggF,mu_XS_ZH_r_XS_ggF"%self.denominator
-        for X in ["ZZ","tautau","bb","gamgam","WW"]:
+        for X in ["ZZ","tautau","bb","gamgam","WW","mumu"]:
             if X==self.denominator:continue
             self.modelBuilder.doVar("mu_BR_%s_r_BR_%s[1,0,5]" % (X,self.denominator))
             self.POIs += ",mu_BR_%s_r_BR_%s"%(X,self.denominator)
@@ -324,7 +330,7 @@ class Kappas(LHCHCGBaseModel):
         self.modelBuilder.doVar("kappa_Z[1,0.0,2.0]") 
         self.modelBuilder.doVar("kappa_tau[1,0.0,3.0]")
         self.modelBuilder.doVar("kappa_mu[1,0.0,5.0]") 
-        self.modelBuilder.factory_("expr::kappa_mu_expr(\"@0*@1+(1-@0)*@2\", CMS_use_kmu[0], kappa_mu, kappa_tau)")
+        #self.modelBuilder.factory_("expr::kappa_mu_expr(\"@0*@1+(1-@0)*@2\", CMS_use_kmu[0], kappa_mu, kappa_tau)")
         self.modelBuilder.doVar("kappa_t[1,0.0,4.0]")
         self.modelBuilder.doVar("kappa_b[1,0.0,3.0]")
         if not self.resolved:
@@ -373,9 +379,10 @@ class Kappas(LHCHCGBaseModel):
             self.modelBuilder.factory_('expr::Scaling_ggH_14TeV("@0*@0", kappa_g)')
 
         ## partial witdhs, normalized to the SM one
+        kappa_mu_expr = 'kappa_mu' if self.promote_hmm else 'kappa_tau'
         self.modelBuilder.factory_('expr::c7_Gscal_Z("@0*@0*@1*@2", kappa_Z, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz)')
         self.modelBuilder.factory_('expr::c7_Gscal_W("@0*@0*@1*@2", kappa_W, SM_BR_hww, HiggsDecayWidth_UncertaintyScaling_hww)')
-        self.modelBuilder.factory_('expr::c7_Gscal_tau("@0*@0*@1*@4+@2*@2*@3*@5", kappa_tau, SM_BR_htt, kappa_mu_expr, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_htt, HiggsDecayWidth_UncertaintyScaling_hmm)')
+        self.modelBuilder.factory_('expr::c7_Gscal_tau("@0*@0*@1*@4+@2*@2*@3*@5", kappa_tau, SM_BR_htt, %s, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_htt, HiggsDecayWidth_UncertaintyScaling_hmm)' % kappa_mu_expr)
         self.modelBuilder.factory_('expr::c7_Gscal_top("@0*@0 * @1*@2", kappa_t, SM_BR_hcc, HiggsDecayWidth_UncertaintyScaling_hcc)')
         self.modelBuilder.factory_('expr::c7_Gscal_bottom("@0*@0 * (@1*@3+@2)", kappa_b, SM_BR_hbb, SM_BR_hss, HiggsDecayWidth_UncertaintyScaling_hbb)')
         self.modelBuilder.factory_('expr::c7_Gscal_gluon("  @0  * @1 * @2", Scaling_hgluglu, SM_BR_hgluglu, HiggsDecayWidth_UncertaintyScaling_hgluglu)')
@@ -391,7 +398,7 @@ class Kappas(LHCHCGBaseModel):
         self.modelBuilder.factory_('expr::c7_BRscal_hww("@0*@0*@2/@1", kappa_W, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hww)')
         self.modelBuilder.factory_('expr::c7_BRscal_hzz("@0*@0*@2/@1", kappa_Z, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hzz)')
         self.modelBuilder.factory_('expr::c7_BRscal_htt("@0*@0*@2/@1", kappa_tau, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_htt)')
-        self.modelBuilder.factory_('expr::c7_BRscal_hmm("@0*@0*@2/@1", kappa_mu_expr, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hmm)')
+        self.modelBuilder.factory_('expr::c7_BRscal_hmm("@0*@0*@2/@1", %s, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hmm)' % kappa_mu_expr)
         self.modelBuilder.factory_('expr::c7_BRscal_hbb("@0*@0*@2/@1", kappa_b, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hbb)')
         self.modelBuilder.factory_('expr::c7_BRscal_hcc("@0*@0*@2/@1", kappa_t, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hcc)')
         self.modelBuilder.factory_('expr::c7_BRscal_hgg("@0*@2/@1", Scaling_hgg, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hgg)')
@@ -443,9 +450,10 @@ class Lambdas(LHCHCGBaseModel):
         self.modelBuilder.doVar("lambda_bZ[1,0.0,4.0]")
         self.modelBuilder.doVar("lambda_gamZ[1,0.0,2.0]")
         self.modelBuilder.doVar("lambda_tauZ[1,0.0,4.0]")
+        self.modelBuilder.doVar("lambda_muZ[1,0.0,4.0]")
         self.modelBuilder.doVar("lambda_tg[1,0.0,4.0]")
         self.modelBuilder.doVar("kappa_gZ[1,0.0,3.0]")
-        self.modelBuilder.doSet("POI",'lambda_WZ,lambda_Zg,lambda_bZ,lambda_gamZ,lambda_tauZ,lambda_tg,kappa_gZ')
+        self.modelBuilder.doSet("POI",'lambda_WZ,lambda_Zg,lambda_bZ,lambda_gamZ,lambda_tauZ,lambda_muZ,lambda_tg,kappa_gZ')
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
@@ -499,7 +507,9 @@ class Lambdas(LHCHCGBaseModel):
             'hgluglu' : 'lambda_gZ', # glu scales as 1/Zgky
             'hzg'     : 'lambda_gamZ',   # fancier option: 'sqrt_zgamma',
             #'hss' : 'lambda_bZ', # strange scales as bottom # not used
-        } 
+        }
+        if self.promote_hmm:
+            self.decayMap_['hmm'] = 'lambda_muZ'
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s_%s" % (production,decay,energy)
         if self.modelBuilder.out.function(name):
