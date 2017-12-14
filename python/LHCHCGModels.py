@@ -55,8 +55,8 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
             nuisances.append((bbH_pdf,False, "param", [ "0", "1"], [] ) )
     def setPhysicsOptionsBase(self,physOptions):
         for po in physOptions:
-            if po.startswith("hmm="):
-                self.promote_hmm = (po.replace("hmm=","") in [ "yes", "1", "Yes", "True", "true" ])
+            if po.startswith("dohmm="):
+                self.promote_hmm = (po.replace("dohmm=","") in [ "yes", "1", "Yes", "True", "true" ])
                 if self.promote_hmm:
                     print 'Treating hmm as an independent process'
                     CMS_to_LHCHCG_DecSimple['hmm'] = 'mumu'
