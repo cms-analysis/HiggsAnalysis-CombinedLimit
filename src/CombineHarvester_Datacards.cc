@@ -632,24 +632,28 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       std::string obj_name;
       std::string obj_sys_name;
       if (proc->data()) {
+        obj_name = std::string(proc->data()->GetName());
+        boost::replace_all(obj_name, proc->process(), "$PROCESS");
         obj_name = std::string(data_ws_map[proc->data()]->GetName()) + ":" +
-                   std::string(proc->data()->GetName());
+                   obj_name;
       }
       if (proc->pdf()) {
+        obj_name = std::string(proc->pdf()->GetName());
+        boost::replace_all(obj_name, proc->process(), "$PROCESS");
         obj_name = std::string(pdf_ws_map[proc->pdf()]->GetName()) +
-                   ":" + std::string(proc->pdf()->GetName());
+                   ":" + obj_name;
       }
       for (unsigned j = 0; j < pmap[i].size(); ++j) {
         ch::Systematic const* sys = pmap[i][j];
         if (sys->data_u()) {
-          obj_sys_name = std::string(data_ws_map[sys->data_u()]->GetName()) +
-                         ":" + std::string(sys->data_u()->GetName());
+          obj_sys_name = std::string(sys->data_u()->GetName());
           boost::replace_all(obj_sys_name, sys->name() + "Up", "$SYSTEMATIC");
           boost::replace_all(obj_sys_name, sys->process(), "$PROCESS");
+          obj_sys_name = std::string(data_ws_map[sys->data_u()]->GetName()) +
+                         ":" + obj_sys_name;
           break;
         }
       }
-      boost::replace_all(obj_name, proc->process(), "$PROCESS");
 
       // If the prototype pattern is already filled, but doesn't equal this
       // new pattern - then we can't use the prototype
