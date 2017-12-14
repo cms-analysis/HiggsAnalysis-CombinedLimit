@@ -602,6 +602,36 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           
       }
 
+      // expand regexps          
+      while (freezeNuisances_.find("var{") != std::string::npos) {          
+          size_t pos1 = freezeNuisances_.find("var{");
+          size_t pos2 = freezeNuisances_.find("}",pos1);
+          std::string prestr = freezeNuisances_.substr(0,pos1);
+          std::string poststr = freezeNuisances_.substr(pos2+1,freezeNuisances_.size()-pos2);
+          std::string reg_esp = freezeNuisances_.substr(pos1+4,pos2-pos1-4);
+          
+          std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
+          std::regex rgx( reg_esp, std::regex::ECMAScript);
+          
+          std::string matchingParams="";
+          std::auto_ptr<TIterator> iter(w->componentIterator());
+          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+
+              if ( ! (a->IsA()->InheritsFrom(RooRealVar::Class()) || a->IsA()->InheritsFrom(RooCategory::Class()))) continue;
+ 
+              const std::string &target = a->GetName();
+              std::cout<<"var "<<target<<std::endl;
+              std::smatch match;
+              if (std::regex_match(target, match, rgx)) {
+                  matchingParams = matchingParams + target + ",";
+              }
+          }
+
+          freezeNuisances_ = prestr+matchingParams+poststr;
+          freezeNuisances_ = boost::replace_all_copy(freezeNuisances_, ",,", ","); 
+          
+      }
+
       //RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       RooArgSet toFreeze;
       if (freezeNuisances_=="all") {
