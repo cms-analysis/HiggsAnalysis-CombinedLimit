@@ -1094,6 +1094,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       txt_file << "\n";
     }
   }
+  std::set<std::string> all_fn_param_args;
   for (auto const& rp : floating_params) {
     if (!params_.count(rp[0])) {
       // If we don't have a ch::Parameter with this name, then we'll assume
@@ -1123,6 +1124,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
           std::unique_ptr<RooArgSet>(form->getParameters(RooArgList()))->getSize();
       std::string args = "";
       for (unsigned i = 0; i < npars; ++i) {
+        all_fn_param_args.insert(std::string(form->getParameter(i)->GetName()));
         args += std::string(form->getParameter(i)->GetName());
         if (i < (npars-1)) {
           args += ",";
@@ -1140,7 +1142,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     auto v = vars.createIterator();
     do {
       RooRealVar *y = dynamic_cast<RooRealVar*>(**v);
-      if (y && y->getAttribute("extArg")) {
+      if (y && y->getAttribute("extArg") && all_fn_param_args.count(std::string(y->GetName()))) {
         Parameter const* p = params_.at(y->GetName()).get();
         txt_file << format("%-" + sys_str_short + "s %-10s %g") %
                         y->GetName() % "extArg" % p->val();
@@ -1156,7 +1158,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     v = funcs.createIterator();
     do {
       RooAbsReal *y = dynamic_cast<RooAbsReal*>(**v);
-      if (y && y->getAttribute("extArg") && y->getStringAttribute("wspSource")) {
+      if (y && y->getAttribute("extArg") && y->getStringAttribute("wspSource") && all_fn_param_args.count(std::string(y->GetName()))) {
           txt_file << format("%-" + sys_str_short +
                              "s %-10s %-20s\n") %
                           y->GetName() % "extArg"  % std::string(y->getStringAttribute("wspSource"));
