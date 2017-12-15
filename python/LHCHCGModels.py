@@ -313,11 +313,12 @@ class XSBRratios(LHCHCGBaseModel):
 
 class Kappas(LHCHCGBaseModel):
     "assume the SM coupling but let the Higgs mass to float"
-    def __init__(self,resolved=True,BRU=True,addInvisible=False):
+    def __init__(self,resolved=True,BRU=True,addInvisible=False,addUndet=False):
         LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.doBRU = BRU
         self.resolved = resolved
         self.addInvisible = addInvisible
+        self.addUndet = addUndet
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
@@ -337,11 +338,14 @@ class Kappas(LHCHCGBaseModel):
             self.modelBuilder.doVar("kappa_g[1,0.0,2.0]")
             self.modelBuilder.doVar("kappa_gam[1,0.0,2.5]")
 	self.modelBuilder.doVar("BRinv[0,0,1]")
+	self.modelBuilder.doVar("BRundet[0,0,1]")
         if not self.addInvisible: self.modelBuilder.out.var("BRinv").setConstant(True)
+        if not self.addUndet: self.modelBuilder.out.var("BRundet").setConstant(True)
         pois = 'kappa_W,kappa_Z,kappa_tau,kappa_t,kappa_b'
         if not self.resolved:
             pois += ',kappa_g,kappa_gam'
-	if self.addInvisible: pois+=",BRinv"
+        if self.addInvisible: pois+=",BRinv"
+        if self.addUndet: pois+=",BRundet"
         self.doMH()
         self.modelBuilder.doSet("POI",pois)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
@@ -392,7 +396,7 @@ class Kappas(LHCHCGBaseModel):
         self.modelBuilder.out.function("c7_SMBRs").Print("")        
 
         ## total witdh, normalized to the SM one
-        self.modelBuilder.factory_('expr::c7_Gscal_tot("(@1+@2+@3+@4+@5+@6+@7)/@8/(1-@0)", BRinv, c7_Gscal_Z, c7_Gscal_W, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs)')
+        self.modelBuilder.factory_('expr::c7_Gscal_tot("(@1+@2+@3+@4+@5+@6+@7)/@8/(1-@0-@9)", BRinv, c7_Gscal_Z, c7_Gscal_W, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs, BRundet)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
         self.modelBuilder.factory_('expr::c7_BRscal_hww("@0*@0*@2/@1", kappa_W, c7_Gscal_tot, HiggsDecayWidth_UncertaintyScaling_hww)')
@@ -1137,7 +1141,8 @@ B1ZZ = XSBRratios("ZZ")
 B2 = XSBRratiosAlternative()
 K1 = Kappas(resolved=True)
 K2 = Kappas(resolved=False)
-K2Inv = Kappas(resolved=False,addInvisible=True)
+K2Inv = Kappas(resolved=False,addInvisible=True,addUndet=False)
+K2Undet = Kappas(resolved=False,addInvisible=True,addUndet=True)
 K3 = KappaVKappaF(floatbrinv=False)
 K3Inv = KappaVKappaF(floatbrinv=True)
 L1 = Lambdas()
