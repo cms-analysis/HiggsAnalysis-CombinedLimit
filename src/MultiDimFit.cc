@@ -51,10 +51,10 @@ float MultiDimFit::autoRange_ = -1.0;
 std::string MultiDimFit::fixedPointPOIs_ = "";
 float MultiDimFit::centeredRange_ = -1.0;
 
-
 std::string MultiDimFit::saveSpecifiedFuncs_;
 std::string MultiDimFit::saveSpecifiedIndex_;
 std::string MultiDimFit::saveSpecifiedNuis_;
+std::string MultiDimFit::setPhysicsModelParameterExpression_;
 std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
 std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
 std::vector<float>        MultiDimFit::specifiedFuncVals_;
@@ -91,6 +91,7 @@ MultiDimFit::MultiDimFit() :
 	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
+    ("setParametersForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
 	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
       ;
 }
@@ -518,6 +519,11 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     unsigned int n = poi_.size();
     //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
+    if (setPhysicsModelParameterExpression_ != "") {
+       RooArgSet allParams(w->allVars());
+       allParams.add(w->allCats());
+       utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
+    }
     if (startFromPreFit_) w->loadSnapshot("clean");
 
     std::vector<double> p0(n), pmin(n), pmax(n);
