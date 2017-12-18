@@ -544,7 +544,9 @@ class ShapeBuilder(ModelBuilder):
             qalgo = 100
             shapeAlgo = shapeAlgo[:-1]
         if shapeAlgo == "shape": shapeAlgo = self.options.defMorph
-        if "shapeL" in shapeAlgo: qrange = 0;
+        if "shapeL"   in shapeAlgo:
+                raise RuntimeError, "No algorithm shapeL - this mode is depricated" 
+		#qrange = 0;
         elif "shapeN" in shapeAlgo: qalgo = -1;
         if self.options.useHistPdf != "always":
             if nominalPdf.InheritsFrom("TH1"):
@@ -607,13 +609,13 @@ class ShapeBuilder(ModelBuilder):
                 pdfs = pdflist
 		
         if "2a" in shapeAlgo: # old shape2
-            if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
-            if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work in one dimension"
+            if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2',  'shapeN2' only work with histogram templates"
+            if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2',  'shapeN2' only work in one dimension"
             xvar = nominalPdf.dataHist().get().first()
             _cache[(channel,process)] = ROOT.VerticalInterpHistPdf("shape%s_%s_%s_morph" % (postFix,channel,process), "", xvar, pdfs, coeffs, qrange, qalgo)
         elif "2" in shapeAlgo:  # new faster shape2
-            if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
-            if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work in one dimension"
+            if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2',  'shapeN2' only work with histogram templates"
+            if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2',  'shapeN2' only work in one dimension"
             xvar = nominalPdf.dataHist().get().first()
             _cache[(channel,process)] = ROOT.FastVerticalInterpHistPdf("shape%s_%s_%s_morph" % (postFix,channel,process), "", xvar, pdfs, coeffs, qrange, qalgo)
         else:

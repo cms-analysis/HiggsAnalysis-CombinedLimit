@@ -16,7 +16,7 @@ def addDatacardParserOptions(parser):
     parser.add_option("-L", "--LoadLibrary", dest="libs",  type="string" , action="append", help="Load these libraries")
     parser.add_option("--keyword-value",     dest="modelparams",  default = [], nargs=1, type='string', action='append',  help="Set keyword values with 'WORD=VALUE', will replace $WORD with VALUE in datacards. Filename will also be extended with 'WORDVALUE' ")
     parser.add_option("--poisson",  dest="poisson",  default=0,  type="int",    help="If set to a positive number, binned datasets wih more than this number of entries will be generated using poissonians")
-    parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape2N", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
+    parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
     parser.add_option("--no-b-only","--for-fits",    dest="noBOnly", default=False, action="store_true", help="Do not save the background-only pdf (saves time)")
     parser.add_option("--no-optimize-pdfs",    dest="noOptimizePdf", default=False, action="store_true", help="Do not save the RooSimultaneous as RooSimultaneousOpt and Gaussian constraints as SimpleGaussianConstraint")
     parser.add_option("--optimize-simpdf-constraints",    dest="moreOptimizeSimPdf", default="none", type="string", help="Handling of constraints in simultaneous pdf: 'none' = add all constraints on all channels (default); 'lhchcg' = add constraints on only the first channel; 'cms' = add constraints to the RooSimultaneousOpt.")
