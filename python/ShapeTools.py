@@ -96,9 +96,7 @@ class ShapeBuilder(ModelBuilder):
                 else:
                     sigcoeffs.append(coeff)
             if self.options.verbose > 1: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
-            if channelBinParFlag:
-                if 'automcstats' not in self.DC.groups:
-                    self.DC.groups['automcstats'] = []
+            if channelBinParFlag: 
                 prop = self.addObj(ROOT.CMSHistErrorPropagator, "prop_bin%s" % b, "", pdfs.at(0).getXVar(), pdfs, coeffs)
                 prop.setAttribute('CachingPdf_Direct', True)
                 if self.DC.binParFlags[b][0] >= 0.:
@@ -107,7 +105,6 @@ class ShapeBuilder(ModelBuilder):
                         arg = bbb_args.at(bidx)
                         n = arg.GetName()
                         parname = n
-                        self.DC.groups['automcstats'].append(parname)
                         self.out._import(arg)
                         if arg.getAttribute("createGaussianConstraint"):
                             self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[0,%s], %s" % (n, n, '-7,7', '1.0'), True)

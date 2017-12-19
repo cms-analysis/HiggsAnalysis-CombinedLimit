@@ -453,7 +453,7 @@ class ModelBuilder(ModelBuilderBase):
     def doNuisancesGroups(self):
         # Prepare a dictionary of which group a certain nuisance belongs to
         groupsFor = {}
-        existingNuisanceNames = tuple(set([syst[0] for syst in self.DC.systs]+self.DC.flatParamNuisances.keys()+self.DC.rateParams.keys()+self.DC.extArgs.keys()+self.DC.discretes+self.DC.groups['automcstats']))
+        existingNuisanceNames = tuple(set([syst[0] for syst in self.DC.systs]+self.DC.flatParamNuisances.keys()+self.DC.rateParams.keys()+self.DC.extArgs.keys()+self.DC.discretes))
         for groupName,nuisanceNames in self.DC.groups.iteritems():
             for nuisanceName in nuisanceNames:
                 if nuisanceName not in existingNuisanceNames:
