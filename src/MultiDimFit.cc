@@ -553,7 +553,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             double x =  pmin[0] + (i)*(pmax[0]-pmin[0])/points_; 
 	    if( xbestpoint > lastPoint_ ){
 		int ireverse = lastPoint_ - i + firstPoint_ ;
-		x = pmin[0] + (ireverse+0.5)*(pmax[0]-pmin[0])/points_; 
+		x = pmin[0] + (ireverse)*(pmax[0]-pmin[0])/points_; 
 	    }
 
 	    if (squareDistPoiStep_){
