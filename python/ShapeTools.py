@@ -241,7 +241,7 @@ class ShapeBuilder(ModelBuilder):
                     arg.setConstant(True);
 
     def RenameDupObjs(self, dupObjs, dupNames, newObj, postFix):
-        print 'Checking for duplicates in %s' % newObj.GetName()
+        #print 'Checking for duplicates in %s' % newObj.GetName()
         branchNodes = ROOT.RooArgList()
         newObj.branchNodeServerList(branchNodes)
         # branchNodes.Print('v')
