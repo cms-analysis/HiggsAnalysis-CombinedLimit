@@ -42,6 +42,7 @@ protected:
   static std::string signalPdfNames_, backgroundPdfNames_;
   static std::string filterString_;
   static bool        saveNormalizations_;
+  static bool        savePredictionsPerToy_;
   static bool        oldNormNames_;
   static bool        saveShapes_;
   static bool        saveOverallShapes_;
@@ -50,17 +51,20 @@ protected:
   static bool        reuseParams_;
   static bool        customStartingPoint_;
   int currentToy_, nToys;
+  int overallBins_,overallNorms_,overallNuis_,overallCons_;
   int fitStatus_, numbadnll_;
   double mu_, muErr_, muLoErr_, muHiErr_, nll_nll0_, nll_bonly_, nll_sb_;
   std::auto_ptr<TFile> fitOut;
   double* globalObservables_;
   double* nuisanceParameters_;
   double* processNormalizations_;
+  double* processNormalizationsShapes_;
 
-  TTree *t_fit_b_, *t_fit_sb_;
+  TTree *t_fit_b_, *t_fit_sb_, *t_prefit_;
    
   void getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out);
   void createFitResultTrees(const RooStats::ModelConfig &,bool);
+  void resetFitResultTrees(bool);
   void setFitResultTrees(const RooArgSet *, double *);
   void setNormsFitResultTrees(const RooArgSet *, double *);
 
@@ -73,6 +77,7 @@ protected:
     const RooAbsReal  *pdf;
     bool isfunc;
   };
+  void setShapesFitResultTrees(std::map<std::string,ShapeAndNorm> &snm, double *);
   void getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std::map<std::string, ShapeAndNorm> &shapesAndNorms, const std::string &channel);
 
   class NuisanceSampler { 

@@ -46,6 +46,7 @@ std::string FitDiagnostics::signalPdfNames_     = "shapeSig*";
 std::string FitDiagnostics::filterString_     = "";
 std::string FitDiagnostics::backgroundPdfNames_ = "shapeBkg*";
 bool        FitDiagnostics::saveNormalizations_ = false;
+bool        FitDiagnostics::savePredictionsPerToy_ = false;
 bool        FitDiagnostics::oldNormNames_ = false;
 bool        FitDiagnostics::saveShapes_ = false;
 bool        FitDiagnostics::saveOverallShapes_ = false;
@@ -62,8 +63,10 @@ FitDiagnostics::FitDiagnostics() :
     globalObservables_(0),
     nuisanceParameters_(0),
     processNormalizations_(0),
+    processNormalizationsShapes_(0),
     t_fit_b_(nullptr),
-    t_fit_sb_(nullptr)
+    t_fit_sb_(nullptr),
+    t_prefit_(nullptr)
 {
     options_.add_options()
         ("minos",              	boost::program_options::value<std::string>(&minos_)->default_value(minos_), "Compute MINOS errors for: 'none', 'poi', 'all'")
@@ -73,7 +76,8 @@ FitDiagnostics::FitDiagnostics() :
         ("rebinFactor",        	boost::program_options::value<float>(&rebinFactor_)->default_value(rebinFactor_), "Rebin by this factor before plotting (does not affect fitting!)")
         ("signalPdfNames",     	boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ,)")
         ("backgroundPdfNames", 	boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
-        ("saveNormalizations",  "Save post-fit normalizations of all components of the pdfs")
+        ("saveNormalizations",  "Save post-fit normalizations RooArgSet (single toy only)")
+        ("savePredictionsPerToy",  "Save post-fit normalizations and shapes per toy")
         ("oldNormNames",  	"Name the normalizations as in the workspace, and not as channel/process")
         ("saveShapes",  	"Save pre and post-fit distributions as TH1 in fitDiagnostics.root")
         ("saveWithUncertainties",  "Save also pre/post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
@@ -88,6 +92,7 @@ FitDiagnostics::FitDiagnostics() :
 
     // setup a few defaults
     currentToy_=0; nToys=0; fitStatus_=0; mu_=0; muLoErr_=0; muHiErr_=0; numbadnll_=-1; nll_nll0_=-1; nll_bonly_=-1; nll_sb_=-1;
+    overallBins_=0; overallNorms_=0,overallNuis_=0,overallCons_=0;
 }
 
 FitDiagnostics::~FitDiagnostics(){
@@ -95,6 +100,7 @@ FitDiagnostics::~FitDiagnostics(){
    delete globalObservables_;
    delete nuisanceParameters_;
    delete processNormalizations_;
+   delete processNormalizationsShapes_;
 }
 
 void FitDiagnostics::setToyNumber(const int iToy){
@@ -111,6 +117,7 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
     saveOverallShapes_  = vm.count("saveOverallShapes");
     saveShapes_  = saveOverallShapes_ || vm.count("saveShapes");
     saveNormalizations_  = saveShapes_ || vm.count("saveNormalizations");
+    savePredictionsPerToy_ = vm.count("savePredictionsPerToy");
     oldNormNames_  = vm.count("oldNormNames");
     saveWithUncertainties_  = vm.count("saveWithUncertainties");
     justFit_  = vm.count("justFit");
@@ -119,7 +126,7 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
     reuseParams_ = vm.count("initFromBonly");
     customStartingPoint_ = vm.count("customStartingPoint");
      
-    if (justFit_) { out_ = "none"; makePlots_ = false; saveNormalizations_ = false; reuseParams_ = false, skipBOnlyFit_ = true;}
+    if (justFit_) { out_ = "none"; makePlots_ = false; savePredictionsPerToy_ = false; saveNormalizations_ = false; reuseParams_ = false, skipBOnlyFit_ = true;}
 }
 
 bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -153,17 +160,41 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   }
 
   // Determine pre-fit values of nuisance parameters
-  if (currentToy_ < 1){
+  // if (currentToy_ < 1){
     const RooArgSet *nuis      = mc_s->GetNuisanceParameters();
     const RooArgSet *globalObs = mc_s->GetGlobalObservables();
     if (!justFit_ && nuis && globalObs ) {
       std::auto_ptr<RooAbsPdf> nuisancePdf(utils::makeNuisancePdf(*mc_s));
+      w->loadSnapshot("toyGenSnapshot");
+      if (saveNormalizations_) {
+          RooArgSet *norms = new RooArgSet();
+          norms->setName("norm_prefit");
+          ToySampler sampler(&*nuisancePdf, nuis);
+          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_prefit",data);
+          delete norms;
+      }
+      if (withSystematics)	{
+	  setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
+	  setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
+      }
+      if (savePredictionsPerToy_){
+	   RooArgSet *norms = new RooArgSet();
+	   norms->setName("norm_prefit");
+	   getNormalizationsSimple(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
+	   setNormsFitResultTrees(norms,processNormalizations_);
+	   std::map<std::string,ShapeAndNorm> snm;
+	   getShapesAndNorms(mc_s->GetPdf(),*mc_s->GetObservables(), snm, "");
+	   setShapesFitResultTrees(snm,processNormalizationsShapes_);
+	   delete norms;
+      }
+      w->loadSnapshot("clean");
       RooCategory dummyCat("dummyCat", "");
       RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
       simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
       std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
       std::auto_ptr<RooAbsReal> nuisanceNLL(simNuisancePdf.RooAbsPdf::createNLL(*globalData, RooFit::Constrain(*nuis)));
       RooFitResult *res_prefit = 0;
+       // Fit to nuisance pdf to get fitRes for sampling
       {
             CloseCoutSentry sentry(verbose < 2);
             CascadeMinimizer minim(*nuisanceNLL, CascadeMinimizer::Constrained);
@@ -172,21 +203,13 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
             if (minos_ == "all") minim.minos(*nuis);
             res_prefit = minim.save();
       }
-      if (fitOut.get() ) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
-      if (fitOut.get() ) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
-
-      if (saveNormalizations_) {
-          RooArgSet *norms = new RooArgSet();
-          norms->setName("norm_prefit");
-          ToySampler sampler(&*nuisancePdf, nuis);
-          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_prefit",data);
-          delete norms;
-      }
+      if (fitOut.get() && currentToy_ < 1) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
+      if (fitOut.get() && currentToy_ < 1) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
 
       nuisancePdf.reset();
       globalData.reset();
 
-      if (makePlots_) {
+      if (makePlots_ && currentToy_ < 1) {
 	std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_,res_prefit);
 	for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
 	    (*it)->Draw(); 
@@ -198,6 +221,10 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
     } else if (nuis) {
       if (fitOut.get() ) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
     }
+  // }
+  if (t_prefit_) {
+      t_prefit_->Fill();
+      resetFitResultTrees(withSystematics);
   }
  
   RooFitResult *res_b = 0, *res_s = 0;
@@ -253,13 +280,22 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
               if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_fit_b").c_str());
           }
       }
+      if (savePredictionsPerToy_){
+          RooArgSet *norms = new RooArgSet();
+          norms->setName("norm_fit_b");
+          getNormalizationsSimple(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
+          setNormsFitResultTrees(norms,processNormalizations_);
+	  std::map<std::string,ShapeAndNorm> snm;
+	  getShapesAndNorms(mc_s->GetPdf(),*mc_s->GetObservables(), snm, "");
+          setShapesFitResultTrees(snm,processNormalizationsShapes_);
+	  delete norms;
 
+      }
       if (saveNormalizations_) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_b");
           CovarianceReSampler sampler(res_b);
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_fit_b",data);
-          setNormsFitResultTrees(norms,processNormalizations_);
 	  delete norms;
       }
 
@@ -281,7 +317,9 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	numbadnll_=-1;	
   }
   mu_=r->getVal();
-  if (t_fit_b_) t_fit_b_->Fill();
+  if (t_fit_b_) {
+      t_fit_b_->Fill();
+      resetFitResultTrees(withSystematics);}
   // no longer need res_b
   delete res_b;
 
@@ -331,12 +369,21 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           }
       }
 
+      if (savePredictionsPerToy_) {
+          RooArgSet *norms = new RooArgSet();
+          norms->setName("norm_fit_s");
+          getNormalizationsSimple(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
+          setNormsFitResultTrees(norms,processNormalizations_);
+	  std::map<std::string,ShapeAndNorm> snm;
+	  getShapesAndNorms(mc_s->GetPdf(),*mc_s->GetObservables(), snm, "");
+          setShapesFitResultTrees(snm,processNormalizationsShapes_);
+	  delete norms;
+      }
       if (saveNormalizations_) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_s");
           CovarianceReSampler sampler(res_s);
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_fit_s",data);
-          setNormsFitResultTrees(norms,processNormalizations_);
 	  delete norms;
       }
 
@@ -404,13 +451,15 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       std::cout << "\n --- FitDiagnostics ---" << std::endl;
       std::cout << "Fit failed."  << std::endl;
   }
-  if (t_fit_sb_) t_fit_sb_->Fill();
+  if (t_fit_sb_) {
+      t_fit_sb_->Fill();
+      resetFitResultTrees(withSystematics);}
 
   if (currentToy_==nToys-1 || nToys==0 ) {
         
         if (fitOut.get()) {	
 		fitOut->cd();
-		t_fit_sb_->Write(); t_fit_b_->Write();
+		t_fit_sb_->Write(); t_fit_b_->Write(); t_prefit_->Write();
 		fitOut.release()->Close();
 	}
 
@@ -432,36 +481,15 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 }
 
 void FitDiagnostics::getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out) {
-    std::cout << " Someone called FitDiagnostics::getNormalizationsSimple but the order of the set returned will be different from any use case so far, do you really want to use it? " << std::endl;
-    assert(0);
-    RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(pdf);
-    if (sim != 0) {
-        RooAbsCategoryLValue &cat = const_cast<RooAbsCategoryLValue &>(sim->indexCat());
-        for (int i = 0, n = cat.numBins((const char *)0); i < n; ++i) {
-            cat.setBin(i);
-            RooAbsPdf *pdfi = sim->getPdf(cat.getLabel());
-            if (pdfi) getNormalizationsSimple(pdfi, obs, out);
-        }        
-        return;
+    std::map<std::string,ShapeAndNorm> snm;
+    getShapesAndNorms(pdf,obs, snm, "");
+    std::map<std::string,ShapeAndNorm>::const_iterator bg = snm.begin(), ed = snm.end(), pair; int i;
+    for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
+        RooRealVar *val = new RooRealVar((oldNormNames_ ? pair->first : pair->second.channel+"/"+pair->second.process).c_str(), "",pair->second.norm->getVal());
+        // val->setError(sumx2[i]);
+        out.addOwned(*val); 
     }
-    RooProdPdf *prod = dynamic_cast<RooProdPdf *>(pdf);
-    if (prod != 0) {
-        RooArgList list(prod->pdfList());
-        for (int i = 0, n = list.getSize(); i < n; ++i) {
-            RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
-            if (pdfi->dependsOn(obs)) getNormalizationsSimple(pdfi, obs, out);
-        }
-        return;
-    }
-    RooAddPdf *add = dynamic_cast<RooAddPdf *>(pdf);
-    if (add != 0) {
-        RooArgList list(add->coefList());  
-        for (int i = 0, n = list.getSize(); i < n; ++i) {
-            RooAbsReal *coeff = (RooAbsReal *) list.at(i);
-            out.addOwned(*(new RooRealVar(coeff->GetName(), "", coeff->getVal())));
-        }
-        return;
-    }
+    return;
 }
 void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std::map<std::string,ShapeAndNorm> &out, const std::string &channel) {
     RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(pdf);
@@ -893,6 +921,39 @@ void FitDiagnostics::setFitResultTrees(const RooArgSet *args, double * vals){
 	 return;
 }
 
+void FitDiagnostics::setShapesFitResultTrees(std::map<std::string,ShapeAndNorm> &snm, double * vals){
+    int iBinOverall = 1;	
+    std::map<std::string,ShapeAndNorm>::const_iterator bg = snm.begin(), ed = snm.end(), pair; int i;
+    for (pair = bg, i = 0; pair != ed; ++pair, ++i) {  
+        if (pair->second.obs.getSize() == 1) {
+            RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
+            TH1* hist = pair->second.pdf->createHistogram(Form("%d",iBinOverall), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+            hist->Scale(pair->second.norm->getVal() / hist->Integral("width"));
+	    for (int iBin = 1; iBin <= hist->GetNbinsX(); iBin++){
+		vals[iBinOverall-1] = hist->GetBinContent(iBin);
+		iBinOverall++;
+	    }
+	    delete hist;
+	}
+    }
+	 return;
+}
+void FitDiagnostics::resetFitResultTrees(bool withSys){
+	
+	 for (int count = 0; count < overallNorms_; count ++){
+	     processNormalizations_[count] = -999;
+         }
+	 for (int count = 0; count < overallCons_; count ++){
+	     globalObservables_[count] = -999;
+         }
+	 for (int count = 0; count < overallNuis_; count ++){
+	     nuisanceParameters_[count] = -999;
+         }
+	 for (int count = 0; count < overallBins_; count ++){
+	     processNormalizationsShapes_[count] = -999;
+         }
+	 return;
+}
 void FitDiagnostics::setNormsFitResultTrees(const RooArgSet *args, double * vals){
 	
          TIterator* iter(args->createIterator());
@@ -900,7 +961,7 @@ void FitDiagnostics::setNormsFitResultTrees(const RooArgSet *args, double * vals
 	 
          for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);   
-		 std::cout << "index " << count << ", Name " << rcv->GetName() << ", val " <<  rcv->getVal() << std::endl;
+		 // std::cout << "index " << count << ", Name " << rcv->GetName() << ", val " <<  rcv->getVal() << std::endl;
 		 //std::string name = rcv->GetName();
 		 vals[count]=rcv->getVal();
 		 count++;
@@ -916,6 +977,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
 	 std::string poiName = (dynamic_cast<RooRealVar *>(mc.GetParametersOfInterest()->first()))->GetName();
 
 	 // create TTrees to store fit results:
+	 t_prefit_  = new TTree("tree_prefit","tree_prefit");
 	 t_fit_b_  = new TTree("tree_fit_b","tree_fit_b");
 	 t_fit_sb_ = new TTree("tree_fit_sb","tree_fit_sb");
 
@@ -951,20 +1013,33 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
          getShapesAndNorms(mc.GetPdf(),*mc.GetObservables(), snm, "");
          typedef std::map<std::string,ShapeAndNorm>::const_iterator IT;
          IT bg = snm.begin(), ed = snm.end(), pair; int i;
+	 int totalBins = 0;
          for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
            RooRealVar *val = new RooRealVar(pair->first.c_str(), "", 0.);
            //val->setError(sumx2[i]);
            norms->addOwned(*val); 
+	   RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
+	   if (pair->second.obs.getSize() == 1) {
+	       TH1* hist = pair->second.pdf->createHistogram(Form("%d",totalBins), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+	       totalBins += hist->GetNbinsX();
+	       delete hist;
+	    }
          }
- 
+
+	 overallBins_ = totalBins; 
+	 overallNorms_ = norms->getSize(); 
+
          processNormalizations_ = new double[norms->getSize()];
+         processNormalizationsShapes_ = new double[totalBins];
 
 	 // If no systematic (-S 0), then don't make nuisance trees
 	 if (withSys){
           const RooArgSet *cons = mc.GetGlobalObservables();
           const RooArgSet *nuis = mc.GetNuisanceParameters();
  	  globalObservables_ = new double[cons->getSize()];
+	  overallCons_ = cons->getSize();
 	  nuisanceParameters_= new double[nuis->getSize()];
+	  overallNuis_ = nuis->getSize();
 
           TIterator* iter_c(cons->createIterator());
           for (TObject *a = iter_c->Next(); a != 0; a = iter_c->Next()) { 
@@ -973,6 +1048,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
 		 globalObservables_[count]=0;
 		 t_fit_sb_->Branch(name.c_str(),&(globalObservables_[count]),Form("%s/Double_t",name.c_str()));
 		 t_fit_b_->Branch(name.c_str(),&(globalObservables_[count]),Form("%s/Double_t",name.c_str()));
+		 t_prefit_->Branch(name.c_str(),&(globalObservables_[count]),Form("%s/Double_t",name.c_str()));
 		 count++;
 	  }         
 	  count = 0;
@@ -981,8 +1057,9 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
 		 nuisanceParameters_[count] = 0;
-		 t_fit_sb_->Branch(name.c_str(),&(nuisanceParameters_[count])),Form("%s/Double_t",name.c_str());
+		 t_fit_sb_->Branch(name.c_str(),&(nuisanceParameters_[count]),Form("%s/Double_t",name.c_str()));
 		 t_fit_b_->Branch(name.c_str(),&(nuisanceParameters_[count]),Form("%s/Double_t",name.c_str()));
+		 t_prefit_->Branch(name.c_str(),&(nuisanceParameters_[count]),Form("%s/Double_t",name.c_str()));
 		 count++;
           }
 
@@ -993,12 +1070,32 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
          for (TObject *a = iter_no->Next(); a != 0; a = iter_no->Next()) { 
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rcv->GetName();
-		 processNormalizations_[count] = 0;
+		 processNormalizations_[count] = -999;
 		 //std::cout << " Creating the TREE -- " << count << ", Branch Name =  " << name << ", Param name " << rcv->GetName() << std::endl; 
-		 t_fit_sb_->Branch(name.c_str(),&(processNormalizations_[count])),Form("%s/Double_t",name.c_str());
+		 t_fit_sb_->Branch(name.c_str(),&(processNormalizations_[count]),Form("%s/Double_t",name.c_str()));
 		 t_fit_b_->Branch(name.c_str(),&(processNormalizations_[count]),Form("%s/Double_t",name.c_str()));
+		 t_prefit_->Branch(name.c_str(),&(processNormalizations_[count]),Form("%s/Double_t",name.c_str()));
 		 count++;
          }
+	 count = 0;
+	 bg = snm.begin(), ed = snm.end(); 
+	 for (pair = bg, i = 0; pair != ed; ++pair, ++i) {  
+	   if (pair->second.obs.getSize() == 1) {
+		RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
+		TH1* hist = pair->second.pdf->createHistogram(Form("%d",count), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+		 int bins = hist->GetNbinsX();
+		 for (int iBin = 1; iBin <= bins; iBin++){
+		     processNormalizationsShapes_[count] = -999;
+		     TString label = Form("%s_%d",pair->first.c_str(),iBin);
+		     t_fit_sb_->Branch(label,&(processNormalizationsShapes_[count]),label+"/Double_t");
+		     t_fit_b_->Branch(label,&(processNormalizationsShapes_[count]),label+"/Double_t");
+		     t_prefit_->Branch(label,&(processNormalizationsShapes_[count]),label+"/Double_t");
+		     count++;
+		 }
+		delete hist;
+
+	   }
+	 }
          delete norms;
 
 	 //std::cout << "Created Branches for toy diagnostics" <<std::endl;

@@ -803,6 +803,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   w->saveSnapshot("clean", w->allVars());
   
   if (nToys <= 0) { // observed or asimov
+    w->saveSnapshot("toyGenSnapshot",w->allVars());
     iToy = nToys;
     if (iToy == -1) {
      if (readToysFromHere != 0){
@@ -967,7 +968,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
+      if (!toysFrequentist_) w->saveSnapshot("toyGenSnapshot",w->allVars());
       w->loadSnapshot("clean");
+      if (toysFrequentist_) w->saveSnapshot("toyGenSnapshot",w->allVars());
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
 	commitPoint(0,g_quantileExpected_);//tree->Fill();
