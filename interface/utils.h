@@ -117,5 +117,6 @@ namespace utils {
     std::vector<std::vector<int> > generateCombinations(const std::vector<int> &vec);
     std::vector<std::vector<int> > generateOrthogonalCombinations(const std::vector<int> &vec);
     int countFloating(const RooArgSet &);
+    RooArgSet returnAllVars(RooWorkspace *);
 }
 #endif

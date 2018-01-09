@@ -1000,3 +1000,10 @@ int utils::countFloating(const RooArgSet &params){
         }
 	return count;
 }
+
+RooArgSet utils::returnAllVars(RooWorkspace *w){
+	// Helper function to retun *all* vars, including RooCategories in workspace
+	RooArgSet args(w->allVars());
+	args.add(w->allCats());
+	return args;
+}

@@ -800,10 +800,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
 
   // Ok now we're ready to go lets save a "clean snapshot" for the current parameters state
-  w->saveSnapshot("clean", w->allVars());
+  // w->allVars() misses the RooCategories, useful for some things - so need to include them. Set up a utils function for that 
+  w->saveSnapshot("clean", utils::returnAllVars(w));
   
   if (nToys <= 0) { // observed or asimov
-    w->saveSnapshot("toyGenSnapshot",w->allVars());
+    w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
     iToy = nToys;
     if (iToy == -1) {
      if (readToysFromHere != 0){
@@ -822,13 +823,13 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             }
             RooArgSet gobs(*mc->GetGlobalObservables());
             gobs.assignValueOnly(*snap);
-            w->saveSnapshot("clean", w->allVars());
+            w->saveSnapshot("clean", utils::returnAllVars(w));
         }
       }
       else{
         if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
         if (toysFrequentist_) {
-            w->saveSnapshot("reallyClean", w->allVars());
+            w->saveSnapshot("reallyClean", utils::returnAllVars(w));
             if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
             RooArgSet gobsAsimov;
             utils::setAllConstant(*mc->GetParametersOfInterest(), true); // Fix poi, before fit
@@ -842,7 +843,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 gobs = gobsAsimov;
             }
             utils::setAllConstant(*mc->GetParametersOfInterest(), false);
-            w->saveSnapshot("clean", w->allVars());
+            w->saveSnapshot("clean", utils::returnAllVars(w));
         } else {
             toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
 
@@ -895,7 +896,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
-          w->saveSnapshot("reallyClean", w->allVars());
+          w->saveSnapshot("reallyClean", utils::returnAllVars(w));
           if (!bypassFrequentistFit_) {
               utils::setAllConstant(*mc->GetParametersOfInterest(), true); 
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
@@ -906,7 +907,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 minim.setStrategy(1);
                 minim.minimize();
                 utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
-                w->saveSnapshot("clean", w->allVars());
+                w->saveSnapshot("clean", utils::returnAllVars(w));
           }
           if (nuisancePdf.get()) systDs = nuisancePdf->generate(*mc->GetGlobalObservables(), nToys);
       } else {
@@ -926,7 +927,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  if (systDs) {
 	  	if (systDs->numEntries()>=iToy) *vars = *systDs->get(iToy-1);
 	  }
-          if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
+          if (toysFrequentist_) w->saveSnapshot("clean", utils::returnAllVars(w));
 	  if (verbose > 3) utils::printPdf(genPdf);
 	}
 	/* No longer need to set this because "clean" state is already set correctly even without toysFrequentist
@@ -964,13 +965,13 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 return;
             }
             vars->assignValueOnly(*snap);
-            w->saveSnapshot("clean", w->allVars());
+            w->saveSnapshot("clean",utils::returnAllVars(w));
         }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
-      if (!toysFrequentist_) w->saveSnapshot("toyGenSnapshot",w->allVars());
+      if (!toysFrequentist_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
       w->loadSnapshot("clean");
-      if (toysFrequentist_) w->saveSnapshot("toyGenSnapshot",w->allVars());
+      if (toysFrequentist_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
 	commitPoint(0,g_quantileExpected_);//tree->Fill();

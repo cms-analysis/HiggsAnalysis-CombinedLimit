@@ -213,7 +213,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     }
    
     //set snapshot for best fit
-    if (savingSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
+    if (savingSnapshot_) w->saveSnapshot("MultiDimFit",utils::returnAllVars(w));
     
     if (autoRange_ > 0) {
         std::cout << "Adjusting range of POIs to +/- " << autoRange_ << " standard deviations" << std::endl;
