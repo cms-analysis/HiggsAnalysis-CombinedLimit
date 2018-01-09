@@ -113,14 +113,18 @@ for i in range(fpf_s.getSize()):
         mean_p, sigma_p, sigma_pu,sigma_pd = (nuis_p.getVal(), nuis_p.getError(),nuis_p.getErrorHi(),nuis_p.getErrorLo())
 
 	if not sigma_p > 0: sigma_p = (nuis_p.getMax()-nuis_p.getMin())/2
-        if options.abs: row += [ "%.6f +/- %.6f" % (nuis_p.getVal(), nuis_p.getError()) ]
+	nuisIsSymm = abs(abs(nuis_p.getErrorLo())-abs(nuis_p.getErrorHi()))<0.01 or nuis_p.getErrorLo() == 0
+        if options.abs: 
+		if nuisIsSymm : row += [ "%.6f +/- %.6f" % (nuis_p.getVal(), nuis_p.getError()) ]
+		else: row += [ "%.6f +%.6f %.6f" % (nuis_p.getVal(), nuis_p.getErrorHi(), nuis_p.getErrorLo()) ]
 
     for fit_name, nuis_x in [('b', nuis_b), ('s',nuis_s)]:
         if nuis_x == None:
             row += [ " n/a " ]
         else:
-            row += [ "%+.2f +/- %.2f" % (nuis_x.getVal(), nuis_x.getError()) ]
-
+	    nuisIsSymm = abs(abs(nuis_x.getErrorLo())-abs(nuis_x.getErrorHi()))<0.01 or nuis_x.getErrorLo() == 0
+            if nuisIsSymm : row += [ "%+.2f +/- %.2f" % (nuis_x.getVal(), nuis_x.getError()) ]
+	    else: row += [ "%+.2f +%.2f %.2f" % (nuis_x.getVal(), nuis_x.getErrorHi(), nuis_x.getErrorLo()) ]
  	    if nuis_x.getErrorLo()==0 : nuis_x.setErrorLo(nuis_x.getErrorHi())
             if nuis_p != None:
 	        if options.plotfile: 
