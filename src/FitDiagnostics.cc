@@ -153,9 +153,9 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   // Make pre-plots before the fit
   r->setVal(preFitValue_);
 
-  if ( currentToy_ > 1 && (saveShapes_ || saveNormalizations_) ) {
-      std::cerr << " ERROR, cannot use saveShapes or saveNormalizations with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove those options." << std::endl;
-      if ( verbose > 0 ) Logger::instance().log(std::string(Form("FitDiagnostics.cc: %d -- cannot use saveShapes or saveNormalizations with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove those options",__LINE__)),Logger::kLogLevelError,__func__);
+  if ( currentToy_ > 1 && (saveShapes_) ) {
+      std::cerr << " ERROR, cannot use saveShapes  with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove those options." << std::endl;
+      if ( verbose > 0 ) Logger::instance().log(std::string(Form("FitDiagnostics.cc: %d -- cannot use saveShapes with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove those options",__LINE__)),Logger::kLogLevelError,__func__);
       assert(0);
   }
 
