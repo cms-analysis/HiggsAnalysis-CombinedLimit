@@ -530,7 +530,10 @@ class ModelBuilder(ModelBuilderBase):
                         if gamma != None:
                             raise RuntimeError, "More than one gmN uncertainty for the same bin and process (second one is %s)" % n
                         gamma = n; nominal = errline[b][p]; 
-                        selfNormRate = selfNormRate / args[0]
+                        # The case with N=0 isn't relevant if the process provides its own normalisation,
+                        # so we don't need to do anything special to handle it here.
+                        if args[0] > 0:
+                            selfNormRate = selfNormRate / args[0]
                     else: raise RuntimeError, "Unsupported pdf %s" % pdf
                 # optimize constants
                 if len(factors) + len(logNorms) + len(alogNorms) == 0:
