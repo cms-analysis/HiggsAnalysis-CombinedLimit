@@ -39,7 +39,7 @@ def getSTXSProdDecMode(bin,process,options):
                 if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
                 foundEnergy = D
     if not foundEnergy:
-        foundEnergy = '7TeV' ## To ensure backward compatibility
+        eoundEnergy = '13TeV' ## if using 81x, chances are its 13 TeV
         print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
     #
     return (processSource, foundDecay, foundEnergy)
