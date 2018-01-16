@@ -1078,7 +1078,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
 }
 
 double CMSHistFunc::integrateTemplate(FastTemplate const& t) const {
-  DefaultAccumulator total = 0;
+  DefaultAccumulator<double> total = 0;
   for (unsigned int i = 0; i < t.size(); ++i) total += t[i] * cache_.GetWidth(i);
   return total.sum();
 }

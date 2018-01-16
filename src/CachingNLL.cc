@@ -631,7 +631,7 @@ cacheutils::CachingAddNLL::evaluate() const
         if (basicIntegrals_) {
             double integral = (binWidths_.size() > 1) ? 
                                     vectorized::dot_product(pdfvals.size(), &pdfvals[0], &binWidths_[0]) :
-                                    binWidths_.front() * sumDefault(pdfvals);
+                                    binWidths_.front() * sumDefault<double>(pdfvals);
             if (basicIntegrals_ == 1) {
                 double refintegral = integrals_[itc - coeffs_.begin()]->getVal();
                 if (refintegral > 0) {
@@ -989,7 +989,7 @@ cacheutils::CachingSimNLL::evaluate() const
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
-    DefaultAccumulator ret = 0;
+    DefaultAccumulator<double> ret = 0;
     unsigned idx = 0;
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
         if (*it != 0) {
@@ -1005,7 +1005,7 @@ cacheutils::CachingSimNLL::evaluate() const
         }
     }
     if (!constrainPdfs_.empty() || !constrainPdfsFast_.empty()) {
-        DefaultAccumulator ret2 = 0;
+        DefaultAccumulator<double> ret2 = 0;
         /// ============= GENERIC CONSTRAINTS  =========
         std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 

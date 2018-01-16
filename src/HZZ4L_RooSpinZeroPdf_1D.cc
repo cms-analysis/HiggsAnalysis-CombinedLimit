@@ -1,5 +1,5 @@
 #include "Riostream.h" 
-#include <HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_phase.h>
+#include <HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_1D.h>
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h>
@@ -10,21 +10,19 @@
 
 using namespace TMath;
 
-ClassImp(HZZ4L_RooSpinZeroPdf_phase) 
+ClassImp(HZZ4L_RooSpinZeroPdf_1D) 
 
-  HZZ4L_RooSpinZeroPdf_phase::HZZ4L_RooSpinZeroPdf_phase(const char *name, const char *title, 
+  HZZ4L_RooSpinZeroPdf_1D::HZZ4L_RooSpinZeroPdf_1D(const char *name, const char *title, 
 					     RooAbsReal& _kd,
-					     RooAbsReal& _kdint,
-					     RooAbsReal& _ksmd,
+					     //RooAbsReal& _kdint,
+					     //RooAbsReal& _ksmd,
 					     RooAbsReal& _fai,
-					     RooAbsReal& _phi,
 					     const RooArgList& inCoefList): 
    RooAbsPdf(name,title), 
    kd("kd","kd",this,_kd),
-   kdint("kdint","kdint",this,_kdint),
-   ksmd("ksmd","ksmd",this,_ksmd),
+//   kdint("kdint","kdint",this,_kdint),
+//   ksmd("ksmd","ksmd",this,_ksmd),
    fai("fai","fai",this,_fai),
-   phi("phi","phi",this,_phi),
   _coefList("coefList","List of funcficients",this) 
   
  { 
@@ -32,40 +30,31 @@ ClassImp(HZZ4L_RooSpinZeroPdf_phase)
   RooAbsArg* func;
   while((func = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
-      coutE(InputArguments) << "ERROR: :HZZ4L_RooSpinZeroPdf_phase(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << std::endl;
+      coutE(InputArguments) << "ERROR: :HZZ4L_RooSpinZeroPdf_1D(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*func) ;
   }
   delete coefIter;
-
-  Integral_T1 = dynamic_cast<const RooHistFunc*>(_coefList.at(0))-> analyticalIntegral(1000);
-  Integral_T2 = dynamic_cast<const RooHistFunc*>(_coefList.at(1))-> analyticalIntegral(1000);
-  Integral_T4 = dynamic_cast<const RooHistFunc*>(_coefList.at(2))-> analyticalIntegral(1000);
-  Integral_T5 = dynamic_cast<const RooHistFunc*>(_coefList.at(3))-> analyticalIntegral(1000);
-// _coefIter = _coefList.createIterator() ;
+  
+  _coefIter = _coefList.createIterator() ;
  } 
 
 
- HZZ4L_RooSpinZeroPdf_phase::HZZ4L_RooSpinZeroPdf_phase(const HZZ4L_RooSpinZeroPdf_phase& other, const char* name) :  
+ HZZ4L_RooSpinZeroPdf_1D::HZZ4L_RooSpinZeroPdf_1D(const HZZ4L_RooSpinZeroPdf_1D& other, const char* name) :  
    RooAbsPdf(other,name), 
    kd("kd",this,other.kd),
-   kdint("kdint",this,other.kdint),
-   ksmd("ksmd",this,other.ksmd),
+  // kdint("kdint",this,other.kdint),
+  // ksmd("ksmd",this,other.ksmd),
    fai("fai",this,other.fai),
-   phi("phi",this,other.phi),
   _coefList("coefList",this,other._coefList)
 
  { 
-	 Integral_T1 = other.Integral_T1;
-	 Integral_T2 = other.Integral_T2;
-	 Integral_T4 = other.Integral_T4;
-	 Integral_T5 = other.Integral_T5;
- // _coefIter = _coefList.createIterator() ;
+  _coefIter = _coefList.createIterator() ;
  } 
 
 
- Double_t HZZ4L_RooSpinZeroPdf_phase::evaluate() const 
+ Double_t HZZ4L_RooSpinZeroPdf_1D::evaluate() const 
  { 
    double value = 0.;
 
@@ -73,22 +62,26 @@ ClassImp(HZZ4L_RooSpinZeroPdf_phase)
    Double_t T1 = dynamic_cast<const RooHistFunc*>(_coefList.at(0))->getVal();
    Double_t T2 = dynamic_cast<const RooHistFunc*>(_coefList.at(1))->getVal();
    Double_t T4 = dynamic_cast<const RooHistFunc*>(_coefList.at(2))->getVal();
-   Double_t T5 = dynamic_cast<const RooHistFunc*>(_coefList.at(3))->getVal();
+   double mysgn = 1;
 
+   if(fai < 0.) 
+     {
+       mysgn = -1.;
+     }
    
-   value = (1.-fabs(fai)) * T1 + fabs(fai) * T2 + sqrt((1.-fabs(fai))*fabs(fai)) * (cos(phi)*T4 +sin(phi)*T5); 
+   value = (1.-fabs(fai)) * T1 + fabs(fai) * T2 + mysgn*sqrt((1.-fabs(fai))*fabs(fai)) * T4; 
    
-   if ( value <= 0.) return 1.0e-200;
+   if ( value <= 0.) { return 1.0e-200;}
    
    return value ; 
    
  } 
 
-Int_t HZZ4L_RooSpinZeroPdf_phase::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const
+Int_t HZZ4L_RooSpinZeroPdf_1D::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const
 {
 
-  if (matchArgs(allVars,analVars,RooArgSet(*kd.absArg(), *kdint.absArg(), *ksmd.absArg()))) return 4 ;
-  //if (matchArgs(allVars,analVars,kd)) return 1 ;
+//  if (matchArgs(allVars,analVars,RooArgSet(*kd.absArg(), *kdint.absArg(), *ksmd.absArg()))) return 4 ;
+  if (matchArgs(allVars,analVars,kd)) return 4 ;
   //if (matchArgs(allVars,analVars,kdint)) return 2 ;
   //if (matchArgs(allVars,analVars,ksmd)) return 3 ;
 
@@ -96,7 +89,7 @@ Int_t HZZ4L_RooSpinZeroPdf_phase::getAnalyticalIntegral(RooArgSet& allVars, RooA
 
 }
 
-Double_t HZZ4L_RooSpinZeroPdf_phase::analyticalIntegral(Int_t code, const char* rangeName) const
+Double_t HZZ4L_RooSpinZeroPdf_1D::analyticalIntegral(Int_t code, const char* rangeName) const
 {
    switch(code)
      {
@@ -174,15 +167,18 @@ Double_t HZZ4L_RooSpinZeroPdf_phase::analyticalIntegral(Int_t code, const char* 
 //       }
      case 4: 
        {
-
- double Int_T1  = Integral_T1;
- double Int_T2  = Integral_T2;
- double Int_T4  = Integral_T4;
- double Int_T5  = Integral_T5;
+ double Int_T1  = dynamic_cast<const RooHistFunc*>(_coefList.at(0))-> analyticalIntegral(1000);
+ double Int_T2  = dynamic_cast<const RooHistFunc*>(_coefList.at(1))-> analyticalIntegral(1000);
+ double Int_T4  = dynamic_cast<const RooHistFunc*>(_coefList.at(2))-> analyticalIntegral(1000);
 
 
-	 double integral = (1.-fabs(fai)) * Int_T1 + fabs(fai) * Int_T2 + sqrt((1.-fabs(fai))*fabs(fai)) *( cos(phi)* Int_T4 + sin(phi) * Int_T5) ;
+	 double mysgn = 1.;
+	 if(fai < 0.) 
+	   {
+	     mysgn = -1.;
+	   }
 
+	 double integral = (1.-fabs(fai)) * Int_T1 + fabs(fai) * Int_T2 + mysgn*sqrt((1.-fabs(fai))*fabs(fai)) * Int_T4; ;
 	 return integral;
        }
        

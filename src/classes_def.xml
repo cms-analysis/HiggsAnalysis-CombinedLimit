@@ -1,9 +1,43 @@
 <lcgdict>
+	<class name="std::vector<std::vector<Float_t>>" />
+	<class name="std::vector<std::vector<std::vector<Float_t>>>" />
+	<class name="std::vector<std::vector<Float_t>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<Float_t>>>::iterator" />
+	<class name="std::vector<std::vector<Float_t>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<Float_t>>>::const_iterator" />
+
+	<class name="std::vector<std::vector<Double_t>>" />
+	<class name="std::vector<std::vector<std::vector<Double_t>>>" />
+	<class name="std::vector<std::vector<Double_t>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<Double_t>>>::iterator" />
+	<class name="std::vector<std::vector<Double_t>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<Double_t>>>::const_iterator" />
+
 	<class name="AsymPow" />
+	<class name="AsymQuad" />
+
+	<class name="FastHistoAxis_d" />
+	<class name="FastTemplate" />
 	<class name="FastHisto" />
 	<class name="FastHisto2D" />
 	<class name="FastHisto3D" />
-	<class name="FastTemplate" />
+
+	<class name="FastHistoAxis_f" />
+	<class name="FastTemplate_f" />
+	<class name="FastHisto_f" />
+	<class name="FastHisto2D_f" />
+	<class name="FastHisto3D_f" />
+
+	<class name="FastTemplateFunc_f" />
+	<class name="FastHistoFunc_f" />
+	<class name="FastHisto2DFunc_f" />
+	<class name="FastHisto3DFunc_f" />
+
+	<class name="FastTemplateFunc_d" />
+	<class name="FastHistoFunc_d" />
+	<class name="FastHisto2DFunc_d" />
+	<class name="FastHisto3DFunc_d" />
+
 	<class name="FastVerticalInterpHistPdf" />
 	<class name="FastVerticalInterpHistPdf2" />
 	<class name="FastVerticalInterpHistPdf2Base" />
@@ -12,9 +46,21 @@
 	<class name="FastVerticalInterpHistPdf3D" />
 	<class name="FastVerticalInterpHistPdfBase" />
 	<class name="FastVerticalInterpHistPdfBase::Morph" />
+	<class name="HZZ4L_RooCTauPdf_1D" />
+	<class name="HZZ4L_RooCTauPdf_1D_Expanded" />
+	<class name="HZZ4L_RooCTauPdf_2D" />
 	<class name="HZZ4L_RooSpinZeroPdf" />
+	<class name="HZZ4L_RooSpinZeroPdf_1D" />
 	<class name="HZZ4L_RooSpinZeroPdf_2D" />
 	<class name="HZZ4L_RooSpinZeroPdf_phase" />
+	<class name="VBFHZZ4L_RooSpinZeroPdf" />
+	<class name="VBFHZZ4L_RooSpinZeroPdf_fast" />
+
+	<class name="HZZ4L_RooSpinZeroPdf_1D_fast" />
+	<class name="HZZ4L_RooSpinZeroPdf_2D_fast" />
+	<class name="HZZ4L_RooSpinZeroPdf_phase_fast" />
+	<class name="VVHZZ4L_RooSpinZeroPdf_1D_fast" />
+
 	<class name="ProcessNormalization" />
 	<class name="Roo2ExpPdf" />
 	<class name="Roo4lMasses2D" />
@@ -73,6 +119,7 @@
 	<class name="RooPowerFunction" />
 	<class name="RooPowerLaw" />
 	<class name="RooQCDPdf" />
+	<class name="RooRealFlooredSumPdf" />
 	<class name="RooRelBW" />
 	<class name="RooRelBW1" />
 	<class name="RooRelBWHighMass" />

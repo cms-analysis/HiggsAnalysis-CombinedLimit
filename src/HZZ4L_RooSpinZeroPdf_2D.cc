@@ -1,5 +1,5 @@
 #include "Riostream.h" 
-#include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_2D.h" 
+#include <HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_2D.h>
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h>
@@ -42,7 +42,17 @@ ClassImp(HZZ4L_RooSpinZeroPdf_2D)
     _coefList.add(*func) ;
   }
   delete coefIter;
-  
+
+  Integral_T1 = dynamic_cast<const RooHistFunc*>(_coefList.at(0))-> analyticalIntegral(1000);
+  Integral_T2 = dynamic_cast<const RooHistFunc*>(_coefList.at(1))-> analyticalIntegral(1000);
+  Integral_T3 = dynamic_cast<const RooHistFunc*>(_coefList.at(2))-> analyticalIntegral(1000);
+  Integral_T4 = dynamic_cast<const RooHistFunc*>(_coefList.at(3))-> analyticalIntegral(1000);
+  Integral_T5 = dynamic_cast<const RooHistFunc*>(_coefList.at(4))-> analyticalIntegral(1000);
+  Integral_T6 = dynamic_cast<const RooHistFunc*>(_coefList.at(5))-> analyticalIntegral(1000);
+  Integral_T7 = dynamic_cast<const RooHistFunc*>(_coefList.at(6))-> analyticalIntegral(1000);
+  Integral_T8 = dynamic_cast<const RooHistFunc*>(_coefList.at(7))-> analyticalIntegral(1000);
+  Integral_T9 = dynamic_cast<const RooHistFunc*>(_coefList.at(8))-> analyticalIntegral(1000);
+
 // _coefIter = _coefList.createIterator() ;
  } 
 
@@ -59,6 +69,16 @@ ClassImp(HZZ4L_RooSpinZeroPdf_2D)
   _coefList("coefList",this,other._coefList)
 
  { 
+	 Integral_T1 = other.Integral_T1;
+	 Integral_T2 = other.Integral_T2;
+	 Integral_T3 = other.Integral_T3;
+	 Integral_T4 = other.Integral_T4;
+	 Integral_T5 = other.Integral_T5;
+	 Integral_T6 = other.Integral_T6;
+	 Integral_T7 = other.Integral_T7;
+	 Integral_T8 = other.Integral_T8;
+	 Integral_T9 = other.Integral_T9;
+
  // _coefIter = _coefList.createIterator() ;
  } 
 
@@ -82,9 +102,26 @@ ClassImp(HZZ4L_RooSpinZeroPdf_2D)
    Double_t T8 = dynamic_cast<const RooHistFunc*>(_coefList.at(7))->getVal();
    Double_t T9 = dynamic_cast<const RooHistFunc*>(_coefList.at(8))->getVal();
    
-   value = (1.-fai1 - fai2) * T1 + fai1 * T2 + fai2 * T3 + sqrt((1.-fai1- fai2)*fai1) * (cos(phi1)*T4 +sin(phi1)*T7) + sqrt((1.-fai1- fai2)*fai2) * (cos(phi2)*T5 +sin(phi2)*T8) + sqrt(fai1*fai2) * (cos(phi1-phi2)*T6 +sin(phi1-phi2)*T9); 
+	 double mysgn1 = 1.;
+	 if(fai1 < 0.) 
+	   {
+	     mysgn1 = -1.;
+	   }
+	 double mysgn2 = 1.;
+	 if(fai2 < 0.) 
+	   {
+	     mysgn2 = -1.;
+	   }
+
+   value = 
+	   (1.-fabs(fai1) - fabs(fai2)) * T1
+	   + fabs(fai1) * T2
+	   + fabs(fai2) * T3
+	   + mysgn1*sqrt((1.-fabs(fai1) - fabs(fai2))*fabs(fai1)) * (cos(phi1)*T4 +sin(phi1)*T7)
+	   + mysgn2*sqrt((1.-fabs(fai1) - fabs(fai2))*fabs(fai2)) * (cos(phi2)*T5 +sin(phi2)*T8)
+	   + mysgn1*mysgn2*sqrt(fabs(fai1*fai2)) * (cos(phi2-phi1)*T6 + sin(phi2-phi1)*T9); 
    
-   if ( value <= 0.) return 1.0e-200;
+   if ( ( 1.-fabs(fai1) - fabs(fai2) )<0 || value <= 0. ) return 1.0e-15;
    
    return value ; 
    
@@ -180,21 +217,39 @@ Double_t HZZ4L_RooSpinZeroPdf_2D::analyticalIntegral(Int_t code, const char* ran
 //       }
      case 4: 
        {
- double Int_T1  = dynamic_cast<const RooHistFunc*>(_coefList.at(0))-> analyticalIntegral(1000);
- double Int_T2  = dynamic_cast<const RooHistFunc*>(_coefList.at(1))-> analyticalIntegral(1000);
- double Int_T3  = dynamic_cast<const RooHistFunc*>(_coefList.at(2))-> analyticalIntegral(1000);
+ double Int_T1  = Integral_T1;
+ double Int_T2  = Integral_T2;
+ double Int_T3  = Integral_T3;
+ double Int_T4  = Integral_T4;
+ double Int_T5  = Integral_T5;
+ double Int_T6  = Integral_T6;
+ double Int_T7  = Integral_T7;
+ double Int_T8  = Integral_T8;
+ double Int_T9  = Integral_T9;
 
- double Int_T4  = dynamic_cast<const RooHistFunc*>(_coefList.at(3))-> analyticalIntegral(1000);
- double Int_T5  = dynamic_cast<const RooHistFunc*>(_coefList.at(4))-> analyticalIntegral(1000);
- double Int_T6  = dynamic_cast<const RooHistFunc*>(_coefList.at(5))-> analyticalIntegral(1000);
+	double mysgn1 = 1.;
+	 if(fai1 < 0.) 
+	   {
+	     mysgn1 = -1.;
+	   }
+	 double mysgn2 = 1.;
+	 if(fai2 < 0.) 
+	   {
+	     mysgn2 = -1.;
+	   }
 
- double Int_T7  = dynamic_cast<const RooHistFunc*>(_coefList.at(6))-> analyticalIntegral(1000);
- double Int_T8  = dynamic_cast<const RooHistFunc*>(_coefList.at(7))-> analyticalIntegral(1000);
- double Int_T9  = dynamic_cast<const RooHistFunc*>(_coefList.at(8))-> analyticalIntegral(1000);
 
+   double integral = 
+	   (1.-fabs(fai1) - fabs(fai2)) * Int_T1
+	   + fabs(fai1) * Int_T2
+	   + fabs(fai2) * Int_T3
+	   + mysgn1*sqrt((1.-fabs(fai1) - fabs(fai2))*fabs(fai1)) * (cos(phi1)*Int_T4 +sin(phi1)*Int_T7)
+	   + mysgn2*sqrt((1.-fabs(fai1) - fabs(fai2))*fabs(fai2)) * (cos(phi2)*Int_T5 +sin(phi2)*Int_T8)
+	   + mysgn1*mysgn2*sqrt(fabs(fai1*fai2)) * (cos(phi2-phi1)*Int_T6 + sin(phi2-phi1)*Int_T9); 
 
-   double integral = (1.-fai1 - fai2) * Int_T1 + fai1 * Int_T2 + fai2 * Int_T3 + sqrt((1.-fai1- fai2)*fai1) * (cos(phi1)*Int_T4 +sin(phi1)*Int_T7) + sqrt((1.-fai1- fai2)*fai2) * (cos(phi2)*Int_T5 +sin(phi2)*Int_T8) + sqrt(fai1*fai2) * (cos(phi1-phi2)*Int_T6 +sin(phi1-phi2)*Int_T9); 
-	 return integral;
+   if ( ( 1-fabs(fai1) - fabs(fai2) )<0 || integral <= 0. ) integral = 1.0e-10;
+
+   return integral;
        }
        
      }
