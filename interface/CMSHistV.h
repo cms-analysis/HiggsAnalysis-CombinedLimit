@@ -94,8 +94,7 @@ void CMSHistV<T>::fill(std::vector<Double_t>& out) const {
   } else {
     out.resize(bins_.size());
     for (int i = 0, n = bins_.size(); i < n; ++i) {
-      if ((int)hpdf_.cache().GetNbinsX()>bins_[i]) out[i] = hpdf_.cache().GetBinContent(bins_[i]);
-      else out[i]=0;
+      out[i] = hpdf_.cache().GetBinContent(bins_[i]);
     }
   }
 }

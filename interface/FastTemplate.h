@@ -64,7 +64,6 @@ public:
   }
 };
 
-
 template <typename T> class FastTemplate_t {
 protected:
         unsigned int size_;
@@ -136,58 +135,52 @@ public:
           }
         }
 };
+
 template <typename T, typename U=Double_t> class FastHisto_t : public FastTemplate_t<T> {
 private:
-        FastHistoAxis_t<U> axis_;
-        bool normX_;
+        std::vector<U> binEdges_;
+        std::vector<U> binWidths_;
 
 public:
         void swap(FastHisto_t<T,U> &other) {
             std::swap(this->size_, other.size_);
             std::swap(this->values_, other.values_);
-            std::swap(axis_, other.axis_);
-            std::swap(normX_, other.normX_);
+            std::swap(this->binWidths_, other.binWidths_);
+            std::swap(this->binEdges_, other.binEdges_);
         }
 
-        int FindBin(const U &x) const { return axis_.FindBin(x); }
-        unsigned int GetNbinsX() const { return axis_.GetNbins(); }
-        U GetBinWidth(const unsigned int bin) const { if (normX_) return U(1); else return axis_.GetBinWidth(bin); }
-        U GetXmin(const int bin=-1) const { return axis_.GetBinLowEdge(bin); }
-        U GetXmax(const int bin=-1) const { return axis_.GetBinUpEdge(bin); }
-        const T& GetBinContent(const unsigned int bin) const { return (this->values_).at(bin); }
-        T& GetBinContent(const unsigned int bin) { return (this->values_).at(bin); }
-        T GetAt(const U &x) const {
-          int bin = FindBin(x);
-          if (bin < 0 || bin >= int((this->values_).size())) {
-            return T(0);
-          } else {
-            return GetBinContent((unsigned int)bin);
-          }
-        }
+        int FindBin(const U &x) const;
+        unsigned int GetNbinsX() const { return this->values_.size(); }
+        U GetXmin(const int bin=-1) const;
+        U GetXmax(const int bin=-1) const;
+        const T& GetBinContent(const unsigned int bin) const { return this->values_[bin]; }
+        T GetAt(const U &x) const;
+
 
         //this should really be least significant of T and U
         //typically that would be T
-        T IntegralWidth(int binmin=-1, int binmax=-1) const ;
+        T IntegralWidth() const ;
+        T IntegralWidth(int binmin, int binmax=-1) const ;
         void Normalize() {
             T sum = this->IntegralWidth();
             if (sum!=T(0)) this->Scale(T(1)/sum);
         }
         T GetMax() const ;
 
-        U GetEdge(unsigned int i) const { return GetXmin(i); }
-        U GetWidth(unsigned int i) const { return GetBinWidth(i); }
+        U GetEdge(unsigned int i) const { return binEdges_[i]; }
+        U GetWidth(unsigned int i) const { return binWidths_[i]; }
 
         void Dump() const ;
 
-        FastHisto_t() : FastTemplate_t<T>(), axis_(), normX_(false) {}
-        FastHisto_t(const TH1 &hist, bool normX=false);
+        FastHisto_t() : FastTemplate_t<T>(), binEdges_(), binWidths_() {}
+        FastHisto_t(const TH1 &hist);
         FastHisto_t(const FastHisto_t<T,U> &other);
         FastHisto_t<T,U>& operator=(const FastHisto_t<T,U> &other) {
-          normX_ = other.normX_;
           if (this->size() != other.size()) {
             this->size_ = other.size_;
             this->values_ = other.values_;
-            axis_ = other.axis_;
+            this->binWidths_ = other.binWidths_;
+            this->binEdges_  = other.binEdges_;
           }
           else this->CopyValues(other);
           return *this;
