@@ -1,5 +1,5 @@
 #include "Riostream.h" 
-#include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf.h" 
+#include <HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf.h>
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h>
@@ -37,6 +37,9 @@ ClassImp(HZZ4L_RooSpinZeroPdf)
   }
   delete coefIter;
   
+  Integral_T1 = dynamic_cast<const RooHistFunc*>(_coefList.at(0))-> analyticalIntegral(1000);
+  Integral_T2 = dynamic_cast<const RooHistFunc*>(_coefList.at(1))-> analyticalIntegral(1000);
+  Integral_T4 = dynamic_cast<const RooHistFunc*>(_coefList.at(2))-> analyticalIntegral(1000);
 // _coefIter = _coefList.createIterator() ;
  } 
 
@@ -48,8 +51,10 @@ ClassImp(HZZ4L_RooSpinZeroPdf)
    ksmd("ksmd",this,other.ksmd),
    fai("fai",this,other.fai),
   _coefList("coefList",this,other._coefList)
-
  { 
+	 Integral_T1 = other.Integral_T1;
+	 Integral_T2 = other.Integral_T2;
+	 Integral_T4 = other.Integral_T4;
  // _coefIter = _coefList.createIterator() ;
  } 
 
@@ -71,7 +76,7 @@ ClassImp(HZZ4L_RooSpinZeroPdf)
    
    value = (1.-fabs(fai)) * T1 + fabs(fai) * T2 + mysgn*sqrt((1.-fabs(fai))*fabs(fai)) * T4; 
    
-   if ( value <= 0.) return 1.0e-200;
+   if ( value <= 0.) return 1.0e-15;
    
    return value ; 
    
@@ -167,10 +172,9 @@ Double_t HZZ4L_RooSpinZeroPdf::analyticalIntegral(Int_t code, const char* rangeN
 //       }
      case 4: 
        {
- double Int_T1  = dynamic_cast<const RooHistFunc*>(_coefList.at(0))-> analyticalIntegral(1000);
- double Int_T2  = dynamic_cast<const RooHistFunc*>(_coefList.at(1))-> analyticalIntegral(1000);
- double Int_T4  = dynamic_cast<const RooHistFunc*>(_coefList.at(2))-> analyticalIntegral(1000);
-
+	 double Int_T1  = Integral_T1;
+	 double Int_T2  = Integral_T2;
+	 double Int_T4  = Integral_T4;
 
 	 double mysgn = 1.;
 	 if(fai < 0.) 
@@ -180,7 +184,8 @@ Double_t HZZ4L_RooSpinZeroPdf::analyticalIntegral(Int_t code, const char* rangeN
 
 	 double integral = (1.-fabs(fai)) * Int_T1 + fabs(fai) * Int_T2 + mysgn*sqrt((1.-fabs(fai))*fabs(fai)) * Int_T4; ;
 
-	 return integral;
+   if (integral <= 0.) return 1.0e-10;
+   return integral;
        }
        
      }

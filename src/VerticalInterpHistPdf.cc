@@ -732,14 +732,15 @@ void FastVerticalInterpHistPdfV::fill(std::vector<Double_t> &out) const
     if (!hpdf_._sentry.good()) hpdf_.syncTotal();
     if (begin_ != end_) {
         out.resize(end_-begin_);
-        std::copy(& hpdf_._cache.GetBinContent(begin_), & hpdf_._cache.GetBinContent(end_), out.begin());
+        std::copy(& hpdf_._cache.GetBinContent(begin_), (&hpdf_._cache.GetBinContent(end_-1))+1, out.begin());
     } else if (!blocks_.empty()) {
         out.resize(nbins_);
-        for (auto b : blocks_) std::copy(& hpdf_._cache.GetBinContent(b.begin), & hpdf_._cache.GetBinContent(b.end), out.begin()+b.index);
+        for (auto b : blocks_) std::copy(& hpdf_._cache.GetBinContent(b.begin), (&hpdf_._cache.GetBinContent(b.end-1))+1, out.begin()+b.index);
     } else {
         out.resize(bins_.size());
         for (int i = 0, n = bins_.size(); i < n; ++i) {
-            out[i] = hpdf_._cache.GetBinContent(bins_[i]);
+            if ((int)hpdf_._cache.GetNbinsX()>bins_[i]) out[i] = hpdf_._cache.GetBinContent(bins_[i]);
+            else out[i] = 0;
         }
     }
 }
@@ -1223,14 +1224,15 @@ void FastVerticalInterpHistPdf2V::fill(std::vector<Double_t> &out) const
     if (!hpdf_._sentry.good()) hpdf_.syncTotal();
     if (begin_ != end_) {
         out.resize(end_-begin_);
-        std::copy(& hpdf_._cache.GetBinContent(begin_), & hpdf_._cache.GetBinContent(end_), out.begin());
+        std::copy(& hpdf_._cache.GetBinContent(begin_), (&hpdf_._cache.GetBinContent(end_-1))+1, out.begin());
     } else if (!blocks_.empty()) {
         out.resize(nbins_);
-        for (auto b : blocks_) std::copy(& hpdf_._cache.GetBinContent(b.begin), & hpdf_._cache.GetBinContent(b.end), out.begin()+b.index);
+        for (auto b : blocks_) std::copy(& hpdf_._cache.GetBinContent(b.begin), (&hpdf_._cache.GetBinContent(b.end-1))+1, out.begin()+b.index);
     } else {
         out.resize(bins_.size());
         for (int i = 0, n = bins_.size(); i < n; ++i) {
-            out[i] = hpdf_._cache.GetBinContent(bins_[i]);
+          if ((int)hpdf_._cache.GetNbinsX()>bins_[i]) out[i] = hpdf_._cache.GetBinContent(bins_[i]);
+            else out[i] = 0;
         }
     }
 }
