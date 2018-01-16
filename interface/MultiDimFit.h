@@ -42,6 +42,7 @@ protected:
 
   // options    
   static unsigned int points_, firstPoint_, lastPoint_;
+  static bool includePOIEdges_;
   static bool floatOtherPOIs_;
   static bool squareDistPoiStep_;
   static bool skipInitialFit_;
@@ -52,6 +53,7 @@ protected:
   static float autoRange_;
   static bool  startFromPreFit_;
   static bool  saveFitResult_;
+  static bool  subtractNLL0_;
   static std::string fixedPointPOIs_;
   static float centeredRange_;
 
