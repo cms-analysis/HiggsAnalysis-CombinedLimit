@@ -9,7 +9,7 @@
 #include "RooListProxy.h"
 #include "TH1.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate_Old.h"
 #include <cmath>
 
 class FastVerticalInterpHistPdf;
