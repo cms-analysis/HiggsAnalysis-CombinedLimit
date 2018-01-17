@@ -356,8 +356,8 @@ typedef FastHisto2D_t<Float_t> FastHisto2D_f;
 typedef FastHisto3D_t<Float_t> FastHisto3D_f;
 
 typedef FastHistoAxis_d FastHistoAxis;
-typedef FastTemplate_d FastTemplate;
-typedef FastHisto_d FastHisto;
-typedef FastHisto2D_d FastHisto2D;
-typedef FastHisto3D_d FastHisto3D;
+// typedef FastTemplate_d FastTemplate;
+// typedef FastHisto_d FastHisto;
+// typedef FastHisto2D_d FastHisto2D;
+// typedef FastHisto3D_d FastHisto3D;
 

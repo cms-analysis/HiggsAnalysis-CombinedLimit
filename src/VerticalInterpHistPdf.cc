@@ -739,8 +739,9 @@ void FastVerticalInterpHistPdfV::fill(std::vector<Double_t> &out) const
     } else {
         out.resize(bins_.size());
         for (int i = 0, n = bins_.size(); i < n; ++i) {
-            if ((int)hpdf_._cache.GetNbinsX()>bins_[i]) out[i] = hpdf_._cache.GetBinContent(bins_[i]);
-            else out[i] = 0;
+            // if ((int)hpdf_._cache.GetNbinsX()>bins_[i]) out[i] = hpdf_._cache.GetBinContent(bins_[i]);
+            // else out[i] = 0;
+            out[i] = hpdf_._cache.GetBinContent(bins_[i]);
         }
     }
 }
@@ -1231,8 +1232,9 @@ void FastVerticalInterpHistPdf2V::fill(std::vector<Double_t> &out) const
     } else {
         out.resize(bins_.size());
         for (int i = 0, n = bins_.size(); i < n; ++i) {
-          if ((int)hpdf_._cache.GetNbinsX()>bins_[i]) out[i] = hpdf_._cache.GetBinContent(bins_[i]);
-            else out[i] = 0;
+          // if ((int)hpdf_._cache.GetNbinsX()>bins_[i]) out[i] = hpdf_._cache.GetBinContent(bins_[i]);
+          //   else out[i] = 0;
+            out[i] = hpdf_._cache.GetBinContent(bins_[i]);
         }
     }
 }
