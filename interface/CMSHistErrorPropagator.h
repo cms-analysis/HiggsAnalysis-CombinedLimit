@@ -9,7 +9,7 @@
 #include "RooRealProxy.h"
 #include "Rtypes.h"
 #include "TH1F.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate_Old.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
