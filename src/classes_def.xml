@@ -1,17 +1,35 @@
 <lcgdict>
 	<class name="std::vector<std::vector<Float_t>>" />
 	<class name="std::vector<std::vector<std::vector<Float_t>>>" />
+	<class name="std::vector<std::vector<std::vector<std::vector<Float_t>>>>" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<Float_t>>>>>" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<Float_t>>>>>>" />
 	<class name="std::vector<std::vector<Float_t>>::iterator" />
 	<class name="std::vector<std::vector<std::vector<Float_t>>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<Float_t>>>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<Float_t>>>>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<Float_t>>>>>>::iterator" />
 	<class name="std::vector<std::vector<Float_t>>::const_iterator" />
 	<class name="std::vector<std::vector<std::vector<Float_t>>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<Float_t>>>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<Float_t>>>>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<Float_t>>>>>>::const_iterator" />
 
 	<class name="std::vector<std::vector<Double_t>>" />
 	<class name="std::vector<std::vector<std::vector<Double_t>>>" />
+	<class name="std::vector<std::vector<std::vector<std::vector<Double_t>>>>" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>>" />
 	<class name="std::vector<std::vector<Double_t>>::iterator" />
 	<class name="std::vector<std::vector<std::vector<Double_t>>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<Double_t>>>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>::iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>>::iterator" />
 	<class name="std::vector<std::vector<Double_t>>::const_iterator" />
 	<class name="std::vector<std::vector<std::vector<Double_t>>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<Double_t>>>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>::const_iterator" />
+	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>>::const_iterator" />
 
 	<class name="AsymPow" />
 	<class name="AsymQuad" />
@@ -60,6 +78,12 @@
 	<class name="HZZ4L_RooSpinZeroPdf_2D_fast" />
 	<class name="HZZ4L_RooSpinZeroPdf_phase_fast" />
 	<class name="VVHZZ4L_RooSpinZeroPdf_1D_fast" />
+
+	<class name="RooNCSplineCore" />
+	<class name="RooNCSpline_1D_fast" />
+	<class name="RooNCSpline_2D_fast" />
+	<class name="RooNCSpline_3D_fast" />
+	<class name="RooFuncPdf" />
 
 	<class name="ProcessNormalization" />
 	<class name="Roo2ExpPdf" />
