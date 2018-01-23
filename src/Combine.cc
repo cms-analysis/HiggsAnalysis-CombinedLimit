@@ -120,6 +120,7 @@ Combine::Combine() :
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
       ("freezeParameters", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these parameters.")      
       ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
+      ("useAttributes", po::value<bool>(&useAttributes_)->default_value(false), "Use RooFit atttributes to build nuisance groups instead of defined sets")
       ;
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
@@ -190,6 +191,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
     if (vm["noDefaultPrior"].defaulted()) noDefaultPrior_ = 1;
   }
   if (!vm["prior"].defaulted()) noDefaultPrior_ = 0;
+
+  expectSignalSet_ = !vm["expectSignal"].defaulted();
 
   if( vm.count("LoadLibrary") ) {
     librariesToLoad_ = vm["LoadLibrary"].as<std::vector<std::string> >();
@@ -672,12 +675,20 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  (*ng_it).erase(0,1);
 	} 
 
-	if (! w->set(Form("group_%s",(*ng_it).c_str()))){
+	if (!useAttributes_ && !w->set(Form("group_%s",(*ng_it).c_str()))){
           std::cerr << "Unknown nuisance group: " << (*ng_it) << std::endl;
           throw std::invalid_argument("Unknown nuisance group name");
 	}
-        RooArgSet groupNuisances(*(w->set(Form("group_%s",(*ng_it).c_str()))));
-	RooArgSet toFreeze;
+  RooArgSet groupNuisances;
+   if (useAttributes_ && nuisances) {
+      RooAbsArg *arg = nullptr;
+      auto iter = nuisances->createIterator();
+      while ((arg = (RooAbsArg*)iter->Next())) {
+        if (arg->attributes().count(*ng_it)) groupNuisances.add(*arg);
+      }
+    } else {
+      groupNuisances = RooArgSet(*(w->set(Form("group_%s",(*ng_it).c_str()))));
+    }	RooArgSet toFreeze;
 
 	if (freeze_complement) {
 	  RooArgSet still_floating(*mc->GetNuisanceParameters());

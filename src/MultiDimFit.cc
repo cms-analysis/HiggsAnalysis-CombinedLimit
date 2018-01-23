@@ -51,10 +51,10 @@ float MultiDimFit::autoRange_ = -1.0;
 std::string MultiDimFit::fixedPointPOIs_ = "";
 float MultiDimFit::centeredRange_ = -1.0;
 
-
 std::string MultiDimFit::saveSpecifiedFuncs_;
 std::string MultiDimFit::saveSpecifiedIndex_;
 std::string MultiDimFit::saveSpecifiedNuis_;
+std::string MultiDimFit::setPhysicsModelParameterExpression_;
 std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
 std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
 std::vector<float>        MultiDimFit::specifiedFuncVals_;
@@ -93,6 +93,7 @@ MultiDimFit::MultiDimFit() :
 	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
+    ("setParametersForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
 	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
         ("setParametersForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0") 
         ("setParameterRangesForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterRangesExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,2.0:CF=1.0,2.0") 
@@ -524,14 +525,15 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     double nll0 = nll.getVal();
 
     if (setPhysicsModelParameterRangesExpression_ != "") {
-        utils::setModelParameterRanges( setPhysicsModelParameterRangesExpression_, w->allVars());
+        RooArgSet allParams(w->allVars());
+        allParams.add(w->allCats());
+        utils::setModelParameterRanges( setPhysicsModelParameterRangesExpression_, allParams);
     }
 
     if (setPhysicsModelParameterExpression_ != "") {
-        RooArgSet allParams(w->allVars());
-        if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
-        utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
-        // also allow for "discrete" parameters to be set 
+       RooArgSet allParams(w->allVars());
+       allParams.add(w->allCats());
+       utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
     }
 
     if (startFromPreFit_) w->loadSnapshot("clean");
@@ -563,7 +565,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             double x =  pmin[0] + (i)*(pmax[0]-pmin[0])/points_; 
 	    if( xbestpoint > lastPoint_ ){
 		int ireverse = lastPoint_ - i + firstPoint_ ;
-		x = pmin[0] + (ireverse+0.5)*(pmax[0]-pmin[0])/points_; 
+		x = pmin[0] + (ireverse)*(pmax[0]-pmin[0])/points_; 
 	    }
 
 	    if (squareDistPoiStep_){

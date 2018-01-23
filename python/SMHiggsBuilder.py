@@ -158,7 +158,7 @@ class SMHiggsBuilder:
            ('hgluglu' , [ 'hgluglu' ] ),
         ]
         widthUncertainties = {}; widthUncertaintiesKeys = []
-        for line in open(self.brpath+"/WidthUncertainties_126GeV.txt"):
+        for line in open(self.brpath+"/WidthUncertainties_125GeV_YR4.txt"):
             if widthUncertaintiesKeys == []:
                 widthUncertaintiesKeys = line.split()[1:]
             else:
