@@ -68,8 +68,6 @@ std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
 std::vector<float>        MultiDimFit::specifiedVals_;
 RooArgList                MultiDimFit::specifiedList_;
 bool MultiDimFit::saveInactivePOI_= false;
-std::string MultiDimFit::setPhysicsModelParameterExpression_;
-std::string MultiDimFit::setPhysicsModelParameterRangesExpression_;
 
 MultiDimFit::MultiDimFit() :
     FitterAlgoBase("MultiDimFit specific options")
@@ -96,7 +94,6 @@ MultiDimFit::MultiDimFit() :
     ("setParametersForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
 	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
         ("setParametersForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0") 
-        ("setParameterRangesForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterRangesExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,2.0:CF=1.0,2.0") 
       ;
 }
 
@@ -524,12 +521,6 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
 
-    if (setPhysicsModelParameterRangesExpression_ != "") {
-        RooArgSet allParams(w->allVars());
-        allParams.add(w->allCats());
-        utils::setModelParameterRanges( setPhysicsModelParameterRangesExpression_, allParams);
-    }
-
     if (setPhysicsModelParameterExpression_ != "") {
        RooArgSet allParams(w->allVars());
        allParams.add(w->allCats());
@@ -871,10 +862,6 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     //minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
-
-    if (setPhysicsModelParameterRangesExpression_ != "") {
-        utils::setModelParameterRanges( setPhysicsModelParameterRangesExpression_, w->allVars());
-    }
 
     if (fixedPointPOIs_ != "") {
 	    utils::setModelParameters( fixedPointPOIs_, w->allVars());
