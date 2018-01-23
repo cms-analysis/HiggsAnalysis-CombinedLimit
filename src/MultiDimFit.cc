@@ -68,6 +68,8 @@ std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
 std::vector<float>        MultiDimFit::specifiedVals_;
 RooArgList                MultiDimFit::specifiedList_;
 bool MultiDimFit::saveInactivePOI_= false;
+std::string MultiDimFit::setPhysicsModelParameterExpression_;
+std::string MultiDimFit::setPhysicsModelParameterRangesExpression_;
 
 MultiDimFit::MultiDimFit() :
     FitterAlgoBase("MultiDimFit specific options")
@@ -92,6 +94,8 @@ MultiDimFit::MultiDimFit() :
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
 	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
+        ("setParametersForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0") 
+        ("setParameterRangesForGrid", boost::program_options::value<std::string>(&setPhysicsModelParameterRangesExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,2.0:CF=1.0,2.0") 
       ;
 }
 
@@ -518,6 +522,18 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     unsigned int n = poi_.size();
     //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
+
+    if (setPhysicsModelParameterRangesExpression_ != "") {
+        utils::setModelParameterRanges( setPhysicsModelParameterRangesExpression_, w->allVars());
+    }
+
+    if (setPhysicsModelParameterExpression_ != "") {
+        RooArgSet allParams(w->allVars());
+        if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
+        utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
+        // also allow for "discrete" parameters to be set 
+    }
+
     if (startFromPreFit_) w->loadSnapshot("clean");
 
     std::vector<double> p0(n), pmin(n), pmax(n);
@@ -836,7 +852,13 @@ void MultiDimFit::doRandomPoints(RooWorkspace *w, RooAbsReal &nll)
 }
 void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll) 
 {
+
     double nll0 = nll.getVal();
+    std::cout<<"fixed point nll0 "<<nll0<<std::endl;
+    for (unsigned int i = 0; i < poi_.size(); ++i) {
+            std::cout<<" starting value for "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
+    }
+
     if (startFromPreFit_) w->loadSnapshot("clean");
     for (unsigned int i = 0, n = poi_.size(); i < n; ++i) {
         poiVars_[i]->setConstant(true);
@@ -848,6 +870,9 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     //minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
 
+    if (setPhysicsModelParameterRangesExpression_ != "") {
+        utils::setModelParameterRanges( setPhysicsModelParameterRangesExpression_, w->allVars());
+    }
     //for (unsigned int i = 0; i < n; ++i) {
     //        std::cout<<" Before setting fixed point "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
     //}
@@ -883,11 +908,13 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
 			    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 		    }
 		    Combine::commitPoint(true, /*quantile=*/prob);
-    //for (unsigned int i = 0; i < n; ++i) {
-    //        std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
-    //}
-	    }
-    } 
+            //for (unsigned int i = 0; i < n; ++i) {
+            //std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
+            //}
+            //std::cout<<"nll0 "<<nll0<<" nll "<<nllValue_<<" deltaNLL "<<deltaNLL_<<std::endl;
+            //}
+        }
+    }
 }
 
 void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll) 

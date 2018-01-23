@@ -71,6 +71,9 @@ protected:
   static std::vector<float>        specifiedVals_;
   static RooArgList                specifiedList_;
   static bool saveInactivePOI_;
+  static std::string setPhysicsModelParameterExpression_;
+  static std::string setPhysicsModelParameterRangesExpression_;
+
   // initialize variables
   void initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) ;
 
