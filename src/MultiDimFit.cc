@@ -875,9 +875,7 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     if (setPhysicsModelParameterRangesExpression_ != "") {
         utils::setModelParameterRanges( setPhysicsModelParameterRangesExpression_, w->allVars());
     }
-    //for (unsigned int i = 0; i < n; ++i) {
-    //        std::cout<<" Before setting fixed point "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
-    //}
+
     if (fixedPointPOIs_ != "") {
 	    utils::setModelParameters( fixedPointPOIs_, w->allVars());
     } else if (setPhysicsModelParameterExpression_ != "") {
@@ -912,8 +910,6 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
 		    Combine::commitPoint(true, /*quantile=*/prob);
             //for (unsigned int i = 0; i < n; ++i) {
             //std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
-            //}
-            //std::cout<<"nll0 "<<nll0<<" nll "<<nllValue_<<" deltaNLL "<<deltaNLL_<<std::endl;
             //}
         }
     }

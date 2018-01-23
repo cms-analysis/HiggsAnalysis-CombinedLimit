@@ -364,6 +364,10 @@ class Kappas(LHCHCGBaseModel):
             for d in SM_HIGG_DECAYS: 
                 self.modelBuilder.factory_('HiggsDecayWidth_UncertaintyScaling_%s[1.0]' % d)
         # get VBF, tHq, tHW, ggZH cross section
+        self.SMH.makeScaling('qqH', CW='kappa_W', CZ='kappa_Z')
+        self.SMH.makeScaling("tHq", CW='kappa_W', Ctop="kappa_t")
+        self.SMH.makeScaling("tHW", CW='kappa_W', Ctop="kappa_t")
+        self.SMH.makeScaling("ggZH", CZ='kappa_Z', Ctop="kappa_t",Cb="kappa_b")
         # resolve loops
         if self.resolved:
             self.SMH.makeScaling('ggH', Cb='kappa_b', Ctop='kappa_t', Cc="kappa_t")
@@ -392,11 +396,6 @@ class Kappas(LHCHCGBaseModel):
         self.modelBuilder.factory_("sum::c7_SMBRs(%s)" %  (",".join("SM_BR_"+X for X in "hzz hww htt hmm hcc hbb hss hgluglu hgg hzg".split())))
         self.modelBuilder.out.function("c7_SMBRs").Print("")        
         
-        self.SMH.makeScaling('qqH', CW='kappa_W', CZ='kappa_Z')
-        self.SMH.makeScaling("tHq", CW='kappa_W', Ctop="kappa_t")
-        self.SMH.makeScaling("tHW", CW='kappa_W', Ctop="kappa_t")
-        self.SMH.makeScaling("ggZH", CZ='kappa_Z', Ctop="kappa_t",Cb="kappa_b")
-
         ## total witdh, normalized to the SM one
         self.modelBuilder.factory_('expr::c7_Gscal_tot("(@1+@2+@3+@4+@5+@6+@7)/@8/(1-@0-@9)", BRinv, c7_Gscal_Z, c7_Gscal_W, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs, BRundet)')
 
@@ -1141,7 +1140,6 @@ A2 = SignalStrengthRatios()
 B1 = XSBRratios("WW")
 B1ZZ = XSBRratios("ZZ")
 B2 = XSBRratiosAlternative()
-#K1 = Kappas(resolved=True,addWidth=True)
 K1 = Kappas(resolved=True)
 K2 = Kappas(resolved=False)
 K2Inv = Kappas(resolved=False,addInvisible=True,addUndet=False)
