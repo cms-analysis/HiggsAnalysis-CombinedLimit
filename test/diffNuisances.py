@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import re
 from sys import argv, stdout, stderr, exit
+import datetime
 from optparse import OptionParser
 import HiggsAnalysis.CombinedLimit.calculate_pulls as CP 
 
@@ -27,8 +28,8 @@ parser.add_option("--vtol", "--val-tolerance", dest="vtol", default=0.30, type="
 parser.add_option("--stol", "--sig-tolerance", dest="stol", default=0.10, type="float", help="Report nuisances whose sigma changes by more than this amount")
 parser.add_option("--vtol2", "--val-tolerance2", dest="vtol2", default=2.0, type="float", help="Report severely nuisances whose value changes by more than this amount of sigmas")
 parser.add_option("--stol2", "--sig-tolerance2", dest="stol2", default=0.50, type="float", help="Report severely nuisances whose sigma changes by more than this amount")
-parser.add_option("-a", "--all",      dest="all",    default=False,  action="store_true", help="Print all nuisances, even the ones which are unchanged w.r.t. pre-fit values.")
-parser.add_option("-A", "--absolute", dest="abs",    default=False,  action="store_true", help="Report also absolute values of nuisance values and errors, not only the ones normalized to the input sigma")
+parser.add_option("-a", "--all",      dest="show_all_parameters",    default=False,  action="store_true", help="Print all nuisances, even the ones which are unchanged w.r.t. pre-fit values.")
+parser.add_option("-A", "--abs",      dest="absolute_values",    default=False,  action="store_true", help="Report also absolute values of nuisance values and errors, not only the ones normalized to the input sigma")
 parser.add_option("-p", "--poi",      dest="poi",    default="r",    type="string",  help="Name of signal strength parameter (default is 'r' as per text2workspace.py)")
 parser.add_option("-f", "--format",   dest="format", default="text", type="string",  help="Output format ('text', 'latex', 'twiki'")
 parser.add_option("-g", "--histogram", dest="plotfile", default=None, type="string", help="If true, plot the pulls of the nuisances to the given file.")
@@ -40,6 +41,9 @@ if len(args) == 0:
     exit(1)
 
 if options.pullDef!="" and options.pullDef not in CP.allowed_methods(): exit("Method %s not allowed, choose one of [%s]"%(options.pullDef,",".join(CP.allowed_methods())))
+
+
+setUpString = "diffNuisances run on %s, at %s with the following options ... "%(args[0],datetime.datetime.utcnow())+str(options)
 
 file = ROOT.TFile(args[0])
 if file == None: raise RuntimeError, "Cannot open file %s" % args[0]
@@ -103,7 +107,7 @@ for i in range(fpf_s.getSize()):
 
     if nuis_p == None:
         # nuisance parameter NOT present in the prefit result
-        if not options.abs: continue
+        if not options.absolute_values: continue
         row += [ "[%.2f, %.2f]" % (nuis_s.getMin(), nuis_s.getMax()) ]
 
     else:
@@ -114,7 +118,7 @@ for i in range(fpf_s.getSize()):
 
 	if not sigma_p > 0: sigma_p = (nuis_p.getMax()-nuis_p.getMin())/2
 	nuisIsSymm = abs(abs(nuis_p.getErrorLo())-abs(nuis_p.getErrorHi()))<0.01 or nuis_p.getErrorLo() == 0
-        if options.abs: 
+        if options.absolute_values: 
 		if nuisIsSymm : row += [ "%.6f +/- %.6f" % (nuis_p.getVal(), nuis_p.getError()) ]
 		else: row += [ "%.6f +%.6f %.6f" % (nuis_p.getVal(), nuis_p.getErrorHi(), nuis_p.getErrorLo()) ]
 
@@ -169,12 +173,12 @@ for i in range(fpf_s.getSize()):
                 	sigShift = nuis_x.getError()/sigma_p
 
 		else :
-			print "No definition for prefit uncertainty %s. Printing absolute shifts"%(nuis_p.GetName())
+			#print "No definition for prefit uncertainty %s. Printing absolute shifts"%(nuis_p.GetName())
 			valShift = (nuis_x.getVal() - mean_p)
                 	sigShift = nuis_x.getError()
                 if fit_name == 'b':
                     pulls.append(valShift)
-                if options.abs:
+                if options.absolute_values:
                     row[-1] += " (%+4.2fsig, %4.2f)" % (valShift, sigShift)
                 else:
                     row[-1] = " %+4.2f, %4.2f" % (valShift, sigShift)
@@ -197,17 +201,17 @@ for i in range(fpf_s.getSize()):
                     # the best fit moved by more than 0.3 sigma or the uncertainty (sigma)
                     # changed by more than 10% (default thresholds) w.r.t the prefit values
 
-                    if options.all: isFlagged[(name,fit_name)] = 1
+                    if options.show_all_parameters: isFlagged[(name,fit_name)] = 1
 
                     flag = True
 
-                elif options.all:
+                elif options.show_all_parameters:
                     flag = True
 
     # end of loop over s and b
 
     row += [ "%+4.2f"  % fit_s.correlation(name, options.poi) ]
-    if flag or options.all: table[name] = row
+    if flag or options.show_all_parameters: table[name] = row
 
 #end of loop over all fitted parameters
 
@@ -215,12 +219,16 @@ for i in range(fpf_s.getSize()):
 # print the results
 #----------
 
+#print details
+print setUpString
+print 
+
 fmtstring = "%-40s     %15s    %15s  %10s"
 highlight = "*%s*"
 morelight = "!%s!"
 pmsub, sigsub = None, None
 if options.format == 'text':
-    if options.abs:
+    if options.absolute_values:
         fmtstring = "%-40s     %15s    %30s    %30s  %10s"
         print fmtstring % ('name', 'pre fit', 'b-only fit', 's+b fit', 'rho')
     else:
@@ -230,7 +238,7 @@ elif options.format == 'latex':
     sigsub = ("sig", r"$\\sigma$")
     highlight = "\\textbf{%s}"
     morelight = "{{\\color{red}\\textbf{%s}}}"
-    if options.abs:
+    if options.absolute_values:
         fmtstring = "%-40s &  %15s & %30s & %30s & %6s \\\\"
         print "\\begin{tabular}{|l|r|r|r|r|} \\hline ";
         print (fmtstring % ('name', 'pre fit', '$b$-only fit', '$s+b$ fit', r'$\rho(\theta, \mu)$')), " \\hline"
@@ -246,7 +254,7 @@ elif options.format == 'twiki':
     sigsub = ("sig", r"&sigma;")
     highlight = "<b>%s</b>"
     morelight = "<b style='color:red;'>%s</b>"
-    if options.abs:
+    if options.absolute_values:
         fmtstring = "| <verbatim>%-40s</verbatim>  | %-15s  | %-30s  | %-30s   | %-15s  |"
         print "| *name* | *pre fit* | *b-only fit* | *s+b fit* | "
     else:
@@ -267,7 +275,7 @@ elif options.format == 'html':
 </head><body style="font-family: 'Verdana', sans-serif; font-size: 10pt;"><h1>Comparison of nuisances</h1>
 <table>
 """
-    if options.abs:
+    if options.absolute_values:
         print "<tr><th>nuisance</th><th>pre fit</th><th>background fit </th><th>signal fit</th><th>correlation</th></tr>"
         fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-30s </td><td> %-30s </td><td> %-15s </td></tr>"
     else:
@@ -285,7 +293,7 @@ for n in names:
     if sigsub != None: v = [ re.sub(sigsub[0], sigsub[1], i) for i in v ]
     if (n,'b') in isFlagged: v[-3] = highlighters[isFlagged[(n,'b')]] % v[-3]
     if (n,'s') in isFlagged: v[-2] = highlighters[isFlagged[(n,'s')]] % v[-2]
-    if options.abs:
+    if options.absolute_values:
        print fmtstring % (n, v[0], v[1], v[2], v[3])
     else:
        print fmtstring % (n, v[0], v[1], v[2])
