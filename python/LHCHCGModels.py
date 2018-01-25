@@ -331,8 +331,8 @@ class Kappas(LHCHCGBaseModel):
         self.modelBuilder.doVar("kappa_W[1,0.0,2.0]")
         kappa_tau = 'kappa_tau'
         if self.addWidth:
-            kappa_tau='kappa_H'
-            self.modelBuilder.doVar("kappa_H[1,0.5,2.0]")
+            kappa_tau='c7_Gscal_tot'
+            self.modelBuilder.doVar("c7_Gscal_tot[1,0.5,2.0]")
         else:
             self.modelBuilder.doVar("kappa_tau[1,0.0,3.0]")
         self.modelBuilder.doVar("kappa_Z[1,0.0,2.0]") 
@@ -403,7 +403,7 @@ class Kappas(LHCHCGBaseModel):
         self.modelBuilder.out.function("c7_SMBRs").Print("")        
         
         if self.addWidth:
-            self.modelBuilder.factory_('expr::c7_Gscal_tau("@1*@1*@8*(1-@0-@9)-(@2+@3+@4+@5+@6+@7)", BRinv, kappa_H, c7_Gscal_W, c7_Gscal_Z, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs, BRundet)')
+            self.modelBuilder.factory_('expr::c7_Gscal_tau("@1*@8*(1-@0-@9)-(@2+@3+@4+@5+@6+@7)", BRinv, c7_Gscal_tot, c7_Gscal_W, c7_Gscal_Z, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs, BRundet)')
             if kappa_mu_expr == 'kappa_mu':
                 self.modelBuilder.factory_('expr::kappa_tau("sqrt((@0-@1*@1*@2*@3)/(@4*@5))", c7_Gscal_tau, kappa_mu, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_hmm, SM_BR_htt, HiggsDecayWidth_UncertaintyScaling_htt)')
             else:
@@ -415,9 +415,7 @@ class Kappas(LHCHCGBaseModel):
         
 
         ## total witdh, normalized to the SM one
-        if self.addWidth:
-            self.modelBuilder.factory_('expr::c7_Gscal_tot("@0*@0",kappa_H)')
-        else:
+        if not self.addWidth:
             self.modelBuilder.factory_('expr::c7_Gscal_tot("(@1+@2+@3+@4+@5+@6+@7)/@8/(1-@0-@9)", BRinv, c7_Gscal_Z, c7_Gscal_W, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs, BRundet)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
