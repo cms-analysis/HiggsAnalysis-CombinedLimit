@@ -72,6 +72,7 @@ protected:
   static std::vector<float>        specifiedVals_;
   static RooArgList                specifiedList_;
   static bool saveInactivePOI_;
+
   // initialize variables
   void initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) ;
 

@@ -519,11 +519,13 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     unsigned int n = poi_.size();
     //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
+
     if (setPhysicsModelParameterExpression_ != "") {
        RooArgSet allParams(w->allVars());
        allParams.add(w->allCats());
        utils::setModelParameters( setPhysicsModelParameterExpression_, allParams);
     }
+
     if (startFromPreFit_) w->loadSnapshot("clean");
 
     std::vector<double> p0(n), pmin(n), pmax(n);
@@ -842,7 +844,13 @@ void MultiDimFit::doRandomPoints(RooWorkspace *w, RooAbsReal &nll)
 }
 void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll) 
 {
+
     double nll0 = nll.getVal();
+    std::cout<<"fixed point nll0 "<<nll0<<std::endl;
+    for (unsigned int i = 0; i < poi_.size(); ++i) {
+            std::cout<<" starting value for "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
+    }
+
     if (startFromPreFit_) w->loadSnapshot("clean");
     for (unsigned int i = 0, n = poi_.size(); i < n; ++i) {
         poiVars_[i]->setConstant(true);
@@ -854,9 +862,6 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     //minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
 
-    //for (unsigned int i = 0; i < n; ++i) {
-    //        std::cout<<" Before setting fixed point "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
-    //}
     if (fixedPointPOIs_ != "") {
 	    utils::setModelParameters( fixedPointPOIs_, w->allVars());
     } else if (setPhysicsModelParameterExpression_ != "") {
@@ -889,11 +894,11 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
 			    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 		    }
 		    Combine::commitPoint(true, /*quantile=*/prob);
-    //for (unsigned int i = 0; i < n; ++i) {
-    //        std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
-    //}
-	    }
-    } 
+            //for (unsigned int i = 0; i < n; ++i) {
+            //std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
+            //}
+        }
+    }
 }
 
 void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll) 

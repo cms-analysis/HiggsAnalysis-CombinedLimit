@@ -327,7 +327,7 @@ class Kappas(LHCHCGBaseModel):
         print "BR uncertainties in partial widths: %s " % self.doBRU
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
-        self.modelBuilder.doVar("kappa_W[1,0.0,2.0]") 
+        self.modelBuilder.doVar("kappa_W[1,0.0,2.0]")
         self.modelBuilder.doVar("kappa_Z[1,0.0,2.0]") 
         self.modelBuilder.doVar("kappa_tau[1,0.0,3.0]")
         self.modelBuilder.doVar("kappa_mu[1,0.0,5.0]") 
@@ -394,7 +394,7 @@ class Kappas(LHCHCGBaseModel):
         # fix to have all BRs add up to unity
         self.modelBuilder.factory_("sum::c7_SMBRs(%s)" %  (",".join("SM_BR_"+X for X in "hzz hww htt hmm hcc hbb hss hgluglu hgg hzg".split())))
         self.modelBuilder.out.function("c7_SMBRs").Print("")        
-
+        
         ## total witdh, normalized to the SM one
         self.modelBuilder.factory_('expr::c7_Gscal_tot("(@1+@2+@3+@4+@5+@6+@7)/@8/(1-@0-@9)", BRinv, c7_Gscal_Z, c7_Gscal_W, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs, BRundet)')
 
@@ -621,7 +621,7 @@ class KappaVKappaF(LHCHCGBaseModel):
 
 	# H->invisible scaling 
 	self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0", BRinv)')
- 
+  
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s_%s" % (production,decay,energy)
         if self.modelBuilder.out.function(name) == None:
