@@ -91,6 +91,7 @@ private:
   std::string freezeNuisances_;
   std::string floatNuisances_;
   std::string freezeNuisanceGroups_;
+  bool useAttributes_;
   
   // input-output related variables
   bool saveWorkspace_;

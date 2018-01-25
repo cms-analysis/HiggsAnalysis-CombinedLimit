@@ -54,6 +54,7 @@ protected:
   static bool  saveFitResult_;
   static std::string fixedPointPOIs_;
   static float centeredRange_;
+  static std::string setPhysicsModelParameterExpression_;
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;

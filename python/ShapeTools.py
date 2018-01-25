@@ -664,8 +664,8 @@ class ShapeBuilder(ModelBuilder):
                     kappaUp,kappaDown = shapeUp.Integral(),shapeDown.Integral()
                 elif shapeNominal.InheritsFrom("RooDataHist"):
                     kappaUp,kappaDown = shapeUp.sumEntries(),shapeDown.sumEntries()
-                if not kappaUp >= 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Up" % (kappaUp, channel,process,syst)
-                if not kappaDown >= 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Down" % (kappaDown, channel,process,syst)
+                if not kappaUp > 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Up" % (kappaUp, channel,process,syst)
+                if not kappaDown > 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Down" % (kappaDown, channel,process,syst)
                 kappaUp /=normNominal; kappaDown /= normNominal
                 if abs(kappaUp-1) < 1e-3 and abs(kappaDown-1) < 1e-3: continue
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
