@@ -1084,6 +1084,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
           << " bins with this process have a rateParam\n";
     }
   }
+  std::set<std::string> frozen_params;
   for (auto const& rp : floating_params) {
     if (params_.count(rp[0])) {
       ch::Parameter const* par = params_.at(rp[0]).get();
@@ -1096,7 +1097,13 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         txt_file << format(" [%.4g,%.4g]") % par->range_d() % par->range_u();
       }
       txt_file << "\n";
+      if (par->frozen()) {
+        frozen_params.insert(rp[0]);
+      }
     }
+  }
+  for (auto const& par : frozen_params) {
+    txt_file << "nuisance edit freeze " << par << "\n";
   }
   std::set<std::string> all_fn_param_args;
   for (auto const& rp : floating_params) {
