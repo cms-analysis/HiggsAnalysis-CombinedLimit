@@ -641,7 +641,7 @@ class KappaVKappaF(LHCHCGBaseModel):
 
 	# H->invisible scaling 
 	self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0", BRinv)')
- 
+  
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s_%s" % (production,decay,energy)
         if self.modelBuilder.out.function(name) == None:
