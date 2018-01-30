@@ -347,7 +347,6 @@ class Kappas(LHCHCGBaseModel):
 	self.modelBuilder.doVar("BRundet[0,0,1]")
         if not self.addInvisible: self.modelBuilder.out.var("BRinv").setConstant(True)
         if not self.addUndet: self.modelBuilder.out.var("BRundet").setConstant(True)
-        #if not self.addWidth: self.modelBuilder.out.var("kappa_H").setConstant(True)
         pois = 'kappa_W,kappa_Z,%s,kappa_t,kappa_b' % kappa_tau
         if not self.resolved:
             pois += ',kappa_g,kappa_gam'
@@ -391,7 +390,6 @@ class Kappas(LHCHCGBaseModel):
 
         ## partial witdhs, normalized to the SM one
         kappa_mu_expr = 'kappa_mu' if self.promote_hmm else 'kappa_tau'
-        
         self.modelBuilder.factory_('expr::c7_Gscal_Z("@0*@0*@1*@2", kappa_Z, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz)') 
         self.modelBuilder.factory_('expr::c7_Gscal_W("@0*@0*@1*@2", kappa_W, SM_BR_hww, HiggsDecayWidth_UncertaintyScaling_hww)')
         self.modelBuilder.factory_('expr::c7_Gscal_top("@0*@0 * @1*@2", kappa_t, SM_BR_hcc, HiggsDecayWidth_UncertaintyScaling_hcc)')
@@ -411,8 +409,6 @@ class Kappas(LHCHCGBaseModel):
 
         else:
             self.modelBuilder.factory_('expr::c7_Gscal_tau("@0*@0*@1*@4+@2*@2*@3*@5", kappa_tau, SM_BR_htt, %s, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_htt, HiggsDecayWidth_UncertaintyScaling_hmm)' % kappa_mu_expr)
-        
-        
 
         ## total witdh, normalized to the SM one
         if not self.addWidth:
@@ -1159,10 +1155,10 @@ A2 = SignalStrengthRatios()
 B1 = XSBRratios("WW")
 B1ZZ = XSBRratios("ZZ")
 B2 = XSBRratiosAlternative()
-K1 = Kappas(resolved=True,addWidth=False)
+K1 = Kappas(resolved=True)
 K2 = Kappas(resolved=False)
 K2Width = Kappas(resolved=False,addWidth=True)
-K2Inv = Kappas(resolved=False,addInvisible=True,addUndet=False,addWidth=False)
+K2Inv = Kappas(resolved=False,addInvisible=True,addUndet=False)
 K2InvWidth = Kappas(resolved=False,addInvisible=True,addUndet=False,addWidth=True)
 K2Undet = Kappas(resolved=False,addInvisible=True,addUndet=True)
 K2UndetWidth = Kappas(resolved=False,addInvisible=True,addUndet=True,addWidth=True)
