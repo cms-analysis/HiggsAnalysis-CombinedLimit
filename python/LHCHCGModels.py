@@ -354,7 +354,7 @@ class Kappas(LHCHCGBaseModel):
         if self.addInvisible: pois+=",BRinv"
         if self.addUndet: pois+=",BRundet"
         if self.addKappaC: 
-            self.modelBuilder.doVar("kappa_gam[1,0.0,10.0]")
+            self.modelBuilder.doVar("kappa_c[1,0.0,10.0]")
             pois += ',kappa_c'
         self.doMH()
         self.modelBuilder.doSet("POI",pois)
