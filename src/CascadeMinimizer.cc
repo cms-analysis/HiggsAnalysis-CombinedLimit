@@ -312,7 +312,7 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    //if (discretesHaveChanged) { 
    // Run one last fully floating fit to maintain RooFitResult
    minimizer_.reset(new RooMinimizer(nll_));
-   improve(verbose, cascade); 
+   ret = improve(verbose, cascade); 
    //}
    minimumNLL = nll_.getVal();
    return ret;
@@ -400,15 +400,17 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
       if (runShortCombinations) {
         // Initial fit under current index values
         improve(verbose, cascade);
-        double minimumNLL  = 10+nll_.getVal();
+        double backupApproxPreFitTolerance = approxPreFitTolerance_;
+        approxPreFitTolerance_ = 0.;
+        double minimumNLL  = nll_.getVal();
         double previousNLL = nll_.getVal();
         int maxIterations = 15; int iterationCounter=0;
         for (;iterationCounter<maxIterations;iterationCounter++){
-          iterativeMinimize(minimumNLL,verbose,cascade);
+          ret = iterativeMinimize(minimumNLL,verbose,cascade);
           if ( fabs(previousNLL-minimumNLL) < discreteMinTol_ ) break; // should be minimizer tolerance
           previousNLL = minimumNLL ;
         }
-
+        approxPreFitTolerance_ = backupApproxPreFitTolerance;
       } else {
 
         double minimumNLL = 10+nll_.getVal();
