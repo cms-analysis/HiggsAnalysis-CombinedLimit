@@ -952,6 +952,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  absdata_toy = data_toy;
 	}
       } else {
+        w->loadSnapshot("clean"); // (*) this is needed in case running over toys+fits, to avoid starting from previous fit 
+				  //-- constraints are set to toy values if frequentist (below) or set back to 0 (unecessarily) here. 
 	absdata_toy = dynamic_cast<RooAbsData *>(readToysFromHere->Get(TString::Format("toys/toy_%d",iToy)));
 	if (absdata_toy == 0) {
 	  std::cerr << "Toy toy_"<<iToy<<" not found in " << readToysFromHere->GetName() << ". List follows:\n";
@@ -966,7 +968,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
                 return;
             }
             vars->assignValueOnly(*snap);
-            w->saveSnapshot("clean",utils::returnAllVars(w));
+	    // note, we save over the "clean" values also for the parameters, so we've made sure they are the same as they were in (*)
+            w->saveSnapshot("clean",utils::returnAllVars(w)); 
         }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
