@@ -313,7 +313,7 @@ class XSBRratios(LHCHCGBaseModel):
 
 class Kappas(LHCHCGBaseModel):
     "assume the SM coupling but let the Higgs mass to float"
-    def __init__(self,resolved=True,BRU=True,addInvisible=False,addUndet=False,,addWidth=False,addKappaC=False):
+    def __init__(self,resolved=True,BRU=True,addInvisible=False,addUndet=False,addWidth=False,addKappaC=False):
         LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.doBRU = BRU
         self.resolved = resolved
