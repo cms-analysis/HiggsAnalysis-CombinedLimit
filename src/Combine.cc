@@ -408,6 +408,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
     }
     
+
     if (setPhysicsModelParameterRangeExpression_ != "") {
       utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
     }
@@ -876,6 +877,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
     if (iToy == -1) {
+
+     // Hack to speed up HZZ asimov fit
+     if (w->var("kd")) {
+         w->var("kd")->setBins(15);
+     }
+
      if (readToysFromHere != 0){
 	dobs = dynamic_cast<RooAbsData *>(readToysFromHere->Get("toys/toy_asimov"));
 	if (dobs == 0) {
@@ -894,7 +901,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             gobs.assignValueOnly(*snap);
             w->saveSnapshot("clean", w->allVars());
         }
-      }
+     }
       else{
         if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
         if (toysFrequentist_) {
