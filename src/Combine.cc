@@ -878,11 +878,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     iToy = nToys;
     if (iToy == -1) {
 
-     // Hack to speed up HZZ asimov fit
-     if (w->var("kd")) {
-         w->var("kd")->setBins(15);
-     }
-
      if (readToysFromHere != 0){
 	dobs = dynamic_cast<RooAbsData *>(readToysFromHere->Get("toys/toy_asimov"));
 	if (dobs == 0) {
@@ -933,7 +928,17 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	      }
 	    }
 
+            // Hack to speed up HZZ asimov fit
+            if (w->var("kd")) {
+               w->var("kd")->setBins(15);
+            }
+
             dobs = newToyMC.generateAsimov(weightVar_,verbose); // as simple as that
+
+            // Hack to speed up HZZ asimov fit
+            if (w->var("kd")) {
+               w->var("kd")->setBins(30);
+            }
         }
       }
     } else if (dobs == 0) {
