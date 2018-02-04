@@ -127,7 +127,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     skipInitialFit_ = (vm.count("skipInitialFit") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
-    savingSnapshot_ = (!loadedSnapshot_) && vm.count("saveWorkspace");
+    savingSnapshot_ = vm.count("saveWorkspace");
     name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
     saveFitResult_ = (vm.count("saveFitResult") > 0);
 }
