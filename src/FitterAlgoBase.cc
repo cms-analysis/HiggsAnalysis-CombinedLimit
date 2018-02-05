@@ -312,16 +312,26 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
                 minim.setErrorLevel(delta68);
                 minim.improve(verbose-1);
             }
-            if (verbose) std::cout << "Running Minos for POI " << std::endl;
+            if (verbose) { 
+	    	std::cout << "Running Minos for POI " << std::endl;
+		Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Running Minos for POI %s",__LINE__,r.GetName())),Logger::kLogLevelInfo,__func__);
+	    }
             minim.minimizer().setPrintLevel(2);
             if (verbose>1) {tw.Reset(); tw.Start();}
             if (minim.minos(RooArgSet(r))) {
-               if (verbose>1) std::cout << "Run Minos in  "; tw.Print(); std::cout << std::endl;
+               if (verbose>1) {  
+	       	std::cout << "Run Minos in  "; tw.Print(); std::cout << std::endl;
+	       }
                rf.setRange("err68", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                rf.setAsymError(r.getAsymErrorLo(), r.getAsymErrorHi());
             }
        } else {
             r.setVal(r0); r.setConstant(true);
+
+            if (verbose) { 
+	    	std::cout << "Robus Fit for POI " << std::endl;
+		Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Running RobustFit for POI %s. Configured with strategy %d  ",__LINE__,r.GetName(), minimizerStrategyForMinos_)),Logger::kLogLevelInfo,__func__);
+	    }
  
             CascadeMinimizer minim2(*nll, CascadeMinimizer::Constrained);
             minim2.setStrategy(minimizerStrategyForMinos_);
@@ -364,7 +374,10 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     }
     //double minimizerTolerance_ = minim.tolerance();
     Significance::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
-    if (verbose) std::cout << "Searching for crossing at nll = " << level << " in the interval " << rStart << ", " << rBound << std::endl; 
+    if (verbose) { 
+    	std::cout << "Searching for crossing at nll = " << level << " in the interval " << rStart << ", " << rBound << std::endl; 
+    	Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Searching for crossing at nll = %g, in the interval %g < %s < %g",__LINE__,level, rStart,r.GetName(),rBound)),Logger::kLogLevelInfo,__func__);
+    }
     double rInc = stepSize_*(rBound - rStart);
     r.setVal(rStart); 
     std::auto_ptr<RooFitResult> checkpoint;
@@ -382,7 +395,10 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
 	}
     double here = nll.getVal();
     int nfail = 0;
-    if (verbose > 0) { printf("      %s      lvl-here  lvl-there   stepping\n", r.GetName()); fflush(stdout); }
+    if (verbose > 0) { 
+    	printf("      %s      lvl-here  lvl-there   stepping\n", r.GetName()); fflush(stdout); 
+    	Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- %s lvl-here lvl-there 	stepping ",__LINE__,r.GetName())),Logger::kLogLevelInfo,__func__);
+    }
     do {
         rStart += rInc;
         if (rInc*(rStart - rBound) > 0) { // went beyond bounds
@@ -412,7 +428,10 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         } else nfail = 0;
         double there = here;
         here = nll.getVal();
-        if (verbose > 0) { printf("%f    %+.5f  %+.5f    %f\n", rStart, level-here, level-there, rInc); fflush(stdout); }
+        if (verbose > 0) { 
+	  printf("%f    %+.5f  %+.5f    %f\n", rStart, level-here, level-there, rInc); fflush(stdout); 
+    	  Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- %f    %+.5f  %+.5f    %f",__LINE__,rStart, level-here, level-there, rInc)),Logger::kLogLevelInfo,__func__);
+	}
         if ( fabs(here - level) < 4*crossingTolerance_) {
             // set to the right point with interpolation
             r.setVal(rStart + (level-here)*(level-there)/(here-there));
@@ -480,7 +499,10 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
     Significance::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
     CloseCoutSentry sentry(verbose < 3);    
 
-    if (verbose) fprintf(sentry.trueStdOut(), "Searching for crossing at nll = %g in the interval [ %g , %g ]\n", level, rStart, rBound);
+    if (verbose) {
+      fprintf(sentry.trueStdOut(), "Searching for crossing at nll = %g in the interval [ %g , %g ]\n", level, rStart, rBound);
+      Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Searching for crossing at nll = %g in the interval [ %g , %g ] ",__LINE__,level, rStart, rBound)),Logger::kLogLevelInfo,__func__);
+    }
 
     //std::auto_ptr<RooArgSet>    allpars(nll.getParameters((const RooArgSet *)0));
     //utils::CheapValueSnapshot checkpoint(*allpars);
@@ -507,7 +529,10 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
         }
         double rInc = stepSize*(rBound - rStart);
         if (rInc == 0) break;
-        if (verbose > 1) fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f                       step %+10.6f [ START OF ITER %d, bound %+10.6f ]\n", rVal, yStart-level, rInc, iter, rBound);  
+        if (verbose > 1) { 
+	   fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f                       step %+10.6f [ START OF ITER %d, bound %+10.6f ]\n", rVal, yStart-level, rInc, iter, rBound);  
+      	   Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- x %+10.6f   y %+10.6f    step %+10.6f [ START OF ITER %d, bound %+10.6f ]",__LINE__,rVal, yStart-level, rInc, iter, rBound)),Logger::kLogLevelInfo,__func__);
+	}
         // first move w/o profiling
         bool hitbound = true; //, hiterr = false;
         while (unbound || (rBound - rVal - rInc)*rInc >= 0) { // if I've not yet reached the boundary
@@ -527,19 +552,31 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
                 break;
             }
             double yCorr = y - quadCorr*std::pow(rVal-rStart,2);
-            if (verbose > 1) fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f\n", rVal, y-level, yCorr-level);  
+            if (verbose > 1) { 
+	    	fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f\n", rVal, y-level, yCorr-level);  
+      		Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- x %+10.6f   y %+10.6f   yCorr %+10.6f",__LINE__,rVal, y-level, yCorr-level)),Logger::kLogLevelInfo,__func__);
+	    }
             if (fabs(yCorr - yStart) > 0.7) { 
                 hitbound = false;
-                if (verbose > 1) fprintf(sentry.trueStdOut(), "     --------> accumulated big change in NLL, will go do minimize\n");
+                if (verbose > 1) {
+		  fprintf(sentry.trueStdOut(), "     --------> accumulated big change in NLL, will go do minimize\n");
+      		  Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- --------> accumulated big change in NLL, will go do minimize",__LINE__)),Logger::kLogLevelInfo,__func__);
+		}
                 break; 
             }
             if ((level-yCorr)*(level-yStart) < 0) { 
-                if (verbose > 1) fprintf(sentry.trueStdOut(), "     --------> found crossing\n");
+                if (verbose > 1) { 
+		  fprintf(sentry.trueStdOut(), "     --------> found crossing\n");
+      		  Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- --------> found crossing",__LINE__)),Logger::kLogLevelInfo,__func__);
+		}
                 double r2 = rVal - rInc; //r2 should be on the same side as yStart, yCorr(rVal) on the opposite
                 for (int iter2 = 0; (fabs(yCorr - level) > minimizerTolerance_) && iter2 < 5; ++iter2) {
                     double rMid = 0.5*(rVal+r2); r.setVal(rMid);
                     y = nll.getVal(); yCorr = y - quadCorr*std::pow(rMid-rStart,2);
-                    if (verbose > 1) fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f   [ bisection iter %d in  %+10.6f in %+10.6f ]\n", rMid, y-level, yCorr-level, iter2, r2, rVal);
+                    if (verbose > 1) { 
+		      fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f   [ bisection iter %d in  %+10.6f in %+10.6f ]\n", rMid, y-level, yCorr-level, iter2, r2, rVal);
+      		      Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- x %+10.6f   y %+10.6f   yCorr %+10.6f   [ bisection iter %d in  %+10.6f in %+10.6f ]",__LINE__,rMid, y-level, yCorr-level, iter2, r2, rVal)),Logger::kLogLevelInfo,__func__);
+		    }
                     if ( (level-yCorr)*(level - yStart) < 0 ) {
                         rVal = rMid; // yCorr(rMid) is on same side as yCorr(rVal), so rMid replaces rVal
                     } else {
@@ -547,7 +584,10 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
                     }
                 }
                 r.setVal(rVal); // save final value after bisection loop
-                if (verbose > 1) fprintf(sentry.trueStdOut(), "     --------> ending with x %+10.6f\n", rVal);
+                if (verbose > 1) { 
+		  fprintf(sentry.trueStdOut(), "     --------> ending with x %+10.6f\n", rVal);
+      		  Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- --------> ending with x %+10.6f",__LINE__,rVal)),Logger::kLogLevelInfo,__func__);
+		}
                 hitbound = false; break;
             }
         } 
@@ -562,8 +602,12 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
 		if (!neverGiveUp) return NAN; 
 	}
         double yProf = nll.getVal();
-        if (verbose > 1) fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f   yProf  %+10.6f   (P-U) %+10.6f    (P-C) %+10.6f    oldSlope %+10.6f    newSlope %+10.6f\n", 
+        if (verbose > 1) { 
+	   fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f   yProf  %+10.6f   (P-U) %+10.6f    (P-C) %+10.6f    oldSlope %+10.6f    newSlope %+10.6f\n", 
                                                        rVal, yUnprof-level, yCorr-level, yProf-level, yProf - yUnprof, yProf - yCorr, quadCorr, (yUnprof-yProf)/std::pow(rVal-rStart,2));  
+           Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d x %+10.6f   y %+10.6f   yCorr %+10.6f   yProf  %+10.6f   (P-U) %+10.6f    (P-C) %+10.6f    oldSlope %+10.6f    newSlope %+10.6f",__LINE__,
+	   rVal, yUnprof-level, yCorr-level, yProf-level, yProf - yUnprof, yProf - yCorr, quadCorr, (yUnprof-yProf)/std::pow(rVal-rStart,2))),Logger::kLogLevelInfo,__func__);
+	}
 
         // if on target, return best point from linear interpolation
         if (fabs(yProf - level) < minimizerTolerance_) {
@@ -583,14 +627,20 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
 		if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Closed range without finding crossing! ",__LINE__)),Logger::kLogLevelError,__func__);
                 return rVal; 
             } else {
-                if (verbose > 1) fprintf(sentry.trueStdOut(), " ---> change search window to [ %g , %g ]\n", rStart, rBound);
+                if (verbose > 1) { 
+		  fprintf(sentry.trueStdOut(), " ---> change search window to [ %g , %g ]\n", rStart, rBound);
+		  Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- ---> change search window to [ %g , %g ]",__LINE__,rStart, rBound)),Logger::kLogLevelInfo,__func__);
+		}
             }
         } else {
             rBound = rStart;
             rStart = rVal;
             unbound = true; // I did have a bracketing, so I don't need external bounds anymore
-            if (verbose > 1) fprintf(sentry.trueStdOut(), " ---> all your brackets are belong to us!!\n");
-            if (verbose > 1) fprintf(sentry.trueStdOut(), " ---> change search window to [ %g , %g ]\n", rStart, rBound);
+            if (verbose > 1) { 
+	      fprintf(sentry.trueStdOut(), " ---> all your brackets are belong to us!!\n");
+	      fprintf(sentry.trueStdOut(), " ---> change search window to [ %g , %g ]\n", rStart, rBound);
+	      Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- ---> change search window to [ %g , %g ]",__LINE__,rStart, rBound)),Logger::kLogLevelInfo,__func__);
+	    }
         }
     }
     fprintf(sentry.trueStdOut(), "Error: search did not converge, will return approximate answer %+.6f\n",rVal); 
