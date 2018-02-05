@@ -67,7 +67,7 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
         //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
         //("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
-        ("preFitValue",        boost::program_options::value<float>(&preFitValue_)->default_value(preFitValue_),  "Value of signal strength pre-fit")
+        ("preFitValue",        boost::program_options::value<float>(&preFitValue_)->default_value(preFitValue_),  "Value of signal strength pre-fit, also used for pre-fit plots, normalisations and uncertainty calculations (note this overrides --expectSignal for these features)")
         ("do95",       boost::program_options::value<bool>(&do95_)->default_value(do95_),  "Compute also 2-sigma interval from delta(nll) = 1.92 instead of 0.5")
         ("robustFit",  boost::program_options::value<bool>(&robustFit_)->default_value(robustFit_),  "Search manually for 1 and 2 sigma bands instead of using Minos")
         ("maxFailedSteps",  boost::program_options::value<int>(&maxFailedSteps_)->default_value(maxFailedSteps_),  "How many failed steps to retry before giving up")

@@ -150,8 +150,6 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       c1 = new TCanvas("c1","c1");
   }
 
-  // Make pre-plots before the fit
-  r->setVal(preFitValue_);
 
   if ( currentToy_ > 1 && (saveShapes_) ) {
       std::cerr << " ERROR, cannot use saveShapes  with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove those options." << std::endl;
@@ -166,6 +164,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
     if (!justFit_ && nuis && globalObs ) {
       std::auto_ptr<RooAbsPdf> nuisancePdf(utils::makeNuisancePdf(*mc_s));
       w->loadSnapshot("toyGenSnapshot");
+      r->setVal(preFitValue_);
       if (saveNormalizations_) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_prefit");
@@ -188,6 +187,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	   delete norms;
       }
       w->loadSnapshot("clean");
+      r->setVal(preFitValue_);
       RooCategory dummyCat("dummyCat", "");
       RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
       simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
