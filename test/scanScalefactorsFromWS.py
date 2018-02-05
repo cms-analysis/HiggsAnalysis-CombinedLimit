@@ -1,23 +1,33 @@
-
-import sys,numpy,array
+#Script to plot XS*BR as a function of POIs (kappas/lambdas) 
+# Run with "python test/scanScalefactorsFromWS.py -M c7 -o outfolder -m 125.09 
+#   Note that most LHCHCG models use the c7 base. This is just the name prefix of the scaling function 
+#   you may need to use eg CvCf, c6 etc for older modelts in the CMS HCG repo - if in doublt look for the XSBR functions in the WS
+# for A1/B1 (mu based) models, the output of t2w will show how the model scales
+import os,sys,numpy,array
 import itertools
 
 from optparse import OptionParser
 parser = OptionParser(usage="usage: %prog [options] file \nrun with --help to get list of options")
-parser.add_option("-M","--Model",dest="model",default="CvCf",type='str',help="Name of model used in model builder")
-parser.add_option("-m","--mh",dest="mh",default=125.8,type='float',help="Lightest Higgs Mass")
+parser.add_option("-M","--Model",dest="model",default="CvCf",type='str',help="Name of model used in model builder (note its the name of the scaling functions, eg the L1/K models use 'c7'")
+parser.add_option("-m","--mh",dest="mh",default=125.09,type='float',help="Lightest Higgs Mass")
 #parser.add_option("-e","--energydependance",dest="energydependant",action='store_true')
 parser.add_option("-s","--step",dest="stepsize",type='float',default=0.5)
 parser.add_option("","--slice",dest="sliceval",type='str', default = "")
+parser.add_option("","--energies",dest="energies",type='str', default = "13TeV", help= "A comma separated list of the energies to show expressions for")
+parser.add_option("-o","--out",dest="out",type='str', default = "", help= "Output folder for the plots/trees etc")
 (options,args)=parser.parse_args()
 
 import ROOT
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gROOT.SetBatch(1)
+
+if not options.out: options.out = "."
+else: os.system("mkdir -p %s"%options.out)
+
 #ROOT.gStyle.SetNumberContours(255)
 # Can do full matrix of prod*decay
-
-energies = ["7TeV","8TeV","13TeV","14TeV"]
+# In the future we should really think anout just importing these from the SMHiggs Builder!
+energies = list(options.energies.split(","))
 production_channels 	= ["ggH","qqH","WH","ZH","ttH","ggZH","tHq","tHW","bbH"]
 decay_channels 		= ['hww','hzz','hgg','hbb','hcc','htt','hmm','hzg','hgluglu','hinv']
 decay_modes 		= ["hgg","hvv","hff"]
@@ -159,7 +169,8 @@ def makePlot(name,tgraph):
 	lvert.Draw()
 	lhorz.Draw()
 	
-	c.SaveAs("%s.pdf"%(name))
+	c.SaveAs("%s/%s.pdf"%(options.out,name))
+	c.SaveAs("%s/%s.png"%(options.out,name))
 	#c.SetLogz()
 	#c.SaveAs("%s_logscale.pdf"%(name))
 
@@ -201,7 +212,7 @@ def produceScan(modelname,extname,proddecaystring,work,energy=""):
 
 	# make a 2D plot 
 	if nparams == 2 or (options.sliceval and nparams <4): makePlot("%s_%s"%(modelname,proddecay),tgraph)
-	else: print "Skipping plots (nparams != 2)"
+	else: print "Skipping 2D plots (nparams != 2, and nparams!=3 with a slice value given)"
 
 	# make 1D scans 
 	it = params.createIterator()
@@ -220,7 +231,8 @@ def produceScan(modelname,extname,proddecaystring,work,energy=""):
 		cc.cd(j+1)
 		p.Draw()
 
-	cc.SaveAs("%s_%s.pdf"%(modelname,proddecay))
+	cc.SaveAs("%s/%s_%s.pdf"%(options.out,modelname,proddecay))
+	cc.SaveAs("%s/%s_%s.png"%(options.out,modelname,proddecay))
 
 	# Write The Tree:
 	tr.Write()
@@ -297,7 +309,7 @@ print config
 
 #for p in params: print p.GetName()
 # Output file for ROOT TTrees
-tree_output = ROOT.TFile("%s_trees.root"%options.model,"RECREATE")
+tree_output = ROOT.TFile("%s/%s_trees.root"%(options.out,options.model),"RECREATE")
 
 set_palette(ncontours=255) # For colored plots
 
