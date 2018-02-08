@@ -14,6 +14,7 @@ parser.add_option("-m","--mh",dest="mh",default=125.09,type='float',help="Lighte
 parser.add_option("-s","--step",dest="stepsize",type='float',default=0.5)
 parser.add_option("","--slice",dest="sliceval",type='str', default = "")
 parser.add_option("","--energies",dest="energies",type='str', default = "13TeV", help= "A comma separated list of the energies to show expressions for")
+parser.add_option("","--skipTree", default = False, action='store_true', help= "Skip filling the tree of points in the ND space (slow)")
 parser.add_option("-o","--out",dest="out",type='str', default = "", help= "Output folder for the plots/trees etc")
 (options,args)=parser.parse_args()
 
@@ -208,7 +209,7 @@ def produceScan(modelname,extname,proddecaystring,work,energy=""):
 	createBranches(tr,parameter_vals)
 
 	# This is the loop over points in the model 		
-	fillOutputs(func,tgraph,txtfile,tr)
+	if not options.skipTree: fillOutputs(func,tgraph,txtfile,tr)
 
 	# make a 2D plot 
 	if nparams == 2 or (options.sliceval and nparams <4): makePlot("%s_%s"%(modelname,proddecay),tgraph)
@@ -269,6 +270,9 @@ while 1:
   p = iter.Next()
   if p == None: break
   name = p.GetName()
+  # should ideally sort these out, rather than hard code/set to defaults in the workspace
+  work.var(name).setMin(-2)
+  work.var(name).setMax(2)   
   default_parameter_vals[name] = p.getVal() 
 
 # create a dictionary object which containts name, empty array
@@ -310,7 +314,6 @@ print config
 #for p in params: print p.GetName()
 # Output file for ROOT TTrees
 tree_output = ROOT.TFile("%s/%s_trees.root"%(options.out,options.model),"RECREATE")
-
 set_palette(ncontours=255) # For colored plots
 
 """
