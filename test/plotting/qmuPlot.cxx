@@ -91,6 +91,95 @@ double tailReal(TTree *t, std::string br, double cv, int mode){
     return ((double)tpass)/ttotal;
 }
 
+
+
+TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
+
+    if (gFile == 0) { std::cerr << "You must have a file open " << std::endl; return 0; }
+    TTree *t = (TTree *) gFile->Get("q");
+    if (t == 0) { std::cerr << "File " << gFile->GetName() << " does not contain a tree called 'q'" << std::endl; return 0; }
+
+    TCanvas *c1 = new TCanvas("c1","c1");
+    c1->SetBottomMargin(0.15);
+    
+    TH1F *qB;
+    TH1F *qS;
+
+    t->Draw("max(2*q,0)>>qB","weight*(type==-1)");
+    qB = (TH1F*) gROOT->FindObject("qB")->Clone();
+    qB->SetName("NullHyp");
+    qB->Print();
+
+    double yMin = 4.9/qB->Integral();
+
+    t->Draw("max(2*q,0)>>qObs","weight*(type==0)");
+    double qObs = ((TH1F*) gROOT->FindObject("qObs"))->GetMean();
+
+    TArrow *qO = new TArrow(qObs, 0.2, qObs, yMin*1.05, 0.01, "---|>");
+    
+    if (rebin>0){
+	qB->Rebin(rebin);
+    }
+
+    double  nB = qB->Integral();
+    qB->Scale(1.0/qB->Integral());
+
+    gStyle->SetOptStat(0); c1->SetLogy(1);
+    qB->SetLineColor(kRed);
+    qB->SetLineWidth(2);
+    qO->SetLineColor(kBlack);
+    qO->SetLineWidth(3);
+
+    double clB;
+    clB  = tailReal(t,"qB",qObs,0);
+
+    double clBerr  = sqrt(clB*(1-clB)/nB);
+    double sig = RooStats::PValueToSignificance(clB);
+    double sigerr = 0.5*( TMath::Abs(RooStats::PValueToSignificance(clB+clBerr)-sig) + TMath::Abs(RooStats::PValueToSignificance(clB-clBerr)-sig));
+
+    printf("P-val (CLb)  = %.4f +/- %.4f\n", clB , clBerr);
+    printf("Signif  = %.1f +/- %.2f sigma\n",  sig, sigerr);
+
+    // Worst way to calculate !
+    TH1F *qB1 = tail(qB, qObs);
+    qB1->SetFillColor(qB1->GetLineColor()); qB1->SetLineWidth(0); qB1->SetFillStyle(3345);
+
+    TLegend *leg1 = new TLegend(.45,.68,.93,.85);
+    leg1->SetFillColor(0);
+    leg1->SetShadowColor(0);
+    leg1->SetTextFont(42);
+    leg1->SetTextSize(0.04);
+    leg1->SetLineColor(1);
+
+    leg1->AddEntry(qB, "expected for Null", "L");
+    leg1->AddEntry(qO, "observed value", "L");
+
+    TLegend *leg2 = new TLegend(.58,.67,.93,.54);
+    leg2->SetFillColor(0);
+    leg2->SetShadowColor(0);
+    leg2->SetTextFont(42);
+    leg2->SetTextSize(0.04);
+    leg2->SetLineColor(1);
+    leg2->AddEntry(qB1, Form("CL_{b}   = %.4f (%.1f#sigma)", clB,sig), "F");
+    qB->Draw();
+    qB1->Draw("HIST SAME"); 
+    qO->Draw(); 
+    qB->Draw("AXIS SAME");
+    qB->GetYaxis()->SetRangeUser(yMin, 2.0);
+    leg1->Draw();
+    leg2->Draw();
+    qB->SetTitle("");
+    qB->GetYaxis()->SetTitle("");
+    qB->GetXaxis()->SetTitle(Form("q_{0}(m_{H} = %g GeV)",mass));
+    qB->GetXaxis()->SetTitleOffset(1.05);
+    
+    c1->SetName(Form("q0_%.1f",mass));
+
+    return c1;
+}
+
+
+
 TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int invert=0,int rebin=0, int runExpected_=0, double quantileExpected_=0.5) {
     if (gFile == 0) { std::cerr << "You must have a file open " << std::endl; return 0; }
     TTree *t = (TTree *) gFile->Get("q");

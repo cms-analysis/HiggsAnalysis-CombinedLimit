@@ -20,6 +20,7 @@ parser.add_option("-P","--Print",default=False,action='store_true',help="Just pr
 parser.add_option("-e","--expected",default=False,action='store_true',help="Replace observation with expected (under alt hyp)")
 parser.add_option("-q","--quantileExpected",default=0.5,type='float',help="Replace observation with expected quantile (under alt hyp, i.e CLb=quantileExpected)")
 parser.add_option("","--doublesided",action='store_true',default=False,help="If 2 sided (i.e LEP style or non-nested hypos e.g for spin)")
+parser.add_option("","--signif",action='store_true',default=False,help="If significance, don't plot CLs+b, i.e make the q0 plot")
 (options,args)=parser.parse_args()
 
 import ROOT
@@ -27,7 +28,7 @@ ROOT.gROOT.SetBatch(1)
 ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTree.cxx")
 ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/qmuPlot.cxx")
 from ROOT import hypoTestResultTree
-from ROOT import qmuPlot
+from ROOT import qmuPlot, q0Plot
 
 def findPOIvals(fi,m):
  retvals = []
@@ -69,7 +70,8 @@ for m in options.mass:
   #ft = ROOT.TFile.Open("tmp_out%s%d.root"%(m,i))
   ft = ROOT.TFile.Open("tmp_out.root")
   print "Plotting ... "
-  can = qmuPlot(float(m),options.poi,float(pv),int(options.doublesided),int(options.invert),options.rebin,options.expected,options.quantileExpected)
+  if options.signif : can = q0Plot(float(m),options.poi,options.rebin)
+  else: can = qmuPlot(float(m),options.poi,float(pv),int(options.doublesided),int(options.invert),options.rebin,options.expected,options.quantileExpected) 
   canvases.append(can.Clone())
   ft.Close()
 ofile = ROOT.TFile(options.output,"RECREATE")
