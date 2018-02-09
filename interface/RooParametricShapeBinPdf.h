@@ -49,7 +49,7 @@ protected:
    RooRealProxy x;        // dependent variable
    RooListProxy pars;
    RooRealProxy mypdf;
-   TF1 * myfunc;
+   mutable TF1 * myfunc{NULL};
    Int_t xBins;        // X bins
    Double_t xArray[2000]; // xArray[xBins+1]
    Double_t xMax;        // X max
