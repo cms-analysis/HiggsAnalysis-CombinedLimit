@@ -107,7 +107,7 @@ LimitAlgo("HybridNew specific options") {
         ("onlyTestStat", "Just compute test statistics, not actual p-values (works only with --singlePoint)")
         ("generateNuisances",            boost::program_options::value<bool>(&genNuisances_)->default_value(genNuisances_), "Generate nuisance parameters for each toy")
         ("generateExternalMeasurements", boost::program_options::value<bool>(&genGlobalObs_)->default_value(genGlobalObs_), "Generate external measurements for each toy, taken from the GlobalObservables of the ModelConfig")
-        ("fitNuisances", boost::program_options::value<bool>(&fitNuisances_)->default_value(fitNuisances_), "Fit the nuisances, when not generating them.")
+        ("fitNuisances", boost::program_options::value<bool>(&fitNuisances_)->default_value(fitNuisances_), "Fit the nuisances first, before generating the toy data. Set this option to false to acheive the same results as with --bypassFrequentistFit. When not generating toys, eg as in when running with --readHybridresult, this has no effect")
         ("searchAlgo", boost::program_options::value<std::string>(&algo_)->default_value(algo_),         "Algorithm to use to search for the limit (bisection, logSecant)")
         ("toysH,T", boost::program_options::value<unsigned int>(&nToys_)->default_value(nToys_),         "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
         ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(clsAccuracy_),  "Absolute accuracy on CLs to reach to terminate the scan")
@@ -763,7 +763,12 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   utils::CheapValueSnapshot fitMu, fitZero;
   std::auto_ptr<RooArgSet> paramsToFit;
-  if (fitNuisances_ && mc_s->GetNuisanceParameters() && withSystematics) {
+
+  // Count the number of floating, non POI parameters, if there are more than 0, then we would need to fit to estimate their values for the generation ...
+  RooArgSet floatParsModel(*(mc_s->GetPdf()->getParameters(data)));
+  floatParsModel.remove(poi);
+  int nNonPoiFloatingParameters = utils::countFloating(floatParsModel);
+  if (fitNuisances_ && nNonPoiFloatingParameters) {  // We need to fit the model first (to the data) if there are nuisance parameters (constrained or unconstrained)
     TStopwatch timer;
     bool isExt = mc_s->GetPdf()->canBeExtended();
     utils::setAllConstant(poi, true);
@@ -785,6 +790,17 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero.Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
+
+    // print the values of the parameters used to generate the toy
+    if (verbose > 2) {
+      Logger::instance().log(std::string(Form("HybridNew.cc: %d -- Using the following (post-fit) parameters for No signal hypothesis ",__LINE__)),Logger::kLogLevelInfo,__func__);
+      std::auto_ptr<TIterator> iter(paramsToFit->createIterator());
+      for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+  	TString varstring = utils::printRooArgAsString(a);
+  	Logger::instance().log(std::string(Form("HybridNew.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+      }
+    }
+
     poi.assignValueOnly(rVals);
     timer.Start();
     if (pdfB != mc_s->GetPdf()) {
@@ -800,6 +816,18 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     }
     if (verbose > 1) { std::cout << "Reference signal fit" << std::endl; fitMu.Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the signal-plus-background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
+
+    // print the values of the parameters used to generate the toy
+    if (verbose > 2) {
+      Logger::instance().log(std::string(Form("HybridNew.cc: %d -- Using the following (post-fit) parameters for S+B hypothesis ",__LINE__)),Logger::kLogLevelInfo,__func__);
+      RooArgSet reportParams; 
+      reportParams.add(*paramsToFit); reportParams.add(poi);
+      std::auto_ptr<TIterator> iter(reportParams.createIterator());
+      for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+  	TString varstring = utils::printRooArgAsString(a);
+  	Logger::instance().log(std::string(Form("HybridNew.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+      }
+    }
   } else { fitNuisances_ = false; }
 
   // since ModelConfig cannot allow re-setting sets, we have to re-make everything 
