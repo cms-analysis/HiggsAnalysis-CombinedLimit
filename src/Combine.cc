@@ -899,6 +899,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
      }
       else{
         if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
+        // Hack to speed up HZZ asimov fit
+        if (w->var("kd")) {
+           w->var("kd")->setBins(15);
+         }
+
         if (toysFrequentist_) {
             w->saveSnapshot("reallyClean", w->allVars());
             if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
@@ -928,17 +933,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	      }
 	    }
 
-            // Hack to speed up HZZ asimov fit
-            if (w->var("kd")) {
-               w->var("kd")->setBins(15);
-            }
-
             dobs = newToyMC.generateAsimov(weightVar_,verbose); // as simple as that
 
-            // Hack to speed up HZZ asimov fit
-            if (w->var("kd")) {
-               w->var("kd")->setBins(30);
-            }
+        }
+        // Hack to speed up HZZ asimov fit
+        if (w->var("kd")) {
+           w->var("kd")->setBins(30);
         }
       }
     } else if (dobs == 0) {

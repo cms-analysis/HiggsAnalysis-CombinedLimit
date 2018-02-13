@@ -413,9 +413,10 @@ class Kappas(LHCHCGBaseModel):
         if self.addWidth:
             self.modelBuilder.factory_('expr::c7_Gscal_tau("@1*@8*(1-@0-@9)-(@2+@3+@4+@5+@6+@7)", BRinv, c7_Gscal_tot, c7_Gscal_W, c7_Gscal_Z, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs, BRundet)')
             if kappa_mu_expr == 'kappa_mu':
-                self.modelBuilder.factory_('expr::kappa_tau("sqrt((@0-@1*@1*@2*@3)/(@4*@5))", c7_Gscal_tau, kappa_mu, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_hmm, SM_BR_htt, HiggsDecayWidth_UncertaintyScaling_htt)')
+                self.modelBuilder.factory_('expr::kappa_tau_sq("((@0-@1*@1*@2*@3)/(@4*@5))", c7_Gscal_tau, kappa_mu, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_hmm, SM_BR_htt, HiggsDecayWidth_UncertaintyScaling_htt)')
             else:
-                self.modelBuilder.factory_('expr::kappa_tau("sqrt((@0)/(@1*@2+@3*@4))", c7_Gscal_tau, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_hmm, SM_BR_htt, HiggsDecayWidth_UncertaintyScaling_htt)')
+                self.modelBuilder.factory_('expr::kappa_tau_sq("((@0)/(@1*@2+@3*@4))", c7_Gscal_tau, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_hmm, SM_BR_htt, HiggsDecayWidth_UncertaintyScaling_htt)')
+            self.modelBuilder.factory_('expr::kappa_tau("sqrt(@0*(@0>0.0001)+0.0001*(@0<=0.0001)*TMath::Exp(@0-0.0001))", kappa_tau_sq)')
 
         else:
             self.modelBuilder.factory_('expr::c7_Gscal_tau("@0*@0*@1*@4+@2*@2*@3*@5", kappa_tau, SM_BR_htt, %s, SM_BR_hmm, HiggsDecayWidth_UncertaintyScaling_htt, HiggsDecayWidth_UncertaintyScaling_hmm)' % kappa_mu_expr)
