@@ -329,7 +329,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     }
 
     bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
-    if ( doMultipleMini ) preFit_ = 1;
+    // if ( doMultipleMini ) preFit_ = 1;
 
     minimizer_->setPrintLevel(verbose-2);  
     minimizer_->setStrategy(strategy_);
@@ -402,6 +402,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         improve(verbose, cascade);
         double backupApproxPreFitTolerance = approxPreFitTolerance_;
         approxPreFitTolerance_ = 0.;
+
         double minimumNLL  = nll_.getVal();
         double previousNLL = nll_.getVal();
         int maxIterations = 15; int iterationCounter=0;
@@ -457,6 +458,9 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     // repeatedly for no purpose
     int currentBarlowBeeston = runtimedef::get(std::string("MINIMIZER_analytic"));
     runtimedef::set("MINIMIZER_analytic", 0);
+    
+    double backupStrategy = ROOT::Math::MinimizerOptions::DefaultStrategy();
+    ROOT::Math::MinimizerOptions::SetDefaultStrategy(0);
 
     bool newDiscreteMinimum = false;
 
@@ -617,6 +621,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     params->assignValueOnly(snap);
 
     runtimedef::set("MINIMIZER_analytic", currentBarlowBeeston);
+    ROOT::Math::MinimizerOptions::SetDefaultStrategy(backupStrategy);
     return newDiscreteMinimum;
 }
 
