@@ -235,8 +235,8 @@ MB.doModel()
 	"""
 	allVars = tuple([syst[0] for syst in self.systs]+self.flatParamNuisances.keys()+self.extArgs.keys()+self.discretes)
 	for rp in self.rateParams: 
-	  p = self.rateParams[rp][0][0][0] 
-	  allVars+=tuple([p])
+	  modifiers = self.rateParams[rp]
+	  for p in modifiers : allVars+=tuple([p[0][0]])
 
 	return list(set(allVars))
 
