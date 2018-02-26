@@ -879,6 +879,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();
+
+     // Set the global flag to write output to the tree again since some Methods overwrite this to avoid the fill above. 
+     toggleGlobalFillTree(true);
   }
   
   std::vector<double> limitHistory;
@@ -987,6 +990,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	expLimit += limit; 
         limitHistory.push_back(limit);
       }
+      // Set the global flag to write output to the tree again since some Methods overwrite this to avoid the fill above. 
+      toggleGlobalFillTree(true);
+
       if (saveToys_) {
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));
         if (toysFrequentist_ && mc->GetGlobalObservables()) { 
