@@ -857,6 +857,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
 	      }
 	    }
+	    // Also save the current state of the tree here but specify the quantile as -2 (i.e not the default, something specific to the toys)
+	    if (saveToys_) commitPoint(false,-2);
 
             dobs = newToyMC.generateAsimov(weightVar_,verbose); // as simple as that
         }
@@ -870,7 +872,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         if (toysFrequentist_ && mc->GetGlobalObservables()) { 
             RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
             if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
-            // to be seen whether I can delete it or not
         }
     }
     std::cout << "Computing results starting from " << (iToy == 0 ? "observation (a-posteriori)" : "expected outcome (a-priori)") << std::endl;
@@ -945,6 +946,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
 	  }
 	}
+
+	// Also save the current state of the tree here but specify the quantile as -2 (i.e not the default, something specific to the toys)
+	if (saveToys_) commitPoint(false,-2);
 	if (isExtended) {
           absdata_toy = newToyMC.generate(weightVar_); // as simple as that
 	} else {
@@ -988,7 +992,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         if (toysFrequentist_ && mc->GetGlobalObservables()) { 
             RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
             writeToysHere->WriteTObject(snap, TString::Format("toy_%d_snapshot", iToy));
-            // to be seen whether I can delete it or not
         }
       }
       delete absdata_toy;
