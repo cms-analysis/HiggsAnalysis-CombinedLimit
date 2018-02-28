@@ -228,3 +228,15 @@ MB.doModel()
         Return thenumber of expected events for a given bin and process.
         """
         return self.exp[bin][proc]
+    
+    def getAllVariables(self):
+    	"""
+	Return all variables defined in the datacard
+	"""
+	allVars = tuple([syst[0] for syst in self.systs]+self.flatParamNuisances.keys()+self.extArgs.keys()+self.discretes)
+	for rp in self.rateParams: 
+	  modifiers = self.rateParams[rp]
+	  for p in modifiers : allVars+=tuple([p[0][0]])
+
+	return list(set(allVars))
+
