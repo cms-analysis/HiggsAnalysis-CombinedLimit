@@ -75,6 +75,7 @@ TDirectory *writeToysHere = 0;
 TDirectory *readToysFromHere = 0;
 int  verbose = 1;
 bool withSystematics = 1;
+bool expectSignalSet_ = false;
 bool doSignificance_ = 0;
 bool lowerLimit_ = 0;
 float cl = 0.95;
@@ -182,7 +183,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   saveToys_ = vm.count("saveToys");
   validateModel_ = vm.count("validateModel");
   const std::string &method = vm["method"].as<std::string>();
-  expectSignalSet_ = vm.count("expectSignal");
+  if (!(vm["expectSignal"].defaulted())) expectSignalSet_=true;
+  else expectSignalSet_=false;
 	
   if (method == "MultiDimFit" || ( method == "FitDiagnostics" && vm.count("justFit")) || method == "MarkovChainMC") {
     //CMSDAS new default,
