@@ -77,6 +77,7 @@ int  verbose = 1;
 bool withSystematics = 1;
 bool expectSignalSet_ = false;
 bool doSignificance_ = 0;
+bool expectSignalSet = 0;
 bool lowerLimit_ = 0;
 float cl = 0.95;
 bool bypassFrequentistFit_ = false;
