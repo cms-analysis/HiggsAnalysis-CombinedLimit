@@ -36,6 +36,11 @@ std::string CascadeMinimizer::defaultMinimizerAlgo_=ROOT::Math::MinimizerOptions
 double CascadeMinimizer::defaultMinimizerTolerance_=1e-1;  
 int  CascadeMinimizer::strategy_=1; 
 
+std::map<std::string,std::vector<std::string> > MinimizerAlgoMap_;
+minimizerAlgoMap_["Minuit"]  	 = std::vector<std::string >("Migrad","Simplex","Combined","Scan");
+minimizerAlgoMap_["Minuit2"] 	 = std::vector<std::string >("Migrad","Simplex","Combined","Scan");
+minimizerAlgoMap_["GSLMultiMin"] = std::vector<std::string >("ConjugateFR", "ConjugatePR", "BFGS", "BFGS2", "SteepestDescent");
+
 CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) :
     nll_(nll),
     minimizer_(new RooMinimizer(nll_)),
@@ -640,6 +645,20 @@ void CascadeMinimizer::initOptions()
         ;
 }
 
+bool CascadeMinimizer::checkAlgoInType(std::string type, std::string algo){
+
+    std::map<std::string,std::vector<std::string> >::iterator v = minimizerAlgoMap_.find(type);
+    if (v != minimizerAlgoMap_.end()) {
+      std::vector<std::string>::iterator a = (*v).begin();
+      if (std::find(a.begin(), a.end(), algo) != a.end()){
+      	return true;
+      }
+      return false;
+    }
+    return false;
+
+}
+
 void CascadeMinimizer::applyOptions(const boost::program_options::variables_map &vm) 
 {
     using namespace std;
@@ -648,6 +667,10 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
     singleNuisFit_ = vm.count("cminSingleNuisFit");
     setZeroPoint_  = vm.count("cminSetZeroPoint");
     runShortCombinations = !(vm.count("cminRunAllDiscreteCombinations"));
+
+    // check default minimizer type/algo if they are set and make sense
+    if vm.count("cminDefaultMinimizerAlgo"){
+    }
 
     if (vm.count("cminFallbackAlgo")) {
         vector<string> falls(vm["cminFallbackAlgo"].as<vector<string> >());

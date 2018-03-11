@@ -100,6 +100,9 @@ class CascadeMinimizer {
 
     	static bool runShortCombinations; 
         //static void setDefaultIntegrator(RooCategory &cat, const std::string & val) ;
+
+	static std::map<std::string,std::vector<std::string> > MinimizerAlgoMap_;
+	bool checkAlgoInType(std::string, std::string );
 };
 
 // Singleton Class inside!
