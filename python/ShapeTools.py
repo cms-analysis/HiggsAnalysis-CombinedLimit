@@ -377,8 +377,11 @@ class ShapeBuilder(ModelBuilder):
             self.out._import(data)
             return
 
-        """ Combine is able to handle the binned/vs unbinned properly so no need for separate commands, this helps with avoiding padding issues
-        if self.out.mode == "binned":
+        """ Combine is able to handle the binned/vs unbinned properly so no need for separate commands
+	, commenting this switch helps with avoiding creating an n-dim dataset (i.e padding rows for the actual data)
+	, not clear why the "binned" version was ever needed, but should be checked. 
+
+	if self.out.mode == "binned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
             for b in self.DC.bins: 
 	    	combiner.addSetBin(b, self.getData(b,self.options.dataname))
@@ -393,8 +396,8 @@ class ShapeBuilder(ModelBuilder):
 	"""
         combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
         for b in self.DC.bins: 
-		combiner.addSetBin(b, self.getData(b,self.options.dataname))
-        self.out.data_obs = combiner.done(self.options.dataname,self.options.dataname)
+		combiner.addSetAny(b, self.getData(b,self.options.dataname))
+        self.out.data_obs = combiner.doneUnbinned(self.options.dataname,self.options.dataname)
         self.out._import(self.out.data_obs)
 	if self.options.verbose>2:
           print "Created combined dataset with ",self.out.data_obs.numEntries()," entries, out of:"
