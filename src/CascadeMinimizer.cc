@@ -36,10 +36,11 @@ std::string CascadeMinimizer::defaultMinimizerAlgo_=ROOT::Math::MinimizerOptions
 double CascadeMinimizer::defaultMinimizerTolerance_=1e-1;  
 int  CascadeMinimizer::strategy_=1; 
 
-std::map<std::string,std::vector<std::string> > MinimizerAlgoMap_;
-minimizerAlgoMap_["Minuit"]  	 = std::vector<std::string >("Migrad","Simplex","Combined","Scan");
-minimizerAlgoMap_["Minuit2"] 	 = std::vector<std::string >("Migrad","Simplex","Combined","Scan");
-minimizerAlgoMap_["GSLMultiMin"] = std::vector<std::string >("ConjugateFR", "ConjugatePR", "BFGS", "BFGS2", "SteepestDescent");
+std::map<std::string,std::vector<std::string> > const CascadeMinimizer::minimizerAlgoMap_{
+ {"Minuit"	 ,{"Migrad","Simplex","Combined","Scan"}}
+,{"Minuit2" 	 ,{"Migrad","Simplex","Combined","Scan"}}
+,{"GSLMultiMin"  ,{"ConjugateFR", "ConjugatePR", "BFGS", "BFGS2", "SteepestDescent"}}
+};
 
 CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) :
     nll_(nll),
@@ -647,10 +648,10 @@ void CascadeMinimizer::initOptions()
 
 bool CascadeMinimizer::checkAlgoInType(std::string type, std::string algo){
 
-    std::map<std::string,std::vector<std::string> >::iterator v = minimizerAlgoMap_.find(type);
+    std::map<std::string,std::vector<std::string> >::const_iterator v = minimizerAlgoMap_.find(type);
     if (v != minimizerAlgoMap_.end()) {
-      std::vector<std::string>::iterator a = (*v).begin();
-      if (std::find(a.begin(), a.end(), algo) != a.end()){
+      std::vector<std::string>::const_iterator a = (*v).second.end();
+      if (std::find((*v).second.begin(), (*v).second.end(), algo) != a){
       	return true;
       }
       return false;
@@ -669,7 +670,12 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
     runShortCombinations = !(vm.count("cminRunAllDiscreteCombinations"));
 
     // check default minimizer type/algo if they are set and make sense
-    if vm.count("cminDefaultMinimizerAlgo"){
+    if (vm.count("cminDefaultMinimizerAlgo")){
+      if (! checkAlgoInType(defaultMinimizerType_,defaultMinimizerAlgo_)) {
+	std::cerr << Form("The combination of minimizer type/algo %s/%s, is not recognized. Please set these with --cminDefaultMinimizerType and --cminDefaultMinimizerAlgo",defaultMinimizerType_.c_str(),defaultMinimizerAlgo_.c_str());
+	//Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- The combination of minimizer type/algo %s/%s, is not recognized. Please set these with --cminDefaultMinimizerType and --cminDefaultMinimizerAlgo",__LINE__,defaultMinimizerType_.c_str(),defaultMinimizerAlgo_.c_str())),Logger::kLogLevelError,__func__);
+	exit(0);
+      }
     }
 
     if (vm.count("cminFallbackAlgo")) {
@@ -698,6 +704,11 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
                     }
                 }
             }
+      	    if (! checkAlgoInType(defaultMinimizerType_,algo)) {
+		std::cerr << Form("The fallback combination of minimizer type/algo %s/%s, is not recognized. Please check --cminFallbackAlgo again",defaultMinimizerType_.c_str(),algo.c_str());
+		//Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- The fallback combination of minimizer type/algo %s/%s, is not recognized. Please check --cminFallbackAlgo again",__LINE__,defaultMinimizerType_.c_str(),algo.c_str())),Logger::kLogLevelError,__func__);
+		exit(0);
+     	    }
             fallbacks_.push_back(Algo(algo, tolerance, strategy));
             std::cout << "Configured fallback algorithm " << fallbacks_.back().algo << 
                             ", strategy " << fallbacks_.back().strategy   << 
