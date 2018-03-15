@@ -73,9 +73,9 @@ void GoodnessOfFit::applyOptions(const boost::program_options::variables_map &vm
 }
 
 bool GoodnessOfFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
-  double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
-  std::string minimizerAlgo_       = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
-  Significance::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
+  //double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
+  //std::string minimizerAlgo_       = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
+  //Significance::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
   if (fixedMu_) { r->setVal(mu_); r->setConstant(true); }
@@ -210,11 +210,22 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
 
   //First, find the best fit values
   CloseCoutSentry sentry(verbose < 2);
+  
+  /*
   const RooCmdArg &minim = RooFit::Minimizer(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),
                                              ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
   int minimizerStrategy_  = ROOT::Math::MinimizerOptions::DefaultStrategy();
 
   std::auto_ptr<RooFitResult> result(pdf->fitTo(data, RooFit::Save(1), minim, RooFit::Strategy(minimizerStrategy_), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+  sentry.clear();
+  */
+
+  const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
+  std::auto_ptr<RooAbsReal> nll(pdf->createNLL(data, constrainCmdArg));
+  CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained);
+  //minims.setStrategy(minimizerStrategy_);
+  minim.minimize(verbose-2);
+
   sentry.clear();
 
   RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(obsOnlyPdf);
@@ -294,8 +305,7 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
     // CDF of the PDF
     // If RooFit needs to use the scanning technique then increase the number
     // of sampled bins from 1000 to 10000
-    std::auto_ptr<RooAbsReal> cdf(pdf.createCdf(observable, RooFit::ScanParameters(10000, 2)));
-
+    std::auto_ptr<RooAbsReal> cdf(pdf.createCdf(observable, RooFit::ScanAllCdf(), RooFit::ScanParameters(10000, 2)));
     TH1 * hCdf = nullptr;
     TH1 * hEdf = nullptr;
     TH1 * hDiff = nullptr;
