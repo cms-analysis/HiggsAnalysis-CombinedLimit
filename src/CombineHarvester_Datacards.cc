@@ -540,7 +540,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
   //  RooAbsData --> RooWorkspace
   //  RooAbsPdf --> RooWorkspace
   std::map<RooAbsData const*, RooWorkspace*> data_ws_map;
-  std::map<RooAbsPdf const*, RooWorkspace*> pdf_ws_map;
+  std::map<RooAbsReal const*, RooWorkspace*> pdf_ws_map;
   for (auto const& iter : wspaces_) {
     auto dat = iter.second->allData();
     for (auto d : dat) {
@@ -549,9 +549,15 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
     RooArgSet vars = iter.second->allPdfs();
     auto v = vars.createIterator();
     do {
-      RooAbsPdf *y = dynamic_cast<RooAbsPdf*>(**v);
+      RooAbsReal *y = dynamic_cast<RooAbsReal*>(**v);
       if (y) pdf_ws_map[iter.second->pdf(y->GetName())] = iter.second.get();
     } while (v->Next());
+    RooArgSet fvars = iter.second->allFunctions();
+    auto fv = fvars.createIterator();
+    do {
+      RooAbsReal *y = dynamic_cast<RooAbsReal*>(**fv);
+      if (y) pdf_ws_map[iter.second->function(y->GetName())] = iter.second.get();
+    } while (fv->Next());
   }
 
   // For writing TH1s we will hard code a set of patterns for each bin
@@ -1248,6 +1254,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       txt_file << " " << np;
     }
     txt_file << "\n";
+  }
+
+  for (auto const& postl : post_lines_) {
+    txt_file << postl << "\n";
   }
 
   txt_file.close();

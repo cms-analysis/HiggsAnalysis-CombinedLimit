@@ -306,6 +306,18 @@ class CombineHarvester {
    * @param newname The new name
    */
   void RenameGroup(std::string const& oldname, std::string const& newname);
+
+  /**
+   * Add a line of text at the end of all datacards
+   *
+   * @param line Line of text to add
+   */
+  void AddDatacardLineAtEnd(std::string const& line);
+
+  /**
+   * Clear all added datacard lines
+   */
+  void ClearDatacardLinesAtEnd();
   /**@}*/
 
   /**
@@ -478,6 +490,7 @@ class CombineHarvester {
   };
 
   std::map<std::string, AutoMCStatsSettings> auto_stats_settings_;
+  std::vector<std::string> post_lines_;
 
   // ---------------------------------------------------------------
   // typedefs

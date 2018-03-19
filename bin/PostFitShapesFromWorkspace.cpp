@@ -28,6 +28,8 @@ int main(int argc, char* argv[]) {
   std::string freeze_arg = "";
   bool covariance   = false;
   string data       = "data_obs";
+  bool skip_prefit  = false;
+  bool skip_proc_errs = false;
 
   po::options_description help_config("Help");
   help_config.add_options()
@@ -71,7 +73,13 @@ int main(int argc, char* argv[]) {
       "Format PARAM1,PARAM2=X,PARAM3=Y where the values X and Y are optional")
     ("covariance",
       po::value<bool>(&covariance)->default_value(covariance)->implicit_value(true),
-      "Save the covariance and correlation matrices of the process yields");
+      "Save the covariance and correlation matrices of the process yields")
+    ("skip-prefit",
+      po::value<bool>(&skip_prefit)->default_value(skip_prefit)->implicit_value(true),
+      "Skip the pre-fit evaluation")
+    ("skip-proc-errs",
+      po::value<bool>(&skip_proc_errs)->default_value(skip_proc_errs)->implicit_value(true),
+      "Skip evaluation of errors on individual processes");
 
   if (sampling && !postfit) {
     throw logic_error(
@@ -153,7 +161,7 @@ int main(int argc, char* argv[]) {
     return no_shape;
   });
 
-  auto bins = cmb.bin_set();
+  auto bins = cmb.cp().bin_set();
 
   TFile outfile(output.c_str(), "RECREATE");
   TH1::AddDirectory(false);
@@ -163,55 +171,67 @@ int main(int argc, char* argv[]) {
   map<string, map<string, TH1F>> pre_shapes;
   // We can always do the prefit version,
   // Loop through the bins writing the shapes to the output file
-  for (auto bin : bins) {
-    ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
-    // This next line is a temporary fix for models with parameteric RooFit pdfs
-    // - we try and set the number of bins to evaluate the pdf to be the same as
-    // the number of bins in data
-    cmb_bin.SetPdfBins(cmb_bin.GetObservedShape().GetNbinsX());
+  if (!skip_prefit) {
+    for (auto bin : bins) {
+      ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
+      // This next line is a temporary fix for models with parameteric RooFit pdfs
+      // - we try and set the number of bins to evaluate the pdf to be the same as
+      // the number of bins in data
+      // cmb_bin.SetPdfBins(cmb_bin.GetObservedShape().GetNbinsX());
 
-    // Fill the data and process histograms
-    pre_shapes[bin]["data_obs"] = cmb_bin.GetObservedShape();
-    for (auto proc : cmb_bin.process_set()) {
-      pre_shapes[bin][proc] =
-          cmb_bin.cp().process({proc}).GetShapeWithUncertainty();
-    }
+      // Fill the data and process histograms
+      pre_shapes[bin]["data_obs"] = cmb_bin.GetObservedShape();
+      for (auto proc : cmb_bin.process_set()) {
+        std::cout << ">> Doing prefit: " << bin << "," << proc << std::endl;
+        if (skip_proc_errs) {
+          pre_shapes[bin][proc] =
+              cmb_bin.cp().process({proc}).GetShape();
+        } else {
+          pre_shapes[bin][proc] =
+              cmb_bin.cp().process({proc}).GetShapeWithUncertainty();
+        }
+      }
 
-    // The fill total signal and total bkg hists
-    pre_shapes[bin]["TotalBkg"] =
-        cmb_bin.cp().backgrounds().GetShapeWithUncertainty();
-    pre_shapes[bin]["TotalSig"] =
-        cmb_bin.cp().signals().GetShapeWithUncertainty();
-    pre_shapes[bin]["TotalProcs"] =
-        cmb_bin.cp().GetShapeWithUncertainty();
+      // The fill total signal and total bkg hists
+      std::cout << ">> Doing prefit: " << bin << "," << "TotalBkg" << std::endl;
+      pre_shapes[bin]["TotalBkg"] =
+          cmb_bin.cp().backgrounds().GetShapeWithUncertainty();
+      std::cout << ">> Doing prefit: " << bin << "," << "TotalSig" << std::endl;
+      pre_shapes[bin]["TotalSig"] =
+          cmb_bin.cp().signals().GetShapeWithUncertainty();
+      std::cout << ">> Doing prefit: " << bin << "," << "TotalProcs" << std::endl;
+      pre_shapes[bin]["TotalProcs"] =
+          cmb_bin.cp().GetShapeWithUncertainty();
 
-    if (datacard != "") {
-      TH1F ref = cmb_card.cp().bin({bin}).GetObservedShape();
-      for (auto & it : pre_shapes[bin]) {
-        it.second = ch::RestoreBinning(it.second, ref);
+      if (datacard != "") {
+        TH1F ref = cmb_card.cp().bin({bin}).GetObservedShape();
+        for (auto & it : pre_shapes[bin]) {
+          it.second = ch::RestoreBinning(it.second, ref);
+        }
+      }
+
+      // Can write these straight into the output file
+      outfile.cd();
+      for (auto& iter : pre_shapes[bin]) {
+        ch::WriteToTFile(&(iter.second), &outfile, bin + "_prefit/" + iter.first);
       }
     }
 
-    // Can write these straight into the output file
-    outfile.cd();
-    for (auto& iter : pre_shapes[bin]) {
-      ch::WriteToTFile(&(iter.second), &outfile, bin + "_prefit/" + iter.first);
+    // Print out the relative uncert. on the bkg
+    if (factors) {
+      cout << boost::format("%-25s %-32s\n") % "Bin" %
+                  "Total relative bkg uncert. (prefit)";
+      cout << string(58, '-') << "\n";
+      for (auto bin : bins) {
+        ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
+        double rate = cmb_bin.cp().backgrounds().GetRate();
+        double err = cmb_bin.cp().backgrounds().GetUncertainty();
+        cout << boost::format("%-25s %-10.5f") % bin %
+                    (rate > 0. ? (err / rate) : 0.) << std::endl;
+      }
     }
   }
 
-  // Print out the relative uncert. on the bkg
-  if (factors) {
-    cout << boost::format("%-25s %-32s\n") % "Bin" %
-                "Total relative bkg uncert. (prefit)";
-    cout << string(58, '-') << "\n";
-    for (auto bin : bins) {
-      ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
-      double rate = cmb_bin.cp().backgrounds().GetRate();
-      double err = cmb_bin.cp().backgrounds().GetUncertainty();
-      cout << boost::format("%-25s %-10.5f\n") % bin %
-                  (rate > 0. ? (err / rate) : 0.);
-    }
-  }
 
   // Now we can do the same again but for the post-fit model
   if (postfit) {
@@ -220,30 +240,10 @@ int main(int argc, char* argv[]) {
     cmb.UpdateParameters(res);
 
     // Calculate the post-fit fractional background uncertainty in each bin
-    if (factors) {
-      cout << boost::format("\n%-25s %-32s\n") % "Bin" %
-                  "Total relative bkg uncert. (postfit)";
-      cout << string(58, '-') << "\n";
-      for (auto bin : bins) {
-        ch::CombineHarvester cmb_bkgs = cmb.cp().bin({bin}).backgrounds();
-        double rate = cmb_bkgs.GetRate();
-        double err = sampling ? cmb_bkgs.GetUncertainty(res, samples)
-                              : cmb_bkgs.GetUncertainty();
-        cout << boost::format("%-25s %-10.5f\n") % bin %
-                    (rate > 0. ? (err / rate) : 0.);
-      }
-    }
 
     map<string, map<string, TH1F>> post_shapes;
     map<string, TH2F> post_yield_cov;
     map<string, TH2F> post_yield_cor;
-    // As we calculate the post-fit yields can also print out the post/pre scale
-    // factors
-    if (factors) {
-      cout << boost::format("\n%-25s %-20s %-10s\n") % "Bin" % "Process" %
-                       "Scale factor";
-      cout << string(58, '-') << "\n";
-    }
 
     for (auto bin : bins) {
       ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
@@ -252,16 +252,13 @@ int main(int argc, char* argv[]) {
         auto cmb_proc = cmb_bin.cp().process({proc});
         // Method to get the shape uncertainty depends on whether we are using
         // the sampling method or the "wrong" method (assumes no correlations)
-        post_shapes[bin][proc] =
-            sampling ? cmb_proc.GetShapeWithUncertainty(res, samples)
-                     : cmb_proc.GetShapeWithUncertainty();
-        // Print out the post/pre scale factors
-        if (factors) {
-          TH1 const& pre = pre_shapes[bin][proc];
-          TH1 const& post = post_shapes[bin][proc];
-          cout << boost::format("%-25s %-20s %-10.5f\n") % bin % proc %
-                      (pre.Integral() > 0. ? (post.Integral() / pre.Integral())
-                                           : 1.0);
+        std::cout << ">> Doing postfit: " << bin << "," << proc << std::endl;
+        if (skip_proc_errs) {
+          post_shapes[bin][proc] = cmb_proc.GetShape();
+        } else {
+          post_shapes[bin][proc] =
+              sampling ? cmb_proc.GetShapeWithUncertainty(res, samples)
+                       : cmb_proc.GetShapeWithUncertainty();
         }
       }
       if (sampling && covariance) {
@@ -271,12 +268,15 @@ int main(int argc, char* argv[]) {
       // Fill the total sig. and total bkg. hists
       auto cmb_bkgs = cmb_bin.cp().backgrounds();
       auto cmb_sigs = cmb_bin.cp().signals();
+      std::cout << ">> Doing postfit: " << bin << "," << "TotalBkg" << std::endl;
       post_shapes[bin]["TotalBkg"] =
           sampling ? cmb_bkgs.GetShapeWithUncertainty(res, samples)
                    : cmb_bkgs.GetShapeWithUncertainty();
+      std::cout << ">> Doing postfit: " << bin << "," << "TotalSig" << std::endl;
       post_shapes[bin]["TotalSig"] =
           sampling ? cmb_sigs.GetShapeWithUncertainty(res, samples)
                    : cmb_sigs.GetShapeWithUncertainty();
+      std::cout << ">> Doing postfit: " << bin << "," << "TotalProcs" << std::endl;
       post_shapes[bin]["TotalProcs"] =
           sampling ? cmb_bin.cp().GetShapeWithUncertainty(res, samples)
                    : cmb_bin.cp().GetShapeWithUncertainty();
@@ -301,6 +301,41 @@ int main(int argc, char* argv[]) {
       for (auto & iter : post_yield_cor) {
         ch::WriteToTFile(&(iter.second), &outfile,
                          iter.first+"_cor");
+      }
+
+    }
+
+    if (factors) {
+      cout << boost::format("\n%-25s %-32s\n") % "Bin" %
+                  "Total relative bkg uncert. (postfit)";
+      cout << string(58, '-') << "\n";
+      for (auto bin : bins) {
+        ch::CombineHarvester cmb_bkgs = cmb.cp().bin({bin}).backgrounds();
+        double rate = cmb_bkgs.GetRate();
+        double err = sampling ? cmb_bkgs.GetUncertainty(res, samples)
+                              : cmb_bkgs.GetUncertainty();
+        cout << boost::format("%-25s %-10.5f") % bin %
+                    (rate > 0. ? (err / rate) : 0.) << std::endl;
+      }
+    }
+
+    // As we calculate the post-fit yields can also print out the post/pre scale
+    // factors
+    if (factors && postfit) {
+      cout << boost::format("\n%-25s %-20s %-10s\n") % "Bin" % "Process" %
+                  "Scale factor";
+      cout << string(58, '-') << "\n";
+      for (auto bin : bins) {
+        ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
+
+        for (auto proc : cmb_bin.process_set()) {
+          // Print out the post/pre scale factors
+          TH1 const& pre = pre_shapes[bin][proc];
+          TH1 const& post = post_shapes[bin][proc];
+          cout << boost::format("%-25s %-20s %-10.5f\n") % bin % proc %
+                      (pre.Integral() > 0. ? (post.Integral() / pre.Integral())
+                                           : 1.0);
+        }
       }
     }
   }

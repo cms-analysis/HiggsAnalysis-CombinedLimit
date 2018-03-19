@@ -16,6 +16,6 @@ void ParseCombineWorkspacePy(CombineHarvester& cb, RooWorkspace const& ws,
                            std::string const& modelcfg,
                            std::string const& data, bool verbose = false);
 
-RooAddPdf* FindAddPdf(RooAbsPdf* input);
+RooAbsReal* FindAddPdf(RooAbsReal* input);
 }
 #endif
