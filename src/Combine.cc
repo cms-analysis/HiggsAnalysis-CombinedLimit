@@ -545,7 +545,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	// also set ignoreConstraint flag for constraint PDF 
 	if ( w->pdf(Form("%s_Pdf",arg->GetName())) ) w->pdf(Form("%s_Pdf",arg->GetName()))->setAttribute("ignoreConstraint");
       }
-      if (verbose > 0) std::cout << "Redefining the POIs to be: "; newPOIs.Print("");
+      if (verbose > 0) { std::cout << "Redefining the POIs to be: "; newPOIs.Print(""); }
       mc->SetParametersOfInterest(newPOIs);
       POI = mc->GetParametersOfInterest();
       if (nuisances) {
@@ -566,7 +566,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (floatNuisances_ != "") {
       RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
-      if (verbose > 0) std::cout << "Set floating the following parameters: "; toFloat.Print("");
+      if (verbose > 0) {  std::cout << "Set floating the following parameters: "; toFloat.Print(""); }
       utils::setAllConstant(toFloat, false);
   }
   
@@ -597,7 +597,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
 
       RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
-      if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
+      if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
       utils::setAllConstant(toFreeze, true);
       if (nuisances) {
           RooArgSet newnuis(*nuisances);
@@ -633,7 +633,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  toFreeze.add(groupNuisances);
 	}
 	
-        if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
+        if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
         utils::setAllConstant(toFreeze, true);
         if (nuisances) {
           RooArgSet newnuis(*nuisances);
