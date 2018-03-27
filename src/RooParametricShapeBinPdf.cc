@@ -139,6 +139,8 @@ Double_t RooParametricShapeBinPdf::evaluate() const
   
   Double_t xLow = xArray[iBin];
   Double_t xHigh = xArray[iBin+1];
+
+  if(myfunc==NULL) myfunc = ((RooAbsPdf*)mypdf.absArg())->asTF( *(RooRealVar*)x.absArg(),pars);
     
   // define the function to be integrated numerically  
   ROOT::Math::WrappedTF1 func(*myfunc);
