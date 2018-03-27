@@ -465,7 +465,7 @@ namespace cmsmath {
         public:
            SubspaceMultiGenFunction(const ROOT::Math::IMultiGenFunction *f, int nDim, const int *idx, double *xi) :
                 f_(f), nDim_(nDim), idx_(idx), x_(xi) {}
-           virtual IBaseFunctionMultiDim * Clone() const { return new SubspaceMultiGenFunction(*this); }
+           virtual SubspaceMultiGenFunction * Clone() const { return new SubspaceMultiGenFunction(*this); }
            virtual unsigned int NDim() const { return nDim_; }
         private:
            virtual double DoEval(const double * x) const {
