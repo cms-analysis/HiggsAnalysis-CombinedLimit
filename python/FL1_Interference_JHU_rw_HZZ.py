@@ -101,5 +101,8 @@ class FL1_Interference_JHU_rw_HZZ(PhysicsModelBase_NiceSubclasses):
 #        return 1
         return super(FL1_Interference_JHU_rw_HZZ, self).getYieldScale(bin, process)
 
+    def processPhysicsOptions(self,physOptions):
+        return super(FL1_Interference_JHU_rw_HZZ, self).processPhysicsOptions(physOptions)
+
 
 FL1_Interference_JHU_rw_HZZ = FL1_Interference_JHU_rw_HZZ()

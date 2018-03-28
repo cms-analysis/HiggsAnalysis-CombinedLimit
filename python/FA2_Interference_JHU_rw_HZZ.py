@@ -2,7 +2,7 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 import re
 
 class FA2_Interference_JHU_rw_HZZ(PhysicsModelBase_NiceSubclasses):
-    def doParametersOfInterest(self):
+    def getPOIList(self):
         """Create POI and other parameters, and define the POI set."""
         xsecs = {
             "sigma1_HZZ": 290.58626,
@@ -98,6 +98,9 @@ class FA2_Interference_JHU_rw_HZZ(PhysicsModelBase_NiceSubclasses):
             return 'intCoupling_WH'
         #return 1
         return super(FA2_Interference_JHU_rw_HZZ, self).getYieldScale(bin, process)
+
+    def processPhysicsOptions(self,physOptions):
+        return super(FA2_Interference_JHU_rw_HZZ, self).processPhysicsOptions(physOptions)
 
 
 FA2_Interference_JHU_rw_HZZ = FA2_Interference_JHU_rw_HZZ()

@@ -106,6 +106,9 @@ class FL1Zg_Interference_JHU_rw_HZZ(PhysicsModelBase_NiceSubclasses):
             return 'intCoupling_WH'
         return super(FL1Zg_Interference_JHU_rw_HZZ, self).getYieldScale(bin, process)
 
+    def processPhysicsOptions(self,physOptions):
+        return super(FL1Zg_Interference_JHU_rw_HZZ, self).processPhysicsOptions(physOptions)
+
 
 
 FL1Zg_Interference_JHU_rw_HZZ = FL1Zg_Interference_JHU_rw_HZZ()

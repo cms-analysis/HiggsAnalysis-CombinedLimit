@@ -107,5 +107,8 @@ class FA3_Interference_JHU_ggHSyst_rw_HZZ(PhysicsModelBase_NiceSubclasses):
 #        return 1
         return super(FA3_Interference_JHU_ggHSyst_rw_HZZ, self).getYieldScale(bin, process)
 
+    def processPhysicsOptions(self,physOptions):
+        return super(FA3_Interference_JHU_ggHSyst_rw_HZZ, self).processPhysicsOptions(physOptions)
+
 
 FA3_Interference_JHU_ggHSyst_rw_HZZ = FA3_Interference_JHU_ggHSyst_rw_HZZ()
