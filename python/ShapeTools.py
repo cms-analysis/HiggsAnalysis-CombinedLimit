@@ -355,13 +355,13 @@ class ShapeBuilder(ModelBuilder):
         elif shapeTypes.count("RooDataSet") > 0 or shapeTypes.count("TTree") > 0 or len(shapeObs.keys()) > 1: # remake RooArgSet for binVars with all Variables inside 
             self.out.mode = "unbinned"
             if self.options.verbose > 1: stderr.write("Will work with unbinned datasets\n")
-            if self.options.verbose > 1: stderr.write("Observables: %s\n" % str(self.shapeObs.keys()))
+            if self.options.verbose > 1: stderr.write("Observables: %s\n" % str(shapeObs.keys()))
             if len(shapeObs.keys()) != 1:
                 self.out.binVars = ROOT.RooArgSet()
                 for obs in shapeObs.values():
                      self.out.binVars.add(obs, True)
             else:
-                self.out.binVars = self.shapeObs.values()[0]
+                self.out.binVars = shapeObs.values()[0]
             self.out._import(self.out.binVars)
         else:
             self.out.mode = "binned"
