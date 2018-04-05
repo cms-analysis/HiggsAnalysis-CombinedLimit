@@ -39,8 +39,11 @@ class Datacard():
         ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
         self.frozenNuisances = set()
 
-	# Allows for nuisance renaming 
+	# Allows for nuisance renaming of "shape" systematics
 	self.systematicsShapeMap = {}
+	
+	# Allows for nuisance renaming of "param" systematics 
+	self.systematicsParamMap = {}
 
         # Keep edits 
 	self.nuisanceEditLines = []
