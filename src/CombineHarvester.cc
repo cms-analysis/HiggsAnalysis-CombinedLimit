@@ -41,6 +41,7 @@ void swap(CombineHarvester& first, CombineHarvester& second) {
   swap(first.wspaces_, second.wspaces_);
   swap(first.verbosity_, second.verbosity_);
   swap(first.flags_, second.flags_);
+  swap(first.post_lines_, second.post_lines_);
   swap(first.log_, second.log_);
 }
 
@@ -51,6 +52,7 @@ CombineHarvester::CombineHarvester(CombineHarvester const& other)
       params_(other.params_),
       wspaces_(other.wspaces_),
       flags_(other.flags_),
+      post_lines_(other.post_lines_),
       verbosity_(other.verbosity_),
       log_(other.log_) {
   // std::cout << "[CombineHarvester] Copy-constructor called " << &other
@@ -87,11 +89,12 @@ CombineHarvester CombineHarvester::deep() {
   cpy.systs_.resize(systs_.size());
   cpy.flags_ = flags_;
   cpy.verbosity_ = verbosity_;
+  cpy.post_lines_ = post_lines_;
   cpy.log_ = log_;
 
   // Build a map of workspace object pointers
   std::map<RooAbsData const*, RooAbsData *> dat_map;
-  std::map<RooAbsPdf  const*, RooAbsPdf  *> pdf_map;
+  std::map<RooAbsReal  const*, RooAbsReal  *> pdf_map;
   std::map<RooRealVar const*, RooRealVar *> var_map;
   std::map<RooAbsReal const*, RooAbsReal *> fun_map;
 
@@ -160,6 +163,8 @@ CombineHarvester CombineHarvester::deep() {
       cpy.procs_[i] = std::make_shared<Process>(*(procs_[i]));
       if (procs_[i]->pdf())
         cpy.procs_[i]->set_pdf(pdf_map.at(procs_[i]->pdf()));
+      if (procs_[i]->observable())
+        cpy.procs_[i]->set_observable(var_map.at(procs_[i]->observable()));
       if (procs_[i]->data())
         cpy.procs_[i]->set_data(dat_map.at(procs_[i]->data()));
       if (procs_[i]->norm())
@@ -409,7 +414,7 @@ void CombineHarvester::LoadShapes(Process* entry,
     // Pre-condition #3
     // Try and get this as RooAbsData first. If this doesn't work try pdf
     RooAbsData* data = mapping.ws->data(mapping.WorkspaceObj().c_str());
-    RooAbsPdf* pdf = mapping.ws->pdf(mapping.WorkspaceObj().c_str());
+    RooAbsReal* pdf = mapping.ws->function(mapping.WorkspaceObj().c_str());
     if (data) {
       if (verbosity_ >= 2) {
         data->printStream(log(), data->defaultPrintContents(0),
@@ -472,6 +477,12 @@ void CombineHarvester::LoadShapes(Process* entry,
       if (pdf) {
         RooArgSet argset = ParametersByName(pdf, data_obj->get());
         ImportParameters(&argset);
+        if (!entry->observable()) {
+          std::string var_name;
+          if (data_obj) var_name = data_obj->get()->first()->GetName();
+          entry->set_observable(
+              (RooRealVar*)entry->pdf()->findServer(var_name.c_str()));
+        }
       }
       if (norm) {
         RooArgSet argset = ParametersByName(norm, data_obj->get());

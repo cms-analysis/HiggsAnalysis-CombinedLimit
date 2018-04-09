@@ -376,15 +376,22 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
       }
       shape.Add(&proc_shape);
     } else if (procs_[i]->pdf()) {
-      RooAbsData const* data_obj = FindMatchingData(procs_[i].get());
-      std::string var_name = "CMS_th1x";
-      if (data_obj) var_name = data_obj->get()->first()->GetName();
+      if (!procs_[i]->observable()) {
+        RooAbsData const* data_obj = FindMatchingData(procs_[i].get());
+        std::string var_name = "CMS_th1x";
+        if (data_obj) var_name = data_obj->get()->first()->GetName();
+        procs_[i]->set_observable((RooRealVar *)procs_[i]->pdf()->findServer(var_name.c_str()));
+      }
       TH1::AddDirectory(false);
-      TH1F *tmp = dynamic_cast<TH1F*>(
-          procs_[i]->pdf()->createHistogram(var_name.c_str()));
+      TH1F* tmp = (TH1F*)procs_[i]->observable()->createHistogram("");
+      for (int b = 1; b <= tmp->GetNbinsX(); ++b) {
+        procs_[i]->observable()->setVal(tmp->GetBinCenter(b));
+        tmp->SetBinContent(b, tmp->GetBinWidth(b) * procs_[i]->pdf()->getVal());
+      }
       TH1F proc_shape = *tmp;
       delete tmp;
-      if (!procs_[i]->pdf()->selfNormalized()) {
+      RooAbsPdf const* aspdf = dynamic_cast<RooAbsPdf const*>(procs_[i]->pdf());
+      if ((aspdf && !aspdf->selfNormalized()) || (!aspdf)) {
         // LOGLINE(log(), "Have a pdf that is not selfNormalized");
         // std::cout << "Integral: " << proc_shape.Integral() << "\n";
         if (proc_shape.Integral() > 0.) {
@@ -433,9 +440,8 @@ TH1F CombineHarvester::GetObservedShape() {
     if (obs_[i]->shape()) {
       proc_shape = obs_[i]->ShapeAsTH1F();
     } else if (obs_[i]->data()) {
-      std::string var_name = obs_[i]->data()->get()->first()->GetName();
-      TH1F *tmp = dynamic_cast<TH1F*>(obs_[i]->data()->createHistogram(
-                             var_name.c_str()));
+      TH1F* tmp = dynamic_cast<TH1F*>(obs_[i]->data()->createHistogram(
+          "", *(RooRealVar*)obs_[i]->data()->get()->first()));
       proc_shape = *tmp;
       delete tmp;
       proc_shape.Scale(1. / proc_shape.Integral());
@@ -728,5 +734,13 @@ void CombineHarvester::RenameGroup(std::string const& oldname,
       groups.insert(newname);
     }
   }
+}
+
+void CombineHarvester::AddDatacardLineAtEnd(std::string const& line) {
+  post_lines_.push_back(line);
+}
+
+void CombineHarvester::ClearDatacardLinesAtEnd() {
+  post_lines_.clear();
 }
 }
