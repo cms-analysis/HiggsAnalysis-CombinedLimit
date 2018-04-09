@@ -6,6 +6,7 @@
 #include "RooAbsPdf.h"
 #include "RooAbsReal.h"
 #include "RooAbsData.h"
+#include "RooRealVar.h"
 #include "CombineHarvester/CombineTools/interface/MakeUnique.h"
 #include "CombineHarvester/CombineTools/interface/Object.h"
 
@@ -21,7 +22,16 @@ class Process : public Object {
 
 
   void set_rate(double const& rate) { rate_ = rate; }
-  double rate() const { return norm_ ? norm_->getVal() * rate_ : rate_; }
+  double rate() const {
+    double base = 1.;
+    if (pdf_ && !dynamic_cast<RooAbsPdf*>(pdf_) && cached_obs_) {
+      if (!cached_int_) {
+        cached_int_ = pdf_->createIntegral(RooArgSet(*cached_obs_));
+      }
+      base = cached_int_->getVal();
+    }
+    return norm_ ? base * norm_->getVal() * rate_ : base * rate_;
+  }
 
   /**
    * Get the process normalisation **without** multiplying by the RooAbsReal
@@ -46,8 +56,8 @@ class Process : public Object {
 
   TH1F ShapeAsTH1F() const;
 
-  void set_pdf(RooAbsPdf* pdf) { pdf_ = pdf; }
-  RooAbsPdf const* pdf() const { return pdf_; }
+  void set_pdf(RooAbsReal* pdf) { pdf_ = pdf; }
+  RooAbsReal const* pdf() const { return pdf_; }
 
   void set_data(RooAbsData* data) { data_ = data; }
   RooAbsData const* data() const { return data_; }
@@ -55,15 +65,20 @@ class Process : public Object {
   void set_norm(RooAbsReal* norm) { norm_ = norm; }
   RooAbsReal const* norm() const { return norm_; }
 
+  void set_observable(RooRealVar* obs) { cached_obs_ = obs; }
+  RooRealVar * observable() const { return cached_obs_; }
+
   friend std::ostream& operator<< (std::ostream &out, Process const& val);
   static std::ostream& PrintHeader(std::ostream &out);
 
  private:
   double rate_;
   std::unique_ptr<TH1> shape_;
-  RooAbsPdf* pdf_;
+  RooAbsReal* pdf_;
   RooAbsData* data_;
   RooAbsReal* norm_;
+  RooRealVar* cached_obs_;
+  mutable RooAbsReal* cached_int_;
 
   friend void swap(Process& first, Process& second);
 };

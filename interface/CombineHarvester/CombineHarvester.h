@@ -306,6 +306,18 @@ class CombineHarvester {
    * @param newname The new name
    */
   void RenameGroup(std::string const& oldname, std::string const& newname);
+
+  /**
+   * Add a line of text at the end of all datacards
+   *
+   * @param line Line of text to add
+   */
+  void AddDatacardLineAtEnd(std::string const& line);
+
+  /**
+   * Clear all added datacard lines
+   */
+  void ClearDatacardLinesAtEnd();
   /**@}*/
 
   /**
@@ -459,6 +471,8 @@ class CombineHarvester {
   std::map<std::string, std::shared_ptr<RooWorkspace>> wspaces_;
 
   std::unordered_map<std::string, bool> flags_;
+
+  std::vector<std::string> post_lines_;
 
   // ---------------------------------------------------------------
   // typedefs

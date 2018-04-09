@@ -12,10 +12,14 @@ Process::Process()
       shape_(),
       pdf_(nullptr),
       data_(nullptr),
-      norm_(nullptr) {
+      norm_(nullptr),
+      cached_obs_(nullptr),
+      cached_int_(nullptr) {
   }
 
-Process::~Process() { }
+Process::~Process() {
+  if (cached_int_) delete cached_int_;
+}
 
 void swap(Process& first, Process& second) {
   using std::swap;
@@ -25,6 +29,8 @@ void swap(Process& first, Process& second) {
   swap(first.pdf_, second.pdf_);
   swap(first.data_, second.data_);
   swap(first.norm_, second.norm_);
+  swap(first.cached_obs_, second.cached_obs_);
+  swap(first.cached_int_, second.cached_int_);
 }
 
 Process::Process(Process const& other)
@@ -32,7 +38,9 @@ Process::Process(Process const& other)
       rate_(other.rate_),
       pdf_(other.pdf_),
       data_(other.data_),
-      norm_(other.norm_) {
+      norm_(other.norm_),
+      cached_obs_(other.cached_obs_),
+      cached_int_(nullptr) {
   TH1 *h = nullptr;
   if (other.shape_) {
     h = static_cast<TH1*>(other.shape_->Clone());
@@ -47,7 +55,9 @@ Process::Process(Process&& other)
       shape_(),
       pdf_(nullptr),
       data_(nullptr),
-      norm_(nullptr) {
+      norm_(nullptr),
+      cached_obs_(nullptr),
+      cached_int_(nullptr) {
   swap(*this, other);
 }
 
