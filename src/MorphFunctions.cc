@@ -17,7 +17,7 @@
 namespace ch {
 
   //! [part1]
-void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
+std::string BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
                       std::string const& bin, std::string const& process,
                       RooAbsReal& mass_var, std::string norm_postfix,
                       bool allow_morph, bool verbose, bool force_template_limit, TFile * file) {
@@ -621,6 +621,7 @@ void BuildRooMorphing(RooWorkspace& ws, CombineHarvester& cb,
   // with Morphing PDFs:
   // 
   //   cb.cp().signals().ExtractPdfs(cb, "htt", "$BIN_$PROCESS_morph");
+  return std::string(morph_name);
 }
 
 void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
