@@ -458,6 +458,9 @@ class CombineHarvester {
   void MergeBinErrors(double bbb_threshold, double merge_threshold);
   /**@}*/
 
+  void SetAutoMCStats(CombineHarvester &target, double thresh, bool sig=false, int mode=1);
+  void RenameAutoMCStatsBin(std::string const& oldname, std::string const& newname);
+  std::set<std::string> GetAutoMCStatsBins() const;
  private:
   friend void swap(CombineHarvester& first, CombineHarvester& second);
 
@@ -472,6 +475,21 @@ class CombineHarvester {
 
   std::unordered_map<std::string, bool> flags_;
 
+  struct AutoMCStatsSettings {
+    double event_threshold;
+    bool include_signal;
+    int hist_mode;
+
+    AutoMCStatsSettings(double thresh, bool sig=false, int mode=1) {
+      event_threshold = thresh;
+      include_signal = sig;
+      hist_mode = mode;
+    }
+
+    AutoMCStatsSettings() : AutoMCStatsSettings(0.) {}
+  };
+
+  std::map<std::string, AutoMCStatsSettings> auto_stats_settings_;
   std::vector<std::string> post_lines_;
 
   // ---------------------------------------------------------------
@@ -514,10 +532,10 @@ class CombineHarvester {
 
   RooAbsData const* FindMatchingData(Process const* proc);
 
-  ch::Parameter * SetupRateParamVar(std::string const& name, double val);
+  ch::Parameter * SetupRateParamVar(std::string const& name, double val, bool is_ext_arg = false);
   void SetupRateParamFunc(std::string const& name, std::string const& formula,
                           std::string const& pars);
-
+  void SetupRateParamWspObj(std::string const& name, std::string const& obj, bool is_ext_arg = false);
   // ---------------------------------------------------------------
   // Private methods for the shape writing routines
   // ---------------------------------------------------------------

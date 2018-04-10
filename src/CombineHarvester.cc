@@ -17,6 +17,7 @@ CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
   // if (verbosity_ >= 3) {
     // log() << "[CombineHarvester] Constructor called: " << this << "\n";
   // }
+  flags_["check-negative-bins-on-import"] = true;
   flags_["zero-negative-bins-on-import"] = false;
   flags_["allow-missing-shapes"] = true;
   flags_["workspaces-use-clone"] = false;
@@ -43,6 +44,7 @@ void swap(CombineHarvester& first, CombineHarvester& second) {
   swap(first.flags_, second.flags_);
   swap(first.post_lines_, second.post_lines_);
   swap(first.log_, second.log_);
+  swap(first.auto_stats_settings_, second.auto_stats_settings_);
 }
 
 CombineHarvester::CombineHarvester(CombineHarvester const& other)
@@ -52,6 +54,7 @@ CombineHarvester::CombineHarvester(CombineHarvester const& other)
       params_(other.params_),
       wspaces_(other.wspaces_),
       flags_(other.flags_),
+      auto_stats_settings_(other.auto_stats_settings_),
       post_lines_(other.post_lines_),
       verbosity_(other.verbosity_),
       log_(other.log_) {
@@ -398,13 +401,13 @@ void CombineHarvester::LoadShapes(Process* entry,
     // GetClonedTH1 will throw if this fails
     std::unique_ptr<TH1> h = GetClonedTH1(mapping.file.get(), mapping.pattern);
 
-    if (HasNegativeBins(h.get())) {
-      if (verbosity_ >= 1) {
+    if (flags_.at("check-negative-bins-on-import")) {
+      if (HasNegativeBins(h.get())) {
         LOGLINE(log(), "Warning: process shape has negative bins");
         log() << Process::PrintHeader << *entry << "\n";
-      }
-      if (flags_.at("zero-negative-bins-on-import")) {
-        ZeroNegativeBins(h.get());
+        if (flags_.at("zero-negative-bins-on-import")) {
+          ZeroNegativeBins(h.get());
+        }
       }
     }
     // Post-conditions #1 and #2
@@ -543,33 +546,29 @@ void CombineHarvester::LoadShapes(Systematic* entry,
     std::unique_ptr<TH1> h_u = GetClonedTH1(mapping.file.get(), p_s_hi);
     std::unique_ptr<TH1> h_d = GetClonedTH1(mapping.file.get(), p_s_lo);
 
-    if (HasNegativeBins(h.get())) {
-      if (verbosity_ >= 1) {
+    if (flags_.at("check-negative-bins-on-import")) {
+      if (HasNegativeBins(h.get())) {
         LOGLINE(log(), "Warning: Systematic shape has negative bins");
         log() << Systematic::PrintHeader << *entry << "\n";
+        if (flags_.at("zero-negative-bins-on-import")) {
+          ZeroNegativeBins(h.get());
+        }
       }
-      if (flags_.at("zero-negative-bins-on-import")) {
-        ZeroNegativeBins(h.get());
-      }
-    }
 
-    if (HasNegativeBins(h_u.get())) {
-      if (verbosity_ >= 1) {
+      if (HasNegativeBins(h_u.get())) {
         LOGLINE(log(), "Warning: Systematic shape_u has negative bins");
         log() << Systematic::PrintHeader << *entry << "\n";
+        if (flags_.at("zero-negative-bins-on-import")) {
+          ZeroNegativeBins(h_u.get());
+        }
       }
-      if (flags_.at("zero-negative-bins-on-import")) {
-        ZeroNegativeBins(h_u.get());
-      }
-    }
 
-    if (HasNegativeBins(h_d.get())) {
-      if (verbosity_ >= 1) {
+      if (HasNegativeBins(h_d.get())) {
         LOGLINE(log(), "Warning: Systematic shape_d has negative bins");
         log() << Systematic::PrintHeader << *entry << "\n";
-      }
-      if (flags_.at("zero-negative-bins-on-import")) {
-        ZeroNegativeBins(h_d.get());
+        if (flags_.at("zero-negative-bins-on-import")) {
+          ZeroNegativeBins(h_d.get());
+        }
       }
     }
     entry->set_shapes(std::move(h_u), std::move(h_d), h.get());
@@ -778,7 +777,7 @@ RooAbsData const* CombineHarvester::FindMatchingData(Process const* proc) {
 }
 
 ch::Parameter* CombineHarvester::SetupRateParamVar(std::string const& name,
-                                                   double val) {
+                                                   double val, bool is_ext_arg) {
   RooWorkspace *ws = nullptr;
   if (!wspaces_.count("_rateParams")) {
     ws = this->SetupWorkspace(RooWorkspace("_rateParams","_rateParams")).get();
@@ -799,6 +798,7 @@ ch::Parameter* CombineHarvester::SetupRateParamVar(std::string const& name,
     FNLOGC(log(), verbosity_ > 1)
         << "Reusing existing RooRealVar for rateParam: " << name << "\n";
   }
+  if (is_ext_arg) var->setAttribute("extArg");
   Parameter * param = nullptr;
   if (!params_.count(name)) {
     params_[name] = std::make_shared<Parameter>(Parameter());
@@ -850,4 +850,40 @@ void CombineHarvester::SetupRateParamFunc(std::string const& name,
     if (verbosity_ > 1) form->Print();
   }
 }
+
+void CombineHarvester::SetupRateParamWspObj(std::string const& name,
+                                          std::string const& obj, bool is_ext_arg) {
+  RooWorkspace *ws = nullptr;
+  if (!wspaces_.count("_rateParams")) {
+    ws = this->SetupWorkspace(RooWorkspace("_rateParams","_rateParams")).get();
+  } else {
+    ws = wspaces_.at("_rateParams").get();
+  }
+  ws->import((obj+":"+name).c_str(), RooFit::RecycleConflictNodes());
+  ws->arg(name.c_str())->setStringAttribute("wspSource", obj.c_str());
+  if (is_ext_arg) ws->arg(name.c_str())->setAttribute("extArg");
+}
+
+void CombineHarvester::SetAutoMCStats(CombineHarvester &target, double thresh, bool sig, int mode) {
+  for (auto const& bin : this->bin_set()) {
+    target.auto_stats_settings_[bin] = AutoMCStatsSettings(thresh, sig, mode);
+  }
+}
+
+void CombineHarvester::RenameAutoMCStatsBin(std::string const& oldname, std::string const& newname) {
+  auto it = auto_stats_settings_.find(oldname);
+  if (it != auto_stats_settings_.end()) {
+    auto_stats_settings_[newname] = it->second;
+    auto_stats_settings_.erase(it);
+  }
+}
+
+std::set<std::string> CombineHarvester::GetAutoMCStatsBins() const {
+  std::set<std::string> result;
+  for (auto const& it : auto_stats_settings_) {
+    result.insert(it.first);
+  }
+  return result;
+}
+
 }

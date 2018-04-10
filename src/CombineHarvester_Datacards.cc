@@ -161,6 +161,45 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
     }
   }
 
+  for (unsigned i = 0; i < words.size(); ++i) {
+    if (words[i].size() >= 3 &&
+        boost::iequals(words[i][1], "extArg")) {
+      if (verbosity_ > 1) {
+        FNLOG(log()) << "Processing extArg line:\n";
+        for (auto const& str : words[i]) {
+          log() << str << "\t";
+        }
+        log() << "\n";
+      }
+
+      bool has_range = words[i].size() == 4 && words[i][3][0] == '[';
+      std::string param_name = words[i][0];
+      bool is_wsp_rateparam = false;
+      try {
+        boost::lexical_cast<double>(words[i][2]);
+      } catch (boost::bad_lexical_cast &) {
+        is_wsp_rateparam = true;
+      }
+      if ((!is_wsp_rateparam) && (words[i].size() == 3 || has_range)) {
+        ch::Parameter* param = SetupRateParamVar(
+            param_name, boost::lexical_cast<double>(words[i][2]), true);
+        param->set_err_u(0.);
+        param->set_err_d(0.);
+        if (has_range) {
+          std::vector<std::string> tokens;
+          boost::split(tokens, words[i][3], boost::is_any_of("[],"));
+          if (tokens.size() == 4) {
+            param->set_range_d(boost::lexical_cast<double>(tokens[1]));
+            param->set_range_u(boost::lexical_cast<double>(tokens[2]));
+            FNLOGC(log(), verbosity_ > 1) << "Setting parameter range to " << words[i][2];
+          }
+        }
+      } else if (words[i].size() == 3 && is_wsp_rateparam) {
+        SetupRateParamWspObj(param_name, words[i][2], true);
+      }
+    }
+  }
+
   // Loop through the vector of word vectors
   for (unsigned i = 0; i < words.size(); ++i) {
     // Ignore line if it only has one word
@@ -294,9 +333,16 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
       bool has_range = words[i].size() == 6 && words[i][5][0] == '[';
       std::string param_name = words[i][0];
       // If this is a free param may need to create a Parameter object
-      // If the line has 5 words this must be a floating param, otherwise
-      // if it has 6 then it's a floating param
-      if (words[i].size() == 5 || has_range) {
+      // If the line has 5 words then it can either be a floating param
+      // or one from a workspace. Otherwise if it has 6 then it's either
+      // a floating param with a range or a formula
+      bool is_wsp_rateparam = false;
+      try {
+        boost::lexical_cast<double>(words[i][4]);
+      } catch (boost::bad_lexical_cast &) {
+        is_wsp_rateparam = true;
+      }
+      if ((!is_wsp_rateparam) && (words[i].size() == 5 || has_range)) {
         ch::Parameter* param = SetupRateParamVar(
             param_name, boost::lexical_cast<double>(words[i][4]));
         param->set_err_u(0.);
@@ -312,6 +358,8 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         }
       } else if (words[i].size() == 6 && !has_range) {
         SetupRateParamFunc(param_name, words[i][4], words[i][5]);
+      } else if (words[i].size() == 5 && is_wsp_rateparam) {
+        SetupRateParamWspObj(param_name, words[i][4]);
       }
       for (unsigned p = 1; p < words[r].size(); ++p) {
         bool matches_bin = false;
@@ -359,6 +407,26 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         groups[words[i][0]].insert(words[i][ig]);
       }
       continue;
+    }
+
+    if (start_nuisance_scan && words[i].size() >= 3 &&
+        boost::iequals(words[i][1], "autoMCStats")) {
+      std::vector<std::string> for_bins;
+      if (words[i][0] == "*") {
+        for_bins = Set2Vec(bin_names);
+      } else {
+        for_bins.push_back(words[i][0]);
+      }
+      for (auto const& bin : for_bins) {
+        double thresh = boost::lexical_cast<double>(words[i][2]);
+        if (words[i].size() == 3) {
+          auto_stats_settings_[bin] = AutoMCStatsSettings(thresh);
+        } else if (words[i].size() == 4) {
+          auto_stats_settings_[bin] = AutoMCStatsSettings(thresh, boost::lexical_cast<int>(words[i][3]));
+        } else {
+          auto_stats_settings_[bin] = AutoMCStatsSettings(thresh, boost::lexical_cast<int>(words[i][3]), boost::lexical_cast<int>(words[i][4]));
+        }
+      }
     }
 
     if (start_nuisance_scan && words[i].size()-1 == words[r].size()) {
@@ -410,8 +478,10 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
           try {
             LoadShapes(sys.get(), hist_mapping);
           } catch (std::exception & e) {
-            LOGLINE(log(), "Systematic with shape? did not resolve to a shape");
-            if (verbosity_ > 0) log() << e.what();
+            if (verbosity_ > 0) {
+              LOGLINE(log(), "Systematic with shape? did not resolve to a shape");
+              log() << e.what();
+            }
           }
           if (!sys->shape_u() || !sys->shape_d()) {
             sys->set_type("lnN");
@@ -568,24 +638,28 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       std::string obj_name;
       std::string obj_sys_name;
       if (proc->data()) {
+        obj_name = std::string(proc->data()->GetName());
+        boost::replace_all(obj_name, proc->process(), "$PROCESS");
         obj_name = std::string(data_ws_map[proc->data()]->GetName()) + ":" +
-                   std::string(proc->data()->GetName());
+                   obj_name;
       }
       if (proc->pdf()) {
+        obj_name = std::string(proc->pdf()->GetName());
+        boost::replace_all(obj_name, proc->process(), "$PROCESS");
         obj_name = std::string(pdf_ws_map[proc->pdf()]->GetName()) +
-                   ":" + std::string(proc->pdf()->GetName());
+                   ":" + obj_name;
       }
       for (unsigned j = 0; j < pmap[i].size(); ++j) {
         ch::Systematic const* sys = pmap[i][j];
         if (sys->data_u()) {
-          obj_sys_name = std::string(data_ws_map[sys->data_u()]->GetName()) +
-                         ":" + std::string(sys->data_u()->GetName());
+          obj_sys_name = std::string(sys->data_u()->GetName());
           boost::replace_all(obj_sys_name, sys->name() + "Up", "$SYSTEMATIC");
           boost::replace_all(obj_sys_name, sys->process(), "$PROCESS");
+          obj_sys_name = std::string(data_ws_map[sys->data_u()]->GetName()) +
+                         ":" + obj_sys_name;
           break;
         }
       }
-      boost::replace_all(obj_name, proc->process(), "$PROCESS");
 
       // If the prototype pattern is already filled, but doesn't equal this
       // new pattern - then we can't use the prototype
@@ -767,6 +841,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         % mapping.syst_pattern;
       if (mapping.IsPdf() || mapping.IsData()) {
         used_wsps.insert(mapping.WorkspaceName());
+        if (mapping.syst_pattern != "") {
+          used_wsps.insert(mapping.SystWorkspaceName());
+        }
       }
     } else {
       txt_file << format("shapes %s %s %s\n")
@@ -1013,6 +1090,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
           << " bins with this process have a rateParam\n";
     }
   }
+  std::set<std::string> frozen_params;
   for (auto const& rp : floating_params) {
     if (params_.count(rp[0])) {
       ch::Parameter const* par = params_.at(rp[0]).get();
@@ -1025,15 +1103,29 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         txt_file << format(" [%.4g,%.4g]") % par->range_d() % par->range_u();
       }
       txt_file << "\n";
+      if (par->frozen()) {
+        frozen_params.insert(rp[0]);
+      }
     }
   }
+  for (auto const& par : frozen_params) {
+    txt_file << "nuisance edit freeze " << par << "\n";
+  }
+  std::set<std::string> all_fn_param_args;
   for (auto const& rp : floating_params) {
     if (!params_.count(rp[0])) {
       // If we don't have a ch::Parameter with this name, then we'll assume
       // this is a function
       RooWorkspace *rp_ws = wspaces_.at("_rateParams").get();
+      RooAbsArg *arg = rp_ws->arg(rp[0].c_str());
+      if (arg->getStringAttribute("wspSource")) {
+        txt_file << format("%-" + sys_str_short +
+                           "s %-10s %-10s %-10s %-20s\n") %
+                        rp[0] % "rateParam" % rp[1] % rp[2] % std::string(arg->getStringAttribute("wspSource"));
+        continue;
+      }
       RooFormulaVar* form =
-          dynamic_cast<RooFormulaVar*>(rp_ws->function(rp[0].c_str()));
+          dynamic_cast<RooFormulaVar*>(arg);
       // Want to extract the formula string, apparently "printMetaArgs" is the
       // only way to do it
       std::stringstream ss;
@@ -1049,6 +1141,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
           std::unique_ptr<RooArgSet>(form->getParameters(RooArgList()))->getSize();
       std::string args = "";
       for (unsigned i = 0; i < npars; ++i) {
+        all_fn_param_args.insert(std::string(form->getParameter(i)->GetName()));
         args += std::string(form->getParameter(i)->GetName());
         if (i < (npars-1)) {
           args += ",";
@@ -1058,6 +1151,38 @@ void CombineHarvester::WriteDatacard(std::string const& name,
                          "s %-10s %-10s %-10s %-20s %s\n") %
                       rp[0] % "rateParam" % rp[1] % rp[2] % form_str % args;
     }
+  }
+
+  if (wspaces_.count("_rateParams")) {
+    RooWorkspace *rp_ws = wspaces_.at("_rateParams").get();
+    RooArgSet vars = rp_ws->allVars();
+    auto v = vars.createIterator();
+    do {
+      RooRealVar *y = dynamic_cast<RooRealVar*>(**v);
+      if (y && y->getAttribute("extArg") && all_fn_param_args.count(std::string(y->GetName()))) {
+        Parameter const* p = params_.at(y->GetName()).get();
+        txt_file << format("%-" + sys_str_short + "s %-10s %g") %
+                        y->GetName() % "extArg" % p->val();
+        if (p->range_d() != std::numeric_limits<double>::lowest() &&
+            p->range_u() != std::numeric_limits<double>::max()) {
+          txt_file << format(" [%.4g,%.4g]") % p->range_d() % p->range_u();
+        }
+        txt_file << "\n";
+
+      }
+    } while (v->Next());
+    RooArgSet funcs = rp_ws->allFunctions();
+    v = funcs.createIterator();
+    do {
+      RooAbsReal *y = dynamic_cast<RooAbsReal*>(**v);
+      if (y && y->getAttribute("extArg") && y->getStringAttribute("wspSource") && all_fn_param_args.count(std::string(y->GetName()))) {
+          txt_file << format("%-" + sys_str_short +
+                             "s %-10s %-20s\n") %
+                          y->GetName() % "extArg"  % std::string(y->getStringAttribute("wspSource"));
+          continue;
+
+      }
+    } while (v->Next());
   }
 
   std::set<std::string> ws_vars;
@@ -1095,6 +1220,14 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   for (auto par : multipdf_cats) {
     txt_file << format((format("%%-%is discrete\n") % sys_str_len).str()) % par;
+  }
+
+  for (auto stat_settings : auto_stats_settings_) {
+    if (!bin_set.count(stat_settings.first)) continue;
+    txt_file << format("%s autoMCStats %g %i %i\n") % stat_settings.first %
+                    stat_settings.second.event_threshold %
+                    stat_settings.second.include_signal %
+                    stat_settings.second.hist_mode;
   }
 
   // Finally write the NP groups
