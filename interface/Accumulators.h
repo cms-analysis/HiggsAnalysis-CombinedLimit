@@ -6,26 +6,44 @@
 template <typename T> class NaiveAccumulator {
     public:
         NaiveAccumulator(const T & value = 0) : sum_(value) {}
-        NaiveAccumulator & operator+=(const T &inc) { sum_ += inc; return *this;  }
-        NaiveAccumulator & operator-=(const T &inc) { sum_ -= inc; return *this; }
-        T sum() const { return sum_; } 
-    private:
+        NaiveAccumulator(const NaiveAccumulator<T>& other) : sum_(other.sum_){}
+        NaiveAccumulator& operator+=(const T& inc){ sum_ += inc; return *this; }
+        NaiveAccumulator& operator-=(const T& inc){ sum_ -= inc; return *this; }
+        NaiveAccumulator& operator*=(const T& inc){ sum_ *= inc; return *this; }
+        NaiveAccumulator& operator/=(const T& inc){ sum_ /= inc; return *this; }
+        NaiveAccumulator operator+(const T& inc){ NaiveAccumulator<T> tmp(*this);  tmp += inc; return tmp; }
+        NaiveAccumulator operator-(const T& inc){ NaiveAccumulator<T> tmp(*this);  tmp -= inc; return tmp; }
+        NaiveAccumulator operator*(const T& inc){ NaiveAccumulator<T> tmp(*this);  tmp *= inc; return tmp; }
+        NaiveAccumulator operator/(const T& inc){ NaiveAccumulator<T> tmp(*this);  tmp /= inc; return tmp; }
+        T sum() const { return sum_; }
+        operator T() const { return sum_; }
+    protected:
         T sum_;
 };
 
 template <typename T> class KahanAccumulator {
     public:
-        KahanAccumulator(const T& value = 0) : sum_(value), compensation_(0) {}
-        void operator+=(const T& inc) { 
-            T y = inc - compensation_;
-            T sumnew = sum_ + y;
-            T sumerr = ( sumnew - sum_ );
-            compensation_ = sumerr - y;
-            sum_ = sumnew; 
+        KahanAccumulator() : sum_(0), compensation_(0) {}
+        KahanAccumulator(const T& value) : sum_(value), compensation_(0) {}
+        KahanAccumulator(const KahanAccumulator<T>& other) : sum_(other.sum_), compensation_(other.compensation_){}
+        KahanAccumulator& operator+=(const T& inc){
+          T y = inc - compensation_;
+          T sumnew = sum_ + y;
+          T sumerr = (sumnew - sum_);
+          compensation_ = sumerr - y;
+          sum_ = sumnew;
+          return *this;
         }
-        void operator-=(const T& inc) { this->operator+=(-inc); }
-        T sum() const { return sum_; } 
-    private:
+        KahanAccumulator& operator-=(const T& inc){ this->operator+=(-inc); return *this; }
+        KahanAccumulator& operator*=(const T& inc){ sum_ *= inc; compensation_ *= inc; return *this; }
+        KahanAccumulator& operator/=(const T& inc){ sum_ /= inc; compensation_ /= inc; return *this; }
+        KahanAccumulator operator+(const T& inc){ KahanAccumulator<T> tmp(*this);  tmp += inc; return tmp; }
+        KahanAccumulator operator-(const T& inc){ KahanAccumulator<T> tmp(*this);  tmp -= inc; return tmp; }
+        KahanAccumulator operator*(const T& inc){ KahanAccumulator<T> tmp(*this);  tmp *= inc; return tmp; }
+        KahanAccumulator operator/(const T& inc){ KahanAccumulator<T> tmp(*this);  tmp /= inc; return tmp; }
+        T sum() const { return sum_; }
+        operator T() const { return sum_; }
+    protected:
         T sum_, compensation_;
 };
 
