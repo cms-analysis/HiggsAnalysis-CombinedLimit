@@ -1,5 +1,5 @@
-#ifndef RooNCSPLINEFACTORY_3D
-#define RooNCSPLINEFACTORY_3D
+#ifndef ROONCSPLINEFACTORY_3D
+#define ROONCSPLINEFACTORY_3D
 
 #include <vector>
 #include <utility>
@@ -31,9 +31,17 @@ namespace NumUtils{
 
 typedef NumUtils::quadruplet<RooNCSplineCore::T> splineQuadruplet_t;
 
+
 class RooNCSplineFactory_3D{
 protected:
   TString appendName;
+
+  RooNCSplineCore::BoundaryCondition bcBeginX;
+  RooNCSplineCore::BoundaryCondition bcEndX;
+  RooNCSplineCore::BoundaryCondition bcBeginY;
+  RooNCSplineCore::BoundaryCondition bcEndY;
+  RooNCSplineCore::BoundaryCondition bcBeginZ;
+  RooNCSplineCore::BoundaryCondition bcEndZ;
 
   RooAbsReal* XVar;
   RooAbsReal* YVar;
@@ -49,11 +57,25 @@ protected:
   void addUnique(std::vector<RooNCSplineCore::T>& list, RooNCSplineCore::T val);
 
 public:
-  RooNCSplineFactory_3D(RooAbsReal& XVar_, RooAbsReal& YVar_, RooAbsReal& ZVar_, TString appendName_="");
+  RooNCSplineFactory_3D(
+    RooAbsReal& XVar_, RooAbsReal& YVar_, RooAbsReal& ZVar_, TString appendName_="",
+    RooNCSplineCore::BoundaryCondition const bcBeginX_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcEndX_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcBeginY_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcEndY_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcBeginZ_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcEndZ_=RooNCSplineCore::bcNaturalSpline
+  );
   ~RooNCSplineFactory_3D();
 
   RooNCSpline_3D_fast* getFunc(){ return fcn; }
   RooFuncPdf* getPDF(){ return PDF; }
+
+  void setEndConditions(
+    RooNCSplineCore::BoundaryCondition const bcBegin,
+    RooNCSplineCore::BoundaryCondition const bcEnd,
+    const unsigned int direction
+  );
 
   void setPoints(TTree* tree);
   void setPoints(const std::vector<splineQuadruplet_t>& pList){ initPDF(pList); }

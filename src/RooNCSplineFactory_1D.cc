@@ -4,11 +4,16 @@
 using namespace std;
 
 
-RooNCSplineFactory_1D::RooNCSplineFactory_1D(RooAbsReal& splineVar_, TString appendName_) :
-appendName(appendName_),
-splineVar(&splineVar_),
-fcn(0),
-PDF(0)
+RooNCSplineFactory_1D::RooNCSplineFactory_1D(
+  RooAbsReal& splineVar_, TString appendName_,
+  RooNCSplineCore::BoundaryCondition const bcBeginX_,
+  RooNCSplineCore::BoundaryCondition const bcEndX_
+) :
+  appendName(appendName_),
+  bcBeginX(bcBeginX_), bcEndX(bcEndX_),
+  splineVar(&splineVar_),
+  fcn(0),
+  PDF(0)
 {}
 RooNCSplineFactory_1D::~RooNCSplineFactory_1D(){
   destroyPDF();
@@ -61,7 +66,8 @@ void RooNCSplineFactory_1D::initPDF(const std::vector<std::pair<RooNCSplineCore:
     name.Data(),
     title.Data(),
     *splineVar,
-    XList, FcnList
+    XList, FcnList,
+    bcBeginX, bcEndX
     );
 
   name.Prepend("PDF_"); title=name;
@@ -70,4 +76,13 @@ void RooNCSplineFactory_1D::initPDF(const std::vector<std::pair<RooNCSplineCore:
     title.Data(),
     *fcn
     );
+}
+
+void RooNCSplineFactory_1D::setEndConditions(
+  RooNCSplineCore::BoundaryCondition const bcBegin,
+  RooNCSplineCore::BoundaryCondition const bcEnd,
+  const unsigned int /*direction*/
+){
+  bcBeginX=bcBegin;
+  bcEndX=bcEnd;
 }

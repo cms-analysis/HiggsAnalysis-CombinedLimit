@@ -1,5 +1,5 @@
-#ifndef RooNCSPLINE_1D_FAST
-#define RooNCSPLINE_1D_FAST
+#ifndef ROONCSPLINE_1D_FAST
+#define ROONCSPLINE_1D_FAST
 
 #include <vector>
 #include "RooAbsPdf.h"
@@ -11,6 +11,9 @@
 
 class RooNCSpline_1D_fast : public RooNCSplineCore{
 protected:
+  BoundaryCondition const bcBeginX;
+  BoundaryCondition const bcEndX;
+
   std::vector<T> FcnList; // List of function values
 
   std::vector<T> kappaX;
@@ -28,6 +31,8 @@ public:
     RooAbsReal& inXVar,
     const std::vector<T>& inXList,
     const std::vector<T>& inFcnList,
+    RooNCSplineCore::BoundaryCondition const bcBeginX_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcEndX_=RooNCSplineCore::bcNaturalSpline,
     Bool_t inUseFloor=true,
     T inFloorEval=0,
     T inFloorInt=0
@@ -56,7 +61,7 @@ protected:
   virtual Double_t evaluate()const;
 
 
-  ClassDef(RooNCSpline_1D_fast, 1)
+  ClassDef(RooNCSpline_1D_fast, 2)
 
 };
  
