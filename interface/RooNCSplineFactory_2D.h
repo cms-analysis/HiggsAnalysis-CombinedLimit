@@ -1,5 +1,5 @@
-#ifndef RooNCSPLINEFACTORY_2D
-#define RooNCSPLINEFACTORY_2D
+#ifndef ROONCSPLINEFACTORY_2D
+#define ROONCSPLINEFACTORY_2D
 
 #include <vector>
 #include <utility>
@@ -16,11 +16,13 @@ namespace NumUtils{
       value[0]=i1;
       value[1]=i2;
       value[2]=i3;
+
     }
     triplet(T i1){
       value[0]=i1;
       value[1]=i1;
       value[2]=i1;
+
     }
     triplet(){}
     T& operator[](std::size_t ipos){ return value[ipos]; } // Return by reference
@@ -34,9 +36,15 @@ namespace NumUtils{
 
 typedef NumUtils::triplet<RooNCSplineCore::T> splineTriplet_t;
 
+
 class RooNCSplineFactory_2D{
 protected:
   TString appendName;
+
+  RooNCSplineCore::BoundaryCondition bcBeginX;
+  RooNCSplineCore::BoundaryCondition bcEndX;
+  RooNCSplineCore::BoundaryCondition bcBeginY;
+  RooNCSplineCore::BoundaryCondition bcEndY;
 
   RooAbsReal* XVar;
   RooAbsReal* YVar;
@@ -51,11 +59,23 @@ protected:
   void addUnique(std::vector<RooNCSplineCore::T>& list, RooNCSplineCore::T val);
 
 public:
-  RooNCSplineFactory_2D(RooAbsReal& XVar_, RooAbsReal& YVar_, TString appendName_="");
+  RooNCSplineFactory_2D(
+    RooAbsReal& XVar_, RooAbsReal& YVar_, TString appendName_="",
+    RooNCSplineCore::BoundaryCondition const bcBeginX_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcEndX_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcBeginY_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcEndY_=RooNCSplineCore::bcNaturalSpline
+  );
   ~RooNCSplineFactory_2D();
 
   RooNCSpline_2D_fast* getFunc(){ return fcn; }
   RooFuncPdf* getPDF(){ return PDF; }
+
+  void setEndConditions(
+    RooNCSplineCore::BoundaryCondition const bcBegin,
+    RooNCSplineCore::BoundaryCondition const bcEnd,
+    const unsigned int direction
+  );
 
   void setPoints(TTree* tree);
   void setPoints(const std::vector<splineTriplet_t>& pList){ initPDF(pList); }

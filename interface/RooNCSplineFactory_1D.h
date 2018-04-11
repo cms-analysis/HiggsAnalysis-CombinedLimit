@@ -1,5 +1,5 @@
-#ifndef RooNCSPLINEFACTORY_1D
-#define RooNCSPLINEFACTORY_1D
+#ifndef ROONCSPLINEFACTORY_1D
+#define ROONCSPLINEFACTORY_1D
 
 #include <vector>
 #include <utility>
@@ -13,6 +13,9 @@ class RooNCSplineFactory_1D{
 protected:
   TString appendName;
 
+  RooNCSplineCore::BoundaryCondition bcBeginX;
+  RooNCSplineCore::BoundaryCondition bcEndX;
+
   RooAbsReal* splineVar;
   RooNCSpline_1D_fast* fcn;
   RooFuncPdf* PDF;
@@ -23,11 +26,21 @@ protected:
   void initPDF(const std::vector<std::pair<RooNCSplineCore::T, RooNCSplineCore::T>>& pList);
 
 public:
-  RooNCSplineFactory_1D(RooAbsReal& splineVar_, TString appendName_="");
+  RooNCSplineFactory_1D(
+    RooAbsReal& splineVar_, TString appendName_="",
+    RooNCSplineCore::BoundaryCondition const bcBeginX_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcEndX_=RooNCSplineCore::bcNaturalSpline
+  );
   ~RooNCSplineFactory_1D();
 
   RooNCSpline_1D_fast* getFunc(){ return fcn; }
   RooFuncPdf* getPDF(){ return PDF; }
+
+  void setEndConditions(
+    RooNCSplineCore::BoundaryCondition const bcBegin,
+    RooNCSplineCore::BoundaryCondition const bcEnd,
+    const unsigned int direction=0
+  );
 
   void setPoints(TTree* tree);
   void setPoints(TGraph* tg);

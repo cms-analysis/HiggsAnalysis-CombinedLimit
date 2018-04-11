@@ -3,11 +3,19 @@
 using namespace std;
 
 
-RooNCSplineFactory_2D::RooNCSplineFactory_2D(RooAbsReal& XVar_, RooAbsReal& YVar_, TString appendName_) :
-appendName(appendName_),
-XVar(&XVar_), YVar(&YVar_),
-fcn(0),
-PDF(0)
+RooNCSplineFactory_2D::RooNCSplineFactory_2D(
+  RooAbsReal& XVar_, RooAbsReal& YVar_, TString appendName_,
+  RooNCSplineCore::BoundaryCondition const bcBeginX_,
+  RooNCSplineCore::BoundaryCondition const bcEndX_,
+  RooNCSplineCore::BoundaryCondition const bcBeginY_,
+  RooNCSplineCore::BoundaryCondition const bcEndY_
+) :
+  appendName(appendName_),
+  bcBeginX(bcBeginX_), bcEndX(bcEndX_),
+  bcBeginY(bcBeginY_), bcEndY(bcEndY_),
+  XVar(&XVar_), YVar(&YVar_),
+  fcn(0),
+  PDF(0)
 {}
 RooNCSplineFactory_2D::~RooNCSplineFactory_2D(){
   destroyPDF();
@@ -71,7 +79,9 @@ void RooNCSplineFactory_2D::initPDF(const std::vector<splineTriplet_t>& pList){
     name.Data(),
     title.Data(),
     *XVar, *YVar,
-    XList, YList, FcnList
+    XList, YList, FcnList,
+    bcBeginX, bcEndX,
+    bcBeginY, bcEndY
     );
 
   name.Prepend("PDF_"); title=name;
@@ -91,4 +101,24 @@ void RooNCSplineFactory_2D::setPoints(TTree* tree){
   int n = tree->GetEntries();
   for (int ip=0; ip<n; ip++){ tree->GetEntry(ip); pList.push_back(splineTriplet_t(x, y, fcn)); }
   setPoints(pList);
+}
+
+void RooNCSplineFactory_2D::setEndConditions(
+  RooNCSplineCore::BoundaryCondition const bcBegin,
+  RooNCSplineCore::BoundaryCondition const bcEnd,
+  const unsigned int direction
+){
+  switch (direction){
+  case 0:
+    bcBeginX=bcBegin;
+    bcEndX=bcEnd;
+    break;
+  case 1:
+    bcBeginY=bcBegin;
+    bcEndY=bcEnd;
+    break;
+  default:
+    // Do nothing
+    break;
+  }
 }
