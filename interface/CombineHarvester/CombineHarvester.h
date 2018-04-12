@@ -679,7 +679,7 @@ void CombineHarvester::AddSyst(CombineHarvester& target,
   // Systematic.
   auto tuples = valmap.GetTupleSet();
   if (verbosity_ >= 1) {
-    LOGLINE(log(), name + ":" + type);
+    log() << (name + ":" + type) << "\n";
   }
   for (unsigned i = 0; i < procs_.size(); ++i) {
     if (!valmap.Contains(procs_[i].get())) {
