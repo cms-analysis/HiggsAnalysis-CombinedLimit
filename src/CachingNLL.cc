@@ -868,6 +868,9 @@ cacheutils::CachingSimNLL::~CachingSimNLL()
     for (std::vector<SimplePoissonConstraint*>::iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++ito) {
         if (*ito) { delete *it; }
     }
+    for (std::vector<CachingAddNLL*>::iterator it = pdfs_.begin(); it != pdfs_.end(); ++it){
+        if (*it) { delete *it; }
+    }
     #ifdef TRACE_NLL_EVAL_COUNT
         std::cout << "CachingSimNLLEvalCount: " << ::CachingSimNLLEvalCount << std::endl;
     #endif
