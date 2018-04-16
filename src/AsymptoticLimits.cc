@@ -41,6 +41,7 @@ std::string AsymptoticLimits::minosAlgo_ = "stepping";
 double AsymptoticLimits::rValue_ = 1.0;
 bool AsymptoticLimits::strictBounds_ = false;
 
+RooAbsData * AsymptoticLimits::asimovDataset_ = nullptr;
 
 AsymptoticLimits::AsymptoticLimits() : 
 LimitAlgo("AsymptoticLimits specific options") {
@@ -128,6 +129,12 @@ bool AsymptoticLimits::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
             printf("Expected %4.1f%%: %s < %6.4f\n", it->first*100, rname, it->second);
         }
         std::cout << std::endl;
+    }
+
+    // Should now delete the asimov dataset, if we run with toys we recreate it again for the next toy
+    if (asimovDataset_) {
+      delete asimovDataset_;
+      asimovDataset_ = nullptr;
     }
 
     // note that for expected we have to return FALSE even if we succeed because otherwise it goes into the observed limit as well
@@ -733,8 +740,12 @@ float AsymptoticLimits::calculateLimitFromGrid(RooRealVar *r , double quantile, 
 
 RooAbsData * AsymptoticLimits::asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data) {
     // Do this only once
-    if (w->data("_Asymptotic_asimovDataset_") != 0) {
-        return w->data("_Asymptotic_asimovDataset_");
+    // if (w->data("_Asymptotic_asimovDataset_") != 0) {
+    //     return w->data("_Asymptotic_asimovDataset_");
+    // }
+
+    if (asimovDataset_) {
+      return asimovDataset_;
     }
     // snapshot data global observables
     RooArgSet gobs;
@@ -745,10 +756,10 @@ RooAbsData * AsymptoticLimits::asimovDataset(RooWorkspace *w, RooStats::ModelCon
         gobs.snapshot(snapGlobalObsData);
     }
     // get asimov dataset and global observables
-    RooAbsData *asimovData = (noFitAsimov_  ? asimovutils::asimovDatasetNominal(mc_s, 0.0, verbose) :
-                                              asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov,!bypassFrequentistFit_, 0.0, verbose));
-    asimovData->SetName("_Asymptotic_asimovDataset_");
-    w->import(*asimovData); // I'm assuming the Workspace takes ownership. Might be false.
-    delete asimovData;      //  ^^^^^^^^----- now assuming that the workspace clones.
-    return w->data("_Asymptotic_asimovDataset_");
+    asimovDataset_ = (noFitAsimov_  ? asimovutils::asimovDatasetNominal(mc_s, 0.0, verbose) :
+                                      asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov,!bypassFrequentistFit_, 0.0, verbose));
+    asimovDataset_->SetName("_Asymptotic_asimovDataset_");
+    // w->import(*asimovData); // I'm assuming the Workspace takes ownership. Might be false.
+    // delete asimovData;      //  ^^^^^^^^----- now assuming that the workspace clones.
+    return asimovDataset_;
 }
