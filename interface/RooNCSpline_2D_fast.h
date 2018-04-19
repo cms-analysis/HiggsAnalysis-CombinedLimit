@@ -1,5 +1,5 @@
-#ifndef RooNCSPLINE_2D_FAST
-#define RooNCSPLINE_2D_FAST
+#ifndef ROONCSPLINE_2D_FAST
+#define ROONCSPLINE_2D_FAST
 
 #include <vector>
 #include "RooAbsPdf.h"
@@ -12,6 +12,11 @@ class RooNCSpline_2D_fast : public RooNCSplineCore{
 protected:
   T rangeYmin;
   T rangeYmax;
+
+  BoundaryCondition const bcBeginX;
+  BoundaryCondition const bcEndX;
+  BoundaryCondition const bcBeginY;
+  BoundaryCondition const bcEndY;
 
   RooRealProxy theYVar;
   std::vector<T> YList;
@@ -36,6 +41,10 @@ public:
     const std::vector<T>& inXList,
     const std::vector<T>& inYList,
     const std::vector<std::vector<T>>& inFcnList,
+    RooNCSplineCore::BoundaryCondition const bcBeginX_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcEndX_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcBeginY_=RooNCSplineCore::bcNaturalSpline,
+    RooNCSplineCore::BoundaryCondition const bcEndY_=RooNCSplineCore::bcNaturalSpline,
     Bool_t inUseFloor=true,
     T inFloorEval=0,
     T inFloorInt=0
@@ -61,14 +70,14 @@ protected:
   Bool_t testRangeValidity(const T& val, const Int_t whichDirection)const;
   void cropValueForRange(T& val, const Int_t whichDirection)const;
 
-  virtual std::vector<std::vector<T>> getCoefficientsPerY(const std::vector<T>& kappaX, const TMatrix_t& xAinv, const Int_t& ybin, const Int_t xbin)const; // xbin can be -1, which means push all of them
+  virtual std::vector<std::vector<T>> getCoefficientsPerY(const std::vector<T>& kappaX, const TMatrix_t& xAinv, const Int_t& ybin, RooNCSplineCore::BoundaryCondition const& bcBegin, RooNCSplineCore::BoundaryCondition const& bcEnd, const Int_t xbin)const; // xbin can be -1, which means push all of them
 
   virtual T interpolateFcn(Int_t code, const char* rangeName=0)const;
 
   virtual Double_t evaluate()const;
 
 
-  ClassDef(RooNCSpline_2D_fast, 1)
+  ClassDef(RooNCSpline_2D_fast, 2)
 
 };
  

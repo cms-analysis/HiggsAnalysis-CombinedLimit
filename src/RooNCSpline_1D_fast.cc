@@ -12,14 +12,16 @@ using namespace std;
 ClassImp(RooNCSpline_1D_fast)
 
 RooNCSpline_1D_fast::RooNCSpline_1D_fast() :
-RooNCSplineCore()
+  RooNCSplineCore(),
+  bcBeginX(RooNCSplineCore::bcNaturalSpline), bcEndX(RooNCSplineCore::bcNaturalSpline)
 {}
 
 RooNCSpline_1D_fast::RooNCSpline_1D_fast(
   const char* name,
   const char* title
   ) :
-  RooNCSplineCore(name, title)
+  RooNCSplineCore(name, title),
+  bcBeginX(RooNCSplineCore::bcNaturalSpline), bcEndX(RooNCSplineCore::bcNaturalSpline)
 {}
 
 RooNCSpline_1D_fast::RooNCSpline_1D_fast(
@@ -28,17 +30,20 @@ RooNCSpline_1D_fast::RooNCSpline_1D_fast(
   RooAbsReal& inXVar,
   const std::vector<T>& inXList,
   const std::vector<T>& inFcnList,
+  RooNCSplineCore::BoundaryCondition const bcBeginX_,
+  RooNCSplineCore::BoundaryCondition const bcEndX_,
   Bool_t inUseFloor,
   T inFloorEval,
   T inFloorInt
   ) :
   RooNCSplineCore(name, title, inXVar, inXList, inUseFloor, inFloorEval, inFloorInt),
+  bcBeginX(bcBeginX_), bcEndX(bcEndX_),
   FcnList(inFcnList)
 {
   if (npointsX()>1){
     int npoints;
 
-    vector<vector<RooNCSplineCore::T>> xA; getKappas(kappaX, 0); getAArray(kappaX, xA);
+    vector<vector<RooNCSplineCore::T>> xA; getKappas(kappaX, 0); getAArray(kappaX, xA, bcBeginX, bcEndX);
     npoints=kappaX.size();
     TMatrix_t xAtrans(npoints, npoints);
     for (int i=0; i<npoints; i++){ for (int j=0; j<npoints; j++){ xAtrans[i][j]=xA.at(i).at(j); } }
@@ -49,7 +54,7 @@ RooNCSpline_1D_fast::RooNCSpline_1D_fast(
       assert(0);
     }
 
-    coefficients = getCoefficientsAlongDirection(kappaX, xAinv, FcnList, -1);
+    coefficients = getCoefficientsAlongDirection(kappaX, xAinv, FcnList, bcBeginX, bcEndX, -1);
   }
   else assert(0);
 
@@ -65,6 +70,7 @@ RooNCSpline_1D_fast::RooNCSpline_1D_fast(
   const char* name
   ) :
   RooNCSplineCore(other, name),
+  bcBeginX(other.bcBeginX), bcEndX(other.bcEndX),
   FcnList(other.FcnList),
   kappaX(other.kappaX),
   coefficients(other.coefficients)
