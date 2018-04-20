@@ -115,7 +115,7 @@ private:
   
   static TTree *tree_;
 
-  static std::vector<std::pair<RooAbsReal*,float> > trackedParametersMap_;
+  static std::vector<std::pair<RooRealVar*,std::pair<float,float> > > trackedParametersMap_;
   static std::string  trackParametersNameString_;
   static std::string  textToWorkspaceString_;
 
