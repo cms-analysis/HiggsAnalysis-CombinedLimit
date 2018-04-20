@@ -42,6 +42,7 @@ bool MultiDimFit::fastScan_ = false;
 bool MultiDimFit::loadedSnapshot_ = false;
 bool MultiDimFit::savingSnapshot_ = false;
 bool MultiDimFit::startFromPreFit_ = false;
+bool MultiDimFit::alignEdges_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
 bool MultiDimFit::skipInitialFit_ = false;
@@ -91,6 +92,7 @@ MultiDimFit::MultiDimFit() :
 	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
+    ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
 	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
       ;
 }
@@ -538,24 +540,41 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     RooArgSet snap; params->snapshot(snap);
     //snap.Print("V");
     if (n == 1) {
-	// can do a more intellegent spacing of points
-	double xbestpoint = (p0[0] - pmin[0]) / ((pmax[0]-pmin[0])/points_) ;
-	if ( lastPoint_ == std::numeric_limits<unsigned int>::max()) lastPoint_ = points_-1;
+        double xspacing = (pmax[0]-pmin[0]) / points_;
+        double xspacingOffset = 0.5;
+        if (alignEdges_) {
+          xspacing = (pmax[0]-pmin[0]) / (points_ - 1);
+          if (points_ == 1) xspacing = 0;
+          xspacingOffset = 0.0;
+        }
+        // can do a more intellegent spacing of points
+        double xbestpoint = (p0[0] - pmin[0]) / xspacing;
+        if (lastPoint_ == std::numeric_limits<unsigned int>::max()) {
+          lastPoint_ = points_ - 1;
+        }
         for (unsigned int i = 0; i < points_; ++i) {
-            if (i < firstPoint_) continue;
-            if (i > lastPoint_)  break;
-            double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/points_; 
-	    if( xbestpoint > lastPoint_ ){
-		int ireverse = lastPoint_ - i + firstPoint_ ;
-		x = pmin[0] + (ireverse+0.5)*(pmax[0]-pmin[0])/points_; 
-	    }
+          if (i < firstPoint_) continue;
+          if (i > lastPoint_)  break;
+          double x = pmin[0] + (i + xspacingOffset) * xspacing;
+          // If we're aligning with the edges and this is the last point,
+          // set x to pmax[0] exactly
+          if (alignEdges_ && i == (points_ - 1)) {
+            x = pmax[0];
+          }
+          if (xbestpoint > lastPoint_) {
+            int ireverse = lastPoint_ - i + firstPoint_;
+            x = pmin[0] + (ireverse + xspacingOffset) * xspacing;
+          }
 
-	    if (squareDistPoiStep_){
-		// distance between steps goes as ~square of distance from middle or range (could this be changed to from best fit value?)
-		double phalf = (pmax[0]-pmin[0])/2;
-		if (i<(unsigned int)points_/2) x = pmin[0]+TMath::Sqrt(2*i*(phalf)*(phalf)/points_);
-		else x = pmax[0]-TMath::Sqrt(2*(points_-i)*(phalf)*(phalf)/points_);
-	    }
+          if (squareDistPoiStep_) {
+            // distance between steps goes as ~square of distance from middle or range (could this be changed to from best fit value?)
+            double phalf = (pmax[0] - pmin[0]) / 2;
+            if (x < (pmin[0] + phalf)) {
+              x = pmin[0] + TMath::Sqrt((x - pmin[0]) / phalf) * phalf;
+            } else {
+              x = pmax[0] - TMath::Sqrt((pmax[0] - x) / phalf) * phalf;
+            }
+          }
 
             //if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
              std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
@@ -600,14 +619,25 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
         unsigned int ipoint = 0, nprint = ceil(0.005*sqrn*sqrn);
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
         CloseCoutSentry sentry(verbose < 2);
-        double deltaX =  (pmax[0]-pmin[0])/sqrn, deltaY = (pmax[1]-pmin[1])/sqrn;
+        double deltaX = (pmax[0] - pmin[0]) / sqrn;
+        double deltaY = (pmax[1] - pmin[1]) / sqrn;
+        double spacingOffset = 0.5;
+        if (alignEdges_) {
+          deltaX = (pmax[0] - pmin[0]) / (sqrn - 1);
+          deltaY = (pmax[1] - pmin[1]) / (sqrn - 1);
+          spacingOffset = 0.0;
+          if (sqrn == 1) {
+            deltaX = 0;
+            deltaY = 0;
+          }
+        }
         for (unsigned int i = 0; i < sqrn; ++i) {
             for (unsigned int j = 0; j < sqrn; ++j, ++ipoint) {
                 if (ipoint < firstPoint_) continue;
                 if (ipoint > lastPoint_)  break;
                 *params = snap; 
-                double x =  pmin[0] + (i+0.5)*deltaX; 
-                double y =  pmin[1] + (j+0.5)*deltaY; 
+                double x =  pmin[0] + (i + spacingOffset) * deltaX;
+                double y =  pmin[1] + (j + spacingOffset) * deltaY;
                 if (verbose && (ipoint % nprint == 0)) {
                          fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
                                         ipoint,sqrn*sqrn, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
@@ -748,7 +778,15 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
           for (unsigned int poi_i=0;poi_i<n;poi_i++){
 	    int ip = (*perm_it)[poi_i];
             double deltaXi = (pmax[poi_i]-pmin[poi_i])/rootn;
-	    double xi = pmin[poi_i]+deltaXi*(ip+0.5);
+            double spacingOffset = 0.5;
+            if (alignEdges_) {
+                deltaXi = (pmax[poi_i] - pmin[poi_i]) / (rootn - 1);
+                if (rootn == 1) {
+                    deltaXi = 0.;
+                }
+                spacingOffset = 0.0;
+            }
+	    double xi = pmin[poi_i] + deltaXi * (ip + spacingOffset);
             poiVals_[poi_i] = xi; poiVars_[poi_i]->setVal(xi);
 	    if (verbose && (ipoint % nprint == 0)){
              fprintf(sentry.trueStdOut(), " %s = %f ",

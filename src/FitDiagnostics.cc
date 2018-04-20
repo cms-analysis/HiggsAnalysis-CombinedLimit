@@ -87,7 +87,7 @@ FitDiagnostics::FitDiagnostics() :
         ("justFit",  		"Just do the S+B fit, don't do the B-only one, don't save output file")
         ("skipBOnlyFit",  	"Skip the B-only fit (do only the S+B fit)")
         ("initFromBonly",  	"Use the values of the nuisance parameters from the background only fit as the starting point for the s+b fit. Can help fit convergence")
-        ("customStartingPoint", "Don't set the signal model parameters to zero before the fit. Can help fit convergence")
+        ("customStartingPoint", "Don't set the first POI to 0 for the background-only fit. Instead if using this option, the parameter will be fixed to its default value, which can be set with the --setParameters option.")
    ;
 
     // setup a few defaults
@@ -235,7 +235,8 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   /* Background only fit (first POI set to customStartingPoint or 0) ****************************************************************/
 
-  if (!customStartingPoint_) r->setVal(0.0); 
+  if (!customStartingPoint_) r->setVal(0.0);
+  else std::cout << "customStartingPoint set to true, Background only fit will corrsepond to " << r->GetName() << " = " << r->getVal() << std::endl;
   r->setConstant(true);
 
   // Setup Nll before calling fits;

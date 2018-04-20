@@ -258,7 +258,7 @@ class ShapeBuilder(ModelBuilder):
     ## -------- High level helpers ----------
     ## --------------------------------------
     def prepareAllShapes(self):
-        shapeTypes = []; shapeBins = []; shapeObs = {}
+        shapeTypes = []; shapeBins = {}; shapeObs = {}
         self.pdfModes = {}
         for ib,b in enumerate(self.DC.bins):
             databins = {}; bgbins = {}
@@ -280,7 +280,7 @@ class ShapeBuilder(ModelBuilder):
                     else:
                         shapeTypes.append("RooAbsPdf");
                 elif shape.ClassName().startswith("TH1"):
-                    shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
+                    shapeTypes.append("TH1"); shapeBins[b] = shape.GetNbinsX()
                     if channelBinParFlag:
                         self.selfNormBins.append(b)
                     norm = shape.Integral()
@@ -296,7 +296,7 @@ class ShapeBuilder(ModelBuilder):
                             if shape.GetBinContent(i) > 0: bgbins[i] = True
                 elif shape.InheritsFrom("RooDataHist"):
                     shapeTypes.append("RooDataHist"); 
-                    shapeBins.append(shape.numEntries())
+                    #if doPadding: shapeBins[b] = shape.numEntries() --> Not clear this is needed at all for RooDataHists so just ignore
                     shapeObs[self.argSetToString(shape.get())] = shape.get()
                     norm = shape.sumEntries()
                     if p == self.options.dataname: 
@@ -333,15 +333,26 @@ class ShapeBuilder(ModelBuilder):
                 for i in databins.iterkeys():
                     if i not in bgbins: stderr.write("Channel %s has bin %d fill in data but empty in all backgrounds\n" % (b,i))
         if shapeTypes.count("TH1"):
-            self.out.maxbins = max(shapeBins)
-            if self.options.verbose > 1: stderr.write("Will use binning variable CMS_th1x with %d bins\n" % self.out.maxbins)
-            self.doVar("CMS_th1x[0,%d]" % self.out.maxbins); self.out.var("CMS_th1x").setBins(self.out.maxbins)
-            self.out.binVar = self.out.var("CMS_th1x")
-            shapeObs['CMS_th1x'] = self.out.binVar
+	    self.TH1Observables = {}
+	    self.out.binVars = ROOT.RooArgSet()
+            self.out.maxbins = max([shapeBins[k] for k in shapeBins.keys()])
+	    if self.options.optimizeTemplateBins:
+              if self.options.verbose > 1: stderr.write("Will use binning variable CMS_th1x with %d bins\n" % self.out.maxbins)
+	      self.doVar("CMS_th1x[0,%d]" % self.out.maxbins); self.out.var("CMS_th1x").setBins(self.out.maxbins)
+              self.out.binVars.add(self.out.var("CMS_th1x"))
+              shapeObs['CMS_th1x'] = self.out.var("CMS_th1x")
+	      for b in shapeBins: self.TH1Observables[b] = "CMS_th1x"
+	    else:
+	      for b in shapeBins:
+		binVar = "CMS_th1x_%s"%b 
+                if self.options.verbose > 1: stderr.write("Will use binning variable %s with %d bins\n" %(binVar,shapeBins[b]))
+                self.doVar("%s[0,%d]" %(binVar,shapeBins[b])); self.out.var(binVar).setBins(shapeBins[b])
+                self.out.binVars.add(self.out.var(binVar))
+                shapeObs['CMS_th1x_%s'%b] = self.out.var(binVar)
+	        self.TH1Observables[b] = binVar
         if shapeTypes.count("TH1") == len(shapeTypes):
             self.out.mode    = "binned"
-            self.out.binVars = ROOT.RooArgSet(self.out.binVar)
-        elif shapeTypes.count("RooDataSet") > 0 or shapeTypes.count("TTree") > 0 or len(shapeObs.keys()) > 1:
+        elif shapeTypes.count("RooDataSet") > 0 or shapeTypes.count("TTree") > 0 or len(shapeObs.keys()) > 1: # remake RooArgSet for binVars with all Variables inside 
             self.out.mode = "unbinned"
             if self.options.verbose > 1: stderr.write("Will work with unbinned datasets\n")
             if self.options.verbose > 1: stderr.write("Observables: %s\n" % str(shapeObs.keys()))
@@ -365,9 +376,15 @@ class ShapeBuilder(ModelBuilder):
             data = self.getData(self.DC.bins[0],self.options.dataname).Clone(self.options.dataname)
             self.out._import(data)
             return
-        if self.out.mode == "binned":
+
+        """ Combine is able to handle the binned/vs unbinned properly so no need for separate commands
+	, commenting this switch helps with avoiding creating an n-dim dataset (i.e padding rows for the actual data)
+	, not clear why the "binned" version was ever needed, but should be checked. 
+
+	if self.out.mode == "binned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
-            for b in self.DC.bins: combiner.addSetBin(b, self.getData(b,self.options.dataname))
+            for b in self.DC.bins: 
+	    	combiner.addSetBin(b, self.getData(b,self.options.dataname))
             self.out.data_obs = combiner.done(self.options.dataname,self.options.dataname)
             self.out._import(self.out.data_obs)
         elif self.out.mode == "unbinned":
@@ -376,8 +393,15 @@ class ShapeBuilder(ModelBuilder):
             self.out.data_obs = combiner.doneUnbinned(self.options.dataname,self.options.dataname)
             self.out._import(self.out.data_obs)
         else: raise RuntimeException, "Only combined datasets are supported"
-        #print "Created combined dataset with ",self.out.data_obs.numEntries()," entries, out of:"
-        #for b in self.DC.bins: print "  bin", b, ": entries = ", self.getData(b,self.options.dataname).numEntries()
+	"""
+        combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
+        for b in self.DC.bins: 
+		combiner.addSetAny(b, self.getData(b,self.options.dataname))
+        self.out.data_obs = combiner.doneUnbinned(self.options.dataname,self.options.dataname)
+        self.out._import(self.out.data_obs)
+	if self.options.verbose>2:
+          print "Created combined dataset with ",self.out.data_obs.numEntries()," entries, out of:"
+          for b in self.DC.bins: print "  bin", b, ": entries = ", self.getData(b,self.options.dataname).numEntries()
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
@@ -557,7 +581,7 @@ class ShapeBuilder(ModelBuilder):
                     rebins.Add(rebinned)
                     maxbins = max(maxbins, rebinned._original_bins)
                 if channelBinParFlag:
-                    rhp = ROOT.CMSHistFunc("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins[0])
+                    rhp = ROOT.CMSHistFunc("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.var(self.TH1Observables[channel]), rebins[0])
                     rhp.setVerticalMorphs(coeffs)
                     rhp.setVerticalType(ROOT.CMSHistFunc.QuadLinear if qalgo >= 0 else ROOT.CMSHistFunc.LogQuadLinear)
                     rhp.setVerticalSmoothRegion(qrange)
@@ -581,7 +605,7 @@ class ShapeBuilder(ModelBuilder):
                         rhp.setActiveBins(maxbins)
 
                 else:
-                    rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.binVar, rebins, coeffs, qrange, qalgo)
+                    rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.var(self.TH1Observables[channel]), rebins, coeffs, qrange, qalgo)
                     if self.options.optimizeTemplateBins and maxbins < self.out.maxbins:
                         #print "Optimizing binning: %d -> %d for %s " % (self.out.maxbins, maxbins, rhp.GetName())
                         rhp.setActiveBins(maxbins) 
@@ -675,13 +699,24 @@ class ShapeBuilder(ModelBuilder):
                 self.addObj(ROOT.AsymPow, "systeff_%s_%s_%s" % (channel,process,syst), "", obj_kappaDown, obj_kappaUp, obj_var)
                 terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
         return terms if terms else None;
+
     def rebinH1(self,shape):
-        rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", self.out.maxbins, 0.0, float(self.out.maxbins))
-        for i in range(1,min(shape.GetNbinsX(),self.out.maxbins)+1): 
+    	
+	if self.options.optimizeTemplateBins:
+          rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", self.out.maxbins, 0.0, float(self.out.maxbins))
+          for i in range(1,min(shape.GetNbinsX(),self.out.maxbins)+1): 
             rebinh1.SetBinContent(i, shape.GetBinContent(i))
             rebinh1.SetBinError(i, shape.GetBinError(i))
-        rebinh1._original_bins = shape.GetNbinsX()
+          rebinh1._original_bins = shape.GetNbinsX()
+	else :
+	  shapeNbins = shape.GetNbinsX()
+          rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", shapeNbins, 0.0, float(shapeNbins))
+          for i in range(1,shapeNbins+1): 
+            rebinh1.SetBinContent(i, shape.GetBinContent(i))
+            rebinh1.SetBinError(i, shape.GetBinError(i))
+          rebinh1._original_bins = shapeNbins
         return rebinh1;
+	   
     def shape2Data(self,shape,channel,process,_cache={}):
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if shape == None:
@@ -704,7 +739,7 @@ class ShapeBuilder(ModelBuilder):
         if not _cache.has_key(shape.GetName()):
             if shape.ClassName().startswith("TH1"):
                 rebinh1 = self.rebinH1(shape)
-                rdh = ROOT.RooDataHist(shape.GetName(), shape.GetName(), ROOT.RooArgList(self.out.binVar), rebinh1)
+                rdh = ROOT.RooDataHist(shape.GetName(), shape.GetName(), ROOT.RooArgList(self.out.var(self.TH1Observables[channel])), rebinh1)
                 #self.out._import(rdh)
                 _cache[shape.GetName()] = rdh
             elif shape.ClassName() in ["RooDataHist", "RooDataSet"]:
@@ -725,17 +760,17 @@ class ShapeBuilder(ModelBuilder):
                     shape = self.rebinH1(shape)
                     list = ROOT.TList(); list.Add(shape);
                     if channelBinParFlag:
-                        rhp = ROOT.CMSHistFunc("%sPdf" % shape.GetName(), "", self.out.binVar, shape)
+                        rhp = ROOT.CMSHistFunc("%sPdf" % shape.GetName(), "", self.out.var(self.TH1Observables[channel]), shape)
                         rhp.prepareStorage()
                         rhp.setShape(0, 0, 0, 0, shape)
                         if self.options.optimizeTemplateBins:
                             rhp.setActiveBins(shape._original_bins)
                     else:
-                        rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.binVar, list, ROOT.RooArgList())
+                        rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.var(self.TH1Observables[channel]), list, ROOT.RooArgList())
                     _cache[shape.GetName()+"Pdf"] = rhp
                 else:
                     rdh = self.shape2Data(shape,channel,process)
-                    rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", ROOT.RooArgSet(self.out.binVar), rdh)
+                    rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", ROOT.RooArgSet(self.out.var(self.TH1Observables[channel])), rdh)
                     rhp.rdh = rdh # so it doesn't get deleted
                     _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooAbsPdf"):

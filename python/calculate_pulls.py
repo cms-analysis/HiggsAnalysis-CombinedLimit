@@ -32,7 +32,7 @@ def relDiffAsym(x,x0,sxu,sxu0,sxd,sxd0):
 
 def relDiffAsymErrs(x,x0,sxu,sxu0,sxd,sxd0):
   pull = x - x0 
-  pull = (pull/sxu0) if pull >= 0 else (pull/sxd)
+  pull = (pull/sxu0) if pull >= 0 else (pull/sxd0)
   pull_hi = x+sxu - x0
   pull_hi = (pull_hi/sxu0) if pull_hi >= 0 else (pull_hi/sxd0)
   pull_hi = pull_hi - pull

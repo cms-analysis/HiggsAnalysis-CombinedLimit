@@ -75,7 +75,9 @@ TDirectory *writeToysHere = 0;
 TDirectory *readToysFromHere = 0;
 int  verbose = 1;
 bool withSystematics = 1;
+bool expectSignalSet_ = false;
 bool doSignificance_ = 0;
+bool expectSignalSet = 0;
 bool lowerLimit_ = 0;
 float cl = 0.95;
 bool bypassFrequentistFit_ = false;
@@ -101,8 +103,8 @@ Combine::Combine() :
     statOptions_.add_options()
       ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Include constrained systematic uncertainties, -S 0 will ignore systematics constraint terms in the datacard.")
       ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
-      ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
-      ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
+      ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength (default is 0)")
+      ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength (default is 20)")
       ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
       ("significance", "Compute significance instead of upper limit (works only for some methods)")
       ("lowerLimit",   "Compute the lower limit instead of the upper limit (works only for some methods)")
@@ -182,7 +184,9 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   saveToys_ = vm.count("saveToys");
   validateModel_ = vm.count("validateModel");
   const std::string &method = vm["method"].as<std::string>();
-
+  if (!(vm["expectSignal"].defaulted())) expectSignalSet_=true;
+  else expectSignalSet_=false;
+	
   if (method == "MultiDimFit" || ( method == "FitDiagnostics" && vm.count("justFit")) || method == "MarkovChainMC") {
     //CMSDAS new default,
     if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
@@ -545,7 +549,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	// also set ignoreConstraint flag for constraint PDF 
 	if ( w->pdf(Form("%s_Pdf",arg->GetName())) ) w->pdf(Form("%s_Pdf",arg->GetName()))->setAttribute("ignoreConstraint");
       }
-      if (verbose > 0) std::cout << "Redefining the POIs to be: "; newPOIs.Print("");
+      if (verbose > 0) { std::cout << "Redefining the POIs to be: "; newPOIs.Print(""); }
       mc->SetParametersOfInterest(newPOIs);
       POI = mc->GetParametersOfInterest();
       if (nuisances) {
@@ -566,7 +570,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (floatNuisances_ != "") {
       RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
-      if (verbose > 0) std::cout << "Set floating the following parameters: "; toFloat.Print("");
+      if (verbose > 0) {  std::cout << "Set floating the following parameters: "; toFloat.Print(""); }
       utils::setAllConstant(toFloat, false);
   }
   
@@ -597,7 +601,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
 
       RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
-      if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
+      if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
       utils::setAllConstant(toFreeze, true);
       if (nuisances) {
           RooArgSet newnuis(*nuisances);
@@ -633,7 +637,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  toFreeze.add(groupNuisances);
 	}
 	
-        if (verbose > 0) std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print("");
+        if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
         utils::setAllConstant(toFreeze, true);
         if (nuisances) {
           RooArgSet newnuis(*nuisances);
@@ -857,6 +861,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
 	      }
 	    }
+	    // Also save the current state of the tree here but specify the quantile as -2 (i.e not the default, something specific to the toys)
+	    if (saveToys_) commitPoint(false,-2);
 
             dobs = newToyMC.generateAsimov(weightVar_,verbose); // as simple as that
         }
@@ -870,7 +876,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         if (toysFrequentist_ && mc->GetGlobalObservables()) { 
             RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
             if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
-            // to be seen whether I can delete it or not
         }
     }
     std::cout << "Computing results starting from " << (iToy == 0 ? "observation (a-posteriori)" : "expected outcome (a-priori)") << std::endl;
@@ -878,6 +883,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();
+
+     // Set the global flag to write output to the tree again since some Methods overwrite this to avoid the fill above. 
+     toggleGlobalFillTree(true);
   }
   
   std::vector<double> limitHistory;
@@ -945,6 +953,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
 	  }
 	}
+
+	// Also save the current state of the tree here but specify the quantile as -2 (i.e not the default, something specific to the toys)
+	if (saveToys_) commitPoint(false,-2);
 	if (isExtended) {
           absdata_toy = newToyMC.generate(weightVar_); // as simple as that
 	} else {
@@ -983,12 +994,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	expLimit += limit; 
         limitHistory.push_back(limit);
       }
+      // Set the global flag to write output to the tree again since some Methods overwrite this to avoid the fill above. 
+      toggleGlobalFillTree(true);
+
       if (saveToys_) {
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));
         if (toysFrequentist_ && mc->GetGlobalObservables()) { 
             RooAbsCollection *snap = mc->GetGlobalObservables()->snapshot();
             writeToysHere->WriteTObject(snap, TString::Format("toy_%d_snapshot", iToy));
-            // to be seen whether I can delete it or not
         }
       }
       delete absdata_toy;
