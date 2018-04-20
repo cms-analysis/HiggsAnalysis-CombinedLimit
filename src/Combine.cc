@@ -91,7 +91,7 @@ std::string defineBackgroundOnlyModelParameterExpression_ = "";
 std::string Combine::trackParametersNameString_="";
 std::string Combine::textToWorkspaceString_="";
 
-std::vector<std::pair<RooAbsReal*,float> > Combine::trackedParametersMap_;
+std::vector<std::pair<RooRealVar*,std::pair<float,float> > > Combine::trackedParametersMap_;
 
 Combine::Combine() :
     statOptions_("Common statistics options"),
@@ -710,28 +710,29 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           RooArgSet allParams(w->allVars());
           std::auto_ptr<TIterator> iter(allParams.createIterator());
           for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-              RooAbsReal *tmp = dynamic_cast<RooAbsReal *>(a);
+              RooRealVar *tmp = dynamic_cast<RooRealVar *>(a);
               const std::string &target = tmp->GetName();
               std::smatch match;
               if (std::regex_match(target, match, rgx)) {
                   if (tmp->isConstant()) continue;
-                  Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(tmp,tmp->getVal()));
+                  Combine::trackedParametersMap_.push_back(std::pair<RooRealVar*,std::pair<float,float> >(tmp,std::pair<float,float>(tmp->getVal(),tmp->getError())));
               }
           }
           token = strtok(0,",") ;
       } else {
-          RooAbsReal *a =(RooAbsReal*)w->obj(token); 
+          RooRealVar *a =(RooRealVar*)w->obj(token); 
           if (a == 0) throw std::invalid_argument(std::string("Parameter ")+(token)+" not in model.");
-          Combine::trackedParametersMap_.push_back(std::pair<RooAbsReal*,float>(a,a->getVal()));
+          Combine::trackedParametersMap_.push_back(std::pair<RooRealVar*,std::pair<float,float> >(a,std::pair<float,float>(a->getVal(),a->getError())));
           token = strtok(0,",") ;
       } 
 
     }
   }
   
-  for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
+  for (std::vector<std::pair<RooRealVar*,std::pair<float,float> > >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
     const char * token = (it->first)->GetName();
-    addBranch((std::string("trackedParam_")+token).c_str(), &(it->second), (std::string("trackedParam_")+token+std::string("/F")).c_str()); 
+    addBranch((std::string("trackedParam_")+token).c_str(), &((it->second).first), (std::string("trackedParam_")+token+std::string("/F")).c_str()); 
+    addBranch((std::string("trackedParamErr_")+token).c_str(), &((it->second).second), (std::string("trackedParamErr_")+token+std::string("/F")).c_str()); 
   }
   // Should have the PDF at this point, if not something is really odd?
   if (!(mc->GetPdf())){
@@ -1047,8 +1048,8 @@ void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;
     g_quantileExpected_ = quantile;
 
-    for (std::vector<std::pair<RooAbsReal*,float> >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
-	it->second = (it->first)->getVal();
+    for (std::vector<std::pair<RooRealVar*,std::pair<float,float> > >::iterator it = Combine::trackedParametersMap_.begin(); it!=Combine::trackedParametersMap_.end();it++){
+      it->second = std::pair<float,float>((it->first)->getVal(),(it->first)->getError());
     }
 
     if (g_fillTree_) tree_->Fill();
