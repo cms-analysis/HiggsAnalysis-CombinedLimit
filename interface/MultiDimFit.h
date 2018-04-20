@@ -36,7 +36,6 @@ protected:
   static RooArgList                poiList_; 
   static unsigned int              nOtherFloatingPoi_; // keep a count of other POIs that we're ignoring, for proper chisquare normalization
   static float                     deltaNLL_;
-  static int                       covQual_;
 
   static std::string name_;
   std::auto_ptr<TFile> fitOut;
