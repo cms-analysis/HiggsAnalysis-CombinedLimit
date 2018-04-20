@@ -117,7 +117,7 @@ def doRenameNuisance(datacard, args):
     opts = args[4:]
     foundChann, foundProc = False, False
     for lsyst,nofloat,pdf0,args0,errline0 in datacard.systs[:]:
-
+	if pdf0=="param" : raise RuntimeError, "Incorrect syntax. Cannot specify process and channel for %s with pdf %s. Use 'nuisance edit rename oldname newname'"% (lsyst,pdf0)
         lsystnew = re.sub(oldname,newname,lsyst)
         if lsystnew != lsyst:
             found = False
