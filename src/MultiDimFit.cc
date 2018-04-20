@@ -33,6 +33,7 @@ std::vector<RooRealVar *> MultiDimFit::poiVars_;
 std::vector<float>        MultiDimFit::poiVals_;
 RooArgList                MultiDimFit::poiList_;
 float                     MultiDimFit::deltaNLL_ = 0;
+int                       MultiDimFit::covQual_ = -1;
 unsigned int MultiDimFit::points_ = 50;
 unsigned int MultiDimFit::firstPoint_ = 0;
 unsigned int MultiDimFit::lastPoint_  = std::numeric_limits<unsigned int>::max();
@@ -252,8 +253,9 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
             }
 	  }
           if(res.get() && saveFitResult_) saveResult(*res);
+          if(res.get()) covQual_ = res->covQual(); 
           break;
-        case Singles: if (res.get()) { doSingles(*res); if (saveFitResult_) {saveResult(*res);} } break;
+        case Singles: if (res.get()) { doSingles(*res); if (saveFitResult_) {saveResult(*res); covQual_=res->covQual();} } break;
         case Cross: doBox(*nll, cl, "box", true); break;
         case Grid: doGrid(w,*nll); break;
         case RandomPoints: doRandomPoints(w,*nll); break;
@@ -385,6 +387,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 	Combine::addBranch(specifiedCatNames_[i].c_str(), &specifiedCatVals_[i], (specifiedCatNames_[i]+"/I").c_str()); 
     }
     Combine::addBranch("deltaNLL", &deltaNLL_, "deltaNLL/F");
+    Combine::addBranch("covQual",  &covQual_,  "covQual/I");    
 }
 
 void MultiDimFit::doSingles(RooFitResult &res)
