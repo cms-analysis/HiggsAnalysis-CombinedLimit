@@ -264,8 +264,8 @@ double RooCB::evaluate() const
    }
    case 2:
    {
-     double xmin = -x.max(rangeName);
-     double xmax = -x.min(rangeName);
+     double xmin = -xp.max(rangeName);
+     double xmax = -xp.min(rangeName);
      if (x.absArg()){
        xmin += x;
        xmax += x;
