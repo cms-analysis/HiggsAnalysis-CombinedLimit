@@ -69,7 +69,17 @@ double RooCB::evaluate() const
 
  ClassImp(RooDoubleCB) 
 
- RooDoubleCB::RooDoubleCB(){}
+ RooDoubleCB::RooDoubleCB() :
+   RooAbsPdf(),
+   x("x", "x", this),
+   xp("xp", "xp", this),
+   mean("mean", "mean", this),
+   width("width", "width", this),
+   alpha1("alpha1", "alpha1", this),
+   n1("n1", "n1", this),
+   alpha2("alpha2", "alpha2", this),
+   n2("n2", "n2", this)
+ {}
 
  RooDoubleCB::RooDoubleCB(const char *name, const char *title, 
 		    RooAbsReal& _x,
