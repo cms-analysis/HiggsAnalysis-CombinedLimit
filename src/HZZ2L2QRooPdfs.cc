@@ -145,7 +145,7 @@ double RooCB::evaluate() const
    if (x.absArg()) dx += x;
    if (xp.absArg()) dx -= xp;
    double t = (dx-mean)/width;
-   if(t>-alpha1 && t<alpha2){
+   if(t>=-alpha1 && t<=alpha2){
      return exp(-0.5*t*t);
    }else if(t<-alpha1){
      double A1 = pow(n1/fabs(alpha1),n1)*exp(-alpha1*alpha1/2);
