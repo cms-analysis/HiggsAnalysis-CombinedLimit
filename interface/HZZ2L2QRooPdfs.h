@@ -49,6 +49,16 @@ public:
 	      RooAbsReal& _alpha2,
 	      RooAbsReal& _n2
 	   );
+  RooDoubleCB(const char *name, const char *title,
+        RooAbsReal& _x,
+        RooAbsReal& _xp,
+        RooAbsReal& _mean,
+        RooAbsReal& _width,
+        RooAbsReal& _alpha1,
+        RooAbsReal& _n1,
+        RooAbsReal& _alpha2,
+        RooAbsReal& _n2
+  );
   RooDoubleCB(const RooDoubleCB& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new RooDoubleCB(*this,newname); }
   inline virtual ~RooDoubleCB() { }
@@ -57,7 +67,8 @@ public:
 
 protected:
 
-  RooRealProxy x ;
+  RooRealProxy x;
+  RooRealProxy xp;
   RooRealProxy mean;
   RooRealProxy width;
   RooRealProxy alpha1;
@@ -69,7 +80,7 @@ protected:
 
 private:
 
-  ClassDef(RooDoubleCB,1)
+  ClassDef(RooDoubleCB,2)
 };
  
 class RooFermi : public RooAbsPdf {
