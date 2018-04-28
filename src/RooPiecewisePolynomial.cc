@@ -63,7 +63,7 @@ RooPiecewisePolynomial::RooPiecewisePolynomial(RooPiecewisePolynomial const& oth
 double RooPiecewisePolynomial::eval(double x, std::vector<double> const& par)const{
   // If we say the form of the polynomial is [0] + [1]*x + [2]*x2 + [3]*x3 + [4]*x4...,
   // use the highest two orders for matching at the nodes and free the rest.
-  const double d_epsilon = 1e-14;
+  const double d_epsilon = 0;
   if ((int) par.size()!=2*ndof_endfcn+(nfcn-2)*ndof_middlefcn+nnodes) assert(0);
 
   int npars_reduced[nfcn];
@@ -180,6 +180,7 @@ double RooPiecewisePolynomial::eval(double x, std::vector<double> const& par)con
 }
 
 double RooPiecewisePolynomial::evaluate()const{
+  if (parList.getSize()==0) return 0;
   std::vector<double> par; par.reserve(parList.getSize());
   for (int ip=0; ip<parList.getSize(); ip++) par.push_back((dynamic_cast<RooAbsReal*>(parList.at(ip)))->getVal());
   return eval(xvar, par);
