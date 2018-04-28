@@ -84,6 +84,8 @@
 	<class name="HZZ4L_RooSpinZeroPdf_phase_fast" />
 	<class name="VVHZZ4L_RooSpinZeroPdf_1D_fast" />
 
+	<class name="RooPiecewisePolynomial" />
+
 	<class name="RooNCSplineCore" />
 	<class name="RooNCSpline_1D_fast" />
 	<class name="RooNCSpline_2D_fast" />
