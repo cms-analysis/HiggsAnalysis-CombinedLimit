@@ -4,45 +4,63 @@
 #include <cmath>
 #include "TVectorD.h"
 #include "TMatrixD.h"
+#include "TIterator.h"
 
 
 using namespace std;
 
 
-RooPiecewisePolynomial::RooPiecewisePolynomial(const char* name, const char* title, RooAbsReal& xvar_, const int nfcn_, const int polyndof_) :
+RooPiecewisePolynomial::RooPiecewisePolynomial() :
+  RooAbsReal(),
+  xvar("xvar", "xvar", this),
+  parList("parList", "parList", this),
+  nfcn(0), polyndof(0),
+  nnodes(nfcn-1), // How many nodes are in between
+  ndof_endfcn(polyndof-1), // 1 degree for the function value
+  ndof_middlefcn(polyndof-2) // +1 for slope of the other node
+{}
+RooPiecewisePolynomial::RooPiecewisePolynomial(const char* name, const char* title) :
+  RooAbsReal(name, title),
+  xvar("xvar", "xvar", this),
+  parList("parList", "parList", this),
+  nfcn(0), polyndof(0),
+  nnodes(nfcn-1), // How many nodes are in between
+  ndof_endfcn(polyndof-1), // 1 degree for the function value
+  ndof_middlefcn(polyndof-2) // +1 for slope of the other node
+{}
+RooPiecewisePolynomial::RooPiecewisePolynomial(const char* name, const char* title, RooAbsReal& xvar_, RooArgList const& parList_, const int nfcn_, const int polyndof_) :
   RooAbsReal(name, title),
   xvar("xvar", "xvar", this, xvar_),
+  parList("parList", "parList", this),
   nfcn(nfcn_), polyndof(polyndof_),
   nnodes(nfcn-1), // How many nodes are in between
   ndof_endfcn(polyndof-1), // 1 degree for the function value
   ndof_middlefcn(polyndof-2) // +1 for slope of the other node
 {
   assert((nfcn>2 && polyndof>=2) || (nfcn==2 && polyndof>=1));
-}
-RooPiecewisePolynomial::RooPiecewisePolynomial(const char* name, const char* title, RooAbsReal& xvar_, const int nfcn_, const int polyndof_, std::vector<double> par_) :
-  RooAbsReal(name, title),
-  xvar("xvar", "xvar", this, xvar_),
-  nfcn(nfcn_), polyndof(polyndof_),
-  nnodes(nfcn-1), // How many nodes are in between
-  ndof_endfcn(polyndof-1), // 1 degree for the function value
-  ndof_middlefcn(polyndof-2), // +1 for slope of the other node
-  par(par_)
-{
-  assert((nfcn>2 && polyndof>=2) || (nfcn==2 && polyndof>=1));
+
+  TIterator* coefIter = parList_.createIterator();
+  RooAbsArg* func;
+  while ((func = (RooAbsArg*) coefIter->Next())) {
+    if (!dynamic_cast<RooAbsReal*>(func)) {
+      cerr << "RooPiecewisePolynomial::RooPiecewisePolynomial(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << endl;
+      assert(0);
+    }
+    parList.add(*func);
+  }
+  delete coefIter;
 }
 RooPiecewisePolynomial::RooPiecewisePolynomial(RooPiecewisePolynomial const& other, const char* name) :
   RooAbsReal(other, name),
   xvar("xvar", this, other.xvar),
+  parList("parList", this, other.parList),
   nfcn(other.nfcn), polyndof(other.polyndof),
   nnodes(other.nnodes),
   ndof_endfcn(other.ndof_endfcn),
-  ndof_middlefcn(other.ndof_middlefcn),
-  par(other.par)
+  ndof_middlefcn(other.ndof_middlefcn)
 {}
 
-void RooPiecewisePolynomial::setParameters(std::vector<double> par_){ par=par_; }
-
-double RooPiecewisePolynomial::eval(double x)const{
+double RooPiecewisePolynomial::eval(double x, std::vector<double> const& par)const{
   // If we say the form of the polynomial is [0] + [1]*x + [2]*x2 + [3]*x3 + [4]*x4...,
   // use the highest two orders for matching at the nodes and free the rest.
   const double d_epsilon = 1e-14;
@@ -156,9 +174,16 @@ double RooPiecewisePolynomial::eval(double x)const{
     return res;
   }
   else{
-    cerr << "Something went wrong, and the determinant is 0!" << endl;
+    cerr << "RooPiecewisePolynomial::eval: Something went wrong, and the determinant is 0!" << endl;
     return d_epsilon;
   }
 }
+
+double RooPiecewisePolynomial::evaluate()const{
+  std::vector<double> par; par.reserve(parList.getSize());
+  for (int ip=0; ip<parList.getSize(); ip++) par.push_back((dynamic_cast<RooAbsReal*>(parList.at(ip)))->getVal());
+  return eval(xvar, par);
+}
+
 
 ClassImp(RooPiecewisePolynomial)
