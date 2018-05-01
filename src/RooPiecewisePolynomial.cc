@@ -10,24 +10,28 @@
 using namespace std;
 
 
-RooPiecewisePolynomial::RooPiecewisePolynomial() :
+RooPiecewisePolynomial::RooPiecewisePolynomial(const int nfcn_, const int polyndof_) :
   RooAbsReal(),
   xvar("xvar", "xvar", this),
   parList("parList", "parList", this),
-  nfcn(0), polyndof(0),
+  nfcn(nfcn_), polyndof(polyndof_),
   nnodes(nfcn-1), // How many nodes are in between
   ndof_endfcn(polyndof-1), // 1 degree for the function value
   ndof_middlefcn(polyndof-2) // +1 for slope of the other node
-{}
-RooPiecewisePolynomial::RooPiecewisePolynomial(const char* name, const char* title) :
+{
+  assert((nfcn>2 && polyndof>=2) || (nfcn==2 && polyndof>=1) || (nfcn==1 && polyndof>=0));
+}
+RooPiecewisePolynomial::RooPiecewisePolynomial(const char* name, const char* title, const int nfcn_, const int polyndof_) :
   RooAbsReal(name, title),
   xvar("xvar", "xvar", this),
   parList("parList", "parList", this),
-  nfcn(0), polyndof(0),
+  nfcn(nfcn_), polyndof(polyndof_),
   nnodes(nfcn-1), // How many nodes are in between
   ndof_endfcn(polyndof-1), // 1 degree for the function value
   ndof_middlefcn(polyndof-2) // +1 for slope of the other node
-{}
+{
+  assert((nfcn>2 && polyndof>=2) || (nfcn==2 && polyndof>=1) || (nfcn==1 && polyndof>=0));
+}
 RooPiecewisePolynomial::RooPiecewisePolynomial(const char* name, const char* title, RooAbsReal& xvar_, RooArgList const& parList_, const int nfcn_, const int polyndof_) :
   RooAbsReal(name, title),
   xvar("xvar", "xvar", this, xvar_),
@@ -37,7 +41,7 @@ RooPiecewisePolynomial::RooPiecewisePolynomial(const char* name, const char* tit
   ndof_endfcn(polyndof-1), // 1 degree for the function value
   ndof_middlefcn(polyndof-2) // +1 for slope of the other node
 {
-  assert((nfcn>2 && polyndof>=2) || (nfcn==2 && polyndof>=1));
+  assert((nfcn>2 && polyndof>=2) || (nfcn==2 && polyndof>=1) || (nfcn==1 && polyndof>=0));
 
   TIterator* coefIter = parList_.createIterator();
   RooAbsArg* func;
@@ -64,7 +68,19 @@ double RooPiecewisePolynomial::eval(double x, std::vector<double> const& par)con
   // If we say the form of the polynomial is [0] + [1]*x + [2]*x2 + [3]*x3 + [4]*x4...,
   // use the highest two orders for matching at the nodes and free the rest.
   const double d_epsilon = 0;
-  if ((int) par.size()!=2*ndof_endfcn+(nfcn-2)*ndof_middlefcn+nnodes) assert(0);
+  if (
+    (nfcn>=2 && (int) par.size()!=2*ndof_endfcn+(nfcn-2)*ndof_middlefcn+nnodes)
+    ||
+    (nfcn==1 && (int) par.size()!=polyndof)
+    ||
+    nfcn<=0
+    ) assert(0);
+
+  if (nfcn==1){
+    double res = 0;
+    for (int ip=0; ip<polyndof; ip++) res += par[ip]*pow(x, ip);
+    return res;
+  }
 
   int npars_reduced[nfcn];
   for (int index=0; index<nfcn; index++){
@@ -184,6 +200,15 @@ double RooPiecewisePolynomial::evaluate()const{
   std::vector<double> par; par.reserve(parList.getSize());
   for (int ip=0; ip<parList.getSize(); ip++) par.push_back((dynamic_cast<RooAbsReal*>(parList.at(ip)))->getVal());
   return eval(xvar, par);
+}
+double RooPiecewisePolynomial::evaluate(double* x, double* p)const{ // For calling in a TF1 object
+  // No size check is done, so be careful!
+  unsigned int psize=2*ndof_endfcn+(nfcn-2)*ndof_middlefcn+nnodes;
+  //cout << "RooPiecewisePolynomial::evaluate: N parameters = " << psize << endl;
+  std::vector<double> par; par.reserve(psize);
+  for (unsigned int ip=0; ip<psize; ip++) par.push_back(p[ip]);
+  //cout << "RooPiecewisePolynomial::evaluate: Calling eval at x=" << x[0] << endl;
+  return eval(x[0], par);
 }
 
 
