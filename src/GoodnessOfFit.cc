@@ -189,6 +189,14 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
     static_cast<cacheutils::CachingSimNLL*>(nominal_nll.get())->clearConstantZeroPoint();
   }
 
+  if (setParametersForEval_ != "") {
+    utils::setModelParameters(setParametersForEval_, w->allVars());
+  }
+  double nll_nominal = nominal_nll->getVal();
+
+  if (setParametersForFit_ != "") {
+    utils::setModelParameters(setParametersForFit_, w->allVars());
+  }
   CascadeMinimizer minims(*saturated_nll, CascadeMinimizer::Unconstrained);
   //minims.setStrategy(minimizerStrategy_);
   minims.minimize(verbose-2);
@@ -199,7 +207,6 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   if (setParametersForEval_ != "") {
     utils::setModelParameters(setParametersForEval_, w->allVars());
   }
-  double nll_nominal = nominal_nll->getVal();
   double nll_saturated = saturated_nll->getVal();
 
   sentry.clear();
