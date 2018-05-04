@@ -44,7 +44,9 @@ def doAddNuisance(datacard, args):
             for p in datacard.exp[b]:
                 if process == "*" or cprocess.search(p):
                     foundProc = True
-                    if p in errline[b] and errline[b][p] not in [ 0.0, 1.0 ]:
+                    if value in [ 0.0, 1.0 ]:
+                        pass   #do nothing, there's nothing to add
+                    elif p in errline[b] and errline[b][p] not in [ 0.0, 1.0 ]:
                         if "addq" in opts:
                             errline[b][p] = quadratureAdd(pdf, errline[b][p], value, context="nuisance edit add, args = %s" % args)
                         elif "overwrite" in opts:
@@ -192,7 +194,7 @@ def doMergeNuisance(datacard, args):
                     for p in datacard.exp[b]:
                         if process == "*" or cprocess.search(p):
                             foundProc = True
-                            doAddNuisance(datacard, [p, b, name1, pdf2, str(errline2[b][p]), "addq"])
+                            doAddNuisance(datacard, [p+"$", b+"$", name1, pdf2, str(errline2[b][p]), "addq"])
                             errline2[b][p] = 0
 
     if not foundProc and channel != "*":
