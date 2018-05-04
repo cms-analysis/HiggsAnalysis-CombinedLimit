@@ -176,6 +176,32 @@ def doChangeNuisancePdf(datacard, args):
     if not found:
         sys.stderr.write("Warning: no pdf found for changepdf with args %s\n" % args)
 
+def doMergeNuisance(datacard, args):
+    if len(args) < 4:
+        raise RuntimeError("Missing arguments: the syntax is: nuisance edit merge process channel name1 name2 [ options ]")
+    (process, channel, name1, name2) = args[:4]
+    if process != "*": cprocess = re.compile(process)
+    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    opts = args[4:]
+    foundProc = False
+
+    for lsyst2,nofloat2,pdf2,args02,errline2 in datacard.systs:
+        if re.match(name2, lsyst2):
+            for b in errline2.keys():
+                if channel == "*" or cchannel.search(b):
+                    for p in datacard.exp[b]:
+                        if process == "*" or cprocess.search(p):
+                            foundProc = True
+                            doAddNuisance(datacard, [p, b, name1, pdf2, str(errline2[b][p]), "addq"])
+                            errline2[b][p] = 0
+
+    if not foundProc and channel != "*":
+        if "ifexists" not in opts:
+            raise RuntimeError("Error: nuisance edit merge %s found nothing" % (args))
+        else:
+            sys.stderr.write("Warning2: nuisance edit merge %s found nothing\n" % (args))
+
+
 def doSplitNuisance(datacard, args):
     if len(args) < 7:
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit split process channel oldname newname1 newname2 value1 value2"
@@ -279,6 +305,8 @@ def doEditNuisance(datacard, command, args):
         doRenameNuisance(datacard, args)
     elif command == "changepdf":
         doChangeNuisancePdf(datacard, args)
+    elif command == "merge":
+        doMergeNuisance(datacard, args)
     elif command == "split":
         doSplitNuisance(datacard, args)
     elif command == "freeze":
