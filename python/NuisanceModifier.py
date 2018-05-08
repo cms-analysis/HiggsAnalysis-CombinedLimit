@@ -3,12 +3,15 @@ import sys
 from math import log,exp,hypot
 
 def quadratureAdd(pdf, val1, val2, context=None):
+    if type(val1) == list and len(val1) != 2: raise RuntimeError("{} is a list of length != 2".format(val1))
+    if type(val2) == list and len(val2) != 2: raise RuntimeError("{} is a list of length != 2".format(val2))
+
     if type(val1) == list and type(val2) == list:
-        return [ quadratureAdd(pdf, val1[0], val2[0], context), quadratureAdd(pdf, val1[0], val2[0], context) ]
+        return [ quadratureAdd(pdf, val1[0], val2[0], context), quadratureAdd(pdf, val1[1], val2[1], context) ]
     elif type(val1) == list and type(val2) == float:
-        return [ quadratureAdd(pdf, val1[0], 1.0/val2, context), quadratureAdd(pdf, val1[0], val2, context) ]
+        return [ quadratureAdd(pdf, val1[0], 1.0/val2, context), quadratureAdd(pdf, val1[1], val2, context) ]
     elif type(val2) == list and type(val1) == float:
-        return [ quadratureAdd(pdf, 1.0/val1, val2[0], context), quadratureAdd(pdf, val1, val2[0], context) ]
+        return [ quadratureAdd(pdf, 1.0/val1, val2[0], context), quadratureAdd(pdf, val1, val2[1], context) ]
     if pdf in [ "lnN", "lnU" ]:
         if log(val1) * log(val2) < 0:
             raise RuntimeError, "Can't add in quadrature nuisances of pdf %s with values %s, %s that go in different directions (at %s)" % (pdf, val1, val2, context)
