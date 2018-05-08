@@ -43,6 +43,8 @@ protected:
   static std::vector<std::string>  binNames_;
   static std::vector<float>        qVals_;
 
+  static std::string setParametersForFit_;
+  static std::string setParametersForEval_;
 
   // Return a pdf that matches this data perfectly.
   RooAbsPdf *makeSaturatedPdf(RooAbsData &data);
