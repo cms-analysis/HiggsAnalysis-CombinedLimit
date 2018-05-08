@@ -36,7 +36,9 @@ def doAddNuisance(datacard, args):
             errline = errline0
     if not found:
         datacard.systs.append([name,False,pdf,[],errline])
-    if "/" in value:
+    if isinstance(value, (int, float, list)):
+        pass
+    elif "/" in value:
         value = [ float(x) for x in value.split("/") ]
     else:
         value = float(value)
@@ -197,7 +199,7 @@ def doMergeNuisance(datacard, args):
                     for p in datacard.exp[b]:
                         if process == "*" or cprocess.search(p):
                             foundProc = True
-                            doAddNuisance(datacard, [p+"$", b+"$", name1, pdf2, str(errline2[b][p]), "addq"])
+                            doAddNuisance(datacard, [p+"$", b+"$", name1, pdf2, errline2[b][p], "addq"])
                             errline2[b][p] = 0
 
     if not foundProc and channel != "*":
