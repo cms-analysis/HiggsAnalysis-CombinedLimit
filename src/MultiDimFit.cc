@@ -33,6 +33,7 @@ std::vector<RooRealVar *> MultiDimFit::poiVars_;
 std::vector<float>        MultiDimFit::poiVals_;
 RooArgList                MultiDimFit::poiList_;
 float                     MultiDimFit::deltaNLL_ = 0;
+int                       MultiDimFit::covQual_ = -999;
 unsigned int MultiDimFit::points_ = 50;
 unsigned int MultiDimFit::firstPoint_ = 0;
 unsigned int MultiDimFit::lastPoint_  = std::numeric_limits<unsigned int>::max();
@@ -210,6 +211,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
 		specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 	}
+        covQual_ = res->covQual();
 	Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.); // Combine will not commit a point anymore at -1 so can do it here 
 	//}
     }
@@ -385,6 +387,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 	Combine::addBranch(specifiedCatNames_[i].c_str(), &specifiedCatVals_[i], (specifiedCatNames_[i]+"/I").c_str()); 
     }
     Combine::addBranch("deltaNLL", &deltaNLL_, "deltaNLL/F");
+    Combine::addBranch("covQual",  &covQual_,  "covQual/I");
 }
 
 void MultiDimFit::doSingles(RooFitResult &res)
