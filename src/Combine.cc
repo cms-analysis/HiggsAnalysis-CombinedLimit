@@ -639,7 +639,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       //RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       RooArgSet toFreeze;
       if (freezeNuisances_=="all") {
-          toFreeze=*nuisances;
+          toFreeze.add(*nuisances);
       } else {
           std::vector<std::string> nuisToFreeze;
           boost::split(nuisToFreeze, freezeNuisances_, boost::is_any_of(","), boost::token_compress_on);
@@ -688,7 +688,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         if (arg->attributes().count(*ng_it)) groupNuisances.add(*arg);
       }
     } else {
-      groupNuisances = RooArgSet(*(w->set(Form("group_%s",(*ng_it).c_str()))));
+      groupNuisances.add(*(w->set(Form("group_%s",(*ng_it).c_str()))));
     }	RooArgSet toFreeze;
 
 	if (freeze_complement) {
