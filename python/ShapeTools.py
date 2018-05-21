@@ -222,7 +222,18 @@ class ShapeBuilder(ModelBuilder):
                     simPdf.addExtraConstraints(self.out.nuisPdfs)
                 if self.options.verbose:
                     stderr.write("Importing combined pdf %s\n" % simPdf.GetName()); stderr.flush()
-                self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes())
+
+		# take care of any variables which were renamed (eg for "param")
+		renameParamString = [] 
+		paramString       = []
+      		for n in self.DC.systematicsParamMap.keys():
+		  paramString.append(self.DC.systematicsParamMap[n])
+		  renameParamString.append(n)
+		if len(renameParamString): 
+		  renameParamString=",".join(renameParamString)
+		  paramString=",".join(paramString)
+                  self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.RenameVariable(paramString,renameParamString))
+                else: self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes())
                 if self.options.noBOnly: break
         else:
             self.out._import(self.getObj("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
