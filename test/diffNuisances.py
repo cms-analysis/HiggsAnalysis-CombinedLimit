@@ -44,7 +44,9 @@ if options.pullDef!="" and options.pullDef not in CP.allowed_methods(): exit("Me
 
 if options.pullDef and options.absolute_values : 
   print "Pulls are always defined as absolute, will modify --absolute_values to False for you"
-  optins.absolute_values = False 
+  options.absolute_values = False 
+
+if options.pullDef : options.show_all_parameters=True
 
 setUpString = "diffNuisances run on %s, at %s with the following options ... "%(args[0],datetime.datetime.utcnow())+str(options)
 
