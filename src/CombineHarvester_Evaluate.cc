@@ -442,6 +442,8 @@ TH1F CombineHarvester::GetObservedShape() {
     } else if (obs_[i]->data()) {
       TH1F* tmp = dynamic_cast<TH1F*>(obs_[i]->data()->createHistogram(
           "", *(RooRealVar*)obs_[i]->data()->get()->first()));
+      tmp->Sumw2(false);
+      tmp->SetBinErrorOption(TH1::kPoisson);
       proc_shape = *tmp;
       delete tmp;
       proc_shape.Scale(1. / proc_shape.Integral());
