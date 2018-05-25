@@ -259,11 +259,12 @@ def parseCard(file, options):
 
                 continue
 	    elif pdf=="autoMCStats":
-	        if len(f)>5: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats threshold [include-signal = 0] [hist-mode = 0]"
+	        if len(f)>6: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats threshold [include-signal = 0] [hist-mode = 0] [exclude-process = '']"
 	        statThreshold = float(f[2])
 	        statIncludeSig = bool(int(f[3])) if len(f) >= 4 else False
 	        statHistMode = int(f[4]) if len(f) >= 5 else 1
-	        statFlags = (statThreshold, statIncludeSig, statHistMode)
+                statExcludeProcess = f[5] if len(f) >=6 else None
+	        statFlags = (statThreshold, statIncludeSig, statHistMode, statExcludeProcess)
 		if "*" in lsyst: 
 		  for b in ret.bins: 
 		    	if (not fnmatch.fnmatch(b, lsyst)): continue

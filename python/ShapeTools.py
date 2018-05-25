@@ -60,7 +60,7 @@ class ShapeBuilder(ModelBuilder):
             bbb_args = None
             channelBinParFlag = b in self.DC.binParFlags.keys()
             if channelBinParFlag:
-                print 'Channel %s will use autoMCStats with settings: event-threshold=%g, include-signal=%i, hist-mode=%i' % ((b,)+self.DC.binParFlags[b])
+                print 'Channel %s will use autoMCStats with settings: event-threshold=%g, include-signal=%i, hist-mode=%i, exclude-process=%s' % ((b,)+self.DC.binParFlags[b])
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
                 if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
@@ -85,7 +85,7 @@ class ShapeBuilder(ModelBuilder):
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
-                if channelBinParFlag and self.DC.isSignal[p] and not self.DC.binParFlags[b][1]:
+                if channelBinParFlag and (self.DC.isSignal[p] or p==self.DC.binParFlags[b][3]) and not self.DC.binParFlags[b][1]:
                     pdf.setAttribute('skipForErrorSum')
                 coeff.setStringAttribute("combine.process", p)
                 coeff.setStringAttribute("combine.channel", b)
