@@ -63,12 +63,12 @@ for ich,fname in enumerate(args):
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
             if DC.isSignal[p] == False: continue
             #print "in DC.exp.items:b,p", b,p
-            expline.append("%s" % FloatToString(e)) if (e == 0 or e > 1e-3) else expline.append("%s" % FloatToStringScientific(e,'e'))
+            expline.append("%s" % FloatToString(e)) if (e == 0 or e > 1e-3) else expline.append("%s" % FloatToStringScientific(e))
             keyline.append((bout, p, DC.isSignal[p]))
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
             if DC.isSignal[p]: continue
             #print "in DC.exp.items:b,p", b,p
-            expline.append("%s" % FloatToString(e)) if (e == 0 or e > 1e-3) else expline.append("%s" % FloatToStringScientific(e,'e'))
+            expline.append("%s" % FloatToString(e)) if (e == 0 or e > 1e-3) else expline.append("%s" % FloatToStringScientific(e))
             keyline.append((bout, p, DC.isSignal[p]))
     # systematics
     for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
