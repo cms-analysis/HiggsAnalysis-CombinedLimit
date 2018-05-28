@@ -51,6 +51,7 @@ class ShapeBuilder(ModelBuilder):
         if self.options.verbose:
             stderr.write("Creating pdfs for individual modes (%d): " % len(self.DC.bins));
             stderr.flush()
+        bbb_names = []
         for i,b in enumerate(self.DC.bins):
             #print "  + Getting model for bin %s" % (b)
             pdfs   = ROOT.RooArgList(); bgpdfs   = ROOT.RooArgList()
@@ -104,6 +105,7 @@ class ShapeBuilder(ModelBuilder):
                     for bidx in range(bbb_args.getSize()):
                         arg = bbb_args.at(bidx)
                         n = arg.GetName()
+                        bbb_names.append(n)
                         parname = n
                         self.out._import(arg)
                         if arg.getAttribute("createGaussianConstraint"):
@@ -197,7 +199,11 @@ class ShapeBuilder(ModelBuilder):
                     wrapper.setStringAttribute("combine.process", pdfs.at(idx).getStringAttribute("combine.process"))
                     wrapper.setStringAttribute("combine.channel", pdfs.at(idx).getStringAttribute("combine.channel"))
                     self.extraImports.append(wrapper)
-
+        if len(bbb_names) > 0 :
+            bbb_nuisanceargset = ROOT.RooArgSet()
+            for nuisanceName in bbb_names:
+               bbb_nuisanceargset.add(self.out.var(nuisanceName))
+            self.out.defineSet("group_autoMCStats",bbb_nuisanceargset)
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
     def doCombination(self):
