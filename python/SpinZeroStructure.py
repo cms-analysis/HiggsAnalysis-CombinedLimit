@@ -300,7 +300,7 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         if not any(po.startswith("map=") for po in physOptions):
             #no po started with map --> no manual overriding --> use the defaults
             #can still override with e.g. turnoff=ZH,WH
-            physOptions = ["map=.*/(gg|qq|Z|W|tt)H:1"] + physOptions
+            physOptions = ["map=.*/(gg|qq|Z|W|tt)H$:1"] + physOptions
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
 
     def processPhysicsOptions(self, physOptions):
@@ -379,6 +379,117 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
                 print "Floating {} and assigning attribute flatParam".format(variable)
                 self.modelBuilder.out.var(variable).setConstant(False)
                 self.modelBuilder.out.var(variable).setAttribute("flatParam")
+
+        return result
+
+class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
+    """
+    General idea:
+    This class expects histograms (which could be TH1 or RooDataHist) for each component of the PDF.
+    They are supposed to be normalized to ai = 1.
+    The pure components should be named ggH_0PM, qqH_0L1Zg, etc.
+
+    The interference components should be split in two, one for positive bins and one for negative bins flipped.
+    This way all bins are positive.
+    They should be named ZH_g13g1prime21_positive or ttH_g11g41_negative, for example.
+    And they should also be normalized to ai = 1, for all ais involved in that term.
+    """
+
+    aidecay = {
+      "g2": 1.65684,
+      "g4": 2.55052,
+      "g1prime2": -12100.42,
+      "ghzgs1prime2": -7613.351302119843,
+    }
+
+    def __init__(self):
+        self.anomalouscouplings = []
+
+    def processPhysicsOptions(self,physOptions):
+        processed = super(AnomalousCouplingsFromHistograms, self).processPhysicsOptions(physOptions)
+
+        for po in physOptions:
+            if po in ("fa3", "fa2", "fL1", "fL1Zg"):
+                if po in self.anomalouscouplings: raise ValueError("Provided physOption "+po+" twice")
+                self.anomalouscouplings.append(po)
+                processed.append(po)
+
+        self.anomalouscouplings.sort(key="fa3 fa2 fL1 fL1Zg".index)
+        if not self.anomalouscouplings: raise ValueError("Have to provide an anomalous coupling as a physOption (fa3, fa2, fL1, fL1Zg)")
+        if len(self.anomalouscouplings)>1 or self.fai2Floating: raise ValueError("Can't do multiple anomalous couplings (yet)")
+        return processed
+
+    def getPOIList(self):
+        pois = super(HZZAnomalousCouplingsFromHistograms, self).getPOIList()
+
+        if not self.modelBuilder.out.var("a1"):
+            self.modelBuilder.doVar('expr::a1("sqrt(1-abs(@0))", CMS_zz4l_fai1)')
+
+        couplings = ["g1"]
+        for fai, ai in ("fa3", "g4"), ("fa2", "g2"), ("fL1", "g1prime2"), ("fL1Zg", "ghzgs1prime2"):
+            if fai not in self.anomalouscouplings: continue
+
+            kwargs = {
+              "ai": ai,
+              "aidecay": self.aidecay[ai],
+            }
+            self.modelBuilder.doVar('expr::{ai}("(@0>0 ? 1 : -1) * sqrt(abs(@0))*{aidecay}", CMS_zz4l_fai1)'.format(**kwargs))
+            gs.append(ai)
+
+        if self.scaledifferentsqrtsseparately: raise ValueError("HZZAnomalousCouplingsFromHistograms is not compatible with scaledifferentsqrtsseparately")
+
+        for g in couplings:
+            self.modelBuilder.doVar('expr::ffH_{g}2("@0*@1*@2*@2", R, RF, {g})'.format(g=g))
+            self.modelBuilder.doVar('expr::VVH_{g}4("@0*@1*@2*@2*@2*@2", R, RV, {g})'.format(g=g))
+
+        kwargs = {}
+        for kwargs["signname"], kwargs["sign"] in ("positive", "+"), ("negative", "-"):
+            for kwargs["g1"], kwargs["g2"] in combinations(couplings, 2):
+                self.modelBuilder.doVar('expr::ffH_{g1}1{g2}2_{signname}("{sign}@0*@1*@2*@3", R, RF, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}3_{signname}("{sign}@0*@1*@2*@3*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}2_{signname}("{sign}@0*@1*@2*@2*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}3{g2}1_{signname}("{sign}@0*@1*@2*@2*@2*@3", R, RV, {g1}, {g2})'.format(**kwargs))
+
+            for kwargs["g1"], kwargs["g2"], kwargs["g3"] in combinations(couplings, 3):
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}2_{signname}("{sign}@0*@1*@2*@3*@4*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}2{g3}1_{signname}("{sign}@0*@1*@2*@3*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}1{g3}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+
+            for kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"] in combinations(couplings, 4):
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@0*@1*@2*@3*@4*@5", R, RV, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
+
+    def powerdict(self, process):
+        if not match: return None
+
+    def getYieldScale(self,bin,process):
+        match = re.match("(gg|tt|qq|Z|W)H_(0(?:PM|M|PH|L1|L1Zg)|((?:g(?:1|2|4|1prime2|hzgs1prime2)[1234])*)_(positive|negative))", process)
+        if not match:
+            return super(AnomalousCouplingsFromHistograms, self).getYieldScale(bin, process)
+
+        if match.group(1) in ("gg", "tt"): maxpower = 2; production = "ffH"
+        elif match.group(1) in ("qq", "Z", "W"): maxpower = 4; production = "VVH"
+
+        if match.group(2) == "0PM": powerdict = {"g1": maxpower}
+        if match.group(2) == "0PH": powerdict = {"g2": maxpower}
+        if match.group(2) == "0M": powerdict = {"g4": maxpower}
+        if match.group(2) == "0L1": powerdict = {"g1prime2": maxpower}
+        if match.group(2) == "0L1Zg": powerdict = {"ghzgs1prime2": maxpower}
+
+        powerdict = {coupling: int(power) for coupling, power in re.findall("(g(?:1|2|4|1prime2|hzgs1prime2))([1234])", match.group(3))}
+
+        if sum(powerdict.values()) != maxpower:
+            raise ValueError("power dict doesn't add up properly!  Sum should be {}\n{}\n{}".format(maxpower, process, powerdict))
+
+        powerdict = OrderedDict(
+            sorted(powerdict.iteritems(), key = lambda x: "g1 g2 g4 g1prime2 ghzgs1prime2".index(x[0]))
+        )
+
+        sign = match.group(4)
+
+        result = production + "_" + "".join("{}{}".format(k, v) for k, v in powerdict.iteritems())
+        if sign is not None: result += "_" + sign
+
+        print "Process {0} will scale by {1}".format(process,result)
 
         return result
 
