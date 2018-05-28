@@ -199,6 +199,7 @@ class ShapeBuilder(ModelBuilder):
                     wrapper.setStringAttribute("combine.process", pdfs.at(idx).getStringAttribute("combine.process"))
                     wrapper.setStringAttribute("combine.channel", pdfs.at(idx).getStringAttribute("combine.channel"))
                     self.extraImports.append(wrapper)
+
         if len(bbb_names) > 0 :
             bbb_nuisanceargset = ROOT.RooArgSet()
             for nuisanceName in bbb_names:
