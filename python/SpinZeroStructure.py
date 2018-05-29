@@ -495,3 +495,4 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
 spinZeroHiggs = SpinZeroHiggs()
 multiSignalSpinZeroHiggs = MultiSignalSpinZeroHiggs()
+hzzAnomalousCouplingsFromHistograms = HZZAnomalousCouplingsFromHistograms()
