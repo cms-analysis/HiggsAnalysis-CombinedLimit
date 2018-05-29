@@ -17,6 +17,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -213,6 +214,13 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.); // Combine will not commit a point anymore at -1 so can do it here 
 	//}
     }
+
+    RobustHesse robustHesse(*nll);
+    robustHesse.SaveHessianToFile("hessian_full2.root");
+    robustHesse.LoadHessianFromFile("hessian_full.root");
+    // might do some configuration here...
+    robustHesse.hesse();
+
    
     //set snapshot for best fit
     if (savingSnapshot_) w->saveSnapshot("MultiDimFit",utils::returnAllVars(w));
