@@ -340,10 +340,9 @@ def parseCard(file, options):
 
 def FloatToString(inputValue):
     return ('%.10f' % inputValue).rstrip('0').rstrip('.')
-def FloatToStringScientific(inputValue,etype='e'):
+def FloatToStringScientific(inputValue,etype='g'):
     s = FloatToString(inputValue)
     q = s.replace(".","").lstrip('0')
-    f = float(s)
-    nq = len(q)-1
+    nq = max(len(q)-1, 4)
     strcmd = ("%%%c%i%c" % ('.',nq,etype))
-    return (strcmd % f)
+    return (strcmd % inputValue)
