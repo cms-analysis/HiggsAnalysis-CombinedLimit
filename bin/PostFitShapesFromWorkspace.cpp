@@ -12,6 +12,20 @@ namespace po = boost::program_options;
 
 using namespace std;
 
+void ReverseBins(TH1F & h) {
+  std::vector<float> contents(h.GetNbinsX());
+  std::vector<float> errors(h.GetNbinsX());
+  for (int i = 0; i < h.GetNbinsX(); ++i) {
+    contents[i] = h.GetBinContent(i + 1);
+    errors[i] = h.GetBinError(i + 1);
+  }
+  for (int i = 0; i < h.GetNbinsX(); ++i) {
+    h.SetBinContent(h.GetNbinsX() - i, contents[i]);
+    h.SetBinError(h.GetNbinsX() - i, errors[i]);
+  }
+  // return h;
+}
+
 int main(int argc, char* argv[]) {
   // Need this to read combine workspaces
   gSystem->Load("libHiggsAnalysisCombinedLimit");
@@ -31,6 +45,7 @@ int main(int argc, char* argv[]) {
   bool skip_prefit  = false;
   bool skip_proc_errs = false;
   bool total_shapes = false;
+  std::vector<std::string> reverse_bins_;
 
   po::options_description help_config("Help");
   help_config.add_options()
@@ -83,8 +98,8 @@ int main(int argc, char* argv[]) {
       "Skip evaluation of errors on individual processes")
     ("total-shapes",
       po::value<bool>(&total_shapes)->default_value(total_shapes)->implicit_value(true),
-      "Save signal- and background shapes added for all channels/categories");
-
+      "Save signal- and background shapes added for all channels/categories")
+    ("reverse-bins", po::value<vector<string>>(&reverse_bins_)->multitoken(), "List of bins to reverse the order for");
 
   if (sampling && !postfit) {
     throw logic_error(
@@ -240,6 +255,7 @@ int main(int argc, char* argv[]) {
       pre_shapes[bin]["TotalProcs"] =
           cmb_bin.cp().GetShapeWithUncertainty();
 
+
       if (datacard != "") {
         TH1F ref = cmb_card.cp().bin({bin}).GetObservedShape();
         for (auto & it : pre_shapes[bin]) {
@@ -247,6 +263,13 @@ int main(int argc, char* argv[]) {
         }
       }
 
+      for (auto const& rbin : reverse_bins_) {
+        if (rbin != bin) continue;
+        auto & hists = pre_shapes[bin];
+        for (auto it = hists.begin(); it != hists.end(); ++it) {
+          ReverseBins(it->second);
+        }
+      }
       // Can write these straight into the output file
       outfile.cd();
       for (auto& iter : pre_shapes[bin]) {
@@ -363,6 +386,16 @@ int main(int argc, char* argv[]) {
 
       outfile.cd();
       // Write the post-fit histograms
+
+      for (auto const& rbin : reverse_bins_) {
+        if (rbin != bin) continue;
+        std::cout << ">> reversing hists in bin " << bin << "\n";
+        auto & hists = post_shapes[bin];
+        for (auto it = hists.begin(); it != hists.end(); ++it) {
+          ReverseBins(it->second);
+        }
+      }
+
       for (auto & iter : post_shapes[bin]) {
         ch::WriteToTFile(&(iter.second), &outfile,
                          bin + "_postfit/" + iter.first);
