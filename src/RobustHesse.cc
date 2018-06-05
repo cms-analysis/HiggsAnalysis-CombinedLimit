@@ -372,55 +372,55 @@ int RobustHesse::hesse() {
     gDirectory->WriteObject(&hessian, "hessian");
   }
 
-  std::vector<std::string> remove_vars = {"CMS_fake_ele_wh3l", "QCDscale_tt", "CMS_fake_mu_stat_wh3l", "CMS_scale_j_RelativeJERHF_13TeV", "CMS_scale_j_RelativeJEREC2_13TeV", "CMS_ttHl_fakes", "CMS_ttH_ddQCD", "CMS_vhbb_bTagWeightJES_pt3_eta3"};
+  // std::vector<std::string> remove_vars = {"CMS_fake_ele_wh3l", "QCDscale_tt", "CMS_fake_mu_stat_wh3l", "CMS_scale_j_RelativeJERHF_13TeV", "CMS_scale_j_RelativeJEREC2_13TeV", "CMS_ttHl_fakes", "CMS_ttH_ddQCD", "CMS_vhbb_bTagWeightJES_pt3_eta3"};
 
-  std::vector<RooRealVar *> v_new2;
-  std::vector<double> nominal_new2;
-  std::vector<std::vector<double>> stencils_new2;
-  // std::vector<std::vector<double>> d1coeffs_new2;
-  // std::vector<std::vector<double>> d2coeffs_new2;
-  std::vector<double> rescales_new2;
+  // std::vector<RooRealVar *> v_new2;
+  // std::vector<double> nominal_new2;
+  // std::vector<std::vector<double>> stencils_new2;
+  // // std::vector<std::vector<double>> d1coeffs_new2;
+  // // std::vector<std::vector<double>> d2coeffs_new2;
+  // std::vector<double> rescales_new2;
 
-  TMatrixDSym hessian2(v_.size() - remove_vars.size());
+  // TMatrixDSym hessian2(v_.size() - remove_vars.size());
 
-  unsigned inew = 0;
-  unsigned jnew = 0;
-  std::vector<bool> ikeep(v_.size());
+  // unsigned inew = 0;
+  // unsigned jnew = 0;
+  // std::vector<bool> ikeep(v_.size());
 
-  for (unsigned i = 0; i < v_.size(); ++i) {
-    ikeep[i] = (std::find(remove_vars.begin(), remove_vars.end(), v_[i]->GetName()) == remove_vars.end());
-  }
+  // for (unsigned i = 0; i < v_.size(); ++i) {
+  //   ikeep[i] = (std::find(remove_vars.begin(), remove_vars.end(), v_[i]->GetName()) == remove_vars.end());
+  // }
 
-  for (unsigned i = 0; i < v_.size(); ++i) {
-    if (ikeep[i]) {
-      v_new2.push_back(v_[i]);
-      nominal_new2.push_back(nominal_[i]);
-      stencils_new2.push_back(stencils_[i]);
-      rescales_new2.push_back(rescales_[i]);
-    }
-    jnew = inew;
-    if (ikeep[i]) {
-      for (unsigned j = i; j < v_.size(); ++j) {
-        if (ikeep[j]) {
-          hessian2[inew][jnew] = hessian[i][j];
-          hessian2[jnew][inew] = hessian[j][i];
-          ++jnew;
-        }
-      }
-      ++inew;
-    }
-  }
+  // for (unsigned i = 0; i < v_.size(); ++i) {
+  //   if (ikeep[i]) {
+  //     v_new2.push_back(v_[i]);
+  //     nominal_new2.push_back(nominal_[i]);
+  //     stencils_new2.push_back(stencils_[i]);
+  //     rescales_new2.push_back(rescales_[i]);
+  //   }
+  //   jnew = inew;
+  //   if (ikeep[i]) {
+  //     for (unsigned j = i; j < v_.size(); ++j) {
+  //       if (ikeep[j]) {
+  //         hessian2[inew][jnew] = hessian[i][j];
+  //         hessian2[jnew][inew] = hessian[j][i];
+  //         ++jnew;
+  //       }
+  //     }
+  //     ++inew;
+  //   }
+  // }
 
-  v_ = v_new2;
-  nominal_ = nominal_new2;
-  stencils_ = stencils_new2;
-  rescales_ = rescales_new2;
-  hessian.ResizeTo(hessian2);
-  hessian = hessian2;
+  // v_ = v_new2;
+  // nominal_ = nominal_new2;
+  // stencils_ = stencils_new2;
+  // rescales_ = rescales_new2;
+  // hessian.ResizeTo(hessian2);
+  // hessian = hessian2;
 
   // hessian.Print();
 
-  bool print_only_negative = true;
+  bool print_only_negative = false;
   unsigned max = 10;
   for (unsigned ai = 0; ai < max; ++ai) {
     bool have_negative_eigenvalues = false;

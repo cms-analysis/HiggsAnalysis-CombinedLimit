@@ -215,8 +215,8 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     }
 
     RobustHesse robustHesse(*nll);
-    robustHesse.SaveHessianToFile("hessian_full2.root");
-    robustHesse.LoadHessianFromFile("hessian_full.root");
+    robustHesse.SaveHessianToFile("hessian_full.root");
+    // robustHesse.LoadHessianFromFile("hessian_full.root");
     // might do some configuration here...
     robustHesse.hesse();
 
