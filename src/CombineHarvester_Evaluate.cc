@@ -651,6 +651,84 @@ void CombineHarvester::VariableRebin(std::vector<double> bins) {
   }
 }
 
+void CombineHarvester::ZeroBins(double min, double max) {
+  // We need to keep a record of the Process rates before we set bins to 0. The
+  // This is necessary because we need to make sure the process normalisation
+  // and shape systematic entries are correctly adjusted
+  std::vector<double> prev_proc_rates(procs_.size());
+
+  // Also hold on the scaled Process hists *after* some of the bins have
+  // been set to 0 - these
+  // are needed to update the associated Systematic entries
+  std::vector<std::unique_ptr<TH1>> scaled_procs(procs_.size());
+
+  for (unsigned i = 0; i < procs_.size(); ++i) {
+    if (procs_[i]->shape()) {
+      // Get the scaled shape here
+      std::unique_ptr<TH1> copy(procs_[i]->ClonedScaledShape());
+      // shape norm should only be "no_norm_rate"
+      prev_proc_rates[i] = procs_[i]->no_norm_rate();
+      for (int j = 1; j <= copy->GetNbinsX();j ++){
+        if(copy->GetBinLowEdge(j) >= min && copy->GetBinLowEdge(j+1) <= max){
+          copy->SetBinContent(j,0.);
+          copy->SetBinError(j,0.);
+        }
+      }
+      // The process shape & rate will be reset here
+      procs_[i]->set_shape(std::move(copy), true);
+      scaled_procs[i] = procs_[i]->ClonedScaledShape();
+    }
+  }
+  for (unsigned i = 0; i < obs_.size(); ++i) {
+    if (obs_[i]->shape()) {
+      std::unique_ptr<TH1> copy(obs_[i]->ClonedScaledShape());
+       for (int j = 1; j <= copy->GetNbinsX();j ++){
+        if(copy->GetBinLowEdge(j) >= min && copy->GetBinLowEdge(j+1) <= max){
+          copy->SetBinContent(j,0.);
+          copy->SetBinError(j,0.);
+        }
+      }
+      obs_[i]->set_shape(std::move(copy), true);
+    }
+  }
+  for (unsigned i = 0; i < systs_.size(); ++i) {
+    TH1 const* proc_hist = nullptr;
+    double prev_rate = 0.;
+    for (unsigned j = 0; j < procs_.size(); ++j) {
+      if (MatchingProcess(*(procs_[j]), *(systs_[i].get()))) {
+        proc_hist = scaled_procs[j].get();
+        prev_rate = prev_proc_rates[j];
+      }
+    }
+    if (systs_[i]->shape_u() && systs_[i]->shape_d()) {
+      // These hists will be normalised to unity
+      std::unique_ptr<TH1> copy_u(systs_[i]->ClonedShapeU());
+      std::unique_ptr<TH1> copy_d(systs_[i]->ClonedShapeD());
+
+      // If we found a matching Process we will scale this back up to their
+      // initial rates
+      if (proc_hist) {
+        copy_u->Scale(systs_[i]->value_u() * prev_rate);
+        copy_d->Scale(systs_[i]->value_d() * prev_rate);
+      }
+       for (int j = 1; j <= copy_u->GetNbinsX();j ++){
+        if(copy_u->GetBinLowEdge(j) >= min && copy_u->GetBinLowEdge(j+1) <= max){
+          copy_u->SetBinContent(j,0.);
+          copy_u->SetBinError(j,0.);
+        }
+        if(copy_d->GetBinLowEdge(j) >= min && copy_d->GetBinLowEdge(j+1) <= max){
+          copy_d->SetBinContent(j,0.);
+          copy_d->SetBinError(j,0.);
+        }
+      }
+      // If we have proc_hist != nullptr, set_shapes will re-calculate value_u
+      // and value_d for us, before scaling the new hists back to unity
+      systs_[i]->set_shapes(std::move(copy_u), std::move(copy_d), proc_hist);
+    }
+  }
+}
+
+
 void CombineHarvester::SetPdfBins(unsigned nbins) {
   for (unsigned i = 0; i < procs_.size(); ++i) {
     std::set<std::string> binning_vars;
