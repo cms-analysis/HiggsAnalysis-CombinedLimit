@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractmethod
 import re
 
 ### Class that takes care of building a physics model by combining individual channels and processes together
@@ -6,7 +7,9 @@ import re
 ###   - define other constant model parameters (e.g., "MH")
 ###   - yields a scaling factor for each pair of bin and process (by default, constant for background and linear in "r" for signal)
 ###   - possibly modifies the systematical uncertainties (does nothing by default)
-class PhysicsModel:
+
+class PhysicsModelBase(object):
+    __metaclass__ = ABCMeta
     def __init__(self):
         pass
     def setModelBuilder(self, modelBuilder):
@@ -16,19 +19,9 @@ class PhysicsModel:
         self.options = modelBuilder.options
     def setPhysicsOptions(self,physOptions):
         "Receive a list of strings with the physics options from command line"
-        pass
+    @abstractmethod
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
-        # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("r[1,0,20]");
-        self.modelBuilder.doSet("POI","r")
-        # --- Higgs Mass as other parameter ----
-        if self.options.mass != 0:
-            if self.modelBuilder.out.var("MH"):
-              self.modelBuilder.out.var("MH").removeRange()
-              self.modelBuilder.out.var("MH").setVal(self.options.mass)
-            else:
-              self.modelBuilder.doVar("MH[%g]" % self.options.mass); 
     def preProcessNuisances(self,nuisances):
         "receive the usual list of (name,nofloat,pdf,args,errline) to be edited"
         pass # do nothing by default
@@ -47,41 +40,111 @@ class PhysicsModel:
         "Called after creating the model, except for the ModelConfigs"
         pass
 
-class MultiSignalModel(PhysicsModel):
+class PhysicsModelBase_NiceSubclasses(PhysicsModelBase):
+  """Subclass this so that subclasses work nicer"""
+  def doParametersOfInterest(self):
+    """
+    do not override this if you want subclasses to work nicely.
+    put everything that would have gone here into getPOIList instead.
+    """
+    self.modelBuilder.doSet("POI", ",".join(self.getPOIList()))
+
+  @abstractmethod
+  def getPOIList(self):
+    """
+    Create POI and other parameters, and return a list of POI variable names.
+    Make sure to include:
+      pois += super([classname], self).getPOIList()
+    !!!!
+    """
+    return []
+
+  def setPhysicsOptions(self,physOptions):
+    """
+    Better error checking: instead of overriding this one, override processPhysicsOptions.
+    It should remove each physicsOption from the list after processing it.
+    """
+    processed = self.processPhysicsOptions(physOptions)
+    processed = set(processed) #remove duplicates
+    for _ in processed:
+        physOptions.remove(_)
+    if physOptions:
+        raise ValueError("Unknown physicsOptions:\n{}".format(physOptions))
+
+  @abstractmethod
+  def processPhysicsOptions(self, physOptions):
+    """
+    Process physics options.  Make sure to return a list of physicsOptions processed,
+    and to include:
+      processed += super([classname], self).processPhysicsOptions(physOptions)
+    !!!!
+    """
+    return []
+
+class PhysicsModel(PhysicsModelBase):
+    """Example class with signal strength as only POI"""
+    def doParametersOfInterest(self):
+        """Create POI and other parameters, and define the POI set."""
+        self.modelBuilder.doVar("r[1,0,20]");
+        self.modelBuilder.doSet("POI","r")
+        # --- Higgs Mass as other parameter ----
+        if self.options.mass != 0:
+            if self.modelBuilder.out.var("MH"):
+              self.modelBuilder.out.var("MH").removeRange()
+              self.modelBuilder.out.var("MH").setVal(self.options.mass)
+            else:
+              self.modelBuilder.doVar("MH[%g]" % self.options.mass);
+
+class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
-        self.mHRange = []
         self.poiMap  = []
         self.pois    = {}
         self.verbose = False
         self.factories = []
+        super(MultiSignalModelBase, self).__init__()
+
     def setPhysicsOptions(self,physOptions):
+        for po in physOptions[:]:
+            if po.startswith("turnoff="):   #shorthand:  turnoff=process1,process2,process3 --> map=.*/(process1|process2|process3):0
+                physOptions.remove(po)
+                turnoff = po.replace("turnoff=", "").split(",")
+                physOptions.append("map=.*/({}):0".format("|".join(turnoff)))
+        super(MultiSignalModelBase, self).setPhysicsOptions(physOptions)
+
+    def processPhysicsOptions(self,physOptions):
+        processed = []
+        physOptions.sort(key=lambda x: x.startswith("verbose"), reverse=True) #put verbose at the beginning
         for po in physOptions:
-            if po.startswith("higgsMassRange="):
-                self.mHRange = po.replace("higgsMassRange=","").split(",")
-                if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
-            if po.startswith("verbose"):
+            if po == "verbose":
                 self.verbose = True
+                processed.append(po)
             if po.startswith("map="):
                 (maplist,poi) = po.replace("map=","").split(":",1)
                 maps = maplist.split(",")
                 poiname = re.sub("\[.*","", poi)
-                if "=" in poi:
+                if poi == "super":
+                    pass
+                elif "=" in poi:
                     poiname,expr = poi.split("=")
                     poi = expr.replace(";",":")
                     if self.verbose: print "Will create expression ",poiname," with factory ",poi
                     self.factories.append(poi)
-                elif poiname not in self.pois and poi not in [ "1", "0"]:
+                elif poiname not in self.pois and poi not in [ "1", "0"]: 
                     if self.verbose: print "Will create a POI ",poiname," with factory ",poi
                     self.pois[poiname] = poi
-                if self.verbose:  print "Mapping ",poiname," to ",maps," patterns"
+                if self.verbose:
+                    if poi == "super":
+                        print "Using super method to get scaling for ", maps, " patterns"
+                    else:
+                        print "Mapping ",poiname," to ",maps," patterns"
                 self.poiMap.append((poiname, maps))
-    def doParametersOfInterest(self):
+                processed.append(po)
+        return processed + super(MultiSignalModelBase, self).processPhysicsOptions(physOptions)
+    def getPOIList(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Higgs Mass as other parameter ----
         poiNames = []
+        poiNames += super(MultiSignalModelBase, self).getPOIList()
         # first do all non-factory statements, so all params are defined
         for pn,pf in self.pois.items():
             poiNames.append(pn)
@@ -89,6 +152,67 @@ class MultiSignalModel(PhysicsModel):
         # then do all factory statements (so vars are already defined)
         for pf in self.factories:
             self.modelBuilder.factory_(pf)
+        return poiNames
+
+    def getYieldScale(self,bin,process):
+        string = "%s/%s" % (bin,process)
+        poi = None
+        for p, list in self.poiMap:
+            for l in list:
+                if re.match(l, string): poi = p
+        if poi == "super":
+            poi = super(MultiSignalModelBase, self).getYieldScale(bin,process)
+        if poi is None:
+            poi = "1"
+        print "Will scale ", string, " by ", poi
+        if poi in ["1","0"]: return int(poi)
+        return poi
+
+class CanTurnOffBkgModel(PhysicsModelBase_NiceSubclasses):
+    """
+    Generally this should be the FIRST superclass given in any subclass
+    If not it might work anyway if the other class's getYieldScale calls super properly
+       but no guarantees
+
+    If --PO nobkg is given, bkg yields will be set to 0
+    """
+    def __init__(self, *args, **kwargs):
+        self.usebkg = True
+        super(CanTurnOffBkgModel, self).__init__(*args, **kwargs)
+    def processPhysicsOptions(self,physOptions):
+        processed = super(CanTurnOffBkgModel, self).processPhysicsOptions(physOptions)
+        for po in physOptions:
+            if po.lower() == "nobkg":
+                self.usebkg = False
+                print "turning off all background"
+                processed.append(po)
+        return processed
+    def getYieldScale(self,bin,process):
+        result = super(CanTurnOffBkgModel, self).getYieldScale(bin, process)
+        if not self.usebkg and not self.DC.isSignal[process]:
+            print "turning off {}".format(process)
+            return 0
+        return result
+
+class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
+    def __init__(self):
+        self.mHRange = []
+        super(HiggsMassRangeModel, self).__init__()
+
+    def processPhysicsOptions(self,physOptions):
+        processed = super(HiggsMassRangeModel, self).processPhysicsOptions(physOptions)
+        for po in physOptions:
+            if po.startswith("higgsMassRange="):
+                self.mHRange = po.replace("higgsMassRange=","").split(",")
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                processed.append(po)
+        return processed
+    def getPOIList(self):
+        poiNames = []
+        poiNames += super(HiggsMassRangeModel, self).getPOIList()
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
                 print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
@@ -107,33 +231,28 @@ class MultiSignalModel(PhysicsModel):
             else:
                 print 'MH (not there before) will be assumed to be', self.options.mass
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
-        self.modelBuilder.doSet("POI",",".join(poiNames))
-    def getYieldScale(self,bin,process):
-        string = "%s/%s" % (bin,process)
-        poi = 1
-        for p, list in self.poiMap:
-            for l in list:
-                if re.match(l, string): poi = p
-        print "Will scale ", string, " by ", poi
-        if poi in ["1","0"]: return int(poi)
-        return poi;
+        return poiNames
 
+class MultiSignalModel(MultiSignalModelBase, HiggsMassRangeModel):
+    pass
 
 ### This base class implements signal yields by production and decay mode
 ### Specific models can be obtained redefining getHiggsSignalYieldScale
 SM_HIGG_DECAYS   = [ "hww", "hzz", "hgg", "htt", "hbb", 'hzg', 'hmm', 'hcc', 'hgluglu' ]
+SM_HIGG_PROD     = [ "ggH", "qqH", "VH", "WH", "ZH", "ttH", "tHq", "tHW", "ggZH", "bbH" ,"WPlusH","WMinusH"]
 BSM_HIGGS_DECAYS = [ "hinv" ]
 ALL_HIGGS_DECAYS = SM_HIGG_DECAYS + BSM_HIGGS_DECAYS
+ALL_HIGGS_PROD   = SM_HIGG_PROD
 def getHiggsProdDecMode(bin,process,options):
     """Return a triple of (production, decay, energy)"""
     processSource = process
     decaySource   = options.fileName+":"+bin # by default, decay comes from the datacard name or bin label
     if "_" in process: 
-        (processSource, decaySource) = process.split("_")
+        (processSource, decaySource) = process.split("_")[0],process.split("_")[-1] # ignore anything in the middle for SM-like higgs
         if decaySource not in ALL_HIGGS_DECAYS:
             print "ERROR", "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
             #raise RuntimeError, "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
-    if processSource not in ["ggH", "qqH", "VH", "WH", "ZH", "ttH"]:
+    if processSource not in ALL_HIGGS_PROD :
         raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
     #
     foundDecay = None
@@ -159,10 +278,10 @@ def getHiggsProdDecMode(bin,process,options):
     #
     return (processSource, foundDecay, foundEnergy)
 
-
 class SMLikeHiggsModel(PhysicsModel):
+    @abstractmethod
     def getHiggsSignalYieldScale(self, production, decay, energy):
-            raise RuntimeError, "Not implemented"
+        pass
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
         if not self.DC.isSignal[process]: return 1
@@ -217,7 +336,7 @@ class FloatingXSHiggs(SMLikeHiggsModel):
     "Float independently ggH and qqH cross sections"
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
-        self.modes = [ "ggH", "qqH", "VH", "WH", "ZH", "ttH" ]
+        self.modes = SM_HIGG_PROD
         self.mHRange  = []
         self.ggHRange = ['0', '4']
         self.qqHRange = ['0','10']
@@ -311,10 +430,10 @@ class FloatingXSHiggs(SMLikeHiggsModel):
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         self.modelBuilder.doSet("POI",poi)
     def getHiggsSignalYieldScale(self,production,decay, energy):
-        if production == "ggH": return ("r_ggH" if "ggH" in self.modes else 1)
+        if production in ["ggH","bbH"]: return ("r_ggH" if "ggH" in self.modes else 1)
         if production == "qqH": return ("r_qqH" if "qqH" in self.modes else 1)
-        if production == "ttH": return ("r_ttH" if "ttH" in self.modes else ("r_ggH" if self.ttHasggH else 1))
-        if production in [ "WH", "ZH", "VH" ]: return ("r_VH" if "VH" in self.modes else 1)
+        if production in ["ttH","tHq","tHW"]: return ("r_ttH" if "ttH" in self.modes else ("r_ggH" if self.ttHasggH else 1))
+        if production in [ "WPlusH", "WMinusH", "WH", "ZH", "VH", "ggZH" ]: return ("r_VH" if "VH" in self.modes else 1)
         raise RuntimeError, "Unknown production mode '%s'" % production
 
 class RvRfXSHiggs(SMLikeHiggsModel):
@@ -354,9 +473,9 @@ class RvRfXSHiggs(SMLikeHiggsModel):
             self.modelBuilder.doSet("POI",'RV,RF')
 
     def getHiggsSignalYieldScale(self,production,decay, energy):
-        if production in ['ggH', 'ttH']:
+        if production in ['ggH', 'ttH', 'bbH', 'tHq', 'tHW']:
             return 'RF'
-        if production in ['qqH', 'WH', 'ZH', 'VH']:
+        if production in ['qqH', 'WH', 'ZH', 'VH', 'ggZH','WPlusH','WMinusH']:
             return 'RV'
         raise RuntimeError, "Unknown production mode '%s'" % production
 
@@ -456,9 +575,9 @@ class RvfBRHiggs(SMLikeHiggsModel):
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
             self.modelBuilder.doSet("POI",poi)
     def getHiggsSignalYieldScale(self,production,decay, energy):
-        if production in ['ggH', 'ttH']:
+        if production in ['ggH', 'ttH', "bbH", "tHq", "tHW"]:
             return 'r_'+decay
-        if production in ['qqH', 'WH', 'ZH', 'VH']:
+        if production in ['qqH', 'WH','WPlusH','WMinusH', 'ZH', 'VH', "ggZH"]:
             return 'rv_'+decay
         raise RuntimeError, "Unknown production mode '%s'" % production
 
@@ -505,12 +624,11 @@ class ThetaVFBRHiggs(SMLikeHiggsModel):
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
             self.modelBuilder.doSet("POI",poi)
     def getHiggsSignalYieldScale(self,production,decay, energy):
-        if production in ['ggH', 'ttH']:
+        if production in ['ggH', 'ttH', 'bbH', 'tHq', 'tHW']:
             return 'rf_'+decay
-        if production in ['qqH', 'WH', 'ZH', 'VH']:
+        if production in ['qqH', 'WH','WPlusH','WMinusH', 'ZH', 'VH', 'ggZH']:
             return 'rv_'+decay
         raise RuntimeError, "Unknown production mode '%s'" % production
-
 
 
 class FloatingXSBRHiggs(SMLikeHiggsModel):
@@ -549,7 +667,7 @@ class FloatingXSBRHiggs(SMLikeHiggsModel):
                 print 'MH (not there before) will be assumed to be', self.options.mass
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
     def getHiggsSignalYieldScale(self,production,decay, energy):
-        prod = 'VH' if production in [ 'VH','WH', 'ZH' ] else production
+        prod = 'VH' if production in [ 'VH','WH','WPlusH','WMinusH', 'ZH', 'ggZH' ] else production
         name = "r_%s_%s" % (prod,decay)
         if name not in self.poiNames: 
             self.poiNames += [ name ]
@@ -603,10 +721,10 @@ class DoubleRatioHiggs(SMLikeHiggsModel):
     def getHiggsSignalYieldScale(self,production,decay, energy):
         if decay not in self.modes:
             print "Warning: BR of extra decay %s will be kept to SM value."
-            return 1 if production in ['ggH', 'ttH'] else "Rvf"
-        if production in ['ggH', 'ttH']:
+            return 1 if production in ['ggH', 'ttH', 'bbH', 'tHq', 'tHW'] else "Rvf"
+        if production in ['ggH', 'ttH', 'bbH', 'tHq', 'tHW']:
             return 'rf_'+decay
-        if production in ['qqH', 'WH', 'ZH', 'VH']:
+        if production in ['qqH', 'WH', 'ZH', 'VH', 'ggZH']:
             return 'rv_'+decay
         raise RuntimeError, "Unknown production mode '%s'" % production
 
@@ -672,10 +790,10 @@ class RatioBRSMHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self,production,decay, energy): 
 #        if decay not in self.numerators and not in self.denominator:
-        if production in ['ggH', 'ttH']:
+        if production in ['ggH', 'ttH', 'bbH', 'tHq', 'tHW']:
 	    print '%(production)s/%(decay)s scaled by r_F_%(decay)s'%locals()
             return 'r_F_'+decay 
-        if production in ['qqH', 'WH', 'ZH', 'VH']: 
+        if production in ['qqH', 'WH',"WPlusH","WMinusH", 'ZH', 'VH', 'ggZH']: 
 	    print '%(production)s/%(decay)s scaled by r_V_%(decay)s'%locals()
             return 'r_V_'+decay 
         raise RuntimeError, "Unknown production mode '%s'" % production 

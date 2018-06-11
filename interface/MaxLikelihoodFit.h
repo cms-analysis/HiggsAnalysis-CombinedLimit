@@ -40,9 +40,11 @@ protected:
   static float       rebinFactor_;
   static int         numToysForShapes_;
   static std::string signalPdfNames_, backgroundPdfNames_;
+  static std::string filterString_;
   static bool        saveNormalizations_;
   static bool        oldNormNames_;
   static bool        saveShapes_;
+  static bool        saveOverallShapes_;
   static bool        saveWithUncertainties_;
   static bool	     saveWorkspace_;
   static bool        reuseParams_;
@@ -68,7 +70,8 @@ protected:
     std::string channel;
     RooArgList  obs;
     const RooAbsReal *norm;
-    const RooAbsPdf  *pdf;
+    const RooAbsReal  *pdf;
+    bool isfunc;
   };
   void getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std::map<std::string, ShapeAndNorm> &shapesAndNorms, const std::string &channel);
 
@@ -79,7 +82,7 @@ protected:
         virtual const RooAbsCollection & get(int itoy) = 0;
         virtual const RooAbsCollection & centralValues() = 0;
   };
-  void getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out, NuisanceSampler &sampler, TDirectory *fOut, const std::string &postfix);
+  void getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out, NuisanceSampler &sampler, TDirectory *fOut, const std::string &postfix,RooAbsData &data);
 
   class CovarianceReSampler : public NuisanceSampler {
     public:

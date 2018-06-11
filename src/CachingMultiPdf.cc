@@ -1,5 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CachingMultiPdf.h"
 #include "vectorized.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 // Uncomment do do regression testing wrt uncached multipdf
 //#define CachingMultiPdf_VALIDATE
@@ -124,6 +125,47 @@ void cacheutils::CachingAddPdf::setDataDirty()
 }
 
 void cacheutils::CachingAddPdf::setIncludeZeroWeights(bool includeZeroWeights) 
+{
+    for (CachingPdfBase &pdf : cachingPdfs_) {
+        pdf.setIncludeZeroWeights(includeZeroWeights);
+    }
+}
+
+cacheutils::CachingProduct::CachingProduct(const RooProduct &pdf, const RooArgSet &obs) :
+    pdf_(&pdf)
+{
+    const RooArgList & pdfs = utils::factors(pdf);
+    //std::cout << "Making a CachingProduct for " << pdf.GetName() << " with " << pdfs.getSize() << " pdfs, " << coeffs.getSize() << " coeffs." << std::endl;
+    for (int i = 0, n = pdfs.getSize(); i < n; ++i) {
+        RooAbsReal *pdfi = (RooAbsReal*) pdfs.at(i);
+        cachingPdfs_.push_back(makeCachingPdf(pdfi, &obs));
+    }
+}
+
+cacheutils::CachingProduct::~CachingProduct()
+{
+}
+
+const std::vector<Double_t> & cacheutils::CachingProduct::eval(const RooAbsData &data)
+{
+    const std::vector<Double_t> & one = cachingPdfs_.front().eval(data);
+    unsigned int size = one.size();
+    work_.resize(size);
+    std::copy(one.begin(), one.end(), work_.begin());
+    for (int i = 1, n =  cachingPdfs_.size(); i < n; ++i) {
+        vectorized::mul_inplace(size, &cachingPdfs_[i].eval(data)[0], &work_[0]);
+    }
+    return work_;
+}
+
+void cacheutils::CachingProduct::setDataDirty()
+{
+    for (CachingPdfBase &pdf : cachingPdfs_) {
+        pdf.setDataDirty();
+    }
+}
+
+void cacheutils::CachingProduct::setIncludeZeroWeights(bool includeZeroWeights) 
 {
     for (CachingPdfBase &pdf : cachingPdfs_) {
         pdf.setIncludeZeroWeights(includeZeroWeights);

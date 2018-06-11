@@ -37,6 +37,9 @@ protected:
   static unsigned int              nOtherFloatingPoi_; // keep a count of other POIs that we're ignoring, for proper chisquare normalization
   static float                     deltaNLL_;
 
+  static std::string name_;
+  std::auto_ptr<TFile> fitOut;
+
   // options    
   static unsigned int points_, firstPoint_, lastPoint_;
   static bool floatOtherPOIs_;
@@ -44,8 +47,14 @@ protected:
   static bool skipInitialFit_;
   static bool fastScan_;
   static bool hasMaxDeltaNLLForProf_;
-  static bool loadedSnapshot_;
+  static bool loadedSnapshot_,  savingSnapshot_;
   static float maxDeltaNLLForProf_;
+  static float autoRange_;
+  static bool  startFromPreFit_;
+  static bool  alignEdges_;
+  static bool  saveFitResult_;
+  static std::string fixedPointPOIs_;
+  static float centeredRange_;
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
@@ -68,16 +77,18 @@ protected:
 
   // variables
   void doSingles(RooFitResult &res) ;
-  void doGrid(RooAbsReal &nll) ;
-  void doRandomPoints(RooAbsReal &nll) ;
-  void doFixedPoint(RooWorkspace *w,RooAbsReal &nll) ;
-  void doContour2D(RooAbsReal &nll) ;
-  void doStitch2D(RooAbsReal &nll) ;
+  void doGrid(RooWorkspace *w, RooAbsReal &nll) ;
+  void doRandomPoints(RooWorkspace *w, RooAbsReal &nll) ;
+  void doFixedPoint(RooWorkspace *w, RooAbsReal &nll) ;
+  void doContour2D(RooWorkspace *w, RooAbsReal &nll) ;
+  void doStitch2D(RooWorkspace *w, RooAbsReal &nll) ;
   void doImpact(RooFitResult &res, RooAbsReal &nll) ;
 
   // utilities
   /// for each RooRealVar, set a range 'box' from the PL profiling all other parameters
   void doBox(RooAbsReal &nll, double cl, const char *name="box", bool commitPoints=true) ;
+  /// save a file with the RooFitResult inside
+  void saveResult(RooFitResult &res);
 };
 
 

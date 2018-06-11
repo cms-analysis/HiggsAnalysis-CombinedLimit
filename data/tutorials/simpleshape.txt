@@ -4,10 +4,10 @@ kmax *
 ---------------
 shapes * * simpleshape_input.root w:$PROCESS
 ---------------
-bin 1
+bin bin1
 observation -1
 ------------------------------
-bin          1          1
+bin          bin1       bin1
 process      sig 	bkg
 process      0          1
 rate         1          1

@@ -7,7 +7,9 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-f", "--format",  type="string",   dest="format", default="html", help="Format for output number")
 parser.add_option("-m", "--mass",    dest="mass",     default=0,  type="float",  help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.")
+parser.add_option("-p", "--process",    dest="process",     default=None,  type="string",  help="Higgs process to use. Will also be written in the Workspace as RooRealVar 'MH'.")
 parser.add_option("-D", "--dataset", dest="dataname", default="data_obs",  type="string",  help="Name of the observed dataset")
+parser.add_option("-s", "--search", "--grep", dest="grep", default=[], action="append",  type="string",  help="Selection of nuisance parameters (regexp, can be used multiple times)")
 parser.add_option("-a", "--all", dest="all", default=False,action='store_true',  help="Report all nuisances (default is only lnN)")
 parser.add_option("", "--noshape", dest="noshape", default=False,action='store_true',  help="Counting experiment only (alternatively, build a shape analysis from combineCards.py -S card.txt > newcard.txt )")
 (options, args) = parser.parse_args()
@@ -41,6 +43,7 @@ else:
     file = open(options.fileName, "r")
 
 DC = parseCard(file, options)
+
 if not DC.hasShapes: DC.hasShapes = True
 MB = ShapeBuilder(DC, options)
 if not options.noshape: MB.prepareAllShapes()
@@ -117,6 +120,11 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
 names = report.keys() 
 if "brief" in options.format:
     names = [ k for (k,v) in report.iteritems() if len(v["bins"]) > 1 ]
+if options.process:
+    names = [ k for k in names if any(p for p in report[k]['processes'] if re.match(options.process, p)) ]
+if options.grep:
+    names = [ n for n in names if any(p for p in options.grep if re.match(p,n)) ]
+
 # alphabetic sort
 names.sort()
 # now re-sort by category (preserving alphabetic sort inside)

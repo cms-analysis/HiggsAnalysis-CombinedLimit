@@ -19,6 +19,80 @@
 #define TRACEME() 
 #endif
 
+
+#define PATCH_FOR_HZZ_TEMPLATES
+#ifdef PATCH_FOR_HZZ_TEMPLATES
+#include "RooHistPdf.h"
+#include "RooDataHist.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+namespace {
+    std::auto_ptr<TH1> safeCreateHist2D(RooAbsPdf *pdf, const RooRealVar &x, const RooRealVar &y, bool conditional) {
+        if (!pdf->getAttribute("safeCreateHist2D:ok") && typeid(*pdf) == typeid(RooHistPdf)) {
+            RooHistPdf *hpdf = static_cast<RooHistPdf *>(pdf);
+            RooDataHist &dataHist = hpdf->dataHist();
+            bool ok = true;
+            for (int i = 0; i < 2; ++i) {
+                const RooRealVar *v = (i ? &y : &x);
+                RooRealVar* lvarg = dynamic_cast<RooRealVar*>(dataHist.get()->find(v->GetName()));
+                const RooAbsBinning* binning = lvarg->getBinningPtr(0);
+                if (binning->numBins() != lvarg->numBins() || 
+                    binning->binLow(0) != lvarg->getMin()  ||
+                    binning->binHigh(binning->numBins()-1) != lvarg->getMax()) {
+                    std::cout << "ERROR: inconsistent binning of RooDataHist " << dataHist.GetName() << ", var  " << lvarg->GetName() << std::endl;
+                    std::cout << "  bins: " << binning->numBins() << " (binning) vs " << lvarg->numBins() << " (var)" << std::endl;
+                    std::cout << "  min:  " << binning->binLow(0) << " (binning) vs " << lvarg->getMin() << " (var)" << std::endl;
+                    std::cout << "  max:  " << binning->binHigh(binning->numBins()-1) << " (binning) vs " << lvarg->getMax() << " (var)" << std::endl;
+                    ok = false;
+                }
+            }
+            if (!ok) {
+                std::cout << "BINNED DATASET: " << std::endl;
+                utils::printRDH(&dataHist);
+                const RooAbsBinning* xbinning = x.getBinningPtr(0);
+                const RooAbsBinning* ybinning = y.getBinningPtr(0);
+                if (x.numBins() != xbinning->numBins()) assert(0);
+                if (y.numBins() != ybinning->numBins()) assert(0);
+                double xdelta = x.getMin() - xbinning->binLow(0);
+                double ydelta = y.getMin() - ybinning->binLow(0);
+                double * xarray = xbinning->array(),  * yarray = ybinning->array();
+                std::vector<double> xbins(xarray, xarray+(x.numBins()+1));
+                std::vector<double> ybins(yarray, yarray+(y.numBins()+1));
+                for (double &xe : xbins) xe += xdelta;
+                for (double &ye : ybins) ye += ydelta;
+                std::auto_ptr<TH1> hist(new TH2F("","",x.numBins(),&xbins[0],y.numBins(),&ybins[0]));
+                TH2F *h2d = static_cast<TH2F*>(hist.get()); h2d->SetDirectory(0);
+                TAxis *xaxis = h2d->GetXaxis(), * yaxis = h2d->GetYaxis();
+                for (unsigned int id = 0, nd = dataHist.numEntries(); id < nd; ++id) {
+                    const RooArgSet *point = dataHist.get(id);
+                    double weight = dataHist.weight();
+                    double xval = point->getRealValue(x.GetName());
+                    double yval = point->getRealValue(y.GetName());
+                    int bx = xaxis->FindBin(xval);
+                    int by = yaxis->FindBin(yval);
+                    if (bx == 0 || bx > x.numBins() || fabs(xaxis->GetBinCenter(bx)-xval) > 1e-4*std::max(1.0,std::abs(xval))) {
+                        std::cout << "ERROR: dataset entry inconsistent with bin center along X" << std::endl;
+                        point->Print("V");
+                        assert(0); 
+                    }
+                    if (by == 0 || by > y.numBins() || fabs(yaxis->GetBinCenter(by)-yval) > 1e-4*std::max(1.0,std::abs(yval))) {
+                        std::cout << "ERROR: dataset entry inconsistent with bin center along Y" << std::endl;
+                        point->Print("V");
+                        assert(0); 
+                    }
+                    h2d->Fill(xval,yval,weight); 
+                }
+                std::cout << "RECOVERED TEMPLATE FROM SLOW FILL" << std::endl;
+                return hist;
+            } else {
+                pdf->setAttribute("safeCreateHist2D:ok");
+            }
+        }
+        const RooCmdArg &cond = conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
+        return std::auto_ptr<TH1>(pdf->createHistogram("", x, RooFit::YVar(y), cond));
+    }
+}
+#endif
+
 ClassImp(VerticalInterpHistPdf)
 
 
@@ -367,8 +441,12 @@ void FastVerticalInterpHistPdf2D::syncNominal() const {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(_funcList.at(0));
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
     const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
+#ifdef PATCH_FOR_HZZ_TEMPLATES
+    std::auto_ptr<TH1> hist(::safeCreateHist2D(pdf,x,y,_conditional));
+#else
     const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
     std::auto_ptr<TH1> hist(pdf->createHistogram("", x, RooFit::YVar(y), cond));
+#endif
     hist->SetDirectory(0); 
     _cacheNominal = FastHisto2D(dynamic_cast<TH2F&>(*hist), _conditional);
     if (_conditional) _cacheNominal.NormalizeXSlices(); 
@@ -431,9 +509,14 @@ void FastVerticalInterpHistPdf2D::syncComponents(int dim) const {
     RooAbsPdf *pdfLo = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+2));
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
     const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
+#ifdef PATCH_FOR_HZZ_TEMPLATES
+    std::auto_ptr<TH1> histHi(::safeCreateHist2D(pdfHi,x,y,_conditional)); histHi->SetDirectory(0);
+    std::auto_ptr<TH1> histLo(::safeCreateHist2D(pdfLo,x,y,_conditional)); histLo->SetDirectory(0);
+#else
     const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
     std::auto_ptr<TH1> histHi(pdfHi->createHistogram("", x, RooFit::YVar(y), cond)); histHi->SetDirectory(0); 
     std::auto_ptr<TH1> histLo(pdfLo->createHistogram("", x, RooFit::YVar(y), cond)); histLo->SetDirectory(0);
+#endif
 
     FastHisto2D hi(dynamic_cast<TH2&>(*histHi), _conditional), lo(dynamic_cast<TH2&>(*histLo), _conditional); 
     //printf("Un-normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
@@ -649,13 +732,15 @@ void FastVerticalInterpHistPdfV::fill(std::vector<Double_t> &out) const
     if (!hpdf_._sentry.good()) hpdf_.syncTotal();
     if (begin_ != end_) {
         out.resize(end_-begin_);
-        std::copy(& hpdf_._cache.GetBinContent(begin_), & hpdf_._cache.GetBinContent(end_), out.begin());
+        std::copy(& hpdf_._cache.GetBinContent(begin_), (&hpdf_._cache.GetBinContent(end_-1))+1, out.begin());
     } else if (!blocks_.empty()) {
         out.resize(nbins_);
-        for (auto b : blocks_) std::copy(& hpdf_._cache.GetBinContent(b.begin), & hpdf_._cache.GetBinContent(b.end), out.begin()+b.index);
+        for (auto b : blocks_) std::copy(& hpdf_._cache.GetBinContent(b.begin), (&hpdf_._cache.GetBinContent(b.end-1))+1, out.begin()+b.index);
     } else {
         out.resize(bins_.size());
         for (int i = 0, n = bins_.size(); i < n; ++i) {
+            // if ((int)hpdf_._cache.GetNbinsX()>bins_[i]) out[i] = hpdf_._cache.GetBinContent(bins_[i]);
+            // else out[i] = 0;
             out[i] = hpdf_._cache.GetBinContent(bins_[i]);
         }
     }
@@ -1049,6 +1134,44 @@ void FastVerticalInterpHistPdf2D2::syncTotal() const {
     //printf("Normalized result\n");  _cache.Dump();
 }
 
+Int_t FastVerticalInterpHistPdf2D2::getMaxVal(const RooArgSet& vars) const {
+    //static int ncalls = 0;
+    //if (++ncalls < 100) {
+    //    std::cout << "Called getMaxVal(" << GetName() << "), x  = " << _x.arg().GetName() << ", y = " << _y.arg().GetName() << ", conditional " << _conditional << std::endl;
+    //    vars.Print("V");
+    //}
+    switch (vars.getSize()) {
+        case 1:
+            if (vars.contains(_x.arg())) return 1; 
+            if (vars.contains(_y.arg())) return 2; 
+            break;
+        case 2:
+            if (vars.contains(_x.arg()) && vars.contains(_y.arg())) {
+                return 3;
+            }
+            break;
+    }
+    return 0;
+}
+
+Double_t FastVerticalInterpHistPdf2D2::maxVal(int code) const {
+    if (!_initBase) initBase();
+    if (_cache.size() == 0) _cache = _cacheNominal;
+    if (!_sentry.good()) syncTotal();
+    switch (code) {
+        case 1:
+            return _cache.GetMaxOnX(_y);
+        case 2:
+            return _cache.GetMaxOnY(_x);
+        case 3:
+            return _cache.GetMaxOnXY();
+    }
+    coutE(InputArguments) << "FastVerticalInterpHistPdf2D2::maxVal(" << GetName() 
+			  << ") unsupported integration code " << code << "\n" << std::endl;
+    assert(0);
+
+}
+
 FastVerticalInterpHistPdf2V::FastVerticalInterpHistPdf2V(const FastVerticalInterpHistPdf2 &hpdf, const RooAbsData &data, bool includeZeroWeights) :
     hpdf_(hpdf),begin_(0),end_(0)
 {
@@ -1102,13 +1225,15 @@ void FastVerticalInterpHistPdf2V::fill(std::vector<Double_t> &out) const
     if (!hpdf_._sentry.good()) hpdf_.syncTotal();
     if (begin_ != end_) {
         out.resize(end_-begin_);
-        std::copy(& hpdf_._cache.GetBinContent(begin_), & hpdf_._cache.GetBinContent(end_), out.begin());
+        std::copy(& hpdf_._cache.GetBinContent(begin_), (&hpdf_._cache.GetBinContent(end_-1))+1, out.begin());
     } else if (!blocks_.empty()) {
         out.resize(nbins_);
-        for (auto b : blocks_) std::copy(& hpdf_._cache.GetBinContent(b.begin), & hpdf_._cache.GetBinContent(b.end), out.begin()+b.index);
+        for (auto b : blocks_) std::copy(& hpdf_._cache.GetBinContent(b.begin), (&hpdf_._cache.GetBinContent(b.end-1))+1, out.begin()+b.index);
     } else {
         out.resize(bins_.size());
         for (int i = 0, n = bins_.size(); i < n; ++i) {
+          // if ((int)hpdf_._cache.GetNbinsX()>bins_[i]) out[i] = hpdf_._cache.GetBinContent(bins_[i]);
+          //   else out[i] = 0;
             out[i] = hpdf_._cache.GetBinContent(bins_[i]);
         }
     }

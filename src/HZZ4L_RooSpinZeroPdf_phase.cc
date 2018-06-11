@@ -1,5 +1,5 @@
 #include "Riostream.h" 
-#include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_phase.h" 
+#include <HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_phase.h>
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h>
@@ -38,7 +38,11 @@ ClassImp(HZZ4L_RooSpinZeroPdf_phase)
     _coefList.add(*func) ;
   }
   delete coefIter;
-  
+
+  Integral_T1 = dynamic_cast<const RooHistFunc*>(_coefList.at(0))-> analyticalIntegral(1000);
+  Integral_T2 = dynamic_cast<const RooHistFunc*>(_coefList.at(1))-> analyticalIntegral(1000);
+  Integral_T4 = dynamic_cast<const RooHistFunc*>(_coefList.at(2))-> analyticalIntegral(1000);
+  Integral_T5 = dynamic_cast<const RooHistFunc*>(_coefList.at(3))-> analyticalIntegral(1000);
 // _coefIter = _coefList.createIterator() ;
  } 
 
@@ -53,6 +57,10 @@ ClassImp(HZZ4L_RooSpinZeroPdf_phase)
   _coefList("coefList",this,other._coefList)
 
  { 
+	 Integral_T1 = other.Integral_T1;
+	 Integral_T2 = other.Integral_T2;
+	 Integral_T4 = other.Integral_T4;
+	 Integral_T5 = other.Integral_T5;
  // _coefIter = _coefList.createIterator() ;
  } 
 
@@ -166,11 +174,11 @@ Double_t HZZ4L_RooSpinZeroPdf_phase::analyticalIntegral(Int_t code, const char* 
 //       }
      case 4: 
        {
- double Int_T1  = dynamic_cast<const RooHistFunc*>(_coefList.at(0))-> analyticalIntegral(1000);
- double Int_T2  = dynamic_cast<const RooHistFunc*>(_coefList.at(1))-> analyticalIntegral(1000);
- double Int_T4  = dynamic_cast<const RooHistFunc*>(_coefList.at(2))-> analyticalIntegral(1000);
- double Int_T5  = dynamic_cast<const RooHistFunc*>(_coefList.at(3))-> analyticalIntegral(1000);
 
+ double Int_T1  = Integral_T1;
+ double Int_T2  = Integral_T2;
+ double Int_T4  = Integral_T4;
+ double Int_T5  = Integral_T5;
 
 
 	 double integral = (1.-fabs(fai)) * Int_T1 + fabs(fai) * Int_T2 + sqrt((1.-fabs(fai))*fabs(fai)) *( cos(phi)* Int_T4 + sin(phi) * Int_T5) ;

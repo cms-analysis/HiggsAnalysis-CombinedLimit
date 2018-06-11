@@ -9,7 +9,7 @@
 #include "RooListProxy.h"
 #include "TH1.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate_Old.h"
 #include <cmath>
 
 class FastVerticalInterpHistPdf;
@@ -114,9 +114,9 @@ protected:
 
   // return a smooth function that is equal to +/-1 for |x| >= smoothRegion_ and it's null in zero
   inline double smoothStepFunc(double x) const { 
-    if (fabs(x) >= _smoothRegion) return x > 0 ? +1 : -1;
+    if (fabs(x) >= _smoothRegion) return x > 0. ? +1. : -1.;
     double xnorm = x/_smoothRegion, xnorm2 = xnorm*xnorm;
-    return 0.125 * xnorm * (xnorm2 * (3.*xnorm2 - 10.) + 15);
+    return 0.125 * xnorm * (xnorm2 * (3.*xnorm2 - 10.) + 15.);
   }
 
 private:
@@ -365,6 +365,9 @@ public:
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
   const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
   Bool_t conditional() const { return _conditional; }
+
+  Int_t getMaxVal(const RooArgSet& vars) const ;
+  Double_t maxVal(Int_t code) const ;
 
   Double_t evaluate() const ;
 protected:

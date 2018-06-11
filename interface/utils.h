@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <TGraphAsymmErrors.h>
+#include <RooHistError.h>
+#include <TH1.h>
 struct RooDataHist;
 struct RooAbsData;
 struct RooAbsPdf;
@@ -16,18 +19,23 @@ struct RooAbsCollection;
 struct RooWorkspace;
 struct RooPlot;
 struct RooRealVar;
+struct RooProduct;
 namespace RooStats { class ModelConfig; }
 namespace utils {
     void printRDH(RooAbsData *data) ;
     void printRAD(const RooAbsData *d) ;
-    void printPdf(RooAbsPdf *pdf) ;
+    void printPdf(const RooAbsReal *pdf) ;
     void printPdf(RooStats::ModelConfig &model) ;
     void printPdf(RooWorkspace *w, const char *pdfName) ;
+    TGraphAsymmErrors * makeDataGraph(TH1 * dataHist, bool asDensity=false);
+    //Make a tgraph asym errors from th1 of data
 
-    // Clone a pdf and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
+    // Clone a pdf and all its branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsPdf *fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
-    // Clone a function and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
+    // Clone a function and all its branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsReal *fullCloneFunc(const RooAbsReal *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
+    // Clone a function and all its branch nodes that depends on the observables. on request, clone also leaf nodes (i.e. RooRealVars)
+    RooAbsReal *fullCloneFunc(const RooAbsReal *pdf, const RooArgSet &obs, RooArgSet &holder, bool cloneLeafNodes=false) ;
 
     /// Create a pdf which depends only on observables, and collect the other constraint terms
     /// Will return 0 if it's all constraints, &pdf if it's all observables, or a new pdf if it's something mixed
@@ -41,7 +49,9 @@ namespace utils {
     RooAbsPdf *makeNuisancePdf(RooAbsPdf &pdf, const RooArgSet &observables, const char *name="nuisancePdf") ;
 
     /// factorize a RooAbsReal
-    void factorizeFunc(const RooArgSet &observables, RooAbsReal &pdf, RooArgList &obsTerms, RooArgList &otherTerms, bool debug=false);
+    void factorizeFunc(const RooArgSet &observables, RooAbsReal &pdf, RooArgList &obsTerms, RooArgList &otherTerms, bool keepDuplicates = true, bool debug=false);
+    /// workaround for RooProdPdf::components()
+    RooArgList factors(const RooProduct &prod) ;
 
     /// Note: doesn't recompose Simultaneous pdfs properly, for that use factorizePdf method
     RooAbsPdf *makeObsOnlyPdf(RooStats::ModelConfig &model, const char *name="obsPdf") ;
@@ -64,6 +74,7 @@ namespace utils {
     void copyAttributes(const RooAbsArg &from, RooAbsArg &to) ;
 
     void guessChannelMode(RooSimultaneous &simPdf, RooAbsData &simData, bool verbose=false) ;
+    void setChannelGenModes(RooSimultaneous &simPdf, const std::string &binned, const std::string &unbinned, int verbose) ;
 
     /// set style for plots
     void tdrStyle() ;

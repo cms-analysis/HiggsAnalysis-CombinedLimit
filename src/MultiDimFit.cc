@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "TMath.h"
+#include "TFile.h"
 #include "RooArgSet.h"
 #include "RooArgList.h"
 #include "RooRandom.h"
@@ -23,6 +24,7 @@
 
 using namespace RooStats;
 
+std::string MultiDimFit::name_ = "";
 MultiDimFit::Algo MultiDimFit::algo_ = None;
 MultiDimFit::GridType MultiDimFit::gridType_ = G1x1;
 std::vector<std::string>  MultiDimFit::poi_;
@@ -37,27 +39,35 @@ bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 bool MultiDimFit::fastScan_ = false;
 bool MultiDimFit::loadedSnapshot_ = false;
+bool MultiDimFit::savingSnapshot_ = false;
+bool MultiDimFit::startFromPreFit_ = false;
+bool MultiDimFit::alignEdges_ = false;
 bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
 bool MultiDimFit::squareDistPoiStep_ = false;
 bool MultiDimFit::skipInitialFit_ = false;
+bool MultiDimFit::saveFitResult_ = false;
 float MultiDimFit::maxDeltaNLLForProf_ = 200;
+float MultiDimFit::autoRange_ = -1.0;
+std::string MultiDimFit::fixedPointPOIs_ = "";
+float MultiDimFit::centeredRange_ = -1.0;
 
-  std::string MultiDimFit::saveSpecifiedFuncs_;
-  std::string MultiDimFit::saveSpecifiedIndex_;
-  std::string MultiDimFit::saveSpecifiedNuis_;
- std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
- std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
- std::vector<float>        MultiDimFit::specifiedFuncVals_;
- RooArgList                MultiDimFit::specifiedFuncList_;
- std::vector<std::string>  MultiDimFit::specifiedCatNames_;
- std::vector<RooCategory*> MultiDimFit::specifiedCat_;
- std::vector<int>        MultiDimFit::specifiedCatVals_;
- RooArgList                MultiDimFit::specifiedCatList_;
- std::vector<std::string>  MultiDimFit::specifiedNuis_;
- std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
- std::vector<float>        MultiDimFit::specifiedVals_;
- RooArgList                MultiDimFit::specifiedList_;
- bool MultiDimFit::saveInactivePOI_= false;
+
+std::string MultiDimFit::saveSpecifiedFuncs_;
+std::string MultiDimFit::saveSpecifiedIndex_;
+std::string MultiDimFit::saveSpecifiedNuis_;
+std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
+std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
+std::vector<float>        MultiDimFit::specifiedFuncVals_;
+RooArgList                MultiDimFit::specifiedFuncList_;
+std::vector<std::string>  MultiDimFit::specifiedCatNames_;
+std::vector<RooCategory*> MultiDimFit::specifiedCat_;
+std::vector<int>        MultiDimFit::specifiedCatVals_;
+RooArgList                MultiDimFit::specifiedCatList_;
+std::vector<std::string>  MultiDimFit::specifiedNuis_;
+std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
+std::vector<float>        MultiDimFit::specifiedVals_;
+RooArgList                MultiDimFit::specifiedList_;
+bool MultiDimFit::saveInactivePOI_= false;
 
 MultiDimFit::MultiDimFit() :
     FitterAlgoBase("MultiDimFit specific options")
@@ -71,13 +81,19 @@ MultiDimFit::MultiDimFit() :
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
+        ("autoRange", boost::program_options::value<float>(&autoRange_)->default_value(autoRange_), "Set to any X >= 0 to do the scan in the +/- X sigma range (where the sigma is from the initial fit, so it may be fairly approximate)")
+	("fixedPointPOIs",   boost::program_options::value<std::string>(&fixedPointPOIs_)->default_value(""), "Parameter space point for --algo=fixed")
+        ("centeredRange", boost::program_options::value<float>(&centeredRange_)->default_value(centeredRange_), "Set to any X >= 0 to do the scan in the +/- X range centered on the nominal value")
         ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
         ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
 	("saveSpecifiedNuis",   boost::program_options::value<std::string>(&saveSpecifiedNuis_)->default_value(""), "Save specified parameters (default = none)")
 	("saveSpecifiedFunc",   boost::program_options::value<std::string>(&saveSpecifiedFuncs_)->default_value(""), "Save specified function values (default = none)")
 	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
-       ;
+  ("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
+  ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
+	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
+      ;
 }
 
 void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm) 
@@ -111,6 +127,9 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     skipInitialFit_ = (vm.count("skipInitialFit") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
+    savingSnapshot_ = (!loadedSnapshot_) && vm.count("saveWorkspace");
+    name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
+    saveFitResult_ = (vm.count("saveFitResult") > 0);
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -125,32 +144,59 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 
     // Process POI not in list
     nOtherFloatingPoi_ = 0;
+    int nConstPoi=0;
     RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
+    std::string setConstPOI;
     for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
         if (poiList_.contains(*a)) continue;
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << a->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
         rrv->setConstant(!floatOtherPOIs_);
+	if (!floatOtherPOIs_) {
+	 setConstPOI+=std::string(rrv->GetName())+", ";
+	 nConstPoi++;
+	}
         if (floatOtherPOIs_) nOtherFloatingPoi_++;
     }
+    if (nConstPoi>0) std::cout << "Following POIs have been set constant (use --floatOtherPOIs to let them float): " << setConstPOI << std::endl;
  
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::auto_ptr<RooFitResult> res;
-  //  if ( algo_ == Singles || algo_ == Impact || algo_ == None || !loadedSnapshot_ ){
+    if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
+    bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
     if ( !skipInitialFit_){
-        res.reset(doFit(pdf, data, ((algo_ == Singles || algo_ == Impact) ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
+        res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
+        if (!res.get()) {
+            std::cout << "\n " <<std::endl;
+            std::cout << "\n ---------------------------" <<std::endl;
+            std::cout << "\n WARNING: MultiDimFit failed" <<std::endl;
+            std::cout << "\n ---------------------------" <<std::endl;
+            std::cout << "\n " <<std::endl;
+        }
         if (algo_ == Impact && res.get()) {
             // Set the floating parameters back to the best-fit value
             // before we write an entry into the output TTree
             w->allVars().assignValueOnly(res.get()->floatParsFinal());
         }
-    } else std::cout << "MultiDimFit -- Skipping initial global fit" << std::endl;
+    } else {
+        std::cout << "MultiDimFit -- Skipping initial global fit" << std::endl;
+        // must still create the NLL
+        nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true)));
+    }
 
     if(w->var("r")) {w->var("r")->Print();}
     if ( loadedSnapshot_ || res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
-            poiVals_[i] = poiVars_[i]->getVal();
+            if (res.get() && doHesse){
+                RooAbsArg *rfloat = (*res).floatParsFinal().find(poi_[i].c_str());
+                if (!rfloat) {
+                    rfloat = (*res).constPars().find(poi_[i].c_str());
+                }
+                RooRealVar *rf = dynamic_cast<RooRealVar*>(rfloat);
+                poiVals_[i] = rf->getVal();//for Singles we store the RooFitResults values
+            }
+            else poiVals_[i] = poiVars_[i]->getVal();
         }
         //if (algo_ != None) {
 	for(unsigned int j=0; j<specifiedNuis_.size(); j++){
@@ -166,15 +212,30 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	//}
     }
    
-
-    std::auto_ptr<RooAbsReal> nll;
-    if (algo_ != None && algo_ != Singles) {
-        nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended())));
-    } 
-    
     //set snapshot for best fit
-    if (!loadedSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
+    if (savingSnapshot_) w->saveSnapshot("MultiDimFit",w->allVars());
     
+    if (autoRange_ > 0) {
+        std::cout << "Adjusting range of POIs to +/- " << autoRange_ << " standard deviations" << std::endl;
+        for (int i = 0, n = poi_.size(); i < n; ++i) {
+            double val = poiVars_[i]->getVal(), err = poiVars_[i]->getError(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
+            double min1 = std::max(min0, val - autoRange_ * err);
+            double max1 = std::min(max0, val + autoRange_ * err);
+            std::cout << poi_[i] << ": " << val << " +/- " << err << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            poiVars_[i]->setRange(min1, max1);
+        }
+    }
+    if (centeredRange_ > 0) {
+        std::cout << "Adjusting range of POIs to +/- " << centeredRange_ << std::endl;
+        for (int i = 0, n = poi_.size(); i < n; ++i) {
+            double val = poiVars_[i]->getVal(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
+            double min1 = std::max(min0, val - centeredRange_);
+            double max1 = std::min(max0, val + centeredRange_);
+            std::cout << poi_[i] << ": " << val << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            poiVars_[i]->setRange(min1, max1);
+        }
+    }
+
     switch(algo_) {
         case None: 
             if (verbose > 0) {
@@ -188,14 +249,15 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
                     printf("   %*s :  %+8.3f\n", len, poi_[i].c_str(), poiVals_[i]);
                 }
             }
+            if(res.get() && saveFitResult_) saveResult(*res);
             break;
-        case Singles: if (res.get()) doSingles(*res); break;
+        case Singles: if (res.get()) { doSingles(*res); if (saveFitResult_) {saveResult(*res);} } break;
         case Cross: doBox(*nll, cl, "box", true); break;
-        case Grid: doGrid(*nll); break;
-        case RandomPoints: doRandomPoints(*nll); break;
+        case Grid: doGrid(w,*nll); break;
+        case RandomPoints: doRandomPoints(w,*nll); break;
         case FixedPoint: doFixedPoint(w,*nll); break;
-        case Contour2D: doContour2D(*nll); break;
-        case Stitch2D: doStitch2D(*nll); break;
+        case Contour2D: doContour2D(w,*nll); break;
+        case Stitch2D: doStitch2D(w,*nll); break;
         case Impact: if (res.get()) doImpact(*res, *nll); break;
     }
     
@@ -450,280 +512,333 @@ void MultiDimFit::doImpact(RooFitResult &res, RooAbsReal &nll) {
   }
 }
 
-void MultiDimFit::doGrid(RooAbsReal &nll) 
-{
-    unsigned int n = poi_.size();
-    //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
-    double nll0 = nll.getVal();
 
-    std::vector<double> p0(n), pmin(n), pmax(n);
-    for (unsigned int i = 0; i < n; ++i) {
-        p0[i] = poiVars_[i]->getVal();
-        pmin[i] = poiVars_[i]->getMin();
-        pmax[i] = poiVars_[i]->getMax();
-        poiVars_[i]->setConstant(true);
-    std::cout<<" POI: "<<poiVars_[i]->GetName()<<"= "<<p0[i]<<" -> ["<<pmin[i]<<","<<pmax[i]<<"]"<<std::endl;
+void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll) {
+  unsigned int n = poi_.size();
+  double nll0 = nll.getVal();
+  if (startFromPreFit_) w->loadSnapshot("clean");
+
+  std::vector<double> p0(n), pmin(n), pmax(n);
+  for (unsigned int i = 0; i < n; ++i) {
+      p0[i] = poiVars_[i]->getVal();
+      pmin[i] = poiVars_[i]->getMin();
+      pmax[i] = poiVars_[i]->getMax();
+      poiVars_[i]->setConstant(true);
+  std::cout<<" POI: "<<poiVars_[i]->GetName()<<"= "<<p0[i]<<" -> ["<<pmin[i]<<","<<pmax[i]<<"]"<<std::endl;
+  }
+
+
+  CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+  if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+  if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
+  minim.setStrategy(minimizerStrategy_);
+  std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
+  RooArgSet snap; params->snapshot(snap);
+  //snap.Print("V");
+
+  if (n == 1) {
+    double xspacing = (pmax[0]-pmin[0]) / points_;
+    double xspacingOffset = 0.5;
+    if (alignEdges_) {
+      xspacing = (pmax[0]-pmin[0]) / (points_ - 1);
+      if (points_ == 1) xspacing = 0;
+      xspacingOffset = 0.0;
     }
+    // can do a more intellegent spacing of points
+    double xbestpoint = (p0[0] - pmin[0]) / xspacing;
+    if (lastPoint_ == std::numeric_limits<unsigned int>::max()) {
+      lastPoint_ = points_ - 1;
+    }
+    for (unsigned int i = 0; i < points_; ++i) {
+      if (i < firstPoint_) continue;
+      if (i > lastPoint_)  break;
+      double x = pmin[0] + (i + xspacingOffset) * xspacing;
+      // If we're aligning with the edges and this is the last point,
+      // set x to pmax[0] exactly
+      if (alignEdges_ && i == (points_ - 1)) {
+        x = pmax[0];
+      }
+      if (xbestpoint > lastPoint_) {
+        int ireverse = lastPoint_ - i + firstPoint_;
+        x = pmin[0] + (ireverse + xspacingOffset) * xspacing;
+      }
 
-
-    CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
-    minim.setStrategy(minimizerStrategy_);
-    std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
-    RooArgSet snap; params->snapshot(snap);
-    //snap.Print("V");
-    if (n == 1) {
-	// can do a more intellegent spacing of points
-	double xbestpoint = (p0[0] - pmin[0]) / ((pmax[0]-pmin[0])/points_) ;
-	if ( lastPoint_ == std::numeric_limits<unsigned int>::max()) lastPoint_ = points_-1;
-        for (unsigned int i = 0; i < points_; ++i) {
-            if (i < firstPoint_) continue;
-            if (i > lastPoint_)  break;
-            double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/points_; 
-	    if( xbestpoint > lastPoint_ ){
-		int ireverse = lastPoint_ - i + firstPoint_ ;
-		x = pmin[0] + (ireverse+0.5)*(pmax[0]-pmin[0])/points_; 
-	    }
-
-	    if (squareDistPoiStep_){
-		// distance between steps goes as ~square of distance from middle or range (could this be changed to from best fit value?)
-		double phalf = (pmax[0]-pmin[0])/2;
-		if (i<(unsigned int)points_/2) x = pmin[0]+TMath::Sqrt(2*i*(phalf)*(phalf)/points_);
-		else x = pmax[0]-TMath::Sqrt(2*(points_-i)*(phalf)*(phalf)/points_);
-	    }
-
-            //if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
-             std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
-            *params = snap; 
-            poiVals_[0] = x;
-            poiVars_[0]->setVal(x);
-            // now we minimize
-            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
-                        true : 
-                        minim.minimize(verbose-1);
-            if (ok) {
-                deltaNLL_ = nll.getVal() - nll0;
-                double qN = 2*(deltaNLL_);
-                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-		}
-                Combine::commitPoint(true, /*quantile=*/prob);
-            }
+      if (squareDistPoiStep_) {
+        // distance between steps goes as ~square of distance from middle or range (could this be changed to from best fit value?)
+        double phalf = (pmax[0] - pmin[0]) / 2;
+        if (x < (pmin[0] + phalf)) {
+          x = pmin[0] + TMath::Sqrt((x - pmin[0]) / phalf) * phalf;
+        } else {
+          x = pmax[0] - TMath::Sqrt((pmax[0] - x) / phalf) * phalf;
         }
-    } else if (n == 2) {
-        unsigned int sqrn = ceil(sqrt(double(points_)));
-        unsigned int ipoint = 0, nprint = ceil(0.005*sqrn*sqrn);
-        RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
-        CloseCoutSentry sentry(verbose < 2);
-        double deltaX =  (pmax[0]-pmin[0])/sqrn, deltaY = (pmax[1]-pmin[1])/sqrn;
-        for (unsigned int i = 0; i < sqrn; ++i) {
-            for (unsigned int j = 0; j < sqrn; ++j, ++ipoint) {
-                if (ipoint < firstPoint_) continue;
-                if (ipoint > lastPoint_)  break;
-                *params = snap; 
-                double x =  pmin[0] + (i+0.5)*deltaX; 
-                double y =  pmin[1] + (j+0.5)*deltaY; 
-                if (verbose && (ipoint % nprint == 0)) {
-                         fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
-                                        ipoint,sqrn*sqrn, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
-                }
-                poiVals_[0] = x;
-                poiVals_[1] = y;
-                poiVars_[0]->setVal(x);
-                poiVars_[1]->setVal(y);
-                nll.clearEvalErrorLog(); nll.getVal();
-                if (nll.numEvalErrors() > 0) { 
-			for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-				specifiedVals_[j]=specifiedVars_[j]->getVal();
-			}
-			for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-				specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-			}
-			for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-				specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-			}
-                    deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
-                    if (gridType_ == G3x3) {
-                        for (int i2 = -1; i2 <= +1; ++i2) {
-                            for (int j2 = -1; j2 <= +1; ++j2) {
-                                if (i2 == 0 && j2 == 0) continue;
-                                poiVals_[0] = x + 0.33333333*i2*deltaX;
-                                poiVals_[1] = y + 0.33333333*j2*deltaY;
-				for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-					specifiedVals_[j]=specifiedVars_[j]->getVal();
-				}
-				for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-					specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-				}
-				for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-					specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-				}
-                                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
-                            }
-                        }
-                    }
-                    continue;
-                }
-                // now we minimize
-                bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
-                bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
-                if (ok) {
-                    deltaNLL_ = nll.getVal() - nll0;
-                    double qN = 2*(deltaNLL_);
-                    double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-		    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			    specifiedVals_[j]=specifiedVars_[j]->getVal();
-		    }
-		    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		    }
-		    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-			    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-		    }
-                    Combine::commitPoint(true, /*quantile=*/prob);
-                }
-                if (gridType_ == G3x3) {
-                    bool forceProfile = !fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.5;
-                    utils::CheapValueSnapshot center(*params);
-                    double x0 = x, y0 = y;
-                    for (int i2 = -1; i2 <= +1; ++i2) {
-                        for (int j2 = -1; j2 <= +1; ++j2) {
-                            if (i2 == 0 && j2 == 0) continue;
-                            center.writeTo(*params);
-                            x = x0 + 0.33333333*i2*deltaX;
-                            y = y0 + 0.33333333*j2*deltaY;
-                            poiVals_[0] = x; poiVars_[0]->setVal(x);
-                            poiVals_[1] = y; poiVars_[1]->setVal(y);
-                            nll.clearEvalErrorLog(); nll.getVal();
-                            if (nll.numEvalErrors() > 0) { 
-				    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-					    specifiedVals_[j]=specifiedVars_[j]->getVal();
-				    }
-				    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-					    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-				    }
-				    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-					    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-				    }
-                                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
-                                continue;
-                            }
-                            deltaNLL_ = nll.getVal() - nll0;
-                            if (forceProfile || (!fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.5)) {
-                                minim.minimize(verbose-1);
-                                deltaNLL_ = nll.getVal() - nll0;
-                            }
-                            double qN = 2*(deltaNLL_);
-                            double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-			    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-				    specifiedVals_[j]=specifiedVars_[j]->getVal();
-			    }
-			    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-				    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-			    }
-			    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-				    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-			    }
-                            Combine::commitPoint(true, /*quantile=*/prob);
-                        }
-                    }
-                }
-            }
+      }
+
+      std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+      *params = snap;
+      poiVals_[0] = x;
+      poiVars_[0]->setVal(x);
+      // now we minimize
+      nll.clearEvalErrorLog();
+      deltaNLL_ = nll.getVal() - nll0;
+      if (nll.numEvalErrors() > 0) {
+        deltaNLL_ = 9990;
+        for (unsigned int j = 0; j < specifiedNuis_.size(); j++) {
+          specifiedVals_[j] = specifiedVars_[j]->getVal();
         }
-
-    } else { // Use utils routine if n > 2 
-
-        unsigned int rootn = ceil(TMath::Power(double(points_),double(1./n)));
-        unsigned int ipoint = 0, nprint = ceil(0.005*TMath::Power((double)rootn,(double)n));
-	
-        RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
-        CloseCoutSentry sentry(verbose < 2);
-	
-	// Create permutations 
-        std::vector<int> axis_points;
-	
-        for (unsigned int poi_i=0;poi_i<n;poi_i++){
-	  axis_points.push_back((int)rootn);
-    	}
-
-        std::vector<std::vector<int> > permutations = utils::generateCombinations(axis_points);
-	// Step through points
-        std::vector<std::vector<int> >::iterator perm_it = permutations.begin();
-	int npermutations = permutations.size();
-    	for (;perm_it!=permutations.end(); perm_it++){
-
-          if (ipoint < firstPoint_) {ipoint++; continue;}
+        for (unsigned int j = 0; j < specifiedFuncNames_.size(); j++) {
+          specifiedFuncVals_[j] = specifiedFunc_[j]->getVal();
+        }
+        Combine::commitPoint(true, /*quantile=*/0);
+        continue;
+      }
+      bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ?
+                true :
+                minim.minimize(verbose-1);
+      if (ok) {
+        deltaNLL_ = nll.getVal() - nll0;
+        double qN = 2*(deltaNLL_);
+        double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+	      for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+	      	specifiedVals_[j]=specifiedVars_[j]->getVal();
+	      }
+	      for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+	      	specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+	      }
+	      for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+	      	specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+	      }
+        Combine::commitPoint(true, /*quantile=*/prob);
+      }
+    }
+  } else if (n == 2) {
+      unsigned int sqrn = ceil(sqrt(double(points_)));
+      unsigned int ipoint = 0;
+      unsigned int nprint = ceil(0.005 * sqrn * sqrn);
+      RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
+      CloseCoutSentry sentry(verbose < 2);
+      double deltaX = (pmax[0] - pmin[0]) / sqrn;
+      double deltaY = (pmax[1] - pmin[1]) / sqrn;
+      double spacingOffset = 0.5;
+      if (alignEdges_) {
+        deltaX = (pmax[0] - pmin[0]) / (sqrn - 1);
+        deltaY = (pmax[1] - pmin[1]) / (sqrn - 1);
+        spacingOffset = 0.0;
+        if (sqrn == 1) {
+          deltaX = 0;
+          deltaY = 0;
+        }
+      }
+      for (unsigned int i = 0; i < sqrn; ++i) {
+        for (unsigned int j = 0; j < sqrn; ++j, ++ipoint) {
+          if (ipoint < firstPoint_) continue;
           if (ipoint > lastPoint_)  break;
-          *params = snap; 
-
+          *params = snap;
+          double x =  pmin[0] + (i + spacingOffset) * deltaX;
+          double y =  pmin[1] + (j + spacingOffset) * deltaY;
           if (verbose && (ipoint % nprint == 0)) {
-             fprintf(sentry.trueStdOut(), "Point %d/%d, ",
-                          ipoint,npermutations);
-          }	  
-          for (unsigned int poi_i=0;poi_i<n;poi_i++){
-	    int ip = (*perm_it)[poi_i];
-            double deltaXi = (pmax[poi_i]-pmin[poi_i])/rootn;
-	    double xi = pmin[poi_i]+deltaXi*(ip+0.5);
-            poiVals_[poi_i] = xi; poiVars_[poi_i]->setVal(xi);
-	    if (verbose && (ipoint % nprint == 0)){
-             fprintf(sentry.trueStdOut(), " %s = %f ",
-                          poiVars_[poi_i]->GetName(), xi);
-	    }
-	  }
-	  if (verbose && (ipoint % nprint == 0)) fprintf(sentry.trueStdOut(), "\n");
-
+            fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
+                           ipoint, sqrn * sqrn, i, j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
+          }
+          poiVals_[0] = x;
+          poiVals_[1] = y;
+          poiVars_[0]->setVal(x);
+          poiVars_[1]->setVal(y);
           nll.clearEvalErrorLog(); nll.getVal();
-          if (nll.numEvalErrors() > 0) { 
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-		}
-               deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
-               ipoint++;
-	       continue;
-	  }
+          if (nll.numEvalErrors() > 0) {
+            for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+            	specifiedVals_[j]=specifiedVars_[j]->getVal();
+            }
+            for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+            	specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+            }
+            for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+            	specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+            }
+            deltaNLL_ = 9999;
+            Combine::commitPoint(true, /*quantile=*/0);
+            if (gridType_ == G3x3) {
+              for (int i2 = -1; i2 <= +1; ++i2) {
+                for (int j2 = -1; j2 <= +1; ++j2) {
+                  if (i2 == 0 && j2 == 0) continue;
+                  poiVals_[0] = x + 0.33333333*i2*deltaX;
+                  poiVals_[1] = y + 0.33333333*j2*deltaY;
+                  for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+                  	specifiedVals_[j]=specifiedVars_[j]->getVal();
+                  }
+                  for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+                  	specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+                  }
+                  for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+                  	specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+                  }
+                  deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
+                }
+              }
+            }
+            continue;
+          }
           // now we minimize
           bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
-          bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
+          bool ok = fastScan_ || skipme ? true : minim.minimize(verbose-1);
           if (ok) {
-               deltaNLL_ = nll.getVal() - nll0;
-               double qN = 2*(deltaNLL_);
-               double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-		}
-               Combine::commitPoint(true, /*quantile=*/prob);
+            deltaNLL_ = nll.getVal() - nll0;
+            double qN = 2 * (deltaNLL_);
+            double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+            for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+              specifiedVals_[j]=specifiedVars_[j]->getVal();
+            }
+            for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+              specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+            }
+            for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+              specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+            }
+            Combine::commitPoint(true, /*quantile=*/prob);
           }
-	  ipoint++;	
-	} 
+          if (gridType_ == G3x3) {
+            bool forceProfile = !fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.5;
+            utils::CheapValueSnapshot center(*params);
+            double x0 = x, y0 = y;
+            for (int i2 = -1; i2 <= +1; ++i2) {
+              for (int j2 = -1; j2 <= +1; ++j2) {
+                if (i2 == 0 && j2 == 0) continue;
+                center.writeTo(*params);
+                x = x0 + 0.33333333*i2*deltaX;
+                y = y0 + 0.33333333*j2*deltaY;
+                poiVals_[0] = x; poiVars_[0]->setVal(x);
+                poiVals_[1] = y; poiVars_[1]->setVal(y);
+                nll.clearEvalErrorLog(); nll.getVal();
+                if (nll.numEvalErrors() > 0) {
+                  for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+                    specifiedVals_[j]=specifiedVars_[j]->getVal();
+                  }
+                  for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+                    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+                  }
+                  for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+                    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+                  }
+                  deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
+                  continue;
+                }
+                deltaNLL_ = nll.getVal() - nll0;
+                if (forceProfile || (!fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.5)) {
+                  minim.minimize(verbose-1);
+                  deltaNLL_ = nll.getVal() - nll0;
+                }
+                double qN = 2*(deltaNLL_);
+                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+                  specifiedVals_[j]=specifiedVars_[j]->getVal();
+                }
+                for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+                  specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+                }
+                for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+                  specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+                }
+                Combine::commitPoint(true, /*quantile=*/prob);
+              }
+            }
+          }
+        }
+      }
+  } else { // Use utils routine if n > 2
+    unsigned int rootn = ceil(TMath::Power(double(points_),double(1./n)));
+    unsigned int ipoint = 0, nprint = ceil(0.005*TMath::Power((double)rootn,(double)n));
+
+    RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
+    CloseCoutSentry sentry(verbose < 2);
+    // Create permutations
+    std::vector<int> axis_points;
+    for (unsigned int poi_i=0;poi_i<n;poi_i++){
+      axis_points.push_back((int)rootn);
+  	}
+
+    std::vector<std::vector<int> > permutations = utils::generateCombinations(axis_points);
+    // Step through points
+    std::vector<std::vector<int> >::iterator perm_it = permutations.begin();
+    int npermutations = permutations.size();
+    for (; perm_it != permutations.end(); perm_it++) {
+      if (ipoint < firstPoint_) {
+        ipoint++;
+        continue;
+      }
+      if (ipoint > lastPoint_) break;
+      *params = snap;
+      if (verbose && (ipoint % nprint == 0)) {
+         fprintf(sentry.trueStdOut(), "Point %d/%d, ",
+                      ipoint,npermutations);
+      }
+      for (unsigned int poi_i = 0; poi_i < n; poi_i++) {
+        int ip = (*perm_it)[poi_i];
+        double deltaXi = (pmax[poi_i] - pmin[poi_i]) / rootn;
+        double spacingOffset = 0.5;
+        if (alignEdges_) {
+          deltaXi = (pmax[poi_i] - pmin[poi_i]) / (rootn - 1);
+          if (rootn == 1) {
+            deltaXi = 0.;
+          }
+          spacingOffset = 0.0;
+        }
+        double xi = pmin[poi_i] + deltaXi * (ip + spacingOffset);
+        poiVals_[poi_i] = xi;
+        poiVars_[poi_i]->setVal(xi);
+        if (verbose && (ipoint % nprint == 0)) {
+          fprintf(sentry.trueStdOut(), " %s = %f ",
+                  poiVars_[poi_i]->GetName(), xi);
+        }
+      }
+      if (verbose && (ipoint % nprint == 0)) fprintf(sentry.trueStdOut(), "\n");
+      nll.clearEvalErrorLog(); nll.getVal();
+      if (nll.numEvalErrors() > 0) {
+        for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+          specifiedVals_[j]=specifiedVars_[j]->getVal();
+        }
+        for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+          specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+        }
+        for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+          specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+        }
+        deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
+        ipoint++;
+        continue;
+      }
+      // now we minimize
+      bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
+      bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
+      if (ok) {
+        deltaNLL_ = nll.getVal() - nll0;
+        double qN = 2*(deltaNLL_);
+        double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+        for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+          specifiedVals_[j]=specifiedVars_[j]->getVal();
+        }
+        for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+          specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+        }
+        for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+          specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+        }
+        Combine::commitPoint(true, /*quantile=*/prob);
+      }
+    ipoint++;
     }
+  }
 }
 
-void MultiDimFit::doRandomPoints(RooAbsReal &nll) 
+void MultiDimFit::doRandomPoints(RooWorkspace *w, RooAbsReal &nll) 
 {
     double nll0 = nll.getVal();
+    if (startFromPreFit_) w->loadSnapshot("clean");
     for (unsigned int i = 0, n = poi_.size(); i < n; ++i) {
         poiVars_[i]->setConstant(true);
     }
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+    if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
     for (unsigned int j = 0; j < points_; ++j) {
@@ -755,18 +870,24 @@ void MultiDimFit::doRandomPoints(RooAbsReal &nll)
 void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll) 
 {
     double nll0 = nll.getVal();
+    if (startFromPreFit_) w->loadSnapshot("clean");
     for (unsigned int i = 0, n = poi_.size(); i < n; ++i) {
         poiVars_[i]->setConstant(true);
     }
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+    if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
 
     //for (unsigned int i = 0; i < n; ++i) {
     //        std::cout<<" Before setting fixed point "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
     //}
-    if (setPhysicsModelParameterExpression_ != "") {
+    if (fixedPointPOIs_ != "") {
+	    utils::setModelParameters( fixedPointPOIs_, w->allVars());
+    } else if (setPhysicsModelParameterExpression_ != "") {
+            std::cout << " --fixedPointPOIs option not used, so will use the argument of --setPhysicsModelParameters instead" << std::endl;
 	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
     }   
 
@@ -802,7 +923,7 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     } 
 }
 
-void MultiDimFit::doContour2D(RooAbsReal &nll) 
+void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll) 
 {
     if (poi_.size() != 2) throw std::logic_error("Contour2D works only in 2 dimensions");
     RooRealVar *xv = poiVars_[0]; double x0 = poiVals_[0]; float &x = poiVals_[0];
@@ -828,6 +949,8 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
         // ===== Get the best fit x (could also do without profiling??) =====
         xv->setConstant(false);  xv->setVal(x0);
         CascadeMinimizer minimXI(nll, CascadeMinimizer::Unconstrained, xv);
+        if (!autoBoundsPOIs_.empty()) minimXI.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minimXI.setAutoMax(&autoMaxPOISet_); 
         minimXI.setStrategy(minimizerStrategy_);
         {
             CloseCoutSentry sentry(verbose < 3);    
@@ -837,6 +960,8 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
         if (verbose>-1) std::cout << "Best fit " << xv->GetName() << " for  " << yv->GetName() << " = " << yv->getVal() << " is at " << xc << std::endl;
         // ===== Then get the range =====
         CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+        if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
         double xup = findCrossing(minim, nll, *xv, threshold, xc, xMax);
         if (!std::isnan(xup)) { 
             x = xup; y = yv->getVal(); Combine::commitPoint(true, /*quantile=*/1-cl);
@@ -853,7 +978,7 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
     verbose++; // restore verbosity
 }
 
-void MultiDimFit::doStitch2D(RooAbsReal &nll)
+void MultiDimFit::doStitch2D(RooWorkspace *, RooAbsReal &nll)
 {
     if (poi_.size() != 2) throw std::logic_error("Contour2D works only in 2 dimensions");
     //RooRealVar *xv = poiVars_[0]; double x0 = poiVals_[0]; float &x = poiVals_[0];
@@ -920,6 +1045,8 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         RooRealVar *xv = poiVars_[i];
         xv->setConstant(true);
         CascadeMinimizer minimX(nll, CascadeMinimizer::Constrained);
+        if (!autoBoundsPOIs_.empty()) minimX.setAutoBounds(&autoBoundsPOISet_); 
+        if (!autoMaxPOIs_.empty()) minimX.setAutoMax(&autoMaxPOISet_); 
         minimX.setStrategy(minimizerStrategy_);
 
         for (unsigned int j = 0; j < n; ++j) poiVars_[j]->setVal(p0[j]);
@@ -954,4 +1081,12 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         xv->setConstant(false);
     }
     verbose++; // restore verbosity 
+}
+
+void MultiDimFit::saveResult(RooFitResult &res) {
+    if (verbose>2) res.Print("V");
+    fitOut.reset(TFile::Open(("multidimfit"+name_+".root").c_str(), "RECREATE"));
+    fitOut->WriteTObject(&res,"fit_mdf");
+    fitOut->cd();
+    fitOut.release()->Close();
 }

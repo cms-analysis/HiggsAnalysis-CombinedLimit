@@ -13,8 +13,10 @@
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooGaussian.h>
+#include <RooPoisson.h>
 #include <RooProduct.h>
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
@@ -45,6 +47,7 @@ namespace cacheutils {
             // and it will be up to the caller code to fill the room the new item
             std::pair<std::vector<Double_t> *, bool> get(); 
             void clear();
+            inline void setDirectMode(bool mode) { directMode_ = mode; }
         private:
             struct Item {
                 Item(const RooAbsCollection &set)   : checker(set),   good(false) {}
@@ -56,6 +59,7 @@ namespace cacheutils {
             int size_, maxSize_;
             enum { MaxItems_ = 3 };
             Item *items[MaxItems_];
+            bool directMode_;
     };
 // Part one: cache all values of a pdf
 class CachingPdfBase {
@@ -120,8 +124,12 @@ class CachingAddNLL : public RooAbsReal {
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
         double  sumWeights() const { return sumWeights_; }
         const RooAbsPdf *pdf() const { return pdf_; }
-        void setZeroPoint() { zeroPoint_ = -this->getVal(); setValueDirty(); }
-        void clearZeroPoint() { zeroPoint_ = 0.0; setValueDirty();  }
+        void setZeroPoint() ;
+        void clearZeroPoint() ;
+        void clearConstantZeroPoint() ;
+        void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
+        void propagateData();
+        void setAnalyticBarlowBeeston(bool flag);
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }
@@ -143,7 +151,8 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;
         mutable int canBasicIntegrals_, basicIntegrals_;
-        double zeroPoint_;
+        double zeroPoint_; 
+        double constantZeroPoint_; // this is arbitrary and kept constant for all the lifetime of the PDF
 };
 
 class CachingSimNLL  : public RooAbsReal {
@@ -162,9 +171,14 @@ class CachingSimNLL  : public RooAbsReal {
         static void setNoDeepLogEvalError(bool noDeep) { noDeepLEE_ = noDeep; }
         void setZeroPoint() ; 
         void clearZeroPoint() ;
+        void clearConstantZeroPoint() ;
+        void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);
+        void setAnalyticBarlowBeeston(bool flag);
         friend class CachingAddNLL;
+        // trap this call, since we don't care about propagating it to the sub-components
+        virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
     private:
         void setup_();
         RooSimultaneous   *pdfOriginal_;
@@ -176,6 +190,8 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<RooAbsPdf *>        constrainPdfs_;
         std::vector<SimpleGaussianConstraint *>  constrainPdfsFast_;
         std::vector<bool>                        constrainPdfsFastOwned_;
+        std::vector<SimplePoissonConstraint *>   constrainPdfsFastPoisson_;
+        std::vector<bool>                        constrainPdfsFastPoissonOwned_;
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
@@ -184,6 +200,7 @@ class CachingSimNLL  : public RooAbsReal {
         static bool optimizeContraints_;
         std::vector<double> constrainZeroPoints_;
         std::vector<double> constrainZeroPointsFast_;
+        std::vector<double> constrainZeroPointsFastPoisson_;
         std::vector<RooAbsReal*> channelMasks_;
 };
 
