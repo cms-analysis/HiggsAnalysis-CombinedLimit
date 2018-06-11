@@ -103,7 +103,7 @@ void ParseCombineWorkspace(CombineHarvester& cb, RooWorkspace& ws,
         // set by text2workspace. Should really check they exist first...
         proc.set_process(jpdf->getStringAttribute("combine.process"));
         proc.set_rate(1.);
-        proc.set_signal(jpdf->getAttribute("combine.signal"));
+        proc.set_signal(jcoeff->getAttribute("combine.signal"));
         proc_infos[proc.bin()].push_back(
             {proc.bin(), proc.process(), jpdf->GetName(), jcoeff->GetName()});
         cb.InsertProcess(proc);
