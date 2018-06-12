@@ -11,15 +11,18 @@
 // #include <TH1.h>
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
+#include "TMatrixDSymEigen.h"
 
 class RobustHesse {
  public:
-  RobustHesse(RooAbsReal &nll);
+  RobustHesse(RooAbsReal &nll, unsigned verbose = 0);
 
   void SaveHessianToFile(std::string const& filename);
   void LoadHessianFromFile(std::string const& filename);
 
   int hesse();
+
+  void WriteOutputFile(std::string const& outputFileName) const;
 
  private:
   int factorial(int n) {
@@ -28,6 +31,15 @@ class RobustHesse {
     else
       return 1;
   }
+
+  struct Var {
+    RooRealVar * v;
+    double nominal;
+    std::vector<double> stencil;
+    std::vector<double> d1coeffs;
+    std::vector<double> d2coeffs;
+    double rescale;
+  };
 
   void initialize();
 
@@ -42,28 +54,44 @@ class RobustHesse {
   double improveWithBisect(unsigned i, double x, double max, double target, double targetLo, double targetHi, unsigned maxIters);
 
   std::vector<double> getFdCoeffs(unsigned n, std::vector<double> const& stencil);
+
+  void RemoveFromHessian(std::vector<unsigned> ids);
+
+  void ReplaceVars(std::vector<Var> newVars) {
+    cVars_ = newVars;
+    nllcache_.clear();
+    nllEvals_ = 0;
+    nllEvalsCached_ = 0;
+  }
+
+
+
   RooAbsReal * nll_;
   double nll0_;
-  std::vector<RooRealVar *> v_;
-  std::vector<double> nominal_;
-  std::vector<std::vector<double>> stencils_;
-  std::vector<std::vector<double>> d1coeffs_;
-  std::vector<std::vector<double>> d2coeffs_;
-  std::vector<double> rescales_;
-  std::vector<std::vector<double>> sampled_;
 
+  std::vector<Var> cVars_;
+  std::vector<Var> invalidStencilVars_;
+  std::vector<Var> removedFromHessianVars_;
 
   // Parameters that control the behaviour
   double targetNllForStencils_;
   double minNllForStencils_;
   double maxNllForStencils_;
+  unsigned maxRemovalsFromHessian_;
 
   bool doRescale_;
 
   std::string saveFile_;
   std::string loadFile_;
 
+  std::unique_ptr<TMatrixDSym> hessian_;
+  std::unique_ptr<TMatrixDSym> covariance_;
+
   std::map<std::pair<unsigned, double>, double> nllcache_;
+  unsigned nllEvals_;
+  unsigned nllEvalsCached_;
+
+  int verbosity_;
 };
 
 #endif
