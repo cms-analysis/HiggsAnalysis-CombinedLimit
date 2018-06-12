@@ -56,6 +56,10 @@ protected:
   static std::string fixedPointPOIs_;
   static float centeredRange_;
 
+  static bool robustHesse_;
+  static std::string robustHesseLoad_;
+  static std::string robustHesseSave_;
+
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
   static std::string saveSpecifiedIndex_;
