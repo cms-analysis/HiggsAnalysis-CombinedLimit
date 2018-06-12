@@ -104,13 +104,17 @@ int RobustHesse::setParameterStencil(unsigned i) {
   bool closeToHi = valHi > boundHi;
 
   if (closeToLo) {
-    if (verbosity_ > 0) std::cout << ">> Parameter " << rrv->GetName() << " is too close to the lower bound: \n";
-    rrv->Print();
+    if (verbosity_ > 0) {
+      std::cout << ">> Parameter " << rrv->GetName() << " is too close to the lower bound: \n";
+      rrv->Print();
+    }
     valLo = boundLo + 1E-7;
   }
   if (closeToHi) {
-    if (verbosity_ > 0) std::cout << ">> Parameter " << rrv->GetName() << " is too close to the upper bound: \n";
-    rrv->Print();
+    if (verbosity_ > 0) {
+      std::cout << ">> Parameter " << rrv->GetName() << " is too close to the upper bound: \n";
+      rrv->Print();
+    }
     valHi = boundHi + 1E-7;
   }
 
@@ -199,7 +203,7 @@ int RobustHesse::setParameterStencil(unsigned i) {
     }
     cVars_[i].stencil = {(valLo - x) / cVars_[i].rescale, (valLo - x) / (2. * cVars_[i].rescale), 0.};
   } else {
-    std::cout << "[setParameterStencil] " << rrv->GetName() << "not viable at all!\n";
+    std::cout << ">> Parameter " << rrv->GetName() << " does not have a valid stencil and will be dropped\n";
   }
 
   return 0;
@@ -400,6 +404,7 @@ int RobustHesse::hesse() {
 
 
   bool print_only_negative = true;
+  std::vector<std::string> removed_pars;
   for (unsigned ai = 0; ai < maxRemovalsFromHessian_; ++ai) {
     std::cout << ">> Verifying eigenvalues are all posivtive (iteration " << ai << ")\n";
     bool have_negative_eigenvalues = false;
@@ -431,6 +436,7 @@ int RobustHesse::hesse() {
         // meaning most negative is this one
         if (ei == (eigenvals.GetNrows() - 1)) {
           to_remove.push_back(eigenvec[0].first);
+          removed_pars.push_back(cVars_[eigenvec[0].first].v->GetName());
         }
       }
     }
@@ -446,6 +452,20 @@ int RobustHesse::hesse() {
   covariance_ = std::unique_ptr<TMatrixDSym>(new TMatrixDSym(*hessian_));
   std::cout << ">> Inverting Hessian...\n";
   covariance_->Invert();
+  std::cout << ">> Matrix inverted\n";
+
+  if (invalidStencilVars_.size() > 0) {
+    std::cout << ">> Note: the following parameters were dropped as their ranges are either too narrow or the parameter has no effect on the NLL:\n";
+    for (auto const& par : invalidStencilVars_) {
+      std::cout << "     - " << par.v->GetName() << "\n";
+    }
+  }
+  if (removed_pars.size() > 0) {
+    std::cout << ">> Note: the following parameters were dropped to make the covariance matrix pos-def:\n";
+    for (auto const& par : removed_pars) {
+      std::cout << "     - " << par << "\n";
+    }
+  }
 
   // TDecompBK decomp(hessian);
   // std::cout << " - Inverting Hessian...\n";

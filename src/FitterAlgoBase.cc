@@ -49,10 +49,6 @@ int         FitterAlgoBase::minimizerStrategyForMinos_ = 0;  // also default fro
 float       FitterAlgoBase::preFitValue_ = 1.0;
 float       FitterAlgoBase::stepSize_ = 0.1;
 bool        FitterAlgoBase::robustFit_ = false;
-bool        FitterAlgoBase::robustHesse_ = false;
-std::string FitterAlgoBase::robustHesseLoad_ = "";
-std::string FitterAlgoBase::robustHesseSave_ = "";
-
 int         FitterAlgoBase::maxFailedSteps_ = 5;
 bool        FitterAlgoBase::do95_ = false;
 bool        FitterAlgoBase::forceRecreateNLL_ = false;
@@ -75,9 +71,6 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("preFitValue",        boost::program_options::value<float>(&preFitValue_)->default_value(preFitValue_),  "Value of signal strength pre-fit, also used for pre-fit plots, normalisations and uncertainty calculations (note this overrides --expectSignal for these features)")
         ("do95",       boost::program_options::value<bool>(&do95_)->default_value(do95_),  "Compute also 2-sigma interval from delta(nll) = 1.92 instead of 0.5")
         ("robustFit",  boost::program_options::value<bool>(&robustFit_)->default_value(robustFit_),  "Search manually for 1 and 2 sigma bands instead of using Minos")
-        ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
-        ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
-        ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
         ("maxFailedSteps",  boost::program_options::value<int>(&maxFailedSteps_)->default_value(maxFailedSteps_),  "How many failed steps to retry before giving up")
         ("stepSize",        boost::program_options::value<float>(&stepSize_)->default_value(stepSize_),  "Step size for robust fits (multiplier of the range)")
         ("setRobustFitAlgo",      boost::program_options::value<std::string>(&minimizerAlgoForMinos_)->default_value(minimizerAlgoForMinos_), "Choice of minimizer (Minuit vs Minuit2) for profiling in robust fits")
@@ -242,8 +235,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     nll0Value_ =  nll0;
     nllValue_ =  nll->getVal() - nll0;
     if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
-    // if (doHesse) minim.hesse();
-    if (doHesse && !robustHesse_) minim.hesse();
+    if (doHesse) minim.hesse();
 
     sentry.clear();
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
