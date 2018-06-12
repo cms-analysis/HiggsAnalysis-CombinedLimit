@@ -214,11 +214,18 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	//}
     }
 
-    RobustHesse robustHesse(*nll);
-    robustHesse.SaveHessianToFile("hessian_full.root");
-    // robustHesse.LoadHessianFromFile("hessian_full.root");
-    // might do some configuration here...
+    if (robustHesse_) {
+
+    RobustHesse robustHesse(*nll, verbose - 1);
+    if (robustHesseSave_ != "") {
+      robustHesse.SaveHessianToFile(robustHesseSave_);
+    }
+    if (robustHesseLoad_ != "") {
+      robustHesse.LoadHessianFromFile(robustHesseLoad_);
+    }
     robustHesse.hesse();
+    robustHesse.WriteOutputFile("robustHesse"+name_+".root");
+    }
 
    
     //set snapshot for best fit
