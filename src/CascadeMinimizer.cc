@@ -34,6 +34,7 @@ double CascadeMinimizer::discreteMinTol_ = 0.001;
 std::string CascadeMinimizer::defaultMinimizerType_="Minuit2"; // default to minuit2 (not always the default !?)
 std::string CascadeMinimizer::defaultMinimizerAlgo_=ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
 double CascadeMinimizer::defaultMinimizerTolerance_=1e-1;  
+double CascadeMinimizer::defaultMinimizerPrecision_=-1.0;
 int  CascadeMinimizer::strategy_=1; 
 
 CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) :
@@ -642,6 +643,7 @@ void CascadeMinimizer::initOptions()
 	("cminDefaultMinimizerType",boost::program_options::value<std::string>(&defaultMinimizerType_)->default_value(defaultMinimizerType_), "Set the default minimizer Type")
 	("cminDefaultMinimizerAlgo",boost::program_options::value<std::string>(&defaultMinimizerAlgo_)->default_value(defaultMinimizerAlgo_), "Set the default minimizer Algo")
 	("cminDefaultMinimizerTolerance",boost::program_options::value<double>(&defaultMinimizerTolerance_)->default_value(defaultMinimizerTolerance_), "Set the default minimizer Tolerance")
+	("cminDefaultMinimizerPrecision",boost::program_options::value<double>(&defaultMinimizerPrecision_)->default_value(defaultMinimizerPrecision_), "Set the default minimizer precision")
 	("cminDefaultMinimizerStrategy",boost::program_options::value<int>(&strategy_)->default_value(strategy_), "Set the default minimizer (initial) strategy")
         ("cminRunAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
         ("cminDiscreteMinTol", boost::program_options::value<double>(&discreteMinTol_)->default_value(discreteMinTol_), "tolerance on min NLL for discrete combination iterations")
@@ -707,6 +709,9 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
     // Note that the options are not applied again when recreating a CascadeMinimizer so need to set the global attributes (should we make the modifiable options persistant too?)
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer(defaultMinimizerType_.c_str(),defaultMinimizerAlgo_.c_str());
     ROOT::Math::MinimizerOptions::SetDefaultTolerance(defaultMinimizerTolerance_);
+    if (defaultMinimizerPrecision_ > 0.) {
+      ROOT::Math::MinimizerOptions::SetDefaultPrecision(defaultMinimizerPrecision_);
+    }
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(strategy_);
 
     //if (vm.count("cminDefaultIntegratorEpsAbs")) RooAbsReal::defaultIntegratorConfig()->setEpsAbs(vm["cminDefaultIntegratorEpsAbs"].as<double>());
