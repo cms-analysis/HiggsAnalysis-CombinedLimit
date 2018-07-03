@@ -7,11 +7,24 @@
 // #include <TGraphAsymmErrors.h>
 // #include <TString.h>
 // #include <RooHistError.h>
-// #include <RooFitResult.h>
+#include "RooFitResult.h"
 // #include <TH1.h>
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 #include "TMatrixDSymEigen.h"
+
+class RooFitResultBuilder : public RooFitResult {
+ public:
+  RooFitResultBuilder() : RooFitResult(){};
+
+  RooFitResultBuilder(RooFitResult const& other) : RooFitResult(other) {}
+
+  void setFinalParList(RooArgList const& pars) { this->RooFitResult::setFinalParList(pars); }
+
+  void setCovarianceMatrix(TMatrixDSym & matrix) { this->RooFitResult::setCovarianceMatrix(matrix); }
+
+  RooFitResult Get() { return *this; }
+};
 
 class RobustHesse {
  public:
@@ -23,6 +36,7 @@ class RobustHesse {
   int hesse();
 
   void WriteOutputFile(std::string const& outputFileName) const;
+  RooFitResult * GetRooFitResult(RooFitResult const* current) const;
 
  private:
   int factorial(int n) {

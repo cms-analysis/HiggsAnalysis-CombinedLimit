@@ -175,7 +175,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
     bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
     if ( !skipInitialFit_){
-        res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
+        res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, (saveFitResult_ && !robustHesse_), 1, true, false));
         if (!res.get()) {
             std::cout << "\n " <<std::endl;
             std::cout << "\n ---------------------------" <<std::endl;
@@ -223,16 +223,18 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     }
 
     if (robustHesse_) {
-
-    RobustHesse robustHesse(*nll, verbose - 1);
-    if (robustHesseSave_ != "") {
-      robustHesse.SaveHessianToFile(robustHesseSave_);
-    }
-    if (robustHesseLoad_ != "") {
-      robustHesse.LoadHessianFromFile(robustHesseLoad_);
-    }
-    robustHesse.hesse();
-    robustHesse.WriteOutputFile("robustHesse"+name_+".root");
+        RobustHesse robustHesse(*nll, verbose - 1);
+        if (robustHesseSave_ != "") {
+          robustHesse.SaveHessianToFile(robustHesseSave_);
+        }
+        if (robustHesseLoad_ != "") {
+          robustHesse.LoadHessianFromFile(robustHesseLoad_);
+        }
+        robustHesse.hesse();
+        if (saveFitResult_) {
+            res.reset(robustHesse.GetRooFitResult(res.get()));
+        }
+        robustHesse.WriteOutputFile("robustHesse"+name_+".root");
     }
 
    

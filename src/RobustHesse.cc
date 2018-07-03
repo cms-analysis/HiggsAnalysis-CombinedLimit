@@ -521,6 +521,32 @@ void RobustHesse::WriteOutputFile(std::string const& outputFileName) const {
   fout.Close();
 }
 
+RooFitResult* RobustHesse::GetRooFitResult(RooFitResult const* current) const {
+  RooFitResultBuilder* rfr = nullptr;
+  if (current) {
+    rfr = new RooFitResultBuilder(*current);
+  } else {
+    rfr = new RooFitResultBuilder();
+  }
+
+  auto scaled_cov = std::unique_ptr<TMatrixDSym>(new TMatrixDSym(cVars_.size()));
+  RooArgList arglist("floatParsFinal");
+
+  for (unsigned i = 0; i < cVars_.size(); ++i) {
+    RooRealVar newVar(cVars_[i].v->GetName(), "", cVars_[i].v->getVal(), cVars_[i].v->getMin(), cVars_[i].v->getMax());
+    arglist.addClone(newVar);
+    RooRealVar* rrv = dynamic_cast<RooRealVar*>(arglist.at(i));
+    rrv->setError(std::sqrt((*covariance_)[i][i]) * cVars_[i].rescale);
+    for (unsigned j = i; j < cVars_.size(); ++j) {
+      (*scaled_cov)[i][j] = (*covariance_)[i][j] * cVars_[i].rescale * cVars_[j].rescale;
+      (*scaled_cov)[j][i] = (*covariance_)[i][j] * cVars_[i].rescale * cVars_[j].rescale;
+    }
+  }
+  rfr->setFinalParList(arglist);
+  rfr->setCovarianceMatrix(*scaled_cov);
+  return rfr;
+}
+
 void RobustHesse::SaveHessianToFile(std::string const& filename) {
   saveFile_ = filename;
 }

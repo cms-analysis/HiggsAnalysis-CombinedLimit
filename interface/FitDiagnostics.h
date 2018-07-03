@@ -49,6 +49,7 @@ protected:
   static bool	     saveWorkspace_;
   static bool        reuseParams_;
   static bool        customStartingPoint_;
+  static bool       robustHesse_;
   int currentToy_, nToys;
   int fitStatus_, numbadnll_;
   double mu_, muErr_, muLoErr_, muHiErr_, nll_nll0_, nll_bonly_, nll_sb_;
