@@ -29,6 +29,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
 
 
 #include <Math/MinimizerOptions.h>
@@ -56,6 +57,7 @@ bool        FitDiagnostics::skipBOnlyFit_ = false;
 bool        FitDiagnostics::noErrors_ = false;
 bool        FitDiagnostics::reuseParams_ = false;
 bool        FitDiagnostics::customStartingPoint_ = false;
+bool        FitDiagnostics::robustHesse_ = false;
 
 
 FitDiagnostics::FitDiagnostics() :
@@ -85,6 +87,7 @@ FitDiagnostics::FitDiagnostics() :
         ("numToysForShapes", 	boost::program_options::value<int>(&numToysForShapes_)->default_value(numToysForShapes_),  "Choose number of toys for re-sampling of the covariance (for shapes with uncertainties)")
         ("filterString",	boost::program_options::value<std::string>(&filterString_)->default_value(filterString_), "Filter to search for when making covariance and shapes")
         ("justFit",  		"Just do the S+B fit, don't do the B-only one, don't save output file")
+        ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
         ("skipBOnlyFit",  	"Skip the B-only fit (do only the S+B fit)")
         ("initFromBonly",  	"Use the values of the nuisance parameters from the background only fit as the starting point for the s+b fit. Can help fit convergence")
         ("customStartingPoint", "Don't set the first POI to 0 for the background-only fit. Instead if using this option, the parameter will be fixed to its default value, which can be set with the --setParameters option.")
@@ -259,6 +262,14 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   }
 
+  if (res_b && robustHesse_) {
+    RobustHesse robustHesse(*nll, verbose - 1);
+    robustHesse.hesse();
+    auto res_b_new = robustHesse.GetRooFitResult(res_b);
+    delete res_b;
+    res_b = res_b_new;
+  }
+
   if (res_b) { 
       if (verbose > 1) res_b->Print("V");
       if (fitOut.get()) {
@@ -340,6 +351,14 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
     res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*ndim*/1,/*reuseNLL*/ true); 
     if (res_s) nll_sb_= nll->getVal()-nll0;
 
+  }
+
+  if (res_s && robustHesse_) {
+    RobustHesse robustHesse(*nll, verbose - 1);
+    robustHesse.hesse();
+    auto res_s_new = robustHesse.GetRooFitResult(res_s);
+    delete res_s;
+    res_s = res_s_new;
   }
   /**********************************************************************************************************************************/
   if (res_s) { 
