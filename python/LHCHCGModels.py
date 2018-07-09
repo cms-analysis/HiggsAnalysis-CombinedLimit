@@ -121,6 +121,9 @@ class SignalStrengths(LHCHCGBaseModel):
         self.doVar("mu[1,0,5]")
         for X in CMS_to_LHCHCG_Dec.values():
             self.doVar("mu_BR_%s[1,0,5]" % X)
+            self.doVar("mu_BR7_%s[1,0,5]" % X)
+            self.doVar("mu_BR8_%s[1,0,5]" % X)
+            self.doVar("mu_BR13_%s[1,0,5]" % X)
         for X in CMS_to_LHCHCG_Prod.values() + [ "ZH", "tH", "ggFbbH", "ttHtH", "VH" ]:
             self.doVar("mu_XS_%s[1,0,5]" % X)
             self.doVar("mu_XS7_%s[1,0,5]" % X)
@@ -142,7 +145,7 @@ class SignalStrengths(LHCHCGBaseModel):
             for D in SM_HIGG_DECAYS:
                 for E in 7, 8, 13:
                     DS = CMS_to_LHCHCG_DecSimple[D]
-                    terms = [ "mu", "mu_BR_"+CMS_to_LHCHCG_DecSimple[D] ]
+                    terms = [ "mu", "mu_BR_"+CMS_to_LHCHCG_DecSimple[D], "mu_BR"+str(E)+"_"+CMS_to_LHCHCG_DecSimple[D] ]
                     # Hack for ggH
                     if D in self.add_bbH and P == "ggH":
                         b2g = "CMS_R_bbH_ggH_%s_%dTeV[%g]" % (D, E, 0.01) 
@@ -182,6 +185,7 @@ class SignalStrengths(LHCHCGBaseModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         return "scaling_%s_%s_%s" % (production,decay,energy)
+
 class SignalStrengthRatios(LHCHCGBaseModel):
     "Allow for fits of ratios of signal strengths"
     def __init__(self):
