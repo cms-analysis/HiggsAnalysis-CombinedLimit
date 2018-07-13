@@ -48,6 +48,7 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         self.add_bbH = [ ]
         self.bbH_pdf = "pdf_Higgs_gg"
         self.promote_hmm = False
+        self.promote_hccgluglu = False
     def preProcessNuisances(self,nuisances):
         if self.add_bbH and not any(row for row in nuisances if row[0] == "QCDscale_bbH"):
             nuisances.append(("QCDscale_bbH",False, "param", [ "0", "1"], [] ) )
@@ -62,6 +63,12 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
                     CMS_to_LHCHCG_DecSimple['hmm'] = 'mumu'
             if po.startswith("bbh="):
                 self.add_bbH = [d.strip() for d in po.replace("bbh=","").split(",")]
+            if po.startswith("dohccgluglu="):
+                self.promote_hccgluglu = (po.replace("dohccgluglu=","") in ["yes","1","Yes","True","true"])
+                if self.promote_hccgluglu:
+                    print 'Treating hcc and hgg as independent processes'
+                    CMS_to_LHCHCG_DecSimple['hcc'] = 'cc'
+                    CMS_to_LHCHCG_DecSimple['hgluglu'] = 'gluglu'
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
