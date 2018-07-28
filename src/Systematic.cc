@@ -236,4 +236,11 @@ std::ostream& operator<< (std::ostream &out, Systematic const& val) {
   % (bool(val.shape_u()) || bool(val.data_u()));
   return out;
 }
+
+void Systematic::SwapUpAndDown() {
+  double tmp = value_u_;
+  value_u_ = value_d_;
+  value_d_ = tmp;
+  shape_u_.swap(shape_d_);
+}
 }

@@ -61,6 +61,8 @@ class Systematic : public Object {
   friend std::ostream& operator<< (std::ostream &out, Systematic const& val);
   static std::ostream& PrintHeader(std::ostream &out);
 
+  void SwapUpAndDown();
+
  private:
   std::string name_;
   std::string type_;
