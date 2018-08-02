@@ -406,7 +406,7 @@ int RobustHesse::hesse() {
   bool print_only_negative = true;
   std::vector<std::string> removed_pars;
   for (unsigned ai = 0; ai < maxRemovalsFromHessian_; ++ai) {
-    std::cout << ">> Verifying eigenvalues are all posivtive (iteration " << ai << ")\n";
+    std::cout << ">> Verifying eigenvalues are all positive (iteration " << ai << ")\n";
     bool have_negative_eigenvalues = false;
 
     TMatrixDSymEigen eigen(*hessian_);
@@ -435,8 +435,16 @@ int RobustHesse::hesse() {
         // Assume sorted by largest to smallest eigenvalues,
         // meaning most negative is this one
         if (ei == (eigenvals.GetNrows() - 1)) {
-          to_remove.push_back(eigenvec[0].first);
-          removed_pars.push_back(cVars_[eigenvec[0].first].v->GetName());
+          for (unsigned ej = 0; ej < eigenvec.size(); ++ ej) {
+            // Check if we are allowed to remove this parameter
+            std::string parname = cVars_[eigenvec[ej].first].v->GetName();
+            // If it is not protected OR if it is the last parameter then we can remove it
+            if (!proctected_.count(parname) || ej == (eigenvec.size() - 1)) {
+              to_remove.push_back(eigenvec[ej].first);
+              removed_pars.push_back(parname);
+              break;
+            }
+          }
         }
       }
     }
@@ -529,7 +537,7 @@ RooFitResult* RobustHesse::GetRooFitResult(RooFitResult const* current) const {
     rfr = new RooFitResultBuilder();
   }
 
-  auto scaled_cov = std::unique_ptr<TMatrixDSym>(new TMatrixDSym(cVars_.size()));
+  auto scaled_cov = std::unique_ptr<TMatrixDSym>(new TMatrixDSym(cVars_.size() + removedFromHessianVars_.size()));
   RooArgList arglist("floatParsFinal");
 
   for (unsigned i = 0; i < cVars_.size(); ++i) {
@@ -541,6 +549,17 @@ RooFitResult* RobustHesse::GetRooFitResult(RooFitResult const* current) const {
       (*scaled_cov)[i][j] = (*covariance_)[i][j] * cVars_[i].rescale * cVars_[j].rescale;
       (*scaled_cov)[j][i] = (*covariance_)[i][j] * cVars_[i].rescale * cVars_[j].rescale;
     }
+  }
+  for (unsigned i = 0; i < removedFromHessianVars_.size(); ++i) {
+    RooRealVar newVar(
+        removedFromHessianVars_[i].v->GetName(), "", removedFromHessianVars_[i].v->getVal(),
+        removedFromHessianVars_[i].v->getMin(), removedFromHessianVars_[i].v->getMax());
+    arglist.addClone(newVar);
+    RooRealVar* rrv = dynamic_cast<RooRealVar*>(arglist.at(cVars_.size() + i));
+    rrv->setError(0.);
+    // Set some nominally small value
+    (*scaled_cov)[cVars_.size() + i][cVars_.size() + i] = (1E-100);
+
   }
   rfr->setFinalParList(arglist);
   rfr->setCovarianceMatrix(*scaled_cov);
@@ -554,4 +573,24 @@ void RobustHesse::LoadHessianFromFile(std::string const& filename) {
   loadFile_ = filename;
 }
 
+void RobustHesse::ProtectArgSet(RooArgSet const& set) {
+  std::vector<std::string> names;
+  RooFIter iter = set.fwdIterator();
+  RooAbsArg *item;
+  while ((item = iter.next())) {
+    RooRealVar *rrv = dynamic_cast<RooRealVar*>(item);
+    if (rrv && !rrv->isConstant()) {
+      names.push_back(rrv->GetName());
+    }
+  }
+  ProtectVars(names);
+}
 
+void RobustHesse::ProtectVars(std::vector<std::string> const& names) {
+  std::cout << ">> The following parameters are protected in the event of negative eigenvalues:";
+  for (auto const& name : names) {
+    std::cout << " " << name;
+    proctected_.insert(name);
+  }
+  std::cout << "\n";
+}

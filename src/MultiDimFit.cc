@@ -225,6 +225,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 
     if (robustHesse_) {
         RobustHesse robustHesse(*nll, verbose - 1);
+        robustHesse.ProtectArgSet(*mc_s->GetParametersOfInterest());
         if (robustHesseSave_ != "") {
           robustHesse.SaveHessianToFile(robustHesseSave_);
         }

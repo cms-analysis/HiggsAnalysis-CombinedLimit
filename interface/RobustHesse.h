@@ -21,7 +21,7 @@ class RooFitResultBuilder : public RooFitResult {
 
   void setFinalParList(RooArgList const& pars) { this->RooFitResult::setFinalParList(pars); }
 
-  void setCovarianceMatrix(TMatrixDSym & matrix) { this->RooFitResult::setCovarianceMatrix(matrix); }
+  void setCovarianceMatrix(TMatrixDSym & matrix) { this->RooFitResult::setCovarianceMatrix(matrix);}
 
   RooFitResult Get() { return *this; }
 };
@@ -32,6 +32,9 @@ class RobustHesse {
 
   void SaveHessianToFile(std::string const& filename);
   void LoadHessianFromFile(std::string const& filename);
+
+  void ProtectArgSet(RooArgSet const& set);
+  void ProtectVars(std::vector<std::string> const& names);
 
   int hesse();
 
@@ -104,6 +107,8 @@ class RobustHesse {
   std::map<std::pair<unsigned, double>, double> nllcache_;
   unsigned nllEvals_;
   unsigned nllEvalsCached_;
+
+  std::set<std::string> proctected_;
 
   int verbosity_;
 };

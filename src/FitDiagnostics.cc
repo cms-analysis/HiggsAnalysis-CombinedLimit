@@ -264,6 +264,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   if (res_b && robustHesse_) {
     RobustHesse robustHesse(*nll, verbose - 1);
+    robustHesse.ProtectArgSet(*mc_s->GetParametersOfInterest());
     robustHesse.hesse();
     auto res_b_new = robustHesse.GetRooFitResult(res_b);
     delete res_b;
@@ -355,6 +356,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   if (res_s && robustHesse_) {
     RobustHesse robustHesse(*nll, verbose - 1);
+    robustHesse.ProtectArgSet(*mc_s->GetParametersOfInterest());
     robustHesse.hesse();
     auto res_s_new = robustHesse.GetRooFitResult(res_s);
     delete res_s;
