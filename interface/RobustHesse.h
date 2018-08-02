@@ -15,7 +15,10 @@
 
 class RooFitResultBuilder : public RooFitResult {
  public:
-  RooFitResultBuilder() : RooFitResult(){};
+  RooFitResultBuilder() : RooFitResult(){
+    this->RooFitResult::setInitParList(RooArgList());
+    this->RooFitResult::setConstParList(RooArgList());
+  };
 
   RooFitResultBuilder(RooFitResult const& other) : RooFitResult(other) {}
 
