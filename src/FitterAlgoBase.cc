@@ -26,6 +26,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
 
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
