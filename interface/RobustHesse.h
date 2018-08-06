@@ -75,7 +75,7 @@ class RobustHesse {
 
   std::vector<double> getFdCoeffs(unsigned n, std::vector<double> const& stencil);
 
-  void RemoveFromHessian(std::vector<unsigned> ids);
+  void RemoveFromHessian(std::vector<unsigned> const& ids);
 
   void ReplaceVars(std::vector<Var> newVars) {
     cVars_ = newVars;
