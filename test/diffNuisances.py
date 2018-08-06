@@ -112,7 +112,7 @@ for i in range(fpf_s.getSize()):
 
     if nuis_p == None:
         # nuisance parameter NOT present in the prefit result
-        if not options.absolute_values and not (options.pullDef=="unconstPullAsym": continue
+        if not options.absolute_values and not (options.pullDef=="unconstPullAsym"): continue
         row += [ "[%.2f, %.2f]" % (nuis_s.getMin(), nuis_s.getMax()) ]
 
     else:
