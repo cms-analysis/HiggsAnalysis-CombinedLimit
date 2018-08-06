@@ -10,6 +10,7 @@
 #include <memory>
 #include <typeinfo>
 #include <stdexcept>
+#include <algorithm>
 
 #include "TH2F.h"
 #include "TDirectory.h"
