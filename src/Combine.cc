@@ -570,7 +570,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (floatNuisances_ != "") {
       RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
-      if (verbose > 0) {  std::cout << "Set floating the following parameters: "; toFloat.Print(""); }
+      if (verbose > 0) {  
+      	std::cout << "Set floating the following parameters: "; toFloat.Print(""); 
+        Logger::instance().log(std::string(Form("Combine.cc: %d -- Set floating the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
+        std::auto_ptr<TIterator> iter(toFloat.createIterator());
+        for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+           Logger::instance().log(std::string(Form("Combine.cc: %d  %s ",__LINE__,a->GetName())),Logger::kLogLevelInfo,__func__); 
+	}
+      }
       utils::setAllConstant(toFloat, false);
   }
   
