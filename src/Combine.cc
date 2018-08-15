@@ -570,7 +570,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (floatNuisances_ != "") {
       RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
-      if (verbose > 0) {  std::cout << "Set floating the following parameters: "; toFloat.Print(""); }
+      if (verbose > 0) {  
+      	std::cout << "Set floating the following parameters: "; toFloat.Print(""); 
+        Logger::instance().log(std::string(Form("Combine.cc: %d -- Set floating the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
+        std::auto_ptr<TIterator> iter(toFloat.createIterator());
+        for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+           Logger::instance().log(std::string(Form("Combine.cc: %d  %s ",__LINE__,a->GetName())),Logger::kLogLevelInfo,__func__); 
+	}
+      }
       utils::setAllConstant(toFloat, false);
   }
   
@@ -584,7 +591,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           std::string poststr = freezeNuisances_.substr(pos2+1,freezeNuisances_.size()-pos2);
           std::string reg_esp = freezeNuisances_.substr(pos1+4,pos2-pos1-4);
           
-          std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
+          //std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
           std::regex rgx( reg_esp, std::regex::ECMAScript);
           
           std::string matchingParams="";
@@ -601,7 +608,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
 
       RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
-      if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
+      if (verbose > 0) {  
+      	std::cout << "Freezing the following parameters: "; toFreeze.Print("");
+        Logger::instance().log(std::string(Form("Combine.cc: %d -- Freezing the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
+        std::auto_ptr<TIterator> iter(toFreeze.createIterator());
+        for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+           Logger::instance().log(std::string(Form("Combine.cc: %d  %s ",__LINE__,a->GetName())),Logger::kLogLevelInfo,__func__); 
+	}
+      }
       utils::setAllConstant(toFreeze, true);
       if (nuisances) {
           RooArgSet newnuis(*nuisances);
