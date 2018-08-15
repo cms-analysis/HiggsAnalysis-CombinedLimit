@@ -685,6 +685,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h) {
 	totalBins +=  h->second->GetNbinsX();
     }
+    if (totalBins==0) totalBins=1; // cover the case, where there is only a counting experiment without a "fake" shape, which is essentially just 1 bin. 
 
     //Total covariance
     TH2D* totOverall2Covar = new TH2D("overall_total_covar","Covariance signal+background",totalBins,0,totalBins,totalBins,0,totalBins);
