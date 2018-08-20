@@ -31,11 +31,14 @@ iter = fit_s.createIterator()
 if prefit and errors :
  headrow  = ["Channel","Process","Pre-fit","Signal+Background Fit","Background-Only Fit"]
  headline = ("{:20} {:20} {:^25} {:^25} {:^25}").format(*headrow)
- line = "".join(["-" for i in range(len(headline))])
-else: 
+elif prefit: 
+ headrow  = ["Channel","Process","Pre-fit","Signal+Background Fit","Background-Only Fit"]
+ headline = ("{:20} {:20} {:>20} {:>20} {:>20}").format(*headrow)
+else : 
  headrow = ["Channel","Process","Signal+Background Fit","Background-Only Fit"]
- headline = ("{:20} {:^10} {:^20} {:^20}").format(*headrow)
+ headline = ("{:20} {:20} {:>20} {:>20}").format(*headrow)
 
+line = "".join(["-" for i in range(len(headline))])
 print headline
 print line
 
@@ -54,6 +57,10 @@ while True:
         #print "%-30s %-30s % 7.3f +/- % 7.3f % 7.3f +/- % 7.3f  % 7.3f +/- % 7.3f" % 
     else:
         if norm_p and prefit:
-            print "%-30s %-30s %7.3f %7.3f %7.3f" % (m.group(1), m.group(2), norm_p.getVal(),  norm_s.getVal(),  norm_b.getVal())
+            row = [m.group(1), m.group(2), "%10.3f"%(norm_p.getVal()), "%10.3f"%(norm_s.getVal()),"%10.3f"%(norm_b.getVal())]
+	    print("{:20} {:20} {:>20} {:>20} {:>20}").format(*row)
+            #print "%-30s %-30s %7.3f %7.3f %7.3f" % (m.group(1), m.group(2), norm_p.getVal(),  norm_s.getVal(),  norm_b.getVal())
         else:
-            print "%-30s %-30s %7.3f %7.3f" % (m.group(1), m.group(2), norm_s.getVal(), norm_b.getVal())
+            row = [m.group(1), m.group(2), "%10.3f"%(norm_s.getVal()),"%10.3f"%(norm_b.getVal())]
+	    print("{:20} {:20} {:>20} {:>20}").format(*row)
+            #print "%-30s %-30s %7.3f %7.3f" % (m.group(1), m.group(2), norm_s.getVal(), norm_b.getVal())
