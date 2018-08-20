@@ -27,8 +27,17 @@ if fit_s  == None: raise RuntimeError, "Missing fit_s in %s. Did you run FitDiag
 if fit_b  == None: raise RuntimeError, "Missing fit_b in %s. Did you run FitDiagnostics with --saveNorm?" % file;
 
 iter = fit_s.createIterator()
-Headline = "%-30s %-30s     pre-fit   signal+background Fit  bkg-only Fit"%("Channel","Process") if (prefit and errors) else "%-30s %-30s  signal+background Fit  bkg-only Fit"%("Channel","Process")
-print Headline
+#Headline = "%-30s %-30s     pre-fit   signal+background Fit  bkg-only Fit"%("Channel","Process") if (prefit and errors) else "%-30s %-30s  signal+background Fit  bkg-only Fit"%("Channel","Process")
+if prefit and errors :
+ headrow  = ["Channel","Process","Pre-fit","Signal+Background Fit","Background-Only Fit"]
+ headline = ("{:20} {:20} {:^25} {:^25} {:^25}").format(*headrow)
+ line = "".join(["-" for i in range(len(headline))])
+else: 
+ headrow = ["Channel","Process","Signal+Background Fit","Background-Only Fit"]
+ headline = ("{:20} {:^10} {:^20} {:^20}").format(*headrow)
+
+print headline
+print line
 
 while True:
     norm_s = iter.Next()
@@ -40,7 +49,9 @@ while True:
     if m == None: raise RuntimeError, "Non-conforming object name %s" % norm_s.GetName()
     if norm_b == None: raise RuntimeError, "Missing normalization %s for background fit" % norm_s.GetName()
     if prefit and norm_p and errors:
-        print "%-30s %-30s %7.3f +/- %7.3f   %7.3f +/- %7.3f  %7.3f +/- %7.3f" % (m.group(1), m.group(2), norm_p.getVal(), norm_p.getError(), norm_s.getVal(), norm_s.getError(), norm_b.getVal(), norm_b.getError())
+        row = [m.group(1), m.group(2), "%10.3f +/- %-10.3f"%(norm_p.getVal(), norm_p.getError()), "%10.3f +/- %-10.3f"%(norm_s.getVal(), norm_s.getError()),"%10.3f +/- %-10.3f"%(norm_b.getVal(), norm_b.getError())]
+	print("{:20} {:20} {:10} {:10} {:10}").format(*row)
+        #print "%-30s %-30s % 7.3f +/- % 7.3f % 7.3f +/- % 7.3f  % 7.3f +/- % 7.3f" % 
     else:
         if norm_p and prefit:
             print "%-30s %-30s %7.3f %7.3f %7.3f" % (m.group(1), m.group(2), norm_p.getVal(),  norm_s.getVal(),  norm_b.getVal())
