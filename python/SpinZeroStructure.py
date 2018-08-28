@@ -99,6 +99,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
             else:
                 self.modelBuilder.doVar("CMS_zz4l_fai1[0.,0,1]")
             print "Floating CMS_zz4l_fai1"
+            self.modelBuilder.out.var("CMS_zz4l_fai1").setConstant(False)
             if self.allowPMF:
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(-1.,1.)
                 print "Allowing negative CMS_zz4l_fai1"
@@ -121,6 +122,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
             else:
                 self.modelBuilder.doVar("CMS_zz4l_fai2[0.,0,1]")
             print "Floating CMS_zz4l_fai2"
+            self.modelBuilder.out.var("CMS_zz4l_fai2").setConstant(False)
             if self.allowPMF:
                 self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(-1.,1.)
                 print "Allowing negative CMS_zz4l_fai2"
@@ -143,6 +145,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
             else:
                 self.modelBuilder.doVar("CMS_zz4l_phiai1[0.,-3.14159265359,3.14159265359]")
             print "Floating CMS_zz4l_phiai1"
+            self.modelBuilder.out.var("CMS_zz4l_phiai1").setConstant(False)
             if self.phiai1POI:
                 print "Treating phiai1 as a POI"
                 poi.append("CMS_zz4l_phiai1")
@@ -163,6 +166,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
             else:
                 self.modelBuilder.doVar("CMS_zz4l_phiai2[0.,-3.14159265359,3.14159265359]")
             print "Floating CMS_zz4l_phiai2"
+            self.modelBuilder.out.var("CMS_zz4l_phiai2").setConstant(False)
             if self.phiai2POI:
                 print "Treating phiai2 as a POI"
                 poi.append("CMS_zz4l_phiai2")
@@ -184,6 +188,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                 print "Creating CMS_zz4l_alpha; setting to 0.5"
                 self.modelBuilder.doVar("CMS_zz4l_alpha[0.5,-1,1]")
             print "Treating alpha (Rai1) as a POI"
+            self.modelBuilder.out.var("CMS_zz4l_alpha").setConstant(False)
             poi.append("CMS_zz4l_alpha")
         else:
             if self.modelBuilder.out.var("CMS_zz4l_alpha"):
@@ -204,12 +209,13 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                 print "Creating GGsm; setting range to [1., 0., 50.]"
                 self.modelBuilder.doVar("GGsm[1,0,50]")
             print "GGsm is a POI."
+            self.modelBuilder.out.var("GGsm").setConstant(False)
             poi.append("GGsm")
         else:
             if self.modelBuilder.out.var("GGsm"):
                 print "Found GGsm, fixing to 1"
                 self.modelBuilder.out.var("GGsm").setVal(1)
-                self.modelBuilder.out.var("GGsm").setContant()
+                self.modelBuilder.out.var("GGsm").setConstant()
 
         return poi
 
@@ -261,6 +267,8 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
             if self.HWWcombination:
                 self.modelBuilder.out.var("r").removeMax()
                 print "Removed maximum of r"
+
+            self.modelBuilder.out.var("r").setConstant(False)
 
             if self.muAsPOI:
                 print "Treating r as a POI"
@@ -369,6 +377,7 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         for variable in self.floated:
             if self.modelBuilder.out.var(variable):
                 print "Floating {} and assigning attribute flatParam".format(variable)
+                self.modelBuilder.out.var(variable).setConstant(False)
                 self.modelBuilder.out.var(variable).setAttribute("flatParam")
 
         return result

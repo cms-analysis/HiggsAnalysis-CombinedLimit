@@ -96,6 +96,7 @@ class CascadeMinimizer {
 	static std::string defaultMinimizerType_;
 	static std::string defaultMinimizerAlgo_;
 	static double 	   defaultMinimizerTolerance_;
+	static double 	   defaultMinimizerPrecision_;
 	//static int 	   defaultMinimizerStrategy_;
 
     	static bool runShortCombinations; 

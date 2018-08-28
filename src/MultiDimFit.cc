@@ -17,6 +17,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -51,6 +52,9 @@ float MultiDimFit::maxDeltaNLLForProf_ = 200;
 float MultiDimFit::autoRange_ = -1.0;
 std::string MultiDimFit::fixedPointPOIs_ = "";
 float MultiDimFit::centeredRange_ = -1.0;
+bool        MultiDimFit::robustHesse_ = false;
+std::string MultiDimFit::robustHesseLoad_ = "";
+std::string MultiDimFit::robustHesseSave_ = "";
 
 
 std::string MultiDimFit::saveSpecifiedFuncs_;
@@ -94,6 +98,9 @@ MultiDimFit::MultiDimFit() :
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
     ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
 	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
+    ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
+    ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
+    ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
       ;
 }
 
@@ -167,7 +174,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
     bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
     if ( !skipInitialFit_){
-        res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false));
+        res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, (saveFitResult_ && !robustHesse_), 1, true, false));
         if (!res.get()) {
             std::cout << "\n " <<std::endl;
             std::cout << "\n ---------------------------" <<std::endl;
@@ -213,6 +220,23 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 	Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.); // Combine will not commit a point anymore at -1 so can do it here 
 	//}
     }
+
+    if (robustHesse_) {
+        RobustHesse robustHesse(*nll, verbose - 1);
+        robustHesse.ProtectArgSet(*mc_s->GetParametersOfInterest());
+        if (robustHesseSave_ != "") {
+          robustHesse.SaveHessianToFile(robustHesseSave_);
+        }
+        if (robustHesseLoad_ != "") {
+          robustHesse.LoadHessianFromFile(robustHesseLoad_);
+        }
+        robustHesse.hesse();
+        if (saveFitResult_) {
+            res.reset(robustHesse.GetRooFitResult(res.get()));
+        }
+        robustHesse.WriteOutputFile("robustHesse"+name_+".root");
+    }
+
    
     //set snapshot for best fit
     if (savingSnapshot_) w->saveSnapshot("MultiDimFit",utils::returnAllVars(w));
@@ -406,9 +430,14 @@ void MultiDimFit::doSingles(RooFitResult &res)
         double hiErr = +(rf->hasRange("err68") ? rf->getMax("err68") - bestFitVal : rf->getAsymErrorHi());
         double loErr = -(rf->hasRange("err68") ? rf->getMin("err68") - bestFitVal : rf->getAsymErrorLo());
         double maxError = std::max<double>(std::max<double>(hiErr, loErr), rf->getError());
-
-        if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
-        if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
+        if (fabs(hiErr) < 0.001*maxError){ 
+		std::cout << " Warning - No valid high-error found, will report difference to maximum of range for : " << rf->GetName() << std::endl;
+		hiErr = -bestFitVal + rf->getMax();
+	}
+        if (fabs(loErr) < 0.001*maxError) {
+		std::cout << " Warning - No valid low-error found, will report difference to minimum of range for : " << rf->GetName() << std::endl;
+		loErr = +bestFitVal - rf->getMin();
+	}
 
         double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
         double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);

@@ -3,12 +3,15 @@ import sys
 from math import log,exp,hypot
 
 def quadratureAdd(pdf, val1, val2, context=None):
+    if type(val1) == list and len(val1) != 2: raise RuntimeError("{} is a list of length != 2".format(val1))
+    if type(val2) == list and len(val2) != 2: raise RuntimeError("{} is a list of length != 2".format(val2))
+
     if type(val1) == list and type(val2) == list:
-        return [ quadratureAdd(pdf, val1[0], val2[0], context), quadratureAdd(pdf, val1[0], val2[0], context) ]
+        return [ quadratureAdd(pdf, val1[0], val2[0], context), quadratureAdd(pdf, val1[1], val2[1], context) ]
     elif type(val1) == list and type(val2) == float:
-        return [ quadratureAdd(pdf, val1[0], 1.0/val2, context), quadratureAdd(pdf, val1[0], val2, context) ]
+        return [ quadratureAdd(pdf, val1[0], 1.0/val2, context), quadratureAdd(pdf, val1[1], val2, context) ]
     elif type(val2) == list and type(val1) == float:
-        return [ quadratureAdd(pdf, 1.0/val1, val2[0], context), quadratureAdd(pdf, val1, val2[0], context) ]
+        return [ quadratureAdd(pdf, 1.0/val1, val2[0], context), quadratureAdd(pdf, val1, val2[1], context) ]
     if pdf in [ "lnN", "lnU" ]:
         if log(val1) * log(val2) < 0:
             raise RuntimeError, "Can't add in quadrature nuisances of pdf %s with values %s, %s that go in different directions (at %s)" % (pdf, val1, val2, context)
@@ -33,7 +36,9 @@ def doAddNuisance(datacard, args):
             errline = errline0
     if not found:
         datacard.systs.append([name,False,pdf,[],errline])
-    if "/" in value:
+    if isinstance(value, (int, float, list)):
+        pass
+    elif "/" in value:
         value = [ float(x) for x in value.split("/") ]
     else:
         value = float(value)
@@ -44,7 +49,9 @@ def doAddNuisance(datacard, args):
             for p in datacard.exp[b]:
                 if process == "*" or cprocess.search(p):
                     foundProc = True
-                    if p in errline[b] and errline[b][p] not in [ 0.0, 1.0 ]:
+                    if value in [ 0.0, 1.0 ]:
+                        pass   #do nothing, there's nothing to add
+                    elif p in errline[b] and errline[b][p] not in [ 0.0, 1.0 ]:
                         if "addq" in opts:
                             errline[b][p] = quadratureAdd(pdf, errline[b][p], value, context="nuisance edit add, args = %s" % args)
                         elif "overwrite" in opts:
@@ -88,6 +95,29 @@ def doDropNuisance(datacard, args):
 
 
 def doRenameNuisance(datacard, args):
+    if len(args) == 2: # newname oldname 
+      nuisanceID = i = -1
+      (oldname, newname) = args[:2]
+      for lsyst,nofloat,pdf0,args0,errline0 in (datacard.systs[:]):
+        i+=1
+        if lsyst == oldname : # found the nuisance
+	  nuisanceID = i
+	  if pdf0 != "param": 
+            raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"	  
+          for lsyst2,nofloat2,pdf02,args02,errline02 in (datacard.systs[:]):
+	    print lsyst2,nofloat2,pdf02,args02,errline02
+	    if lsyst2 == newname:
+	     if pdf02 != "param":
+	      if (args0[0]) not in ["0.0","0.","0"] or (args0[1]) not in ["1.0","1.","1"] : raise RuntimeError, "Can't rename nuisance %s with Gaussian pdf G(%s,%s) to name %s which already exists with G(0,1) constraint!" % (lsyst,args0[0],args0[1],lsyst2)
+             else: 
+	      if (args0[0])!=(args02[0])  or float(args0[1])!=float(args02[1]) : raise RuntimeError, "Can't rename nuisance %s with Gaussian pdf G(%s,%s) to name %s which already exists with Gaussian pdf G(%s,%s) constraint!" % (lsyst,args0[0],args0[1],lsyst2,args02[0],args02[1])
+	  break
+      if nuisanceID: 
+      	datacard.systs[nuisanceID][0]=newname 
+	datacard.systematicsParamMap[newname]=oldname
+      else: raise RuntimeError, "No nuisance parameter found with name %s"%oldname 
+      return
+
     if len(args) < 4:
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"
     (process, channel, oldname, newname) = args[:4]
@@ -96,7 +126,7 @@ def doRenameNuisance(datacard, args):
     opts = args[4:]
     foundChann, foundProc = False, False
     for lsyst,nofloat,pdf0,args0,errline0 in datacard.systs[:]:
-
+	if pdf0=="param" : raise RuntimeError, "Incorrect syntax. Cannot specify process and channel for %s with pdf %s. Use 'nuisance edit rename oldname newname'"% (lsyst,pdf0)
         lsystnew = re.sub(oldname,newname,lsyst)
         if lsystnew != lsyst:
             found = False
@@ -175,6 +205,32 @@ def doChangeNuisancePdf(datacard, args):
                 raise RuntimeError, "I can't convert pdf %s from pdf %s to %s" % (lsyst,pdf,newpdf)
     if not found:
         sys.stderr.write("Warning: no pdf found for changepdf with args %s\n" % args)
+
+def doMergeNuisance(datacard, args):
+    if len(args) < 4:
+        raise RuntimeError("Missing arguments: the syntax is: nuisance edit merge process channel name1 name2 [ options ]")
+    (process, channel, name1, name2) = args[:4]
+    if process != "*": cprocess = re.compile(process)
+    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    opts = args[4:]
+    foundProc = False
+
+    for lsyst2,nofloat2,pdf2,args02,errline2 in datacard.systs:
+        if re.match(name2, lsyst2):
+            for b in errline2.keys():
+                if channel == "*" or cchannel.search(b):
+                    for p in datacard.exp[b]:
+                        if process == "*" or cprocess.search(p):
+                            foundProc = True
+                            doAddNuisance(datacard, [p+"$", b+"$", name1, pdf2, errline2[b][p], "addq"])
+                            errline2[b][p] = 0
+
+    if not foundProc and channel != "*":
+        if "ifexists" not in opts:
+            raise RuntimeError("Error: nuisance edit merge %s found nothing" % (args))
+        else:
+            sys.stderr.write("Warning2: nuisance edit merge %s found nothing\n" % (args))
+
 
 def doSplitNuisance(datacard, args):
     if len(args) < 7:
@@ -279,6 +335,8 @@ def doEditNuisance(datacard, command, args):
         doRenameNuisance(datacard, args)
     elif command == "changepdf":
         doChangeNuisancePdf(datacard, args)
+    elif command == "merge":
+        doMergeNuisance(datacard, args)
     elif command == "split":
         doSplitNuisance(datacard, args)
     elif command == "freeze":

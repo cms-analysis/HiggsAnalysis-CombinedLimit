@@ -51,6 +51,8 @@ private:
 
   static bool   strictBounds_;
 
+  static RooAbsData * asimovDataset_;
+
   bool    hasFloatParams_;
   bool    hasDiscreteParams_;
   mutable std::auto_ptr<RooArgSet>  params_;
