@@ -47,10 +47,12 @@ xsecs = {
 
 class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
     dontmakea1ai = False
+    usemuTT = False      #it's degenerate with RV and RF, unless there's another decay process
 
     def __init__(self, *args, **kwargs):
         self.anomalouscoupling = None
         self.dofa3gg = None
+        self.adjustmuVbyfai = None
         super(Anomalous_Interference_JHU_rw, self).__init__(*args, **kwargs)
 
     def getPOIList(self):
@@ -110,24 +112,29 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
             self.modelBuilder.doVar("muTT[1.0,0,10]")
         if not self.modelBuilder.out.var("RV"):
             self.modelBuilder.doVar("RV[1.0,0.0,10.0]")
+        if self.adjustmuVbyfai is not None:
+            self.modelBuilder.factory_('expr::muVc("@1/(1+{}*abs(@0))", CMS_zz4l_fai1,RV)'.format(self.adjustmuVbyfai))
+            myxsecs["muV"] = "muVc"
+        else:
+            myxsecs["muV"] = "RV"
 
         if not self.dontmakea1ai:
             self.modelBuilder.doVar('expr::a1("sqrt(1-abs(@0))", CMS_zz4l_fai1)')
             self.modelBuilder.doVar('expr::ai("(@0>0 ? 1 : -1) * sqrt(abs(@0)*{sigma1_HZZ}/{sigmai_HZZ})", CMS_zz4l_fai1)'.format(**myxsecs))
 
-        self.modelBuilder.factory_('expr::smCoupling_VBF("@0*@3*@1**2 - @0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})", RV,a1,ai,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::smCoupling_ZH("@0*@3*@1**2 - @0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})", RV,a1,ai,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::smCoupling_WH("@0*@3*@1**2 - @0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})", RV,a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::smCoupling_VBF("@0*@3*@1**2 - @0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::smCoupling_ZH("@0*@3*@1**2 - @0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::smCoupling_WH("@0*@3*@1**2 - @0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})", {muV},a1,ai,muTT)'.format(**myxsecs))
 
-        self.modelBuilder.factory_('expr::bsmCoupling_VBF("@0*@3*@1**2*{sigmai_VBF}/{sigma1_VBF} - @0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})", RV,ai,a1,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::bsmCoupling_ZH("@0*@3*@1**2*{sigmai_ZH}/{sigma1_ZH} - @0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})", RV,ai,a1,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::bsmCoupling_WH("@0*@3*@1**2*{sigmai_WH}/{sigma1_WH} - @0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})", RV,ai,a1,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::bsmCoupling_VBF("@0*@3*@1**2*{sigmai_VBF}/{sigma1_VBF} - @0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})", {muV},ai,a1,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::bsmCoupling_ZH("@0*@3*@1**2*{sigmai_ZH}/{sigma1_ZH} - @0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})", {muV},ai,a1,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::bsmCoupling_WH("@0*@3*@1**2*{sigmai_WH}/{sigma1_WH} - @0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})", {muV},ai,a1,muTT)'.format(**myxsecs))
 
-        self.modelBuilder.factory_('expr::intCoupling_VBF("@0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})*{sigmaint_VBF}/{sigma1_VBF}", RV,a1,ai,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::intCoupling_ZH("@0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})*{sigmaint_ZH}/{sigma1_ZH}", RV,a1,ai,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::intCoupling_WH("@0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})*{sigmaint_WH}/{sigma1_WH}", RV,a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::intCoupling_VBF("@0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})*{sigmaint_VBF}/{sigma1_VBF}", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::intCoupling_ZH("@0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})*{sigmaint_ZH}/{sigma1_ZH}", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::intCoupling_WH("@0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})*{sigmaint_WH}/{sigma1_WH}", {muV},a1,ai,muTT)'.format(**myxsecs))
 
-        pois = ["CMS_zz4l_fai1","RV","RF","muTT"]
+        pois = ["CMS_zz4l_fai1","RV","RF"]
 
         if self.dofa3gg:
             self.modelBuilder.doVar("fa3_ggH[0.0,0.0,1.0]")
@@ -138,7 +145,11 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
             pois.append("fa3_ggH")
         else:
             self.modelBuilder.factory_('expr::smCoupling_ggH("@0*@2", RF,muTT)'.format(**myxsecs))
-            
+
+        if self.usemuTT:
+            pois.append("muTT")
+        else:
+            self.modelBuilder.out.var("muTT").setConstant()
 
         return pois + super(Anomalous_Interference_JHU_rw, self).getPOIList()
 
@@ -173,7 +184,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
             if process in ["reweighted_WH_htt_"+pureBSM+"f05ph0"]:
                 return 'intCoupling_WH'
 
-        if "reweighted_" in process: raise ValueError("Don't know what to do with "+process)
+        if "reweighted_" in process or "GGH2Jets" in process: raise ValueError("Don't know what to do with "+process)
 
         return super(Anomalous_Interference_JHU_rw, self).getYieldScale(bin, process)
 
@@ -191,6 +202,9 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
             if po.lower() == "dofa3gg=false":
                 self.dofa3gg = False
                 processed.append(po)
+            if po.lower().startswith("adjustmuvbyfai="):
+                self.adjustmuVbyfai = float(po.split("=", 1)[1])
+                processed.append(po)
 
         if self.anomalouscoupling is None:
             raise ValueError("Have to provide an anomalous coupling as a physics option.  Choices: fa3, fa2, fL1, fL1Zg")
@@ -201,6 +215,30 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
 
 class Anomalous_Interference_JHU_rw_HTTHZZ(Anomalous_Interference_JHU_rw, MultiSignalSpinZeroHiggs):
     dontmakea1ai = True  #because they are provided from the HZZ side
+    usemuTT = True       #because it's now needed to float the TT vs. ZZ BR
+
+    def processPhysicsOptions(self,physOptions):
+        result = super(Anomalous_Interference_JHU_rw_HTTHZZ, self).processPhysicsOptions(physOptions)
+        if self.scaledifferentsqrtsseparately:
+            raise ValueError("Can't scaledifferentsqrtsseparately for HZZ+HTT combination")
+        if not self.scalemuvfseparately:
+            raise ValueError("Can't scalemuvmuftogether for HZZ+HTT combination")
+        if self.uservoverrf:
+            raise ValueError("Can't uservoverrf for HZZ+HTT combination")
+        return result
+
+    def getPOIList(self):
+        result = super(Anomalous_Interference_JHU_rw_HTTHZZ, self).getPOIList()
+        if self.adjustmuVbyfai is not None:
+            self.modelBuilder.factory_('expr::newmuVoveroldmuV("@0/@1", muVc, RV)')
+        return result
+
+    def getYieldScale(self,bin,process):
+        result = super(Anomalous_Interference_JHU_rw_HTTHZZ, self).getYieldScale(bin, process)
+        if self.adjustmuVbyfai is not None and process in ("qqH", "ZH", "WH"):
+            assert result == 1, result #from MultiSignalSpinZeroHiggs
+            return "newmuVoveroldmuV"
+        return result
 
 anomalous_Interference_JHU_rw = Anomalous_Interference_JHU_rw()
 anomalous_Interference_JHU_rw_HTTHZZ = Anomalous_Interference_JHU_rw_HTTHZZ()
