@@ -235,7 +235,7 @@ class Anomalous_Interference_JHU_rw_HTTHZZ(Anomalous_Interference_JHU_rw, MultiS
 
     def getYieldScale(self,bin,process):
         result = super(Anomalous_Interference_JHU_rw_HTTHZZ, self).getYieldScale(bin, process)
-        if self.adjustmuVbyfai is not None and process in ("qqH", "ZH", "WH"):
+        if self.adjustmuVbyfai is not None and process in ("qqH", "ZH", "WH", "VVH"):
             assert result == 1, result #from MultiSignalSpinZeroHiggs
             return "newmuVoveroldmuV"
         return result
