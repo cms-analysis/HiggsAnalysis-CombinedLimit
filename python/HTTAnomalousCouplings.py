@@ -11,35 +11,46 @@ from SpinZeroStructure import MultiSignalSpinZeroHiggs
 #for HTT+HZZ combination, it ensures that the definition of ai is consistent with HZZ
 
 xsecs = {
-    "sigma1_HZZ": 290.58626,
-    "sigma3_HZZ": 44.670158,
+    "sigma1_HZZ": 1,
+    "sigma3_HZZ": 2.55052**-2,
+    "sigma2_HZZ": 1.65684**-2,
+    "sigmaL1_HZZ": 12100.42**-2,
+    "sigmaL1Zg_HZZ": 7613.351302119843**-2
+
     "sigma1_VBF": 968.674,
     "sigma3_VBF": 10909.54,
-    "sigma1_ZH":  9022.36,
-    "sigma3_ZH":  434763.7,
-    "sigma1_WH":  30998.54,
-    "sigma3_WH":  2028656,
-    "sigma2_HZZ": 105.85594,
-    "sigmaL1_HZZ": 1.9846071e-06,
     "sigma2_VBF": 13102.71,
     "sigmaL1_VBF": 2.08309E-4,
+    "sigmaL1Zg_VBF": 4.9845301e-05,
+
+    "sigmaa1a3int_VBF": 1937.15,
+    "sigmaa1a2int_VBF": 2207.73,
+    "sigmaa1L1int_VBF": 2861.21349769,
+    "sigmaa1L1Zgint_VBF": 1410.5494,
+
+    "sigma1_ZH":  9022.36,
+    "sigma3_ZH":  434763.7,
     "sigma2_ZH": 713123,
     "sigmaL1_ZH": 33652.46e-6,
+    "sigmaL1Zg_ZH": 0.021825343267033705,
+
+    "sigmaa1a3int_ZH": 18044.72,
+    "sigmaa1a2int_ZH": 4258.966,
+    "sigmaa1L1int_ZH": 6852.307,
+    "sigmaa1L1Zgint_ZH": 21952.490480117736,
+
+    "sigma1_WH":  30998.54,
+    "sigma3_WH":  2028656,
     "sigma2_WH": 3106339,
     "sigmaL1_WH": 11234.91e-5,
-    "sigmaa1a3int_VBF": 1937.15,
-    "sigmaa1a3int_ZH": 18044.72,
+    "sigmaL1Zg_WH": 0,
+
     "sigmaa1a3int_WH": 61997.07,
-    # for ggH what is listed are yields in histos (all normliazed to powheg xsection):
-    "sigmaa1a2int_VBF": 2207.73 ,
-    "sigmaa1a2int_ZH": 4258.966,
     "sigmaa1a2int_WH": 16486.68,
-    "sigmaa1L1int_VBF": 2861.21349769,
-    "sigmaa1L1int_ZH": 6852.307, 
-    "sigmaa1L1int_WH": 25302.37, 
-    "sigmaa1L1Zgint_VBF": 1410.5494,
-    "sigmaa1L1Zgint_ZH": 21952.490480117736,
+    "sigmaa1L1int_WH": 25302.37,
     "sigmaa1L1Zgint_WH": 30998.54,     #this is the same as SM, because L1Zg doesn't contribute to WH
+
+    # for ggH what is listed are yields in histos (all normliazed to powheg xsection):
     "yield_Powheg_ggH": 5.127128e+00,
     "yield_SM_ggH": 7.937751e+01,
     "yield_BSM_ggH": 8.952848e+01,
