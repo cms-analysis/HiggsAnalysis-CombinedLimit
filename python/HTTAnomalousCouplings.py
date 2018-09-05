@@ -6,6 +6,10 @@ from SpinZeroStructure import MultiSignalSpinZeroHiggs
 #sigma3 is for a3=1 (similarly for a2, L1, L1Zg)
 #sigmaa1a3int is for the mixture sample when a1=1, a3=(our convention for fa3=0.5 samples)  (similarly for a2, L1, L1Zg)
 
+#aisign, defined below, is + for a3 and a2, - for L1 and L1Zg.
+#for HTT alone, it doesn't matter at all and is just a double negative
+#for HTT+HZZ combination, it ensures that the definition of ai is consistent with HZZ
+
 xsecs = {
     "sigma1_HZZ": 290.58626,
     "sigma3_HZZ": 44.670158,
@@ -71,6 +75,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
                 "sigmaint_VBF": xsecs["sigmaa1a3int_VBF"],
                 "sigmaint_ZH": xsecs["sigmaa1a3int_ZH"],
                 "sigmaint_WH": xsecs["sigmaa1a3int_WH"],
+                "aisign": "",
             })
         elif self.anomalouscoupling == "fa2":
             myxsecs.update({
@@ -81,6 +86,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
                 "sigmaint_VBF": xsecs["sigmaa1a2int_VBF"],
                 "sigmaint_ZH": xsecs["sigmaa1a2int_ZH"],
                 "sigmaint_WH": xsecs["sigmaa1a2int_WH"],
+                "aisign": "",
             })
         elif self.anomalouscoupling == "fL1":
             myxsecs.update({
@@ -91,6 +97,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
                 "sigmaint_VBF": xsecs["sigmaa1L1int_VBF"],
                 "sigmaint_ZH": xsecs["sigmaa1L1int_ZH"],
                 "sigmaint_WH": xsecs["sigmaa1L1int_WH"],
+                "aisign": "-",
             })
         elif self.anomalouscoupling == "fL1Zg":
             myxsecs.update({
@@ -101,6 +108,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
                 "sigmaint_VBF": xsecs["sigmaa1L1Zgint_VBF"],
                 "sigmaint_ZH": xsecs["sigmaa1L1Zgint_ZH"],
                 "sigmaint_WH": xsecs["sigmaa1L1Zgint_WH"],
+                "aisign": "-",
             })
 
         """Create POI and other parameters, and define the POI set."""
@@ -120,19 +128,19 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
 
         if not self.dontmakea1ai:
             self.modelBuilder.doVar('expr::a1("sqrt(1-abs(@0))", CMS_zz4l_fai1)')
-            self.modelBuilder.doVar('expr::ai("(@0>0 ? 1 : -1) * sqrt(abs(@0)*{sigma1_HZZ}/{sigmai_HZZ})", CMS_zz4l_fai1)'.format(**myxsecs))
+            self.modelBuilder.doVar('expr::ai("{aisign}(@0>0 ? 1 : -1) * sqrt(abs(@0)*{sigma1_HZZ}/{sigmai_HZZ})", CMS_zz4l_fai1)'.format(**myxsecs))
 
-        self.modelBuilder.factory_('expr::smCoupling_VBF("@0*@3*@1**2 - @0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})", {muV},a1,ai,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::smCoupling_ZH("@0*@3*@1**2 - @0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})", {muV},a1,ai,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::smCoupling_WH("@0*@3*@1**2 - @0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::smCoupling_VBF("@0*@3*@1**2 - {aisign}@0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::smCoupling_ZH("@0*@3*@1**2 - {aisign}@0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::smCoupling_WH("@0*@3*@1**2 - {aisign}@0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})", {muV},a1,ai,muTT)'.format(**myxsecs))
 
-        self.modelBuilder.factory_('expr::bsmCoupling_VBF("@0*@3*@1**2*{sigmai_VBF}/{sigma1_VBF} - @0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})", {muV},ai,a1,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::bsmCoupling_ZH("@0*@3*@1**2*{sigmai_ZH}/{sigma1_ZH} - @0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})", {muV},ai,a1,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::bsmCoupling_WH("@0*@3*@1**2*{sigmai_WH}/{sigma1_WH} - @0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})", {muV},ai,a1,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::bsmCoupling_VBF("@0*@3*@1**2*{sigmai_VBF}/{sigma1_VBF} - {aisign}@0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})", {muV},ai,a1,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::bsmCoupling_ZH("@0*@3*@1**2*{sigmai_ZH}/{sigma1_ZH} - {aisign}@0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})", {muV},ai,a1,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::bsmCoupling_WH("@0*@3*@1**2*{sigmai_WH}/{sigma1_WH} - {aisign}@0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})", {muV},ai,a1,muTT)'.format(**myxsecs))
 
-        self.modelBuilder.factory_('expr::intCoupling_VBF("@0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})*{sigmaint_VBF}/{sigma1_VBF}", {muV},a1,ai,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::intCoupling_ZH("@0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})*{sigmaint_ZH}/{sigma1_ZH}", {muV},a1,ai,muTT)'.format(**myxsecs))
-        self.modelBuilder.factory_('expr::intCoupling_WH("@0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})*{sigmaint_WH}/{sigma1_WH}", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::intCoupling_VBF("{aisign}@0*@1*@2*@3*sqrt({sigmai_VBF}/{sigma1_VBF})*{sigmaint_VBF}/{sigma1_VBF}", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::intCoupling_ZH("{aisign}@0*@1*@2*@3*sqrt({sigmai_ZH}/{sigma1_ZH})*{sigmaint_ZH}/{sigma1_ZH}", {muV},a1,ai,muTT)'.format(**myxsecs))
+        self.modelBuilder.factory_('expr::intCoupling_WH("{aisign}@0*@1*@2*@3*sqrt({sigmai_WH}/{sigma1_WH})*{sigmaint_WH}/{sigma1_WH}", {muV},a1,ai,muTT)'.format(**myxsecs))
 
         pois = ["CMS_zz4l_fai1","RV","RF"]
 
