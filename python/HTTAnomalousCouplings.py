@@ -144,7 +144,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
             self.modelBuilder.factory_('expr::bsmCoupling_ggH("@0*@2*@1**2", RF,a3_ggH,muTT)'.format(**myxsecs))
             pois.append("fa3_ggH")
         else:
-            self.modelBuilder.factory_('expr::smCoupling_ggH("@0*@2", RF,muTT)'.format(**myxsecs))
+            self.modelBuilder.factory_('expr::smCoupling_ggH("@0*@1", RF,muTT)'.format(**myxsecs))
 
         if self.usemuTT:
             pois.append("muTT")
