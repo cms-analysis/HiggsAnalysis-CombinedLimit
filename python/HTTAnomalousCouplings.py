@@ -15,7 +15,7 @@ xsecs = {
     "sigma3_HZZ": 2.55052**-2,
     "sigma2_HZZ": 1.65684**-2,
     "sigmaL1_HZZ": 12100.42**-2,
-    "sigmaL1Zg_HZZ": 7613.351302119843**-2
+    "sigmaL1Zg_HZZ": 7613.351302119843**-2,
 
     "sigma1_VBF": 968.674,
     "sigma3_VBF": 10909.54,
@@ -57,7 +57,7 @@ xsecs = {
     "sigma_Powheg_ggH": 48.58,
     "sigma_SM_ggH": 15980,
     "sigma_BSM_ggH": 15981,
-    "BR_H_tt": 0.0627
+    "BR_H_tt": 0.0627,
 }
 
 class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
