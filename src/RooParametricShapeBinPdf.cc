@@ -23,35 +23,7 @@ using namespace RooFit;
 
 ClassImp(RooParametricShapeBinPdf)
 //---------------------------------------------------------------------------
-/*
-RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char *title, const char *formula, 
-			       RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape ) : RooAbsPdf(name, title), 
-  x("x", "x Observable", this, _x),
-  pars("pars","pars",this),
-  mypdf("mypdf","mypdf",this),
-  xBins(0),
-  xMax(0),
-  xMin(0),
-  relTol(1E-12),
-  absTol(1E-12),
-  nPars(0)
-{
-  memset(&xArray, 0, sizeof(xArray));
-  TIterator *varIter=_pars.createIterator(); 
-  RooAbsReal *fVar;
-  while ( (fVar = (RooAbsReal*)varIter->Next()) ){
-	pars.add(*fVar);
-  }
-  setTH1Binning(_shape);
-  myfunc = new TF1("myfunc",formula,xMin,xMax);
-  mypdf.setArg((RooAbsPdf&)*bindFunction(myfunc,(RooAbsReal&)x.arg(),pars));
-  //RooListProxy obs;
-  //obs.add(x.arg());
-  //mypdf.setArg((RooAbsPdf&)* new RooTFnBinding("mypdf","mypdf",myfunc,obs,pars));
-  nPars = pars.getSize();
-}
-*/
-//---------------------------------------------------------------------------
+
 RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char *title, RooAbsReal& _pdf, 
 			       RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape ) : RooAbsPdf(name, title), 
   x("x", "x Observable", this, _x),
@@ -59,10 +31,7 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
   mypdf("mypdf","mypdf", this, _pdf),
   xBins(0),
   xMax(0),
-  xMin(0),
-  relTol(1E-12),
-  absTol(1E-12),
-  nPars(0)
+  xMin(0)
 {
   memset(&xArray, 0, sizeof(xArray));
   TIterator *varIter=_pars.createIterator(); 
@@ -71,10 +40,6 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
 	pars.add(*fVar);
   }
   setTH1Binning(_shape);
-  RooListProxy obs;
-  obs.add(x.arg());
-  myfunc = _pdf.asTF(obs,pars);
-  nPars = pars.getSize();
 }
 //---------------------------------------------------------------------------
 RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other, const char* name) : RooAbsPdf(other, name), 
@@ -83,10 +48,7 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPd
    mypdf("mypdf",this,other.mypdf),
    xBins(other.xBins),
    xMax(other.xMax),
-   xMin(other.xMin),
-   relTol(other.relTol),
-   absTol(other.absTol),
-   nPars(other.nPars)
+   xMin(other.xMin)
 {
   //memset(&xArray, 0, sizeof(xArray));
   for (Int_t i=0; i<xBins+1; i++){
@@ -98,7 +60,6 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPd
   while ( (fVar = (RooAbsReal*) varIter->Next()) ){
 	pars.add(*fVar);
   }
-  myfunc = new TF1(*(other.myfunc));
 }
 //---------------------------------------------------------------------------
 void RooParametricShapeBinPdf::setTH1Binning(const TH1 &_Hnominal){
@@ -109,14 +70,6 @@ void RooParametricShapeBinPdf::setTH1Binning(const TH1 &_Hnominal){
   for (Int_t i=0; i<xBins+1; i++){
     xArray[i] =  _Hnominal.GetXaxis()->GetBinLowEdge(i+1);
   }
-}
-//---------------------------------------------------------------------------
-void RooParametricShapeBinPdf::setRelTol(double _relTol){
-  relTol = _relTol;
-}
-//---------------------------------------------------------------------------
-void RooParametricShapeBinPdf::setAbsTol(double _absTol){
-  absTol = _absTol;
 }
 //---------------------------------------------------------------------------
 /// Return the parameteric p.d.f
@@ -139,25 +92,15 @@ Double_t RooParametricShapeBinPdf::evaluate() const
   
   Double_t xLow = xArray[iBin];
   Double_t xHigh = xArray[iBin+1];
-    
-  // define the function to be integrated numerically  
-  ROOT::Math::WrappedTF1 func(*myfunc);
-  double *params = myfunc->GetParameters();  
-  TIterator *varIter=pars.createIterator(); 
-  RooAbsReal *fVar;
-  int iPar = 0;
-  while ( (fVar = (RooAbsReal*) varIter->Next()) ){
-    params[iPar] = fVar->getVal();
-    iPar+=1;
-  }
-  myfunc->SetParameters(params);
-  func.SetParameters(params);
 
-  ROOT::Math::Integrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE,absTol,relTol);
-  ig.SetFunction(func,false);
-  
-  integral = ig.Integral(xLow,xHigh) / (xHigh-xLow); //return integral as a density 
-  //Double_t total_integral = ig.Integral(xMin,xMax);
+  std::string rangeName  = Form("%s_%s_range_bin%d", GetName(), x.GetName(), iBin);
+  RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
+  x_rrv.setRange(rangeName.c_str(),xLow,xHigh);
+  RooListProxy obs;
+  obs.add(x.arg());
+  RooAbsReal* myintegral = getPdf()->createIntegral(obs,Range(rangeName.c_str()));
+    
+  integral = myintegral->getVal() / (xHigh-xLow);
 
   if (integral>0.0) {
     return integral;
@@ -178,51 +121,17 @@ Double_t RooParametricShapeBinPdf::analyticalIntegral(Int_t code, const char* ra
 
    Double_t integral = 0.0;
    
-   // define the function to be integrated numerically  
-   ROOT::Math::WrappedTF1 func(*myfunc);
-   double *params = myfunc->GetParameters();
-   TIterator *varIter=pars.createIterator(); 
-   RooAbsReal *fVar;
-   int iPar = 0;
-   while ( (fVar = (RooAbsReal*) varIter->Next()) ){
-     params[iPar] = fVar->getVal();
-     iPar+=1;
-   }
-   myfunc->SetParameters(params);
-   func.SetParameters(params);
-   
-   ROOT::Math::Integrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE,absTol,relTol);
-   ig.SetFunction(func,false);
-    
+   RooListProxy obs;
+   obs.add(x.arg());
+
    if (code==1 && xRangeMin<=xMin && xRangeMax>=xMax){
-     integral = ig.Integral(xMin,xMax);
+     RooAbsReal* myintegral = getPdf()->createIntegral(obs);
+     integral = myintegral->getVal() / (xMax - xMin);
      return integral;
    }
    else if(code==1) {     
-     //Double_t integral = ig.Integral(xRangeMin,xRangeMax);
-     //return integral;
-     for (Int_t iBin=0; iBin<xBins; iBin++){       
-       Double_t xLow = xArray[iBin];
-       Double_t xHigh = xArray[iBin+1];
-       Double_t partial_integral = ig.Integral(xLow,xHigh);
-       if (xLow>=xRangeMin && xHigh<=xRangeMax) {
-     	 // Bin fully in the integration domain
-     	 integral += partial_integral;
-       } else if (xLow<xRangeMin && xHigh>xRangeMax) {
-     	 // Domain is fully contained in this bin
-     	 integral += (xRangeMax-xRangeMin)*partial_integral/(xHigh-xLow);
-     	 // Exit here, this is the last bin to be processed by construction
-     	 return integral;
-       } else if (xLow<xRangeMin && xHigh<=xRangeMax && xHigh>xRangeMin) {
-     	 // Lower domain boundary is in bin
-     	 integral += (xHigh-xRangeMin)*partial_integral/(xHigh-xLow);
-       } else if (xLow>=xRangeMin && xHigh>xRangeMax && xLow<xRangeMax) {
-     	 // Upper domain boundary is in bin
-     	 integral +=  (xRangeMax-xLow)*partial_integral/(xHigh-xLow);
-     	 // Exit here, this is the last bin to be processed by construction
-     	 return integral;
-       }
-     }
+     RooAbsReal* myintegral = getPdf()->createIntegral(obs,Range(rangeName));
+     integral = myintegral->getVal() / (xRangeMax - xRangeMin);
      return integral;
    } else {
      cout << "WARNING IN RooParametricShapeBinPdf: integration code is not correct" << endl;

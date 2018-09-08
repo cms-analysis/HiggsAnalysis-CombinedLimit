@@ -35,8 +35,6 @@ public:
    RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other,
       const char* name = 0);
    void setTH1Binning(const TH1& _Hnominal);
-   void setAbsTol(double _absTol);
-   void setRelTol(double _relTol);
    RooAbsPdf* getPdf() const;
    virtual TObject* clone(const char* newname) const { return new RooParametricShapeBinPdf(*this,newname); }
    inline virtual ~RooParametricShapeBinPdf() { }
@@ -49,14 +47,10 @@ protected:
    RooRealProxy x;        // dependent variable
    RooListProxy pars;
    RooRealProxy mypdf;
-   TF1 * myfunc;
    Int_t xBins;        // X bins
    Double_t xArray[2000]; // xArray[xBins+1]
    Double_t xMax;        // X max
    Double_t xMin;        // X min
-   Double_t relTol;      //relative tolerance for numerical integration
-   Double_t absTol;      //absolute tolerance for numerical integration
-   Int_t nPars;
 
    Double_t evaluate() const;
 private:
