@@ -18,6 +18,7 @@ def addDatacardParserOptions(parser):
     parser.add_option("--poisson",  dest="poisson",  default=0,  type="int",    help="If set to a positive number, binned datasets wih more than this number of entries will be generated using poissonians")
     parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
     parser.add_option("--no-b-only","--for-fits",    dest="noBOnly", default=False, action="store_true", help="Do not save the background-only pdf (saves time)")
+    parser.add_option("--no-wrappers", dest="noHistFuncWrappers", default=False, action="store_true", help="Do not create and save the CMSHistFuncWrapper objects for autoMCStats-based models (saves time)")
     parser.add_option("--no-optimize-pdfs",    dest="noOptimizePdf", default=False, action="store_true", help="Do not save the RooSimultaneous as RooSimultaneousOpt and Gaussian constraints as SimpleGaussianConstraint")
     parser.add_option("--optimize-simpdf-constraints",    dest="moreOptimizeSimPdf", default="none", type="string", help="Handling of constraints in simultaneous pdf: 'none' = add all constraints on all channels (default); 'lhchcg' = add constraints on only the first channel; 'cms' = add constraints to the RooSimultaneousOpt.")
     #parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")

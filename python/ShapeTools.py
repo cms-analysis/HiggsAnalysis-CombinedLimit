@@ -193,7 +193,7 @@ class ShapeBuilder(ModelBuilder):
                     if i > 0: stderr.write("\b\b\b\b\b");
                     stderr.write(". %4d" % (i+1))
                     stderr.flush()
-            if channelBinParFlag and not self.options.noBOnly:
+            if channelBinParFlag and not self.options.noHistFuncWrappers:
                 for idx in xrange(pdfs.getSize()):
                     wrapper = ROOT.CMSHistFuncWrapper(pdfs[idx].GetName() + '_wrapper', '', pdfs.at(idx).getXVar(), pdfs.at(idx), prop, idx)
                     wrapper.setStringAttribute("combine.process", pdfs.at(idx).getStringAttribute("combine.process"))
