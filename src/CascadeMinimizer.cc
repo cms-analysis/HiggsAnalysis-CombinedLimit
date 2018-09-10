@@ -108,7 +108,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
 		Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Failed minimization with %s, %s and tolerance %g",__LINE__,nominalType.c_str(),nominalAlgo.c_str(),nominalTol)),Logger::kLogLevelDebug,__func__);
 	}
         for (std::vector<Algo>::const_iterator it = fallbacks_.begin(), ed = fallbacks_.end(); it != ed; ++it) {
-            Significance::MinimizerSentry minimizerConfig(it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol); // set the global defaults
+            Significance::MinimizerSentry minimizerConfig(it->type + "," + it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol); // set the global defaults
             int myStrategy = it->strategy; if (myStrategy == Algo::default_strategy()) myStrategy = nominalStrat;
             if (nominalType != ROOT::Math::MinimizerOptions::DefaultMinimizerType() ||
                 nominalAlgo != ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo() ||
