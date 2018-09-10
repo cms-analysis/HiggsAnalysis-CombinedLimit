@@ -10,13 +10,8 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooParametricShapeBinPdf.h"
 #include "RooRealVar.h"
 #include "RooArgList.h"
-#include "RooConstVar.h"
-#include "Math/Functor.h"
-#include "Math/WrappedFunction.h"
-#include "Math/IFunction.h"
-#include "Math/Integrator.h"
-#include "Math/GSLIntegrator.h"
-#include "RooTFnBinding.h"
+#include "RooRealProxy.h"
+#include "RooListProxy.h"
 
 using namespace std;
 using namespace RooFit;
@@ -37,7 +32,7 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
   TIterator *varIter=_pars.createIterator(); 
   RooAbsReal *fVar;
   while ( (fVar = (RooAbsReal*)varIter->Next()) ){
-	pars.add(*fVar);
+    pars.add(*fVar);
   }
   setTH1Binning(_shape);
 }
@@ -58,8 +53,9 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPd
   TIterator *varIter=other.pars.createIterator(); 
   RooAbsReal *fVar;
   while ( (fVar = (RooAbsReal*) varIter->Next()) ){
-	pars.add(*fVar);
+    pars.add(*fVar);
   }
+  
 }
 //---------------------------------------------------------------------------
 void RooParametricShapeBinPdf::setTH1Binning(const TH1 &_Hnominal){
@@ -89,19 +85,22 @@ Double_t RooParametricShapeBinPdf::evaluate() const
     //cout << "in bin " << iBin << " which is outside of range" << endl;
     return 0.0;
   }
-  
+
   Double_t xLow = xArray[iBin];
   Double_t xHigh = xArray[iBin+1];
 
   std::string rangeName  = Form("%s_%s_range_bin%d", GetName(), x.GetName(), iBin);
-  RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
-  x_rrv.setRange(rangeName.c_str(),xLow,xHigh);
+  if (!x.arg().hasRange(rangeName.c_str())) {
+    RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
+    x_rrv.setRange(rangeName.c_str(),xLow,xHigh);
+  }
+  
   RooListProxy obs;
   obs.add(x.arg());
   RooAbsReal* myintegral = getPdf()->createIntegral(obs,Range(rangeName.c_str()));
     
   integral = myintegral->getVal() / (xHigh-xLow);
-
+  
   if (integral>0.0) {
     return integral;
   } else return 0;
@@ -117,31 +116,27 @@ Int_t RooParametricShapeBinPdf::getAnalyticalIntegral(RooArgSet& allVars, RooArg
 // //---------------------------------------------------------------------------
 Double_t RooParametricShapeBinPdf::analyticalIntegral(Int_t code, const char* rangeName) const{
 
-   Double_t xRangeMin = x.min(rangeName); Double_t xRangeMax = x.max(rangeName);
-
-   Double_t integral = 0.0;
-   
-   RooListProxy obs;
-   obs.add(x.arg());
-
-   if (code==1 && xRangeMin<=xMin && xRangeMax>=xMax){
-     RooAbsReal* myintegral = getPdf()->createIntegral(obs);
-     integral = myintegral->getVal() / (xMax - xMin);
-     return integral;
-   }
-   else if(code==1) {     
-     RooAbsReal* myintegral = getPdf()->createIntegral(obs,Range(rangeName));
-     integral = myintegral->getVal() / (xRangeMax - xRangeMin);
-     return integral;
+  Double_t xRangeMin = x.min(rangeName); Double_t xRangeMax = x.max(rangeName);
+  
+  Double_t integral = 0.0;
+  
+  RooListProxy obs;
+  obs.add(x.arg());
+  
+  if (code==1 && xRangeMin<=xMin && xRangeMax>=xMax){
+    RooAbsReal* myintegral = getPdf()->createIntegral(obs);
+    integral = myintegral->getVal();
+    return integral;
+  }
+  else if(code==1) {     
+    RooAbsReal* myintegral = getPdf()->createIntegral(obs,Range(rangeName));
+    integral = myintegral->getVal();
+    return integral;
    } else {
-     cout << "WARNING IN RooParametricShapeBinPdf: integration code is not correct" << endl;
-     cout << "                           what are you integrating on?" << endl;
-     return 1.0;
-   }
-
-   if (integral>0.0) {
-     return integral;
-   } else return 1.0;
+    cout << "WARNING IN RooParametricShapeBinPdf: integration code is not correct" << endl;
+    cout << "                           what are you integrating on?" << endl;
+    return 1.0;
+  }
 }
 // //---------------------------------------------------------------------------
 

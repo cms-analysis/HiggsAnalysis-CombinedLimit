@@ -3,8 +3,8 @@
 #define ROOPARAMETRICSHAPEBINPDF
 //---------------------------------------------------------------------------
 #include "RooAbsPdf.h"
-#include "RooConstVar.h"
 #include "RooRealProxy.h"
+#include "RooListProxy.h"
 //---------------------------------------------------------------------------
 class RooRealVar;
 class RooAbsReal;
@@ -12,24 +12,12 @@ class RooAbsReal;
 #include "Riostream.h"
 #include "TMath.h"
 #include <TH1.h>
-#include <TF1.h>
-#include "Math/SpecFuncMathCore.h"
-#include "Math/SpecFuncMathMore.h"
-#include "Math/Functor.h"
-#include "Math/WrappedFunction.h"
-#include "Math/WrappedTF1.h"
-#include "Math/IFunction.h"
-#include "Math/Integrator.h"
 
 //---------------------------------------------------------------------------
 class RooParametricShapeBinPdf : public RooAbsPdf
 {
 public:
    RooParametricShapeBinPdf() {} ;
-   /*
-   RooParametricShapeBinPdf(const char *name, const char *title,  const char *formula, 
-		  RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape );
-   */
    RooParametricShapeBinPdf(const char *name, const char *title,  RooAbsReal& _pdf, 
 		  RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape );
    RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other,
@@ -47,6 +35,7 @@ protected:
    RooRealProxy x;        // dependent variable
    RooListProxy pars;
    RooRealProxy mypdf;
+   //std::vector<const RooAbsReal *> myintegrals;
    Int_t xBins;        // X bins
    Double_t xArray[2000]; // xArray[xBins+1]
    Double_t xMax;        // X max
@@ -67,7 +56,7 @@ private:
        return mypdf.arg().plotOn(frame,cmdList) ;
      }
      
-   ClassDef(RooParametricShapeBinPdf,1) // RooParametricShapeBinPdf function
+   ClassDef(RooParametricShapeBinPdf,2) // RooParametricShapeBinPdf function
     
 };
 //---------------------------------------------------------------------------
