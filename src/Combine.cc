@@ -754,9 +754,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   // Print list of channel masks
-  if (verbose >= 2) {
-    RooSimultaneousOpt *simopt = dynamic_cast<RooSimultaneousOpt*>(mc->GetPdf());
-    if (simopt && simopt->channelMasks().getSize() > 0) {
+  RooSimultaneousOpt *simopt = dynamic_cast<RooSimultaneousOpt*>(mc->GetPdf());
+  if (simopt && simopt->channelMasks().getSize() > 0) {
+    int nChnMasks = simopt->channelMasks().getSize();
+    int nActiveMasks = 0;
+    for (int iMask=0; iMask < nChnMasks; iMask++){
+      if (dynamic_cast<RooRealVar*>(simopt->channelMasks().at(iMask))->getVal() > 0) nActiveMasks++;
+    }
+    std::cout << ">>> "<<nActiveMasks<<" out of "<<nChnMasks<<" channels masked\n"<<std::endl;
+    if (verbose >= 2) {
       std::cout << ">>> Channel masks:\n";
       simopt->channelMasks().Print("v");
     }
