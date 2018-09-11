@@ -24,6 +24,7 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
   x("x", "x Observable", this, _x),
   pars("pars","pars",this),
   mypdf("mypdf","mypdf", this, _pdf),
+  myintegrals("myintegrals","myintegrals",this),
   xBins(0),
   xMax(0),
   xMin(0)
@@ -35,12 +36,27 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
     pars.add(*fVar);
   }
   setTH1Binning(_shape);
+  RooAbsReal* myintegral;
+  RooListProxy obs;
+  obs.add(x.arg());
+  for (Int_t iBin=0; iBin<xBins+1; iBin++){
+    std::string rangeName  = Form("%s_%s_range_bin%d", GetName(), x.GetName(), iBin);
+    if (!x.arg().hasRange(rangeName.c_str())) {
+      RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
+      Double_t xLow = xArray[iBin];
+      Double_t xHigh = xArray[iBin+1];
+      x_rrv.setRange(rangeName.c_str(),xLow,xHigh);
+    } 
+    myintegral = getPdf()->createIntegral(obs,Range(rangeName.c_str()));
+    myintegrals.add(*myintegral);
+  }
 }
 //---------------------------------------------------------------------------
 RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other, const char* name) : RooAbsPdf(other, name), 
    x("x", this, other.x),
    pars("pars",this,RooListProxy()),
    mypdf("mypdf",this,other.mypdf),
+   myintegrals("myintegrals",this,RooListProxy()),
    xBins(other.xBins),
    xMax(other.xMax),
    xMin(other.xMin)
@@ -54,6 +70,12 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPd
   RooAbsReal *fVar;
   while ( (fVar = (RooAbsReal*) varIter->Next()) ){
     pars.add(*fVar);
+  }
+
+  TIterator *intIter=other.myintegrals.createIterator(); 
+  RooAbsReal *fInt;
+  while ( (fInt = (RooAbsReal*) intIter->Next()) ){
+    myintegrals.add(*fInt);
   }
   
 }
@@ -73,6 +95,12 @@ RooAbsPdf* RooParametricShapeBinPdf::getPdf() const {
   return mypdf ? ((RooAbsPdf*)mypdf.absArg()) : 0 ;
 }
 //---------------------------------------------------------------------------
+/// Return the bin-by-bin integrals
+RooAbsReal* RooParametricShapeBinPdf::getIntegral(int index) const {
+  RooAbsReal *myintegral = ((RooAbsReal*)myintegrals.at(index));
+  return myintegral;
+}
+//---------------------------------------------------------------------------
 Double_t RooParametricShapeBinPdf::evaluate() const
 {
   Double_t integral = 0.0;
@@ -88,18 +116,8 @@ Double_t RooParametricShapeBinPdf::evaluate() const
 
   Double_t xLow = xArray[iBin];
   Double_t xHigh = xArray[iBin+1];
-
-  std::string rangeName  = Form("%s_%s_range_bin%d", GetName(), x.GetName(), iBin);
-  if (!x.arg().hasRange(rangeName.c_str())) {
-    RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
-    x_rrv.setRange(rangeName.c_str(),xLow,xHigh);
-  }
-  
-  RooListProxy obs;
-  obs.add(x.arg());
-  RooAbsReal* myintegral = getPdf()->createIntegral(obs,Range(rangeName.c_str()));
     
-  integral = myintegral->getVal() / (xHigh-xLow);
+  integral = getIntegral(iBin)->getVal() / (xHigh-xLow);
   
   if (integral>0.0) {
     return integral;

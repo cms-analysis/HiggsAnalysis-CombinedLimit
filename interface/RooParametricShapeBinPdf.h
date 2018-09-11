@@ -24,6 +24,7 @@ public:
       const char* name = 0);
    void setTH1Binning(const TH1& _Hnominal);
    RooAbsPdf* getPdf() const;
+   RooAbsReal* getIntegral(int index) const;
    virtual TObject* clone(const char* newname) const { return new RooParametricShapeBinPdf(*this,newname); }
    inline virtual ~RooParametricShapeBinPdf() { }
 
@@ -34,8 +35,8 @@ protected:
 
    RooRealProxy x;        // dependent variable
    RooListProxy pars;
-   RooRealProxy mypdf;
-   //std::vector<const RooAbsReal *> myintegrals;
+   RooRealProxy mypdf;   
+   RooListProxy myintegrals;
    Int_t xBins;        // X bins
    Double_t xArray[2000]; // xArray[xBins+1]
    Double_t xMax;        // X max
