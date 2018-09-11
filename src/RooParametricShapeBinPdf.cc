@@ -39,7 +39,7 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
   RooAbsReal* myintegral;
   RooListProxy obs;
   obs.add(x.arg());
-  for (Int_t iBin=0; iBin<xBins+1; iBin++){
+  for (Int_t iBin=0; iBin<xBins; iBin++){
     std::string rangeName  = Form("%s_%s_range_bin%d", GetName(), x.GetName(), iBin);
     if (!x.arg().hasRange(rangeName.c_str())) {
       RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
