@@ -38,7 +38,7 @@ def ScaleTo(syst, val, rename=''):
 
 def Decorrelate(cb, name, correlation, postfix_corr, postfix_uncorr):
     if correlation <= 0. or correlation >= 1.:
-        raise RuntimeError('Correlation coeff X must be 0 < X < 1')
+        raise RuntimeError('Correlation coeff X must be 0 <= X < 1')
     cb_syst = cb.cp().syst_name([name])
     print '>> The following systematics will be cloned and adjusted:'
     cb_syst.PrintSysts()
@@ -67,13 +67,15 @@ args = parser.parse_args()
 
 cb.ParseDatacard(args.datacard, mass=args.mass)
 
-actions = [X.split(',') for X in args.process.split(':')]
-
-# print actions
-
-for name, correlation in actions:
-    print '>> Setting correlation coefficient of %s to %f' % (name, float(correlation))
-    Decorrelate(cb, name, float(correlation), args.postfix_corr, args.postfix_uncorr)
+if args.process != '':
+    actions = [X.split(',') for X in args.process.split(':')]
+    
+    for name, correlation in actions:
+        print '>> Setting correlation coefficient of %s to %f' % (name, float(correlation))
+        if float(correlation) == 0.:
+            cb.cp().RenameSystematic(cb,name,name+args.postfix_uncorr)
+        else:
+            Decorrelate(cb, name, float(correlation), args.postfix_corr, args.postfix_uncorr)
 
 print '>> Writing new card and ROOT file: %s' % ((args.output_txt, args.output_root),)
 cb.WriteDatacard(args.output_txt, args.output_root)
