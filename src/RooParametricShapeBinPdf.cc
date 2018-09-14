@@ -100,8 +100,7 @@ RooAbsPdf* RooParametricShapeBinPdf::getPdf() const {
 //---------------------------------------------------------------------------
 /// Return the bin-by-bin integrals
 RooAbsReal* RooParametricShapeBinPdf::getIntegral(int index) const {
-  RooAbsReal *myintegral = ((RooAbsReal*)myintegrals.at(index));
-  return myintegral;
+  return myintegrals.at(index) ? ((RooAbsReal*)myintegrals.at(index)) : 0;
 }
 //---------------------------------------------------------------------------
 Double_t RooParametricShapeBinPdf::evaluate() const
@@ -119,7 +118,16 @@ Double_t RooParametricShapeBinPdf::evaluate() const
 
   Double_t xLow = xArray[iBin];
   Double_t xHigh = xArray[iBin+1];
-    
+
+  // check again if x variable has the right range already defined 
+  // needed when combining multiple workspaces, and taking variable x from only one of them!
+  std::string rangeName  = Form("%s_%s_range_bin%d", GetName(), x.GetName(), iBin);
+  if (!x.arg().hasRange(rangeName.c_str())) {
+    RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
+    Double_t xLow = xArray[iBin];
+    Double_t xHigh = xArray[iBin+1];
+    x_rrv.setRange(rangeName.c_str(),xLow,xHigh);
+  } 
   integral = getIntegral(iBin)->getVal() / (xHigh-xLow);
   
   if (integral>0.0) {
