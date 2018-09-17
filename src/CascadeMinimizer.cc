@@ -108,7 +108,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
 		Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Failed minimization with %s, %s and tolerance %g",__LINE__,nominalType.c_str(),nominalAlgo.c_str(),nominalTol)),Logger::kLogLevelDebug,__func__);
 	}
         for (std::vector<Algo>::const_iterator it = fallbacks_.begin(), ed = fallbacks_.end(); it != ed; ++it) {
-            Significance::MinimizerSentry minimizerConfig(it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol); // set the global defaults
+            Significance::MinimizerSentry minimizerConfig(it->type + "," + it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol); // set the global defaults
             int myStrategy = it->strategy; if (myStrategy == Algo::default_strategy()) myStrategy = nominalStrat;
             if (nominalType != ROOT::Math::MinimizerOptions::DefaultMinimizerType() ||
                 nominalAlgo != ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo() ||
@@ -685,35 +685,48 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
         vector<string> falls(vm["cminFallbackAlgo"].as<vector<string> >());
         for (vector<string>::const_iterator it = falls.begin(), ed = falls.end(); it != ed; ++it) {
             std::string algo = *it;
+	    std::string type; 
             float tolerance = Algo::default_tolerance(); 
             int   strategy = Algo::default_strategy(); 
             string::size_type idx = std::min(algo.find(";"), algo.find(":"));
             if (idx != string::npos && idx < algo.length()) {
                  tolerance = atof(algo.substr(idx+1).c_str());
                  algo      = algo.substr(0,idx); // DON'T SWAP THESE TWO LINES
+		 type	   = std::string(defaultMinimizerType_);
             }
             idx = algo.find(",");
             if (idx != string::npos && idx < algo.length()) {
                 // if after the comma there's a number, then it's a strategy
                 if ( '0' <= algo[idx+1] && algo[idx+1] <= '9' ) {
                     strategy = atoi(algo.substr(idx+1).c_str());
-                    algo     = algo.substr(0,idx); // DON'T SWAP THESE TWO LINES
+                    type     = algo.substr(0,idx); // DON'T SWAP THESE TWO LINES
+		    std::map<std::string,std::vector<std::string> >::const_iterator ft = minimizerAlgoMap_.find(type);
+		    if (ft!=minimizerAlgoMap_.end()){
+		      algo     = (ft->second)[0];
+		    } else algo = std::string(defaultMinimizerAlgo_);
+		    
                 } else {
-                // otherwise, it could be Name,subname,strategy
-                    idx = algo.find(",",idx+1);
-                    if (idx != string::npos && idx < algo.length()) {
-                        strategy = atoi(algo.substr(idx+1).c_str());
-                        algo     = algo.substr(0,idx); // DON'T SWAP THESE TWO LINES
-                    }
+                    // otherwise, it could be Name,subname,strategy
+		    std::vector<std::string> configs;
+		    boost::algorithm::split(configs,algo,boost::is_any_of(","));
+		    if (configs.size()!=3) {
+		    	std::cerr << "The fallback command from --cminFallbackAlgo " << *it << " is malformed. It should be formatted as Type[,Algo],strategy[:tolerance] " << std::endl;
+			exit(0);
+		    }
+		    type = configs[0];
+		    algo = configs[1];
+		    strategy = atoi(configs[2].c_str());
                 }
             }
-      	    if (! checkAlgoInType(defaultMinimizerType_,algo)) {
-		std::cerr << Form("The fallback combination of minimizer type/algo %s/%s, is not recognized. Please check --cminFallbackAlgo again",defaultMinimizerType_.c_str(),algo.c_str());
+      	    if (! checkAlgoInType(type,algo)) {
+		std::cerr << Form("The fallback combination of minimizer type/algo %s/%s, is not recognized. Please check --cminFallbackAlgo again",type.c_str(),algo.c_str());
 		//Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- The fallback combination of minimizer type/algo %s/%s, is not recognized. Please check --cminFallbackAlgo again",__LINE__,defaultMinimizerType_.c_str(),algo.c_str())),Logger::kLogLevelError,__func__);
 		exit(0);
      	    }
-            fallbacks_.push_back(Algo(algo, tolerance, strategy));
-            std::cout << "Configured fallback algorithm " << fallbacks_.back().algo << 
+            fallbacks_.push_back(Algo(type, algo, tolerance, strategy));
+            std::cout << "Configured fallback algorithm " << 
+	    		    ", type " << fallbacks_.back().type << 
+	    		    ", algo " << fallbacks_.back().algo << 
                             ", strategy " << fallbacks_.back().strategy   << 
                             ", tolerance " << fallbacks_.back().tolerance << std::endl;
         }

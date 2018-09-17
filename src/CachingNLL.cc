@@ -889,6 +889,7 @@ cacheutils::CachingSimNLL::setup_()
     //---- This seems to save memory.
     //std::auto_ptr<RooArgSet> params(pdfclone->getParameters(*dataOriginal_));
     //params_.add(*params);
+    static bool verb  = runtimedef::get("ADDNLL_VERBOSE_CACHING");
 
     RooArgList constraints;
     factorizedPdf_.reset(dynamic_cast<RooSimultaneous *>(utils::factorizePdf(*dataOriginal_->get(), *pdfclone, constraints)));
@@ -913,7 +914,7 @@ cacheutils::CachingSimNLL::setup_()
                 if (typeid(*pdfi) == typeid(RooGaussian)) {
                      RooAbsPdf *opt = SimpleGaussianConstraint::make(static_cast<RooGaussian&>(*pdfi));
                      if (typeid(*opt) == typeid(SimpleGaussianConstraint)) {
-                         std::cout << "Constraint " << pdfi->GetName() << " optimized into " << opt->ClassName() << std::endl;
+                         if (verb) std::cout << "Constraint " << pdfi->GetName() << " optimized into " << opt->ClassName() << std::endl;
                          constrainPdfsFast_.push_back(static_cast<SimpleGaussianConstraint*>(opt));
                          constrainPdfsFastOwned_.push_back(true);
                          constrainZeroPointsFast_.push_back(0);
@@ -924,7 +925,7 @@ cacheutils::CachingSimNLL::setup_()
                 } else if (typeid(*pdfi) == typeid(RooPoisson)) {
                      RooAbsPdf *opt = SimplePoissonConstraint::make(static_cast<RooPoisson&>(*pdfi));
                      if (typeid(*opt) == typeid(SimplePoissonConstraint)) {
-                         std::cout << "Constraint " << pdfi->GetName() << " optimized into " << opt->ClassName() << std::endl;
+                         if (verb) std::cout << "Constraint " << pdfi->GetName() << " optimized into " << opt->ClassName() << std::endl;
                          constrainPdfsFastPoisson_.push_back(static_cast<SimplePoissonConstraint*>(opt));
                          constrainPdfsFastPoissonOwned_.push_back(true);
                          constrainZeroPointsFastPoisson_.push_back(0);
@@ -941,9 +942,12 @@ cacheutils::CachingSimNLL::setup_()
             std::auto_ptr<RooArgSet> params(pdfi->getParameters(*dataOriginal_));
             params_.add(*params, false);
         }
-        for (const auto & p : constraintsByType) {
+        if (verb) {
+	  for (const auto & p : constraintsByType) {
             std::cout << "Constraints of type " << p.first << ": " << p.second << std::endl;
-        }
+          }
+	}
+
     } else {
         std::cerr << "PDF didn't factorize!" << std::endl;
         std::cout << "Parameters: " << std::endl;

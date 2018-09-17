@@ -430,9 +430,14 @@ void MultiDimFit::doSingles(RooFitResult &res)
         double hiErr = +(rf->hasRange("err68") ? rf->getMax("err68") - bestFitVal : rf->getAsymErrorHi());
         double loErr = -(rf->hasRange("err68") ? rf->getMin("err68") - bestFitVal : rf->getAsymErrorLo());
         double maxError = std::max<double>(std::max<double>(hiErr, loErr), rf->getError());
-
-        if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
-        if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
+        if (fabs(hiErr) < 0.001*maxError){ 
+		std::cout << " Warning - No valid high-error found, will report difference to maximum of range for : " << rf->GetName() << std::endl;
+		hiErr = -bestFitVal + rf->getMax();
+	}
+        if (fabs(loErr) < 0.001*maxError) {
+		std::cout << " Warning - No valid low-error found, will report difference to minimum of range for : " << rf->GetName() << std::endl;
+		loErr = +bestFitVal - rf->getMin();
+	}
 
         double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
         double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);

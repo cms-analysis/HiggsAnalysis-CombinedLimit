@@ -10,6 +10,8 @@ class RooRealVar;
 //#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
 #include "RooMinimizer.h"
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string.hpp>
+
 
 class CascadeMinimizer {
     public:
@@ -60,10 +62,10 @@ class CascadeMinimizer {
         static boost::program_options::options_description options_;
         /// compact information about an algorithm
         struct Algo { 
-            Algo() : algo(), tolerance(), strategy(-1) {}
-            Algo(const std::string &str, float tol=-1.f, int strategy=-1) : algo(str), tolerance(tol), strategy(strategy) {}
-            std::string algo; float tolerance; int strategy;
-            static float default_tolerance() { return -1.f; }
+            Algo() : type(), algo(), tolerance(), strategy(-1) {}
+            Algo(const std::string &tystr, const std::string &str, float tol=-1.f, int strategy=-1) :type(tystr), algo(str), tolerance(tol), strategy(strategy) {}
+            std::string type; std::string algo; float tolerance; int strategy;
+            static float default_tolerance() { return 0.1; }
             static int   default_strategy() { return -1; }
         };
         /// list of algorithms to run if the default one fails
