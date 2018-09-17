@@ -108,7 +108,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
 		Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Failed minimization with %s, %s and tolerance %g",__LINE__,nominalType.c_str(),nominalAlgo.c_str(),nominalTol)),Logger::kLogLevelDebug,__func__);
 	}
         for (std::vector<Algo>::const_iterator it = fallbacks_.begin(), ed = fallbacks_.end(); it != ed; ++it) {
-            Significance::MinimizerSentry minimizerConfig(it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol); // set the global defaults
+            Significance::MinimizerSentry minimizerConfig(it->type + "," + it->algo, it->tolerance != Algo::default_tolerance() ? it->tolerance : nominalTol); // set the global defaults
             int myStrategy = it->strategy; if (myStrategy == Algo::default_strategy()) myStrategy = nominalStrat;
             if (nominalType != ROOT::Math::MinimizerOptions::DefaultMinimizerType() ||
                 nominalAlgo != ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo() ||
@@ -692,7 +692,11 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
             if (idx != string::npos && idx < algo.length()) {
                  tolerance = atof(algo.substr(idx+1).c_str());
                  algo      = algo.substr(0,idx); // DON'T SWAP THESE TWO LINES
+<<<<<<< HEAD
 		 type	   = std::string(defaultMinimizerType_);
+=======
+		 //type	   = std::string(defaultMinimizerType_);
+>>>>>>> 051aefc813bb0b0768fdd908d2cf065aa5526916
             }
             idx = algo.find(",");
             if (idx != string::npos && idx < algo.length()) {
@@ -710,7 +714,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
 		    std::vector<std::string> configs;
 		    boost::algorithm::split(configs,algo,boost::is_any_of(","));
 		    if (configs.size()!=3) {
-		    	std::cerr << "The fallback command from --cminFallbackAlgo " << *it << " is malformed. It should be formatted as [Type,]Algo,strategy:tolerance " << std::endl;
+		    	std::cerr << "The fallback command from --cminFallbackAlgo " << *it << " is malformed. It should be formatted as Type[,Algo],strategy[:tolerance] " << std::endl;
 			exit(0);
 		    }
 		    type = configs[0];
