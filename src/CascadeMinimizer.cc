@@ -692,11 +692,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
             if (idx != string::npos && idx < algo.length()) {
                  tolerance = atof(algo.substr(idx+1).c_str());
                  algo      = algo.substr(0,idx); // DON'T SWAP THESE TWO LINES
-<<<<<<< HEAD
 		 type	   = std::string(defaultMinimizerType_);
-=======
-		 //type	   = std::string(defaultMinimizerType_);
->>>>>>> 051aefc813bb0b0768fdd908d2cf065aa5526916
             }
             idx = algo.find(",");
             if (idx != string::npos && idx < algo.length()) {
