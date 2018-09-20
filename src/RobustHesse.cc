@@ -1,15 +1,16 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
 
+#include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <iostream>
-#include <sstream>
-#include <cmath>
-#include <vector>
-#include <unordered_map>
-#include <string>
 #include <memory>
-#include <typeinfo>
+#include <sstream>
 #include <stdexcept>
+#include <string>
+#include <typeinfo>
+#include <unordered_map>
+#include <vector>
 
 #include "TH2F.h"
 #include "TDirectory.h"
