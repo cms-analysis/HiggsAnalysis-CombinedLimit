@@ -17,13 +17,18 @@
 #include "CombineHarvester/CombineTools/interface/Systematic.h"
 #include "CombineHarvester/CombineTools/interface/Process.h"
 #include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "CombineHarvester/CombineTools/interface/json.hpp"
 
 namespace ch { class CombineHarvester; }
 
 namespace ch {
+using json = nlohmann::json;
 void PrintSystematic(ch::Systematic *syst);
+void ValidateShapeUncertaintyDirection(CombineHarvester& cb, json &jsobj);
 void ValidateShapeUncertaintyDirection(CombineHarvester& cb);
+void CheckEmptyShapes(CombineHarvester& cb, json &jsobj);
 void CheckEmptyShapes(CombineHarvester& cb);
+void ValidateCards(CombineHarvester& cb, std::string const& filename);
 
 }
 
