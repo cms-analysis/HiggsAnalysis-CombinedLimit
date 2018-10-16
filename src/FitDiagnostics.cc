@@ -29,6 +29,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
 
 
 #include <Math/MinimizerOptions.h>
@@ -56,6 +57,9 @@ bool        FitDiagnostics::skipBOnlyFit_ = false;
 bool        FitDiagnostics::noErrors_ = false;
 bool        FitDiagnostics::reuseParams_ = false;
 bool        FitDiagnostics::customStartingPoint_ = false;
+bool        FitDiagnostics::robustHesse_ = false;
+bool        FitDiagnostics::saveWithUncertsRequested_=false;
+bool        FitDiagnostics::ignoreCovWarning_=false;
 
 
 FitDiagnostics::FitDiagnostics() :
@@ -85,9 +89,11 @@ FitDiagnostics::FitDiagnostics() :
         ("numToysForShapes", 	boost::program_options::value<int>(&numToysForShapes_)->default_value(numToysForShapes_),  "Choose number of toys for re-sampling of the covariance (for shapes with uncertainties)")
         ("filterString",	boost::program_options::value<std::string>(&filterString_)->default_value(filterString_), "Filter to search for when making covariance and shapes")
         ("justFit",  		"Just do the S+B fit, don't do the B-only one, don't save output file")
+        ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
         ("skipBOnlyFit",  	"Skip the B-only fit (do only the S+B fit)")
         ("initFromBonly",  	"Use the values of the nuisance parameters from the background only fit as the starting point for the s+b fit. Can help fit convergence")
         ("customStartingPoint", "Don't set the first POI to 0 for the background-only fit. Instead if using this option, the parameter will be fixed to its default value, which can be set with the --setParameters option.")
+        ("ignoreCovWarning",    "Override the default behaviour of saveWithUncertainties being ignored if the covariance matrix is not accurate.")
    ;
 
     // setup a few defaults
@@ -120,11 +126,13 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
     savePredictionsPerToy_ = vm.count("savePredictionsPerToy");
     oldNormNames_  = vm.count("oldNormNames");
     saveWithUncertainties_  = vm.count("saveWithUncertainties");
+    saveWithUncertsRequested_ = saveWithUncertainties_;
     justFit_  = vm.count("justFit");
     skipBOnlyFit_ = vm.count("skipBOnlyFit");
     noErrors_ = vm.count("noErrors");
     reuseParams_ = vm.count("initFromBonly");
     customStartingPoint_ = vm.count("customStartingPoint");
+    ignoreCovWarning_ = vm.count("ignoreCovWarning");
      
     if (justFit_) { out_ = "none"; makePlots_ = false; savePredictionsPerToy_ = false; saveNormalizations_ = false; reuseParams_ = false, skipBOnlyFit_ = true;}
 }
@@ -259,6 +267,15 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   }
 
+  if (res_b && robustHesse_) {
+    RobustHesse robustHesse(*nll, verbose - 1);
+    robustHesse.ProtectArgSet(*mc_s->GetParametersOfInterest());
+    robustHesse.hesse();
+    auto res_b_new = robustHesse.GetRooFitResult(res_b);
+    delete res_b;
+    res_b = res_b_new;
+  }
+
   if (res_b) { 
       if (verbose > 1) res_b->Print("V");
       if (fitOut.get()) {
@@ -270,7 +287,20 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	 fitStatus_ = res_b->status();
       }
       numbadnll_=res_b->numInvalidNLL();
-         
+
+      if (!robustHesse_ && res_b->covQual() < 3){
+          if(!saveWithUncertainties_){
+              std::cerr<<"[WARNING]: Unable to determine uncertainties on all fit parameters in b-only fit. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."<<std::endl;
+              Logger::instance().log(std::string("[WARNING]: Unable to determine uncertainties on all fit parameters in b-only fit. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."),Logger::kLogLevelError,__func__);
+          } else if (ignoreCovWarning_) {
+              std::cerr<<"[WARNING]: Unable to determine uncertainties on all fit parameters in b-only fit. Caution: by passing --ignoreCovWarning the shapes and uncertainties will be stored as configured via the command line despite this issue. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."<<std::endl;
+              Logger::instance().log(std::string("[WARNING]: Unable to determine uncertainties on all fit parameters in b-only fit. Caution: by passing --ignoreCovWarning the shapes and uncertainties will be stored as configured via the command line despite this issue. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."),Logger::kLogLevelError,__func__);
+          } else {
+              saveWithUncertainties_=false;
+              std::cerr<<"[WARNING]: Unable to determine uncertainties on all fit parameters in b-only fit. The option --saveWithUncertainties will be ignored as it would lead to incorrect results. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."<<std::endl;
+              Logger::instance().log(std::string("[WARNING]: Unable to determine uncertainties on all fit parameters in b-only fit. The option --saveWithUncertainties will be ignored as it would lead to incorrect results. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."),Logger::kLogLevelError,__func__);
+          }
+      }
       if ( verbose > 0 ) Logger::instance().log(std::string(Form("FitDiagnostics.cc: %d -- Fit B-only, status = %d, numBadNLL = %d, covariance quality = %d",__LINE__,fitStatus_,numbadnll_,res_b->covQual())),Logger::kLogLevelDebug,__func__);
 
       if (makePlots_ && currentToy_<1) {
@@ -341,6 +371,15 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
     if (res_s) nll_sb_= nll->getVal()-nll0;
 
   }
+
+  if (res_s && robustHesse_) {
+    RobustHesse robustHesse(*nll, verbose - 1);
+    robustHesse.ProtectArgSet(*mc_s->GetParametersOfInterest());
+    robustHesse.hesse();
+    auto res_s_new = robustHesse.GetRooFitResult(res_s);
+    delete res_s;
+    res_s = res_s_new;
+  }
   /**********************************************************************************************************************************/
   if (res_s) { 
       limit    = r->getVal();
@@ -356,6 +395,20 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	 fitStatus_ = res_s->status();
          numbadnll_ = res_s->numInvalidNLL();
 
+         saveWithUncertainties_=saveWithUncertsRequested_; //Reset saveWithUncertainties flag to original value in case it has been set to false due to covariance matrix issues in the b-only fit.
+         if (!robustHesse_ && res_s->covQual() < 3){
+             if(!saveWithUncertainties_){
+                 std::cerr<<"[WARNING]: Unable to determine uncertainties on all fit parameters in s+b fit. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."<<std::endl;
+                 Logger::instance().log(std::string("[WARNING]: Unable to determine uncertainties on all fit parameters in s+b fit. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."),Logger::kLogLevelError,__func__);
+             } else if (ignoreCovWarning_) {
+                  std::cerr<<"[WARNING]: Unable to determine uncertainties on all fit parameters in s+b fit. Caution: by passing --ignoreCovWarning the shapes and uncertainties will be stored as configured via the command line despite this issue. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."<<std::endl;
+                  Logger::instance().log(std::string("[WARNING]: Unable to determine uncertainties on all fit parameters in s+b fit. Caution: by passing --ignoreCovWarning the shapes and uncertainties will be stored as configured via the command line despite this issue. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."),Logger::kLogLevelError,__func__);
+             } else {
+                  saveWithUncertainties_=false;
+                  std::cerr<<"[WARNING]: Unable to determine uncertainties on all fit parameters in s+b fit. The option --saveWithUncertainties will be ignored as it would lead to incorrect results. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."<<std::endl;
+                  Logger::instance().log(std::string("[WARNING]: Unable to determine uncertainties on all fit parameters in s+b fit. The option --saveWithUncertainties will be ignored as it would lead to incorrect results. Have a look at https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#fit-parameter-uncertainties for more information."),Logger::kLogLevelError,__func__);
+             }
+         }
          if ( verbose > 0 ) Logger::instance().log(std::string(Form("FitDiagnostics.cc: %d -- Fit S+B, status = %d, numBadNLL = %d, covariance quality = %d",__LINE__,fitStatus_,numbadnll_,res_s->covQual())),Logger::kLogLevelDebug,__func__);
 	 // Additionally store the nll_sb - nll_bonly (=0.5*q0)
 	 nll_nll0_ =  nll_sb_ -  nll_bonly_;
@@ -615,6 +668,9 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
         if (fOut != 0 && saveShapes_ && pair->second.obs.getSize() == 1) {
             RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
             TH1* hist = pair->second.pdf->createHistogram("", *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+            for (int binN = 1; binN <= hist->GetNbinsX(); ++binN){
+                hist->SetBinError(binN,0);
+            }
             hist->SetNameTitle(pair->second.process.c_str(), (pair->second.process+" in "+pair->second.channel).c_str());
             hist->Scale(vals[i] / hist->Integral("width"));
             hist->SetDirectory(shapesByChannel[pair->second.channel]);
@@ -664,6 +720,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h) {
 	totalBins +=  h->second->GetNbinsX();
     }
+    if (totalBins==0) totalBins=1; // cover the case, where there is only a counting experiment without a "fake" shape, which is essentially just 1 bin. 
 
     //Total covariance
     TH2D* totOverall2Covar = new TH2D("overall_total_covar","Covariance signal+background",totalBins,0,totalBins,totalBins,0,totalBins);

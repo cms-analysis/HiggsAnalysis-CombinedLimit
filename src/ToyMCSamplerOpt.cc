@@ -136,6 +136,7 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double w
     int nPA = runtimedef::get("TMCSO_PseudoAsimov");  // Will trigger the use of weighted data 
     int boostAPA = runtimedef::get("TMCSO_AdaptivePseudoAsimov");
     if (boostAPA>0) {  // trigger adaptive PA (setting boostAPA=1 will just use internal logic)
+        if ( verbose > 0 ) Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- Using internal logic for binned/unbinned Asimov dataset generation",__LINE__)),Logger::kLogLevelInfo,__func__);
         int nbins = 1;
         RooLinkedListIter iter = observables_.iterator(); 
         for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {

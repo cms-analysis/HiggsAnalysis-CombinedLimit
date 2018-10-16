@@ -203,14 +203,14 @@ class ModelBuilder(ModelBuilderBase):
 	        wstmp = open_files[(fin,wsn)]
 	        if not wstmp.arg(argu):
 	         raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
-	        self.out._import(wstmp.arg(argu))
+	        self.out._import(wstmp.arg(argu),ROOT.RooFit.RecycleConflictNodes())
 	  else:
 	    try:
 	      fitmp = ROOT.TFile.Open(fin)
 	      wstmp = fitmp.Get(wsn)
 	      if not wstmp.arg(argu):
 	       raise RuntimeError, "No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin)
-	      self.out._import(wstmp.arg(argu))
+	      self.out._import(wstmp.arg(argu),ROOT.RooFit.RecycleConflictNodes())
 	      open_files[(fin,wsn)] = wstmp
 	      #fitmp.Close()
 	    except:

@@ -91,7 +91,11 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
             if errline[b][p] == 0: continue
 	    numKeysFound+=1
             processes[p] = True
-	    if "shape" in pdf and MB.isShapeSystematic(b,p,lsyst):
+            if pdf == "gmN":
+		minEffect = pdfargs[0] 
+		maxEffect = pdfargs[0]
+	    else: 
+	     if "shape" in pdf and MB.isShapeSystematic(b,p,lsyst):
 		vals = []
 
 		systShapeName = lsyst
@@ -110,8 +114,9 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
 			errlines[lsyst][b][p] = "NAN/NAN"
 			vals.append(1.)
 			vals.append(1.)
-            else: vals = errline[b][p] if type(errline[b][p]) == list else [ errline[b][p] ]
-            for val in vals:
+	     else: 
+	    	vals = errline[b][p] if type(errline[b][p]) == list else [ errline[b][p] ]
+             for val in vals:
                 if val < 1: val = 1.0/val
                 minEffect = min(minEffect, val)
                 maxEffect = max(maxEffect, val)

@@ -50,6 +50,9 @@ protected:
   static bool	     saveWorkspace_;
   static bool        reuseParams_;
   static bool        customStartingPoint_;
+  static bool       robustHesse_;
+  static bool        saveWithUncertsRequested_;
+  static bool        ignoreCovWarning_;
   int currentToy_, nToys;
   int overallBins_,overallNorms_,overallNuis_,overallCons_;
   int fitStatus_, numbadnll_;

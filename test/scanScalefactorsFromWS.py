@@ -8,14 +8,17 @@ import itertools
 
 from optparse import OptionParser
 parser = OptionParser(usage="usage: %prog [options] file \nrun with --help to get list of options")
-parser.add_option("-M","--Model",dest="model",default="CvCf",type='str',help="Name of model used in model builder (note its the name of the scaling functions, eg the L1/K models use 'c7'")
+parser.add_option("-M","--Model",dest="model",default="DEFAULT",type='str',help="Name of model used in model builder (note its the name of the scaling functions, eg the L1/K models use 'c7'")
 parser.add_option("-m","--mh",dest="mh",default=125.09,type='float',help="Lightest Higgs Mass")
 #parser.add_option("-e","--energydependance",dest="energydependant",action='store_true')
 parser.add_option("-s","--step",dest="stepsize",type='float',default=0.5)
+parser.add_option("","--scaling_prefix",dest="scaling_prefix",type='str',default="XSBRscal", help="Prefix for scaler, eg usually this is XSBRscal")
 parser.add_option("","--slice",dest="sliceval",type='str', default = "")
 parser.add_option("","--energies",dest="energies",type='str', default = "13TeV", help= "A comma separated list of the energies to show expressions for")
 parser.add_option("","--skipTree", default = False, action='store_true', help= "Skip filling the tree of points in the ND space (slow)")
 parser.add_option("-o","--out",dest="out",type='str', default = "", help= "Output folder for the plots/trees etc")
+parser.add_option("-P","--prod",dest="prod",type='str', default = "", help= "Overwrite default production channels (comma separated list in a string)")
+parser.add_option("-D","--decay",dest="decay",type='str', default = "", help= "Overwrite default decay channels (comma separated list in a string)")
 (options,args)=parser.parse_args()
 
 import ROOT
@@ -32,6 +35,12 @@ energies = list(options.energies.split(","))
 production_channels 	= ["ggH","qqH","WH","ZH","ttH","ggZH","tHq","tHW","bbH"]
 decay_channels 		= ['hww','hzz','hgg','hbb','hcc','htt','hmm','hzg','hgluglu','hinv']
 decay_modes 		= ["hgg","hvv","hff"]
+if options.prod: 
+	production_channels = options.prod.split(",")
+	print "Will look for productions ", production_channels
+if options.decay: 
+	decay_channels      = options.decay.split(",")
+	print "Will look for decays ", decay_channels
 
 # Stepping of parameters in the model 
 step = options.stepsize
@@ -179,13 +188,16 @@ def produceScan(modelname,extname,proddecaystring,work,energy=""):
 
 	# Get the appropriate mapping 
 	proddecay = proddecaystring+"_%s"%energy
-	name = "*_%s_%s*"%(extname,proddecay)
+	name = "*%s_%s*"%(extname,proddecay)
 	func = work.allFunctions().selectByName(name).first()
+	print "Looking for ", name 
 	if not func: 
 		# mostly modesl will NOT be energy dependant
 	        #proddecay+="_%s"%energy	
 		proddecay = proddecaystring
-		name = "*_%s_%s*"%(extname,proddecay)
+		name = "*%s_%s*"%(extname,proddecay)
+	        print "Nope!, Looking for ", name 
+	 	work.allFunctions().selectByName(name).Print()
 		func = work.allFunctions().selectByName(name).first()
 	if not func: #Give up!
 		return 
@@ -227,7 +239,7 @@ def produceScan(modelname,extname,proddecaystring,work,energy=""):
 		allplots.append(plot)
 
 	cc = ROOT.TCanvas("c_PARAM_%s_%s"%(modelname,proddecay),"",1080,600)
-	cc.Divide((nparams+1)//2,2)
+	if not nparams == 1: cc.Divide((nparams+1)//2,2)
 	for j,p in enumerate(allplots):
 		cc.cd(j+1)
 		p.Draw()
@@ -271,8 +283,8 @@ while 1:
   if p == None: break
   name = p.GetName()
   # should ideally sort these out, rather than hard code/set to defaults in the workspace
-  work.var(name).setMin(-2)
-  work.var(name).setMax(2)   
+  #work.var(name).setMin(-2)
+  #work.var(name).setMax(2)   
   default_parameter_vals[name] = p.getVal() 
 
 # create a dictionary object which containts name, empty array
@@ -328,7 +340,7 @@ for decay in decay_modes:
 for prod in production_channels:
    for decay in decay_channels:
 	
-	ext = "XSBRscal"
+	ext = options.scaling_prefix
 	proddecay = "%s_%s"%(prod,decay)
 	for e in energies:
 	  produceScan(options.model,ext,proddecay,work,energy=e)
