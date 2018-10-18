@@ -28,7 +28,9 @@ void ValidateShapeUncertaintyDirection(CombineHarvester& cb, json &jsobj);
 void ValidateShapeUncertaintyDirection(CombineHarvester& cb);
 void CheckEmptyShapes(CombineHarvester& cb, json &jsobj);
 void CheckEmptyShapes(CombineHarvester& cb);
-void ValidateCards(CombineHarvester& cb, std::string const& filename);
+void CheckShapeNormEff(CombineHarvester& cb, double maxNormEff, json &jsobj);
+void CheckShapeNormEff(CombineHarvester& cb, double maxNormEff);
+void ValidateCards(CombineHarvester& cb, std::string const& filename, double maxNormEff);
 
 }
 

@@ -20,6 +20,8 @@ parser.add_argument('--printLevel', '-p', default=1, type=int,
                     help='Specify the level of info printing (0-3)')
 parser.add_argument('--readOnly', action='store_true',
                     help='If this is enabled, skip validation and only read the output json')
+parser.add_argument('--checkUncertOver', '-c', default=0.1, type=float,
+                    help='Report uncertainties which have a normalisation effect larger than this fraction')
 parser.add_argument('--jsonFile', default='validation.json',
                     help='Path to the json file to read/write results from')
 
@@ -68,13 +70,14 @@ cb.SetFlag("check-negative-bins-on-import",0)
 if not args.readOnly: 
   cb.ParseDatacard(args.cards,"","","")
 
-  ch.ValidateCards(cb,args.jsonFile)
+  ch.ValidateCards(cb,args.jsonFile,args.checkUncertOver)
 
 if args.printLevel > 0:
   with open (args.jsonFile) as f:
     data = json.load(f)
     print_uncertainty(data,"uncertVarySameDirect","\'up/down templates vary the yield in the same direction\'")
     print_uncertainty(data,"emptySystematicShape","\'At least one of the up/down systematic uncertainty templates is empty\'")
+    print_uncertainty(data,"largeNormEff","\'Uncertainty has normalisation effect of more than %.1f%%\'"% (args.checkUncertOver*100))
     print_process(data,"emptyProcessShape","\'Empty process\'")
 
 

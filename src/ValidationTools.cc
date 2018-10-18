@@ -62,7 +62,7 @@ void CheckEmptyShapes(CombineHarvester& cb, json& jsobj){
       if ( MatchingProcess(*sys,*empty_procs.at(i)) ) no_check=1;
     }
     if(!no_check){
-      if(sys->type()=="shape" &&  (sys->value_u()==0. or sys->value_d()==0.)){
+      if(sys->type()=="shape" &&  (sys->value_u()==0. || sys->value_d()==0.)){
         jsobj["emptySystematicShape"][sys->name()][sys->bin()][sys->process()]={{"value_u",sys->value_u()},{"value_d",sys->value_d()}};
       }
     }
@@ -84,7 +84,7 @@ void CheckEmptyShapes(CombineHarvester& cb){
       if ( MatchingProcess(*sys,*empty_procs.at(i)) ) no_check=1;
     }
     if(!no_check){
-      if(sys->type()=="shape" &&  (sys->value_u()==0. or sys->value_d()==0.)){
+      if(sys->type()=="shape" &&  (sys->value_u()==0. || sys->value_d()==0.)){
         PrintSystematic(sys);
         std::cout<<" At least one empty histogram: up variation: "<<sys->value_u()<<" Down variation: "<<sys->value_d()<<std::endl;
       }
@@ -92,10 +92,50 @@ void CheckEmptyShapes(CombineHarvester& cb){
   });
 }
 
-void ValidateCards(CombineHarvester& cb, std::string const& filename){
+void CheckShapeNormEff(CombineHarvester& cb, double maxNormEff){
+  std::vector<ch::Process*> empty_procs;
+  cb.ForEachProc([&](ch::Process *proc){
+    if(proc->rate()==0.){
+      empty_procs.push_back(proc); 
+   }
+  });
+  cb.ForEachSyst([&](ch::Systematic *sys){
+    bool no_check=0;
+    for( unsigned int i=0; i< empty_procs.size(); i++){
+      if ( MatchingProcess(*sys,*empty_procs.at(i)) ) no_check=1;
+    }
+    if(!no_check && ((sys->type()=="shape" &&  (sys->value_u()-1 > maxNormEff || sys->value_u()-1 < -maxNormEff  || sys->value_d()-1>maxNormEff || sys->value_d()-1< -maxNormEff)) || (sys->type()=="lnN" && (sys->value_u()-1 > maxNormEff || sys->value_u()-1 < - maxNormEff) ))){
+      PrintSystematic(sys);
+      std::cout<<"Uncertainty has a large normalisation effect: up variation: "<<sys->value_u()<<" Down variation: "<<sys->value_d()<<std::endl;
+    }
+  });
+}
+
+void CheckShapeNormEff(CombineHarvester& cb, double maxNormEff, json& jsobj){
+  std::vector<ch::Process*> empty_procs;
+  cb.ForEachProc([&](ch::Process *proc){
+    if(proc->rate()==0.){
+      empty_procs.push_back(proc); 
+   }
+  });
+  cb.ForEachSyst([&](ch::Systematic *sys){
+    bool no_check=0;
+    for( unsigned int i=0; i< empty_procs.size(); i++){
+      if ( MatchingProcess(*sys,*empty_procs.at(i)) ) no_check=1;
+    }
+    if(!no_check && ((sys->type()=="shape" &&  (std::abs(sys->value_u()-1) > maxNormEff || std::abs(sys->value_d()-1)>maxNormEff)) || (sys->type()=="lnN" && (std::abs(sys->value_u()-1) > maxNormEff) ))){
+      jsobj["largeNormEff"][sys->name()][sys->bin()][sys->process()]={{"value_u",sys->value_u()},{"value_d",sys->value_d()}};
+    }
+  });
+}
+
+
+
+void ValidateCards(CombineHarvester& cb, std::string const& filename, double maxNormEff){
  json output_js; 
  ValidateShapeUncertaintyDirection(cb, output_js);      
  CheckEmptyShapes(cb, output_js);      
+ CheckShapeNormEff(cb, maxNormEff, output_js);
  std::ofstream outfile(filename);
  outfile <<std::setw(4)<<output_js<<std::endl;
 }
