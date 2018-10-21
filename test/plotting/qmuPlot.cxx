@@ -223,7 +223,7 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     double qObs = ((TH1F*) gROOT->FindObject("qObs"))->GetMean();
     if (runExpected_) {
       
-      double medx[1] ={quantileExpected_};
+      double medx[1] ={1.-quantileExpected_};
       double medy[1] ={0.};
       qB->GetQuantiles(1,medy,medx);
       qObs = medy[0];

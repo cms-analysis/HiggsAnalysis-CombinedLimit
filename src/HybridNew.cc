@@ -1577,6 +1577,7 @@ void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
         if (verbose > 1) std::cout << "Final range [" << iMin << ", " << iMax << "]" << std::endl; 
         for (int i = 0; i < iMin; ++i) {
             points[i]->second->SetBit(1);
+            updateGridPoint(w, mc_s, mc_b, data, points[i]);
             if (verbose > 1) std::cout << "  Will not use point " << i << " (r " << points[i]->first << ")" << std::endl;
         }
         for (int i = iMin; i <= iMax; ++i) {
@@ -1589,6 +1590,7 @@ void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
         }
         for (int i = iMax+1, n = points.size(); i < n; ++i) {
             points[i]->second->SetBit(1);
+            updateGridPoint(w, mc_s, mc_b, data, points[i]);
             if (verbose > 1) std::cout << "  Will not use point " << i << " (r " << points[i]->first << ")" << std::endl;
         }
     }

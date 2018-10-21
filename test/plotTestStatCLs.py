@@ -17,8 +17,8 @@ parser.add_option("-v","--val",default="all",type='str',help="poi values, comma 
 parser.add_option("-r","--rebin",default=0,type='int',help="Rebin the histos by this rebin factor (nbins)")
 parser.add_option("-m","--mass",default=[],action='append',help="mass value(s) (same as -m for combine)")
 parser.add_option("-P","--Print",default=False,action='store_true',help="Just print the toys directory to see whats there")
-parser.add_option("-e","--expected",default=False,action='store_true',help="Replace observation with expected (under alt hyp)")
-parser.add_option("-q","--quantileExpected",default=0.5,type='float',help="Replace observation with expected quantile (under alt hyp, i.e CLb=quantileExpected)")
+parser.add_option("-E","--expected",default=False,action='store_true',help="Replace observation with expected (under alt hyp)")
+parser.add_option("-q","--quantileExpected",default=-1,type='float',help="Replace observation with expected quantile (under alt hyp, i.e CLb=quantileExpected)")
 parser.add_option("","--doublesided",action='store_true',default=False,help="If 2 sided (i.e LEP style or non-nested hypos e.g for spin)")
 parser.add_option("","--signif",action='store_true',default=False,help="If significance, don't plot CLs+b, i.e make the q0 plot")
 (options,args)=parser.parse_args()
@@ -29,6 +29,9 @@ ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plot
 ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/qmuPlot.cxx")
 from ROOT import hypoTestResultTree
 from ROOT import qmuPlot, q0Plot
+
+if options.quantileExpected >= 0 : options.expected=True 
+if options.expected and options.quantileExpected <0 : sys.exit("You should specify a quantile for the expected result, eg 0.5 for median expected")
 
 def findPOIvals(fi,m):
  retvals = []
