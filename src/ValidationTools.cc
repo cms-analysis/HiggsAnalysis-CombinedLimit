@@ -92,7 +92,7 @@ void CheckEmptyShapes(CombineHarvester& cb){
   });
 }
 
-void CheckShapeNormEff(CombineHarvester& cb, double maxNormEff){
+void CheckNormEff(CombineHarvester& cb, double maxNormEff){
   std::vector<ch::Process*> empty_procs;
   cb.ForEachProc([&](ch::Process *proc){
     if(proc->rate()==0.){
@@ -111,7 +111,7 @@ void CheckShapeNormEff(CombineHarvester& cb, double maxNormEff){
   });
 }
 
-void CheckShapeNormEff(CombineHarvester& cb, double maxNormEff, json& jsobj){
+void CheckNormEff(CombineHarvester& cb, double maxNormEff, json& jsobj){
   std::vector<ch::Process*> empty_procs;
   cb.ForEachProc([&](ch::Process *proc){
     if(proc->rate()==0.){
@@ -129,13 +129,37 @@ void CheckShapeNormEff(CombineHarvester& cb, double maxNormEff, json& jsobj){
   });
 }
 
+void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj){
+  cb.ForEachSyst([&](ch::Systematic *sys){
+    const TH1* hist_u;
+    const TH1* hist_d;
+    TH1F hist_nom;
+    if(sys->type()=="shape"){
+      hist_u = sys->shape_u();
+      hist_d = sys->shape_d();
+      hist_nom=cb.cp().bin({sys->bin()}).process({sys->process()}).GetShape();
+      hist_nom.Scale(1./hist_nom.Integral());
+      double up_diff=0;
+      double down_diff=0;
+      for(int i=1;i<=hist_u->GetNbinsX();i++){
+        up_diff+=std::pow(hist_u->GetBinContent(i)-hist_nom.GetBinContent(i),2);
+        down_diff+=std::pow(hist_d->GetBinContent(i)-hist_nom.GetBinContent(i),2);
+      }
+      if(up_diff<0.000000000001 || down_diff<0.000000000001) jsobj["smallShapeEff"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
+    }
+  });
+}
+      
+    
+
 
 
 void ValidateCards(CombineHarvester& cb, std::string const& filename, double maxNormEff){
  json output_js; 
  ValidateShapeUncertaintyDirection(cb, output_js);      
  CheckEmptyShapes(cb, output_js);      
- CheckShapeNormEff(cb, maxNormEff, output_js);
+ CheckNormEff(cb, maxNormEff, output_js);
+ CheckSizeOfShapeEffect(cb, output_js);
  std::ofstream outfile(filename);
  outfile <<std::setw(4)<<output_js<<std::endl;
 }
