@@ -28,6 +28,7 @@ ws = file_in.Get("w")
 
 def find_chan_proc(name): 
  chan = norm_name[norm_name.find("_bin")+len("_bin"):norm_name.find("_proc")]
+ if not "proc" in name: return chan,""
  proc = norm_name[norm_name.find("_proc_")+len("_proc_"):]
  return chan,proc
 
@@ -39,6 +40,7 @@ for i in range(all_norms.getSize()):
  norm = norm_it.Next()
  norm_name = norm.GetName()
  chan,proc = find_chan_proc(norm_name)
+ if len(proc.strip())==0: continue #ignore summations
 
  if chan in chan_procs: chan_procs[chan].append([proc,norm,1])
  else: chan_procs[chan]= [[proc,norm,1]]
@@ -50,6 +52,7 @@ for i in range(all_norms.getSize()):
  norm = norm_it.Next()
  norm_name = norm.GetName()
  chan,proc = find_chan_proc(norm_name)
+ if len(proc.strip())==0: continue #ignore summations
  
  if chan in chan_procs: 
   if proc in [chan_procs[chan][i][0] for i in range(len(chan_procs[chan]))] : continue 
@@ -63,6 +66,7 @@ for i in range(all_norms.getSize()):
  norm = norm_it.Next()
  norm_name = norm.GetName()
  chan,proc = find_chan_proc(norm_name)
+ if len(proc.strip())==0: continue #ignore summations
  
  if chan in chan_procs: 
   if proc in [chan_procs[chan][i][0] for i in range(len(chan_procs[chan]))] : continue 
@@ -91,10 +95,14 @@ for chan in chan_procs.keys():
         print " ... is a product, which contains ",proc_norm_var.GetName()
         #proc_norm_var = ws.var("n_exp_bin%s_proc_%s"%(chan,proc[0]))
 	proc_norm_var.Print()
-    else: 
-      if proc[3]: proc[1].dump()
+    else:
+      if proc[3]: 
+        if (proc[1].Class().GetName()==ROOT.ProcessNormalization().Class().GetName()): proc[1].dump()
+	else: 
+	  proc[1].Print()
+      	  print " ... is a constant (formula)"
       else: 
         proc[1].Print()
-      	print " ... is a constant "
+      	print " ... is a constant (RooRealVar)"
     print "  -------------------------------------------------------------------------"
     print "  default value = ",proc[1].getVal()
