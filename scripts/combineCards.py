@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import re
-from sys import argv
+from sys import argv,exit
 import os.path
 from pprint import pprint
 from optparse import OptionParser
@@ -182,11 +182,12 @@ for ich,fname in enumerate(args):
 
         tmp_chan = editline[2]
         tmp_proc = editline[1]
-
         if tmp_chan == "*": # all channels
           tmp_chan = "%s(%s)"%(label,"|".join(c for c in DC.bins)) if len (DC.bins)>1 else label
         if tmp_proc == "*":
           tmp_proc = "(%s)"%("|".join(p for p in DC.processes))
+	# finally replace the name of the channel with the new name
+	tmp_chan = label+tmp_chan
         nuisanceEdits.append("%s %s %s %s"%(editline[0],tmp_proc,tmp_chan," ".join(editline[3])))
 
 bins = []
