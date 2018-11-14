@@ -129,7 +129,8 @@ void CheckNormEff(CombineHarvester& cb, double maxNormEff, json& jsobj){
   });
 }
 
-void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj){
+void CheckSizeOfShapeEffect(CombineHarvester& cb){
+  double diff_lim=0.000000000001;
   cb.ForEachSyst([&](ch::Systematic *sys){
     const TH1* hist_u;
     const TH1* hist_d;
@@ -145,7 +146,33 @@ void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj){
         up_diff+=std::pow(hist_u->GetBinContent(i)-hist_nom.GetBinContent(i),2);
         down_diff+=std::pow(hist_d->GetBinContent(i)-hist_nom.GetBinContent(i),2);
       }
-      if(up_diff<0.000000000001 || down_diff<0.000000000001) jsobj["smallShapeEff"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
+      if(up_diff<diff_lim || down_diff<diff_lim){
+        PrintSystematic(sys);
+        std::cout<<"Uncertainty probably has no genuine shape effect. Sum of squared difference between normalised nominal shape and up shape: "<<up_diff<<" between normalised nominal and down shape: "<<down_diff<<std::endl;
+      }
+    }
+  });
+}
+
+
+void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj){
+  double diff_lim=0.000000000001;
+  cb.ForEachSyst([&](ch::Systematic *sys){
+    const TH1* hist_u;
+    const TH1* hist_d;
+    TH1F hist_nom;
+    if(sys->type()=="shape"){
+      hist_u = sys->shape_u();
+      hist_d = sys->shape_d();
+      hist_nom=cb.cp().bin({sys->bin()}).process({sys->process()}).GetShape();
+      hist_nom.Scale(1./hist_nom.Integral());
+      double up_diff=0;
+      double down_diff=0;
+      for(int i=1;i<=hist_u->GetNbinsX();i++){
+        up_diff+=std::pow(hist_u->GetBinContent(i)-hist_nom.GetBinContent(i),2);
+        down_diff+=std::pow(hist_d->GetBinContent(i)-hist_nom.GetBinContent(i),2);
+      }
+      if(up_diff<diff_lim || down_diff<diff_lim) jsobj["smallShapeEff"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
     }
   });
 }

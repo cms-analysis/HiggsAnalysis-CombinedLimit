@@ -31,6 +31,7 @@ void CheckEmptyShapes(CombineHarvester& cb);
 void CheckNormEff(CombineHarvester& cb, double maxNormEff, json &jsobj);
 void CheckNormEff(CombineHarvester& cb, double maxNormEff);
 void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj);
+void CheckSizeOfShapeEffect(CombineHarvester& cb);
 void ValidateCards(CombineHarvester& cb, std::string const& filename, double maxNormEff);
 
 }
