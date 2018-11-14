@@ -265,7 +265,7 @@ def doFreezeNuisance(datacard, args):
     found = []
 
     # first check in the list of paramters as flatParam, rateParam or discretes not included in datacard.systs (smaller usually)
-    for lsyst in datacard.flatParamNuisances.keys()+list(datacard.rateParamsOrder)+datacard.discretes:
+    for lsyst in datacard.flatParamNuisances.keys()+list(datacard.rateParamsOrder)+datacard.discretes +datacard.extArgs.keys():
          if re.match(pat,lsyst):
             datacard.frozenNuisances.add(lsyst)
             found.append(lsyst)
