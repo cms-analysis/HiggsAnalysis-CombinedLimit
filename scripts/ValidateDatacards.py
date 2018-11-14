@@ -78,6 +78,7 @@ if args.printLevel > 0:
     print_uncertainty(data,"uncertVarySameDirect","\'up/down templates vary the yield in the same direction\'")
     print_uncertainty(data,"emptySystematicShape","\'At least one of the up/down systematic uncertainty templates is empty\'")
     print_uncertainty(data,"largeNormEff","\'Uncertainty has normalisation effect of more than %.1f%%\'"% (args.checkUncertOver*100))
+    print_uncertainty(data,"smallShapeEff","\'Uncertainty probably has no genuine shape effect%\'")
     print_process(data,"emptyProcessShape","\'Empty process\'")
 
 
