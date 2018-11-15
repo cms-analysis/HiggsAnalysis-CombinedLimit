@@ -71,6 +71,7 @@ private:
  
   void addDiscreteNuisances(RooWorkspace *);
   void addNuisances(const RooArgSet *);
+  void addFloatingParameters(const RooArgSet &);
   void addPOI(const RooArgSet *);
 
   boost::program_options::options_description statOptions_, ioOptions_, miscOptions_;
@@ -90,6 +91,7 @@ private:
   std::string freezeNuisances_;
   std::string floatNuisances_;
   std::string freezeNuisanceGroups_;
+  bool useAttributes_;
   
   // input-output related variables
   bool saveWorkspace_;

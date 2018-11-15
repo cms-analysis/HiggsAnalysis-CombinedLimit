@@ -55,6 +55,7 @@ protected:
   static bool  saveFitResult_;
   static std::string fixedPointPOIs_;
   static float centeredRange_;
+  static std::string setPhysicsModelParameterExpression_;
 
   static bool robustHesse_;
   static std::string robustHesseLoad_;
@@ -76,6 +77,7 @@ protected:
   static std::vector<float>        specifiedVals_;
   static RooArgList                specifiedList_;
   static bool saveInactivePOI_;
+
   // initialize variables
   void initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) ;
 

@@ -1,3 +1,4 @@
+
 import ROOT
 import re, os, os.path
 from sys import stderr, stdout
@@ -107,6 +108,7 @@ class ModelBuilder(ModelBuilderBase):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
     def doModel(self):
+
         self.doObservables()
         self.physics.doParametersOfInterest()
 
@@ -116,7 +118,6 @@ class ModelBuilder(ModelBuilderBase):
         while poi:
             self.out.var(poi.GetName()).setAttribute('group_POI',True)
             poi = poiIter.Next()
-
         self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
 	self.doExtArgs()

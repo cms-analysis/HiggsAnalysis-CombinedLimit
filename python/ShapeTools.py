@@ -458,6 +458,7 @@ class ShapeBuilder(ModelBuilder):
             trueFName = finalNames[0]
             if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self.options.baseDir+"/"+trueFName):
                 trueFName = self.options.baseDir+"/"+trueFName;
+            print "OPENING FILE",trueFName
             _fileCache[finalNames[0]] = ROOT.TFile.Open(trueFName)
         file = _fileCache[finalNames[0]]; objname = finalNames[1]
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])
@@ -593,10 +594,13 @@ class ShapeBuilder(ModelBuilder):
         if self.options.useHistPdf != "always":
             if nominalPdf.InheritsFrom("TH1"):
                 rebins = ROOT.TList()
+                rebinsList = []
                 maxbins = 0
                 for i in xrange(pdfs.GetSize()):
                     rebinned = self.rebinH1(pdfs.At(i))
                     rebins.Add(rebinned)
+                    ROOT.SetOwnership(rebinned, True)
+                    rebinsList.append(rebinned)
                     maxbins = max(maxbins, rebinned._original_bins)
                 if channelBinParFlag:
                     rhp = ROOT.CMSHistFunc("shape%s_%s_%s_morph" % (postFix,channel,process), "", self.out.var(self.TH1Observables[channel]), rebins[0])
