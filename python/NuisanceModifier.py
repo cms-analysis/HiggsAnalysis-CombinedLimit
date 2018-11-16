@@ -105,7 +105,6 @@ def doRenameNuisance(datacard, args):
 	  if pdf0 != "param": 
             raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"	  
           for lsyst2,nofloat2,pdf02,args02,errline02 in (datacard.systs[:]):
-	    print lsyst2,nofloat2,pdf02,args02,errline02
 	    if lsyst2 == newname:
 	     if pdf02 != "param":
 	      if (args0[0]) not in ["0.0","0.","0"] or (args0[1]) not in ["1.0","1.","1"] : raise RuntimeError, "Can't rename nuisance %s with Gaussian pdf G(%s,%s) to name %s which already exists with G(0,1) constraint!" % (lsyst,args0[0],args0[1],lsyst2)
@@ -126,9 +125,9 @@ def doRenameNuisance(datacard, args):
     opts = args[4:]
     foundChann, foundProc = False, False
     for lsyst,nofloat,pdf0,args0,errline0 in datacard.systs[:]:
-	if pdf0=="param" : raise RuntimeError, "Incorrect syntax. Cannot specify process and channel for %s with pdf %s. Use 'nuisance edit rename oldname newname'"% (lsyst,pdf0)
         lsystnew = re.sub(oldname,newname,lsyst)
         if lsystnew != lsyst:
+            if pdf0=="param" : raise RuntimeError, "Incorrect syntax. Cannot specify process and channel for %s with pdf %s. Use 'nuisance edit rename oldname newname'"% (lsyst,pdf0)
             found = False
             errline2 = dict([(b,dict([(p,0) for p in datacard.exp[b]])) for b in datacard.bins])
             for lsyst2,nofloat2,pdf2,args2,errline2b in datacard.systs:
@@ -266,7 +265,7 @@ def doFreezeNuisance(datacard, args):
     found = []
 
     # first check in the list of paramters as flatParam, rateParam or discretes not included in datacard.systs (smaller usually)
-    for lsyst in datacard.flatParamNuisances.keys()+list(datacard.rateParamsOrder)+datacard.discretes:
+    for lsyst in datacard.flatParamNuisances.keys()+list(datacard.rateParamsOrder)+datacard.discretes +datacard.extArgs.keys():
          if re.match(pat,lsyst):
             datacard.frozenNuisances.add(lsyst)
             found.append(lsyst)

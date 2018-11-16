@@ -517,14 +517,27 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 		std::cout << " HybridNew -- Found no interval in which " << rule_.c_str() << " is less than target " << cl << ", no crossings found " << std::endl;
 		if (verbose)  Logger::instance().log(std::string(Form("HybridNew.cc: %d Found no interval in which %s is less than target %g, no crossing found!",__LINE__,rule_.c_str(),cl)),Logger::kLogLevelError,__func__);
 	}
-
-	else std::cout << "HybridNew --  found  " << 100*cl << "%% confidence regions " << std::endl;  
-	for (unsigned int ib=0;ib<points.size()-1;ib+=2){
-		std::cout << "  " << points[ib].first << " (+/-" << points[ib].second << ")"<< " < " << r->GetName() << " < " << points[ib+1].first << " (+/-" << points[ib+1].second << ")" << std::endl;
-
+	else if (points.size()==2) { 
+		std::cout << "HybridNew -- One-sided boundary found for  " << 100*cl << "%% confidence regions " << std::endl;  
+		if (verbose)  Logger::instance().log(std::string(Form("HybridNew.cc: %d One-sided boundary found for %g %% confidence regions",__LINE__,100*cl)),Logger::kLogLevelInfo,__func__);
+		int ib=0;
+		if (points[0].second==0) ib=1;
+		std::cout << "  " << points[ib].first << " (+/-" << points[ib].second << ")"<< ( ib==1 ? " < " : " > ") << r->GetName() << std::endl;
+		if (verbose)  Logger::instance().log(std::string(Form("HybridNew.cc: %d  %g (+/- %g) %s %s",__LINE__,points[ib].first,points[ib].second,( ib==1 ? " < " : " > "), r->GetName())),Logger::kLogLevelInfo,__func__);
 		// Commit points to limit tree
 		limit = points[ib].first; limitErr = points[ib].second; Combine::commitPoint(false, clsTarget); 
-		limit = points[ib+1].first; limitErr = points[ib+1].second; Combine::commitPoint(false, clsTarget); 
+	}
+	else {
+		std::cout << "HybridNew -- found  " << 100*cl << "%% confidence regions " << std::endl;  
+		if (verbose)  Logger::instance().log(std::string(Form("HybridNew.cc: %d found %g %% confidence regions",__LINE__,100*cl)),Logger::kLogLevelInfo,__func__);
+		for (unsigned int ib=1;ib<points.size()-2;ib+=2){
+			std::cout << "  " << points[ib].first << " (+/-" << points[ib].second << ")"<< " < " << r->GetName() << " < " << points[ib+1].first << " (+/-" << points[ib+1].second << ")" << std::endl;
+			if (verbose)  Logger::instance().log(std::string(Form("HybridNew.cc: %d  %g (+/- %g) < %s < %g (+/- %g) ",__LINE__,points[ib].first,points[ib].second,r->GetName(),points[ib+1].first, points[ib+1].second)),Logger::kLogLevelInfo,__func__);
+
+			// Commit points to limit tree
+			limit = points[ib].first; limitErr = points[ib].second; Combine::commitPoint(false, clsTarget); 
+			limit = points[ib+1].first; limitErr = points[ib+1].second; Combine::commitPoint(false, clsTarget); 
+		}
 	}
       } else {  
 
@@ -1577,6 +1590,7 @@ void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
         if (verbose > 1) std::cout << "Final range [" << iMin << ", " << iMax << "]" << std::endl; 
         for (int i = 0; i < iMin; ++i) {
             points[i]->second->SetBit(1);
+            updateGridPoint(w, mc_s, mc_b, data, points[i]);
             if (verbose > 1) std::cout << "  Will not use point " << i << " (r " << points[i]->first << ")" << std::endl;
         }
         for (int i = iMin; i <= iMax; ++i) {
@@ -1589,6 +1603,7 @@ void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
         }
         for (int i = iMax+1, n = points.size(); i < n; ++i) {
             points[i]->second->SetBit(1);
+            updateGridPoint(w, mc_s, mc_b, data, points[i]);
             if (verbose > 1) std::cout << "  Will not use point " << i << " (r " << points[i]->first << ")" << std::endl;
         }
     }
@@ -1715,7 +1730,10 @@ std::vector<std::pair<double,double> > HybridNew::findIntervalsFromSplines(TGrap
 			for (int tpi=previousCross;tpi<=pti+1;tpi++){
 				reverse->SetPoint(count,limitPlot_->GetY()[tpi],limitPlot_->GetX()[tpi]);
 				reverse->SetPointError(count,limitPlot_->GetErrorY(tpi),0);
-				//std::cout << " Adding local point = " << count << ", "<<limitPlot_->GetY()[tpi] << ", " << limitPlot_->GetX()[tpi] << std::endl;
+				if (verbose) { 
+				  std::cout << " Adding local point to calculate interval boundaries, " << count << ", cl="<<limitPlot_->GetY()[tpi] << ", poi=" << limitPlot_->GetX()[tpi] << std::endl;
+    				Logger::instance().log(std::string(Form("HybridNew.cc: %d -- Adding local point to calculate interval boundaries, %d, cl=%g, poi=%g",__LINE__,count,limitPlot_->GetY()[tpi],limitPlot_->GetX()[tpi])),Logger::kLogLevelInfo,__func__);
+				}
 				count++;
 			}
 			reverse->Sort();
@@ -1730,6 +1748,7 @@ std::vector<std::pair<double,double> > HybridNew::findIntervalsFromSplines(TGrap
 	}
 	if (limitPlot_->GetY()[0] > clsTarget) 	points.push_back(std::pair<double,double>(limitPlot_->GetX()[0],0));
 	if (limitPlot_->GetY()[npoints_plot-1] > clsTarget)  points.push_back(std::pair<double,double>(limitPlot_->GetX()[npoints_plot-1],0));
+	std::sort(points.begin(),points.end());
 	// print Intervals - currently no estimate on uncertainty, how can we propagate the uncertainty to the 
 	return points;
 }

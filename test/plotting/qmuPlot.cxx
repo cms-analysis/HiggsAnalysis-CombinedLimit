@@ -64,11 +64,18 @@ void spam(const char *text=0, double x1=0.17, double y1=0.89, double x2=0.58, do
 }
 
 
-TH1F *tail(TH1F *dist, double cut) {
+TH1F *tail(TH1F *dist, double cut,int mode) {
     TH1F *ret = (TH1F*) dist->Clone();
-    for (int b = 1, bmax = dist->GetXaxis()->FindBin(cut); b <= bmax; ++b) {
+    if (mode==0){
+      for (int b = 1, bmax = dist->GetXaxis()->FindBin(cut); b <= bmax; ++b) {
         ret->SetBinContent(b, 0);
         ret->SetBinError(b, 0);
+      }
+    } else {
+      for (int b = dist->GetXaxis()->FindBin(cut); b <= dist->GetNbinsX(); ++b) {
+        ret->SetBinContent(b, 0);
+        ret->SetBinError(b, 0);
+      }
     }
     return ret;
 }
@@ -79,11 +86,11 @@ double tailReal(TTree *t, std::string br, double cv, int mode){
     int ttotal;
     if (br=="qB") {
     	if (mode==0) tpass = t->Draw("max(2*q,0)>>qTMP",Form("weight*(type==-1 && max(2*q,0)> %g)",cv));
-        else tpass = t->Draw("2*q>>qTMP",Form("weight*(type==-1 && 2*q > %g)",cv));
+        else tpass = t->Draw("2*q>>qTMP",Form("weight*(type==-1 && 2*q < %g)",cv));
 	ttotal = t->Draw("2*q>>whatever","weight*(type==-1)");
     } else if (br=="qS"){
         if (mode==0) tpass = t->Draw("max(2*q,0)>>qTMP",Form("weight*(type==+1 && max(2*q,0)> %g)",cv),"");
-        else tpass  =  t->Draw("2*q>>qTMP",Form("weight*(type==+1 && 2*q > %g)",cv),"");
+        else tpass  =  t->Draw("2*q>>qTMP",Form("weight*(type==+1 && 2*q < %g)",cv),"");
 	ttotal = t->Draw("2*q>>whatever","weight*(type==+1)");
     }
     std::cout << "tpass = " << tpass <<", ttotal = " << ttotal<< std::endl;
@@ -141,7 +148,7 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     printf("Signif  = %.1f +/- %.2f sigma\n",  sig, sigerr);
 
     // Worst way to calculate !
-    TH1F *qB1 = tail(qB, qObs);
+    TH1F *qB1 = tail(qB, qObs,0);
     qB1->SetFillColor(qB1->GetLineColor()); qB1->SetLineWidth(0); qB1->SetFillStyle(3345);
 
     TLegend *leg1 = new TLegend(.45,.68,.93,.85);
@@ -223,7 +230,7 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     double qObs = ((TH1F*) gROOT->FindObject("qObs"))->GetMean();
     if (runExpected_) {
       
-      double medx[1] ={quantileExpected_};
+      double medx[1] ={1.-quantileExpected_};
       double medy[1] ={0.};
       qB->GetQuantiles(1,medy,medx);
       qObs = medy[0];
@@ -268,8 +275,8 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     printf("CLs   = %.4f +/- %.4f\n", clS , clSerr);
 
     // Worst way to calculate !
-    TH1F *qS1 = tail(qS, qObs); 
-    TH1F *qB1 = tail(qB, qObs);
+    TH1F *qS1 = tail(qS, qObs,mode); 
+    TH1F *qB1 = tail(qB, qObs,mode);
     qS1->SetFillColor(64); qS1->SetLineWidth(0); qS1->SetFillStyle(1001);
     qB1->SetFillColor(qB1->GetLineColor()); qB1->SetLineWidth(0); qB1->SetFillStyle(3345);
 
@@ -299,8 +306,10 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     leg2->SetTextFont(42);
     leg2->SetTextSize(0.04);
     leg2->SetLineColor(1);
-    if (mode==0) leg2->AddEntry(qS1, Form("CL_{s+b} = %.4f", clSB), "F"); 
-    if (mode==0) leg2->AddEntry(qB1, Form("CL_{b}   = %.4f", clB), "F");
+    //if (mode==0) 
+    leg2->AddEntry(qS1, Form("CL_{s+b} = %.4f", clSB), "F"); 
+    //if (mode==0) 
+    leg2->AddEntry(qB1, Form("CL_{b}   = %.4f", clB), "F");
     leg2->AddEntry("",  Form("CL_{s}   = %.4f", clS), "");
 
     qB->Draw();

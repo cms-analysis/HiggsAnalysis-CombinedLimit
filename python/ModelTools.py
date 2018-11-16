@@ -173,17 +173,19 @@ class ModelBuilder(ModelBuilderBase):
 	        param_range = self.DC.extArgs[rp][-1]
 	        param_val   = self.DC.extArgs[rp][-2]
 	    	if "[" not in param_range:
-			  raise RuntimeError, "Expected range arguments [min,max] for extArg %s "%(rp)
+			  raise RuntimeError, "Expected range arguments [min,max] or [const] for extArg %s "%(rp)
 	  	param_range = param_range.strip('[]')
 
 	      removeRange = False
-	      if param_range == "":
-	      	param_range = "0,1"
+	      setConst= (param_range== "const")
+	      if param_range == "" or "const":
+	        param_range = "0,1"
 		removeRange=True
 
 	      self.doVar("%s[%s,%s]"%(rp,float(param_val),param_range))
 	      if removeRange: self.out.var(rp).removeRange()
 	      self.out.var(rp).setConstant(False)
+	      if setConst: self.out.var(rp).setConstant(True)
 	      self.out.var(rp).setAttribute("flatParam")
 
     def doRateParams(self):
