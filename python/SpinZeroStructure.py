@@ -404,9 +404,10 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
     def __init__(self):
         self.anomalouscouplings = []
+        super(HZZAnomalousCouplingsFromHistograms, self).__init__()
 
     def processPhysicsOptions(self,physOptions):
-        processed = super(AnomalousCouplingsFromHistograms, self).processPhysicsOptions(physOptions)
+        processed = super(HZZAnomalousCouplingsFromHistograms, self).processPhysicsOptions(physOptions)
 
         for po in physOptions:
             if po in ("fa3", "fa2", "fL1", "fL1Zg"):
@@ -464,7 +465,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
     def getYieldScale(self,bin,process):
         match = re.match("(gg|tt|qq|Z|W)H_(0(?:PM|M|PH|L1|L1Zg)|((?:g(?:1|2|4|1prime2|hzgs1prime2)[1234])*)_(positive|negative))", process)
         if not match:
-            return super(AnomalousCouplingsFromHistograms, self).getYieldScale(bin, process)
+            return super(HZZAnomalousCouplingsFromHistograms, self).getYieldScale(bin, process)
 
         if match.group(1) in ("gg", "tt"): maxpower = 2; production = "ffH"
         elif match.group(1) in ("qq", "Z", "W"): maxpower = 4; production = "VVH"
