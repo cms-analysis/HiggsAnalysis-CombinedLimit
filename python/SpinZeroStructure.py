@@ -1,4 +1,4 @@
-import math
+import collections, itertools, math
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 ### This is the base python class to study the SpinZero structure
@@ -300,7 +300,7 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         if not any(po.startswith("map=") for po in physOptions):
             #no po started with map --> no manual overriding --> use the defaults
             #can still override with e.g. turnoff=ZH,WH
-            physOptions = ["map=.*/(gg|qq|Z|W|tt)H$:1"] + physOptions
+            physOptions = ["map=.*/(gg|qq|Z|W|tt|bb)H$:1"] + physOptions
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
 
     def processPhysicsOptions(self, physOptions):
@@ -357,7 +357,8 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         fixedorfloated = self.fixed+self.floated
         for variable in fixedorfloated:
             if not self.modelBuilder.out.var(variable):
-                print "{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable)
+                if variable in self.fixed: continue
+                raise RuntimeError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable))
             else:
                 if 'r' in variable.lower():
                     print "Setting {} range to [1.,0.,400.]".format(variable)
@@ -406,6 +407,17 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         self.anomalouscouplings = []
         super(HZZAnomalousCouplingsFromHistograms, self).__init__()
 
+    def setPhysicsOptions(self, physOptions):
+        if not any(po.startswith("sqrts=") for po in physOptions):
+            physOptions = physOptions + ["sqrts=13"]
+        super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
+        if self.sqrts != [13]:
+            raise ValueError("HZZAnomalousCouplingsFromHistograms is set up for 13 TeV only")
+        if self.scaledifferentsqrtsseparately:
+            raise ValueError("HZZAnomalousCouplingsFromHistograms is not set up for scaledifferentsqrtsseparately")
+        if not self.scalemuvfseparately:
+            raise ValueError("HZZAnomalousCouplingsFromHistograms is not set up for scalemuvmuftogether")
+
     def processPhysicsOptions(self,physOptions):
         processed = super(HZZAnomalousCouplingsFromHistograms, self).processPhysicsOptions(physOptions)
 
@@ -421,10 +433,14 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         return processed
 
     def getPOIList(self):
+        self.modelBuilder.doVar("RF[1.0,0,10]")
+        self.modelBuilder.doVar("RV[1.0,0,10]")
+        self.modelBuilder.doVar("R[1.0,0,10]")
+
         pois = super(HZZAnomalousCouplingsFromHistograms, self).getPOIList()
 
-        if not self.modelBuilder.out.var("a1"):
-            self.modelBuilder.doVar('expr::a1("sqrt(1-abs(@0))", CMS_zz4l_fai1)')
+        if not self.modelBuilder.out.var("g1"):
+            self.modelBuilder.doVar('expr::g1("sqrt(1-abs(@0))", CMS_zz4l_fai1)')
 
         couplings = ["g1"]
         for fai, ai in ("fa3", "g4"), ("fa2", "g2"), ("fL1", "g1prime2"), ("fL1Zg", "ghzgs1prime2"):
@@ -435,7 +451,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
               "aidecay": self.aidecay[ai],
             }
             self.modelBuilder.doVar('expr::{ai}("(@0>0 ? 1 : -1) * sqrt(abs(@0))*{aidecay}", CMS_zz4l_fai1)'.format(**kwargs))
-            gs.append(ai)
+            couplings.append(ai)
 
         if self.scaledifferentsqrtsseparately: raise ValueError("HZZAnomalousCouplingsFromHistograms is not compatible with scaledifferentsqrtsseparately")
 
@@ -444,48 +460,51 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
             self.modelBuilder.doVar('expr::VVH_{g}4("@0*@1*@2*@2*@2*@2", R, RV, {g})'.format(g=g))
 
         kwargs = {}
-        for kwargs["signname"], kwargs["sign"] in ("positive", "+"), ("negative", "-"):
-            for kwargs["g1"], kwargs["g2"] in combinations(couplings, 2):
-                self.modelBuilder.doVar('expr::ffH_{g1}1{g2}2_{signname}("{sign}@0*@1*@2*@3", R, RF, {g1}, {g2})'.format(**kwargs))
+        for kwargs["signname"], kwargs["sign"] in ("positive", ""), ("negative", "-"):
+            for kwargs["g1"], kwargs["g2"] in itertools.combinations(couplings, 2):
+                self.modelBuilder.doVar('expr::ffH_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3", R, RF, {g1}, {g2})'.format(**kwargs))
                 self.modelBuilder.doVar('expr::VVH_{g1}1{g2}3_{signname}("{sign}@0*@1*@2*@3*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
                 self.modelBuilder.doVar('expr::VVH_{g1}2{g2}2_{signname}("{sign}@0*@1*@2*@2*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
                 self.modelBuilder.doVar('expr::VVH_{g1}3{g2}1_{signname}("{sign}@0*@1*@2*@2*@2*@3", R, RV, {g1}, {g2})'.format(**kwargs))
 
-            for kwargs["g1"], kwargs["g2"], kwargs["g3"] in combinations(couplings, 3):
+            for kwargs["g1"], kwargs["g2"], kwargs["g3"] in itertools.combinations(couplings, 3):
                 self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}2_{signname}("{sign}@0*@1*@2*@3*@4*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
                 self.modelBuilder.doVar('expr::VVH_{g1}1{g2}2{g3}1_{signname}("{sign}@0*@1*@2*@3*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
                 self.modelBuilder.doVar('expr::VVH_{g1}2{g2}1{g3}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
 
-            for kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"] in combinations(couplings, 4):
+            for kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"] in itertools.combinations(couplings, 4):
                 self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@0*@1*@2*@3*@4*@5", R, RV, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
+
+        return pois
 
     def powerdict(self, process):
         if not match: return None
 
     def getYieldScale(self,bin,process):
-        match = re.match("(gg|tt|qq|Z|W)H_(0(?:PM|M|PH|L1|L1Zg)|((?:g(?:1|2|4|1prime2|hzgs1prime2)[1234])*)_(positive|negative))", process)
+        match = re.match("(gg|tt|bb|qq|Z|W)H_(0(?:PM|M|PH|L1|L1Zg)|((?:g(?:1|2|4|1prime2|hzgs1prime2)[1234])*)_(positive|negative))$", process)
         if not match:
             return super(HZZAnomalousCouplingsFromHistograms, self).getYieldScale(bin, process)
 
-        if match.group(1) in ("gg", "tt"): maxpower = 2; production = "ffH"
+        if match.group(1) in ("gg", "tt", "bb"): maxpower = 2; production = "ffH"
         elif match.group(1) in ("qq", "Z", "W"): maxpower = 4; production = "VVH"
 
-        if match.group(2) == "0PM": powerdict = {"g1": maxpower}
-        if match.group(2) == "0PH": powerdict = {"g2": maxpower}
-        if match.group(2) == "0M": powerdict = {"g4": maxpower}
-        if match.group(2) == "0L1": powerdict = {"g1prime2": maxpower}
-        if match.group(2) == "0L1Zg": powerdict = {"ghzgs1prime2": maxpower}
+        if match.group(2) == "0PM": powerdict = {"g1": maxpower}; sign = None
+        elif match.group(2) == "0PH": powerdict = {"g2": maxpower}; sign = None
+        elif match.group(2) == "0M": powerdict = {"g4": maxpower}; sign = None
+        elif match.group(2) == "0L1": powerdict = {"g1prime2": maxpower}; sign = None
+        elif match.group(2) == "0L1Zg": powerdict = {"ghzgs1prime2": maxpower}; sign = None
+        else:
 
-        powerdict = {coupling: int(power) for coupling, power in re.findall("(g(?:1|2|4|1prime2|hzgs1prime2))([1234])", match.group(3))}
+            powerdict = {coupling: int(power) for coupling, power in re.findall("(g(?:1|2|4|1prime2|hzgs1prime2))([1234])", match.group(3))}
 
-        if sum(powerdict.values()) != maxpower:
-            raise ValueError("power dict doesn't add up properly!  Sum should be {}\n{}\n{}".format(maxpower, process, powerdict))
+            if sum(powerdict.values()) != maxpower:
+                raise ValueError("power dict doesn't add up properly!  Sum should be {}\n{}\n{}".format(maxpower, process, powerdict))
 
-        powerdict = OrderedDict(
-            sorted(powerdict.iteritems(), key = lambda x: "g1 g2 g4 g1prime2 ghzgs1prime2".index(x[0]))
-        )
+            powerdict = collections.OrderedDict(
+                sorted(powerdict.iteritems(), key = lambda x: "g1 g2 g4 g1prime2 ghzgs1prime2".index(x[0]))
+            )
 
-        sign = match.group(4)
+            sign = match.group(4)
 
         result = production + "_" + "".join("{}{}".format(k, v) for k, v in powerdict.iteritems())
         if sign is not None: result += "_" + sign
