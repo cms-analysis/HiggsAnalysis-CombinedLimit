@@ -97,32 +97,32 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   limit = 2*(nll_nominal-nll_freeform);
   
   std::cout << "\n --- ChannelCompatibilityCheck --- " << std::endl;
-  if (verbose) {
-    if (fixedMu_) { 
-        printf("Nominal fit: %s fixed at %7.4f\n", r->GetName(), r->getVal());
-    } else {
-        RooRealVar *rNominal = (RooRealVar*) result_nominal->floatParsFinal().find(r->GetName());
-        if (runMinos_ && do95_) {
-            printf("Nominal fit  : %s = %7.4f  %+6.4f/%+6.4f (68%% CL)\n", r->GetName(), rNominal->getVal(), rNominal->getAsymErrorLo(), rNominal->getAsymErrorHi());
-            printf("               %s = %7.4f  %+6.4f/%+6.4f (95%% CL)\n", r->GetName(), rNominal->getVal(), rNominal->getMin("err95")-rNominal->getVal(), rNominal->getMax("err95")-rNominal->getVal());
-        } else if (runMinos_) {
-            printf("Nominal fit  : %s = %7.4f  %+6.4f/%+6.4f\n", r->GetName(), rNominal->getVal(), rNominal->getAsymErrorLo(), rNominal->getAsymErrorHi());
-        } else {
-            printf("Nominal fit  : %s = %7.4f  +/- %6.4f\n", r->GetName(), rNominal->getVal(), rNominal->getError());
-        }
-    }
-    for (std::map<std::string,std::string>::const_iterator it = rs.begin(), ed = rs.end(); it != ed; ++it) {
-        RooRealVar *ri = (RooRealVar*) result_freeform->floatParsFinal().find(it->second.c_str());
-        if (runMinos_ && do95_) {
-            printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f (68%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
-            printf("               %s = %7.4f  %+6.4f/%+6.4f (95%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getMin("err95")-ri->getVal(), ri->getMax("err95")-ri->getVal(), it->first.c_str());
-        } else if (runMinos_) {
-            printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
-        } else {
-            printf("Alternate fit: %s = %7.4f  +/- %6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getError(), it->first.c_str());
-        }
-    }
+  //if (verbose) { // We should print out the results by default 
+  if (fixedMu_) { 
+      printf("Nominal fit: %s fixed at %7.4f\n", r->GetName(), r->getVal());
+  } else {
+      RooRealVar *rNominal = (RooRealVar*) result_nominal->floatParsFinal().find(r->GetName());
+      if (runMinos_ && do95_) {
+	  printf("Nominal fit  : %s = %7.4f  %+6.4f/%+6.4f (68%% CL)\n", r->GetName(), rNominal->getVal(), rNominal->getAsymErrorLo(), rNominal->getAsymErrorHi());
+	  printf("               %s = %7.4f  %+6.4f/%+6.4f (95%% CL)\n", r->GetName(), rNominal->getVal(), rNominal->getMin("err95")-rNominal->getVal(), rNominal->getMax("err95")-rNominal->getVal());
+      } else if (runMinos_) {
+	  printf("Nominal fit  : %s = %7.4f  %+6.4f/%+6.4f\n", r->GetName(), rNominal->getVal(), rNominal->getAsymErrorLo(), rNominal->getAsymErrorHi());
+      } else {
+	  printf("Nominal fit  : %s = %7.4f  +/- %6.4f\n", r->GetName(), rNominal->getVal(), rNominal->getError());
+      }
   }
+  for (std::map<std::string,std::string>::const_iterator it = rs.begin(), ed = rs.end(); it != ed; ++it) {
+      RooRealVar *ri = (RooRealVar*) result_freeform->floatParsFinal().find(it->second.c_str());
+      if (runMinos_ && do95_) {
+	  printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f (68%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
+	  printf("               %s = %7.4f  %+6.4f/%+6.4f (95%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getMin("err95")-ri->getVal(), ri->getMax("err95")-ri->getVal(), it->first.c_str());
+      } else if (runMinos_) {
+	  printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
+      } else {
+	  printf("Alternate fit: %s = %7.4f  +/- %6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getError(), it->first.c_str());
+      }
+  }
+  //}
   std::cout << "Chi2-like compatibility variable: " << limit << std::endl;
 
   if (saveFitResult_) {
