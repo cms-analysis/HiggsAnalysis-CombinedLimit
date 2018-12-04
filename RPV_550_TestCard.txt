@@ -1,0 +1,58 @@
+Signal Region 1 Datacard -- signal category
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+shapes data_obs    sigD1    MVA_ws.root wspace:data_obs_D1
+shapes bkg_tt      sigD1    MVA_ws.root wspace:background_tt_D1
+shapes bkg_other   sigD1    MVA_ws.root wspace:background_other_D1
+shapes signal      sigD1    MVA_ws.root wspace:signal_D1
+
+shapes data_obs    sigD2    MVA_ws.root wspace:data_obs_D2
+shapes bkg_tt      sigD2    MVA_ws.root wspace:background_tt_D2
+shapes bkg_other   sigD2    MVA_ws.root wspace:background_other_D2
+shapes signal      sigD2    MVA_ws.root wspace:signal_D2
+
+shapes data_obs    sigD3    MVA_ws.root wspace:data_obs_D3
+shapes bkg_tt      sigD3    MVA_ws.root wspace:background_tt_D3
+shapes bkg_other   sigD3    MVA_ws.root wspace:background_other_D3
+shapes signal      sigD3    MVA_ws.root wspace:signal_D3
+
+shapes data_obs    sigD4    MVA_ws.root wspace:data_obs_D4
+shapes bkg_tt      sigD4    MVA_ws.root wspace:background_tt_D4
+shapes bkg_other   sigD4    MVA_ws.root wspace:background_other_D4
+shapes signal      sigD4    MVA_ws.root wspace:signal_D4
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+bin          sigD1  sigD2  sigD3  sigD4 
+observation   -1     -1     -1     -1   
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1
+bin              sigD1            sigD1            sigD1            sigD2            sigD2            sigD2            sigD3            sigD3            sigD3            sigD4            sigD4            sigD4            
+process          signal           bkg_tt           bkg_other        signal           bkg_tt           bkg_other        signal           bkg_tt           bkg_other        signal           bkg_tt           bkg_other        
+process          0                1                2                0                1                2                0                1                2                0                1                2                
+rate             137.479620195    1                5923.76855274    161.308190553    1                1621.85078324    264.726506377    1                1022.19989486    226.500371432    1                334.282200983    
+-------------------------------------------------------------------------------------------------------------------------------------------
+# Normal uncertainties in the signal region
+lumi_13TeV      lnN  1.05  -     -     1.05  -     -     1.05  -     -     1.05  -     -     
+-------------------------------------------------------------------------------------------------------------------------------------------
+np_tt_JECup_D1 param 0.0 1.0
+np_tt_JECup_D2 param 0.0 1.0
+np_tt_JECup_D3 param 0.0 1.0
+np_tt_JECup_D4 param 0.0 1.0
+np_tt_JECdown_D1 param 0.0 1.0
+np_tt_JECdown_D2 param 0.0 1.0
+np_tt_JECdown_D3 param 0.0 1.0
+np_tt_JECdown_D4 param 0.0 1.0
+np_tt_JERup_D1 param 0.0 1.0
+np_tt_JERup_D2 param 0.0 1.0
+np_tt_JERup_D3 param 0.0 1.0
+np_tt_JERup_D4 param 0.0 1.0
+np_tt_JERdown_D1 param 0.0 1.0
+np_tt_JERdown_D2 param 0.0 1.0
+np_tt_JERdown_D3 param 0.0 1.0
+np_tt_JERdown_D4 param 0.0 1.0
+p1_tt param 0.1 -0.2/+0.2
