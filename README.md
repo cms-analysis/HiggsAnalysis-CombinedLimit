@@ -29,7 +29,11 @@ scram b -j8
 
 ### Example
 ```
-root -ql make_F1234_8bin_ttsyst_ws.C
-combine -M AsymptoticLimits F1234_8bin_ttsyst_card.txt
+root -ql make_MVA_8bin_ws.C
+combine -M AsymptoticLimits RPV_550_TestCard.txt
+combine -M Significance RPV_550_TestCard.txt -t -1 --expectSignal=1
+combine -M FitDiagnostics RPV_550_TestCard.txt --plots --saveShapes --saveNormalizations
+python test/diffNuisances.py --all --abs fitDiagnostics.root
+root -ql fit_report_ESM.C
 ```
-(more coming soon)
+
