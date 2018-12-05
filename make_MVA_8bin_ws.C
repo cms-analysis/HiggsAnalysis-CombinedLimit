@@ -94,40 +94,40 @@ void make_MVA_8bin_ws() {
   TFile *fOut = new TFile("MVA_ws.root","RECREATE");
   RooWorkspace *wspace = new RooWorkspace("wspace","wspace");
 
-  // njet is our variable, 8 bins, from 7 up through 14,
-  //   Note that njet=14 is inclusive as >=14
-  // D1, D2, D3, D4 are the MVA bins
-  wspace->factory("nj_D1[6.5,14.5]");
-  //wspace->factory("nj_D1[0,8]");
-  wspace->var("nj_D1")->setBins(8);
-  RooArgSet vars_D1(*wspace->var("nj_D1"));
+  // // njet is our variable, 8 bins, from 7 up through 14,
+  // //   Note that njet=14 is inclusive as >=14
+  // // D1, D2, D3, D4 are the MVA bins
+  // wspace->factory("nj_D1[6.5,14.5]");
+  // //wspace->factory("nj_D1[0,8]");
+  // wspace->var("nj_D1")->setBins(8);
+  // RooArgSet vars_D1(*wspace->var("nj_D1"));
 
-  wspace->factory("nj_D2[6.5,14.5]");
-  //wspace->factory("nj_D2[0,8]");
-  wspace->var("nj_D2")->setBins(8);
-  RooArgSet vars_D2(*wspace->var("nj_D2"));
+  // wspace->factory("nj_D2[6.5,14.5]");
+  // //wspace->factory("nj_D2[0,8]");
+  // wspace->var("nj_D2")->setBins(8);
+  // RooArgSet vars_D2(*wspace->var("nj_D2"));
 
-  wspace->factory("nj_D3[6.5,14.5]");
-  //wspace->factory("nj_D3[0,8]");
-  wspace->var("nj_D3")->setBins(8);
-  RooArgSet vars_D3(*wspace->var("nj_D3"));
+  // wspace->factory("nj_D3[6.5,14.5]");
+  // //wspace->factory("nj_D3[0,8]");
+  // wspace->var("nj_D3")->setBins(8);
+  // RooArgSet vars_D3(*wspace->var("nj_D3"));
 
-  wspace->factory("nj_D4[6.5,14.5]");
-  //wspace->factory("nj_D4[0,8]");
-  wspace->var("nj_D4")->setBins(8);
-  RooArgSet vars_D4(*wspace->var("nj_D4"));
+  // wspace->factory("nj_D4[6.5,14.5]");
+  // //wspace->factory("nj_D4[0,8]");
+  // wspace->var("nj_D4")->setBins(8);
+  // RooArgSet vars_D4(*wspace->var("nj_D4"));
 
 
-  //wspace->factory("CMS_th1x[0,8]");
-  //wspace->var("CMS_th1x")->setBins(8);
-  //RooArgSet vars_D1(*wspace->var("CMS_th1x"));
-  //RooArgSet vars_D2(*wspace->var("CMS_th1x"));
-  //RooArgSet vars_D3(*wspace->var("CMS_th1x"));
-  //RooArgSet vars_D4(*wspace->var("CMS_th1x"));
+  wspace->factory("CMS_th1x[0,8]");
+  wspace->var("CMS_th1x")->setBins(8);
+  RooArgSet vars_D1(*wspace->var("CMS_th1x"));
+  RooArgSet vars_D2(*wspace->var("CMS_th1x"));
+  RooArgSet vars_D3(*wspace->var("CMS_th1x"));
+  RooArgSet vars_D4(*wspace->var("CMS_th1x"));
 
     
   // file for obtaining histograms
-  TFile* file = TFile::Open("njets_for_Aron_V1.2.3_JEC_Nov28.root");
+  TFile* file = TFile::Open("Keras_v1.2.3_JEC/njets_rebin_for_Aron.root");
 
   TH1* data_th1_D1 = 0;
   file->GetObject("h_njets_pt30_1l_deepESMbin1_pseudodataS_RPV_550",data_th1_D1);
@@ -407,7 +407,8 @@ void make_MVA_8bin_ws() {
   RooArgList *bkg_tt_bins_D1 = new RooArgList();
   string procName_D1 = "background_tt_D1";
   construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,bkg_tt_syst_NP_D1,bkg_tt_syst_histos_D1);
-  RooParametricHist background_tt_D1(procName_D1.c_str(),"",*wspace->var("nj_D1"),*bkg_tt_bins_D1,*data_th1_D1);
+  //RooParametricHist background_tt_D1(procName_D1.c_str(),"",*wspace->var("nj_D1"),*bkg_tt_bins_D1,*data_th1_D1);
+  RooParametricHist background_tt_D1(procName_D1.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D1,*data_th1_D1);
   wspace->import(background_tt_D1,RooFit::RecycleConflictNodes());
   stringstream procNameD1Norm;
   procNameD1Norm << procName_D1 << "_norm";
@@ -437,8 +438,8 @@ void make_MVA_8bin_ws() {
   // RooAddition other_norm_D1("background_other_D1_norm","",*bkg_other_bins_D1);
   // wspace->import(other_norm_D1,RooFit::RecycleConflictNodes());
 
-  RooDataHist otherMC_hist_D1("otherMC_hist_D1","other MC observed in MVA bin 1",vars_D1,otherMC_th1_D1);
-  wspace->import(*(new RooHistPdf("background_other_D1","",vars_D1,otherMC_hist_D1)));
+  //RooDataHist otherMC_hist_D1("otherMC_hist_D1","other MC observed in MVA bin 1",vars_D1,otherMC_th1_D1);
+  //wspace->import(*(new RooHistPdf("background_other_D1","",vars_D1,otherMC_hist_D1)));
 
   // signal in D1
   // RooArgList *sig_bins_D1 = new RooArgList();
@@ -463,8 +464,8 @@ void make_MVA_8bin_ws() {
   // RooAddition signal_norm_D1("signal_D1_norm","",*sig_bins_D1);
   // wspace->import(signal_norm_D1,RooFit::RecycleConflictNodes());
 
-  RooDataHist sigMC_hist_D1("sigMC_hist_D1","signal MC in MVA bin 1",vars_D1,sigMC_th1_D1);
-  wspace->import(*(new RooHistPdf("signal_D1","",vars_D1,sigMC_hist_D1)));
+  //RooDataHist sigMC_hist_D1("sigMC_hist_D1","signal MC in MVA bin 1",vars_D1,sigMC_th1_D1);
+  //wspace->import(*(new RooHistPdf("signal_D1","",vars_D1,sigMC_hist_D1)));
 
   // ---------------------- MVA bin 2  ------------------
 
@@ -484,7 +485,8 @@ void make_MVA_8bin_ws() {
   RooArgList *bkg_tt_bins_D2 = new RooArgList();
   string procName_D2 = "background_tt_D2";
   construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2,bkg_tt_syst_NP_D2,bkg_tt_syst_histos_D2);
-  RooParametricHist background_tt_D2(procName_D2.c_str(),"",*wspace->var("nj_D2"),*bkg_tt_bins_D2,*data_th1_D2);
+  //RooParametricHist background_tt_D2(procName_D2.c_str(),"",*wspace->var("nj_D2"),*bkg_tt_bins_D2,*data_th1_D2);
+  RooParametricHist background_tt_D2(procName_D2.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D2,*data_th1_D2);
   wspace->import(background_tt_D2,RooFit::RecycleConflictNodes());
   stringstream procNameD2Norm;
   procNameD2Norm << procName_D2 << "_norm";
@@ -514,8 +516,8 @@ void make_MVA_8bin_ws() {
   // RooAddition other_norm_D2("background_other_D2_norm","",*bkg_other_bins_D2);
   // wspace->import(other_norm_D2,RooFit::RecycleConflictNodes());
 
-  RooDataHist otherMC_hist_D2("otherMC_hist_D2","other MC observed in MVA bin 2",vars_D2,otherMC_th1_D2);
-  wspace->import(*(new RooHistPdf("background_other_D2","",vars_D2,otherMC_hist_D2)));
+  //RooDataHist otherMC_hist_D2("otherMC_hist_D2","other MC observed in MVA bin 2",vars_D2,otherMC_th1_D2);
+  //wspace->import(*(new RooHistPdf("background_other_D2","",vars_D2,otherMC_hist_D2)));
 
   // signal in D2
   // RooArgList *sig_bins_D2 = new RooArgList();
@@ -540,8 +542,8 @@ void make_MVA_8bin_ws() {
   // RooAddition signal_norm_D2("signal_D2_norm","",*sig_bins_D2);
   // wspace->import(signal_norm_D2,RooFit::RecycleConflictNodes());
 
-  RooDataHist sigMC_hist_D2("sigMC_hist_D2","signal MC in MVA bin 2",vars_D2,sigMC_th1_D2);
-  wspace->import(*(new RooHistPdf("signal_D2","",vars_D2,sigMC_hist_D2)));
+  //RooDataHist sigMC_hist_D2("sigMC_hist_D2","signal MC in MVA bin 2",vars_D2,sigMC_th1_D2);
+  //wspace->import(*(new RooHistPdf("signal_D2","",vars_D2,sigMC_hist_D2)));
 
   // ---------------------- MVA bin 3  ------------------
 
@@ -561,7 +563,8 @@ void make_MVA_8bin_ws() {
   RooArgList *bkg_tt_bins_D3 = new RooArgList();
   string procName_D3 = "background_tt_D3";
   construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3,bkg_tt_syst_NP_D3,bkg_tt_syst_histos_D3);
-  RooParametricHist background_tt_D3(procName_D3.c_str(),"",*wspace->var("nj_D3"),*bkg_tt_bins_D3,*data_th1_D3);
+  //RooParametricHist background_tt_D3(procName_D3.c_str(),"",*wspace->var("nj_D3"),*bkg_tt_bins_D3,*data_th1_D3);
+  RooParametricHist background_tt_D3(procName_D3.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D3,*data_th1_D3);
   wspace->import(background_tt_D3,RooFit::RecycleConflictNodes());
   stringstream procNameD3Norm;
   procNameD3Norm << procName_D3 << "_norm";
@@ -591,8 +594,8 @@ void make_MVA_8bin_ws() {
   // RooAddition other_norm_D3("background_other_D3_norm","",*bkg_other_bins_D3);
   // wspace->import(other_norm_D3,RooFit::RecycleConflictNodes());
 
-  RooDataHist otherMC_hist_D3("otherMC_hist_D3","other MC observed in MVA bin 3",vars_D3,otherMC_th1_D3);
-  wspace->import(*(new RooHistPdf("background_other_D3","",vars_D3,otherMC_hist_D3)));
+  //RooDataHist otherMC_hist_D3("otherMC_hist_D3","other MC observed in MVA bin 3",vars_D3,otherMC_th1_D3);
+  //wspace->import(*(new RooHistPdf("background_other_D3","",vars_D3,otherMC_hist_D3)));
 
   // signal in D3
   // RooArgList *sig_bins_D3 = new RooArgList();
@@ -617,8 +620,8 @@ void make_MVA_8bin_ws() {
   // RooAddition signal_norm_D3("signal_D3_norm","",*sig_bins_D3);
   // wspace->import(signal_norm_D3,RooFit::RecycleConflictNodes());
 
-  RooDataHist sigMC_hist_D3("sigMC_hist_D3","signa3 MC in MVA bin 3",vars_D3,sigMC_th1_D3);
-  wspace->import(*(new RooHistPdf("signal_D3","",vars_D3,sigMC_hist_D3)));
+  //RooDataHist sigMC_hist_D3("sigMC_hist_D3","signa3 MC in MVA bin 3",vars_D3,sigMC_th1_D3);
+  //wspace->import(*(new RooHistPdf("signal_D3","",vars_D3,sigMC_hist_D3)));
 
   // ---------------------- MVA bin 4  ------------------
 
@@ -638,7 +641,8 @@ void make_MVA_8bin_ws() {
   RooArgList *bkg_tt_bins_D4 = new RooArgList();
   string procName_D4 = "background_tt_D4";
   construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4,bkg_tt_syst_NP_D4,bkg_tt_syst_histos_D4);
-  RooParametricHist background_tt_D4(procName_D4.c_str(),"",*wspace->var("nj_D4"),*bkg_tt_bins_D4,*data_th1_D4);
+  //RooParametricHist background_tt_D4(procName_D4.c_str(),"",*wspace->var("nj_D4"),*bkg_tt_bins_D4,*data_th1_D4);
+  RooParametricHist background_tt_D4(procName_D4.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D4,*data_th1_D4);
   wspace->import(background_tt_D4,RooFit::RecycleConflictNodes());
   stringstream procNameD4Norm;
   procNameD4Norm << procName_D4 << "_norm";
@@ -668,8 +672,8 @@ void make_MVA_8bin_ws() {
   // RooAddition other_norm_D4("background_other_D4_norm","",*bkg_other_bins_D4);
   // wspace->import(other_norm_D4,RooFit::RecycleConflictNodes());
 
-  RooDataHist otherMC_hist_D4("otherMC_hist_D4","other MC observed in MVA bin 4",vars_D4,otherMC_th1_D4);
-  wspace->import(*(new RooHistPdf("background_other_D4","",vars_D4,otherMC_hist_D4)));
+  //RooDataHist otherMC_hist_D4("otherMC_hist_D4","other MC observed in MVA bin 4",vars_D4,otherMC_th1_D4);
+  //wspace->import(*(new RooHistPdf("background_other_D4","",vars_D4,otherMC_hist_D4)));
 
   // signal in D4
   // RooArgList *sig_bins_D4 = new RooArgList();
@@ -694,31 +698,31 @@ void make_MVA_8bin_ws() {
   // RooAddition signal_norm_D4("signal_D4_norm","",*sig_bins_D4);
   // wspace->import(signal_norm_D4,RooFit::RecycleConflictNodes());
 
-  RooDataHist sigMC_hist_D4("sigMC_hist_D4","signal MC in MVA bin 4",vars_D4,sigMC_th1_D4);
-  wspace->import(*(new RooHistPdf("signal_D4","",vars_D4,sigMC_hist_D4)));
+  //RooDataHist sigMC_hist_D4("sigMC_hist_D4","signal MC in MVA bin 4",vars_D4,sigMC_th1_D4);
+  //wspace->import(*(new RooHistPdf("signal_D4","",vars_D4,sigMC_hist_D4)));
 
   // =================================================================================
 
    
   fOut->cd();
 
-  // otherMC_th1_D1->SetName("otherMC_th1_D1");
-  // sigMC_th1_D1->SetName("sigMC_th1_D1");
-  // otherMC_th1_D2->SetName("otherMC_th1_D2");
-  // sigMC_th1_D2->SetName("sigMC_th1_D2");
-  // otherMC_th1_D3->SetName("otherMC_th1_D3");
-  // sigMC_th1_D3->SetName("sigMC_th1_D3");
-  // otherMC_th1_D4->SetName("otherMC_th1_D4");
-  // sigMC_th1_D4->SetName("sigMC_th1_D4");
+  otherMC_th1_D1->SetName("otherMC_th1_D1");
+  sigMC_th1_D1->SetName("sigMC_th1_D1");
+  otherMC_th1_D2->SetName("otherMC_th1_D2");
+  sigMC_th1_D2->SetName("sigMC_th1_D2");
+  otherMC_th1_D3->SetName("otherMC_th1_D3");
+  sigMC_th1_D3->SetName("sigMC_th1_D3");
+  otherMC_th1_D4->SetName("otherMC_th1_D4");
+  sigMC_th1_D4->SetName("sigMC_th1_D4");
 
-  // otherMC_th1_D1->Write();
-  // sigMC_th1_D1->Write();
-  // otherMC_th1_D2->Write();
-  // sigMC_th1_D2->Write();
-  // otherMC_th1_D3->Write();
-  // sigMC_th1_D3->Write();
-  // otherMC_th1_D4->Write();
-  // sigMC_th1_D4->Write();
+  otherMC_th1_D1->Write();
+  sigMC_th1_D1->Write();
+  otherMC_th1_D2->Write();
+  sigMC_th1_D2->Write();
+  otherMC_th1_D3->Write();
+  sigMC_th1_D3->Write();
+  otherMC_th1_D4->Write();
+  sigMC_th1_D4->Write();
 
   // TH1* otherUpSystD1 = 0;
   // file->GetObject("OtherD1Up",otherUpSystD1);
