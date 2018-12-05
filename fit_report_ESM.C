@@ -19,61 +19,55 @@ void fit_report_ESM() {
  TFile* fullfile = TFile::Open("fitDiagnostics.root");
 
   RooWorkspace *w = new RooWorkspace("w","w");
-  w->factory("nj_D1[6.5,14.5]");
-  w->var("nj_D1")->setBins(8);
-  w->factory("nj_D2[6.5,14.5]");
-  w->var("nj_D2")->setBins(8);
-  w->factory("nj_D3[6.5,14.5]");
-  w->var("nj_D3")->setBins(8);
-  w->factory("nj_D4[6.5,14.5]");
-  w->var("nj_D4")->setBins(8);
+  w->factory("CMS_th1x[0,8]");
+  w->var("CMS_th1x")->setBins(8);
 
   // ===================================================================================
 
-  RooPlot* sigD1_nj_D1_prefit = 0;
-  fullfile->GetObject("sigD1_nj_D1_prefit",sigD1_nj_D1_prefit);
-  RooPlot* sigD1_nj_D1_fit_s = 0;
-  fullfile->GetObject("sigD1_nj_D1_fit_s",sigD1_nj_D1_fit_s);
-  RooPlot* sigD1_nj_D1_fit_b = 0;
-  fullfile->GetObject("sigD1_nj_D1_fit_b",sigD1_nj_D1_fit_b);
+  RooPlot* sigD1_CMS_th1x_prefit = 0;
+  fullfile->GetObject("sigD1_CMS_th1x_prefit",sigD1_CMS_th1x_prefit);
+  RooPlot* sigD1_CMS_th1x_fit_s = 0;
+  fullfile->GetObject("sigD1_CMS_th1x_fit_s",sigD1_CMS_th1x_fit_s);
+  RooPlot* sigD1_CMS_th1x_fit_b = 0;
+  fullfile->GetObject("sigD1_CMS_th1x_fit_b",sigD1_CMS_th1x_fit_b);
 
-  RooPlot* sigD2_nj_D2_prefit = 0;
-  fullfile->GetObject("sigD2_nj_D2_prefit",sigD2_nj_D2_prefit);
-  RooPlot* sigD2_nj_D2_fit_s = 0;
-  fullfile->GetObject("sigD2_nj_D2_fit_s",sigD2_nj_D2_fit_s);
-  RooPlot* sigD2_nj_D2_fit_b = 0;
-  fullfile->GetObject("sigD2_nj_D2_fit_b",sigD2_nj_D2_fit_b);
+  RooPlot* sigD2_CMS_th1x_prefit = 0;
+  fullfile->GetObject("sigD2_CMS_th1x_prefit",sigD2_CMS_th1x_prefit);
+  RooPlot* sigD2_CMS_th1x_fit_s = 0;
+  fullfile->GetObject("sigD2_CMS_th1x_fit_s",sigD2_CMS_th1x_fit_s);
+  RooPlot* sigD2_CMS_th1x_fit_b = 0;
+  fullfile->GetObject("sigD2_CMS_th1x_fit_b",sigD2_CMS_th1x_fit_b);
 
-  RooPlot* sigD3_nj_D3_prefit = 0;
-  fullfile->GetObject("sigD3_nj_D3_prefit",sigD3_nj_D3_prefit);
-  RooPlot* sigD3_nj_D3_fit_s = 0;
-  fullfile->GetObject("sigD3_nj_D3_fit_s",sigD3_nj_D3_fit_s);
-  RooPlot* sigD3_nj_D3_fit_b = 0;
-  fullfile->GetObject("sigD3_nj_D3_fit_b",sigD3_nj_D3_fit_b);
+  RooPlot* sigD3_CMS_th1x_prefit = 0;
+  fullfile->GetObject("sigD3_CMS_th1x_prefit",sigD3_CMS_th1x_prefit);
+  RooPlot* sigD3_CMS_th1x_fit_s = 0;
+  fullfile->GetObject("sigD3_CMS_th1x_fit_s",sigD3_CMS_th1x_fit_s);
+  RooPlot* sigD3_CMS_th1x_fit_b = 0;
+  fullfile->GetObject("sigD3_CMS_th1x_fit_b",sigD3_CMS_th1x_fit_b);
 
-  RooPlot* sigD4_nj_D4_prefit = 0;
-  fullfile->GetObject("sigD4_nj_D4_prefit",sigD4_nj_D4_prefit);
-  RooPlot* sigD4_nj_D4_fit_s = 0;
-  fullfile->GetObject("sigD4_nj_D4_fit_s",sigD4_nj_D4_fit_s);
-  RooPlot* sigD4_nj_D4_fit_b = 0;
-  fullfile->GetObject("sigD4_nj_D4_fit_b",sigD4_nj_D4_fit_b);
+  RooPlot* sigD4_CMS_th1x_prefit = 0;
+  fullfile->GetObject("sigD4_CMS_th1x_prefit",sigD4_CMS_th1x_prefit);
+  RooPlot* sigD4_CMS_th1x_fit_s = 0;
+  fullfile->GetObject("sigD4_CMS_th1x_fit_s",sigD4_CMS_th1x_fit_s);
+  RooPlot* sigD4_CMS_th1x_fit_b = 0;
+  fullfile->GetObject("sigD4_CMS_th1x_fit_b",sigD4_CMS_th1x_fit_b);
 
   // Clone the fit result frames, so that I can plot a log version without the fit params
-  RooPlot* clone_sigD1_prefit_frame = (RooPlot*)sigD1_nj_D1_prefit->Clone("sigD1_prefit_frame");
-  RooPlot* clone_sigD1_fit_frame = (RooPlot*)sigD1_nj_D1_fit_s->Clone("sigD1_fit_frame");
-  RooPlot* clone_sigD1_fitb_frame = (RooPlot*)sigD1_nj_D1_fit_b->Clone("sigD1_fitb_frame");
+  RooPlot* clone_sigD1_prefit_frame = (RooPlot*)sigD1_CMS_th1x_prefit->Clone("sigD1_prefit_frame");
+  RooPlot* clone_sigD1_fit_frame = (RooPlot*)sigD1_CMS_th1x_fit_s->Clone("sigD1_fit_frame");
+  RooPlot* clone_sigD1_fitb_frame = (RooPlot*)sigD1_CMS_th1x_fit_b->Clone("sigD1_fitb_frame");
 
-  RooPlot* clone_sigD2_prefit_frame = (RooPlot*)sigD2_nj_D2_prefit->Clone("sigD2_prefit_frame");
-  RooPlot* clone_sigD2_fit_frame = (RooPlot*)sigD2_nj_D2_fit_s->Clone("sigD2_fit_frame");
-  RooPlot* clone_sigD2_fitb_frame = (RooPlot*)sigD2_nj_D2_fit_b->Clone("sigD2_fitb_frame");
+  RooPlot* clone_sigD2_prefit_frame = (RooPlot*)sigD2_CMS_th1x_prefit->Clone("sigD2_prefit_frame");
+  RooPlot* clone_sigD2_fit_frame = (RooPlot*)sigD2_CMS_th1x_fit_s->Clone("sigD2_fit_frame");
+  RooPlot* clone_sigD2_fitb_frame = (RooPlot*)sigD2_CMS_th1x_fit_b->Clone("sigD2_fitb_frame");
 
-  RooPlot* clone_sigD3_prefit_frame = (RooPlot*)sigD3_nj_D3_prefit->Clone("sigD3_prefit_frame");
-  RooPlot* clone_sigD3_fit_frame = (RooPlot*)sigD3_nj_D3_fit_s->Clone("sigD3_fit_frame");
-  RooPlot* clone_sigD3_fitb_frame = (RooPlot*)sigD3_nj_D3_fit_b->Clone("sigD3_fitb_frame");
+  RooPlot* clone_sigD3_prefit_frame = (RooPlot*)sigD3_CMS_th1x_prefit->Clone("sigD3_prefit_frame");
+  RooPlot* clone_sigD3_fit_frame = (RooPlot*)sigD3_CMS_th1x_fit_s->Clone("sigD3_fit_frame");
+  RooPlot* clone_sigD3_fitb_frame = (RooPlot*)sigD3_CMS_th1x_fit_b->Clone("sigD3_fitb_frame");
 
-  RooPlot* clone_sigD4_prefit_frame = (RooPlot*)sigD4_nj_D4_prefit->Clone("sigD4_prefit_frame");
-  RooPlot* clone_sigD4_fit_frame = (RooPlot*)sigD4_nj_D4_fit_s->Clone("sigD4_fit_frame");
-  RooPlot* clone_sigD4_fitb_frame = (RooPlot*)sigD4_nj_D4_fit_b->Clone("sigD4_fitb_frame");
+  RooPlot* clone_sigD4_prefit_frame = (RooPlot*)sigD4_CMS_th1x_prefit->Clone("sigD4_prefit_frame");
+  RooPlot* clone_sigD4_fit_frame = (RooPlot*)sigD4_CMS_th1x_fit_s->Clone("sigD4_fit_frame");
+  RooPlot* clone_sigD4_fitb_frame = (RooPlot*)sigD4_CMS_th1x_fit_b->Clone("sigD4_fitb_frame");
 
   // ===================================================================================
 
@@ -90,76 +84,76 @@ void fit_report_ESM() {
   // Get the chi^2 for each fit
 
   TPaveText *chiSquare_sigD1_prefit = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD1_prefit->AddText(TString::Format("Chi Square = %0.2f",sigD1_nj_D1_prefit->chiSquare()));
+  chiSquare_sigD1_prefit->AddText(TString::Format("Chi Square = %0.2f",sigD1_CMS_th1x_prefit->chiSquare()));
   chiSquare_sigD1_prefit->SetFillStyle(0);
   chiSquare_sigD1_prefit->SetBorderSize(1);
   chiSquare_sigD1_prefit->SetLineColor(0);
 
   TPaveText *chiSquare_sigD1_fit = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD1_fit->AddText(TString::Format("Chi Square = %0.2f",sigD1_nj_D1_fit_s->chiSquare()));
+  chiSquare_sigD1_fit->AddText(TString::Format("Chi Square = %0.2f",sigD1_CMS_th1x_fit_s->chiSquare()));
   chiSquare_sigD1_fit->SetFillStyle(0);
   chiSquare_sigD1_fit->SetBorderSize(1);
   chiSquare_sigD1_fit->SetLineColor(0);
 
   TPaveText *chiSquare_sigD1_fitb = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD1_fitb->AddText(TString::Format("Chi Square = %0.2f",sigD1_nj_D1_fit_b->chiSquare()));
+  chiSquare_sigD1_fitb->AddText(TString::Format("Chi Square = %0.2f",sigD1_CMS_th1x_fit_b->chiSquare()));
   chiSquare_sigD1_fitb->SetFillStyle(0);
   chiSquare_sigD1_fitb->SetBorderSize(1);
   chiSquare_sigD1_fitb->SetLineColor(0);
 
 
   TPaveText *chiSquare_sigD2_prefit = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD2_prefit->AddText(TString::Format("Chi Square = %0.2f",sigD2_nj_D2_prefit->chiSquare()));
+  chiSquare_sigD2_prefit->AddText(TString::Format("Chi Square = %0.2f",sigD2_CMS_th1x_prefit->chiSquare()));
   chiSquare_sigD2_prefit->SetFillStyle(0);
   chiSquare_sigD2_prefit->SetBorderSize(1);
   chiSquare_sigD2_prefit->SetLineColor(0);
 
   TPaveText *chiSquare_sigD2_fit = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD2_fit->AddText(TString::Format("Chi Square = %0.2f",sigD2_nj_D2_fit_s->chiSquare()));
+  chiSquare_sigD2_fit->AddText(TString::Format("Chi Square = %0.2f",sigD2_CMS_th1x_fit_s->chiSquare()));
   chiSquare_sigD2_fit->SetFillStyle(0);
   chiSquare_sigD2_fit->SetBorderSize(1);
   chiSquare_sigD2_fit->SetLineColor(0);
 
   TPaveText *chiSquare_sigD2_fitb = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD2_fitb->AddText(TString::Format("Chi Square = %0.2f",sigD2_nj_D2_fit_b->chiSquare()));
+  chiSquare_sigD2_fitb->AddText(TString::Format("Chi Square = %0.2f",sigD2_CMS_th1x_fit_b->chiSquare()));
   chiSquare_sigD2_fitb->SetFillStyle(0);
   chiSquare_sigD2_fitb->SetBorderSize(1);
   chiSquare_sigD2_fitb->SetLineColor(0);
 
 
   TPaveText *chiSquare_sigD3_prefit = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD3_prefit->AddText(TString::Format("Chi Square = %0.2f",sigD3_nj_D3_prefit->chiSquare()));
+  chiSquare_sigD3_prefit->AddText(TString::Format("Chi Square = %0.2f",sigD3_CMS_th1x_prefit->chiSquare()));
   chiSquare_sigD3_prefit->SetFillStyle(0);
   chiSquare_sigD3_prefit->SetBorderSize(1);
   chiSquare_sigD3_prefit->SetLineColor(0);
 
   TPaveText *chiSquare_sigD3_fit = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD3_fit->AddText(TString::Format("Chi Square = %0.2f",sigD3_nj_D3_fit_s->chiSquare()));
+  chiSquare_sigD3_fit->AddText(TString::Format("Chi Square = %0.2f",sigD3_CMS_th1x_fit_s->chiSquare()));
   chiSquare_sigD3_fit->SetFillStyle(0);
   chiSquare_sigD3_fit->SetBorderSize(1);
   chiSquare_sigD3_fit->SetLineColor(0);
 
   TPaveText *chiSquare_sigD3_fitb = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD3_fitb->AddText(TString::Format("Chi Square = %0.2f",sigD3_nj_D3_fit_b->chiSquare()));
+  chiSquare_sigD3_fitb->AddText(TString::Format("Chi Square = %0.2f",sigD3_CMS_th1x_fit_b->chiSquare()));
   chiSquare_sigD3_fitb->SetFillStyle(0);
   chiSquare_sigD3_fitb->SetBorderSize(1);
   chiSquare_sigD3_fitb->SetLineColor(0);
 
 
   TPaveText *chiSquare_sigD4_prefit = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD4_prefit->AddText(TString::Format("Chi Square = %0.2f",sigD4_nj_D4_prefit->chiSquare()));
+  chiSquare_sigD4_prefit->AddText(TString::Format("Chi Square = %0.2f",sigD4_CMS_th1x_prefit->chiSquare()));
   chiSquare_sigD4_prefit->SetFillStyle(0);
   chiSquare_sigD4_prefit->SetBorderSize(1);
   chiSquare_sigD4_prefit->SetLineColor(0);
 
   TPaveText *chiSquare_sigD4_fit = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD4_fit->AddText(TString::Format("Chi Square = %0.2f",sigD4_nj_D4_fit_s->chiSquare()));
+  chiSquare_sigD4_fit->AddText(TString::Format("Chi Square = %0.2f",sigD4_CMS_th1x_fit_s->chiSquare()));
   chiSquare_sigD4_fit->SetFillStyle(0);
   chiSquare_sigD4_fit->SetBorderSize(1);
   chiSquare_sigD4_fit->SetLineColor(0);
 
   TPaveText *chiSquare_sigD4_fitb = new TPaveText(0.351476,0.492295,0.701791,0.582667,"blNDC");
-  chiSquare_sigD4_fitb->AddText(TString::Format("Chi Square = %0.2f",sigD4_nj_D4_fit_b->chiSquare()));
+  chiSquare_sigD4_fitb->AddText(TString::Format("Chi Square = %0.2f",sigD4_CMS_th1x_fit_b->chiSquare()));
   chiSquare_sigD4_fitb->SetFillStyle(0);
   chiSquare_sigD4_fitb->SetBorderSize(1);
   chiSquare_sigD4_fitb->SetLineColor(0);
@@ -171,55 +165,55 @@ void fit_report_ESM() {
   // The pull is defined as (curve-histogram +/- error_on_histogram) / error_on_histogram
   //   so it is expected that for the case of symmetric errors the error bars on the pull are +/- 1. 
 
-  RooHist* hpull_sigD1_prefit = sigD1_nj_D1_prefit->pullHist();
-  RooPlot* framePull_sigD1_prefit = w->var("nj_D1")->frame(Title("Pull"));
+  RooHist* hpull_sigD1_prefit = sigD1_CMS_th1x_prefit->pullHist();
+  RooPlot* framePull_sigD1_prefit = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD1_prefit->addPlotable(hpull_sigD1_prefit,"P");
 
-  RooHist* hpull_sigD1_fit = sigD1_nj_D1_fit_s->pullHist();
-  RooPlot* framePull_sigD1_fit = w->var("nj_D1")->frame(Title("Pull"));
+  RooHist* hpull_sigD1_fit = sigD1_CMS_th1x_fit_s->pullHist();
+  RooPlot* framePull_sigD1_fit = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD1_fit->addPlotable(hpull_sigD1_fit,"P");
 
-  RooHist* hpull_sigD1_fitb = sigD1_nj_D1_fit_b->pullHist();
-  RooPlot* framePull_sigD1_fitb = w->var("nj_D1")->frame(Title("Pull"));
+  RooHist* hpull_sigD1_fitb = sigD1_CMS_th1x_fit_b->pullHist();
+  RooPlot* framePull_sigD1_fitb = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD1_fitb->addPlotable(hpull_sigD1_fitb,"P");
 
 
-  RooHist* hpull_sigD2_prefit = sigD2_nj_D2_prefit->pullHist();
-  RooPlot* framePull_sigD2_prefit = w->var("nj_D2")->frame(Title("Pull"));
+  RooHist* hpull_sigD2_prefit = sigD2_CMS_th1x_prefit->pullHist();
+  RooPlot* framePull_sigD2_prefit = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD2_prefit->addPlotable(hpull_sigD2_prefit,"P");
 
-  RooHist* hpull_sigD2_fit = sigD2_nj_D2_fit_s->pullHist();
-  RooPlot* framePull_sigD2_fit = w->var("nj_D2")->frame(Title("Pull"));
+  RooHist* hpull_sigD2_fit = sigD2_CMS_th1x_fit_s->pullHist();
+  RooPlot* framePull_sigD2_fit = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD2_fit->addPlotable(hpull_sigD2_fit,"P");
 
-  RooHist* hpull_sigD2_fitb = sigD2_nj_D2_fit_b->pullHist();
-  RooPlot* framePull_sigD2_fitb = w->var("nj_D2")->frame(Title("Pull"));
+  RooHist* hpull_sigD2_fitb = sigD2_CMS_th1x_fit_b->pullHist();
+  RooPlot* framePull_sigD2_fitb = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD2_fitb->addPlotable(hpull_sigD2_fitb,"P");
 
 
-  RooHist* hpull_sigD3_prefit = sigD3_nj_D3_prefit->pullHist();
-  RooPlot* framePull_sigD3_prefit = w->var("nj_D3")->frame(Title("Pull"));
+  RooHist* hpull_sigD3_prefit = sigD3_CMS_th1x_prefit->pullHist();
+  RooPlot* framePull_sigD3_prefit = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD3_prefit->addPlotable(hpull_sigD3_prefit,"P");
 
-  RooHist* hpull_sigD3_fit = sigD3_nj_D3_fit_s->pullHist();
-  RooPlot* framePull_sigD3_fit = w->var("nj_D3")->frame(Title("Pull"));
+  RooHist* hpull_sigD3_fit = sigD3_CMS_th1x_fit_s->pullHist();
+  RooPlot* framePull_sigD3_fit = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD3_fit->addPlotable(hpull_sigD3_fit,"P");
 
-  RooHist* hpull_sigD3_fitb = sigD3_nj_D3_fit_b->pullHist();
-  RooPlot* framePull_sigD3_fitb = w->var("nj_D3")->frame(Title("Pull"));
+  RooHist* hpull_sigD3_fitb = sigD3_CMS_th1x_fit_b->pullHist();
+  RooPlot* framePull_sigD3_fitb = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD3_fitb->addPlotable(hpull_sigD3_fitb,"P");
 
 
-  RooHist* hpull_sigD4_prefit = sigD4_nj_D4_prefit->pullHist();
-  RooPlot* framePull_sigD4_prefit = w->var("nj_D4")->frame(Title("Pull"));
+  RooHist* hpull_sigD4_prefit = sigD4_CMS_th1x_prefit->pullHist();
+  RooPlot* framePull_sigD4_prefit = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD4_prefit->addPlotable(hpull_sigD4_prefit,"P");
 
-  RooHist* hpull_sigD4_fit = sigD4_nj_D4_fit_s->pullHist();
-  RooPlot* framePull_sigD4_fit = w->var("nj_D4")->frame(Title("Pull"));
+  RooHist* hpull_sigD4_fit = sigD4_CMS_th1x_fit_s->pullHist();
+  RooPlot* framePull_sigD4_fit = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD4_fit->addPlotable(hpull_sigD4_fit,"P");
 
-  RooHist* hpull_sigD4_fitb = sigD4_nj_D4_fit_b->pullHist();
-  RooPlot* framePull_sigD4_fitb = w->var("nj_D4")->frame(Title("Pull"));
+  RooHist* hpull_sigD4_fitb = sigD4_CMS_th1x_fit_b->pullHist();
+  RooPlot* framePull_sigD4_fitb = w->var("CMS_th1x")->frame(Title("Pull"));
   framePull_sigD4_fitb->addPlotable(hpull_sigD4_fitb,"P");
 
 
@@ -249,8 +243,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD1_nj_D1_prefit->GetYaxis()->SetTitleOffset(2.0);
-  sigD1_nj_D1_prefit->Draw();
+  sigD1_CMS_th1x_prefit->GetYaxis()->SetTitleOffset(2.0);
+  sigD1_CMS_th1x_prefit->Draw();
   chiSquare_sigD1_prefit->Draw("same");  
   //text_N6_tt_D1->Draw("same");
   c_sigD1_prefit->cd(2);
@@ -285,8 +279,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD1_nj_D1_fit_s->GetYaxis()->SetTitleOffset(2.0);
-  sigD1_nj_D1_fit_s->Draw();
+  sigD1_CMS_th1x_fit_s->GetYaxis()->SetTitleOffset(2.0);
+  sigD1_CMS_th1x_fit_s->Draw();
   chiSquare_sigD1_fit->Draw("same");  
   //text_N6_tt_D1->Draw("same");
   c_sigD1_fit->cd(2);
@@ -321,8 +315,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD1_nj_D1_fit_b->GetYaxis()->SetTitleOffset(2.0);
-  sigD1_nj_D1_fit_b->Draw();
+  sigD1_CMS_th1x_fit_b->GetYaxis()->SetTitleOffset(2.0);
+  sigD1_CMS_th1x_fit_b->Draw();
   chiSquare_sigD1_fitb->Draw("same");  
   //text_N6_tt_D1->Draw("same");
   c_sigD1_fitb->cd(2);
@@ -360,8 +354,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD2_nj_D2_prefit->GetYaxis()->SetTitleOffset(2.0);
-  sigD2_nj_D2_prefit->Draw();
+  sigD2_CMS_th1x_prefit->GetYaxis()->SetTitleOffset(2.0);
+  sigD2_CMS_th1x_prefit->Draw();
   chiSquare_sigD2_prefit->Draw("same");  
   //text_N6_tt_D2->Draw("same");
   c_sigD2_prefit->cd(2);
@@ -396,8 +390,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD2_nj_D2_fit_s->GetYaxis()->SetTitleOffset(2.0);
-  sigD2_nj_D2_fit_s->Draw();
+  sigD2_CMS_th1x_fit_s->GetYaxis()->SetTitleOffset(2.0);
+  sigD2_CMS_th1x_fit_s->Draw();
   chiSquare_sigD2_fit->Draw("same");  
   //text_N6_tt_D2->Draw("same");
   c_sigD2_fit->cd(2);
@@ -432,8 +426,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD2_nj_D2_fit_b->GetYaxis()->SetTitleOffset(2.0);
-  sigD2_nj_D2_fit_b->Draw();
+  sigD2_CMS_th1x_fit_b->GetYaxis()->SetTitleOffset(2.0);
+  sigD2_CMS_th1x_fit_b->Draw();
   chiSquare_sigD2_fitb->Draw("same");  
   //text_N6_tt_D2->Draw("same");
   c_sigD2_fitb->cd(2);
@@ -471,8 +465,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD3_nj_D3_prefit->GetYaxis()->SetTitleOffset(2.0);
-  sigD3_nj_D3_prefit->Draw();
+  sigD3_CMS_th1x_prefit->GetYaxis()->SetTitleOffset(2.0);
+  sigD3_CMS_th1x_prefit->Draw();
   chiSquare_sigD3_prefit->Draw("same");  
   //text_N6_tt_D3->Draw("same");
   c_sigD3_prefit->cd(2);
@@ -507,8 +501,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD3_nj_D3_fit_s->GetYaxis()->SetTitleOffset(2.0);
-  sigD3_nj_D3_fit_s->Draw();
+  sigD3_CMS_th1x_fit_s->GetYaxis()->SetTitleOffset(2.0);
+  sigD3_CMS_th1x_fit_s->Draw();
   chiSquare_sigD3_fit->Draw("same");  
   //text_N6_tt_D3->Draw("same");
   c_sigD3_fit->cd(2);
@@ -543,8 +537,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD3_nj_D3_fit_b->GetYaxis()->SetTitleOffset(2.0);
-  sigD3_nj_D3_fit_b->Draw();
+  sigD3_CMS_th1x_fit_b->GetYaxis()->SetTitleOffset(2.0);
+  sigD3_CMS_th1x_fit_b->Draw();
   chiSquare_sigD3_fitb->Draw("same");  
   //text_N6_tt_D3->Draw("same");
   c_sigD3_fitb->cd(2);
@@ -582,8 +576,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD4_nj_D4_prefit->GetYaxis()->SetTitleOffset(2.0);
-  sigD4_nj_D4_prefit->Draw();
+  sigD4_CMS_th1x_prefit->GetYaxis()->SetTitleOffset(2.0);
+  sigD4_CMS_th1x_prefit->Draw();
   chiSquare_sigD4_prefit->Draw("same");  
   //text_N6_tt_D4->Draw("same");
   c_sigD4_prefit->cd(2);
@@ -618,8 +612,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD4_nj_D4_fit_s->GetYaxis()->SetTitleOffset(2.0);
-  sigD4_nj_D4_fit_s->Draw();
+  sigD4_CMS_th1x_fit_s->GetYaxis()->SetTitleOffset(2.0);
+  sigD4_CMS_th1x_fit_s->Draw();
   chiSquare_sigD4_fit->Draw("same");  
   //text_N6_tt_D4->Draw("same");
   c_sigD4_fit->cd(2);
@@ -654,8 +648,8 @@ void fit_report_ESM() {
   gPad->SetLeftMargin(0.25);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.15);
-  sigD4_nj_D4_fit_b->GetYaxis()->SetTitleOffset(2.0);
-  sigD4_nj_D4_fit_b->Draw();
+  sigD4_CMS_th1x_fit_b->GetYaxis()->SetTitleOffset(2.0);
+  sigD4_CMS_th1x_fit_b->Draw();
   chiSquare_sigD4_fitb->Draw("same");  
   //text_N6_tt_D4->Draw("same");
   c_sigD4_fitb->cd(2);
