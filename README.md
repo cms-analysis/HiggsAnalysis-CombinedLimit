@@ -28,12 +28,41 @@ scram b -j8
 ```
 
 ### Example
+
+To make the RooFit workspace for combine
 ```
-root -ql make_MVA_8bin_ws.C
-combine -M AsymptoticLimits RPV_550_TestCard.txt
-combine -M Significance RPV_550_TestCard.txt -t -1 --expectSignal=1
-combine -M FitDiagnostics RPV_550_TestCard.txt --plots --saveShapes --saveNormalizations
-python test/diffNuisances.py --all --abs fitDiagnostics.root
-root -ql fit_report_ESM.C
+root -q -l make_MVA_8bin_ws.C
 ```
 
+Calculate quick asymptotic limits.  Outputs a file called higgsCombineTest.AsymptoticLimits.mH120.root
+which contains the expected (and observed) limits.
+The second command does the same but instead names the file higgsCombineRPV.AsymptoticLimits.mH550.root
+```
+combine -M AsymptoticLimits RPV_550_TestCard.txt
+combine -M AsymptoticLimits RPV_550_TestCard.txt -m 550 -n RPV
+```
+
+Calculate the significance using the asimov dataset and expected signal strength of 1
+```
+combine -M Significance RPV_550_TestCard.txt -t -1 --expectSignal=1
+```
+
+Run the fit and produce a root file called fitDiagnostics.root that contains RooPlots and RooFitResults:
+```
+combine -M FitDiagnostics RPV_550_TestCard.txt --plots --saveShapes --saveNormalizations
+```
+
+Produce formatted plots of fit results for each MVA bin:
+```
+root -q -l fit_report_ESM.C
+```
+
+Print the parameters resulting from the fit:
+```
+python test/diffNuisances.py --all --abs fitDiagnostics.root
+```
+
+To make a limit plot:
+```
+root -l -q makePlots.C+
+```
