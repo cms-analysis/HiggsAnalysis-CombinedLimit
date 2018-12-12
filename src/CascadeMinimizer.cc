@@ -57,6 +57,12 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
 {
 }
 
+bool CascadeMinimizer::freezeDiscParams(const bool freeze)
+{
+    bool ret =  utils::freezeAllDisassociatedRooMultiPdfParameters((CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs),(CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams),freeze);
+    return ret;
+}
+
 void CascadeMinimizer::setAutoBounds(const RooArgSet *pois) 
 {
     poisForAutoBounds_ = pois;
@@ -279,8 +285,22 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    */
 
    // Do A reasonable fit if something changed before 
-   if ( fabs(minimumNLL - nll_.getVal()) > discreteMinTol_ ) improve(verbose,cascade);
+   
+   // First freeze all parameters that have nothing to do with the current active pdfs*
+   freezeDiscParams(true);
 
+   //std::cout << " Staring in iterativeMinimize and the minimum NLL so far is  " << minimumNLL << std::endl; 
+   if ( fabs(minimumNLL - nll_.getVal()) > discreteMinTol_ ) { 
+     
+     minimizer_.reset(new RooMinimizer(nll_));
+     cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
+     if (simnll) simnll->setZeroPoint();
+
+     improve(verbose,cascade);
+     //std::cout << " Had to improve further since tolerance is not yet reached   " << nll_.getVal() << std::endl; 
+   }
+
+   // Next remove the POIs and constrained nuisances - this is to set up for the fast loop over the Index combinations
    RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().allFloatingParameters;
    nuisances.remove(CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams);
 
@@ -291,7 +311,6 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    if (poi.getSize() >0) frozen.add(poi);
    
    RooStats::RemoveConstantParameters(&frozen);
-
    utils::setAllConstant(frozen,true);
 
    // remake the minimizer   
@@ -315,13 +334,17 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    if (simnll) simnll->clearZeroPoint();
 
    utils::setAllConstant(frozen,false);
-
-   //if (discretesHaveChanged) { 
+   
    // Run one last fully floating fit to maintain RooFitResult
    minimizer_.reset(new RooMinimizer(nll_));
    improve(verbose, cascade); 
-   //}
+   
    minimumNLL = nll_.getVal();
+   //std::cout << " At the end of iterativeMinimizer, minimum NLL is now " << minimumNLL << std::endl; 
+
+   // unfreeze from *
+   freezeDiscParams(false);
+
    return ret;
 }
 
@@ -336,20 +359,22 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     }
 
     bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
-    if ( doMultipleMini ) preFit_ = 1;
+    //if ( doMultipleMini ) preFit_ = 1;
 
     minimizer_->setPrintLevel(verbose-2);  
     minimizer_->setStrategy(strategy_);
-    if (preScan_) minimizer_->minimize("Minuit2","Scan");
-
-    
+    //if (preScan_) minimizer_->minimize("Minuit2","Scan");
+ 
     //if (preFit_ && nuisances != 0) {
     
     RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().nuisanceParameters;
+
+    
     if (preFit_ ) {
         RooArgSet frozen(nuisances);
         RooStats::RemoveConstantParameters(&frozen);
         utils::setAllConstant(frozen,true);
+        freezeDiscParams(true);
 
         minimizer_.reset(new RooMinimizer(nll_));
         minimizer_->setPrintLevel(verbose-2);
@@ -361,8 +386,10 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         minimizer_->minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
         if (simnll) simnll->clearZeroPoint();
         utils::setAllConstant(frozen,false);
+        freezeDiscParams(false);
         minimizer_.reset(new RooMinimizer(nll_));
     }
+    
      // FIXME can be made smarter than this
     /*
     if (mode_ == Unconstrained && poiOnlyFit_) {
@@ -457,6 +484,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
      Mode 2 -- Full scan over the remaining combinations after mode 1
     */
 
+    //std::cout << " At the start of the looping over the Indeces, minimum NLL is " << minimumNLL << std::endl; 
     bool newDiscreteMinimum = false;
 
     RooArgList pdfCategoryIndeces = CascadeMinimizerGlobalConfigs::O().pdfCategories; 
@@ -557,6 +585,16 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
       if (fitCounter>0) params->assignValueOnly(reallyCleanParameters); // no need to reset from 0'th fit
 
+
+      bool resetNeeded = freezeDiscParams(true);
+
+      // frozen some parameters so need to reset the minimizer
+      if (resetNeeded){
+        minimizer_.reset(new RooMinimizer(nll_));
+        cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
+        if (simnll) simnll->setZeroPoint();
+      }
+
       // FIXME can be made smarter than this
       if (mode_ == Unconstrained && poiOnlyFit_) {
         trivialMinimize(nll_, *poi_, 200);
@@ -564,12 +602,16 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
       ret =  improve(verbose, cascade);
 
+      freezeDiscParams(false);
+
       fitCounter++;
       double thisNllValue = nll_.getVal();
+      //std::cout << " After constrained fit, NLL is " << thisNllValue << std::endl; 
       
       if ( thisNllValue < minimumNLL ){
 		// Now we insert the correction ! 
 	        minimumNLL = thisNllValue;	
+                //std::cout << " .... Found a better fit! hoorah! " << minimumNLL << std::endl; 
     		snap.assignValueOnly(*params);
 		// set the best indeces again
 		for (int id=0;id<numIndeces;id++) {
@@ -614,6 +656,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	((RooCategory*)(pdfCategoryIndeces.at(id)))->setIndex(bestIndeces[id]);	
     } 
     params->assignValueOnly(snap);
+    //std::cout << " After iterations, minimum NLL is " << minimumNLL << std::endl; 
     return newDiscreteMinimum;
 }
 
@@ -622,7 +665,7 @@ void CascadeMinimizer::initOptions()
     options_.add_options()
         ("cminPoiOnlyFit",  "Do first a fit floating only the parameter of interest")
         ("cminPreScan",  "Do a scan before first minimization")
-        ("cminPreFit", boost::program_options::value<int>(&preFit_)->default_value(preFit_), "if set to a value N > 0, it will perform a pre-fit with strategy (N-1) with frozen nuisance parameters.")
+        ("cminPreFit", boost::program_options::value<int>(&preFit_)->default_value(preFit_), "if set to a value N > 0, it will perform a pre-fit with strategy (N-1) with frozen constrained nuisance parameters.")
         ("cminApproxPreFitTolerance", boost::program_options::value<double>(&approxPreFitTolerance_)->default_value(approxPreFitTolerance_), "If non-zero, do first a pre-fit with this tolerance (or 10 times the final tolerance, whichever is largest)")
         ("cminApproxPreFitStrategy", boost::program_options::value<int>(&approxPreFitStrategy_)->default_value(approxPreFitStrategy_), "Strategy to use in the pre-fit")
         ("cminSingleNuisFit", "Do first a minimization of each nuisance parameter individually")

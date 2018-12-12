@@ -59,6 +59,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
 
 #include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
@@ -1150,7 +1151,9 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     RooArgSet clients;
     utils::getClients(CascadeMinimizerGlobalConfigs::O().pdfCategories,(w->allPdfs()),clients);
     TIterator *it = clients.createIterator();
-    while (RooAbsArg *arg = (RooAbsArg*)it->Next()) { 
+    clients.Print();
+    while (RooAbsArg *arg = (RooAbsArg*)it->Next()) {
+      (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs).add(*(dynamic_cast<RooMultiPdf*>(arg)));
       RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(arg);
       RooArgSet *pdfPars = pdf->getParameters((const RooArgSet*)0);
       std::auto_ptr<TIterator> iter_v(pdfPars->createIterator());
