@@ -2,6 +2,29 @@ import re
 import sys
 from math import log,exp,hypot
 
+
+def fullmatch(regex, line):
+    """Performs regex match requiring the full string to match
+
+    Args:
+        regex (str or precompiled regex): The pattern to match
+        line (str): The line of text to match
+
+    Returns:
+        bool: true if a complete match was found, false otherwise
+    """
+    if isinstance(regex, str):
+        compiled = re.compile(regex)
+    else:
+        compiled = regex
+    m = compiled.match(line)
+    if m:
+        start, stop = m.span()
+        if stop - start == len(line):
+            return True
+    return False
+
+
 def quadratureAdd(pdf, val1, val2, context=None):
     if type(val1) == list and len(val1) != 2: raise RuntimeError("{} is a list of length != 2".format(val1))
     if type(val2) == list and len(val2) != 2: raise RuntimeError("{} is a list of length != 2".format(val2))
@@ -44,10 +67,10 @@ def doAddNuisance(datacard, args):
         value = float(value)
     foundChann, foundProc = False, False
     for b in errline.keys():
-        if channel == "*" or cchannel.search(b):
+        if channel == "*" or fullmatch(cchannel, b):
             foundChann = True
             for p in datacard.exp[b]:
-                if process == "*" or cprocess.search(p):
+                if process == "*" or fullmatch(cprocess, p):
                     foundProc = True
                     if value in [ 0.0, 1.0 ]:
                         pass   #do nothing, there's nothing to add
@@ -74,12 +97,12 @@ def doDropNuisance(datacard, args):
     opts = args[3:]
     foundProc = False
     for lsyst,nofloat,pdf,args0,errline in datacard.systs:
-        if re.match(name,lsyst):
+        if fullmatch(name,lsyst):
             for b in errline.keys():
-                if channel == "*" or cchannel.search(b):
+                if channel == "*" or fullmatch(cchannel, b):
                     #if channel != "*": foundProc = False
                     for p in datacard.exp[b]:
-                        if process == "*" or cprocess.search(p):
+                        if process == "*" or fullmatch(cprocess, p):
                             foundProc = True
                             errline[b][p] = 0
             #if channel != "*" and foundProc == False:
@@ -125,7 +148,9 @@ def doRenameNuisance(datacard, args):
     opts = args[4:]
     foundChann, foundProc = False, False
     for lsyst,nofloat,pdf0,args0,errline0 in datacard.systs[:]:
-        lsystnew = re.sub(oldname,newname,lsyst)
+        lsystnew = lsyst
+        if fullmatch(oldname, lsyst):
+            lsystnew = newname
         if lsystnew != lsyst:
             if pdf0=="param" : raise RuntimeError, "Incorrect syntax. Cannot specify process and channel for %s with pdf %s. Use 'nuisance edit rename oldname newname'"% (lsyst,pdf0)
             found = False
@@ -138,11 +163,11 @@ def doRenameNuisance(datacard, args):
             if not found:
                 datacard.systs.append([lsystnew,nofloat,pdf0,args0,errline2])
             for b in errline0.keys():
-                if channel == "*" or cchannel.match(b):
+                if channel == "*" or fullmatch(cchannel, b):
                     foundChann = True
                     if channel != "*": foundProc = False
                     for p in datacard.exp[b].keys():
-                        if process == "*" or cprocess.match(p):
+                        if process == "*" or fullmatch(cprocess, p):
                             foundProc = True
                             if errline0[b][p] in [0.0]:
                                 continue
@@ -176,7 +201,7 @@ def doChangeNuisancePdf(datacard, args):
     (name, newpdf) = args[:2]
     found = False
     for i,(lsyst,nofloat,pdf,args0,errline) in enumerate(datacard.systs):
-        if re.match(name,lsyst):
+        if fullmatch(name,lsyst):
             found = True; ok = False
             if newpdf == pdf: continue
             if pdf in [ "lnN", "lnU"]:
@@ -215,11 +240,11 @@ def doMergeNuisance(datacard, args):
     foundProc = False
 
     for lsyst2,nofloat2,pdf2,args02,errline2 in datacard.systs:
-        if re.match(name2, lsyst2):
+        if fullmatch(name2, lsyst2):
             for b in errline2.keys():
-                if channel == "*" or cchannel.search(b):
+                if channel == "*" or fullmatch(cchannel, b):
                     for p in datacard.exp[b]:
-                        if process == "*" or cprocess.search(p):
+                        if process == "*" or fullmatch(cprocess, p):
                             foundProc = True
                             doAddNuisance(datacard, [p+"$", b+"$", name1, pdf2, errline2[b][p], "addq"])
                             errline2[b][p] = 0
@@ -240,11 +265,11 @@ def doSplitNuisance(datacard, args):
     opts = args[7:]
     foundProc = False
     for lsyst,nofloat,pdf,args0,errline in datacard.systs:
-        if re.match(oldname,lsyst):
+        if fullmatch(oldname,lsyst):
             for b in errline.keys():
-                if channel == "*" or cchannel.search(b):
+                if channel == "*" or fullmatch(cchannel, b):
                     for p in datacard.exp[b]:
-                        if process == "*" or cprocess.search(p):
+                        if process == "*" or fullmatch(cprocess, p):
                             foundProc = True
                             if errline[b][p] not in [0., 1.]:
                                 doAddNuisance(datacard, [p, b, newname1, pdf, value1, "overwrite"])
@@ -266,13 +291,13 @@ def doFreezeNuisance(datacard, args):
 
     # first check in the list of paramters as flatParam, rateParam or discretes not included in datacard.systs (smaller usually)
     for lsyst in datacard.flatParamNuisances.keys()+list(datacard.rateParamsOrder)+datacard.discretes +datacard.extArgs.keys():
-         if re.match(pat,lsyst):
+         if fullmatch(pat,lsyst):
             datacard.frozenNuisances.add(lsyst)
             found.append(lsyst)
 
     if not found: 
       for lsyst,nofloat,pdf,args0,errline in datacard.systs:
-        if re.match(pat,lsyst):
+        if fullmatch(pat,lsyst):
             datacard.frozenNuisances.add(lsyst)
             found.append(lsyst)
 
@@ -295,13 +320,13 @@ def doFlipNuisance(datacard,args):
         raise RuntimeError, "Error: nuisance edit flip %s missed option n2p and/or p2n" % (args)
     foundProc = False
     for lsyst,nofloat,pdf,args0,errline in datacard.systs:
-        if re.match(name,lsyst):
+        if fullmatch(name,lsyst):
             if pdf not in ["lnN"]:
                 raise RuntimeError, "Error: nuisance edit flip %s currently not support pdftype %s" % (args,pdf)
             for b in errline.keys():
-                if channel == "*" or cchannel.search(b):
+                if channel == "*" or fullmatch(cchannel, b):
                     for p in datacard.exp[b]:
-                        if process == "*" or cprocess.search(p):
+                        if process == "*" or fullmatch(cprocess, p):
                             foundProc = True
                             if errline[b][p] not in [0., 1.]:
                                 if type(errline[b][p]) is list:
