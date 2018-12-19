@@ -4,6 +4,7 @@
 // April 5, 2018
 // Sep 19, 2018 : This version now uses the DeepESM-based samples
 // Nov 15, 2018 : Updated to use RooParametricHist and the latest MVA
+// Dec 19, 2018 : Updated to the new parameterization that solves correlation issue
 
 #include "RooRealVar.h"
 #include "RooFitResult.h"
@@ -17,9 +18,25 @@ using namespace RooFit;
 
 void construct_formula(string procName, RooArgList& binlist, const RooArgList& paramlist) {
 
-  int max_bin = 20; // 14 means just njets=14, 20 means last bin is inclusive up through njets=20
+  // Functional form:
+  // f(x) = Njets bin x / Njets bin x-1 = a2 + [ (a1-a2)^(x-a0_val) / (a0-a2)^(x-a1_val) ]^(1/(a1_val-a0_val)) where a1 > a2,
+  //   where x = 0 corresponds to 8.
+  // a0 = Ratio of Njets=8 to Njets=7
+  // a1 = Ratio of Njets=10 to Njets=9
+  // a2 = Asymptotic value as Njets-->Inf
 
-  for (int i=1; i<=8; i++) {
+  // In terms of njets instead of ratio:
+  // F(0) = N7
+  // F(1) = N7*f(0)
+  // F(2) = F(1)*f(1) = N7*f(0)*f(1)
+  //     ...
+  // N7 = Njets=7
+
+
+
+  int max_bin = 18; // 14 means just njets=14, 20 means last bin is inclusive up through njets=20
+
+  for (int i=0; i<8; i++) {
 
     stringstream form;
     RooArgList formArgList;
@@ -27,25 +44,23 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
     form << "(@0";
     formArgList.add(paramlist[0]); // N7_tt for this MVA bin
 
-    if (i>=2) {
-      form << "*@1";
-      formArgList.add(paramlist[1]); // p0_tt
-    }
-
-    if (i>=3) { // for bin 3 and up
-      for (int j=3; j<=i; j++) {
-	form << "*(@2+(@1-@2)*exp((" << j << "-2)*@3))";
+    if (i>=1) { // for bin 1 and up
+      for (int j=0; j<i; j++) {
+	//form << "*(@3 + TMath::Power( TMath::Power( @2-@3 , "<<j<<"-0 ) / TMath::Power( @1-@3 , "<<j<<"-2 ) , 1/(2-0) ))";
+	form << "*(@3 + TMath::Power( TMath::Power( @2-@3 , "<<j<<" ) / TMath::Power( @1-@3 , "<<j-2<<" ) , 1/2 ))";
       }
-      formArgList.add(paramlist[2]); // p1_tt
-      formArgList.add(paramlist[3]); // p2_tt
-    } // end bin 3 and up
+      formArgList.add(paramlist[1]); // a0_tt
+      formArgList.add(paramlist[2]); // a1_tt
+      formArgList.add(paramlist[3]); // a2_tt
+    } // end bin 1 and up
 
     // The last bin covers from njet=14 through njet=max_bin
-    if (i==8) {
-      for (int k=9; k<=max_bin-6; k++) {
-	form << " + @0*@1";
-	for (int j=3; j<=k; j++) {
-	  form << "*(@2+(@1-@2)*exp((" << j << "-2)*@3))";
+    if (i==7) {
+      for (int k=8; k<=max_bin-7; k++) {
+	form << " + 1";
+	for (int j=0; j<k; j++) {
+	  //form << "*(@3 + TMath::Power( TMath::Power( @2-@3 , "<<j<<"-0 ) / TMath::Power( @1-@3 , "<<j<<"-2 ) , 1/(2-0) ))";
+	  form << "*(@3 + TMath::Power( TMath::Power( @2-@3 , "<<j<<" ) / TMath::Power( @1-@3 , "<<j-2<<" ) , 1/2 ))";
 	}
       }
     }
@@ -57,7 +72,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
     RooFormulaVar* binvar = new RooFormulaVar(binName.str().c_str(), "", form.str().c_str(), RooArgList(formArgList));
     binlist.add(*binvar);
 
-    cout << "bin i = " << i << " , njets = " << i+6 << endl;
+    cout << "bin i = " << i << " , njets = " << i+7 << endl;
     cout << "process bin name : " << binName.str().c_str() << endl;
     cout << "Formula : " << form.str().c_str() << endl;
     formArgList.Print();
@@ -71,50 +86,41 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
 void bkg_fits_MVA() {
 
   RooWorkspace *wspace = new RooWorkspace("wspace","wspace");
-  //wspace->factory("nj[6.5,14.5]");
-  //wspace->var("nj")->setBins(8);
-  //RooArgSet vars(*wspace->var("nj"));
 
   // njet is our variable, 8 bins, from 7 up through 14,
   //   Note that njet=14 is inclusive as >=14
   // D1, D2, D3, D4 are the MVA bins
-  wspace->factory("nj_D1[6.5,14.5]");
-  //wspace->factory("nj_D1[0,8]");
+
+  wspace->factory("nj_D1[0,8]");
   wspace->var("nj_D1")->setBins(8);
   RooArgSet vars_D1(*wspace->var("nj_D1"));
 
-  wspace->factory("nj_D2[6.5,14.5]");
-  //wspace->factory("nj_D2[0,8]");
+  wspace->factory("nj_D2[0,8]");
   wspace->var("nj_D2")->setBins(8);
   RooArgSet vars_D2(*wspace->var("nj_D2"));
 
-  wspace->factory("nj_D3[6.5,14.5]");
-  //wspace->factory("nj_D3[0,8]");
+  wspace->factory("nj_D3[0,8]");
   wspace->var("nj_D3")->setBins(8);
   RooArgSet vars_D3(*wspace->var("nj_D3"));
 
-  wspace->factory("nj_D4[6.5,14.5]");
-  //wspace->factory("nj_D4[0,8]");
+  wspace->factory("nj_D4[0,8]");
   wspace->var("nj_D4")->setBins(8);
   RooArgSet vars_D4(*wspace->var("nj_D4"));
 
-  wspace->var("nj_D1")->setRange("low",6.5,11.5);
-  wspace->var("nj_D2")->setRange("low",6.5,11.5);
-  wspace->var("nj_D3")->setRange("low",6.5,11.5);
-  wspace->var("nj_D4")->setRange("low",6.5,11.5);
+  //wspace->var("nj_D1")->setRange("low",6.5,11.5);
+  //wspace->var("nj_D2")->setRange("low",6.5,11.5);
+  //wspace->var("nj_D3")->setRange("low",6.5,11.5);
+  //wspace->var("nj_D4")->setRange("low",6.5,11.5);
 
-  TFile* file = TFile::Open("njets_for_Aron_V1.2.3_Nov19.root");
+  TFile* file = TFile::Open("Keras_V1.2.4/njets_rebin_for_Aron.root");
 
   // tt ---------------------------------------------------------------------------------------
 
   // D1
-  TH1* ttMC_th1_D1 = 0;
-  file->GetObject("h_njets_pt30_1l_deepESMbin1_TT",ttMC_th1_D1);
-
-  RooRealVar p0_tt_D1("p0_tt_D1","p0 of tt bkg shape",0.35,0.00,1.00);
-  RooRealVar p1_tt_D1("p1_tt_D1","p1 of tt bkg shape",0.21,-1.00,1.00);
-  //RooRealVar p1_tt_D1("p1_tt_D1","p1 of tt bkg shape",0.21,0.00,1.00);
-  RooRealVar p2_tt_D1("p2_tt_D1","p2 of tt bkg shape",-0.25,-1.00,0.0);
+  TH1D* ttMC_th1_D1 = (TH1D*)file->Get("D1_TT_h_njets_pt30_1l");
+  RooRealVar a0_tt_D1("a0_tt_D1","a0 of tt bkg shape D1",0.28,0.0,1.0);
+  RooRealVar a1_tt_D1("a1_tt_D1","a1 of tt bkg shape D1",0.24,0.0,1.0);
+  RooRealVar a2_tt_D1("a2_tt_D1","a2 of tt bkg shape D1",0.10,-0.5,0.5);
 
   //RooRealVar N7_tt_D1("N7_tt_D1","njets 7 for tt bkg in MVA D1",ttMC_th1_D1->GetBinContent(1),ttMC_th1_D1->GetBinContent(1)-5000,ttMC_th1_D1->GetBinContent(1)+5000);
   //RooRealVar N7_tt_D1("N7_tt_D1","njets 7 for tt bkg in MVA D1",ttMC_th1_D1->GetBinContent(1),ttMC_th1_D1->GetBinContent(1),ttMC_th1_D1->GetBinContent(1));
@@ -123,7 +129,7 @@ void bkg_fits_MVA() {
   RooDataHist ttMC_hist_D1("ttMC_obs_D1","tt MC observed in signal region D1",vars_D1,ttMC_th1_D1);
   wspace->import(ttMC_hist_D1);
   // shape for tt bkg MC
-  RooArgList parlist_D1(N7_tt_D1,p0_tt_D1,p1_tt_D1,p2_tt_D1);  // list of shape parameters for tt bkg
+  RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,a2_tt_D1);  // list of shape parameters for tt bkg
   RooArgList *bkg_tt_bins_D1 = new RooArgList();
   string procName_D1 = "background_tt_D1";
   construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1);
@@ -131,10 +137,7 @@ void bkg_fits_MVA() {
   wspace->import(background_tt_D1,RooFit::RecycleConflictNodes());
 
   RooAbsPdf* model_tt_D1 = wspace->pdf("background_tt_D1");
-  RooFitResult* r_tt_D1 = model_tt_D1->fitTo(ttMC_hist_D1,Save(),SumW2Error(kFALSE),Minos(kTRUE),Range("low"));
-  //RooFitResult* r_tt_D1 = model_tt_D1->fitTo(ttMC_hist_D1,Save(),SumW2Error(kFALSE),Range("low"));
-  //RooFitResult* r_tt_D1 = model_tt_D1->fitTo(ttMC_hist_D1,Save(),SumW2Error(kFALSE),Minos(kTRUE));
-  //RooFitResult* r_tt_D1 = model_tt_D1->fitTo(ttMC_hist_D1,Save(),SumW2Error(kFALSE));
+  RooFitResult* r_tt_D1 = model_tt_D1->fitTo(ttMC_hist_D1,Save(),SumW2Error(kFALSE),Minos(kTRUE));
   r_tt_D1->Print("V");
 
   RooPlot* ttframe_D1 = wspace->var("nj_D1")->frame(Title("njets tt D1 PDF"));
@@ -149,13 +152,10 @@ void bkg_fits_MVA() {
   //ttframe_D1->Draw();
 
   // D2
-  TH1* ttMC_th1_D2 = 0;
-  file->GetObject("h_njets_pt30_1l_deepESMbin2_TT",ttMC_th1_D2);
-
-  RooRealVar p0_tt_D2("p0_tt_D2","p0 of tt bkg shape",0.35,0.0,1.00);
-  RooRealVar p1_tt_D2("p1_tt_D2","p1 of tt bkg shape",0.21,-1.00,1.00);
-  //RooRealVar p1_tt_D2("p1_tt_D2","p1 of tt bkg shape",0.21,0.00,1.00);
-  RooRealVar p2_tt_D2("p2_tt_D2","p2 of tt bkg shape",-0.25,-1.00,0.0);
+  TH1D* ttMC_th1_D2 = (TH1D*)file->Get("D2_TT_h_njets_pt30_1l");
+  RooRealVar a0_tt_D2("a0_tt_D2","a0 of tt bkg shape D2",0.28,0.0,1.0);
+  RooRealVar a1_tt_D2("a1_tt_D2","a1 of tt bkg shape D2",0.24,0.0,1.0);
+  RooRealVar a2_tt_D2("a2_tt_D2","a2 of tt bkg shape D2",0.10,-0.5,0.5);
 
   //RooRealVar N7_tt_D2("N7_tt_D2","njets 7 for tt bkg in MVA D2",ttMC_th1_D2->GetBinContent(1),ttMC_th1_D2->GetBinContent(1)-5000,ttMC_th1_D2->GetBinContent(1)+5000);
   RooRealVar N7_tt_D2("N7_tt_D2","njets 7 for tt bkg in MVA D2",1);
@@ -163,7 +163,7 @@ void bkg_fits_MVA() {
   RooDataHist ttMC_hist_D2("ttMC_obs_D2","tt MC observed in signal region D2",vars_D2,ttMC_th1_D2);
   wspace->import(ttMC_hist_D2);
   // shape for tt bkg MC
-  RooArgList parlist_D2(N7_tt_D2,p0_tt_D2,p1_tt_D2,p2_tt_D2);  // list of shape parameters for tt bkg
+  RooArgList parlist_D2(N7_tt_D2,a0_tt_D2,a1_tt_D2,a2_tt_D2);  // list of shape parameters for tt bkg
   RooArgList *bkg_tt_bins_D2 = new RooArgList();
   string procName_D2 = "background_tt_D2";
   construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2);
@@ -171,10 +171,7 @@ void bkg_fits_MVA() {
   wspace->import(background_tt_D2,RooFit::RecycleConflictNodes());
 
   RooAbsPdf* model_tt_D2 = wspace->pdf("background_tt_D2");
-  RooFitResult* r_tt_D2 = model_tt_D2->fitTo(ttMC_hist_D2,Save(),SumW2Error(kFALSE),Minos(kTRUE),Range("low"));
-  //RooFitResult* r_tt_D2 = model_tt_D2->fitTo(ttMC_hist_D2,Save(),SumW2Error(kFALSE),Range("low"));
-  //RooFitResult* r_tt_D2 = model_tt_D2->fitTo(ttMC_hist_D2,Save(),SumW2Error(kFALSE),Minos(kTRUE));
-  //RooFitResult* r_tt_D2 = model_tt_D2->fitTo(ttMC_hist_D2,Save(),SumW2Error(kFALSE));
+  RooFitResult* r_tt_D2 = model_tt_D2->fitTo(ttMC_hist_D2,Save(),SumW2Error(kFALSE),Minos(kTRUE));
   r_tt_D2->Print("V");
 
   RooPlot* ttframe_D2 = wspace->var("nj_D2")->frame(Title("njets tt D2 PDF"));
@@ -189,13 +186,10 @@ void bkg_fits_MVA() {
   //ttframe_D2->Draw();
 
   // D3
-  TH1* ttMC_th1_D3 = 0;
-  file->GetObject("h_njets_pt30_1l_deepESMbin3_TT",ttMC_th1_D3);
-
-  RooRealVar p0_tt_D3("p0_tt_D3","p0 of tt bkg shape",0.35,0.0,1.00);
-  RooRealVar p1_tt_D3("p1_tt_D3","p1 of tt bkg shape",0.21,-1.00,1.00);
-  // RooRealVar p1_tt_D3("p1_tt_D3","p1 of tt bkg shape",0.21,0.00,1.00);
-  RooRealVar p2_tt_D3("p2_tt_D3","p2 of tt bkg shape",-0.25,-1.00,0.0);
+  TH1D* ttMC_th1_D3 = (TH1D*)file->Get("D3_TT_h_njets_pt30_1l");
+  RooRealVar a0_tt_D3("a0_tt_D3","a0 of tt bkg shape D3",0.28,0.0,1.0);
+  RooRealVar a1_tt_D3("a1_tt_D3","a1 of tt bkg shape D3",0.24,0.0,1.0);
+  RooRealVar a2_tt_D3("a2_tt_D3","a2 of tt bkg shape D3",0.10,-0.5,0.5);
 
   //RooRealVar N7_tt_D3("N7_tt_D3","njets 7 for tt bkg in MVA D3",ttMC_th1_D3->GetBinContent(1),ttMC_th1_D3->GetBinContent(1)-5000,ttMC_th1_D3->GetBinContent(1)+5000);
   RooRealVar N7_tt_D3("N7_tt_D3","njets 7 for tt bkg in MVA D3",1);
@@ -203,7 +197,7 @@ void bkg_fits_MVA() {
   RooDataHist ttMC_hist_D3("ttMC_obs_D3","tt MC observed in signal region D3",vars_D3,ttMC_th1_D3);
   wspace->import(ttMC_hist_D3);
   // shape for tt bkg MC
-  RooArgList parlist_D3(N7_tt_D3,p0_tt_D3,p1_tt_D3,p2_tt_D3);  // list of shape parameters for tt bkg
+  RooArgList parlist_D3(N7_tt_D3,a0_tt_D3,a1_tt_D3,a2_tt_D3);  // list of shape parameters for tt bkg
   RooArgList *bkg_tt_bins_D3 = new RooArgList();
   string procName_D3 = "background_tt_D3";
   construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3);
@@ -211,10 +205,7 @@ void bkg_fits_MVA() {
   wspace->import(background_tt_D3,RooFit::RecycleConflictNodes());
 
   RooAbsPdf* model_tt_D3 = wspace->pdf("background_tt_D3");
-  RooFitResult* r_tt_D3 = model_tt_D3->fitTo(ttMC_hist_D3,Save(),SumW2Error(kFALSE),Minos(kTRUE),Range("low"));
-  //RooFitResult* r_tt_D3 = model_tt_D3->fitTo(ttMC_hist_D3,Save(),SumW2Error(kFALSE),Range("low"));
-  //RooFitResult* r_tt_D3 = model_tt_D3->fitTo(ttMC_hist_D3,Save(),SumW2Error(kFALSE),Minos(kTRUE));
-  //RooFitResult* r_tt_D3 = model_tt_D3->fitTo(ttMC_hist_D3,Save(),SumW2Error(kFALSE));
+  RooFitResult* r_tt_D3 = model_tt_D3->fitTo(ttMC_hist_D3,Save(),SumW2Error(kFALSE),Minos(kTRUE));
   r_tt_D3->Print("V");
 
   RooPlot* ttframe_D3 = wspace->var("nj_D3")->frame(Title("njets tt D3 PDF"));
@@ -223,19 +214,17 @@ void bkg_fits_MVA() {
   model_tt_D3->paramOn(ttframe_D3,Layout(0.35,0.622912,0.773497));
   ttframe_D3->getAttLine()->SetLineWidth(0);
 
-  //new TCanvas("tt D3 fit result","tt D3 fit results",600,600);
+  //new TCanvas("tt D2 fit result","tt D2 fit results",600,600);
   //gPad->SetLeftMargin(0.15);
-  //ttframe_D3->GetYaxis()->SetTitleOffset(2.0);
-  //ttframe_D3->Draw();
+  //ttframe_D2->GetYaxis()->SetTitleOffset(2.0);
+  //ttframe_D2->Draw();
+
 
   // D4
-  TH1* ttMC_th1_D4 = 0;
-  file->GetObject("h_njets_pt30_1l_deepESMbin4_TT",ttMC_th1_D4);
-
-  RooRealVar p0_tt_D4("p0_tt_D4","p0 of tt bkg shape",0.35,0.0,1.00);
-  RooRealVar p1_tt_D4("p1_tt_D4","p1 of tt bkg shape",0.21,-1.00,1.00);
-  //RooRealVar p1_tt_D4("p1_tt_D4","p1 of tt bkg shape",0.21,0.00,1.00);
-  RooRealVar p2_tt_D4("p2_tt_D4","p2 of tt bkg shape",-0.25,-1.00,0.0);
+  TH1D* ttMC_th1_D4 = (TH1D*)file->Get("D4_TT_h_njets_pt30_1l");
+  RooRealVar a0_tt_D4("a0_tt_D4","a0 of tt bkg shape D4",0.28,0.0,1.0);
+  RooRealVar a1_tt_D4("a1_tt_D4","a1 of tt bkg shape D4",0.24,0.0,1.0);
+  RooRealVar a2_tt_D4("a2_tt_D4","a2 of tt bkg shape D4",0.10,-0.5,0.5);
 
   //RooRealVar N7_tt_D4("N7_tt_D4","njets 7 for tt bkg in MVA D4",ttMC_th1_D4->GetBinContent(1),ttMC_th1_D4->GetBinContent(1)-5000,ttMC_th1_D4->GetBinContent(1)+5000);
   RooRealVar N7_tt_D4("N7_tt_D4","njets 7 for tt bkg in MVA D4",1);
@@ -243,7 +232,7 @@ void bkg_fits_MVA() {
   RooDataHist ttMC_hist_D4("ttMC_obs_D4","tt MC observed in signal region D4",vars_D4,ttMC_th1_D4);
   wspace->import(ttMC_hist_D4);
   // shape for tt bkg MC
-  RooArgList parlist_D4(N7_tt_D4,p0_tt_D4,p1_tt_D4,p2_tt_D4);  // list of shape parameters for tt bkg
+  RooArgList parlist_D4(N7_tt_D4,a0_tt_D4,a1_tt_D4,a2_tt_D4);  // list of shape parameters for tt bkg
   RooArgList *bkg_tt_bins_D4 = new RooArgList();
   string procName_D4 = "background_tt_D4";
   construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4);
@@ -251,10 +240,7 @@ void bkg_fits_MVA() {
   wspace->import(background_tt_D4,RooFit::RecycleConflictNodes());
 
   RooAbsPdf* model_tt_D4 = wspace->pdf("background_tt_D4");
-  RooFitResult* r_tt_D4 = model_tt_D4->fitTo(ttMC_hist_D4,Save(),SumW2Error(kFALSE),Minos(kTRUE),Range("low"));
-  //RooFitResult* r_tt_D4 = model_tt_D4->fitTo(ttMC_hist_D4,Save(),SumW2Error(kFALSE),Range("low"));
-  //RooFitResult* r_tt_D4 = model_tt_D4->fitTo(ttMC_hist_D4,Save(),SumW2Error(kFALSE),Minos(kTRUE));
-  //RooFitResult* r_tt_D4 = model_tt_D4->fitTo(ttMC_hist_D4,Save(),SumW2Error(kFALSE));
+  RooFitResult* r_tt_D4 = model_tt_D4->fitTo(ttMC_hist_D4,Save(),SumW2Error(kFALSE),Minos(kTRUE));
   r_tt_D4->Print("V");
 
   RooPlot* ttframe_D4 = wspace->var("nj_D4")->frame(Title("njets tt D4 PDF"));
@@ -267,6 +253,7 @@ void bkg_fits_MVA() {
   //gPad->SetLeftMargin(0.15);
   //ttframe_D4->GetYaxis()->SetTitleOffset(2.0);
   //ttframe_D4->Draw();
+
 
 
   // other ---------------------------------------------------------------------------------------
@@ -906,57 +893,57 @@ void bkg_fits_MVA() {
 
   // Extract and print the post-fit parameters
 
-  RooRealVar* par_p0_tt_D1 = (RooRealVar*) r_tt_D1->floatParsFinal().find("p0_tt_D1");
-  RooRealVar* par_p0_tt_D2 = (RooRealVar*) r_tt_D2->floatParsFinal().find("p0_tt_D2");
-  RooRealVar* par_p0_tt_D3 = (RooRealVar*) r_tt_D3->floatParsFinal().find("p0_tt_D3");
-  RooRealVar* par_p0_tt_D4 = (RooRealVar*) r_tt_D4->floatParsFinal().find("p0_tt_D4");
+  RooRealVar* par_a0_tt_D1 = (RooRealVar*) r_tt_D1->floatParsFinal().find("a0_tt_D1");
+  RooRealVar* par_a0_tt_D2 = (RooRealVar*) r_tt_D2->floatParsFinal().find("a0_tt_D2");
+  RooRealVar* par_a0_tt_D3 = (RooRealVar*) r_tt_D3->floatParsFinal().find("a0_tt_D3");
+  RooRealVar* par_a0_tt_D4 = (RooRealVar*) r_tt_D4->floatParsFinal().find("a0_tt_D4");
 
-  RooRealVar* par_p1_tt_D1 = (RooRealVar*) r_tt_D1->floatParsFinal().find("p1_tt_D1");
-  RooRealVar* par_p1_tt_D2 = (RooRealVar*) r_tt_D2->floatParsFinal().find("p1_tt_D2");
-  RooRealVar* par_p1_tt_D3 = (RooRealVar*) r_tt_D3->floatParsFinal().find("p1_tt_D3");
-  RooRealVar* par_p1_tt_D4 = (RooRealVar*) r_tt_D4->floatParsFinal().find("p1_tt_D4");
+  RooRealVar* par_a1_tt_D1 = (RooRealVar*) r_tt_D1->floatParsFinal().find("a1_tt_D1");
+  RooRealVar* par_a1_tt_D2 = (RooRealVar*) r_tt_D2->floatParsFinal().find("a1_tt_D2");
+  RooRealVar* par_a1_tt_D3 = (RooRealVar*) r_tt_D3->floatParsFinal().find("a1_tt_D3");
+  RooRealVar* par_a1_tt_D4 = (RooRealVar*) r_tt_D4->floatParsFinal().find("a1_tt_D4");
 
-  RooRealVar* par_p2_tt_D1 = (RooRealVar*) r_tt_D1->floatParsFinal().find("p2_tt_D1");
-  RooRealVar* par_p2_tt_D2 = (RooRealVar*) r_tt_D2->floatParsFinal().find("p2_tt_D2");
-  RooRealVar* par_p2_tt_D3 = (RooRealVar*) r_tt_D3->floatParsFinal().find("p2_tt_D3");
-  RooRealVar* par_p2_tt_D4 = (RooRealVar*) r_tt_D4->floatParsFinal().find("p2_tt_D4");
+  RooRealVar* par_a2_tt_D1 = (RooRealVar*) r_tt_D1->floatParsFinal().find("a2_tt_D1");
+  RooRealVar* par_a2_tt_D2 = (RooRealVar*) r_tt_D2->floatParsFinal().find("a2_tt_D2");
+  RooRealVar* par_a2_tt_D3 = (RooRealVar*) r_tt_D3->floatParsFinal().find("a2_tt_D3");
+  RooRealVar* par_a2_tt_D4 = (RooRealVar*) r_tt_D4->floatParsFinal().find("a2_tt_D4");
 
 
-  // RooRealVar* par_p0_other_D1 = (RooRealVar*) r_other_D1->floatParsFinal().find("p0_other_D1");
-  // RooRealVar* par_p0_other_D2 = (RooRealVar*) r_other_D2->floatParsFinal().find("p0_other_D2");
-  // RooRealVar* par_p0_other_D3 = (RooRealVar*) r_other_D3->floatParsFinal().find("p0_other_D3");
-  // RooRealVar* par_p0_other_D4 = (RooRealVar*) r_other_D4->floatParsFinal().find("p0_other_D4");
+  // RooRealVar* par_a0_other_D1 = (RooRealVar*) r_other_D1->floatParsFinal().find("a0_other_D1");
+  // RooRealVar* par_a0_other_D2 = (RooRealVar*) r_other_D2->floatParsFinal().find("a0_other_D2");
+  // RooRealVar* par_a0_other_D3 = (RooRealVar*) r_other_D3->floatParsFinal().find("a0_other_D3");
+  // RooRealVar* par_a0_other_D4 = (RooRealVar*) r_other_D4->floatParsFinal().find("a0_other_D4");
 
-  // RooRealVar* par_p1_other_D1 = (RooRealVar*) r_other_D1->floatParsFinal().find("p1_other_D1");
-  // RooRealVar* par_p1_other_D2 = (RooRealVar*) r_other_D2->floatParsFinal().find("p1_other_D2");
-  // RooRealVar* par_p1_other_D3 = (RooRealVar*) r_other_D3->floatParsFinal().find("p1_other_D3");
-  // RooRealVar* par_p1_other_D4 = (RooRealVar*) r_other_D4->floatParsFinal().find("p1_other_D4");
+  // RooRealVar* par_a1_other_D1 = (RooRealVar*) r_other_D1->floatParsFinal().find("a1_other_D1");
+  // RooRealVar* par_a1_other_D2 = (RooRealVar*) r_other_D2->floatParsFinal().find("a1_other_D2");
+  // RooRealVar* par_a1_other_D3 = (RooRealVar*) r_other_D3->floatParsFinal().find("a1_other_D3");
+  // RooRealVar* par_a1_other_D4 = (RooRealVar*) r_other_D4->floatParsFinal().find("a1_other_D4");
 
-  // RooRealVar* par_p2_other_D1 = (RooRealVar*) r_other_D1->floatParsFinal().find("p2_other_D1");
-  // RooRealVar* par_p2_other_D2 = (RooRealVar*) r_other_D2->floatParsFinal().find("p2_other_D2");
-  // RooRealVar* par_p2_other_D3 = (RooRealVar*) r_other_D3->floatParsFinal().find("p2_other_D3");
-  // RooRealVar* par_p2_other_D4 = (RooRealVar*) r_other_D4->floatParsFinal().find("p2_other_D4");
+  // RooRealVar* par_a2_other_D1 = (RooRealVar*) r_other_D1->floatParsFinal().find("a2_other_D1");
+  // RooRealVar* par_a2_other_D2 = (RooRealVar*) r_other_D2->floatParsFinal().find("a2_other_D2");
+  // RooRealVar* par_a2_other_D3 = (RooRealVar*) r_other_D3->floatParsFinal().find("a2_other_D3");
+  // RooRealVar* par_a2_other_D4 = (RooRealVar*) r_other_D4->floatParsFinal().find("a2_other_D4");
 
 
   cout << "======================= Parameters of Fit Results =====================" << endl;
-  cout << "Sample   " << "            p0                 p1                  p2" << endl;
+  cout << "Sample   " << "            a0                 a1                  a2" << endl;
 
-  cout << "tt D1   " << "      " << TString::Format("%0.3f",par_p0_tt_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_p0_tt_D1->getError()) << "    " << TString::Format("%0.3f",par_p1_tt_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_p1_tt_D1->getError()) << "    " << TString::Format("%0.3f",par_p2_tt_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_p2_tt_D1->getError()) << "    " << endl;
+  cout << "tt D1   " << "      " << TString::Format("%0.3f",par_a0_tt_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_a0_tt_D1->getError()) << "    " << TString::Format("%0.3f",par_a1_tt_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_a1_tt_D1->getError()) << "    " << TString::Format("%0.3f",par_a2_tt_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_a2_tt_D1->getError()) << "    " << endl;
 
-  cout << "tt D2   " << "      " << TString::Format("%0.3f",par_p0_tt_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_p0_tt_D2->getError()) << "    " << TString::Format("%0.3f",par_p1_tt_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_p1_tt_D2->getError()) << "    " << TString::Format("%0.3f",par_p2_tt_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_p2_tt_D2->getError()) << "    " << endl;
+  cout << "tt D2   " << "      " << TString::Format("%0.3f",par_a0_tt_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_a0_tt_D2->getError()) << "    " << TString::Format("%0.3f",par_a1_tt_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_a1_tt_D2->getError()) << "    " << TString::Format("%0.3f",par_a2_tt_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_a2_tt_D2->getError()) << "    " << endl;
 
-  cout << "tt D3   " << "      " << TString::Format("%0.3f",par_p0_tt_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_p0_tt_D3->getError()) << "    " << TString::Format("%0.3f",par_p1_tt_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_p1_tt_D3->getError()) << "    " << TString::Format("%0.3f",par_p2_tt_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_p2_tt_D3->getError()) << "    " << endl;
+  cout << "tt D3   " << "      " << TString::Format("%0.3f",par_a0_tt_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_a0_tt_D3->getError()) << "    " << TString::Format("%0.3f",par_a1_tt_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_a1_tt_D3->getError()) << "    " << TString::Format("%0.3f",par_a2_tt_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_a2_tt_D3->getError()) << "    " << endl;
 
-  cout << "tt D4   " << "      " << TString::Format("%0.3f",par_p0_tt_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_p0_tt_D4->getError()) << "    " << TString::Format("%0.3f",par_p1_tt_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_p1_tt_D4->getError()) << "    " << TString::Format("%0.3f",par_p2_tt_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_p2_tt_D4->getError()) << "    " << endl;
+  cout << "tt D4   " << "      " << TString::Format("%0.3f",par_a0_tt_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_a0_tt_D4->getError()) << "    " << TString::Format("%0.3f",par_a1_tt_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_a1_tt_D4->getError()) << "    " << TString::Format("%0.3f",par_a2_tt_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_a2_tt_D4->getError()) << "    " << endl;
 
 
-  // cout << "other D1" << "      " << TString::Format("%0.3f",par_p0_other_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_p0_other_D1->getError()) << "    " << TString::Format("%0.3f",par_p1_other_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_p1_other_D1->getError()) << "    " << TString::Format("%0.3f",par_p2_other_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_p2_other_D1->getError()) << "    " << endl;
+  // cout << "other D1" << "      " << TString::Format("%0.3f",par_a0_other_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_a0_other_D1->getError()) << "    " << TString::Format("%0.3f",par_a1_other_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_a1_other_D1->getError()) << "    " << TString::Format("%0.3f",par_a2_other_D1->getVal()) << " +/- " << TString::Format("%0.3f",par_a2_other_D1->getError()) << "    " << endl;
 
-  // cout << "other D2" << "      " << TString::Format("%0.3f",par_p0_other_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_p0_other_D2->getError()) << "    " << TString::Format("%0.3f",par_p1_other_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_p1_other_D2->getError()) << "    " << TString::Format("%0.3f",par_p2_other_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_p2_other_D2->getError()) << "    " << endl;
+  // cout << "other D2" << "      " << TString::Format("%0.3f",par_a0_other_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_a0_other_D2->getError()) << "    " << TString::Format("%0.3f",par_a1_other_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_a1_other_D2->getError()) << "    " << TString::Format("%0.3f",par_a2_other_D2->getVal()) << " +/- " << TString::Format("%0.3f",par_a2_other_D2->getError()) << "    " << endl;
 
-  // cout << "other D3" << "      " << TString::Format("%0.3f",par_p0_other_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_p0_other_D3->getError()) << "    " << TString::Format("%0.3f",par_p1_other_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_p1_other_D3->getError()) << "    " << TString::Format("%0.3f",par_p2_other_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_p2_other_D3->getError()) << "    " << endl;
+  // cout << "other D3" << "      " << TString::Format("%0.3f",par_a0_other_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_a0_other_D3->getError()) << "    " << TString::Format("%0.3f",par_a1_other_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_a1_other_D3->getError()) << "    " << TString::Format("%0.3f",par_a2_other_D3->getVal()) << " +/- " << TString::Format("%0.3f",par_a2_other_D3->getError()) << "    " << endl;
 
-  // cout << "other D4" << "      " << TString::Format("%0.3f",par_p0_other_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_p0_other_D4->getError()) << "    " << TString::Format("%0.3f",par_p1_other_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_p1_other_D4->getError()) << "    " << TString::Format("%0.3f",par_p2_other_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_p2_other_D4->getError()) << "    " << endl;
+  // cout << "other D4" << "      " << TString::Format("%0.3f",par_a0_other_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_a0_other_D4->getError()) << "    " << TString::Format("%0.3f",par_a1_other_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_a1_other_D4->getError()) << "    " << TString::Format("%0.3f",par_a2_other_D4->getVal()) << " +/- " << TString::Format("%0.3f",par_a2_other_D4->getError()) << "    " << endl;
 
 
 
