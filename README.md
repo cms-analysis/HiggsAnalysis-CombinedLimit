@@ -66,3 +66,15 @@ To make a limit plot:
 ```
 root -l -q makePlots.C+
 ```
+
+Background-only fits to tt background, before and after systematic variations:
+```
+root -l
+.x make_BkgOnly_ws.C("_btgUp");
+combine -M FitDiagnostics RPV_550_BkgOnlyCard.txt --plots --saveShapes --saveNormalizations -n _btgUp
+root -l fitDiagnostics_btgUp.root
+shapes_fit_b->cd();
+D1->cd();
+TT->Draw();
+etc.
+```
