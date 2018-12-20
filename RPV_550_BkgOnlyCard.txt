@@ -1,0 +1,25 @@
+Signal Region 1 Datacard -- signal category
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+shapes data_obs    *    MVA_BkgOnly_ws.root wspace:data_obs_$CHANNEL
+shapes TT          *    MVA_BkgOnly_ws.root wspace:background_tt_$CHANNEL
+shapes SIG         *    MVA_BkgOnly_ws.root sigMC_th1_$CHANNEL
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+bin          D1  D2  D3  D4 
+observation  -1  -1  -1  -1   
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1
+bin                   D1     D1     D2     D2     D3     D3     D4     D4
+process               SIG    TT     SIG    TT     SIG    TT     SIG    TT
+process               0      1      0      1      0      1      0      1
+rate                  -1     1      -1     1      -1     1      -1     1
+-------------------------------------------------------------------------------------------------------------------------------------------
+# Normal uncertainties in the signal region
+lumi_13TeV      lnN   1.05   -      -      1.05   -      -      1.05   -      -      1.05   -      -     
+-------------------------------------------------------------------------------------------------------------------------------------------
+a2_tt param 0.1 -0.2/+0.2
