@@ -108,22 +108,16 @@ void make_BkgOnly_ws(string syst = "") {
   // file for obtaining histograms
   TFile* file = TFile::Open("Keras_V1.2.4/njets_rebin_for_Aron.root");
 
-  string tt_file = "---------------------------------------------";
-  
-  tt_file = "D1_TT_h_njets_pt30_1l"+syst;
-  TH1D* data_th1_D1 = (TH1D*)file->Get(tt_file.c_str()); // treat tt MC as the data
+  TH1D* data_th1_D1 = (TH1D*)file->Get(("D1_TT_h_njets_pt30_1l"+syst).c_str()); // treat tt MC as the data
   TH1D* sigMC_th1_D1 = (TH1D*)file->Get("D1_RPV_550_h_njets_pt30_1l");
 
-  tt_file = "D2_TT_h_njets_pt30_1l"+syst;
-  TH1D* data_th1_D2 = (TH1D*)file->Get(tt_file.c_str()); // treat tt MC as the data
+  TH1D* data_th1_D2 = (TH1D*)file->Get(("D2_TT_h_njets_pt30_1l"+syst).c_str()); // treat tt MC as the data
   TH1D* sigMC_th1_D2 = (TH1D*)file->Get("D2_RPV_550_h_njets_pt30_1l");
 
-  tt_file = "D3_TT_h_njets_pt30_1l"+syst;
-  TH1D* data_th1_D3 = (TH1D*)file->Get(tt_file.c_str()); // treat tt MC as the data
+  TH1D* data_th1_D3 = (TH1D*)file->Get(("D3_TT_h_njets_pt30_1l"+syst).c_str()); // treat tt MC as the data
   TH1D* sigMC_th1_D3 = (TH1D*)file->Get("D3_RPV_550_h_njets_pt30_1l");
 
-  tt_file = "D4_TT_h_njets_pt30_1l"+syst;
-  TH1D* data_th1_D4 = (TH1D*)file->Get(tt_file.c_str()); // treat tt MC as the data
+  TH1D* data_th1_D4 = (TH1D*)file->Get(("D4_TT_h_njets_pt30_1l"+syst).c_str()); // treat tt MC as the data
   TH1D* sigMC_th1_D4 = (TH1D*)file->Get("D4_RPV_550_h_njets_pt30_1l");
 
 

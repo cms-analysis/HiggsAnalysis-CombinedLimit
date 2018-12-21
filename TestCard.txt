@@ -1,0 +1,37 @@
+Signal Region 1 Datacard -- signal category
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+shapes data_obs    *    MVA_$MODEL_$MASS_ws.root wspace:data_obs_$CHANNEL
+shapes TT          *    MVA_$MODEL_$MASS_ws.root wspace:background_tt_$CHANNEL
+shapes OTHER       *    MVA_$MODEL_$MASS_ws.root otherMC_th1_$CHANNEL $CHANNEL_$PROCESS_$SYSTEMATIC
+shapes SIG         *    MVA_$MODEL_$MASS_ws.root sigMC_th1_$CHANNEL $CHANNEL_$PROCESS_$SYSTEMATIC
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+bin          D1  D2  D3  D4 
+observation  -1  -1  -1  -1   
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1
+bin                   D1     D1     D1     D2     D2     D2     D3     D3     D3     D4     D4     D4            
+process               SIG    TT     OTHER  SIG    TT     OTHER  SIG    TT     OTHER  SIG    TT     OTHER        
+process               0      1      2      0      1      2      0      1      2      0      1      2                
+rate                  -1     1      -1     -1     1      -1     -1     1      -1     -1     1      -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+# Normal uncertainties in the signal region
+lumi_13TeV      lnN   1.05   -      -      1.05   -      -      1.05   -      -      1.05   -      -     
+-------------------------------------------------------------------------------------------------------------------------------------------
+#JER shape             1      -      1      1      -      1      1      -      1      1      -      1
+#JEC shape             1      -      1      1      -      1      1      -      1      1      -      1
+-------------------------------------------------------------------------------------------------------------------------------------------
+#np_tt_JECup param 0.0 1.0
+#np_tt_JECdown param 0.0 1.0
+#np_tt_JERup param 0.0 1.0
+#np_tt_JERdown param 0.0 1.0
+a2_tt param 0.1 -0.2/+0.2
+#a2_tt_D1 param 0.1 -0.2/+0.2
+#a2_tt_D2 param 0.1 -0.2/+0.2
+#a2_tt_D3 param 0.1 -0.2/+0.2
+#a2_tt_D4 param 0.1 -0.2/+0.2
