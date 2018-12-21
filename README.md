@@ -29,27 +29,30 @@ scram b -j8
 
 ### Example
 
-To make the RooFit workspace for combine
+To make the RooFit workspace for combine.  The workspace goes into
+a file called MVA_RPV_550_ws.root.  Can substitute other versions, models, and mass points.
 ```
-root -q -l make_MVA_8bin_ws.C
+root -l -q 'make_MVA_8bin_ws.C("Keras_V1.2.4","RPV","550")'
 ```
 
-Calculate quick asymptotic limits.  Outputs a file called higgsCombineTest.AsymptoticLimits.mH120.root
+Calculate quick asymptotic limits.  Outputs a file called
+higgsCombineTest.AsymptoticLimits.mH550.MODELRPV.root
 which contains the expected (and observed) limits.
-The second command does the same but instead names the file higgsCombineRPV.AsymptoticLimits.mH550.root
 ```
-combine -M AsymptoticLimits RPV_550_TestCard.txt
-combine -M AsymptoticLimits RPV_550_TestCard.txt -m 550 -n RPV
+combine -M AsymptoticLimits TestCard.txt -m 550 --keyword-value MODEL=RPV
 ```
 
-Calculate the significance using the asimov dataset and expected signal strength of 1
+Calculate the significance using the asimov dataset and expected signal strength of 1.
+Significance is printed to screen and is available in the file
+higgsCombineTest.Significance.mH550.MODELRPV.root
 ```
-combine -M Significance RPV_550_TestCard.txt -t -1 --expectSignal=1
+combine -M Significance TestCard.txt -t -1 --expectSignal=1 -m 550 --keyword-value MODEL=RPV
 ```
 
-Run the fit and produce a root file called fitDiagnostics.root that contains RooPlots and RooFitResults:
+Run the fit and produce a root file called fitDiagnostics.root that contains RooPlots and RooFitResults,
+as well as a file called higgsCombineTest.FitDiagnostics.mH550.MODELRPV.root that has the signal strength.
 ```
-combine -M FitDiagnostics RPV_550_TestCard.txt --plots --saveShapes --saveNormalizations
+combine -M FitDiagnostics TestCard.txt --plots --saveShapes --saveNormalizations
 ```
 
 Produce formatted plots of fit results for each MVA bin:
