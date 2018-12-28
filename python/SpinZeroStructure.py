@@ -293,6 +293,7 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         self.sqrts = None
         self.fixed = []
         self.floated = []
+        self.noRV = self.noRF = True
         #not doing muAsPOI or fixMu, there are too many permutations.
         #should just be set when running combine.
 
@@ -318,6 +319,12 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
                 processed.append(po)
             if po.lower() == "uservoverrf":
                 self.uservoverrf = True
+                processed.append(po)
+            if po.lower() == "norv":
+                self.noRV = True
+                processed.append(po)
+            if po.lower() == "norf":
+                self.noRF = True
                 processed.append(po)
 
         if self.uservoverrf and not self.scalemuvfseparately:
@@ -348,6 +355,11 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
             self.floated = ["R"]
         else:
             assert False, "?????"
+
+        if self.noRV:
+            self.fixed = [_ for _ in self.fixed if "RV" not in _]
+        if self.noRF:
+            self.fixed = [_ for _ in self.fixed if "RF" not in _]
 
         return processed
 
