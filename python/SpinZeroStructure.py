@@ -417,11 +417,16 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
     def __init__(self):
         self.anomalouscouplings = []
+        self.turnoff = []
         super(HZZAnomalousCouplingsFromHistograms, self).__init__()
 
     def setPhysicsOptions(self, physOptions):
         if not any(po.startswith("sqrts=") for po in physOptions):
             physOptions = physOptions + ["sqrts=13"]
+        for po in physOptions:
+            if po.startswith("turnoff="):
+                self.turnoff += po.replace("turnoff=", "").split(",")
+                #po gets removed in super
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
         if self.sqrts != [13]:
             raise ValueError("HZZAnomalousCouplingsFromHistograms is set up for 13 TeV only")
@@ -496,6 +501,8 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         match = re.match("(gg|tt|bb|qq|Z|W)H_(0(?:PM|M|PH|L1|L1Zg)|((?:g(?:1|2|4|1prime2|hzgs1prime2)[1234])*)_(positive|negative))$", process)
         if not match:
             return super(HZZAnomalousCouplingsFromHistograms, self).getYieldScale(bin, process)
+
+        if match.group(1)+"H" in self.turnoff: return 0
 
         if match.group(1) in ("gg", "tt", "bb"): maxpower = 2; production = "ffH"
         elif match.group(1) in ("qq", "Z", "W"): maxpower = 4; production = "VVH"
