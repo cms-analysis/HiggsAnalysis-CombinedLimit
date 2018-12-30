@@ -39,7 +39,7 @@ public:
   }
 
   int FindBin(const U& x) const{
-    if (x==binEdges_.at(size()-1) && size()>1) return (int)(size()-2);
+    if (x>=binEdges_.at(size()-1) && size()>1) return (int)(size()-2);
     auto bbegin = binEdges_.begin();
     auto bend = binEdges_.end();
     auto match = std::upper_bound(bbegin, bend, x);
