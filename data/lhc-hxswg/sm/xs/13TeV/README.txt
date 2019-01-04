@@ -7,3 +7,4 @@ Announced in HN: https://hypernews.cern.ch/HyperNews/CMS/get/higgs/1738.html
 - The ZH cross-section include the contribution from ggZH but ggZH is also provided separately so that a subtraction of ZH-ggZH will give the normalisation of qqZH 
 - There are numbers provided separately for the cross-sections of (W+)H and (W-)H in addition to the sum of the two (these are the LAST two columns inside 13TeV-WH.txt).
 - Separate numbers for PDF and alpha_S are also provided:
+- The tHW cross-sections given are repeated from the value at 125.0 GeV. This is only to allow bulding a spline.
