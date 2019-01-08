@@ -167,8 +167,6 @@
 	<class name="RooSimultaneousOpt" />
 	<class name="RooSpline1D" />
 	<class name="RooSplineND" />
-	<class name="RooMomentMorphND" />
-	<class name="RooMomentMorphND::Grid" />
 	<class name="map<vector<int>,int>"/>
 	<class name="RooStarMomentMorph" />
 	<class name="RooStats::HistFactory::RooBSpline" />

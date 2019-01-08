@@ -43,7 +43,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/VVHZZ4L_RooSpinZeroPdf_1D_fast.h"
 
 #include "HiggsAnalysis/CombinedLimit/interface/HWWLVJJRooPdfs.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooMomentMorphND.h"
+//#include "HiggsAnalysis/CombinedLimit/interface/RooMomentMorphND.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooParametricShapeBinPdf.h"
