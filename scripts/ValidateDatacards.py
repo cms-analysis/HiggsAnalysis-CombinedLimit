@@ -24,6 +24,9 @@ parser.add_argument('--checkUncertOver', '-c', default=0.1, type=float,
                     help='Report uncertainties which have a normalisation effect larger than this fraction')
 parser.add_argument('--jsonFile', default='validation.json',
                     help='Path to the json file to read/write results from')
+parser.add_argument('--mass', default='*',
+                    help='Signal mass to use')
+
 
 args = parser.parse_args()
 
@@ -61,24 +64,31 @@ def print_process(js_dict, dict_key, err_type_msg):
         for mybin in js_dict[dict_key]:
           print "    For bin",mybin, "there were ", num_problems_peruncert[mybin]," such warnings. The affected processes are: ", json.dumps(js_dict[dict_key][mybin])
     else:
-      print ">>There were no warnings of type", err_type_msg
+      print ">>>There were no warnings of type", err_type_msg
 
 
 cb = ch.CombineHarvester()
 cb.SetFlag("check-negative-bins-on-import",0)
+cb.SetFlag('workspaces-use-clone', True)
 
 if not args.readOnly: 
-  cb.ParseDatacard(args.cards,"","","")
+  cb.ParseDatacard(args.cards,"","",mass=args.mass)
 
   ch.ValidateCards(cb,args.jsonFile,args.checkUncertOver)
 
 if args.printLevel > 0:
+  print "================================" 
+  print "=======Validation results======="
+  print "================================" 
   with open (args.jsonFile) as f:
     data = json.load(f)
-    print_uncertainty(data,"uncertVarySameDirect","\'up/down templates vary the yield in the same direction\'")
-    print_uncertainty(data,"emptySystematicShape","\'At least one of the up/down systematic uncertainty templates is empty\'")
-    print_uncertainty(data,"largeNormEff","\'Uncertainty has normalisation effect of more than %.1f%%\'"% (args.checkUncertOver*100))
-    print_uncertainty(data,"smallShapeEff","\'Uncertainty probably has no genuine shape effect%\'")
-    print_process(data,"emptyProcessShape","\'Empty process\'")
+    if not data:
+      print ">>>There were no warnings"
+    else :
+      print_uncertainty(data,"uncertVarySameDirect","\'up/down templates vary the yield in the same direction\'")
+      print_uncertainty(data,"emptySystematicShape","\'At least one of the up/down systematic uncertainty templates is empty\'")
+      print_uncertainty(data,"largeNormEff","\'Uncertainty has normalisation effect of more than %.1f%%\'"% (args.checkUncertOver*100))
+      print_uncertainty(data,"smallShapeEff","\'Uncertainty probably has no genuine shape effect\'")
+      print_process(data,"emptyProcessShape","\'Empty process\'")
 
 
