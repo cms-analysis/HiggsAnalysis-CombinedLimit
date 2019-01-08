@@ -591,6 +591,7 @@ namespace {
 	       gaus_b*s*poly2 +
 	       rootpiover2*(poly3*erf_a - poly4*erf_b ) )/amb;    
   }
+  /*
   double sixth(const double x, const double m, const double s) {
     const double root2 = sqrt(2);
     const double rootpiover2 = sqrt(M_PI/2.0);
@@ -634,6 +635,7 @@ namespace {
 gaus*rootpiover2*(m-x)*poly2 -
 gaus*rootpiover2*poly3*erf(erf_parm) ) );
   }
+  */
 
   double poly_conv(const double x, const double mean,
 		   const double sigma, const double a,
