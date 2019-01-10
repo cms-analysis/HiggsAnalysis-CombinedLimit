@@ -306,7 +306,7 @@ void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &a
     std::auto_ptr<TIterator> iterAll(allObjects.createIterator());
     std::auto_ptr<TIterator> iterVal(values.createIterator());
     for (RooAbsArg *v = (RooAbsArg *) iterVal->Next(); v != 0; v = (RooAbsArg *) iterVal->Next()) {
-        if (typeid(*v) != typeid(RooRealVar)) continue;
+        if (typeid(*v) != typeid(RooRealVar) && typeid(*v) != typeid(RooCategory)) continue;
         std::auto_ptr<TIterator> clientIter(v->clientIterator());
         for (RooAbsArg *a = (RooAbsArg *) clientIter->Next(); a != 0; a = (RooAbsArg *) clientIter->Next()) {
             if (allObjects.containsInstance(*a) && !clients.containsInstance(*a)) clients.add(*a);
