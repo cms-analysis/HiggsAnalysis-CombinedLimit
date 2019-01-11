@@ -1,4 +1,3 @@
-
 import ROOT
 import re, os, os.path
 from sys import stderr, stdout
@@ -108,7 +107,6 @@ class ModelBuilder(ModelBuilderBase):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
     def doModel(self):
-
         self.doObservables()
         self.physics.doParametersOfInterest()
 

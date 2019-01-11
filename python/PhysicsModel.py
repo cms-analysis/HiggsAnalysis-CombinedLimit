@@ -249,9 +249,6 @@ def getHiggsProdDecMode(bin,process,options):
     decaySource   = options.fileName+":"+bin # by default, decay comes from the datacard name or bin label
     if "_" in process: 
         (processSource, decaySource) = (process.split("_")[0],process.split("_")[-1]) # ignore anything in the middle for SM-like higgs
-        if (decaySource=='had' or decaySource=='lep'): # the process is missing the decay string
-            print "missing decay string"
-            decaySource=options.fileName+":"+bin # put it back to the default
         if decaySource not in ALL_HIGGS_DECAYS:
             print "ERROR", "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
             #raise RuntimeError, "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
@@ -287,10 +284,6 @@ class SMLikeHiggsModel(PhysicsModel):
         pass
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
-        if process=="ggH_hzz": return self.getHiggsSignalYieldScale('ggH', 'hzz', '13TeV') # hzz process in the hww datacard is a background
-        if process=="ggH_hww125": return self.getHiggsSignalYieldScale('ggH', 'hww', '13TeV') # hww process in the htt datacard is a background
-        if process=="qqH_hww125": return self.getHiggsSignalYieldScale('qqH', 'hww', '13TeV') # hww process in the htt datacard is a background
-        #if process=="H_htt": return self.getHiggsSignalYieldScale('ggH', 'htt', '13TeV') # hack to make combination work, since WW datacrd has an improper naming 
         if not self.DC.isSignal[process]: return 1
         (processSource, foundDecay, foundEnergy) = getHiggsProdDecMode(bin,process,self.options)
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)

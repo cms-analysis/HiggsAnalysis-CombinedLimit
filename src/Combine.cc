@@ -122,7 +122,7 @@ Combine::Combine() :
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
       ("freezeParameters", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these parameters.")      
       ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
-      ("useAttributes", po::value<bool>(&useAttributes_)->default_value(false), "Use RooFit atttributes to build nuisance groups instead of defined sets")
+      ("useAttributes", po::value<bool>(&useAttributes_)->default_value(false), "Use RooFit atttributes to build nuisance groups for freezing instead of defined sets")
       ;
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")

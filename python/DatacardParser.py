@@ -157,8 +157,7 @@ def parseCard(file, options):
                     if ret.isSignal[p] == None:
                         ret.isSignal[p] = s
                     elif ret.isSignal[p] != s:
-                        #raise RuntimeError, "Process %s is declared as signal in some bin and as background in some other bin" % p
-                        print "WARNING: Process %s is declared as signal in some bin and as background in some other bin" % p
+                        raise RuntimeError, "Process %s is declared as signal in some bin and as background in some other bin" % p
                 ret.signals = [p for p,s in ret.isSignal.items() if s == True]
                 if len(ret.signals) == 0 and not options.allowNoSignal: raise RuntimeError, "You must have at least one signal process (id <= 0)"
             if f[0] == "rate":
