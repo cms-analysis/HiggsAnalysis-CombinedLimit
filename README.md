@@ -37,14 +37,6 @@ bash sparse-checkout-https.sh
 scram b
 ```
 
-After compiling, need to add the following line:
-```
-  ROOT.v5.TFormula.SetMaxima(10000)
-```
-after about the 12th line of this file:  CMSSW_8_1_0/bin/slc6_amd64_gcc530/text2workspace.py
-
-
-
 ### Example
 
 To make a RooFit workspace that contains our PDF definitions and input histograms:
