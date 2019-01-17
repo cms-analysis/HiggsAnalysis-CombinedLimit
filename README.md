@@ -27,6 +27,25 @@ scram b clean
 scram b -j8
 ```
 
+Add CombineTools from CombineHarvester to your work area:
+ (this is needed for impact plots, and possible crab submission)
+```
+From a CMSSW_8_1_0 release:
+cd $CMSSW_BASE/src 
+curl https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh > sparse-checkout-https.sh
+bash sparse-checkout-https.sh
+scram b
+```
+
+After compiling, need to add the following line:
+```
+  ROOT.v5.TFormula.SetMaxima(10000)
+```
+to this file
+   CMSSW_8_1_0/bin/slc6_amd64_gcc530/text2workspace.py
+after about the 12th
+
+
 ### Example
 
 To make a RooFit workspace that contains our PDF definitions and input histograms:
