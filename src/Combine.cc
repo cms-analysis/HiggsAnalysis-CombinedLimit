@@ -99,6 +99,7 @@ Combine::Combine() :
     miscOptions_("Common miscellaneous options"),
     rMin_(std::numeric_limits<float>::quiet_NaN()), 
     rMax_(std::numeric_limits<float>::quiet_NaN()) {
+    ROOT::v5::TFormula::SetMaxima(10000);
     namespace po = boost::program_options;
     statOptions_.add_options()
       ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Include constrained systematic uncertainties, -S 0 will ignore systematics constraint terms in the datacard.")
