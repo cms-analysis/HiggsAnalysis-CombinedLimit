@@ -41,9 +41,8 @@ After compiling, need to add the following line:
 ```
   ROOT.v5.TFormula.SetMaxima(10000)
 ```
-to this file
-   CMSSW_8_1_0/bin/slc6_amd64_gcc530/text2workspace.py
-after about the 12th
+after about the 12th line of this file:  CMSSW_8_1_0/bin/slc6_amd64_gcc530/text2workspace.py
+
 
 
 ### Example
@@ -182,7 +181,29 @@ Print the parameters resulting from the fit:
 python test/diffNuisances.py --all --abs fitDiagnostics2017RPV550.root
 ```
 
+--------------------------------------------------
 
+Study the impacts:
+  (you need CombineTools from CombineHarvester for this step to work)
+
+Fit for each POI:
+```
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2017_RPV_550.root -m 550 --doInitialFit --robustFit 1```
+
+Scan for each nuisance parameter.  This does MultiDimFit --algo impact for each nuisance parameter
+```
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2017_RPV_550.root -m 550 --doFits --parallel 4
+```
+
+Collect output and write to json file:
+```
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2017_RPV_550.root -m 550 -o impacts.json
+```
+
+Plot the impacts
+```
+../../CombineHarvester/CombineTools/scripts/plotImpacts.py -i impacts.json -o impacts
+```
 
 --------------------------------------------------
 
