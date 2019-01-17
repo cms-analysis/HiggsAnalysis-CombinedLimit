@@ -31,7 +31,7 @@ scram b -j8
 
 To make a RooFit workspace that contains our PDF definitions and input histograms:
 
-For 2016:
+For 2016 RPV:
 ```
 root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","350")'
 root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","450")'
@@ -58,7 +58,7 @@ The workspace goes into a file called MVA_<year>_<model>_<mass>_ws.root
 
 Convert the card file (and the PDFs and input histograms references therein) into a workspace:
 
-For 2016:
+For 2016 RPV:
 ```
 text2workspace.py Card2016.txt -o ws_2016_RPV_350.root -m 350 --keyword-value MODEL=RPV
 text2workspace.py Card2016.txt -o ws_2016_RPV_450.root -m 450 --keyword-value MODEL=RPV
@@ -68,7 +68,7 @@ text2workspace.py Card2016.txt -o ws_2016_RPV_750.root -m 750 --keyword-value MO
 text2workspace.py Card2016.txt -o ws_2016_RPV_850.root -m 850 --keyword-value MODEL=RPV
 ```
 
-For 2017 RPV
+For 2017 RPV:
 ```
 text2workspace.py Card2017.txt -o ws_2017_RPV_350.root -m 350 --keyword-value MODEL=RPV
 text2workspace.py Card2017.txt -o ws_2017_RPV_450.root -m 450 --keyword-value MODEL=RPV
@@ -86,14 +86,14 @@ fed to combine in the following commands.
 
 Calculate quick asymptotic limits:
 
-For 2016:
+For 2016 RPV:
 ```
-combine -M AsymptoticLimits ws_2016_RPV_350.root -m 350 --keyword-value MODEL=RPV --verbose 2 -n 2016RPV350 > log_2016RPV350_Asymp.txt
-combine -M AsymptoticLimits ws_2016_RPV_450.root -m 450 --keyword-value MODEL=RPV --verbose 2 -n 2016RPV450 > log_2016RPV450_Asymp.txt
-combine -M AsymptoticLimits ws_2016_RPV_550.root -m 550 --keyword-value MODEL=RPV --verbose 2 -n 2016RPV550 > log_2016RPV550_Asymp.txt
-combine -M AsymptoticLimits ws_2016_RPV_650.root -m 650 --keyword-value MODEL=RPV --verbose 2 -n 2016RPV650 > log_2016RPV650_Asymp.txt
-combine -M AsymptoticLimits ws_2016_RPV_750.root -m 750 --keyword-value MODEL=RPV --verbose 2 -n 2016RPV750 > log_2016RPV750_Asymp.txt
-combine -M AsymptoticLimits ws_2016_RPV_850.root -m 850 --keyword-value MODEL=RPV --verbose 2 -n 2016RPV850 > log_2016RPV850_Asymp.txt
+combine -M AsymptoticLimits ws_2016_RPV_350.root -m 350 --keyword-value MODEL=RPV --verbose 2 -n 2016 > log_2016RPV350_Asymp.txt
+combine -M AsymptoticLimits ws_2016_RPV_450.root -m 450 --keyword-value MODEL=RPV --verbose 2 -n 2016 > log_2016RPV450_Asymp.txt
+combine -M AsymptoticLimits ws_2016_RPV_550.root -m 550 --keyword-value MODEL=RPV --verbose 2 -n 2016 > log_2016RPV550_Asymp.txt
+combine -M AsymptoticLimits ws_2016_RPV_650.root -m 650 --keyword-value MODEL=RPV --verbose 2 -n 2016 > log_2016RPV650_Asymp.txt
+combine -M AsymptoticLimits ws_2016_RPV_750.root -m 750 --keyword-value MODEL=RPV --verbose 2 -n 2016 > log_2016RPV750_Asymp.txt
+combine -M AsymptoticLimits ws_2016_RPV_850.root -m 850 --keyword-value MODEL=RPV --verbose 2 -n 2016 > log_2016RPV850_Asymp.txt
 ```
 
 For 2017 RPV:
@@ -118,7 +118,7 @@ To make a limit plot:
 Collect the above asymptotic limit root files into a results directory, such as fit_results_v5_Jan17_2019
 
 ```
-root -l -q makePlots.C+("Jan17_2019","fit_results_v5_Jan17_2019","2017","RPV")
+root -l -q 'makePlots.C+("Jan17_2019","fit_results_v5_Jan17_2019","2017","RPV")'
 ```
 (the first arguement above is just intended to be today's date, or other tag)
 
