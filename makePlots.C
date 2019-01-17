@@ -238,7 +238,7 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   // Extract limit results from set of root files produced by Higgs Combine tool
 
   //string filebase="/uscms_data/d2/soha/stealth/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/limits_MVA_v1/higgsCombine"+channel+".AsymptoticLimits.mH";
-  string filebase="/uscms_data/d2/soha/stealth/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/"+filedir+"/higgsCombine"+year+model;
+  string filebase="/uscms_data/d2/soha/stealth/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/"+filedir+"/higgsCombine"+year+".AsymptoticLimits.mH";
 
   string fitter_files[npoints];
 
@@ -263,11 +263,11 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   // Loop over mass points
   for (int i=0; i<npoints; i++) {
     if (model=="RPV") 
-      fitter_files[i] = filebase+xpoints_strs[i]+".AsymptoticLimits.mH"+xpoints_strs[i]+".MODELRPV.root";
+      fitter_files[i] = filebase+xpoints_strs[i]+".MODELRPV.root";
     else if (model=="SYY")
-      fitter_files[i] = filebase+xpoints_strs[i]+".AsymptoticLimits.mH"+xpoints_strs[i]+".MODELSYY.root";
+      fitter_files[i] = filebase+xpoints_strs[i]+".MODELSYY.root";
     else if (model=="SHH")
-      fitter_files[i] = filebase+xpoints_strs[i]+".AsymptoticLimits.mH"+xpoints_strs[i]+".MODELSHH.root";
+      fitter_files[i] = filebase+xpoints_strs[i]+".MODELSHH.root";
     cout << fitter_files[i] << endl;
     // Load the root file and read the tree and leaves
     //TFile *f = new TFile(fitter_files[i].c_str());
@@ -607,13 +607,13 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
     }
     if (year=="2017") {
       if (STOP_PAIRS) {
-	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=NN.N fb^{-1}");
+	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=41.5 fb^{-1}");
       }
       if (SYST_HALF) {
-	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=NN.N fb^{-1}, HALF SYST");
+	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=41.5 fb^{-1}, HALF SYST");
       }
       if (SYST_DOUBLE) {
-	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=NN.N fb^{-1}, DOUBLE SYST");
+	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=41.5 fb^{-1}, DOUBLE SYST");
       }
     }
     cmstext->Draw("same");
