@@ -31,7 +31,7 @@
 #include "TLine.h"
 #include "TLegend.h"
 //#include "/uscms/home/soha/scripts/CMS_lumi.h"
-void makePlots() {
+void makePlots(const string today = "Jan17_2019", const string filedir = "fit_results_v5_Jan17_2019", const string year = "2017", const string model = "RPV") {
 
   // =============================================================
   TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
@@ -188,7 +188,7 @@ void makePlots() {
   //string channel = "SYY";
   //string channel = "SHH";
 
-  string channel = "RPVL";
+  //string channel = "RPVL";
   //string channel = "SYYL";
   //string channel = "SHHL";
 
@@ -201,11 +201,11 @@ void makePlots() {
   bool SYST_HALF = false;
   bool SYST_DOUBLE = false;
   
-  string date = "Nov29_18";
+  string date = "Jan17_19";
   string ssave = "---------------------------------------------------------------";
-  string ssave_base = "./sigBrLim_"+channel+"_35p9fb_MVA_v1_";
+  string ssave_base = "./sigBrLim_"+model+"_"+year+"_";
 
-  bool DRAW_OBS = false;
+  bool DRAW_OBS = true;
   bool DRAW_LOGOS = false;
 
   // ****************************************************
@@ -238,7 +238,7 @@ void makePlots() {
   // Extract limit results from set of root files produced by Higgs Combine tool
 
   //string filebase="/uscms_data/d2/soha/stealth/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/limits_MVA_v1/higgsCombine"+channel+".AsymptoticLimits.mH";
-  string filebase="/uscms_data/d2/soha/stealth/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/limits_MVA_v1/higgsCombineTest.AsymptoticLimits.mH";
+  string filebase="/uscms_data/d2/soha/stealth/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/"+filedir+"/higgsCombine"+year+model;
 
   string fitter_files[npoints];
 
@@ -262,7 +262,12 @@ void makePlots() {
 
   // Loop over mass points
   for (int i=0; i<npoints; i++) {
-    fitter_files[i] = filebase+xpoints_strs[i]+".root";
+    if (model=="RPV") 
+      fitter_files[i] = filebase+xpoints_strs[i]+".AsymptoticLimits.mH"+xpoints_strs[i]+".MODELRPV.root";
+    else if (model=="SYY")
+      fitter_files[i] = filebase+xpoints_strs[i]+".AsymptoticLimits.mH"+xpoints_strs[i]+".MODELSYY.root";
+    else if (model=="SHH")
+      fitter_files[i] = filebase+xpoints_strs[i]+".AsymptoticLimits.mH"+xpoints_strs[i]+".MODELSHH.root";
     cout << fitter_files[i] << endl;
     // Load the root file and read the tree and leaves
     //TFile *f = new TFile(fitter_files[i].c_str());
@@ -321,10 +326,10 @@ void makePlots() {
   double projectingRLimitYmin = 0.01, projectingRLimitYmax = 100;
   string projectingRLimitXYtitles = ";m_{#tilde{t}} [GeV]; 95% CL limit on #sigma#timesBr [pb]";
 
-  if (STOP_PAIRS) ssave = ssave_base+date+"_CLs";
+  if (STOP_PAIRS) ssave = ssave_base+today+"_CLs";
 
-  if (SYST_HALF) ssave = ssave_base+"half_"+date+"_CLs";
-  if (SYST_DOUBLE) ssave = ssave_base+"double_"+date+"_CLs";
+  if (SYST_HALF) ssave = ssave_base+"half_"+today+"_CLs";
+  if (SYST_DOUBLE) ssave = ssave_base+"double_"+today+"_CLs";
 
   double limits_exp[npoints];
 
@@ -356,20 +361,28 @@ void makePlots() {
     pt->SetTextSize(0.035);
   }
 
-  if (channel=="RPV")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t} #rightarrow (t #tilde{#chi}^{0}_{1})(t #tilde{#chi}^{0}_{1}) #rightarrow (t jjj)(t jjj)");
-  else if (channel=="RPVL")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t} #rightarrow (t #tilde{#chi}^{0}_{1})(t #tilde{#chi}^{0}_{1}) #rightarrow (t jjj)(t jjj), Lepton(s)");
-  else if (channel=="RPV2L")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t} #rightarrow (t #tilde{#chi}^{0}_{1})(t #tilde{#chi}^{0}_{1}) #rightarrow (t jjj)(t jjj), 2 Leptons");
-  else if (channel=="SYY")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SYY coupling");
-  else if (channel=="SYYL")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SYY coupling, Lepton(s)");
-  else if (channel=="SHH")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SHH coupling");
-  else if (channel=="SHHL")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SHH coupling, Lepton(s)");
+
+  if (model=="RPV")
+    pt->AddText("pp #rightarrow #tilde{t}#tilde{t} #rightarrow (t #tilde{#chi}^{0}_{1})(t #tilde{#chi}^{0}_{1}) #rightarrow (t jjj)(t jjj), Lepton");
+  else if (model=="SYY")
+    pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SYY coupling, Lepton");
+  else if (model=="SHH")
+    pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SHH coupling, Lepton");
+
+  // if (channel=="RPV")
+  //   pt->AddText("pp #rightarrow #tilde{t}#tilde{t} #rightarrow (t #tilde{#chi}^{0}_{1})(t #tilde{#chi}^{0}_{1}) #rightarrow (t jjj)(t jjj)");
+  // else if (channel=="RPVL")
+  //   pt->AddText("pp #rightarrow #tilde{t}#tilde{t} #rightarrow (t #tilde{#chi}^{0}_{1})(t #tilde{#chi}^{0}_{1}) #rightarrow (t jjj)(t jjj), Lepton");
+  // else if (channel=="RPV2L")
+  //   pt->AddText("pp #rightarrow #tilde{t}#tilde{t} #rightarrow (t #tilde{#chi}^{0}_{1})(t #tilde{#chi}^{0}_{1}) #rightarrow (t jjj)(t jjj), 2 Leptons");
+  // else if (channel=="SYY")
+  //   pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SYY coupling");
+  // else if (channel=="SYYL")
+  //   pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SYY coupling, Lepton");
+  // else if (channel=="SHH")
+  //   pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SHH coupling");
+  // else if (channel=="SHHL")
+  //   pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SHH coupling, Lepton");
 
   cout << "npoints = " << npoints;
   cout << endl;
@@ -450,12 +463,18 @@ void makePlots() {
   br1->SetTextAlign(12);
   br1->SetTextFont(42);
   br1->SetTextSize(0.035);
-  if (channel=="RPV" || channel=="RPVL" || channel=="RPV2L")
+  if (model=="RPV")
     br1->AddText("B(#tilde{t} #rightarrow t #tilde{#chi}^{0}_{1}) = 1.0");
-  else if (channel=="SYY" || channel=="SYYL")
+  else if (model=="SYY")
     br1->AddText("B(#tilde{t} #rightarrow t#tilde{S}g) = 1.0");
-  else if (channel=="SHH" || channel=="SHHL")
+  else if (model=="SHH")
     br1->AddText("B(#tilde{t} #rightarrow t#tilde{S}) = 1.0");
+  // if (channel=="RPV" || channel=="RPVL" || channel=="RPV2L")
+  //   br1->AddText("B(#tilde{t} #rightarrow t #tilde{#chi}^{0}_{1}) = 1.0");
+  // else if (channel=="SYY" || channel=="SYYL")
+  //   br1->AddText("B(#tilde{t} #rightarrow t#tilde{S}g) = 1.0");
+  // else if (channel=="SHH" || channel=="SHHL")
+  //   br1->AddText("B(#tilde{t} #rightarrow t#tilde{S}) = 1.0");
   br1->Draw("same");
 
   TPaveText *br2 = new TPaveText(0.207, 0.204, 0.357, 0.204+0.066, "ndc");
@@ -464,12 +483,18 @@ void makePlots() {
   br2->SetTextAlign(12);
   br2->SetTextFont(42);
   br2->SetTextSize(0.035);
-  if (channel=="RPV" || channel=="RPVL" || channel=="RPV2L")
+  if (model=="RPV")
     br2->AddText("B(#tilde{#chi}^{0}_{1} #rightarrow jjj) = 1.0");
-  else if (channel=="SYY" || channel=="SYYL")
+  else if (model=="SYY")
     br2->AddText("B(#tilde{S} #rightarrow S#tilde{G}) = 1.0");
-  else if (channel=="SHH" || channel=="SHHL")
+  else if (model=="SHH")
     br2->AddText("B(#tilde{S} #rightarrow S#tilde{G}) = 1.0");
+  // if (channel=="RPV" || channel=="RPVL" || channel=="RPV2L")
+  //   br2->AddText("B(#tilde{#chi}^{0}_{1} #rightarrow jjj) = 1.0");
+  // else if (channel=="SYY" || channel=="SYYL")
+  //   br2->AddText("B(#tilde{S} #rightarrow S#tilde{G}) = 1.0");
+  // else if (channel=="SHH" || channel=="SHHL")
+  //   br2->AddText("B(#tilde{S} #rightarrow S#tilde{G}) = 1.0");
   br2->Draw("same");
 
   TPaveText *br3 = new TPaveText(0.207, 0.150, 0.357, 0.150+0.066, "ndc");
@@ -478,10 +503,14 @@ void makePlots() {
   br3->SetTextAlign(12);
   br3->SetTextFont(42);
   br3->SetTextSize(0.035);
-  if (channel=="SYY" || channel=="SYYL")
+  if (model=="SYY")
     br3->AddText("B(S #rightarrow gg) = 1.0");
-  if (channel=="SHH" || channel=="SHHL")
+  if (model=="SHH")
     br3->AddText("B(S #rightarrow bb) = 1.0");
+  // if (channel=="SYY" || channel=="SYYL")
+  //   br3->AddText("B(S #rightarrow gg) = 1.0");
+  // if (channel=="SHH" || channel=="SHHL")
+  //   br3->AddText("B(S #rightarrow bb) = 1.0");
   br3->Draw("same");
 
   if (DRAW_LOGOS) {
@@ -513,20 +542,31 @@ void makePlots() {
   if(DRAW_OBS){
     legend->AddEntry(grObs,"Observed limit", "lp");
   }
-  if (channel=="RPV" || channel=="RPVL" || channel=="RPV2L")
+  if (model=="RPV")
     legend->AddEntry(grTheoryErr,"RPV stop (with xsec uncertainty)", "lf");
-  else if (channel=="SYY" || channel=="SYYL")
+  else if (model=="SYY")
     legend->AddEntry(grTheoryErr,"SYY (with xsec uncertainty)", "lf");
-  else if (channel=="SHH" || channel=="SHHL")
+  else if (model=="SHH")
     legend->AddEntry(grTheoryErr,"SHH (with xsec uncertainty)", "lf");
+  // if (channel=="RPV" || channel=="RPVL" || channel=="RPV2L")
+  //   legend->AddEntry(grTheoryErr,"RPV stop (with xsec uncertainty)", "lf");
+  // else if (channel=="SYY" || channel=="SYYL")
+  //   legend->AddEntry(grTheoryErr,"SYY (with xsec uncertainty)", "lf");
+  // else if (channel=="SHH" || channel=="SHHL")
+  //   legend->AddEntry(grTheoryErr,"SHH (with xsec uncertainty)", "lf");
   legend->Draw();
 
 
   grTheoryErr->Draw("3,same");
   grTheory->Draw("l,same");
 
-  // ready mean, so that it appears over the signal lines
+  // redraw mean, so that it appears over the signal lines
   grMean->Draw("lp");
+
+  // redraw obs, so that it appears over the expected lines
+  if (DRAW_OBS) {
+    grObs->Draw("lp");
+  }
 
   lineOne->Delete();
   //lb.getLine()->SetLineColor(kRed);
@@ -553,14 +593,28 @@ void makePlots() {
     cmstext->SetTextAlign(12);
     cmstext->SetTextFont(42);
     cmstext->SetTextSize(0.035);
-    if (STOP_PAIRS) {
-      cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}");
+
+    if (year=="2016") {
+      if (STOP_PAIRS) {
+	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}");
+      }
+      if (SYST_HALF) {
+	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}, HALF SYST");
+      }
+      if (SYST_DOUBLE) {
+	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}, DOUBLE SYST");
+      }
     }
-    if (SYST_HALF) {
-      cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}, HALF SYST");
-    }
-    if (SYST_DOUBLE) {
-      cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}, DOUBLE SYST");
+    if (year=="2017") {
+      if (STOP_PAIRS) {
+	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=NN.N fb^{-1}");
+      }
+      if (SYST_HALF) {
+	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=NN.N fb^{-1}, HALF SYST");
+      }
+      if (SYST_DOUBLE) {
+	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=NN.N fb^{-1}, DOUBLE SYST");
+      }
     }
     cmstext->Draw("same");
 
