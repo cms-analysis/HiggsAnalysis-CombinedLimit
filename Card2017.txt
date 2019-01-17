@@ -1,0 +1,121 @@
+Datacard for 2017
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+shapes data_obs    *    MVA_2017_$MODEL_$MASS_ws.root wspace:data_obs_$CHANNEL
+shapes TT          *    MVA_2017_$MODEL_$MASS_ws.root wspace:background_tt_$CHANNEL
+shapes OTHER       *    MVA_2017_$MODEL_$MASS_ws.root otherMC_th1_$CHANNEL $CHANNEL_$PROCESS_$SYSTEMATIC
+shapes SIG         *    MVA_2017_$MODEL_$MASS_ws.root sigMC_th1_$CHANNEL $CHANNEL_$PROCESS_$SYSTEMATIC
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+bin          D1  D2  D3  D4 
+observation  -1  -1  -1  -1   
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1
+bin                   D1     D1     D1     D2     D2     D2     D3     D3     D3     D4     D4     D4            
+process               SIG    TT     OTHER  SIG    TT     OTHER  SIG    TT     OTHER  SIG    TT     OTHER        
+process               0      1      2      0      1      2      0      1      2      0      1      2                
+rate                  -1     1      -1     -1     1      -1     -1     1      -1     -1     1      -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+# Normal uncertainties in the signal region
+lumi_13TeV      lnN   1.023   -     1.023  1.023  -      1.023  1.023  -      1.023  1.023  -      1.023
+-------------------------------------------------------------------------------------------------------------------------------------------
+# Shape systematics on signal and other backgrounds
+JEC shape             1      -      1      1      -      1      1      -      1      1      -      1
+JER shape             1      -      1      1      -      1      1      -      1      1      -      1
+btg shape             1      -      1      1      -      1      1      -      1      1      -      1
+lep shape             1      -      1      1      -      1      1      -      1      1      -      1
+pdf shape             1      -      -      1      -      -      1      -      -      1      -      -
+#ht  shape             -      -      1      -      -      1      -      -      1      -      -      1
+scl  shape            1      -      1      1      -      1      1      -      1      1      -      1
+-------------------------------------------------------------------------------------------------------------------------------------------
+# Shape systematics on ttbar
+np_tt_JEC param 0.0 1.0
+np_tt_JER param 0.0 1.0
+np_tt_btg param 0.0 1.0
+np_tt_lep param 0.0 1.0
+np_tt_nom param 0.0 1.0
+np_tt_pdf param 0.0 1.0
+np_tt_FSR param 0.0 1.0
+#np_tt_ht  param 0.0 1.0
+np_tt_isr param 0.0 1.0
+np_tt_scl param 0.0 1.0
+-------------------------------------------------------------------------------------------------------------------------------------------
+# Week constraint on a2
+#a2_tt param 0.15 -0.5/+0.5
+#a2_tt_D1 param 0.1 -0.2/+0.2
+#a2_tt_D2 param 0.1 -0.2/+0.2
+#a2_tt_D3 param 0.1 -0.2/+0.2
+#a2_tt_D4 param 0.1 -0.2/+0.2
+-------------------------------------------------------------------------------------------------------------------------------------------
+OTHER_bkg_xsec  lnN  -      -      1.3    -      -      1.3    -      -      1.3    -      -      1.3     
+-------------------------------------------------------------------------------------------------------------------------------------------
+# MC statistics on signal
+mcStatD1SIGBin1 shape  1.0    -      -      -      -      -      -      -      -      -      -      -
+mcStatD1SIGBin2 shape  1.0    -      -      -      -      -      -      -      -      -      -      -
+mcStatD1SIGBin3 shape  1.0    -      -      -      -      -      -      -      -      -      -      -
+mcStatD1SIGBin4 shape  1.0    -      -      -      -      -      -      -      -      -      -      -
+mcStatD1SIGBin5 shape  1.0    -      -      -      -      -      -      -      -      -      -      -
+mcStatD1SIGBin6 shape  1.0    -      -      -      -      -      -      -      -      -      -      -
+mcStatD1SIGBin7 shape  1.0    -      -      -      -      -      -      -      -      -      -      -
+mcStatD1SIGBin8 shape  1.0    -      -      -      -      -      -      -      -      -      -      -
+mcStatD2SIGBin1 shape  -      -      -      1.0    -      -      -      -      -      -      -      -
+mcStatD2SIGBin2 shape  -      -      -      1.0    -      -      -      -      -      -      -      -
+mcStatD2SIGBin3 shape  -      -      -      1.0    -      -      -      -      -      -      -      -
+mcStatD2SIGBin4 shape  -      -      -      1.0    -      -      -      -      -      -      -      -
+mcStatD2SIGBin5 shape  -      -      -      1.0    -      -      -      -      -      -      -      -
+mcStatD2SIGBin6 shape  -      -      -      1.0    -      -      -      -      -      -      -      -
+mcStatD2SIGBin7 shape  -      -      -      1.0    -      -      -      -      -      -      -      -
+mcStatD2SIGBin8 shape  -      -      -      1.0    -      -      -      -      -      -      -      -
+mcStatD3SIGBin1 shape  -      -      -      -      -      -      1.0    -      -      -      -      -
+mcStatD3SIGBin2 shape  -      -      -      -      -      -      1.0    -      -      -      -      -
+mcStatD3SIGBin3 shape  -      -      -      -      -      -      1.0    -      -      -      -      -
+mcStatD3SIGBin4 shape  -      -      -      -      -      -      1.0    -      -      -      -      -
+mcStatD3SIGBin5 shape  -      -      -      -      -      -      1.0    -      -      -      -      -
+mcStatD3SIGBin6 shape  -      -      -      -      -      -      1.0    -      -      -      -      -
+mcStatD3SIGBin7 shape  -      -      -      -      -      -      1.0    -      -      -      -      -
+mcStatD3SIGBin8 shape  -      -      -      -      -      -      1.0    -      -      -      -      -
+mcStatD4SIGBin1 shape  -      -      -      -      -      -      -      -      -      1.0    -      -
+mcStatD4SIGBin2 shape  -      -      -      -      -      -      -      -      -      1.0    -      -
+mcStatD4SIGBin3 shape  -      -      -      -      -      -      -      -      -      1.0    -      -
+mcStatD4SIGBin4 shape  -      -      -      -      -      -      -      -      -      1.0    -      -
+mcStatD4SIGBin5 shape  -      -      -      -      -      -      -      -      -      1.0    -      -
+mcStatD4SIGBin6 shape  -      -      -      -      -      -      -      -      -      1.0    -      -
+mcStatD4SIGBin7 shape  -      -      -      -      -      -      -      -      -      1.0    -      -
+mcStatD4SIGBin8 shape  -      -      -      -      -      -      -      -      -      1.0    -      -
+# MC statistics on other backgrounds
+mcStatD1OTHERBin1 shape -      -      1.0    -      -      -      -      -      -      -      -      -
+mcStatD1OTHERBin2 shape -      -      1.0    -      -      -      -      -      -      -      -      -
+mcStatD1OTHERBin3 shape -      -      1.0    -      -      -      -      -      -      -      -      -
+mcStatD1OTHERBin4 shape -      -      1.0    -      -      -      -      -      -      -      -      -
+mcStatD1OTHERBin5 shape -      -      1.0    -      -      -      -      -      -      -      -      -
+mcStatD1OTHERBin6 shape -      -      1.0    -      -      -      -      -      -      -      -      -
+mcStatD1OTHERBin7 shape -      -      1.0    -      -      -      -      -      -      -      -      -
+mcStatD1OTHERBin8 shape -      -      1.0    -      -      -      -      -      -      -      -      -
+mcStatD2OTHERBin1 shape -      -      -      -      -      1.0    -      -      -      -      -      -
+mcStatD2OTHERBin2 shape -      -      -      -      -      1.0    -      -      -      -      -      -
+mcStatD2OTHERBin3 shape -      -      -      -      -      1.0    -      -      -      -      -      -
+mcStatD2OTHERBin4 shape -      -      -      -      -      1.0    -      -      -      -      -      -
+mcStatD2OTHERBin5 shape -      -      -      -      -      1.0    -      -      -      -      -      -
+mcStatD2OTHERBin6 shape -      -      -      -      -      1.0    -      -      -      -      -      -
+mcStatD2OTHERBin7 shape -      -      -      -      -      1.0    -      -      -      -      -      -
+mcStatD2OTHERBin8 shape -      -      -      -      -      1.0    -      -      -      -      -      -
+mcStatD3OTHERBin1 shape -      -      -      -      -      -      -      -      1.0    -      -      -
+mcStatD3OTHERBin2 shape -      -      -      -      -      -      -      -      1.0    -      -      -
+mcStatD3OTHERBin3 shape -      -      -      -      -      -      -      -      1.0    -      -      -
+mcStatD3OTHERBin4 shape -      -      -      -      -      -      -      -      1.0    -      -      -
+mcStatD3OTHERBin5 shape -      -      -      -      -      -      -      -      1.0    -      -      -
+mcStatD3OTHERBin6 shape -      -      -      -      -      -      -      -      1.0    -      -      -
+mcStatD3OTHERBin7 shape -      -      -      -      -      -      -      -      1.0    -      -      -
+mcStatD3OTHERBin8 shape -      -      -      -      -      -      -      -      1.0    -      -      -
+mcStatD4OTHERBin1 shape -      -      -      -      -      -      -      -      -      -      -      1.0
+mcStatD4OTHERBin2 shape -      -      -      -      -      -      -      -      -      -      -      1.0
+mcStatD4OTHERBin3 shape -      -      -      -      -      -      -      -      -      -      -      1.0
+mcStatD4OTHERBin4 shape -      -      -      -      -      -      -      -      -      -      -      1.0
+mcStatD4OTHERBin5 shape -      -      -      -      -      -      -      -      -      -      -      1.0
+mcStatD4OTHERBin6 shape -      -      -      -      -      -      -      -      -      -      -      1.0
+mcStatD4OTHERBin7 shape -      -      -      -      -      -      -      -      -      -      -      1.0
+mcStatD4OTHERBin8 shape -      -      -      -      -      -      -      -      -      -      -      1.0

@@ -5,6 +5,12 @@
 // September 19, 2018 : Updated to use new DeepESM
 // December 21, 2018 : Updated to MVA region naming (e.g. D1 instead of sigD1)
 
+// call with:
+// root -l
+// .x fit_report_ESM.C("filename")
+// or
+// .x fit_report_ESM.C  to use default
+
 #include "RooRealVar.h"
 #include "RooFitResult.h"
 #include "TCanvas.h"
@@ -15,9 +21,9 @@
 
 using namespace RooFit;
 
-void fit_report_ESM() {
+void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErrors = true) {
 
- TFile* fullfile = TFile::Open("fitDiagnostics.root");
+  TFile* fullfile = TFile::Open(filename.c_str());
 
   RooWorkspace *w = new RooWorkspace("w","w");
   w->factory("CMS_th1x[0,8]");
@@ -52,6 +58,25 @@ void fit_report_ESM() {
   fullfile->GetObject("D4_CMS_th1x_fit_s",D4_CMS_th1x_fit_s);
   RooPlot* D4_CMS_th1x_fit_b = 0;
   fullfile->GetObject("D4_CMS_th1x_fit_b",D4_CMS_th1x_fit_b);
+
+  if (!plotErrors) {
+    // Remove all the error bands
+    D1_CMS_th1x_prefit->remove(D1_CMS_th1x_prefit->nameOf(1));
+    D1_CMS_th1x_fit_s->remove(D1_CMS_th1x_fit_s->nameOf(1));
+    D1_CMS_th1x_fit_b->remove(D1_CMS_th1x_fit_b->nameOf(1));
+  
+    D2_CMS_th1x_prefit->remove(D2_CMS_th1x_prefit->nameOf(1));
+    D2_CMS_th1x_fit_s->remove(D2_CMS_th1x_fit_s->nameOf(1));
+    D2_CMS_th1x_fit_b->remove(D2_CMS_th1x_fit_b->nameOf(1));
+  
+    D3_CMS_th1x_prefit->remove(D3_CMS_th1x_prefit->nameOf(1));
+    D3_CMS_th1x_fit_s->remove(D3_CMS_th1x_fit_s->nameOf(1));
+    D3_CMS_th1x_fit_b->remove(D3_CMS_th1x_fit_b->nameOf(1));
+  
+    D4_CMS_th1x_prefit->remove(D4_CMS_th1x_prefit->nameOf(1));
+    D4_CMS_th1x_fit_s->remove(D4_CMS_th1x_fit_s->nameOf(1));
+    D4_CMS_th1x_fit_b->remove(D4_CMS_th1x_fit_b->nameOf(1));
+  }
 
   // Clone the fit result frames, so that I can plot a log version without the fit params
   RooPlot* clone_D1_prefit_frame = (RooPlot*)D1_CMS_th1x_prefit->Clone("D1_prefit_frame");
@@ -687,7 +712,8 @@ void fit_report_ESM() {
   gStyle->SetOptTitle(1);
   hcorr_fit->SetStats(0);
   hcorr_fit->SetMarkerSize(1.0);
-  hcorr_fit->Draw("COLZ,TEXT");
+  //hcorr_fit->Draw("COLZ,TEXT");
+  hcorr_fit->Draw("COLZ");
   c_fit_s_corr->SaveAs("fit_report_correlation.png");
 
 
@@ -697,7 +723,8 @@ void fit_report_ESM() {
   gStyle->SetOptTitle(1);
   hcorr_fitb->SetStats(0);
   hcorr_fitb->SetMarkerSize(1.0);
-  hcorr_fitb->Draw("COLZ,TEXT");
+  //hcorr_fitb->Draw("COLZ,TEXT");
+  hcorr_fitb->Draw("COLZ");
   c_fit_b_corr->SaveAs("fit_report_correlation_b.png");
 
 }
