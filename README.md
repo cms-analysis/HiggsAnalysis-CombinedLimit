@@ -98,16 +98,16 @@ combine -M AsymptoticLimits ws_2016_RPV_850.root -m 850 --keyword-value MODEL=RP
 
 For 2017 RPV:
 ```
-combine -M AsymptoticLimits ws_2017_RPV_350.root -m 350 --keyword-value MODEL=RPV --verbose 2 -n 2017RPV350 > log_2017RPV350_Asymp.txt
-combine -M AsymptoticLimits ws_2017_RPV_450.root -m 450 --keyword-value MODEL=RPV --verbose 2 -n 2017RPV450 > log_2017RPV450_Asymp.txt
-combine -M AsymptoticLimits ws_2017_RPV_550.root -m 550 --keyword-value MODEL=RPV --verbose 2 -n 2017RPV550 > log_2017RPV550_Asymp.txt
-combine -M AsymptoticLimits ws_2017_RPV_650.root -m 650 --keyword-value MODEL=RPV --verbose 2 -n 2017RPV650 > log_2017RPV650_Asymp.txt
-combine -M AsymptoticLimits ws_2017_RPV_750.root -m 750 --keyword-value MODEL=RPV --verbose 2 -n 2017RPV750 > log_2017RPV750_Asymp.txt
-combine -M AsymptoticLimits ws_2017_RPV_850.root -m 850 --keyword-value MODEL=RPV --verbose 2 -n 2017RPV850 > log_2017RPV850_Asymp.txt
+combine -M AsymptoticLimits ws_2017_RPV_350.root -m 350 --keyword-value MODEL=RPV --verbose 2 -n 2017 > log_2017RPV350_Asymp.txt
+combine -M AsymptoticLimits ws_2017_RPV_450.root -m 450 --keyword-value MODEL=RPV --verbose 2 -n 2017 > log_2017RPV450_Asymp.txt
+combine -M AsymptoticLimits ws_2017_RPV_550.root -m 550 --keyword-value MODEL=RPV --verbose 2 -n 2017 > log_2017RPV550_Asymp.txt
+combine -M AsymptoticLimits ws_2017_RPV_650.root -m 650 --keyword-value MODEL=RPV --verbose 2 -n 2017 > log_2017RPV650_Asymp.txt
+combine -M AsymptoticLimits ws_2017_RPV_750.root -m 750 --keyword-value MODEL=RPV --verbose 2 -n 2017 > log_2017RPV750_Asymp.txt
+combine -M AsymptoticLimits ws_2017_RPV_850.root -m 850 --keyword-value MODEL=RPV --verbose 2 -n 2017 > log_2017RPV850_Asymp.txt
 ```
 
 Outputs files with names such as:
-higgsCombine2017RPV550.AsymptoticLimits.mH550.MODELRPV.root
+higgsCombine2017.AsymptoticLimits.mH550.MODELRPV.root
 which contains the expected (and observed) limits,
 and a log file with a name such as log_2017RPV650_Asymp.txt
 
@@ -120,6 +120,7 @@ Collect the above asymptotic limit root files into a results directory, such as 
 ```
 root -l -q makePlots.C+("Jan17_2019","fit_results_v5_Jan17_2019","2017","RPV")
 ```
+(the first arguement above is just intended to be today's date, or other tag)
 
 --------------------------------------------------
 
@@ -128,7 +129,12 @@ Calculate the significance using the asimov dataset and expected signal strength
 Significance is printed to screen and is available in the file
 higgsCombineTest.Significance.mH550.MODELRPV.root
 ```
-combine -M Significance TestCard.txt -t -1 --expectSignal=1 -m 550 --keyword-value MODEL=RPV
+combine -M Significance ws_2017_RPV_550.root -t -1 --expectSignal=1 -m 550 --keyword-value MODEL=RPV -n 2017RPV550_SignifExp
+```
+
+Calculate the observed significance:
+```
+combine -M ProfileLikelihood ws_2017_RPV_550.root --significance -m 550 --keyword-value MODEL=RPV -n 2017RPV550_SignifObs
 ```
 
 --------------------------------------------------
