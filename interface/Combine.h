@@ -30,7 +30,6 @@ extern  std::string setPhysicsModelParameterExpression_;
 extern  std::string setPhysicsModelParameterRangeExpression_;
 extern  std::string defineBackgroundOnlyModelParameterExpression_;
 
-
 class Combine {
 public:
   Combine() ;
