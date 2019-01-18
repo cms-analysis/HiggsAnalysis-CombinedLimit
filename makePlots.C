@@ -226,11 +226,8 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
 
   // *****
   // Extract limit results from set of root files produced by Higgs Combine tool
-
   const int npoints = 6;
   double xpoints[npoints] = {350, 450, 550, 650, 750, 850};  // mass points
-  //string filebase="/uscms_data/d2/soha/stealth/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/limits_MVA_v1/higgsCombine"+channel+".AsymptoticLimits.mH";
-  //string filebase="/uscms_data/d2/soha/stealth/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/"+filedir+"/higgsCombine"+year+".AsymptoticLimits.mH";
 
   // Arrays for storing results
   // The following are the values of r from the fitter, where r is
@@ -258,7 +255,6 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
     
     cout << fitter_files[i] << endl;
     // Load the root file and read the tree and leaves
-    //TFile *f = new TFile(fitter_files[i].c_str());
     TFile *f = new TFile(fitter_files[i].c_str());
     //f->Open(fitter_files[i].c_str());
     TTreeReader reader("limit");
@@ -608,10 +604,10 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
 
   }
 
-  string seps = ssave+".eps";
-  string sgif = ssave+".gif";
-  string sroot = ssave+".root";
-  string spdf = ssave+".pdf";
+  string seps = filedir+"/"+ssave+".eps";
+  string sgif = filedir+"/"+ssave+".gif";
+  string sroot = filedir+"/"+ssave+".root";
+  string spdf = filedir+"/"+ssave+".pdf";
   cCanvas->Print(sroot.c_str());
   cCanvas->Print(seps.c_str());
   cCanvas->Print(sgif.c_str());
