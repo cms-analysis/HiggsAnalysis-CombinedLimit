@@ -72,23 +72,12 @@ xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/Keras_
 eval `scramv1 runtime -csh`
 echo "root -l -q 'make_MVA_8bin_ws.C("${year}","${inputRoot}","${signalType}","${mass}")'"
 root -l -q -b 'make_MVA_8bin_ws.C("'${year}'","'${inputRoot}'","'${signalType}'","'${mass}'")'
-ls -l
-echo "text2workspace.py Card${year}.txt -o ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType}"
 text2workspace.py Card${year}.txt -o ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType}
-ls -l
-
-echo "combine -M AsymptoticLimits ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} --verbose 2 -n ${year} > log_${year}${signalType}${mass}_Asymp.txt"
-combine -M AsymptoticLimits ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} --verbose 2 -n ${year} > log_${year}${signalType}${mass}_Asymp.txt
-ls -l
-
-
-#echo "combine -M FitDiagnostics ws_${year}_${signalType}_${mass}.root --plots --saveShapes --saveNormalizations -m ${mass} --keyword-value MODEL=${signalType} -n ${year}${signalType}${mass} > log_${year}${signalType}${mass}_FitDiag.txt"
-#combine -M FitDiagnostics ws_${year}_${signalType}_${mass}.root --plots --saveShapes --saveNormalizations -m ${mass} --keyword-value MODEL=${signalType} -n ${year}${signalType}${mass} > log_${year}${signalType}${mass}_FitDiag.txt
-#
-#combine -M Significance ws_2017_RPV_550.root -t -1 --expectSignal=1 -m 550 --keyword-value MODEL=RPV -n 2017RPV550_SignifExp
-#
-#combine -M ProfileLikelihood ws_2017_RPV_550.root --significance -m 550 --keyword-value MODEL=RPV -n 2017RPV550_SignifObs
-
+combine -M AsymptoticLimits ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} --verbose 2                                 -n ${year}                               > log_${year}${signalType}${mass}_Asymp.txt
+combine -M FitDiagnostics   ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} --plots --saveShapes --saveNormalizations   -n ${year}${signalType}${mass}           > log_${year}${signalType}${mass}_FitDiag.txt
+combine -M Significance     ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -t -1 --expectSignal=1                      -n ${year}${signalType}${mass}_SignifExp > log_${year}${signalType}${mass}_Sign_sig.txt
+combine -M Significance     ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType}                                             -n ${year}${signalType}${mass}_SignifExp > log_${year}${signalType}${mass}_Sign_noSig.txt
+combine -M MultiDimFit      ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} --algo=grid --points=100 --rMin 0 --rMax 3  -n SCAN_r_wSig                           > log_${year}${signalType}${mass}_multiDim.txt
 
 printf "\n\n ls output\n"
 ls -l
