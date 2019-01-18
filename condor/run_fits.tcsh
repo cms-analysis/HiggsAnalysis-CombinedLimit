@@ -28,6 +28,7 @@ set inputRoot = $1
 set signalType = $2
 set mass = $3
 set year = $4
+set dataType = $5
 
 set base_dir = `pwd`
 printf "\n\n base dir is $base_dir\n\n"
@@ -70,8 +71,8 @@ xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/Keras_
 xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/Keras_V3.0.1_v2/ttbar_systematics.root  Keras_V3.0.1_v2/.
 
 eval `scramv1 runtime -csh`
-echo "root -l -q 'make_MVA_8bin_ws.C("${year}","${inputRoot}","${signalType}","${mass}")'"
-root -l -q -b 'make_MVA_8bin_ws.C("'${year}'","'${inputRoot}'","'${signalType}'","'${mass}'")'
+echo "root -l -q 'make_MVA_8bin_ws.C("${year}","${inputRoot}","${signalType}","${mass}","${dataType}")'"
+root -l -q -b 'make_MVA_8bin_ws.C("'${year}'","'${inputRoot}'","'${signalType}'","'${mass}'","'${dataType}'")'
 text2workspace.py Card${year}.txt -o ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType}
 combine -M AsymptoticLimits ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} --verbose 2                                 -n ${year}                               > log_${year}${signalType}${mass}_Asymp.txt
 combine -M FitDiagnostics   ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} --plots --saveShapes --saveNormalizations   -n ${year}${signalType}${mass}           > log_${year}${signalType}${mass}_FitDiag.txt
