@@ -1,7 +1,7 @@
 Combination of Y16=Card2016.txt  Y17=Card2017.txt
 imax 8 number of bins
 jmax 2 number of processes minus 1
-kmax 156 number of nuisance parameters
+kmax 155 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes OTHER     Y16_D1    MVA_2016_$MODEL_$MASS_ws.root otherMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
 shapes SIG       Y16_D1    MVA_2016_$MODEL_$MASS_ws.root sigMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
@@ -47,8 +47,7 @@ rate                                        -1      1.0000  -1      -1      1.00
 JEC                     shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
 JER_2016                shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
 JER_2017                shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
-OTHER_bkg_xsec_2016          lnN                 -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3     -       -       -     -       -       -     -       -       -     -       -       -
-OTHER_bkg_xsec_2017          lnN                 -       -       -     -       -       -     -       -       -     -       -       -     -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3   
+OTHER_bkg_xsec          lnN                 -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3   
 btg_2016                shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
 btg_2017                shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
 ht_2016                 shape               -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     

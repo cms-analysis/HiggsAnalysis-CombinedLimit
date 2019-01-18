@@ -39,29 +39,35 @@ scram b
 
 ### Example
 
+To combine the datacards for 2016 and 2017:
+```
+combineCards.py Y16=Card2016.txt Y17=Card2017.txt > combCard.txt
+```
+
 To make a RooFit workspace that contains our PDF definitions and input histograms:
 
 For 2016 RPV:
 ```
-root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","350")'
-root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","450")'
-root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","550")'
-root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","650")'
-root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","750")'
-root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","850")'
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","350","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","450","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","550","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","650","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","750","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.5_v2","RPV","850","pseudodata")'
 ```
 
 For 2017 RPV:
 ```
-root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","350")'
-root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","450")'
-root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","550")'
-root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","650")'
-root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","750")'
-root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","850")'
+root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","350","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","450","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","550","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","650","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","750","pseudodata")'
+root -l -q 'make_MVA_8bin_ws.C("2017","Keras_V3.0.1_v2","RPV","850","pseudodata")'
 ```
 
-Can substitute other input directories, models, and mass points.
+Can substitute other input directories, models, and mass points,
+The last arguement can be:  pseudodata, pseudodataS, or data
 The workspace goes into a file called MVA_<year>_<model>_<mass>_ws.root
 
 --------------------------------------------------
@@ -86,6 +92,16 @@ text2workspace.py Card2017.txt -o ws_2017_RPV_550.root -m 550 --keyword-value MO
 text2workspace.py Card2017.txt -o ws_2017_RPV_650.root -m 650 --keyword-value MODEL=RPV
 text2workspace.py Card2017.txt -o ws_2017_RPV_750.root -m 750 --keyword-value MODEL=RPV
 text2workspace.py Card2017.txt -o ws_2017_RPV_850.root -m 850 --keyword-value MODEL=RPV
+```
+
+For 2016 + 2017 RPV:
+```
+text2workspace.py CardCombo.txt -o ws_Combo_RPV_350.root -m 350 --keyword-value MODEL=RPV
+text2workspace.py CardCombo.txt -o ws_Combo_RPV_450.root -m 450 --keyword-value MODEL=RPV
+text2workspace.py CardCombo.txt -o ws_Combo_RPV_550.root -m 550 --keyword-value MODEL=RPV
+text2workspace.py CardCombo.txt -o ws_Combo_RPV_650.root -m 650 --keyword-value MODEL=RPV
+text2workspace.py CardCombo.txt -o ws_Combo_RPV_750.root -m 750 --keyword-value MODEL=RPV
+text2workspace.py CardCombo.txt -o ws_Combo_RPV_850.root -m 850 --keyword-value MODEL=RPV
 ```
 
 Can substitute other models.
@@ -180,7 +196,8 @@ Study the impacts:
 
 Fit for each POI:
 ```
-../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2017_RPV_550.root -m 550 --doInitialFit --robustFit 1```
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2017_RPV_550.root -m 550 --doInitialFit --robustFit 1
+```
 
 Scan for each nuisance parameter.  This does MultiDimFit --algo impact for each nuisance parameter
 ```
