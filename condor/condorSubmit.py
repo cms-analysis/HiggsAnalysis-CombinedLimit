@@ -56,23 +56,27 @@ for st in signalType:
         if not os.path.isdir("%s/output-files/%s" % (options.outPath, outDir)):
             os.makedirs("%s/output-files/%s" % (options.outPath, outDir))
 
-        outputFiles = ["higgsCombineTest.AsymptoticLimits.mH%s.MODEL%s.root" % (mass, st),
-                       "MVA_%s_%s_%s_ws.root" % (options.year, st, mass),
-                       "log_%s%s%s_Asymp.txt" % (options.year, st, mass),
-                       "ws_%s_%s_%s.root"     % (options.year, st, mass),
+        outputFiles = [
+            "higgsCombine%s.AsymptoticLimits.mH%s.MODEL%s.root" % (options.year, mass, st),
+            "higgsCombine%s%s%s.FitDiagnostics.mH%s.MODEL%s.root" % (options.year, st, mass, mass, st),
+            "higgsCombine%s%s%s_SignifExp.Significance.mH%s.MODEL%s.root" % (options.year, st, mass, mass, st),
+            "higgsCombineSCAN_r_wSig.MultiDimFit.mH%s.MODEL%s.root " % (mass, st),
+            "MVA_%s_%s_%s_ws.root" % (options.year, st, mass),
+            "ws_%s_%s_%s.root"     % (options.year, st, mass),
+            "fitDiagnostics%s%s%s.root" % (options.year, st, mass), 
+            "log_%s%s%s_Asymp.txt"      % (options.year, st, mass),
+            "log_%s%s%s_FitDiag.txt"    % (options.year, st, mass),
+            "log_%s%s%s_Sign_sig.txt"   % (options.year, st, mass),
+            "log_%s%s%s_Sign_noSig.txt" % (options.year, st, mass),
+            "log_%s%s%s_multiDim.txt"   % (options.year, st, mass),
                        ]
 
-        #fileParts.append("transfer_output_remaps = <\"higgsCombineTest.AsymptoticLimits.mH%s.MODEL%s.root = %s/output-files/%s/higgsCombineTest.AsymptoticLimits.mH%s.MODEL%s.root;" % (mass, st, options.outPath, outDir, mass, st))
-        #fileParts.append("MVA_%s_%s_%s_ws.root = %s/output-files/%s/MVA_%s_%s_%s_ws.root;" % (options.year, st, mass, options.outPath, outDir, options.year, st, mass))
-        #fileParts.append("log_%s%s%s_Asymp.txt = %s/output-files/%s/log_%s%s%s_Asymp.txt;" % (options.year, st, mass, options.outPath, outDir, options.year, st, mass))
-        #fileParts.append("ws_%s_%s_%s.root = %s/output-files/%s/ws_%s_%s_%s.root\"\n"      % (options.year, st, mass, options.outPath, outDir, options.year, st, mass))        
-
-        transfer = "transfer_output_remaps = <\""
+        transfer = "transfer_output_remaps = \""
         for f in outputFiles:
             transfer += "%s = %s/output-files/%s/%s" % (f, options.outPath, outDir, f)
             if f != outputFiles[-1]:
                 transfer += "; "
-        transfer += "\">\n"
+        transfer += "\"\n"
 
         fileParts.append(transfer)
         fileParts.append("Arguments = %s %s %s %s\n" % (options.inputRoot, st, mass, options.year))
