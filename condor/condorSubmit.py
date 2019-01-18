@@ -13,6 +13,7 @@ parser = optparse.OptionParser("usage: %prog [options]\n")
 
 parser.add_option ('-i',  dest='inputRoot',  type='string', default = 'Keras_V1.2.5', help="input root file directory")
 parser.add_option ('-d',  dest='signalType', type='string', default = '',             help="List of signal model, comma separated")
+parser.add_option ('-t',  dest='dataType',   type='string', default = 'data',         help="Specify if running over data or sudo data")
 parser.add_option ('-m',  dest='masssets',   type='string', default = '',             help="List of mass models, comma separated")
 parser.add_option ('-y',  dest='year',       type='string', default = '2016',         help="year")
 parser.add_option ('-c',  dest='noSubmit', action='store_true', default = False, help="Do not submit jobs.  Only create condor_submit.txt.")
@@ -79,7 +80,7 @@ for st in signalType:
         transfer += "\"\n"
 
         fileParts.append(transfer)
-        fileParts.append("Arguments = %s %s %s %s\n" % (options.inputRoot, st, mass, options.year))
+        fileParts.append("Arguments = %s %s %s %s %s\n" % (options.inputRoot, st, mass, options.year, options.dataType))
         fileParts.append("Output = %s/log-files/MyFit_%s_%s.stdout\n"%(options.outPath, st, mass))
         fileParts.append("Error = %s/log-files/MyFit_%s_%s.stderr\n"%(options.outPath, st, mass))
         fileParts.append("Log = %s/log-files/MyFit_%s_%s.log\n"%(options.outPath, st, mass))

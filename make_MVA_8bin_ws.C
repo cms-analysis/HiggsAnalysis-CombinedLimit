@@ -120,7 +120,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
 }
 
 
-void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Keras_V1.2.5_v2", const string model = "RPV", const string mass = "550", const string syst = "") {
+void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Keras_V1.2.5_v2", const string model = "RPV", const string mass = "550", const string dataType = "pseudodata", const string syst = "") {
   using namespace RooFit;
   // Load the combine library to get access to the RooParametricHist
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");
@@ -152,50 +152,51 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   // wspace->var("nj_D4")->setBins(8);
   // RooArgSet vars_D4(*wspace->var("nj_D4"));
 
-
   wspace->factory("CMS_th1x[0,8]");
   wspace->var("CMS_th1x")->setBins(8);
   RooArgSet vars_D1(*wspace->var("CMS_th1x"));
   RooArgSet vars_D2(*wspace->var("CMS_th1x"));
   RooArgSet vars_D3(*wspace->var("CMS_th1x"));
   RooArgSet vars_D4(*wspace->var("CMS_th1x"));
-
     
   // file for obtaining histograms
   TFile* file = TFile::Open((infile_path+"/njets_for_Aron.root").c_str());
 
-  //TH1D* data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
+  TH1D* data_th1_D1;
+  if     (dataType == "data")        data_th1_D1 = (TH1D*)file->Get(("D1_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
+  else if(dataType == "pseudodata" ) data_th1_D1 = (TH1D*)file->Get(("D1_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
+  else if(dataType == "pseudodataS") data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
   //TH1D* data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
-  //TH1D* data_th1_D1 = (TH1D*)file->Get(("D1_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
   //TH1D* data_th1_D1 = (TH1D*)file->Get("D1_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
-  TH1D* data_th1_D1 = (TH1D*)file->Get(("D1_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
   TH1D* otherMC_th1_D1 = (TH1D*)file->Get(("D1_OTHER_h_njets_pt30_1l"+syst).c_str());
   TH1D* sigMC_th1_D1 = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());
 
-  //TH1D* data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
+  TH1D* data_th1_D2;
+  if     (dataType == "data")        data_th1_D2 = (TH1D*)file->Get(("D2_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
+  else if(dataType == "pseudodata" ) data_th1_D2 = (TH1D*)file->Get(("D2_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
+  else if(dataType == "pseudodataS") data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
   //TH1D* data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
-  //TH1D* data_th1_D2 = (TH1D*)file->Get(("D2_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
   //TH1D* data_th1_D2 = (TH1D*)file->Get("D2_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
-  TH1D* data_th1_D2 = (TH1D*)file->Get(("D2_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
   TH1D* otherMC_th1_D2 = (TH1D*)file->Get(("D2_OTHER_h_njets_pt30_1l"+syst).c_str());
   TH1D* sigMC_th1_D2 = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());
 
-  //TH1D* data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
+  TH1D* data_th1_D3;
+  if     (dataType == "data")        data_th1_D3 = (TH1D*)file->Get(("D3_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
+  else if(dataType == "pseudodata" ) data_th1_D3 = (TH1D*)file->Get(("D3_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
+  else if(dataType == "pseudodataS") data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
   //TH1D* data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
-  //TH1D* data_th1_D3 = (TH1D*)file->Get(("D3_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
   //TH1D* data_th1_D3 = (TH1D*)file->Get("D3_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
-  TH1D* data_th1_D3 = (TH1D*)file->Get(("D3_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
   TH1D* otherMC_th1_D3 = (TH1D*)file->Get(("D3_OTHER_h_njets_pt30_1l"+syst).c_str());
   TH1D* sigMC_th1_D3 = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());
 
-  //TH1D* data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
+  TH1D* data_th1_D4;
+  if     (dataType == "data")        data_th1_D4 = (TH1D*)file->Get(("D4_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
+  else if(dataType == "pseudodata" ) data_th1_D4 = (TH1D*)file->Get(("D4_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
+  else if(dataType == "pseudodataS") data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
   //TH1D* data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
-  //TH1D* data_th1_D4 = (TH1D*)file->Get(("D4_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
   //TH1D* data_th1_D4 = (TH1D*)file->Get("D4_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
-  TH1D* data_th1_D4 = (TH1D*)file->Get(("D4_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
   TH1D* otherMC_th1_D4 = (TH1D*)file->Get(("D4_OTHER_h_njets_pt30_1l"+syst).c_str());
   TH1D* sigMC_th1_D4 = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());
-
 
   // tt bkg param setup
   //RooRealVar a0_tt("a0_tt","a0 of tt bkg shape",0.28,0.0,1.0);
