@@ -20,6 +20,10 @@
 
 ClassImp(RooParametricHist) 
 
+Double_t step(double_t x) {
+  return 1;
+}
+
 RooParametricHist::RooParametricHist(const char *name, 
 						 const char *title, 
 						 RooAbsReal& _x,
