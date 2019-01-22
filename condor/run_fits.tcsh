@@ -24,11 +24,12 @@
 #combine -M AsymptoticLimits ws_2016_RPV_350.root -m 350 --keyword-value MODEL=RPV --verbose 2 -n 2016 > log_2016RPV350_Asymp.txt
 #########################################################################################################################################
 
-set inputRoot = $1
-set signalType = $2
-set mass = $3
-set year = $4
-set dataType = $5
+set inputRoot2016 = $1
+set inputRoot2017 = $2
+set signalType = $3
+set mass = $4
+set year = $5
+set dataType = $6
 
 set base_dir = `pwd`
 printf "\n\n base dir is $base_dir\n\n"
@@ -62,18 +63,21 @@ printf "\n\n ls output\n"
 ls -l
 
 printf "\n\n Attempting to run Fit executable.\n\n"
-mkdir Keras_V1.2.5_v2
-xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/Keras_V1.2.5_v2/njets_for_Aron.root     Keras_V1.2.5_v2/.
-xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/Keras_V1.2.5_v2/ttbar_systematics.root  Keras_V1.2.5_v2/.
+mkdir ${inputRoot2016}
+xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/${inputRoot2016}/njets_for_Aron.root     ${inputRoot2016}/.
+xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/${inputRoot2016}/ttbar_systematics.root  ${inputRoot2016}/.
 
-mkdir Keras_V3.0.1_v2
-xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/Keras_V3.0.1_v2/njets_for_Aron.root     Keras_V3.0.1_v2/.
-xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/Keras_V3.0.1_v2/ttbar_systematics.root  Keras_V3.0.1_v2/.
+mkdir ${inputRoot2017}
+xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/${inputRoot2017}/njets_for_Aron.root     ${inputRoot2017}/.
+xrdcp root://cmseos.fnal.gov//store/user/lpcsusyhad/StealthStop/FitInputs/${inputRoot2017}/ttbar_systematics.root  ${inputRoot2017}/.
 
 eval `scramv1 runtime -csh`
-echo "root -l -q 'make_MVA_8bin_ws.C("${year}","${inputRoot}","${signalType}","${mass}","${dataType}")'"
-root -l -q -b 'make_MVA_8bin_ws.C("'${year}'","'${inputRoot}'","'${signalType}'","'${mass}'","'${dataType}'")'
+
+combineCards.py Y16=Card2016.txt Y17=Card2017.txt > ComboCard.txt
+root -l -q -b 'make_MVA_8bin_ws.C("2016","'${inputRoot2016}'","'${signalType}'","'${mass}'","'${dataType}'")'
+root -l -q -b 'make_MVA_8bin_ws.C("2017","'${inputRoot2017}'","'${signalType}'","'${mass}'","'${dataType}'")'
 text2workspace.py Card${year}.txt -o ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType}
+
 combine -M AsymptoticLimits ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} --verbose 2                                 -n ${year}                               > log_${year}${signalType}${mass}_Asymp.txt
 combine -M FitDiagnostics   ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} --plots --saveShapes --saveNormalizations   -n ${year}${signalType}${mass}           > log_${year}${signalType}${mass}_FitDiag.txt
 combine -M Significance     ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -t -1 --expectSignal=1                      -n ${year}${signalType}${mass}_SignifExp > log_${year}${signalType}${mass}_Sign_sig.txt

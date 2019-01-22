@@ -41,7 +41,7 @@ scram b
 
 To combine the datacards for 2016 and 2017:
 ```
-combineCards.py Y16=Card2016.txt Y17=Card2017.txt > combCard.txt
+combineCards.py Y16=Card2016.txt Y17=Card2017.txt > ComboCard.txt
 ```
 
 To make a RooFit workspace that contains our PDF definitions and input histograms:
@@ -226,4 +226,74 @@ shapes_fit_b->cd();
 D1->cd();
 TT->Draw();
 etc.
+```
+
+
+### Running Fits on condor
+
+Running all of the fits using condor
+
+```
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/condor
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t data        --output Fit_Data_2016
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t pseudodata  --output Fit_pseudoData_2016
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t pseudodataS --output Fit_pseudoDataS_2016
+
+python condorSubmit.py --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t data        --output Fit_Data_2017
+python condorSubmit.py --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t pseudodata  --output Fit_pseudoData_2017
+python condorSubmit.py --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t pseudodataS --output Fit_pseudoDataS_2017
+
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t data        --output Fit_Data_Combo
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t pseudodata  --output Fit_pseudoData_Combo
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t pseudodataS --output Fit_pseudoDataS_Combo
+
+```
+
+Making limit plots from condor output
+
+```
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+root -l -q 'makePlots.C("<date>_data2016","condor/Fit_Data_2016/output-files","2016","RPV")'
+root -l -q 'makePlots.C("<date>_data2016","condor/Fit_Data_2016/output-files","2016","SYY")'
+root -l -q 'makePlots.C("<date>_data2016","condor/Fit_Data_2016/output-files","2016","SHH")'
+
+root -l -q 'makePlots.C("<date>_pseudodata2016","condor/Fit_pseudoData_2016/output-files","2016","RPV")'
+root -l -q 'makePlots.C("<date>_pseudodata2016","condor/Fit_pseudoData_2016/output-files","2016","SYY")'
+root -l -q 'makePlots.C("<date>_pseudodata2016","condor/Fit_pseudoData_2016/output-files","2016","SHH")'
+
+root -l -q 'makePlots.C("<date>_data2017","condor/Fit_Data_2017/output-files","2017","RPV")'
+root -l -q 'makePlots.C("<date>_data2017","condor/Fit_Data_2017/output-files","2017","SYY")'
+root -l -q 'makePlots.C("<date>_data2017","condor/Fit_Data_2017/output-files","2017","SHH")'
+
+root -l -q 'makePlots.C("<date>_pseudodata2017","condor/Fit_pseudoData_2017/output-files","2017","RPV")'
+root -l -q 'makePlots.C("<date>_pseudodata2017","condor/Fit_pseudoData_2017/output-files","2017","SYY")'
+root -l -q 'makePlots.C("<date>_pseudodata2017","condor/Fit_pseudoData_2017/output-files","2017","SHH")'
+``` 
+
+Making profile scan from condor output
+
+```
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+python make_profile_plot.py --model RPV --year 2016 --data 0 --basedir condor --masses 350 450 550 650 750 850
+python make_profile_plot.py --model SYY --year 2016 --data 0 --basedir condor --masses 350 450 550 650 750 850
+python make_profile_plot.py --model SHH --year 2016 --data 0 --basedir condor --masses 350 450 550 650 750 850
+
+python make_profile_plot.py --model RPV --year 2016 --data 1 --basedir condor --masses 350 450 550 650 750 850
+python make_profile_plot.py --model SYY --year 2016 --data 1 --basedir condor --masses 350 450 550 650 750 850
+python make_profile_plot.py --model SHH --year 2016 --data 1 --basedir condor --masses 350 450 550 650 750 850
+
+python make_profile_plot.py --model RPV --year 2017 --data 0 --basedir condor --masses 300 350 400 450 500 550 600 650 700 750 800 850 900
+python make_profile_plot.py --model SYY --year 2017 --data 0 --basedir condor --masses 300 350 400 450 500 550 600 650 700 750 800 850 900
+python make_profile_plot.py --model SHH --year 2017 --data 0 --basedir condor --masses 300 350 400 450 500 550 600 650 700 750 800 850 900
+
+python make_profile_plot.py --model RPV --year 2017 --data 1 --basedir condor --masses 300 350 400 450 500 550 600 650 700 750 800 850 900
+python make_profile_plot.py --model SYY --year 2017 --data 1 --basedir condor --masses 300 350 400 450 500 550 600 650 700 750 800 850 900
+python make_profile_plot.py --model SHH --year 2017 --data 1 --basedir condor --masses 300 350 400 450 500 550 600 650 700 750 800 850 900
+```
+
+Making fit results plots from condor output
+
+```
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+python make_fit_report_plot.py
 ```
