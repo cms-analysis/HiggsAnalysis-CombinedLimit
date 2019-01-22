@@ -39,20 +39,12 @@ rate            -1                1               -1               -1           
 # Normal uncertainties in the signal region
 lumi_13TeV      lnN  1.05  -     -     1.05  -     -     1.05  -     -     1.05  -     -     
 -------------------------------------------------------------------------------------------------------------------------------------------
-np_tt_JECup_D1 param 0.0 1.0
-np_tt_JECup_D2 param 0.0 1.0
-np_tt_JECup_D3 param 0.0 1.0
-np_tt_JECup_D4 param 0.0 1.0
-np_tt_JECdown_D1 param 0.0 1.0
-np_tt_JECdown_D2 param 0.0 1.0
-np_tt_JECdown_D3 param 0.0 1.0
-np_tt_JECdown_D4 param 0.0 1.0
-np_tt_JERup_D1 param 0.0 1.0
-np_tt_JERup_D2 param 0.0 1.0
-np_tt_JERup_D3 param 0.0 1.0
-np_tt_JERup_D4 param 0.0 1.0
-np_tt_JERdown_D1 param 0.0 1.0
-np_tt_JERdown_D2 param 0.0 1.0
-np_tt_JERdown_D3 param 0.0 1.0
-np_tt_JERdown_D4 param 0.0 1.0
-p1_tt param 0.1 -0.2/+0.2
+#np_tt_JECup param 0.0 1.0
+#np_tt_JECdown param 0.0 1.0
+#np_tt_JERup param 0.0 1.0
+#np_tt_JERdown param 0.0 1.0
+#a2_tt param 0.1 -0.2/+0.2
+a2_tt_D1 param 0.1 -0.2/+0.2
+a2_tt_D2 param 0.1 -0.2/+0.2
+a2_tt_D3 param 0.1 -0.2/+0.2
+a2_tt_D4 param 0.1 -0.2/+0.2

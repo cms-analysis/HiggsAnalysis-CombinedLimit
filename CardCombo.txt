@@ -1,0 +1,201 @@
+Combination of Y16=Card2016.txt  Y17=Card2017.txt
+imax 8 number of bins
+jmax 2 number of processes minus 1
+kmax 155 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes OTHER     Y16_D1    MVA_2016_$MODEL_$MASS_ws.root otherMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
+shapes SIG       Y16_D1    MVA_2016_$MODEL_$MASS_ws.root sigMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
+shapes TT        Y16_D1    MVA_2016_$MODEL_$MASS_ws.root wspace:background_tt_D1_2016
+shapes data_obs  Y16_D1    MVA_2016_$MODEL_$MASS_ws.root wspace:data_obs_D1
+shapes OTHER     Y16_D2    MVA_2016_$MODEL_$MASS_ws.root otherMC_th1_D2 D2_$PROCESS_$SYSTEMATIC
+shapes SIG       Y16_D2    MVA_2016_$MODEL_$MASS_ws.root sigMC_th1_D2 D2_$PROCESS_$SYSTEMATIC
+shapes TT        Y16_D2    MVA_2016_$MODEL_$MASS_ws.root wspace:background_tt_D2_2016
+shapes data_obs  Y16_D2    MVA_2016_$MODEL_$MASS_ws.root wspace:data_obs_D2
+shapes OTHER     Y16_D3    MVA_2016_$MODEL_$MASS_ws.root otherMC_th1_D3 D3_$PROCESS_$SYSTEMATIC
+shapes SIG       Y16_D3    MVA_2016_$MODEL_$MASS_ws.root sigMC_th1_D3 D3_$PROCESS_$SYSTEMATIC
+shapes TT        Y16_D3    MVA_2016_$MODEL_$MASS_ws.root wspace:background_tt_D3_2016
+shapes data_obs  Y16_D3    MVA_2016_$MODEL_$MASS_ws.root wspace:data_obs_D3
+shapes OTHER     Y16_D4    MVA_2016_$MODEL_$MASS_ws.root otherMC_th1_D4 D4_$PROCESS_$SYSTEMATIC
+shapes SIG       Y16_D4    MVA_2016_$MODEL_$MASS_ws.root sigMC_th1_D4 D4_$PROCESS_$SYSTEMATIC
+shapes TT        Y16_D4    MVA_2016_$MODEL_$MASS_ws.root wspace:background_tt_D4_2016
+shapes data_obs  Y16_D4    MVA_2016_$MODEL_$MASS_ws.root wspace:data_obs_D4
+shapes OTHER     Y17_D1    MVA_2017_$MODEL_$MASS_ws.root otherMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
+shapes SIG       Y17_D1    MVA_2017_$MODEL_$MASS_ws.root sigMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
+shapes TT        Y17_D1    MVA_2017_$MODEL_$MASS_ws.root wspace:background_tt_D1_2017
+shapes data_obs  Y17_D1    MVA_2017_$MODEL_$MASS_ws.root wspace:data_obs_D1
+shapes OTHER     Y17_D2    MVA_2017_$MODEL_$MASS_ws.root otherMC_th1_D2 D2_$PROCESS_$SYSTEMATIC
+shapes SIG       Y17_D2    MVA_2017_$MODEL_$MASS_ws.root sigMC_th1_D2 D2_$PROCESS_$SYSTEMATIC
+shapes TT        Y17_D2    MVA_2017_$MODEL_$MASS_ws.root wspace:background_tt_D2_2017
+shapes data_obs  Y17_D2    MVA_2017_$MODEL_$MASS_ws.root wspace:data_obs_D2
+shapes OTHER     Y17_D3    MVA_2017_$MODEL_$MASS_ws.root otherMC_th1_D3 D3_$PROCESS_$SYSTEMATIC
+shapes SIG       Y17_D3    MVA_2017_$MODEL_$MASS_ws.root sigMC_th1_D3 D3_$PROCESS_$SYSTEMATIC
+shapes TT        Y17_D3    MVA_2017_$MODEL_$MASS_ws.root wspace:background_tt_D3_2017
+shapes data_obs  Y17_D3    MVA_2017_$MODEL_$MASS_ws.root wspace:data_obs_D3
+shapes OTHER     Y17_D4    MVA_2017_$MODEL_$MASS_ws.root otherMC_th1_D4 D4_$PROCESS_$SYSTEMATIC
+shapes SIG       Y17_D4    MVA_2017_$MODEL_$MASS_ws.root sigMC_th1_D4 D4_$PROCESS_$SYSTEMATIC
+shapes TT        Y17_D4    MVA_2017_$MODEL_$MASS_ws.root wspace:background_tt_D4_2017
+shapes data_obs  Y17_D4    MVA_2017_$MODEL_$MASS_ws.root wspace:data_obs_D4
+----------------------------------------------------------------------------------------------------------------------------------
+bin          Y16_D1  Y16_D2  Y16_D3  Y16_D4  Y17_D1  Y17_D2  Y17_D3  Y17_D4
+observation  -1.0    -1.0    -1.0    -1.0    -1.0    -1.0    -1.0    -1.0  
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                         Y16_D1  Y16_D1  Y16_D1  Y16_D2  Y16_D2  Y16_D2  Y16_D3  Y16_D3  Y16_D3  Y16_D4  Y16_D4  Y16_D4  Y17_D1  Y17_D1  Y17_D1  Y17_D2  Y17_D2  Y17_D2  Y17_D3  Y17_D3  Y17_D3  Y17_D4  Y17_D4  Y17_D4
+process                                     SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER 
+process                                     0       1       2       0       1       2       0       1       2       0       1       2       0       1       2       0       1       2       0       1       2       0       1       2     
+rate                                        -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1    
+----------------------------------------------------------------------------------------------------------------------------------
+JEC                     shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
+JER_2016                shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+JER_2017                shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
+OTHER_bkg_xsec          lnN                 -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3     -       -       1.3   
+btg_2016                shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+btg_2017                shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
+ht_2016                 shape               -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+lep_2016                shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+lep_2017                shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
+lumi_13TeV_2016         lnN                 1.025   -       1.025   1.025   -       1.025   1.025   -       1.025   1.025   -       1.025   -       -       -       -       -       -       -       -       -       -       -       -     
+lumi_13TeV_2017         lnN                 -       -       -       -       -       -       -       -       -       -       -       -       1.023   -       1.023   1.023   -       1.023   1.023   -       1.023   1.023   -       1.023 
+mcStatD1OTHERBin1_2016   shape              -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin1_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin2_2016   shape              -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin2_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin3_2016   shape              -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin3_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin4_2016   shape              -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin4_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin5_2016   shape              -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin5_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin6_2016   shape              -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin6_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin7_2016   shape              -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin7_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin8_2016   shape              -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1OTHERBin8_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin1_2016    shape               1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin1_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin2_2016    shape               1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin2_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin3_2016    shape               1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin3_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin4_2016    shape               1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin4_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin5_2016    shape               1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin5_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin6_2016    shape               1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin6_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin7_2016    shape               1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin7_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin8_2016    shape               1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD1SIGBin8_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2OTHERBin1_2016   shape              -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2OTHERBin1_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -     
+mcStatD2OTHERBin2_2016   shape              -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2OTHERBin2_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -     
+mcStatD2OTHERBin3_2016   shape              -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2OTHERBin3_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -     
+mcStatD2OTHERBin4_2016   shape              -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2OTHERBin4_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -     
+mcStatD2OTHERBin5_2016   shape              -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2OTHERBin5_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -     
+mcStatD2OTHERBin6_2016   shape              -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2OTHERBin6_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -     
+mcStatD2OTHERBin7_2016   shape              -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2OTHERBin7_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -     
+mcStatD2OTHERBin8_2016   shape              -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2OTHERBin8_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -     
+mcStatD2SIGBin1_2016    shape               -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2SIGBin1_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -     
+mcStatD2SIGBin2_2016    shape               -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2SIGBin2_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -     
+mcStatD2SIGBin3_2016    shape               -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2SIGBin3_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -     
+mcStatD2SIGBin4_2016    shape               -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2SIGBin4_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -     
+mcStatD2SIGBin5_2016    shape               -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2SIGBin5_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -     
+mcStatD2SIGBin6_2016    shape               -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2SIGBin6_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -     
+mcStatD2SIGBin7_2016    shape               -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2SIGBin7_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -     
+mcStatD2SIGBin8_2016    shape               -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD2SIGBin8_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -     
+mcStatD3OTHERBin1_2016   shape              -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3OTHERBin1_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -     
+mcStatD3OTHERBin2_2016   shape              -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3OTHERBin2_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -     
+mcStatD3OTHERBin3_2016   shape              -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3OTHERBin3_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -     
+mcStatD3OTHERBin4_2016   shape              -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3OTHERBin4_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -     
+mcStatD3OTHERBin5_2016   shape              -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3OTHERBin5_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -     
+mcStatD3OTHERBin6_2016   shape              -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3OTHERBin6_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -     
+mcStatD3OTHERBin7_2016   shape              -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3OTHERBin7_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -     
+mcStatD3OTHERBin8_2016   shape              -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3OTHERBin8_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -     
+mcStatD3SIGBin1_2016    shape               -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3SIGBin1_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -     
+mcStatD3SIGBin2_2016    shape               -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3SIGBin2_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -     
+mcStatD3SIGBin3_2016    shape               -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3SIGBin3_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -     
+mcStatD3SIGBin4_2016    shape               -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3SIGBin4_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -     
+mcStatD3SIGBin5_2016    shape               -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3SIGBin5_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -     
+mcStatD3SIGBin6_2016    shape               -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3SIGBin6_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -     
+mcStatD3SIGBin7_2016    shape               -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3SIGBin7_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -     
+mcStatD3SIGBin8_2016    shape               -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD3SIGBin8_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -     
+mcStatD4OTHERBin1_2016   shape              -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4OTHERBin1_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0   
+mcStatD4OTHERBin2_2016   shape              -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4OTHERBin2_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0   
+mcStatD4OTHERBin3_2016   shape              -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4OTHERBin3_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0   
+mcStatD4OTHERBin4_2016   shape              -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4OTHERBin4_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0   
+mcStatD4OTHERBin5_2016   shape              -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4OTHERBin5_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0   
+mcStatD4OTHERBin6_2016   shape              -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4OTHERBin6_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0   
+mcStatD4OTHERBin7_2016   shape              -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4OTHERBin7_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0   
+mcStatD4OTHERBin8_2016   shape              -       -       -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4OTHERBin8_2017   shape              -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0   
+mcStatD4SIGBin1_2016    shape               -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4SIGBin1_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -     
+mcStatD4SIGBin2_2016    shape               -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4SIGBin2_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -     
+mcStatD4SIGBin3_2016    shape               -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4SIGBin3_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -     
+mcStatD4SIGBin4_2016    shape               -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4SIGBin4_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -     
+mcStatD4SIGBin5_2016    shape               -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4SIGBin5_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -     
+mcStatD4SIGBin6_2016    shape               -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4SIGBin6_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -     
+mcStatD4SIGBin7_2016    shape               -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4SIGBin7_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -     
+mcStatD4SIGBin8_2016    shape               -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -     
+mcStatD4SIGBin8_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -     
+pdf                     shape               1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -     
+scl_2017                shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
+np_tt_btg_2017  param  0.0 1.0
+np_tt_btg_2016  param  0.0 1.0
+np_tt_nom_2016  param  0.0 1.0
+np_tt_nom_2017  param  0.0 1.0
+np_tt_ht_2016  param  0.0 1.0
+np_tt_JEC     param  0.0 1.0
+np_tt_pdf     param  0.0 1.0
+np_tt_lep_2017  param  0.0 1.0
+np_tt_lep_2016  param  0.0 1.0
+np_tt_isr     param  0.0 1.0
+np_tt_FSR     param  0.0 1.0
+np_tt_JER_2017  param  0.0 1.0
+np_tt_JER_2016  param  0.0 1.0
+np_tt_scl_2017  param  0.0 1.0
