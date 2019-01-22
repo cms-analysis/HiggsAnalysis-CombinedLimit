@@ -11,7 +11,9 @@ repo = "HiggsAnalysis/CombinedLimit"
 # Parse command line arguments
 parser = optparse.OptionParser("usage: %prog [options]\n")
 
-parser.add_option ('-i',  dest='inputRoot',  type='string', default = 'Keras_V1.2.5', help="input root file directory")
+parser.add_option ('--inPut_2016',  dest='inputRoot2016',  type='string', default = 'Keras_V1.2.5_v2', help="input root file directory: 2016")
+parser.add_option ('--inPut_2017',  dest='inputRoot2017',  type='string', default = 'Keras_V3.0.1_v2', help="input root file directory: 2017")
+
 parser.add_option ('-d',  dest='signalType', type='string', default = '',             help="List of signal model, comma separated")
 parser.add_option ('-t',  dest='dataType',   type='string', default = 'data',         help="Specify if running over data or sudo data")
 parser.add_option ('-m',  dest='masssets',   type='string', default = '',             help="List of mass models, comma separated")
@@ -28,6 +30,7 @@ Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 request_disk = 1000000
 request_memory = 4000
+x509userproxy = $ENV(X509_USER_PROXY)
 
 """
 
@@ -80,7 +83,7 @@ for st in signalType:
         transfer += "\"\n"
 
         fileParts.append(transfer)
-        fileParts.append("Arguments = %s %s %s %s %s\n" % (options.inputRoot, st, mass, options.year, options.dataType))
+        fileParts.append("Arguments = %s %s %s %s %s %s\n" % (options.inputRoot2016, options.inputRoot2017, st, mass, options.year, options.dataType))
         fileParts.append("Output = %s/log-files/MyFit_%s_%s.stdout\n"%(options.outPath, st, mass))
         fileParts.append("Error = %s/log-files/MyFit_%s_%s.stderr\n"%(options.outPath, st, mass))
         fileParts.append("Log = %s/log-files/MyFit_%s_%s.log\n"%(options.outPath, st, mass))
