@@ -41,7 +41,7 @@ scram b
 
 To combine the datacards for 2016 and 2017:
 ```
-combineCards.py Y16=Card2016.txt Y17=Card2017.txt > combCard.txt
+combineCards.py Y16=Card2016.txt Y17=Card2017.txt > ComboCard.txt
 ```
 
 To make a RooFit workspace that contains our PDF definitions and input histograms:
