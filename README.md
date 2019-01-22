@@ -218,17 +218,17 @@ Running all of the fits using condor
 
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/condor
-python condorSubmit.py --inPut2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t data        --output Fit_Data_2016
-python condorSubmit.py --inPut2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t pseudodata  --output Fit_pseudoData_2016
-python condorSubmit.py --inPut2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t pseudodataS --output Fit_pseudoDataS_2016
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t data        --output Fit_Data_2016
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t pseudodata  --output Fit_pseudoData_2016
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t pseudodataS --output Fit_pseudoDataS_2016
 
-python condorSubmit.py --inPut2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t data        --output Fit_Data_2017
-python condorSubmit.py --inPut2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t pseudodata  --output Fit_pseudoData_2017
-python condorSubmit.py --inPut2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t pseudodataS --output Fit_pseudoDataS_2017
+python condorSubmit.py --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t data        --output Fit_Data_2017
+python condorSubmit.py --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t pseudodata  --output Fit_pseudoData_2017
+python condorSubmit.py --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t pseudodataS --output Fit_pseudoDataS_2017
 
-python condorSubmit.py --inPut2016 Keras_V1.2.5_v2 --inPut2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t data        --output Fit_Data_Combo
-python condorSubmit.py --inPut2016 Keras_V1.2.5_v2 --inPut2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t pseudodata  --output Fit_pseudoData_Combo
-python condorSubmit.py --inPut2016 Keras_V1.2.5_v2 --inPut2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t pseudodataS --output Fit_pseudoDataS_Combo
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t data        --output Fit_Data_Combo
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t pseudodata  --output Fit_pseudoData_Combo
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t pseudodataS --output Fit_pseudoDataS_Combo
 
 ```
 
