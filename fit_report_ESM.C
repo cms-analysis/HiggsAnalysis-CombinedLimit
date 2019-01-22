@@ -21,7 +21,7 @@
 
 using namespace RooFit;
 
-void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErrors = true) {
+void fit_report_ESM(const string filename = "fitDiagnostics.root", const string outPath = "./", const bool plotErrors = true) {
 
   TFile* fullfile = TFile::Open(filename.c_str());
 
@@ -30,34 +30,21 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   w->var("CMS_th1x")->setBins(8);
 
   // ===================================================================================
+  RooPlot* D1_CMS_th1x_prefit = (RooPlot*)fullfile->Get("D1_CMS_th1x_prefit");
+  RooPlot* D1_CMS_th1x_fit_s  = (RooPlot*)fullfile->Get("D1_CMS_th1x_fit_s");
+  RooPlot* D1_CMS_th1x_fit_b  = (RooPlot*)fullfile->Get("D1_CMS_th1x_fit_b");
 
-  RooPlot* D1_CMS_th1x_prefit = 0;
-  fullfile->GetObject("D1_CMS_th1x_prefit",D1_CMS_th1x_prefit);
-  RooPlot* D1_CMS_th1x_fit_s = 0;
-  fullfile->GetObject("D1_CMS_th1x_fit_s",D1_CMS_th1x_fit_s);
-  RooPlot* D1_CMS_th1x_fit_b = 0;
-  fullfile->GetObject("D1_CMS_th1x_fit_b",D1_CMS_th1x_fit_b);
+  RooPlot* D2_CMS_th1x_prefit = (RooPlot*)fullfile->Get("D2_CMS_th1x_prefit");
+  RooPlot* D2_CMS_th1x_fit_s  = (RooPlot*)fullfile->Get("D2_CMS_th1x_fit_s");
+  RooPlot* D2_CMS_th1x_fit_b  = (RooPlot*)fullfile->Get("D2_CMS_th1x_fit_b");
 
-  RooPlot* D2_CMS_th1x_prefit = 0;
-  fullfile->GetObject("D2_CMS_th1x_prefit",D2_CMS_th1x_prefit);
-  RooPlot* D2_CMS_th1x_fit_s = 0;
-  fullfile->GetObject("D2_CMS_th1x_fit_s",D2_CMS_th1x_fit_s);
-  RooPlot* D2_CMS_th1x_fit_b = 0;
-  fullfile->GetObject("D2_CMS_th1x_fit_b",D2_CMS_th1x_fit_b);
+  RooPlot* D3_CMS_th1x_prefit = (RooPlot*)fullfile->Get("D3_CMS_th1x_prefit");
+  RooPlot* D3_CMS_th1x_fit_s  = (RooPlot*)fullfile->Get("D3_CMS_th1x_fit_s");
+  RooPlot* D3_CMS_th1x_fit_b  = (RooPlot*)fullfile->Get("D3_CMS_th1x_fit_b");
 
-  RooPlot* D3_CMS_th1x_prefit = 0;
-  fullfile->GetObject("D3_CMS_th1x_prefit",D3_CMS_th1x_prefit);
-  RooPlot* D3_CMS_th1x_fit_s = 0;
-  fullfile->GetObject("D3_CMS_th1x_fit_s",D3_CMS_th1x_fit_s);
-  RooPlot* D3_CMS_th1x_fit_b = 0;
-  fullfile->GetObject("D3_CMS_th1x_fit_b",D3_CMS_th1x_fit_b);
-
-  RooPlot* D4_CMS_th1x_prefit = 0;
-  fullfile->GetObject("D4_CMS_th1x_prefit",D4_CMS_th1x_prefit);
-  RooPlot* D4_CMS_th1x_fit_s = 0;
-  fullfile->GetObject("D4_CMS_th1x_fit_s",D4_CMS_th1x_fit_s);
-  RooPlot* D4_CMS_th1x_fit_b = 0;
-  fullfile->GetObject("D4_CMS_th1x_fit_b",D4_CMS_th1x_fit_b);
+  RooPlot* D4_CMS_th1x_prefit = (RooPlot*)fullfile->Get("D4_CMS_th1x_prefit");
+  RooPlot* D4_CMS_th1x_fit_s  = (RooPlot*)fullfile->Get("D4_CMS_th1x_fit_s");
+  RooPlot* D4_CMS_th1x_fit_b  = (RooPlot*)fullfile->Get("D4_CMS_th1x_fit_b");
 
   if (!plotErrors) {
     // Remove all the error bands
@@ -184,7 +171,6 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   chiSquare_D4_fitb->SetBorderSize(1);
   chiSquare_D4_fitb->SetLineColor(0);
 
-
   // ===================================================================================
 
   // Make pull plots of each fit
@@ -297,7 +283,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D1_prefit->SetStats(0);
   //hcorr_D1_prefit->SetMarkerSize(2.4);
   //hcorr_D1_prefit->Draw("COLZ,TEXT");
-  c_D1_prefit->SaveAs("fit_report_D1_prefit.png");
+  c_D1_prefit->SaveAs((outPath+"fit_report_D1_prefit.png").c_str());
 
   TCanvas* c_D1_fit = new TCanvas("c_D1_fit","Signal D1 fit",900,900);
   c_D1_fit->Divide(2,2);
@@ -333,7 +319,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D1_fit->SetStats(0);
   //hcorr_D1_fit->SetMarkerSize(2.4);
   //hcorr_D1_fit->Draw("COLZ,TEXT");
-  c_D1_fit->SaveAs("fit_report_D1_fit.png");
+  c_D1_fit->SaveAs((outPath+"fit_report_D1_fit.png").c_str());
 
   TCanvas* c_D1_fitb = new TCanvas("c_D1_fitb","D1 fit bkg only",900,900);
   c_D1_fitb->Divide(2,2);
@@ -369,7 +355,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D1_fitb->SetStats(0);
   //hcorr_D1_fitb->SetMarkerSize(2.4);
   //hcorr_D1_fitb->Draw("COLZ,TEXT");
-  c_D1_fitb->SaveAs("fit_report_D1_fitb.png");
+  c_D1_fitb->SaveAs((outPath+"fit_report_D1_fitb.png").c_str());
 
 
   // ------------ D2 -----------
@@ -408,7 +394,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D2_prefit->SetStats(0);
   //hcorr_D2_prefit->SetMarkerSize(2.4);
   //hcorr_D2_prefit->Draw("COLZ,TEXT");
-  c_D2_prefit->SaveAs("fit_report_D2_prefit.png");
+  c_D2_prefit->SaveAs((outPath+"fit_report_D2_prefit.png").c_str());
 
   TCanvas* c_D2_fit = new TCanvas("c_D2_fit","Signal D2 fit",900,900);
   c_D2_fit->Divide(2,2);
@@ -444,7 +430,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D2_fit->SetStats(0);
   //hcorr_D2_fit->SetMarkerSize(2.4);
   //hcorr_D2_fit->Draw("COLZ,TEXT");
-  c_D2_fit->SaveAs("fit_report_D2_fit.png");
+  c_D2_fit->SaveAs((outPath+"fit_report_D2_fit.png").c_str());
 
   TCanvas* c_D2_fitb = new TCanvas("c_D2_fitb","D2 fit bkg only",900,900);
   c_D2_fitb->Divide(2,2);
@@ -480,7 +466,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D2_fitb->SetStats(0);
   //hcorr_D2_fitb->SetMarkerSize(2.4);
   //hcorr_D2_fitb->Draw("COLZ,TEXT");
-  c_D2_fitb->SaveAs("fit_report_D2_fitb.png");
+  c_D2_fitb->SaveAs((outPath+"fit_report_D2_fitb.png").c_str());
 
 
   // ------------ D3 -----------
@@ -519,7 +505,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D3_prefit->SetStats(0);
   //hcorr_D3_prefit->SetMarkerSize(2.4);
   //hcorr_D3_prefit->Draw("COLZ,TEXT");
-  c_D3_prefit->SaveAs("fit_report_D3_prefit.png");
+  c_D3_prefit->SaveAs((outPath+"fit_report_D3_prefit.png").c_str());
 
   TCanvas* c_D3_fit = new TCanvas("c_D3_fit","Signal D3 fit",900,900);
   c_D3_fit->Divide(2,2);
@@ -555,7 +541,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D3_fit->SetStats(0);
   //hcorr_D3_fit->SetMarkerSize(2.4);
   //hcorr_D3_fit->Draw("COLZ,TEXT");
-  c_D3_fit->SaveAs("fit_report_D3_fit.png");
+  c_D3_fit->SaveAs((outPath+"fit_report_D3_fit.png").c_str());
 
   TCanvas* c_D3_fitb = new TCanvas("c_D3_fitb","D3 fit bkg only",900,900);
   c_D3_fitb->Divide(2,2);
@@ -591,7 +577,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D3_fitb->SetStats(0);
   //hcorr_D3_fitb->SetMarkerSize(2.4);
   //hcorr_D3_fitb->Draw("COLZ,TEXT");
-  c_D3_fitb->SaveAs("fit_report_D3_fitb.png");
+  c_D3_fitb->SaveAs((outPath+"fit_report_D3_fitb.png").c_str());
 
 
   // ------------ D4 -----------
@@ -630,7 +616,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D4_prefit->SetStats(0);
   //hcorr_D4_prefit->SetMarkerSize(2.4);
   //hcorr_D4_prefit->Draw("COLZ,TEXT");
-  c_D4_prefit->SaveAs("fit_report_D4_prefit.png");
+  c_D4_prefit->SaveAs((outPath+"fit_report_D4_prefit.png").c_str());
 
   TCanvas* c_D4_fit = new TCanvas("c_D4_fit","Signal D4 fit",900,900);
   c_D4_fit->Divide(2,2);
@@ -666,7 +652,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D4_fit->SetStats(0);
   //hcorr_D4_fit->SetMarkerSize(2.4);
   //hcorr_D4_fit->Draw("COLZ,TEXT");
-  c_D4_fit->SaveAs("fit_report_D4_fit.png");
+  c_D4_fit->SaveAs((outPath+"fit_report_D4_fit.png").c_str());
 
   TCanvas* c_D4_fitb = new TCanvas("c_D4_fitb","D4 fit bkg only",900,900);
   c_D4_fitb->Divide(2,2);
@@ -702,9 +688,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   //hcorr_D4_fitb->SetStats(0);
   //hcorr_D4_fitb->SetMarkerSize(2.4);
   //hcorr_D4_fitb->Draw("COLZ,TEXT");
-  c_D4_fitb->SaveAs("fit_report_D4_fitb.png");
-
-
+  c_D4_fitb->SaveAs((outPath+"fit_report_D4_fitb.png").c_str());
 
   TCanvas* c_fit_s_corr = new TCanvas("c_fit_s_corr","signal region correlation matrix",900,900);
   gPad->SetLeftMargin(0.15);
@@ -714,8 +698,7 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   hcorr_fit->SetMarkerSize(1.0);
   //hcorr_fit->Draw("COLZ,TEXT");
   hcorr_fit->Draw("COLZ");
-  c_fit_s_corr->SaveAs("fit_report_correlation.png");
-
+  c_fit_s_corr->SaveAs((outPath+"fit_report_correlation.png").c_str());
 
   TCanvas* c_fit_b_corr = new TCanvas("c_fit_b_corr","signal region correlation matrix bkg only",900,900);
   gPad->SetLeftMargin(0.15);
@@ -725,6 +708,5 @@ void fit_report_ESM(const string filename = "fitDiagnostics.root", bool plotErro
   hcorr_fitb->SetMarkerSize(1.0);
   //hcorr_fitb->Draw("COLZ,TEXT");
   hcorr_fitb->Draw("COLZ");
-  c_fit_b_corr->SaveAs("fit_report_correlation_b.png");
-
+  c_fit_b_corr->SaveAs((outPath+"fit_report_correlation_b.png").c_str());
 }
