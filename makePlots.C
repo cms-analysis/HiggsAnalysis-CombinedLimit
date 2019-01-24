@@ -578,30 +578,25 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
     cmstext->SetTextFont(42);
     cmstext->SetTextSize(0.035);
 
-    if (year=="2016") {
-      if (STOP_PAIRS) {
-	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}");
-      }
-      if (SYST_HALF) {
-	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}, HALF SYST");
-      }
-      if (SYST_DOUBLE) {
-	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}, DOUBLE SYST");
-      }
+    if (year=="2016") 
+    {
+      if (STOP_PAIRS)  cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}");
+      if (SYST_HALF)   cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}, HALF SYST");
+      if (SYST_DOUBLE) cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 fb^{-1}, DOUBLE SYST");
     }
-    if (year=="2017") {
-      if (STOP_PAIRS) {
-	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=41.5 fb^{-1}");
-      }
-      if (SYST_HALF) {
-	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=41.5 fb^{-1}, HALF SYST");
-      }
-      if (SYST_DOUBLE) {
-	cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=41.5 fb^{-1}, DOUBLE SYST");
-      }
+    else if (year=="2017") 
+    {
+      if (STOP_PAIRS) cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=41.5 fb^{-1}");
+      if (SYST_HALF)  cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=41.5 fb^{-1}, HALF SYST");
+      if (SYST_DOUBLE)cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=41.5 fb^{-1}, DOUBLE SYST");
+    }
+    else if (year=="Combo")
+    {
+      if (STOP_PAIRS) cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 + 41.5 fb^{-1}");
+      if (SYST_HALF)  cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 + 41.5 fb^{-1}, HALF SYST");
+      if (SYST_DOUBLE)cmstext->AddText("CMS Preliminary, #sqrt{s}=13 TeV, L_{Int}=35.9 + 41.5 fb^{-1}, DOUBLE SYST");
     }
     cmstext->Draw("same");
-
   }
 
   string seps = filedir+"/"+ssave+".eps";
