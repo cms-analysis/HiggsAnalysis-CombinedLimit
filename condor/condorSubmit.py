@@ -65,14 +65,18 @@ for st in signalType:
             "higgsCombine%s%s%s.FitDiagnostics.mH%s.MODEL%s.root" % (options.year, st, mass, mass, st),
             "higgsCombine%s%s%s_SignifExp.Significance.mH%s.MODEL%s.root" % (options.year, st, mass, mass, st),
             "higgsCombineSCAN_r_wSig.MultiDimFit.mH%s.MODEL%s.root " % (mass, st),
-            "MVA_%s_%s_%s_ws.root" % (options.year, st, mass),
-            "ws_%s_%s_%s.root"     % (options.year, st, mass),
+            "higgsCombine%s.HybridNew.mH%s.MODEL%s.root" % (options.year, mass, st),
+            "MVA_%s_%s_%s_ws.root"   % (options.year, st, mass),
+            "MVA_2016_%s_%s_ws.root" % (st, mass),
+            "MVA_2017_%s_%s_ws.root" % (st, mass),
+            "ws_%s_%s_%s.root"       % (options.year, st, mass),
             "fitDiagnostics%s%s%s.root" % (options.year, st, mass), 
             "log_%s%s%s_Asymp.txt"      % (options.year, st, mass),
             "log_%s%s%s_FitDiag.txt"    % (options.year, st, mass),
             "log_%s%s%s_Sign_sig.txt"   % (options.year, st, mass),
             "log_%s%s%s_Sign_noSig.txt" % (options.year, st, mass),
             "log_%s%s%s_multiDim.txt"   % (options.year, st, mass),
+            "log_%s%s%s_HybridNew.txt"  % (options.year, st, mass),
                        ]
 
         transfer = "transfer_output_remaps = \""
