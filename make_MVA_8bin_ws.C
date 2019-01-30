@@ -52,12 +52,12 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
 	//form << "*(@3 + (@1-@2>0)*(@2-@3>0)*TMath::Power( TMath::Power( @2-@3 , "<<j<<" ) / TMath::Power( @1-@3 , "<<j-2<<" ) , 1/2 ) )";
 	//form << "*(@3 + TMath::Power( TMath::Power( @2-@3 , "<<j<<" ) / TMath::Power( @1-@3 , "<<j-2<<" ) , 1/2 ))";
 	//form << "*(@3 + (@1-@2>0)*(@2-@3>0)*TMath::Power( TMath::Abs( TMath::Power( @2-@3 , "<<j<<" ) / TMath::Power( @1-@3 , "<<j-2<<" ) ) , 1/2 ))";
-	form << "*(@3 + TMath::Power( TMath::Abs( TMath::Power( @2-@3 , "<<j<<" ) / TMath::Power( @1-@3 , "<<j-2<<" ) ) , 1/2 ))";
-
+	//form << "*(@3 + TMath::Power( TMath::Abs( TMath::Power( @2-@3 , "<<j<<" ) / TMath::Power( @1-@3 , "<<j-2<<" ) ) , 1/2 ))";
+	form << "*( @3>1 ? ( @2 - 1./@3 + TMath::Power(  TMath::Power( 1./@3 , "<<j<<" ) / TMath::Power( @1-@2+1./@3 , "<<j-2<<" ) , 1/2 ) ) : ( @2 - (2.-@3) + TMath::Power( TMath::Power( (2.-@3) , "<<j<<" ) / TMath::Power( @1-@2+(2.-@3) , "<<j-2<<" ) , 1/2 ) ) )";
       }
       formArgList.add(paramlist[1]); // a0_tt
       formArgList.add(paramlist[2]); // a1_tt
-      formArgList.add(paramlist[3]); // a2_tt
+      formArgList.add(paramlist[3]); // d_tt
     } // end bin 1 and up
 
     // The last bin covers from njet=14 through njet=max_bin
@@ -65,7 +65,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
       for (int k=8; k<=max_bin-7; k++) {
 	form << " + 1";
 	for (int j=0; j<k; j++) {
-	  form << "*(@3 + TMath::Power( TMath::Abs( TMath::Power( @2-@3 , "<<j<<" ) / TMath::Power( @1-@3 , "<<j-2<<" ) ) , 1/2 ))";
+	  form << "*( @3>1 ? ( @2 - 1./@3 + TMath::Power(  TMath::Power( 1./@3 , "<<j<<" ) / TMath::Power( @1-@2+1./@3 , "<<j-2<<" ) , 1/2 ) ) : ( @2 - (2.-@3) + TMath::Power( TMath::Power( (2.-@3) , "<<j<<" ) / TMath::Power( @1-@2+(2.-@3) , "<<j-2<<" ) , 1/2 ) ) )";
 	}
       }
     }
@@ -166,6 +166,9 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   if     (dataType == "data")        data_th1_D1 = (TH1D*)file->Get(("D1_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
   else if(dataType == "pseudodata" ) data_th1_D1 = (TH1D*)file->Get(("D1_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
   else if(dataType == "pseudodataS") data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
+  else if(dataType == "pseudodataA" ) data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataFunc28_24_236_h_njets_pt30_1l"+syst).c_str()); //
+  else if(dataType == "pseudodataB" ) data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataFunc28_24_18_h_njets_pt30_1l"+syst).c_str()); //
+  else if(dataType == "pseudodataC" ) data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataFunc28_24_-20_h_njets_pt30_1l"+syst).c_str()); //
   //TH1D* data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
   //TH1D* data_th1_D1 = (TH1D*)file->Get("D1_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
   TH1D* otherMC_th1_D1 = (TH1D*)file->Get(("D1_OTHER_h_njets_pt30_1l"+syst).c_str());
@@ -175,6 +178,9 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   if     (dataType == "data")        data_th1_D2 = (TH1D*)file->Get(("D2_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
   else if(dataType == "pseudodata" ) data_th1_D2 = (TH1D*)file->Get(("D2_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
   else if(dataType == "pseudodataS") data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
+  else if(dataType == "pseudodataA" ) data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataFunc28_24_236_h_njets_pt30_1l"+syst).c_str()); //
+  else if(dataType == "pseudodataB" ) data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataFunc28_24_18_h_njets_pt30_1l"+syst).c_str()); //
+  else if(dataType == "pseudodataC" ) data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataFunc28_24_-20_h_njets_pt30_1l"+syst).c_str()); //
   //TH1D* data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
   //TH1D* data_th1_D2 = (TH1D*)file->Get("D2_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
   TH1D* otherMC_th1_D2 = (TH1D*)file->Get(("D2_OTHER_h_njets_pt30_1l"+syst).c_str());
@@ -184,6 +190,9 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   if     (dataType == "data")        data_th1_D3 = (TH1D*)file->Get(("D3_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
   else if(dataType == "pseudodata" ) data_th1_D3 = (TH1D*)file->Get(("D3_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
   else if(dataType == "pseudodataS") data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
+  else if(dataType == "pseudodataA" ) data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataFunc28_24_236_h_njets_pt30_1l"+syst).c_str()); //
+  else if(dataType == "pseudodataB" ) data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataFunc28_24_18_h_njets_pt30_1l"+syst).c_str()); //
+  else if(dataType == "pseudodataC" ) data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataFunc28_24_-20_h_njets_pt30_1l"+syst).c_str()); //
   //TH1D* data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
   //TH1D* data_th1_D3 = (TH1D*)file->Get("D3_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
   TH1D* otherMC_th1_D3 = (TH1D*)file->Get(("D3_OTHER_h_njets_pt30_1l"+syst).c_str());
@@ -193,6 +202,9 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   if     (dataType == "data")        data_th1_D4 = (TH1D*)file->Get(("D4_data_h_njets_pt30_1l"+syst).c_str());  // Actual data -- be careful
   else if(dataType == "pseudodata" ) data_th1_D4 = (TH1D*)file->Get(("D4_pseudodata_h_njets_pt30_1l"+syst).c_str()); // without signal
   else if(dataType == "pseudodataS") data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());  // with signal
+  else if(dataType == "pseudodataA" ) data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataFunc28_24_236_h_njets_pt30_1l"+syst).c_str()); //
+  else if(dataType == "pseudodataB" ) data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataFunc28_24_18_h_njets_pt30_1l"+syst).c_str()); //
+  else if(dataType == "pseudodataC" ) data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataFunc28_24_-20_h_njets_pt30_1l"+syst).c_str()); //
   //TH1D* data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
   //TH1D* data_th1_D4 = (TH1D*)file->Get("D4_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
   TH1D* otherMC_th1_D4 = (TH1D*)file->Get(("D4_OTHER_h_njets_pt30_1l"+syst).c_str());
@@ -214,7 +226,8 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
 
   RooRealVar a0_tt(("a0_tt_"+year).c_str(),("a0 of tt bkg shape for "+year).c_str(),0.28,0.1,0.4);
   RooRealVar a1_tt(("a1_tt_"+year).c_str(),("a1 of tt bkg shape for "+year).c_str(),0.24,0.1,0.4);
-  RooRealVar a2_tt(("a2_tt_"+year).c_str(),("a2 of tt bkg shape for "+year).c_str(),0.20,0.0,0.4);
+  //RooRealVar a2_tt(("a2_tt_"+year).c_str(),("a2 of tt bkg shape for "+year).c_str(),0.20,0.0,0.4);
+  RooRealVar d_tt(("d_tt_"+year).c_str(),("d of tt bkg shape for "+year).c_str(),20,-2500,2500);
 
 
   // RooRealVar a0_tt_D1("a0_tt_D1","a0 of tt bkg shape D1",0.28,0.0,1.0);
@@ -373,7 +386,7 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->import(data_hist_D1);
 
   // ttbar bkg in D1
-  RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg
+  RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
   //RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,a2_tt_D1);  // list of shape parameters for tt bkg
   RooArgList bkg_tt_syst_NP_D1(*wspace->var("np_tt_JEC"),
 			       *wspace->var(("np_tt_JER_"+year).c_str()),
@@ -421,7 +434,7 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->import(data_hist_D2);
 
   // ttbar bkg in D2
-  RooArgList parlist_D2(N7_tt_D2,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg
+  RooArgList parlist_D2(N7_tt_D2,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
   //RooArgList parlist_D2(N7_tt_D2,a0_tt_D2,a1_tt_D2,a2_tt_D2);  // list of shape parameters for tt bkg
   RooArgList bkg_tt_syst_NP_D2(*wspace->var("np_tt_JEC"),
 			       *wspace->var(("np_tt_JER_"+year).c_str()),
@@ -469,7 +482,7 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->import(data_hist_D3);
 
   // ttbar bkg in D3
-  RooArgList parlist_D3(N7_tt_D3,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg
+  RooArgList parlist_D3(N7_tt_D3,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
   //RooArgList parlist_D3(N7_tt_D3,a0_tt_D3,a1_tt_D3,a2_tt_D3);  // list of shape parameters for tt bkg
   RooArgList bkg_tt_syst_NP_D3(*wspace->var("np_tt_JEC"),
 			       *wspace->var(("np_tt_JER_"+year).c_str()),
@@ -517,7 +530,7 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->import(data_hist_D4);
 
   // ttbar bkg in D4
-  RooArgList parlist_D4(N7_tt_D4,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg
+  RooArgList parlist_D4(N7_tt_D4,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
   //RooArgList parlist_D4(N7_tt_D4,a0_tt_D4,a1_tt_D4,a2_tt_D4);  // list of shape parameters for tt bkg
   RooArgList bkg_tt_syst_NP_D4(*wspace->var("np_tt_JEC"),
 			       *wspace->var(("np_tt_JER_"+year).c_str()),
