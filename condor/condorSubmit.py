@@ -107,11 +107,11 @@ def main():
                     print "    r = ", r
                 
                     for y in range(options.jPerR):                        
-                        print "        seed = ", -1*seed
+                        print "        seed = ", seed
 
                         outputFiles = [
-                            "higgsCombine%s.HybridNew.mH%s.MODEL%s.%s.root" % (options.year, mass, st, str(-1*seed)),
-                            "log_%s%s%s_%s_%s_HybridNew.txt" % (options.year, st, mass, str(r), str(-1*seed)),
+                            "higgsCombine%s.HybridNew.mH%s.MODEL%s.%s.root" % (options.year, mass, st, str(seed)),
+                            "log_%s%s%s_%s_%s_HybridNew.txt" % (options.year, st, mass, str(r), str(seed)),
                         ]
 
                         transfer = "transfer_output_remaps = \""
@@ -123,10 +123,10 @@ def main():
 
                         fileParts.append(transfer)
                         fileParts.append("Arguments = %s %s %s %s %s %s %s %s %s\n" % (options.inputRoot2016, options.inputRoot2017, st, mass, options.year, 
-                                                                                       options.dataType, str(r), str(-1*seed), str(options.numToys)))
-                        fileParts.append("Output = %s/log-files/MyFit_%s_%s_%s_%s.stdout\n"%(options.outPath, st, mass, str(r), str(-1*seed)))
-                        fileParts.append("Error = %s/log-files/MyFit_%s_%s_%s_%s.stderr\n"%(options.outPath, st, mass, str(r), str(-1*seed)))
-                        fileParts.append("Log = %s/log-files/MyFit_%s_%s_%s_%s.log\n"%(options.outPath, st, mass, str(r), str(-1*seed)))
+                                                                                       options.dataType, str(r), str(seed), str(options.numToys)))
+                        fileParts.append("Output = %s/log-files/MyFit_%s_%s_%s_%s.stdout\n"%(options.outPath, st, mass, str(r), str(seed)))
+                        fileParts.append("Error = %s/log-files/MyFit_%s_%s_%s_%s.stderr\n"%(options.outPath, st, mass, str(r), str(seed)))
+                        fileParts.append("Log = %s/log-files/MyFit_%s_%s_%s_%s.log\n"%(options.outPath, st, mass, str(r), str(seed)))
                         fileParts.append("Queue\n\n")
                         seed+=1
     
