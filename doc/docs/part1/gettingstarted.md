@@ -6,9 +6,9 @@ The instructions below are for installation within a CMSSW environment
 
 You can find the latest releases on github under [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
 
-#### ROOT6 SLC6 release \(CMSSW\_8\_1\_X\) - recommended version
+#### ROOT6 SLC6 release `CMSSW_8_1_X` - recommended version
 
-##### Setting up the environment \(once\)
+##### Setting up the environment (once)
 
 ```
 export SCRAM_ARCH=slc6_64_gcc530
@@ -28,7 +28,7 @@ git checkout v7.0.12
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
-You can generate a diff of any two tags \(eg for `v7.0.8` and `v7.0.6`\) by using following the url:
+You can generate a diff of any two tags (eg for `v7.0.8` and `v7.0.6`) by using following the url:
 
 [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7)
 
@@ -42,11 +42,11 @@ _Prerequisites_
 
 1\) Register on github, as needed anyway for CMSSW development: [http://cms-sw.github.io/cmssw/faq.html](http://cms-sw.github.io/cmssw/faq.html)
 
-2\) Register your SSH key on github: [https://help.github.com/articles/generating-ssh-keys](https://help.github.com/articles/generating-ssh-keys) 1 Fork the repository to create your copy of it: [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork) \(more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) \)
+2\) Register your SSH key on github: [https://help.github.com/articles/generating-ssh-keys](https://help.github.com/articles/generating-ssh-keys) 1 Fork the repository to create your copy of it: [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork) (more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) )
 
 You will now be able to browse your fork of the repository from [https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit](https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit)
 
-##### Recommended way to develop a feature \(in a branch\)
+##### Recommended way to develop a feature (in a branch)
 
 ```
 # get the updates of the master branch of the remote repository
