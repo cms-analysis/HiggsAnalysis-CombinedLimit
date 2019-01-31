@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <link rel="shortcut icon" href="../../img/favicon.ico">
+
+    
+    <title>Physics models - Combine Documentation</title>
+    
+
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/font-hack/3.003/css/hack.min.css">
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../../css/base.min.css" rel="stylesheet">
+    <link href="../../css/cinder.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.min.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.28/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            <a class="navbar-brand" href="../..">Combine Documentation</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../part1/gettingstarted/">Part1</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part2 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../settinguptheanalysis/">Setting up the analysis</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">Physics models</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../bin-wise-stats/">Automatic MC statistical uncertainties</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part3 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../part3/runningthetool/">Running the tool</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/commonstatsmethods/">Common statistical methods</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/nonstandard/">Advanced use cases</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../part4/usefullinks/">Part4</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="next" href="../settinguptheanalysis/">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../bin-wise-stats/">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/master/doc/docs/part2/physicsmodels.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#physics-models">Physics Models</a></li>
+            <li class="second-level"><a href="#model-building">Model building</a></li>
+                
+                <li class="third-level"><a href="#multisignalmodel-ready-made-model-for-multiple-signal-processes">MultiSignalModel ready made model for multiple signal processes</a></li>
+                <li class="third-level"><a href="#two-hypothesis-testing">Two Hypothesis testing</a></li>
+                <li class="third-level"><a href="#interference">Interference</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="physics-models">Physics Models</h1>
+<p>Combine can be run directly on the text based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace can be performed by the user. To create a binary workspace starting from a <code>datacard.txt</code>, just do </p>
+<pre><code>text2workspace.py datacard.txt -o workspace.root
+</code></pre>
+<p>By default (without the <code>-o</code> option), the binary workspace will be named <code>datacard.root</code> - i.e the <strong>.txt</strong> suffix will be replaced by <strong>.root</strong>.</p>
+<p>A full set of options for <code>text2workspace</code> can be found by using <code>--help</code>.</p>
+<p>The default model which will be produced when running <code>text2workspace</code> is one in which all processes identified as signal are multiplied by a common multiplier <strong>r</strong>. This is all that is needed for simply setting limits or calculating significances. </p>
+<p><code>text2workspace</code> will convert the datacard into a pdf which summaries the analysis. 
+For example, lets take a look at the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/simple-counting-experiment.txt">data/tutorials/counting/simple-counting-experiment.txt</a> datacard.</p>
+<pre><code>
+# Simple counting experiment, with one signal and one background process
+# Extremely simplified version of the 35/pb H->WW analysis for mH = 200 GeV,
+# for 4th generation exclusion (EWK-10-009, arxiv:1102.5429v1)
+imax 1  number of channels
+jmax 1  number of backgrounds 
+kmax 2  number of nuisance parameters (sources of systematical uncertainties)
+------------
+# we have just one channel, in which we observe 0 events
+bin         1
+observation 0
+------------
+# now we list the expected events for signal and all backgrounds in that bin
+# the second 'process' line must have a positive number for backgrounds, and 0 for signal
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
+bin             1      1
+process       ggh4G  Bckg 
+process         0      1
+rate           4.76  1.47
+------------
+deltaS  lnN    1.20    -    20% uncertainty on signal
+deltaB  lnN      -   1.50   50% uncertainty on background 
+</pre>
+
+<p></code></p>
+<p>If we run <code>text2workspace.py</code> on this datacard and take a look at the workspace (<code>w</code>) inside the <code>.root</code> file produced, we will find a number of different objects representing the signal, background and observed event rates as well as the nuisance parameters and signal strength <strong>r</strong>. </p>
+<p>From these objects, the necessary pdf has been constructed (named <code>model_s</code>). For this counting experiment we will expect a simple pdf of the form </p>
+<div>
+<div class="MathJax_Preview"> 
+p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto 
+\dfrac{[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]^{n_{\mathrm{obs}}} }
+{n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]}
+\cdot e^{\frac{1}{2}(\delta_{S}- \delta_{S}^{\mathrm{In}})^{2}}
+\cdot e^{\frac{1}{2}(\delta_{B}- \delta_{B}^{\mathrm{In}})^{2}}
+</div>
+<script type="math/tex; mode=display"> 
+p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto 
+\dfrac{[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]^{n_{\mathrm{obs}}} }
+{n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]}
+\cdot e^{\frac{1}{2}(\delta_{S}- \delta_{S}^{\mathrm{In}})^{2}}
+\cdot e^{\frac{1}{2}(\delta_{B}- \delta_{B}^{\mathrm{In}})^{2}}
+</script>
+</div>
+<p>where the expected signal and background rates are expressed as functions of the nuisance parameters, </p>
+<p><span><span class="MathJax_Preview">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~</span><script type="math/tex">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~</script></span> and <span><span class="MathJax_Preview">~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</span><script type="math/tex">~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</script></span>  </p>
+<p>The first term represents the usual Poisson expression for observing <span><span class="MathJax_Preview">n_{\mathrm{obs}}</span><script type="math/tex">n_{\mathrm{obs}}</script></span> events while the second two are the Gaussian constraint terms for the nuisance parameters. In this case <span><span class="MathJax_Preview">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</span><script type="math/tex">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</script></span>, and the widths of both Gaussians are 1.</p>
+<p>A combination of counting experiments (or a binned shape datacard) will look like a product of pdfs of this kind. For a parametric/unbinned analyses, the pdf for each process in each channel is provided instead of the using the Poisson terms and a product is over the bin counts/events. </p>
+<h2 id="model-building">Model building</h2>
+<p>For more complex models, <code>PhysicsModels</code> can be produced. To use a different physics model instead of the default one, use the option <code>-P</code> as in </p>
+<pre><code>text2workspace.py datacard -P HiggsAnalysis.CombinedLimit.PythonFile:modelName
+</code></pre>
+<p>Generic models can be implemented by writing a python class that:</p>
+<ul>
+<li>defines the model parameters (by default it's just the signal strength modifier <strong><code>r</code></strong>)</li>
+<li>defines how signal and background yields depend on the parameters (by default, signal scale linearly with <strong><code>r</code></strong>, backgrounds are constant)</li>
+<li>potentially also modifies the systematics (e.g. switch off theory uncertainties on cross section when measuring the cross section itself)</li>
+</ul>
+<p>In the case of SM-like Higgs searches the class should inherit from <strong><code>SMLikeHiggsModel</code></strong> (redefining <strong><code>getHiggsSignalYieldScale</code></strong>), while beyond that one can inherit from <strong><code>PhysicsModel</code></strong>. You can find some examples in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/PhysicsModel.py">PhysicsModel.py</a>.</p>
+<p>In the 4-process model (<code>PhysicsModel:floatingXSHiggs</code>, you will see that each of the 4 dominant Higgs production modes get separate scaling parameters, <strong><code>r_ggH</code></strong>, <strong><code>r_qqH</code></strong>, <strong><code>r_ttH</code></strong> and <strong><code>r_VH</code></strong> (or <strong><code>r_ZH</code></strong> and <strong><code>r_WH</code></strong>) as defined in,</p>
+<pre><code class="python">def doParametersOfInterest(self):
+  &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
+  # --- Signal Strength as only POI ---
+  if &quot;ggH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ggH[1,%s,%s]&quot; % (self.ggHRange[0], self.ggHRange[1]))
+  if &quot;qqH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_qqH[1,%s,%s]&quot; % (self.qqHRange[0], self.qqHRange[1]))
+  if &quot;VH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_VH[1,%s,%s]&quot;  % (self.VHRange [0], self.VHRange [1]))
+  if &quot;WH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_WH[1,%s,%s]&quot;  % (self.WHRange [0], self.WHRange [1]))
+  if &quot;ZH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_ZH[1,%s,%s]&quot;  % (self.ZHRange [0], self.ZHRange [1]))
+  if &quot;ttH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ttH[1,%s,%s]&quot; % (self.ttHRange[0], self.ttHRange[1]))
+  poi = &quot;,&quot;.join([&quot;r_&quot;+m for m in self.modes])
+  if self.pois: poi = self.pois
+  ...
+</code></pre>
+
+<p>The mapping of which POI scales which process is handled via the following function,</p>
+<pre><code class="python">def getHiggsSignalYieldScale(self,production,decay, energy):
+  if production == &quot;ggH&quot;: return (&quot;r_ggH&quot; if &quot;ggH&quot; in self.modes else 1)
+  if production == &quot;qqH&quot;: return (&quot;r_qqH&quot; if &quot;qqH&quot; in self.modes else 1)
+  if production == &quot;ttH&quot;: return (&quot;r_ttH&quot; if &quot;ttH&quot; in self.modes else (&quot;r_ggH&quot; if self.ttHasggH else 1))
+  if production in [ &quot;WH&quot;, &quot;ZH&quot;, &quot;VH&quot; ]: return (&quot;r_VH&quot; if &quot;VH&quot; in self.modes else 1)
+  raise RuntimeError, &quot;Unknown production mode '%s'&quot; % production
+</code></pre>
+
+<p>You should note that <code>text2workspace</code> will look for the python module in <code>PYTHONPATH</code>. If you want to keep your model local, you'll need to add the location of the python file to <code>PYTHONPATH</code>.</p>
+<p>A number of models used in the LHC Higgs combination paper can be found in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/python/LHCHCGModels.py">LHCHCGModels.py</a>. These can be easily accessed by providing for example <code>-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7</code> and others defined un <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/python/HiggsCouplings.py">HiggsCouplings.py</a>.</p>
+<p>Below are some (more generic) example models which also exist in gitHub. </p>
+<h3 id="multisignalmodel-ready-made-model-for-multiple-signal-processes">MultiSignalModel ready made model for multiple signal processes</h3>
+<p>Combine already contains a model <strong><code>HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel</code></strong> that can be used to assign different signal strengths to multiple processes in a datacard, configurable from the command line.</p>
+<p>The model is configured passing to text2workspace one or more mappings in the form <strong><code>--PO 'map=bin/process:parameter'</code></strong></p>
+<ul>
+<li><strong><code>bin</code></strong> and <strong><code>process</code></strong> can be arbitrary regular expressions matching the bin names and process names in the datacard
+    Note that mappings are applied both to signals and to background processes; if a line matches multiple mappings, precedence is given to the last one in the order they are in the command line.
+    it is suggested to put quotes around the argument of <strong><code>--PO</code></strong> so that the shell does not try to expand any <strong><code>*</code></strong> signs in the patterns.</li>
+<li><strong><code>parameter</code></strong> is the POI to use to scale that process (<code>name[starting_value,min,max]</code> the first time a parameter is defined, then just <code>name</code> if used more than once)
+    Special values are <strong><code>1</code></strong> and <strong><code>0==; ==0</code></strong> means to drop the process completely from the card, while <strong><code>1</code></strong> means to keep the yield as is in the card with no scaling (as normally done for backgrounds); <strong><code>1</code></strong> is the default that is applied to processes that have no mappings, so it's normally not needed, but it may be used either to make the thing explicit, or to override a previous more generic match on the same command line (e.g. <code>--PO 'map</code>.*/ggH:r[1,0,5]' --PO 'map<code>bin37/ggH:1'</code> would treat ggH as signal in general, but count it as background in the channel <code>bin37</code>)</li>
+</ul>
+<p>Passing the additional option <strong><code>--PO verbose</code></strong> will set the code to verbose mode, printing out the scaling factors for each process; people are encouraged to use this option to make sure that the processes are being scaled correctly.</p>
+<p>The MultiSignalModel will define all parameters as parameters of interest, but that can be then changed from the command line of combine, as described in the following sub-section.</p>
+<p>Some examples, taking as reference the toy datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/toy-hgg-125.txt">test/multiDim/toy-hgg-125.txt</a>:</p>
+<ul>
+<li>Scale both <code>ggH</code> and <code>qqH</code> with the same signal strength <code>r</code> (that's what the default physics model of combine does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)</li>
+</ul>
+<pre><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r[1,0,10]' --PO 'map=.*/qqH:r' toy-hgg-125.txt -o toy-1d.root
+  [...]
+  Will create a POI  r  with factory  r[1,0,10]
+  Mapping  r  to  ['.*/ggH']  patterns
+  Mapping  r  to  ['.*/qqH']  patterns
+  [...]
+  Will scale  incl/bkg  by  1
+  Will scale  incl/ggH  by  r
+  Will scale  incl/qqH  by  r
+  Will scale  dijet/bkg  by  1
+  Will scale  dijet/ggH  by  r
+  Will scale  dijet/qqH  by  r
+</code></pre>
+
+<ul>
+<li>Define two independent parameters of interest <code>r_ggH</code> and <code>r_qqH</code></li>
+</ul>
+<pre><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r_ggH[1,0,10]' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-2d.root
+  [...]
+  Will create a POI  r_ggH  with factory  r_ggH[1,0,10]
+  Mapping  r_ggH  to  ['.*/ggH']  patterns
+  Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
+  Mapping  r_qqH  to  ['.*/qqH']  patterns
+  [...]
+  Will scale  incl/bkg  by  1
+  Will scale  incl/ggH  by  r_ggH
+  Will scale  incl/qqH  by  r_qqH
+  Will scale  dijet/bkg  by  1
+  Will scale  dijet/ggH  by  r_ggH
+  Will scale  dijet/qqH  by  r_qqH
+</code></pre>
+
+<ul>
+<li>Fix <strong><code>ggH</code></strong> to SM, define only <strong><code>qqH</code></strong> as parameter</li>
+</ul>
+<pre><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:1' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH.root
+  [...]
+  Mapping  1  to  ['.*/ggH']  patterns
+  Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
+  Mapping  r_qqH  to  ['.*/qqH']  patterns
+  [...]
+  Will scale  incl/bkg  by  1
+  Will scale  incl/ggH  by  1
+  Will scale  incl/qqH  by  r_qqH
+  Will scale  dijet/bkg  by  1
+  Will scale  dijet/ggH  by  1
+  Will scale  dijet/qqH  by  r_qqH
+</code></pre>
+
+<ul>
+<li>Drop <strong><code>ggH</code></strong> , and define only <strong><code>qqH</code></strong> as parameter</li>
+</ul>
+<pre><code> $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:0' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH0-only.root
+ [...]
+ Mapping  0  to  ['.*/ggH']  patterns
+ Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
+ Mapping  r_qqH  to  ['.*/qqH']  patterns
+ [...]
+ Will scale  incl/bkg  by  1
+ Will scale  incl/ggH  by  0
+ Will scale  incl/qqH  by  r_qqH
+ Will scale  dijet/bkg  by  1
+ Will scale  dijet/ggH  by  0
+ Will scale  dijet/qqH  by  r_qqH
+</code></pre>
+
+<h3 id="two-hypothesis-testing">Two Hypothesis testing</h3>
+<p>The <code>PhysicsModel</code> that encodes the signal model above is the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/HiggsJPC.py">twoHypothesisHiggs</a>, which assumes that there will exist signal processes with suffix <strong>_ALT</strong> in the datacard. An example of such a datacard can be found under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt">data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt</a></p>
+<pre><code> $ text2workspace.py twoSignals-3bin-bigBSyst.txt -P HiggsAnalysis.CombinedLimit.HiggsJPC:twoHypothesisHiggs -m 125.7 --PO verbose -o jcp_hww.root
+
+ MH (not there before) will be assumed to be 125.7  
+ Process  S  will get norm  not_x
+ Process  S_ALT  will get norm  x
+ Process  S  will get norm  not_x
+ Process  S_ALT  will get norm  x
+ Process  S  will get norm  not_x
+ Process  S_ALT  will get norm  x
+</code></pre>
+
+<p>The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be performed by setting <strong>x</strong> or <strong>not_x</strong> to 1 and 0 and comparing two likelihood evaluations.   </p>
+<h3 id="interference">Interference</h3>
+<p>Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes and the parameter of interest <span><span class="MathJax_Preview">k</span><script type="math/tex">k</script></span>, </p>
+<div>
+<div class="MathJax_Preview">
+\mathrm{Yield} = (k * A_{s} + A_{b})^2
+= k^2 * A_{s}^2 + k * 2 A_{s} A_{b} + A_{b}^2 
+= \mu * S + \sqrt{\mu} * I + B
+</div>
+<script type="math/tex; mode=display">
+\mathrm{Yield} = (k * A_{s} + A_{b})^2
+= k^2 * A_{s}^2 + k * 2 A_{s} A_{b} + A_{b}^2 
+= \mu * S + \sqrt{\mu} * I + B
+</script>
+</div>
+<p>where</p>
+<p><span><span class="MathJax_Preview">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</span><script type="math/tex">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</script></span> and $ S+B+I = (As + Ab)^2$.</p>
+<p>With some algebra you can work out that,</p>
+<p><span><span class="MathJax_Preview">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</span><script type="math/tex">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</script></span></p>
+<p>where square brackets represent the input (histograms as <code>TH1</code> or <code>RooDataHists</code>) that one needs to provide.</p>
+<p>An example of this scheme is implemented in a <a href="https://svnweb.cern.ch/cern/wsvn/cmshcg/trunk/cadi/HIG-17-012/2l2nu/HiggsWidth.py">HiggsWidth</a> and is completely general, since all of the three components above are strictly positive. In this example, the POI is <code>CMS_zz4l_mu</code> and the equations for the three components are scaled (separately for the <strong>qqH</strong> and <strong>ggH</strong> processes) as, </p>
+<pre><code class="python"> self.modelBuilder.factory_( &quot;expr::ggH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+ self.modelBuilder.factory_(  &quot;expr::ggH_b_func(\&quot;1-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+ self.modelBuilder.factory_(  &quot;expr::ggH_sbi_func(\&quot;sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+
+ self.modelBuilder.factory_( &quot;expr::qqH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+ self.modelBuilder.factory_(  &quot;expr::qqH_b_func(\&quot;1-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+ self.modelBuilder.factory_(  &quot;expr::qqH_sbi_func(\&quot;sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)      
+</code></pre></div>
+        
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        
+        
+        
+    </footer>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+    var base_url = '../..';
+    </script>
+    <!-- <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script> -->
+    <script src="../../js/base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script src="../../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+
+</html>

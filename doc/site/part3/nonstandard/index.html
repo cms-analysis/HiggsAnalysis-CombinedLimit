@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <link rel="shortcut icon" href="../../img/favicon.ico">
+
+    
+    <title>Advanced use cases - Combine Documentation</title>
+    
+
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/font-hack/3.003/css/hack.min.css">
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../../css/base.min.css" rel="stylesheet">
+    <link href="../../css/cinder.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.min.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.28/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            <a class="navbar-brand" href="../..">Combine Documentation</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../part1/gettingstarted/">Part1</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part2 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../part2/settinguptheanalysis/">Setting up the analysis</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part2/physicsmodels/">Physics models</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part3 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../runningthetool/">Running the tool</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../commonstatsmethods/">Common statistical methods</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">Advanced use cases</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../part4/usefullinks/">Part4</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="next" href="../commonstatsmethods/">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../../part4/usefullinks/">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/master/doc/docs/part3/nonstandard.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#advanced-use-cases">Advanced Use Cases</a></li>
+            <li class="second-level"><a href="#fitting-diagnostics">Fitting Diagnostics</a></li>
+                
+                <li class="third-level"><a href="#fit-options">Fit options</a></li>
+                <li class="third-level"><a href="#fit-parameter-uncertainties">Fit parameter uncertainties</a></li>
+                <li class="third-level"><a href="#pre-and-post-fit-nuisance-parameters-and-pulls">Pre and post fit nuisance parameters and pulls</a></li>
+                <li class="third-level"><a href="#normalizations">Normalizations</a></li>
+                <li class="third-level"><a href="#plotting">Plotting</a></li>
+                <li class="third-level"><a href="#toy-by-toy-diagnostics">Toy-by-toy diagnostics</a></li>
+            <li class="second-level"><a href="#scaling-constraints">Scaling constraints</a></li>
+                
+            <li class="second-level"><a href="#nuisance-parameter-impacts">Nuisance parameter impacts</a></li>
+                
+            <li class="second-level"><a href="#channel-masking">Channel Masking</a></li>
+                
+                <li class="third-level"><a href="#example-removing-constraints-from-the-signal-region">Example: removing constraints from the signal region</a></li>
+            <li class="second-level"><a href="#roomultipdf-conventional-bias-studies">RooMultiPdf conventional bias studies</a></li>
+                
+            <li class="second-level"><a href="#roosplinend-multidimensional-splines">RooSplineND multidimensional splines</a></li>
+                
+            <li class="second-level"><a href="#rooparametrichist-gamman-for-shapes">RooParametricHist gammaN for shapes</a></li>
+                
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="advanced-use-cases">Advanced Use Cases</h1>
+<p>This section will cover some of the more specific use cases for combine which are not necessarily related to the main statistics results. </p>
+<h2 id="fitting-diagnostics">Fitting Diagnostics</h2>
+<p>You may first want to look at the HIG PAG standard checks applied to all datacards if you want to diagnose your limit setting/fitting results which can be found <a href="https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWG/HiggsPAGPreapprovalChecks">here</a></p>
+<p>If you have already found the higgs boson but it's an exotic one, instead of computing a limit or significance you might want to extract it's cross section by performing a maximum-likelihood fit. Or, more seriously, you might want to use this same package to extract the cross section of some other process (e.g. the di-boson production). Or you might want to know how well the data compares to you model, e.g. how strongly it constraints your other nuisance parameters, what's their correlation, etc. These general diagnostic tools are contained in the method <code>FitDiagnostics</code>. </p>
+<pre><code>combine -M FitDiagnostics datacard.txt
+</code></pre>
+<p>The program will print out the result of the <em>two fits</em> performed with signal strength <strong>r</strong> (or first POI in the list) set to zero and a second with floating <strong>r</strong>. The output root tree will contain the best fit value for <strong>r</strong> and it's uncertainty. You will also get a <code>fitDiagnostics.root</code> file containing the following objects:</p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>nuisances_prefit</code></strong></td>
+<td><code>RooArgSet</code> containing the pre-fit values of the nuisance parameters, and their uncertainties from the external constraint terms only</td>
+</tr>
+<tr>
+<td><strong><code>fit_b</code></strong></td>
+<td><code>RooFitResult</code> object containing the outcome of the fit of the data with signal strength set to zero</td>
+</tr>
+<tr>
+<td><strong><code>fit_s</code></strong></td>
+<td><code>RooFitResult</code> object containing the outcome of the fit of the data with floating signal strength</td>
+</tr>
+<tr>
+<td><strong><code>covariance_fit_s</code></strong></td>
+<td><code>TH2D</code> Covariance matrix of the parameters in the fit with floating signal strength</td>
+</tr>
+<tr>
+<td><strong><code>covariance_fit_b</code></strong></td>
+<td><code>TH2D</code> Covariance matrix of the parameters in the fit with signal strength set to zero</td>
+</tr>
+<tr>
+<td><strong><code>tree_prefit</code></strong></td>
+<td><code>TTree</code> of pre-fit nuisance parameter values and constraint terms (_In)</td>
+</tr>
+<tr>
+<td><strong><code>tree_fit_sb</code></strong></td>
+<td><code>TTree</code> of fitted nuisance parameter values and constraint terms (_In) with floating signal strength</td>
+</tr>
+<tr>
+<td><strong><code>tree_fit_b</code></strong></td>
+<td><code>TTree</code> of fitted nuisance parameter values and constraint terms (_In) with signal strength set to 0</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>[info]</strong> 
+If you use the option <code>--name</code> this name will be inserted into the file name for this output file too. </p>
+</blockquote>
+<p>As well as values of the constrained nuisance parameters (and their constraint values) in the toys, you will also find branches for the number of "bad" nll calls (which you should check is not too large) and the status of the fit <code>fit_status</code>. The fit status is computed as follows</p>
+<pre><code>fit_status = 100 * hesse_status + 10 * minos_status +  minuit_summary_status
+</code></pre>
+
+<p>The <code>minuit_summary_status</code> is the usual status from Minuit, details of which can be found <a href="https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:Minimize">here</a>. For the other status values, check these documentation links for the <a href="https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:Hesse"><code>hesse_status</code></a> and the <a href="https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:GetMinosError"><code>minos_status</code></a>.</p>
+<p>A fit status of -1 indicates that the fit failed (Minuit summary was not 0 or 1) and hence the fit is <strong>not</strong> valid.</p>
+<h5 id="fit-options">Fit options</h5>
+<ul>
+<li>If you need only the signal+background fit, you can run with <code>--justFit</code>. This can be useful if the background-only fit is not interesting or not converging (e.g. if the significance of your signal is very very large)</li>
+<li>You can use <code>--rMin</code> and <code>--rMax</code> to set the range of the first POI; a range that is not too large compared to the uncertainties you expect from the fit usually gives more stable and accurate results.</li>
+<li>By default, the uncertainties are computed using MINOS for the first POI and HESSE for all other parameters (and hence they will be symmetric for the nuisance parameters). You can run MINOS for <em>all</em> parameters using the option <code>--minos all</code>, or for <em>none</em> of the parameters using <code>--minos none</code>. Note that running MINOS is slower so you should only consider using it if you think the HESSE uncertainties are not accurate.</li>
+<li>If MINOS or HESSE fails to converge, you can try running with <code>--robustFit=1</code> that will do a slower but more robust likelihood scan; this can be further controlled by the parameter <code>--stepSize</code> (the default is 0.1, and is relative to the range of the parameter)</li>
+<li>You can set the strategy and tolerance when using the <code>--robustFit</code> option using the options <code>setRobustFitAlgo</code> (default is <code>Minuit2,migrad</code>), <code>setRobustFitStrategy</code> (default is 0) and <code>--setRobustFitTolerance</code> (default is 0.1). If these options are not set, the defaults (set using <code>cminDefaultMinimizerX</code> options) will be used. You can also tune the accuracy of the routine used to find the crossing points of the likelihood using the option <code>--setCrossingTolerance</code> (default is set to 0.0001)</li>
+<li>If you find the covariance matrix provided by HESSE is not accurate (i.e. <code>fit_s-&gt;Print()</code> reports this was forced positive-definite) then a custom HESSE-style calculation of the covariance matrix can be used instead. This is enabled by running FitDiagnostics with the <code>--robustHesse 1</code> option. Please note that the status reported by <code>RooFitResult::Print()</code> will contain <code>covariance matrix quality: Unknown, matrix was externally provided</code> when robustHesse is used, this is normal and does not indicate a problem. NB: one feature of the robustHesse algorithm is that if it still cannot calculate a positive-definite covariance matrix it will try to do so by dropping parameters from the hessian matrix before inverting. If this happens it will be reported in the output to the screen. </li>
+<li>For other fitting options see the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/wiki/runningthetool#generic-minimizer-options">generic minimizer options</a> section.</li>
+</ul>
+<h4 id="fit-parameter-uncertainties">Fit parameter uncertainties</h4>
+<p>If you get a warning message when running <code>FitDiagnostics</code> which says <code>Unable to determine uncertainties on all fit parameters</code>. This means the covariance matrix calculated in FitDiagnostics was not correct. </p>
+<p>The most common problem is that the covariance matrix is forced positive-definite. In this case the constraints on fit parameters as taken from the covariance matrix are incorrect and should not be used. In particular, if you want to make post-fit plots of the distribution used in the signal extraction fit and are extracting the uncertainties on the signal and background expectations from the covariance matrix, the resulting values will not reflect the truth if the covariance matrix was incorrect. By default if this happens and you passed the <code>--saveWithUncertainties</code> flag when calling <code>FitDiagnostics</code>, this option will be ignored as calculating the uncertainties would lead to incorrect results. This behaviour can be overridden by passing <code>--ignoreCovWarning</code>.</p>
+<p>Such problems with the covariance matrix can be caused by a number of things, for example:</p>
+<ul>
+<li>
+<p>Parameters being close to their boundaries after the fit.</p>
+</li>
+<li>
+<p>Strong (anti-) correlations between some parameters.
+A discontinuity in the NLL function or its derivatives at or near the minimum.</p>
+</li>
+</ul>
+<p>If you are aware that your analysis has any of these features you could try resolving these. Setting <code>--cminDefaultMinimizerStrategy 0</code> can also help with this problem.</p>
+<h4 id="pre-and-post-fit-nuisance-parameters-and-pulls">Pre and post fit nuisance parameters and pulls</h4>
+<p>It is possible to compare pre-fit and post-fit nuisance parameters with the script <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/diffNuisances.py">diffNuisances.py</a>. Taking as input a <code>fitDiagnostics.root</code> file, the script will by default print out the parameters which have changed significantly w.r.t. their initial estimate. For each of those parameters, it will print out the shift in value and the post-fit uncertainty, both normalized to the input values, and the linear correlation between the parameter and the signal strength.</p>
+<pre><code>python diffNuisances.py fitDiagnostics.root
+</code></pre>
+<p>The script has several options to toggle the thresholds used to decide if a parameter has changed significantly, to get the printout of the absolute value of the nuisance parameters, and to get the output in another format for easy cut-n-paste (supported formats are <code>html</code>, <code>latex</code>, <code>twiki</code>). To print <em>all</em> of the parameters, use the option <code>--all</code>. </p>
+<p>The output by default will be the changes in the nuisance parameter values and uncertainties, relative to their initial (pre-fit) values (usually relative to initial values of 0 and 1 for most nuisance types). </p>
+<p>The values in the output will be <span><span class="MathJax_Preview">(\theta-\theta_{I})/\sigma_{I}</span><script type="math/tex">(\theta-\theta_{I})/\sigma_{I}</script></span> if the nuisance has a pre-fit uncertainty, otherwise it will be <span><span class="MathJax_Preview">\theta-\theta_{I}</span><script type="math/tex">\theta-\theta_{I}</script></span> if not (eg, a <code>flatParam</code> has no pre-fit uncertainty). </p>
+<p>The uncertainty reported will be the ratio <span><span class="MathJax_Preview">\sigma/\sigma_{I}</span><script type="math/tex">\sigma/\sigma_{I}</script></span> - i.e the ratio of the post-fit to the pre-fit uncertainty. If there is no pre-fit uncertainty (as for <code>flatParam</code> nuisances) then the post-fit uncertainty is shown. </p>
+<p>With the option <code>--abs</code>, instead the pre-fit and post-fit values and (asymmetric) uncertainties will be reported in full. </p>
+<blockquote>
+<p><strong>[info]</strong>
+We recommend you include the options <code>--abs</code> and <code>--all</code> to get the full information on all of the parameters (including unconstrained nuisance parameters) at least once when checking your datacards.</p>
+</blockquote>
+<p>If instead of the plain values, you wish to report the <em>pulls</em>, you can do so with the option <code>--pullDef X</code> with <code>X</code> being one of the following options; You should note that since the pulls below are only defined when the pre-fit uncertainty exists, <em>nothing</em> will be reported for parameters which have no prior constraint (except in the case of the <code>unconstPullAsym</code> choice as described below). You may want to run without this option and <code>--all</code> to get information on those parameters. </p>
+<ul>
+<li>
+<p><code>relDiffAsymErrs</code>: This is the same as the default output of the tool except that only constrained parameters (pre-fit uncertainty defined) are reported. The error is also reported and calculated as <span><span class="MathJax_Preview">\sigma/\sigma_{I}</span><script type="math/tex">\sigma/\sigma_{I}</script></span>. </p>
+</li>
+<li>
+<p><code>unconstPullAsym</code>: Report the pull as <span><span class="MathJax_Preview">\frac{\theta-\theta_{I}}{\sigma}</span><script type="math/tex">\frac{\theta-\theta_{I}}{\sigma}</script></span> where <span><span class="MathJax_Preview">\theta_{I}</span><script type="math/tex">\theta_{I}</script></span> and <span><span class="MathJax_Preview">\sigma</span><script type="math/tex">\sigma</script></span> are the initial value and <strong>post-fit</strong> uncertainty of that nuisance parameter. The pull defined in this way will have no error bar, but <em>all</em> nuisance parameters will have a result in this case. </p>
+</li>
+<li>
+<p><code>compatAsym</code>: The pull is defined as <span><span class="MathJax_Preview">\frac{\theta-\theta_{D}}{\sqrt{\sigma^{2}+\sigma_{D}^{2}}}</span><script type="math/tex">\frac{\theta-\theta_{D}}{\sqrt{\sigma^{2}+\sigma_{D}^{2}}}</script></span>, where <span><span class="MathJax_Preview">\theta_{D}</span><script type="math/tex">\theta_{D}</script></span> and <span><span class="MathJax_Preview">\sigma_{D}</span><script type="math/tex">\sigma_{D}</script></span> are calculated as  $\sigma_{D} = ( \frac{1}{\sigma^{2}} - \frac{1}{\sigma_{I}^{2}} )^{-1} $ and <span><span class="MathJax_Preview">\theta_{D} = \sigma_{D}(\theta - \frac{\theta_{I}}{\sigma_{I}^{2}})</span><script type="math/tex">\theta_{D} = \sigma_{D}(\theta - \frac{\theta_{I}}{\sigma_{I}^{2}})</script></span>, where <span><span class="MathJax_Preview">\theta_{I}</span><script type="math/tex">\theta_{I}</script></span> and <span><span class="MathJax_Preview">\sigma_{I}</span><script type="math/tex">\sigma_{I}</script></span> are the initial value and uncertainty of that nuisance parameter. This can be thought of as a <em>compatibility</em> between the initial measurement (prior) an imagined measurement where only the data (with no constraint) is used to measure the nuisance parameter. There is no error bar associated to this value. </p>
+</li>
+<li>
+<p><code>diffPullAsym</code>: The pull is defined as <span><span class="MathJax_Preview">\frac{\theta-\theta_{I}}{\sqrt{\sigma_{I}^{2}-\sigma^{2}}}</span><script type="math/tex">\frac{\theta-\theta_{I}}{\sqrt{\sigma_{I}^{2}-\sigma^{2}}}</script></span>, where <span><span class="MathJax_Preview">\theta_{I}</span><script type="math/tex">\theta_{I}</script></span> and <span><span class="MathJax_Preview">\sigma_{I}</span><script type="math/tex">\sigma_{I}</script></span> are the pre-fit value and uncertainty (from <a href="http://physics.rockefeller.edu/luc/technical_reports/cdf5776_pulls.pdf">L. Demortier and L. Lyons</a>). If the denominator is close to 0 or the post-fit uncertainty is larger than the pre-fit (usually due to some failure in the calculation), the pull is not defined and the result will be reported as <code>0 +/- 999</code>. </p>
+</li>
+</ul>
+<p>If using <code>--pullDef</code>, the results for <em>all</em> parameters for which the pull can be calculated will be shown (i.e <code>--all</code> will be set to <code>true</code>), not just those which have moved by some metric.</p>
+<p>This script has the option (<code>-g outputfile.root</code>) to produce plots of the fitted <em>values</em> of the nuisance parameters and their post-fit, asymmetric uncertainties. Instead, the pulls defined using one of the options above, can be plotted using the option <code>--pullDef X</code>. In addition this will produce a plot showing directly a comparison of the post-fit to pre-fit nuisance (symmetrized) uncertainties. </p>
+<blockquote>
+<p><strong>[info]</strong> 
+In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of <span><span class="MathJax_Preview">\theta-\theta_{I}</span><script type="math/tex">\theta-\theta_{I}</script></span>. </p>
+</blockquote>
+<h4 id="normalizations">Normalizations</h4>
+<p>For a certain class of models, like those made from datacards for shape-based analysis, the tool can also compute and save to the output root file the best fit yields of all processes. If this feature is turned on with the option <code>--saveNormalizations</code>, the file will also contain three RooArgSet <code>norm_prefit</code>, <code>norm_fit_s</code>, <code>norm_fit_b</code> objects each containing one RooConstVar for each channel <code>xxx</code> and process <code>yyy</code> with name <strong><code>xxx/yyy</code></strong> and value equal to the best fit yield. You can use <code>RooRealVar::getVal</code> and <code>RooRealVar::getError</code> to estimate both the post-(or pre-)fit values and uncertainties of these normalisations. </p>
+<p>The sample pyroot macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/mlfitNormsToText.py">mlfitNormsToText.py</a> can be used to convert the root file into a text table with four columns: channel, process, yield from the signal+background fit and yield from the background-only fit. To include the uncertainties in the table, add the option <code>--uncertainties</code></p>
+<blockquote>
+<p><strong>[warning]</strong>
+Note that when running with multiple toys, the <code>norm_fit_s</code>, <code>norm_fit_b</code> and <code>norm_prefit</code> objects will be stored for the <em>last</em> toy dataset generated and so may not be useful to you. </p>
+</blockquote>
+<p>Note that this procedure works only for "extended likelihoods" like the ones used in shape-based analysis, not for the cut-and-count datacards. You can however convert a cut-and-count datacard in an equivalent shape-based one by adding a line <code>shapes * * FAKE</code> in the datacard after the <code>imax</code>, <code>jmax</code>, <code>kmax</code> or using <code>combineCards.py countingcard.txt -S &gt; shapecard.txt</code>. </p>
+<h5 id="per-bin-norms-for-shape-analyses">Per-bin norms for shape analyses</h5>
+<p>If you have a shape based analysis, you can also (instead) include the option <code>--savePredictionsPerToy</code>. With this option, additional branches will be filled in the three output trees contained in <code>fitDiagnostics.root</code>.  </p>
+<p>The normalisation values for each toy will be stored in the branches inside the <code>TTrees</code> named <strong>n_exp[_final]_binxxx_proc_yyy</strong>. The <strong>_final</strong> will only be there if there are systematics affecting this process. </p>
+<p>Additionally, there will be filled branches which provide the value of the expected <strong>bin</strong> content for each process, in each channel. These will are named as <strong>n_exp[_final]_binxxx_proc_yyy_i</strong> (where <strong>_final</strong> will only be in the name if there are systematics affecting this process) for channel <code>xxx</code>, process <code>yyy</code> bin number <code>i</code>. In the case of the post-fit trees (<code>tree_fit_s/b</code>), these will be resulting expectations from the <em>fitted</em> models, while for the pre-fit tree, they will be the expectation from the generated model (i.e if running toys with <code>-t N</code> and using <code>--genNuisances</code>, they will be randomised for each toy). These can be useful, for example, for calculating correlations/covariances between different bins, in different channels or processes, within the model from toys. </p>
+<blockquote>
+<p><strong>[info]</strong> 
+Be aware that for <em>unbinned</em> models, a binning scheme is adopted based on the <code>RooRealVar::getBinning</code> for the observable defining the shape, if it exists, or combine will adopt some appropriate binning for each observable. </p>
+</blockquote>
+<h4 id="plotting">Plotting</h4>
+<p><code>FitDiagnostics</code> can also produce pre- and post-fit plots the model in the same directory as <code>fitDiagnostics.root</code> along with the data. To get them, you have to specify the option <code>--plots</code>, and then <em>optionally specify</em> what are the names of the signal and background pdfs, e.g. <code>--signalPdfNames='ggH*,vbfH*'</code> and <code>--backgroundPdfNames='*DY*,*WW*,*Top*'</code> (by default, the definitions of signal and background are taken from the datacard). For models with more than 1 observable, a separate projection onto each observable will be produced. </p>
+<p>An alternative is to use the options <code>--saveShapes</code>. The result will be additional folders in <code>fitDiagnostics.root</code> for each category, with pre and post-fit distributions of the signals and backgrounds as TH1s and the data as TGraphAsymmErrors (with Poisson intervals as error bars).</p>
+<p>Three additional folders (<strong>shapes_prefit</strong>, <strong>shapes_fit_sb</strong> and <strong>shapes_fit_b</strong> ) will contain the following distributions,</p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>data</code></strong></td>
+<td><code>TGraphAsymmErrors</code> containing the observed data (or toy data if using <code>-t</code>). The vertical error bars correspond to the 68% interval for a Poisson distribution centered on the observed count.</td>
+</tr>
+<tr>
+<td><strong><code>$PROCESS</code></strong> (id &lt;= 0)</td>
+<td><code>TH1F</code> for each signal process in channel, named as in the datacard</td>
+</tr>
+<tr>
+<td><strong><code>$PROCESS</code></strong> (id &gt; 0)</td>
+<td><code>TH1F</code> for each background  process in channel, named as in the datacard</td>
+</tr>
+<tr>
+<td><strong><code>total_signal</code></strong></td>
+<td><code>TH1F</code> Sum over the signal components</td>
+</tr>
+<tr>
+<td><strong><code>total_background</code></strong></td>
+<td><code>TH1F</code> Sum over the background components</td>
+</tr>
+<tr>
+<td><strong><code>total</code></strong></td>
+<td><code>TH1F</code> Sum over all of the signal and background components</td>
+</tr>
+</tbody>
+</table>
+<p>The above distributions are provided <em>for each channel included in the datacard</em>, in separate sub-folders, named as in the datacard: There will be one sub-folder per channel.</p>
+<blockquote>
+<p><strong>[warning]</strong> 
+The pre-fit signal is by default for <code>r=1</code> but this can be modified using the option <code>--preFitValue</code>.</p>
+</blockquote>
+<p>The distributions and normalisations are guaranteed to give the correct interpretation: </p>
+<ul>
+<li>
+<p>For shape datacards whose inputs are TH1, the histograms/data points will have the bin number as the x-axis and the content of each bin will be a number of events.</p>
+</li>
+<li>
+<p>For datacards whose inputs are RooAbsPdf/RooDataHists, the x-axis will correspond to the observable and the bin content will be the PDF density / events divided by the bin width. This means the absolute number of events in a given bin, i, can be obtained from <code>h.GetBinContent(i)*h.GetBinWidth(i)</code> or similar for the data graphs. <strong>Note</strong> that for <em>unbinned</em> analyses combine will make a reasonable guess as to an appropriate binning. </p>
+</li>
+</ul>
+<p>Uncertainties on the shapes will be added with the option <code>--saveWithUncertainties</code>. These uncertainties are generated by re-sampling of the fit covariance matrix, thereby accounting for the full correlation between the parameters of the fit. </p>
+<blockquote>
+<p><strong>[warning]</strong> 
+It may be tempting to sum up the uncertainties in each bin (in quadrature) to get the <em>total</em> uncertainty on a process however, this is (usually) incorrect as doing so would not account for correlations <em>between the bins</em>. Instead you can refer to the uncertainties which will be added to the post-fit normalizations described above.</p>
+</blockquote>
+<p>Additionally, the covariance matrix <strong>between</strong> bin yields (or yields/bin-widths) in each channel will also be saved as a <code>TH2F</code> named <strong>total_covar</strong>. If the covariance between <em>all bins</em> across <em>all channels</em> is desired, this can be added using the option <code>--saveOverallShapes</code>. Each folder will now contain additional distributions (and covariance matrices) corresponding to the concatenation of the bins in each channel (and therefore the covaraince between every bin in the analysis). The bin labels should make it clear as to which bin corresponds to which channel. </p>
+<h4 id="toy-by-toy-diagnostics">Toy-by-toy diagnostics</h4>
+<p><code>FitDiagnostics</code> can also be used to diagnose the fitting procedure in toy experiments to identify potentially problematic nuisance parameters when running the full limits/p-values. This can be done by adding the option <code>-t &lt;num toys&gt;</code>. The output file, <code>fitDiagnostics.root</code> the three <code>TTrees</code> will contain the value of the constraint fitted result in each toy, as a separate entry. It is recommended to use the following options when investigating toys to reduce the running time: <code>--toysFrequentist</code> <code>--noErrors</code> <code>--minos none</code></p>
+<p>The results can be plotted using the macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/plotParametersFromToys.C">test/plotParametersFromToys.C</a></p>
+<pre><code class="c++">$ root -l
+.L plotParametersFromToys.C+
+plotParametersFomToys(&quot;fitDiagnosticsToys.root&quot;,&quot;fitDiagnosticsData.root&quot;,&quot;workspace.root&quot;,&quot;r&lt;0&quot;)
+</code></pre>
+
+<p>The first argument is the name of the output file from running with toys, and the second and third (optional) arguments are the name of the file containing the result from a fit to the data and the workspace (created from <code>text2workspace.py</code>). The fourth argument can be used to specify a cut string applied to one of the branches in the tree which can be used to correlate strange behaviour with specific conditions. The output will be 2 pdf files (<strong><code>tree_fit_(s)b.pdf</code></strong>) and 2 root files  (<strong><code>tree_fit_(s)b.root</code></strong>) containing canvases of the fit results of the tool. For details on the output plots, consult <a href="http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2012/317">AN-2012/317</a>.</p>
+<h2 id="scaling-constraints">Scaling constraints</h2>
+<p>It possible to scale the <strong>constraints</strong> on the nuisance parameters when converting the datacard to a workspace (see the section on <a href="/part2/physicsmodels#model-building">physics models</a>) with <code>text2workspace.py</code>. This can be useful for projection studies of the analysis to higher luminosities or with different assumptions about the sizes of certain systematics without changing the datacard by hand. </p>
+<p>We consider two kinds of scaling;  </p>
+<ul>
+<li>A <em>constant scaling factor</em> to scale the constraints </li>
+<li>A <em>functional scale factor</em> that depends on some other parameters in the workspace, eg a luminosity scaling parameter (as a <code>rateParam</code> affecting all processes). </li>
+</ul>
+<p>In both cases these scalings can be introduced by adding some extra options at the <code>text2workspace.py</code> step. </p>
+<p>To add a <em>constant scaling factor</em> we use the option <code>--X-rescale-nuisance</code>, eg</p>
+<pre><code>text2workspace.py datacard.txt --X-rescale-nuisance '[some regular expression]' 0.5
+</code></pre>
+<p>will create the workspace in which ever nuisance parameter whose name matches the specified regular expression will have the width of the gaussian constraint scaled by a factor 0.5. </p>
+<p>Multiple <code>--X-rescale-nuisance</code> options can be specified to set different scalings for different nuisances (note that you actually have to write <code>--X-rescale-nuisance</code> each time as in <code>--X-rescale-nuisance 'theory.*' 0.5  --X-rescale-nuisance 'exp.*' 0.1</code>).</p>
+<p>To add a <em>functional scaling factor</em> we use the option <code>--X-nuisance-function</code>, which works in a similar way. Instead of a constant value you should specify a RooFit factory expression. </p>
+<p>A typical case would be scaling by <span><span class="MathJax_Preview">1/\sqrt{L}</span><script type="math/tex">1/\sqrt{L}</script></span>, where <span><span class="MathJax_Preview">L</span><script type="math/tex">L</script></span> is a luminosity scale factor eg assuming there is some parameter in the datacard/workspace called <strong><code>lumiscale</code></strong>, </p>
+<pre><code>text2workspace.py datacard.txt --X-nuisance-function '[some regular expression]' 'expr::lumisyst("1/sqrt(@0)",lumiscale[1])'
+</code></pre>
+<p>This factory syntax is quite flexible, but for our use case the typical format will be: <code>expr::[function name]("[formula]", [arg0], [arg1], ...)</code>. The <code>arg0</code>, <code>arg1</code> ... are represented in the formula by <code>@0</code>, <code>@1</code>,... placeholders. </p>
+<blockquote>
+<p><strong>[warning]</strong> 
+We are playing a slight trick here with the <code>lumiscale</code> parameter. At the point at which <code>text2workspace.py</code> is building these scaling terms the <code>lumiscale</code> for the <code>rateParam</code> has not yet been created. By writing <code>lumiscale[1]</code> we are telling RooFit to create this variable with an initial value of 1, and then later this will be re-used by the <code>rateParam</code> creation. </p>
+</blockquote>
+<p>A similar option, <code>--X-nuisance-group-function</code>, can be used to scale whole groups of nuisances (see <a href="/part2/settinguptheanalysis#groups-of-nuisances">groups of nuisances</a>). Instead of a regular expression just give the group name instead, </p>
+<pre><code>text2workspace.py datacard.txt --X-nuisance-group-function [group name] 'expr::lumisyst("1/sqrt(@0)",lumiscale[1])'
+</code></pre>
+<h2 id="nuisance-parameter-impacts">Nuisance parameter impacts</h2>
+<p>The impact of a nuisance parameter (NP) θ on a parameter of interest (POI) μ is defined as the shift Δμ that is induced as θ is fixed and brought to its +1σ or −1σ post-fit values, with all other parameters profiled as normal. </p>
+<p>This is effectively a measure of the correlation between the NP and the POI, and is useful for determining which NPs have the largest effect on the POI uncertainty.</p>
+<p>It is possible to use the <code>FitDiagnostics</code> method of combine with the option <code>--algo impact -P parameter</code> to calculate the impact of a particular nuisance parameter on the parameter(s) of interest. We will use the <code>combineTool.py</code> script to automate the fits (see the <a href="/part1/README#combine-tool"><code>combineTool</code></a> section to check out the tool.</p>
+<p>We will use an example workspace from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/htt/125/htt_tt.txt"><span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span> datacard</a>,</p>
+<pre><code>$ cp HiggsAnalysis/CombinedLimit/data/tutorials/htt/125/htt_tt.txt .
+$ text2workspace.py htt_tt.txt -m 125
+</code></pre>
+
+<p>Calculating the impacts is done in a few stages. First we just fit for each POI, using the <code>--doInitialFit</code> option with <code>combineTool.py</code>, and adding the <code>--robustFit 1</code> option that will be passed through to combine,</p>
+<pre><code>combineTool.py -M Impacts -d htt_tt.root -m 125 --doInitialFit --robustFit 1
+</code></pre>
+<p>Have a look at the options as for <a href="/part3/commonstatsmethods.html#useful-options-for-likelihood-scans">likelihood scans</a> when using <code>robustFit 1</code>.</p>
+<p>Next we perform a similar scan for each nuisance parameter with the <code>--doFits</code> options,</p>
+<pre><code>combineTool.py -M Impacts -d htt_tt.root -m 125 --robustFit 1 --doFits
+</code></pre>
+<p>Note that this will run approximately 60 scans, and to speed things up the option <code>--parallel X</code> can be given to run X combine jobs simultaneously. The batch and grid submission methods described in the <a href="/part3/runningthetool#combinetool-for-job-submission">combineTool for job submission</a> section can also be used.</p>
+<p>Once all jobs are completed the output can be collected and written into a json file:</p>
+<pre><code>combineTool.py -M Impacts -d htt_tt.root -m 125 -o impacts.json
+</code></pre>
+<p>A plot summarising the nuisance parameter values and impacts can be made with <code>plotImpacts.py</code>, </p>
+<pre><code>plotImpacts.py -i impacts.json -o impacts
+</code></pre>
+<p>The first page of the output is shown below. </p>
+<p><img alt="Impacts" src="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/doc/part3/images/impacts.png" /></p>
+<p>The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it. </p>
+<blockquote>
+<p><strong>[warning]</strong> 
+The plot also shows the <em>best fit</em> value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using <code>--setPhysicsModelParameterRanges</code> or <code>--rMin</code>) to avoid getting one-sided impacts!</p>
+</blockquote>
+<p>This script also accepts an optional json-file argument with <code>-</code>t which can be used to provide a dictionary for renaming parameters. A simple example would be to create a file <code>rename.json</code>,</p>
+<pre><code class="python">{
+  &quot;r&quot; : &quot;#mu&quot;
+}
+</code></pre>
+
+<p>that will rename the POI label on the plot.</p>
+<blockquote>
+<p><strong>[info]</strong> 
+Since <code>combineTool</code> accepts the usual options for combine you can also generate the impacts on an Asimov or toy dataset. </p>
+</blockquote>
+<p>The left panel in the summary plot shows the value of <span><span class="MathJax_Preview">(\theta-\theta_{0})/\Delta_{\theta}</span><script type="math/tex">(\theta-\theta_{0})/\Delta_{\theta}</script></span> where <span><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span> and <span><span class="MathJax_Preview">\theta_{0}</span><script type="math/tex">\theta_{0}</script></span> are the <strong>post</strong> and <strong>pre</strong>-fit values of the nuisance parameter and <span><span class="MathJax_Preview">\Delta_{\theta}</span><script type="math/tex">\Delta_{\theta}</script></span> is the <strong>pre</strong>-fit uncertainty. The asymmetric error bars show the <strong>pre</strong>-fit uncertainty divided by the <strong>post</strong>-fit uncertainty meaning that parameters with error bars smaller than <span><span class="MathJax_Preview">\pm 1</span><script type="math/tex">\pm 1</script></span> are constrained in the fit. As with the <code>diffNuisances.py</code> script, use the option <code>--pullDef</code> are defined (eg to show the <em>pull</em> instead). </p>
+<h2 id="channel-masking">Channel Masking</h2>
+<p>The <code>combine</code> tool has a number of features for diagnostics and plotting results of fits. It can often be useful to turn off particular channels in a combined analysis to see how constraints/pulls can vary. It can also be helpful to plot post-fit shapes + uncertainties of a particular channel (for example a signal region) <em>without</em> including the constraints from the data in that region. </p>
+<p>This can in some cases be achieved by removing a specific datacard when running <code>combineCards.py</code> however, when doing so the information of particular nuisances and pdfs in that region will be lost. Instead, it is possible to <strong><em>mask</em></strong> that channel from the likelihood! This is acheived at the <code>text2Workspace</code> step using the option <code>--channel-masks</code>.</p>
+<h4 id="example-removing-constraints-from-the-signal-region">Example: removing constraints from the signal region</h4>
+<p>We will take the control region example from the rate parameters tutorial from <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params">data/tutorials/rate_params/</a>.</p>
+<p>The first step is to combine the cards 
+    combineCards.py signal=signal_region.txt dimuon=dimuon_control_region.txt singlemuon=singlemuon_control_region.txt &gt; datacard.txt</p>
+<p>Note that we use the directive <code>CHANNELNAME=CHANNEL_DATACARD.txt</code> so that the names of the channels are under our control and easier to interpret. Next, we make a workspace and tell combine to create the parameters used to <em>mask channels</em></p>
+<pre><code>text2workspace.py datacard.txt --channel-masks
+</code></pre>
+<p>Now lets try a fit <em>ignoring</em> the signal region. We can turn off the signal region by setting the channel mask parameter on: <code>--setParameters mask_signal=1</code>. Note that <code>text2workspace</code> has created a masking parameter for every channel with the naming scheme <strong>mask_CHANNELNAME</strong>. By default, every parameter is set to 0 so that the channel is unmasked by default.</p>
+<pre><code>combine datacard.root -M FitDiagnostics --saveShapes --saveWithUncertainties --setParameters mask_signal=1
+</code></pre>
+<blockquote>
+<p><strong>[warning]</strong> 
+There will be a lot of warning from combine. This is safe to ignore as this is due to the s+b fit not converging since the free signal parameter cannot be constrained as the data in the signal region is being ignored. </p>
+</blockquote>
+<p>We can compare the background post-fit and uncertainties with and without the signal region by re-running with <code>--setParameters mask_signal=0</code> (or just removing that command). Below is a comparison of the background in the signal region with and without masking the data in the signal region. We take these from the shapes folder 
+<strong>shapes_fit_b/signal/total_background</strong> in the <code>fitDiagnostics.root</code> output.</p>
+<p><img alt="" src="../images/masking_tutorial.png" /></p>
+<p>Clearly the background shape is different and much less constrained <em>without including the signal region</em>, as expected. Channel masking can be used with <em>any method</em> in combine.</p>
+<h2 id="roomultipdf-conventional-bias-studies">RooMultiPdf conventional bias studies</h2>
+<p>Several analyses within the Higgs group use a functional form to describe their background which is fit to the data (eg the Higgs to two photons (Hgg) analysis). Often however, there is some uncertainty associated to the choice of which background function to use and this choice will impact results of a fit. It is therefore often the case that in these analyses, a Bias study is performed which will indicate how much potential bias can be present given a certain choice of functional form. These studies can be conducted using combine.</p>
+<p>Below is an example script which will produce a workspace based on a simplified Hgg analysis with a <em>single</em> category. You will need to get the file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/">data/tutorials/bias_studies/toyhgg_in.root</a>. </p>
+<pre><code class="c++">void makeRooMultiPdfWorkspace(){
+
+   // Load the combine Library 
+   gSystem-&gt;Load(&quot;libHiggsAnalysisCombinedLimit.so&quot;);
+
+   // Open the dummy H-&gt;gg workspace 
+   TFile *f_hgg = TFile::Open(&quot;toyhgg_in.root&quot;);
+   RooWorkspace *w_hgg = (RooWorkspace*)f_hgg-&gt;Get(&quot;multipdf&quot;);
+
+   // The observable (CMS_hgg_mass in the workspace)
+   RooRealVar *mass =  w_hgg-&gt;var(&quot;CMS_hgg_mass&quot;);
+
+   // Get three of the functions inside, exponential, linear polynomial, power law
+   RooAbsPdf *pdf_exp = w_hgg-&gt;pdf(&quot;env_pdf_1_8TeV_exp1&quot;);
+   RooAbsPdf *pdf_pol = w_hgg-&gt;pdf(&quot;env_pdf_1_8TeV_bern2&quot;);
+   RooAbsPdf *pdf_pow = w_hgg-&gt;pdf(&quot;env_pdf_1_8TeV_pow1&quot;);
+
+
+   // Fit the functions to the data to set the &quot;prefit&quot; state (note this can and should be redone with combine when doing 
+   // bias studies as one typically throws toys from the &quot;best-fit&quot;
+   RooDataSet *data = (RooDataSet*)w_hgg-&gt;data(&quot;roohist_data_mass_cat1_toy1_cutrange__CMS_hgg_mass&quot;);
+   pdf_exp-&gt;fitTo(*data);  // index 0
+   pdf_pow-&gt;fitTo(*data); // index 1 
+   pdf_pol-&gt;fitTo(*data);   // index 2
+
+   // Make a plot (data is a toy dataset)
+   RooPlot *plot = mass-&gt;frame();   data-&gt;plotOn(plot);
+   pdf_exp-&gt;plotOn(plot,RooFit::LineColor(kGreen));
+   pdf_pol-&gt;plotOn(plot,RooFit::LineColor(kBlue));
+   pdf_pow-&gt;plotOn(plot,RooFit::LineColor(kRed));
+   plot-&gt;SetTitle(&quot;PDF fits to toy data&quot;);
+   plot-&gt;Draw();
+
+   // Make a RooCategory object. This will control which of the pdfs is &quot;active&quot;
+   RooCategory cat(&quot;pdf_index&quot;,&quot;Index of Pdf which is active&quot;);
+
+   // Make a RooMultiPdf object. The order of the pdfs will be the order of their index, ie for below 
+   // 0 == exponential
+   // 1 == linear function
+   // 2 == powerlaw
+   RooArgList mypdfs;
+   mypdfs.add(*pdf_exp);
+   mypdfs.add(*pdf_pol);
+   mypdfs.add(*pdf_pow);
+
+   RooMultiPdf multipdf(&quot;roomultipdf&quot;,&quot;All Pdfs&quot;,cat,mypdfs);
+
+   // As usual make an extended term for the background with _norm for freely floating yield
+   RooRealVar norm(&quot;roomultipdf_norm&quot;,&quot;Number of background events&quot;,0,10000);
+
+   // Save to a new workspace
+   TFile *fout = new TFile(&quot;background_pdfs.root&quot;,&quot;RECREATE&quot;);
+   RooWorkspace wout(&quot;backgrounds&quot;,&quot;backgrounds&quot;);
+   wout.import(cat);
+   wout.import(norm);
+   wout.import(multipdf);
+   wout.Print();
+   wout.Write();
+
+}
+</code></pre>
+
+<p>The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooMultiPdf.h">RooMultiPdf</a> object which can switch between the functions by setting its associated index (herein called <strong>pdf_index</strong>). This (as with all parameters in combine) is accessible via the <code>--setPhysicsModelParameters</code> option.</p>
+<p>To asses the bias, one can throw toys using one function and fit with another. All of this only needs to use one datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/hgg_toy_datacard.txt">hgg_toy_datacard.txt</a></p>
+<p>The bias studies are performed in two stages. The first is to generate toys using one of the functions under some value of the signal strength <strong>r</strong> (or <span><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span>). This can be repeated for several values of <strong>r</strong> and also at different masses, but here the Higgs mass is fixed to 125 GeV. </p>
+<blockquote>
+<p><strong>[warning]</strong> 
+It is important to freeze <code>pdf_index</code> otherwise combine will try to iterate over the index in the frequentist fit.</p>
+</blockquote>
+<pre><code>combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index
+</code></pre>
+<p>Now we have 100 toys which, by setting <code>pdf_index=0</code>, sets the background pdf to the exponential function i.e assumes the exponential is the <em>true</em> function. Note that the option <code>--toysFrequentist</code> is added. This first performs a fit of the pdf, assuming a signal strength of 1, to the data before generating the toys. This is the most obvious choice as to where to throw the toys from.</p>
+<p>The next step is to fit the toys under a different background pdf hypothesis. This time we set the <code>pdf_index</code> to be 1, the powerlaw and run fits with the <code>FitDiagnostics</code> method again freezing pdf_index. </p>
+<blockquote>
+<p><strong>[warning]</strong> 
+You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.</p>
+</blockquote>
+<pre><code>combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index
+</code></pre>
+<p>In the output file <code>fitDiagnostics.root</code> there is a tree which contains the best fit results under the signal+background hypothesis. One measure of the bias is the <em>pull</em> defined as the difference between the measured value of <span><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span> and the generated value (here we used 1) relative to the uncertainty on <span><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span>. The pull distribution can be drawn and the mean provides an estimate of the pull...</p>
+<pre><code class="c++">root -l fitDiagnostics.root
+tree_fit_sb-&gt;Draw(&quot;(r-1)/rErr&gt;&gt;h(20,-4,4)&quot;)
+h-&gt;Fit(&quot;gaus&quot;)
+</code></pre>
+
+<p><img alt="" src="../images/biasexample.png" /> </p>
+<p>From the fitted Gaussian, we see the mean is at +0.30 which would indicate a bias of ~30% of the uncertainty on mu from choosing the powerlaw when the true function is an exponential.</p>
+<blockquote>
+<p><strong>[danger]</strong> 
+If the <code>discrete</code> nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the <a href="https://arxiv.org/pdf/1408.6865.pdf"><strong>discrete profiling method</strong></a> to be applied for any method which involves a profiled likelihood (frequentist methods). You should be careful however since MINOS knows nothing about these nuisances and hence estimations of uncertainties will be incorrect. Instead, uncertainties from scans and limits will correctly account for these nuisances. Currently the Bayesian methods will <em>not</em> properly treat the nuisances so some care should be taken when interpreting Bayesian results. </p>
+</blockquote>
+<h2 id="roosplinend-multidimensional-splines">RooSplineND multidimensional splines</h2>
+<p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooSplineND.h">RooSplineND</a> can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. </p>
+<p>The following script is an example of its use which produces a 2D spline from a set of points generated from a function. </p>
+<pre><code class="c++">void splinend(){
+   // library containing the RooSplineND 
+   gSystem-&gt;Load(&quot;libHiggsAnalysisCombinedLimit.so&quot;);
+
+   TTree *tree = new TTree(&quot;tree_vals&quot;,&quot;tree_vals&quot;);
+   float xb,yb,fb;
+
+   tree-&gt;Branch(&quot;f&quot;,&amp;fb,&quot;f/Float_t&quot;);
+   tree-&gt;Branch(&quot;x&quot;,&amp;xb,&quot;x/Float_t&quot;);
+   tree-&gt;Branch(&quot;y&quot;,&amp;yb,&quot;y/Float_t&quot;);
+
+   TRandom3 *r = new TRandom3();
+   int nentries = 20; // just use a regular grid of 20x20
+
+   double xmin = -3.2;
+   double xmax = 3.2;
+   double ymin = -3.2;
+   double ymax = 3.2;
+
+   for (int n=0;n&lt;nentries;n++){
+    for (int k=0;k&lt;nentries;k++){
+
+      xb=xmin+n*((xmax-xmin)/nentries);
+      yb=ymin+k*((ymax-ymin)/nentries);
+      // Gaussian * cosine function radial in &quot;F(x^2+y^2)&quot;
+      double R = (xb*xb)+(yb*yb);
+      fb = 0.1*TMath::Exp(-1*(R)/9)*TMath::Cos(2.5*TMath::Sqrt(R));
+      tree-&gt;Fill();
+     }
+   }
+
+   // 2D graph of points in tree
+   TGraph2D *p0 = new TGraph2D();
+   p0-&gt;SetMarkerSize(0.8);
+   p0-&gt;SetMarkerStyle(20);
+
+   int c0=0;
+   for (int p=0;p&lt;tree-&gt;GetEntries();p++){
+        tree-&gt;GetEntry(p);
+        p0-&gt;SetPoint(c0,xb,yb,fb);
+        c0++;
+        }
+
+
+   // ------------------------------ THIS IS WHERE WE BUILD THE SPLINE ------------------------ //
+   // Create 2 Real-vars, one for each of the parameters of the spline 
+   // The variables MUST be named the same as the corresponding branches in the tree
+   RooRealVar x(&quot;x&quot;,&quot;x&quot;,0.1,xmin,xmax); 
+   RooRealVar y(&quot;y&quot;,&quot;y&quot;,0.1,ymin,ymax);
+
+
+   // And the spline - arguments are 
+   // Required -&gt;   name, title, arglist of dependants, input tree, 
+   // Optional -&gt;  function branch name, interpolation width (tunable parameter), rescale Axis bool, cutstring 
+   // The tunable parameter gives the radial basis a &quot;width&quot;, over which the interpolation will be effectively taken 
+
+   // the reascale Axis bool (if true) will first try to rescale the points so that they are of order 1 in range
+   // This can be helpful if for example one dimension is in much larger units than another.
+
+   // The cutstring is just a ROOT string which can be used to apply cuts to the tree in case only a sub-set of the points should be used 
+
+   RooArgList args(x,y);
+   RooSplineND *spline = new RooSplineND(&quot;spline&quot;,&quot;spline&quot;,args,tree,&quot;f&quot;,1,true);
+      // ----------------------------------------------------------------------------------------- //
+
+
+   //TGraph *gr = spline-&gt;getGraph(&quot;x&quot;,0.1); // Return 1D graph. Will be a slice of the spline for fixed y generated at steps of 0.1
+
+   // Plot the 2D spline 
+   TGraph2D *gr = new TGraph2D();
+   int pt = 0;
+   for (double xx=xmin;xx&lt;xmax;xx+=0.1){
+     for (double yy=xmin;yy&lt;ymax;yy+=0.1){
+        x.setVal(xx);
+        y.setVal(yy);
+      gr-&gt;SetPoint(pt,xx,yy,spline.getVal());
+      pt++;
+     }
+   }
+
+   gr-&gt;SetTitle(&quot;&quot;);
+
+   gr-&gt;SetLineColor(1);
+   //p0-&gt;SetTitle(&quot;0.1 exp(-(x{^2}+y{^2})/9) #times Cos(2.5#sqrt{x^{2}+y^{2}})&quot;);
+   gr-&gt;Draw(&quot;surf&quot;);
+   gr-&gt;GetXaxis()-&gt;SetTitle(&quot;x&quot;);
+   gr-&gt;GetYaxis()-&gt;SetTitle(&quot;y&quot;);
+   p0-&gt;Draw(&quot;Pcolsame&quot;);
+
+   //p0-&gt;Draw(&quot;surfsame&quot;);
+   TLegend *leg = new TLegend(0.2,0.82,0.82,0.98);
+   leg-&gt;SetFillColor(0);
+   leg-&gt;AddEntry(p0,&quot;0.1 exp(-(x{^2}+y{^2})/9) #times Cos(2.5#sqrt{x^{2}+y^{2}})&quot;,&quot;p&quot;);
+   leg-&gt;AddEntry(gr,&quot;RooSplineND (N=2) interpolation&quot;,&quot;L&quot;);
+   leg-&gt;Draw();
+}
+</code></pre>
+
+<p>Running the script will produce the following plot. The plot shows the sampled points and the spline produced from them.</p>
+<p><img alt="" src="../images/colspline.png" /> </p>
+<h2 id="rooparametrichist-gamman-for-shapes">RooParametricHist gammaN for shapes</h2>
+<p>Currently, there is no straight-forward implementation of using per-bin <strong>gmN</strong> like uncertainties with shape (histogram) analyses. Instead, it is possible to tie control regions (written as datacards) with the signal region using three methods. </p>
+<p>For analyses who take the normalisation of some process from a control region, it is possible to use either <strong>lnU</strong> or <strong>rateParam</strong> directives to float the normalisation in a correlated way of some process between two regions. Instead if each bin is intended to be determined via a control region, one can use a number of RooFit histogram pdfs/functions to accomplish this. The example below shows a simple implementation of a <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooParametricHist.h">RooParametricHist</a> to achieve this.</p>
+<p>copy the script below into a file called <code>examplews.C</code> and create the input workspace using <code>root -l examplews.C</code>...</p>
+<pre><code class="c++">void examplews(){
+    // As usual, load the combine library to get access to the RooParametricHist
+    gSystem-&gt;Load(&quot;libHiggsAnalysisCombinedLimit.so&quot;);
+
+    // Output file and workspace
+    TFile *fOut = new TFile(&quot;param_ws.root&quot;,&quot;RECREATE&quot;);
+    RooWorkspace wspace(&quot;wspace&quot;,&quot;wspace&quot;);
+
+    // A search in a MET tail, define MET as our variable
+    RooRealVar met(&quot;met&quot;,&quot;E_{T}^{miss}&quot;,200,1000);
+    RooArgList vars(met);
+
+    // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
+    // Make a dataset, this will be just four bins in MET.
+    // its easiest to make this from a histogram. Set the contents to &quot;somehting&quot;
+    TH1F data_th1(&quot;data_obs_SR&quot;,&quot;Data observed in signal region&quot;,4,200,1000);
+    data_th1.SetBinContent(1,100);
+    data_th1.SetBinContent(2,50);
+    data_th1.SetBinContent(3,25);
+    data_th1.SetBinContent(4,10);
+    RooDataHist data_hist(&quot;data_obs_SR&quot;,&quot;Data observed&quot;,vars,&amp;data_th1);
+    wspace.import(data_hist);
+
+    // In the signal region, our background process will be freely floating,
+    // Create one parameter per bin representing the yield. (note of course we can have multiple processes like this)
+    RooRealVar bin1(&quot;bkg_SR_bin1&quot;,&quot;Background yield in signal region, bin 1&quot;,100,0,500);
+    RooRealVar bin2(&quot;bkg_SR_bin2&quot;,&quot;Background yield in signal region, bin 2&quot;,50,0,500);
+    RooRealVar bin3(&quot;bkg_SR_bin3&quot;,&quot;Background yield in signal region, bin 3&quot;,25,0,500);
+    RooRealVar bin4(&quot;bkg_SR_bin4&quot;,&quot;Background yield in signal region, bin 4&quot;,10,0,500);
+    RooArgList bkg_SR_bins;
+    bkg_SR_bins.add(bin1);
+    bkg_SR_bins.add(bin2);
+    bkg_SR_bins.add(bin3);
+    bkg_SR_bins.add(bin4);
+
+    // Create a RooParametericHist which contains those yields, last argument is just for the binning,
+    // can use the data TH1 for that
+    RooParametricHist p_bkg(&quot;bkg_SR&quot;, &quot;Background PDF in signal region&quot;,met,bkg_SR_bins,data_th1);
+    // Always include a _norm term which should be the sum of the yields (thats how combine likes to play with pdfs)
+    RooAddition p_bkg_norm(&quot;bkg_SR_norm&quot;,&quot;Total Number of events from background in signal region&quot;,bkg_SR_bins);
+
+    // Every signal region needs a signal
+    TH1F signal_th1(&quot;signal_SR&quot;,&quot;Signal expected in signal region&quot;,4,200,1000);
+    signal_th1.SetBinContent(1,1);
+    signal_th1.SetBinContent(2,2);
+    signal_th1.SetBinContent(3,3);
+    signal_th1.SetBinContent(4,8);
+    RooDataHist signal_hist(&quot;signal&quot;,&quot;Data observed&quot;,vars,&amp;signal_th1);
+    wspace.import(signal_hist);
+
+    // -------------------------------------------------------------------------------------------------------------//
+    // ---------------------------- CONTROL REGION -----------------------------------------------------------------//
+    TH1F data_CRth1(&quot;data_obs_CR&quot;,&quot;Data observed in control region&quot;,4,200,1000);
+    data_CRth1.SetBinContent(1,200);
+    data_CRth1.SetBinContent(2,100);
+    data_CRth1.SetBinContent(3,50);
+    data_CRth1.SetBinContent(4,20);
+
+    RooDataHist data_CRhist(&quot;data_obs_CR&quot;,&quot;Data observed&quot;,vars,&amp;data_CRth1);
+    wspace.import(data_CRhist);
+
+    // This time, the background process will be dependent on the yields of the background in the signal region.
+    // The transfer factor TF must account for acceptance/efficiency etc differences in the signal to control
+    // In this example lets assume the control region is populated by the same process decaying to clean daughters with 2xBR
+    // compared to the signal region
+
+    // NB You could have a different transfer factor for each bin represented by a completely different RooRealVar
+
+    // We can imagine that the transfer factor could be associated with some uncertainty - lets say a 1% uncertainty due to efficiency and 2% due to acceptance.
+    // We need to make these nuisance parameters ourselves and give them a nominal value of 0
+
+
+    RooRealVar efficiency(&quot;efficiency&quot;, &quot;efficiency nuisance parameter&quot;,0);
+    RooRealVar acceptance(&quot;acceptance&quot;, &quot;acceptance nuisance parameter&quot;,0);
+
+    // We would need to make the transfer factor a function of those too. Here we've assumed Log-normal effects (i.e the same as putting lnN in the CR datacard)
+    // but note that we could use any function which could be used to parameterise the effect - eg if the systematic is due to some alternate template, we could
+    // use polynomials for example.
+
+
+    RooFormulaVar TF(&quot;TF&quot;,&quot;Trasnfer factor&quot;,&quot;2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)&quot;,RooArgList(efficiency,acceptance) );
+
+    // Finally, we need to make each bin of the background in the control region a function of the background in the signal and the transfer factor
+    // N_CR = N_SR x TF
+
+    RooFormulaVar CRbin1(&quot;bkg_CR_bin1&quot;,&quot;Background yield in control region, bin 1&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin1));
+    RooFormulaVar CRbin2(&quot;bkg_CR_bin2&quot;,&quot;Background yield in control region, bin 2&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin2));
+    RooFormulaVar CRbin3(&quot;bkg_CR_bin3&quot;,&quot;Background yield in control region, bin 3&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin3));
+    RooFormulaVar CRbin4(&quot;bkg_CR_bin4&quot;,&quot;Background yield in control region, bin 4&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin4));
+
+    RooArgList bkg_CR_bins;
+    bkg_CR_bins.add(CRbin1);
+    bkg_CR_bins.add(CRbin2);
+    bkg_CR_bins.add(CRbin3);
+    bkg_CR_bins.add(CRbin4);
+    RooParametricHist p_CRbkg(&quot;bkg_CR&quot;, &quot;Background PDF in control region&quot;,met,bkg_CR_bins,data_th1);
+    RooAddition p_CRbkg_norm(&quot;bkg_CR_norm&quot;,&quot;Total Number of events from background in control region&quot;,bkg_CR_bins);
+    // -------------------------------------------------------------------------------------------------------------//
+
+    // import the pdfs
+    wspace.import(p_bkg);
+    wspace.import(p_bkg_norm,RooFit::RecycleConflictNodes());
+    wspace.import(p_CRbkg);
+    wspace.import(p_CRbkg_norm,RooFit::RecycleConflictNodes());
+    fOut-&gt;cd();
+    wspace.Write();
+
+    // Clean up
+    fOut-&gt;Close();
+    fOut-&gt;Delete();
+
+}
+</code></pre>
+
+<p>Lets go through what the script is doing. First, the observable for the search is the missing energy so we create a parameter to represent that.</p>
+<pre><code class="c++">   RooRealVar met(&quot;met&quot;,&quot;E_{T}^{miss}&quot;,200,1000);
+</code></pre>
+
+<p>First, the following lines create a freely floating parameter for each of our bins (in this example, there are only 4 bins, defined for our observable <code>met</code>.</p>
+<pre><code class="c++">   RooRealVar bin1(&quot;bkg_SR_bin1&quot;,&quot;Background yield in signal region, bin 1&quot;,100,0,500);
+   RooRealVar bin2(&quot;bkg_SR_bin2&quot;,&quot;Background yield in signal region, bin 2&quot;,50,0,500);
+   RooRealVar bin3(&quot;bkg_SR_bin3&quot;,&quot;Background yield in signal region, bin 3&quot;,25,0,500);
+   RooRealVar bin4(&quot;bkg_SR_bin4&quot;,&quot;Background yield in signal region, bin 4&quot;,10,0,500);
+
+   RooArgList bkg_SR_bins;
+   bkg_SR_bins.add(bin1);
+   bkg_SR_bins.add(bin2);
+   bkg_SR_bins.add(bin3);
+   bkg_SR_bins.add(bin4);
+</code></pre>
+
+<p>They are put into a list so that we can create a <code>RooParametricHist</code> and its normalisation from that list </p>
+<pre><code class="c++">  RooParametricHist p_bkg(&quot;bkg_SR&quot;, &quot;Background PDF in signal region&quot;,met,bkg_SR_bins,data_th1);
+
+  RooAddition p_bkg_norm(&quot;bkg_SR_norm&quot;,&quot;Total Number of events from background in signal region&quot;,bkg_SR_bins);
+</code></pre>
+
+<p>For the control region, the background process will be dependent on the yields of the background in the signal region using a <em>transfer factor</em>. The transfer factor <code>TF</code> must account for acceptance/efficiency etc differences in the signal to control regions. </p>
+<p>In this example lets assume the control region is populated by the same process decaying to a different final state with twice as large branching ratio compared to the one in the signal region.</p>
+<p>We could imagine that the transfer factor could be associated with some uncertainty - lets say a 1% uncertainty due to efficiency and 2% due to acceptance. We need to make nuisance parameters ourselves to model this and give them a nominal value of 0.</p>
+<pre><code class="c++">   RooRealVar efficiency(&quot;efficiency&quot;, &quot;efficiency nuisance parameter&quot;,0);
+   RooRealVar acceptance(&quot;acceptance&quot;, &quot;acceptance nuisance parameter&quot;,0);
+</code></pre>
+
+<p>We need to make the transfer factor a function of these parameters since variations in these uncertainties will lead to variations of the transfer factor. Here we've assumed Log-normal effects (i.e the same as putting lnN in the CR datacard) but we could use <em>any function</em> which could be used to parameterise the effect - eg if the systematic is due to some alternate template, we could use polynomials for example.    </p>
+<pre><code class="c++">   RooFormulaVar TF(&quot;TF&quot;,&quot;Trasnfer factor&quot;,&quot;2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)&quot;,RooArgList(efficiency,acceptance) );
+</code></pre>
+
+<p>Then need to make each bin of the background in the control region a function of the background in the signal and the transfer factor - i.e $N_{CR} = N_{SR} \times TF $. </p>
+<pre><code class="c++">   RooFormulaVar CRbin1(&quot;bkg_CR_bin1&quot;,&quot;Background yield in control region, bin 1&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin1));
+   RooFormulaVar CRbin2(&quot;bkg_CR_bin2&quot;,&quot;Background yield in control region, bin 2&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin2));
+   RooFormulaVar CRbin3(&quot;bkg_CR_bin3&quot;,&quot;Background yield in control region, bin 3&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin3));
+   RooFormulaVar CRbin4(&quot;bkg_CR_bin4&quot;,&quot;Background yield in control region, bin 4&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin4));
+</code></pre>
+
+<p>As before, we also need to create the <code>RooParametricHist</code> for this process in the control region but this time the bin yields will be the <code>RooFormulaVars</code> we just created instead of free floating parameters. </p>
+<pre><code class="c++">   RooArgList bkg_CR_bins;
+   bkg_CR_bins.add(CRbin1);
+   bkg_CR_bins.add(CRbin2);
+   bkg_CR_bins.add(CRbin3);
+   bkg_CR_bins.add(CRbin4);
+
+   RooParametricHist p_CRbkg(&quot;bkg_CR&quot;, &quot;Background PDF in control region&quot;,met,bkg_CR_bins,data_th1);
+   RooAddition p_CRbkg_norm(&quot;bkg_CR_norm&quot;,&quot;Total Number of events from background in control region&quot;,bkg_CR_bins);
+</code></pre>
+
+<p>Below are datacards (for signal and control regions) which can be used in conjunction with the workspace built above. In order to "use" the control region, simply combine the two cards as usual using <code>combineCards.py</code>.</p>
+<pre><code>Signal Region Datacard -- signal category
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+shapes data_obs    signal   param_ws.root wspace:data_obs_SR 
+shapes background  signal   param_ws.root wspace:bkg_SR   # the background model pdf which is freely floating, note other backgrounds can be added as usual
+shapes signal      signal   param_ws.root wspace:signal
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+bin         signal
+observation  -1 
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1      
+bin                 signal      signal  
+process             background  signal  
+process             1            0      
+rate               1            -1      
+-------------------------------------------------------------------------------------------------------------------------------------------
+# Normal uncertainties in the signal region 
+lumi_8TeV         lnN    -           1.026 
+-------------------------------------------------------------------------------------------------------------------------------------------
+# free floating parameters, we do not need to declare them, but its a good idea to 
+bkg_SR_bin1  flatParam 
+bkg_SR_bin2  flatParam 
+bkg_SR_bin3  flatParam 
+bkg_SR_bin4  flatParam 
+</code></pre>
+
+<pre><code>Control Region Datacard -- control category
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+shapes data_obs    control   param_ws.root wspace:data_obs_CR 
+shapes background  control   param_ws.root wspace:bkg_CR   # the background model pdf which is dependant on that in the SR, note other backgrounds can be added as usual
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+bin         control
+observation  -1 
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1 
+bin                 control     
+process             background  
+process             1           
+rate               1                   
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+efficiency param 0 1
+acceptance param 0 1
+</code></pre>
+
+<p>Note that for the control region, our nuisance parameters appear as <code>param</code> types so that combine will correctly constrain them.  </p>
+<p>If we combine the two cards and fit the result with <code>-M MultiDimFit -v 3</code> we can see that the parameters which give the rate of background in each bin of the signal region, along with the nuisance parameters and signal strength, are determined by the fit - i.e we have properly included the constraint from the control region, just as with the 1-bin <code>gmN</code>. </p>
+<pre><code>acceptance    = 0.00374312   +/-  0.964632  (limited)
+bkg_SR_bin1   = 99.9922  +/-  5.92062   (limited)
+bkg_SR_bin2   = 49.9951  +/-  4.13535   (limited)
+bkg_SR_bin3   = 24.9915  +/-  2.9267    (limited)
+bkg_SR_bin4   = 9.96478  +/-  2.1348    (limited)
+efficiency    = 0.00109195   +/-  0.979334  (limited)
+lumi_8TeV     = -0.0025911   +/-  0.994458
+r     = 0.00716347   +/-  12.513    (limited)
+</code></pre>
+
+<p>The example given here  is extremely basic and it should be noted that additional complexity in the transfer factors, additional uncertainties/backgrounds etc in the cards are supported as always. </p>
+<blockquote>
+<p><strong>[danger]</strong> 
+If trying to implement parametric uncertainties in this setup (eg on transfer factors) which are correlated with other channels and implemented separately, you <strong><em>MUST</em></strong> normalise the uncertainty effect so that the datacard line can read <code>param name X 1</code>. That is the uncertainty on this parameter must be 1. Without this, there will be inconsistency with other nuisances of the same name in other channels implemented as <strong>shape</strong> or <strong>lnN</strong>.</p>
+</blockquote></div>
+        
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        
+        
+        
+    </footer>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+    var base_url = '../..';
+    </script>
+    <!-- <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script> -->
+    <script src="../../js/base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script src="../../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+
+</html>

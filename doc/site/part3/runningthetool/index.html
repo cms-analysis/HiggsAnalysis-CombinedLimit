@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <link rel="shortcut icon" href="../../img/favicon.ico">
+
+    
+    <title>Running the tool - Combine Documentation</title>
+    
+
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/font-hack/3.003/css/hack.min.css">
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../../css/base.min.css" rel="stylesheet">
+    <link href="../../css/cinder.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.min.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.28/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            <a class="navbar-brand" href="../..">Combine Documentation</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../part1/gettingstarted/">Part1</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part2 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../part2/settinguptheanalysis/">Setting up the analysis</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part2/physicsmodels/">Physics models</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part3 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li class="active">
+    <a href="./">Running the tool</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../commonstatsmethods/">Common statistical methods</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../nonstandard/">Advanced use cases</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../part4/usefullinks/">Part4</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="next" href="../../part2/bin-wise-stats/">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../commonstatsmethods/">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/master/doc/docs/part3/runningthetool.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#how-to-run-the-tool">How to run the tool</a></li>
+            <li class="second-level"><a href="#common-command-line-options">Common command line options</a></li>
+                
+                <li class="third-level"><a href="#generic-minimizer-options">Generic Minimizer Options</a></li>
+                <li class="third-level"><a href="#output-from-combine">Output from combine</a></li>
+            <li class="second-level"><a href="#toy-data-generation">Toy data generation</a></li>
+                
+                <li class="third-level"><a href="#asimov-datasets">Asimov datasets</a></li>
+                <li class="third-level"><a href="#nuisance-parameter-generation">Nuisance parameter generation</a></li>
+                <li class="third-level"><a href="#generate-only">Generate only</a></li>
+                <li class="third-level"><a href="#loading-snapshots">Loading snapshots</a></li>
+            <li class="second-level"><a href="#combinetool-for-job-submission">combineTool for job submission</a></li>
+                
+                <li class="third-level"><a href="#submission-to-the-lsf-batch">Submission to the LSF Batch</a></li>
+                <li class="third-level"><a href="#running-combine-jobs-on-the-grid">Running combine jobs on the Grid</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="how-to-run-the-tool">How to run the tool</h1>
+<p>The executable <strong><code>combine</code></strong> provided by the package allows to use the Higgs Combination Tool indicating by command line which is the method to use for limit combination and which are user's preferences to run it. To see the entire list of all available options ask for the help:</p>
+<pre><code>combine --help
+</code></pre>
+<p>The option <code>-M</code> allows to chose the method used. There are several groups of statistical methods:</p>
+<ul>
+<li><strong>Asymptotic</strong> likelihood methods:<ul>
+<li><code>AsymptoticLimits</code>: limits calculated according to the asymptotic formulas in <a href="http://arxiv.org/abs/1007.1727">arxiv:1007.1727</a></li>
+<li><code>Significance</code>: simple profile likelihood approximation, for calculating significances. </li>
+</ul>
+</li>
+<li><strong>Bayesian</strong> methods:<ul>
+<li><code>BayesianSimple</code>: performing a classical numerical integration (for simple models only)</li>
+<li><code>MarkovChainMC</code>: performing Markov Chain integration, for arbitrarily complex models.</li>
+</ul>
+</li>
+<li><strong>Frequentist</strong> or hybrid bayesian-frequentist methods:<ul>
+<li><code>HybridNew</code>: compute modified frequentist limits according to several possible prescriptions</li>
+</ul>
+</li>
+<li><strong>Fitting</strong><ul>
+<li><code>FitDiagnostics</code>: performs maximum likelihood fits to extract the signal yield and provide diagnostic tools such as pre and post-fit models and correlations</li>
+<li><code>MultiDimFit</code>: perform maximum likelihood fits in multiple parameters and likelihood scans</li>
+</ul>
+</li>
+<li><strong>Miscellaneous</strong> other modules that don't compute limits but use the same framework:<ul>
+<li><code>GoodnessOfFit</code>: perform a goodness of fit test for models including shape information using several GOF estimators</li>
+<li><code>ChannelConsistencyCheck</code>: check how consistent are the individual channels of a combination are</li>
+<li><code>GenerateOnly</code>: generate random or asimov toy datasets for use as input to other methods</li>
+</ul>
+</li>
+</ul>
+<p>The command help is organized into five parts:</p>
+<ul>
+<li><em>Main options</em> section indicates how to pass the datacard as input to the tool (<code>-d datacardName</code>) and how to choose the statistical method (<code>-M MethodName</code>) to compute a limit and level of verbosity for output <code>-v</code></li>
+<li><em>Common statistics options</em> include options common to different statistical methods such as <code>-S</code>, used to indicate wether to include or not systematics (default is 1, include them), <code>--cl</code> to specify the CL (default is 0.95) or <code>-t</code> to give the number of toy MC extractions required.</li>
+<li><em>Common input-output options</em>. Is it possible to specify hypothesis point under analysis using <code>-m</code> or include specific string in output filename <code>--name</code>.</li>
+<li><em>Common miscellaneous options</em>.</li>
+<li>Method specific options sections are dedicated to each method. By providing the Method name with the <code>-M</code> option, only the options for that specific method are shown in addition to the common options</li>
+</ul>
+<p>Those options reported above are just a sample of all available.The command <code>--help</code> provides documentation of all of them.</p>
+<h2 id="common-command-line-options">Common command line options</h2>
+<p>There are a number of useful command line options which can be used to alter the model (or parameters of the model) at run These are the most commonly used, generic options, </p>
+<ul>
+<li>
+<p><code>-H</code>: run first another faster algorithm (e.g. the ProfileLikelihood described below) to get a hint of the limit, allowing the real algorithm to converge more quickly. We <strong>strongly recommend</strong> to use this option when using MarkovChainMC, HybridNew or FeldmanCousins calculators, unless you know in which range your limit lies and you set it manually (the default is <code>[0, 20]</code>)</p>
+</li>
+<li>
+<p><code>--rMax</code>, <code>--rMin</code>: manually restrict the range of signal strengths to consider. For Bayesian limits with MCMC, <code>rMax</code> a rule of thumb is that rMax should be 3-5 times the limit (a too small value of <code>rMax</code> will bias your limit towards low values, since you are restricting the integration range, while a too large value will bias you to higher limits)</p>
+</li>
+<li>
+<p><code>-S</code>: if set to 1 (default), <strong>systematic uncertainties</strong> are taken into account; if set to 0, only statistical uncertainties are considered. If your model has no systematic uncertainties, this flag has no effect. In example reported above the option S has been not specified, and systematics have been included.</p>
+</li>
+<li>
+<p><code>--setParameters name=value[,name2=value2,...]</code> sets the starting values of the parameters, useful e.g. when generating toy MC or when also setting the parameters as fixed. This option supports the use of regexp via by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
+</li>
+<li>
+<p><code>--setParameterRanges name=min,max[:name2=min2,max2:...]</code> sets the ranges of the parameters (useful e.g. for scanning in MultiDimFit, or for Bayesian integration). This option supports the use of regexp via by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
+</li>
+<li>
+<p><code>--redefineSignalPOIs name[,name2,...]</code> redefines the set of parameters of interest.</p>
+<ul>
+<li>if the parameters where constant in the input workspace, they are re-defined to be floating.</li>
+<li>nuisances promoted to parameters of interest are removed from the list of nuisances, and thus they are not randomized in methods that randomize nuisances (e.g. HybridNew in non-frequentist mode, or BayesianToyMC, or in toy generation with <code>-t</code> but without <code>--toysFreq</code>). This doesn't have any impact on algorithms that don't randomize nuisances (e.g. fits, AsymptoticLimits, or HybridNew in fequentist mode) or on algorithms that treat all parameters in the same way (e.g. MarkovChainMC).</li>
+<li>Note that constraint terms for the nuisances are <strong>dropped</strong> after promotion to a POI using <code>--redefineSignalPOI</code>. To produce a likelihood scan for a nuisance parameter, using MultiDimFit with <strong><code>--algo grid</code></strong>, you should instead use the <code>--parameters (-P)</code> option which will not cause the loss of the constraint term when scanning.</li>
+<li>parameters of interest of the input workspace that are not selected by this command become unconstrained nuisance parameters, but they are not added to the list of nuisances so they will not be randomized (see above).</li>
+</ul>
+</li>
+<li>
+<p><code>--freezeParameters name1[,name2,...]</code> Will freeze the parameters with the given names to their set values. This option supports the use of regexp via by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
+<ul>
+<li>similarly the option <code>--floatParameters</code> sets the parameter floating. </li>
+<li>groups of nuisances (constrained or otherwise), as defined in the datacard, can be frozen using <code>--freezeNuisanceGroups</code>. You can also specify to freeze nuisances which are <em>not</em> contained in a particular group using a <strong>^</strong> before the group name (<code>--freezeNuisanceGroups=^group_name</code> will freeze everything except nuisance parameters in the group "group_name".)</li>
+<li>all <em>constrained</em> nuisance parameters (not <code>flatParam</code> or <code>rateParam</code> can be set floating using <code>--floatAllNuisances</code>. </li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>[warning]</strong>
+Note that the floating/freezing options have a priority ordering from lowest to highest as <code>floatParameters &lt; freezeParameters &lt; freezeNuisanceGroups &lt; floatAllNuisances</code>. Options with higher priority will override those with lower priority. </p>
+</blockquote>
+<ul>
+<li>
+<p><code>--trackParameters name1[,name2,...]</code> will add a branch to the output tree for each of the named parameters. This option supports the use of regexp via by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
+<ul>
+<li>the name of the branch will be <strong>trackedParam_*name</strong>*.</li>
+<li>the exact behaviour depends on the method. For example, when using <code>MultiDimFit</code> with the <code>--algo scan</code>, the value of the parameter at each point in the scan will be saved while for <code>FitDiagnostics</code>, only the value at the end of the method will be saved.</li>
+</ul>
+</li>
+</ul>
+<h4 id="generic-minimizer-options">Generic Minimizer Options</h4>
+<p>Combine uses its own minimizer class which is used to steer Minuit (via RooMinimizer) named the <code>CascadeMinimizer</code>. This allows for sequential minimization which can help in case a particular setting/algo fails. Also, the <code>CascadeMinimizer</code> knows about extra features of Combine such as <em>discrete</em> nuisance parameters. </p>
+<p>All of the fits which are performed in several of the methods available use this minimizer. This means that the fits can be tuned using these common options, </p>
+<ul>
+<li><code>--cminPoiOnlyFit</code>: First, perform a fit floating <em>only</em> the parameters of interest. This can be useful to find, roughly, where the global minimum is. </li>
+<li><code>--cminPreScan</code>: Do a scan before first minimization</li>
+<li><code>--cminPreFit</code> arg: If set to a value N &gt; 0, the minimizer will perform a pre-fit with strategy (N-1) with frozen nuisance parameters.<ul>
+<li><code>--cminApproxPreFitTolerance arg</code>: If non-zero, do first a pre-fit with this tolerance (or 10 times the final tolerance, whichever is largest)</li>
+<li><code>--cminApproxPreFitStrategy arg</code>:   Strategy to use in the pre-fit. The default is strategy 0.</li>
+</ul>
+</li>
+<li><code>--cminDefaultMinimizerType arg</code>: Set the default minimizer Type. Default is Minuit2.</li>
+<li><code>--cminDefaultMinimizerAlgo arg</code>: Set the default minimizer Algo. The default is Migrad</li>
+<li><code>--cminDefaultMinimizerTolerance arg</code>: Set the default minimizer Tolerance, the default is 0.1</li>
+<li><code>--cminDefaultMinimizerStrategy arg</code>: Set the default minimizer Strategy between 0 (speed), 1 (balance - <em>default</em>), 2 (robustness). The <a href="http://www.fresco.org.uk/minuit/cern/node6.html">Minuit documentation</a> for this is pretty sparse but in general, 0 means evaluate the function less often, while 2 will waste function calls to get precise answers. An important note is that Hesse (error/correlation estimation) will be run <em>only</em> if the strategy is 1 or 2.   </li>
+<li><code>--cminFallbackAlgo arg</code>: Provides a list of fallback algorithms if the default minimizer fails. You can provide multiple ones using the syntax is <code>Type[,algo],strategy[:tolerance]</code>: eg <code>--cminFallbackAlgo Minuit2,Simplex,0:0.1</code> will fall back to the simplex algo of Minuit2 with strategy 0 and a tolerance 0.1, while <code>--cminFallbackAlgo Minuit2,1</code> will use the default algo (migrad) of Minuit2 with strategy 1.</li>
+<li><code>--cminSetZeroPoint (0/1)</code>: Set the reference of the NLL to 0 when minimizing, this can help faster convergence to the minimum if the NLL itself is large. The default is true (1), set to 0 to turn off.</li>
+</ul>
+<p>The allowed combinations of minimizer types and minimizer algos are as follows </p>
+<table>
+<thead>
+<tr>
+<th><strong>Minimizer Type</strong></th>
+<th><strong>Minimizer Algo</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Minuit</code></td>
+<td><code>Migrad</code>, <code>Simplex</code>, <code>Combined</code>, <code>Scan</code></td>
+</tr>
+<tr>
+<td><code>Minuit2</code></td>
+<td><code>Migrad</code>, <code>Simplex</code>, <code>Combined</code>, <code>Scan</code></td>
+</tr>
+<tr>
+<td><code>GSLMultiMin</code></td>
+<td><code>ConjugateFR</code>, <code>ConjugatePR</code>, <code>BFGS</code>, <code>BFGS2</code>, <code>SteepestDescent</code></td>
+</tr>
+</tbody>
+</table>
+<p>More of these options can be found in the <strong>Cascade Minimizer options</strong> section when running <code>--help</code>. </p>
+<h4 id="output-from-combine">Output from combine</h4>
+<p>Most methods will print the results of the computation to the screen, however, in addition, combine will also produce a root file containing a tree called <strong>limit</strong> with these results. The name of this file will be of the format, </p>
+<pre><code>higgsCombineTest.MethodName.mH$MASS.[word$WORD].root
+</code></pre>
+<p>where <strong>$WORD</strong> is any user defined keyword from the datacard which has been set to a particular value. </p>
+<p>A few command line options of combine can be used to control this output:</p>
+<ul>
+<li>The option <code>-n</code> allows you to specify part of the name of the rootfile. e.g. if you do <code>-n HWW</code> the roofile will be called <code>higgsCombineHWW....</code> instead of <code>higgsCombineTest</code></li>
+<li>The option <code>-m</code> allows you to specify the higgs boson mass, which gets written in the filename and also in the tree (this simplifies the bookeeping because you can merge together multiple trees corresponding to different higgs masses using <code>hadd</code> and then use the tree to plot the value of the limit vs mass) (default is m=120)</li>
+<li>The option <code>-s</code> allows to specify the seed (eg <code>-s 12345</code>) used in toy generation. If this option is given, the name of the file will be extended by this seed, eg <code>higgsCombineTest.AsymptoticLimits.mH120.12345.root</code></li>
+<li>The option <code>--keyword-value</code> allows you to specify the value of a keyword in the datacard such that <strong>$WORD</strong> (in the datacard) will be given the value of <strong>VALUE</strong> in the command <code>--keyword-value WORD=VALUE</code>, eg  <code>higgsCombineTest.AsymptoticLimits.mH120.WORDVALUE.12345.root</code></li>
+</ul>
+<p>The output file will contain a <code>TDirectory</code> named <strong>toys</strong>, which will be empty if no toys are generated (see below for details) and a <code>TTree</code> called <strong>limit</strong> with the following branches; </p>
+<table>
+<thead>
+<tr>
+<th><strong>Branch name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>limit</code></strong></td>
+<td><code>Double_t</code></td>
+<td>Main result of combine run with method dependent meaning</td>
+</tr>
+<tr>
+<td><strong><code>limitErr</code></strong></td>
+<td><code>Double_t</code></td>
+<td>Estimated uncertainty on the result</td>
+</tr>
+<tr>
+<td><strong><code>mh</code></strong></td>
+<td><code>Double_t</code></td>
+<td>Value of <strong>MH</strong>, specified with <code>-m</code> option</td>
+</tr>
+<tr>
+<td><strong><code>syst</code></strong></td>
+<td><code>Int_t</code></td>
+<td>Whether or not systematics (constrained nuisances) are included (floating) as determined with <code>-S 0/1</code></td>
+</tr>
+<tr>
+<td><strong><code>iToy</code></strong></td>
+<td><code>Int_t</code></td>
+<td>Toy number identifier if running with <code>-t</code></td>
+</tr>
+<tr>
+<td><strong><code>iSeed</code></strong></td>
+<td><code>Int_t</code></td>
+<td>Seed specified with <code>-s</code></td>
+</tr>
+<tr>
+<td><strong><code>t_cpu</code></strong></td>
+<td><code>Float_t</code></td>
+<td>Estimated CPU time for algorithm</td>
+</tr>
+<tr>
+<td><strong><code>t_real</code></strong></td>
+<td><code>Float_t</code></td>
+<td>Estimated real time for algorithm</td>
+</tr>
+<tr>
+<td><strong><code>quantileExpected</code></strong></td>
+<td><code>Float_t</code></td>
+<td>Quantile identifier for methods which calculated expected (quantiles) and observed results (eg conversions from <span><span class="MathJax_Preview">\Delta\ln L</span><script type="math/tex">\Delta\ln L</script></span> values) with method dependent meaning. Negative values are reserved for entries which <em>do not</em> related to quantiles of a calculation with the default being set to -1 (usually meaning the <em>observed</em> result).</td>
+</tr>
+</tbody>
+</table>
+<p>The value of any user defined keyword <strong>$WORD</strong> which is set using <code>keyword-value</code> described above will also be included as a  branch with type <code>string</code> named <strong>WORD</strong>. The option can be repeated multiple times for multiple keywords.</p>
+<p>In some cases, the precise meanings of the branches will depend on the Method being used, which is included in this documentation. </p>
+<h2 id="toy-data-generation">Toy data generation</h2>
+<p>By default, each of these methods will be run using the <strong>observed data</strong> as the input. In several cases (as detailed below), it might be useful to run the tool using toy datasets, including Asimov data. </p>
+<p>The option <code>-t</code> is used to specify to combine to first generate a toy dataset(s) which will be used in replacement of the real data. There are two versions of this, </p>
+<ul>
+<li>
+<p><code>-t N</code> with N &gt; 0. Combine will generate N toy datasets from the model and re-run the method once per toy. The seed for the toy generation can be modified with the option <code>-s</code> (use <code>-s -1</code> for a random seed). The output file will contain one entry in the tree for each of these toys. </p>
+</li>
+<li>
+<p><code>-t -1</code> will produce an Asimov dataset in which statistical fluctuations are suppressed. The procedure to generate this Asimov dataset depends on which type of analysis you are using, see below for details. </p>
+</li>
+</ul>
+<p>The output file will contain the toys (as <code>RooDataSets</code> for the observables, including global observables) in the <strong>toys</strong> directory if the option <code>--saveToys</code> is provided. If you include this option, the <code>limit</code> TTree in the output will have an entry corresponding to the state of the POI used for the generation of the toy, with the value of <strong><code>quantileExpected</code></strong> set to <strong>-2</strong>. You can add additional branches using the <code>--trackParameters</code> option as described in the <a href="#common-command-line-options">common command line options</a> section above. </p>
+<blockquote>
+<p><strong>[warning]</strong> 
+The default values of the nuisance parameters (or any parameter) are used to generate the toy. This means that if, for example, you are using parametric shapes and the parameters inside the workspace are set to arbitrary values, <em>those</em> arbitrary values will be used to generate the toy. This behaviour can be modified through the use of the option <code>--setParameters x=value_x,y=value_y...</code> which will set the values of the parameters (<code>x</code> and <code>y</code>) before toy generation. You can also load a snap-shot from a previous fit to set the nuisances to their <em>post-fit</em> values (see below). </p>
+</blockquote>
+<h4 id="asimov-datasets">Asimov datasets</h4>
+<p>If you are using wither <code>-t -1</code> or using <code>AsymptoticLimits</code>, combine will calculate results based on an Asimov dataset. </p>
+<ul>
+<li>
+<p>For counting experiments, the Asimov data will just be set to the total number of expected events (given the values of the nuisance parameters and POIs of the model)</p>
+</li>
+<li>
+<p>For shape analyses with templates, the Asimov dataset will be constructed as a histogram using the same binning which is defined for your analysis.  </p>
+</li>
+<li>
+<p>If your model uses parametric shapes (for example when you are using binned data, there are some options as to what Asimov dataset to produce. By <em>default</em>, combine will produce the Asimov data as a histogram using the binning which is associated to each observable (ie as set using <code>RooRealVar::setBins</code>). If this binning doesn't exist, combine will <strong>guess</strong> a suitable binning - it is therefore best to use <code>RooRealVar::setBins</code> to associate a binning to each observable, even if your data is unbinned, if you intend to use Asimov datasets. </p>
+</li>
+</ul>
+<p>You can also ask combine to use a <strong>Pseudo-Asimov</strong> dataset, which is created from many weighted unbinned events. </p>
+<p>Setting <code>--X-rtd TMCSO_AdaptivePseudoAsimov=</code><span><span class="MathJax_Preview">\beta</span><script type="math/tex">\beta</script></span> with <span><span class="MathJax_Preview">\beta&gt;0</span><script type="math/tex">\beta>0</script></span> will trigger the internal logic of whether to produce a Pseudo-Asimov dataset. This logic is as follows; </p>
+<ol>
+<li>
+<p>For each observable in your dataset, the number of bins, <span><span class="MathJax_Preview">n_{b}</span><script type="math/tex">n_{b}</script></span> is determined either from the value of <code>RooRealVar::getBins</code> if it exists or assumed to be 100. </p>
+</li>
+<li>
+<p>If <span><span class="MathJax_Preview">N_{b}=\prod_{b}n_{b}&gt;5000</span><script type="math/tex">N_{b}=\prod_{b}n_{b}>5000</script></span>, the number of expected events <span><span class="MathJax_Preview">N_{ev}</span><script type="math/tex">N_{ev}</script></span> is determined. <em>Note</em> if you are combining multiple channels, <span><span class="MathJax_Preview">N_{ev}</span><script type="math/tex">N_{ev}</script></span> refers to the number of expected events in a single channel, the logic is separate for each channel. If  <span><span class="MathJax_Preview">N_{ev}/N_{b}&lt;0.01</span><script type="math/tex">N_{ev}/N_{b}<0.01</script></span> then a Pseudo-Asimov dataset is created with the number of events equal to <span><span class="MathJax_Preview">\beta \cdot \mathrm{max}\{100*N_{ev},1000\}</span><script type="math/tex">\beta \cdot \mathrm{max}\{100*N_{ev},1000\}</script></span>. If <span><span class="MathJax_Preview">N_{ev}/N_{b}\geq 0.01</span><script type="math/tex">N_{ev}/N_{b}\geq 0.01</script></span> , then a normal Asimov dataset is produced. </p>
+</li>
+<li>
+<p>If <span><span class="MathJax_Preview">N_{b}\leq 5000</span><script type="math/tex">N_{b}\leq 5000</script></span> then a normal Asimov dataset will be produced</p>
+</li>
+</ol>
+<p>The production of a Pseudo-Asimov dataset can be <em>forced</em> by using the option <code>--X-rtd TMCSO_PseudoAsimov=X</code> where <code>X&gt;0</code> will determine the number of weighted events for the Pseudo-Asimov dataset. You should try different values of <code>X</code> since larger values leads to more events in the Pseudo-Asimov dataset resulting in higher precision but in general the fit will be slower. <em>Note</em> that if yu </p>
+<p>You can turn off the internal logic by setting <code>--X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0</code> thereby forcing histograms to be generated.</p>
+<blockquote>
+<p><strong>[info]</strong> 
+If you set <code>--X-rtd TMCSO_PseudoAsimov=X</code> with <code>X&gt;0</code> and also turn on <code>--X-rtd TMCSO_AdaptivePseudoAsimov=</code><span><span class="MathJax_Preview">\beta</span><script type="math/tex">\beta</script></span>, with <span><span class="MathJax_Preview">\beta&gt;0</span><script type="math/tex">\beta>0</script></span>, the internal logic will be used but this time the default will be to generate Pseudo-Asimov datasets, rather than the normal Asimov ones.</p>
+</blockquote>
+<h4 id="nuisance-parameter-generation">Nuisance parameter generation</h4>
+<p>The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, <em>before</em> generating the data. The <em>unconstrained</em> nuisance parameters (eg <code>flatParam</code> or <code>rateParam</code>) or those with <em>flat</em> priors are <strong>not</strong> randomised before the data generation.</p>
+<p>The following are options which define how the toys will be generated,</p>
+<ul>
+<li>
+<p><code>--toysNoSystematics</code> the nuisance parameters in each toy are <em>not</em> randomised when generating the toy datasets - i.e their nominal values are used to generate the data. Note that for methods which profile (fit) the nuisances, the parameters are still floating when evaluating the likelihood. </p>
+</li>
+<li>
+<p><code>--toysFrequentist</code> the nuisance parameters in each toy are set to their nominal values which are obtained <em>after fitting first to the data</em>, with POIs fixed, before generating the data. For evaluating likelihoods, the constraint terms are instead randomised within their Gaussian constraint pdfs around the post-fit nuisance parameter values. </p>
+</li>
+</ul>
+<p>If you are using <code>toysFrequentist</code>, be aware that the values set by <code>--setParameters</code> will be <em>ignored</em> for the toy generation as the <em>post-fit</em> values will instead be used (except for any parameter which is also a parameter of interest). You can override this behaviour and choose the nominal values for toy generation for any parameter by adding the option <code>--bypassFrequentistFit</code> which will skip the initial fit to data or by loading a snapshot (see below).</p>
+<blockquote>
+<p><strong>[warning]</strong> 
+The methods such as <code>AsymptoticLimits</code> and <code>HybridNew --LHCmode LHC-limits</code>, the  "nominal" nuisance parameter values are taken from fits to the data and are therefore not "blind" to the observed data by default (following the fully frequentist paradigm). See the detailed documentation on these methods for avoiding this and running in a completely "blind" mode. </p>
+</blockquote>
+<h4 id="generate-only">Generate only</h4>
+<p>It is also possible to generate the toys first and then feed them to the Methods in combine. This can be done using <code>-M GenerateOnly --saveToys</code>. The toys can then be read and used with the other methods by specifying <code>--toysFile=higgsCombineTest.GenerateOnly...</code> and using the same options for the toy generation. </p>
+<blockquote>
+<p><strong>[warning]</strong> 
+Some Methods also use toys within the method itself (eg <code>AsymptoticLimits</code> and <code>HybridNew</code>). For these, you should <strong>not</strong> specify the toy generation with <code>-t</code> or the options above and instead follow the specific instructions. </p>
+</blockquote>
+<h4 id="loading-snapshots">Loading snapshots</h4>
+<p>Snapshots from workspaces can be loaded and used in order to generate toys using the option <code>--snapshotName &lt;name of snapshot&gt;</code>. This will first set the parameters to the values in the snapshot <em>before</em> any other parameter options are set and toys are generated. </p>
+<p>See the section on <a href="/part3/commonstatsmethods#using-best-fit-snapshots">saving post-fit workspaces</a> for creating workspaces with post-fit snapshots from <code>MultiDimFit</code>.</p>
+<p>Here are a few examples of calculations with toys from post-fit workspaces using a workspace with <span><span class="MathJax_Preview">r, m_{H}</span><script type="math/tex">r, m_{H}</script></span> as parameters of interest</p>
+<ul>
+<li>
+<p>Throw post-fit toy with b from s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit, s with <strong>r=1.0</strong>, <strong>m=best fit MH</strong>, using nuisance values and constraints re-centered on s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit values (aka frequentist post-fit expected) and compute post-fit expected <strong>r</strong> uncertainty profiling <strong>MH</strong>
+    <code>combine higgsCombinemumhfit.MultiDimFit.mH125.root --snapshotName MultiDimFit -M MultiDimFit --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit -t -1 --expectSignal=1 -P r --floatOtherPOIs=1 --algo singles</code></p>
+</li>
+<li>
+<p>Throw post-fit toy with b from s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit, s with <strong>r=1.0, m=128.0</strong>, using nuisance values and constraints re-centered on s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit values (aka frequentist post-fit expected) and compute post-fit expected significance (with <strong>MH</strong> fixed at 128 implicitly)
+    <code>combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M ProfileLikelihood --significance --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit --overrideSnapshotMass -t -1 --expectSignal=1 --redefineSignalPOIs r --freezeParameters MH</code></p>
+</li>
+<li>
+<p>Throw post-fit toy with b from s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit, s with <strong>r=0.0</strong>, using nuisance values and constraints re-centered on s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit values (aka frequentist post-fit expected) and compute post-fit expected and observed asymptotic limit (with <strong>MH</strong> fixed at 128 implicitly)
+    <code>combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M AsymptoticLimits --verbose 9 -n randomtest --bypassFrequentistFit --overrideSnapshotMass--redefineSignalPOIs r --freezeParameters MH</code></p>
+</li>
+</ul>
+<h2 id="combinetool-for-job-submission">combineTool for job submission</h2>
+<p>For longer tasks which cannot be run locally, several methods in combine can be split to run on the <em>LSF batch</em> or the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool</code> (see <a href="/part1/README#combine-tool">this getting started</a> section to get the tool)</p>
+<h3 id="submission-to-the-lsf-batch">Submission to the LSF Batch</h3>
+<p>The syntax for running on the batch with the tool is </p>
+<pre><code>combineTool.py -M ALGO [options] --job-mode lxbatch --sub-opts="-q QUEUE" --task-name NAME [--dry-run]
+</code></pre>
+<p>with <code>options</code> being the usual list of <code>combine</code> options. The help option <code>-h</code> will give a list of both <code>combine</code> and <code>combineTool</code> sets of options. This can be used with several different methods from <code>combine</code>.</p>
+<p>The <code>--dry-run</code> option will show what will be run without actually doing so / submitting the jobs. </p>
+<p>For example, to generate toys (eg for use with limit setting) users running on lxplus at CERN the <strong>lxbatch</strong> mode can be used eg</p>
+<pre><code>combineTool.py -d workspace.root -M HybridNew --LHCmode LHC-limits --clsAcc 0  -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveHybridResult -m 125 --job-mode lxbatch --task-name lxbatch-test --sub-opts='-q 1nd'
+</code></pre>
+<p>The <code>--singlePoint</code> option is over-ridden so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using <code>--merge</code> - e.g adding <code>--merge 10</code> to the above command will mean that each job contains <em>at most</em> 10 of the values. The scripts are labelled by the <code>--task-name</code> option. These will be submitted directly to lxbatch adding any options in <code>--sub-opts</code> to the bsub call. The jobs will run and produce output in the <strong>current directory</strong>. </p>
+<p>Below is an example for splitting points in a multi-dimensional likelihood scan. </p>
+<h4 id="splitting-jobs-for-a-multi-dimensional-likelihood-scan">Splitting jobs for a multi-dimensional likelihood scan</h4>
+<p>The option <code>--split-points</code> issues the command to split the jobs for <code>MultiDimFit</code> when using <code>--algo grid</code>. The following example will split the jobs such that there are <strong>10 points</strong> in each of the jobs, which will be submitted to the <strong>8nh</strong> queue. </p>
+<pre><code>combineTool.py datacard.txt -M MultiDimFit --algo grid --points 50 --rMin 0 --rMax 1 --job-mode lxbatch --split-points 10 --sub-opts='-q 8nh' --task-name mytask -n mytask
+</code></pre>
+<p>Remember, any usual options (such as redefining POIs or freezing parameters) are passed to combine and can be added to the command line for <code>combineTool</code>. </p>
+<blockquote>
+<p><strong>[info]</strong> 
+The option <code>-n NAME</code> should be included to avoid overwriting output files as the jobs will be run inside the directory from which the command is issued.</p>
+</blockquote>
+<h3 id="running-combine-jobs-on-the-grid">Running combine jobs on the Grid</h3>
+<p>For more CPU-intensive tasks, for example determining limits for complex models using toys, it is generally not feasible to compute all the results interactively. Instead, these jobs can be submitted to the Grid. </p>
+<p>In this example we will use the <code>HybridNew</code> method of combine to determine an upper limit for a sub-channel of the Run 1 SM <span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span> analysis. For full documentation, see the section on <a href="#computing-limits-with-toys">computing limits with toys</a>.</p>
+<p>With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using <code>crab3</code>. From the set of output distributions it is possible to extract the expected and observed limits.</p>
+<p>For this we will use <code>combineTool.py</code></p>
+<p>First we need to build a workspace from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/data/tutorials/htt/125/htt_tt.txt"><span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span> datacard</a>,</p>
+<pre><code>$ text2workspace.py data/tutorials/htt/125/htt_mt.txt -m 125
+$ mv data/tutorials/htt/125/htt_mt.root ./
+</code></pre>
+
+<p>To get an idea of the range of signal strength values we will need to build test-statistic distributions for we will first use the <code>AsymptoticLimits</code> method of combine,</p>
+<pre><code>$ combine -M Asymptotic htt_mt.root -m 125
+ &lt;&lt; Combine &gt;&gt; 
+[...]
+ -- AsymptoticLimits (CLs) --
+Observed Limit: r &lt; 1.7384
+Expected  2.5%: r &lt; 0.4394
+Expected 16.0%: r &lt; 0.5971
+Expected 50.0%: r &lt; 0.8555
+Expected 84.0%: r &lt; 1.2340
+Expected 97.5%: r &lt; 1.7200
+</code></pre>
+
+<p>Based on this, a range of 0.2 to 2.0 should be suitable.</p>
+<p>We can use the same command for generating the distribution of test statistics with <code>combineTool</code>. The <code>--singlePoint</code> option is now enhanced to support expressions that generate a set of calls to combine with different values. The accepted syntax is of the form <strong>MIN:MAX:STEPSIZE</strong>, and multiple comma-separated expressions can be specified. </p>
+<p>The script also adds an option <code>--dry-run</code> which will not actually call combine but just prints out the commands that would be run, e.g,</p>
+<pre><code>
+combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.2:2.0:0.2 -T 2000 -s -1 --saveToys --saveHybridResult -m 125 --dry-run
+...
+[DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 0.2 -n .Test.POINT.0.2
+[DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 0.4 -n .Test.POINT.0.4
+[...]
+[DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 2.0 -n .Test.POINT.2.0
+</code></pre>
+
+<p>When the <code>--dry-run</code> option is removed each command will be run in sequence. </p>
+<h4 id="grid-submission">Grid submission</h4>
+<p>Submission to the grid with <code>crab3</code> works in a similar way. Before doing so ensure that the <code>crab3</code> environment has been sourced, then for compatibility reasons source the CMSSW environment again. We will use the example of generating a grid of test-statistic distributions for limits. </p>
+<pre><code>$ source /cvmfs/cms.cern.ch/crab3/crab.sh; cmsenv
+$ combineTool.py -d htt_mt.root -M HybridNew --LHCmode LHC-limits --clsAcc 0 -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveToys --saveHybridResult -m 125 --job-mode crab3 --task-name grid-test --custom-crab custom_crab.py
+</code></pre>
+
+<p>The option <code>--custom-crab</code> should point to a python file python containing a function of the form <code>custom_crab(config)</code> that will be used to modify the default crab configuration. You can use this to set the output site to your local grid site, or modify other options such as the voRole, or the site blacklist/whitelist.</p>
+<p>For example</p>
+<pre><code class="python">def custom_crab(config):
+  print '&gt;&gt; Customising the crab config'
+  config.Site.storageSite = 'T2_CH_CERN'
+  config.Site.blacklist = ['SOME_SITE', 'SOME_OTHER_SITE']
+</code></pre>
+
+<p>Again it is possible to use the option <code>--dry-run</code> to see what the complete crab config will look like before actually submitted it. </p>
+<p>Once submitted the progress can be monitored using the standard <code>crab</code> commands. When all jobs are completed copy the output from your sites storage element to the local output folder.</p>
+<pre><code>
+$ crab getoutput -d crab_grid-test
+# Now we have to un-tar the output files
+$ cd crab_grid-test/results/
+$ for f in *.tar; do tar xf $f; done
+$ mv higgsCombine*.root ../../
+$ cd ../../
+</code></pre>
+
+<p>These output files should be combined with <code>hadd</code>, after which we invoke combine as usual to calculate observed and expected limits from the merged grid as usual. </p></div>
+        
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        
+        
+        
+    </footer>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+    var base_url = '../..';
+    </script>
+    <!-- <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script> -->
+    <script src="../../js/base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script src="../../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+
+</html>
