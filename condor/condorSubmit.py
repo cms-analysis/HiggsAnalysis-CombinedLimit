@@ -4,6 +4,15 @@ import optparse
 import subprocess
 import time
 
+def getOptionList(option, failMessage):
+    l = []
+    if option:
+        l = option.split(',')
+        return l
+    else:
+        print failMessage
+        exit(0)
+
 def main():
     repo = "HiggsAnalysis/CombinedLimit"
     seed = int(time.time())
@@ -28,21 +37,9 @@ def main():
     parser.add_option ('--jPerR',       dest='jPerR',          type='int',    default = 5,                 help="Specify jobs per r setting")
 
     options, args = parser.parse_args()
+    signalType = getOptionList(options.signalType, "No dataset specified")
+    masssets = getOptionList(options.masssets, "No mass model specified")
         
-    signalType = []
-    if options.signalType:
-        signalType = options.signalType.split(',')
-    else:
-        print "No dataset specified"
-        exit(0)
-    
-    masssets = []
-    if options.masssets:
-        masssets = options.masssets.split(',')
-    else:
-        print "No mass model specified"
-        exit(0)
-
     executable = "run_fits.tcsh"
     if options.toy:
         executable = "run_toys.tcsh"
@@ -110,6 +107,8 @@ def main():
                         print "        seed = ", seed
 
                         outputFiles = [
+                            "MVA_2016_%s_%s_ws.root" % (st, mass),
+                            "MVA_2017_%s_%s_ws.root" % (st, mass),
                             "higgsCombine%s.HybridNew.mH%s.MODEL%s.%s.root" % (options.year, mass, st, str(seed)),
                             "log_%s%s%s_%s_%s_HybridNew.txt" % (options.year, st, mass, str(r), str(seed)),
                         ]
