@@ -349,6 +349,10 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
         }
     }
 
+    printf("\n\n debug : FitterAlgoBase::doFit : redoing minimization so that pdf parameters are in best fit state.\n") ;
+    minim.minimize(verbose);
+    printf("\n\n debug : FitterAlgoBase::doFit : done redoing minimization.\n") ;
+
     return ret;
 }
 
