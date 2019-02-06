@@ -11,7 +11,7 @@
     <link rel="../../img/favicon.ico">
 
     
-    <title>Automatic MC statistical uncertainties - Combine Documentation</title>
+    <title>Automatic MC statistical uncertainties - Combine</title>
     
 
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
@@ -61,7 +61,7 @@
 
             <!-- Main title -->
 
-            <a class="navbar-brand" href="../..">Combine Documentation</a>
+            <a class="navbar-brand" href="../..">Combine</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -76,19 +76,13 @@
                 
                 
                 
-                    <li >
-                        <a href="../../part1/gettingstarted/">Part1</a>
-                    </li>
-                
-                
-                
                     <li class="dropdown active">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part2 <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting up the analysis <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             
 <li >
-    <a href="../settinguptheanalysis/">Setting up the analysis</a>
+    <a href="../settinguptheanalysis/">Preparing the datacard</a>
 </li>
 
                         
@@ -110,7 +104,7 @@
                 
                 
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part3 <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Running combine <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             
@@ -137,7 +131,7 @@
                 
                 
                     <li >
-                        <a href="../../part4/usefullinks/">Part4</a>
+                        <a href="../../part4/usefullinks/">Links & FAQ</a>
                     </li>
                 
                 
@@ -193,11 +187,11 @@
 <p>By default the script will attempt to assign a single nuisance parameter to scale the sum of the process yields in each bin, constrained by the total uncertainty, instead of requiring separate parameters, one per process. This is sometimes referred to as the <a href="http://inspirehep.net/record/35053">Barlow-Beeston</a>-lite approach, and is useful as it minimises the number of parameters required in the maximum-likelihood fit. A useful description of this approach may be found in section 5 of <a href="https://arxiv.org/pdf/1103.0354.pdf">this report</a>.</p>
 <h2 id="usage-instructions">Usage instructions</h2>
 <p>The following line should be added at the bottom of the datacard, underneath the systematics, to produce a new-style workspace and optionally enable the automatic bin-wise uncertainties:</p>
-<pre><code>[channel] autoMCStats [threshold] [include-signal = 0] [hist-mode = 1]
+<pre><code class="nohighlight">[channel] autoMCStats [threshold] [include-signal = 0] [hist-mode = 1]
 </code></pre>
 
 <p>The first string <code>channel</code> should give the name of the channels (bins) in the datacard for which the new histogram classes should be used. The wildcard <code>*</code> is supported for selecting multiple channels in one go. The value of <code>threshold</code> should be set to a value greater than or equal to zero to enable the creation of automatic bin-wise uncertainties, or <code>-1</code> to use the new histogram classes without these uncertainties. A positive value sets the threshold on the effective number of unweighted events above which the uncertainty will be modeled with the Barlow-Beeston-lite approach described above. Below the threshold an individual uncertainty per-process will be created. The algorithm is described in more detail below.</p>
-<p>The last two settings are optional. The first of these, <code>include-signal</code> has a default value of <code>0</code> but can be set to <code>1</code> as an alternative. By default the total nominal yield and uncertainty used to test the threshold excludes signal processes, as typically the initial signal normalisation is arbitrary, and could unduly lead to a bin being considered well-populated despite poorly populated background templates. Setting this flag will include the signal processes in the uncertainty analysis. Note that this option only affects the logic for creating a single Barlow-Beeston-lite parameter vs. separate per-process parameters - the uncertainties on all signal processes are always included in the actual model! The second flag changes the way the normalisation effect of shape-altering uncertainties is handled. In the default mode (<code>1</code>) the normalisation is handled separately from the shape morphing via a an asymmetric log-normal term. This is identical to how combine has always handled shape morphing. When set to <code>2</code>, the normalisation will be adjusted in the shape morphing directly. Unless there is a strong motivation we encourage users to leave this on the default setting. </p>
+<p>The last two settings are optional. The first of these, <code>include-signal</code> has a default value of <code>0</code> but can be set to <code>1</code> as an alternative. By default the total nominal yield and uncertainty used to test the threshold excludes signal processes, as typically the initial signal normalisation is arbitrary, and could unduly lead to a bin being considered well-populated despite poorly populated background templates. Setting this flag will include the signal processes in the uncertainty analysis. Note that this option only affects the logic for creating a single Barlow-Beeston-lite parameter vs. separate per-process parameters - the uncertainties on all signal processes are always included in the actual model! The second flag changes the way the normalisation effect of shape-altering uncertainties is handled. In the default mode (<code>1</code>) the normalisation is handled separately from the shape morphing via a an asymmetric log-normal term. This is identical to how combine has always handled shape morphing. When set to <code>2</code>, the normalisation will be adjusted in the shape morphing directly. Unless there is a strong motivation we encourage users to leave this on the default setting.</p>
 <h2 id="description-of-the-algorithm">Description of the algorithm</h2>
 <p>When <code>threshold</code> is set to a number of effective unweighted events greater than or equal to zero, denoted <span><span class="MathJax_Preview">n^{\text{threshold}}</span><script type="math/tex">n^{\text{threshold}}</script></span>, the following algorithm is applied to each bin:</p>
 <ol>
@@ -212,9 +206,8 @@
 </ol>
 <p>The output from <code>text2workspace.py</code> will give details on how each bin has been treated by this alogorithm, for example:</p>
 <details>
-<summary> <b>Show example output</b> </summary>
-<pre><code>
-============================================================
+<summary><b>Show example output</b></summary>
+<pre><code class="nohighlight">============================================================
 Analysing bin errors for: prop_binhtt_et_6_7TeV
 Poisson cut-off: 10
 Processes excluded for sums: ZH qqH WH ggH
@@ -250,11 +243,11 @@ Bin        Contents        Error           Notes
 <h2 id="analytic-minimisation">Analytic minimisation</h2>
 <p>One significant advantage of the Barlow-Beeston-lite approach is that the maximum likelihood estimate of each nuisance parameter has a simple analytic form that depends only on <span><span class="MathJax_Preview">n_{\text{tot}}</span><script type="math/tex">n_{\text{tot}}</script></span>, <span><span class="MathJax_Preview">e_{\text{tot}}</span><script type="math/tex">e_{\text{tot}}</script></span> and the observed number of data events in the relevant bin. Therefore when minimising the negative log-likelihood of the whole model it is possible to remove these parameters from the fit and set them to their best-fit values automatically. For models with large numbers of bins this can reduce the fit time and increase the fit stability. To enable the analytic minimisation add the option <code>--X-rtd MINIMIZER_analytic</code> when running combine.</p>
 <h2 id="technical-details">Technical details</h2>
-<p>Up until recently <code>text2workspace.py</code> would only construct the PDF for each channel using a <code>RooAddPdf</code>, i.e. each component process is represented by a separate PDF and  normalisation coefficient. However in order to model bin-wise statistical uncertainties the alternative <code>RooRealSumPdf</code> can be more useful, as each process is represented by a RooFit function object instead of a PDF, and we can vary the bin yields directly. As such, a new RooFit histogram class <code>CMSHistFunc</code> is introduced, which offers the same vertical template morphing algorithms offered by the current default histogram PDF, <code>FastVerticalInterpHistPdf2</code>. Accompanying this is the <code>CMSHistErrorPropagator</code>  class. This evaluates a sum of <code>CMSHistFunc</code> objects, each multiplied by a coefficient. It is also able to scale the summed yield of each bin to account for bin-wise statistical uncertainty nuisance parameters. </p>
-<blockquote>
-<p><strong>[warning]</strong> 
-One disadvantage of this new approach comes when evaluating the expectation for individual processes, for example when using the <code>--saveShapes</code> option in the <code>FitDiagnostics</code> mode of combine. The Barlow-Beeston-lite parameters scale the sum of the process yields directly, so extra work is needed in the distribution this total scaling back to each  individual process. To achieve this an additional class <code>CMSHistFuncWrapper</code> has been created that, given a particular <code>CMSHistFunc</code>, the <code>CMSHistErrorPropagator</code> will distribute an appropriate fraction of the total yield shift to each bin. As a consequence of the extra computation needed to distribute the yield shifts in this way the evaluation of individual process shapes in <code>--saveShapes</code> can take longer then previously.</p>
-</blockquote></div>
+<p>Up until recently <code>text2workspace.py</code> would only construct the PDF for each channel using a <code>RooAddPdf</code>, i.e. each component process is represented by a separate PDF and  normalisation coefficient. However in order to model bin-wise statistical uncertainties the alternative <code>RooRealSumPdf</code> can be more useful, as each process is represented by a RooFit function object instead of a PDF, and we can vary the bin yields directly. As such, a new RooFit histogram class <code>CMSHistFunc</code> is introduced, which offers the same vertical template morphing algorithms offered by the current default histogram PDF, <code>FastVerticalInterpHistPdf2</code>. Accompanying this is the <code>CMSHistErrorPropagator</code>  class. This evaluates a sum of <code>CMSHistFunc</code> objects, each multiplied by a coefficient. It is also able to scale the summed yield of each bin to account for bin-wise statistical uncertainty nuisance parameters.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>One disadvantage of this new approach comes when evaluating the expectation for individual processes, for example when using the <code>--saveShapes</code> option in the <code>FitDiagnostics</code> mode of combine. The Barlow-Beeston-lite parameters scale the sum of the process yields directly, so extra work is needed in the distribution this total scaling back to each  individual process. To achieve this an additional class <code>CMSHistFuncWrapper</code> has been created that, given a particular <code>CMSHistFunc</code>, the <code>CMSHistErrorPropagator</code> will distribute an appropriate fraction of the total yield shift to each bin. As a consequence of the extra computation needed to distribute the yield shifts in this way the evaluation of individual process shapes in <code>--saveShapes</code> can take longer then previously.</p>
+</div></div>
         
         
     </div>

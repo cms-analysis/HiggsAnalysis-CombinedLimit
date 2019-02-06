@@ -11,7 +11,7 @@
     <link rel="img/favicon.ico">
 
     
-    <title>Home - Combine Documentation</title>
+    <title>Home - Combine</title>
     
 
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
@@ -61,7 +61,7 @@
 
             <!-- Main title -->
 
-            <a class="navbar-brand" href=".">Combine Documentation</a>
+            <a class="navbar-brand" href=".">Combine</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -76,19 +76,13 @@
                 
                 
                 
-                    <li >
-                        <a href="part1/gettingstarted/">Part1</a>
-                    </li>
-                
-                
-                
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part2 <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting up the analysis <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             
 <li >
-    <a href="part2/settinguptheanalysis/">Setting up the analysis</a>
+    <a href="part2/settinguptheanalysis/">Preparing the datacard</a>
 </li>
 
                         
@@ -110,7 +104,7 @@
                 
                 
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part3 <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Running combine <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             
@@ -137,7 +131,7 @@
                 
                 
                     <li >
-                        <a href="part4/usefullinks/">Part4</a>
+                        <a href="part4/usefullinks/">Links & FAQ</a>
                     </li>
                 
                 
@@ -155,7 +149,7 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="part1/gettingstarted/">
+                        <a rel="prev" href="part2/settinguptheanalysis/">
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
@@ -173,6 +167,15 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
         <li class="first-level active"><a href="#introduction">Introduction</a></li>
+        <li class="first-level "><a href="#setting-up-the-environment-and-installation">Setting up the environment and installation</a></li>
+            <li class="second-level"><a href="#for-end-users-that-dont-need-to-commit-or-do-any-development">For end users that don't need to commit or do any development</a></li>
+                
+                <li class="third-level"><a href="#root6-slc6-release-cmssw_8_1_x-recommended-version">ROOT6 SLC6 release CMSSW_8_1_X - recommended version</a></li>
+            <li class="second-level"><a href="#for-developers">For developers</a></li>
+                
+                <li class="third-level"><a href="#recommended-way-to-develop-a-feature-in-a-branch">Recommended way to develop a feature (in a branch)</a></li>
+            <li class="second-level"><a href="#combine-tool">Combine Tool</a></li>
+                
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -182,7 +185,84 @@
 <p>Combine provides a command line interface to many different statistical techniques available inside RooFit/RooStats used widely inside CMS.</p>
 <p>The package exists in GIT under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit</a></p>
 <p>For more information about GIT and its usage in CMS, see <a href="http://cms-sw.github.io/cmssw/faq.html">http://cms-sw.github.io/cmssw/faq.html</a></p>
-<p>The code can be checked out from GIT and compiled on top of a CMSSW release that includes a recent RooFit/RooStats</p></div>
+<p>The code can be checked out from GIT and compiled on top of a CMSSW release that includes a recent RooFit/RooStats</p>
+<h1 id="setting-up-the-environment-and-installation">Setting up the environment and installation</h1>
+<p>The instructions below are for installation within a CMSSW environment</p>
+<h2 id="for-end-users-that-dont-need-to-commit-or-do-any-development">For end users that don't need to commit or do any development</h2>
+<p>You can find the latest releases on github under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases</a></p>
+<h3 id="root6-slc6-release-cmssw_8_1_x-recommended-version">ROOT6 SLC6 release <code>CMSSW_8_1_X</code> - recommended version</h3>
+<p>Setting up the environment (once):</p>
+<pre><code class="sh">export SCRAM_ARCH=slc6_64_gcc530
+cmsrel CMSSW_8_1_0
+cd CMSSW_8_1_0/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+</code></pre>
+
+<p>Update to a reccomended tag - currently the reccomended tag is <strong>v7.0.12</strong>:</p>
+<pre><code class="sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v7.0.12
+scramv1 b clean; scramv1 b # always make a clean build
+</code></pre>
+
+<p>You can generate a diff of any two tags (eg for <code>v7.0.8</code> and <code>v7.0.6</code>) by using following the url:</p>
+<p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7</a></p>
+<p>Replace the tag names in the url to any tags you which to compare.</p>
+<h2 id="for-developers">For developers</h2>
+<p>We use the <em>Fork and Pull</em> model for development: each user creates a copy of the repository on github, commits their requests there and then sends pull requests for the administrators to merge.</p>
+<p><em>Prerequisites</em></p>
+<ol>
+<li>
+<p>Register on github, as needed anyway for CMSSW development: <a href="http://cms-sw.github.io/cmssw/faq.html">http://cms-sw.github.io/cmssw/faq.html</a></p>
+</li>
+<li>
+<p>Register your SSH key on github: <a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a> 1 Fork the repository to create your copy of it: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork</a> (more documentation at <a href="https://help.github.com/articles/fork-a-repo">https://help.github.com/articles/fork-a-repo</a> )</p>
+</li>
+</ol>
+<p>You will now be able to browse your fork of the repository from <a href="https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit">https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit</a></p>
+<h3 id="recommended-way-to-develop-a-feature-in-a-branch">Recommended way to develop a feature (in a branch)</h3>
+<pre><code class="sh"># get the updates of the master branch of the remote repository
+git fetch upstream
+
+# branch straight off the upstream master
+git checkout -b feature_name_branch upstream/81x-root606
+
+# implement the feature
+# commit, etc
+
+# before publishing:
+# get the updates of the master branch of the remote repository
+git fetch upstream
+
+# if you're ready to integrate the upstream changes into your repository do
+git rebase upstream/81x-root606
+
+# fix any conflicts
+git push origin feature_name_branch
+</code></pre>
+
+<p>And proceed to make a pull request from the branch you created.</p>
+<h4 id="committing-changes-to-your-repository">Committing changes to your repository</h4>
+<pre><code class="sh">git add ....
+git commit -m &quot;....&quot;
+git push
+</code></pre>
+
+<p>You can now make a pull request to the repository.</p>
+<h2 id="combine-tool">Combine Tool</h2>
+<p>An additional tool for submitting combine jobs to batch/crab, developed originally for HiggsToTauTau. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core <a href="https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/"><code>CombineHarvester/CombineTools</code></a> subpackage, speeding up the checkout and compile times:</p>
+<p>git clone via ssh:</p>
+<pre><code class="sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
+</code></pre>
+
+<p>git clone via https:</p>
+<pre><code class="sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh)
+</code></pre>
+
+<p>make sure to run <code>scram</code>  to compile the <code>CombineTools</code> package.</p>
+<p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation pages for more details on using this tool and additional features available in the full package.</p></div>
         
         
     </div>
@@ -241,5 +321,5 @@
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-02-06 10:24:58
+Build Date UTC : 2019-02-06 14:42:31
 -->
