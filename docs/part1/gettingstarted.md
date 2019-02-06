@@ -6,22 +6,21 @@ The instructions below are for installation within a CMSSW environment
 
 You can find the latest releases on github under [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
 
-#### ROOT6 SLC6 release `CMSSW_8_1_X` - recommended version
+### ROOT6 SLC6 release `CMSSW_8_1_X` - recommended version
 
-##### Setting up the environment (once)
+Setting up the environment (once):
 
-```
+```sh
 export SCRAM_ARCH=slc6_64_gcc530
 cmsrel CMSSW_8_1_0
-cd CMSSW_8_1_0/src 
+cd CMSSW_8_1_0/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
+Update to a reccomended tag - currently the reccomended tag is **v7.0.12**:
 
-##### Update to a reccomended tag - currently the reccomended tag is **v7.0.12**
-
-```
+```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
 git checkout v7.0.12
@@ -40,20 +39,20 @@ We use the _Fork and Pull_ model for development: each user creates a copy of th
 
 _Prerequisites_
 
-1\) Register on github, as needed anyway for CMSSW development: [http://cms-sw.github.io/cmssw/faq.html](http://cms-sw.github.io/cmssw/faq.html)
+1. Register on github, as needed anyway for CMSSW development: [http://cms-sw.github.io/cmssw/faq.html](http://cms-sw.github.io/cmssw/faq.html)
 
-2\) Register your SSH key on github: [https://help.github.com/articles/generating-ssh-keys](https://help.github.com/articles/generating-ssh-keys) 1 Fork the repository to create your copy of it: [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork) (more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) )
+2. Register your SSH key on github: [https://help.github.com/articles/generating-ssh-keys](https://help.github.com/articles/generating-ssh-keys) 1 Fork the repository to create your copy of it: [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork) (more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) )
 
 You will now be able to browse your fork of the repository from [https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit](https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit)
 
-##### Recommended way to develop a feature (in a branch)
+### Recommended way to develop a feature (in a branch)
 
-```
+```sh
 # get the updates of the master branch of the remote repository
 git fetch upstream
 
 # branch straight off the upstream master
-git checkout -b feature_name_branch upstream/81x-root606 
+git checkout -b feature_name_branch upstream/81x-root606
 
 # implement the feature
 # commit, etc
@@ -71,9 +70,9 @@ git push origin feature_name_branch
 
 And proceed to make a pull request from the branch you created.
 
-##### Committing changes to your repository
+#### Committing changes to your repository
 
-```
+```sh
 git add ....
 git commit -m "...."
 git push
@@ -87,13 +86,13 @@ An additional tool for submitting combine jobs to batch/crab, developed original
 
 git clone via ssh:
 
-```
+```sh
 bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
 ```
 
 git clone via https:
 
-```
+```sh
 bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh)
 ```
 
