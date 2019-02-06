@@ -174,6 +174,9 @@ class STXStoEFT_LO(SMLikeHiggsModel):
                     except ValueError:
                         self.txt_pois.append(p)
         self.txt_pois = list(set(self.txt_pois)) #uniq
+
+        print "!!!! DEBUG !!!!!"
+        print "self.txt_pois = ",self.txt_pois
         
         print "--- POIS ---"
         print json.dumps(self.txt_pois)
