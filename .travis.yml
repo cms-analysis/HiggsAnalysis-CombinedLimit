@@ -1,5 +1,7 @@
 language: python # Set the build language to Python
 
+cache: pip
+
 python: 3.6 # Set the version of Python to use
 
 branches:
@@ -14,7 +16,7 @@ install:
 script: skip
 
 before_deploy:
-    - mkdocs build --verbose --clean --strict # Build a local version of the docs
+    - mkdocs build --verbose --clean # --strict # Build a local version of the docs
 
 deploy: # Deploy documentation to Github in the gh_pages branch
     provider: pages
