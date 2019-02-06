@@ -11,6 +11,8 @@ install:
     - pip install pymdown-extensions
     - pip install mkdocs-cinder
 
+script: skip
+
 before_deploy:
     - mkdocs build --verbose --clean --strict # Build a local version of the docs
 
