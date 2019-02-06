@@ -6,7 +6,7 @@ python: 3.6 # Set the version of Python to use
 
 branches:
   only:
-  - mkdocs-test # Set the branch to build from
+  - 102x # Set the branch to build from
 
 install:
     - pip install mkdocs # Install the required dependencies
@@ -25,4 +25,4 @@ deploy: # Deploy documentation to Github in the gh_pages branch
     local_dir: site
     keep-history: true
     on:
-      branch: mkdocs-test
+      branch: 102x 
