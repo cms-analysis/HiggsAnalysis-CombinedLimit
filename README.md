@@ -297,3 +297,63 @@ Making fit results plots from condor output
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 python make_fit_report_plot.py
 ```
+
+### Running toys on condor
+
+Similar to running the normal set of fits but add extra flags
+
+```
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/condor
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t data        --output Fit_Data_2016        --toy --rMin 0.15 --rMax 0.3 --rStep 0.01 --jPerR 5 -T 500
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t pseudodata  --output Fit_pseudoData_2016  --toy --rMin 0.15 --rMax 0.3 --rStep 0.01 --jPerR 5 -T 500
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t pseudodataS --output Fit_pseudoDataS_2016 --toy --rMin 0.15 --rMax 0.3 --rStep 0.01 --jPerR 5 -T 500
+
+python condorSubmit.py --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t data        --output Fit_Data_2017        --toy --rMin 0.15 --rMax 0.3 --rStep 0.01 --jPerR 5 -T 500
+python condorSubmit.py --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t pseudodata  --output Fit_pseudoData_2017  --toy --rMin 0.15 --rMax 0.3 --rStep 0.01 --jPerR 5 -T 500
+python condorSubmit.py --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y 2017 -t pseudodataS --output Fit_pseudoDataS_2017 --toy --rMin 0.15 --rMax 0.3 --rStep 0.01 --jPerR 5 -T 500
+
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y Combo -t data        --output Fit_Data_Combo        --toy --rMin 0.15 --rMax 0.3 --rStep 0.01 --jPerR 5 -T 500
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y Combo -t pseudodata  --output Fit_pseudoData_Combo  --toy --rMin 0.15 --rMax 0.3 --rStep 0.01 --jPerR 5 -T 500
+python condorSubmit.py --inPut_2016 Keras_V1.2.5_v2 --inPut_2017 Keras_V3.0.1_v2 -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y Combo -t pseudodataS --output Fit_pseudoDataS_Combo --toy --rMin 0.15 --rMax 0.3 --rStep 0.01 --jPerR 5 -T 500
+
+```
+
+Now hadd output of all of these toy jobs
+
+```
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/condor
+python hadder.py -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t data -p Fit_Data_2016
+python hadder.py -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t data -p Fit_pseudoData_2016
+python hadder.py -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2016 -t data -p Fit_pseudoDatas_2016
+
+python hadder.py -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2017 -t data -p Fit_Data_2016
+python hadder.py -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2017 -t data -p Fit_pseudoData_2016
+python hadder.py -d RPV,SYY,SHH -m 350,450,550,650,750,850 -y 2017 -t data -p Fit_pseudoDatas_2016
+
+python hadder.py -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t data -p Fit_Data_2016
+python hadder.py -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t data -p Fit_pseudoData_2016
+python hadder.py -d RPV,SYY,SHH -m 300,350,400,450,500,550,600,650,700,750,800,850,900 -y Combo -t data -p Fit_pseudoDatas_2016
+
+```
+
+Now can make limit plots with toy output
+
+```
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+root -l -q 'makePlots.C("<date>_data2016","condor/Fit_Data_2016/output-files","2016","RPV","HybridNew")'
+root -l -q 'makePlots.C("<date>_data2016","condor/Fit_Data_2016/output-files","2016","SYY","HybridNew")'
+root -l -q 'makePlots.C("<date>_data2016","condor/Fit_Data_2016/output-files","2016","SHH","HybridNew")'
+
+root -l -q 'makePlots.C("<date>_pseudodata2016","condor/Fit_pseudoData_2016/output-files","2016","RPV","HybridNew")'
+root -l -q 'makePlots.C("<date>_pseudodata2016","condor/Fit_pseudoData_2016/output-files","2016","SYY","HybridNew")'
+root -l -q 'makePlots.C("<date>_pseudodata2016","condor/Fit_pseudoData_2016/output-files","2016","SHH","HybridNew")'
+
+root -l -q 'makePlots.C("<date>_data2017","condor/Fit_Data_2017/output-files","2017","RPV","HybridNew")'
+root -l -q 'makePlots.C("<date>_data2017","condor/Fit_Data_2017/output-files","2017","SYY","HybridNew")'
+root -l -q 'makePlots.C("<date>_data2017","condor/Fit_Data_2017/output-files","2017","SHH","HybridNew")'
+
+root -l -q 'makePlots.C("<date>_pseudodata2017","condor/Fit_pseudoData_2017/output-files","2017","RPV","HybridNew")'
+root -l -q 'makePlots.C("<date>_pseudodata2017","condor/Fit_pseudoData_2017/output-files","2017","SYY","HybridNew")'
+root -l -q 'makePlots.C("<date>_pseudodata2017","condor/Fit_pseudoData_2017/output-files","2017","SHH","HybridNew")'
+
+```
