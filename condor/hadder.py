@@ -29,6 +29,7 @@ def main():
     signalType = getOptionList(options.signalType, "No dataset specified")
     masssets = getOptionList(options.masssets, "No mass model specified")
     overwrite = '-f' if options.f else ''
+    CLList = ["0.025","0.160","0.500","0.840","0.975"]
 
     inPath = options.inPath
     for st in signalType:
@@ -39,24 +40,33 @@ def main():
             print st, mass, options.year
             print "-----------------------------------------------------------"
 
+            #Hadd all output toy jobs together
             path = options.inPath+"/output-files/"+st+"_"+mass+"_"+options.year
             infiles = "higgsCombine%s.HybridNew.mH%s.MODEL%s.*.root" % (options.year, mass, st)
             haddOutfile = "toys_%s_%s_%s_data.root" % (st, mass, options.year)
             command = "hadd %s %s/%s %s/%s" % (overwrite, path, haddOutfile, path, infiles)
             system(command)
 
+            #Run combine HybridNew on hadded files to get limits for observed and expected
             workSpace = "%s/ws_%s_%s_%s.root"%(path,options.year,st,mass)
             baseCommand = "combine -M HybridNew --LHCmode LHC-limits {0} -m {1} --keyword-value MODEL={2} -n {3} --readHybridResults --grid={4}/{5} --fullGrid".format(workSpace, mass, st, options.year, path, haddOutfile)
             commands = []
             commands.append(baseCommand + " --plot=%s/limit_scan.png" % path)
             commands.append("mv higgsCombine{0}.HybridNew.mH{1}.MODEL{2}.root {3}/higgsCombine{0}.HybridNew.mH{1}.MODEL{2}.observedLi.root".format(options.year,mass,st,path))
 
-            for cl in ["0.025","0.160","0.500","0.840","0.975"]:
+            for cl in CLList:
                 commands.append(baseCommand + " --plot={0}/limit_scan_expected.quant{1}.png --expectedFromGrid={1}".format(path,cl))
                 commands.append("mv higgsCombine{0}.HybridNew.mH{1}.MODEL{2}.quant{4}.root {3}/.".format(options.year,mass,st,path,cl))
 
             for c in commands:
                 system(c)
+            
+            #Hadd HyridNew output files to get a root file that the limit plotting code needs
+            command = "hadd {0} {1}/higgsCombine{2}.HybridNew.mH{3}.MODEL{4}.root ".format(overwrite,path,options.year,mass,st,path)
+            for cl in CLList:
+                command+=" {3}/higgsCombine{0}.HybridNew.mH{1}.MODEL{2}.quant{4}.root".format(options.year,mass,st,path,cl)
+            command+= " {3}/higgsCombine{0}.HybridNew.mH{1}.MODEL{2}.observedLi.root".format(options.year,mass,st,path)
+            system(command)
             
 if __name__ == "__main__":
     main()
