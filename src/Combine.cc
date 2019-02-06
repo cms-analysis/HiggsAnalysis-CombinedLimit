@@ -899,8 +899,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
         }
     }
-    std::cout << "Computing" <<  (iToy==0 ? " observed " :" expected ")<<" results starting from " << ((toysFrequentist_ && !bypassFrequentistFit_) ? " post-fit " : " pre-fit ") << " (nuisance) parameters " << std::endl;
-    if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Computing %s results starting from %s parameters",__LINE__, (iToy==0 ? " observed " :" expected "), ( (toysFrequentist_ && !bypassFrequentistFit_) ? "post-fit" : "pre-fit") )),Logger::kLogLevelInfo,__func__);
+    //std::cout << "Computing" <<  (iToy==0 ? " observed " :" expected ")<<" results starting from " << ((toysFrequentist_ && !bypassFrequentistFit_) ? " post-fit " : " pre-fit ") << " (nuisance) parameters " << std::endl;
+    //if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Computing %s results starting from %s parameters",__LINE__, (iToy==0 ? " observed " :" expected "), ( (toysFrequentist_ && !bypassFrequentistFit_) ? "post-fit" : "pre-fit") )),Logger::kLogLevelInfo,__func__);
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();
