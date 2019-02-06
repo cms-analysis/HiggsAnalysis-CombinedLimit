@@ -8,20 +8,20 @@
     
     
     
-    <link rel="../img/favicon.ico">
+    <link rel="../../img/favicon.ico">
 
     
-    <title>Getting started - Combine Documentation</title>
+    <title>Part1 - Combine Documentation</title>
     
 
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
     <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
     <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
-    <link href="../css/base.min.css" rel="stylesheet">
-    <link href="../css/cinder.min.css" rel="stylesheet">
-    <link href="../css/highlight.min.css" rel="stylesheet">
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../../css/base.min.css" rel="stylesheet">
+    <link href="../../css/cinder.min.css" rel="stylesheet">
+    <link href="../../css/highlight.min.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -61,7 +61,7 @@
 
             <!-- Main title -->
 
-            <a class="navbar-brand" href="..">Combine Documentation</a>
+            <a class="navbar-brand" href="../..">Combine Documentation</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -71,54 +71,63 @@
                 
                 
                     <li >
-                        <a href="..">Home</a>
+                        <a href="../..">Home</a>
                     </li>
                 
                 
                 
-                    <li class="dropdown active">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Manual <b class="caret"></b></a>
+                    <li class="active">
+                        <a href="./">Part1</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part2 <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             
-<li class="active">
-    <a href="./">Getting started</a>
+<li >
+    <a href="../../part2/settinguptheanalysis/">Setting up the analysis</a>
 </li>
 
                         
                             
 <li >
-    <a href="../part2/settinguptheanalysis/">Setting up the analysis</a>
+    <a href="../../part2/physicsmodels/">Physics models</a>
 </li>
 
                         
                             
 <li >
-    <a href="../part2/physicsmodels/">Physics models</a>
+    <a href="../../part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part3 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../part3/runningthetool/">Running the tool</a>
 </li>
 
                         
                             
 <li >
-    <a href="../part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
+    <a href="../../part3/commonstatsmethods/">Common statistical methods</a>
 </li>
 
                         
                             
 <li >
-    <a href="../part3/runningthetool/">Running the tool</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../part3/commonstatsmethods/">Common statistical methods</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../part3/nonstandard/">Advanced use cases</a>
+    <a href="../../part3/nonstandard/">Advanced use cases</a>
 </li>
 
                         
@@ -128,7 +137,7 @@
                 
                 
                     <li >
-                        <a href="../part4/usefullinks.md">Part4</a>
+                        <a href="../../part4/usefullinks/">Part4</a>
                     </li>
                 
                 
@@ -141,17 +150,17 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="next" href="..">
+                        <a rel="next" href="../..">
                             <i class="fas fa-arrow-left"></i> Previous
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../part2/settinguptheanalysis/">
+                        <a rel="prev" href="../../part2/settinguptheanalysis/">
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/master/doc/docs/part1/README.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/master/doc/docs/part1/gettingstarted.md"><i class="fab fa-github"></i> Edit on GitHub</a>
                     </li>
             </ul>
         </div>
@@ -166,10 +175,10 @@
         <li class="first-level active"><a href="#setting-up-the-environment-and-installation">Setting up the environment and installation</a></li>
             <li class="second-level"><a href="#for-end-users-that-dont-need-to-commit-or-do-any-development">For end users that don't need to commit or do any development</a></li>
                 
-                <li class="third-level"><a href="#root6-slc6-release-cmssw_8_1_xcmssw_8_1_x-recommended-version">ROOT6 SLC6 release CMSSW\_8\_1\_XCMSSW\_8\_1\_X - recommended version</a></li>
+                <li class="third-level"><a href="#root6-slc6-release-cmssw_8_1_x-recommended-version">ROOT6 SLC6 release CMSSW_8_1_X - recommended version</a></li>
             <li class="second-level"><a href="#for-developers">For developers</a></li>
                 
-                <li class="third-level"><a href="#recommended-way-to-develop-a-feature-in-a-branchin-a-branch">Recommended way to develop a feature in a branchin a branch</a></li>
+                <li class="third-level"><a href="#recommended-way-to-develop-a-feature-in-a-branch">Recommended way to develop a feature (in a branch)</a></li>
                 <li class="third-level"><a href="#committing-changes-to-your-repository">Committing changes to your repository</a></li>
             <li class="second-level"><a href="#combine-tool">Combine Tool</a></li>
                 
@@ -181,9 +190,9 @@
 <p>The instructions below are for installation within a CMSSW environment</p>
 <h2 id="for-end-users-that-dont-need-to-commit-or-do-any-development">For end users that don't need to commit or do any development</h2>
 <p>You can find the latest releases on github under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases</a></p>
-<h4 id="root6-slc6-release-cmssw_8_1_xcmssw_8_1_x-recommended-version">ROOT6 SLC6 release <span><span class="MathJax_Preview">CMSSW\_8\_1\_X</span><script type="math/tex">CMSSW\_8\_1\_X</script></span> - recommended version</h4>
-<h5 id="setting-up-the-environment-onceonce">Setting up the environment <span><span class="MathJax_Preview">once</span><script type="math/tex">once</script></span></h5>
-<pre><code>export SCRAM_ARCH=slc6_amd64_gcc530
+<h4 id="root6-slc6-release-cmssw_8_1_x-recommended-version">ROOT6 SLC6 release <code>CMSSW_8_1_X</code> - recommended version</h4>
+<h5 id="setting-up-the-environment-once">Setting up the environment (once)</h5>
+<pre><code>export SCRAM_ARCH=slc6_64_gcc530
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src 
 cmsenv
@@ -198,16 +207,16 @@ git checkout v7.0.12
 scramv1 b clean; scramv1 b # always make a clean build
 </code></pre>
 
-<p>You can generate a diff of any two tags <span><span class="MathJax_Preview">eg for <code>v7.0.8</code> and  and <code>v7.0.6</code></span><script type="math/tex">eg for <code>v7.0.8</code> and  and <code>v7.0.6</code></script></span> by using following the url:</p>
+<p>You can generate a diff of any two tags (eg for <code>v7.0.8</code> and <code>v7.0.6</code>) by using following the url:</p>
 <p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7</a></p>
 <p>Replace the tag names in the url to any tags you which to compare.</p>
 <h2 id="for-developers">For developers</h2>
 <p>We use the <em>Fork and Pull</em> model for development: each user creates a copy of the repository on github, commits their requests there and then sends pull requests for the administrators to merge.</p>
 <p><em>Prerequisites</em></p>
 <p>1) Register on github, as needed anyway for CMSSW development: <a href="http://cms-sw.github.io/cmssw/faq.html">http://cms-sw.github.io/cmssw/faq.html</a></p>
-<p>2) Register your SSH key on github: <a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a> 1 Fork the repository to create your copy of it: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork</a> <span><span class="MathJax_Preview">more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) </span><script type="math/tex">more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) </script></span></p>
+<p>2) Register your SSH key on github: <a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a> 1 Fork the repository to create your copy of it: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork</a> (more documentation at <a href="https://help.github.com/articles/fork-a-repo">https://help.github.com/articles/fork-a-repo</a> )</p>
 <p>You will now be able to browse your fork of the repository from <a href="https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit">https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit</a></p>
-<h5 id="recommended-way-to-develop-a-feature-in-a-branchin-a-branch">Recommended way to develop a feature <span><span class="MathJax_Preview">in a branch</span><script type="math/tex">in a branch</script></span></h5>
+<h5 id="recommended-way-to-develop-a-feature-in-a-branch">Recommended way to develop a feature (in a branch)</h5>
 <pre><code># get the updates of the master branch of the remote repository
 git fetch upstream
 
@@ -263,15 +272,15 @@ git push
     </footer>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="../js/bootstrap-3.0.3.min.js"></script>
-    <script src="../js/highlight.pack.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
     <script>
-    var base_url = '..';
+    var base_url = '../..';
     </script>
-    <script src="../js/base.js"></script>
+    <script src="../../js/base.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    <script src="../search/main.js"></script>
+    <script src="../../search/main.js"></script>
 
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
         <div class="modal-dialog">

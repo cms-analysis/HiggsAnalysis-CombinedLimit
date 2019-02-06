@@ -76,15 +76,15 @@
                 
                 
                 
+                    <li >
+                        <a href="part1/gettingstarted/">Part1</a>
+                    </li>
+                
+                
+                
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Manual <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part2 <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                        
-                            
-<li >
-    <a href="part1/">Getting started</a>
-</li>
-
                         
                             
 <li >
@@ -103,6 +103,15 @@
     <a href="part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
 </li>
 
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part3 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
                         
                             
 <li >
@@ -128,7 +137,7 @@
                 
                 
                     <li >
-                        <a href="part4/usefullinks.md">Part4</a>
+                        <a href="part4/usefullinks/">Part4</a>
                     </li>
                 
                 
@@ -146,12 +155,12 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="part1/">
+                        <a rel="prev" href="part1/gettingstarted/">
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/master/doc/docs/README.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/master/doc/docs/index.md"><i class="fab fa-github"></i> Edit on GitHub</a>
                     </li>
             </ul>
         </div>
@@ -164,7 +173,6 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
         <li class="first-level active"><a href="#introduction">Introduction</a></li>
-        <li class="first-level "><a href="#table-of-contents">Table of Contents</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -174,92 +182,7 @@
 <p>Combine provides a command line interface to many different statistical techniques available inside RooFit/RooStats used widely inside CMS.</p>
 <p>The package exists in GIT under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit</a></p>
 <p>For more information about GIT and its usage in CMS, see <a href="http://cms-sw.github.io/cmssw/faq.html">http://cms-sw.github.io/cmssw/faq.html</a></p>
-<p>The code can be checked out from GIT and compiled on top of a CMSSW release that includes a recent RooFit/RooStats</p>
-<h1 id="table-of-contents">Table of Contents</h1>
-<ul>
-<li><a href="part1/"><strong>Getting started</strong></a>   </li>
-<li><a href="part1/#for-end-users-that-dont-need-to-commit-or-do-any-development">For Users</a></li>
-<li><a href="part1/#for-developers">For Developers</a></li>
-<li><a href="part1/#combine-tool">Combine Tool</a></li>
-<li><a href="part2/"><strong>Setting up the analysis</strong></a></li>
-<li><a href="part2/settinguptheanalysis/#preparing-the-datacard">Preparing the datacard</a><ul>
-<li><a href="part2/settinguptheanalysis/#a-simple-counting-experiment">Counting experiment</a></li>
-<li><a href="part2/settinguptheanalysis/#shape-analysis">Shape Analysis</a></li>
-<li><a href="part2/settinguptheanalysis/#binned-shape-analysis"><em>Binned</em></a></li>
-<li><a href="part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis"><em>Unbinned <span><span class="MathJax_Preview">or parametric</span><script type="math/tex">or parametric</script></span></em></a></li>
-<li><a href="part2/settinguptheanalysis/#beyond-simple-datacards">Beyond simple datacards</a></li>
-<li><a href="part2/settinguptheanalysis/#rate-parameters"><em>Rate Parameters</em></a></li>
-<li><a href="part2/settinguptheanalysis/#manipulation-of-nuisance-parameters"><em>Manipulation of Nuisance Parameters</em></a></li>
-<li><a href="part2/settinguptheanalysis/#combination-of-multiple-datacards"><em>Combining Cards</em></a></li>
-<li><a href="part2/settinguptheanalysis/#automatic-production-of-datacards-and-workspaces"><em>Automatic production of datacards and workspaces</em></a></li>
-</ul>
-</li>
-<li><a href="part2/physicsmodels/#physics-models">Physics Models</a> <ul>
-<li><a href="part2/physicsmodels/#model-building">Model Building</a></li>
-<li><a href="part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes"><em>example: Multi-signal model</em></a></li>
-<li><a href="part2/physicsmodels/#two-hypothesis-testing"><em>example: Two-hypothesis model</em></a> </li>
-<li><a href="part2/physicsmodels/#interference"><em>example: Interference model</em></a></li>
-</ul>
-</li>
-<li><a href="part2/bin-wise-stats/">Automatic statistical uncertainties</a></li>
-<li><a href="part3/"><strong>Running Combine</strong></a>     </li>
-<li><a href="part3/runningthetool/#how-to-run-the-tool">How to run the Tool</a><ul>
-<li><a href="part3/runningthetool/#common-command-line-options">Common Command Line Options</a></li>
-<li><a href="part3/runningthetool/#generic-minimizer-options"><em>Generic Minimizer Options</em></a></li>
-<li><a href="part3/runningthetool/#output-from-combine"><em>Output from Combine</em></a></li>
-<li><a href="part3/runningthetool/#toy-data-generation">Toy data Generation</a></li>
-<li><a href="/part3/runningthetool.md#asimov-datasets"><em>Asimov datasets</em></a></li>
-<li><a href="part3/runningthetool/#nuisance-parameter-generation"><em>Nuisance parameter Generation</em></a></li>
-<li><a href="part3/runningthetool/#loading-snapshots"><em>Loading Snapshots</em></a></li>
-<li><a href="part3/runningthetool/#combinetool-for-job-submission">combineTool for Job Submission</a></li>
-<li><a href="part3/runningthetool/#submission-to-the-lsf-batch"><em>Submission to LSF Batch</em></a></li>
-<li><a href="part3/runningthetool/#running-combine-jobs-on-the-grid"><em>Submission to the Grid</em></a></li>
-</ul>
-</li>
-<li><a href="part3/commonstatsmethods/#common-statistical-methods">Common statistical methods</a><ul>
-<li><a href="part3/commonstatsmethods/#asymptotic-frequentist-limits">Asymptotic Frequentist Limits</a></li>
-<li><a href="part3/commonstatsmethods/#blind-limits"><em>Blind Limits</em></a></li>
-<li><a href="part3/commonstatsmethods/#splitting-points"><em>Splitting Points</em></a></li>
-<li><a href="part3/commonstatsmethods/#asymptotic-significances">Asymptotic Significances</a></li>
-<li><a href="part3/commonstatsmethods/#compute-the-observed-significance"><em>Compute the Observed Significance</em></a></li>
-<li><a href="part3/commonstatsmethods/#computing-the-expected-significance"><em>Computing the Expected Significance</em></a></li>
-<li><a href="/part3/commonstatsmethods.md#bayesian-limits-and-credible-regions">Bayesian Limits and Credible regions</a></li>
-<li><a href="part3/commonstatsmethods/#computing-the-observed-bayesian-limit-for-simple-models"><em>Observed <span><span class="MathJax_Preview">simple models</span><script type="math/tex">simple models</script></span></em></a></li>
-<li><a href="part3/commonstatsmethods/#computing-the-observed-bayesian-limit-for-arbitrary-models"><em>Observed <span><span class="MathJax_Preview">arbitrary models</span><script type="math/tex">arbitrary models</script></span></em></a></li>
-<li><a href="part3/commonstatsmethods/#computing-the-expected-bayesian-limit"><em>Expected Limits</em></a></li>
-<li><a href="part3/commonstatsmethods/#multidimensional-bayesian-credible-regions"><em>Multidimensional Credible Regions</em></a> </li>
-<li><a href="part3/commonstatsmethods/#computing-limits-with-toys">Computing Limits with toys</a></li>
-<li><a href="part3/commonstatsmethods/#simple-models"><em>Simple Models</em></a></li>
-<li><a href="part3/commonstatsmethods/#complex-models"><em>Complex Models</em></a></li>
-<li><a href="part3/commonstatsmethods/#computing-significances-with-toys">Computing Significances with toys</a></li>
-<li><a href="part3/commonstatsmethods/#observed-significance"><em>Observed Significance</em></a></li>
-<li><a href="part3/commonstatsmethods/#expected-significance-assuming-some-signal"><em>Expected Significance</em></a></li>
-<li><a href="part3/commonstatsmethods/#goodness-of-fit-tests">Goodness of Fit</a></li>
-<li><a href="part3/commonstatsmethods/#channel-compatibility">Channel Compatibility</a></li>
-<li><a href="part3/commonstatsmethods/#likelihood-fits-and-scans">Likelihood Fits and Scans</a></li>
-<li><a href="part3/commonstatsmethods/#useful-options-for-likelihood-scans"><em>Useful options for Scans</em></a></li>
-<li><a href="part3/commonstatsmethods/#using-best-fit-snapshots"><em>Using best fit Snapshots</em></a></li>
-<li><a href="part3/commonstatsmethods/#feldman-cousins">Feldman Cousins</a></li>
-</ul>
-</li>
-<li><a href="part3/nonstandard/#advanced-use-cases">Advanced use cases</a><ul>
-<li><a href="part3/nonstandard/#fitting-diagnostics">Fitting Diagnostics</a></li>
-<li><a href="/part3/nonstandard.md#fit-parameter-uncertainties"><em>Fit parameter uncertainties</em></a></li>
-<li><a href="/part3/nonstandard.md#pre-and-post-fit-nuisance-parameters-and-pulls"><em>Pre/Post nuisance pars and pulls</em></a></li>
-<li><a href="part3/nonstandard/#normalizations"><em>Normalizations</em></a></li>
-<li><a href="part3/nonstandard/#plotting"><em>Plotting</em></a></li>
-<li><a href="part3/nonstandard/#toy-by-toy-diagnostics"><em>Toy-by-toy Diagnostics</em></a></li>
-<li><a href="part3/nonstandard/#scaling-constraints">Scaling constraints</a></li>
-<li><a href="part3/nonstandard/#nuisance-parameter-impacts">Nuisance Parameter Impacts</a></li>
-<li><a href="part3/nonstandard/#channel-masking">Channel Masking</a></li>
-<li><a href="part3/nonstandard/#roomultipdf-conventional-bias-studies">RooMultiPdf - Bias studies</a></li>
-<li><a href="part3/nonstandard/#roosplinend-multidimensional-splines">RooSplineND - Multidimensional splines</a></li>
-<li><a href="part3/nonstandard/#rooparametrichist-gamman-for-shapes">RooParametricHist - GammaN for shapes</a>    </li>
-</ul>
-</li>
-<li><a href="part4/"><strong>Useful Links</strong></a>   </li>
-<li><a href="part4/#faq"><strong>FAQ</strong></a>   </li>
-</ul></div>
+<p>The code can be checked out from GIT and compiled on top of a CMSSW release that includes a recent RooFit/RooStats</p></div>
         
         
     </div>
@@ -318,5 +241,5 @@
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-02-06 09:38:11
+Build Date UTC : 2019-02-06 10:07:50
 -->

@@ -76,15 +76,15 @@
                 
                 
                 
+                    <li >
+                        <a href="../../part1/gettingstarted/">Part1</a>
+                    </li>
+                
+                
+                
                     <li class="dropdown active">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Manual <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part2 <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                        
-                            
-<li >
-    <a href="../../part1/">Getting started</a>
-</li>
-
                         
                             
 <li >
@@ -103,6 +103,15 @@
     <a href="../bin-wise-stats/">Automatic MC statistical uncertainties</a>
 </li>
 
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part3 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
                         
                             
 <li >
@@ -128,7 +137,7 @@
                 
                 
                     <li >
-                        <a href="../../part4/usefullinks.md">Part4</a>
+                        <a href="../../part4/usefullinks/">Part4</a>
                     </li>
                 
                 
@@ -182,8 +191,6 @@
 <p>The default model which will be produced when running <code>text2workspace</code> is one in which all processes identified as signal are multiplied by a common multiplier <strong>r</strong>. This is all that is needed for simply setting limits or calculating significances. </p>
 <p><code>text2workspace</code> will convert the datacard into a pdf which summaries the analysis. 
 For example, lets take a look at the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/simple-counting-experiment.txt">data/tutorials/counting/simple-counting-experiment.txt</a> datacard.</p>
-<details>
-<summary><b>Show datacard</b></summary>
 <pre><code>
 # Simple counting experiment, with one signal and one background process
 # Extremely simplified version of the 35/pb H->WW analysis for mH = 200 GeV,
@@ -207,19 +214,21 @@ rate           4.76  1.47
 ------------
 deltaS  lnN    1.20    -    20% uncertainty on signal
 deltaB  lnN      -   1.50   50% uncertainty on background 
-</pre></code>
-</details>
+</pre>
 
+<p></code></p>
 <p>If we run <code>text2workspace.py</code> on this datacard and take a look at the workspace (<code>w</code>) inside the <code>.root</code> file produced, we will find a number of different objects representing the signal, background and observed event rates as well as the nuisance parameters and signal strength <strong>r</strong>. </p>
 <p>From these objects, the necessary pdf has been constructed (named <code>model_s</code>). For this counting experiment we will expect a simple pdf of the form </p>
 <div>
-<div class="MathJax_Preview"> p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto 
+<div class="MathJax_Preview"> 
+p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto 
 \dfrac{[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]^{n_{\mathrm{obs}}} }
 {n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]}
 \cdot e^{\frac{1}{2}(\delta_{S}- \delta_{S}^{\mathrm{In}})^{2}}
 \cdot e^{\frac{1}{2}(\delta_{B}- \delta_{B}^{\mathrm{In}})^{2}}
 </div>
-<script type="math/tex; mode=display"> p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto 
+<script type="math/tex; mode=display"> 
+p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto 
 \dfrac{[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]^{n_{\mathrm{obs}}} }
 {n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]}
 \cdot e^{\frac{1}{2}(\delta_{S}- \delta_{S}^{\mathrm{In}})^{2}}
@@ -227,11 +236,8 @@ deltaB  lnN      -   1.50   50% uncertainty on background
 </script>
 </div>
 <p>where the expected signal and background rates are expressed as functions of the nuisance parameters, </p>
-<div>
-<div class="MathJax_Preview">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~$$ and $$~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</div>
-<script type="math/tex; mode=display">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~$$ and $$~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</script>
-</div>
-<p>The first term represents the usual Poisson expression for observing <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">n_{\mathrm{obs}}</span><script type="math/tex">n_{\mathrm{obs}}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">n_{\mathrm{obs}}</span><script type="math/tex">n_{\mathrm{obs}}</script></span></script></span> events while the second two are the Gaussian constraint terms for the nuisance parameters. In this case <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</span><script type="math/tex">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</span><script type="math/tex">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</script></span></script></span>, and the widths of both Gaussians are 1.</p>
+<p><span><span class="MathJax_Preview">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~</span><script type="math/tex">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~</script></span> and <span><span class="MathJax_Preview">~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</span><script type="math/tex">~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</script></span>  </p>
+<p>The first term represents the usual Poisson expression for observing <span><span class="MathJax_Preview">n_{\mathrm{obs}}</span><script type="math/tex">n_{\mathrm{obs}}</script></span> events while the second two are the Gaussian constraint terms for the nuisance parameters. In this case <span><span class="MathJax_Preview">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</span><script type="math/tex">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</script></span>, and the widths of both Gaussians are 1.</p>
 <p>A combination of counting experiments (or a binned shape datacard) will look like a product of pdfs of this kind. For a parametric/unbinned analyses, the pdf for each process in each channel is provided instead of the using the Poisson terms and a product is over the bin counts/events. </p>
 <h2 id="model-building">Model building</h2>
 <p>For more complex models, <code>PhysicsModels</code> can be produced. To use a different physics model instead of the default one, use the option <code>-P</code> as in </p>
@@ -246,26 +252,26 @@ deltaB  lnN      -   1.50   50% uncertainty on background
 <p>In the case of SM-like Higgs searches the class should inherit from <strong><code>SMLikeHiggsModel</code></strong> (redefining <strong><code>getHiggsSignalYieldScale</code></strong>), while beyond that one can inherit from <strong><code>PhysicsModel</code></strong>. You can find some examples in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/PhysicsModel.py">PhysicsModel.py</a>.</p>
 <p>In the 4-process model (<code>PhysicsModel:floatingXSHiggs</code>, you will see that each of the 4 dominant Higgs production modes get separate scaling parameters, <strong><code>r_ggH</code></strong>, <strong><code>r_qqH</code></strong>, <strong><code>r_ttH</code></strong> and <strong><code>r_VH</code></strong> (or <strong><code>r_ZH</code></strong> and <strong><code>r_WH</code></strong>) as defined in,</p>
 <pre><code class="python">def doParametersOfInterest(self):
-        &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
-        # --- Signal Strength as only POI ---
-        if &quot;ggH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ggH[1,%s,%s]&quot; % (self.ggHRange[0], self.ggHRange[1]))
-        if &quot;qqH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_qqH[1,%s,%s]&quot; % (self.qqHRange[0], self.qqHRange[1]))
-        if &quot;VH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_VH[1,%s,%s]&quot;  % (self.VHRange [0], self.VHRange [1]))
-        if &quot;WH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_WH[1,%s,%s]&quot;  % (self.WHRange [0], self.WHRange [1]))
-        if &quot;ZH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_ZH[1,%s,%s]&quot;  % (self.ZHRange [0], self.ZHRange [1]))
-        if &quot;ttH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ttH[1,%s,%s]&quot; % (self.ttHRange[0], self.ttHRange[1]))
-        poi = &quot;,&quot;.join([&quot;r_&quot;+m for m in self.modes])
-        if self.pois: poi = self.pois
-        ...
+  &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
+  # --- Signal Strength as only POI ---
+  if &quot;ggH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ggH[1,%s,%s]&quot; % (self.ggHRange[0], self.ggHRange[1]))
+  if &quot;qqH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_qqH[1,%s,%s]&quot; % (self.qqHRange[0], self.qqHRange[1]))
+  if &quot;VH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_VH[1,%s,%s]&quot;  % (self.VHRange [0], self.VHRange [1]))
+  if &quot;WH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_WH[1,%s,%s]&quot;  % (self.WHRange [0], self.WHRange [1]))
+  if &quot;ZH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_ZH[1,%s,%s]&quot;  % (self.ZHRange [0], self.ZHRange [1]))
+  if &quot;ttH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ttH[1,%s,%s]&quot; % (self.ttHRange[0], self.ttHRange[1]))
+  poi = &quot;,&quot;.join([&quot;r_&quot;+m for m in self.modes])
+  if self.pois: poi = self.pois
+  ...
 </code></pre>
 
 <p>The mapping of which POI scales which process is handled via the following function,</p>
 <pre><code class="python">def getHiggsSignalYieldScale(self,production,decay, energy):
-        if production == &quot;ggH&quot;: return (&quot;r_ggH&quot; if &quot;ggH&quot; in self.modes else 1)
-        if production == &quot;qqH&quot;: return (&quot;r_qqH&quot; if &quot;qqH&quot; in self.modes else 1)
-        if production == &quot;ttH&quot;: return (&quot;r_ttH&quot; if &quot;ttH&quot; in self.modes else (&quot;r_ggH&quot; if self.ttHasggH else 1))
-        if production in [ &quot;WH&quot;, &quot;ZH&quot;, &quot;VH&quot; ]: return (&quot;r_VH&quot; if &quot;VH&quot; in self.modes else 1)
-        raise RuntimeError, &quot;Unknown production mode '%s'&quot; % production
+  if production == &quot;ggH&quot;: return (&quot;r_ggH&quot; if &quot;ggH&quot; in self.modes else 1)
+  if production == &quot;qqH&quot;: return (&quot;r_qqH&quot; if &quot;qqH&quot; in self.modes else 1)
+  if production == &quot;ttH&quot;: return (&quot;r_ttH&quot; if &quot;ttH&quot; in self.modes else (&quot;r_ggH&quot; if self.ttHasggH else 1))
+  if production in [ &quot;WH&quot;, &quot;ZH&quot;, &quot;VH&quot; ]: return (&quot;r_VH&quot; if &quot;VH&quot; in self.modes else 1)
+  raise RuntimeError, &quot;Unknown production mode '%s'&quot; % production
 </code></pre>
 
 <p>You should note that <code>text2workspace</code> will look for the python module in <code>PYTHONPATH</code>. If you want to keep your model local, you'll need to add the location of the python file to <code>PYTHONPATH</code>.</p>
@@ -287,118 +293,114 @@ deltaB  lnN      -   1.50   50% uncertainty on background
 <ul>
 <li>Scale both <code>ggH</code> and <code>qqH</code> with the same signal strength <code>r</code> (that's what the default physics model of combine does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)</li>
 </ul>
-<!-- -->
-
-<pre><code>$ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r[1,0,10]' --PO 'map=.*/qqH:r' toy-hgg-125.txt -o toy-1d.root
-[...]
-Will create a POI  r  with factory  r[1,0,10]
-Mapping  r  to  ['.*/ggH']  patterns
-Mapping  r  to  ['.*/qqH']  patterns
-[...]
-Will scale  incl/bkg  by  1
-Will scale  incl/ggH  by  r
-Will scale  incl/qqH  by  r
-Will scale  dijet/bkg  by  1
-Will scale  dijet/ggH  by  r
-Will scale  dijet/qqH  by  r
+<pre><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r[1,0,10]' --PO 'map=.*/qqH:r' toy-hgg-125.txt -o toy-1d.root
+  [...]
+  Will create a POI  r  with factory  r[1,0,10]
+  Mapping  r  to  ['.*/ggH']  patterns
+  Mapping  r  to  ['.*/qqH']  patterns
+  [...]
+  Will scale  incl/bkg  by  1
+  Will scale  incl/ggH  by  r
+  Will scale  incl/qqH  by  r
+  Will scale  dijet/bkg  by  1
+  Will scale  dijet/ggH  by  r
+  Will scale  dijet/qqH  by  r
 </code></pre>
+
 <ul>
 <li>Define two independent parameters of interest <code>r_ggH</code> and <code>r_qqH</code></li>
 </ul>
-<!-- -->
-
-<pre><code>$ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r_ggH[1,0,10]' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-2d.root
-[...]
-Will create a POI  r_ggH  with factory  r_ggH[1,0,10]
-Mapping  r_ggH  to  ['.*/ggH']  patterns
-Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
-Mapping  r_qqH  to  ['.*/qqH']  patterns
-[...]
-Will scale  incl/bkg  by  1
-Will scale  incl/ggH  by  r_ggH
-Will scale  incl/qqH  by  r_qqH
-Will scale  dijet/bkg  by  1
-Will scale  dijet/ggH  by  r_ggH
-Will scale  dijet/qqH  by  r_qqH
+<pre><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r_ggH[1,0,10]' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-2d.root
+  [...]
+  Will create a POI  r_ggH  with factory  r_ggH[1,0,10]
+  Mapping  r_ggH  to  ['.*/ggH']  patterns
+  Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
+  Mapping  r_qqH  to  ['.*/qqH']  patterns
+  [...]
+  Will scale  incl/bkg  by  1
+  Will scale  incl/ggH  by  r_ggH
+  Will scale  incl/qqH  by  r_qqH
+  Will scale  dijet/bkg  by  1
+  Will scale  dijet/ggH  by  r_ggH
+  Will scale  dijet/qqH  by  r_qqH
 </code></pre>
+
 <ul>
 <li>Fix <strong><code>ggH</code></strong> to SM, define only <strong><code>qqH</code></strong> as parameter</li>
 </ul>
-<!-- -->
-
-<pre><code>$ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:1' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH.root
-[...]
-Mapping  1  to  ['.*/ggH']  patterns
-Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
-Mapping  r_qqH  to  ['.*/qqH']  patterns
-[...]
-Will scale  incl/bkg  by  1
-Will scale  incl/ggH  by  1
-Will scale  incl/qqH  by  r_qqH
-Will scale  dijet/bkg  by  1
-Will scale  dijet/ggH  by  1
-Will scale  dijet/qqH  by  r_qqH
+<pre><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:1' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH.root
+  [...]
+  Mapping  1  to  ['.*/ggH']  patterns
+  Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
+  Mapping  r_qqH  to  ['.*/qqH']  patterns
+  [...]
+  Will scale  incl/bkg  by  1
+  Will scale  incl/ggH  by  1
+  Will scale  incl/qqH  by  r_qqH
+  Will scale  dijet/bkg  by  1
+  Will scale  dijet/ggH  by  1
+  Will scale  dijet/qqH  by  r_qqH
 </code></pre>
+
 <ul>
 <li>Drop <strong><code>ggH</code></strong> , and define only <strong><code>qqH</code></strong> as parameter</li>
 </ul>
-<!-- -->
-
-<pre><code>$ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:0' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH0-only.root
-[...]
-Mapping  0  to  ['.*/ggH']  patterns
-Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
-Mapping  r_qqH  to  ['.*/qqH']  patterns
-[...]
-Will scale  incl/bkg  by  1
-Will scale  incl/ggH  by  0
-Will scale  incl/qqH  by  r_qqH
-Will scale  dijet/bkg  by  1
-Will scale  dijet/ggH  by  0
-Will scale  dijet/qqH  by  r_qqH
+<pre><code> $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:0' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH0-only.root
+ [...]
+ Mapping  0  to  ['.*/ggH']  patterns
+ Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
+ Mapping  r_qqH  to  ['.*/qqH']  patterns
+ [...]
+ Will scale  incl/bkg  by  1
+ Will scale  incl/ggH  by  0
+ Will scale  incl/qqH  by  r_qqH
+ Will scale  dijet/bkg  by  1
+ Will scale  dijet/ggH  by  0
+ Will scale  dijet/qqH  by  r_qqH
 </code></pre>
+
 <h3 id="two-hypothesis-testing">Two Hypothesis testing</h3>
 <p>The <code>PhysicsModel</code> that encodes the signal model above is the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/HiggsJPC.py">twoHypothesisHiggs</a>, which assumes that there will exist signal processes with suffix <strong>_ALT</strong> in the datacard. An example of such a datacard can be found under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt">data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt</a></p>
-<!-- -->
+<pre><code> $ text2workspace.py twoSignals-3bin-bigBSyst.txt -P HiggsAnalysis.CombinedLimit.HiggsJPC:twoHypothesisHiggs -m 125.7 --PO verbose -o jcp_hww.root
 
-<pre><code>$ text2workspace.py twoSignals-3bin-bigBSyst.txt -P HiggsAnalysis.CombinedLimit.HiggsJPC:twoHypothesisHiggs -m 125.7 --PO verbose -o jcp_hww.root
-
-MH (not there before) will be assumed to be 125.7  
-Process  S  will get norm  not_x
-Process  S_ALT  will get norm  x
-Process  S  will get norm  not_x
-Process  S_ALT  will get norm  x
-Process  S  will get norm  not_x
-Process  S_ALT  will get norm  x
+ MH (not there before) will be assumed to be 125.7  
+ Process  S  will get norm  not_x
+ Process  S_ALT  will get norm  x
+ Process  S  will get norm  not_x
+ Process  S_ALT  will get norm  x
+ Process  S  will get norm  not_x
+ Process  S_ALT  will get norm  x
 </code></pre>
+
 <p>The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be performed by setting <strong>x</strong> or <strong>not_x</strong> to 1 and 0 and comparing two likelihood evaluations.   </p>
 <h3 id="interference">Interference</h3>
-<p>Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes and the parameter of interest <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">k</span><script type="math/tex">k</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">k</span><script type="math/tex">k</script></span></script></span>, </p>
+<p>Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes and the parameter of interest <span><span class="MathJax_Preview">k</span><script type="math/tex">k</script></span>, </p>
 <div>
-<div class="MathJax_Preview">\mathrm{Yield} = (k * A_{s} + A_{b})^2
+<div class="MathJax_Preview">
+\mathrm{Yield} = (k * A_{s} + A_{b})^2
 = k^2 * A_{s}^2 + k * 2 A_{s} A_{b} + A_{b}^2 
-= \mu * S + \sqrt{\mu} * I + B</div>
-<script type="math/tex; mode=display">\mathrm{Yield} = (k * A_{s} + A_{b})^2
+= \mu * S + \sqrt{\mu} * I + B
+</div>
+<script type="math/tex; mode=display">
+\mathrm{Yield} = (k * A_{s} + A_{b})^2
 = k^2 * A_{s}^2 + k * 2 A_{s} A_{b} + A_{b}^2 
-= \mu * S + \sqrt{\mu} * I + B</script>
+= \mu * S + \sqrt{\mu} * I + B
+</script>
 </div>
 <p>where</p>
-<p><span><span class="MathJax_Preview"><span><span class="MathJax_Preview">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</span><script type="math/tex">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</span><script type="math/tex">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</script></span></script></span> and $$ S+B+I = (As + Ab)^2$$.</p>
+<p><span><span class="MathJax_Preview">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</span><script type="math/tex">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</script></span> and $ S+B+I = (As + Ab)^2$.</p>
 <p>With some algebra you can work out that,</p>
-<div>
-<div class="MathJax_Preview">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</div>
-<script type="math/tex; mode=display">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</script>
-</div>
+<p><span><span class="MathJax_Preview">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</span><script type="math/tex">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</script></span></p>
 <p>where square brackets represent the input (histograms as <code>TH1</code> or <code>RooDataHists</code>) that one needs to provide.</p>
 <p>An example of this scheme is implemented in a <a href="https://svnweb.cern.ch/cern/wsvn/cmshcg/trunk/cadi/HIG-17-012/2l2nu/HiggsWidth.py">HiggsWidth</a> and is completely general, since all of the three components above are strictly positive. In this example, the POI is <code>CMS_zz4l_mu</code> and the equations for the three components are scaled (separately for the <strong>qqH</strong> and <strong>ggH</strong> processes) as, </p>
-<p>```python
-self.modelBuilder.factory_( "expr::ggH_s_func(\"@0-sqrt(@0)\", CMS_zz4l_mu)")
-self.modelBuilder.factory_(  "expr::ggH_b_func(\"1-sqrt(@0)\", CMS_zz4l_mu)")
-self.modelBuilder.factory_(  "expr::ggH_sbi_func(\"sqrt(@0)\", CMS_zz4l_mu)")</p>
-<p>self.modelBuilder.factory_( "expr::qqH_s_func(\"@0-sqrt(@0)\", CMS_zz4l_mu)")
-self.modelBuilder.factory_(  "expr::qqH_b_func(\"1-sqrt(@0)\", CMS_zz4l_mu)")
-self.modelBuilder.factory_(  "expr::qqH_sbi_func(\"sqrt(@0)\", CMS_zz4l_mu)")    <br />
- ```</p></div>
+<pre><code class="python"> self.modelBuilder.factory_( &quot;expr::ggH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+ self.modelBuilder.factory_(  &quot;expr::ggH_b_func(\&quot;1-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+ self.modelBuilder.factory_(  &quot;expr::ggH_sbi_func(\&quot;sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+
+ self.modelBuilder.factory_( &quot;expr::qqH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+ self.modelBuilder.factory_(  &quot;expr::qqH_b_func(\&quot;1-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+ self.modelBuilder.factory_(  &quot;expr::qqH_sbi_func(\&quot;sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)      
+</code></pre></div>
         
         
     </div>

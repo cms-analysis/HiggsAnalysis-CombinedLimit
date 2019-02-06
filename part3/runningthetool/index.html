@@ -76,15 +76,15 @@
                 
                 
                 
-                    <li class="dropdown active">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Manual <b class="caret"></b></a>
+                    <li >
+                        <a href="../../part1/gettingstarted/">Part1</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part2 <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                        
-                            
-<li >
-    <a href="../../part1/">Getting started</a>
-</li>
-
                         
                             
 <li >
@@ -103,6 +103,15 @@
     <a href="../../part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
 </li>
 
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Part3 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
                         
                             
 <li class="active">
@@ -128,7 +137,7 @@
                 
                 
                     <li >
-                        <a href="../../part4/usefullinks.md">Part4</a>
+                        <a href="../../part4/usefullinks/">Part4</a>
                     </li>
                 
                 
@@ -379,7 +388,7 @@ Note that the floating/freezing options have a priority ordering from lowest to 
 <tr>
 <td><strong><code>quantileExpected</code></strong></td>
 <td><code>Float_t</code></td>
-<td>Quantile identifier for methods which calculated expected (quantiles) and observed results (eg conversions from <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">\Delta\ln L</span><script type="math/tex">\Delta\ln L</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">\Delta\ln L</span><script type="math/tex">\Delta\ln L</script></span></script></span> values) with method dependent meaning. Negative values are reserved for entries which <em>do not</em> related to quantiles of a calculation with the default being set to -1 (usually meaning the <em>observed</em> result).</td>
+<td>Quantile identifier for methods which calculated expected (quantiles) and observed results (eg conversions from <span><span class="MathJax_Preview">\Delta\ln L</span><script type="math/tex">\Delta\ln L</script></span> values) with method dependent meaning. Negative values are reserved for entries which <em>do not</em> related to quantiles of a calculation with the default being set to -1 (usually meaning the <em>observed</em> result).</td>
 </tr>
 </tbody>
 </table>
@@ -415,23 +424,23 @@ The default values of the nuisance parameters (or any parameter) are used to gen
 </li>
 </ul>
 <p>You can also ask combine to use a <strong>Pseudo-Asimov</strong> dataset, which is created from many weighted unbinned events. </p>
-<p>Setting <code>--X-rtd TMCSO_AdaptivePseudoAsimov=</code><span><span class="MathJax_Preview"><span><span class="MathJax_Preview">\beta</span><script type="math/tex">\beta</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">\beta</span><script type="math/tex">\beta</script></span></script></span> with <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">\beta&gt;0</span><script type="math/tex">\beta>0</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">\beta&gt;0</span><script type="math/tex">\beta>0</script></span></script></span> will trigger the internal logic of whether to produce a Pseudo-Asimov dataset. This logic is as follows; </p>
+<p>Setting <code>--X-rtd TMCSO_AdaptivePseudoAsimov=</code><span><span class="MathJax_Preview">\beta</span><script type="math/tex">\beta</script></span> with <span><span class="MathJax_Preview">\beta&gt;0</span><script type="math/tex">\beta>0</script></span> will trigger the internal logic of whether to produce a Pseudo-Asimov dataset. This logic is as follows; </p>
 <ol>
 <li>
-<p>For each observable in your dataset, the number of bins, <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">n_{b}</span><script type="math/tex">n_{b}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">n_{b}</span><script type="math/tex">n_{b}</script></span></script></span> is determined either from the value of <code>RooRealVar::getBins</code> if it exists or assumed to be 100. </p>
+<p>For each observable in your dataset, the number of bins, <span><span class="MathJax_Preview">n_{b}</span><script type="math/tex">n_{b}</script></span> is determined either from the value of <code>RooRealVar::getBins</code> if it exists or assumed to be 100. </p>
 </li>
 <li>
-<p>If <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">N_{b}=\prod_{b}n_{b}&gt;5000</span><script type="math/tex">N_{b}=\prod_{b}n_{b}>5000</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">N_{b}=\prod_{b}n_{b}&gt;5000</span><script type="math/tex">N_{b}=\prod_{b}n_{b}>5000</script></span></script></span>, the number of expected events <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">N_{ev}</span><script type="math/tex">N_{ev}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">N_{ev}</span><script type="math/tex">N_{ev}</script></span></script></span> is determined. <em>Note</em> if you are combining multiple channels, <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">N_{ev}</span><script type="math/tex">N_{ev}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">N_{ev}</span><script type="math/tex">N_{ev}</script></span></script></span> refers to the number of expected events in a single channel, the logic is separate for each channel. If  <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">N_{ev}/N_{b}&lt;0.01</span><script type="math/tex">N_{ev}/N_{b}<0.01</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">N_{ev}/N_{b}&lt;0.01</span><script type="math/tex">N_{ev}/N_{b}<0.01</script></span></script></span> then a Pseudo-Asimov dataset is created with the number of events equal to <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">\beta \cdot \mathrm{max}\{100*N_{ev},1000\}</span><script type="math/tex">\beta \cdot \mathrm{max}\{100*N_{ev},1000\}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">\beta \cdot \mathrm{max}\{100*N_{ev},1000\}</span><script type="math/tex">\beta \cdot \mathrm{max}\{100*N_{ev},1000\}</script></span></script></span>. If <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">N_{ev}/N_{b}\geq 0.01</span><script type="math/tex">N_{ev}/N_{b}\geq 0.01</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">N_{ev}/N_{b}\geq 0.01</span><script type="math/tex">N_{ev}/N_{b}\geq 0.01</script></span></script></span> , then a normal Asimov dataset is produced. </p>
+<p>If <span><span class="MathJax_Preview">N_{b}=\prod_{b}n_{b}&gt;5000</span><script type="math/tex">N_{b}=\prod_{b}n_{b}>5000</script></span>, the number of expected events <span><span class="MathJax_Preview">N_{ev}</span><script type="math/tex">N_{ev}</script></span> is determined. <em>Note</em> if you are combining multiple channels, <span><span class="MathJax_Preview">N_{ev}</span><script type="math/tex">N_{ev}</script></span> refers to the number of expected events in a single channel, the logic is separate for each channel. If  <span><span class="MathJax_Preview">N_{ev}/N_{b}&lt;0.01</span><script type="math/tex">N_{ev}/N_{b}<0.01</script></span> then a Pseudo-Asimov dataset is created with the number of events equal to <span><span class="MathJax_Preview">\beta \cdot \mathrm{max}\{100*N_{ev},1000\}</span><script type="math/tex">\beta \cdot \mathrm{max}\{100*N_{ev},1000\}</script></span>. If <span><span class="MathJax_Preview">N_{ev}/N_{b}\geq 0.01</span><script type="math/tex">N_{ev}/N_{b}\geq 0.01</script></span> , then a normal Asimov dataset is produced. </p>
 </li>
 <li>
-<p>If <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">N_{b}\leq 5000</span><script type="math/tex">N_{b}\leq 5000</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">N_{b}\leq 5000</span><script type="math/tex">N_{b}\leq 5000</script></span></script></span> then a normal Asimov dataset will be produced</p>
+<p>If <span><span class="MathJax_Preview">N_{b}\leq 5000</span><script type="math/tex">N_{b}\leq 5000</script></span> then a normal Asimov dataset will be produced</p>
 </li>
 </ol>
 <p>The production of a Pseudo-Asimov dataset can be <em>forced</em> by using the option <code>--X-rtd TMCSO_PseudoAsimov=X</code> where <code>X&gt;0</code> will determine the number of weighted events for the Pseudo-Asimov dataset. You should try different values of <code>X</code> since larger values leads to more events in the Pseudo-Asimov dataset resulting in higher precision but in general the fit will be slower. <em>Note</em> that if yu </p>
 <p>You can turn off the internal logic by setting <code>--X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0</code> thereby forcing histograms to be generated.</p>
 <blockquote>
 <p><strong>[info]</strong> 
-If you set <code>--X-rtd TMCSO_PseudoAsimov=X</code> with <code>X&gt;0</code> and also turn on <code>--X-rtd TMCSO_AdaptivePseudoAsimov=</code><span><span class="MathJax_Preview"><span><span class="MathJax_Preview">\beta</span><script type="math/tex">\beta</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">\beta</span><script type="math/tex">\beta</script></span></script></span>, with <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">\beta&gt;0</span><script type="math/tex">\beta>0</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">\beta&gt;0</span><script type="math/tex">\beta>0</script></span></script></span>, the internal logic will be used but this time the default will be to generate Pseudo-Asimov datasets, rather than the normal Asimov ones.</p>
+If you set <code>--X-rtd TMCSO_PseudoAsimov=X</code> with <code>X&gt;0</code> and also turn on <code>--X-rtd TMCSO_AdaptivePseudoAsimov=</code><span><span class="MathJax_Preview">\beta</span><script type="math/tex">\beta</script></span>, with <span><span class="MathJax_Preview">\beta&gt;0</span><script type="math/tex">\beta>0</script></span>, the internal logic will be used but this time the default will be to generate Pseudo-Asimov datasets, rather than the normal Asimov ones.</p>
 </blockquote>
 <h4 id="nuisance-parameter-generation">Nuisance parameter generation</h4>
 <p>The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, <em>before</em> generating the data. The <em>unconstrained</em> nuisance parameters (eg <code>flatParam</code> or <code>rateParam</code>) or those with <em>flat</em> priors are <strong>not</strong> randomised before the data generation.</p>
@@ -457,24 +466,24 @@ Some Methods also use toys within the method itself (eg <code>AsymptoticLimits</
 </blockquote>
 <h4 id="loading-snapshots">Loading snapshots</h4>
 <p>Snapshots from workspaces can be loaded and used in order to generate toys using the option <code>--snapshotName &lt;name of snapshot&gt;</code>. This will first set the parameters to the values in the snapshot <em>before</em> any other parameter options are set and toys are generated. </p>
-<p>See the section on <a href="/part3/commonstatsmethods.md#using-best-fit-snapshots">saving post-fit workspaces</a> for creating workspaces with post-fit snapshots from <code>MultiDimFit</code>.</p>
-<p>Here are a few examples of calculations with toys from post-fit workspaces using a workspace with <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">r, m_{H}</span><script type="math/tex">r, m_{H}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">r, m_{H}</span><script type="math/tex">r, m_{H}</script></span></script></span> as parameters of interest</p>
+<p>See the section on <a href="/part3/commonstatsmethods#using-best-fit-snapshots">saving post-fit workspaces</a> for creating workspaces with post-fit snapshots from <code>MultiDimFit</code>.</p>
+<p>Here are a few examples of calculations with toys from post-fit workspaces using a workspace with <span><span class="MathJax_Preview">r, m_{H}</span><script type="math/tex">r, m_{H}</script></span> as parameters of interest</p>
 <ul>
 <li>
-<p>Throw post-fit toy with b from s+b(floating <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></script></span>) fit, s with <strong>r=1.0</strong>, <strong>m=best fit MH</strong>, using nuisance values and constraints re-centered on s+b(floating <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></script></span>) fit values (aka frequentist post-fit expected) and compute post-fit expected <strong>r</strong> uncertainty profiling <strong>MH</strong>
+<p>Throw post-fit toy with b from s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit, s with <strong>r=1.0</strong>, <strong>m=best fit MH</strong>, using nuisance values and constraints re-centered on s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit values (aka frequentist post-fit expected) and compute post-fit expected <strong>r</strong> uncertainty profiling <strong>MH</strong>
     <code>combine higgsCombinemumhfit.MultiDimFit.mH125.root --snapshotName MultiDimFit -M MultiDimFit --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit -t -1 --expectSignal=1 -P r --floatOtherPOIs=1 --algo singles</code></p>
 </li>
 <li>
-<p>Throw post-fit toy with b from s+b(floating <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></script></span>) fit, s with <strong>r=1.0, m=128.0</strong>, using nuisance values and constraints re-centered on s+b(floating <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></script></span>) fit values (aka frequentist post-fit expected) and compute post-fit expected significance (with <strong>MH</strong> fixed at 128 implicitly)
+<p>Throw post-fit toy with b from s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit, s with <strong>r=1.0, m=128.0</strong>, using nuisance values and constraints re-centered on s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit values (aka frequentist post-fit expected) and compute post-fit expected significance (with <strong>MH</strong> fixed at 128 implicitly)
     <code>combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M ProfileLikelihood --significance --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit --overrideSnapshotMass -t -1 --expectSignal=1 --redefineSignalPOIs r --freezeParameters MH</code></p>
 </li>
 <li>
-<p>Throw post-fit toy with b from s+b(floating <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></script></span>) fit, s with <strong>r=0.0</strong>, using nuisance values and constraints re-centered on s+b(floating <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span></script></span>) fit values (aka frequentist post-fit expected) and compute post-fit expected and observed asymptotic limit (with <strong>MH</strong> fixed at 128 implicitly)
+<p>Throw post-fit toy with b from s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit, s with <strong>r=0.0</strong>, using nuisance values and constraints re-centered on s+b(floating <span><span class="MathJax_Preview">r,m_{H}</span><script type="math/tex">r,m_{H}</script></span>) fit values (aka frequentist post-fit expected) and compute post-fit expected and observed asymptotic limit (with <strong>MH</strong> fixed at 128 implicitly)
     <code>combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M AsymptoticLimits --verbose 9 -n randomtest --bypassFrequentistFit --overrideSnapshotMass--redefineSignalPOIs r --freezeParameters MH</code></p>
 </li>
 </ul>
 <h2 id="combinetool-for-job-submission">combineTool for job submission</h2>
-<p>For longer tasks which cannot be run locally, several methods in combine can be split to run on the <em>LSF batch</em> or the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool</code> (see <a href="/part1/README.md#combine-tool">this getting started</a> section to get the tool)</p>
+<p>For longer tasks which cannot be run locally, several methods in combine can be split to run on the <em>LSF batch</em> or the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool</code> (see <a href="/part1/README#combine-tool">this getting started</a> section to get the tool)</p>
 <h3 id="submission-to-the-lsf-batch">Submission to the LSF Batch</h3>
 <p>The syntax for running on the batch with the tool is </p>
 <pre><code>combineTool.py -M ALGO [options] --job-mode lxbatch --sub-opts="-q QUEUE" --task-name NAME [--dry-run]
@@ -497,10 +506,10 @@ The option <code>-n NAME</code> should be included to avoid overwriting output f
 </blockquote>
 <h3 id="running-combine-jobs-on-the-grid">Running combine jobs on the Grid</h3>
 <p>For more CPU-intensive tasks, for example determining limits for complex models using toys, it is generally not feasible to compute all the results interactively. Instead, these jobs can be submitted to the Grid. </p>
-<p>In this example we will use the <code>HybridNew</code> method of combine to determine an upper limit for a sub-channel of the Run 1 SM <span><span class="MathJax_Preview"><span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span></script></span> analysis. For full documentation, see the section on <a href="#computing-limits-with-toys">computing limits with toys</a>.</p>
+<p>In this example we will use the <code>HybridNew</code> method of combine to determine an upper limit for a sub-channel of the Run 1 SM <span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span> analysis. For full documentation, see the section on <a href="#computing-limits-with-toys">computing limits with toys</a>.</p>
 <p>With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using <code>crab3</code>. From the set of output distributions it is possible to extract the expected and observed limits.</p>
 <p>For this we will use <code>combineTool.py</code></p>
-<p>First we need to build a workspace from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/data/tutorials/htt/125/htt_tt.txt"><span><span class="MathJax_Preview"><span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span></span><script type="math/tex"><span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span></script></span> datacard</a>,</p>
+<p>First we need to build a workspace from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/data/tutorials/htt/125/htt_tt.txt"><span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span> datacard</a>,</p>
 <pre><code>$ text2workspace.py data/tutorials/htt/125/htt_mt.txt -m 125
 $ mv data/tutorials/htt/125/htt_mt.root ./
 </code></pre>
@@ -521,17 +530,14 @@ Expected 97.5%: r &lt; 1.7200
 <p>Based on this, a range of 0.2 to 2.0 should be suitable.</p>
 <p>We can use the same command for generating the distribution of test statistics with <code>combineTool</code>. The <code>--singlePoint</code> option is now enhanced to support expressions that generate a set of calls to combine with different values. The accepted syntax is of the form <strong>MIN:MAX:STEPSIZE</strong>, and multiple comma-separated expressions can be specified. </p>
 <p>The script also adds an option <code>--dry-run</code> which will not actually call combine but just prints out the commands that would be run, e.g,</p>
-<pre><code> combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.2:2.0:0.2 -T 2000 -s -1 --saveToys --saveHybridResult -m 125 --dry-run
-</code></pre>
-<details>
-<summary><b>Show output</b></summary>
 <pre><code>
+combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.2:2.0:0.2 -T 2000 -s -1 --saveToys --saveHybridResult -m 125 --dry-run
+...
 [DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 0.2 -n .Test.POINT.0.2
 [DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 0.4 -n .Test.POINT.0.4
 [...]
 [DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 2.0 -n .Test.POINT.2.0
 </code></pre>
-</details>
 
 <p>When the <code>--dry-run</code> option is removed each command will be run in sequence. </p>
 <h4 id="grid-submission">Grid submission</h4>
@@ -550,10 +556,7 @@ $ combineTool.py -d htt_mt.root -M HybridNew --LHCmode LHC-limits --clsAcc 0 -T 
 
 <p>Again it is possible to use the option <code>--dry-run</code> to see what the complete crab config will look like before actually submitted it. </p>
 <p>Once submitted the progress can be monitored using the standard <code>crab</code> commands. When all jobs are completed copy the output from your sites storage element to the local output folder.</p>
-<details>
-<summary><b>Show commands</b></summary>
 <pre><code>
-```
 $ crab getoutput -d crab_grid-test
 # Now we have to un-tar the output files
 $ cd crab_grid-test/results/
@@ -561,7 +564,6 @@ $ for f in *.tar; do tar xf $f; done
 $ mv higgsCombine*.root ../../
 $ cd ../../
 </code></pre>
-</details>
 
 <p>These output files should be combined with <code>hadd</code>, after which we invoke combine as usual to calculate observed and expected limits from the merged grid as usual. </p></div>
         
