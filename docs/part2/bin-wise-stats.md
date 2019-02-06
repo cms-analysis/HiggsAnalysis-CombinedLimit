@@ -9,15 +9,14 @@ By default the script will attempt to assign a single nuisance parameter to scal
 
 The following line should be added at the bottom of the datacard, underneath the systematics, to produce a new-style workspace and optionally enable the automatic bin-wise uncertainties:
 
-```
+```nohighlight
 [channel] autoMCStats [threshold] [include-signal = 0] [hist-mode = 1]
 ```
 
 The first string `channel` should give the name of the channels (bins) in the datacard for which the new histogram classes should be used. The wildcard `*` is supported for selecting multiple channels in one go. The value of `threshold` should be set to a value greater than or equal to zero to enable the creation of automatic bin-wise uncertainties, or `-1` to use the new histogram classes without these uncertainties. A positive value sets the threshold on the effective number of unweighted events above which the uncertainty will be modeled with the Barlow-Beeston-lite approach described above. Below the threshold an individual uncertainty per-process will be created. The algorithm is described in more detail below.
 
-The last two settings are optional. The first of these, `include-signal` has a default value of `0` but can be set to `1` as an alternative. By default the total nominal yield and uncertainty used to test the threshold excludes signal processes, as typically the initial signal normalisation is arbitrary, and could unduly lead to a bin being considered well-populated despite poorly populated background templates. Setting this flag will include the signal processes in the uncertainty analysis. Note that this option only affects the logic for creating a single Barlow-Beeston-lite parameter vs. separate per-process parameters - the uncertainties on all signal processes are always included in the actual model! The second flag changes the way the normalisation effect of shape-altering uncertainties is handled. In the default mode (`1`) the normalisation is handled separately from the shape morphing via a an asymmetric log-normal term. This is identical to how combine has always handled shape morphing. When set to `2`, the normalisation will be adjusted in the shape morphing directly. Unless there is a strong motivation we encourage users to leave this on the default setting. 
+The last two settings are optional. The first of these, `include-signal` has a default value of `0` but can be set to `1` as an alternative. By default the total nominal yield and uncertainty used to test the threshold excludes signal processes, as typically the initial signal normalisation is arbitrary, and could unduly lead to a bin being considered well-populated despite poorly populated background templates. Setting this flag will include the signal processes in the uncertainty analysis. Note that this option only affects the logic for creating a single Barlow-Beeston-lite parameter vs. separate per-process parameters - the uncertainties on all signal processes are always included in the actual model! The second flag changes the way the normalisation effect of shape-altering uncertainties is handled. In the default mode (`1`) the normalisation is handled separately from the shape morphing via a an asymmetric log-normal term. This is identical to how combine has always handled shape morphing. When set to `2`, the normalisation will be adjusted in the shape morphing directly. Unless there is a strong motivation we encourage users to leave this on the default setting.
 
- 
 ## Description of the algorithm
 
 When `threshold` is set to a number of effective unweighted events greater than or equal to zero, denoted $n^{\text{threshold}}$, the following algorithm is applied to each bin:
@@ -34,9 +33,8 @@ $n_{\text{tot}} = \sum_{i\,\in\,\text{bkg}}n_i$, $e_{\text{tot}} = \sqrt{\sum_{i
 The output from `text2workspace.py` will give details on how each bin has been treated by this alogorithm, for example:
 
 <details>
-<summary> <b>Show example output</b> </summary>
-<pre><code>
-============================================================
+<summary><b>Show example output</b></summary>
+<pre><code class="nohighlight">============================================================
 Analysing bin errors for: prop_binhtt_et_6_7TeV
 Poisson cut-off: 10
 Processes excluded for sums: ZH qqH WH ggH
@@ -75,10 +73,10 @@ One significant advantage of the Barlow-Beeston-lite approach is that the maximu
 
 ## Technical details
 
-Up until recently `text2workspace.py` would only construct the PDF for each channel using a `RooAddPdf`, i.e. each component process is represented by a separate PDF and  normalisation coefficient. However in order to model bin-wise statistical uncertainties the alternative `RooRealSumPdf` can be more useful, as each process is represented by a RooFit function object instead of a PDF, and we can vary the bin yields directly. As such, a new RooFit histogram class `CMSHistFunc` is introduced, which offers the same vertical template morphing algorithms offered by the current default histogram PDF, `FastVerticalInterpHistPdf2`. Accompanying this is the `CMSHistErrorPropagator`  class. This evaluates a sum of `CMSHistFunc` objects, each multiplied by a coefficient. It is also able to scale the summed yield of each bin to account for bin-wise statistical uncertainty nuisance parameters. 
+Up until recently `text2workspace.py` would only construct the PDF for each channel using a `RooAddPdf`, i.e. each component process is represented by a separate PDF and  normalisation coefficient. However in order to model bin-wise statistical uncertainties the alternative `RooRealSumPdf` can be more useful, as each process is represented by a RooFit function object instead of a PDF, and we can vary the bin yields directly. As such, a new RooFit histogram class `CMSHistFunc` is introduced, which offers the same vertical template morphing algorithms offered by the current default histogram PDF, `FastVerticalInterpHistPdf2`. Accompanying this is the `CMSHistErrorPropagator`  class. This evaluates a sum of `CMSHistFunc` objects, each multiplied by a coefficient. It is also able to scale the summed yield of each bin to account for bin-wise statistical uncertainty nuisance parameters.
 
->**[warning]** 
->One disadvantage of this new approach comes when evaluating the expectation for individual processes, for example when using the `--saveShapes` option in the `FitDiagnostics` mode of combine. The Barlow-Beeston-lite parameters scale the sum of the process yields directly, so extra work is needed in the distribution this total scaling back to each  individual process. To achieve this an additional class `CMSHistFuncWrapper` has been created that, given a particular `CMSHistFunc`, the `CMSHistErrorPropagator` will distribute an appropriate fraction of the total yield shift to each bin. As a consequence of the extra computation needed to distribute the yield shifts in this way the evaluation of individual process shapes in `--saveShapes` can take longer then previously.
+!!! warning
+    One disadvantage of this new approach comes when evaluating the expectation for individual processes, for example when using the `--saveShapes` option in the `FitDiagnostics` mode of combine. The Barlow-Beeston-lite parameters scale the sum of the process yields directly, so extra work is needed in the distribution this total scaling back to each  individual process. To achieve this an additional class `CMSHistFuncWrapper` has been created that, given a particular `CMSHistFunc`, the `CMSHistErrorPropagator` will distribute an appropriate fraction of the total yield shift to each bin. As a consequence of the extra computation needed to distribute the yield shifts in this way the evaluation of individual process shapes in `--saveShapes` can take longer then previously.
 
 
    
