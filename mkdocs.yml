@@ -1,7 +1,7 @@
 site_name: Combine
 repo_name: GitHub
 repo_url: https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit
-edit_uri: edit/102x/doc/docs
+edit_uri: edit/102x/docs
 
 nav:
         - Home: index.md
