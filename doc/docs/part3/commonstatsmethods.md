@@ -678,17 +678,11 @@ where the signal strength is frozen and the signal region is not considered in t
     
 By taking the total background, the total signal, and the data shapes from FitDiagnostics output, we can compare the post-fit predictions from the S+B fit (first case) and the CR-only fit (second case) with the observation as reported below: 
 
-<details>
-<summary> <b>FitDiagnostics S+B fit</b> </summary>
-<img src="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/doc/part3/images/result_fitSB.png"/> 
 
-</details>
+![](images/result_fitSB.png)
 
-<details>
-<summary> <b>FitDiagnostics CR-only fit</b> </summary>
-<img src="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/doc/part3/images/result_fitCRonly.png"/> 
+![](images/result_fitCRonly.png)
 
-</details>
 
 
 To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with expected distribution of the test-statistic obtained in toys:
