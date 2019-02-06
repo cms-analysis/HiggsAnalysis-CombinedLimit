@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="img/favicon.ico">
+
+    
+    <title>Home - Combine Documentation</title>
+    
+
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="css/base.min.css" rel="stylesheet">
+    <link href="css/cinder.min.css" rel="stylesheet">
+    <link href="css/highlight.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.28/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
+
+    
+
+     
+</head>
+
+<body class="homepage" >
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            <a class="navbar-brand" href=".">Combine Documentation</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li class="active">
+                        <a href=".">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Manual <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="part1/">Getting started</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="part2/settinguptheanalysis/">Setting up the analysis</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="part2/physicsmodels/">Physics models</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="part3/runningthetool/">Running the tool</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="part3/commonstatsmethods/">Common statistical methods</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="part3/nonstandard/">Advanced use cases</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="part4/usefullinks.md">Part4</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li class="disabled">
+                        <a rel="next" >
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="part1/">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/master/doc/docs/README.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#introduction">Introduction</a></li>
+        <li class="first-level "><a href="#table-of-contents">Table of Contents</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="introduction">Introduction</h1>
+<p>These pages document the <a href="https://twiki.cern.ch/twiki/bin/view/RooStats/WebHome">RooStats</a> / <a href="https://root.cern.ch/roofit">RooFit</a> - based software tools used for statistical analysis within the <a href="HiggsWG">Higgs PAG</a> - <strong>combine</strong>.</p>
+<p>Combine provides a command line interface to many different statistical techniques available inside RooFit/RooStats used widely inside CMS.</p>
+<p>The package exists in GIT under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit</a></p>
+<p>For more information about GIT and its usage in CMS, see <a href="http://cms-sw.github.io/cmssw/faq.html">http://cms-sw.github.io/cmssw/faq.html</a></p>
+<p>The code can be checked out from GIT and compiled on top of a CMSSW release that includes a recent RooFit/RooStats</p>
+<h1 id="table-of-contents">Table of Contents</h1>
+<ul>
+<li><a href="part1/"><strong>Getting started</strong></a>   </li>
+<li><a href="part1/#for-end-users-that-dont-need-to-commit-or-do-any-development">For Users</a></li>
+<li><a href="part1/#for-developers">For Developers</a></li>
+<li><a href="part1/#combine-tool">Combine Tool</a></li>
+<li><a href="part2/"><strong>Setting up the analysis</strong></a></li>
+<li><a href="part2/settinguptheanalysis/#preparing-the-datacard">Preparing the datacard</a><ul>
+<li><a href="part2/settinguptheanalysis/#a-simple-counting-experiment">Counting experiment</a></li>
+<li><a href="part2/settinguptheanalysis/#shape-analysis">Shape Analysis</a></li>
+<li><a href="part2/settinguptheanalysis/#binned-shape-analysis"><em>Binned</em></a></li>
+<li><a href="part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis"><em>Unbinned <span><span class="MathJax_Preview">or parametric</span><script type="math/tex">or parametric</script></span></em></a></li>
+<li><a href="part2/settinguptheanalysis/#beyond-simple-datacards">Beyond simple datacards</a></li>
+<li><a href="part2/settinguptheanalysis/#rate-parameters"><em>Rate Parameters</em></a></li>
+<li><a href="part2/settinguptheanalysis/#manipulation-of-nuisance-parameters"><em>Manipulation of Nuisance Parameters</em></a></li>
+<li><a href="part2/settinguptheanalysis/#combination-of-multiple-datacards"><em>Combining Cards</em></a></li>
+<li><a href="part2/settinguptheanalysis/#automatic-production-of-datacards-and-workspaces"><em>Automatic production of datacards and workspaces</em></a></li>
+</ul>
+</li>
+<li><a href="part2/physicsmodels/#physics-models">Physics Models</a> <ul>
+<li><a href="part2/physicsmodels/#model-building">Model Building</a></li>
+<li><a href="part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes"><em>example: Multi-signal model</em></a></li>
+<li><a href="part2/physicsmodels/#two-hypothesis-testing"><em>example: Two-hypothesis model</em></a> </li>
+<li><a href="part2/physicsmodels/#interference"><em>example: Interference model</em></a></li>
+</ul>
+</li>
+<li><a href="part2/bin-wise-stats/">Automatic statistical uncertainties</a></li>
+<li><a href="part3/"><strong>Running Combine</strong></a>     </li>
+<li><a href="part3/runningthetool/#how-to-run-the-tool">How to run the Tool</a><ul>
+<li><a href="part3/runningthetool/#common-command-line-options">Common Command Line Options</a></li>
+<li><a href="part3/runningthetool/#generic-minimizer-options"><em>Generic Minimizer Options</em></a></li>
+<li><a href="part3/runningthetool/#output-from-combine"><em>Output from Combine</em></a></li>
+<li><a href="part3/runningthetool/#toy-data-generation">Toy data Generation</a></li>
+<li><a href="/part3/runningthetool.md#asimov-datasets"><em>Asimov datasets</em></a></li>
+<li><a href="part3/runningthetool/#nuisance-parameter-generation"><em>Nuisance parameter Generation</em></a></li>
+<li><a href="part3/runningthetool/#loading-snapshots"><em>Loading Snapshots</em></a></li>
+<li><a href="part3/runningthetool/#combinetool-for-job-submission">combineTool for Job Submission</a></li>
+<li><a href="part3/runningthetool/#submission-to-the-lsf-batch"><em>Submission to LSF Batch</em></a></li>
+<li><a href="part3/runningthetool/#running-combine-jobs-on-the-grid"><em>Submission to the Grid</em></a></li>
+</ul>
+</li>
+<li><a href="part3/commonstatsmethods/#common-statistical-methods">Common statistical methods</a><ul>
+<li><a href="part3/commonstatsmethods/#asymptotic-frequentist-limits">Asymptotic Frequentist Limits</a></li>
+<li><a href="part3/commonstatsmethods/#blind-limits"><em>Blind Limits</em></a></li>
+<li><a href="part3/commonstatsmethods/#splitting-points"><em>Splitting Points</em></a></li>
+<li><a href="part3/commonstatsmethods/#asymptotic-significances">Asymptotic Significances</a></li>
+<li><a href="part3/commonstatsmethods/#compute-the-observed-significance"><em>Compute the Observed Significance</em></a></li>
+<li><a href="part3/commonstatsmethods/#computing-the-expected-significance"><em>Computing the Expected Significance</em></a></li>
+<li><a href="/part3/commonstatsmethods.md#bayesian-limits-and-credible-regions">Bayesian Limits and Credible regions</a></li>
+<li><a href="part3/commonstatsmethods/#computing-the-observed-bayesian-limit-for-simple-models"><em>Observed <span><span class="MathJax_Preview">simple models</span><script type="math/tex">simple models</script></span></em></a></li>
+<li><a href="part3/commonstatsmethods/#computing-the-observed-bayesian-limit-for-arbitrary-models"><em>Observed <span><span class="MathJax_Preview">arbitrary models</span><script type="math/tex">arbitrary models</script></span></em></a></li>
+<li><a href="part3/commonstatsmethods/#computing-the-expected-bayesian-limit"><em>Expected Limits</em></a></li>
+<li><a href="part3/commonstatsmethods/#multidimensional-bayesian-credible-regions"><em>Multidimensional Credible Regions</em></a> </li>
+<li><a href="part3/commonstatsmethods/#computing-limits-with-toys">Computing Limits with toys</a></li>
+<li><a href="part3/commonstatsmethods/#simple-models"><em>Simple Models</em></a></li>
+<li><a href="part3/commonstatsmethods/#complex-models"><em>Complex Models</em></a></li>
+<li><a href="part3/commonstatsmethods/#computing-significances-with-toys">Computing Significances with toys</a></li>
+<li><a href="part3/commonstatsmethods/#observed-significance"><em>Observed Significance</em></a></li>
+<li><a href="part3/commonstatsmethods/#expected-significance-assuming-some-signal"><em>Expected Significance</em></a></li>
+<li><a href="part3/commonstatsmethods/#goodness-of-fit-tests">Goodness of Fit</a></li>
+<li><a href="part3/commonstatsmethods/#channel-compatibility">Channel Compatibility</a></li>
+<li><a href="part3/commonstatsmethods/#likelihood-fits-and-scans">Likelihood Fits and Scans</a></li>
+<li><a href="part3/commonstatsmethods/#useful-options-for-likelihood-scans"><em>Useful options for Scans</em></a></li>
+<li><a href="part3/commonstatsmethods/#using-best-fit-snapshots"><em>Using best fit Snapshots</em></a></li>
+<li><a href="part3/commonstatsmethods/#feldman-cousins">Feldman Cousins</a></li>
+</ul>
+</li>
+<li><a href="part3/nonstandard/#advanced-use-cases">Advanced use cases</a><ul>
+<li><a href="part3/nonstandard/#fitting-diagnostics">Fitting Diagnostics</a></li>
+<li><a href="/part3/nonstandard.md#fit-parameter-uncertainties"><em>Fit parameter uncertainties</em></a></li>
+<li><a href="/part3/nonstandard.md#pre-and-post-fit-nuisance-parameters-and-pulls"><em>Pre/Post nuisance pars and pulls</em></a></li>
+<li><a href="part3/nonstandard/#normalizations"><em>Normalizations</em></a></li>
+<li><a href="part3/nonstandard/#plotting"><em>Plotting</em></a></li>
+<li><a href="part3/nonstandard/#toy-by-toy-diagnostics"><em>Toy-by-toy Diagnostics</em></a></li>
+<li><a href="part3/nonstandard/#scaling-constraints">Scaling constraints</a></li>
+<li><a href="part3/nonstandard/#nuisance-parameter-impacts">Nuisance Parameter Impacts</a></li>
+<li><a href="part3/nonstandard/#channel-masking">Channel Masking</a></li>
+<li><a href="part3/nonstandard/#roomultipdf-conventional-bias-studies">RooMultiPdf - Bias studies</a></li>
+<li><a href="part3/nonstandard/#roosplinend-multidimensional-splines">RooSplineND - Multidimensional splines</a></li>
+<li><a href="part3/nonstandard/#rooparametrichist-gamman-for-shapes">RooParametricHist - GammaN for shapes</a>    </li>
+</ul>
+</li>
+<li><a href="part4/"><strong>Useful Links</strong></a>   </li>
+<li><a href="part4/#faq"><strong>FAQ</strong></a>   </li>
+</ul></div>
+        
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+
+        
+        
+    </footer>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="js/bootstrap-3.0.3.min.js"></script>
+    <script src="js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+    var base_url = '.';
+    </script>
+    <script src="js/base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script src="search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+
+</html>
+
+<!--
+MkDocs version : 1.0.4
+Build Date UTC : 2019-02-06 09:01:26
+-->
