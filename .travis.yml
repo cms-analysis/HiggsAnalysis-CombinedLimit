@@ -23,4 +23,4 @@ deploy: # Deploy documentation to Github in the gh_pages branch
     local_dir: site
     keep-history: true
     on:
-        branch: gh-pages
+      branch: mkdocs-test
