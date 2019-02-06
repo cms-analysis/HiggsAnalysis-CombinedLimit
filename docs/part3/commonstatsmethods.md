@@ -47,9 +47,6 @@ By default, the limits are calculated using the CL<sub>s</sub> prescription, as 
 
 The program will also create a rootfile `higgsCombineTest.AsymptoticLimits.mH120.root` containing a root tree `limit` that contains the limit values and other bookeeping information. The important columns are `limit` (the limit value) and `quantileExpected` (-1 for observed limit, 0.5 for median expected limit, 0.16/0.84 for the edges of the 65% interval band of expected limits, 0.025/0.975 for 95%). 
 
-<details>
-<summary><b>Show output</b> </summary>
-
 <pre><code>
 $ root -l higgsCombineTest.AsymptoticLimits.mH120.root
 root [0] limit->Scan("*")
@@ -63,10 +60,8 @@ root [0] limit->Scan("*")
 *        4 * 6.6194028 *         0 *       120 *         1 *         0 *    123456 *         0 *         0 *         0 * 0.9750000 *
 *        5 * 1.6281188 * 0.0050568 *       120 *         1 *         0 *    123456 *         0 * 0.0035000 * 0.0055123 *        -1 *
 ************************************************************************************************************************************
-</pre></pre>
-
-</details>
-
+</code>
+</pre>
 
 ### Blind limits
 
@@ -95,7 +90,7 @@ combine -M AsymptoticLimits realistic-counting-experiment.txt --getLimitFromGrid
 
 ## Asymptotic Significances 
 
-The significance of a result is calculated using a ratio of profiled likelihoods, one in which the signal strength is set to 0 and the other in which it is free to float, i.e the quantity is $$-2\ln[\mathcal{L}(\textrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\textrm{data}|r=\hat{r},\hat{\theta})]$$, in which the nuisance parameters are profiled separately for $$r=\hat{r}$$ and $$r=0$$.
+The significance of a result is calculated using a ratio of profiled likelihoods, one in which the signal strength is set to 0 and the other in which it is free to float, i.e the quantity is $-2\ln[\mathcal{L}(\textrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\textrm{data}|r=\hat{r},\hat{\theta})]$, in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r=0$.
  
 The distribution of this test-statistic can be determined using Wilke's theorem provided the number of events is large enough (i.e in the *Asymptotic limit*). The significance (or p-value) can therefore be calculated very quickly and uses the `Significance` method. 
 
@@ -187,12 +182,67 @@ Again, the resulting limit tree will contain the result. You can also save the c
 Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf...) 
 Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region,
 
-<details>
-<summary><b>Show code</b></summary>
+```python
+import ROOT
 
-{% codesnippet "./part3/example_post.py", language="python" %}{% endcodesnippet %}
+rmin = 0 
+rmax = 30 
+nbins = 100
+CL = 0.95
+chains = "higgsCombineTest.MarkovChainMC.blahblahblah.root"
 
-</details>
+def findSmallestInterval(hist,CL): 
+ bins = hist.GetNbinsX()
+ best_i = 1
+ best_j = 1
+ bd = bins+1
+ val = 0;
+ for i in range(1,bins+1): 
+   integral = hist.GetBinContent(i)
+   for j in range(i+1,bins+2):
+    integral += hist.GetBinContent(j)
+    if integral > CL :
+      val = integral
+      break
+   if integral > CL and  j-i < bd : 
+     bd = j-i 
+     best_j = j+1 
+     best_i = i
+     val = integral    
+ return hist.GetBinLowEdge(best_i), hist.GetBinLowEdge(best_j), val
+
+fi_MCMC = ROOT.TFile.Open(chains)
+# Sum up all of the chains (or we could take the average limit)
+mychain=0
+for k in fi_MCMC.Get("toys").GetListOfKeys():
+    obj = k.ReadObj
+    if mychain ==0: 
+        mychain = k.ReadObj().GetAsDataSet()
+    else :
+        mychain.append(k.ReadObj().GetAsDataSet())
+hist = ROOT.TH1F("h_post",";r;posterior probability",nbins,rmin,rmax)
+for i in range(mychain.numEntries()): 
+  mychain.get(i)
+  hist.Fill(mychain.get(i).getRealValue("r"), mychain.weight())
+hist.Scale(1./hist.Integral())
+hist.SetLineColor(1)
+vl,vu,trueCL = findSmallestInterval(hist,CL)
+histCL = hist.Clone()
+for b in range(nbins): 
+  if histCL.GetBinLowEdge(b+1) < vl or histCL.GetBinLowEdge(b+2)>vu: histCL.SetBinContent(b+1,0)   
+c6a = ROOT.TCanvas()
+histCL.SetFillColor(ROOT.kAzure-3)
+histCL.SetFillStyle(1001)
+hist.Draw()
+histCL.Draw("histFsame")
+hist.Draw("histsame")
+ll = ROOT.TLine(vl,0,vl,2*hist.GetBinContent(hist.FindBin(vl))); ll.SetLineColor(2); ll.SetLineWidth(2)
+lu = ROOT.TLine(vu,0,vu,2*hist.GetBinContent(hist.FindBin(vu))); lu.SetLineColor(2); lu.SetLineWidth(2)
+ll.Draw()
+lu.Draw()
+
+print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
+```
 
 Running the script on the output file produced for the same datacard (including the `--saveChain` option) will produce the following output
  
@@ -200,11 +250,7 @@ Running the script on the output file produced for the same datacard (including 
 
 along with a plot of the posterior shown below. This is the same as the output from combine but the script can also be used to find lower limits (for example) or credible intervals.
 
-<details>
-<summary> <b>Show 1D posterior</b> </summary>
-<img src="images/bayes1D.png"  width="50%" height="50%"/> 
-
-</details>
+![](images/bayes1D.png)
 
 
 An example to make contours when ordering by probability density is in [bayesContours.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/81x-root606/master/test/multiDim/bayesContours.cxx), but the implementation is very simplistic, with no clever handling of bin sizes nor any smoothing of statistical fluctuations.
@@ -244,7 +290,7 @@ For more heavy methods (eg the `MarkovChainMC`) you'll probably want to split th
 
 ### Multidimensional bayesian credible regions
 
-The `MarkovChainMC` method allows the user to produce the posterior pdf as a function of (in principle) any number of parameter of interest. In order to do so, you first need to create a workspace with more than one parameter, as explained in the [physics models](/part2/physicsmodels.md) section. 
+The `MarkovChainMC` method allows the user to produce the posterior pdf as a function of (in principle) any number of parameter of interest. In order to do so, you first need to create a workspace with more than one parameter, as explained in the [physics models](/part2/physicsmodels) section. 
 
 For example, lets use the toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV) and convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections using `text2workspace` with the option `-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH`. 
 
@@ -262,11 +308,7 @@ $ root -l higgsCombineTest.MarkovChainMC....
 bayesPosterior2D("bayes2D","Posterior PDF")
 ```
 
-<details>
-<summary> <b>Show posterior</b> </summary>
-<img src="images/bayes2D.png"/> 
-
-</details>
+![](images/bayes2D.png) 
 
 
 ## Computing Limits with toys
@@ -278,21 +320,21 @@ It is possible to define the criterion used for setting limits using `--rule CLs
 The choice of test-statistic can be made via the option `--testStat` and different methodologies for treatment of the nuisance parameters are available. While it is possible to mix different test-statistics with different nuisance parameter treatments, this is highly **not-reccomended**. Instead one should follow one of the following three procedures, 
 
 * **LEP-style**: `--testStat LEP --generateNuisances=1 --fitNuisances=0` 
-    * The test statistic is defined using the ratio of likelihoods $$q_{\mathrm{LEP}}=-2\ln[\mathcal{L}(\mathrm{data}|r=0)/\mathcal{L}(\mathrm{data}|r)]$$. 
+    * The test statistic is defined using the ratio of likelihoods $q_{\mathrm{LEP}}=-2\ln[\mathcal{L}(\mathrm{data}|r=0)/\mathcal{L}(\mathrm{data}|r)]$. 
     * The nuisance parameters are fixed to their nominal values for the purpose of evaluating the likelihood, while for generating toys, the nuisance parameters are first randomized within their pdfs before generation of the toy.
 
 * **TEV-style**: `--testStat TEV --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1`
-    * The test statistic is defined using the ratio of likelihoods $$q_{\mathrm{TEV}}=-2\ln[\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})]$$, in which the nuisance parameters are profiled separately for $$r=0$$ and $$r$$.
+    * The test statistic is defined using the ratio of likelihoods $ q_{\mathrm{TEV}}=-2\ln\[\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})\] $, in which the nuisance parameters are profiled separately for $r=0$ and $r$.
     * For the purposes of toy generation, the nuisance parameters are fixed to their post-fit values from the data (conditional on r), while the constraint terms are randomized for the evaluation of the likelihood. 
 
 * **LHC-style**: `--LHCmode LHC-limits`
 , which is the shortcut for `--testStat LHC --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1`
-    * The test statistic is defined using the ratio of likelihoods $$q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta}])$$ , in which the nuisance parameters are profiled separately for $$r=\hat{r}$$ and $$r$$.
-    * The value of $$q_{r}$$ set to 0 when $$\hat{r}>r$$ giving a one sided limit. Furthermore, the constraint $$r>0$$ is enforced in the fit. This means that if the unconstrained value of $$\hat{r}$$ would be negative, the test statistic $$q_{r}$$ is evaluated as $$-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0}])$$
+    * The test statistic is defined using the ratio of likelihoods $q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta}])$ , in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r$.
+    * The value of $q_{r}$ set to 0 when $\hat{r}>r$ giving a one sided limit. Furthermore, the constraint $r>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{r}$ would be negative, the test statistic $q_{r}$ is evaluated as $-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0}])$
     * For the purposes of toy generation, the nuisance parameters are fixed to their **post-fit** values from the data (conditionally on the value of **r**), while the constraint terms are randomized in the evaluation of the likelihood. 
 
 >**[warning]** 
->The recommended style is the **LHC-style**. Please note that this method is sensitive to the *observation in data* since the *post-fit* (after a fit to the data) values of the nuisance parameters (assuming different values of **r**) are used when generating the toys. For completely blind limits you can first generate a *pre-fit* asimov toy dataset (described in the [toy data generation](/part3/runningthetool.md#toy-data-generation) section) and use that in place of the data.
+>The recommended style is the **LHC-style**. Please note that this method is sensitive to the *observation in data* since the *post-fit* (after a fit to the data) values of the nuisance parameters (assuming different values of **r**) are used when generating the toys. For completely blind limits you can first generate a *pre-fit* asimov toy dataset (described in the [toy data generation](/part3/runningthetool#toy-data-generation) section) and use that in place of the data.
 
 While the above shortcuts are the common variants, you can also try others. The treatment of the nuisances can be changed to the so-called "Hybrid-Bayesian" method which effectively integrates over the nuisance parameters. This can be achieved (with any test-statistic which is not profiled over the nuisances) by setting `--generateNuisances=1 --generateExternalMeasurements=0 --fitNuisances=0`. 
 
@@ -530,14 +572,9 @@ The splitting of the jobs can be left to the user's preference. However, users m
 
 A plot of the p-values (CL<sub>s</sub> or CL<sub>s+b</sub>) as a function of **r**, which is used to find the crossing, can be produced using the option `--plot=limit_scan.png`. This can be useful for judging if the grid was sufficient in determining the upper limit. 
 
-If we use our [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard and generate a grid of points $$r\varepsilon[1.4,2.2]$$ in steps of 0.1, with 5000 toys for each point, the plot of the observed CL<sub>s</sub> vs **r** should look like the following, 
+If we use our [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard and generate a grid of points $r\varepsilon[1.4,2.2]$ in steps of 0.1, with 5000 toys for each point, the plot of the observed CL<sub>s</sub> vs **r** should look like the following, 
 
-<details>
-<summary> <b>Show CL<sub>s</sub> vs r </b> </summary>
-<img src="images/limit_scan.png"  width="50%" height="50%"/> 
-
-</details>
-
+![](images/limit_scan.png)
 
 
 You should judge in each case if the limit is accurate given the spacing of the points and the precision of CL<sub>s</sub> at each point. If it is not sufficient, simply generate more points closer to the limit and/or more toys at each point.
@@ -557,8 +594,8 @@ Computation of expected significance with toys is a two step procedure: first yo
 
 * **LHC-style**: `--LHCmode LHC-significance`
 , which is the shortcut for `--testStat LHC --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --significance`
-    * The test statistic is defined using the ratio of likelihoods $$q_{0} = -2\ln[\mathcal{L}(\textrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\textrm{data}|r=\hat{r},\hat{\theta})]$$, in which the nuisance parameters are profiled separately for $$r=\hat{r}$$ and $$r=0$$.
-    * The value of the test statistic is set to 0 when $$\hat{r}<0$$
+    * The test statistic is defined using the ratio of likelihoods $q_{0} = -2\ln[\mathcal{L}(\textrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\textrm{data}|r=\hat{r},\hat{\theta})]$, in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r=0$.
+    * The value of the test statistic is set to 0 when $\hat{r}<0$
     * For the purposes of toy generation, the nuisance parameters are fixed to their post-fit values from the data assuming **no** signal, while the constraint terms are randomized for the evaluation of the likelihood. 
 
 ### Observed significance 
@@ -606,7 +643,7 @@ The following algorithms are supported:
 
 - **AD**: Compute a goodness-of-fit measure for binned fits using the *Anderson-Darling* test. It is based on the integral of the difference between the cumulative distribution function and the empirical distribution function over all bins. It also gives the tail ends of the distribution a higher weighting.
 
-The output tree will contain a branch called **`limit`** which contains the value of the test-statistic in each toy. You can make a histogram of this test-statistic $$t$$ and from this distribution ($$f(t)$$) and the single value obtained in the data ($$t_{0}$$) you can calculate the p-value as $$p=\int_{t=t_{0}}^{\mathrm{+inf}} f(t)dt $$.
+The output tree will contain a branch called **`limit`** which contains the value of the test-statistic in each toy. You can make a histogram of this test-statistic $t$ and from this distribution ($f(t)$) and the single value obtained in the data ($t_{0}$) you can calculate the p-value as $p=\int_{t=t_{0}}^{\mathrm{+inf}} f(t)dt $.
 
 When generating toys, the default behavior will be used. See the section on [toy generation](#toy-generation) for options on how to generate/fit nuisance parameters in these tests. It is recomended to use the *frequentist toys* (`--toysFreq`) when running the **saturated** model, and the default toys for the other two tests.
 
@@ -643,13 +680,13 @@ By taking the total background, the total signal, and the data shapes from FitDi
 
 <details>
 <summary> <b>FitDiagnostics S+B fit</b> </summary>
-<img src="images/result_fitSB.png"/> 
+<img src="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/doc/part3/images/result_fitSB.png"/> 
 
 </details>
 
 <details>
 <summary> <b>FitDiagnostics CR-only fit</b> </summary>
-<img src="images/result_fitCRonly.png"/> 
+<img src="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/doc/part3/images/result_fitCRonly.png"/> 
 
 </details>
 
@@ -663,13 +700,13 @@ where the former gives the result for the S+B model, while the latter gives the 
 
 <details>
 <summary> <b>Goodness-of-fit for S+B model</b> </summary>
-<img src="images/gof_sb.png"/> 
+<img src="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/doc/part3/images/gof_sb.png"/> 
 
 </details>
 
 <details>
 <summary> <b>Goodness-of-fit for CR-only model</b> </summary>
-<img src="images/gof_CRonly.png"/> 
+<img src="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/doc/part3/images/gof_CRonly.png"/> 
  
 </details>
 
@@ -678,7 +715,7 @@ where the former gives the result for the S+B model, while the latter gives the 
 
 The `ChannelCompatibilityCheck` method can be used to evaluate how compatible are the measurements of the signal strength from the separate channels of a combination.
 
-The method performs two fits of the data, first with the nominal model in which all channels are assumed to have the *same signal strength multiplier* $$r$$, and then another allowing *separate signal strengths* $$r_{i}$$ in each channel. A chisquare-like quantity is computed as $$-2 \ln \mathcal{L}(\mathrm{data}| r)/L(data|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})$$. Just like for the goodness of fit indicators, the expected distribution of this quantity under the nominal model can be computed from toy mc.
+The method performs two fits of the data, first with the nominal model in which all channels are assumed to have the *same signal strength multiplier* $r$, and then another allowing *separate signal strengths* $r_{i}$ in each channel. A chisquare-like quantity is computed as $-2 \ln \mathcal{L}(\mathrm{data}| r)/L(data|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})$. Just like for the goodness of fit indicators, the expected distribution of this quantity under the nominal model can be computed from toy mc.
 
 By default, the signal strength is kept floating in the fit with the nominal model. It can however be fixed to a given value by passing the option `--fixedSignalStrength=<value>`.
 
@@ -689,8 +726,6 @@ When run with the a verbosity of 1, as the default, the program also prints out 
 
 Below is an example output from combine,
 
-<details>
-<summary><b>Show output</b> </summary>
 <pre><code>
 $ combine -M ChannelCompatibilityCheck comb_hww.txt -m 160 -n HWW
  <<< Combine >>>
@@ -711,8 +746,6 @@ Alternate fit: r = 0.0000 -0.0000/+0.5129 in channel hww_2j_cut
 Chi2-like compatibility variable: 2.16098
 Done in 0.08 min (cpu), 0.08 min (real)
 </code></pre>
-</details>
-
 
 The output tree will contain the value of the compatibility (chisquare variable) in the **limit** branch. If the option `--saveFitResult` is specified, the output root file contains also two [RooFitResult](http://root.cern.ch/root/htmldoc/RooFitResult.html) objects **fit_nominal** and **fit_alternate** with the results of the two fits.
 
@@ -743,15 +776,15 @@ A number of different algorithms can be used with the option `--algo <algo>`,
 
 -  **cross**:  Perform joint fit of all parameters: `combine -M MultiDimFit toy-hgg-125.root --algo=cross --cl=0.68`. The output root tree will have one row with the best fit point, and two rows for each parameter, corresponding to the minimum and maximum of that parameter on the likelihood contour corresponding to the specified CL, according to a *N-dimensional chisquare* (i.e. uncertainties on each fitted parameter ***do*** increase when adding other parameters, even if they're uncorrelated). Note that the output of this way of running **are not** 1D uncertainties on each parameter, and shouldn't be taken as such.
 
--   **contour2d**: Make a 68% CL contour a la minos `combine -M MultiDimFit toy-hgg-125.root --algo contour2d --points=20 --cl=0.68`. The output will contain values corresponding to the best fit point (with **quantileExpected** set to -1) and for a set of points on the contour (with **quantileExpected** set to 1-CL, or something larger than that if the contour is hitting the boundary of the parameters). Probabilities are computed from the the n-dimensional $$\chi^{2}$$ distribution. For slow models, you can split it up by running several times with *different* number of points and merge the outputs (something better can be implemented). You can look at the [contourPlot.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/contourPlot.cxx) macro for how to make plots out of this algorithm.
+-   **contour2d**: Make a 68% CL contour a la minos `combine -M MultiDimFit toy-hgg-125.root --algo contour2d --points=20 --cl=0.68`. The output will contain values corresponding to the best fit point (with **quantileExpected** set to -1) and for a set of points on the contour (with **quantileExpected** set to 1-CL, or something larger than that if the contour is hitting the boundary of the parameters). Probabilities are computed from the the n-dimensional $\chi^{2}$ distribution. For slow models, you can split it up by running several times with *different* number of points and merge the outputs (something better can be implemented). You can look at the [contourPlot.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/contourPlot.cxx) macro for how to make plots out of this algorithm.
     
 -   **random**: Scan N random points and compute the probability out of the profile likelihood `combine -M MultiDimFit toy-hgg-125.root --algo random --points=20 --cl=0.68`. Again, best fit will have **quantileExpected** set to -1, while each random point will have **quantileExpected** set to the probability given by the profile likelihood at that point.
 
--   **fixed**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs <r_fixed,MH_fixed>`. The output tree will contain the difference in the negative log-likelihood between the points ($$\hat{r},\hat{m}_{H}$$) and ($$\hat{r}_{fixed},\hat{m}_{H,fixed}$$) in the branch **deltaNLL**.
+-   **fixed**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs <r_fixed,MH_fixed>`. The output tree will contain the difference in the negative log-likelihood between the points ($\hat{r},\hat{m}_{H}$) and ($\hat{r}_{fixed},\hat{m}_{H,fixed}$) in the branch **deltaNLL**.
 
 -  **grid**:  Scan on a fixed grid of points not with approximately N points in total. `combine -M MultiDimFit toy-hgg-125.root --algo grid --points=10000`. 
     * You can partition the job in multiple tasks by using options `--firstPoint` and `--lastPoint`, for complicated scans, the points can be split as described in the [combineTool for job submission](#) section. The output file will contain a column **deltaNLL** with the difference in negative log likelihood with respect to the best fit point. Ranges/contours can be evaluated by filling TGraphs or TH2 histograms with these points.
-    * By default the "min" and "max" of the POI ranges are *not* included and the points which are in the scan are *centered* , eg `combine -M MultiDimFit --algo grid --rMin 0 --rMax 5 --points 5` will scan at the points $$r=0.5, 1.5, 2.5, 3.5, 4.5$$. You can instead include the option `--alignEdges 1` which causes the points to be aligned with the endpoints of the parameter ranges - eg `combine -M MultiDimFit --algo grid --rMin 0 --rMax 5 --points 6 --alignEdges 1` will now scan at the points $$r=0, 1, 2, 3, 4, 5$$. NB - the number of points must be increased by 1 to ensure both end points are included. 
+    * By default the "min" and "max" of the POI ranges are *not* included and the points which are in the scan are *centered* , eg `combine -M MultiDimFit --algo grid --rMin 0 --rMax 5 --points 5` will scan at the points $r=0.5, 1.5, 2.5, 3.5, 4.5$. You can instead include the option `--alignEdges 1` which causes the points to be aligned with the endpoints of the parameter ranges - eg `combine -M MultiDimFit --algo grid --rMin 0 --rMax 5 --points 6 --alignEdges 1` will now scan at the points $r=0, 1, 2, 3, 4, 5$. NB - the number of points must be increased by 1 to ensure both end points are included. 
 
 With the algorithms **none** and **singles** you can save the RooFitResult from the initial fit using the option `--saveFitResult`. The fit result is saved into a new file called `muiltidimfit.root`.
 
@@ -759,7 +792,7 @@ As usual, any *floating* nuisance parameters will be *profiled* which can be tur
 
 For most of the methods, for lower precision results you can turn off the profiling of the nuisances setting option `--fastScan`, which for complex models speeds up the process by several orders of magnitude. **All** nuisance parameters will be kept fixed at the value corresponding to the best fit point.
 
-As an example, lets produce the $$-2\Delta\ln{\mathcal{L}}$$ scan as a function of **`r_ggH`** and **`r_qqH`** from the toy H→γγ datacard, with the nuisance parameters *fixed* to their global best fit values. 
+As an example, lets produce the $-2\Delta\ln{\mathcal{L}}$ scan as a function of **`r_ggH`** and **`r_qqH`** from the toy H→γγ datacard, with the nuisance parameters *fixed* to their global best fit values. 
 
     combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2000 --setParameterRanges r_qqH=0,10:r_ggH=0,4 -m 125 --fastScan
 
@@ -817,15 +850,11 @@ best_fit->SetMarkerSize(3); best_fit->SetMarkerStyle(34); best_fit->Draw("p same
 
 ```
 
-<details>
-<summary> <b>Show plot</b> </summary>
-<img src="images/nll2D.png" width="50%" height="50%"/> 
-
-</details>
+![](images/nll2D.png)
 
 To make the full profiled scan just remove the `--fastScan` option from the combine command.
 
-Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the [`CombineHarvester/CombineTools`](/part1/README.md/#combine-tool) package [plot1DScan.py](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/scripts/plot1DScan.py) which can be used to make plots and extract the crossings of the `2*deltaNLL` - e.g the 1σ/2σ boundaries.
+Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the [`CombineHarvester/CombineTools`](/part1/README/#combine-tool) package [plot1DScan.py](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/scripts/plot1DScan.py) which can be used to make plots and extract the crossings of the `2*deltaNLL` - e.g the 1σ/2σ boundaries.
 
 
 ### Useful options for likelihood scans
@@ -834,18 +863,13 @@ A number of common, useful options (especially for computing likelihood scans wi
 
 * `--autoBoundsPOIs arg`: Adjust bounds for the POIs if they end up close to the boundary. This can be a comma separated list of POIs, or "*" to get all of them.
 * `--autoMaxPOIs arg`: Adjust maxima for the POIs if they end up close to the boundary. Can be a list of POIs, or "*" to get all. 
-* `--autoRange X`: Set to any **X >= 0** to do the scan in the $$\hat{p}$$ $$\pm$$ Xσ range, where $$\hat{p}$$ and σ are the best fit parameter value and uncertainty from the initial fit (so it may be fairly approximate). In case you do not trust the estimate of the error from the initial fit, you can just centre the range on the best fit value by using the option `--centeredRange X` to do the scan in the $$\hat{p}$$ $$\pm$$ X range centered on the best fit value.
+* `--autoRange X`: Set to any **X >= 0** to do the scan in the $\hat{p}$ $\pm$ Xσ range, where $\hat{p}$ and σ are the best fit parameter value and uncertainty from the initial fit (so it may be fairly approximate). In case you do not trust the estimate of the error from the initial fit, you can just centre the range on the best fit value by using the option `--centeredRange X` to do the scan in the $\hat{p}$ $\pm$ X range centered on the best fit value.
 * `--squareDistPoiStep`:  POI step size based on distance from midpoint ( either (max-min)/2 or the best fit if used with `--autoRange` or `--centeredRange` ) rather than linear separation.
 * `--skipInitialFit`: Skip the initial fit (saves time if for example a snapshot is loaded from a previous fit)
 
 Below is a comparison in a likelihood scan, with 20 points, as a function of **`r_qqH`** with our `toy-hgg-125.root` workspace with and without some of these options. The options added tell combine to scan more points closer to the minimum (best-fit) than with the default. 
 
-<details>
-<summary> <b>Show comparison</b> </summary>
-<img src="images/r_qqH.png" width="50%" height="50%"/> 
-
-</details>
-
+![](images/r_qqH.png)
 
 You may find it useful to use the `--robustFit=1` option to turn on robust (brute-force) for likelihood scans (and other algorithms). You can set the strategy and tolerance when using the `--robustFit` option using the options `--setRobustFitAlgo` (default is `Minuit2,migrad`), `setRobustFitStrategy` (default is 0) and `--setRobustFitTolerance` (default is 0.1). If these options are not set, the defaults (set using `cminDefaultMinimizerX` options) will be used.
 
@@ -873,7 +897,7 @@ As a result, when running with `floatOtherPOIs` set to 1, the uncertainties on e
 
 You can save the values of the other parameters of interest in the output tree by adding the option `saveInactivePOI=1`. You can additionally save the post-fit values any nuisance parameter, function or discrete index (RooCategory) defined in the workspace using the following options;
 
--   `--saveSpecifiedNuis=arg1,arg2,...` will store the fitted value of any specified *constrained* nuisance parameter. Use `all` to save every constrained nuisance parameter. **Note** that if you want to store the values of `flatParams` (or floating parameters which are not defined in the datacard) or `rateParams`,  which are *unconstrained*, you should instead use the generic option `--trackParameters` as described [here](/part3/runningthetool.md#common-command-line-options).
+-   `--saveSpecifiedNuis=arg1,arg2,...` will store the fitted value of any specified *constrained* nuisance parameter. Use `all` to save every constrained nuisance parameter. **Note** that if you want to store the values of `flatParams` (or floating parameters which are not defined in the datacard) or `rateParams`,  which are *unconstrained*, you should instead use the generic option `--trackParameters` as described [here](/part3/runningthetool#common-command-line-options).
 -   `--saveSpecifiedFunc=arg1,arg2,...` will store the value of any function (eg `RooFormulaVar`) in the model.
 -   `--saveSpecifiedIndex=arg1,arg2,...` will store the index of any `RooCategory` object - eg a `discrete` nuisance. 
 
@@ -882,11 +906,11 @@ You can save the values of the other parameters of interest in the output tree b
 
 This can be used to save time when performing scans so that the best-fit needs not be redone and can also be used to perform scans with some nuisances frozen to the best-fit values. Sometimes it is useful to scan freezing certain nuisances to their *best-fit* values as opposed to the default values. To do this here is an example, 
 
--  Create a workspace workspace for a floating $$r,m_{H}$$ fit `text2workspace.py hgg_datacard_mva_8TeV_bernsteins.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass --PO higgsMassRange=120,130 -o testmass.root`
+-  Create a workspace workspace for a floating $r,m_{H}$ fit `text2workspace.py hgg_datacard_mva_8TeV_bernsteins.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass --PO higgsMassRange=120,130 -o testmass.root`
 
 -  Perfom the fit, *saving* the workspace `combine -m 123 -M MultiDimFit --saveWorkspace -n teststep1 testmass.root  --verbose 9`
 
-Now we can load the best-fit $$\hat{r},\hat{m}_{H}$$ and fit for $$r$$ freezing $$m_{H}$$ and **lumi_8TeV** to the best-fit values,
+Now we can load the best-fit $\hat{r},\hat{m}_{H}$ and fit for $r$ freezing $m_{H}$ and **lumi_8TeV** to the best-fit values,
  
     combine -m 123 -M MultiDimFit -d higgsCombineteststep1.MultiDimFit.mH123.root -w w --snapshotName "MultiDimFit" -n teststep2  --verbose 9 --freezeNuisances MH,lumi_8TeV
 
@@ -895,26 +919,26 @@ Now we can load the best-fit $$\hat{r},\hat{m}_{H}$$ and fit for $$r$$ freezing 
 
 The Feldman-Cousins (FC) procedure for computing confidence intervals for a generic model is,
 
--   use the profile likelihood as the test-statistic $$q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})$$ where $$x$$ is a  point in the (N-dimensional) parameter space, and $$\hat{x}$$ is the point corresponding to the best fit. In this test-statistic, the nuisance parameters are profiled, separately both in the  numerator and denominator. 
--   for each point $$x$$:
-    -   compute the observed test statistic $$q_{\mathrm{obs}}(x)$$
-    -   compute the expected distribution of $$q(x)$$ under the hypothesis of $$x$$ as the true value.
-    -   accept the point in the region if CL<sub>s+b</sub>$$=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha$$
+-   use the profile likelihood as the test-statistic $q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})$ where $x$ is a  point in the (N-dimensional) parameter space, and $\hat{x}$ is the point corresponding to the best fit. In this test-statistic, the nuisance parameters are profiled, separately both in the  numerator and denominator. 
+-   for each point $x$:
+    -   compute the observed test statistic $q_{\mathrm{obs}}(x)$
+    -   compute the expected distribution of $q(x)$ under the hypothesis of $x$ as the true value.
+    -   accept the point in the region if CL<sub>s+b</sub>$=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha$
 
-With a critical value $$\alpha$$. 
+With a critical value $\alpha$. 
 
 In `combine`, you can perform this test on each individual point (**param1, param2,...**) = (**value1,value2,...**) by doing,
 
     combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 
-The point belongs to your confidence region if CL<sub>s+b</sub> is larger than $$\alpha$$ (e.g. 0.3173 for a 1σ region, $$1-\alpha=0.6827$$).
+The point belongs to your confidence region if CL<sub>s+b</sub> is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
 >**[warning]**
 >You should not use this method without the option `--singlePoint`. Although combine will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.  
 
 #### Physical boundaries 
 
-Imposing physical boundaries (such as requiring $$r>0$$) is achieved by setting the ranges of the physics model parameters using
+Imposing physical boundaries (such as requiring $r>0$) is achieved by setting the ranges of the physics model parameters using
     
       --setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
 
@@ -936,7 +960,7 @@ For *one-dimensional* models only, and if the parameter behaves like a cross-sec
 
      combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=mergedfile.root --cl <1-alpha>
 
-The output tree will contain the values of the POI which crosses the critical value ($$\alpha$$) - i.e, the boundaries of the confidence intervals, 
+The output tree will contain the values of the POI which crosses the critical value ($\alpha$) - i.e, the boundaries of the confidence intervals, 
 
 You can produce a plot of the value of CL<sub>s+b</sub> vs the parameter of interest by adding the option `--plot <plotname>`.
 

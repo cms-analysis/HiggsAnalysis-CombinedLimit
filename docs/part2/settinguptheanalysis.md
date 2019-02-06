@@ -64,7 +64,7 @@ In the example, there are 5 uncertainties:
 
 -   the first uncertainty affects the signal by 11%, and affects the **`ggWW`** process by 11%
 -   the second uncertainty affects the signal by 16% leaving the backgrounds unaffected
--   the third line specifies that the **`qqWW`** background comes from a sideband with 4 observed events and an extrapolation factor of 0.16; the resulting uncertainty on the expected yield is $$1/\sqrt{4+1}$$ = 45%
+-   the third line specifies that the **`qqWW`** background comes from a sideband with 4 observed events and an extrapolation factor of 0.16; the resulting uncertainty on the expected yield is $1/\sqrt{4+1}$ = 45%
 -   the fourth uncertainty does not affect the signal, affects the **`ggWW`** background by 50%, leaving the other backgrounds unaffected
 -   the last uncertainty does not affect the signal, affects by 30% the **`others`** backgrounds, leaving the rest of the backgrounds unaffected
 
@@ -138,11 +138,7 @@ The last block concerns the treatment of the systematics affecting shapes. In th
 
 There are two options for the interpolation algorithm in the "shape" uncertainty. Putting **`shape`** will result in a quadratic interpolation (within +/-1 sigma) and a linear extrapolation (beyond +/-1 sigma) of the **fraction of events in each bin** - i.e the histograms are first normalised before interpolation. Putting **`shapeN`** while instead base the interpolation on the logs of the fraction in each bin. For _both_ **`shape`**  and **`shapeN`**, the total normalisation is interpolated using an asymmetric log-normal so that the effect of the systematic on both the shape and normalisation are accounted for. The following image shows a comparison of those two algorithms for this datacard.
 
-<details>
-<summary> <b>Show comparison</b> </summary>
-<img src="images/compare-shape-algo.png"/> 
-
-</details>
+![](images/compare-shape-algo.png) 
 
 
 In this case there are two processes, *signal* and *background*, and two uncertainties affecting background (*alpha*) and signal shape (*sigma*). Within the root file 2 histograms per systematic have to be provided, they are the shape obtained, for the specific process, shifting up and down the parameter associated to the uncertainty: `background_alphaUp` and `background_alphaDown`, `signal_sigmaUp` and `signal_sigmaDown`. 
@@ -222,24 +218,24 @@ RooWorkspace(w) w contents
 
 variables
 ---------
-(MH,bkg_norm,cc_a0,cc_a1,cc_a2,rmdj,vogian_sigma,vogian_width)
+(MH,bkg_norm,cc_a0,cc_a1,cc_a2,j,vogian_sigma,vogian_width)
 
 p.d.f.s
 -------
-RooChebychev::bkg[ x=rmdj coefList=(cc_a0,cc_a1,cc_a2) ] = 2.6243
-RooVoigtian::sig[ x=rmdj mean=MH width=vogian_width sigma=vogian_sigma ] = 0.000639771
+RooChebychev::bkg[ x=j coefList=(cc_a0,cc_a1,cc_a2) ] = 2.6243
+RooVoigtian::sig[ x=j mean=MH width=vogian_width sigma=vogian_sigma ] = 0.000639771
 
 datasets
 --------
-RooDataSet::data_obs(rmdj)
+RooDataSet::data_obs(j)
 ```
 
 
-In this datacard, the signal is parameterised in terms of the hypothesised mass (`MH`). Combine will use this variable, instead of creating its own, which will be interpreted as the value for `-m`. For this reason, we should add the option `-m 30` (or something else within the observable range) when running combine. You will also see there is a variable named `bkg_norm`. This is used to normalize the background rate (see the section on [Rate parameters](/part2/settinguptheanalysis.md#rate-parameters) below for details).
+In this datacard, the signal is parameterised in terms of the hypothesised mass (`MH`). Combine will use this variable, instead of creating its own, which will be interpreted as the value for `-m`. For this reason, we should add the option `-m 30` (or something else within the observable range) when running combine. You will also see there is a variable named `bkg_norm`. This is used to normalize the background rate (see the section on [Rate parameters](/part2/settinguptheanalysis#rate-parameters) below for details).
 
 
 >**[warning]**
->Combine will not accept RooExtendedPdfs as an input. This is to alleviate a bug that lead to improper treatment of normalization when using multiple RooExtendedPdfs to describe a single process. You should instead use RooAbsPdfs and provide the rate as a separate object (see the [Rate parameters](/part2/settinguptheanalysis.md#rate-parameters) section).
+>Combine will not accept RooExtendedPdfs as an input. This is to alleviate a bug that lead to improper treatment of normalization when using multiple RooExtendedPdfs to describe a single process. You should instead use RooAbsPdfs and provide the rate as a separate object (see the [Rate parameters](/part2/settinguptheanalysis#rate-parameters) section).
 
 The part of the datacard related to the systematics can include lines with the syntax
 
@@ -280,21 +276,17 @@ Another solution (currently implemented for 1-dimensional histograms only) is to
 
 Note that this pdf class now allows parameters that are themselves **RooAbsReal** objects (i.e. functions of other variables). The integrals are handled internally by calling the underlying pdf’s `createIntegral()` method with named ranges created for each of the bins. This means that if the analytical integrals for the underlying pdf are available, they will be used.
 
-The constructor for this class requires a **RooAbsReal** (eg any **RooAbsPdf**)along with a list of **RooRealVars** (the parameters, excluding the observable $$x$$),
+The constructor for this class requires a **RooAbsReal** (eg any **RooAbsPdf**)along with a list of **RooRealVars** (the parameters, excluding the observable $x$),
 
 ```c++
 RooParametricShapeBinPdf(const char *name, const char *title,  RooAbsReal& _pdf, RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape )
 ```
 
-Below is a comparison of a fit to a binned dataset containing 1000 events with one observable $$x\varepsilon \left[0,100\right] $$. The fit function is
-a **RooExponential** of the form $$e^{xp}$$.
+Below is a comparison of a fit to a binned dataset containing 1000 events with one observable $x\varepsilon \left[0,100\right] $. The fit function is
+a **RooExponential** of the form $e^{xp}$.
 
-<details>
-<summary> <b>Show Comparison</b> </summary>
-<img src="/part2/images/narrow.png" width="50%" height="50%"/>
-<img src="/part2/images/wide.png" width="50%" height="50%"/>
-
-</details>
+![Narrow bins](images/narrow.png)
+![Wide bins](images/wide.png)
 
 
 In the upper plot, the data are binned in 100 evenly spaced bins, while in the lower plot, there are 3 irregular bins. The blue lines show the result of the fit
@@ -318,7 +310,7 @@ The `[min,max]` argument is optional and if not included, combine  will remove t
 You can attach the same `rateParam` to multiple processes/bins by either using a wild card (eg `*` will match everything, `QCD_*` will match everything starting with `QCD_` etc.) in the name of the bin and/or process or by repeating the `rateParam` line in the datacard for different bins/processes with the same name.  
 
 >**[warning]**
-> `rateParam` is not a shortcut to evaluate the post-fit yield of a process since **other nuisances can also change the normalisation**. E.g., finding that the `rateParam` best-fit value is 0.9 does not necessarily imply that the process yield is 0.9 times the initial one. The best is to evaluate the yield taking into account the values of all nuisance parameters using [`--saveNormalizations`](../part3/nonstandard.md#normalizations).
+> `rateParam` is not a shortcut to evaluate the post-fit yield of a process since **other nuisances can also change the normalisation**. E.g., finding that the `rateParam` best-fit value is 0.9 does not necessarily imply that the process yield is 0.9 times the initial one. The best is to evaluate the yield taking into account the values of all nuisance parameters using [`--saveNormalizations`](../part3/nonstandard#normalizations).
 
 
 This parameter is by default, freely floating. It is possible to include a Gaussian constraint on any `rateParam` which is floating (i.e not a `formula` or spline) by adding a `param` nuisance line in the datacard with the same name.
@@ -331,8 +323,6 @@ where `args` is a comma separated list of the arguments for the string `formula`
     
 Below is an example datacard which uses the `rateParam` directive to implement an ABCD like method in combine. For a more realistic description of it's use for ABCD, see the single-lepton SUSY search implementation described [here](http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2015_207_v5.pdf)
 
-<details>
-<summary> <b>Show ABCD datacard</b> </summary>
 <pre><code> 
 imax 4  number of channels
 jmax 0  number of processes -1
@@ -352,7 +342,6 @@ beta  rateParam B bkg 50
 gamma rateParam C bkg 100 
 delta rateParam D bkg 500 
 </code></pre>
-</details>
 
 For more examples of using `rateParam` (eg for fitting process normalisations in control regions and signal regions simultaneously) see this [2016 CMS tutorial](https://indico.cern.ch/event/577649/contributions/2339440/attachments/1380196/2097805/beyond_simple_datacards.pdf)
 
@@ -366,34 +355,34 @@ After running `text2workspace.py` on your datacard, you can check the normalisat
 
 
 ```
-text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
+  text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
+  python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root
+  ... 
 
-python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root
+  ---------------------------------------------------------------------------
+  ---------------------------------------------------------------------------
+  Channel - bin1
+  ---------------------------------------------------------------------------
+    Top-level normalisation for process bkg -> n_exp_final_binbin1_proc_bkg
+    -------------------------------------------------------------------------
+  RooProduct::n_exp_final_binbin1_proc_bkg[ n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm ] = 521.163
+   ... is a product, which contains  n_exp_binbin1_proc_bkg
+  RooRealVar::n_exp_binbin1_proc_bkg = 1 C  L(-INF - +INF)
+    -------------------------------------------------------------------------
+    default value =  521.163204829
+  ---------------------------------------------------------------------------
+    Top-level normalisation for process sig -> n_exp_binbin1_proc_sig
+    -------------------------------------------------------------------------
+  Dumping ProcessNormalization n_exp_binbin1_proc_sig @ 0x464f700
+	  nominal value: 1
+	  log-normals (1):
+		   kappa = 1.1, logKappa = 0.0953102, theta = lumi = 0
+	  asymm log-normals (0):
+	  other terms (1):
+		   term r (class RooRealVar), value = 1
 
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-Channel - bin1
----------------------------------------------------------------------------
-  Top-level normalisation for process bkg -> n_exp_final_binbin1_proc_bkg
-  -------------------------------------------------------------------------
-RooProduct::n_exp_final_binbin1_proc_bkg[ n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm ] = 521.163
- ... is a product, which contains  n_exp_binbin1_proc_bkg
-RooRealVar::n_exp_binbin1_proc_bkg = 1 C  L(-INF - +INF)
-  -------------------------------------------------------------------------
-  default value =  521.163204829
----------------------------------------------------------------------------
-  Top-level normalisation for process sig -> n_exp_binbin1_proc_sig
-  -------------------------------------------------------------------------
-Dumping ProcessNormalization n_exp_binbin1_proc_sig @ 0x464f700
-	nominal value: 1
-	log-normals (1):
-		 kappa = 1.1, logKappa = 0.0953102, theta = lumi = 0
-	asymm log-normals (0):
-	other terms (1):
-		 term r (class RooRealVar), value = 1
-
-  -------------------------------------------------------------------------
-  default value =  1.0
+    -------------------------------------------------------------------------
+    default value =  1.0
 ```
 
 This tells us that the normalisation for the background process, named `n_exp_final_binbin1_proc_bkg` is a product of two objects `n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm`. The first object is just from the **rate** line in the datacard (equal to 1) and the second is a floating parameter. For the signal, the normalisation is called `n_exp_binbin1_proc_sig` and is a `ProcessNormalization` object which contains the rate modifications due to the systematic uncertainties. You can see that it also has a "*nominal value*" which again is just from the value given in the **rate** line of the datacard (again=1).
@@ -466,14 +455,66 @@ The `combineCards.py` script will complain if you are trying to combine a *shape
 
 ### Automatic production of datacards and workspaces 
 
-For complicated analyses or cases in which multiple datacards are needed (e.g. optimisation studies), you can avoid writing these by hand. The object [Datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/Datacard.py) defines the analysis and can be created as a python object. The template python script below will produce the same workspace as running `textToWorkspace.py` (see the section on [Physics Models](/part2/physicsmodels.md)) on the [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard. 
+For complicated analyses or cases in which multiple datacards are needed (e.g. optimisation studies), you can avoid writing these by hand. The object [Datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/Datacard.py) defines the analysis and can be created as a python object. The template python script below will produce the same workspace as running `textToWorkspace.py` (see the section on [Physics Models](/part2/physicsmodels)) on the [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard. 
 
-<details>
-<summary><b>Show python script</b></summary>
 
-{% codesnippet "./part2/runcard.py", language="python" %}{% endcodesnippet %}
+```python
+from HiggsAnalysis.CombinedLimit.DatacardParser import *
+from HiggsAnalysis.CombinedLimit.ModelTools import *
+from HiggsAnalysis.CombinedLimit.ShapeTools import *
+from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
-</details>
+from sys import exit
+from optparse import OptionParser
+parser = OptionParser()
+addDatacardParserOptions(parser)
+options,args = parser.parse_args()
+options.bin = True # make a binary workspace
+
+DC = Datacard()
+MB = None
+
+############## Setup the datacard (must be filled in) ###########################
+
+DC.bins = 	['bin1'] # <type 'list'>
+DC.obs = 	{'bin1': 0.0} # <type 'dict'>
+DC.processes = 	['ggH', 'qqWW', 'ggWW', 'others'] # <type 'list'>
+DC.signals = 	['ggH'] # <type 'list'>
+DC.isSignal = 	{'qqWW': False, 'ggWW': False, 'ggH': True, 'others': False} # <type 'dict'>
+DC.keyline = 	[('bin1', 'ggH', True), ('bin1', 'qqWW', False), ('bin1', 'ggWW', False), ('bin1', 'others', False)] # <type 'list'>
+DC.exp = 	{'bin1': {'qqWW': 0.63, 'ggWW': 0.06, 'ggH': 1.47, 'others': 0.22}} # <type 'dict'>
+DC.systs = 	[('lumi', False, 'lnN', [], {'bin1': {'qqWW': 0.0, 'ggWW': 1.11, 'ggH': 1.11, 'others': 0.0}}), ('xs_ggH', False, 'lnN', [], {'bin1': {'qqWW': 0.0, 'ggWW': 0.0, 'ggH': 1.16, 'others': 0.0}}), ('WW_norm', False, 'gmN', [4], {'bin1': {'qqWW': 0.16, 'ggWW': 0.0, 'ggH': 0.0, 'others': 0.0}}), ('xs_ggWW', False, 'lnN', [], {'bin1': {'qqWW': 0.0, 'ggWW': 1.5, 'ggH': 0.0, 'others': 0.0}}), ('bg_others', False, 'lnN', [], {'bin1': {'qqWW': 0.0, 'ggWW': 0.0, 'ggH': 0.0, 'others': 1.3}})] # <type 'list'>
+DC.shapeMap = 	{} # <type 'dict'>
+DC.hasShapes = 	False # <type 'bool'>
+DC.flatParamNuisances =  {} # <type 'dict'>
+DC.rateParams =  {} # <type 'dict'>
+DC.extArgs = 	{} # <type 'dict'>
+DC.rateParamsOrder 	=  set([]) # <type 'set'>
+DC.frozenNuisances 	=  set([]) # <type 'set'>
+DC.systematicsShapeMap =  {} # <type 'dict'>
+DC.nuisanceEditLines 	=  [] # <type 'list'>
+DC.groups 	=  {} # <type 'dict'>
+DC.discretes 	=  [] # <type 'list'>
+
+
+###### User defined options #############################################
+
+options.out 	 = "combine_workspace.root"  	# Output workspace name
+options.fileName = "./" 			# Path to input ROOT files
+options.verbose  = "1" 				# Verbosity
+
+##########################################################################
+
+if DC.hasShapes:
+    MB = ShapeBuilder(DC, options)
+else:
+    MB = CountingModelBuilder(DC, options)
+
+# Set physics models
+MB.setPhysics(defaultModel)
+MB.doModel()
+```
+
 
 Any existing datacard can be converted into such a template python script by using the `--dump-datacard` option in `text2workspace.py` in case a more complicated template is needed. 
 

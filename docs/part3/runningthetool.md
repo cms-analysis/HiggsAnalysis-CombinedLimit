@@ -126,7 +126,7 @@ The output file will contain a `TDirectory` named **toys**, which will be empty 
 | **`iSeed`** | `Int_t` | Seed specified with `-s`|
 | **`t_cpu`** | `Float_t` | Estimated CPU time for algorithm|
 | **`t_real`** | `Float_t` | Estimated real time for algorithm|
-| **`quantileExpected`** | `Float_t` | Quantile identifier for methods which calculated expected (quantiles) and observed results (eg conversions from $$\Delta\ln L$$ values) with method dependent meaning. Negative values are reserved for entries which *do not* related to quantiles of a calculation with the default being set to -1 (usually meaning the *observed* result). |
+| **`quantileExpected`** | `Float_t` | Quantile identifier for methods which calculated expected (quantiles) and observed results (eg conversions from $\Delta\ln L$ values) with method dependent meaning. Negative values are reserved for entries which *do not* related to quantiles of a calculation with the default being set to -1 (usually meaning the *observed* result). |
 
 The value of any user defined keyword **$WORD** which is set using `keyword-value` described above will also be included as a  branch with type `string` named **WORD**. The option can be repeated multiple times for multiple keywords.
 
@@ -159,20 +159,20 @@ If you are using wither `-t -1` or using `AsymptoticLimits`, combine will calcul
    
 You can also ask combine to use a **Pseudo-Asimov** dataset, which is created from many weighted unbinned events. 
 
-Setting `--X-rtd TMCSO_AdaptivePseudoAsimov=`$$\beta$$ with $$\beta>0$$ will trigger the internal logic of whether to produce a Pseudo-Asimov dataset. This logic is as follows; 
+Setting `--X-rtd TMCSO_AdaptivePseudoAsimov=`$\beta$ with $\beta>0$ will trigger the internal logic of whether to produce a Pseudo-Asimov dataset. This logic is as follows; 
 
-   1. For each observable in your dataset, the number of bins, $$n_{b}$$ is determined either from the value of `RooRealVar::getBins` if it exists or assumed to be 100. 
+   1. For each observable in your dataset, the number of bins, $n_{b}$ is determined either from the value of `RooRealVar::getBins` if it exists or assumed to be 100. 
 
-   2. If $$N_{b}=\prod_{b}n_{b}>5000$$, the number of expected events $$N_{ev}$$ is determined. *Note* if you are combining multiple channels, $$N_{ev}$$ refers to the number of expected events in a single channel, the logic is separate for each channel. If  $$N_{ev}/N_{b}<0.01$$ then a Pseudo-Asimov dataset is created with the number of events equal to $$\beta \cdot \mathrm{max}\{100*N_{ev},1000\}$$. If $$N_{ev}/N_{b}\geq 0.01$$ , then a normal Asimov dataset is produced. 
+   2. If $N_{b}=\prod_{b}n_{b}>5000$, the number of expected events $N_{ev}$ is determined. *Note* if you are combining multiple channels, $N_{ev}$ refers to the number of expected events in a single channel, the logic is separate for each channel. If  $N_{ev}/N_{b}<0.01$ then a Pseudo-Asimov dataset is created with the number of events equal to $\beta \cdot \mathrm{max}\{100*N_{ev},1000\}$. If $N_{ev}/N_{b}\geq 0.01$ , then a normal Asimov dataset is produced. 
    
-   3. If $$N_{b}\leq 5000$$ then a normal Asimov dataset will be produced
+   3. If $N_{b}\leq 5000$ then a normal Asimov dataset will be produced
    
 The production of a Pseudo-Asimov dataset can be *forced* by using the option `--X-rtd TMCSO_PseudoAsimov=X` where `X>0` will determine the number of weighted events for the Pseudo-Asimov dataset. You should try different values of `X` since larger values leads to more events in the Pseudo-Asimov dataset resulting in higher precision but in general the fit will be slower. *Note* that if yu 
 
 You can turn off the internal logic by setting `--X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0` thereby forcing histograms to be generated.
 
 >**[info]** 
->If you set `--X-rtd TMCSO_PseudoAsimov=X` with `X>0` and also turn on `--X-rtd TMCSO_AdaptivePseudoAsimov=`$$\beta$$, with $$\beta>0$$, the internal logic will be used but this time the default will be to generate Pseudo-Asimov datasets, rather than the normal Asimov ones.
+>If you set `--X-rtd TMCSO_PseudoAsimov=X` with `X>0` and also turn on `--X-rtd TMCSO_AdaptivePseudoAsimov=`$\beta$, with $\beta>0$, the internal logic will be used but this time the default will be to generate Pseudo-Asimov datasets, rather than the normal Asimov ones.
 
 
 #### Nuisance parameter generation 
@@ -201,22 +201,22 @@ It is also possible to generate the toys first and then feed them to the Methods
 
 Snapshots from workspaces can be loaded and used in order to generate toys using the option `--snapshotName <name of snapshot>`. This will first set the parameters to the values in the snapshot *before* any other parameter options are set and toys are generated. 
 
-See the section on [saving post-fit workspaces](/part3/commonstatsmethods.md#using-best-fit-snapshots) for creating workspaces with post-fit snapshots from `MultiDimFit`.
+See the section on [saving post-fit workspaces](/part3/commonstatsmethods#using-best-fit-snapshots) for creating workspaces with post-fit snapshots from `MultiDimFit`.
 
-Here are a few examples of calculations with toys from post-fit workspaces using a workspace with $$r, m_{H}$$ as parameters of interest
+Here are a few examples of calculations with toys from post-fit workspaces using a workspace with $r, m_{H}$ as parameters of interest
 
-- Throw post-fit toy with b from s+b(floating $$r,m_{H}$$) fit, s with **r=1.0**, **m=best fit MH**, using nuisance values and constraints re-centered on s+b(floating $$r,m_{H}$$) fit values (aka frequentist post-fit expected) and compute post-fit expected **r** uncertainty profiling **MH**
+- Throw post-fit toy with b from s+b(floating $r,m_{H}$) fit, s with **r=1.0**, **m=best fit MH**, using nuisance values and constraints re-centered on s+b(floating $r,m_{H}$) fit values (aka frequentist post-fit expected) and compute post-fit expected **r** uncertainty profiling **MH**
     `combine higgsCombinemumhfit.MultiDimFit.mH125.root --snapshotName MultiDimFit -M MultiDimFit --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit -t -1 --expectSignal=1 -P r --floatOtherPOIs=1 --algo singles`
 
-- Throw post-fit toy with b from s+b(floating $$r,m_{H}$$) fit, s with **r=1.0, m=128.0**, using nuisance values and constraints re-centered on s+b(floating $$r,m_{H}$$) fit values (aka frequentist post-fit expected) and compute post-fit expected significance (with **MH** fixed at 128 implicitly)
+- Throw post-fit toy with b from s+b(floating $r,m_{H}$) fit, s with **r=1.0, m=128.0**, using nuisance values and constraints re-centered on s+b(floating $r,m_{H}$) fit values (aka frequentist post-fit expected) and compute post-fit expected significance (with **MH** fixed at 128 implicitly)
     `combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M ProfileLikelihood --significance --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit --overrideSnapshotMass -t -1 --expectSignal=1 --redefineSignalPOIs r --freezeParameters MH`
 
-- Throw post-fit toy with b from s+b(floating $$r,m_{H}$$) fit, s with **r=0.0**, using nuisance values and constraints re-centered on s+b(floating $$r,m_{H}$$) fit values (aka frequentist post-fit expected) and compute post-fit expected and observed asymptotic limit (with **MH** fixed at 128 implicitly)
+- Throw post-fit toy with b from s+b(floating $r,m_{H}$) fit, s with **r=0.0**, using nuisance values and constraints re-centered on s+b(floating $r,m_{H}$) fit values (aka frequentist post-fit expected) and compute post-fit expected and observed asymptotic limit (with **MH** fixed at 128 implicitly)
     `combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M AsymptoticLimits --verbose 9 -n randomtest --bypassFrequentistFit --overrideSnapshotMass--redefineSignalPOIs r --freezeParameters MH`
 
 ## combineTool for job submission
 
-For longer tasks which cannot be run locally, several methods in combine can be split to run on the *LSF batch* or the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](/part1/README.md#combine-tool) section to get the tool)
+For longer tasks which cannot be run locally, several methods in combine can be split to run on the *LSF batch* or the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](/part1/README#combine-tool) section to get the tool)
 
 
 ### Submission to the LSF Batch
@@ -253,13 +253,13 @@ Remember, any usual options (such as redefining POIs or freezing parameters) are
 
 For more CPU-intensive tasks, for example determining limits for complex models using toys, it is generally not feasible to compute all the results interactively. Instead, these jobs can be submitted to the Grid. 
 
-In this example we will use the `HybridNew` method of combine to determine an upper limit for a sub-channel of the Run 1 SM $$H\rightarrow\tau\tau$$ analysis. For full documentation, see the section on [computing limits with toys](#computing-limits-with-toys).
+In this example we will use the `HybridNew` method of combine to determine an upper limit for a sub-channel of the Run 1 SM $H\rightarrow\tau\tau$ analysis. For full documentation, see the section on [computing limits with toys](#computing-limits-with-toys).
 
 With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using `crab3`. From the set of output distributions it is possible to extract the expected and observed limits.
 
 For this we will use `combineTool.py`
 
-First we need to build a workspace from the [$$H\rightarrow\tau\tau$$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/data/tutorials/htt/125/htt_tt.txt),
+First we need to build a workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/data/tutorials/htt/125/htt_tt.txt),
 
 ```
 $ text2workspace.py data/tutorials/htt/125/htt_mt.txt -m 125
@@ -287,17 +287,14 @@ We can use the same command for generating the distribution of test statistics w
 
 The script also adds an option `--dry-run` which will not actually call combine but just prints out the commands that would be run, e.g,
 
-     combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.2:2.0:0.2 -T 2000 -s -1 --saveToys --saveHybridResult -m 125 --dry-run
-
-<details>
-<summary><b>Show output</b></summary>
 <pre><code>
+combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.2:2.0:0.2 -T 2000 -s -1 --saveToys --saveHybridResult -m 125 --dry-run
+...
 [DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 0.2 -n .Test.POINT.0.2
 [DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 0.4 -n .Test.POINT.0.4
 [...]
 [DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 2.0 -n .Test.POINT.2.0
 </code></pre>
-</details>
 
 
 When the `--dry-run` option is removed each command will be run in sequence. 
@@ -326,10 +323,7 @@ Again it is possible to use the option `--dry-run` to see what the complete crab
 
 Once submitted the progress can be monitored using the standard `crab` commands. When all jobs are completed copy the output from your sites storage element to the local output folder.
 
-<details>
-<summary><b>Show commands</b></summary>
 <pre><code>
-```
 $ crab getoutput -d crab_grid-test
 # Now we have to un-tar the output files
 $ cd crab_grid-test/results/
@@ -337,7 +331,6 @@ $ for f in *.tar; do tar xf $f; done
 $ mv higgsCombine*.root ../../
 $ cd ../../
 </code></pre>
-</details>
 
 These output files should be combined with `hadd`, after which we invoke combine as usual to calculate observed and expected limits from the merged grid as usual. 
 
