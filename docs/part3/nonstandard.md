@@ -24,8 +24,8 @@ The program will print out the result of the *two fits* performed with signal st
 | **`tree_fit_b`** | `TTree` of fitted nuisance parameter values and constraint terms (_In) with signal strength set to 0 |
 
 
->**[info]** 
->If you use the option `--name` this name will be inserted into the file name for this output file too. 
+!!! info
+    If you use the option `--name` this name will be inserted into the file name for this output file too. 
 
 As well as values of the constrained nuisance parameters (and their constraint values) in the toys, you will also find branches for the number of "bad" nll calls (which you should check is not too large) and the status of the fit `fit_status`. The fit status is computed as follows
 
@@ -79,8 +79,8 @@ The uncertainty reported will be the ratio $\sigma/\sigma_{I}$ - i.e the ratio o
 
 With the option `--abs`, instead the pre-fit and post-fit values and (asymmetric) uncertainties will be reported in full. 
 
->**[info]**
->We recommend you include the options `--abs` and `--all` to get the full information on all of the parameters (including unconstrained nuisance parameters) at least once when checking your datacards.
+!!! info
+    We recommend you include the options `--abs` and `--all` to get the full information on all of the parameters (including unconstrained nuisance parameters) at least once when checking your datacards.
 
 If instead of the plain values, you wish to report the _pulls_, you can do so with the option `--pullDef X` with `X` being one of the following options; You should note that since the pulls below are only defined when the pre-fit uncertainty exists, *nothing* will be reported for parameters which have no prior constraint (except in the case of the `unconstPullAsym` choice as described below). You may want to run without this option and `--all` to get information on those parameters. 
 
@@ -96,8 +96,8 @@ If using `--pullDef`, the results for *all* parameters for which the pull can be
 
 This script has the option (`-g outputfile.root`) to produce plots of the fitted _values_ of the nuisance parameters and their post-fit, asymmetric uncertainties. Instead, the pulls defined using one of the options above, can be plotted using the option `--pullDef X`. In addition this will produce a plot showing directly a comparison of the post-fit to pre-fit nuisance (symmetrized) uncertainties. 
 
->**[info]** 
->In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\theta-\theta_{I}$. 
+!!! info
+   In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\theta-\theta_{I}$. 
 
 
 #### Normalizations
@@ -107,8 +107,8 @@ For a certain class of models, like those made from datacards for shape-based an
 The sample pyroot macro [mlfitNormsToText.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/mlfitNormsToText.py) can be used to convert the root file into a text table with four columns: channel, process, yield from the signal+background fit and yield from the background-only fit. To include the uncertainties in the table, add the option `--uncertainties`
 
 
->**[warning]**
->Note that when running with multiple toys, the `norm_fit_s`, `norm_fit_b` and `norm_prefit` objects will be stored for the _last_ toy dataset generated and so may not be useful to you. 
+!!! warning
+    Note that when running with multiple toys, the `norm_fit_s`, `norm_fit_b` and `norm_prefit` objects will be stored for the _last_ toy dataset generated and so may not be useful to you. 
 
 Note that this procedure works only for "extended likelihoods" like the ones used in shape-based analysis, not for the cut-and-count datacards. You can however convert a cut-and-count datacard in an equivalent shape-based one by adding a line `shapes * * FAKE` in the datacard after the `imax`, `jmax`, `kmax` or using `combineCards.py countingcard.txt -S > shapecard.txt`. 
 
@@ -121,8 +121,8 @@ The normalisation values for each toy will be stored in the branches inside the 
 
 Additionally, there will be filled branches which provide the value of the expected **bin** content for each process, in each channel. These will are named as **n\_exp[\_final]\_binxxx\_proc\_yyy_i** (where **\_final** will only be in the name if there are systematics affecting this process) for channel `xxx`, process `yyy` bin number `i`. In the case of the post-fit trees (`tree_fit_s/b`), these will be resulting expectations from the _fitted_ models, while for the pre-fit tree, they will be the expectation from the generated model (i.e if running toys with `-t N` and using `--genNuisances`, they will be randomised for each toy). These can be useful, for example, for calculating correlations/covariances between different bins, in different channels or processes, within the model from toys. 
 
->**[info]** 
->Be aware that for *unbinned* models, a binning scheme is adopted based on the `RooRealVar::getBinning` for the observable defining the shape, if it exists, or combine will adopt some appropriate binning for each observable. 
+!!! info
+    Be aware that for *unbinned* models, a binning scheme is adopted based on the `RooRealVar::getBinning` for the observable defining the shape, if it exists, or combine will adopt some appropriate binning for each observable. 
 
 
 
@@ -146,8 +146,8 @@ Three additional folders (**shapes\_prefit**, **shapes\_fit\_sb** and **shapes\_
 
 The above distributions are provided *for each channel included in the datacard*, in separate sub-folders, named as in the datacard: There will be one sub-folder per channel.
 
->**[warning]** 
->The pre-fit signal is by default for `r=1` but this can be modified using the option `--preFitValue`.
+!!! warning 
+    The pre-fit signal is by default for `r=1` but this can be modified using the option `--preFitValue`.
 
 The distributions and normalisations are guaranteed to give the correct interpretation: 
 
@@ -157,8 +157,8 @@ The distributions and normalisations are guaranteed to give the correct interpre
 
 Uncertainties on the shapes will be added with the option `--saveWithUncertainties`. These uncertainties are generated by re-sampling of the fit covariance matrix, thereby accounting for the full correlation between the parameters of the fit. 
 
->**[warning]** 
->It may be tempting to sum up the uncertainties in each bin (in quadrature) to get the *total* uncertainty on a process however, this is (usually) incorrect as doing so would not account for correlations *between the bins*. Instead you can refer to the uncertainties which will be added to the post-fit normalizations described above.
+!!! warning 
+    It may be tempting to sum up the uncertainties in each bin (in quadrature) to get the *total* uncertainty on a process however, this is (usually) incorrect as doing so would not account for correlations *between the bins*. Instead you can refer to the uncertainties which will be added to the post-fit normalizations described above.
 
 
 Additionally, the covariance matrix **between** bin yields (or yields/bin-widths) in each channel will also be saved as a `TH2F` named **total_covar**. If the covariance between *all bins* across *all channels* is desired, this can be added using the option `--saveOverallShapes`. Each folder will now contain additional distributions (and covariance matrices) corresponding to the concatenation of the bins in each channel (and therefore the covaraince between every bin in the analysis). The bin labels should make it clear as to which bin corresponds to which channel. 
@@ -207,8 +207,8 @@ A typical case would be scaling by $1/\sqrt{L}$, where $L$ is a luminosity scale
     
 This factory syntax is quite flexible, but for our use case the typical format will be: `expr::[function name]("[formula]", [arg0], [arg1], ...)`. The `arg0`, `arg1` ... are represented in the formula by `@0`, `@1`,... placeholders. 
 
->**[warning]** 
->We are playing a slight trick here with the `lumiscale` parameter. At the point at which `text2workspace.py` is building these scaling terms the `lumiscale` for the `rateParam` has not yet been created. By writing `lumiscale[1]` we are telling RooFit to create this variable with an initial value of 1, and then later this will be re-used by the `rateParam` creation. 
+!!! warning 
+    We are playing a slight trick here with the `lumiscale` parameter. At the point at which `text2workspace.py` is building these scaling terms the `lumiscale` for the `rateParam` has not yet been created. By writing `lumiscale[1]` we are telling RooFit to create this variable with an initial value of 1, and then later this will be re-used by the `rateParam` creation. 
 
 A similar option, `--X-nuisance-group-function`, can be used to scale whole groups of nuisances (see [groups of nuisances](/part2/settinguptheanalysis#groups-of-nuisances)). Instead of a regular expression just give the group name instead, 
 
@@ -257,8 +257,8 @@ The first page of the output is shown below.
 
 The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it. 
 
->**[warning]** 
->The plot also shows the *best fit* value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using `--setPhysicsModelParameterRanges` or `--rMin`) to avoid getting one-sided impacts!
+!!! warning 
+    The plot also shows the *best fit* value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using `--setPhysicsModelParameterRanges` or `--rMin`) to avoid getting one-sided impacts!
 
 This script also accepts an optional json-file argument with `-`t which can be used to provide a dictionary for renaming parameters. A simple example would be to create a file `rename.json`,
 
@@ -270,8 +270,8 @@ This script also accepts an optional json-file argument with `-`t which can be u
 
 that will rename the POI label on the plot.
 
->**[info]** 
->Since `combineTool` accepts the usual options for combine you can also generate the impacts on an Asimov or toy dataset. 
+!!! info 
+    Since `combineTool` accepts the usual options for combine you can also generate the impacts on an Asimov or toy dataset. 
 
 The left panel in the summary plot shows the value of $(\theta-\theta_{0})/\Delta_{\theta}$ where $\theta$ and $\theta_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\theta}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **pre**-fit uncertainty divided by the **post**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. As with the `diffNuisances.py` script, use the option `--pullDef` are defined (eg to show the *pull* instead). 
 
@@ -296,8 +296,8 @@ Now lets try a fit *ignoring* the signal region. We can turn off the signal regi
  
     combine datacard.root -M FitDiagnostics --saveShapes --saveWithUncertainties --setParameters mask_signal=1
     
->**[warning]** 
->There will be a lot of warning from combine. This is safe to ignore as this is due to the s+b fit not converging since the free signal parameter cannot be constrained as the data in the signal region is being ignored. 
+!!! warning 
+    There will be a lot of warning from combine. This is safe to ignore as this is due to the s+b fit not converging since the free signal parameter cannot be constrained as the data in the signal region is being ignored. 
 
 We can compare the background post-fit and uncertainties with and without the signal region by re-running with `--setParameters mask_signal=0` (or just removing that command). Below is a comparison of the background in the signal region with and without masking the data in the signal region. We take these from the shapes folder 
 **shapes_fit_b/signal/total_background** in the `fitDiagnostics.root` output.
@@ -383,8 +383,8 @@ To asses the bias, one can throw toys using one function and fit with another. A
  
 The bias studies are performed in two stages. The first is to generate toys using one of the functions under some value of the signal strength **r** (or $\mu$). This can be repeated for several values of **r** and also at different masses, but here the Higgs mass is fixed to 125 GeV. 
 
->**[warning]** 
->It is important to freeze `pdf_index` otherwise combine will try to iterate over the index in the frequentist fit.
+!!! warning 
+    It is important to freeze `pdf_index` otherwise combine will try to iterate over the index in the frequentist fit.
 
     combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index
     
@@ -392,8 +392,8 @@ Now we have 100 toys which, by setting `pdf_index=0`, sets the background pdf to
 
 The next step is to fit the toys under a different background pdf hypothesis. This time we set the `pdf_index` to be 1, the powerlaw and run fits with the `FitDiagnostics` method again freezing pdf_index. 
 
->**[warning]** 
->You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.
+!!! warning  
+    You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.
 
     combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index
     
@@ -410,8 +410,8 @@ h->Fit("gaus")
 
 From the fitted Gaussian, we see the mean is at +0.30 which would indicate a bias of ~30% of the uncertainty on mu from choosing the powerlaw when the true function is an exponential.
 
->**[danger]** 
->If the `discrete` nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the [**discrete profiling method**](https://arxiv.org/pdf/1408.6865.pdf) to be applied for any method which involves a profiled likelihood (frequentist methods). You should be careful however since MINOS knows nothing about these nuisances and hence estimations of uncertainties will be incorrect. Instead, uncertainties from scans and limits will correctly account for these nuisances. Currently the Bayesian methods will *not* properly treat the nuisances so some care should be taken when interpreting Bayesian results. 
+!!! danger 
+    If the `discrete` nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the [**discrete profiling method**](https://arxiv.org/pdf/1408.6865.pdf) to be applied for any method which involves a profiled likelihood (frequentist methods). You should be careful however since MINOS knows nothing about these nuisances and hence estimations of uncertainties will be incorrect. Instead, uncertainties from scans and limits will correctly account for these nuisances. Currently the Bayesian methods will *not* properly treat the nuisances so some care should be taken when interpreting Bayesian results. 
  
 ## RooSplineND multidimensional splines
 
@@ -796,5 +796,5 @@ r	  = 0.00716347	 +/-  12.513	(limited)
 
 The example given here  is extremely basic and it should be noted that additional complexity in the transfer factors, additional uncertainties/backgrounds etc in the cards are supported as always. 
 
->**[danger]** 
->If trying to implement parametric uncertainties in this setup (eg on transfer factors) which are correlated with other channels and implemented separately, you ***MUST*** normalise the uncertainty effect so that the datacard line can read `param name X 1`. That is the uncertainty on this parameter must be 1. Without this, there will be inconsistency with other nuisances of the same name in other channels implemented as **shape** or **lnN**.
+!!! danger 
+    If trying to implement parametric uncertainties in this setup (eg on transfer factors) which are correlated with other channels and implemented separately, you ***MUST*** normalise the uncertainty effect so that the datacard line can read `param name X 1`. That is the uncertainty on this parameter must be 1. Without this, there will be inconsistency with other nuisances of the same name in other channels implemented as **shape** or **lnN**.
