@@ -299,8 +299,7 @@ The constructor for this class requires a **RooAbsReal** (eg any **RooAbsPdf**)a
 RooParametricShapeBinPdf(const char *name, const char *title,  RooAbsReal& _pdf, RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape )
 ```
 
-Below is a comparison of a fit to a binned dataset containing 1000 events with one observable $x\varepsilon \left[0,100\right] $. The fit function is
-a **RooExponential** of the form $e^{xp}$.
+Below is a comparison of a fit to a binned dataset containing 1000 events with one observable $0 \leq x \leq 100$. The fit function is a **RooExponential** of the form $e^{xp}$.
 
 ![Narrow bins](images/narrow.png)
 ![Wide bins](images/wide.png)
