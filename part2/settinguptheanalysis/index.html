@@ -455,8 +455,7 @@ RooDataSet::data_obs(j)
 <pre><code class="c++">RooParametricShapeBinPdf(const char *name, const char *title,  RooAbsReal&amp; _pdf, RooAbsReal&amp; _x, RooArgList&amp; _pars, const TH1 &amp;_shape )
 </code></pre>
 
-<p>Below is a comparison of a fit to a binned dataset containing 1000 events with one observable $x\varepsilon \left[0,100\right] $. The fit function is
-a <strong>RooExponential</strong> of the form <span><span class="MathJax_Preview">e^{xp}</span><script type="math/tex">e^{xp}</script></span>.</p>
+<p>Below is a comparison of a fit to a binned dataset containing 1000 events with one observable <span><span class="MathJax_Preview">0 \leq x \leq 100</span><script type="math/tex">0 \leq x \leq 100</script></span>. The fit function is a <strong>RooExponential</strong> of the form <span><span class="MathJax_Preview">e^{xp}</span><script type="math/tex">e^{xp}</script></span>.</p>
 <p><img alt="Narrow bins" src="../images/narrow.png" />
 <img alt="Wide bins" src="../images/wide.png" /></p>
 <p>In the upper plot, the data are binned in 100 evenly spaced bins, while in the lower plot, there are 3 irregular bins. The blue lines show the result of the fit
