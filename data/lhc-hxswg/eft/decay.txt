@@ -1,18 +1,9 @@
 Bin number: 45 hzzto4l
-1 + 10.2 * cWW + 2.767 * cB + 2.874 * cHW + 0.861 * cHB + 0.01826 * cA + 2.018 * cHL + 2.018 * cpHL + 0.02722 * cHe + 0.2499 * cH * cH + 4.002 *
-cT * cT + 27.82 * cWW * cWW + 3.516 * cB * cB + 2.215 * cHW * cHW + 0.1986 * cHB * cHB + 1.776 * cHL * cHL + 1.775 * cpHL * cpHL + 0.4313 * cHe *
-cHe + 0.1351 * tcHW * tcHW + 2.002 * cH * cT -5.1 * cH * cWW -1.325 * cH * cB -1.435 * cH * cHW -0.4299 * cH * cHB -1.025 * cH * cHL -1.024 * cH
-* cpHL + 0.433 * cH * cHe -20.39 * cT * cWW -5.303 * cT * cB -5.745 * cT * cHW -1.72 * cT * cHB -4.1 * cT * cHL -4.099 * cT * cpHL + 1.737 * cT *
-cHe + 10.02 * cWW * cB + 14.69 * cWW * cHW + 4.39 * cWW * cHB + 12.16 * cWW * cHL + 12.16 * cWW * cpHL -3.5 * cWW * cHe + 3.84 * cB * cHW + 1.149
-* cB * cHB + 0.0523 * cB * cA + 1.104 * cB * cHL + 1.105 * cB * cpHL -2.126 * cB * cHe + 1.328 * cHW * cHB + 3.034 * cHW * cHL + 3.035 * cHW *
-cpHL -1.293 * cHW * cHe + 0.909 * cHB * cHL + 0.911 * cHB * cpHL -0.3873 * cHB * cHe + 3.548 * cHL * cpHL -0.132 * cHL * cHe -0.131 * cpHL * cHe
-+ 0.0809 * tcHW * tcHB
+1 + 10.2 * cWW + 2.767 * cB + 2.874 * cHW + 0.861 * cHB + 0.01826 * cA + 2.018 * cHL + 2.018 * cpHL + 0.02722 * cHe + 0.2499 * cH * cH + 4.002 * cT * cT + 27.82 * cWW * cWW + 3.516 * cB * cB + 2.215 * cHW * cHW + 0.1986 * cHB * cHB + 1.776 * cHL * cHL + 1.775 * cpHL * cpHL + 0.4313 * cHe * cHe + 0.1351 * tcHW * tcHW + 2.002 * cH * cT -5.1 * cH * cWW -1.325 * cH * cB -1.435 * cH * cHW -0.4299 * cH * cHB -1.025 * cH * cHL -1.024 * cH * cpHL + 0.433 * cH * cHe -20.39 * cT * cWW -5.303 * cT * cB -5.745 * cT * cHW -1.72 * cT * cHB -4.1 * cT * cHL -4.099 * cT * cpHL + 1.737 * cT * cHe + 10.02 * cWW * cB + 14.69 * cWW * cHW + 4.39 * cWW * cHB + 12.16 * cWW * cHL + 12.16 * cWW * cpHL -3.5 * cWW * cHe + 3.84 * cB * cHW + 1.149 * cB * cHB + 0.0523 * cB * cA + 1.104 * cB * cHL + 1.105 * cB * cpHL -2.126 * cB * cHe + 1.328 * cHW * cHB + 3.034 * cHW * cHL + 3.035 * cHW * cpHL -1.293 * cHW * cHe + 0.909 * cHB * cHL + 0.911 * cHB * cpHL -0.3873 * cHB * cHe + 3.548 * cHL * cpHL -0.132 * cHL * cHe -0.131 * cpHL * cHe + 0.0809 * tcHW * tcHB
 Bin number: 46 hbb
 1 -1.0 * cH + 3.0 * cd + 0.25 * cH * cH + 2.25 * cd * cd -1.5 * cH * cd
 Bin number: 47 hww
-1 + 10.26 * cWW + 3.72 * cHW + 1.67 * cpHQ + 0.558 * cpHL + 0.25 * cH * cH + 26.3 * cWW * cWW + 3.77 * cHW * cHW + 0.895 * cpHQ * cpHQ + 0.719 *
-cHud * cHud + 0.259 * cpHL * cpHL + 0.323 * tcHW * tcHW -5.1 * cH * cWW -1.86 * cH * cHW -0.837 * cH * cpHQ -0.279 * cH * cpHL + 19.2 * cWW * cHW
-+ 8.6 * cWW * cpHQ + 2.9 * cWW * cpHL + 3.19 * cHW * cpHQ + 1.05 * cHW * cpHL + 0.116 * cpHQ * cpHL
+1 + 10.26 * cWW + 3.72 * cHW + 1.67 * cpHQ + 0.558 * cpHL + 0.25 * cH * cH + 26.3 * cWW * cWW + 3.77 * cHW * cHW + 0.895 * cpHQ * cpHQ + 0.719 * cHud * cHud + 0.259 * cpHL * cpHL + 0.323 * tcHW * tcHW -5.1 * cH * cWW -1.86 * cH * cHW -0.837 * cH * cpHQ -0.279 * cH * cpHL + 19.2 * cWW * cHW + 8.6 * cWW * cpHQ + 2.9 * cWW * cpHL + 3.19 * cHW * cpHQ + 1.05 * cHW * cpHL + 0.116 * cpHQ * cpHL
 Bin number: 49 htautau
 1 -1.0 * cH + 3.0 * cl + 0.25 * cH * cH + 2.25 * cl * cl -1.5 * cH * cl
 Bin number: 50 hgg
