@@ -321,11 +321,11 @@ names.sort()
 highlighters = { 1:highlight, 2:morelight };
 for n in names:
     v = table[n]
-    if options.format == "latex": n = n.replace(r"_", r"\_")
     if pmsub  != None: v = [ re.sub(pmsub[0],  pmsub[1],  i) for i in v ]
     if sigsub != None: v = [ re.sub(sigsub[0], sigsub[1], i) for i in v ]
     if (n,'b') in isFlagged: v[-3] = highlighters[isFlagged[(n,'b')]] % v[-3]
     if (n,'s') in isFlagged: v[-2] = highlighters[isFlagged[(n,'s')]] % v[-2]
+    if options.format == "latex": n = n.replace(r"_", r"\_")
     if options.absolute_values:
        print fmtstring % (n, v[0], v[1], v[2], v[3])
     else:
