@@ -367,7 +367,15 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 		    strlcpy(tmp,saveSpecifiedNuis_.c_str(),10240) ;
 		    char* token = strtok(tmp,",") ;
 		    while(token) {
-			    specifiedNuis_.push_back(token);
+			    const RooArgSet* group = mc_s->GetWS()->set((std::string("group_") + token).data());
+			    if (group){
+				    RooLinkedListIter iterN = group->iterator();
+				    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
+					    specifiedNuis_.push_back(a->GetName());
+				    }
+			    }else{
+				    specifiedNuis_.push_back(token);
+			    }
 			    token = strtok(0,",") ; 
 		    }
 	    }
