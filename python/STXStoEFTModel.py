@@ -1,54 +1,16 @@
-# Author: Jonathon Langford (ICL)
-# Date: 06/02/2019
-# Description: Model to describe how bins in STXS (0,1,1.1) scale using full set of dimension-6 EFT parameters
-#              Equations calculated using Higgs Effective Lagrangian (Madgraph)
-#              Model encompasses S0,S1 and S1.1
-#              TO DO: Ask about sub-bins (these will be a separate gen-level process?). If so likely to only have 
-#                     scaling for combined bin. Therefore bin name should have commonality to allow merging
-#                     Also in response matrices: this will completely blow up (is it just for theory uncertainties?)
-
-# TO DO LIST
-#    * Configure for bbh, thq, thW: What to do here (fix to SM i.e. scaling = 1), copy off previous models
-
-
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
+from HiggsAnalysis.CombinedLimit.stage1 import stage1_procs # UPDATE THIS TO PUT DICT IN DATA
 import ROOT, os, re
 
 # NEED TO CONFIGURE ALSO FOR STAGE 0 and 1.1. Currently just working on stage 1
 
-#STAGE 1
-stage1_procs = { #using convention in https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsTemplateCrossSection
-  'ggH':['ggH_VBFTOPO_JET3VETO', 'ggH_VBFTOPO_JET3',
-            'ggH_0J',
-            'ggH_1J_PTH_0_60', 'ggH_1J_PTH_60_120', 'ggH_1J_PTH_120_200', 'ggH_1J_PTH_GT200',
-            'ggH_GE2J_PTH_0_60', 'ggH_GE2J_PTH_60_120', 'ggH_GE2J_PTH_120_200', 'ggH_GE2J_PTH_GT200'],
-  'qqH':['qqH_VBFTOPO_JET3VETO' , 'qqH_VBFTOPO_JET3',
-            'qqH_VH2JET', 'qqH_REST', 'qqH_PTJET1_GT200'],
-  'WH_lep':['WH_lep_PTV_0_150', 'WH_lep_PTV_150_250_0J', 'WH_lep_PTV_150_250_GE1J', 'WH_lep_PTV_GT250'],
-  'ZH_lep':['ZH_lep_PTV_0_150', 'ZH_lep_PTV_150_250_0J', 'ZH_lep_PTV_150_250_GE1J', 'ZH_lep_PTV_GT250'],
-  #'ggZH_lep':['ggZH_lep_PTV_0_150', 'ggZH_lep_PTV_GT150_0J', 'ggZH_lep_PTV_GT150_GE1J'],
-  'VH_had':['WH_had_VBFTOPO_JET3VETO', 'WH_had_VBFTOPO_JET3',
-            'WH_had_VH2JET', 'WH_had_REST', 'WH_had_PTJET1_GT200',
-            'ZH_had_VBFTOPO_JET3VETO', 'ZH_had_VBFTOPO_JET3',
-            'ZH_had_VH2JET', 'ZH_had_REST', 'ZH_had_PTJET1_GT200'],
-  'ttH':['ttH']
-  #Add bbH, tH?
-}
-
-#List of stage 0 processes
-STAGE0_PROCESSES = []
-
 #List of all stage 1 processes
-STAGE1_PROCESSES = [x for v in stage1_procs.itervalues() for x in v]
+PROCESSES = [x for v in stage1_procs.itervalues() for x in v]
 #List of decays which are defined in model
-STAGE1_DECAYS = ['hzz','hbb','hww','hgg','hcc','dec_full']
-
-#List of stage 1.1 processes
-STAGE1p1_PROCESSES = []
+DECAYS = ['hzz','hbb','hww','hgg','hcc','tot']
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 #Function to extract STXS production, decay mode and energy from process name (extracted in datacard)
 def getSTXSProdDecMode(bin,process,options):
   processSource = process
@@ -80,15 +42,17 @@ def getSTXSProdDecMode(bin,process,options):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# STXS to EFT abstract base class: inherited classes for different stages
 class STXStoEFTHiggsModel(SMLikeHiggsModel):
 
   # initialisation: include options for STXS bin and BR uncertainties (FOR NOW FALSE)
   # TO DO: add function for STXS uncertainties, like partial width unc in SMHiggsBuilder
-  def __init__(self,STXSU=False,BRU=False):
+  def __init__(self,STXSU=False,BRU=False,fixTHandBBH=True):
     SMLikeHiggsModel.__init__(self)
     self.floatMass = False #Initally false, require external option to float mass
     self.doSTXSU = STXSU
     self.doBRU = BRU
+    self.fixTHandBBH = fixTHandBBH
   def setPhysicsOption(self,physOptions):
     for po in physOptions:
       if po.startswith("higgsMassRange="):
@@ -116,11 +80,6 @@ class STXStoEFTHiggsModel(SMLikeHiggsModel):
   def getYieldScale(self,bin,process):
     "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
     if not self.DC.isSignal[process]: return 1
-
-    # TO CHANGE: return 1 for tHq, tHW, bbH (do as in other models when have time)
-    for skip_process in ['tHq','tHW','bbH']:
-      if skip_process in process: return 1
-    
     (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin,process,self.options)
     return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
@@ -192,6 +151,7 @@ class STXStoEFTHiggsModel(SMLikeHiggsModel):
       if line.startswith("Bin number"):
         decay_ = line.split()[-1]
         if( decay_ == 'hzzto4l' ): decay_ = re.sub("hzzto4l","hzz",decay_)
+        elif( decay_ == 'dec_full' ): decay_ = re.sub("dec_full","tot",decay_)
       elif line.startswith("1"): #perturbation theory: safer than using else statement
         if decay_ == None:
           raise ValueError("[ERROR] Decay not set. Cannot link function to decay channel")
@@ -207,8 +167,8 @@ class STXStoEFTHiggsModel(SMLikeHiggsModel):
   def makeScalingFunction( self, what ): 
 
     #if in processes/decays extract formula from corresponding dict
-    if what in STAGE1_PROCESSES: formula = self.STXSScalingFunction[ what ]
-    elif what in STAGE1_DECAYS: formula = self.DecayScalingFunction[ what ]
+    if what in PROCESSES: formula = self.STXSScalingFunction[ what ]
+    elif what in DECAYS: formula = self.DecayScalingFunction[ what ]
     else:
       raise ValueError("[ERROR] Scaling function for %s does not exist"%what)
 
@@ -252,11 +212,9 @@ class STXStoEFTHiggsModel(SMLikeHiggsModel):
   def doParametersOfInterest(self):
     if self.floatMass: print "[WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
     self.doMH()
-    self.SMH = SMHiggsBuilder(self.modelBuilder) #for datadir
+    self.SMH = SMHiggsBuilder(self.modelBuilder)
     
     #Read in parameter list from file using dedicated: textToPOIList function, setting self.pois    
-    # Parameters which do not have a constraint: range -5 to 5 CHECK THIS IS VALID
-    # TREATMENT OF cWW/cB IS VALID??????
     # self.pois directionary of pois name and string of allowed range: e.g {'cG':'[0,-3.2e-4,1.1e-4]',...}
     self.textToPOIList( os.path.join(self.SMH.datadir,'eft/pois_plus_undefined.txt'))
     POIs = ','.join(self.pois.keys())
@@ -280,34 +238,36 @@ class STXStoEFTHiggsModel(SMLikeHiggsModel):
     self.textToSTXSScalingFunction( os.path.join(self.SMH.datadir, 'eft/crosssections.txt') )
     self.textToDecayScalingFunction( os.path.join(self.SMH.datadir, 'eft/decay.txt' ))
     #Make scaling for each STXS process and decay:
-    for proc in STAGE1_PROCESSES: self.makeScalingFunction( proc )
-    for dec in STAGE1_DECAYS: self.makeScalingFunction( dec ) 
 
-
+    for proc in PROCESSES: 
+      #if fixTHandBBH...
+      if( self.fixTHandBBH ): 
+        if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
+        else: self.makeScalingFunction( proc )
+      #else: scaling function must be defined in text file
+      else: self.makeScalingFunction( proc )
+    for dec in DECAYS: self.makeScalingFunction( dec ) 
 
   def getHiggsSignalYieldScale(self,production,decay,energy):
     name = "stxs2eft_scaling_%s_%s_%s"%(production,decay,energy)
     if self.modelBuilder.out.function(name) == None:
       #Check production scaling exists:
       XSscal = None
-      if production in STAGE0_PROCESSES:
-        raise ValueError("[ERROR] Stage 0 processes are not yet implemented in model STXStoEFT.py")
-      elif production in STAGE1_PROCESSES:
-        XSscal = "scaling_%s"%production
-      elif production in STAGE1p1_PROCESSES:
-        raise ValueError("[ERROR] Stage 1.1 processes are not yet implemented in model STXStoEFT.py")
+      if production in PROCESSES: XSscal = "scaling_%s"%(production)
       else:
-        raise ValueError("[ERROR] Process %s is not supported"%production)
+        raise ValueError("[ERROR] Process %s is not supported in Stage 1 Model"%production)
       
       #Check decay scaling exists
       BRscal = None
-      if decay in STAGE1_DECAYS:
+      if decay in DECAYS:
         BRscal = "scaling_%s"%decay
       else:
         raise ValueError("[ERROR] Decay %d is not defined"%decay)
       
       #Combine XS and BR scaling
       self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
+
+      print '[STXStoEFT Stage 1]', name, production, decay, energy, ":", self.modelBuilder.out.function(name).Print("")
     return name
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -323,3 +283,18 @@ STXStoEFT = STXStoEFTHiggsModel()
 #    for proc in STAGE1_PROCESSES: STXStoEFT.makeScalingFunction( proc )
 #    for dec in STAGE1_DECAYS: STXStoEFT.makeScalingFunction( dec )
 #    print "--------------------"
+
+# Author: Jonathon Langford (ICL)
+# Date: 06/02/2019
+# Description: Model to describe how bins in STXS (0,1,1.1) scale using full set of dimension-6 EFT parameters
+#              Equations calculated using Higgs Effective Lagrangian (Madgraph)
+#              Model encompasses S0,S1 and S1.1
+#              TO DO: Ask about sub-bins (these will be a separate gen-level process?). If so likely to only have 
+#                     scaling for combined bin. Therefore bin name should have commonality to allow merging
+#                     Also in response matrices: this will completely blow up (is it just for theory uncertainties?)
+
+# TO DO LIST
+#    * Configure for bbh, thq, thW: What to do here (fix to SM i.e. scaling = 1), copy off previous models
+
+
+
