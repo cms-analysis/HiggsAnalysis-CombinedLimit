@@ -2,13 +2,10 @@
 # Date: 06/02/2019
 # Description: Model to describe how bins in STXS (0,1,1.1) scale using full set of dimension-6 EFT parameters
 #              Equations calculated using Higgs Effective Lagrangian (Madgraph)
-#              TO DO: Ask about sub-bins (these will be a separate gen-level process?). If so likely to only have 
-#                     scaling for combined bin. Therefore bin name should have commonality to allow merging
-#                     Also in response matrices: this will completely blow up (is it just for theory uncertainties?)
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
-#from HiggsAnalysis.CombinedLimit.stage1 import stage1_procs # UPDATE THIS TO PUT DICT IN DATA
+from math import exp
 import ROOT, os, re
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,15 +44,18 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 
   # initialisation: include options for STXS bin and BR uncertainties (FOR NOW FALSE)
   # TO DO: add function for STXS uncertainties, like partial width unc in SMHiggsBuilder
-  def __init__(self,scalePOIs=True,STXSU=False,BRU=False,fixTHandBBH=True,freezeNonHELParameters=True):
+  def __init__(self,scalePOIs=True,STXSU=False,BRU=False,fixTHandBBH=True,freezeNonHELParameters=False):
     SMLikeHiggsModel.__init__(self)
+    self.PROCESSES = []
+    self.DECAYS = []
     self.floatMass = False #Initally false, require external option to float mass
     self.scalePOIs = scalePOIs
     self.doSTXSU = STXSU
     self.doBRU = BRU
     self.fixTHandBBH = fixTHandBBH
     self.freezeNonHELParameters = freezeNonHELParameters 
-  def setPhysicsOption(self,physOptions):
+
+  def setPhysicsOptionsBase(self,physOptions):
     for po in physOptions:
       if po.startswith("higgsMassRange="):
         self.floatMass = True
@@ -64,6 +64,18 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
           raise RuntimeError, "Higgs mass range definition requires two extrema"
         elif float(self.mHRange[0]) >= float(self.mHRange[1]):
           raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+      if po.startswith("BRU="):
+        self.doBRU = (po.replace("BRU=","") in ["yes","1","Yes","True","true"])
+      if po.startswith("STXSU="):
+        self.doSTXSU = (po.replace("STXSU=","") in ["yes","1","Yes","True","true"])
+      if po.startswith("freezeNonHEL="):
+        self.freezeNonHELParameters = (po.replace("freezeNonHEL=","") in ["yes","1","Yes","True","true"])
+    print "[STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
+    print "[STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
+    if( self.doSTXSU ): print "   [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/stageX/BinUncertainties.txt"
+    if( self.freezeNonHELParameters ): print "[STXStoEFT] Freezing all but [cG,cA,cu,cHW,cWWMinuscB] to 0"
+    else: print "[STXStoEFT] Allowing all HEL parameters to float"
+
   def doMH(self):
     if self.floatMass:
       if self.modelBuilder.out.var("MH"):
@@ -272,8 +284,29 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
       self.modelBuilder.factory_( total_functionStr )
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
   #Function extracting the STXS bin uncertainties
+  # FOR NOW ASSUMES ALL BINS HAVE SAME UNCERTAINTY STRUCTURE
+  def makeSTXSBinUncertainties( self, STXSstage="1" ):
+    stxsUncertainties = {}; stxsUncertaintiesKeys = []
+    for line in open( os.path.join(self.SMH.datadir, 'eft/stage%s/BinUncertainties.txt'%STXSstage) ):
+      if stxsUncertaintiesKeys == []:
+        stxsUncertaintiesKeys = line.split()[1:]
+      else:
+        fields = line.split()
+        stxsUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(stxsUncertaintiesKeys, fields[1:])])
+    for _u in stxsUncertaintiesKeys: self.modelBuilder.doVar("param_%s[-7,7]"%_u)
+    for proc in self.PROCESSES:
+      #if STXS process not defined in text file: build uncertainty scaling but set equal to 1
+      if proc not in stxsUncertainties: 
+        self.modelBuilder.doVar("STXS%s_UncertaintyScaling_%s[1]"%(STXSstage,proc))
+        continue
+      else:
+        #if defined...
+        pnorm = ROOT.ProcessNormalization("STXS%s_UncertaintyScaling_%s"%(STXSstage,proc), "")
+        for _u in stxsUncertaintiesKeys:
+          var = self.modelBuilder.out.var("param_%s" %_u)
+          pnorm.addLogNormal(exp(stxsUncertainties[proc][_u]),var)
+        self.modelBuilder.out._import(pnorm)
 
 
 #################################################################################################################
@@ -293,6 +326,9 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
      from HiggsAnalysis.CombinedLimit.STXS import stage1_procs 
      self.PROCESSES = [x for v in stage1_procs.itervalues() for x in v]
      self.DECAYS = ['hzz','hbb','hww','hgg','hcc','tot']
+
+  def setPhysicsOptions(self,physOptions):
+    self.setPhysicsOptionsBase(physOptions)
   
   def doParametersOfInterest(self):
     if self.floatMass: print "[WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
@@ -330,8 +366,9 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
 
   def setup(self):
     #For additional options e.g. STXS/BR uncertainties: defined in base class
-    # ...
-
+    if self.doBRU: self.SMH.makePartialWidthUncertainties()
+    if self.doSTXSU: self.makeSTXSBinUncertainties( STXSstage="1" )
+ 
     #Read scaling functions for STXS bins and decays from text files
     self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/stage1/crosssections.txt') )
     self.textToDecayScalingFunctions( os.path.join(self.SMH.datadir, 'eft/stage1/decay.txt' ))
@@ -341,16 +378,18 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
       if( self.fixTHandBBH ): 
         if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
         else: self.makeScalingFunction( proc, _scalePOIs=self.scalePOIs, STXSstage="1" )
-      #else: scaling function must be defined in text file
+      #else: scaling function for tH, bbH must be defined in text file
       else: self.makeScalingFunction( proc, _scalePOIs=self.scalePOIs, STXSstage="1" )
     for dec in self.DECAYS: self.makeScalingFunction( dec, _scalePOIs=self.scalePOIs, STXSstage="1" ) 
 
   def getHiggsSignalYieldScale(self,production,decay,energy):
     name = "stxs1toeft_scaling_%s_%s_%s"%(production,decay,energy)
     if self.modelBuilder.out.function(name) == None:
+
       #Check production scaling exists:
       XSscal = None
-      if production in self.PROCESSES: XSscal = "scaling_%s"%(production)
+      if production in self.PROCESSES: 
+        XSscal = "scaling_%s"%(production)
       else:
         raise ValueError("[ERROR] Process %s is not supported in Stage 1 Model"%production)
       #Check decay scaling exists
@@ -359,8 +398,21 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
         BRscal = "scaling_%s"%decay
       else:
         raise ValueError("[ERROR] Decay %d is not supported"%decay)
-      #Combine XS and BR scaling
-      self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
+
+      #For including BR and STXS bin uncertainties
+      if( self.doSTXSU )&( self.doBRU ): 
+        THUscaler = "uncertainty_scaling_%s_%s"%(production,decay)
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s_%s(\"@0*@1\",STXS1_UncertaintyScaling_%s,HiggsDecayWidth_UncertaintyScaling_%s)'%(production,decay,production,decay))
+      elif( self.doSTXSU ): 
+        THUscaler = "uncertainty_scaling_%s"%production
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",STXS1_UncertaintyScaling_%s)'%(production,production))
+      elif( self.doBRU ): 
+        THUscaler = "uncertainty_scaling_%s"%decay
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",HiggsDecayWidth_UncertaintyScaling_%s)'%(decay,decay))
+
+      #Combine XS and BR scaling: including theory uncertainties if option selected
+      if( self.doSTXSU )|( self.doBRU ): self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal,THUscaler])))
+      else: self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
       #print '[STXStoEFT Stage 1]', name, production, decay, energy, ":", self.modelBuilder.out.function(name).Print("")
     return name
 
