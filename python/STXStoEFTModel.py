@@ -1,17 +1,18 @@
+# Author: Jonathon Langford (ICL)
+# Date: 06/02/2019
+# Description: Model to describe how bins in STXS (0,1,1.1) scale using full set of dimension-6 EFT parameters
+#              Equations calculated using Higgs Effective Lagrangian (Madgraph)
+#              TO DO: Ask about sub-bins (these will be a separate gen-level process?). If so likely to only have 
+#                     scaling for combined bin. Therefore bin name should have commonality to allow merging
+#                     Also in response matrices: this will completely blow up (is it just for theory uncertainties?)
+
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
-from HiggsAnalysis.CombinedLimit.stage1 import stage1_procs # UPDATE THIS TO PUT DICT IN DATA
+#from HiggsAnalysis.CombinedLimit.stage1 import stage1_procs # UPDATE THIS TO PUT DICT IN DATA
 import ROOT, os, re
 
-# NEED TO CONFIGURE ALSO FOR STAGE 0 and 1.1. Currently just working on stage 1
-
-#List of all stage 1 processes
-PROCESSES = [x for v in stage1_procs.itervalues() for x in v]
-#List of decays which are defined in model
-DECAYS = ['hzz','hbb','hww','hgg','hcc','tot']
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#Function to extract STXS production, decay mode and energy from process name (extracted in datacard)
+# Global function to extract STXS production, decay mode and energy from process name (extracted in datacard)
 def getSTXSProdDecMode(bin,process,options):
   processSource = process
   decaySource = options.fileName+":"+bin # by default, decay comes from datacard name or bin label
@@ -40,19 +41,20 @@ def getSTXSProdDecMode(bin,process,options):
     print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
   return (processSource, foundDecay, foundEnergy)
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+#################################################################################################################
 # STXS to EFT abstract base class: inherited classes for different stages
-class STXStoEFTHiggsModel(SMLikeHiggsModel):
+class STXStoEFTBaseModel(SMLikeHiggsModel):
 
   # initialisation: include options for STXS bin and BR uncertainties (FOR NOW FALSE)
   # TO DO: add function for STXS uncertainties, like partial width unc in SMHiggsBuilder
-  def __init__(self,STXSU=False,BRU=False,fixTHandBBH=True):
+  def __init__(self,scalePOIs=True,STXSU=False,BRU=False,fixTHandBBH=True,freezeNonHELParameters=True):
     SMLikeHiggsModel.__init__(self)
     self.floatMass = False #Initally false, require external option to float mass
+    self.scalePOIs = scalePOIs
     self.doSTXSU = STXSU
     self.doBRU = BRU
     self.fixTHandBBH = fixTHandBBH
+    self.freezeNonHELParameters = freezeNonHELParameters 
   def setPhysicsOption(self,physOptions):
     for po in physOptions:
       if po.startswith("higgsMassRange="):
@@ -84,21 +86,37 @@ class STXStoEFTHiggsModel(SMLikeHiggsModel):
     return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  #Functions for extracting the pois. scaling functions etc from .txt file defined in datadir+"/eft/XX.txt
-  def textToPOIList( self, filename, skipRows=1 ):
+  # READING FROM TEXT FILES
+  #Function for extracting the pois: save as dictionary of pois
+  def textToPOIList( self, filename, skipRows=1, _scalePOIs=True ):
     self.pois = {} #initiate empty dict
+    #if scaling POIs: define separate dictionary for how POIs scale
+    if( _scalePOIs ): self.poi_scaling = {}
     #print "[DEBUG] filename = %s"%filename
     file_in = open(filename,"r")
     lines = [l for l in file_in]
     for line in lines[skipRows:]:
       if( len(line.strip())== 0 ): continue
       self.pois['%s'%line.split()[0]] = "[%s,%s,%s]"%(line.split()[1],line.split()[2],line.split()[3])
+      if( _scalePOIs ):
+        #extract unscaled poi and scaling factor in list
+        poi_scale = line.split()[0].split("_")
+        #save poi scaling to dictionary: used when making scaling function
+        if len(poi_scale) == 1: self.poi_scaling[ poi_scale[0] ] = "1.*%s"%line.split()[0]
+        else:
+          if poi_scale[1] == "x04": self.poi_scaling[ poi_scale[0] ] = "0.0001*%s"%line.split()[0]
+          elif poi_scale[1] == "x03": self.poi_scaling[ poi_scale[0] ] = "0.001*%s"%line.split()[0]
+          elif poi_scale[1] == "x02": self.poi_scaling[ poi_scale[0] ] = "0.01*%s"%line.split()[0]
+          elif poi_scale[1] == "x01": self.poi_scaling[ poi_scale[0] ] = "0.1*%s"%line.split()[0]
+          else: raise ValueError("[ERROR] Parameter of interest scaling not in allowed range [0.1-0.0001]")
     #print "[DEBUG] self.pois =", self.pois
+    print "[DEBUG] self.poi_scaling =", self.poi_scaling
     file_in.close()
 
-  def textToSTXSScalingFunction( self, filename, skipRows=0 ):
+  #Function to extract STXS scaling functions
+  def textToSTXSScalingFunctions( self, filename, skipRows=0 ):
     stxs_id = {} #dict for integer id to STXS process name
-    self.STXSScalingFunction = {} #dict for STXS process name to function (in terms of EFT coefficients)
+    self.STXSScalingFunctions = {} #dict for STXS process name to function (in terms of EFT coefficients)
     file_in = open(filename,"r")
     lines = [l for l in file_in]
     #Initially loop over first block of text until empty line to get integer id of processes
@@ -134,13 +152,14 @@ class STXStoEFTHiggsModel(SMLikeHiggsModel):
           raise ValueError("[ERROR] Process ID not set. Cannot link function to STXS bin")
         function = line.replace('\n','')
         function = "".join(function.split(" "))
-        self.STXSScalingFunction[ stxs_id[ _id ] ] = function 
+        self.STXSScalingFunctions[ stxs_id[ _id ] ] = function 
         _id = None #Reset
-    #print "[DEBUG] self.STXSScalingFunction =", self.STXSScalingFunction
+    #print "[DEBUG] self.STXSScalingFunctions =", self.STXSScalingFunctions
     file_in.close()
   
-  def textToDecayScalingFunction( self, filename, skipRows=0 ):
-    self.DecayScalingFunction = {}
+  #Function to extract decay scaling functions from file
+  def textToDecayScalingFunctions( self, filename, skipRows=0 ):
+    self.DecayScalingFunctions = {}
     file_in = open(filename,"r")
     lines = [l for l in file_in]
     #Decay definition and scaling function on subsequent line
@@ -157,20 +176,19 @@ class STXStoEFTHiggsModel(SMLikeHiggsModel):
           raise ValueError("[ERROR] Decay not set. Cannot link function to decay channel")
         function = line.replace('\n','')
         function = "".join(function.split(" ")) #remove spaces
-        self.DecayScalingFunction[ decay_ ] = function
+        self.DecayScalingFunctions[ decay_ ] = function
         _decay = None #reset
-    #print "[DEBUG] self.DecayScalingFunction =", self.DecayScalingFunction
+    #print "[DEBUG] self.DecayScalingFunctions =", self.DecayScalingFunctions
     file_in.close() 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  # Functions for making scaling
-  def makeScalingFunction( self, what ): 
+  # Function for make scaling function from string
+  def makeScalingFunction( self, what, _scalePOIs=True, STXSstage="1" ): 
 
     #if in processes/decays extract formula from corresponding dict
-    if what in PROCESSES: formula = self.STXSScalingFunction[ what ]
-    elif what in DECAYS: formula = self.DecayScalingFunction[ what ]
+    if what in self.STXSScalingFunctions: formula = self.STXSScalingFunctions[ what ]
+    elif what in self.DecayScalingFunctions: formula = self.DecayScalingFunctions[ what ]
     else:
-      raise ValueError("[ERROR] Scaling function for %s does not exist"%what)
+      raise ValueError("[ERROR] Scaling function for %s does not exist for STXS Stage %s"%(what,STXSstage))
 
     #turn formula into list: splitting by +/*/- (keeping delimiters)
     formula = re.split('([+,*,-])', formula)
@@ -183,118 +201,148 @@ class STXStoEFTHiggsModel(SMLikeHiggsModel):
     #loop over elements in formula
     for element in formula:
       if(element.startswith("c"))|(element.startswith("t")): #if element is a poi
-        if( element not in self.pois )&( element not in ['cWW','cB'] ):
-          raise ValueError("[ERROR] %s not defined in POI list"%element)
-        #check if poi has already been used in formula
-        if element in poi_id: formulaStr += "@%g"%poi_id[ element ] #if yes: add @(id) to formula string
-        else: 
-          #add poi to dictionary and poiStr and add one to iterator
-          poi_id[ element ] = poi_
-          poi_ += 1
-          #add @(id) to formulaStr and poi to correct position in poiStr
-          formulaStr += "@%g"%poi_id[ element ]
-          poiStr += "%s,"%element
+
+        #if scaling the pois:
+        if( _scalePOIs ):
+          if element not in self.poi_scaling:
+            raise ValueError("[ERROR] %s not defined in POI list"%element)
+          #check if poi has already been used in formula
+          if element in poi_id: formulaStr += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[element])
+          else:
+            #add poi to dictionary and poiStr and add one to iterator
+            poi_id[ element ] = poi_
+            poi_ += 1
+            # add multiplier*@(id) to formulaStr and scaled poi to correct position in poiStr
+            formulaStr += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[element])
+            poiStr += "%s,"%self.poi_scaling[element].split("*")[1]
+
+        #if using unscaled pois:
+        else:
+          if( element not in self.pois )&( element not in ['cWW','cB'] ):
+            raise ValueError("[ERROR] %s not defined in POI list"%element)
+          #check if poi has already been used in formula
+          if element in poi_id: formulaStr += "@%g"%poi_id[ element ] #if yes: add @(id) to formula string
+          else: 
+            #add poi to dictionary and poiStr and add one to iterator
+            poi_id[ element ] = poi_
+            poi_ += 1
+            #add @(id) to formulaStr and poi to correct position in poiStr
+            formulaStr += "@%g"%poi_id[ element ]
+            poiStr += "%s,"%element
       else:
         #element is not a poi: simply add to formula Str
         formulaStr += element
+
     #combine removing final comma of poiStr
     functionStr = formulaStr+poiStr[:-1]+")"
     #print "[DEBUG] Expression for %s: %s\n"%(what,functionStr)
     self.modelBuilder.factory_( functionStr )
-
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #Function extracting the STXS bin uncertainties
- 
+
+
+#################################################################################################################
+# Define inherited classes for different STXS Stages
+
+# _________________________________________________________________________________________________________________
+# STAGE 0...
+
+
+
+
+# _________________________________________________________________________________________________________________
+# STAGE 1...
+class Stage1ToEFTModel(STXStoEFTBaseModel):
+  def __init__(self):
+     STXStoEFTBaseModel.__init__(self)
+     from HiggsAnalysis.CombinedLimit.STXS import stage1_procs 
+     self.PROCESSES = [x for v in stage1_procs.itervalues() for x in v]
+     self.DECAYS = ['hzz','hbb','hww','hgg','hcc','tot']
   
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def doParametersOfInterest(self):
     if self.floatMass: print "[WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
     self.doMH()
     self.SMH = SMHiggsBuilder(self.modelBuilder)
     
-    #Read in parameter list from file using dedicated: textToPOIList function, setting self.pois    
-    # self.pois directionary of pois name and string of allowed range: e.g {'cG':'[0,-3.2e-4,1.1e-4]',...}
-    self.textToPOIList( os.path.join(self.SMH.datadir,'eft/pois_plus_undefined.txt'))
+    #Read in parameter list from file using textToPOIList function
+    if( self.scalePOIs ): self.textToPOIList( os.path.join(self.SMH.datadir,'eft/stage1/pois_scaled.txt'), _scalePOIs=self.scalePOIs)
+    else: self.textToPOIList( os.path.join(self.SMH.datadir,'eft/stage1/pois.txt'), _scalePOIs=self.scalePOIs)
+
     POIs = ','.join(self.pois.keys())
     for poi, poi_range in self.pois.iteritems(): 
       self.modelBuilder.doVar("%s%s"%(poi,poi_range))
     self.modelBuilder.doSet("POI",POIs)      
     #POIs for cWW and cB defined in terms of constraints on cWW+cB and cWW-cB: define expression for individual coefficient
-    self.modelBuilder.factory_("expr::cWW(\"0.5*(@0+@1)\",cWWPluscB,cWWMinuscB)")
-    self.modelBuilder.factory_("expr::cB(\"0.5*(@0-@1)\",cWWPluscB,cWWMinuscB)")
+    if( self.scalePOIs ):
+      self.modelBuilder.factory_("expr::cWW_x03(\"0.5*(@0+@1)\",cWWPluscB_x03,cWWMinuscB_x03)")
+      self.modelBuilder.factory_("expr::cB_x03(\"0.5*(@0-@1)\",cWWPluscB_x03,cWWMinuscB_x03)")
+      self.poi_scaling['cWW'] = "0.001*cWW_x03"
+      self.poi_scaling['cB'] = "0.001*cB_x03"
+    else:
+      self.modelBuilder.factory_("expr::cWW(\"0.5*(@0+@1)\",cWWPluscB,cWWMinuscB)")
+      self.modelBuilder.factory_("expr::cB(\"0.5*(@0-@1)\",cWWPluscB,cWWMinuscB)")
+
+    #If specified in options: set all non-HEL constrained parameters to 0 (freeze)
+    if( self.freezeNonHELParameters ):
+      for poi in self.pois:
+        if self.scalePOIs:
+          if poi not in ['cG_x04','cA_x04','cu_x02','cHW_x02','cWWMinuscB_x03']: self.modelBuilder.out.var( poi ).setConstant(True)
+        else:
+          if poi not in ['cG','cA','cu','cHW','cWWMinuscB']: self.modelBuilder.out.var( poi ).setConstant(True)
 
     #set up model
     self.setup()
 
-
-
   def setup(self):
-    #For additional options e.g. STXS/BR uncertainties
+    #For additional options e.g. STXS/BR uncertainties: defined in base class
     # ...
 
     #Read scaling functions for STXS bins and decays from text files
-    self.textToSTXSScalingFunction( os.path.join(self.SMH.datadir, 'eft/crosssections.txt') )
-    self.textToDecayScalingFunction( os.path.join(self.SMH.datadir, 'eft/decay.txt' ))
+    self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/stage1/crosssections.txt') )
+    self.textToDecayScalingFunctions( os.path.join(self.SMH.datadir, 'eft/stage1/decay.txt' ))
     #Make scaling for each STXS process and decay:
-
-    for proc in PROCESSES: 
+    for proc in self.PROCESSES: 
       #if fixTHandBBH...
       if( self.fixTHandBBH ): 
         if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
-        else: self.makeScalingFunction( proc )
+        else: self.makeScalingFunction( proc, _scalePOIs=self.scalePOIs, STXSstage="1" )
       #else: scaling function must be defined in text file
-      else: self.makeScalingFunction( proc )
-    for dec in DECAYS: self.makeScalingFunction( dec ) 
+      else: self.makeScalingFunction( proc, _scalePOIs=self.scalePOIs, STXSstage="1" )
+    for dec in self.DECAYS: self.makeScalingFunction( dec, _scalePOIs=self.scalePOIs, STXSstage="1" ) 
 
   def getHiggsSignalYieldScale(self,production,decay,energy):
-    name = "stxs2eft_scaling_%s_%s_%s"%(production,decay,energy)
+    name = "stxs1toeft_scaling_%s_%s_%s"%(production,decay,energy)
     if self.modelBuilder.out.function(name) == None:
       #Check production scaling exists:
       XSscal = None
-      if production in PROCESSES: XSscal = "scaling_%s"%(production)
+      if production in self.PROCESSES: XSscal = "scaling_%s"%(production)
       else:
         raise ValueError("[ERROR] Process %s is not supported in Stage 1 Model"%production)
-      
       #Check decay scaling exists
       BRscal = None
-      if decay in DECAYS:
+      if decay in self.DECAYS:
         BRscal = "scaling_%s"%decay
       else:
-        raise ValueError("[ERROR] Decay %d is not defined"%decay)
-      
+        raise ValueError("[ERROR] Decay %d is not supported"%decay)
       #Combine XS and BR scaling
       self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
-
       print '[STXStoEFT Stage 1]', name, production, decay, energy, ":", self.modelBuilder.out.function(name).Print("")
     return name
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# _________________________________________________________________________________________________________________
+# STAGE 1.1...
 
-STXStoEFT = STXStoEFTHiggsModel()
+
+#################################################################################################################
+Stage1toEFT = Stage1ToEFTModel()
 
 #For debugging
 #if __name__ == "__main__":
 #    print " ------------------- "
 #    STXStoEFT.textToPOIList( '/afs/cern.ch/work/j/jlangfor/combine/STXStoEFT/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/pois_plus_undefined.txt')
-#    STXStoEFT.textToSTXSScalingFunction( '/afs/cern.ch/work/j/jlangfor/combine/STXStoEFT/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/crosssections.txt')
-#    STXStoEFT.textToDecayScalingFunction( '/afs/cern.ch/work/j/jlangfor/combine/STXStoEFT/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/decay.txt')
+#    STXStoEFT.textToSTXSScalingFunctions( '/afs/cern.ch/work/j/jlangfor/combine/STXStoEFT/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/crosssections.txt')
+#    STXStoEFT.textToDecayScalingFunctions( '/afs/cern.ch/work/j/jlangfor/combine/STXStoEFT/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/decay.txt')
 #    for proc in STAGE1_PROCESSES: STXStoEFT.makeScalingFunction( proc )
 #    for dec in STAGE1_DECAYS: STXStoEFT.makeScalingFunction( dec )
 #    print "--------------------"
-
-# Author: Jonathon Langford (ICL)
-# Date: 06/02/2019
-# Description: Model to describe how bins in STXS (0,1,1.1) scale using full set of dimension-6 EFT parameters
-#              Equations calculated using Higgs Effective Lagrangian (Madgraph)
-#              Model encompasses S0,S1 and S1.1
-#              TO DO: Ask about sub-bins (these will be a separate gen-level process?). If so likely to only have 
-#                     scaling for combined bin. Therefore bin name should have commonality to allow merging
-#                     Also in response matrices: this will completely blow up (is it just for theory uncertainties?)
-
-# TO DO LIST
-#    * Configure for bbh, thq, thW: What to do here (fix to SM i.e. scaling = 1), copy off previous models
-
-
-
