@@ -110,7 +110,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
           elif poi_scale[1] == "x01": self.poi_scaling[ poi_scale[0] ] = "0.1*%s"%line.split()[0]
           else: raise ValueError("[ERROR] Parameter of interest scaling not in allowed range [0.1-0.0001]")
     #print "[DEBUG] self.pois =", self.pois
-    print "[DEBUG] self.poi_scaling =", self.poi_scaling
+    #print "[DEBUG] self.poi_scaling =", self.poi_scaling
     file_in.close()
 
   #Function to extract STXS scaling functions
@@ -181,7 +181,9 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     #print "[DEBUG] self.DecayScalingFunctions =", self.DecayScalingFunctions
     file_in.close() 
 
+
   # Function for make scaling function from string
+  #[BUG FIX] RooFormula unable to compile if formulaStr+poiString > 1000: if formulaStr+poiStr > 500 then initiate new string
   def makeScalingFunction( self, what, _scalePOIs=True, STXSstage="1" ): 
 
     #if in processes/decays extract formula from corresponding dict
@@ -192,51 +194,83 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 
     #turn formula into list: splitting by +/*/- (keeping delimiters)
     formula = re.split('([+,*,-])', formula)
+
+    #If length of formula exceeds 500, define new formula and combine at the end
+    n_str = 0
     #dict to store integer for poi: iterate integer when using new poi
-    poi_id = {}
-    poi_ = 0
+    poi_id = [{}]
+    poi_ = [0]
     #strings to hold formula + list of parameters of interest
-    formulaStr = 'expr::scaling_%s(\"'%what
-    poiStr = '\",'
+    formulaStrings = ['expr::scaling_%s_%g(\"'%(what,n_str)]  
+    poiStrings = ['\",']
+
     #loop over elements in formula
     for element in formula:
-      if(element.startswith("c"))|(element.startswith("t")): #if element is a poi
+
+      #if formula string goes above length > 500 and final element is a +
+      if( len(formulaStrings[n_str]+poiStrings[n_str]) > 500 )&( formulaStrings[n_str][-1] == "+" ):
+        #remove final element from formula string
+        formulaStrings[n_str] = formulaStrings[n_str][:-1]
+        #add one to number of strings
+        n_str += 1
+        #add new elements
+        poi_id.append({}) #empty dictionary for pois
+        poi_.append(0)
+        formulaStrings.append('expr::scaling_%s_%g(\"'%(what,n_str))
+        poiStrings.append('\",')
+      
+      #if element is a poi
+      if(element.startswith("c"))|(element.startswith("t")):
 
         #if scaling the pois:
         if( _scalePOIs ):
           if element not in self.poi_scaling:
             raise ValueError("[ERROR] %s not defined in POI list"%element)
           #check if poi has already been used in formula
-          if element in poi_id: formulaStr += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[element])
+          if element in poi_id: formulaStrings[n_str] += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[n_str][element])
           else:
             #add poi to dictionary and poiStr and add one to iterator
-            poi_id[ element ] = poi_
-            poi_ += 1
+            poi_id[n_str][ element ] = poi_[n_str]
+            poi_[n_str] += 1
             # add multiplier*@(id) to formulaStr and scaled poi to correct position in poiStr
-            formulaStr += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[element])
-            poiStr += "%s,"%self.poi_scaling[element].split("*")[1]
+            formulaStrings[n_str] += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[n_str][element])
+            poiStrings[n_str] += "%s,"%self.poi_scaling[element].split("*")[1]
 
         #if using unscaled pois:
         else:
           if( element not in self.pois )&( element not in ['cWW','cB'] ):
             raise ValueError("[ERROR] %s not defined in POI list"%element)
           #check if poi has already been used in formula
-          if element in poi_id: formulaStr += "@%g"%poi_id[ element ] #if yes: add @(id) to formula string
+          if element in poi_id: formulaStrings[n_str] += "@%g"%poi_id[n_str][ element ] #if yes: add @(id) to formula string
           else: 
             #add poi to dictionary and poiStr and add one to iterator
-            poi_id[ element ] = poi_
-            poi_ += 1
+            poi_id[n_str][ element ] = poi_[n_str]
+            poi_[n_str] += 1
             #add @(id) to formulaStr and poi to correct position in poiStr
-            formulaStr += "@%g"%poi_id[ element ]
-            poiStr += "%s,"%element
+            formulaStrings[n_str] += "@%g"%poi_id[n_str][ element ]
+            poiStrings[n_str] += "%s,"%element
       else:
         #element is not a poi: simply add to formula Str
-        formulaStr += element
+        formulaStrings[n_str] += element
 
-    #combine removing final comma of poiStr
-    functionStr = formulaStr+poiStr[:-1]+")"
-    #print "[DEBUG] Expression for %s: %s\n"%(what,functionStr)
-    self.modelBuilder.factory_( functionStr )
+    #If just one formula string i.e. total formula has length less than 1000
+    if( len( formulaStrings ) == 1 ):
+      #remove _0 identifier
+      functionStr = re.sub("%s_0"%what,"%s"%what,formulaStrings[0])+poiStrings[0][:-1]+")"
+      self.modelBuilder.factory_( functionStr )
+    #else combine individual formula strings
+    else:
+      total_formulaStr = 'expr::scaling_%s(\"'%what
+      total_poiStr = '\",'
+      for n_str in range(len(formulaStrings)):
+        functionStr = formulaStrings[n_str]+poiStrings[n_str][:-1]+")"
+        self.modelBuilder.factory_( functionStr )
+        total_formulaStr += "@%g+"%n_str
+        total_poiStr += "scaling_%s_%g,"%(what,n_str)
+      #add combined function
+      total_functionStr = total_formulaStr[:-1]+total_poiStr[:-1]+")"
+      self.modelBuilder.factory_( total_functionStr )
+
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   #Function extracting the STXS bin uncertainties
@@ -327,7 +361,7 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
         raise ValueError("[ERROR] Decay %d is not supported"%decay)
       #Combine XS and BR scaling
       self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
-      print '[STXStoEFT Stage 1]', name, production, decay, energy, ":", self.modelBuilder.out.function(name).Print("")
+      #print '[STXStoEFT Stage 1]', name, production, decay, energy, ":", self.modelBuilder.out.function(name).Print("")
     return name
 
 # _________________________________________________________________________________________________________________
