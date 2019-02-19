@@ -27,6 +27,9 @@ def main():
     parser.add_option ('-m',            dest='masssets',       type='string', default = '',                help="List of mass models, comma separated")
     parser.add_option ('-y',            dest='year',           type='string', default = '2016',            help="year")
     parser.add_option ('-c',            dest='noSubmit', action='store_true', default = False,             help="Do not submit jobs.  Only create condor_submit.txt.")
+    parser.add_option ('-A',            dest='doAsym',   action='store_true', default = False,             help="Specify AsymptoticLimits and Significance fit command to run")
+    parser.add_option ('-F',            dest='doFitDiag',action='store_true', default = False,             help="Specify FitDiagnostics fit command to run")
+    parser.add_option ('-M',            dest='doMulti',  action='store_true', default = False,             help="Specify MultiDimFit fit command to run")
     parser.add_option ('--output',      dest='outPath',        type='string', default = '.',               help="Name of directory where output of each condor job goes")
 
     parser.add_option ('--toy',         dest='toy',      action='store_true', default = False,             help="Submit toy jobs instead of the normal set of fits")
@@ -39,7 +42,15 @@ def main():
     options, args = parser.parse_args()
     signalType = getOptionList(options.signalType, "No dataset specified")
     masssets = getOptionList(options.masssets, "No mass model specified")
-        
+
+    doAsym = 1 if options.doAsym else 0
+    doFitDiag = 1 if options.doFitDiag else 0
+    doMulti = 1 if options.doMulti else 0
+    if not doAsym and not doFitDiag and not doMulti:
+        doAsym=1
+        doFitDiag=1
+        doMulti=1
+
     executable = "run_fits.tcsh"
     if options.toy:
         executable = "run_toys.tcsh"
@@ -92,7 +103,7 @@ def main():
                 transfer += "\"\n"
                     
                 fileParts.append(transfer)
-                fileParts.append("Arguments = %s %s %s %s %s %s\n" % (options.inputRoot2016, options.inputRoot2017, st, mass, options.year, options.dataType))
+                fileParts.append("Arguments = %s %s %s %s %s %s %i %i %i\n" % (options.inputRoot2016, options.inputRoot2017, st, mass, options.year, options.dataType, doAsym, doFitDiag, doMulti))
                 fileParts.append("Output = %s/log-files/MyFit_%s_%s.stdout\n"%(options.outPath, st, mass))
                 fileParts.append("Error = %s/log-files/MyFit_%s_%s.stderr\n"%(options.outPath, st, mass))
                 fileParts.append("Log = %s/log-files/MyFit_%s_%s.log\n"%(options.outPath, st, mass))
