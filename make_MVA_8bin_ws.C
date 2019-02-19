@@ -237,19 +237,22 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   RooRealVar a0_tt_D1("a0_tt_D1","a0 of tt bkg shape D1",0.28,0.0,1.0);
   RooRealVar a1_tt_D1("a1_tt_D1","a1 of tt bkg shape D1",0.24,0.0,1.0);
   RooRealVar a2_tt_D1("a2_tt_D1","a2 of tt bkg shape D1",0.10,-0.5,0.5);
+  RooRealVar  d_tt_D1("d_tt_D1" ,"d  of tt bkg shape D1",20,-2500,2500);
 
   RooRealVar a0_tt_D2("a0_tt_D2","a0 of tt bkg shape D2",0.28,0.0,1.0);
   RooRealVar a1_tt_D2("a1_tt_D2","a1 of tt bkg shape D2",0.24,0.0,1.0);
   RooRealVar a2_tt_D2("a2_tt_D2","a2 of tt bkg shape D2",0.10,-0.5,0.5);
+  RooRealVar  d_tt_D2("d_tt_D2" ,"d  of tt bkg shape D2",20,-2500,2500);
 
   RooRealVar a0_tt_D3("a0_tt_D3","a0 of tt bkg shape D3",0.28,0.0,1.0);
   RooRealVar a1_tt_D3("a1_tt_D3","a1 of tt bkg shape D3",0.24,0.0,1.0);
   RooRealVar a2_tt_D3("a2_tt_D3","a2 of tt bkg shape D3",0.10,-0.5,0.5);
+  RooRealVar  d_tt_D3("d_tt_D3" ,"d  of tt bkg shape D3",20,-2500,2500);
 
   RooRealVar a0_tt_D4("a0_tt_D4","a0 of tt bkg shape D4",0.28,0.0,1.0);
   RooRealVar a1_tt_D4("a1_tt_D4","a1 of tt bkg shape D4",0.24,0.0,1.0);
   RooRealVar a2_tt_D4("a2_tt_D4","a2 of tt bkg shape D4",0.10,-0.5,0.5);
-
+  RooRealVar  d_tt_D4("d_tt_D4" ,"d  of tt bkg shape D4",20,-2500,2500);
 
   // //double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1) - sigMC_th1_D1->GetBinContent(1);
   // double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1);
@@ -390,8 +393,6 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->import(data_hist_D1);
 
   // ttbar bkg in D1
-  RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
-  //RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,a2_tt_D1);  // list of shape parameters for tt bkg
   RooArgList bkg_tt_syst_NP_D1(*wspace->var("np_tt_JEC"),
 			       *wspace->var(("np_tt_JER_"+year).c_str()),
 			       *wspace->var(("np_tt_btg_"+year).c_str()),
@@ -425,12 +426,14 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   string procName_D1 = "background_tt_D1_"+year;
   if (shared) 
   {
-    RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
-    construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1);
+    RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
+    //RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
+    construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,bkg_tt_syst_NP_D1,bkg_tt_syst_histos_D1);
   } else 
   {
-    RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,a2_tt_D1);  // list of shape parameters for tt bkg                       
-    construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1);
+    RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,d_tt_D1);  // list of shape parameters for tt bkg                       
+    //RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,a2_tt_D1);  // list of shape parameters for tt bkg
+    construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,bkg_tt_syst_NP_D1,bkg_tt_syst_histos_D1);
   }
   RooParametricHist background_tt_D1(procName_D1.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D1,*data_th1_D1);
   wspace->import(background_tt_D1,RooFit::RecycleConflictNodes());
@@ -446,8 +449,6 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->import(data_hist_D2);
 
   // ttbar bkg in D2
-  RooArgList parlist_D2(N7_tt_D2,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
-  //RooArgList parlist_D2(N7_tt_D2,a0_tt_D2,a1_tt_D2,a2_tt_D2);  // list of shape parameters for tt bkg
   RooArgList bkg_tt_syst_NP_D2(*wspace->var("np_tt_JEC"),
 			       *wspace->var(("np_tt_JER_"+year).c_str()),
 			       *wspace->var(("np_tt_btg_"+year).c_str()),
@@ -479,14 +480,16 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   }
   RooArgList *bkg_tt_bins_D2 = new RooArgList();
   string procName_D2 = "background_tt_D2_"+year;
-  if(shared)
+  if (shared) 
   {
-      RooArgList parlist_D2(N7_tt_D2,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                                                  
-      construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2);
-  } else
+    RooArgList parlist_D2(N7_tt_D2,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
+    //RooArgList parlist_D2(N7_tt_D2,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
+    construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2,bkg_tt_syst_NP_D2,bkg_tt_syst_histos_D2);
+  } else 
   {
-      RooArgList parlist_D2(N7_tt_D2,a0_tt_D2,a1_tt_D2,a2_tt_D2);  // list of shape parameters for tt bkg                                                         
-      construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2);
+    RooArgList parlist_D2(N7_tt_D2,a0_tt_D2,a1_tt_D2,d_tt_D2);  // list of shape parameters for tt bkg                       
+    //RooArgList parlist_D2(N7_tt_D2,a0_tt_D2,a1_tt_D2,a2_tt_D2);  // list of shape parameters for tt bkg
+    construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2,bkg_tt_syst_NP_D2,bkg_tt_syst_histos_D2);
   }
   RooParametricHist background_tt_D2(procName_D2.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D2,*data_th1_D2);
   wspace->import(background_tt_D2,RooFit::RecycleConflictNodes());
@@ -502,8 +505,6 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->import(data_hist_D3);
 
   // ttbar bkg in D3
-  RooArgList parlist_D3(N7_tt_D3,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
-  //RooArgList parlist_D3(N7_tt_D3,a0_tt_D3,a1_tt_D3,a2_tt_D3);  // list of shape parameters for tt bkg
   RooArgList bkg_tt_syst_NP_D3(*wspace->var("np_tt_JEC"),
 			       *wspace->var(("np_tt_JER_"+year).c_str()),
 			       *wspace->var(("np_tt_btg_"+year).c_str()),
@@ -535,14 +536,16 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   }
   RooArgList *bkg_tt_bins_D3 = new RooArgList();
   string procName_D3 = "background_tt_D3_"+year;
-  if(shared)
+  if (shared) 
   {
-      RooArgList parlist_D3(N7_tt_D3,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                           
-      construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3);
-  } else
+    RooArgList parlist_D3(N7_tt_D3,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
+    //RooArgList parlist_D3(N7_tt_D3,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
+    construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3,bkg_tt_syst_NP_D3,bkg_tt_syst_histos_D3);
+  } else 
   {
-      RooArgList parlist_D3(N7_tt_D3,a0_tt_D3,a1_tt_D3,a2_tt_D3);  // list of shape parameters for tt bkg                  
-      construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3);
+    RooArgList parlist_D3(N7_tt_D3,a0_tt_D3,a1_tt_D3,d_tt_D3);  // list of shape parameters for tt bkg                       
+    //RooArgList parlist_D3(N7_tt_D3,a0_tt_D3,a1_tt_D3,a2_tt_D3);  // list of shape parameters for tt bkg
+    construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3,bkg_tt_syst_NP_D3,bkg_tt_syst_histos_D3);
   }
   RooParametricHist background_tt_D3(procName_D3.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D3,*data_th1_D3);
   wspace->import(background_tt_D3,RooFit::RecycleConflictNodes());
@@ -558,8 +561,6 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->import(data_hist_D4);
 
   // ttbar bkg in D4
-  RooArgList parlist_D4(N7_tt_D4,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
-  //RooArgList parlist_D4(N7_tt_D4,a0_tt_D4,a1_tt_D4,a2_tt_D4);  // list of shape parameters for tt bkg
   RooArgList bkg_tt_syst_NP_D4(*wspace->var("np_tt_JEC"),
 			       *wspace->var(("np_tt_JER_"+year).c_str()),
 			       *wspace->var(("np_tt_btg_"+year).c_str()),
@@ -591,14 +592,16 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   }
   RooArgList *bkg_tt_bins_D4 = new RooArgList();
   string procName_D4 = "background_tt_D4_"+year;
-  if(shared)
+  if (shared) 
   {
-      RooArgList parlist_D4(N7_tt_D4,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                         
-      construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4);
-  } else
+    RooArgList parlist_D4(N7_tt_D4,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
+    //RooArgList parlist_D4(N7_tt_D4,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
+    construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4,bkg_tt_syst_NP_D4,bkg_tt_syst_histos_D4);
+  } else 
   {
-      RooArgList parlist_D4(N7_tt_D4,a0_tt_D4,a1_tt_D4,a2_tt_D4);  // list of shape parameters for tt bkg                
-      construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4);
+    RooArgList parlist_D4(N7_tt_D4,a0_tt_D4,a1_tt_D4,d_tt_D4);  // list of shape parameters for tt bkg                       
+    //RooArgList parlist_D4(N7_tt_D4,a0_tt_D4,a1_tt_D4,a2_tt_D4);  // list of shape parameters for tt bkg
+    construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4,bkg_tt_syst_NP_D4,bkg_tt_syst_histos_D4);
   }
   RooParametricHist background_tt_D4(procName_D4.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D4,*data_th1_D4);
   wspace->import(background_tt_D4,RooFit::RecycleConflictNodes());
