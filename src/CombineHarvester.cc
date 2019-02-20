@@ -886,4 +886,9 @@ std::set<std::string> CombineHarvester::GetAutoMCStatsBins() const {
   return result;
 }
 
+void CombineHarvester::AddExtArgValue(std::string const& name, double const& value) {
+  ch::Parameter* param = SetupRateParamVar(name, value, true);
+  param->set_err_u(0.);
+  param->set_err_d(0.);
+}
 }
