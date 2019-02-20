@@ -103,7 +103,6 @@ MultiDimFit::MultiDimFit() :
     ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
     ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
     ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
-
       ;
 }
 
@@ -913,13 +912,7 @@ void MultiDimFit::doRandomPoints(RooWorkspace *w, RooAbsReal &nll)
 }
 void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll) 
 {
-
     double nll0 = nll.getVal();
-    std::cout<<"fixed point nll0 "<<nll0<<std::endl;
-    for (unsigned int i = 0; i < poi_.size(); ++i) {
-            std::cout<<" starting value for "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
-    }
-
     if (startFromPreFit_) w->loadSnapshot("clean");
     for (unsigned int i = 0, n = poi_.size(); i < n; ++i) {
         poiVars_[i]->setConstant(true);
@@ -931,6 +924,9 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     //minim.setStrategy(minimizerStrategy_);
     unsigned int n = poi_.size();
 
+    //for (unsigned int i = 0; i < n; ++i) {
+    //        std::cout<<" Before setting fixed point "<<poiVars_[i]->GetName()<<"= "<<poiVals_[i]<<std::endl;
+    //}
     if (fixedPointPOIs_ != "") {
 	    utils::setModelParameters( fixedPointPOIs_, w->allVars());
     } else if (setPhysicsModelParameterExpression_ != "") {
@@ -963,11 +959,11 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
 			    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
 		    }
 		    Combine::commitPoint(true, /*quantile=*/prob);
-            //for (unsigned int i = 0; i < n; ++i) {
-            //std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
-            //}
+    //for (unsigned int i = 0; i < n; ++i) {
+    //        std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
+    //}
         }
-    }
+    } 
 }
 
 void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll) 
