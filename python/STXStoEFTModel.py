@@ -9,7 +9,10 @@ from math import exp
 import ROOT, os, re
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Global function to extract STXS production, decay mode and energy from process name (extracted in datacard)
+
+# Global function to extract STXS production, decay mode and energy from process name
+#   * require new function since old method cuts process at first instance of "_"
+#   * this has changed with STXS under naming convention
 def getSTXSProdDecMode(bin,process,options):
   processSource = process
   decaySource = options.fileName+":"+bin # by default, decay comes from datacard name or bin label
@@ -42,9 +45,9 @@ def getSTXSProdDecMode(bin,process,options):
 # STXS to EFT abstract base class: inherited classes for different stages
 class STXStoEFTBaseModel(SMLikeHiggsModel):
 
-  # initialisation: include options for STXS bin and BR uncertainties (FOR NOW FALSE)
-  # TO DO: add function for STXS uncertainties, like partial width unc in SMHiggsBuilder
-  def __init__(self,scalePOIs=True,STXSU=False,BRU=False,fixTHandBBH=True,freezeNonHELParameters=False):
+  # initialisation: include options for STXS bin and BR uncertainties
+  #    * note: STXS bin uncertainties are defined in data/lhc-hxswg/eft/stageX/BinUncertainties.txt. Needs updating!
+  def __init__(self,scalePOIs=True,STXSU=False,BRU=False,fixTHandBBH=True,freezeOtherParameters=False):
     SMLikeHiggsModel.__init__(self)
     self.PROCESSES = []
     self.DECAYS = []
@@ -52,8 +55,8 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.scalePOIs = scalePOIs
     self.doSTXSU = STXSU
     self.doBRU = BRU
-    self.fixTHandBBH = fixTHandBBH
-    self.freezeNonHELParameters = freezeNonHELParameters 
+    self.fixTHandBBH = fixTHandBBH #if false scaling function for tH, bbH MUST be defined in input text file: data/lhc-hxswg/eft/stageX/crosssections.txt
+    self.freezeOtherParameters = freezeOtherParameters #Option to freeze majority of parameters in model. Leaving those used in LHCHXSWG-INT-2017-001 fit to float
 
   def setPhysicsOptionsBase(self,physOptions):
     for po in physOptions:
@@ -68,12 +71,13 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         self.doBRU = (po.replace("BRU=","") in ["yes","1","Yes","True","true"])
       if po.startswith("STXSU="):
         self.doSTXSU = (po.replace("STXSU=","") in ["yes","1","Yes","True","true"])
-      if po.startswith("freezeNonHEL="):
-        self.freezeNonHELParameters = (po.replace("freezeNonHEL=","") in ["yes","1","Yes","True","true"])
+      if po.startswith("freezeOther="):
+        self.freezeOtherParameters = (po.replace("freezeOther=","") in ["yes","1","Yes","True","true"])
+    #Output option used to terminal
     print "[STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
     print "[STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
-    if( self.doSTXSU ): print "   [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/stageX/BinUncertainties.txt"
-    if( self.freezeNonHELParameters ): print "[STXStoEFT] Freezing all but [cG,cA,cu,cHW,cWWMinuscB] to 0"
+    if( self.doSTXSU ): print "   [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/stageX/BinUncertainties.txt"
+    if( self.freezeOtherParameters ): print "[STXStoEFT] Freezing all but [cG,cA,cu,cHW,cWWMinuscB] to 0"
     else: print "[STXStoEFT] Allowing all HEL parameters to float"
 
   def doMH(self):
@@ -104,7 +108,6 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.pois = {} #initiate empty dict
     #if scaling POIs: define separate dictionary for how POIs scale
     if( _scalePOIs ): self.poi_scaling = {}
-    #print "[DEBUG] filename = %s"%filename
     file_in = open(filename,"r")
     lines = [l for l in file_in]
     for line in lines[skipRows:]:
@@ -121,8 +124,6 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
           elif poi_scale[1] == "x02": self.poi_scaling[ poi_scale[0] ] = "0.01*%s"%line.split()[0]
           elif poi_scale[1] == "x01": self.poi_scaling[ poi_scale[0] ] = "0.1*%s"%line.split()[0]
           else: raise ValueError("[ERROR] Parameter of interest scaling not in allowed range [0.1-0.0001]")
-    #print "[DEBUG] self.pois =", self.pois
-    #print "[DEBUG] self.poi_scaling =", self.poi_scaling
     file_in.close()
 
   #Function to extract STXS scaling functions
@@ -149,24 +150,22 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
       proc = re.sub('TTH','ttH',proc) 
       #Add to dictionary
       stxs_id[ procid ] = proc
-    #print "[DEBUG] stxs_id =", stxs_id
-    #print "[DEBUG] emptyLinePosition = %g"%emptyLinePosition
+
     #Loop over second block of text (starting at empty line) to get scaling functions
     _id = None
     for line in lines[emptyLinePosition:]:
       if( len(line.strip())==0 ): continue
       # procid and scaling function on subsequent lines 
-      # save proc_id of line starting with bin number
+      # save proc_id of line beginning with "Bin number"
       if line.startswith("Bin number"): _id = line.split()[2]
       # extract scaling function
       elif line.startswith("1"): #perturbation theory: safer than using else statement
         if _id == None:
           raise ValueError("[ERROR] Process ID not set. Cannot link function to STXS bin")
         function = line.replace('\n','')
-        function = "".join(function.split(" "))
+        function = "".join(function.split(" ")) #remove space
         self.STXSScalingFunctions[ stxs_id[ _id ] ] = function 
         _id = None #Reset
-    #print "[DEBUG] self.STXSScalingFunctions =", self.STXSScalingFunctions
     file_in.close()
   
   #Function to extract decay scaling functions from file
@@ -190,12 +189,11 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         function = "".join(function.split(" ")) #remove spaces
         self.DecayScalingFunctions[ decay_ ] = function
         _decay = None #reset
-    #print "[DEBUG] self.DecayScalingFunctions =", self.DecayScalingFunctions
     file_in.close() 
 
 
   # Function for make scaling function from string
-  #[BUG FIX] RooFormula unable to compile if formulaStr+poiString > 1000: if formulaStr+poiStr > 500 then initiate new string
+  #    * RooFormula unable to compile if string > 1000 characters: if formulaStr+poiStr > 500 then initiate new string and sum together for final function
   def makeScalingFunction( self, what, _scalePOIs=True, STXSstage="1" ): 
 
     #if in processes/decays extract formula from corresponding dict
@@ -265,7 +263,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         #element is not a poi: simply add to formula Str
         formulaStrings[n_str] += element
 
-    #If just one formula string i.e. total formula has length less than 1000
+    #If just one formula string i.e. total formula has length less than 500
     if( len( formulaStrings ) == 1 ):
       #remove _0 identifier
       functionStr = re.sub("%s_0"%what,"%s"%what,formulaStrings[0])+poiStrings[0][:-1]+")"
@@ -285,7 +283,6 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #Function extracting the STXS bin uncertainties
-  # FOR NOW ASSUMES ALL BINS HAVE SAME UNCERTAINTY STRUCTURE
   def makeSTXSBinUncertainties( self, STXSstage="1" ):
     stxsUncertainties = {}; stxsUncertaintiesKeys = []
     for line in open( os.path.join(self.SMH.datadir, 'eft/stage%s/BinUncertainties.txt'%STXSstage) ):
@@ -353,8 +350,8 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
       self.modelBuilder.factory_("expr::cWW(\"0.5*(@0+@1)\",cWWPluscB,cWWMinuscB)")
       self.modelBuilder.factory_("expr::cB(\"0.5*(@0-@1)\",cWWPluscB,cWWMinuscB)")
 
-    #If specified in options: set all non-HEL constrained parameters to 0 (freeze)
-    if( self.freezeNonHELParameters ):
+    #If specified in options: fix all parameters not used in LHCHXSWG-INT-2017-001 fit to 0 (freeze)
+    if( self.freezeOtherParameters ):
       for poi in self.pois:
         if self.scalePOIs:
           if poi not in ['cG_x04','cA_x04','cu_x02','cHW_x02','cWWMinuscB_x03']: self.modelBuilder.out.var( poi ).setConstant(True)
@@ -374,11 +371,9 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
     self.textToDecayScalingFunctions( os.path.join(self.SMH.datadir, 'eft/stage1/decay.txt' ))
     #Make scaling for each STXS process and decay:
     for proc in self.PROCESSES: 
-      #if fixTHandBBH...
       if( self.fixTHandBBH ): 
         if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
         else: self.makeScalingFunction( proc, _scalePOIs=self.scalePOIs, STXSstage="1" )
-      #else: scaling function for tH, bbH must be defined in text file
       else: self.makeScalingFunction( proc, _scalePOIs=self.scalePOIs, STXSstage="1" )
     for dec in self.DECAYS: self.makeScalingFunction( dec, _scalePOIs=self.scalePOIs, STXSstage="1" ) 
 
@@ -413,7 +408,7 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
       #Combine XS and BR scaling: including theory uncertainties if option selected
       if( self.doSTXSU )|( self.doBRU ): self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal,THUscaler])))
       else: self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
-      #print '[STXStoEFT Stage 1]', name, production, decay, energy, ":", self.modelBuilder.out.function(name).Print("")
+
     return name
 
 # _________________________________________________________________________________________________________________
@@ -423,12 +418,3 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
 #################################################################################################################
 Stage1toEFT = Stage1ToEFTModel()
 
-#For debugging
-#if __name__ == "__main__":
-#    print " ------------------- "
-#    STXStoEFT.textToPOIList( '/afs/cern.ch/work/j/jlangfor/combine/STXStoEFT/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/pois_plus_undefined.txt')
-#    STXStoEFT.textToSTXSScalingFunctions( '/afs/cern.ch/work/j/jlangfor/combine/STXStoEFT/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/crosssections.txt')
-#    STXStoEFT.textToDecayScalingFunctions( '/afs/cern.ch/work/j/jlangfor/combine/STXStoEFT/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/eft/decay.txt')
-#    for proc in STAGE1_PROCESSES: STXStoEFT.makeScalingFunction( proc )
-#    for dec in STAGE1_DECAYS: STXStoEFT.makeScalingFunction( dec )
-#    print "--------------------"
