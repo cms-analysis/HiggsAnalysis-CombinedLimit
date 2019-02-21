@@ -104,7 +104,7 @@ LimitAlgo("HybridNew specific options") {
         ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, CLsplusb")
         ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value(testStat_),    "Test statistics: LEP, TEV, LHC (previously known as Atlas), Profile.")
         ("singlePoint",  boost::program_options::value<std::string>(&rValue_)->default_value(rValue_),  "Just compute CLs for the given value of the parameter of interest. In case of multiple parameters, use a syntax 'name=value,name2=value2,...'")
-        ("onlyTestStat", "Just compute test statistics, not actual p-values (works only with --singlePoint)")
+        ("onlyTestStat", "Just compute test statistic for the data (or toy if using -t N), i.e don't throw toys to calculate actual p-values (works only with --singlePoint)")
         ("generateNuisances",            boost::program_options::value<bool>(&genNuisances_)->default_value(genNuisances_), "Generate nuisance parameters for each toy")
         ("generateExternalMeasurements", boost::program_options::value<bool>(&genGlobalObs_)->default_value(genGlobalObs_), "Generate external measurements for each toy, taken from the GlobalObservables of the ModelConfig")
         ("fitNuisances", boost::program_options::value<bool>(&fitNuisances_)->default_value(fitNuisances_), "Fit the nuisances first, before generating the toy data. Set this option to false to acheive the same results as with --bypassFrequentistFit. When not generating toys, eg as in when running with --readHybridresult, this has no effect")
@@ -256,7 +256,7 @@ void HybridNew::validateOptions() {
     if (testStat_ == "LHCFC")   std::cout << ">>> using the Profile Likelihood test statistics modified for upper limits and Feldman-Cousins (Q_LHCFC)" << std::endl;
     if (testStat_ == "Profile") std::cout << ">>> using the Profile Likelihood test statistics not modified for upper limits (Q_Profile)" << std::endl;
     if (testStat_ == "MLZ")     std::cout << ">>> using the Maximum likelihood estimator of the signal strength as test statistics" << std::endl;
-    
+   
     if ( (readHybridResults_ || workingMode_ == MakeTestStatistics || workingMode_ == MakeSignificanceTestStatistics) && noUpdateGrid_) {
         // If not generating toys, don't need to fit nuisance parameters, unless requested to updateGrid 
         fitNuisances_ = false;
