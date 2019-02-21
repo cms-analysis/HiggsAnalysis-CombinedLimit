@@ -1,8 +1,6 @@
 HiggsAnalysis-CombinedLimit
 ===========================
 
-### Local branch: implementing STXS to EFT model for combination
-
 ### Official documentation
 
 [Manual to run combine](https://cms-hcomb.gitbooks.io/combine/content/)
