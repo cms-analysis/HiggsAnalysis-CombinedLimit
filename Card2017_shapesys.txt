@@ -1,13 +1,13 @@
-Datacard for 2016
+Datacard for 2017
 imax * number of bins
 jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 -----------------------------------------------------------------------------------------------------------
 
-shapes data_obs    *    MVA_2016_$MODEL_$MASS_ws.root wspace:data_obs_$CHANNEL
-shapes TT          *    MVA_2016_$MODEL_$MASS_ws.root wspace:background_tt_$CHANNEL_2016
-shapes SIG         *    MVA_2016_$MODEL_$MASS_ws.root sigMC_th1_$CHANNEL
+shapes data_obs    *    MVA_2017_$MODEL_$MASS_ws.root wspace:data_obs_$CHANNEL
+shapes TT          *    MVA_2017_$MODEL_$MASS_ws.root wspace:background_tt_$CHANNEL_2017
+shapes SIG         *    MVA_2017_$MODEL_$MASS_ws.root sigMC_th1_$CHANNEL
 
 -----------------------------------------------------------------------------------------------------------
 bin          D1  D2  D3  D4 
@@ -20,8 +20,8 @@ process               0      1        0      1        0      1       0      1
 rate                  -1     1        -1     1        -1     1       -1     1    
 -----------------------------------------------------------------------------------------------------------
 # Normal uncertainties in the signal region
-lumi_13TeV_2016      lnN   1.025   -    1.025  -     1.025  -    1.025  -
+lumi_13TeV_2017      lnN   1.023   -     1.023  -     1.023  -     1.023  -
 -----------------------------------------------------------------------------------------------------------
 # Weak constraint on d
-d_tt_2016 param 0 500
+d_tt_2017 param 0 500
 -----------------------------------------------------------------------------------------------------------
