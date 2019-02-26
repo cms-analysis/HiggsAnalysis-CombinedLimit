@@ -120,7 +120,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
 }
 
 
-void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Keras_V1.2.5_v2", const string model = "RPV", const string mass = "550", const string dataType = "pseudodata", const string syst = "", bool shared = true) {
+void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Keras_V1.2.5_v2", const string model = "RPV", const string mass = "550", const string dataType = "pseudodata", const string syst = "", bool shared = true, bool TTonly = false) {
   using namespace RooFit;
   // Load the combine library to get access to the RooParametricHist
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");
@@ -236,22 +236,22 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   // also make the separate paramters per MVA bin for use in different fit setup 
   RooRealVar a0_tt_D1(("a0_tt_D1"+year).c_str(),("a0 of tt bkg shape D1 for "+year).c_str(),0.28,0.0,1.0);
   RooRealVar a1_tt_D1(("a1_tt_D1"+year).c_str(),("a1 of tt bkg shape D1 for "+year).c_str(),0.24,0.0,1.0);
-  RooRealVar a2_tt_D1(("a2_tt_D1"+year).c_str(),("a2 of tt bkg shape D1 for "+year).c_str(),0.10,-0.5,0.5);
+  //RooRealVar a2_tt_D1(("a2_tt_D1"+year).c_str(),("a2 of tt bkg shape D1 for "+year).c_str(),0.10,-0.5,0.5);
   RooRealVar  d_tt_D1(("d_tt_D1" +year).c_str(),("d  of tt bkg shape D1 for "+year).c_str(),20,-2500,2500);
 
   RooRealVar a0_tt_D2(("a0_tt_D2"+year).c_str(),("a0 of tt bkg shape D2 for "+year).c_str(),0.28,0.0,1.0);
   RooRealVar a1_tt_D2(("a1_tt_D2"+year).c_str(),("a1 of tt bkg shape D2 for "+year).c_str(),0.24,0.0,1.0);
-  RooRealVar a2_tt_D2(("a2_tt_D2"+year).c_str(),("a2 of tt bkg shape D2 for "+year).c_str(),0.10,-0.5,0.5);
+  //RooRealVar a2_tt_D2(("a2_tt_D2"+year).c_str(),("a2 of tt bkg shape D2 for "+year).c_str(),0.10,-0.5,0.5);
   RooRealVar  d_tt_D2(("d_tt_D2" +year).c_str(),("d  of tt bkg shape D2 for "+year).c_str(),20,-2500,2500);
 
   RooRealVar a0_tt_D3(("a0_tt_D3"+year).c_str(),("a0 of tt bkg shape D3 for "+year).c_str(),0.28,0.0,1.0);
   RooRealVar a1_tt_D3(("a1_tt_D3"+year).c_str(),("a1 of tt bkg shape D3 for "+year).c_str(),0.24,0.0,1.0);
-  RooRealVar a2_tt_D3(("a2_tt_D3"+year).c_str(),("a2 of tt bkg shape D3 for "+year).c_str(),0.10,-0.5,0.5);
+  //RooRealVar a2_tt_D3(("a2_tt_D3"+year).c_str(),("a2 of tt bkg shape D3 for "+year).c_str(),0.10,-0.5,0.5);
   RooRealVar  d_tt_D3(("d_tt_D3" +year).c_str(),("d  of tt bkg shape D3 for "+year).c_str(),20,-2500,2500);
 
   RooRealVar a0_tt_D4(("a0_tt_D4"+year).c_str(),("a0 of tt bkg shape D4 for "+year).c_str(),0.28,0.0,1.0);
   RooRealVar a1_tt_D4(("a1_tt_D4"+year).c_str(),("a1 of tt bkg shape D4 for "+year).c_str(),0.24,0.0,1.0);
-  RooRealVar a2_tt_D4(("a2_tt_D4"+year).c_str(),("a2 of tt bkg shape D4 for "+year).c_str(),0.10,-0.5,0.5);
+  //RooRealVar a2_tt_D4(("a2_tt_D4"+year).c_str(),("a2 of tt bkg shape D4 for "+year).c_str(),0.10,-0.5,0.5);
   RooRealVar  d_tt_D4(("d_tt_D4" +year).c_str(),("d  of tt bkg shape D4 for "+year).c_str(),20,-2500,2500);
 
   // //double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1) - sigMC_th1_D1->GetBinContent(1);
@@ -281,25 +281,25 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
 
 
   //double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1) - sigMC_th1_D1->GetBinContent(1);
-  double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1);
+  double_t n7_tt_portion_D1 = TTonly ? data_th1_D1->GetBinContent(1) : data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1);
   double_t n7_tt_portion_D1_low = n7_tt_portion_D1-6000;
   if (n7_tt_portion_D1_low<0) n7_tt_portion_D1_low = 0;
   RooRealVar N7_tt_D1(("N7_tt_D1_"+year).c_str(),"njets 7 for tt bkg in MVA D1",n7_tt_portion_D1,n7_tt_portion_D1_low,n7_tt_portion_D1+6000);
 
   //double_t n7_tt_portion_D2 = data_th1_D2->GetBinContent(1) - otherMC_th1_D2->GetBinContent(1) - sigMC_th1_D2->GetBinContent(1);
-  double_t n7_tt_portion_D2 = data_th1_D2->GetBinContent(1) - otherMC_th1_D2->GetBinContent(1);
+  double_t n7_tt_portion_D2 = TTonly ? data_th1_D2->GetBinContent(1) : data_th1_D2->GetBinContent(1) - otherMC_th1_D2->GetBinContent(1);
   double_t n7_tt_portion_D2_low = n7_tt_portion_D2-5000;
   if (n7_tt_portion_D2_low<0) n7_tt_portion_D2_low = 0;
   RooRealVar N7_tt_D2(("N7_tt_D2_"+year).c_str(),"njets 7 for tt bkg in MVA D2",n7_tt_portion_D2,n7_tt_portion_D2_low,n7_tt_portion_D2+5000);
 
   //double_t n7_tt_portion_D3 = data_th1_D3->GetBinContent(1) - otherMC_th1_D3->GetBinContent(1) - sigMC_th1_D3->GetBinContent(1);
-  double_t n7_tt_portion_D3 = data_th1_D3->GetBinContent(1) - otherMC_th1_D3->GetBinContent(1);
+  double_t n7_tt_portion_D3 = TTonly ? data_th1_D3->GetBinContent(1) : data_th1_D3->GetBinContent(1) - otherMC_th1_D3->GetBinContent(1);
   double_t n7_tt_portion_D3_low = n7_tt_portion_D3-4000;
   if (n7_tt_portion_D3_low<0) n7_tt_portion_D3_low = 0;
   RooRealVar N7_tt_D3(("N7_tt_D3_"+year).c_str(),"njets 7 for tt bkg in MVA D3",n7_tt_portion_D3,n7_tt_portion_D3_low,n7_tt_portion_D3+4000);
 
   //double_t n7_tt_portion_D4 = data_th1_D4->GetBinContent(1) - otherMC_th1_D4->GetBinContent(1) - sigMC_th1_D4->GetBinContent(1);
-  double_t n7_tt_portion_D4 = data_th1_D4->GetBinContent(1) - otherMC_th1_D4->GetBinContent(1);
+  double_t n7_tt_portion_D4 = TTonly ? data_th1_D4->GetBinContent(1) : data_th1_D4->GetBinContent(1) - otherMC_th1_D4->GetBinContent(1);
   double_t n7_tt_portion_D4_low = n7_tt_portion_D4-3000;
   if (n7_tt_portion_D4_low<0) n7_tt_portion_D4_low = 0;
   RooRealVar N7_tt_D4(("N7_tt_D4_"+year).c_str(),"njets 7 for tt bkg in MVA D4",n7_tt_portion_D4,n7_tt_portion_D4_low,n7_tt_portion_D4+3000);
