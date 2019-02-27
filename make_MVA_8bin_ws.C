@@ -234,25 +234,25 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   RooRealVar d_tt(("d_tt_"+year).c_str(),("d of tt bkg shape for "+year).c_str(),20,-2500,2500);
 
   // also make the separate paramters per MVA bin for use in different fit setup 
-  RooRealVar a0_tt_D1(("a0_tt_D1"+year).c_str(),("a0 of tt bkg shape D1 for "+year).c_str(),0.28,0.0,1.0);
-  RooRealVar a1_tt_D1(("a1_tt_D1"+year).c_str(),("a1 of tt bkg shape D1 for "+year).c_str(),0.24,0.0,1.0);
-  //RooRealVar a2_tt_D1(("a2_tt_D1"+year).c_str(),("a2 of tt bkg shape D1 for "+year).c_str(),0.10,-0.5,0.5);
-  RooRealVar  d_tt_D1(("d_tt_D1" +year).c_str(),("d  of tt bkg shape D1 for "+year).c_str(),20,-2500,2500);
+  RooRealVar a0_tt_D1(("a0_tt_D1_"+year).c_str(),("a0 of tt bkg shape D1 for "+year).c_str(),0.28,0.0,1.0);
+  RooRealVar a1_tt_D1(("a1_tt_D1_"+year).c_str(),("a1 of tt bkg shape D1 for "+year).c_str(),0.24,0.0,1.0);
+  //RooRealVar a2_tt_D1(("a2_tt_D1_"+year).c_str(),("a2 of tt bkg shape D1 for "+year).c_str(),0.10,-0.5,0.5);
+  RooRealVar  d_tt_D1(("d_tt_D1_" +year).c_str(),("d  of tt bkg shape D1 for "+year).c_str(),20,-2500,2500);
 
-  RooRealVar a0_tt_D2(("a0_tt_D2"+year).c_str(),("a0 of tt bkg shape D2 for "+year).c_str(),0.28,0.0,1.0);
-  RooRealVar a1_tt_D2(("a1_tt_D2"+year).c_str(),("a1 of tt bkg shape D2 for "+year).c_str(),0.24,0.0,1.0);
-  //RooRealVar a2_tt_D2(("a2_tt_D2"+year).c_str(),("a2 of tt bkg shape D2 for "+year).c_str(),0.10,-0.5,0.5);
-  RooRealVar  d_tt_D2(("d_tt_D2" +year).c_str(),("d  of tt bkg shape D2 for "+year).c_str(),20,-2500,2500);
+  RooRealVar a0_tt_D2(("a0_tt_D2_"+year).c_str(),("a0 of tt bkg shape D2 for "+year).c_str(),0.28,0.0,1.0);
+  RooRealVar a1_tt_D2(("a1_tt_D2_"+year).c_str(),("a1 of tt bkg shape D2 for "+year).c_str(),0.24,0.0,1.0);
+  //RooRealVar a2_tt_D2(("a2_tt_D2_"+year).c_str(),("a2 of tt bkg shape D2 for "+year).c_str(),0.10,-0.5,0.5);
+  RooRealVar  d_tt_D2(("d_tt_D2_" +year).c_str(),("d  of tt bkg shape D2 for "+year).c_str(),20,-2500,2500);
 
-  RooRealVar a0_tt_D3(("a0_tt_D3"+year).c_str(),("a0 of tt bkg shape D3 for "+year).c_str(),0.28,0.0,1.0);
-  RooRealVar a1_tt_D3(("a1_tt_D3"+year).c_str(),("a1 of tt bkg shape D3 for "+year).c_str(),0.24,0.0,1.0);
-  //RooRealVar a2_tt_D3(("a2_tt_D3"+year).c_str(),("a2 of tt bkg shape D3 for "+year).c_str(),0.10,-0.5,0.5);
-  RooRealVar  d_tt_D3(("d_tt_D3" +year).c_str(),("d  of tt bkg shape D3 for "+year).c_str(),20,-2500,2500);
+  RooRealVar a0_tt_D3(("a0_tt_D3_"+year).c_str(),("a0 of tt bkg shape D3 for "+year).c_str(),0.28,0.0,1.0);
+  RooRealVar a1_tt_D3(("a1_tt_D3_"+year).c_str(),("a1 of tt bkg shape D3 for "+year).c_str(),0.24,0.0,1.0);
+  //RooRealVar a2_tt_D3(("a2_tt_D3_"+year).c_str(),("a2 of tt bkg shape D3 for "+year).c_str(),0.10,-0.5,0.5);
+  RooRealVar  d_tt_D3(("d_tt_D3_" +year).c_str(),("d  of tt bkg shape D3 for "+year).c_str(),20,-2500,2500);
 
-  RooRealVar a0_tt_D4(("a0_tt_D4"+year).c_str(),("a0 of tt bkg shape D4 for "+year).c_str(),0.28,0.0,1.0);
-  RooRealVar a1_tt_D4(("a1_tt_D4"+year).c_str(),("a1 of tt bkg shape D4 for "+year).c_str(),0.24,0.0,1.0);
-  //RooRealVar a2_tt_D4(("a2_tt_D4"+year).c_str(),("a2 of tt bkg shape D4 for "+year).c_str(),0.10,-0.5,0.5);
-  RooRealVar  d_tt_D4(("d_tt_D4" +year).c_str(),("d  of tt bkg shape D4 for "+year).c_str(),20,-2500,2500);
+  RooRealVar a0_tt_D4(("a0_tt_D4_"+year).c_str(),("a0 of tt bkg shape D4 for "+year).c_str(),0.28,0.0,1.0);
+  RooRealVar a1_tt_D4(("a1_tt_D4_"+year).c_str(),("a1 of tt bkg shape D4 for "+year).c_str(),0.24,0.0,1.0);
+  //RooRealVar a2_tt_D4(("a2_tt_D4_"+year).c_str(),("a2 of tt bkg shape D4 for "+year).c_str(),0.10,-0.5,0.5);
+  RooRealVar  d_tt_D4(("d_tt_D4_" +year).c_str(),("d  of tt bkg shape D4 for "+year).c_str(),20,-2500,2500);
 
   // //double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1) - sigMC_th1_D1->GetBinContent(1);
   // double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1);
