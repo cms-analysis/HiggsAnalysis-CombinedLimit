@@ -81,6 +81,11 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
       form << "*TMath::Power(" << h_syst[6]->GetBinContent(i+1) << ",@7)";
       form << "*TMath::Power(" << h_syst[7]->GetBinContent(i+1) << ",@8)";
       form << "*TMath::Power(" << h_syst[8]->GetBinContent(i+1) << ",@9)";
+      form << "*TMath::Power(" << h_syst[9]->GetBinContent(i+1) << ",@10)";
+      if (NPs.getSize() > 10)
+      {
+          form << "*TMath::Power(" << h_syst[10]->GetBinContent(i+1) << ",@11)";
+      }
     } else if (i>=1) {
       form << "*TMath::Power(" << h_syst[0]->GetBinContent(i+1) << ",@4)";
       form << "*TMath::Power(" << h_syst[1]->GetBinContent(i+1) << ",@5)";
@@ -91,6 +96,9 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
       form << "*TMath::Power(" << h_syst[6]->GetBinContent(i+1) << ",@10)";
       form << "*TMath::Power(" << h_syst[7]->GetBinContent(i+1) << ",@11)";
       form << "*TMath::Power(" << h_syst[8]->GetBinContent(i+1) << ",@12)";
+      form << "*TMath::Power(" << h_syst[9]->GetBinContent(i+1) << ",@13)";
+      if (NPs.getSize() > 10)
+          form << "*TMath::Power(" << h_syst[10]->GetBinContent(i+1) << ",@14)";
     }
     // nuisance parameters
     formArgList.add(NPs[0]);
@@ -102,6 +110,9 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
     formArgList.add(NPs[6]);
     formArgList.add(NPs[7]);
     formArgList.add(NPs[8]);
+    formArgList.add(NPs[9]);
+    if (NPs.getSize() > 10)
+        formArgList.add(NPs[10]);
 
     // Create RooFormulaVar for this bin
     stringstream binName;
@@ -120,7 +131,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
 }
 
 
-void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Keras_V1.2.5_v2", const string model = "RPV", const string mass = "550", const string dataType = "pseudodata", const string syst = "", bool shared = true, bool TTonly = false) {
+void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Keras_V1.2.5_v4", const string model = "RPV", const string mass = "550", const string dataType = "pseudodata", const string syst = "", bool shared = true, bool TTonly = false) {
   using namespace RooFit;
   // Load the combine library to get access to the RooParametricHist
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");
@@ -313,11 +324,12 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->factory(("np_tt_btg_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_lep_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_nom_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCR_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory("np_tt_pdf[0.0]"); // fully correlated
   wspace->factory("np_tt_FSR[0.0]"); // fully correlated
   if (year=="2016") wspace->factory("np_tt_ht_2016[0.0]");
-  wspace->factory("np_tt_isr[0.0]"); // fully correlated
-  if (year=="2017") wspace->factory("np_tt_scl_2017[0.0]");
+  wspace->factory("np_tt_ISR[0.0]"); // fully correlated
+  wspace->factory("np_tt_scl[0.0]"); // fully correlated
 
 
   // Load in the histograms with the bin-by-bin ratios to be used in the ttbar shape systematics
@@ -348,6 +360,11 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   TH1D* tt_syst_nom_D3 = (TH1D*)tt_syst_file->Get("D3_nom");
   TH1D* tt_syst_nom_D4 = (TH1D*)tt_syst_file->Get("D4_nom");
 
+  TH1D* tt_syst_qcdCR_D1 = (TH1D*)tt_syst_file->Get("D1_qcdCR");
+  TH1D* tt_syst_qcdCR_D2 = (TH1D*)tt_syst_file->Get("D2_qcdCR");
+  TH1D* tt_syst_qcdCR_D3 = (TH1D*)tt_syst_file->Get("D3_qcdCR");
+  TH1D* tt_syst_qcdCR_D4 = (TH1D*)tt_syst_file->Get("D4_qcdCR");
+
   TH1D* tt_syst_pdf_D1 = (TH1D*)tt_syst_file->Get("D1_pdf");
   TH1D* tt_syst_pdf_D2 = (TH1D*)tt_syst_file->Get("D2_pdf");
   TH1D* tt_syst_pdf_D3 = (TH1D*)tt_syst_file->Get("D3_pdf");
@@ -358,10 +375,10 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   TH1D* tt_syst_FSR_D3 = (TH1D*)tt_syst_file->Get("D3_FSR");
   TH1D* tt_syst_FSR_D4 = (TH1D*)tt_syst_file->Get("D4_FSR");
 
-  TH1D* tt_syst_isr_D1 = (TH1D*)tt_syst_file->Get("D1_isr");
-  TH1D* tt_syst_isr_D2 = (TH1D*)tt_syst_file->Get("D2_isr");
-  TH1D* tt_syst_isr_D3 = (TH1D*)tt_syst_file->Get("D3_isr");
-  TH1D* tt_syst_isr_D4 = (TH1D*)tt_syst_file->Get("D4_isr");
+  TH1D* tt_syst_ISR_D1 = (TH1D*)tt_syst_file->Get("D1_ISR");
+  TH1D* tt_syst_ISR_D2 = (TH1D*)tt_syst_file->Get("D2_ISR");
+  TH1D* tt_syst_ISR_D3 = (TH1D*)tt_syst_file->Get("D3_ISR");
+  TH1D* tt_syst_ISR_D4 = (TH1D*)tt_syst_file->Get("D4_ISR");
 
   TH1D* tt_syst_ht_D1;
   TH1D* tt_syst_ht_D2;
@@ -378,12 +395,10 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   TH1D* tt_syst_scl_D2;
   TH1D* tt_syst_scl_D3;
   TH1D* tt_syst_scl_D4;
-  if (year=="2017") {
-    tt_syst_scl_D1 = (TH1D*)tt_syst_file->Get("D1_scl");
-    tt_syst_scl_D2 = (TH1D*)tt_syst_file->Get("D2_scl");
-    tt_syst_scl_D3 = (TH1D*)tt_syst_file->Get("D3_scl");
-    tt_syst_scl_D4 = (TH1D*)tt_syst_file->Get("D4_scl");
-  }
+  tt_syst_scl_D1 = (TH1D*)tt_syst_file->Get("D1_scl");
+  tt_syst_scl_D2 = (TH1D*)tt_syst_file->Get("D2_scl");
+  tt_syst_scl_D3 = (TH1D*)tt_syst_file->Get("D3_scl");
+  tt_syst_scl_D4 = (TH1D*)tt_syst_file->Get("D4_scl");
 
 
   // ----------------------  MVA bin 1  ------------------
@@ -398,34 +413,35 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
 			       *wspace->var(("np_tt_btg_"+year).c_str()),
 			       *wspace->var(("np_tt_lep_"+year).c_str()),
 			       *wspace->var(("np_tt_nom_"+year).c_str()),
+			       *wspace->var(("np_tt_qcdCR_"+year).c_str()),
 			       *wspace->var("np_tt_pdf"),
 			       *wspace->var("np_tt_FSR"),
-			       *wspace->var("np_tt_isr"));  // list of nuisance parameters for tt bkg
+			       *wspace->var("np_tt_ISR"));  // list of nuisance parameters for tt bkg
+  bkg_tt_syst_NP_D1.add(*wspace->var("np_tt_scl"));
   if (year=="2016") {
     bkg_tt_syst_NP_D1.add(*wspace->var("np_tt_ht_2016"));
   }
-  if (year=="2017") {
-    bkg_tt_syst_NP_D1.add(*wspace->var("np_tt_scl_2017"));
-  }
+
   TH1D* bkg_tt_syst_histos_D1[20];  // array of histograms containing each tt bkg shape uncertainty
   bkg_tt_syst_histos_D1[0] = tt_syst_JEC_D1;
   bkg_tt_syst_histos_D1[1] = tt_syst_JER_D1;
   bkg_tt_syst_histos_D1[2] = tt_syst_btg_D1;
   bkg_tt_syst_histos_D1[3] = tt_syst_lep_D1;
   bkg_tt_syst_histos_D1[4] = tt_syst_nom_D1;
-  bkg_tt_syst_histos_D1[5] = tt_syst_pdf_D1;
-  bkg_tt_syst_histos_D1[6] = tt_syst_FSR_D1;
-  bkg_tt_syst_histos_D1[7] = tt_syst_isr_D1;
+  bkg_tt_syst_histos_D1[5] = tt_syst_qcdCR_D1;
+  bkg_tt_syst_histos_D1[6] = tt_syst_pdf_D1;
+  bkg_tt_syst_histos_D1[7] = tt_syst_FSR_D1;
+  bkg_tt_syst_histos_D1[8] = tt_syst_ISR_D1;
+  bkg_tt_syst_histos_D1[9] = tt_syst_scl_D1;
   if (year=="2016") {
-    bkg_tt_syst_histos_D1[8] = tt_syst_ht_D1;
+    bkg_tt_syst_histos_D1[10] = tt_syst_ht_D1;
   }
-  if (year=="2017") {
-    bkg_tt_syst_histos_D1[8] = tt_syst_scl_D1;
-  }
+  std::cout << "test" << std::endl;
   RooArgList *bkg_tt_bins_D1 = new RooArgList();
   string procName_D1 = "background_tt_D1_"+year;
   if (shared) 
   {
+  std::cout << "test shared" << std::endl;
     RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
     //RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
     construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,bkg_tt_syst_NP_D1,bkg_tt_syst_histos_D1);
@@ -435,6 +451,7 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
     //RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,a2_tt_D1);  // list of shape parameters for tt bkg
     construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,bkg_tt_syst_NP_D1,bkg_tt_syst_histos_D1);
   }
+  std::cout << "test" << std::endl;
   RooParametricHist background_tt_D1(procName_D1.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D1,*data_th1_D1);
   wspace->import(background_tt_D1,RooFit::RecycleConflictNodes());
   stringstream procNameD1Norm;
@@ -454,14 +471,14 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
 			       *wspace->var(("np_tt_btg_"+year).c_str()),
 			       *wspace->var(("np_tt_lep_"+year).c_str()),
 			       *wspace->var(("np_tt_nom_"+year).c_str()),
+			       *wspace->var(("np_tt_qcdCR_"+year).c_str()),
 			       *wspace->var("np_tt_pdf"),
 			       *wspace->var("np_tt_FSR"),
-			       *wspace->var("np_tt_isr"));  // list of nuisance parameters for tt bkg
+			       *wspace->var("np_tt_ISR")
+                               );  // list of nuisance parameters for tt bkg
+  bkg_tt_syst_NP_D2.add(*wspace->var("np_tt_scl"));
   if (year=="2016") {
     bkg_tt_syst_NP_D2.add(*wspace->var("np_tt_ht_2016"));
-  }
-  if (year=="2017") {
-    bkg_tt_syst_NP_D2.add(*wspace->var("np_tt_scl_2017"));
   }
   TH1D* bkg_tt_syst_histos_D2[20];  // array of histograms containing each tt bkg shape uncertainty
   bkg_tt_syst_histos_D2[0] = tt_syst_JEC_D2;
@@ -469,14 +486,13 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   bkg_tt_syst_histos_D2[2] = tt_syst_btg_D2;
   bkg_tt_syst_histos_D2[3] = tt_syst_lep_D2;
   bkg_tt_syst_histos_D2[4] = tt_syst_nom_D2;
-  bkg_tt_syst_histos_D2[5] = tt_syst_pdf_D2;
-  bkg_tt_syst_histos_D2[6] = tt_syst_FSR_D2;
-  bkg_tt_syst_histos_D2[7] = tt_syst_isr_D2;
+  bkg_tt_syst_histos_D2[5] = tt_syst_qcdCR_D2;
+  bkg_tt_syst_histos_D2[6] = tt_syst_pdf_D2;
+  bkg_tt_syst_histos_D2[7] = tt_syst_FSR_D2;
+  bkg_tt_syst_histos_D2[8] = tt_syst_ISR_D2;
+  bkg_tt_syst_histos_D2[9] = tt_syst_scl_D2;
   if (year=="2016") {
-    bkg_tt_syst_histos_D2[8] = tt_syst_ht_D2;
-  }
-  if (year=="2017") {
-    bkg_tt_syst_histos_D2[8] = tt_syst_scl_D2;
+    bkg_tt_syst_histos_D2[10] = tt_syst_ht_D2;
   }
   RooArgList *bkg_tt_bins_D2 = new RooArgList();
   string procName_D2 = "background_tt_D2_"+year;
@@ -510,14 +526,14 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
 			       *wspace->var(("np_tt_btg_"+year).c_str()),
 			       *wspace->var(("np_tt_lep_"+year).c_str()),
 			       *wspace->var(("np_tt_nom_"+year).c_str()),
+			       *wspace->var(("np_tt_qcdCR_"+year).c_str()),
 			       *wspace->var("np_tt_pdf"),
 			       *wspace->var("np_tt_FSR"),
-			       *wspace->var("np_tt_isr"));  // list of nuisance parameters for tt bkg
+			       *wspace->var("np_tt_ISR")
+                               );  // list of nuisance parameters for tt bkg
+  bkg_tt_syst_NP_D3.add(*wspace->var("np_tt_scl"));
   if (year=="2016") {
     bkg_tt_syst_NP_D3.add(*wspace->var("np_tt_ht_2016"));
-  }
-  if (year=="2017") {
-    bkg_tt_syst_NP_D3.add(*wspace->var("np_tt_scl_2017"));
   }
   TH1D* bkg_tt_syst_histos_D3[20];  // array of histograms containing each tt bkg shape uncertainty
   bkg_tt_syst_histos_D3[0] = tt_syst_JEC_D3;
@@ -525,14 +541,13 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   bkg_tt_syst_histos_D3[2] = tt_syst_btg_D3;
   bkg_tt_syst_histos_D3[3] = tt_syst_lep_D3;
   bkg_tt_syst_histos_D3[4] = tt_syst_nom_D3;
-  bkg_tt_syst_histos_D3[5] = tt_syst_pdf_D3;
-  bkg_tt_syst_histos_D3[6] = tt_syst_FSR_D3;
-  bkg_tt_syst_histos_D3[7] = tt_syst_isr_D3;
+  bkg_tt_syst_histos_D3[5] = tt_syst_qcdCR_D3;
+  bkg_tt_syst_histos_D3[6] = tt_syst_pdf_D3;
+  bkg_tt_syst_histos_D3[7] = tt_syst_FSR_D3;
+  bkg_tt_syst_histos_D3[8] = tt_syst_ISR_D3;
+  bkg_tt_syst_histos_D3[9] = tt_syst_scl_D3;
   if (year=="2016") {
-    bkg_tt_syst_histos_D3[8] = tt_syst_ht_D3;
-  }
-  if (year=="2017") {
-    bkg_tt_syst_histos_D3[8] = tt_syst_scl_D3;
+    bkg_tt_syst_histos_D3[10] = tt_syst_ht_D3;
   }
   RooArgList *bkg_tt_bins_D3 = new RooArgList();
   string procName_D3 = "background_tt_D3_"+year;
@@ -566,14 +581,14 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
 			       *wspace->var(("np_tt_btg_"+year).c_str()),
 			       *wspace->var(("np_tt_lep_"+year).c_str()),
 			       *wspace->var(("np_tt_nom_"+year).c_str()),
+			       *wspace->var(("np_tt_qcdCR_"+year).c_str()),
 			       *wspace->var("np_tt_pdf"),
 			       *wspace->var("np_tt_FSR"),
-			       *wspace->var("np_tt_isr"));  // list of nuisance parameters for tt bkg
+			       *wspace->var("np_tt_ISR")
+                               );  // list of nuisance parameters for tt bkg
+  bkg_tt_syst_NP_D4.add(*wspace->var("np_tt_scl"));
   if (year=="2016") {
     bkg_tt_syst_NP_D4.add(*wspace->var("np_tt_ht_2016"));
-  }
-  if (year=="2017") {
-    bkg_tt_syst_NP_D4.add(*wspace->var("np_tt_scl_2017"));
   }
   TH1D* bkg_tt_syst_histos_D4[20];  // array of histograms containing each tt bkg shape uncertainty
   bkg_tt_syst_histos_D4[0] = tt_syst_JEC_D4;
@@ -581,14 +596,13 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   bkg_tt_syst_histos_D4[2] = tt_syst_btg_D4;
   bkg_tt_syst_histos_D4[3] = tt_syst_lep_D4;
   bkg_tt_syst_histos_D4[4] = tt_syst_nom_D4;
-  bkg_tt_syst_histos_D4[5] = tt_syst_pdf_D4;
-  bkg_tt_syst_histos_D4[6] = tt_syst_FSR_D4;
-  bkg_tt_syst_histos_D4[7] = tt_syst_isr_D4;
+  bkg_tt_syst_histos_D4[5] = tt_syst_qcdCR_D4;
+  bkg_tt_syst_histos_D4[6] = tt_syst_pdf_D4;
+  bkg_tt_syst_histos_D4[7] = tt_syst_FSR_D4;
+  bkg_tt_syst_histos_D4[8] = tt_syst_ISR_D4;
+  bkg_tt_syst_histos_D4[9] = tt_syst_scl_D4;
   if (year=="2016") {
-    bkg_tt_syst_histos_D4[8] = tt_syst_ht_D4;
-  }
-  if (year=="2017") {
-    bkg_tt_syst_histos_D4[8] = tt_syst_scl_D4;
+    bkg_tt_syst_histos_D4[10] = tt_syst_ht_D4;
   }
   RooArgList *bkg_tt_bins_D4 = new RooArgList();
   string procName_D4 = "background_tt_D4_"+year;
@@ -773,32 +787,30 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   TH1D* D2_SIG_sclDown;
   TH1D* D3_SIG_sclDown;
   TH1D* D4_SIG_sclDown;
-  if (year=="2017") {
-    D1_SIG_sclUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-    D2_SIG_sclUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-    D3_SIG_sclUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-    D4_SIG_sclUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-    D1_SIG_sclUp->SetName("D1_SIG_scl_2017Up");
-    D2_SIG_sclUp->SetName("D2_SIG_scl_2017Up");
-    D3_SIG_sclUp->SetName("D3_SIG_scl_2017Up");
-    D4_SIG_sclUp->SetName("D4_SIG_scl_2017Up");
-    D1_SIG_sclUp->Write();
-    D2_SIG_sclUp->Write();
-    D3_SIG_sclUp->Write();
-    D4_SIG_sclUp->Write();
-    D1_SIG_sclDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-    D2_SIG_sclDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-    D3_SIG_sclDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-    D4_SIG_sclDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-    D1_SIG_sclDown->SetName("D1_SIG_scl_2017Down");
-    D2_SIG_sclDown->SetName("D2_SIG_scl_2017Down");
-    D3_SIG_sclDown->SetName("D3_SIG_scl_2017Down");
-    D4_SIG_sclDown->SetName("D4_SIG_scl_2017Down");
-    D1_SIG_sclDown->Write();
-    D2_SIG_sclDown->Write();
-    D3_SIG_sclDown->Write();
-    D4_SIG_sclDown->Write();
-  }
+  D1_SIG_sclUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
+  D2_SIG_sclUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
+  D3_SIG_sclUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
+  D4_SIG_sclUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
+  D1_SIG_sclUp->SetName("D1_SIG_sclUp");
+  D2_SIG_sclUp->SetName("D2_SIG_sclUp");
+  D3_SIG_sclUp->SetName("D3_SIG_sclUp");
+  D4_SIG_sclUp->SetName("D4_SIG_sclUp");
+  D1_SIG_sclUp->Write();
+  D2_SIG_sclUp->Write();
+  D3_SIG_sclUp->Write();
+  D4_SIG_sclUp->Write();
+  D1_SIG_sclDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
+  D2_SIG_sclDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
+  D3_SIG_sclDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
+  D4_SIG_sclDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
+  D1_SIG_sclDown->SetName("D1_SIG_sclDown");
+  D2_SIG_sclDown->SetName("D2_SIG_sclDown");
+  D3_SIG_sclDown->SetName("D3_SIG_sclDown");
+  D4_SIG_sclDown->SetName("D4_SIG_sclDown");
+  D1_SIG_sclDown->Write();
+  D2_SIG_sclDown->Write();
+  D3_SIG_sclDown->Write();
+  D4_SIG_sclDown->Write();
 
 
   // "OTHER" background systematics
@@ -946,32 +958,30 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   TH1D* D2_OTHER_sclDown;
   TH1D* D3_OTHER_sclDown;
   TH1D* D4_OTHER_sclDown;
-  if (year=="2017") {
-    D1_OTHER_sclUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclUp");
-    D2_OTHER_sclUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclUp");
-    D3_OTHER_sclUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclUp");
-    D4_OTHER_sclUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclUp");
-    D1_OTHER_sclUp->SetName("D1_OTHER_scl_2017Up");
-    D2_OTHER_sclUp->SetName("D2_OTHER_scl_2017Up");
-    D3_OTHER_sclUp->SetName("D3_OTHER_scl_2017Up");
-    D4_OTHER_sclUp->SetName("D4_OTHER_scl_2017Up");
-    D1_OTHER_sclUp->Write();
-    D2_OTHER_sclUp->Write();
-    D3_OTHER_sclUp->Write();
-    D4_OTHER_sclUp->Write();
-    D1_OTHER_sclDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclDown");
-    D2_OTHER_sclDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclDown");
-    D3_OTHER_sclDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclDown");
-    D4_OTHER_sclDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclDown");
-    D1_OTHER_sclDown->SetName("D1_OTHER_scl_2017Down");
-    D2_OTHER_sclDown->SetName("D2_OTHER_scl_2017Down");
-    D3_OTHER_sclDown->SetName("D3_OTHER_scl_2017Down");
-    D4_OTHER_sclDown->SetName("D4_OTHER_scl_2017Down");
-    D1_OTHER_sclDown->Write();
-    D2_OTHER_sclDown->Write();
-    D3_OTHER_sclDown->Write();
-    D4_OTHER_sclDown->Write();
-  }
+  D1_OTHER_sclUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclUp");
+  D2_OTHER_sclUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclUp");
+  D3_OTHER_sclUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclUp");
+  D4_OTHER_sclUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclUp");
+  D1_OTHER_sclUp->SetName("D1_OTHER_sclUp");
+  D2_OTHER_sclUp->SetName("D2_OTHER_sclUp");
+  D3_OTHER_sclUp->SetName("D3_OTHER_sclUp");
+  D4_OTHER_sclUp->SetName("D4_OTHER_sclUp");
+  D1_OTHER_sclUp->Write();
+  D2_OTHER_sclUp->Write();
+  D3_OTHER_sclUp->Write();
+  D4_OTHER_sclUp->Write();
+  D1_OTHER_sclDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclDown");
+  D2_OTHER_sclDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclDown");
+  D3_OTHER_sclDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclDown");
+  D4_OTHER_sclDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclDown");
+  D1_OTHER_sclDown->SetName("D1_OTHER_sclDown");
+  D2_OTHER_sclDown->SetName("D2_OTHER_sclDown");
+  D3_OTHER_sclDown->SetName("D3_OTHER_sclDown");
+  D4_OTHER_sclDown->SetName("D4_OTHER_sclDown");
+  D1_OTHER_sclDown->Write();
+  D2_OTHER_sclDown->Write();
+  D3_OTHER_sclDown->Write();
+  D4_OTHER_sclDown->Write();
 
 
 
