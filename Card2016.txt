@@ -40,9 +40,9 @@ np_tt_lep_2016 param 0.0 1.0
 np_tt_nom_2016 param 0.0 1.0
 np_tt_qcdCR_2016 param 0.0 1.0
 np_tt_pdf param 0.0 1.0
-np_tt_FSR param 0.0 0.7071
+np_tt_FSR param 0.0 1.0
 np_tt_ht_2016 param 0.0 1.0
-np_tt_ISR param 0.0 0.7071
+np_tt_ISR param 0.0 1.0
 np_tt_scl param 0.0 1.0
 -----------------------------------------------------------------------------------------------------------
 # Week constraint on a2

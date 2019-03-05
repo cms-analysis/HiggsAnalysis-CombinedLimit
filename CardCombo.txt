@@ -1,7 +1,7 @@
 Combination of Y16=Card2016.txt  Y17=Card2017.txt
 imax 8 number of bins
 jmax 2 number of processes minus 1
-kmax 155 number of nuisance parameters
+kmax 159 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes OTHER     Y16_D1    MVA_2016_$MODEL_$MASS_ws.root otherMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
 shapes SIG       Y16_D1    MVA_2016_$MODEL_$MASS_ws.root sigMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
@@ -37,12 +37,12 @@ shapes TT        Y17_D4    MVA_2017_$MODEL_$MASS_ws.root wspace:background_tt_D4
 shapes data_obs  Y17_D4    MVA_2017_$MODEL_$MASS_ws.root wspace:data_obs_D4
 ----------------------------------------------------------------------------------------------------------------------------------
 bin          Y16_D1  Y16_D2  Y16_D3  Y16_D4  Y17_D1  Y17_D2  Y17_D3  Y17_D4
-observation  -1.0    -1.0    -1.0    -1.0    -1.0    -1.0    -1.0    -1.0  
+observation  -1      -1      -1      -1      -1      -1      -1      -1    
 ----------------------------------------------------------------------------------------------------------------------------------
 bin                                         Y16_D1  Y16_D1  Y16_D1  Y16_D2  Y16_D2  Y16_D2  Y16_D3  Y16_D3  Y16_D3  Y16_D4  Y16_D4  Y16_D4  Y17_D1  Y17_D1  Y17_D1  Y17_D2  Y17_D2  Y17_D2  Y17_D3  Y17_D3  Y17_D3  Y17_D4  Y17_D4  Y17_D4
 process                                     SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER   SIG     TT      OTHER 
 process                                     0       1       2       0       1       2       0       1       2       0       1       2       0       1       2       0       1       2       0       1       2       0       1       2     
-rate                                        -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1      -1      1.0000  -1    
+rate                                        -1      1       -1      -1      1       -1      -1      1       -1      -1      1       -1      -1      1       -1      -1      1       -1      -1      1       -1      -1      1       -1    
 ----------------------------------------------------------------------------------------------------------------------------------
 JEC                     shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
 JER_2016                shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
@@ -184,18 +184,22 @@ mcStatD4SIGBin7_2017    shape               -       -       -       -       -   
 mcStatD4SIGBin8_2016    shape               -       -       -       -       -       -       -       -       -       1.0     -       -       -       -       -       -       -       -       -       -       -       -       -       -     
 mcStatD4SIGBin8_2017    shape               -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       -     
 pdf                     shape               1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -       1.0     -       -     
-scl_2017                shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
+scl                     shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
 np_tt_btg_2017  param  0.0 1.0
 np_tt_btg_2016  param  0.0 1.0
 np_tt_nom_2016  param  0.0 1.0
 np_tt_nom_2017  param  0.0 1.0
+np_tt_scl     param  0.0 1.0
 np_tt_ht_2016  param  0.0 1.0
 np_tt_JEC     param  0.0 1.0
-np_tt_pdf     param  0.0 1.0
+np_tt_qcdCR_2017  param  0.0 1.0
+np_tt_qcdCR_2016  param  0.0 1.0
 np_tt_lep_2017  param  0.0 1.0
 np_tt_lep_2016  param  0.0 1.0
-np_tt_isr     param  0.0 1.0
+d_tt_2017     param  0 500
 np_tt_FSR     param  0.0 1.0
+d_tt_2016     param  0 500
 np_tt_JER_2017  param  0.0 1.0
 np_tt_JER_2016  param  0.0 1.0
-np_tt_scl_2017  param  0.0 1.0
+np_tt_ISR     param  0.0 1.0
+np_tt_pdf     param  0.0 1.0
