@@ -101,7 +101,7 @@ Combine::Combine() :
     rMax_(std::numeric_limits<float>::quiet_NaN()) {
     namespace po = boost::program_options;
     statOptions_.add_options()
-      ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Include constrained systematic uncertainties, -S 0 will ignore systematics constraint terms in the datacard.")
+      //("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Include constrained systematic uncertainties, -S 0 will ignore systematics constraint terms in the datacard.")
       ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
       ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength (default is 0)")
       ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength (default is 20)")
@@ -119,7 +119,7 @@ Combine::Combine() :
       ("setParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")      
       ("defineBackgroundOnlyModelParameters", po::value<string>(&defineBackgroundOnlyModelParameterExpression_)->default_value(""), "If no background only (null) model is explicitly provided in physics model, one will be defined as these values of the POIs (default is r=0)")      
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
-      ("freezeParameters", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these parameters.")      
+      ("freezeParameters", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these parameters. use --freezeParameters allConstrainedNuisances to freeze all constrained nuisance parameters (i.e doesn't include rateParams etc)")      
       ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
       ;
     ioOptions_.add_options()
@@ -170,7 +170,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   hintUsesStatOnly_ = vm.count("hintStatOnly");
   saveWorkspace_ = vm.count("saveWorkspace");
   toysNoSystematics_ = vm.count("toysNoSystematics");
-  if (!withSystematics) toysNoSystematics_ = true;  // if no systematics, also don't expect them for the toys
+  //if (!withSystematics) toysNoSystematics_ = true;  // if no systematics, also don't expect them for the toys
   toysFrequentist_ = vm.count("toysFrequentist");
   if (toysNoSystematics_ && toysFrequentist_) throw std::logic_error("You can't set toysNoSystematics and toysFrequentist options at the same time");
   if (modelConfigNameB_.find("%s") != std::string::npos) {
@@ -210,10 +210,10 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
   try {
     double hint = 0, hintErr = 0; bool hashint = false;
     if (hintAlgo) {
-        if (hintUsesStatOnly_ && withSystematics) {
-            withSystematics = false;
+        if (hintUsesStatOnly_ ) { //&& withSystematics) {
+            //withSystematics = false;
             hashint = hintAlgo->run(w, mc_s, mc_b, data, hint, hintErr, 0);
-            withSystematics = true;
+            //withSystematics = true;
         } else {
             hashint = hintAlgo->run(w, mc_s, mc_b, data, hint, hintErr, 0);
         } 
@@ -263,7 +263,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   } else {
     TString txtFile = fileToLoad.Data();
     TString options = TString::Format(" -m %f -D %s", mass_, dataset.c_str());
-    if (!withSystematics) options += " --stat ";
+    //if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
     if (algo->name() == "FitDiagnostics" || algo->name() == "MultiDimFit") options += " --for-fits";
@@ -607,7 +607,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           freezeNuisances_ = boost::replace_all_copy(freezeNuisances_, ",,", ","); 
       }
 
-      RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
+      RooArgSet toFreeze((freezeNuisances_=="allConstrainedNuisances")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       if (verbose > 0) {  
       	std::cout << "Freezing the following parameters: "; toFreeze.Print("");
         Logger::instance().log(std::string(Form("Combine.cc: %d -- Freezing the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
@@ -681,7 +681,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           throw std::invalid_argument("Bad prior");
       }
   }
-
+  
+  /*
   if (withSystematics && nuisances == 0) {
       std::cout << "The model has no constrained nuisance parameters. Please run the limit tool with no systematics (option -S 0)." << std::endl;
       std::cout << "To make things easier, I will assume you have done it." << std::endl;
@@ -691,14 +692,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     std::cout << "Will set nuisance parameters to constants: " ;
     utils::setAllConstant(*nuisances, true);
   }
+  */
 
   bool validModel = validateModel_ ? utils::checkModel(*mc, false) : true;
   if (validateModel_ && verbose) std::cout << "Sanity checks on the model: " << (validModel ? "OK" : "FAIL") << std::endl;
 
   // make sure these things are set consistently with what we expect
-  if (floatAllNuisances_  && mc->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc->GetNuisanceParameters(), false);
+  if (floatAllNuisances_  && mc->GetNuisanceParameters()) utils::setAllConstant(*mc->GetNuisanceParameters(), false);
   if (freezeAllGlobalObs_ && mc->GetGlobalObservables()) utils::setAllConstant(*mc->GetGlobalObservables(), true);
-  if (floatAllNuisances_  && mc_bonly && mc_bonly->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc_bonly->GetNuisanceParameters(), false);
+  if (floatAllNuisances_  && mc_bonly && mc_bonly->GetNuisanceParameters()) utils::setAllConstant(*mc_bonly->GetNuisanceParameters(), false);
   if (freezeAllGlobalObs_ && mc_bonly && mc_bonly->GetGlobalObservables()) utils::setAllConstant(*mc_bonly->GetGlobalObservables(), true);
 
   // Setup the CascadeMinimizer with discrete nuisances 
@@ -953,7 +955,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (readToysFromHere == 0) {
 	w->loadSnapshot("clean");
 	if (verbose > 3) utils::printPdf(genPdf);
-	if (withSystematics && !toysNoSystematics_) {
+	if (!toysNoSystematics_) {
 	  if (systDs) {
 	  	if (systDs->numEntries()>=iToy) *vars = *systDs->get(iToy-1);
 	  }
