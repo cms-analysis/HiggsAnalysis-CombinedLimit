@@ -30,6 +30,7 @@ btg_2016 shape        1      -      1      1      -      1      1      -      1 
 lep_2016 shape        1      -      1      1      -      1      1      -      1      1      -      1
 pdf shape             1      -      -      1      -      -      1      -      -      1      -      -
 ht_2016  shape        -      -      1      -      -      1      -      -      1      -      -      1
+scl  shape            1      -      1      1      -      1      1      -      1      1      -      1
 -----------------------------------------------------------------------------------------------------------
 # Shape systematics on ttbar
 np_tt_JEC param 0.0 1.0
@@ -37,11 +38,12 @@ np_tt_JER_2016 param 0.0 1.0
 np_tt_btg_2016 param 0.0 1.0
 np_tt_lep_2016 param 0.0 1.0
 np_tt_nom_2016 param 0.0 1.0
+np_tt_qcdCR_2016 param 0.0 1.0
 np_tt_pdf param 0.0 1.0
 np_tt_FSR param 0.0 1.0
 np_tt_ht_2016 param 0.0 1.0
-np_tt_isr param 0.0 1.0
-#np_tt_scl param 0.0 1.0
+np_tt_ISR param 0.0 1.0
+np_tt_scl param 0.0 1.0
 -----------------------------------------------------------------------------------------------------------
 # Week constraint on a2
 #a2_tt param 0.1 -0.2/+0.2
