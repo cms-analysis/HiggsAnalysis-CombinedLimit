@@ -155,11 +155,12 @@ Combine::Combine() :
 }
 
 void Combine::applyOptions(const boost::program_options::variables_map &vm) {
-  if(withSystematics) {
+  /*if(withSystematics) {
     std::cout << ">>> including systematics" << std::endl;
   } else {
     std::cout << ">>> no systematics included" << std::endl;
   } 
+  */
   unbinned_ = vm.count("unbinned");
   generateBinnedWorkaround_ = vm.count("generateBinnedWorkaround");
   if (unbinned_ && generateBinnedWorkaround_) throw std::logic_error("You can't set generateBinnedWorkaround and unbinned options at the same time");
@@ -682,6 +683,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
   }
   
+  if (nuisances == 0) withSystematics = false;
+
   /*
   if (withSystematics && nuisances == 0) {
       std::cout << "The model has no constrained nuisance parameters. Please run the limit tool with no systematics (option -S 0)." << std::endl;
@@ -955,7 +958,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (readToysFromHere == 0) {
 	w->loadSnapshot("clean");
 	if (verbose > 3) utils::printPdf(genPdf);
-	if (!toysNoSystematics_) {
+	if (withSystematics && !toysNoSystematics_) {
 	  if (systDs) {
 	  	if (systDs->numEntries()>=iToy) *vars = *systDs->get(iToy-1);
 	  }
