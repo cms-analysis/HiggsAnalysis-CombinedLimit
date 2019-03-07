@@ -192,27 +192,59 @@ python test/diffNuisances.py --all --abs fitDiagnostics2017RPV550.root
 --------------------------------------------------
 
 Study the impacts:
-  (you need CombineTools from CombineHarvester for this step to work)
+  (you need CombineTools from CombineHarvester for this step to work, see instructions above)
 
-Fit for each POI:
-```
-../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2017_RPV_550.root -m 550 --doInitialFit --robustFit 1
-```
+Impacts using Azimov, on data, with expected signal 0
 
-Scan for each nuisance parameter.  This does MultiDimFit --algo impact for each nuisance parameter
 ```
-../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2017_RPV_550.root -m 550 --doFits --parallel 4
-```
-
-Collect output and write to json file:
-```
-../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2017_RPV_550.root -m 550 -o impacts.json
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.6_v1_DataQCDShape","RPV","350","data")'
+text2workspace.py Card2016.txt -o ws_2016_RPV_350.root -m 350 --keyword-value MODEL=RPV
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350.root -m 350 --doInitialFit --robustFit 1 --rMin -10 -t -1 --expectSignal 0
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350.root -m 350 --doFits --parallel 4 --rMin -10 -t -1 --expectSignal 0
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350.root -m 350 -o impacts.json
+../../CombineHarvester/CombineTools/scripts/plotImpacts.py -i impacts.json -o impacts_2016RPV350_ExpSig0
 ```
 
-Plot the impacts
+Impacts using Azimov, on data, with expected signal 1
 ```
-../../CombineHarvester/CombineTools/scripts/plotImpacts.py -i impacts.json -o impacts
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.6_v1_DataQCDShape","RPV","350","data")'
+text2workspace.py Card2016.txt -o ws_2016_RPV_350.root -m 350 --keyword-value MODEL=RPV
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350.root -m 350 --doInitialFit --robustFit 1 -t -1 --expectSignal 1
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350.root -m 350 --doFits --parallel 4 -t -1 --expectSignal 1
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350.root -m 350 -o impacts.json
+../../CombineHarvester/CombineTools/scripts/plotImpacts.py -i impacts.json -o impacts_2016RPV350_ExpSig1
 ```
+
+Impacts on data  (add the --rMin -10 option if best fit is close to zero)
+```
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.6_v1_DataQCDShape","RPV","350","data")'
+text2workspace.py Card2016.txt -o ws_2016_RPV_350.root -m 350 --keyword-value MODEL=RPV
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350.root -m 350 --doInitialFit --robustFit 1
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350.root -m 350 --doFits --parallel 4
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350.root -m 350 -o impacts.json
+../../CombineHarvester/CombineTools/scripts/plotImpacts.py -i impacts.json -o impacts_RPV350_data
+```
+
+Impacts on pseudodata without signal:
+```
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.6_v1_DataQCDShape","RPV","350","pseudodata")'
+text2workspace.py Card2016.txt -o ws_2016_RPV_350_pseudo.root -m 350 --keyword-value MODEL=RPV
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350_pseudo.root -m 350 --doInitialFit --robustFit 1 --rMin -10
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350_pseudo.root -m 350 --doFits --parallel 4 --rMin -10
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350_pseudo.root -m 350 -o impacts.json
+../../CombineHarvester/CombineTools/scripts/plotImpacts.py -i impacts.json -o impacts_RPV350_pseudodata
+```
+
+Impacts on pseudodata with signal:
+```
+root -l -q 'make_MVA_8bin_ws.C("2016","Keras_V1.2.6_v1_DataQCDShape","RPV","350","pseudodataS")'
+text2workspace.py Card2016.txt -o ws_2016_RPV_350_pseudoS.root -m 350 --keyword-value MODEL=RPV
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350_pseudoS.root -m 350 --doInitialFit --robustFit 1
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350_pseudoS.root -m 350 --doFits --parallel 4
+../../CombineHarvester/CombineTools/scripts/combineTool.py -M Impacts -d ws_2016_RPV_350_pseudoS.root -m 350 -o impacts.json
+../../CombineHarvester/CombineTools/scripts/plotImpacts.py -i impacts.json -o impacts_RPV350_pseudodataS
+```
+
 
 --------------------------------------------------
 
