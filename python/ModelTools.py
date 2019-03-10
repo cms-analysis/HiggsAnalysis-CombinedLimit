@@ -178,7 +178,7 @@ class ModelBuilder(ModelBuilderBase):
 
 	      removeRange = False
 	      setConst= (param_range== "const")
-	      if param_range == "" or "const":
+	      if param_range in ["", "const"]:
 	        param_range = "0,1"
 		removeRange=True
 
