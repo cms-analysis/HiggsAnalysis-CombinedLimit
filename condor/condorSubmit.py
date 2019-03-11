@@ -20,8 +20,8 @@ def main():
     # Parse command line arguments
     parser = optparse.OptionParser("usage: %prog [options]\n")
 
-    parser.add_option ('--inPut_2016',  dest='inputRoot2016',  type='string', default = 'Keras_V1.2.5_v2', help="input root file directory: 2016")
-    parser.add_option ('--inPut_2017',  dest='inputRoot2017',  type='string', default = 'Keras_V3.0.1_v2', help="input root file directory: 2017")
+    parser.add_option ('--inPut_2016',  dest='inputRoot2016',  type='string', default = 'Keras_V1.2.6_v1_DataQCDShape', help="input root file directory: 2016")
+    parser.add_option ('--inPut_2017',  dest='inputRoot2017',  type='string', default = 'Keras_V3.0.2_v1_DataQCDShape', help="input root file directory: 2017")
     parser.add_option ('-d',            dest='signalType',     type='string', default = '',                help="List of signal model, comma separated")
     parser.add_option ('-t',            dest='dataType',       type='string', default = 'data',            help="Specify if running over data or sudo data")
     parser.add_option ('-m',            dest='masssets',       type='string', default = '',                help="List of mass models, comma separated")
