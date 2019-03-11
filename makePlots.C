@@ -29,7 +29,7 @@
 #include "TH1F.h"
 #include "TLine.h"
 #include "TLegend.h"
-//#include "/uscms/home/soha/scripts/CMS_lumi.h"
+#include "CMS_lumi.C"
 
 void makePlots(const string today = "Jan17_2019", const string filedir = "fit_results_v5_Jan17_2019", const string year = "2017", const string model = "RPV", const string fitType = "AsymptoticLimits") {
 
@@ -170,17 +170,21 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
 
 
   // Settings for CMS_lumi macro
-  //gROOT->LoadMacro("/uscms/home/soha/scripts/CMS_lumi.C");
-  bool writeExtraText = false;
-  TString extraText = "Preliminary";
-  int iPeriod = 2;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV 
+  writeExtraText = true;
+  extraText = "Preliminary";
+  iPeriod = 4;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV 
+  if(year=="2016")
+      lumi_13TeV = "35.9 fb^{-1}";
+  else if(year=="2017")
+      lumi_13TeV = "41.5 fb^{-1}";
+
   // second parameter in example_plot is iPos, which drives the position of the CMS logo in the plot
   // iPos=11 : top-left, left-aligned
   // iPos=33 : top-right, right-aligned
   // iPos=22 : center, centered
   // mode generally : 
   //   iPos = 10*(alignement 1/2/3) + position (1/2/3 = left/center/right)
-  int iPos = 11;
+  iPos = 11;
 
  // **** Set the following each time before running ****
 
@@ -205,7 +209,7 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   string ssave_base = "./sigBrLim_"+model+"_"+year+"_";
 
   bool DRAW_OBS = true;
-  bool DRAW_LOGOS = false;
+  bool DRAW_LOGOS = true;
 
   // ****************************************************
 
@@ -215,8 +219,8 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   int H_ref = 600; 
   // references for T, B, L, R
   float T = 0.08*H_ref;
-  float B = 0.12*H_ref; 
-  float L = 0.12*W_ref;
+  float B = 0.13*H_ref; 
+  float L = 0.13*W_ref;
   float R = 0.04*W_ref;
 
   gStyle->SetCanvasDefH      (H);
@@ -225,8 +229,8 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
 
   // *****
   // Extract limit results from set of root files produced by Higgs Combine tool
-  //std::vector<double> xpoints = {300,350,400,450,500,550,600,650,700,750,800,850,900};  // mass points
-  std::vector<double> xpoints = {350,450,550,650,750,850};  // mass points
+  std::vector<double> xpoints = {300,350,400,450,500,550,600,650,700,750,800,850,900};  // mass points
+  //std::vector<double> xpoints = {350,450,550,650,750,850};  // mass points
   const int npoints = xpoints.size();
 
   // Arrays for storing results
@@ -270,7 +274,7 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
     f->Close();
   }
 
-  // Define the cross section times branchingn ratio (called sigBr here):
+  // Define the cross section times branching fraction (called sigBr here):
   std::vector<double> sigBr;
   std::vector<double> sigBr1SPpercent;
   std::vector<double> sigBr1SMpercent;
@@ -280,9 +284,12 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   //const std::vector<double>& stop_pair_Br =           {8.51615, 3.78661,  1.83537, 0.948333, 0.51848, 0.296128, 0.174599, 0.107045, 0.0670476, 0.0431418, 0.0283338, 0.0189612, 0.0128895};
   //const std::vector<double>& stop_pair_Br1SPpercent = {13.9223, 13.6877, 13.6985, 13.4559,  13.3797, 13.2687,  13.2074,  12.9232,  13.3429,   13.7455,   14.171,    14.702,    15.2026};
   //const std::vector<double>& stop_pair_Br1SMpercent = {13.9223, 13.6877, 13.6985, 13.4559,  13.3797, 13.2687,  13.2074,  12.9232,  13.3429,   13.7455,   14.171,    14.702,    15.2026};
-  const std::vector<double>& stop_pair_Br =           {3.78661,  0.948333, 0.296128, 0.107045, 0.0431418, 0.0189612};
-  const std::vector<double>& stop_pair_Br1SPpercent = {13.6877, 13.4559,  13.2687,  12.9232,  13.7455,   14.702};
-  const std::vector<double>& stop_pair_Br1SMpercent = {13.6877, 13.4559,  13.2687,  12.9232,  13.7455,   14.702};
+  const std::vector<double>& stop_pair_Br =           {10.0, 4.43, 2.15, 1.11, 0.609, 0.347, 0.205, 0.125, 0.0783, 0.0500, 0.0326, 0.0216, 0.0145};
+  const std::vector<double>& stop_pair_Br1SPpercent = {6.65, 6.79, 6.99, 7.25,  7.53,  7.81,  8.12,  8.45,    8.8,   9.16,   9.53,   9.93,  10.33};
+  const std::vector<double>& stop_pair_Br1SMpercent = {6.65, 6.79, 6.99, 7.25,  7.53,  7.81,  8.12,  8.45,    8.8,   9.16,   9.53,   9.93,  10.33};
+  //const std::vector<double>& stop_pair_Br =           {3.78661,  0.948333, 0.296128, 0.107045, 0.0431418, 0.0189612};
+  //const std::vector<double>& stop_pair_Br1SPpercent = {13.6877, 13.4559,  13.2687,  12.9232,  13.7455,   14.702};
+  //const std::vector<double>& stop_pair_Br1SMpercent = {13.6877, 13.4559,  13.2687,  12.9232,  13.7455,   14.702};
 
   // For stop pair production
   if (STOP_PAIRS) 
@@ -300,9 +307,9 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   }
 
   bool projectingRLimitLogY = true;
-  double projectingXmin = 300, projectingXmax = 900;
-  double projectingRLimitYmin = 0.01, projectingRLimitYmax = 100;
-  std::string projectingRLimitXYtitles = ";m_{#tilde{t}} [GeV]; 95% CL limit on #sigma#timesBr [pb]";
+  double projectingXmin = 250, projectingXmax = 950;
+  double projectingRLimitYmin = 0.005, projectingRLimitYmax = 100;
+  std::string projectingRLimitXYtitles = ";m_{#tilde{t}} [GeV]; 95% CL upper limit on #sigma#bf{#it{#Beta}} [pb]";
 
   if (STOP_PAIRS) ssave = ssave_base+today+"_CLs";
   if (SYST_HALF) ssave = ssave_base+"half_"+today+"_CLs";
@@ -324,7 +331,7 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   TPaveText* pt = nullptr;
   if (DRAW_LOGOS) 
   {
-    pt = new TPaveText(0.46, 0.75, 0.6, 0.95, "ndc");
+    pt = new TPaveText(0.65, 0.75, 0.6, 0.95, "ndc");
     pt->SetBorderSize(0);
     pt->SetFillStyle(0);
     pt->SetTextAlign(12);
@@ -333,7 +340,7 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   } 
   else 
   {
-    pt = new TPaveText(0.46, 0.75, 0.6, 0.95, "ndc");
+    pt = new TPaveText(0.65, 0.75, 0.6, 0.95, "ndc");
     pt->SetBorderSize(0);
     pt->SetFillStyle(0);
     pt->SetTextAlign(12);
@@ -343,11 +350,11 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
 
 
   if (model=="RPV")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t} #rightarrow (t #tilde{#chi}^{0}_{1})(t #tilde{#chi}^{0}_{1}) #rightarrow (t jjj)(t jjj), Lepton");
+    pt->AddText("pp #rightarrow #tilde{t}#bar{#tilde{t}}, #tilde{t} #rightarrow t #tilde{#chi}^{0}_{1},  #tilde{#chi}^{0}_{1} #rightarrow jjj");
   else if (model=="SYY")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SYY coupling, Lepton");
+    pt->AddText("pp #rightarrow #tilde{t}#bar{#tilde{t}}, SYY coupling");
   else if (model=="SHH")
-    pt->AddText("pp #rightarrow #tilde{t}#tilde{t}, SHH coupling, Lepton");
+    pt->AddText("pp #rightarrow #tilde{t}#bar{#tilde{t}}, SHH coupling");
 
   // if (channel=="RPV")
   //   pt->AddText("pp #rightarrow #tilde{t}#tilde{t} #rightarrow (t #tilde{#chi}^{0}_{1})(t #tilde{#chi}^{0}_{1}) #rightarrow (t jjj)(t jjj)");
@@ -398,8 +405,8 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
     grYellow->SetPoint(n, xpoints[n], limits_p2s[n]);
     grYellow->SetPoint(npoints+n, xpoints[npoints-n-1], limits_m2s[npoints-n-1]);
   }
-  grYellow->SetFillColor(kYellow);
-  grYellow->SetLineColor(kYellow);
+  grYellow->SetFillColor(kOrange);
+  grYellow->SetLineColor(kOrange);
   grYellow->Draw("f");
 
   TGraph *grGreen = new TGraph(2*npoints);
@@ -408,8 +415,8 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
     grGreen->SetPoint(n, xpoints[n], limits_p1s[n]);
     grGreen->SetPoint(npoints+n, xpoints[npoints-n-1], limits_m1s[npoints-n-1]);
   }
-  grGreen->SetFillColor(kGreen);
-  grGreen->SetLineColor(kGreen);
+  grGreen->SetFillColor(kGreen+1);
+  grGreen->SetLineColor(kGreen+1);
   grGreen->Draw("f");
 
   TLine *lineOne = new TLine(projectingXmin,1, projectingXmax, 1);
@@ -439,18 +446,19 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   pt->Draw();
 
 
-  TPaveText *br1 = new TPaveText(0.207, 0.258, 0.357, 0.258+0.066, "ndc");
+  //TPaveText *br1 = new TPaveText(0.207, 0.258, 0.357, 0.258+0.066, "ndc");
+  TPaveText *br1 = new TPaveText(0.18, 0.258, 0.357, 0.258+0.066, "ndc");
   br1->SetBorderSize(0);
   br1->SetFillStyle(0);
   br1->SetTextAlign(12);
   br1->SetTextFont(42);
   br1->SetTextSize(0.035);
   if (model=="RPV")
-    br1->AddText("B(#tilde{t} #rightarrow t #tilde{#chi}^{0}_{1}) = 1.0");
+    br1->AddText("#bf{#it{#Beta}}(#tilde{t} #rightarrow t #tilde{#chi}^{0}_{1}) = 1.0");
   else if (model=="SYY")
-    br1->AddText("B(#tilde{t} #rightarrow t#tilde{S}g) = 1.0");
+    br1->AddText("#bf{#it{#Beta}}(#tilde{t} #rightarrow t#tilde{S}g) = 1.0");
   else if (model=="SHH")
-    br1->AddText("B(#tilde{t} #rightarrow t#tilde{S}) = 1.0");
+    br1->AddText("#bf{#it{#Beta}}(#tilde{t} #rightarrow t#tilde{S}) = 1.0");
   // if (channel=="RPV" || channel=="RPVL" || channel=="RPV2L")
   //   br1->AddText("B(#tilde{t} #rightarrow t #tilde{#chi}^{0}_{1}) = 1.0");
   // else if (channel=="SYY" || channel=="SYYL")
@@ -459,18 +467,19 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   //   br1->AddText("B(#tilde{t} #rightarrow t#tilde{S}) = 1.0");
   br1->Draw("same");
 
-  TPaveText *br2 = new TPaveText(0.207, 0.204, 0.357, 0.204+0.066, "ndc");
+  //TPaveText *br2 = new TPaveText(0.207, 0.204, 0.357, 0.204+0.066, "ndc");
+  TPaveText *br2 = new TPaveText(0.18, 0.204, 0.357, 0.204+0.066, "ndc");
   br2->SetBorderSize(0);
   br2->SetFillStyle(0);
   br2->SetTextAlign(12);
   br2->SetTextFont(42);
   br2->SetTextSize(0.035);
   if (model=="RPV")
-    br2->AddText("B(#tilde{#chi}^{0}_{1} #rightarrow jjj) = 1.0");
+    br2->AddText("#bf{#it{#Beta}}(#tilde{#chi}^{0}_{1} #rightarrow jjj) = 1.0");
   else if (model=="SYY")
-    br2->AddText("B(#tilde{S} #rightarrow S#tilde{G}) = 1.0");
+    br2->AddText("#bf{#it{#Beta}}(#tilde{S} #rightarrow S#tilde{G}) = 1.0");
   else if (model=="SHH")
-    br2->AddText("B(#tilde{S} #rightarrow S#tilde{G}) = 1.0");
+    br2->AddText("#bf{#it{#Beta}}(#tilde{S} #rightarrow S#tilde{G}) = 1.0");
   // if (channel=="RPV" || channel=="RPVL" || channel=="RPV2L")
   //   br2->AddText("B(#tilde{#chi}^{0}_{1} #rightarrow jjj) = 1.0");
   // else if (channel=="SYY" || channel=="SYYL")
@@ -479,16 +488,17 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   //   br2->AddText("B(#tilde{S} #rightarrow S#tilde{G}) = 1.0");
   br2->Draw("same");
 
-  TPaveText *br3 = new TPaveText(0.207, 0.150, 0.357, 0.150+0.066, "ndc");
+  //TPaveText *br3 = new TPaveText(0.207, 0.150, 0.357, 0.150+0.066, "ndc");
+  TPaveText *br3 = new TPaveText(0.18, 0.150, 0.357, 0.150+0.066, "ndc");
   br3->SetBorderSize(0);
   br3->SetFillStyle(0);
   br3->SetTextAlign(12);
   br3->SetTextFont(42);
   br3->SetTextSize(0.035);
   if (model=="SYY")
-    br3->AddText("B(S #rightarrow gg) = 1.0");
+    br3->AddText("#bf{#it{#Beta}}(S #rightarrow gg) = 1.0");
   if (model=="SHH")
-    br3->AddText("B(S #rightarrow bb) = 1.0");
+    br3->AddText("#bf{#it{#Beta}}(S #rightarrow bb) = 1.0");
   // if (channel=="SYY" || channel=="SYYL")
   //   br3->AddText("B(S #rightarrow gg) = 1.0");
   // if (channel=="SHH" || channel=="SHHL")
@@ -513,21 +523,21 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   grTheory->SetLineColor(2);
   grTheory->SetLineWidth(2);
 
-  TLegend *legend = new TLegend(0.45, 0.62, 0.849, 0.814);
+  TLegend *legend = new TLegend(0.59, 0.62, 0.849, 0.814);
   legend->SetBorderSize(0);
   legend->SetFillColor(0);
   legend->SetFillStyle(0);
   legend->SetTextAlign(12);
   legend->SetTextFont(42);
   legend->SetTextSize(0.04);
-  legend->AddEntry(grGreen,"Expected #pm 1 #sigma", "f");
-  legend->AddEntry(grYellow,"Expected #pm 2 #sigma", "f");
+  legend->AddEntry(grGreen,"68% expected", "f");
+  legend->AddEntry(grYellow,"95% expected", "f");
   if(DRAW_OBS) legend->AddEntry(grObs,"Observed limit", "lp");
 
   if (model=="RPV")
-    legend->AddEntry(grTheoryErr,"RPV stop (with xsec uncertainty)", "lf");
+    legend->AddEntry(grTheoryErr,"#sigma_{#tilde{t}#bar{#tilde{t}}} (NNLO+NNLL)", "lf");
   else if (model=="SYY")
-    legend->AddEntry(grTheoryErr,"SYY (with xsec uncertainty)", "lf");
+    legend->AddEntry(grTheoryErr,"#sigma_{#tilde{t}#bar{#tilde{t}}} (NNLO+NNLL)", "lf");
   else if (model=="SHH")
     legend->AddEntry(grTheoryErr,"SHH (with xsec uncertainty)", "lf");
   // if (channel=="RPV" || channel=="RPVL" || channel=="RPV2L")
@@ -557,13 +567,14 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
   //gr->SetMarkerStyle(1);
   //gr->Draw("ALP,same");
 
-  if (DRAW_LOGOS) 
-  {
-    // ALS:    CMS_lumi(cCanvas,iPeriod,iPos);
-    cCanvas->Update();
-    cCanvas->RedrawAxis();
-    cCanvas->GetFrame()->Draw();
-  }
+  //if (DRAW_LOGOS) 
+  // {
+    // ALS:    
+  CMS_lumi(cCanvas,iPeriod,iPos);
+  cCanvas->Update();
+  cCanvas->RedrawAxis();
+  cCanvas->GetFrame()->Draw();
+      //}
 
   TPaveText *cmstext=NULL;
   if (!DRAW_LOGOS) 
