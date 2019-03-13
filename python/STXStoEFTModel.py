@@ -218,7 +218,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     for element in formula:
 
       #if formula string goes above length > 500 and final element is a +
-      if( len(formulaStrings[n_str]+poiStrings[n_str]) > 500 )&( formulaStrings[n_str][-1] == "+" ):
+      if( len(formulaStrings[n_str]+poiStrings[n_str]) > 250 )&( formulaStrings[n_str][-1] == "+" ):
         #remove final element from formula string
         formulaStrings[n_str] = formulaStrings[n_str][:-1]
         #add one to number of strings
@@ -231,6 +231,10 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
       
       #if element is a poi
       if(element.startswith("c"))|(element.startswith("t")):
+
+        #convert cG and cA to correct name (x16pi2)
+        if element == "cG": element = "cGx16pi2"
+        elif element == "cA": element = "cAx16pi2"
 
         #if scaling the pois:
         if( _scalePOIs ):
@@ -354,7 +358,7 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
     if( self.freezeOtherParameters ):
       for poi in self.pois:
         if self.scalePOIs:
-          if poi not in ['cG_x04','cA_x04','cu_x02','cHW_x02','cWWMinuscB_x03']: self.modelBuilder.out.var( poi ).setConstant(True)
+          if poi not in ['cGx16pi2_x04','cAx16pi2_x04','cu_x02','cHW_x02','cWWMinuscB_x03']: self.modelBuilder.out.var( poi ).setConstant(True)
         else:
           if poi not in ['cG','cA','cu','cHW','cWWMinuscB']: self.modelBuilder.out.var( poi ).setConstant(True)
 
