@@ -270,18 +270,20 @@ bool CascadeMinimizer::hesse(int verbose ) {
 
 bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool cascade){
 
-/* 
-If there are discrete parameters, first we cycle through them, 
-fixing all parameters which do not depend on them 
+   /* 
+   If there are discrete parameters, first we cycle through them, 
+   fixing all parameters which do not depend on them 
 
-step 1, the set which is passed contains all of the parameters which 
-are freely floating. We should cut them down to find which ones are
+   step 1, the set which is passed contains all of the parameters which 
+   are freely floating. We should cut them down to find which ones are
+   */
 
-*/
    // Do A reasonable fit if something changed before 
    if ( fabs(minimumNLL - nll_.getVal()) > discreteMinTol_ ) improve(verbose,cascade);
 
-   RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().nuisanceParameters;
+   RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().allFloatingParameters;
+   nuisances.remove(CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams);
+
    RooArgSet poi = CascadeMinimizerGlobalConfigs::O().parametersOfInterest;
    RooArgSet frozen;
 
@@ -289,6 +291,7 @@ are freely floating. We should cut them down to find which ones are
    if (poi.getSize() >0) frozen.add(poi);
    
    RooStats::RemoveConstantParameters(&frozen);
+
    utils::setAllConstant(frozen,true);
 
    // remake the minimizer   

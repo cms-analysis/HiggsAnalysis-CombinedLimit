@@ -367,7 +367,15 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 		    strlcpy(tmp,saveSpecifiedNuis_.c_str(),10240) ;
 		    char* token = strtok(tmp,",") ;
 		    while(token) {
-			    specifiedNuis_.push_back(token);
+			    const RooArgSet* group = mc_s->GetWS()->set((std::string("group_") + token).data());
+			    if (group){
+				    RooLinkedListIter iterN = group->iterator();
+				    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
+					    specifiedNuis_.push_back(a->GetName());
+				    }
+			    }else{
+				    specifiedNuis_.push_back(token);
+			    }
 			    token = strtok(0,",") ; 
 		    }
 	    }
@@ -438,15 +446,27 @@ void MultiDimFit::doSingles(RooFitResult &res)
 		std::cout << " Warning - No valid low-error found, will report difference to minimum of range for : " << rf->GetName() << std::endl;
 		loErr = +bestFitVal - rf->getMin();
 	}
+        
+	poiVals_[i] = bestFitVal - loErr; Combine::commitPoint(true, /*quantile=*/-0.32);
+        poiVals_[i] = bestFitVal + hiErr; Combine::commitPoint(true, /*quantile=*/0.32);
 
         double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
         double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
+        double maxError95 = std::max<double>(std::max<double>(hiErr95, loErr95), 2*rf->getError());
 
-        poiVals_[i] = bestFitVal - loErr; Combine::commitPoint(true, /*quantile=*/0.32);
-        poiVals_[i] = bestFitVal + hiErr; Combine::commitPoint(true, /*quantile=*/0.32);
         if (do95_ && rf->hasRange("err95")) {
-            poiVals_[i] = rf->getMax("err95"); Combine::commitPoint(true, /*quantile=*/0.05);
-            poiVals_[i] = rf->getMin("err95"); Combine::commitPoint(true, /*quantile=*/0.05);
+            if (fabs(hiErr95) < 0.001*maxError95){ 
+		std::cout << " Warning - No valid high-error (for 95%) found, will report difference to maximum of range for : " << rf->GetName() << std::endl;
+		hiErr95 = -bestFitVal + rf->getMax();
+	    }
+            if (fabs(loErr95) < 0.001*maxError95) {
+		std::cout << " Warning - No valid low-error (for 95%) found, will report difference to minimum of range for : " << rf->GetName() << std::endl;
+		loErr95 = +bestFitVal - rf->getMin();
+	    }
+	    poiVals_[i] = bestFitVal - loErr95; Combine::commitPoint(true, /*quantile=*/-0.05);
+            poiVals_[i] = bestFitVal + hiErr95; Combine::commitPoint(true, /*quantile=*/0.05);
+            //poiVals_[i] = rf->getMax("err95"); Combine::commitPoint(true, /*quantile=*/-0.05);
+            //poiVals_[i] = rf->getMin("err95"); Combine::commitPoint(true, /*quantile=*/0.05);
             poiVals_[i] = bestFitVal;
             printf("   %*s :  %+8.3f   %+6.3f/%+6.3f (68%%)    %+6.3f/%+6.3f (95%%) \n", len, poi_[i].c_str(), 
                     poiVals_[i], -loErr, hiErr, loErr95, -hiErr95);
