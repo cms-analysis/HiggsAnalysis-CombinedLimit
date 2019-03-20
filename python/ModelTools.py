@@ -380,11 +380,44 @@ class ModelBuilder(ModelBuilderBase):
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "constr":
-		v=self.options.verbose
-		self.options.verbose=10# force debug this line
-		self.doObj("%s_Pdf"%n, "Gaussian"," ".join(args),True)
-		self.options.verbose=v
-                #self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]),True)
+                print "-------------- WARNING, constrain found --> you are supposed to know what you are doing!"
+                ## I want to construct this line
+                ## constr1_In[0.],RooFormulaVar::fconstr1("r_Bin0+r_Bin2-2*r_Bin1",{r_Bin0,r_Bin1,r_Bin2}),constr1_S[0.001000]
+                ##  Assuming args= 
+                ##   r_Bin0+r_Bin2-2*r_Bin1 0.001
+                ## or r_Bin0+r_Bin2-2*r_Bin1 {r_Bin0,r_Bin1,r_Bin2} 0.001000
+                ## the parameter can be a number or a variable
+                d={ "pdf":"%s_Pdf"%n, "name":n, "function":"%s_Func"%n,"in":"%s_In"%n,
+                        "sigma":"%s_S"%n,
+                        "formula":args[0],
+                        "param":args[-1]}
+                if len(args) >2: d["depend"]= args[1]
+                else: 
+                    remove=set(["TMath","Exp","::",""])
+                    l=list( set( re.split('\\+|-|\\*|/|\\(|\\)',d['formula']) ) - remove) 
+                    l2=[] ## remove all the non-float expressions
+                    for x in l: 
+                        try: float(x)
+                        except ValueError: l2.append(x)
+                    d["depend"] = "{"+','.join(l2)+"}"
+
+                try:
+                    float(d['param']) # raise exception
+                    if self.options.verbose>2: print "DEBUG constr","param is a number"
+                    d['fullsigma']="%(sigma)s[%(param)s]"%d
+                except ValueError:
+                    if self.options.verbose>2: print "DEBUG constr","param is a variable"
+                    d['fullsigma']=d['param']
+
+                if self.options.verbose>2: print "DEBUG constr", "args",args
+                if self.options.verbose>2: print "DEBUG constr", "Dictionary",d
+
+                full="%(in)s[0.],RooFormulaVar::%(function)s(\"%(formula)s\",%(depend)s),%(fullsigma)s"%d
+                #self.doObj("%s_Pdf"%n, "Gaussian"," ".join(args),True)
+                v=self.options.verbose
+                self.options.verbose=10# force debug this line
+                self.doObj("%s_Pdf"%n, "Gaussian",full,True)
+                self.options.verbose=v
             elif pdf == "param":
                 mean = float(args[0])
                 if "/" in args[1]:

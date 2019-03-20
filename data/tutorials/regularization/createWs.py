@@ -133,7 +133,9 @@ for row in range(nbinsG):
 	   pass
    else:
 	###
-	constrains.append( "constr%d"%row + " constr const%(bin)d_In[0.],RooFormulaVar::fconstr%(bin)d(\"r_Bin%(prev)d+r_Bin%(next)d-2*r_Bin%(bin)d\",{r_Bin%(prev)d,r_Bin%(bin)d,r_Bin%(next)d}),constr%(bin)d_S[%(reg)f]" %{"bin":row,"next":row+1,"prev":row-1,"reg":delta} )  ## REG STRENGTH 
+	#constrains.append( "constr%d"%row + " constr const%(bin)d_In[0.],RooFormulaVar::fconstr%(bin)d(\"r_Bin%(prev)d+r_Bin%(next)d-2*r_Bin%(bin)d\",{r_Bin%(prev)d,r_Bin%(bin)d,r_Bin%(next)d}),constr%(bin)d_S[%(reg)f]" %{"bin":row,"next":row+1,"prev":row-1,"reg":delta} )  ## REG STRENGTH 
+	constrains.append( "constr%d"%row + " constr r_Bin%(prev)d+r_Bin%(next)d-2*r_Bin%(bin)d %(reg)f" %{"bin":row,"next":row+1,"prev":row-1,"reg":delta} )  ## REG STRENGTH 
+
 	#constrains.append( "fconstr%d"%row ) 
 	#ws.factory("RooFormulaVar::fconstr%(bin)d(\"r_Bin%(prev)d+r_Bin%(next)d-2*r_Bin%(bin)d\",{r_Bin%(prev)d,r_Bin%(next)d,r_Bin%(bin)d})"%{"bin":row,"next":row+1,"prev":row-1})
 	#ws.factory("PROD::reg_Bin%(bin)d( model_Bin%(bin)d , Gaussian::constr_Bin%(bin)d( regIn, fconstr%(bin)d , delta ) )"%{"bin":row})
@@ -222,4 +224,5 @@ st=call(cmd,shell=True)
 if st==0: print "Fit: Success"
 else: print "Fit: Error"
 
+del ws
 
