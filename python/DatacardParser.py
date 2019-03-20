@@ -192,6 +192,10 @@ def parseCard(file, options):
                 args = [float(f[2]), float(f[3])]; numbers = f[4:];
             elif pdf == "dFD" or pdf == "dFD2":
                 args = [float(f[2])];  numbers = f[3:];
+	    elif pdf == "constr":
+                args = f[2:]
+                ret.systs.append([lsyst,nofloat,pdf,args,[]])
+                continue
             elif pdf == "param":
                 # for parametric uncertainties, there's no line to account per bin/process effects
                 # just assume everything else is an argument and move on
@@ -314,8 +318,8 @@ def parseCard(file, options):
     # cleanup systematics that have no effect to avoid zero derivatives
     syst2 = []
     for lsyst,nofloat,pdf,args,errline in ret.systs:
-        nonNullEntries = 0
-        if pdf == "param" or pdf=="discrete" or pdf=="rateParam": # this doesn't have an errline
+        nonNullEntries = 0 
+        if pdf == "param" or pdf =="constr" or pdf=="discrete" or pdf=="rateParam": # this doesn't have an errline
             syst2.append((lsyst,nofloat,pdf,args,errline))
             continue
         for (b,p,s) in ret.keyline:
