@@ -259,8 +259,8 @@ class Model():
         ## write regularization lines
         self.datacard.write("#######################################\n")
         self.datacard.write("###### Regularization lines. Uncomment to enable regularization.\n")
-        self.datacard.write("###### Requsites for regularization studies:\n")
-        self.datacard.write("######  git pull git@github.com:amarini/HiggsAnalysis-CombinedLimit/topic_regularization2016\n")
+        self.datacard.write("###### Requisites for regularization studies (PR 531):\n")
+        self.datacard.write("######  git pull git@github.com:amarini/HiggsAnalysis-CombinedLimit/topic_regularization_102x\n")
         for i in range(0,self.nbins_x):
             if i==0 or i==self.nbins_x-1: continue
             ## different strength vars

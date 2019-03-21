@@ -27,7 +27,7 @@ datacard=open(opts.datacard,"w")
 
 ws=ROOT.RooWorkspace(opts.workspace,opts.workspace)
 
-datacard.write("## Datacard auteomatically created by regularization/createWs.py\n")
+datacard.write("## Datacard automatically created by regularization/createWs.py\n")
 datacard.write("## Original Author: Andrea Carlo Marini\n")
 datacard.write("-------------------------------------\n")
 datacard.write("imax *\n")
