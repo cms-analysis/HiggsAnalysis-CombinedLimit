@@ -274,6 +274,7 @@ class CombineHarvester {
   void ForEachSyst(Function func);
 
   void VariableRebin(std::vector<double> bins);
+  void ZeroBins(double min, double max);
   void SetPdfBins(unsigned nbins);
 
   /**

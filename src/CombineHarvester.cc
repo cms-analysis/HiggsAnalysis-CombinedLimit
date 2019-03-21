@@ -477,7 +477,7 @@ void CombineHarvester::LoadShapes(Process* entry,
     RooAbsData const* data_obj = FindMatchingData(entry);
     if (data_obj) {
       if (verbosity_ >= 2) LOGLINE(log(), "Matching RooAbsData has been found");
-      if (pdf) {
+      if (pdf&&!data) {
         RooArgSet argset = ParametersByName(pdf, data_obj->get());
         ImportParameters(&argset);
         if (!entry->observable()) {

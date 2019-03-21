@@ -73,11 +73,11 @@ auto CardWriter::BuildMap(std::string const& pattern,
         f_map[full_key] = mappings;
       }
     });
-  for (auto const& it : f_map) {
+  /*for (auto const& it : f_map) {
     std::cout << it.first << ": ";
     for (auto const& it2 : it.second) std::cout << it2 << " ";
     std::cout << "\n";
-  }
+  }*/
   return f_map;
 }
 

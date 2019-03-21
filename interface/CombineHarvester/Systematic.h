@@ -40,6 +40,9 @@ class Systematic : public Object {
   std::unique_ptr<TH1> ClonedShapeU() const;
   std::unique_ptr<TH1> ClonedShapeD() const;
 
+  TH1F ShapeUAsTH1F() const;
+  TH1F ShapeDAsTH1F() const;
+
   TH1 const* shape_d() const { return shape_d_.get(); }
 
   RooDataHist const* data_u() const { return data_u_; }
@@ -57,6 +60,8 @@ class Systematic : public Object {
 
   friend std::ostream& operator<< (std::ostream &out, Systematic const& val);
   static std::ostream& PrintHeader(std::ostream &out);
+
+  void SwapUpAndDown();
 
  private:
   std::string name_;
