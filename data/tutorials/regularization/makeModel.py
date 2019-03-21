@@ -298,7 +298,7 @@ class Model():
 
             ##self.datacard.write("## constr%d"%i+ " constr const%(bin)d_In[0.],RooFormulaVar::fconstr%(bin)d(\"(r_Bin%(prev)d-1.)*%(lambdaMC_prev)s+r_Bin%(next)d*%(lambdaMC_next)s-2*r_Bin%(bin)d*%(lambdaMC)s\",{r_Bin%(prev)d,r_Bin%(bin)d,r_Bin%(next)d,%(lambdaMC_vars)s}),constr%(bin)d_S[%(delta)s]\n" % d )
             #self.datacard.write("## constr%d"%i+ " constr const%(bin)d_In[0.],RooFormulaVar::fconstr%(bin)d(\"(r_Bin%(prev)d-1.)*%(lambdaMC_prev)s+r_Bin%(next)d*%(lambdaMC_next)s-2*r_Bin%(bin)d*%(lambdaMC)s\",{r_Bin%(prev)d,r_Bin%(bin)d,r_Bin%(next)d,%(lambdaMC_vars)s}),delta[%(delta)s]\n" % d )
-            self.datacard.write("## constr%d"%i+ " constr (r_Bin%(prev)d-1.)*%(lambdaMC_prev)s+r_Bin%(next)d*%(lambdaMC_next)s-2*r_Bin%(bin)d*%(lambdaMC)s {r_Bin%(prev)d,r_Bin%(bin)d,r_Bin%(next)d,%(lambdaMC_vars)s} delta[%(delta)s]\n" % d )
+            self.datacard.write("## constr%d"%i+ " constr (r_Bin%(prev)d-1.)*%(lambdaMC_prev)s+(r_Bin%(next)d-1.)*%(lambdaMC_next)s-2*(r_Bin%(bin)d-1.)*%(lambdaMC)s {r_Bin%(prev)d,r_Bin%(bin)d,r_Bin%(next)d,%(lambdaMC_vars)s} delta[%(delta)s]\n" % d )
             #self.datacard.write("## constr%d"%i+ " constr (r_Bin%(prev)d-1.)*%(lambdaMC_prev)s+r_Bin%(next)d*%(lambdaMC_next)s-2*r_Bin%(bin)d*%(lambdaMC)s delta[%(delta)s]\n" % d )
         self.datacard.write("#######################################\n")
 
