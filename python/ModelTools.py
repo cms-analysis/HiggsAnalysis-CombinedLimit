@@ -391,7 +391,7 @@ class ModelBuilder(ModelBuilderBase):
                         "sigma":"%s_S"%n,
                         "formula":args[0],
                         "param":args[-1]}
-                if len(args) >2: d["depend"]= args[1]
+                if len(args) >2: d["depend"]= args[1] if args[1][0]=='{' else '{'+args[1]+'}'
                 else: 
                     remove=set(["TMath","Exp","::",""])
                     l=list( set( re.split('\\+|-|\\*|/|\\(|\\)',d['formula']) ) - remove) 
@@ -400,7 +400,8 @@ class ModelBuilder(ModelBuilderBase):
                         try: float(x)
                         except ValueError: l2.append(x)
                     d["depend"] = "{"+','.join(l2)+"}"
-
+                
+                ## derve the constrain strength
                 try:
                     float(d['param']) # raise exception
                     if self.options.verbose>2: print "DEBUG constr","param is a number"
