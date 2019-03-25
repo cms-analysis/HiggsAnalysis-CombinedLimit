@@ -41,6 +41,49 @@ def getSTXSProdDecMode(bin,process,options):
     print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
   return (processSource, foundDecay, foundEnergy)
 
+#Short term fix: reading Ed style datacard
+def getSTXSProdDecMode_fix(bin,process,options):
+  processSource = process
+  decaySource = options.fileName+":"+bin # by default, decay comes from datacard name or bin label
+  if "_hgg" in process:
+    processSource = re.sub('_hgg','',process)
+    foundDecay = 'hgg'
+    foundEnergy = '13TeV'
+  elif "_hzz" in process:
+    processSource = re.sub('_hzz','',process)
+    foundDecay = 'hzz'
+    foundEnergy = '13TeV'
+  elif "_hbb" in process:
+    processSource = re.sub('_hbb','',process)
+    foundDecay = 'hbb'
+    foundEnergy = '13TeV'
+  else:
+    if "_" in process:
+      #decay at end of process name after final _: join all previous parts to give processSource 
+      (processSource, decaySource) = "_".join(process.split("_")[0:-1]),process.split("_")[-1]
+    foundDecay = None
+    for D in ALL_HIGGS_DECAYS:
+      if D in decaySource:
+        if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
+        foundDecay = D
+    if not foundDecay: raise RuntimeError, "Validation Error: decay string %s does not contain any known decay name" % decaySource
+
+    foundEnergy = None
+    for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
+      if D in decaySource:
+        if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
+        foundEnergy = D
+    if not foundEnergy:
+      for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
+        if D in options.fileName+":"+bin:
+          if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
+          foundEnergy = D
+    if not foundEnergy:
+      foundEnergy = '13TeV' ## if using 81x, chances are its 13 TeV
+      print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
+
+  return (processSource, foundDecay, foundEnergy)
+
 #################################################################################################################
 # STXS to EFT abstract base class: inherited classes for different stages
 class STXStoEFTBaseModel(SMLikeHiggsModel):
@@ -98,7 +141,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
   def getYieldScale(self,bin,process):
     "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
     if not self.DC.isSignal[process]: return 1
-    (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin,process,self.options)
+    (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode_fix(bin,process,self.options)
     return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -358,7 +401,7 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
     if( self.freezeOtherParameters ):
       for poi in self.pois:
         if self.scalePOIs:
-          if poi not in ['cGx16pi2_x04','cAx16pi2_x04','cu_x02','cHW_x02','cWWMinuscB_x03']: self.modelBuilder.out.var( poi ).setConstant(True)
+          if poi not in ['cGx16pi2_x04','cAx16pi2_x01','cu_x02','cHW_x02','cWWMinuscB_x03']: self.modelBuilder.out.var( poi ).setConstant(True)
         else:
           if poi not in ['cG','cA','cu','cHW','cWWMinuscB']: self.modelBuilder.out.var( poi ).setConstant(True)
 
