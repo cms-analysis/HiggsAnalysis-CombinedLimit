@@ -7,6 +7,8 @@ Bin number: 47 hww
 Bin number: 49 htautau
 1 -1.0 * cH + 3.0 * cl + 0.25 * cH * cH + 2.25 * cl * cl -1.5 * cH * cl
 Bin number: 50 hgg
+1 -5.80 * cA + 8.4 * cA * cA + 8.4 * tcA * tcA
+Bin number: 51 hgluglu
 1 + 56.3 * cG + 792.0 * cG * cG + 792.0 * tcG * tcG
 Bin number: 51 hcc
 1 -1.0 * cH + 3.0 * cu + 0.25 * cH * cH + 2.25 * cu * cu -1.5 * cH * cu

@@ -90,12 +90,11 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 
   # initialisation: include options for STXS bin and BR uncertainties
   #    * note: STXS bin uncertainties are defined in data/lhc-hxswg/eft/stageX/BinUncertainties.txt. Needs updating!
-  def __init__(self,scalePOIs=True,STXSU=False,BRU=False,fixTHandBBH=True,freezeOtherParameters=False):
+  def __init__(self,STXSU=False,BRU=False,fixTHandBBH=True,freezeOtherParameters=False):
     SMLikeHiggsModel.__init__(self)
     self.PROCESSES = []
     self.DECAYS = []
     self.floatMass = False #Initally false, require external option to float mass
-    self.scalePOIs = scalePOIs
     self.doSTXSU = STXSU
     self.doBRU = BRU
     self.fixTHandBBH = fixTHandBBH #if false scaling function for tH, bbH MUST be defined in input text file: data/lhc-hxswg/eft/stageX/crosssections.txt
@@ -147,26 +146,24 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # READING FROM TEXT FILES
   #Function for extracting the pois: save as dictionary of pois
-  def textToPOIList( self, filename, skipRows=1, _scalePOIs=True ):
+  def textToPOIList( self, filename, skipRows=1 ):
     self.pois = {} #initiate empty dict
-    #if scaling POIs: define separate dictionary for how POIs scale
-    if( _scalePOIs ): self.poi_scaling = {}
+    self.poi_scaling = {} #separate dictionary for how POIs scale
     file_in = open(filename,"r")
     lines = [l for l in file_in]
     for line in lines[skipRows:]:
       if( len(line.strip())== 0 ): continue
       self.pois['%s'%line.split()[0]] = "[%s,%s,%s]"%(line.split()[1],line.split()[2],line.split()[3])
-      if( _scalePOIs ):
-        #extract unscaled poi and scaling factor in list
-        poi_scale = line.split()[0].split("_")
-        #save poi scaling to dictionary: used when making scaling function
-        if len(poi_scale) == 1: self.poi_scaling[ poi_scale[0] ] = "1.*%s"%line.split()[0]
-        else:
-          if poi_scale[1] == "x04": self.poi_scaling[ poi_scale[0] ] = "0.0001*%s"%line.split()[0]
-          elif poi_scale[1] == "x03": self.poi_scaling[ poi_scale[0] ] = "0.001*%s"%line.split()[0]
-          elif poi_scale[1] == "x02": self.poi_scaling[ poi_scale[0] ] = "0.01*%s"%line.split()[0]
-          elif poi_scale[1] == "x01": self.poi_scaling[ poi_scale[0] ] = "0.1*%s"%line.split()[0]
-          else: raise ValueError("[ERROR] Parameter of interest scaling not in allowed range [0.1-0.0001]")
+      #extract unscaled poi and scaling factor in list
+      poi_scale = line.split()[0].split("_")
+      #save poi scaling to dictionary: used when making scaling function
+      if len(poi_scale) == 1: self.poi_scaling[ poi_scale[0] ] = "1.*%s"%line.split()[0]
+      else:
+        if poi_scale[1] == "x04": self.poi_scaling[ poi_scale[0] ] = "0.0001*%s"%line.split()[0]
+        elif poi_scale[1] == "x03": self.poi_scaling[ poi_scale[0] ] = "0.001*%s"%line.split()[0]
+        elif poi_scale[1] == "x02": self.poi_scaling[ poi_scale[0] ] = "0.01*%s"%line.split()[0]
+        elif poi_scale[1] == "x01": self.poi_scaling[ poi_scale[0] ] = "0.1*%s"%line.split()[0]
+        else: raise ValueError("[ERROR] Parameter of interest scaling not in allowed range [0.1-0.0001]")
     file_in.close()
 
   #Function to extract STXS scaling functions
@@ -237,7 +234,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 
   # Function for make scaling function from string
   #    * RooFormula unable to compile if string > 1000 characters: if formulaStr+poiStr > 500 then initiate new string and sum together for final function
-  def makeScalingFunction( self, what, _scalePOIs=True, STXSstage="1" ): 
+  def makeScalingFunction( self, what, STXSstage="1" ): 
 
     #if in processes/decays extract formula from corresponding dict
     if what in self.STXSScalingFunctions: formula = self.STXSScalingFunctions[ what ]
@@ -279,35 +276,21 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         if element == "cG": element = "cGx16pi2"
         elif element == "cA": element = "cAx16pi2"
 
-        #if scaling the pois:
-        if( _scalePOIs ):
-          if element not in self.poi_scaling:
-            raise ValueError("[ERROR] %s not defined in POI list"%element)
-          #check if poi has already been used in formula
-          if element in poi_id: formulaStrings[n_str] += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[n_str][element])
-          else:
-            #add poi to dictionary and poiStr and add one to iterator
-            poi_id[n_str][ element ] = poi_[n_str]
-            poi_[n_str] += 1
-            # add multiplier*@(id) to formulaStr and scaled poi to correct position in poiStr
-            formulaStrings[n_str] += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[n_str][element])
-            poiStrings[n_str] += "%s,"%self.poi_scaling[element].split("*")[1]
-
-        #if using unscaled pois:
+        #extract poi scaling
+        if element not in self.poi_scaling:
+          raise ValueError("[ERROR] %s not defined in POI list"%element)
+        #check if poi has already been used in formula
+        if element in poi_id: formulaStrings[n_str] += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[n_str][element])
         else:
-          if( element not in self.pois )&( element not in ['cWW','cB'] ):
-            raise ValueError("[ERROR] %s not defined in POI list"%element)
-          #check if poi has already been used in formula
-          if element in poi_id: formulaStrings[n_str] += "@%g"%poi_id[n_str][ element ] #if yes: add @(id) to formula string
-          else: 
-            #add poi to dictionary and poiStr and add one to iterator
-            poi_id[n_str][ element ] = poi_[n_str]
-            poi_[n_str] += 1
-            #add @(id) to formulaStr and poi to correct position in poiStr
-            formulaStrings[n_str] += "@%g"%poi_id[n_str][ element ]
-            poiStrings[n_str] += "%s,"%element
+          #add poi to dictionary and poiStr and add one to iterator
+          poi_id[n_str][ element ] = poi_[n_str]
+          poi_[n_str] += 1
+          # add multiplier*@(id) to formulaStr and poi to correct position in poiStr
+          formulaStrings[n_str] += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[n_str][element])
+          poiStrings[n_str] += "%s,"%self.poi_scaling[element].split("*")[1]
+
+      #element is not a poi: simply add to formula Str
       else:
-        #element is not a poi: simply add to formula Str
         formulaStrings[n_str] += element
 
     #If just one formula string i.e. total formula has length less than 500
@@ -380,30 +363,22 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
     self.SMH = SMHiggsBuilder(self.modelBuilder)
     
     #Read in parameter list from file using textToPOIList function
-    if( self.scalePOIs ): self.textToPOIList( os.path.join(self.SMH.datadir,'eft/stage1/pois_scaled.txt'), _scalePOIs=self.scalePOIs)
-    else: self.textToPOIList( os.path.join(self.SMH.datadir,'eft/stage1/pois.txt'), _scalePOIs=self.scalePOIs)
+    self.textToPOIList( os.path.join(self.SMH.datadir,'eft/stage1/pois.txt') )
 
     POIs = ','.join(self.pois.keys())
     for poi, poi_range in self.pois.iteritems(): 
       self.modelBuilder.doVar("%s%s"%(poi,poi_range))
     self.modelBuilder.doSet("POI",POIs)      
     #POIs for cWW and cB defined in terms of constraints on cWW+cB and cWW-cB: define expression for individual coefficient
-    if( self.scalePOIs ):
-      self.modelBuilder.factory_("expr::cWW_x03(\"0.5*(@0+@1)\",cWWPluscB_x03,cWWMinuscB_x03)")
-      self.modelBuilder.factory_("expr::cB_x03(\"0.5*(@0-@1)\",cWWPluscB_x03,cWWMinuscB_x03)")
-      self.poi_scaling['cWW'] = "0.001*cWW_x03"
-      self.poi_scaling['cB'] = "0.001*cB_x03"
-    else:
-      self.modelBuilder.factory_("expr::cWW(\"0.5*(@0+@1)\",cWWPluscB,cWWMinuscB)")
-      self.modelBuilder.factory_("expr::cB(\"0.5*(@0-@1)\",cWWPluscB,cWWMinuscB)")
+    self.modelBuilder.factory_("expr::cWW_x04(\"0.5*(@0+@1)\",cWWPluscB_x04,cWWMinuscB_x04)")
+    self.modelBuilder.factory_("expr::cB_x04(\"0.5*(@0-@1)\",cWWPluscB_x04,cWWMinuscB_x04)")
+    self.poi_scaling['cWW'] = "0.0001*cWW_x04"
+    self.poi_scaling['cB'] = "0.0001*cB_x04"
 
     #If specified in options: fix all parameters not used in LHCHXSWG-INT-2017-001 fit to 0 (freeze)
     if( self.freezeOtherParameters ):
       for poi in self.pois:
-        if self.scalePOIs:
-          if poi not in ['cGx16pi2_x04','cAx16pi2_x01','cu_x02','cHW_x02','cWWMinuscB_x03']: self.modelBuilder.out.var( poi ).setConstant(True)
-        else:
-          if poi not in ['cG','cA','cu','cHW','cWWMinuscB']: self.modelBuilder.out.var( poi ).setConstant(True)
+        if poi not in ['cGx16pi2_x03','cAx16pi2_x02','cu_x03','cHW_x02','cWWMinuscB_x04']: self.modelBuilder.out.var( poi ).setConstant(True)
 
     #set up model
     self.setup()
@@ -420,9 +395,9 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
     for proc in self.PROCESSES: 
       if( self.fixTHandBBH ): 
         if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
-        else: self.makeScalingFunction( proc, _scalePOIs=self.scalePOIs, STXSstage="1" )
-      else: self.makeScalingFunction( proc, _scalePOIs=self.scalePOIs, STXSstage="1" )
-    for dec in self.DECAYS: self.makeScalingFunction( dec, _scalePOIs=self.scalePOIs, STXSstage="1" ) 
+        else: self.makeScalingFunction( proc, STXSstage="1" )
+      else: self.makeScalingFunction( proc, STXSstage="1" )
+    for dec in self.DECAYS: self.makeScalingFunction( dec, STXSstage="1" ) 
 
   def getHiggsSignalYieldScale(self,production,decay,energy):
     name = "stxs1toeft_scaling_%s_%s_%s"%(production,decay,energy)
