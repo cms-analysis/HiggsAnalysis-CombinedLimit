@@ -164,6 +164,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         elif poi_scale[1] == "x02": self.poi_scaling[ poi_scale[0] ] = "0.01*%s"%line.split()[0]
         elif poi_scale[1] == "x01": self.poi_scaling[ poi_scale[0] ] = "0.1*%s"%line.split()[0]
         else: raise ValueError("[ERROR] Parameter of interest scaling not in allowed range [0.1-0.0001]")
+      #if poi: cG, cA, tcG, tcA add factor of 16pi2
     file_in.close()
 
   #Function to extract STXS scaling functions
@@ -370,15 +371,15 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
       self.modelBuilder.doVar("%s%s"%(poi,poi_range))
     self.modelBuilder.doSet("POI",POIs)      
     #POIs for cWW and cB defined in terms of constraints on cWW+cB and cWW-cB: define expression for individual coefficient
-    self.modelBuilder.factory_("expr::cWW_x04(\"0.5*(@0+@1)\",cWWPluscB_x04,cWWMinuscB_x04)")
-    self.modelBuilder.factory_("expr::cB_x04(\"0.5*(@0-@1)\",cWWPluscB_x04,cWWMinuscB_x04)")
-    self.poi_scaling['cWW'] = "0.0001*cWW_x04"
-    self.poi_scaling['cB'] = "0.0001*cB_x04"
+    self.modelBuilder.factory_("expr::cWW_x02(\"0.5*(@0+@1)\",cWWPluscB_x02,cWWMinuscB_x02)")
+    self.modelBuilder.factory_("expr::cB_x02(\"0.5*(@0-@1)\",cWWPluscB_x02,cWWMinuscB_x02)")
+    self.poi_scaling['cWW'] = "0.01*cWW_x02"
+    self.poi_scaling['cB'] = "0.01*cB_x02"
 
     #If specified in options: fix all parameters not used in LHCHXSWG-INT-2017-001 fit to 0 (freeze)
     if( self.freezeOtherParameters ):
       for poi in self.pois:
-        if poi not in ['cGx16pi2_x03','cAx16pi2_x02','cu_x03','cHW_x02','cWWMinuscB_x04']: self.modelBuilder.out.var( poi ).setConstant(True)
+        if poi not in ['cGx16pi2_x03','cAx16pi2_x02','cu_x01','cHW_x02','cWWMinuscB_x02']: self.modelBuilder.out.var( poi ).setConstant(True)
 
     #set up model
     self.setup()
