@@ -185,81 +185,63 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         _decay = None #reset
     file_in.close() 
 
-
-  # Function for make scaling function from string
-  #    * RooFormula unable to compile if string > 1000 characters: if formulaStr+poiStr > 500 then initiate new string and sum together for final function
-  def makeScalingFunction( self, what, STXSstage="1" ): 
-
+  # ** NEW **
+  #Function to make scaling function from string
+  #   > defines each terms as RooProduct
+  #   > sum of terms as RooAddition
+  def makeScalingFunction( self, what, STXSstage="1" ):
+  
     #if in processes/decays extract formula from corresponding dict
     if what in self.STXSScalingFunctions: formula = self.STXSScalingFunctions[ what ]
     elif what in self.DecayScalingFunctions: formula = self.DecayScalingFunctions[ what ]
     else:
       raise ValueError("[ERROR] Scaling function for %s does not exist for STXS Stage %s"%(what,STXSstage))
 
-    #turn formula into list: splitting by +/*/- (keeping delimiters)
-    formula = re.split('([+,*,-])', formula)
+    #replace "-" in formula string by "+-" and then turn into list, splitting by delimeter "+"
+    formula = re.sub("-","+-",formula).split("+")
+    
+    #define list to hold name of terms 
+    formulaTerms = []
+    _termIdx = 0
+ 
+    #loop over terms in formula (ignoring first term which is just 1 [perturbation theory])
+    for term in formula[1:]:
+      constituents = term.split("*")
+      #replace constituents by POIs (i.e scaled)
+      scaled_constituents = []
+      for c in constituents:
+        if c in self.poi_scaling: scaled_constituents.extend( self.poi_scaling[c].split("*") )
+        else: scaled_constituents.append( c )
+      #define string for term: RooProduct (factory)
+      termStr = "prod::term_%s_%g("%(what,_termIdx)
+      for sc in scaled_constituents: termStr += "%s,"%sc
+      termStr = termStr[:-1]+")"
+      # add term to model and dictionary
+      self.modelBuilder.factory_( termStr )
+      formulaTerms.append("term_%s_%g"%(what,_termIdx))
+      # add one to the iterator
+      _termIdx += 1
 
-    #If length of formula exceeds 300, define new formula and combine at the end
-    n_str = 0
-    #dict to store integer for poi: iterate integer when using new poi
-    poi_id = [{}]
-    poi_ = [0]
-    #strings to hold formula + list of parameters of interest
-    formulaStrings = ['expr::scaling_%s_%g(\"'%(what,n_str)]  
-    poiStrings = ['\",']
+    #split up sums into sizeable chunks: 15 terms max
+    sumTerms = {}
+    _sumIdx = -1 #start at -1
+    _termIdx = 0    
+    for _termIdx in range(len(formulaTerms)): 
+      if _termIdx % 25 == 0: _sumIdx += 1
+      #Add terms to sum
+      sumString = "scaling_%s_%s"%(what,_sumIdx)
+      if sumString in sumTerms: sumTerms[ sumString ] += "%s,"%formulaTerms[_termIdx]
+      else: sumTerms[ sumString ] = "%s,"%formulaTerms[_termIdx ]
+    #Add sizeable sums as RooAdditions
+    for key, value in sumTerms.iteritems(): self.modelBuilder.factory_( "sum::%s(%s)"%(key,value[:-1]) )
 
-    #loop over elements in formula
-    for element in formula:
-
-      #if formula string goes above length > 500 and final element is a +
-      if( len(formulaStrings[n_str]+poiStrings[n_str]) > 300 )&( formulaStrings[n_str][-1] == "+" ):
-        #remove final element from formula string
-        formulaStrings[n_str] = formulaStrings[n_str][:-1]
-        #add one to number of strings
-        n_str += 1
-        #add new elements
-        poi_id.append({}) #empty dictionary for pois
-        poi_.append(0)
-        formulaStrings.append('expr::scaling_%s_%g(\"'%(what,n_str))
-        poiStrings.append('\",')
-      
-      #if element is a poi
-      if(element.startswith("c"))|(element.startswith("t")):
-
-        #extract poi scaling
-        if element not in self.poi_scaling:
-          raise ValueError("[ERROR] %s not defined in POI list"%element)
-        #check if poi has already been used in formula
-        if element in poi_id: formulaStrings[n_str] += "%s*@%g"%("*".join(self.poi_scaling[element].split("*")[:-1]),poi_id[n_str][element])
-        else:
-          #add poi to dictionary and poiStr and add one to iterator
-          poi_id[n_str][ element ] = poi_[n_str]
-          poi_[n_str] += 1
-          # add multiplier*@(id) to formulaStr and poi to correct position in poiStr
-          formulaStrings[n_str] += "%s*@%g"%("*".join(self.poi_scaling[element].split("*")[:-1]),poi_id[n_str][element])
-          poiStrings[n_str] += "%s,"%self.poi_scaling[element].split("*")[-1]
-
-      #element is not a poi: simply add to formula Str
-      else:
-        formulaStrings[n_str] += element
-
-    #If just one formula string i.e. total formula has length less than 500
-    if( len( formulaStrings ) == 1 ):
-      #remove _0 identifier
-      functionStr = re.sub("%s_0"%what,"%s"%what,formulaStrings[0])+poiStrings[0][:-1]+")"
-      self.modelBuilder.factory_( functionStr )
-    #else combine individual formula strings
-    else:
-      total_formulaStr = 'expr::scaling_%s(\"'%what
-      total_poiStr = '\",'
-      for n_str in range(len(formulaStrings)):
-        functionStr = formulaStrings[n_str]+poiStrings[n_str][:-1]+")"
-        self.modelBuilder.factory_( functionStr )
-        total_formulaStr += "@%g+"%n_str
-        total_poiStr += "scaling_%s_%g,"%(what,n_str)
-      #add combined function
-      total_functionStr = total_formulaStr[:-1]+total_poiStr[:-1]+")"
-      self.modelBuilder.factory_( total_functionStr )
+    #Define string for total: 1 + sizeable sums
+    totalStr = "sum::scaling_%s(1,"%what
+    for key in sumTerms: totalStr += "%s,"%key
+    totalStr = totalStr[:-1]+")"
+          
+    #Add scaling function as RooAddition into model
+    self.modelBuilder.factory_( totalStr )
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #Function extracting the STXS bin uncertainties
