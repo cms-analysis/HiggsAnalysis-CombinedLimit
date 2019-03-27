@@ -11,38 +11,8 @@ import ROOT, os, re
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Global function to extract STXS production, decay mode and energy from process name
-#   * require new function since old method cuts process at first instance of "_"
 #   * this has changed with STXS under naming convention
 def getSTXSProdDecMode(bin,process,options):
-  processSource = process
-  decaySource = options.fileName+":"+bin # by default, decay comes from datacard name or bin label
-  if "_" in process:
-    #decay at end of process name after final _: join all previous parts to give processSource 
-    (processSource, decaySource) = "_".join(process.split("_")[0:-1]),process.split("_")[-1]
-  foundDecay = None
-  for D in ALL_HIGGS_DECAYS:
-    if D in decaySource:
-      if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
-      foundDecay = D
-  if not foundDecay: raise RuntimeError, "Validation Error: decay string %s does not contain any known decay name" % decaySource
-
-  foundEnergy = None
-  for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
-    if D in decaySource:
-      if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
-      foundEnergy = D
-  if not foundEnergy:
-    for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
-      if D in options.fileName+":"+bin:
-        if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
-        foundEnergy = D
-  if not foundEnergy:
-    foundEnergy = '13TeV' ## if using 81x, chances are its 13 TeV
-    print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
-  return (processSource, foundDecay, foundEnergy)
-
-#Short term fix: reading Ed style datacard
-def getSTXSProdDecMode_fix(bin,process,options):
   matchedDecayString = False#Boolean 
   processSource = process
   decaySource = options.fileName+":"+bin # by default, decay comes from datacard name or bin label
@@ -119,7 +89,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
   def getYieldScale(self,bin,process):
     "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
     if not self.DC.isSignal[process]: return 1
-    (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode_fix(bin,process,self.options)
+    (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin,process,self.options)
     #Return 1 for fixed processes and scaling for non-fixed
     if processSource in self.fixProcesses: return 1 
     else: return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
@@ -229,7 +199,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     #turn formula into list: splitting by +/*/- (keeping delimiters)
     formula = re.split('([+,*,-])', formula)
 
-    #If length of formula exceeds 500, define new formula and combine at the end
+    #If length of formula exceeds 300, define new formula and combine at the end
     n_str = 0
     #dict to store integer for poi: iterate integer when using new poi
     poi_id = [{}]
