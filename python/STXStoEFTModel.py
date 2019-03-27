@@ -43,45 +43,20 @@ def getSTXSProdDecMode(bin,process,options):
 
 #Short term fix: reading Ed style datacard
 def getSTXSProdDecMode_fix(bin,process,options):
+  matchedDecayString = False#Boolean 
   processSource = process
   decaySource = options.fileName+":"+bin # by default, decay comes from datacard name or bin label
-  if "_hgg" in process:
-    processSource = re.sub('_hgg','',process)
-    foundDecay = 'hgg'
-    foundEnergy = '13TeV'
-  elif "_hzz" in process:
-    processSource = re.sub('_hzz','',process)
-    foundDecay = 'hzz'
-    foundEnergy = '13TeV'
-  elif "_hbb" in process:
-    processSource = re.sub('_hbb','',process)
-    foundDecay = 'hbb'
-    foundEnergy = '13TeV'
-  else:
-    if "_" in process:
-      #decay at end of process name after final _: join all previous parts to give processSource 
-      (processSource, decaySource) = "_".join(process.split("_")[0:-1]),process.split("_")[-1]
-    foundDecay = None
-    for D in ALL_HIGGS_DECAYS:
-      if D in decaySource:
-        if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
-        foundDecay = D
-    if not foundDecay: raise RuntimeError, "Validation Error: decay string %s does not contain any known decay name" % decaySource
-
-    foundEnergy = None
-    for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
-      if D in decaySource:
-        if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
-        foundEnergy = D
-    if not foundEnergy:
-      for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
-        if D in options.fileName+":"+bin:
-          if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
-          foundEnergy = D
-    if not foundEnergy:
-      foundEnergy = '13TeV' ## if using 81x, chances are its 13 TeV
-      print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
-
+  foundDecay = None
+  foundEnergy = "13TeV"
+  #Iterate over Higgs decays
+  for D in ALL_HIGGS_DECAYS:
+    if matchedDecayString: continue
+    # if decay in process name: set process and decay
+    if "_%s"%D in process:
+      processSource = re.sub('_%s'%D,'',process)
+      foundDecay = D
+      matchedDecayString = True
+  if not matchedDecayString: raise RuntimeError, "Validation Error: no supported decay found in process"
   return (processSource, foundDecay, foundEnergy)
 
 #################################################################################################################
@@ -90,7 +65,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 
   # initialisation: include options for STXS bin and BR uncertainties
   #    * note: STXS bin uncertainties are defined in data/lhc-hxswg/eft/stageX/BinUncertainties.txt. Needs updating!
-  def __init__(self,STXSU=False,BRU=False,fixTHandBBH=True,freezeOtherParameters=False):
+  def __init__(self,STXSU=False,BRU=False,fixTHandBBH=True,freezeOtherParameters=False,fixProcesses=[]):
     SMLikeHiggsModel.__init__(self)
     self.PROCESSES = []
     self.DECAYS = []
@@ -99,6 +74,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.doBRU = BRU
     self.fixTHandBBH = fixTHandBBH #if false scaling function for tH, bbH MUST be defined in input text file: data/lhc-hxswg/eft/stageX/crosssections.txt
     self.freezeOtherParameters = freezeOtherParameters #Option to freeze majority of parameters in model. Leaving those used in LHCHXSWG-INT-2017-001 fit to float
+    self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
 
   def setPhysicsOptionsBase(self,physOptions):
     for po in physOptions:
@@ -113,14 +89,17 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         self.doBRU = (po.replace("BRU=","") in ["yes","1","Yes","True","true"])
       if po.startswith("STXSU="):
         self.doSTXSU = (po.replace("STXSU=","") in ["yes","1","Yes","True","true"])
-      if po.startswith("freezeOther="):
-        self.freezeOtherParameters = (po.replace("freezeOther=","") in ["yes","1","Yes","True","true"])
+      if po.startswith("freezeOtherParameters="):
+        self.freezeOtherParameters = (po.replace("freezeOtherParameters=","") in ["yes","1","Yes","True","true"])
+      if po.startswith("fixProcesses="): 
+        self.fixProcesses = (po.replace("fixProcesses=","")).split(",")
     #Output option used to terminal
     print "[STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
     print "[STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
     if( self.doSTXSU ): print "   [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/stageX/BinUncertainties.txt"
     if( self.freezeOtherParameters ): print "[STXStoEFT] Freezing all but [cG,cA,cu,cHW,cWWMinuscB] to 0"
     else: print "[STXStoEFT] Allowing all HEL parameters to float"
+    if( len( self.fixProcesses ) > 0 ): print "[STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
 
   def doMH(self):
     if self.floatMass:
@@ -141,7 +120,9 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
     if not self.DC.isSignal[process]: return 1
     (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode_fix(bin,process,self.options)
-    return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
+    #Return 1 for fixed processes and scaling for non-fixed
+    if processSource in self.fixProcesses: return 1 
+    else: return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # READING FROM TEXT FILES
@@ -159,12 +140,14 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
       #save poi scaling to dictionary: used when making scaling function
       if len(poi_scale) == 1: self.poi_scaling[ poi_scale[0] ] = "1.*%s"%line.split()[0]
       else:
-        if poi_scale[1] == "x04": self.poi_scaling[ poi_scale[0] ] = "0.0001*%s"%line.split()[0]
+        if poi_scale[1] == "x05": self.poi_scaling[ poi_scale[0] ] = "0.00001*%s"%line.split()[0]
+        elif poi_scale[1] == "x04": self.poi_scaling[ poi_scale[0] ] = "0.0001*%s"%line.split()[0]
         elif poi_scale[1] == "x03": self.poi_scaling[ poi_scale[0] ] = "0.001*%s"%line.split()[0]
         elif poi_scale[1] == "x02": self.poi_scaling[ poi_scale[0] ] = "0.01*%s"%line.split()[0]
         elif poi_scale[1] == "x01": self.poi_scaling[ poi_scale[0] ] = "0.1*%s"%line.split()[0]
         else: raise ValueError("[ERROR] Parameter of interest scaling not in allowed range [0.1-0.0001]")
       #if poi: cG, cA, tcG, tcA add factor of 16pi2
+      if poi_scale[0] in ['cG','tcG','cA','tcA']: self.poi_scaling[ poi_scale[0] ] = "157.914*%s"%(self.poi_scaling[ poi_scale[0] ])
     file_in.close()
 
   #Function to extract STXS scaling functions
@@ -259,7 +242,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     for element in formula:
 
       #if formula string goes above length > 500 and final element is a +
-      if( len(formulaStrings[n_str]+poiStrings[n_str]) > 250 )&( formulaStrings[n_str][-1] == "+" ):
+      if( len(formulaStrings[n_str]+poiStrings[n_str]) > 300 )&( formulaStrings[n_str][-1] == "+" ):
         #remove final element from formula string
         formulaStrings[n_str] = formulaStrings[n_str][:-1]
         #add one to number of strings
@@ -273,22 +256,18 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
       #if element is a poi
       if(element.startswith("c"))|(element.startswith("t")):
 
-        #convert cG and cA to correct name (x16pi2)
-        if element == "cG": element = "cGx16pi2"
-        elif element == "cA": element = "cAx16pi2"
-
         #extract poi scaling
         if element not in self.poi_scaling:
           raise ValueError("[ERROR] %s not defined in POI list"%element)
         #check if poi has already been used in formula
-        if element in poi_id: formulaStrings[n_str] += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[n_str][element])
+        if element in poi_id: formulaStrings[n_str] += "%s*@%g"%("*".join(self.poi_scaling[element].split("*")[:-1]),poi_id[n_str][element])
         else:
           #add poi to dictionary and poiStr and add one to iterator
           poi_id[n_str][ element ] = poi_[n_str]
           poi_[n_str] += 1
           # add multiplier*@(id) to formulaStr and poi to correct position in poiStr
-          formulaStrings[n_str] += "%s*@%g"%(self.poi_scaling[element].split("*")[0],poi_id[n_str][element])
-          poiStrings[n_str] += "%s,"%self.poi_scaling[element].split("*")[1]
+          formulaStrings[n_str] += "%s*@%g"%("*".join(self.poi_scaling[element].split("*")[:-1]),poi_id[n_str][element])
+          poiStrings[n_str] += "%s,"%self.poi_scaling[element].split("*")[-1]
 
       #element is not a poi: simply add to formula Str
       else:
@@ -379,7 +358,7 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
     #If specified in options: fix all parameters not used in LHCHXSWG-INT-2017-001 fit to 0 (freeze)
     if( self.freezeOtherParameters ):
       for poi in self.pois:
-        if poi not in ['cGx16pi2_x03','cAx16pi2_x02','cu_x01','cHW_x02','cWWMinuscB_x02']: self.modelBuilder.out.var( poi ).setConstant(True)
+        if poi not in ['cG_x05','cA_x04','cu_x01','cHW_x02','cWWMinuscB_x02']: self.modelBuilder.out.var( poi ).setConstant(True)
 
     #set up model
     self.setup()
