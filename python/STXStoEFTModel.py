@@ -35,7 +35,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 
   # initialisation: include options for STXS bin and BR uncertainties
   #    * note: STXS bin uncertainties are defined in data/lhc-hxswg/eft/stageX/BinUncertainties.txt. Needs updating!
-  def __init__(self,STXSU=False,BRU=False,fixTHandBBH=True,freezeOtherParameters=False,fixProcesses=[]):
+  def __init__(self,STXSU=False,BRU=False,fixTHandBBH=True,freezeOtherParameters=True,fixProcesses=[]):
     SMLikeHiggsModel.__init__(self)
     self.PROCESSES = []
     self.DECAYS = []
