@@ -126,6 +126,12 @@
 </li>
 
                         
+                            
+<li >
+    <a href="../../part3/regularisation/">Unfolding & regularization</a>
+</li>
+
+                        
                         </ul>
                     </li>
                 
@@ -269,7 +275,7 @@ p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
 </code></pre>
 
 <p>You should note that <code>text2workspace</code> will look for the python module in <code>PYTHONPATH</code>. If you want to keep your model local, you'll need to add the location of the python file to <code>PYTHONPATH</code>.</p>
-<p>A number of models used in the LHC Higgs combination paper can be found in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/python/LHCHCGModels.py">LHCHCGModels.py</a>. These can be easily accessed by providing for example <code>-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7</code> and others defined un <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/python/HiggsCouplings.py">HiggsCouplings.py</a>.</p>
+<p>A number of models used in the LHC Higgs combination paper can be found in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/python/LHCHCGModels.py">LHCHCGModels.py</a>. These can be easily accessed by providing for example <code>-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7</code> and others defined un <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/python/HiggsCouplings.py">HiggsCouplings.py</a>.</p>
 <p>Below are some (more generic) example models which also exist in gitHub.</p>
 <h3 id="multisignalmodel-ready-made-model-for-multiple-signal-processes">MultiSignalModel ready made model for multiple signal processes</h3>
 <p>Combine already contains a model <strong><code>HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel</code></strong> that can be used to assign different signal strengths to multiple processes in a datacard, configurable from the command line.</p>
