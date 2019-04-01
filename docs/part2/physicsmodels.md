@@ -104,7 +104,7 @@ def getHiggsSignalYieldScale(self,production,decay, energy):
 
 You should note that `text2workspace` will look for the python module in `PYTHONPATH`. If you want to keep your model local, you'll need to add the location of the python file to `PYTHONPATH`.
 
-A number of models used in the LHC Higgs combination paper can be found in [LHCHCGModels.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/python/LHCHCGModels.py). These can be easily accessed by providing for example `-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7` and others defined un [HiggsCouplings.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/python/HiggsCouplings.py).
+A number of models used in the LHC Higgs combination paper can be found in [LHCHCGModels.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/python/LHCHCGModels.py). These can be easily accessed by providing for example `-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7` and others defined un [HiggsCouplings.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/python/HiggsCouplings.py).
 
 Below are some (more generic) example models which also exist in gitHub.
 
