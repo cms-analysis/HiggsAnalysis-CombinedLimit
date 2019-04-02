@@ -60,6 +60,7 @@ std::string MultiDimFit::robustHesseSave_ = "";
 std::string MultiDimFit::saveSpecifiedFuncs_;
 std::string MultiDimFit::saveSpecifiedIndex_;
 std::string MultiDimFit::saveSpecifiedNuis_;
+std::string MultiDimFit::setParametersForGrid_;
 std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
 std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
 std::vector<float>        MultiDimFit::specifiedFuncVals_;
@@ -97,6 +98,7 @@ MultiDimFit::MultiDimFit() :
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
     ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
+    ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
 	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
     ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
     ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
@@ -135,7 +137,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     skipInitialFit_ = (vm.count("skipInitialFit") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
-    savingSnapshot_ = (!loadedSnapshot_) && vm.count("saveWorkspace");
+    savingSnapshot_ = vm.count("saveWorkspace");
     name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
     saveFitResult_ = (vm.count("saveFitResult") > 0);
 }
@@ -569,6 +571,13 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     unsigned int n = poi_.size();
     //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
+
+    if (setParametersForGrid_ != "") {
+       RooArgSet allParams(w->allVars());
+       allParams.add(w->allCats());
+       utils::setModelParameters( setParametersForGrid_, allParams);
+    }
+
     if (startFromPreFit_) w->loadSnapshot("clean");
 
     std::vector<double> p0(n), pmin(n), pmax(n);
@@ -973,7 +982,7 @@ void MultiDimFit::doFixedPoint(RooWorkspace *w, RooAbsReal &nll)
     //for (unsigned int i = 0; i < n; ++i) {
     //        std::cout<<" after the fit "<<poiVars_[i]->GetName()<<"= "<<poiVars_[i]->getVal()<<std::endl;
     //}
-	    }
+        }
     } 
 }
 
