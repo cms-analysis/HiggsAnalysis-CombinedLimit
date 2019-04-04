@@ -229,19 +229,24 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     for _termIdx in range(len(formulaTerms)): 
       if _termIdx % 25 == 0: _sumIdx += 1
       #Add terms to sum
-      sumString = "scaling_%s_%s"%(what,_sumIdx)
+      if( what in self.DecayScalingFunctions )&( what != "tot" ): sumString = "scaling_partial_%s_%s"%(what,_sumIdx)
+      else: sumString = "scaling_%s_%s"%(what,_sumIdx)
       if sumString in sumTerms: sumTerms[ sumString ] += "%s,"%formulaTerms[_termIdx]
       else: sumTerms[ sumString ] = "%s,"%formulaTerms[_termIdx ]
     #Add sizeable sums as RooAdditions
     for key, value in sumTerms.iteritems(): self.modelBuilder.factory_( "sum::%s(%s)"%(key,value[:-1]) )
 
     #Define string for total: 1 + sizeable sums
-    totalStr = "sum::scaling_%s(1,"%what
+    if( what in self.DecayScalingFunctions )&( what != "tot" ): totalStr = "sum::scaling_partial_%s(1,"%what
+    else: totalStr = "sum::scaling_%s(1,"%what
     for key in sumTerms: totalStr += "%s,"%key
     totalStr = totalStr[:-1]+")"
           
     #Add scaling function as RooAddition into model
     self.modelBuilder.factory_( totalStr )
+
+  #Function to make BR scaling functions: partial width/total width
+  def makeBRScalingFunction( self, what ): self.modelBuilder.factory_( 'expr::scaling_BR_%s("@0/@1", scaling_partial_%s, scaling_tot)'%(what,what) )
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #Function extracting the STXS bin uncertainties
@@ -329,7 +334,11 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
         if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
         else: self.makeScalingFunction( proc, STXSstage="1" )
       else: self.makeScalingFunction( proc, STXSstage="1" )
+    #First make partial width + total width scaling functions
     for dec in self.DECAYS: self.makeScalingFunction( dec, STXSstage="1" ) 
+    #loop over decays again and make BR scaling functions: partial width/total width
+    for dec in self.DECAYS:
+      if dec != "tot": self.makeBRScalingFunction( dec )
 
   def getHiggsSignalYieldScale(self,production,decay,energy):
     name = "stxs1toeft_scaling_%s_%s_%s"%(production,decay,energy)
@@ -344,7 +353,7 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
       #Check decay scaling exists
       BRscal = None
       if decay in self.DECAYS:
-        BRscal = "scaling_%s"%decay
+        BRscal = "scaling_BR_%s"%decay
       else:
         raise ValueError("[ERROR] Decay %d is not supported"%decay)
 
