@@ -16,6 +16,8 @@
 
 #define HFVERBOSE 0
 
+bool CMSHistFunc::enable_fast_vertical_ = false;
+
 CMSHistFunc::CMSHistFunc() {
   morph_strategy_ = 0;
   initialized_ = false;
@@ -25,6 +27,7 @@ CMSHistFunc::CMSHistFunc() {
   divide_by_width_ = true;
   rebin_ = false;
   vsmooth_par_ = 1.0;
+  fast_vertical_ = false;
 }
 
 CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
@@ -44,7 +47,8 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       mtype_(MomentSetting::Linear),
       vtype_(VerticalSetting::QuadLinear),
       divide_by_width_(divide_by_width),
-      vsmooth_par_(1.0) {
+      vsmooth_par_(1.0),
+      fast_vertical_(false) {
   if (divide_by_width_) {
     for (unsigned i = 0; i < cache_.size(); ++i) {
       cache_[i] /= cache_.GetWidth(i);
@@ -115,7 +119,8 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       mtype_(other.mtype_),
       vtype_(other.vtype_),
       divide_by_width_(other.divide_by_width_),
-      vsmooth_par_(other.vsmooth_par_) {
+      vsmooth_par_(other.vsmooth_par_),
+      fast_vertical_(false) {
   // initialize();
 }
 
@@ -127,6 +132,10 @@ void CMSHistFunc::initialize() const {
   vmorph_sentry_.addVars(vmorphs_);
   hmorph_sentry_.setValueDirty();
   vmorph_sentry_.setValueDirty();
+  vmorphs_vec_.resize(vmorphs_.getSize());
+  for (int i = 0; i < vmorphs_.getSize(); ++i) {
+    vmorphs_vec_[i] = (RooAbsReal*)(&vmorphs_[i]);
+  }
 
   setGlobalCache();
 
@@ -295,6 +304,10 @@ void CMSHistFunc::updateCache() const {
 
   if (step1 || step2) {
     if (mcache_.size() == 0) mcache_.resize(storage_.size());
+  }
+
+  if (step1) {
+    fast_vertical_ = false;
   }
 
   if (morph_strategy_ == 0) {
@@ -518,9 +531,14 @@ void CMSHistFunc::updateCache() const {
 #endif
 
       unsigned idx = getIdx(0, global_.p1, 0, 0);
-      mcache_[idx].step2 = mcache_[idx].step1;
-      if (vtype_ == VerticalSetting::LogQuadLinear) {
-        mcache_[idx].step2.Log();
+      if (vertical_prev_vals_.size() == 0) {
+        vertical_prev_vals_.resize(vmorphs_.getSize());
+      }
+      if (!fast_vertical_) {
+        mcache_[idx].step2 = mcache_[idx].step1;
+        if (vtype_ == VerticalSetting::LogQuadLinear) {
+          mcache_[idx].step2.Log();
+        }
       }
 
 #if HFVERBOSE > 0
@@ -529,12 +547,20 @@ void CMSHistFunc::updateCache() const {
 #endif
 
       for (int v = 0; v < vmorphs_.getSize(); ++v) {
+        double x = vmorphs_vec_[v]->getVal();
+        // if we're in fast_vertical then need to check if this vmorph value has changed.
+        // if it hasn't then we skip immediately.
+        if (fast_vertical_ && (x == vertical_prev_vals_[v])) continue;
+
         unsigned vidx = getIdx(0, global_.p1, v+1, 0);
 
-        double x = ((RooRealVar&)vmorphs_[v]).getVal();
-
-
-        mcache_[idx].step2.Meld(mcache_[vidx].diff, mcache_[vidx].sum, 0.5*x, smoothStepFunc(x));
+        if (fast_vertical_) {
+          double xold = vertical_prev_vals_[v];
+          mcache_[idx].step2.DiffMeld(mcache_[vidx].diff, mcache_[vidx].sum, 0.5*x, smoothStepFunc(x), 0.5*xold, smoothStepFunc(xold));
+        } else {
+          mcache_[idx].step2.Meld(mcache_[vidx].diff, mcache_[vidx].sum, 0.5*x, smoothStepFunc(x));
+        }
+        vertical_prev_vals_[v] = x;
 
 #if HFVERBOSE > 1
         std::cout << "Morphing for " << vmorphs_[v].GetName() << " with value: " << x << "\n";
@@ -542,15 +568,16 @@ void CMSHistFunc::updateCache() const {
         mcache_[idx].step2.Dump();
 #endif
       }
-      if (vtype_ == VerticalSetting::LogQuadLinear) {
-        mcache_[idx].step2.Exp();
-      }
-      mcache_[idx].step2.CropUnderflows();
       cache_.CopyValues(mcache_[idx].step2);
+      if (vtype_ == VerticalSetting::LogQuadLinear) {
+        cache_.Exp();
+      }
+      cache_.CropUnderflows();
+      if (enable_fast_vertical_) fast_vertical_ = true;
 
 #if HFVERBOSE > 0
-        std::cout << "Final cache: " << cache_.Integral() << "\n";
-        cache_.Dump();
+      std::cout << "Final cache: " << cache_.Integral() << "\n";
+      cache_.Dump();
 #endif
 
       vmorph_sentry_.reset();
@@ -1129,6 +1156,10 @@ CMSHistFuncWrapper const* CMSHistFunc::wrapper() const {
 
 RooAbsReal const& CMSHistFunc::getXVar() const {
   return x_.arg();
+}
+
+void CMSHistFunc::EnableFastVertical() {
+  enable_fast_vertical_ = true;
 }
 
 #undef HFVERBOSE
