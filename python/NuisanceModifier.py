@@ -121,6 +121,8 @@ def doRenameNuisance(datacard, args):
     if len(args) == 2: # newname oldname 
       nuisanceID = i = -1
       (oldname, newname) = args[:2]
+      if "Pdf" in newname: 
+          raise RuntimeError, "Error - cannot use 'Pdf' substring in the new name for a nuisance parameter"
       for lsyst,nofloat,pdf0,args0,errline0 in (datacard.systs[:]):
         i+=1
         if lsyst == oldname : # found the nuisance
