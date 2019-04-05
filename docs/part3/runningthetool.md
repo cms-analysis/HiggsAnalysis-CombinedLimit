@@ -27,7 +27,7 @@ The option `-M` allows to chose the method used. There are several groups of sta
 The command help is organized into five parts:
 
 -   *Main options* section indicates how to pass the datacard as input to the tool (`-d datacardName`) and how to choose the statistical method (`-M MethodName`) to compute a limit and level of verbosity for output `-v`
--   *Common statistics options* include options common to different statistical methods such as `-S`, used to indicate wether to include or not systematics (default is 1, include them), `--cl` to specify the CL (default is 0.95) or `-t` to give the number of toy MC extractions required.
+-   *Common statistics options* include options common to different statistical methods such as `--cl` to specify the CL (default is 0.95) or `-t` to give the number of toy MC extractions required.
 -   *Common input-output options*. Is it possible to specify hypothesis point under analysis using `-m` or include specific string in output filename `--name`.
 -   *Common miscellaneous options*.
 -   Method specific options sections are dedicated to each method. By providing the Method name with the `-M` option, only the options for that specific method are shown in addition to the common options
@@ -41,9 +41,6 @@ There are a number of useful command line options which can be used to alter the
 -   `-H`: run first another faster algorithm (e.g. the ProfileLikelihood described below) to get a hint of the limit, allowing the real algorithm to converge more quickly. We **strongly recommend** to use this option when using MarkovChainMC, HybridNew or FeldmanCousins calculators, unless you know in which range your limit lies and you set it manually (the default is `[0, 20]`)
 
 -   `--rMax`, `--rMin`: manually restrict the range of signal strengths to consider. For Bayesian limits with MCMC, `rMax` a rule of thumb is that rMax should be 3-5 times the limit (a too small value of `rMax` will bias your limit towards low values, since you are restricting the integration range, while a too large value will bias you to higher limits)
-
--   `-S`: if set to 1 (default), **systematic uncertainties** are taken into account; if set to 0, only statistical uncertainties are considered. If your model has no systematic uncertainties, this flag has no effect. In example reported above the option S has been not specified, and systematics have been included.
-
 
 -   `--setParameters name=value[,name2=value2,...]` sets the starting values of the parameters, useful e.g. when generating toy MC or when also setting the parameters as fixed. This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`
 
@@ -121,7 +118,6 @@ The output file will contain a `TDirectory` named **toys**, which will be empty 
 | **`limit`** | `Double_t` | Main result of combine run with method dependent meaning |
 | **`limitErr`** | `Double_t` | Estimated uncertainty on the result |
 | **`mh`** | `Double_t` | Value of **MH**, specified with `-m` option |
-| **`syst`** | `Int_t` | Whether or not systematics (constrained nuisances) are included (floating) as determined with `-S 0/1`|
 | **`iToy`** | `Int_t` | Toy number identifier if running with `-t`|
 | **`iSeed`** | `Int_t` | Seed specified with `-s`|
 | **`t_cpu`** | `Float_t` | Estimated CPU time for algorithm|
