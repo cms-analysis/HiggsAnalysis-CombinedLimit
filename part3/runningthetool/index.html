@@ -228,7 +228,7 @@
 <p>The command help is organized into five parts:</p>
 <ul>
 <li><em>Main options</em> section indicates how to pass the datacard as input to the tool (<code>-d datacardName</code>) and how to choose the statistical method (<code>-M MethodName</code>) to compute a limit and level of verbosity for output <code>-v</code></li>
-<li><em>Common statistics options</em> include options common to different statistical methods such as <code>-S</code>, used to indicate wether to include or not systematics (default is 1, include them), <code>--cl</code> to specify the CL (default is 0.95) or <code>-t</code> to give the number of toy MC extractions required.</li>
+<li><em>Common statistics options</em> include options common to different statistical methods such as <code>--cl</code> to specify the CL (default is 0.95) or <code>-t</code> to give the number of toy MC extractions required.</li>
 <li><em>Common input-output options</em>. Is it possible to specify hypothesis point under analysis using <code>-m</code> or include specific string in output filename <code>--name</code>.</li>
 <li><em>Common miscellaneous options</em>.</li>
 <li>Method specific options sections are dedicated to each method. By providing the Method name with the <code>-M</code> option, only the options for that specific method are shown in addition to the common options</li>
@@ -242,9 +242,6 @@
 </li>
 <li>
 <p><code>--rMax</code>, <code>--rMin</code>: manually restrict the range of signal strengths to consider. For Bayesian limits with MCMC, <code>rMax</code> a rule of thumb is that rMax should be 3-5 times the limit (a too small value of <code>rMax</code> will bias your limit towards low values, since you are restricting the integration range, while a too large value will bias you to higher limits)</p>
-</li>
-<li>
-<p><code>-S</code>: if set to 1 (default), <strong>systematic uncertainties</strong> are taken into account; if set to 0, only statistical uncertainties are considered. If your model has no systematic uncertainties, this flag has no effect. In example reported above the option S has been not specified, and systematics have been included.</p>
 </li>
 <li>
 <p><code>--setParameters name=value[,name2=value2,...]</code> sets the starting values of the parameters, useful e.g. when generating toy MC or when also setting the parameters as fixed. This option supports the use of regexp via by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
@@ -361,11 +358,6 @@
 <td><strong><code>mh</code></strong></td>
 <td><code>Double_t</code></td>
 <td>Value of <strong>MH</strong>, specified with <code>-m</code> option</td>
-</tr>
-<tr>
-<td><strong><code>syst</code></strong></td>
-<td><code>Int_t</code></td>
-<td>Whether or not systematics (constrained nuisances) are included (floating) as determined with <code>-S 0/1</code></td>
 </tr>
 <tr>
 <td><strong><code>iToy</code></strong></td>
