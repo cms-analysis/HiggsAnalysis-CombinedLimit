@@ -116,7 +116,6 @@ class ModelBuilder(ModelBuilderBase):
         while poi:
             self.out.var(poi.GetName()).setAttribute('group_POI',True)
             poi = poiIter.Next()
-
         self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
 	self.doExtArgs()

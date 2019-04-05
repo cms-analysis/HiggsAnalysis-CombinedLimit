@@ -36,7 +36,8 @@ class CascadeMinimizer {
         static const boost::program_options::options_description & options() { return options_; }
         void trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int points=100) const ;
         //void collectIrrelevantNuisances(RooAbsCollection &irrelevant) const ;
-        void setAutoBounds(const RooArgSet *pois) ; 
+	bool freezeDiscParams(const bool);
+        void setAutoBounds(const RooArgSet *pois) ;
         void setAutoMax(const RooArgSet *pois) ; 
 	double tolerance() {return defaultMinimizerTolerance_;};
 	std::string algo() {return defaultMinimizerAlgo_;};
@@ -124,6 +125,7 @@ class CascadeMinimizerGlobalConfigs{
 	  RooListProxy allFloatingParameters; 
 	  RooListProxy parametersOfInterest; 
 	  RooListProxy allRooMultiPdfParams;
+	  RooListProxy allRooMultiPdfs;
 
 	  static CascadeMinimizerGlobalConfigs& O(){
 
