@@ -145,6 +145,8 @@ def doRenameNuisance(datacard, args):
     if len(args) < 4:
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"
     (process, channel, oldname, newname) = args[:4]
+    if "Pdf" in newname: 
+        raise RuntimeError, "Error - cannot use 'Pdf' substring in the new name for a nuisance parameter"
     if process != "*": cprocess = re.compile(process)
     if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
     opts = args[4:]
