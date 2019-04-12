@@ -1234,7 +1234,7 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     RooArgSet clients;
     utils::getClients(CascadeMinimizerGlobalConfigs::O().pdfCategories,(w->allPdfs()),clients);
     TIterator *it = clients.createIterator();
-    clients.Print();
+    // clients.Print();
     while (RooAbsArg *arg = (RooAbsArg*)it->Next()) {
       (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs).add(*(dynamic_cast<RooMultiPdf*>(arg)));
       RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(arg);
