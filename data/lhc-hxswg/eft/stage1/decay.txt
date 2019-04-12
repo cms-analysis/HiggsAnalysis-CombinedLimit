@@ -4,7 +4,7 @@ Bin number: 46 hbb
 1 -1.0 * cH + 3.0 * cd + 0.25 * cH * cH + 2.25 * cd * cd -1.5 * cH * cd
 Bin number: 47 hww
 1 + 10.26 * cWW + 3.72 * cHW + 1.67 * cpHQ + 0.558 * cpHL + 0.25 * cH * cH + 26.3 * cWW * cWW + 3.77 * cHW * cHW + 0.895 * cpHQ * cpHQ + 0.719 * cHud * cHud + 0.259 * cpHL * cpHL + 0.323 * tcHW * tcHW -5.1 * cH * cWW -1.86 * cH * cHW -0.837 * cH * cpHQ -0.279 * cH * cpHL + 19.2 * cWW * cHW + 8.6 * cWW * cpHQ + 2.9 * cWW * cpHL + 3.19 * cHW * cpHQ + 1.05 * cHW * cpHL + 0.116 * cpHQ * cpHL
-Bin number: 49 htautau
+Bin number: 49 htt
 1 -1.0 * cH + 3.0 * cl + 0.25 * cH * cH + 2.25 * cl * cl -1.5 * cH * cl
 Bin number: 50 hgg
 1 -5.80 * cA + 8.4 * cA * cA + 8.4 * tcA * tcA

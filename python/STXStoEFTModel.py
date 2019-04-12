@@ -289,7 +289,7 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
      STXStoEFTBaseModel.__init__(self)
      from HiggsAnalysis.CombinedLimit.STXS import stage1_procs 
      self.PROCESSES = [x for v in stage1_procs.itervalues() for x in v]
-     self.DECAYS = ['hzz','hbb','hww','hgg','hgluglu','hcc','tot']
+     self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','tot']
 
   def setPhysicsOptions(self,physOptions):
     self.setPhysicsOptionsBase(physOptions)
