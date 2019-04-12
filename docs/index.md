@@ -18,26 +18,56 @@ The instructions below are for installation within a CMSSW environment
 
 You can find the latest releases on github under [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
 
-### ROOT6 SLC6 release `CMSSW_8_1_X` - recommended version
+### CC7 release `CMSSW_10_2_X` - validation in progress
+
+Once validation is complete this release will become the recommended version.
 
 Setting up the environment (once):
 
 ```sh
+export SCRAM_ARCH=slc7_amd64_gcc700
+cmsrel CMSSW_10_2_13
+cd CMSSW_10_2_13/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+```
+Update to a reccomended tag - currently the reccomended tag is **v8.0.0**:
+
+```sh
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v8.0.0
+scramv1 b clean; scramv1 b # always make a clean build
+```
+
+### SLC6/CC7 release `CMSSW_8_1_X` - recommended version
+
+Setting up the environment (once):
+
+```sh
+# For CC7:
+export SCRAM_ARCH=slc7_64_gcc530
+# For SLC6:
 export SCRAM_ARCH=slc6_64_gcc530
+
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a reccomended tag - currently the reccomended tag is **v7.0.12**:
+Update to a reccomended tag - currently the reccomended tag is **v7.0.13**:
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v7.0.12
+git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 ```
+
+
+## What has changed between tags? 
 
 You can generate a diff of any two tags (eg for `v7.0.8` and `v7.0.6`) by using following the url:
 
