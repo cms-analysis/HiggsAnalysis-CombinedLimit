@@ -66,6 +66,9 @@ git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
+
+## What has changed between tags? 
+
 You can generate a diff of any two tags (eg for `v7.0.8` and `v7.0.6`) by using following the url:
 
 [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7)
