@@ -177,7 +177,10 @@
         <li class="first-level "><a href="#setting-up-the-environment-and-installation">Setting up the environment and installation</a></li>
             <li class="second-level"><a href="#for-end-users-that-dont-need-to-commit-or-do-any-development">For end users that don't need to commit or do any development</a></li>
                 
-                <li class="third-level"><a href="#root6-slc6-release-cmssw_8_1_x-recommended-version">ROOT6 SLC6 release CMSSW_8_1_X - recommended version</a></li>
+                <li class="third-level"><a href="#cc7-release-cmssw_10_2_x-validation-in-progress">CC7 release CMSSW_10_2_X - validation in progress</a></li>
+                <li class="third-level"><a href="#slc6cc7-release-cmssw_8_1_x-recommended-version">SLC6/CC7 release CMSSW_8_1_X - recommended version</a></li>
+            <li class="second-level"><a href="#what-has-changed-between-tags">What has changed between tags?</a></li>
+                
             <li class="second-level"><a href="#for-developers">For developers</a></li>
                 
                 <li class="third-level"><a href="#recommended-way-to-develop-a-feature-in-a-branch">Recommended way to develop a feature (in a branch)</a></li>
@@ -197,9 +200,31 @@
 <p>The instructions below are for installation within a CMSSW environment</p>
 <h2 id="for-end-users-that-dont-need-to-commit-or-do-any-development">For end users that don't need to commit or do any development</h2>
 <p>You can find the latest releases on github under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases</a></p>
-<h3 id="root6-slc6-release-cmssw_8_1_x-recommended-version">ROOT6 SLC6 release <code>CMSSW_8_1_X</code> - recommended version</h3>
+<h3 id="cc7-release-cmssw_10_2_x-validation-in-progress">CC7 release <code>CMSSW_10_2_X</code> - validation in progress</h3>
+<p>Once validation is complete this release will become the recommended version.</p>
 <p>Setting up the environment (once):</p>
-<pre><code class="sh">export SCRAM_ARCH=slc6_64_gcc530
+<pre><code class="sh">export SCRAM_ARCH=slc7_amd64_gcc700
+cmsrel CMSSW_10_2_13
+cd CMSSW_10_2_13/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+</code></pre>
+
+<p>Update to a reccomended tag - currently the reccomended tag is <strong>v8.0.0</strong>:</p>
+<pre><code class="sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v8.0.0
+scramv1 b clean; scramv1 b # always make a clean build
+</code></pre>
+
+<h3 id="slc6cc7-release-cmssw_8_1_x-recommended-version">SLC6/CC7 release <code>CMSSW_8_1_X</code> - recommended version</h3>
+<p>Setting up the environment (once):</p>
+<pre><code class="sh"># For CC7:
+export SCRAM_ARCH=slc7_64_gcc530
+# For SLC6:
+export SCRAM_ARCH=slc6_64_gcc530
+
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
 cmsenv
@@ -207,13 +232,14 @@ git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsA
 cd HiggsAnalysis/CombinedLimit
 </code></pre>
 
-<p>Update to a reccomended tag - currently the reccomended tag is <strong>v7.0.12</strong>:</p>
+<p>Update to a reccomended tag - currently the reccomended tag is <strong>v7.0.13</strong>:</p>
 <pre><code class="sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v7.0.12
+git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 </code></pre>
 
+<h2 id="what-has-changed-between-tags">What has changed between tags?</h2>
 <p>You can generate a diff of any two tags (eg for <code>v7.0.8</code> and <code>v7.0.6</code>) by using following the url:</p>
 <p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7</a></p>
 <p>Replace the tag names in the url to any tags you which to compare.</p>
@@ -328,5 +354,5 @@ git push
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-04-12 09:02:40
+Build Date UTC : 2019-04-12 14:36:17
 -->
