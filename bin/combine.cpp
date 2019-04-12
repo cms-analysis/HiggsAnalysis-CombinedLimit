@@ -144,17 +144,6 @@ int main(int argc, char **argv) {
    std::cout << " <<< Combine >>> " << std::endl;
   }
 
-  // Temporary printout for rename of methods ...
-  std::map<std::string,std::string> renames ;
-  renames["MaxLikelihoodFit"] 	= "FitDiagnostics";
-  renames["Asymptotic"] 	= "AsymptoticLimits";
-  renames["ProfileLikelihood"] 	= "Significance";
-  map<string, string >::const_iterator it_rename = renames.find(whichMethod);
-  if ( it_rename != renames.end())  { 
-    cout << " WARNING --  From combine v7, method " << whichMethod << " has been renamed to " << it_rename->second  << endl;
-    whichMethod = it_rename->second ;
-  }
-
   // now search for algo, and add option
   map<string, LimitAlgo *>::const_iterator it_algo = methods.find(whichMethod);
   if (it_algo == methods.end()) {
