@@ -53,7 +53,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                     else:
                         print "Will float CMS_zz4l_{}ai{}".format(parametertype, i)
                 elif whattodo == "aspoi":
-                    self.faiphiaistatus[key] == "POI"
+                    self.faiphiaistatus[key] = "POI"
                     print "Will consider CMS_zz4l_{}ai{} as a parameter of interest".format(parametertype, i)
                 else:
                     assert False, whattodo
