@@ -7,19 +7,9 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
         super(SpinZeroHiggsBase, self).__init__()
 
-        self.fai1Floating = True
-        self.fai1POI = True
-
-        self.fai2Floating = False
-        self.fai2POI = False
+        self.faiphiaistatus = collections.defaultdict(lambda: "fix")
 
         self.allowPMF = False
-
-        self.phiai1Floating = False
-        self.phiai1POI = False
-
-        self.phiai2Floating = False
-        self.phiai2POI = False
 
         self.HWWcombination = False
 
@@ -38,39 +28,36 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def processPhysicsOptions(self,physOptions):
         processed = super(SpinZeroHiggsBase, self).processPhysicsOptions(physOptions)
         for po in physOptions:
-            if po.lower()=='fai1fixed' or po.lower()=='fai1notpoi':
-                if not self.fai1POI: raise ValueError("Specified fai1Fixed and/or fai1NotPOI multiple times!\n{}".format(physOptions))
-                print "CMS_zz4l_fai1 is NOT A POI"
-                self.fai1POI = False
-                if po.lower()=='fai1fixed':
-                    print "Will fix CMS_zz4l_fai1 to 0"
-                    self.fai1Floating = False
-                processed.append(po)
+            match = re.match("(f|phi)ai([0-9]+)(fixed|notpoi|floating|aspoi)$", po.lower())
+            if match:
+                parametertype = match.group(1)
+                i = int(match.group(2))
+                whattodo = match.group(3)
 
-            if po.lower()=='phiai1floating' or po.lower()=='phiai1aspoi':
-                if self.phiai1Floating: raise ValueError("Specified phiai1Floating and/or phiai1AsPOI multiple times!\n{}".format(physOptions))
-                print "Will consider phase ai1 as a floating parameter"
-                self.phiai1Floating = True
-                if po.lower()=='phiai1aspoi':
-                    print "Will consider phase ai1 as a parameter of interest"
-                    self.phiai1POI = True
-                processed.append(po)
+                if not 1 <= i <= self.numberoffais:
+                    raise ValueError("There are only {} fais available, so can't do anything with {}".format(i, po))
 
-            if po.lower() == 'fai2floating' or po.lower() == 'fai2aspoi':
-                if self.fai2Floating: raise ValueError("Specified fai2Floating and/or fai2AsPOI multiple times!\n{}".format(physOptions))
-                print "Will float CMS_zz4l_fai2"
-                self.fai2Floating = True
-                if po.lower() == 'fai2aspoi':
-                    self.fai2POI = True
-                processed.append(po)
+                key = parametertype, i
 
-            if po.lower() == 'phiai2floating' or po.lower() == 'phiai2aspoi':
-                if self.phiai2Floating: raise ValueError("Specified phiai2Floating and/or phiai2AsPOI multiple times!\n{}".format(physOptions))
-                print "Will consider phase ai2 as a floating parameter"
-                self.phiai2Floating = True
-                if po.lower() == 'phiai2aspoi':
-                    print "Will consider phase ai2 as a parameter of interest"
-                    self.phiai2POI = True
+                if key in self.faiphiaistatus:
+                    raise ValueError("Specified multiple physics options for {}ai{}".format(parametertype, i))
+
+                if whattodo == "fixed":
+                    self.faiphiaistatus[key] = "fix"
+                    if parametertype == "f" and i == 1:
+                        print "Will fix CMS_zz4l_{}ai{} to 0".format(parametertype, i)
+                elif whattodo == "floating" or whattodo == "notpoi":
+                    self.faiphiaistatus[key] = "float"
+                    if parametertype == "f" and i == 1:
+                        print "CMS_zz4l_{}ai{} is NOT A POI".format(parametertype, i)
+                    else:
+                        print "Will float CMS_zz4l_{}ai{}".format(parametertype, i)
+                elif whattodo == "aspoi":
+                    self.faiphiaistatus[key] == "POI"
+                    print "Will consider CMS_zz4l_{}ai{} as a parameter of interest".format(parametertype, i)
+                else:
+                    assert False, whattodo
+
                 processed.append(po)
 
             if po.lower() == 'allowpmf':
@@ -87,98 +74,45 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         return processed
 
+    @property
+    def numberoffais(self):
+        return 2
+
     def getPOIList(self):
 
         poi = []
         poi += super(SpinZeroHiggsBase, self).getPOIList()
 
-        if self.fai1Floating:
-            if self.modelBuilder.out.var("CMS_zz4l_fai1"):
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(0.,1.)
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_fai1[0.,0,1]")
-            print "Floating CMS_zz4l_fai1"
-            self.modelBuilder.out.var("CMS_zz4l_fai1").setConstant(False)
-            if self.allowPMF:
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(-1.,1.)
-                print "Allowing negative CMS_zz4l_fai1"
-            if self.fai1POI:
-                poi.append("CMS_zz4l_fai1")
-            else:
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setAttribute("flatParam")
-        else:
-            if self.modelBuilder.out.var("CMS_zz4l_fai1"):
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setConstant()
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_fai1[0]")
-            print "Fixing CMS_zz4l_fai1"
+        if ("f", 1) not in self.faiphiaistatus: self.faiphiaistatus["f", 1] = "POI"
 
-        if self.fai2Floating:
-            if self.modelBuilder.out.var("CMS_zz4l_fai2"):
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(0.,1.)
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setVal(0)
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_fai2[0.,0,1]")
-            print "Floating CMS_zz4l_fai2"
-            self.modelBuilder.out.var("CMS_zz4l_fai2").setConstant(False)
-            if self.allowPMF:
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(-1.,1.)
-                print "Allowing negative CMS_zz4l_fai2"
-            if self.fai2POI:
-                poi.append("CMS_zz4l_fai2")
-            else:
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setAttribute("flatParam")
-        else:
-            if self.modelBuilder.out.var("CMS_zz4l_fai2"):
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setVal(0)
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setConstant()
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_fai2[0]")
-            print "Fixing CMS_zz4l_fai2"
+        for parametertype, parameterrange in ("f", (-1. if self.allowPMF else 0., 1.)), ("phi", (-math.pi, math.pi)):
+            for i in xrange(1, self.numberoffais+1):
+                varname = "CMS_zz4l_{}ai{}".format(parametertype, i)
+                status = self.faiphiaistatus[parametertype, i]
 
-        if self.phiai1Floating:
-            if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setRange(-3.14159265359,3.14159265359)
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setVal(0)
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_phiai1[0.,-3.14159265359,3.14159265359]")
-            print "Floating CMS_zz4l_phiai1"
-            self.modelBuilder.out.var("CMS_zz4l_phiai1").setConstant(False)
-            if self.phiai1POI:
-                print "Treating phiai1 as a POI"
-                poi.append("CMS_zz4l_phiai1")
-            else:
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setAttribute("flatParam")
-        else:
-            if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setVal(0)
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setConstant()
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_phiai1[0]")
-            print "Fixing CMS_zz4l_phiai1"
-
-        if self.phiai2Floating:
-            if self.modelBuilder.out.var("CMS_zz4l_phiai2"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setRange(-3.14159265359,3.14159265359)
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setVal(0)
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_phiai2[0.,-3.14159265359,3.14159265359]")
-            print "Floating CMS_zz4l_phiai2"
-            self.modelBuilder.out.var("CMS_zz4l_phiai2").setConstant(False)
-            if self.phiai2POI:
-                print "Treating phiai2 as a POI"
-                poi.append("CMS_zz4l_phiai2")
-            else:
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setAttribute("flatParam")
-        else:
-            if self.modelBuilder.out.var("CMS_zz4l_phiai2"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setVal(0)
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setConstant()
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_phiai2[0]")
-            print "Fixing CMS_zz4l_phiai2"
+                if status in ("float", "POI"):
+                    if self.modelBuilder.out.var(varname):
+                        self.modelBuilder.out.var(varname).setRange(*parameterrange)
+                        self.modelBuilder.out.var(varname).setVal(0)
+                    else:
+                        self.modelBuilder.doVar("{}[0.,{},{}]".format(varname, *parameterrange))
+                    self.modelBuilder.out.var(varname).setConstant(False)
+                    if status == "POI":
+                        print "Treating "+varname+" as a POI"
+                        poi.append(varname)
+                    else:
+                        print "Floating "+varname
+                        self.modelBuilder.out.var(varname).setAttribute("flatParam")
+                    if parametertype == "f" and self.allowPMF: print "Allowing negative "+varname
+                elif status == "fix":
+                    if self.modelBuilder.out.var(varname):
+                        self.modelBuilder.out.var(varname).setVal(0)
+                        self.modelBuilder.out.var(varname).setConstant()
+                    else:
+                        self.modelBuilder.doVar("{}[0]".format(varname))
+                    print "Fixing "+varname
+                else:
+                    assert False, status
 
         if self.HWWcombination:
             if self.modelBuilder.out.var("CMS_zz4l_alpha"):
@@ -436,8 +370,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
             raise ValueError("HZZAnomalousCouplingsFromHistograms is not set up for scalemuvmuftogether")
 
     def processPhysicsOptions(self,physOptions):
-        processed = super(HZZAnomalousCouplingsFromHistograms, self).processPhysicsOptions(physOptions)
-
+        processed = []
         for po in physOptions:
             if po in ("fa3", "fa2", "fL1", "fL1Zg"):
                 if po in self.anomalouscouplings: raise ValueError("Provided physOption "+po+" twice")
@@ -445,9 +378,22 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                 processed.append(po)
 
         self.anomalouscouplings.sort(key="fa3 fa2 fL1 fL1Zg".index)
+
+        for po in physOptions[:]:
+            for i, fai in enumerate(self.anomalouscouplings, start=1):
+                ai = fai[1:]
+                if re.match("(f|phi){}(fixed|notpoi|floating|aspoi)$".format(ai).lower(), po.lower()):
+                    physOptions.append(po.replace(ai, "ai{}".format(i)))
+                    processed.append(po)
+
+        processed += super(HZZAnomalousCouplingsFromHistograms, self).processPhysicsOptions(physOptions)
+
         if not self.anomalouscouplings: raise ValueError("Have to provide an anomalous coupling as a physOption (fa3, fa2, fL1, fL1Zg)")
-        if len(self.anomalouscouplings)>1 or self.fai2Floating: raise ValueError("Can't do multiple anomalous couplings (yet)")
         return processed
+
+    @property
+    def numberoffais(self):
+        return len(self.anomalouscouplings)
 
     def getPOIList(self):
         self.modelBuilder.doVar("RF[1.0,0,10]")
@@ -456,46 +402,53 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
         pois = super(HZZAnomalousCouplingsFromHistograms, self).getPOIList()
 
+        if not self.modelBuilder.out.var("CMS_zz4l_fa1"):
+            expr = "-".join(["1"] + ["abs(@{})".format(i) for i in xrange(self.numberoffais)])
+            fais = ", ".join("CMS_zz4l_fai{}".format(i) for i in xrange(1, self.numberoffais+1))
+            self.modelBuilder.doVar('expr::CMS_zz4l_fa1("{}", {})'.format(expr, fais))
+
         if not self.modelBuilder.out.var("g1"):
-            self.modelBuilder.doVar('expr::g1("sqrt(1-abs(@0))", CMS_zz4l_fai1)')
+            self.modelBuilder.doVar('expr::g1("sqrt(@0)", CMS_zz4l_fa1)')
+
+        self.modelBuilder.doVar('expr::killswitch("@0>=0", CMS_zz4l_fa1)')
 
         couplings = ["g1"]
+        i = 0
         for fai, ai in ("fa3", "g4"), ("fa2", "g2"), ("fL1", "g1prime2"), ("fL1Zg", "ghzgs1prime2"):
             if fai not in self.anomalouscouplings: continue
+            i += 1
 
             kwargs = {
+              "i": i,
               "ai": ai,
               "aidecay": self.aidecay[ai],
             }
-            self.modelBuilder.doVar('expr::{ai}("(@0>0 ? 1 : -1) * sqrt(abs(@0))*{aidecay}", CMS_zz4l_fai1)'.format(**kwargs))
+            self.modelBuilder.doVar('expr::{ai}("(@0>0 ? 1 : -1) * sqrt(abs(@0))*{aidecay}", CMS_zz4l_fai{i})'.format(**kwargs))
             couplings.append(ai)
 
         if self.scaledifferentsqrtsseparately: raise ValueError("HZZAnomalousCouplingsFromHistograms is not compatible with scaledifferentsqrtsseparately")
 
         for g in couplings:
-            self.modelBuilder.doVar('expr::ffH_{g}2("@0*@1*@2*@2", R, RF, {g})'.format(g=g))
-            self.modelBuilder.doVar('expr::VVH_{g}4("@0*@1*@2*@2*@2*@2", R, RV, {g})'.format(g=g))
+            self.modelBuilder.doVar('expr::ffH_{g}2("@0*@1*@2*@3*@3", killswitch, R, RF, {g})'.format(g=g))
+            self.modelBuilder.doVar('expr::VVH_{g}4("@0*@1*@2*@3*@3*@3*@3", killswitch, R, RV, {g})'.format(g=g))
 
         kwargs = {}
         for kwargs["signname"], kwargs["sign"] in ("positive", ""), ("negative", "-"):
             for kwargs["g1"], kwargs["g2"] in itertools.combinations(couplings, 2):
-                self.modelBuilder.doVar('expr::ffH_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3", R, RF, {g1}, {g2})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}3_{signname}("{sign}@0*@1*@2*@3*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}2_{signname}("{sign}@0*@1*@2*@2*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}3{g2}1_{signname}("{sign}@0*@1*@2*@2*@2*@3", R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::ffH_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3*@4", killswitch, R, RF, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}3_{signname}("{sign}@0*@1*@2*@3*@4*@4*@4", killswitch, R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}2_{signname}("{sign}@0*@1*@2*@3*@3*@4*@4", killswitch, R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}3{g2}1_{signname}("{sign}@0*@1*@2*@3*@3*@3*@4", killswitch, R, RV, {g1}, {g2})'.format(**kwargs))
 
             for kwargs["g1"], kwargs["g2"], kwargs["g3"] in itertools.combinations(couplings, 3):
-                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}2_{signname}("{sign}@0*@1*@2*@3*@4*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}2{g3}1_{signname}("{sign}@0*@1*@2*@3*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}1{g3}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}2_{signname}("{sign}@0*@1*@2*@3*@4*@5*@5", killswitch, R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}2{g3}1_{signname}("{sign}@0*@1*@2*@3*@4*@4*@5", killswitch, R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}1{g3}1_{signname}("{sign}@0*@1*@2*@3*@3*@4*@5", killswitch, R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
 
             for kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"] in itertools.combinations(couplings, 4):
-                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@0*@1*@2*@3*@4*@5", R, RV, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@0*@1*@2*@3*@4*@5*@6", killswitch, R, RV, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
 
         return pois
-
-    def powerdict(self, process):
-        if not match: return None
 
     def getYieldScale(self,bin,process):
         match = re.match("(gg|tt|bb|qq|Z|W)H_(0(?:PM|M|PH|L1|L1Zg)|((?:g(?:1|2|4|1prime2|hzgs1prime2)[1234])*)_(positive|negative))$", process)
@@ -520,7 +473,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                 raise ValueError("power dict doesn't add up properly!  Sum should be {}\n{}\n{}".format(maxpower, process, powerdict))
 
             powerdict = collections.OrderedDict(
-                sorted(powerdict.iteritems(), key = lambda x: "g1 g2 g4 g1prime2 ghzgs1prime2".index(x[0]))
+                sorted(powerdict.iteritems(), key = lambda x: "g1 g4 g2 g1prime2 ghzgs1prime2".index(x[0]))
             )
 
             sign = match.group(4)
