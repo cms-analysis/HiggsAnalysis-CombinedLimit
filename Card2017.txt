@@ -29,8 +29,11 @@ JER_2017 shape        1      -      1      1      -      1      1      -      1 
 btg_2017 shape        1      -      1      1      -      1      1      -      1      1      -      1
 lep_2017 shape        1      -      1      1      -      1      1      -      1      1      -      1
 pdf shape             1      -      -      1      -      -      1      -      -      1      -      -
-#ht  shape            -      -      1      -      -      1      -      -      1      -      -      1
+ht_2017  shape        -      -      1      -      -      1      -      -      1      -      -      1
 scl  shape            1      -      1      1      -      1      1      -      1      1      -      1
+httail_2017  shape    -      -      1      -      -      1      -      -      1      -      -      1
+htnjet_2017  shape    -      -      1      -      -      1      -      -      1      -      -      1
+pu_2017  shape        1      -      1      1      -      1      1      -      1      1      -      1
 -------------------------------------------------------------------------------------------------------------------------------------------
 # Shape systematics on ttbar
 np_tt_JEC param 0.0 1.0
@@ -41,9 +44,12 @@ np_tt_nom_2017 param 0.0 1.0
 np_tt_qcdCR_2017 param 0.0 1.0
 np_tt_pdf param 0.0 1.0
 np_tt_FSR param 0.0 1.0
-#np_tt_ht  param 0.0 1.0
+np_tt_ht_2017  param 0.0 1.0
 np_tt_ISR param 0.0 1.0
 np_tt_scl param 0.0 1.0
+np_tt_httail_2017  param 0.0 1.0
+np_tt_htnjet_2017  param 0.0 1.0
+np_tt_pu_2017 param 0.0 1.0
 -------------------------------------------------------------------------------------------------------------------------------------------
 # Week constraint on a2
 #a2_tt param 0.15 -0.5/+0.5
