@@ -666,6 +666,7 @@ cacheutils::CachingAddNLL::evaluate() const
     // then get the final nll
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
     double ret = constantZeroPoint_;
+    if (runtimedef::get("REMOVE_CONSTANT_ZERO_POINT") ) ret = 0; 
     for (its = bgs; its != eds ; ++its) {
         if (!isnormal(*its) || *its <= 0) {
             if ((weights_[its-bgs] == 0) && (*its == 0)) {
