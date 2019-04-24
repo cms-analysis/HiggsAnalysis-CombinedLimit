@@ -31,6 +31,8 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
   //     ...
   // N7 = Njets=7
 
+    std::cout << "size of NPs: " << NPs.getSize() << std::endl;
+
   ROOT::v5::TFormula::SetMaxima(10000);
 
   int max_bin = 18; // 14 means just njets=14, 20 means last bin is inclusive up through njets=20
@@ -89,7 +91,6 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
           form << "*TMath::Power(" << h_syst[12]->GetBinContent(i+1) << ",@13)";
           form << "*TMath::Power(" << h_syst[13]->GetBinContent(i+1) << ",@14)";
           form << "*TMath::Power(" << h_syst[14]->GetBinContent(i+1) << ",@15)";
-          form << "*TMath::Power(" << h_syst[15]->GetBinContent(i+1) << ",@16)";
       }
     } else if (i>=1) {
       form << "*TMath::Power(" << h_syst[0]->GetBinContent(i+1) << ",@4)";
@@ -108,8 +109,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
           form << "*TMath::Power(" << h_syst[11]->GetBinContent(i+1) << ",@15)";
           form << "*TMath::Power(" << h_syst[12]->GetBinContent(i+1) << ",@16)";
           form << "*TMath::Power(" << h_syst[13]->GetBinContent(i+1) << ",@17)";
-          form << "*TMath::Power(" << h_syst[14]->GetBinContent(i+1) << ",@16)";
-          form << "*TMath::Power(" << h_syst[15]->GetBinContent(i+1) << ",@17)";
+          form << "*TMath::Power(" << h_syst[14]->GetBinContent(i+1) << ",@18)";
       }
     }
     // nuisance parameters
@@ -129,7 +129,6 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
         formArgList.add(NPs[12]);
         formArgList.add(NPs[13]);
         formArgList.add(NPs[14]);
-        formArgList.add(NPs[15]);
     }
 
     // Create RooFormulaVar for this bin
@@ -336,21 +335,23 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
 
 
   // tt shape systematic nuisance parameters
-  wspace->factory("np_tt_JEC[0.0]"); // fully correlated
+  wspace->factory("np_tt_JECUp[0.0]"); // fully correlated
   //wspace->factory("np_tt_JEC[0.0,0.0,0.0]");
-  wspace->factory(("np_tt_JER_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_JERDown_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_btg_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_lep_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_nom_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCR_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory("np_tt_pdf[0.0]"); // fully correlated
   wspace->factory("np_tt_FSR[0.0]"); // fully correlated
-  wspace->factory(("np_tt_ht_"+year+"[0.0]").c_str());// uncorrelated
   wspace->factory("np_tt_ISR[0.0]"); // fully correlated
   wspace->factory("np_tt_scl[0.0]"); // fully correlated
+  wspace->factory(("np_tt_ht_"+year+"[0.0]").c_str());// uncorrelated
   wspace->factory(("np_tt_httail_"+year+"[0.0]").c_str());// uncorrelated
   wspace->factory(("np_tt_htnjet_"+year+"[0.0]").c_str());// uncorrelated
   wspace->factory(("np_tt_pu_"+year+"[0.0]").c_str());// uncorrelated
+  wspace->factory("np_tt_JECDown[0.0]"); // fully correlated
+  wspace->factory(("np_tt_JERDown_"+year+"[0.0]").c_str()); // uncorrelated
 
 
   // Load in the histograms with the bin-by-bin ratios to be used in the ttbar shape systematics
@@ -512,6 +513,7 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
     RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
     //RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
     construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,bkg_tt_syst_NP_D1,bkg_tt_syst_histos_D1);
+    std::cout << "after constructing formula" << std::endl;
   } else 
   {
     RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,d_tt_D1);  // list of shape parameters for tt bkg                       
