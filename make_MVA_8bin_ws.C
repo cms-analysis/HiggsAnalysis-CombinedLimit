@@ -91,6 +91,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
           form << "*TMath::Power(" << h_syst[12]->GetBinContent(i+1) << ",@13)";
           form << "*TMath::Power(" << h_syst[13]->GetBinContent(i+1) << ",@14)";
           form << "*TMath::Power(" << h_syst[14]->GetBinContent(i+1) << ",@15)";
+          form << "*TMath::Power(" << h_syst[15]->GetBinContent(i+1) << ",@16)";
       }
     } else if (i>=1) {
       form << "*TMath::Power(" << h_syst[0]->GetBinContent(i+1) << ",@4)";
@@ -110,6 +111,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
           form << "*TMath::Power(" << h_syst[12]->GetBinContent(i+1) << ",@16)";
           form << "*TMath::Power(" << h_syst[13]->GetBinContent(i+1) << ",@17)";
           form << "*TMath::Power(" << h_syst[14]->GetBinContent(i+1) << ",@18)";
+          form << "*TMath::Power(" << h_syst[15]->GetBinContent(i+1) << ",@19)";
       }
     }
     // nuisance parameters
@@ -129,6 +131,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
         formArgList.add(NPs[12]);
         formArgList.add(NPs[13]);
         formArgList.add(NPs[14]);
+        formArgList.add(NPs[15]);
     }
 
     // Create RooFormulaVar for this bin
@@ -337,7 +340,7 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   // tt shape systematic nuisance parameters
   wspace->factory("np_tt_JECUp[0.0]"); // fully correlated
   //wspace->factory("np_tt_JEC[0.0,0.0,0.0]");
-  wspace->factory(("np_tt_JERDown_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_JERUp_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_btg_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_lep_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_nom_"+year+"[0.0]").c_str()); // uncorrelated
