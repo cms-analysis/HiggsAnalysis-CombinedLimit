@@ -34,8 +34,10 @@ scl  shape            1      -      1      1      -      1      1      -      1 
 pu_2017  shape        1      -      1      1      -      1      1      -      1      1      -      1
 -------------------------------------------------------------------------------------------------------------------------------------------
 # Shape systematics on ttbar
-np_tt_JEC param 0.0 1.0
-np_tt_JER_2017 param 0.0 1.0
+np_tt_JECUp param 0.0 1.0
+np_tt_JERUp_2017 param 0.0 1.0
+np_tt_JECDown param 0.0 1.0
+np_tt_JERDown_2017 param 0.0 1.0
 np_tt_btg_2017 param 0.0 1.0
 np_tt_lep_2017 param 0.0 1.0
 np_tt_nom_2017 param 0.0 1.0

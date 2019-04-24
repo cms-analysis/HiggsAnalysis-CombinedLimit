@@ -1,7 +1,7 @@
 Combination of Y16=Card2016.txt  Y17=Card2017.txt
 imax 8 number of bins
 jmax 2 number of processes minus 1
-kmax 169 number of nuisance parameters
+kmax 172 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes OTHER     Y16_D1    MVA_2016_$MODEL_$MASS_ws.root otherMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
 shapes SIG       Y16_D1    MVA_2016_$MODEL_$MASS_ws.root sigMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
@@ -188,7 +188,8 @@ pdf                     shape               1.0     -       -       1.0     -   
 pu_2016                 shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     -       -       -       -       -       -       -       -       -       -       -       -     
 pu_2017                 shape               -       -       -       -       -       -       -       -       -       -       -       -       1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
 scl                     shape               1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0     1.0     -       1.0   
-np_tt_JER_2016  param  0.0 1.0
+np_tt_JERUp_2016  param  0.0 1.0
+np_tt_JERUp_2017  param  0.0 1.0
 np_tt_lep_2017  param  0.0 1.0
 np_tt_lep_2016  param  0.0 1.0
 np_tt_ISR     param  0.0 1.0
@@ -201,10 +202,12 @@ np_tt_httail_2017  param  0.0 1.0
 np_tt_httail_2016  param  0.0 1.0
 np_tt_pu_2016  param  0.0 1.0
 np_tt_pu_2017  param  0.0 1.0
+np_tt_JERDown_2017  param  0.0 1.0
+np_tt_JERDown_2016  param  0.0 1.0
 np_tt_htnjet_2016  param  0.0 1.0
 np_tt_htnjet_2017  param  0.0 1.0
-np_tt_JER_2017  param  0.0 1.0
-np_tt_JEC     param  0.0 1.0
+np_tt_JECUp   param  0.0 1.0
+np_tt_JECDown  param  0.0 1.0
 np_tt_btg_2017  param  0.0 1.0
 np_tt_btg_2016  param  0.0 1.0
 np_tt_scl     param  0.0 1.0
