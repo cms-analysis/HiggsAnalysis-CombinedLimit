@@ -103,9 +103,9 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
       if (NPs.getSize() > 10)
       {
           form << "*TMath::Power(" << h_syst[10]->GetBinContent(i+1) << ",@14)";
-          form << "*TMath::Power(" << h_syst[10]->GetBinContent(i+1) << ",@15)";
-          form << "*TMath::Power(" << h_syst[10]->GetBinContent(i+1) << ",@16)";
-          form << "*TMath::Power(" << h_syst[10]->GetBinContent(i+1) << ",@17)";
+          form << "*TMath::Power(" << h_syst[11]->GetBinContent(i+1) << ",@15)";
+          form << "*TMath::Power(" << h_syst[12]->GetBinContent(i+1) << ",@16)";
+          form << "*TMath::Power(" << h_syst[13]->GetBinContent(i+1) << ",@17)";
       }
     }
     // nuisance parameters
