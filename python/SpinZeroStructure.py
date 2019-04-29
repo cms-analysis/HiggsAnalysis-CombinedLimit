@@ -352,6 +352,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
     def __init__(self):
         self.anomalouscouplings = []
         self.turnoff = []
+        self.scalegL1by10000 = False
         super(HZZAnomalousCouplingsFromHistograms, self).__init__()
 
     def setPhysicsOptions(self, physOptions):
@@ -375,6 +376,9 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
             if po in ("fa3", "fa2", "fL1", "fL1Zg"):
                 if po in self.anomalouscouplings: raise ValueError("Provided physOption "+po+" twice")
                 self.anomalouscouplings.append(po)
+                processed.append(po)
+            if po == "scalegL1by10000":
+                self.scalegL1by10000 = True
                 processed.append(po)
 
         self.anomalouscouplings.sort(key="fa3 fa2 fL1 fL1Zg".index)
@@ -421,7 +425,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
             kwargs = {
               "i": i,
               "ai": ai,
-              "aidecay": self.aidecay[ai],
+              "aidecay": self.aidecay[ai] / (10000 if self.scalegL1by10000 else 1),
             }
             self.modelBuilder.doVar('expr::{ai}("(@0>0 ? 1 : -1) * sqrt(abs(@0))*{aidecay}", CMS_zz4l_fai{i})'.format(**kwargs))
             couplings.append(ai)
