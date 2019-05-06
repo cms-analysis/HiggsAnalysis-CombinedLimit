@@ -77,20 +77,20 @@ private:
 
   static double EPS;
   // graph, used to compute the limit, not just for plotting!
-  std::auto_ptr<TGraphErrors> limitPlot_;
+  std::unique_ptr<TGraphErrors> limitPlot_;
  
   // performance counter: remember how many toys have been thrown
   unsigned int perf_totalToysRun_;
 
   //----- extra variables used for cross-checking the implementation of frequentist toy tossing in RooStats
   // mutable RooAbsData *realData_;
-  // std::auto_ptr<RooAbsCollection>  snapGlobalObs_;
+  // std::unique_ptr<RooAbsCollection>  snapGlobalObs_;
 
   struct Setup {
     RooStats::ModelConfig modelConfig, modelConfig_bonly;
-    std::auto_ptr<RooStats::TestStatistic> qvar;
-    std::auto_ptr<RooStats::ToyMCSampler>  toymcsampler;
-    std::auto_ptr<RooStats::ProofConfig> pc;
+    std::unique_ptr<RooStats::TestStatistic> qvar;
+    std::unique_ptr<RooStats::ToyMCSampler>  toymcsampler;
+    std::unique_ptr<RooStats::ProofConfig> pc;
     RooArgSet cleanupList;
   };
 
@@ -105,9 +105,9 @@ private:
   std::pair<double,double> eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive=false, double clsTarget=-1)  ;
 
   /// generic version
-  std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, const RooAbsCollection & rVals, Setup &setup);
+  std::unique_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, const RooAbsCollection & rVals, Setup &setup);
   /// specific version used in unidimensional searches (calls the generic one)
-  std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, Setup &setup);
+  std::unique_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, Setup &setup);
 
   std::pair<double,double> eval(RooStats::HybridCalculator &hc, const RooAbsCollection & rVals, bool adaptive=false, double clsTarget=-1) ;
 

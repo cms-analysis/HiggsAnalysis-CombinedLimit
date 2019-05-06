@@ -186,14 +186,14 @@ class CachingSimNLL  : public RooAbsReal {
         const RooArgSet   *nuis_;
         RooSetProxy        params_;
         RooArgSet piecesForCloning_;
-        std::auto_ptr<RooSimultaneous>  factorizedPdf_;
+        std::unique_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
         std::vector<SimpleGaussianConstraint *>  constrainPdfsFast_;
         std::vector<bool>                        constrainPdfsFastOwned_;
         std::vector<SimplePoissonConstraint *>   constrainPdfsFastPoisson_;
         std::vector<bool>                        constrainPdfsFastPoissonOwned_;
         std::vector<CachingAddNLL*>     pdfs_;
-        std::auto_ptr<TList>            dataSets_;
+        std::unique_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
         static bool noDeepLEE_;
         static bool hasError_;

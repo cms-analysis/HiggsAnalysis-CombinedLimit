@@ -170,7 +170,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
     const RooArgSet *nuis      = mc_s->GetNuisanceParameters();
     const RooArgSet *globalObs = mc_s->GetGlobalObservables();
     if (!justFit_ && nuis && globalObs ) {
-      std::auto_ptr<RooAbsPdf> nuisancePdf(utils::makeNuisancePdf(*mc_s));
+      std::unique_ptr<RooAbsPdf> nuisancePdf(utils::makeNuisancePdf(*mc_s));
       w->loadSnapshot("toyGenSnapshot");
       r->setVal(preFitValue_);
       if (saveNormalizations_) {
@@ -199,8 +199,8 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       RooCategory dummyCat("dummyCat", "");
       RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
       simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
-      std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
-      std::auto_ptr<RooAbsReal> nuisanceNLL(simNuisancePdf.RooAbsPdf::createNLL(*globalData, RooFit::Constrain(*nuis)));
+      std::unique_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
+      std::unique_ptr<RooAbsReal> nuisanceNLL(simNuisancePdf.RooAbsPdf::createNLL(*globalData, RooFit::Constrain(*nuis)));
       RooFitResult *res_prefit = 0;
        // Fit to nuisance pdf to get fitRes for sampling
       {
@@ -579,7 +579,7 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
             ns.channel = (coeff->getStringAttribute("combine.channel") ? coeff->getStringAttribute("combine.channel") : channel.c_str());
             ns.process = (coeff->getStringAttribute("combine.process") ? coeff->getStringAttribute("combine.process") : ns.norm->GetName());
             ns.signal  = (coeff->getStringAttribute("combine.process") ? coeff->getAttribute("combine.signal") : (strstr(ns.norm->GetName(),"shapeSig") != 0));
-            std::auto_ptr<RooArgSet> myobs(ns.pdf->getObservables(obs));
+            std::unique_ptr<RooArgSet> myobs(ns.pdf->getObservables(obs));
             ns.obs.add(*myobs);
             ns.isfunc = false;
         }
@@ -604,7 +604,7 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
         if (coeffName.find(filterString_) == std::string::npos) continue;
         ShapeAndNorm &ns = out[coeffName];
         RooAbsReal* shape = (RooAbsReal*)plist.at(i);
-        std::auto_ptr<RooArgSet> myobs(shape->getObservables(obs));
+        std::unique_ptr<RooArgSet> myobs(shape->getObservables(obs));
         ns.pdf = shape;
         TString normProdName = TString::Format("%s_mlf_fullnorm", coeff->GetName());
         RooAbsReal * normProd = nullptr;
@@ -777,7 +777,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
         if ( verbose > 0 ) Logger::instance().log(std::string(Form("FitDiagnostics.cc: %d -- Generating toy data for evaluating per-bin uncertainties and covariances with post-fit nuisance parameters with %d toys",__LINE__,ntoys)),Logger::kLogLevelInfo,__func__);
 
         sampler.generate(ntoys);
-        std::auto_ptr<RooArgSet> params(pdf->getParameters(obs));
+        std::unique_ptr<RooArgSet> params(pdf->getParameters(obs));
         // prepare histograms for running sums
         std::map<std::string,TH1*> totByCh1, sigByCh1, bkgByCh1;
         for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h) totByCh1[h->first] = (TH1*) h->second->Clone();
@@ -796,7 +796,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
                 if (saveShapes_ && pair->second.obs.getSize() == 1) {
                     // and also deviations in the shapes
                     RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
-                    std::auto_ptr<TH1> hist(pair->second.pdf->createHistogram(pair->second.pdf->GetName(), *x,
+                    std::unique_ptr<TH1> hist(pair->second.pdf->createHistogram(pair->second.pdf->GetName(), *x,
                       pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none()));
                     hist->Scale(pair->second.norm->getVal() / hist->Integral("width"));
                     for (int b = 1; b <= bins[i]; ++b) {

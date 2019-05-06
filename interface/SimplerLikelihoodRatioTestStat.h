@@ -42,7 +42,7 @@ class SimplerLikelihoodRatioTestStat : public RooStats::TestStatistic {
     private:
         RooAbsPdf *pdfNull_, *pdfAlt_;
         RooArgSet snapNull_, snapAlt_; 
-        std::auto_ptr<RooArgSet> paramsNull_, paramsAlt_;
+        std::unique_ptr<RooArgSet> paramsNull_, paramsAlt_;
 }; // TestSimpleStatistics
 
 #endif

@@ -56,7 +56,7 @@ SimplerLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI
     if (paramsAlt_.get() == 0)  paramsAlt_.reset(pdfAlt_->getParameters(data));
 
     // if the dataset is not empty, redirect pdf nodes to the dataset
-    std::auto_ptr<TIterator> iterDepObs(pdfDepObs_.createIterator());
+    std::unique_ptr<TIterator> iterDepObs(pdfDepObs_.createIterator());
     bool nonEmpty = data.numEntries() > 0;
     if (nonEmpty) {
         const RooArgSet *entry = data.get(0);
@@ -87,7 +87,7 @@ SimplerLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI
 
 void SimplerLikelihoodRatioTestStatOpt::unrollSimPdf(RooSimultaneous *simpdf, std::vector<RooAbsPdf *> &out) {
     // get a clone of the pdf category, so that I can use it to enumerate the pdf states
-    std::auto_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
+    std::unique_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
     out.resize(catClone->numBins(NULL), 0);
     //std::cout << "Pdf " << pdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << out.size() << " bins" << std::endl;
 
@@ -175,8 +175,8 @@ SimplerLikelihoodRatioTestStatExt::~SimplerLikelihoodRatioTestStatExt()
 Double_t
 SimplerLikelihoodRatioTestStatExt::Evaluate(RooAbsData& data, RooArgSet& nullPOI) 
 {
-    std::auto_ptr<RooAbsReal> nllNull_(pdfNull_->createNLL(data));
-    std::auto_ptr<RooAbsReal> nllAlt_(pdfAlt_->createNLL(data));
+    std::unique_ptr<RooAbsReal> nllNull_(pdfNull_->createNLL(data));
+    std::unique_ptr<RooAbsReal> nllAlt_(pdfAlt_->createNLL(data));
 
     *paramsNull_ = snapNull_;
     *paramsNull_ = nullPOI;

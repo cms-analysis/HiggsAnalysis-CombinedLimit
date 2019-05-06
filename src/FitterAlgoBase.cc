@@ -141,7 +141,7 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
               break;
       }
 
-      std::auto_ptr<RooArgSet>  params(mc_s->GetPdf()->getParameters(data));
+      std::unique_ptr<RooArgSet>  params(mc_s->GetPdf()->getParameters(data));
       RooLinkedListIter iter = params->iterator(); int i = 0;
       for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
           RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
@@ -159,8 +159,8 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   }
 
   RooAbsData *theData = &data;
-  std::auto_ptr<toymcoptutils::SimPdfGenInfo> generator;
-  std::auto_ptr<RooAbsData> generatedData;
+  std::unique_ptr<toymcoptutils::SimPdfGenInfo> generator;
+  std::unique_ptr<RooAbsData> generatedData;
   if (protectUnbinnedChannels_) {
       RooRealVar *weightVar = 0;
       generator.reset(new toymcoptutils::SimPdfGenInfo(*mc_s->GetPdf(), *mc_s->GetObservables(), false));
@@ -240,7 +240,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
     if (verbose > 1 && ret != 0 && (saveFitResult || rs.getSize())) { ret->Print("V");  }
 
-    std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
+    std::unique_ptr<RooArgSet> allpars(pdf.getParameters(data));
     RooArgSet* bestFitPars = (RooArgSet*)allpars->snapshot() ;
 
     // I'm done here
@@ -339,7 +339,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
             if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
             if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
 
-            std::auto_ptr<RooArgSet> allpars(nll->getParameters((const RooArgSet *)0));
+            std::unique_ptr<RooArgSet> allpars(nll->getParameters((const RooArgSet *)0));
 
             double nll0 = nll->getVal();
             double threshold68 = nll0 + delta68;
@@ -381,8 +381,8 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     }
     double rInc = stepSize_*(rBound - rStart);
     r.setVal(rStart); 
-    std::auto_ptr<RooFitResult> checkpoint;
-    std::auto_ptr<RooArgSet>    allpars;
+    std::unique_ptr<RooFitResult> checkpoint;
+    std::unique_ptr<RooArgSet>    allpars;
     bool ok = false;
     {
         CloseCoutSentry sentry(verbose < 3);    
@@ -505,7 +505,7 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
       Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Searching for crossing at nll = %g in the interval [ %g , %g ] ",__LINE__,level, rStart, rBound)),Logger::kLogLevelInfo,__func__);
     }
 
-    //std::auto_ptr<RooArgSet>    allpars(nll.getParameters((const RooArgSet *)0));
+    //std::unique_ptr<RooArgSet>    allpars(nll.getParameters((const RooArgSet *)0));
     //utils::CheapValueSnapshot checkpoint(*allpars);
     r.setVal(rStart); 
     if (!minim.improve(verbose-1)) { 

@@ -43,7 +43,7 @@ class CascadeMinimizer {
 	std::string algo() {return defaultMinimizerAlgo_;};
     private:
         RooAbsReal & nll_;
-        std::auto_ptr<RooMinimizer> minimizer_;
+        std::unique_ptr<RooMinimizer> minimizer_;
         Mode         mode_;
         static int          strategy_;
         RooRealVar * poi_; 

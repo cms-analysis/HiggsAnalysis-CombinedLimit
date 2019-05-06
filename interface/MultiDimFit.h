@@ -38,7 +38,7 @@ protected:
   static float                     deltaNLL_;
 
   static std::string name_;
-  std::auto_ptr<TFile> fitOut;
+  std::unique_ptr<TFile> fitOut;
 
   // options    
   static unsigned int points_, firstPoint_, lastPoint_;
