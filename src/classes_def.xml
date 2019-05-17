@@ -194,7 +194,6 @@
 	<class name="GaussExp" />
 	<class name="RooParametricHist" />
         <class name="RooParametricHist2D" />
-        <class name="chebyshevBasis" />
 	<class name="RooParametricShapeBinPdf" />
 	<class name="RooMorphingPdf" />
         <function name="function th1fmorph" />
