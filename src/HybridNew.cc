@@ -256,7 +256,7 @@ void HybridNew::validateOptions() {
     if (testStat_ == "LHCFC")   std::cout << ">>> using the Profile Likelihood test statistics modified for upper limits and Feldman-Cousins (Q_LHCFC)" << std::endl;
     if (testStat_ == "Profile") std::cout << ">>> using the Profile Likelihood test statistics not modified for upper limits (Q_Profile)" << std::endl;
     if (testStat_ == "MLZ")     std::cout << ">>> using the Maximum likelihood estimator of the signal strength as test statistics" << std::endl;
-    
+   
     if ( (readHybridResults_ || workingMode_ == MakeTestStatistics || workingMode_ == MakeSignificanceTestStatistics) && noUpdateGrid_) {
         // If not generating toys, don't need to fit nuisance parameters, unless requested to updateGrid 
         fitNuisances_ = false;

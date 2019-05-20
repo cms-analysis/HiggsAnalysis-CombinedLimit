@@ -3,7 +3,7 @@ HiggsAnalysis-CombinedLimit
 
 ### Official documentation
 
-[Manual to run combine](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/wiki)
+[Manual to run combine](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/)
 
 ### Standalone compilation in `lxplus`
 ```

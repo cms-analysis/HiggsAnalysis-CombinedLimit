@@ -58,8 +58,8 @@ class MepsHiggs(SMLikeHiggsModel):
 
         self.modelBuilder.doVar("SM_VEV[246.22]")
         self.msbar = {
-            'top' : (160, (-4.3,+4.8)),
-            'b'   : (4.18, (-0.03,+0.03)),
+            'top' : (172.5, (-4.3,+4.8)),
+            'b'   : (2.76, (-0.03,+0.03)),
             'tau' : (1.77682, (-0.16,+0.16)),
             'mu'  : (0.105658, (-0.0000035,+0.0000035)),
             'W'   : (80.385, (-0.015,+0.015)),
@@ -81,12 +81,19 @@ class MepsHiggs(SMLikeHiggsModel):
 
         self.productionScaling = {
             'ttH':'Ctop',
+            'bbH':'Cb',
             'WH':'CW',
+            'WPlusH':'CW',
+            'WMinusH':'CW',
             'ZH':'CZ',
             }
 
         self.SMH.makeScaling('ggH', Cb='Cb', Ctop='Ctop')
         self.SMH.makeScaling('qqH', CW='CW', CZ='CZ')
+
+        self.SMH.makeScaling("tHq", CW='CW', Ctop="Ctop")
+        self.SMH.makeScaling("tHW", CW='CW', Ctop="Ctop")
+        self.SMH.makeScaling("ggZH", CZ='CZ', Ctop="Ctop",Cb="Cb")
 
         self.SMH.makeScaling('hgluglu', Cb='Cb', Ctop='Ctop')
         
@@ -124,7 +131,7 @@ class MepsHiggs(SMLikeHiggsModel):
     
         name = 'Meps_XSBRscal_%(production)s_%(decay)s' % locals()
         
-        if production in ('ggH','qqH'):
+        if production in ('ggH','qqH','tHq','tHW','ggZH'):
             self.productionScaling[production]='Scaling_'+production+'_'+energy
             name += '_%(energy)s' % locals()
             
@@ -138,7 +145,7 @@ class MepsHiggs(SMLikeHiggsModel):
             return name
 
         XSscal = self.productionScaling[production]
-        if production == 'ggH':
+        if production in ('ggH','ggZH','tHq','tHW'): # not sure about tHW...
             self.modelBuilder.factory_('expr::%(name)s("@0 * @1", %(XSscal)s, Meps_BRscal_%(decay)s)' % locals())
         else:
             self.modelBuilder.factory_('expr::%(name)s("@0*@0 * @1", %(XSscal)s, Meps_BRscal_%(decay)s)' % locals())
@@ -197,6 +204,7 @@ class ResolvedC6(SMLikeHiggsModel):
 
         self.productionScaling = {
             'ttH':'Ctop',
+            'bbH':'Cb',
             'WH':'CW',
             'ZH':'CZ',
             }

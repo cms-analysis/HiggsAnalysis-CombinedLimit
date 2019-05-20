@@ -13,6 +13,7 @@ nav:
           - "Running the tool":           part3/runningthetool.md
           - "Common statistical methods": part3/commonstatsmethods.md
           - "Advanced use cases":         part3/nonstandard.md
+          - "Unfolding & regularization": part3/regularisation.md
         - Links & FAQ: part4/usefullinks.md
 
 theme:
