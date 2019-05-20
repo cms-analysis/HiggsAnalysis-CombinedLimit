@@ -585,11 +585,11 @@ h-&gt;Fit(&quot;gaus&quot;)
 </div>
 <p>As an example, we can use peform a likelihood scan as a function of the Higgs signal strength in the toy Hgg datacard. By leaving the object <code>pdf_index</code> non-constant, at each point in the likelihood scan, the pdfs will be iterated over and the one which gives the lowest -2 times log-likelihood, including the correction factor <span><span class="MathJax_Preview">c</span><script type="math/tex">c</script></span> (as defined in the paper) will be stored in the output tree. We can also check the scan fixing to each pdf individually to check that the envelope is acheived. For this, you will need to include the option <code>--X-rtd REMOVE_CONSTANT_ZERO_POINT=1</code>. In this way, we can take a look at the absolute value to compare the curves, if we also include <code>--saveNLL</code>.</p>
 <p>For example for a full scan, you can run </p>
-<pre><code>combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL -n Envelope -m 125 --setParameters myIndex=-1 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1 
+<pre><code>    combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL -n Envelope -m 125 --setParameters myIndex=-1 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1 
 </code></pre>
 
 <p>and for the individual <code>pdf_index</code> set to <code>X</code>, </p>
-<pre><code>combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL --freezeParameters pdf_index --setParameters pdf_index=X -n fixed_pdf_X -m 125 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1
+<pre><code>    combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL --freezeParameters pdf_index --setParameters pdf_index=X -n fixed_pdf_X -m 125 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1
 </code></pre>
 
 <p>for <code>X=0,1,2</code></p>
