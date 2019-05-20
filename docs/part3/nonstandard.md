@@ -390,7 +390,7 @@ The bias studies are performed in two stages. The first is to generate toys usin
     
 Now we have 100 toys which, by setting `pdf_index=0`, sets the background pdf to the exponential function i.e assumes the exponential is the *true* function. Note that the option `--toysFrequentist` is added. This first performs a fit of the pdf, assuming a signal strength of 1, to the data before generating the toys. This is the most obvious choice as to where to throw the toys from.
 
-The next step is to fit the toys under a different background pdf hypothesis. This time we set the `pdf_index` to be 1, the powerlaw and run fits with the `FitDiagnostics` method again freezing pdf_index. 
+The next step is to fit the toys under a different background pdf hypothesis. This time we set the `pdf_index` to be 1, the powerlaw and run fits with the `FitDiagnostics` method again freezing `pdf_index`. 
 
 !!! warning  
     You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.
@@ -410,9 +410,34 @@ h->Fit("gaus")
 
 From the fitted Gaussian, we see the mean is at +0.30 which would indicate a bias of ~30% of the uncertainty on mu from choosing the powerlaw when the true function is an exponential.
 
-!!! danger 
-    If the `discrete` nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the [**discrete profiling method**](https://arxiv.org/pdf/1408.6865.pdf) to be applied for any method which involves a profiled likelihood (frequentist methods). You should be careful however since MINOS knows nothing about these nuisances and hence estimations of uncertainties will be incorrect. Instead, uncertainties from scans and limits will correctly account for these nuisances. Currently the Bayesian methods will *not* properly treat the nuisances so some care should be taken when interpreting Bayesian results. 
- 
+### Discrete profiling 
+
+If the `discrete` nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the [**discrete profiling method**](https://arxiv.org/pdf/1408.6865.pdf) to be applied for any method which involves a profiled likelihood (frequentist methods). 
+
+!!! warning 
+    You should be careful since MINOS knows nothing about the discretenuisances and hence estimations of uncertainties will be incorrect via MINOS. Instead, uncertainties from scans and limits will correctly account for these nuisances. Currently the Bayesian methods will *not* properly treat the nuisances so some care should be taken when interpreting Bayesian results. 
+
+As an example, we can use peform a likelihood scan as a function of the Higgs signal strength in the toy Hgg datacard. By leaving the object `pdf_index` non-constant, at each point in the likelihood scan, the pdfs will be iterated over and the one which gives the lowest -2 times log-likelihood, including the correction factor $c$ (as defined in the paper) will be stored in the output tree. We can also check the scan fixing to each pdf individually to check that the envelope is acheived. For this, you will need to include the option `--X-rtd REMOVE_CONSTANT_ZERO_POINT=1`. In this way, we can take a look at the absolute value to compare the curves, if we also include `--saveNLL`.
+
+For example for a full scan, you can run 
+
+```
+combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL -n Envelope -m 125 --setParameters myIndex=-1 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1 
+```
+
+and for the individual `pdf_index` set to `X`, 
+
+```
+combine -M MultiDimFit -d  hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL --freezeParameters pdf_index --setParameters pdf_index=X -n fixed_pdf_X -m 125 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1
+
+```
+for `X=0,1,2`
+
+The above output will produce the following scans. 
+![](images/discrete_profile.png)
+
+As expected, the curve obtained by allowing the `pdf_index` to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. 
+
 ## RooSplineND multidimensional splines
 
 [RooSplineND](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooSplineND.h) can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. 
