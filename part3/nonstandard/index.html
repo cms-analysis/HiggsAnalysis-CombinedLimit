@@ -191,6 +191,7 @@
                 <li class="third-level"><a href="#example-removing-constraints-from-the-signal-region">Example: removing constraints from the signal region</a></li>
             <li class="second-level"><a href="#roomultipdf-conventional-bias-studies">RooMultiPdf conventional bias studies</a></li>
                 
+                <li class="third-level"><a href="#discrete-profiling">Discrete profiling</a></li>
             <li class="second-level"><a href="#roosplinend-multidimensional-splines">RooSplineND multidimensional splines</a></li>
                 
             <li class="second-level"><a href="#rooparametrichist-gamman-for-shapes">RooParametricHist gammaN for shapes</a></li>
@@ -562,7 +563,7 @@ $ text2workspace.py htt_tt.txt -m 125
 <p>combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index</p>
 </div>
 <p>Now we have 100 toys which, by setting <code>pdf_index=0</code>, sets the background pdf to the exponential function i.e assumes the exponential is the <em>true</em> function. Note that the option <code>--toysFrequentist</code> is added. This first performs a fit of the pdf, assuming a signal strength of 1, to the data before generating the toys. This is the most obvious choice as to where to throw the toys from.</p>
-<p>The next step is to fit the toys under a different background pdf hypothesis. This time we set the <code>pdf_index</code> to be 1, the powerlaw and run fits with the <code>FitDiagnostics</code> method again freezing pdf_index. </p>
+<p>The next step is to fit the toys under a different background pdf hypothesis. This time we set the <code>pdf_index</code> to be 1, the powerlaw and run fits with the <code>FitDiagnostics</code> method again freezing <code>pdf_index</code>. </p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.</p>
@@ -576,10 +577,26 @@ h-&gt;Fit(&quot;gaus&quot;)
 
 <p><img alt="" src="../images/biasexample.png" /> </p>
 <p>From the fitted Gaussian, we see the mean is at +0.30 which would indicate a bias of ~30% of the uncertainty on mu from choosing the powerlaw when the true function is an exponential.</p>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
-<p>If the <code>discrete</code> nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the <a href="https://arxiv.org/pdf/1408.6865.pdf"><strong>discrete profiling method</strong></a> to be applied for any method which involves a profiled likelihood (frequentist methods). You should be careful however since MINOS knows nothing about these nuisances and hence estimations of uncertainties will be incorrect. Instead, uncertainties from scans and limits will correctly account for these nuisances. Currently the Bayesian methods will <em>not</em> properly treat the nuisances so some care should be taken when interpreting Bayesian results. </p>
+<h3 id="discrete-profiling">Discrete profiling</h3>
+<p>If the <code>discrete</code> nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the <a href="https://arxiv.org/pdf/1408.6865.pdf"><strong>discrete profiling method</strong></a> to be applied for any method which involves a profiled likelihood (frequentist methods). </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You should be careful since MINOS knows nothing about the discretenuisances and hence estimations of uncertainties will be incorrect via MINOS. Instead, uncertainties from scans and limits will correctly account for these nuisances. Currently the Bayesian methods will <em>not</em> properly treat the nuisances so some care should be taken when interpreting Bayesian results. </p>
 </div>
+<p>As an example, we can use peform a likelihood scan as a function of the Higgs signal strength in the toy Hgg datacard. By leaving the object <code>pdf_index</code> non-constant, at each point in the likelihood scan, the pdfs will be iterated over and the one which gives the lowest -2 times log-likelihood, including the correction factor <span><span class="MathJax_Preview">c</span><script type="math/tex">c</script></span> (as defined in the paper) will be stored in the output tree. We can also check the scan fixing to each pdf individually to check that the envelope is acheived. For this, you will need to include the option <code>--X-rtd REMOVE_CONSTANT_ZERO_POINT=1</code>. In this way, we can take a look at the absolute value to compare the curves, if we also include <code>--saveNLL</code>.</p>
+<p>For example for a full scan, you can run </p>
+<pre><code>combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL -n Envelope -m 125 --setParameters myIndex=-1 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1 
+</code></pre>
+
+<p>and for the individual <code>pdf_index</code> set to <code>X</code>, </p>
+<pre><code>combine -M MultiDimFit -d  hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL --freezeParameters pdf_index --setParameters pdf_index=X -n fixed_pdf_X -m 125 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1
+
+</code></pre>
+
+<p>for <code>X=0,1,2</code></p>
+<p>The above output will produce the following scans. 
+<img alt="" src="../images/discrete_profile.png" /></p>
+<p>As expected, the curve obtained by allowing the <code>pdf_index</code> to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. </p>
 <h2 id="roosplinend-multidimensional-splines">RooSplineND multidimensional splines</h2>
 <p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooSplineND.h">RooSplineND</a> can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. </p>
 <p>The following script is an example of its use which produces a 2D spline from a set of points generated from a function. </p>
