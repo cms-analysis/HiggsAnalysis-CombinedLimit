@@ -85,17 +85,40 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         if ("f", 1) not in self.faiphiaistatus: self.faiphiaistatus["f", 1] = "POI"
 
-        for parametertype, parameterrange in ("f", (-1. if self.allowPMF else 0., 1.)), ("phi", (-math.pi, math.pi)):
+        for parametertype in "f", "phi":
+            for i in xrange(1, self.numberoffais+1):
+                varname = "CMS_zz4l_{}ai{}".format(parametertype, i)
+
+                if not self.modelBuilder.out.var(varname):
+                    self.modelBuilder.doVar(varname+"[0,0,1]") #will set the range later
+
+                self.modelBuilder.out.var(varname).setVal(0)
+
+        for parametertype in "f", "phi":
             for i in xrange(1, self.numberoffais+1):
                 varname = "CMS_zz4l_{}ai{}".format(parametertype, i)
                 status = self.faiphiaistatus[parametertype, i]
-
                 if status in ("float", "POI"):
-                    if self.modelBuilder.out.var(varname):
-                        self.modelBuilder.out.var(varname).setRange(*parameterrange)
-                        self.modelBuilder.out.var(varname).setVal(0)
+                    if parametertype == "f":
+                        if self.numberoffais == 1:
+                            parameterrange = (-1 if self.allowPMF else 0), 1
+                        else:
+                            expr = expr = "-".join(["1"] + ["abs(@{})".format(k) for k, j in enumerate(j for j in xrange(1, self.numberoffais+1) if j < i)])
+                            fais = ", ".join("CMS_zz4l_fai{}".format(j) for j in xrange(1, self.numberoffais+1) if j < i)
+                            self.modelBuilder.doVar('expr::max_'+varname+'("{}", {})'.format(expr, fais))
+                            if self.allowPMF:
+                                self.modelBuilder.doVar('expr::min_{0}("-@0", max_{0})'.format(varname))
+                            else:
+                                self.modelBuilder.doVar('expr::min_{0}("0")'.format(varname))
+                            parameterrange = (
+                                self.modelBuilder.out.obj("min_"+varname),
+                                self.modelBuilder.out.obj("max_"+varname),
+                            )
+                    elif parametertype == "phi":
+                        parameterrange = -math.pi, math.pi
                     else:
-                        self.modelBuilder.doVar("{}[0.,{},{}]".format(varname, *parameterrange))
+                        assert False
+                    self.modelBuilder.out.var(varname).setRange(*parameterrange)
                     self.modelBuilder.out.var(varname).setConstant(False)
                     if status == "POI":
                         print "Treating "+varname+" as a POI"
@@ -105,11 +128,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                         self.modelBuilder.out.var(varname).setAttribute("flatParam")
                     if parametertype == "f" and self.allowPMF: print "Allowing negative "+varname
                 elif status == "fix":
-                    if self.modelBuilder.out.var(varname):
-                        self.modelBuilder.out.var(varname).setVal(0)
-                        self.modelBuilder.out.var(varname).setConstant()
-                    else:
-                        self.modelBuilder.doVar("{}[0]".format(varname))
+                    self.modelBuilder.out.var(varname).setConstant()
                     print "Fixing "+varname
                 else:
                     assert False, status
@@ -414,8 +433,6 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         if not self.modelBuilder.out.var("g1"):
             self.modelBuilder.doVar('expr::g1("sqrt(@0)", CMS_zz4l_fa1)')
 
-        self.modelBuilder.doVar('expr::killswitch("@0>=0", CMS_zz4l_fa1)')
-
         couplings = ["g1"]
         i = 0
         for fai, ai in ("fa3", "g4"), ("fa2", "g2"), ("fL1", "g1prime2"), ("fL1Zg", "ghzgs1prime2"):
@@ -443,24 +460,24 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         if self.scaledifferentsqrtsseparately: raise ValueError("HZZAnomalousCouplingsFromHistograms is not compatible with scaledifferentsqrtsseparately")
 
         for g in couplings:
-            self.modelBuilder.doVar('expr::ffH_{g}2("@0*@1*@2*@3*@3", killswitch, R, RF, {g})'.format(g=g))
-            self.modelBuilder.doVar('expr::VVH_{g}4("@0*@1*@2*@3*@3*@3*@3", killswitch, R, RV, {g})'.format(g=g))
+            self.modelBuilder.doVar('expr::ffH_{g}2("@0*@1*@2*@2", R, RF, {g})'.format(g=g))
+            self.modelBuilder.doVar('expr::VVH_{g}4("@0*@1*@2*@2*@2*@2", R, RV, {g})'.format(g=g))
 
         kwargs = {}
         for kwargs["signname"], kwargs["sign"] in ("positive", ""), ("negative", "-"):
             for kwargs["g1"], kwargs["g2"] in itertools.combinations(couplings, 2):
-                self.modelBuilder.doVar('expr::ffH_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3*@4", killswitch, R, RF, {g1}, {g2})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}3_{signname}("{sign}@0*@1*@2*@3*@4*@4*@4", killswitch, R, RV, {g1}, {g2})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}2_{signname}("{sign}@0*@1*@2*@3*@3*@4*@4", killswitch, R, RV, {g1}, {g2})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}3{g2}1_{signname}("{sign}@0*@1*@2*@3*@3*@3*@4", killswitch, R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::ffH_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3", R, RF, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}3_{signname}("{sign}@0*@1*@2*@3*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}2_{signname}("{sign}@0*@1*@2*@2*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}3{g2}1_{signname}("{sign}@0*@1*@2*@2*@2*@3", R, RV, {g1}, {g2})'.format(**kwargs))
 
             for kwargs["g1"], kwargs["g2"], kwargs["g3"] in itertools.combinations(couplings, 3):
-                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}2_{signname}("{sign}@0*@1*@2*@3*@4*@5*@5", killswitch, R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}2{g3}1_{signname}("{sign}@0*@1*@2*@3*@4*@4*@5", killswitch, R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
-                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}1{g3}1_{signname}("{sign}@0*@1*@2*@3*@3*@4*@5", killswitch, R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}2_{signname}("{sign}@0*@1*@2*@3*@4*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}2{g3}1_{signname}("{sign}@0*@1*@2*@3*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}2{g2}1{g3}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
 
             for kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"] in itertools.combinations(couplings, 4):
-                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@0*@1*@2*@3*@4*@5*@6", killswitch, R, RV, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@0*@1*@2*@3*@4*@5", R, RV, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
 
         return pois
 
