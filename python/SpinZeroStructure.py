@@ -422,10 +422,20 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
             if fai not in self.anomalouscouplings: continue
             i += 1
 
+            if self.scalegL1by10000:
+                divideby = {
+                    "g4": 1,
+                    "g2": 1,
+                    "g1prime2": 10000,
+                    "ghzgs1prime2": 10000,
+                }[ai]
+            else:
+                divideby = 1
+
             kwargs = {
               "i": i,
               "ai": ai,
-              "aidecay": self.aidecay[ai] / (10000 if self.scalegL1by10000 else 1),
+              "aidecay": self.aidecay[ai] / divideby,
             }
             self.modelBuilder.doVar('expr::{ai}("(@0>0 ? 1 : -1) * sqrt(abs(@0))*{aidecay}", CMS_zz4l_fai{i})'.format(**kwargs))
             couplings.append(ai)
