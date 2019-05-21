@@ -78,6 +78,9 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def numberoffais(self):
         return 2
 
+    def faidefinitionorder(self, i):
+        return i
+
     def getPOIList(self):
 
         poi = []
@@ -103,8 +106,8 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                         if self.numberoffais == 1:
                             parameterrange = (-1 if self.allowPMF else 0), 1
                         else:
-                            expr = expr = "-".join(["1"] + ["abs(@{})".format(k) for k, j in enumerate(j for j in xrange(1, self.numberoffais+1) if j < i)])
-                            fais = ", ".join("CMS_zz4l_fai{}".format(j) for j in xrange(1, self.numberoffais+1) if j < i)
+                            expr = expr = "-".join(["1"] + ["abs(@{})".format(k) for k, j in enumerate(j for j in xrange(1, self.numberoffais+1) if self.faidefinitionorder(j) < self.faidefinitionorder(i))])
+                            fais = ", ".join("CMS_zz4l_fai{}".format(j) for j in xrange(1, self.numberoffais+1) if self.faidefinitionorder(j) < self.faidefinitionorder(i))
                             self.modelBuilder.doVar('expr::max_'+varname+'("{}", {})'.format(expr, fais))
                             if self.allowPMF:
                                 self.modelBuilder.doVar('expr::min_{0}("-@0", max_{0})'.format(varname))
@@ -400,8 +403,6 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                 self.scalegL1by10000 = True
                 processed.append(po)
 
-        self.anomalouscouplings.sort(key="fa3 fa2 fL1 fL1Zg".index)
-
         for po in physOptions[:]:
             for i, fai in enumerate(self.anomalouscouplings, start=1):
                 ai = fai[1:]
@@ -417,6 +418,10 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
     @property
     def numberoffais(self):
         return len(self.anomalouscouplings)
+
+    def faidefinitionorder(self, i):
+        assert i >= 1
+        return self.anomalouscouplings.index(["fa3", "fa2", "fL1", "fL1Zg"][i-1])
 
     def getPOIList(self):
         self.modelBuilder.doVar("RF[1.0,0,10]")
