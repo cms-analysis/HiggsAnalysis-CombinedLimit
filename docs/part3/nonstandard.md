@@ -421,15 +421,12 @@ As an example, we can use peform a likelihood scan as a function of the Higgs si
 
 For example for a full scan, you can run 
 
-```
     combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL -n Envelope -m 125 --setParameters myIndex=-1 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1 
-```
 
 and for the individual `pdf_index` set to `X`, 
 
-```
     combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL --freezeParameters pdf_index --setParameters pdf_index=X -n fixed_pdf_X -m 125 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1
-```
+
 for `X=0,1,2`
 
 The above output will produce the following scans. 
