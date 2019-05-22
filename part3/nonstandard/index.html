@@ -229,14 +229,6 @@
 <td><code>RooFitResult</code> object containing the outcome of the fit of the data with floating signal strength</td>
 </tr>
 <tr>
-<td><strong><code>covariance_fit_s</code></strong></td>
-<td><code>TH2D</code> Covariance matrix of the parameters in the fit with floating signal strength</td>
-</tr>
-<tr>
-<td><strong><code>covariance_fit_b</code></strong></td>
-<td><code>TH2D</code> Covariance matrix of the parameters in the fit with signal strength set to zero</td>
-</tr>
-<tr>
 <td><strong><code>tree_prefit</code></strong></td>
 <td><code>TTree</code> of pre-fit nuisance parameter values and constraint terms (_In)</td>
 </tr>
@@ -250,6 +242,38 @@
 </tr>
 </tbody>
 </table>
+<p>by including the option <code>--plots</code>, you will additionally find the following contained in the root file .</p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>covariance_fit_s</code></strong></td>
+<td><code>TH2D</code> Covariance matrix of the parameters in the fit with floating signal strength</td>
+</tr>
+<tr>
+<td><strong><code>covariance_fit_b</code></strong></td>
+<td><code>TH2D</code> Covariance matrix of the parameters in the fit with signal strength set to zero</td>
+</tr>
+<tr>
+<td><strong><code>category_variable_prefit</code></strong></td>
+<td><code>RooPlot</code> plot of the prefit pdfs with the data (or toy if running with <code>-t</code> overlaid)</td>
+</tr>
+<tr>
+<td><strong><code>category_variable_fit_b</code></strong></td>
+<td><code>RooPlot</code> plot of the pdfs from the background only fit with the data (or toy if running with <code>-t</code> overlaid)</td>
+</tr>
+<tr>
+<td><strong><code>category_variable_fit_s</code></strong></td>
+<td><code>RooPlot</code> plot of the pdfs from the signal+background fit with the data (or toy if running with <code>-t</code> overlaid)</td>
+</tr>
+</tbody>
+</table>
+<p>where for the <code>RooPlot</code> objects, you will get one per category in the likelihood and one per variable if using a multi-dimensional dataset. You will also get a png file for each of these additional objects.  </p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>If you use the option <code>--name</code> this name will be inserted into the file name for this output file too. </p>
@@ -316,8 +340,8 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.</
 <p>This script has the option (<code>-g outputfile.root</code>) to produce plots of the fitted <em>values</em> of the nuisance parameters and their post-fit, asymmetric uncertainties. Instead, the pulls defined using one of the options above, can be plotted using the option <code>--pullDef X</code>. In addition this will produce a plot showing directly a comparison of the post-fit to pre-fit nuisance (symmetrized) uncertainties. </p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-</div>
 <p>In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of <span><span class="MathJax_Preview">\theta-\theta_{I}</span><script type="math/tex">\theta-\theta_{I}</script></span>. </p>
+</div>
 <h4 id="normalizations">Normalizations</h4>
 <p>For a certain class of models, like those made from datacards for shape-based analysis, the tool can also compute and save to the output root file the best fit yields of all processes. If this feature is turned on with the option <code>--saveNormalizations</code>, the file will also contain three RooArgSet <code>norm_prefit</code>, <code>norm_fit_s</code>, <code>norm_fit_b</code> objects each containing one RooConstVar for each channel <code>xxx</code> and process <code>yyy</code> with name <strong><code>xxx/yyy</code></strong> and value equal to the best fit yield. You can use <code>RooRealVar::getVal</code> and <code>RooRealVar::getError</code> to estimate both the post-(or pre-)fit values and uncertainties of these normalisations. </p>
 <p>The sample pyroot macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/mlfitNormsToText.py">mlfitNormsToText.py</a> can be used to convert the root file into a text table with four columns: channel, process, yield from the signal+background fit and yield from the background-only fit. To include the uncertainties in the table, add the option <code>--uncertainties</code></p>
