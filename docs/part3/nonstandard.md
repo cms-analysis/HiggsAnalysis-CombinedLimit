@@ -17,12 +17,21 @@ The program will print out the result of the *two fits* performed with signal st
 | **`nuisances_prefit`** | `RooArgSet` containing the pre-fit values of the nuisance parameters, and their uncertainties from the external constraint terms only |
 | **`fit_b`** | `RooFitResult` object containing the outcome of the fit of the data with signal strength set to zero |
 | **`fit_s`** | `RooFitResult` object containing the outcome of the fit of the data with floating signal strength |
-| **`covariance_fit_s`** | `TH2D` Covariance matrix of the parameters in the fit with floating signal strength  |
-| **`covariance_fit_b`** | `TH2D` Covariance matrix of the parameters in the fit with signal strength set to zero |
 | **`tree_prefit`** | `TTree` of pre-fit nuisance parameter values and constraint terms (_In)|
 | **`tree_fit_sb`** | `TTree` of fitted nuisance parameter values and constraint terms (_In) with floating signal strength |
 | **`tree_fit_b`** | `TTree` of fitted nuisance parameter values and constraint terms (_In) with signal strength set to 0 |
 
+by including the option `--plots`, you will additionally find the following contained in the root file .
+
+| Object | Description |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| **`covariance_fit_s`** | `TH2D` Covariance matrix of the parameters in the fit with floating signal strength  |
+| **`covariance_fit_b`** | `TH2D` Covariance matrix of the parameters in the fit with signal strength set to zero |
+| **`category_variable_prefit`** | `RooPlot` plot of the prefit pdfs with the data (or toy if running with `-t` overlaid) |
+| **`category_variable_fit_b`** | `RooPlot` plot of the pdfs from the background only fit with the data (or toy if running with `-t` overlaid) |
+| **`category_variable_fit_s`** | `RooPlot` plot of the pdfs from the signal+background fit with the data (or toy if running with `-t` overlaid) |
+
+where for the `RooPlot` objects, you will get one per category in the likelihood and one per variable if using a multi-dimensional dataset. You will also get a png file for each of these additional objects.  
 
 !!! info
     If you use the option `--name` this name will be inserted into the file name for this output file too. 
@@ -97,7 +106,7 @@ If using `--pullDef`, the results for *all* parameters for which the pull can be
 This script has the option (`-g outputfile.root`) to produce plots of the fitted _values_ of the nuisance parameters and their post-fit, asymmetric uncertainties. Instead, the pulls defined using one of the options above, can be plotted using the option `--pullDef X`. In addition this will produce a plot showing directly a comparison of the post-fit to pre-fit nuisance (symmetrized) uncertainties. 
 
 !!! info
-   In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\theta-\theta_{I}$. 
+    In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\theta-\theta_{I}$. 
 
 
 #### Normalizations
