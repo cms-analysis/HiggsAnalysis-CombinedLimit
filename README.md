@@ -15,9 +15,6 @@ make -j 8; make # second make fixes compilation error of first
 
 ### Stealth Stop Group Setup `(LPC)`
 ```
-bash
-source /cvmfs/cms.cern.ch/cmsset_default.sh 
-export SCRAM_ARCH=slc6_amd64_gcc530
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
 cmsenv
@@ -30,11 +27,11 @@ scram b -j8
 Add CombineTools from CombineHarvester to your work area:
  (this is needed for impact plots, and possible crab submission)
 ```
-From a CMSSW_8_1_0 release:
 cd $CMSSW_BASE/src 
 curl https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh > sparse-checkout-https.sh
 bash sparse-checkout-https.sh
-scram b
+scram b -j8
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 ```
 
 ### Example
