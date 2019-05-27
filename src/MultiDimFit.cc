@@ -154,6 +154,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 
     // Process POI not in list
     nOtherFloatingPoi_ = 0;
+    deltaNLL_ = 0;
     int nConstPoi=0;
     RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
     std::string setConstPOI;
