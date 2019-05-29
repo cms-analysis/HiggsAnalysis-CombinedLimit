@@ -21,6 +21,15 @@ void addNPs(stringstream& f, RooArgList& list, const double r, const RooAbsArg& 
     list.add(NP);
 }
 
+void addNPs(stringstream& f, RooArgList& list, const double r, const RooAbsArg& NP, const double rprime, const RooAbsArg& NPg)
+{
+    std::string paramNum  = std::to_string(list.getSize());
+    std::string paramNumG = std::to_string(list.getSize()+1);
+    f << "*TMath::Power(" << r << ",@"+paramNum+")*TMath::Power(" << rprime << ",@"+paramNumG+")";
+    list.add(NP);
+    list.add(NPg);
+}
+
 void construct_formula(string procName, RooArgList& binlist, const RooArgList& paramlist, const RooArgList& NPs, std::vector<std::pair<TH1D*,TH1D*>> h_syst) 
 {
   // Functional form:
@@ -37,7 +46,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
   //     ...
   // N7 = Njets=7
 
-    std::cout << "size of NPs: " << NPs.getSize() << std::endl;
+  std::cout << "size of NPs: " << NPs.getSize() << std::endl;
 
   ROOT::v5::TFormula::SetMaxima(10000);
 
@@ -80,24 +89,17 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
     form << ")";
 
     // nuisance parameters
-    addNPs(form, formArgList, h_syst[0].first->GetBinContent(i+1), NPs[0]);
-    addNPs(form, formArgList, h_syst[1].first->GetBinContent(i+1), NPs[1]);
-    addNPs(form, formArgList, h_syst[2].first->GetBinContent(i+1), NPs[2]);
-    addNPs(form, formArgList, h_syst[3].first->GetBinContent(i+1), NPs[3]);
-    addNPs(form, formArgList, h_syst[4].first->GetBinContent(i+1), NPs[4]);
-    addNPs(form, formArgList, h_syst[5].first->GetBinContent(i+1), NPs[5]);
-    addNPs(form, formArgList, h_syst[6].first->GetBinContent(i+1), NPs[6]);
-    addNPs(form, formArgList, h_syst[7].first->GetBinContent(i+1), NPs[7]);
-    addNPs(form, formArgList, h_syst[8].first->GetBinContent(i+1), NPs[8]);
-    addNPs(form, formArgList, h_syst[9].first->GetBinContent(i+1), NPs[9]);
-    if (NPs.getSize() > 10)
+    for(unsigned int j = 0; j < h_syst.size(); j++)
     {
-        addNPs(form, formArgList, h_syst[10].first->GetBinContent(i+1), NPs[10]);
-        addNPs(form, formArgList, h_syst[11].first->GetBinContent(i+1), NPs[11]);
-        addNPs(form, formArgList, h_syst[12].first->GetBinContent(i+1), NPs[12]);
-        addNPs(form, formArgList, h_syst[13].first->GetBinContent(i+1), NPs[13]);
-        addNPs(form, formArgList, h_syst[14].first->GetBinContent(i+1), NPs[14]);
-        addNPs(form, formArgList, h_syst[15].first->GetBinContent(i+1), NPs[15]);
+        if(h_syst[j].second)
+        {
+            double rprime = h_syst[j].second->GetBinContent(i+1);
+            addNPs(form, formArgList, h_syst[j].first->GetBinContent(i+1), NPs[j], rprime, NPs[i+h_syst.size()]);
+        }
+        else
+        {
+            addNPs(form, formArgList, h_syst[j].first->GetBinContent(i+1), NPs[j]);
+        }
     }
 
     // Create RooFormulaVar for this bin
@@ -319,6 +321,38 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->factory(("np_tt_pu_"+year+"[0.0]").c_str());// uncorrelated
   wspace->factory("np_tt_JECDown[0.0]"); // fully correlated
   wspace->factory(("np_tt_JERDown_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD1Bin1_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD1Bin2_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD1Bin3_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD1Bin4_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD1Bin5_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD1Bin6_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD1Bin7_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD1Bin8_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD2Bin1_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD2Bin2_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD2Bin3_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD2Bin4_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD2Bin5_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD2Bin6_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD2Bin7_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD2Bin8_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD3Bin1_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD3Bin2_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD3Bin3_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD3Bin4_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD3Bin5_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD3Bin6_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD3Bin7_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD3Bin8_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD4Bin1_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD4Bin2_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD4Bin3_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD4Bin4_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD4Bin5_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD4Bin6_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD4Bin7_"+year+"[0.0]").c_str()); // uncorrelated
+  wspace->factory(("np_tt_qcdCRErrD4Bin8_"+year+"[0.0]").c_str()); // uncorrelated
 
 
   // Load in the histograms with the bin-by-bin ratios to be used in the ttbar shape systematics
@@ -457,6 +491,14 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_pu_"+year).c_str()));
   bkg_tt_syst_NP_D1.add(*wspace->var("np_tt_JECDown"));
   bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_JERDown_"+year).c_str()));
+  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin1_"+year).c_str()));
+  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin2_"+year).c_str()));
+  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin3_"+year).c_str()));
+  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin4_"+year).c_str()));
+  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin5_"+year).c_str()));
+  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin6_"+year).c_str()));
+  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin7_"+year).c_str()));
+  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin8_"+year).c_str()));
 
   // array of histograms containing each tt bkg shape uncertainty
   std::vector<std::pair<TH1D*,TH1D*>> bkg_tt_syst_histos_D1 = {
@@ -526,6 +568,14 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_pu_"+year).c_str()));
   bkg_tt_syst_NP_D2.add(*wspace->var("np_tt_JECDown"));
   bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_JERDown_"+year).c_str()));
+  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin1_"+year).c_str()));
+  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin2_"+year).c_str()));
+  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin3_"+year).c_str()));
+  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin4_"+year).c_str()));
+  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin5_"+year).c_str()));
+  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin6_"+year).c_str()));
+  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin7_"+year).c_str()));
+  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin8_"+year).c_str()));
   
   // array of histograms containing each tt bkg shape uncertainty
   std::vector<std::pair<TH1D*,TH1D*>> bkg_tt_syst_histos_D2 = {
@@ -591,7 +641,15 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_pu_"+year).c_str()));
   bkg_tt_syst_NP_D3.add(*wspace->var("np_tt_JECDown"));
   bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_JERDown_"+year).c_str()));
-  
+  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin1_"+year).c_str()));
+  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin2_"+year).c_str()));
+  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin3_"+year).c_str()));
+  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin4_"+year).c_str()));
+  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin5_"+year).c_str()));
+  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin6_"+year).c_str()));
+  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin7_"+year).c_str()));
+  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin8_"+year).c_str()));
+
   // array of histograms containing each tt bkg shape uncertainty
   std::vector<std::pair<TH1D*,TH1D*>> bkg_tt_syst_histos_D3 = {
       {tt_syst_JECUp_D3, nullptr},
@@ -656,7 +714,15 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_pu_"+year).c_str()));
   bkg_tt_syst_NP_D4.add(*wspace->var("np_tt_JECDown"));
   bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_JERDown_"+year).c_str()));
-  
+  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin1_"+year).c_str()));
+  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin2_"+year).c_str()));
+  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin3_"+year).c_str()));
+  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin4_"+year).c_str()));
+  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin5_"+year).c_str()));
+  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin6_"+year).c_str()));
+  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin7_"+year).c_str()));
+  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin8_"+year).c_str()));
+
   // array of histograms containing each tt bkg shape uncertainty
   std::vector<std::pair<TH1D*,TH1D*>> bkg_tt_syst_histos_D4 = {
       {tt_syst_JECUp_D4, nullptr},

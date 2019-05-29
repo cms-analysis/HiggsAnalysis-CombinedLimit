@@ -1,7 +1,7 @@
 Combination of Y16=Card2016.txt  Y17=Card2017.txt
 imax 8 number of bins
 jmax 2 number of processes minus 1
-kmax 172 number of nuisance parameters
+kmax 236 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes OTHER     Y16_D1    MVA_2016_$MODEL_$MASS_ws.root otherMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
 shapes SIG       Y16_D1    MVA_2016_$MODEL_$MASS_ws.root sigMC_th1_D1 D1_$PROCESS_$SYSTEMATIC
@@ -216,3 +216,67 @@ np_tt_qcdCR_2016  param  0.0 1.0
 np_tt_pdf     param  0.0 1.0
 d_tt_2016     param  0 500
 d_tt_2017     param  0 500
+np_tt_qcdCRErrD1Bin1_2016 param 0.0 1.0
+np_tt_qcdCRErrD1Bin2_2016 param 0.0 1.0
+np_tt_qcdCRErrD1Bin3_2016 param 0.0 1.0
+np_tt_qcdCRErrD1Bin4_2016 param 0.0 1.0
+np_tt_qcdCRErrD1Bin5_2016 param 0.0 1.0
+np_tt_qcdCRErrD1Bin6_2016 param 0.0 1.0
+np_tt_qcdCRErrD1Bin7_2016 param 0.0 1.0
+np_tt_qcdCRErrD1Bin8_2016 param 0.0 1.0
+np_tt_qcdCRErrD2Bin1_2016 param 0.0 1.0
+np_tt_qcdCRErrD2Bin2_2016 param 0.0 1.0
+np_tt_qcdCRErrD2Bin3_2016 param 0.0 1.0
+np_tt_qcdCRErrD2Bin4_2016 param 0.0 1.0
+np_tt_qcdCRErrD2Bin5_2016 param 0.0 1.0
+np_tt_qcdCRErrD2Bin6_2016 param 0.0 1.0
+np_tt_qcdCRErrD2Bin7_2016 param 0.0 1.0
+np_tt_qcdCRErrD2Bin8_2016 param 0.0 1.0
+np_tt_qcdCRErrD3Bin1_2016 param 0.0 1.0
+np_tt_qcdCRErrD3Bin2_2016 param 0.0 1.0
+np_tt_qcdCRErrD3Bin3_2016 param 0.0 1.0
+np_tt_qcdCRErrD3Bin4_2016 param 0.0 1.0
+np_tt_qcdCRErrD3Bin5_2016 param 0.0 1.0
+np_tt_qcdCRErrD3Bin6_2016 param 0.0 1.0
+np_tt_qcdCRErrD3Bin7_2016 param 0.0 1.0
+np_tt_qcdCRErrD3Bin8_2016 param 0.0 1.0
+np_tt_qcdCRErrD4Bin1_2016 param 0.0 1.0
+np_tt_qcdCRErrD4Bin2_2016 param 0.0 1.0
+np_tt_qcdCRErrD4Bin3_2016 param 0.0 1.0
+np_tt_qcdCRErrD4Bin4_2016 param 0.0 1.0
+np_tt_qcdCRErrD4Bin5_2016 param 0.0 1.0
+np_tt_qcdCRErrD4Bin6_2016 param 0.0 1.0
+np_tt_qcdCRErrD4Bin7_2016 param 0.0 1.0
+np_tt_qcdCRErrD4Bin8_2016 param 0.0 1.0
+np_tt_qcdCRErrD1Bin1_2017 param 0.0 1.0
+np_tt_qcdCRErrD1Bin2_2017 param 0.0 1.0
+np_tt_qcdCRErrD1Bin3_2017 param 0.0 1.0
+np_tt_qcdCRErrD1Bin4_2017 param 0.0 1.0
+np_tt_qcdCRErrD1Bin5_2017 param 0.0 1.0
+np_tt_qcdCRErrD1Bin6_2017 param 0.0 1.0
+np_tt_qcdCRErrD1Bin7_2017 param 0.0 1.0
+np_tt_qcdCRErrD1Bin8_2017 param 0.0 1.0
+np_tt_qcdCRErrD2Bin1_2017 param 0.0 1.0
+np_tt_qcdCRErrD2Bin2_2017 param 0.0 1.0
+np_tt_qcdCRErrD2Bin3_2017 param 0.0 1.0
+np_tt_qcdCRErrD2Bin4_2017 param 0.0 1.0
+np_tt_qcdCRErrD2Bin5_2017 param 0.0 1.0
+np_tt_qcdCRErrD2Bin6_2017 param 0.0 1.0
+np_tt_qcdCRErrD2Bin7_2017 param 0.0 1.0
+np_tt_qcdCRErrD2Bin8_2017 param 0.0 1.0
+np_tt_qcdCRErrD3Bin1_2017 param 0.0 1.0
+np_tt_qcdCRErrD3Bin2_2017 param 0.0 1.0
+np_tt_qcdCRErrD3Bin3_2017 param 0.0 1.0
+np_tt_qcdCRErrD3Bin4_2017 param 0.0 1.0
+np_tt_qcdCRErrD3Bin5_2017 param 0.0 1.0
+np_tt_qcdCRErrD3Bin6_2017 param 0.0 1.0
+np_tt_qcdCRErrD3Bin7_2017 param 0.0 1.0
+np_tt_qcdCRErrD3Bin8_2017 param 0.0 1.0
+np_tt_qcdCRErrD4Bin1_2017 param 0.0 1.0
+np_tt_qcdCRErrD4Bin2_2017 param 0.0 1.0
+np_tt_qcdCRErrD4Bin3_2017 param 0.0 1.0
+np_tt_qcdCRErrD4Bin4_2017 param 0.0 1.0
+np_tt_qcdCRErrD4Bin5_2017 param 0.0 1.0
+np_tt_qcdCRErrD4Bin6_2017 param 0.0 1.0
+np_tt_qcdCRErrD4Bin7_2017 param 0.0 1.0
+np_tt_qcdCRErrD4Bin8_2017 param 0.0 1.0
