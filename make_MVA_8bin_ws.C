@@ -10,6 +10,30 @@
 // Nov 14, 2018 : Add multiplicative ttbar shape systematics with log normal nuisance parameters.
 // Dec 12, 2018 : Switched to new fit function for tt background (solves correlation issue).
 
+class NuisanceParam
+{
+public:
+    const RooAbsArg& r_name;
+    const TH1D* h_r;
+    const TH1D* h_rprime;
+    RooArgList rprime_names;
+    
+    NuisanceParam(const RooAbsArg& r_name, const TH1D* h_r, const TH1D* h_rprime, RooArgList rprime_names) 
+        : r_name(r_name)
+        , h_r(h_r)
+        , h_rprime(h_rprime)
+        , rprime_names(rprime_names)
+    {        
+    }
+
+    NuisanceParam(const RooAbsArg& r_name, const TH1D* h_r) 
+        : r_name(r_name)
+        , h_r(h_r)
+        , h_rprime(nullptr)
+    {        
+    }
+};
+
 Double_t step(double_t x) {
   return 1;
 }
@@ -30,7 +54,7 @@ void addNPs(stringstream& f, RooArgList& list, const double r, const RooAbsArg& 
     list.add(NPg);
 }
 
-void construct_formula(string procName, RooArgList& binlist, const RooArgList& paramlist, const RooArgList& NPs, std::vector<std::pair<TH1D*,TH1D*>> h_syst) 
+void construct_formula(string procName, RooArgList& binlist, const RooArgList& paramlist, const std::vector<NuisanceParam>& NPs) 
 {
   // Functional form:
   // f(x) = Njets bin x / Njets bin x-1 = a2 + [ (a1-a2)^(x-a0_val) / (a0-a2)^(x-a1_val) ]^(1/(a1_val-a0_val)) where a1 > a2,
@@ -46,7 +70,7 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
   //     ...
   // N7 = Njets=7
 
-  std::cout << "size of NPs: " << NPs.getSize() << std::endl;
+  std::cout << "size of NPs: " << NPs.size() << std::endl;
 
   ROOT::v5::TFormula::SetMaxima(10000);
 
@@ -88,17 +112,18 @@ void construct_formula(string procName, RooArgList& binlist, const RooArgList& p
     }
     form << ")";
 
-    // nuisance parameters
-    for(unsigned int j = 0; j < h_syst.size(); j++)
+    // Add nuisance parameters
+    for(unsigned int j = 0; j < NPs.size(); j++)
     {
-        if(h_syst[j].second)
+        double r = NPs[j].h_r->GetBinContent(i+1);
+        if(NPs[j].h_rprime)
         {
-            double rprime = h_syst[j].second->GetBinContent(i+1);
-            addNPs(form, formArgList, h_syst[j].first->GetBinContent(i+1), NPs[j], rprime, NPs[i+h_syst.size()]);
+            double rprime = NPs[j].h_rprime->GetBinContent(i+1);
+            addNPs(form, formArgList, r, NPs[j].r_name, rprime, NPs[j].rprime_names[i]);
         }
         else
         {
-            addNPs(form, formArgList, h_syst[j].first->GetBinContent(i+1), NPs[j]);
+            addNPs(form, formArgList, r, NPs[j].r_name);
         }
     }
 
@@ -474,50 +499,36 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   RooDataHist data_hist_D1("data_obs_D1","Data observed in MVA bin 1",vars_D1,data_th1_D1);
   wspace->import(data_hist_D1);
 
-  // ttbar bkg in D1
-  RooArgList bkg_tt_syst_NP_D1(*wspace->var("np_tt_JECUp"),
-			       *wspace->var(("np_tt_JERUp_"+year).c_str()),
-			       *wspace->var(("np_tt_btg_"+year).c_str()),
-			       *wspace->var(("np_tt_lep_"+year).c_str()),
-			       *wspace->var(("np_tt_nom_"+year).c_str()),
-			       *wspace->var(("np_tt_qcdCR_"+year).c_str()),
-			       *wspace->var("np_tt_pdf"),
-			       *wspace->var("np_tt_FSR"),
-			       *wspace->var("np_tt_ISR"));  // list of nuisance parameters for tt bkg
-  bkg_tt_syst_NP_D1.add(*wspace->var("np_tt_scl"));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_ht_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_httail_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_htnjet_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_pu_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var("np_tt_JECDown"));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_JERDown_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin1_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin2_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin3_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin4_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin5_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin6_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin7_"+year).c_str()));
-  bkg_tt_syst_NP_D1.add(*wspace->var(("np_tt_qcdCRErrD1Bin8_"+year).c_str()));
-
-  // array of histograms containing each tt bkg shape uncertainty
-  std::vector<std::pair<TH1D*,TH1D*>> bkg_tt_syst_histos_D1 = {
-      {tt_syst_JECUp_D1, nullptr},
-      {tt_syst_JERUp_D1, nullptr},
-      {tt_syst_btg_D1, nullptr},
-      {tt_syst_lep_D1, nullptr},
-      {tt_syst_nom_D1, nullptr},
-      {tt_syst_qcdCR_D1, tt_qcdCRErr_D1},
-      {tt_syst_pdf_D1, nullptr},
-      {tt_syst_FSR_D1, nullptr},
-      {tt_syst_ISR_D1, nullptr},
-      {tt_syst_scl_D1, nullptr},
-      {tt_syst_ht_D1, nullptr},
-      {tt_syst_httail_D1, nullptr},
-      {tt_syst_htnjet_D1, nullptr},
-      {tt_syst_pu_D1, nullptr},
-      {tt_syst_JECDown_D1, nullptr},
-      {tt_syst_JERDown_D1, nullptr},      
+  //list of nuisance parameters for tt bkg D1
+  const std::vector<NuisanceParam>& nuisanceParams_D1 = {
+      {*wspace->var("np_tt_JECUp"),                 tt_syst_JECUp_D1},
+      {*wspace->var(("np_tt_JERUp_"+year).c_str()), tt_syst_JERUp_D1},
+      {*wspace->var(("np_tt_btg_"+year).c_str()),   tt_syst_btg_D1},
+      {*wspace->var(("np_tt_lep_"+year).c_str()),   tt_syst_lep_D1},
+      {*wspace->var(("np_tt_nom_"+year).c_str()),   tt_syst_nom_D1},
+      {
+          *wspace->var(("np_tt_qcdCR_"+year).c_str()),   tt_syst_qcdCR_D1, tt_qcdCRErr_D1, 
+          { 
+              *wspace->var(("np_tt_qcdCRErrD1Bin1_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD1Bin2_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD1Bin3_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD1Bin4_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD1Bin5_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD1Bin6_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD1Bin7_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD1Bin8_"+year).c_str()),
+          }
+      },
+      {*wspace->var("np_tt_pdf"),                     tt_syst_pdf_D1},
+      {*wspace->var("np_tt_FSR"),                     tt_syst_FSR_D1},
+      {*wspace->var("np_tt_ISR"),                     tt_syst_ISR_D1},
+      {*wspace->var("np_tt_scl"),                     tt_syst_scl_D1},
+      {*wspace->var(("np_tt_ht_"+year).c_str()),      tt_syst_ht_D1},
+      {*wspace->var(("np_tt_httail_"+year).c_str()),  tt_syst_httail_D1},
+      {*wspace->var(("np_tt_htnjet_"+year).c_str()),  tt_syst_htnjet_D1},
+      {*wspace->var(("np_tt_pu_"+year).c_str()),      tt_syst_pu_D1},
+      {*wspace->var("np_tt_JECDown"),                 tt_syst_JECDown_D1},
+      {*wspace->var(("np_tt_JERDown_"+year).c_str()), tt_syst_JERDown_D1}
   };
   
   std::cout << "test" << std::endl;
@@ -528,13 +539,13 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
     std::cout << "test shared" << std::endl;
     RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
     //RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
-    construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,bkg_tt_syst_NP_D1,bkg_tt_syst_histos_D1);
+    construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,nuisanceParams_D1);
     std::cout << "after constructing formula" << std::endl;
   } else 
   {
     RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,d_tt_D1);  // list of shape parameters for tt bkg                       
     //RooArgList parlist_D1(N7_tt_D1,a0_tt_D1,a1_tt_D1,a2_tt_D1);  // list of shape parameters for tt bkg
-    construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,bkg_tt_syst_NP_D1,bkg_tt_syst_histos_D1);
+    construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,nuisanceParams_D1);
   }
   std::cout << "test" << std::endl;
   RooParametricHist background_tt_D1(procName_D1.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D1,*data_th1_D1);
@@ -550,51 +561,36 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   RooDataHist data_hist_D2("data_obs_D2","Data observed in MVA bin 2",vars_D2,data_th1_D2);
   wspace->import(data_hist_D2);
   
-  // ttbar bkg in D2
-  RooArgList bkg_tt_syst_NP_D2(*wspace->var("np_tt_JECUp"),
-        		       *wspace->var(("np_tt_JERUp_"+year).c_str()),
-        		       *wspace->var(("np_tt_btg_"+year).c_str()),
-        		       *wspace->var(("np_tt_lep_"+year).c_str()),
-        		       *wspace->var(("np_tt_nom_"+year).c_str()),
-        		       *wspace->var(("np_tt_qcdCR_"+year).c_str()),
-        		       *wspace->var("np_tt_pdf"),
-        		       *wspace->var("np_tt_FSR"),
-        		       *wspace->var("np_tt_ISR")
-                               );  // list of nuisance parameters for tt bkg
-  bkg_tt_syst_NP_D2.add(*wspace->var("np_tt_scl"));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_ht_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_httail_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_htnjet_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_pu_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var("np_tt_JECDown"));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_JERDown_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin1_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin2_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin3_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin4_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin5_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin6_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin7_"+year).c_str()));
-  bkg_tt_syst_NP_D2.add(*wspace->var(("np_tt_qcdCRErrD2Bin8_"+year).c_str()));
-  
-  // array of histograms containing each tt bkg shape uncertainty
-  std::vector<std::pair<TH1D*,TH1D*>> bkg_tt_syst_histos_D2 = {
-      {tt_syst_JECUp_D2, nullptr},
-      {tt_syst_JERUp_D2, nullptr},
-      {tt_syst_btg_D2, nullptr},
-      {tt_syst_lep_D2, nullptr},
-      {tt_syst_nom_D2, nullptr},
-      {tt_syst_qcdCR_D2, tt_qcdCRErr_D2},
-      {tt_syst_pdf_D2, nullptr},
-      {tt_syst_FSR_D2, nullptr},
-      {tt_syst_ISR_D2, nullptr},
-      {tt_syst_scl_D2, nullptr},
-      {tt_syst_ht_D2, nullptr},
-      {tt_syst_httail_D2, nullptr},
-      {tt_syst_htnjet_D2, nullptr},
-      {tt_syst_pu_D2, nullptr},
-      {tt_syst_JECDown_D2, nullptr},
-      {tt_syst_JERDown_D2, nullptr},      
+  //list of nuisance parameters for tt bkg D2
+  const std::vector<NuisanceParam>& nuisanceParams_D2 = {
+      {*wspace->var("np_tt_JECUp"),                 tt_syst_JECUp_D2},
+      {*wspace->var(("np_tt_JERUp_"+year).c_str()), tt_syst_JERUp_D2},
+      {*wspace->var(("np_tt_btg_"+year).c_str()),   tt_syst_btg_D2},
+      {*wspace->var(("np_tt_lep_"+year).c_str()),   tt_syst_lep_D2},
+      {*wspace->var(("np_tt_nom_"+year).c_str()),   tt_syst_nom_D2},
+      {
+          *wspace->var(("np_tt_qcdCR_"+year).c_str()),   tt_syst_qcdCR_D2, tt_qcdCRErr_D2, 
+          { 
+              *wspace->var(("np_tt_qcdCRErrD2Bin1_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD2Bin2_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD2Bin3_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD2Bin4_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD2Bin5_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD2Bin6_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD2Bin7_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD2Bin8_"+year).c_str()),
+          }
+      },
+      {*wspace->var("np_tt_pdf"),                     tt_syst_pdf_D2},
+      {*wspace->var("np_tt_FSR"),                     tt_syst_FSR_D2},
+      {*wspace->var("np_tt_ISR"),                     tt_syst_ISR_D2},
+      {*wspace->var("np_tt_scl"),                     tt_syst_scl_D2},
+      {*wspace->var(("np_tt_ht_"+year).c_str()),      tt_syst_ht_D2},
+      {*wspace->var(("np_tt_httail_"+year).c_str()),  tt_syst_httail_D2},
+      {*wspace->var(("np_tt_htnjet_"+year).c_str()),  tt_syst_htnjet_D2},
+      {*wspace->var(("np_tt_pu_"+year).c_str()),      tt_syst_pu_D2},
+      {*wspace->var("np_tt_JECDown"),                 tt_syst_JECDown_D2},
+      {*wspace->var(("np_tt_JERDown_"+year).c_str()), tt_syst_JERDown_D2}
   };
   
   RooArgList *bkg_tt_bins_D2 = new RooArgList();
@@ -603,12 +599,12 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   {
     RooArgList parlist_D2(N7_tt_D2,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
     //RooArgList parlist_D2(N7_tt_D2,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
-    construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2,bkg_tt_syst_NP_D2,bkg_tt_syst_histos_D2);
+    construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2,nuisanceParams_D2);
   } else 
   {
     RooArgList parlist_D2(N7_tt_D2,a0_tt_D2,a1_tt_D2,d_tt_D2);  // list of shape parameters for tt bkg                       
     //RooArgList parlist_D2(N7_tt_D2,a0_tt_D2,a1_tt_D2,a2_tt_D2);  // list of shape parameters for tt bkg
-    construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2,bkg_tt_syst_NP_D2,bkg_tt_syst_histos_D2);
+    construct_formula(procName_D2,*bkg_tt_bins_D2,parlist_D2,nuisanceParams_D2);
   }
   RooParametricHist background_tt_D2(procName_D2.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D2,*data_th1_D2);
   wspace->import(background_tt_D2,RooFit::RecycleConflictNodes());
@@ -623,51 +619,36 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   RooDataHist data_hist_D3("data_obs_D3","Data observed in MVA bin 3",vars_D3,data_th1_D3);
   wspace->import(data_hist_D3);
   
-  // ttbar bkg in D3
-  RooArgList bkg_tt_syst_NP_D3(*wspace->var("np_tt_JECUp"),
-        		       *wspace->var(("np_tt_JERUp_"+year).c_str()),
-        		       *wspace->var(("np_tt_btg_"+year).c_str()),
-        		       *wspace->var(("np_tt_lep_"+year).c_str()),
-        		       *wspace->var(("np_tt_nom_"+year).c_str()),
-        		       *wspace->var(("np_tt_qcdCR_"+year).c_str()),
-        		       *wspace->var("np_tt_pdf"),
-        		       *wspace->var("np_tt_FSR"),
-        		       *wspace->var("np_tt_ISR")
-                               );  // list of nuisance parameters for tt bkg
-  bkg_tt_syst_NP_D3.add(*wspace->var("np_tt_scl"));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_ht_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_httail_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_htnjet_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_pu_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var("np_tt_JECDown"));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_JERDown_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin1_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin2_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin3_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin4_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin5_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin6_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin7_"+year).c_str()));
-  bkg_tt_syst_NP_D3.add(*wspace->var(("np_tt_qcdCRErrD3Bin8_"+year).c_str()));
-
-  // array of histograms containing each tt bkg shape uncertainty
-  std::vector<std::pair<TH1D*,TH1D*>> bkg_tt_syst_histos_D3 = {
-      {tt_syst_JECUp_D3, nullptr},
-      {tt_syst_JERUp_D3, nullptr},
-      {tt_syst_btg_D3, nullptr},
-      {tt_syst_lep_D3, nullptr},
-      {tt_syst_nom_D3, nullptr},
-      {tt_syst_qcdCR_D3, tt_qcdCRErr_D3},
-      {tt_syst_pdf_D3, nullptr},
-      {tt_syst_FSR_D3, nullptr},
-      {tt_syst_ISR_D3, nullptr},
-      {tt_syst_scl_D3, nullptr},
-      {tt_syst_ht_D3, nullptr},
-      {tt_syst_httail_D3, nullptr},
-      {tt_syst_htnjet_D3, nullptr},
-      {tt_syst_pu_D3, nullptr},
-      {tt_syst_JECDown_D3, nullptr},
-      {tt_syst_JERDown_D3, nullptr},      
+  //list of nuisance parameters for tt bkg D3
+  const std::vector<NuisanceParam>& nuisanceParams_D3 = {
+      {*wspace->var("np_tt_JECUp"),                 tt_syst_JECUp_D3},
+      {*wspace->var(("np_tt_JERUp_"+year).c_str()), tt_syst_JERUp_D3},
+      {*wspace->var(("np_tt_btg_"+year).c_str()),   tt_syst_btg_D3},
+      {*wspace->var(("np_tt_lep_"+year).c_str()),   tt_syst_lep_D3},
+      {*wspace->var(("np_tt_nom_"+year).c_str()),   tt_syst_nom_D3},
+      {
+          *wspace->var(("np_tt_qcdCR_"+year).c_str()),   tt_syst_qcdCR_D3, tt_qcdCRErr_D3, 
+          { 
+              *wspace->var(("np_tt_qcdCRErrD3Bin1_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD3Bin2_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD3Bin3_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD3Bin4_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD3Bin5_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD3Bin6_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD3Bin7_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD3Bin8_"+year).c_str()),
+          }
+      },
+      {*wspace->var("np_tt_pdf"),                     tt_syst_pdf_D3},
+      {*wspace->var("np_tt_FSR"),                     tt_syst_FSR_D3},
+      {*wspace->var("np_tt_ISR"),                     tt_syst_ISR_D3},
+      {*wspace->var("np_tt_scl"),                     tt_syst_scl_D3},
+      {*wspace->var(("np_tt_ht_"+year).c_str()),      tt_syst_ht_D3},
+      {*wspace->var(("np_tt_httail_"+year).c_str()),  tt_syst_httail_D3},
+      {*wspace->var(("np_tt_htnjet_"+year).c_str()),  tt_syst_htnjet_D3},
+      {*wspace->var(("np_tt_pu_"+year).c_str()),      tt_syst_pu_D3},
+      {*wspace->var("np_tt_JECDown"),                 tt_syst_JECDown_D3},
+      {*wspace->var(("np_tt_JERDown_"+year).c_str()), tt_syst_JERDown_D3}
   };
   
   RooArgList *bkg_tt_bins_D3 = new RooArgList();
@@ -676,12 +657,12 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   {
     RooArgList parlist_D3(N7_tt_D3,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
     //RooArgList parlist_D3(N7_tt_D3,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
-    construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3,bkg_tt_syst_NP_D3,bkg_tt_syst_histos_D3);
+    construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3,nuisanceParams_D3);
   } else 
   {
     RooArgList parlist_D3(N7_tt_D3,a0_tt_D3,a1_tt_D3,d_tt_D3);  // list of shape parameters for tt bkg                       
     //RooArgList parlist_D3(N7_tt_D3,a0_tt_D3,a1_tt_D3,a2_tt_D3);  // list of shape parameters for tt bkg
-    construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3,bkg_tt_syst_NP_D3,bkg_tt_syst_histos_D3);
+    construct_formula(procName_D3,*bkg_tt_bins_D3,parlist_D3,nuisanceParams_D3);
   }
   RooParametricHist background_tt_D3(procName_D3.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D3,*data_th1_D3);
   wspace->import(background_tt_D3,RooFit::RecycleConflictNodes());
@@ -696,51 +677,36 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   RooDataHist data_hist_D4("data_obs_D4","Data observed in MVA bin 4",vars_D4,data_th1_D4);
   wspace->import(data_hist_D4);
   
-  // ttbar bkg in D4
-  RooArgList bkg_tt_syst_NP_D4(*wspace->var("np_tt_JECUp"),
-        		       *wspace->var(("np_tt_JERUp_"+year).c_str()),
-        		       *wspace->var(("np_tt_btg_"+year).c_str()),
-        		       *wspace->var(("np_tt_lep_"+year).c_str()),
-        		       *wspace->var(("np_tt_nom_"+year).c_str()),
-        		       *wspace->var(("np_tt_qcdCR_"+year).c_str()),
-        		       *wspace->var("np_tt_pdf"),
-        		       *wspace->var("np_tt_FSR"),
-        		       *wspace->var("np_tt_ISR")
-                               );  // list of nuisance parameters for tt bkg
-  bkg_tt_syst_NP_D4.add(*wspace->var("np_tt_scl"));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_ht_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_httail_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_htnjet_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_pu_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var("np_tt_JECDown"));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_JERDown_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin1_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin2_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin3_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin4_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin5_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin6_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin7_"+year).c_str()));
-  bkg_tt_syst_NP_D4.add(*wspace->var(("np_tt_qcdCRErrD4Bin8_"+year).c_str()));
-
-  // array of histograms containing each tt bkg shape uncertainty
-  std::vector<std::pair<TH1D*,TH1D*>> bkg_tt_syst_histos_D4 = {
-      {tt_syst_JECUp_D4, nullptr},
-      {tt_syst_JERUp_D4, nullptr},
-      {tt_syst_btg_D4, nullptr},
-      {tt_syst_lep_D4, nullptr},
-      {tt_syst_nom_D4, nullptr},
-      {tt_syst_qcdCR_D4, tt_qcdCRErr_D4},
-      {tt_syst_pdf_D4, nullptr},
-      {tt_syst_FSR_D4, nullptr},
-      {tt_syst_ISR_D4, nullptr},
-      {tt_syst_scl_D4, nullptr},
-      {tt_syst_ht_D4, nullptr},
-      {tt_syst_httail_D4, nullptr},
-      {tt_syst_htnjet_D4, nullptr},
-      {tt_syst_pu_D4, nullptr},
-      {tt_syst_JECDown_D4, nullptr},
-      {tt_syst_JERDown_D4, nullptr},      
+  //list of nuisance parameters for tt bkg D4
+  const std::vector<NuisanceParam>& nuisanceParams_D4 = {
+      {*wspace->var("np_tt_JECUp"),                 tt_syst_JECUp_D4},
+      {*wspace->var(("np_tt_JERUp_"+year).c_str()), tt_syst_JERUp_D4},
+      {*wspace->var(("np_tt_btg_"+year).c_str()),   tt_syst_btg_D4},
+      {*wspace->var(("np_tt_lep_"+year).c_str()),   tt_syst_lep_D4},
+      {*wspace->var(("np_tt_nom_"+year).c_str()),   tt_syst_nom_D4},
+      {
+          *wspace->var(("np_tt_qcdCR_"+year).c_str()),   tt_syst_qcdCR_D4, tt_qcdCRErr_D4, 
+          { 
+              *wspace->var(("np_tt_qcdCRErrD4Bin1_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD4Bin2_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD4Bin3_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD4Bin4_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD4Bin5_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD4Bin6_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD4Bin7_"+year).c_str()),
+              *wspace->var(("np_tt_qcdCRErrD4Bin8_"+year).c_str()),
+          }
+      },
+      {*wspace->var("np_tt_pdf"),                     tt_syst_pdf_D4},
+      {*wspace->var("np_tt_FSR"),                     tt_syst_FSR_D4},
+      {*wspace->var("np_tt_ISR"),                     tt_syst_ISR_D4},
+      {*wspace->var("np_tt_scl"),                     tt_syst_scl_D4},
+      {*wspace->var(("np_tt_ht_"+year).c_str()),      tt_syst_ht_D4},
+      {*wspace->var(("np_tt_httail_"+year).c_str()),  tt_syst_httail_D4},
+      {*wspace->var(("np_tt_htnjet_"+year).c_str()),  tt_syst_htnjet_D4},
+      {*wspace->var(("np_tt_pu_"+year).c_str()),      tt_syst_pu_D4},
+      {*wspace->var("np_tt_JECDown"),                 tt_syst_JECDown_D4},
+      {*wspace->var(("np_tt_JERDown_"+year).c_str()), tt_syst_JERDown_D4}
   };
   
   RooArgList *bkg_tt_bins_D4 = new RooArgList();
@@ -749,12 +715,12 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   {
     RooArgList parlist_D4(N7_tt_D4,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
     //RooArgList parlist_D4(N7_tt_D4,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
-    construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4,bkg_tt_syst_NP_D4,bkg_tt_syst_histos_D4);
+    construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4,nuisanceParams_D4);
   } else 
   {
     RooArgList parlist_D4(N7_tt_D4,a0_tt_D4,a1_tt_D4,d_tt_D4);  // list of shape parameters for tt bkg                       
     //RooArgList parlist_D4(N7_tt_D4,a0_tt_D4,a1_tt_D4,a2_tt_D4);  // list of shape parameters for tt bkg
-    construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4,bkg_tt_syst_NP_D4,bkg_tt_syst_histos_D4);
+    construct_formula(procName_D4,*bkg_tt_bins_D4,parlist_D4,nuisanceParams_D4);
   }
   RooParametricHist background_tt_D4(procName_D4.c_str(),"",*wspace->var("CMS_th1x"),*bkg_tt_bins_D4,*data_th1_D4);
   wspace->import(background_tt_D4,RooFit::RecycleConflictNodes());
@@ -764,8 +730,7 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   wspace->import(tt_norm_D4,RooFit::RecycleConflictNodes());
   
   // =================================================================================
-  
-   
+     
   fOut->cd();
   
   // Shape histograms for signal
@@ -1607,6 +1572,5 @@ void make_MVA_8bin_ws(const string year = "2016", const string infile_path = "Ke
   
   // TCanvas *c4 = new TCanvas("c4","c4");
   // sigMC_hist_D4.createHistogram("nj")->Draw("H");
-
 
 }
