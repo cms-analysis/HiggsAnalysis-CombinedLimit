@@ -574,7 +574,7 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
       {*wspace->var(("np_tt_httail_"+year).c_str()),  tt_syst_httail_D2},
       {*wspace->var(("np_tt_htnjet_"+year).c_str()),  tt_syst_htnjet_D2},
       {*wspace->var(("np_tt_pu_"+year).c_str()),      tt_syst_pu_D2},
-      {*wspace->var(("np_tt_JECDown_"+year).c_str(),  tt_syst_JECDown_D2},
+      {*wspace->var(("np_tt_JECDown_"+year).c_str()), tt_syst_JECDown_D2},
       {*wspace->var(("np_tt_JERDown_"+year).c_str()), tt_syst_JERDown_D2}
   };
   
