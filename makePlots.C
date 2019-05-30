@@ -254,7 +254,8 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
     // Load the root file and read the tree and leaves
     TFile *f = new TFile(fitter_file.c_str());
     //std::cout << f->IsZombie() << std::endl;
-    if(f->IsZombie())
+
+    if(f->IsZombie() ||  !f->GetListOfKeys()->Contains("limit"))
     {
         limits_m2s[i] = 0;
         limits_m1s[i] = 0;
@@ -265,7 +266,8 @@ void makePlots(const string today = "Jan17_2019", const string filedir = "fit_re
         limits_obsErr[i] = 0;        
         continue;
     }
-    TTreeReader reader("limit");
+
+    TTreeReader reader("limit",f);
     TTreeReaderValue<double> lim(reader,"limit");
     TTreeReaderValue<double> lim_err(reader,"limitErr");
 
