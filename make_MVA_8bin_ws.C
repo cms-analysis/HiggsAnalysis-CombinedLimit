@@ -748,10 +748,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   TH1D* D2_SIG_JECUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
   TH1D* D3_SIG_JECUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
   TH1D* D4_SIG_JECUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
-  D1_SIG_JECUp->SetName("D1_SIG_JECUp");
-  D2_SIG_JECUp->SetName("D2_SIG_JECUp");
-  D3_SIG_JECUp->SetName("D3_SIG_JECUp");
-  D4_SIG_JECUp->SetName("D4_SIG_JECUp");
+  D1_SIG_JECUp->SetName("D1_SIG_JEC_"+year+"Up");
+  D2_SIG_JECUp->SetName("D2_SIG_JEC_"+year+"Up");
+  D3_SIG_JECUp->SetName("D3_SIG_JEC_"+year+"Up");
+  D4_SIG_JECUp->SetName("D4_SIG_JEC_"+year+"Up");
   D1_SIG_JECUp->Write();
   D2_SIG_JECUp->Write();
   D3_SIG_JECUp->Write();
@@ -760,10 +760,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   TH1D* D2_SIG_JECDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
   TH1D* D3_SIG_JECDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
   TH1D* D4_SIG_JECDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
-  D1_SIG_JECDown->SetName("D1_SIG_JECDown");
-  D2_SIG_JECDown->SetName("D2_SIG_JECDown");
-  D3_SIG_JECDown->SetName("D3_SIG_JECDown");
-  D4_SIG_JECDown->SetName("D4_SIG_JECDown");
+  D1_SIG_JECDown->SetName("D1_SIG_JEC_"+year+"Down");
+  D2_SIG_JECDown->SetName("D2_SIG_JEC_"+year+"Down");
+  D3_SIG_JECDown->SetName("D3_SIG_JEC_"+year+"Down");
+  D4_SIG_JECDown->SetName("D4_SIG_JEC_"+year+"Down");
   D1_SIG_JECDown->Write();
   D2_SIG_JECDown->Write();
   D3_SIG_JECDown->Write();
@@ -869,18 +869,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   D3_SIG_pdfDown->Write();
   D4_SIG_pdfDown->Write();
   
-  TH1D* D1_SIG_sclUp;
-  TH1D* D2_SIG_sclUp;
-  TH1D* D3_SIG_sclUp;
-  TH1D* D4_SIG_sclUp;
-  TH1D* D1_SIG_sclDown;
-  TH1D* D2_SIG_sclDown;
-  TH1D* D3_SIG_sclDown;
-  TH1D* D4_SIG_sclDown;
-  D1_SIG_sclUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-  D2_SIG_sclUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-  D3_SIG_sclUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-  D4_SIG_sclUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
+  TH1D* D1_SIG_sclUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
+  TH1D* D2_SIG_sclUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
+  TH1D* D3_SIG_sclUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
+  TH1D* D4_SIG_sclUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
   D1_SIG_sclUp->SetName("D1_SIG_sclUp");
   D2_SIG_sclUp->SetName("D2_SIG_sclUp");
   D3_SIG_sclUp->SetName("D3_SIG_sclUp");
@@ -889,10 +881,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   D2_SIG_sclUp->Write();
   D3_SIG_sclUp->Write();
   D4_SIG_sclUp->Write();
-  D1_SIG_sclDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-  D2_SIG_sclDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-  D3_SIG_sclDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-  D4_SIG_sclDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
+  TH1D* D1_SIG_sclDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
+  TH1D* D2_SIG_sclDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
+  TH1D* D3_SIG_sclDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
+  TH1D* D4_SIG_sclDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
   D1_SIG_sclDown->SetName("D1_SIG_sclDown");
   D2_SIG_sclDown->SetName("D2_SIG_sclDown");
   D3_SIG_sclDown->SetName("D3_SIG_sclDown");
@@ -934,10 +926,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   TH1D* D2_OTHER_JECUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_JECUp");
   TH1D* D3_OTHER_JECUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_JECUp");
   TH1D* D4_OTHER_JECUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_JECUp");
-  D1_OTHER_JECUp->SetName("D1_OTHER_JECUp");
-  D2_OTHER_JECUp->SetName("D2_OTHER_JECUp");
-  D3_OTHER_JECUp->SetName("D3_OTHER_JECUp");
-  D4_OTHER_JECUp->SetName("D4_OTHER_JECUp");
+  D1_OTHER_JECUp->SetName("D1_OTHER_JEC_"+year+"Up");
+  D2_OTHER_JECUp->SetName("D2_OTHER_JEC_"+year+"Up");
+  D3_OTHER_JECUp->SetName("D3_OTHER_JEC_"+year+"Up");
+  D4_OTHER_JECUp->SetName("D4_OTHER_JEC_"+year+"Up");
   D1_OTHER_JECUp->Write();
   D2_OTHER_JECUp->Write();
   D3_OTHER_JECUp->Write();
@@ -946,10 +938,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   TH1D* D2_OTHER_JECDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_JECDown");
   TH1D* D3_OTHER_JECDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_JECDown");
   TH1D* D4_OTHER_JECDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_JECDown");
-  D1_OTHER_JECDown->SetName("D1_OTHER_JECDown");
-  D2_OTHER_JECDown->SetName("D2_OTHER_JECDown");
-  D3_OTHER_JECDown->SetName("D3_OTHER_JECDown");
-  D4_OTHER_JECDown->SetName("D4_OTHER_JECDown");
+  D1_OTHER_JECDown->SetName("D1_OTHER_JEC_"+year+"Down");
+  D2_OTHER_JECDown->SetName("D2_OTHER_JEC_"+year+"Down");
+  D3_OTHER_JECDown->SetName("D3_OTHER_JEC_"+year+"Down");
+  D4_OTHER_JECDown->SetName("D4_OTHER_JEC_"+year+"Down");
   D1_OTHER_JECDown->Write();
   D2_OTHER_JECDown->Write();
   D3_OTHER_JECDown->Write();
@@ -1030,19 +1022,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   D3_OTHER_lepDown->Write();
   D4_OTHER_lepDown->Write();
   
-  TH1D* D1_OTHER_htUp;
-  TH1D* D2_OTHER_htUp;
-  TH1D* D3_OTHER_htUp;
-  TH1D* D4_OTHER_htUp;
-  TH1D* D1_OTHER_htDown;
-  TH1D* D2_OTHER_htDown;
-  TH1D* D3_OTHER_htDown;
-  TH1D* D4_OTHER_htDown;
-    
-  D1_OTHER_htUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_htUp");
-  D2_OTHER_htUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_htUp");
-  D3_OTHER_htUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_htUp");
-  D4_OTHER_htUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_htUp");
+  TH1D* D1_OTHER_htUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_htUp");
+  TH1D* D2_OTHER_htUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_htUp");
+  TH1D* D3_OTHER_htUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_htUp");
+  TH1D* D4_OTHER_htUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_htUp");
   D1_OTHER_htUp->SetName(("D1_OTHER_ht_"+year+"Up").c_str());
   D2_OTHER_htUp->SetName(("D2_OTHER_ht_"+year+"Up").c_str());
   D3_OTHER_htUp->SetName(("D3_OTHER_ht_"+year+"Up").c_str());
@@ -1051,10 +1034,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   D2_OTHER_htUp->Write();
   D3_OTHER_htUp->Write();
   D4_OTHER_htUp->Write();
-  D1_OTHER_htDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_htDown");
-  D2_OTHER_htDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_htDown");
-  D3_OTHER_htDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_htDown");
-  D4_OTHER_htDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_htDown");
+  TH1D* D1_OTHER_htDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_htDown");
+  TH1D* D2_OTHER_htDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_htDown");
+  TH1D* D3_OTHER_htDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_htDown");
+  TH1D* D4_OTHER_htDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_htDown");
   D1_OTHER_htDown->SetName(("D1_OTHER_ht_"+year+"Down").c_str());
   D2_OTHER_htDown->SetName(("D2_OTHER_ht_"+year+"Down").c_str());
   D3_OTHER_htDown->SetName(("D3_OTHER_ht_"+year+"Down").c_str());
@@ -1064,18 +1047,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   D3_OTHER_htDown->Write();
   D4_OTHER_htDown->Write();
   
-  TH1D* D1_OTHER_sclUp;
-  TH1D* D2_OTHER_sclUp;
-  TH1D* D3_OTHER_sclUp;
-  TH1D* D4_OTHER_sclUp;
-  TH1D* D1_OTHER_sclDown;
-  TH1D* D2_OTHER_sclDown;
-  TH1D* D3_OTHER_sclDown;
-  TH1D* D4_OTHER_sclDown;
-  D1_OTHER_sclUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclUp");
-  D2_OTHER_sclUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclUp");
-  D3_OTHER_sclUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclUp");
-  D4_OTHER_sclUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclUp");
+  TH1D* D1_OTHER_sclUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclUp");
+  TH1D* D2_OTHER_sclUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclUp");
+  TH1D* D3_OTHER_sclUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclUp");
+  TH1D* D4_OTHER_sclUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclUp");
   D1_OTHER_sclUp->SetName("D1_OTHER_sclUp");
   D2_OTHER_sclUp->SetName("D2_OTHER_sclUp");
   D3_OTHER_sclUp->SetName("D3_OTHER_sclUp");
@@ -1084,10 +1059,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   D2_OTHER_sclUp->Write();
   D3_OTHER_sclUp->Write();
   D4_OTHER_sclUp->Write();
-  D1_OTHER_sclDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclDown");
-  D2_OTHER_sclDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclDown");
-  D3_OTHER_sclDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclDown");
-  D4_OTHER_sclDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclDown");
+  TH1D* D1_OTHER_sclDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclDown");
+  TH1D* D2_OTHER_sclDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclDown");
+  TH1D* D3_OTHER_sclDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclDown");
+  TH1D* D4_OTHER_sclDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclDown");
   D1_OTHER_sclDown->SetName("D1_OTHER_sclDown");
   D2_OTHER_sclDown->SetName("D2_OTHER_sclDown");
   D3_OTHER_sclDown->SetName("D3_OTHER_sclDown");
@@ -1097,19 +1072,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   D3_OTHER_sclDown->Write();
   D4_OTHER_sclDown->Write();
   
-  TH1D* D1_OTHER_puUp;
-  TH1D* D2_OTHER_puUp;
-  TH1D* D3_OTHER_puUp;
-  TH1D* D4_OTHER_puUp;
-  TH1D* D1_OTHER_puDown;
-  TH1D* D2_OTHER_puDown;
-  TH1D* D3_OTHER_puDown;
-  TH1D* D4_OTHER_puDown;
-  
-  D1_OTHER_puUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_puUp");
-  D2_OTHER_puUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_puUp");
-  D3_OTHER_puUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_puUp");
-  D4_OTHER_puUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_puUp");
+  TH1D* D1_OTHER_puUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_puUp");
+  TH1D* D2_OTHER_puUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_puUp");
+  TH1D* D3_OTHER_puUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_puUp");
+  TH1D* D4_OTHER_puUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_puUp");
   D1_OTHER_puUp->SetName(("D1_OTHER_pu_"+year+"Up").c_str());
   D2_OTHER_puUp->SetName(("D2_OTHER_pu_"+year+"Up").c_str());
   D3_OTHER_puUp->SetName(("D3_OTHER_pu_"+year+"Up").c_str());
@@ -1118,10 +1084,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   D2_OTHER_puUp->Write();
   D3_OTHER_puUp->Write();
   D4_OTHER_puUp->Write();
-  D1_OTHER_puDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_puDown");
-  D2_OTHER_puDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_puDown");
-  D3_OTHER_puDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_puDown");
-  D4_OTHER_puDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_puDown");
+  TH1D* D1_OTHER_puDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_puDown");
+  TH1D* D2_OTHER_puDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_puDown");
+  TH1D* D3_OTHER_puDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_puDown");
+  TH1D* D4_OTHER_puDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_puDown");
   D1_OTHER_puDown->SetName(("D1_OTHER_pu_"+year+"Down").c_str());
   D2_OTHER_puDown->SetName(("D2_OTHER_pu_"+year+"Down").c_str());
   D3_OTHER_puDown->SetName(("D3_OTHER_pu_"+year+"Down").c_str());
@@ -1524,33 +1490,23 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
 
   wspace->Write();
   
-  
-  
   // TCanvas *c1 = new TCanvas("c1","c1");
   // data_hist_D4.createHistogram("nj")->Draw("H");
-  
   // TCanvas *c2 = new TCanvas("c2","c2");
   // ttMC_hist_D4.createHistogram("nj")->Draw("H");
-  
   // TCanvas *c3 = new TCanvas("c3","c3");
   // otherMC_hist_D4.createHistogram("nj")->Draw("H");
-  
   // TCanvas *c4 = new TCanvas("c4","c4");
   // sigMC_hist_D4.createHistogram("nj")->Draw("H");
   
-  
   // TCanvas *c1 = new TCanvas("c1","c1");
   // data_hist_D4.createHistogram("nj")->Draw("H");
-  
   // TCanvas *c2 = new TCanvas("c2","c2");
   // ttMC_hist_D4.createHistogram("nj")->Draw("H");
-  
   // TCanvas *c3 = new TCanvas("c3","c3");
-  // otherMC_hist_D4.createHistogram("nj")->Draw("H");
-  
+  // otherMC_hist_D4.createHistogram("nj")->Draw("H")
   // TCanvas *c4 = new TCanvas("c4","c4");
   // sigMC_hist_D4.createHistogram("nj")->Draw("H");
-
 }
 
 int main()
