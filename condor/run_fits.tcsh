@@ -24,7 +24,7 @@ printf "\n\n Get the code needed .\n\n"
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
 eval `scramv1 runtime -csh`
-git clone -b 12jets https://github.com/StealthStop/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+git clone https://github.com/StealthStop/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 scram b clean
 scram b -j8
