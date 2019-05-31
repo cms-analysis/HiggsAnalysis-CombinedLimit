@@ -23,7 +23,7 @@ def main():
     parser.add_option ('--inPut_2016',  dest='inputRoot2016',  type='string', default = 'Keras_V1.2.6_v1_DataQCDShape', help="input root file directory: 2016")
     parser.add_option ('--inPut_2017',  dest='inputRoot2017',  type='string', default = 'Keras_V3.0.2_v1_DataQCDShape', help="input root file directory: 2017")
     parser.add_option ('-d',            dest='signalType',     type='string', default = '',                help="List of signal model, comma separated")
-    parser.add_option ('-t',            dest='dataType',       type='string', default = 'data',            help="Specify if running over data or sudo data")
+    parser.add_option ('-t',            dest='dataType',       type='string', default = 'data',            help="Specify if running over data or pseudo data")
     parser.add_option ('-m',            dest='masssets',       type='string', default = '',                help="List of mass models, comma separated")
     parser.add_option ('-y',            dest='year',           type='string', default = '2016',            help="year")
     parser.add_option ('-c',            dest='noSubmit', action='store_true', default = False,             help="Do not submit jobs.  Only create condor_submit.txt.")
@@ -31,6 +31,7 @@ def main():
     parser.add_option ('-F',            dest='doFitDiag',action='store_true', default = False,             help="Specify FitDiagnostics fit command to run")
     parser.add_option ('-M',            dest='doMulti',  action='store_true', default = False,             help="Specify MultiDimFit fit command to run")
     parser.add_option ('--output',      dest='outPath',        type='string', default = '.',               help="Name of directory where output of each condor job goes")
+    parser.add_option ('--inject',      dest='inject',         type='float',  default = 0,                 help="Inject signal at signal strength specified")
 
     parser.add_option ('--toy',         dest='toy',      action='store_true', default = False,             help="Submit toy jobs instead of the normal set of fits")
     parser.add_option ('-T',            dest='numToys',        type='int',    default = 1000,              help="Specify number of toys per job")
@@ -103,7 +104,7 @@ def main():
                 transfer += "\"\n"
                     
                 fileParts.append(transfer)
-                fileParts.append("Arguments = %s %s %s %s %s %s %i %i %i\n" % (options.inputRoot2016, options.inputRoot2017, st, mass, options.year, options.dataType, doAsym, doFitDiag, doMulti))
+                fileParts.append("Arguments = %s %s %s %s %s %s %i %i %i %s\n" % (options.inputRoot2016, options.inputRoot2017, st, mass, options.year, options.dataType, doAsym, doFitDiag, doMulti, options.inject))
                 fileParts.append("Output = %s/log-files/MyFit_%s_%s.stdout\n"%(options.outPath, st, mass))
                 fileParts.append("Error = %s/log-files/MyFit_%s_%s.stderr\n"%(options.outPath, st, mass))
                 fileParts.append("Log = %s/log-files/MyFit_%s_%s.log\n"%(options.outPath, st, mass))
