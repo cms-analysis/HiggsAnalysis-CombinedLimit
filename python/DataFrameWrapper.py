@@ -23,18 +23,33 @@ class DataFrameWrapper(object):
         Use pandas IO tools to load a dataframe from any of the following:
         ["csv", "json", "html", "pkl", "xlsx", "h5", "parquet"]
         """
+        # Index all columns apart from the last 2 (taken as sum_w and sum_ww)
+        # for csv, json, html and xlsx
         if self.ext == ".csv":
-            # Index all columns apart from the last 2 (taken as sum_w and sum_ww)
             df = pd.read_csv(self.path, *self.read_args, **self.read_kwargs)
             return df.set_index(df.columns.tolist()[:-2])
         elif self.ext == ".json":
-            return pd.read_json(self.path, *self.read_args, **self.read_kwargs)
+            df = pd.read_json(self.path, *self.read_args, **self.read_kwargs)
+            return df.set_index(df.columns.tolist()[:-2])
         elif self.ext == ".html":
-            return pd.read_html(self.path, *self.read_args, **self.read_kwargs)
+            df = pd.read_html(self.path, *self.read_args, **self.read_kwargs)
+            return df.set_index(df.columns.tolist()[:-2])
         elif self.ext == ".pkl":
             return pd.read_pickle(self.path, *self.read_args, **self.read_kwargs)
         elif self.ext == ".xlsx":
-            return pd.read_excel(self.path, *self.read_args, **self.read_kwargs)
+            if ":" in self.path:
+                filepath, sheetname = self.path.split(":")
+            else:
+                filepath, sheetname = self.path, 0
+
+            # read in columns first
+            cols = pd.read_excel(
+                self.path, sheetname, *self.read_args, **self.read_kwargs
+            ).columns.tolist()
+            return pd.read_excel(
+                self.path, sheetname, index_col=list(range(len(cols)-2),
+                *self.read_args, **self.read_kwargs
+            )
         elif self.ext == ".h5":
             filepath, internalpath = self.path.split(":")
             return pd.read_hdf(filepath, internalpath, *self.read_args, **self.read_kwargs)
