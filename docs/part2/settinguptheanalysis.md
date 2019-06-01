@@ -106,7 +106,7 @@ For each channel, histograms have to be provided for the observed shape and for 
 -   The normalization of the data histogram must correspond to the number of observed events
 -   The normalization of the expected histograms must match the expected yields
 
-The combine tool can take as input histograms saved as TH1 or as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in [github](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/make_simple_shapes.cxx)).
+The combine tool can take as input histograms saved as TH1, as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in [github](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/make_simple_shapes.cxx)), or from a pandas dataframe ([example](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/data/tutorials/shapes/simple-shapes-df.txt))
 
 The block of lines defining the mapping (first block in the datacard) contains one or more rows in the form
 
