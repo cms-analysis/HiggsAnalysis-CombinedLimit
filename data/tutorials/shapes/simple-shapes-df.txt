@@ -2,7 +2,7 @@ imax 1
 jmax 1
 kmax *
 --------------------------------------------------------------------------------
-shapes * * simple-shapes-df.csv $CHANNEL:$PROCESS:nominal,sum_w:sum_ww $CHANNEL:$PROCESS:$SYSTEMATIC,sum_w:sum_ww
+shapes * * simple-shapes-df_input.csv $CHANNEL:$PROCESS:nominal,sum_w:sum_ww $CHANNEL:$PROCESS:$SYSTEMATIC,sum_w:sum_ww
 --------------------------------------------------------------------------------
 bin         bin1
 observation 85
