@@ -59,8 +59,7 @@ class DataFrameWrapper(object):
 
     def Get(self, object_name):
         """
-        Mimic ROOT file Get function to return a ROOT.TH1. Column names must be
-        sum_w (event count) and sum_ww (variance).
+        Mimic ROOT file Get function to return a ROOT.TH1.
 
         object_name: dataframe index/columns selection split by ":" (used in .loc)
             e.g. "125:bin1:signal:sigmaUp,event_count:event_variance" to select
