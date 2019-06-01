@@ -3,8 +3,6 @@ import pandas as pd
 import ROOT
 
 class DataFrameWrapper(object):
-    event_label = "sum_w"
-    variance_label = "sum_ww"
     th1_class = "TH1F"
     def __init__(self, path, ext, load=True):
         """
@@ -26,7 +24,9 @@ class DataFrameWrapper(object):
         ["csv", "json", "html", "pkl", "xlsx", "h5", "parquet"]
         """
         if self.ext == ".csv":
-            return pd.read_csv(self.path, *self.read_args, **self.read_kwargs)
+            # Index all columns apart from the last 2 (taken as sum_w and sum_ww)
+            df = pd.read_csv(self.path, *self.read_args, **self.read_kwargs)
+            return df.set_index(df.columns.tolist()[:-2])
         elif self.ext == ".json":
             return pd.read_json(self.path, *self.read_args, **self.read_kwargs)
         elif self.ext == ".html":
@@ -47,16 +47,22 @@ class DataFrameWrapper(object):
         Mimic ROOT file Get function to return a ROOT.TH1. Column names must be
         sum_w (event count) and sum_ww (variance).
 
-        object_name: dataframe index selection split by ":" (used in .loc)
+        object_name: dataframe index/columns selection split by ":" (used in .loc)
+            e.g. "125:bin1:signal:sigmaUp,event_count:event_variance" to select
+            the index (125, bin1, signal, sigmaUp) and columns (event_count,
+            event_variance)
         """
         if not hasattr(self, 'df'):
             raise AttributeError("Dataframe has not been loaded")
 
+        index_labels, column_labels = object_name.split(",")
         df_hist = self.df.loc[
-            tuple(object_name.split(":")),
-            [self.event_label, self.variance_label],
+            tuple(index_labels.split(":")),
+            column_labels.split(":"),
         ]
-        df_hist.index.names = [object_name.replace(":","_")]
+
+        # index name used for th1 name
+        df_hist.index.names = [index_labels.replace(":","_")]
         return self.convert_to_th1(df_hist, self.th1_class)
 
     @staticmethod
