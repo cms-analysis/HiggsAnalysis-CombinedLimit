@@ -47,7 +47,7 @@ class DataFrameWrapper(object):
                 self.path, sheetname, *self.read_args, **self.read_kwargs
             ).columns.tolist()
             return pd.read_excel(
-                self.path, sheetname, index_col=list(range(len(cols)-2),
+                self.path, sheetname, index_col=list(range(len(cols)-2)),
                 *self.read_args, **self.read_kwargs
             )
         elif self.ext == ".h5":
