@@ -423,7 +423,22 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
+
+    def clearCachedFiles(self,lcache): 
+	if self.options.verbose: print "Too many files in cache open, clearing cache"
+	for f in lcache.keys(): 
+	 if self.options.verbose: print "... closing/clearing ", f
+	 if lcache[f].InheritsFrom("TFile"): lcache[f].Close()
+	lcache = {}
+	return lcache
+
     def getShape(self,channel,process,syst="",_fileCache={},_cache={},allowNoSyst=False):
+
+        if not self.options.noClearCache:
+	  maxFiles = 100
+	  if len(_fileCache)    > maxFiles : _fileCache = self.clearCachedFiles(_fileCache) 
+	  if len(self.wspnames) > maxFiles : self.wspnames = self.clearCachedFiles(self.wspnames)
+	    
         if _cache.has_key((channel,process,syst)): 
             if self.options.verbose > 2: print "recyling (%s,%s,%s) -> %s\n" % (channel,process,syst,_cache[(channel,process,syst)].GetName())
             return _cache[(channel,process,syst)];
