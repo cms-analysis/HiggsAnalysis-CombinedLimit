@@ -364,32 +364,24 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   wspace->factory(("np_tt_qcdCRErrD1Bin4_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD1Bin5_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD1Bin6_"+year+"[0.0]").c_str()); // uncorrelated
-  wspace->factory(("np_tt_qcdCRErrD1Bin7_"+year+"[0.0]").c_str()); // uncorrelated
-  wspace->factory(("np_tt_qcdCRErrD1Bin8_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD2Bin1_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD2Bin2_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD2Bin3_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD2Bin4_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD2Bin5_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD2Bin6_"+year+"[0.0]").c_str()); // uncorrelated
-  wspace->factory(("np_tt_qcdCRErrD2Bin7_"+year+"[0.0]").c_str()); // uncorrelated
-  wspace->factory(("np_tt_qcdCRErrD2Bin8_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD3Bin1_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD3Bin2_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD3Bin3_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD3Bin4_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD3Bin5_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD3Bin6_"+year+"[0.0]").c_str()); // uncorrelated
-  wspace->factory(("np_tt_qcdCRErrD3Bin7_"+year+"[0.0]").c_str()); // uncorrelated
-  wspace->factory(("np_tt_qcdCRErrD3Bin8_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD4Bin1_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD4Bin2_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD4Bin3_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD4Bin4_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD4Bin5_"+year+"[0.0]").c_str()); // uncorrelated
   wspace->factory(("np_tt_qcdCRErrD4Bin6_"+year+"[0.0]").c_str()); // uncorrelated
-  wspace->factory(("np_tt_qcdCRErrD4Bin7_"+year+"[0.0]").c_str()); // uncorrelated
-  wspace->factory(("np_tt_qcdCRErrD4Bin8_"+year+"[0.0]").c_str()); // uncorrelated
 
   // Load in the histograms with the bin-by-bin ratios to be used in the ttbar shape systematics
   TFile* tt_syst_file = TFile::Open((infile_path+"/ttbar_systematics.root").c_str());
@@ -501,8 +493,6 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
               *wspace->var(("np_tt_qcdCRErrD1Bin4_"+year).c_str()),
               *wspace->var(("np_tt_qcdCRErrD1Bin5_"+year).c_str()),
               *wspace->var(("np_tt_qcdCRErrD1Bin6_"+year).c_str()),
-              *wspace->var(("np_tt_qcdCRErrD1Bin7_"+year).c_str()),
-              *wspace->var(("np_tt_qcdCRErrD1Bin8_"+year).c_str()),
           }
       },
       {*wspace->var("np_tt_pdf"),                     tt_syst_pdf_D1},
@@ -517,12 +507,12 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
       {*wspace->var(("np_tt_JERDown_"+year).c_str()), tt_syst_JERDown_D1}
   };
   
-  std::cout << "test" << std::endl;
+  //std::cout << "test" << std::endl;
   RooArgList *bkg_tt_bins_D1 = new RooArgList();
   std::string procName_D1 = "background_tt_D1_"+year;
   if (shared) 
   {
-    std::cout << "test shared" << std::endl;
+    //std::cout << "test shared" << std::endl;
     RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,d_tt);  // list of shape parameters for tt bkg
     //RooArgList parlist_D1(N7_tt_D1,a0_tt,a1_tt,a2_tt);  // list of shape parameters for tt bkg                                
     construct_formula(procName_D1,*bkg_tt_bins_D1,parlist_D1,nuisanceParams_D1);
@@ -563,8 +553,6 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
               *wspace->var(("np_tt_qcdCRErrD2Bin4_"+year).c_str()),
               *wspace->var(("np_tt_qcdCRErrD2Bin5_"+year).c_str()),
               *wspace->var(("np_tt_qcdCRErrD2Bin6_"+year).c_str()),
-              *wspace->var(("np_tt_qcdCRErrD2Bin7_"+year).c_str()),
-              *wspace->var(("np_tt_qcdCRErrD2Bin8_"+year).c_str()),
           }
       },
       {*wspace->var("np_tt_pdf"),                     tt_syst_pdf_D2},
@@ -621,8 +609,6 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
               *wspace->var(("np_tt_qcdCRErrD3Bin4_"+year).c_str()),
               *wspace->var(("np_tt_qcdCRErrD3Bin5_"+year).c_str()),
               *wspace->var(("np_tt_qcdCRErrD3Bin6_"+year).c_str()),
-              *wspace->var(("np_tt_qcdCRErrD3Bin7_"+year).c_str()),
-              *wspace->var(("np_tt_qcdCRErrD3Bin8_"+year).c_str()),
           }
       },
       {*wspace->var("np_tt_pdf"),                     tt_syst_pdf_D3},
@@ -679,8 +665,6 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
               *wspace->var(("np_tt_qcdCRErrD4Bin4_"+year).c_str()),
               *wspace->var(("np_tt_qcdCRErrD4Bin5_"+year).c_str()),
               *wspace->var(("np_tt_qcdCRErrD4Bin6_"+year).c_str()),
-              *wspace->var(("np_tt_qcdCRErrD4Bin7_"+year).c_str()),
-              *wspace->var(("np_tt_qcdCRErrD4Bin8_"+year).c_str()),
           }
       },
       {*wspace->var("np_tt_pdf"),                     tt_syst_pdf_D4},
@@ -748,10 +732,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   TH1D* D2_SIG_JECUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
   TH1D* D3_SIG_JECUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
   TH1D* D4_SIG_JECUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
-  D1_SIG_JECUp->SetName("D1_SIG_JEC_"+year+"Up");
-  D2_SIG_JECUp->SetName("D2_SIG_JEC_"+year+"Up");
-  D3_SIG_JECUp->SetName("D3_SIG_JEC_"+year+"Up");
-  D4_SIG_JECUp->SetName("D4_SIG_JEC_"+year+"Up");
+  D1_SIG_JECUp->SetName(("D1_SIG_JEC_"+year+"Up").c_str());
+  D2_SIG_JECUp->SetName(("D2_SIG_JEC_"+year+"Up").c_str());
+  D3_SIG_JECUp->SetName(("D3_SIG_JEC_"+year+"Up").c_str());
+  D4_SIG_JECUp->SetName(("D4_SIG_JEC_"+year+"Up").c_str());
   D1_SIG_JECUp->Write();
   D2_SIG_JECUp->Write();
   D3_SIG_JECUp->Write();
@@ -760,10 +744,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   TH1D* D2_SIG_JECDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
   TH1D* D3_SIG_JECDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
   TH1D* D4_SIG_JECDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
-  D1_SIG_JECDown->SetName("D1_SIG_JEC_"+year+"Down");
-  D2_SIG_JECDown->SetName("D2_SIG_JEC_"+year+"Down");
-  D3_SIG_JECDown->SetName("D3_SIG_JEC_"+year+"Down");
-  D4_SIG_JECDown->SetName("D4_SIG_JEC_"+year+"Down");
+  D1_SIG_JECDown->SetName(("D1_SIG_JEC_"+year+"Down").c_str());
+  D2_SIG_JECDown->SetName(("D2_SIG_JEC_"+year+"Down").c_str());
+  D3_SIG_JECDown->SetName(("D3_SIG_JEC_"+year+"Down").c_str());
+  D4_SIG_JECDown->SetName(("D4_SIG_JEC_"+year+"Down").c_str());
   D1_SIG_JECDown->Write();
   D2_SIG_JECDown->Write();
   D3_SIG_JECDown->Write();
@@ -926,10 +910,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   TH1D* D2_OTHER_JECUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_JECUp");
   TH1D* D3_OTHER_JECUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_JECUp");
   TH1D* D4_OTHER_JECUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_JECUp");
-  D1_OTHER_JECUp->SetName("D1_OTHER_JEC_"+year+"Up");
-  D2_OTHER_JECUp->SetName("D2_OTHER_JEC_"+year+"Up");
-  D3_OTHER_JECUp->SetName("D3_OTHER_JEC_"+year+"Up");
-  D4_OTHER_JECUp->SetName("D4_OTHER_JEC_"+year+"Up");
+  D1_OTHER_JECUp->SetName(("D1_OTHER_JEC_"+year+"Up").c_str());
+  D2_OTHER_JECUp->SetName(("D2_OTHER_JEC_"+year+"Up").c_str());
+  D3_OTHER_JECUp->SetName(("D3_OTHER_JEC_"+year+"Up").c_str());
+  D4_OTHER_JECUp->SetName(("D4_OTHER_JEC_"+year+"Up").c_str());
   D1_OTHER_JECUp->Write();
   D2_OTHER_JECUp->Write();
   D3_OTHER_JECUp->Write();
@@ -938,10 +922,10 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   TH1D* D2_OTHER_JECDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_JECDown");
   TH1D* D3_OTHER_JECDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_JECDown");
   TH1D* D4_OTHER_JECDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_JECDown");
-  D1_OTHER_JECDown->SetName("D1_OTHER_JEC_"+year+"Down");
-  D2_OTHER_JECDown->SetName("D2_OTHER_JEC_"+year+"Down");
-  D3_OTHER_JECDown->SetName("D3_OTHER_JEC_"+year+"Down");
-  D4_OTHER_JECDown->SetName("D4_OTHER_JEC_"+year+"Down");
+  D1_OTHER_JECDown->SetName(("D1_OTHER_JEC_"+year+"Down").c_str());
+  D2_OTHER_JECDown->SetName(("D2_OTHER_JEC_"+year+"Down").c_str());
+  D3_OTHER_JECDown->SetName(("D3_OTHER_JEC_"+year+"Down").c_str());
+  D4_OTHER_JECDown->SetName(("D4_OTHER_JEC_"+year+"Down").c_str());
   D1_OTHER_JECDown->Write();
   D2_OTHER_JECDown->Write();
   D3_OTHER_JECDown->Write();

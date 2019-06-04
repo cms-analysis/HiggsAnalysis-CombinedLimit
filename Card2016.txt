@@ -56,32 +56,24 @@ np_tt_qcdCRErrD1Bin3_2016 param 0.0 1.0
 np_tt_qcdCRErrD1Bin4_2016 param 0.0 1.0
 np_tt_qcdCRErrD1Bin5_2016 param 0.0 1.0
 np_tt_qcdCRErrD1Bin6_2016 param 0.0 1.0
-np_tt_qcdCRErrD1Bin7_2016 param 0.0 1.0
-np_tt_qcdCRErrD1Bin8_2016 param 0.0 1.0
 np_tt_qcdCRErrD2Bin1_2016 param 0.0 1.0
 np_tt_qcdCRErrD2Bin2_2016 param 0.0 1.0
 np_tt_qcdCRErrD2Bin3_2016 param 0.0 1.0
 np_tt_qcdCRErrD2Bin4_2016 param 0.0 1.0
 np_tt_qcdCRErrD2Bin5_2016 param 0.0 1.0
 np_tt_qcdCRErrD2Bin6_2016 param 0.0 1.0
-np_tt_qcdCRErrD2Bin7_2016 param 0.0 1.0
-np_tt_qcdCRErrD2Bin8_2016 param 0.0 1.0
 np_tt_qcdCRErrD3Bin1_2016 param 0.0 1.0
 np_tt_qcdCRErrD3Bin2_2016 param 0.0 1.0
 np_tt_qcdCRErrD3Bin3_2016 param 0.0 1.0
 np_tt_qcdCRErrD3Bin4_2016 param 0.0 1.0
 np_tt_qcdCRErrD3Bin5_2016 param 0.0 1.0
 np_tt_qcdCRErrD3Bin6_2016 param 0.0 1.0
-np_tt_qcdCRErrD3Bin7_2016 param 0.0 1.0
-np_tt_qcdCRErrD3Bin8_2016 param 0.0 1.0
 np_tt_qcdCRErrD4Bin1_2016 param 0.0 1.0
 np_tt_qcdCRErrD4Bin2_2016 param 0.0 1.0
 np_tt_qcdCRErrD4Bin3_2016 param 0.0 1.0
 np_tt_qcdCRErrD4Bin4_2016 param 0.0 1.0
 np_tt_qcdCRErrD4Bin5_2016 param 0.0 1.0
 np_tt_qcdCRErrD4Bin6_2016 param 0.0 1.0
-np_tt_qcdCRErrD4Bin7_2016 param 0.0 1.0
-np_tt_qcdCRErrD4Bin8_2016 param 0.0 1.0
 -----------------------------------------------------------------------------------------------------------
 # Week constraint on a2
 #a2_tt param 0.1 -0.2/+0.2
