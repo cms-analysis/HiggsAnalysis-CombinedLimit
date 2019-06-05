@@ -70,10 +70,17 @@ class DataFrameWrapper(object):
             raise AttributeError("Dataframe has not been loaded")
 
         index_labels, column_labels = object_name.split(",")
-        df_hist = self.df.loc[
-            tuple(index_labels.split(":")),
-            column_labels.split(":"),
+
+        # Try to cast index_labels into self.df.index dtypes. Users can only
+        # input index_labels as a string, but the dataframe might have other
+        # dtypes (e.g. int, float, ...)
+        selection = [
+            np.array([index_labels.split(":")[idx]]).astype(
+                self.df.index.get_level_values(idx).dtype
+            )[0] for idx in range(len(index_labels.split(":")))
         ]
+
+        df_hist = self.df.loc[tuple(selection), column_labels.split(":")]
 
         # index name used for th1 name
         df_hist.index.names = [index_labels.replace(":","_")]
