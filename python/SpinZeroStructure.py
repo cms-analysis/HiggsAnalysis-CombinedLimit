@@ -8,6 +8,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
         super(SpinZeroHiggsBase, self).__init__()
 
         self.faiphiaistatus = collections.defaultdict(lambda: "fix")
+        self.fairelative = collections.defaultdict(lambda: False)
 
         self.allowPMF = False
 
@@ -28,14 +29,21 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def processPhysicsOptions(self,physOptions):
         processed = super(SpinZeroHiggsBase, self).processPhysicsOptions(physOptions)
         for po in physOptions:
-            match = re.match("(f|phi)ai([0-9]+)(fixed|notpoi|floating|aspoi)$", po.lower())
+            match = re.match("(f|phi)ai([0-9]+)(fixed|notpoi|floating|aspoi)((?:relative)?)$", po.lower())
             if match:
                 parametertype = match.group(1)
                 i = int(match.group(2))
                 whattodo = match.group(3)
+                relative = bool(match.group(4))
 
                 if not 1 <= i <= self.numberoffais:
                     raise ValueError("There are only {} fais available, so can't do anything with {}".format(i, po))
+
+                if relative:
+                    if whattodo == "fixed": raise ValueError("relative doesn't make sense for fixed fais")
+                    if parametertype == "phi": raise ValueError("relative doesn't make sense for phi")
+
+                relativestring = "_relative" if relative else ""
 
                 key = parametertype, i
 
@@ -45,18 +53,21 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                 if whattodo == "fixed":
                     self.faiphiaistatus[key] = "fix"
                     if parametertype == "f" and i == 1:
-                        print "Will fix CMS_zz4l_{}ai{} to 0".format(parametertype, i)
+                        print "Will fix CMS_zz4l_{}ai{}{} to 0".format(parametertype, i, relativestring)
                 elif whattodo == "floating" or whattodo == "notpoi":
                     self.faiphiaistatus[key] = "float"
                     if parametertype == "f" and i == 1:
-                        print "CMS_zz4l_{}ai{} is NOT A POI".format(parametertype, i)
+                        print "CMS_zz4l_{}ai{}{} is NOT A POI".format(parametertype, i, relativestring)
                     else:
-                        print "Will float CMS_zz4l_{}ai{}".format(parametertype, i)
+                        print "Will float CMS_zz4l_{}ai{}{}".format(parametertype, i, relativestring)
                 elif whattodo == "aspoi":
                     self.faiphiaistatus[key] = "POI"
-                    print "Will consider CMS_zz4l_{}ai{} as a parameter of interest".format(parametertype, i)
+                    print "Will consider CMS_zz4l_{}ai{}{} as a parameter of interest".format(parametertype, i, relativestring)
                 else:
                     assert False, whattodo
+
+                if relative:
+                    self.fairelative[key] = True
 
                 processed.append(po)
 
@@ -80,6 +91,11 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
     def faidefinitionorder(self, i):
         return i
+    def faidefinitionorderinverse(self, i):
+        for _ in xrange(1, self.numberoffais+1):
+            if self.faidefinitionorder(_) == i:
+                return _
+        raise ValueError("faidefinitionorder doesn't have anything that gives {}".format(i))
 
     def getPOIList(self):
 
@@ -90,23 +106,42 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         for parametertype in "f", "phi":
             for i in xrange(1, self.numberoffais+1):
-                varname = "CMS_zz4l_{}ai{}".format(parametertype, i)
+                varname = "CMS_zz4l_{}ai{}{}".format(parametertype, i, "_relative" if self.fairelative[parametertype, i] else "")
 
                 if not self.modelBuilder.out.var(varname):
                     self.modelBuilder.doVar(varname+"[0,0,1]") #will set the range later
 
                 self.modelBuilder.out.var(varname).setVal(0)
 
+        parametertype = "f"
+        done = {i: False for i in xrange(1, self.numberoffais+1)}
+        while not all(done.values()):
+            for i in xrange(1, self.numberoffais+1):
+                if done[i]: continue
+                if self.fairelative[parametertype, i]:
+                    otheris = [j for j in xrange(1, self.numberoffais+1) if self.faidefinitionorder(j) < self.faidefinitionorder(i)]
+                    if not all(done[j] for j in otheris): continue
+                    expr = "-".join(["1"] + ["abs(@{})".format(k) for k, j in enumerate(otheris)])
+                    expr = "(" + expr + ")" + " * @{}".format(len(otheris))
+                    fais = ", ".join(
+                      ["CMS_zz4l_fai{}".format(j) for j in otheris]
+                      + ["CMS_zz4l_fai{}_relative".format(i)]
+                    )
+                    self.modelBuilder.doVar('expr::CMS_zz4l_fai{}("{}", {})'.format(i, expr, fais))
+                done[i] = True
+
+
         for parametertype in "f", "phi":
             for i in xrange(1, self.numberoffais+1):
-                varname = "CMS_zz4l_{}ai{}".format(parametertype, i)
+                relative = self.fairelative[parametertype, i]
+                varname = "CMS_zz4l_{}ai{}{}".format(parametertype, i, "_relative" if relative else "")
                 status = self.faiphiaistatus[parametertype, i]
                 if status in ("float", "POI"):
                     if parametertype == "f":
-                        if self.numberoffais == 1:
+                        if self.numberoffais == 1 or relative:
                             parameterrange = (-1 if self.allowPMF else 0), 1
                         else:
-                            expr = expr = "-".join(["1"] + ["abs(@{})".format(k) for k, j in enumerate(j for j in xrange(1, self.numberoffais+1) if self.faidefinitionorder(j) < self.faidefinitionorder(i))])
+                            expr = "-".join(["1"] + ["abs(@{})".format(k) for k, j in enumerate(j for j in xrange(1, self.numberoffais+1) if self.faidefinitionorder(j) < self.faidefinitionorder(i))])
                             fais = ", ".join("CMS_zz4l_fai{}".format(j) for j in xrange(1, self.numberoffais+1) if self.faidefinitionorder(j) < self.faidefinitionorder(i))
                             self.modelBuilder.doVar('expr::max_'+varname+'("{}", {})'.format(expr, fais))
                             if self.allowPMF:
@@ -406,8 +441,8 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         for po in physOptions[:]:
             for i, fai in enumerate(self.anomalouscouplings, start=1):
                 ai = fai[1:]
-                if re.match("(f|phi){}(fixed|notpoi|floating|aspoi)$".format(ai).lower(), po.lower()):
-                    physOptions.append(po.replace(ai, "ai{}".format(i)))
+                if re.match("(f|phi){}(fixed|notpoi|floating|aspoi)(?:relative)?$".format(ai).lower(), po.lower()):
+                    physOptions.append(po.replace(ai, "ai{}".format(self.faidefinitionorderinverse(i))))
                     processed.append(po)
 
         processed += super(HZZAnomalousCouplingsFromHistograms, self).processPhysicsOptions(physOptions)
@@ -421,7 +456,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
     def faidefinitionorder(self, i):
         assert i >= 1
-        return self.anomalouscouplings.index(["fa3", "fa2", "fL1", "fL1Zg"][i-1])
+        return self.anomalouscouplings.index(["fa3", "fa2", "fL1", "fL1Zg"][i-1])+1
 
     def getPOIList(self):
         self.modelBuilder.doVar("RF[1.0,0,10]")
