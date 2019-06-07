@@ -130,7 +130,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                 if not self.modelBuilder.out.var(varname):
                     self.modelBuilder.doVar(varname+"[0,0,1]") #will set the range later
 
-                self.modelBuilder.out.var(varname).setVal(0)
+                self.modelBuilder.out.var(varname).setVal(1 if i==0 else 0) #set fa1 to 1, anomalous couplings to 0
 
         parametertype = "f"
         done = {i: False for i in xrange(self.numberoffais)}
@@ -468,6 +468,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
         for po in physOptions[:]:
             for i, fai in enumerate(self.anomalouscouplings):
+                if fai == "fa1": continue #handled in the base class
                 ai = fai[1:]
                 if re.match("(f|phi){}(fixed|notpoi|floating|aspoi)(?:relative)?$".format(ai).lower(), po.lower()):
                     physOptions.append(po.replace(ai, "ai{}".format(self.faidefinitionorderinverse(i))))
