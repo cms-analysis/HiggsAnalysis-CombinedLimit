@@ -9,8 +9,8 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         self.faiphiaistatus = collections.defaultdict(lambda: "fix")
         self.fairelative = collections.defaultdict(lambda: False)
-
-        self.allowPMF = False
+        self.allowPMF = collections.defaultdict(lambda: False)
+        self.allowPMF[0] = False
 
         self.HWWcombination = False
 
@@ -53,8 +53,6 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                 if key in self.faiphiaistatus:
                     raise ValueError("Specified multiple physics options for {}ai{}".format(parametertype, i).replace("ai0", "a1"))
                 if self.faidefinitionorder(i) == self.numberoffais-1:
-                    if parametertype == "f":
-                        raise ValueError("fai{} is the last parameter to be defined, so it's defined as a function of the others.  Can't do anything with {}".format(i, po).replace("ai0", "a1"))
                     if parametertype == "phi":
                         raise ValueError("fai{} is the last parameter to be defined, so it doesn't have a phi.  Can't do anything with {}".format(i, po).replace("ai0", "a1"))
 
@@ -80,7 +78,19 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                 processed.append(po)
 
             if po.lower() == 'allowpmf':
-                self.allowPMF = True
+                self.allowPMF.default_factory = lambda: True
+                processed.append(po)
+
+            match = re.match("(allow|forbid)pmfai([0-9]+)", newpo)
+            if match:
+                i = int(match.group(2))
+                toset = {"allow": True, "forbid": False}[match.group(1)]
+                if i == 0:
+                    if toset == True:
+                        raise ValueError("fa1 has to be fixed to positive")
+                else:
+                    if i in self.allowPMF: raise ValueError("Two different options set for allow/forbidPMfai{}".format(i).replace("ai0", "a1"))
+                    self.allowPMF[i] = toset
                 processed.append(po)
 
             if po.lower() == 'hwwcombination':
@@ -116,9 +126,14 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
         poi += super(SpinZeroHiggsBase, self).getPOIList()
 
         for i in xrange(self.numberoffais):
+            varname = self.parametername("f", i, False)
             if self.faidefinitionorder(i) == self.numberoffais-1:
-                assert ("f", i) not in self.faiphiaistatus
-                self.faiphiaistatus["f", i] = "last"
+                if self.faiphiaistatus["f", i] == "POI":
+                    if not self.allowPMF[i]:
+                        raise ValueError("fai{} is the last parameter to be defined, so it's defined as a function of the others.  It's sign is fixed.  Can't set it as a POI")
+                    self.faiphiaistatus["f", i] = "lastPOI"
+                else:
+                    self.faiphiaistatus["f", i] = "last"
         if ("f", 1) not in self.faiphiaistatus: self.faiphiaistatus["f", 1] = "POI"
 
         for parametertype in "f", "phi":
@@ -160,12 +175,12 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                 if status in ("float", "POI"):
                     if parametertype == "f":
                         if self.faidefinitionorder(i) == 0 or relative:
-                            parameterrange = (-1 if self.allowPMF else 0), 1
+                            parameterrange = (-1 if self.allowPMF[i] else 0), 1
                         else:
                             expr = "-".join(["1"] + ["abs(@{})".format(k) for k, j in enumerate(j for j in xrange(self.numberoffais) if self.faidefinitionorder(j) < self.faidefinitionorder(i))])
                             fais = ", ".join(self.parametername("f", j, False) for j in xrange(self.numberoffais) if self.faidefinitionorder(j) < self.faidefinitionorder(i))
                             self.modelBuilder.doVar('expr::max_'+varname+'("{}", {})'.format(expr, fais))
-                            if self.allowPMF:
+                            if self.allowPMF[i]:
                                 self.modelBuilder.doVar('expr::min_{0}("-@0", max_{0})'.format(varname))
                             else:
                                 self.modelBuilder.doVar('expr::min_{0}("0")'.format(varname))
@@ -185,15 +200,29 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                     else:
                         print "Floating "+varname
                         self.modelBuilder.out.var(varname).setAttribute("flatParam")
-                    if parametertype == "f" and self.allowPMF: print "Allowing negative "+varname
+                    if parametertype == "f" and self.allowPMF[i]: print "Allowing negative "+varname
                 elif status == "fix":
                     self.modelBuilder.out.var(varname).setConstant()
                     print "Fixing "+varname
-                elif status == "last":
+                elif status in ("last", "lastPOI"):
                     expr = "-".join(["1"] + ["abs(@{})".format(j) for j in xrange(self.numberoffais-1)])
                     fais = ", ".join(self.parametername(parametertype, j, relative) for j in xrange(self.numberoffais) if j != i)
+
+                    if self.allowPMF[i]:
+                        self.modelBuilder.doVar('sgn{}[negative,positive]'.format(varname))
+                        expr = "({}) * 2 * (@{}-0.5)".format(expr, self.numberoffais-1)
+                        fais += ", sgn"+varname
+
                     self.modelBuilder.doVar('expr::{}("{}", {})'.format(varname, expr, fais))
                     print "Setting "+varname+" to 1 - the sum of the other fais"
+
+                    if self.allowPMF[i]:
+                        if status == "lastPOI":
+                            print "Treating sgn"+varname+" as a POI"
+                            poi.append("sgn"+varname)
+                        else:
+                            print "Floating sgn"+varname
+                            self.modelBuilder.out.var("sgn"+varname).setAttribute("flatParam")
                 else:
                     assert False, status
 
@@ -269,7 +298,7 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
             self.fai2POI = False
             self.phiai2Floating = False
             self.phiai2POI = False
-            self.allowPMF = False
+            self.allowPMF = defaultdict(lambda: False)
 
         return processed
 
