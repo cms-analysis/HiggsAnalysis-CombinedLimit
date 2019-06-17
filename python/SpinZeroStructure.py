@@ -212,17 +212,12 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
                         self.modelBuilder.doVar('sgn{}[negative,positive]'.format(varname))
                         expr = "({}) * 2 * (@{}-0.5)".format(expr, self.numberoffais-1)
                         fais += ", sgn"+varname
+                        self.modelBuilder.out.cat("sgn"+varname).setAttribute("flatParam")
+                        self.modelBuilder.addDiscrete("sgn"+varname)
+                        print "Floating the sign of "+varname
 
                     self.modelBuilder.doVar('expr::{}("{}", {})'.format(varname, expr, fais))
                     print "Setting "+varname+" to 1 - the sum of the other fais"
-
-                    if self.allowPMF[i]:
-                        if status == "lastPOI":
-                            print "Treating sgn"+varname+" as a POI"
-                            poi.append("sgn"+varname)
-                        else:
-                            print "Floating sgn"+varname
-                            self.modelBuilder.out.var("sgn"+varname).setAttribute("flatParam")
                 else:
                     assert False, status
 
