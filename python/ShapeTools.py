@@ -434,8 +434,8 @@ class ShapeBuilder(ModelBuilder):
 
     def getShape(self,channel,process,syst="",_fileCache={},_cache={},allowNoSyst=False):
 
-        if not self.options.noClearCache:
-	  maxFiles = 100
+        if self.options.noClearCache>0:
+	  maxFiles = self.options.noClearCache
 	  if len(_fileCache)    > maxFiles : _fileCache = self.clearCachedFiles(_fileCache) 
 	  if len(self.wspnames) > maxFiles : self.wspnames = self.clearCachedFiles(self.wspnames)
 	    
