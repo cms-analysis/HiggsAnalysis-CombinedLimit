@@ -472,6 +472,10 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
     } else if (histNll && typeid(*pdf) == typeid(FastVerticalInterpHistPdf2)) {
         return new CachingHistPdf2(pdf, obs);
     } else if (gaussNll && typeid(*pdf) == typeid(RooGaussian)) {
+        if (runtimedef::get("DBG_GAUSS")) {
+            std::cout << "Creating CachingGaussPdf for " << pdf->GetName() << "\n";
+            pdf->Print("v");
+        }
         return new CachingGaussPdf(pdf, obs);
     } else if (cbNll && typeid(*pdf) == typeid(RooCBShape)) {
         return new CachingCBPdf(pdf, obs);

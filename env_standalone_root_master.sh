@@ -1,5 +1,5 @@
  . /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/gcc/7.0.0-omkpbe2/etc/profile.d/init.sh 
- . /cvmfs/cms.cern.ch/slc7_amd64_gcc700/lcg/root/6.12.07-gnimlf5/bin/thisroot.sh
+ . /afs/cern.ch/work/a/agilbert/public/root_master/bin/thisroot.sh 
  . /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/gsl/2.2.1-omkpbe2/etc/profile.d/init.sh
  . /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/tbb/2018_U1-omkpbe2/etc/profile.d/init.sh
  . /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/vdt/0.4.0-gnimlf/etc/profile.d/init.sh 

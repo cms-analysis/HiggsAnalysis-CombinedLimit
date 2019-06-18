@@ -16,6 +16,7 @@
 
 #include <TCanvas.h>
 #include <TFile.h>
+#include <TFileCacheRead.h>
 #include <TGraphErrors.h>
 #include <TIterator.h>
 #include <TLine.h>
@@ -304,6 +305,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     garbageCollect.tfile = fIn; // request that we close this file when done
 
     w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
+
+    if (fIn->GetCacheRead()) {
+      fIn->GetCacheRead()->Close();
+    }
+
     if (w == 0) {  
         std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
         throw std::invalid_argument("Missing Workspace"); 

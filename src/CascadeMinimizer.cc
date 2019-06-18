@@ -104,6 +104,9 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
         minimizer_->setEps(tol);
         minimizer_->setStrategy(approxPreFitStrategy_);
         improveOnce(verbose-1, true);
+        if (runtimedef::get("DBG_QUICKEXIT")) {
+          exit(0);
+        }
         minimizer_->setEps(nominalTol);
         minimizer_->setStrategy(strategy_);
       } while (autoBounds_ && !autoBoundsOk(verbose-1));
