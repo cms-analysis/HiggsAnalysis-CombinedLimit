@@ -60,6 +60,8 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
 bool CascadeMinimizer::freezeDiscParams(const bool freeze)
 {
     if (runtimedef::get(std::string("MINIMIZER_freezeDiscretes"))) {
+      CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs.Print();
+      CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams.Print();
       bool ret =  utils::freezeAllDisassociatedRooMultiPdfParameters((CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs),(CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams),freeze);
       return ret;
     } else {
@@ -298,11 +300,6 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
 
    //std::cout << " Staring in iterativeMinimize and the minimum NLL so far is  " << minimumNLL << std::endl; 
    if ( fabs(minimumNLL - nll_.getVal()) > discreteMinTol_ ) { 
-     
-     minimizer_.reset(new RooMinimizer(nll_));
-     cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
-     if (simnll) simnll->setZeroPoint();
-
      improve(verbose,cascade);
      //std::cout << " Had to improve further since tolerance is not yet reached   " << nll_.getVal() << std::endl; 
    }
@@ -320,11 +317,6 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    RooStats::RemoveConstantParameters(&frozen);
    utils::setAllConstant(frozen,true);
 
-   // remake the minimizer   
-   minimizer_.reset(new RooMinimizer(nll_));
-   cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
-   if (simnll) simnll->setZeroPoint();
- 
    RooArgSet reallyCleanParameters;
    RooArgSet *nllParams=nll_.getParameters((const RooArgSet*)0);
    nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
@@ -334,20 +326,17 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    // Now cycle and fit
    bool ret=true;
    std::vector<std::vector<bool>> contIndex;
+   
    // start from simplest scan, this is the full scan if runShortCombinations is off
-   //bool discretesHaveChanged = 
    multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,0,contIndex); 
  
-   if (simnll) simnll->clearZeroPoint();
+   //if (simnll) simnll->clearZeroPoint();
 
    utils::setAllConstant(frozen,false);
    
    // Run one last fully floating fit to maintain RooFitResult
-   minimizer_.reset(new RooMinimizer(nll_));
    ret = improve(verbose, cascade); 
-   //}
    minimumNLL = nll_.getVal();
-   //std::cout << " At the end of iterativeMinimizer, minimum NLL is now " << minimumNLL << std::endl; 
 
    // unfreeze from *
    freezeDiscParams(false);
@@ -604,15 +593,8 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
       if (fitCounter>0) params->assignValueOnly(reallyCleanParameters); // no need to reset from 0'th fit
 
-
-      bool resetNeeded = freezeDiscParams(true);
-
-      // frozen some parameters so need to reset the minimizer
-      if (resetNeeded){
-        minimizer_.reset(new RooMinimizer(nll_));
-        cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
-        if (simnll) simnll->setZeroPoint();
-      }
+      // Remove parameters which are not associated to the current PDF (only works if using --X-rtd MINIMIZER_freezeDiscretes=1
+      freezeDiscParams(true);
 
       // FIXME can be made smarter than this
       if (mode_ == Unconstrained && poiOnlyFit_) {
@@ -625,7 +607,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
       fitCounter++;
       double thisNllValue = nll_.getVal();
-      //std::cout << " After constrained fit, NLL is " << thisNllValue << std::endl; 
       
       if ( thisNllValue < minimumNLL ){
 		// Now we insert the correction ! 
@@ -675,7 +656,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	((RooCategory*)(pdfCategoryIndeces.at(id)))->setIndex(bestIndeces[id]);	
     } 
     params->assignValueOnly(snap);
-    //std::cout << " After iterations, minimum NLL is " << minimumNLL << std::endl; 
 
     runtimedef::set("MINIMIZER_analytic", currentBarlowBeeston);
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(backupStrategy);
