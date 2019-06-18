@@ -24,7 +24,7 @@ def addDatacardParserOptions(parser):
     #parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--channel-masks",  dest="doMasks", default=False, action="store_true", help="Create channel-masking RooRealVars")
     parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="never", help="Use RooHistPdf for TH1s: 'always', 'never' (default), 'when-constant' (i.e. not when doing template morphing)")
-    parser.add_option("--no-clear-caches",  dest="noClearCache", default=False, action='store_true', help="File/Workspace caches will be cleared if more than 100 files are open. Add this flag to not clear them.")
+    parser.add_option("--X-no-clear-caches",  dest="noClearCache", default=-1, type=int, help="File/Workspace caches will be cleared if more than X files are open. Set X=-1 (default) to never clear the cache.")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
     parser.add_option("--X-rescale-nuisance", dest="nuisancesToRescale", type="string", action="append", nargs=2, default=[], help="Rescale by this factor the nuisances that match these regular expressions (the rescaling is applied to the sigma of the gaussian constraint term).")
     parser.add_option("--X-nuisance-function", dest="nuisanceFunctions", type="string", action="append", nargs=2, default=[], help="Set the sigma of the gaussian to be a function for the nuisances that match the regular expression")
