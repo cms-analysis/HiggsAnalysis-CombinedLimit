@@ -791,7 +791,7 @@ A number of different algorithms can be used with the option `--algo <algo>`,
 
 -   **random**: Scan N random points and compute the probability out of the profile likelihood `combine -M MultiDimFit toy-hgg-125.root --algo random --points=20 --cl=0.68`. Again, best fit will have **quantileExpected** set to -1, while each random point will have **quantileExpected** set to the probability given by the profile likelihood at that point.
 
--   **fixed**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs <r_fixed,MH_fixed>`. The output tree will contain the difference in the negative log-likelihood between the points ($\hat{r},\hat{m}_{H}$) and ($\hat{r}_{fixed},\hat{m}_{H,fixed}$) in the branch **deltaNLL**.
+-   **fixed**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs r=r_fixed,MH=MH_fixed`. The output tree will contain the difference in the negative log-likelihood between the points ($\hat{r},\hat{m}_{H}$) and ($\hat{r}_{fixed},\hat{m}_{H,fixed}$) in the branch **deltaNLL**.
 
 -  **grid**:  Scan on a fixed grid of points not with approximately N points in total. `combine -M MultiDimFit toy-hgg-125.root --algo grid --points=10000`.
     * You can partition the job in multiple tasks by using options `--firstPoint` and `--lastPoint`, for complicated scans, the points can be split as described in the [combineTool for job submission](#) section. The output file will contain a column **deltaNLL** with the difference in negative log likelihood with respect to the best fit point. Ranges/contours can be evaluated by filling TGraphs or TH2 histograms with these points.

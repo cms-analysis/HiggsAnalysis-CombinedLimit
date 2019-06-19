@@ -18,9 +18,7 @@ The instructions below are for installation within a CMSSW environment
 
 You can find the latest releases on github under [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
 
-### CC7 release `CMSSW_10_2_X` - validation in progress
-
-Once validation is complete this release will become the recommended version.
+### CC7 release `CMSSW_10_2_X` - recommended version
 
 Setting up the environment (once):
 
@@ -32,16 +30,16 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a reccomended tag - currently the reccomended tag is **v8.0.0**:
+Update to a reccomended tag - currently the reccomended tag is **v8.0.1**:
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v8.0.0
+git checkout v8.0.1
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
-### SLC6/CC7 release `CMSSW_8_1_X` - recommended version
+### SLC6/CC7 release `CMSSW_8_1_X`
 
 Setting up the environment (once):
 

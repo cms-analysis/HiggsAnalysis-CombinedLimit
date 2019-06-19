@@ -17,12 +17,21 @@ The program will print out the result of the *two fits* performed with signal st
 | **`nuisances_prefit`** | `RooArgSet` containing the pre-fit values of the nuisance parameters, and their uncertainties from the external constraint terms only |
 | **`fit_b`** | `RooFitResult` object containing the outcome of the fit of the data with signal strength set to zero |
 | **`fit_s`** | `RooFitResult` object containing the outcome of the fit of the data with floating signal strength |
-| **`covariance_fit_s`** | `TH2D` Covariance matrix of the parameters in the fit with floating signal strength  |
-| **`covariance_fit_b`** | `TH2D` Covariance matrix of the parameters in the fit with signal strength set to zero |
 | **`tree_prefit`** | `TTree` of pre-fit nuisance parameter values and constraint terms (_In)|
 | **`tree_fit_sb`** | `TTree` of fitted nuisance parameter values and constraint terms (_In) with floating signal strength |
 | **`tree_fit_b`** | `TTree` of fitted nuisance parameter values and constraint terms (_In) with signal strength set to 0 |
 
+by including the option `--plots`, you will additionally find the following contained in the root file .
+
+| Object | Description |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| **`covariance_fit_s`** | `TH2D` Covariance matrix of the parameters in the fit with floating signal strength  |
+| **`covariance_fit_b`** | `TH2D` Covariance matrix of the parameters in the fit with signal strength set to zero |
+| **`category_variable_prefit`** | `RooPlot` plot of the prefit pdfs with the data (or toy if running with `-t` overlaid) |
+| **`category_variable_fit_b`** | `RooPlot` plot of the pdfs from the background only fit with the data (or toy if running with `-t` overlaid) |
+| **`category_variable_fit_s`** | `RooPlot` plot of the pdfs from the signal+background fit with the data (or toy if running with `-t` overlaid) |
+
+where for the `RooPlot` objects, you will get one per category in the likelihood and one per variable if using a multi-dimensional dataset. You will also get a png file for each of these additional objects.  
 
 !!! info
     If you use the option `--name` this name will be inserted into the file name for this output file too. 
@@ -97,7 +106,7 @@ If using `--pullDef`, the results for *all* parameters for which the pull can be
 This script has the option (`-g outputfile.root`) to produce plots of the fitted _values_ of the nuisance parameters and their post-fit, asymmetric uncertainties. Instead, the pulls defined using one of the options above, can be plotted using the option `--pullDef X`. In addition this will produce a plot showing directly a comparison of the post-fit to pre-fit nuisance (symmetrized) uncertainties. 
 
 !!! info
-   In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\theta-\theta_{I}$. 
+    In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\theta-\theta_{I}$. 
 
 
 #### Normalizations
@@ -390,7 +399,7 @@ The bias studies are performed in two stages. The first is to generate toys usin
     
 Now we have 100 toys which, by setting `pdf_index=0`, sets the background pdf to the exponential function i.e assumes the exponential is the *true* function. Note that the option `--toysFrequentist` is added. This first performs a fit of the pdf, assuming a signal strength of 1, to the data before generating the toys. This is the most obvious choice as to where to throw the toys from.
 
-The next step is to fit the toys under a different background pdf hypothesis. This time we set the `pdf_index` to be 1, the powerlaw and run fits with the `FitDiagnostics` method again freezing pdf_index. 
+The next step is to fit the toys under a different background pdf hypothesis. This time we set the `pdf_index` to be 1, the powerlaw and run fits with the `FitDiagnostics` method again freezing `pdf_index`. 
 
 !!! warning  
     You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.
@@ -410,9 +419,34 @@ h->Fit("gaus")
 
 From the fitted Gaussian, we see the mean is at +0.30 which would indicate a bias of ~30% of the uncertainty on mu from choosing the powerlaw when the true function is an exponential.
 
-!!! danger 
-    If the `discrete` nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the [**discrete profiling method**](https://arxiv.org/pdf/1408.6865.pdf) to be applied for any method which involves a profiled likelihood (frequentist methods). You should be careful however since MINOS knows nothing about these nuisances and hence estimations of uncertainties will be incorrect. Instead, uncertainties from scans and limits will correctly account for these nuisances. Currently the Bayesian methods will *not* properly treat the nuisances so some care should be taken when interpreting Bayesian results. 
- 
+### Discrete profiling 
+
+If the `discrete` nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the [**discrete profiling method**](https://arxiv.org/pdf/1408.6865.pdf) to be applied for any method which involves a profiled likelihood (frequentist methods). 
+
+!!! warning 
+    You should be careful since MINOS knows nothing about the discretenuisances and hence estimations of uncertainties will be incorrect via MINOS. Instead, uncertainties from scans and limits will correctly account for these nuisances. Currently the Bayesian methods will *not* properly treat the nuisances so some care should be taken when interpreting Bayesian results. 
+
+As an example, we can use peform a likelihood scan as a function of the Higgs signal strength in the toy Hgg datacard. By leaving the object `pdf_index` non-constant, at each point in the likelihood scan, the pdfs will be iterated over and the one which gives the lowest -2 times log-likelihood, including the correction factor $c$ (as defined in the paper) will be stored in the output tree. We can also check the scan fixing to each pdf individually to check that the envelope is acheived. For this, you will need to include the option `--X-rtd REMOVE_CONSTANT_ZERO_POINT=1`. In this way, we can take a look at the absolute value to compare the curves, if we also include `--saveNLL`.
+
+For example for a full scan, you can run 
+
+```bash
+    combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL -n Envelope -m 125 --setParameters myIndex=-1 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1 
+```
+
+and for the individual `pdf_index` set to `X`, 
+
+```bash
+    combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL --freezeParameters pdf_index --setParameters pdf_index=X -n fixed_pdf_X -m 125 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1
+```
+
+for `X=0,1,2`
+
+The above output will produce the following scans. 
+![](images/discrete_profile.png)
+
+As expected, the curve obtained by allowing the `pdf_index` to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. 
+
 ## RooSplineND multidimensional splines
 
 [RooSplineND](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooSplineND.h) can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. 

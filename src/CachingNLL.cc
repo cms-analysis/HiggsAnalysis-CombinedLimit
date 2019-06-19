@@ -472,6 +472,10 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
     } else if (histNll && typeid(*pdf) == typeid(FastVerticalInterpHistPdf2)) {
         return new CachingHistPdf2(pdf, obs);
     } else if (gaussNll && typeid(*pdf) == typeid(RooGaussian)) {
+        if (runtimedef::get("DBG_GAUSS")) {
+            std::cout << "Creating CachingGaussPdf for " << pdf->GetName() << "\n";
+            pdf->Print("v");
+        }
         return new CachingGaussPdf(pdf, obs);
     } else if (cbNll && typeid(*pdf) == typeid(RooCBShape)) {
         return new CachingCBPdf(pdf, obs);
@@ -666,6 +670,7 @@ cacheutils::CachingAddNLL::evaluate() const
     // then get the final nll
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
     double ret = constantZeroPoint_;
+    if (runtimedef::get("REMOVE_CONSTANT_ZERO_POINT") ) ret = 0; 
     for (its = bgs; its != eds ; ++its) {
         if (!isnormal(*its) || *its <= 0) {
             if ((weights_[its-bgs] == 0) && (*its == 0)) {

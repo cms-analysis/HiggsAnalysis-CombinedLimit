@@ -163,7 +163,7 @@ Setting `--X-rtd TMCSO_AdaptivePseudoAsimov=`$\beta$ with $\beta>0$ will trigger
 
    3. If $N_{b}\leq 5000$ then a normal Asimov dataset will be produced
 
-The production of a Pseudo-Asimov dataset can be *forced* by using the option `--X-rtd TMCSO_PseudoAsimov=X` where `X>0` will determine the number of weighted events for the Pseudo-Asimov dataset. You should try different values of `X` since larger values leads to more events in the Pseudo-Asimov dataset resulting in higher precision but in general the fit will be slower. *Note* that if yu
+The production of a Pseudo-Asimov dataset can be *forced* by using the option `--X-rtd TMCSO_PseudoAsimov=X` where `X>0` will determine the number of weighted events for the Pseudo-Asimov dataset. You should try different values of `X` since larger values leads to more events in the Pseudo-Asimov dataset resulting in higher precision but in general the fit will be slower. 
 
 You can turn off the internal logic by setting `--X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0` thereby forcing histograms to be generated.
 

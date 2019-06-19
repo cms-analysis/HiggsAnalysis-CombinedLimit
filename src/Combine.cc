@@ -16,6 +16,7 @@
 
 #include <TCanvas.h>
 #include <TFile.h>
+#include <TFileCacheRead.h>
 #include <TGraphErrors.h>
 #include <TIterator.h>
 #include <TLine.h>
@@ -304,6 +305,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     garbageCollect.tfile = fIn; // request that we close this file when done
 
     w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
+
+    if (fIn->GetCacheRead()) {
+      fIn->GetCacheRead()->Close();
+    }
+
     if (w == 0) {  
         std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
         throw std::invalid_argument("Missing Workspace"); 
@@ -1032,6 +1038,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     algo->setNToys(nToys);
 
     for (iToy = 1; iToy <= nToys; ++iToy) {
+
+      // Reset ranges --> for likelihood scans
+      if (setPhysicsModelParameterRangeExpression_ != "") {
+	utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
+      }
+
       algo->setToyNumber(iToy-1);
       RooAbsData *absdata_toy = 0;
       if (readToysFromHere == 0) {
@@ -1209,8 +1221,6 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
       	      if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Adding discrete %s ",__LINE__,cat->GetName())),Logger::kLogLevelInfo,__func__);
 	    }
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
-
-	    
           }
         }
     } 
