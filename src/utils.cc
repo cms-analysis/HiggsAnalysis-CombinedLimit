@@ -599,10 +599,10 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             std::auto_ptr<RooArgSet> obs(pdfi->getObservables(ds));
             if (obs->getSize() == 0) break;
 	    TIterator *obs_iter = obs->createIterator();
-	    std::cout << " PDF CHECKING " << std::endl; 
-	    pdfi->Print("v");
-	    ds->Print("v");
-	    std::cout << " ------------ " << std::endl; 
+	    //std::cout << " PDF CHECKING " << std::endl; 
+	    //pdfi->Print("v");
+	    //ds->Print("v");
+	    //std::cout << " ------------ " << std::endl; 
 
 	    //for (int iobs=0;iobs<obs->getSize();iobs++){
   	    for (RooAbsArg *a = 0; (a = (RooAbsArg *)obs_iter->Next()) != 0; ) {
@@ -610,16 +610,19 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
 	      if (x == 0) continue;
 	      int nbins = x->numBins(); if (nbins == 0) nbins = 100;
 	      if (nbins/rebinFactor > 6) nbins = ceil(nbins/rebinFactor);
-	      ret.push_back(x->frame(RooFit::Title(ds->GetName()), RooFit::Bins(nbins)));
+	      if (rebinFactor > 1) ret.push_back(x->frame(RooFit::Title(ds->GetName()), RooFit::Bins(nbins)));
+	      else ret.push_back(x->frame(RooFit::Title(ds->GetName())));
 	      ret.back()->SetName(Form("%s_%s",ds->GetName(),x->GetName()));
-	      ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      if (rebinFactor>1) ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      else ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson),RooFit::Binning(""));
 	      if (fitRes)pdfi->plotOn(ret.back(),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent),RooFit::VisualizeError(*fitRes,1) ,RooFit::FillColor(kOrange));
 	      if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
 	      if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel));
 	      if (backgroundSel && strlen(backgroundSel)) pdfi->plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
 	      std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdfi->GetName() << " = " << pdfi->expectedEvents(RooArgSet(*x)) << std::endl;  
 	      pdfi->plotOn(ret.back(),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
-	      ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      if (rebinFactor>1) ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      else ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson),RooFit::Binning(""));
 	    }
             delete ds;
         }
@@ -640,7 +643,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
 	      if (backgroundSel && strlen(backgroundSel)) pdf.plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
 	      std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdf.GetName() << " = " << pdf.expectedEvents(RooArgSet(*x)) << std::endl;  
 	      pdf.plotOn(ret.back(),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent),RooFit::VisualizeError(*fitRes,1));
-	      data.plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      data.plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson),RooFit::Binning(""));
 	  }
 	}
     }
