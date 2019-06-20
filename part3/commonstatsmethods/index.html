@@ -218,7 +218,7 @@
 <p>This section will assume that you are using the default model unless otherwise specified.</p>
 <h2 id="asymptotic-frequentist-limits">Asymptotic Frequentist Limits</h2>
 <p>The <code>AsymptoticLimits</code> method allows to compute quickly an estimate of the observed and expected limits, which is fairly accurate when the event yields are not too small and the systematic uncertainties don't play a major role in the result.
-The limit calculation relies on an asymptotic approximation of the distributions of the <strong>LHC</strong> test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute CL<sub>s+b</sub>, CL<sub>b</sub> and therefore CL<sub>s</sub>=CL<sub>s+b</sub>/CL<sub>b</sub> - i.e it is the asymptotic approximation of computing limits with frequentist toys.</p>
+The limit calculation relies on an asymptotic approximation of the distributions of the <strong>LHC</strong> test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute two p-values <span><span class="MathJax_Preview">p_{\mu}, p_{b}</span><script type="math/tex">p_{\mu}, p_{b}</script></span> and therefore <span><span class="MathJax_Preview">CL_s=p_{\mu}/(1-p_{b})</span><script type="math/tex">CL_s=p_{\mu}/(1-p_{b})</script></span> (see the (see the <a href="/part4/usefullinks.html#faq">FAQ</a> section for a description of these) - i.e it is the asymptotic approximation of computing limits with frequentist toys.</p>
 <p>This method is so commonly used that it is the default method (i.e not specifying <code>-M</code> will run <code>AsymptoticLimits</code>)</p>
 <p>A realistic example of datacard for a counting experiment can be found in the HiggsCombination package: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt">data/tutorials/counting/realistic-counting-experiment.txt</a></p>
 <p>The method can be run using</p>
@@ -241,7 +241,7 @@ Expected 97.5%: r &lt; 6.6194
 Done in 0.01 min (cpu), 0.01 min (real)
 </code></pre>
 
-<p>By default, the limits are calculated using the CL<sub>s</sub> prescription, as noted in the output, which takes the ratio of p-values under the signal plus background and background only hypothesis. This can be altered to using the strict p-value by using the option <code>--rule CLsplusb</code> You can also change the confidence level (default is 95%) to 90% using the option <code>--cl 0.9</code> or any other confidence level. You can find the full list of options for <code>AsymptoticLimits</code> using <code>--help -M AsymptoticLimits</code>.</p>
+<p>By default, the limits are calculated using the CL<sub>s</sub> prescription, as noted in the output, which takes the ratio of p-values under the signal plus background and background only hypothesis. This can be altered to using the strict p-value by using the option <code>--rule CLsplusb</code> (note that <code>CLsplusb</code> is the jargon for calculating the p-value <span><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span>). You can also change the confidence level (default is 95%) to 90% using the option <code>--cl 0.9</code> or any other confidence level. You can find the full list of options for <code>AsymptoticLimits</code> using <code>--help -M AsymptoticLimits</code>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>You may find that combine issues a warning that the best fit for the background-only Asimov dataset returns a non-zero value for the signal strength for example;</p>
@@ -454,7 +454,7 @@ bayesPosterior2D(&quot;bayes2D&quot;,&quot;Posterior PDF&quot;)
 <p><img alt="" src="../images/bayes2D.png" /></p>
 <h2 id="computing-limits-with-toys">Computing Limits with toys</h2>
 <p>The <code>HybridNew</code> method is used to compute either the hybrid bayesian-frequentist limits popularly known as "CL<sub>s</sub> of LEP or Tevatron type" or the fully frequentist limits which are the current recommended method by the LHC Higgs Combination Group. Note that these methods can be resource intensive for complex models.</p>
-<p>It is possible to define the criterion used for setting limits using <code>--rule CLs</code> or <code>--rule CLsplusb</code> and as always the confidence level desired using <code>--cl=X</code></p>
+<p>It is possible to define the criterion used for setting limits using <code>--rule CLs</code> (to use the CL<sub>s</sub> criterion) or <code>--rule CLsplusb</code> (to calculate the limit using <span><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span>) and as always the confidence level desired using <code>--cl=X</code></p>
 <p>The choice of test-statistic can be made via the option <code>--testStat</code> and different methodologies for treatment of the nuisance parameters are available. While it is possible to mix different test-statistics with different nuisance parameter treatments, this is highly <strong>not-reccomended</strong>. Instead one should follow one of the following three procedures,</p>
 <ul>
 <li>
@@ -669,7 +669,7 @@ Done in 0.01 min (cpu), 4.09 min (real)
 Failed to delete temporary file roostats-Sprxsw.root: No such file or directory</pre></code>
 </details>
 
-<p>The result stored in the <strong>limit</strong> branch of the output tree will be the upper limit (and its error stored in <strong>limitErr</strong>). The default behavior will be, as above, to search for the upper limit on <strong>r</strong> however, the values of CL<sub>s+b</sub>, CL<sub>b</sub>and CL<sub>s</sub> can be calculated for a particular value <strong>r=X</strong> by specifying the option <code>--singlePoint=X</code>. In this case, the value stored in the branch <strong>limit</strong> will be the value of CL<sub>s</sub>( or CL<sub>s+b</sub>).</p>
+<p>The result stored in the <strong>limit</strong> branch of the output tree will be the upper limit (and its error stored in <strong>limitErr</strong>). The default behavior will be, as above, to search for the upper limit on <strong>r</strong> however, the values of <span><span class="MathJax_Preview">p_{\mu}, p_{b}</span><script type="math/tex">p_{\mu}, p_{b}</script></span> and CL<sub>s</sub> can be calculated for a particular value <strong>r=X</strong> by specifying the option <code>--singlePoint=X</code>. In this case, the value stored in the branch <strong>limit</strong> will be the value of CL<sub>s</sub> (or <span><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span>) (see the <a href="/part4/usefullinks.html#faq">FAQ</a> section). </p>
 <h4 id="expected-limits">Expected Limits</h4>
 <p>For the simple models, we can just run interactively 5 times to compute the median expected and the 68% and 95% interval boundaries. Use the <code>HybridNew</code> method with the same options as per the observed limit but adding a <code>--expectedFromGrid=&lt;quantile&gt;</code> where the quantile is 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, 0.025 for the -ve side of the 95% band.</p>
 <p>The output file will contain the value of the quantile in the branch <strong>quantileExpected</strong> which can be used to separate the points.</p>
@@ -677,7 +677,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory<
 <p>The search for the limit is performed using an adaptive algorithm, terminating when the estimate of the limit value is below some limit or when the precision cannot be futher improved with the specified options. The options controlling this behaviour are:</p>
 <ul>
 <li><code>rAbsAcc</code>, <code>rRelAcc</code>: define the accuracy on the limit at which the search stops. The default values are 0.1 and 0.05 respectively, meaning that the search is stopped when Δr &lt; 0.1 or Δr/r &lt; 0.05.</li>
-<li><code>clsAcc</code>: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will increase significantly the time to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N, you can consider enlarging this value if you're computing limits with a larger CL (e.g. 90% or 68%). Note that if you're using the <code>CLsplusb</code> rule then this parameter will control the uncertainty on CL</sub>s+b</sub> not on CL<sub>s</sub>.</li>
+<li><code>clsAcc</code>: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will increase significantly the time to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N, you can consider enlarging this value if you're computing limits with a larger CL (e.g. 90% or 68%). Note that if you're using the <code>CLsplusb</code> rule then this parameter will control the uncertainty on <span><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span> rather than CL<sub>s</sub>.</li>
 <li><code>T</code> or <code>toysH</code>: controls the minimum number of toys that are generated for each point. The default value of 500 should be ok when computing the limit with 90-95% CL. You can decrease this number if you're computing limits at 68% CL, or increase it if you're using 99% CL.</li>
 </ul>
 <p>Note, to further improve the accuracy when searching for the upper limit, combine will also fit an exponential function to several of the points and interpolate to find the crossing.</p>
@@ -702,7 +702,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory<
 <p>substituting <code>&lt;quantile&gt;</code> with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, 0.025 for the -ve side of the 95% band.</p>
 <p>The splitting of the jobs can be left to the user's preference. However, users may wish to use the <strong>combineTool</strong> for automating this as described in the section on <a href="#">combineTool for job submission</a></p>
 <h4 id="plotting">Plotting</h4>
-<p>A plot of the p-values (CL<sub>s</sub> or CL<sub>s+b</sub>) as a function of <strong>r</strong>, which is used to find the crossing, can be produced using the option <code>--plot=limit_scan.png</code>. This can be useful for judging if the grid was sufficient in determining the upper limit.</p>
+<p>A plot of the CL<sub>s</sub> (or <span><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span>) as a function of <strong>r</strong>, which is used to find the crossing, can be produced using the option <code>--plot=limit_scan.png</code>. This can be useful for judging if the grid was sufficient in determining the upper limit.</p>
 <p>If we use our <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt">realistic-counting-experiment.txt</a> datacard and generate a grid of points <span><span class="MathJax_Preview">r\varepsilon[1.4,2.2]</span><script type="math/tex">r\varepsilon[1.4,2.2]</script></span> in steps of 0.1, with 5000 toys for each point, the plot of the observed CL<sub>s</sub> vs <strong>r</strong> should look like the following,</p>
 <p><img alt="" src="../images/limit_scan.png" /></p>
 <p>You should judge in each case if the limit is accurate given the spacing of the points and the precision of CL<sub>s</sub> at each point. If it is not sufficient, simply generate more points closer to the limit and/or more toys at each point.</p>
@@ -713,7 +713,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory<
 <p>The resulting output file will contain a canvas showing the distribution of the test statistic background only and signal+background hypothesis at each value of <strong>r</strong>.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option <code>--doublesided</code>, which will also take care of defining the correct integrals for CL<sub>s+b</sub> and CL<sub>b</sub>.</p>
+<p>If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option <code>--doublesided</code>, which will also take care of defining the correct integrals for <span><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span> and <span><span class="MathJax_Preview">p_{b}</span><script type="math/tex">p_{b}</script></span>.</p>
 </div>
 <h2 id="computing-significances-with-toys">Computing Significances with toys</h2>
 <p>Computation of expected significance with toys is a two step procedure: first you need to run one or more jobs to construct the expected distribution of the test statistic. As with setting limits, there are a number of different configurations for generating toys but we will use the preferred option using,</p>
@@ -764,7 +764,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory<
 <p><strong>AD</strong>: Compute a goodness-of-fit measure for binned fits using the <em>Anderson-Darling</em> test. It is based on the integral of the difference between the cumulative distribution function and the empirical distribution function over all bins. It also gives the tail ends of the distribution a higher weighting.</p>
 </li>
 </ul>
-<p>The output tree will contain a branch called <strong><code>limit</code></strong> which contains the value of the test-statistic in each toy. You can make a histogram of this test-statistic <span><span class="MathJax_Preview">t</span><script type="math/tex">t</script></span> and from this distribution (<span><span class="MathJax_Preview">f(t)</span><script type="math/tex">f(t)</script></span>) and the single value obtained in the data (<span><span class="MathJax_Preview">t_{0}</span><script type="math/tex">t_{0}</script></span>) you can calculate the p-value as $p=\int_{t=t_{0}}^{\mathrm{+inf}} f(t)dt $.</p>
+<p>The output tree will contain a branch called <strong><code>limit</code></strong> which contains the value of the test-statistic in each toy. You can make a histogram of this test-statistic <span><span class="MathJax_Preview">t</span><script type="math/tex">t</script></span> and from this distribution (<span><span class="MathJax_Preview">f(t)</span><script type="math/tex">f(t)</script></span>) and the single value obtained in the data (<span><span class="MathJax_Preview">t_{0}</span><script type="math/tex">t_{0}</script></span>) you can calculate the p-value $$p = \int_{t=t_{0}}^{\mathrm{+inf}} f(t) dt $$.</p>
 <p>When generating toys, the default behavior will be used. See the section on <a href="#toy-generation">toy generation</a> for options on how to generate/fit nuisance parameters in these tests. It is recomended to use the <em>frequentist toys</em> (<code>--toysFreq</code>) when running the <strong>saturated</strong> model, and the default toys for the other two tests.</p>
 <p>Further goodness of fit methods could be added on request, especially if volunteers are available to code them.
 The output limit tree will contain the value of the test-statistic in each toy (or the data)</p>
@@ -998,7 +998,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <li>for each point <span><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span>:<ul>
 <li>compute the observed test statistic <span><span class="MathJax_Preview">q_{\mathrm{obs}}(x)</span><script type="math/tex">q_{\mathrm{obs}}(x)</script></span></li>
 <li>compute the expected distribution of <span><span class="MathJax_Preview">q(x)</span><script type="math/tex">q(x)</script></span> under the hypothesis of <span><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> as the true value.</li>
-<li>accept the point in the region if CL<sub>s+b</sub><span><span class="MathJax_Preview">=P\left[q(x) &gt; q_{\mathrm{obs}}(x)| x\right] &gt; \alpha</span><script type="math/tex">=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha</script></span></li>
+<li>accept the point in the region if <span><span class="MathJax_Preview">p_{x}=P\left[q(x) &gt; q_{\mathrm{obs}}(x)| x\right] &gt; \alpha</span><script type="math/tex">p_{x}=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha</script></span></li>
 </ul>
 </li>
 </ul>
@@ -1007,13 +1007,13 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <pre><code class="sh">combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 </code></pre>
 
-<p>The point belongs to your confidence region if CL<sub>s+b</sub> is larger than <span><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> (e.g. 0.3173 for a 1σ region, <span><span class="MathJax_Preview">1-\alpha=0.6827</span><script type="math/tex">1-\alpha=0.6827</script></span>).</p>
+<p>The point belongs to your confidence region if <span><span class="MathJax_Preview">p_{x}</span><script type="math/tex">p_{x}</script></span> is larger than <span><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> (e.g. 0.3173 for a 1σ region, <span><span class="MathJax_Preview">1-\alpha=0.6827</span><script type="math/tex">1-\alpha=0.6827</script></span>).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>You should not use this method without the option <code>--singlePoint</code>. Although combine will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.</p>
 </div>
 <h4 id="physical-boundaries">Physical boundaries</h4>
-<p>Imposing physical boundaries (such as requiring <span><span class="MathJax_Preview">r&gt;0</span><script type="math/tex">r>0</script></span>) is achieved by setting the ranges of the physics model parameters using</p>
+<p>Imposing physical boundaries (such as requiring <span><span class="MathJax_Preview">\mu&gt;0</span><script type="math/tex">\mu>0</script></span> for a signal strength) is achieved by setting the ranges of the physics model parameters using</p>
 <pre><code class="sh">--setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
 </code></pre>
 
@@ -1031,13 +1031,13 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 </code></pre>
 
 <p>The output tree will contain the values of the POI which crosses the critical value (<span><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span>) - i.e, the boundaries of the confidence intervals,</p>
-<p>You can produce a plot of the value of CL<sub>s+b</sub> vs the parameter of interest by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
+<p>You can produce a plot of the value of <span><span class="MathJax_Preview">p_{x}</span><script type="math/tex">p_{x}</script></span> vs the parameter of interest <span><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
 <h5 id="2d-contours">2D contours</h5>
 <p>There is a tool for extracting <em>2D contours</em> from the output of <code>HybridNew</code> located in <code>test/makeFCcontour.py</code> provided the option <code>--saveHybridResult</code> was included when running <code>HybridNew</code>. It can be run with the usual combine  output files (or several of them) as input,</p>
 <pre><code class="sh">./test/makeFCcontour.py  toysfile1.root toysfile2.root .... [options] -out outputfile.root
 </code></pre>
 
-<p>To extract 2D contours, the names of each parameter must be given <code>--xvar poi_x --yvar poi_y</code>. The output will be a root file containing a 2D histogram of value of CL<sub>s+b</sub> for each point which can be used to draw 2D contours. There will also be a histogram containing the number of toys found for each point.</p>
+<p>To extract 2D contours, the names of each parameter must be given <code>--xvar poi_x --yvar poi_y</code>. The output will be a root file containing a 2D histogram of value of <span><span class="MathJax_Preview">p_{x,y}</span><script type="math/tex">p_{x,y}</script></span> for each point <span><span class="MathJax_Preview">(x,y)</span><script type="math/tex">(x,y)</script></span> which can be used to draw 2D contours. There will also be a histogram containing the number of toys found for each point.</p>
 <p>There are several options for reducing the running time (such as setting limits on the region of interest or the minimum number of toys required for a point to be included) Finally, adding the option <code>--storeToys</code> in this python tool will add histograms for each point to the output file of the test-statistic distribution. This will increase the momory usage however as all of the toys will be stored in memory.</p></div>
         
         
