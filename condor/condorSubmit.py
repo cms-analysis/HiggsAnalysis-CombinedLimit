@@ -92,6 +92,7 @@ def main():
                     "log_%s%s%s_FitDiag.txt"    % (options.year, st, mass),
                     "log_%s%s%s_Sign_sig.txt"   % (options.year, st, mass),
                     "log_%s%s%s_Sign_noSig.txt" % (options.year, st, mass),
+                    "log_%s%s%s_Sign_noSig_pvalue.txt" % (options.year, st, mass),
                     "log_%s%s%s_multiDim.txt"   % (options.year, st, mass),
                     "log_%s%s%s_HybridNew.txt"  % (options.year, st, mass),
                 ]
