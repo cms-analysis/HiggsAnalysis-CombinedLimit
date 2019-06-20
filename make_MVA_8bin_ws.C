@@ -71,6 +71,19 @@ void addNPs(stringstream& f, RooArgList& list, const double r, const RooAbsArg& 
     list.add(NPg);
 }
 
+template<typename T> void WriteHisto2WS(TFile* f, const std::string& histName, const std::string& wsName, const std::vector<std::string>& MVABins, const std::string& type = "")
+{
+    for(const auto& bin : MVABins)
+    {
+        T* h = (T*)f->Get( (bin+"_"+histName).c_str() );
+        std::string name = bin+"_"+wsName;
+        if( type != "") 
+            name = bin+"_"+type+"_mcStat"+bin+type+"Bin"+wsName;
+        h->SetName( name.c_str() );
+        h->Write();
+    }
+}
+
 void construct_formula(std::string procName, RooArgList& binlist, const RooArgList& paramlist, const std::vector<NuisanceParam>& NPs) 
 {
   // Functional form:
@@ -209,9 +222,9 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   else if(dataType == "pseudodataB" ) data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataFunc28_24_18_h_njets_pt30_1l"+syst).c_str()); //
   else if(dataType == "pseudodataC" ) data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataFunc28_24_-20_h_njets_pt30_1l"+syst).c_str()); //
   else                               data_th1_D1 = (TH1D*)file->Get(("D1_"+dataType+"_h_njets_pt30_1l"+syst).c_str());
-  //TH1D* data_th1_D1 = (TH1D*)file->Get(("D1_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
-  //TH1D* data_th1_D1 = (TH1D*)file->Get("D1_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
   TH1D* otherMC_th1_D1 = (TH1D*)file->Get(("D1_OTHER_h_njets_pt30_1l"+syst).c_str());
+  TH1D* qcdMC_th1_D1 = (TH1D*)file->Get(("D1_QCD_h_njets_pt30_1l"+syst).c_str());
+  TH1D* ttxMC_th1_D1 = (TH1D*)file->Get(("D1_TTX_h_njets_pt30_1l"+syst).c_str());
   TH1D* sigMC_th1_D1 = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());
 
   TH1D* data_th1_D2;
@@ -222,9 +235,9 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   else if(dataType == "pseudodataB" ) data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataFunc28_24_18_h_njets_pt30_1l"+syst).c_str()); //
   else if(dataType == "pseudodataC" ) data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataFunc28_24_-20_h_njets_pt30_1l"+syst).c_str()); //
   else                               data_th1_D2 = (TH1D*)file->Get(("D2_"+dataType+"_h_njets_pt30_1l"+syst).c_str());
-  //TH1D* data_th1_D2 = (TH1D*)file->Get(("D2_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
-  //TH1D* data_th1_D2 = (TH1D*)file->Get("D2_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
   TH1D* otherMC_th1_D2 = (TH1D*)file->Get(("D2_OTHER_h_njets_pt30_1l"+syst).c_str());
+  TH1D* qcdMC_th1_D2 = (TH1D*)file->Get(("D2_QCD_h_njets_pt30_1l"+syst).c_str());
+  TH1D* ttxMC_th1_D2 = (TH1D*)file->Get(("D2_TTX_h_njets_pt30_1l"+syst).c_str());
   TH1D* sigMC_th1_D2 = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());
 
   TH1D* data_th1_D3;
@@ -235,9 +248,9 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   else if(dataType == "pseudodataB" ) data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataFunc28_24_18_h_njets_pt30_1l"+syst).c_str()); //
   else if(dataType == "pseudodataC" ) data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataFunc28_24_-20_h_njets_pt30_1l"+syst).c_str()); //
   else                               data_th1_D3 = (TH1D*)file->Get(("D3_"+dataType+"_h_njets_pt30_1l"+syst).c_str());
-  //TH1D* data_th1_D3 = (TH1D*)file->Get(("D3_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
-  //TH1D* data_th1_D3 = (TH1D*)file->Get("D3_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
   TH1D* otherMC_th1_D3 = (TH1D*)file->Get(("D3_OTHER_h_njets_pt30_1l"+syst).c_str());
+  TH1D* qcdMC_th1_D3 = (TH1D*)file->Get(("D3_QCD_h_njets_pt30_1l"+syst).c_str());
+  TH1D* ttxMC_th1_D3 = (TH1D*)file->Get(("D3_TTX_h_njets_pt30_1l"+syst).c_str());
   TH1D* sigMC_th1_D3 = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());
 
   TH1D* data_th1_D4;
@@ -248,9 +261,9 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   else if(dataType == "pseudodataB" ) data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataFunc28_24_18_h_njets_pt30_1l"+syst).c_str()); //
   else if(dataType == "pseudodataC" ) data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataFunc28_24_-20_h_njets_pt30_1l"+syst).c_str()); //
   else                               data_th1_D4 = (TH1D*)file->Get(("D4_"+dataType+"_h_njets_pt30_1l"+syst).c_str());
-  //TH1D* data_th1_D4 = (TH1D*)file->Get(("D4_pseudodataS_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str()); // JEC UP with signal
-  //TH1D* data_th1_D4 = (TH1D*)file->Get("D4_pseudodata_h_njets_pt30_1l_JECUp"); // JEC UP without signal
   TH1D* otherMC_th1_D4 = (TH1D*)file->Get(("D4_OTHER_h_njets_pt30_1l"+syst).c_str());
+  TH1D* qcdMC_th1_D4 = (TH1D*)file->Get(("D4_QCD_h_njets_pt30_1l"+syst).c_str());
+  TH1D* ttxMC_th1_D4 = (TH1D*)file->Get(("D4_TTX_h_njets_pt30_1l"+syst).c_str());
   TH1D* sigMC_th1_D4 = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l"+syst).c_str());
 
   // tt bkg param setup
@@ -293,50 +306,22 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   //RooRealVar a2_tt_D4(("a2_tt_D4_"+year).c_str(),("a2 of tt bkg shape D4 for "+year).c_str(),0.10,-0.5,0.5);
   RooRealVar  d_tt_D4(("d_tt_D4_" +year).c_str(),("d  of tt bkg shape D4 for "+year).c_str(),20,-2500,2500);
 
-  // //double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1) - sigMC_th1_D1->GetBinContent(1);
-  // double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1);
-  // double_t n7_tt_portion_D1_low = n7_tt_portion_D1-2000;
-  // if (n7_tt_portion_D1_low<0) n7_tt_portion_D1_low = 0;
-  // RooRealVar N7_tt_D1("N7_tt_D1","njets 7 for tt bkg in MVA D1",n7_tt_portion_D1,n7_tt_portion_D1_low,n7_tt_portion_D1+1500);
-
-  // //double_t n7_tt_portion_D2 = data_th1_D2->GetBinContent(1) - otherMC_th1_D2->GetBinContent(1) - sigMC_th1_D2->GetBinContent(1);
-  // double_t n7_tt_portion_D2 = data_th1_D2->GetBinContent(1) - otherMC_th1_D2->GetBinContent(1);
-  // double_t n7_tt_portion_D2_low = n7_tt_portion_D2-1500;
-  // if (n7_tt_portion_D2_low<0) n7_tt_portion_D2_low = 0;
-  // RooRealVar N7_tt_D2("N7_tt_D2","njets 7 for tt bkg in MVA D2",n7_tt_portion_D2,n7_tt_portion_D2_low,n7_tt_portion_D2+1500);
-
-  // //double_t n7_tt_portion_D3 = data_th1_D3->GetBinContent(1) - otherMC_th1_D3->GetBinContent(1) - sigMC_th1_D3->GetBinContent(1);
-  // double_t n7_tt_portion_D3 = data_th1_D3->GetBinContent(1) - otherMC_th1_D3->GetBinContent(1);
-  // double_t n7_tt_portion_D3_low = n7_tt_portion_D3-1500;
-  // if (n7_tt_portion_D3_low<0) n7_tt_portion_D3_low = 0;
-  // RooRealVar N7_tt_D3("N7_tt_D3","njets 7 for tt bkg in MVA D3",n7_tt_portion_D3,n7_tt_portion_D3_low,n7_tt_portion_D3+1500);
-
-  // //double_t n7_tt_portion_D4 = data_th1_D4->GetBinContent(1) - otherMC_th1_D4->GetBinContent(1) - sigMC_th1_D4->GetBinContent(1);
-  // double_t n7_tt_portion_D4 = data_th1_D4->GetBinContent(1) - otherMC_th1_D4->GetBinContent(1);
-  // double_t n7_tt_portion_D4_low = n7_tt_portion_D4-1500;
-  // if (n7_tt_portion_D4_low<0) n7_tt_portion_D4_low = 0;
-  // RooRealVar N7_tt_D4("N7_tt_D4","njets 7 for tt bkg in MVA D4",n7_tt_portion_D4,n7_tt_portion_D4_low,n7_tt_portion_D4+1500);
-
-  //double_t n7_tt_portion_D1 = data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1) - sigMC_th1_D1->GetBinContent(1);
-  double_t n7_tt_portion_D1 = TTonly ? data_th1_D1->GetBinContent(1) : data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1);
+  double_t n7_tt_portion_D1 = TTonly ? data_th1_D1->GetBinContent(1) : data_th1_D1->GetBinContent(1) - otherMC_th1_D1->GetBinContent(1) - qcdMC_th1_D1->GetBinContent(1) - ttxMC_th1_D1->GetBinContent(1);
   double_t n7_tt_portion_D1_low = n7_tt_portion_D1-6000;
   if (n7_tt_portion_D1_low<0) n7_tt_portion_D1_low = 0;
   RooRealVar N7_tt_D1(("N7_tt_D1_"+year).c_str(),"njets 7 for tt bkg in MVA D1",n7_tt_portion_D1,n7_tt_portion_D1_low,n7_tt_portion_D1+6000);
 
-  //double_t n7_tt_portion_D2 = data_th1_D2->GetBinContent(1) - otherMC_th1_D2->GetBinContent(1) - sigMC_th1_D2->GetBinContent(1);
-  double_t n7_tt_portion_D2 = TTonly ? data_th1_D2->GetBinContent(1) : data_th1_D2->GetBinContent(1) - otherMC_th1_D2->GetBinContent(1);
+  double_t n7_tt_portion_D2 = TTonly ? data_th1_D2->GetBinContent(1) : data_th1_D2->GetBinContent(1) - otherMC_th1_D2->GetBinContent(1) - qcdMC_th1_D2->GetBinContent(1) - ttxMC_th1_D2->GetBinContent(1);
   double_t n7_tt_portion_D2_low = n7_tt_portion_D2-5000;
   if (n7_tt_portion_D2_low<0) n7_tt_portion_D2_low = 0;
   RooRealVar N7_tt_D2(("N7_tt_D2_"+year).c_str(),"njets 7 for tt bkg in MVA D2",n7_tt_portion_D2,n7_tt_portion_D2_low,n7_tt_portion_D2+5000);
 
-  //double_t n7_tt_portion_D3 = data_th1_D3->GetBinContent(1) - otherMC_th1_D3->GetBinContent(1) - sigMC_th1_D3->GetBinContent(1);
-  double_t n7_tt_portion_D3 = TTonly ? data_th1_D3->GetBinContent(1) : data_th1_D3->GetBinContent(1) - otherMC_th1_D3->GetBinContent(1);
+  double_t n7_tt_portion_D3 = TTonly ? data_th1_D3->GetBinContent(1) : data_th1_D3->GetBinContent(1) - otherMC_th1_D3->GetBinContent(1) - qcdMC_th1_D3->GetBinContent(1) - ttxMC_th1_D3->GetBinContent(1);
   double_t n7_tt_portion_D3_low = n7_tt_portion_D3-4000;
   if (n7_tt_portion_D3_low<0) n7_tt_portion_D3_low = 0;
   RooRealVar N7_tt_D3(("N7_tt_D3_"+year).c_str(),"njets 7 for tt bkg in MVA D3",n7_tt_portion_D3,n7_tt_portion_D3_low,n7_tt_portion_D3+4000);
 
-  //double_t n7_tt_portion_D4 = data_th1_D4->GetBinContent(1) - otherMC_th1_D4->GetBinContent(1) - sigMC_th1_D4->GetBinContent(1);
-  double_t n7_tt_portion_D4 = TTonly ? data_th1_D4->GetBinContent(1) : data_th1_D4->GetBinContent(1) - otherMC_th1_D4->GetBinContent(1);
+  double_t n7_tt_portion_D4 = TTonly ? data_th1_D4->GetBinContent(1) : data_th1_D4->GetBinContent(1) - otherMC_th1_D4->GetBinContent(1) - qcdMC_th1_D4->GetBinContent(1) - ttxMC_th1_D4->GetBinContent(1);
   double_t n7_tt_portion_D4_low = n7_tt_portion_D4-3000;
   if (n7_tt_portion_D4_low<0) n7_tt_portion_D4_low = 0;
   RooRealVar N7_tt_D4(("N7_tt_D4_"+year).c_str(),"njets 7 for tt bkg in MVA D4",n7_tt_portion_D4,n7_tt_portion_D4_low,n7_tt_portion_D4+3000);
@@ -722,756 +707,103 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   otherMC_th1_D2->Write();
   otherMC_th1_D3->Write();
   otherMC_th1_D4->Write();
+
+  // Shape histograms for QCD backgrounds
+  qcdMC_th1_D1->SetName("qcdMC_th1_D1");
+  qcdMC_th1_D2->SetName("qcdMC_th1_D2");
+  qcdMC_th1_D3->SetName("qcdMC_th1_D3");
+  qcdMC_th1_D4->SetName("qcdMC_th1_D4");
+  qcdMC_th1_D1->Write();
+  qcdMC_th1_D2->Write();
+  qcdMC_th1_D3->Write();
+  qcdMC_th1_D4->Write();
+
+  // Shape histograms for TTX backgrounds
+  ttxMC_th1_D1->SetName("ttxMC_th1_D1");
+  ttxMC_th1_D2->SetName("ttxMC_th1_D2");
+  ttxMC_th1_D3->SetName("ttxMC_th1_D3");
+  ttxMC_th1_D4->SetName("ttxMC_th1_D4");
+  ttxMC_th1_D1->Write();
+  ttxMC_th1_D2->Write();
+  ttxMC_th1_D3->Write();
+  ttxMC_th1_D4->Write();
   
   // =================================================================================
   // Systematics
   
   // Signal systematics
-  
-  TH1D* D1_SIG_JECUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
-  TH1D* D2_SIG_JECUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
-  TH1D* D3_SIG_JECUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
-  TH1D* D4_SIG_JECUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_JECUp").c_str());
-  D1_SIG_JECUp->SetName(("D1_SIG_JEC_"+year+"Up").c_str());
-  D2_SIG_JECUp->SetName(("D2_SIG_JEC_"+year+"Up").c_str());
-  D3_SIG_JECUp->SetName(("D3_SIG_JEC_"+year+"Up").c_str());
-  D4_SIG_JECUp->SetName(("D4_SIG_JEC_"+year+"Up").c_str());
-  D1_SIG_JECUp->Write();
-  D2_SIG_JECUp->Write();
-  D3_SIG_JECUp->Write();
-  D4_SIG_JECUp->Write();
-  TH1D* D1_SIG_JECDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
-  TH1D* D2_SIG_JECDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
-  TH1D* D3_SIG_JECDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
-  TH1D* D4_SIG_JECDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_JECDown").c_str());
-  D1_SIG_JECDown->SetName(("D1_SIG_JEC_"+year+"Down").c_str());
-  D2_SIG_JECDown->SetName(("D2_SIG_JEC_"+year+"Down").c_str());
-  D3_SIG_JECDown->SetName(("D3_SIG_JEC_"+year+"Down").c_str());
-  D4_SIG_JECDown->SetName(("D4_SIG_JEC_"+year+"Down").c_str());
-  D1_SIG_JECDown->Write();
-  D2_SIG_JECDown->Write();
-  D3_SIG_JECDown->Write();
-  D4_SIG_JECDown->Write();
-  
-  TH1D* D1_SIG_JERUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_JERUp").c_str());
-  TH1D* D2_SIG_JERUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_JERUp").c_str());
-  TH1D* D3_SIG_JERUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_JERUp").c_str());
-  TH1D* D4_SIG_JERUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_JERUp").c_str());
-  D1_SIG_JERUp->SetName(("D1_SIG_JER_"+year+"Up").c_str());
-  D2_SIG_JERUp->SetName(("D2_SIG_JER_"+year+"Up").c_str());
-  D3_SIG_JERUp->SetName(("D3_SIG_JER_"+year+"Up").c_str());
-  D4_SIG_JERUp->SetName(("D4_SIG_JER_"+year+"Up").c_str());
-  D1_SIG_JERUp->Write();
-  D2_SIG_JERUp->Write();
-  D3_SIG_JERUp->Write();
-  D4_SIG_JERUp->Write();
-  TH1D* D1_SIG_JERDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_JERDown").c_str());
-  TH1D* D2_SIG_JERDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_JERDown").c_str());
-  TH1D* D3_SIG_JERDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_JERDown").c_str());
-  TH1D* D4_SIG_JERDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_JERDown").c_str());
-  D1_SIG_JERDown->SetName(("D1_SIG_JER_"+year+"Down").c_str());
-  D2_SIG_JERDown->SetName(("D2_SIG_JER_"+year+"Down").c_str());
-  D3_SIG_JERDown->SetName(("D3_SIG_JER_"+year+"Down").c_str());
-  D4_SIG_JERDown->SetName(("D4_SIG_JER_"+year+"Down").c_str());
-  D1_SIG_JERDown->Write();
-  D2_SIG_JERDown->Write();
-  D3_SIG_JERDown->Write();
-  D4_SIG_JERDown->Write();
-  
-  TH1D* D1_SIG_btgUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_btgUp").c_str());
-  TH1D* D2_SIG_btgUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_btgUp").c_str());
-  TH1D* D3_SIG_btgUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_btgUp").c_str());
-  TH1D* D4_SIG_btgUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_btgUp").c_str());
-  D1_SIG_btgUp->SetName(("D1_SIG_btg_"+year+"Up").c_str());
-  D2_SIG_btgUp->SetName(("D2_SIG_btg_"+year+"Up").c_str());
-  D3_SIG_btgUp->SetName(("D3_SIG_btg_"+year+"Up").c_str());
-  D4_SIG_btgUp->SetName(("D4_SIG_btg_"+year+"Up").c_str());
-  D1_SIG_btgUp->Write();
-  D2_SIG_btgUp->Write();
-  D3_SIG_btgUp->Write();
-  D4_SIG_btgUp->Write();
-  TH1D* D1_SIG_btgDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_btgDown").c_str());
-  TH1D* D2_SIG_btgDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_btgDown").c_str());
-  TH1D* D3_SIG_btgDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_btgDown").c_str());
-  TH1D* D4_SIG_btgDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_btgDown").c_str());
-  D1_SIG_btgDown->SetName(("D1_SIG_btg_"+year+"Down").c_str());
-  D2_SIG_btgDown->SetName(("D2_SIG_btg_"+year+"Down").c_str());
-  D3_SIG_btgDown->SetName(("D3_SIG_btg_"+year+"Down").c_str());
-  D4_SIG_btgDown->SetName(("D4_SIG_btg_"+year+"Down").c_str());
-  D1_SIG_btgDown->Write();
-  D2_SIG_btgDown->Write();
-  D3_SIG_btgDown->Write();
-  D4_SIG_btgDown->Write();
-  
-  TH1D* D1_SIG_lepUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_lepUp").c_str());
-  TH1D* D2_SIG_lepUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_lepUp").c_str());
-  TH1D* D3_SIG_lepUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_lepUp").c_str());
-  TH1D* D4_SIG_lepUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_lepUp").c_str());
-  D1_SIG_lepUp->SetName(("D1_SIG_lep_"+year+"Up").c_str());
-  D2_SIG_lepUp->SetName(("D2_SIG_lep_"+year+"Up").c_str());
-  D3_SIG_lepUp->SetName(("D3_SIG_lep_"+year+"Up").c_str());
-  D4_SIG_lepUp->SetName(("D4_SIG_lep_"+year+"Up").c_str());
-  D1_SIG_lepUp->Write();
-  D2_SIG_lepUp->Write();
-  D3_SIG_lepUp->Write();
-  D4_SIG_lepUp->Write();
-  TH1D* D1_SIG_lepDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_lepDown").c_str());
-  TH1D* D2_SIG_lepDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_lepDown").c_str());
-  TH1D* D3_SIG_lepDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_lepDown").c_str());
-  TH1D* D4_SIG_lepDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_lepDown").c_str());
-  D1_SIG_lepDown->SetName(("D1_SIG_lep_"+year+"Down").c_str());
-  D2_SIG_lepDown->SetName(("D2_SIG_lep_"+year+"Down").c_str());
-  D3_SIG_lepDown->SetName(("D3_SIG_lep_"+year+"Down").c_str());
-  D4_SIG_lepDown->SetName(("D4_SIG_lep_"+year+"Down").c_str());
-  D1_SIG_lepDown->Write();
-  D2_SIG_lepDown->Write();
-  D3_SIG_lepDown->Write();
-  D4_SIG_lepDown->Write();
-  
-  TH1D* D1_SIG_pdfUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_pdfUp").c_str());
-  TH1D* D2_SIG_pdfUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_pdfUp").c_str());
-  TH1D* D3_SIG_pdfUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_pdfUp").c_str());
-  TH1D* D4_SIG_pdfUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_pdfUp").c_str());
-  D1_SIG_pdfUp->SetName("D1_SIG_pdfUp");
-  D2_SIG_pdfUp->SetName("D2_SIG_pdfUp");
-  D3_SIG_pdfUp->SetName("D3_SIG_pdfUp");
-  D4_SIG_pdfUp->SetName("D4_SIG_pdfUp");
-  D1_SIG_pdfUp->Write();
-  D2_SIG_pdfUp->Write();
-  D3_SIG_pdfUp->Write();
-  D4_SIG_pdfUp->Write();
-  TH1D* D1_SIG_pdfDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_pdfDown").c_str());
-  TH1D* D2_SIG_pdfDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_pdfDown").c_str());
-  TH1D* D3_SIG_pdfDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_pdfDown").c_str());
-  TH1D* D4_SIG_pdfDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_pdfDown").c_str());
-  D1_SIG_pdfDown->SetName("D1_SIG_pdfDown");
-  D2_SIG_pdfDown->SetName("D2_SIG_pdfDown");
-  D3_SIG_pdfDown->SetName("D3_SIG_pdfDown");
-  D4_SIG_pdfDown->SetName("D4_SIG_pdfDown");
-  D1_SIG_pdfDown->Write();
-  D2_SIG_pdfDown->Write();
-  D3_SIG_pdfDown->Write();
-  D4_SIG_pdfDown->Write();
-  
-  TH1D* D1_SIG_sclUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-  TH1D* D2_SIG_sclUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-  TH1D* D3_SIG_sclUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-  TH1D* D4_SIG_sclUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclUp").c_str());
-  D1_SIG_sclUp->SetName("D1_SIG_sclUp");
-  D2_SIG_sclUp->SetName("D2_SIG_sclUp");
-  D3_SIG_sclUp->SetName("D3_SIG_sclUp");
-  D4_SIG_sclUp->SetName("D4_SIG_sclUp");
-  D1_SIG_sclUp->Write();
-  D2_SIG_sclUp->Write();
-  D3_SIG_sclUp->Write();
-  D4_SIG_sclUp->Write();
-  TH1D* D1_SIG_sclDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-  TH1D* D2_SIG_sclDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-  TH1D* D3_SIG_sclDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-  TH1D* D4_SIG_sclDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_sclDown").c_str());
-  D1_SIG_sclDown->SetName("D1_SIG_sclDown");
-  D2_SIG_sclDown->SetName("D2_SIG_sclDown");
-  D3_SIG_sclDown->SetName("D3_SIG_sclDown");
-  D4_SIG_sclDown->SetName("D4_SIG_sclDown");
-  D1_SIG_sclDown->Write();
-  D2_SIG_sclDown->Write();
-  D3_SIG_sclDown->Write();
-  D4_SIG_sclDown->Write();
-  
-  TH1D* D1_SIG_puUp = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_puUp").c_str());
-  TH1D* D2_SIG_puUp = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_puUp").c_str());
-  TH1D* D3_SIG_puUp = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_puUp").c_str());
-  TH1D* D4_SIG_puUp = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_puUp").c_str());
-  D1_SIG_puUp->SetName(("D1_SIG_pu_"+year+"Up").c_str());
-  D2_SIG_puUp->SetName(("D2_SIG_pu_"+year+"Up").c_str());
-  D3_SIG_puUp->SetName(("D3_SIG_pu_"+year+"Up").c_str());
-  D4_SIG_puUp->SetName(("D4_SIG_pu_"+year+"Up").c_str());
-  D1_SIG_puUp->Write();
-  D2_SIG_puUp->Write();
-  D3_SIG_puUp->Write();
-  D4_SIG_puUp->Write();
-  TH1D* D1_SIG_puDown = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_h_njets_pt30_1l_puDown").c_str());
-  TH1D* D2_SIG_puDown = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_h_njets_pt30_1l_puDown").c_str());
-  TH1D* D3_SIG_puDown = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_h_njets_pt30_1l_puDown").c_str());
-  TH1D* D4_SIG_puDown = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_h_njets_pt30_1l_puDown").c_str());
-  D1_SIG_puDown->SetName(("D1_SIG_pu_"+year+"Down").c_str());
-  D2_SIG_puDown->SetName(("D2_SIG_pu_"+year+"Down").c_str());
-  D3_SIG_puDown->SetName(("D3_SIG_pu_"+year+"Down").c_str());
-  D4_SIG_puDown->SetName(("D4_SIG_pu_"+year+"Down").c_str());
-  D1_SIG_puDown->Write();
-  D2_SIG_puDown->Write();
-  D3_SIG_puDown->Write();
-  D4_SIG_puDown->Write();
-  
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_JECUp",   "SIG_JEC_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_JECDown", "SIG_JEC_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_JERUp",   "SIG_JER_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_JERDown", "SIG_JER_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_btgUp",   "SIG_btg_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_btgDown", "SIG_btg_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_lepUp",   "SIG_lep_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_lepDown", "SIG_lep_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_pdfUp",   "SIG_pdfUp",            {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_pdfDown", "SIG_pdfDown",          {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_sclUp",   "SIG_sclUp",            {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_sclDown", "SIG_sclDown",          {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_puUp",    "SIG_pu_"+year+"Up",    {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, model+"_"+mass+"_h_njets_pt30_1l_puDown",  "SIG_pu_"+year+"Down",  {"D1","D2","D3","D4"});
   
   // "OTHER" background systematics
-  
-  TH1D* D1_OTHER_JECUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_JECUp");
-  TH1D* D2_OTHER_JECUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_JECUp");
-  TH1D* D3_OTHER_JECUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_JECUp");
-  TH1D* D4_OTHER_JECUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_JECUp");
-  D1_OTHER_JECUp->SetName(("D1_OTHER_JEC_"+year+"Up").c_str());
-  D2_OTHER_JECUp->SetName(("D2_OTHER_JEC_"+year+"Up").c_str());
-  D3_OTHER_JECUp->SetName(("D3_OTHER_JEC_"+year+"Up").c_str());
-  D4_OTHER_JECUp->SetName(("D4_OTHER_JEC_"+year+"Up").c_str());
-  D1_OTHER_JECUp->Write();
-  D2_OTHER_JECUp->Write();
-  D3_OTHER_JECUp->Write();
-  D4_OTHER_JECUp->Write();
-  TH1D* D1_OTHER_JECDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_JECDown");
-  TH1D* D2_OTHER_JECDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_JECDown");
-  TH1D* D3_OTHER_JECDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_JECDown");
-  TH1D* D4_OTHER_JECDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_JECDown");
-  D1_OTHER_JECDown->SetName(("D1_OTHER_JEC_"+year+"Down").c_str());
-  D2_OTHER_JECDown->SetName(("D2_OTHER_JEC_"+year+"Down").c_str());
-  D3_OTHER_JECDown->SetName(("D3_OTHER_JEC_"+year+"Down").c_str());
-  D4_OTHER_JECDown->SetName(("D4_OTHER_JEC_"+year+"Down").c_str());
-  D1_OTHER_JECDown->Write();
-  D2_OTHER_JECDown->Write();
-  D3_OTHER_JECDown->Write();
-  D4_OTHER_JECDown->Write();
-  
-  TH1D* D1_OTHER_JERUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_JERUp");
-  TH1D* D2_OTHER_JERUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_JERUp");
-  TH1D* D3_OTHER_JERUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_JERUp");
-  TH1D* D4_OTHER_JERUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_JERUp");
-  D1_OTHER_JERUp->SetName(("D1_OTHER_JER_"+year+"Up").c_str());
-  D2_OTHER_JERUp->SetName(("D2_OTHER_JER_"+year+"Up").c_str());
-  D3_OTHER_JERUp->SetName(("D3_OTHER_JER_"+year+"Up").c_str());
-  D4_OTHER_JERUp->SetName(("D4_OTHER_JER_"+year+"Up").c_str());
-  D1_OTHER_JERUp->Write();
-  D2_OTHER_JERUp->Write();
-  D3_OTHER_JERUp->Write();
-  D4_OTHER_JERUp->Write();
-  TH1D* D1_OTHER_JERDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_JERDown");
-  TH1D* D2_OTHER_JERDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_JERDown");
-  TH1D* D3_OTHER_JERDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_JERDown");
-  TH1D* D4_OTHER_JERDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_JERDown");
-  D1_OTHER_JERDown->SetName(("D1_OTHER_JER_"+year+"Down").c_str());
-  D2_OTHER_JERDown->SetName(("D2_OTHER_JER_"+year+"Down").c_str());
-  D3_OTHER_JERDown->SetName(("D3_OTHER_JER_"+year+"Down").c_str());
-  D4_OTHER_JERDown->SetName(("D4_OTHER_JER_"+year+"Down").c_str());
-  D1_OTHER_JERDown->Write();
-  D2_OTHER_JERDown->Write();
-  D3_OTHER_JERDown->Write();
-  D4_OTHER_JERDown->Write();
-  
-  TH1D* D1_OTHER_btgUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_btgUp");
-  TH1D* D2_OTHER_btgUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_btgUp");
-  TH1D* D3_OTHER_btgUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_btgUp");
-  TH1D* D4_OTHER_btgUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_btgUp");
-  D1_OTHER_btgUp->SetName(("D1_OTHER_btg_"+year+"Up").c_str());
-  D2_OTHER_btgUp->SetName(("D2_OTHER_btg_"+year+"Up").c_str());
-  D3_OTHER_btgUp->SetName(("D3_OTHER_btg_"+year+"Up").c_str());
-  D4_OTHER_btgUp->SetName(("D4_OTHER_btg_"+year+"Up").c_str());
-  D1_OTHER_btgUp->Write();
-  D2_OTHER_btgUp->Write();
-  D3_OTHER_btgUp->Write();
-  D4_OTHER_btgUp->Write();
-  TH1D* D1_OTHER_btgDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_btgDown");
-  TH1D* D2_OTHER_btgDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_btgDown");
-  TH1D* D3_OTHER_btgDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_btgDown");
-  TH1D* D4_OTHER_btgDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_btgDown");
-  D1_OTHER_btgDown->SetName(("D1_OTHER_btg_"+year+"Down").c_str());
-  D2_OTHER_btgDown->SetName(("D2_OTHER_btg_"+year+"Down").c_str());
-  D3_OTHER_btgDown->SetName(("D3_OTHER_btg_"+year+"Down").c_str());
-  D4_OTHER_btgDown->SetName(("D4_OTHER_btg_"+year+"Down").c_str());
-  D1_OTHER_btgDown->Write();
-  D2_OTHER_btgDown->Write();
-  D3_OTHER_btgDown->Write();
-  D4_OTHER_btgDown->Write();
-  
-  TH1D* D1_OTHER_lepUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_lepUp");
-  TH1D* D2_OTHER_lepUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_lepUp");
-  TH1D* D3_OTHER_lepUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_lepUp");
-  TH1D* D4_OTHER_lepUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_lepUp");
-  D1_OTHER_lepUp->SetName(("D1_OTHER_lep_"+year+"Up").c_str());
-  D2_OTHER_lepUp->SetName(("D2_OTHER_lep_"+year+"Up").c_str());
-  D3_OTHER_lepUp->SetName(("D3_OTHER_lep_"+year+"Up").c_str());
-  D4_OTHER_lepUp->SetName(("D4_OTHER_lep_"+year+"Up").c_str());
-  D1_OTHER_lepUp->Write();
-  D2_OTHER_lepUp->Write();
-  D3_OTHER_lepUp->Write();
-  D4_OTHER_lepUp->Write();
-  TH1D* D1_OTHER_lepDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_lepDown");
-  TH1D* D2_OTHER_lepDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_lepDown");
-  TH1D* D3_OTHER_lepDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_lepDown");
-  TH1D* D4_OTHER_lepDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_lepDown");
-  D1_OTHER_lepDown->SetName(("D1_OTHER_lep_"+year+"Down").c_str());
-  D2_OTHER_lepDown->SetName(("D2_OTHER_lep_"+year+"Down").c_str());
-  D3_OTHER_lepDown->SetName(("D3_OTHER_lep_"+year+"Down").c_str());
-  D4_OTHER_lepDown->SetName(("D4_OTHER_lep_"+year+"Down").c_str());
-  D1_OTHER_lepDown->Write();
-  D2_OTHER_lepDown->Write();
-  D3_OTHER_lepDown->Write();
-  D4_OTHER_lepDown->Write();
-  
-  TH1D* D1_OTHER_htUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_htUp");
-  TH1D* D2_OTHER_htUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_htUp");
-  TH1D* D3_OTHER_htUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_htUp");
-  TH1D* D4_OTHER_htUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_htUp");
-  D1_OTHER_htUp->SetName(("D1_OTHER_ht_"+year+"Up").c_str());
-  D2_OTHER_htUp->SetName(("D2_OTHER_ht_"+year+"Up").c_str());
-  D3_OTHER_htUp->SetName(("D3_OTHER_ht_"+year+"Up").c_str());
-  D4_OTHER_htUp->SetName(("D4_OTHER_ht_"+year+"Up").c_str());
-  D1_OTHER_htUp->Write();
-  D2_OTHER_htUp->Write();
-  D3_OTHER_htUp->Write();
-  D4_OTHER_htUp->Write();
-  TH1D* D1_OTHER_htDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_htDown");
-  TH1D* D2_OTHER_htDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_htDown");
-  TH1D* D3_OTHER_htDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_htDown");
-  TH1D* D4_OTHER_htDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_htDown");
-  D1_OTHER_htDown->SetName(("D1_OTHER_ht_"+year+"Down").c_str());
-  D2_OTHER_htDown->SetName(("D2_OTHER_ht_"+year+"Down").c_str());
-  D3_OTHER_htDown->SetName(("D3_OTHER_ht_"+year+"Down").c_str());
-  D4_OTHER_htDown->SetName(("D4_OTHER_ht_"+year+"Down").c_str());
-  D1_OTHER_htDown->Write();
-  D2_OTHER_htDown->Write();
-  D3_OTHER_htDown->Write();
-  D4_OTHER_htDown->Write();
-  
-  TH1D* D1_OTHER_sclUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclUp");
-  TH1D* D2_OTHER_sclUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclUp");
-  TH1D* D3_OTHER_sclUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclUp");
-  TH1D* D4_OTHER_sclUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclUp");
-  D1_OTHER_sclUp->SetName("D1_OTHER_sclUp");
-  D2_OTHER_sclUp->SetName("D2_OTHER_sclUp");
-  D3_OTHER_sclUp->SetName("D3_OTHER_sclUp");
-  D4_OTHER_sclUp->SetName("D4_OTHER_sclUp");
-  D1_OTHER_sclUp->Write();
-  D2_OTHER_sclUp->Write();
-  D3_OTHER_sclUp->Write();
-  D4_OTHER_sclUp->Write();
-  TH1D* D1_OTHER_sclDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_sclDown");
-  TH1D* D2_OTHER_sclDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_sclDown");
-  TH1D* D3_OTHER_sclDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_sclDown");
-  TH1D* D4_OTHER_sclDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_sclDown");
-  D1_OTHER_sclDown->SetName("D1_OTHER_sclDown");
-  D2_OTHER_sclDown->SetName("D2_OTHER_sclDown");
-  D3_OTHER_sclDown->SetName("D3_OTHER_sclDown");
-  D4_OTHER_sclDown->SetName("D4_OTHER_sclDown");
-  D1_OTHER_sclDown->Write();
-  D2_OTHER_sclDown->Write();
-  D3_OTHER_sclDown->Write();
-  D4_OTHER_sclDown->Write();
-  
-  TH1D* D1_OTHER_puUp = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_puUp");
-  TH1D* D2_OTHER_puUp = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_puUp");
-  TH1D* D3_OTHER_puUp = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_puUp");
-  TH1D* D4_OTHER_puUp = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_puUp");
-  D1_OTHER_puUp->SetName(("D1_OTHER_pu_"+year+"Up").c_str());
-  D2_OTHER_puUp->SetName(("D2_OTHER_pu_"+year+"Up").c_str());
-  D3_OTHER_puUp->SetName(("D3_OTHER_pu_"+year+"Up").c_str());
-  D4_OTHER_puUp->SetName(("D4_OTHER_pu_"+year+"Up").c_str());
-  D1_OTHER_puUp->Write();
-  D2_OTHER_puUp->Write();
-  D3_OTHER_puUp->Write();
-  D4_OTHER_puUp->Write();
-  TH1D* D1_OTHER_puDown = (TH1D*)file->Get("D1_OTHER_h_njets_pt30_1l_puDown");
-  TH1D* D2_OTHER_puDown = (TH1D*)file->Get("D2_OTHER_h_njets_pt30_1l_puDown");
-  TH1D* D3_OTHER_puDown = (TH1D*)file->Get("D3_OTHER_h_njets_pt30_1l_puDown");
-  TH1D* D4_OTHER_puDown = (TH1D*)file->Get("D4_OTHER_h_njets_pt30_1l_puDown");
-  D1_OTHER_puDown->SetName(("D1_OTHER_pu_"+year+"Down").c_str());
-  D2_OTHER_puDown->SetName(("D2_OTHER_pu_"+year+"Down").c_str());
-  D3_OTHER_puDown->SetName(("D3_OTHER_pu_"+year+"Down").c_str());
-  D4_OTHER_puDown->SetName(("D4_OTHER_pu_"+year+"Down").c_str());
-  D1_OTHER_puDown->Write();
-  D2_OTHER_puDown->Write();
-  D3_OTHER_puDown->Write();
-  D4_OTHER_puDown->Write();
-  
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_JECUp",   "OTHER_JEC_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_JECDown", "OTHER_JEC_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_JERUp",   "OTHER_JER_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_JERDown", "OTHER_JER_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_btgUp",   "OTHER_btg_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_btgDown", "OTHER_btg_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_lepUp",   "OTHER_lep_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_lepDown", "OTHER_lep_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_htUp",    "OTHER_ht_"+year+"Up",    {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_htDown",  "OTHER_ht_"+year+"Down",  {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_sclUp",   "OTHER_sclUp",            {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_sclDown", "OTHER_sclDown",          {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_puUp",    "OTHER_pu_"+year+"Up",    {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_puDown",  "OTHER_pu_"+year+"Down",  {"D1","D2","D3","D4"});
+    
+  // "TTX" background systematics
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_JECUp",   "TTX_JEC_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_JECDown", "TTX_JEC_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_JERUp",   "TTX_JER_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_JERDown", "TTX_JER_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_btgUp",   "TTX_btg_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_btgDown", "TTX_btg_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_lepUp",   "TTX_lep_"+year+"Up",   {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_lepDown", "TTX_lep_"+year+"Down", {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_htUp",    "TTX_ht_"+year+"Up",    {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_htDown",  "TTX_ht_"+year+"Down",  {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_sclUp",   "TTX_sclUp",            {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_sclDown", "TTX_sclDown",          {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_puUp",    "TTX_pu_"+year+"Up",    {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_puDown",  "TTX_pu_"+year+"Down",  {"D1","D2","D3","D4"});    
+    
   // =================================================================================
   // Statistics-based Uncertainties
   
-  // MC stat uncertainty histograms for the particular signal model and mass point
-  TH1D* D1_SIG_mcStatBin1Up = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin1Up").c_str());
-  TH1D* D1_SIG_mcStatBin2Up = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin2Up").c_str());
-  TH1D* D1_SIG_mcStatBin3Up = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin3Up").c_str());
-  TH1D* D1_SIG_mcStatBin4Up = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin4Up").c_str());
-  TH1D* D1_SIG_mcStatBin5Up = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin5Up").c_str());
-  TH1D* D1_SIG_mcStatBin6Up = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin6Up").c_str());
-  //TH1D* D1_SIG_mcStatBin7Up = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin7Up").c_str());
-  //TH1D* D1_SIG_mcStatBin8Up = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin8Up").c_str());
-  D1_SIG_mcStatBin1Up->SetName(("D1_SIG_mcStatD1SIGBin1_"+year+"Up").c_str());
-  D1_SIG_mcStatBin2Up->SetName(("D1_SIG_mcStatD1SIGBin2_"+year+"Up").c_str());
-  D1_SIG_mcStatBin3Up->SetName(("D1_SIG_mcStatD1SIGBin3_"+year+"Up").c_str());
-  D1_SIG_mcStatBin4Up->SetName(("D1_SIG_mcStatD1SIGBin4_"+year+"Up").c_str());
-  D1_SIG_mcStatBin5Up->SetName(("D1_SIG_mcStatD1SIGBin5_"+year+"Up").c_str());
-  D1_SIG_mcStatBin6Up->SetName(("D1_SIG_mcStatD1SIGBin6_"+year+"Up").c_str());
-  //D1_SIG_mcStatBin7Up->SetName(("D1_SIG_mcStatD1SIGBin7_"+year+"Up").c_str());
-  //D1_SIG_mcStatBin8Up->SetName(("D1_SIG_mcStatD1SIGBin8_"+year+"Up").c_str());
-  D1_SIG_mcStatBin1Up->Write();
-  D1_SIG_mcStatBin2Up->Write();
-  D1_SIG_mcStatBin3Up->Write();
-  D1_SIG_mcStatBin4Up->Write();
-  D1_SIG_mcStatBin5Up->Write();
-  D1_SIG_mcStatBin6Up->Write();
-  //D1_SIG_mcStatBin7Up->Write();
-  //D1_SIG_mcStatBin8Up->Write();
-  TH1D* D1_SIG_mcStatBin1Down = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin1Down").c_str());
-  TH1D* D1_SIG_mcStatBin2Down = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin2Down").c_str());
-  TH1D* D1_SIG_mcStatBin3Down = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin3Down").c_str());
-  TH1D* D1_SIG_mcStatBin4Down = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin4Down").c_str());
-  TH1D* D1_SIG_mcStatBin5Down = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin5Down").c_str());
-  TH1D* D1_SIG_mcStatBin6Down = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin6Down").c_str());
-  //TH1D* D1_SIG_mcStatBin7Down = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin7Down").c_str());
-  //TH1D* D1_SIG_mcStatBin8Down = (TH1D*)file->Get(("D1_"+model+"_"+mass+"_mcStatBin8Down").c_str());
-  D1_SIG_mcStatBin1Down->SetName(("D1_SIG_mcStatD1SIGBin1_"+year+"Down").c_str());
-  D1_SIG_mcStatBin2Down->SetName(("D1_SIG_mcStatD1SIGBin2_"+year+"Down").c_str());
-  D1_SIG_mcStatBin3Down->SetName(("D1_SIG_mcStatD1SIGBin3_"+year+"Down").c_str());
-  D1_SIG_mcStatBin4Down->SetName(("D1_SIG_mcStatD1SIGBin4_"+year+"Down").c_str());
-  D1_SIG_mcStatBin5Down->SetName(("D1_SIG_mcStatD1SIGBin5_"+year+"Down").c_str());
-  D1_SIG_mcStatBin6Down->SetName(("D1_SIG_mcStatD1SIGBin6_"+year+"Down").c_str());
-  //D1_SIG_mcStatBin7Down->SetName(("D1_SIG_mcStatD1SIGBin7_"+year+"Down").c_str());
-  //D1_SIG_mcStatBin8Down->SetName(("D1_SIG_mcStatD1SIGBin8_"+year+"Down").c_str());
-  D1_SIG_mcStatBin1Down->Write();
-  D1_SIG_mcStatBin2Down->Write();
-  D1_SIG_mcStatBin3Down->Write();
-  D1_SIG_mcStatBin4Down->Write();
-  D1_SIG_mcStatBin5Down->Write();
-  D1_SIG_mcStatBin6Down->Write();
-  //D1_SIG_mcStatBin7Down->Write();
-  //D1_SIG_mcStatBin8Down->Write();
-  TH1D* D2_SIG_mcStatBin1Up = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin1Up").c_str());
-  TH1D* D2_SIG_mcStatBin2Up = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin2Up").c_str());
-  TH1D* D2_SIG_mcStatBin3Up = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin3Up").c_str());
-  TH1D* D2_SIG_mcStatBin4Up = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin4Up").c_str());
-  TH1D* D2_SIG_mcStatBin5Up = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin5Up").c_str());
-  TH1D* D2_SIG_mcStatBin6Up = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin6Up").c_str());
-  //TH1D* D2_SIG_mcStatBin7Up = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin7Up").c_str());
-  //TH1D* D2_SIG_mcStatBin8Up = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin8Up").c_str());
-  D2_SIG_mcStatBin1Up->SetName(("D2_SIG_mcStatD2SIGBin1_"+year+"Up").c_str());
-  D2_SIG_mcStatBin2Up->SetName(("D2_SIG_mcStatD2SIGBin2_"+year+"Up").c_str());
-  D2_SIG_mcStatBin3Up->SetName(("D2_SIG_mcStatD2SIGBin3_"+year+"Up").c_str());
-  D2_SIG_mcStatBin4Up->SetName(("D2_SIG_mcStatD2SIGBin4_"+year+"Up").c_str());
-  D2_SIG_mcStatBin5Up->SetName(("D2_SIG_mcStatD2SIGBin5_"+year+"Up").c_str());
-  D2_SIG_mcStatBin6Up->SetName(("D2_SIG_mcStatD2SIGBin6_"+year+"Up").c_str());
-  //D2_SIG_mcStatBin7Up->SetName(("D2_SIG_mcStatD2SIGBin7_"+year+"Up").c_str());
-  //D2_SIG_mcStatBin8Up->SetName(("D2_SIG_mcStatD2SIGBin8_"+year+"Up").c_str());
-  D2_SIG_mcStatBin1Up->Write();
-  D2_SIG_mcStatBin2Up->Write();
-  D2_SIG_mcStatBin3Up->Write();
-  D2_SIG_mcStatBin4Up->Write();
-  D2_SIG_mcStatBin5Up->Write();
-  D2_SIG_mcStatBin6Up->Write();
-  //D2_SIG_mcStatBin7Up->Write();
-  //D2_SIG_mcStatBin8Up->Write();
-  TH1D* D2_SIG_mcStatBin1Down = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin1Down").c_str());
-  TH1D* D2_SIG_mcStatBin2Down = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin2Down").c_str());
-  TH1D* D2_SIG_mcStatBin3Down = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin3Down").c_str());
-  TH1D* D2_SIG_mcStatBin4Down = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin4Down").c_str());
-  TH1D* D2_SIG_mcStatBin5Down = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin5Down").c_str());
-  TH1D* D2_SIG_mcStatBin6Down = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin6Down").c_str());
-  //TH1D* D2_SIG_mcStatBin7Down = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin7Down").c_str());
-  //TH1D* D2_SIG_mcStatBin8Down = (TH1D*)file->Get(("D2_"+model+"_"+mass+"_mcStatBin8Down").c_str());
-  D2_SIG_mcStatBin1Down->SetName(("D2_SIG_mcStatD2SIGBin1_"+year+"Down").c_str());
-  D2_SIG_mcStatBin2Down->SetName(("D2_SIG_mcStatD2SIGBin2_"+year+"Down").c_str());
-  D2_SIG_mcStatBin3Down->SetName(("D2_SIG_mcStatD2SIGBin3_"+year+"Down").c_str());
-  D2_SIG_mcStatBin4Down->SetName(("D2_SIG_mcStatD2SIGBin4_"+year+"Down").c_str());
-  D2_SIG_mcStatBin5Down->SetName(("D2_SIG_mcStatD2SIGBin5_"+year+"Down").c_str());
-  D2_SIG_mcStatBin6Down->SetName(("D2_SIG_mcStatD2SIGBin6_"+year+"Down").c_str());
-  //D2_SIG_mcStatBin7Down->SetName(("D2_SIG_mcStatD2SIGBin7_"+year+"Down").c_str());
-  //D2_SIG_mcStatBin8Down->SetName(("D2_SIG_mcStatD2SIGBin8_"+year+"Down").c_str());
-  D2_SIG_mcStatBin1Down->Write();
-  D2_SIG_mcStatBin2Down->Write();
-  D2_SIG_mcStatBin3Down->Write();
-  D2_SIG_mcStatBin4Down->Write();
-  D2_SIG_mcStatBin5Down->Write();
-  D2_SIG_mcStatBin6Down->Write();
-  //D2_SIG_mcStatBin7Down->Write();
-  //D2_SIG_mcStatBin8Down->Write();
-  TH1D* D3_SIG_mcStatBin1Up = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin1Up").c_str());
-  TH1D* D3_SIG_mcStatBin2Up = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin2Up").c_str());
-  TH1D* D3_SIG_mcStatBin3Up = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin3Up").c_str());
-  TH1D* D3_SIG_mcStatBin4Up = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin4Up").c_str());
-  TH1D* D3_SIG_mcStatBin5Up = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin5Up").c_str());
-  TH1D* D3_SIG_mcStatBin6Up = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin6Up").c_str());
-  //TH1D* D3_SIG_mcStatBin7Up = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin7Up").c_str());
-  //TH1D* D3_SIG_mcStatBin8Up = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin8Up").c_str());
-  D3_SIG_mcStatBin1Up->SetName(("D3_SIG_mcStatD3SIGBin1_"+year+"Up").c_str());
-  D3_SIG_mcStatBin2Up->SetName(("D3_SIG_mcStatD3SIGBin2_"+year+"Up").c_str());
-  D3_SIG_mcStatBin3Up->SetName(("D3_SIG_mcStatD3SIGBin3_"+year+"Up").c_str());
-  D3_SIG_mcStatBin4Up->SetName(("D3_SIG_mcStatD3SIGBin4_"+year+"Up").c_str());
-  D3_SIG_mcStatBin5Up->SetName(("D3_SIG_mcStatD3SIGBin5_"+year+"Up").c_str());
-  D3_SIG_mcStatBin6Up->SetName(("D3_SIG_mcStatD3SIGBin6_"+year+"Up").c_str());
-  //D3_SIG_mcStatBin7Up->SetName(("D3_SIG_mcStatD3SIGBin7_"+year+"Up").c_str());
-  //D3_SIG_mcStatBin8Up->SetName(("D3_SIG_mcStatD3SIGBin8_"+year+"Up").c_str());
-  D3_SIG_mcStatBin1Up->Write();
-  D3_SIG_mcStatBin2Up->Write();
-  D3_SIG_mcStatBin3Up->Write();
-  D3_SIG_mcStatBin4Up->Write();
-  D3_SIG_mcStatBin5Up->Write();
-  D3_SIG_mcStatBin6Up->Write();
-  //D3_SIG_mcStatBin7Up->Write();
-  //D3_SIG_mcStatBin8Up->Write();
-  TH1D* D3_SIG_mcStatBin1Down = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin1Down").c_str());
-  TH1D* D3_SIG_mcStatBin2Down = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin2Down").c_str());
-  TH1D* D3_SIG_mcStatBin3Down = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin3Down").c_str());
-  TH1D* D3_SIG_mcStatBin4Down = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin4Down").c_str());
-  TH1D* D3_SIG_mcStatBin5Down = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin5Down").c_str());
-  TH1D* D3_SIG_mcStatBin6Down = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin6Down").c_str());
-  //TH1D* D3_SIG_mcStatBin7Down = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin7Down").c_str());
-  //TH1D* D3_SIG_mcStatBin8Down = (TH1D*)file->Get(("D3_"+model+"_"+mass+"_mcStatBin8Down").c_str());
-  D3_SIG_mcStatBin1Down->SetName(("D3_SIG_mcStatD3SIGBin1_"+year+"Down").c_str());
-  D3_SIG_mcStatBin2Down->SetName(("D3_SIG_mcStatD3SIGBin2_"+year+"Down").c_str());
-  D3_SIG_mcStatBin3Down->SetName(("D3_SIG_mcStatD3SIGBin3_"+year+"Down").c_str());
-  D3_SIG_mcStatBin4Down->SetName(("D3_SIG_mcStatD3SIGBin4_"+year+"Down").c_str());
-  D3_SIG_mcStatBin5Down->SetName(("D3_SIG_mcStatD3SIGBin5_"+year+"Down").c_str());
-  D3_SIG_mcStatBin6Down->SetName(("D3_SIG_mcStatD3SIGBin6_"+year+"Down").c_str());
-  //D3_SIG_mcStatBin7Down->SetName(("D3_SIG_mcStatD3SIGBin7_"+year+"Down").c_str());
-  //D3_SIG_mcStatBin8Down->SetName(("D3_SIG_mcStatD3SIGBin8_"+year+"Down").c_str());
-  D3_SIG_mcStatBin1Down->Write();
-  D3_SIG_mcStatBin2Down->Write();
-  D3_SIG_mcStatBin3Down->Write();
-  D3_SIG_mcStatBin4Down->Write();
-  D3_SIG_mcStatBin5Down->Write();
-  D3_SIG_mcStatBin6Down->Write();
-  //D3_SIG_mcStatBin7Down->Write();
-  //D3_SIG_mcStatBin8Down->Write();
-  TH1D* D4_SIG_mcStatBin1Up = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin1Up").c_str());
-  TH1D* D4_SIG_mcStatBin2Up = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin2Up").c_str());
-  TH1D* D4_SIG_mcStatBin3Up = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin3Up").c_str());
-  TH1D* D4_SIG_mcStatBin4Up = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin4Up").c_str());
-  TH1D* D4_SIG_mcStatBin5Up = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin5Up").c_str());
-  TH1D* D4_SIG_mcStatBin6Up = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin6Up").c_str());
-  //TH1D* D4_SIG_mcStatBin7Up = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin7Up").c_str());
-  //TH1D* D4_SIG_mcStatBin8Up = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin8Up").c_str());
-  D4_SIG_mcStatBin1Up->SetName(("D4_SIG_mcStatD4SIGBin1_"+year+"Up").c_str());
-  D4_SIG_mcStatBin2Up->SetName(("D4_SIG_mcStatD4SIGBin2_"+year+"Up").c_str());
-  D4_SIG_mcStatBin3Up->SetName(("D4_SIG_mcStatD4SIGBin3_"+year+"Up").c_str());
-  D4_SIG_mcStatBin4Up->SetName(("D4_SIG_mcStatD4SIGBin4_"+year+"Up").c_str());
-  D4_SIG_mcStatBin5Up->SetName(("D4_SIG_mcStatD4SIGBin5_"+year+"Up").c_str());
-  D4_SIG_mcStatBin6Up->SetName(("D4_SIG_mcStatD4SIGBin6_"+year+"Up").c_str());
-  //D4_SIG_mcStatBin7Up->SetName(("D4_SIG_mcStatD4SIGBin7_"+year+"Up").c_str());
-  //D4_SIG_mcStatBin8Up->SetName(("D4_SIG_mcStatD4SIGBin8_"+year+"Up").c_str());
-  D4_SIG_mcStatBin1Up->Write();
-  D4_SIG_mcStatBin2Up->Write();
-  D4_SIG_mcStatBin3Up->Write();
-  D4_SIG_mcStatBin4Up->Write();
-  D4_SIG_mcStatBin5Up->Write();
-  D4_SIG_mcStatBin6Up->Write();
-  //D4_SIG_mcStatBin7Up->Write();
-  //D4_SIG_mcStatBin8Up->Write();
-  TH1D* D4_SIG_mcStatBin1Down = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin1Down").c_str());
-  TH1D* D4_SIG_mcStatBin2Down = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin2Down").c_str());
-  TH1D* D4_SIG_mcStatBin3Down = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin3Down").c_str());
-  TH1D* D4_SIG_mcStatBin4Down = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin4Down").c_str());
-  TH1D* D4_SIG_mcStatBin5Down = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin5Down").c_str());
-  TH1D* D4_SIG_mcStatBin6Down = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin6Down").c_str());
-  //TH1D* D4_SIG_mcStatBin7Down = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin7Down").c_str());
-  //TH1D* D4_SIG_mcStatBin8Down = (TH1D*)file->Get(("D4_"+model+"_"+mass+"_mcStatBin8Down").c_str());
-  D4_SIG_mcStatBin1Down->SetName(("D4_SIG_mcStatD4SIGBin1_"+year+"Down").c_str());
-  D4_SIG_mcStatBin2Down->SetName(("D4_SIG_mcStatD4SIGBin2_"+year+"Down").c_str());
-  D4_SIG_mcStatBin3Down->SetName(("D4_SIG_mcStatD4SIGBin3_"+year+"Down").c_str());
-  D4_SIG_mcStatBin4Down->SetName(("D4_SIG_mcStatD4SIGBin4_"+year+"Down").c_str());
-  D4_SIG_mcStatBin5Down->SetName(("D4_SIG_mcStatD4SIGBin5_"+year+"Down").c_str());
-  D4_SIG_mcStatBin6Down->SetName(("D4_SIG_mcStatD4SIGBin6_"+year+"Down").c_str());
-  //D4_SIG_mcStatBin7Down->SetName(("D4_SIG_mcStatD4SIGBin7_"+year+"Down").c_str());
-  //D4_SIG_mcStatBin8Down->SetName(("D4_SIG_mcStatD4SIGBin8_"+year+"Down").c_str());
-  D4_SIG_mcStatBin1Down->Write();
-  D4_SIG_mcStatBin2Down->Write();
-  D4_SIG_mcStatBin3Down->Write();
-  D4_SIG_mcStatBin4Down->Write();
-  D4_SIG_mcStatBin5Down->Write();
-  D4_SIG_mcStatBin6Down->Write();
-  //D4_SIG_mcStatBin7Down->Write();
-  //D4_SIG_mcStatBin8Down->Write();
+  // MC stat uncertainty histograms
+  const std::vector<std::string>& nJetBin = {"1","2","3","4","5","6"};
+  for(const auto& i : nJetBin)
+  {
+      // Particular signal model and mass point
+      WriteHisto2WS<TH1D>(file, model+"_"+mass+"_mcStatBin"+i+"Up",   i+"_"+year+"Up",   {"D1","D2","D3","D4"}, "SIG");      
+      WriteHisto2WS<TH1D>(file, model+"_"+mass+"_mcStatBin"+i+"Down", i+"_"+year+"Down", {"D1","D2","D3","D4"}, "SIG");      
 
-  // MC stat uncertainty histograms for OTHER backgrounds
-  TH1D* D1_OTHER_mcStatBin1Up = (TH1D*)file->Get("D1_OTHER_mcStatBin1Up");
-  TH1D* D1_OTHER_mcStatBin2Up = (TH1D*)file->Get("D1_OTHER_mcStatBin2Up");
-  TH1D* D1_OTHER_mcStatBin3Up = (TH1D*)file->Get("D1_OTHER_mcStatBin3Up");
-  TH1D* D1_OTHER_mcStatBin4Up = (TH1D*)file->Get("D1_OTHER_mcStatBin4Up");
-  TH1D* D1_OTHER_mcStatBin5Up = (TH1D*)file->Get("D1_OTHER_mcStatBin5Up");
-  TH1D* D1_OTHER_mcStatBin6Up = (TH1D*)file->Get("D1_OTHER_mcStatBin6Up");
-  //TH1D* D1_OTHER_mcStatBin7Up = (TH1D*)file->Get("D1_OTHER_mcStatBin7Up");
-  //TH1D* D1_OTHER_mcStatBin8Up = (TH1D*)file->Get("D1_OTHER_mcStatBin8Up");
-  D1_OTHER_mcStatBin1Up->SetName(("D1_OTHER_mcStatD1OTHERBin1_"+year+"Up").c_str());
-  D1_OTHER_mcStatBin2Up->SetName(("D1_OTHER_mcStatD1OTHERBin2_"+year+"Up").c_str());
-  D1_OTHER_mcStatBin3Up->SetName(("D1_OTHER_mcStatD1OTHERBin3_"+year+"Up").c_str());
-  D1_OTHER_mcStatBin4Up->SetName(("D1_OTHER_mcStatD1OTHERBin4_"+year+"Up").c_str());
-  D1_OTHER_mcStatBin5Up->SetName(("D1_OTHER_mcStatD1OTHERBin5_"+year+"Up").c_str());
-  D1_OTHER_mcStatBin6Up->SetName(("D1_OTHER_mcStatD1OTHERBin6_"+year+"Up").c_str());
-  //D1_OTHER_mcStatBin7Up->SetName(("D1_OTHER_mcStatD1OTHERBin7_"+year+"Up").c_str());
-  //D1_OTHER_mcStatBin8Up->SetName(("D1_OTHER_mcStatD1OTHERBin8_"+year+"Up").c_str());
-  D1_OTHER_mcStatBin1Up->Write();
-  D1_OTHER_mcStatBin2Up->Write();
-  D1_OTHER_mcStatBin3Up->Write();
-  D1_OTHER_mcStatBin4Up->Write();
-  D1_OTHER_mcStatBin5Up->Write();
-  D1_OTHER_mcStatBin6Up->Write();
-  //D1_OTHER_mcStatBin7Up->Write();
-  //D1_OTHER_mcStatBin8Up->Write();
-  TH1D* D1_OTHER_mcStatBin1Down = (TH1D*)file->Get("D1_OTHER_mcStatBin1Down");
-  TH1D* D1_OTHER_mcStatBin2Down = (TH1D*)file->Get("D1_OTHER_mcStatBin2Down");
-  TH1D* D1_OTHER_mcStatBin3Down = (TH1D*)file->Get("D1_OTHER_mcStatBin3Down");
-  TH1D* D1_OTHER_mcStatBin4Down = (TH1D*)file->Get("D1_OTHER_mcStatBin4Down");
-  TH1D* D1_OTHER_mcStatBin5Down = (TH1D*)file->Get("D1_OTHER_mcStatBin5Down");
-  TH1D* D1_OTHER_mcStatBin6Down = (TH1D*)file->Get("D1_OTHER_mcStatBin6Down");
-  //TH1D* D1_OTHER_mcStatBin7Down = (TH1D*)file->Get("D1_OTHER_mcStatBin7Down");
-  //TH1D* D1_OTHER_mcStatBin8Down = (TH1D*)file->Get("D1_OTHER_mcStatBin8Down");
-  D1_OTHER_mcStatBin1Down->SetName(("D1_OTHER_mcStatD1OTHERBin1_"+year+"Down").c_str());
-  D1_OTHER_mcStatBin2Down->SetName(("D1_OTHER_mcStatD1OTHERBin2_"+year+"Down").c_str());
-  D1_OTHER_mcStatBin3Down->SetName(("D1_OTHER_mcStatD1OTHERBin3_"+year+"Down").c_str());
-  D1_OTHER_mcStatBin4Down->SetName(("D1_OTHER_mcStatD1OTHERBin4_"+year+"Down").c_str());
-  D1_OTHER_mcStatBin5Down->SetName(("D1_OTHER_mcStatD1OTHERBin5_"+year+"Down").c_str());
-  D1_OTHER_mcStatBin6Down->SetName(("D1_OTHER_mcStatD1OTHERBin6_"+year+"Down").c_str());
-  //D1_OTHER_mcStatBin7Down->SetName(("D1_OTHER_mcStatD1OTHERBin7_"+year+"Down").c_str());
-  //D1_OTHER_mcStatBin8Down->SetName(("D1_OTHER_mcStatD1OTHERBin8_"+year+"Down").c_str());
-  D1_OTHER_mcStatBin1Down->Write();
-  D1_OTHER_mcStatBin2Down->Write();
-  D1_OTHER_mcStatBin3Down->Write();
-  D1_OTHER_mcStatBin4Down->Write();
-  D1_OTHER_mcStatBin5Down->Write();
-  D1_OTHER_mcStatBin6Down->Write();
-  //D1_OTHER_mcStatBin7Down->Write();
-  //D1_OTHER_mcStatBin8Down->Write();
-  TH1D* D2_OTHER_mcStatBin1Up = (TH1D*)file->Get("D2_OTHER_mcStatBin1Up");
-  TH1D* D2_OTHER_mcStatBin2Up = (TH1D*)file->Get("D2_OTHER_mcStatBin2Up");
-  TH1D* D2_OTHER_mcStatBin3Up = (TH1D*)file->Get("D2_OTHER_mcStatBin3Up");
-  TH1D* D2_OTHER_mcStatBin4Up = (TH1D*)file->Get("D2_OTHER_mcStatBin4Up");
-  TH1D* D2_OTHER_mcStatBin5Up = (TH1D*)file->Get("D2_OTHER_mcStatBin5Up");
-  TH1D* D2_OTHER_mcStatBin6Up = (TH1D*)file->Get("D2_OTHER_mcStatBin6Up");
-  //TH1D* D2_OTHER_mcStatBin7Up = (TH1D*)file->Get("D2_OTHER_mcStatBin7Up");
-  //TH1D* D2_OTHER_mcStatBin8Up = (TH1D*)file->Get("D2_OTHER_mcStatBin8Up");
-  D2_OTHER_mcStatBin1Up->SetName(("D2_OTHER_mcStatD2OTHERBin1_"+year+"Up").c_str());
-  D2_OTHER_mcStatBin2Up->SetName(("D2_OTHER_mcStatD2OTHERBin2_"+year+"Up").c_str());
-  D2_OTHER_mcStatBin3Up->SetName(("D2_OTHER_mcStatD2OTHERBin3_"+year+"Up").c_str());
-  D2_OTHER_mcStatBin4Up->SetName(("D2_OTHER_mcStatD2OTHERBin4_"+year+"Up").c_str());
-  D2_OTHER_mcStatBin5Up->SetName(("D2_OTHER_mcStatD2OTHERBin5_"+year+"Up").c_str());
-  D2_OTHER_mcStatBin6Up->SetName(("D2_OTHER_mcStatD2OTHERBin6_"+year+"Up").c_str());
-  //D2_OTHER_mcStatBin7Up->SetName(("D2_OTHER_mcStatD2OTHERBin7_"+year+"Up").c_str());
-  //D2_OTHER_mcStatBin8Up->SetName(("D2_OTHER_mcStatD2OTHERBin8_"+year+"Up").c_str());
-  D2_OTHER_mcStatBin1Up->Write();
-  D2_OTHER_mcStatBin2Up->Write();
-  D2_OTHER_mcStatBin3Up->Write();
-  D2_OTHER_mcStatBin4Up->Write();
-  D2_OTHER_mcStatBin5Up->Write();
-  D2_OTHER_mcStatBin6Up->Write();
-  //D2_OTHER_mcStatBin7Up->Write();
-  //D2_OTHER_mcStatBin8Up->Write();
-  TH1D* D2_OTHER_mcStatBin1Down = (TH1D*)file->Get("D2_OTHER_mcStatBin1Down");
-  TH1D* D2_OTHER_mcStatBin2Down = (TH1D*)file->Get("D2_OTHER_mcStatBin2Down");
-  TH1D* D2_OTHER_mcStatBin3Down = (TH1D*)file->Get("D2_OTHER_mcStatBin3Down");
-  TH1D* D2_OTHER_mcStatBin4Down = (TH1D*)file->Get("D2_OTHER_mcStatBin4Down");
-  TH1D* D2_OTHER_mcStatBin5Down = (TH1D*)file->Get("D2_OTHER_mcStatBin5Down");
-  TH1D* D2_OTHER_mcStatBin6Down = (TH1D*)file->Get("D2_OTHER_mcStatBin6Down");
-  //TH1D* D2_OTHER_mcStatBin7Down = (TH1D*)file->Get("D2_OTHER_mcStatBin7Down");
-  //TH1D* D2_OTHER_mcStatBin8Down = (TH1D*)file->Get("D2_OTHER_mcStatBin8Down");
-  D2_OTHER_mcStatBin1Down->SetName(("D2_OTHER_mcStatD2OTHERBin1_"+year+"Down").c_str());
-  D2_OTHER_mcStatBin2Down->SetName(("D2_OTHER_mcStatD2OTHERBin2_"+year+"Down").c_str());
-  D2_OTHER_mcStatBin3Down->SetName(("D2_OTHER_mcStatD2OTHERBin3_"+year+"Down").c_str());
-  D2_OTHER_mcStatBin4Down->SetName(("D2_OTHER_mcStatD2OTHERBin4_"+year+"Down").c_str());
-  D2_OTHER_mcStatBin5Down->SetName(("D2_OTHER_mcStatD2OTHERBin5_"+year+"Down").c_str());
-  D2_OTHER_mcStatBin6Down->SetName(("D2_OTHER_mcStatD2OTHERBin6_"+year+"Down").c_str());
-  //D2_OTHER_mcStatBin7Down->SetName(("D2_OTHER_mcStatD2OTHERBin7_"+year+"Down").c_str());
-  //D2_OTHER_mcStatBin8Down->SetName(("D2_OTHER_mcStatD2OTHERBin8_"+year+"Down").c_str());
-  D2_OTHER_mcStatBin1Down->Write();
-  D2_OTHER_mcStatBin2Down->Write();
-  D2_OTHER_mcStatBin3Down->Write();
-  D2_OTHER_mcStatBin4Down->Write();
-  D2_OTHER_mcStatBin5Down->Write();
-  D2_OTHER_mcStatBin6Down->Write();
-  //D2_OTHER_mcStatBin7Down->Write();
-  //D2_OTHER_mcStatBin8Down->Write();
-  TH1D* D3_OTHER_mcStatBin1Up = (TH1D*)file->Get("D3_OTHER_mcStatBin1Up");
-  TH1D* D3_OTHER_mcStatBin2Up = (TH1D*)file->Get("D3_OTHER_mcStatBin2Up");
-  TH1D* D3_OTHER_mcStatBin3Up = (TH1D*)file->Get("D3_OTHER_mcStatBin3Up");
-  TH1D* D3_OTHER_mcStatBin4Up = (TH1D*)file->Get("D3_OTHER_mcStatBin4Up");
-  TH1D* D3_OTHER_mcStatBin5Up = (TH1D*)file->Get("D3_OTHER_mcStatBin5Up");
-  TH1D* D3_OTHER_mcStatBin6Up = (TH1D*)file->Get("D3_OTHER_mcStatBin6Up");
-  //TH1D* D3_OTHER_mcStatBin7Up = (TH1D*)file->Get("D3_OTHER_mcStatBin7Up");
-  //TH1D* D3_OTHER_mcStatBin8Up = (TH1D*)file->Get("D3_OTHER_mcStatBin8Up");
-  D3_OTHER_mcStatBin1Up->SetName(("D3_OTHER_mcStatD3OTHERBin1_"+year+"Up").c_str());
-  D3_OTHER_mcStatBin2Up->SetName(("D3_OTHER_mcStatD3OTHERBin2_"+year+"Up").c_str());
-  D3_OTHER_mcStatBin3Up->SetName(("D3_OTHER_mcStatD3OTHERBin3_"+year+"Up").c_str());
-  D3_OTHER_mcStatBin4Up->SetName(("D3_OTHER_mcStatD3OTHERBin4_"+year+"Up").c_str());
-  D3_OTHER_mcStatBin5Up->SetName(("D3_OTHER_mcStatD3OTHERBin5_"+year+"Up").c_str());
-  D3_OTHER_mcStatBin6Up->SetName(("D3_OTHER_mcStatD3OTHERBin6_"+year+"Up").c_str());
-  //D3_OTHER_mcStatBin7Up->SetName(("D3_OTHER_mcStatD3OTHERBin7_"+year+"Up").c_str());
-  //D3_OTHER_mcStatBin8Up->SetName(("D3_OTHER_mcStatD3OTHERBin8_"+year+"Up").c_str());
-  D3_OTHER_mcStatBin1Up->Write();
-  D3_OTHER_mcStatBin2Up->Write();
-  D3_OTHER_mcStatBin3Up->Write();
-  D3_OTHER_mcStatBin4Up->Write();
-  D3_OTHER_mcStatBin5Up->Write();
-  D3_OTHER_mcStatBin6Up->Write();
-  //D3_OTHER_mcStatBin7Up->Write();
-  //D3_OTHER_mcStatBin8Up->Write();
-  TH1D* D3_OTHER_mcStatBin1Down = (TH1D*)file->Get("D3_OTHER_mcStatBin1Down");
-  TH1D* D3_OTHER_mcStatBin2Down = (TH1D*)file->Get("D3_OTHER_mcStatBin2Down");
-  TH1D* D3_OTHER_mcStatBin3Down = (TH1D*)file->Get("D3_OTHER_mcStatBin3Down");
-  TH1D* D3_OTHER_mcStatBin4Down = (TH1D*)file->Get("D3_OTHER_mcStatBin4Down");
-  TH1D* D3_OTHER_mcStatBin5Down = (TH1D*)file->Get("D3_OTHER_mcStatBin5Down");
-  TH1D* D3_OTHER_mcStatBin6Down = (TH1D*)file->Get("D3_OTHER_mcStatBin6Down");
-  //TH1D* D3_OTHER_mcStatBin7Down = (TH1D*)file->Get("D3_OTHER_mcStatBin7Down");
-  //TH1D* D3_OTHER_mcStatBin8Down = (TH1D*)file->Get("D3_OTHER_mcStatBin8Down");
-  D3_OTHER_mcStatBin1Down->SetName(("D3_OTHER_mcStatD3OTHERBin1_"+year+"Down").c_str());
-  D3_OTHER_mcStatBin2Down->SetName(("D3_OTHER_mcStatD3OTHERBin2_"+year+"Down").c_str());
-  D3_OTHER_mcStatBin3Down->SetName(("D3_OTHER_mcStatD3OTHERBin3_"+year+"Down").c_str());
-  D3_OTHER_mcStatBin4Down->SetName(("D3_OTHER_mcStatD3OTHERBin4_"+year+"Down").c_str());
-  D3_OTHER_mcStatBin5Down->SetName(("D3_OTHER_mcStatD3OTHERBin5_"+year+"Down").c_str());
-  D3_OTHER_mcStatBin6Down->SetName(("D3_OTHER_mcStatD3OTHERBin6_"+year+"Down").c_str());
-  //D3_OTHER_mcStatBin7Down->SetName(("D3_OTHER_mcStatD3OTHERBin7_"+year+"Down").c_str());
-  //D3_OTHER_mcStatBin8Down->SetName(("D3_OTHER_mcStatD3OTHERBin8_"+year+"Down").c_str());
-  D3_OTHER_mcStatBin1Down->Write();
-  D3_OTHER_mcStatBin2Down->Write();
-  D3_OTHER_mcStatBin3Down->Write();
-  D3_OTHER_mcStatBin4Down->Write();
-  D3_OTHER_mcStatBin5Down->Write();
-  D3_OTHER_mcStatBin6Down->Write();
-  //D3_OTHER_mcStatBin7Down->Write();
-  //D3_OTHER_mcStatBin8Down->Write();
-  TH1D* D4_OTHER_mcStatBin1Up = (TH1D*)file->Get("D4_OTHER_mcStatBin1Up");
-  TH1D* D4_OTHER_mcStatBin2Up = (TH1D*)file->Get("D4_OTHER_mcStatBin2Up");
-  TH1D* D4_OTHER_mcStatBin3Up = (TH1D*)file->Get("D4_OTHER_mcStatBin3Up");
-  TH1D* D4_OTHER_mcStatBin4Up = (TH1D*)file->Get("D4_OTHER_mcStatBin4Up");
-  TH1D* D4_OTHER_mcStatBin5Up = (TH1D*)file->Get("D4_OTHER_mcStatBin5Up");
-  TH1D* D4_OTHER_mcStatBin6Up = (TH1D*)file->Get("D4_OTHER_mcStatBin6Up");
-  //TH1D* D4_OTHER_mcStatBin7Up = (TH1D*)file->Get("D4_OTHER_mcStatBin7Up");
-  //TH1D* D4_OTHER_mcStatBin8Up = (TH1D*)file->Get("D4_OTHER_mcStatBin8Up");
-  D4_OTHER_mcStatBin1Up->SetName(("D4_OTHER_mcStatD4OTHERBin1_"+year+"Up").c_str());
-  D4_OTHER_mcStatBin2Up->SetName(("D4_OTHER_mcStatD4OTHERBin2_"+year+"Up").c_str());
-  D4_OTHER_mcStatBin3Up->SetName(("D4_OTHER_mcStatD4OTHERBin3_"+year+"Up").c_str());
-  D4_OTHER_mcStatBin4Up->SetName(("D4_OTHER_mcStatD4OTHERBin4_"+year+"Up").c_str());
-  D4_OTHER_mcStatBin5Up->SetName(("D4_OTHER_mcStatD4OTHERBin5_"+year+"Up").c_str());
-  D4_OTHER_mcStatBin6Up->SetName(("D4_OTHER_mcStatD4OTHERBin6_"+year+"Up").c_str());
-  //D4_OTHER_mcStatBin7Up->SetName(("D4_OTHER_mcStatD4OTHERBin7_"+year+"Up").c_str());
-  //D4_OTHER_mcStatBin8Up->SetName(("D4_OTHER_mcStatD4OTHERBin8_"+year+"Up").c_str());
-  D4_OTHER_mcStatBin1Up->Write();
-  D4_OTHER_mcStatBin2Up->Write();
-  D4_OTHER_mcStatBin3Up->Write();
-  D4_OTHER_mcStatBin4Up->Write();
-  D4_OTHER_mcStatBin5Up->Write();
-  D4_OTHER_mcStatBin6Up->Write();
-  //D4_OTHER_mcStatBin7Up->Write();
-  //D4_OTHER_mcStatBin8Up->Write();
-  TH1D* D4_OTHER_mcStatBin1Down = (TH1D*)file->Get("D4_OTHER_mcStatBin1Down");
-  TH1D* D4_OTHER_mcStatBin2Down = (TH1D*)file->Get("D4_OTHER_mcStatBin2Down");
-  TH1D* D4_OTHER_mcStatBin3Down = (TH1D*)file->Get("D4_OTHER_mcStatBin3Down");
-  TH1D* D4_OTHER_mcStatBin4Down = (TH1D*)file->Get("D4_OTHER_mcStatBin4Down");
-  TH1D* D4_OTHER_mcStatBin5Down = (TH1D*)file->Get("D4_OTHER_mcStatBin5Down");
-  TH1D* D4_OTHER_mcStatBin6Down = (TH1D*)file->Get("D4_OTHER_mcStatBin6Down");
-  //TH1D* D4_OTHER_mcStatBin7Down = (TH1D*)file->Get("D4_OTHER_mcStatBin7Down");
-  //TH1D* D4_OTHER_mcStatBin8Down = (TH1D*)file->Get("D4_OTHER_mcStatBin8Down");
-  D4_OTHER_mcStatBin1Down->SetName(("D4_OTHER_mcStatD4OTHERBin1_"+year+"Down").c_str());
-  D4_OTHER_mcStatBin2Down->SetName(("D4_OTHER_mcStatD4OTHERBin2_"+year+"Down").c_str());
-  D4_OTHER_mcStatBin3Down->SetName(("D4_OTHER_mcStatD4OTHERBin3_"+year+"Down").c_str());
-  D4_OTHER_mcStatBin4Down->SetName(("D4_OTHER_mcStatD4OTHERBin4_"+year+"Down").c_str());
-  D4_OTHER_mcStatBin5Down->SetName(("D4_OTHER_mcStatD4OTHERBin5_"+year+"Down").c_str());
-  D4_OTHER_mcStatBin6Down->SetName(("D4_OTHER_mcStatD4OTHERBin6_"+year+"Down").c_str());
-  //D4_OTHER_mcStatBin7Down->SetName(("D4_OTHER_mcStatD4OTHERBin7_"+year+"Down").c_str());
-  //D4_OTHER_mcStatBin8Down->SetName(("D4_OTHER_mcStatD4OTHERBin8_"+year+"Down").c_str());
-  D4_OTHER_mcStatBin1Down->Write();
-  D4_OTHER_mcStatBin2Down->Write();
-  D4_OTHER_mcStatBin3Down->Write();
-  D4_OTHER_mcStatBin4Down->Write();
-  D4_OTHER_mcStatBin5Down->Write();
-  D4_OTHER_mcStatBin6Down->Write();
-  //D4_OTHER_mcStatBin7Down->Write();
-  //D4_OTHER_mcStatBin8Down->Write();
+      // OTHER backgrounds
+      WriteHisto2WS<TH1D>(file, "OTHER_mcStatBin"+i+"Up",   i+"_"+year+"Up",   {"D1","D2","D3","D4"}, "OTHER");      
+      WriteHisto2WS<TH1D>(file, "OTHER_mcStatBin"+i+"Down", i+"_"+year+"Down", {"D1","D2","D3","D4"}, "OTHER");      
 
+      // QCD backgrounds
+      WriteHisto2WS<TH1D>(file, "QCD_mcStatBin"+i+"Up",   i+"_"+year+"Up",   {"D1","D2","D3","D4"}, "QCD");      
+      WriteHisto2WS<TH1D>(file, "QCD_mcStatBin"+i+"Down", i+"_"+year+"Down", {"D1","D2","D3","D4"}, "QCD");      
+
+      // TTX backgrounds
+      WriteHisto2WS<TH1D>(file, "TTX_mcStatBin"+i+"Up",   i+"_"+year+"Up",   {"D1","D2","D3","D4"}, "TTX");      
+      WriteHisto2WS<TH1D>(file, "TTX_mcStatBin"+i+"Down", i+"_"+year+"Down", {"D1","D2","D3","D4"}, "TTX");      
+  }
+
+  //Finally write out the work space
   wspace->Write();
   
   // TCanvas *c1 = new TCanvas("c1","c1");
