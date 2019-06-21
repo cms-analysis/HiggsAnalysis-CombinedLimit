@@ -58,7 +58,7 @@ def main():
         doMulti=1
 
     executable = "run_fits.tcsh"
-    if options.toy:
+    if options.toy or options.toyS:
         executable = "run_toys.tcsh"
 
     fileParts = []
