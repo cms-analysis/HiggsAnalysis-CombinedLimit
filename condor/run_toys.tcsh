@@ -60,8 +60,10 @@ root -l -q -b 'make_MVA_8bin_ws.C("2017","'${inputRoot2017}'","'${signalType}'",
 text2workspace.py Card${year}.txt -o ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType}
 
 if ($doToyS == 1) then
+    printf "\n\n Running sig. toys\n"
     combine -M HybridNew --LHCmode LHC-significance ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -n ${year} --saveToys --saveHybridResult -T ${numToys} -s ${seed} --fullBToys -i ${iterations}> log_${year}${signalType}${mass}_${rVal}_${seed}_HybridNew.txt
 else
+    printf "\n\n Running limit toys\n"
     combine -M HybridNew --LHCmode LHC-limits       ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -n ${year} --saveToys --saveHybridResult -T ${numToys} -s ${seed} --fullBToys --singlePoint ${rVal} --clsAcc 0 > log_${year}${signalType}${mass}_${rVal}_${seed}_HybridNew.txt
 endif
 
