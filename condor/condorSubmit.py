@@ -33,12 +33,16 @@ def main():
     parser.add_option ('--output',      dest='outPath',        type='string', default = '.',               help="Name of directory where output of each condor job goes")
     parser.add_option ('--inject',      dest='inject',         type='float',  default = 0,                 help="Inject signal at signal strength specified")
 
-    parser.add_option ('--toy',         dest='toy',      action='store_true', default = False,             help="Submit toy jobs instead of the normal set of fits")
+    parser.add_option ('--toy',         dest='toy',      action='store_true', default = False,             help="Limits: Submit toy jobs instead of the normal set of fits")
     parser.add_option ('-T',            dest='numToys',        type='int',    default = 1000,              help="Specify number of toys per job")
     parser.add_option ('--rMin',        dest='rMin',           type='float',  default = 0.05,              help="Specify minimum r value")
     parser.add_option ('--rMax',        dest='rMax',           type='float',  default = 1.00,              help="Specify maximum r value")
     parser.add_option ('--rStep',       dest='rStep',          type='float',  default = 0.05,              help="Specify step size")
     parser.add_option ('--jPerR',       dest='jPerR',          type='int',    default = 5,                 help="Specify jobs per r setting")
+
+    parser.add_option ('--toyS',        dest='toyS',     action='store_true', default = False,             help="Sig.:   Submit toy jobs instead of the normal set of fits")
+    parser.add_option ('--nJobs',       dest='numJobs',        type='int',    default = -1,                help="Can specify the number of jobs for toyS")
+    parser.add_option ('-i',            dest='iterations',     type='int',    default =  1,                help="Can specify the number of iterations for toyS")
 
     options, args = parser.parse_args()
     signalType = getOptionList(options.signalType, "No dataset specified")
@@ -47,6 +51,7 @@ def main():
     doAsym = 1 if options.doAsym else 0
     doFitDiag = 1 if options.doFitDiag else 0
     doMulti = 1 if options.doMulti else 0
+    doToyS = 1 if options.toyS else 0 
     if not doAsym and not doFitDiag and not doMulti:
         doAsym=1
         doFitDiag=1
@@ -76,7 +81,7 @@ def main():
             if not os.path.isdir("%s/output-files/%s" % (options.outPath, outDir)):
                 os.makedirs("%s/output-files/%s" % (options.outPath, outDir))
     
-            if not options.toy:
+            if not options.toy and not options.toyS:
                 outputFiles = [
                     "higgsCombine%s.AsymptoticLimits.mH%s.MODEL%s.root" % (options.year, mass, st),
                     "higgsCombine%s%s%s.FitDiagnostics.mH%s.MODEL%s.root" % (options.year, st, mass, mass, st),
@@ -112,11 +117,21 @@ def main():
                 fileParts.append("Queue\n\n")
             else:
                 nSteps = int(round((options.rMax - options.rMin)/options.rStep))
-                for x in range(0, nSteps+1):           
+                jPerR = options.jPerR                
+                if options.toyS: 
+                    print "Running toyS"
+                    nSteps = options.numJobs - 1
+                    jPerR = 1
+
+                for x in range(0, nSteps+1):                               
                     r = options.rMin + float(x)*options.rStep 
-                    print "    r = ", r
+                    if options.toyS:
+                        r = 0
+                        print "    i = ", options.iterations
+                    else:
+                        print "    r = ", r
                 
-                    for y in range(options.jPerR):                        
+                    for y in range(jPerR):                        
                         print "        seed = ", seed
 
                         outputFiles = [
@@ -135,8 +150,8 @@ def main():
                         transfer += "\"\n"
 
                         fileParts.append(transfer)
-                        fileParts.append("Arguments = %s %s %s %s %s %s %s %s %s\n" % (options.inputRoot2016, options.inputRoot2017, st, mass, options.year, 
-                                                                                       options.dataType, str(r), str(seed), str(options.numToys)))
+                        fileParts.append("Arguments = %s %s %s %s %s %s %s %s %s %s %s\n" % (options.inputRoot2016, options.inputRoot2017, st, mass, options.year, 
+                                                                                             options.dataType, str(r), str(seed), str(options.numToys), str(options.iterations), str(doToyS)))
                         fileParts.append("Output = %s/log-files/MyFit_%s_%s_%s_%s.stdout\n"%(options.outPath, st, mass, str(r), str(seed)))
                         fileParts.append("Error = %s/log-files/MyFit_%s_%s_%s_%s.stderr\n"%(options.outPath, st, mass, str(r), str(seed)))
                         fileParts.append("Log = %s/log-files/MyFit_%s_%s_%s_%s.log\n"%(options.outPath, st, mass, str(r), str(seed)))
