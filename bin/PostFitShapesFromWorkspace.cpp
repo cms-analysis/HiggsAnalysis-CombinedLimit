@@ -167,6 +167,7 @@ int main(int argc, char* argv[]) {
   // cmb.GetParameter("r")->set_frozen(true);
 
   ch::CombineHarvester cmb_card;
+  cmb_card.SetFlag("workspaces-use-clone",true);
   if (datacard != "") {
     cmb_card.ParseDatacard(datacard, "", "", "", 0, mass);
   }
