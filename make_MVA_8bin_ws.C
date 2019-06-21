@@ -756,10 +756,12 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_btgDown", "OTHER_btg_"+year+"Down", {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_lepUp",   "OTHER_lep_"+year+"Up",   {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_lepDown", "OTHER_lep_"+year+"Down", {"D1","D2","D3","D4"});
-  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_htUp",    "OTHER_ht_"+year+"Up",    {"D1","D2","D3","D4"});
-  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_htDown",  "OTHER_ht_"+year+"Down",  {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_pdfUp",   "OTHER_pdfUp",            {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_pdfDown", "OTHER_pdfDown",          {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_sclUp",   "OTHER_sclUp",            {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_sclDown", "OTHER_sclDown",          {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_htUp",    "OTHER_ht_"+year+"Up",    {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_htDown",  "OTHER_ht_"+year+"Down",  {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_puUp",    "OTHER_pu_"+year+"Up",    {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "OTHER_h_njets_pt30_1l_puDown",  "OTHER_pu_"+year+"Down",  {"D1","D2","D3","D4"});
     
@@ -772,10 +774,12 @@ void make_MVA_8bin_ws(const std::string year = "2016", const std::string infile_
   WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_btgDown", "TTX_btg_"+year+"Down", {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_lepUp",   "TTX_lep_"+year+"Up",   {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_lepDown", "TTX_lep_"+year+"Down", {"D1","D2","D3","D4"});
-  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_htUp",    "TTX_ht_"+year+"Up",    {"D1","D2","D3","D4"});
-  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_htDown",  "TTX_ht_"+year+"Down",  {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_pdfUp",   "TTX_pdfUp",            {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_pdfDown", "TTX_pdfDown",          {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_sclUp",   "TTX_sclUp",            {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_sclDown", "TTX_sclDown",          {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_htUp",    "TTX_ht_"+year+"Up",    {"D1","D2","D3","D4"});
+  WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_htDown",  "TTX_ht_"+year+"Down",  {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_puUp",    "TTX_pu_"+year+"Up",    {"D1","D2","D3","D4"});
   WriteHisto2WS<TH1D>(file, "TTX_h_njets_pt30_1l_puDown",  "TTX_pu_"+year+"Down",  {"D1","D2","D3","D4"});    
     
