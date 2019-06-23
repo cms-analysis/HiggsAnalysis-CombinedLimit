@@ -98,7 +98,18 @@ double tailReal(TTree *t, std::string br, double cv, int mode){
     return ((double)tpass)/ttotal;
 }
 
+void tailCount(TTree *t, std::string br, double cv, int mode, int& tpass, int& ttotal){
 
+    if (br=="qB") {
+    	if (mode==0) tpass = t->Draw("max(2*q,0)>>qTMP",Form("weight*(type==-1 && max(2*q,0)> %g)",cv));
+        else tpass = t->Draw("2*q>>qTMP",Form("weight*(type==-1 && 2*q < %g)",cv));
+	ttotal = t->Draw("2*q>>whatever","weight*(type==-1)");
+    } else if (br=="qS"){
+        if (mode==0) tpass = t->Draw("max(2*q,0)>>qTMP",Form("weight*(type==+1 && max(2*q,0)> %g)",cv),"");
+        else tpass  =  t->Draw("2*q>>qTMP",Form("weight*(type==+1 && 2*q < %g)",cv),"");
+	ttotal = t->Draw("2*q>>whatever","weight*(type==+1)");
+    }
+}
 
 TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
 
@@ -107,7 +118,7 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     if (t == 0) { std::cerr << "File " << gFile->GetName() << " does not contain a tree called 'q'" << std::endl; return 0; }
 
     TCanvas *c1 = new TCanvas("c1","c1");
-    c1->SetBottomMargin(0.15);
+    c1->SetBottomMargin(0.15);    
     
     TH1F *qB;
     TH1F *qS;
@@ -139,6 +150,8 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
 
     double clB;
     clB  = tailReal(t,"qB",qObs,0);
+    int tpass=0, ttotal=0;
+    tailCount(t,"qB",qObs,0,tpass,ttotal);
 
     double clBerr  = sqrt(clB*(1-clB)/nB);
     double sig = RooStats::PValueToSignificance(clB);
@@ -161,13 +174,14 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     leg1->AddEntry(qB, "expected for Null", "L");
     leg1->AddEntry(qO, "observed value", "L");
 
-    TLegend *leg2 = new TLegend(.58,.67,.93,.54);
+    TLegend *leg2 = new TLegend(.45,.67,.93,.54);
     leg2->SetFillColor(0);
     leg2->SetShadowColor(0);
     leg2->SetTextFont(42);
     leg2->SetTextSize(0.04);
     leg2->SetLineColor(1);
-    leg2->AddEntry(qB1, Form("CL_{b}   = %.4f (%.1f#sigma)", clB,sig), "F");
+    leg2->AddEntry(qB1, Form("CL_{b} = #frac{%i}{%i} = %.4f (%.1f#sigma)",tpass,ttotal,clB,sig), "F");
+    qB->SetStats(0);
     qB->Draw();
     qB1->Draw("HIST SAME"); 
     qO->Draw(); 
@@ -177,7 +191,7 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     leg2->Draw();
     qB->SetTitle("");
     qB->GetYaxis()->SetTitle("");
-    qB->GetXaxis()->SetTitle(Form("q_{0}(m_{H} = %g GeV)",mass));
+    qB->GetXaxis()->SetTitle(Form("q_{0}(m_{#tilde{t}} = %g GeV)",mass));
     qB->GetXaxis()->SetTitleOffset(1.05);
     
     c1->SetName(Form("q0_%.1f",mass));
@@ -333,7 +347,7 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     leg2->Draw();
     qB->SetTitle("");
     qB->GetYaxis()->SetTitle("");
-    qB->GetXaxis()->SetTitle(Form("q_{%s}(%s = %g, m_{H} = %g GeV)",poinam.c_str(),poinam.c_str(),poival,mass));
+    qB->GetXaxis()->SetTitle(Form("q_{%s}(%s = %g, m_{#tilde{t}} = %g GeV)",poinam.c_str(),poinam.c_str(),poival,mass));
     qB->GetXaxis()->SetTitleOffset(1.05);
 
 
