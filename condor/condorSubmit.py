@@ -139,7 +139,6 @@ def main():
                             "MVA_2017_%s_%s_ws.root" % (st, mass),
                             "ws_%s_%s_%s.root"       % (options.year, st, mass),
                             "higgsCombine%s.HybridNew.mH%s.MODEL%s.%s.root" % (options.year, mass, st, str(seed)),
-                            "log_%s%s%s_%s_%s_HybridNew.txt" % (options.year, st, mass, str(r), str(seed)),
                         ]
 
                         transfer = "transfer_output_remaps = \""

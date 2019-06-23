@@ -61,10 +61,10 @@ text2workspace.py Card${year}.txt -o ws_${year}_${signalType}_${mass}.root -m ${
 
 if ($doToyS == 1) then
     printf "\n\n Running sig. toys\n"
-    combine -M HybridNew --LHCmode LHC-significance ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -n ${year} --saveToys --saveHybridResult -T ${numToys} -s ${seed} --fullBToys -i ${iterations}> log_${year}${signalType}${mass}_${rVal}_${seed}_HybridNew.txt
+    combine -M HybridNew --LHCmode LHC-significance ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -n ${year} --saveToys --saveHybridResult -T ${numToys} -s ${seed} --fullBToys -i ${iterations}
 else
     printf "\n\n Running limit toys\n"
-    combine -M HybridNew --LHCmode LHC-limits       ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -n ${year} --saveToys --saveHybridResult -T ${numToys} -s ${seed} --fullBToys --singlePoint ${rVal} --clsAcc 0 > log_${year}${signalType}${mass}_${rVal}_${seed}_HybridNew.txt
+    combine -M HybridNew --LHCmode LHC-limits       ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -n ${year} --saveToys --saveHybridResult -T ${numToys} -s ${seed} --fullBToys --singlePoint ${rVal} --clsAcc 0 
 endif
 
 printf "\n\n ls output\n"
