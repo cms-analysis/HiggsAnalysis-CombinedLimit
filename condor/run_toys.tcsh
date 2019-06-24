@@ -9,6 +9,8 @@ set dataType = $6
 set rVal = $7
 set seed = $8
 set numToys = $9
+set iterations = $10
+set doToyS = $11
 
 set base_dir = `pwd`
 printf "\n\n base dir is $base_dir\n\n"
@@ -23,7 +25,7 @@ printf "\n\n Get the code needed .\n\n"
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
 eval `scramv1 runtime -csh`
-git clone https://github.com/StealthStop/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+git clone -b Chris_temp https://github.com/StealthStop/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 scram b clean
 scram b -j8
@@ -57,7 +59,13 @@ root -l -q -b 'make_MVA_8bin_ws.C("2016","'${inputRoot2016}'","'${signalType}'",
 root -l -q -b 'make_MVA_8bin_ws.C("2017","'${inputRoot2017}'","'${signalType}'","'${mass}'","'${dataType}'")'
 text2workspace.py Card${year}.txt -o ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType}
 
-combine -M HybridNew --LHCmode LHC-limits ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -n ${year} --saveToys --saveHybridResult --singlePoint ${rVal} -T ${numToys} --clsAcc 0 -s ${seed} --fullBToys > log_${year}${signalType}${mass}_${rVal}_${seed}_HybridNew.txt
+if ($doToyS == 1) then
+    printf "\n\n Running sig. toys\n"
+    combine -M HybridNew --LHCmode LHC-significance ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -n ${year} --saveToys --saveHybridResult -T ${numToys} -s ${seed} --fullBToys -i ${iterations}
+else
+    printf "\n\n Running limit toys\n"
+    combine -M HybridNew --LHCmode LHC-limits       ws_${year}_${signalType}_${mass}.root -m ${mass} --keyword-value MODEL=${signalType} -n ${year} --saveToys --saveHybridResult -T ${numToys} -s ${seed} --fullBToys --singlePoint ${rVal} --clsAcc 0 
+endif
 
 printf "\n\n ls output\n"
 ls -l
