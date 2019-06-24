@@ -132,6 +132,7 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
 
     t->Draw("max(2*q,0)>>qObs","weight*(type==0)");
     double qObs = ((TH1F*) gROOT->FindObject("qObs"))->GetMean();
+    std::cout<<"Obs q value = "<<qObs<<std::endl;
 
     TArrow *qO = new TArrow(qObs, 0.2, qObs, yMin*1.05, 0.01, "---|>");
     
