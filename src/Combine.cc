@@ -374,6 +374,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
     }
+
+    // Fix for large RooAddPdfs
+    utils::RooAddPdfFixer addpdfFixer;
+    addpdfFixer.FixAll(*w);
     
     // Specific settings should be executed before user specified ranges!
     RooRealVar *r = (RooRealVar*)POI->first();
@@ -1032,6 +1036,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     algo->setNToys(nToys);
 
     for (iToy = 1; iToy <= nToys; ++iToy) {
+
+      // Reset ranges --> for likelihood scans
+      if (setPhysicsModelParameterRangeExpression_ != "") {
+	utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
+      }
+
       algo->setToyNumber(iToy-1);
       RooAbsData *absdata_toy = 0;
       if (readToysFromHere == 0) {
@@ -1209,8 +1219,6 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
       	      if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Adding discrete %s ",__LINE__,cat->GetName())),Logger::kLogLevelInfo,__func__);
 	    }
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
-
-	    
           }
         }
     } 

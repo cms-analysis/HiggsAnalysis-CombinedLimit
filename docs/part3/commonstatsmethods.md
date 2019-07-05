@@ -7,7 +7,7 @@ This section will assume that you are using the default model unless otherwise s
 ## Asymptotic Frequentist Limits
 
 The `AsymptoticLimits` method allows to compute quickly an estimate of the observed and expected limits, which is fairly accurate when the event yields are not too small and the systematic uncertainties don't play a major role in the result.
-The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute CL<sub>s+b</sub>, CL<sub>b</sub> and therefore CL<sub>s</sub>=CL<sub>s+b</sub>/CL<sub>b</sub> - i.e it is the asymptotic approximation of computing limits with frequentist toys.
+The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute two p-values $p_{\mu}, p_{b}$ and therefore $CL_s=p_{\mu}/(1-p_{b})$ (see the (see the [FAQ](/part4/usefullinks.html#faq) section for a description of these) - i.e it is the asymptotic approximation of computing limits with frequentist toys.
 
 This method is so commonly used that it is the default method (i.e not specifying `-M` will run `AsymptoticLimits`)
 
@@ -37,7 +37,7 @@ Expected 97.5%: r < 6.6194
 Done in 0.01 min (cpu), 0.01 min (real)
 ```
 
-By default, the limits are calculated using the CL<sub>s</sub> prescription, as noted in the output, which takes the ratio of p-values under the signal plus background and background only hypothesis. This can be altered to using the strict p-value by using the option `--rule CLsplusb` You can also change the confidence level (default is 95%) to 90% using the option `--cl 0.9` or any other confidence level. You can find the full list of options for `AsymptoticLimits` using `--help -M AsymptoticLimits`.
+By default, the limits are calculated using the CL<sub>s</sub> prescription, as noted in the output, which takes the ratio of p-values under the signal plus background and background only hypothesis. This can be altered to using the strict p-value by using the option `--rule CLsplusb` (note that `CLsplusb` is the jargon for calculating the p-value $p_{\mu}$). You can also change the confidence level (default is 95%) to 90% using the option `--cl 0.9` or any other confidence level. You can find the full list of options for `AsymptoticLimits` using `--help -M AsymptoticLimits`.
 
 
 !!! warning
@@ -317,7 +317,7 @@ bayesPosterior2D("bayes2D","Posterior PDF")
 
 The `HybridNew` method is used to compute either the hybrid bayesian-frequentist limits popularly known as "CL<sub>s</sub> of LEP or Tevatron type" or the fully frequentist limits which are the current recommended method by the LHC Higgs Combination Group. Note that these methods can be resource intensive for complex models.
 
-It is possible to define the criterion used for setting limits using `--rule CLs` or `--rule CLsplusb` and as always the confidence level desired using `--cl=X`
+It is possible to define the criterion used for setting limits using `--rule CLs` (to use the CL<sub>s</sub> criterion) or `--rule CLsplusb` (to calculate the limit using $p_{\mu}$) and as always the confidence level desired using `--cl=X`
 
 The choice of test-statistic can be made via the option `--testStat` and different methodologies for treatment of the nuisance parameters are available. While it is possible to mix different test-statistics with different nuisance parameter treatments, this is highly **not-reccomended**. Instead one should follow one of the following three procedures,
 
@@ -525,7 +525,7 @@ Done in 0.01 min (cpu), 4.09 min (real)
 Failed to delete temporary file roostats-Sprxsw.root: No such file or directory</pre></code>
 </details>
 
-The result stored in the **limit** branch of the output tree will be the upper limit (and its error stored in **limitErr**). The default behavior will be, as above, to search for the upper limit on **r** however, the values of CL<sub>s+b</sub>, CL<sub>b</sub>and CL<sub>s</sub> can be calculated for a particular value **r=X** by specifying the option `--singlePoint=X`. In this case, the value stored in the branch **limit** will be the value of CL<sub>s</sub>( or CL<sub>s+b</sub>).
+The result stored in the **limit** branch of the output tree will be the upper limit (and its error stored in **limitErr**). The default behavior will be, as above, to search for the upper limit on **r** however, the values of $p_{\mu}, p_{b}$ and CL<sub>s</sub> can be calculated for a particular value **r=X** by specifying the option `--singlePoint=X`. In this case, the value stored in the branch **limit** will be the value of CL<sub>s</sub> (or $p_{\mu}$) (see the [FAQ](/part4/usefullinks.html#faq) section). 
 
 #### Expected Limits
 
@@ -539,7 +539,7 @@ The output file will contain the value of the quantile in the branch **quantileE
 The search for the limit is performed using an adaptive algorithm, terminating when the estimate of the limit value is below some limit or when the precision cannot be futher improved with the specified options. The options controlling this behaviour are:
 
 -   `rAbsAcc`, `rRelAcc`: define the accuracy on the limit at which the search stops. The default values are 0.1 and 0.05 respectively, meaning that the search is stopped when Δr < 0.1 or Δr/r < 0.05.
--   `clsAcc`: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will increase significantly the time to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N, you can consider enlarging this value if you're computing limits with a larger CL (e.g. 90% or 68%). Note that if you're using the `CLsplusb` rule then this parameter will control the uncertainty on CL</sub>s+b</sub> not on CL<sub>s</sub>.
+-   `clsAcc`: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will increase significantly the time to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N, you can consider enlarging this value if you're computing limits with a larger CL (e.g. 90% or 68%). Note that if you're using the `CLsplusb` rule then this parameter will control the uncertainty on $p_{\mu}$ rather than CL<sub>s</sub>.
 -   `T` or `toysH`: controls the minimum number of toys that are generated for each point. The default value of 500 should be ok when computing the limit with 90-95% CL. You can decrease this number if you're computing limits at 68% CL, or increase it if you're using 99% CL.
 
 Note, to further improve the accuracy when searching for the upper limit, combine will also fit an exponential function to several of the points and interpolate to find the crossing.
@@ -576,7 +576,7 @@ The splitting of the jobs can be left to the user's preference. However, users m
 
 #### Plotting
 
-A plot of the p-values (CL<sub>s</sub> or CL<sub>s+b</sub>) as a function of **r**, which is used to find the crossing, can be produced using the option `--plot=limit_scan.png`. This can be useful for judging if the grid was sufficient in determining the upper limit.
+A plot of the CL<sub>s</sub> (or $p_{\mu}$) as a function of **r**, which is used to find the crossing, can be produced using the option `--plot=limit_scan.png`. This can be useful for judging if the grid was sufficient in determining the upper limit.
 
 If we use our [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard and generate a grid of points $r\varepsilon[1.4,2.2]$ in steps of 0.1, with 5000 toys for each point, the plot of the observed CL<sub>s</sub> vs **r** should look like the following,
 
@@ -593,7 +593,7 @@ python test/plotTestStatCLs.py --input mygrid.root --poi r --val all --mass MASS
 The resulting output file will contain a canvas showing the distribution of the test statistic background only and signal+background hypothesis at each value of **r**.
 
 !!! info
-    If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option `--doublesided`, which will also take care of defining the correct integrals for CL<sub>s+b</sub> and CL<sub>b</sub>.
+    If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option `--doublesided`, which will also take care of defining the correct integrals for $p_{\mu}$ and $p_{b}$.
 
 ## Computing Significances with toys
 
@@ -658,7 +658,7 @@ The following algorithms are supported:
 
 - **AD**: Compute a goodness-of-fit measure for binned fits using the *Anderson-Darling* test. It is based on the integral of the difference between the cumulative distribution function and the empirical distribution function over all bins. It also gives the tail ends of the distribution a higher weighting.
 
-The output tree will contain a branch called **`limit`** which contains the value of the test-statistic in each toy. You can make a histogram of this test-statistic $t$ and from this distribution ($f(t)$) and the single value obtained in the data ($t_{0}$) you can calculate the p-value as $p=\int_{t=t_{0}}^{\mathrm{+inf}} f(t)dt $.
+The output tree will contain a branch called **`limit`** which contains the value of the test-statistic in each toy. You can make a histogram of this test-statistic $t$ and from this distribution ($f(t)$) and the single value obtained in the data ($t_{0}$) you can calculate the p-value $$p = \int_{t=t_{0}}^{\mathrm{+inf}} f(t) dt $$.
 
 When generating toys, the default behavior will be used. See the section on [toy generation](#toy-generation) for options on how to generate/fit nuisance parameters in these tests. It is recomended to use the *frequentist toys* (`--toysFreq`) when running the **saturated** model, and the default toys for the other two tests.
 
@@ -791,7 +791,7 @@ A number of different algorithms can be used with the option `--algo <algo>`,
 
 -   **random**: Scan N random points and compute the probability out of the profile likelihood `combine -M MultiDimFit toy-hgg-125.root --algo random --points=20 --cl=0.68`. Again, best fit will have **quantileExpected** set to -1, while each random point will have **quantileExpected** set to the probability given by the profile likelihood at that point.
 
--   **fixed**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs <r_fixed,MH_fixed>`. The output tree will contain the difference in the negative log-likelihood between the points ($\hat{r},\hat{m}_{H}$) and ($\hat{r}_{fixed},\hat{m}_{H,fixed}$) in the branch **deltaNLL**.
+-   **fixed**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs r=r_fixed,MH=MH_fixed`. The output tree will contain the difference in the negative log-likelihood between the points ($\hat{r},\hat{m}_{H}$) and ($\hat{r}_{fixed},\hat{m}_{H,fixed}$) in the branch **deltaNLL**.
 
 -  **grid**:  Scan on a fixed grid of points not with approximately N points in total. `combine -M MultiDimFit toy-hgg-125.root --algo grid --points=10000`.
     * You can partition the job in multiple tasks by using options `--firstPoint` and `--lastPoint`, for complicated scans, the points can be split as described in the [combineTool for job submission](#) section. The output file will contain a column **deltaNLL** with the difference in negative log likelihood with respect to the best fit point. Ranges/contours can be evaluated by filling TGraphs or TH2 histograms with these points.
@@ -944,7 +944,7 @@ The Feldman-Cousins (FC) procedure for computing confidence intervals for a gene
 -   for each point $x$:
     -   compute the observed test statistic $q_{\mathrm{obs}}(x)$
     -   compute the expected distribution of $q(x)$ under the hypothesis of $x$ as the true value.
-    -   accept the point in the region if CL<sub>s+b</sub>$=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha$
+    -   accept the point in the region if $p_{x}=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha$
 
 With a critical value $\alpha$.
 
@@ -954,14 +954,14 @@ In `combine`, you can perform this test on each individual point (**param1, para
 combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 ```
 
-The point belongs to your confidence region if CL<sub>s+b</sub> is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
+The point belongs to your confidence region if $p_{x}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
 !!! warning
     You should not use this method without the option `--singlePoint`. Although combine will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
 
 #### Physical boundaries
 
-Imposing physical boundaries (such as requiring $r>0$) is achieved by setting the ranges of the physics model parameters using
+Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) is achieved by setting the ranges of the physics model parameters using
 
 ```sh
 --setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
@@ -989,7 +989,7 @@ combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridRe
 
 The output tree will contain the values of the POI which crosses the critical value ($\alpha$) - i.e, the boundaries of the confidence intervals,
 
-You can produce a plot of the value of CL<sub>s+b</sub> vs the parameter of interest by adding the option `--plot <plotname>`.
+You can produce a plot of the value of $p_{x}$ vs the parameter of interest $x$ by adding the option `--plot <plotname>`.
 
 ##### 2D contours
 
@@ -999,7 +999,7 @@ There is a tool for extracting *2D contours* from the output of `HybridNew` loca
 ./test/makeFCcontour.py  toysfile1.root toysfile2.root .... [options] -out outputfile.root
 ```
 
-To extract 2D contours, the names of each parameter must be given `--xvar poi_x --yvar poi_y`. The output will be a root file containing a 2D histogram of value of CL<sub>s+b</sub> for each point which can be used to draw 2D contours. There will also be a histogram containing the number of toys found for each point.
+To extract 2D contours, the names of each parameter must be given `--xvar poi_x --yvar poi_y`. The output will be a root file containing a 2D histogram of value of $p_{x,y}$ for each point $(x,y)$ which can be used to draw 2D contours. There will also be a histogram containing the number of toys found for each point.
 
 There are several options for reducing the running time (such as setting limits on the region of interest or the minimum number of toys required for a point to be included) Finally, adding the option `--storeToys` in this python tool will add histograms for each point to the output file of the test-statistic distribution. This will increase the momory usage however as all of the toys will be stored in memory.
 
