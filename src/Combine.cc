@@ -918,7 +918,13 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   // Ok now we're ready to go lets save a "clean snapshot" for the current parameters state
   // w->allVars() misses the RooCategories, useful for some things - so need to include them. Set up a utils function for that 
-  w->saveSnapshot("clean", utils::returnAllVars(w));
+  if (nToys <= 0 && runtimedef::get("NO_INITIAL_SNAP")) {
+      if (verbose >= 3) std::cout << "Skipping snapshot" << std::endl;
+  } else {
+      if (verbose >= 3) std::cout << "Saving snapshot 'clean'" << std::endl;
+      w->saveSnapshot("clean", utils::returnAllVars(w));
+      if (verbose >= 3) std::cout << "Saved snapshot 'clean'" << std::endl;
+  }
   
   if (nToys <= 0) { // observed or asimov
     if (makeToyGenSnapshot_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
