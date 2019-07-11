@@ -1,6 +1,7 @@
 from sys import stdout, stderr
 import os.path
 import ROOT
+from collections import defaultdict
 from math import *
 
 RooArgSet_add_original = ROOT.RooArgSet.add
@@ -12,6 +13,32 @@ def RooArgSet_add_patched(self, obj, *args, **kwargs):
 ROOT.RooArgSet.add = RooArgSet_add_patched
 
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
+
+class FileCache:
+    def __init__(self, basedir, maxsize=250):
+        self._basedir = basedir
+        self._maxsize = maxsize
+        self._files = {}
+        self._hits  = defaultdict(int)
+        self._total = 0
+    def __getitem__(self, fname):
+        self._total += 1
+        if fname not in self._files:
+            if len(self._files) >= self._maxsize:
+                print "Flushing file cache of size %d" % len(self._files)
+                keys = self._files.keys()
+                keys.sort(key = lambda k : self._files[k][1] + 10*self._hits[k])
+                for k in keys[:self._maxsize/2]:
+                    self._files[k][0].Close()
+                    del self._files[k]
+            trueFName = fname 
+            if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self._basedir+"/"+trueFName):
+                trueFName = self._basedir+"/"+trueFName;
+            self._files[fname] = [ ROOT.TFile.Open(trueFName), self._total ]
+        else:
+            self._files[fname][1] = self._total
+        self._hits[fname] += 1
+        return self._files[fname][0]
 
 class ShapeBuilder(ModelBuilder):
     def __init__(self,datacard,options):
@@ -25,6 +52,7 @@ class ShapeBuilder(ModelBuilder):
     	self.wsp = None
     	self.extraImports = []
 	self.norm_rename_map = {}
+        self._fileCache = FileCache(self.options.baseDir)
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
     ## ------------------------------------------
@@ -423,7 +451,7 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
-    def getShape(self,channel,process,syst="",_fileCache={},_cache={},allowNoSyst=False):
+    def getShape(self,channel,process,syst="",_cache={},allowNoSyst=False):
         if _cache.has_key((channel,process,syst)): 
             if self.options.verbose > 2: print "recyling (%s,%s,%s) -> %s\n" % (channel,process,syst,_cache[(channel,process,syst)].GetName())
             return _cache[(channel,process,syst)];
@@ -454,12 +482,7 @@ class ShapeBuilder(ModelBuilder):
 	   protected_kwords =  ["PROCESS","CHANNEL","SYSTEMATIC","MASS"]
 	   if mpname in protected_kwords: raise RuntimeError, "Cannot use the following keywords (already assigned in combine): $"+" $".join(protected_kwords) 
            finalNames = [ fn.replace("$%s"%mpname,mpv) for fn in finalNames ]
-        if not _fileCache.has_key(finalNames[0]): 
-            trueFName = finalNames[0]
-            if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self.options.baseDir+"/"+trueFName):
-                trueFName = self.options.baseDir+"/"+trueFName;
-            _fileCache[finalNames[0]] = ROOT.TFile.Open(trueFName)
-        file = _fileCache[finalNames[0]]; objname = finalNames[1]
+        file = self._fileCache[finalNames[0]]; objname = finalNames[1]
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])
         if ":" in objname: # workspace:obj or ttree:xvar or th1::xvar
             (wname, oname) = objname.split(":")
