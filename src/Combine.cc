@@ -206,6 +206,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   if (vm.count("keyword-value") ) {
     modelPoints_ = vm["keyword-value"].as<std::vector<std::string> >();
   }
+
+  makeToyGenSnapshot_ = (method == "FitDiagnostics" && !vm.count("justFit"));
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -919,7 +921,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   w->saveSnapshot("clean", utils::returnAllVars(w));
   
   if (nToys <= 0) { // observed or asimov
-    w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
+    if (makeToyGenSnapshot_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
     iToy = nToys;
     if (iToy == -1) {
      if (readToysFromHere != 0){
@@ -1101,9 +1103,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
-      if (!toysFrequentist_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
+      if (!toysFrequentist_ && makeToyGenSnapshot_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
       w->loadSnapshot("clean");
-      if (toysFrequentist_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
+      if (toysFrequentist_ && makeToyGenSnapshot_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
 	commitPoint(0,g_quantileExpected_);//tree->Fill();
