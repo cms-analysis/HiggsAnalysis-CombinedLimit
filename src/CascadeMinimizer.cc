@@ -85,7 +85,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
     cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
     if (simnllbb && runtimedef::get(std::string("MINIMIZER_analytic"))) {
       simnllbb->setAnalyticBarlowBeeston(true);
-      minimizer_.reset(new RooMinimizer(nll_));
+      // minimizer_.reset(new RooMinimizer(nll_));
     }
     minimizer_->setPrintLevel(verbose-1);
    
@@ -215,7 +215,7 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
       utils::setAllConstant(toFreeze, true);
       simnllbb->setAnalyticBarlowBeeston(true);
       utils::setAllConstant(toFreeze, false);
-      minimizer_.reset(new RooMinimizer(nll_));
+      // minimizer_.reset(new RooMinimizer(nll_));
    }
    minimizer_->setPrintLevel(verbose-1); // for debugging
    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
@@ -254,7 +254,7 @@ bool CascadeMinimizer::hesse(int verbose ) {
    cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
    if (simnllbb && runtimedef::get(std::string("MINIMIZER_analytic"))) {
       // Have to reset and minimize again first to get all parameters in
-      minimizer_.reset(new RooMinimizer(nll_));
+      // minimizer_.reset(new RooMinimizer(nll_));
       float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
       minimizer_->setEps(nominalTol);
       minimizer_->setStrategy(strategy_);
