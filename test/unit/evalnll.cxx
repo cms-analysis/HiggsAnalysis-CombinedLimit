@@ -10,6 +10,8 @@
 #include "Math/IOptions.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
+
 void init_rtd() {
   // CMSDAS Defaults (you can turn off with --X-rtd <name>=0
   runtimedef::set("OPTIMIZE_BOUNDS", 1);
@@ -78,6 +80,10 @@ int main(int argc, char **argv) {
     TStopwatch timer;
     TFile *f = TFile::Open(argv[optind]);
     if (!f) { std::cerr << "ERROR: could not open " << argv[optind] << std::endl; return 2; }
+
+    timer.Stop();
+    printf("File opened in %.2f min (cpu), %.2f min (real)\n", timer.CpuTime()/60., timer.RealTime()/60.); fflush(stdout);
+    timer.Start();
     
     RooWorkspace *w = (RooWorkspace *) f->Get(workspace);
     if (!w)  { std::cerr << "ERROR: could not find workspace '" << workspace << "' in " << argv[optind] << std::endl; f->ls(); return 2; }
@@ -102,7 +108,7 @@ int main(int argc, char **argv) {
     const RooArgSet *nuisances = mc->GetNuisanceParameters();
 
     timer.Stop();
-    printf("Workspace opened in %.2f min (cpu), %.2f min (real)\n", timer.CpuTime()/60., timer.RealTime()/60.);
+    printf("Workspace opened in %.2f min (cpu), %.2f min (real)\n", timer.CpuTime()/60., timer.RealTime()/60.);  fflush(stdout);
     timer.Start();
 
     RooAbsReal *nll = pdf->createNLL(*d, RooFit::Constrain(*nuisances), RooFit::Extended(pdf->canBeExtended()), RooFit::Offset(true));
@@ -114,11 +120,15 @@ int main(int argc, char **argv) {
     if (runtimedef::get(std::string("MINIMIZER_analytic"))) {
         simnll->setAnalyticBarlowBeeston(true);
     }
+    if (runtimedef::get("FAST_VERTICAL_MORPH")) {
+        CMSHistFunc::EnableFastVertical();
+    }
+
     if (simnll) {
         simnll->setZeroPoint();
     }
     timer.Stop(); 
-    printf("NLL created in %.2f min (cpu), %.2f min (real)\n", timer.CpuTime()/60., timer.RealTime()/60.);
+    printf("NLL created in %.2f min (cpu), %.2f min (real)\n", timer.CpuTime()/60., timer.RealTime()/60.);  fflush(stdout);
     std::vector<RooRealVar *> var; std::vector<std::pair<float,float>> vrange;
     RooLinkedListIter iter = nuisances->iterator();
     for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
