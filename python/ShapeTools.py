@@ -114,7 +114,10 @@ class ShapeBuilder(ModelBuilder):
                                 (klo, khi, syst) = X
                                 coeff.addAsymmLogNormal(klo,khi, self.out.var(syst))
                             else:
-                                coeff.addOtherFactor(X)
+                                if self.out.function(X):
+                                    coeff.addOtherFactor(self.out.function(X))
+                                else:
+                                    coeff.addOtherFactor(self.getObj(X))
                     else:   
                         prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                         for X in extranorm:
