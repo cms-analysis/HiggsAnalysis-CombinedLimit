@@ -989,11 +989,19 @@ cacheutils::CachingSimNLL::setup_()
     }   
 
     setValueDirty();
+
+    this->getVal();
+    dirtyFlags_ = new utils::FastDirtyFlags(*this);
+    RooAbsArg::setDirtyInhibit(true);
 }
 
 Double_t 
 cacheutils::CachingSimNLL::evaluate() const 
 {
+    if (dirtyFlags_) {
+        dirtyFlags_->Propagate();
+        RooAbsArg::setDirtyInhibit(false);
+    }
     // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
     TRACE_POINT(params_)
 #ifdef TRACE_NLL_EVAL_COUNT
@@ -1055,6 +1063,10 @@ cacheutils::CachingSimNLL::evaluate() const
     //if (_trace_ % 250 == 0) { printf("               NLL % 10.4f after %10lu evals.\n", ret.sum(), _trace_); fflush(stdout); }
 #endif
     TRACE_NLL("SimNLL for " << GetName() << ": " << ret.sum())
+    if (dirtyFlags_)  {
+        _valueDirty = true;
+        RooAbsArg::setDirtyInhibit(true);
+    }
     return ret.sum();
 }
 

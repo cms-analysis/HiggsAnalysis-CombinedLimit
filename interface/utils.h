@@ -119,5 +119,30 @@ namespace utils {
     int countFloating(const RooArgSet &);
     RooArgSet returnAllVars(RooWorkspace *);
     bool freezeAllDisassociatedRooMultiPdfParameters(RooArgSet multiPdfs, RooArgSet allRooMultiPdfParams, bool freeze=true);
+
+
+    class RooAbsArgHelper : public RooAbsArg {
+      public:
+        RooAbsArgHelper() {}
+        static void FastSetDirtyFlag(RooAbsArg *arg) {
+          static_cast<RooAbsArgHelper*>(arg)->_valueDirty = true;
+        }
+    };
+
+    class FastDirtyFlags {
+     public:
+      FastDirtyFlags() {}
+      FastDirtyFlags(RooAbsReal & src);
+      void Propagate();
+
+     private:
+      std::vector<RooRealVar *> vars_;
+      std::vector<std::vector<RooAbsArg *>> deps_;
+      std::vector<double> prev_vals_;
+
+      void AppendClients(RooAbsArg *arg, std::set<RooAbsArg*> & clients);
+
+    };
+
 }
 #endif

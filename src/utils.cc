@@ -1039,3 +1039,47 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(RooArgSet multiPdfs, Roo
 	return false;
 }
 
+utils::FastDirtyFlags::FastDirtyFlags(RooAbsReal &src) {
+  std::unique_ptr<RooArgSet> pars(src.getParameters((const RooArgSet*)0));
+  vars_.resize(pars->getSize());
+  deps_.resize(pars->getSize());
+  prev_vals_.resize(pars->getSize());
+  std::unique_ptr<TIterator> iter_p(pars->createIterator());
+  unsigned idx = 0;
+  for (RooAbsArg *P = (RooAbsArg *) iter_p->Next(); P != 0; P = (RooAbsArg *) iter_p->Next()) {
+    P->Print();
+    vars_[idx] = dynamic_cast<RooRealVar*>(P);
+    std::set<RooAbsArg*> clients;
+    AppendClients(P, clients);
+    deps_[idx].resize(clients.size());
+    unsigned idx_c = 0;
+    for (RooAbsArg *arg : clients) {
+      deps_[idx][idx_c] = arg;
+      ++idx_c;
+    }
+    prev_vals_[idx] = vars_[idx]->getVal();
+    ++idx;
+  }
+}
+
+void utils::FastDirtyFlags::AppendClients(RooAbsArg *arg, std::set<RooAbsArg*> & clients) {
+  RooFIter clientValueIter = arg->valueClientMIterator();
+  RooAbsArg * client;
+  while ((client=clientValueIter.next())) {
+    clients.insert(client);
+    AppendClients(client, clients);
+  }
+}
+
+
+void utils::FastDirtyFlags::Propagate() {
+  for (unsigned i = 0; i < vars_.size(); ++i) {
+    if (vars_[i]->isConstant()) continue;
+    if (vars_[i]->getVal() == prev_vals_[i]) continue;
+    for (unsigned j = 0; j < deps_[i].size(); ++j) {
+      RooAbsArgHelper::FastSetDirtyFlag(deps_[i][j]);
+    }
+    prev_vals_[i] = vars_[i]->getVal();
+  }
+}
+

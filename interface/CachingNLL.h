@@ -20,6 +20,9 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
+namespace utils {
+    class FastDirtyFlags;
+}
 
 // Part zero: ArgSet checker
 namespace cacheutils {
@@ -202,6 +205,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<double> constrainZeroPointsFast_;
         std::vector<double> constrainZeroPointsFastPoisson_;
         std::vector<RooAbsReal*> channelMasks_;
+        utils::FastDirtyFlags * dirtyFlags_ = nullptr;
 };
 
 }
