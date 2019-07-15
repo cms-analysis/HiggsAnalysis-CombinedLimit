@@ -989,10 +989,10 @@ cacheutils::CachingSimNLL::setup_()
     }   
 
     setValueDirty();
-
-    this->getVal();
-    dirtyFlags_ = new utils::FastDirtyFlags(*this);
-    RooAbsArg::setDirtyInhibit(true);
+    if (runtimedef::get("FAST_DIRTY_FLAGS")) {
+      this->getVal(); // do i really need to do this?
+      dirtyFlags_ = new utils::FastDirtyFlags(*this);
+    }
 }
 
 Double_t 
