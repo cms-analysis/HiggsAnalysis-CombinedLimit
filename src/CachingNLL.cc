@@ -865,6 +865,7 @@ cacheutils::CachingSimNLL::clone(const char *name) const
 
 cacheutils::CachingSimNLL::~CachingSimNLL()
 {
+    constrainPdfGroups_.clear();
     std::vector<bool>::const_iterator ito = constrainPdfsFastOwned_.begin();
     for (std::vector<SimpleGaussianConstraint*>::iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++ito) {
         if (*ito) { delete *it; }
@@ -952,7 +953,25 @@ cacheutils::CachingSimNLL::setup_()
             std::cout << "Constraints of type " << p.first << ": " << p.second << std::endl;
           }
 	}
-
+        int GroupConstraints = std::min<int>(runtimedef::get("SIMNLL_GROUPCONSTRAINTS"), constrainPdfsFastPoisson_.size() + constrainPdfsFast_.size());
+        if (GroupConstraints > 1) {
+            std::cout << "Will create " << GroupConstraints << " groups for " << constrainPdfsFast_.size() << " + " << constrainPdfsFastPoisson_.size() << " constraints." << std::endl;
+            constrainPdfGroups_.resize(GroupConstraints);
+            int npois = constrainPdfsFastPoisson_.size(), ngaus = constrainPdfsFast_.size(), nitems = ngaus + npois;
+            int nPerGroup = (nitems + GroupConstraints - 1)/GroupConstraints;
+            int ig = 0, ng = 0;
+            for (auto *gaus : constrainPdfsFast_) {
+                constrainPdfGroups_[ig].add(gaus);
+                if (++ng == nPerGroup) { ++ig; ng = 0; }
+            }
+            for (auto *pois : constrainPdfsFastPoisson_) {
+                constrainPdfGroups_[ig].add(pois);
+                if (++ng == nPerGroup) { ++ig; ng = 0; }
+            }
+            for (const auto & cg : constrainPdfGroups_) {
+                std::cout << "ConstrainPdfGroup with " << cg.size() << " constraints." << std::endl;
+            }
+        }
     } else {
         std::cerr << "PDF didn't factorize!" << std::endl;
         std::cout << "Parameters: " << std::endl;
@@ -1033,19 +1052,25 @@ cacheutils::CachingSimNLL::evaluate() const
             }
             ret2 += (log(pdfval) + *itz);
         }
-        /// ============= FAST GAUSSIAN CONSTRAINTS  =========
-        itz = constrainZeroPointsFast_.begin();
-        for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) { 
-            double logpdfval = (*it)->getLogValFast();
-            //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
-            ret2 += (logpdfval + *itz);
-        }
-        /// ============= FAST POISSON CONSTRAINTS  =========
-        itz = constrainZeroPointsFastPoisson_.begin();
-        for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) { 
-            double logpdfval = (*it)->getLogValFast();
-            //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
-            ret2 += (logpdfval + *itz);
+        if (!constrainPdfGroups_.empty()) {
+            for (const SimpleConstraintGroup & g : constrainPdfGroups_) {
+                ret2 += g.getVal();
+            }
+        } else {
+            /// ============= FAST GAUSSIAN CONSTRAINTS  =========
+            itz = constrainZeroPointsFast_.begin();
+            for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) { 
+                double logpdfval = (*it)->getLogValFast();
+                //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
+                ret2 += (logpdfval + *itz);
+            }
+            /// ============= FAST POISSON CONSTRAINTS  =========
+            itz = constrainZeroPointsFastPoisson_.begin();
+            for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) { 
+                double logpdfval = (*it)->getLogValFast();
+                //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
+                ret2 += (logpdfval + *itz);
+            }
         }
         ret -= ret2.sum();
     }
@@ -1146,6 +1171,9 @@ void cacheutils::CachingSimNLL::setZeroPoint() {
         double logpdfval = (*it)->getLogValFast();
         *itz = -logpdfval;
     }
+    for (SimpleConstraintGroup & g : constrainPdfGroups_) {
+        g.setZeroPoint();
+    }
     setValueDirty();
 }
 
@@ -1156,6 +1184,7 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
     std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
     std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
     std::fill(constrainZeroPointsFastPoisson_.begin(), constrainZeroPointsFastPoisson_.end(), 0.0);
+    for (SimpleConstraintGroup & g : constrainPdfGroups_) g.clearZeroPoint();
     setValueDirty();
 }
 

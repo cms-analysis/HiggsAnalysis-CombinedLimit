@@ -102,15 +102,32 @@ class ShapeBuilder(ModelBuilder):
                         pdf = pdf1
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
-                    prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
-                    for X in extranorm:
-                    	# X might already be in the workspace (e.g. _norm term)...
-                    	if self.out.function(X):
-                    		prodset.add(self.out.function(X))
-                    	# ... but usually it's only in our object store (e.g. AsymPow for shape systs)
-                    	else:
+                    if self.options.packAsymPows:
+                        if coeff.ClassName() == "ProcessNormalization":
+                            pass # nothing to do
+                        elif coeff.ClassName() == "RooRealVar":
+                            coeff = self.addObj(ROOT.ProcessNormalization, "n_exp_final_bin%s_proc_%s" % (b,p), "", coeff.getVal())
+                        else:
+                            raise RuntimeError("packAsymPows: can't work with a coefficient of kind %s for %s %s" % (coeff.ClassName(), b, p))
+                        for X in extranorm:
+                            if type(X) == tuple:
+                                (klo, khi, syst) = X
+                                coeff.addAsymmLogNormal(klo,khi, self.out.var(syst))
+                            else:
+                                if self.out.function(X):
+                                    coeff.addOtherFactor(self.out.function(X))
+                                else:
+                                    coeff.addOtherFactor(self.getObj(X))
+                    else:   
+                        prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
+                        for X in extranorm:
+                            # X might already be in the workspace (e.g. _norm term)...
+                            if self.out.function(X):
+                                    prodset.add(self.out.function(X))
+                            # ... but usually it's only in our object store (e.g. AsymPow for shape systs)
+                            else:
                     		prodset.add(self.getObj(X))
-                    coeff = self.addObj(ROOT.RooProduct, "n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
+                        coeff = self.addObj(ROOT.RooProduct, "n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
@@ -734,11 +751,14 @@ class ShapeBuilder(ModelBuilder):
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
                 # for convenience, we scale the kappas
                 kappasScaled = [ pow(x, errline[channel][process]) for x in kappaDown,kappaUp ]
-                obj_kappaDown = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[0], "", float('%f' %  kappasScaled[0]))
-                obj_kappaUp = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[1], "", float('%f' %  kappasScaled[1]))
-                obj_var = self.out.var(syst)
-                self.addObj(ROOT.AsymPow, "systeff_%s_%s_%s" % (channel,process,syst), "", obj_kappaDown, obj_kappaUp, obj_var)
-                terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
+                if self.options.packAsymPows:
+                    terms.append( (kappasScaled[0], kappasScaled[1], syst) )
+                else:
+                    obj_kappaDown = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[0], "", float('%f' %  kappasScaled[0]))
+                    obj_kappaUp = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[1], "", float('%f' %  kappasScaled[1]))
+                    obj_var = self.out.var(syst)
+                    self.addObj(ROOT.AsymPow, "systeff_%s_%s_%s" % (channel,process,syst), "", obj_kappaDown, obj_kappaUp, obj_var)
+                    terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
         return terms if terms else None;
 
     def rebinH1(self,shape):

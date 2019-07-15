@@ -16,6 +16,8 @@ class SimpleGaussianConstraint : public RooGaussian {
         virtual TObject* clone(const char* newname) const { return new SimpleGaussianConstraint(*this,newname); }
         inline virtual ~SimpleGaussianConstraint() { }
 
+        const RooAbsReal & getX() const { return x.arg(); }
+
         double getLogValFast() const { 
             if (_valueDirty) {
                 Double_t arg = x - mean;  
