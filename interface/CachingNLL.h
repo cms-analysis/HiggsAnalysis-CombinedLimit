@@ -182,6 +182,7 @@ class CachingSimNLL  : public RooAbsReal {
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
         virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
+        void configureFastDirtyFlags();
     private:
         void setup_();
         RooSimultaneous   *pdfOriginal_;

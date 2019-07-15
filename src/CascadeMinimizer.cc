@@ -89,6 +89,9 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
       simnllbb->setAnalyticBarlowBeeston(true);
       minimizer_.reset(new RooMinimizer(nll_));
     }
+    if (simnllbb && runtimedef::get("FAST_DIRTY_FLAGS")) {
+      simnllbb->configureFastDirtyFlags();
+    }
     minimizer_->setPrintLevel(verbose-1);
    
     strategy_ = ROOT::Math::MinimizerOptions::DefaultStrategy(); // re-configure 

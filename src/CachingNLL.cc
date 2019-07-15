@@ -991,7 +991,7 @@ cacheutils::CachingSimNLL::setup_()
     setValueDirty();
     if (runtimedef::get("FAST_DIRTY_FLAGS")) {
       this->getVal(); // do i really need to do this?
-      dirtyFlags_ = new utils::FastDirtyFlags(*this);
+      dirtyFlags_ = new utils::FastDirtyFlags();
     }
 }
 
@@ -1215,3 +1215,6 @@ cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     return new RooArgSet(params_); 
 }
 
+void cacheutils::CachingSimNLL::configureFastDirtyFlags() {
+  if (dirtyFlags_) dirtyFlags_->Configure(*this, true);
+}

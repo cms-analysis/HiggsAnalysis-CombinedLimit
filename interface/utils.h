@@ -132,7 +132,7 @@ namespace utils {
     class FastDirtyFlags {
      public:
       FastDirtyFlags() {}
-      FastDirtyFlags(RooAbsReal & src);
+      void Configure(RooAbsReal & src, bool skipConst);
       void Propagate();
 
      private:
