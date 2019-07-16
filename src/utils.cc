@@ -1041,6 +1041,7 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(RooArgSet multiPdfs, Roo
 
 //utils::FastDirtyFlags::FastDirtyFlags(RooAbsReal &src) {
 void utils::FastDirtyFlags::Configure(RooAbsReal &src, bool skipConst) {
+  src.getVal(); // some nodes, like SimpleCacheSentries, are only created after first eval
   vars_.clear();
   deps_.clear();
   prev_vals_.clear();

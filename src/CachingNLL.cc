@@ -843,7 +843,8 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
     pdfOriginal_(pdf),
     dataOriginal_(data),
     nuis_(nuis),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    fastDirtyFlagsEnabled_(false)
 {
     setup_();
 }
@@ -852,7 +853,8 @@ cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char 
     pdfOriginal_(other.pdfOriginal_),
     dataOriginal_(other.dataOriginal_),
     nuis_(other.nuis_),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    fastDirtyFlagsEnabled_(false)
 {
     setup_();
 }
@@ -989,17 +991,13 @@ cacheutils::CachingSimNLL::setup_()
     }   
 
     setValueDirty();
-    if (runtimedef::get("FAST_DIRTY_FLAGS")) {
-      this->getVal(); // do i really need to do this?
-      dirtyFlags_ = new utils::FastDirtyFlags();
-    }
 }
 
 Double_t 
 cacheutils::CachingSimNLL::evaluate() const 
 {
-    if (dirtyFlags_) {
-        dirtyFlags_->Propagate();
+    if (fastDirtyFlagsEnabled_) {
+        dirtyFlags_.Propagate();
         RooAbsArg::setDirtyInhibit(false);
     }
     // LAUNCH_FUNCTION_TIMER(__timer__, __token__)
@@ -1063,7 +1061,7 @@ cacheutils::CachingSimNLL::evaluate() const
     //if (_trace_ % 250 == 0) { printf("               NLL % 10.4f after %10lu evals.\n", ret.sum(), _trace_); fflush(stdout); }
 #endif
     TRACE_NLL("SimNLL for " << GetName() << ": " << ret.sum())
-    if (dirtyFlags_)  {
+    if (fastDirtyFlagsEnabled_)  {
         _valueDirty = true;
         RooAbsArg::setDirtyInhibit(true);
     }
@@ -1215,6 +1213,9 @@ cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     return new RooArgSet(params_); 
 }
 
-void cacheutils::CachingSimNLL::configureFastDirtyFlags() {
-  if (dirtyFlags_) dirtyFlags_->Configure(*this, true);
+void cacheutils::CachingSimNLL::setFastDirtyFlags(bool flag) {
+  fastDirtyFlagsEnabled_ = flag;
+  if (flag) {
+    dirtyFlags_.Configure(*this, true);
+  }
 }

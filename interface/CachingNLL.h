@@ -17,13 +17,10 @@
 #include <RooProduct.h>
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
-namespace utils {
-    class FastDirtyFlags;
-}
-
 // Part zero: ArgSet checker
 namespace cacheutils {
     class ArgSetChecker {
@@ -182,7 +179,7 @@ class CachingSimNLL  : public RooAbsReal {
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
         virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
-        void configureFastDirtyFlags();
+        void setFastDirtyFlags(bool flag);
     private:
         void setup_();
         RooSimultaneous   *pdfOriginal_;
@@ -206,7 +203,8 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<double> constrainZeroPointsFast_;
         std::vector<double> constrainZeroPointsFastPoisson_;
         std::vector<RooAbsReal*> channelMasks_;
-        utils::FastDirtyFlags * dirtyFlags_ = nullptr;
+        bool fastDirtyFlagsEnabled_;
+        mutable utils::FastDirtyFlags dirtyFlags_;
 };
 
 }

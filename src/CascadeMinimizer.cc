@@ -90,7 +90,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
       minimizer_.reset(new RooMinimizer(nll_));
     }
     if (simnllbb && runtimedef::get("FAST_DIRTY_FLAGS")) {
-      simnllbb->configureFastDirtyFlags();
+      simnllbb->setFastDirtyFlags(true);
     }
     minimizer_->setPrintLevel(verbose-1);
    
@@ -149,6 +149,9 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
     if (simnllbb && runtimedef::get(std::string("MINIMIZER_analytic"))) {
       simnllbb->setAnalyticBarlowBeeston(false);
       // minimizer_.reset(new RooMinimizerOpt(nll_));
+    }
+    if (simnllbb && runtimedef::get("FAST_DIRTY_FLAGS")) {
+      simnllbb->setFastDirtyFlags(false);
     }
     return outcome;
 }
