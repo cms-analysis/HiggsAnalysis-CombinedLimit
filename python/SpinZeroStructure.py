@@ -343,7 +343,7 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         if not any(po.startswith("map=") for po in physOptions):
             #no po started with map --> no manual overriding --> use the defaults
             #can still override with e.g. turnoff=ZH,WH
-            physOptions = ["map=.*/(gg|qq|Z|W|tt|bb)H$:1"] + physOptions
+            physOptions = ["map=.*/(gg|qq|Z|W|V|tt|bb)H$:1"] + physOptions
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
 
     def processPhysicsOptions(self, physOptions):
@@ -628,7 +628,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                                 for coefficient, couplingstring in zip(columnofinvertedmatrix, vectorofcouplingproductstrings)
                                 if coefficient != 0
                             ),
-                            VorF={"gg": "F", "bb": "F", "tt": "F", "qq": "V", "Z": "V", "W": "V"}[pm],
+                            VorF={"gg": "F", "bb": "F", "tt": "F", "qq": "V", "Z": "V", "W": "V", "V": "V"}[pm],
                             couplings=", ".join(couplingstorooabsargindices),
                         )
                     )
@@ -639,7 +639,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         return pois
 
     signalprocessregex = (
-        "(gg|tt|bb|qq|Z|W)H_(?:"
+        "(gg|tt|bb|qq|Z|W|V)H_(?:"
         "(0(?:PM|M|PH|L1|L1Zg))|"
         "((?:g(?:1|2|4|1prime2|hzgs1prime2)[1234])*)_(positive|negative)|"
         "((?:(?:g1|g2|g4|g1prime2|ghzgs1prime2)_(?:[0-9peE+-]+)(?:_(?=.)|$))+)"
@@ -669,6 +669,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
             "qq": 4,
             "Z": 4,
             "W": 4,
+            "V": 4,
         }[productionmode]
         couplingnames = [self.getcouplingname(coupling) for coupling in self.anomalouscouplings]
         return [tuple(combination) for combination in itertools.combinations_with_replacement(couplingnames, maxpower)]
@@ -725,14 +726,14 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         match = re.match(self.signalprocessregex, process)
 
         if not match:
-            if any(process.startswith(_) for _ in ("ggH", "ttH", "bbH", "qqH", "ZH", "WH")):
+            if any(process.startswith(_) for _ in ("ggH", "ttH", "bbH", "qqH", "ZH", "WH", "VH")):
                 raise ValueError("Your signal process "+process+" doesn't match the pattern")
             return super(HZZAnomalousCouplingsFromHistograms, self).getYieldScale(bin, process)
 
         if match.group(1)+"H" in self.turnoff: return 0
 
         if match.group(1) in ("gg", "tt", "bb"): maxpower = 2; production = "ffH"
-        elif match.group(1) in ("qq", "Z", "W"): maxpower = 4; production = "VVH"
+        elif match.group(1) in ("qq", "Z", "W", "V"): maxpower = 4; production = "VVH"
 
         if match.group(2) is not None:
             powerdict = {self.getcouplingname(match.group(2)): maxpower}
