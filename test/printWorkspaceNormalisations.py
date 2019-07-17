@@ -17,11 +17,16 @@ if hasHelp: argv.append("-h")
 
 parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
 parser.add_option("", "--printValueOnly",  dest="printValueOnly", default=False, action='store_true', help="Just print the default value of the normalisation.")
+parser.add_option("", "--min_threshold",  dest="min_threshold", default=-1.0, type='float', help="Only print values if yield is greater than this threshold.")
+parser.add_option("", "--max_threshold",  dest="max_threshold", default=-1.0, type='float', help="Only print values if yield is less than this threshold.")
+
 
 (options, args) = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
     exit(1)
+
+if options.max_threshold < options.min_threshold : exit("Error - require that --max_threshold is larger than --min_threshold!")
 
 file_in = ROOT.TFile(args[0])
 ws = file_in.Get("w")
@@ -80,10 +85,15 @@ for chan in chan_procs.keys():
  print "Channel - %s "%chan 
  chanInfo  = chan_procs[chan]
  for proc in chanInfo :
+  skipProc=False
+  if options.min_threshold > 0 : skipProc = (proc[1].getVal() < options.min_threshold)
+  if options.max_threshold > 0 : skipProc = (proc[1].getVal() > options.max_threshold)
+  if skipProc: continue 
   print "---------------------------------------------------------------------------"
   print "  Top-level normalisation for process %s -> %s"%(proc[0],proc[1].GetName())
   print "  -------------------------------------------------------------------------"
   if options.printValueOnly: print "  default value = ",proc[1].getVal()
+  #if options.printValueOnly: print " --xcp %s:%s "%(chan,proc[0]),
   else: 
     if proc[2]: 
       proc_norm_var = ws.function("n_exp_bin%s_proc_%s"%(chan,proc[0]))

@@ -382,6 +382,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
     }
+
+    // Fix for large RooAddPdfs
+    utils::RooAddPdfFixer addpdfFixer;
+    addpdfFixer.FixAll(*w);
     
     // Specific settings should be executed before user specified ranges!
     RooRealVar *r = (RooRealVar*)POI->first();

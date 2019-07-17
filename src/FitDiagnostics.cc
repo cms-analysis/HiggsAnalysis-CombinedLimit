@@ -222,6 +222,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
 	    (*it)->Draw(); 
 	    c1->Print((out_+"/"+(*it)->GetName()+"_prefit.png").c_str());
+	    c1->SetLogy();c1->Print((out_+"/"+(*it)->GetName()+"_prefit_logy.png").c_str()); c1->SetLogy(false);
 	    if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_prefit").c_str());
 	}
       }
@@ -308,6 +309,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_b.png").c_str());
+              c1->SetLogy(); c1->Print((out_+"/"+(*it)->GetName()+"_fit_b_logy.png").c_str()); c1->SetLogy(false);
               if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_fit_b").c_str());
           }
       }
@@ -419,6 +421,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_s.png").c_str());
+              c1->SetLogy(); c1->Print((out_+"/"+(*it)->GetName()+"_fit_s_logy.png").c_str()); c1->SetLogy(false);
               if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_fit_s").c_str());
           }
       }

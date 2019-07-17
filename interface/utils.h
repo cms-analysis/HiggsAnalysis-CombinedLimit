@@ -8,6 +8,7 @@
 #include <TString.h>
 #include <RooHistError.h>
 #include <RooFitResult.h>
+#include <RooAddPdf.h>
 #include <TH1.h>
 struct RooDataHist;
 struct RooAbsData;
@@ -119,5 +120,17 @@ namespace utils {
     int countFloating(const RooArgSet &);
     RooArgSet returnAllVars(RooWorkspace *);
     bool freezeAllDisassociatedRooMultiPdfParameters(RooArgSet multiPdfs, RooArgSet allRooMultiPdfParams, bool freeze=true);
+
+    // This is a workaround for a bug (?) in RooAddPdf that limits the number of elements
+    // to 100 when de-serialised from a TFile. We have to access a protected array and reallocate
+    // it with the correct size
+    class RooAddPdfFixer : public RooAddPdf {
+    public:
+      RooAddPdfFixer() : RooAddPdf() {}
+      RooAddPdfFixer(RooAddPdfFixer const& other) : RooAddPdf(other) {}
+
+      void Fix(RooAddPdf & fixme);
+      void FixAll(RooWorkspace & w);
+    };
 }
 #endif
