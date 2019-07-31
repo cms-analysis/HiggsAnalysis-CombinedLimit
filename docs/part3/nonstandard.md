@@ -261,7 +261,7 @@ A plot summarising the nuisance parameter values and impacts can be made with `p
 
 The first page of the output is shown below. 
 
-![Impacts](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/doc/part3/images/impacts.png)
+![](images/impacts.png)
 
 
 The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it. 
