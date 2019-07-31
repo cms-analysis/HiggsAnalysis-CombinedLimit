@@ -724,6 +724,17 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
         string line;
         while ( std::getline( file, line) )
         {
+            if (boost::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
+            { 
+               if (line.find(" C ") != string::npos) continue; // don't deal with constants
+               line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
+               string tosearch=" = ",replace="=";
+               line.replace(line.find(tosearch), tosearch.size(), replace);
+               line=line.substr(0,line.find("+"));
+               line=line.substr(0,line.find(" C "));
+
+            }
+            if (line == "") continue;
             std::cout<<"Adding term to setParamers:"<<line<<std::endl; // DEBUG
             SetParameterExpressionList.push_back(line);
         }
@@ -812,6 +823,23 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
         string line;
         while ( std::getline( file, line) )
         {
+            if (boost::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
+            { 
+               if (line.find(" C ") != string::npos) continue; // don't deal with constants
+               //RooRealVar::cms_ps = -0.013155 +/- 0.995142  L(-INF - +INF) 
+               line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
+               string newline=line.substr(0,line.find(" = "));
+               size_t pos1=line.find("=")+1, pos2=line.find(" +/- ");
+               float value=std::atof(line.substr(pos1, pos2-pos1).c_str());
+               std::cout<<"->Obtainig value from:"<<pos1<<","<<pos2<<":"<<line.substr(pos1, pos2-pos1).c_str()<<std::endl;
+               size_t pos3=line.find(" ",pos2+5);
+               float err = std::atof(line.substr(pos2+5,pos3-(pos2+5)).c_str());
+               float mult=7; // arbitrary number
+               std::cout<<"Range manipulation result: "<<newline<<"="<< value<<"+/-"<<err<<"Mult factor"<<mult<<std::endl;
+               newline += Form("=%f,%f",value-mult*err,value+mult*err);
+               line=newline;
+            }
+            if (line == "") continue;
             std::cout<<"Adding term to setParameterRanges:"<<line<<std::endl; // DEBUG
             SetParameterRangeExpressionList.push_back(line);
         }
