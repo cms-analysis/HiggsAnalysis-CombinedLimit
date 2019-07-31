@@ -755,7 +755,8 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         else:
             assert False
 
-        print "Process {0} will scale by {1}".format(process,result)
+        if self.verbose:
+            print "Process {0} will scale by {1}".format(process,result)
 
         return result
 
