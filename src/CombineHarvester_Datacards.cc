@@ -26,7 +26,7 @@
 #include "CombineHarvester/CombineTools/interface/TFileIO.h"
 #include "CombineHarvester/CombineTools/interface/Algorithm.h"
 #include "CombineHarvester/CombineTools/interface/GitVersion.h"
-
+#include "CombineHarvester/CombineTools/interface/zstr.hpp"
 namespace ch {
 
 // Extract info from filename using parse rule like:
@@ -725,11 +725,23 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     throw std::runtime_error(FNERROR(
         std::string("Output ROOT file is not open: ") + root_file.GetName()));
   }
-  std::ofstream txt_file;
-  txt_file.open(name);
-  if (!txt_file.is_open()) {
+
+  std::unique_ptr<std::ostream> txt_file_ptr = nullptr;
+
+  // Figure out if the datacard name ends with ".gz"
+  std::string zip_ext = ".gz";
+  bool has_zip_ext = (name.length() >= zip_ext.length() && name.compare(name.length() - zip_ext.length(), zip_ext.length(), zip_ext) == 0);
+
+  if (has_zip_ext) {
+    txt_file_ptr = std::make_unique<zstr::ofstream>(name);
+  } else {
+    txt_file_ptr = std::make_unique<std::ofstream>(name);
+  }
+  if (txt_file_ptr->fail()) {
     throw std::runtime_error(FNERROR("Unable to create file: " + name));
   }
+
+  std::ostream & txt_file = *txt_file_ptr;
 
   txt_file << "# Datacard produced by CombineHarvester with git status: "
            << ch::GitVersion() << "\n";
@@ -1259,8 +1271,6 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   for (auto const& postl : post_lines_) {
     txt_file << postl << "\n";
   }
-
-  txt_file.close();
 }
 
 void CombineHarvester::WriteHistToFile(
