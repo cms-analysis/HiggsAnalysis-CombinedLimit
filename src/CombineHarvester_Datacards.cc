@@ -659,6 +659,14 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
                          ":" + obj_sys_name;
           break;
         }
+        if (sys->pdf_u()) {
+          obj_sys_name = std::string(sys->pdf_u()->GetName());
+          boost::replace_all(obj_sys_name, sys->name() + "Up", "$SYSTEMATIC");
+          boost::replace_all(obj_sys_name, sys->process(), "$PROCESS");
+          obj_sys_name = std::string(pdf_ws_map[sys->pdf_u()]->GetName()) +
+                         ":" + obj_sys_name;
+          break;
+        }
       }
 
       // If the prototype pattern is already filled, but doesn't equal this
@@ -1039,7 +1047,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
                             ptr->process(), ptr->mass(), ptr->name(), 2);
             TH1::AddDirectory(add_dir);
             break;
-          } else if (ptr->data_u() && ptr->data_d()) {
+          } else if ( (ptr->data_u() && ptr->data_d()) || (ptr->pdf_u() && ptr->pdf_d()) ) {
           } else {
             if (!flags_.at("allow-missing-shapes")) {
               std::stringstream err;
