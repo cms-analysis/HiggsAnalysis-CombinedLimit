@@ -249,6 +249,10 @@ class ShapeBuilder(ModelBuilder):
             bbb_nuisanceargset = ROOT.RooArgSet()
             for nuisanceName in bbb_names:
                bbb_nuisanceargset.add(self.out.var(nuisanceName))
+               # FIXME - should restructure to have autoMCStats pdfs added
+               # to nuisPdfs *before* creating the final channel pdfs
+               if self.options.moreOptimizeSimPdf == "cms":
+                   self.out.nuisPdfs.add(self.out.pdf(nuisanceName + '_Pdf'))
             self.out.defineSet("group_autoMCStats",bbb_nuisanceargset)
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
