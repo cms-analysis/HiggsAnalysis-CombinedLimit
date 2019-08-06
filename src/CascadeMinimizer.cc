@@ -59,7 +59,7 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
 
 bool CascadeMinimizer::freezeDiscParams(const bool freeze)
 {
-    if (runtimedef::get(std::string("MINIMIZER_freezeDiscretes"))) {
+    if (runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"))) {
       CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs.Print();
       CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams.Print();
       bool ret =  utils::freezeAllDisassociatedRooMultiPdfParameters((CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs),(CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams),freeze);
@@ -354,7 +354,10 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
     }
 
+    freezeDiscParams(true); // We should do anyway this since there can also be some indeces which are frozen 
+
     bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
+    if (runtimedef::get(std::string("MINIMIZER_skipDiscreteIterations"))) doMultipleMini=false;
     // if ( doMultipleMini ) preFit_ = 1;
 
     minimizer_->setPrintLevel(verbose-2);  
@@ -469,7 +472,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         " [WARNING] Are you sure your model is correct?\n");
       Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- After fit, some parameters are found at the boundary (within ~1sigma)",__LINE__)),Logger::kLogLevelInfo,__func__);
     }
-
+    freezeDiscParams(true); 
     return ret;
 }
 
@@ -593,7 +596,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
       if (fitCounter>0) params->assignValueOnly(reallyCleanParameters); // no need to reset from 0'th fit
 
-      // Remove parameters which are not associated to the current PDF (only works if using --X-rtd MINIMIZER_freezeDiscretes=1
+      // Remove parameters which are not associated to the current PDF (only works if using --X-rtd MINIMIZER_freezeDisassociatedParams)
       freezeDiscParams(true);
 
       // FIXME can be made smarter than this
