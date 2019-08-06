@@ -160,8 +160,6 @@ void Systematic::set_pdf(RooAbsReal* pdf_u, RooAbsReal* pdf_d,
   pdf_d_ = pdf_d;
 }
 
-
-
 std::unique_ptr<TH1> Systematic::ClonedShapeU() const {
   if (!shape_u_) return std::unique_ptr<TH1>();
   std::unique_ptr<TH1> res(static_cast<TH1 *>(shape_u_->Clone()));
