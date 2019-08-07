@@ -1033,9 +1033,15 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(RooArgSet multiPdfs, Roo
 	} 
 	
 	if (multiPdfParams->getSize()>0 ) {
-	 std::cout << " Going to " << (freeze ? " freeze " : " float ") << " these disacociated params" << std::endl; 
-	 multiPdfParams->Print();
+	 std::cout << " Going to " << (freeze ? " freeze " : " float ") << " the following (disassociated) parameters" << std::endl; 
+	 multiPdfParams->Print("V");
 	 setAllConstant(*multiPdfParams,freeze);
+
+	 //std::cout << " Current state of all MultiPdfParams -> " << std::endl; 
+	 //std::auto_ptr<TIterator> iter_par(allRooMultiPdfParams.createIterator());
+	 //for (RooAbsArg *P = (RooAbsArg *) iter_par->Next(); P != 0; P = (RooAbsArg *) iter_par->Next()){
+	 //  std::cout << P->GetName() << ", constant=" << P->isConstant() << std::endl; 
+	 //}
 	 return true;
 	}
 
