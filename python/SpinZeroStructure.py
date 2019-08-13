@@ -335,7 +335,7 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         self.sqrts = None
         self.fixed = []
         self.floated = []
-        self.noRV = self.noRF = True
+        self.noRV = self.noRF = False
         #not doing muAsPOI or fixMu, there are too many permutations.
         #should just be set when running combine.
 
@@ -400,8 +400,10 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
 
         if self.noRV:
             self.fixed = [_ for _ in self.fixed if "RV" not in _]
+            self.floated = [_ for _ in self.floated if "RV" not in _]
         if self.noRF:
             self.fixed = [_ for _ in self.fixed if "RF" not in _]
+            self.floated = [_ for _ in self.floated if "RF" not in _]
 
         return processed
 
@@ -440,32 +442,16 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
 class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
     """
     This class expects histograms (which could be TH1 or RooDataHist) for each component of the PDF.
-    There are two ways to provide input, which cannot be mixed.
+    The histograms should be normalized to ai = 1.
 
-    Way 1:
-      This is the default input method.
-      The histograms should be normalized to ai = 1.
-      The pure components should be named ggH_0PM, qqH_0L1Zg, etc.
+    The pure components should be named ggH_0PM, qqH_0L1Zg, etc.
 
-      The interference components should be split in two, one for positive bins and one for negative bins flipped.
-      This way all bins are positive.
-      They should be named ZH_g13g1prime21_positive or ttH_g11g41_negative, for example.
-      And they should also be normalized to ai = 1, for all ais involved in that term.
+    The interference components should be split in two, one for positive bins and one for negative bins flipped.
+    This way all bins are positive.
+    They should be named ZH_g13g1prime21_positive or ttH_g11g41_negative, for example.
+    And they should also be normalized to ai = 1, for all ais involved in that term.
 
-      If the physics option scalegL1by10000 is provided, the L1 and L1Zg pure and interference components should be
-      normalized to g1prime2=10000 for HZZ and HZgamma, respectively.
-
-    Way 2:
-      Provide histograms for hypotheses rather than for components.
-      They should be named like this:
-        ggH_g1_1_g4_1
-        qqH_g1_1_g4_1_g1prime2_1e4
-      For decimal places, put p for the decimal place.
-      Optionally, the pure hypotheses are allowed to use the same names as the previous option,
-        e.g. 0PM means g1=1 and 0L1 means g1prime2=1
-      scalegL1by10000 applies to this case as well:
-        0L1 means g1prime2=10000 and the second example above should be set to qqH_g1_1_g4_1_g1prime2_1
-      The class will extract the interference coefficients automatically.
+    The only exception is the L1 and L1Zg terms, which should be scaled to g1prime2=10000 for HZZ and HZgamma
     """
 
     aidecay = {
@@ -478,12 +464,9 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
     def __init__(self):
         self.anomalouscouplings = []
         self.turnoff = []
-        self.scalegL1by10000 = False
-        self.templateinputmethod = None
-        self.removesmallmatrixentries = False
-        self.knownprocesses = collections.defaultdict(lambda: [])
-        self.matrixrows = collections.defaultdict(lambda: [])
-        self.__invertedmatrices = {}
+        self.scalegL1by10000 = True
+        self.useHffanomalous = False
+        self.separateggHttH = False
         super(HZZAnomalousCouplingsFromHistograms, self).__init__()
 
     def setPhysicsOptions(self, physOptions):
@@ -508,15 +491,11 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                 if po in self.anomalouscouplings: raise ValueError("Provided physOption "+po+" twice")
                 self.anomalouscouplings.append(po)
                 processed.append(po)
-            if po == "scalegL1by10000":
-                self.scalegL1by10000 = True
-                processed.append(po)
-            if po == "removesmallmatrixentries":
-                self.removesmallmatrixentries = True
-                processed.append(po)
 
-        if self.removesmallmatrixentries and not self.scalegL1by10000:
-            raise ValueError("removesmallmatrixentries only works if you also do scalegL1by10000.  Without it, there are actual small entries in the matrix.")
+            if po.lower() == "separategghtth":
+                self.separateggHttH = True
+                self.noRF = True
+                processed.append(po)
 
         if "fa1" not in self.anomalouscouplings: self.anomalouscouplings.append("fa1")
 
@@ -547,7 +526,28 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         return self.anomalouscouplings.index(self.sortedcouplings[i])
 
     def getPOIList(self):
-        self.modelBuilder.doVar("RF[1.0,0,10]")
+        if self.separateggHttH:
+            self.modelBuilder.doVar("Rg[1.0,0,400]")
+            self.modelBuilder.doVar("Rt[1.0,0,400]")
+            self.modelBuilder.out.var("Rg").setConstant(False)
+            self.modelBuilder.out.var("Rg").setAttribute("flatParam")
+            self.modelBuilder.out.var("Rt").setConstant(False)
+            self.modelBuilder.out.var("Rt").setAttribute("flatParam")
+
+            if self.useHffanomalous:
+                self.modelBuilder.doVar("fa3_ggH[0.,-1,1]")
+                self.modelBuilder.out.var("fa3_ggH").setConstant(False)
+                self.modelBuilder.out.var("fa3_ggH").setAttribute("flatParam")
+                self.modelBuilder.doVar('expr::ghg2("sqrt(1-abs(@0))", fa3_ggH)')
+                self.modelBuilder.doVar('expr::ghg4("(@0>0 ? 1 : -1) * sqrt(abs(@0))", fa3_ggH)')
+
+                self.modelBuilder.doVar("fCP_ttH[0.,-1,1]")
+                self.modelBuilder.out.var("fCP_ttH").setConstant(False)
+                self.modelBuilder.out.var("fCP_ttH").setAttribute("flatParam")
+                self.modelBuilder.doVar('expr::kappa("sqrt(1-abs(@0))", fCP_ttH)')
+                self.modelBuilder.doVar('expr::kappatilde("(@0>0 ? 1 : -1) * sqrt(abs(@0))", fCP_ttH)')
+        else:
+            self.modelBuilder.doVar("RF[1.0,0,10]")
         self.modelBuilder.doVar("RV[1.0,0,10]")
         self.modelBuilder.doVar("R[1.0,0,10]")
 
@@ -583,71 +583,62 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
         if self.scaledifferentsqrtsseparately: raise ValueError("HZZAnomalousCouplingsFromHistograms is not compatible with scaledifferentsqrtsseparately")
 
-        if self.templateinputmethod == 1:
-            for g in couplings:
-                self.modelBuilder.doVar('expr::ffH_{g}2("@0*@1*@2*@2", R, RF, {g})'.format(g=g))
-                self.modelBuilder.doVar('expr::VVH_{g}4("@0*@1*@2*@2*@2*@2", R, RV, {g})'.format(g=g))
+        for g in couplings:
+            if self.separateggHttH:
+                self.modelBuilder.doVar('expr::ggHVV_{g}2("@0*@1*@2*@2", R, Rg, {g})'.format(g=g))
+                self.modelBuilder.doVar('expr::ttHVV_{g}2("@0*@1*@2*@2", R, Rt, {g})'.format(g=g))
+                if self.useHffanomalous:
+                    self.modelBuilder.doVar('expr::ggHVV_ghg22_{g}2("@0*@1*@2*@2*@3*@3", R, Rg, ghg2, {g})'.format(g=g))
+                    self.modelBuilder.doVar('expr::ggHVV_ghg42_{g}2("@0*@1*@2*@2*@3*@3", R, Rg, ghg4, {g})'.format(g=g))
+                    self.modelBuilder.doVar('expr::ttHVV_kappa2_{g}2("@0*@1*@2*@2*@3*@3", R, Rt, kappa, {g})'.format(g=g))
+                    self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g}2("@0*@1*@2*@2*@3*@3", R, Rt, kappatilde, {g})'.format(g=g))
+            else:
+                self.modelBuilder.doVar('expr::ffHVV_{g}2("@0*@1*@2*@2", R, RF, {g})'.format(g=g))
+                assert not self.useHffanomalous
+            self.modelBuilder.doVar('expr::VVHVV_{g}4("@0*@1*@2*@2*@2*@2", R, RV, {g})'.format(g=g))
 
-            kwargs = {}
-            for kwargs["signname"], kwargs["sign"] in ("positive", ""), ("negative", "-"):
-                for kwargs["g1"], kwargs["g2"] in itertools.combinations(couplings, 2):
-                    self.modelBuilder.doVar('expr::ffH_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3", R, RF, {g1}, {g2})'.format(**kwargs))
-                    self.modelBuilder.doVar('expr::VVH_{g1}1{g2}3_{signname}("{sign}@0*@1*@2*@3*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
-                    self.modelBuilder.doVar('expr::VVH_{g1}2{g2}2_{signname}("{sign}@0*@1*@2*@2*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
-                    self.modelBuilder.doVar('expr::VVH_{g1}3{g2}1_{signname}("{sign}@0*@1*@2*@2*@2*@3", R, RV, {g1}, {g2})'.format(**kwargs))
+        kwargs = {}
+        for kwargs["signname"], kwargs["sign"] in ("positive", ""), ("negative", "-"):
+            for kwargs["g1"], kwargs["g2"] in itertools.combinations(couplings, 2):
+                if self.separateggHttH:
+                    self.modelBuilder.doVar('expr::ggHVV_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3", R, Rg, {g1}, {g2})'.format(**kwargs))
+                    self.modelBuilder.doVar('expr::ttHVV_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3", R, Rt, {g1}, {g2})'.format(**kwargs))
+                    if self.useHffanomalous:
+                        self.modelBuilder.doVar('expr::ggHVV_ghg22_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rg, ghg2, {g1}, {g2})'.format(**kwargs))
+                        self.modelBuilder.doVar('expr::ggHVV_ghg42_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rg, ghg4, {g1}, {g2})'.format(**kwargs))
+                        self.modelBuilder.doVar('expr::ttHVV_kappa2_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rt, kappa, {g1}, {g2})'.format(**kwargs))
+                        self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rt, kappatilde, {g1}, {g2})'.format(**kwargs))
+                else:
+                    self.modelBuilder.doVar('expr::ffHVV_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3", R, RF, {g1}, {g2})'.format(**kwargs))
+                    assert not self.useHffanomalous
+                self.modelBuilder.doVar('expr::VVHVV_{g1}1{g2}3_{signname}("{sign}@0*@1*@2*@3*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVHVV_{g1}2{g2}2_{signname}("{sign}@0*@1*@2*@2*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVHVV_{g1}3{g2}1_{signname}("{sign}@0*@1*@2*@2*@2*@3", R, RV, {g1}, {g2})'.format(**kwargs))
 
-                for kwargs["g1"], kwargs["g2"], kwargs["g3"] in itertools.combinations(couplings, 3):
-                    self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}2_{signname}("{sign}@0*@1*@2*@3*@4*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
-                    self.modelBuilder.doVar('expr::VVH_{g1}1{g2}2{g3}1_{signname}("{sign}@0*@1*@2*@3*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
-                    self.modelBuilder.doVar('expr::VVH_{g1}2{g2}1{g3}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+            for kwargs["g1"], kwargs["g2"], kwargs["g3"] in itertools.combinations(couplings, 3):
+                self.modelBuilder.doVar('expr::VVHVV_{g1}1{g2}1{g3}2_{signname}("{sign}@0*@1*@2*@3*@4*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVHVV_{g1}1{g2}2{g3}1_{signname}("{sign}@0*@1*@2*@3*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
+                self.modelBuilder.doVar('expr::VVHVV_{g1}2{g2}1{g3}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RV, {g1}, {g2}, {g3})'.format(**kwargs))
 
-                for kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"] in itertools.combinations(couplings, 4):
-                    self.modelBuilder.doVar('expr::VVH_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@0*@1*@2*@3*@4*@5", R, RV, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
-
-        elif self.templateinputmethod == 2:
-            for pm, knownprocesses in self.knownprocesses.iteritems():
-                vectoroftuplesofcouplings = self.matrixcolumns(pm)
-                i = 2
-                couplingstorooabsargindices = collections.OrderedDict()
-                for coupling in sum(vectoroftuplesofcouplings, ()):
-                    if coupling in couplingstorooabsargindices: continue
-                    couplingstorooabsargindices[coupling] = "@{:d}".format(i)
-                    i += 1
-                vectorofcouplingproductstrings = [
-                    "*".join(
-                        couplingstorooabsargindices[coupling] for coupling in tupleofcouplings
-                    ) for tupleofcouplings in vectoroftuplesofcouplings
-                ]
-
-                for process, columnofinvertedmatrix in zip(knownprocesses, self.getinvertedmatrix(pm).T):
-                    self.modelBuilder.doVar(
-                        'expr::{process}_multiplier("@0*@1*({dotproduct})", R, R{VorF}, {couplings})'.format(
-                            process=process,
-                            dotproduct="+".join(
-                                "{:g}*{}".format(coefficient, couplingstring)
-                                for coefficient, couplingstring in zip(columnofinvertedmatrix, vectorofcouplingproductstrings)
-                                if coefficient != 0
-                            ),
-                            VorF={"gg": "F", "bb": "F", "tt": "F", "qq": "V", "Z": "V", "W": "V", "V": "V"}[pm],
-                            couplings=", ".join(couplingstorooabsargindices),
-                        )
-                    )
-        else:
-            assert False, self.templateinputmethod
-
+            for kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"] in itertools.combinations(couplings, 4):
+                self.modelBuilder.doVar('expr::VVHVV_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@0*@1*@2*@3*@4*@5", R, RV, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
 
         return pois
 
     signalprocessregex = (
-        "(gg|tt|bb|qq|Z|W|V)H_(?:"
-        "(0(?:PM|M|PH|L1|L1Zg))|"
-        "((?:g(?:1|2|4|1prime2|hzgs1prime2)[1234])*)_(positive|negative)|"
-        "((?:(?:g1|g2|g4|g1prime2|ghzgs1prime2)_(?:[0-9peE+-]+)(?:_(?=.)|$))+)"
+        "(?P<production>gg|tt|bb|qq|Z|W|V)H_"
+        "(?:(?P<Hffpure>0(?:PM|M)ff)_)?"
+        "(?:"
+          "(?P<HVVpure>0(?:PM|M|PH|L1|L1Zg))|"
+          "(?P<HVVint>(?:g(?:1|2|4|1prime2|hzgs1prime2)[1234])*)_(?P<HVVintsign>positive|negative)"
         ")$"
     )
 
     @staticmethod
-    def getcouplingname(processorfai):
+    def getcouplingname(processorfai, production=None):
+        if processorfai == "0PMff": return {"gg": "ghg2", "tt": "kappa", "bb": "kappa"}[production]
+        if processorfai == "0Mff": return {"gg": "ghg4", "tt": "kappatilde", "bb": "kappatilde"}[production]
+
         return {
             "0PM": "g1",
             "0PH": "g2",
@@ -661,66 +652,11 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
             "fL1Zg": "ghzgs1prime2",
         }[processorfai]
 
-    def matrixcolumns(self, productionmode):
-        maxpower = {
-            "gg": 2,
-            "tt": 2,
-            "bb": 2,
-            "qq": 4,
-            "Z": 4,
-            "W": 4,
-            "V": 4,
-        }[productionmode]
-        couplingnames = [self.getcouplingname(coupling) for coupling in self.anomalouscouplings]
-        return [tuple(combination) for combination in itertools.combinations_with_replacement(couplingnames, maxpower)]
-
-    def makematrixrow(self, productionmode, couplingsandvalues):
-        return [np.prod([couplingsandvalues.get(coupling, 0) for coupling in column]) for column in self.matrixcolumns(productionmode)]
-
-    def tellAboutProcess(self,bin,process):
+    def tellAboutProcess(self, bin, process):
         match = re.match(self.signalprocessregex, process)
-        if not match: return
-
-        pm = match.group(1)
-        if match.group(3) is not None:
-            if self.templateinputmethod is None:
-                self.templateinputmethod = 1
-            elif self.templateinputmethod != 1:
-                raise ValueError("Inconsistent template input methods!  Check the documentation for "+ type(self).__name__)
-        if match.group(5) is not None:
-            if self.templateinputmethod is None:
-                self.templateinputmethod = 2
-            elif self.templateinputmethod != 2:
-                raise ValueError("Inconsistent template input methods!  Check the documentation for "+ type(self).__name__)
-            couplingsandvalueslist = match.group(5).split("_")
-            couplings = couplingsandvalueslist[::2]
-            values = couplingsandvalueslist[1::2]
-            couplingsandvalues = {coupling: float(value.replace("p", ".")) for coupling, value in zip(couplings, values)}
-        if match.group(2) is not None:  #could be input method 1 or 2
-            couplingsandvalues = {self.getcouplingname(match.group(2)): 1}
-
-        if process not in self.knownprocesses[pm] and self.templateinputmethod != 1:
-            self.knownprocesses[pm].append(process)
-            self.matrixrows[pm].append(self.makematrixrow(pm, couplingsandvalues))
-
-    def getinvertedmatrix(self, productionmode):
-        try:
-            return self.__invertedmatrices[productionmode]
-        except KeyError:
-            pass
-
-        matrix = np.array(self.matrixrows[productionmode])
-        if matrix.shape[0] != matrix.shape[1]:
-            raise ValueError("You've provided the wrong number of processes for {}: you gave {}, should be {}".format(productionmode, *matrix.shape))
-        try:
-            invertedmatrix = self.__invertedmatrices[productionmode] = np.linalg.inv(matrix)
-        except np.linalg.LinAlgError as e:
-            raise np.linalg.LinAlgError("Error when inverting the matrix for "+productionmode+".  Check that your provided hypotheses are linearly independent.\n"+e.message)
-
-        if self.removesmallmatrixentries:
-            invertedmatrix[np.isclose(invertedmatrix, 0)] = 0
-
-        return invertedmatrix
+        if match and match.group("Hffpure"):
+            self.useHffanomalous = True
+            if not self.separateggHttH: raise ValueError("Common anomalous couplings in ggH and ttH aren't implemented")
 
     def getYieldScale(self,bin,process):
         match = re.match(self.signalprocessregex, process)
@@ -730,16 +666,25 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                 raise ValueError("Your signal process "+process+" doesn't match the pattern")
             return super(HZZAnomalousCouplingsFromHistograms, self).getYieldScale(bin, process)
 
-        if match.group(1)+"H" in self.turnoff: return 0
+        if match.group("production")+"H" in self.turnoff: return 0
 
-        if match.group(1) in ("gg", "tt", "bb"): maxpower = 2; production = "ffH"
-        elif match.group(1) in ("qq", "Z", "W", "V"): maxpower = 4; production = "VVH"
+        if self.separateggHttH and match.group("production") == "gg": maxpower = 2; production = "ggHVV"
+        elif self.separateggHttH and match.group("production") in ("tt", "bb"): maxpower = 2; production = "ttHVV"
+        elif match.group("production") in ("gg", "tt", "bb"): maxpower = 2; production = "ffHVV"
+        elif match.group("production") in ("qq", "Z", "W", "V"): maxpower = 4; production = "VVHVV"
 
-        if match.group(2) is not None:
-            powerdict = {self.getcouplingname(match.group(2)): maxpower}
-            result = production + "_" + "".join("{}{}".format(k, v) for k, v in powerdict.iteritems())
-        elif match.group(3) is not None:
-            powerdict = {coupling: int(power) for coupling, power in re.findall("(g(?:1|2|4|1prime2|hzgs1prime2))([1234])", match.group(3))}
+        result = production
+
+        if match.group("Hffpure") is not None:
+            if match.group("production") not in ("gg", "tt", "bb"): raise ValueError("Don't put fermion couplings for {}H: {}".format(match.group("production"), process))
+            Hffpowerdict = {self.getcouplingname(match.group("Hffpure"), match.group("production")): 2}
+            result += "_" + "".join("{}{}".format(k, v) for k, v in Hffpowerdict.iteritems())
+
+        if match.group("HVVpure") is not None:
+            powerdict = {self.getcouplingname(match.group("HVVpure")): maxpower}
+            result += "_" + "".join("{}{}".format(k, v) for k, v in powerdict.iteritems())
+        elif match.group("HVVint") is not None:
+            powerdict = {coupling: int(power) for coupling, power in re.findall("(g(?:1|2|4|1prime2|hzgs1prime2))([1234])", match.group("HVVint"))}
 
             if sum(powerdict.values()) != maxpower:
                 raise ValueError("power dict doesn't add up properly!  Sum should be {}\n{}\n{}".format(maxpower, process, powerdict))
@@ -748,10 +693,8 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                 sorted(powerdict.iteritems(), key = lambda x: "g1 g4 g2 g1prime2 ghzgs1prime2".index(x[0]))
             )
 
-            sign = match.group(4)
-            result = production + "_" + "".join("{}{}".format(k, v) for k, v in powerdict.iteritems()) + "_" + sign
-        elif match.group(5) is not None:
-            result = process+"_multiplier"
+            sign = match.group("HVVintsign")
+            result += "_" + "".join("{}{}".format(k, v) for k, v in powerdict.iteritems()) + "_" + sign
         else:
             assert False
 
