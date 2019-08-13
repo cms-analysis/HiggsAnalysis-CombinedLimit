@@ -248,7 +248,7 @@ def getHiggsProdDecMode(bin,process,options):
     processSource = process
     decaySource   = options.fileName+":"+bin # by default, decay comes from the datacard name or bin label
     if "_" in process: 
-        (processSource, decaySource) = process.split("_")[0],process.split("_")[-1] # ignore anything in the middle for SM-like higgs
+        (processSource, decaySource) = (process.split("_")[0],process.split("_")[-1]) # ignore anything in the middle for SM-like higgs
         if decaySource not in ALL_HIGGS_DECAYS:
             print "ERROR", "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
             #raise RuntimeError, "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
@@ -275,7 +275,7 @@ def getHiggsProdDecMode(bin,process,options):
     if not foundEnergy:
         foundEnergy = '13TeV' ## if using 81x, chances are its 13 TeV
         print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
-    #
+    if (processSource=="WPlusH" or processSource=="WMinusH"): processSource = "WH" # treat them the same for now
     return (processSource, foundDecay, foundEnergy)
 
 class SMLikeHiggsModel(PhysicsModel):

@@ -1,5 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
 
 #include <cstdio>
 #include <iostream>
@@ -28,6 +29,7 @@
 #include <RooWorkspace.h>
 #include <RooPlot.h>
 #include <RooStats/ModelConfig.h>
+#include <RooStats/RooStatsUtils.h>
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -37,6 +39,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
 
 using namespace std;
 
@@ -306,7 +309,7 @@ void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &a
     std::auto_ptr<TIterator> iterAll(allObjects.createIterator());
     std::auto_ptr<TIterator> iterVal(values.createIterator());
     for (RooAbsArg *v = (RooAbsArg *) iterVal->Next(); v != 0; v = (RooAbsArg *) iterVal->Next()) {
-        if (typeid(*v) != typeid(RooRealVar)) continue;
+        if (typeid(*v) != typeid(RooRealVar) && typeid(*v) != typeid(RooCategory)) continue;
         std::auto_ptr<TIterator> clientIter(v->clientIterator());
         for (RooAbsArg *a = (RooAbsArg *) clientIter->Next(); a != 0; a = (RooAbsArg *) clientIter->Next()) {
             if (allObjects.containsInstance(*a) && !clients.containsInstance(*a)) clients.add(*a);
@@ -1007,3 +1010,32 @@ RooArgSet utils::returnAllVars(RooWorkspace *w){
 	args.add(w->allCats());
 	return args;
 }
+
+bool utils::freezeAllDisassociatedRooMultiPdfParameters(RooArgSet multiPdfs, RooArgSet allRooMultiPdfParams, bool freeze){
+    
+	RooArgSet *multiPdfParams = (RooArgSet*) allRooMultiPdfParams.Clone();
+
+	// For each multiPdf, get the active pdf and remove its parameters 
+	// from this list of params and then freeze the remaining ones 
+	
+        std::auto_ptr<TIterator> iter_p(multiPdfs.createIterator());
+        for (RooAbsArg *P = (RooAbsArg *) iter_p->Next(); P != 0; P = (RooAbsArg *) iter_p->Next()) {
+	  RooMultiPdf *mpdf = dynamic_cast<RooMultiPdf *>(P);
+	  RooAbsPdf *pdf = (RooAbsPdf*)mpdf->getCurrentPdf();
+	  std::cout << " Current active PDF - " << pdf->GetName() <<std::endl;
+	  RooArgSet *pdfPars = pdf->getParameters((const RooArgSet*)0);
+	  RooStats::RemoveConstantParameters(pdfPars); // make sure still to ignore user set constants 
+	  multiPdfParams->remove(*pdfPars);
+
+	} 
+	
+	if (multiPdfParams->getSize()>0 ) {
+	 std::cout << " Going to freeze these disacociated params" << std::endl; 
+	 multiPdfParams->Print();
+	 setAllConstant(*multiPdfParams,freeze);
+	 return true;
+	}
+
+	return false;
+}
+
