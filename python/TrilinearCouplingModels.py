@@ -215,7 +215,7 @@ def getGenProdDecMode(bin,process,options):
     #
     return (processSource, foundDecay, foundEnergy)
 
-class TrilinearHiggs(PhysicsModel):
+class TrilinearHiggsDifferential(PhysicsModel):
     "Float independently cross sections and branching ratios"
     def __init__(self):
         PhysicsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
@@ -285,6 +285,8 @@ class TrilinearHiggs(PhysicsModel):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
         if not self.DC.isSignal[process]: return 1
         (processSource, foundDecay, foundEnergy) = getGenProdDecMode(bin,process,self.options)
+        if foundDecay!="hgg": raise RuntimeError, "Only decay H->gamma gamma supported right now in differential model"
+
 	print "Will scale ", bin, process, " by ", self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy) 
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
  
@@ -303,4 +305,4 @@ class TrilinearHiggs(PhysicsModel):
         return name
 
 trilinearHiggskVkF = TrilinearHiggsKappaVKappaF()
-trilinearHiggs = TrilinearHiggs()
+trilinearHiggsDifferential = TrilinearHiggsDifferential()
