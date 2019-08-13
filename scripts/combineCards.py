@@ -39,6 +39,19 @@ paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; r
 extArgs = {}; binParFlags = {}
 nuisanceEdits = [];
 
+def compareParamSystLines(a,b):
+  if float(a[0])!=float(b[0]): return False
+  if "/" in a[1]: 
+    if "/" not in b[1] : return False
+    a1,a2 = a[1].split("/")
+    b1,b2 = b[1].split("/")
+    if float(a1)!=float(b1): return False
+    if float(a2)!=float(b2): return False
+  else: 
+    if float(a[1])!=float(a[1]): return False
+  return True
+
+
 cmax = 5 # column width
 if not args:
     raise RuntimeError, "No input datacards specified."
@@ -75,7 +88,8 @@ for ich,fname in enumerate(args):
         systeffect = {}
         if pdf == "param":
             if paramSysts.has_key(lsyst):
-               if paramSysts[lsyst] != pdfargs: raise RuntimeError, "Parameter uncerainty %s mismatch between cards." % lsyst
+               #if paramSysts[lsyst] != pdfargs: 
+	       if not compareParamSystLines(paramSysts[lsyst],pdfargs) : raise RuntimeError, "Parameter uncerainty %s mismatch between cards, %g != %g" % lsyst
             else:
                 paramSysts[lsyst] = pdfargs
             continue
