@@ -60,7 +60,12 @@ for ich,fname in enumerate(args):
     if "=" in fname: (label,fname) = fname.split("=")
     fname = options.fprefix+fname
     dirname = os.path.dirname(fname)
-    file = open(fname, "r")
+    if fname.endswith(".gz"):
+        import gzip
+        file = gzip.open(fname, "rb")
+        fname = fname[:-3]
+    else:
+        file = open(fname, "r")
     DC = parseCard(file, options)
     singlebin = (len(DC.bins) == 1)
     if label == ".":
