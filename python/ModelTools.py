@@ -440,6 +440,7 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                           self.doVar("%s[%g,%g]" % (n, mean-4*float(sigmaL), mean+4*float(sigmaR)))
                     self.out.var(n).setVal(mean)
+                    self.out.var(n).setError(0.5*(sigmaL+sigmaR))
 
                     sigmaStrL = sigmaL
                     sigmaStrR = sigmaR
@@ -456,6 +457,7 @@ class ModelBuilder(ModelBuilderBase):
                         self.out.var(n).setRange(self.out.function('%s_BoundLo' % n), self.out.function('%s_BoundHi' % n))
                 else:
                     if len(args) == 3: # mean, sigma, range
+		    	sigma = double(args[2])
                         if self.out.var(n):
                           bounds = [float(x) for x in args[2][1:-1].split(",")]
                           self.out.var(n).setConstant(False)
@@ -472,7 +474,7 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                           self.doVar("%s[%g,%g]" % (n, mean-4*sigma, mean+4*sigma))
                     self.out.var(n).setVal(mean)
-                    #self.out.var(n).setError(sigma)
+                    self.out.var(n).setError(sigma)
                     sigmaStr = args[1]
                     if is_func_scaled:
                         sigmaStr = '%s_WidthScaled' % n
@@ -631,6 +633,7 @@ class ModelBuilder(ModelBuilderBase):
                     for kappa, thetaName in logNorms: procNorm.addLogNormal(kappa, self.out.function(thetaName))
                     for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
                     for factorName in factors:
+		        print factorName 
 		    	if self.out.function(factorName): procNorm.addOtherFactor(self.out.function(factorName))
 			else: procNorm.addOtherFactor(self.out.var(factorName))
                     self.out._import(procNorm)
