@@ -633,7 +633,6 @@ class ModelBuilder(ModelBuilderBase):
                     for kappa, thetaName in logNorms: procNorm.addLogNormal(kappa, self.out.function(thetaName))
                     for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
                     for factorName in factors:
-		        print factorName 
 		    	if self.out.function(factorName): procNorm.addOtherFactor(self.out.function(factorName))
 			else: procNorm.addOtherFactor(self.out.var(factorName))
                     self.out._import(procNorm)
