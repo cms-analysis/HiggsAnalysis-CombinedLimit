@@ -442,7 +442,9 @@ and for the individual `pdf_index` set to `X`,
 
 for `X=0,1,2`
 
-The above output will produce the following scans. 
+You can then plot the value of `2*(deltaNLL+nll+nll0)` to plot the absolute value of (twice) the negative log-likelihood, including the correction term for extra parameters in the different pdfs. 
+
+The above output will produce the following scans.  
 ![](images/discrete_profile.png)
 
 As expected, the curve obtained by allowing the `pdf_index` to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. 
