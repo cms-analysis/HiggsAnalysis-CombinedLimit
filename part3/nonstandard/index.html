@@ -617,7 +617,8 @@ h-&gt;Fit(&quot;gaus&quot;)
 </code></pre>
 
 <p>for <code>X=0,1,2</code></p>
-<p>The above output will produce the following scans. 
+<p>You can then plot the value of <code>2*(deltaNLL+nll+nll0)</code> to plot the absolute value of (twice) the negative log-likelihood, including the correction term for extra parameters in the different pdfs. </p>
+<p>The above output will produce the following scans.<br />
 <img alt="" src="../images/discrete_profile.png" /></p>
 <p>As expected, the curve obtained by allowing the <code>pdf_index</code> to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. </p>
 <h2 id="roosplinend-multidimensional-splines">RooSplineND multidimensional splines</h2>
