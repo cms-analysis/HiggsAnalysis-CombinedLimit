@@ -452,6 +452,13 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
     And they should also be normalized to ai = 1, for all ais involved in that term.
 
     The only exception is the L1 and L1Zg terms, which should be scaled to g1prime2=10000 for HZZ and HZgamma
+
+    For anomalous fermion couplings, call the histogram, for example, ttH_0PMff_0L1 or ggH_0Mff_g41g21_negative
+    Interference between fermion couplings is not implemented yet
+    In that case the histograms should be normalized to kappa=1 or kappa_tilde=1 for ttH, or g2=1 or g4=1 for ggH
+
+    By default, ttH and ggH anomalous couplings will be related.  The physicsmodel will take care of the scaling from
+    kappa_tilde to g4
     """
 
     aidecay = {
@@ -460,6 +467,8 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
       "g1prime2": -12100.42,
       "ghzgs1prime2": -7613.351302119843,
     }
+
+    kappa_tilde_ttH = 1.6
 
     def __init__(self):
         self.anomalouscouplings = []
@@ -526,6 +535,11 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         return self.anomalouscouplings.index(self.sortedcouplings[i])
 
     def getPOIList(self):
+        if self.useHffanomalous:
+            self.modelBuilder.doVar("fCP_Htt[0.,-1,1]")
+            self.modelBuilder.out.var("fCP_Htt").setConstant(False)
+            self.modelBuilder.out.var("fCP_Htt").setAttribute("flatParam")
+
         if self.separateggHttH:
             self.modelBuilder.doVar("Rg[1.0,0,400]")
             self.modelBuilder.doVar("Rt[1.0,0,400]")
@@ -538,16 +552,18 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                 self.modelBuilder.doVar("fa3_ggH[0.,-1,1]")
                 self.modelBuilder.out.var("fa3_ggH").setConstant(False)
                 self.modelBuilder.out.var("fa3_ggH").setAttribute("flatParam")
-                self.modelBuilder.doVar('expr::ghg2("sqrt(1-abs(@0))", fa3_ggH)')
-                self.modelBuilder.doVar('expr::ghg4("(@0>0 ? 1 : -1) * sqrt(abs(@0))", fa3_ggH)')
-
-                self.modelBuilder.doVar("fCP_ttH[0.,-1,1]")
-                self.modelBuilder.out.var("fCP_ttH").setConstant(False)
-                self.modelBuilder.out.var("fCP_ttH").setAttribute("flatParam")
-                self.modelBuilder.doVar('expr::kappa("sqrt(1-abs(@0))", fCP_ttH)')
-                self.modelBuilder.doVar('expr::kappatilde("(@0>0 ? 1 : -1) * sqrt(abs(@0))", fCP_ttH)')
         else:
             self.modelBuilder.doVar("RF[1.0,0,10]")
+            if self.useHffanomalous:
+                self.modelBuilder.doVar("expr::fa3_ggH(1 / (1 + 4/9. * (1/@0 - 1)), fCP_Htt)")
+
+        if self.useHffanomalous:
+            self.modelBuilder.doVar('expr::kappa("sqrt(1-abs(@0))", fCP_Htt)')
+            self.modelBuilder.doVar('expr::kappa_tilde("(@0>0 ? 1 : -1) * sqrt(abs(@0)) * {kappatildettH}", fCP_Htt)'.format(self.kappa_tilde_ttH))
+            self.modelBuilder.doVar('expr::ghg2("sqrt(1-abs(@0))", fa3_ggH)')
+            self.modelBuilder.doVar('expr::ghg4("(@0>0 ? 1 : -1) * sqrt(abs(@0))", fa3_ggH)')
+
+
         self.modelBuilder.doVar("RV[1.0,0,10]")
         self.modelBuilder.doVar("R[1.0,0,10]")
 
