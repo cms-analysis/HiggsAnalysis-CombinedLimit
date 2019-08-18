@@ -555,7 +555,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         else:
             self.modelBuilder.doVar("RF[1.0,0,10]")
             if self.useHffanomalous:
-                self.modelBuilder.doVar("expr::fa3_ggH(1 / (1 + 4/9. * (1/@0 - 1)), fCP_Htt)")
+                self.modelBuilder.doVar('expr::fa3_ggH("1. / (1. + 4./9. * (1.0 / @0 - 1.))", fCP_Htt)')
 
         if self.useHffanomalous:
             self.modelBuilder.doVar('expr::kappa("sqrt(1-abs(@0))", fCP_Htt)')
@@ -610,7 +610,11 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                     self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g}2("@0*@1*@2*@2*@3*@3", R, Rt, kappa_tilde, {g})'.format(g=g))
             else:
                 self.modelBuilder.doVar('expr::ffHVV_{g}2("@0*@1*@2*@2", R, RF, {g})'.format(g=g))
-                assert not self.useHffanomalous
+                if self.useHffanomalous:
+                    self.modelBuilder.doVar('expr::ggHVV_ghg22_{g}2("@0*@1*@2*@2*@3*@3", R, RF, ghg2, {g})'.format(g=g))
+                    self.modelBuilder.doVar('expr::ggHVV_ghg42_{g}2("@0*@1*@2*@2*@3*@3", R, RF, ghg4, {g})'.format(g=g))
+                    self.modelBuilder.doVar('expr::ttHVV_kappa2_{g}2("@0*@1*@2*@2*@3*@3", R, RF, kappa, {g})'.format(g=g))
+                    self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g}2("@0*@1*@2*@2*@3*@3", R, RF, kappa_tilde, {g})'.format(g=g))
             self.modelBuilder.doVar('expr::VVHVV_{g}4("@0*@1*@2*@2*@2*@2", R, RV, {g})'.format(g=g))
 
         kwargs = {}
@@ -626,7 +630,11 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                         self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rt, kappa_tilde, {g1}, {g2})'.format(**kwargs))
                 else:
                     self.modelBuilder.doVar('expr::ffHVV_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3", R, RF, {g1}, {g2})'.format(**kwargs))
-                    assert not self.useHffanomalous
+                    if self.useHffanomalous:
+                        self.modelBuilder.doVar('expr::ggHVV_ghg22_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RF, ghg2, {g1}, {g2})'.format(**kwargs))
+                        self.modelBuilder.doVar('expr::ggHVV_ghg42_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RF, ghg4, {g1}, {g2})'.format(**kwargs))
+                        self.modelBuilder.doVar('expr::ttHVV_kappa2_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RF, kappa, {g1}, {g2})'.format(**kwargs))
+                        self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, RF, kappa_tilde, {g1}, {g2})'.format(**kwargs))
                 self.modelBuilder.doVar('expr::VVHVV_{g1}1{g2}3_{signname}("{sign}@0*@1*@2*@3*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
                 self.modelBuilder.doVar('expr::VVHVV_{g1}2{g2}2_{signname}("{sign}@0*@1*@2*@2*@3*@3", R, RV, {g1}, {g2})'.format(**kwargs))
                 self.modelBuilder.doVar('expr::VVHVV_{g1}3{g2}1_{signname}("{sign}@0*@1*@2*@2*@2*@3", R, RV, {g1}, {g2})'.format(**kwargs))
@@ -672,7 +680,6 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         match = re.match(self.signalprocessregex, process)
         if match and match.group("Hffpure"):
             self.useHffanomalous = True
-            if not self.separateggHttH: raise ValueError("Common anomalous couplings in ggH and ttH aren't implemented")
 
     def getYieldScale(self,bin,process):
         match = re.match(self.signalprocessregex, process)
@@ -684,8 +691,8 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
         if match.group("production")+"H" in self.turnoff: return 0
 
-        if self.separateggHttH and match.group("production") == "gg": maxpower = 2; production = "ggHVV"
-        elif self.separateggHttH and match.group("production") in ("tt", "bb"): maxpower = 2; production = "ttHVV"
+        if (self.separateggHttH or match.group("Hffpure") is not None) and match.group("production") == "gg": maxpower = 2; production = "ggHVV"
+        elif (self.separateggHttH or match.group("Hffpure") is not None) and match.group("production") in ("tt", "bb"): maxpower = 2; production = "ttHVV"
         elif match.group("production") in ("gg", "tt", "bb"): maxpower = 2; production = "ffHVV"
         elif match.group("production") in ("qq", "Z", "W", "V"): maxpower = 4; production = "VVHVV"
 
