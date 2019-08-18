@@ -559,7 +559,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
         if self.useHffanomalous:
             self.modelBuilder.doVar('expr::kappa("sqrt(1-abs(@0))", fCP_Htt)')
-            self.modelBuilder.doVar('expr::kappa_tilde("(@0>0 ? 1 : -1) * sqrt(abs(@0)) * {kappatildettH}", fCP_Htt)'.format(self.kappa_tilde_ttH))
+            self.modelBuilder.doVar('expr::kappa_tilde("(@0>0 ? 1 : -1) * sqrt(abs(@0)) * {kappatildettH}", fCP_Htt)'.format(kappatildettH=self.kappa_tilde_ttH))
             self.modelBuilder.doVar('expr::ghg2("sqrt(1-abs(@0))", fa3_ggH)')
             self.modelBuilder.doVar('expr::ghg4("(@0>0 ? 1 : -1) * sqrt(abs(@0))", fa3_ggH)')
 
@@ -607,7 +607,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                     self.modelBuilder.doVar('expr::ggHVV_ghg22_{g}2("@0*@1*@2*@2*@3*@3", R, Rg, ghg2, {g})'.format(g=g))
                     self.modelBuilder.doVar('expr::ggHVV_ghg42_{g}2("@0*@1*@2*@2*@3*@3", R, Rg, ghg4, {g})'.format(g=g))
                     self.modelBuilder.doVar('expr::ttHVV_kappa2_{g}2("@0*@1*@2*@2*@3*@3", R, Rt, kappa, {g})'.format(g=g))
-                    self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g}2("@0*@1*@2*@2*@3*@3", R, Rt, kappatilde, {g})'.format(g=g))
+                    self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g}2("@0*@1*@2*@2*@3*@3", R, Rt, kappa_tilde, {g})'.format(g=g))
             else:
                 self.modelBuilder.doVar('expr::ffHVV_{g}2("@0*@1*@2*@2", R, RF, {g})'.format(g=g))
                 assert not self.useHffanomalous
@@ -623,7 +623,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
                         self.modelBuilder.doVar('expr::ggHVV_ghg22_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rg, ghg2, {g1}, {g2})'.format(**kwargs))
                         self.modelBuilder.doVar('expr::ggHVV_ghg42_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rg, ghg4, {g1}, {g2})'.format(**kwargs))
                         self.modelBuilder.doVar('expr::ttHVV_kappa2_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rt, kappa, {g1}, {g2})'.format(**kwargs))
-                        self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rt, kappatilde, {g1}, {g2})'.format(**kwargs))
+                        self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@2*@3*@4", R, Rt, kappa_tilde, {g1}, {g2})'.format(**kwargs))
                 else:
                     self.modelBuilder.doVar('expr::ffHVV_{g1}1{g2}1_{signname}("{sign}@0*@1*@2*@3", R, RF, {g1}, {g2})'.format(**kwargs))
                     assert not self.useHffanomalous
