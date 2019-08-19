@@ -555,7 +555,7 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
         else:
             self.modelBuilder.doVar("RF[1.0,0,10]")
             if self.useHffanomalous:
-                self.modelBuilder.doVar('expr::fa3_ggH("1. / (1. + 4./9. * (1.0 / @0 - 1.))", fCP_Htt)')
+                self.modelBuilder.doVar('expr::fa3_ggH("@0 == 0 ? 0 : (@0>0 ? 1 : -1) * 1. / (1. + 4./9. * (1.0 / abs(@0) - 1.))", fCP_Htt)')
 
         if self.useHffanomalous:
             self.modelBuilder.doVar('expr::kappa("sqrt(1-abs(@0))", fCP_Htt)')
