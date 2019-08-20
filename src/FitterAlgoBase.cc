@@ -12,6 +12,7 @@
 #include "RooProdPdf.h"
 #include "RooGaussian.h"
 #include "RooConstVar.h"
+#include "RooCategory.h"
 #include "RooPlot.h"
 //#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
 #include "RooMinimizer.h"
@@ -247,6 +248,17 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     }
     nll0Value_ =  nll0;
     nllValue_ =  nll->getVal() - nll0;
+    if (verbose >= 3) {
+        printf("FINAL NLL - NLL0 VALUE = %.10g\n", nllValue_);
+        if (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0) {
+            printf("FINAL CATEGORIES: ");
+            for (unsigned int ic = 0, nc = CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize(); ic != nc; ++ic) {
+                const RooCategory *cat = (RooCategory*)(CascadeMinimizerGlobalConfigs::O().pdfCategories.at(ic));
+                printf("%s%s=%d", (ic > 0 ? "," : ""), cat->GetName(), cat->getIndex());
+            }
+            printf("\n");
+        }
+    }
     if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
     if (doHesse) minim.hesse();
     sentry.clear();
