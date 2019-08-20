@@ -122,6 +122,12 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   //Significance::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
   CloseCoutSentry sentry(verbose < 0);
 
+  static bool setParams = runtimedef::get("SETPARAMETERS_AFTER_NLL");
+  if (setParams && allParameters_.getSize() == 0) {
+      allParameters_.add(w->allVars());
+      allParameters_.add(w->allCats());
+  }
+
   static bool shouldCreateNLLBranch = saveNLL_;
   if (shouldCreateNLLBranch) { Combine::addBranch("nll", &nllValue_, "nll/D"); Combine::addBranch("nll0", &nll0Value_, "nll0/D"); shouldCreateNLLBranch = false; }
 
@@ -217,6 +223,13 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     }
    
     double nll0 = nll->getVal();
+    if (runtimedef::get("SETPARAMETERS_AFTER_NLL")) {
+        utils::setModelParameters(setPhysicsModelParameterExpression_, allParameters_);
+        if (verbose >= 3) {
+            double nll_new = nll->getVal();
+            std::cout << "DELTA NLL FROM SETPARAMETERS = " << nll_new - nll0 << std::endl;
+        }
+    }
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
     double delta95 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.95,ndim);
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, rs.getSize() ? dynamic_cast<RooRealVar*>(rs.first()) : 0);
