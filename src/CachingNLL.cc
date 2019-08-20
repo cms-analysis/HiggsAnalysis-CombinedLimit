@@ -571,9 +571,9 @@ cacheutils::CachingAddNLL::setup_()
     std::auto_ptr<RooArgSet> params(pdf_->getParameters(*data_));
     std::auto_ptr<TIterator> iter(params->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
-        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        //if (rrv != 0 && !rrv->isConstant()) params_.add(*rrv);
-        if (rrv != 0) params_.add(*rrv);
+        if ( dynamic_cast<RooRealVar *>(a) || dynamic_cast<RooCategory *>(a) ) {
+            params_.add(*a);
+        }
     }
 
     multiPdfs_.clear();
