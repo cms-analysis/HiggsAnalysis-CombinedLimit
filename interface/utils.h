@@ -119,7 +119,7 @@ namespace utils {
     std::vector<std::vector<int> > generateOrthogonalCombinations(const std::vector<int> &vec);
     int countFloating(const RooArgSet &);
     RooArgSet returnAllVars(RooWorkspace *);
-    bool freezeAllDisassociatedRooMultiPdfParameters(RooArgSet multiPdfs, RooArgSet allRooMultiPdfParams, bool freeze=true);
+    bool freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiPdfs, const RooArgSet & allRooMultiPdfParams, bool freeze=true);
 
     // This is a workaround for a bug (?) in RooAddPdf that limits the number of elements
     // to 100 when de-serialised from a TFile. We have to access a protected array and reallocate
