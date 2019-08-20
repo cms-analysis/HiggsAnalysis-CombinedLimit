@@ -603,16 +603,6 @@ cacheutils::CachingAddNLL::evaluate() const
     PerfCounter::add("CachingAddNLL::evaluate called");
 #endif
 
-    // For multi pdf's need to reset the cache if index changed before evaluations
-    // unless they're being properly treated in the CachingPdf
-    static bool multiNll  = runtimedef::get("ADDNLL_MULTINLL");
-    if (!multiNll && !multiPdfs_.empty()) {
-        for (std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> >::iterator itp = multiPdfs_.begin(), edp = multiPdfs_.end(); itp != edp; ++itp) {
-		bool hasChangedPdf = itp->first->checkIndexDirty();
-		if (hasChangedPdf) itp->second->setDataDirty();
-        }
-    }
-
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
 
     std::vector<RooAbsReal*>::iterator  itc = coeffs_.begin(), edc = coeffs_.end();
