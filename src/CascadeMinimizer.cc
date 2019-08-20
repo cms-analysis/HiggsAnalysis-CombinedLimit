@@ -59,9 +59,13 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
 
 bool CascadeMinimizer::freezeDiscParams(const bool freeze)
 {
-    if (runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"))) {
-      CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs.Print();
-      CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams.Print();
+    static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
+    static bool freezeDisassParams_verb = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams_verbose"));
+    if (freezeDisassParams) {
+      if (freezeDisassParams_verb) {
+          CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs.Print();
+          CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams.Print();
+      }
       bool ret =  utils::freezeAllDisassociatedRooMultiPdfParameters((CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs),(CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams),freeze);
       return ret;
     } else {
