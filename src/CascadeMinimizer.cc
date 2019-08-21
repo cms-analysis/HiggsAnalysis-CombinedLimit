@@ -366,13 +366,9 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 
     minimizer_->setPrintLevel(verbose-2);  
     minimizer_->setStrategy(strategy_);
-    //if (preScan_) minimizer_->minimize("Minuit2","Scan");
- 
-    //if (preFit_ && nuisances != 0) {
     
     RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().nuisanceParameters;
 
-    
     if (preFit_ ) {
         RooArgSet frozen(nuisances);
         RooStats::RemoveConstantParameters(&frozen);
@@ -393,29 +389,6 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         minimizer_.reset(new RooMinimizer(nll_));
     }
     
-     // FIXME can be made smarter than this
-    /*
-    if (mode_ == Unconstrained && poiOnlyFit_) {
-        trivialMinimize(nll_, *poi_, 200);
-    } This is done inside the multiminimiser now*/
-    //if (nuisancePruningThreshold_ != 0) {
-    //    RooArgSet pruned; collectIrrelevantNuisances(pruned); 
-    //    bool ret = false;
-    //    if (pruned.getSize()) {
-    //        RooStats::RemoveConstantParameters(&pruned);
-    //        utils::setAllConstant(pruned, true);
-    //        minimizer_.reset(new RooMinimizerOpt(nll_));
-    //        ret = improve(verbose, cascade);
-    //        utils::setAllConstant(pruned, false);
-    //        minimizer_.reset(new RooMinimizerOpt(nll_));
-    //        if (ret == true && nuisancePruningThreshold_ > 0) {
-    //            return ret;
-    //        }
-    //    }
-    //    
-    //}
- 
-    //bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
     bool ret = true;
     if (!doMultipleMini){
     	if (mode_ == Unconstrained && poiOnlyFit_) {
