@@ -1,0 +1,11 @@
+bin                                thu
+ggH                                0.2
+qqH                                0.2
+WH_had                             0.2
+ZH_had                             0.2
+WH_lep                             0.2
+ZH_lep                             0.2
+ttH                                0.2
+tHq                                0.2
+tHW                                0.2
+bbH                                0.2

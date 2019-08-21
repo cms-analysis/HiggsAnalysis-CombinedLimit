@@ -1,0 +1,7 @@
+ggH:1 + 55.4 * cG
+qqH:1 -0.998 * cH -0.644 * cT + 4.15 * cWW -0.0497 * cB -3.3 * cHW -0.193 * cHB -0.000161 * cA + 0.105 * cG -2.91 * cpHQ -0.228 * cHu + 0.0492 * cHd
+WH_lep:1 -1 * cH + 44 * cWW + 21.6 * cHW + 34 * cpHQ + 2.01 * cpHL
+ZH_lep:1 -1 * cH -3.51 * cT + 35.6 * cWW + 9.38 * cB + 14.9 * cHW + 4.47 * cHB + 0.0294 * cA -1.08 * cHQ + 30.7 * cpHQ + 7.37 * cHu -2.59 * cHd -0.907 * cHL + 2.03 * cpHL -0.242 * cHe
+WH_had:1 -0.998 * cH -0.644 * cT + 4.15 * cWW -0.0497 * cB -3.3 * cHW -0.193 * cHB -0.000161 * cA + 0.105 * cG -2.91 * cpHQ -0.228 * cHu + 0.0492 * cHd
+ZH_had:1 -0.998 * cH -0.644 * cT + 4.15 * cWW -0.0497 * cB -3.3 * cHW -0.193 * cHB -0.000161 * cA + 0.105 * cG -2.91 * cpHQ -0.228 * cHu + 0.0492 * cHd
+ttH:1 -0.976 * cH + 2.94 * cu + 0.729 * cG + 0.589 * cuW + 312 * cuG + 30.8 * c3G -14.6 * c2G
