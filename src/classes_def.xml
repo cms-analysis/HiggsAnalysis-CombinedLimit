@@ -187,6 +187,7 @@
 	<class name="SimpleCacheSentry" />
 	<class name="SimpleGaussianConstraint" />
 	<class name="SimplePoissonConstraint" />
+	<class name="SimpleConstraintGroup" transient="true" />
 	<class name="TH1Keys" />
 	<class name="Triangle" />
 	<class name="VerticalInterpHistPdf" />

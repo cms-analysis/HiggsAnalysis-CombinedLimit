@@ -110,6 +110,7 @@ private:
   bool optSimPdf_;
   bool noMCbonly_;
   bool noDefaultPrior_;
+  bool makeToyGenSnapshot_;
   bool floatAllNuisances_;
   bool freezeAllGlobalObs_;
   std::vector<std::string> librariesToLoad_;

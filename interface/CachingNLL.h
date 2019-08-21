@@ -18,6 +18,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleConstraintGroup.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
@@ -193,6 +194,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<bool>                        constrainPdfsFastOwned_;
         std::vector<SimplePoissonConstraint *>   constrainPdfsFastPoisson_;
         std::vector<bool>                        constrainPdfsFastPoissonOwned_;
+        std::vector<SimpleConstraintGroup>       constrainPdfGroups_;
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;

@@ -548,3 +548,90 @@ Any existing datacard can be converted into such a template python script by usi
 
 For the automatic generation of datacards (which are combinable), you should instead use the [CombineHarvester](http://cms-analysis.github.io/CombineHarvester/) package which includes many features for producing complex datacards in a reliable, automated way.
 
+## Sanity checking the datacard 
+
+For large combinations with multiple channels/processes etc, the `.txt` file can get unweildy to read through. There are some simple tools to help check and disseminate the contents of the cards. 
+
+In order to get a quick view of the systematic uncertainties included in the datacard, you can use the `test/systematicsAnalyzer.py` tool. This will produce a list of the systematic uncertainties (normalisation and shape), indicating what type they are, which channels/processes they affect and the size of the affect on the normalisation (for shape uncertainties, this will just be the overall uncertaintly on the normalisation information).
+
+The default output is a `.html` file which allows you to expand to give more details about the affect of the systematic for each channel/process. Add the option `--format brief` to give a simpler summary report direct to the terminal. An example output for the tutorial card `data/tutorials/shapes/simple-shapes-TH1.txt` is shown below.
+
+```nohighlight 
+$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt > out.html
+```
+
+![systematics analyzer output](images/sysanalyzer.png)
+
+In case you only have a cut-and-count style card, include the option `--noshape`.
+
+If you have a datacard which uses several `rateParams` or a Physics model which includes some complicated product of normalisation terms in each process, you can check the values of the normalisation (and which objects in the workspace comprise them) using the `test/printWorkspaceNormalisations.py` tool. As an example, below is the first few blocks of output for the tutorial card `data/tutorials/counting/realistic-multi-channel.txt`. 
+ 
+```nohighlight
+$ text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
+$ python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root                                                                                                           
+
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+Channel - mu_tau
+---------------------------------------------------------------------------
+  Top-level normalisation for process ZTT -> n_exp_binmu_tau_proc_ZTT
+  -------------------------------------------------------------------------
+Dumping ProcessNormalization n_exp_binmu_tau_proc_ZTT @ 0x6bbb610
+	nominal value: 329
+	log-normals (3):
+		 kappa = 1.23, logKappa = 0.207014, theta = tauid = 0
+		 kappa = 1.04, logKappa = 0.0392207, theta = ZtoLL = 0
+		 kappa = 1.04, logKappa = 0.0392207, theta = effic = 0
+	asymm log-normals (0):
+	other terms (0):
+
+  -------------------------------------------------------------------------
+  default value =  329.0
+---------------------------------------------------------------------------
+  Top-level normalisation for process QCD -> n_exp_binmu_tau_proc_QCD
+  -------------------------------------------------------------------------
+Dumping ProcessNormalization n_exp_binmu_tau_proc_QCD @ 0x6bbcaa0
+	nominal value: 259
+	log-normals (1):
+		 kappa = 1.1, logKappa = 0.0953102, theta = QCDmu = 0
+	asymm log-normals (0):
+	other terms (0):
+
+  -------------------------------------------------------------------------
+  default value =  259.0
+---------------------------------------------------------------------------
+  Top-level normalisation for process higgs -> n_exp_binmu_tau_proc_higgs
+  -------------------------------------------------------------------------
+Dumping ProcessNormalization n_exp_binmu_tau_proc_higgs @ 0x6bc6390
+	nominal value: 0.57
+	log-normals (3):
+		 kappa = 1.11, logKappa = 0.10436, theta = lumi = 0
+		 kappa = 1.23, logKappa = 0.207014, theta = tauid = 0
+		 kappa = 1.04, logKappa = 0.0392207, theta = effic = 0
+	asymm log-normals (0):
+	other terms (1):
+		 term r (class RooRealVar), value = 1
+
+  -------------------------------------------------------------------------
+  default value =  0.57
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+Channel - e_mu
+---------------------------------------------------------------------------
+  Top-level normalisation for process ZTT -> n_exp_bine_mu_proc_ZTT
+  -------------------------------------------------------------------------
+Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
+	nominal value: 88
+	log-normals (2):
+		 kappa = 1.04, logKappa = 0.0392207, theta = ZtoLL = 0
+		 kappa = 1.04, logKappa = 0.0392207, theta = effic = 0
+	asymm log-normals (0):
+	other terms (0):
+
+  -------------------------------------------------------------------------
+  default value =  88.0
+---------------------------------------------------------------------------
+```
+
+As you can see, for each channel, a report is given for the top-level rate object in the workspace, for each process contributing to that channel. You can also see the various terms which make up that rate. The default value is for the default parameters in the workspace (i.e when running `text2workspace`, these are the values created as default).
+ 

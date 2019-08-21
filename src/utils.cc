@@ -599,10 +599,10 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             std::auto_ptr<RooArgSet> obs(pdfi->getObservables(ds));
             if (obs->getSize() == 0) break;
 	    TIterator *obs_iter = obs->createIterator();
-	    std::cout << " PDF CHECKING " << std::endl; 
-	    pdfi->Print("v");
-	    ds->Print("v");
-	    std::cout << " ------------ " << std::endl; 
+	    //std::cout << " PDF CHECKING " << std::endl; 
+	    //pdfi->Print("v");
+	    //ds->Print("v");
+	    //std::cout << " ------------ " << std::endl; 
 
 	    //for (int iobs=0;iobs<obs->getSize();iobs++){
   	    for (RooAbsArg *a = 0; (a = (RooAbsArg *)obs_iter->Next()) != 0; ) {
@@ -610,16 +610,19 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
 	      if (x == 0) continue;
 	      int nbins = x->numBins(); if (nbins == 0) nbins = 100;
 	      if (nbins/rebinFactor > 6) nbins = ceil(nbins/rebinFactor);
-	      ret.push_back(x->frame(RooFit::Title(ds->GetName()), RooFit::Bins(nbins)));
+	      if (rebinFactor > 1) ret.push_back(x->frame(RooFit::Title(ds->GetName()), RooFit::Bins(nbins)));
+	      else ret.push_back(x->frame(RooFit::Title(ds->GetName())));
 	      ret.back()->SetName(Form("%s_%s",ds->GetName(),x->GetName()));
-	      ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      if (rebinFactor>1) ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      else ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson),RooFit::Binning(""));
 	      if (fitRes)pdfi->plotOn(ret.back(),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent),RooFit::VisualizeError(*fitRes,1) ,RooFit::FillColor(kOrange));
 	      if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
 	      if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel));
 	      if (backgroundSel && strlen(backgroundSel)) pdfi->plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
 	      std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdfi->GetName() << " = " << pdfi->expectedEvents(RooArgSet(*x)) << std::endl;  
 	      pdfi->plotOn(ret.back(),RooFit::Normalization(pdfi->expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
-	      ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      if (rebinFactor>1) ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      else ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson),RooFit::Binning(""));
 	    }
             delete ds;
         }
@@ -640,7 +643,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
 	      if (backgroundSel && strlen(backgroundSel)) pdf.plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent));
 	      std::cout << "[utils::makePlots] Number of events for pdf in " << ret.back()->GetName() << ", pdf " << pdf.GetName() << " = " << pdf.expectedEvents(RooArgSet(*x)) << std::endl;  
 	      pdf.plotOn(ret.back(),RooFit::Normalization(pdf.expectedEvents(RooArgSet(*x)),RooAbsReal::NumEvent),RooFit::VisualizeError(*fitRes,1));
-	      data.plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
+	      data.plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson),RooFit::Binning(""));
 	  }
 	}
     }
@@ -747,7 +750,8 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
                 if (std::regex_match(target, match, rgx)) {
                     int PhysicsParameterValue = atoi(SetParameterExpression[1].c_str());
                     cout << "Set Default Index of Parameter " << target
-                         << " To : " << PhysicsParameterValue << "\n";
+                         << " To : " << PhysicsParameterValue 
+                         << " (was: " << tmpCategory->getIndex() << " )\n";
                     tmpCategory->setIndex(PhysicsParameterValue);
                 }
             }
@@ -771,7 +775,8 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
           RooCategory *tmpCategory  = dynamic_cast<RooCategory*>(tmp);
           int PhysicsParameterValue = atoi(SetParameterExpression[1].c_str());
           cout << "Set Default Index of Parameter " << SetParameterExpression[0] 
-               << " To : " << PhysicsParameterValue << "\n";
+               << " To : " << PhysicsParameterValue 
+               << " (was: " << tmpCategory->getIndex() << " )\n";
           tmpCategory->setIndex(PhysicsParameterValue);
 	}
       }
@@ -1011,35 +1016,42 @@ RooArgSet utils::returnAllVars(RooWorkspace *w){
 	return args;
 }
 
-bool utils::freezeAllDisassociatedRooMultiPdfParameters(RooArgSet multiPdfs, RooArgSet allRooMultiPdfParams, bool freeze){
+bool utils::freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiPdfs, const RooArgSet & allRooMultiPdfParams, bool freeze){
+        static bool freezeDisassParams_verb = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams_verbose"));
     
-	RooArgSet *multiPdfParams = (RooArgSet*) allRooMultiPdfParams.Clone();
+        RooArgSet multiPdfParams(allRooMultiPdfParams);
 
 	// For each multiPdf, get the active pdf and remove its parameters 
 	// from this list of params and then freeze the remaining ones 
 	
-        std::auto_ptr<TIterator> iter_p(multiPdfs.createIterator());
-        for (RooAbsArg *P = (RooAbsArg *) iter_p->Next(); P != 0; P = (RooAbsArg *) iter_p->Next()) {
+        RooLinkedListIter iter = multiPdfs.iterator();
+        for (RooAbsArg *P = (RooAbsArg *) iter.Next(); P != 0; P = (RooAbsArg *) iter.Next()) {
 	  RooMultiPdf *mpdf = dynamic_cast<RooMultiPdf *>(P);
 	  RooAbsPdf *pdf = (RooAbsPdf*)mpdf->getCurrentPdf();
-	  std::cout << " Current active PDF - " << pdf->GetName() <<std::endl;
-	  RooArgSet *pdfPars = pdf->getParameters((const RooArgSet*)0);
-	  RooStats::RemoveConstantParameters(pdfPars); // make sure still to ignore user set constants 
-	  multiPdfParams->remove(*pdfPars);
-
+	  if (freezeDisassParams_verb) std::cout << " Current active PDF - " << pdf->GetName() <<std::endl;
+          std::unique_ptr<RooArgSet> pdfPars(pdf->getParameters((const RooArgSet*)0));
+	  RooStats::RemoveConstantParameters(&*pdfPars); // make sure still to ignore user set constants 
+	  multiPdfParams.remove(*pdfPars);
 	} 
 	
-	if (multiPdfParams->getSize()>0 ) {
-	 std::cout << " Going to " << (freeze ? " freeze " : " float ") << " these disacociated params" << std::endl; 
-	 multiPdfParams->Print();
-	 setAllConstant(*multiPdfParams,freeze);
+	if (multiPdfParams.getSize()>0 ) {
+         if (freezeDisassParams_verb) {
+             std::cout << " Going to " << (freeze ? " freeze " : " float ") << " the following (disassociated) parameters" << std::endl; 
+             multiPdfParams.Print("V");
+         }
+	 setAllConstant(multiPdfParams,freeze);
+
+	 //std::cout << " Current state of all MultiPdfParams -> " << std::endl; 
+	 //std::auto_ptr<TIterator> iter_par(allRooMultiPdfParams.createIterator());
+	 //for (RooAbsArg *P = (RooAbsArg *) iter_par->Next(); P != 0; P = (RooAbsArg *) iter_par->Next()){
+	 //  std::cout << P->GetName() << ", constant=" << P->isConstant() << std::endl; 
+	 //}
 	 return true;
 	}
 
 	return false;
 }
 
-//utils::FastDirtyFlags::FastDirtyFlags(RooAbsReal &src) {
 void utils::FastDirtyFlags::Configure(RooAbsReal &src, bool skipConst) {
   src.getVal(); // some nodes, like SimpleCacheSentries, are only created after first eval
   vars_.clear();
@@ -1082,7 +1094,6 @@ void utils::FastDirtyFlags::AppendClients(RooAbsArg *arg, std::set<RooAbsArg*> &
   }
 }
 
-
 void utils::FastDirtyFlags::Propagate() {
   for (unsigned i = 0; i < vars_.size(); ++i) {
     if (vars_[i]->isConstant()) continue;
@@ -1091,6 +1102,24 @@ void utils::FastDirtyFlags::Propagate() {
       RooAbsArgHelper::FastSetDirtyFlag(deps_[i][j]);
     }
     prev_vals_[i] = vars_[i]->getVal();
+  }
+}
+
+void utils::RooAddPdfFixer::Fix(RooAddPdf & fixme) {
+  RooAddPdfFixer & fixme_casted = static_cast<RooAddPdfFixer &>(fixme);
+  delete[] fixme_casted.RooAddPdf::_coefCache;
+  fixme_casted.RooAddPdf::_coefCache = new Double_t[fixme_casted.RooAddPdf::_pdfList.getSize()];
+}
+
+void utils::RooAddPdfFixer::FixAll(RooWorkspace & w) {
+  auto pdfs = w.allPdfs();
+  TIterator *iter = pdfs.createIterator();
+  for (RooAbsArg *a = 0; (a = (RooAbsArg *)iter->Next()) != 0; ) {
+    RooAddPdf *addpdf = dynamic_cast<RooAddPdf*>(a);
+    if (addpdf && addpdf->pdfList().getSize() > 100) {
+      // std::cout << "> Fixing RooAddPdf " << addpdf->GetName() << " which has " << addpdf->pdfList().getSize() << " components\n";
+      Fix(*addpdf);
+    }
   }
 }
 
