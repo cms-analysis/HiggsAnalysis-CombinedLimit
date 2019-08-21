@@ -24,7 +24,7 @@ class CascadeMinimizer {
         // run hesse
         bool hesse(int verbose = 0 );
         // do a new minimization, assuming a plausible initial state
-        bool improve(int verbose=0, bool cascade=true);
+        bool improve(int verbose=0, bool cascade=true, bool forceResetMinimizer=false);
         // declare nuisance parameters for pre-fit
         void setNuisanceParameters(const RooArgSet *nuis) { nuisances_ = nuis; }
         RooMinimizer & minimizer() { return *minimizer_; }

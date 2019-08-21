@@ -86,11 +86,15 @@ void CascadeMinimizer::setAutoMax(const RooArgSet *pois)
 }
 
 
-bool CascadeMinimizer::improve(int verbose, bool cascade) 
+bool CascadeMinimizer::improve(int verbose, bool cascade, bool forceResetMinimizer) 
 {
     cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
     if (simnllbb && runtimedef::get(std::string("MINIMIZER_analytic"))) {
       simnllbb->setAnalyticBarlowBeeston(true);
+      forceResetMinimizer = true;
+    }
+    if (forceResetMinimizer) {
+      minimizer_.reset(); // avoid two copies in memory
       minimizer_.reset(new RooMinimizer(nll_));
     }
     minimizer_->setPrintLevel(verbose-1);
@@ -221,6 +225,7 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
       utils::setAllConstant(toFreeze, true);
       simnllbb->setAnalyticBarlowBeeston(true);
       utils::setAllConstant(toFreeze, false);
+      minimizer_.reset(); // avoid two copies in memory
       minimizer_.reset(new RooMinimizer(nll_));
    }
    minimizer_->setPrintLevel(verbose-1); // for debugging
@@ -260,6 +265,7 @@ bool CascadeMinimizer::hesse(int verbose ) {
    cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
    if (simnllbb && runtimedef::get(std::string("MINIMIZER_analytic"))) {
       // Have to reset and minimize again first to get all parameters in
+      minimizer_.reset(); // avoid two copies in memory
       minimizer_.reset(new RooMinimizer(nll_));
       float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
       minimizer_->setEps(nominalTol);
@@ -375,6 +381,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         utils::setAllConstant(frozen,true);
         freezeDiscParams(true);
 
+        minimizer_.reset(); // avoid two copies in memory
         minimizer_.reset(new RooMinimizer(nll_));
         minimizer_->setPrintLevel(verbose-2);
         minimizer_->setStrategy(preFit_-1);
@@ -386,6 +393,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         if (simnll) simnll->clearZeroPoint();
         utils::setAllConstant(frozen,false);
         freezeDiscParams(false);
+        minimizer_.reset(); // avoid two copies in memory
         minimizer_.reset(new RooMinimizer(nll_));
     }
     
@@ -454,6 +462,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 }
 
 bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingIndeces){
+    static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
 
     //RooTrace::active(true);
     /* Different modes for minimization 
@@ -581,7 +590,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
         trivialMinimize(nll_, *poi_, 200);
       }
 
-      ret =  improve(verbose, cascade);
+      ret =  improve(verbose, cascade, freezeDisassParams);
 
       freezeDiscParams(false);
 
