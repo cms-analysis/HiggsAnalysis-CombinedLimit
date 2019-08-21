@@ -251,7 +251,7 @@ cacheutils::CachingPdf::CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) :
     obs_(obs),
     pdfOriginal_(pdf),
     pdfPieces_(),
-    pdf_(runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_)),
+    pdf_(runtimedef::get("CACHINGPDF_NOCLONE") ? pdfOriginal_ : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
     lastData_(0),
     cache_(*pdf_,*obs_),
     includeZeroWeights_(false)
@@ -265,7 +265,7 @@ cacheutils::CachingPdf::CachingPdf(const CachingPdf &other) :
     obs_(other.obs_),
     pdfOriginal_(other.pdfOriginal_),
     pdfPieces_(),
-    pdf_(runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_)),
+    pdf_(runtimedef::get("CACHINGPDF_NOCLONE") ? pdfOriginal_ : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
     lastData_(0),
     cache_(*pdf_,*obs_),
     includeZeroWeights_(other.includeZeroWeights_)
