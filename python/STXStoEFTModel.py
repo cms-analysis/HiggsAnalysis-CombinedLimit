@@ -39,10 +39,16 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     SMLikeHiggsModel.__init__(self)
     self.PROCESSES = []
     self.DECAYS = []
+    # Dicts to store pois + scaling functions
+    self.pois = {}
+    self.poi_scaling = {}
+    self.STXSScalingFunctions = {}
+    self.DecayScalingFunctions = {}
+    # Options
     self.floatMass = False #Initally false, require external option to float mass
     self.doSTXSU = STXSU
     self.doBRU = BRU
-    self.fixTHandBBH = fixTHandBBH #if false scaling function for tH, bbH MUST be defined in input text file: data/lhc-hxswg/eft/stageX/crosssections.txt
+    self.fixTHandBBH = fixTHandBBH #if false scaling function for tH, bbH MUST be defined in input txt file
     self.freezeOtherParameters = freezeOtherParameters #Option to freeze majority of parameters in model. Leaving those used in LHCHXSWG-INT-2017-001 fit to float
     self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
 
@@ -63,10 +69,10 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         self.freezeOtherParameters = (po.replace("freezeOtherParameters=","") in ["yes","1","Yes","True","true"])
       if po.startswith("fixProcesses="): 
         self.fixProcesses = (po.replace("fixProcesses=","")).split(",")
-    #Output option used to terminal
+    #Output options to screen
     print "[STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
     print "[STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
-    if( self.doSTXSU ): print "   [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/stageX/BinUncertainties.txt"
+    if( self.doSTXSU ): print "   [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/binuncertainties.txt"
     if( self.freezeOtherParameters ): print "[STXStoEFT] Freezing all but [cG,cA,cu,cHW,cWWMinuscB] to 0"
     else: print "[STXStoEFT] Allowing all HEL parameters to float"
     if( len( self.fixProcesses ) > 0 ): print "[STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
@@ -98,8 +104,6 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
   # READING FROM TEXT FILES
   #Function for extracting the pois: save as dictionary of pois
   def textToPOIList( self, filename, skipRows=1 ):
-    self.pois = {} #initiate empty dict
-    self.poi_scaling = {} #separate dictionary for how POIs scale
     file_in = open(filename,"r")
     lines = [l for l in file_in]
     for line in lines[skipRows:]:
@@ -122,80 +126,48 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 
   #Function to extract STXS scaling functions
   def textToSTXSScalingFunctions( self, filename, skipRows=0 ):
-    stxs_id = {} #dict for integer id to STXS process name
-    self.STXSScalingFunctions = {} #dict for STXS process name to function (in terms of EFT coefficients)
     file_in = open(filename,"r")
     lines = [l for l in file_in]
-    #Initially loop over first block of text until empty line to get integer id of processes
-    emptyLinePosition = 0
-    for line in lines[skipRows:]:
-      emptyLinePosition += 1
-      if( len(line.strip())==0 ): break
-      proc, procid = line.split()
-      #parse process to desired convention
-      proc = re.sub('r_','',proc)
-      proc = proc.upper()
-      proc = re.sub('GG2H','ggH',proc)
-      proc = re.sub('VBF_QQ2HQQ','qqH',proc)
-      proc = re.sub('QQ2HLNU','WH_lep',proc)
-      proc = re.sub('QQ2HLL','ZH_lep',proc)
-      proc = re.sub('WH_QQ2HQQ','WH_had',proc)
-      proc = re.sub('ZH_QQ2HQQ','ZH_had',proc)
-      proc = re.sub('TTH','ttH',proc) 
-      #Add to dictionary
-      stxs_id[ procid ] = proc
-
-    #Loop over second block of text (starting at empty line) to get scaling functions
-    _id = None
-    for line in lines[emptyLinePosition:]:
-      if( len(line.strip())==0 ): continue
-      # procid and scaling function on subsequent lines 
-      # save proc_id of line beginning with "Bin number"
-      if line.startswith("Bin number"): _id = line.split()[2]
-      # extract scaling function
-      elif line.startswith("1"): #perturbation theory: safer than using else statement
-        if _id == None:
-          raise ValueError("[ERROR] Process ID not set. Cannot link function to STXS bin")
-        function = line.replace('\n','')
-        function = "".join(function.split(" ")) #remove space
-        self.STXSScalingFunctions[ stxs_id[ _id ] ] = function 
-        _id = None #Reset
+    # Loop over lines in txt file
+    for line in lines[skipRows:]:      
+      # Extract STXS bin and scaling function
+      stxs_bin_, function = line.split(":")
+      # Format function: remove spaces
+      function = function.replace('\n','')
+      function = "".join(function.split(" "))
+      # Add to dict
+      self.STXSScalingFunctions[stxs_bin_] = function
+    # Close file
     file_in.close()
   
   #Function to extract decay scaling functions from file
   def textToDecayScalingFunctions( self, filename, skipRows=0 ):
-    self.DecayScalingFunctions = {}
     file_in = open(filename,"r")
     lines = [l for l in file_in]
-    #Decay definition and scaling function on subsequent line
-    decay_ = None
+    # Loop over lines in txt file
     for line in lines[skipRows:]:
-      if( len(line.strip())==0 ): continue
-      #save decay definion of lines starting w/ Bin number
-      if line.startswith("Bin number"):
-        decay_ = line.split()[-1]
-        if( decay_ == 'hzzto4l' ): decay_ = re.sub("hzzto4l","hzz",decay_)
-        elif( decay_ == 'dec_full' ): decay_ = re.sub("dec_full","tot",decay_)
-      elif line.startswith("1"): #perturbation theory: safer than using else statement
-        if decay_ == None:
-          raise ValueError("[ERROR] Decay not set. Cannot link function to decay channel")
-        function = line.replace('\n','')
-        function = "".join(function.split(" ")) #remove spaces
-        self.DecayScalingFunctions[ decay_ ] = function
-        _decay = None #reset
-    file_in.close() 
-
-  # ** NEW **
-  #Function to make scaling function from string
+      # Extract decay mode and scaling function
+      decay_, function = line.split(":")
+      # Format function: remove spaces
+      function = function.replace('\n','')
+      function = "".join(function.split(" "))
+      # Add to dict
+      self.DecayScalingFunctions[decay_] = function
+    # Close file
+    file_in.close()
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #Function to make scaling function in workspace from string
   #   > defines each terms as RooProduct
   #   > sum of terms as RooAddition
-  def makeScalingFunction( self, what, STXSstage="1" ):
+  def makeScalingFunction( self, what, STXSstage="" ):
   
     #if in processes/decays extract formula from corresponding dict
     if what in self.STXSScalingFunctions: formula = self.STXSScalingFunctions[ what ]
     elif what in self.DecayScalingFunctions: formula = self.DecayScalingFunctions[ what ]
     else:
-      raise ValueError("[ERROR] Scaling function for %s does not exist for STXS Stage %s"%(what,STXSstage))
+      if STXSstage != "": raise ValueError("[ERROR] Scaling function for %s does not exist for STXS Stage %s"%(what,STXSstage))
+      else: raise ValueError("[ERROR] Scaling function for %s does not exist"%what)
 
     #replace "-" in formula string by "+-" and then turn into list, splitting by delimeter "+"
     formula = re.sub("-","+-",formula).split("+")
@@ -251,31 +223,173 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #Function extracting the STXS bin uncertainties
   def makeSTXSBinUncertainties( self, STXSstage="1" ):
-    stxsUncertainties = {}; stxsUncertaintiesKeys = []
-    for line in open( os.path.join(self.SMH.datadir, 'eft/stage%s/BinUncertainties.txt'%STXSstage) ):
-      if stxsUncertaintiesKeys == []:
-        stxsUncertaintiesKeys = line.split()[1:]
-      else:
-        fields = line.split()
-        stxsUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(stxsUncertaintiesKeys, fields[1:])])
-    for _u in stxsUncertaintiesKeys: self.modelBuilder.doVar("param_%s[-7,7]"%_u)
-    for proc in self.PROCESSES:
-      #if STXS process not defined in text file: build uncertainty scaling but set equal to 1
-      if proc not in stxsUncertainties: 
-        self.modelBuilder.doVar("STXS%s_UncertaintyScaling_%s[1]"%(STXSstage,proc))
-        continue
-      else:
-        #if defined...
-        pnorm = ROOT.ProcessNormalization("STXS%s_UncertaintyScaling_%s"%(STXSstage,proc), "")
-        for _u in stxsUncertaintiesKeys:
-          var = self.modelBuilder.out.var("param_%s" %_u)
-          pnorm.addLogNormal(exp(stxsUncertainties[proc][_u]),var)
-        self.modelBuilder.out._import(pnorm)
+    # For all 
+    if STXSstage == "all":
+      storedUncertainties = []
+      for s in ['0','1','1_1']:
+        stxsUncertainties = {}; stxsUncertaintiesKeys = []
+        for line in open( os.path.join(self.SMH.datadir, 'eft/HEL/stage%s_binuncertainties.txt'%s) ):
+          if stxsUncertaintiesKeys == []:
+            stxsUncertaintiesKeys = line.split()[1:]
+          else:
+            fields = line.split()
+            stxsUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(stxsUncertaintiesKeys, fields[1:])])
+        for _u in stxsUncertaintiesKeys: 
+          if _u not in storedUncertainties:
+            self.modelBuilder.doVar("param_%s[-7,7]"%_u)
+            storedUncertainties.append(_u)
+        for proc in self.PROCESSES['stage%s'%s]:
+          # if uncertainties not defined for given process: build scaling but set = 1
+          if proc not in stxsUncertainties:
+            self.modelBuilder.doVar("stxs%s_UncertaintyScaling_%s[1]"%(s,proc))
+            continue
+          else:
+            pnorm = ROOT.ProcessNormalization("stxs%s_UncertaintyScaling_%s"%(s,proc), "")
+            for _u in stxsUncertaintiesKeys:
+              var = self.modelBuilder.out.var("param_%s" %_u)
+              pnorm.addLogNormal(exp(stxsUncertainties[proc][_u]),var)
+            self.modelBuilder.out._import(pnorm)
+    
+    # For individual STXS stages
+    else: 
+      stxsUncertainties = {}; stxsUncertaintiesKeys = []
+      for line in open( os.path.join(self.SMH.datadir, 'eft/HEL/stage%s_binuncertainties.txt'%STXSstage) ):
+        if stxsUncertaintiesKeys == []:
+          stxsUncertaintiesKeys = line.split()[1:]
+        else:
+          fields = line.split()
+          stxsUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(stxsUncertaintiesKeys, fields[1:])])
+      for _u in stxsUncertaintiesKeys: self.modelBuilder.doVar("param_%s[-7,7]"%_u)
+      for proc in self.PROCESSES:
+        #if uncertainties not defined for given process: build scaling but set = 1
+        if proc not in stxsUncertainties: 
+          self.modelBuilder.doVar("stxs%s_UncertaintyScaling_%s[1]"%(STXSstage,proc))
+          continue
+        else:
+          #if defined...
+          pnorm = ROOT.ProcessNormalization("stxs%s_UncertaintyScaling_%s"%(STXSstage,proc), "")
+          for _u in stxsUncertaintiesKeys:
+            var = self.modelBuilder.out.var("param_%s" %_u)
+            pnorm.addLogNormal(exp(stxsUncertainties[proc][_u]),var)
+          self.modelBuilder.out._import(pnorm)
 
 
 #################################################################################################################
 # Define inherited classes for different STXS Stages
 
+# Combination of different stages
+class AllStagesToEFTModel(STXStoEFTBaseModel):
+  def __init__(self):
+    STXStoEFTBaseModel.__init__(self)
+    from HiggsAnalysis.CombinedLimit.STXS import stage0_procs, stage1_procs, stage1_1_procs
+    self.PROCESSES = {}
+    for s in ['0','1','1_1']:
+      if s=='0': self.PROCESSES["stage%s"%s] = [x for v in stage0_procs.itervalues() for x in v] 
+      elif s=='1': self.PROCESSES["stage%s"%s] = [x for v in stage1_procs.itervalues() for x in v] 
+      else: self.PROCESSES["stage%s"%s] = [x for v in stage1_1_procs.itervalues() for x in v] 
+    self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','tot']
+
+  def setPhysicsOptions(self,physOptions):
+    self.setPhysicsOptionsBase(physOptions)
+  
+  def doParametersOfInterest(self):
+    if self.floatMass: print "[WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
+    self.doMH()
+    self.SMH = SMHiggsBuilder(self.modelBuilder)
+    
+    #Read in parameter list from file using textToPOIList function
+    self.textToPOIList( os.path.join(self.SMH.datadir,'eft/HEL/pois.txt') )
+    POIs = ','.join(self.pois.keys())
+    for poi, poi_range in self.pois.iteritems(): 
+      self.modelBuilder.doVar("%s%s"%(poi,poi_range))
+    self.modelBuilder.doSet("POI",POIs)
+    #POIs for cWW and cB defined in terms of constraints on cWW+cB and cWW-cB: define expression for individual coefficient
+    self.modelBuilder.factory_("expr::cWW_x02(\"0.5*(@0+@1)\",cWWPluscB_x02,cWWMinuscB_x02)")
+    self.modelBuilder.factory_("expr::cB_x02(\"0.5*(@0-@1)\",cWWPluscB_x02,cWWMinuscB_x02)")
+    self.poi_scaling['cWW'] = "0.01*cWW_x02"
+    self.poi_scaling['cB'] = "0.01*cB_x02"
+    #Unless specified in options: fix all parameters not used in LHCHXSWG-INT-2017-001 fit to 0 (freeze)
+    if( self.freezeOtherParameters ):
+      for poi in self.pois:
+        if poi not in ['cG_x05','cA_x04','cu_x01','cHW_x02','cWWMinuscB_x02']: self.modelBuilder.out.var( poi ).setConstant(True)
+
+    #set up model
+    self.setup()
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  def setup(self):
+    #For additional options e.g. STXS/BR uncertainties: defined in base class
+    if self.doBRU: self.SMH.makePartialWidthUncertainties()
+    if self.doSTXSU: self.makeSTXSBinUncertainties( STXSstage="all" )
+
+    # Read scaling functions for STXS bins and decays from txt files
+    self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/stage0_xs.txt') )
+    self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/stage1_xs.txt') )
+    self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/stage1_1_xs.txt') )
+    self.textToDecayScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/decay.txt' ) )
+
+    # Make scaling functions for each STXS process
+    for s in ['0','1','1_1']:
+      stage = "stage%s"%s
+      stored = []
+      for proc in self.PROCESSES[stage]: 
+        if proc not in stored:
+          # Fix tH and bbH if specified in options
+          if( self.fixTHandBBH ):
+            if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
+            else: self.makeScalingFunction( proc, STXSstage=s )
+          else: self.makeScalingFunction( proc, STXSstage=s )
+          #Add process to stored to omit repeats in stages
+          stored.append( proc )
+
+    # Make partial width + total width scaling functions
+    for dec in self.DECAYS: self.makeScalingFunction( dec )
+    # Make BR scaling functions: partial width/total width
+    for dec in self.DECAYS:
+      if dec != "tot": self.makeBRScalingFunction( dec )
+    
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  def getHiggsSignalYieldScale(self,production,decay,energy):
+    name = "stxstoeft_scaling_%s_%s_%s"%(production,decay,energy)
+    if self.modelBuilder.out.function(name) == None:
+
+      print " [DEBUG] Creating scaling function for (%s,%s)"%(production,decay)
+
+      XSscal = None
+      BRscal = None
+
+      # Extract STXS stage process belongs to: in descreasing order as want most recent th. unc
+      if production in self.PROCESSES['stage1_1']: stage = "1_1"
+      elif production in self.PROCESSES['stage1']: stage = "1"
+      elif production in self.PROCESSES['stage0']: stage = "0"
+      else:
+        raise ValueError("[ERROR] Process %s is not supported in STXStoEFT Model"%production)
+      # Give production correct scaling
+      XSscal = "scaling_%s"%production
+     
+      # Check decay scaling exists:
+      BRscal = None
+      if decay in self.DECAYS: BRscal = "scaling_BR_%s"%decay
+      else:
+        raise ValueError("[ERROR] Decay %s is not supported in STXStoEFT Model"%decay)
+
+      # Uncertainty scaling: BR and STXS bin uncertainties
+      if( self.doSTXSU )&( self.doBRU ):
+        THUscaler = "uncertainty_scaling_%s_%s"%(production,decay)
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s_%s(\"@0*@1\",stxs%s_UncertaintyScaling_%s,HiggsDecayWidth_UncertaintyScaling_%s)'%(production,decay,stage,production,decay))
+      elif( self.doSTXSU ):
+        THUscaler = "uncertainty_scaling_%s"%production
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",stxs%s_UncertaintyScaling_%s)'%(production,stage,production))
+      elif( self.doBRU ):
+        THUscaler = "uncertainty_scaling_%s"%decay
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",HiggsDecayWidth_UncertaintyScaling_%s)'%(decay,decay))
+      
+      #Combine XS and BR scaling: incuding theory unc if option selected
+      if( self.doSTXSU )|( self.doBRU ): self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal,THUscaler])))
+      else: self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
+      
+      return name
+ 
 # _________________________________________________________________________________________________________________
 # STAGE 0...
 
@@ -380,4 +494,5 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
 
 #################################################################################################################
 Stage1toEFT = Stage1ToEFTModel()
+AllStagestoEFT = AllStagesToEFTModel()
 
