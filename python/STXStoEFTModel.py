@@ -275,7 +275,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 
 
 #################################################################################################################
-# Define inherited classes for different STXS Stages
+# Define inherited classes: AllStageToEFT and StageXToEFT
 
 # Combination of different stages
 class AllStagesToEFTModel(STXStoEFTBaseModel):
@@ -391,19 +391,14 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
       return name
  
 # _________________________________________________________________________________________________________________
-# STAGE 0...
-
-
-
-
-# _________________________________________________________________________________________________________________
-# STAGE 1...
-class Stage1ToEFTModel(STXStoEFTBaseModel):
-  def __init__(self):
-     STXStoEFTBaseModel.__init__(self)
-     from HiggsAnalysis.CombinedLimit.STXS import stage1_procs 
-     self.PROCESSES = [x for v in stage1_procs.itervalues() for x in v]
-     self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','tot']
+# Single stage to EFT model
+class StageXToEFTModel(STXStoEFTBaseModel):
+  def __init__(self,stage):
+    STXStoEFTBaseModel.__init__(self)
+    self.stage = stage
+    import HiggsAnalysis.CombinedLimit.STXS as STXS
+    self.PROCESSES = [x for v in getattr(STXS,"stage%s_procs"%self.stage).itervalues() for x in v] 
+    self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','tot']
 
   def setPhysicsOptions(self,physOptions):
     self.setPhysicsOptionsBase(physOptions)
@@ -414,19 +409,17 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
     self.SMH = SMHiggsBuilder(self.modelBuilder)
     
     #Read in parameter list from file using textToPOIList function
-    self.textToPOIList( os.path.join(self.SMH.datadir,'eft/stage1/pois.txt') )
-
+    self.textToPOIList( os.path.join(self.SMH.datadir,'eft/HEL/pois.txt') )
     POIs = ','.join(self.pois.keys())
     for poi, poi_range in self.pois.iteritems(): 
       self.modelBuilder.doVar("%s%s"%(poi,poi_range))
-    self.modelBuilder.doSet("POI",POIs)      
+    self.modelBuilder.doSet("POI",POIs)
     #POIs for cWW and cB defined in terms of constraints on cWW+cB and cWW-cB: define expression for individual coefficient
     self.modelBuilder.factory_("expr::cWW_x02(\"0.5*(@0+@1)\",cWWPluscB_x02,cWWMinuscB_x02)")
     self.modelBuilder.factory_("expr::cB_x02(\"0.5*(@0-@1)\",cWWPluscB_x02,cWWMinuscB_x02)")
     self.poi_scaling['cWW'] = "0.01*cWW_x02"
     self.poi_scaling['cB'] = "0.01*cB_x02"
-
-    #If specified in options: fix all parameters not used in LHCHXSWG-INT-2017-001 fit to 0 (freeze)
+    #Unless specified in options: fix all parameters not used in LHCHXSWG-INT-2017-001 fit to 0 (freeze)
     if( self.freezeOtherParameters ):
       for poi in self.pois:
         if poi not in ['cG_x05','cA_x04','cu_x01','cHW_x02','cWWMinuscB_x02']: self.modelBuilder.out.var( poi ).setConstant(True)
@@ -434,65 +427,69 @@ class Stage1ToEFTModel(STXStoEFTBaseModel):
     #set up model
     self.setup()
 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def setup(self):
     #For additional options e.g. STXS/BR uncertainties: defined in base class
     if self.doBRU: self.SMH.makePartialWidthUncertainties()
-    if self.doSTXSU: self.makeSTXSBinUncertainties( STXSstage="1" )
- 
-    #Read scaling functions for STXS bins and decays from text files
-    self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/stage1/crosssections.txt') )
-    self.textToDecayScalingFunctions( os.path.join(self.SMH.datadir, 'eft/stage1/decay.txt' ))
-    #Make scaling for each STXS process and decay:
+    if self.doSTXSU: self.makeSTXSBinUncertainties( STXSstage=self.stage )
+
+    # Read scaling functions for STXS bins and decays from txt files
+    self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/stage%s_xs.txt'%self.stage) )
+    self.textToDecayScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/decay.txt' ) )
+
+    # Make scaling functions for STXS processes
     for proc in self.PROCESSES: 
-      if( self.fixTHandBBH ): 
+      # Fix tH and bbH if specified in options
+      if( self.fixTHandBBH ):
         if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
-        else: self.makeScalingFunction( proc, STXSstage="1" )
-      else: self.makeScalingFunction( proc, STXSstage="1" )
-    #First make partial width + total width scaling functions
-    for dec in self.DECAYS: self.makeScalingFunction( dec, STXSstage="1" ) 
-    #loop over decays again and make BR scaling functions: partial width/total width
+        else: self.makeScalingFunction( proc, STXSstage=self.stage )
+      else: self.makeScalingFunction( proc, STXSstage=self.stage )
+
+    # Make partial width + total width scaling functions
+    for dec in self.DECAYS: self.makeScalingFunction( dec )
+    # Make BR scaling functions: partial width/total width
     for dec in self.DECAYS:
       if dec != "tot": self.makeBRScalingFunction( dec )
-
+    
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def getHiggsSignalYieldScale(self,production,decay,energy):
-    name = "stxs1toeft_scaling_%s_%s_%s"%(production,decay,energy)
+    name = "stxstoeft_scaling_%s_%s_%s"%(production,decay,energy)
     if self.modelBuilder.out.function(name) == None:
 
-      #Check production scaling exists:
-      XSscal = None
-      if production in self.PROCESSES: 
-        XSscal = "scaling_%s"%(production)
-      else:
-        raise ValueError("[ERROR] Process %s is not supported in Stage 1 Model"%production)
-      #Check decay scaling exists
-      BRscal = None
-      if decay in self.DECAYS:
-        BRscal = "scaling_BR_%s"%decay
-      else:
-        raise ValueError("[ERROR] Decay %d is not supported"%decay)
+      print " [DEBUG] Creating scaling function for (%s,%s)"%(production,decay)
 
-      #For including BR and STXS bin uncertainties
-      if( self.doSTXSU )&( self.doBRU ): 
+      # Check production scaling exists
+      XSscal = None
+      if production in self.PROCESSES: XSscal = "scaling_%s"%production
+      else:
+        raise ValueError("[ERROR] Process %s is not supported in STXStoEFT Model (stage %s)"%(production,self.stage))
+      # Check decay scaling exists:
+      BRscal = None
+      if decay in self.DECAYS: BRscal = "scaling_BR_%s"%decay
+      else:
+        raise ValueError("[ERROR] Decay %s is not supported in STXStoEFT Model"%decay)
+
+      # Uncertainty scaling: BR and STXS bin uncertainties
+      if( self.doSTXSU )&( self.doBRU ):
         THUscaler = "uncertainty_scaling_%s_%s"%(production,decay)
-        self.modelBuilder.factory_('expr::uncertainty_scaling_%s_%s(\"@0*@1\",STXS1_UncertaintyScaling_%s,HiggsDecayWidth_UncertaintyScaling_%s)'%(production,decay,production,decay))
-      elif( self.doSTXSU ): 
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s_%s(\"@0*@1\",stxs%s_UncertaintyScaling_%s,HiggsDecayWidth_UncertaintyScaling_%s)'%(production,decay,self.stage,production,decay))
+      elif( self.doSTXSU ):
         THUscaler = "uncertainty_scaling_%s"%production
-        self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",STXS1_UncertaintyScaling_%s)'%(production,production))
-      elif( self.doBRU ): 
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",stxs%s_UncertaintyScaling_%s)'%(production,self.stage,production))
+      elif( self.doBRU ):
         THUscaler = "uncertainty_scaling_%s"%decay
         self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",HiggsDecayWidth_UncertaintyScaling_%s)'%(decay,decay))
-
-      #Combine XS and BR scaling: including theory uncertainties if option selected
+      
+      #Combine XS and BR scaling: incuding theory unc if option selected
       if( self.doSTXSU )|( self.doBRU ): self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal,THUscaler])))
       else: self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
-
-    return name
-
-# _________________________________________________________________________________________________________________
-# STAGE 1.1...
-
+      
+      return name
 
 #################################################################################################################
-Stage1toEFT = Stage1ToEFTModel()
+# Instantiation of STXStoEFT models
+Stage0toEFT = StageXToEFTModel("0")
+Stage1toEFT = StageXToEFTModel("1")
+Stage1_1toEFT = StageXToEFTModel("1_1")
 AllStagestoEFT = AllStagesToEFTModel()
 
