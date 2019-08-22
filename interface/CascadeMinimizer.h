@@ -59,6 +59,9 @@ class CascadeMinimizer {
 		,std::vector<std::vector<bool> > & );
        
         bool iterativeMinimize(double &,int,bool); 
+
+        void remakeMinimizer() ;
+
         /// options configured from command line
         static boost::program_options::options_description options_;
         /// compact information about an algorithm

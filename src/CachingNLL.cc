@@ -380,6 +380,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, Ro
     RooAbsReal(name, title),
     pdf_(pdf),
     params_("params","parameters",this),
+    catParams_("catParams","RooCategory parameters",this),
     includeZeroWeights_(includeZeroWeights),
     zeroPoint_(0),
     constantZeroPoint_(0)
@@ -395,6 +396,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char 
     RooAbsReal(name ? name : (TString("nll_")+other.pdf_->GetName()).Data(), ""),
     pdf_(other.pdf_),
     params_("params","parameters",this),
+    catParams_("catParams","RooCategory parameters",this),
     includeZeroWeights_(other.includeZeroWeights_),
     zeroPoint_(0),
     constantZeroPoint_(0)
@@ -571,9 +573,8 @@ cacheutils::CachingAddNLL::setup_()
     std::auto_ptr<RooArgSet> params(pdf_->getParameters(*data_));
     std::auto_ptr<TIterator> iter(params->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
-        if ( dynamic_cast<RooRealVar *>(a) || dynamic_cast<RooCategory *>(a) ) {
-            params_.add(*a);
-        }
+        if (dynamic_cast<RooRealVar *>(a))  params_.add(*a);
+        else if (dynamic_cast<RooCategory *>(a)) catParams_.add(*a);
     }
 
     multiPdfs_.clear();
@@ -825,7 +826,9 @@ cacheutils::CachingAddNLL::getObservables(const RooArgSet* depList, Bool_t value
 RooArgSet* 
 cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
-    return new RooArgSet(params_); 
+    RooArgSet *ret = new RooArgSet(params_);
+    ret->add(catParams_);
+    return ret;
 }
 
 
@@ -833,7 +836,9 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
     pdfOriginal_(pdf),
     dataOriginal_(data),
     nuis_(nuis),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    catParams_("catParams","Category parameters",this),
+    hideRooCategories_(false)
 {
     setup_();
 }
@@ -842,7 +847,9 @@ cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char 
     pdfOriginal_(other.pdfOriginal_),
     dataOriginal_(other.dataOriginal_),
     nuis_(other.nuis_),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    catParams_("catParams","Category parameters",this),
+    hideRooCategories_(other.hideRooCategories_)
 {
     setup_();
 }
@@ -991,6 +998,7 @@ cacheutils::CachingSimNLL::setup_()
             bool includeZeroWeights = (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && (dynamic_cast<RooRealSumPdf*>(pdf)!=0));
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data, includeZeroWeights);
             params_.add(pdfs_[ib]->params(), /*silent=*/true); 
+            catParams_.add(pdfs_[ib]->catParams(), /*silent=*/true); 
         } else { 
             pdfs_[ib] = 0; 
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has no pdf" << std::endl;
@@ -1221,6 +1229,8 @@ cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t value
 RooArgSet* 
 cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
-    return new RooArgSet(params_); 
+    RooArgSet *ret = new RooArgSet(params_); 
+    if (!hideRooCategories_) ret->add(catParams_);
+    return ret;
 }
 
