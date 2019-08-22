@@ -70,12 +70,12 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
       if po.startswith("fixProcesses="): 
         self.fixProcesses = (po.replace("fixProcesses=","")).split(",")
     #Output options to screen
-    print "[STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
-    print "[STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
-    if( self.doSTXSU ): print "   [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/binuncertainties.txt"
-    if( self.freezeOtherParameters ): print "[STXStoEFT] Freezing all but [cG,cA,cu,cHW,cWWMinuscB] to 0"
-    else: print "[STXStoEFT] Allowing all HEL parameters to float"
-    if( len( self.fixProcesses ) > 0 ): print "[STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
+    print " --> [STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
+    print " --> [STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
+    if( self.doSTXSU ): print " --> [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/binuncertainties.txt"
+    if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cA,cu,cHW,cWWMinuscB] to 0"
+    else: print " --> [STXStoEFT] Allowing all HEL parameters to float"
+    if( len( self.fixProcesses ) > 0 ): print " --> [STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
 
   def doMH(self):
     if self.floatMass:
@@ -293,7 +293,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
     self.setPhysicsOptionsBase(physOptions)
   
   def doParametersOfInterest(self):
-    if self.floatMass: print "[WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
+    if self.floatMass: print " --> [WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
     self.doMH()
     self.SMH = SMHiggsBuilder(self.modelBuilder)
     
@@ -353,8 +353,6 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
     name = "stxstoeft_scaling_%s_%s_%s"%(production,decay,energy)
     if self.modelBuilder.out.function(name) == None:
 
-      print " [DEBUG] Creating scaling function for (%s,%s)"%(production,decay)
-
       XSscal = None
       BRscal = None
 
@@ -404,7 +402,7 @@ class StageXToEFTModel(STXStoEFTBaseModel):
     self.setPhysicsOptionsBase(physOptions)
   
   def doParametersOfInterest(self):
-    if self.floatMass: print "[WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
+    if self.floatMass: print " --> [WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
     self.doMH()
     self.SMH = SMHiggsBuilder(self.modelBuilder)
     
@@ -455,8 +453,6 @@ class StageXToEFTModel(STXStoEFTBaseModel):
   def getHiggsSignalYieldScale(self,production,decay,energy):
     name = "stxstoeft_scaling_%s_%s_%s"%(production,decay,energy)
     if self.modelBuilder.out.function(name) == None:
-
-      print " [DEBUG] Creating scaling function for (%s,%s)"%(production,decay)
 
       # Check production scaling exists
       XSscal = None
