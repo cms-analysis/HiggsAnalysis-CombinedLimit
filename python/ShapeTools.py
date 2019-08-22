@@ -912,13 +912,13 @@ class ShapeBuilder(ModelBuilder):
                 self.out.dont_delete.append(ret)
             elif self.options.optimizeMHDependency in ("pol0", "pol1", "pol2", "pol3", "pol4"):
                 order = int(self.options.optimizeMHDependency[3:])
-                ret = ROOT.SimpleTaylorExpansion1D("%s__frozenMH" % arg.GetName(), "", arg, MH, 0.1, order)
+                ret = ROOT.SimpleTaylorExpansion1D("%s__MHpol%d" % (arg.GetName(),order), "", arg, MH, 0.1, order)
                 self.out.dont_delete.append(ret)
             else:
                 raise RuntimeError("Unknown option value %r for optimizeMHDependency" % self.options.optimizeMHDependency)
             return ret
         else:
-            print "%s%s depends on MH and other %d variables." % (indent, arg.GetName(), depvars.getSize()),
+            print "%s%s depends on MH and other %d variables." % (indent, arg.GetName(), depvars.getSize())
             #depvars.Print("")
             srviter = arg.serverMIterator()
             servers = []
@@ -929,7 +929,7 @@ class ShapeBuilder(ModelBuilder):
             #print "%sFound %d servers: %s" % (indent, len(servers), ", ".join(a.GetName() for a in servers))
             newservers = []
             for a in servers:
-                aopt = self.optimizeMHDependency(a,wsp,MH,indent=indent+">>   ")
+                aopt = self.optimizeMHDependency(a,wsp,MH,indent=indent+"   ")
                 if aopt != a:
                     newservers.append((a,aopt))
             if newservers:
