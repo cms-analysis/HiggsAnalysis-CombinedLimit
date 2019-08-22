@@ -25,12 +25,24 @@ TODO:
 
 CMSHistFuncFactory::CMSHistFuncFactory() : v_(1), hist_mode_(0), rebin_(true) {}
 
-void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws) {
+void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws, std::map<std::string, std::string> process_vs_norm_postfix_map) {
   for (auto const& bin : cb.bin_set()) {
-    for (auto const& proc : cb.cp().bin({bin}).process_set()) {
-      if (v_) {
-        std::cout << ">> Processing " << bin << "," << proc << "\n";
-        RunSingleProc(cb, ws, bin, proc);
+    if(process_vs_norm_postfix_map.size() > 0) {
+      for (auto  proc : process_vs_norm_postfix_map) {
+        if (v_) {
+          std::cout << ">> Processing " << bin << "," << proc.first << "\n";
+          norm_postfix_ = proc.second;
+          RunSingleProc(cb, ws, bin, proc.first);
+        }
+      }
+      norm_postfix_ = "norm";
+    }
+    else{
+      for (auto const& proc : cb.cp().bin({bin}).process_set()) {
+        if (v_) {
+          std::cout << ">> Processing " << bin << "," << proc << "\n";
+          RunSingleProc(cb, ws, bin, proc);
+        }
       }
     }
     TH1F data_hist = cb.cp().bin({bin}).GetObservedShape();
@@ -43,11 +55,15 @@ void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws) {
 
     ws.import(rdh_dat);
 
-    cb.cp().bin({bin}).ForEachObs([&](ch::Observation * p) {
-      p->set_shape(nullptr, false);
-      p->set_rate(1.0);
-    });
+    // cb.cp().bin({bin}).ForEachObs([&](ch::Observation * p) {
+    //   p->set_shape(nullptr, false);
+    //   p->set_rate(1.0);
+    // });
   }
+}
+
+void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws) {
+  CMSHistFuncFactory::Run(cb, ws,  {});
 }
 
 void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
@@ -585,8 +601,7 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     // to add even more terms to this total normalisation, so we give them the option
     // of using some other suffix.
     //! [part6]
-    TString norm_postfix = "norm";
-    RooProduct morph_rate(morph_name + "_" + TString(norm_postfix), "",
+    RooProduct morph_rate(morph_name + "_" + TString(norm_postfix_), "",
                           rate_prod);
     //! [part6]
 
@@ -656,10 +671,6 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     //   cb.cp().signals().ExtractPdfs(cb, "htt", "$BIN_$PROCESS_morph");
     //! [part4]
 }
-
-
-
-
 
 // }
 
