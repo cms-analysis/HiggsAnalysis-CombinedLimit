@@ -37,7 +37,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
   #    * note: STXS bin uncertainties are defined in data/lhc-hxswg/eft/stageX/BinUncertainties.txt. Needs updating!
   def __init__(self,STXSU=False,BRU=False,fixTHandBBH=True,freezeOtherParameters=True,fixProcesses=[]):
     SMLikeHiggsModel.__init__(self)
-    self.PROCESSES = []
+    self.PROCESSES = {}
     self.DECAYS = []
     # Dicts to store pois + scaling functions
     self.pois = {}
@@ -72,7 +72,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     #Output options to screen
     print " --> [STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
     print " --> [STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
-    if( self.doSTXSU ): print " --> [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/binuncertainties.txt"
+    if( self.doSTXSU ): print " --> [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/*_binuncertainties.txt"
     if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cA,cu,cHW,cWWMinuscB] to 0"
     else: print " --> [STXStoEFT] Allowing all HEL parameters to float"
     if( len( self.fixProcesses ) > 0 ): print " --> [STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
@@ -223,57 +223,35 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #Function extracting the STXS bin uncertainties
   def makeSTXSBinUncertainties( self, STXSstage="1" ):
-    # For all 
-    if STXSstage == "all":
-      storedUncertainties = []
-      for s in ['0','1','1_1']:
-        stxsUncertainties = {}; stxsUncertaintiesKeys = []
-        for line in open( os.path.join(self.SMH.datadir, 'eft/HEL/stage%s_binuncertainties.txt'%s) ):
-          if stxsUncertaintiesKeys == []:
-            stxsUncertaintiesKeys = line.split()[1:]
-          else:
-            fields = line.split()
-            stxsUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(stxsUncertaintiesKeys, fields[1:])])
-        for _u in stxsUncertaintiesKeys: 
-          if _u not in storedUncertainties:
-            self.modelBuilder.doVar("param_%s[-7,7]"%_u)
-            storedUncertainties.append(_u)
-        for proc in self.PROCESSES['stage%s'%s]:
-          # if uncertainties not defined for given process: build scaling but set = 1
-          if proc not in stxsUncertainties:
-            self.modelBuilder.doVar("stxs%s_UncertaintyScaling_%s[1]"%(s,proc))
-            continue
-          else:
-            pnorm = ROOT.ProcessNormalization("stxs%s_UncertaintyScaling_%s"%(s,proc), "")
-            for _u in stxsUncertaintiesKeys:
-              var = self.modelBuilder.out.var("param_%s" %_u)
-              pnorm.addLogNormal(exp(stxsUncertainties[proc][_u]),var)
-            self.modelBuilder.out._import(pnorm)
-    
-    # For individual STXS stages
-    else: 
+    if STXSstage == "all": stage_list = ['0','1','1_1','fixedproc']
+    else: stage_list = [STXSstage, 'fixedproc']
+    storedUncertainties = []
+    for s in stage_list:
+      if s == "fixedproc": key=s
+      else: key = "stage%s"%s
       stxsUncertainties = {}; stxsUncertaintiesKeys = []
-      for line in open( os.path.join(self.SMH.datadir, 'eft/HEL/stage%s_binuncertainties.txt'%STXSstage) ):
+      for line in open( os.path.join(self.SMH.datadir, 'eft/HEL/%s_binuncertainties.txt'%key) ):
         if stxsUncertaintiesKeys == []:
           stxsUncertaintiesKeys = line.split()[1:]
         else:
           fields = line.split()
           stxsUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(stxsUncertaintiesKeys, fields[1:])])
-      for _u in stxsUncertaintiesKeys: self.modelBuilder.doVar("param_%s[-7,7]"%_u)
-      for proc in self.PROCESSES:
-        #if uncertainties not defined for given process: build scaling but set = 1
-        if proc not in stxsUncertainties: 
-          self.modelBuilder.doVar("stxs%s_UncertaintyScaling_%s[1]"%(STXSstage,proc))
+      for _u in stxsUncertaintiesKeys: 
+        if _u not in storedUncertainties:
+          self.modelBuilder.doVar("param_%s[-7,7]"%_u)
+          storedUncertainties.append(_u)
+      for proc in self.PROCESSES[key]:
+        # if uncertainties not defined for given process: build scaling but set = 1
+        if proc not in stxsUncertainties:
+          self.modelBuilder.doVar("%s_UncertaintyScaling_%s[1]"%(key,proc))
           continue
         else:
-          #if defined...
-          pnorm = ROOT.ProcessNormalization("stxs%s_UncertaintyScaling_%s"%(STXSstage,proc), "")
+          pnorm = ROOT.ProcessNormalization("%s_UncertaintyScaling_%s"%(key,proc), "")
           for _u in stxsUncertaintiesKeys:
             var = self.modelBuilder.out.var("param_%s" %_u)
             pnorm.addLogNormal(exp(stxsUncertainties[proc][_u]),var)
           self.modelBuilder.out._import(pnorm)
-
-
+    
 #################################################################################################################
 # Define inherited classes: AllStageToEFT and StageXToEFT
 
@@ -281,13 +259,14 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 class AllStagesToEFTModel(STXStoEFTBaseModel):
   def __init__(self):
     STXStoEFTBaseModel.__init__(self)
-    from HiggsAnalysis.CombinedLimit.STXS import stage0_procs, stage1_procs, stage1_1_procs
-    self.PROCESSES = {}
+    from HiggsAnalysis.CombinedLimit.STXS import fixed_procs, stage0_procs, stage1_procs, stage1_1_procs
+    #self.PROCESSES = {}
     for s in ['0','1','1_1']:
       if s=='0': self.PROCESSES["stage%s"%s] = [x for v in stage0_procs.itervalues() for x in v] 
       elif s=='1': self.PROCESSES["stage%s"%s] = [x for v in stage1_procs.itervalues() for x in v] 
       else: self.PROCESSES["stage%s"%s] = [x for v in stage1_1_procs.itervalues() for x in v] 
-    self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','tot']
+    self.PROCESSES["fixedproc"] = fixed_procs
+    self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','hzg','hmm','tot']
 
   def setPhysicsOptions(self,physOptions):
     self.setPhysicsOptionsBase(physOptions)
@@ -321,26 +300,24 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
     #For additional options e.g. STXS/BR uncertainties: defined in base class
     if self.doBRU: self.SMH.makePartialWidthUncertainties()
     if self.doSTXSU: self.makeSTXSBinUncertainties( STXSstage="all" )
-
-    # Read scaling functions for STXS bins and decays from txt files
-    self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/stage0_xs.txt') )
-    self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/stage1_xs.txt') )
-    self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/stage1_1_xs.txt') )
-    self.textToDecayScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/decay.txt' ) )
-
+ 
     # Make scaling functions for each STXS process
-    for s in ['0','1','1_1']:
+    stored = []
+    for s in ['1','1_1','0']: # For now priority for stage 1 functions (taken directly from note)
+    #for s in ['0','1','1_1']:
       stage = "stage%s"%s
-      stored = []
+      # Read scaling functions for STXS bins from txt file
+      self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs.txt'%stage) )
       for proc in self.PROCESSES[stage]: 
         if proc not in stored:
-          # Fix tH and bbH if specified in options
-          if( self.fixTHandBBH ):
-            if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
-            else: self.makeScalingFunction( proc, STXSstage=s )
-          else: self.makeScalingFunction( proc, STXSstage=s )
-          #Add process to stored to omit repeats in stages
+          self.makeScalingFunction( proc, STXSstage=s )
           stored.append( proc )
+
+    # Make dummy scaling (=1) for fixed procs
+    for proc in self.PROCESSES["fixedproc"]: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
+
+    # Read scaling functions for decays from txt files
+    self.textToDecayScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/decay.txt' ) )
 
     # Make partial width + total width scaling functions
     for dec in self.DECAYS: self.makeScalingFunction( dec )
@@ -350,6 +327,10 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
     
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def getHiggsSignalYieldScale(self,production,decay,energy):
+
+    # Function to convert troublesome procs into viable one for HC combination
+    production = convert_to_STXS(production,decay)
+
     name = "stxstoeft_scaling_%s_%s_%s"%(production,decay,energy)
     if self.modelBuilder.out.function(name) == None:
 
@@ -357,27 +338,39 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
       BRscal = None
 
       # Extract STXS stage process belongs to: in descreasing order as want most recent th. unc
-      if production in self.PROCESSES['stage1_1']: stage = "1_1"
-      elif production in self.PROCESSES['stage1']: stage = "1"
-      elif production in self.PROCESSES['stage0']: stage = "0"
+      if production in self.PROCESSES['stage1_1']: key = "stage1_1"
+      elif production in self.PROCESSES['stage1']: key = "stage1"
+      elif production in self.PROCESSES['stage0']: key = "stage0"
+      elif production in self.PROCESSES['fixedproc']: key = "fixedproc" 
+      # For fwd production: set to SM
+      elif "fwd" in production:
+        self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%production)
+        key = None
       else:
         raise ValueError("[ERROR] Process %s is not supported in STXStoEFT Model"%production)
       # Give production correct scaling
       XSscal = "scaling_%s"%production
      
       # Check decay scaling exists:
-      BRscal = None
       if decay in self.DECAYS: BRscal = "scaling_BR_%s"%decay
       else:
         raise ValueError("[ERROR] Decay %s is not supported in STXStoEFT Model"%decay)
 
       # Uncertainty scaling: BR and STXS bin uncertainties
       if( self.doSTXSU )&( self.doBRU ):
-        THUscaler = "uncertainty_scaling_%s_%s"%(production,decay)
-        self.modelBuilder.factory_('expr::uncertainty_scaling_%s_%s(\"@0*@1\",stxs%s_UncertaintyScaling_%s,HiggsDecayWidth_UncertaintyScaling_%s)'%(production,decay,stage,production,decay))
+        if key==None:
+          THUscaler = "uncertainty_scaling_%s"%(decay)
+          self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",HiggsDecayWidth_UncertaintyScaling_%s)'%(decay,decay))
+        else:
+          THUscaler = "uncertainty_scaling_%s_%s"%(production,decay)
+          self.modelBuilder.factory_('expr::uncertainty_scaling_%s_%s(\"@0*@1\",%s_UncertaintyScaling_%s,HiggsDecayWidth_UncertaintyScaling_%s)'%(production,decay,key,production,decay))
       elif( self.doSTXSU ):
-        THUscaler = "uncertainty_scaling_%s"%production
-        self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",stxs%s_UncertaintyScaling_%s)'%(production,stage,production))
+        if key==None:
+          THUscaler = "uncertainty_scaling_dummy"
+          self.modelBuilder.factory_('expr::uncertainty_scaling_dummy(\"@0\",1.)')
+        else:
+          THUscaler = "uncertainty_scaling_%s"%production
+          self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",%s_UncertaintyScaling_%s)'%(production,key,production))
       elif( self.doBRU ):
         THUscaler = "uncertainty_scaling_%s"%decay
         self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",HiggsDecayWidth_UncertaintyScaling_%s)'%(decay,decay))
@@ -386,7 +379,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
       if( self.doSTXSU )|( self.doBRU ): self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal,THUscaler])))
       else: self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
       
-      return name
+    return name
  
 # _________________________________________________________________________________________________________________
 # Single stage to EFT model
@@ -395,8 +388,9 @@ class StageXToEFTModel(STXStoEFTBaseModel):
     STXStoEFTBaseModel.__init__(self)
     self.stage = stage
     import HiggsAnalysis.CombinedLimit.STXS as STXS
-    self.PROCESSES = [x for v in getattr(STXS,"stage%s_procs"%self.stage).itervalues() for x in v] 
-    self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','tot']
+    self.PROCESSES['stage%s'%self.stage] = [x for v in getattr(STXS,"stage%s_procs"%self.stage).itervalues() for x in v] 
+    self.PROCESSES["fixedproc"] = STXS.fixed_procs
+    self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','hzg','hmm','tot']
 
   def setPhysicsOptions(self,physOptions):
     self.setPhysicsOptionsBase(physOptions)
@@ -436,12 +430,10 @@ class StageXToEFTModel(STXStoEFTBaseModel):
     self.textToDecayScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/decay.txt' ) )
 
     # Make scaling functions for STXS processes
-    for proc in self.PROCESSES: 
-      # Fix tH and bbH if specified in options
-      if( self.fixTHandBBH ):
-        if proc in ['tHq','tHW','bbH']: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
-        else: self.makeScalingFunction( proc, STXSstage=self.stage )
-      else: self.makeScalingFunction( proc, STXSstage=self.stage )
+    for proc in self.PROCESSES["stage%s"%self.stage]: self.makeScalingFunction( proc, STXSstage=self.stage )
+
+    # Make dummy scaling (=1) for fixed procs
+    for proc in self.PROCESSES["fixedproc"]: self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%proc)
 
     # Make partial width + total width scaling functions
     for dec in self.DECAYS: self.makeScalingFunction( dec )
@@ -454,13 +446,18 @@ class StageXToEFTModel(STXStoEFTBaseModel):
     name = "stxstoeft_scaling_%s_%s_%s"%(production,decay,energy)
     if self.modelBuilder.out.function(name) == None:
 
-      # Check production scaling exists
       XSscal = None
-      if production in self.PROCESSES: XSscal = "scaling_%s"%production
+      BRscal = None
+
+      # Extract STXS stage process belongs to: in descreasing order as want most recent th. unc
+      if production in self.PROCESSES['stage%s'%self.stage]: key = "stage%s"%self.stage
+      elif production in self.PROCESSES['fixedproc']: key = "fixedproc" 
       else:
         raise ValueError("[ERROR] Process %s is not supported in STXStoEFT Model (stage %s)"%(production,self.stage))
+      # Give production correct scaling
+      XSscal = "scaling_%s"%production
+     
       # Check decay scaling exists:
-      BRscal = None
       if decay in self.DECAYS: BRscal = "scaling_BR_%s"%decay
       else:
         raise ValueError("[ERROR] Decay %s is not supported in STXStoEFT Model"%decay)
@@ -468,10 +465,10 @@ class StageXToEFTModel(STXStoEFTBaseModel):
       # Uncertainty scaling: BR and STXS bin uncertainties
       if( self.doSTXSU )&( self.doBRU ):
         THUscaler = "uncertainty_scaling_%s_%s"%(production,decay)
-        self.modelBuilder.factory_('expr::uncertainty_scaling_%s_%s(\"@0*@1\",stxs%s_UncertaintyScaling_%s,HiggsDecayWidth_UncertaintyScaling_%s)'%(production,decay,self.stage,production,decay))
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s_%s(\"@0*@1\",%s_UncertaintyScaling_%s,HiggsDecayWidth_UncertaintyScaling_%s)'%(production,decay,key,production,decay))
       elif( self.doSTXSU ):
         THUscaler = "uncertainty_scaling_%s"%production
-        self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",stxs%s_UncertaintyScaling_%s)'%(production,self.stage,production))
+        self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",%s_UncertaintyScaling_%s)'%(production,key,production))
       elif( self.doBRU ):
         THUscaler = "uncertainty_scaling_%s"%decay
         self.modelBuilder.factory_('expr::uncertainty_scaling_%s(\"@0\",HiggsDecayWidth_UncertaintyScaling_%s)'%(decay,decay))
@@ -480,7 +477,53 @@ class StageXToEFTModel(STXStoEFTBaseModel):
       if( self.doSTXSU )|( self.doBRU ): self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal,THUscaler])))
       else: self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
       
-      return name
+    return name
+
+#################################################################################################################
+# Function to convert troublesome procs to those defined in STXS
+def convert_to_STXS( _production, _decay ):
+  # For hmm: split into W+/W- -> remove from tag
+  _production = re.sub("Plus","",_production)
+  _production = re.sub("Minus","",_production)
+
+  # Some VH signal processes missing had/lep: for now assume all lep
+  if _production in ['WH','ZH','ggZH']: _production = "%s_lep"%_production
+
+  # hzz: NIGHTMARE
+  if _decay=="hzz": 
+    # VBFori: set to qqH
+    if "VBFori" in _production: _production = "qqH"
+
+    # Not split VH: assume all WH
+    _production = re.sub("VH_","WH_", _production)
+    # VH: PTV_GT150 is not an STXS bin, set to PTV_15_250_0J (majority of events)
+    _production = re.sub("GT150","150_250_0J", _production)
+
+    # ggH: 0J high PT wrong name
+    _production = re.sub("ggH_0J_PTH_10_200","ggH_0J_PTH_GT10", _production)
+    # ggH: 2J should be GE2J
+    _production = re.sub("ggH_2J","ggH_GE2J", _production)
+    # ggH: havent split VBFTOPO, choose one with larger cross section, 3J
+    _production = re.sub("ggH_VBF","ggH_VBFTOPO_JET3", _production)
+
+    # qqH: names all wrong, combination of 1 and 1.1
+    _production = re.sub("qqH_2j_mjj_350_700_2j","qqH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25", _production)
+    _production = re.sub("qqH_2j_mjj_GT350_3j", "qqH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25", _production)
+    _production = re.sub("qqH_2j_mjj_GT700_2j", "qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25", _production)
+    _production = re.sub("qqH_GT200_VHori", "WH_had_PTJET1_GT200", _production)
+    _production = re.sub("qqH_GT200", "qqH_PTJET1_GT200", _production)
+    _production = re.sub("qqH_Rest_VHori", "WH_had_REST", _production)
+    _production = re.sub("qqH_Rest", "qqH_REST", _production)
+
+    # assume tH is all tHQ
+    if _production == "tH": _production = "tHq"
+
+  # Remove fake/gen tau from ttH production names
+  _production = re.sub("_faketau","",_production)
+  _production = re.sub("_gentau","",_production)
+
+  return _production
+
 
 #################################################################################################################
 # Instantiation of STXStoEFT models

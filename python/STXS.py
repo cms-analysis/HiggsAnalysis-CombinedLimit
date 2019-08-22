@@ -4,6 +4,10 @@
 
 #using convention in https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsTemplateCrossSection
 
+# List for processes without a scaling function
+fixed_procs = ['ggZH_lep','tHq','tHW','bbH']
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 stage0_procs = {
   'ggH':['ggH'],
   'qqH':['qqH'],
@@ -11,8 +15,8 @@ stage0_procs = {
   'ZH_lep':['ZH_lep'],
   #'ggZH_lep':['ggZH_lep']
   'VH_had':['WH_had','ZH_had'],
-  'ttH':['ttH'],
-  'other':['tHq','tHW','bbH']
+  'ttH':['ttH']#,
+  #'other':['tHq','tHW','bbH']
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,9 +41,9 @@ stage1_procs = {
             'ZH_had_VBFTOPO_JET3VETO', 'ZH_had_VBFTOPO_JET3',
             'ZH_had_VH2JET', 'ZH_had_REST', 'ZH_had_PTJET1_GT200'],
 
-  'ttH':['ttH'],
+  'ttH':['ttH']#,
 
-  'other':['tHq','tHW','bbH']
+  #'other':['tHq','tHW','bbH']
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,8 +76,8 @@ stage1_1_procs = {
             'ZH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25','ZH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25',
             'ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25','ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25'],
 
-  'ttH':['ttH'],
+  'ttH':['ttH']#,
 
-  'other':['tHq','tHW','bbH']
+  #'other':['tHq','tHW','bbH']
 }
 

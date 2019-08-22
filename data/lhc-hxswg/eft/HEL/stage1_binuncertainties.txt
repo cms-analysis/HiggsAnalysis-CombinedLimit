@@ -34,6 +34,3 @@ ZH_lep_PTV_150_250_0J              0.2
 ZH_lep_PTV_150_250_GE1J            0.2
 ZH_lep_PTV_GT250                   0.2
 ttH                                0.2
-tHq                                0.2
-tHW                                0.2
-bbH                                0.2
