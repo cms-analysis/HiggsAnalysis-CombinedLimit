@@ -461,6 +461,8 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 
 bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingIndeces){
     static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
+    static bool hideConstants = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_hideConstants"));
+    cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
 
     //RooTrace::active(true);
     /* Different modes for minimization 
@@ -521,6 +523,11 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     //take a snapshot of those parameters
     RooArgSet snap;
     params->snapshot(snap);
+
+    if (hideConstants && simnll) {
+        simnll->setHideConstants(true);
+        remakeMinimizer();
+    }
 
     std::vector<std::vector<int> > myCombos;
 
@@ -646,6 +653,12 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
     runtimedef::set("MINIMIZER_analytic", currentBarlowBeeston);
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(backupStrategy);
+
+    if (hideConstants && simnll) {
+        simnll->setHideConstants(false);
+        remakeMinimizer();
+    }
+
     return newDiscreteMinimum;
 }
 

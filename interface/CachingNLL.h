@@ -179,6 +179,7 @@ class CachingSimNLL  : public RooAbsReal {
         void setChannelMasks(RooArgList const& args);
         void setAnalyticBarlowBeeston(bool flag);
         void setHideRooCategories(bool flag) { hideRooCategories_ = flag; }
+        void setHideConstants(bool flag) { hideConstants_ = flag; }
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
         virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
@@ -188,7 +189,7 @@ class CachingSimNLL  : public RooAbsReal {
         const RooAbsData  *dataOriginal_;
         const RooArgSet   *nuis_;
         RooSetProxy        params_, catParams_;
-        bool hideRooCategories_;
+        bool hideRooCategories_, hideConstants_;
         RooArgSet piecesForCloning_;
         std::auto_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;

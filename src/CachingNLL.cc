@@ -5,6 +5,7 @@
 #include <RooCategory.h>
 #include <RooDataSet.h>
 #include <RooProduct.h>
+#include <RooStats/RooStatsUtils.h>
 
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include <HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h>
@@ -838,7 +839,7 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
     nuis_(nuis),
     params_("params","parameters",this),
     catParams_("catParams","Category parameters",this),
-    hideRooCategories_(false)
+    hideRooCategories_(false), hideConstants_(false)
 {
     setup_();
 }
@@ -849,7 +850,8 @@ cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char 
     nuis_(other.nuis_),
     params_("params","parameters",this),
     catParams_("catParams","Category parameters",this),
-    hideRooCategories_(other.hideRooCategories_)
+    hideRooCategories_(other.hideRooCategories_),
+    hideConstants_(other.hideConstants_)
 {
     setup_();
 }
@@ -1231,6 +1233,7 @@ cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripD
 {
     RooArgSet *ret = new RooArgSet(params_); 
     if (!hideRooCategories_) ret->add(catParams_);
+    if (hideConstants_) RooStats::RemoveConstantParameters(ret);
     return ret;
 }
 
