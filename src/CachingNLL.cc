@@ -5,6 +5,7 @@
 #include <RooCategory.h>
 #include <RooDataSet.h>
 #include <RooProduct.h>
+#include <RooStats/RooStatsUtils.h>
 
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include <HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h>
@@ -380,6 +381,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, Ro
     RooAbsReal(name, title),
     pdf_(pdf),
     params_("params","parameters",this),
+    catParams_("catParams","RooCategory parameters",this),
     includeZeroWeights_(includeZeroWeights),
     zeroPoint_(0),
     constantZeroPoint_(0)
@@ -395,6 +397,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char 
     RooAbsReal(name ? name : (TString("nll_")+other.pdf_->GetName()).Data(), ""),
     pdf_(other.pdf_),
     params_("params","parameters",this),
+    catParams_("catParams","RooCategory parameters",this),
     includeZeroWeights_(other.includeZeroWeights_),
     zeroPoint_(0),
     constantZeroPoint_(0)
@@ -571,9 +574,8 @@ cacheutils::CachingAddNLL::setup_()
     std::auto_ptr<RooArgSet> params(pdf_->getParameters(*data_));
     std::auto_ptr<TIterator> iter(params->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
-        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        //if (rrv != 0 && !rrv->isConstant()) params_.add(*rrv);
-        if (rrv != 0) params_.add(*rrv);
+        if (dynamic_cast<RooRealVar *>(a))  params_.add(*a);
+        else if (dynamic_cast<RooCategory *>(a)) catParams_.add(*a);
     }
 
     multiPdfs_.clear();
@@ -602,16 +604,6 @@ cacheutils::CachingAddNLL::evaluate() const
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingAddNLL::evaluate called");
 #endif
-
-    // For multi pdf's need to reset the cache if index changed before evaluations
-    // unless they're being properly treated in the CachingPdf
-    static bool multiNll  = runtimedef::get("ADDNLL_MULTINLL");
-    if (!multiNll && !multiPdfs_.empty()) {
-        for (std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> >::iterator itp = multiPdfs_.begin(), edp = multiPdfs_.end(); itp != edp; ++itp) {
-		bool hasChangedPdf = itp->first->checkIndexDirty();
-		if (hasChangedPdf) itp->second->setDataDirty();
-        }
-    }
 
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
 
@@ -835,7 +827,9 @@ cacheutils::CachingAddNLL::getObservables(const RooArgSet* depList, Bool_t value
 RooArgSet* 
 cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
-    return new RooArgSet(params_); 
+    RooArgSet *ret = new RooArgSet(params_);
+    ret->add(catParams_);
+    return ret;
 }
 
 
@@ -843,7 +837,9 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
     pdfOriginal_(pdf),
     dataOriginal_(data),
     nuis_(nuis),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    catParams_("catParams","Category parameters",this),
+    hideRooCategories_(false), hideConstants_(false)
 {
     setup_();
 }
@@ -852,7 +848,10 @@ cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char 
     pdfOriginal_(other.pdfOriginal_),
     dataOriginal_(other.dataOriginal_),
     nuis_(other.nuis_),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    catParams_("catParams","Category parameters",this),
+    hideRooCategories_(other.hideRooCategories_),
+    hideConstants_(other.hideConstants_)
 {
     setup_();
 }
@@ -1001,6 +1000,7 @@ cacheutils::CachingSimNLL::setup_()
             bool includeZeroWeights = (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && (dynamic_cast<RooRealSumPdf*>(pdf)!=0));
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data, includeZeroWeights);
             params_.add(pdfs_[ib]->params(), /*silent=*/true); 
+            catParams_.add(pdfs_[ib]->catParams(), /*silent=*/true); 
         } else { 
             pdfs_[ib] = 0; 
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has no pdf" << std::endl;
@@ -1231,6 +1231,9 @@ cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t value
 RooArgSet* 
 cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
-    return new RooArgSet(params_); 
+    RooArgSet *ret = new RooArgSet(params_); 
+    if (!hideRooCategories_) ret->add(catParams_);
+    if (hideConstants_) RooStats::RemoveConstantParameters(ret);
+    return ret;
 }
 

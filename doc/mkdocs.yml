@@ -1,0 +1,29 @@
+site_name: Combine Documentation 
+repo_name: GitHub
+repo_url: https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit
+edit_uri: edit/master/doc/docs
+
+nav: 
+        - Home: index.md
+        - Part1: part1/gettingstarted.md
+        - Part2: 
+          - "Setting up the analysis": part2/settinguptheanalysis.md
+          - "Physics models": part2/physicsmodels.md
+          - "Automatic MC statistical uncertainties": part2/bin-wise-stats.md 
+        - Part3: 
+          - "Running the tool":           part3/runningthetool.md
+          - "Common statistical methods": part3/commonstatsmethods.md
+          - "Advanced use cases":         part3/nonstandard.md
+        - Part4: part4/usefullinks.md
+       
+theme: 
+        name: cinder
+        include_sidebar: true
+
+extra_javascript:
+  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
+
+markdown_extensions:
+        - pymdownx.arithmatex
+
+

@@ -521,6 +521,8 @@ class ShapeBuilder(ModelBuilder):
                 # Fix the fact that more than one entry can refer to the same object
                 ret = ret.Clone()
                 ret.SetName("shape%s_%s_%s%s" % (postFix,process,channel, "_"+syst if syst else ""))
+                if self.options.optimizeMHDependency and ret.InheritsFrom("RooAbsReal"):
+                    ret = self.optimizeMHDependency(ret,self.wsp)
                 _cache[(channel,process,syst)] = ret
                 if not syst:
                   normname = "%s_norm" % (oname)
@@ -531,6 +533,8 @@ class ShapeBuilder(ModelBuilder):
                     if normname in self.DC.flatParamNuisances: 
                         self.DC.flatParamNuisances[normname] = False # don't warn if not found
                         norm.setAttribute("flatParam")
+                    elif self.options.optimizeMHDependency:
+                        norm = self.optimizeMHDependency(norm,self.wsp)
                     norm.SetName("shape%s_%s_%s%s_norm" % (postFix,process,channel, "_"))
 		    self.norm_rename_map[normname]=norm.GetName()
                     self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
@@ -888,4 +892,58 @@ class ShapeBuilder(ModelBuilder):
                 #print "Optimize %s in \t" % (pdf.GetName()),; ret.Print("")
                 return ret
         return pdf
+    def optimizeMHDependency(self,arg,wsp,MH=None,indent=""):
+        if arg.isFundamental(): return arg
+        if not MH:
+            MH = wsp.var("MH")
+            if not MH: return arg
+        if not arg.dependsOn(MH):
+            #print "%s%s does not depend on MH" % (indent,arg.GetName())
+            return arg
+        depvars = arg.getVariables()
+        if depvars.getSize() == 1:
+            if not depvars.find("MH"):
+                depvars.Print("")
+                raise RuntimeError("???")
+            depvars.setRealValue("MH", self.options.mass) # be safe
+            if self.options.optimizeMHDependency == "fixed":
+                print "%s%s depends only on MH, will freeze to its value at MH=%g, %g" % (indent, arg.GetName(), MH.getVal(), arg.getVal())
+                ret = ROOT.RooConstVar("%s__frozenMH" % arg.GetName(), "", arg.getVal())
+                self.out.dont_delete.append(ret)
+            elif self.options.optimizeMHDependency in ("pol0", "pol1", "pol2", "pol3", "pol4"):
+                order = int(self.options.optimizeMHDependency[3:])
+                ret = ROOT.SimpleTaylorExpansion1D("%s__MHpol%d" % (arg.GetName(),order), "", arg, MH, 0.1, order)
+                self.out.dont_delete.append(ret)
+            else:
+                raise RuntimeError("Unknown option value %r for optimizeMHDependency" % self.options.optimizeMHDependency)
+            return ret
+        else:
+            print "%s%s depends on MH and other %d variables." % (indent, arg.GetName(), depvars.getSize())
+            #depvars.Print("")
+            srviter = arg.serverMIterator()
+            servers = []
+            while True:
+                a = srviter.next()
+                if not a: break
+                servers.append(a)
+            #print "%sFound %d servers: %s" % (indent, len(servers), ", ".join(a.GetName() for a in servers))
+            newservers = []
+            for a in servers:
+                aopt = self.optimizeMHDependency(a,wsp,MH,indent=indent+"   ")
+                if aopt != a:
+                    newservers.append((a,aopt))
+            if newservers:
+                print "%sCan do replacements of %d servers: %s" % (indent, len(newservers), ", ".join(a.GetName() for (a,aopt) in newservers))
+                #print "-- Before --"
+                #arg.Print("t")
+                cust = ROOT.RooCustomizer(arg,"__optMH")
+                for (a,aopt) in newservers:
+                    cust.replaceArg(a,aopt)
+                ret = cust.build(True)
+                self.out.dont_delete.append(ret)
+                #print "-- After --"
+                #ret.Print("t")
+                #print "-- End --"
+                arg = ret
+            return arg
 

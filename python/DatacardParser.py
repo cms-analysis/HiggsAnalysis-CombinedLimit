@@ -39,6 +39,7 @@ def addDatacardParserOptions(parser):
     parser.add_option("--X-no-optimize-bound-nusances",  dest="optimizeBoundNuisances", default=True, action="store_false", help="Don't flag nuisances to have a different implementation of bounds")
     parser.add_option("--X-no-optimize-bins",  dest="optimizeTemplateBins", default=True, action="store_false", help="Don't optimize template bins (removes padding from TH1s)")
     parser.add_option("--X-pack-asympows",  dest="packAsymPows", default=False, action="store_true", help="Try reduce the number of inputs by merging AsymPow instances into ProcessNormalization objects")
+    parser.add_option("--X-optimizeMHDependency",  dest="optimizeMHDependency", default=None, help="Simplify MH dependent objects: 'fixed', 'pol<N>' with N=0..4")
 
 
 from HiggsAnalysis.CombinedLimit.Datacard import Datacard

@@ -718,7 +718,31 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
     vector<string> SetParameterExpression;
     boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
       
-    if (SetParameterExpression.size() != 2) {
+    // check for file syntax: file{file.txt}                                                                                                                                   
+    if (boost::starts_with(SetParameterExpression[0], "file{") && boost::ends_with(SetParameterExpression[0], "}")) {
+        std::string fname = SetParameterExpression[0].substr(5, SetParameterExpression[0].size()-6);
+        std::cout<<"Opening parameter file:"<<fname<<std::endl;
+        ifstream file(fname.c_str());
+        if (not file.is_open()){ std::cout<< "ERROR Unable to open/read file:"<<fname<<std::endl;}
+        string line;
+        while ( std::getline( file, line) )
+        {
+            if (boost::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
+            { 
+               if (line.find(" C ") != string::npos) continue; // don't deal with constants
+               line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
+               string tosearch=" = ",replace="=";
+               line.replace(line.find(tosearch), tosearch.size(), replace);
+               line=line.substr(0,line.find("+"));
+               line=line.substr(0,line.find(" C "));
+
+            }
+            if (line == "") continue;
+            std::cout<<"Adding term to setParamers:"<<line<<std::endl; // DEBUG
+            SetParameterExpressionList.push_back(line);
+        }
+    }
+    else if (SetParameterExpression.size() != 2 ) {
       std::cout << "Error parsing physics model parameter expression : " << SetParameterExpressionList[p] << endl;
     } 
     // check for regex syntax: rgx{regex}                                                                                                                                     
@@ -796,7 +820,36 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
     vector<string> SetParameterRangeExpression;
     boost::split(SetParameterRangeExpression, SetParameterRangeExpressionList[p], boost::is_any_of("=,"));
       
-    if (SetParameterRangeExpression.size() != 3) {
+    if (boost::starts_with(SetParameterRangeExpression[0], "file{") && boost::ends_with(SetParameterRangeExpression[0], "}")) {
+        std::string fname = SetParameterRangeExpression[0].substr(5, SetParameterRangeExpression[0].size()-6);
+        std::cout<<"Opening parameter file:"<<fname<<std::endl;
+        ifstream file(fname.c_str());
+        if (not file.is_open()){ std::cout<< "ERROR Unable to open/read file:"<<fname<<std::endl;}
+        string line;
+        while ( std::getline( file, line) )
+        {
+            if (boost::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
+            { 
+               if (line.find(" C ") != string::npos) continue; // don't deal with constants
+               //RooRealVar::cms_ps = -0.013155 +/- 0.995142  L(-INF - +INF) 
+               line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
+               string newline=line.substr(0,line.find(" = "));
+               size_t pos1=line.find("=")+1, pos2=line.find(" +/- ");
+               float value=std::atof(line.substr(pos1, pos2-pos1).c_str());
+               std::cout<<"->Obtainig value from:"<<pos1<<","<<pos2<<":"<<line.substr(pos1, pos2-pos1).c_str()<<std::endl;
+               size_t pos3=line.find(" ",pos2+5);
+               float err = std::atof(line.substr(pos2+5,pos3-(pos2+5)).c_str());
+               float mult=7; // arbitrary number
+               std::cout<<"Range manipulation result: "<<newline<<"="<< value<<"+/-"<<err<<"Mult factor"<<mult<<std::endl;
+               newline += Form("=%f,%f",value-mult*err,value+mult*err);
+               line=newline;
+            }
+            if (line == "") continue;
+            std::cout<<"Adding term to setParameterRanges:"<<line<<std::endl; // DEBUG
+            SetParameterRangeExpressionList.push_back(line);
+        }
+    }
+    else if (SetParameterRangeExpression.size() != 3) {
       std::cout << "Error parsing physics model parameter expression : " << SetParameterRangeExpressionList[p] << endl;
     } else if (SetParameterRangeExpression[1] == "-inf" && (
                     SetParameterRangeExpression[2] == "inf" || 

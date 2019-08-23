@@ -1,6 +1,6 @@
 import ROOT
 import re, os, os.path
-from sys import stderr, stdout
+from sys import stderr, stdout, exit
 from math import *
 ROOFIT_EXPR = "expr"
 ROOFIT_EXPR_PDF = "EXPR"
@@ -106,8 +106,8 @@ class ModelBuilder(ModelBuilderBase):
     def setPhysics(self,physicsModel):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
-    def doModel(self):
-        self.doObservables()
+    def doModel(self, justCheckPhysicsModel=False):
+        if not justCheckPhysicsModel: self.doObservables()
         self.physics.doParametersOfInterest()
 
         # set a group attribute on POI variables
@@ -121,6 +121,10 @@ class ModelBuilder(ModelBuilderBase):
 	self.doExtArgs()
 	self.doRateParams()
         self.doExpectedEvents()
+        if justCheckPhysicsModel:
+            self.physics.done()
+            print "Model is OK"
+            exit(0)
         self.doIndividualModels()
         self.doNuisancesGroups() # this needs to be called after both doNuisances and doIndividualModels
         self.doCombination()
@@ -634,7 +638,9 @@ class ModelBuilder(ModelBuilderBase):
                     for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
                     for factorName in factors:
 		    	if self.out.function(factorName): procNorm.addOtherFactor(self.out.function(factorName))
-			else: procNorm.addOtherFactor(self.out.var(factorName))
+		    	elif self.out.var(factorName): procNorm.addOtherFactor(self.out.var(factorName))
+		    	elif self.out.arg(factorName): raise RuntimeError("Factor %s for process %s, bin %s is a %s (not supported)" % (factorName, p, b, self.out.arg(factorName).ClassName()))
+		    	else: raise RuntimeError("Cannot add non-existant factor %s for process %s, bin %s" % (factorName, p, b))
                     self.out._import(procNorm)
     def doIndividualModels(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""

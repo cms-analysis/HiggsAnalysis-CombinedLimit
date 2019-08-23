@@ -134,11 +134,12 @@ class CachingAddNLL : public RooAbsReal {
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }
+        RooSetProxy & catParams() { return catParams_; }
     private:
         void setup_();
         void addPdfs_(RooAddPdf *addpdf, bool recursive, const RooArgList & basecoeffs) ;
         RooAbsPdf *pdf_;
-        RooSetProxy params_;
+        RooSetProxy params_, catParams_;
         const RooAbsData *data_;
         std::vector<Double_t>  weights_, binWidths_;
         double               sumWeights_;
@@ -177,6 +178,8 @@ class CachingSimNLL  : public RooAbsReal {
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);
         void setAnalyticBarlowBeeston(bool flag);
+        void setHideRooCategories(bool flag) { hideRooCategories_ = flag; }
+        void setHideConstants(bool flag) { hideConstants_ = flag; }
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
         virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
@@ -185,7 +188,8 @@ class CachingSimNLL  : public RooAbsReal {
         RooSimultaneous   *pdfOriginal_;
         const RooAbsData  *dataOriginal_;
         const RooArgSet   *nuis_;
-        RooSetProxy        params_;
+        RooSetProxy        params_, catParams_;
+        bool hideRooCategories_, hideConstants_;
         RooArgSet piecesForCloning_;
         std::auto_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
