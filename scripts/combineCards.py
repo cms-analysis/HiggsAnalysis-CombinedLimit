@@ -209,12 +209,24 @@ for ich,fname in enumerate(args):
         nuisanceEdits.append("%s %s %s %s"%(editline[0],tmp_proc,tmp_chan," ".join(editline[3])))
 
 bins = []
+check_processes = {}
+process_errors = []
 for (b,p,s) in keyline:
     if b not in bins: bins.append(b)
+    if p not in check_processes:
+        check_processes[p] = (s,b)
+    else:
+        if check_processes[p][0] != s:
+            process_errors.append(" - process %s %s a signal in %s and %s a signal in %s" % (p,
+                            "is" if s else "is not", b,
+                            "is" if check_processes[p][0] else "is not", check_processes[p][1]))
     if s:
         if p not in signals: signals.append(p)
     else:
         if p not in backgrounds: backgrounds.append(p)
+
+if process_errors:
+    raise RuntimeError("ERROR: mismatch between process signal labels:\n%s" % ("\n".join(process_errors)))
 
 print "Combination of", "  ".join(args)
 print "imax %d number of bins" % len(bins)
