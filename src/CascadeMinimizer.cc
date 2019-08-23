@@ -342,6 +342,7 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
  
    //if (simnll) simnll->clearZeroPoint();
 
+   TStopwatch tw; tw.Start();
    utils::setAllConstant(frozen,false);
    
    // Run one last fully floating fit to maintain RooFitResult
@@ -350,6 +351,8 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
 
    // unfreeze from *
    freezeDiscParams(false);
+
+   tw.Stop(); std::cout << "Done the full fit in " << tw.RealTime() << std::endl;
 
    return ret;
 }
@@ -462,6 +465,8 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingIndeces){
     static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
     static bool hideConstants = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_hideConstants"));
+    static bool maskConstraints = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_maskConstraints"));
+    static bool maskChannels = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_maskChannels"));
     cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
 
     //RooTrace::active(true);
@@ -524,8 +529,12 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     RooArgSet snap;
     params->snapshot(snap);
 
+    if (maskChannels && simnll) {
+        simnll->setMaskNonDiscreteChannels(true);
+    }
     if (hideConstants && simnll) {
         simnll->setHideConstants(true);
+        if (maskConstraints) simnll->setMaskConstraints(true);
         remakeMinimizer();
     }
 
@@ -555,6 +564,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     std::vector<std::vector<int> >::iterator my_it = myCombos.begin();
     if (mode!=0) my_it++; // already did the best fit case
   
+    TStopwatch tw; tw.Start();
 
     int fitCounter = 0;
     for (;my_it!=myCombos.end(); my_it++){
@@ -654,10 +664,19 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     runtimedef::set("MINIMIZER_analytic", currentBarlowBeeston);
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(backupStrategy);
 
+    tw.Stop(); std::cout << "Done " << myCombos.size() << " combinations in " << tw.RealTime() << std::endl;
+    tw.Start();
+
+    if (maskChannels && simnll) {
+        simnll->setMaskNonDiscreteChannels(false);
+    }
     if (hideConstants && simnll) {
         simnll->setHideConstants(false);
+        if (maskConstraints) simnll->setMaskConstraints(false);
         remakeMinimizer();
     }
+
+    tw.Stop(); std::cout << "Done minimizer reset in " << tw.RealTime() << std::endl;
 
     return newDiscreteMinimum;
 }
