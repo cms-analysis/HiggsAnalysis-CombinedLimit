@@ -100,7 +100,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade, bool forceResetMinimiz
       simnllbb->setAnalyticBarlowBeeston(true);
       forceResetMinimizer = true;
     }
-    if (forceResetMinimizer) remakeMinimizer();
+    if (forceResetMinimizer || !minimizer_.get()) remakeMinimizer();
     minimizer_->setPrintLevel(verbose-1);
    
     strategy_ = ROOT::Math::MinimizerOptions::DefaultStrategy(); // re-configure 
@@ -171,6 +171,7 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
     bool outcome = false;
     double tol = ROOT::Math::MinimizerOptions::DefaultTolerance();
     static int maxcalls = runtimedef::get("MINIMIZER_MaxCalls");
+    if (!minimizer_.get()) remakeMinimizer();
     if (maxcalls) {
         minimizer_->setMaxFunctionCalls(maxcalls);
         minimizer_->setMaxIterations(maxcalls);
@@ -230,6 +231,7 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
       utils::setAllConstant(toFreeze, false);
       remakeMinimizer();
    }
+   if (!minimizer_.get()) remakeMinimizer();
    minimizer_->setPrintLevel(verbose-1); // for debugging
    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
    std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
@@ -272,6 +274,7 @@ bool CascadeMinimizer::hesse(int verbose ) {
       minimizer_->setStrategy(strategy_);
       improveOnce(verbose - 1);
    }
+   if (!minimizer_.get()) remakeMinimizer();
    minimizer_->setPrintLevel(verbose-1); // for debugging
    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
    std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
@@ -372,7 +375,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
     if (runtimedef::get(std::string("MINIMIZER_skipDiscreteIterations"))) doMultipleMini=false;
     // if ( doMultipleMini ) preFit_ = 1;
-
+    if (!minimizer_.get()) remakeMinimizer();
     minimizer_->setPrintLevel(verbose-2);  
     minimizer_->setStrategy(strategy_);
     
@@ -535,7 +538,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     if (hideConstants && simnll) {
         simnll->setHideConstants(true);
         if (maskConstraints) simnll->setMaskConstraints(true);
-        remakeMinimizer();
+        minimizer_.reset(); // will be recreated when needed by whoever needs it
     }
 
     std::vector<std::vector<int> > myCombos;
@@ -682,7 +685,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     if (hideConstants && simnll) {
         simnll->setHideConstants(false);
         if (maskConstraints) simnll->setMaskConstraints(false);
-        remakeMinimizer();
+        minimizer_.reset(); // will be recreated when needed by whoever needs it
     }
 
     tw.Stop(); std::cout << "Done minimizer reset in " << tw.RealTime() << std::endl;
