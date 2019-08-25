@@ -355,7 +355,7 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    // unfreeze from *
    freezeDiscParams(false);
 
-   tw.Stop(); std::cout << "Done the full fit in " << tw.RealTime() << std::endl;
+   tw.Stop(); if (verbose > 2) std::cout << "Done the full fit in " << tw.RealTime() << std::endl;
 
    return ret;
 }
@@ -621,11 +621,15 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
       }
       freezeDiscParams(false);
 
+
       fitCounter++;
       double thisNllValue = nll_.getVal();
       
       if ( thisNllValue < minimumNLL ){
 		// Now we insert the correction ! 
+                if (verbose>2) {
+                    std::cout << " .... Found a better fit: new NLL = " << thisNllValue << " (improvement: " << (thisNllValue-minimumNLL) << std::endl;
+                }
 	        minimumNLL = thisNllValue;	
                 //std::cout << " .... Found a better fit! hoorah! " << minimumNLL << std::endl; 
     		snap.assignValueOnly(*params);
@@ -634,6 +638,11 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 			if (bestIndeces[id] != ((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex() ) newDiscreteMinimum = true;
 			bestIndeces[id]=((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex();	
 		}
+                if (verbose>2 && newDiscreteMinimum) {
+                    std::cout << " .... Better fit corresponds to a new set of indices :=" ; 
+                    for (int id=0;id<numIndeces;id++) { std::cout << " " << bestIndeces[id]; }
+                    std::cout << std::endl;
+                }
       }
 
       // FIXME this should be made configurable!
@@ -676,8 +685,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     runtimedef::set("MINIMIZER_analytic", currentBarlowBeeston);
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(backupStrategy);
 
-    tw.Stop(); std::cout << "Done " << myCombos.size() << " combinations in " << tw.RealTime() << std::endl;
-    tw.Start();
+    tw.Stop(); if (verbose > 2) std::cout << "Done " << myCombos.size() << " combinations in " << tw.RealTime() << " s. New discrete minimum? " << newDiscreteMinimum << std::endl;
 
     if (maskChannels && simnll) {
         simnll->setMaskNonDiscreteChannels(false);
@@ -688,7 +696,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
         minimizer_.reset(); // will be recreated when needed by whoever needs it
     }
 
-    tw.Stop(); std::cout << "Done minimizer reset in " << tw.RealTime() << std::endl;
 
     return newDiscreteMinimum;
 }
