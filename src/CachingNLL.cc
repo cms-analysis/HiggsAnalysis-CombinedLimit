@@ -839,7 +839,7 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
     nuis_(nuis),
     params_("params","parameters",this),
     catParams_("catParams","Category parameters",this),
-    hideRooCategories_(false), hideConstants_(false), maskConstraints_(false)
+    hideRooCategories_(false), hideConstants_(false), maskConstraints_(false), maskingOffset_(0), maskingOffsetZero_(0)
 {
     setup_();
 }
@@ -853,7 +853,9 @@ cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char 
     hideRooCategories_(other.hideRooCategories_),
     hideConstants_(other.hideConstants_),
     internalMasks_(other.internalMasks_),
-    maskConstraints_(other.maskConstraints_)
+    maskConstraints_(other.maskConstraints_),
+    maskingOffset_(other.maskingOffset_),
+    maskingOffsetZero_(other.maskingOffsetZero_)
 {
     setup_();
 }
@@ -1087,6 +1089,7 @@ cacheutils::CachingSimNLL::evaluate() const
         }
         ret -= ret2.sum();
     }
+    ret += (maskingOffset_ - maskingOffsetZero_);
 #ifdef TRACE_NLL_EVALS
     static unsigned long _trace_ = 0; _trace_++;
     if (_trace_ % 10 == 0)  { putchar('.'); fflush(stdout); }
@@ -1187,6 +1190,7 @@ void cacheutils::CachingSimNLL::setZeroPoint() {
     for (SimpleConstraintGroup & g : constrainPdfGroups_) {
         g.setZeroPoint();
     }
+    maskingOffsetZero_ = maskingOffset_;
     setValueDirty();
 }
 
@@ -1198,6 +1202,7 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
     std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
     std::fill(constrainZeroPointsFastPoisson_.begin(), constrainZeroPointsFastPoisson_.end(), 0.0);
     for (SimpleConstraintGroup & g : constrainPdfGroups_) g.clearZeroPoint();
+    maskingOffsetZero_ = 0;
     setValueDirty();
 }
 
@@ -1244,28 +1249,55 @@ cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t value
 RooArgSet* 
 cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
-    RooArgSet *ret = new RooArgSet(params_); 
-    if (!hideRooCategories_) ret->add(catParams_);
+    RooArgSet *ret;
+    if (internalMasks_.empty()) {
+        ret = new RooArgSet(params_); 
+        if (!hideRooCategories_) ret->add(catParams_);
+    } else {
+        ret = new RooArgSet(activeParameters_); 
+        if (!hideRooCategories_) ret->add(activeCatParameters_);
+    }
     if (hideConstants_) RooStats::RemoveConstantParameters(ret);
     return ret;
 }
 
+void cacheutils::CachingSimNLL::setMaskConstraints(bool flag) {
+    double nllBefore = evaluate();
+    maskConstraints_ = flag;
+    double nllAfter = evaluate();
+    maskingOffset_ += (nllBefore - nllAfter);
+    //printf("CachingSimNLL: setMaskConstraints(%d): nll before %.12g, nll after %.12g (diff %.12g), new maskingOffset %.12g, check = %.12g\n",
+    //            int(flag), nllBefore, nllAfter, (nllBefore-nllAfter), maskingOffset_, evaluate() - nllBefore);
+}
+
 void cacheutils::CachingSimNLL::setMaskNonDiscreteChannels(bool mask) {
-    if (!mask) { internalMasks_.clear(); return; } 
-    internalMasks_.resize(pdfs_.size(), false);
-    unsigned int idx = 0;
-    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
-        if ((*it) == 0) continue;
-        RooLinkedListIter iter = (*it)->catParams().iterator();
-        for (RooAbsArg *P = (RooAbsArg *) iter.Next(); P != 0; P = (RooAbsArg *) iter.Next()) {
-            RooCategory *cat = dynamic_cast<RooCategory *>(P);
-            if (!cat) continue;
-            if (cat && !cat->isConstant()) {
-                internalMasks_[idx] = true; 
-                std::cout << "Enabling channel " << (*it)->GetName() << " that depends on non-const category " << cat->GetName() << std::endl;
-                break;
+    double nllBefore = evaluate();
+    internalMasks_.clear(); // reset
+    activeParameters_.removeAll(); 
+    activeCatParameters_.removeAll();
+    if (mask) {
+        internalMasks_.resize(pdfs_.size(), false);
+        unsigned int idx = 0;
+        for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
+            if ((*it) == 0) continue;
+            RooLinkedListIter iter = (*it)->catParams().iterator();
+            for (RooAbsArg *P = (RooAbsArg *) iter.Next(); P != 0; P = (RooAbsArg *) iter.Next()) {
+                RooCategory *cat = dynamic_cast<RooCategory *>(P);
+                if (!cat) continue;
+                if (cat && !cat->isConstant()) {
+                    internalMasks_[idx] = true; 
+                    activeParameters_.add((*it)->params(), /*silent=*/true); 
+                    activeCatParameters_.add((*it)->catParams(), /*silent=*/true); 
+                    std::cout << "Enabling channel " << (*it)->GetName() << " that depends on non-const category " << cat->GetName() << std::endl;
+                    break;
+                }
             }
         }
     }
+    double nllAfter = evaluate();
+    maskingOffset_ += (nllBefore - nllAfter);
+    //printf("CachingSimNLL: setMaskNonDiscreteChannels(%d): nll before %.12g, nll after %.12g (diff %.12g), new maskingOffset %.12g, check = %.12g\n",
+    //            int(mask), nllBefore, nllAfter, (nllBefore-nllAfter), maskingOffset_, evaluate() - nllBefore);
+    
 }
 
