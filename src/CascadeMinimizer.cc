@@ -466,7 +466,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
     static bool hideConstants = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_hideConstants"));
     static bool maskConstraints = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_maskConstraints"));
-    static bool maskChannels = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_maskChannels"));
+    static int maskChannels = freezeDisassParams ? runtimedef::get(std::string("MINIMIZER_multiMin_maskChannels")) : 0;
     cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
 
     //RooTrace::active(true);
@@ -571,7 +571,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
 	     bool isValidCombo = true;
 	
-	     int pdfIndex=0;
+	     int pdfIndex=0, changedIndex = -1;
 	     // Set the current indeces;
 	     std::vector<int> cit = *my_it;
 	     for (std::vector<int>::iterator it = cit.begin();
@@ -581,6 +581,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 		 if (!isValidCombo ) /*&& runShortCombinations)*/ continue;
 
 	     	 fPdf = (RooCategory*) pdfCategoryIndeces.at(pdfIndex);
+                 if (fPdf->getIndex() != *it) changedIndex = pdfIndex;
 		 fPdf->setIndex(*it);
 		 pdfIndex++;
 	     }
@@ -597,6 +598,10 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
       if (fitCounter>0) params->assignValueOnly(reallyCleanParameters); // no need to reset from 0'th fit
 
+      if (maskChannels == 2 && simnll) {
+        for (int id=0;id<numIndeces;id++)  ((RooCategory*)(pdfCategoryIndeces.at(id)))->setConstant(id != changedIndex && changedIndex != -1);
+        simnll->setMaskNonDiscreteChannels(true);
+      }
       // Remove parameters which are not associated to the current PDF (only works if using --X-rtd MINIMIZER_freezeDisassociatedParams)
       freezeDiscParams(true);
 
@@ -607,6 +612,10 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
       ret =  improve(verbose, cascade, freezeDisassParams);
 
+      if (maskChannels == 2 && simnll) {
+        for (int id=0;id<numIndeces;id++)  ((RooCategory*)(pdfCategoryIndeces.at(id)))->setConstant(false);
+        simnll->setMaskNonDiscreteChannels(false);
+      }
       freezeDiscParams(false);
 
       fitCounter++;
