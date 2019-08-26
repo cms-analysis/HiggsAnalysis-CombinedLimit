@@ -180,6 +180,8 @@ class CachingSimNLL  : public RooAbsReal {
         void setAnalyticBarlowBeeston(bool flag);
         void setHideRooCategories(bool flag) { hideRooCategories_ = flag; }
         void setHideConstants(bool flag) { hideConstants_ = flag; }
+        void setMaskConstraints(bool flag) ;
+        void setMaskNonDiscreteChannels(bool mask) ;
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
         virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
@@ -208,6 +210,11 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<double> constrainZeroPointsFast_;
         std::vector<double> constrainZeroPointsFastPoisson_;
         std::vector<RooAbsReal*> channelMasks_;
+        std::vector<bool>        internalMasks_;
+        bool                     maskConstraints_;
+        RooArgSet                activeParameters_, activeCatParameters_;
+        double                   maskingOffset_;     // offset to ensure that interal or constraint masking doesn't change NLL value
+        double                   maskingOffsetZero_; // and associated zero point
 };
 
 }
