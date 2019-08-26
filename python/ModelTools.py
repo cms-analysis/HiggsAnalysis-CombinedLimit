@@ -461,7 +461,7 @@ class ModelBuilder(ModelBuilderBase):
                         self.out.var(n).setRange(self.out.function('%s_BoundLo' % n), self.out.function('%s_BoundHi' % n))
                 else:
                     if len(args) == 3: # mean, sigma, range
-		    	sigma = float(args[2])
+                        sigma = float(args[1])
                         if self.out.var(n):
                           bounds = [float(x) for x in args[2][1:-1].split(",")]
                           self.out.var(n).setConstant(False)
