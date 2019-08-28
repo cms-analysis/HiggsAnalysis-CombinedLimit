@@ -8,6 +8,7 @@
 #include <set>
 #include <fstream>
 #include <sstream>
+#include <fnmatch.h>
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string.hpp"
 #include "boost/format.hpp"
@@ -17,6 +18,7 @@
 #include "TH1.h"
 #include "RooRealVar.h"
 #include "RooCategory.h"
+
 #include "CombineHarvester/CombineTools/interface/Observation.h"
 #include "CombineHarvester/CombineTools/interface/Process.h"
 #include "CombineHarvester/CombineTools/interface/Systematic.h"
@@ -375,10 +377,12 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
           process_id = boost::lexical_cast<int>(words[r-1][p]);
           process = words[r-2][p];
         }
-        if (words[i][2] == "*" || words[i][2] == bin) {
+        // if (words[i][2] == "*" || words[i][2] == bin) {
+        if (words[i][2] == "*" || fnmatch(words[i][2].c_str(), bin.c_str(), 0) == 0) {
           matches_bin = true;
         }
-        if (words[i][3] == "*" || words[i][3] == process) {
+        // if (words[i][3] == "*" || words[i][3] == process) {
+        if (words[i][3] == "*" || fnmatch(words[i][3].c_str(), process.c_str(), 0) == 0) {
           matches_proc = true;
         }
         if (!matches_bin || !matches_proc) continue;
