@@ -6,7 +6,7 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 from math import exp
-import ROOT, os, re
+import ROOT, os, re, sys
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -51,6 +51,13 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.fixTHandBBH = fixTHandBBH #if false scaling function for tH, bbH MUST be defined in input txt file
     self.freezeOtherParameters = freezeOtherParameters #Option to freeze majority of parameters in model. Leaving those used in LHCHXSWG-INT-2017-001 fit to float
     self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
+    if self.freezeOtherParameters: 
+      self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cu'] # note cWW+cB is frozen, but required to define cWW and cB
+      self.distinctParametersOfInterest = set([])
+      for p in self.parametersOfInterest:
+        if "Plus" in p: self.distinctParametersOfInterest = self.distinctParametersOfInterest | set(p.split("Plus"))
+        elif "Minus" in p: self.distinctParametersOfInterest = self.distinctParametersOfInterest | set(p.split("Minus"))
+        else: self.distinctParametersOfInterest.add(p)
 
   def setPhysicsOptionsBase(self,physOptions):
     for po in physOptions:
@@ -73,7 +80,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     print " --> [STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
     print " --> [STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
     if( self.doSTXSU ): print " --> [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/*_binuncertainties.txt"
-    if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cA,cu,cHW,cWWMinuscB] to 0"
+    if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cu,cHW,cA,cWWMinuscB] (distinct: %s) to 0"%(self.distinctParametersOfInterest)
     else: print " --> [STXStoEFT] Allowing all HEL parameters to float"
     if( len( self.fixProcesses ) > 0 ): print " --> [STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
 
@@ -108,20 +115,28 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     lines = [l for l in file_in]
     for line in lines[skipRows:]:
       if( len(line.strip())== 0 ): continue
-      self.pois['%s'%line.split()[0]] = "[%s,%s,%s]"%(line.split()[1],line.split()[2],line.split()[3])
-      #extract unscaled poi and scaling factor in list
-      poi_scale = line.split()[0].split("_")
-      #save poi scaling to dictionary: used when making scaling function
-      if len(poi_scale) == 1: self.poi_scaling[ poi_scale[0] ] = "1.*%s"%line.split()[0]
-      else:
-        if poi_scale[1] == "x05": self.poi_scaling[ poi_scale[0] ] = "0.00001*%s"%line.split()[0]
-        elif poi_scale[1] == "x04": self.poi_scaling[ poi_scale[0] ] = "0.0001*%s"%line.split()[0]
-        elif poi_scale[1] == "x03": self.poi_scaling[ poi_scale[0] ] = "0.001*%s"%line.split()[0]
-        elif poi_scale[1] == "x02": self.poi_scaling[ poi_scale[0] ] = "0.01*%s"%line.split()[0]
-        elif poi_scale[1] == "x01": self.poi_scaling[ poi_scale[0] ] = "0.1*%s"%line.split()[0]
-        else: raise ValueError("[ERROR] Parameter of interest scaling not in allowed range [0.1-0.0001]")
-      #if poi: cG, cA, tcG, tcA add factor of 16pi2
-      if poi_scale[0] in ['cG','tcG','cA','tcA']: self.poi_scaling[ poi_scale[0] ] = "157.914*%s"%(self.poi_scaling[ poi_scale[0] ])
+
+      # If param is frozen (except cWW+cB) then skip poi
+      skip_poi = False
+      if self.freezeOtherParameters:
+        if line.split()[0].split("_")[0] not in self.parametersOfInterest: skip_poi = True
+      if not skip_poi:
+
+        self.pois['%s'%line.split()[0]] = "[%s,%s,%s]"%(line.split()[1],line.split()[2],line.split()[3])
+        #extract unscaled poi and scaling factor in list
+        poi_scale = line.split()[0].split("_")
+
+        #save poi scaling to dictionary: used when making scaling function
+        if len(poi_scale) == 1: self.poi_scaling[ poi_scale[0] ] = "1.*%s"%line.split()[0]
+        else:
+          if poi_scale[1] == "x05": self.poi_scaling[ poi_scale[0] ] = "0.00001*%s"%line.split()[0]
+          elif poi_scale[1] == "x04": self.poi_scaling[ poi_scale[0] ] = "0.0001*%s"%line.split()[0]
+          elif poi_scale[1] == "x03": self.poi_scaling[ poi_scale[0] ] = "0.001*%s"%line.split()[0]
+          elif poi_scale[1] == "x02": self.poi_scaling[ poi_scale[0] ] = "0.01*%s"%line.split()[0]
+          elif poi_scale[1] == "x01": self.poi_scaling[ poi_scale[0] ] = "0.1*%s"%line.split()[0]
+          else: raise ValueError("[ERROR] Parameter of interest scaling not in allowed range [0.1-0.0001]")
+        #if poi: cG, cA, tcG, tcA add factor of 16pi2
+        if poi_scale[0] in ['cG','tcG','cA','tcA']: self.poi_scaling[ poi_scale[0] ] = "157.914*%s"%(self.poi_scaling[ poi_scale[0] ])
     file_in.close()
 
   #Function to extract STXS scaling functions
@@ -175,24 +190,30 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     #define list to hold name of terms 
     formulaTerms = []
     _termIdx = 0
- 
+
     #loop over terms in formula (ignoring first term which is just 1 [perturbation theory])
     for term in formula[1:]:
       constituents = term.split("*")
-      #replace constituents by POIs (i.e scaled)
-      scaled_constituents = []
-      for c in constituents:
-        if c in self.poi_scaling: scaled_constituents.extend( self.poi_scaling[c].split("*") )
-        else: scaled_constituents.append( c )
-      #define string for term: RooProduct (factory)
-      termStr = "prod::term_%s_%g("%(what,_termIdx)
-      for sc in scaled_constituents: termStr += "%s,"%sc
-      termStr = termStr[:-1]+")"
-      # add term to model and dictionary
-      self.modelBuilder.factory_( termStr )
-      formulaTerms.append("term_%s_%g"%(what,_termIdx))
-      # add one to the iterator
-      _termIdx += 1
+      # If param is frozen then skip term
+      skipTerm = False
+      if self.freezeOtherParameters:
+        for c in constituents[1:]: #Ignore pre-factor
+          if c not in self.distinctParametersOfInterest: skipTerm = True
+      if not skipTerm:
+        #replace constituents by POIs (i.e scaled)
+        scaled_constituents = []
+        for c in constituents:
+          if c in self.poi_scaling: scaled_constituents.extend( self.poi_scaling[c].split("*") )
+          else: scaled_constituents.append( c ) 
+        #define string for term: RooProduct (factory)
+        termStr = "prod::term_%s_%g("%(what,_termIdx)
+        for sc in scaled_constituents: termStr += "%s,"%sc
+        termStr = termStr[:-1]+")"
+        # add term to model and dictionary
+        self.modelBuilder.factory_( termStr )
+        formulaTerms.append("term_%s_%g"%(what,_termIdx))
+        # add one to the iterator
+        _termIdx += 1
 
     #split up sums into sizeable chunks: 15 terms max
     sumTerms = {}
@@ -287,10 +308,11 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
     self.modelBuilder.factory_("expr::cB_x02(\"0.5*(@0-@1)\",cWWPluscB_x02,cWWMinuscB_x02)")
     self.poi_scaling['cWW'] = "0.01*cWW_x02"
     self.poi_scaling['cB'] = "0.01*cB_x02"
-    #Unless specified in options: fix all parameters not used in LHCHXSWG-INT-2017-001 fit to 0 (freeze)
-    if( self.freezeOtherParameters ):
-      for poi in self.pois:
-        if poi not in ['cG_x05','cA_x04','cu_x01','cHW_x02','cWWMinuscB_x02']: self.modelBuilder.out.var( poi ).setConstant(True)
+
+    # Freeze cWW+cB if freezeOtherParameters
+    if self.freezeOtherParameters: 
+      for poi in self.pois: 
+        if 'cWWPluscB' in poi: self.modelBuilder.out.var( poi ).setConstant(True)
 
     #set up model
     self.setup()
@@ -411,10 +433,11 @@ class StageXToEFTModel(STXStoEFTBaseModel):
     self.modelBuilder.factory_("expr::cB_x02(\"0.5*(@0-@1)\",cWWPluscB_x02,cWWMinuscB_x02)")
     self.poi_scaling['cWW'] = "0.01*cWW_x02"
     self.poi_scaling['cB'] = "0.01*cB_x02"
-    #Unless specified in options: fix all parameters not used in LHCHXSWG-INT-2017-001 fit to 0 (freeze)
-    if( self.freezeOtherParameters ):
-      for poi in self.pois:
-        if poi not in ['cG_x05','cA_x04','cu_x01','cHW_x02','cWWMinuscB_x02']: self.modelBuilder.out.var( poi ).setConstant(True)
+    
+    # Freeze cWW+cB if freezeOtherParameters
+    if self.freezeOtherParameters: 
+      for poi in self.pois: 
+        if 'cWWPluscB' in poi: self.modelBuilder.out.var( poi ).setConstant(True)
 
     #set up model
     self.setup()
