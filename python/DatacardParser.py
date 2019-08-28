@@ -215,6 +215,7 @@ def parseCard(file, options):
 	    	continue
             elif pdf == "rateParam":
 	        if ("*" in f[3]) or ("*" in f[2]): # all channels/processes
+                  found = False
 		  for c in ret.processes:
 		   for b in ret.bins:
 		    if (not fnmatch.fnmatch(c, f[3])): continue
@@ -223,6 +224,8 @@ def parseCard(file, options):
 		    f_tmp[2]=b
 		    f_tmp[3]=c
 	            addRateParam(lsyst,f_tmp,ret)
+                    found = True
+                  if not found: raise RuntimeError, "rateParam %s with process %r bin %r doesn't match anything." % (lsyst,f[3],f[2]) 
 		else : addRateParam(lsyst,f,ret)
                 continue
             elif pdf=="discrete":

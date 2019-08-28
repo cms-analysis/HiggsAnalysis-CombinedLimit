@@ -250,27 +250,26 @@ def getHiggsProdDecMode(bin,process,options):
     if "_" in process: 
         (processSource, decaySource) = (process.split("_")[0],process.split("_")[-1]) # ignore anything in the middle for SM-like higgs
         if decaySource not in ALL_HIGGS_DECAYS:
-            print "ERROR", "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
-            #raise RuntimeError, "Validation Error: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (process,decaySource,ALL_HIGGS_DECAYS)
+            print "ERROR", "Validation Error in bin %r: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (bin,process,decaySource,ALL_HIGGS_DECAYS)
     if processSource not in ALL_HIGGS_PROD :
-        raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
+        raise RuntimeError, "Validation Error in bin %r, process %r: signal process %s not among the allowed ones." % (bin,process,decaySource)
     #
     foundDecay = None
     for D in ALL_HIGGS_DECAYS:
         if D in decaySource:
-            if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
+            if foundDecay: raise RuntimeError, "Validation Error in bin %r, process %r: decay string %s contains multiple known decay names" % (bin,process,decaySource)
             foundDecay = D
-    if not foundDecay: raise RuntimeError, "Validation Error: decay string %s does not contain any known decay name" % decaySource
+    if not foundDecay: raise RuntimeError, "Validation Error in bin %r, process %r: decay string %s does not contain any known decay name" % (bin,process,decaySource)
     #
     foundEnergy = None
     for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
         if D in decaySource:
-            if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
+            if foundEnergy: raise RuntimeError, "Validation Error in bin %r, process %r: decay string %s contains multiple known energies" % (bin,process,decaySource)
             foundEnergy = D
     if not foundEnergy:
         for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
             if D in options.fileName+":"+bin:
-                if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
+                if foundEnergy: raise RuntimeError, "Validation Error in bin %r, process %r: decay string %s contains multiple known energies" % (bin,process,decaySource)
                 foundEnergy = D
     if not foundEnergy:
         foundEnergy = '13TeV' ## if using 81x, chances are its 13 TeV
