@@ -1,0 +1,54 @@
+ggH_PTH_GT200:1 + 55.7 * cG + 93.8 * c3G + 125 * c2G
+ggH_0J_PTH_0_10:1 + 53.4 * cG
+ggH_0J_PTH_GT10:1 + 55.6 * cG
+ggH_1J_PTH_0_60:1 + 55.7 * cG
+ggH_1J_PTH_60_120:1 + 55.8 * cG
+ggH_1J_PTH_120_200:1 + 55.8 * cG + 22.6 * c3G + 20.3 * c2G
+ggH_GE2J_MJJ_0_350_PTH_0_60:1 + 55.4 * cG + 11.1 * c2G
+ggH_GE2J_MJJ_0_350_PTH_60_120:1 + 55.6 * cG + 11.7 * c3G + 11.2 * c2G
+ggH_GE2J_MJJ_0_350_PTH_120_200:1 + 55.6 * cG + 32.9 * c3G + 18.6 * c2G
+ggH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25:1 + 55.8 * cG + 15.1 * c3G + 12.6 * c2G
+ggH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25:1 + 55.6 * cG + 38.9 * c3G + 51.2 * c2G
+ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25:1 + 55.9 * cG + 9.42 * c3G + 9.35 * c2G
+ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25:1 + 55.6 * cG + 10.9 * c3G + 29 * c2G
+qqH_0J:1 -0.998 * cH -0.387 * cT + 9.03 * cWW + 0.25 * cB + 0.464 * cHW + 0.0333 * cHB + 0.000444 * cA + 0.13 * cG -0.0841 * cHQ + 2.69 * cpHQ + 0.161 * cHu -0.0572 * cHd
+qqH_1J:1 -0.999 * cH -0.505 * cT + 8.16 * cWW + 0.173 * cB -0.726 * cHW -0.0145 * cHB + 0.000277 * cA + 0.075 * cG + 0.0119 * cHQ + 1.76 * cpHQ + 0.15 * cHu -0.0719 * cHd
+qqH_GE2J_MJJ_0_60:1 -0.99 * cH -0.552 * cT + 9.06 * cWW + 0.28 * cB + 0.548 * cHW + 0.000861 * cA + 0.536 * cG + 3.58 * cpHQ -0.331 * cHu + 0.102 * cHd
+qqH_GE2J_MJJ_60_120:1 -0.996 * cH -1.28 * cT + 27 * cWW + 1.99 * cB + 11.6 * cHW + 1.01 * cHB + 0.00506 * cA + 0.203 * cG -0.998 * cHQ + 19.8 * cpHQ + 1.63 * cHu -0.412 * cHd
+qqH_GE2J_MJJ_120_350:1 -0.995 * cH -0.647 * cT -0.255 * cWW -0.364 * cB -5.95 * cHW -0.376 * cHB -0.00102 * cA + 0.258 * cG -0.11 * cHQ -7.95 * cpHQ -0.463 * cHu + 0.127 * cHd
+qqH_GE2J_MJJ_GT350_PTH_GT200:1 -0.999 * cH -0.905 * cT -21 * cWW -1.7 * cB -30.8 * cHW -2.02 * cHB + 0.0818 * cG + 0.778 * cHQ -30.2 * cpHQ -2.58 * cHu + 0.66 * cHd
+qqH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25:1 -1 * cH -0.62 * cT + 1.18 * cWW -0.287 * cB -3.96 * cHW -0.245 * cHB -0.00117 * cA -6.01 * cpHQ -0.706 * cHu + 0.172 * cHd
+qqH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25:1 -0.999 * cH -0.744 * cT -0.308 * cWW -0.392 * cB -4.85 * cHW -0.357 * cHB -0.00129 * cA + 0.0722 * cG + 0.139 * cHQ -7.49 * cpHQ -0.913 * cHu + 0.177 * cHd
+qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25:1 -1 * cH -0.642 * cT + 1.14 * cWW -0.299 * cB -4.05 * cHW -0.283 * cHB -0.00123 * cA + 0.212 * cHQ -6.05 * cpHQ -0.33 * cHu + 0.114 * cHd
+qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25:1 -0.999 * cH -0.695 * cT -0.349 * cWW -0.39 * cB -4.85 * cHW -0.327 * cHB -0.00166 * cA + 0.0331 * cG + 0.182 * cHQ -7.75 * cpHQ -0.404 * cHu + 0.131 * cHd
+WH_lep_PTV_0_75:1 -1 * cH + 28.6 * cWW + 7.44 * cHW + 18.6 * cpHQ + 2 * cpHL
+WH_lep_PTV_75_150:1 -1 * cH + 40.7 * cWW + 17.6 * cHW + 30.7 * cpHQ + 2.01 * cpHL
+WH_lep_PTV_150_250_0J:1 -1 * cH + 77.3 * cWW + 51.6 * cHW + 67.3 * cpHQ + 2.01 * cpHL
+WH_lep_PTV_150_250_GE1J:1 -1 * cH + 68.9 * cWW + 43.7 * cHW + 58.9 * cpHQ + 2.01 * cpHL
+WH_lep_PTV_GT250:1 -1 * cH + 193 * cWW + 168 * cHW + 183 * cpHQ + 2.02 * cpHL
+ZH_lep_PTV_0_75:1 -1 * cH -3.67 * cT + 25.4 * cWW + 7.14 * cB + 5.57 * cHW + 1.67 * cHB + 0.0303 * cA -0.141 * cHQ + 18.5 * cpHQ + 4.22 * cHu -1.5 * cHd -0.979 * cHL + 2.02 * cpHL -0.229 * cHe
+ZH_lep_PTV_75_150:1 -1 * cH -3.39 * cT + 29.4 * cWW + 9.08 * cB + 12.9 * cHW + 3.88 * cHB + 0.0298 * cA -1.23 * cHQ + 29.1 * cpHQ + 6.7 * cHu -2.45 * cHd -0.858 * cHL + 2.03 * cpHL -0.256 * cHe
+ZH_lep_PTV_150_250_0J:1 -1 * cH -2.83 * cT + 56 * cWW + 13.6 * cB + 38.5 * cHW + 11.5 * cHB + 0.0217 * cA -5.74 * cHQ + 61.7 * cpHQ + 15.5 * cHu -4.34 * cHd -0.811 * cHL + 2.06 * cpHL -0.247 * cHe
+ZH_lep_PTV_150_250_GE1J:1 -1 * cH -3.23 * cT + 46 * cWW + 12.4 * cB + 31.1 * cHW + 9.32 * cHB + 0.0249 * cA -4.6 * cHQ + 52.2 * cpHQ + 13.4 * cHu -5.14 * cHd -0.835 * cHL + 2.02 * cpHL -0.269 * cHe
+ZH_lep_PTV_GT250:1 -1 * cH -4.12 * cT + 203 * cWW + 34.6 * cB + 111 * cHW + 33.1 * cHB + 0.0336 * cA + 0.585 * cHQ + 143 * cpHQ + 38.2 * cHu -13.9 * cHd -0.624 * cHL + 2.13 * cpHL -0.257 * cHe
+ttH:1 -0.976 * cH + 2.94 * cu + 0.729 * cG + 0.589 * cuW + 312 * cuG + 30.8 * c3G -14.6 * c2G
+WH_had_0J:1 -0.998 * cH -0.387 * cT + 9.03 * cWW + 0.25 * cB + 0.464 * cHW + 0.0333 * cHB + 0.000444 * cA + 0.13 * cG -0.0841 * cHQ + 2.69 * cpHQ + 0.161 * cHu -0.0572 * cHd
+WH_had_1J:1 -0.999 * cH -0.505 * cT + 8.16 * cWW + 0.173 * cB -0.726 * cHW -0.0145 * cHB + 0.000277 * cA + 0.075 * cG + 0.0119 * cHQ + 1.76 * cpHQ + 0.15 * cHu -0.0719 * cHd
+WH_had_GE2J_MJJ_0_60:1 -0.99 * cH -0.552 * cT + 9.06 * cWW + 0.28 * cB + 0.548 * cHW + 0.000861 * cA + 0.536 * cG + 3.58 * cpHQ -0.331 * cHu + 0.102 * cHd
+WH_had_GE2J_MJJ_60_120:1 -0.996 * cH -1.28 * cT + 27 * cWW + 1.99 * cB + 11.6 * cHW + 1.01 * cHB + 0.00506 * cA + 0.203 * cG -0.998 * cHQ + 19.8 * cpHQ + 1.63 * cHu -0.412 * cHd
+WH_had_GE2J_MJJ_120_350:1 -0.995 * cH -0.647 * cT -0.255 * cWW -0.364 * cB -5.95 * cHW -0.376 * cHB -0.00102 * cA + 0.258 * cG -0.11 * cHQ -7.95 * cpHQ -0.463 * cHu + 0.127 * cHd
+WH_had_GE2J_MJJ_GT350_PTH_GT200:1 -0.999 * cH -0.905 * cT -21 * cWW -1.7 * cB -30.8 * cHW -2.02 * cHB + 0.0818 * cG + 0.778 * cHQ -30.2 * cpHQ -2.58 * cHu + 0.66 * cHd
+WH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25:1 -1 * cH -0.62 * cT + 1.18 * cWW -0.287 * cB -3.96 * cHW -0.245 * cHB -0.00117 * cA -6.01 * cpHQ -0.706 * cHu + 0.172 * cHd
+WH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25:1 -0.999 * cH -0.744 * cT -0.308 * cWW -0.392 * cB -4.85 * cHW -0.357 * cHB -0.00129 * cA + 0.0722 * cG + 0.139 * cHQ -7.49 * cpHQ -0.913 * cHu + 0.177 * cHd
+WH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25:1 -1 * cH -0.642 * cT + 1.14 * cWW -0.299 * cB -4.05 * cHW -0.283 * cHB -0.00123 * cA + 0.212 * cHQ -6.05 * cpHQ -0.33 * cHu + 0.114 * cHd
+WH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25:1 -0.999 * cH -0.695 * cT -0.349 * cWW -0.39 * cB -4.85 * cHW -0.327 * cHB -0.00166 * cA + 0.0331 * cG + 0.182 * cHQ -7.75 * cpHQ -0.404 * cHu + 0.131 * cHd
+ZH_had_0J:1 -0.998 * cH -0.387 * cT + 9.03 * cWW + 0.25 * cB + 0.464 * cHW + 0.0333 * cHB + 0.000444 * cA + 0.13 * cG -0.0841 * cHQ + 2.69 * cpHQ + 0.161 * cHu -0.0572 * cHd
+ZH_had_1J:1 -0.999 * cH -0.505 * cT + 8.16 * cWW + 0.173 * cB -0.726 * cHW -0.0145 * cHB + 0.000277 * cA + 0.075 * cG + 0.0119 * cHQ + 1.76 * cpHQ + 0.15 * cHu -0.0719 * cHd
+ZH_had_GE2J_MJJ_0_60:1 -0.99 * cH -0.552 * cT + 9.06 * cWW + 0.28 * cB + 0.548 * cHW + 0.000861 * cA + 0.536 * cG + 3.58 * cpHQ -0.331 * cHu + 0.102 * cHd
+ZH_had_GE2J_MJJ_60_120:1 -0.996 * cH -1.28 * cT + 27 * cWW + 1.99 * cB + 11.6 * cHW + 1.01 * cHB + 0.00506 * cA + 0.203 * cG -0.998 * cHQ + 19.8 * cpHQ + 1.63 * cHu -0.412 * cHd
+ZH_had_GE2J_MJJ_120_350:1 -0.995 * cH -0.647 * cT -0.255 * cWW -0.364 * cB -5.95 * cHW -0.376 * cHB -0.00102 * cA + 0.258 * cG -0.11 * cHQ -7.95 * cpHQ -0.463 * cHu + 0.127 * cHd
+ZH_had_GE2J_MJJ_GT350_PTH_GT200:1 -0.999 * cH -0.905 * cT -21 * cWW -1.7 * cB -30.8 * cHW -2.02 * cHB + 0.0818 * cG + 0.778 * cHQ -30.2 * cpHQ -2.58 * cHu + 0.66 * cHd
+ZH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25:1 -1 * cH -0.62 * cT + 1.18 * cWW -0.287 * cB -3.96 * cHW -0.245 * cHB -0.00117 * cA -6.01 * cpHQ -0.706 * cHu + 0.172 * cHd
+ZH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25:1 -0.999 * cH -0.744 * cT -0.308 * cWW -0.392 * cB -4.85 * cHW -0.357 * cHB -0.00129 * cA + 0.0722 * cG + 0.139 * cHQ -7.49 * cpHQ -0.913 * cHu + 0.177 * cHd
+ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25:1 -1 * cH -0.642 * cT + 1.14 * cWW -0.299 * cB -4.05 * cHW -0.283 * cHB -0.00123 * cA + 0.212 * cHQ -6.05 * cpHQ -0.33 * cHu + 0.114 * cHd
+ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25:1 -0.999 * cH -0.695 * cT -0.349 * cWW -0.39 * cB -4.85 * cHW -0.327 * cHB -0.00166 * cA + 0.0331 * cG + 0.182 * cHQ -7.75 * cpHQ -0.404 * cHu + 0.131 * cHd
