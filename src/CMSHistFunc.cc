@@ -459,10 +459,18 @@ void CMSHistFunc::updateCache() const {
             double x2 = hpoints_[0][global_.p2];
             double y1 = mcache_[idx1].integral;
             double y2 = mcache_[idx2].integral;
-            mcache_[idx1].step1 = cdfMorph(idx1, x1, x2, val);
-            mcache_[idx1].step1.CropUnderflows();
-            double ym = y1 + ((y2 - y1) / (x2 - x1)) * (val - x1);
-            mcache_[idx1].step1.Scale(ym / integrateTemplate(mcache_[idx1].step1));
+            if(y1 <= 0.0 || y2 <= 0.0)
+            {
+              FastTemplate emptyhist(cache_.size());
+              mcache_[idx1].step1 = emptyhist;
+            }
+            else
+            {
+              mcache_[idx1].step1 = cdfMorph(idx1, x1, x2, val);
+              mcache_[idx1].step1.CropUnderflows();
+              double ym = y1 + ((y2 - y1) / (x2 - x1)) * (val - x1);
+              mcache_[idx1].step1.Scale(ym / integrateTemplate(mcache_[idx1].step1));
+            }
           }
         }
 
