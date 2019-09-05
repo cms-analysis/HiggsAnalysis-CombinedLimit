@@ -52,7 +52,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.freezeOtherParameters = freezeOtherParameters #Option to freeze majority of parameters in model. Leaving those used in LHCHXSWG-INT-2017-001 fit to float
     self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
     if self.freezeOtherParameters: 
-      self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cu'] # note cWW+cB is frozen, but required to define cWW and cB
+      self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cu','cd'] # note cWW+cB is frozen, but required to define cWW and cB
       self.distinctParametersOfInterest = set([])
       for p in self.parametersOfInterest:
         if "Plus" in p: self.distinctParametersOfInterest = self.distinctParametersOfInterest | set(p.split("Plus"))
@@ -369,14 +369,18 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
         self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%production)
         key = None
       else:
-        raise ValueError("[ERROR] Process %s is not supported in STXStoEFT Model"%production)
+        print "[WARNING] Process %s is not supported in STXStoEFT Model, Setting to 1"%production
+        return 1
+        #raise ValueError("[ERROR] Process %s is not supported in STXStoEFT Model"%production)
       # Give production correct scaling
       XSscal = "scaling_%s"%production
      
       # Check decay scaling exists:
       if decay in self.DECAYS: BRscal = "scaling_BR_%s"%decay
       else:
-        raise ValueError("[ERROR] Decay %s is not supported in STXStoEFT Model"%decay)
+        print "[WARNING] Decay %s is not supported in STXStoEFT Model, setting to 1"%decay
+        return 1
+        #raise ValueError("[ERROR] Decay %s is not supported in STXStoEFT Model"%decay)
 
       # Uncertainty scaling: BR and STXS bin uncertainties
       if( self.doSTXSU )&( self.doBRU ):
