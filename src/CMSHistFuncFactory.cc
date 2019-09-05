@@ -27,23 +27,19 @@ CMSHistFuncFactory::CMSHistFuncFactory() : v_(1), hist_mode_(0), rebin_(true) {}
 
 void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws, std::map<std::string, std::string> process_vs_norm_postfix_map) {
   for (auto const& bin : cb.bin_set()) {
-    if(process_vs_norm_postfix_map.size() > 0) {
-      for (auto  proc : process_vs_norm_postfix_map) {
-        if (v_) {
-          std::cout << ">> Processing " << bin << "," << proc.first << "\n";
-          norm_postfix_ = proc.second;
-          RunSingleProc(cb, ws, bin, proc.first);
-        }
+    for (auto const& proc : cb.cp().bin({bin}).process_set()) {
+      if (v_) {
+        std::cout << ">> Processing " << bin << "," << proc << "\n";
       }
-      norm_postfix_ = "norm";
-    }
-    else{
-      for (auto const& proc : cb.cp().bin({bin}).process_set()) {
-        if (v_) {
-          std::cout << ">> Processing " << bin << "," << proc << "\n";
-          RunSingleProc(cb, ws, bin, proc);
-        }
+      if (process_vs_norm_postfix_map.find(proc) == process_vs_norm_postfix_map.end())
+      {
+        norm_postfix_ = "norm";
       }
+      else
+      {
+        norm_postfix_ = process_vs_norm_postfix_map[proc];
+      }
+      RunSingleProc(cb, ws, bin, proc);
     }
     TH1F data_hist = cb.cp().bin({bin}).GetObservedShape();
     if (rebin_) data_hist = RebinHist(data_hist);
@@ -55,10 +51,10 @@ void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws, std::ma
 
     ws.import(rdh_dat);
 
-    // cb.cp().bin({bin}).ForEachObs([&](ch::Observation * p) {
-    //   p->set_shape(nullptr, false);
-    //   p->set_rate(1.0);
-    // });
+    cb.cp().bin({bin}).ForEachObs([&](ch::Observation * p) {
+      p->set_shape(nullptr, false);
+      p->set_rate(1.0);
+    });
   }
 }
 
