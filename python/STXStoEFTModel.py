@@ -80,7 +80,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     print " --> [STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
     print " --> [STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
     if( self.doSTXSU ): print " --> [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/*_binuncertainties.txt"
-    if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cu,cd,cHW,cA,cWWMinuscB] (distinct: %s) to 0"%(self.distinctParametersOfInterest)
+    if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cu,cd,cHW,cA,cWWMinuscB,cl] (distinct: %s) to 0"%(self.distinctParametersOfInterest)
     else: print " --> [STXStoEFT] Allowing all HEL parameters to float"
     if( len( self.fixProcesses ) > 0 ): print " --> [STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
 
@@ -300,8 +300,9 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
     #Read in parameter list from file using textToPOIList function
     self.textToPOIList( os.path.join(self.SMH.datadir,'eft/HEL/pois.txt') )
     POIs = ','.join(self.pois.keys())
-    for poi, poi_range in self.pois.iteritems(): 
-      self.modelBuilder.doVar("%s%s"%(poi,poi_range))
+    for poi, poi_range in self.pois.iteritems(): self.modelBuilder.doVar("%s%s"%(poi,poi_range))
+    # Remove cWW+cB from POI list if freezing other parameters
+    if self.freezeOtherParameters: POIs = re.sub("cWWPluscB_x02,","",POIs)
     self.modelBuilder.doSet("POI",POIs)
     #POIs for cWW and cB defined in terms of constraints on cWW+cB and cWW-cB: define expression for individual coefficient
     self.modelBuilder.factory_("expr::cWW_x02(\"0.5*(@0+@1)\",cWWPluscB_x02,cWWMinuscB_x02)")
@@ -325,8 +326,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
  
     # Make scaling functions for each STXS process
     stored = []
-    for s in ['1','1_1','0']: # For now priority for stage 1 functions (taken directly from note)
-    #for s in ['0','1','1_1']:
+    for s in ['0','1','1_1']:
       stage = "stage%s"%s
       # Read scaling functions for STXS bins from txt file
       self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs.txt'%stage) )
