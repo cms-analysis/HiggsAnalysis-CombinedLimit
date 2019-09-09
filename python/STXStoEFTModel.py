@@ -369,6 +369,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
         self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%production)
         key = None
       else:
+        print "[WARNING] Process %s is not supported in STXStoEFT Model, Setting to 1"%production
         return 1
         #raise ValueError("[ERROR] Process %s is not supported in STXStoEFT Model"%production)
       # Give production correct scaling
@@ -377,6 +378,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
       # Check decay scaling exists:
       if decay in self.DECAYS: BRscal = "scaling_BR_%s"%decay
       else:
+        print "[WARNING] Decay %s is not supported in STXStoEFT Model, setting to 1"%decay
         return 1
         #raise ValueError("[ERROR] Decay %s is not supported in STXStoEFT Model"%decay)
 
