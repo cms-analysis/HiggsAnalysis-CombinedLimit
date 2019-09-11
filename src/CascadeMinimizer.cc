@@ -461,7 +461,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         " [WARNING] Are you sure your model is correct?\n");
       Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- After fit, some parameters are found at the boundary (within ~1sigma)",__LINE__)),Logger::kLogLevelInfo,__func__);
     }
-    freezeDiscParams(true); 
+    freezeDiscParams(false);
     return ret;
 }
 
