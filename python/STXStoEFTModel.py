@@ -545,10 +545,11 @@ def convert_to_STXS( _production, _decay ):
     # assume tH is all tHQ
     if _production == "tH": _production = "tHq"
 
-  # Remove fake/gen tau from ttH production names
-  _production = re.sub("_faketau","",_production)
-  _production = re.sub("_gentau","",_production)
-
+  # No binnning in ttH up to stage 1.1 so can remove any X in ttH_decay 
+  if "ttH" in _production: _production = "ttH"
+    #_production = re.sub("_faketau","",_production)
+    #_production = re.sub("_gentau","",_production)
+    
   return _production
 
 
