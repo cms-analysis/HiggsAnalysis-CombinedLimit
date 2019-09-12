@@ -251,9 +251,13 @@ std::ostream& operator<< (std::ostream &out, Systematic const& val) {
 }
 
 void Systematic::SwapUpAndDown() {
-  double tmp = value_u_;
-  value_u_ = value_d_;
-  value_d_ = tmp;
+  if (not asymm()) 
+      value_u_=1./value_u_;
+  else{
+      double tmp = value_u_;
+      value_u_ = value_d_;
+      value_d_ = tmp;
+  }
   shape_u_.swap(shape_d_);
 }
 }
