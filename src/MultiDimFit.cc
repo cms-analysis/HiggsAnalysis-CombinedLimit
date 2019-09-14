@@ -1148,7 +1148,7 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
 }
 
 void MultiDimFit::saveResult(RooFitResult &res) {
-    if (verbose>2) res.Print("V");
+    if (verbose>2) res.Print();
     fitOut.reset(TFile::Open(("multidimfit"+name_+".root").c_str(), "RECREATE"));
     fitOut->WriteTObject(&res,"fit_mdf");
     fitOut->cd();
