@@ -163,11 +163,13 @@ class ShapeBuilder(ModelBuilder):
                 if not self.options.noBOnly:
                 	self.renameObj("pdf_bin%s_bonly" % b, "pdf_bin%s_bonly_nuis" % b)
                 # now we multiply by all the nuisances, but avoiding nested products
-                # so we first make a list of all nuisances plus the RooAddPdf
+                # so we first make a list of all nuisances, constraints, and the RooAddPdf
                 if len(self.DC.systs):
                     sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs)
                 else:
                     sumPlusNuis_s = ROOT.RooArgList()
+                for n, _ in self.DC.regularizationTerms:
+                    sumPlusNuis_s.add(self.out.pdf('%s_Pdf' % n))
                 sumPlusNuis_s.add(sum_s)
                 pdf_bins = self.addObj(ROOT.RooProdPdf, 'pdfbins_bin%s' % b, "", binconstraints)
                 sumPlusNuis_s.add(pdf_bins)
@@ -178,6 +180,8 @@ class ShapeBuilder(ModelBuilder):
                         sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs)
                     else:
                         sumPlusNuis_b = ROOT.RooArgList()
+                    for n, _ in self.DC.regularizationTerms:
+                        sumPlusNuis_b.add(self.out.pdf('%s_Pdf' % n))
                     sumPlusNuis_b.add(sum_b)
                     sumPlusNuis_b.add(pdf_bins)
                     pdf_b = self.addObj(ROOT.RooProdPdf, "pdf_bin%s_bonly" % b, "", sumPlusNuis_b)
@@ -227,6 +231,8 @@ class ShapeBuilder(ModelBuilder):
                     simPdf.addChannelMasks(maskList)
                 if len(self.DC.systs) and (not self.options.noOptimizePdf) and self.options.moreOptimizeSimPdf == "cms":
                     simPdf.addExtraConstraints(self.out.nuisPdfs)
+                    for n, _ in self.DC.regularizationTerms:
+                        simPdf.addExtraConstraints(self.out.pdf('%s_Pdf' % n))
                 if self.options.verbose:
                     stderr.write("Importing combined pdf %s\n" % simPdf.GetName()); stderr.flush()
 

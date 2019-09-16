@@ -118,8 +118,9 @@ class ModelBuilder(ModelBuilderBase):
             poi = poiIter.Next()
         self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
-	self.doExtArgs()
-	self.doRateParams()
+        self.doExtArgs()
+        self.doRateParams()
+        self.doRegularizations()
         self.doExpectedEvents()
         self.doIndividualModels()
         self.doNuisancesGroups() # this needs to be called after both doNuisances and doIndividualModels
@@ -258,6 +259,51 @@ class ModelBuilder(ModelBuilderBase):
 	      print tbc, " -> ", toBeCreated
 	      raise RuntimeError, "Cannot produce following rateParams (dependent parameters not found!) %s"%(",".join([t[0] for t in toBeCreated]))
 
+    def doRegularizations(self):
+        if len(self.DC.regularizationTerms) == 0:
+            return
+
+        print "-------------- WARNING, constrain found --> you are supposed to know what you are doing!"
+
+        for n, args in self.DC.regularizationTerms:
+            ## I want to construct this line
+            ## constr1_In[0.],RooFormulaVar::fconstr1("r_Bin0+r_Bin2-2*r_Bin1",{r_Bin0,r_Bin1,r_Bin2}),constr1_S[0.001000]
+            ##  Assuming args= 
+            ##   r_Bin0+r_Bin2-2*r_Bin1 0.001
+            ## or r_Bin0+r_Bin2-2*r_Bin1 {r_Bin0,r_Bin1,r_Bin2} 0.001000
+            ## the parameter can be a number or a variable
+            d={ "pdf":"%s_Pdf"%n, "name":n, "function":"%s_Func"%n,"in":"%s_In"%n,
+                    "sigma":"%s_S"%n,
+                    "formula":args[0],
+                    "param":args[-1]}
+            if len(args) >2: d["depend"]= args[1] if args[1][0]=='{' else '{'+args[1]+'}'
+            else: 
+                remove=set(["TMath","Exp","::",""])
+                l=list( set( re.split('\\+|-|\\*|/|\\(|\\)',d['formula']) ) - remove) 
+                l2=[] ## remove all the non-float expressions
+                for x in l: 
+                    try: float(x)
+                    except ValueError: l2.append(x)
+                d["depend"] = "{"+','.join(l2)+"}"
+            
+            ## derve the constrain strength
+            try:
+                float(d['param']) # raise exception
+                if self.options.verbose>2: print "DEBUG constr","param is a number"
+                d['fullsigma']="%(sigma)s[%(param)s]"%d
+            except ValueError:
+                if self.options.verbose>2: print "DEBUG constr","param is a variable"
+                d['fullsigma']=d['param']
+    
+            if self.options.verbose>2: print "DEBUG constr", "args",args
+            if self.options.verbose>2: print "DEBUG constr", "Dictionary",d
+    
+            full="%(in)s[0.],RooFormulaVar::%(function)s(\"%(formula)s\",%(depend)s),%(fullsigma)s"%d
+            #self.doObj("%s_Pdf"%n, "Gaussian"," ".join(args),True)
+            v=self.options.verbose
+            self.options.verbose=10# force debug this line
+            self.doObj("%s_Pdf"%n, "Gaussian",full,True)
+            self.options.verbose=v
 
     def doObservables(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
@@ -378,46 +424,6 @@ class ModelBuilder(ModelBuilderBase):
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
-            elif pdf == "constr":
-                print "-------------- WARNING, constrain found --> you are supposed to know what you are doing!"
-                ## I want to construct this line
-                ## constr1_In[0.],RooFormulaVar::fconstr1("r_Bin0+r_Bin2-2*r_Bin1",{r_Bin0,r_Bin1,r_Bin2}),constr1_S[0.001000]
-                ##  Assuming args= 
-                ##   r_Bin0+r_Bin2-2*r_Bin1 0.001
-                ## or r_Bin0+r_Bin2-2*r_Bin1 {r_Bin0,r_Bin1,r_Bin2} 0.001000
-                ## the parameter can be a number or a variable
-                d={ "pdf":"%s_Pdf"%n, "name":n, "function":"%s_Func"%n,"in":"%s_In"%n,
-                        "sigma":"%s_S"%n,
-                        "formula":args[0],
-                        "param":args[-1]}
-                if len(args) >2: d["depend"]= args[1] if args[1][0]=='{' else '{'+args[1]+'}'
-                else: 
-                    remove=set(["TMath","Exp","::",""])
-                    l=list( set( re.split('\\+|-|\\*|/|\\(|\\)',d['formula']) ) - remove) 
-                    l2=[] ## remove all the non-float expressions
-                    for x in l: 
-                        try: float(x)
-                        except ValueError: l2.append(x)
-                    d["depend"] = "{"+','.join(l2)+"}"
-                
-                ## derve the constrain strength
-                try:
-                    float(d['param']) # raise exception
-                    if self.options.verbose>2: print "DEBUG constr","param is a number"
-                    d['fullsigma']="%(sigma)s[%(param)s]"%d
-                except ValueError:
-                    if self.options.verbose>2: print "DEBUG constr","param is a variable"
-                    d['fullsigma']=d['param']
-
-                if self.options.verbose>2: print "DEBUG constr", "args",args
-                if self.options.verbose>2: print "DEBUG constr", "Dictionary",d
-
-                full="%(in)s[0.],RooFormulaVar::%(function)s(\"%(formula)s\",%(depend)s),%(fullsigma)s"%d
-                #self.doObj("%s_Pdf"%n, "Gaussian"," ".join(args),True)
-                v=self.options.verbose
-                self.options.verbose=10# force debug this line
-                self.doObj("%s_Pdf"%n, "Gaussian",full,True)
-                self.options.verbose=v
             elif pdf == "param":
                 mean = float(args[0])
                 if "/" in args[1]:
@@ -500,7 +506,7 @@ class ModelBuilder(ModelBuilderBase):
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
             for (n,nf,p,a,e) in self.DC.systs:
-		if p!= "constr": nuisVars.add(self.out.var(n))
+                nuisVars.add(self.out.var(n))
                 nuisPdfs.add(self.out.pdf(n+"_Pdf"))
             self.out.defineSet("nuisances", nuisVars)
             self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", nuisPdfs)
@@ -587,7 +593,6 @@ class ModelBuilder(ModelBuilderBase):
                 selfNormRate = 1.0
                 for (n,nofloat,pdf,args,errline) in self.DC.systs:
                     if pdf == "param":continue
-                    if pdf == "constr":continue
                     if pdf == "rateParam":continue
                     if not errline[b].has_key(p): continue
                     if errline[b][p] == 0.0: continue

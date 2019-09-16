@@ -194,7 +194,7 @@ def parseCard(file, options):
                 args = [float(f[2])];  numbers = f[3:];
 	    elif pdf == "constr":
                 args = f[2:]
-                ret.systs.append([lsyst,nofloat,pdf,args,[]])
+                ret.regularizationTerms.append([lsyst,args])
                 continue
             elif pdf == "param":
                 # for parametric uncertainties, there's no line to account per bin/process effects
