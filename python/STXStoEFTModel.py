@@ -52,7 +52,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.freezeOtherParameters = freezeOtherParameters #Option to freeze majority of parameters in model. Leaving those used in LHCHXSWG-INT-2017-001 fit to float
     self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
     if self.freezeOtherParameters: 
-      self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cHB','cu','cd','cl'] # note cWW+cB is frozen, but required to define cWW and cB
+      self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cu','cd','cl'] # note cWW+cB is frozen, but required to define cWW and cB
       self.distinctParametersOfInterest = set([])
       for p in self.parametersOfInterest:
         if "Plus" in p: self.distinctParametersOfInterest = self.distinctParametersOfInterest | set(p.split("Plus"))
