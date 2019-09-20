@@ -76,6 +76,8 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         self.freezeOtherParameters = (po.replace("freezeOtherParameters=","") in ["yes","1","Yes","True","true"])
       if po.startswith("fixProcesses="): 
         self.fixProcesses = (po.replace("fixProcesses=","")).split(",")
+      if po.startswith("useLHCHXSWGStage1="): 
+        self.useLHCHXSWGNumbers = (po.replace("useLHCHXSWGStage1=","") in ["yes","1","Yes","True","true"])
     #Output options to screen
     print " --> [STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
     print " --> [STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
@@ -329,7 +331,8 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
     for s in ['0','1','1_1']:
       stage = "stage%s"%s
       # Read scaling functions for STXS bins from txt file
-      self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs.txt'%stage) )
+      if s=="1" and self.useLHCHXSWGNumbers: self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs_LHCHXSWG-INT-2017-001.txt'%stage) )
+      else: self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs.txt'%stage) )
       for proc in self.PROCESSES[stage]: 
         if proc not in stored:
           self.makeScalingFunction( proc, STXSstage=s )
