@@ -222,7 +222,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     _sumIdx = -1 #start at -1
     _termIdx = 0    
     for _termIdx in range(len(formulaTerms)): 
-      if _termIdx % 25 == 0: _sumIdx += 1
+      if _termIdx % 15 == 0: _sumIdx += 1
       #Add terms to sum
       if( what in self.DecayScalingFunctions )&( what != "tot" ): sumString = "scaling_partial_%s_%s"%(what,_sumIdx)
       else: sumString = "scaling_%s_%s"%(what,_sumIdx)
