@@ -51,6 +51,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.fixTHandBBH = fixTHandBBH #if false scaling function for tH, bbH MUST be defined in input txt file
     self.freezeOtherParameters = freezeOtherParameters #Option to freeze majority of parameters in model. Leaving those used in LHCHXSWG-INT-2017-001 fit to float
     self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
+    self.useLHCHXSWGNumbers=False
     if self.freezeOtherParameters: 
       self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cu','cd','cl'] # note cWW+cB is frozen, but required to define cWW and cB
       self.distinctParametersOfInterest = set([])
