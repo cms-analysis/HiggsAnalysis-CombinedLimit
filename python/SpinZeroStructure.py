@@ -1,6 +1,6 @@
 import collections, itertools, math, re
 import numpy as np
-from HiggsAnalysis.CombinedLimit.PhysicsModel import CanTurnOffBkgModel, LinearSystematicsByBin, MultiSignalModel, PhysicsModelBase_NiceSubclasses
+from HiggsAnalysis.CombinedLimit.PhysicsModel import CanTurnOffBkgModel, MultiSignalModel, PhysicsModelBase_NiceSubclasses
 
 ### This is the base python class to study the SpinZero structure
 
@@ -726,8 +726,6 @@ class HZZAnomalousCouplingsFromHistograms(MultiSignalSpinZeroHiggs):
 
         return result
 
-class HZZAnomalousCouplingsFromHistograms_LinearSystematics(LinearSystematicsByBin, HZZAnomalousCouplingsFromHistograms): pass
-
 spinZeroHiggs = SpinZeroHiggs()
 multiSignalSpinZeroHiggs = MultiSignalSpinZeroHiggs()
-hzzAnomalousCouplingsFromHistograms = HZZAnomalousCouplingsFromHistograms_LinearSystematics()
+hzzAnomalousCouplingsFromHistograms = HZZAnomalousCouplingsFromHistograms()

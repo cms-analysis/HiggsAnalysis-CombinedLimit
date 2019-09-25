@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-import collections, itertools, re
+import re
 
 ### Class that takes care of building a physics model by combining individual channels and processes together
 ### Things that it can do:
@@ -27,7 +27,7 @@ class PhysicsModelBase(object):
         pass # do nothing by default
     def tellAboutProcess(self,bin,process):
         "tell the physics model to expect this process, in case it needs to know about all the processes"
-        "before it gets the yield scale"
+        "before it gets the yield and scale"
         pass # do nothing by default
     def getYieldScale(self,bin,process):
         "Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don't scale, and set to zero)"
@@ -801,123 +801,6 @@ class RatioBRSMHiggs(SMLikeHiggsModel):
 	    print '%(production)s/%(decay)s scaled by r_V_%(decay)s'%locals()
             return 'r_V_'+decay 
         raise RuntimeError, "Unknown production mode '%s'" % production 
-
-class LinearSystematicsByBin(PhysicsModelBase_NiceSubclasses):
-    def __init__(self):
-        self.__linearsystematics = []
-        self.__knownprocesses = collections.defaultdict(lambda: collections.defaultdict(lambda: []))
-        self.__processeswithsystematic = collections.defaultdict(lambda: collections.defaultdict(lambda: []))
-        self.__systematicsforprocess = collections.defaultdict(lambda: collections.defaultdict(lambda: []))
-        self.__checkedprocesses = False
-        super(LinearSystematicsByBin, self).__init__()
-
-    def processPhysicsOptions(self, physOptions):
-        processed = []
-
-        for po in physOptions:
-            if po.startswith("linearsystematic:"):
-                self.__linearsystematics += po.replace("linearsystematic:", "", 1).split(",")
-                processed.append(po)
-
-        for syst in self.__linearsystematics:
-            if syst.endswith("Up") or syst.endswith("Down"):
-                raise ValueError("systematic name ends with Up or Down: " + syst)
-        for syst1, syst2 in itertools.combinations(self.__linearsystematics, 2):
-            if syst1.endswith(syst2) or syst2.endswith(syst1):
-                raise ValueError("systematic names are too similar: {}, {}".format(syst1, syst2))
-
-        processed += super(LinearSystematicsByBin, self).processPhysicsOptions(physOptions)
-        return processed
-
-    def tellAboutProcess(self, bin, process):
-        assert not self.__checkedprocesses
-        for systematic, direction in itertools.product(self.__linearsystematics, ("Up", "Down")):
-            if process.endswith("_"+systematic+direction):
-                nominal = process.replace("_"+systematic+direction, "")
-                self.__knownprocesses[bin][systematic+direction].append(nominal)
-                break
-        else:
-            if process.endswith("Up") or process.endswith("Down"):
-                raise ValueError("process name ends with Up or Down but is not a known systematic: " + process)
-            self.__knownprocesses[bin]["nominal"].append(process)
-
-        super(LinearSystematicsByBin, self).tellAboutProcess(bin, process)
-
-    def __checkProcesses(self):
-        if self.__checkedprocesses: return
-        self.__checkedprocesses = True
-
-        for bin in self.__knownprocesses:
-            for process in self.__knownprocesses[bin]["nominal"]:
-                for systematic in self.__linearsystematics:
-                    if process in self.__knownprocesses[bin][systematic+"Up"] and process in self.__knownprocesses[bin][systematic+"Down"]:
-                        self.__processeswithsystematic[bin][systematic].append(process)
-                        self.__systematicsforprocess[bin][process].append(systematic)
-                        self.__knownprocesses[bin][systematic+"Up"].remove(process)
-                        self.__knownprocesses[bin][systematic+"Down"].remove(process)
-                    elif process in self.__knownprocesses[bin][systematic+"Up"] or process in self.__knownprocesses[bin][systematic+"Down"]:
-                        raise ValueError("Found either {0}_{1}Up or {0}_{1}Down in bin {2}, but not both".format(process, systematic, bin))
-
-            for systematic, direction in itertools.product(self.__linearsystematics, ("Up", "Down")):
-                for process in self.__knownprocesses[bin][systematic+direction]:
-                    raise ValueError("Found {0}_{1}{2} in bin {3}, but not {0}".format(process, systematic, direction, bin))
-
-        for bin, dct in self.__systematicsforprocess.iteritems():
-            for process, lst in dct.iteritems():
-                lst.sort()
-
-        import pprint
-        pprint.pprint({k: dict(v) for k, v in self.__processeswithsystematic.iteritems()})
-
-    def getPOIList(self):
-        return super(LinearSystematicsByBin, self).getPOIList()
-
-    def getYieldScale(self, bin, process):
-        self.__checkProcesses()
-
-        for systematic, direction in itertools.product(self.__linearsystematics, ("Up", "Down")):
-            if process.endswith("_"+systematic+direction):
-                nominal = process.replace("_"+systematic+direction, "")
-                assert nominal in self.__processeswithsystematic[bin][systematic], (bin, systematic, nominal)
-                break
-        else:
-            nominal = process
-            systematic = direction = None
-
-        nominalyield = super(LinearSystematicsByBin, self).getYieldScale(bin, nominal)
-        if nominalyield in ("0", 0): return nominalyield
-        if not self.__systematicsforprocess[bin][nominal]: assert systematic is None; return nominalyield
-
-        if systematic is None:
-            formula = "1 - " + " - ".join("abs(@{})".format(i) for i, syst in enumerate(self.__systematicsforprocess[bin][nominal]))
-            variables = self.__systematicsforprocess[bin][nominal][:]
-            append = "_with_systematics_" + "_".join(self.__systematicsforprocess[bin][nominal])
-
-        else:
-            append = "_" + systematic + direction
-            formula = {"Up": "@0 > 0 ? @0 : 0", "Down": "@0 < 0 ? -@0 : 0"}[direction]
-            variables = [systematic]
-
-        if nominalyield in ("1", 1):
-            name = "one" + append
-        else:
-            name = nominalyield + append
-            formula = "(" + formula + ") * @{}".format(len(variables))
-            variables.append(nominalyield)
-
-        if isinstance(nominalyield, str) and name.count(nominalyield) > 1:
-          print name
-          print formula
-          print variables
-          print bin
-          print nominal
-          print self.__systematicsforprocess[bin][nominal]
-          assert False
-
-        if not self.modelBuilder.out.function(name):
-            self.modelBuilder.doVar('expr::{}("{}", {})'.format(name, formula, ",".join(variables)))
-
-        return name
 
 defaultModel = PhysicsModel()
 multiSignalModel = MultiSignalModel()
