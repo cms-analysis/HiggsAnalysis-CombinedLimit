@@ -267,7 +267,7 @@ The first page of the output is shown below.
 The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it. 
 
 !!! warning 
-    The plot also shows the *best fit* value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using `--setPhysicsModelParameterRanges` or `--rMin`) to avoid getting one-sided impacts!
+    The plot also shows the *best fit* value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using `--setParameterRanges` or `--rMin`) to avoid getting one-sided impacts!
 
 This script also accepts an optional json-file argument with `-`t which can be used to provide a dictionary for renaming parameters. A simple example would be to create a file `rename.json`,
 
@@ -386,7 +386,7 @@ void makeRooMultiPdfWorkspace(){
 ```
 
 
-The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the [RooMultiPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooMultiPdf.h) object which can switch between the functions by setting its associated index (herein called **pdf_index**). This (as with all parameters in combine) is accessible via the `--setPhysicsModelParameters` option.
+The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the [RooMultiPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooMultiPdf.h) object which can switch between the functions by setting its associated index (herein called **pdf_index**). This (as with all parameters in combine) is accessible via the `--setParameters` option.
 
 To asses the bias, one can throw toys using one function and fit with another. All of this only needs to use one datacard [hgg_toy_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/hgg_toy_datacard.txt)
  
@@ -442,7 +442,9 @@ and for the individual `pdf_index` set to `X`,
 
 for `X=0,1,2`
 
-The above output will produce the following scans. 
+You can then plot the value of `2*(deltaNLL+nll+nll0)` to plot the absolute value of (twice) the negative log-likelihood, including the correction term for extra parameters in the different pdfs. 
+
+The above output will produce the following scans.  
 ![](images/discrete_profile.png)
 
 As expected, the curve obtained by allowing the `pdf_index` to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. 

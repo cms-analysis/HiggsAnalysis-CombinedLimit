@@ -161,15 +161,23 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
 	       				%(production,energy,C1_map[production],EWK,dZH))
 	       XSscal = ("@0", "kVkFkl_XSscal_%s_%s, " % (production,energy) )
             elif production == "bbH": XSscal = ("@0*@0", "kappa_F")
+<<<<<<< HEAD
             else: 
 	        return 1
 	    	#raise RuntimeError, "Production %s not supported" % production
+=======
+            else: raise RuntimeError, "Production %s not supported" % production
+>>>>>>> origin
             
 	    BRscal = decay
             if decay == "hss": BRscal = "hbb"
             if not self.modelBuilder.out.function("kVkFkl_BRscal_"+BRscal):
+<<<<<<< HEAD
 	        return 1
                 #raise RuntimeError, "Decay mode %s not supported" % decay
+=======
+                raise RuntimeError, "Decay mode %s not supported" % decay
+>>>>>>> origin
             
 	    self.modelBuilder.factory_('expr::%s("%s*@1", %s, kVkFkl_BRscal_%s)' % (name, XSscal[0], XSscal[1], BRscal))
             print '[LHC-HCG Kappas]', name, production, decay, energy,": ",
