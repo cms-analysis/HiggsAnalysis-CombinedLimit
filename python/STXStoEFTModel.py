@@ -52,6 +52,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.freezeOtherParameters = freezeOtherParameters #Option to freeze majority of parameters in model. Leaving those used in LHCHXSWG-INT-2017-001 fit to float
     self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
     self.useLHCHXSWGNumbers=False
+    self.linearOnly=False
     if self.freezeOtherParameters: 
       self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cu','cd','cl'] # note cWW+cB is frozen, but required to define cWW and cB
       self.distinctParametersOfInterest = set([])
@@ -79,6 +80,9 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         self.fixProcesses = (po.replace("fixProcesses=","")).split(",")
       if po.startswith("useLHCHXSWGStage1="): 
         self.useLHCHXSWGNumbers = (po.replace("useLHCHXSWGStage1=","") in ["yes","1","Yes","True","true"])
+      if po.startswith("linearOnly="): 
+        self.linearOnly = (po.replace("linearOnly=","") in ["yes","1","Yes","True","true"])
+
     #Output options to screen
     print " --> [STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
     print " --> [STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
@@ -86,6 +90,8 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cu,cd,cHW,cA,cWWMinuscB,cl] (distinct: %s) to 0"%(self.distinctParametersOfInterest)
     else: print " --> [STXStoEFT] Allowing all HEL parameters to float"
     if( len( self.fixProcesses ) > 0 ): print " --> [STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
+    if self.useLHCHXSWGNumbers: print " --> [STXStoEFT] Using LHCHXSWG numbers for stage 1 scaling functions"
+    if self.linearOnly: print " --> [STXStoEFT] Only linear terms (Ai)"
 
   def doMH(self):
     if self.floatMass:
@@ -202,6 +208,9 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
       if self.freezeOtherParameters:
         for c in constituents[1:]: #Ignore pre-factor
           if c not in self.distinctParametersOfInterest: skipTerm = True
+      # If set: only include linear terms
+      if self.linearOnly:
+        if len(constituents) > 2: skipTerm = True
       if not skipTerm:
         #replace constituents by POIs (i.e scaled)
         scaled_constituents = []
@@ -329,7 +338,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
  
     # Make scaling functions for each STXS process
     stored = []
-    for s in ['0','1','1_1']:
+    for s in ['1','0','1_1']:
       stage = "stage%s"%s
       # Read scaling functions for STXS bins from txt file
       if s=="1" and self.useLHCHXSWGNumbers: self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs_LHCHXSWG-INT-2017-001.txt'%stage) )
