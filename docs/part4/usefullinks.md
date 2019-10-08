@@ -15,7 +15,7 @@ There are several tutorials which have been run over the last few years with ins
 
 * Worked examples from Higgs analyses using combine 
  * [The CMS DAS at CERN 2014](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise)
- * [The CMS DAS at DESY 2018](SWGuideCMSDataAnalysisSchoolHamburg2018LongStatisticsExercise)
+ * [The CMS DAS at DESY 2018](https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCMSDataAnalysisSchoolHamburg2018LongStatisticsExercise)
 
 
 
