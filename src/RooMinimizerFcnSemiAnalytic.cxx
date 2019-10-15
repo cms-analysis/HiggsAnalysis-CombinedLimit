@@ -84,7 +84,9 @@ RooMinimizerFcnSemiAnalytic::RooMinimizerFcnSemiAnalytic(RooAbsReal *funct, RooM
 
   _nDim = _floatParamList->getSize();
 
+  _verbose=true; // print the variables for which we have derivatives?
   updateFloatVec() ;
+  _verbose=verbose;
   
   // Save snapshot of initial lists
   _initFloatParamList = (RooArgList*) _floatParamList->snapshot(kFALSE) ;
@@ -535,6 +537,7 @@ void RooMinimizerFcnSemiAnalytic::updateFloatVec()
 
 double RooMinimizerFcnSemiAnalytic::DoEval(const double *x) const 
 {
+  //std::cout<<"[DEBUG]:["<<__PRETTY_FUNCTION__<<"]:"<< "DoEval"<<std::endl; // run with -v3 to get it
 
   // Set the parameter values for this iteration
   for (int index = 0; index < _nDim; index++) {
@@ -601,6 +604,7 @@ double RooMinimizerFcnSemiAnalytic::DoEval(const double *x) const
 }
 
 double RooMinimizerFcnSemiAnalytic::DoDerivative(const double * x, unsigned int icoord) const{
+    //std::cout<<"[DEBUG]:["<<__PRETTY_FUNCTION__<<"]:"<< "DoDerivative:"<<icoord<<std::endl; // run with -v3 to get it
 
   // Set the parameter values for this iteration
   for (int index = 0; index < _nDim; index++) {
