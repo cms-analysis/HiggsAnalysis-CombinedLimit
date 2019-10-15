@@ -208,4 +208,6 @@
 	<class name="cmsmath::SequentialMinimizer"  transient="true" />
 	<class name="rVrFLikelihood"  transient="true" />
         <class name="TestProposal"  transient="true" />
+  <class name="RooMinimizerSemiAnalytic" />
+  <class name="RooMinimizerFcnSemiAnalytic" />
 </lcgdict>
