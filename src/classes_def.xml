@@ -222,4 +222,6 @@
   <class name="CMSHggFormulaD1" />
   <class name="CMSHggFormulaD2" />
   <class name="SimpleProdPdf" />
+  <class name="RooMinimizerSemiAnalytic" />
+  <class name="RooMinimizerFcnSemiAnalytic" />
 </lcgdict>
