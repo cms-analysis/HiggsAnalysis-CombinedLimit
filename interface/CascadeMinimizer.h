@@ -14,7 +14,6 @@ class RooRealVar;
 
 #include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerSemiAnalytic.h"
 
-
 class CascadeMinimizer {
     public:
         enum Mode { Constrained, Unconstrained };
@@ -32,7 +31,7 @@ class CascadeMinimizer {
         RooMinimizer & minimizer() { return *minimizer_; }
         RooFitResult *save() { return minimizer().save(); }
         void  setStrategy(int strategy) { strategy_ = strategy; }
-        void  setErrorLevel(float errorLevel) { minimizer_->setErrorLevel(errorLevel); }
+        void  setErrorLevel(float errorLevel) { (not isSemiAnalyticMinimizer)? minimizer_->setErrorLevel(errorLevel):minimizerSemiAnalytic_->setErrorLevel(errorLevel); }
         static void  initOptions() ;
         static void  applyOptions(const boost::program_options::variables_map &vm) ;
         static const boost::program_options::options_description & options() { return options_; }
