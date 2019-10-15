@@ -125,7 +125,7 @@ RooMinimizerFcnSemiAnalytic::~RooMinimizerFcnSemiAnalytic()
 }
 
 
-ROOT::Math::IBaseFunctionMultiDim* RooMinimizerFcnSemiAnalytic::Clone() const 
+ROOT::Math::IMultiGradFunction* RooMinimizerFcnSemiAnalytic::Clone() const 
 {  
   return new RooMinimizerFcnSemiAnalytic(*this) ;
 }
@@ -563,7 +563,7 @@ double RooMinimizerFcnSemiAnalytic::DoEval(const double *x) const
 
       Bool_t first(kTRUE) ;
       /*ooccoutW(_context,Minimization)*/std::cout << "Parameter values: " ;
-      //for (const auto par : *_floatParamList) { //new loop
+      //for (const auto par : *_floatParamList) { //new loop}
       for (int ip =0 ;ip < _floatParamList->getSize();++ip){ 
         const auto par=_floatParamList->at(ip); 
         auto var = static_cast<const RooRealVar*>(par);
@@ -644,7 +644,7 @@ double RooMinimizerFcnSemiAnalytic::DoNumericalDerivative(const double * x,int i
         ROOT use this has step above, maybe copy it dynamically? TODO
         double MultiNumGradFunction::fgEps = 0.001;
          
-         double MultiNumGradFunction::DoDerivative (const double * x, unsigned int icoord  ) const {
+         double MultiNumGradFunction::DoDerivative (const double * x, unsigned int icoord  ) const 
                // calculate derivative using mathcore derivator class
             // step size can be changes using SetDerivPrecision()
          

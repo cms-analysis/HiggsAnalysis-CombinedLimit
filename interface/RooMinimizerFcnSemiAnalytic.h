@@ -40,7 +40,7 @@ class RooMinimizerFcnSemiAnalytic :
   RooMinimizerFcnSemiAnalytic(const RooMinimizerFcnSemiAnalytic& other);
   virtual ~RooMinimizerFcnSemiAnalytic();
 
-  ROOT::Math::IBaseFunctionMultiDim* Clone() const override;
+  ROOT::Math::IMultiGradFunction* Clone() const override;
   unsigned int NDim() const override{ return _nDim; }
 
   RooArgList* GetFloatParamList() { return _floatParamList; }

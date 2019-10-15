@@ -13,6 +13,7 @@ class RooRealVar;
 #include <boost/algorithm/string.hpp>
 
 #include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerSemiAnalytic.h"
+#include <stdexcept>
 
 class CascadeMinimizer {
     public:
@@ -28,7 +29,7 @@ class CascadeMinimizer {
         bool improve(int verbose=0, bool cascade=true, bool forceResetMinimizer=false);
         // declare nuisance parameters for pre-fit
         void setNuisanceParameters(const RooArgSet *nuis) { nuisances_ = nuis; }
-        RooMinimizer & minimizer() { return *minimizer_; }
+        RooMinimizer & minimizer() { if(isSemiAnalyticMinimizer) throw std::runtime_error("unimplemented");  return *minimizer_; }
         RooFitResult *save() { return minimizer().save(); }
         void  setStrategy(int strategy) { strategy_ = strategy; }
         void  setErrorLevel(float errorLevel) { (not isSemiAnalyticMinimizer)? minimizer_->setErrorLevel(errorLevel):minimizerSemiAnalytic_->setErrorLevel(errorLevel); }

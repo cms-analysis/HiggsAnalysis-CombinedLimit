@@ -66,14 +66,16 @@ void CascadeMinimizer::remakeMinimizer() {
     cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
     if (simnll) simnll->setHideRooCategories(true);
 
+    minimizer_.reset(); // avoid two copies in memory
+    minimizerSemiAnalytic_.reset();
+
     if (runtimedef::get("MINIMIZER_SemiAnalytic")){
         isSemiAnalyticMinimizer=true;
-        minimizerSemiAnalytic_.reset();
         minimizerSemiAnalytic_.reset(new RooMinimizerSemiAnalytic(nll_,derivatives_));
+        //minimizerSemiAnalytic_->setVerbose(kTRUE); // DEBUG
     }
     else{
         isSemiAnalyticMinimizer=false;
-        minimizer_.reset(); // avoid two copies in memory
         minimizer_.reset(new RooMinimizer(nll_));
     }
 
