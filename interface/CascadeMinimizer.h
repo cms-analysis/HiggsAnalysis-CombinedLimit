@@ -12,6 +12,8 @@ class RooRealVar;
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerSemiAnalytic.h"
+
 
 class CascadeMinimizer {
     public:
@@ -44,6 +46,11 @@ class CascadeMinimizer {
     private:
         RooAbsReal & nll_;
         std::auto_ptr<RooMinimizer> minimizer_;
+        //
+        bool isSemiAnalyticMinimizer{false};
+        std::auto_ptr<RooMinimizerSemiAnalytic> minimizerSemiAnalytic_;
+        std::map<std::string,RooAbsReal*> derivatives_;
+        //
         Mode         mode_;
         static int          strategy_;
         RooRealVar * poi_; 
