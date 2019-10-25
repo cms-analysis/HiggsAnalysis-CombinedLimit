@@ -378,7 +378,7 @@ if options.plotfile:
     gr_fit_b.SetLineWidth(2)
     gr_fit_s.SetLineWidth(2)
     hist_prefit.SetLineWidth(2)
-    hist_prefit.SetTitle("Nuisance Paramaeters")
+    hist_prefit.SetTitle("Nuisance Parameters")
     hist_prefit.SetLineColor(ROOT.kBlack)
     hist_prefit.SetFillColor(ROOT.kGray)
     hist_prefit.SetMaximum(3)
