@@ -52,6 +52,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.freezeOtherParameters = freezeOtherParameters #Option to freeze majority of parameters in model. Leaving those used in LHCHXSWG-INT-2017-001 fit to float
     self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
     self.useLHCHXSWGNumbers=False
+    self.useExtendedVBFScheme=False
     self.linearOnly=False
     if self.freezeOtherParameters: 
       self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cu','cd','cl'] # note cWW+cB is frozen, but required to define cWW and cB
@@ -78,6 +79,8 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         self.freezeOtherParameters = (po.replace("freezeOtherParameters=","") in ["yes","1","Yes","True","true"])
       if po.startswith("fixProcesses="): 
         self.fixProcesses = (po.replace("fixProcesses=","")).split(",")
+      if po.startswith("useExtendedVBFScheme="): 
+        self.useExtendedVBFScheme = (po.replace("useExtendedVBFScheme=","") in ["yes","1","Yes","True","true"])
       if po.startswith("useLHCHXSWGStage1="): 
         self.useLHCHXSWGNumbers = (po.replace("useLHCHXSWGStage1=","") in ["yes","1","Yes","True","true"])
       if po.startswith("linearOnly="): 
@@ -90,6 +93,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cu,cd,cHW,cA,cWWMinuscB,cl] (distinct: %s) to 0"%(self.distinctParametersOfInterest)
     else: print " --> [STXStoEFT] Allowing all HEL parameters to float"
     if( len( self.fixProcesses ) > 0 ): print " --> [STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
+    if self.useExtendedVBFScheme: print " --> [STXStoEFT] Use extended VBF scheme (different scaling for pure + V(qq)H)"
     if self.useLHCHXSWGNumbers: print " --> [STXStoEFT] Using LHCHXSWG numbers for stage 1 scaling functions"
     if self.linearOnly: print " --> [STXStoEFT] Only linear terms (Ai)"
 
@@ -342,7 +346,9 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
       stage = "stage%s"%s
       # Read scaling functions for STXS bins from txt file
       if s=="1" and self.useLHCHXSWGNumbers: self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs_LHCHXSWG-INT-2017-001.txt'%stage) )
-      else: self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs.txt'%stage) )
+      else: 
+        if self.useExtendedVBFScheme: self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs_extended_vbf.txt'%stage) )
+        else: self.textToSTXSScalingFunctions( os.path.join(self.SMH.datadir, 'eft/HEL/%s_xs.txt'%stage) )
       for proc in self.PROCESSES[stage]: 
         if proc not in stored:
           self.makeScalingFunction( proc, STXSstage=s )
