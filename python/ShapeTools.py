@@ -2,6 +2,7 @@ from sys import stdout, stderr
 import os.path
 import ROOT
 from math import *
+from .DataFrameWrapper import DataFrameWrapper
 
 RooArgSet_add_original = ROOT.RooArgSet.add
 def RooArgSet_add_patched(self, obj, *args, **kwargs):
@@ -458,10 +459,20 @@ class ShapeBuilder(ModelBuilder):
             trueFName = finalNames[0]
             if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self.options.baseDir+"/"+trueFName):
                 trueFName = self.options.baseDir+"/"+trueFName;
-            _fileCache[finalNames[0]] = ROOT.TFile.Open(trueFName)
+
+            # interpret file from extension - csv, json, html, pkl, xlsx, h5, parquet
+            filepath = trueFName.split(":")[0]
+            filename, ext = os.path.splitext(filepath)
+            if ext in [".csv", ".json", ".html", ".pkl", ".xlsx", ".h5", ".parquet"]:
+                _fileCache[finalNames[0]] = DataFrameWrapper(trueFName, ext)
+            else:
+                # fallback to ROOT file
+                _fileCache[finalNames[0]] = ROOT.TFile.Open(trueFName)
         file = _fileCache[finalNames[0]]; objname = finalNames[1]
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])
-        if ":" in objname: # workspace:obj or ttree:xvar or th1::xvar
+
+        # follow histogram routine if file is a dataframe and load dataframe as histograms
+        if ":" in objname and not isinstance(file, DataFrameWrapper): # workspace:obj or ttree:xvar or th1::xvar
             (wname, oname) = objname.split(":")
             if (file,wname) not in self.wspnames : 
 		self.wspnames[(file,wname)] = file.Get(wname)
