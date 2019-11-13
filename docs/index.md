@@ -45,9 +45,9 @@ Setting up the environment (once):
 
 ```sh
 # For CC7:
-export SCRAM_ARCH=slc7_64_gcc530
+export SCRAM_ARCH=slc7_amd64_gcc530
 # For SLC6:
-export SCRAM_ARCH=slc6_64_gcc530
+export SCRAM_ARCH=slc6_amd64_gcc530
 
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
