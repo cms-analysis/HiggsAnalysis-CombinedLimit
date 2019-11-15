@@ -55,7 +55,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     self.useExtendedVBFScheme=False
     self.linearOnly=False
     if self.freezeOtherParameters: 
-      self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cu','cd','cl'] # note cWW+cB is frozen, but required to define cWW and cB
+      self.parametersOfInterest = ['cG','cA','cWWMinuscB','cWWPluscB','cHW','cHB','cu','cd','cl'] # note cWW+cB is frozen, but required to define cWW and cB
       self.distinctParametersOfInterest = set([])
       for p in self.parametersOfInterest:
         if "Plus" in p: self.distinctParametersOfInterest = self.distinctParametersOfInterest | set(p.split("Plus"))
@@ -90,7 +90,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     print " --> [STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
     print " --> [STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
     if( self.doSTXSU ): print " --> [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/*_binuncertainties.txt"
-    if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cu,cd,cHW,cA,cWWMinuscB,cl] (distinct: %s) to 0"%(self.distinctParametersOfInterest)
+    if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cu,cd,cHW,cHB,cA,cWWMinuscB,cl] (distinct: %s) to 0"%(self.distinctParametersOfInterest)
     else: print " --> [STXStoEFT] Allowing all HEL parameters to float"
     if( len( self.fixProcesses ) > 0 ): print " --> [STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
     if self.useExtendedVBFScheme: print " --> [STXStoEFT] Use extended VBF scheme (different scaling for pure + V(qq)H)"
