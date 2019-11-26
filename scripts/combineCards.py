@@ -39,6 +39,19 @@ paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; r
 extArgs = {}; binParFlags = {}
 nuisanceEdits = [];
 
+def compareParamSystLines(a,b):
+  if float(a[0])!=float(b[0]): return False
+  if "/" in a[1]: 
+    if "/" not in b[1] : return False
+    a1,a2 = a[1].split("/")
+    b1,b2 = b[1].split("/")
+    if float(a1)!=float(b1): return False
+    if float(a2)!=float(b2): return False
+  else: 
+    if float(a[1])!=float(a[1]): return False
+  return True
+
+
 cmax = 5 # column width
 if not args:
     raise RuntimeError, "No input datacards specified."
@@ -47,7 +60,12 @@ for ich,fname in enumerate(args):
     if "=" in fname: (label,fname) = fname.split("=")
     fname = options.fprefix+fname
     dirname = os.path.dirname(fname)
-    file = open(fname, "r")
+    if fname.endswith(".gz"):
+        import gzip
+        file = gzip.open(fname, "rb")
+        fname = fname[:-3]
+    else:
+        file = open(fname, "r")
     DC = parseCard(file, options)
     singlebin = (len(DC.bins) == 1)
     if label == ".":
@@ -75,7 +93,8 @@ for ich,fname in enumerate(args):
         systeffect = {}
         if pdf == "param":
             if paramSysts.has_key(lsyst):
-               if paramSysts[lsyst] != pdfargs: raise RuntimeError, "Parameter uncerainty %s mismatch between cards." % lsyst
+               #if paramSysts[lsyst] != pdfargs: 
+	       if not compareParamSystLines(paramSysts[lsyst],pdfargs) : raise RuntimeError, "Parameter uncerainty %s mismatch between cards, %g != %g" % lsyst
             else:
                 paramSysts[lsyst] = pdfargs
             continue
@@ -190,12 +209,24 @@ for ich,fname in enumerate(args):
         nuisanceEdits.append("%s %s %s %s"%(editline[0],tmp_proc,tmp_chan," ".join(editline[3])))
 
 bins = []
+check_processes = {}
+process_errors = []
 for (b,p,s) in keyline:
     if b not in bins: bins.append(b)
+    if p not in check_processes:
+        check_processes[p] = (s,b)
+    else:
+        if check_processes[p][0] != s:
+            process_errors.append(" - process %s %s a signal in %s and %s a signal in %s" % (p,
+                            "is" if s else "is not", b,
+                            "is" if check_processes[p][0] else "is not", check_processes[p][1]))
     if s:
         if p not in signals: signals.append(p)
     else:
         if p not in backgrounds: backgrounds.append(p)
+
+if process_errors:
+    raise RuntimeError("ERROR: mismatch between process signal labels:\n%s" % ("\n".join(process_errors)))
 
 print "Combination of", "  ".join(args)
 print "imax %d number of bins" % len(bins)

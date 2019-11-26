@@ -187,6 +187,7 @@
 	<class name="SimpleCacheSentry" />
 	<class name="SimpleGaussianConstraint" />
 	<class name="SimplePoissonConstraint" />
+	<class name="SimpleConstraintGroup" transient="true" />
 	<class name="TH1Keys" />
 	<class name="Triangle" />
 	<class name="VerticalInterpHistPdf" />
@@ -199,6 +200,7 @@
   <class name="CMSHistFunc" />
   <class name="CMSHistErrorPropagator" />
   <class name="CMSHistFuncWrapper" />
+  <class name="SimpleTaylorExpansion1D" />
   <class name="RooTaylorExpansion" />
 	<class name="RooDoubleCBFast" />
 	<class name="CombDataSetFactory"  transient="true" />

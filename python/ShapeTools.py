@@ -1,6 +1,7 @@
 from sys import stdout, stderr
 import os.path
 import ROOT
+from collections import defaultdict
 from math import *
 
 RooArgSet_add_original = ROOT.RooArgSet.add
@@ -12,6 +13,32 @@ def RooArgSet_add_patched(self, obj, *args, **kwargs):
 ROOT.RooArgSet.add = RooArgSet_add_patched
 
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
+
+class FileCache:
+    def __init__(self, basedir, maxsize=250):
+        self._basedir = basedir
+        self._maxsize = maxsize
+        self._files = {}
+        self._hits  = defaultdict(int)
+        self._total = 0
+    def __getitem__(self, fname):
+        self._total += 1
+        if fname not in self._files:
+            if len(self._files) >= self._maxsize:
+                print "Flushing file cache of size %d" % len(self._files)
+                keys = self._files.keys()
+                keys.sort(key = lambda k : self._files[k][1] + 10*self._hits[k])
+                for k in keys[:self._maxsize/2]:
+                    self._files[k][0].Close()
+                    del self._files[k]
+            trueFName = fname 
+            if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self._basedir+"/"+trueFName):
+                trueFName = self._basedir+"/"+trueFName;
+            self._files[fname] = [ ROOT.TFile.Open(trueFName), self._total ]
+        else:
+            self._files[fname][1] = self._total
+        self._hits[fname] += 1
+        return self._files[fname][0]
 
 class ShapeBuilder(ModelBuilder):
     def __init__(self,datacard,options):
@@ -25,6 +52,7 @@ class ShapeBuilder(ModelBuilder):
     	self.wsp = None
     	self.extraImports = []
 	self.norm_rename_map = {}
+        self._fileCache = FileCache(self.options.baseDir)
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
     ## ------------------------------------------
@@ -74,15 +102,32 @@ class ShapeBuilder(ModelBuilder):
                         pdf = pdf1
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
-                    prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
-                    for X in extranorm:
-                    	# X might already be in the workspace (e.g. _norm term)...
-                    	if self.out.function(X):
-                    		prodset.add(self.out.function(X))
-                    	# ... but usually it's only in our object store (e.g. AsymPow for shape systs)
-                    	else:
+                    if self.options.packAsymPows:
+                        if coeff.ClassName() == "ProcessNormalization":
+                            pass # nothing to do
+                        elif coeff.ClassName() == "RooRealVar":
+                            coeff = self.addObj(ROOT.ProcessNormalization, "n_exp_final_bin%s_proc_%s" % (b,p), "", coeff.getVal())
+                        else:
+                            raise RuntimeError("packAsymPows: can't work with a coefficient of kind %s for %s %s" % (coeff.ClassName(), b, p))
+                        for X in extranorm:
+                            if type(X) == tuple:
+                                (klo, khi, syst) = X
+                                coeff.addAsymmLogNormal(klo,khi, self.out.var(syst))
+                            else:
+                                if self.out.function(X):
+                                    coeff.addOtherFactor(self.out.function(X))
+                                else:
+                                    coeff.addOtherFactor(self.getObj(X))
+                    else:   
+                        prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
+                        for X in extranorm:
+                            # X might already be in the workspace (e.g. _norm term)...
+                            if self.out.function(X):
+                                    prodset.add(self.out.function(X))
+                            # ... but usually it's only in our object store (e.g. AsymPow for shape systs)
+                            else:
                     		prodset.add(self.getObj(X))
-                    coeff = self.addObj(ROOT.RooProduct, "n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
+                        coeff = self.addObj(ROOT.RooProduct, "n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                 pdf.setStringAttribute("combine.process", p)
                 pdf.setStringAttribute("combine.channel", b)
                 pdf.setAttribute("combine.signal", self.DC.isSignal[p])
@@ -204,6 +249,10 @@ class ShapeBuilder(ModelBuilder):
             bbb_nuisanceargset = ROOT.RooArgSet()
             for nuisanceName in bbb_names:
                bbb_nuisanceargset.add(self.out.var(nuisanceName))
+               # FIXME - should restructure to have autoMCStats pdfs added
+               # to nuisPdfs *before* creating the final channel pdfs
+               if self.options.moreOptimizeSimPdf == "cms":
+                   self.out.nuisPdfs.add(self.out.pdf(nuisanceName + '_Pdf'))
             self.out.defineSet("group_autoMCStats",bbb_nuisanceargset)
         if self.options.verbose:
             stderr.write("\b\b\b\bdone.\n"); stderr.flush()
@@ -423,7 +472,7 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
-    def getShape(self,channel,process,syst="",_fileCache={},_cache={},allowNoSyst=False):
+    def getShape(self,channel,process,syst="",_cache={},allowNoSyst=False):
         if _cache.has_key((channel,process,syst)): 
             if self.options.verbose > 2: print "recyling (%s,%s,%s) -> %s\n" % (channel,process,syst,_cache[(channel,process,syst)].GetName())
             return _cache[(channel,process,syst)];
@@ -454,12 +503,7 @@ class ShapeBuilder(ModelBuilder):
 	   protected_kwords =  ["PROCESS","CHANNEL","SYSTEMATIC","MASS"]
 	   if mpname in protected_kwords: raise RuntimeError, "Cannot use the following keywords (already assigned in combine): $"+" $".join(protected_kwords) 
            finalNames = [ fn.replace("$%s"%mpname,mpv) for fn in finalNames ]
-        if not _fileCache.has_key(finalNames[0]): 
-            trueFName = finalNames[0]
-            if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self.options.baseDir+"/"+trueFName):
-                trueFName = self.options.baseDir+"/"+trueFName;
-            _fileCache[finalNames[0]] = ROOT.TFile.Open(trueFName)
-        file = _fileCache[finalNames[0]]; objname = finalNames[1]
+        file = self._fileCache[finalNames[0]]; objname = finalNames[1]
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])
         if ":" in objname: # workspace:obj or ttree:xvar or th1::xvar
             (wname, oname) = objname.split(":")
@@ -477,6 +521,8 @@ class ShapeBuilder(ModelBuilder):
                 # Fix the fact that more than one entry can refer to the same object
                 ret = ret.Clone()
                 ret.SetName("shape%s_%s_%s%s" % (postFix,process,channel, "_"+syst if syst else ""))
+                if self.options.optimizeMHDependency and ret.InheritsFrom("RooAbsReal"):
+                    ret = self.optimizeMHDependency(ret,self.wsp)
                 _cache[(channel,process,syst)] = ret
                 if not syst:
                   normname = "%s_norm" % (oname)
@@ -487,6 +533,8 @@ class ShapeBuilder(ModelBuilder):
                     if normname in self.DC.flatParamNuisances: 
                         self.DC.flatParamNuisances[normname] = False # don't warn if not found
                         norm.setAttribute("flatParam")
+                    elif self.options.optimizeMHDependency:
+                        norm = self.optimizeMHDependency(norm,self.wsp)
                     norm.SetName("shape%s_%s_%s%s_norm" % (postFix,process,channel, "_"))
 		    self.norm_rename_map[normname]=norm.GetName()
                     self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
@@ -711,11 +759,14 @@ class ShapeBuilder(ModelBuilder):
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
                 # for convenience, we scale the kappas
                 kappasScaled = [ pow(x, errline[channel][process]) for x in kappaDown,kappaUp ]
-                obj_kappaDown = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[0], "", float('%f' %  kappasScaled[0]))
-                obj_kappaUp = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[1], "", float('%f' %  kappasScaled[1]))
-                obj_var = self.out.var(syst)
-                self.addObj(ROOT.AsymPow, "systeff_%s_%s_%s" % (channel,process,syst), "", obj_kappaDown, obj_kappaUp, obj_var)
-                terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
+                if self.options.packAsymPows:
+                    terms.append( (kappasScaled[0], kappasScaled[1], syst) )
+                else:
+                    obj_kappaDown = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[0], "", float('%f' %  kappasScaled[0]))
+                    obj_kappaUp = self.addObj(ROOT.RooConstVar, '%f' %  kappasScaled[1], "", float('%f' %  kappasScaled[1]))
+                    obj_var = self.out.var(syst)
+                    self.addObj(ROOT.AsymPow, "systeff_%s_%s_%s" % (channel,process,syst), "", obj_kappaDown, obj_kappaUp, obj_var)
+                    terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
         return terms if terms else None;
 
     def rebinH1(self,shape):
@@ -841,4 +892,58 @@ class ShapeBuilder(ModelBuilder):
                 #print "Optimize %s in \t" % (pdf.GetName()),; ret.Print("")
                 return ret
         return pdf
+    def optimizeMHDependency(self,arg,wsp,MH=None,indent=""):
+        if arg.isFundamental(): return arg
+        if not MH:
+            MH = wsp.var("MH")
+            if not MH: return arg
+        if not arg.dependsOn(MH):
+            #print "%s%s does not depend on MH" % (indent,arg.GetName())
+            return arg
+        depvars = arg.getVariables()
+        if depvars.getSize() == 1:
+            if not depvars.find("MH"):
+                depvars.Print("")
+                raise RuntimeError("???")
+            depvars.setRealValue("MH", self.options.mass) # be safe
+            if self.options.optimizeMHDependency == "fixed":
+                print "%s%s depends only on MH, will freeze to its value at MH=%g, %g" % (indent, arg.GetName(), MH.getVal(), arg.getVal())
+                ret = ROOT.RooConstVar("%s__frozenMH" % arg.GetName(), "", arg.getVal())
+                self.out.dont_delete.append(ret)
+            elif self.options.optimizeMHDependency in ("pol0", "pol1", "pol2", "pol3", "pol4"):
+                order = int(self.options.optimizeMHDependency[3:])
+                ret = ROOT.SimpleTaylorExpansion1D("%s__MHpol%d" % (arg.GetName(),order), "", arg, MH, 0.1, order)
+                self.out.dont_delete.append(ret)
+            else:
+                raise RuntimeError("Unknown option value %r for optimizeMHDependency" % self.options.optimizeMHDependency)
+            return ret
+        else:
+            print "%s%s depends on MH and other %d variables." % (indent, arg.GetName(), depvars.getSize())
+            #depvars.Print("")
+            srviter = arg.serverMIterator()
+            servers = []
+            while True:
+                a = srviter.next()
+                if not a: break
+                servers.append(a)
+            #print "%sFound %d servers: %s" % (indent, len(servers), ", ".join(a.GetName() for a in servers))
+            newservers = []
+            for a in servers:
+                aopt = self.optimizeMHDependency(a,wsp,MH,indent=indent+"   ")
+                if aopt != a:
+                    newservers.append((a,aopt))
+            if newservers:
+                print "%sCan do replacements of %d servers: %s" % (indent, len(newservers), ", ".join(a.GetName() for (a,aopt) in newservers))
+                #print "-- Before --"
+                #arg.Print("t")
+                cust = ROOT.RooCustomizer(arg,"__optMH")
+                for (a,aopt) in newservers:
+                    cust.replaceArg(a,aopt)
+                ret = cust.build(True)
+                self.out.dont_delete.append(ret)
+                #print "-- After --"
+                #ret.Print("t")
+                #print "-- End --"
+                arg = ret
+            return arg
 

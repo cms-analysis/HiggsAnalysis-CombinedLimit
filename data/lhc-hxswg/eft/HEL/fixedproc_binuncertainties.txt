@@ -1,0 +1,6 @@
+bin                                thu
+ggZH                               0.2
+ggZH_lep                           0.2
+tHq                                0.2
+tHW                                0.2
+bbH                                0.2

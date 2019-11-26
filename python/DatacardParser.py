@@ -38,6 +38,8 @@ def addDatacardParserOptions(parser):
     parser.add_option("--X-no-optimize-templates",  dest="optimizeExistingTemplates", default=True, action="store_false", help="Don't optimize templates on the fly (relevant for HZZ)")
     parser.add_option("--X-no-optimize-bound-nusances",  dest="optimizeBoundNuisances", default=True, action="store_false", help="Don't flag nuisances to have a different implementation of bounds")
     parser.add_option("--X-no-optimize-bins",  dest="optimizeTemplateBins", default=True, action="store_false", help="Don't optimize template bins (removes padding from TH1s)")
+    parser.add_option("--X-pack-asympows",  dest="packAsymPows", default=False, action="store_true", help="Try reduce the number of inputs by merging AsymPow instances into ProcessNormalization objects")
+    parser.add_option("--X-optimizeMHDependency",  dest="optimizeMHDependency", default=None, help="Simplify MH dependent objects: 'fixed', 'pol<N>' with N=0..4")
 
 
 from HiggsAnalysis.CombinedLimit.Datacard import Datacard
@@ -213,6 +215,7 @@ def parseCard(file, options):
 	    	continue
             elif pdf == "rateParam":
 	        if ("*" in f[3]) or ("*" in f[2]): # all channels/processes
+                  found = False
 		  for c in ret.processes:
 		   for b in ret.bins:
 		    if (not fnmatch.fnmatch(c, f[3])): continue
@@ -221,6 +224,8 @@ def parseCard(file, options):
 		    f_tmp[2]=b
 		    f_tmp[3]=c
 	            addRateParam(lsyst,f_tmp,ret)
+                    found = True
+                  if not found: raise RuntimeError, "rateParam %s with process %r bin %r doesn't match anything." % (lsyst,f[3],f[2]) 
 		else : addRateParam(lsyst,f,ret)
                 continue
             elif pdf=="discrete":

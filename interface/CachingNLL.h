@@ -17,6 +17,7 @@
 #include <RooProduct.h>
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleConstraintGroup.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
@@ -133,11 +134,12 @@ class CachingAddNLL : public RooAbsReal {
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }
+        RooSetProxy & catParams() { return catParams_; }
     private:
         void setup_();
         void addPdfs_(RooAddPdf *addpdf, bool recursive, const RooArgList & basecoeffs) ;
         RooAbsPdf *pdf_;
-        RooSetProxy params_;
+        RooSetProxy params_, catParams_;
         const RooAbsData *data_;
         std::vector<Double_t>  weights_, binWidths_;
         double               sumWeights_;
@@ -176,6 +178,10 @@ class CachingSimNLL  : public RooAbsReal {
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);
         void setAnalyticBarlowBeeston(bool flag);
+        void setHideRooCategories(bool flag) { hideRooCategories_ = flag; }
+        void setHideConstants(bool flag) { hideConstants_ = flag; }
+        void setMaskConstraints(bool flag) ;
+        void setMaskNonDiscreteChannels(bool mask) ;
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
         virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
@@ -184,7 +190,8 @@ class CachingSimNLL  : public RooAbsReal {
         RooSimultaneous   *pdfOriginal_;
         const RooAbsData  *dataOriginal_;
         const RooArgSet   *nuis_;
-        RooSetProxy        params_;
+        RooSetProxy        params_, catParams_;
+        bool hideRooCategories_, hideConstants_;
         RooArgSet piecesForCloning_;
         std::auto_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
@@ -192,6 +199,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<bool>                        constrainPdfsFastOwned_;
         std::vector<SimplePoissonConstraint *>   constrainPdfsFastPoisson_;
         std::vector<bool>                        constrainPdfsFastPoissonOwned_;
+        std::vector<SimpleConstraintGroup>       constrainPdfGroups_;
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
@@ -202,6 +210,11 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<double> constrainZeroPointsFast_;
         std::vector<double> constrainZeroPointsFastPoisson_;
         std::vector<RooAbsReal*> channelMasks_;
+        std::vector<bool>        internalMasks_;
+        bool                     maskConstraints_;
+        RooArgSet                activeParameters_, activeCatParameters_;
+        double                   maskingOffset_;     // offset to ensure that interal or constraint masking doesn't change NLL value
+        double                   maskingOffsetZero_; // and associated zero point
 };
 
 }

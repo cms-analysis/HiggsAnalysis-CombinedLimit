@@ -22,7 +22,7 @@ CMS_to_LHCHCG_DecSimple = {
     'hbb': 'bb',
     'hcc': 'bb',
     'htt': 'tautau',
-    'hmm': 'tautau',
+    'hmm': 'mumu',
     'hzg': 'gamgam',
     'hgluglu': 'bb',
     'hinv': 'inv',
@@ -47,7 +47,7 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         self.floatMass = False
         self.add_bbH = [ ]
         self.bbH_pdf = "pdf_Higgs_gg"
-        self.promote_hmm = False
+        self.promote_hmm = True
         self.promote_hccgluglu = False
     def preProcessNuisances(self,nuisances):
         if self.add_bbH and not any(row for row in nuisances if row[0] == "QCDscale_bbH"):
@@ -58,9 +58,9 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         for po in physOptions:
             if po.startswith("dohmm="):
                 self.promote_hmm = (po.replace("dohmm=","") in [ "yes", "1", "Yes", "True", "true" ])
-                if self.promote_hmm:
-                    print 'Treating hmm as an independent process'
-                    CMS_to_LHCHCG_DecSimple['hmm'] = 'mumu'
+                if not self.promote_hmm:
+                    print 'WARNING: hmm signal will be treated as htt'
+                    CMS_to_LHCHCG_DecSimple['hmm'] = 'tautau'
             if po.startswith("bbh="):
                 self.add_bbH = [d.strip() for d in po.replace("bbh=","").split(",")]
             if po.startswith("dohccgluglu="):
@@ -544,14 +544,14 @@ class Lambdas(LHCHCGBaseModel):
             'hgg' : 'lambda_gamZ',
             'hbb' : 'lambda_bZ',
             'htt' : 'lambda_tauZ',
-            'hmm' : 'lambda_tauZ',
+            'hmm' : 'lambda_muZ',
             'hcc' : 'lambda_tZ',     # charm scales as top
             'hgluglu' : 'lambda_gZ', # glu scales as 1/Zgky
             'hzg'     : 'lambda_gamZ',   # fancier option: 'sqrt_zgamma',
             #'hss' : 'lambda_bZ', # strange scales as bottom # not used
         }
-        if self.promote_hmm:
-            self.decayMap_['hmm'] = 'lambda_muZ'
+        if not self.promote_hmm:
+            self.decayMap_['hmm'] = 'lambda_tauZ'
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s_%s" % (production,decay,energy)
         if self.modelBuilder.out.function(name):

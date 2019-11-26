@@ -28,6 +28,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleConstraintGroup.h"
 #include "HiggsAnalysis/CombinedLimit/interface/AtlasPdfs.h"
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplateFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf.h"
@@ -53,6 +54,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooTaylorExpansion.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleTaylorExpansion1D.h"
 
 #include "HiggsAnalysis/CombinedLimit/interface/RooPiecewisePolynomial.h"
 
