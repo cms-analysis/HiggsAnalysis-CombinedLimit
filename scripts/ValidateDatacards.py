@@ -66,6 +66,22 @@ def print_process(js_dict, dict_key, err_type_msg):
     else:
       print ">>>There were no warnings of type", err_type_msg
 
+def print_process_info(js_dict, dict_key, err_type_msg):
+    num_problems=0
+    num_problems_peruncert = {}
+    if dict_key in js_dict: 
+      for mybin in js_dict[dict_key]:
+        probs=0;
+        num_problems+=len(js_dict[dict_key][mybin])
+        num_problems_peruncert[mybin]=len(js_dict[dict_key][mybin])
+      print ">>>INFO: there were ",num_problems," alerts of type ",err_type_msg
+      if args.printLevel > 1:
+        for mybin in js_dict[dict_key]:
+          print "    For bin",mybin, "there were ", num_problems_peruncert[mybin]," such alerts. The affected processes are: ", json.dumps(js_dict[dict_key][mybin])
+    else:
+      print ">>>There were no alerts of type", err_type_msg
+
+
 
 cb = ch.CombineHarvester()
 cb.SetFlag("check-negative-bins-on-import",0)
@@ -90,5 +106,6 @@ if args.printLevel > 0:
       print_uncertainty(data,"largeNormEff","\'Uncertainty has normalisation effect of more than %.1f%%\'"% (args.checkUncertOver*100))
       print_uncertainty(data,"smallShapeEff","\'Uncertainty probably has no genuine shape effect\'")
       print_process(data,"emptyProcessShape","\'Empty process\'")
+      print_process_info(data,"smallSignalProc","\'Small signal process\'")
 
 

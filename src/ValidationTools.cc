@@ -176,10 +176,38 @@ void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj){
     }
   });
 }
-      
-    
+
+void CheckSmallSignals(CombineHarvester& cb){
+  auto bins = cb.bin_set();
+  for(auto b : bins){
+    auto cb_bin_signals = cb.cp().bin({b}).signals();
+    auto cb_bin_backgrounds = cb.cp().bin({b}).backgrounds();
+    auto cb_bin = cb.cp().bin({b}); 
+    double sigrate = cb_bin_signals.GetRate();
+    for(auto p : cb_bin_signals.process_set()){
+      if(cb_bin_signals.cp().process({p}).GetRate() < 0.001*sigrate){
+        std::cout<<"Very small signal process. In bin "<<b<<" signal process "<<p<<" has yield "<<cb_bin_signals.cp().process({p}).GetRate()<<". Total signal rate in this bin is "<<sigrate<<std::endl;
+      }
+    }
+  }
+}
 
 
+void CheckSmallSignals(CombineHarvester& cb, json& jsobj){
+  auto bins = cb.bin_set();
+  for(auto b : bins){
+    auto cb_bin_signals = cb.cp().bin({b}).signals();
+    auto cb_bin_backgrounds = cb.cp().bin({b}).backgrounds();
+    auto cb_bin = cb.cp().bin({b}); 
+    double sigrate = cb_bin_signals.GetRate();
+    for(auto p : cb_bin_signals.process_set()){
+      if(cb_bin_signals.cp().process({p}).GetRate() < 0.001*sigrate){
+        jsobj["smallSignalProc"][b][p]={{"sigrate_tot",sigrate},{"procrate",cb_bin_signals.cp().process({p}).GetRate()}};
+      }
+    }
+  }
+}
+  
 
 void ValidateCards(CombineHarvester& cb, std::string const& filename, double maxNormEff){
  json output_js; 
@@ -187,6 +215,7 @@ void ValidateCards(CombineHarvester& cb, std::string const& filename, double max
  CheckEmptyShapes(cb, output_js);      
  CheckNormEff(cb, maxNormEff, output_js);
  CheckSizeOfShapeEffect(cb, output_js);
+ CheckSmallSignals(cb,output_js);
  std::ofstream outfile(filename);
  outfile <<std::setw(4)<<output_js<<std::endl;
 }
