@@ -305,13 +305,13 @@ void ValidateCards(CombineHarvester& cb, std::string const& filename, double max
    ValidateShapeUncertaintyDirection(cb, output_js);      
    CheckSizeOfShapeEffect(cb, output_js);
    ValidateShapeTemplates(cb,output_js);
+   CheckEmptyBins(cb,output_js);
  } else {
    std::cout<<"Not a shape-based datacard / shape-based datacard using RooDataHist. Skipping checks on systematic shapes."<<std::endl;
  }
  CheckEmptyShapes(cb, output_js);      
  CheckNormEff(cb, maxNormEff, output_js);
  CheckSmallSignals(cb,minSigFrac, output_js);
- CheckEmptyBins(cb,output_js);
  std::ofstream outfile(filename);
  outfile <<std::setw(4)<<output_js<<std::endl;
 }
