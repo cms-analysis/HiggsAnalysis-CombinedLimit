@@ -28,13 +28,17 @@ void ValidateShapeUncertaintyDirection(CombineHarvester& cb, json &jsobj);
 void ValidateShapeUncertaintyDirection(CombineHarvester& cb);
 void CheckEmptyShapes(CombineHarvester& cb, json &jsobj);
 void CheckEmptyShapes(CombineHarvester& cb);
+void CheckEmptyBins(CombineHarvester& cb, json &jsobj);
+void CheckEmptyBins(CombineHarvester& cb);
 void CheckNormEff(CombineHarvester& cb, double maxNormEff, json &jsobj);
 void CheckNormEff(CombineHarvester& cb, double maxNormEff);
 void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj);
 void CheckSizeOfShapeEffect(CombineHarvester& cb);
-void CheckSmallSignals(CombineHarvester& cb, json& jsobj);
-void CheckSmallSignals(CombineHarvester& cb);
-void ValidateCards(CombineHarvester& cb, std::string const& filename, double maxNormEff);
+void CheckSmallSignals(CombineHarvester& cb, double minSigFrac, json& jsobj);
+void CheckSmallSignals(CombineHarvester& cb, double minSigFrac);
+void ValidateShapeTemplates(CombineHarvester& cb, json &jsobj);
+void ValidateShapeTemplates(CombineHarvester& cb);
+void ValidateCards(CombineHarvester& cb, std::string const& filename, double maxNormEff, double minSigFrac);
 
 }
 
