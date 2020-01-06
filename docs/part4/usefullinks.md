@@ -5,18 +5,16 @@
 There are several tutorials which have been run over the last few years with instructions and examples for running the combine tool.
 
 * Tutorial Sessions
+   * [1st tutorial 17th Nov 2015](https://indico.cern.ch/event/456547/).
+   * [2nd tutorial 30th Nov 2016](https://indico.cern.ch/event/577649/#b-229590-higgs-combine-tool-mi).
+   * [3rd tutorial 29th Nov 2017](https://indico.cern.ch/event/677948/#day-2017-11-29) 
+   * [4th tutorial 31st Oct 2018](https://indico.cern.ch/event/747340/overview) - Latest for `81x-root606` branch.
+   * [5th tutorial 2nd-4th Dec 2019](https://indico.cern.ch/event/859454/overview) - Latest for `102x` branch.
 
-  * [1st tutorial 17th Nov 2015](https://indico.cern.ch/event/456547/).
-  * [2nd tutorial 30th Nov 2016](https://indico.cern.ch/event/577649/#b-229590-higgs-combine-tool-mi).
-  * [3rd tutorial 29th Nov 2017](https://indico.cern.ch/event/677948/#day-2017-11-29) 
-  * [4th tutorial 31st Oct 2018](https://indico.cern.ch/event/747340/overview) - Latest for `81x-root606` branch.
-  * [5th tutorial 2nd-4th Dec 2019](https://indico.cern.ch/event/859454/overview) - Latest for `102x` branch.
 
-
-* Worked examples from Higgs analyses using combine 
- 
-  * [The CMS DAS at CERN 2014](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise)
-  * [The CMS DAS at DESY 2018](https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCMSDataAnalysisSchoolHamburg2018LongStatisticsExercise)
+* Worked examples from Higgs analyses using combine  
+   * [The CMS DAS at CERN 2014](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise)
+   * [The CMS DAS at DESY 2018](https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCMSDataAnalysisSchoolHamburg2018LongStatisticsExercise)
 
 
 
