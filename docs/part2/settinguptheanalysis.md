@@ -126,7 +126,14 @@ In addition, user defined keywords can be included to be replaced. Any word in t
 
 #### Template shape uncertainties
 
-Shape uncertainties can be taken into account by vertical interpolation of the histograms. The shapes are interpolated quadratically for shifts below 1σ and linearly beyond. The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties.
+Shape uncertainties can be taken into account by vertical interpolation of the histograms. The shapes (fraction of events $f$ in each bin) are interpolated using a spline for shifts below +/- 1σ and linearly outside of that. Specifically, for nuisance parameter values $|\theta|\leq 1$ 
+
+$$ f(\theta) = \frac{1}{2} \left( (\delta^{+}-\delta^{-})\theta + \frac{1}{8}*(\delta^{+}+\delta^{-})(3\theta^6 - 10\theta^4 + 15\theta^2) \right) $$
+
+and for $|\theta|> 1$ ($<-1$), $f(\theta)$ is a straight line with gradient $\delta^{+}$ ($\delta^{-}$), where $\delta^{+}=f(\theta=1)-f(\theta=0)$, and $\delta^{-}=f(\theta=-1)-f(\theta=0)$, derived using the nominal and up/down histograms. and 
+This interpolation is designed so that the values of $f(\theta)$ and its derivatives are continuous for all values of $\theta$. 
+
+The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties. If the value in a given bin is negative for some value of $\theta$, the value will be truncated at 0.
 
 For each shape uncertainty and process/channel affected by it, two additional input shapes have to be provided, obtained shifting that parameter up and down by one standard deviation. When building the likelihood, each shape uncertainty is associated to a nuisance parameter taken from a unit gaussian distribution, which is used to interpolate or extrapolate using the specified histograms.
 
@@ -151,7 +158,7 @@ sigma  shape    0.5         -   uncertainty on signal resolution. Assume the his
 #                                so divide the unit gaussian by 2 before doing the interpolation
 ```
 
-There are two options for the interpolation algorithm in the "shape" uncertainty. Putting **`shape`** will result in a quadratic interpolation (within +/-1 sigma) and a linear extrapolation (beyond +/-1 sigma) of the **fraction of events in each bin** - i.e the histograms are first normalised before interpolation. Putting **`shapeN`** while instead base the interpolation on the logs of the fraction in each bin. For _both_ **`shape`**  and **`shapeN`**, the total normalisation is interpolated using an asymmetric log-normal so that the effect of the systematic on both the shape and normalisation are accounted for. The following image shows a comparison of those two algorithms for this datacard.
+There are two options for the interpolation algorithm in the "shape" uncertainty. Putting **`shape`** will result in a  of the **fraction of events in each bin** - i.e the histograms are first normalised before interpolation. Putting **`shapeN`** while instead base the interpolation on the logs of the fraction in each bin. For _both_ **`shape`**  and **`shapeN`**, the total normalisation is interpolated using an asymmetric log-normal so that the effect of the systematic on both the shape and normalisation are accounted for. The following image shows a comparison of those two algorithms for this datacard.
 
 ![](images/compare-shape-algo.png)
 
