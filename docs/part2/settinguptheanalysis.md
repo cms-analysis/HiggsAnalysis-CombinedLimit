@@ -128,9 +128,9 @@ In addition, user defined keywords can be included to be replaced. Any word in t
 
 Shape uncertainties can be taken into account by vertical interpolation of the histograms. The shapes (fraction of events $f$ in each bin) are interpolated using a spline for shifts below +/- 1σ and linearly outside of that. Specifically, for nuisance parameter values $|\theta|\leq 1$ 
 
-$$ f(\theta) = \frac{1}{2} \left( (\delta^{+}-\delta^{-})\theta + \frac{1}{8}*(\delta^{+}+\delta^{-})(3\theta^6 - 10\theta^4 + 15\theta^2) \right) $$
+$$ f(\theta) = \frac{1}{2} \left( (\delta^{+}-\delta^{-})\theta + \frac{1}{8}(\delta^{+}+\delta^{-})(3\theta^6 - 10\theta^4 + 15\theta^2) \right) $$
 
-and for $|\theta|> 1$ ($<-1$), $f(\theta)$ is a straight line with gradient $\delta^{+}$ ($\delta^{-}$), where $\delta^{+}=f(\theta=1)-f(\theta=0)$, and $\delta^{-}=f(\theta=-1)-f(\theta=0)$, derived using the nominal and up/down histograms. and 
+and for $|\theta|> 1$ ($|\theta|<-1$), $f(\theta)$ is a straight line with gradient $\delta^{+}$ ($\delta^{-}$), where $\delta^{+}=f(\theta=1)-f(\theta=0)$, and $\delta^{-}=f(\theta=-1)-f(\theta=0)$, derived using the nominal and up/down histograms. and 
 This interpolation is designed so that the values of $f(\theta)$ and its derivatives are continuous for all values of $\theta$. 
 
 The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties. If the value in a given bin is negative for some value of $\theta$, the value will be truncated at 0.
