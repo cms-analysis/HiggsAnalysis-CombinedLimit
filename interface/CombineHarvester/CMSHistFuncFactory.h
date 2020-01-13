@@ -20,10 +20,12 @@ namespace ch {
 
 class CMSHistFuncFactory {
 public:
+  void Run(CombineHarvester& cb, RooWorkspace& ws, std::map<std::string, std::string> process_vs_norm_postfix_map);
   void Run(CombineHarvester& cb, RooWorkspace& ws);
   void SetHorizontalMorphingVariable(std::map<std::string, RooAbsReal*> &hvar) { mass_var = hvar; }
   CMSHistFuncFactory();
 private:
+  std::string norm_postfix_ = "norm";
   unsigned v_;
   // RooAbsReal *mass_var;
   std::map<std::string, RooAbsReal*> mass_var;
