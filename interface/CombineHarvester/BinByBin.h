@@ -150,6 +150,18 @@ class BinByBinFactory {
     return *this;
   }
 
+  /**
+   * Getter functions for class attributes
+   */
+  inline unsigned GetVerbosity() {return v_;}
+  inline double GetAddThreshold() {return bbb_threshold_;}
+  inline double GetMergeThreshold() {return merge_threshold_;}
+  inline std::string GetPattern() {return pattern_;}
+  inline bool GetFixNorm() {return fix_norm_;}
+  inline bool GetPoissonErrors() {return poisson_errors_;}
+  inline bool GetMergeZeroBins() {return merge_zero_bins_;}
+  inline bool GetMergeSaturatedBins() {return merge_saturated_bins_;}
+
  private:
   std::string pattern_;
   unsigned v_;
