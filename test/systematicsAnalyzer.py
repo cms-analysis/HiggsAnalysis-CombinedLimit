@@ -26,6 +26,7 @@ options.nuisancesToExclude = []
 options.noJMax = True
 options.allowNoSignal = True
 options.modelparams = [] 
+options.optimizeMHDependency = False 
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 import sys
