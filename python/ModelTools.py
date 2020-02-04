@@ -106,6 +106,9 @@ class ModelBuilder(ModelBuilderBase):
     def setPhysics(self,physicsModel):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
+        for b in self.DC.bins:
+            for p in self.DC.exp[b].keys():
+                self.physics.tellAboutProcess(b, p)
     def doModel(self):
         self.doObservables()
         self.physics.doParametersOfInterest()
@@ -632,7 +635,10 @@ class ModelBuilder(ModelBuilderBase):
                     for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
                     for factorName in factors:
 		    	if self.out.function(factorName): procNorm.addOtherFactor(self.out.function(factorName))
-			else: procNorm.addOtherFactor(self.out.var(factorName))
+			else:
+			    if not self.out.var(factorName):
+                                raise RuntimeError(factorName+" is not in the workspace")
+			    procNorm.addOtherFactor(self.out.var(factorName))
                     self.out._import(procNorm)
     def doIndividualModels(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
