@@ -946,8 +946,6 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
                 self.modelBuilder.doVar('expr::VVHVV_{g1}2{g2}1{g3}1_{signname}("{sign}@1*@1*@2*@3 / @0", gammaH, {g1}, {g2}, {g3})'.format(**kwargs))
 
             for kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"] in itertools.combinations(couplings, 4):
-                print "KWARGS :" , kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"]
-
                 self.modelBuilder.doVar('expr::VVHVV_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@1*@2*@3*@4 / @0", gammaH, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
 
         return pois
