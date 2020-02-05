@@ -878,8 +878,9 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
         
 
         #define expressions        
-        zz_expr      = '"@0*@0/4 + 2.714*1e-8*@3*@3 + 1.452*@1*@1 + 0.6098*@2*@2 + 3.238*1e-4*@0*@3/2. + 2.019*@0*@1/2. + 3.348*1e-4*@1*@3 + 1.638*1e-8*@4*@4 + 0.7611*@0*@4*1e-4 + 1.188*@3*@4*1e-8 + 0.7529*@1*@4*1e-4 ",g1,g2,g4,g1prime2,EFT_L1Zg' 
-        ww_expr      = '"@0*@/4 + 2.112*1e-8*@3*@3 + 3.110*@1*@1 + 1.292*@2*@2 + 2.882*1e-4*@0*@3/2. + 2.975*@0*@1/2 + 4.438*1e-4*@3*@1 ",EFT_g1WW,EFT_g2WW,EFT_g4WW,EFT_L1WW'
+        zz_expr      = '"@0*@0/4 + 0.1696*@3*@3 + 0.09076*@1*@1 + 0.03811*@2*@2 + 0.8096*@0*@3/2. + 0.5046*@0*@1/2. + 0.2092*@1*@3 + 0.1023*@4*@4 + 0.1903*@0*@4/2. + 0.07431*@3*@4 + 0.04706*@1*@4 ",g1,g2,g4,g1prime2,EFT_L1Zg' 
+        ww_expr      = '"@0*@/4 + 0.1320*@3*@3 + 0.1944*@1*@1 + 0.08075*@2*@2 + 0.7204*@0*@3/2. + 0.7437*@0*@1/2 + 0.2774*@3*@1 ",EFT_g1WW,EFT_g2WW,EFT_g4WW,EFT_L1WW'
+        
         zgamma_expr  = '"1.1194*@0*@0/4. +0.0035*@1*@1 -  0.1260*@0*@1/2. + 0.0*@1*@1 - 0.0002*@1*@1 + 0.0034*@0*@1/2 +0.0082*@2*@2 + 0.0*@2*@2 -0.0003**@2*@2",EFT_g1WW,kappa,kappa_tilde'
         gg_expr      = '"1.1070*@0*@0 + 0.0082*@0*@0 - 0.1151*@0*@0 + 2.5713*@1*@1 + 0.0091*@1*@1 - 0.1991*@1*@1",kappa,kappa_tilde'    
         bb_expr      = '"(@0*@0 + @1*@1)",kappa,kappa_tilde'
@@ -946,6 +947,8 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
                 self.modelBuilder.doVar('expr::VVHVV_{g1}2{g2}1{g3}1_{signname}("{sign}@1*@1*@2*@3 / @0", gammaH, {g1}, {g2}, {g3})'.format(**kwargs))
 
             for kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"] in itertools.combinations(couplings, 4):
+                print "KWARGS :" , kwargs["g1"], kwargs["g2"], kwargs["g3"], kwargs["g4"]
+
                 self.modelBuilder.doVar('expr::VVHVV_{g1}1{g2}1{g3}1{g4}1_{signname}("{sign}@1*@2*@3*@4 / @0", gammaH, {g1}, {g2}, {g3}, {g4})'.format(**kwargs))
 
         return pois
