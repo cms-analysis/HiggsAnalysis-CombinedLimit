@@ -481,6 +481,7 @@ class HZZAnomalousCouplingsFromHistogramsBase(SpinZeroHiggsBase):
         self.scalegL1by10000 = True
         self.useHffanomalous = False
         self.separateggHttH = False
+        self.fixgamma = False
         super(HZZAnomalousCouplingsFromHistogramsBase, self).__init__()
 
     def processPhysicsOptions(self,physOptions):
@@ -744,6 +745,7 @@ class SpinZeroHiggsAiBase(SpinZeroHiggsBase):
     def __init__(self):
         super(SpinZeroHiggsAiBase, self).__init__()
         self.aistatus = collections.defaultdict(lambda: "fix")
+        self.floatgamma = True
 
     def processPhysicsOptions(self,physOptions):
         processed = super(SpinZeroHiggsAiBase, self).processPhysicsOptions(physOptions)
@@ -774,6 +776,11 @@ class SpinZeroHiggsAiBase(SpinZeroHiggsBase):
                     assert False, whattodo
 
                 processed.append(po)
+
+            if po.lower() == "fixgamma":
+                self.fixgamma = True
+                processed.append(po)
+                
 
         if 1 not in self.aistatus: self.aistatus[1] = "POI"
 
@@ -841,7 +848,7 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
                 self.modelBuilder.out.var("kappa_tilde").removeRange()
                 self.modelBuilder.out.var("kappa_tilde").setAttribute("flatParam")
             else:
-                self.modelBuilder.doVar('expr::kappa_tilde("2./3.*@0", ghg4)')
+                self.modelBuilder.doVar('expr::kappa_tilde("0.6482*@0", ghg4)') # 0.6482 comes from sqrt( sigma_(kf =1 )/ sigma_(kftilde =1))
 
         self.modelBuilder.doVar("RV[1.0,0,10]")
         self.modelBuilder.doVar("R[1.0,0,10]")
@@ -869,19 +876,19 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
         self.modelBuilder.doVar('expr::EFT_g2WW("@0*@0*@1",cosW,g2)')
         self.modelBuilder.doVar('expr::EFT_g4WW("@0*@0*@1",cosW,g4)')
         
-        self.modelBuilder.doVar('expr::EFT_L1WW("@2 / (@0*@0 - @1*@1) - 2*@1*@1*@3*@4*@4 / (@0*@0 - @1*@1)",cosW,sinW,g1prime2,g2,Lambda1)')
+        self.modelBuilder.doVar('expr::EFT_L1WW("@2 / (@0*@0 - @1*@1) - 2*@1*@1*@3*@4*@4*1e-4 / (@0*@0 - @1*@1)",cosW,sinW,g1prime2,g2,Lambda1)')
         self.modelBuilder.doVar('expr::EFT_L1Zg_L1("2*@0*@1*@2/(@0*@0 - @1*@1)",cosW,sinW,g1prime2)')
-        self.modelBuilder.doVar('expr::EFT_L1Zg_g2("-2*@0*@1*@3*@4*@4/((@2*@2)*(@0*@0 - @1*@1))",cosW,sinW,mZ,g2,Lambda1)')
+        self.modelBuilder.doVar('expr::EFT_L1Zg_g2("-2*@0*@1*@3*@4*@4*1e-4/((@2*@2)*(@0*@0 - @1*@1))",cosW,sinW,mZ,g2,Lambda1)')
         self.modelBuilder.doVar('expr::EFT_L1Zg("@0 + @1",EFT_L1Zg_L1,EFT_L1Zg_g2)')
 
         
         
 
         #define expressions        
-        zz_expr      = '"@0*@0/4 + 0.1696*@3*@3 + 0.09076*@1*@1 + 0.03811*@2*@2 + 0.8096*@0*@3/2. + 0.5046*@0*@1/2. + 0.2092*@1*@3 + 0.1023*@4*@4 + 0.1903*@0*@4/2. + 0.07431*@3*@4 + 0.04706*@1*@4 ",g1,g2,g4,g1prime2,EFT_L1Zg' 
-        ww_expr      = '"@0*@/4 + 0.1320*@3*@3 + 0.1944*@1*@1 + 0.08075*@2*@2 + 0.7204*@0*@3/2. + 0.7437*@0*@1/2 + 0.2774*@3*@1 ",EFT_g1WW,EFT_g2WW,EFT_g4WW,EFT_L1WW'
+        zz_expr      = '"@0*@0/4 + 0.1695*@3*@3 + 0.09076*@1*@1 + 0.03809*@2*@2 + 0.8095*@0*@3/2. + 0.5046*@0*@1/2. + 0.2092*@1*@3 + 0.1023*@4*@4 + 0.1903*@0*@4/2. + 0.07429*@3*@4 + 0.04710*@1*@4 ",g1,g2,g4,g1prime2,EFT_L1Zg' 
+        ww_expr      = '"@0*@0/4 + 0.1320*@3*@3 + 0.1944*@1*@1 + 0.08075*@2*@2 + 0.7204*@0*@3/2. + 0.7437*@0*@1/2 + 0.2774*@3*@1 ",EFT_g1WW,EFT_g2WW,EFT_g4WW,EFT_L1WW'
         
-        zgamma_expr  = '"1.1194*@0*@0/4. +0.0035*@1*@1 -  0.1260*@0*@1/2. + 0.0*@1*@1 - 0.0002*@1*@1 + 0.0034*@0*@1/2 +0.0082*@2*@2 + 0.0*@2*@2 -0.0003**@2*@2",EFT_g1WW,kappa,kappa_tilde'
+        zgamma_expr  = '"1.1194*@0*@0/4. +0.0035*@1*@1 -  0.1260*@0*@1/2. + 0.000004*@1*@1 - 0.00019*@1*@1 + 0.0034*@0*@1/2 +0.0082*@2*@2 + 0.0000005*@2*@2 -0.00047*@2*@2",EFT_g1WW,kappa,kappa_tilde'
         gg_expr      = '"1.1070*@0*@0 + 0.0082*@0*@0 - 0.1151*@0*@0 + 2.5713*@1*@1 + 0.0091*@1*@1 - 0.1991*@1*@1",kappa,kappa_tilde'    
         bb_expr      = '"(@0*@0 + @1*@1)",kappa,kappa_tilde'
         cc_expr      = '"(@0*@0 + @1*@1)",kappa,kappa_tilde'
@@ -899,18 +906,27 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
         self.modelBuilder.doVar('expr::R_mumu('+str(mumu_expr)+')')
         self.modelBuilder.doVar('expr:R_gammagamma('+str(gmgm_expr)+')')
 
+        if self.fixgamma :
+            self.modelBuilder.doVar('expr::gammaH("1",)')
+        else :     
+            self.modelBuilder.doVar('expr::gammaH("(0.5824*@0 + 0.2137*@1 + 0.08187*@2 + 0.06272*@3 + 0.02891*@4 + 0.02619*@5 + 0.0002176*@6 +  0.001533*@7 + 0.0002176*@8 )/0.9998",R_bb,R_WW,R_gg,R_tautau,R_cc,R_ZZ,R_gammagamma,R_Zgamma,R_mumu)')
+
+
         
-        self.modelBuilder.doVar('expr::gammaH("(0.5824*@0 + 0.2137*@1 + 0.08187*@2 + 0.06272*@3 + 0.02891*@4 + 0.02619*@5 + 0.0002176*@6 +  0.001533*@7 + 0.0002176*@8 )/0.9998",R_bb,R_WW,R_gg,R_tautau,R_cc,R_ZZ,R_gammagamma,R_Zgamma,R_mumu)')
+        self.modelBuilder.doVar('expr::alpha(0.39,)')
         
         
         for g in couplings:
-            self.modelBuilder.doVar('expr::ggHVV_{g}2("@1*@1*@2*@2 / @0", gammaH, ghg2, {g})'.format(g=g))
-            self.modelBuilder.doVar('expr::ttHVV_{g}2("@1*@1*@2*@2 / @0", gammaH, kappa, {g})'.format(g=g))
             if self.useHffanomalous:
+                self.modelBuilder.doVar('expr::ggHVV_{g}2("(@1*@1+@2*@2) * @3*@3 / @0", gammaH, ghg2, ghg4, {g})'.format(g=g))
+                self.modelBuilder.doVar('expr::ttHVV_{g}2("(@1*@1+@4*@2*@2) * @3*@3 / @0", gammaH, kappa, kappa_tilde, {g}, alpha)'.format(g=g))
                 self.modelBuilder.doVar('expr::ggHVV_ghg22_{g}2("@1*@1*@2*@2 / @0", gammaH, ghg2, {g})'.format(g=g))
                 self.modelBuilder.doVar('expr::ggHVV_ghg42_{g}2("@1*@1*@2*@2 / @0", gammaH, ghg4, {g})'.format(g=g))
                 self.modelBuilder.doVar('expr::ttHVV_kappa2_{g}2("@1*@1*@2*@2 / @0", gammaH, kappa, {g})'.format(g=g))
                 self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g}2("@1*@1*@2*@2 / @0", gammaH, kappa_tilde, {g})'.format(g=g))
+            else:
+                self.modelBuilder.doVar('expr::ggHVV_{g}2("@1*@1*@2*@2 / @0", gammaH, ghg2, {g})'.format(g=g))
+                self.modelBuilder.doVar('expr::ttHVV_{g}2("@1*@1*@2*@2 / @0", gammaH, kappa, {g})'.format(g=g))
             self.modelBuilder.doVar('expr::VVHVV_{g}4("@1*@1*@1*@1 / @0", gammaH, {g})'.format(g=g))
 
         kwargs = {}
@@ -922,13 +938,16 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
                 print kwargs
 
                 if self.separateggHttH:
-                    self.modelBuilder.doVar('expr::ggHVV_{g1}1{g2}1_{signname}("{sign}@1*@2 / @0", gammaH, {g1}, {g2})'.format(**kwargs))
-                    self.modelBuilder.doVar('expr::ttHVV_{g1}1{g2}1_{signname}("{sign}@1*@2 / @0", gammaH, {g1}, {g2})'.format(**kwargs))
                     if self.useHffanomalous:
+                        self.modelBuilder.doVar('expr::ggHVV_{g1}1{g2}1_{signname}("{sign}(@1*@1+@2*@2) * @3*@4 / @0", gammaH, ghg2, ghg4, {g1}, {g2})'.format(**kwargs))
+                        self.modelBuilder.doVar('expr::ttHVV_{g1}1{g2}1_{signname}("{sign}(@1*@1+@5*@2*@2) * @3*@4 / @0", gammaH, kappa, kappa_tilde, {g1}, {g2}, alpha)'.format(**kwargs))
                         self.modelBuilder.doVar('expr::ggHVV_ghg22_{g1}1{g2}1_{signname}("{sign}@1*@1*@2*@3 / @0", gammaH, ghg2, {g1}, {g2})'.format(**kwargs))
                         self.modelBuilder.doVar('expr::ggHVV_ghg42_{g1}1{g2}1_{signname}("{sign}@1*@1*@2*@3 / @0", gammaH, ghg4, {g1}, {g2})'.format(**kwargs))
                         self.modelBuilder.doVar('expr::ttHVV_kappa2_{g1}1{g2}1_{signname}("{sign}@1*@1*@2*@3 / @0", gammaH, kappa, {g1}, {g2})'.format(**kwargs))
                         self.modelBuilder.doVar('expr::ttHVV_kappatilde2_{g1}1{g2}1_{signname}("{sign}@1*@1*@2*@3 / @0", gammaH, kappa_tilde, {g1}, {g2})'.format(**kwargs))
+                    else:
+                        self.modelBuilder.doVar('expr::ggHVV_{g1}1{g2}1_{signname}("{sign}@1*@1*@2*@3 / @0", gammaH, ghg2, {g1}, {g2})'.format(**kwargs))
+                        self.modelBuilder.doVar('expr::ttHVV_{g1}1{g2}1_{signname}("{sign}@1*@1*@2*@3 / @0", gammaH, kappa, {g1}, {g2})'.format(**kwargs))
                 else:
                     self.modelBuilder.doVar('expr::ggHVV_{g1}1{g2}1_{signname}("{sign}@1*@2 / @0", gammaH, {g1}, {g2})'.format(**kwargs))
                     self.modelBuilder.doVar('expr::ttHVV_{g1}1{g2}1_{signname}("{sign}@1*@2 / @0", gammaH, {g1}, {g2})'.format(**kwargs))
