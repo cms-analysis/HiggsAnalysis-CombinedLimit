@@ -602,10 +602,20 @@ class HZZAnomalousCouplingsFromHistogramsBase(SpinZeroHiggsBase):
         return result
 
 class HZZAnomalousCouplingsFromHistograms(HZZAnomalousCouplingsFromHistogramsBase, MultiSignalSpinZeroHiggs):
+
+    '''
     aidecay = {
       "g2": 1.65684,
       "g4": 2.55052,
       "g1prime2": -12100.42,
+      "ghzgs1prime2": -7613.351302119843,
+    }
+    '''
+
+    aidecay = {
+      "g2": 0.394465808268,
+      "g4": 2.55052,
+      "g1prime2": -4363.84210717,
       "ghzgs1prime2": -7613.351302119843,
     }
 
@@ -885,16 +895,17 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
         
 
         #define expressions        
-        zz_expr      = '"@0*@0/4 + 0.1695*@3*@3 + 0.09076*@1*@1 + 0.03809*@2*@2 + 0.8095*@0*@3/2. + 0.5046*@0*@1/2. + 0.2092*@1*@3 + 0.1023*@4*@4 + 0.1903*@0*@4/2. + 0.07429*@3*@4 + 0.04710*@1*@4 ",g1,g2,g4,g1prime2,EFT_L1Zg' 
+        zz_expr      = '"@0*@0/4 + 0.1695*@3*@3 + 0.09076*@1*@1 + 0.03809*@2*@2 + 0.8095*@0*@3/2. + 0.5046*@0*@1/2. + 0.2092*@1*@3 + 0.1023*@4*@4 + 0.1901*@0*@4/2. + 0.07429*@3*@4 + 0.04710*@1*@4 ",g1,g2,g4,g1prime2,EFT_L1Zg' 
         ww_expr      = '"@0*@0/4 + 0.1320*@3*@3 + 0.1944*@1*@1 + 0.08075*@2*@2 + 0.7204*@0*@3/2. + 0.7437*@0*@1/2 + 0.2774*@3*@1 ",EFT_g1WW,EFT_g2WW,EFT_g4WW,EFT_L1WW'
         
-        zgamma_expr  = '"1.1194*@0*@0/4. +0.0035*@1*@1 -  0.1260*@0*@1/2. + 0.000004*@1*@1 - 0.00019*@1*@1 + 0.0034*@0*@1/2 +0.0082*@2*@2 + 0.0000005*@2*@2 -0.00047*@2*@2",EFT_g1WW,kappa,kappa_tilde'
-        gg_expr      = '"1.1070*@0*@0 + 0.0082*@0*@0 - 0.1151*@0*@0 + 2.5713*@1*@1 + 0.0091*@1*@1 - 0.1991*@1*@1",kappa,kappa_tilde'    
+        zgamma_expr  = '"1.1183*@0*@0/4. +0.0035*@1*@1 -  0.1250*@0*@1/2. + 0.000003*@1*@1 - 0.00018*@1*@1 + 0.0031*@0*@1/2 +0.00126*@2*@2 + 0.000005*@2*@2 -0.00047*@2*@2",EFT_g1WW,kappa,kappa_tilde'
+        gg_expr      = '"1.1068*@0*@0 + 0.0082*@0*@0 - 0.1150*@0*@0 + 2.5717*@1*@1 + 0.0091*@1*@1 - 0.1982*@1*@1",kappa,kappa_tilde'    
+
         bb_expr      = '"(@0*@0 + @1*@1)",kappa,kappa_tilde'
         cc_expr      = '"(@0*@0 + @1*@1)",kappa,kappa_tilde'
         tautau_expr  = '"(@0*@0 + @1*@1)",kappa,kappa_tilde'
         mumu_expr    = '"(@0*@0 + @1*@1)",kappa,kappa_tilde'
-        gmgm_expr    = '"1.6045*@0*@0/4. + 0.0704*@1*@1 - 0.6820*@0*@1/2. + 0.0001*@1*@1 - 0.0019*@1*@1 + 0.00945*@0*@1/2. + 0.1643*@2*@2 + 0.0001*@2*@2 - 0.0033*@2*@2",EFT_g1WW,kappa,kappa_tilde'
+        gmgm_expr    = '"1.6054*@0*@0/4. + 0.07312*@1*@1 - 0.6854*@0*@1/2. + 0.00002*@1*@1 - 0.0018*@1*@1 + 0.0085*@0*@1/2. + 0.1699*@2*@2 + 0.00002*@2*@2 - 0.0031*@2*@2",EFT_g1WW,kappa,kappa_tilde'
         
         self.modelBuilder.doVar('expr::R_WW('+str(ww_expr)+')')
         self.modelBuilder.doVar('expr::R_ZZ('+str(zz_expr)+')')
@@ -909,7 +920,7 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
         if self.fixgamma :
             self.modelBuilder.doVar('expr::gammaH("1",)')
         else :     
-            self.modelBuilder.doVar('expr::gammaH("(0.5824*@0 + 0.2137*@1 + 0.08187*@2 + 0.06272*@3 + 0.02891*@4 + 0.02619*@5 + 0.0002176*@6 +  0.001533*@7 + 0.0002176*@8 )/0.9998",R_bb,R_WW,R_gg,R_tautau,R_cc,R_ZZ,R_gammagamma,R_Zgamma,R_mumu)')
+            self.modelBuilder.doVar('expr::gammaH("(0.5824*@0 + 0.2137*@1 + 0.08187*@2 + 0.06272*@3 + 0.02891*@4 + 0.02619*@5 + 0.002270*@6 +  0.001533*@7 + 0.0002176*@8 )/0.9998",R_bb,R_WW,R_gg,R_tautau,R_cc,R_ZZ,R_gammagamma,R_Zgamma,R_mumu)')
 
 
         
