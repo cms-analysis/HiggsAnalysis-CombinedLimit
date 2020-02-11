@@ -34,6 +34,8 @@ parser.add_option("-p", "--poi",      dest="poi",    default="r",    type="strin
 parser.add_option("-f", "--format",   dest="format", default="text", type="string",  help="Output format ('text', 'latex', 'twiki'")
 parser.add_option("-g", "--histogram", dest="plotfile", default=None, type="string", help="If true, plot the pulls of the nuisances to the given file.")
 parser.add_option("", "--pullDef",  dest="pullDef", default="", type="string", help="Choose the definition of the pull, see python/calculate_pulls.py for options")
+parser.add_option("", "--skipFitS", dest="skipFitS", default=False, action='store_true', help="skip the S+B fit, instead the B-only fit will be repeated")
+parser.add_option("", "--skipFitB", dest="skipFitB", default=False, action='store_true', help="skip the B-only fit, instead the S+B fit will be repeated")
 
 (options, args) = parser.parse_args()
 if len(args) == 0:
@@ -52,8 +54,8 @@ setUpString = "diffNuisances run on %s, at %s with the following options ... "%(
 
 file = ROOT.TFile(args[0])
 if file == None: raise RuntimeError, "Cannot open file %s" % args[0]
-fit_s  = file.Get("fit_s")
-fit_b  = file.Get("fit_b")
+fit_s  = file.Get("fit_s") if not options.skipFitS  else file.Get("fit_b")
+fit_b  = file.Get("fit_b") if not options.skipFitB  else file.Get("fit_s")
 prefit = file.Get("nuisances_prefit")
 if fit_s == None or fit_s.ClassName()   != "RooFitResult": raise RuntimeError, "File %s does not contain the output of the signal fit 'fit_s'"     % args[0]
 if fit_b == None or fit_b.ClassName()   != "RooFitResult": raise RuntimeError, "File %s does not contain the output of the background fit 'fit_b'" % args[0]
@@ -248,6 +250,8 @@ highlight = "*%s*"
 morelight = "!%s!"
 pmsub, sigsub = None, None
 if options.format == 'text':
+    if options.skipFitS: print " option '--skipFitS' set true. s+b Fit is just a copy of the b-only fit"
+    if options.skipFitB: print " option '--skipFitB' set true. b-only Fit is just a copy of the s+b fit"
     if options.pullDef:
         fmtstring = "%-40s       %30s    %30s  %10s"
         print fmtstring % ('name',  'b-only fit pull', 's+b fit pull', 'rho')
@@ -261,6 +265,8 @@ elif options.format == 'latex':
     sigsub = ("sig", r"$\\sigma$")
     highlight = "\\textbf{%s}"
     morelight = "{{\\color{red}\\textbf{%s}}}"
+    if options.skipFitS: print " option '--skipFitS' set true. $s+b$ Fit is just a copy of the $b$-only fit"
+    if options.skipFitB: print " option '--skipFitB' set true. $b$-only Fit is just a copy of the $s+b$ fit"
     if options.pullDef:
         fmtstring = "%-40s & %30s & %30s & %6s \\\\"
         print "\\begin{tabular}{|l|r|r|r|} \\hline ";
@@ -281,6 +287,8 @@ elif options.format == 'twiki':
     sigsub = ("sig", r"&sigma;")
     highlight = "<b>%s</b>"
     morelight = "<b style='color:red;'>%s</b>"
+    if options.skipFitS: print " option '--skipFitS' set true. $s+b$ Fit is just a copy of the $b$-only fit"
+    if options.skipFitB: print " option '--skipFitB' set true. $b$-only Fit is just a copy of the $s+b$ fit"
     if options.pullDef:
         fmtstring = "| <verbatim>%-40s</verbatim>  | %-30s  | %-30s   | %-15s  |"
         print "| *name* | *b-only fit pull* | *s+b fit pull* | "
@@ -377,8 +385,8 @@ if options.plotfile:
     hist_prefit.SetMinimum(-3)
     hist_prefit.Draw("E2")
     hist_prefit.Draw("histsame")
-    gr_fit_b.Draw("EPsame")
-    gr_fit_s.Draw("EPsame")
+    if not options.skipFitB: gr_fit_b.Draw("EPsame")
+    if not options.skipFitS: gr_fit_s.Draw("EPsame")
     canvas_nuis.SetGridx()
     canvas_nuis.RedrawAxis()
     canvas_nuis.RedrawAxis('g')
@@ -386,8 +394,8 @@ if options.plotfile:
     leg.SetFillColor(0)
     leg.SetTextFont(42)
     leg.AddEntry(hist_prefit,"Prefit","FL")
-    leg.AddEntry(gr_fit_b,"B-only fit","EPL")
-    leg.AddEntry(gr_fit_s,"S+B fit"   ,"EPL")
+    if not options.skipFitB:leg.AddEntry(gr_fit_b,"B-only fit","EPL")
+    if not options.skipFitS:leg.AddEntry(gr_fit_s,"S+B fit"   ,"EPL")
     leg.Draw()
     fout.WriteTObject(canvas_nuis)
     canvas_pferrs = ROOT.TCanvas("post_fit_errs", "post_fit_errs", 900, 600)
