@@ -896,7 +896,7 @@ class HZZAnomalousCouplingsFromHistogramsAi(HZZAnomalousCouplingsFromHistogramsB
         self.modelBuilder.doVar('expr::EFT_g2WW("@0*@0*@1",cosW,g2)')
         self.modelBuilder.doVar('expr::EFT_g4WW("@0*@0*@1",cosW,g4)')
         
-        self.modelBuilder.doVar('expr::EFT_L1WW("@2 / (@0*@0 - @1*@1) - 2*@1*@1*@3*@4*@4*1e-4 / (@0*@0 - @1*@1)",cosW,sinW,g1prime2,g2,Lambda1)')
+        self.modelBuilder.doVar('expr::EFT_L1WW("@2 / (@0*@0 - @1*@1) - 2*@1*@1*@3*@4*@4*1e-4 / ((@5*@5)*(@0*@0 - @1*@1))",cosW,sinW,g1prime2,g2,Lambda1,mZ)')
         self.modelBuilder.doVar('expr::EFT_L1Zg_L1("2*@0*@1*@2/(@0*@0 - @1*@1)",cosW,sinW,g1prime2)')
         self.modelBuilder.doVar('expr::EFT_L1Zg_g2("-2*@0*@1*@3*@4*@4*1e-4/((@2*@2)*(@0*@0 - @1*@1))",cosW,sinW,mZ,g2,Lambda1)')
         self.modelBuilder.doVar('expr::EFT_L1Zg("@0 + @1",EFT_L1Zg_L1,EFT_L1Zg_g2)')
