@@ -277,6 +277,10 @@ class CombineHarvester {
   void ZeroBins(double min, double max);
   void SetPdfBins(unsigned nbins);
 
+  // 
+  double getParFromWs(const std::string name);
+  void setParInWs(const std::string name,double value) ;
+
   /**
    * Add parameters to a given group
    *
