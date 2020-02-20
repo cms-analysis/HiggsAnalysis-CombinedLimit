@@ -347,6 +347,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         w->import(*optpdf);
         mc->SetPdf(*optpdf);
     }
+    if (expectSignalSet_ && POI->getSize() > 1 ) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest and you have set --expectSignal=" << expectSignal_ << ", which combine will likely interpret incorrectly. You should use --setParameters instead of --expectSignal." << std::endl;
     if (mc_bonly == 0 && !noMCbonly_) {
         std::cerr << "Missing background ModelConfig '" << modelConfigNameB_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
         RooCustomizer make_model_s(*mc->GetPdf(),"_model_bonly_");
@@ -864,7 +865,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   RooRealVar *MH = w->var("MH");
   RooAbsData *dobs = w->data(dataset.c_str());
   // Generate with signal model if r or other physics model parameters are defined
-  RooAbsPdf  *genPdf = (expectSignal_ > 0 || setPhysicsModelParameterExpression_ != "" || !mc_bonly) ? mc->GetPdf() : (mc_bonly ? mc_bonly->GetPdf() : 0); 
+  RooAbsPdf  *genPdf = (expectSignalSet_ || setPhysicsModelParameterExpression_ != "" || !mc_bonly) ? mc->GetPdf() : (mc_bonly ? mc_bonly->GetPdf() : 0); 
   RooRealVar *weightVar_ = 0; // will be needed for toy generation in some cases
   if (guessGenMode_ && genPdf && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
@@ -919,7 +920,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     CMSHistFunc::EnableFastVertical();
   }
 
-
+  // Warn the user that they might be using funky values of POIs 
+  if (!expectSignalSet_ && setPhysicsModelParameterExpression_ == "") { 
+	  std::cerr << "Warning! -- You haven't picked default values for the Parameters of Interest (either with --expectSignal or --setParameters) for generating toys. Combine will use the 'B-only' ModelConfig to generate, which may lead to undesired behaviour if not using the default Physics Model" << std::endl;	  
+  }	
   // Ok now we're ready to go lets save a "clean snapshot" for the current parameters state
   // w->allVars() misses the RooCategories, useful for some things - so need to include them. Set up a utils function for that 
   if (nToys <= 0 && runtimedef::get("NO_INITIAL_SNAP")) {
