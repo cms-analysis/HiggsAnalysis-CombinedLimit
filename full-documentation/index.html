@@ -36,15 +36,6 @@
             <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
         <![endif]-->
 
-    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script>
-    WebFont.load({
-        google: {
-            families: ['Open Sans', 'PT Sans']
-        }
-    });
-    </script>
-
     
 
      
@@ -245,9 +236,9 @@ The option <strong><code>--proposal</code></strong> controls the way new points 
 <h4 id="hybridnew-algorithm">HybridNew algorithm</h4>
 <p><strong>Type of limit</strong>
 By default, HybridNew computes hybrid bayesian-frequentist limits. If one specifies the command line option <strong><code>--freqentist</code></strong> then it will instead compute the fully frequentist limits.</p>
-<p><strong>Rule</strong> (option <strong><code>--rule</code></strong>)
+<p><strong>Rule*<em> (option <strong><code>--rule</code></strong>)
 The rule defines how the distribution of the test statistics is used to compute a limit. When using the <em>CL&lt;sub&gt;s+b&lt;/sub&gt;</em> rule the limit to the value of the signal strength for which 95% of the pseudo-experiments give a result more signal-like than the current one, &lt;nobr&gt;<em>P(x &lt; x&lt;sub&gt;obs&lt;/sub&gt;|r*s+b) = 1 - CL</em>&lt;/nobr&gt;. For the more conservative <em>CL&lt;sub&gt;s&lt;/sub&gt;</em> rule, the limit is set by the condition &lt;nobr&gt;<em>P(x &lt; x&lt;sub&gt;obs&lt;/sub&gt;|r*s+b) /P(x &lt; x&lt;sub&gt;obs&lt;/sub&gt;|b) = 1 - CL</em>&lt;/nobr&gt; .
-<strong>The default rule is *CL&lt;sub&gt;s&lt;/sub&gt;</strong>*.</p>
+*<em>The default rule is </em>CL&lt;sub&gt;s&lt;/sub&gt;</em></strong>.</p>
 <p><strong>Test statistics</strong> (option <strong><code>--testStat</code></strong>)
 The <strong>test statistics</strong> is the measure of how signal-like or background-like is an observation. The following test statistics are provided:</p>
 <ul>
@@ -464,7 +455,8 @@ The other options, that you can get executing the program with <strong><code>--h
         
         <hr>
         <p>
-        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
 
         
         

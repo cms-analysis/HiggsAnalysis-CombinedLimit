@@ -36,15 +36,6 @@
             <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
         <![endif]-->
 
-    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script>
-    WebFont.load({
-        google: {
-            families: ['Open Sans', 'PT Sans']
-        }
-    });
-    </script>
-
     
 
      
@@ -407,7 +398,7 @@ Then for a simple example for two channels "e", "mu" with three processes "higgs
 <p>In some cases, it can be convenient to describe the expected signal and background shapes in terms of analytical functions rather than templates; a typical example are the searches where the signal is apparent as a narrow peak over a smooth continuum background. In this context, uncertainties affecting the shapes of the signal and backgrounds can be implemented naturally as uncertainties on the parameters of those analytical functions. It is also possible to adapt an agnostic approach in which the parameters of the background model are left freely floating in the fit to the data, i.e. only requiring the background to be well described by a smooth function.</p>
 <p>Technically, this is implemented by means of the RooFit package, that allows writing generic probability density functions, and saving them into ROOT files. The pdfs can be either taken from RooFit's standard library of functions (e.g. Gaussians, polynomials, ...) or hand-coded in C++, and combined together to form even more complex shapes.</p>
 <p>In the datacard using templates, the column after the file name would have been the name of the histogram. For the parametric analysis we need two names to identify the mapping, separated by a colon (<strong><code>:</code></strong>).</p>
-<p><strong>shapes process channel shapes.root *workspace_name:pdf_name</strong>*</p>
+<p><strong>shapes process channel shapes.root <em>workspace_name:pdf_name</em></strong></p>
 <p>The first part identifies the name of the input <a href="http://root.cern.ch/root/htmldoc/RooWorkspace.html">RooWorkspace</a> containing the pdf, and the second part the name of the <a href="http://root.cern.ch/root/htmldoc/RooAbsPdf.html">RooAbsPdf</a> inside it (or, for the observed data, the <a href="http://root.cern.ch/root/htmldoc/RooAbsData.html">RooAbsData</a>). There can be multiple input workspaces, just as there can be multiple input root files. You can use any of the usual RooFit pre-defined pdfs for your signal and background models.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -757,7 +748,8 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
         
         <hr>
         <p>
-        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
 
         
         

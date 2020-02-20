@@ -36,15 +36,6 @@
             <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
         <![endif]-->
 
-    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script>
-    WebFont.load({
-        google: {
-            families: ['Open Sans', 'PT Sans']
-        }
-    });
-    </script>
-
     
 
      
@@ -861,10 +852,10 @@ fit_nominal-&gt;floatParsFinal().selectByName(&quot;r&quot;)-&gt;Print(&quot;v&q
 <p><strong>none</strong> (default):  Perform a maximum likelihood fit <code>combine -M MultiDimFit toy-hgg-125.root</code>; The output root tree will contain two columns, one for each parameter, with the fitted values.</p>
 </li>
 <li>
-<p><strong>singles</strong>: Perform a fit of each parameter separately, treating the others as <em>unconstrained nuisances</em>: <code>combine -M MultiDimFit toy-hgg-125.root --algo singles --cl=0.68</code> . The output root tree will contain two columns, one for each parameter, with the fitted values; there will be one row with the best fit point (and <strong>quantileExpected</strong> set to -1) and two rows for each fitted parameter, where the corresponding column will contain the maximum and minimum of that parameter in the 68% CL interval, according to a <em>one-dimensional chisquare</em> (i.e. uncertainties on each fitted parameter <strong><em>do not</em></strong> increase when adding other parameters if they're uncorrelated). Note that if you run, for example, with <code>--cminDefaultMinimizerStrategy=0</code>, these uncertainties will be derived from the Hessian, while <code>--cminDefaultMinimizerStrategy=1</code> will invoke Minos to derive them.</p>
+<p><strong>singles*<em>: Perform a fit of each parameter separately, treating the others as <em>unconstrained nuisances</em>: <code>combine -M MultiDimFit toy-hgg-125.root --algo singles --cl=0.68</code> . The output root tree will contain two columns, one for each parameter, with the fitted values; there will be one row with the best fit point (and <strong>quantileExpected</strong> set to -1) and two rows for each fitted parameter, where the corresponding column will contain the maximum and minimum of that parameter in the 68% CL interval, according to a <em>one-dimensional chisquare</em> (i.e. uncertainties on each fitted parameter </em></strong>do not*** increase when adding other parameters if they're uncorrelated). Note that if you run, for example, with <code>--cminDefaultMinimizerStrategy=0</code>, these uncertainties will be derived from the Hessian, while <code>--cminDefaultMinimizerStrategy=1</code> will invoke Minos to derive them.</p>
 </li>
 <li>
-<p><strong>cross</strong>:  Perform joint fit of all parameters: <code>combine -M MultiDimFit toy-hgg-125.root --algo=cross --cl=0.68</code>. The output root tree will have one row with the best fit point, and two rows for each parameter, corresponding to the minimum and maximum of that parameter on the likelihood contour corresponding to the specified CL, according to a <em>N-dimensional chisquare</em> (i.e. uncertainties on each fitted parameter <strong><em>do</em></strong> increase when adding other parameters, even if they're uncorrelated). Note that the output of this way of running <strong>are not</strong> 1D uncertainties on each parameter, and shouldn't be taken as such.</p>
+<p><strong>cross*<em>:  Perform joint fit of all parameters: <code>combine -M MultiDimFit toy-hgg-125.root --algo=cross --cl=0.68</code>. The output root tree will have one row with the best fit point, and two rows for each parameter, corresponding to the minimum and maximum of that parameter on the likelihood contour corresponding to the specified CL, according to a <em>N-dimensional chisquare</em> (i.e. uncertainties on each fitted parameter </em></strong>do<strong><em> increase when adding other parameters, even if they're uncorrelated). Note that the output of this way of running </em>*are not</strong> 1D uncertainties on each parameter, and shouldn't be taken as such.</p>
 </li>
 <li>
 <p><strong>contour2d</strong>: Make a 68% CL contour a la minos <code>combine -M MultiDimFit toy-hgg-125.root --algo contour2d --points=20 --cl=0.68</code>. The output will contain values corresponding to the best fit point (with <strong>quantileExpected</strong> set to -1) and for a set of points on the contour (with <strong>quantileExpected</strong> set to 1-CL, or something larger than that if the contour is hitting the boundary of the parameters). Probabilities are computed from the the n-dimensional <span><span class="MathJax_Preview">\chi^{2}</span><script type="math/tex">\chi^{2}</script></span> distribution. For slow models, you can split it up by running several times with <em>different</em> number of points and merge the outputs (something better can be implemented). You can look at the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/contourPlot.cxx">contourPlot.cxx</a> macro for how to make plots out of this algorithm.</p>
@@ -1053,7 +1044,8 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
         
         <hr>
         <p>
-        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
 
         
         

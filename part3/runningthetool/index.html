@@ -36,15 +36,6 @@
             <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
         <![endif]-->
 
-    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script>
-    WebFont.load({
-        google: {
-            families: ['Open Sans', 'PT Sans']
-        }
-    });
-    </script>
-
     
 
      
@@ -281,7 +272,7 @@
 <li>
 <p><code>--trackParameters name1[,name2,...]</code> will add a branch to the output tree for each of the named parameters. This option supports the use of regexp via by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
 <ul>
-<li>the name of the branch will be <strong>trackedParam_*name</strong>*.</li>
+<li>the name of the branch will be <strong>trackedParam_<em>name</em></strong>.</li>
 <li>the exact behaviour depends on the method. For example, when using <code>MultiDimFit</code> with the <code>--algo scan</code>, the value of the parameter at each point in the scan will be saved while for <code>FitDiagnostics</code>, only the value at the end of the method will be saved.</li>
 </ul>
 </li>
@@ -575,7 +566,8 @@ $ cd ../../
         
         <hr>
         <p>
-        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
 
         
         
