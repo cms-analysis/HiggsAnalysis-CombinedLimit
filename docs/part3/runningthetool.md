@@ -212,7 +212,7 @@ Here are a few examples of calculations with toys from post-fit workspaces using
 
 ## combineTool for job submission
 
-For longer tasks which cannot be run locally, several methods in combine can be split to run on the *LSF batch* or the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](HiggsAnalysis-CombinedLimit/#combine-tool) section to get the tool)
+For longer tasks which cannot be run locally, several methods in combine can be split to run on the *LSF batch* or the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](/#combine-tool) section to get the tool)
 
 
 ### Submission to the LSF Batch
