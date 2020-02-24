@@ -197,7 +197,7 @@ It is also possible to generate the toys first and then feed them to the Methods
 
 Snapshots from workspaces can be loaded and used in order to generate toys using the option `--snapshotName <name of snapshot>`. This will first set the parameters to the values in the snapshot *before* any other parameter options are set and toys are generated.
 
-See the section on [saving post-fit workspaces](/part3/commonstatsmethods#using-best-fit-snapshots) for creating workspaces with post-fit snapshots from `MultiDimFit`.
+See the section on [saving post-fit workspaces](/part3/commonstatsmethods/#using-best-fit-snapshots) for creating workspaces with post-fit snapshots from `MultiDimFit`.
 
 Here are a few examples of calculations with toys from post-fit workspaces using a workspace with $r, m_{H}$ as parameters of interest
 
