@@ -457,7 +457,7 @@
 </div>
 <h4 id="loading-snapshots">Loading snapshots</h4>
 <p>Snapshots from workspaces can be loaded and used in order to generate toys using the option <code>--snapshotName &lt;name of snapshot&gt;</code>. This will first set the parameters to the values in the snapshot <em>before</em> any other parameter options are set and toys are generated.</p>
-<p>See the section on <a href="/part3/commonstatsmethods/#using-best-fit-snapshots">saving post-fit workspaces</a> for creating workspaces with post-fit snapshots from <code>MultiDimFit</code>.</p>
+<p>See the section on <a href="/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#using-best-fit-snapshots">saving post-fit workspaces</a> for creating workspaces with post-fit snapshots from <code>MultiDimFit</code>.</p>
 <p>Here are a few examples of calculations with toys from post-fit workspaces using a workspace with <span><span class="MathJax_Preview">r, m_{H}</span><script type="math/tex">r, m_{H}</script></span> as parameters of interest</p>
 <ul>
 <li>
@@ -474,7 +474,7 @@
 </li>
 </ul>
 <h2 id="combinetool-for-job-submission">combineTool for job submission</h2>
-<p>For longer tasks which cannot be run locally, several methods in combine can be split to run on the <em>LSF batch</em> or the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool</code> (see <a href="/part1/README#combine-tool">this getting started</a> section to get the tool)</p>
+<p>For longer tasks which cannot be run locally, several methods in combine can be split to run on the <em>LSF batch</em> or the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool</code> (see <a href="HiggsAnalysis-CombinedLimit/#combine-tool">this getting started</a> section to get the tool)</p>
 <h3 id="submission-to-the-lsf-batch">Submission to the LSF Batch</h3>
 <p>The syntax for running on the batch with the tool is</p>
 <pre><code class="sh">combineTool.py -M ALGO [options] --job-mode lxbatch --sub-opts=&quot;-q QUEUE&quot; --task-name NAME [--dry-run]
