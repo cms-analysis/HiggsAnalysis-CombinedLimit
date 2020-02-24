@@ -197,7 +197,7 @@ It is also possible to generate the toys first and then feed them to the Methods
 
 Snapshots from workspaces can be loaded and used in order to generate toys using the option `--snapshotName <name of snapshot>`. This will first set the parameters to the values in the snapshot *before* any other parameter options are set and toys are generated.
 
-See the section on [saving post-fit workspaces](/part3/commonstatsmethods/#using-best-fit-snapshots) for creating workspaces with post-fit snapshots from `MultiDimFit`.
+See the section on [saving post-fit workspaces](/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#using-best-fit-snapshots) for creating workspaces with post-fit snapshots from `MultiDimFit`.
 
 Here are a few examples of calculations with toys from post-fit workspaces using a workspace with $r, m_{H}$ as parameters of interest
 
@@ -212,7 +212,7 @@ Here are a few examples of calculations with toys from post-fit workspaces using
 
 ## combineTool for job submission
 
-For longer tasks which cannot be run locally, several methods in combine can be split to run on the *LSF batch* or the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](/part1/README#combine-tool) section to get the tool)
+For longer tasks which cannot be run locally, several methods in combine can be split to run on the *LSF batch* or the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](HiggsAnalysis-CombinedLimit/#combine-tool) section to get the tool)
 
 
 ### Submission to the LSF Batch
