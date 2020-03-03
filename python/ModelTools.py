@@ -137,7 +137,21 @@ class ModelBuilder(ModelBuilderBase):
                 self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
                 print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
 
+    
+    def getRenamingParameters(self):
 
+        toFreeze = []
+	renameParamString = [] 
+	paramString       = []
+      	for n in self.DC.systematicsParamMap.keys():
+	  paramString.append(n)
+	  renameParamString.append(self.DC.systematicsParamMap[n])
+	  if n!=self.DC.systematicsParamMap[n]: toFreeze.append(n)
+	if len(renameParamString): 
+	  renameParamString=",".join(renameParamString)
+	  paramString=",".join(paramString)
+
+       
     def runPostProcesses(self):
       for n in self.DC.frozenNuisances:
          self.out.arg(n).setConstant(True)
@@ -641,7 +655,11 @@ class ModelBuilder(ModelBuilderBase):
 		    	elif self.out.var(factorName): procNorm.addOtherFactor(self.out.var(factorName))
 		    	elif self.out.arg(factorName): raise RuntimeError("Factor %s for process %s, bin %s is a %s (not supported)" % (factorName, p, b, self.out.arg(factorName).ClassName()))
 		    	else: raise RuntimeError("Cannot add non-existant factor %s for process %s, bin %s" % (factorName, p, b))
-                    self.out._import(procNorm)
+	
+		    # take care of any variables which were renamed (eg for "param")
+		    paramString,renameParamString,toFreeze = getRenamingParameters()
+		    if len(renameParamString): self.out._import(procNorm, ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.RenameVariable(paramString,renameParamString))
+                    else: self.out._import(procNorm)
     def doIndividualModels(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"

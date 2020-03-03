@@ -280,16 +280,12 @@ class ShapeBuilder(ModelBuilder):
                     stderr.write("Importing combined pdf %s\n" % simPdf.GetName()); stderr.flush()
 
 		# take care of any variables which were renamed (eg for "param")
-		renameParamString = [] 
-		paramString       = []
-      		for n in self.DC.systematicsParamMap.keys():
-		  paramString.append(n)
-		  renameParamString.append(self.DC.systematicsParamMap[n])
+		paramString,renameParamString,toFreeze = getRenamingParameters()
 		if len(renameParamString): 
-		  renameParamString=",".join(renameParamString)
-		  paramString=",".join(paramString)
                   self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.RenameVariable(paramString,renameParamString))
                 else: self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes())
+		for pfreeze in toFreeze:
+		  if self.out.var(pfreeze) : self.out.var(pfreeze).setConstant(True)
                 if self.options.noBOnly: break
         else:
             self.out._import(self.getObj("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
@@ -537,7 +533,11 @@ class ShapeBuilder(ModelBuilder):
                         norm = self.optimizeMHDependency(norm,self.wsp)
                     norm.SetName("shape%s_%s_%s%s_norm" % (postFix,process,channel, "_"))
 		    self.norm_rename_map[normname]=norm.GetName()
-                    self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
+
+		    # take care of any variables which were renamed (eg for "param")
+		    paramString,renameParamString,toFreeze = getRenamingParameters()
+		    if len(renameParamString):   self.out._import(norm, ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.RenameVariable(paramString,renameParamString))
+                    else : self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
                 if self.options.verbose > 2: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
                 return ret;
             elif self.wsp.ClassName() == "TTree":
