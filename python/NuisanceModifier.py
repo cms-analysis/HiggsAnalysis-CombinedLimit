@@ -136,7 +136,7 @@ def doRenameNuisance(datacard, args):
 	  break
       if nuisanceID: 
       	datacard.systs[nuisanceID][0]=newname 
-	datacard.systematicsParamMap[newname]=oldname
+	datacard.systematicsParamMap[oldname]=newname
       else: raise RuntimeError, "No nuisance parameter found with name %s"%oldname 
       return
 

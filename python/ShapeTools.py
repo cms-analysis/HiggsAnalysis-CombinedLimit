@@ -283,8 +283,8 @@ class ShapeBuilder(ModelBuilder):
 		renameParamString = [] 
 		paramString       = []
       		for n in self.DC.systematicsParamMap.keys():
-		  paramString.append(self.DC.systematicsParamMap[n])
-		  renameParamString.append(n)
+		  paramString.append(n)
+		  renameParamString.append(self.DC.systematicsParamMap[n])
 		if len(renameParamString): 
 		  renameParamString=",".join(renameParamString)
 		  paramString=",".join(paramString)
