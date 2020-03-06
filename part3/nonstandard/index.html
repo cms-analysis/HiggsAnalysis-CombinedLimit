@@ -622,6 +622,17 @@ h-&gt;Fit(&quot;gaus&quot;)
 <p>The above output will produce the following scans.<br />
 <img alt="" src="../images/discrete_profile.png" /></p>
 <p>As expected, the curve obtained by allowing the <code>pdf_index</code> to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. </p>
+<p>In general, you can improve the performance of combine, when using the disccrete profiling method, by including the following options <code>--X-rtd MINIMIZER_freezeDisassociatedParams</code>, which will stop parameters not associated to the current pdf from floating in the fits. Additionaly, you can also include the following </p>
+<ul>
+<li><code>--X-rtd MINIMIZER_multiMin_hideConstants</code>: hide the constant terms in the likelihood when recreating the minimizer</li>
+<li><code>--X-rtd MINIMIZER_multiMin_maskConstraints</code>: hide the constraint terms during the discrete minimization process</li>
+<li><code>--X-rtd MINIMIZER_multiMin_maskChannels=&lt;choice&gt;</code> mask in the NLL the channels that are not needed:<ul>
+<li><code>&lt;choice&gt; 1</code>: keeps unmasked all channels that are participating in the discrete minimization.</li>
+<li><code>&lt;choice&gt; 2</code>: keeps unmasked only the channel whose index is being scanned at the moment.</li>
+</ul>
+</li>
+</ul>
+<p>You may want to check with the combine dev team if using these options as they are somewhat for <em>expert</em> use. </p>
 <h2 id="roosplinend-multidimensional-splines">RooSplineND multidimensional splines</h2>
 <p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooSplineND.h">RooSplineND</a> can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. </p>
 <p>The following script is an example of its use which produces a 2D spline from a set of points generated from a function. </p>
