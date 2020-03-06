@@ -440,7 +440,7 @@ h->Fit("gaus")
 ![](images/biasexample.png) 
 
 
-From the fitted Gaussian, we see the mean is at +0.30 which would indicate a bias of ~30% of the uncertainty on mu from choosing the powerlaw when the true function is an exponential.
+From the fitted Gaussian, we see the mean is at -1.35 which would indicate a bias of 135% of the uncertainty on mu from choosing the polynomial when the true function is an exponential!
 
 ### Discrete profiling 
 
