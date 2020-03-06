@@ -319,7 +319,7 @@ Clearly the background shape is different and much less constrained *without inc
 
 Several analyses within the Higgs group use a functional form to describe their background which is fit to the data (eg the Higgs to two photons (Hgg) analysis). Often however, there is some uncertainty associated to the choice of which background function to use and this choice will impact results of a fit. It is therefore often the case that in these analyses, a Bias study is performed which will indicate how much potential bias can be present given a certain choice of functional form. These studies can be conducted using combine.
 
-Below is an example script which will produce a workspace based on a simplified Hgg analysis with a *single* category. You will need to get the file [data/tutorials/bias_studies/toyhgg_in.root](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/). 
+Below is an example script which will produce a workspace based on a simplified Hgg analysis with a *single* category. It will produce the data and pdfs necessary for this example (use it as a basis to cosntruct your own studies).
 
 
 ```c++
@@ -395,8 +395,10 @@ The bias studies are performed in two stages. The first is to generate toys usin
 !!! warning 
     It is important to freeze `pdf_index` otherwise combine will try to iterate over the index in the frequentist fit.
 
+```bash
     combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index
-    
+```
+
 Now we have 100 toys which, by setting `pdf_index=0`, sets the background pdf to the exponential function i.e assumes the exponential is the *true* function. Note that the option `--toysFrequentist` is added. This first performs a fit of the pdf, assuming a signal strength of 1, to the data before generating the toys. This is the most obvious choice as to where to throw the toys from.
 
 The next step is to fit the toys under a different background pdf hypothesis. This time we set the `pdf_index` to be 1, the powerlaw and run fits with the `FitDiagnostics` method again freezing `pdf_index`. 
@@ -404,8 +406,10 @@ The next step is to fit the toys under a different background pdf hypothesis. Th
 !!! warning  
     You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.
 
+```bash
     combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index
-    
+```
+
 In the output file `fitDiagnostics.root` there is a tree which contains the best fit results under the signal+background hypothesis. One measure of the bias is the *pull* defined as the difference between the measured value of $\mu$ and the generated value (here we used 1) relative to the uncertainty on $\mu$. The pull distribution can be drawn and the mean provides an estimate of the pull...
 
 ```c++
@@ -448,6 +452,16 @@ The above output will produce the following scans.
 ![](images/discrete_profile.png)
 
 As expected, the curve obtained by allowing the `pdf_index` to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. 
+
+In general, you can improve the performance of combine, when using the disccrete profiling method, by including the following options `--X-rtd MINIMIZER_freezeDisassociatedParams`, which will stop parameters not associated to the current pdf from floating in the fits. Additionaly, you can also include the following 
+
+   * `--X-rtd MINIMIZER_multiMin_hideConstants`: hide the constant terms in the likelihood when recreating the minimizer
+   * `--X-rtd MINIMIZER_multiMin_maskConstraints`: hide the constraint terms during the discrete minimization process
+   * `--X-rtd MINIMIZER_multiMin_maskChannels=<choice>` mask in the NLL the channels that are not needed:
+      * `<choice> 1`: keeps unmasked all channels that are participating in the discrete minimization.
+      * `<choice> 2`: keeps unmasked only the channel whose index is being scanned at the moment.
+       
+You may want to check with the combine dev team if using these options as they are somewhat for *expert* use. 
 
 ## RooSplineND multidimensional splines
 
