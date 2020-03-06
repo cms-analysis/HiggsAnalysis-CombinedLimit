@@ -325,66 +325,85 @@ Below is an example script which will produce a workspace based on a simplified 
 ```c++
 void makeRooMultiPdfWorkspace(){
 
-   // Load the combine Library 
+   // Load the combine Library
    gSystem->Load("libHiggsAnalysisCombinedLimit.so");
 
-   // Open the dummy H->gg workspace 
-   TFile *f_hgg = TFile::Open("toyhgg_in.root");
-   RooWorkspace *w_hgg = (RooWorkspace*)f_hgg->Get("multipdf");
-
-   // The observable (CMS_hgg_mass in the workspace)
-   RooRealVar *mass =  w_hgg->var("CMS_hgg_mass");
-
-   // Get three of the functions inside, exponential, linear polynomial, power law
-   RooAbsPdf *pdf_exp = w_hgg->pdf("env_pdf_1_8TeV_exp1");
-   RooAbsPdf *pdf_pol = w_hgg->pdf("env_pdf_1_8TeV_bern2");
-   RooAbsPdf *pdf_pow = w_hgg->pdf("env_pdf_1_8TeV_pow1");
+   // mass variable
+   RooRealVar mass("CMS_hgg_mass","m_{#gamma#gamma}",120,100,180);
 
 
-   // Fit the functions to the data to set the "prefit" state (note this can and should be redone with combine when doing 
-   // bias studies as one typically throws toys from the "best-fit"
-   RooDataSet *data = (RooDataSet*)w_hgg->data("roohist_data_mass_cat1_toy1_cutrange__CMS_hgg_mass");
-   pdf_exp->fitTo(*data);  // index 0
-   pdf_pow->fitTo(*data); // index 1 
-   pdf_pol->fitTo(*data);   // index 2
+   // create 3 background pdfs
+   // 1. exponential
+   RooRealVar expo_1("expo_1","slope of exponential",-0.02,-0.1,-0.0001);
+   RooExponential exponential("exponential","exponential pdf",mass,expo_1);
+
+   // 2. polynomial with 2 parameters
+   RooRealVar poly_1("poly_1","T1 of chebychev polynomial",0,-3,3);
+   RooRealVar poly_2("poly_2","T2 of chebychev polynomial",0,-3,3);
+   RooChebychev polynomial("polynomial","polynomial pdf",mass,RooArgList(poly_1,poly_2));
+
+   // 3. A power law function
+   RooRealVar pow_1("pow_1","exponent of power law",-3,-6,-0.0001);
+   RooGenericPdf powerlaw("powerlaw","TMath::Power(@0,@1)",RooArgList(mass,pow_1));
+
+   // Generate some data (lets use the power lay function for it)
+   // Here we are using unbinned data, but binning the data is also fine
+   RooDataSet *data = powerlaw.generate(mass,RooFit::NumEvents(1000));
+
+   // First we fit the pdfs to the data (gives us a sensible starting value of parameters for, e.g - blind limits)
+   exponential.fitTo(*data);   // index 0
+   polynomial.fitTo(*data);   // index 1
+   powerlaw.fitTo(*data);     // index 2
 
    // Make a plot (data is a toy dataset)
-   RooPlot *plot = mass->frame();   data->plotOn(plot);
-   pdf_exp->plotOn(plot,RooFit::LineColor(kGreen));
-   pdf_pol->plotOn(plot,RooFit::LineColor(kBlue));
-   pdf_pow->plotOn(plot,RooFit::LineColor(kRed));
+   RooPlot *plot = mass.frame();   data->plotOn(plot);
+   exponential.plotOn(plot,RooFit::LineColor(kGreen));
+   polynomial.plotOn(plot,RooFit::LineColor(kBlue));
+   powerlaw.plotOn(plot,RooFit::LineColor(kRed));
    plot->SetTitle("PDF fits to toy data");
    plot->Draw();
 
    // Make a RooCategory object. This will control which of the pdfs is "active"
    RooCategory cat("pdf_index","Index of Pdf which is active");
 
-   // Make a RooMultiPdf object. The order of the pdfs will be the order of their index, ie for below 
+   // Make a RooMultiPdf object. The order of the pdfs will be the order of their index, ie for below
    // 0 == exponential
-   // 1 == linear function
+   // 1 == polynomial
    // 2 == powerlaw
    RooArgList mypdfs;
-   mypdfs.add(*pdf_exp);
-   mypdfs.add(*pdf_pol);
-   mypdfs.add(*pdf_pow);
-   
+   mypdfs.add(exponential);
+   mypdfs.add(polynomial);
+   mypdfs.add(powerlaw);
+
    RooMultiPdf multipdf("roomultipdf","All Pdfs",cat,mypdfs);
-   
+   // By default the multipdf will tell combine to add 0.5 to the nll for each parameter (this is the penalty for the discrete profiling method)
+   // It can be changed with
+   //   multipdf.setCorrectionFactor(penalty)
+   // For bias-studies, this isn;t relevant however, so lets just leave the default
+
    // As usual make an extended term for the background with _norm for freely floating yield
-   RooRealVar norm("roomultipdf_norm","Number of background events",0,10000);
-   
+   RooRealVar norm("roomultipdf_norm","Number of background events",1000,0,10000);
+
+   // We will also produce a signal model for the bias studies
+   RooRealVar sigma("sigma","sigma",1.2); sigma.setConstant(true);
+   RooRealVar MH("MH","MH",125); MH.setConstant(true);
+   RooGaussian signal("signal","signal",mass,MH,sigma);
+
+
    // Save to a new workspace
-   TFile *fout = new TFile("background_pdfs.root","RECREATE");
-   RooWorkspace wout("backgrounds","backgrounds");
+   TFile *fout = new TFile("workspace.root","RECREATE");
+   RooWorkspace wout("workspace","workspaace");
+
+   data->SetName("data");
+   wout.import(*data);
    wout.import(cat);
    wout.import(norm);
    wout.import(multipdf);
+   wout.import(signal);
    wout.Print();
    wout.Write();
-
 }
 ```
-
 
 The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the [RooMultiPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooMultiPdf.h) object which can switch between the functions by setting its associated index (herein called **pdf_index**). This (as with all parameters in combine) is accessible via the `--setParameters` option.
 
@@ -392,29 +411,29 @@ To asses the bias, one can throw toys using one function and fit with another. A
  
 The bias studies are performed in two stages. The first is to generate toys using one of the functions under some value of the signal strength **r** (or $\mu$). This can be repeated for several values of **r** and also at different masses, but here the Higgs mass is fixed to 125 GeV. 
 
-!!! warning 
-    It is important to freeze `pdf_index` otherwise combine will try to iterate over the index in the frequentist fit.
-
 ```bash
     combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index
 ```
+!!! warning 
+    It is important to freeze `pdf_index` otherwise combine will try to iterate over the index in the frequentist fit.
 
 Now we have 100 toys which, by setting `pdf_index=0`, sets the background pdf to the exponential function i.e assumes the exponential is the *true* function. Note that the option `--toysFrequentist` is added. This first performs a fit of the pdf, assuming a signal strength of 1, to the data before generating the toys. This is the most obvious choice as to where to throw the toys from.
 
 The next step is to fit the toys under a different background pdf hypothesis. This time we set the `pdf_index` to be 1, the powerlaw and run fits with the `FitDiagnostics` method again freezing `pdf_index`. 
 
-!!! warning  
-    You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.
-
 ```bash
-    combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index
+    combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index --cminDefaultMinimizerStrategy=0
 ```
+Note how we add the option `--cminDefaultMinimizerStrategy=0`. This is because we don't need the Hessian, as `FitDiagnostics` will  run minos to get the uncertainty on `r`. If we don't do this, Minuit will think the fit failed as we have parameters (those not attached to the current pdf) for which the likelihood is flat. 
 
-In the output file `fitDiagnostics.root` there is a tree which contains the best fit results under the signal+background hypothesis. One measure of the bias is the *pull* defined as the difference between the measured value of $\mu$ and the generated value (here we used 1) relative to the uncertainty on $\mu$. The pull distribution can be drawn and the mean provides an estimate of the pull...
+!!! warning  
+    You may get warnings about non-accurate errors such as `[WARNING]: Unable to determine uncertainties on all fit parameters in b-only fit` - These can be ignored since they are related to the free parameters of the background pdfs which are not active.
+
+In the output file `fitDiagnostics.root` there is a tree which contains the best fit results under the signal+background hypothesis. One measure of the bias is the *pull* defined as the difference between the measured value of $\mu$ and the generated value (here we used 1) relative to the uncertainty on $\mu$. The pull distribution can be drawn and the mean provides an estimate of the pull. In this example, we are averaging the +ve and -ve errors, but we could do something smarter if the errors are very asymmetric. 
 
 ```c++
 root -l fitDiagnostics.root
-tree_fit_sb->Draw("(r-1)/rErr>>h(20,-4,4)")
+tree_fit_sb->Draw("(r-1)/(0.5*(rHiErr+rLoErr))>>h(20,-5,5)")
 h->Fit("gaus")
 ```
 
