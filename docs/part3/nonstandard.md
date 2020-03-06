@@ -453,6 +453,16 @@ The above output will produce the following scans.
 
 As expected, the curve obtained by allowing the `pdf_index` to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. 
 
+In general, you can improve the performance of combine, when using the disccrete profiling method, by including the following options `--X-rtd MINIMIZER_freezeDisassociatedParams`, which will stop parameters not associated to the current pdf from floating in the fits. Additionaly, you can also include the following 
+
+   * `--X-rtd MINIMIZER_multiMin_hideConstants`: hide the constant terms in the likelihood when recreating the minimizer
+   * `--X-rtd MINIMIZER_multiMin_maskConstraints`: hide the constraint terms during the discrete minimization process
+   * `--X-rtd MINIMIZER_multiMin_maskChannels=<choice>` mask in the NLL the channels that are not needed:
+      * `<choice> 1`: keeps unmasked all channels that are participating in the discrete minimization.
+      * `<choice> 2`: keeps unmasked only the channel whose index is being scanned at the moment.
+       
+You may want to check with the combine dev team if using these options as they are somewhat for *expert* use. 
+
 ## RooSplineND multidimensional splines
 
 [RooSplineND](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooSplineND.h) can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. 
