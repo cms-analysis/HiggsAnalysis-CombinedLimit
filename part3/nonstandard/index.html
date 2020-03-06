@@ -512,7 +512,7 @@ $ text2workspace.py htt_tt.txt -m 125
 <p>Clearly the background shape is different and much less constrained <em>without including the signal region</em>, as expected. Channel masking can be used with <em>any method</em> in combine.</p>
 <h2 id="roomultipdf-conventional-bias-studies">RooMultiPdf conventional bias studies</h2>
 <p>Several analyses within the Higgs group use a functional form to describe their background which is fit to the data (eg the Higgs to two photons (Hgg) analysis). Often however, there is some uncertainty associated to the choice of which background function to use and this choice will impact results of a fit. It is therefore often the case that in these analyses, a Bias study is performed which will indicate how much potential bias can be present given a certain choice of functional form. These studies can be conducted using combine.</p>
-<p>Below is an example script which will produce a workspace based on a simplified Hgg analysis with a <em>single</em> category. You will need to get the file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/">data/tutorials/bias_studies/toyhgg_in.root</a>. </p>
+<p>Below is an example script which will produce a workspace based on a simplified Hgg analysis with a <em>single</em> category. It will produce the data and pdfs necessary for this example (use it as a basis to cosntruct your own studies).</p>
 <pre><code class="c++">void makeRooMultiPdfWorkspace(){
 
    // Load the combine Library 
@@ -581,15 +581,19 @@ $ text2workspace.py htt_tt.txt -m 125
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>It is important to freeze <code>pdf_index</code> otherwise combine will try to iterate over the index in the frequentist fit.</p>
-<p>combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index</p>
 </div>
+<pre><code class="bash">    combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index
+</code></pre>
+
 <p>Now we have 100 toys which, by setting <code>pdf_index=0</code>, sets the background pdf to the exponential function i.e assumes the exponential is the <em>true</em> function. Note that the option <code>--toysFrequentist</code> is added. This first performs a fit of the pdf, assuming a signal strength of 1, to the data before generating the toys. This is the most obvious choice as to where to throw the toys from.</p>
 <p>The next step is to fit the toys under a different background pdf hypothesis. This time we set the <code>pdf_index</code> to be 1, the powerlaw and run fits with the <code>FitDiagnostics</code> method again freezing <code>pdf_index</code>. </p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.</p>
-<p>combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index</p>
 </div>
+<pre><code class="bash">    combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index
+</code></pre>
+
 <p>In the output file <code>fitDiagnostics.root</code> there is a tree which contains the best fit results under the signal+background hypothesis. One measure of the bias is the <em>pull</em> defined as the difference between the measured value of <span><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span> and the generated value (here we used 1) relative to the uncertainty on <span><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span>. The pull distribution can be drawn and the mean provides an estimate of the pull...</p>
 <pre><code class="c++">root -l fitDiagnostics.root
 tree_fit_sb-&gt;Draw(&quot;(r-1)/rErr&gt;&gt;h(20,-4,4)&quot;)
