@@ -125,6 +125,8 @@ def doRenameNuisance(datacard, args):
         i+=1
         if lsyst == oldname : # found the nuisance
 	  nuisanceID = i
+	  if pdf0 == "flatParam" :
+            raise RuntimeError, "Error: Cannot use nuisance edit rename with flatParam type nuisances currently - you should rename the parameter in your input workspace."	  
 	  if pdf0 != "param": 
             raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"	  
           for lsyst2,nofloat2,pdf02,args02,errline02 in (datacard.systs[:]):
@@ -134,10 +136,10 @@ def doRenameNuisance(datacard, args):
              else: 
 	      if (args0[0])!=(args02[0])  or float(args0[1])!=float(args02[1]) : raise RuntimeError, "Can't rename nuisance %s with Gaussian pdf G(%s,%s) to name %s which already exists with Gaussian pdf G(%s,%s) constraint!" % (lsyst,args0[0],args0[1],lsyst2,args02[0],args02[1])
 	  break
-      if nuisanceID: 
+      if nuisanceID >-1 : 
       	datacard.systs[nuisanceID][0]=newname 
 	datacard.systematicsParamMap[oldname]=newname
-      else: raise RuntimeError, "No nuisance parameter found with name %s"%oldname 
+      else: raise RuntimeError, "No nuisance parameter found with name %s in the datacard"%oldname 
       return
 
     if len(args) < 4:
