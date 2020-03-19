@@ -71,6 +71,7 @@ The options `--checkUncertOver` and `--reportSigUnder` will be described in more
 
 Note: the `--mass` argument should only be set if you normally use it when running Combine, otherwise you can leave it at the default.
 
+The datacard validation tool is primarily intended for shape (histogram)-based analyses. However, when running on a parametric model or counting experiment the checks for small signal processes, empty processes and uncertainties with large normalisation effects will still be performed. 
 
 ## Details on checks 
 
