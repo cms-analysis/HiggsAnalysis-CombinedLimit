@@ -10,6 +10,9 @@ import argparse
 import json
 from pprint import pprint
 
+R.PyConfig.IgnoreCommandLineOptions = True
+R.gROOT.SetBatch(R.kTRUE)
+
 R.TH1.AddDirectory(False)
 
 parser = argparse.ArgumentParser()
@@ -17,18 +20,17 @@ parser = argparse.ArgumentParser()
 parser.add_argument('cards',
                     help='Specifies the full path to the datacards to check')
 parser.add_argument('--printLevel', '-p', default=1, type=int,
-                    help='Specify the level of info printing (0-3)')
+                    help='Specify the level of info printing (0-3, default:1)')
 parser.add_argument('--readOnly', action='store_true',
                     help='If this is enabled, skip validation and only read the output json')
 parser.add_argument('--checkUncertOver', '-c', default=0.1, type=float,
-                    help='Report uncertainties which have a normalisation effect larger than this fraction')
+                    help='Report uncertainties which have a normalisation effect larger than this fraction (default:0.1)')
 parser.add_argument('--reportSigUnder', '-s', default=0.001, type=float,
-                    help='Report signals contributing less than this fraction of the total in a channel')
+                    help='Report signals contributing less than this fraction of the total in a channel (default:0.001)')
 parser.add_argument('--jsonFile', default='validation.json',
-                    help='Path to the json file to read/write results from')
+                    help='Path to the json file to read/write results from (default:validation.json)')
 parser.add_argument('--mass', default='*',
-                    help='Signal mass to use')
-
+                    help='Signal mass to use (default:*)')
 
 args = parser.parse_args()
 
