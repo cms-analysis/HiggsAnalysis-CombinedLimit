@@ -65,7 +65,7 @@ optional arguments:
 `printLevel` adjusts how much information is printed to the screen. When set to 0, the results are only written to the json file, but not to the screen. When set to 1 (default), the number of warnings/alerts
 of a given type is printed to the screen. Setting this option to 2 prints the same information as level 1, and additionally which uncertainties are affected (if the check is related to uncertainties) or which processes are affected (if the check is related only to processes). When `printLevel` is set to 3, the information from level 2 is printed, and additionaly for checks related to uncertainties prints which processes are affected.
 
-What this is doing is parsing the json file which contains the results of the validation checks, so if you have already run the validation tool and produced this json file, you can simply change the `printLevel` by re-running the tool with `printLevel` set to a different value, and enabling the `--readOnly` option.
+To print information to screen, the script parses the json file which contains the results of the validation checks, so if you have already run the validation tool and produced this json file, you can simply change the `printLevel` by re-running the tool with `printLevel` set to a different value, and enabling the `--readOnly` option.
 
 The options `--checkUncertOver` and `--reportSigUnder` will be described in more detail in the section that discusses the checks for which they are relevant.
 
@@ -79,26 +79,175 @@ Note: the `--mass` argument should only be set if you normally use it when runni
 This check highlights nuisance parameters which have a normalisation effect larger than the fraction set by the setting `--checkUncertOver`. The default value is 0.1, meaning that any uncertainties with a normalisation
 effect larger than 10% are flagged up.
 
+The output file contains the following information for this check:
+
+```nohighlight
+largeNormEff: {
+  <Uncertainty name>: {
+    <analysis category>: {
+      <process>: {
+        "value_d":<value>
+        "value_u":<value>
+      } 
+    }
+  }
+}
+```
+
+Where `value_u` and `value_d` are the values of the 'up' and 'down' normalisation effects.
+
+
 ### At least one of the Up/Down systematic templates is empty
 
 For shape uncertainties, this check reports all cases where the up and/or down template(s) are empty, when the nominal template is not.
+
+The output file contains the following information for this check:
+
+```nohighlight
+emptySystematicShape: {
+  <Uncertainty name>: {
+    <analysis category>: {
+      <process>: {
+        "value_d":<value>
+        "value_u":<value>
+      } 
+    }
+  }
+}
+```
+Where `value_u` and `value_d` are the values of the 'up' and 'down' normalisation effects.
 
 ### Identical Up/Down templates
 
 This check applies to shape uncertainties only, and will highlight cases where the shape uncertainties have identical Up and Down templates (identical in shape and in normalisation).
 
+The information given in the output file for this check is:
+
+```nohighlight
+uncertTemplSame: {
+  <Uncertainty name>: {
+    <analysis category>: {
+      <process>: {
+        "value_d":<value>
+        "value_u":<value>
+      } 
+    }
+  }
+}
+```
+Where `value_u` and `value_d` are the values of the 'up' and 'down' normalisation effects.
+
+
 ### Up and Down templates vary the yield in the same direction
 
 Again this check only applies to shape uncertainties - it highlights cases where the 'Up' template and the 'Down' template both have the effect of increasing or decreasing the normalisation of a process.
 
+
+The information given in the output file for this check is:
+
+```nohighlight
+uncertVarySameDirect: {
+  <Uncertainty name>: {
+    <analysis category>: {
+      <process>: {
+        "value_d":<value>
+        "value_u":<value>
+      } 
+    }
+  }
+}
+```
+Where `value_u` and `value_d` are the values of the 'up' and 'down' normalisation effects.
+
+
 ### Uncertainty probably has no genuine shape effect
 
-Experimental!
+In this check, applying only to shape uncertainties, the normalised nominal templates are compared with the normalised templates for the 'up' and 'down' systematic variations. The script calculates
+$$ \Sigma_i \frac{2|\text{up}(i) - \text{nominal}(i)|}{|\text{up}(i)| + |\text{nominal}(i)|}$$ and $$ \Sigma_i \frac{2|\text{down}(i) - \text{nominal}(i)|}{|\text{down}(i)| + |\text{nominal}(i)|} $$
+
+where the sums run over all bins in the histograms, and 'nominal', 'up', and 'down' are the central template and up and down varied templates, all normalised.
+
+If both sums are smaller than 0.001, the uncertainty is flagged up as probably not having a genuine shape effect. This means a 0.1% variation in one bin is enough to avoid being reported, but many smaller variations can also sum to be large enough to pass the threshold.
+It should be noted that the chosen threshold is somewhat arbitrary: if an uncertainty is flagged up as probably having no genuine shape effect you should take this as a starting point to investigate. 
+
+The information given in the output file for this check is:
+
+```nohighlight
+smallShapeEff: {
+  <Uncertainty name>: {
+    <analysis category>: {
+      <process>: {
+        "diff_d":<value>
+        "diff_u":<value>
+      } 
+    }
+  }
+}
+```
+Where `diff_d` and `diff_u` are the values of the sums described above for the 'down' variation and the 'up' variation.
 
 ### Empty process
 
+If a process is listed in the datacard, but the yield is 0, it is flagged up by this check. 
+
+The information given in the output file for this check is:
+
+```nohighlight
+emptyProcessShape: {
+  <analysis category>: {
+    <process1>,
+    <process2>,
+    <process3>
+  }
+}
+```
+
+
 ### Bins which have signal but no background 
+
+For shape-based analyses, this checks whether there are any bins in the nominal templates which have signal contributions, but no background contributions. 
+
+The information given in the output file for this check is:
+
+```nohighlight
+emptyBkgBin: {
+  <analysis category>: {
+    <bin_nr1>,
+    <bin_nr2>,
+    <bin_nr3>
+  }
+}
+```
+
 
 ### Small signal process
 
+This reports signal processes which contribute less than the fraction specified by `--reportSigUnder` (default 0.001 = 0.1%) of the total signal in a given category. This produces an alert, not a warning, as it does not hint at a potential problem.
+However, in analyses with many signal contributions and with long fitting times, it can be helpful to remove signals from a category in which they do not contribute a significant amount.
+
+The information given in the output file for this check is:
+
+```nohighlight
+smallSignalProc: {
+  <analysis category>: {
+    <process>: {
+      "sigrate_tot":<value>
+      "procrate":<value>
+    } 
+  }
+}
+```
+
+Where `sigrate_tot` is the total signal yield in the analysis category and `procrate` is the yield of signal process `<process>`.
+
 ## What to do in case of a warning
+
+These checks are mostly a tool to help you investigate your datacards: a warning does not necessarily mean there is a mistake in your datacard, but you should use it as a starting point to investigate. Empty processes and emtpy shape uncertainties connected to nonempty processes will most likely be unintended. The same holds for cases where the 'up' and 'down' shape templates are identical. If there are bins which contain signal but no background contributions, this should be corrected. See the [FAQ](/part4/usefullinks#faq) for more information on that point.
+
+For other checks it depends on where the check is fired whether there is a problem or not. Some examples:
+
+- An analysis-specific noncloser uncertainty could be larger than 10%. A theoretical uncertainty in the ttbar normalisation probably not.
+- In an analysis with a selection that requires the presence of exactly 1 jet, 'up' and 'down' variations in the jet energy uncertainty *could* both change the process normalisation in the same direction. (But they don't have to!)
+
+As always: think about whether you expect a check to yield a warning in case of your analysis, and investigate to make sure.
+
