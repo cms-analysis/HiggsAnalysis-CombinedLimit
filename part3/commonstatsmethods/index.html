@@ -991,7 +991,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 </code></pre>
 
 <p>Now we can load the best-fit <span><span class="MathJax_Preview">\hat{r},\hat{m}_{H}</span><script type="math/tex">\hat{r},\hat{m}_{H}</script></span> and fit for <span><span class="MathJax_Preview">r</span><script type="math/tex">r</script></span> freezing <span><span class="MathJax_Preview">m_{H}</span><script type="math/tex">m_{H}</script></span> and <strong>lumi_8TeV</strong> to the best-fit values,</p>
-<pre><code class="sh">combine -m 123 -M MultiDimFit -d higgsCombineteststep1.MultiDimFit.mH123.root -w w --snapshotName &quot;MultiDimFit&quot; -n teststep2  --verbose 9 --freezeNuisances MH,lumi_8TeV
+<pre><code class="sh">combine -m 123 -M MultiDimFit -d higgsCombineteststep1.MultiDimFit.mH123.root -w w --snapshotName &quot;MultiDimFit&quot; -n teststep2  --verbose 9 --freezeParameters MH,lumi_8TeV
 </code></pre>
 
 <h2 id="feldman-cousins">Feldman Cousins</h2>
