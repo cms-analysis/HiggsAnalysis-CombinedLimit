@@ -280,7 +280,7 @@ class ShapeBuilder(ModelBuilder):
                     stderr.write("Importing combined pdf %s\n" % simPdf.GetName()); stderr.flush()
 
 		# take care of any variables which were renamed (eg for "param")
-		paramString,renameParamString,toFreeze = getRenamingParameters()
+		paramString,renameParamString,toFreeze = self.getRenamingParameters()
 		if len(renameParamString): 
                   self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.RenameVariable(paramString,renameParamString))
                 else: self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes())
@@ -311,7 +311,7 @@ class ShapeBuilder(ModelBuilder):
         for i in xrange(1, branchNodes.getSize()):
             arg = branchNodes.at(i)
             if arg.GetName() in dupNames and arg not in dupObjs:
-                print 'Object %s is duplicated' % arg.GetName()
+                if self.options.verbose > 1 : stderr.write('Object %s is duplicated, will rename to %s_%s'%(arg.GetName(),arg.GetName(),postFix))
                 arg.SetName(arg.GetName() + '_%s' % postFix)
             # if arg.GetName() in dupNames and arg in dupObjs:
                 # print 'Objected %s is repeated' % arg.GetName()
@@ -535,7 +535,7 @@ class ShapeBuilder(ModelBuilder):
 		    self.norm_rename_map[normname]=norm.GetName()
 
 		    # take care of any variables which were renamed (eg for "param")
-		    paramString,renameParamString,toFreeze = getRenamingParameters()
+		    paramString,renameParamString,toFreeze = self.getRenamingParameters()
 		    if len(renameParamString):   self.out._import(norm, ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.RenameVariable(paramString,renameParamString))
                     else : self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
                 if self.options.verbose > 2: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())

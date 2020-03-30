@@ -150,7 +150,7 @@ class ModelBuilder(ModelBuilderBase):
 	if len(renameParamString): 
 	  renameParamString=",".join(renameParamString)
 	  paramString=",".join(paramString)
-
+	return paramString,renameParamString,toFreeze
        
     def runPostProcesses(self):
       for n in self.DC.frozenNuisances:
@@ -657,7 +657,7 @@ class ModelBuilder(ModelBuilderBase):
 		    	else: raise RuntimeError("Cannot add non-existant factor %s for process %s, bin %s" % (factorName, p, b))
 	
 		    # take care of any variables which were renamed (eg for "param")
-		    paramString,renameParamString,toFreeze = getRenamingParameters()
+		    paramString,renameParamString,toFreeze = self.getRenamingParameters()
 		    if len(renameParamString): self.out._import(procNorm, ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.RenameVariable(paramString,renameParamString))
                     else: self.out._import(procNorm)
     def doIndividualModels(self):
