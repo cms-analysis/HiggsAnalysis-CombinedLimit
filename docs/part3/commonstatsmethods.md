@@ -934,7 +934,7 @@ combine -m 123 -M MultiDimFit --saveWorkspace -n teststep1 testmass.root  --verb
 Now we can load the best-fit $\hat{r},\hat{m}_{H}$ and fit for $r$ freezing $m_{H}$ and **lumi_8TeV** to the best-fit values,
 
 ```sh
-combine -m 123 -M MultiDimFit -d higgsCombineteststep1.MultiDimFit.mH123.root -w w --snapshotName "MultiDimFit" -n teststep2  --verbose 9 --freezeNuisances MH,lumi_8TeV
+combine -m 123 -M MultiDimFit -d higgsCombineteststep1.MultiDimFit.mH123.root -w w --snapshotName "MultiDimFit" -n teststep2  --verbose 9 --freezeParameters MH,lumi_8TeV
 ```
 ## Feldman Cousins
 
