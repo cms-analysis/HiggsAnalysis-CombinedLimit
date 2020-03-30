@@ -108,7 +108,7 @@ Combine::Combine() :
       ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
       ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength (default is 0)")
       ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength (default is 20)")
-      ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
+      ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)', or a custom expression that uses @0 as the parameter of interest")
       ("significance", "Compute significance instead of upper limit (works only for some methods)")
       ("lowerLimit",   "Compute the lower limit instead of the upper limit (works only for some methods)")
       ("hintStatOnly", "Ignore systematics when computing the hint")
@@ -759,6 +759,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       } else if (prior_ == "1/sqrt(r)") {
           std::cout << "Will use prior 1/sqrt(" << POI->first()->GetName() << std::endl;
           TString priorExpr = TString::Format("EXPR::prior(\"1/sqrt(@0)\",%s)", POI->first()->GetName());
+          w->factory(priorExpr.Data());
+          mc->SetPriorPdf(*w->pdf("prior"));
+      } else if (prior_.find("@0") != std::string::npos) {
+          std::cout << "Will use prior: " << prior_ << std::endl;
+          std::string passInfo = "EXPR::prior(\"" + prior_ +"\",%s)";
+          TString priorExpr = TString::Format(passInfo.c_str(), POI->first()->GetName());
           w->factory(priorExpr.Data());
           mc->SetPriorPdf(*w->pdf("prior"));
       } else if (!prior_.empty() && w->pdf(prior_.c_str()) != 0) {
