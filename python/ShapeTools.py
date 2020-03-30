@@ -515,8 +515,7 @@ class ShapeBuilder(ModelBuilder):
                     if allowNoSyst: return None
                     raise RuntimeError, "Object %s in workspace %s in file %s does not exist or it's neither a data nor a pdf" % (oname, wname, finalNames[0])
                 # Fix the fact that more than one entry can refer to the same object
-                ret = ret.Clone()
-                ret.SetName("shape%s_%s_%s%s" % (postFix,process,channel, "_"+syst if syst else ""))
+                ret = ret.Clone("shape%s_%s_%s%s" % (postFix,process,channel, "_"+syst if syst else ""))
                 if self.options.optimizeMHDependency and ret.InheritsFrom("RooAbsReal"):
                     ret = self.optimizeMHDependency(ret,self.wsp)
                 _cache[(channel,process,syst)] = ret
