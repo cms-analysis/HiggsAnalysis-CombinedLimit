@@ -206,9 +206,12 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
        qS->SetName("NullHyp");
        qS->Print();  // in root6, without this Print, the integral is 0?!?!?!
     } else { 
-       qB = (TH1F*) gROOT->FindObject("qB")->Clone();
-       qB->SetName("NullHyp");
-       qB->Print();
+        if (gROOT->FindObject("qB") == nullptr)
+            qB=new TH1F("qB","empty",10,0,10);
+        else
+            qB = (TH1F*) gROOT->FindObject("qB")->Clone();
+        qB->SetName("NullHyp");
+        qB->Print();
     }
 
     if (mode==0) t->Draw("max(2*q,0)>>qS","weight*(type==+1)","SAME");
@@ -219,15 +222,18 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
        qB->SetName("AltHyp");
        qB->Print();
     } else { 
-       qS = (TH1F*) gROOT->FindObject("qS")->Clone();
-       qS->SetName("AltHyp");
-       qS->Print();
+        if (gROOT->FindObject("qS") == nullptr)
+            qS=new TH1F("qS","empty",10,0,10);
+        else
+            qS = (TH1F*) gROOT->FindObject("qS")->Clone();
+        qS->SetName("AltHyp");
+        qS->Print();
     }
     double yMin = 4.9/qB->Integral();
 
     if (mode==0)t->Draw("max(2*q,0)>>qObs","weight*(type==0)");
     else t->Draw("2*q>>qObs","weight*(type==0)");
-    double qObs = ((TH1F*) gROOT->FindObject("qObs"))->GetMean();
+    double qObs = (gROOT->FindObject("qObs")==nullptr) ? -1: ((TH1F*) gROOT->FindObject("qObs"))->GetMean();
     if (runExpected_) {
       
       double medx[1] ={1.-quantileExpected_};
