@@ -1120,7 +1120,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
   }
 #if HFVERBOSE > 2
   std::cout << "CDF mapped into the histogram binning:" << std::endl;
-  for (int ind = ixf-1; ind < ixl+1; ind++) {
+  for (int ind = std::max(0, ixf - 1); ind < ixl+1; ind++) {
     std::cout << "\t(bin,x,y) = (" << ind << "," << cache_.GetEdge(ind) << "," << sigdisf[ind] << ")" << std::endl;
   }
 #endif
