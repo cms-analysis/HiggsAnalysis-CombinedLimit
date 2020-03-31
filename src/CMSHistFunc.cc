@@ -1093,8 +1093,8 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
       if (xdisn[ix3 + 1] - x >= 1.0 * dx2) {  // Empty bin treatment
 #if HFVERBOSE > 2
         std::cout << "Warning - th1fmorph: encountered empty bin." << std::endl;
-        y = c1.y[ix3];
 #endif
+        y = c1.y[ix3];
       } else if (xdisn[ix3 + 1] > xdisn[ix3]) {  // Normal bins
         y = c1.y[ix3] + (c1.y[ix3 + 1] - c1.y[ix3]) *
                                (x - xdisn[ix3]) / (xdisn[ix3 + 1] - xdisn[ix3]);
