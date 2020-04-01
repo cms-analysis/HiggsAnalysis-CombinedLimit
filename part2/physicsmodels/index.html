@@ -395,7 +395,7 @@ p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
 <p>With some algebra you can work out that,</p>
 <p><span><span class="MathJax_Preview">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</span><script type="math/tex">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</script></span></p>
 <p>where square brackets represent the input (histograms as <code>TH1</code> or <code>RooDataHists</code>) that one needs to provide.</p>
-<p>An example of this scheme is implemented in a <a href="https://svnweb.cern.ch/cern/wsvn/cmshcg/trunk/cadi/HIG-17-012/2l2nu/HiggsWidth.py">HiggsWidth</a> and is completely general, since all of the three components above are strictly positive. In this example, the POI is <code>CMS_zz4l_mu</code> and the equations for the three components are scaled (separately for the <strong>qqH</strong> and <strong>ggH</strong> processes) as,</p>
+<p>An example of this scheme is implemented in a <a href="https://gitlab.cern.ch/cms-hcg/cadi/hig-17-012/-/blob/master/2l2nu/HiggsWidth.py">HiggsWidth</a> and is completely general, since all of the three components above are strictly positive. In this example, the POI is <code>CMS_zz4l_mu</code> and the equations for the three components are scaled (separately for the <strong>qqH</strong> and <strong>ggH</strong> processes) as,</p>
 <pre><code class="python"> self.modelBuilder.factory_( &quot;expr::ggH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
  self.modelBuilder.factory_(  &quot;expr::ggH_b_func(\&quot;1-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
  self.modelBuilder.factory_(  &quot;expr::ggH_sbi_func(\&quot;sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)

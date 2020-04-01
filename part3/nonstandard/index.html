@@ -429,7 +429,7 @@ plotParametersFomToys(&quot;fitDiagnosticsToys.root&quot;,&quot;fitDiagnosticsDa
 
 <p>The first argument is the name of the output file from running with toys, and the second and third (optional) arguments are the name of the file containing the result from a fit to the data and the workspace (created from <code>text2workspace.py</code>). The fourth argument can be used to specify a cut string applied to one of the branches in the tree which can be used to correlate strange behaviour with specific conditions. The output will be 2 pdf files (<strong><code>tree_fit_(s)b.pdf</code></strong>) and 2 root files  (<strong><code>tree_fit_(s)b.root</code></strong>) containing canvases of the fit results of the tool. For details on the output plots, consult <a href="http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2012/317">AN-2012/317</a>.</p>
 <h2 id="scaling-constraints">Scaling constraints</h2>
-<p>It possible to scale the <strong>constraints</strong> on the nuisance parameters when converting the datacard to a workspace (see the section on <a href="/part2/physicsmodels#model-building">physics models</a>) with <code>text2workspace.py</code>. This can be useful for projection studies of the analysis to higher luminosities or with different assumptions about the sizes of certain systematics without changing the datacard by hand. </p>
+<p>It possible to scale the <strong>constraints</strong> on the nuisance parameters when converting the datacard to a workspace (see the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/">physics models</a>) with <code>text2workspace.py</code>. This can be useful for projection studies of the analysis to higher luminosities or with different assumptions about the sizes of certain systematics without changing the datacard by hand. </p>
 <p>We consider two kinds of scaling;  </p>
 <ul>
 <li>A <em>constant scaling factor</em> to scale the constraints </li>
@@ -450,13 +450,13 @@ plotParametersFomToys(&quot;fitDiagnosticsToys.root&quot;,&quot;fitDiagnosticsDa
 <p class="admonition-title">Warning</p>
 <p>We are playing a slight trick here with the <code>lumiscale</code> parameter. At the point at which <code>text2workspace.py</code> is building these scaling terms the <code>lumiscale</code> for the <code>rateParam</code> has not yet been created. By writing <code>lumiscale[1]</code> we are telling RooFit to create this variable with an initial value of 1, and then later this will be re-used by the <code>rateParam</code> creation. </p>
 </div>
-<p>A similar option, <code>--X-nuisance-group-function</code>, can be used to scale whole groups of nuisances (see <a href="/part2/settinguptheanalysis#groups-of-nuisances">groups of nuisances</a>). Instead of a regular expression just give the group name instead, </p>
+<p>A similar option, <code>--X-nuisance-group-function</code>, can be used to scale whole groups of nuisances (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/settinguptheanalysis/#groups-of-nuisances">groups of nuisances</a>). Instead of a regular expression just give the group name instead, </p>
 <pre><code>text2workspace.py datacard.txt --X-nuisance-group-function [group name] 'expr::lumisyst("1/sqrt(@0)",lumiscale[1])'
 </code></pre>
 <h2 id="nuisance-parameter-impacts">Nuisance parameter impacts</h2>
 <p>The impact of a nuisance parameter (NP) θ on a parameter of interest (POI) μ is defined as the shift Δμ that is induced as θ is fixed and brought to its +1σ or −1σ post-fit values, with all other parameters profiled as normal. </p>
 <p>This is effectively a measure of the correlation between the NP and the POI, and is useful for determining which NPs have the largest effect on the POI uncertainty.</p>
-<p>It is possible to use the <code>FitDiagnostics</code> method of combine with the option <code>--algo impact -P parameter</code> to calculate the impact of a particular nuisance parameter on the parameter(s) of interest. We will use the <code>combineTool.py</code> script to automate the fits (see the <a href="/part1/README#combine-tool"><code>combineTool</code></a> section to check out the tool.</p>
+<p>It is possible to use the <code>FitDiagnostics</code> method of combine with the option <code>--algo impact -P parameter</code> to calculate the impact of a particular nuisance parameter on the parameter(s) of interest. We will use the <code>combineTool.py</code> script to automate the fits (see the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool"><code>combineTool</code></a> section to check out the tool.</p>
 <p>We will use an example workspace from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/htt/125/htt_tt.txt"><span><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span> datacard</a>,</p>
 <pre><code>$ cp HiggsAnalysis/CombinedLimit/data/tutorials/htt/125/htt_tt.txt .
 $ text2workspace.py htt_tt.txt -m 125
@@ -465,11 +465,11 @@ $ text2workspace.py htt_tt.txt -m 125
 <p>Calculating the impacts is done in a few stages. First we just fit for each POI, using the <code>--doInitialFit</code> option with <code>combineTool.py</code>, and adding the <code>--robustFit 1</code> option that will be passed through to combine,</p>
 <pre><code>combineTool.py -M Impacts -d htt_tt.root -m 125 --doInitialFit --robustFit 1
 </code></pre>
-<p>Have a look at the options as for <a href="/part3/commonstatsmethods.html#useful-options-for-likelihood-scans">likelihood scans</a> when using <code>robustFit 1</code>.</p>
+<p>Have a look at the options as for <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#useful-options-for-likelihood-scans">likelihood scans</a> when using <code>robustFit 1</code>.</p>
 <p>Next we perform a similar scan for each nuisance parameter with the <code>--doFits</code> options,</p>
 <pre><code>combineTool.py -M Impacts -d htt_tt.root -m 125 --robustFit 1 --doFits
 </code></pre>
-<p>Note that this will run approximately 60 scans, and to speed things up the option <code>--parallel X</code> can be given to run X combine jobs simultaneously. The batch and grid submission methods described in the <a href="/part3/runningthetool#combinetool-for-job-submission">combineTool for job submission</a> section can also be used.</p>
+<p>Note that this will run approximately 60 scans, and to speed things up the option <code>--parallel X</code> can be given to run X combine jobs simultaneously. The batch and grid submission methods described in the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a> section can also be used.</p>
 <p>Once all jobs are completed the output can be collected and written into a json file:</p>
 <pre><code>combineTool.py -M Impacts -d htt_tt.root -m 125 -o impacts.json
 </code></pre>

@@ -197,7 +197,7 @@
 
 <h1 id="validating-datacards">Validating datacards</h1>
 <p>This section covers the main features of the datacard validation tool which helps you spot potential problems with your datacards at an early stage. The tool is implemented
-in the <a href="https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools"><code>CombineHarvester/CombineTools</code></a> subpackage. See the <a href="/part1/gettingstarted#combine-tool"><code>combineTool</code></a> 
+in the <a href="https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools"><code>CombineHarvester/CombineTools</code></a> subpackage. See the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool"><code>combineTool</code></a> 
 section of the documentation for checkout instructions.</p>
 <p>The datacard validation tool contains a number of checks. It is possible to call sub-sets of these checks when creating datacards within CombineHarvester. However, for now we will only
 describe the usage of the validation tool on already existing datacards. If you create your datacards with CombineHarvester and would like to include the checks at the datacard creation
@@ -221,7 +221,7 @@ stage, please contact us via <a href="https://hypernews.cern.ch/HyperNews/CMS/ge
 &gt;&gt;&gt;INFO: there were  169  alerts of type  'Small signal process'
 </code></pre>
 
-<p>The meaning of each of these warnings/alerts is discussed <a href="/part3/validation#details-on-checks">below</a>.</p>
+<p>The meaning of each of these warnings/alerts is discussed <a href="#details-on-checks">below</a>.</p>
 <p>The following arguments are possible:</p>
 <pre><code class="nohighlight">usage: ValidateDatacards.py [-h] [--printLevel PRINTLEVEL] [--readOnly]
                             [--checkUncertOver CHECKUNCERTOVER]
@@ -381,7 +381,7 @@ However, in analyses with many signal contributions and with long fitting times,
 
 <p>Where <code>sigrate_tot</code> is the total signal yield in the analysis category and <code>procrate</code> is the yield of signal process <code>&lt;process&gt;</code>.</p>
 <h2 id="what-to-do-in-case-of-a-warning">What to do in case of a warning</h2>
-<p>These checks are mostly a tool to help you investigate your datacards: a warning does not necessarily mean there is a mistake in your datacard, but you should use it as a starting point to investigate. Empty processes and emtpy shape uncertainties connected to nonempty processes will most likely be unintended. The same holds for cases where the 'up' and 'down' shape templates are identical. If there are bins which contain signal but no background contributions, this should be corrected. See the <a href="/part4/usefullinks#faq">FAQ</a> for more information on that point.</p>
+<p>These checks are mostly a tool to help you investigate your datacards: a warning does not necessarily mean there is a mistake in your datacard, but you should use it as a starting point to investigate. Empty processes and emtpy shape uncertainties connected to nonempty processes will most likely be unintended. The same holds for cases where the 'up' and 'down' shape templates are identical. If there are bins which contain signal but no background contributions, this should be corrected. See the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq">FAQ</a> for more information on that point.</p>
 <p>For other checks it depends on where the check is fired whether there is a problem or not. Some examples:</p>
 <ul>
 <li>An analysis-specific noncloser uncertainty could be larger than 10%. A theoretical uncertainty in the ttbar normalisation probably not.</li>
