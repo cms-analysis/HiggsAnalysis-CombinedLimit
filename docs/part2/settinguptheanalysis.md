@@ -253,11 +253,11 @@ RooDataSet::data_obs(j)
 ```
 
 
-In this datacard, the signal is parameterised in terms of the hypothesised mass (`MH`). Combine will use this variable, instead of creating its own, which will be interpreted as the value for `-m`. For this reason, we should add the option `-m 30` (or something else within the observable range) when running combine. You will also see there is a variable named `bkg_norm`. This is used to normalize the background rate (see the section on [Rate parameters](/part2/settinguptheanalysis#rate-parameters) below for details).
+In this datacard, the signal is parameterised in terms of the hypothesised mass (`MH`). Combine will use this variable, instead of creating its own, which will be interpreted as the value for `-m`. For this reason, we should add the option `-m 30` (or something else within the observable range) when running combine. You will also see there is a variable named `bkg_norm`. This is used to normalize the background rate (see the section on [Rate parameters](#rate-parameters) below for details).
 
 
 !!! warning
-    Combine will not accept RooExtendedPdfs as an input. This is to alleviate a bug that lead to improper treatment of normalization when using multiple RooExtendedPdfs to describe a single process. You should instead use RooAbsPdfs and provide the rate as a separate object (see the [Rate parameters](/part2/settinguptheanalysis#rate-parameters) section).
+    Combine will not accept RooExtendedPdfs as an input. This is to alleviate a bug that lead to improper treatment of normalization when using multiple RooExtendedPdfs to describe a single process. You should instead use RooAbsPdfs and provide the rate as a separate object (see the [Rate parameters](#rate-parameters) section).
 
 The part of the datacard related to the systematics can include lines with the syntax
 
@@ -334,7 +334,7 @@ The `[min,max]` argument is optional and if not included, combine  will remove t
 You can attach the same `rateParam` to multiple processes/bins by either using a wild card (eg `*` will match everything, `QCD_*` will match everything starting with `QCD_` etc.) in the name of the bin and/or process or by repeating the `rateParam` line in the datacard for different bins/processes with the same name.
 
 !!! warning
-    `rateParam` is not a shortcut to evaluate the post-fit yield of a process since **other nuisances can also change the normalisation**. E.g., finding that the `rateParam` best-fit value is 0.9 does not necessarily imply that the process yield is 0.9 times the initial one. The best is to evaluate the yield taking into account the values of all nuisance parameters using [`--saveNormalizations`](../part3/nonstandard#normalizations).
+    `rateParam` is not a shortcut to evaluate the post-fit yield of a process since **other nuisances can also change the normalisation**. E.g., finding that the `rateParam` best-fit value is 0.9 does not necessarily imply that the process yield is 0.9 times the initial one. The best is to evaluate the yield taking into account the values of all nuisance parameters using [`--saveNormalizations`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#normalizations).
 
 
 This parameter is by default, freely floating. It is possible to include a Gaussian constraint on any `rateParam` which is floating (i.e not a `formula` or spline) by adding a `param` nuisance line in the datacard with the same name.
@@ -469,7 +469,7 @@ theory group = QCDscale pdf
 
 Multiple groups can be defined in this way. It is also possible to extend nuisance groups in datacards using **+=** in place of **=**.
 
-These groups can be manipulated at runtime (eg for freezing all nuisances associated to a group at runtime, see [Running the tool](#running-the-tool)). You can find more info on groups of nuisances [here](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/groups)
+These groups can be manipulated at runtime (eg for freezing all nuisances associated to a group at runtime, see [Running the tool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/)). You can find more info on groups of nuisances [here](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/groups)
 
 Note that when using the automatic addition of statistical uncertainties (autoMCStats), the corresponding nuisance parameters are created by `text2workspace.py` and so do not exist in the datacards. It is therefore not possible to add autoMCStats parameters to groups of nuisances in the way described above. However, `text2workspace.py` will automatically create a group labelled **`autoMCStats`** which contains all autoMCStats parameters.
 
@@ -489,7 +489,7 @@ The `combineCards.py` script will complain if you are trying to combine a *shape
 
 ### Automatic production of datacards and workspaces
 
-For complicated analyses or cases in which multiple datacards are needed (e.g. optimisation studies), you can avoid writing these by hand. The object [Datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/Datacard.py) defines the analysis and can be created as a python object. The template python script below will produce the same workspace as running `textToWorkspace.py` (see the section on [Physics Models](/part2/physicsmodels)) on the [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard.
+For complicated analyses or cases in which multiple datacards are needed (e.g. optimisation studies), you can avoid writing these by hand. The object [Datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/Datacard.py) defines the analysis and can be created as a python object. The template python script below will produce the same workspace as running `textToWorkspace.py` (see the section on [Physics Models](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/)) on the [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard.
 
 ```python
 from HiggsAnalysis.CombinedLimit.DatacardParser import *

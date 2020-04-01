@@ -1,7 +1,7 @@
 # Validating datacards
 
 This section covers the main features of the datacard validation tool which helps you spot potential problems with your datacards at an early stage. The tool is implemented
-in the [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools) subpackage. See the [`combineTool`](/part1/gettingstarted#combine-tool) 
+in the [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools) subpackage. See the [`combineTool`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) 
 section of the documentation for checkout instructions.
 
 The datacard validation tool contains a number of checks. It is possible to call sub-sets of these checks when creating datacards within CombineHarvester. However, for now we will only
@@ -33,7 +33,7 @@ This will write the results of the checks to a json file (default: `validation.j
 >>>INFO: there were  169  alerts of type  'Small signal process'
 ```
 
-The meaning of each of these warnings/alerts is discussed [below](/part3/validation#details-on-checks).
+The meaning of each of these warnings/alerts is discussed [below](#details-on-checks).
 
 The following arguments are possible:
 ```nohighlight
@@ -243,7 +243,7 @@ Where `sigrate_tot` is the total signal yield in the analysis category and `proc
 
 ## What to do in case of a warning
 
-These checks are mostly a tool to help you investigate your datacards: a warning does not necessarily mean there is a mistake in your datacard, but you should use it as a starting point to investigate. Empty processes and emtpy shape uncertainties connected to nonempty processes will most likely be unintended. The same holds for cases where the 'up' and 'down' shape templates are identical. If there are bins which contain signal but no background contributions, this should be corrected. See the [FAQ](/part4/usefullinks#faq) for more information on that point.
+These checks are mostly a tool to help you investigate your datacards: a warning does not necessarily mean there is a mistake in your datacard, but you should use it as a starting point to investigate. Empty processes and emtpy shape uncertainties connected to nonempty processes will most likely be unintended. The same holds for cases where the 'up' and 'down' shape templates are identical. If there are bins which contain signal but no background contributions, this should be corrected. See the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) for more information on that point.
 
 For other checks it depends on where the check is fired whether there is a problem or not. Some examples:
 
