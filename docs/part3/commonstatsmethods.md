@@ -7,7 +7,7 @@ This section will assume that you are using the default model unless otherwise s
 ## Asymptotic Frequentist Limits
 
 The `AsymptoticLimits` method allows to compute quickly an estimate of the observed and expected limits, which is fairly accurate when the event yields are not too small and the systematic uncertainties don't play a major role in the result.
-The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute two p-values $p_{\mu}, p_{b}$ and therefore $CL_s=p_{\mu}/(1-p_{b})$ (see the (see the [FAQ](/part4/usefullinks.html#faq) section for a description of these) - i.e it is the asymptotic approximation of computing limits with frequentist toys.
+The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute two p-values $p_{\mu}, p_{b}$ and therefore $CL_s=p_{\mu}/(1-p_{b})$ (see the (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section for a description of these) - i.e it is the asymptotic approximation of computing limits with frequentist toys.
 
 This method is so commonly used that it is the default method (i.e not specifying `-M` will run `AsymptoticLimits`)
 
@@ -292,7 +292,7 @@ For more heavy methods (eg the `MarkovChainMC`) you'll probably want to split th
 
 ### Multidimensional bayesian credible regions
 
-The `MarkovChainMC` method allows the user to produce the posterior pdf as a function of (in principle) any number of parameter of interest. In order to do so, you first need to create a workspace with more than one parameter, as explained in the [physics models](/part2/physicsmodels) section.
+The `MarkovChainMC` method allows the user to produce the posterior pdf as a function of (in principle) any number of parameter of interest. In order to do so, you first need to create a workspace with more than one parameter, as explained in the [physics models](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/) section.
 
 For example, lets use the toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV) and convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections using `text2workspace` with the option `-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH`.
 
@@ -525,7 +525,7 @@ Done in 0.01 min (cpu), 4.09 min (real)
 Failed to delete temporary file roostats-Sprxsw.root: No such file or directory</pre></code>
 </details>
 
-The result stored in the **limit** branch of the output tree will be the upper limit (and its error stored in **limitErr**). The default behavior will be, as above, to search for the upper limit on **r** however, the values of $p_{\mu}, p_{b}$ and CL<sub>s</sub> can be calculated for a particular value **r=X** by specifying the option `--singlePoint=X`. In this case, the value stored in the branch **limit** will be the value of CL<sub>s</sub> (or $p_{\mu}$) (see the [FAQ](/part4/usefullinks.html#faq) section). 
+The result stored in the **limit** branch of the output tree will be the upper limit (and its error stored in **limitErr**). The default behavior will be, as above, to search for the upper limit on **r** however, the values of $p_{\mu}, p_{b}$ and CL<sub>s</sub> can be calculated for a particular value **r=X** by specifying the option `--singlePoint=X`. In this case, the value stored in the branch **limit** will be the value of CL<sub>s</sub> (or $p_{\mu}$) (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section). 
 
 #### Expected Limits
 
@@ -571,7 +571,7 @@ combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --gri
 
 substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, 0.025 for the -ve side of the 95% band.
 
-The splitting of the jobs can be left to the user's preference. However, users may wish to use the **combineTool** for automating this as described in the section on [combineTool for job submission](#)
+The splitting of the jobs can be left to the user's preference. However, users may wish to use the **combineTool** for automating this as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
 
 
 #### Plotting
@@ -629,7 +629,7 @@ The *expected* significance, assuming a signal with **r=X** can be calculated, b
 
 You need a total number of background toys large enough to compute the value of the significance, but you need less signal toys (especially if you only need the median). For large significance, you can then run most of the toys without the `--fullBToys` option (about a factor 2 faster), and only a smaller part with that option turned on.
 
-As with calculating limits with toys, these jobs can be submitted to the grid or batch systems with the help of the `combineTool` as described in the section on [combineTool for job submission](#)
+As with calculating limits with toys, these jobs can be submitted to the grid or batch systems with the help of the `combineTool` as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
 
 
 ## Goodness of fit tests
@@ -660,7 +660,7 @@ The following algorithms are supported:
 
 The output tree will contain a branch called **`limit`** which contains the value of the test-statistic in each toy. You can make a histogram of this test-statistic $t$ and from this distribution ($f(t)$) and the single value obtained in the data ($t_{0}$) you can calculate the p-value $$p = \int_{t=t_{0}}^{\mathrm{+inf}} f(t) dt $$.
 
-When generating toys, the default behavior will be used. See the section on [toy generation](#toy-generation) for options on how to generate/fit nuisance parameters in these tests. It is recomended to use the *frequentist toys* (`--toysFreq`) when running the **saturated** model, and the default toys for the other two tests.
+When generating toys, the default behavior will be used. See the section on [toy generation](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#toy-data-generation) for options on how to generate/fit nuisance parameters in these tests. It is recomended to use the *frequentist toys* (`--toysFreq`) when running the **saturated** model, and the default toys for the other two tests.
 
 Further goodness of fit methods could be added on request, especially if volunteers are available to code them.
 The output limit tree will contain the value of the test-statistic in each toy (or the data)
@@ -680,7 +680,7 @@ text2workspace.py combined_card.txt --channel-masks
 ```
 
 More information about the channel-masking can be found in this
-section [Channel Masking](#). The saturated test-static value for a simultaneous fit across all the analysis regions can be calculated as:
+section [Channel Masking](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#channel-masking). The saturated test-static value for a simultaneous fit across all the analysis regions can be calculated as:
 
 ```sh
 combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_sb
@@ -794,7 +794,7 @@ A number of different algorithms can be used with the option `--algo <algo>`,
 -   **fixed**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs r=r_fixed,MH=MH_fixed`. The output tree will contain the difference in the negative log-likelihood between the points ($\hat{r},\hat{m}_{H}$) and ($\hat{r}_{fixed},\hat{m}_{H,fixed}$) in the branch **deltaNLL**.
 
 -  **grid**:  Scan on a fixed grid of points not with approximately N points in total. `combine -M MultiDimFit toy-hgg-125.root --algo grid --points=10000`.
-    * You can partition the job in multiple tasks by using options `--firstPoint` and `--lastPoint`, for complicated scans, the points can be split as described in the [combineTool for job submission](#) section. The output file will contain a column **deltaNLL** with the difference in negative log likelihood with respect to the best fit point. Ranges/contours can be evaluated by filling TGraphs or TH2 histograms with these points.
+    * You can partition the job in multiple tasks by using options `--firstPoint` and `--lastPoint`, for complicated scans, the points can be split as described in the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section. The output file will contain a column **deltaNLL** with the difference in negative log likelihood with respect to the best fit point. Ranges/contours can be evaluated by filling TGraphs or TH2 histograms with these points.
     * By default the "min" and "max" of the POI ranges are *not* included and the points which are in the scan are *centered* , eg `combine -M MultiDimFit --algo grid --rMin 0 --rMax 5 --points 5` will scan at the points $r=0.5, 1.5, 2.5, 3.5, 4.5$. You can instead include the option `--alignEdges 1` which causes the points to be aligned with the endpoints of the parameter ranges - eg `combine -M MultiDimFit --algo grid --rMin 0 --rMax 5 --points 6 --alignEdges 1` will now scan at the points $r=0, 1, 2, 3, 4, 5$. NB - the number of points must be increased by 1 to ensure both end points are included.
 
 With the algorithms **none** and **singles** you can save the RooFitResult from the initial fit using the option `--saveFitResult`. The fit result is saved into a new file called `muiltidimfit.root`.
@@ -865,7 +865,7 @@ best_fit->SetMarkerSize(3); best_fit->SetMarkerStyle(34); best_fit->Draw("p same
 
 To make the full profiled scan just remove the `--fastScan` option from the combine command.
 
-Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the [`CombineHarvester/CombineTools`](/part1/README/#combine-tool) package [plot1DScan.py](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/scripts/plot1DScan.py) which can be used to make plots and extract the crossings of the `2*deltaNLL` - e.g the 1σ/2σ boundaries.
+Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the [`CombineHarvester/CombineTools`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) package [plot1DScan.py](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/scripts/plot1DScan.py) which can be used to make plots and extract the crossings of the `2*deltaNLL` - e.g the 1σ/2σ boundaries.
 
 
 ### Useful options for likelihood scans
@@ -910,7 +910,7 @@ As a result, when running with `floatOtherPOIs` set to 1, the uncertainties on e
 
 You can save the values of the other parameters of interest in the output tree by adding the option `saveInactivePOI=1`. You can additionally save the post-fit values any nuisance parameter, function or discrete index (RooCategory) defined in the workspace using the following options;
 
--   `--saveSpecifiedNuis=arg1,arg2,...` will store the fitted value of any specified *constrained* nuisance parameter. Use `all` to save every constrained nuisance parameter. **Note** that if you want to store the values of `flatParams` (or floating parameters which are not defined in the datacard) or `rateParams`,  which are *unconstrained*, you should instead use the generic option `--trackParameters` as described [here](/part3/runningthetool#common-command-line-options).
+-   `--saveSpecifiedNuis=arg1,arg2,...` will store the fitted value of any specified *constrained* nuisance parameter. Use `all` to save every constrained nuisance parameter. **Note** that if you want to store the values of `flatParams` (or floating parameters which are not defined in the datacard) or `rateParams`,  which are *unconstrained*, you should instead use the generic option `--trackParameters` as described [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#common-command-line-options).
 -   `--saveSpecifiedFunc=arg1,arg2,...` will store the value of any function (eg `RooFormulaVar`) in the model.
 -   `--saveSpecifiedIndex=arg1,arg2,...` will store the index of any `RooCategory` object - eg a `discrete` nuisance.
 
@@ -972,12 +972,12 @@ The boundary is imposed by **restricting the parameter range(s)** to those set b
 !!! info
     One can also imagine imposing the boundaries by first allowing Minuit to find the minimum in the *un-restricted* (and potentially unphysical) region and then setting the test-statistic to 0 in the case that minimum lies outside the physical boundary. If you are interested in implementing this version in combine, please contact the development team.
 
-As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs, as described in the [combineTool for job submission](#) section.
+As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs, as described in the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section.
 
 
 #### Extracting contours
 
-As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with `hadd`. You can also refer to the [combineTool for job submission](#) section for submitting the jobs to the grid/batch.
+As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with `hadd`. You can also refer to the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section for submitting the jobs to the grid/batch.
 
 ##### 1D intervals
 

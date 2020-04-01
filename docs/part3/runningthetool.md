@@ -255,7 +255,7 @@ Remember, any usual options (such as redefining POIs or freezing parameters) are
 
 For more CPU-intensive tasks, for example determining limits for complex models using toys, it is generally not feasible to compute all the results interactively. Instead, these jobs can be submitted to the Grid.
 
-In this example we will use the `HybridNew` method of combine to determine an upper limit for a sub-channel of the Run 1 SM $H\rightarrow\tau\tau$ analysis. For full documentation, see the section on [computing limits with toys](#computing-limits-with-toys).
+In this example we will use the `HybridNew` method of combine to determine an upper limit for a sub-channel of the Run 1 SM $H\rightarrow\tau\tau$ analysis. For full documentation, see the section on [computing limits with toys](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys).
 
 With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using `crab3`. From the set of output distributions it is possible to extract the expected and observed limits.
 
