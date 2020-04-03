@@ -973,7 +973,7 @@ $q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathr
 
 and, 
 
-$q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|x_{B},\hat{\theta}_{B})$, if $\hat{x} is outside of the bounded range. Here $x_{B}$ and $\hat{\theta}_{B}$ are the values of $x$ and $\theta$ which maximise the likelihood *excluding values outside of the bounded region* for $x$ - typically, $x_{B}$ will be found at one of the boundaries which is imposed. For example, if the boundary $x>0$ is imposed, you will typically expect $x_{B}=0$, when $\hat{x}\leq 0$, and $x_{B}=\hat{x}$ otherewise. 
+$q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|x_{B},\hat{\theta}_{B})$, if $\hat{x}$ is outside of the bounded range. Here $x_{B}$ and $\hat{\theta}_{B}$ are the values of $x$ and $\theta$ which maximise the likelihood *excluding values outside of the bounded region* for $x$ - typically, $x_{B}$ will be found at one of the boundaries which is imposed. For example, if the boundary $x>0$ is imposed, you will typically expect $x_{B}=0$, when $\hat{x}\leq 0$, and $x_{B}=\hat{x}$ otherewise. 
 
 This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.
 
