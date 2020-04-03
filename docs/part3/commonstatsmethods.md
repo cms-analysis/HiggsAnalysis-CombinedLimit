@@ -326,7 +326,7 @@ The choice of test-statistic can be made via the option `--testStat` and differe
     * The nuisance parameters are fixed to their nominal values for the purpose of evaluating the likelihood, while for generating toys, the nuisance parameters are first randomized within their pdfs before generation of the toy.
 
 * **TEV-style**: `--testStat TEV --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1`
-    * The test statistic is defined using the ratio of likelihoods $ q_{\mathrm{TEV}}=-2\ln\[\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})\] $, in which the nuisance parameters are profiled separately for $r=0$ and $r$.
+    * The test statistic is defined using the ratio of likelihoods $q_{\mathrm{TEV}}=-2\ln\[\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})\]$, in which the nuisance parameters are profiled separately for $r=0$ and $r$.
     * For the purposes of toy generation, the nuisance parameters are fixed to their post-fit values from the data (conditional on r), while the constraint terms are randomized for the evaluation of the likelihood.
 
 * **LHC-style**: `--LHCmode LHC-limits`
@@ -967,10 +967,18 @@ Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) i
 --setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
 ```
 
-The boundary is imposed by **restricting the parameter range(s)** to those set by the user, in the fits. This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.
+The boundary is imposed by **restricting the parameter range(s)** to those set by the user, in the fits. Note that this is a trick! The actual fitted value, as one of an ensemble of outcomes, can fall outside of the allowed region, while the boundary should be imposed on the physical parameter. The effect of restricting the parameter value in the fit is such that the test-statistic is modified as follows ; 
+
+$q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})$, if $\hat{x}$ in contained in the bounded range 
+
+and, 
+
+$q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|x_{B},\hat{\theta}_{B})$, if $\hat{x} is outside of the bounded range. Here $x_{B}$ and $\hat{\theta}_{B}$ are the values of $x$ and $\theta$ which maximise the likelihood *excluding values outside of the bounded region* for $x$ - typically, $x_{B}$ will be found at one of the boundaries which is imposed. For example, if the boundary $x>0$ is imposed, you will typically expect $x_{B}=0$, when $\hat{x}\leq 0$, and $x_{B}=\hat{x}$ otherewise. 
+
+This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.
 
 !!! info
-    One can also imagine imposing the boundaries by first allowing Minuit to find the minimum in the *un-restricted* (and potentially unphysical) region and then setting the test-statistic to 0 in the case that minimum lies outside the physical boundary. If you are interested in implementing this version in combine, please contact the development team.
+    One can also imagine imposing the boundaries by first allowing Minuit to find the minimum in the *un-restricted*  region and then setting the test-statistic to that above in the case that minimum lies outside the physical boundary. This would avoid potential issues of convergence - If you are interested in implementing this version in combine, please contact the development team.
 
 As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs, as described in the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section.
 
