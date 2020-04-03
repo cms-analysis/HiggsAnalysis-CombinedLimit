@@ -326,7 +326,7 @@ The choice of test-statistic can be made via the option `--testStat` and differe
     * The nuisance parameters are fixed to their nominal values for the purpose of evaluating the likelihood, while for generating toys, the nuisance parameters are first randomized within their pdfs before generation of the toy.
 
 * **TEV-style**: `--testStat TEV --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1`
-    * The test statistic is defined using the ratio of likelihoods $q_{\mathrm{TEV}}=-2\ln\[\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})\]$, in which the nuisance parameters are profiled separately for $r=0$ and $r$.
+    * The test statistic is defined using the ratio of likelihoods $q_{\mathrm{TEV}}=-2\ln[\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})]$, in which the nuisance parameters are profiled separately for $r=0$ and $r$.
     * For the purposes of toy generation, the nuisance parameters are fixed to their post-fit values from the data (conditional on r), while the constraint terms are randomized for the evaluation of the likelihood.
 
 * **LHC-style**: `--LHCmode LHC-limits`
