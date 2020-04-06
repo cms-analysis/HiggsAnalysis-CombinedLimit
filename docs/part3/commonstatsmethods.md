@@ -670,7 +670,9 @@ The output limit tree will contain the value of the test-statistic in each toy (
 
 ### Masking analysis regions in the saturated model
 
-For searches that employs a simultaneous fit across signal and control regions, it may be useful to mask one or more analysis regions either when the likelihood is maximized (fit) or when the test-statistic is computed. This can be done by using the options `--setParametersForFit` and `--setParametersForEval`, respectively. A realistic example for a binned shape analysis performed in one signal region and two control samples can be found in this directory of the Higgs-combine package [Datacards-shape-analysis-multiple-regions](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params).
+For searches that employs a simultaneous fit across signal and control regions, it may be useful to mask one or more analysis regions either when the likelihood is maximized (fit) or when the test-statistic is computed. This can be done by using the options `--setParametersForFit` and `--setParametersForEval`, respectively. The former will set parameters *before* each fit while the latter is used to set parameters *after* each fit, but before the NLL is evauated. Note of course that if the parameter in the list is floating, it will be still floating in each fit so will not effect the results when using `--setParametersForFit`.  
+
+A realistic example for a binned shape analysis performed in one signal region and two control samples can be found in this directory of the Higgs-combine package [Datacards-shape-analysis-multiple-regions](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params).
 
 First of all, one needs to combine the individual datacards to build a single model and to introduce the channel-masking variables as follow:
 
