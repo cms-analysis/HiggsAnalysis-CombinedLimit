@@ -8,7 +8,9 @@ You may first want to look at the HIG PAG standard checks applied to all datacar
 
 If you have already found the higgs boson but it's an exotic one, instead of computing a limit or significance you might want to extract it's cross section by performing a maximum-likelihood fit. Or, more seriously, you might want to use this same package to extract the cross section of some other process (e.g. the di-boson production). Or you might want to know how well the data compares to you model, e.g. how strongly it constraints your other nuisance parameters, what's their correlation, etc. These general diagnostic tools are contained in the method `FitDiagnostics`. 
 
+```
     combine -M FitDiagnostics datacard.txt
+```
 
 The program will print out the result of the *two fits* performed with signal strength **r** (or first POI in the list) set to zero and a second with floating **r**. The output root tree will contain the best fit value for **r** and it's uncertainty. You will also get a `fitDiagnostics.root` file containing the following objects:
 
@@ -46,8 +48,7 @@ The `minuit_summary_status` is the usual status from Minuit, details of which ca
 
 A fit status of -1 indicates that the fit failed (Minuit summary was not 0 or 1) and hence the fit is **not** valid.
 
-
-##### Fit options
+### Fit options
 
 - If you need only the signal+background fit, you can run with `--justFit`. This can be useful if the background-only fit is not interesting or not converging (e.g. if the significance of your signal is very very large)
 - You can use `--rMin` and `--rMax` to set the range of the first POI; a range that is not too large compared to the uncertainties you expect from the fit usually gives more stable and accurate results.
@@ -57,7 +58,7 @@ A fit status of -1 indicates that the fit failed (Minuit summary was not 0 or 1)
 - If you find the covariance matrix provided by HESSE is not accurate (i.e. `fit_s->Print()` reports this was forced positive-definite) then a custom HESSE-style calculation of the covariance matrix can be used instead. This is enabled by running FitDiagnostics with the `--robustHesse 1` option. Please note that the status reported by `RooFitResult::Print()` will contain `covariance matrix quality: Unknown, matrix was externally provided` when robustHesse is used, this is normal and does not indicate a problem. NB: one feature of the robustHesse algorithm is that if it still cannot calculate a positive-definite covariance matrix it will try to do so by dropping parameters from the hessian matrix before inverting. If this happens it will be reported in the output to the screen. 
 - For other fitting options see the [generic minimizer options](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/wiki/runningthetool#generic-minimizer-options) section.
 
-#### Fit parameter uncertainties
+### Fit parameter uncertainties
 
 If you get a warning message when running `FitDiagnostics` which says `Unable to determine uncertainties on all fit parameters`. This means the covariance matrix calculated in FitDiagnostics was not correct. 
 
@@ -72,7 +73,7 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.
 
 If you are aware that your analysis has any of these features you could try resolving these. Setting `--cminDefaultMinimizerStrategy 0` can also help with this problem.
 
-#### Pre and post fit nuisance parameters and pulls
+### Pre and post fit nuisance parameters and pulls
 
 It is possible to compare pre-fit and post-fit nuisance parameters with the script [diffNuisances.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/diffNuisances.py). Taking as input a `fitDiagnostics.root` file, the script will by default print out the parameters which have changed significantly w.r.t. their initial estimate. For each of those parameters, it will print out the shift in value and the post-fit uncertainty, both normalized to the input values, and the linear correlation between the parameter and the signal strength.
 
@@ -108,8 +109,7 @@ This script has the option (`-g outputfile.root`) to produce plots of the fitted
 !!! info
     In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\theta-\theta_{I}$. 
 
-
-#### Normalizations
+### Normalizations
 
 For a certain class of models, like those made from datacards for shape-based analysis, the tool can also compute and save to the output root file the best fit yields of all processes. If this feature is turned on with the option `--saveNormalizations`, the file will also contain three RooArgSet `norm_prefit`, `norm_fit_s`, `norm_fit_b` objects each containing one RooConstVar for each channel `xxx` and process `yyy` with name **`xxx/yyy`** and value equal to the best fit yield. You can use `RooRealVar::getVal` and `RooRealVar::getError` to estimate both the post-(or pre-)fit values and uncertainties of these normalisations. 
 
@@ -122,7 +122,7 @@ The sample pyroot macro [mlfitNormsToText.py](https://github.com/cms-analysis/Hi
 Note that this procedure works only for "extended likelihoods" like the ones used in shape-based analysis, not for the cut-and-count datacards. You can however convert a cut-and-count datacard in an equivalent shape-based one by adding a line `shapes * * FAKE` in the datacard after the `imax`, `jmax`, `kmax` or using `combineCards.py countingcard.txt -S > shapecard.txt`. 
 
 
-##### Per-bin norms for shape analyses
+#### Per-bin norms for shape analyses
  
 If you have a shape based analysis, you can also (instead) include the option `--savePredictionsPerToy`. With this option, additional branches will be filled in the three output trees contained in `fitDiagnostics.root`.  
 
@@ -134,8 +134,7 @@ Additionally, there will be filled branches which provide the value of the expec
     Be aware that for *unbinned* models, a binning scheme is adopted based on the `RooRealVar::getBinning` for the observable defining the shape, if it exists, or combine will adopt some appropriate binning for each observable. 
 
 
-
-#### Plotting
+### Plotting
 
 `FitDiagnostics` can also produce pre- and post-fit plots the model in the same directory as `fitDiagnostics.root` along with the data. To get them, you have to specify the option `--plots`, and then *optionally specify* what are the names of the signal and background pdfs, e.g. `--signalPdfNames='ggH*,vbfH*'` and `--backgroundPdfNames='*DY*,*WW*,*Top*'` (by default, the definitions of signal and background are taken from the datacard). For models with more than 1 observable, a separate projection onto each observable will be produced. 
 
@@ -173,7 +172,7 @@ Uncertainties on the shapes will be added with the option `--saveWithUncertainti
 Additionally, the covariance matrix **between** bin yields (or yields/bin-widths) in each channel will also be saved as a `TH2F` named **total_covar**. If the covariance between *all bins* across *all channels* is desired, this can be added using the option `--saveOverallShapes`. Each folder will now contain additional distributions (and covariance matrices) corresponding to the concatenation of the bins in each channel (and therefore the covaraince between every bin in the analysis). The bin labels should make it clear as to which bin corresponds to which channel. 
 
 
-#### Toy-by-toy diagnostics
+### Toy-by-toy diagnostics
 
 `FitDiagnostics` can also be used to diagnose the fitting procedure in toy experiments to identify potentially problematic nuisance parameters when running the full limits/p-values. This can be done by adding the option `-t <num toys>`. The output file, `fitDiagnostics.root` the three `TTrees` will contain the value of the constraint fitted result in each toy, as a separate entry. It is recommended to use the following options when investigating toys to reduce the running time: `--toysFrequentist` `--noErrors` `--minos none`
 
@@ -186,7 +185,6 @@ plotParametersFomToys("fitDiagnosticsToys.root","fitDiagnosticsData.root","works
 ```
 
 The first argument is the name of the output file from running with toys, and the second and third (optional) arguments are the name of the file containing the result from a fit to the data and the workspace (created from `text2workspace.py`). The fourth argument can be used to specify a cut string applied to one of the branches in the tree which can be used to correlate strange behaviour with specific conditions. The output will be 2 pdf files (**`tree_fit_(s)b.pdf`**) and 2 root files  (**`tree_fit_(s)b.root`**) containing canvases of the fit results of the tool. For details on the output plots, consult [AN-2012/317](http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2012/317).
-
 
 
 ## Scaling constraints
