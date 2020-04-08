@@ -208,8 +208,9 @@
 <h2 id="fitting-diagnostics">Fitting Diagnostics</h2>
 <p>You may first want to look at the HIG PAG standard checks applied to all datacards if you want to diagnose your limit setting/fitting results which can be found <a href="https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWG/HiggsPAGPreapprovalChecks">here</a></p>
 <p>If you have already found the higgs boson but it's an exotic one, instead of computing a limit or significance you might want to extract it's cross section by performing a maximum-likelihood fit. Or, more seriously, you might want to use this same package to extract the cross section of some other process (e.g. the di-boson production). Or you might want to know how well the data compares to you model, e.g. how strongly it constraints your other nuisance parameters, what's their correlation, etc. These general diagnostic tools are contained in the method <code>FitDiagnostics</code>. </p>
-<pre><code>combine -M FitDiagnostics datacard.txt
+<pre><code>    combine -M FitDiagnostics datacard.txt
 </code></pre>
+
 <p>The program will print out the result of the <em>two fits</em> performed with signal strength <strong>r</strong> (or first POI in the list) set to zero and a second with floating <strong>r</strong>. The output root tree will contain the best fit value for <strong>r</strong> and it's uncertainty. You will also get a <code>fitDiagnostics.root</code> file containing the following objects:</p>
 <table>
 <thead>
@@ -287,7 +288,7 @@
 
 <p>The <code>minuit_summary_status</code> is the usual status from Minuit, details of which can be found <a href="https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:Minimize">here</a>. For the other status values, check these documentation links for the <a href="https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:Hesse"><code>hesse_status</code></a> and the <a href="https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:GetMinosError"><code>minos_status</code></a>.</p>
 <p>A fit status of -1 indicates that the fit failed (Minuit summary was not 0 or 1) and hence the fit is <strong>not</strong> valid.</p>
-<h5 id="fit-options">Fit options</h5>
+<h3 id="fit-options">Fit options</h3>
 <ul>
 <li>If you need only the signal+background fit, you can run with <code>--justFit</code>. This can be useful if the background-only fit is not interesting or not converging (e.g. if the significance of your signal is very very large)</li>
 <li>You can use <code>--rMin</code> and <code>--rMax</code> to set the range of the first POI; a range that is not too large compared to the uncertainties you expect from the fit usually gives more stable and accurate results.</li>
@@ -297,7 +298,7 @@
 <li>If you find the covariance matrix provided by HESSE is not accurate (i.e. <code>fit_s-&gt;Print()</code> reports this was forced positive-definite) then a custom HESSE-style calculation of the covariance matrix can be used instead. This is enabled by running FitDiagnostics with the <code>--robustHesse 1</code> option. Please note that the status reported by <code>RooFitResult::Print()</code> will contain <code>covariance matrix quality: Unknown, matrix was externally provided</code> when robustHesse is used, this is normal and does not indicate a problem. NB: one feature of the robustHesse algorithm is that if it still cannot calculate a positive-definite covariance matrix it will try to do so by dropping parameters from the hessian matrix before inverting. If this happens it will be reported in the output to the screen. </li>
 <li>For other fitting options see the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/wiki/runningthetool#generic-minimizer-options">generic minimizer options</a> section.</li>
 </ul>
-<h4 id="fit-parameter-uncertainties">Fit parameter uncertainties</h4>
+<h3 id="fit-parameter-uncertainties">Fit parameter uncertainties</h3>
 <p>If you get a warning message when running <code>FitDiagnostics</code> which says <code>Unable to determine uncertainties on all fit parameters</code>. This means the covariance matrix calculated in FitDiagnostics was not correct. </p>
 <p>The most common problem is that the covariance matrix is forced positive-definite. In this case the constraints on fit parameters as taken from the covariance matrix are incorrect and should not be used. In particular, if you want to make post-fit plots of the distribution used in the signal extraction fit and are extracting the uncertainties on the signal and background expectations from the covariance matrix, the resulting values will not reflect the truth if the covariance matrix was incorrect. By default if this happens and you passed the <code>--saveWithUncertainties</code> flag when calling <code>FitDiagnostics</code>, this option will be ignored as calculating the uncertainties would lead to incorrect results. This behaviour can be overridden by passing <code>--ignoreCovWarning</code>.</p>
 <p>Such problems with the covariance matrix can be caused by a number of things, for example:</p>
@@ -311,7 +312,7 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.</
 </li>
 </ul>
 <p>If you are aware that your analysis has any of these features you could try resolving these. Setting <code>--cminDefaultMinimizerStrategy 0</code> can also help with this problem.</p>
-<h4 id="pre-and-post-fit-nuisance-parameters-and-pulls">Pre and post fit nuisance parameters and pulls</h4>
+<h3 id="pre-and-post-fit-nuisance-parameters-and-pulls">Pre and post fit nuisance parameters and pulls</h3>
 <p>It is possible to compare pre-fit and post-fit nuisance parameters with the script <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/diffNuisances.py">diffNuisances.py</a>. Taking as input a <code>fitDiagnostics.root</code> file, the script will by default print out the parameters which have changed significantly w.r.t. their initial estimate. For each of those parameters, it will print out the shift in value and the post-fit uncertainty, both normalized to the input values, and the linear correlation between the parameter and the signal strength.</p>
 <pre><code>python diffNuisances.py fitDiagnostics.root
 </code></pre>
@@ -345,7 +346,7 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.</
 <p class="admonition-title">Info</p>
 <p>In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of <span><span class="MathJax_Preview">\theta-\theta_{I}</span><script type="math/tex">\theta-\theta_{I}</script></span>. </p>
 </div>
-<h4 id="normalizations">Normalizations</h4>
+<h3 id="normalizations">Normalizations</h3>
 <p>For a certain class of models, like those made from datacards for shape-based analysis, the tool can also compute and save to the output root file the best fit yields of all processes. If this feature is turned on with the option <code>--saveNormalizations</code>, the file will also contain three RooArgSet <code>norm_prefit</code>, <code>norm_fit_s</code>, <code>norm_fit_b</code> objects each containing one RooConstVar for each channel <code>xxx</code> and process <code>yyy</code> with name <strong><code>xxx/yyy</code></strong> and value equal to the best fit yield. You can use <code>RooRealVar::getVal</code> and <code>RooRealVar::getError</code> to estimate both the post-(or pre-)fit values and uncertainties of these normalisations. </p>
 <p>The sample pyroot macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/mlfitNormsToText.py">mlfitNormsToText.py</a> can be used to convert the root file into a text table with four columns: channel, process, yield from the signal+background fit and yield from the background-only fit. To include the uncertainties in the table, add the option <code>--uncertainties</code></p>
 <div class="admonition warning">
@@ -353,7 +354,7 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.</
 <p>Note that when running with multiple toys, the <code>norm_fit_s</code>, <code>norm_fit_b</code> and <code>norm_prefit</code> objects will be stored for the <em>last</em> toy dataset generated and so may not be useful to you. </p>
 </div>
 <p>Note that this procedure works only for "extended likelihoods" like the ones used in shape-based analysis, not for the cut-and-count datacards. You can however convert a cut-and-count datacard in an equivalent shape-based one by adding a line <code>shapes * * FAKE</code> in the datacard after the <code>imax</code>, <code>jmax</code>, <code>kmax</code> or using <code>combineCards.py countingcard.txt -S &gt; shapecard.txt</code>. </p>
-<h5 id="per-bin-norms-for-shape-analyses">Per-bin norms for shape analyses</h5>
+<h4 id="per-bin-norms-for-shape-analyses">Per-bin norms for shape analyses</h4>
 <p>If you have a shape based analysis, you can also (instead) include the option <code>--savePredictionsPerToy</code>. With this option, additional branches will be filled in the three output trees contained in <code>fitDiagnostics.root</code>.  </p>
 <p>The normalisation values for each toy will be stored in the branches inside the <code>TTrees</code> named <strong>n_exp[_final]_binxxx_proc_yyy</strong>. The <strong>_final</strong> will only be there if there are systematics affecting this process. </p>
 <p>Additionally, there will be filled branches which provide the value of the expected <strong>bin</strong> content for each process, in each channel. These will are named as <strong>n_exp[_final]_binxxx_proc_yyy_i</strong> (where <strong>_final</strong> will only be in the name if there are systematics affecting this process) for channel <code>xxx</code>, process <code>yyy</code> bin number <code>i</code>. In the case of the post-fit trees (<code>tree_fit_s/b</code>), these will be resulting expectations from the <em>fitted</em> models, while for the pre-fit tree, they will be the expectation from the generated model (i.e if running toys with <code>-t N</code> and using <code>--genNuisances</code>, they will be randomised for each toy). These can be useful, for example, for calculating correlations/covariances between different bins, in different channels or processes, within the model from toys. </p>
@@ -361,7 +362,7 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.</
 <p class="admonition-title">Info</p>
 <p>Be aware that for <em>unbinned</em> models, a binning scheme is adopted based on the <code>RooRealVar::getBinning</code> for the observable defining the shape, if it exists, or combine will adopt some appropriate binning for each observable. </p>
 </div>
-<h4 id="plotting">Plotting</h4>
+<h3 id="plotting">Plotting</h3>
 <p><code>FitDiagnostics</code> can also produce pre- and post-fit plots the model in the same directory as <code>fitDiagnostics.root</code> along with the data. To get them, you have to specify the option <code>--plots</code>, and then <em>optionally specify</em> what are the names of the signal and background pdfs, e.g. <code>--signalPdfNames='ggH*,vbfH*'</code> and <code>--backgroundPdfNames='*DY*,*WW*,*Top*'</code> (by default, the definitions of signal and background are taken from the datacard). For models with more than 1 observable, a separate projection onto each observable will be produced. </p>
 <p>An alternative is to use the options <code>--saveShapes</code>. The result will be additional folders in <code>fitDiagnostics.root</code> for each category, with pre and post-fit distributions of the signals and backgrounds as TH1s and the data as TGraphAsymmErrors (with Poisson intervals as error bars).</p>
 <p>Three additional folders (<strong>shapes_prefit</strong>, <strong>shapes_fit_sb</strong> and <strong>shapes_fit_b</strong> ) will contain the following distributions,</p>
@@ -419,7 +420,7 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.</
 <p>It may be tempting to sum up the uncertainties in each bin (in quadrature) to get the <em>total</em> uncertainty on a process however, this is (usually) incorrect as doing so would not account for correlations <em>between the bins</em>. Instead you can refer to the uncertainties which will be added to the post-fit normalizations described above.</p>
 </div>
 <p>Additionally, the covariance matrix <strong>between</strong> bin yields (or yields/bin-widths) in each channel will also be saved as a <code>TH2F</code> named <strong>total_covar</strong>. If the covariance between <em>all bins</em> across <em>all channels</em> is desired, this can be added using the option <code>--saveOverallShapes</code>. Each folder will now contain additional distributions (and covariance matrices) corresponding to the concatenation of the bins in each channel (and therefore the covaraince between every bin in the analysis). The bin labels should make it clear as to which bin corresponds to which channel. </p>
-<h4 id="toy-by-toy-diagnostics">Toy-by-toy diagnostics</h4>
+<h3 id="toy-by-toy-diagnostics">Toy-by-toy diagnostics</h3>
 <p><code>FitDiagnostics</code> can also be used to diagnose the fitting procedure in toy experiments to identify potentially problematic nuisance parameters when running the full limits/p-values. This can be done by adding the option <code>-t &lt;num toys&gt;</code>. The output file, <code>fitDiagnostics.root</code> the three <code>TTrees</code> will contain the value of the constraint fitted result in each toy, as a separate entry. It is recommended to use the following options when investigating toys to reduce the running time: <code>--toysFrequentist</code> <code>--noErrors</code> <code>--minos none</code></p>
 <p>The results can be plotted using the macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/plotParametersFromToys.C">test/plotParametersFromToys.C</a></p>
 <pre><code class="c++">$ root -l
