@@ -144,7 +144,11 @@ See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) do
 
 Combine is also released as a standalone package, still meant to be run on SLC7 machines. Please not that while the CMSSW version is maintained regularly, the same might not be true for the standalone version. For CMS members, we advise to use the CMSSW version when possible.
 
-The standalone version can be easily compiled _CVMFS_ as it relies on dependencies which are already installed at _/cvmfs/cms.cern.ch/_. Access to _/cvmfs/cms.cern.ch/_ can be obtained from lxplus machines or via [`CernVM`](https://cernvm-online.cern.ch/). The only requirement will be to add the _CMS_ group to the CVMFS configuration. A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. In case you do not want to use the cvmfs area, you will need to adapt the location of the dependencies listed in both the Makefile and env_standalone.sh files.
+The standalone version can be easily compiled _CVMFS_ as it relies on dependencies which are already installed at _/cvmfs/cms.cern.ch/_. Access to _/cvmfs/cms.cern.ch/_ can be obtained from lxplus machines or via [`CernVM`](https://cernvm-online.cern.ch/). The only requirement will be to add the _CMS_ group to the CVMFS configuration as shown in the picture
+
+![](images/cvmsf_config.png)
+
+A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. In case you do not want to use the cvmfs area, you will need to adapt the location of the dependencies listed in both the Makefile and env_standalone.sh files.
 ```
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit/ 
