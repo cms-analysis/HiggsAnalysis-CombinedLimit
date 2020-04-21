@@ -20,6 +20,7 @@ class SMHiggsBuilder:
         if process == "ttH": self.textToSpline("SM_XS_ttH_"+energy, os.path.join(self.xspath, energy+"-ttH.txt") );
         if process == "WH":  self.textToSpline("SM_XS_WH_"+energy,  os.path.join(self.xspath, energy+"-WH.txt") );
         if process == "ZH":  self.textToSpline("SM_XS_ZH_"+energy,  os.path.join(self.xspath, energy+"-ZH.txt") );
+        if process == "ggZH":  self.textToSpline("SM_XS_ggZH_"+energy,  os.path.join(self.xspath, energy+"-ggZH.txt") );
         if process == "bbH":  self.textToSpline("SM_XS_bbH_"+energy,  os.path.join(self.xspath, energy+"-bbH.txt") );
         if process == "tHq":  self.textToSpline("SM_XS_tHq_"+energy,  os.path.join(self.xspath, energy+"-tHq.txt") );
         if process == "tHW":  self.textToSpline("SM_XS_tHW_"+energy,  os.path.join(self.xspath, energy+"-tHW.txt") );
