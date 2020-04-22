@@ -298,7 +298,7 @@ row of the product <span><span class="MathJax_Preview">A\cdot\vec{\mu}</span><sc
 <pre><code>    name constr formula dependents delta
 </code></pre>
 
-<p>where the regularization strength <span><span class="MathJax_Preview">\delta=\frac{1}{2\tau}</span><script type="math/tex">\delta=\frac{1}{2\tau}</script></span> and can either be a fixed value (eg by putting directly <code>0.01</code>) or as 
+<p>where the regularization strength <span><span class="MathJax_Preview">\delta=\frac{1}{\sqrt{\tau}}</span><script type="math/tex">\delta=\frac{1}{\sqrt{\tau}}</script></span> and can either be a fixed value (eg by putting directly <code>0.01</code>) or as 
 a modifiable parameter with eg <code>delta[0.01]</code>. </p>
 <p>For example, for 3 bins and a regularization strength of 0.03, the first line would be </p>
 <pre><code>    name constr @0-2*@2+@1 r_Bin0,r_Bin1,r_Bin2 0.03
