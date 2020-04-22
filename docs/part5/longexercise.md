@@ -661,7 +661,7 @@ Topics covered in this section:
   - B: Performing and plotting 2D likelihood scans
 
 With combine we are not limited to parametrising the signal with a single scaling parameter `r`. In fact we can define any arbitrary scaling using whatever functions and parameters we would like. 
-For example, when measuring the couplings of the Higgs boson to the different SM particles we would introduce a POI for each coupling parameter, for example $\kappa_{\text{W}}$, $\kappa_{\text{Z}}$, $\kappa_{\tau}$ etc. We would then generate scaling terms for each $i\rightarrow \text{H}\rightarrow j$ process in terms of how the cross section ($\sigma_i(\kappa)$) and branching ratio ($\frac{\Gamma_i(\kappa)}{\Gamma_{\text{tot}}(\kappa)} scale relative to the SM prediction.
+For example, when measuring the couplings of the Higgs boson to the different SM particles we would introduce a POI for each coupling parameter, for example $\kappa_{\text{W}}$, $\kappa_{\text{Z}}$, $\kappa_{\tau}$ etc. We would then generate scaling terms for each $i\rightarrow \text{H}\rightarrow j$ process in terms of how the cross section ($\sigma_i(\kappa)$) and branching ratio ($\frac{\Gamma_i(\kappa)}{\Gamma_{\text{tot}}(\kappa)}$) scale relative to the SM prediction.
 
 This parametrisation of the signal (and possibly backgrounds too) is specified in a **physics model**. This is a python class that is used by `text2workspace.py` to construct the model in terms of RooFit objects. There is documentation on using phyiscs models [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/#physics-models).
 
@@ -714,6 +714,7 @@ combine -M MultiDimFit workspace_part4.root -n .part4A -m 200 --rMin 0 --rMax 2
 For a model with two POIs it is often useful to look at the how well we are able to measure both simultaneously. A natural extension of determining 1D confidence intervals on a single parameter like we did in part 3D is to determine confidence level regions in 2D. To do this we also use combine in a similar way, with `-M MultiDimFit --algo grid`. When two POIs are found combine will scan a 2D grid of points instead of a 1D array.
 
 **Tasks and questions:**
+
   - Run a 2D likelihood scan in `r_ggH` and `r_bbH`. You can start with around 100 points but may need to increase this later too see more detail in the resulting plot.
   - Have a look at the output limit tree, it should have branches for each POI as well as the usual deltaNLL value. You can use TTree::Draw to plot a 2D histogram of deltaNLL with `r_ggH` and `r_bbH` on the axes.
 
