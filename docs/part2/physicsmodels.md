@@ -48,8 +48,8 @@ $$
 p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
 \dfrac{[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]^{n_{\mathrm{obs}}} }
 {n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]}
-\cdot e^{\frac{1}{2}(\delta_{S}- \delta_{S}^{\mathrm{In}})^{2}}
-\cdot e^{\frac{1}{2}(\delta_{B}- \delta_{B}^{\mathrm{In}})^{2}}
+\cdot e^{-\frac{1}{2}(\delta_{S}- \delta_{S}^{\mathrm{In}})^{2}}
+\cdot e^{-\frac{1}{2}(\delta_{B}- \delta_{B}^{\mathrm{In}})^{2}}
 $$
 
 where the expected signal and background rates are expressed as functions of the nuisance parameters, $n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~$ and $~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}$.
