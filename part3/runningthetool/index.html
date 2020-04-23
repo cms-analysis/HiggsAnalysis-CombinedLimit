@@ -264,9 +264,10 @@
 <li>
 <p><code>--freezeParameters name1[,name2,...]</code> Will freeze the parameters with the given names to their set values. This option supports the use of regexp via by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
 <ul>
+<li>use the option <code>--freezeParameters allConstrainedNuisances</code> to freeze all nuisance parameters that have a constraint term (i.e not <code>flatParams</code> or <code>rateParams</code> or other freely floating parameters).</li>
 <li>similarly the option <code>--floatParameters</code> sets the parameter floating.</li>
 <li>groups of nuisances (constrained or otherwise), as defined in the datacard, can be frozen using <code>--freezeNuisanceGroups</code>. You can also specify to freeze nuisances which are <em>not</em> contained in a particular group using a <strong>^</strong> before the group name (<code>--freezeNuisanceGroups=^group_name</code> will freeze everything except nuisance parameters in the group "group_name".)</li>
-<li>all <em>constrained</em> nuisance parameters (not <code>flatParam</code> or <code>rateParam</code> can be set floating using <code>--floatAllNuisances</code>.</li>
+<li>all <em>constrained</em> nuisance parameters (not <code>flatParam</code> or <code>rateParam</code>) can be set floating using <code>--floatAllNuisances</code>.</li>
 </ul>
 </li>
 </ul>
