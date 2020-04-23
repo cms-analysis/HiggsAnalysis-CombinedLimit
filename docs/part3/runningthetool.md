@@ -54,10 +54,10 @@ There are a number of useful command line options which can be used to alter the
 
 
 -   `--freezeParameters name1[,name2,...]` Will freeze the parameters with the given names to their set values. This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`
-
+    - use the option `--freezeParameters allConstrainedNuisances` to freeze all nuisance parameters that have a constraint term (i.e not `flatParams` or `rateParams` or other freely floating parameters).
     - similarly the option `--floatParameters` sets the parameter floating.
     - groups of nuisances (constrained or otherwise), as defined in the datacard, can be frozen using `--freezeNuisanceGroups`. You can also specify to freeze nuisances which are *not* contained in a particular group using a **^** before the group name (`--freezeNuisanceGroups=^group_name` will freeze everything except nuisance parameters in the group "group_name".)
-    - all *constrained* nuisance parameters (not `flatParam` or `rateParam` can be set floating using `--floatAllNuisances`.
+    - all *constrained* nuisance parameters (not `flatParam` or `rateParam`) can be set floating using `--floatAllNuisances`.
 
 !!! warning
     Note that the floating/freezing options have a priority ordering from lowest to highest as `floatParameters < freezeParameters < freezeNuisanceGroups < floatAllNuisances`. Options with higher priority will override those with lower priority.
