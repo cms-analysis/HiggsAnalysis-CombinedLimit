@@ -161,6 +161,6 @@ The standalone version can be easily compiled via _CVMFS_ as it relies on depend
 
 ![](cvmsf_config.png)
 
-A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. 
+At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). When using this predefined context after pairing the virtual maching with the Pin codeyou will be asked for username ("user") and password ("hcomb").
 
 In case you do not want to use the cvmfs area, you will need to adapt the location of the dependencies listed in both the Makefile and env_standalone.sh files.
