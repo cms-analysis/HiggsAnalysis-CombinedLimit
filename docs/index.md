@@ -155,12 +155,12 @@ make
 ```
 You will need to source env_standalone.sh each time you want to use the package, or add it to your login. 
 
-## Available machins for standalone combine
+## Available machines for standalone combine
 
 The standalone version can be easily compiled via _CVMFS_ as it relies on dependencies which are already installed at _/cvmfs/cms.cern.ch/_. Access to _/cvmfs/cms.cern.ch/_ can be obtained from lxplus machines or via [`CernVM`](https://cernvm-online.cern.ch/). The only requirement will be to add the _CMS_ group to the CVMFS configuration as shown in the picture
 
 ![](cvmsf_config.png)
 
-At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). When using this predefined context after pairing the virtual maching with the Pin codeyou will be asked for username ("user") and password ("hcomb").
+At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). When using this predefined context, after pairing the virtual maching with the PIN code (entered in the terminal using eg `#123456`, you will be asked again for username (use `user`) and then a password (use `hcomb`).
 
 In case you do not want to use the cvmfs area, you will need to adapt the location of the dependencies listed in both the Makefile and env_standalone.sh files.
