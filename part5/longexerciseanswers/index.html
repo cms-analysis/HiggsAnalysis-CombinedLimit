@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../../img/favicon.ico">
+
+    
+    <title>Solutions to long exercise - Combine</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../../css/base.min.css" rel="stylesheet">
+    <link href="../../css/cinder.min.css" rel="stylesheet">
+
+    
+        
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
+        
+    
+    <link href="../../mystyle.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            <a class="navbar-brand" href="../..">Combine</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting up the analysis <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../part2/settinguptheanalysis/">Preparing the datacard</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part2/physicsmodels/">Physics models</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Running combine <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../part3/runningthetool/">Running the tool</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/commonstatsmethods/">Common statistical methods</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/nonstandard/">Advanced use cases</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/regularisation/">Unfolding & regularization</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/validation/">Validating datacards</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../part4/usefullinks/">Links & FAQ</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tutorials <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../longexercise/">Exercise: main features</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">Solutions to long exercise</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../longexercise/">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li class="disabled">
+                        <a rel="next" >
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/102x/docs/part5/longexerciseanswers.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#answers-to-tasks-and-questions-in-long-exercise">Answers to tasks and questions in long exercise</a></li>
+            <li class="second-level"><a href="#part-1-a-one-bin-counting-experiment">Part 1: A one-bin counting experiment</a></li>
+                
+                <li class="third-level"><a href="#a-computing-limits-using-the-asymptotic-approximation">A: Computing limits using the asymptotic approximation</a></li>
+                <li class="third-level"><a href="#advanced-section-b-computing-limits-with-toys">Advanced section: B: Computing limits with toys</a></li>
+            <li class="second-level"><a href="#part-2-a-shape-based-analysis">Part 2: A shape-based analysis</a></li>
+                
+                <li class="third-level"><a href="#a-setting-up-the-datacard">A: Setting up the datacard</a></li>
+                <li class="third-level"><a href="#b-running-combine-for-a-blind-analysis">B: Running combine for a blind analysis</a></li>
+                <li class="third-level"><a href="#c-using-fitdiagnostics">C: Using FitDiagnostics</a></li>
+                <li class="third-level"><a href="#d-mc-statistical-uncertainties">D: MC statistical uncertainties</a></li>
+            <li class="second-level"><a href="#part-3-adding-control-regions">Part 3: Adding control regions</a></li>
+                
+                <li class="third-level"><a href="#a-use-of-rateparams">A: Use of rateParams</a></li>
+                <li class="third-level"><a href="#b-nuisance-parameter-impacts">B: Nuisance parameter impacts</a></li>
+                <li class="third-level"><a href="#c-post-fit-distributions">C: Post-fit distributions</a></li>
+                <li class="third-level"><a href="#d-calculating-the-significance">D: Calculating the significance</a></li>
+                <li class="third-level"><a href="#e-signal-strength-measurement-and-uncertainty-breakdown">E: Signal strength measurement and uncertainty breakdown</a></li>
+                <li class="third-level"><a href="#f-use-of-channel-masking">F: Use of channel masking</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="answers-to-tasks-and-questions-in-long-exercise">Answers to tasks and questions in long exercise</h1>
+<h2 id="part-1-a-one-bin-counting-experiment">Part 1: A one-bin counting experiment</h2>
+<h3 id="a-computing-limits-using-the-asymptotic-approximation">A: Computing limits using the asymptotic approximation</h3>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>There are some important uncertainties missing from the datacard above. Add the uncertainty on the luminosity (name: <code>lumi_13TeV</code>) which has a 2.5% effect on all processes (except the <code>jetFakes</code>, which are taken from data), and uncertainties on the inclusive cross sections of the <code>Ztautau</code> and <code>ttbar</code> processes (with names <code>xsec_Ztautau</code> and <code>xsec_diboson</code>) which are 4% and 6% respectively.</li>
+<li>
+<p>Try changing the values of some uncertainties (up or down, or removing them altogether) - how do the expected and observed limits change?
+<details>
+<summary><b>Show answer</b></summary>
+<em>Larger uncertainties make the limits worse (ie, higher values of the limit); smaller uncertainties improve the limit (lower values of the limit).</em>
+</details></p>
+</li>
+<li>
+<p>Now try changing the number of observed events. The observed limit will naturally change, but the expected does too - why might this be?
+<details>
+<summary><b>Show answer</b></summary>
+<em>This is because the expected limit relies on a background-only Asimov dataset that is created</em> <strong><em>after</em></strong> <em>a background-only fit to the data. By changing the observed the pulls on the NPs in this fit also change, and therefore so does the expected sensitivity.</em>
+</details></p>
+</li>
+</ul>
+<h3 id="advanced-section-b-computing-limits-with-toys">Advanced section: B: Computing limits with toys</h3>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>In contrast to <code>AsymptoticLimits</code>, with <code>HybridNew</code> each limit comes with an uncertainty. What is the origin of this uncertainty?
+<details>
+<summary><b>Show answer</b></summary>
+<em>The uncertainty is statistical, because the values of CLs+b and CLb come from counting the number of toys in the tails of the test statistic distributions.</em>
+</details></li>
+<li>How good is the agreement between the asymptotic and toy-based methods?
+<details>
+<summary><b>Show answer</b></summary>
+<em>The agreement should be pretty good in this example, but will generally break down once we get to the level of 0-5 events.</em>
+</details></li>
+<li>Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on CLs+b and CLb.
+<details>
+<summary><b>Show answer</b></summary>
+<em>For this we need the definition of CLs = CLs+b / CLb. The 0.025 expected quantile is by definition where CLb = 0.025, so for a 95% CL limit we have CLs = 0.05, implying we are looking for the value of r where CLs+b = 0.00125. With 1000 s+b toys we would then only expect 1000 * 0.00125 = 1.25 toys in the tail region we have to integrate over. Contrast this to the median limit where 25 toys would be in this region. This means we have to generate a much larger numbers of toys to get the same statistical power.</em>
+</details></li>
+</ul>
+<h4 id="advanced-exercises">Advanced exercises</h4>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Is the asymptotic limit still a good approximation?
+<details>
+<summary><b>Show answer</b></summary>
+<em>A "good" approximation is not well defined, but the difference is clearly larger here.</em>
+</details></li>
+<li>You might notice that the test statistic distributions are not smooth but rather have several "bump" structures? Where might this come from? Try reducing the size of the systematic uncertainties to make them more pronounced.
+<details>
+<summary><b>Show answer</b></summary>
+<em>This bump structure comes from the discrete-ness of the Poisson sampling of the toy datasets. Systematic uncertainties then smear these bumps out, but without systematics we would see delta functions corresponding to the possible integer number of events that could be observed. Once we go to more typical multi-bin analyses with more events and systematic uncertainties these discrete-ness washes out very quickly.</em>
+</details></li>
+</ul>
+<h2 id="part-2-a-shape-based-analysis">Part 2: A shape-based analysis</h2>
+<h3 id="a-setting-up-the-datacard">A: Setting up the datacard</h3>
+<p>Only tasks, no questions in this section</p>
+<h3 id="b-running-combine-for-a-blind-analysis">B: Running combine for a blind analysis</h3>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Compare the expected limits calculated with --run expected and --run blind. Why are they different?
+<details>
+<summary><b>Show answer</b></summary>
+<em>When using --run blind combine will create a background-only Asimov dataset without performing a fit to data first. With --run expected, the observed limit isn't shown, but the background-only Asimov dataset used for the limit calculation is still created after a background-only fit to the data</em>
+</details></li>
+<li>Calculate a blind limit by generating a background-only Asimov with the -t option instead of using the AsymptoticLimits specific options. You should find the observed limit is the same as the expected. Then see what happens if you inject a signal into the Asimov dataset using the --expectSignal [X] option.
+<details>
+<summary><b>Show answer</b></summary>
+<em>You should see that with a signal injected the observed limit is worse (has a higher value) than the expected limit: for the expected limit the b-only Asimov dataset is still used, but the observed limit is now calculated on the signal + background Asimov dataset, with a signal at the specified cross section [X].</em>
+</details></li>
+</ul>
+<h3 id="c-using-fitdiagnostics">C: Using FitDiagnostics</h3>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Which parameter has the largest pull? Which has the tightest constraint?
+<details>
+<summary><b>Show answer</b></summary>
+<code>CMS_eff_t_highpt</code> <em>should have the largest pull (around 0.47)</em>, <code>norm_jetFakes</code> <em>has the tightest constraint (to 25% of the input uncertainty).</em>
+</details></li>
+<li>Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. <span><span class="MathJax_Preview">\frac{\sigma}{\sigma_I}&lt;1.0</span><script type="math/tex">\frac{\sigma}{\sigma_I}<1.0</script></span>)?
+<details>
+<summary><b>Show answer</b></summary>
+<em>This is still a hot topic in CMS analyses today, and there isn't a right or wrong answer. Essentially we have to judge if our analysis should really be able to provide more information about this parameter than the external measurement that gave us the input uncertainty. So we would not expect to be able to constrain the luminosity uncertainty for example, but uncertainties specific to the analysis might legitimately be constrained.</em>
+</details></li>
+</ul>
+<h3 id="d-mc-statistical-uncertainties">D: MC statistical uncertainties</h3>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Check how much the cross section measurement and uncertainties change using <code>FitDiagnostics</code>.
+<details>
+<summary><b>Show answer</b></summary>
+<em>Without autoMCStats we find:</em> <code>Best fit r: -2.73273  -2.13428/+3.38185</code><em>, with autoMCStats:</em> <code>Best fit r: -3.07825  -3.17742/+3.7087</code>
+</details></li>
+<li>It is also useful to check how the expected uncertainty changes using an Asimov dataset, say with <code>r=10</code> injected.
+<details>
+<summary><b>Show answer</b></summary>
+<em>Without autoMCStats we find:</em> <code>Best fit r: 9.99978  -4.85341/+6.56233</code><em>, with autoMCStats:</em><code>Best fit r: 9.99985  -5.24634/+6.98266</code>
+</details></li>
+<li><strong>Advanced task:</strong> See what happens if the Poisson threshold is increased. Based on your results, what threshold would you recommend for this analysis?
+<details>
+<summary><b>Show answer</b></summary>
+<em>At first the uncertainties increase, as the threshold increases, and at some point they stabilise. A Poisson threshold at 10 is probably reasonable for this analysis.</em>
+</details></li>
+</ul>
+<h2 id="part-3-adding-control-regions">Part 3: Adding control regions</h2>
+<h3 id="a-use-of-rateparams">A: Use of rateParams</h3>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Run <code>text2workspace.py</code> on this combined card and then use <code>FitDiagnostics</code> on an Asimov dataset with <code>r=1</code> to get the expected uncertainty. Suggested command line options: <code>--rMin 0 --rMax 2</code>
+<details>
+<summary><b>Show answer</b></summary>
+<em>As expected uncertainty you should get  -0.42542/+0.458748</em>
+</details></li>
+<li>Using the RooFitResult in the <code>fitdiagnostics.root</code> file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
+<details>
+<summary><b>Show answer</b></summary>
+<em>They are constrained to around 4-5%</em>
+</details></li>
+<li>To compare to the previous approach of fitting the SR only, with cross section and acceptance uncertainties restored, an additional card is provided: <code>datacard_part3_nocrs.txt</code>. Run the same fit on this card to verify the improvement of the SR+CR approach
+<details>
+<summary><b>Show answer</b></summary>
+<em>The expected uncertainty is larger with only the SR: -0.463273/+0.499161 compared with -0.42542/+0.458748 in the SR+CR approach.</em>
+</details></li>
+</ul>
+<h3 id="b-nuisance-parameter-impacts">B: Nuisance parameter impacts</h3>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Identify the most important uncertainties using the impacts tool.
+<details>
+<summary><b>Show answer</b></summary>
+<em>The most important uncertainty is </em><code>norm_jetFakes</code><em>, followed by two MC statistical uncerainties</em> (<code>prop_binsignal_region_bin8</code> <em>and</em> <code>prop_binsignal_region_bin9</code>).
+</details></li>
+<li>In the plot, some parameters do not show a pull, but rather just a numerical value - why?
+<details>
+<summary><b>Show answer</b></summary>
+<em>These are freely floating parameters (rate_ttbar and rate_Zll). They have no prior constraint (and so no pull) - we show the best-fit value + uncertainty directly.</em>
+</details></li>
+</ul>
+<h3 id="c-post-fit-distributions">C: Post-fit distributions</h3>
+<p><strong>Tasks and questions:</strong></p>
+<p>The bin errors on the TH1s in the fitdiagnostics file are determined from the systematic uncertainties. In the post-fit these take into account the additional constraints on the nuisance parameters as well as any correlations.</p>
+<ul>
+<li>Why is the uncertainty on the post-fit so much smaller than on the pre-fit?
+<details>
+<summary><b>Show answer</b></summary>
+<em>There are two effects at play here: the nuisance parameters get constrained, and there are anti-correlations between the parameters which also have the effect of reducing the total uncertainty. Note: the post-fit uncertainty could become larger when rateParams are present as they are not taken into account in the pre-fit uncertainty but do enter in the post-fit uncertainty.</em>
+</details></li>
+</ul>
+<h3 id="d-calculating-the-significance">D: Calculating the significance</h3>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li><strong>Advanced task</strong> It is also possible to calculate the significance using toys with <code>HybridNew</code> (details <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-significances-with-toys">here</a>) if we are in a situation where the asymptotic approximation is not reliable or if we just want to verify the result. Why might this be challenging for a high significance, say larger than <span><span class="MathJax_Preview">5\sigma</span><script type="math/tex">5\sigma</script></span>?
+<details>
+<summary><b>Show answer</b></summary>
+A significance of <span><span class="MathJax_Preview">5\sigma</span><script type="math/tex">5\sigma</script></span> corresponds to a p-value of around <span><span class="MathJax_Preview">3\cdot 10^{-7}</span><script type="math/tex">3\cdot 10^{-7}</script></span> - so we need to populate the very tail of the test statistic distribution and this requires generating a large number of toys.
+</details></li>
+</ul>
+<h3 id="e-signal-strength-measurement-and-uncertainty-breakdown">E: Signal strength measurement and uncertainty breakdown</h3>
+<p><strong> Tasks and questions: </strong></p>
+<ul>
+<li>Take our stat+syst split one step further and separate the systematic part into two: one part for hadronic tau uncertainties and one for all others. Do this by defining a <code>tauID</code> group in the datacard including the following parameters: <code>CMS_eff_t</code>, <code>CMS_eff_t_highpt</code>, and the three <code>CMS_scale_t_X</code> uncertainties.</li>
+</ul>
+<details>
+<summary><b>Show datacard line</b></summary>
+You should add this line to the end of the datacard:
+
+<pre><code class="shell">tauID group = CMS_eff_t CMS_eff_t_highpt CMS_scale_t_1prong0pi0_13TeV CMS_scale_t_1prong1pi0_13TeV CMS_scale_t_3prong0pi0_13TeV
+</code></pre>
+
+</details>
+
+<ul>
+<li>To plot this and calculate the split via the relations above you can just add further arguments to the <code>--others</code> option in the <code>plot1DScan.py</code> script. Each is of the form: <code>'[file]:[label]:[color]'</code>. The <code>--breakdown</code> argument should also be extended to three terms.</li>
+</ul>
+<details>
+<summary><b>Show code</b></summary>
+This can be done as:
+
+<pre><code class="shell">python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsCombine.part3E.freezeTauID.MultiDimFit.mH200.root:FreezeTauID:4' 'higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2' -o freeze_third_attempt --breakdown TauID,OtherSyst,Stat
+</code></pre>
+
+</details>
+
+<ul>
+<li>How important are these tau-related uncertainties compared to the others?
+<details>
+<summary><b>Show answer</b></summary>
+<em>They are smaller than both the statistical uncertainty and the remaining systematic uncertainties</em>
+</details></li>
+</ul>
+<h3 id="f-use-of-channel-masking">F: Use of channel masking</h3>
+<p>No specific questions, just tasks</p></div>
+        
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
+
+        
+        
+    </footer>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+    <script>var base_url = "../.."</script>
+    
+    <script src="../../js/base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script src="../../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>
