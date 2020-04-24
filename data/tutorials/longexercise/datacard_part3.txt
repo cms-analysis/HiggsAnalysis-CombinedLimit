@@ -1,0 +1,27 @@
+imax    1 number of bins
+jmax    4 number of processes minus 1
+kmax    * number of nuisance parameters
+--------------------------------------------------------------------------------
+shapes * signal_region datacard_part3.shapes.root signal_region/$PROCESS signal_region/$PROCESS_$SYSTEMATIC
+shapes bbHtautau signal_region datacard_part3.shapes.root signal_region/bbHtautau$MASS signal_region/bbHtautau$MASS_$SYSTEMATIC
+--------------------------------------------------------------------------------
+bin          signal_region   
+observation  3416.0          
+--------------------------------------------------------------------------------
+bin                                  signal_region   signal_region   signal_region   signal_region   signal_region   
+process                              ttbar           diboson         Ztautau         jetFakes        bbHtautau       
+process                              1               2               3               4               0               
+rate                                 683.017         96.5185         742.649         2048.94         198.521         
+--------------------------------------------------------------------------------
+CMS_eff_b                    lnN     1.02            1.02            1.02            -               1.02            
+CMS_eff_t                    lnN     1.12            1.12            1.12            -               1.12            
+CMS_eff_t_highpt             shape   1               1               1               -               1               
+CMS_scale_t_1prong0pi0_13TeV shape   1               1               1               -               1               
+CMS_scale_t_1prong1pi0_13TeV shape   1               1               1               -               1               
+CMS_scale_t_3prong0pi0_13TeV shape   1               1               1               -               1               
+acceptance_bbH               lnN     -               -               -               -               1.05            
+lumi_13TeV                   lnN     1.025           1.025           1.025           -               1.025           
+norm_jetFakes                lnN     -               -               -               1.2             -               
+top_pt_ttbar_shape           shape   1               -               -               -               -               
+xsec_diboson                 lnN     -               1.05            -               -               -               
+* autoMCStats 0

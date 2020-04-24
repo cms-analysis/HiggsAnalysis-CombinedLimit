@@ -1,0 +1,18 @@
+imax    1 number of bins
+jmax    5 number of processes minus 1
+kmax    * number of nuisance parameters
+--------------------------------------------------------------------------------
+shapes * DY_control_region datacard_part3_DY_cr.shapes.root DY_control_region/$PROCESS DY_control_region/$PROCESS_$SYSTEMATIC
+--------------------------------------------------------------------------------
+bin          DY_control_region 
+observation  365754.0        
+--------------------------------------------------------------------------------
+bin                      DY_control_region DY_control_region DY_control_region DY_control_region DY_control_region DY_control_region 
+process                  W               QCD             Zmumu           ttbar           VV              Ztautau         
+process                  1               2               3               4               5               6               
+rate                     59.9999         141.725         305423          34341.1         5273.43         115.34          
+--------------------------------------------------------------------------------
+CMS_eff_m        lnN     -               -               1.04            1.04            -               -               
+acceptance_DY_cr lnN     -               -               1.02            -               -               -               
+lumi_13TeV       lnN     1.025           -               -               -               1.025           1.025           
+* autoMCStats 0
