@@ -17,6 +17,7 @@ nav:
           - "Validating datacards":       part3/validation.md
         - Links & FAQ: part4/usefullinks.md
         - Tutorials:
+          - "RooFit Basics":              part5/roofit.md
           - "Exercise: main features":    part5/longexercise.md
           - "Solutions to long exercise": part5/longexerciseanswers.md
 
