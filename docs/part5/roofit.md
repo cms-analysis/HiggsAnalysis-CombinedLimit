@@ -1,4 +1,4 @@
-# 1. RooFit
+# RooFit
 `RooFit` is a OO analysis environment built on `ROOT`. It has a collection of classes designed to augment root for data modeling.
 
 This section covers a few of the basics of `RooFit`. There are many more tutorials available at this link: [https://root.cern.ch/root/html600/tutorials/roofit/index.html](https://root.cern.ch/root/html600/tutorials/roofit/index.html)
@@ -272,7 +272,7 @@ can->Draw();
 ```
 [](images/realdata.png)
 
-# 2. Likelihoods and Fitting to data 
+# Likelihoods and Fitting to data 
 
 The data we have in our file doesn't look like a Gaussian distribution. Instead, we could probably use something like an exponential to describe it. 
 
@@ -529,7 +529,7 @@ model.fitTo(*hgg_data,RooFit::Extended());
 ```
 
 <details>
-<summary><b>Show</b></summary>
+<summary><b>Show output</b></summary>
 ```shell
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (signal,exp)
