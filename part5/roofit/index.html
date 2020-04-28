@@ -203,17 +203,17 @@
         
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#1-roofit">1. RooFit</a></li>
+        <li class="first-level active"><a href="#roofit">RooFit</a></li>
             <li class="second-level"><a href="#objects">Objects</a></li>
                 
             <li class="second-level"><a href="#datasets">Datasets</a></li>
                 
-        <li class="first-level "><a href="#2-likelihoods-and-fitting-to-data">2. Likelihoods and Fitting to data</a></li>
+        <li class="first-level "><a href="#likelihoods-and-fitting-to-data">Likelihoods and Fitting to data</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<h1 id="1-roofit">1. RooFit</h1>
+<h1 id="roofit">RooFit</h1>
 <p><code>RooFit</code> is a OO analysis environment built on <code>ROOT</code>. It has a collection of classes designed to augment root for data modeling.</p>
 <p>This section covers a few of the basics of <code>RooFit</code>. There are many more tutorials available at this link: <a href="https://root.cern.ch/root/html600/tutorials/roofit/index.html">https://root.cern.ch/root/html600/tutorials/roofit/index.html</a></p>
 <h2 id="objects">Objects</h2>
@@ -445,7 +445,7 @@ can-&gt;Draw();
 </code></pre>
 
 <p><a href="../images/realdata.png"></a></p>
-<h1 id="2-likelihoods-and-fitting-to-data">2. Likelihoods and Fitting to data</h1>
+<h1 id="likelihoods-and-fitting-to-data">Likelihoods and Fitting to data</h1>
 <p>The data we have in our file doesn't look like a Gaussian distribution. Instead, we could probably use something like an exponential to describe it. </p>
 <p>There is an exponential PDF already in <code>RooFit</code> (yep you guessed it) <code>RooExponential</code>. For a pdf, we only need one parameter which is the exponential slope <span><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> so our pdf is,  </p>
 <div>
@@ -671,7 +671,7 @@ model.fitTo(*hgg_data,RooFit::Extended());
 </code></pre>
 
 <details>
-<summary><b>Show</b></summary>
+<summary><b>Show output</b></summary>
 
 <pre><code class="shell">[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (signal,exp)
