@@ -532,8 +532,7 @@ model.fitTo(*hgg_data,RooFit::Extended());
 <summary><b>Show</b></summary>
 ```shell
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
-[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (signal)
-[#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (exp)
+[#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (signal,exp)
  **********
  **    1 **SET PRINT           1
  **********
@@ -542,9 +541,12 @@ model.fitTo(*hgg_data,RooFit::Extended());
  **********
  PARAMETER DEFINITIONS:
     NO.   NAME         VALUE      STEP SIZE      LIMITS
-     1 alpha       -4.08262e-02  2.91959e-03   -2.00000e-01  1.00000e-02
-     2 norm_b       5.00000e+02  1.00000e+02    0.00000e+00  1.00000e+03
-     3 norm_s       5.50000e+01  9.00000e+00    1.00000e+01  1.00000e+02
+     1 MH           1.25000e+02  1.00000e+00    1.20000e+02  1.30000e+02
+     2 alpha       -4.08793e-02  2.96856e-03   -2.00000e-01  1.00000e-02
+     3 norm_b       9.67647e+02  3.25747e+01    0.00000e+00  1.00000e+03
+ MINUIT WARNING IN PARAMETR
+ ============== VARIABLE3 BROUGHT BACK INSIDE LIMITS.
+     4 norm_s       3.22534e+01  1.16433e+01    1.00000e+01  1.00000e+02
  **********
  **    3 **SET ERR         0.5
  **********
@@ -556,38 +558,42 @@ model.fitTo(*hgg_data,RooFit::Extended());
  **********
  NOW USING STRATEGY  1: TRY TO BALANCE SPEED AGAINST RELIABILITY
  **********
- **    6 **MIGRAD        1500           1
+ **    6 **MIGRAD        2000           1
  **********
  FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
  START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
- FCN=-2171.16 FROM MIGRAD    STATUS=INITIATE       12 CALLS          13 TOTAL
+ FCN=-2327.53 FROM MIGRAD    STATUS=INITIATE       10 CALLS          11 TOTAL
                      EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
   EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
   NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
-   1  alpha       -4.08262e-02   2.91959e-03   3.24715e-02   8.37267e-01
-   2  norm_b       5.00000e+02   1.00000e+02   2.01358e-01  -4.31189e+02
-   3  norm_s       5.50000e+01   9.00000e+00   2.01358e-01  -1.12998e+01
+   1  MH           1.25000e+02   1.00000e+00   2.01358e-01   1.12769e+01
+   2  alpha       -4.08793e-02   2.96856e-03   3.30048e-02  -1.22651e-01
+   3  norm_b       9.67647e+02   3.25747e+01   2.56674e-01  -1.96463e-02
+   4  norm_s       3.22534e+01   1.16433e+01   3.10258e-01  -8.97036e-04
                                ERR DEF= 0.5
  MIGRAD MINIMIZATION HAS CONVERGED.
  MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
  COVARIANCE MATRIX CALCULATED SUCCESSFULLY
- FCN=-2327.53 FROM MIGRAD    STATUS=CONVERGED      89 CALLS          90 TOTAL
-                     EDM=2.70696e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+ FCN=-2327.96 FROM MIGRAD    STATUS=CONVERGED      65 CALLS          66 TOTAL
+                     EDM=1.19174e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
   EXT PARAMETER                                   STEP         FIRST   
   NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
-   1  alpha       -4.08793e-02   2.96856e-03   1.10003e-03  -1.22544e-01
-   2  norm_b       9.67647e+02   3.25523e+01   5.72865e-03  -1.80553e-02
-   3  norm_s       3.22534e+01   1.16360e+01   9.71065e-03  -1.00987e-03
+   1  MH           1.24628e+02   3.98153e-01   2.66539e-03   2.46327e-02
+   2  alpha       -4.07708e-02   2.97195e-03   1.10093e-03   8.33780e-02
+   3  norm_b       9.66105e+02   3.25772e+01   5.96627e-03   1.83523e-03
+   4  norm_s       3.39026e+01   1.17380e+01   9.60816e-03  -2.32681e-03
                                ERR DEF= 0.5
- EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  3    ERR DEF=0.5
-  8.816e-06  1.310e-04 -1.322e-04 
-  1.310e-04  1.072e+03 -1.064e+02 
- -1.322e-04 -1.064e+02  1.397e+02 
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  4    ERR DEF=0.5
+  1.589e-01 -3.890e-05  1.462e-01 -1.477e-01 
+ -3.890e-05  8.836e-06 -2.020e-04  2.038e-04 
+  1.462e-01 -2.020e-04  1.073e+03 -1.072e+02 
+ -1.477e-01  2.038e-04 -1.072e+02  1.420e+02 
  PARAMETER  CORRELATION COEFFICIENTS  
-       NO.  GLOBAL      1      2      3
-        1  0.00378   1.000  0.001 -0.004
-        2  0.27495   0.001  1.000 -0.275
-        3  0.27497  -0.004 -0.275  1.000
+       NO.  GLOBAL      1      2      3      4
+        1  0.04518   1.000 -0.033  0.011 -0.031
+        2  0.03317  -0.033  1.000 -0.002  0.006
+        3  0.27465   0.011 -0.002  1.000 -0.275
+        4  0.27610  -0.031  0.006 -0.275  1.000
  **********
  **    7 **SET ERR         0.5
  **********
@@ -595,31 +601,34 @@ model.fitTo(*hgg_data,RooFit::Extended());
  **    8 **SET PRINT           1
  **********
  **********
- **    9 **HESSE        1500
+ **    9 **HESSE        2000
  **********
  COVARIANCE MATRIX CALCULATED SUCCESSFULLY
- FCN=-2327.53 FROM HESSE     STATUS=OK             16 CALLS         106 TOTAL
-                     EDM=2.70761e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+ FCN=-2327.96 FROM HESSE     STATUS=OK             23 CALLS          89 TOTAL
+                     EDM=1.19078e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
   EXT PARAMETER                                INTERNAL      INTERNAL  
   NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
-   1  alpha       -4.08793e-02   2.96856e-03   2.20007e-04   5.41516e-01
-   2  norm_b       9.67647e+02   3.25747e+01   2.29146e-04   1.20909e+00
-   3  norm_s       3.22534e+01   1.16433e+01   3.88426e-04  -5.29939e-01
+   1  MH           1.24628e+02   3.98106e-01   5.33077e-04  -7.45154e-02
+   2  alpha       -4.07708e-02   2.97195e-03   2.20186e-04   5.42722e-01
+   3  norm_b       9.66105e+02   3.26003e+01   2.38651e-04   1.20047e+00
+   4  norm_s       3.39026e+01   1.17445e+01   3.84326e-04  -4.87967e-01
                                ERR DEF= 0.5
- EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  3    ERR DEF=0.5
-  8.816e-06  1.367e-04 -1.370e-04 
-  1.367e-04  1.073e+03 -1.074e+02 
- -1.370e-04 -1.074e+02  1.398e+02 
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  4    ERR DEF=0.5
+  1.588e-01 -3.888e-05  1.304e-01 -1.304e-01 
+ -3.888e-05  8.836e-06 -1.954e-04  1.954e-04 
+  1.304e-01 -1.954e-04  1.074e+03 -1.082e+02 
+ -1.304e-01  1.954e-04 -1.082e+02  1.421e+02 
  PARAMETER  CORRELATION COEFFICIENTS  
-       NO.  GLOBAL      1      2      3
-        1  0.00392   1.000  0.001 -0.004
-        2  0.27718   0.001  1.000 -0.277
-        3  0.27720  -0.004 -0.277  1.000
+       NO.  GLOBAL      1      2      3      4
+        1  0.04274   1.000 -0.033  0.010 -0.027
+        2  0.03314  -0.033  1.000 -0.002  0.006
+        3  0.27694   0.010 -0.002  1.000 -0.277
+        4  0.27806  -0.027  0.006 -0.277  1.000
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: deactivating const optimization
 ```
 </details>
 
-Notice now the result for the fitted MH is not 125 and gets added to the fitted parameters since now it is floating.
+Notice the result for the fitted MH is not 125 and is included in the list of fitted parameters. 
 We can get more information about the fit, via the `RooFitResult`, using the option `Save()`. 
 
 ```c++
