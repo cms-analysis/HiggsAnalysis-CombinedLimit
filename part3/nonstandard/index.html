@@ -698,9 +698,9 @@ h-&gt;Fit(&quot;gaus&quot;)
    TTree *tree = new TTree(&quot;tree_vals&quot;,&quot;tree_vals&quot;);
    float xb,yb,fb;
 
-   tree-&gt;Branch(&quot;f&quot;,&amp;fb,&quot;f/Float_t&quot;);
-   tree-&gt;Branch(&quot;x&quot;,&amp;xb,&quot;x/Float_t&quot;);
-   tree-&gt;Branch(&quot;y&quot;,&amp;yb,&quot;y/Float_t&quot;);
+   tree-&gt;Branch(&quot;f&quot;,&amp;fb,&quot;f/F&quot;);
+   tree-&gt;Branch(&quot;x&quot;,&amp;xb,&quot;x/F&quot;);
+   tree-&gt;Branch(&quot;y&quot;,&amp;yb,&quot;y/F&quot;);
 
    TRandom3 *r = new TRandom3();
    int nentries = 20; // just use a regular grid of 20x20
@@ -766,8 +766,8 @@ h-&gt;Fit(&quot;gaus&quot;)
      for (double yy=xmin;yy&lt;ymax;yy+=0.1){
         x.setVal(xx);
         y.setVal(yy);
-      gr-&gt;SetPoint(pt,xx,yy,spline.getVal());
-      pt++;
+        gr-&gt;SetPoint(pt,xx,yy,spline-&gt;getVal());
+        pt++;
      }
    }
 
