@@ -495,9 +495,9 @@ void splinend(){
    TTree *tree = new TTree("tree_vals","tree_vals");
    float xb,yb,fb;
 
-   tree->Branch("f",&fb,"f/Float_t");
-   tree->Branch("x",&xb,"x/Float_t");
-   tree->Branch("y",&yb,"y/Float_t");
+   tree->Branch("f",&fb,"f/F");
+   tree->Branch("x",&xb,"x/F");
+   tree->Branch("y",&yb,"y/F");
    
    TRandom3 *r = new TRandom3();
    int nentries = 20; // just use a regular grid of 20x20
@@ -563,8 +563,8 @@ void splinend(){
      for (double yy=xmin;yy<ymax;yy+=0.1){
         x.setVal(xx);
         y.setVal(yy);
-      gr->SetPoint(pt,xx,yy,spline.getVal());
-      pt++;
+        gr->SetPoint(pt,xx,yy,spline->getVal());
+        pt++;
      }
    }
 
