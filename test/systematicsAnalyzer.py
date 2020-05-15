@@ -3,6 +3,7 @@ import re
 import os.path
 from math import *
 from optparse import OptionParser
+import sys 
 
 parser = OptionParser()
 parser.add_option("-f", "--format",  type="string",   dest="format", default="html", help="Format for output number (choose html or brief)")
@@ -11,6 +12,7 @@ parser.add_option("-p", "--process",    dest="process",     default=None,  type=
 parser.add_option("-D", "--dataset", dest="dataname", default="data_obs",  type="string",  help="Name of the observed dataset")
 parser.add_option("-s", "--search", "--grep", dest="grep", default=[], action="append",  type="string",  help="Selection of nuisance parameters (regexp, can be used multiple times)")
 parser.add_option("-a", "--all", dest="all", default=False,action='store_true',  help="Report all nuisances (default is only lnN)")
+parser.add_option("", "--t2w", dest="t2w", default=False,action='store_true',  help="Run text2workspace -- only effects datacards with param lines")
 parser.add_option("", "--noshape", dest="noshape", default=False,action='store_true',  help="Counting experiment only (alternatively, build a shape analysis from combineCards.py -S card.txt > newcard.txt )")
 (options, args) = parser.parse_args()
 options.stat = False
@@ -22,12 +24,26 @@ options.fixpars = False
 options.libs = []
 options.verbose = 0
 options.poisson = 0
+options.nuisanceFunctions = []
+options.nuisanceGroupFunctions = []
+options.noOptimizePdf=False
+options.optimizeBoundNuisances=False
+options.useHistPdf=False
+options.optimizeExistingTemplates=False
+options.packAsymPows=False
+options.noBOnly=True
+options.moreOptimizeSimPdf="none"
+options.doMasks=False
+options.defMorph = "shape"
+options.nuisancesToRescale = ""
 options.nuisancesToExclude = []
 options.noJMax = True
 options.allowNoSignal = True
 options.modelparams = [] 
 options.optimizeMHDependency = False 
-
+options.optimizeTemplateBins=False
+options.forceNonSimPdf = False
+options.physModel = "HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 import sys
 sys.argv = [ '-b-']
@@ -43,12 +59,26 @@ if options.fileName.endswith(".gz"):
     options.fileName = options.fileName[:-3]
 else:
     file = open(options.fileName, "r")
+from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 DC = parseCard(file, options)
 
 if not DC.hasShapes: DC.hasShapes = True
 MB = ShapeBuilder(DC, options)
-if not options.noshape: MB.prepareAllShapes()
+if not options.noshape: 
+  MB.prepareAllShapes()
+
+MODELBUILT=False
+def buildModel():
+  ## Load physics model
+  (physModMod, physModName) = options.physModel.split(":")
+  __import__(physModMod)
+  mod = sys.modules[physModMod]
+  physics = getattr(mod, physModName)
+  ## Attach to the tools, and run
+  MB.setPhysics(physics)
+  MB.doModel(False)
+  return True
 
 def commonStems(list, sep="_"):
     hits = {}
@@ -72,59 +102,114 @@ def commonStems(list, sep="_"):
        if k not in veto: ret.append((k,v))
     ret.sort()
     return ret 
-    
+
+if options.t2w: 
+	buildModel()
+	MODELBUILT=True
+
 report = {}; errlines = {}; outParams = {}
 for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
-    if ("param" in pdf) or ("Param" in pdf) or ("discrete" in pdf): 
-    	 if options.all: outParams[lsyst]=[pdf,pdfargs]
+    if ("rateParam" in pdf) or ("discrete" in pdf): 
+         if options.all: outParams[lsyst]=[pdf,pdfargs]
+    if not options.t2w and ("param" in pdf): outParams[lsyst]=[pdf,pdfargs]
+
     if not options.all and pdf != "lnN": continue
-    if not len(errline) : continue
+    if not options.t2w and "param" in pdf : continue 
+    if "param" in pdf: 
+      if not len(errline): errline = {b:{p:0 for p in DC.exp[b].iterkeys() } for b in DC.bins}
     types = []
     minEffect, maxEffect = 999.0, 1.0
     processes = {}
     channels  = []
     errlines[lsyst] = errline
+    vals = []
+    if "param" in pdf and not  MODELBUILT:continue 
     for b in DC.bins:
         numKeysFound = 0
-    	types.append(pdf)
         channels.append(b)
         for p in DC.exp[b].iterkeys():
-            if errline[b][p] == 0: continue
-	    numKeysFound+=1
-            processes[p] = True
+            if (not pdf=="param") and errline[b][p] == 0: continue
             if pdf == "gmN":
-		minEffect = pdfargs[0] 
-		maxEffect = pdfargs[0]
-	    else: 
-	     if "shape" in pdf and MB.isShapeSystematic(b,p,lsyst):
-		vals = []
+               numKeysFound+=1
+               minEffect = pdfargs[0] 
+               maxEffect = pdfargs[0]
+               processes[p] = True
+            elif pdf == "param":
+	       if not MODELBUILT: continue 
+               formula = "n_exp_final_bin%s_proc_%s"%(b,p)
+               if not MB.out.function(formula) : formula = "n_exp_bin%s_proc_%s"%(b,p)
+	       if not MB.out.function(formula) : sys.exit("No formula %s"%formula)
+               if not (MB.out.function(formula).getParameters(ROOT.RooArgSet())).contains(MB.out.var(lsyst)): continue
+               centralVal = float(pdfargs[0])
+               if "/" in pdfargs[1]: 
+                 minError, maxError = float(pdfargs[1].split("/")[0]),float(pdfargs[1].split("/")[1])
+               else: 
+                 minError, maxError =  -1*float(pdfargs[1]),float(pdfargs[1])
+               MB.out.var(lsyst).setVal(centralVal)
+               centralNorm =  MB.out.function(formula).getVal()
+	       if centralNorm<=0: continue
+               MB.out.var(lsyst).setVal(centralVal+minError)
+               lowNorm =  MB.out.function(formula).getVal()
+               MB.out.var(lsyst).setVal(centralVal+maxError)
+               highNorm =  MB.out.function(formula).getVal()
+	       errline[b][p] = "%.3f/%.3f"%(lowNorm/centralNorm, highNorm/centralNorm)
 
-		systShapeName = lsyst
-		if (lsyst,b,p) in DC.systematicsShapeMap.keys(): systShapeName = DC.systematicsShapeMap[(lsyst,b,p)]
+	       vals.append(lowNorm/centralNorm) 
+	       vals.append(highNorm/centralNorm) 
+               MB.out.var(lsyst).setVal(centralVal)
+               numKeysFound+=1
+	       types.append(pdf)
+               processes[p] = True
 
-	    	objU,objD,objC = MB.getShape(b,p,systShapeName+"Up"), MB.getShape(b,p,systShapeName+"Down"), MB.getShape(b,p)
-	 
-		if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
-		elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
+            elif "shape" in pdf and MB.isShapeSystematic(b,p,lsyst):
 
-		if valC!=0: 
-			errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
-			vals.append(valU/valC)
-			vals.append(valD/valC)
-		else: 
-			errlines[lsyst][b][p] = "NAN/NAN"
-			vals.append(1.)
-			vals.append(1.)
-	     else: 
-	    	vals = errline[b][p] if type(errline[b][p]) == list else [ errline[b][p] ]
-             for val in vals:
+	      if errline[b][p]==0: continue
+              systShapeName = lsyst
+              #vals = []
+              if (lsyst,b,p) in DC.systematicsShapeMap.keys(): systShapeName = DC.systematicsShapeMap[(lsyst,b,p)]
+
+              objU,objD,objC = MB.getShape(b,p,systShapeName+"Up"), MB.getShape(b,p,systShapeName+"Down"), MB.getShape(b,p)
+             
+              if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
+              elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
+              if valC!=0: 
+                  errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
+                  vals.append(valU/valC)
+                  vals.append(valD/valC)
+              else: 
+                  errlines[lsyst][b][p] = "NAN/NAN"
+                  vals.append(1.)
+                  vals.append(1.)
+              numKeysFound+=1
+              types.append(pdf)
+              processes[p] = True
+            else:
+                vals.extend(errline[b][p] if type(errline[b][p]) == list else [ errline[b][p] ])
+                numKeysFound+=1
+                types.append(pdf)
+                processes[p] = True
+            for val in vals:
                 if val < 1: val = 1.0/val
                 minEffect = min(minEffect, val)
                 maxEffect = max(maxEffect, val)
         if numKeysFound == 0 : channels.remove(b)
+    #if no effect just skip 
+    if not len(vals): continue 
     channelsShort = commonStems(channels)
-    types = ",".join(set(types))
-    report[lsyst] = { 'channels':channelsShort, 'bins' : channels, 'processes': sorted(processes.keys()), 'effect':("%5.3f"%minEffect,"%5.3f"%maxEffect), 'types':types }
+    types = set(types)
+    types = ",".join(types)
+    if lsyst in report.keys():
+       report[lsyst]['channels'].extend(channelsShort)
+       report[lsyst]['bins'].extend(channels)
+       report[lsyst]['processes'].extend(processes)
+       
+       report[lsyst]['channels'] = set(report[lsyst]['channels'])
+       report[lsyst]['bins'] = set(report[lsyst]['bins'])
+       report[lsyst]['processes'] = sorted(set(report[lsyst]['processes']))
+       
+       report[lsyst]['effect'] = ["%5.3f"%(min(float(report[lsyst]['effect'][0]),minEffect)),"%5.3f"%(max(float(report[lsyst]['effect'][1]),maxEffect))]
+       if types not in report[lsyst]['types']: report[lsyst]['types']+=","+types
+    else: report[lsyst] = { 'channels':channelsShort, 'bins' : channels, 'processes': sorted(processes.keys()), 'effect':["%5.3f"%minEffect,"%5.3f"%maxEffect], 'types':types }
 
 # Get list
 names = report.keys() 
