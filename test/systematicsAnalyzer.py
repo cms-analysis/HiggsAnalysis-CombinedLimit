@@ -103,9 +103,11 @@ def commonStems(list, sep="_"):
     ret.sort()
     return ret 
 
+
 if options.t2w: 
 	buildModel()
 	MODELBUILT=True
+	options.all=True
 
 report = {}; errlines = {}; outParams = {}
 for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
@@ -252,6 +254,8 @@ function toggleChann(id) {
 <title>Nuisance Report</title>
 </head><body>
 <h1>Nuisance Report</h1>
+All numbers shown report the +/- 1-sigma variation in the yield for each affected channel/process. The Range shows the minimum and maximum effects across all channels/processes.
+If you didn't run with the option --t2w, "param" types will only show the line from the datacard 
 <table>
 <tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
 """
