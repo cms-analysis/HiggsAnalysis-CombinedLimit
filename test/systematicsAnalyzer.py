@@ -175,7 +175,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
               if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
               elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
               if valC!=0: 
-                  errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
+                  errlines[lsyst][b][p] = "%.3f/%.3f"%(valD/valC,valU/valC)
                   vals.append(valU/valC)
                   vals.append(valD/valC)
               else: 
@@ -255,10 +255,10 @@ function toggleChann(id) {
 </head><body>
 <h1>Nuisance Report</h1>
 All numbers shown report the +/- 1-sigma variation in the yield for each affected channel/process. The Range shows the minimum and maximum effects across all channels/processes.
-If you didn't run with the option --t2w, "param" types will only show the line from the datacard 
+%s 
 <table>
 <tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
-"""
+"""%("You didn't run with the option --t2w so param types will only show the line from the datacard" if not options.t2w else "")
     for nuis in names:
         val = report[nuis]
         print "<tr><td><a name=\"%s\"><b>%s</b></a></td>" % (nuis,nuis+"  ("+val['types']+")")
