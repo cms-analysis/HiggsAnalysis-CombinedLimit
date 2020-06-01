@@ -444,7 +444,14 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
            multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,1,contIndex);
            multipleMinimize(reallyCleanParameters,ret,minimumNLL,verbose,cascade,2,contIndex);
         }
-
+	
+	// Run one last fully floating fit to maintain RooFitResult in case freezeDisassociatedParams is ON
+	if(runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"))){
+	  freezeDiscParams(true);
+	  ret = improve(verbose,cascade,true);
+	  minimumNLL = nll_.getVal();
+	  freezeDiscParams(false);
+	}
       }
     }
 
