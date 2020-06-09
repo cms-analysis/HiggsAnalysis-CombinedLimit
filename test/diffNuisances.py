@@ -51,7 +51,7 @@ if options.pullDef and options.absolute_values :
 
 if options.pullDef : options.show_all_parameters=True
 
-if options.sortBy not in ['correlation','impact']: sys.exit("choose one of [ %s ] for --sortBy"%(",".join()['correlation','impact']))
+if options.sortBy not in ['correlation','impact']: exit("choose one of [ %s ] for --sortBy"%(",".join()['correlation','impact']))
 
 setUpString = "diffNuisances run on %s, at %s with the following options ... "%(args[0],datetime.datetime.utcnow())+str(options)
 
