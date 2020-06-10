@@ -667,6 +667,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
         //out.addOwned(*(new RooConstVar(pair->first.c_str(), "", pair->second.norm->getVal())));
         if (fOut != 0 && saveShapes_ && pair->second.obs.getSize() == 1) {
             RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
+            
             TH1* hist = pair->second.pdf->createHistogram("", *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
             for (int binN = 1; binN <= hist->GetNbinsX(); ++binN){
                 hist->SetBinError(binN,0);
@@ -784,6 +785,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
         for (IH h = sigByCh.begin(), eh = sigByCh.end(); h != eh; ++h) sigByCh1[h->first] = (TH1*) h->second->Clone();
         for (IH h = bkgByCh.begin(), eh = bkgByCh.end(); h != eh; ++h) bkgByCh1[h->first] = (TH1*) h->second->Clone();
         for (int t = 0; t < ntoys; ++t) {
+          TFile* fOutToys = TFile::Open((std::string("toys")+postfix+std::to_string(t) +std::string(".root")).c_str(),"RECREATE");
             // zero out partial sums
             for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) h->second->Reset();
             for (IH h = sigByCh1.begin(), eh = sigByCh1.end(); h != eh; ++h) h->second->Reset();
@@ -799,6 +801,9 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
                     std::auto_ptr<TH1> hist(pair->second.pdf->createHistogram(pair->second.pdf->GetName(), *x,
                       pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none()));
                     hist->Scale(pair->second.norm->getVal() / hist->Integral("width"));
+                    if (fOutToys){
+                      fOutToys->WriteTObject(hist.get(), pair->first.c_str() );
+                    }
                     for (int b = 1; b <= bins[i]; ++b) {
                         shapes2[i]->AddBinContent(b, std::pow(hist->GetBinContent(b) - shapes[i]->GetBinContent(b), 2));
                     }
@@ -862,7 +867,8 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
                     target->AddBinContent(b, std::pow(h->second->GetBinContent(b) - reference->GetBinContent(b), 2));
                 }
             }           
-        } // end of the toy loop
+            fOutToys->Close();
+              } // end of the toy loop
         // now take square roots and such
         for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
             sumx2[i] = sqrt(sumx2[i]/ntoys);
