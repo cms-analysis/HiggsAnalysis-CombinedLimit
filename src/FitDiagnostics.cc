@@ -872,8 +872,9 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
                 for (int b = 1, nb = target->GetNbinsX(); b <= nb; ++b) {
                     target->AddBinContent(b, std::pow(h->second->GetBinContent(b) - reference->GetBinContent(b), 2));
                 }
-            }           
-            fOutToys->Close();
+            }       
+            if (fOutToys)
+              fOutToys->Close();
               } // end of the toy loop
         // now take square roots and such
         for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
