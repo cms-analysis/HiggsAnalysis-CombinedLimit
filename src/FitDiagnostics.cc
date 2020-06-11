@@ -52,6 +52,7 @@ bool        FitDiagnostics::oldNormNames_ = false;
 bool        FitDiagnostics::saveShapes_ = false;
 bool        FitDiagnostics::saveOverallShapes_ = false;
 bool        FitDiagnostics::saveWithUncertainties_ = false;
+bool        FitDiagnostics::saveUncertaintyToys_ = false;
 bool        FitDiagnostics::justFit_ = false;
 bool        FitDiagnostics::skipBOnlyFit_ = false;
 bool        FitDiagnostics::noErrors_ = false;
@@ -85,6 +86,7 @@ FitDiagnostics::FitDiagnostics() :
         ("oldNormNames",  	"Name the normalizations as in the workspace, and not as channel/process")
         ("saveShapes",  	"Save pre and post-fit distributions as TH1 in fitDiagnostics.root")
         ("saveWithUncertainties",  "Save also pre/post-fit uncertainties on the shapes and normalizations (from resampling the covariance matrix)")
+        ("saveUncertaintyToys",  "Save also toys used to calculate pre/post-fit uncertainties from resampling the covariance matrix")
         ("saveOverallShapes",  "Save total shapes (and covariance if used with --saveWithUncertainties), ie will produce TH1 (TH2) merging bins across all channels")
         ("numToysForShapes", 	boost::program_options::value<int>(&numToysForShapes_)->default_value(numToysForShapes_),  "Choose number of toys for re-sampling of the covariance (for shapes with uncertainties)")
         ("filterString",	boost::program_options::value<std::string>(&filterString_)->default_value(filterString_), "Filter to search for when making covariance and shapes")
@@ -126,6 +128,7 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
     savePredictionsPerToy_ = vm.count("savePredictionsPerToy");
     oldNormNames_  = vm.count("oldNormNames");
     saveWithUncertainties_  = vm.count("saveWithUncertainties");
+    saveUncertaintyToys_ = vm.count("saveUncertaintyToys");
     saveWithUncertsRequested_ = saveWithUncertainties_;
     justFit_  = vm.count("justFit");
     skipBOnlyFit_ = vm.count("skipBOnlyFit");
@@ -785,7 +788,10 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
         for (IH h = sigByCh.begin(), eh = sigByCh.end(); h != eh; ++h) sigByCh1[h->first] = (TH1*) h->second->Clone();
         for (IH h = bkgByCh.begin(), eh = bkgByCh.end(); h != eh; ++h) bkgByCh1[h->first] = (TH1*) h->second->Clone();
         for (int t = 0; t < ntoys; ++t) {
-          TFile* fOutToys = TFile::Open((std::string("toys")+postfix+std::to_string(t) +std::string(".root")).c_str(),"RECREATE");
+            TFile* fOutToys=0;
+            if (saveUncertaintyToys_){
+              fOutToys = TFile::Open((out_ + std::string("/fitDiagnostics_toys")+postfix+std::to_string(t) +std::string(".root")).c_str(),"RECREATE");
+            }
             // zero out partial sums
             for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) h->second->Reset();
             for (IH h = sigByCh1.begin(), eh = sigByCh1.end(); h != eh; ++h) h->second->Reset();

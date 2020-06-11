@@ -47,6 +47,7 @@ protected:
   static bool        saveShapes_;
   static bool        saveOverallShapes_;
   static bool        saveWithUncertainties_;
+  static bool        saveUncertaintyToys_;
   static bool	     saveWorkspace_;
   static bool        reuseParams_;
   static bool        customStartingPoint_;
