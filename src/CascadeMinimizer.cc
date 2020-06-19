@@ -365,6 +365,9 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
 
    tw.Stop(); if (verbose > 2) std::cout << "Done the full fit in " << tw.RealTime() << std::endl;
 
+   // unfreeze from *
+   freezeDiscParams(false);
+
    return ret;
 }
 

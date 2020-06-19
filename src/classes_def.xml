@@ -208,4 +208,11 @@
 	<class name="cmsmath::SequentialMinimizer"  transient="true" />
 	<class name="rVrFLikelihood"  transient="true" />
         <class name="TestProposal"  transient="true" />
+
+	<class name="RooModZPdf" />
+        <class name="RooExpPdf" />
+        <class name="RooSumTwoExpPdf" />
+        <class name="RooPowerLawPdf" />
+        <class name="RooSumTwoPowerLawPdf" />
+
 </lcgdict>
