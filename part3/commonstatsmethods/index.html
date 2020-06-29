@@ -377,7 +377,7 @@ Done in 0.14 min (cpu), 0.15 min (real)
 
 <p>Again, the resulting limit tree will contain the result. You can also save the chains using the option <code>--saveChain</code> which will then also be included in the output file.</p>
 <p>Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf...)
-Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the <em>smallest</em> such region,</p>
+Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the <em>smallest</em> such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing <code>for i in range(mychain.numEntries()):</code> to <code>for i in range(200,mychain.numEntries()):</code> eg for a burn-in of 200. </p>
 <pre><code class="python">import ROOT
 
 rmin = 0
@@ -417,6 +417,7 @@ for k in fi_MCMC.Get(&quot;toys&quot;).GetListOfKeys():
         mychain.append(k.ReadObj().GetAsDataSet())
 hist = ROOT.TH1F(&quot;h_post&quot;,&quot;;r;posterior probability&quot;,nbins,rmin,rmax)
 for i in range(mychain.numEntries()):
+#for i in range(200,mychain.numEntries()): burn-in of 200 
   mychain.get(i)
   hist.Fill(mychain.get(i).getRealValue(&quot;r&quot;), mychain.weight())
 hist.Scale(1./hist.Integral())
@@ -451,7 +452,7 @@ print &quot; %g %% (%g %%) interval (target)  = %g &lt; r &lt; %g &quot;%(trueCL
 <ul>
 <li>the number of <strong>tries</strong> (option <code>--tries</code>): the algorithm will run multiple times with different ransom seeds and report as result the truncated mean and rms of the different results. The default value is 10, which should be ok for a quick computation, but for something more accurate you might want to increase this number even up to ~200.</li>
 <li>the number of <strong>iterations</strong> (option <code>-i</code>) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Usually beyond 30k you get a better tradeoff in time vs accuracy by increasing the number of chains (option <code>--tries</code>)</li>
-<li>the number of <strong>burn-in steps</strong> (option <code>-b</code>) is the number of points that are removed from the beginning of the chain before using it to compute the limit. IThe default is 200. If your chain is very long, you might want to try increase this a bit (e.g. to some hundreds). Instead going below 50 is probably dangerous.</li>
+<li>the number of <strong>burn-in steps</strong> (option <code>-b</code>) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If your chain is very long, you might want to try increase this a bit (e.g. to some hundreds). Instead going below 50 is probably dangerous.</li>
 </ul>
 <h5 id="proposals">Proposals</h5>
 <p>The option <code>--proposal</code> controls the way new points are proposed to fill in the MC chain.</p>
