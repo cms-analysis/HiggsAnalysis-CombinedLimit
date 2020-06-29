@@ -183,7 +183,7 @@ Done in 0.14 min (cpu), 0.15 min (real)
 Again, the resulting limit tree will contain the result. You can also save the chains using the option `--saveChain` which will then also be included in the output file.
 
 Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf...)
-Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region,
+Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` eg for a burn-in of 200. 
 
 ```python
 import ROOT
@@ -225,6 +225,7 @@ for k in fi_MCMC.Get("toys").GetListOfKeys():
         mychain.append(k.ReadObj().GetAsDataSet())
 hist = ROOT.TH1F("h_post",";r;posterior probability",nbins,rmin,rmax)
 for i in range(mychain.numEntries()):
+#for i in range(200,mychain.numEntries()): burn-in of 200 
   mychain.get(i)
   hist.Fill(mychain.get(i).getRealValue("r"), mychain.weight())
 hist.Scale(1./hist.Integral())
@@ -266,7 +267,7 @@ Three parameters control how the MCMC integration is performed:
 
 -   the number of **tries** (option `--tries`): the algorithm will run multiple times with different ransom seeds and report as result the truncated mean and rms of the different results. The default value is 10, which should be ok for a quick computation, but for something more accurate you might want to increase this number even up to ~200.
 -   the number of **iterations** (option `-i`) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Usually beyond 30k you get a better tradeoff in time vs accuracy by increasing the number of chains (option `--tries`)
--   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. IThe default is 200. If your chain is very long, you might want to try increase this a bit (e.g. to some hundreds). Instead going below 50 is probably dangerous.
+-   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If your chain is very long, you might want to try increase this a bit (e.g. to some hundreds). Instead going below 50 is probably dangerous.
 
 ##### Proposals
 
