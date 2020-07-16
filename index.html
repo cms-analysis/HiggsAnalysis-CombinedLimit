@@ -209,6 +209,8 @@
                 
                 <li class="third-level"><a href="#cc7-release-cmssw_10_2_x-recommended-version">CC7 release CMSSW_10_2_X - recommended version</a></li>
                 <li class="third-level"><a href="#slc6cc7-release-cmssw_8_1_x">SLC6/CC7 release CMSSW_8_1_X</a></li>
+            <li class="second-level"><a href="#standalone-version">Standalone version</a></li>
+                
             <li class="second-level"><a href="#what-has-changed-between-tags">What has changed between tags?</a></li>
                 
             <li class="second-level"><a href="#for-developers">For developers</a></li>
@@ -268,6 +270,18 @@ git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 </code></pre>
 
+<h2 id="standalone-version">Standalone version</h2>
+<p>The standalone version can be easily compiled using the \verb@cvmfs@ as it relies on dependencies which are already installed at <a href="/cvmfs/cms.cern.ch/">/cvmfs/cms.cern.ch/</a>. </p>
+<p>Access to <code>/cvmfs/cms.cern.ch/</code> can be obtained from lxplus machines or via <code>CernVM</code>, by adding the <code>CMS</code> group to the CVMFS Configuration. A minimal <code>CernVM</code> working context setup can be found in the CernVM Marketplace under <code>Experimental/HiggsCombine</code> or at <a href="https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382">https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382</a>. At least 2GB of disk space should be reserved on the virtual machine for Combine to work properly. In case you do not want to use the <code>cvmfs</code> area, you will need to adapt the location of the dependencies listed in both the <code>Makefile</code> and <code>env_standalone.sh</code> files.</p>
+<pre><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit/ 
+git fetch origin
+git checkout v8.1.0
+. env_standalone.sh
+make
+</code></pre>
+
+<p>You will need to source <code>env_standalone.sh</code> each time you want to use the package, or add it to your login.</p>
 <h2 id="what-has-changed-between-tags">What has changed between tags?</h2>
 <p>You can generate a diff of any two tags (eg for <code>v7.0.8</code> and <code>v7.0.6</code>) by using following the url:</p>
 <p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7</a></p>
@@ -426,5 +440,5 @@ git push
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2020-07-16 13:04:57.099362+00:00
+Build Date UTC : 2020-07-16 14:46:34.770333+00:00
 -->
