@@ -103,9 +103,17 @@ def commonStems(list, sep="_"):
     ret.sort()
     return ret 
 
+<<<<<<< HEAD
 if options.t2w: 
 	buildModel()
 	MODELBUILT=True
+=======
+
+if options.t2w: 
+	buildModel()
+	MODELBUILT=True
+	options.all=True
+>>>>>>> aae4f4635956db43f532e294a420e8b650115fff
 
 report = {}; errlines = {}; outParams = {}
 for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
@@ -173,7 +181,11 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
               if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
               elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
               if valC!=0: 
+<<<<<<< HEAD
                   errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
+=======
+                  errlines[lsyst][b][p] = "%.3f/%.3f"%(valD/valC,valU/valC)
+>>>>>>> aae4f4635956db43f532e294a420e8b650115fff
                   vals.append(valU/valC)
                   vals.append(valD/valC)
               else: 
@@ -252,9 +264,11 @@ function toggleChann(id) {
 <title>Nuisance Report</title>
 </head><body>
 <h1>Nuisance Report</h1>
+All numbers shown report the +/- 1-sigma variation in the yield for each affected channel/process. The Range shows the minimum and maximum effects across all channels/processes.
+%s 
 <table>
 <tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
-"""
+"""%("You didn't run with the option --t2w so param types will only show the line from the datacard" if not options.t2w else "")
     for nuis in names:
         val = report[nuis]
         print "<tr><td><a name=\"%s\"><b>%s</b></a></td>" % (nuis,nuis+"  ("+val['types']+")")
