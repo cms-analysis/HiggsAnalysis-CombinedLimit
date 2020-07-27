@@ -103,17 +103,10 @@ def commonStems(list, sep="_"):
     ret.sort()
     return ret 
 
-<<<<<<< HEAD
-if options.t2w: 
-	buildModel()
-	MODELBUILT=True
-=======
-
 if options.t2w: 
 	buildModel()
 	MODELBUILT=True
 	options.all=True
->>>>>>> aae4f4635956db43f532e294a420e8b650115fff
 
 report = {}; errlines = {}; outParams = {}
 for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
