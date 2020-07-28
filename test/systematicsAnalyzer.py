@@ -174,11 +174,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
               if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
               elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
               if valC!=0: 
-<<<<<<< HEAD
                   errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
-=======
-                  errlines[lsyst][b][p] = "%.3f/%.3f"%(valD/valC,valU/valC)
->>>>>>> aae4f4635956db43f532e294a420e8b650115fff
                   vals.append(valU/valC)
                   vals.append(valD/valC)
               else: 
