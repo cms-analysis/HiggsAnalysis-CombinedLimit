@@ -109,6 +109,7 @@ if options.t2w:
 	options.all=True
 
 report = {}; errlines = {}; outParams = {}
+seen_systematics = []
 for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     if ("rateParam" in pdf) or ("discrete" in pdf): 
          if options.all: outParams[lsyst]=[pdf,pdfargs]
@@ -116,8 +117,10 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
 
     if not options.all and pdf != "lnN": continue
     if not options.t2w and "param" in pdf : continue 
-    if "param" in pdf: 
-      if not len(errline): errline = {b:{p:0 for p in DC.exp[b].iterkeys() } for b in DC.bins}
+    if "param" in pdf:
+      if not lsyst in seen_systematics: 
+        if not len(errline): errline = {b:{p:0 for p in DC.exp[b].iterkeys() } for b in DC.bins}
+      else: errline=errlines[lsyst]
     types = []
     minEffect, maxEffect = 999.0, 1.0
     processes = {}
@@ -174,9 +177,9 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
               if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
               elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
               if valC!=0: 
-                  errlines[lsyst][b][p] = "%.3f/%.3f"%(valU/valC,valD/valC)
-                  vals.append(valU/valC)
+                  errlines[lsyst][b][p] = "%.3f/%.3f"%(valD/valC,valU/valC)
                   vals.append(valD/valC)
+                  vals.append(valU/valC)
               else: 
                   errlines[lsyst][b][p] = "NAN/NAN"
                   vals.append(1.)
@@ -211,6 +214,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
        report[lsyst]['effect'] = ["%5.3f"%(min(float(report[lsyst]['effect'][0]),minEffect)),"%5.3f"%(max(float(report[lsyst]['effect'][1]),maxEffect))]
        if types not in report[lsyst]['types']: report[lsyst]['types']+=","+types
     else: report[lsyst] = { 'channels':channelsShort, 'bins' : channels, 'processes': sorted(processes.keys()), 'effect':["%5.3f"%minEffect,"%5.3f"%maxEffect], 'types':types }
+    seen_systematics.append(lsyst)
 
 # Get list
 names = report.keys() 
