@@ -359,8 +359,8 @@ class Kappas(LHCHCGBaseModel):
         if not self.resolved:
             self.modelBuilder.doVar("kappa_g[1,0.0,2.0]")
             self.modelBuilder.doVar("kappa_gam[1,0.0,2.5]")
-	self.modelBuilder.doVar("BRinv[0,0,1]")
-	self.modelBuilder.doVar("BRundet[0,0,1]")
+        self.modelBuilder.doVar("BRinv[0,0,1]")
+        self.modelBuilder.doVar("BRundet[0,0,1]")
         if not self.addInvisible: self.modelBuilder.out.var("BRinv").setConstant(True)
         if not self.addUndet: self.modelBuilder.out.var("BRundet").setConstant(True)
         if not self.custodial:
@@ -552,7 +552,7 @@ class Lambdas(LHCHCGBaseModel):
             self.SMH.makePartialWidthUncertainties()
 
         self.modelBuilder.doVar("BRinv[0,0,1]")
-	self.modelBuilder.out.var("BRinv").setConstant()
+        self.modelBuilder.out.var("BRinv").setConstant()
 
         self.modelBuilder.doVar("lambda_one[1]")
 
@@ -618,7 +618,7 @@ class KappaVKappaF(LHCHCGBaseModel):
     def __init__(self,BRU=True,floatbrinv=False):
         LHCHCGBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.doBRU = BRU
-	self.floatbrinv = floatbrinv
+        self.floatbrinv = floatbrinv
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
@@ -630,16 +630,16 @@ class KappaVKappaF(LHCHCGBaseModel):
         self.modelBuilder.doVar("kappa_V[1,0.0,2.0]")
         self.modelBuilder.doVar("kappa_F[1,-2.0,2.0]")
         self.modelBuilder.doVar("BRinv[0,0,1]")
-	self.modelBuilder.out.var("BRinv").setConstant()
+        self.modelBuilder.out.var("BRinv").setConstant()
         for d in ["WW","ZZ","gamgam","bb","tautau","mumu","inv"]:
             self.modelBuilder.doVar("kappa_V_%s[1,0.0,2.0]"%d)
             self.modelBuilder.doVar("kappa_F_%s[1,-2.0,2.0]"%d)
             self.modelBuilder.out.var("kappa_V_"+d).setConstant()
             self.modelBuilder.out.var("kappa_F_"+d).setConstant()
         pois = 'kappa_V,kappa_F'
-	if self.floatbrinv : 
-		self.modelBuilder.out.var("BRinv").setConstant(False)
-		pois+=',BRinv'
+        if self.floatbrinv : 
+            self.modelBuilder.out.var("BRinv").setConstant(False)
+            pois+=',BRinv'
         self.doMH()
         self.modelBuilder.doSet("POI",pois)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
@@ -692,8 +692,8 @@ class KappaVKappaF(LHCHCGBaseModel):
         for d in ["hgg","hzg"]:
             self.modelBuilder.factory_('expr::c7_BRscal_%s("@0*@2/@1", Scaling_%s_%s, c7_Gscal_tot_%s, HiggsDecayWidth_UncertaintyScaling_%s)' % (d,d,CMS_to_LHCHCG_DecSimple[d], CMS_to_LHCHCG_DecSimple[d], d))
 
-	# H->invisible scaling 
-	self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0", BRinv)')
+        # H->invisible scaling 
+        self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0", BRinv)')
   
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s_%s" % (production,decay,energy)
@@ -743,53 +743,53 @@ class LambdasReduced(LHCHCGBaseModel):
         self.modelBuilder.doVar("lambda_Vq[1,0.0,2.0]")
         self.modelBuilder.doVar("kappa_qq[1,0.0,2.0]")
 
-	self.modelBuilder.doVar("BRinv[0,0,1]")
+        self.modelBuilder.doVar("BRinv[0,0,1]")
         if not self.addInvisible: self.modelBuilder.out.var("BRinv").setConstant(True)
 
-	POIset = 'lambda_FV,kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq'
+        POIset = 'lambda_FV,kappa_VV,lambda_du,lambda_Vu,kappa_uu,lambda_lq,lambda_Vq,kappa_qq'
         if self.model=="ldu":
-	  self.modelBuilder.out.var("lambda_du").setConstant(False)
-	  self.modelBuilder.out.var("kappa_uu").setConstant(False)
-	  self.modelBuilder.out.var("lambda_Vu").setConstant(False)
-
-	  self.modelBuilder.out.var("lambda_FV").setConstant(True)
-	  self.modelBuilder.out.var("kappa_VV").setConstant(True)
-	  self.modelBuilder.out.var("lambda_lq").setConstant(True)
-	  self.modelBuilder.out.var("lambda_Vq").setConstant(True)
-	  self.modelBuilder.out.var("kappa_qq").setConstant(True)
+          self.modelBuilder.out.var("lambda_du").setConstant(False)
+          self.modelBuilder.out.var("kappa_uu").setConstant(False)
+          self.modelBuilder.out.var("lambda_Vu").setConstant(False)
+          
+          self.modelBuilder.out.var("lambda_FV").setConstant(True)
+          self.modelBuilder.out.var("kappa_VV").setConstant(True)
+          self.modelBuilder.out.var("lambda_lq").setConstant(True)
+          self.modelBuilder.out.var("lambda_Vq").setConstant(True)
+          self.modelBuilder.out.var("kappa_qq").setConstant(True)
 
           POIset = 'lambda_du,lambda_Vu,kappa_uu'
 
         elif self.model=="llq": 
-	
-	  self.modelBuilder.out.var("lambda_lq").setConstant(False)
-	  self.modelBuilder.out.var("lambda_Vq").setConstant(False)
-	  self.modelBuilder.out.var("kappa_qq").setConstant(False)
-
-	  self.modelBuilder.out.var("lambda_du").setConstant(True)
-	  self.modelBuilder.out.var("kappa_uu").setConstant(True)
-	  self.modelBuilder.out.var("lambda_Vu").setConstant(True)
-	  self.modelBuilder.out.var("lambda_FV").setConstant(True)
-	  self.modelBuilder.out.var("kappa_VV").setConstant(True)
+      
+          self.modelBuilder.out.var("lambda_lq").setConstant(False)
+          self.modelBuilder.out.var("lambda_Vq").setConstant(False)
+          self.modelBuilder.out.var("kappa_qq").setConstant(False)
+      
+          self.modelBuilder.out.var("lambda_du").setConstant(True)
+          self.modelBuilder.out.var("kappa_uu").setConstant(True)
+          self.modelBuilder.out.var("lambda_Vu").setConstant(True)
+          self.modelBuilder.out.var("lambda_FV").setConstant(True)
+          self.modelBuilder.out.var("kappa_VV").setConstant(True)
 
           POIset = 'lambda_lq,lambda_Vq,kappa_qq'
 
         elif self.model=="lfv": 
-	
-
-	  self.modelBuilder.out.var("lambda_FV").setConstant(False)
-	  self.modelBuilder.out.var("kappa_VV").setConstant(False)
-
-	  self.modelBuilder.out.var("lambda_lq").setConstant(True)
-	  self.modelBuilder.out.var("lambda_Vq").setConstant(True)
-	  self.modelBuilder.out.var("kappa_qq").setConstant(True)
-	  self.modelBuilder.out.var("lambda_du").setConstant(True)
-	  self.modelBuilder.out.var("kappa_uu").setConstant(True)
-	  self.modelBuilder.out.var("lambda_Vu").setConstant(True)
+          
+          
+          self.modelBuilder.out.var("lambda_FV").setConstant(False)
+          self.modelBuilder.out.var("kappa_VV").setConstant(False)
+          
+          self.modelBuilder.out.var("lambda_lq").setConstant(True)
+          self.modelBuilder.out.var("lambda_Vq").setConstant(True)
+          self.modelBuilder.out.var("kappa_qq").setConstant(True)
+          self.modelBuilder.out.var("lambda_du").setConstant(True)
+          self.modelBuilder.out.var("kappa_uu").setConstant(True)
+          self.modelBuilder.out.var("lambda_Vu").setConstant(True)
 
           POIset = 'lambda_FV,kappa_VV'
 
-	self.modelBuilder.doSet("POI",POIset)
+        self.modelBuilder.doSet("POI",POIset)
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
@@ -830,8 +830,8 @@ class LambdasReduced(LHCHCGBaseModel):
         self.SMH.makeScaling('hzg', Cb='C_b', Ctop='C_top', CW='C_V', Ctau='C_tau')
         self.SMH.makeScaling('hgluglu', Cb='C_b', Ctop='C_top')
 
-	# H->invisible scaling 
-	self.modelBuilder.factory_('expr::Scaling_hinv("@0", BRinv)')
+        # H->invisible scaling 
+        self.modelBuilder.factory_('expr::Scaling_hinv("@0", BRinv)')
 
         for E in "7TeV", "8TeV","13TeV","14TeV":
             for P in "ggH", "tHq", "tHW", "ggZH":
