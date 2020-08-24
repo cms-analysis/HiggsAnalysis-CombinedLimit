@@ -393,8 +393,8 @@ class Kappas(LHCHCGBaseModel):
                 self.modelBuilder.factory_('HiggsDecayWidth_UncertaintyScaling_%s[1.0]' % d)
         # get VBF, tHq, tHW, ggZH cross section
         self.SMH.makeScaling('qqH', CW=self.kappa_W, CZ=self.kappa_Z)
-        self.SMH.makeScaling("tHq", CW=self.kappa_W, C, Ctop="kappa_t")
-        self.SMH.makeScaling("tHW", CW=self.kappa_W, C, Ctop="kappa_t")
+        self.SMH.makeScaling("tHq", CW=self.kappa_W, Ctop="kappa_t")
+        self.SMH.makeScaling("tHW", CW=self.kappa_W, Ctop="kappa_t")
         # resolve loops
         if self.resolved:
             if (self.addKappaC):
