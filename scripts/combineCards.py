@@ -197,8 +197,8 @@ for ich,fname in enumerate(args):
     # Finally report nuisance edits propagated to end of card
     for editline in DC.nuisanceEditLines:
       if len(editline)==2: nuisanceEdits.append("%s %s"%(editline[0]," ".join(editline[1])))
+      elif len(editline)==4 and not editline[3]: nuisanceEdits.append(" ".join(editline[0:3])) 
       else:
-
         tmp_chan = editline[2]
         tmp_proc = editline[1]
         if tmp_chan == "*": # all channels
