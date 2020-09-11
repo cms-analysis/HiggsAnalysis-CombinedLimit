@@ -207,9 +207,9 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
        report[lsyst]['bins'].extend(channels)
        report[lsyst]['processes'].extend(processes)
        
-       report[lsyst]['channels'] = set(report[lsyst]['channels'])
-       report[lsyst]['bins'] = set(report[lsyst]['bins'])
-       report[lsyst]['processes'] = sorted(set(report[lsyst]['processes']))
+       report[lsyst]['channels'] = list(set(report[lsyst]['channels']))
+       report[lsyst]['bins'] = list(set(report[lsyst]['bins']))
+       report[lsyst]['processes'] = list(sorted(set(report[lsyst]['processes'])))
        
        report[lsyst]['effect'] = ["%5.3f"%(min(float(report[lsyst]['effect'][0]),minEffect)),"%5.3f"%(max(float(report[lsyst]['effect'][1]),maxEffect))]
        if types not in report[lsyst]['types']: report[lsyst]['types']+=","+types
