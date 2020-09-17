@@ -21,6 +21,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
+class SimNLLDerivativesHelper;
 
 // Part zero: ArgSet checker
 namespace cacheutils {
@@ -112,6 +113,7 @@ class OptimizedCachingPdfT : public CachingPdf {
 CachingPdfBase * makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
 
 class CachingAddNLL : public RooAbsReal {
+    friend SimNLLDerivativesHelper; // probably not needed w/ data
     public:
         CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data, bool includeZeroWeights = false) ;
         CachingAddNLL(const CachingAddNLL &other, const char *name = 0) ;
@@ -125,6 +127,7 @@ class CachingAddNLL : public RooAbsReal {
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
         double  sumWeights() const { return sumWeights_; }
         const RooAbsPdf *pdf() const { return pdf_; }
+        const RooAbsData *data() const {return data_;}
         void setZeroPoint() ;
         void clearZeroPoint() ;
         void clearConstantZeroPoint() ;
@@ -186,6 +189,8 @@ class CachingSimNLL  : public RooAbsReal {
         // trap this call, since we don't care about propagating it to the sub-components
         virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
     private:
+        friend SimNLLDerivativesHelper;
+
         void setup_();
         RooSimultaneous   *pdfOriginal_;
         const RooAbsData  *dataOriginal_;

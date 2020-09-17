@@ -17,6 +17,8 @@ class SimpleGaussianConstraint : public RooGaussian {
         inline virtual ~SimpleGaussianConstraint() { }
 
         const RooAbsReal & getX() const { return x.arg(); }
+        const RooAbsReal & getMean() const { return mean.arg(); }
+        const RooAbsReal & getSigma() const { return sigma.arg(); }
 
         double getLogValFast() const { 
             if (_valueDirty) {
