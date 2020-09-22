@@ -38,6 +38,8 @@ class Datacard():
         self.rateParamsOrder = set() 
         ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
         self.frozenNuisances = set()
+        ##
+        self.regularizationTerms = []
 
 	# Allows for nuisance renaming of "shape" systematics
 	self.systematicsShapeMap = {}
