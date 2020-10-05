@@ -35,6 +35,7 @@ std::vector<float>        MultiDimFit::poiVals_;
 RooArgList                MultiDimFit::poiList_;
 float                     MultiDimFit::deltaNLL_ = 0;
 unsigned int MultiDimFit::points_ = 50;
+unsigned int MultiDimFit::points2_ = 0;
 unsigned int MultiDimFit::firstPoint_ = 0;
 unsigned int MultiDimFit::lastPoint_  = std::numeric_limits<unsigned int>::max();
 bool MultiDimFit::floatOtherPOIs_ = false;
@@ -85,6 +86,7 @@ MultiDimFit::MultiDimFit() :
         ("squareDistPoiStep","POI step size based on distance from midpoint (max-min)/2 rather than linear")
         ("skipInitialFit","Skip initial fit (save time if snapshot is loaded from previous fit)")
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
+        ("points2",  boost::program_options::value<unsigned int>(&points2_)->default_value(points2_), "Same as --points but applies only to the second POI when doing 2D scans, and when set, --points applies only to the first POI")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
         ("autoRange", boost::program_options::value<float>(&autoRange_)->default_value(autoRange_), "Set to any X >= 0 to do the scan in the +/- X sigma range (where the sigma is from the initial fit, so it may be fairly approximate)")
@@ -674,32 +676,57 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             }
         }
     } else if (n == 2) {
-        unsigned int sqrn = ceil(sqrt(double(points_)));
-        unsigned int ipoint = 0, nprint = ceil(0.005*sqrn*sqrn);
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
         CloseCoutSentry sentry(verbose < 2);
-        double deltaX = (pmax[0] - pmin[0]) / sqrn;
-        double deltaY = (pmax[1] - pmin[1]) / sqrn;
-        double spacingOffset = 0.5;
-        if (alignEdges_) {
-          deltaX = (pmax[0] - pmin[0]) / (sqrn - 1);
-          deltaY = (pmax[1] - pmin[1]) / (sqrn - 1);
-          spacingOffset = 0.0;
-          if (sqrn == 1) {
-            deltaX = 0;
-            deltaY = 0;
-          }
+
+        // get number of points per axis
+        unsigned int nX, nY;
+        if (points2_ == 0) {
+            // same number of points per axis ("old" behavior)
+            unsigned int sqrn = ceil(sqrt(double(points_)));
+            nX = nY = sqrn;
+        } else {
+            // number of points different per axis
+            nX = points_;
+            nY = points2_;
         }
-        for (unsigned int i = 0; i < sqrn; ++i) {
-            for (unsigned int j = 0; j < sqrn; ++j, ++ipoint) {
+        unsigned int nTotal = nX * nY;
+
+        // determine grid variables
+        double deltaX, deltaY, spacingOffsetX, spacingOffsetY;
+        if (nX == 1) {
+            deltaX = 0;
+            spacingOffsetX = 0;
+        } else if (alignEdges_) {
+            deltaX = (pmax[0] - pmin[0]) / (nX - 1);
+            spacingOffsetX = 0;
+        } else {
+            deltaX = (pmax[0] - pmin[0]) / nX;
+            spacingOffsetX = 0.5;
+        }
+        if (nY == 1) {
+            deltaY = 0;
+            spacingOffsetY = 0;
+        } else if (alignEdges_) {
+            deltaY = (pmax[1] - pmin[1]) / (nY - 1);
+            spacingOffsetY = 0;
+        } else {
+            deltaY = (pmax[1] - pmin[1]) / nY;
+            spacingOffsetY = 0.5;
+        }
+        unsigned int ipoint = 0, nprint = ceil(0.005 * nTotal);
+
+        // loop through the grid
+        for (unsigned int i = 0; i < nX; ++i) {
+            for (unsigned int j = 0; j < nY; ++j, ++ipoint) {
                 if (ipoint < firstPoint_) continue;
                 if (ipoint > lastPoint_)  break;
-                *params = snap; 
-                double x =  pmin[0] + (i + spacingOffset) * deltaX;
-                double y =  pmin[1] + (j + spacingOffset) * deltaY;
+                *params = snap;
+                double x =  pmin[0] + (i + spacingOffsetX) * deltaX;
+                double y =  pmin[1] + (j + spacingOffsetY) * deltaY;
                 if (verbose && (ipoint % nprint == 0)) {
                          fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
-                                        ipoint,sqrn*sqrn, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
+                                        ipoint,nTotal, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
                 }
                 poiVals_[0] = x;
                 poiVals_[1] = y;
