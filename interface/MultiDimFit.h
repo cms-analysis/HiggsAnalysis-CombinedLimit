@@ -40,8 +40,8 @@ protected:
   static std::string name_;
   std::auto_ptr<TFile> fitOut;
 
-  // options    
-  static unsigned int points_, firstPoint_, lastPoint_;
+  // options
+  static unsigned int points_, points2_, firstPoint_, lastPoint_;
   static bool floatOtherPOIs_;
   static bool squareDistPoiStep_;
   static bool skipInitialFit_;
