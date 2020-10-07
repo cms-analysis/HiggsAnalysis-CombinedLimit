@@ -261,12 +261,10 @@ simple maximum likelihood fit with, </p>
     combine -M MultiDimFit --setParameters=r_Bin0=1,r_Bin1=1,r_Bin2=1,r_Bin3=1,r_Bin4=1 -t -1 -m 125 datacard.root
     combine -M MultiDimFit --setParameters=r_Bin0=1,r_Bin1=1,r_Bin2=1,r_Bin3=1,r_Bin4=1 -t -1 -m 125 --algo=grid --points=100 -P r_Bin1 --setParameterRanges r_Bin1=0.5,1.5 --floatOtherPOIs=1 datacard.root
 </code></pre>
-
 <p>Notice that one can also perform the so called bin-by-bin unfolding (though it is strongly discouraged except for testing) with, </p>
 <pre><code>    text2workspace.py -m 125 --X-allow-no-background -o datacard.root datacard.txt
       -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO map='.*RecoBin0.*:r_Bin0[1,-1,20]' --PO map='.*RecoBin1.*:r_Bin1[1,-1,20]' --PO map='.*RecoBin2.*:r_Bin2[1,-1,20]' --PO map='.*RecoBin3.*:r_Bin3[1,-1,20]' --PO map='.*RecoBin4.*:r_Bin4[1,-1,20]'
 </code></pre>
-
 <p>Nuisance parameters can be added to the likelihood function and profiled in the usual way via the datacards. Theory uncertainties on the inclusive cross section are typically not included in unfolded measurements.</p>
 <h2 id="regularization">Regularization</h2>
 <p>The main difference with respect to other models with multiple signal contributions is the introduction of <strong>Regularization</strong>, which is used to stabilize the unfolding process. </p>
@@ -324,20 +322,17 @@ A =
 row of the product <span><span class="MathJax_Preview">A\cdot\vec{\mu}</span><script type="math/tex">A\cdot\vec{\mu}</script></span>, by including them as lines in the datacard of the form, </p>
 <pre><code>    name constr formula dependents delta
 </code></pre>
-
 <p>where the regularization strength <span><span class="MathJax_Preview">\delta=\frac{1}{\sqrt{\tau}}</span><script type="math/tex">\delta=\frac{1}{\sqrt{\tau}}</script></span> and can either be a fixed value (eg by putting directly <code>0.01</code>) or as 
 a modifiable parameter with eg <code>delta[0.01]</code>. </p>
 <p>For example, for 3 bins and a regularization strength of 0.03, the first line would be </p>
 <pre><code>    name constr @0-2*@2+@1 r_Bin0,r_Bin1,r_Bin2 0.03
 </code></pre>
-
 <p>Alternative, valid syntaxes are  </p>
 <pre><code>    constr1 constr r_bin0-r_bin1 0.01
     constr1 constr r_bin0-r_bin1 delta[0.01]
     constr1 constr r_bin0+r_bin1 r_bin0,r_bin1 0.01
     constr1 constr r_bin0+r_bin1 {r_bin0,r_bin1} delta[0.01]
 </code></pre>
-
 <h3 id="tunfold-method">TUnfold method</h3>
 <p>The Tikhonov regularization as implemented in TUnfold uses the MC information, or rather the densities prediction, as a bias vector. 
 In order to give this information to Combine, a single datacard for each reco-level bin needs to be produced, so that we have access to the proper normalization terms during the minimization. In this case the bias vector is <span><span class="MathJax_Preview">\vec{x}_{obs}-\vec{x}_{true}</span><script type="math/tex">\vec{x}_{obs}-\vec{x}_{true}</script></span> </p>

@@ -228,33 +228,28 @@
 <h2 id="a-simple-counting-experiment">A simple counting experiment</h2>
 <p>The file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt">data/tutorials/counting/realistic-counting-experiment.txt</a> shows an example of a counting experiment.</p>
 <p>The first lines can be used as a description and are not parsed by the program. They have to begin with a "#":</p>
-<pre><code class="nohighlight"># Simple counting experiment, with one signal and a few background processes
+<pre><code class="language-nohighlight"># Simple counting experiment, with one signal and a few background processes
 # Simplified version of the 35/pb H-&gt;WW analysis for mH = 160 GeV
 </code></pre>
-
 <p>Then one declares the <strong>number of observables</strong>, <strong><code>imax</code></strong>, that are present in the model used to calculate limits/significances. The number of observables will typically be the number of channels in a counting experiment or the number of bins in a binned shape fit. (If one specifies for <strong><code>imax</code></strong> the value <strong><code>*</code></strong> it means "figure it out from the rest of the datacard", but in order to better catch mistakes it's recommended to specify it explicitly)</p>
-<pre><code class="nohighlight">imax 1  number of channels
+<pre><code class="language-nohighlight">imax 1  number of channels
 </code></pre>
-
 <p>Then one declares the number of background sources to be considered, <strong><code>jmax</code></strong>, and the number of <strong>independent sources of systematic uncertainties</strong>, <strong><code>kmax</code></strong>:</p>
-<pre><code class="nohighlight">jmax 3  number of backgrounds
+<pre><code class="language-nohighlight">jmax 3  number of backgrounds
 kmax 5  number of nuisance parameters (sources of systematic uncertainties)
 </code></pre>
-
 <p>In the example there is 1 channel, there are 3 background sources, and there are 5 independent sources of systematic uncertainty.</p>
 <p>Then there are the lines describing what is actually observed: the number of events observed in each channel. The first line, starting with <strong><code>bin</code></strong> defines the label used for each channel. In the example we have 1 channel, labelled <strong><code>1</code></strong>, and in the following line, <strong><code>observation</code></strong>, are listed the events observed, <strong><code>0</code></strong> in this example:</p>
-<pre><code class="nohighlight"># we have just one channel, in which we observe 0 events
+<pre><code class="language-nohighlight"># we have just one channel, in which we observe 0 events
 bin bin1
 observation 0
 </code></pre>
-
 <p>Following is the part related to the number of events expected, for each bin and process, arranged in (#channels)*(#processes) columns.</p>
-<pre><code class="nohighlight">bin          bin1     bin1     bin1     bin1
+<pre><code class="language-nohighlight">bin          bin1     bin1     bin1     bin1
 process         ggH  qqWW  ggWW  others
 process          0     1     2     3
 rate           1.47  0.63  0.06  0.22
 </code></pre>
-
 <ul>
 <li>The <strong><code>bin</code></strong> line identifies the channel the column is referring to. It goes from <strong><code>1</code></strong> to the <strong><code>imax</code></strong> declared above.</li>
 <li>The first <strong><code>process</code></strong> line contains the labels of the various sources</li>
@@ -263,13 +258,12 @@ rate           1.47  0.63  0.06  0.22
 </ul>
 <p>All bins should be declared in increasing order, and within each bin one should include all processes in increasing order, specifying a <strong>0</strong> for processes that do not contribute.</p>
 <p>The last section contains the description of the systematic uncertainties:</p>
-<pre><code class="nohighlight">lumi    lnN    1.11    -   1.11    -    lumi affects both signal and gg-&gt;WW (mc-driven). lnN = lognormal
+<pre><code class="language-nohighlight">lumi    lnN    1.11    -   1.11    -    lumi affects both signal and gg-&gt;WW (mc-driven). lnN = lognormal
 xs_ggH  lnN    1.16    -     -     -    gg-&gt;H cross section + signal efficiency + other minor ones.
 WW_norm gmN 4    -   0.16    -     -    WW estimate of 0.64 comes from sidebands: 4 events in sideband times 0.16 (=&gt; ~50% statistical uncertainty)
 xs_ggWW lnN      -     -   1.50    -    50% uncertainty on gg-&gt;WW cross section
 bg_others lnN    -     -     -   1.30   30% uncertainty on the rest of the backgrounds
 </code></pre>
-
 <ul>
 <li>the first columns is a label identifying the uncertainty</li>
 <li>the second column identifies the type of distribution used<ul>
@@ -349,20 +343,18 @@ This interpolation is designed so that the values of <span><span class="MathJax_
 </ul>
 <p>The effect can be "-" or 0 for no effect, 1 for normal effect, and possibly something different from 1 to test larger or smaller effects (in that case, the unit gaussian is scaled by that factor before using it as parameter for the interpolation)</p>
 <p>The datacard in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/shapes/simple-shapes-TH1.txt">data/tutorials/shapes/simple-shapes-TH1.txt</a> is a clear example of how to include shapes in the datacard. In the first block the following line specifies the shape mapping:</p>
-<pre><code class="nohighlight">shapes * * simple-shapes-TH1.root $PROCESS $PROCESS_$SYSTEMATIC
+<pre><code class="language-nohighlight">shapes * * simple-shapes-TH1.root $PROCESS $PROCESS_$SYSTEMATIC
 </code></pre>
-
 <p>The last block concerns the treatment of the systematics affecting shapes. In this part the two uncertainties effecting on the shape are listed.</p>
-<pre><code class="nohighlight">alpha  shape    -           1   uncertainty on background shape and normalization
+<pre><code class="language-nohighlight">alpha  shape    -           1   uncertainty on background shape and normalization
 sigma  shape    0.5         -   uncertainty on signal resolution. Assume the histogram is a 2 sigma shift,
 #                                so divide the unit gaussian by 2 before doing the interpolation
 </code></pre>
-
 <p>There are two options for the interpolation algorithm in the "shape" uncertainty. Putting <strong><code>shape</code></strong> will result in a  of the <strong>fraction of events in each bin</strong> - i.e the histograms are first normalised before interpolation. Putting <strong><code>shapeN</code></strong> while instead base the interpolation on the logs of the fraction in each bin. For <em>both</em> <strong><code>shape</code></strong>  and <strong><code>shapeN</code></strong>, the total normalisation is interpolated using an asymmetric log-normal so that the effect of the systematic on both the shape and normalisation are accounted for. The following image shows a comparison of those two algorithms for this datacard.</p>
 <p><img alt="" src="../images/compare-shape-algo.png" /></p>
 <p>In this case there are two processes, <em>signal</em> and <em>background</em>, and two uncertainties affecting background (<em>alpha</em>) and signal shape (<em>sigma</em>). Within the root file 2 histograms per systematic have to be provided, they are the shape obtained, for the specific process, shifting up and down the parameter associated to the uncertainty: <code>background_alphaUp</code> and <code>background_alphaDown</code>, <code>signal_sigmaUp</code> and <code>signal_sigmaDown</code>.</p>
 <p>This is the content of the root file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/simple-shapes-TH1.root">simple-shapes-TH1.root </a> associated to the datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/simple-shapes-TH1.txt">data/tutorials/shapes/simple-shapes-TH1.txt</a>:</p>
-<pre><code class="nohighlight">root [0]
+<pre><code class="language-nohighlight">root [0]
 Attaching file simple-shapes-TH1.root as _file0...
 root [1] _file0-&gt;ls()
 TFile**     simple-shapes-TH1.root
@@ -376,7 +368,6 @@ TFile**     simple-shapes-TH1.root
   KEY: TH1F data_obs;1  Histogram of data_obs__x
   KEY: TH1F data_sig;1  Histogram of data_sig__x
 </code></pre>
-
 <p>For example, without shape uncertainties you could have just one row with
 <code>shapes * * shapes.root $CHANNEL/$PROCESS</code>
 Then for a simple example for two channels "e", "mu" with three processes "higgs", "zz", "top" you should create a rootfile that contains the following</p>
@@ -438,14 +429,13 @@ Then for a simple example for two channels "e", "mu" with three processes "higgs
 <p>If you are using RooAddPdfs in your model in which the coefficients are <em>not defined recursively</em>, combine will not interpret them properly. You can add the option <code>--X-rtd ADDNLL_RECURSIVE=0</code> to any combine command in order to recover the correct interpretation, however we recommend that you instead redefine your pdf so that the coefficients are recursive (as described on the <a href="https://root.cern.ch/doc/master/classRooAddPdf.html">RooAddPdf documentation</a>) and keep the total normalisation (i.e extended term) as a separate object as in the case of the tutorial datacard.</p>
 </div>
 <p>For example, take a look at the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/shapes/simple-shapes-parametric.txt">data/tutorials/shapes/simple-shapes-parametric.txt</a>. We see the following line.</p>
-<pre><code class="nohighlight">shapes * * simple-shapes-parametric_input.root w:$PROCESS
+<pre><code class="language-nohighlight">shapes * * simple-shapes-parametric_input.root w:$PROCESS
 [...]
 bin          1          1
 process      sig    bkg
 </code></pre>
-
 <p>which indicates that the input file <code>simple-shapes-parametric_input.root</code> should contain an input workspace (<code>w</code>) with pdfs named <code>sig</code> and <code>bkg</code> since these are the names of the two processes in the datacard. Additionally, we expect there to be a dataset named <code>data_obs</code>. If we look at the contents of the workspace inside <code>data/tutorials/shapes/simple-shapes-parametric_input.root</code>, this is indeed what we see...</p>
-<pre><code class="nohighlight">root [1] w-&gt;Print()
+<pre><code class="language-nohighlight">root [1] w-&gt;Print()
 
 RooWorkspace(w) w contents
 
@@ -462,7 +452,6 @@ datasets
 --------
 RooDataSet::data_obs(j)
 </code></pre>
-
 <p>In this datacard, the signal is parameterised in terms of the hypothesised mass (<code>MH</code>). Combine will use this variable, instead of creating its own, which will be interpreted as the value for <code>-m</code>. For this reason, we should add the option <code>-m 30</code> (or something else within the observable range) when running combine. You will also see there is a variable named <code>bkg_norm</code>. This is used to normalize the background rate (see the section on <a href="#rate-parameters">Rate parameters</a> below for details).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -474,9 +463,8 @@ RooDataSet::data_obs(j)
 </ul>
 <p>These lines encode uncertainties on the parameters of the signal and background pdfs. The parameter is to be assigned a Gaussian uncertainty of <strong>Y</strong> around its mean value of <strong>X</strong>. One can change the mean value from 0 to 1 (or really any value, if one so chooses) if the parameter in question is multiplicative instead of additive.</p>
 <p>In the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/shapes/simple-shapes-parametric.txt">data/tutorials/shapes/simple-shapes-parametric.txt</a> datacard, there are lines for one such parametric uncertainty,</p>
-<pre><code class="nohighlight">sigma   param 1.0      0.1
+<pre><code class="language-nohighlight">sigma   param 1.0      0.1
 </code></pre>
-
 <p>meaning there is a parameter already contained in the input workspace called <strong><code>sigma</code></strong> which should be <em>constrained</em> with a Gaussian centered at 1.0 with a width of 0.1. Note that, the exact interpretation (i.e all combine knows is that 1.0 should be the most likely value and 0.1 is its 1σ uncertainy) of these parameters is left to the user since the signal pdf is constructed externally by you. Asymmetric uncertainties are written as with <code>lnN</code> using the syntax <strong>-1σ/+1σ</strong> in the datacard.</p>
 <p>If one wants to specify a parameter that is freely floating across its given range, and not gaussian constrained, the following syntax is used:</p>
 <ul>
@@ -497,9 +485,8 @@ RooDataSet::data_obs(j)
 <p>Another solution (currently implemented for 1-dimensional histograms only) is to use a custom pdf which performs the correct integrals internally as in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/src/RooParametricShapeBinPdf.cc">RooParametricShapeBinPdf</a></p>
 <p>Note that this pdf class now allows parameters that are themselves <strong>RooAbsReal</strong> objects (i.e. functions of other variables). The integrals are handled internally by calling the underlying pdf’s <code>createIntegral()</code> method with named ranges created for each of the bins. This means that if the analytical integrals for the underlying pdf are available, they will be used.</p>
 <p>The constructor for this class requires a <strong>RooAbsReal</strong> (eg any <strong>RooAbsPdf</strong>)along with a list of <strong>RooRealVars</strong> (the parameters, excluding the observable <span><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span>),</p>
-<pre><code class="c++">RooParametricShapeBinPdf(const char *name, const char *title,  RooAbsReal&amp; _pdf, RooAbsReal&amp; _x, RooArgList&amp; _pars, const TH1 &amp;_shape )
+<pre><code class="language-c++">RooParametricShapeBinPdf(const char *name, const char *title,  RooAbsReal&amp; _pdf, RooAbsReal&amp; _x, RooArgList&amp; _pars, const TH1 &amp;_shape )
 </code></pre>
-
 <p>Below is a comparison of a fit to a binned dataset containing 1000 events with one observable <span><span class="MathJax_Preview">0 \leq x \leq 100</span><script type="math/tex">0 \leq x \leq 100</script></span>. The fit function is a <strong>RooExponential</strong> of the form <span><span class="MathJax_Preview">e^{xp}</span><script type="math/tex">e^{xp}</script></span>.</p>
 <p><img alt="Narrow bins" src="../images/narrow.png" />
 <img alt="Wide bins" src="../images/wide.png" /></p>
@@ -511,9 +498,8 @@ agree well while for wide bins, accounting for the integral over the bin yields 
 <p>Datacards can be extended in order to provide additional functionality and flexibility during runtime. These can also allow for the production of more complicated models and performing advanced computation of results beyond limits and significances.</p>
 <h3 id="rate-parameters">Rate parameters</h3>
 <p>The overall rate "expected" of a particular process in a particular bin does not necessarily need to be a fixed quantity. Scale factors can be introduced to modify the rate directly in the datacards for <strong>ANY</strong> type of analysis. This can be achieved using the directive <code>rateParam</code> in the datacard with the following syntax,</p>
-<pre><code class="nohighlight">name rateParam bin process initial_value [min,max]
+<pre><code class="language-nohighlight">name rateParam bin process initial_value [min,max]
 </code></pre>
-
 <p>The <code>[min,max]</code> argument is optional and if not included, combine  will remove the range of this parameter. This will produce a new parameter in the model (unless it already exists) which multiplies the rate of that particular <strong>process</strong> in the given <strong>bin</strong> by its value.</p>
 <p>You can attach the same <code>rateParam</code> to multiple processes/bins by either using a wild card (eg <code>*</code> will match everything, <code>QCD_*</code> will match everything starting with <code>QCD_</code> etc.) in the name of the bin and/or process or by repeating the <code>rateParam</code> line in the datacard for different bins/processes with the same name.</p>
 <div class="admonition warning">
@@ -522,12 +508,11 @@ agree well while for wide bins, accounting for the integral over the bin yields 
 </div>
 <p>This parameter is by default, freely floating. It is possible to include a Gaussian constraint on any <code>rateParam</code> which is floating (i.e not a <code>formula</code> or spline) by adding a <code>param</code> nuisance line in the datacard with the same name.</p>
 <p>In addition to rate modifiers which are freely floating, modifiers which are functions of other parameters can be included using the following syntax,</p>
-<pre><code class="nohighlight">name rateParam bin process formula args
+<pre><code class="language-nohighlight">name rateParam bin process formula args
 </code></pre>
-
 <p>where <code>args</code> is a comma separated list of the arguments for the string <code>formula</code>. You can include other nuisance parameters in the <code>formula</code>, including ones which are Gaussian constrained (i,e via the <code>param</code> directive.)</p>
 <p>Below is an example datacard which uses the <code>rateParam</code> directive to implement an ABCD like method in combine. For a more realistic description of it's use for ABCD, see the single-lepton SUSY search implementation described <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&amp;files=AN2015_207_v5.pdf">here</a></p>
-<pre><code class="nohighlight">imax 4  number of channels
+<pre><code class="language-nohighlight">imax 4  number of channels
 jmax 0  number of processes -1
 kmax *  number of nuisance parameters (sources of systematical uncertainties)
 -------
@@ -545,15 +530,13 @@ beta  rateParam B bkg 50
 gamma rateParam C bkg 100
 delta rateParam D bkg 500
 </code></pre>
-
 <p>For more examples of using <code>rateParam</code> (eg for fitting process normalisations in control regions and signal regions simultaneously) see this <a href="https://indico.cern.ch/event/577649/contributions/2339440/attachments/1380196/2097805/beyond_simple_datacards.pdf">2016 CMS tutorial</a></p>
 <p>Finally, any pre-existing RooAbsReal inside some rootfile with a workspace can be imported using the following</p>
-<pre><code class="nohighlight">name rateParam bin process rootfile:workspacename
+<pre><code class="language-nohighlight">name rateParam bin process rootfile:workspacename
 </code></pre>
-
 <p>The name should correspond to the name of the object which is being picked up inside the RooWorkspace. A simple example using the SM XS and BR splines available in HiggsAnalysis/CombinedLimit can be found under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/rate_params/simple_sm_datacard.txt">data/tutorials/rate_params/simple_sm_datacard.txt</a></p>
 <p>After running <code>text2workspace.py</code> on your datacard, you can check the normalisation objects using the tool <code>test/printWorkspaceNormalisations.py</code>. See the example below for the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/shapes/simple-shapes-parametric.txt">data/tutorials/shapes/simple-shapes-parametric.txt</a> datacard.</p>
-<pre><code class="nohighlight">  text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
+<pre><code class="language-nohighlight">  text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
   python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root
   ...
 
@@ -582,25 +565,21 @@ delta rateParam D bkg 500
     -------------------------------------------------------------------------
     default value =  1.0
 </code></pre>
-
 <p>This tells us that the normalisation for the background process, named <code>n_exp_final_binbin1_proc_bkg</code> is a product of two objects <code>n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm</code>. The first object is just from the <strong>rate</strong> line in the datacard (equal to 1) and the second is a floating parameter. For the signal, the normalisation is called <code>n_exp_binbin1_proc_sig</code> and is a <code>ProcessNormalization</code> object which contains the rate modifications due to the systematic uncertainties. You can see that it also has a "<em>nominal value</em>" which again is just from the value given in the <strong>rate</strong> line of the datacard (again=1).</p>
 <h4 id="extra-arguments">Extra arguments</h4>
 <p>If a parameter is intended to be used and it is <em>not</em> a user defined <code>param</code> or <code>rateParam</code>, it can be picked up by first issuing an <code>extArgs</code> directive before this line in the datacard. The syntax for <code>extArgs</code> is</p>
-<pre><code class="nohighlight">name extArg rootfile:workspacename
+<pre><code class="language-nohighlight">name extArg rootfile:workspacename
 </code></pre>
-
 <p>The string ":RecycleConflictNodes" can be added at the end of the final argument (i.e. rootfile:workspacename:RecycleConflictNodes) to apply the corresponding RooFit option when the object is imported into the workspace. It is also possible to simply add a RooRealVar using <code>extArg</code> for use in function <code>rateParams</code> with the following</p>
-<pre><code class="nohighlight">name extArg init [min,max]
+<pre><code class="language-nohighlight">name extArg init [min,max]
 </code></pre>
-
 <p>Note that the <code>[min,max]</code> argument is optional and if not included, the code will remove the range of this parameter.</p>
 <h3 id="manipulation-of-nuisance-parameters">Manipulation of Nuisance parameters</h3>
 <p>It can often be useful to modify datacards, or the runtime behavior, without having to modify individual systematics lines. This can be acheived through the following.</p>
 <h4 id="nuisance-modifiers">Nuisance modifiers</h4>
 <p>If a nuisance parameter needs to be renamed for certain processes/channels, it can be done so using a single <code>nuisance edit</code> directive at the end of a datacard</p>
-<pre><code class="nohighlight">nuisance edit rename process channel oldname newname
+<pre><code class="language-nohighlight">nuisance edit rename process channel oldname newname
 </code></pre>
-
 <p>This will have the effect that nuisance parameter effecting a given process/channel will be renamed, thereby de-correlating it from other processes/channels.  Use options <code>ifexists</code> to skip/avoid error if nuisance not found. Other edits are also supported as follows,</p>
 <ul>
 <li><code>nuisance edit add process channel name pdf value [options]</code>  -&gt; add a new or add to a nuisance. If options is <code>addq</code>, value will be added in quadrature to this nuisance for this process/channel. If options is <code>overwrite</code>, the nuisance value will be replaced with this value</li>
@@ -616,9 +595,8 @@ delta rateParam D bkg 500
 <p>Often it is desirable to freeze one or more nuisances to check the impact they have on limits, likelihood scans, significances etc.</p>
 <p>However, for large groups of nuisances (eg everything associated to theory) it is easier to define <strong><em>nuisance groups</em></strong> in the datacard. The following line in a datacard will, for example, produce a group of nuisances with the group name
 <code>theory</code> which contains two parameters, <code>QCDscale</code> and <code>pdf</code>.</p>
-<pre><code class="nohighlight">theory group = QCDscale pdf
+<pre><code class="language-nohighlight">theory group = QCDscale pdf
 </code></pre>
-
 <p>Multiple groups can be defined in this way. It is also possible to extend nuisance groups in datacards using <strong>+=</strong> in place of <strong>=</strong>.</p>
 <p>These groups can be manipulated at runtime (eg for freezing all nuisances associated to a group at runtime, see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/">Running the tool</a>). You can find more info on groups of nuisances <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/groups">here</a></p>
 <p>Note that when using the automatic addition of statistical uncertainties (autoMCStats), the corresponding nuisance parameters are created by <code>text2workspace.py</code> and so do not exist in the datacards. It is therefore not possible to add autoMCStats parameters to groups of nuisances in the way described above. However, <code>text2workspace.py</code> will automatically create a group labelled <strong><code>autoMCStats</code></strong> which contains all autoMCStats parameters.</p>
@@ -634,7 +612,7 @@ If the input datacards had just one bin each, then the output channels will be c
 <p>The <code>combineCards.py</code> script will complain if you are trying to combine a <em>shape</em> datacard with a <em>counting</em> datacard. You can however convert a <em>counting</em> datacard in an equivalent shape-based one by adding a line <code>shapes * * FAKE</code> in the datacard after the <code>imax</code>, <code>jmax</code> and <code>kmax</code> section. Alternatively, you can add the option <code>-S</code> in <code>combineCards.py</code> which will do this for you while making the combination.</p>
 <h3 id="automatic-production-of-datacards-and-workspaces">Automatic production of datacards and workspaces</h3>
 <p>For complicated analyses or cases in which multiple datacards are needed (e.g. optimisation studies), you can avoid writing these by hand. The object <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/Datacard.py">Datacard</a> defines the analysis and can be created as a python object. The template python script below will produce the same workspace as running <code>textToWorkspace.py</code> (see the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/">Physics Models</a>) on the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt">realistic-counting-experiment.txt</a> datacard.</p>
-<pre><code class="python">from HiggsAnalysis.CombinedLimit.DatacardParser import *
+<pre><code class="language-python">from HiggsAnalysis.CombinedLimit.DatacardParser import *
 from HiggsAnalysis.CombinedLimit.ModelTools import *
 from HiggsAnalysis.CombinedLimit.ShapeTools import *
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
@@ -689,7 +667,6 @@ else:
 MB.setPhysics(defaultModel)
 MB.doModel()
 </code></pre>
-
 <p>Any existing datacard can be converted into such a template python script by using the <code>--dump-datacard</code> option in <code>text2workspace.py</code> in case a more complicated template is needed.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -700,13 +677,12 @@ MB.doModel()
 <p>For large combinations with multiple channels/processes etc, the <code>.txt</code> file can get unweildy to read through. There are some simple tools to help check and disseminate the contents of the cards. </p>
 <p>In order to get a quick view of the systematic uncertainties included in the datacard, you can use the <code>test/systematicsAnalyzer.py</code> tool. This will produce a list of the systematic uncertainties (normalisation and shape), indicating what type they are, which channels/processes they affect and the size of the affect on the normalisation (for shape uncertainties, this will just be the overall uncertaintly on the normalisation information).</p>
 <p>The default output is a <code>.html</code> file which allows you to expand to give more details about the affect of the systematic for each channel/process. Add the option <code>--format brief</code> to give a simpler summary report direct to the terminal. An example output for the tutorial card <code>data/tutorials/shapes/simple-shapes-TH1.txt</code> is shown below.</p>
-<pre><code class="nohighlight">$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt &gt; out.html
+<pre><code class="language-nohighlight">$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt &gt; out.html
 </code></pre>
-
 <p><img alt="systematics analyzer output" src="../images/sysanalyzer.png" /></p>
 <p>In case you only have a cut-and-count style card, include the option <code>--noshape</code>.</p>
 <p>If you have a datacard which uses several <code>rateParams</code> or a Physics model which includes some complicated product of normalisation terms in each process, you can check the values of the normalisation (and which objects in the workspace comprise them) using the <code>test/printWorkspaceNormalisations.py</code> tool. As an example, below is the first few blocks of output for the tutorial card <code>data/tutorials/counting/realistic-multi-channel.txt</code>. </p>
-<pre><code class="nohighlight">$ text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
+<pre><code class="language-nohighlight">$ text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
 $ python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root                                                                                                           
 
 ---------------------------------------------------------------------------
@@ -771,7 +747,6 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
   default value =  88.0
 ---------------------------------------------------------------------------
 </code></pre>
-
 <p>As you can see, for each channel, a report is given for the top-level rate object in the workspace, for each process contributing to that channel. You can also see the various terms which make up that rate. The default value is for the default parameters in the workspace (i.e when running <code>text2workspace</code>, these are the values created as default).</p></div>
         
         

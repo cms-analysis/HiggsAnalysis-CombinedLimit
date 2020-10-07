@@ -212,21 +212,19 @@
 <p>You can find the latest releases on github under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases</a></p>
 <h3 id="root6-slc6-release-cmssw_8_1_x-recommended-version">ROOT6 SLC6 release <code>CMSSW_8_1_X</code> - recommended version</h3>
 <p>Setting up the environment (once):</p>
-<pre><code class="sh">export SCRAM_ARCH=slc6_amd64_gcc530
+<pre><code class="language-sh">export SCRAM_ARCH=slc6_amd64_gcc530
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 </code></pre>
-
 <p>Update to a reccomended tag - currently the reccomended tag is <strong>v7.0.12</strong>:</p>
-<pre><code class="sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+<pre><code class="language-sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
 git checkout v7.0.12
 scramv1 b clean; scramv1 b # always make a clean build
 </code></pre>
-
 <p>You can generate a diff of any two tags (eg for <code>v7.0.8</code> and <code>v7.0.6</code>) by using following the url:</p>
 <p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7</a></p>
 <p>Replace the tag names in the url to any tags you which to compare.</p>
@@ -243,7 +241,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 </ol>
 <p>You will now be able to browse your fork of the repository from <a href="https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit">https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit</a></p>
 <h3 id="recommended-way-to-develop-a-feature-in-a-branch">Recommended way to develop a feature (in a branch)</h3>
-<pre><code class="sh"># get the updates of the master branch of the remote repository
+<pre><code class="language-sh"># get the updates of the master branch of the remote repository
 git fetch upstream
 
 # branch straight off the upstream master
@@ -262,25 +260,21 @@ git rebase upstream/81x-root606
 # fix any conflicts
 git push origin feature_name_branch
 </code></pre>
-
 <p>And proceed to make a pull request from the branch you created.</p>
 <h4 id="committing-changes-to-your-repository">Committing changes to your repository</h4>
-<pre><code class="sh">git add ....
+<pre><code class="language-sh">git add ....
 git commit -m &quot;....&quot;
 git push
 </code></pre>
-
 <p>You can now make a pull request to the repository.</p>
 <h2 id="combine-tool">Combine Tool</h2>
 <p>An additional tool for submitting combine jobs to batch/crab, developed originally for HiggsToTauTau. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core <a href="https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/"><code>CombineHarvester/CombineTools</code></a> subpackage, speeding up the checkout and compile times:</p>
 <p>git clone via ssh:</p>
-<pre><code class="sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
+<pre><code class="language-sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
 </code></pre>
-
 <p>git clone via https:</p>
-<pre><code class="sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh)
+<pre><code class="language-sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh)
 </code></pre>
-
 <p>make sure to run <code>scram</code>  to compile the <code>CombineTools</code> package.</p>
 <p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation pages for more details on using this tool and additional features available in the full package.</p></div>
         

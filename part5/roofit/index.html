@@ -219,35 +219,29 @@
 <h2 id="objects">Objects</h2>
 <p>In Roofit, any variable, data point, function, PDF (etc.) is represented by a c++ object
 The most basic of these is the <code>RooRealVar</code>. Let's create one which will represent the mass of some hypothetical particle, we name it and give it an initial starting value and range.</p>
-<pre><code class="c++">RooRealVar MH(&quot;MH&quot;,&quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;,125,120,130);
+<pre><code class="language-c++">RooRealVar MH(&quot;MH&quot;,&quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;,125,120,130);
 MH.Print();
 </code></pre>
-
-<pre><code class="shell">RooRealVar::MH = 125  L(120 - 130)
+<pre><code class="language-shell">RooRealVar::MH = 125  L(120 - 130)
 </code></pre>
-
 <p>ok, great. This variable is now an object we can play around with. We can access this object and modify it's properties, such as its value. </p>
-<pre><code class="c++">MH.setVal(130);
+<pre><code class="language-c++">MH.setVal(130);
 MH.getVal();
 </code></pre>
-
 <p>In particle detectors we typically don't observe this particle mass but usually define some observable which is <em>sensitive</em> to this mass. Lets assume we can detect and reconstruct the decay products of the H-boson and measure the invariant mass of those particles. We need to make another variable which represents that invariant mass.</p>
-<pre><code class="c++">RooRealVar mass(&quot;m&quot;,&quot;m (GeV)&quot;,100,80,200);
+<pre><code class="language-c++">RooRealVar mass(&quot;m&quot;,&quot;m (GeV)&quot;,100,80,200);
 </code></pre>
-
 <p>In the perfect world we would perfectly measure the exact mass of the particle in every single event. However, our detectors are usually far from perfect so there will be some resolution effect. Lets assume the resolution of our measurement of the invariant mass is 10 GeV and call it "sigma"</p>
-<pre><code class="c++">RooRealVar sigma(&quot;resolution&quot;,&quot;#sigma&quot;,10,0,20);
+<pre><code class="language-c++">RooRealVar sigma(&quot;resolution&quot;,&quot;#sigma&quot;,10,0,20);
 </code></pre>
-
 <p>More exotic variables can be constructed out of these <code>RooRealVar</code>s using <code>RooFormulaVars</code>. For example, suppose we wanted to make a function out of the variables which represented the relative resolution as a function of the hypothetical mass MH. </p>
-<pre><code class="c++">RooFormulaVar func(&quot;R&quot;,&quot;@0/@1&quot;,RooArgList(sigma,mass));
+<pre><code class="language-c++">RooFormulaVar func(&quot;R&quot;,&quot;@0/@1&quot;,RooArgList(sigma,mass));
 func.Print(&quot;v&quot;);
 </code></pre>
-
 <details>
 <summary><b>Show</b></summary>
 
-<pre><code class="shell">--- RooAbsArg ---
+<pre><code class="language-shell">--- RooAbsArg ---
   Value State: DIRTY
   Shape State: DIRTY
   Attributes: 
@@ -273,7 +267,7 @@ func.Print(&quot;v&quot;);
 <p>Notice how there is a list of the variables we passed (the servers or "actual vars"). We can now plot the function. RooFit has a special plotting object <code>RooPlot</code> which keeps track of the objects (and their normalisations) which we want to draw. Since RooFit doesn't know the difference between which objects are/aren't dependant, we need to tell it. </p>
 <p>Right now, we have the relative resolution as <span><span class="MathJax_Preview">R(m,\sigma)</span><script type="math/tex">R(m,\sigma)</script></span>, whereas we want to plot 
 <span><span class="MathJax_Preview">R(m,\sigma(m))</span><script type="math/tex">R(m,\sigma(m))</script></span>!</p>
-<pre><code class="c++">TCanvas *can = new TCanvas();
+<pre><code class="language-c++">TCanvas *can = new TCanvas();
 
 //make the x-axis the &quot;mass&quot;
 RooPlot *plot = mass.frame(); 
@@ -282,7 +276,6 @@ func.plotOn(plot);
 plot-&gt;Draw();
 can-&gt;Draw();
 </code></pre>
-
 <p><img alt="" src="../images/expo.png" /></p>
 <p>The main objects we are interested in using from RooFit are <em>probability denisty functions</em> or (PDFs). We can construct the PDF,</p>
 <div>
@@ -294,14 +287,13 @@ f(m|M_{H},\sigma)
 </script>
 </div>
 <p>as a simple Gaussian shape for example or a <code>RooGaussian</code> in RooFit language (think McDonald's logic, everything is a <code>RooSomethingOrOther</code>)</p>
-<pre><code class="c++">RooGaussian gauss(&quot;gauss&quot;,&quot;f(m|M_{H},#sigma)&quot;,mass,MH,sigma);
+<pre><code class="language-c++">RooGaussian gauss(&quot;gauss&quot;,&quot;f(m|M_{H},#sigma)&quot;,mass,MH,sigma);
 gauss.Print(&quot;V&quot;);
 </code></pre>
-
 <details>
 <summary><b>Show</b></summary>
 
-<pre><code class="shell">--- RooAbsArg ---
+<pre><code class="language-shell">--- RooAbsArg ---
   Value State: DIRTY
   Shape State: DIRTY
   Attributes: 
@@ -326,7 +318,7 @@ Cached value = 0
 
 <p>Notice how the gaussian PDF, like the <code>RooFormulaVar</code> depends on our <code>RooRealVar</code> objects, these are its servers.  Its evaluation will depend on their values. </p>
 <p>The main difference between PDFs and Functions in RooFit is that PDFs are <em>automatically normalised to unitiy</em>, hence they represent a probability density, you don't need to normalise yourself. Lets plot it for the different values of <span><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>.</p>
-<pre><code class="c++">plot = mass.frame();
+<pre><code class="language-c++">plot = mass.frame();
 
 gauss.plotOn(plot);
 
@@ -344,15 +336,13 @@ plot-&gt;Draw();
 can-&gt;Update();
 can-&gt;Draw();
 </code></pre>
-
 <p><img alt="" src="../images/gaus.png" /></p>
 <p>Note that as we change the value of <code>MH</code>, the PDF gets updated at the same time.</p>
 <p>PDFs can be used to generate Monte Carlo data. One of the benefits of RooFit is that to do so only uses a single line of code! As before, we have to tell <code>RooFit</code> which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" <span><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>. The arguments for the function are the set of observables, follwed by the number of events,</p>
-<pre><code class="c++">RooDataSet *data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
+<pre><code class="language-c++">RooDataSet *data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
 </code></pre>
-
 <p>Now we can plot the data as with other RooFit objects.</p>
-<pre><code class="c++">plot = mass.frame();
+<pre><code class="language-c++">plot = mass.frame();
 
 data-&gt;plotOn(plot);
 gauss.plotOn(plot);
@@ -362,7 +352,6 @@ plot-&gt;Draw();
 can-&gt;Update();
 can-&gt;Draw();
 </code></pre>
-
 <p><img alt="" src="../images/gausdata.png" /></p>
 <p>Of course we're not in the business of generating MC events, but collecting <em>real data!</em>. Next we will look at using real data in <code>RooFit</code>.</p>
 <h2 id="datasets">Datasets</h2>
@@ -372,7 +361,7 @@ can-&gt;Draw();
 <p>both of these use the same basic structure as below</p>
 <p><img alt="" src="../images/datastructure.png" /></p>
 <p>Lets create an empty dataset where the only observable, the mass. Points can be added to the dataset one by one ...</p>
-<pre><code class="c++">RooDataSet mydata(&quot;dummy&quot;,&quot;My dummy dataset&quot;,RooArgSet(mass)); 
+<pre><code class="language-c++">RooDataSet mydata(&quot;dummy&quot;,&quot;My dummy dataset&quot;,RooArgSet(mass)); 
 // We've made a dataset with one observable (mass)
 
 mass.setVal(123.4);
@@ -384,22 +373,19 @@ mydata.add(RooArgSet(mass));
 
 mydata.Print();
 </code></pre>
-
-<pre><code class="shell">RooDataSet::dummy[m] = 3 entries
+<pre><code class="language-shell">RooDataSet::dummy[m] = 3 entries
 </code></pre>
-
 <p>There are also other ways to manipulate datasets in this way as shown in the diagram below </p>
 <p><img alt="" src="../images/datasets_manip.png" /></p>
 <p>Luckily there are also Constructors for a <code>RooDataSet</code> from a <code>TTree</code> and for a <code>RooDataHist</code> from a <code>TH1</code> so its simple to convert from your usual ROOT objects.</p>
 <p>Let's take an example dataset put together already.</p>
-<pre><code class="c++">TFile *file = TFile::Open(&quot;tutorial.root&quot;);
+<pre><code class="language-c++">TFile *file = TFile::Open(&quot;tutorial.root&quot;);
 file-&gt;ls();
 </code></pre>
-
 <details>
 <summary><b>Show file contents</b></summary>
 
-<pre><code class="shell">TFile**     tutorial.root
+<pre><code class="language-shell">TFile**     tutorial.root
  TFile*     tutorial.root
   KEY: RooWorkspace workspace;1 Tutorial Workspace
   KEY: TProcessID   ProcessID0;1    48737500-e7e5-11e6-be6f-0d0011acbeef
@@ -409,14 +395,13 @@ file-&gt;ls();
 
 <p>Inside the file, there is something called a <code>RooWorkspace</code>. This is just the RooFit way of keeping a persistent link between the objects for a model. It is a very useful way to share data and PDFs/functions etc among CMS collaborators.</p>
 <p>Let's take a look at it. It contains a <code>RooDataSet</code> and one variable. This time we called our variable (or observable) <code>CMS_hgg_mass</code>, let's assume now that this is the invariant mass of photon pairs where we assume our H-boson decays to photons.  </p>
-<pre><code class="c++">RooWorkspace *wspace = (RooWorkspace*) file-&gt;Get(&quot;workspace&quot;);
+<pre><code class="language-c++">RooWorkspace *wspace = (RooWorkspace*) file-&gt;Get(&quot;workspace&quot;);
 wspace-&gt;Print(&quot;v&quot;);
 </code></pre>
-
 <details>
 <summary><b>Show</b></summary>
 
-<pre><code class="shell">RooWorkspace(workspace) Tutorial Workspace contents
+<pre><code class="language-shell">RooWorkspace(workspace) Tutorial Workspace contents
 
 variables
 ---------
@@ -431,7 +416,7 @@ RooDataSet::dataset(CMS_hgg_mass)
 
 <p>Let's have a look at the data. The <code>RooWorkspace</code> has several accessor functions, we will use the <code>RooWorkspace::data</code> one. 
 There are also <code>RooWorkspace::var</code>, <code>RooWorkspace::function</code> and <code>RooWorkspace::pdf</code> with (hopefully) obvious purposes.</p>
-<pre><code class="c++">RooDataSet *hgg_data = (RooDataSereat*) wspace-&gt;data(&quot;dataset&quot;);
+<pre><code class="language-c++">RooDataSet *hgg_data = (RooDataSereat*) wspace-&gt;data(&quot;dataset&quot;);
 RooRealVar *hgg_mass = (RooRealVar*) wspace-&gt;var(&quot;CMS_hgg_mass&quot;);
 
 plot = hgg_mass-&gt;frame();
@@ -443,7 +428,6 @@ plot-&gt;Draw();
 can-&gt;Update();
 can-&gt;Draw();
 </code></pre>
-
 <p><a href="../images/realdata.png"></a></p>
 <h1 id="likelihoods-and-fitting-to-data">Likelihoods and Fitting to data</h1>
 <p>The data we have in our file doesn't look like a Gaussian distribution. Instead, we could probably use something like an exponential to describe it. </p>
@@ -456,10 +440,9 @@ can-&gt;Draw();
 <p>You can fund a bunch of available RooFit functions here: <a href="https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html">https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html</a></p>
 <p>There is also support for a generic pdf in the form of a <code>RooGenericPdf</code>, check this link: <a href="https://root.cern.ch/doc/v608/classRooGenericPdf.html">https://root.cern.ch/doc/v608/classRooGenericPdf.html</a></p>
 <p>Let's create an exponential PDF for our background, </p>
-<pre><code class="c++">RooRealVar alpha(&quot;alpha&quot;,&quot;#alpha&quot;,-0.05,-0.2,0.01);
+<pre><code class="language-c++">RooRealVar alpha(&quot;alpha&quot;,&quot;#alpha&quot;,-0.05,-0.2,0.01);
 RooExponential expo(&quot;exp&quot;,&quot;exponential function&quot;,*hgg_mass,alpha);
 </code></pre>
-
 <p>We can use RooFit to tell us to estimate the value of <span><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> using this dataset. You will learn more about parameter estimation but for now we will just assume you know about maximising likelihoods. This <em>maximum likelihood estimator</em> is common in HEP and is known to give unbiased estimates for things like distribution means etc. </p>
 <p>This also introduces the other main use of PDFs in RooFit. They can be used to construct <em>likelihoods</em> easily.</p>
 <p>The likelihood <span><span class="MathJax_Preview">\mathcal{L}</span><script type="math/tex">\mathcal{L}</script></span> is defined for a particluar dataset (and model) as being proportional to the probability to observe the data assuming some pdf. For our data, the probability to observe an event with a value in an interval bounded by a and b is given by,</p>
@@ -478,14 +461,13 @@ RooExponential expo(&quot;exp&quot;,&quot;exponential function&quot;,*hgg_mass,a
 <p>Note that this won't depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the <em>ratio</em> of likelihoods is needed, in which the constant factors out. </p>
 <p>Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <strong>N</strong>egative <strong>L</strong>og <strong>L</strong>ikelihood : <span><span class="MathJax_Preview">\mathrm{-Log}\mathcal{L}(\alpha)</span><script type="math/tex">\mathrm{-Log}\mathcal{L}(\alpha)</script></span>.</p>
 <p><code>RooFit</code> can construct the <strong>NLL</strong> for us.</p>
-<pre><code class="c++">RooNLLVar *nll = (RooNLLVar*) expo.createNLL(*hgg_data);
+<pre><code class="language-c++">RooNLLVar *nll = (RooNLLVar*) expo.createNLL(*hgg_data);
 nll-&gt;Print(&quot;v&quot;);
 </code></pre>
-
 <details>
 <summary><b>Show</b></summary>
 
-<pre><code class="shell">--- RooAbsArg ---
+<pre><code class="language-shell">--- RooAbsArg ---
   Value State: DIRTY
   Shape State: DIRTY
   Attributes:
@@ -505,14 +487,13 @@ nll-&gt;Print(&quot;v&quot;);
 
 <p>Notice that the NLL object knows which RooRealVar is the parameter because it doesn't find that one in the dataset. This is how RooFit distiguishes between <em>observables</em> and <em>parameters</em>.</p>
 <p>RooFit has an interface to Minuit via the <code>RooMinimizer</code> class which takes the NLL as an argument. To minimize, we just call the <code>RooMinimizer::minimize()</code> function. <strong><code>Minuit2</code></strong> is the program and <strong><code>migrad</code></strong> is the minimization routine which uses gradient descent.</p>
-<pre><code class="c++">RooMinimizer minim(*nll);
+<pre><code class="language-c++">RooMinimizer minim(*nll);
 minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;);  
 </code></pre>
-
 <details>
 <summary><b>Show</b></summary>
 
-<pre><code class="shell"> **********
+<pre><code class="language-shell"> **********
  **    1 **SET PRINT           1
  **********
  **********
@@ -558,10 +539,9 @@ minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;);
 </details>
 
 <p><code>RooFit</code> has found the best fit value of alpha for this dataset. It also estimates an uncertainty on alpha using the Hessian matrix from the fit.</p>
-<pre><code class="c++">alpha.Print(&quot;v&quot;);
+<pre><code class="language-c++">alpha.Print(&quot;v&quot;);
 </code></pre>
-
-<pre><code class="shell">--- RooAbsArg ---
+<pre><code class="language-shell">--- RooAbsArg ---
   Value State: clean
   Shape State: clean
   Attributes:
@@ -581,19 +561,17 @@ minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;);
 --- RooRealVar ---
   Error = 0.00291959
 </code></pre>
-
 <p>Lets plot the resulting exponential on the data. Notice that the value of <span><span class="MathJax_Preview">\hat{\alpha}</span><script type="math/tex">\hat{\alpha}</script></span> is used for the exponential. </p>
-<pre><code class="c++">expo.plotOn(plot);
+<pre><code class="language-c++">expo.plotOn(plot);
 expo.paramOn(plot);
 plot-&gt;Draw();
 can-&gt;Update();
 can-&gt;Draw();
 </code></pre>
-
 <p><img alt="" src="../images/expofit.png" /></p>
 <p>It looks like there could be a small region near 125 GeV for which our fit doesn't quite go through the points. Maybe our hypothetical H-boson isn't so hypothetical after all!</p>
 <p>Let's see what happens if we include some resonant signal into the fit. We can take our Gaussian function again and use that as a signal model. A reasonable value for the resolution of a resonant signal with a mass around 125 GeV decaying to a pair of photons is around a GeV.</p>
-<pre><code class="c++">sigma.setVal(1.);
+<pre><code class="language-c++">sigma.setVal(1.);
 sigma.setConstant();
 
 MH.setVal(125);
@@ -601,10 +579,9 @@ MH.setConstant();
 
 RooGaussian hgg_signal(&quot;signal&quot;,&quot;Gaussian PDF&quot;,*hgg_mass,MH,sigma);
 </code></pre>
-
 <p>By setting these parameters constant, RooFit knows (either when creating the NLL by hand or when using <code>fitTo</code>) that there is not need to fit for these parameters. </p>
 <p>We need to add this to our exponential model and fit a "Sigmal+Background model" by creating a <code>RooAddPdf</code>. In RooFit there are two ways to add PDFs, recursively where the fraction of yields for the signal and background is a parameter or absolutely where each PDF has its own normalisation. We're going to use the second one.</p>
-<pre><code class="c++">RooRealVar norm_s(&quot;norm_s&quot;,&quot;N_{s}&quot;,10,100);
+<pre><code class="language-c++">RooRealVar norm_s(&quot;norm_s&quot;,&quot;N_{s}&quot;,10,100);
 RooRealVar norm_b(&quot;norm_b&quot;,&quot;N_{b}&quot;,0,1000);
 
 const RooArgList components(hgg_signal,expo);
@@ -613,11 +590,10 @@ const RooArgList coeffs(norm_s,norm_b);
 RooAddPdf model(&quot;model&quot;,&quot;f_{s+b}&quot;,components,coeffs);
 model.Print(&quot;v&quot;);
 </code></pre>
-
 <details>
 <summary><b>Show</b></summary>
 
-<pre><code class="shell">--- RooAbsArg ---
+<pre><code class="language-shell">--- RooAbsArg ---
   Value State: DIRTY
   Shape State: DIRTY
   Attributes: 
@@ -652,7 +628,7 @@ Cached value = 0
 </div>
 <p>where <span><span class="MathJax_Preview">c = \dfrac{ N_{s} }{ N_{s} + N_{b} }</span><script type="math/tex">c = \dfrac{ N_{s} }{ N_{s} + N_{b} }</script></span>,   <span><span class="MathJax_Preview">f_{s}(m|M_{H},\sigma)</span><script type="math/tex">f_{s}(m|M_{H},\sigma)</script></span> is the Gaussian signal pdf and <span><span class="MathJax_Preview">f_{b}(m|\alpha)</span><script type="math/tex">f_{b}(m|\alpha)</script></span> is the exponential pdf. Remember that <span><span class="MathJax_Preview">M_{H}</span><script type="math/tex">M_{H}</script></span> and <span><span class="MathJax_Preview">\sigma</span><script type="math/tex">\sigma</script></span> are fixed so that they are no longer parameters of the likelihood.</p>
 <p>There is a simpler interface for maximum likelihood fits which is the <code>RooAbsPdf::fitTo</code> method. With this simple method, RooFit will construct the negative log-likelihood function, from the pdf, and minimize all of the free parameters in one step.</p>
-<pre><code class="c++">model.fitTo(*hgg_data,RooFit::Extended());
+<pre><code class="language-c++">model.fitTo(*hgg_data,RooFit::Extended());
 
 model.plotOn(plot,RooFit::Components(&quot;exp&quot;),RooFit::LineColor(kGreen));
 model.plotOn(plot,RooFit::LineColor(kRed));
@@ -663,17 +639,15 @@ plot-&gt;Draw();
 can-&gt;Update();
 can-&gt;Draw();
 </code></pre>
-
 <p><img alt="" src="../images/fit.png" /></p>
 <p>What about if we also fit for the mass (<span><span class="MathJax_Preview">M_{H}</span><script type="math/tex">M_{H}</script></span>)? we can easily do this by removing the constant setting on MH.</p>
-<pre><code class="c++">MH.setConstant(false);
+<pre><code class="language-c++">MH.setConstant(false);
 model.fitTo(*hgg_data,RooFit::Extended());
 </code></pre>
-
 <details>
 <summary><b>Show output</b></summary>
 
-<pre><code class="shell">[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
+<pre><code class="language-shell">[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (signal,exp)
  **********
  **    1 **SET PRINT           1
@@ -773,15 +747,13 @@ model.fitTo(*hgg_data,RooFit::Extended());
 
 <p>Notice the result for the fitted MH is not 125 and is included in the list of fitted parameters. 
 We can get more information about the fit, via the <code>RooFitResult</code>, using the option <code>Save()</code>. </p>
-<pre><code class="c++">RooFitResult *fit_res = (RooFitResult*) model.fitTo(*hgg_data,RooFit::Extended(),RooFit::Save());
+<pre><code class="language-c++">RooFitResult *fit_res = (RooFitResult*) model.fitTo(*hgg_data,RooFit::Extended(),RooFit::Save());
 </code></pre>
-
 <p>For example, we can get the Correlation Matrix from the fit result... Note that the order of the parameters are the same as listed in the "Floating Parameter" list above</p>
-<pre><code class="c++">TMatrixDSym cormat = fit_res-&gt;correlationMatrix();
+<pre><code class="language-c++">TMatrixDSym cormat = fit_res-&gt;correlationMatrix();
 cormat.Print();
 </code></pre>
-
-<pre><code class="shell">4x4 matrix is as follows
+<pre><code class="language-shell">4x4 matrix is as follows
 
      |      0    |      1    |      2    |      3    |
 ---------------------------------------------------------
@@ -790,19 +762,17 @@ cormat.Print();
    2 |   0.009538   -0.001978           1     -0.2769 
    3 |   -0.02623    0.005439     -0.2769           1 
 </code></pre>
-
 <p>A nice feature of <code>RooFit</code> is that once we have a PDF, data and results like this, we can import this new model into our <code>RooWorkspace</code> and show off our new discovery to our LHC friends (if we weren't already too late!). We can also save the "state" of our parameters for later, by creating a snapshot of the current values. </p>
-<pre><code class="c++">wspace-&gt;import(model);  
+<pre><code class="language-c++">wspace-&gt;import(model);  
 RooArgSet *params = model.getParameters(*hgg_data);
 wspace-&gt;saveSnapshot(&quot;nominal_values&quot;,*params);
 
 wspace-&gt;Print(&quot;V&quot;);
 </code></pre>
-
 <details>
 <summary><b>Show output</b></summary>
 
-<pre><code class="bash">RooWorkspace(workspace) Tutorial Workspace contents
+<pre><code class="language-bash">RooWorkspace(workspace) Tutorial Workspace contents
 
 variables
 ---------
