@@ -42,9 +42,9 @@ There are a number of useful command line options which can be used to alter the
 
 -   `--rMax`, `--rMin`: manually restrict the range of signal strengths to consider. For Bayesian limits with MCMC, `rMax` a rule of thumb is that rMax should be 3-5 times the limit (a too small value of `rMax` will bias your limit towards low values, since you are restricting the integration range, while a too large value will bias you to higher limits)
 
--   `--setParameters name=value[,name2=value2,...]` sets the starting values of the parameters, useful e.g. when generating toy MC or when also setting the parameters as fixed. This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`
+-   `--setParameters name=value[,name2=value2,...]` sets the starting values of the parameters, useful e.g. when generating toy MC or when also setting the parameters as fixed. This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`.
 
--   `--setParameterRanges name=min,max[:name2=min2,max2:...]` sets the ranges of the parameters (useful e.g. for scanning in MultiDimFit, or for Bayesian integration). This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`
+-   `--setParameterRanges name=min,max[:name2=min2,max2:...]` sets the ranges of the parameters (useful e.g. for scanning in MultiDimFit, or for Bayesian integration). This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`.
 
 -   `--redefineSignalPOIs name[,name2,...]` redefines the set of parameters of interest.
     -   if the parameters where constant in the input workspace, they are re-defined to be floating.
@@ -53,7 +53,7 @@ There are a number of useful command line options which can be used to alter the
     -   parameters of interest of the input workspace that are not selected by this command become unconstrained nuisance parameters, but they are not added to the list of nuisances so they will not be randomized (see above).
 
 
--   `--freezeParameters name1[,name2,...]` Will freeze the parameters with the given names to their set values. This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`
+-   `--freezeParameters name1[,name2,...]` Will freeze the parameters with the given names to their set values. This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`. For example `--freezeParameters rgx{CMS_scale_j.*}` will freeze all parameters with the prefix `CMS_scale_j`.
     - use the option `--freezeParameters allConstrainedNuisances` to freeze all nuisance parameters that have a constraint term (i.e not `flatParams` or `rateParams` or other freely floating parameters).
     - similarly the option `--floatParameters` sets the parameter floating.
     - groups of nuisances (constrained or otherwise), as defined in the datacard, can be frozen using `--freezeNuisanceGroups`. You can also specify to freeze nuisances which are *not* contained in a particular group using a **^** before the group name (`--freezeNuisanceGroups=^group_name` will freeze everything except nuisance parameters in the group "group_name".)
