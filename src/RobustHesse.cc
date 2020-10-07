@@ -433,17 +433,21 @@ int RobustHesse::hesse() {
           std::cout << " - " << eigenvec[es].second << "\t" << cVars_[eigenvec[es].first].v->GetName() << "\n";
         }
 
-        // Assume sorted by largest to smallest eigenvalues,
-        // meaning most negative is this one
-        if (ei == (eigenvals.GetNrows() - 1)) {
-          for (unsigned ej = 0; ej < eigenvec.size(); ++ ej) {
-            // Check if we are allowed to remove this parameter
-            std::string parname = cVars_[eigenvec[ej].first].v->GetName();
-            // If it is not protected OR if it is the last parameter then we can remove it
-            if (!proctected_.count(parname) || ej == (eigenvec.size() - 1)) {
-              to_remove.push_back(eigenvec[ej].first);
-              removed_pars.push_back(parname);
-              break;
+        
+        // Need to ensure this only gets triggered for negative eigenvalues in case print_only_negative is set to false
+        if (eigenvals[ei] < 0.){
+          // Assume sorted by largest to smallest eigenvalues,
+          // meaning most negative is this one
+          if (ei == (eigenvals.GetNrows() - 1)) {
+            for (unsigned ej = 0; ej < eigenvec.size(); ++ ej) {
+              // Check if we are allowed to remove this parameter
+              std::string parname = cVars_[eigenvec[ej].first].v->GetName();
+              // If it is not protected OR if it is the last parameter then we can remove it
+              if (!proctected_.count(parname) || ej == (eigenvec.size() - 1)) {
+                to_remove.push_back(eigenvec[ej].first);
+                removed_pars.push_back(parname);
+                break;
+              }
             }
           }
         }
