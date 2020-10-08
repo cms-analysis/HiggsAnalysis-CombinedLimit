@@ -41,7 +41,8 @@ protected:
   std::auto_ptr<TFile> fitOut;
 
   // options
-  static unsigned int points_, points2_, firstPoint_, lastPoint_;
+  static unsigned int points_, firstPoint_, lastPoint_;
+  static std::string gridPoints_;
   static bool floatOtherPOIs_;
   static bool squareDistPoiStep_;
   static bool skipInitialFit_;
@@ -94,6 +95,8 @@ protected:
   void doBox(RooAbsReal &nll, double cl, const char *name="box", bool commitPoints=true) ;
   /// save a file with the RooFitResult inside
   void saveResult(RooFitResult &res);
+  /// split values passed to --gridPoints option, e.g. "10,20" -> unsigned int vector {10, 20}
+  void splitGridPoints(const std::string& s, std::vector<unsigned int>& points) const;
 };
 
 
