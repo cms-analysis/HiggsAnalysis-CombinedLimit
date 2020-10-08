@@ -86,7 +86,7 @@ MultiDimFit::MultiDimFit() :
         ("squareDistPoiStep","POI step size based on distance from midpoint (max-min)/2 rather than linear")
         ("skipInitialFit","Skip initial fit (save time if snapshot is loaded from previous fit)")
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
-        ("points2",  boost::program_options::value<unsigned int>(&points2_)->default_value(points2_), "Same as --points but applies only to the second POI when doing 2D scans, and when set, --points applies only to the first POI")
+        ("secondPOIPoints",  boost::program_options::value<unsigned int>(&points2_)->default_value(points2_), "Same as --points but applies only to the second POI when doing 2D scans, and when set, --points applies only to the first POI")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
         ("autoRange", boost::program_options::value<float>(&autoRange_)->default_value(autoRange_), "Set to any X >= 0 to do the scan in the +/- X sigma range (where the sigma is from the initial fit, so it may be fairly approximate)")
