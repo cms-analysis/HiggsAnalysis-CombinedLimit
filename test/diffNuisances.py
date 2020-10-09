@@ -36,7 +36,7 @@ parser.add_option("-g", "--histogram", dest="plotfile", default=None, type="stri
 parser.add_option("", "--pullDef",  dest="pullDef", default="", type="string", help="Choose the definition of the pull, see python/calculate_pulls.py for options")
 parser.add_option("", "--skipFitS", dest="skipFitS", default=False, action='store_true', help="skip the S+B fit, instead the B-only fit will be repeated")
 parser.add_option("", "--skipFitB", dest="skipFitB", default=False, action='store_true', help="skip the B-only fit, instead the S+B fit will be repeated")
-parser.add_option("", "--sortBy", dest="sortBy", default="", type='string', help="choose 'correlation' or 'impact' to sort rows by correlation with or impact on --poi (largest to smallest absolute)")
+parser.add_option("", "--sortBy", dest="sortBy", default="correlation", type='string', help="choose 'correlation' or 'impact' to sort rows by correlation with or impact on --poi (largest to smallest absolute)")
 
 (options, args) = parser.parse_args()
 if len(args) == 0:
