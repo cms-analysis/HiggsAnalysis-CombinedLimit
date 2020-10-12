@@ -26,7 +26,6 @@
 class RooAbsArg;
 class RooAbsPdf;
 class RooAbsReal;
-class RooRealProxy;
 class RooArgList;
 
 using namespace std;

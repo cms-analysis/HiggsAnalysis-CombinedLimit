@@ -448,7 +448,7 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
         } else {
             RooArgList list(*coeff);
             list.add(basecoeffs);
-            prods_.push_back(new RooProduct("","",list));
+            prods_.push_back(new RooProduct((pdfi->GetName()+std::string("cachingnll")).c_str(),"",list));
             coeffs_.push_back(&prods_.back());
             //std::cout << "Coefficient of " << pdfi->GetName() << std::endl; prods_.back().Print("");
         }
@@ -986,7 +986,7 @@ cacheutils::CachingSimNLL::setup_()
         simpdf = dynamic_cast<RooSimultaneous *>(pdfclone);
     }
 
-    
+
     std::auto_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
     pdfs_.resize(catClone->numBins(NULL), 0);
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
@@ -1162,7 +1162,7 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
     //utils::printRDH((RooAbsData*)&data);
     for (int i = 0; i < ne; ++i) {
         data.get(i); if (data.weight() == 0 && !includeZeroWeightsAny) continue;
-        int ib = cat->getBin();
+        int ib = cat->getBin((const char*)NULL);
         //std::cout << "Event " << i << " of weight " << data.weight() << " is in bin " << ib << " label " << cat->getLabel() << std::endl;
         if (data.weight() > 0 || includeZeroWeights[ib]) datasets_[ib]->add(obs, data.weight());
     }

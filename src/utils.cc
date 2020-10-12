@@ -1105,10 +1105,10 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiP
 	return false;
 }
 
-void utils::RooAddPdfFixer::Fix(RooAddPdf & fixme) {
-  RooAddPdfFixer & fixme_casted = static_cast<RooAddPdfFixer &>(fixme);
-  delete[] fixme_casted.RooAddPdf::_coefCache;
-  fixme_casted.RooAddPdf::_coefCache = new Double_t[fixme_casted.RooAddPdf::_pdfList.getSize()];
+void utils::RooAddPdfFixer::Fix(RooAddPdf & /*fixme*/) {
+  /*RooAddPdfFixer & fixme_casted = static_cast<RooAddPdfFixer &>(fixme);
+  delete fixme_casted.RooAddPdf::_coefCache;
+  fixme_casted.RooAddPdf::_coefCache = new std::vector<double>*;*/
 }
 
 void utils::RooAddPdfFixer::FixAll(RooWorkspace & w) {

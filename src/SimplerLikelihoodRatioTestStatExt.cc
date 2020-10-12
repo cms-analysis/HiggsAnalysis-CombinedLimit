@@ -122,7 +122,7 @@ double SimplerLikelihoodRatioTestStatOpt::evalSimNLL(RooAbsData &data,  RooSimul
     for (i = 0; i < n; ++i) {
         data.get(i); 
         double w = data.weight(); if (w == 0) continue;
-        int bin = cat->getBin();
+        int bin = cat->getBin((const char*)NULL);
         assert(bin < int(components.size()) && "Bin outside range");
         if (components[bin] == 0) continue;
         sum  += -w*components[bin]->getLogVal(obs_);
