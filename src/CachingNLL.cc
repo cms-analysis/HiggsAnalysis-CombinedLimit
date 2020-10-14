@@ -543,16 +543,17 @@ cacheutils::CachingAddNLL::setup_()
             if (tryfactor && ((prodi = dynamic_cast<RooProduct *>(funci)) != 0)) {
                 RooArgList newcoeffs(*coeff), newfuncs; 
                 utils::factorizeFunc(*obs, *funci, newfuncs, newcoeffs);
+
                 if (newcoeffs.getSize() > 1) {
-                    if (cheapprod) prods_.push_back(new RooCheapProduct("","",newcoeffs,runtimedef::get("ADDNLL_ROOREALSUM_PRUNECONST")));
-                    else           prods_.push_back(new RooProduct("","",newcoeffs));
+                    if (cheapprod) prods_.push_back(new RooCheapProduct((funci->GetName()+std::string("_coeff_cachingnll")).c_str(),"",newcoeffs,runtimedef::get("ADDNLL_ROOREALSUM_PRUNECONST")));
+                    else           prods_.push_back(new RooProduct((funci->GetName()+std::string("_coeff_cachingnll")).c_str(),"",newcoeffs));
                     coeff = &prods_.back();
                 }
                 if (newfuncs.getSize() > 1) {
                     //-- We don't make cheap products here since it does not implement the binning and analytical integrals
                     //if (cheapprod) prods_.push_back(new RooCheapProduct("","",newfuncs));
                     //else           prods_.push_back(new RooProduct("","",newfuncs));
-                    prods_.push_back(new RooProduct("","",newfuncs));
+                    prods_.push_back(new RooProduct((funci->GetName()+std::string("_func_cachingnll")).c_str(),"",newfuncs));
                     funci = &prods_.back();
                 } else {
                     funci =  dynamic_cast<RooAbsReal *>(newfuncs.first());
