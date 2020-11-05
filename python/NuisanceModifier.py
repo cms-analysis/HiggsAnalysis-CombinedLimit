@@ -127,14 +127,14 @@ def doRenameNuisance(datacard, args):
 	  nuisanceID = i
 	  if pdf0 == "flatParam" :
             raise RuntimeError, "Error: Cannot use nuisance edit rename with flatParam type nuisances currently - you should rename the parameter in your input workspace."	  
-	  if pdf0 != "param": 
-            raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"	  
+	  if pdf0 != "param": continue # in this case we need to just skip it as it could be because its a shape version  
+            #raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"	  
           for lsyst2,nofloat2,pdf02,args02,errline02 in (datacard.systs[:]):
 	    if lsyst2 == newname:
 	     if pdf02 != "param":
 	      if (args0[0]) not in ["0.0","0.","0"] or (args0[1]) not in ["1.0","1.","1"] : raise RuntimeError, "Can't rename nuisance %s with Gaussian pdf G(%s,%s) to name %s which already exists with G(0,1) constraint!" % (lsyst,args0[0],args0[1],lsyst2)
              else: 
-	      if (args0[0])!=(args02[0])  or float(args0[1])!=float(args02[1]) : raise RuntimeError, "Can't rename nuisance %s with Gaussian pdf G(%s,%s) to name %s which already exists with Gaussian pdf G(%s,%s) constraint!" % (lsyst,args0[0],args0[1],lsyst2,args02[0],args02[1])
+	      if (args0[0])!=(args02[0]) and float(args0[1])!=float(args02[1]) : raise RuntimeError, "Can't rename nuisance %s with Gaussian pdf G(%s,%s) to name %s which already exists with Gaussian pdf G(%s,%s) constraint!" % (lsyst,args0[0],args0[1],lsyst2,args02[0],args02[1])
 	  break
       if nuisanceID >-1 : 
       	datacard.systs[nuisanceID][0]=newname 
@@ -142,8 +142,8 @@ def doRenameNuisance(datacard, args):
       else: raise RuntimeError, "No nuisance parameter found with name %s in the datacard"%oldname 
       return
 
-    if len(args) < 4:
-        raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"
+    #if len(args) < 4:
+    #    raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"
     (process, channel, oldname, newname) = args[:4]
     if process != "*": cprocess = re.compile(process)
     if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
@@ -154,11 +154,14 @@ def doRenameNuisance(datacard, args):
         if fullmatch(oldname, lsyst):
             lsystnew = newname
         if lsystnew != lsyst:
-            if pdf0=="param" : raise RuntimeError, "Incorrect syntax. Cannot specify process and channel for %s with pdf %s. Use 'nuisance edit rename oldname newname'"% (lsyst,pdf0)
+            if pdf0=="param" : continue #raise RuntimeError, "Incorrect syntax. Cannot specify process and channel for %s with pdf %s. Use 'nuisance edit rename oldname newname'"% (lsyst,pdf0)
             found = False
             errline2 = dict([(b,dict([(p,0) for p in datacard.exp[b]])) for b in datacard.bins])
             for lsyst2,nofloat2,pdf2,args2,errline2b in datacard.systs:
                 if lsyst2 == lsystnew:
+		    if pdf2 == "param": 
+		      found = False # nothing to do 
+		      break 
                     found = True
                     errline2 = errline2b
                     if pdf2 != pdf0 and pdf2 not in ['lnN']: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
@@ -174,6 +177,7 @@ def doRenameNuisance(datacard, args):
                             if errline0[b][p] in [0.0]:
                                 continue
     			    if "shape" in pdf0 : datacard.systematicsShapeMap[newname,b,p]=oldname
+			 
                             if p in errline0[b] and errline2[b][p] not in [ 0.0, 1.0 ]:
                                 if "addq" in opts:
                                     errline2[b][p] = quadratureAdd(pdf0, errline0[b][p], errline2[b][p], context="nuisance edit rename, args = %s" % args)
@@ -191,11 +195,12 @@ def doRenameNuisance(datacard, args):
                             sys.stderr.write("Warning: nuisance edit rename %s found nothing in channel %s\n" % (args, channel))
     if not foundProc and channel != "*":
         if "ifexists" not in opts:
-            raise RuntimeError, "Error: no process found matching nuisance edit rename with args = %s (and option 'ifexist' not specified)\n" % args
+            raise RuntimeError, "Error: no process found matching nuisance edit rename with args = %s (and option 'ifexists' not specified)\n" % args
         else:
-            sys.stderr.write("Warning: no process found matching nuisance edit rename with args = %s\n" % args)
-    if not foundChann:
-        sys.stderr.write("Warning: no channel found matching nuisance edit rename with args = %s\n" % args)
+	    pass 
+            #sys.stderr.write("Warning: no process found matching nuisance edit rename with args = %s\n" % args)
+    if not foundChann: pass
+        #sys.stderr.write("Warning: no channel found matching nuisance edit rename with args = %s\n" % args)
 
 def doChangeNuisancePdf(datacard, args):
     if len(args) < 2:
@@ -285,7 +290,7 @@ def doSplitNuisance(datacard, args):
             sys.stderr.write("Warning2: nuisance edit split %s found nothing\n" % (args))
 
 def doFreezeNuisance(datacard, args):
-    if len(args) < 1:
+    if len(args) < 1 or len(args) > 2 :
         raise RuntimeError, "Missing arguments: the syntax is: nuisance edit freeze name [ifexists] (name can be a pattern)"
     pat = re.compile("^"+args[0]+"$")
     opts = args[1:]

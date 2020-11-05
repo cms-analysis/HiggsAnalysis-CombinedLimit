@@ -203,9 +203,11 @@ for ich,fname in enumerate(args):
         tmp_proc = editline[1]
         if tmp_chan == "*": # all channels
           tmp_chan = "%s(%s)"%(label,"|".join(c for c in DC.bins)) if len (DC.bins)>1 else label
+	  if "ifexists" not in editline[3]: editline[3].append("ifexists")
 	else: tmp_chan = label+tmp_chan
         if tmp_proc == "*":
           tmp_proc = "(%s)"%("|".join(p for p in DC.processes))
+	  if "ifexists" not in editline[3]: editline[3].append("ifexists")
         nuisanceEdits.append("%s %s %s %s"%(editline[0],tmp_proc,tmp_chan," ".join(editline[3])))
 
 bins = []
