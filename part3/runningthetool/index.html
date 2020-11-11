@@ -218,7 +218,7 @@
                 <li class="third-level"><a href="#loading-snapshots">Loading snapshots</a></li>
             <li class="second-level"><a href="#combinetool-for-job-submission">combineTool for job submission</a></li>
                 
-                <li class="third-level"><a href="#submission-to-the-lsf-batch">Submission to the LSF Batch</a></li>
+                <li class="third-level"><a href="#submission-to-condor">Submission to Condor</a></li>
                 <li class="third-level"><a href="#running-combine-jobs-on-the-grid">Running combine jobs on the Grid</a></li>
     </ul>
 </div></div>
@@ -510,20 +510,21 @@
 </ul>
 <h2 id="combinetool-for-job-submission">combineTool for job submission</h2>
 <p>For longer tasks which cannot be run locally, several methods in combine can be split to run on the <em>LSF batch</em> or the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool</code> (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool">this getting started</a> section to get the tool)</p>
-<h3 id="submission-to-the-lsf-batch">Submission to the LSF Batch</h3>
-<p>The syntax for running on the batch with the tool is</p>
-<pre><code class="language-sh">combineTool.py -M ALGO [options] --job-mode lxbatch --sub-opts=&quot;-q QUEUE&quot; --task-name NAME [--dry-run]
+<h3 id="submission-to-condor">Submission to Condor</h3>
+<p>The syntax for running on condor with the tool is</p>
+<pre><code class="language-sh">combineTool.py -M ALGO [options] --job-mode condor --sub-opts='CLASSADS' --task-name NAME [--dry-run]
 </code></pre>
 <p>with <code>options</code> being the usual list of <code>combine</code> options. The help option <code>-h</code> will give a list of both <code>combine</code> and <code>combineTool</code> sets of options. This can be used with several different methods from <code>combine</code>.</p>
+<p>The <code>--sub-opts</code> option takes a string with the different ClassAds that you want to set, separated by <code>\n</code> as argument (e.g. <code>'+JobFlavour="espresso"\nRequestCpus=1'</code>).</p>
 <p>The <code>--dry-run</code> option will show what will be run without actually doing so / submitting the jobs.</p>
-<p>For example, to generate toys (eg for use with limit setting) users running on lxplus at CERN the <strong>lxbatch</strong> mode can be used eg</p>
-<pre><code class="language-sh">combineTool.py -d workspace.root -M HybridNew --LHCmode LHC-limits --clsAcc 0  -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveHybridResult -m 125 --job-mode lxbatch --task-name lxbatch-test --sub-opts='-q 1nd'
+<p>For example, to generate toys (eg for use with limit setting) users running on lxplus at CERN the <strong>condor</strong> mode can be used eg</p>
+<pre><code class="language-sh">combineTool.py -d workspace.root -M HybridNew --LHCmode LHC-limits --clsAcc 0  -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveHybridResult -m 125 --job-mode condor --task-name condor-test --sub-opts='+JobFlavour=&quot;tomorrow&quot;'
 </code></pre>
-<p>The <code>--singlePoint</code> option is over-ridden so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using <code>--merge</code> - e.g adding <code>--merge 10</code> to the above command will mean that each job contains <em>at most</em> 10 of the values. The scripts are labelled by the <code>--task-name</code> option. These will be submitted directly to lxbatch adding any options in <code>--sub-opts</code> to the bsub call. The jobs will run and produce output in the <strong>current directory</strong>.</p>
+<p>The <code>--singlePoint</code> option is over-ridden so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using <code>--merge</code> - e.g adding <code>--merge 10</code> to the above command will mean that each job contains <em>at most</em> 10 of the values. The scripts are labelled by the <code>--task-name</code> option. These will be submitted directly to condor adding any options in <code>--sub-opts</code> to the condor submit script. Make sure multiple options are separated by <code>\n</code>. The jobs will run and produce output in the <strong>current directory</strong>.</p>
 <p>Below is an example for splitting points in a multi-dimensional likelihood scan.</p>
 <h4 id="splitting-jobs-for-a-multi-dimensional-likelihood-scan">Splitting jobs for a multi-dimensional likelihood scan</h4>
 <p>The option <code>--split-points</code> issues the command to split the jobs for <code>MultiDimFit</code> when using <code>--algo grid</code>. The following example will split the jobs such that there are <strong>10 points</strong> in each of the jobs, which will be submitted to the <strong>8nh</strong> queue.</p>
-<pre><code class="language-sh">combineTool.py datacard.txt -M MultiDimFit --algo grid --points 50 --rMin 0 --rMax 1 --job-mode lxbatch --split-points 10 --sub-opts='-q 8nh' --task-name mytask -n mytask
+<pre><code class="language-sh">combineTool.py datacard.txt -M MultiDimFit --algo grid --points 50 --rMin 0 --rMax 1 --job-mode condor --split-points 10 --sub-opts='+JobFlavour=&quot;workday&quot;' --task-name mytask -n mytask
 </code></pre>
 <p>Remember, any usual options (such as redefining POIs or freezing parameters) are passed to combine and can be added to the command line for <code>combineTool</code>.</p>
 <div class="admonition info">
