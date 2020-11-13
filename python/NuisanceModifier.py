@@ -149,8 +149,8 @@ def doRenameNuisance(datacard,args):
         if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
         opts = args[4:]
 
-    print "map before ->", datacard.systIDMap
-    for dcs in datacard.systs: print " --> ", dcs
+    #print "map before ->", datacard.systIDMap
+    #for dcs in datacard.systs: print " --> ", dcs
     if oldname in datacard.systIDMap.keys():
         for id in list(datacard.systIDMap[oldname]):
             #print " when considering id %d, the map ->"%id, datacard.systIDMap
@@ -210,8 +210,8 @@ def doRenameNuisance(datacard,args):
         if len(datacard.systIDMap[oldname]) == 0: datacard.systIDMap.pop(oldname)
 
     else : raise RuntimeError, "No nuisance parameter found with name %s in the datacard"%oldname
-    print " map after -> " , datacard.systIDMap
-    for dcs in datacard.systs: print " --> ", dcs
+    #print " map after -> " , datacard.systIDMap
+    #for dcs in datacard.systs: print " --> ", dcs
 
 def doChangeNuisancePdf(datacard, args):
     if len(args) < 2:
