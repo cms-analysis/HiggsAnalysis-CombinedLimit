@@ -12,11 +12,11 @@ class Datacard():
         self.bins = []
         ## dict of {bin : number of observed events}
         self.obs  = {}
-        ## list of [processes]  
+        ## list of [processes]
         self.processes = []
         ## list of [signal processes]
         self.signals = []
-        ## dict of {processes : boolean to indicate whether process is signal or not}  
+        ## dict of {processes : boolean to indicate whether process is signal or not}
         self.isSignal = {}
         ## list of [(bin, process, boolean to indicate whether process is signal or not)]
         self.keyline = []
@@ -30,27 +30,30 @@ class Datacard():
         self.hasShapes = False
         ## dirct of {name of uncert, boolean to indicate whether it is a flat parametric uncertainty or not}
         self.flatParamNuisances = {}
-	      ## dict of rateParam 
+	      ## dict of rateParam
         self.rateParams = {}
-	      ## dict of extArgs 
+	      ## dict of extArgs
         self.extArgs = {}
 	      ## maintain the order for rate modifiers
-        self.rateParamsOrder = set() 
+        self.rateParamsOrder = set()
         ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
         self.frozenNuisances = set()
 
 	# Allows for nuisance renaming of "shape" systematics
 	self.systematicsShapeMap = {}
-	
-	# Allows for nuisance renaming of "param" systematics 
+
+	# Allows for nuisance renaming of "param" systematics
 	self.systematicsParamMap = {}
 
-        # Keep edits 
+	# Allow to pick out entry in self.systs.
+	self.systIDMap = {}
+
+        # Keep edits
 	self.nuisanceEditLines = []
-  
+
         # map of which bins should have automated Barlow-Beeston parameters
 	self.binParFlags = {}
-        
+
 	self.groups = {}
 	self.discretes = []
 
@@ -77,33 +80,33 @@ MB = None
 ############## Setup the datacard (must be filled in) ###########################
 	"""
 
-	print "DC.bins = 	"		, self.bins			,"#",type(self.bins)		
-	print "DC.obs = 	"		, self.obs                      ,"#",type(self.obs)			
-	print "DC.processes = 	"		, self.processes                ,"#",type(self.processes)		
-	print "DC.signals = 	"		, self.signals                  ,"#",type(self.signals)		
-	print "DC.isSignal = 	"		, self.isSignal                 ,"#",type(self.isSignal)		
-	print "DC.keyline = 	"		, self.keyline                  ,"#",type(self.keyline)		
-	print "DC.exp = 	"		, self.exp                      ,"#",type(self.exp)			
-	print "DC.systs = 	"		, self.systs                    ,"#",type(self.systs)		
-	print "DC.shapeMap = 	"		, self.shapeMap                 ,"#",type(self.shapeMap)		
-	print "DC.hasShapes = 	"		, self.hasShapes                ,"#",type(self.hasShapes)		
-	print "DC.flatParamNuisances = "	, self.flatParamNuisances       ,"#",type(self.flatParamNuisances)	
-	print "DC.rateParams = "		, self.rateParams               ,"#",type(self.rateParams)		
-	print "DC.extArgs = 	"		, self.extArgs                  ,"#",type(self.extArgs)		
-	print "DC.rateParamsOrder 	= "	, self.rateParamsOrder          ,"#",type(self.rateParamsOrder)	
-	print "DC.frozenNuisances 	= "	, self.frozenNuisances          ,"#",type(self.frozenNuisances)	
-	print "DC.systematicsShapeMap = "	, self.systematicsShapeMap      ,"#",type(self.systematicsShapeMap)	
-	print "DC.nuisanceEditLines 	= "	, self.nuisanceEditLines        ,"#",type(self.nuisanceEditLines)	
-  	print "DC.binParFlags 	= "	  	, self.binParFlags        	,"#",type(self.binParFlags)	
-	print "DC.groups 	= "		, self.groups        		,"#",type(self.groups)	
-	print "DC.discretes 	= "		, self.discretes        	,"#",type(self.discretes)	
+	print "DC.bins = 	"		, self.bins			,"#",type(self.bins)
+	print "DC.obs = 	"		, self.obs                      ,"#",type(self.obs)
+	print "DC.processes = 	"		, self.processes                ,"#",type(self.processes)
+	print "DC.signals = 	"		, self.signals                  ,"#",type(self.signals)
+	print "DC.isSignal = 	"		, self.isSignal                 ,"#",type(self.isSignal)
+	print "DC.keyline = 	"		, self.keyline                  ,"#",type(self.keyline)
+	print "DC.exp = 	"		, self.exp                      ,"#",type(self.exp)
+	print "DC.systs = 	"		, self.systs                    ,"#",type(self.systs)
+	print "DC.shapeMap = 	"		, self.shapeMap                 ,"#",type(self.shapeMap)
+	print "DC.hasShapes = 	"		, self.hasShapes                ,"#",type(self.hasShapes)
+	print "DC.flatParamNuisances = "	, self.flatParamNuisances       ,"#",type(self.flatParamNuisances)
+	print "DC.rateParams = "		, self.rateParams               ,"#",type(self.rateParams)
+	print "DC.extArgs = 	"		, self.extArgs                  ,"#",type(self.extArgs)
+	print "DC.rateParamsOrder 	= "	, self.rateParamsOrder          ,"#",type(self.rateParamsOrder)
+	print "DC.frozenNuisances 	= "	, self.frozenNuisances          ,"#",type(self.frozenNuisances)
+	print "DC.systematicsShapeMap = "	, self.systematicsShapeMap      ,"#",type(self.systematicsShapeMap)
+	print "DC.nuisanceEditLines 	= "	, self.nuisanceEditLines        ,"#",type(self.nuisanceEditLines)
+  	print "DC.binParFlags 	= "	  	, self.binParFlags        	,"#",type(self.binParFlags)
+	print "DC.groups 	= "		, self.groups        		,"#",type(self.groups)
+	print "DC.discretes 	= "		, self.discretes        	,"#",type(self.discretes)
 
 	print """
 
 ###### User defined options #############################################
 
 options.out 	 = "combine_workspace.root"  	# Output workspace name
-options.fileName = "./" 			# Path to input ROOT files 
+options.fileName = "./" 			# Path to input ROOT files
 options.verbose  = "1" 				# Verbosity
 
 ##########################################################################
@@ -113,7 +116,7 @@ if DC.hasShapes:
 else:
     MB = CountingModelBuilder(DC, options)
 
-# Set physics models 
+# Set physics models
 MB.setPhysics(defaultModel)
 MB.doModel()
 	"""
@@ -152,8 +155,8 @@ MB.doModel()
         """
         Return the list of background processes in the datacards.
         """
-        return self.list_of_procs('b')    
-        
+        return self.list_of_procs('b')
+
     def barcode(self, bin, proc, idx) :
         """
         Return the barcode where to find corresponding shapes for a given bin and process. The barcode is a list of
@@ -161,7 +164,7 @@ MB.doModel()
         input file, [2] path to the uncertainty histograms in the input file. The elements of the list are returned
         as obtained from the datacard. The function actually does not return the full list but the first second or
         thrid element as indicated by idx. If there is no entry for a given bin, process and idx an empty list is
-        returned. 
+        returned.
         """
         path = ''
         if not bin in self.shapeMap.keys() :
@@ -200,7 +203,7 @@ MB.doModel()
             return path[path.rfind('/')+1:]
         else :
             return path
-        
+
     def path_to_uncert(self, bin, proc, resolve=True) :
         """
         Return the path to the uncertainty histograms within the root input file for shape analyses for a given bin and
@@ -219,7 +222,7 @@ MB.doModel()
             return path[path.rfind('/')+1:]
         else :
             return path
-        
+
     def obs(self, bin) :
         """
         Return the number of observed events for a given bin.
@@ -231,15 +234,18 @@ MB.doModel()
         Return thenumber of expected events for a given bin and process.
         """
         return self.exp[bin][proc]
-    
+
     def getAllVariables(self):
     	"""
 	Return all variables defined in the datacard
 	"""
 	allVars = tuple([syst[0] for syst in self.systs]+self.flatParamNuisances.keys()+self.extArgs.keys()+self.discretes)
-	for rp in self.rateParams: 
+	for rp in self.rateParams:
 	  modifiers = self.rateParams[rp]
 	  for p in modifiers : allVars+=tuple([p[0][0]])
 
 	return list(set(allVars))
 
+    def add_syst_id(self,lsyst):
+        if lsyst in self.systIDMap.keys(): self.systIDMap[lsyst].append(len(self.systs)-1)
+        else: self.systIDMap[lsyst] = [len(self.systs)-1]

@@ -2,6 +2,9 @@ import re
 import sys
 from math import log,exp,hypot
 
+def appendMap(tmap,k,thing):
+     if k in tmap.keys(): tmap[k].append(thing)
+     else: tmap[k] = [thing]
 
 def fullmatch(regex, line):
     """Performs regex match requiring the full string to match
@@ -116,91 +119,90 @@ def doDropNuisance(datacard, args):
         else:
             sys.stderr.write("Warning2: nuisance edit drop %s found nothing\n" % (args))
 
-
-def doRenameNuisance(datacard, args):
-    if len(args) == 2: # newname oldname 
-      nuisanceID = i = -1
-      (oldname, newname) = args[:2]
-      for lsyst,nofloat,pdf0,args0,errline0 in (datacard.systs[:]):
-        i+=1
-        if lsyst == oldname : # found the nuisance
-	  nuisanceID = i
-	  if pdf0 == "flatParam" :
-            raise RuntimeError, "Error: Cannot use nuisance edit rename with flatParam type nuisances currently - you should rename the parameter in your input workspace."	  
-	  if pdf0 != "param": continue # in this case we need to just skip it as it could be because its a shape version  
-            #raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"	  
-          for lsyst2,nofloat2,pdf02,args02,errline02 in (datacard.systs[:]):
-	    if lsyst2 == newname:
-	     if pdf02 != "param":
-	      if (args0[0]) not in ["0.0","0.","0"] or (args0[1]) not in ["1.0","1.","1"] : raise RuntimeError, "Can't rename nuisance %s with Gaussian pdf G(%s,%s) to name %s which already exists with G(0,1) constraint!" % (lsyst,args0[0],args0[1],lsyst2)
-             else: 
-	      if (args0[0])!=(args02[0]) and float(args0[1])!=float(args02[1]) : raise RuntimeError, "Can't rename nuisance %s with Gaussian pdf G(%s,%s) to name %s which already exists with Gaussian pdf G(%s,%s) constraint!" % (lsyst,args0[0],args0[1],lsyst2,args02[0],args02[1])
-	  break
-      if nuisanceID >-1 : 
-      	datacard.systs[nuisanceID][0]=newname 
-	datacard.systematicsParamMap[oldname]=newname
-      else: raise RuntimeError, "No nuisance parameter found with name %s in the datacard"%oldname 
-      return
-
-    #if len(args) < 4:
-    #    raise RuntimeError, "Missing arguments: the syntax is: nuisance edit rename process channel oldname newname"
-    (process, channel, oldname, newname) = args[:4]
-    if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
-    opts = args[4:]
-    foundChann, foundProc = False, False
-    for lsyst,nofloat,pdf0,args0,errline0 in datacard.systs[:]:
-        lsystnew = lsyst
-        if fullmatch(oldname, lsyst):
-            lsystnew = newname
-        if lsystnew != lsyst:
-            if pdf0=="param" : continue #raise RuntimeError, "Incorrect syntax. Cannot specify process and channel for %s with pdf %s. Use 'nuisance edit rename oldname newname'"% (lsyst,pdf0)
-            found = False
-            errline2 = dict([(b,dict([(p,0) for p in datacard.exp[b]])) for b in datacard.bins])
-            for lsyst2,nofloat2,pdf2,args2,errline2b in datacard.systs:
-                if lsyst2 == lsystnew:
-		    if pdf2 == "param": 
-		      found = False # nothing to do 
-		      break 
-                    found = True
-                    errline2 = errline2b
-                    if pdf2 != pdf0 and pdf2 not in ['lnN']: raise RuntimeError, "Can't rename nuisance %s with pdf %s to name %s which already exists as %s" % (lsyst,pdf0,lsystnew,pdf2)
-            if not found:
-                datacard.systs.append([lsystnew,nofloat,pdf0,args0,errline2])
-            for b in errline0.keys():
-                if channel == "*" or fullmatch(cchannel, b):
-                    foundChann = True
-                    if channel != "*": foundProc = False
-                    for p in datacard.exp[b].keys():
-                        if process == "*" or fullmatch(cprocess, p):
-                            foundProc = True
-                            if errline0[b][p] in [0.0]:
-                                continue
-    			    if "shape" in pdf0 : datacard.systematicsShapeMap[newname,b,p]=oldname
-			 
-                            if p in errline0[b] and errline2[b][p] not in [ 0.0, 1.0 ]:
-                                if "addq" in opts:
-                                    errline2[b][p] = quadratureAdd(pdf0, errline0[b][p], errline2[b][p], context="nuisance edit rename, args = %s" % args)
-                                elif "overwrite" in opts:
-                                    errline2[b][p] = errline0[b][p]
-                                else:
-                                    raise RuntimeError, "Can't rename nuisance with args = %s for bin %s, process %s: found existing non-null value %s, and no option 'addq' or 'overwrite' given" % (args,b,p,errline2[b][p])
-                            else:
-                                errline2[b][p] = errline0[b][p]
-                            errline0[b][p] = 0
-                    if channel != "*" and not foundProc:
-                        if "ifexists" not in opts:
-                            raise RuntimeError, "Error: nuisance edit rename %s found nothing in channel %s" % (args, channel)
-                        else:
-                            sys.stderr.write("Warning: nuisance edit rename %s found nothing in channel %s\n" % (args, channel))
-    if not foundProc and channel != "*":
-        if "ifexists" not in opts:
-            raise RuntimeError, "Error: no process found matching nuisance edit rename with args = %s (and option 'ifexists' not specified)\n" % args
+def checkRenameSafety(id,datacard,newname):
+    lsyst,nofloat,pdf0,args0,errline0 = datacard.systs[id]
+    for id2 in datacard.systIDMap[newname]:
+        if id==id2 : continue
+        lsyst2,nofloat2,pdf02,args02,errline02 = datacard.systs[id2]
+        if pdf0==pdf02 and pdf0 != "param":  return True
+        if pdf0=="param":
+            if pdf02!="param":
+                if abs(float(args0[0]))> 1e-6 or abs(float(args0[1])-1) > 1e-6: return False
+            else:
+                if abs(float(args0[0])-float(args02[0]))> 1e-6 or abs(float(args0[1])-float(args02[1])) > 1e-6: return False
         else:
-	    pass 
-            #sys.stderr.write("Warning: no process found matching nuisance edit rename with args = %s\n" % args)
-    if not foundChann: pass
-        #sys.stderr.write("Warning: no channel found matching nuisance edit rename with args = %s\n" % args)
+            if pdf02=="param":
+                if abs(float(args02[0]))> 1e-6 or abs(float(args02[1])-1) > 1e-6: return False
+    return True
+
+def doRenameNuisance(datacard,args):
+
+    vetoTypes = ["flatParam", "constr", "trG", "gmN"]
+    isGlobal = False
+    if len(args) == 2:
+        (oldname, newname) = args[:2]
+        isGlobal = True
+    else:
+        (process, channel, oldname, newname) = args[:4]
+        if process != "*": cprocess = re.compile(process)
+        if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+
+    #print "map ->", datacard.systIDMap
+    if oldname in datacard.systIDMap.keys():
+        for id in list(datacard.systIDMap[oldname]):
+            #print " when considering id %d, the map ->"%id, datacard.systIDMap
+            #print oldname, " ID = ", id
+            lsyst,nofloat,pdf0,args0,errline0 = datacard.systs[id]
+            if pdf0 in vetoTypes:
+                raise RuntimeError, "Error: Can only use nuisance edit rename with param, shape(N) or lnN type nuisances currently - you should rename the parameter in your input workspace/datacard."
+            if newname in datacard.systIDMap.keys():
+                if not checkRenameSafety(id,datacard,newname): raise RuntimeError, "Error: Cannot rename %s to %s, which exists and is incompatible"(oldname,newname)
+
+            if isGlobal:
+                #print " global command, ", " looking at "
+                #for dcs in datacard.systs: print " --> ", dcs
+                datacard.systs[id][0]=newname
+                appendMap(datacard.systIDMap,newname,id)
+                if "param" in pdf0: datacard.systematicsParamMap[oldname]=newname
+                if "shape" in pdf0 or "lnN" in pdf0:
+                    for b in errline0.keys():
+                        for p in datacard.exp[b].keys():
+                            datacard.systematicsShapeMap[newname,b,p]=oldname
+            else:
+                #print " local command, ", " looking at a ", pdf0, " at id=",id
+                if pdf0 == "param": continue
+                #for dcs in datacard.systs: print " --> ", dcs
+                appendMap(datacard.systIDMap,newname,id)
+                errline2 = dict([(b,dict([(p,0) for p in datacard.exp[b]])) for b in datacard.bins])
+                found = False
+                for id2 in datacard.systIDMap[newname]:
+                    if id2==id: continue
+                    lsyst2,nofloat2,pdf2,args2,errline2b = datacard.systs[id2]
+                    if pdf2==pdf0: found = True
+                if not found: datacard.systs.append([newname,nofloat,pdf0,args0,errline2])
+
+                for b in errline0.keys():
+                    if channel == "*" or fullmatch(cchannel, b):
+                        foundChann = True
+                        foundProc  = False
+                        for p in datacard.exp[b].keys():
+                            if process == "*" or fullmatch(cprocess, p):
+                                foundProc = True
+                                errline2[b][p] = errline0[b][p]
+                                errline0[b][p] = 0
+                                if "shape" in pdf0 : datacard.systematicsShapeMap[newname,b,p]=oldname
+                        if not foundProc and "ifexists" not in opts:
+                            raise RuntimeError, "Error: nuisance edit rename %s found no corresponding process in channel %s  (and option 'ifexists' not specified)" % (args, channel)
+                    else :
+                        if "ifexists" not in opts:
+                            raise RuntimeError, "Error: no channel found matching nuisance edit rename with args = %s (and option 'ifexists' not specified)\n" % args
+
+            datacard.systIDMap[oldname].remove(id)
+            #print " after considering id %d, the map ->"%id, datacard.systIDMap
+        if len(datacard.systIDMap[oldname]) == 0: datacard.systIDMap.pop(oldname)
+
+    else : raise RuntimeError, "No nuisance parameter found with name %s in the datacard"%oldname
+    #print datacard.systIDMap
 
 def doChangeNuisancePdf(datacard, args):
     if len(args) < 2:
@@ -302,14 +304,14 @@ def doFreezeNuisance(datacard, args):
             datacard.frozenNuisances.add(lsyst)
             found.append(lsyst)
 
-    if not found: 
+    if not found:
       for lsyst,nofloat,pdf,args0,errline in datacard.systs:
         if fullmatch(pat,lsyst):
             datacard.frozenNuisances.add(lsyst)
             found.append(lsyst)
 
-        
-    # Warn user/exit  
+
+    # Warn user/exit
     if not found:
         if "ifexists" not in opts:
             raise RuntimeError, "Error: nuisance edit freeze %s found nothing" % args[0]
@@ -376,4 +378,3 @@ def doEditNuisance(datacard, command, args):
         doFlipNuisance(datacard, args)
     else:
         raise RuntimeError, "Error, unknown nuisance edit command %s (args %s)" % (command, args)
-        
