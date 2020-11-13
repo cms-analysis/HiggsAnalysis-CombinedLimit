@@ -3,7 +3,8 @@ import sys
 from math import log,exp,hypot
 
 def appendMap(tmap,k,thing):
-     if k in tmap.keys(): tmap[k].append(thing)
+     if k in tmap.keys():
+         if not thing in tmap[k]: tmap[k].append(thing)
      else: tmap[k] = [thing]
 
 def fullmatch(regex, line):
@@ -146,8 +147,10 @@ def doRenameNuisance(datacard,args):
         (process, channel, oldname, newname) = args[:4]
         if process != "*": cprocess = re.compile(process)
         if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+        opts = args[4:]
 
-    #print "map ->", datacard.systIDMap
+    print "map before ->", datacard.systIDMap
+    for dcs in datacard.systs: print " --> ", dcs
     if oldname in datacard.systIDMap.keys():
         for id in list(datacard.systIDMap[oldname]):
             #print " when considering id %d, the map ->"%id, datacard.systIDMap
@@ -158,7 +161,7 @@ def doRenameNuisance(datacard,args):
             if newname in datacard.systIDMap.keys():
                 if not checkRenameSafety(id,datacard,newname): raise RuntimeError, "Error: Cannot rename %s to %s, which exists and is incompatible"(oldname,newname)
 
-            if isGlobal:
+            if isGlobal: # easy case
                 #print " global command, ", " looking at "
                 #for dcs in datacard.systs: print " --> ", dcs
                 datacard.systs[id][0]=newname
@@ -168,23 +171,29 @@ def doRenameNuisance(datacard,args):
                     for b in errline0.keys():
                         for p in datacard.exp[b].keys():
                             datacard.systematicsShapeMap[newname,b,p]=oldname
-            else:
+                datacard.systIDMap[oldname].remove(id)
+            else: # more tricky
                 #print " local command, ", " looking at a ", pdf0, " at id=",id
                 if pdf0 == "param": continue
                 #for dcs in datacard.systs: print " --> ", dcs
-                appendMap(datacard.systIDMap,newname,id)
                 errline2 = dict([(b,dict([(p,0) for p in datacard.exp[b]])) for b in datacard.bins])
                 found = False
-                for id2 in datacard.systIDMap[newname]:
-                    if id2==id: continue
-                    lsyst2,nofloat2,pdf2,args2,errline2b = datacard.systs[id2]
-                    if pdf2==pdf0: found = True
-                if not found: datacard.systs.append([newname,nofloat,pdf0,args0,errline2])
+                if newname in datacard.systIDMap.keys():
+                    for id2 in datacard.systIDMap[newname]:
+                        if id2==id: continue
+                        lsyst2,nofloat2,pdf2,args2,errline2b = datacard.systs[id2]
+                        if pdf2==pdf0:
+                            found = True
+                            errline2 = errline2b
+                if not found:
+                    datacard.systs.append([newname,nofloat,pdf0,args0,errline2])
+                    datacard.add_syst_id(newname)
 
+                foundChan  = False
+                foundProc  = False
                 for b in errline0.keys():
                     if channel == "*" or fullmatch(cchannel, b):
-                        foundChann = True
-                        foundProc  = False
+                        foundChan = True
                         for p in datacard.exp[b].keys():
                             if process == "*" or fullmatch(cprocess, p):
                                 foundProc = True
@@ -193,16 +202,16 @@ def doRenameNuisance(datacard,args):
                                 if "shape" in pdf0 : datacard.systematicsShapeMap[newname,b,p]=oldname
                         if not foundProc and "ifexists" not in opts:
                             raise RuntimeError, "Error: nuisance edit rename %s found no corresponding process in channel %s  (and option 'ifexists' not specified)" % (args, channel)
-                    else :
-                        if "ifexists" not in opts:
-                            raise RuntimeError, "Error: no channel found matching nuisance edit rename with args = %s (and option 'ifexists' not specified)\n" % args
-
-            datacard.systIDMap[oldname].remove(id)
+                if not foundChan and "ifexists" not in opts :
+                    raise RuntimeError, "Error: no channel found matching nuisance edit rename with args = %s (and option 'ifexists' not specified)\n" % args
+                # if the result was to rename across everything, meaning 0s get put there, remove that id from the map
+                if abs( sum([errline0[a][b] for a in errline0.keys() for b in errline0[a].keys()]) ) < 1e-6 : datacard.systIDMap[oldname].remove(id)
             #print " after considering id %d, the map ->"%id, datacard.systIDMap
         if len(datacard.systIDMap[oldname]) == 0: datacard.systIDMap.pop(oldname)
 
     else : raise RuntimeError, "No nuisance parameter found with name %s in the datacard"%oldname
-    #print datacard.systIDMap
+    print " map after -> " , datacard.systIDMap
+    for dcs in datacard.systs: print " --> ", dcs
 
 def doChangeNuisancePdf(datacard, args):
     if len(args) < 2:
