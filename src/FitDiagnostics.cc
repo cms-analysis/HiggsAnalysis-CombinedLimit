@@ -38,6 +38,8 @@
 using namespace RooStats;
 
 std::string FitDiagnostics::name_ = "";
+std::string FitDiagnostics::massName_ = "";
+std::string FitDiagnostics::toyName_ = "";
 std::string FitDiagnostics::minos_ = "poi";
 std::string FitDiagnostics::out_ = ".";
 bool        FitDiagnostics::makePlots_ = false;
@@ -119,7 +121,9 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
 {
     applyOptionsBase(vm);
     makePlots_ = vm.count("plots");
-    name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
+    name_ = vm["name"].as<std::string>();
+    massName_ = vm["massName"].as<std::string>();
+    toyName_ = vm["toyName"].as<std::string>();
     saveOverallShapes_  = vm.count("saveOverallShapes");
     saveShapes_  = saveOverallShapes_ || vm.count("saveShapes");
     saveNormalizations_  = saveShapes_ || vm.count("saveNormalizations");
@@ -146,7 +150,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   if (!justFit_ && out_ != "none"){
 	if (currentToy_ < 1){
-		fitOut.reset(TFile::Open((out_+"/fitDiagnostics"+name_+".root").c_str(), "RECREATE")); 
+		fitOut.reset(TFile::Open((out_+"/fitDiagnostics"+name_+"."+massName_+toyName_+"root").c_str(), "RECREATE")); 
 		createFitResultTrees(*mc_s,withSystematics);
 	}
   }
