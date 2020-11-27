@@ -179,6 +179,12 @@ def parseCard(file, options):
             if len(f) <= 1: continue
             nofloat = False
             lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
+	    if lsyst in ret.systIDMap.keys() and pdf in ["shape","shapeN","lnN"]:
+	      types = [ ret.systs[j][2] for j in ret.systIDMap[lsyst] ]
+	      if "shape" in types: 
+	        if pdf == "lnN"   : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
+	      elif "lnN" in types: 
+	        if pdf == "shape" : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
             if lsyst.endswith("[nofloat]"):
               lsyst = lsyst.replace("[nofloat]","")
               nofloat = True
