@@ -205,6 +205,9 @@ or just attach a postifx to the name of the histogram
 
 `shapes * * shapes.root $CHANNEL/$PROCESS  $CHANNEL/$PROCESS_$SYSTEMATIC`
 
+!!!warning
+   If you have nuisance parameter which has shape effects (using `shape`) *and* rate effects (using `lnN`) you should use a single line for the systemstic uncertainty with `shape?`. This will tell combine to fist look for Up/Down systematic templates for that process and if it doesnt find them, it will interpret the number that you put for the process as a `lnN` instead. 
+
 For a detailed example of a template based binned analysis see the [H→ττ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates)
 
 ### Unbinned or parametric shape analysis
