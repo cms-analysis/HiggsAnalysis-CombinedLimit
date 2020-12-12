@@ -161,7 +161,6 @@ root workspace.root
 .ls
 ```
 
-    
 You should see that our workspace, named `w` is in the file:
     
 ```
@@ -170,7 +169,6 @@ TFile**		workspace.root
   KEY: RooWorkspace	w;1	w
   KEY: TProcessID	ProcessID0;1	94b05638-d0c4-11ea-a5b3-84978a89beef
 ```
-
 
 We can inspect its contents:
 
@@ -228,7 +226,6 @@ w->pdf("gauss")->Print("v")
 --- RooAbsPdf ---
 Cached value = 0
 ```
-
 </details>    
 
 We can also check and change the values of our `RooRealVar`s
@@ -257,7 +254,7 @@ You will get the value as set when the workspace was created again, in our case 
 (double) 120.00000
 ```
 
-- Have a look at how to use the workspace syntax in this tutorial https://root.cern/doc/master/rf511__wsfactory__basic_8py.html and try to create the gaussian pdf and the formula directly in a workspace
+- Have a look at how to use the workspace syntax in [[https://root.cern/doc/master/rf511__wsfactory__basic_8py.html][this]] tutorial  and try to create the gaussian pdf and the formula directly in a workspace
 
 ## E: Fitting
 
@@ -305,7 +302,7 @@ We can now use the RooMinimizer to find the minimum of the NLL
 nll = w.function("NLL")
 minim = RooMinimizer(nll)
 minim.setErrorLevel(0.5)
-minim.minimize("Minuit2","migrad");
+minim.minimize("Minuit2","migrad")
 bestfitnll = nll.getVal()
 ```
 Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!)
@@ -334,9 +331,9 @@ Which we can minimize in the same way as before.
 
 Now let's extend our model a bit. Don't hesitate to ask for help if you get stuck!
 
-- Expanding on what was demonstrated above, build the likelihood for $N=15$, a signal process *s* with expectation 5 events, a background *ztt* with expectation 3.7 events and a background *tt* with expectation 4.4 events. The luminosity uncertainty applies to all three processes. The signal process is further subject to a 5\% log-normally distributed uncertainty *sigth*, *tt* is subject to a 6\% log-normally distributed uncertainty *ttxs*, and *ztt* is subject to a 4\% log-normally distributed uncertainty *zttxs*. Find the best-fit value and the associated uncertainty
-- Also perform an explicit scan of the $\Delta NLL$ ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started.
-- Finally, extract the 68\% CL interval from the explicit scan that you performed
+- Expanding on what was demonstrated above, build the likelihood for $N=15$, a signal process *s* with expectation 5 events, a background *ztt* with expectation 3.7 events and a background *tt* with expectation 4.4 events. The luminosity uncertainty applies to all three processes. The signal process is further subject to a 5% log-normally distributed uncertainty *sigth*, *tt* is subject to a 6% log-normally distributed uncertainty *ttxs*, and *ztt* is subject to a 4% log-normally distributed uncertainty *zttxs*. Find the best-fit value and the associated uncertainty
+- Also perform an explicit scan of the $\Delta$ NLL ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started. Hint: you'll need to perform fits for different values of mu, where mu is fixed. In RooFit you can set a variable to be constant as `var("VARNAME").setConstant(True)`
+- From the curve that you've created by performing an explicit scan, we can extract the 68% CL interval. You can do so by eye or by writing some code to find the relevant intersections of the curve. 
 
 ```
 gr = TGraph()
@@ -345,6 +342,9 @@ npoints = 0
 for i in range(0,60):
   npoints+=1
   mu=0.05*i
+  ...
+  [perform fits for different values of mu with mu fixed]
+  ...
   deltanll = ...
   gr.SetPoint(npoints,mu,deltanll);
 
@@ -472,7 +472,6 @@ root [1] fit_s->Print()
                   ttxs    3.2043e-05 +/-  9.94e-01
                  zttxs   -2.9580e-05 +/-  9.94e-01
 ```
-
 </details>
 
 
@@ -499,6 +498,7 @@ zttxs                                            +0.12, 0.99        -0.00, 0.99 
 The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (often called the **pull**, though note that more than one definition is in use for this), where $\sigma_I$ is the input uncertainty; and the ratio of the post-fit to the pre-fit uncertainty $\frac{\sigma}{\sigma_I}$.
 
 Question:
+
  - Can you explain why none of the nuisance parameters are pulled in the s+b fit, but in the b-only fit some are?
 
 
@@ -648,7 +648,7 @@ Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in th
 
 ## A: Asymptotic limits
 
-As we are searching for a signal process that does not exist in the standard mode, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). Combine has dedicated method for calculating upper limits. The most commonly used one is `AsymptoticLimits`, which implements the CLs criterion and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the asymptotic approximation, so there is no need for more time-intensive toy throwing and fitting. First we will go back to the first datacard we looked at, which is a one-bin counting experiment again. Try running the following command:
+As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). Combine has dedicated method for calculating upper limits. The most commonly used one is `AsymptoticLimits`, which implements the CLs criterion and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the asymptotic approximation, so there is no need for more time-intensive toy throwing and fitting. First we will go back to the first datacard we looked at, which is a one-bin counting experiment again. Try running the following command:
 
 ```shell
 combine -M AsymptoticLimits datacard_counting_part2.txt 
