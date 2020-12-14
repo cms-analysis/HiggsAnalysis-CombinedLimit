@@ -37,9 +37,9 @@ These exercises are accompanied by introductory presentations given live during 
 
 The introductory presentations that are scheduled appear:
 
-- Before part 1
-- **Before part 1E**
-- Before part 2
+- Before part 1 (recording available [here](https://indico.cern.ch/event/976099/contributions/4138516/attachments/2161880/3648363/02%20RooFitIntro.mp4) )
+- **Before part 1E** (recording available [here](https://indico.cern.ch/event/976099/contributions/4138517/attachments/2161767/3648364/03%20LikelihoodAndIntervals.mp4) )
+- Before part 2 (recording available [here](https://indico.cern.ch/event/976099/contributions/4138518/attachments/2161882/3648365/04%20IntroToCombine.mp4) )
 - **Before part 4**
 
 All presentations introduce the methods you'll learn about in the following sections and in addition the presentations in **bold** contain some theoretical background.
@@ -48,6 +48,8 @@ If you get stuck while working on the exercises, or have specific questions abou
 
 
 # Part 1: RooFit
+You can watch the introductory presentation [here](https://indico.cern.ch/event/976099/contributions/4138516/attachments/2161880/3648363/02%20RooFitIntro.mp4)
+
 RooFit is an object-oriented analysis environment built on ROOT, with a collection of classes designed to augment ROOT for data modelling. Combine is in turn built on RooFit, so before learning about Combine, it is useful to get to grips with a few RooFit basics. We will do that in this section.
 
 We will use python syntax in this section; you can either call the commands in an interactive python session, or just put them in a .py script. Make sure to do `from ROOT import *` at the top of your script (or in the interactive session)
@@ -254,9 +256,10 @@ You will get the value as set when the workspace was created again, in our case 
 (double) 120.00000
 ```
 
-- Have a look at how to use the workspace syntax in [[https://root.cern/doc/master/rf511__wsfactory__basic_8py.html][this]] tutorial  and try to create the gaussian pdf and the formula directly in a workspace
+- Have a look at how to use the workspace syntax in [this](https://root.cern/doc/master/rf511__wsfactory__basic_8py.html) tutorial  and try to create the gaussian pdf and the formula directly in a workspace
 
 ## E: Fitting
+You can watch the introductory presentation to part 1E [here](https://indico.cern.ch/event/976099/contributions/4138517/attachments/2161767/3648364/03%20LikelihoodAndIntervals.mp4)
 
 **Note: from this point on if you were using the interactive python session, you should switch to a python script.**
 
@@ -361,6 +364,7 @@ We'll now switch to Combine which will make it a lot easier to set up your model
 $[*]$ Side note - RooFit does have additional functionality to help with statistical model building, but we won't go into detail today.   
 
 # Part 2 Measurements of parameters in Combine
+You can watch the introductory presentation for parts 2 & 3 [here](https://indico.cern.ch/event/976099/contributions/4138518/attachments/2161882/3648365/04%20IntroToCombine.mp4)
 
 For the parts of the tutorial that follow we will work with a simplified version of a real analysis, that nonetheless will have many features of the full analysis. The analysis is a search for an additional heavy neutral Higgs boson decaying to tau lepton pairs. Such a signature is predicted in many extensions of the standard model, in particular the minimal supersymmetric standard model (MSSM). You can read about the analysis in the paper [here](https://arxiv.org/pdf/1803.06553.pdf). The statistical inference makes use of a variable called the total transverse mass ($M_{\mathrm{T}}^{\mathrm{tot}}$) that provides good discrimination between the resonant high-mass signal and the main backgrounds, which have a falling distribution in this high-mass region. The events selected in the analysis are split into a several categories which target the main di-tau final states as well as the two main production modes: gluon-fusion (ggH) and b-jet associated production (bbH). One example is given below for the fully-hadronic final state in the b-tag category which targets the bbH signal:
 
