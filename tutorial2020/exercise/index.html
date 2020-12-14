@@ -456,7 +456,7 @@ minim.setErrorLevel(0.5)
 minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;)
 bestfitnll = nll.getVal()
 </code></pre>
-<p>Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!)</p>
+<p>Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!) - note that there is a more reliable way of extracting the confidence interval (explicitly rather than relying on migrad). We will discuss this a bit later in this section.</p>
 <p>Now let's add a nuisance parameter, <em>lumi</em>, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at <span><span class="MathJax_Preview">+1\sigma</span><script type="math/tex">+1\sigma</script></span> the signal and background normalizations will be multiplied by 1.025 and at <span><span class="MathJax_Preview">-1\sigma</span><script type="math/tex">-1\sigma</script></span> they will be divided by 1.025.  We should modify the expression for the number of events in our model:</p>
 <pre><code>w.factory('expr::n(&quot;mu*s*pow(1.025,lumi) +b*pow(1.025,lumi)&quot;, mu[1.0,0,4], s[5],b[8.1],lumi[0,-4,4])')
 </code></pre>
