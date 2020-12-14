@@ -178,6 +178,7 @@ w->Print()
 
 <details>
 <summary><b>Show output </b></summary>
+    
 ```
 RooWorkspace(w) w contents
 
@@ -203,6 +204,7 @@ w->pdf("gauss")->Print("v")
 
 <details>
 <summary><b>Show output </b></summary>
+    
 ```
 --- RooAbsArg ---
   Value State: DIRTY
