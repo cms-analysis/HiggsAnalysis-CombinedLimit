@@ -258,6 +258,7 @@ You will get the value as set when the workspace was created again, in our case 
 
 ## E: Fitting
 
+**Note: from this point on if you were using the interactive python session, you should switch to a python script.**
 
 Of course we don't just want to create variables and pdfs, we want to do fits with them. Models that we define in combine make use of likelihood fitting, so let's build a likelihood
 
