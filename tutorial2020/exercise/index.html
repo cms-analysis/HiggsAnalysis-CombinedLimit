@@ -261,14 +261,15 @@ cd combinetutorial-2020
 <p>These exercises are accompanied by introductory presentations given live during the tutorial mornings (and made available for later viewing for those who cannot follow them live)</p>
 <p>The introductory presentations that are scheduled appear:</p>
 <ul>
-<li>Before part 1</li>
-<li><strong>Before part 1E</strong></li>
-<li>Before part 2</li>
+<li>Before part 1 (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138516/attachments/2161880/3648363/02%20RooFitIntro.mp4">here</a> )</li>
+<li><strong>Before part 1E</strong> (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138517/attachments/2161767/3648364/03%20LikelihoodAndIntervals.mp4">here</a> )</li>
+<li>Before part 2 (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138518/attachments/2161882/3648365/04%20IntroToCombine.mp4">here</a> )</li>
 <li><strong>Before part 4</strong></li>
 </ul>
 <p>All presentations introduce the methods you'll learn about in the following sections and in addition the presentations in <strong>bold</strong> contain some theoretical background.</p>
 <p>If you get stuck while working on the exercises, or have specific questions about them, you can ask for help either directly in the zoom room during tutorial hours, or on <a href="https://mattermost.web.cern.ch/cms-exp/channels/hcomb-tutorial">this mattermost channel</a>. The mattermost channel will remain available after the tutorial, so if you're working on the exercises at a later date you can still ask questions about them there.</p>
 <h1 id="part-1-roofit">Part 1: RooFit</h1>
+<p>You can watch the introductory presentation <a href="https://indico.cern.ch/event/976099/contributions/4138516/attachments/2161880/3648363/02%20RooFitIntro.mp4">here</a></p>
 <p>RooFit is an object-oriented analysis environment built on ROOT, with a collection of classes designed to augment ROOT for data modelling. Combine is in turn built on RooFit, so before learning about Combine, it is useful to get to grips with a few RooFit basics. We will do that in this section.</p>
 <p>We will use python syntax in this section; you can either call the commands in an interactive python session, or just put them in a .py script. Make sure to do <code>from ROOT import *</code> at the top of your script (or in the interactive session)</p>
 <h2 id="a-variables">A: Variables</h2>
@@ -425,9 +426,10 @@ w-&gt;var(&quot;MH&quot;)-&gt;getVal()
 <pre><code>(double) 120.00000
 </code></pre>
 <ul>
-<li>Have a look at how to use the workspace syntax in [[https://root.cern/doc/master/rf511__wsfactory__basic_8py.html][this]] tutorial  and try to create the gaussian pdf and the formula directly in a workspace</li>
+<li>Have a look at how to use the workspace syntax in <a href="https://root.cern/doc/master/rf511__wsfactory__basic_8py.html">this</a> tutorial  and try to create the gaussian pdf and the formula directly in a workspace</li>
 </ul>
 <h2 id="e-fitting">E: Fitting</h2>
+<p>You can watch the introductory presentation to part 1E <a href="https://indico.cern.ch/event/976099/contributions/4138517/attachments/2161767/3648364/03%20LikelihoodAndIntervals.mp4">here</a></p>
 <p><strong>Note: from this point on if you were using the interactive python session, you should switch to a python script.</strong></p>
 <p>Of course we don't just want to create variables and pdfs, we want to do fits with them. Models that we define in combine make use of likelihood fitting, so let's build a likelihood</p>
 <p><span><span class="MathJax_Preview">\mathcal{L} \propto p(\text{data}|\text{parameters})</span><script type="math/tex">\mathcal{L} \propto p(\text{data}|\text{parameters})</script></span></p>
@@ -498,6 +500,7 @@ canv.SaveAs(&quot;likelihoodscan.pdf&quot;)
 We'll now switch to Combine which will make it a lot easier to set up your model and do the statistical analysis than trying to build the likelihood yourself.</p>
 <p><span><span class="MathJax_Preview">[*]</span><script type="math/tex">[*]</script></span> Side note - RooFit does have additional functionality to help with statistical model building, but we won't go into detail today.   </p>
 <h1 id="part-2-measurements-of-parameters-in-combine">Part 2 Measurements of parameters in Combine</h1>
+<p>You can watch the introductory presentation for parts 2 &amp; 3 <a href="https://indico.cern.ch/event/976099/contributions/4138518/attachments/2161882/3648365/04%20IntroToCombine.mp4">here</a></p>
 <p>For the parts of the tutorial that follow we will work with a simplified version of a real analysis, that nonetheless will have many features of the full analysis. The analysis is a search for an additional heavy neutral Higgs boson decaying to tau lepton pairs. Such a signature is predicted in many extensions of the standard model, in particular the minimal supersymmetric standard model (MSSM). You can read about the analysis in the paper <a href="https://arxiv.org/pdf/1803.06553.pdf">here</a>. The statistical inference makes use of a variable called the total transverse mass (<span><span class="MathJax_Preview">M_{\mathrm{T}}^{\mathrm{tot}}</span><script type="math/tex">M_{\mathrm{T}}^{\mathrm{tot}}</script></span>) that provides good discrimination between the resonant high-mass signal and the main backgrounds, which have a falling distribution in this high-mass region. The events selected in the analysis are split into a several categories which target the main di-tau final states as well as the two main production modes: gluon-fusion (ggH) and b-jet associated production (bbH). One example is given below for the fully-hadronic final state in the b-tag category which targets the bbH signal:</p>
 <p><img alt="" src="../../part5/images/CMS-DAS.003.jpeg" /></p>
 <h2 id="a-a-one-bin-counting-experiment">A: A one-bin counting experiment</h2>
