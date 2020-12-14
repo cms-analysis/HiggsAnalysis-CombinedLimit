@@ -305,7 +305,7 @@ minim.setErrorLevel(0.5)
 minim.minimize("Minuit2","migrad")
 bestfitnll = nll.getVal()
 ```
-Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!)
+Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!) - note that there is a more reliable way of extracting the confidence interval (explicitly rather than relying on migrad). We will discuss this a bit later in this section.
 
 Now let's add a nuisance parameter, *lumi*, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at $+1\sigma$ the signal and background normalizations will be multiplied by 1.025 and at $-1\sigma$ they will be divided by 1.025.  We should modify the expression for the number of events in our model:
 
