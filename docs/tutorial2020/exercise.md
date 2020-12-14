@@ -178,7 +178,6 @@ w->Print()
 
 <details>
 <summary><b>Show output </b></summary>
-
 ```
 RooWorkspace(w) w contents
 
@@ -204,7 +203,6 @@ w->pdf("gauss")->Print("v")
 
 <details>
 <summary><b>Show output </b></summary>
-
 ```
 --- RooAbsArg ---
   Value State: DIRTY
@@ -347,7 +345,7 @@ for i in range(0,60):
   [perform fits for different values of mu with mu fixed]
   ...
   deltanll = ...
-  gr.SetPoint(npoints,mu,deltanll);
+  gr.SetPoint(npoints,mu,deltanll)
 
 
 canv = TCanvas();
