@@ -264,7 +264,7 @@ cd combinetutorial-2020
 <li>Before part 1 (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138516/attachments/2161880/3648363/02%20RooFitIntro.mp4">here</a> )</li>
 <li><strong>Before part 1E</strong> (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138517/attachments/2161767/3648364/03%20LikelihoodAndIntervals.mp4">here</a> )</li>
 <li>Before part 2 (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138518/attachments/2161882/3648365/04%20IntroToCombine.mp4">here</a> )</li>
-<li><strong>Before part 4</strong></li>
+<li><strong>Before part 4</strong> (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138520/attachments/2162856/3650080/AsymptoticLimits.mp4">here</a> )</li>
 </ul>
 <p>All presentations introduce the methods you'll learn about in the following sections and in addition the presentations in <strong>bold</strong> contain some theoretical background.</p>
 <p>If you get stuck while working on the exercises, or have specific questions about them, you can ask for help either directly in the zoom room during tutorial hours, or on <a href="https://mattermost.web.cern.ch/cms-exp/channels/hcomb-tutorial">this mattermost channel</a>. The mattermost channel will remain available after the tutorial, so if you're working on the exercises at a later date you can still ask questions about them there.</p>
@@ -727,6 +727,7 @@ Start by setting a threshold of 0, i.e. <code>[channel] autoMCStats 0</code>, to
 </li>
 </ul>
 <h1 id="part-4-setting-limits">Part 4: Setting limits</h1>
+<p>You can watch the introductory presentation to part 4 <a href="https://indico.cern.ch/event/976099/contributions/4138520/attachments/2162856/3650080/AsymptoticLimits.mp4">here</a></p>
 <h2 id="a-asymptotic-limits">A: Asymptotic limits</h2>
 <p>As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). Combine has dedicated method for calculating upper limits. The most commonly used one is <code>AsymptoticLimits</code>, which implements the CLs criterion and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the asymptotic approximation, so there is no need for more time-intensive toy throwing and fitting. First we will go back to the first datacard we looked at, which is a one-bin counting experiment again. Try running the following command:</p>
 <pre><code class="language-shell">combine -M AsymptoticLimits datacard_counting_part2.txt 
