@@ -40,7 +40,7 @@ The introductory presentations that are scheduled appear:
 - Before part 1 (recording available [here](https://indico.cern.ch/event/976099/contributions/4138516/attachments/2161880/3648363/02%20RooFitIntro.mp4) )
 - **Before part 1E** (recording available [here](https://indico.cern.ch/event/976099/contributions/4138517/attachments/2161767/3648364/03%20LikelihoodAndIntervals.mp4) )
 - Before part 2 (recording available [here](https://indico.cern.ch/event/976099/contributions/4138518/attachments/2161882/3648365/04%20IntroToCombine.mp4) )
-- **Before part 4**
+- **Before part 4** (recording available [here](https://indico.cern.ch/event/976099/contributions/4138520/attachments/2162856/3650080/AsymptoticLimits.mp4) )
 
 All presentations introduce the methods you'll learn about in the following sections and in addition the presentations in **bold** contain some theoretical background.
 
@@ -650,6 +650,8 @@ Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in th
   - Why is the uncertainty on the post-fit so much smaller than on the pre-fit?
 
 # Part 4: Setting limits 
+
+You can watch the introductory presentation to part 4 [here](https://indico.cern.ch/event/976099/contributions/4138520/attachments/2162856/3650080/AsymptoticLimits.mp4)
 
 ## A: Asymptotic limits
 
