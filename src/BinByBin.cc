@@ -77,7 +77,7 @@ void BinByBinFactory::MergeBinErrors(CombineHarvester &cb) {
       double removed = 0.0;
       for (unsigned r = 0; r < result.size(); ++r) {
         if ((std::get<0>(result[r]) + removed) < (merge_threshold * tot_bbb_added) &&
-            r < (result.size() - 1)) {
+            r < (result.size() - 1) && std::get<2>(result[r])) {
           bbb_removed += 1;
           removed += std::get<0>(result[r]);
           std::get<1>(result[r])->SetBinError(i, 0.0);
