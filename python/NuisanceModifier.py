@@ -211,7 +211,8 @@ def doRenameNuisance(datacard,args):
                 for a in errline0.keys():
                     for b in errline0[a].keys():
                         if type(errline0[a][b]) != int and type(errline0[a][b]) != float: allzeroes = allzeroes and False
-                        elif errline0[a][b] != 0.0 and errline0[a][b] != 0: allzeroes = allzeroes and False
+                        #elif errline0[a][b] != 0.0 and errline0[a][b] != 0: allzeroes = allzeroes and False
+                        elif abs(errline0[a][b]) > 1e-6: allzeroes = allzeroes and False
                 #if abs( sum([errline0[a][b] for a in errline0.keys() for b in errline0[a].keys()]) ) < 1e-6 : datacard.systIDMap[oldname].remove(id)
                 if allzeroes: datacard.systIDMap[oldname].remove(id)
             #print " after considering id %d, the map ->"%id, datacard.systIDMap
