@@ -205,7 +205,16 @@ def doRenameNuisance(datacard,args):
                 if not foundChan and "ifexists" not in opts :
                     raise RuntimeError, "Error: no channel found matching nuisance edit rename with args = %s (and option 'ifexists' not specified)\n" % args
                 # if the result was to rename across everything, meaning 0s get put there, remove that id from the map
-                if abs( sum([errline0[a][b] for a in errline0.keys() for b in errline0[a].keys()]) ) < 1e-6 : datacard.systIDMap[oldname].remove(id)
+                # Double check if all elements are actually zeroes (int and float), not something else.
+                # If an element is a list of two floats, it is an asymmetric log-normal uncertainty.
+                allzeroes = True
+                for a in errline0.keys():
+                    for b in errline0[a].keys():
+                        if type(errline0[a][b]) != int and type(errline0[a][b]) != float: allzeroes = allzeroes and False
+                        #elif errline0[a][b] != 0.0 and errline0[a][b] != 0: allzeroes = allzeroes and False
+                        elif abs(errline0[a][b]) > 1e-6: allzeroes = allzeroes and False
+                #if abs( sum([errline0[a][b] for a in errline0.keys() for b in errline0[a].keys()]) ) < 1e-6 : datacard.systIDMap[oldname].remove(id)
+                if allzeroes: datacard.systIDMap[oldname].remove(id)
             #print " after considering id %d, the map ->"%id, datacard.systIDMap
         if len(datacard.systIDMap[oldname]) == 0: datacard.systIDMap.pop(oldname)
 
