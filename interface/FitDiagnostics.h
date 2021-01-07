@@ -66,7 +66,7 @@ protected:
   TTree *t_fit_b_, *t_fit_sb_, *t_prefit_;
    
   void getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out);
-  void createFitResultTrees(const RooStats::ModelConfig &,bool);
+  void createFitResultTrees(const RooStats::ModelConfig &,bool,bool);
   void resetFitResultTrees(bool);
   void setFitResultTrees(const RooArgSet *, double *);
   void setNormsFitResultTrees(const RooArgSet *, double *);

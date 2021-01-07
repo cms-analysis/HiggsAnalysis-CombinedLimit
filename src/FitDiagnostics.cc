@@ -147,7 +147,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   if (!justFit_ && out_ != "none"){
 	if (currentToy_ < 1){
 		fitOut.reset(TFile::Open((out_+"/fitDiagnostics"+name_+".root").c_str(), "RECREATE")); 
-		createFitResultTrees(*mc_s,withSystematics);
+		createFitResultTrees(*mc_s,withSystematics,savePredictionsPerToy_);
 	}
   }
 
@@ -1031,7 +1031,7 @@ void FitDiagnostics::setNormsFitResultTrees(const RooArgSet *args, double * vals
 	 return;
 }
 
-void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool withSys){
+void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool withSys, bool savePerToy){
 
 	 // Initiate the arrays to store parameters
 
@@ -1071,24 +1071,26 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
          //getNormalizationsSimple(mc.GetPdf(), *mc.GetObservables(), *norms);  <-- This is useless as the order is messed up !
 
          std::map<std::string,ShapeAndNorm> snm;
-         getShapesAndNorms(mc.GetPdf(),*mc.GetObservables(), snm, "");
+         int totalBins = 0;
          typedef std::map<std::string,ShapeAndNorm>::const_iterator IT;
-         IT bg = snm.begin(), ed = snm.end(), pair; int i;
-	 int totalBins = 0;
-         for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
-           RooRealVar *val = new RooRealVar(pair->first.c_str(), "", 0.);
-           //val->setError(sumx2[i]);
-           norms->addOwned(*val); 
-	   RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
-	   if (pair->second.obs.getSize() == 1) {
-	       TH1* hist = pair->second.pdf->createHistogram(Form("%d",totalBins), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
-	       totalBins += hist->GetNbinsX();
-	       delete hist;
-	    }
+         if(savePerToy){
+           getShapesAndNorms(mc.GetPdf(),*mc.GetObservables(), snm, "");
+           IT bg = snm.begin(), ed = snm.end(), pair; int i;
+           for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
+             RooRealVar *val = new RooRealVar(pair->first.c_str(), "", 0.);
+             //val->setError(sumx2[i]);
+             norms->addOwned(*val);
+             RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
+             if (pair->second.obs.getSize() == 1) {
+                TH1* hist = pair->second.pdf->createHistogram(Form("%d",totalBins), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+	        totalBins += hist->GetNbinsX();
+                delete hist;
+             }
+           }
          }
 
-	 overallBins_ = totalBins; 
-	 overallNorms_ = norms->getSize(); 
+         overallBins_ = totalBins;
+         overallNorms_ = norms->getSize();
 
          processNormalizations_ = new double[norms->getSize()];
          processNormalizationsShapes_ = new double[totalBins];
@@ -1138,25 +1140,29 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
 		 t_prefit_->Branch(name.c_str(),&(processNormalizations_[count]),Form("%s/D",name.c_str()));
 		 count++;
          }
-	 count = 0;
-	 bg = snm.begin(), ed = snm.end(); 
-	 for (pair = bg, i = 0; pair != ed; ++pair, ++i) {  
-	   if (pair->second.obs.getSize() == 1) {
-		RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
-		TH1* hist = pair->second.pdf->createHistogram(Form("%d",count), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
-		 int bins = hist->GetNbinsX();
-		 for (int iBin = 1; iBin <= bins; iBin++){
-		     processNormalizationsShapes_[count] = -999;
-		     TString label = Form("%s_%d",pair->first.c_str(),iBin);
-		     t_fit_sb_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
-		     t_fit_b_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
-		     t_prefit_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
-		     count++;
-		 }
-		delete hist;
 
-	   }
-	 }
+         if(savePerToy){
+           count = 0;
+           IT itb = snm.begin(), ite = snm.end(), npair; int j;
+           itb = snm.begin(), ite = snm.end();
+           for (npair = itb, j = 0; npair != ite; ++npair, ++j) {
+             if (npair->second.obs.getSize() == 1) {
+               RooRealVar *x = (RooRealVar*)npair->second.obs.at(0);
+               TH1* hist = npair->second.pdf->createHistogram(Form("%d",count), *x, npair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+               int bins = hist->GetNbinsX();
+                for (int iBin = 1; iBin <= bins; iBin++){
+                     processNormalizationsShapes_[count] = -999;
+                     TString label = Form("%s_%d",npair->first.c_str(),iBin);
+                     t_fit_sb_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
+                     t_fit_b_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
+                     t_prefit_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
+                     count++;
+                }
+               delete hist;
+             }
+           }
+         }
+
          delete norms;
 
 	 //std::cout << "Created Branches for toy diagnostics" <<std::endl;
