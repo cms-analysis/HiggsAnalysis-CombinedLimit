@@ -44,6 +44,39 @@ RooParametricHist::RooParametricHist(const char *name,
   cval = -1; 
 } 
 
+RooParametricHist::RooParametricHist(const char *name, 
+						 const char *title, 
+						 RooArgList& _pars,
+						 const RooParametricHist& other
+						 ) :
+  RooAbsPdf(name,title),
+  pars("pars","pars",this)
+  //SM_shape("SM_shape","SM_shape",this,_SM_shape),
+{
+  x = other.x;
+  std::cout << "Lets get started " << std::endl;
+  TIterator *varIter=_pars.createIterator(); 
+  RooAbsReal *fVar;
+  while ( (fVar = (RooAbsReal*)varIter->Next()) ){
+	pars.add(*fVar);
+  }
+  std::cout << "What on earth is going on ? " << std::endl;
+  
+  N_bins = other.N_bins;
+  for (int i=0; i<=N_bins; ++i) {
+     bins.push_back(other.bins[i]);
+     std::cout << bins[i] << std::endl;
+     if (i<N_bins) {
+      widths.push_back(other.widths[i]);
+      std::cout << widths[i] << std::endl;
+     }
+  }
+//  initializeNorm();
+  cval = -1; 
+
+  x.Print("v");
+} 
+
 //_____________________________________________________________________________
 RooParametricHist::RooParametricHist(const RooParametricHist& other, const char* name) :
  RooAbsPdf(other, name),x("observable",this,other.x),pars("_pars",this,RooListProxy())
@@ -74,6 +107,15 @@ void RooParametricHist::initializeBins(const TH1 &shape) const {
      bins.push_back(shape.GetBinLowEdge(i));
      if (i<=N_bins) widths.push_back(shape.GetBinWidth(i));
   }
+}
+
+RooAbsArg & RooParametricHist::getBinVar(const int i) const {
+  if (i > N_bins ) std::cerr  << " Error in RooParametricHist::getBinBar -- Asked for bin " << i << " which is more than N_bins-1 -> " << N_bins << std::endl;
+  return *pars.at(i); 
+}
+
+RooArgList & RooParametricHist::getAllBinVars() const {
+  return (RooArgList&)pars;
 }
 
 double RooParametricHist::getFullSum() const {
@@ -130,6 +172,23 @@ Double_t RooParametricHist::analyticalIntegral(Int_t code, const char* rangeName
  return sum;
 }
 
+void addMorphs(RooArgList &_morphPdfs, RooArgList &_coeffs, _smoothRegion){
+
+ 
+}
+
+double evalMorphs(){
+    
+    // apply all morphs one by one
+    for (int i = 0, ndim = _coefList.getSize(); i < ndim; ++i) {
+        double x = _coefList[i]->getVal();
+        double a = 0.5*x, b = smoothStepFunc(x);
+		
+
+
+    }
+
+}
 
 Double_t RooParametricHist::evaluate() const 
 { 
@@ -143,6 +202,7 @@ Double_t RooParametricHist::evaluate() const
     }
   }
   RooAbsReal *retVar = (RooAbsReal*)pars.at(bin_i);
+
   double ret = retVar->getVal() / widths[bin_i];
   cval=ret;
   return ret; 
