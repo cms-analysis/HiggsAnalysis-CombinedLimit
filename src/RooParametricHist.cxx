@@ -1,107 +1,96 @@
-/***************************************************************************** 
- *****************************************************************************/ 
+/*****************************************************************************
+ *****************************************************************************/
 
 
-#include "Riostream.h" 
+#include "Riostream.h"
 
 #include "RooAbsData.h"
+#include "RooDataHist.h"
 #include "RooAbsPdf.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h" 
+#include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
 
-#include <math.h> 
-#include "TMath.h" 
+#include <math.h>
+#include "TMath.h"
 #include "RooFormulaVar.h"
+#include "RooRealVar.h"
 #include "RooAbsReal.h"
 #include "RooFit.h"
 
 #include "TFile.h"
+#include "TIterator.h"
 
 //using namespace RooFit ;
 
-ClassImp(RooParametricHist) 
+ClassImp(RooParametricHist)
 
-RooParametricHist::RooParametricHist(const char *name, 
-						 const char *title, 
+RooParametricHist::RooParametricHist(const char *name,
+						 const char *title,
 						 RooAbsReal& _x,
 						 RooArgList& _pars,
-						 const TH1 &_shape  // only need this to initialize bins 
+						 const TH1 &_shape  // only need this to initialize bins
 						 ) :
   RooAbsPdf(name,title),
   x("observable","observable",this,_x),
   pars("pars","pars",this)
   //SM_shape("SM_shape","SM_shape",this,_SM_shape),
-{ 
-  TIterator *varIter=_pars.createIterator(); 
+{
+  TIterator *varIter=_pars.createIterator();
   RooAbsReal *fVar;
   while ( (fVar = (RooAbsReal*)varIter->Next()) ){
 	pars.add(*fVar);
   }
   if ( pars.getSize() != _shape.GetNbinsX() ){
-	std::cout << " Warning, number of parameters not equal to number of bins in shape histogram! " << std::endl;
+	std::cerr << " Warning, number of parameters not equal to number of bins in shape histogram! " << std::endl;
+	assert(0);
   }
   initializeBins(_shape);
 //  initializeNorm();
-  cval = -1; 
-} 
-
-RooParametricHist::RooParametricHist(const char *name, 
-						 const char *title, 
-						 RooArgList& _pars,
-						 const RooParametricHist& other
-						 ) :
-  RooAbsPdf(name,title),
-  pars("pars","pars",this)
-  //SM_shape("SM_shape","SM_shape",this,_SM_shape),
-{
-  x = other.x;
-  std::cout << "Lets get started " << std::endl;
-  TIterator *varIter=_pars.createIterator(); 
-  RooAbsReal *fVar;
-  while ( (fVar = (RooAbsReal*)varIter->Next()) ){
-	pars.add(*fVar);
-  }
-  std::cout << "What on earth is going on ? " << std::endl;
-  
-  N_bins = other.N_bins;
-  for (int i=0; i<=N_bins; ++i) {
-     bins.push_back(other.bins[i]);
-     std::cout << bins[i] << std::endl;
-     if (i<N_bins) {
-      widths.push_back(other.widths[i]);
-      std::cout << widths[i] << std::endl;
-     }
-  }
-//  initializeNorm();
-  cval = -1; 
-
-  x.Print("v");
-} 
+  _cval = -1;
+  _smoothRegion = 0.;
+  _hasMorphs = false;
+}
 
 //_____________________________________________________________________________
 RooParametricHist::RooParametricHist(const RooParametricHist& other, const char* name) :
- RooAbsPdf(other, name),x("observable",this,other.x),pars("_pars",this,RooListProxy())
+ RooAbsPdf(other, name),x("observable",this,other.x),pars("_pars",this,RooListProxy()),_coeffList("_coeffList",this,RooListProxy())
 {
-  
+
   N_bins = other.N_bins;
-  //sum    = other.sum;
-  TIterator *varIter=other.pars.createIterator(); 
+  _smoothRegion=other._smoothRegion;
+  _hasMorphs=other._hasMorphs;
+  _cval = other._cval;
+
+  TIterator *varIter=other.pars.createIterator();
   RooAbsReal *fVar;
   while ( (fVar = (RooAbsReal*) varIter->Next()) ){
 	pars.add(*fVar);
   }
 
-  for(int i=0; i<=N_bins; ++i) {
-     bins.push_back(other.bins[i]);
-     if (i<N_bins) widths.push_back(other.widths[i]);
+  TIterator *cIter=other._coeffList.createIterator();
+  RooAbsReal *cVar;
+  while ( (cVar = (RooAbsReal*) cIter->Next()) ){
+  _coeffList.add(*cVar);
   }
 
-  cval = other.cval; 
-
+  for(int i=0; i<=N_bins; i++) {
+     bins.push_back(other.bins[i]);
+     if (i<N_bins) {
+      widths.push_back(other.widths[i]);
+      if (other._hasMorphs){
+        std::vector<double> su;
+        std::vector<double> di;
+        for (int j=0; j<other._coeffList.getSize();j++){
+          su.push_back(other._sums[i][j]);
+          di.push_back(other._diffs[i][j]);
+        }
+        _sums.push_back(su);
+        _diffs.push_back(di);
+      }
+     }
+  }
 }
 void RooParametricHist::initializeBins(const TH1 &shape) const {
 
-  ///std::vector<double> bins;
-  //std::vector<double> widths;
   N_bins = shape.GetNbinsX();
   for(int i=1; i<=N_bins+1; ++i) {
      bins.push_back(shape.GetBinLowEdge(i));
@@ -111,7 +100,7 @@ void RooParametricHist::initializeBins(const TH1 &shape) const {
 
 RooAbsArg & RooParametricHist::getBinVar(const int i) const {
   if (i > N_bins ) std::cerr  << " Error in RooParametricHist::getBinBar -- Asked for bin " << i << " which is more than N_bins-1 -> " << N_bins << std::endl;
-  return *pars.at(i); 
+  return *pars.at(i);
 }
 
 RooArgList & RooParametricHist::getAllBinVars() const {
@@ -120,10 +109,14 @@ RooArgList & RooParametricHist::getAllBinVars() const {
 
 double RooParametricHist::getFullSum() const {
     double sum=0;
-    TIterator *varIter=pars.createIterator(); 
+    TIterator *varIter=pars.createIterator();
     RooAbsReal *fVar;
+    int i=0;
     while ( (fVar = (RooAbsReal*) varIter->Next()) ){
-      sum+=fVar->getVal();	
+	  double thisVal = fVar->getVal();
+	  if (_hasMorphs) thisVal*=evaluateMorphFunction(i);
+	  sum+=thisVal;
+	  i++;
     }
     return sum;
 }
@@ -135,22 +128,23 @@ Int_t RooParametricHist::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet & a
   return 0;
 }
 
-Double_t RooParametricHist::analyticalIntegral(Int_t code, const char* rangeName) const    
+Double_t RooParametricHist::analyticalIntegral(Int_t code, const char* rangeName) const
 {
  assert(code==1) ;
 
- // Case without range is trivial: p.d.f is by construction normalized 
+ // Case without range is trivial: p.d.f is by construction normalized
  if (!rangeName) {
    //return 1;//getFullSum() ;
    return getFullSum();
  }
- // Case with ranges, calculate integral explicitly 
+ // Case with ranges, calculate integral explicitly
  double xmin = x.min(rangeName) ;
  double xmax = x.max(rangeName) ;
  double sum=0 ;
  int i ;
  for (i=1 ; i<=N_bins ; i++) {
-   double binVal = (static_cast<RooAbsReal*>(pars.at(i-1))->getVal())/widths[i-1]; 
+   double binVal = (static_cast<RooAbsReal*>(pars.at(i-1))->getVal())/widths[i-1];
+   if (_hasMorphs) binVal*= evaluateMorphFunction(i-1);
    if (bins[i-1]>=xmin && bins[i]<=xmax) {
       // Bin fully in the integration domain
       sum += (bins[i]-bins[i-1])*binVal ;
@@ -172,28 +166,52 @@ Double_t RooParametricHist::analyticalIntegral(Int_t code, const char* rangeName
  return sum;
 }
 
-void addMorphs(RooArgList &_morphPdfs, RooArgList &_coeffs, _smoothRegion){
-
+void RooParametricHist::addMorphs(RooDataHist &hpdfU, RooDataHist &hpdfD, RooRealVar &cVar, double smoothRegion){
  
-}
-
-double evalMorphs(){
-    
-    // apply all morphs one by one
-    for (int i = 0, ndim = _coefList.getSize(); i < ndim; ++i) {
-        double x = _coefList[i]->getVal();
-        double a = 0.5*x, b = smoothStepFunc(x);
-		
-
-
+  if (!_hasMorphs){
+    for (int i=0;i<N_bins;i++){
+      std::vector<double> difs;
+      std::vector<double> sums;
+      _diffs.push_back(difs);
+      _sums.push_back(sums);
     }
-
+  }
+  for (int i=0;i<N_bins;i++){
+    double f0 = static_cast<RooAbsReal*>(pars.at(i))->getVal();
+   
+    hpdfU.get(i); hpdfD.get(i);
+    double dh = (hpdfU.weight()-f0);
+    double dl = (hpdfD.weight()-f0);
+    _diffs[i].push_back(dh-dl);
+    _sums[i].push_back(dh+dl);
+  }
+  _coeffList.add(cVar);
+  _hasMorphs = true;
+  smoothRegion = _smoothRegion;
 }
 
-Double_t RooParametricHist::evaluate() const 
-{ 
+double RooParametricHist::evaluateMorphFunction(int j) const
+{
+    double scale=1.0;
+    if (!_hasMorphs) return scale;
+    
+    int ndim = _coeffList.getSize();
+    double f0 = static_cast<RooAbsReal*>(pars.at(j))->getVal();
+    // apply all morphs one by one to the bin
+    // almost certaintly a faster way to do this in a vectorized way ....
+    for (int i = 0; i < ndim; ++i) {
+        double x = (dynamic_cast<RooRealVar*>(_coeffList.at(i)))->getVal();
+        double a = 0.5*x, b = smoothStepFunc(x);
+	scale *= 1+(1./f0) * a*(_diffs[j][i] + b*_sums[j][i]);
+	//std::cout << " at coeff " << (dynamic_cast<RooRealVar*>(_coeffList.at(i)))->GetName() << " = " << x << std::endl;
+	//std::cout << " .... scale is now " << scale << std::endl;
+    }
+    return scale;
+}
+double RooParametricHist::evaluatePartial() const
+{
   int bin_i;
-  if (x < bins[0]) 	   	return 0;    // should set to 0 instead?  
+  if (x < bins[0]) 	   	return 0;    // should set to 0 instead?
   else if (x >= bins[N_bins])   return 0;
 
   else {
@@ -203,8 +221,33 @@ Double_t RooParametricHist::evaluate() const
   }
   RooAbsReal *retVar = (RooAbsReal*)pars.at(bin_i);
 
-  double ret = retVar->getVal() / widths[bin_i];
-  cval=ret;
-  return ret; 
+  double ret = retVar->getVal();
+  ret /= widths[bin_i];
+  return ret;
 }
 
+double RooParametricHist::evaluateFull() const
+{
+  int bin_i;
+  if (x < bins[0]) 	   			return 0;    // should set to 0 instead?
+  else if (x >= bins[N_bins])   return 0;
+
+  else {
+    for(bin_i=0; bin_i<N_bins; bin_i++) {   // faster way to loop through ?
+      if (x>=bins[bin_i] && x < bins[bin_i+1] ) break;
+    }
+  }
+  double mVar = evaluateMorphFunction(bin_i);
+  RooAbsReal *retVar = (RooAbsReal*)pars.at(bin_i);
+
+  double ret = retVar->getVal()*mVar;
+  ret /= widths[bin_i];
+  return ret;
+}
+
+Double_t RooParametricHist::evaluate() const
+{
+  double ret = _hasMorphs ? evaluateFull() : evaluatePartial() ;
+  _cval=ret;
+  return ret > 0 ? ret : 0;
+}

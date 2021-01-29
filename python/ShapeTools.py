@@ -689,41 +689,12 @@ class ShapeBuilder(ModelBuilder):
                 _cache[(channel,process)] = rhp
                 return rhp
 	    elif nominalPdf.InheritsFrom("RooParametricHist") : 
-	        # replace the RooParametricHist with our new one
-		pars = nominalPdf.getAllBinVars()
-		nominalPdf.Print("v")
-		new_pars = ROOT.RooArgList()
-		py_new_pars = []
-		for ip in range(pars.getSize()): 
-		  p = pars.at(ip)
-		  prod_list = ROOT.RooArgList()
-		  py_prod_list = []
-		  n = p.getVal()
-                  for (iS,syst,scale,shapeUp,shapeDown) in enumerate(morphs):
-		    S = coeffs.at(iS)
-		    shapeUp.get(ip);   u = shapeUp.weight()
-		    shapeDown.get(ip); d = shapeDown.weight()
-		    
-		    morph_S = ROOT.RooFormulaVar("morph_%s_%s_%s_%s_bin%d"%( postFix,channel,process,S.GetName(),ip ), "(1+*@0)",ROOT.RooArgList(S) )
-		    self.out._import(morph_S)
-		    py_prod_list.append(self.out.function(morph_S.GetName()))
-		  for pyp in py_prod_list: prod_list.add(pyp)
-		  prod_list.add(p)
-
-		  morph_product = ROOT.RooProduct("morph_%s_%s_%s_bin%d"%( postFix,channel,process,ip )," ",prod_list)
-		  prod_list.Print("v")
-		  self.out._import(morph_product,ROOT.RooFit.RecycleConflictNodes())
-		  py_new_pars.append(self.out.function(morph_product.GetName()))
-
-		for pyp in py_new_pars: new_pars.add(self.out.function(pyp.GetName()))
-		new_pars.Print()
-		rhp = ROOT.RooParametricHist("shape%s_%s_%s_morph" %(postFix,channel,process), " ", new_pars, nominalPdf )
-		self.out._import(rhp) # not clear at all why this is needed (but it seems to be)
-		pars = 0
-                _cache[(channel,process)] = rhp
-		rhp.Print("v")
-
-		return rhp
+	        # Add the shape morphs to it. Cannot pass a collection of DataHists so we have to convert to PDFs first?! 
+                for (syst,scale,shapeUp,shapeDown) in morphs:
+		  nominalPdf.addMorphs(shapeUp,shapeDown,coeffs.find(syst),qrange)
+                _cache[(channel,process)] = nominalPdf
+		return nominalPdf
+	
             else:
                 pdflist = ROOT.RooArgList()
                 nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
@@ -795,7 +766,6 @@ class ShapeBuilder(ModelBuilder):
                 if not kappaDown > 0: raise RuntimeError, "Bogus norm %r for channel %s, process %s, systematic %s Down" % (kappaDown, channel,process,syst)
                 kappaUp /=normNominal; kappaDown /= normNominal
                 if abs(kappaUp-1) < 1e-3 and abs(kappaDown-1) < 1e-3: continue
-		print "I'm carrying on"
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
                 # for convenience, we scale the kappas
                 kappasScaled = [ pow(x, errline[channel][process]) for x in kappaDown,kappaUp ]
@@ -807,7 +777,6 @@ class ShapeBuilder(ModelBuilder):
                     obj_var = self.out.var(syst)
                     self.addObj(ROOT.AsymPow, "systeff_%s_%s_%s" % (channel,process,syst), "", obj_kappaDown, obj_kappaUp, obj_var)
                     terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
-	print terms
         return terms if terms else None;
 
     def rebinH1(self,shape):
