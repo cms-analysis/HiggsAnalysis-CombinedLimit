@@ -794,13 +794,19 @@ h-&gt;Fit(&quot;gaus&quot;)
     RooWorkspace wspace(&quot;wspace&quot;,&quot;wspace&quot;);
 
     // A search in a MET tail, define MET as our variable
-    RooRealVar met(&quot;met&quot;,&quot;E_{T}^{miss}&quot;,200,1000);
+    double xmin=200.;
+    double xmax=1000.;
+
+    RooRealVar met(&quot;met&quot;,&quot;E_{T}^{miss}&quot;,200,xmin,xmax);
     RooArgList vars(met);
 
+    // better to create the bins rather than use the &quot;nbins,min,max&quot; to avoid spurious warning about adding bins with different 
+    // ranges in combine - see https://root-forum.cern.ch/t/attempt-to-divide-histograms-with-different-bin-limits/17624/3 for why!
+    double xbins[5] = {200.,400.,600.,800.,1000.};
     // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
     // Make a dataset, this will be just four bins in MET.
     // its easiest to make this from a histogram. Set the contents to &quot;somehting&quot;
-    TH1F data_th1(&quot;data_obs_SR&quot;,&quot;Data observed in signal region&quot;,4,200,1000);
+    TH1D data_th1(&quot;data_obs_SR&quot;,&quot;Data observed in signal region&quot;,4,xbins);
     data_th1.SetBinContent(1,100);
     data_th1.SetBinContent(2,50);
     data_th1.SetBinContent(3,25);
@@ -827,7 +833,7 @@ h-&gt;Fit(&quot;gaus&quot;)
     RooAddition p_bkg_norm(&quot;bkg_SR_norm&quot;,&quot;Total Number of events from background in signal region&quot;,bkg_SR_bins);
 
     // Every signal region needs a signal
-    TH1F signal_th1(&quot;signal_SR&quot;,&quot;Signal expected in signal region&quot;,4,200,1000);
+    TH1D signal_th1(&quot;signal_SR&quot;,&quot;Signal expected in signal region&quot;,4,xbins);
     signal_th1.SetBinContent(1,1);
     signal_th1.SetBinContent(2,2);
     signal_th1.SetBinContent(3,3);
@@ -837,7 +843,7 @@ h-&gt;Fit(&quot;gaus&quot;)
 
     // -------------------------------------------------------------------------------------------------------------//
     // ---------------------------- CONTROL REGION -----------------------------------------------------------------//
-    TH1F data_CRth1(&quot;data_obs_CR&quot;,&quot;Data observed in control region&quot;,4,200,1000);
+    TH1D data_CRth1(&quot;data_obs_CR&quot;,&quot;Data observed in control region&quot;,4,xbins);
     data_CRth1.SetBinContent(1,200);
     data_CRth1.SetBinContent(2,100);
     data_CRth1.SetBinContent(3,50);
@@ -895,6 +901,7 @@ h-&gt;Fit(&quot;gaus&quot;)
     // Clean up
     fOut-&gt;Close();
     fOut-&gt;Delete();
+
 
 }
 </code></pre>
