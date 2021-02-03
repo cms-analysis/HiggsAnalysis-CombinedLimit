@@ -64,7 +64,7 @@ bg_others lnN    -     -     -   1.30   30% uncertainty on the rest of the backg
 -   the first columns is a label identifying the uncertainty
 -   the second column identifies the type of distribution used
     -   **`lnN`** stands for [Log-normal](http://en.wikipedia.org/wiki/Log-normal_distribution), which is the recommended choice for multiplicative corrections (efficiencies, cross sections, ...).
-        If **Δx/x** is the relative uncertainty on the multiplicative correction, one should put **1+Δx/x** in the column corresponding to the process and channel. Asymetric log-normals are supported by providing **κ<sub>down</sub>/κ<sub>up</sub>** where **κ<sub>down</sub>** is the ratio of the the yield to the nominal value for a -1σ deviation of the nuisance and **κ<sub>up</sub>** is the ratio of the the yield to the nominal value for a +1σ deviation.
+        If **Δx/x** is the relative uncertainty on the multiplicative correction, one should put **1+Δx/x** in the column corresponding to the process and channel. Asymmetric log-normals are instead supported by providing <strong>κ<sub>down</sub>/κ<sub>up</sub></strong> where <strong>κ<sub>down</sub></strong> is the ratio of the the yield to the nominal value for a -1σ deviation of the nuisance and <strong>κ<sub>up</sub></strong> is the ratio of the the yield to the nominal value for a +1σ deviation. A symmetric uncertainty of 20% is therefore represented as <code>1.2</code>; the corresponding syntax in case you want to express the very same uncertainty using the asymmetric syntax is <code>0.833/1.2</code> (<strong>not</strong> <code>0.8/1.2</code>).</li>
     -   **`gmN`** stands for [Gamma](http://en.wikipedia.org/wiki/Gamma_distribution), and is the recommended choice for the statistical uncertainty on a background coming from the number of events in a control region (or in a MC sample with limited statistics).
         If the control region or MC contains **N** events, and the extrapolation factor from the control region to the signal region is **α** then one shoud put **N** just after the **`gmN`** keyword, and then the value of **α** in the proper column. Also, the yield in the **`rate`** row should match with **Nα**
     -   **`lnU`** stands for log-uniform distribution. A value of **1+ε** in the column will imply that the yield of this background is allowed to float freely between **x(1+ε)** and **x/(1+ε)** (in particular, if ε is small, then this is approximately **(x-Δx,x+Δx)** with **ε=Δx/x** )
@@ -204,6 +204,9 @@ If you also have one uncertainty that affects the shape, e.g. jet energy scale, 
 or just attach a postifx to the name of the histogram
 
 `shapes * * shapes.root $CHANNEL/$PROCESS  $CHANNEL/$PROCESS_$SYSTEMATIC`
+
+!!!warning
+   If you have nuisance parameter which has shape effects (using `shape`) *and* rate effects (using `lnN`) you should use a single line for the systemstic uncertainty with `shape?`. This will tell combine to fist look for Up/Down systematic templates for that process and if it doesnt find them, it will interpret the number that you put for the process as a `lnN` instead. 
 
 For a detailed example of a template based binned analysis see the [H→ττ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates)
 
