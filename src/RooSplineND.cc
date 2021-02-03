@@ -79,34 +79,64 @@ RooSplineND::RooSplineND(const RooSplineND& other, const char *name) :
   w_mean = other.w_mean;
   w_rms  = other.w_rms;
 
-  // STL copy constructors
-  w_    = other.w_;
-  v_map = other.v_map; 
-  r_map = other.r_map;
+  // STL copy constructors not so helpful :/
+  std::vector<double>::const_iterator 		     w_it; 
+  std::map<int,std::vector<double> >::const_iterator v_it;
+  std::map<int,std::pair<double,double> >::const_iterator  r_it;
+  
+  for (w_it = other.w_.begin(); w_it != other.w_.end(); w_it++){
+    w_.push_back(*w_it); 
+  }
+  
+  for (v_it = other.v_map.begin(); v_it != other.v_map.end(); v_it++){
+    std::vector<double>::const_iterator it; 
+    std::vector<double> this_vec;
+    for (it = (v_it->second).begin(); it!=(v_it->second).end(); it++) this_vec.push_back(*it);
+    v_map.insert(std::pair<int, std::vector<double> >(v_it->first,this_vec)); 
+  }
+  
+  for (r_it = other.r_map.begin(); r_it != other.r_map.end(); r_it++){
+    r_map.insert(std::pair<int, std::pair<double, double> >(r_it->first,std::pair<double,double>((r_it->second).first,(r_it->second).second))); 
+  }
   
   rescaleAxis=other.rescaleAxis;
 }
 //_____________________________________________________________________________
 // Clone Constructor
+
 RooSplineND::RooSplineND(const char *name, const char *title, const RooListProxy &vars, 
  int ndim, int M, double eps, bool rescale, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > &rmap,double wmean, double wrms) :
  RooAbsReal(name, title),vars_("vars",this,RooListProxy()) 
 {
-
   RooAbsReal *rIt;	
   TIterator *iter = vars.createIterator();
   while( (rIt = (RooAbsReal*) iter->Next()) ){ 
     vars_.add(*rIt);
   }
-
   ndim_ = ndim;
   M_    = M;
   eps_  = eps;
   axis_pts_ = TMath::Power(M_,1./ndim_);
 
-  w_    = w;
-  v_map = map;
-  r_map = rmap;
+  // STL copy constructors not so helpful :/
+  std::vector<double>::const_iterator 		     w_it; 
+  std::map<int,std::vector<double> >::const_iterator v_it;
+  std::map<int,std::pair<double,double> >::const_iterator  r_it;
+  
+  for (w_it = w.begin(); w_it != w.end(); w_it++){
+    w_.push_back(*w_it); 
+  }
+  
+  for (v_it = map.begin(); v_it != map.end(); v_it++){
+    std::vector<double>::const_iterator it; 
+    std::vector<double> this_vec;
+    for (it = (v_it->second).begin(); it!=(v_it->second).end(); it++) this_vec.push_back(*it);
+    v_map.insert(std::pair<int, std::vector<double> >(v_it->first,this_vec)); 
+  }
+  
+  for (r_it = rmap.begin(); r_it != rmap.end(); r_it++){
+    r_map.insert(std::pair<int, std::pair<double, double> >(r_it->first,std::pair<double,double>((r_it->second).first,(r_it->second).second))); 
+  }
 	
   w_rms  = wrms;
   w_mean = wrms;
@@ -117,9 +147,9 @@ RooSplineND::RooSplineND(const char *name, const char *title, const RooListProxy
 //_____________________________________________________________________________
 TObject *RooSplineND::clone(const char *newname) const 
 {
-    return new RooSplineND(newname, this->GetTitle(), 
-	vars_,ndim_,M_,eps_,rescaleAxis,w_,v_map,r_map,w_mean,w_rms);
+    return new RooSplineND(*this, newname);
 }
+
 //_____________________________________________________________________________
 RooSplineND::~RooSplineND() 
 {

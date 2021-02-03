@@ -243,3 +243,44 @@ MB.doModel()
 
 	return list(set(allVars))
 
+    def renameNuisanceParameter(self,oldname,newname,process_list=[],channel_list=[]): 
+	"""
+	Rename nuisance parameter from oldname to newname
+
+	This will by default rename the parameter globally. However, 
+	if you only want to modify the name of the nuisance parameter 
+	for specific channels/processes, then you should specify a 
+	process (list or leave empty for all) and channel (list or leave empty for all)
+	"""
+	newnameExists = False
+	existingclashes = {}
+        for lsyst,nofloat,pdf0,args0,errline0 in (self.systs[:]):
+	  if lsyst == newname : # found the nuisance exists
+	    newnameExists = True 
+	    existingclashes[lsyst]=(nofloat,pdf0,args0,errline0)
+
+	found=False 
+        nuisanceID = i = -1
+	
+	if process_list == [] : process_list = self.processes 
+	if channel_list == [] : channel_list = self.bins
+
+        for lsyst,nofloat,pdf0,args0,errline0 in (self.systs[:]):
+	  i+=1
+	  if lsyst == oldname : # found the nuisance
+	    nuisanceID = i
+	    found = True
+	    # check if the new name exists 
+	    if lsyst in existingclashes.keys(): 
+	      nofloat1,pdf1,args1,errline1 = existingclashes[lsyst]
+		
+	    else: pass
+	    datacard.systs[nuisanceID][0]=newname 
+	    if "shape" in pdf0 :       
+	      for b in channel_list: 
+	        for p in process_list :  
+		  datacard.systematicsShapeMap[newname,b,p]=oldname
+	    if "param" in pdf0 : datacard.systematicsParamMap[oldname]=newname
+
+        if not found: raise RuntimeError, "Error: no parameter found with = %s\n" % oldname
+	return 0 

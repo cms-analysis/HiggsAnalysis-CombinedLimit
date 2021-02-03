@@ -31,6 +31,9 @@
 	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>::const_iterator" />
 	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>>::const_iterator" />
 
+	<class name="std::map<int, std::vector<double>>"/>
+	<class name="std::map<int, std::pair<double,double>>"/>
+
 	<class name="AsymPow" />
 	<class name="AsymQuad" />
 
