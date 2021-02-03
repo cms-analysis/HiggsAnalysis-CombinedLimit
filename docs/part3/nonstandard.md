@@ -280,7 +280,7 @@ that will rename the POI label on the plot.
 !!! info 
     Since `combineTool` accepts the usual options for combine you can also generate the impacts on an Asimov or toy dataset. 
 
-The left panel in the summary plot shows the value of $(\theta-\theta_{0})/\Delta_{\theta}$ where $\theta$ and $\theta_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\theta}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **pre**-fit uncertainty divided by the **post**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. As with the `diffNuisances.py` script, use the option `--pullDef` are defined (eg to show the *pull* instead). 
+The left panel in the summary plot shows the value of $(\theta-\theta_{0})/\Delta_{\theta}$ where $\theta$ and $\theta_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\theta}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **post**-fit uncertainty divided by the **pre**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. As with the `diffNuisances.py` script, use the option `--pullDef` are defined (eg to show the *pull* instead). 
 
 ## Channel Masking 
 
@@ -610,13 +610,19 @@ void examplews(){
     RooWorkspace wspace("wspace","wspace");
 
     // A search in a MET tail, define MET as our variable
-    RooRealVar met("met","E_{T}^{miss}",200,1000);
+    double xmin=200.;
+    double xmax=1000.;
+
+    RooRealVar met("met","E_{T}^{miss}",200,xmin,xmax);
     RooArgList vars(met);
 
+    // better to create the bins rather than use the "nbins,min,max" to avoid spurious warning about adding bins with different 
+    // ranges in combine - see https://root-forum.cern.ch/t/attempt-to-divide-histograms-with-different-bin-limits/17624/3 for why!
+    double xbins[5] = {200.,400.,600.,800.,1000.};
     // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
     // Make a dataset, this will be just four bins in MET.
     // its easiest to make this from a histogram. Set the contents to "somehting"
-    TH1F data_th1("data_obs_SR","Data observed in signal region",4,200,1000);
+    TH1D data_th1("data_obs_SR","Data observed in signal region",4,xbins);
     data_th1.SetBinContent(1,100);
     data_th1.SetBinContent(2,50);
     data_th1.SetBinContent(3,25);
@@ -643,7 +649,7 @@ void examplews(){
     RooAddition p_bkg_norm("bkg_SR_norm","Total Number of events from background in signal region",bkg_SR_bins);
 
     // Every signal region needs a signal
-    TH1F signal_th1("signal_SR","Signal expected in signal region",4,200,1000);
+    TH1D signal_th1("signal_SR","Signal expected in signal region",4,xbins);
     signal_th1.SetBinContent(1,1);
     signal_th1.SetBinContent(2,2);
     signal_th1.SetBinContent(3,3);
@@ -653,7 +659,7 @@ void examplews(){
 
     // -------------------------------------------------------------------------------------------------------------//
     // ---------------------------- CONTROL REGION -----------------------------------------------------------------//
-    TH1F data_CRth1("data_obs_CR","Data observed in control region",4,200,1000);
+    TH1D data_CRth1("data_obs_CR","Data observed in control region",4,xbins);
     data_CRth1.SetBinContent(1,200);
     data_CRth1.SetBinContent(2,100);
     data_CRth1.SetBinContent(3,50);
@@ -711,6 +717,7 @@ void examplews(){
     // Clean up
     fOut->Close();
     fOut->Delete();
+
 
 }
 ```

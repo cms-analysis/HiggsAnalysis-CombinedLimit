@@ -53,7 +53,7 @@ There are a number of useful command line options which can be used to alter the
     -   parameters of interest of the input workspace that are not selected by this command become unconstrained nuisance parameters, but they are not added to the list of nuisances so they will not be randomized (see above).
 
 
--   `--freezeParameters name1[,name2,...]` Will freeze the parameters with the given names to their set values. This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`. For example `--freezeParameters rgx{CMS_scale_j.*}` will freeze all parameters with the prefix `CMS_scale_j`.
+-   `--freezeParameters name1[,name2,...]` Will freeze the parameters with the given names to their set values. This option supports the use of regexps via by replacing `name` with `rgx{some regular expression}` for matching to *constrained nuisance parameters* or `var{some regular expression}` for matching to *any* parameter. For example `--freezeParameters rgx{CMS_scale_j.*}` will freeze all constrained nuisance parameters with the prefix `CMS_scale_j`, while `--freezeParameters rgx{.*rate_scale}` will freeze any parameter (constrained nuisance or otherwise) with the suffix `rate_scale`.
     - use the option `--freezeParameters allConstrainedNuisances` to freeze all nuisance parameters that have a constraint term (i.e not `flatParams` or `rateParams` or other freely floating parameters).
     - similarly the option `--floatParameters` sets the parameter floating.
     - groups of nuisances (constrained or otherwise), as defined in the datacard, can be frozen using `--freezeNuisanceGroups`. You can also specify to freeze nuisances which are *not* contained in a particular group using a **^** before the group name (`--freezeNuisanceGroups=^group_name` will freeze everything except nuisance parameters in the group "group_name".)
@@ -215,25 +215,26 @@ Here are a few examples of calculations with toys from post-fit workspaces using
 For longer tasks which cannot be run locally, several methods in combine can be split to run on the *LSF batch* or the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) section to get the tool)
 
 
-### Submission to the LSF Batch
+### Submission to Condor
 
-The syntax for running on the batch with the tool is
+The syntax for running on condor with the tool is
 
 ```sh
-combineTool.py -M ALGO [options] --job-mode lxbatch --sub-opts="-q QUEUE" --task-name NAME [--dry-run]
+combineTool.py -M ALGO [options] --job-mode condor --sub-opts='CLASSADS' --task-name NAME [--dry-run]
 ```
 
 with `options` being the usual list of `combine` options. The help option `-h` will give a list of both `combine` and `combineTool` sets of options. This can be used with several different methods from `combine`.
 
+The `--sub-opts` option takes a string with the different ClassAds that you want to set, separated by `\n` as argument (e.g. `'+JobFlavour="espresso"\nRequestCpus=1'`).
+
 The `--dry-run` option will show what will be run without actually doing so / submitting the jobs.
 
-For example, to generate toys (eg for use with limit setting) users running on lxplus at CERN the **lxbatch** mode can be used eg
+For example, to generate toys (eg for use with limit setting) users running on lxplus at CERN the **condor** mode can be used eg
 
 ```sh
-combineTool.py -d workspace.root -M HybridNew --LHCmode LHC-limits --clsAcc 0  -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveHybridResult -m 125 --job-mode lxbatch --task-name lxbatch-test --sub-opts='-q 1nd'
-```
-
-The `--singlePoint` option is over-ridden so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using `--merge` - e.g adding `--merge 10` to the above command will mean that each job contains *at most* 10 of the values. The scripts are labelled by the `--task-name` option. These will be submitted directly to lxbatch adding any options in `--sub-opts` to the bsub call. The jobs will run and produce output in the **current directory**.
+combineTool.py -d workspace.root -M HybridNew --LHCmode LHC-limits --clsAcc 0  -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveHybridResult -m 125 --job-mode condor --task-name condor-test --sub-opts='+JobFlavour="tomorrow"'
+``` 
+The `--singlePoint` option is over-ridden so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using `--merge` - e.g adding `--merge 10` to the above command will mean that each job contains *at most* 10 of the values. The scripts are labelled by the `--task-name` option. These will be submitted directly to condor adding any options in `--sub-opts` to the condor submit script. Make sure multiple options are separated by `\n`. The jobs will run and produce output in the **current directory**.
 
 Below is an example for splitting points in a multi-dimensional likelihood scan.
 
@@ -242,7 +243,7 @@ Below is an example for splitting points in a multi-dimensional likelihood scan.
 The option `--split-points` issues the command to split the jobs for `MultiDimFit` when using `--algo grid`. The following example will split the jobs such that there are **10 points** in each of the jobs, which will be submitted to the **8nh** queue.
 
 ```sh
-combineTool.py datacard.txt -M MultiDimFit --algo grid --points 50 --rMin 0 --rMax 1 --job-mode lxbatch --split-points 10 --sub-opts='-q 8nh' --task-name mytask -n mytask
+combineTool.py datacard.txt -M MultiDimFit --algo grid --points 50 --rMin 0 --rMax 1 --job-mode condor --split-points 10 --sub-opts='+JobFlavour="workday"' --task-name mytask -n mytask
 ```
 
 Remember, any usual options (such as redefining POIs or freezing parameters) are passed to combine and can be added to the command line for `combineTool`.
