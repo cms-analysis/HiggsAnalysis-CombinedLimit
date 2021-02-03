@@ -584,9 +584,15 @@ delta rateParam D bkg 500
 <p>It can often be useful to modify datacards, or the runtime behavior, without having to modify individual systematics lines. This can be acheived through the following.</p>
 <h4 id="nuisance-modifiers">Nuisance modifiers</h4>
 <p>If a nuisance parameter needs to be renamed for certain processes/channels, it can be done so using a single <code>nuisance edit</code> directive at the end of a datacard</p>
-<pre><code class="language-nohighlight">nuisance edit rename process channel oldname newname
+<pre><code class="language-nohighlight">nuisance edit rename process channel oldname newname [options]
 </code></pre>
-<p>This will have the effect that nuisance parameter effecting a given process/channel will be renamed, thereby de-correlating it from other processes/channels.  Use options <code>ifexists</code> to skip/avoid error if nuisance not found. Other edits are also supported as follows,</p>
+<p>Note that the wildcard (<strong>*</strong>) can be used for either/both of process and channel.
+This will have the effect that nuisance parameter effecting a given process/channel will be renamed, thereby de-correlating it from other processes/channels.  Use options <code>ifexists</code> to skip/avoid error if nuisance not found. 
+This kind of command will only effect nuisances of the type <strong><code>shape[N]</code></strong>, <strong><code>lnN</code></strong>. Instead, if you also want to change the names of <strong><code>param</code></strong> type nuisances, you can use a global version </p>
+<pre><code class="language-nohighlight">nuisance edit rename oldname newname
+</code></pre>
+<p>which will rename all <strong><code>shape[N]</code></strong>, <strong><code>lnN</code></strong> and <strong><code>param</code></strong> nuisances found in one go. You should make sure these commands come after any process/channel specific ones in the datacard. This version does not accept options.  </p>
+<p>Other edits are also supported as follows,</p>
 <ul>
 <li><code>nuisance edit add process channel name pdf value [options]</code>  -&gt; add a new or add to a nuisance. If options is <code>addq</code>, value will be added in quadrature to this nuisance for this process/channel. If options is <code>overwrite</code>, the nuisance value will be replaced with this value</li>
 <li><code>nuisance edit drop process channel name [options]</code>  -&gt; remove this nuisance from the process/channel. Use options <code>ifexists</code> to skip/avoid error if nuisance not found.</li>
@@ -595,8 +601,7 @@ delta rateParam D bkg 500
 <li><code>nuisance edit freeze name [options]</code>  -&gt; set nuisance to frozen by default. Can be over-ridden in <code>combine</code> command line using <code>--floatNuisances</code> option Use options <code>ifexists</code> to skip/avoid error if nuisance not found.</li>
 <li><code>nuisance edit merge process channel name1 name2</code> -&gt; merge systematic <code>name2</code> into <code>name1</code> by adding their values in quadrature and removing <code>name2</code>. This only works if, for each process and channel included, they go in the same direction. For example, you can add 1.1 to 1.2, but not to 0.9.</li>
 </ul>
-<p>Note that the wildcard (<strong>*</strong>) can be used for either/both of process and channel.</p>
-<p>The above edits support nuisances which are any of <strong><code>shape[N]</code></strong>, <strong><code>lnN</code></strong>, <strong><code>lnU</code></strong>, <strong><code>gmN</code></strong>, <strong><code>param</code></strong>, <strong><code>flatParam</code></strong>, <strong><code>rateParam</code></strong> or <strong><code>discrete</code></strong> types.</p>
+<p>The above edits (excluding the renaming) support nuisances which are any of <strong><code>shape[N]</code></strong>, <strong><code>lnN</code></strong>, <strong><code>lnU</code></strong>, <strong><code>gmN</code></strong>, <strong><code>param</code></strong>, <strong><code>flatParam</code></strong>, <strong><code>rateParam</code></strong> or <strong><code>discrete</code></strong> types.</p>
 <h4 id="groups-of-nuisances">Groups of nuisances</h4>
 <p>Often it is desirable to freeze one or more nuisances to check the impact they have on limits, likelihood scans, significances etc.</p>
 <p>However, for large groups of nuisances (eg everything associated to theory) it is easier to define <strong><em>nuisance groups</em></strong> in the datacard. The following line in a datacard will, for example, produce a group of nuisances with the group name
