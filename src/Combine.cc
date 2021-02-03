@@ -665,7 +665,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           boost::split(nuisToFreeze, freezeNuisances_, boost::is_any_of(","), boost::token_compress_on);
           for (int k=0; k<(int)nuisToFreeze.size(); k++) {
               if (nuisToFreeze[k]=="") continue;
-              if (!w->fundArg(nuisToFreeze[k].c_str())) {
+              else if(nuisToFreeze[k]=="allConstrainedNuisances") {
+                  toFreeze.add(*nuisances);
+                  continue;
+              }
+              else if (!w->fundArg(nuisToFreeze[k].c_str())) {
                   std::cout<<"WARNING: cannot freeze nuisance parameter "<<nuisToFreeze[k].c_str()<<" if it doesn't exist!"<<std::endl;
                   continue;
               }
