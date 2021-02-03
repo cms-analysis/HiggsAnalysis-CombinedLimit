@@ -443,10 +443,18 @@ It can often be useful to modify datacards, or the runtime behavior, without hav
 If a nuisance parameter needs to be renamed for certain processes/channels, it can be done so using a single `nuisance edit` directive at the end of a datacard
 
 ```nohighlight
-nuisance edit rename process channel oldname newname
+nuisance edit rename process channel oldname newname [options]
 ```
+Note that the wildcard (**\***) can be used for either/both of process and channel.
+This will have the effect that nuisance parameter effecting a given process/channel will be renamed, thereby de-correlating it from other processes/channels.  Use options `ifexists` to skip/avoid error if nuisance not found. 
+This kind of command will only effect nuisances of the type **`shape[N]`**, **`lnN`**. Instead, if you also want to change the names of **`param`** type nuisances, you can use a global version 
 
-This will have the effect that nuisance parameter effecting a given process/channel will be renamed, thereby de-correlating it from other processes/channels.  Use options `ifexists` to skip/avoid error if nuisance not found. Other edits are also supported as follows,
+```nohighlight
+nuisance edit rename oldname newname
+```
+which will rename all **`shape[N]`**, **`lnN`** and **`param`** nuisances found in one go. You should make sure these commands come after any process/channel specific ones in the datacard. This version does not accept options.  
+
+Other edits are also supported as follows,
 
    * `nuisance edit add process channel name pdf value [options]`  -> add a new or add to a nuisance. If options is `addq`, value will be added in quadrature to this nuisance for this process/channel. If options is `overwrite`, the nuisance value will be replaced with this value
    * `nuisance edit drop process channel name [options]`  -> remove this nuisance from the process/channel. Use options `ifexists` to skip/avoid error if nuisance not found.
@@ -455,9 +463,7 @@ This will have the effect that nuisance parameter effecting a given process/chan
    * `nuisance edit freeze name [options]`  -> set nuisance to frozen by default. Can be over-ridden in `combine` command line using `--floatNuisances` option Use options `ifexists` to skip/avoid error if nuisance not found.
    * `nuisance edit merge process channel name1 name2` -> merge systematic `name2` into `name1` by adding their values in quadrature and removing `name2`. This only works if, for each process and channel included, they go in the same direction. For example, you can add 1.1 to 1.2, but not to 0.9.
 
-Note that the wildcard (**\***) can be used for either/both of process and channel.
-
-The above edits support nuisances which are any of **`shape[N]`**, **`lnN`**, **`lnU`**, **`gmN`**, **`param`**, **`flatParam`**, **`rateParam`** or **`discrete`** types.
+The above edits (excluding the renaming) support nuisances which are any of **`shape[N]`**, **`lnN`**, **`lnU`**, **`gmN`**, **`param`**, **`flatParam`**, **`rateParam`** or **`discrete`** types.
 
 #### Groups of nuisances
 

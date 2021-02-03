@@ -90,6 +90,7 @@ def parseCard(file, options):
     binline = []; processline = []; sigline = []
     shapesUseBin = False
     lineNumber = None
+    lineNumber2 = None
 
     try: getattr(options,"evaluateEdits")
     except: setattr(options,"evaluateEdits",True)
@@ -170,7 +171,7 @@ def parseCard(file, options):
                     ret.exp[b][p] = float(r)
                 break # rate is the last line before nuisances
         # parse nuisances
-        for lineNumber,l in enumerate(file):
+        for lineNumber2,l in enumerate(file):
             if l.startswith("--"): continue
             l  = re.sub("\\s*#.*","",l)
             l = re.sub("(?<=\\s)-+(\\s|$)"," 0\\1",l);
@@ -178,6 +179,12 @@ def parseCard(file, options):
             if len(f) <= 1: continue
             nofloat = False
             lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
+	    if lsyst in ret.systIDMap.keys() and pdf in ["shape","shapeN","lnN"]:
+	      types = [ ret.systs[j][2] for j in ret.systIDMap[lsyst] ]
+	      if "shape" in types: 
+	        if pdf == "lnN"   : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
+	      elif "lnN" in types: 
+	        if pdf == "shape" : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
             if lsyst.endswith("[nofloat]"):
               lsyst = lsyst.replace("[nofloat]","")
               nofloat = True
@@ -197,6 +204,7 @@ def parseCard(file, options):
 	    elif pdf == "constr":
                 args = f[2:]
                 ret.systs.append([lsyst,nofloat,pdf,args,[]])
+                ret.add_syst_id(lsyst)
                 continue
             elif pdf == "param":
                 # for parametric uncertainties, there's no line to account per bin/process effects
@@ -204,6 +212,7 @@ def parseCard(file, options):
                 args = f[2:]
                 if len(args) <= 1: raise RuntimeError, "Uncertainties of type 'param' must have at least two arguments (mean and sigma)"
                 ret.systs.append([lsyst,nofloat,pdf,args,[]])
+                ret.add_syst_id(lsyst)
                 continue
             elif pdf == "flatParam":
                 ret.flatParamNuisances[lsyst] = True
@@ -225,7 +234,7 @@ def parseCard(file, options):
 		    f_tmp[3]=c
 	            addRateParam(lsyst,f_tmp,ret)
                     found = True
-                  if not found: raise RuntimeError, "rateParam %s with process %r bin %r doesn't match anything." % (lsyst,f[3],f[2]) 
+                  if not found: raise RuntimeError, "rateParam %s with process %r bin %r doesn't match anything." % (lsyst,f[3],f[2])
 		else : addRateParam(lsyst,f,ret)
                 continue
             elif pdf=="discrete":
@@ -274,8 +283,8 @@ def parseCard(file, options):
 	        statIncludeSig = bool(int(f[3])) if len(f) >= 4 else False
 	        statHistMode = int(f[4]) if len(f) >= 5 else 1
 	        statFlags = (statThreshold, statIncludeSig, statHistMode)
-		if "*" in lsyst: 
-		  for b in ret.bins: 
+		if "*" in lsyst:
+		  for b in ret.bins:
 		    	if (not fnmatch.fnmatch(b, lsyst)): continue
 		  	ret.binParFlags[b]=statFlags
     		else:
@@ -300,8 +309,10 @@ def parseCard(file, options):
                 # set the rate to epsilon for backgrounds with zero observed sideband events.
                 if pdf == "gmN" and ret.exp[b][p] == 0 and float(r) != 0: ret.exp[b][p] = 1e-6
             ret.systs.append([lsyst,nofloat,pdf,args,errline])
+            ret.add_syst_id(lsyst)
     except Exception, ex:
         if lineNumber != None:
+            if lineNumber2 != None: lineNumber+=lineNumber2+1 # lineNumber2 also started at 0
             msg = "Error reading line %d" % (lineNumber + 1)
             if hasattr(file,'name'):
                 msg += " of file " + file.name
@@ -323,7 +334,7 @@ def parseCard(file, options):
     # cleanup systematics that have no effect to avoid zero derivatives
     syst2 = []
     for lsyst,nofloat,pdf,args,errline in ret.systs:
-        nonNullEntries = 0 
+        nonNullEntries = 0
         if pdf == "param" or pdf =="constr" or pdf=="discrete" or pdf=="rateParam": # this doesn't have an errline
             syst2.append((lsyst,nofloat,pdf,args,errline))
             continue
@@ -331,7 +342,8 @@ def parseCard(file, options):
             r = errline[b][p]
             nullEffect = (r == 0.0 or (pdf == "lnN" and r == 1.0))
             if not nullEffect and ret.exp[b][p] != 0: nonNullEntries += 1 # is this a zero background?
-        if nonNullEntries != 0: syst2.append((lsyst,nofloat,pdf,args,errline))
+        if nonNullEntries != 0:syst2.append((lsyst,nofloat,pdf,args,errline))
+
         elif nuisances != -1: nuisances -= 1 # remove from count of nuisances, since qe skipped it
     ret.systs = syst2
     # remove them if options.stat asks so
