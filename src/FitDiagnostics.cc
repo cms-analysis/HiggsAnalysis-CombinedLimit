@@ -30,7 +30,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
-
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 #include <Math/MinimizerOptions.h>
 
@@ -150,7 +150,13 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   if (!justFit_ && out_ != "none"){
 	if (currentToy_ < 1){
-		fitOut.reset(TFile::Open((out_+"/fitDiagnostics"+name_+"."+massName_+toyName_+"root").c_str(), "RECREATE")); 
+		const bool longName = runtimedef::get(std::string("longName"));
+		std::string fdname(out_+"/fitDiagnostics"+name_);
+		if (longName)
+			fdname += "."+massName_+toyName_+"root";
+		else
+			fdname += ".root";
+		fitOut.reset(TFile::Open(fdname.c_str(), "RECREATE")); 
 		createFitResultTrees(*mc_s,withSystematics);
 	}
   }

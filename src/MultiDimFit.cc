@@ -18,6 +18,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -1156,7 +1157,13 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
 void MultiDimFit::saveResult(RooFitResult &res) {
     if (verbose>2) res.Print();
     if (out_ == "none") return;
-    fitOut.reset(TFile::Open((out_+"/multidimfit"+name_+"."+massName_+toyName_+"root").c_str(), "RECREATE"));
+    const bool longName = runtimedef::get(std::string("longName"));
+    std::string mdname(out_+"/multidimfit"+name_);
+    if (longName)
+        mdname += "."+massName_+toyName_+"root";
+    else
+        mdname += ".root";
+    fitOut.reset(TFile::Open(mdname.c_str(), "RECREATE"));
     fitOut->WriteTObject(&res,"fit_mdf");
     fitOut->cd();
     fitOut.release()->Close();
