@@ -140,6 +140,9 @@ Additionally, there will be filled branches which provide the value of the expec
 
 An alternative is to use the options `--saveShapes`. The result will be additional folders in `fitDiagnostics.root` for each category, with pre and post-fit distributions of the signals and backgrounds as TH1s and the data as TGraphAsymmErrors (with Poisson intervals as error bars).
 
+!!! info
+    If you want to save post-fit shapes at a specific r value, add the options `--customStartingPoint` and `--skipSBFit`, and set the r value. The result will appear in **shapes\_fit\_b**, as described below.
+
 Three additional folders (**shapes\_prefit**, **shapes\_fit\_sb** and **shapes\_fit\_b** ) will contain the following distributions,
 
 | Object | Description |

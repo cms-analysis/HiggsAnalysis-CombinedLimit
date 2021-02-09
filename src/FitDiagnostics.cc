@@ -248,7 +248,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   /* Background only fit (first POI set to customStartingPoint or 0) ****************************************************************/
 
   if (!customStartingPoint_) r->setVal(0.0);
-  else std::cout << "customStartingPoint set to true, Background only fit will corrsepond to " << r->GetName() << " = " << r->getVal() << std::endl;
+  else std::cout << "customStartingPoint set to true, background-only fit will correspond to " << r->GetName() << " = " << r->getVal() << std::endl;
   r->setConstant(true);
 
   // Setup Nll before calling fits;
@@ -349,9 +349,11 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
       //take the limit value from "b-only" when skipping s+b
       if (skipSBFit_) {
+        Combine::toggleGlobalFillTree(true);
         limit    = r->getVal();
         limitErr = r->getError();
-        Combine::commitPoint(/*expected=*/true, /*quantile=*/0.5);
+        Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.);
+        Combine::toggleGlobalFillTree(false);
       }
   }
   else {
