@@ -8,7 +8,9 @@ You may first want to look at the HIG PAG standard checks applied to all datacar
 
 If you have already found the higgs boson but it's an exotic one, instead of computing a limit or significance you might want to extract it's cross section by performing a maximum-likelihood fit. Or, more seriously, you might want to use this same package to extract the cross section of some other process (e.g. the di-boson production). Or you might want to know how well the data compares to you model, e.g. how strongly it constraints your other nuisance parameters, what's their correlation, etc. These general diagnostic tools are contained in the method `FitDiagnostics`. 
 
+```
     combine -M FitDiagnostics datacard.txt
+```
 
 The program will print out the result of the *two fits* performed with signal strength **r** (or first POI in the list) set to zero and a second with floating **r**. The output root tree will contain the best fit value for **r** and it's uncertainty. You will also get a `fitDiagnostics.root` file containing the following objects:
 
@@ -46,8 +48,7 @@ The `minuit_summary_status` is the usual status from Minuit, details of which ca
 
 A fit status of -1 indicates that the fit failed (Minuit summary was not 0 or 1) and hence the fit is **not** valid.
 
-
-##### Fit options
+### Fit options
 
 - If you need only the signal+background fit, you can run with `--justFit`. This can be useful if the background-only fit is not interesting or not converging (e.g. if the significance of your signal is very very large)
 - You can use `--rMin` and `--rMax` to set the range of the first POI; a range that is not too large compared to the uncertainties you expect from the fit usually gives more stable and accurate results.
@@ -57,7 +58,7 @@ A fit status of -1 indicates that the fit failed (Minuit summary was not 0 or 1)
 - If you find the covariance matrix provided by HESSE is not accurate (i.e. `fit_s->Print()` reports this was forced positive-definite) then a custom HESSE-style calculation of the covariance matrix can be used instead. This is enabled by running FitDiagnostics with the `--robustHesse 1` option. Please note that the status reported by `RooFitResult::Print()` will contain `covariance matrix quality: Unknown, matrix was externally provided` when robustHesse is used, this is normal and does not indicate a problem. NB: one feature of the robustHesse algorithm is that if it still cannot calculate a positive-definite covariance matrix it will try to do so by dropping parameters from the hessian matrix before inverting. If this happens it will be reported in the output to the screen. 
 - For other fitting options see the [generic minimizer options](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/wiki/runningthetool#generic-minimizer-options) section.
 
-#### Fit parameter uncertainties
+### Fit parameter uncertainties
 
 If you get a warning message when running `FitDiagnostics` which says `Unable to determine uncertainties on all fit parameters`. This means the covariance matrix calculated in FitDiagnostics was not correct. 
 
@@ -72,7 +73,7 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.
 
 If you are aware that your analysis has any of these features you could try resolving these. Setting `--cminDefaultMinimizerStrategy 0` can also help with this problem.
 
-#### Pre and post fit nuisance parameters and pulls
+### Pre and post fit nuisance parameters and pulls
 
 It is possible to compare pre-fit and post-fit nuisance parameters with the script [diffNuisances.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/diffNuisances.py). Taking as input a `fitDiagnostics.root` file, the script will by default print out the parameters which have changed significantly w.r.t. their initial estimate. For each of those parameters, it will print out the shift in value and the post-fit uncertainty, both normalized to the input values, and the linear correlation between the parameter and the signal strength.
 
@@ -108,8 +109,7 @@ This script has the option (`-g outputfile.root`) to produce plots of the fitted
 !!! info
     In the above options, if an asymmetric uncertainty is associated to the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\theta-\theta_{I}$. 
 
-
-#### Normalizations
+### Normalizations
 
 For a certain class of models, like those made from datacards for shape-based analysis, the tool can also compute and save to the output root file the best fit yields of all processes. If this feature is turned on with the option `--saveNormalizations`, the file will also contain three RooArgSet `norm_prefit`, `norm_fit_s`, `norm_fit_b` objects each containing one RooConstVar for each channel `xxx` and process `yyy` with name **`xxx/yyy`** and value equal to the best fit yield. You can use `RooRealVar::getVal` and `RooRealVar::getError` to estimate both the post-(or pre-)fit values and uncertainties of these normalisations. 
 
@@ -122,7 +122,7 @@ The sample pyroot macro [mlfitNormsToText.py](https://github.com/cms-analysis/Hi
 Note that this procedure works only for "extended likelihoods" like the ones used in shape-based analysis, not for the cut-and-count datacards. You can however convert a cut-and-count datacard in an equivalent shape-based one by adding a line `shapes * * FAKE` in the datacard after the `imax`, `jmax`, `kmax` or using `combineCards.py countingcard.txt -S > shapecard.txt`. 
 
 
-##### Per-bin norms for shape analyses
+#### Per-bin norms for shape analyses
  
 If you have a shape based analysis, you can also (instead) include the option `--savePredictionsPerToy`. With this option, additional branches will be filled in the three output trees contained in `fitDiagnostics.root`.  
 
@@ -134,8 +134,7 @@ Additionally, there will be filled branches which provide the value of the expec
     Be aware that for *unbinned* models, a binning scheme is adopted based on the `RooRealVar::getBinning` for the observable defining the shape, if it exists, or combine will adopt some appropriate binning for each observable. 
 
 
-
-#### Plotting
+### Plotting
 
 `FitDiagnostics` can also produce pre- and post-fit plots the model in the same directory as `fitDiagnostics.root` along with the data. To get them, you have to specify the option `--plots`, and then *optionally specify* what are the names of the signal and background pdfs, e.g. `--signalPdfNames='ggH*,vbfH*'` and `--backgroundPdfNames='*DY*,*WW*,*Top*'` (by default, the definitions of signal and background are taken from the datacard). For models with more than 1 observable, a separate projection onto each observable will be produced. 
 
@@ -173,7 +172,7 @@ Uncertainties on the shapes will be added with the option `--saveWithUncertainti
 Additionally, the covariance matrix **between** bin yields (or yields/bin-widths) in each channel will also be saved as a `TH2F` named **total_covar**. If the covariance between *all bins* across *all channels* is desired, this can be added using the option `--saveOverallShapes`. Each folder will now contain additional distributions (and covariance matrices) corresponding to the concatenation of the bins in each channel (and therefore the covaraince between every bin in the analysis). The bin labels should make it clear as to which bin corresponds to which channel. 
 
 
-#### Toy-by-toy diagnostics
+### Toy-by-toy diagnostics
 
 `FitDiagnostics` can also be used to diagnose the fitting procedure in toy experiments to identify potentially problematic nuisance parameters when running the full limits/p-values. This can be done by adding the option `-t <num toys>`. The output file, `fitDiagnostics.root` the three `TTrees` will contain the value of the constraint fitted result in each toy, as a separate entry. It is recommended to use the following options when investigating toys to reduce the running time: `--toysFrequentist` `--noErrors` `--minos none`
 
@@ -188,10 +187,9 @@ plotParametersFomToys("fitDiagnosticsToys.root","fitDiagnosticsData.root","works
 The first argument is the name of the output file from running with toys, and the second and third (optional) arguments are the name of the file containing the result from a fit to the data and the workspace (created from `text2workspace.py`). The fourth argument can be used to specify a cut string applied to one of the branches in the tree which can be used to correlate strange behaviour with specific conditions. The output will be 2 pdf files (**`tree_fit_(s)b.pdf`**) and 2 root files  (**`tree_fit_(s)b.root`**) containing canvases of the fit results of the tool. For details on the output plots, consult [AN-2012/317](http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2012/317).
 
 
-
 ## Scaling constraints
 
-It possible to scale the **constraints** on the nuisance parameters when converting the datacard to a workspace (see the section on [physics models](/part2/physicsmodels#model-building)) with `text2workspace.py`. This can be useful for projection studies of the analysis to higher luminosities or with different assumptions about the sizes of certain systematics without changing the datacard by hand. 
+It possible to scale the **constraints** on the nuisance parameters when converting the datacard to a workspace (see the section on [physics models](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/)) with `text2workspace.py`. This can be useful for projection studies of the analysis to higher luminosities or with different assumptions about the sizes of certain systematics without changing the datacard by hand. 
 
 We consider two kinds of scaling;  
 
@@ -219,7 +217,7 @@ This factory syntax is quite flexible, but for our use case the typical format w
 !!! warning 
     We are playing a slight trick here with the `lumiscale` parameter. At the point at which `text2workspace.py` is building these scaling terms the `lumiscale` for the `rateParam` has not yet been created. By writing `lumiscale[1]` we are telling RooFit to create this variable with an initial value of 1, and then later this will be re-used by the `rateParam` creation. 
 
-A similar option, `--X-nuisance-group-function`, can be used to scale whole groups of nuisances (see [groups of nuisances](/part2/settinguptheanalysis#groups-of-nuisances)). Instead of a regular expression just give the group name instead, 
+A similar option, `--X-nuisance-group-function`, can be used to scale whole groups of nuisances (see [groups of nuisances](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/settinguptheanalysis/#groups-of-nuisances)). Instead of a regular expression just give the group name instead, 
 
     text2workspace.py datacard.txt --X-nuisance-group-function [group name] 'expr::lumisyst("1/sqrt(@0)",lumiscale[1])'
 
@@ -230,7 +228,7 @@ The impact of a nuisance parameter (NP) θ on a parameter of interest (POI) μ i
 
 This is effectively a measure of the correlation between the NP and the POI, and is useful for determining which NPs have the largest effect on the POI uncertainty.
 
-It is possible to use the `FitDiagnostics` method of combine with the option `--algo impact -P parameter` to calculate the impact of a particular nuisance parameter on the parameter(s) of interest. We will use the `combineTool.py` script to automate the fits (see the [`combineTool`](/part1/README#combine-tool) section to check out the tool.
+It is possible to use the `FitDiagnostics` method of combine with the option `--algo impact -P parameter` to calculate the impact of a particular nuisance parameter on the parameter(s) of interest. We will use the `combineTool.py` script to automate the fits (see the [`combineTool`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) section to check out the tool.
 
 We will use an example workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/htt/125/htt_tt.txt),
 
@@ -243,13 +241,13 @@ Calculating the impacts is done in a few stages. First we just fit for each POI,
 
     combineTool.py -M Impacts -d htt_tt.root -m 125 --doInitialFit --robustFit 1
    
-Have a look at the options as for [likelihood scans](/part3/commonstatsmethods.html#useful-options-for-likelihood-scans) when using `robustFit 1`.
+Have a look at the options as for [likelihood scans](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#useful-options-for-likelihood-scans) when using `robustFit 1`.
 
 Next we perform a similar scan for each nuisance parameter with the `--doFits` options,
 
     combineTool.py -M Impacts -d htt_tt.root -m 125 --robustFit 1 --doFits
     
-Note that this will run approximately 60 scans, and to speed things up the option `--parallel X` can be given to run X combine jobs simultaneously. The batch and grid submission methods described in the [combineTool for job submission](/part3/runningthetool#combinetool-for-job-submission) section can also be used.
+Note that this will run approximately 60 scans, and to speed things up the option `--parallel X` can be given to run X combine jobs simultaneously. The batch and grid submission methods described in the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section can also be used.
 
 Once all jobs are completed the output can be collected and written into a json file:
 
@@ -267,7 +265,7 @@ The first page of the output is shown below.
 The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it. 
 
 !!! warning 
-    The plot also shows the *best fit* value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using `--setPhysicsModelParameterRanges` or `--rMin`) to avoid getting one-sided impacts!
+    The plot also shows the *best fit* value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using `--setParameterRanges` or `--rMin`) to avoid getting one-sided impacts!
 
 This script also accepts an optional json-file argument with `-`t which can be used to provide a dictionary for renaming parameters. A simple example would be to create a file `rename.json`,
 
@@ -282,7 +280,7 @@ that will rename the POI label on the plot.
 !!! info 
     Since `combineTool` accepts the usual options for combine you can also generate the impacts on an Asimov or toy dataset. 
 
-The left panel in the summary plot shows the value of $(\theta-\theta_{0})/\Delta_{\theta}$ where $\theta$ and $\theta_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\theta}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **pre**-fit uncertainty divided by the **post**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. As with the `diffNuisances.py` script, use the option `--pullDef` are defined (eg to show the *pull* instead). 
+The left panel in the summary plot shows the value of $(\theta-\theta_{0})/\Delta_{\theta}$ where $\theta$ and $\theta_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\theta}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **post**-fit uncertainty divided by the **pre**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. As with the `diffNuisances.py` script, use the option `--pullDef` are defined (eg to show the *pull* instead). 
 
 ## Channel Masking 
 
@@ -319,105 +317,128 @@ Clearly the background shape is different and much less constrained *without inc
 
 Several analyses within the Higgs group use a functional form to describe their background which is fit to the data (eg the Higgs to two photons (Hgg) analysis). Often however, there is some uncertainty associated to the choice of which background function to use and this choice will impact results of a fit. It is therefore often the case that in these analyses, a Bias study is performed which will indicate how much potential bias can be present given a certain choice of functional form. These studies can be conducted using combine.
 
-Below is an example script which will produce a workspace based on a simplified Hgg analysis with a *single* category. You will need to get the file [data/tutorials/bias_studies/toyhgg_in.root](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/). 
+Below is an example script which will produce a workspace based on a simplified Hgg analysis with a *single* category. It will produce the data and pdfs necessary for this example (use it as a basis to cosntruct your own studies).
 
 
 ```c++
 void makeRooMultiPdfWorkspace(){
 
-   // Load the combine Library 
+   // Load the combine Library
    gSystem->Load("libHiggsAnalysisCombinedLimit.so");
 
-   // Open the dummy H->gg workspace 
-   TFile *f_hgg = TFile::Open("toyhgg_in.root");
-   RooWorkspace *w_hgg = (RooWorkspace*)f_hgg->Get("multipdf");
-
-   // The observable (CMS_hgg_mass in the workspace)
-   RooRealVar *mass =  w_hgg->var("CMS_hgg_mass");
-
-   // Get three of the functions inside, exponential, linear polynomial, power law
-   RooAbsPdf *pdf_exp = w_hgg->pdf("env_pdf_1_8TeV_exp1");
-   RooAbsPdf *pdf_pol = w_hgg->pdf("env_pdf_1_8TeV_bern2");
-   RooAbsPdf *pdf_pow = w_hgg->pdf("env_pdf_1_8TeV_pow1");
+   // mass variable
+   RooRealVar mass("CMS_hgg_mass","m_{#gamma#gamma}",120,100,180);
 
 
-   // Fit the functions to the data to set the "prefit" state (note this can and should be redone with combine when doing 
-   // bias studies as one typically throws toys from the "best-fit"
-   RooDataSet *data = (RooDataSet*)w_hgg->data("roohist_data_mass_cat1_toy1_cutrange__CMS_hgg_mass");
-   pdf_exp->fitTo(*data);  // index 0
-   pdf_pow->fitTo(*data); // index 1 
-   pdf_pol->fitTo(*data);   // index 2
+   // create 3 background pdfs
+   // 1. exponential
+   RooRealVar expo_1("expo_1","slope of exponential",-0.02,-0.1,-0.0001);
+   RooExponential exponential("exponential","exponential pdf",mass,expo_1);
+
+   // 2. polynomial with 2 parameters
+   RooRealVar poly_1("poly_1","T1 of chebychev polynomial",0,-3,3);
+   RooRealVar poly_2("poly_2","T2 of chebychev polynomial",0,-3,3);
+   RooChebychev polynomial("polynomial","polynomial pdf",mass,RooArgList(poly_1,poly_2));
+
+   // 3. A power law function
+   RooRealVar pow_1("pow_1","exponent of power law",-3,-6,-0.0001);
+   RooGenericPdf powerlaw("powerlaw","TMath::Power(@0,@1)",RooArgList(mass,pow_1));
+
+   // Generate some data (lets use the power lay function for it)
+   // Here we are using unbinned data, but binning the data is also fine
+   RooDataSet *data = powerlaw.generate(mass,RooFit::NumEvents(1000));
+
+   // First we fit the pdfs to the data (gives us a sensible starting value of parameters for, e.g - blind limits)
+   exponential.fitTo(*data);   // index 0
+   polynomial.fitTo(*data);   // index 1
+   powerlaw.fitTo(*data);     // index 2
 
    // Make a plot (data is a toy dataset)
-   RooPlot *plot = mass->frame();   data->plotOn(plot);
-   pdf_exp->plotOn(plot,RooFit::LineColor(kGreen));
-   pdf_pol->plotOn(plot,RooFit::LineColor(kBlue));
-   pdf_pow->plotOn(plot,RooFit::LineColor(kRed));
+   RooPlot *plot = mass.frame();   data->plotOn(plot);
+   exponential.plotOn(plot,RooFit::LineColor(kGreen));
+   polynomial.plotOn(plot,RooFit::LineColor(kBlue));
+   powerlaw.plotOn(plot,RooFit::LineColor(kRed));
    plot->SetTitle("PDF fits to toy data");
    plot->Draw();
 
    // Make a RooCategory object. This will control which of the pdfs is "active"
    RooCategory cat("pdf_index","Index of Pdf which is active");
 
-   // Make a RooMultiPdf object. The order of the pdfs will be the order of their index, ie for below 
+   // Make a RooMultiPdf object. The order of the pdfs will be the order of their index, ie for below
    // 0 == exponential
-   // 1 == linear function
+   // 1 == polynomial
    // 2 == powerlaw
    RooArgList mypdfs;
-   mypdfs.add(*pdf_exp);
-   mypdfs.add(*pdf_pol);
-   mypdfs.add(*pdf_pow);
-   
+   mypdfs.add(exponential);
+   mypdfs.add(polynomial);
+   mypdfs.add(powerlaw);
+
    RooMultiPdf multipdf("roomultipdf","All Pdfs",cat,mypdfs);
-   
+   // By default the multipdf will tell combine to add 0.5 to the nll for each parameter (this is the penalty for the discrete profiling method)
+   // It can be changed with
+   //   multipdf.setCorrectionFactor(penalty)
+   // For bias-studies, this isn;t relevant however, so lets just leave the default
+
    // As usual make an extended term for the background with _norm for freely floating yield
-   RooRealVar norm("roomultipdf_norm","Number of background events",0,10000);
-   
+   RooRealVar norm("roomultipdf_norm","Number of background events",1000,0,10000);
+
+   // We will also produce a signal model for the bias studies
+   RooRealVar sigma("sigma","sigma",1.2); sigma.setConstant(true);
+   RooRealVar MH("MH","MH",125); MH.setConstant(true);
+   RooGaussian signal("signal","signal",mass,MH,sigma);
+
+
    // Save to a new workspace
-   TFile *fout = new TFile("background_pdfs.root","RECREATE");
-   RooWorkspace wout("backgrounds","backgrounds");
+   TFile *fout = new TFile("workspace.root","RECREATE");
+   RooWorkspace wout("workspace","workspaace");
+
+   data->SetName("data");
+   wout.import(*data);
    wout.import(cat);
    wout.import(norm);
    wout.import(multipdf);
+   wout.import(signal);
    wout.Print();
    wout.Write();
-
 }
 ```
 
-
-The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the [RooMultiPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooMultiPdf.h) object which can switch between the functions by setting its associated index (herein called **pdf_index**). This (as with all parameters in combine) is accessible via the `--setPhysicsModelParameters` option.
+The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the [RooMultiPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooMultiPdf.h) object which can switch between the functions by setting its associated index (herein called **pdf_index**). This (as with all parameters in combine) is accessible via the `--setParameters` option.
 
 To asses the bias, one can throw toys using one function and fit with another. All of this only needs to use one datacard [hgg_toy_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/hgg_toy_datacard.txt)
  
 The bias studies are performed in two stages. The first is to generate toys using one of the functions under some value of the signal strength **r** (or $\mu$). This can be repeated for several values of **r** and also at different masses, but here the Higgs mass is fixed to 125 GeV. 
 
+```bash
+    combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index
+```
 !!! warning 
     It is important to freeze `pdf_index` otherwise combine will try to iterate over the index in the frequentist fit.
 
-    combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index
-    
 Now we have 100 toys which, by setting `pdf_index=0`, sets the background pdf to the exponential function i.e assumes the exponential is the *true* function. Note that the option `--toysFrequentist` is added. This first performs a fit of the pdf, assuming a signal strength of 1, to the data before generating the toys. This is the most obvious choice as to where to throw the toys from.
 
 The next step is to fit the toys under a different background pdf hypothesis. This time we set the `pdf_index` to be 1, the powerlaw and run fits with the `FitDiagnostics` method again freezing `pdf_index`. 
 
-!!! warning  
-    You may get warnings about non-accurate errors but these can be ignored and is related to the free parameters of the background pdfs which are not active.
+```bash
+    combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index --cminDefaultMinimizerStrategy=0
+```
+Note how we add the option `--cminDefaultMinimizerStrategy=0`. This is because we don't need the Hessian, as `FitDiagnostics` will  run minos to get the uncertainty on `r`. If we don't do this, Minuit will think the fit failed as we have parameters (those not attached to the current pdf) for which the likelihood is flat. 
 
-    combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index
-    
-In the output file `fitDiagnostics.root` there is a tree which contains the best fit results under the signal+background hypothesis. One measure of the bias is the *pull* defined as the difference between the measured value of $\mu$ and the generated value (here we used 1) relative to the uncertainty on $\mu$. The pull distribution can be drawn and the mean provides an estimate of the pull...
+!!! warning  
+    You may get warnings about non-accurate errors such as `[WARNING]: Unable to determine uncertainties on all fit parameters in b-only fit` - These can be ignored since they are related to the free parameters of the background pdfs which are not active.
+
+In the output file `fitDiagnostics.root` there is a tree which contains the best fit results under the signal+background hypothesis. One measure of the bias is the *pull* defined as the difference between the measured value of $\mu$ and the generated value (here we used 1) relative to the uncertainty on $\mu$. The pull distribution can be drawn and the mean provides an estimate of the pull. In this example, we are averaging the +ve and -ve errors, but we could do something smarter if the errors are very asymmetric. 
 
 ```c++
 root -l fitDiagnostics.root
-tree_fit_sb->Draw("(r-1)/rErr>>h(20,-4,4)")
+tree_fit_sb->Draw("(r-1)/(0.5*(rHiErr+rLoErr))>>h(20,-5,5)")
 h->Fit("gaus")
 ```
 
 ![](images/biasexample.png) 
 
 
-From the fitted Gaussian, we see the mean is at +0.30 which would indicate a bias of ~30% of the uncertainty on mu from choosing the powerlaw when the true function is an exponential.
+From the fitted Gaussian, we see the mean is at -1.35 which would indicate a bias of 135% of the uncertainty on mu from choosing the polynomial when the true function is an exponential!
 
 ### Discrete profiling 
 
@@ -442,10 +463,22 @@ and for the individual `pdf_index` set to `X`,
 
 for `X=0,1,2`
 
-The above output will produce the following scans. 
+You can then plot the value of `2*(deltaNLL+nll+nll0)` to plot the absolute value of (twice) the negative log-likelihood, including the correction term for extra parameters in the different pdfs. 
+
+The above output will produce the following scans.  
 ![](images/discrete_profile.png)
 
 As expected, the curve obtained by allowing the `pdf_index` to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength. 
+
+In general, you can improve the performance of combine, when using the disccrete profiling method, by including the following options `--X-rtd MINIMIZER_freezeDisassociatedParams`, which will stop parameters not associated to the current pdf from floating in the fits. Additionaly, you can also include the following 
+
+   * `--X-rtd MINIMIZER_multiMin_hideConstants`: hide the constant terms in the likelihood when recreating the minimizer
+   * `--X-rtd MINIMIZER_multiMin_maskConstraints`: hide the constraint terms during the discrete minimization process
+   * `--X-rtd MINIMIZER_multiMin_maskChannels=<choice>` mask in the NLL the channels that are not needed:
+      * `<choice> 1`: keeps unmasked all channels that are participating in the discrete minimization.
+      * `<choice> 2`: keeps unmasked only the channel whose index is being scanned at the moment.
+       
+You may want to check with the combine dev team if using these options as they are somewhat for *expert* use. 
 
 ## RooSplineND multidimensional splines
 
@@ -462,9 +495,9 @@ void splinend(){
    TTree *tree = new TTree("tree_vals","tree_vals");
    float xb,yb,fb;
 
-   tree->Branch("f",&fb,"f/Float_t");
-   tree->Branch("x",&xb,"x/Float_t");
-   tree->Branch("y",&yb,"y/Float_t");
+   tree->Branch("f",&fb,"f/F");
+   tree->Branch("x",&xb,"x/F");
+   tree->Branch("y",&yb,"y/F");
    
    TRandom3 *r = new TRandom3();
    int nentries = 20; // just use a regular grid of 20x20
@@ -530,8 +563,8 @@ void splinend(){
      for (double yy=xmin;yy<ymax;yy+=0.1){
         x.setVal(xx);
         y.setVal(yy);
-      gr->SetPoint(pt,xx,yy,spline.getVal());
-      pt++;
+        gr->SetPoint(pt,xx,yy,spline->getVal());
+        pt++;
      }
    }
 
@@ -577,13 +610,19 @@ void examplews(){
     RooWorkspace wspace("wspace","wspace");
 
     // A search in a MET tail, define MET as our variable
-    RooRealVar met("met","E_{T}^{miss}",200,1000);
+    double xmin=200.;
+    double xmax=1000.;
+
+    RooRealVar met("met","E_{T}^{miss}",200,xmin,xmax);
     RooArgList vars(met);
 
+    // better to create the bins rather than use the "nbins,min,max" to avoid spurious warning about adding bins with different 
+    // ranges in combine - see https://root-forum.cern.ch/t/attempt-to-divide-histograms-with-different-bin-limits/17624/3 for why!
+    double xbins[5] = {200.,400.,600.,800.,1000.};
     // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
     // Make a dataset, this will be just four bins in MET.
     // its easiest to make this from a histogram. Set the contents to "somehting"
-    TH1F data_th1("data_obs_SR","Data observed in signal region",4,200,1000);
+    TH1D data_th1("data_obs_SR","Data observed in signal region",4,xbins);
     data_th1.SetBinContent(1,100);
     data_th1.SetBinContent(2,50);
     data_th1.SetBinContent(3,25);
@@ -610,7 +649,7 @@ void examplews(){
     RooAddition p_bkg_norm("bkg_SR_norm","Total Number of events from background in signal region",bkg_SR_bins);
 
     // Every signal region needs a signal
-    TH1F signal_th1("signal_SR","Signal expected in signal region",4,200,1000);
+    TH1D signal_th1("signal_SR","Signal expected in signal region",4,xbins);
     signal_th1.SetBinContent(1,1);
     signal_th1.SetBinContent(2,2);
     signal_th1.SetBinContent(3,3);
@@ -620,7 +659,7 @@ void examplews(){
 
     // -------------------------------------------------------------------------------------------------------------//
     // ---------------------------- CONTROL REGION -----------------------------------------------------------------//
-    TH1F data_CRth1("data_obs_CR","Data observed in control region",4,200,1000);
+    TH1D data_CRth1("data_obs_CR","Data observed in control region",4,xbins);
     data_CRth1.SetBinContent(1,200);
     data_CRth1.SetBinContent(2,100);
     data_CRth1.SetBinContent(3,50);
@@ -678,6 +717,7 @@ void examplews(){
     // Clean up
     fOut->Close();
     fOut->Delete();
+
 
 }
 ```

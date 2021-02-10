@@ -1,0 +1,10 @@
+image: gitlab-registry.cern.ch/ci-tools/ci-worker:cc7
+
+stages:
+    - deploy
+
+ci:
+    stage: deploy
+    #trigger: cms-hcg/performances/ci
+    script:
+        curl --request POST --form "variables[COMBINE_REF]=$CI_COMMIT_REF_NAME" --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.cern.ch/api/v4/projects/cms-hcg%2Fperformances%2Fci/trigger/pipeline

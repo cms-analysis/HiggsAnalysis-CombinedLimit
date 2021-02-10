@@ -30,12 +30,12 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a reccomended tag - currently the reccomended tag is **v8.0.1**:
+Update to a reccomended tag - currently the reccomended tag is **v8.1.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.1.0)
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v8.0.1
+git checkout v8.1.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
@@ -45,9 +45,9 @@ Setting up the environment (once):
 
 ```sh
 # For CC7:
-export SCRAM_ARCH=slc7_64_gcc530
+export SCRAM_ARCH=slc7_amd64_gcc530
 # For SLC6:
-export SCRAM_ARCH=slc6_64_gcc530
+export SCRAM_ARCH=slc6_amd64_gcc530
 
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
@@ -64,6 +64,22 @@ git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
+## Standalone version 
+
+The standalone version can be easily compiled using the \verb@cvmfs@ as it relies on dependencies which are already installed at [/cvmfs/cms.cern.ch/](/cvmfs/cms.cern.ch/). 
+
+Access to `/cvmfs/cms.cern.ch/` can be obtained from lxplus machines or via `CernVM`, by adding the `CMS` group to the CVMFS Configuration. A minimal `CernVM` working context setup can be found in the CernVM Marketplace under `Experimental/HiggsCombine` or at [https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). At least 2GB of disk space should be reserved on the virtual machine for Combine to work properly. In case you do not want to use the `cvmfs` area, you will need to adapt the location of the dependencies listed in both the `Makefile` and `env_standalone.sh` files.
+
+```
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit/ 
+git fetch origin
+git checkout v8.1.0
+. env_standalone.sh
+make
+```
+
+You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login.
 
 ## What has changed between tags? 
 

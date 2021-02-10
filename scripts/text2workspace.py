@@ -20,6 +20,7 @@ addDatacardParserOptions(parser)
 parser.add_option("-P", "--physics-model", dest="physModel", default="HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel",  type="string", help="Physics model to use. It should be in the form (module name):(object name)")
 parser.add_option("--PO", "--physics-option", dest="physOpt", default=[],  type="string", action="append", help="Pass a given option to the physics model (can specify multiple times)")
 parser.add_option("", "--dump-datacard", dest="dumpCard", default=False, action='store_true',  help="Print to screen the DataCard as a python config and exit")
+parser.add_option("--just-check-physics-model", dest="justCheckPhysicsModel", default=False, action='store_true',  help="Just check if the physics model is ok, without building the workspace.")
 (options, args) = parser.parse_args()
 
 if len(args) == 0:
@@ -59,4 +60,4 @@ if physics == None or not isinstance(physics, PhysicsModelBase):
 physics.setPhysicsOptions(options.physOpt)
 ## Attach to the tools, and run
 MB.setPhysics(physics)
-MB.doModel()
+MB.doModel(justCheckPhysicsModel=options.justCheckPhysicsModel)

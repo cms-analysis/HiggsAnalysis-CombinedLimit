@@ -21,7 +21,7 @@ The last two settings are optional. The first of these, `include-signal` has a d
 
 When `threshold` is set to a number of effective unweighted events greater than or equal to zero, denoted $n^{\text{threshold}}$, the following algorithm is applied to each bin:
 
- 1. Sum the yields $n_{i}$ and uncertainities $e_{i}$ of each background process $i$ in the bin. Note that the $n_i$ and $e_i$ include the nominal effect of any scaling parameters that have been set in the datacard, for example [`rateParams`](/part2/settinguptheanalysis#rate-parameters).
+ 1. Sum the yields $n_{i}$ and uncertainities $e_{i}$ of each background process $i$ in the bin. Note that the $n_i$ and $e_i$ include the nominal effect of any scaling parameters that have been set in the datacard, for example [`rateParams`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/settinguptheanalysis/#rate-parameters).
 $n_{\text{tot}} = \sum_{i\,\in\,\text{bkg}}n_i$, $e_{\text{tot}} = \sqrt{\sum_{i\,\in\,\text{bkg}}e_i^{2}}$
  2. If $e_{\text{tot}} = 0$, the bin is skipped and no parameters are created. (Though you might want to check why there is no uncertainty on the background prediction in this bin!)
  3. The effective number of unweighted events is defined as $n_{\text{tot}}^{\text{eff}} = n_{\text{tot}}^{2} / e_{\text{tot}}^{2}$, rounded to the nearest integer.

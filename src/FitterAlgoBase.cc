@@ -12,6 +12,7 @@
 #include "RooProdPdf.h"
 #include "RooGaussian.h"
 #include "RooConstVar.h"
+#include "RooCategory.h"
 #include "RooPlot.h"
 //#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
 #include "RooMinimizer.h"
@@ -122,6 +123,12 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   //Significance::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
   CloseCoutSentry sentry(verbose < 0);
 
+  static bool setParams = runtimedef::get("SETPARAMETERS_AFTER_NLL");
+  if (setParams && allParameters_.getSize() == 0) {
+      allParameters_.add(w->allVars());
+      allParameters_.add(w->allCats());
+  }
+
   static bool shouldCreateNLLBranch = saveNLL_;
   if (shouldCreateNLLBranch) { Combine::addBranch("nll", &nllValue_, "nll/D"); Combine::addBranch("nll0", &nll0Value_, "nll0/D"); shouldCreateNLLBranch = false; }
 
@@ -217,6 +224,13 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     }
    
     double nll0 = nll->getVal();
+    if (runtimedef::get("SETPARAMETERS_AFTER_NLL")) {
+        utils::setModelParameters(setPhysicsModelParameterExpression_, allParameters_);
+        if (verbose >= 3) {
+            double nll_new = nll->getVal();
+            std::cout << "DELTA NLL FROM SETPARAMETERS = " << nll_new - nll0 << std::endl;
+        }
+    }
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
     double delta95 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.95,ndim);
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, rs.getSize() ? dynamic_cast<RooRealVar*>(rs.first()) : 0);
@@ -234,6 +248,17 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     }
     nll0Value_ =  nll0;
     nllValue_ =  nll->getVal() - nll0;
+    if (verbose >= 3) {
+        printf("FINAL NLL - NLL0 VALUE = %.10g\n", nllValue_);
+        if (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0) {
+            printf("FINAL CATEGORIES: ");
+            for (unsigned int ic = 0, nc = CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize(); ic != nc; ++ic) {
+                const RooCategory *cat = (RooCategory*)(CascadeMinimizerGlobalConfigs::O().pdfCategories.at(ic));
+                printf("%s%s=%d", (ic > 0 ? "," : ""), cat->GetName(), cat->getIndex());
+            }
+            printf("\n");
+        }
+    }
     if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
     if (doHesse) minim.hesse();
     sentry.clear();

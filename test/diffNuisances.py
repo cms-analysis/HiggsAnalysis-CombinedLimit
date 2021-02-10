@@ -36,6 +36,7 @@ parser.add_option("-g", "--histogram", dest="plotfile", default=None, type="stri
 parser.add_option("", "--pullDef",  dest="pullDef", default="", type="string", help="Choose the definition of the pull, see python/calculate_pulls.py for options")
 parser.add_option("", "--skipFitS", dest="skipFitS", default=False, action='store_true', help="skip the S+B fit, instead the B-only fit will be repeated")
 parser.add_option("", "--skipFitB", dest="skipFitB", default=False, action='store_true', help="skip the B-only fit, instead the S+B fit will be repeated")
+parser.add_option("", "--sortBy", dest="sortBy", default="correlation", type='string', help="choose 'correlation' or 'impact' to sort rows by correlation with or impact on --poi (largest to smallest absolute)")
 
 (options, args) = parser.parse_args()
 if len(args) == 0:
@@ -49,6 +50,8 @@ if options.pullDef and options.absolute_values :
   options.absolute_values = False 
 
 if options.pullDef : options.show_all_parameters=True
+
+if options.sortBy not in ['correlation','impact']: exit("choose one of [ %s ] for --sortBy"%(",".join()['correlation','impact']))
 
 setUpString = "diffNuisances run on %s, at %s with the following options ... "%(args[0],datetime.datetime.utcnow())+str(options)
 
@@ -97,7 +100,7 @@ hist_prefit = ROOT.TH1F("prefit_nuisancs","Prefit Nuisances    ;;%s "%title,pref
 gr_fit_b    = ROOT.TGraphAsymmErrors(); gr_fit_b.SetTitle("fit_b_g")
 gr_fit_s    = ROOT.TGraphAsymmErrors(); gr_fit_s.SetTitle("fit_b_s")
 
-
+error_poi = fpf_s.find(options.poi).getError()
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
 
@@ -233,6 +236,7 @@ for i in range(fpf_s.getSize()):
     # end of loop over s and b
 
     row += [ "%+4.2f"  % fit_s.correlation(name, options.poi) ]
+    row += [ "%+4.3f"  % (nuis_x.getError()*fit_s.correlation(name, options.poi)*error_poi) ]
     if flag or options.show_all_parameters: table[name] = row
 
 #end of loop over all fitted parameters
@@ -245,7 +249,7 @@ for i in range(fpf_s.getSize()):
 print setUpString
 print 
 
-fmtstring = "%-40s     %15s    %15s  %10s"
+fmtstring = "%-40s     %15s    %15s  %10s  %10s"
 highlight = "*%s*"
 morelight = "!%s!"
 pmsub, sigsub = None, None
@@ -253,13 +257,13 @@ if options.format == 'text':
     if options.skipFitS: print " option '--skipFitS' set true. s+b Fit is just a copy of the b-only fit"
     if options.skipFitB: print " option '--skipFitB' set true. b-only Fit is just a copy of the s+b fit"
     if options.pullDef:
-        fmtstring = "%-40s       %30s    %30s  %10s"
-        print fmtstring % ('name',  'b-only fit pull', 's+b fit pull', 'rho')
+        fmtstring = "%-40s       %30s    %30s  %10s  %10s"
+        print fmtstring % ('name',  'b-only fit pull', 's+b fit pull', 'rho', 'approx impact')
     elif options.absolute_values:
-        fmtstring = "%-40s     %15s    %30s    %30s  %10s"
-        print fmtstring % ('name', 'pre fit', 'b-only fit', 's+b fit', 'rho')
+        fmtstring = "%-40s     %15s    %30s    %30s  %10s  %10s"
+        print fmtstring % ('name', 'pre fit', 'b-only fit', 's+b fit', 'rho', 'approx impact')
     else:
-        print fmtstring % ('name', 'b-only fit', 's+b fit', 'rho')
+        print fmtstring % ('name', 'b-only fit', 's+b fit', 'rho', 'approx impact')
 elif options.format == 'latex':
     pmsub  = (r"(\S+) \+/- (\S+)", r"$\1 \\pm \2$")
     sigsub = ("sig", r"$\\sigma$")
@@ -268,20 +272,20 @@ elif options.format == 'latex':
     if options.skipFitS: print " option '--skipFitS' set true. $s+b$ Fit is just a copy of the $b$-only fit"
     if options.skipFitB: print " option '--skipFitB' set true. $b$-only Fit is just a copy of the $s+b$ fit"
     if options.pullDef:
-        fmtstring = "%-40s & %30s & %30s & %6s \\\\"
-        print "\\begin{tabular}{|l|r|r|r|} \\hline ";
-        print (fmtstring % ('name', '$b$-only fit pull', '$s+b$ fit pull', r'$\rho(\theta, \mu)$')), " \\hline"
-    elif options.absolute_values:
-        fmtstring = "%-40s &  %15s & %30s & %30s & %6s \\\\"
+        fmtstring = "%-40s & %30s & %30s & %6s & %6s  \\\\"
         print "\\begin{tabular}{|l|r|r|r|r|} \\hline ";
-        print (fmtstring % ('name', 'pre fit', '$b$-only fit', '$s+b$ fit', r'$\rho(\theta, \mu)$')), " \\hline"
+        print (fmtstring % ('name', '$b$-only fit pull', '$s+b$ fit pull', r'$\rho(\theta, \mu)$', r'I(\theta, \mu)')), " \\hline"
+    elif options.absolute_values:
+        fmtstring = "%-40s &  %15s & %30s & %30s & %6s & %6s \\\\"
+        print "\\begin{tabular}{|l|r|r|r|r|r|} \\hline ";
+        print (fmtstring % ('name', 'pre fit', '$b$-only fit', '$s+b$ fit', r'$\rho(\theta, \mu)$', r'I(\theta, \mu)')), " \\hline"
     else:
-        fmtstring = "%-40s &  %15s & %15s & %6s \\\\"
-        print "\\begin{tabular}{|l|r|r|r|} \\hline ";
+        fmtstring = "%-40s &  %15s & %15s & %6s & %6s \\\\"
+        print "\\begin{tabular}{|l|r|r|r|r|} \\hline ";
         #what = r"$(x_\text{out} - x_\text{in})/\sigma_{\text{in}}$, $\sigma_{\text{out}}/\sigma_{\text{in}}$"
         what = r"\Delta x/\sigma_{\text{in}}$, $\sigma_{\text{out}}/\sigma_{\text{in}}$"
-        print  fmtstring % ('',     '$b$-only fit', '$s+b$ fit', '')
-        print (fmtstring % ('name', what, what, r'$\rho(\theta, \mu)$')), " \\hline"
+        print  fmtstring % ('',     '$b$-only fit', '$s+b$ fit', '', '')
+        print (fmtstring % ('name', what, what, r'$\rho(\theta, \mu)$', r'I(\theta, \mu)')), " \\hline"
 elif options.format == 'twiki':
     pmsub  = (r"(\S+) \+/- (\S+)", r"\1 &plusmn; \2")
     sigsub = ("sig", r"&sigma;")
@@ -290,14 +294,14 @@ elif options.format == 'twiki':
     if options.skipFitS: print " option '--skipFitS' set true. $s+b$ Fit is just a copy of the $b$-only fit"
     if options.skipFitB: print " option '--skipFitB' set true. $b$-only Fit is just a copy of the $s+b$ fit"
     if options.pullDef:
-        fmtstring = "| <verbatim>%-40s</verbatim>  | %-30s  | %-30s   | %-15s  |"
-        print "| *name* | *b-only fit pull* | *s+b fit pull* | "
+        fmtstring = "| <verbatim>%-40s</verbatim>  | %-30s  | %-30s   | %-15s  | %-15s  | %-15s  |"
+        print "| *name* | *b-only fit pull* | *s+b fit pull* | *corr.* | *approx. impact* |"
     elif options.absolute_values:
-        fmtstring = "| <verbatim>%-40s</verbatim>  | %-15s  | %-30s  | %-30s   | %-15s  |"
-        print "| *name* | *pre fit* | *b-only fit* | *s+b fit* | "
+        fmtstring = "| <verbatim>%-40s</verbatim>  | %-15s  | %-30s  | %-30s   | %-15s  | %-15s  |"
+        print "| *name* | *pre fit* | *b-only fit* | *s+b fit* | *corr.* | *approx. impact* |"
     else:
-        fmtstring = "| <verbatim>%-40s</verbatim>  | %-15s  | %-15s | %-15s  |"
-        print "| *name* | *b-only fit* | *s+b fit* | *corr.* |"
+        fmtstring = "| <verbatim>%-40s</verbatim>  | %-15s  | %-15s | %-15s  | %-15s  |"
+        print "| *name* | *b-only fit* | *s+b fit* | *corr.* | *approx. impact* |"
 elif options.format == 'html':
     pmsub  = (r"(\S+) \+/- (\S+)", r"\1 &plusmn; \2")
     sigsub = ("sig", r"&sigma;")
@@ -314,18 +318,25 @@ elif options.format == 'html':
 <table>
 """
     if options.pullDef:
-        print "<tr><th>nuisance</th><th>background fit pull </th><th>signal fit pull</th><th>correlation</th></tr>"
-        fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-30s </td><td> %-30s </td><td> %-15s </td></tr>"
+        print "<tr><th>nuisance</th><th>background fit pull </th><th>signal fit pull</th><th>&rho;(&mu;, &theta;)</th><th>I(&mu;, &theta;)</th></tr>"
+        fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-30s </td><td> %-30s </td><td> %-15s </td><td> %-15s </td></tr>"
     elif options.absolute_values:
         print "<tr><th>nuisance</th><th>pre fit</th><th>background fit </th><th>signal fit</th><th>correlation</th></tr>"
-        fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-30s </td><td> %-30s </td><td> %-15s </td></tr>"
+        fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-30s </td><td> %-30s </td><td> %-15s </td><td> %-15s </td></tr>"
     else:
         what = "&Delta;x/&sigma;<sub>in</sub>, &sigma;<sub>out</sub>/&sigma;<sub>in</sub>";
-        print "<tr><th>nuisance</th><th>background fit<br/>%s </th><th>signal fit<br/>%s</th><th>&rho;(&mu;, &theta;)</tr>" % (what,what)
-        fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-15s </td><td> %-15s </td></tr>"
+        print "<tr><th>nuisance</th><th>background fit<br/>%s </th><th>signal fit<br/>%s</th><th>&rho;(&mu;, &theta;)<th>I(&mu;, &theta;)</th></tr>" % (what,what)
+        fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-15s </td><td> %-15s </td><td> %-15s </td></tr>"
 
 names = table.keys()
 names.sort()
+if options.sortBy == "correlation":
+    names = [[abs(float(table[t][-2])),t] for t in table.keys()]
+    names.sort(); names.reverse(); names=[n[1] for n in names]
+elif options.sortBy == "impact": 
+    names = [[abs(float(table[t][-1])),t] for t in table.keys()]
+    names.sort(); names.reverse(); names=[n[1] for n in names]
+
 highlighters = { 1:highlight, 2:morelight };
 for n in names:
     v = table[n]
@@ -335,9 +346,9 @@ for n in names:
     if (n,'s') in isFlagged: v[-2] = highlighters[isFlagged[(n,'s')]] % v[-2]
     if options.format == "latex": n = n.replace(r"_", r"\_")
     if options.absolute_values:
-       print fmtstring % (n, v[0], v[1], v[2], v[3])
+       print fmtstring % (n, v[0], v[1], v[2], v[3],v[4])
     else:
-       print fmtstring % (n, v[0], v[1], v[2])
+       print fmtstring % (n, v[0], v[1], v[2],v[3])
 
 if options.format == "latex":
     print " \\hline\n\end{tabular}"
@@ -378,7 +389,7 @@ if options.plotfile:
     gr_fit_b.SetLineWidth(2)
     gr_fit_s.SetLineWidth(2)
     hist_prefit.SetLineWidth(2)
-    hist_prefit.SetTitle("Nuisance Paramaeters")
+    hist_prefit.SetTitle("Nuisance Parameters")
     hist_prefit.SetLineColor(ROOT.kBlack)
     hist_prefit.SetFillColor(ROOT.kGray)
     hist_prefit.SetMaximum(3)
@@ -400,6 +411,7 @@ if options.plotfile:
     fout.WriteTObject(canvas_nuis)
     canvas_pferrs = ROOT.TCanvas("post_fit_errs", "post_fit_errs", 900, 600)
     for b in range(1,hist_fit_e_s.GetNbinsX()+1): 
+      if hist_prefit.GetBinError(b) < 0.000001: continue 
       hist_fit_e_s.SetBinContent(b,hist_fit_s.GetBinError(b)/hist_prefit.GetBinError(b))
       hist_fit_e_b.SetBinContent(b,hist_fit_b.GetBinError(b)/hist_prefit.GetBinError(b))
       hist_fit_e_s.SetBinError(b,0)

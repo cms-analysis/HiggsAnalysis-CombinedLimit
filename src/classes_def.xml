@@ -31,6 +31,9 @@
 	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>::const_iterator" />
 	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>>::const_iterator" />
 
+	<class name="std::map<int, std::vector<double>>"/>
+	<class name="std::map<int, std::pair<double,double>>"/>
+
 	<class name="AsymPow" />
 	<class name="AsymQuad" />
 
@@ -191,6 +194,7 @@
 	<class name="SimpleCacheSentry" />
 	<class name="SimpleGaussianConstraint" />
 	<class name="SimplePoissonConstraint" />
+	<class name="SimpleConstraintGroup" transient="true" />
 	<class name="TH1Keys" />
 	<class name="Triangle" />
 	<class name="VerticalInterpHistPdf" />
@@ -203,6 +207,7 @@
   <class name="CMSHistFunc" />
   <class name="CMSHistErrorPropagator" />
   <class name="CMSHistFuncWrapper" />
+  <class name="SimpleTaylorExpansion1D" />
   <class name="RooTaylorExpansion" />
 	<class name="RooDoubleCBFast" />
 	<class name="CombDataSetFactory"  transient="true" />

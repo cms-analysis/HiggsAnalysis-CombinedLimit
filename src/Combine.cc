@@ -16,6 +16,7 @@
 
 #include <TCanvas.h>
 #include <TFile.h>
+#include <TFileCacheRead.h>
 #include <TGraphErrors.h>
 #include <TIterator.h>
 #include <TLine.h>
@@ -107,7 +108,7 @@ Combine::Combine() :
       ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
       ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength (default is 0)")
       ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength (default is 20)")
-      ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
+      ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)', or a custom expression that uses @0 as the parameter of interest")
       ("significance", "Compute significance instead of upper limit (works only for some methods)")
       ("lowerLimit",   "Compute the lower limit instead of the upper limit (works only for some methods)")
       ("hintStatOnly", "Ignore systematics when computing the hint")
@@ -205,6 +206,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   if (vm.count("keyword-value") ) {
     modelPoints_ = vm["keyword-value"].as<std::vector<std::string> >();
   }
+
+  makeToyGenSnapshot_ = (method == "FitDiagnostics" && !vm.count("justFit"));
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -304,6 +307,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     garbageCollect.tfile = fIn; // request that we close this file when done
 
     w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
+
+    if (fIn->GetCacheRead()) {
+      fIn->GetCacheRead()->Close();
+    }
+
     if (w == 0) {  
         std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
         throw std::invalid_argument("Missing Workspace"); 
@@ -339,6 +347,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         w->import(*optpdf);
         mc->SetPdf(*optpdf);
     }
+    if (expectSignalSet_ && POI->getSize() > 1 ) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest and you have set --expectSignal=" << expectSignal_ << ", which combine will likely interpret incorrectly. You should use --setParameters instead of --expectSignal." << std::endl;
     if (mc_bonly == 0 && !noMCbonly_) {
         std::cerr << "Missing background ModelConfig '" << modelConfigNameB_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
         RooCustomizer make_model_s(*mc->GetPdf(),"_model_bonly_");
@@ -407,7 +416,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     //*********************************************
     //set physics model parameters    after loading the snapshot
     //*********************************************
-    if (setPhysicsModelParameterExpression_ != "") {
+    if (setPhysicsModelParameterExpression_ != "" && !runtimedef::get("SETPARAMETERS_AFTER_NLL")) {
       RooArgSet allParams(w->allVars());
       //if (w->genobj("discreteParams")) allParams.add(*(RooArgSet*)w->genobj("discreteParams"));
       allParams.add(w->allCats());
@@ -656,7 +665,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           boost::split(nuisToFreeze, freezeNuisances_, boost::is_any_of(","), boost::token_compress_on);
           for (int k=0; k<(int)nuisToFreeze.size(); k++) {
               if (nuisToFreeze[k]=="") continue;
-              if (!w->fundArg(nuisToFreeze[k].c_str())) {
+              else if(nuisToFreeze[k]=="allConstrainedNuisances") {
+                  toFreeze.add(*nuisances);
+                  continue;
+              }
+              else if (!w->fundArg(nuisToFreeze[k].c_str())) {
                   std::cout<<"WARNING: cannot freeze nuisance parameter "<<nuisToFreeze[k].c_str()<<" if it doesn't exist!"<<std::endl;
                   continue;
               }
@@ -750,6 +763,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       } else if (prior_ == "1/sqrt(r)") {
           std::cout << "Will use prior 1/sqrt(" << POI->first()->GetName() << std::endl;
           TString priorExpr = TString::Format("EXPR::prior(\"1/sqrt(@0)\",%s)", POI->first()->GetName());
+          w->factory(priorExpr.Data());
+          mc->SetPriorPdf(*w->pdf("prior"));
+      } else if (prior_.find("@0") != std::string::npos) {
+          std::cout << "Will use prior: " << prior_ << std::endl;
+          std::string passInfo = "EXPR::prior(\"" + prior_ +"\",%s)";
+          TString priorExpr = TString::Format(passInfo.c_str(), POI->first()->GetName());
           w->factory(priorExpr.Data());
           mc->SetPriorPdf(*w->pdf("prior"));
       } else if (!prior_.empty() && w->pdf(prior_.c_str()) != 0) {
@@ -856,7 +875,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   RooRealVar *MH = w->var("MH");
   RooAbsData *dobs = w->data(dataset.c_str());
   // Generate with signal model if r or other physics model parameters are defined
-  RooAbsPdf  *genPdf = (expectSignal_ > 0 || setPhysicsModelParameterExpression_ != "" || !mc_bonly) ? mc->GetPdf() : (mc_bonly ? mc_bonly->GetPdf() : 0); 
+  RooAbsPdf  *genPdf = (expectSignalSet_ || setPhysicsModelParameterExpression_ != "" || !mc_bonly) ? mc->GetPdf() : (mc_bonly ? mc_bonly->GetPdf() : 0); 
   RooRealVar *weightVar_ = 0; // will be needed for toy generation in some cases
   if (guessGenMode_ && genPdf && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
@@ -911,13 +930,22 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     CMSHistFunc::EnableFastVertical();
   }
 
-
+  // Warn the user that they might be using funky values of POIs 
+  if (!expectSignalSet_ && setPhysicsModelParameterExpression_ == "" && !(POI->getSize()==1 && POI->find("r"))) {
+	  std::cerr << "Warning! -- You haven't picked default values for the Parameters of Interest (either with --expectSignal or --setParameters) for generating toys. Combine will use the 'B-only' ModelConfig to generate, which may lead to undesired behaviour if not using the default Physics Model" << std::endl;	  
+  }	
   // Ok now we're ready to go lets save a "clean snapshot" for the current parameters state
   // w->allVars() misses the RooCategories, useful for some things - so need to include them. Set up a utils function for that 
-  w->saveSnapshot("clean", utils::returnAllVars(w));
+  if (nToys <= 0 && runtimedef::get("NO_INITIAL_SNAP")) {
+      if (verbose >= 3) std::cout << "Skipping snapshot" << std::endl;
+  } else {
+      if (verbose >= 3) std::cout << "Saving snapshot 'clean'" << std::endl;
+      w->saveSnapshot("clean", utils::returnAllVars(w));
+      if (verbose >= 3) std::cout << "Saved snapshot 'clean'" << std::endl;
+  }
   
   if (nToys <= 0) { // observed or asimov
-    w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
+    if (makeToyGenSnapshot_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
     iToy = nToys;
     if (iToy == -1) {
      if (readToysFromHere != 0){
@@ -1099,9 +1127,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         }
       }
       if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
-      if (!toysFrequentist_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
+      if (!toysFrequentist_ && makeToyGenSnapshot_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
       w->loadSnapshot("clean");
-      if (toysFrequentist_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
+      if (toysFrequentist_ && makeToyGenSnapshot_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
 	commitPoint(0,g_quantileExpected_);//tree->Fill();
