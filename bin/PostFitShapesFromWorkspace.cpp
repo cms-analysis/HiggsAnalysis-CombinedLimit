@@ -36,6 +36,7 @@ int main(int argc, char* argv[]) {
   string mass       = "";
   bool postfit      = false;
   bool sampling     = false;
+  bool no_sampling  = false;
   string output     = "";
   bool factors      = false;
   unsigned samples  = 500;
@@ -77,7 +78,10 @@ int main(int argc, char* argv[]) {
       "Create post-fit histograms in addition to pre-fit")
     ("sampling",
       po::value<bool>(&sampling)->default_value(sampling)->implicit_value(true),
-      "Use the cov. matrix sampling method for the post-fit uncertainty")
+      "Use the cov. matrix sampling method for the post-fit uncertainty (deprecated, this is the default)")
+    ("no-sampling",
+      po::value<bool>(&no_sampling)->default_value(no_sampling)->implicit_value(true),
+      "Do not use the cov. matrix sampling method for the post-fit uncertainty")
     ("samples",
       po::value<unsigned>(&samples)->default_value(samples),
       "Number of samples to make in each evaluate call")
@@ -101,10 +105,6 @@ int main(int argc, char* argv[]) {
       "Save signal- and background shapes added for all channels/categories")
     ("reverse-bins", po::value<vector<string>>(&reverse_bins_)->multitoken(), "List of bins to reverse the order for");
 
-  if (sampling && !postfit) {
-    throw logic_error(
-        "Can't sample the fit covariance matrix for pre-fit!");
-  }
 
   po::variables_map vm;
 
@@ -116,13 +116,17 @@ int main(int argc, char* argv[]) {
   if (vm.count("help")) {
     cout << config << "\nExample usage:\n";
     cout << "PostFitShapesFromWorkspace.root -d htt_mt_125.txt -w htt_mt_125.root -o htt_mt_125_shapes.root -m 125 "
-            "-f mlfit.root:fit_s --postfit --sampling --print\n";
+            "-f mlfit.root:fit_s --postfit --print\n";
     return 1;
   }
 
   // Parse the main config options
   po::store(po::command_line_parser(argc, argv).options(config).run(), vm);
   po::notify(vm);
+
+  if (sampling) {
+    std::cout<<"WARNING: the default behaviour of PostFitShapesFromWorkspace is to use the covariance matrix sampling method for the post-fit uncertainty. The option --sampling is deprecated and will be removed in future versions of CombineHarvester"<<std::endl;
+  }
 
   TFile infile(workspace.c_str());
 
@@ -315,16 +319,16 @@ int main(int argc, char* argv[]) {
       auto cmb_sigs = cmb.cp().signals();
       std::cout << ">> Doing postfit: TotalBkg" << std::endl;
       post_shapes_tot["TotalBkg"] =
-          sampling ? cmb_bkgs.GetShapeWithUncertainty(res, samples)
-                   : cmb_bkgs.GetShapeWithUncertainty();
+          no_sampling ? cmb_bkgs.GetShapeWithUncertainty()
+                   : cmb_bkgs.GetShapeWithUncertainty(res, samples);
       std::cout << ">> Doing postfit: TotalSig" << std::endl;
       post_shapes_tot["TotalSig"] =
-          sampling ? cmb_sigs.GetShapeWithUncertainty(res, samples)
-                   : cmb_sigs.GetShapeWithUncertainty();
+          no_sampling ? cmb_sigs.GetShapeWithUncertainty()
+                   : cmb_sigs.GetShapeWithUncertainty(res, samples);
       std::cout << ">> Doing postfit: TotalProcs" << std::endl;
       post_shapes_tot["TotalProcs"] =
-          sampling ? cmb.cp().GetShapeWithUncertainty(res, samples)
-                   : cmb.cp().GetShapeWithUncertainty();
+          no_sampling ? cmb.cp().GetShapeWithUncertainty()
+                   : cmb.cp().GetShapeWithUncertainty(res, samples);
 
       if (datacard != "") {
         TH1F ref = cmb_card.cp().GetObservedShape();
@@ -354,11 +358,11 @@ int main(int argc, char* argv[]) {
           post_shapes[bin][proc] = cmb_proc.GetShape();
         } else {
           post_shapes[bin][proc] =
-              sampling ? cmb_proc.GetShapeWithUncertainty(res, samples)
-                       : cmb_proc.GetShapeWithUncertainty();
+              no_sampling ? cmb_proc.GetShapeWithUncertainty()
+                       : cmb_proc.GetShapeWithUncertainty(res, samples);
         }
       }
-      if (sampling && covariance) {
+      if (!no_sampling && covariance) {
         post_yield_cov[bin] = cmb_bin.GetRateCovariance(res, samples);
         post_yield_cor[bin] = cmb_bin.GetRateCorrelation(res, samples);
       }
@@ -367,16 +371,16 @@ int main(int argc, char* argv[]) {
       auto cmb_sigs = cmb_bin.cp().signals();
       std::cout << ">> Doing postfit: " << bin << "," << "TotalBkg" << std::endl;
       post_shapes[bin]["TotalBkg"] =
-          sampling ? cmb_bkgs.GetShapeWithUncertainty(res, samples)
-                   : cmb_bkgs.GetShapeWithUncertainty();
+          no_sampling ? cmb_bkgs.GetShapeWithUncertainty()
+                   : cmb_bkgs.GetShapeWithUncertainty(res, samples);
       std::cout << ">> Doing postfit: " << bin << "," << "TotalSig" << std::endl;
       post_shapes[bin]["TotalSig"] =
-          sampling ? cmb_sigs.GetShapeWithUncertainty(res, samples)
-                   : cmb_sigs.GetShapeWithUncertainty();
+          no_sampling ? cmb_sigs.GetShapeWithUncertainty()
+                   : cmb_sigs.GetShapeWithUncertainty(res, samples);
       std::cout << ">> Doing postfit: " << bin << "," << "TotalProcs" << std::endl;
       post_shapes[bin]["TotalProcs"] =
-          sampling ? cmb_bin.cp().GetShapeWithUncertainty(res, samples)
-                   : cmb_bin.cp().GetShapeWithUncertainty();
+          no_sampling ? cmb_bin.cp().GetShapeWithUncertainty()
+                   : cmb_bin.cp().GetShapeWithUncertainty(res, samples);
 
       if (datacard != "") {
         TH1F ref = cmb_card.cp().bin({bin}).GetObservedShape();
@@ -419,8 +423,8 @@ int main(int argc, char* argv[]) {
       for (auto bin : bins) {
         ch::CombineHarvester cmb_bkgs = cmb.cp().bin({bin}).backgrounds();
         double rate = cmb_bkgs.GetRate();
-        double err = sampling ? cmb_bkgs.GetUncertainty(res, samples)
-                              : cmb_bkgs.GetUncertainty();
+        double err = no_sampling ? cmb_bkgs.GetUncertainty()
+                              : cmb_bkgs.GetUncertainty(res, samples);
         cout << boost::format("%-25s %-10.5f") % bin %
                     (rate > 0. ? (err / rate) : 0.) << std::endl;
       }
