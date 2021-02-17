@@ -654,7 +654,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                 Combine::commitPoint(true, /*quantile=*/0);
                 continue;
             }
-            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
+            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) || utils::countFloating(*params)==0 ? 
                         true : 
                         minim.minimize(verbose-1);
             if (ok) {
