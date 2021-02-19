@@ -1162,7 +1162,7 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
     //utils::printRDH((RooAbsData*)&data);
     for (int i = 0; i < ne; ++i) {
         data.get(i); if (data.weight() == 0 && !includeZeroWeightsAny) continue;
-        int ib = cat->getBin();
+        int ib = cat->getBin((const char*) 0);
         //std::cout << "Event " << i << " of weight " << data.weight() << " is in bin " << ib << " label " << cat->getLabel() << std::endl;
         if (data.weight() > 0 || includeZeroWeights[ib]) datasets_[ib]->add(obs, data.weight());
     }

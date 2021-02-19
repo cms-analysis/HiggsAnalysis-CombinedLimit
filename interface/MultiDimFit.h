@@ -10,6 +10,7 @@
  */
 #include "HiggsAnalysis/CombinedLimit/interface/FitterAlgoBase.h"
 #include <RooRealVar.h>
+#include "TFile.h"
 #include <vector>
 
 class MultiDimFit : public FitterAlgoBase {

@@ -121,16 +121,19 @@ namespace utils {
     RooArgSet returnAllVars(RooWorkspace *);
     bool freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiPdfs, const RooArgSet & allRooMultiPdfParams, bool freeze=true);
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,20,0)
     // This is a workaround for a bug (?) in RooAddPdf that limits the number of elements
     // to 100 when de-serialised from a TFile. We have to access a protected array and reallocate
     // it with the correct size
+    // https://sft.its.cern.ch/jira/browse/ROOT-6008
     class RooAddPdfFixer : public RooAddPdf {
     public:
       RooAddPdfFixer() : RooAddPdf() {}
       RooAddPdfFixer(RooAddPdfFixer const& other) : RooAddPdf(other) {}
 
-      void Fix(RooAddPdf & fixme);
-      void FixAll(RooWorkspace & w);
+      static void Fix(RooAddPdf & fixme);
+      static void FixAll(RooWorkspace & w);
     };
+#endif
 }
 #endif
