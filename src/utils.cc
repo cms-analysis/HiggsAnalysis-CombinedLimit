@@ -1106,11 +1106,9 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiP
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,20,0)
 void utils::RooAddPdfFixer::Fix(RooAddPdf & fixme) {
-  if constexpr ( std::is_same<std::typeid(fixme::_coefCache), Double_t[]> ) {
-    RooAddPdfFixer & fixme_casted = static_cast<RooAddPdfFixer &>(fixme);
-    delete[] fixme_casted.RooAddPdf::_coefCache;
-    fixme_casted.RooAddPdf::_coefCache = new Double_t[fixme_casted.RooAddPdf::_pdfList.getSize()];
-  }
+  RooAddPdfFixer & fixme_casted = static_cast<RooAddPdfFixer &>(fixme);
+  delete[] fixme_casted.RooAddPdf::_coefCache;
+  fixme_casted.RooAddPdf::_coefCache = new Double_t[fixme_casted.RooAddPdf::_pdfList.getSize()];
 }
 
 void utils::RooAddPdfFixer::FixAll(RooWorkspace & w) {
