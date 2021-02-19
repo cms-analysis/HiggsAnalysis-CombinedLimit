@@ -448,7 +448,7 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
         } else {
             RooArgList list(*coeff);
             list.add(basecoeffs);
-            prods_.push_back(new RooProduct("","",list));
+            prods_.push_back(new RooProduct((pdfi->GetName()+std::string("cachingnll")).c_str(),"",list));
             coeffs_.push_back(&prods_.back());
             //std::cout << "Coefficient of " << pdfi->GetName() << std::endl; prods_.back().Print("");
         }
@@ -543,16 +543,17 @@ cacheutils::CachingAddNLL::setup_()
             if (tryfactor && ((prodi = dynamic_cast<RooProduct *>(funci)) != 0)) {
                 RooArgList newcoeffs(*coeff), newfuncs; 
                 utils::factorizeFunc(*obs, *funci, newfuncs, newcoeffs);
+
                 if (newcoeffs.getSize() > 1) {
-                    if (cheapprod) prods_.push_back(new RooCheapProduct("","",newcoeffs,runtimedef::get("ADDNLL_ROOREALSUM_PRUNECONST")));
-                    else           prods_.push_back(new RooProduct("","",newcoeffs));
+                    if (cheapprod) prods_.push_back(new RooCheapProduct((funci->GetName()+std::string("_coeff_cachingnll")).c_str(),"",newcoeffs,runtimedef::get("ADDNLL_ROOREALSUM_PRUNECONST")));
+                    else           prods_.push_back(new RooProduct((funci->GetName()+std::string("_coeff_cachingnll")).c_str(),"",newcoeffs));
                     coeff = &prods_.back();
                 }
                 if (newfuncs.getSize() > 1) {
                     //-- We don't make cheap products here since it does not implement the binning and analytical integrals
                     //if (cheapprod) prods_.push_back(new RooCheapProduct("","",newfuncs));
                     //else           prods_.push_back(new RooProduct("","",newfuncs));
-                    prods_.push_back(new RooProduct("","",newfuncs));
+                    prods_.push_back(new RooProduct((funci->GetName()+std::string("_func_cachingnll")).c_str(),"",newfuncs));
                     funci = &prods_.back();
                 } else {
                     funci =  dynamic_cast<RooAbsReal *>(newfuncs.first());
@@ -986,7 +987,7 @@ cacheutils::CachingSimNLL::setup_()
         simpdf = dynamic_cast<RooSimultaneous *>(pdfclone);
     }
 
-    
+
     std::auto_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
     pdfs_.resize(catClone->numBins(NULL), 0);
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));

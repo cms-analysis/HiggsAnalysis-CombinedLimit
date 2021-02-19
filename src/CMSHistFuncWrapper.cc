@@ -35,7 +35,7 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const ch
       err_("err", this, other.err_),
       cache_(other.cache_),
       idx_(other.idx_),
-      sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
+      sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", ""),
       pfunc_(nullptr),
       perr_(nullptr),
       initialized_(false) {

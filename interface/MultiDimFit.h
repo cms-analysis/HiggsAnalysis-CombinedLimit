@@ -12,6 +12,7 @@
 #include <RooRealVar.h>
 #include "TFile.h"
 #include <vector>
+#include <TFile.h>
 
 class MultiDimFit : public FitterAlgoBase {
 public:
