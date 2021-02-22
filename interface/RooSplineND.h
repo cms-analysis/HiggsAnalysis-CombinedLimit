@@ -92,7 +92,8 @@ class RooSplineND : public RooAbsReal {
 	void calculateWeights(std::vector<double> &);
 	double getDistSquare(int i, int j);
 	double getDistFromSquare(int i) const;
-	double radialFunc(double d2, double eps) const;
+	void   printPoint(int i) const;
+	double radialFunc(double d2, double eps, double cutoff = -1) const;
 
 	mutable bool rescaleAxis;
 	
