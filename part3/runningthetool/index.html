@@ -311,6 +311,13 @@
 <li>the exact behaviour depends on the method. For example, when using <code>MultiDimFit</code> with the <code>--algo scan</code>, the value of the parameter at each point in the scan will be saved while for <code>FitDiagnostics</code>, only the value at the end of the method will be saved.</li>
 </ul>
 </li>
+<li>
+<p><code>--trackErrors name1[,name2,...]</code> will add a branch to the output tree for the error of each of the named parameters. This option supports the use of regexp via by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
+<ul>
+<li>the name of the branch will be <strong>trackedError_<em>name</em></strong>.</li>
+<li>the behaviour is the same as <code>--trackParameters</code> above.</li>
+</ul>
+</li>
 </ul>
 <h4 id="generic-minimizer-options">Generic Minimizer Options</h4>
 <p>Combine uses its own minimizer class which is used to steer Minuit (via RooMinimizer) named the <code>CascadeMinimizer</code>. This allows for sequential minimization which can help in case a particular setting/algo fails. Also, the <code>CascadeMinimizer</code> knows about extra features of Combine such as <em>discrete</em> nuisance parameters.</p>
