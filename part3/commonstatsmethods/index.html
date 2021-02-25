@@ -818,6 +818,10 @@ combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_bonly
 </details>
 <details><summary>Goodness-of-fit for CR-only model</summary><p><img alt="" src="../images/gof_CRonly.png" /></p>
 </details>
+<p>If you have also checked out the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool">combineTool</a>, you can use this to run batch jobs or on the grid (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">here</a>) and produce a plot of the results. Once you have the jobs, you can hadd them together and run (e.g),</p>
+<pre><code>combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
+plotGof.py gof.json --statistic saturated --mass 125.0 -o gof_plot --title-right=&quot;my label&quot;
+</code></pre>
 <h2 id="channel-compatibility">Channel Compatibility</h2>
 <p>The <code>ChannelCompatibilityCheck</code> method can be used to evaluate how compatible are the measurements of the signal strength from the separate channels of a combination.</p>
 <p>The method performs two fits of the data, first with the nominal model in which all channels are assumed to have the <em>same signal strength multiplier</em> <span><span class="MathJax_Preview">r</span><script type="math/tex">r</script></span>, and then another allowing <em>separate signal strengths</em> <span><span class="MathJax_Preview">r_{i}</span><script type="math/tex">r_{i}</script></span> in each channel. A chisquare-like quantity is computed as <span><span class="MathJax_Preview">-2 \ln \mathcal{L}(\mathrm{data}| r)/L(data|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})</span><script type="math/tex">-2 \ln \mathcal{L}(\mathrm{data}| r)/L(data|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})</script></span>. Just like for the goodness of fit indicators, the expected distribution of this quantity under the nominal model can be computed from toy mc.</p>
