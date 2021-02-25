@@ -1,0 +1,14 @@
+name: combine2
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python==2.7.18
+  - pip
+  - root
+  - gsl
+  - tbb
+  - vdt
+  - boost
+  - pcre
+  - certifi[version='>=2017.4.17']
