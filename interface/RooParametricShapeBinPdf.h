@@ -31,6 +31,12 @@ public:
    Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const;
    Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const;
 
+   //accessors
+   RooRealProxy getX() const { return x; }
+   RooListProxy getPars() const { return pars; }
+   const Double_t* getBins() const { return &xArray[0]; }
+   Int_t getNbins() const { return xBins; }
+
 protected:   
 
    RooRealProxy x;        // dependent variable
