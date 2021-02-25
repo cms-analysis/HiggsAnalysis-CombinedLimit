@@ -6,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include "RooArgSet.h"
 #include "RooAbsReal.h"
+#include "RooRealVar.h"
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
@@ -73,6 +74,8 @@ private:
   void addNuisances(const RooArgSet *);
   void addFloatingParameters(const RooArgSet &);
   void addPOI(const RooArgSet *);
+  template <class Var>
+  void addBranches(const std::string&, RooWorkspace*, std::vector<std::pair<Var*,float>>&, const std::string&);
 
   boost::program_options::options_description statOptions_, ioOptions_, miscOptions_;
 
@@ -119,7 +122,9 @@ private:
   static TTree *tree_;
 
   static std::vector<std::pair<RooAbsReal*,float> > trackedParametersMap_;
+  static std::vector<std::pair<RooRealVar*,float> > trackedErrorsMap_;
   static std::string  trackParametersNameString_;
+  static std::string  trackErrorsNameString_;
   static std::string  textToWorkspaceString_;
 
 };
