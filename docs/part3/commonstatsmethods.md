@@ -725,7 +725,7 @@ where the former gives the result for the S+B model, while the latter gives the 
 
 If you have also checked out the [combineTool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool), you can use this to run batch jobs or on the grid (see [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)) and produce a plot of the results. Once you have the jobs, you can hadd them together and run (e.g),
 
-```
+```sh
 combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
 plotGof.py gof.json --statistic saturated --mass 125.0 -o gof_plot --title-right="my label"
 ```
