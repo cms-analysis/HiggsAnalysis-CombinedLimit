@@ -31,6 +31,8 @@ protected:
   virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
 
   static std::string name_;
+  static std::string massName_;
+  static std::string toyName_;
 
   static std::string minos_;
 

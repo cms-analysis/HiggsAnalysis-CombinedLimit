@@ -18,6 +18,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -27,6 +28,9 @@
 using namespace RooStats;
 
 std::string MultiDimFit::name_ = "";
+std::string MultiDimFit::massName_ = "";
+std::string MultiDimFit::toyName_ = "";
+std::string MultiDimFit::out_ = ".";
 MultiDimFit::Algo MultiDimFit::algo_ = None;
 MultiDimFit::GridType MultiDimFit::gridType_ = G1x1;
 std::vector<std::string>  MultiDimFit::poi_;
@@ -101,7 +105,8 @@ MultiDimFit::MultiDimFit() :
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
     ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
     ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
-	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
+	("saveFitResult",  "Save RooFitResult to multidimfit.root")
+    ("out", boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
     ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
     ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
     ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
@@ -140,7 +145,9 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
     savingSnapshot_ = vm.count("saveWorkspace");
-    name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
+    name_ = vm["name"].as<std::string>();
+    massName_ = vm["massName"].as<std::string>();
+    toyName_ = vm["toyName"].as<std::string>();
     saveFitResult_ = (vm.count("saveFitResult") > 0);
 }
 
@@ -1203,7 +1210,14 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
 
 void MultiDimFit::saveResult(RooFitResult &res) {
     if (verbose>2) res.Print();
-    fitOut.reset(TFile::Open(("multidimfit"+name_+".root").c_str(), "RECREATE"));
+    if (out_ == "none") return;
+    const bool longName = runtimedef::get(std::string("longName"));
+    std::string mdname(out_+"/multidimfit"+name_);
+    if (longName)
+        mdname += "."+massName_+toyName_+"root";
+    else
+        mdname += ".root";
+    fitOut.reset(TFile::Open(mdname.c_str(), "RECREATE"));
     fitOut->WriteTObject(&res,"fit_mdf");
     fitOut->cd();
     fitOut.release()->Close();

@@ -6,6 +6,7 @@
 #include <RooRandom.h>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -174,6 +175,49 @@ int main(int argc, char **argv) {
     return 1002;
   }
 
+  if (seed == -1) {
+    if (verbose > 0) std::cout << ">>> Using OpenSSL to get a really random seed " << std::endl;
+    FILE *rpipe = popen("openssl rand 8", "r");
+    if (rpipe == 0) { std::cout << "Error when running 'openssl rand 8'" << std::endl; return 2101; }
+    if (fread(&seed, sizeof(int), 1, rpipe) != 1) {
+        std::cout << "Error when reading from 'openssl rand 8'" << std::endl; return 2102; 
+    }
+    std::cout << ">>> Used OpenSSL to get a really random seed " << seed << std::endl;
+  } else {
+    std::cout << ">>> random number generator seed is " << seed << std::endl;
+  }
+  RooRandom::randomGenerator()->SetSeed(seed); 
+
+  TString massName = TString::Format("mH%g.", iMass);
+  TString toyName  = "";  if (runToys > 0 || seed != 123456 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
+  if (vm.count("expectedFromGrid") && !vm["expectedFromGrid"].defaulted()) toyName += TString::Format("quant%.3f.", vm["expectedFromGrid"].as<float>());
+  if (vm.count("expected")         && !vm["expected"].defaulted())         toyName += TString::Format("quant%.3f.", vm["expected"].as<float>());
+
+  if (vm.count("keyword-value") ) {
+    for (vector<string>::const_iterator rmp = modelPoints.begin(), endrmp = modelPoints.end(); rmp != endrmp; ++rmp) {
+      std::string::size_type idx = rmp->find('=');
+      if (idx == std::string::npos) {
+     	cerr << "No value found for keyword :\n\t" << *rmp << " use --keyword-value WORD=VALUE " << std::endl;
+      } else {
+        std::string name   = rmp->substr(0, idx);
+        std::string svalue = rmp->substr(idx+1);
+        if (verbose > 0) std::cout << "Setting keyword " << name << " to " << svalue << std::endl;
+        modelParamNameVector_.push_back(name);
+        modelParamValVector_.push_back(svalue);
+        massName += TString(name.c_str())+TString(svalue.c_str())+".";
+     }
+    }
+  }
+
+  //store derived values in variable map as defaults for new keys
+  po::options_description derived_desc("Derived values");
+  derived_desc.add_options()
+    ("massName", po::value<string>()->default_value(string(massName.View())), "massName for output file names")
+    ("toyName", po::value<string>()->default_value(string(toyName.View())), "toyName for output file names")
+  ;
+  stringstream dummy;
+  po::store(po::parse_config_file(dummy, derived_desc), vm);
+
   try {
     combiner.applyOptions(vm);
     CascadeMinimizer::applyOptions(vm);
@@ -204,40 +248,6 @@ int main(int argc, char **argv) {
       cout << ">>> method used to hint where the upper limit is " << whichHintMethod << endl;
   }
   
-  if (seed == -1) {
-    if (verbose > 0) std::cout << ">>> Using OpenSSL to get a really random seed " << std::endl;
-    FILE *rpipe = popen("openssl rand 8", "r");
-    if (rpipe == 0) { std::cout << "Error when running 'openssl rand 8'" << std::endl; return 2101; }
-    if (fread(&seed, sizeof(int), 1, rpipe) != 1) {
-        std::cout << "Error when reading from 'openssl rand 8'" << std::endl; return 2102; 
-    }
-    std::cout << ">>> Used OpenSSL to get a really random seed " << seed << std::endl;
-  } else {
-    std::cout << ">>> random number generator seed is " << seed << std::endl;
-  }
-  RooRandom::randomGenerator()->SetSeed(seed); 
-
-  TString massName = TString::Format("mH%g.", iMass);
-  TString toyName  = "";  if (runToys > 0 || seed != 123456 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
-  if (vm.count("expectedFromGrid") && !vm["expectedFromGrid"].defaulted()) toyName += TString::Format("quant%.3f.", vm["expectedFromGrid"].as<float>());
-  if (vm.count("expected")         && !vm["expected"].defaulted())         toyName += TString::Format("quant%.3f.", vm["expected"].as<float>());
-
-  if (vm.count("keyword-value") ) {
-    for (vector<string>::const_iterator rmp = modelPoints.begin(), endrmp = modelPoints.end(); rmp != endrmp; ++rmp) {
-      std::string::size_type idx = rmp->find('=');
-      if (idx == std::string::npos) {
-     	cerr << "No value found for keyword :\n\t" << *rmp << " use --keyword-value WORD=VALUE " << std::endl;
-      } else {
-        std::string name   = rmp->substr(0, idx);
-        std::string svalue = rmp->substr(idx+1);
-        if (verbose > 0) std::cout << "Setting keyword " << name << " to " << svalue << std::endl;
-	modelParamNameVector_.push_back(name);
-	modelParamValVector_.push_back(svalue);
-	massName += TString(name.c_str())+TString(svalue.c_str())+".";
-     }
-    }
-  }
-
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
   TFile *test = new TFile(fileName, "RECREATE"); outputFile = test;
   TTree *t = new TTree("limit", "limit");
