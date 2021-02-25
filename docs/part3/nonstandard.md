@@ -488,10 +488,10 @@ The spline makes use of a radial basis decomposition to produce a continous $N \
 is assumed to be of the form, 
 
 $$
-f(\vec{x}) = \Sum_{i=1}^{M}w_{i}\phi(||\vec{x}-\vec{x}_{i}||},
+f(\vec{x}) = \sum_{i=1}^{M}w_{i}\phi(||\vec{x}-\vec{x}_{i}||),
 $$
 
-where $\phi(||\vec{x}-\vec{x}_{i}||) = e^{-\frac{||\vec{x}-\vec{x}_{i}||}{\epsilon^{2}}}$. The distance $||.||$ between two points is given by, 
+where $\phi(||\vec{z}||) = e^{-\frac{||\vec{z}||}{\epsilon^{2}}}$. The distance $||.||$ between two points is given by, 
 
 $$
 ||\vec{x}-\vec{y}||  = \sum_{j=1}^{N}(x_{j}-y_{j})^{2},
@@ -500,15 +500,15 @@ $$
 if the option `rescale=false` and, 
 
 $$
-||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{x_{j}-y_{j}}{\mathrm{max}_{j}-\mathrm{min}_{j
-} \right)^{2},
+||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{ x_{j}-y_{j} }{ \mathrm{max}(x)-\mathrm{min}(x) }\right)^{2},
 $$
 
 if the option `rescale=true`. Given the sample points, it is possible to determine the weights $w_{i}$ as the solution of the set of equations, 
 
 $$
-\Sum_{i=1}^{M}w_{i}\phi(||\vec{x_{j}}-\vec{x}_{i}||} = f(\vec{x}_{j}).
+\sum_{i=1}^{M}w_{i}\phi(||\vec{x}_{j}-\vec{x}_{i}||) = f(\vec{x}_{j}).
 $$
+
 The solution is obtained using the `eigen` c++ package.  
 
 The typical constructor of the object is done as follows;
