@@ -220,6 +220,9 @@
                 <li class="third-level"><a href="#recommended-way-to-develop-a-feature-in-a-branch">Recommended way to develop a feature (in a branch)</a></li>
             <li class="second-level"><a href="#combine-tool">Combine Tool</a></li>
                 
+        <li class="first-level "><a href="#standalone-version-of-combine">Standalone version of combine</a></li>
+            <li class="second-level"><a href="#available-machines-for-standalone-combine">Available machines for standalone combine</a></li>
+                
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -331,7 +334,23 @@ git push
 <pre><code class="language-sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh)
 </code></pre>
 <p>make sure to run <code>scram</code>  to compile the <code>CombineTools</code> package.</p>
-<p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation pages for more details on using this tool and additional features available in the full package.</p></div>
+<p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation pages for more details on using this tool and additional features available in the full package.</p>
+<h1 id="standalone-version-of-combine">Standalone version of combine</h1>
+<p>Combine is also released as a standalone package, still meant to be run on SLC7 machines. Please note that while the CMSSW version is maintained regularly, the same might not be true for the standalone version. For CMS members, we advise to use the CMSSW version when possible.</p>
+<p>To compile the standalone version on suitable machines, please run:</p>
+<pre><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit/ 
+git fetch origin
+git checkout v8.1.0
+. env_standalone.sh
+make
+</code></pre>
+<p>You will need to source env_standalone.sh each time you want to use the package, or add it to your login. </p>
+<h2 id="available-machines-for-standalone-combine">Available machines for standalone combine</h2>
+<p>The standalone version can be easily compiled via <em>CVMFS</em> as it relies on dependencies which are already installed at <em>/cvmfs/cms.cern.ch/</em>. Access to <em>/cvmfs/cms.cern.ch/</em> can be obtained from lxplus machines or via <a href="https://cernvm-online.cern.ch/"><code>CernVM</code></a>. The only requirement will be to add the <em>CMS</em> group to the CVMFS configuration as shown in the picture</p>
+<p><img alt="" src="cvmsf_config.png" /></p>
+<p>At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. A minimal CernVM working context setup can be found in the CernVM Marketplace under <a href="https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382"><code>Experimental/HiggsCombine</code></a>. When using this predefined context, after pairing the virtual maching with the PIN code (entered in the terminal using eg <code>#123456</code>, you will be asked again for username (use <code>user</code>) and then a password (use <code>hcomb</code>).</p>
+<p>In case you do not want to use the cvmfs area, you will need to adapt the location of the dependencies listed in both the Makefile and env_standalone.sh files.</p></div>
         
         
     </div>
@@ -437,5 +456,5 @@ git push
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2021-02-25 10:24:27.506417+00:00
+Build Date UTC : 2021-02-25 10:27:57.476854+00:00
 -->
