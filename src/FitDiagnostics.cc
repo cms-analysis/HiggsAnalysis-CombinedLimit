@@ -54,6 +54,7 @@ bool        FitDiagnostics::saveOverallShapes_ = false;
 bool        FitDiagnostics::saveWithUncertainties_ = false;
 bool        FitDiagnostics::justFit_ = false;
 bool        FitDiagnostics::skipBOnlyFit_ = false;
+bool        FitDiagnostics::skipSBFit_ = false;
 bool        FitDiagnostics::noErrors_ = false;
 bool        FitDiagnostics::reuseParams_ = false;
 bool        FitDiagnostics::customStartingPoint_ = false;
@@ -91,6 +92,7 @@ FitDiagnostics::FitDiagnostics() :
         ("justFit",  		"Just do the S+B fit, don't do the B-only one, don't save output file")
         ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
         ("skipBOnlyFit",  	"Skip the B-only fit (do only the S+B fit)")
+        ("skipSBFit",  	"Skip the S+B fit (do only the B-only fit)")
         ("initFromBonly",  	"Use the values of the nuisance parameters from the background only fit as the starting point for the s+b fit. Can help fit convergence")
         ("customStartingPoint", "Don't set the first POI to 0 for the background-only fit. Instead if using this option, the parameter will be fixed to its default value, which can be set with the --setParameters option.")
         ("ignoreCovWarning",    "Override the default behaviour of saveWithUncertainties being ignored if the covariance matrix is not accurate.")
@@ -129,12 +131,13 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
     saveWithUncertsRequested_ = saveWithUncertainties_;
     justFit_  = vm.count("justFit");
     skipBOnlyFit_ = vm.count("skipBOnlyFit");
+    skipSBFit_ = vm.count("skipSBFit");
     noErrors_ = vm.count("noErrors");
     reuseParams_ = vm.count("initFromBonly");
     customStartingPoint_ = vm.count("customStartingPoint");
     ignoreCovWarning_ = vm.count("ignoreCovWarning");
      
-    if (justFit_) { out_ = "none"; makePlots_ = false; savePredictionsPerToy_ = false; saveNormalizations_ = false; reuseParams_ = false, skipBOnlyFit_ = true;}
+    if (justFit_) { out_ = "none"; makePlots_ = false; savePredictionsPerToy_ = false; saveNormalizations_ = false; reuseParams_ = false, skipBOnlyFit_ = true; skipSBFit_ = false; }
 }
 
 bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -245,7 +248,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   /* Background only fit (first POI set to customStartingPoint or 0) ****************************************************************/
 
   if (!customStartingPoint_) r->setVal(0.0);
-  else std::cout << "customStartingPoint set to true, Background only fit will corrsepond to " << r->GetName() << " = " << r->getVal() << std::endl;
+  else std::cout << "customStartingPoint set to true, background-only fit will correspond to " << r->GetName() << " = " << r->getVal() << std::endl;
   r->setConstant(true);
 
   // Setup Nll before calling fits;
@@ -280,12 +283,12 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   if (res_b) { 
       if (verbose > 1) res_b->Print("V");
       if (fitOut.get()) {
-	 if (currentToy_< 1)	fitOut->WriteTObject(res_b,"fit_b");
-	 if (withSystematics)	{
-		setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
-		setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
-	 }
-	 fitStatus_ = res_b->status();
+        if (currentToy_< 1)	fitOut->WriteTObject(res_b,"fit_b");
+        if (withSystematics)	{
+          setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
+          setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
+        }
+        fitStatus_ = res_b->status();
       }
       numbadnll_=res_b->numInvalidNLL();
 
@@ -318,22 +321,21 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           norms->setName("norm_fit_b");
           getNormalizationsSimple(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
           setNormsFitResultTrees(norms,processNormalizations_);
-	  std::map<std::string,ShapeAndNorm> snm;
-	  getShapesAndNorms(mc_s->GetPdf(),*mc_s->GetObservables(), snm, "");
+          std::map<std::string,ShapeAndNorm> snm;
+          getShapesAndNorms(mc_s->GetPdf(),*mc_s->GetObservables(), snm, "");
           setShapesFitResultTrees(snm,processNormalizationsShapes_);
-	  delete norms;
-
+          delete norms;
       }
       if (saveNormalizations_) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_b");
           CovarianceReSampler sampler(res_b);
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_fit_b",data);
-	  delete norms;
+          delete norms;
       }
 
       if (makePlots_ && currentToy_<1)  {
-	  TH2 *corr = res_b->correlationHist();
+          TH2 *corr = res_b->correlationHist();
           c1->SetLeftMargin(0.25);  c1->SetBottomMargin(0.25);
           corr->SetTitle("Correlation matrix of fit parameters");
           gStyle->SetPaintTextFormat(res_b->floatParsFinal().getSize() > 10 ? ".1f" : ".2f");
@@ -342,12 +344,26 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           corr->Draw("COLZ TEXT");
           c1->Print((out_+"/covariance_fit_b.png").c_str());
           c1->SetLeftMargin(0.16);  c1->SetBottomMargin(0.13);
-      	  if (fitOut.get()) fitOut->WriteTObject(corr, "covariance_fit_b");
+          if (fitOut.get()) fitOut->WriteTObject(corr, "covariance_fit_b");
+      }
+
+      //take the limit value from "b-only" when skipping s+b
+      if (skipSBFit_) {
+        Combine::toggleGlobalFillTree(true);
+        limit    = r->getVal();
+        limitErr = r->getError();
+        Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.);
+        Combine::toggleGlobalFillTree(false);
       }
   }
   else {
-	fitStatus_=-1;
-	numbadnll_=-1;	
+    fitStatus_=-1;
+    numbadnll_=-1;
+    //if just doing b-only fit, we care if it failed
+    if(!justFit_ and !skipBOnlyFit_ and skipSBFit_){
+      std::cout << "\n --- FitDiagnostics ---" << std::endl;
+      std::cout << "Fit failed."  << std::endl;
+    }
   }
   mu_=r->getVal();
   if (t_fit_b_) {
@@ -361,7 +377,10 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   if (!reuseParams_) w->loadSnapshot("clean"); // Reset, also ensures nll_prefit is same in call to doFit for b and s+b
   r->setVal(preFitValue_); r->setConstant(false); 
-  if (minos_ != "all") {
+  if (skipSBFit_) {
+    // skip s+b fit
+  }
+  else if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
     res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*ndim*/1,/*reuseNLL*/ true); 
     nll_sb_ = nll->getVal()-nll0;
@@ -504,7 +523,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       	std::cout << "\n --- FitDiagnostics ---" << std::endl;
       	std::cout << "Done! fit s+b and fit b should be identical" << std::endl;
       }
-  } else {
+  } else if (!skipSBFit_) {
       std::cout << "\n --- FitDiagnostics ---" << std::endl;
       std::cout << "Fit failed."  << std::endl;
   }
