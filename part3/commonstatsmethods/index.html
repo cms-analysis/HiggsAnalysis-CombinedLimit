@@ -231,6 +231,7 @@
             <li class="second-level"><a href="#goodness-of-fit-tests">Goodness of fit tests</a></li>
                 
                 <li class="third-level"><a href="#masking-analysis-regions-in-the-saturated-model">Masking analysis regions in the saturated model</a></li>
+                <li class="third-level"><a href="#making-a-plot-of-the-gof-test-statistic-distribution">Making a plot of the GoF test-statistic distribution</a></li>
             <li class="second-level"><a href="#channel-compatibility">Channel Compatibility</a></li>
                 
             <li class="second-level"><a href="#likelihood-fits-and-scans">Likelihood Fits and Scans</a></li>
@@ -810,21 +811,22 @@ combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShap
 <details><summary>FitDiagnostics CR-only fit</summary><p><img alt="" src="../images/result_fitCRonly.png" /></p>
 </details>
 <p>To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with expected distribution of the test-statistic obtained in toys:</p>
-<pre><code>combine -M GoodnessOfFit combined_card.root --algo=saturated -n result_toy_sb --toysFrequentist -t 500
-combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_bonly_CRonly_toy --setParametersForFit mask_ch1=1 --setParametersForEval mask_ch1=0 --freezeParameters r --setParameters r=0,mask_ch1=1 -t 500 --toysFrequentist
+<pre><code class="language-sh">    combine -M GoodnessOfFit combined_card.root --algo=saturated -n result_toy_sb --toysFrequentist -t 500
+    combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_bonly_CRonly_toy --setParametersForFit mask_ch1=1 --setParametersForEval mask_ch1=0 --freezeParameters r --setParameters r=0,mask_ch1=1 -t 500 --toysFrequentist
 </code></pre>
 <p>where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command <code>--setParameters r=0,mask_ch1=1</code> is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:</p>
 <details><summary>Goodness-of-fit for S+B model</summary><p><img alt="" src="../images/gof_sb.png" /></p>
 </details>
 <details><summary>Goodness-of-fit for CR-only model</summary><p><img alt="" src="../images/gof_CRonly.png" /></p>
 </details>
-<p>If you have also checked out the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool">combineTool</a>, you can use this to run batch jobs or on the grid (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">here</a>) and produce a plot of the results. Once you have the jobs, you can hadd them together and run (e.g),</p>
+<h3 id="making-a-plot-of-the-gof-test-statistic-distribution">Making a plot of the GoF test-statistic distribution</h3>
+<p>If you have also checked out the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool">combineTool</a>, you can use this to run batch jobs or on the grid (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">here</a>) and produce a plot of the results. Once you have the jobs, you can hadd them together and run (e.g for the saturated model),</p>
 <pre><code class="language-sh">combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
 plotGof.py gof.json --statistic saturated --mass 125.0 -o gof_plot --title-right=&quot;my label&quot;
 </code></pre>
 <h2 id="channel-compatibility">Channel Compatibility</h2>
 <p>The <code>ChannelCompatibilityCheck</code> method can be used to evaluate how compatible are the measurements of the signal strength from the separate channels of a combination.</p>
-<p>The method performs two fits of the data, first with the nominal model in which all channels are assumed to have the <em>same signal strength multiplier</em> <span><span class="MathJax_Preview">r</span><script type="math/tex">r</script></span>, and then another allowing <em>separate signal strengths</em> <span><span class="MathJax_Preview">r_{i}</span><script type="math/tex">r_{i}</script></span> in each channel. A chisquare-like quantity is computed as <span><span class="MathJax_Preview">-2 \ln \mathcal{L}(\mathrm{data}| r)/L(data|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})</span><script type="math/tex">-2 \ln \mathcal{L}(\mathrm{data}| r)/L(data|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})</script></span>. Just like for the goodness of fit indicators, the expected distribution of this quantity under the nominal model can be computed from toy mc.</p>
+<p>The method performs two fits of the data, first with the nominal model in which all channels are assumed to have the <em>same signal strength multiplier</em> <span><span class="MathJax_Preview">r</span><script type="math/tex">r</script></span>, and then another allowing <em>separate signal strengths</em> <span><span class="MathJax_Preview">r_{i}</span><script type="math/tex">r_{i}</script></span> in each channel. A chisquare-like quantity is computed as <span><span class="MathJax_Preview">-2 \ln \mathcal{L}(\mathrm{data}| r)/L(\mathrm{data}|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})</span><script type="math/tex">-2 \ln \mathcal{L}(\mathrm{data}| r)/L(\mathrm{data}|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})</script></span>. Just like for the goodness of fit indicators, the expected distribution of this quantity under the nominal model can be computed from toy mc.</p>
 <p>By default, the signal strength is kept floating in the fit with the nominal model. It can however be fixed to a given value by passing the option <code>--fixedSignalStrength=&lt;value&gt;</code>.</p>
 <p>In the default models build from the datacards the signal strengths in all channels are constrained to be non-negative. One can allow negative signal strengths in the fits by changing the bound on the variable (option <code>--rMin=&lt;value&gt;</code>), which should make the quantity more chisquare-like under the hypothesis of zero signal; this however can create issues in channels with small backgrounds, since total expected yields and pdfs in each channel must be positive.</p>
 <p>When run with the a verbosity of 1, as the default, the program also prints out the best fit signal strengths in all channels; as the fit to all channels is done simultaneously, the correlation between the other systematical uncertainties is taken into account, and so these results can differ from the ones obtained fitting each channel separately.</p>
