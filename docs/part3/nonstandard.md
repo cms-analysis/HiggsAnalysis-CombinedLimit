@@ -655,7 +655,15 @@ void examplews(){
     TFile *fOut = new TFile("param_ws.root","RECREATE");
     RooWorkspace wspace("wspace","wspace");
 
+    // better to create the bins rather than use the "nbins,min,max" to avoid spurious warning about adding bins with different 
+    // ranges in combine - see https://root-forum.cern.ch/t/attempt-to-divide-histograms-with-different-bin-limits/17624/3 for why!
+    const int nbins = 4; 
+    double xmin=200.;
+    double xmax=1000.;
+    double xbins[5] = {200.,400.,600.,800.,1000.};
+    
     // A search in a MET tail, define MET as our variable
+
     double xmin=200.;
     double xmax=1000.;
 
@@ -668,7 +676,8 @@ void examplews(){
     // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
     // Make a dataset, this will be just four bins in MET.
     // its easiest to make this from a histogram. Set the contents to "somehting"
-    TH1D data_th1("data_obs_SR","Data observed in signal region",4,xbins);
+    TH1F data_th1("data_obs_SR","Data observed in signal region",nbins,xbins);
+
     data_th1.SetBinContent(1,100);
     data_th1.SetBinContent(2,50);
     data_th1.SetBinContent(3,25);
@@ -695,7 +704,8 @@ void examplews(){
     RooAddition p_bkg_norm("bkg_SR_norm","Total Number of events from background in signal region",bkg_SR_bins);
 
     // Every signal region needs a signal
-    TH1D signal_th1("signal_SR","Signal expected in signal region",4,xbins);
+    TH1F signal_th1("signal_SR","Signal expected in signal region",nbins,xbins);
+
     signal_th1.SetBinContent(1,1);
     signal_th1.SetBinContent(2,2);
     signal_th1.SetBinContent(3,3);
@@ -705,7 +715,8 @@ void examplews(){
 
     // -------------------------------------------------------------------------------------------------------------//
     // ---------------------------- CONTROL REGION -----------------------------------------------------------------//
-    TH1D data_CRth1("data_obs_CR","Data observed in control region",4,xbins);
+    TH1F data_CRth1("data_obs_CR","Data observed in control region",nbins,xbins);
+
     data_CRth1.SetBinContent(1,200);
     data_CRth1.SetBinContent(2,100);
     data_CRth1.SetBinContent(3,50);
@@ -752,6 +763,41 @@ void examplews(){
     RooAddition p_CRbkg_norm("bkg_CR_norm","Total Number of events from background in control region",bkg_CR_bins);
     // -------------------------------------------------------------------------------------------------------------//
 
+
+    // we can also use the standard interpolation from combine by providing alternative shapes (as RooDataHists)
+    // here we're adding two of them (JES and ISR)
+    TH1F background_up("tbkg_CR_JESUp","",nbins,xbins);
+    background_up.SetBinContent(1,CRbin1.getVal()*1.01);
+    background_up.SetBinContent(2,CRbin2.getVal()*1.02);
+    background_up.SetBinContent(3,CRbin3.getVal()*1.03);
+    background_up.SetBinContent(4,CRbin4.getVal()*1.04);
+    RooDataHist bkg_CRhist_sysUp("bkg_CR_JESUp","Bkg sys up",vars,&background_up);
+    wspace.import(bkg_CRhist_sysUp);
+
+    TH1F background_down("bkg_CR_JESDown","",nbins,xbins);
+    background_down.SetBinContent(1,CRbin1.getVal()*0.90);
+    background_down.SetBinContent(2,CRbin2.getVal()*0.98);
+    background_down.SetBinContent(3,CRbin3.getVal()*0.97);
+    background_down.SetBinContent(4,CRbin4.getVal()*0.96);
+    RooDataHist bkg_CRhist_sysDown("bkg_CR_JESDown","Bkg sys down",vars,&background_down);
+    wspace.import(bkg_CRhist_sysDown);
+    
+    TH1F background_2up("tbkg_CR_ISRUp","",nbins,xbins);
+    background_2up.SetBinContent(1,CRbin1.getVal()*0.85);
+    background_2up.SetBinContent(2,CRbin2.getVal()*0.9);
+    background_2up.SetBinContent(3,CRbin3.getVal()*0.95);
+    background_2up.SetBinContent(4,CRbin4.getVal()*0.99);
+    RooDataHist bkg_CRhist_sys2Up("bkg_CR_ISRUp","Bkg sys 2up",vars,&background_2up);
+    wspace.import(bkg_CRhist_sys2Up);
+
+    TH1F background_2down("bkg_CR_ISRDown","",nbins,xbins);
+    background_2down.SetBinContent(1,CRbin1.getVal()*1.15);
+    background_2down.SetBinContent(2,CRbin2.getVal()*1.1);
+    background_2down.SetBinContent(3,CRbin3.getVal()*1.05);
+    background_2down.SetBinContent(4,CRbin4.getVal()*1.01);
+    RooDataHist bkg_CRhist_sys2Down("bkg_CR_ISRDown","Bkg sys 2down",vars,&background_2down);
+    wspace.import(bkg_CRhist_sys2Down);
+
     // import the pdfs
     wspace.import(p_bkg);
     wspace.import(p_bkg_norm,RooFit::RecycleConflictNodes());
@@ -771,7 +817,7 @@ void examplews(){
 Lets go through what the script is doing. First, the observable for the search is the missing energy so we create a parameter to represent that.
 
 ```c++
-   RooRealVar met("met","E_{T}^{miss}",200,1000);
+   RooRealVar met("met","E_{T}^{miss}",xmin,xmax);
 ```
 First, the following lines create a freely floating parameter for each of our bins (in this example, there are only 4 bins, defined for our observable `met`.
 
@@ -836,6 +882,27 @@ As before, we also need to create the `RooParametricHist` for this process in th
    RooAddition p_CRbkg_norm("bkg_CR_norm","Total Number of events from background in control region",bkg_CR_bins);
 ```
 
+Finally, we can also create alternative shape variations (Up/Down) that can be fed to combine as we do with `TH1` or `RooDataHist` type workspaces. These need 
+to be of type `RooDataHist`. The example below is for a Jet Energy Scale type shape uncertainty. 
+
+```c++
+   TH1F background_up("tbkg_CR_JESUp","",nbins,xbins);
+   background_up.SetBinContent(1,CRbin1.getVal()*1.01);
+   background_up.SetBinContent(2,CRbin2.getVal()*1.02);
+   background_up.SetBinContent(3,CRbin3.getVal()*1.03);
+   background_up.SetBinContent(4,CRbin4.getVal()*1.04);
+   RooDataHist bkg_CRhist_sysUp("bkg_CR_JESUp","Bkg sys up",vars,&background_up);
+   wspace.import(bkg_CRhist_sysUp);
+
+   TH1F background_down("bkg_CR_JESDown","",nbins,xbins);
+   background_down.SetBinContent(1,CRbin1.getVal()*0.90);
+   background_down.SetBinContent(2,CRbin2.getVal()*0.98);
+   background_down.SetBinContent(3,CRbin3.getVal()*0.97);
+   background_down.SetBinContent(4,CRbin4.getVal()*0.96);
+   RooDataHist bkg_CRhist_sysDown("bkg_CR_JESDown","Bkg sys down",vars,&background_down);
+   wspace.import(bkg_CRhist_sysDown);
+```
+
 Below are datacards (for signal and control regions) which can be used in conjunction with the workspace built above. In order to "use" the control region, simply combine the two cards as usual using `combineCards.py`.
 
 
@@ -882,7 +949,7 @@ kmax * number of nuisance parameters
 -------------------------------------------------------------------------------------------------------------------------------------------
 
 shapes data_obs    control   param_ws.root wspace:data_obs_CR 
-shapes background  control   param_ws.root wspace:bkg_CR   # the background model pdf which is dependant on that in the SR, note other backgrounds can be added as usual
+shapes background  control   param_ws.root wspace:bkg_CR  wspace:bkg_CR_$SYSTEMATIC # the background model pdf which is dependant on that in the SR, note other backgrounds can be added as usual
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 bin         control
@@ -892,11 +959,14 @@ observation  -1
 bin                 control     
 process             background  
 process             1           
-rate               1                   
+rate                1                   
 -------------------------------------------------------------------------------------------------------------------------------------------
 
+JES shape 1 
+ISR shape 1 
 efficiency param 0 1
 acceptance param 0 1
+
 ```
 
 Note that for the control region, our nuisance parameters appear as `param` types so that combine will correctly constrain them.  
