@@ -819,7 +819,7 @@ combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_bonly
 <details><summary>Goodness-of-fit for CR-only model</summary><p><img alt="" src="../images/gof_CRonly.png" /></p>
 </details>
 <p>If you have also checked out the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool">combineTool</a>, you can use this to run batch jobs or on the grid (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">here</a>) and produce a plot of the results. Once you have the jobs, you can hadd them together and run (e.g),</p>
-<pre><code>combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
+<pre><code class="language-sh">combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
 plotGof.py gof.json --statistic saturated --mass 125.0 -o gof_plot --title-right=&quot;my label&quot;
 </code></pre>
 <h2 id="channel-compatibility">Channel Compatibility</h2>
