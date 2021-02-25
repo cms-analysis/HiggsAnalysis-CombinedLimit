@@ -79,7 +79,7 @@ protected:
   }
 
 private:
-   ClassDef(RooParametricHist, 1)
+   ClassDef(RooParametricHist, 2)
 };
 
 #endif
