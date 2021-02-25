@@ -712,8 +712,10 @@ By taking the total background, the total signal, and the data shapes from FitDi
 
 To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with expected distribution of the test-statistic obtained in toys:
 
+```sh
     combine -M GoodnessOfFit combined_card.root --algo=saturated -n result_toy_sb --toysFrequentist -t 500
     combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_bonly_CRonly_toy --setParametersForFit mask_ch1=1 --setParametersForEval mask_ch1=0 --freezeParameters r --setParameters r=0,mask_ch1=1 -t 500 --toysFrequentist
+```
 
 where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command `--setParameters r=0,mask_ch1=1` is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:
 
@@ -723,7 +725,9 @@ where the former gives the result for the S+B model, while the latter gives the 
 ??? "Goodness-of-fit for CR-only model"
     ![](images/gof_CRonly.png)
 
-If you have also checked out the [combineTool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool), you can use this to run batch jobs or on the grid (see [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)) and produce a plot of the results. Once you have the jobs, you can hadd them together and run (e.g),
+### Making a plot of the GoF test-statistic distribution
+
+If you have also checked out the [combineTool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool), you can use this to run batch jobs or on the grid (see [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)) and produce a plot of the results. Once you have the jobs, you can hadd them together and run (e.g for the saturated model),
 
 ```sh
 combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
@@ -734,7 +738,7 @@ plotGof.py gof.json --statistic saturated --mass 125.0 -o gof_plot --title-right
 
 The `ChannelCompatibilityCheck` method can be used to evaluate how compatible are the measurements of the signal strength from the separate channels of a combination.
 
-The method performs two fits of the data, first with the nominal model in which all channels are assumed to have the *same signal strength multiplier* $r$, and then another allowing *separate signal strengths* $r_{i}$ in each channel. A chisquare-like quantity is computed as $-2 \ln \mathcal{L}(\mathrm{data}| r)/L(data|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})$. Just like for the goodness of fit indicators, the expected distribution of this quantity under the nominal model can be computed from toy mc.
+The method performs two fits of the data, first with the nominal model in which all channels are assumed to have the *same signal strength multiplier* $r$, and then another allowing *separate signal strengths* $r_{i}$ in each channel. A chisquare-like quantity is computed as $-2 \ln \mathcal{L}(\mathrm{data}| r)/L(\mathrm{data}|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})$. Just like for the goodness of fit indicators, the expected distribution of this quantity under the nominal model can be computed from toy mc.
 
 By default, the signal strength is kept floating in the fit with the nominal model. It can however be fixed to a given value by passing the option `--fixedSignalStrength=<value>`.
 
