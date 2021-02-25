@@ -392,6 +392,10 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.</
 <h3 id="plotting">Plotting</h3>
 <p><code>FitDiagnostics</code> can also produce pre- and post-fit plots the model in the same directory as <code>fitDiagnostics.root</code> along with the data. To get them, you have to specify the option <code>--plots</code>, and then <em>optionally specify</em> what are the names of the signal and background pdfs, e.g. <code>--signalPdfNames='ggH*,vbfH*'</code> and <code>--backgroundPdfNames='*DY*,*WW*,*Top*'</code> (by default, the definitions of signal and background are taken from the datacard). For models with more than 1 observable, a separate projection onto each observable will be produced. </p>
 <p>An alternative is to use the options <code>--saveShapes</code>. The result will be additional folders in <code>fitDiagnostics.root</code> for each category, with pre and post-fit distributions of the signals and backgrounds as TH1s and the data as TGraphAsymmErrors (with Poisson intervals as error bars).</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>If you want to save post-fit shapes at a specific r value, add the options <code>--customStartingPoint</code> and <code>--skipSBFit</code>, and set the r value. The result will appear in <strong>shapes_fit_b</strong>, as described below.</p>
+</div>
 <p>Three additional folders (<strong>shapes_prefit</strong>, <strong>shapes_fit_sb</strong> and <strong>shapes_fit_b</strong> ) will contain the following distributions,</p>
 <table>
 <thead>
