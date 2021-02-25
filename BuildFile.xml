@@ -5,6 +5,7 @@
 <use name="histfactory"/>
 <use name="libxml2"/>
 <use name="vdt"/>
+<use name="eigen"/>
 <lib name="Smatrix"/>
 <use   name="boost_program_options"/>
 <use   name="boost_filesystem"/>

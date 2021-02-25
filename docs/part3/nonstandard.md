@@ -484,8 +484,54 @@ You may want to check with the combine dev team if using these options as they a
 
 [RooSplineND](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooSplineND.h) can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. 
 
-The following script is an example of its use which produces a 2D spline from a set of points generated from a function. 
+The spline makes use of a radial basis decomposition to produce a continous $N \to 1$ map (function) from $M$ provided sample points. The function of the $N$ variables $\vec{x}$ 
+is assumed to be of the form, 
 
+$$
+f(\vec{x}) = \Sum_{i=1}^{M}w_{i}\phi(||\vec{x}-\vec{x}_{i}||},
+$$
+
+where $\phi(||\vec{x}-\vec{x}_{i}||) = e^{-\frac{||\vec{x}-\vec{x}_{i}||}{\epsilon^{2}}}$. The distance $||.||$ between two points is given by, 
+
+$$
+||\vec{x}-\vec{y}||  = \sum_{j=1}^{N}(x_{j}-y_{j})^{2},
+$$
+
+if the option `rescale=false` and, 
+
+$$
+||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{x_{j}-y_{j}}{\mathrm{max}_{j}-\mathrm{min}_{j
+} \right)^{2},
+$$
+
+if the option `rescale=true`. Given the sample points, it is possible to determine the weights $w_{i}$ as the solution of the set of equations, 
+
+$$
+\Sum_{i=1}^{M}w_{i}\phi(||\vec{x_{j}}-\vec{x}_{i}||} = f(\vec{x}_{j}).
+$$
+The solution is obtained using the `eigen` c++ package.  
+
+The typical constructor of the object is done as follows;
+
+```c++
+RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char* fName="f", double eps=3., bool rescale=false, std::string cutstring="" ) ;
+```
+
+where the arguments are:
+
+   * `vars`: A RooArgList of RooRealVars representing the $N$ dimensions of the spline. The length of this list determines the dimension $N$ of the spline. 
+   * `tree`: a TTree pointer where each entry represents a sample point used to construct the spline. The branch names must correspond to the names of the variables in `vars`. 
+   * `fName`: is a string representing the name of the branch to interpret as the target function $f$. 
+   * `eps` : is the value of $\epsilon$ and represents the *width* of the basis functions $\phi$. 
+   * `rescale` : is an option to re-scale the input sample points so that each variable has roughly the same range (see above in the definition of $||.||$). 
+   * `cutstring` : a string to remove sample points from the tree. Can be any typical cut string (eg "var1>10 && var2<3"). 
+
+The object can be treaeted as a `RooAbsArg` and its value for the current values of the parameters is obtained as  usual by using the `getVal()` method. 
+
+!!! warning  
+    You should not include more variable branches than contained  in `vars` in the tree as the spline will interpret them as additional sample points. You should get a warning if there are two *nearby* points  in the input samples and this will cause a failure in determining the weights. If you cannot create a reduced tree, you can remove entries by using the `cutstring`. 
+
+The following script is an example of its use which produces a 2D spline (`N=2`) from a set of 400 points (`M=400`)  generated from a function. 
 
 ```c++
 void splinend(){
@@ -500,7 +546,7 @@ void splinend(){
    tree->Branch("y",&yb,"y/F");
    
    TRandom3 *r = new TRandom3();
-   int nentries = 20; // just use a regular grid of 20x20
+   int nentries = 20; // just use a regular grid of 20x20=400 points
 
    double xmin = -3.2;
    double xmax = 3.2;
