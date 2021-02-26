@@ -503,7 +503,7 @@ $$
 if the option `rescale=false` and, 
 
 $$
-||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{ x_{j}-y_{j} }{ \mathrm{max}(x)-\mathrm{min}(x) }\right)^{2},
+||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{ x_{j}-y_{j} }{ \mathrm{max_{i=1,M}}(x_{i,j})-\mathrm{min_{i=1,M}}(x_{i,j}) }\right)^{2},
 $$
 
 if the option `rescale=true`. Given the sample points, it is possible to determine the weights $w_{i}$ as the solution of the set of equations, 
