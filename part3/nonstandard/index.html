@@ -707,10 +707,10 @@ f(\vec{x}) = \sum_{i=1}^{M}w_{i}\phi(||\vec{x}-\vec{x}_{i}||),
 <p>if the option <code>rescale=false</code> and, </p>
 <div>
 <div class="MathJax_Preview">
-||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{ x_{j}-y_{j} }{ \mathrm{max}(x)-\mathrm{min}(x) }\right)^{2},
+||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{ x_{j}-y_{j} }{ \mathrm{max_{i=1,M}}(x_{i,j})-\mathrm{min_{i=1,M}}(x_{i,j}) }\right)^{2},
 </div>
 <script type="math/tex; mode=display">
-||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{ x_{j}-y_{j} }{ \mathrm{max}(x)-\mathrm{min}(x) }\right)^{2},
+||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{ x_{j}-y_{j} }{ \mathrm{max_{i=1,M}}(x_{i,j})-\mathrm{min_{i=1,M}}(x_{i,j}) }\right)^{2},
 </script>
 </div>
 <p>if the option <code>rescale=true</code>. Given the sample points, it is possible to determine the weights <span><span class="MathJax_Preview">w_{i}</span><script type="math/tex">w_{i}</script></span> as the solution of the set of equations, </p>
