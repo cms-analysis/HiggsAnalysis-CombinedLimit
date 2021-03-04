@@ -458,7 +458,7 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                           self.doVar("%s[%g,%g]" % (n, mean-4*float(sigmaL), mean+4*float(sigmaR)))
                     self.out.var(n).setVal(mean)
-                    self.out.var(n).setError(0.5*(sigmaL+sigmaR))
+                    self.out.var(n).setError(0.5*(float(sigmaL)+float(sigmaR)))
 
                     sigmaStrL = sigmaL
                     sigmaStrR = sigmaR
