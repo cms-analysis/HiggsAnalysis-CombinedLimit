@@ -653,7 +653,7 @@ tree_fit_sb-&gt;Draw(&quot;(r-1)/(0.5*(rHiErr+rLoErr))&gt;&gt;h(20,-5,5)&quot;)
 h-&gt;Fit(&quot;gaus&quot;)
 </code></pre>
 <p><img alt="" src="../images/biasexample.png" /> </p>
-<p>From the fitted Gaussian, we see the mean is at -1.35 which would indicate a bias of 135% of the uncertainty on mu from choosing the polynomial when the true function is an exponential!</p>
+<p>From the fitted Gaussian, we see the mean is at -1.29 which would indicate a bias of 129% of the uncertainty on mu from choosing the polynomial when the true function is an exponential!</p>
 <h3 id="discrete-profiling">Discrete profiling</h3>
 <p>If the <code>discrete</code> nuisance is left floating, it will be profiled by looping through the possible index values and finding the pdf which gives the best fit. This allows for the <a href="https://arxiv.org/pdf/1408.6865.pdf"><strong>discrete profiling method</strong></a> to be applied for any method which involves a profiled likelihood (frequentist methods). </p>
 <div class="admonition warning">
