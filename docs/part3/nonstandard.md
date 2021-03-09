@@ -140,6 +140,9 @@ Additionally, there will be filled branches which provide the value of the expec
 
 An alternative is to use the options `--saveShapes`. The result will be additional folders in `fitDiagnostics.root` for each category, with pre and post-fit distributions of the signals and backgrounds as TH1s and the data as TGraphAsymmErrors (with Poisson intervals as error bars).
 
+!!! info
+    If you want to save post-fit shapes at a specific r value, add the options `--customStartingPoint` and `--skipSBFit`, and set the r value. The result will appear in **shapes\_fit\_b**, as described below.
+
 Three additional folders (**shapes\_prefit**, **shapes\_fit\_sb** and **shapes\_fit\_b** ) will contain the following distributions,
 
 | Object | Description |
@@ -438,7 +441,7 @@ h->Fit("gaus")
 ![](images/biasexample.png) 
 
 
-From the fitted Gaussian, we see the mean is at -1.35 which would indicate a bias of 135% of the uncertainty on mu from choosing the polynomial when the true function is an exponential!
+From the fitted Gaussian, we see the mean is at -1.29 which would indicate a bias of 129% of the uncertainty on mu from choosing the polynomial when the true function is an exponential!
 
 ### Discrete profiling 
 
@@ -484,8 +487,54 @@ You may want to check with the combine dev team if using these options as they a
 
 [RooSplineND](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooSplineND.h) can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. 
 
-The following script is an example of its use which produces a 2D spline from a set of points generated from a function. 
+The spline makes use of a radial basis decomposition to produce a continous $N \to 1$ map (function) from $M$ provided sample points. The function of the $N$ variables $\vec{x}$ 
+is assumed to be of the form, 
 
+$$
+f(\vec{x}) = \sum_{i=1}^{M}w_{i}\phi(||\vec{x}-\vec{x}_{i}||),
+$$
+
+where $\phi(||\vec{z}||) = e^{-\frac{||\vec{z}||}{\epsilon^{2}}}$. The distance $||.||$ between two points is given by, 
+
+$$
+||\vec{x}-\vec{y}||  = \sum_{j=1}^{N}(x_{j}-y_{j})^{2},
+$$
+
+if the option `rescale=false` and, 
+
+$$
+||\vec{x}-\vec{y}||  = \sum_{j=1}^{N} M^{1/N} \cdot \left( \frac{ x_{j}-y_{j} }{ \mathrm{max_{i=1,M}}(x_{i,j})-\mathrm{min_{i=1,M}}(x_{i,j}) }\right)^{2},
+$$
+
+if the option `rescale=true`. Given the sample points, it is possible to determine the weights $w_{i}$ as the solution of the set of equations, 
+
+$$
+\sum_{i=1}^{M}w_{i}\phi(||\vec{x}_{j}-\vec{x}_{i}||) = f(\vec{x}_{j}).
+$$
+
+The solution is obtained using the `eigen` c++ package.  
+
+The typical constructor of the object is done as follows;
+
+```c++
+RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char* fName="f", double eps=3., bool rescale=false, std::string cutstring="" ) ;
+```
+
+where the arguments are:
+
+   * `vars`: A RooArgList of RooRealVars representing the $N$ dimensions of the spline. The length of this list determines the dimension $N$ of the spline. 
+   * `tree`: a TTree pointer where each entry represents a sample point used to construct the spline. The branch names must correspond to the names of the variables in `vars`. 
+   * `fName`: is a string representing the name of the branch to interpret as the target function $f$. 
+   * `eps` : is the value of $\epsilon$ and represents the *width* of the basis functions $\phi$. 
+   * `rescale` : is an option to re-scale the input sample points so that each variable has roughly the same range (see above in the definition of $||.||$). 
+   * `cutstring` : a string to remove sample points from the tree. Can be any typical cut string (eg "var1>10 && var2<3"). 
+
+The object can be treaeted as a `RooAbsArg` and its value for the current values of the parameters is obtained as  usual by using the `getVal()` method. 
+
+!!! warning  
+    You should not include more variable branches than contained  in `vars` in the tree as the spline will interpret them as additional sample points. You should get a warning if there are two *nearby* points  in the input samples and this will cause a failure in determining the weights. If you cannot create a reduced tree, you can remove entries by using the `cutstring`. 
+
+The following script is an example of its use which produces a 2D spline (`N=2`) from a set of 400 points (`M=400`)  generated from a function. 
 
 ```c++
 void splinend(){
@@ -500,7 +549,7 @@ void splinend(){
    tree->Branch("y",&yb,"y/F");
    
    TRandom3 *r = new TRandom3();
-   int nentries = 20; // just use a regular grid of 20x20
+   int nentries = 20; // just use a regular grid of 20x20=400 points
 
    double xmin = -3.2;
    double xmax = 3.2;
@@ -609,7 +658,15 @@ void examplews(){
     TFile *fOut = new TFile("param_ws.root","RECREATE");
     RooWorkspace wspace("wspace","wspace");
 
+    // better to create the bins rather than use the "nbins,min,max" to avoid spurious warning about adding bins with different 
+    // ranges in combine - see https://root-forum.cern.ch/t/attempt-to-divide-histograms-with-different-bin-limits/17624/3 for why!
+    const int nbins = 4; 
+    double xmin=200.;
+    double xmax=1000.;
+    double xbins[5] = {200.,400.,600.,800.,1000.};
+    
     // A search in a MET tail, define MET as our variable
+
     double xmin=200.;
     double xmax=1000.;
 
@@ -622,7 +679,8 @@ void examplews(){
     // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
     // Make a dataset, this will be just four bins in MET.
     // its easiest to make this from a histogram. Set the contents to "somehting"
-    TH1D data_th1("data_obs_SR","Data observed in signal region",4,xbins);
+    TH1F data_th1("data_obs_SR","Data observed in signal region",nbins,xbins);
+
     data_th1.SetBinContent(1,100);
     data_th1.SetBinContent(2,50);
     data_th1.SetBinContent(3,25);
@@ -649,7 +707,8 @@ void examplews(){
     RooAddition p_bkg_norm("bkg_SR_norm","Total Number of events from background in signal region",bkg_SR_bins);
 
     // Every signal region needs a signal
-    TH1D signal_th1("signal_SR","Signal expected in signal region",4,xbins);
+    TH1F signal_th1("signal_SR","Signal expected in signal region",nbins,xbins);
+
     signal_th1.SetBinContent(1,1);
     signal_th1.SetBinContent(2,2);
     signal_th1.SetBinContent(3,3);
@@ -659,7 +718,8 @@ void examplews(){
 
     // -------------------------------------------------------------------------------------------------------------//
     // ---------------------------- CONTROL REGION -----------------------------------------------------------------//
-    TH1D data_CRth1("data_obs_CR","Data observed in control region",4,xbins);
+    TH1F data_CRth1("data_obs_CR","Data observed in control region",nbins,xbins);
+
     data_CRth1.SetBinContent(1,200);
     data_CRth1.SetBinContent(2,100);
     data_CRth1.SetBinContent(3,50);
@@ -706,6 +766,41 @@ void examplews(){
     RooAddition p_CRbkg_norm("bkg_CR_norm","Total Number of events from background in control region",bkg_CR_bins);
     // -------------------------------------------------------------------------------------------------------------//
 
+
+    // we can also use the standard interpolation from combine by providing alternative shapes (as RooDataHists)
+    // here we're adding two of them (JES and ISR)
+    TH1F background_up("tbkg_CR_JESUp","",nbins,xbins);
+    background_up.SetBinContent(1,CRbin1.getVal()*1.01);
+    background_up.SetBinContent(2,CRbin2.getVal()*1.02);
+    background_up.SetBinContent(3,CRbin3.getVal()*1.03);
+    background_up.SetBinContent(4,CRbin4.getVal()*1.04);
+    RooDataHist bkg_CRhist_sysUp("bkg_CR_JESUp","Bkg sys up",vars,&background_up);
+    wspace.import(bkg_CRhist_sysUp);
+
+    TH1F background_down("bkg_CR_JESDown","",nbins,xbins);
+    background_down.SetBinContent(1,CRbin1.getVal()*0.90);
+    background_down.SetBinContent(2,CRbin2.getVal()*0.98);
+    background_down.SetBinContent(3,CRbin3.getVal()*0.97);
+    background_down.SetBinContent(4,CRbin4.getVal()*0.96);
+    RooDataHist bkg_CRhist_sysDown("bkg_CR_JESDown","Bkg sys down",vars,&background_down);
+    wspace.import(bkg_CRhist_sysDown);
+    
+    TH1F background_2up("tbkg_CR_ISRUp","",nbins,xbins);
+    background_2up.SetBinContent(1,CRbin1.getVal()*0.85);
+    background_2up.SetBinContent(2,CRbin2.getVal()*0.9);
+    background_2up.SetBinContent(3,CRbin3.getVal()*0.95);
+    background_2up.SetBinContent(4,CRbin4.getVal()*0.99);
+    RooDataHist bkg_CRhist_sys2Up("bkg_CR_ISRUp","Bkg sys 2up",vars,&background_2up);
+    wspace.import(bkg_CRhist_sys2Up);
+
+    TH1F background_2down("bkg_CR_ISRDown","",nbins,xbins);
+    background_2down.SetBinContent(1,CRbin1.getVal()*1.15);
+    background_2down.SetBinContent(2,CRbin2.getVal()*1.1);
+    background_2down.SetBinContent(3,CRbin3.getVal()*1.05);
+    background_2down.SetBinContent(4,CRbin4.getVal()*1.01);
+    RooDataHist bkg_CRhist_sys2Down("bkg_CR_ISRDown","Bkg sys 2down",vars,&background_2down);
+    wspace.import(bkg_CRhist_sys2Down);
+
     // import the pdfs
     wspace.import(p_bkg);
     wspace.import(p_bkg_norm,RooFit::RecycleConflictNodes());
@@ -725,7 +820,7 @@ void examplews(){
 Lets go through what the script is doing. First, the observable for the search is the missing energy so we create a parameter to represent that.
 
 ```c++
-   RooRealVar met("met","E_{T}^{miss}",200,1000);
+   RooRealVar met("met","E_{T}^{miss}",xmin,xmax);
 ```
 First, the following lines create a freely floating parameter for each of our bins (in this example, there are only 4 bins, defined for our observable `met`.
 
@@ -790,6 +885,27 @@ As before, we also need to create the `RooParametricHist` for this process in th
    RooAddition p_CRbkg_norm("bkg_CR_norm","Total Number of events from background in control region",bkg_CR_bins);
 ```
 
+Finally, we can also create alternative shape variations (Up/Down) that can be fed to combine as we do with `TH1` or `RooDataHist` type workspaces. These need 
+to be of type `RooDataHist`. The example below is for a Jet Energy Scale type shape uncertainty. 
+
+```c++
+   TH1F background_up("tbkg_CR_JESUp","",nbins,xbins);
+   background_up.SetBinContent(1,CRbin1.getVal()*1.01);
+   background_up.SetBinContent(2,CRbin2.getVal()*1.02);
+   background_up.SetBinContent(3,CRbin3.getVal()*1.03);
+   background_up.SetBinContent(4,CRbin4.getVal()*1.04);
+   RooDataHist bkg_CRhist_sysUp("bkg_CR_JESUp","Bkg sys up",vars,&background_up);
+   wspace.import(bkg_CRhist_sysUp);
+
+   TH1F background_down("bkg_CR_JESDown","",nbins,xbins);
+   background_down.SetBinContent(1,CRbin1.getVal()*0.90);
+   background_down.SetBinContent(2,CRbin2.getVal()*0.98);
+   background_down.SetBinContent(3,CRbin3.getVal()*0.97);
+   background_down.SetBinContent(4,CRbin4.getVal()*0.96);
+   RooDataHist bkg_CRhist_sysDown("bkg_CR_JESDown","Bkg sys down",vars,&background_down);
+   wspace.import(bkg_CRhist_sysDown);
+```
+
 Below are datacards (for signal and control regions) which can be used in conjunction with the workspace built above. In order to "use" the control region, simply combine the two cards as usual using `combineCards.py`.
 
 
@@ -836,7 +952,7 @@ kmax * number of nuisance parameters
 -------------------------------------------------------------------------------------------------------------------------------------------
 
 shapes data_obs    control   param_ws.root wspace:data_obs_CR 
-shapes background  control   param_ws.root wspace:bkg_CR   # the background model pdf which is dependant on that in the SR, note other backgrounds can be added as usual
+shapes background  control   param_ws.root wspace:bkg_CR  wspace:bkg_CR_$SYSTEMATIC # the background model pdf which is dependant on that in the SR, note other backgrounds can be added as usual
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 bin         control
@@ -846,11 +962,14 @@ observation  -1
 bin                 control     
 process             background  
 process             1           
-rate               1                   
+rate                1                   
 -------------------------------------------------------------------------------------------------------------------------------------------
 
+JES shape 1 
+ISR shape 1 
 efficiency param 0 1
 acceptance param 0 1
+
 ```
 
 Note that for the control region, our nuisance parameters appear as `param` types so that combine will correctly constrain them.  

@@ -1,4 +1,9 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooSplineND.h"
+//#include </afs/cern.ch/work/n/nckw/combine-versions/102x/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/cpStudies/eigen/Eigen/Dense>
+#include <Eigen/Dense>
+
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char *fName, double eps, bool rescale, std::string cutstring) :
   RooAbsReal(name,title),
@@ -139,7 +144,7 @@ RooSplineND::RooSplineND(const char *name, const char *title, const RooListProxy
   }
 	
   w_rms  = wrms;
-  w_mean = wrms;
+  w_mean = wmean;
   
   rescaleAxis = rescale;
 }
@@ -175,6 +180,17 @@ TGraph * RooSplineND::getGraph(const char *xvar, double step){
   return gr;
 }
 //_____________________________________________________________________________
+void RooSplineND::printPoint(int i) const{
+
+  std::cout  << " point - " << i ;
+  for (int k=0;k<ndim_;k++){
+    double v_i = v_map[k][i];
+    std::cout << ", x"<<k<<"="<<v_i; 
+  }
+  std::cout  << std::endl;
+  
+}
+//_____________________________________________________________________________
 void RooSplineND::calculateWeights(std::vector<double> &f){
 
   std::cout << "RooSplineND -- Solving for Weights" << std::endl;
@@ -183,32 +199,35 @@ void RooSplineND::calculateWeights(std::vector<double> &f){
 	w_rms = 1;
 	return;
   }
-  // Solve system of Linear equations for weights vector 
-  TMatrixTSym<double> fMatrix(M_);
-  // Fill the Matrix
+  
+  MatrixXd fMatrix(M_,M_);
   for (int i=0;i<M_;i++){
     fMatrix(i,i)=1.;
     for (int j=i+1;j<M_;j++){
         double d2  = getDistSquare(i,j);
+	if (d2 < 0.0001) {
+		std::cout << " ERROR  - points likely duplicated, which will lead to errors in solving for weights. \
+		The distnace^2 is smaller than 0.0001 for points "<< i << " and " << j << " ... " <<  std::endl;
+		printPoint(i);
+		printPoint(j);
+	}
 	double rad = radialFunc(d2,eps_);
         fMatrix(i,j) =  rad;
 	fMatrix(j,i) =  rad; // it is symmetric	
     }
   }
-
-  TVectorD weights(M_);
-  for (int i=0;i<M_;i++) weights[i]=f[i];
-
-  //TDecompQRH decomp(fMatrix);
-  TDecompChol decomp(fMatrix);
-  std::cout << "RooSplineND -- Solving for Weights" << std::endl;
   
-  decomp.Solve(weights); // Solution now in weights
+  VectorXd weights(M_);
+  for (int i=0;i<M_;i++) weights(i)=f[i];
+  
+  VectorXd x = fMatrix.colPivHouseholderQr().solve(weights);
+
   std::cout << "RooSplineND -- ........ Done" << std::endl;
 
   w_mean = 0.;
   for (int i=0;i<M_;i++){
-    double tw = weights[i];
+    //double tw = weights[i];
+    double tw = x(i);
     w_.push_back(tw);
     w_mean+=(1./M_)*TMath::Abs(tw);
     w_rms+=(1./M_)*(tw*tw);
@@ -247,9 +266,12 @@ double RooSplineND::getDistFromSquare(int i) const{
   
 }
 //_____________________________________________________________________________
-double RooSplineND::radialFunc(double d2, double eps) const{
+double RooSplineND::radialFunc(double d2, double eps, double cutoff) const{
   double expo = (d2/(eps*eps));
   //double retval = 1./(1+(TMath::Power(expo,1.5)));
+  //if (cutoff > 0){
+    //if ( TMath::Sqrt(d2) > cutoff*eps ) return 0.;
+  //}
   double retval = TMath::Exp(-1*expo);
   return retval;
 }
@@ -257,12 +279,13 @@ double RooSplineND::radialFunc(double d2, double eps) const{
 Double_t RooSplineND::evaluate() const {
  double ret = 0;
  for (int i=0;i<M_;i++){
- //  std::cout << "EVAL == "<< i << " " << w_[i] << " " << getDistFromSquare(i) << std::endl;
+   //std::cout << "EVAL == "<< i << " " << w_[i] << " " << getDistFromSquare(i) << std::endl;
    double w = w_[i];
    if (w==0) continue;
-   ret+=((w/w_mean)*radialFunc(getDistFromSquare(i),eps_));
+   //if ( TMath::Abs(w)< 0.01*TMath::Abs(w_mean) )  continue;  
+   ret+=((w)*radialFunc(getDistFromSquare(i),eps_));
  }
- ret*=w_mean;
+ //ret*=w_mean;
  return ret;
 }
 //_____________________________________________________________________________

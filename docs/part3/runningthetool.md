@@ -67,6 +67,11 @@ There are a number of useful command line options which can be used to alter the
     - the name of the branch will be **trackedParam_*name***.
     - the exact behaviour depends on the method. For example, when using `MultiDimFit` with the `--algo scan`, the value of the parameter at each point in the scan will be saved while for `FitDiagnostics`, only the value at the end of the method will be saved.
 
+-   `--trackErrors name1[,name2,...]` will add a branch to the output tree for the error of each of the named parameters. This option supports the use of regexp via by replacing `name` with `rgx{some regular expression}`
+
+    - the name of the branch will be **trackedError_*name***.
+    - the behaviour is the same as `--trackParameters` above.
+
 #### Generic Minimizer Options
 
 Combine uses its own minimizer class which is used to steer Minuit (via RooMinimizer) named the `CascadeMinimizer`. This allows for sequential minimization which can help in case a particular setting/algo fails. Also, the `CascadeMinimizer` knows about extra features of Combine such as *discrete* nuisance parameters.

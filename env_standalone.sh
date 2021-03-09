@@ -5,6 +5,7 @@
  . /cvmfs/cms.cern.ch/slc7_amd64_gcc820/cms/vdt/0.4.0-ghbfee/etc/profile.d/init.sh
  . /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/boost/1.72.0-gchjei/etc/profile.d/init.sh
  . /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/pcre/8.43-bcolbf/etc/profile.d/init.sh
+ . /cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/eigen/d812f411c3f9-ghbfee/etc/profile.d/init.sh
  export PATH=${PATH}:${PWD}/exe:${PWD}/scripts
  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/lib
  export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python:${PWD}/lib

@@ -30,7 +30,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
-
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 #include <Math/MinimizerOptions.h>
 
@@ -38,6 +38,8 @@
 using namespace RooStats;
 
 std::string FitDiagnostics::name_ = "";
+std::string FitDiagnostics::massName_ = "";
+std::string FitDiagnostics::toyName_ = "";
 std::string FitDiagnostics::minos_ = "poi";
 std::string FitDiagnostics::out_ = ".";
 bool        FitDiagnostics::makePlots_ = false;
@@ -54,6 +56,7 @@ bool        FitDiagnostics::saveOverallShapes_ = false;
 bool        FitDiagnostics::saveWithUncertainties_ = false;
 bool        FitDiagnostics::justFit_ = false;
 bool        FitDiagnostics::skipBOnlyFit_ = false;
+bool        FitDiagnostics::skipSBFit_ = false;
 bool        FitDiagnostics::noErrors_ = false;
 bool        FitDiagnostics::reuseParams_ = false;
 bool        FitDiagnostics::customStartingPoint_ = false;
@@ -91,6 +94,7 @@ FitDiagnostics::FitDiagnostics() :
         ("justFit",  		"Just do the S+B fit, don't do the B-only one, don't save output file")
         ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
         ("skipBOnlyFit",  	"Skip the B-only fit (do only the S+B fit)")
+        ("skipSBFit",  	"Skip the S+B fit (do only the B-only fit)")
         ("initFromBonly",  	"Use the values of the nuisance parameters from the background only fit as the starting point for the s+b fit. Can help fit convergence")
         ("customStartingPoint", "Don't set the first POI to 0 for the background-only fit. Instead if using this option, the parameter will be fixed to its default value, which can be set with the --setParameters option.")
         ("ignoreCovWarning",    "Override the default behaviour of saveWithUncertainties being ignored if the covariance matrix is not accurate.")
@@ -119,7 +123,9 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
 {
     applyOptionsBase(vm);
     makePlots_ = vm.count("plots");
-    name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
+    name_ = vm["name"].as<std::string>();
+    massName_ = vm["massName"].as<std::string>();
+    toyName_ = vm["toyName"].as<std::string>();
     saveOverallShapes_  = vm.count("saveOverallShapes");
     saveShapes_  = saveOverallShapes_ || vm.count("saveShapes");
     saveNormalizations_  = saveShapes_ || vm.count("saveNormalizations");
@@ -129,12 +135,13 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
     saveWithUncertsRequested_ = saveWithUncertainties_;
     justFit_  = vm.count("justFit");
     skipBOnlyFit_ = vm.count("skipBOnlyFit");
+    skipSBFit_ = vm.count("skipSBFit");
     noErrors_ = vm.count("noErrors");
     reuseParams_ = vm.count("initFromBonly");
     customStartingPoint_ = vm.count("customStartingPoint");
     ignoreCovWarning_ = vm.count("ignoreCovWarning");
      
-    if (justFit_) { out_ = "none"; makePlots_ = false; savePredictionsPerToy_ = false; saveNormalizations_ = false; reuseParams_ = false, skipBOnlyFit_ = true;}
+    if (justFit_) { out_ = "none"; makePlots_ = false; savePredictionsPerToy_ = false; saveNormalizations_ = false; reuseParams_ = false, skipBOnlyFit_ = true; skipSBFit_ = false; }
 }
 
 bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -146,8 +153,14 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   if (!justFit_ && out_ != "none"){
 	if (currentToy_ < 1){
-		fitOut.reset(TFile::Open((out_+"/fitDiagnostics"+name_+".root").c_str(), "RECREATE")); 
-		createFitResultTrees(*mc_s,withSystematics);
+		const bool longName = runtimedef::get(std::string("longName"));
+		std::string fdname(out_+"/fitDiagnostics"+name_);
+		if (longName)
+			fdname += "."+massName_+toyName_+"root";
+		else
+			fdname += ".root";
+		fitOut.reset(TFile::Open(fdname.c_str(), "RECREATE")); 
+		createFitResultTrees(*mc_s,withSystematics,savePredictionsPerToy_);
 	}
   }
 
@@ -245,7 +258,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   /* Background only fit (first POI set to customStartingPoint or 0) ****************************************************************/
 
   if (!customStartingPoint_) r->setVal(0.0);
-  else std::cout << "customStartingPoint set to true, Background only fit will corrsepond to " << r->GetName() << " = " << r->getVal() << std::endl;
+  else std::cout << "customStartingPoint set to true, background-only fit will correspond to " << r->GetName() << " = " << r->getVal() << std::endl;
   r->setConstant(true);
 
   // Setup Nll before calling fits;
@@ -280,12 +293,12 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   if (res_b) { 
       if (verbose > 1) res_b->Print("V");
       if (fitOut.get()) {
-	 if (currentToy_< 1)	fitOut->WriteTObject(res_b,"fit_b");
-	 if (withSystematics)	{
-		setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
-		setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
-	 }
-	 fitStatus_ = res_b->status();
+        if (currentToy_< 1)	fitOut->WriteTObject(res_b,"fit_b");
+        if (withSystematics)	{
+          setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
+          setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
+        }
+        fitStatus_ = res_b->status();
       }
       numbadnll_=res_b->numInvalidNLL();
 
@@ -318,22 +331,21 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           norms->setName("norm_fit_b");
           getNormalizationsSimple(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
           setNormsFitResultTrees(norms,processNormalizations_);
-	  std::map<std::string,ShapeAndNorm> snm;
-	  getShapesAndNorms(mc_s->GetPdf(),*mc_s->GetObservables(), snm, "");
+          std::map<std::string,ShapeAndNorm> snm;
+          getShapesAndNorms(mc_s->GetPdf(),*mc_s->GetObservables(), snm, "");
           setShapesFitResultTrees(snm,processNormalizationsShapes_);
-	  delete norms;
-
+          delete norms;
       }
       if (saveNormalizations_) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_b");
           CovarianceReSampler sampler(res_b);
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_fit_b",data);
-	  delete norms;
+          delete norms;
       }
 
       if (makePlots_ && currentToy_<1)  {
-	  TH2 *corr = res_b->correlationHist();
+          TH2 *corr = res_b->correlationHist();
           c1->SetLeftMargin(0.25);  c1->SetBottomMargin(0.25);
           corr->SetTitle("Correlation matrix of fit parameters");
           gStyle->SetPaintTextFormat(res_b->floatParsFinal().getSize() > 10 ? ".1f" : ".2f");
@@ -342,12 +354,26 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           corr->Draw("COLZ TEXT");
           c1->Print((out_+"/covariance_fit_b.png").c_str());
           c1->SetLeftMargin(0.16);  c1->SetBottomMargin(0.13);
-      	  if (fitOut.get()) fitOut->WriteTObject(corr, "covariance_fit_b");
+          if (fitOut.get()) fitOut->WriteTObject(corr, "covariance_fit_b");
+      }
+
+      //take the limit value from "b-only" when skipping s+b
+      if (skipSBFit_) {
+        Combine::toggleGlobalFillTree(true);
+        limit    = r->getVal();
+        limitErr = r->getError();
+        Combine::commitPoint(/*expected=*/false, /*quantile=*/-1.);
+        Combine::toggleGlobalFillTree(false);
       }
   }
   else {
-	fitStatus_=-1;
-	numbadnll_=-1;	
+    fitStatus_=-1;
+    numbadnll_=-1;
+    //if just doing b-only fit, we care if it failed
+    if(!justFit_ and !skipBOnlyFit_ and skipSBFit_){
+      std::cout << "\n --- FitDiagnostics ---" << std::endl;
+      std::cout << "Fit failed."  << std::endl;
+    }
   }
   mu_=r->getVal();
   if (t_fit_b_) {
@@ -361,7 +387,10 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   if (!reuseParams_) w->loadSnapshot("clean"); // Reset, also ensures nll_prefit is same in call to doFit for b and s+b
   r->setVal(preFitValue_); r->setConstant(false); 
-  if (minos_ != "all") {
+  if (skipSBFit_) {
+    // skip s+b fit
+  }
+  else if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
     res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*ndim*/1,/*reuseNLL*/ true); 
     nll_sb_ = nll->getVal()-nll0;
@@ -504,7 +533,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       	std::cout << "\n --- FitDiagnostics ---" << std::endl;
       	std::cout << "Done! fit s+b and fit b should be identical" << std::endl;
       }
-  } else {
+  } else if (!skipSBFit_) {
       std::cout << "\n --- FitDiagnostics ---" << std::endl;
       std::cout << "Fit failed."  << std::endl;
   }
@@ -1031,7 +1060,7 @@ void FitDiagnostics::setNormsFitResultTrees(const RooArgSet *args, double * vals
 	 return;
 }
 
-void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool withSys){
+void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool withSys, bool savePerToy){
 
 	 // Initiate the arrays to store parameters
 
@@ -1071,24 +1100,26 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
          //getNormalizationsSimple(mc.GetPdf(), *mc.GetObservables(), *norms);  <-- This is useless as the order is messed up !
 
          std::map<std::string,ShapeAndNorm> snm;
-         getShapesAndNorms(mc.GetPdf(),*mc.GetObservables(), snm, "");
+         int totalBins = 0;
          typedef std::map<std::string,ShapeAndNorm>::const_iterator IT;
-         IT bg = snm.begin(), ed = snm.end(), pair; int i;
-	 int totalBins = 0;
-         for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
-           RooRealVar *val = new RooRealVar(pair->first.c_str(), "", 0.);
-           //val->setError(sumx2[i]);
-           norms->addOwned(*val); 
-	   RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
-	   if (pair->second.obs.getSize() == 1) {
-	       TH1* hist = pair->second.pdf->createHistogram(Form("%d",totalBins), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
-	       totalBins += hist->GetNbinsX();
-	       delete hist;
-	    }
+         if(savePerToy){
+           getShapesAndNorms(mc.GetPdf(),*mc.GetObservables(), snm, "");
+           IT bg = snm.begin(), ed = snm.end(), pair; int i;
+           for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
+             RooRealVar *val = new RooRealVar(pair->first.c_str(), "", 0.);
+             //val->setError(sumx2[i]);
+             norms->addOwned(*val);
+             RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
+             if (pair->second.obs.getSize() == 1) {
+                TH1* hist = pair->second.pdf->createHistogram(Form("%d",totalBins), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+	        totalBins += hist->GetNbinsX();
+                delete hist;
+             }
+           }
          }
 
-	 overallBins_ = totalBins; 
-	 overallNorms_ = norms->getSize(); 
+         overallBins_ = totalBins;
+         overallNorms_ = norms->getSize();
 
          processNormalizations_ = new double[norms->getSize()];
          processNormalizationsShapes_ = new double[totalBins];
@@ -1138,25 +1169,29 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
 		 t_prefit_->Branch(name.c_str(),&(processNormalizations_[count]),Form("%s/D",name.c_str()));
 		 count++;
          }
-	 count = 0;
-	 bg = snm.begin(), ed = snm.end(); 
-	 for (pair = bg, i = 0; pair != ed; ++pair, ++i) {  
-	   if (pair->second.obs.getSize() == 1) {
-		RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
-		TH1* hist = pair->second.pdf->createHistogram(Form("%d",count), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
-		 int bins = hist->GetNbinsX();
-		 for (int iBin = 1; iBin <= bins; iBin++){
-		     processNormalizationsShapes_[count] = -999;
-		     TString label = Form("%s_%d",pair->first.c_str(),iBin);
-		     t_fit_sb_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
-		     t_fit_b_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
-		     t_prefit_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
-		     count++;
-		 }
-		delete hist;
 
-	   }
-	 }
+         if(savePerToy){
+           count = 0;
+           IT itb = snm.begin(), ite = snm.end(), npair; int j;
+           itb = snm.begin(), ite = snm.end();
+           for (npair = itb, j = 0; npair != ite; ++npair, ++j) {
+             if (npair->second.obs.getSize() == 1) {
+               RooRealVar *x = (RooRealVar*)npair->second.obs.at(0);
+               TH1* hist = npair->second.pdf->createHistogram(Form("%d",count), *x, npair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+               int bins = hist->GetNbinsX();
+                for (int iBin = 1; iBin <= bins; iBin++){
+                     processNormalizationsShapes_[count] = -999;
+                     TString label = Form("%s_%d",npair->first.c_str(),iBin);
+                     t_fit_sb_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
+                     t_fit_b_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
+                     t_prefit_->Branch(label,&(processNormalizationsShapes_[count]),label+"/D");
+                     count++;
+                }
+               delete hist;
+             }
+           }
+         }
+
          delete norms;
 
 	 //std::cout << "Created Branches for toy diagnostics" <<std::endl;
