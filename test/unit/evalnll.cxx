@@ -33,7 +33,6 @@ void init_rtd() {
   runtimedef::set("ADDNLL_HISTFUNCNLL",1);
   runtimedef::set("ADDNLL_ROOREALSUM_CHEAPPROD",1);
   // these are not default in combine yet
-  runtimedef::set("MINIMIZER_analytic",1);
   runtimedef::set("FAST_VERTICAL_MORPH",1);
 }
 
@@ -117,7 +116,7 @@ int main(int argc, char **argv) {
         std::cerr << "ERROR: not a cacheutils::CachingSimNLL !" << std::endl;
         return 1;
     }
-    if (runtimedef::get(std::string("MINIMIZER_analytic"))) {
+    if (!runtimedef::get(std::string("MINIMIZER_no_analytic"))) {
         simnll->setAnalyticBarlowBeeston(true);
     }
     if (runtimedef::get("FAST_VERTICAL_MORPH")) {
