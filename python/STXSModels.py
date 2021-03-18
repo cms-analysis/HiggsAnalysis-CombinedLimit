@@ -1,9 +1,11 @@
 from __future__ import absolute_import, print_function
 
 import fnmatch
+import json
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
+import six
 
 ALL_STXS_PROCS = {
     "Stage0": {
@@ -42,6 +44,9 @@ def getSTXSProdDecMode(bin, process, options):
             "_".join(process.split("_")[0:-1]),
             process.split("_")[-1],
         )
+        for Y in ["2016", "2017", "2018"]:
+            if Y in processSource.split("_")[-1]:
+                processSource = "_".join(processSource.split("_")[0:-1])
     foundDecay = None
     for D in ALL_HIGGS_DECAYS:
         if D in decaySource:
@@ -75,6 +80,8 @@ class STXSBaseModel(PhysicsModel):
         PhysicsModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
         self.floatMass = False
         self.denominator = denominator
+        self.mergeBins = False
+        self.mergeJson = ""
 
     def preProcessNuisances(self, nuisances):
         # add here any pre-processed nuisances such as constraint terms for the mass profiling?
@@ -91,6 +98,9 @@ class STXSBaseModel(PhysicsModel):
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
+            if po.startswith("mergejson="):
+                self.mergeBins = True
+                self.mergeJson = po.replace("mergejson=", "")
 
     def doMH(self):
         if self.floatMass:
@@ -200,5 +210,122 @@ class StageZero(STXSBaseModel):
         return 1
 
 
+class StageOnePTwo(STXSBaseModel):
+    "Allow different signal strength fits for the stage-1.2 model"
+
+    def __init__(self):
+        STXSBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
+        self.POIs = ""
+        from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
+
+        self.stage1_2_fine_procs = stage1_2_fine_procs
+        self.PROCESSES = [x for v in six.itervalues(stage1_2_procs) for x in v]
+        self.FINEPROCESSES = [x for v in six.itervalues(stage1_2_fine_procs) for x in v]
+        self.mergeSchemes = {}
+        self.mergeSchemes["prod_only"] = {}
+        self.mergeSchemes["prod_times_dec"] = {}
+
+    def doVar(self, x, constant=True):
+        self.modelBuilder.doVar(x)
+        vname = re.sub(r"\[.*", "", x)
+        self.modelBuilder.out.var(vname).setConstant(constant)
+        print("SignalStrengths:: declaring %s as %s" % (vname, x))
+
+    def doParametersOfInterest(self):
+        """Create POI out of signal strengths (and MH)"""
+
+        if self.mergeBins:
+            with open(self.mergeJson) as f:
+                self.mergeSchemes = json.load(f)
+                self.modelBuilder.stringout = json.dumps(self.mergeSchemes)
+            f.close()
+
+        allProds = []
+        for registered_proc in self.PROCESSES:
+            P = registered_proc
+            if P in allProds:
+                continue
+            allProds.append(P)
+            self.doVar("mu_XS_%s[1,0,5]" % (P))
+            for merged_prod_bin in self.mergeSchemes["prod_only"]:
+                if P in self.mergeSchemes["prod_only"][merged_prod_bin]:
+                    self.doVar("mu_XS_%s[1,0,5]" % (merged_prod_bin))
+            for dec in SM_HIGG_DECAYS:
+                D = CMS_to_LHCHCG_DecSimple[dec]
+                self.doVar("mu_XS_%s_BR_%s[1,0,5]" % (P, D))
+                for merged_proddec_bin in self.mergeSchemes["prod_times_dec"]:
+                    if P in self.mergeSchemes["prod_times_dec"][merged_proddec_bin]:
+                        self.doVar("mu_XS_%s_BR_%s[1,0,5]" % (merged_proddec_bin, D))
+        for dec in SM_HIGG_DECAYS:
+            D = CMS_to_LHCHCG_DecSimple[dec]
+            self.doVar("mu_BR_%s[1,0,5]" % (D))
+
+        self.doMH()
+        self.modelBuilder.doSet("POI", self.POIs)
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+
+    def setup(self):
+        for d in SM_HIGG_DECAYS + ["hss"]:
+            self.SMH.makeBR(d)
+        allProds = []
+        for P in self.PROCESSES:
+            if P in allProds:
+                continue
+            allProds.append(P)
+            allDecs = []
+            for dec in SM_HIGG_DECAYS:
+                D = CMS_to_LHCHCG_DecSimple[dec]
+                if D in allDecs:
+                    continue
+                allDecs.append(D)
+                terms = ["mu_XS_%s" % P, "mu_BR_" + D, "mu_XS_%s_BR_%s" % (P, D)]
+                for merged_prod_bin in self.mergeSchemes["prod_only"]:
+                    if P in self.mergeSchemes["prod_only"][merged_prod_bin]:
+                        terms += ["mu_XS_%s" % merged_prod_bin]
+                for merged_proddec_bin in self.mergeSchemes["prod_times_dec"]:
+                    if P in self.mergeSchemes["prod_times_dec"][merged_proddec_bin]:
+                        terms += ["mu_XS_%s_BR_%s" % (merged_proddec_bin, D)]
+                self.modelBuilder.factory_("prod::scaling_%s_%s_13TeV(%s)" % (P, D, ",".join(terms)))
+                self.modelBuilder.out.function("scaling_%s_%s_13TeV" % (P, D)).Print("")
+
+        for P in self.FINEPROCESSES:
+            print("WARNING: process %s is treated as a stage1_2_fine process; no separate scaling parameter for it will enter" % P)
+            if P in allProds:
+                continue
+            allProds.append(P)
+            allDecs = []
+            for dec in SM_HIGG_DECAYS:
+                D = CMS_to_LHCHCG_DecSimple[dec]
+                if D in allDecs:
+                    continue
+                allDecs.append(D)
+                for stxs12binname in self.stage1_2_fine_procs:
+                    if P in self.stage1_2_fine_procs[stxs12binname]:
+                        terms = ["mu_XS_%s" % stxs12binname, "mu_BR_" + D, "mu_XS_%s_BR_%s" % (stxs12binname, D)]
+                    for merged_prod_bin in self.mergeSchemes["prod_only"]:
+                        if stxs12binname in self.mergeSchemes["prod_only"][merged_prod_bin]:
+                            terms += ["mu_XS_%s" % merged_prod_bin]
+                    for merged_proddec_bin in self.mergeSchemes["prod_times_dec"]:
+                        if stxs12binname in self.mergeSchemes["prod_times_dec"][meged_proddec_bin]:
+                            terms += ["mu_XS_%s_BR_%s" % (binname, D)]
+                self.modelBuilder.factory_("prod::scaling_%s_%s_13TeV(%s)" % (P, D, ",".join(terms)))
+                self.modelBuilder.out.function("scaling_%s_%s_13TeV" % (P, D)).Print("")
+
+    def getHiggsSignalYieldScale(self, production, decay, energy):
+        for regproc in self.PROCESSES:
+            if fnmatch.fnmatch(production, regproc):
+                return "scaling_%s_%s_%s" % (regproc, decay, energy)
+
+        for regproc in self.FINEPROCESSES:
+            if fnmatch.fnmatch(production, regproc):
+                return "scaling_%s_%s_%s" % (regproc, decay, energy)
+
+        # raise RuntimeError, "No production process matching %s for Stage0 found !"%production
+        print("WARNING: No production process matching %s for Stage1.2 found, will scale by 1 !" % production)
+        return 1
+
+
 stage0 = StageZero()
 stage0ZZ = StageZero("ZZ")
+stage12 = StageOnePTwo()
