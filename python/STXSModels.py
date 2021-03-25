@@ -86,11 +86,8 @@ class STXSBaseModel(PhysicsModel):
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
             if po.startswith("mergejson="):
-                print 'blah'
                 self.mergeBins = True
                 self.mergeJson=po.replace("mergejson=","")
-                print self.mergeBins
-                print self.mergeJson
     def doMH(self):
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
@@ -194,7 +191,7 @@ class StageOnePTwo(STXSBaseModel):
     "Allow different signal strength fits for the stage-1.2 model"
     def __init__(self):
         STXSBaseModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
-        self.POIs = ""
+        self.POIs = "mu"
         from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
         self.stage1_2_fine_procs = stage1_2_fine_procs
         self.PROCESSES = [x for v in stage1_2_procs.itervalues() for x in v]
@@ -215,8 +212,6 @@ class StageOnePTwo(STXSBaseModel):
                 self.mergeSchemes = json.load(f)
                 self.modelBuilder.stringout = json.dumps(self.mergeSchemes)
             f.close()
-
-	pois = []
 
         allProds = []
         for registered_proc in self.PROCESSES:
@@ -239,6 +234,7 @@ class StageOnePTwo(STXSBaseModel):
 
             
         self.doMH()
+        self.doVar("mu[1,0,5]")
         self.modelBuilder.doSet("POI",self.POIs)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
@@ -256,7 +252,7 @@ class StageOnePTwo(STXSBaseModel):
                 D = CMS_to_LHCHCG_DecSimple[dec]
                 if (D in allDecs): continue
                 allDecs.append(D)
-                terms = ["mu_XS_%s"%P, "mu_BR_"+D, "mu_XS_%s_BR_%s"%(P,D)]
+                terms = ["mu","mu_XS_%s"%P, "mu_BR_"+D, "mu_XS_%s_BR_%s"%(P,D)]
                 for merged_prod_bin in self.mergeSchemes['prod_only']:
                     if P in self.mergeSchemes['prod_only'][merged_prod_bin]:
                         terms += ["mu_XS_%s"%merged_prod_bin]
@@ -277,13 +273,13 @@ class StageOnePTwo(STXSBaseModel):
                 allDecs.append(D)
                 for stxs12binname in self.stage1_2_fine_procs:
                     if P in self.stage1_2_fine_procs[stxs12binname]:
-                      terms = ["mu_XS_%s"%stxs12binname, "mu_BR_"+D, "mu_XS_%s_BR_%s"%(stxs12binname,D)]
+                      terms = ["mu","mu_XS_%s"%stxs12binname, "mu_BR_"+D, "mu_XS_%s_BR_%s"%(stxs12binname,D)]
                     for merged_prod_bin in self.mergeSchemes['prod_only']:
                         if stxs12binname in self.mergeSchemes['prod_only'][merged_prod_bin]:
                             terms += ["mu_XS_%s"%merged_prod_bin]
                     for merged_proddec_bin in self.mergeSchemes['prod_times_dec']:
-                        if stxs12binname in self.mergeSchemes['prod_times_dec'][meged_proddec_bin]:
-                            terms += ["mu_XS_%s_BR_%s"%(binname,D)]
+                        if stxs12binname in self.mergeSchemes['prod_times_dec'][merged_proddec_bin]:
+                            terms += ["mu_XS_%s_BR_%s"%(merged_proddec_bin,D)]
                 self.modelBuilder.factory_('prod::scaling_%s_%s_13TeV(%s)' %(P,D,",".join(terms)))
                 self.modelBuilder.out.function('scaling_%s_%s_13TeV' % (P,D)).Print("")
 
