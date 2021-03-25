@@ -215,7 +215,7 @@ class StageOnePTwo(STXSBaseModel):
 
     def __init__(self):
         STXSBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
-        self.POIs = ""
+        self.POIs = "mu"
         from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
 
         self.stage1_2_fine_procs = stage1_2_fine_procs
@@ -261,6 +261,7 @@ class StageOnePTwo(STXSBaseModel):
             self.doVar("mu_BR_%s[1,0,5]" % (D))
 
         self.doMH()
+        self.doVar("mu[1,0,5]")
         self.modelBuilder.doSet("POI", self.POIs)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
@@ -279,7 +280,7 @@ class StageOnePTwo(STXSBaseModel):
                 if D in allDecs:
                     continue
                 allDecs.append(D)
-                terms = ["mu_XS_%s" % P, "mu_BR_" + D, "mu_XS_%s_BR_%s" % (P, D)]
+                terms = ["mu", "mu_XS_%s" % P, "mu_BR_" + D, "mu_XS_%s_BR_%s" % (P, D)]
                 for merged_prod_bin in self.mergeSchemes["prod_only"]:
                     if P in self.mergeSchemes["prod_only"][merged_prod_bin]:
                         terms += ["mu_XS_%s" % merged_prod_bin]
@@ -302,13 +303,13 @@ class StageOnePTwo(STXSBaseModel):
                 allDecs.append(D)
                 for stxs12binname in self.stage1_2_fine_procs:
                     if P in self.stage1_2_fine_procs[stxs12binname]:
-                        terms = ["mu_XS_%s" % stxs12binname, "mu_BR_" + D, "mu_XS_%s_BR_%s" % (stxs12binname, D)]
+                        terms = ["mu", "mu_XS_%s" % stxs12binname, "mu_BR_" + D, "mu_XS_%s_BR_%s" % (stxs12binname, D)]
                     for merged_prod_bin in self.mergeSchemes["prod_only"]:
                         if stxs12binname in self.mergeSchemes["prod_only"][merged_prod_bin]:
                             terms += ["mu_XS_%s" % merged_prod_bin]
                     for merged_proddec_bin in self.mergeSchemes["prod_times_dec"]:
-                        if stxs12binname in self.mergeSchemes["prod_times_dec"][meged_proddec_bin]:
-                            terms += ["mu_XS_%s_BR_%s" % (binname, D)]
+                        if stxs12binname in self.mergeSchemes["prod_times_dec"][merged_proddec_bin]:
+                            terms += ["mu_XS_%s_BR_%s" % (merged_proddec_bin, D)]
                 self.modelBuilder.factory_("prod::scaling_%s_%s_13TeV(%s)" % (P, D, ",".join(terms)))
                 self.modelBuilder.out.function("scaling_%s_%s_13TeV" % (P, D)).Print("")
 
