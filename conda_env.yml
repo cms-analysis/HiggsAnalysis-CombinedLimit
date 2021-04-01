@@ -11,4 +11,5 @@ dependencies:
   - vdt
   - boost
   - pcre
+  - eigen
   - certifi[version='>=2017.4.17']
