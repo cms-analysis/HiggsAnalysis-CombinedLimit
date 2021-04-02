@@ -1,10 +1,9 @@
 name: CI/CD
 
 on:
-  push:
-    branches:
-      - 112x
+  workflow_dispatch:
   pull_request:
+  push:
     branches:
       - 112x
 
