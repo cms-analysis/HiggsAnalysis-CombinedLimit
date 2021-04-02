@@ -11,25 +11,15 @@
 ################################################################################
 
 ####  SET UP YOUR ENVIRONMENT FIRST WITH ##############################
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/gcc/4.9.1-cms/etc/profile.d/init.sh 
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/bin/thisroot.sh
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/vdt/v0.3.2-cms/etc/profile.d/init.sh 
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/boost/1.51.0-cms/etc/profile.d/init.sh 
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/xz/5.2.1/etc/profile.d/init.sh 
-# export PATH=${PATH}:${PWD}/exe:${PWD}/scripts
-# export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/lib
-# export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python
+# source env_standalone.sh
 #######################################################################
 
 # Boost
 BOOST = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/boost/1.72.0-gchjei
 VDT   = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/cms/vdt/0.4.0-ghbfee
-# PCRE = /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/pcre/8.37-omkpbe2
+PCRE = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/pcre/8.43-bcolbf
 GSL = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/gsl/2.6-bcolbf3
-# LIBXML = /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/libxml2/2.9.1-omkpbe2/include/libxml2
-# XZ = /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/xz/5.2.2-omkpbe2
-# ZLIB = /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/zlib-x86_64/1.2.11-omkpbe2
-EIGEN = /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/eigen/64060da8461a627eb25b5a7bc0616776068db58b
+EIGEN = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/eigen/d812f411c3f9-ghbfee
 # Compiler and flags -----------------------------------------------------------
 CC = c++
 ROOTCFLAGS = $(shell root-config --cflags)

@@ -6,19 +6,16 @@
 # o Automatic compilation of new programs and classes*.                        #
 # o Now generate dictionaries by genreflex                                     #
 #                                                                              #
-# * progs should have cpp extension, classes .cc or .cxx, and headers .h       # 
+# * progs should have cpp extension, classes .cc or .cxx, and headers .h       #
 #                                                                              #
 ################################################################################
 
 ####  SET UP YOUR ENVIRONMENT FIRST WITH ##############################
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/gcc/4.9.1-cms/etc/profile.d/init.sh 
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/bin/thisroot.sh
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/vdt/v0.3.2-cms/etc/profile.d/init.sh 
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/boost/1.51.0-cms/etc/profile.d/init.sh 
-# . /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/xz/5.2.1/etc/profile.d/init.sh 
-# export PATH=${PATH}:${PWD}/exe:${PWD}/scripts
-# export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/lib
-# export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python
+# conda install --name base mamba # faster conda
+# mamba env create -f conda_env.yml
+# conda activate combine2
+# source env_conda.sh
+# make -f Makefile_conda -j 8
 #######################################################################
 
 # Boost
@@ -57,9 +54,9 @@ OBJ_DIR = obj
 # Useful shortcuts -------------------------------------------------------------
 SRCS = $(notdir $(shell ls $(SRC_DIR)/*.cc ))
 SRXS = $(notdir $(shell ls $(SRC_DIR)/*.cxx ))
-OBJS = $(SRCS:.cc=.o) 
+OBJS = $(SRCS:.cc=.o)
 OBJS += $(SRXS:.cxx=.o)
-PROGS = $(notdir $(wildcard ${PROG_DIR}/*.cpp)) 
+PROGS = $(notdir $(wildcard ${PROG_DIR}/*.cpp))
 EXES = $(PROGS:.cpp=)
 
 #Makefile Rules ---------------------------------------------------------------
@@ -86,13 +83,13 @@ dirs:
 dict: dirs $(OBJ_DIR)/a/$(DICTNAME).cc
 $(OBJ_DIR)/a/$(DICTNAME).cc : $(SRC_DIR)/classes_def.xml
 # 	@echo "\n*** Generating dictionaries ..."
-	genreflex $(SRC_DIR)/classes.h -s $(SRC_DIR)/classes_def.xml -o $(OBJ_DIR)/a/$(DICTNAME).cc --deep --fail_on_warnings --rootmap=$(OBJ_DIR)/a/$(DICTNAME).rootmap --rootmap-lib=$(SONAME) -I$(PARENT_DIR) 
+	genreflex $(SRC_DIR)/classes.h -s $(SRC_DIR)/classes_def.xml -o $(OBJ_DIR)/a/$(DICTNAME).cc --deep --fail_on_warnings --rootmap=$(OBJ_DIR)/a/$(DICTNAME).rootmap --rootmap-lib=$(SONAME) -I$(PARENT_DIR)
 	mv $(OBJ_DIR)/a/$(DICTNAME).rootmap $(LIB_DIR)/
 	mv $(OBJ_DIR)/a/$(DICTNAME)_rdict.pcm $(LIB_DIR)/
 
 #---------------------------------------
 
-obj: dict 
+obj: dict
 # 	@echo "\n*** Compiling ..."
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc $(INC_DIR)/%.h
 	$(CC) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
@@ -100,7 +97,7 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc $(SRC_DIR)/%.h
 	$(CC) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
 	$(CC) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
-$(OBJ_DIR)/a/%.o : $(OBJ_DIR)/a/%.cc 
+$(OBJ_DIR)/a/%.o : $(OBJ_DIR)/a/%.cc
 	$(CC) $(CCFLAGS) -I . -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
 
 
@@ -111,7 +108,7 @@ $(OBJ_DIR)/tdrstyle.o: $(SRC_DIR)/tdrstyle.cc
 #---------------------------------------
 
 lib: dirs ${LIB_DIR}/$(SONAME)
-${LIB_DIR}/$(SONAME):$(addprefix $(OBJ_DIR)/,$(OBJS)) $(OBJ_DIR)/a/$(DICTNAME).o 
+${LIB_DIR}/$(SONAME):$(addprefix $(OBJ_DIR)/,$(OBJS)) $(OBJ_DIR)/a/$(DICTNAME).o
 #	@echo "\n*** Building $(SONAME) library:"
 	$(LD) $(LDFLAGS) $(BOOST_INC) $(addprefix $(OBJ_DIR)/,$(OBJS)) $(OBJ_DIR)/a/$(DICTNAME).o $(SOFLAGS) -o $@ $(LIBS)
 
@@ -123,13 +120,13 @@ $(EXE_DIR)/% : $(PROG_DIR)/%.cpp lib
 	$(CC) $< -o $@ $(CCFLAGS) -L $(LIB_DIR) -l $(LIBNAME) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) $(BOOST_INC) $(LIBS)
 
 compile_python:
-	@python -m compileall -q python 
+	@python -m compileall -q python
 
 #---------------------------------------
 
 clean:
 # 	@echo "*** Cleaning all directories and dictionaries ..."
-	@rm -rf $(OBJ_DIR) 
+	@rm -rf $(OBJ_DIR)
 	@rm -rf $(EXE_DIR)
 	@rm -rf $(LIB_DIR)
 	@rm -rf python/*pyc python/*/*pyc

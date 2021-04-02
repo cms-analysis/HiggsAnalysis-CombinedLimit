@@ -388,11 +388,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly->SetPdf(*model_b);
     }
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,20,0)
-    // Fix for large RooAddPdfs
-    utils::RooAddPdfFixer::FixAll(*w);
-#endif    
-
     // Specific settings should be executed before user specified ranges!
     RooRealVar *r = (RooRealVar*)POI->first();
     if (!isnan(rMin_)) r->setMin(rMin_);

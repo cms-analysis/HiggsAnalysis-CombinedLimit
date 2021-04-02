@@ -17,8 +17,7 @@ make -j 8; make # second make fixes compilation error of first
 ```
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
-git fetch origin pull/648/head:r622conda # until merged
-git checkout r622conda
+git checkout 112x
 
 conda install --name base mamba # faster conda
 mamba env create -f conda_env.yml 
