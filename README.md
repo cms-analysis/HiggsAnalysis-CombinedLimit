@@ -20,9 +20,9 @@ cd HiggsAnalysis/CombinedLimit
 git checkout 112x
 
 conda install --name base mamba # faster conda
-mamba env create -f conda_env.yml 
-conda activate combine2
-source env_conda.sh 
+mamba env create -f conda_env.yml
+conda activate combine
+source env_conda.sh
 make -f Makefile_conda -j 8
 ```
 
