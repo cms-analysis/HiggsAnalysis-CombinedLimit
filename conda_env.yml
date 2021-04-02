@@ -1,4 +1,4 @@
-name: combine2
+name: combine
 channels:
   - conda-forge
   - defaults

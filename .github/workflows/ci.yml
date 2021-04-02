@@ -1,0 +1,30 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - 112x
+  pull_request:
+    branches:
+      - 112x
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Test compilation using conda env
+
+    steps:
+    - uses: actions/checkout@master
+    - name: Set up Conda
+      uses: conda-incubator/setup-miniconda@v2.1.1
+      with:
+        mamba-version: "*"
+        channels: conda-forge,defaults
+        channel-priority: true
+        environment-file: conda_env.yml
+        activate-environment: combine
+    - name: Build
+      shell: bash -l {0}
+      run: |
+        source env_conda.sh
+        make -f Makefile_conda -j 2
