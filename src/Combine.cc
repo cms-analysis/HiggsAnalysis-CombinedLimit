@@ -261,8 +261,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   bool isTextDatacard = false, isBinary = false;
-  TString fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
-  if (!boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
+  TString fileToLoad = ((hlfFile[0] == '/' || hlfFile.Contains("://")) ? hlfFile : pwd+"/"+hlfFile);
+  if (!fileToLoad.Contains("://") && !boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
   if (hlfFile.EndsWith(".hlf") ) {
     // nothing to do
   } else if (hlfFile.EndsWith(".root")) {
@@ -304,6 +304,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (isBinary) {
     TFile *fIn = TFile::Open(fileToLoad); 
+    if (!fIn) throw std::runtime_error(("Could not open file "+fileToLoad).Data());
     garbageCollect.tfile = fIn; // request that we close this file when done
 
     w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
