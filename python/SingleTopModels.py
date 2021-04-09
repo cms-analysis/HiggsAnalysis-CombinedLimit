@@ -149,3 +149,9 @@ class KappaVKappaT(LHCHCGBaseModel):
             print '[LHC-HCG Kappas]', name, production, decay, energy,": ",
             self.modelBuilder.out.function(name).Print("")
         return name
+
+
+K4 = KappaVKappaT(resolved=True)
+K5 = KappaVKappaT(resolved=False)
+K6 = KappaVKappaT(resolved=False, coupleTopTau=True)
+K7 = KappaVKappaT(resolved=True, coupleTopTau=True)
