@@ -436,6 +436,10 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     int ntrials=0;
     double mindiff_here = -1;
     double rval_at_min = 0;
+    double mindiff_here_p2 = -1;
+    double rval_at_min_p2 = 0;
+    double mindiff_here_p3 = -1;
+    double rval_at_min_p3 = 0;
     do {
         ntrials++;
         rStart += rInc;
@@ -470,14 +474,58 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
           mindiff_here = std::abs(here-level);
           rval_at_min = r.getVal();
         }
+        else if (mindiff_here_p2<0. || std::abs(here-level)<mindiff_here_p2){
+          mindiff_here_p2 = std::abs(here-level);
+          rval_at_min_p2 = r.getVal();
+        }
+        else if (mindiff_here_p3<0. || std::abs(here-level)<mindiff_here_p3){
+          mindiff_here_p3 = std::abs(here-level);
+          rval_at_min_p3 = r.getVal();
+        }
         if (verbose > 0) {
           printf("%f    %+.5f  %+.5f    %f\n", rStart, level-here, level-there, rInc); fflush(stdout);
           Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- %f    %+.5f  %+.5f    %f", __LINE__, rStart, level-here, level-there, rInc)), Logger::kLogLevelInfo, __func__);
         }
-        if (std::abs(here - level) < 4*crossingTolerance_) {
-            // set to the right point with interpolation
-            r.setVal(rStart + (level-here)*(level-there)/(here-there));
-            return r.getVal();
+
+
+        long double ccoef[3]={ 0 }; // The coeffs are defined for y(x) = sum_i{c_i * x**i}.
+        long double cdisc = -1.; // =b^2-4ac
+        if (
+          (mindiff_here>=0. && mindiff_here < 4.*crossingTolerance_)
+          && (mindiff_here_p2>=0. && mindiff_here_p2 < 4.*crossingTolerance_)
+          && (mindiff_here_p3>=0. && mindiff_here_p3 < 4.*crossingTolerance_)
+          ) {
+          long double xx[3] ={ rval_at_min, rval_at_min_p2, rval_at_min_p3 };
+          long double yy[3] ={ mindiff_here, mindiff_here_p2, mindiff_here_p3 };
+          long double mdet = xx[0]*((xx[1]-xx[2])*(xx[1]+xx[2])) - xx[1]*((xx[0]-xx[2])*(xx[0]+xx[2])) + xx[2]*((xx[0]-xx[1])*(xx[0]+xx[1]));
+          bool const isInvertible = (mdet!=0.); // This should always be the case, but check just to make sure there are no numerical precision issues.
+          if (isInvertible){
+            long double mm[3][3]={
+              { xx[1]*xx[2]*(xx[2]-xx[1]), xx[0]*xx[2]*(xx[0]-xx[2]), xx[0]*xx[1]*(xx[1]-xx[0]) },
+              { ((xx[1]-xx[2])*(xx[1]+xx[2])), -((xx[0]-xx[2])*(xx[0]+xx[2])), ((xx[0]-xx[1])*(xx[0]+xx[1])) },
+              { xx[2]-xx[1], xx[0]-xx[2], xx[1]-xx[0] }
+            };
+            for (unsigned char ii=0; ii<3; ii++){ for (unsigned char jj=0; jj<3; jj++){ mm[ii][jj] /= mdet; } }
+            for (unsigned char ii=0; ii<3; ii++){ for (unsigned char jj=0; jj<3; jj++){ ccoef[ii] += mm[ii][jj]*yy[jj]; } }
+            cdisc = std::pow(ccoef[1], 2) - 4.*ccoef[0]*ccoef[2];
+          }
+        }
+
+
+        // Check if the discriminant is positive, and interpolate with a quadratic if so.
+        // Case with discriminant=0 means the quadratic equation crosses y=0 once, so it is likely not an accurate estimate yet.
+        if (cdisc>0.) {
+            long double selsoln = 0; // Dummy 0
+            if (ccoef[2]!=0.){
+              long double soln[2]={ (-ccoef[1]-std::sqrt(cdisc))/(2.*ccoef[2]), (-ccoef[1]+std::sqrt(cdisc))/(2.*ccoef[2]) };
+              selsoln = (std::abs(soln[0] - rval_at_min)<std::abs(soln[1] - rval_at_min) ? soln[0] : soln[1]);
+            }
+            else{
+              // No case for else ccoef[1]==0. because of the cdisc>0. condition.
+              selsoln = -ccoef[0]/ccoef[1];
+            }
+            r.setVal(selsoln);
+            return selsoln;
         } else if (here > level) {
             // I'm above the level that I wanted, this means I stepped too long
             // First I take back all the step
@@ -527,11 +575,11 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             }
             checkpoint.reset(minim.save());
         }
-    } while ((nPersistentTrials>0 && ntrials<=nPersistentTrials && std::abs(here - level)>crossingTolerance_) || std::abs(rInc) > crossingTolerance_*stepSize_*std::max(1.0, std::abs(rBound-rStart)));
+    } while ((nPersistentTrials>0 && ntrials<=nPersistentTrials && (mindiff_here<0. || mindiff_here>crossingTolerance_)) || std::abs(rInc) > crossingTolerance_*stepSize_*std::max(1.0, std::abs(rBound-rStart)));
     if (mindiff_here > 0.01) {
-      std::cout << "Error: closed range without finding crossing." << std::endl;
-      if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Closed range without finding crossing! ", __LINE__)), Logger::kLogLevelError, __func__);
-      return NAN;
+        std::cout << "Error: closed range without finding crossing." << std::endl;
+        if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Closed range without finding crossing! ", __LINE__)), Logger::kLogLevelError, __func__);
+        return NAN;
     } else {
         return rval_at_min;
     }
