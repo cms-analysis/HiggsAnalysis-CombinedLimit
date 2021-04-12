@@ -1236,7 +1236,13 @@ void cacheutils::CachingSimNLL::setAnalyticBarlowBeeston(bool flag) {
       }
     */
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
-        pdfs_[ib]->setAnalyticBarlowBeeston(flag);
+        // If channel is masked we must always make sure analytic minimisation is off
+        if (!channelMasks_.empty() && channelMasks_[ib]->getVal() != 0.) {
+            pdfs_[ib]->setAnalyticBarlowBeeston(false);
+        } else {
+            pdfs_[ib]->setAnalyticBarlowBeeston(flag);
+
+        }
     }
 }
 
