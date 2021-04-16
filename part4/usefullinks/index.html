@@ -317,6 +317,7 @@
 </li>
 <li><em>Why does my fit not converge?</em> <ul>
 <li>There are several reasons why some fits may not converge. Often some indication can be obtained from the <code>RooFitResult</code> or status which you will see information from when using the <code>--verbose X</code> (with <span><span class="MathJax_Preview">X&gt;2</span><script type="math/tex">X>2</script></span>) option. Sometimes however, it can be that the likelihood for your data is very unusual. You can get a rough idea about what the likelihood looks like as a function of your parameters (POIs and nuisances) using <code>combineTool.py -M FastScan -w myworkspace.root</code> (use --help for options). </li>
+<li>We have  seen often that fits in combine using <code>RooCBShape</code> as a parametric function will fail. This is related to an optimisation that fails. You can try to fix the problem as described in this issue: https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/issues/347 (i.e add the option <code>--X-rtd ADDNLL_CBNLL=0</code>).</li>
 </ul>
 </li>
 <li><em>Why does the fit/fits take so long?</em> <ul>
