@@ -14,16 +14,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
+      with:
+        path: HiggsAnalysis/CombinedLimit # Required to match compile instructions
     - name: Set up Conda
       uses: conda-incubator/setup-miniconda@v2.1.1
       with:
         mamba-version: "*"
         channels: conda-forge,defaults
         channel-priority: true
-        environment-file: conda_env.yml
+        environment-file: HiggsAnalysis/CombinedLimit/conda_env.yml
         activate-environment: combine
+    - name: Set up conda env variables
+      shell: bash -l {0}
+      run: |
+        cd HiggsAnalysis/CombinedLimit
+        bash set_conda_env_vars.sh
     - name: Build
       shell: bash -l {0}
       run: |
-        source env_conda.sh
+        cd HiggsAnalysis/CombinedLimit
         make -f Makefile_conda -j 2

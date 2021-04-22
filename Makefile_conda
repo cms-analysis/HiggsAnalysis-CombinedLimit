@@ -19,7 +19,7 @@
 #######################################################################
 
 # Boost
-CONDA = $(shell conda info --base)/envs/combine2
+CONDA = ${CONDA_PREFIX}
 # Compiler and flags -----------------------------------------------------------
 CC = c++
 ROOTCFLAGS = $(shell root-config --cflags)
