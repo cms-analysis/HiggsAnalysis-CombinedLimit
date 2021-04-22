@@ -26,6 +26,8 @@ VerticalInterpPdf::VerticalInterpPdf()
   _funcIter  = _funcList.createIterator() ;
   _coefIter  = _coefList.createIterator() ;
   _quadraticRegion = 0;
+  _pdfFloorVal = 1e-15;
+  _integralFloorVal = 1e-10;
 }
 
 
@@ -36,7 +38,9 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
   _funcList("!funcList","List of functions",this),
   _coefList("!coefList","List of coefficients",this),
   _quadraticRegion(quadraticRegion),
-  _quadraticAlgo(quadraticAlgo)
+  _quadraticAlgo(quadraticAlgo),
+  _pdfFloorVal(1e-15),
+  _integralFloorVal(1e-10)
 { 
 
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1) {
@@ -89,7 +93,9 @@ VerticalInterpPdf::VerticalInterpPdf(const VerticalInterpPdf& other, const char*
   _funcList("!funcList",this,other._funcList),
   _coefList("!coefList",this,other._coefList),
   _quadraticRegion(other._quadraticRegion),
-  _quadraticAlgo(other._quadraticAlgo)
+  _quadraticAlgo(other._quadraticAlgo),
+  _pdfFloorVal(other._pdfFloorVal),
+  _integralFloorVal(other._integralFloorVal)
 {
   // Copy constructor
 
@@ -140,7 +146,7 @@ Double_t VerticalInterpPdf::evaluate() const
       }
   }
    
-  return ( value > 0 ? value : 1E-15 ); // Last IEEE double precision
+  return ( value > 0. ? value : _pdfFloorVal);
 }
 
 
@@ -284,8 +290,8 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
   }
 
   Double_t result = 0;
-  if(normVal>0) result = value / normVal;
-  return (result > 0 ? result : 1E-10);
+  if(normVal>0.) result = value / normVal;
+  return (result > 0. ? result : _integralFloorVal);
 }
 
 Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbsReal *fUp, RooAbsReal *fDn) const  
@@ -364,3 +370,7 @@ Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbs
         }
     }
 }
+
+
+//_____________________________________________________________________________
+void VerticalInterpPdf::setFloorVals(Double_t const& pdf_val, Double_t const& integral_val){ _pdfFloorVal = pdf_val; _integralFloorVal = integral_val; }
