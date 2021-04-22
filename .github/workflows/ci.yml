@@ -33,4 +33,4 @@ jobs:
       shell: bash -l {0}
       run: |
         cd HiggsAnalysis/CombinedLimit
-        make -f Makefile_conda -j 2
+        make CONDA=1 -j 2
