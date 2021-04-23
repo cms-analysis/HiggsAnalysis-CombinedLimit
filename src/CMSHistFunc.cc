@@ -102,10 +102,10 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       hmorphs_("hmorphs", this, other.hmorphs_),
       hpoints_(other.hpoints_),
       vmorph_sentry_(name ? TString(name) + "_vmorph_sentry"
-                          : TString(other.vmorph_sentry_.GetName()),
+                          : TString(other.GetName())+"_vmorph_sentry",
                      ""),
       hmorph_sentry_(name ? TString(name) + "_hmorph_sentry"
-                          : TString(other.hmorph_sentry_.GetName()),
+                          : TString(other.GetName())+"_hmorph_sentry",
                      ""),
       cache_(other.cache_),
       rebin_cache_(other.rebin_cache_),

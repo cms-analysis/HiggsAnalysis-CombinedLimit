@@ -7,6 +7,7 @@
 #include "TH3F.h"
 #include "TAxis.h"
 #include "RooDataHist.h"
+#include "RooListProxy.h"
 
 using namespace TMath;
 

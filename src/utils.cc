@@ -1103,22 +1103,3 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiP
 
 	return false;
 }
-
-void utils::RooAddPdfFixer::Fix(RooAddPdf & fixme) {
-  RooAddPdfFixer & fixme_casted = static_cast<RooAddPdfFixer &>(fixme);
-  delete[] fixme_casted.RooAddPdf::_coefCache;
-  fixme_casted.RooAddPdf::_coefCache = new Double_t[fixme_casted.RooAddPdf::_pdfList.getSize()];
-}
-
-void utils::RooAddPdfFixer::FixAll(RooWorkspace & w) {
-  auto pdfs = w.allPdfs();
-  TIterator *iter = pdfs.createIterator();
-  for (RooAbsArg *a = 0; (a = (RooAbsArg *)iter->Next()) != 0; ) {
-    RooAddPdf *addpdf = dynamic_cast<RooAddPdf*>(a);
-    if (addpdf && addpdf->pdfList().getSize() > 100) {
-      // std::cout << "> Fixing RooAddPdf " << addpdf->GetName() << " which has " << addpdf->pdfList().getSize() << " components\n";
-      Fix(*addpdf);
-    }
-  }
-}
-
