@@ -28,7 +28,7 @@ bash set_conda_env_vars.sh
 conda deactivate
 conda activate combine
 
-make -f Makefile_conda -j 8
+make CONDA=1 -j 8
 ```
 
 Using combine from then on should only require sourcing the conda environment 
