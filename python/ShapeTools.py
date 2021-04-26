@@ -73,7 +73,7 @@ class ShapeBuilder(ModelBuilder):
         else:
             self.out.obs = self.out.binVars
         self.doSet("observables",self.out.obs)
-        if len(self.DC.obs) != 0: 
+        if len(self.DC.obs) != 0 and not self.options.noData:
             self.doCombinedDataset()
     def doIndividualModels(self):
         if self.options.verbose:
@@ -154,7 +154,10 @@ class ShapeBuilder(ModelBuilder):
                         parname = n
                         self.out._import(arg)
                         if arg.getAttribute("createGaussianConstraint"):
-                            self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[0,%s], %s" % (n, n, '-7,7', '1.0'), True)
+                            if self.options.noOptimizePdf:
+                                self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[0,%s], %s" % (n, n, '-7,7', '1.0'), True)
+                            else:
+                                self.doObj("%s_Pdf" % n, "SimpleGaussianConstraint", "%s, %s_In[0,%s], %s" % (n, n, '-7,7', '1.0'), True)
                             self.out.var(n).setVal(0)
                             self.out.var(n).setError(1)
                             if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
@@ -198,7 +201,11 @@ class ShapeBuilder(ModelBuilder):
                 if not self.options.noBOnly: sum_b.setAttribute('forceGen'+self.pdfModes[b].title())
             addSyst = False
             if    self.options.moreOptimizeSimPdf == "none":   addSyst = True
-            elif  self.options.moreOptimizeSimPdf == "lhchcg": addSyst = (i > 1)
+            # New behaviour for "lhchcg" mode - since autoMCStats constraints are only added to their respective channels,
+            # we can't get away with only adding a constraint production to the first channel. Instead we will always enter
+            # the code block below (addSyst=True), and only add the normal nuisPdfs on i==0, while the binconstraints will
+            # always be added.
+            elif  self.options.moreOptimizeSimPdf == "lhchcg": addSyst = True
             elif  self.options.moreOptimizeSimPdf == "cms":
                 if self.options.noOptimizePdf: raise RuntimeError, "--optimize-simpdf-constraints=cms is incompatible with --no-optimize-pdfs"
                 addSyst = False
@@ -209,7 +216,7 @@ class ShapeBuilder(ModelBuilder):
                 	self.renameObj("pdf_bin%s_bonly" % b, "pdf_bin%s_bonly_nuis" % b)
                 # now we multiply by all the nuisances, but avoiding nested products
                 # so we first make a list of all nuisances plus the RooAddPdf
-                if len(self.DC.systs):
+                if len(self.DC.systs) and not (self.options.moreOptimizeSimPdf == "lhchcg" and i > 0):
                     sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs)
                 else:
                     sumPlusNuis_s = ROOT.RooArgList()
