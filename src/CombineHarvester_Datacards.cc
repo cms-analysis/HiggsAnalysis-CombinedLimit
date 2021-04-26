@@ -17,6 +17,7 @@
 #include "TDirectory.h"
 #include "TH1.h"
 #include "RooRealVar.h"
+#include "RooFormulaVar.h"
 #include "RooCategory.h"
 
 #include "CombineHarvester/CombineTools/interface/Observation.h"
