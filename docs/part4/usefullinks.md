@@ -9,7 +9,8 @@ There are several tutorials which have been run over the last few years with ins
    * [2nd tutorial 30th Nov 2016](https://indico.cern.ch/event/577649/#b-229590-higgs-combine-tool-mi).
    * [3rd tutorial 29th Nov 2017](https://indico.cern.ch/event/677948/#day-2017-11-29) 
    * [4th tutorial 31st Oct 2018](https://indico.cern.ch/event/747340/overview) - Latest for `81x-root606` branch.
-   * [5th tutorial 2nd-4th Dec 2019](https://indico.cern.ch/event/859454/overview) - Latest for `102x` branch.
+   * [5th tutorial 2nd-4th Dec 2019](https://indico.cern.ch/event/859454/overview)
+   * [6th tutorial 14th-16th Dec 2020](https://indico.cern.ch/event/976099/overview) - Latest for `102x` branch
 
 
 * Worked examples from Higgs analyses using combine  
