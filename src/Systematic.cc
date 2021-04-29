@@ -15,6 +15,8 @@ Systematic::Systematic()
       asymm_(false),
       shape_u_(),
       shape_d_(),
+      pdf_u_(nullptr),
+      pdf_d_(nullptr),
       data_u_(nullptr),
       data_d_(nullptr) {
   }
@@ -32,6 +34,8 @@ void swap(Systematic& first, Systematic& second) {
   swap(first.asymm_, second.asymm_);
   swap(first.shape_u_, second.shape_u_);
   swap(first.shape_d_, second.shape_d_);
+  swap(first.pdf_u_, second.pdf_u_);
+  swap(first.pdf_d_, second.pdf_d_);
   swap(first.data_u_, second.data_u_);
   swap(first.data_d_, second.data_d_);
 }
@@ -44,6 +48,8 @@ Systematic::Systematic(Systematic const& other)
       value_d_(other.value_d_),
       scale_(other.scale_),
       asymm_(other.asymm_),
+      pdf_u_(other.pdf_u_),
+      pdf_d_(other.pdf_d_),
       data_u_(other.data_u_),
       data_d_(other.data_d_) {
   TH1 *h_u = nullptr;
@@ -70,6 +76,8 @@ Systematic::Systematic(Systematic&& other)
       asymm_(false),
       shape_u_(),
       shape_d_(),
+      pdf_u_(nullptr),
+      pdf_d_(nullptr),
       data_u_(nullptr),
       data_d_(nullptr) {
   swap(*this, other);
@@ -146,6 +154,11 @@ void Systematic::set_data(RooDataHist* data_u, RooDataHist* data_d,
   data_d_ = data_d;
 }
 
+void Systematic::set_pdf(RooAbsReal* pdf_u, RooAbsReal* pdf_d,
+                          RooAbsReal const* nominal) {
+  pdf_u_ = pdf_u;
+  pdf_d_ = pdf_d;
+}
 
 std::unique_ptr<TH1> Systematic::ClonedShapeU() const {
   if (!shape_u_) return std::unique_ptr<TH1>();
@@ -232,15 +245,19 @@ std::ostream& operator<< (std::ostream &out, Systematic const& val) {
   % val.name()
   % val.type()
   % value_fmt
-  % (bool(val.shape_d()) || bool(val.data_d()))
-  % (bool(val.shape_u()) || bool(val.data_u()));
+  % (bool(val.shape_d()) || bool(val.data_d()) || bool(val.pdf_d()))
+  % (bool(val.shape_u()) || bool(val.data_u()) || bool(val.pdf_u()));
   return out;
 }
 
 void Systematic::SwapUpAndDown() {
-  double tmp = value_u_;
-  value_u_ = value_d_;
-  value_d_ = tmp;
+  if (not asymm()) 
+      value_u_=1./value_u_;
+  else{
+      double tmp = value_u_;
+      value_u_ = value_d_;
+      value_d_ = tmp;
+  }
   shape_u_.swap(shape_d_);
 }
 }

@@ -49,8 +49,15 @@ class Systematic : public Object {
 
   RooDataHist const* data_d() const { return data_d_; }
 
+  RooAbsReal const* pdf_u() const { return pdf_u_; }
+
+  RooAbsReal const* pdf_d() const { return pdf_d_; }
+
   void set_data(RooDataHist* data_u, RooDataHist* data_d,
                 RooDataHist const* nominal);
+
+  void set_pdf(RooAbsReal* pdf_u, RooAbsReal* pdf_d,
+                RooAbsReal const* nominal);
 
   void set_shapes(std::unique_ptr<TH1> shape_u, std::unique_ptr<TH1> shape_d,
                   TH1 const* nominal);
@@ -72,6 +79,8 @@ class Systematic : public Object {
   bool asymm_;
   std::unique_ptr<TH1> shape_u_;
   std::unique_ptr<TH1> shape_d_;
+  RooAbsReal * pdf_u_;
+  RooAbsReal * pdf_d_;
   RooDataHist * data_u_;
   RooDataHist * data_d_;
 
