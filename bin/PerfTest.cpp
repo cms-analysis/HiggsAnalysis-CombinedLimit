@@ -33,21 +33,12 @@ int main(int argc, char *argv[]) {
 	for (RooAbsArg *a = it.next(); a != 0; a = it.next()) {
 		auto rrv = dynamic_cast<RooAbsReal*>(a);
 		if (rrv) {
-			std::cout << rrv->GetName() << " " << rrv->getVal() << "\n";
+			rrv->getVal();
 		}
 	}
 	if(dump_) {
 		dump_("profdump_wsp.out.gz");
 	}
-
-	// Load the workspace a second time, there seems to be some overhead
-	// in the first load that won't appear in the second...
-	// RooWorkspace *w2 = (RooWorkspace*)gDirectory->Get(argv[2]);
-
-
-	// if(dump_) {
-	// 	dump_("profdump_wsp2.out.gz");
-	// }
 
 	return 0;
 }
