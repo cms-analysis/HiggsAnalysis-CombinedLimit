@@ -63,6 +63,8 @@ protected:
   static float signalForSignificance_;
   static float mass_;
 
+  static std::string setNullParametersExpression_;
+
   static std::string plot_;
 
   bool runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc, RooAbsData &data, double &limit, double &limitErr);
@@ -72,6 +74,7 @@ protected:
   std::pair<double,double> upperLimitBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const ;
   double significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance) const ;
   double significanceFromScan(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, int npoints) const ;
+  void setNullParameters(RooWorkspace *w, RooArgSet &nullParamValues) const;
 };
 
 #endif

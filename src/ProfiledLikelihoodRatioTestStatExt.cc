@@ -145,7 +145,7 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     DBG(DBG_PLTestStat_main, (std::cout << "Created for " << pdf.GetName() << "." << std::endl))
 
     params.snapshot(snap_,false);
-    ((RooRealVar*)snap_.find(params.first()->GetName()))->setConstant(false);
+
     if (nuisances) { nuisances_.add(*nuisances); snap_.addClone(*nuisances, /*silent=*/true); }
     params_.reset(pdf_->getParameters(observables));
     DBG(DBG_PLTestStat_ctor, (std::cout << "Observables: " << std::endl)) DBG(DBG_PLTestStat_ctor, (observables.Print("V")))
@@ -161,6 +161,9 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
         if (ps == 0) { std::cerr << "WARNING: no snapshot for POI " << a->GetName() << ", cannot profile"  << std::endl; continue; }
         poi_.add(*ps);
         poiParams_.add(*pp);
+
+        // make the POI non-constant in the snapshot
+        ((RooRealVar*)ps)->setConstant(false);
     }
 }
 

@@ -45,6 +45,7 @@ bool        Significance::reportPVal_ = false;
 bool        Significance::uncapped_ = false;
 float       Significance::signalForSignificance_ = 0;
 float       Significance::mass_;
+std::string Significance::setNullParametersExpression_ = "";
 std::string Significance::plot_ = "";
 
 Significance::Significance() :
@@ -57,7 +58,7 @@ Significance::Significance() :
         ("maxTries",           boost::program_options::value<int>(&maxTries_)->default_value(maxTries_), "Stop trying after N attempts per point")
         ("maxRelDeviation",    boost::program_options::value<float>(&maxRelDeviation_)->default_value(maxOutlierFraction_), "Max absolute deviation of the results from the median")
         ("maxOutlierFraction", boost::program_options::value<float>(&maxOutlierFraction_)->default_value(maxOutlierFraction_), "Ignore up to this fraction of results if they're too far from the median")
-        ("signalForSignificance", boost::program_options::value<float>(&signalForSignificance_)->default_value(signalForSignificance_), "Signal strength used when computing significances (default is zero, just background)")
+        ("signalForSignificance", boost::program_options::value<float>(&signalForSignificance_)->default_value(signalForSignificance_), "Signal strength used when computing significances (default is zero, just background); ignored when the (first) POI is also set via --setNullParameters")
         ("maxOutliers",        boost::program_options::value<int>(&maxOutliers_)->default_value(maxOutliers_),      "Stop trying after finding N outliers")
         ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
         ("pvalue", "Report p-value instead of significance")
@@ -70,10 +71,11 @@ Significance::Significance() :
         ("scanPoints", boost::program_options::value<int>(&points_)->default_value(points_), "Points for the scan")
         ("setBruteForceTypeAndAlgo",      boost::program_options::value<std::string>(&minimizerAlgoForBF_)->default_value(minimizerAlgoForBF_), "Choice of minimizer for brute-force search (default is Minuit2,simplex)")
         ("setBruteForceTolerance", boost::program_options::value<float>(&minimizerToleranceForBF_)->default_value(minimizerToleranceForBF_),  "Tolerance for minimizer when doing brute-force search")
+        ("setNullParameters", boost::program_options::value<string>(&setNullParametersExpression_)->default_value(setNullParametersExpression_), "Set the values of model parameters of the null hypothesis. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0. Not supported when --bruteForce is enabled.")
     ;
 }
 
-void Significance::applyOptions(const boost::program_options::variables_map &vm) 
+void Significance::applyOptions(const boost::program_options::variables_map &vm)
 {
     if (vm.count("usePLC")) useMinos_ = false;
     else if (vm.count("useMinos")) useMinos_ = true;
@@ -246,15 +248,36 @@ bool Significance::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooAbs
 }
 
 bool Significance::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooAbsData &data, double &limit, double &limitErr) {
-  RooArgSet  poi(*mc_s->GetParametersOfInterest());
-  RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
+  // create the profile likelihood calculator
+  ProfileLikelihoodCalculator plcS(data, *mc_s, 1.0 - cl);
 
-  if (!uncapped_) r->setMin(signalForSignificance_);
-  ProfileLikelihoodCalculator plcS(data, *mc_s, 1.0-cl);
-  RooArgSet nullParamValues; 
-  r->setVal(signalForSignificance_);
-  nullParamValues.addClone(*r); 
+  // determine null hypothesis parameters unless we are using bruteForce
+  RooArgSet nullParamValues;
+  if (!bruteForce_) {
+    setNullParameters(w, nullParamValues);
+  } else if (!setNullParametersExpression_.empty()) {
+    std::cerr << "Ignoring --setNullParameters since --bruteForce is enabled" << std::endl;
+  }
+
+  // for backwards compatibility, also check if the first POI was set by nullParameters and if yes,
+  // do not set it via signalForSignificance but show a warning
+  RooArgSet pois(*mc_s->GetParametersOfInterest());
+  RooRealVar *r = dynamic_cast<RooRealVar *>(pois.first());
+  if (nullParamValues.contains(*r)) {
+    // at this point, the POI was set by nullParameters, set signalForSignificance for consistency
+    signalForSignificance_ = r->getVal();
+    std::cerr << "Ignoring --signalForSignificance for null hypothesis as POI " << r->GetName() << " is also set via --setNullParameters" << std::endl;
+  } else {
+    r->setVal(signalForSignificance_);
+    nullParamValues.addClone(*r);
+    std::cerr << "Setting POI " << r->GetName() << " in null hypothesis to " << signalForSignificance_ << " (via --signalForSignificance)" << std::endl;
+  }
+
+  // set parameters of the null hypothesis
   plcS.SetNullParameters(nullParamValues);
+
+  // cap the POI
+  if (!uncapped_) r->setMin(r->getVal());
 
   CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
   double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
@@ -566,4 +589,42 @@ double Significance::significanceFromScan(RooAbsPdf &pdf, RooAbsData &data, RooR
         std::cout << "Using first and last value" << std::endl;
     }
     return ret;
+}
+
+void Significance::setNullParameters(RooWorkspace *w, RooArgSet &nullParamValues) const {
+  if (setNullParametersExpression_.empty()) {
+    return;
+  }
+
+  vector<std::string> setNullParametersList;
+  boost::split(setNullParametersList, setNullParametersExpression_, boost::is_any_of(","));
+  for (size_t i = 0; i < setNullParametersList.size(); i++) {
+    vector<string> nullParameter;
+    boost::split(nullParameter, setNullParametersList[i], boost::is_any_of("="));
+
+    // check if the format "name=value" applies
+    if (nullParameter.size() != 2) {
+      std::cerr << "Error parsing null hypothesis parameter expression: " << setNullParametersList[i] << endl;
+      continue;
+    }
+
+    // get the variable
+    RooRealVar *var = dynamic_cast<RooRealVar *>(w->var(nullParameter[0].c_str()));
+    if (var == nullptr) {
+      std::cerr << "Cannot set null hypothesis parameter which is missing: " << nullParameter[0] << endl;
+      continue;
+    }
+
+    // check the type
+    if (!var->IsA()->InheritsFrom(RooRealVar::Class())) {
+      std::cerr << "Cannot set null hypothesis parameter which is not a RooRealVar: " << nullParameter[0] << endl;
+      continue;
+    }
+
+    // set its value
+    double value = atof(nullParameter[1].c_str());
+    var->setVal(value);
+    nullParamValues.addClone(*var);
+    std::cout << "Set parameter " << nullParameter[0] << " in null hypothesis to " << value << std::endl;
+  }
 }
