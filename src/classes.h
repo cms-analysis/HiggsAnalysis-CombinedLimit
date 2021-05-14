@@ -63,6 +63,8 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooNCSpline_2D_fast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooNCSpline_3D_fast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooFuncPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
 
 namespace {
     struct dictionary {
