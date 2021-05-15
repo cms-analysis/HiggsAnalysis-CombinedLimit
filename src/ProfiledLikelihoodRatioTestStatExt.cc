@@ -144,18 +144,32 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
 {
     DBG(DBG_PLTestStat_main, (std::cout << "Created for " << pdf.GetName() << "." << std::endl))
 
-    params.snapshot(snap_,false);
+    // make a snapshot of provided parameters and freeze them (reverted for contained POIs below)
+    params.snapshot(snap_, false);
+    RooLinkedListIter pit = snap_.iterator();
+    for (RooRealVar* p = (RooRealVar*)pit.Next(); p != 0; p = (RooRealVar*)pit.Next()) {
+        p->setConstant(true);
+    }
 
-    if (nuisances) { nuisances_.add(*nuisances); snap_.addClone(*nuisances, /*silent=*/true); }
+    // when nuisances were passed, save them and add them to the snapshot
+    if (nuisances) {
+        nuisances_.add(*nuisances);
+        snap_.addClone(*nuisances, /*silent=*/true);
+    }
+
+    // reset member parameters with observables
     params_.reset(pdf_->getParameters(observables));
+
+    // debugging
     DBG(DBG_PLTestStat_ctor, (std::cout << "Observables: " << std::endl)) DBG(DBG_PLTestStat_ctor, (observables.Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBG(DBG_PLTestStat_ctor, (params_->Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBG(DBG_PLTestStat_ctor, (snap_.Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl))         DBG(DBG_PLTestStat_ctor, (poi_.Print("V")))
+
     RooLinkedListIter it = poi.iterator();
     for (RooAbsArg *a = (RooAbsArg*) it.Next(); a != 0; a = (RooAbsArg*) it.Next()) {
         // search for this poi in the parameters and in the snapshot
-        RooAbsArg *ps = snap_.find(a->GetName());   
+        RooAbsArg *ps = snap_.find(a->GetName());
         RooAbsArg *pp = params_->find(a->GetName());
         if (pp == 0) { std::cerr << "WARNING: NLL does not depend on POI " << a->GetName() << ", cannot profile" << std::endl; continue; }
         if (ps == 0) { std::cerr << "WARNING: no snapshot for POI " << a->GetName() << ", cannot profile"  << std::endl; continue; }

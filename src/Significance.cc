@@ -71,7 +71,7 @@ Significance::Significance() :
         ("scanPoints", boost::program_options::value<int>(&points_)->default_value(points_), "Points for the scan")
         ("setBruteForceTypeAndAlgo",      boost::program_options::value<std::string>(&minimizerAlgoForBF_)->default_value(minimizerAlgoForBF_), "Choice of minimizer for brute-force search (default is Minuit2,simplex)")
         ("setBruteForceTolerance", boost::program_options::value<float>(&minimizerToleranceForBF_)->default_value(minimizerToleranceForBF_),  "Tolerance for minimizer when doing brute-force search")
-        ("setNullParameters", boost::program_options::value<string>(&setNullParametersExpression_)->default_value(setNullParametersExpression_), "Set the values of model parameters of the null hypothesis. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0. Not supported when --bruteForce is enabled.")
+        ("setNullParameters", boost::program_options::value<string>(&setNullParametersExpression_)->default_value(setNullParametersExpression_), "Set the values of model parameters of the null hypothesis to frozen values. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0. Not supported when --bruteForce is enabled.")
     ;
 }
 
