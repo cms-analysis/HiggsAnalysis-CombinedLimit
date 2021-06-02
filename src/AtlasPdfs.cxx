@@ -701,9 +701,16 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
        // cache got sterilized, trigger repopulation of this slot, then try again...
        //std::cout << "Cache got sterilized" << std::endl;
        std::unique_ptr<RooArgSet> vars( getParameters(RooArgSet()) );
-       std::unique_ptr<RooArgSet> iset(  _cacheMgr.nameSet2ByIndex(code-2)->select(*vars) );
        RooArgSet dummy;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
+       std::unique_ptr<RooArgSet> iset(  _cacheMgr.nameSet2ByIndex(code-2)->select(*vars) );
        Int_t code2 = getAnalyticalIntegral(*iset,dummy,rangeName);
+#else
+       // In ROOT 6.26, the RooNameSet was removed and the "selectFromSet*"
+       // functions were introduced to replace its functionality
+       RooArgSet iset{  _cacheMgr.selectFromSet2(*vars, code-2) };
+       Int_t code2 = getAnalyticalIntegral(iset,dummy,rangeName);
+#endif
        assert(code==code2); // must have revived the right (sterilized) slot...
        return analyticalIntegral(code2,rangeName);
      }
