@@ -411,7 +411,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     bool ok = false;
     {
         CloseCoutSentry sentry(verbose < 3);    
-        ok = minim.improve(verbose-1);
+        ok = minim.minimize(verbose-1);
         checkpoint.reset(minim.save());
     }
     if (!ok && !keepFailures_) { 
@@ -437,7 +437,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             ok = false;
         } else {
             CloseCoutSentry sentry(verbose < 3);    
-            ok = minim.improve(verbose-1);
+            ok = minim.minimize(verbose-1);
         }
         if (!ok && !keepFailures_) { 
             nfail++;
