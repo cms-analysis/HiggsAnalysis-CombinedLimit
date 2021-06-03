@@ -733,7 +733,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
                 // one can later reverse bin width normalization
                 // if desired
                 TH1 * hwidth = (TH1*) htot->Clone("width");
-                for(int i=0; i < hwidth->GetNbinsX(); i++) {
+                for(int i=1; i < hwidth->GetNbinsX()+1; i++) {
                     float width = hwidth->GetBinWidth(i);
                     hwidth->SetBinContent(i, width);
                 }
@@ -793,7 +793,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
             totOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
             totOverall->SetBinContent(iBinOverall,h->second->GetBinContent(iBin+1));
             wdtOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
-            wdtOverall->SetBinContent(iBinOverall,widthByCh[h->first]->GetBinWidth(iBin+1));
+            wdtOverall->SetBinContent(iBinOverall,widthByCh[h->first]->GetBinContent(iBin+1));
 
             datOverallHist->GetXaxis()->SetBinLabel(iBinOverall,label);
             double x,y;
