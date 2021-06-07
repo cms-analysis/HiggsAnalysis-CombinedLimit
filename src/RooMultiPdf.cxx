@@ -59,8 +59,11 @@ RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
  RooAbsPdf *fPdf;
  while ( (fPdf = (RooAbsPdf*) pdfIter->Next()) ){
 	c.add(*fPdf);
+  std::unique_ptr<RooArgSet> variables(fPdf->getVariables());
+  std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
+
 	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName())
-		,"",fPdf->getVariables()->getSize());
+		,"",nonConstVariables->getSize());
 	corr.add(*tmp);
  }
 
