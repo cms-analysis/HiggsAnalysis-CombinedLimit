@@ -50,6 +50,7 @@ int         FitterAlgoBase::minimizerStrategyForMinos_ = 0;  // also default fro
 float       FitterAlgoBase::preFitValue_ = 1.0;
 float       FitterAlgoBase::stepSize_ = 0.1;
 bool        FitterAlgoBase::robustFit_ = false;
+bool        FitterAlgoBase::floatDiscIndexRobustFit_ = false;
 int         FitterAlgoBase::maxFailedSteps_ = 5;
 bool        FitterAlgoBase::do95_ = false;
 bool        FitterAlgoBase::forceRecreateNLL_ = false;
@@ -77,7 +78,8 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("setRobustFitAlgo",      boost::program_options::value<std::string>(&minimizerAlgoForMinos_)->default_value(minimizerAlgoForMinos_), "Choice of minimizer (Minuit vs Minuit2) for profiling in robust fits")
         ("setRobustFitStrategy",  boost::program_options::value<int>(&minimizerStrategyForMinos_)->default_value(minimizerStrategyForMinos_),      "Stragegy for minimizer for profiling in robust fits")
         ("setRobustFitTolerance",  boost::program_options::value<float>(&minimizerToleranceForMinos_)->default_value(minimizerToleranceForMinos_),      "Tolerance for minimizer for profiling in robust fits")
-        ("setCrossingTolerance",  boost::program_options::value<float>(&crossingTolerance_)->default_value(crossingTolerance_),      "Tolerance for finding the NLL crossing in robust fits")
+        ("floatDiscreteIndexInRobustFit", boost::program_options::value<bool>(&floatDiscIndexRobustFit_)->default_value(floatDiscIndexRobustFit_), "float discrete indexes during robust-fit")
+        ("setCrossingTolerance",  boost::program_options::value<float>(&crossingTolerance_)->default_value(crossingTolerance_),      "Tolerance for finding the NLL crossing in robust fits")      
         ("profilingMode", boost::program_options::value<std::string>()->default_value("all"), "What to profile when computing uncertainties: all, none (at least for now).")
         ("saveNLL",  "Save the negative log-likelihood at the minimum in the output tree (note: value is relative to the pre-fit state)")
         ("keepFailures",  "Save the results even if the fit is declared as failed (for NLL studies)")
@@ -116,6 +118,7 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
      std::cout << "        Tolerance  " << minimizerToleranceForMinos_  <<std::endl;
      std::cout << "        Strategy   "  << minimizerStrategyForMinos_  <<std::endl;
      std::cout << "        Type,Algo  "  << minimizerAlgoForMinos_      <<std::endl;
+     std::cout << "        Float discrete indexes  "  << floatDiscIndexRobustFit_      <<std::endl;
     }
 }
 
@@ -411,7 +414,10 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     bool ok = false;
     {
         CloseCoutSentry sentry(verbose < 3);    
-        ok = minim.improve(verbose-1);
+	if(floatDiscIndexRobustFit_)
+	  ok = minim.minimize(verbose-1);
+	else
+	  ok = minim.improve(verbose-1);
         checkpoint.reset(minim.save());
     }
     if (!ok && !keepFailures_) { 
@@ -437,7 +443,10 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             ok = false;
         } else {
             CloseCoutSentry sentry(verbose < 3);    
-            ok = minim.improve(verbose-1);
+	    if(floatDiscIndexRobustFit_)
+	      ok = minim.minimize(verbose-1);
+	    else
+	      ok = minim.improve(verbose-1);
         }
         if (!ok && !keepFailures_) { 
             nfail++;
@@ -622,11 +631,21 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
 
         // now we profile
         double yUnprof = nll.getVal(), yCorr = yUnprof - quadCorr*std::pow(rVal-rStart,2);
-        if (!minim.improve(verbose-1))  { 
-		fprintf(sentry.trueStdOut(), "Error: minimization failed at %s = %g\n", r.GetName(), rVal); 
-		if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g",__LINE__,r.GetName(), rVal)),Logger::kLogLevelError,__func__);
-		if (!neverGiveUp) return NAN; 
+	if(floatDiscIndexRobustFit_){
+	  if (!minim.minimize(verbose-1))  { 
+	    fprintf(sentry.trueStdOut(), "Error: minimization failed at %s = %g\n", r.GetName(), rVal); 
+	    if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g",__LINE__,r.GetName(), rVal)),Logger::kLogLevelError,__func__);
+	    if (!neverGiveUp) return NAN; 
+	  }
 	}
+	else{
+	  if (!minim.improve(verbose-1))  { 
+	    fprintf(sentry.trueStdOut(), "Error: minimization failed at %s = %g\n", r.GetName(), rVal); 
+	    if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g",__LINE__,r.GetName(), rVal)),Logger::kLogLevelError,__func__);
+	    if (!neverGiveUp) return NAN; 
+	  }
+	}
+
         double yProf = nll.getVal();
         if (verbose > 1) { 
 	   fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f   yProf  %+10.6f   (P-U) %+10.6f    (P-C) %+10.6f    oldSlope %+10.6f    newSlope %+10.6f\n", 
