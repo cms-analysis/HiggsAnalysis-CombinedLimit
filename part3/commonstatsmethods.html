@@ -8,7 +8,7 @@
     
     
     
-    <link rel="shortcut icon" href="../../img/favicon.ico">
+    <link rel="shortcut icon" href="../img/favicon.ico">
 
     
     <title>Common statistical methods - Combine</title>
@@ -19,16 +19,16 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
     <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
     <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
-    <link href="../../css/base.min.css" rel="stylesheet">
-    <link href="../../css/cinder.min.css" rel="stylesheet">
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
 
     
         
         <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
         
     
-    <link href="../../mystyle.css" rel="stylesheet">
+    <link href="../mystyle.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -60,7 +60,7 @@
             <!-- Main title -->
 
             
-              <a class="navbar-brand" href="../..">Combine</a>
+              <a class="navbar-brand" href="../index.html">Combine</a>
             
         </div>
 
@@ -71,7 +71,7 @@
                 
                 
                     <li >
-                        <a href="../..">Home</a>
+                        <a href="../index.html">Home</a>
                     </li>
                 
                 
@@ -82,19 +82,19 @@
                         
                             
 <li >
-    <a href="../../part2/settinguptheanalysis/">Preparing the datacard</a>
+    <a href="../part2/settinguptheanalysis.html">Preparing the datacard</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part2/physicsmodels/">Physics models</a>
+    <a href="../part2/physicsmodels.html">Physics models</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
+    <a href="../part2/bin-wise-stats.html">Automatic MC statistical uncertainties</a>
 </li>
 
                         
@@ -109,37 +109,37 @@
                         
                             
 <li >
-    <a href="../runningthetool/">Running the tool</a>
+    <a href="runningthetool.html">Running the tool</a>
 </li>
 
                         
                             
 <li class="active">
-    <a href="./">Common statistical methods</a>
+    <a href="commonstatsmethods.html">Common statistical methods</a>
 </li>
 
                         
                             
 <li >
-    <a href="../nonstandard/">Advanced use cases</a>
+    <a href="nonstandard.html">Advanced use cases</a>
 </li>
 
                         
                             
 <li >
-    <a href="../regularisation/">Unfolding & regularization</a>
+    <a href="regularisation.html">Unfolding & regularization</a>
 </li>
 
                         
                             
 <li >
-    <a href="../validation/">Validating datacards</a>
+    <a href="validation.html">Validating datacards</a>
 </li>
 
                         
                             
 <li >
-    <a href="../debugging/">Debugging fit failures</a>
+    <a href="debugging.html">Debugging fit failures</a>
 </li>
 
                         
@@ -149,7 +149,7 @@
                 
                 
                     <li >
-                        <a href="../../part4/usefullinks/">Links & FAQ</a>
+                        <a href="../part4/usefullinks.html">Links & FAQ</a>
                     </li>
                 
                 
@@ -160,19 +160,19 @@
                         
                             
 <li >
-    <a href="../../part5/roofit/">RooFit Basics</a>
+    <a href="../part5/roofit.html">RooFit Basics</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part5/longexercise/">Exercise: main features</a>
+    <a href="../part5/longexercise.html">Exercise: main features</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part5/longexerciseanswers/">Solutions to long exercise</a>
+    <a href="../part5/longexerciseanswers.html">Solutions to long exercise</a>
 </li>
 
                         
@@ -189,12 +189,12 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../runningthetool/">
+                        <a rel="prev" href="runningthetool.html">
                             <i class="fas fa-arrow-left"></i> Previous
                         </a>
                     </li>
                     <li >
-                        <a rel="next" href="../nonstandard/">
+                        <a rel="next" href="nonstandard.html">
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
@@ -444,7 +444,7 @@ print &quot; %g %% (%g %%) interval (target)  = %g &lt; r &lt; %g &quot;%(trueCL
 <pre><code>0.950975 % (0.95 %) interval (target)  = 0 &lt; r &lt; 2.2
 </code></pre>
 <p>along with a plot of the posterior shown below. This is the same as the output from combine but the script can also be used to find lower limits (for example) or credible intervals.</p>
-<p><img alt="" src="../images/bayes1D.png" /></p>
+<p><img alt="" src="images/bayes1D.png" /></p>
 <p>An example to make contours when ordering by probability density is in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/81x-root606/master/test/multiDim/bayesContours.cxx">bayesContours.cxx</a>, but the implementation is very simplistic, with no clever handling of bin sizes nor any smoothing of statistical fluctuations.</p>
 <p>The <code>MarkovChainMC</code> algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all)</p>
 <h5 id="iterations-burn-in-tries">Iterations, burn-in, tries</h5>
@@ -481,7 +481,7 @@ print &quot; %g %% (%g %%) interval (target)  = %g &lt; r &lt; %g &quot;%(trueCL
 .L bayesPosterior2D.cxx
 bayesPosterior2D(&quot;bayes2D&quot;,&quot;Posterior PDF&quot;)
 </code></pre>
-<p><img alt="" src="../images/bayes2D.png" /></p>
+<p><img alt="" src="images/bayes2D.png" /></p>
 <h2 id="computing-limits-with-toys">Computing Limits with toys</h2>
 <p>The <code>HybridNew</code> method is used to compute either the hybrid bayesian-frequentist limits popularly known as "CL<sub>s</sub> of LEP or Tevatron type" or the fully frequentist limits which are the current recommended method by the LHC Higgs Combination Group. Note that these methods can be resource intensive for complex models.</p>
 <p>It is possible to define the criterion used for setting limits using <code>--rule CLs</code> (to use the CL<sub>s</sub> criterion) or <code>--rule CLsplusb</code> (to calculate the limit using <span><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span>) and as always the confidence level desired using <code>--cl=X</code></p>
@@ -730,7 +730,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory<
 <h4 id="plotting">Plotting</h4>
 <p>A plot of the CL<sub>s</sub> (or <span><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span>) as a function of <strong>r</strong>, which is used to find the crossing, can be produced using the option <code>--plot=limit_scan.png</code>. This can be useful for judging if the grid was sufficient in determining the upper limit.</p>
 <p>If we use our <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt">realistic-counting-experiment.txt</a> datacard and generate a grid of points <span><span class="MathJax_Preview">r\varepsilon[1.4,2.2]</span><script type="math/tex">r\varepsilon[1.4,2.2]</script></span> in steps of 0.1, with 5000 toys for each point, the plot of the observed CL<sub>s</sub> vs <strong>r</strong> should look like the following,</p>
-<p><img alt="" src="../images/limit_scan.png" /></p>
+<p><img alt="" src="images/limit_scan.png" /></p>
 <p>You should judge in each case if the limit is accurate given the spacing of the points and the precision of CL<sub>s</sub> at each point. If it is not sufficient, simply generate more points closer to the limit and/or more toys at each point.</p>
 <p>The distributions of the test-statistic can also be plotted, at each value in the grid, using the simple python tool,</p>
 <pre><code class="language-sh">python test/plotTestStatCLs.py --input mygrid.root --poi r --val all --mass MASS
@@ -812,18 +812,18 @@ section <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3
 combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShapes --saveWithUncertainties --setParameters mask_ch1=1
 </code></pre>
 <p>By taking the total background, the total signal, and the data shapes from FitDiagnostics output, we can compare the post-fit predictions from the S+B fit (first case) and the CR-only fit (second case) with the observation as reported below:</p>
-<details><summary>FitDiagnostics S+B fit</summary><p><img alt="" src="../images/result_fitSB.png" /></p>
+<details><summary>FitDiagnostics S+B fit</summary><p><img alt="" src="images/result_fitSB.png" /></p>
 </details>
-<details><summary>FitDiagnostics CR-only fit</summary><p><img alt="" src="../images/result_fitCRonly.png" /></p>
+<details><summary>FitDiagnostics CR-only fit</summary><p><img alt="" src="images/result_fitCRonly.png" /></p>
 </details>
 <p>To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with expected distribution of the test-statistic obtained in toys:</p>
 <pre><code class="language-sh">    combine -M GoodnessOfFit combined_card.root --algo=saturated -n result_toy_sb --toysFrequentist -t 500
     combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_bonly_CRonly_toy --setParametersForFit mask_ch1=1 --setParametersForEval mask_ch1=0 --freezeParameters r --setParameters r=0,mask_ch1=1 -t 500 --toysFrequentist
 </code></pre>
 <p>where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command <code>--setParameters r=0,mask_ch1=1</code> is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:</p>
-<details><summary>Goodness-of-fit for S+B model</summary><p><img alt="" src="../images/gof_sb.png" /></p>
+<details><summary>Goodness-of-fit for S+B model</summary><p><img alt="" src="images/gof_sb.png" /></p>
 </details>
-<details><summary>Goodness-of-fit for CR-only model</summary><p><img alt="" src="../images/gof_CRonly.png" /></p>
+<details><summary>Goodness-of-fit for CR-only model</summary><p><img alt="" src="images/gof_CRonly.png" /></p>
 </details>
 <h3 id="making-a-plot-of-the-gof-test-statistic-distribution">Making a plot of the GoF test-statistic distribution</h3>
 <p>If you have also checked out the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool">combineTool</a>, you can use this to run batch jobs or on the grid (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">here</a>) and produce a plot of the results. Once you have the jobs, you can hadd them together and run (e.g for the saturated model),</p>
@@ -952,7 +952,7 @@ TGraph *best_fit = (TGraph*)gROOT-&gt;FindObject(&quot;Graph&quot;)
 
 best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Draw(&quot;p same&quot;)
 </code></pre>
-<p><img alt="" src="../images/nll2D.png" /></p>
+<p><img alt="" src="images/nll2D.png" /></p>
 <p>To make the full profiled scan just remove the <code>--fastScan</code> option from the combine command.</p>
 <p>Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool"><code>CombineHarvester/CombineTools</code></a> package <a href="https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/scripts/plot1DScan.py">plot1DScan.py</a> which can be used to make plots and extract the crossings of the <code>2*deltaNLL</code> - e.g the 1σ/2σ boundaries.</p>
 <h3 id="useful-options-for-likelihood-scans">Useful options for likelihood scans</h3>
@@ -965,7 +965,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <li><code>--skipInitialFit</code>: Skip the initial fit (saves time if for example a snapshot is loaded from a previous fit)</li>
 </ul>
 <p>Below is a comparison in a likelihood scan, with 20 points, as a function of <strong><code>r_qqH</code></strong> with our <code>toy-hgg-125.root</code> workspace with and without some of these options. The options added tell combine to scan more points closer to the minimum (best-fit) than with the default.</p>
-<p><img alt="" src="../images/r_qqH.png" /></p>
+<p><img alt="" src="images/r_qqH.png" /></p>
 <p>You may find it useful to use the <code>--robustFit=1</code> option to turn on robust (brute-force) for likelihood scans (and other algorithms). You can set the strategy and tolerance when using the <code>--robustFit</code> option using the options <code>--setRobustFitAlgo</code> (default is <code>Minuit2,migrad</code>), <code>setRobustFitStrategy</code> (default is 0) and <code>--setRobustFitTolerance</code> (default is 0.1). If these options are not set, the defaults (set using <code>cminDefaultMinimizerX</code> options) will be used.</p>
 <p>If running <code>--robustFit=1</code> with the algo <strong>singles</strong>, you can tune the accuracy of the routine used to find the crossing points of the likelihood using the option <code>--setCrossingTolerance</code> (default is set to 0.0001)</p>
 <p>If you suspect your fits/uncertainties are not stable, you may also try to run custom HESSE-style calculation of the covariance matrix. This is enabled by running <code>MultiDimFit</code> with the <code>--robustHesse=1</code> option. A simple example of how the default behaviour in a simple datacard is given <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/issues/498">here</a>.</p>
@@ -1072,7 +1072,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
       </footer>
     
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
 
     
     <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
@@ -1080,11 +1080,11 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
     <script>hljs.initHighlightingOnLoad();</script>
     
 
-    <script>var base_url = "../.."</script>
+    <script>var base_url = ".."</script>
     
-    <script src="../../js/base.js"></script>
+    <script src="../js/base.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    <script src="../../search/main.js"></script>
+    <script src="../search/main.js"></script>
 
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">

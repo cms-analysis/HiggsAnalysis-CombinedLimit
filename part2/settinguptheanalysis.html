@@ -8,7 +8,7 @@
     
     
     
-    <link rel="shortcut icon" href="../../img/favicon.ico">
+    <link rel="shortcut icon" href="../img/favicon.ico">
 
     
     <title>Preparing the datacard - Combine</title>
@@ -19,16 +19,16 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
     <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
     <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
-    <link href="../../css/base.min.css" rel="stylesheet">
-    <link href="../../css/cinder.min.css" rel="stylesheet">
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
 
     
         
         <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
         
     
-    <link href="../../mystyle.css" rel="stylesheet">
+    <link href="../mystyle.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -60,7 +60,7 @@
             <!-- Main title -->
 
             
-              <a class="navbar-brand" href="../..">Combine</a>
+              <a class="navbar-brand" href="../index.html">Combine</a>
             
         </div>
 
@@ -71,7 +71,7 @@
                 
                 
                     <li >
-                        <a href="../..">Home</a>
+                        <a href="../index.html">Home</a>
                     </li>
                 
                 
@@ -82,19 +82,19 @@
                         
                             
 <li class="active">
-    <a href="./">Preparing the datacard</a>
+    <a href="settinguptheanalysis.html">Preparing the datacard</a>
 </li>
 
                         
                             
 <li >
-    <a href="../physicsmodels/">Physics models</a>
+    <a href="physicsmodels.html">Physics models</a>
 </li>
 
                         
                             
 <li >
-    <a href="../bin-wise-stats/">Automatic MC statistical uncertainties</a>
+    <a href="bin-wise-stats.html">Automatic MC statistical uncertainties</a>
 </li>
 
                         
@@ -109,37 +109,37 @@
                         
                             
 <li >
-    <a href="../../part3/runningthetool/">Running the tool</a>
+    <a href="../part3/runningthetool.html">Running the tool</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part3/commonstatsmethods/">Common statistical methods</a>
+    <a href="../part3/commonstatsmethods.html">Common statistical methods</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part3/nonstandard/">Advanced use cases</a>
+    <a href="../part3/nonstandard.html">Advanced use cases</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part3/regularisation/">Unfolding & regularization</a>
+    <a href="../part3/regularisation.html">Unfolding & regularization</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part3/validation/">Validating datacards</a>
+    <a href="../part3/validation.html">Validating datacards</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part3/debugging/">Debugging fit failures</a>
+    <a href="../part3/debugging.html">Debugging fit failures</a>
 </li>
 
                         
@@ -149,7 +149,7 @@
                 
                 
                     <li >
-                        <a href="../../part4/usefullinks/">Links & FAQ</a>
+                        <a href="../part4/usefullinks.html">Links & FAQ</a>
                     </li>
                 
                 
@@ -160,19 +160,19 @@
                         
                             
 <li >
-    <a href="../../part5/roofit/">RooFit Basics</a>
+    <a href="../part5/roofit.html">RooFit Basics</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part5/longexercise/">Exercise: main features</a>
+    <a href="../part5/longexercise.html">Exercise: main features</a>
 </li>
 
                         
                             
 <li >
-    <a href="../../part5/longexerciseanswers/">Solutions to long exercise</a>
+    <a href="../part5/longexerciseanswers.html">Solutions to long exercise</a>
 </li>
 
                         
@@ -189,12 +189,12 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../..">
+                        <a rel="prev" href="../index.html">
                             <i class="fas fa-arrow-left"></i> Previous
                         </a>
                     </li>
                     <li >
-                        <a rel="next" href="../physicsmodels/">
+                        <a rel="next" href="physicsmodels.html">
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
@@ -359,7 +359,7 @@ sigma  shape    0.5         -   uncertainty on signal resolution. Assume the his
 #                                so divide the unit gaussian by 2 before doing the interpolation
 </code></pre>
 <p>There are two options for the interpolation algorithm in the "shape" uncertainty. Putting <strong><code>shape</code></strong> will result in a  of the <strong>fraction of events in each bin</strong> - i.e the histograms are first normalised before interpolation. Putting <strong><code>shapeN</code></strong> while instead base the interpolation on the logs of the fraction in each bin. For <em>both</em> <strong><code>shape</code></strong>  and <strong><code>shapeN</code></strong>, the total normalisation is interpolated using an asymmetric log-normal so that the effect of the systematic on both the shape and normalisation are accounted for. The following image shows a comparison of those two algorithms for this datacard.</p>
-<p><img alt="" src="../images/compare-shape-algo.png" /></p>
+<p><img alt="" src="images/compare-shape-algo.png" /></p>
 <p>In this case there are two processes, <em>signal</em> and <em>background</em>, and two uncertainties affecting background (<em>alpha</em>) and signal shape (<em>sigma</em>). Within the root file 2 histograms per systematic have to be provided, they are the shape obtained, for the specific process, shifting up and down the parameter associated to the uncertainty: <code>background_alphaUp</code> and <code>background_alphaDown</code>, <code>signal_sigmaUp</code> and <code>signal_sigmaDown</code>.</p>
 <p>This is the content of the root file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/simple-shapes-TH1.root">simple-shapes-TH1.root </a> associated to the datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/simple-shapes-TH1.txt">data/tutorials/shapes/simple-shapes-TH1.txt</a>:</p>
 <pre><code class="language-nohighlight">root [0]
@@ -500,8 +500,8 @@ RooDataSet::data_obs(j)
 <pre><code class="language-c++">RooParametricShapeBinPdf(const char *name, const char *title,  RooAbsReal&amp; _pdf, RooAbsReal&amp; _x, RooArgList&amp; _pars, const TH1 &amp;_shape )
 </code></pre>
 <p>Below is a comparison of a fit to a binned dataset containing 1000 events with one observable <span><span class="MathJax_Preview">0 \leq x \leq 100</span><script type="math/tex">0 \leq x \leq 100</script></span>. The fit function is a <strong>RooExponential</strong> of the form <span><span class="MathJax_Preview">e^{xp}</span><script type="math/tex">e^{xp}</script></span>.</p>
-<p><img alt="Narrow bins" src="../images/narrow.png" />
-<img alt="Wide bins" src="../images/wide.png" /></p>
+<p><img alt="Narrow bins" src="images/narrow.png" />
+<img alt="Wide bins" src="images/wide.png" /></p>
 <p>In the upper plot, the data are binned in 100 evenly spaced bins, while in the lower plot, there are 3 irregular bins. The blue lines show the result of the fit
 when using the <strong>RooExponential</strong> directly while the red shows the result when wrapping the pdf inside a <strong>RooParametricShapeBinPdf</strong>. In the narrow binned case, the two
 agree well while for wide bins, accounting for the integral over the bin yields a better fit.</p>
@@ -696,7 +696,7 @@ MB.doModel()
 <p>The default output is a <code>.html</code> file which allows you to expand to give more details about the affect of the systematic for each channel/process. Add the option <code>--format brief</code> to give a simpler summary report direct to the terminal. An example output for the tutorial card <code>data/tutorials/shapes/simple-shapes-TH1.txt</code> is shown below.</p>
 <pre><code class="language-nohighlight">$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt &gt; out.html
 </code></pre>
-<p><img alt="systematics analyzer output" src="../images/sysanalyzer.png" /></p>
+<p><img alt="systematics analyzer output" src="images/sysanalyzer.png" /></p>
 <p>In case you only have a cut-and-count style card, include the option <code>--noshape</code>.</p>
 <p>If you have a datacard which uses several <code>rateParams</code> or a Physics model which includes some complicated product of normalisation terms in each process, you can check the values of the normalisation (and which objects in the workspace comprise them) using the <code>test/printWorkspaceNormalisations.py</code> tool. As an example, below is the first few blocks of output for the tutorial card <code>data/tutorials/counting/realistic-multi-channel.txt</code>. </p>
 <pre><code class="language-nohighlight">$ text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
@@ -784,7 +784,7 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
       </footer>
     
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
 
     
     <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
@@ -792,11 +792,11 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
     <script>hljs.initHighlightingOnLoad();</script>
     
 
-    <script>var base_url = "../.."</script>
+    <script>var base_url = ".."</script>
     
-    <script src="../../js/base.js"></script>
+    <script src="../js/base.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    <script src="../../search/main.js"></script>
+    <script src="../search/main.js"></script>
 
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
