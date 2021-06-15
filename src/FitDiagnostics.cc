@@ -691,7 +691,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     std::vector<double> vals(snm.size(), 0.), sumx2(snm.size(), 0.);
     std::vector<TH1*>   shapes(snm.size(), 0), shapes2(snm.size(), 0);
     std::vector<int>    bins(snm.size(), 0), sig(snm.size(), 0);
-    std::map<std::string,TH1*> totByCh, totByCh2, sigByCh, sigByCh2, bkgByCh, bkgByCh2;
+    std::map<std::string,TH1*> totByCh, totByCh2, sigByCh, sigByCh2, bkgByCh, bkgByCh2, widthByCh;
     std::map<std::string,TH2*> totByCh2Covar;
     IT bg = snm.begin(), ed = snm.end(), pair; int i;
     for (pair = bg, i = 0; pair != ed; ++pair, ++i) {  
@@ -726,7 +726,19 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 		    htot2covar->GetYaxis()->SetTitle("Bin number");
 		    htot2covar->GetZaxis()->SetTitle(Form("covar (%s)",hist->GetYaxis()->GetTitle()));
 		    htot2covar->SetDirectory(0);
-		    totByCh2Covar[pair->second.channel] = htot2covar; 
+		    totByCh2Covar[pair->second.channel] = htot2covar;
+
+
+                // The bin width is stored so that
+                // one can later reverse bin width normalization
+                // if desired
+                TH1 * hwidth = (TH1*) htot->Clone("width");
+                for(int i=1; i < hwidth->GetNbinsX()+1; i++) {
+                    float width = hwidth->GetBinWidth(i);
+                    hwidth->SetBinContent(i, width);
+                }
+                widthByCh[pair->second.channel] = hwidth;
+
             } else {
                     htot->Add(hist);
             }
@@ -762,6 +774,8 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     //Total background
     TH1D* totOverall = new TH1D("total_overall","signal+background",totalBins,0,totalBins);
     totOverall->SetDirectory(0);
+    TH1D* wdtOverall = new TH1D("total_bin_width","Bin widths",totalBins,0,totalBins);
+    wdtOverall->SetDirectory(0);
     TH1D* bkgOverall = new TH1D("total_background","Total background",totalBins,0,totalBins);
     bkgOverall->SetDirectory(0);
     TH1D* sigOverall = new TH1D("total_signal","Total signal",totalBins,0,totalBins);
@@ -773,30 +787,32 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     //Map to hold info on bins across channels
     std::map<TString,int> binMap;
     for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h){
-	for (int iBin = 0; iBin < h->second->GetNbinsX(); iBin++,iBinOverall++){
-	    TString label = Form("%s_%d",h->first.c_str(),iBin);
-	    binMap[label] = iBinOverall;
-	    totOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
-	    totOverall->SetBinContent(iBinOverall,h->second->GetBinContent(iBin+1));
+        for (int iBin = 0; iBin < h->second->GetNbinsX(); iBin++,iBinOverall++){
+            TString label = Form("%s_%d",h->first.c_str(),iBin);
+            binMap[label] = iBinOverall;
+            totOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
+            totOverall->SetBinContent(iBinOverall,h->second->GetBinContent(iBin+1));
+            wdtOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
+            wdtOverall->SetBinContent(iBinOverall,widthByCh[h->first]->GetBinContent(iBin+1));
 
-	    datOverallHist->GetXaxis()->SetBinLabel(iBinOverall,label);
-	    double x,y;
-	    datByCh[h->first]->GetPoint(iBin,x,y);
-	    datOverallHist->SetBinContent(iBinOverall,y);
+            datOverallHist->GetXaxis()->SetBinLabel(iBinOverall,label);
+            double x,y;
+            datByCh[h->first]->GetPoint(iBin,x,y);
+            datOverallHist->SetBinContent(iBinOverall,y);
 
-	    sigOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
-	    //For signal have to deal with empty channels
-	    std::map<std::string,TH1*>::iterator iH = sigByCh.find(h->first);
-	    if (iH != sigByCh.end()){
-		sigOverall->SetBinContent(iBinOverall,iH->second->GetBinContent(iBin+1));
-	    }
+            sigOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
+            //For signal have to deal with empty channels
+            std::map<std::string,TH1*>::iterator iH = sigByCh.find(h->first);
+            if (iH != sigByCh.end()){
+            sigOverall->SetBinContent(iBinOverall,iH->second->GetBinContent(iBin+1));
+            }
 
-	    bkgOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
-	    bkgOverall->SetBinContent(iBinOverall,bkgByCh[h->first]->GetBinContent(iBin+1));
+            bkgOverall->GetXaxis()->SetBinLabel(iBinOverall,label);
+            bkgOverall->SetBinContent(iBinOverall,bkgByCh[h->first]->GetBinContent(iBin+1));
 
-	    totOverall2Covar->GetXaxis()->SetBinLabel(iBinOverall,label);
-	    totOverall2Covar->GetYaxis()->SetBinLabel(iBinOverall,label);
-	}
+            totOverall2Covar->GetXaxis()->SetBinLabel(iBinOverall,label);
+            totOverall2Covar->GetYaxis()->SetBinLabel(iBinOverall,label);
+        }
     }
 
     TGraphAsymmErrors * datOverall = utils::makeDataGraph(datOverallHist);
@@ -974,6 +990,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 	if (saveShapes_) shapeDir->cd();
 
 	if (saveShapes_ && saveOverallShapes_){
+	    wdtOverall->Write();
 	    totOverall->Write();
 	    sigOverall->Write();
 	    datOverall->Write();
