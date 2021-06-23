@@ -400,9 +400,16 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
         if (a->isConstant() || allowedToFloat.contains(*a)) continue;
         if (a->getAttribute("flatParam")) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-            if (rrv->getVal() > rrv->getMax() || rrv->getVal() < rrv->getMin()) {
-                ok = false; errors << "ERROR: flatParam " << rrv->GetName() << " has a value " << rrv->getVal() << 
-                                      " outside of the defined range [" << rrv->getMin() << ", " << rrv->getMax() << "]\n";
+            RooCategory *cat = dynamic_cast<RooCategory *>(a);
+            if (rrv) {
+                if (rrv->getVal() > rrv->getMax() || rrv->getVal() < rrv->getMin()) {
+                    ok = false; errors << "ERROR: flatParam " << rrv->GetName() << " has a value " << rrv->getVal() << 
+                                          " outside of the defined range [" << rrv->getMin() << ", " << rrv->getMax() << "]\n";
+                }
+            } else if (cat) {
+                //nothing, categories are checked at the time of setIndex or setLabel
+            } else {
+                errors << "WARNING: can't check pdf parameter " << a->GetName() << "(type " << a->ClassName() << ")";
             }
         } else {
             errors << "WARNING: pdf parameter " << a->GetName() << " (type " << a->ClassName() << ") is not allowed to float (it's not nuisance, poi, observable or global observable\n"; 

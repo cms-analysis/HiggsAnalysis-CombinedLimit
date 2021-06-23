@@ -25,6 +25,10 @@ class PhysicsModelBase(object):
     def preProcessNuisances(self,nuisances):
         "receive the usual list of (name,nofloat,pdf,args,errline) to be edited"
         pass # do nothing by default
+    def tellAboutProcess(self,bin,process):
+        "tell the physics model to expect this process, in case it needs to know about all the processes"
+        "before it gets the yield and scale"
+        pass # do nothing by default
     def getYieldScale(self,bin,process):
         "Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don't scale, and set to zero)"
         return "r" if self.DC.isSignal[process] else 1;
