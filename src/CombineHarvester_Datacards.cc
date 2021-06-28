@@ -930,6 +930,13 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   std::string sys_str_short = boost::lexical_cast<std::string>(sys_str_len);
   std::string sys_str_long = boost::lexical_cast<std::string>(sys_str_len+9);
 
+  auto getProcLen = [](auto const& proc) -> std::string {
+    std::size_t proc_len = 15;
+    proc_len = std::max(proc_len, proc->process().size());
+    std::string proc_len_str = boost::lexical_cast<std::string>(proc_len);
+    return proc_len_str;
+  };
+
   txt_file << format("%-"+sys_str_long+"s") % "bin";
   for (auto const& proc : procs_) {
     if (proc->shape()) {
@@ -940,14 +947,14 @@ void CombineHarvester::WriteDatacard(std::string const& name,
                       proc->process(), proc->mass(), "", 0);
       TH1::AddDirectory(add_dir);
     }
-    txt_file << format("%-15s ") % proc->bin();
+    txt_file << format("%-"+getProcLen(proc)+"s ") % proc->bin();
   }
   txt_file << "\n";
 
   txt_file << format("%-"+sys_str_long+"s") % "process";
 
   for (auto const& proc : procs_) {
-    txt_file << format("%-15s ") % proc->process();
+    txt_file << format("%-"+getProcLen(proc)+"s ") % proc->process();
   }
   txt_file << "\n";
 
@@ -981,14 +988,14 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     }
   }
   for (auto const& proc : procs_) {
-    txt_file << format("%-15s ") % p_ids[proc->process()];
+    txt_file << format("%-"+getProcLen(proc)+"s ") % p_ids[proc->process()];
   }
   txt_file << "\n";
 
 
   txt_file << format("%-"+sys_str_long+"s") % "rate";
   for (auto const& proc : procs_) {
-    txt_file << format("%-15.6g ") % proc->no_norm_rate();
+    txt_file << format("%-"+getProcLen(proc)+".6g ") % proc->no_norm_rate();
   }
   txt_file << "\n";
   txt_file << dashes << "\n";
@@ -1081,7 +1088,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     }
     txt_file << format("%-" + sys_str_short + "s %-7s ") % line[0] % line[1];
     for (unsigned p = 0; p < procs_.size(); ++p) {
-      txt_file << format("%-15s ") % line[p + 2];
+      txt_file << format("%-"+getProcLen(procs_[p])+"s ") % line[p + 2];
     }
     txt_file << "\n";
   }
