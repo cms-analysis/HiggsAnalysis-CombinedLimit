@@ -66,6 +66,9 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
 
+#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerSemiAnalytic.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerFcnSemiAnalytic.h"
+
 namespace {
     struct dictionary {
 	RooBernsteinFast<1> my_RooBernsteinFast_1;

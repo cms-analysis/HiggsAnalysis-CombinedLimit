@@ -611,7 +611,7 @@ cacheutils::CachingAddNLL::evaluate() const
     boost::ptr_vector<CachingPdfBase>::iterator   itp = pdfs_.begin();//,   edp = pdfs_.end();
     std::vector<Double_t>::const_iterator itw; //bgw = weights_.begin();//,    edw = weights_.end();
     std::vector<Double_t>::iterator       its, bgs = partialSum_.begin(), eds = partialSum_.end();
-    double sumCoeff = 0;
+    double sumCoeff = 0.;
     bool allBasicIntegralsOk = (basicIntegrals_ == 1);
     //std::cout << "Performing evaluation of " << GetName() << std::endl;
     for ( ; itc != edc; ++itp, ++itc ) {

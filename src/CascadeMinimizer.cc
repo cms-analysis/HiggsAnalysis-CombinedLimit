@@ -15,6 +15,12 @@
 
 #include <iomanip>
 
+namespace local{
+    template<typename T>
+    class getter{
+    };
+};
+
 boost::program_options::options_description CascadeMinimizer::options_("Cascade Minimizer options");
 std::vector<CascadeMinimizer::Algo> CascadeMinimizer::fallbacks_;
 bool CascadeMinimizer::preScan_;
@@ -59,10 +65,23 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
 void CascadeMinimizer::remakeMinimizer() {
     cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
     if (simnll) simnll->setHideRooCategories(true);
+
     minimizer_.reset(); // avoid two copies in memory
-    minimizer_.reset(new RooMinimizer(nll_));
+    minimizerSemiAnalytic_.reset();
+
+    if (runtimedef::get("MINIMIZER_SemiAnalytic")){
+        isSemiAnalyticMinimizer=true;
+        minimizerSemiAnalytic_.reset(new RooMinimizerSemiAnalytic(nll_,derivatives_));
+        //minimizerSemiAnalytic_->setVerbose(kTRUE); // DEBUG
+    }
+    else{
+        isSemiAnalyticMinimizer=false;
+        minimizer_.reset(new RooMinimizer(nll_));
+    }
+
     if (simnll) simnll->setHideRooCategories(false);
 }
+
 
 bool CascadeMinimizer::freezeDiscParams(const bool freeze)
 {
@@ -100,29 +119,29 @@ bool CascadeMinimizer::improve(int verbose, bool cascade, bool forceResetMinimiz
       simnllbb->setAnalyticBarlowBeeston(true);
       forceResetMinimizer = true;
     }
-    if (forceResetMinimizer || !minimizer_.get()) remakeMinimizer();
-    minimizer_->setPrintLevel(verbose-1);
+    if (forceResetMinimizer || !(minimizer_.get() or minimizerSemiAnalytic_.get())) remakeMinimizer();
+    (not isSemiAnalyticMinimizer)?minimizer_->setPrintLevel(verbose-1):minimizerSemiAnalytic_->setPrintLevel(verbose-1);
    
     strategy_ = ROOT::Math::MinimizerOptions::DefaultStrategy(); // re-configure 
 
-    minimizer_->setStrategy(strategy_);
+    (not isSemiAnalyticMinimizer)?minimizer_->setStrategy(strategy_):minimizerSemiAnalytic_->setStrategy(strategy_);
     std::string nominalType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
     std::string nominalAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
     float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
-    minimizer_->setEps(nominalTol);
+    (not isSemiAnalyticMinimizer)?minimizer_->setEps(nominalTol):minimizerSemiAnalytic_->setEps(nominalTol);
     if (approxPreFitTolerance_ > 0) {
       double tol = std::max(approxPreFitTolerance_, 10. * nominalTol);
       do {
         if (verbose > 1) std::cout << "Running pre-fit with " << nominalType << "," << nominalAlgo << " and tolerance " << tol << std::endl;
         Significance::MinimizerSentry minimizerConfig(nominalType+","+nominalAlgo, tol);
-        minimizer_->setEps(tol);
-        minimizer_->setStrategy(approxPreFitStrategy_);
+        (not isSemiAnalyticMinimizer)?minimizer_->setEps(nominalTol):minimizerSemiAnalytic_->setEps(nominalTol);
+        (not isSemiAnalyticMinimizer)?minimizer_->setStrategy(approxPreFitStrategy_):minimizerSemiAnalytic_->setStrategy(approxPreFitStrategy_);
         improveOnce(verbose-1, true);
         if (runtimedef::get("DBG_QUICKEXIT")) {
           exit(0);
         }
-        minimizer_->setEps(nominalTol);
-        minimizer_->setStrategy(strategy_);
+        (not isSemiAnalyticMinimizer)?minimizer_->setEps(nominalTol):minimizerSemiAnalytic_->setEps(nominalTol);
+        (not isSemiAnalyticMinimizer)?minimizer_->setStrategy(approxPreFitStrategy_):minimizerSemiAnalytic_->setStrategy(strategy_);
       } while (autoBounds_ && !autoBoundsOk(verbose-1));
     }
     bool outcome;
@@ -145,8 +164,8 @@ bool CascadeMinimizer::improve(int verbose, bool cascade, bool forceResetMinimiz
 			std::cerr << "Will fallback to minimization using " << it->algo << ", strategy " << myStrategy << " and tolerance " << it->tolerance << std::endl;
 			Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Will fallback to minimization using %s, strategy %d and tolerance %g",__LINE__,(it->algo).c_str(),myStrategy,it->tolerance)),Logger::kLogLevelDebug,__func__);
 		}
-                minimizer_->setEps(ROOT::Math::MinimizerOptions::DefaultTolerance());
-                minimizer_->setStrategy(myStrategy); 
+                (not isSemiAnalyticMinimizer)?minimizer_->setEps(ROOT::Math::MinimizerOptions::DefaultTolerance()):minimizerSemiAnalytic_->setEps(ROOT::Math::MinimizerOptions::DefaultTolerance());
+                (not isSemiAnalyticMinimizer)?minimizer_->setStrategy(myStrategy):minimizerSemiAnalytic_->setStrategy(myStrategy); 
                 outcome = improveOnce(verbose-2);
                 if (outcome) break;
             }
@@ -171,37 +190,42 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
     bool outcome = false;
     double tol = ROOT::Math::MinimizerOptions::DefaultTolerance();
     static int maxcalls = runtimedef::get("MINIMIZER_MaxCalls");
-    if (!minimizer_.get()) remakeMinimizer();
+    if (!minimizer_.get() and !minimizerSemiAnalytic_.get()) remakeMinimizer();
 
     // freeze non active parameters if MINIMIZER_freezeDisassociatedParams enabled
     freezeDiscParams(true);
 
     if (maxcalls) {
-        minimizer_->setMaxFunctionCalls(maxcalls);
-        minimizer_->setMaxIterations(maxcalls);
+        (not isSemiAnalyticMinimizer)?minimizer_->setMaxFunctionCalls(maxcalls):minimizerSemiAnalytic_->setMaxFunctionCalls(maxcalls);
+        (not isSemiAnalyticMinimizer)?minimizer_->setMaxIterations(maxcalls):minimizerSemiAnalytic_->setMaxIterations(maxcalls);
     }
     if (oldFallback_){
-        if (optConst) minimizer_->optimizeConst(std::max(0,optConst));
-        if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
+        if (isSemiAnalyticMinimizer)throw std::logic_error("unimplemented");// check robust minimizer stuff with Minimizer
+
+        if (optConst){
+            minimizer_->optimizeConst(std::max(0,optConst));
+        }
+        if (rooFitOffset) { minimizer_->setOffsetting(std::max(0,rooFitOffset));}
+        
         outcome = nllutils::robustMinimize(nll_, *minimizer_, verbose, setZeroPoint_);
     } else {
         if (verbose+2>0) Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Minimisation configured with Type=%s, Algo=%s, strategy=%d, tolerance=%g",__LINE__,myType.c_str(),myAlgo.c_str(),myStrategy,tol)),Logger::kLogLevelInfo,__func__);
         cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
         if (simnll) simnll->setZeroPoint();
-        if ((!simnll) && optConst) minimizer_->optimizeConst(std::max(0,optConst));
-        if ((!simnll) && rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
+        if ((!simnll) && optConst) (not isSemiAnalyticMinimizer)?minimizer_->optimizeConst(std::max(0,optConst)):minimizerSemiAnalytic_->optimizeConst(std::max(0,optConst));
+        if ((!simnll) && rooFitOffset) (not isSemiAnalyticMinimizer)?minimizer_->setOffsetting(std::max(0,rooFitOffset)):minimizerSemiAnalytic_->setOffsetting(std::max(0,rooFitOffset));
         if (firstHesse_ && !noHesse) {
-            minimizer_->setPrintLevel(std::max(0,verbose-3)); 
-            minimizer_->hesse();
+            (not isSemiAnalyticMinimizer)?minimizer_->setPrintLevel(std::max(0,verbose-3)):minimizerSemiAnalytic_->setPrintLevel(std::max(0,verbose-3)); 
+            (not isSemiAnalyticMinimizer)?minimizer_->hesse():minimizerSemiAnalytic_->hesse();
             if (simnll) simnll->updateZeroPoint(); 
-            minimizer_->setPrintLevel(verbose-1); 
+            (not isSemiAnalyticMinimizer)?minimizer_->setPrintLevel(verbose-1):minimizerSemiAnalytic_->setPrintLevel(verbose-1); 
         }
-        int status = minimizer_->minimize(myType.c_str(), myAlgo.c_str());
+        int status = (not isSemiAnalyticMinimizer) ? minimizer_->minimize(myType.c_str(), myAlgo.c_str()):minimizerSemiAnalytic_->minimize(myType.c_str(), myAlgo.c_str());
         if (lastHesse_ && !noHesse) {
             if (simnll) simnll->updateZeroPoint(); 
-            minimizer_->setPrintLevel(std::max(0,verbose-3)); 
-            status = minimizer_->hesse();
-            minimizer_->setPrintLevel(verbose-1); 
+            (not isSemiAnalyticMinimizer)?minimizer_->setPrintLevel(std::max(0,verbose-3)):minimizerSemiAnalytic_->setPrintLevel(std::max(0,verbose-3)); 
+            status = (not isSemiAnalyticMinimizer)?minimizer_->hesse():minimizerSemiAnalytic_->hesse();
+            (not isSemiAnalyticMinimizer)?minimizer_->setPrintLevel(verbose-1):minimizerSemiAnalytic_->setPrintLevel(verbose-1); 
     	    if (verbose+2>0 ) Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Hesse finished with status=%d",__LINE__,status)),Logger::kLogLevelDebug,__func__);
         }
         if (simnll) simnll->clearZeroPoint();
@@ -239,8 +263,8 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
       utils::setAllConstant(toFreeze, false);
       remakeMinimizer();
    }
-   if (!minimizer_.get()) remakeMinimizer();
-   minimizer_->setPrintLevel(verbose-1); // for debugging
+   if (!minimizer_.get() and !minimizerSemiAnalytic_.get()) remakeMinimizer();
+   (not isSemiAnalyticMinimizer)?minimizer_->setPrintLevel(verbose-1):minimizerSemiAnalytic_->setPrintLevel(verbose-1); // for debugging
    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
    std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
 
@@ -255,8 +279,8 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
    // freeze parameters not active under current indexes if MINIMIZER_freezeDisassociatedParams enabled
    freezeDiscParams(true);
    // need to re-run Migrad before running minos
-   minimizer_->minimize(myType.c_str(), "Migrad");
-   int iret = minimizer_->minos(params); 
+   (not isSemiAnalyticMinimizer)?minimizer_->minimize(myType.c_str(), "Migrad"):minimizerSemiAnalytic_->minimize(myType.c_str(), "Migrad");
+   int iret = (not isSemiAnalyticMinimizer)?minimizer_->minos(params):minimizerSemiAnalytic_->minos(params); 
    if (verbose>0 ) Logger::instance().log(std::string(Form("CascadeMinimizer.cc: %d -- Minos finished with status=%d",__LINE__,iret)),Logger::kLogLevelDebug,__func__);
    freezeDiscParams(false);
 
@@ -281,12 +305,12 @@ bool CascadeMinimizer::hesse(int verbose ) {
       // Have to reset and minimize again first to get all parameters in
       remakeMinimizer();
       float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
-      minimizer_->setEps(nominalTol);
-      minimizer_->setStrategy(strategy_);
+      (not isSemiAnalyticMinimizer)?minimizer_->setEps(nominalTol):minimizerSemiAnalytic_->setEps(nominalTol);
+      (not isSemiAnalyticMinimizer)?minimizer_->setStrategy(strategy_):minimizerSemiAnalytic_->setStrategy(strategy_);
       improveOnce(verbose - 1);
    }
-   if (!minimizer_.get()) remakeMinimizer();
-   minimizer_->setPrintLevel(verbose-1); // for debugging
+   if (!minimizer_.get() and !minimizerSemiAnalytic_.get()) remakeMinimizer();
+   (not isSemiAnalyticMinimizer)?minimizer_->setPrintLevel(verbose-1):minimizerSemiAnalytic_->setPrintLevel(verbose-1); // for debugging
    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
    std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
 
@@ -298,7 +322,7 @@ bool CascadeMinimizer::hesse(int verbose ) {
    }
 
    freezeDiscParams(true);
-   int iret = minimizer_->hesse(); 
+   int iret = (not isSemiAnalyticMinimizer)?minimizer_->hesse():minimizerSemiAnalytic_->hesse(); 
    freezeDiscParams(false);
 
    if (setZeroPoint_) {
@@ -386,9 +410,9 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
     if (runtimedef::get(std::string("MINIMIZER_skipDiscreteIterations"))) doMultipleMini=false;
     // if ( doMultipleMini ) preFit_ = 1;
-    if (!minimizer_.get()) remakeMinimizer();
-    minimizer_->setPrintLevel(verbose-2);  
-    minimizer_->setStrategy(strategy_);
+    if (!minimizer_.get() and !minimizerSemiAnalytic_.get()) remakeMinimizer();
+    (not isSemiAnalyticMinimizer)?minimizer_->setPrintLevel(verbose-2):minimizerSemiAnalytic_->setPrintLevel(verbose-2);  
+    (not isSemiAnalyticMinimizer)?minimizer_->setStrategy(strategy_):minimizerSemiAnalytic_->setStrategy(strategy_);
     
     RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().nuisanceParameters;
 
@@ -399,13 +423,13 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         freezeDiscParams(true);
 
         remakeMinimizer();
-        minimizer_->setPrintLevel(verbose-2);
-        minimizer_->setStrategy(preFit_-1);
+        (not isSemiAnalyticMinimizer)?minimizer_->setPrintLevel(verbose-2):minimizerSemiAnalytic_->setPrintLevel(verbose-2);
+        (not isSemiAnalyticMinimizer)?minimizer_->setStrategy(preFit_-1):minimizerSemiAnalytic_->setStrategy(preFit_-1);
         cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
         if (simnll) simnll->setZeroPoint();
-        if (optConst) minimizer_->optimizeConst(std::max(0,optConst));
-        if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
-        minimizer_->minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+        if (optConst) (not isSemiAnalyticMinimizer)?minimizer_->optimizeConst(std::max(0,optConst)):minimizerSemiAnalytic_->optimizeConst(std::max(0,optConst));
+        if (rooFitOffset) (not isSemiAnalyticMinimizer)?minimizer_->setOffsetting(std::max(0,rooFitOffset)):minimizerSemiAnalytic_->setOffsetting(std::max(0,rooFitOffset));
+        (not isSemiAnalyticMinimizer)?minimizer_->minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()):minimizerSemiAnalytic_->minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
         if (simnll) simnll->clearZeroPoint();
         utils::setAllConstant(frozen,false);
         freezeDiscParams(false);
@@ -556,7 +580,8 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     if (hideConstants && simnll) {
         simnll->setHideConstants(true);
         if (maskConstraints) simnll->setMaskConstraints(true);
-        minimizer_.reset(); // will be recreated when needed by whoever needs it
+        minimizer_.reset();
+        minimizerSemiAnalytic_.reset(); // will be recreated when needed by whoever needs it
     }
 
     std::vector<std::vector<int> > myCombos;
@@ -712,6 +737,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
         simnll->setHideConstants(false);
         if (maskConstraints) simnll->setMaskConstraints(false);
         minimizer_.reset(); // will be recreated when needed by whoever needs it
+        minimizerSemiAnalytic_.reset();
     }
 
 
