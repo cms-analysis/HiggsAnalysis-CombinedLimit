@@ -15,6 +15,8 @@
 
 #include <iomanip>
 
+#include "HiggsAnalysis/CombinedLimit/interface/SimNLLDerivativesHelper.h"
+
 namespace local{
     template<typename T>
     class getter{
@@ -71,7 +73,13 @@ void CascadeMinimizer::remakeMinimizer() {
 
     if (runtimedef::get("MINIMIZER_SemiAnalytic")){
         isSemiAnalyticMinimizer=true;
-        minimizerSemiAnalytic_.reset(new RooMinimizerSemiAnalytic(nll_,derivatives_));
+        if (simnll==nullptr) {
+            std::cout<<"[ERROR]::[CascadeMinimizer] I need simnll to have SemiAnalytic derivatives done by SimNLLDerivativesHelper"<<std::endl;
+            throw 1; //FIXME throw something meaningful
+        }
+        SimNLLDerivativesHelper helper(simnll); 
+        helper.init();
+        minimizerSemiAnalytic_.reset(new RooMinimizerSemiAnalytic(nll_,helper.derivatives_));
         //minimizerSemiAnalytic_->setVerbose(kTRUE); // DEBUG
     }
     else{

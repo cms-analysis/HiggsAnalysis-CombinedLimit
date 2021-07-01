@@ -985,7 +985,6 @@ cacheutils::CachingSimNLL::setup_()
         factorizedPdf_.release();
         simpdf = dynamic_cast<RooSimultaneous *>(pdfclone);
     }
-
     
     std::auto_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
     pdfs_.resize(catClone->numBins(NULL), 0);
