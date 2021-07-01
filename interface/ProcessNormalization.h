@@ -15,6 +15,7 @@ END_HTML
 */
 //
 class SimNLLDerivativesHelper;
+class DerivativeLogNormal;
 
 class ProcessNormalization : public RooAbsReal {
    public:
@@ -36,6 +37,7 @@ class ProcessNormalization : public RooAbsReal {
 
     private:
         friend SimNLLDerivativesHelper;
+        friend DerivativeLogNormal;
         // ---- PERSISTENT ----
         double nominalValue_;                         
         std::vector<double> logKappa_; // Logarithm of symmetric kappas

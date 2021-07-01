@@ -49,7 +49,7 @@ class CascadeMinimizer {
         //
         bool isSemiAnalyticMinimizer{false};
         std::auto_ptr<RooMinimizerSemiAnalytic> minimizerSemiAnalytic_;
-        std::map<std::string,RooAbsReal*> derivatives_;
+        std::map<std::string,RooAbsReal*> derivatives_; // not used
         //
         Mode         mode_;
         static int          strategy_;

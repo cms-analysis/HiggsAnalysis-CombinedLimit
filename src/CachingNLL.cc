@@ -1007,7 +1007,6 @@ cacheutils::CachingSimNLL::setup_()
         simpdf = dynamic_cast<RooSimultaneous *>(pdfclone);
     }
 
-
     std::auto_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
     pdfs_.resize(catClone->numBins(NULL), 0);
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
