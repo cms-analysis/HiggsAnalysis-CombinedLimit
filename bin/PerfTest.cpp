@@ -4,6 +4,8 @@
 #include "TEnv.h"
 #include "RooAbsPdf.h"
 #include <dlfcn.h>
+#include <RooStats/ModelConfig.h>
+#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 
 void (*dump_)(const char *);
 
@@ -38,6 +40,17 @@ int main(int argc, char *argv[]) {
 	}
 	if(dump_) {
 		dump_("profdump_wsp.out.gz");
+	}
+
+        RooStats::ModelConfig* mc_s = dynamic_cast<RooStats::ModelConfig *>(w->genobj("ModelConfig")); 
+        RooAbsPdf &pdf = *mc_s->GetPdf();
+        RooAbsData *dobs = w->data("data_obs");
+        const RooCmdArg &constrainCmdArg = RooFit::Constrain(*mc_s->GetNuisanceParameters());
+        std::auto_ptr<RooAbsReal> nll;
+        nll.reset(pdf.createNLL(*dobs, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
+
+	if(dump_) {
+		dump_("profdump_nll.out.gz");
 	}
 
 	return 0;
