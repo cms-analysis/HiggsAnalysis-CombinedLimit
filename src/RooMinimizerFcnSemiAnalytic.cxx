@@ -618,6 +618,13 @@ double RooMinimizerFcnSemiAnalytic::DoDerivative(const double * x, unsigned int 
     throw std::runtime_error(Form("Derivative vector is too small. (requested coordinate) %u < (derivative size) %lu",icoord,_derivParamVec.size()));
     }
   if (_derivParamVec[icoord] == nullptr) return DoNumericalDerivative(x,icoord);
+
+  //verify correctness of analytical derivatives // DEBUG
+  if (true){
+      std::cout<<"[RooMinimizerFcnSemiAnalytic][DEBUG]"<< "Doing derivative for "<<icoord<<std::endl;
+      std::cout<< "----------- NUMERICAL: "<< DoNumericalDerivative(x,icoord)<<std::endl;
+      std::cout<< "----------- ANALYTICAL: "<< _derivParamVec[icoord]->getVal()<<std::endl;
+  }
     
   return _derivParamVec[icoord]->getVal();
 

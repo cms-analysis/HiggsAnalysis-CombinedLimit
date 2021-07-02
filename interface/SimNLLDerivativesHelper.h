@@ -30,7 +30,7 @@ class DerivativeLogNormal: public RooAbsReal
     std::string kappaname_{""};
 
     public:
-        DerivativeLogNormal(const char *name, const char *title, const cacheutils::CachingAddNLL *pdf, const RooDataSet *data,const std::string& kappaname);
+        DerivativeLogNormal(const char *name, const char *title, const cacheutils::CachingAddNLL *pdf, const RooDataSet *data,const std::string& kappaname,int&found);
         ~DerivativeLogNormal(){};
         virtual Bool_t isDerived() const { return kTRUE; }
         virtual DerivativeLogNormal *clone(const char *name = 0) const ;
@@ -41,6 +41,8 @@ class DerivativeLogNormal: public RooAbsReal
 
         // name-> index association per process
         std::vector<int> kappa_pos_;
+
+        bool verbose{true};
 };
 
 
