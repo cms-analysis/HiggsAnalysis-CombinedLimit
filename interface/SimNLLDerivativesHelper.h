@@ -57,6 +57,8 @@ class SimNLLDerivativesHelper
         //std::map<std::string,RooAbsReal*>& derivatives(){return derivatives;}
     private:
         cacheutils::CachingSimNLL* nll_{nullptr}; //not owned, keep pointer
+
+        std::set<std::string> getServersVars(RooAbsArg *node);
 };
         
 #endif

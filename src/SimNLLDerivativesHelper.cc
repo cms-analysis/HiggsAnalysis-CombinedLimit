@@ -141,13 +141,20 @@ void SimNLLDerivativesHelper::init(){
                     if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) pn = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
                     else {
                             if (verbose) { std::cout <<"components:";}
-                            RooArgList l = RooArgList(*pp->components()[ip].getVariables());
-                            for (int idx=0; idx<l.getSize();++idx) { 
-                                RooAbsArg*v = l.at(idx);
-                                if (logNormal.find(v->GetName()) != logNormal.end()) {
-                                    logNormal.erase(v->GetName());
-                                    if (verbose) std::cout<<"|"<<v->GetName();
-                                }
+                            //RooArgList l = RooArgList(*pp->components()[ip].getVariables());
+                            //for (int idx=0; idx<l.getSize();++idx) { 
+                            //    RooAbsArg*v = l.at(idx);
+                            //    if (logNormal.find(v->GetName()) != logNormal.end()) {
+                            //        logNormal.erase(v->GetName());
+                            //        if (verbose) std::cout<<"|"<<v->GetName();
+                            //    }
+                            //}
+                            std::set<std::string> servers= getServersVars(&pp->components()[ip]);
+                            for(auto v : servers) {
+                                    if (logNormal.find(v) != logNormal.end()) {
+                                    logNormal.erase(v);
+                                    if (verbose) std::cout<<"|"<<v;
+                                    }
                             }
                             if (verbose) { std::cout <<std::endl;}
 
@@ -176,26 +183,43 @@ void SimNLLDerivativesHelper::init(){
                 }
                 
                 if (verbose) { std::cout <<"coeff variables:";}
-                RooArgList l = RooArgList(*coeff->getVariables());
-                for (int idx=0; idx<l.getSize();++idx) { 
-                    RooAbsArg*v = l.at(idx);
-                    if (logNormal.find(v->GetName()) != logNormal.end()) {
-                        logNormal.erase(v->GetName());
-                        if (verbose) std::cout<<"|"<<v->GetName();
-                    }
+                //RooArgList l = RooArgList(*coeff->getVariables());
+                //for (int idx=0; idx<l.getSize();++idx) { 
+                //    RooAbsArg*v = l.at(idx);
+                //    if (logNormal.find(v->GetName()) != logNormal.end()) {
+                //        logNormal.erase(v->GetName());
+                //        if (verbose) std::cout<<"|"<<v->GetName();
+                //    }
+                //}
+                std::set<std::string> servers= getServersVars(coeff);
+                for(auto v : servers) {
+                        if (logNormal.find(v) != logNormal.end()) {
+                        logNormal.erase(v);
+                        if (verbose) std::cout<<"|"<<v;
+                        }
                 }
                 //--
                 if (verbose) { std::cout<<std::endl <<"pdf variables:";}
-                l = RooArgList(*pdf->getVariables());
-                for (int idx=0; idx<l.getSize();++idx) { 
-                    RooAbsArg*v = l.at(idx);
-                    if (logNormal.find(v->GetName()) != logNormal.end()) {
-                        logNormal.erase(v->GetName());
-                        if (verbose) std::cout<<"|"<<v->GetName();
-                    }
+
+                //l = RooArgList(*pdf->getVariables());
+                //for (int idx=0; idx<l.getSize();++idx) { 
+                //    RooAbsArg*v = l.at(idx);
+                //    if (logNormal.find(v->GetName()) != logNormal.end()) {
+                //        logNormal.erase(v->GetName());
+                //        if (verbose) std::cout<<"|"<<v->GetName();
+                //    }
+                //}
+                servers.clear();
+                /*std::set<std::string>*/ servers= getServersVars(pdf);
+                for(auto v : servers) {
+                        if (logNormal.find(v) != logNormal.end()) {
+                        logNormal.erase(v);
+                        if (verbose) std::cout<<"|"<<v;
+                        }
                 }
                 if (verbose) { std::cout<<std::endl;}
-                continue;
+
+                continue; //  if pn==nullptr or not weighted 
             } //  not a process normalization coefficient
 
             std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Removing all asymmThetaList "<<std::endl;
@@ -278,3 +302,32 @@ void SimNLLDerivativesHelper::init(){
     std::cout<<"[SimNLLDerivativesHelper][init]"<< "DONE INIT" <<std::endl;
 }
 
+//def getServers(node):
+//    servers = []
+//    iter = node.serverIterator()
+//    while True:
+//        server = iter.Next()
+//        if server == None:
+//            break
+//        servers.append(server)
+//    return servers
+
+std::set<std::string>  SimNLLDerivativesHelper::getServersVars(RooAbsArg *node){
+    std::set<std::string> R;
+    auto iter = node->serverIterator();
+    while (true)
+    {
+        auto server = iter->Next(); 
+        if (server==nullptr)break;
+
+        if (dynamic_cast<RooRealVar*> (server) != nullptr)
+        {
+            R.insert(std::string(server->GetName()));
+        }
+        else{
+            std::set<std::string> r1 = getServersVars((RooAbsArg*)server);
+            R.merge(r1);
+        }
+    }
+    return R;
+}

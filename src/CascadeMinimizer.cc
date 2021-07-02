@@ -79,7 +79,7 @@ void CascadeMinimizer::remakeMinimizer() {
         }
         SimNLLDerivativesHelper helper(simnll); 
         helper.init();
-        minimizerSemiAnalytic_.reset(new RooMinimizerSemiAnalytic(nll_,helper.derivatives_));
+        minimizerSemiAnalytic_.reset(new RooMinimizerSemiAnalytic(nll_, (runtimedef::get("MINIMIZER_SemiAnalytic_NOANALYTIC"))?derivatives_:helper.derivatives_));
         //minimizerSemiAnalytic_->setVerbose(kTRUE); // DEBUG
     }
     else{
