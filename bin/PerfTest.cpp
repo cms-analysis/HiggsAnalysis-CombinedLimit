@@ -47,7 +47,6 @@ int main(int argc, char *argv[]) {
         RooAbsData *dobs = w->data("data_obs");
         const RooCmdArg &constrainCmdArg = RooFit::Constrain(*mc_s->GetNuisanceParameters());
         std::auto_ptr<RooAbsReal> nll;
-        nll.reset(); // first delete the old one, to avoid using more memory, even if temporarily
         nll.reset(pdf.createNLL(*dobs, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
 
 	if(dump_) {
