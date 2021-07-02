@@ -1,33 +1,58 @@
 #include "HiggsAnalysis/CombinedLimit/interface/SimNLLDerivativesHelper.h"
 
-DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, const cacheutils::CachingAddNLL *pdf, const RooDataSet *data, const std::string& kappaname) :
+DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, const cacheutils::CachingAddNLL *pdf, const RooDataSet *data, const std::string& kappaname,int&found) :
     RooAbsReal(name, title),
     data_(data),
     pdf_(pdf),
     kappaname_(kappaname)
 {
-    for (unsigned int i=0;i<pdf_->pdfs_.size();++i)
+    found=0; // keep track if at least one depends on the given kappa
+    for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // process loop
     {
+        if(verbose) std::cout<<"[DerivativeLogNormal]: loop "<< i <<"/"<<pdf_->pdfs_.size()<<" considering pdf "<<pdf_->GetName() <<std::endl;
         int val=-1;
         ProcessNormalization *p = dynamic_cast<ProcessNormalization*> (pdf_->coeffs_[i]);
-        for (unsigned int j=0 ; j<p->logKappa_.size();++j)
-        {
-            if ( p->thetaList_.at(j)->GetName() == kappaname_  ) {val=int(j);}
+        if (verbose) std::cout<<"[DerivativeLogNormal]: coeff is of class "<<pdf_->coeffs_[i]->ClassName()<<std::endl;
+        // RooProduct
+        RooProduct *pp = dynamic_cast<RooProduct*>(pdf_->coeffs_[i]);
+        if (p == nullptr and pp != nullptr){
+            for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
+            {
+                if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) p = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
+            }
         }
-        if (val==-1) { 
-            std::cout<<"[ERROR]: Unable to find kappa corresponding to "<<kappaname_<<" in pdf "<<pdf_->GetName() <<std::endl;
-            throw 1; 
-        }// something
+        //
+        if (p != nullptr) { // unable to add the sum for this process
+
+            for (unsigned int j=0 ; j<p->logKappa_.size();++j)
+            {
+                if ( p->thetaList_.at(j)->GetName() == kappaname_  ) {val=int(j);}
+            }
+            if (val==-1) { 
+                if(verbose) std::cout<<"[DerivativeLogNormal]: Unable to find kappa corresponding to "<<kappaname_<<" in pdf "<<pdf_->GetName() <<std::endl;
+            }// something
+            else{
+                found=1;
+            }
+        }
+        else{
+            if(verbose) std::cout<<"[DerivativeLogNormal]: Unable to find kappa corresponding to "<<kappaname_<<" in pdf "<<pdf_->GetName() << "because not ProcessNormalization" <<std::endl;
+        }
+
         kappa_pos_.push_back(val);
     }
+    if(verbose) std::cout<<"[DerivativeLogNormal]: constructed derivative for "<<kappaname_<<" of pdf "<<pdf_->GetName() <<std::endl;
 }
 
 DerivativeLogNormal* DerivativeLogNormal::clone(const char *name) const {
+    if(verbose) std::cout<<"[DerivativeLogNormal]: clone"<<std::endl;
+    int found;
     return new DerivativeLogNormal( 
-            (name)?name:GetName(), GetTitle(), pdf(), data(), kappaname_) ;
+            (name)?name:GetName(), GetTitle(), pdf(), data(), kappaname_, found) ;
 }
 
 Double_t DerivativeLogNormal::evaluate() const {
+    if(verbose) std::cout<<"[DerivativeLogNormal]: evaluate"<<std::endl;
     /* The derivative of a kappa in a channel is
      *   sum_bin lambdat_b - data_b lambdat_b/lambda_b
      *   lambda_b -> sum of expectations in the bin
@@ -45,8 +70,18 @@ Double_t DerivativeLogNormal::evaluate() const {
         for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // loop over processes
         { 
             ProcessNormalization *c = dynamic_cast<ProcessNormalization*>(pdf_->coeffs_[i]);
-            double logK = c -> logKappa_ [kappa_pos_[i]];
-            lambdat+= c->getVal() * pdf_->pdfs_.at(i).pdf()->getVal() * logK;
+            
+            // fix RooProduct
+            RooProduct *pp = dynamic_cast<RooProduct*>(pdf_->coeffs_[i]);
+            if (c == nullptr and pp != nullptr){
+                for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
+                {
+                    if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) c = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
+                }
+            }
+            ///---
+            double logK = (kappa_pos_[i]>=0)? c -> logKappa_ [kappa_pos_[i]] : 0.0;
+            lambdat+= pdf_->coeffs_[i]->getVal() * pdf_->pdfs_.at(i).pdf()->getVal() * logK;
         } 
         sum += lambdat - db*lambdat/lambda;
     }
@@ -74,7 +109,14 @@ void SimNLLDerivativesHelper::init(){
         logNormal.insert( f->getX().GetName() );
     }
 
+    if (verbose) {
+        std::cout<<"[SimNLLDerivativesHelper][init] List of constraint pdfs parameters:"<<std::endl;
+        std::cout<<"     "; for( const auto& v : logNormal) std::cout<<v<<",";
+        std::cout<<std::endl;
+    }
+
     // loop over sim components
+    if (verbose) { std::cout << "[SimNLLDerivativesHelper][init] loop over sim components 1"<<std::endl;}
     unsigned idx=0;
     for (std::vector<cacheutils::CachingAddNLL*>::const_iterator it = nll_->pdfs_.begin(), ed = nll_->pdfs_.end(); it != ed; ++it, ++idx) {
         cacheutils::CachingAddNLL * pdf = *it;
@@ -82,20 +124,58 @@ void SimNLLDerivativesHelper::init(){
         const RooAbsData* data= pdf->data();
         bool isWeighted = data->isWeighted(); // binned vs unbinned?!? TBC
 
+        if (verbose) { std::cout << "[SimNLLDerivativesHelper][init] > considering pdf "<<pdf->GetName()<< ((isWeighted)?" isWeighted":" notWeighted") <<std::endl;}
+
+        //std::set<std::string> toRemove;
+
         for(unsigned proc =0 ; proc < pdf ->pdfs_.size();++proc)
         {
-            RooAbsReal * coeff = pdf -> coeffs_[proc] ;
+            RooAbsReal * coeff = pdf -> coeffs_[proc] ; // what to do for RooProduct?
+
             ProcessNormalization * pn = dynamic_cast<ProcessNormalization*> (coeff);
-            if (pn == nullptr or not isWeighted) {  // remove all the lognormal candidates. Don't know how to deal with them
+            RooProduct *pp = dynamic_cast<RooProduct*>(coeff);
+
+            if (pn == nullptr and pp != nullptr){
+                for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
+                {
+                    if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) pn = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
+                    else {
+                            if (verbose) { std::cout <<"components:";}
+                            RooArgList l = RooArgList(*pp->components()[ip].getVariables());
+                            for (int idx=0; idx<l.getSize();++idx) { 
+                                RooAbsArg*v = l.at(idx);
+                                if (logNormal.find(v->GetName()) != logNormal.end()) {
+                                    logNormal.erase(v->GetName());
+                                    if (verbose) std::cout<<"|"<<v->GetName();
+                                }
+                            }
+                            if (verbose) { std::cout <<std::endl;}
+
+                    }
+                } 
                 if (verbose) {
-                    std::cout<<"[SimNLLDerivativesHelper][INFO]:"
+                    if(pn) std::cout<<"[SimNLLDerivativesHelper][init]: RooProduct has inside a ProcessNormalization. using it"<<std::endl;
+                    else std::cout<<"[SimNLLDerivativesHelper][init]: RooProduct has no product normalization inside"<<std::endl;
+                }
+            }
+
+            if (pn == nullptr or not isWeighted) {  // remove all the lognormal candidates. Don't know how to deal with them
+
+                if (verbose) {
+                    std::cout<<"[SimNLLDerivativesHelper][init]:"
                         <<"Removing from the list of known derivatives because"
-                        << ((pn==nullptr)? std::string(" coeff is not processNormalization but")+ std::string( coeff->ClassName() ): "")
+                        << ((pn==nullptr)? std::string(" coeff is not processNormalization but ")+ std::string(coeff->ClassName()): "")
                         << ((pn==nullptr and not isWeighted) ? " and":"" )
                         << ((not isWeighted)?" dataset is not weighted (unbinned?)":"")
-                        << "the following variables"
                         <<std::endl;
                 }
+                if (verbose) { 
+                    std::cout<<"[SimNLLDerivativesHelper][init]"<< " -- COEFF -- "<<std::endl;
+                    coeff->Print("V");
+                    std::cout<<"-----------------"<<std::endl;
+                }
+                
+                if (verbose) { std::cout <<"coeff variables:";}
                 RooArgList l = RooArgList(*coeff->getVariables());
                 for (int idx=0; idx<l.getSize();++idx) { 
                     RooAbsArg*v = l.at(idx);
@@ -105,6 +185,7 @@ void SimNLLDerivativesHelper::init(){
                     }
                 }
                 //--
+                if (verbose) { std::cout<<std::endl <<"pdf variables:";}
                 l = RooArgList(*pdf->getVariables());
                 for (int idx=0; idx<l.getSize();++idx) { 
                     RooAbsArg*v = l.at(idx);
@@ -113,9 +194,11 @@ void SimNLLDerivativesHelper::init(){
                         if (verbose) std::cout<<"|"<<v->GetName();
                     }
                 }
+                if (verbose) { std::cout<<std::endl;}
                 continue;
             } //  not a process normalization coefficient
 
+            std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Removing all asymmThetaList "<<std::endl;
             // remove all asymmThetaList
             //for (auto v : pn->asymmThetaList_)
             for(int idx=0; idx< pn->asymmThetaList_.getSize() ;++idx){
@@ -129,6 +212,7 @@ void SimNLLDerivativesHelper::init(){
             }
             // remove all otherFactorList
             //for (auto v : pn->otherFactorList_)
+            std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Removing all otherfactorsList "<<std::endl;
             for(int idx=0; idx< pn->otherFactorList_.getSize() ;++idx){
                 RooAbsArg*v=pn->otherFactorList_.at(idx); 
                 if (verbose) {
@@ -139,6 +223,8 @@ void SimNLLDerivativesHelper::init(){
                 if (logNormal.find(v->GetName()) != logNormal.end()) logNormal.erase(v->GetName());
             }
 
+            std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Continue loop "<<std::endl;
+
         }
 
         // cross check derivatives with logNormal
@@ -148,9 +234,11 @@ void SimNLLDerivativesHelper::init(){
         //        derivatives.erase(d.first());
         //    }
         //}
+        std::cout<<"[SimNLLDerivativesHelper][init]"<< "> Continue loop "<<std::endl;
 
     }
 
+    std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructing the derivatives sum "<<std::endl;
     for (auto name : logNormal){
         RooArgList list;
         // loop over sim components
@@ -161,20 +249,32 @@ void SimNLLDerivativesHelper::init(){
             if (pdf==nullptr) continue ; // ?!? needed?
             const RooAbsData* data= pdf->data();
             //(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data,std::string kappaname)
-            DerivativeLogNormal der("","",pdf,dynamic_cast<const RooDataSet*>(data),name);
-            list.add(der); // or addOwned?
+            int found;
+            DerivativeLogNormal *der= new DerivativeLogNormal("","",pdf,dynamic_cast<const RooDataSet*>(data),name,found);
+            if(found) list.addOwned(*der); // or addOwned or add?
+            else der->Delete();
         }
         // add derivative of constraint
         // nll_->constrainPdfsFast_
+        std::cout<<"[SimNLLDerivativesHelper][init]"<< "Adding constraint term for "<< name <<std::endl;
         for(unsigned i=0;i<nll_->constrainPdfsFast_.size();++i)
         {
+            if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< " Considering "<< nll_->constrainPdfsFast_[i]->getX().GetName() <<std::endl;
             if (nll_->constrainPdfsFast_[i]->getX().GetName() != name) continue;
-            RooFormulaVar constr("constr","(@0-@1)/(@2*@2)",RooArgList(nll_->constrainPdfsFast_[i]->getX(),nll_->constrainPdfsFast_[i]->getMean(), nll_->constrainPdfsFast_[i]->getSigma()));// (x-mean)/sigma^2
-            list.add(constr) ; // or addOwned
+
+            if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< "Loop. found constraint "<< nll_->constrainPdfsFast_[i]->getX().GetName() <<" == "<<name<<". Building RooFormulaVar" <<std::endl;
+            RooFormulaVar *constr = new RooFormulaVar("constr","(@0-@1)/(@2*@2)",RooArgList(nll_->constrainPdfsFast_[i]->getX(),nll_->constrainPdfsFast_[i]->getMean(), nll_->constrainPdfsFast_[i]->getSigma()));// (x-mean)/sigma^2
+            list.addOwned(*constr) ; // or addOwned or add?
         }
+        if (verbose) {std::cout <<"[SimNLLDerivativesHelper][init] --- LIST OF addition ---"<<std::endl;
+            list.Print("V");
+        }
+        if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructing RooAddition for  "<< name <<std::endl;
         derivatives_[name] = new RooAddition(("derivative_"+name).c_str(),"",list);
+        if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructed sum for "<< name <<std::endl;
     } 
 
 
+    std::cout<<"[SimNLLDerivativesHelper][init]"<< "DONE INIT" <<std::endl;
 }
 
