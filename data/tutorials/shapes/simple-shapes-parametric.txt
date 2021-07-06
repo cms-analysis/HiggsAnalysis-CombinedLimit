@@ -15,5 +15,5 @@ process      sig 	bkg
 process      0          1
 rate         1          1
 --------------------------------
-lumi    lnN  1.1       -
+lumi    lnN  1.1       1.0
 vogian_sigma   param 1.0      0.1
