@@ -42,7 +42,7 @@ class RooPlot ;
 class RooMinimizerSemiAnalytic : public TObject {
 public:
 
-  RooMinimizerSemiAnalytic(RooAbsReal& function,const std::map<std::string,RooAbsReal*>& knownDerivatives) ;
+  RooMinimizerSemiAnalytic(RooAbsReal& function,std::map<std::string,RooAbsReal*>* knownDerivatives) ;
   virtual ~RooMinimizerSemiAnalytic() ;
 
   enum Strategy { Speed=0, Balance=1, Robustness=2 } ;
