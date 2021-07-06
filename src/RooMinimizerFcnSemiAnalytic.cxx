@@ -36,11 +36,14 @@
 #include "RooMinimizer.h"
 #include <stdexcept>
 
+#include "RooAddition.h" // DEBUG & Print
+#include "RooFormulaVar.h" //DEBUG & Print
+//#include "HiggsAnalysis/CombinedLimit/interface/SimNLLDerivativesHelper.h" // DEBUG to have evaluate
+
 using namespace std;
 
-RooMinimizerFcnSemiAnalytic::RooMinimizerFcnSemiAnalytic(RooAbsReal *funct, RooMinimizerSemiAnalytic* context, const std::map<std::string,RooAbsReal*>& knownDerivatives, bool verbose) :
+RooMinimizerFcnSemiAnalytic::RooMinimizerFcnSemiAnalytic(RooAbsReal *funct, RooMinimizerSemiAnalytic* context, std::map<std::string,RooAbsReal*> * knownDerivatives, bool verbose) :
   _funct(funct), 
-  _knownDerivatives (knownDerivatives),
   _context(context),
   // Reset the *largest* negative log-likelihood value we have seen so far
   _maxFCN(-1e30), _numBadNLL(0),  
@@ -49,6 +52,7 @@ RooMinimizerFcnSemiAnalytic::RooMinimizerFcnSemiAnalytic(RooAbsReal *funct, RooM
   _verbose(verbose)
 { 
 
+  _knownDerivatives = knownDerivatives;
   _evalCounter = 0 ;
   
   // Examine parameter list
@@ -99,7 +103,6 @@ RooMinimizerFcnSemiAnalytic::RooMinimizerFcnSemiAnalytic(RooAbsReal *funct, RooM
 RooMinimizerFcnSemiAnalytic::RooMinimizerFcnSemiAnalytic(const RooMinimizerFcnSemiAnalytic& other) : ROOT::Math::IMultiGradFunction(other), 
   _evalCounter(other._evalCounter),
   _funct(other._funct),
-  _knownDerivatives(other._knownDerivatives),
   _context(other._context),
   _maxFCN(other._maxFCN),
   _numBadNLL(other._numBadNLL),
@@ -111,6 +114,7 @@ RooMinimizerFcnSemiAnalytic::RooMinimizerFcnSemiAnalytic(const RooMinimizerFcnSe
   _floatParamVec(other._floatParamVec),
   _derivParamVec(other._derivParamVec)
 {  
+  _knownDerivatives = other._knownDerivatives;
   _floatParamList = new RooArgList(*other._floatParamList) ;
   _constParamList = new RooArgList(*other._constParamList) ;
   _initFloatParamList = (RooArgList*) other._initFloatParamList->snapshot(kFALSE) ;
@@ -520,8 +524,8 @@ void RooMinimizerFcnSemiAnalytic::updateFloatVec()
   _derivParamVec = std::vector<RooAbsReal*>(_floatParamList->getSize()) ;
   Int_t i(0) ;
   while((arg=iter.next())) {
-    auto derivative=_knownDerivatives.find(arg->GetName());
-    if (derivative == _knownDerivatives.end()){
+    auto derivative=_knownDerivatives->find(arg->GetName());
+    if (derivative == _knownDerivatives->end()){
         if(_verbose) std::cout<<"[DEBUG]:["<<__PRETTY_FUNCTION__<<"]:"<< "derivative for param "<<arg->GetName()<<" not found. I will use numerical derivatives."<<std::endl;
         _derivParamVec[i]  = nullptr;
     }
@@ -606,6 +610,7 @@ double RooMinimizerFcnSemiAnalytic::DoEval(const double *x) const
 double RooMinimizerFcnSemiAnalytic::DoDerivative(const double * x, unsigned int icoord) const{
     //std::cout<<"[DEBUG]:["<<__PRETTY_FUNCTION__<<"]:"<< "DoDerivative:"<<icoord<<std::endl; // run with -v3 to get it
 
+
   // Set the parameter values for this iteration
   for (int index = 0; index < _nDim; index++) {
     if (_logfile) (*_logfile) << x[index] << " " ;
@@ -620,10 +625,14 @@ double RooMinimizerFcnSemiAnalytic::DoDerivative(const double * x, unsigned int 
   if (_derivParamVec[icoord] == nullptr) return DoNumericalDerivative(x,icoord);
 
   //verify correctness of analytical derivatives // DEBUG
+  
   if (true){
-      std::cout<<"[RooMinimizerFcnSemiAnalytic][DEBUG]"<< "Doing derivative for "<<icoord<<std::endl;
+      std::cout<<"[RooMinimizerFcnSemiAnalytic][DEBUG]"<< "Doing derivative for "<<icoord<<" at theta="<<x[icoord] <<std::endl;
+      std::cout<<"param "; for (int index = 0; index < _nDim; index++) { std::cout<< x[index] <<","; } ; std::cout<<endl;
       std::cout<< "----------- NUMERICAL: "<< DoNumericalDerivative(x,icoord)<<std::endl;
-      std::cout<< "----------- ANALYTICAL: "<< _derivParamVec[icoord]->getVal()<<std::endl;
+      std::cout<< "----------- ANALYTICAL (getVal): "<< _derivParamVec[icoord]->getVal()<<std::endl;
+      std::cout<< "----------- "<<std::endl;
+
   }
     
   return _derivParamVec[icoord]->getVal();
@@ -673,6 +682,7 @@ double RooMinimizerFcnSemiAnalytic::DoNumericalDerivative(const double * x,int i
            Compute the error using the difference between the 5-point and
            the 3-point rule (x-h,x,x+h). Again the central point is not
            used. */
+  RooAbsReal::setHideOffset(kFALSE) ;
 
         // smallest number representable in doubles
         static double kPrecision = std::sqrt ( std::numeric_limits<double>::epsilon() );
@@ -698,6 +708,8 @@ double RooMinimizerFcnSemiAnalytic::DoNumericalDerivative(const double * x,int i
         SetPdfParamVal(icoord,x[icoord]+hhalf);
         double fph = _funct->getVal();
 
+  RooAbsReal::setHideOffset(kTRUE) ;
+
         double r3 = 0.5 * (fp1 - fm1);
         double r5 = (4.0 / 3.0) * (fph - fmh) - (1.0 / 3.0) * r3;
 
@@ -717,7 +729,39 @@ double RooMinimizerFcnSemiAnalytic::DoNumericalDerivative(const double * x,int i
         //*result = r5 / h;
         //*abserr_trunc = fabs ((r5 - r3) / h); /* Estimated truncation error O(h^2) */
         //*abserr_round = fabs (e5 / h) + dy;   /* Rounding error (cancellations) */
+        // reset
+        SetPdfParamVal(icoord,x[icoord]);
         return r5 /h ;
+    }
+
+    if (_useNumDerivatives==2){
+        /* Compute the derivative using the 5-point rule (x-h, x-h/2, x,
+           x+h/2, x+h). Note that the central point is not used.  
+
+           Compute the error using the difference between the 5-point and
+           the 3-point rule (x-h,x,x+h). Again the central point is not
+           used. */
+
+        // smallest number representable in doubles
+        static double kPrecision = std::sqrt ( std::numeric_limits<double>::epsilon() );
+        static double fgEps = 0.001;
+
+        double ax0 = std::abs(x[icoord]);
+        //double step = (x0 > 0) ? kPrecision * x0 : kPrecision;
+        // this seems to work better than above
+        double h = (ax0>0) ? std::max( fgEps* ax0, 8.0*kPrecision*(ax0 + kPrecision) ) : kPrecision;
+        //static const double h=std::numeric_limits<double>::epsilon()*8.;
+
+        SetPdfParamVal(icoord,x[icoord]-h);
+        double fm1 = _funct->getVal();
+        SetPdfParamVal(icoord,x[icoord]+h);
+        double fp1 = _funct->getVal();
+
+        double r3 = 0.5 * (fp1 - fm1);
+
+        // reset
+        SetPdfParamVal(icoord,x[icoord]);
+        return r3 /h ;
     }
     throw std::runtime_error(Form("Numerical derivatives method un-implemented: %d",_useNumDerivatives));
 }

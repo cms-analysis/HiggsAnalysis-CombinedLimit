@@ -77,9 +77,10 @@ void CascadeMinimizer::remakeMinimizer() {
             std::cout<<"[ERROR]::[CascadeMinimizer] I need simnll to have SemiAnalytic derivatives done by SimNLLDerivativesHelper"<<std::endl;
             throw 1; //FIXME throw something meaningful
         }
-        SimNLLDerivativesHelper helper(simnll); 
-        helper.init();
-        minimizerSemiAnalytic_.reset(new RooMinimizerSemiAnalytic(nll_, (runtimedef::get("MINIMIZER_SemiAnalytic_NOANALYTIC"))?derivatives_:helper.derivatives_));
+        helper_.reset(new SimNLLDerivativesHelper(simnll));
+        helper_->init();
+        //helper_->setMaskConstraint(1); // Why the numerical derivatives correspond (wrongly) to this? TODO
+        minimizerSemiAnalytic_.reset(new RooMinimizerSemiAnalytic(nll_, (runtimedef::get("MINIMIZER_SemiAnalytic_NOANALYTIC"))? &derivatives_: &helper_->derivatives_));
         //minimizerSemiAnalytic_->setVerbose(kTRUE); // DEBUG
     }
     else{

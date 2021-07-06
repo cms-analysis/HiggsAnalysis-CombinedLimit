@@ -37,7 +37,7 @@ class RooMinimizerFcnSemiAnalytic :
 
  public:
 
-  RooMinimizerFcnSemiAnalytic(RooAbsReal *funct, RooMinimizerSemiAnalytic *context, const std::map<std::string,RooAbsReal*>& knownDerivatives, bool verbose = false);
+  RooMinimizerFcnSemiAnalytic(RooAbsReal *funct, RooMinimizerSemiAnalytic *context, std::map<std::string,RooAbsReal*>* knownDerivatives, bool verbose = false);
   RooMinimizerFcnSemiAnalytic(const RooMinimizerFcnSemiAnalytic& other);
   virtual ~RooMinimizerFcnSemiAnalytic();
 
@@ -90,7 +90,7 @@ private:
   
   RooAbsReal *_funct;
   // for name -> Derivative
-  std::map<std::string,RooAbsReal*> _knownDerivatives; // does not own them. Otherwise needs to design ad hoc copy constructors.
+  std::map<std::string,RooAbsReal*> *_knownDerivatives; // does not own them. Otherwise needs to design ad hoc copy constructors.
 
   RooMinimizerSemiAnalytic *_context;
 
@@ -111,7 +111,7 @@ private:
   RooArgList* _initFloatParamList;
   RooArgList* _initConstParamList;
 
-  int _useNumDerivatives{1};// 0 = ROOT (not-impl), 1 re-implementation of gsl
+  int _useNumDerivatives{1};// 0 = ROOT (not-impl), 1 re-implementation of gsl 5 point, 2 re-implementation of gsl 3 point
 
 };
 

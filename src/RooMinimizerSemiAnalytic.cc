@@ -98,7 +98,7 @@ void RooMinimizerSemiAnalytic::cleanup()
 /// for HESSE and MINOS error analysis is taken from the defaultErrorLevel()
 /// value of the input function.
 
-RooMinimizerSemiAnalytic::RooMinimizerSemiAnalytic(RooAbsReal& function,const std::map<std::string,RooAbsReal*>& knownDerivatives)
+RooMinimizerSemiAnalytic::RooMinimizerSemiAnalytic(RooAbsReal& function, std::map<std::string,RooAbsReal*>* knownDerivatives)
 {
   RooSentinel::activate() ;
 

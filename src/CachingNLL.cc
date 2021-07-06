@@ -1077,12 +1077,12 @@ cacheutils::CachingSimNLL::evaluate() const
                 double logpdfval = (*it)->getLogValFast();
                 //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
                 ret2 += (logpdfval + *itz);
+                //std::cout << "[CachingSimNLL]: Simple Gaussian Constraint pdf " << (*it)->GetName() << " = " << logpdfval << " pars="<<(*it)->getMean().getVal()<<" "<<(*it)->getX().getVal()<<"/"<<(*it)->getSigma().getVal() <<" ZP "<<*itz<< std::endl;
             }
             /// ============= FAST POISSON CONSTRAINTS  =========
             itz = constrainZeroPointsFastPoisson_.begin();
             for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) { 
                 double logpdfval = (*it)->getLogValFast();
-                //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
                 ret2 += (logpdfval + *itz);
             }
         }

@@ -1,11 +1,16 @@
 #include "HiggsAnalysis/CombinedLimit/interface/SimNLLDerivativesHelper.h"
+#include "RooDataHist.h"
+//#define DERIVATIVE_LOGNORMAL_DEBUG 1
 
-DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, const cacheutils::CachingAddNLL *pdf, const RooDataSet *data, const std::string& kappaname,int&found) :
+DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data, const std::string& thetaname,int&found) :
     RooAbsReal(name, title),
     data_(data),
     pdf_(pdf),
-    kappaname_(kappaname)
+    pdfproxy_( ( std::string("proxy_")+name).c_str() ,"",pdf),
+    thetaname_(thetaname)
 {
+    setDirtyInhibit(true); // TODO: understand cache and proxies
+
     found=0; // keep track if at least one depends on the given kappa
     for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // process loop
     {
@@ -26,49 +31,76 @@ DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, co
 
             for (unsigned int j=0 ; j<p->logKappa_.size();++j)
             {
-                if ( p->thetaList_.at(j)->GetName() == kappaname_  ) {val=int(j);}
+                if ( p->thetaList_.at(j)->GetName() == thetaname_  ) {val=int(j);}
             }
             if (val==-1) { 
-                if(verbose) std::cout<<"[DerivativeLogNormal]: Unable to find kappa corresponding to "<<kappaname_<<" in pdf "<<pdf_->GetName() <<std::endl;
+                if(verbose) std::cout<<"[DerivativeLogNormal]: Unable to find kappa corresponding to "<<thetaname_<<" in pdf "<<pdf_->GetName() <<std::endl;
             }// something
             else{
                 found=1;
             }
         }
         else{
-            if(verbose) std::cout<<"[DerivativeLogNormal]: Unable to find kappa corresponding to "<<kappaname_<<" in pdf "<<pdf_->GetName() << "because not ProcessNormalization" <<std::endl;
+            if(verbose) std::cout<<"[DerivativeLogNormal]: Unable to find kappa corresponding to "<<thetaname_<<" in pdf "<<pdf_->GetName() << "because not ProcessNormalization" <<std::endl;
         }
 
         kappa_pos_.push_back(val);
     }
-    if(verbose) std::cout<<"[DerivativeLogNormal]: constructed derivative for "<<kappaname_<<" of pdf "<<pdf_->GetName() <<std::endl;
+    if(verbose) std::cout<<"[DerivativeLogNormal]: constructed derivative for "<<thetaname_<<" of pdf "<<pdf_->GetName() <<std::endl;
 }
 
 DerivativeLogNormal* DerivativeLogNormal::clone(const char *name) const {
     if(verbose) std::cout<<"[DerivativeLogNormal]: clone"<<std::endl;
     int found;
     return new DerivativeLogNormal( 
-            (name)?name:GetName(), GetTitle(), pdf(), data(), kappaname_, found) ;
+            (name)?name:GetName(), GetTitle(), pdf_, data(), thetaname_, found) ;
 }
 
 Double_t DerivativeLogNormal::evaluate() const {
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
     if(verbose) std::cout<<"[DerivativeLogNormal]: evaluate"<<std::endl;
+#endif
     /* The derivative of a kappa in a channel is
      *   sum_bin lambdat_b - data_b lambdat_b/lambda_b
      *   lambda_b -> sum of expectations in the bin
-     *   lambdat_b -> sum of expecations times logK
+     *   lambdat_b -> sum of ( expecations times logK)
      */
 
     double sum=0.0;
     // caching: TODO
-    for (int ib=0;ib<data_->numEntries();++ib)
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+    if(verbose) {
+        std::cout<<"[DerivativeLogNormal]: data"<<std::endl;
+        data_->Print("V");
+        std::cout<<"[DerivativeLogNormal]: --"<<std::endl;
+    }
+#endif
+    
+    const RooDataHist* dh = dynamic_cast<const RooDataHist*> (data_);
+
+    // FIX for ADDNLL_ROOREALSUM_KEEPZEROS 
+    std::vector<double> reminder(pdf_->pdfs_.size(),0.0); // the sums must do 1, the ib==ndata does that with data=0
+    int ndata=data_->numEntries();
+
+    for (int ib=0;ib<=ndata;++ib) 
+    //for (unsigned int ib=0;ib<pdf_->weights_.size();++ib)
     {
-        data_->get(ib) ;
-        double db = data_->weight();
-        double lambda=pdf_->getVal();
+        auto x= (ib<ndata) ? data_->get(ib): data_->get(0) ;
+        double db = (ib<ndata) ? data_->weight() : 0.; 
+        double bw = (dh != nullptr) ? dh->binVolume(): 1.0;
+
+        //double db = pdf_->weights_[ib];
+        //double bw = pdf_->binWidths_[ib];
+
+        //double lambda=pdf_->getVal()*bw; // sum coeff*pdf
         double lambdat=0.0;
+        double lambda=0.;// debug: recompute lambda with loop. not sure that the term before include everything I want
+
+        //bool recursive=true;
+        //double running_prod=1.0;
         for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // loop over processes
         { 
+            // find kappa
             ProcessNormalization *c = dynamic_cast<ProcessNormalization*>(pdf_->coeffs_[i]);
             
             // fix RooProduct
@@ -79,12 +111,40 @@ Double_t DerivativeLogNormal::evaluate() const {
                     if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) c = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
                 }
             }
-            ///---
+            ///--- from CachingAddNLL
+            //static bool expEventsNoNorm = runtimedef::get("ADDNLL_ROOREALSUM_NONORM");
+            //---
             double logK = (kappa_pos_[i]>=0)? c -> logKappa_ [kappa_pos_[i]] : 0.0;
-            lambdat+= pdf_->coeffs_[i]->getVal() * pdf_->pdfs_.at(i).pdf()->getVal() * logK;
+            if (pdf_->isRooRealSum_ and verbose)std::cout<<"[DerivativeLogNormal]:DEBUG "<<" pdf is a RooRealSumPdf"<<std::endl;
+
+            if (ib<ndata) reminder[i] += pdf_->pdfs_.at(i).pdf()->getVal(x)*bw; 
+
+            double expectedEvents= (ib<ndata)  ? pdf_->coeffs_[i]->getVal(x) * pdf_->pdfs_.at(i).pdf()->getVal(x)*bw : 
+                        pdf_->coeffs_[i]->getVal(x) * (1.-reminder[i]);
+
+            // sum coeff or sum coeff*integral
+            //double expectedEvents= dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->expectedEvents(x);
+            //bool expEventsNoNorm=false;
+            //double expectedEvents = (pdf_->isRooRealSum_ && !expEventsNoNorm ? dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getNorm(data_->get()) : pdf_->coeffs_[i]->getVal());
+            lambdat+= expectedEvents * logK;
+            lambda += expectedEvents;
+
+            if (pdf_->basicIntegrals_ and verbose)std::cout<<"[DerivativeLogNormal]:DEBUG "<<" PDF has basic integrals:"<<pdf_->basicIntegrals_<<std::endl;
+
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+            if(verbose and DERIVATIVE_LOGNORMAL_DEBUG > 1) std::cout<<"[DerivativeLogNormal]: *** ibin="<< ib<< " data="<<db <<" iproc="<< i<<" expEvents="<<expectedEvents<< " logK="<<logK<<" coeff="<<pdf_->coeffs_[i]->getVal() <<" pdf="<<pdf_->pdfs_.at(i).pdf()->getVal() <<" bw="<<bw <<std::endl;
+#endif
         } 
-        sum += lambdat - db*lambdat/lambda;
+        sum += lambdat * (1. - db/lambda);
+
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+        if(verbose) std::cout<<"[DerivativeLogNormal]: ibin="<< ib<< " data="<<db << " lambda="<<lambda << "( from pdf_" << pdf_->getVal()*bw <<")" <<" lambdat="<<lambdat<<" bw="<<bw<< " running sum="<<sum<<std::endl;
+#endif
     }
+
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+    if(verbose) std::cout<<"[DerivativeLogNormal]: thetaname="<<thetaname_<<" partial="<<sum<<std::endl;
+#endif
     return sum;
 
 }
@@ -122,7 +182,7 @@ void SimNLLDerivativesHelper::init(){
         cacheutils::CachingAddNLL * pdf = *it;
         if (pdf==nullptr) continue ; // ?!? needed?
         const RooAbsData* data= pdf->data();
-        bool isWeighted = data->isWeighted(); // binned vs unbinned?!? TBC
+        bool isWeighted = data->isWeighted() ;//and (dynamic_cast<const RooDataHist*>(data) != nullptr); // binned vs unbinned?!? TBC
 
         if (verbose) { std::cout << "[SimNLLDerivativesHelper][init] > considering pdf "<<pdf->GetName()<< ((isWeighted)?" isWeighted":" notWeighted") <<std::endl;}
 
@@ -131,6 +191,7 @@ void SimNLLDerivativesHelper::init(){
         for(unsigned proc =0 ; proc < pdf ->pdfs_.size();++proc)
         {
             RooAbsReal * coeff = pdf -> coeffs_[proc] ; // what to do for RooProduct?
+            const RooAbsReal* pdfi= pdf->pdfs_[proc].pdf();
 
             ProcessNormalization * pn = dynamic_cast<ProcessNormalization*> (coeff);
             RooProduct *pp = dynamic_cast<RooProduct*>(coeff);
@@ -141,14 +202,6 @@ void SimNLLDerivativesHelper::init(){
                     if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) pn = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
                     else {
                             if (verbose) { std::cout <<"components:";}
-                            //RooArgList l = RooArgList(*pp->components()[ip].getVariables());
-                            //for (int idx=0; idx<l.getSize();++idx) { 
-                            //    RooAbsArg*v = l.at(idx);
-                            //    if (logNormal.find(v->GetName()) != logNormal.end()) {
-                            //        logNormal.erase(v->GetName());
-                            //        if (verbose) std::cout<<"|"<<v->GetName();
-                            //    }
-                            //}
                             std::set<std::string> servers= getServersVars(&pp->components()[ip]);
                             for(auto v : servers) {
                                     if (logNormal.find(v) != logNormal.end()) {
@@ -179,18 +232,12 @@ void SimNLLDerivativesHelper::init(){
                 if (verbose) { 
                     std::cout<<"[SimNLLDerivativesHelper][init]"<< " -- COEFF -- "<<std::endl;
                     coeff->Print("V");
+                    std::cout<<"[SimNLLDerivativesHelper][init]"<< " -- PDF -- "<<std::endl;
+                    pdfi->Print("V");
                     std::cout<<"-----------------"<<std::endl;
                 }
                 
                 if (verbose) { std::cout <<"coeff variables:";}
-                //RooArgList l = RooArgList(*coeff->getVariables());
-                //for (int idx=0; idx<l.getSize();++idx) { 
-                //    RooAbsArg*v = l.at(idx);
-                //    if (logNormal.find(v->GetName()) != logNormal.end()) {
-                //        logNormal.erase(v->GetName());
-                //        if (verbose) std::cout<<"|"<<v->GetName();
-                //    }
-                //}
                 std::set<std::string> servers= getServersVars(coeff);
                 for(auto v : servers) {
                         if (logNormal.find(v) != logNormal.end()) {
@@ -201,16 +248,8 @@ void SimNLLDerivativesHelper::init(){
                 //--
                 if (verbose) { std::cout<<std::endl <<"pdf variables:";}
 
-                //l = RooArgList(*pdf->getVariables());
-                //for (int idx=0; idx<l.getSize();++idx) { 
-                //    RooAbsArg*v = l.at(idx);
-                //    if (logNormal.find(v->GetName()) != logNormal.end()) {
-                //        logNormal.erase(v->GetName());
-                //        if (verbose) std::cout<<"|"<<v->GetName();
-                //    }
-                //}
                 servers.clear();
-                /*std::set<std::string>*/ servers= getServersVars(pdf);
+                /*std::set<std::string>*/ servers= getServersVars(pdfi);
                 for(auto v : servers) {
                         if (logNormal.find(v) != logNormal.end()) {
                         logNormal.erase(v);
@@ -222,9 +261,10 @@ void SimNLLDerivativesHelper::init(){
                 continue; //  if pn==nullptr or not weighted 
             } //  not a process normalization coefficient
 
+            // TODO: remove all shapes
+
             std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Removing all asymmThetaList "<<std::endl;
             // remove all asymmThetaList
-            //for (auto v : pn->asymmThetaList_)
             for(int idx=0; idx< pn->asymmThetaList_.getSize() ;++idx){
                 RooAbsArg*v=pn->asymmThetaList_.at(idx);
                 if (verbose) {
@@ -235,7 +275,6 @@ void SimNLLDerivativesHelper::init(){
                 if (logNormal.find(v->GetName()) != logNormal.end()) logNormal.erase(v->GetName());
             }
             // remove all otherFactorList
-            //for (auto v : pn->otherFactorList_)
             std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Removing all otherfactorsList "<<std::endl;
             for(int idx=0; idx< pn->otherFactorList_.getSize() ;++idx){
                 RooAbsArg*v=pn->otherFactorList_.at(idx); 
@@ -272,13 +311,18 @@ void SimNLLDerivativesHelper::init(){
             cacheutils::CachingAddNLL * pdf = *it;
             if (pdf==nullptr) continue ; // ?!? needed?
             const RooAbsData* data= pdf->data();
-            //(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data,std::string kappaname)
+            //(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data,std::string thetaname)
             int found;
-            DerivativeLogNormal *der= new DerivativeLogNormal("","",pdf,dynamic_cast<const RooDataSet*>(data),name,found);
-            if(found) list.addOwned(*der); // or addOwned or add?
+            DerivativeLogNormal *der= new DerivativeLogNormal((std::string("dln_")+name+Form("_%d",idx)).c_str(),"",pdf,dynamic_cast<const RooDataSet*>(data),name,found);
+            if(found) list.add(*der); // or addOwned or add?
             else der->Delete();
         }
-        // add derivative of constraint
+
+        if (list.getSize() == 0){ // FIX for shapes TODO
+            std::cout<<"[SimNLLDerivativesHelper][init][ERROR]"<< "Something went wrong: Unable to match  "<< name <<" with kappas"<<std::endl;
+            continue;
+        }
+        // add derivative of constraint 
         // nll_->constrainPdfsFast_
         std::cout<<"[SimNLLDerivativesHelper][init]"<< "Adding constraint term for "<< name <<std::endl;
         for(unsigned i=0;i<nll_->constrainPdfsFast_.size();++i)
@@ -287,8 +331,8 @@ void SimNLLDerivativesHelper::init(){
             if (nll_->constrainPdfsFast_[i]->getX().GetName() != name) continue;
 
             if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< "Loop. found constraint "<< nll_->constrainPdfsFast_[i]->getX().GetName() <<" == "<<name<<". Building RooFormulaVar" <<std::endl;
-            RooFormulaVar *constr = new RooFormulaVar("constr","(@0-@1)/(@2*@2)",RooArgList(nll_->constrainPdfsFast_[i]->getX(),nll_->constrainPdfsFast_[i]->getMean(), nll_->constrainPdfsFast_[i]->getSigma()));// (x-mean)/sigma^2
-            list.addOwned(*constr) ; // or addOwned or add?
+            RooFormulaVar *constr = new RooFormulaVar( (std::string("constr_")+name).c_str(),"@3*(@0-@1)/(@2*@2)",RooArgList(nll_->constrainPdfsFast_[i]->getX(),nll_->constrainPdfsFast_[i]->getMean(), nll_->constrainPdfsFast_[i]->getSigma(),unmask_));// (x-mean)/sigma^2
+            list.add(*constr) ; // or addOwned or add?
         }
         if (verbose) {std::cout <<"[SimNLLDerivativesHelper][init] --- LIST OF addition ---"<<std::endl;
             list.Print("V");
@@ -298,8 +342,11 @@ void SimNLLDerivativesHelper::init(){
         if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructed sum for "<< name <<std::endl;
     } 
 
-
-    std::cout<<"[SimNLLDerivativesHelper][init]"<< "DONE INIT" <<std::endl;
+    if (verbose){
+        std::cout<<"[SimNLLDerivativesHelper][init]"<< "DONE INIT" <<std::endl;
+        //std::cout<<"[SimNLLDerivativesHelper][init] DEBUG evaluate test"<<std::endl;
+        //std::cout<< derivatives_.begin()->first <<" : "<<derivatives_.begin()->second->getVal(); // DEBUG
+    }
 }
 
 //def getServers(node):
@@ -312,7 +359,7 @@ void SimNLLDerivativesHelper::init(){
 //        servers.append(server)
 //    return servers
 
-std::set<std::string>  SimNLLDerivativesHelper::getServersVars(RooAbsArg *node){
+std::set<std::string>  SimNLLDerivativesHelper::getServersVars(const RooAbsArg *node){
     std::set<std::string> R;
     auto iter = node->serverIterator();
     while (true)
