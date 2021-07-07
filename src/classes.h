@@ -47,6 +47,7 @@
 //#include "HiggsAnalysis/CombinedLimit/interface/RooMomentMorphND.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist2D.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooParametricShapeBinPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/GaussExp.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooDoubleCBFast.h"
