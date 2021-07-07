@@ -76,7 +76,8 @@ Double_t DerivativeLogNormal::evaluate() const {
     }
 #endif
     
-    const RooDataHist* dh = dynamic_cast<const RooDataHist*> (data_);
+    //const RooDataHist* dh = dynamic_cast<const RooDataHist*> (data_);
+    //if (dh==nullptr) std::cout<<"[DerivativeLogNormal]:"<<" NO ROODATAHIST"<<std::endl;
 
     // FIX for ADDNLL_ROOREALSUM_KEEPZEROS 
     std::vector<double> reminder(pdf_->pdfs_.size(),0.0); // the sums must do 1, the ib==ndata does that with data=0
@@ -87,7 +88,23 @@ Double_t DerivativeLogNormal::evaluate() const {
     {
         auto x= (ib<ndata) ? data_->get(ib): data_->get(0) ;
         double db = (ib<ndata) ? data_->weight() : 0.; 
-        double bw = (dh != nullptr) ? dh->binVolume(): 1.0;
+        //double bw = (dh != nullptr) ? dh->binVolume(): 1.0;
+        double bw = 1; //(pdf_->binWidths_.size() > 1) ? pdf_->binWidths_[ib]: (pdf_->binWidths_.size()==1) ?pdf_->binWidths_[0]: 1.0;
+        //        const RooArgSet *obs = data_->get();
+        //                RooRealVar *xvar = dynamic_cast<RooRealVar *>(obs->first());
+        if (x->getSize()==1) {
+            RooRealVar *xvar=dynamic_cast<RooRealVar*>(x->first());
+            const RooAbsBinning &bins = xvar->getBinning();
+            bw=bins.binWidth(0); //  only costant supported. Need to figure out for zero bins
+            //if (verbose){
+            //    std::cout <<"BinWidth: ";
+            //    for(int ii =0 ;ii<xvar->numBins();++ii){
+            //        double bc2 = bins.binCenter(ii);
+            //        std::cout<< bins.binWidth(ii);
+            //    }
+            //    std::cout <<std::endl;
+            //}
+        }
 
         //double db = pdf_->weights_[ib];
         //double bw = pdf_->binWidths_[ib];
@@ -111,13 +128,12 @@ Double_t DerivativeLogNormal::evaluate() const {
                     if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) c = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
                 }
             }
-            ///--- from CachingAddNLL
-            //static bool expEventsNoNorm = runtimedef::get("ADDNLL_ROOREALSUM_NONORM");
+            //double integral = (pdf_->isRooRealSum_ && pdf_->basicIntegrals_ < 2) ? pdf_->integrals_[i]->getVal(x): 1.0;
             //---
             double logK = (kappa_pos_[i]>=0)? c -> logKappa_ [kappa_pos_[i]] : 0.0;
             if (pdf_->isRooRealSum_ and verbose)std::cout<<"[DerivativeLogNormal]:DEBUG "<<" pdf is a RooRealSumPdf"<<std::endl;
 
-            if (ib<ndata) reminder[i] += pdf_->pdfs_.at(i).pdf()->getVal(x)*bw; 
+            if (ib<ndata) reminder[i] += pdf_->pdfs_.at(i).pdf()->getVal(x)*bw;
 
             double expectedEvents= (ib<ndata)  ? pdf_->coeffs_[i]->getVal(x) * pdf_->pdfs_.at(i).pdf()->getVal(x)*bw : 
                         pdf_->coeffs_[i]->getVal(x) * (1.-reminder[i]);
@@ -131,9 +147,9 @@ Double_t DerivativeLogNormal::evaluate() const {
 
             if (pdf_->basicIntegrals_ and verbose)std::cout<<"[DerivativeLogNormal]:DEBUG "<<" PDF has basic integrals:"<<pdf_->basicIntegrals_<<std::endl;
 
-#ifdef DERIVATIVE_LOGNORMAL_DEBUG
-            if(verbose and DERIVATIVE_LOGNORMAL_DEBUG > 1) std::cout<<"[DerivativeLogNormal]: *** ibin="<< ib<< " data="<<db <<" iproc="<< i<<" expEvents="<<expectedEvents<< " logK="<<logK<<" coeff="<<pdf_->coeffs_[i]->getVal() <<" pdf="<<pdf_->pdfs_.at(i).pdf()->getVal() <<" bw="<<bw <<std::endl;
-#endif
+//#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+            if(verbose /*and DERIVATIVE_LOGNORMAL_DEBUG > 1*/) std::cout<<"[DerivativeLogNormal]: *** ibin="<< ib<< " data="<<db <<" iproc="<< i<<" expEvents="<<expectedEvents<< " logK="<<logK<<" coeff="<<pdf_->coeffs_[i]->getVal(x) <<" pdf="<<pdf_->pdfs_.at(i).pdf()->getVal(x) <<" bw="<<bw  <<" reminder(i)="<<reminder[i] <<std::endl;
+//#endif
         } 
         sum += lambdat * (1. - db/lambda);
 
@@ -219,7 +235,18 @@ void SimNLLDerivativesHelper::init(){
                 }
             }
 
-            if (pn == nullptr or not isWeighted) {  // remove all the lognormal candidates. Don't know how to deal with them
+            // look inside pdfi if name is there -> likely shape 
+            if (verbose) { std::cout <<"removing pdf variables (shape):";}
+            std::set<std::string> servers= getServersVars(pdfi);
+            for(auto v : servers) {
+                    if (logNormal.find(v) != logNormal.end()) {
+                    logNormal.erase(v);
+                    if (verbose) std::cout<<"|"<<v;
+                    }
+                }
+            if (verbose) { std::cout<<std::endl;}
+
+            if (pn == nullptr or not isWeighted ) {  // remove all the lognormal candidates. Don't know how to deal with them
 
                 if (verbose) {
                     std::cout<<"[SimNLLDerivativesHelper][init]:"
@@ -229,6 +256,7 @@ void SimNLLDerivativesHelper::init(){
                         << ((not isWeighted)?" dataset is not weighted (unbinned?)":"")
                         <<std::endl;
                 }
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
                 if (verbose) { 
                     std::cout<<"[SimNLLDerivativesHelper][init]"<< " -- COEFF -- "<<std::endl;
                     coeff->Print("V");
@@ -236,6 +264,7 @@ void SimNLLDerivativesHelper::init(){
                     pdfi->Print("V");
                     std::cout<<"-----------------"<<std::endl;
                 }
+#endif
                 
                 if (verbose) { std::cout <<"coeff variables:";}
                 std::set<std::string> servers= getServersVars(coeff);
@@ -249,7 +278,7 @@ void SimNLLDerivativesHelper::init(){
                 if (verbose) { std::cout<<std::endl <<"pdf variables:";}
 
                 servers.clear();
-                /*std::set<std::string>*/ servers= getServersVars(pdfi);
+                /*std::set<std::string>*/ servers= getServersVars(pdfi); // do I still need this block?
                 for(auto v : servers) {
                         if (logNormal.find(v) != logNormal.end()) {
                         logNormal.erase(v);
@@ -260,8 +289,6 @@ void SimNLLDerivativesHelper::init(){
 
                 continue; //  if pn==nullptr or not weighted 
             } //  not a process normalization coefficient
-
-            // TODO: remove all shapes
 
             std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Removing all asymmThetaList "<<std::endl;
             // remove all asymmThetaList
@@ -318,7 +345,7 @@ void SimNLLDerivativesHelper::init(){
             else der->Delete();
         }
 
-        if (list.getSize() == 0){ // FIX for shapes TODO
+        if (list.getSize() == 0){ // old fix for shapes. Leave it, probably useful for debug
             std::cout<<"[SimNLLDerivativesHelper][init][ERROR]"<< "Something went wrong: Unable to match  "<< name <<" with kappas"<<std::endl;
             continue;
         }
