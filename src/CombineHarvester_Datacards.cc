@@ -27,7 +27,6 @@
 #include "CombineHarvester/CombineTools/interface/Utilities.h"
 #include "CombineHarvester/CombineTools/interface/TFileIO.h"
 #include "CombineHarvester/CombineTools/interface/Algorithm.h"
-#include "CombineHarvester/CombineTools/interface/GitVersion.h"
 #include "CombineHarvester/CombineTools/interface/zstr.hpp"
 namespace ch {
 
@@ -755,8 +754,8 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
   std::ostream & txt_file = *txt_file_ptr;
 
-  txt_file << "# Datacard produced by CombineHarvester with git status: "
-           << ch::GitVersion() << "\n";
+  //txt_file << "# Datacard produced by CombineHarvester with git status: "
+  //         << ch::GitVersion() << "\n";
 
   std::string dashes(80, '-');
 
