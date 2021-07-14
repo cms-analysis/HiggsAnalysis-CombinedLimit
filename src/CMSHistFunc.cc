@@ -276,14 +276,21 @@ void CMSHistFunc::updateCache() const {
     std::cout << "Horizontal morph parameter is: " << val << "\n";
 #endif
     auto upper = std::lower_bound(hpoints_[0].begin(), hpoints_[0].end(), val);
+    auto lower = std::upper_bound(hpoints_[0].begin(), hpoints_[0].end(), val);
     if (upper == hpoints_[0].begin()) {
       global_.p1 = 0;
       global_.single_point = true;
-    } else if (upper == hpoints_[0].end()) {
+#if HFVERBOSE > 0
+      std::cout << "Considered morphing parameter point below the lowest template parameter value. Performing single point morphing using template from lowest parameter value."<< "\n";
+#endif
+    } else if (lower == hpoints_[0].end()) {
       global_.p1 = hpoints_[0].size() - 1;
       global_.single_point = true;
+#if HFVERBOSE > 0
+      std::cout << "Considered morphing parameter point above the highest template parameter value. Performing single point morphing using template from highest parameter value."<< "\n";
+#endif
     } else {
-      auto lower = upper;
+      lower = upper;
       --lower;
       global_.p1 = lower - hpoints_[0].begin();
       global_.p2 = upper - hpoints_[0].begin();
@@ -459,10 +466,18 @@ void CMSHistFunc::updateCache() const {
             double x2 = hpoints_[0][global_.p2];
             double y1 = mcache_[idx1].integral;
             double y2 = mcache_[idx2].integral;
-            mcache_[idx1].step1 = cdfMorph(idx1, x1, x2, val);
-            mcache_[idx1].step1.CropUnderflows();
-            double ym = y1 + ((y2 - y1) / (x2 - x1)) * (val - x1);
-            mcache_[idx1].step1.Scale(ym / integrateTemplate(mcache_[idx1].step1));
+            if(y1 <= 0.0 || y2 <= 0.0)
+            {
+              FastTemplate emptyhist(cache_.size());
+              mcache_[idx1].step1 = emptyhist;
+            }
+            else
+            {
+              mcache_[idx1].step1 = cdfMorph(idx1, x1, x2, val);
+              mcache_[idx1].step1.CropUnderflows();
+              double ym = y1 + ((y2 - y1) / (x2 - x1)) * (val - x1);
+              mcache_[idx1].step1.Scale(ym / integrateTemplate(mcache_[idx1].step1));
+            }
           }
         }
 
@@ -757,10 +772,18 @@ void CMSHistFunc::prepareInterpCache(Cache& c1,
 #if HFVERBOSE > 2
   std::cout << "First and last edge of hist1: " << ix1 << " " << ix1l
             << std::endl;
-  std::cout << "   " << c1.cdf[ix1] << " " << c1.cdf[ix1 + 1] << std::endl;
+  std::cout << "Relevant bins of cdf1: (x, y) = " << std::endl;
+  for (int ind=ix1; ind<=ix1l; ind++)
+  {
+    std::cout << "\t(" << cache_.GetEdge(ind) << "," << c1.cdf[ind] << ")" << std::endl;
+  }
   std::cout << "First and last edge of hist2: " << ix2 << " " << ix2l
             << std::endl;
-  std::cout << "   " << c2.cdf[ix2] << " " << c2.cdf[ix2 + 1] << std::endl;
+  std::cout << "Relevant bins of cdf2: (x, y) = " << std::endl;
+  for (int ind=ix2; ind<=ix2l; ind++)
+  {
+    std::cout << "\t(" << cache_.GetEdge(ind) << "," << c2.cdf[ind] << ")" << std::endl;
+  }
 #endif
 
 
@@ -812,7 +835,7 @@ void CMSHistFunc::prepareInterpCache(Cache& c1,
                          // see next point of.
     if ((c1.cdf[ix1 + 1] <= c2.cdf[ix2 + 1] || ix2 == ix2l) && ix1 < ix1l) {
       ix1 = ix1 + 1;
-      while (c1.cdf[ix1 + 1] <= c1.cdf[ix1] && ix1 < ix1l) {
+      while (c1.cdf[ix1 + 1] < c1.cdf[ix1] && ix1 < ix1l) {
         ix1 = ix1 + 1;
       }
       i12type = 1;
@@ -988,6 +1011,10 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
   for (int i = 0; i < nx3; ++i) {
     xdisn[i] = wt1 * c1.x1[i] + wt2 * c1.x2[i];
   }
+#if HFVERBOSE > 2
+    std::cout << "relevant x,y for the morphed cdf: "  << std::endl;
+    for (unsigned int i=0; i < c1.y.size(); ++i){ std::cout << "\t (x,y) = (" << xdisn[i] << "," << c1.y[i] << ")" << std::endl; }
+#endif
   std::vector<double> sigdisf(nbe, 0.);
 
 
@@ -1063,8 +1090,11 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
       if (bin == -1) bin = 0;
       // std::cout << "x=" << x << ", bin=" << bin << "\n";
       Double_t dx2 = cache_.GetWidth(bin);
-      if (xdisn[ix3 + 1] - x > 1.1 * dx2) {  // Empty bin treatment
-        y = c1.y[ix3 + 1];
+      if (xdisn[ix3 + 1] - x >= 1.0 * dx2) {  // Empty bin treatment
+#if HFVERBOSE > 2
+        std::cout << "Warning - th1fmorph: encountered empty bin." << std::endl;
+#endif
+        y = c1.y[ix3];
       } else if (xdisn[ix3 + 1] > xdisn[ix3]) {  // Normal bins
         y = c1.y[ix3] + (c1.y[ix3 + 1] - c1.y[ix3]) *
                                (x - xdisn[ix3]) / (xdisn[ix3 + 1] - xdisn[ix3]);
@@ -1088,6 +1118,12 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
            << ", next point=" << c1.y[ix3 + 1] << std::endl;
 #endif
   }
+#if HFVERBOSE > 2
+  std::cout << "CDF mapped into the histogram binning:" << std::endl;
+  for (int ind = std::max(0, ixf - 1); ind < ixl+1; ind++) {
+    std::cout << "\t(bin,x,y) = (" << ind << "," << cache_.GetEdge(ind) << "," << sigdisf[ind] << ")" << std::endl;
+  }
+#endif
 
   // .....Differentiate interpolated cdf and return renormalized result in
   //      new histogram.

@@ -150,7 +150,8 @@ class ModelBuilder(ModelBuilderBase):
 	if len(renameParamString): 
 	  renameParamString=",".join(renameParamString)
 	  paramString=",".join(paramString)
-	return paramString,renameParamString,toFreeze
+        return paramString,renameParamString,toFreeze
+
        
     def runPostProcesses(self):
       for n in self.DC.frozenNuisances:
