@@ -23,6 +23,7 @@
 class RooMultiPdf;
 class SimNLLDerivativesHelper;
 class DerivativeLogNormal;
+class DerivativeRateParam;
 
 // Part zero: ArgSet checker
 namespace cacheutils {
@@ -116,6 +117,7 @@ CachingPdfBase * makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
 class CachingAddNLL : public RooAbsReal {
     friend SimNLLDerivativesHelper; // probably not needed w/ data
     friend DerivativeLogNormal;
+    friend DerivativeRateParam;
     public:
         CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data, bool includeZeroWeights = false) ;
         CachingAddNLL(const CachingAddNLL &other, const char *name = 0) ;

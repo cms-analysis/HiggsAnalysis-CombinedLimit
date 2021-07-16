@@ -1,6 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/SimNLLDerivativesHelper.h"
 #include "RooDataHist.h"
-//#define DERIVATIVE_LOGNORMAL_DEBUG 1
+//#define DERIVATIVE_RATEPARAM_DEBUG 1
 
 DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data, const std::string& thetaname,int&found) :
     RooAbsReal(name, title),
@@ -9,7 +9,7 @@ DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, ca
     pdfproxy_( ( std::string("proxy_")+name).c_str() ,"",pdf),
     thetaname_(thetaname)
 {
-    setDirtyInhibit(true); // TODO: understand cache and proxies
+    //setDirtyInhibit(true); // TODO: understand cache and proxies
 
     found=0; // keep track if at least one depends on the given kappa
     for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // process loop
@@ -57,7 +57,7 @@ DerivativeLogNormal* DerivativeLogNormal::clone(const char *name) const {
 }
 
 Double_t DerivativeLogNormal::evaluate() const {
-#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
     if(verbose) std::cout<<"[DerivativeLogNormal]: evaluate"<<std::endl;
 #endif
     /* The derivative of a kappa in a channel is
@@ -68,7 +68,7 @@ Double_t DerivativeLogNormal::evaluate() const {
 
     double sum=0.0;
     // caching: TODO
-#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
     if(verbose) {
         std::cout<<"[DerivativeLogNormal]: data"<<std::endl;
         data_->Print("V");
@@ -133,8 +133,10 @@ Double_t DerivativeLogNormal::evaluate() const {
             double logK = (kappa_pos_[i]>=0)? c -> logKappa_ [kappa_pos_[i]] : 0.0;
             if (pdf_->isRooRealSum_ and verbose)std::cout<<"[DerivativeLogNormal]:DEBUG "<<" pdf is a RooRealSumPdf"<<std::endl;
 
-            if (ib<ndata) reminder[i] += pdf_->pdfs_.at(i).pdf()->getVal(x)*bw;
+            //pdf_->pdfs_.at(i).pdf()->setValueDirty();
 
+            // TH1
+            if (ib<ndata) reminder[i] += pdf_->pdfs_.at(i).pdf()->getVal(x)*bw;
             double expectedEvents= (ib<ndata)  ? pdf_->coeffs_[i]->getVal(x) * pdf_->pdfs_.at(i).pdf()->getVal(x)*bw : 
                         pdf_->coeffs_[i]->getVal(x) * (1.-reminder[i]);
 
@@ -147,18 +149,19 @@ Double_t DerivativeLogNormal::evaluate() const {
 
             if (pdf_->basicIntegrals_ and verbose)std::cout<<"[DerivativeLogNormal]:DEBUG "<<" PDF has basic integrals:"<<pdf_->basicIntegrals_<<std::endl;
 
-//#ifdef DERIVATIVE_LOGNORMAL_DEBUG
-            if(verbose /*and DERIVATIVE_LOGNORMAL_DEBUG > 1*/) std::cout<<"[DerivativeLogNormal]: *** ibin="<< ib<< " data="<<db <<" iproc="<< i<<" expEvents="<<expectedEvents<< " logK="<<logK<<" coeff="<<pdf_->coeffs_[i]->getVal(x) <<" pdf="<<pdf_->pdfs_.at(i).pdf()->getVal(x) <<" bw="<<bw  <<" reminder(i)="<<reminder[i] <<std::endl;
+//#ifdef DERIVATIVE_RATEPARAM_DEBUG
+            if(verbose /*and DERIVATIVE_RATEPARAM_DEBUG > 1*/) std::cout<<"[DerivativeLogNormal]: *** ibin="<< ib<< " data="<<db <<" iproc="<< i<<" expEvents="<<expectedEvents<< " logK="<<logK<<" coeff="<<pdf_->coeffs_[i]->getVal(x) <<" pdf="<<pdf_->pdfs_.at(i).pdf()->getVal(x) <<" pdf2=<<"<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(x)  << "pdfU="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(nullptr) <<"bw="<<bw  <<" norm="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getNorm(x) <<" reminder(i)="<<reminder[i] << std::endl;
+            //x->Print("V");
 //#endif
         } 
         sum += lambdat * (1. - db/lambda);
 
-#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
         if(verbose) std::cout<<"[DerivativeLogNormal]: ibin="<< ib<< " data="<<db << " lambda="<<lambda << "( from pdf_" << pdf_->getVal()*bw <<")" <<" lambdat="<<lambdat<<" bw="<<bw<< " running sum="<<sum<<std::endl;
 #endif
     }
 
-#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
     if(verbose) std::cout<<"[DerivativeLogNormal]: thetaname="<<thetaname_<<" partial="<<sum<<std::endl;
 #endif
     return sum;
@@ -256,7 +259,7 @@ void SimNLLDerivativesHelper::init(){
                         << ((not isWeighted)?" dataset is not weighted (unbinned?)":"")
                         <<std::endl;
                 }
-#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
                 if (verbose) { 
                     std::cout<<"[SimNLLDerivativesHelper][init]"<< " -- COEFF -- "<<std::endl;
                     coeff->Print("V");
@@ -404,4 +407,146 @@ std::set<std::string>  SimNLLDerivativesHelper::getServersVars(const RooAbsArg *
         }
     }
     return R;
+}
+
+
+
+/// ---
+DerivativeRateParam::DerivativeRateParam(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data, const std::string& ratename,int&found) :
+    DerivativeAbstract(name,title,pdf,data),
+    ratename_(ratename)
+{
+    //setDirtyInhibit(true); // TODO: understand cache and proxies
+
+    found=0; // keep track if at least one depends on the given kappa
+    for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // process loop
+    {
+        if(verbose) std::cout<<"[DerivativeRateParam]: loop "<< i <<"/"<<pdf_->pdfs_.size()<<" considering pdf "<<pdf_->GetName() <<std::endl;
+        int val=-1;
+        ProcessNormalization *p = dynamic_cast<ProcessNormalization*> (pdf_->coeffs_[i]);
+        if (verbose) std::cout<<"[DerivativeRateParam]: coeff is of class "<<pdf_->coeffs_[i]->ClassName()<<std::endl;
+        // RooProduct
+        RooProduct *pp = dynamic_cast<RooProduct*>(pdf_->coeffs_[i]);
+        if (p == nullptr and pp != nullptr){
+            for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
+            {
+                if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) p = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
+            }
+        }
+        //
+        if (p != nullptr) { // unable to add the sum for this process
+
+            for (int j=0 ; j<p->otherFactorList_.getSize();++j)
+            {
+                if ( p->otherFactorList_.at(j)->GetName() == ratename_  ) {val=int(j);}
+            }
+            if (val==-1) { 
+                if(verbose) std::cout<<"[DerivativeRateParam]: Unable to find kappa corresponding to "<<ratename_<<" in pdf "<<pdf_->GetName() <<std::endl;
+            }// something
+            else{
+                found=1;
+            }
+        }
+        else{
+            if(verbose) std::cout<<"[DerivativeRateParam]: Unable to find kappa corresponding to "<<ratename_<<" in pdf "<<pdf_->GetName() << "because not ProcessNormalization" <<std::endl;
+        }
+
+        rate_pos_.push_back(val);
+    }
+    if(verbose) std::cout<<"[DerivativeRateParam]: constructed derivative for "<<ratename_<<" of pdf "<<pdf_->GetName() <<std::endl;
+}
+
+Double_t DerivativeRateParam::evaluate() const {
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
+    if(verbose) std::cout<<"[DerivativeRateParam]: evaluate"<<std::endl;
+#endif
+    /* The derivative of a kappa in a channel is
+     *   sum_bin lambdat_b - data_b lambdat_b/lambda_b
+     *   lambda_b -> sum of expectations in the bin
+     *   lambdat_b -> sum of ( expectations with delta(rate param))
+     */
+
+    double sum=0.0;
+    // caching: TODO
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
+    if(verbose) {
+        std::cout<<"[DerivativeRateParam]: data"<<std::endl;
+        data_->Print("V");
+        std::cout<<"[DerivativeRateParam]: --"<<std::endl;
+    }
+#endif
+    
+    //const RooDataHist* dh = dynamic_cast<const RooDataHist*> (data_);
+    //if (dh==nullptr) std::cout<<"[DerivativeRateParam]:"<<" NO ROODATAHIST"<<std::endl;
+
+    // FIX for ADDNLL_ROOREALSUM_KEEPZEROS 
+    std::vector<double> reminder(pdf_->pdfs_.size(),0.0); // the sums must do 1, the ib==ndata does that with data=0
+    int ndata=data_->numEntries();
+
+    for (int ib=0;ib<=ndata;++ib) 
+    //for (unsigned int ib=0;ib<pdf_->weights_.size();++ib)
+    {
+        auto x= (ib<ndata) ? data_->get(ib): data_->get(0) ;
+        double db = (ib<ndata) ? data_->weight() : 0.; 
+        double bw = 1; 
+        if (x->getSize()==1) {
+            RooRealVar *xvar=dynamic_cast<RooRealVar*>(x->first());
+            const RooAbsBinning &bins = xvar->getBinning();
+            bw=bins.binWidth(0); //  only costant supported. Need to figure out for zero bins
+        }
+
+        //double lambda=pdf_->getVal()*bw; // sum coeff*pdf
+        double lambdat=0.0;
+        double lambda=0.;// debug: recompute lambda with loop. not sure that the term before include everything I want
+
+        for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // loop over processes
+        { 
+            // find rate param
+            ProcessNormalization *c = dynamic_cast<ProcessNormalization*>(pdf_->coeffs_[i]);
+            
+            // fix RooProduct
+            RooProduct *pp = dynamic_cast<RooProduct*>(pdf_->coeffs_[i]);
+            if (c == nullptr and pp != nullptr){
+                for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
+                {
+                    if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) c = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
+                }
+            }
+
+            //---
+            double diracDelta = (rate_pos_[i]>=0)?1.0 : 0.0;
+            if (pdf_->isRooRealSum_ and verbose)std::cout<<"[DerivativeRateParam]:DEBUG "<<" pdf is a RooRealSumPdf"<<std::endl;
+
+            // TH1
+            if (ib<ndata) reminder[i] += pdf_->pdfs_.at(i).pdf()->getVal(x)*bw;
+            double expectedEvents= (ib<ndata)  ? pdf_->coeffs_[i]->getVal(x) * pdf_->pdfs_.at(i).pdf()->getVal(x)*bw : 
+                        pdf_->coeffs_[i]->getVal(x) * (1.-reminder[i]);
+
+            lambdat+= expectedEvents * diracDelta;
+            lambda += expectedEvents;
+
+            if (pdf_->basicIntegrals_ and verbose)std::cout<<"[DerivativeRateParam]:DEBUG "<<" PDF has basic integrals:"<<pdf_->basicIntegrals_<<std::endl;
+
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
+#endif
+        } 
+        sum += lambdat * (1. - db/lambda);
+
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
+        if(verbose) std::cout<<"[DerivativeRateParam]: ibin="<< ib<< " data="<<db << " lambda="<<lambda << "( from pdf_" << pdf_->getVal()*bw <<")" <<" lambdat="<<lambdat<<" bw="<<bw<< " running sum="<<sum<<std::endl;
+#endif
+    }
+
+#ifdef DERIVATIVE_RATEPARAM_DEBUG
+    if(verbose) std::cout<<"[DerivativeRateParam]: ratename="<<ratename_<<" partial="<<sum<<std::endl;
+#endif
+    return sum;
+
+}
+
+DerivativeRateParam* DerivativeRateParam::clone(const char *name) const {
+    if(verbose) std::cout<<"[DerivativeRateParam]: clone"<<std::endl;
+    int found;
+    return new DerivativeRateParam( 
+            (name)?name:GetName(), GetTitle(), pdf_, data(), ratename_, found) ;
 }
