@@ -25,6 +25,31 @@
  *
  */
 
+// TODO: Make a common DerivativeAbstract class. Marke DerivativeLogNormal Inherits from this class
+class DerivativeAbstract: public RooAbsReal
+{
+    protected: // Full access to derived classes
+        const RooDataSet * data_{nullptr}; // not owned.
+        // RooRealProxy?
+        cacheutils::CachingAddNLL * pdf_{nullptr}; // CachingAddNLL
+        RooRealProxy pdfproxy_;
+    public:
+
+        DerivativeAbstract(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data): 
+            RooAbsReal(name, title),
+            data_(data),
+            pdf_(pdf),
+            pdfproxy_( ( std::string("proxy_")+name).c_str() ,"",pdf) {};
+        ~DerivativeAbstract(){};
+        virtual Bool_t isDerived() const { return kTRUE; }
+        const RooDataSet *data() const {return data_;}
+        cacheutils::CachingAddNLL *pdf() { return pdf_; }
+        bool verbose{true};
+
+        virtual Double_t evaluate() const =0 ; // cacheutils::ReminderSum
+
+};
+
 class DerivativeLogNormal: public RooAbsReal
 {
     const RooDataSet * data_{nullptr}; // not owned.
@@ -54,6 +79,22 @@ class DerivativeLogNormal: public RooAbsReal
 
         // for debug purposes. Compute numerically the derivative corresponding to evaluate
         //Double_t numericalDerivative() const;
+};
+
+// Implementation of the derivative for rate params and rate POIs
+class DerivativeRateParam : public DerivativeAbstract
+{
+    std::string ratename_{""};
+    RooRealProxy rate_;// useful for numerical derivatives -> terms
+    public:
+        DerivativeRateParam(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data,const std::string& thetaname,int&found);
+        ~DerivativeRateParam(){};
+        virtual DerivativeRateParam *clone(const char *name = 0) const ;
+
+        virtual Double_t evaluate() const override ; // cacheutils::ReminderSum
+        // name-> index association per process in otherFactorList
+        std::vector<int> rate_pos_;
+
 };
 
 

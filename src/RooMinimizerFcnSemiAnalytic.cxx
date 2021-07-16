@@ -39,6 +39,8 @@
 #include "RooAddition.h" // DEBUG & Print
 #include "RooFormulaVar.h" //DEBUG & Print
 //#include "HiggsAnalysis/CombinedLimit/interface/SimNLLDerivativesHelper.h" // DEBUG to have evaluate
+#define DEBUG_DIRTY
+
 
 using namespace std;
 
@@ -609,6 +611,7 @@ double RooMinimizerFcnSemiAnalytic::DoEval(const double *x) const
 
 double RooMinimizerFcnSemiAnalytic::DoDerivative(const double * x, unsigned int icoord) const{
     //std::cout<<"[DEBUG]:["<<__PRETTY_FUNCTION__<<"]:"<< "DoDerivative:"<<icoord<<std::endl; // run with -v3 to get it
+  RooAbsReal::setHideOffset(kFALSE) ;
 
 
   // Set the parameter values for this iteration
@@ -634,8 +637,10 @@ double RooMinimizerFcnSemiAnalytic::DoDerivative(const double * x, unsigned int 
       std::cout<< "----------- "<<std::endl;
 
   }
-    
-  return _derivParamVec[icoord]->getVal();
+  
+  Double_t ret =   _derivParamVec[icoord]->getVal();
+  RooAbsReal::setHideOffset(kTRUE) ;
+  return ret;
 
 }
 
