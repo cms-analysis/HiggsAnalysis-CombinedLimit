@@ -1,6 +1,8 @@
 #include "HiggsAnalysis/CombinedLimit/interface/SimNLLDerivativesHelper.h"
 #include "RooDataHist.h"
+
 //#define DERIVATIVE_RATEPARAM_DEBUG 1
+//#define DERIVATIVE_LOGNORMAL_DEBUG 1
 
 DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data, const std::string& thetaname,int&found) :
     RooAbsReal(name, title),
@@ -9,7 +11,7 @@ DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, ca
     pdfproxy_( ( std::string("proxy_")+name).c_str() ,"",pdf),
     thetaname_(thetaname)
 {
-    //setDirtyInhibit(true); // TODO: understand cache and proxies
+    setDirtyInhibit(true); // TODO: understand cache and proxies
 
     found=0; // keep track if at least one depends on the given kappa
     for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // process loop
@@ -57,7 +59,7 @@ DerivativeLogNormal* DerivativeLogNormal::clone(const char *name) const {
 }
 
 Double_t DerivativeLogNormal::evaluate() const {
-#ifdef DERIVATIVE_RATEPARAM_DEBUG
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
     if(verbose) std::cout<<"[DerivativeLogNormal]: evaluate"<<std::endl;
 #endif
     /* The derivative of a kappa in a channel is
@@ -68,7 +70,7 @@ Double_t DerivativeLogNormal::evaluate() const {
 
     double sum=0.0;
     // caching: TODO
-#ifdef DERIVATIVE_RATEPARAM_DEBUG
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
     if(verbose) {
         std::cout<<"[DerivativeLogNormal]: data"<<std::endl;
         data_->Print("V");
@@ -149,19 +151,19 @@ Double_t DerivativeLogNormal::evaluate() const {
 
             if (pdf_->basicIntegrals_ and verbose)std::cout<<"[DerivativeLogNormal]:DEBUG "<<" PDF has basic integrals:"<<pdf_->basicIntegrals_<<std::endl;
 
-//#ifdef DERIVATIVE_RATEPARAM_DEBUG
-            if(verbose /*and DERIVATIVE_RATEPARAM_DEBUG > 1*/) std::cout<<"[DerivativeLogNormal]: *** ibin="<< ib<< " data="<<db <<" iproc="<< i<<" expEvents="<<expectedEvents<< " logK="<<logK<<" coeff="<<pdf_->coeffs_[i]->getVal(x) <<" pdf="<<pdf_->pdfs_.at(i).pdf()->getVal(x) <<" pdf2=<<"<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(x)  << "pdfU="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(nullptr) <<"bw="<<bw  <<" norm="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getNorm(x) <<" reminder(i)="<<reminder[i] << std::endl;
+//#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+            //if(verbose /*and DERIVATIVE_LOGNORMAL_DEBUG > 1*/) std::cout<<"[DerivativeLogNormal]: *** ibin="<< ib<< " data="<<db <<" iproc="<< i<<" expEvents="<<expectedEvents<< " logK="<<logK<<" coeff="<<pdf_->coeffs_[i]->getVal(x) <<" pdf="<<pdf_->pdfs_.at(i).pdf()->getVal(x) <<" pdf2=<<"<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(x)  << "pdfU="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(nullptr) <<"bw="<<bw  <<" norm="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getNorm(x) <<" reminder(i)="<<reminder[i] << std::endl;
             //x->Print("V");
 //#endif
         } 
         sum += lambdat * (1. - db/lambda);
 
-#ifdef DERIVATIVE_RATEPARAM_DEBUG
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
         if(verbose) std::cout<<"[DerivativeLogNormal]: ibin="<< ib<< " data="<<db << " lambda="<<lambda << "( from pdf_" << pdf_->getVal()*bw <<")" <<" lambdat="<<lambdat<<" bw="<<bw<< " running sum="<<sum<<std::endl;
 #endif
     }
 
-#ifdef DERIVATIVE_RATEPARAM_DEBUG
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
     if(verbose) std::cout<<"[DerivativeLogNormal]: thetaname="<<thetaname_<<" partial="<<sum<<std::endl;
 #endif
     return sum;
@@ -181,6 +183,8 @@ void SimNLLDerivativesHelper::init(){
     //---
 
     std::set<std::string> logNormal;
+    std::set<std::string> rateParams; // notice that logNormal cannot be in rateParams and vice-versa. Mixing could in principle be possible, but needs to be handled in logNormal to understand constraint part.
+
     // Find LogNormal candidates
     for (auto f : nll_->constrainPdfsFast_)
     {
@@ -193,6 +197,28 @@ void SimNLLDerivativesHelper::init(){
         std::cout<<"     "; for( const auto& v : logNormal) std::cout<<v<<",";
         std::cout<<std::endl;
     }
+
+    // find rateParams candidates
+    RooArgList pl(nll_->params_);
+    for (int ir=0;ir<pl.getSize();++ir)
+    {
+        auto& f = pl[ir];
+        std::string name = f.GetName();
+        if (logNormal.find(name) != logNormal.end()) continue; // it is not a rateParams candidate
+        if (f.isConstant()) {  // Not elegant. Try to remove the constraint _In as well
+            if (verbose) std::cout<<"rateparam candidate is constant: "<< f.GetName()<<". Not considering it"<<std::endl;
+            continue;
+        }
+        if (verbose) std::cout<<"inserting candidate: "<< f.GetName()<<std::endl;
+        rateParams.insert(name);
+    }
+
+    if (verbose) {
+        std::cout<<"[SimNLLDerivativesHelper][init] List of unconstraint parameters candidates:"<<std::endl;
+        std::cout<<"     "; for( const auto& v : rateParams) std::cout<<v<<",";
+        std::cout<<std::endl;
+    }
+
 
     // loop over sim components
     if (verbose) { std::cout << "[SimNLLDerivativesHelper][init] loop over sim components 1"<<std::endl;}
@@ -214,6 +240,8 @@ void SimNLLDerivativesHelper::init(){
 
             ProcessNormalization * pn = dynamic_cast<ProcessNormalization*> (coeff);
             RooProduct *pp = dynamic_cast<RooProduct*>(coeff);
+            RooRealVar *rv = dynamic_cast<RooRealVar*>(coeff);
+            //if (rv !=nullptr) std::cout<<"[SimNLLDerivativesHelper]::[FIXME]"<<"derivative for "<rv->GetName()<<" is known, but discarded in the loop :( "<<std::endl;
 
             if (pn == nullptr and pp != nullptr){
                 for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
@@ -225,8 +253,12 @@ void SimNLLDerivativesHelper::init(){
                             for(auto v : servers) {
                                     if (logNormal.find(v) != logNormal.end()) {
                                     logNormal.erase(v);
-                                    if (verbose) std::cout<<"|"<<v;
+                                    if (verbose) std::cout<<"|(LN)"<<v;
                                     }
+                                    if (rateParams.find(v) != rateParams.end() and rv == nullptr) {
+                                        if (verbose) std::cout<< "|(R)"<<v;
+                                        rateParams.erase(v);
+                                    } // what if v is a RooRealVar in the RooProduct?
                             }
                             if (verbose) { std::cout <<std::endl;}
 
@@ -244,8 +276,12 @@ void SimNLLDerivativesHelper::init(){
             for(auto v : servers) {
                     if (logNormal.find(v) != logNormal.end()) {
                     logNormal.erase(v);
-                    if (verbose) std::cout<<"|"<<v;
+                    if (verbose) std::cout<<"|(LN)"<<v;
                     }
+                    if (rateParams.find(v) != rateParams.end()) {
+                        if (verbose) std::cout<< "|(R)"<<v;
+                        rateParams.erase(v);
+                    } // 
                 }
             if (verbose) { std::cout<<std::endl;}
 
@@ -259,7 +295,7 @@ void SimNLLDerivativesHelper::init(){
                         << ((not isWeighted)?" dataset is not weighted (unbinned?)":"")
                         <<std::endl;
                 }
-#ifdef DERIVATIVE_RATEPARAM_DEBUG
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
                 if (verbose) { 
                     std::cout<<"[SimNLLDerivativesHelper][init]"<< " -- COEFF -- "<<std::endl;
                     coeff->Print("V");
@@ -274,8 +310,12 @@ void SimNLLDerivativesHelper::init(){
                 for(auto v : servers) {
                         if (logNormal.find(v) != logNormal.end()) {
                         logNormal.erase(v);
-                        if (verbose) std::cout<<"|"<<v;
+                        if (verbose) std::cout<<"|(LN)"<<v;
                         }
+                        if (rateParams.find(v) != rateParams.end()) {
+                            if (verbose) std::cout<<"|(R)"<<v;
+                            rateParams.erase(v);
+                        } 
                 }
                 //--
                 if (verbose) { std::cout<<std::endl <<"pdf variables:";}
@@ -285,12 +325,16 @@ void SimNLLDerivativesHelper::init(){
                 for(auto v : servers) {
                         if (logNormal.find(v) != logNormal.end()) {
                         logNormal.erase(v);
-                        if (verbose) std::cout<<"|"<<v;
+                        if (verbose) std::cout<<"|(LN)"<<v;
                         }
+                        if (rateParams.find(v) != rateParams.end()) {
+                            rateParams.erase(v);
+                            if (verbose) std::cout<<"|(R)"<<v;
+                        } 
                 }
                 if (verbose) { std::cout<<std::endl;}
 
-                continue; //  if pn==nullptr or not weighted 
+                continue; //  if pn==nullptr or not weighted  
             } //  not a process normalization coefficient
 
             std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Removing all asymmThetaList "<<std::endl;
@@ -303,19 +347,46 @@ void SimNLLDerivativesHelper::init(){
                         <<std::endl;
                 }
                 if (logNormal.find(v->GetName()) != logNormal.end()) logNormal.erase(v->GetName());
+                if (rateParams.find(v->GetName()) != rateParams.end()) {rateParams.erase(v->GetName());}  // probably not necessary, since this are constrained
             }
+
             // remove all otherFactorList
             std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Removing all otherfactorsList "<<std::endl;
             for(int idx=0; idx< pn->otherFactorList_.getSize() ;++idx){
                 RooAbsArg*v=pn->otherFactorList_.at(idx); 
                 if (verbose) {
                     std::cout<<"[SimNLLDerivativesHelper][INFO]:"
-                        <<"Removing "<<v->GetName()<<" from the list of known derivatives because appears in an otherFactors "
+                        <<"Removing "<<v->GetName()<<" from the list of known derivatives (LN) because appears in an otherFactors "
                         <<std::endl;
                 }
                 if (logNormal.find(v->GetName()) != logNormal.end()) logNormal.erase(v->GetName());
+                if (dynamic_cast<RooRealVar*>(v)==nullptr and rateParams.find(v->GetName()) != rateParams.end()) {
+                    if (verbose) {
+                        std::cout<<"[SimNLLDerivativesHelper][INFO]:"
+                            <<"Removing "<<v->GetName()<< " : "<<v->ClassName()<<" from the list of known derivatives (R) because appears in an otherFactors "
+                            <<std::endl;
+                    }
+                    rateParams.erase(v->GetName());
+                }  
             }
 
+            // remove all symmThetaList
+            for(int idx=0; idx< pn->thetaList_.getSize() ;++idx){
+                RooAbsArg*v=pn->thetaList_.at(idx);
+                if (verbose) {
+                    std::cout<<"[SimNLLDerivativesHelper][INFO]:"
+                        <<"Removing "<<v->GetName()
+                       // << ","<<v->GetX().GetName()
+                       // << ","<<v->GetMean().GetName()
+                       // << ","<<v->GetSigma().GetName()
+                        <<" from the list of known derivatives because appears in an thetaList "
+                        <<std::endl;
+                }
+                if (rateParams.find(v->GetName()) != rateParams.end()) {rateParams.erase(v->GetName());}  // probably not necessary, since this are constrained
+                //if (rateParams.find(v->GetX().GetName()) != rateParams.end()) {rateParams.erase(v->GetX().GetName());}  // probably not necessary, since this are constrained
+                //if (rateParams.find(v->GetMean().GetName()) != rateParams.end()) {rateParams.erase(v->GetMean().GetName());}  // probably not necessary, since this are constrained
+                //if (rateParams.find(v->GetSigma().GetName()) != rateParams.end()) {rateParams.erase(v->GetSigma().GetName());}  // probably not necessary, since this are constrained
+            }
             std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Continue loop "<<std::endl;
 
         }
@@ -329,9 +400,9 @@ void SimNLLDerivativesHelper::init(){
         //}
         std::cout<<"[SimNLLDerivativesHelper][init]"<< "> Continue loop "<<std::endl;
 
-    }
-
-    std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructing the derivatives sum "<<std::endl;
+    } // loop over sim components
+    // Construct derivatives
+    std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructing the derivatives sum for logNormal"<<std::endl;
     for (auto name : logNormal){
         RooArgList list;
         // loop over sim components
@@ -364,6 +435,38 @@ void SimNLLDerivativesHelper::init(){
             RooFormulaVar *constr = new RooFormulaVar( (std::string("constr_")+name).c_str(),"@3*(@0-@1)/(@2*@2)",RooArgList(nll_->constrainPdfsFast_[i]->getX(),nll_->constrainPdfsFast_[i]->getMean(), nll_->constrainPdfsFast_[i]->getSigma(),unmask_));// (x-mean)/sigma^2
             list.add(*constr) ; // or addOwned or add?
         }
+        if (verbose) {std::cout <<"[SimNLLDerivativesHelper][init] --- LIST OF addition ---"<<std::endl;
+            list.Print("V");
+        }
+        if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructing RooAddition for  "<< name <<std::endl;
+        derivatives_[name] = new RooAddition(("derivative_"+name).c_str(),"",list);
+        if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructed sum for "<< name <<std::endl;
+    } 
+
+    std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructing the derivatives sum for rateParams"<<std::endl;
+    std::cout<<"[SimNLLDerivativesHelper][init]"<<"rate Params: "; for (auto name :rateParams) std::cout<<name<<","; std::cout<<std::endl;
+    for (auto name : rateParams){
+        RooArgList list;
+        // loop over sim components
+        unsigned idx=0;
+        for (std::vector<cacheutils::CachingAddNLL*>::const_iterator it = nll_->pdfs_.begin(), ed = nll_->pdfs_.end(); it != ed; ++it, ++idx) {
+            // construct the derivative as sum
+            cacheutils::CachingAddNLL * pdf = *it;
+            if (pdf==nullptr) continue ; // ?!? needed?
+            const RooAbsData* data= pdf->data();
+            //(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data,std::string thetaname)
+            int found;
+            DerivativeRateParam *der= new DerivativeRateParam((std::string("dln_")+name+Form("_%d",idx)).c_str(),"",pdf,dynamic_cast<const RooDataSet*>(data),name,found);
+            if(found) list.add(*der); // or addOwned or add?
+            else der->Delete();
+        }
+
+        if (list.getSize() == 0){ // old fix for shapes. Leave it, probably useful for debug
+            std::cout<<"[SimNLLDerivativesHelper][init][ERROR]"<< "Something went wrong: Unable to match  "<< name <<" with kappas"<<std::endl;
+            continue;
+        }
+        // add derivative of constraint 
+        // nll_->constrainPdfsFast_
         if (verbose) {std::cout <<"[SimNLLDerivativesHelper][init] --- LIST OF addition ---"<<std::endl;
             list.Print("V");
         }
@@ -434,27 +537,32 @@ DerivativeRateParam::DerivativeRateParam(const char *name, const char *title, ca
             }
         }
         //
-        if (p != nullptr) { // unable to add the sum for this process
+        RooRealVar *rv = dynamic_cast<RooRealVar*> (pdf_->coeffs_[i]);
+        if (rv !=nullptr){
+            val=-2; // the whole coeff is a RooRealVar
+            found=1;
+            if(verbose) std::cout<<"[DerivativeRateParam]: All Coeff corresponding to "<<ratename_<<" in pdf "<<pdf_->GetName() <<" is a RooRealVar"<<std::endl;
+        }
+        else if (p != nullptr) { // unable to add the sum for this process
 
             for (int j=0 ; j<p->otherFactorList_.getSize();++j)
             {
                 if ( p->otherFactorList_.at(j)->GetName() == ratename_  ) {val=int(j);}
             }
             if (val==-1) { 
-                if(verbose) std::cout<<"[DerivativeRateParam]: Unable to find kappa corresponding to "<<ratename_<<" in pdf "<<pdf_->GetName() <<std::endl;
+                if(verbose) std::cout<<"[DerivativeRateParam]: Unable to find rate corresponding to "<<ratename_<<" in pdf "<<pdf_->GetName() <<std::endl;
             }// something
             else{
                 found=1;
             }
         }
         else{
-            if(verbose) std::cout<<"[DerivativeRateParam]: Unable to find kappa corresponding to "<<ratename_<<" in pdf "<<pdf_->GetName() << "because not ProcessNormalization" <<std::endl;
+            if(verbose) std::cout<<"[DerivativeRateParam]: Unable to find rate corresponding to "<<ratename_<<" in pdf "<<pdf_->GetName() << "because not ProcessNormalization" <<std::endl;
         }
-
         rate_pos_.push_back(val);
-    }
+    } //for -- process loop
     if(verbose) std::cout<<"[DerivativeRateParam]: constructed derivative for "<<ratename_<<" of pdf "<<pdf_->GetName() <<std::endl;
-}
+}// constructor
 
 Double_t DerivativeRateParam::evaluate() const {
 #ifdef DERIVATIVE_RATEPARAM_DEBUG
@@ -514,7 +622,7 @@ Double_t DerivativeRateParam::evaluate() const {
             }
 
             //---
-            double diracDelta = (rate_pos_[i]>=0)?1.0 : 0.0;
+            double diracDelta = (rate_pos_[i]>=0 or rate_pos_[i]==-2)?1.0 : 0.0;
             if (pdf_->isRooRealSum_ and verbose)std::cout<<"[DerivativeRateParam]:DEBUG "<<" pdf is a RooRealSumPdf"<<std::endl;
 
             // TH1
@@ -533,7 +641,7 @@ Double_t DerivativeRateParam::evaluate() const {
         sum += lambdat * (1. - db/lambda);
 
 #ifdef DERIVATIVE_RATEPARAM_DEBUG
-        if(verbose) std::cout<<"[DerivativeRateParam]: ibin="<< ib<< " data="<<db << " lambda="<<lambda << "( from pdf_" << pdf_->getVal()*bw <<")" <<" lambdat="<<lambdat<<" bw="<<bw<< " running sum="<<sum<<std::endl;
+        //if(verbose) std::cout<<"[DerivativeRateParam]: ibin="<< ib<< " data="<<db << " lambda="<<lambda << "( from pdf_" << pdf_->getVal()*bw <<")" <<" lambdat="<<lambdat<<" bw="<<bw<< " running sum="<<sum<<std::endl;
 #endif
     }
 
