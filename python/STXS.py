@@ -122,7 +122,8 @@ stage1_2_fine_procs={ #Hopefully temporary while VH(bb) haven't provided correct
 
   'WH_lep_PTV_GT250' : ['WH_lep_PTV_250_400','WH_lep_PTV_GT400'],
   'ZH_lep_PTV_GT250' : ['ZH_lep_PTV_250_400','ZH_lep_PTV_GT400'],
-  'ggZH_lep_PTV_GT250' : ['ggZH_lep_PTV_250_400','ggZH_lep_PTV_GT400']
+  'ggZH_lep_PTV_GT250' : ['ggZH_lep_PTV_250_400','ggZH_lep_PTV_GT400'],
+  'ttH_PTH_GT300' : ['ttH_PTH_300_450','ttH_PTH_GT450']
 
 
 }
