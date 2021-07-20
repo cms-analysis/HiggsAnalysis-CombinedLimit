@@ -556,7 +556,8 @@ double RooMinimizerFcnSemiAnalytic::DoEval(const double *x) const
   double fvalue = _funct->getVal();
   RooAbsReal::setHideOffset(kTRUE) ;
 
-  if (RooAbsReal::numEvalErrors()>0 || fvalue > 1e30) {
+  //if (RooAbsReal::numEvalErrors()>0 || fvalue > 1e30) { REMOVEME
+  if (RooAbsPdf::evalError() || RooAbsReal::numEvalErrors()>0 || fvalue>1e30) {
 
     if (_printEvalErrors>=0) {
 
