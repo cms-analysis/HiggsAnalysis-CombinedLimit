@@ -152,10 +152,10 @@ Double_t DerivativeLogNormal::evaluate() const {
 
             if (pdf_->basicIntegrals_ and verbose)std::cout<<"[DerivativeLogNormal]:DEBUG "<<" PDF has basic integrals:"<<pdf_->basicIntegrals_<<std::endl;
 
-//#ifdef DERIVATIVE_LOGNORMAL_DEBUG
-            //if(verbose /*and DERIVATIVE_LOGNORMAL_DEBUG > 1*/) std::cout<<"[DerivativeLogNormal]: *** ibin="<< ib<< " data="<<db <<" iproc="<< i<<" expEvents="<<expectedEvents<< " logK="<<logK<<" coeff="<<pdf_->coeffs_[i]->getVal(x) <<" pdf="<<pdf_->pdfs_.at(i).pdf()->getVal(x) <<" pdf2=<<"<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(x)  << "pdfU="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(nullptr) <<"bw="<<bw  <<" norm="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getNorm(x) <<" reminder(i)="<<reminder[i] << std::endl;
+#ifdef DERIVATIVE_LOGNORMAL_DEBUG
+            if(verbose /*and DERIVATIVE_LOGNORMAL_DEBUG > 1*/) std::cout<<"[DerivativeLogNormal]: *** ibin="<< ib<< " data="<<db <<" iproc="<< i<<" expEvents="<<expectedEvents<< " logK="<<logK<<" coeff="<<pdf_->coeffs_[i]->getVal(x) <<" pdf="<<pdf_->pdfs_.at(i).pdf()->getVal(x) <<" pdf2=<<"<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(x)  << "pdfU="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getValV(nullptr) <<"bw="<<bw  <<" norm="<<dynamic_cast<const RooAbsPdf*>(pdf_->pdfs_.at(i).pdf())->getNorm(x) <<" reminder(i)="<<reminder[i] << std::endl;
             //x->Print("V");
-//#endif
+#endif
         } 
         sum += lambdat * (1. - db/lambda);
 
