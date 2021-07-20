@@ -50,6 +50,7 @@ class DerivativeAbstract: public RooAbsReal
 
 };
 
+// TODO: Inherit from DerivativeAbstract
 class DerivativeLogNormal: public RooAbsReal
 {
     const RooDataSet * data_{nullptr}; // not owned.
@@ -97,7 +98,7 @@ class DerivativeRateParam : public DerivativeAbstract
 
 };
 
-
+//This class takes the nll and constructs the derivatives terms
 class SimNLLDerivativesHelper
 {
     private:
