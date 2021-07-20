@@ -11,7 +11,8 @@ DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, ca
     pdfproxy_( ( std::string("proxy_")+name).c_str() ,"",pdf),
     thetaname_(thetaname)
 {
-    setDirtyInhibit(true); // TODO: understand cache and proxies
+    //setDirtyInhibit(true); // TODO: understand cache and proxies
+    setOperMode(RooAbsArg::ADirty,false); // Recursive, bool
 
     found=0; // keep track if at least one depends on the given kappa
     for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // process loop
@@ -520,6 +521,7 @@ DerivativeRateParam::DerivativeRateParam(const char *name, const char *title, ca
     ratename_(ratename)
 {
     //setDirtyInhibit(true); // TODO: understand cache and proxies
+    setOperMode(RooAbsArg::ADirty,false); // Recursive, bool
 
     found=0; // keep track if at least one depends on the given kappa
     for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // process loop
@@ -609,8 +611,9 @@ Double_t DerivativeRateParam::evaluate() const {
 
         for (unsigned int i=0;i<pdf_->pdfs_.size();++i) // loop over processes
         { 
-            // find rate param
+            // find rate param. TODO make it more efficient using rate_pos
             ProcessNormalization *c = dynamic_cast<ProcessNormalization*>(pdf_->coeffs_[i]);
+            RooRealVar *rv = dynamic_cast<RooRealVar*>(pdf_->coeffs_[i]);
             
             // fix RooProduct
             RooProduct *pp = dynamic_cast<RooProduct*>(pdf_->coeffs_[i]);
@@ -620,17 +623,33 @@ Double_t DerivativeRateParam::evaluate() const {
                     if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) c = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
                 }
             }
+            RooRealVar *rate = dynamic_cast<RooRealVar*>( (rate_pos_[i]==-2)? rv: (rate_pos_[i]>=0) ? &c->otherFactorList_[rate_pos_[i]] : nullptr );
 
             //---
-            double diracDelta = (rate_pos_[i]>=0 or rate_pos_[i]==-2)?1.0 : 0.0;
+            int diracDelta = (rate_pos_[i]>=0 or rate_pos_[i]==-2)?1 : 0;
             if (pdf_->isRooRealSum_ and verbose)std::cout<<"[DerivativeRateParam]:DEBUG "<<" pdf is a RooRealSumPdf"<<std::endl;
+
+            if (diracDelta and rate==nullptr){
+                std::cout<<"[DerivativeRateParam]:[ERROR] RateParam"<<ratename_<<" is not a rooRealVar. rate_pos="<<rate_pos_[i]<<std::endl;
+                // it will crash
+            }
 
             // TH1
             if (ib<ndata) reminder[i] += pdf_->pdfs_.at(i).pdf()->getVal(x)*bw;
             double expectedEvents= (ib<ndata)  ? pdf_->coeffs_[i]->getVal(x) * pdf_->pdfs_.at(i).pdf()->getVal(x)*bw : 
                         pdf_->coeffs_[i]->getVal(x) * (1.-reminder[i]);
 
-            lambdat+= expectedEvents * diracDelta;
+            if (diracDelta){ // only if process is affected by rate
+                // for rate==0, we should probably think to set rate=1 and to get the expected events again. This will cancel the 0/0 in the right way.
+                //lambdat+= expectedEvents * diracDelta/rate->getVal(); // over rate. Possible problem with rate=0. OK.
+
+                double current=rate->getVal();
+                rate->setVal(1.0);
+                double expectedEventsTilde= (ib<ndata)  ? pdf_->coeffs_[i]->getVal(x) * pdf_->pdfs_.at(i).pdf()->getVal(x)*bw : pdf_->coeffs_[i]->getVal(x) * (1.-reminder[i]);
+                rate->setVal(current);
+
+                lambdat+= expectedEventsTilde; 
+            }
             lambda += expectedEvents;
 
             if (pdf_->basicIntegrals_ and verbose)std::cout<<"[DerivativeRateParam]:DEBUG "<<" PDF has basic integrals:"<<pdf_->basicIntegrals_<<std::endl;
@@ -641,7 +660,7 @@ Double_t DerivativeRateParam::evaluate() const {
         sum += lambdat * (1. - db/lambda);
 
 #ifdef DERIVATIVE_RATEPARAM_DEBUG
-        //if(verbose) std::cout<<"[DerivativeRateParam]: ibin="<< ib<< " data="<<db << " lambda="<<lambda << "( from pdf_" << pdf_->getVal()*bw <<")" <<" lambdat="<<lambdat<<" bw="<<bw<< " running sum="<<sum<<std::endl;
+        if(verbose) std::cout<<"[DerivativeRateParam]: ibin="<< ib<< " data="<<db << " lambda="<<lambda << "( from pdf_" << pdf_->getVal()*bw <<")" <<" lambdat="<<lambdat<<" bw="<<bw<< " running sum="<<sum<<std::endl;
 #endif
     }
 
