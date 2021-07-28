@@ -2,7 +2,6 @@
 import re
 from sys import argv,exit
 import os.path
-from pprint import pprint
 from optparse import OptionParser
 parser = OptionParser(
     usage="%prog [options] [label=datacard.txt | datacard.txt]",
