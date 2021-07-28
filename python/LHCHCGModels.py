@@ -1057,8 +1057,3 @@ L1 = Lambdas()
 L2 = LambdasReduced()
 L2flipped = LambdasReduced(flipped=True)
 D1 = CommonMatrixModel()
-
-K4 = KappaVKappaT(resolved=True)
-K5 = KappaVKappaT(resolved=False)
-K6 = KappaVKappaT(resolved=False, coupleTopTau=True)
-K7 = KappaVKappaT(resolved=True, coupleTopTau=True)
