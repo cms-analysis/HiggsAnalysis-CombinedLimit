@@ -38,6 +38,7 @@ signals = []; backgrounds = []; shapeLines = []
 paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {}; rateParamsOrder = set();
 extArgs = {}; binParFlags = {}; bpf_new2old = {}
 nuisanceEdits = [];
+constraint_terms = []
 
 def compareParamSystLines(a,b):
   if float(a[0])!=float(b[0]): return False
@@ -105,7 +106,23 @@ for ich,fname in enumerate(args):
             if not isIncluded(b_in,options.channelIncludes): continue
             if not systeffect.has_key(bout): systeffect[bout] = {}
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
-                r = str(errline[b][p]);
+                # Catch the case in which the datacard has constraint terms at the end in the form:
+                # constr0 constr @3*(@0-2*@1+@2) r_0,r_1,r_2,regularize[0.] delta[10.]
+                # these elements will not be used in the combination, hence raise a warning and store them in a list
+                # that will be printed at the end
+                try:
+                    r = str(errline[b][p]);
+                except TypeError:
+                    import warnings
+                    warning_message = "\nYou probably have a regularization term in datacard {}.\n".format(fname)\
+                            + "A constraint term is a line that looks like the following:\n\n"\
+                            + "\tconstr0 constr @3*(@0-2*@1+@2) r_0,r_1,r_2,regularize[0.] delta[10.]\n\n"\
+                            + "It will be appended to the datacard."
+                    warnings.warn(warning_message, RuntimeWarning)
+                    line = " ".join([lsyst, pdf] + pdfargs)
+                    if line not in constraint_terms:
+                        constraint_terms.append(line)
+                    break
                 if type(errline[b][p]) == list: r = "%s/%s" % (FloatToString(errline[b][p][0]), FloatToString(errline[b][p][1]))
                 elif type in ("lnN",'gmM'): r = "%s" % FloatToString(errline[b][p])
                 if errline[b][p] == 0: r = "-"
@@ -329,3 +346,7 @@ if options.editNuisFile:
     file = open(options.editNuisFile, "r")
     str = file.read();
     print str
+
+if constraint_terms:
+    for ct in constraint_terms:
+        print ct
