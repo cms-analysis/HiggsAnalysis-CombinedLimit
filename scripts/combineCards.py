@@ -105,7 +105,15 @@ for ich,fname in enumerate(args):
             if not isIncluded(b_in,options.channelIncludes): continue
             if not systeffect.has_key(bout): systeffect[bout] = {}
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
-                r = str(errline[b][p]);
+                try:
+                    r = str(errline[b][p]);
+                except TypeError:
+                    error_message = "You probably have a regularization term in datacard {}.\n".format(fname)\
+                            + "A constraint term is a line that looks like the following:\n\n"\
+                            + "\tconstr0 constr @3*(@0-2*@1+@2) r_0,r_1,r_2,regularize[0.] delta[10.]\n\n"\
+                            + "Remove it and try again"
+                    raise NotImplementedError(error_message)
+
                 if type(errline[b][p]) == list: r = "%s/%s" % (FloatToString(errline[b][p][0]), FloatToString(errline[b][p][1]))
                 elif type in ("lnN",'gmM'): r = "%s" % FloatToString(errline[b][p])
                 if errline[b][p] == 0: r = "-"
