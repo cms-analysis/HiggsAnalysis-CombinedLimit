@@ -311,7 +311,7 @@ class ShapeBuilder(ModelBuilder):
         for i in xrange(1, branchNodes.getSize()):
             arg = branchNodes.at(i)
             if arg.GetName() in dupNames and arg not in dupObjs:
-                if self.options.verbose > 1 : stderr.write('Object %s is duplicated, will rename to %s_%s'%(arg.GetName(),arg.GetName(),postFix))
+                if self.options.verbose > 1 : stderr.write('Object %s is duplicated, will rename to %s_%s\n'%(arg.GetName(),arg.GetName(),postFix))
                 arg.SetName(arg.GetName() + '_%s' % postFix)
             # if arg.GetName() in dupNames and arg in dupObjs:
                 # print 'Objected %s is repeated' % arg.GetName()

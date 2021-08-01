@@ -211,6 +211,13 @@
 	<class name="cmsmath::SequentialMinimizer"  transient="true" />
 	<class name="rVrFLikelihood"  transient="true" />
         <class name="TestProposal"  transient="true" />
-
-
+  <class name="RooCheapProduct" />
+  <class name="CMSHggFormulaA1" />
+  <class name="CMSHggFormulaA2" />
+  <class name="CMSHggFormulaB1" />
+  <class name="CMSHggFormulaB2" />
+  <class name="CMSHggFormulaC1" />
+  <class name="CMSHggFormulaD1" />
+  <class name="CMSHggFormulaD2" />
+  <class name="SimpleProdPdf" />
 </lcgdict>
