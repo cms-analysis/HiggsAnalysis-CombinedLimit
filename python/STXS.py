@@ -114,7 +114,8 @@ stage1_2_procs = {
             'ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25','ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25'],
 
 
-  'ttH':['ttH_PTH_0_60','ttH_PTH_60_120','ttH_PTH_60_120','ttH_PTH_120_200','ttH_PTH_200_300','ttH_PTH_GT300']#,
+  'ttH':['ttH_PTH_0_60','ttH_PTH_60_120','ttH_PTH_60_120','ttH_PTH_120_200','ttH_PTH_200_300','ttH_PTH_GT300'],
+  'other' :['tHq','tHW','bbH']
 
 }
 
@@ -123,7 +124,28 @@ stage1_2_fine_procs={ #Hopefully temporary while VH(bb) haven't provided correct
   'WH_lep_PTV_GT250' : ['WH_lep_PTV_250_400','WH_lep_PTV_GT400'],
   'ZH_lep_PTV_GT250' : ['ZH_lep_PTV_250_400','ZH_lep_PTV_GT400'],
   'ggZH_lep_PTV_GT250' : ['ggZH_lep_PTV_250_400','ggZH_lep_PTV_GT400'],
-  'ttH_PTH_GT300' : ['ttH_PTH_300_450','ttH_PTH_GT450']
+  'ttH_PTH_GT300' : ['ttH_PTH_300_450','ttH_PTH_GT450'],
+  'ggZH_lep_PTV_0_75' : ['ggZH_ll_PTV_0_75','ggZH_nunu_PTV_0_75'],
+  'ggZH_lep_PTV_75_150' : ['ggZH_ll_PTV_75_150','ggZH_nunu_PTV_75_150'],
+  'ggZH_lep_PTV_150_250_0J' : ['ggZH_ll_PTV_150_250_0J','ggZH_nunu_PTV_150_250_0J'],
+  'ggZH_lep_PTV_150_250_GE1J' : ['ggZH_ll_PTV_150_250_GE1J','ggZH_nunu_PTV_150_250_GE1J'],
+  'ggZH_lep_PTV_GT250' : ['ggZH_ll_PTV_GT250','ggZH_nunu_PTV_GT250'],
+  'ggH_PTH_200_300' : ['ggZH_had_PTH_200_300'],
+  'ggH_PTH_300_450' : ['ggZH_had_PTH_300_450'],
+  'ggH_PTH_450_650' : ['ggZH_had_PTH_450_650'],
+  'ggH_PTH_GT650' : ['ggZH_had_PTH_GT650'],
+  'ggH_0J_PTH_0_10' : ['ggZH_had_0J_PTH_0_10'],
+  'ggH_0J_PTH_GT10' : ['ggZH_had_0J_PTH_GT10'],
+  'ggH_1J_PTH_0_60' : ['ggZH_had_1J_PTH_0_60'],
+  'ggH_1J_PTH_60_120' : ['ggZH_had_1J_PTH_60_120'],
+  'ggH_1J_PTH_120_200' : ['ggZH_had_1J_PTH_120_200'],
+  'ggH_GE2J_MJJ_0_350_PTH_0_60' : ['ggZH_had_GE2J_MJJ_0_350_PTH_0_60'],
+  'ggH_GE2J_MJJ_0_350_PTH_60_120' : ['ggZH_had_GE2J_MJJ_0_350_PTH_60_120'],
+  'ggH_GE2J_MJJ_0_350_PTH_120_200' : ['ggZH_had_GE2J_MJJ_0_350_PTH_120_200'],
+  'ggH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25' : ['ggZH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25'],
+  'ggH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25' : ['ggZH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25'],
+  'ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25' : ['ggZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25'],
+  'ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25' : ['ggZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25']
 
 
 }
