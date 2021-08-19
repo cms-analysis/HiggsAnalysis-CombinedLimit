@@ -103,12 +103,18 @@ def commonStems(list, sep="_"):
     ret.sort()
     return ret 
 
+def addTo(dic,key,l):
+  if key in dic.keys(): 
+    dic[key].append(l)
+  else:
+    dic[key]=[l]
+
 if options.t2w: 
 	buildModel()
 	MODELBUILT=True
 	options.all=True
 
-report = {}; errlines = {}; outParams = {}
+report = {}; errlines = {}; outParams = {}; check_list = {}; 
 seen_systematics = []
 for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     if ("rateParam" in pdf) or ("discrete" in pdf): 
@@ -132,12 +138,15 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
         numKeysFound = 0
         channels.append(b)
         for p in DC.exp[b].iterkeys():
+	    if lsyst in check_list.keys():
+	      if [p,b] in check_list[lsyst]: continue
             if (not pdf=="param") and errline[b][p] == 0: continue
             if pdf == "gmN":
                numKeysFound+=1
                minEffect = pdfargs[0] 
                maxEffect = pdfargs[0]
                processes[p] = True
+	       addTo(check_list,lsyst,[p,b])
             elif pdf == "param":
 	       if not MODELBUILT: continue 
                formula = "n_exp_final_bin%s_proc_%s"%(b,p)
@@ -156,14 +165,14 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
                lowNorm =  MB.out.function(formula).getVal()
                MB.out.var(lsyst).setVal(centralVal+maxError)
                highNorm =  MB.out.function(formula).getVal()
-	       errline[b][p] = "%.3f/%.3f"%(lowNorm/centralNorm, highNorm/centralNorm)
-
+	       errlines[lsyst][b][p] = "%.3f/%.3f (param) "%(lowNorm/centralNorm, highNorm/centralNorm)
 	       vals.append(lowNorm/centralNorm) 
 	       vals.append(highNorm/centralNorm) 
                MB.out.var(lsyst).setVal(centralVal)
                numKeysFound+=1
 	       types.append(pdf)
                processes[p] = True
+	       addTo(check_list,lsyst,[p,b])
 
             elif "shape" in pdf and MB.isShapeSystematic(b,p,lsyst):
 
@@ -177,7 +186,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
               if objC.InheritsFrom("TH1"): valU,valD,valC =  objU.Integral(), objD.Integral(), objC.Integral()
               elif objC.InheritsFrom("RooDataHist"): valU,valD,valC =  objU.sumEntries(), objD.sumEntries(), objC.sumEntries()
               if valC!=0: 
-                  errlines[lsyst][b][p] = "%.3f/%.3f"%(valD/valC,valU/valC)
+                  errlines[lsyst][b][p] = "%.3f/%.3f (shape)"%(valD/valC,valU/valC)
                   vals.append(valD/valC)
                   vals.append(valU/valC)
               else: 
@@ -187,11 +196,14 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
               numKeysFound+=1
               types.append(pdf)
               processes[p] = True
+	      addTo(check_list,lsyst,[p,b])
+
             else:
                 vals.extend(errline[b][p] if type(errline[b][p]) == list else [ errline[b][p] ])
                 numKeysFound+=1
                 types.append(pdf)
                 processes[p] = True
+	        addTo(check_list,lsyst,[p,b])
             for val in vals:
                 if val < 1: val = 1.0/val
                 minEffect = min(minEffect, val)
