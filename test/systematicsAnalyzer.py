@@ -139,7 +139,6 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
         channels.append(b)
         for p in DC.exp[b].iterkeys():
 	    if lsyst in check_list.keys():
-	      print "I seen it -> ", lsyst, check_list[lsyst]
 	      if [p,b] in check_list[lsyst]: continue
             if (not pdf=="param") and errline[b][p] == 0: continue
             if pdf == "gmN":
