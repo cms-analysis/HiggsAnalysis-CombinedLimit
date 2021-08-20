@@ -202,6 +202,7 @@
         <function name="function th1fmorph" />
   <class name="CMSHistFunc" />
   <class name="CMSHistErrorPropagator" />
+  <class name="CMSHistSum" />
   <class name="CMSHistFuncWrapper" />
   <class name="SimpleTaylorExpansion1D" />
   <class name="RooTaylorExpansion" />
