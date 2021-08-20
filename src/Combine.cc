@@ -63,6 +63,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h"
 
 #include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
 
@@ -897,6 +898,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (runtimedef::get("FAST_VERTICAL_MORPH")) {
     CMSHistFunc::EnableFastVertical();
+    CMSHistSum::EnableFastVertical();
   }
 
   // Warn the user that they might be using funky values of POIs 
