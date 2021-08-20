@@ -17,7 +17,9 @@
 
 #define HFVERBOSE 0
 
-CMSHistSum::CMSHistSum() : initialized_(false) {}
+bool CMSHistSum::enable_fast_vertical_ = false;
+
+CMSHistSum::CMSHistSum() : initialized_(false), fast_mode_(0) {}
 
 CMSHistSum::CMSHistSum(const char* name,
                                                const char* title,
@@ -26,48 +28,193 @@ CMSHistSum::CMSHistSum(const char* name,
                                                RooArgList const& coeffs)
     : RooAbsReal(name, title),
       x_("x", "", this, x),
-      funcs_("funcs", "", this),
-      coeffs_("coeffs", "", this),
+      morphpars_("morphpars", "", this),
+      coeffpars_("coeffpars", "", this),
       binpars_("binpars", "", this),
+      n_procs_(0),
+      n_morphs_(0),
       sentry_(TString(name) + "_sentry", ""),
       binsentry_(TString(name) + "_binsentry", ""),
       initialized_(false),
-      last_eval_(-1) {
-  funcs_.add(funcs);
-  coeffs_.add(coeffs);
+      analytic_bb_(false),
+      fast_mode_(0) {
+
+  n_procs_ = funcs.getSize();
+  assert(n_procs_ == coeffs.getSize());
+
+  coeffpars_.add(coeffs);
+
+  // Resize vectors
+  binerrors_.resize(n_procs_);
+  vtype_.resize(n_procs_);
+  vsmooth_par_.resize(n_procs_);
+
+  // First pass through the list of processes - we don't know the number of
+  // vertical morphing parameters yet.
+  std::map<std::string, RooRealVar const*> all_vmorphs;
+  std::vector<std::map<std::string, int>> vmorph_idx_mapping(n_procs_);
+  int n_storage = 0;
+  for (int ip = 0; ip < n_procs_; ++ip) {
+    CMSHistFunc const* func = dynamic_cast<CMSHistFunc const*>(funcs.at(ip));
+
+    // Verify that each func does not use horizontal morphing or rebinning
+    if (func->hmorphs_.getSize() > 0 || func->rebin_) {
+      throw std::runtime_error("CMSHistSum does not support horizontal morphing or on-the-fly rebinning");
+    }
+
+    // Add this CMSHistFunc to vfuncstmp_ - this is not persisted but will be used to create bbb
+    // parameters
+    vfuncstmp_.push_back(func);
+
+    // Need to initialize our cache_ with the correct binning
+    if (ip == 0) {
+      cache_ = func->cache();
+      cache_.Clear();
+    }
+
+    // Determine the size we'll need for storage_
+    n_storage += func->storage_.size();
+
+    // Construct a list of the unique vertical morphing parameters and
+    // make a per-process index of the local list positions of each vmorph
+    for (int iv = 0; iv < func->vmorphs_.getSize(); ++iv) {
+      RooRealVar const* rrv = static_cast<RooRealVar const*>(func->vmorphs_.at(iv));
+      all_vmorphs[rrv->GetName()] = rrv;
+      vmorph_idx_mapping[ip][rrv->GetName()] = iv;
+    }
+
+    // Copy bin errors, vtype and vsmooth_par
+    binerrors_[ip] = func->binerrors_;
+    vtype_[ip] = func->vtype_;
+    vsmooth_par_[ip] = func->vsmooth_par_;
+  }
+
+  // Populate a list of the morphing parameter names,
+  // and add each parameter to the RooListProxy
+  std::vector<std::string> morph_names;
+  for (auto const& it : all_vmorphs) {
+    morph_names.push_back(it.first);
+    morphpars_.add(*it.second);
+  }
+
+  // Now we know the number of morphing parameters
+  n_morphs_ = morph_names.size();
+
+
+  // Now we populate storage_, by stealing from each CMSHistFunc in turn
+  storage_.clear();
+  storage_.resize(n_storage);
+  auto copy_it = storage_.begin();
+  for (int ip = 0; ip < n_procs_; ++ip) {
+    CMSHistFunc const* func = dynamic_cast<CMSHistFunc const*>(funcs.at(ip));
+#if HFVERBOSE > 0
+    std::cout << "Before copy: size = " << storage_.size() << ", distance = " << std::distance(storage_.begin(), copy_it) << "\n";
+#endif
+    copy_it = std::copy(func->storage_.begin(), func->storage_.end(), copy_it);
+#if HFVERBOSE > 0
+    std::cout << "After copy: size = " << storage_.size() << ", distance = " << std::distance(storage_.begin(), copy_it) << "\n";
+#endif
+  }
+
+  // Next populate the storage_ index positions for fast lookup later
+  process_fields_ = std::vector<int>(n_procs_, 0);
+  vmorph_fields_ = std::vector<int>(n_procs_ * n_morphs_, -1);
+  int current_proc = 0;
+  for (int ip = 0; ip < n_procs_; ++ip) {
+    process_fields_[ip] = current_proc;
+    // current_proc += 1;
+    for (int iv = 0; iv < n_morphs_; ++iv) {
+      auto it = vmorph_idx_mapping[ip].find(morph_names[iv]);
+      if (it != vmorph_idx_mapping[ip].end()) {
+        // Position for this vmorph
+        morphField(ip, iv) = current_proc + 1 + it->second * 2;
+        // Convert to sum/diff
+        unsigned idx = process_fields_[ip];
+        unsigned idxLo = morphField(ip, iv) + 0;
+        unsigned idxHi = morphField(ip, iv) + 1;
+        FastTemplate lo = storage_[idxLo];
+        FastTemplate hi = storage_[idxHi];
+        if (vtype_[ip] == CMSHistFunc::VerticalSetting::QuadLinear) {
+          hi.Subtract(storage_[idx]);
+          lo.Subtract(storage_[idx]);
+        } else if (vtype_[ip] == CMSHistFunc::VerticalSetting::LogQuadLinear) {
+          hi.LogRatio(storage_[idx]);
+          lo.LogRatio(storage_[idx]);
+        }
+        FastTemplate::SumDiff(hi, lo, storage_[idxLo], storage_[idxHi]);
+      }
+    }
+    current_proc += (1 +vmorph_idx_mapping[ip].size() * 2);
+  }
+
+#if HFVERBOSE > 0
+  std::cout << "FUNCTIONS\n";
+  for (int ip = 0; ip < n_procs_; ++ip) {
+    std::cout << ip << ": " << funcs.at(ip)->GetName() << std::endl;
+  }
+  std::cout << "MORPHS\n";
+  for (int imorph = 0; imorph < n_morphs_; ++imorph) {
+    std::cout << imorph << ": " << morph_names[imorph] << std::endl;
+  }
+  for (int ip = 0; ip < n_procs_; ++ip) {
+    std::cout << TString::Format("%4i: %6i |", ip, process_fields_[ip]);
+    for (int iv = 0; iv < n_morphs_; ++iv) {
+      std::cout << TString::Format("%6i", morphField(ip, iv));
+    }
+    std::cout << std::endl;
+  }
+#endif
+
+  // exit(0);
 }
 
 CMSHistSum::CMSHistSum(
     CMSHistSum const& other, const char* name)
     : RooAbsReal(other, name),
       x_("x", this, other.x_),
-      funcs_("funcs", this, other.funcs_),
-      coeffs_("coeffs", this, other.coeffs_),
+      morphpars_("morphpars", this, other.morphpars_),
+      coeffpars_("coeffpars", this, other.coeffpars_),
       binpars_("binpars", this, other.binpars_),
+      n_procs_(other.n_procs_),
+      n_morphs_(other.n_morphs_),
+      storage_(other.storage_),
+      process_fields_(other.process_fields_),
+      vmorph_fields_(other.vmorph_fields_),
+      binerrors_(other.binerrors_),
+      vtype_(other.vtype_),
+      vsmooth_par_(other.vsmooth_par_),
       bintypes_(other.bintypes_),
+      cache_(other.cache_),
       sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
       binsentry_(name ? TString(name) + "_binsentry" : TString(other.binsentry_.GetName()), ""),
       initialized_(false),
-      last_eval_(-1) {
+      fast_mode_(0) {
+      initialize();
 }
 
 void CMSHistSum::initialize() const {
   if (initialized_) return;
   sentry_.SetName(TString(this->GetName()) + "_sentry");
   binsentry_.SetName(TString(this->GetName()) + "_binsentry");
+
 #if HFVERBOSE > 0
   std::cout << "Initialising vectors\n";
 #endif
-  unsigned nf = funcs_.getSize();
-  vfuncs_.resize(nf);
-  vcoeffs_.resize(nf);
-  for (unsigned i = 0; i < nf; ++i) {
-    vfuncs_[i] = dynamic_cast<CMSHistFunc const*>(funcs_.at(i));
-    vcoeffs_[i] = dynamic_cast<RooAbsReal const*>(coeffs_.at(i));
-    auto sargs = vfuncs_[i]->getSentryArgs();
-    sentry_.addVars(*sargs);
+
+  vmorphpars_.resize(n_morphs_);
+  vcoeffpars_.resize(n_procs_);
+  compcache_.resize(n_procs_);
+
+  for (int ip = 0; ip < n_procs_; ++ip) {
+    vcoeffpars_[ip] = dynamic_cast<RooAbsReal const*>(coeffpars_.at(ip));
+    compcache_[ip] = cache_;
+    compcache_[ip].Clear();
   }
-  unsigned nb = vfuncs_[0]->cache().size();
+  for (int iv = 0; iv < n_morphs_; ++iv) {
+    vmorphpars_[iv] = dynamic_cast<RooAbsReal const*>(morphpars_.at(iv));
+  }
+
+  unsigned nb = cache_.size();
   vbinpars_.resize(nb);
   if (bintypes_.size()) {
     for (unsigned j = 0, r = 0; j < nb; ++j) {
@@ -80,17 +227,20 @@ void CMSHistSum::initialize() const {
       }
     }
   }
-  valsum_ = vfuncs_[0]->cache();
+
+  valsum_ = cache_;
+  staging_ = cache_;
   valsum_.Clear();
-  cache_ = vfuncs_[0]->cache();
   cache_.Clear();
+  staging_.Clear();
   err2sum_.resize(nb, 0.);
   toterr_.resize(nb, 0.);
-  binmods_.resize(nf, std::vector<double>(nb, 0.));
-  scaledbinmods_.resize(nf, std::vector<double>(nb, 0.));
-  coeffvals_.resize(nf, 0.);
+  binmods_.resize(n_procs_, std::vector<double>(nb, 0.));
+  scaledbinmods_.resize(n_procs_, std::vector<double>(nb, 0.));
+  coeffvals_.resize(n_procs_, 0.);
 
-  sentry_.addVars(coeffs_);
+  sentry_.addVars(morphpars_);
+  sentry_.addVars(coeffpars_);
   binsentry_.addVars(binpars_);
 
   sentry_.setValueDirty();
@@ -99,62 +249,117 @@ void CMSHistSum::initialize() const {
   initialized_ = true;
 }
 
+void CMSHistSum::updateMorphs() const {
+  // If we're not in fast mode, need to reset all the compcache_
+  #if HFVERBOSE > 0
+  std::cout << "fast_mode_ = " << fast_mode_ << std::endl;
+  #endif
+  for (unsigned ip = 0; ip < compcache_.size(); ++ip) {
+    if (fast_mode_ == 0) {
+      compcache_[ip].CopyValues(storage_[process_fields_[ip]]);
+    }
+    if (vtype_[ip] == CMSHistFunc::VerticalSetting::LogQuadLinear) {
+      compcache_[ip].Log();
+    }
+  }
+  int n_morphs = vmorphpars_.size();
 
-void CMSHistSum::updateCache(int eval) const {
+  if (vertical_prev_vals_.size() == 0) {
+    vertical_prev_vals_.resize(n_morphs);
+  }
+  // Loop through vmorphs
+  for (unsigned iv = 0; iv < vmorphpars_.size(); ++iv) {
+    double x = vmorphpars_[iv]->getVal();
+    if (fast_mode_ == 1 && (x == vertical_prev_vals_[iv])) {
+      #if HFVERBOSE > 0
+      std::cout << "Skipping " << vmorphpars_[iv]->GetName() << ", prev = now = " << x << std::endl;
+      #endif
+      continue;
+    }
+    #if HFVERBOSE > 0
+    if (fast_mode_ == 1) {
+      std::cout << "Updating " << vmorphpars_[iv]->GetName() << ", prev =  " << vertical_prev_vals_[iv] << ", now = " << x << std::endl;
+    }
+    #endif
+
+
+    // If in fast made, check if the value has changed since the last eval,
+    // and if it hasn't, skip it
+
+    // For each vmorph need to know the list of processes we apply to
+    for (unsigned ip = 0; ip < compcache_.size(); ++ip) {
+      int code = vmorph_fields_[ip * n_morphs + iv];
+      if (code == -1) continue;
+      if (fast_mode_ == 1) {
+        double xold = vertical_prev_vals_[iv];
+        compcache_[ip].DiffMeld(storage_[code + 1], storage_[code + 0], 0.5*x, smoothStepFunc(x, ip), 0.5*xold, smoothStepFunc(xold, ip));
+      } else {
+        compcache_[ip].Meld(storage_[code + 1], storage_[code + 0], 0.5*x, smoothStepFunc(x, ip));
+      }
+    }
+    vertical_prev_vals_[iv] = x;
+  }
+
+  if (enable_fast_vertical_) fast_mode_ = 1;
+}
+
+inline double CMSHistSum::smoothStepFunc(double x, int const& ip) const {
+  if (fabs(x) >= vsmooth_par_[ip]) return x > 0 ? +1 : -1;
+  double xnorm = x / vsmooth_par_[ip];
+  double xnorm2 = xnorm * xnorm;
+  return 0.125 * xnorm * (xnorm2 * (3. * xnorm2 - 10.) + 15);
+}
+
+
+void CMSHistSum::updateCache() const {
   initialize();
 
 #if HFVERBOSE > 0
   std::cout << "Sentry: " << sentry_.good() << "\n";
 #endif
-  if (!sentry_.good() || eval != last_eval_) {
-    for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-      vfuncs_[i]->updateCache();
-      coeffvals_[i] = vcoeffs_[i]->getVal();
+  if (!sentry_.good()) {
+    #if HFVERBOSE > 0
+      std::cout << "Calling updateMorphs\n";
+    #endif
+    updateMorphs();
+    for (unsigned i = 0; i < vcoeffpars_.size(); ++i) {
+      // vfuncs_[i]->updateCache();
+      coeffvals_[i] = vcoeffpars_[i]->getVal();
     }
+    #if HFVERBOSE > 0
+      std::cout << "Updated coeffs\n";
+    #endif
 
     valsum_.Clear();
     std::fill(err2sum_.begin(), err2sum_.end(), 0.);
-    for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-      vectorized::mul_add(valsum_.size(), coeffvals_[i], &(vfuncs_[i]->cache()[0]), &valsum_[0]);
-      vectorized::mul_add_sqr(valsum_.size(), coeffvals_[i], &(vfuncs_[i]->errors()[0]), &err2sum_[0]);
+    for (unsigned i = 0; i < vcoeffpars_.size(); ++i) {
+      staging_ = compcache_[i];
+      if (vtype_[i] == CMSHistFunc::VerticalSetting::LogQuadLinear) {
+        staging_.Exp();
+      }
+      staging_.CropUnderflows();
+      vectorized::mul_add(valsum_.size(), coeffvals_[i], &(staging_[0]), &valsum_[0]);
+      vectorized::mul_add_sqr(valsum_.size(), coeffvals_[i], &(binerrors_[i][0]), &err2sum_[0]);
     }
     vectorized::sqrt(valsum_.size(), &err2sum_[0], &toterr_[0]);
     cache_ = valsum_;
-
-    if (eval == 0 && bintypes_.size()) {
-      for (unsigned j = 0; j < valsum_.size(); ++j) {
-        if (bintypes_[j][0] == 1) {
-#if HFVERBOSE > 1
-          std::cout << "Bin " << j << "\n";
-          printf(" | %.6f/%.6f/%.6f\n", valsum_[j], err2sum_[j], toterr_[j]);
-#endif
-          for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-            if (err2sum_[j] > 0. && coeffvals_[i] > 0.) {
-              double e =  vfuncs_[i]->errors()[j] * coeffvals_[i];
-              binmods_[i][j] = (toterr_[j] *  e * e) / (err2sum_[j] * coeffvals_[i]);
-            } else {
-              binmods_[i][j] = 0.;
-            }
-#if HFVERBOSE > 1
-            printf("%.6f   ", binmods_[i][j]);
-#endif
-          }
-#if HFVERBOSE > 1
-          printf("\n");
-#endif
-        }
-      }
-    }
-
-
+    #if HFVERBOSE > 0
+      std::cout << "Updated cache\n";
+    #endif
     sentry_.reset();
     binsentry_.setValueDirty();
   }
 
 
-  if (!binsentry_.good() || eval != last_eval_) {
+  if (!binsentry_.good()) {
+    #if HFVERBOSE > 0
+      std::cout << "Calling runBarlowBeeston\n";
+    #endif
     runBarlowBeeston();
     // bintypes might have size == 0 if we never ran setupBinPars()
+    #if HFVERBOSE > 0
+      std::cout << "Assigning bin shifts\n";
+    #endif
     for (unsigned j = 0; j < bintypes_.size(); ++j) {
       cache_[j] = valsum_[j];
       if (bintypes_[j][0] == 0) {
@@ -162,33 +367,27 @@ void CMSHistSum::updateCache(int eval) const {
       } else if (bintypes_[j][0] == 1) {
         double x = vbinpars_[j][0]->getVal();
         cache_[j] += toterr_[j] * x;
-        // Only fill the scaledbinmods if we're in eval == 0 mode (i.e. need to
-        // propagate to wrappers)
-        if (eval == 0) {
-          for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-            scaledbinmods_[i][j] = binmods_[i][j] * x;
-          }
-        }
       } else {
         for (unsigned i = 0; i < bintypes_[j].size(); ++i) {
           if (bintypes_[j][i] == 2) {
             // Poisson: this is a multiplier on the process yield
             scaledbinmods_[i][j] = ((vbinpars_[j][i]->getVal() - 1.) *
-                 vfuncs_[i]->cache()[j]);
+                 compcache_[i][j]);
             cache_[j] += (scaledbinmods_[i][j] * coeffvals_[i]);
           } else if (bintypes_[j][i] == 3) {
             // Gaussian This is the addition of the scaled error
-            scaledbinmods_[i][j] = vbinpars_[j][i]->getVal() * vfuncs_[i]->errors()[j];
+            scaledbinmods_[i][j] = vbinpars_[j][i]->getVal() * binerrors_[i][j];
             cache_[j] += (scaledbinmods_[i][j] * coeffvals_[i]);
           }
         }
       }
     }
+    #if HFVERBOSE > 0
+      std::cout << "Done assigning bin shifts\n";
+    #endif
     cache_.CropUnderflows();
     binsentry_.reset();
   }
-
-  last_eval_ = eval;
 }
 
 void CMSHistSum::runBarlowBeeston() const {
@@ -295,7 +494,7 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
   // First initialize all the storage
   initialize();
   // Now fill the bin contents and errors
-  updateCache(1); // the arg (1) forces updateCache to fill the caches for all bins
+  updateCache(); // the arg (1) forces updateCache to fill the caches for all bins
 
   bintypes_.resize(valsum_.size(), std::vector<unsigned>(1, 0));
 
@@ -305,9 +504,9 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
   std::cout << "Poisson cut-off: " << poissonThreshold << "\n";
   std::set<unsigned> skip_idx;
   std::vector<std::string> skipped_procs;
-  for (unsigned i = 0; i < vfuncs_.size(); ++i) {
-    if (vfuncs_[i]->attributes().count("skipForErrorSum")) {
-      skipped_procs.push_back(vfuncs_[i]->getStringAttribute("combine.process"));
+  for (unsigned i = 0; i < vfuncstmp_.size(); ++i) {
+    if (vfuncstmp_[i]->attributes().count("skipForErrorSum")) {
+      skipped_procs.push_back(vfuncstmp_[i]->getStringAttribute("combine.process"));
       skip_idx.insert(i);
     }
   }
@@ -324,12 +523,12 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
     double sub_sum = 0.;
     double sub_err = 0.;
     // Check using a possible sub-set of bins
-    for (unsigned i = 0; i < vfuncs_.size(); ++i) {
+    for (unsigned i = 0; i < vfuncstmp_.size(); ++i) {
       if (skip_idx.count(i)) {
         continue;
       }
-      sub_sum += vfuncs_[i]->cache()[j] * coeffvals_[i];
-      sub_err += std::pow(vfuncs_[i]->errors()[j] * coeffvals_[i], 2.);;
+      sub_sum += vfuncstmp_[i]->cache()[j] * coeffvals_[i];
+      sub_err += std::pow(vfuncstmp_[i]->errors()[j] * coeffvals_[i], 2.);;
     }
     sub_err = std::sqrt(sub_err);
     if (skipped_procs.size()) {
@@ -352,15 +551,15 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
     if (n <= poissonThreshold) {
       std::cout << TString::Format("  %-30s\n", "=> Number of weighted events is below poisson threshold");
 
-      bintypes_[j].resize(vfuncs_.size(), 4);
+      bintypes_[j].resize(vfuncstmp_.size(), 4);
 
-      for (unsigned i = 0; i < vfuncs_.size(); ++i) {
+      for (unsigned i = 0; i < vfuncstmp_.size(); ++i) {
         std::string proc =
-            vfuncs_[i]->stringAttributes().count("combine.process")
-                ? vfuncs_[i]->getStringAttribute("combine.process")
-                : vfuncs_[i]->GetName();
-        double v_p = vfuncs_[i]->cache()[j];
-        double e_p = vfuncs_[i]->errors()[j];
+            vfuncstmp_[i]->stringAttributes().count("combine.process")
+                ? vfuncstmp_[i]->getStringAttribute("combine.process")
+                : vfuncstmp_[i]->GetName();
+        double v_p = vfuncstmp_[i]->cache()[j];
+        double e_p = vfuncstmp_[i]->errors()[j];
         std::cout << TString::Format("    %-20s %-15f %-15f %-30s\n", proc.c_str(), v_p, e_p, "");
         // relax the condition of v_p >= e_p slightly due to numerical rounding...
         // Possibilities:
@@ -452,18 +651,6 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
 }
 
 
-void CMSHistSum::applyErrorShifts(unsigned idx,
-                                              FastHisto const& nominal,
-                                              FastHisto& result) {
-  // We can skip the whole evaluation if there's nothing to evaluate
-  // if (bintypes_.size() == 0) return;
-  // std::cout << "Start of function\n";
-  updateCache(0);
-  for (unsigned i = 0; i < result.size(); ++i) {
-    result[i] = nominal[i] + scaledbinmods_[idx][i];
-  }
-}
-
 std::unique_ptr<RooArgSet> CMSHistSum::getSentryArgs() const {
   // We can do this without initialising because we're going to hand over
   // the sentry directly
@@ -474,7 +661,7 @@ std::unique_ptr<RooArgSet> CMSHistSum::getSentryArgs() const {
 }
 
 Double_t CMSHistSum::evaluate() const {
-  updateCache(1);
+  updateCache();
   return cache().GetAt(x_);
 }
 
@@ -514,7 +701,7 @@ Double_t CMSHistSum::analyticalIntegral(Int_t code,
   // TODO: check how RooHistFunc handles ranges that splice bins
   switch (code) {
     case 1: {
-      updateCache(1);
+      updateCache();
       return cache().IntegralWidth();
     }
   }
@@ -524,7 +711,7 @@ Double_t CMSHistSum::analyticalIntegral(Int_t code,
 }
 
 void CMSHistSum::setData(RooAbsData const& data) const {
-  updateCache(1);
+  updateCache();
   data_.clear();
   data_.resize(cache_.fullsize(), 0.); // fullsize is important here is we've used activeBins
   RooArgSet obs(x_.arg());
@@ -536,16 +723,8 @@ void CMSHistSum::setData(RooAbsData const& data) const {
   }
 }
 
-RooArgList CMSHistSum::wrapperList() const {
-  RooArgList result;
-  for (int i = 0; i < funcs_.getSize(); ++i) {
-    CMSHistFunc const* hf = dynamic_cast<CMSHistFunc const*>(funcs_.at(i));
-    if (hf) {
-      CMSHistFuncWrapper const* wrapper = hf->wrapper();
-      if (wrapper) result.add(*wrapper);
-    }
-  }
-  return result;
+void CMSHistSum::EnableFastVertical() {
+  enable_fast_vertical_ = true;
 }
 
 #undef HFVERBOSE
