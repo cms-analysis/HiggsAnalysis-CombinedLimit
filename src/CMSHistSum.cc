@@ -505,6 +505,7 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
   std::set<unsigned> skip_idx;
   std::vector<std::string> skipped_procs;
   for (unsigned i = 0; i < vfuncstmp_.size(); ++i) {
+    vfuncstmp_[i]->updateCache();
     if (vfuncstmp_[i]->attributes().count("skipForErrorSum")) {
       skipped_procs.push_back(vfuncstmp_[i]->getStringAttribute("combine.process"));
       skip_idx.insert(i);
