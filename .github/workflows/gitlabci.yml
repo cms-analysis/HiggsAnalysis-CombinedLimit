@@ -1,0 +1,16 @@
+name: trigger gitlab job
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: trigger Job
+        run: curl --request POST --form "variables[COMBINE_TAG]=${{ github.sha }}" --form "variables[COMBINE_REPO]=${{ github.repository_owner }}" --form "variables[GITHUB_PR]=${{ github.ref }}" --form "token=${{ secrets.TOKEN }}" --form ref=master https://gitlab.cern.ch/api/v4/projects/cms-hcg%2Fperformances%2Fci/trigger/pipeline 
+
+#refs/pull/:prNumber/merge
