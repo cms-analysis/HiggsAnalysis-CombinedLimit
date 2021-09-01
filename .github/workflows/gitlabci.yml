@@ -14,7 +14,7 @@ jobs:
         name: gitlabci
     steps:
       - name: trigger Job
-        with:
+        env:
             TOKEN: ${{ secrets.TOKEN }}
-        run: curl --request POST --form "variables[COMBINE_TAG]=${{ github.sha }}" --form "variables[COMBINE_REPO]=${{ github.repository_owner }}" --form "variables[GITHUB_PR]=${{ github.ref }}" --form "token=${{ TOKEN }}" --form ref=master https://gitlab.cern.ch/api/v4/projects/cms-hcg%2Fperformances%2Fci/trigger/pipeline 
+        run: curl --request POST --form "variables[COMBINE_TAG]=${{ github.sha }}" --form "variables[COMBINE_REPO]=${{ github.repository_owner }}" --form "variables[GITHUB_PR]=${{ github.ref }}" --form "token=${{ secrets.TOKEN }}" --form ref=master https://gitlab.cern.ch/api/v4/projects/cms-hcg%2Fperformances%2Fci/trigger/pipeline 
 
