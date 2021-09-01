@@ -57,6 +57,7 @@ protected:
   static bool  startFromPreFit_;
   static bool  alignEdges_;
   static bool  saveFitResult_;
+  static bool  saveFitResultWithoutHesse_;
   static std::string fixedPointPOIs_;
   static float centeredRange_;
   static std::string setParametersForGrid_;

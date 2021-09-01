@@ -15,6 +15,7 @@
 
 #include <TIterator.h>
 #include <TString.h>
+#include <TFile.h>
 
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
@@ -810,6 +811,38 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
   }
 
 }
+
+void utils::setParametersFromList( const std::string & setParameterFile, const RooArgSet & params) {
+
+  TFile* filewithparams = TFile::Open(setParameterFile.c_str());
+  RooArgList* paramlist = (RooArgList*) filewithparams->Get("fitpars");
+  for (Int_t p = 0; p < paramlist->getSize(); ++p) {
+     RooAbsArg  *tmp = (RooAbsArg*)params.find(paramlist->at(p)->GetName());
+     if (tmp){
+         bool isrvar = tmp->IsA()->InheritsFrom(RooRealVar::Class());  // check its type
+         if (isrvar) {
+           RooRealVar *tmpParameter = dynamic_cast<RooRealVar*>(tmp);
+           RooRealVar *parFromList = (RooRealVar*) paramlist->at(p);
+           double PhysicsParameterValue = parFromList->getVal();
+           cout << "Set Default Value of Parameter " << parFromList->GetName()
+               << " To : " << PhysicsParameterValue << "\n";
+          tmpParameter->setVal(PhysicsParameterValue);
+         } else {
+           RooCategory *tmpCategory  = dynamic_cast<RooCategory*>(tmp);
+           RooCategory *catFromList = (RooCategory*) paramlist->at(p);
+           int PhysicsParameterValue = catFromList->getIndex();
+           cout << "Set Default Index of Parameter " << catFromList->GetName()
+                << " To : " << PhysicsParameterValue
+                << " (was: " << tmpCategory->getIndex() << " )\n";
+           tmpCategory->setIndex(PhysicsParameterValue);
+       }
+      }
+        else {
+        std::cout << "Warning: Did not find a parameter with name " << paramlist->at(p)->GetName() << endl;
+      }
+    }
+}
+
 
 void utils::setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params) {
 

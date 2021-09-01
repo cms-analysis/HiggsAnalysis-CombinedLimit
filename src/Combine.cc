@@ -90,6 +90,7 @@ bool g_fillTree_ = true;
 TTree *Combine::tree_ = 0;
 
 std::string setPhysicsModelParameterExpression_ = "";
+std::string setParametersFromList_ = "";
 std::string setPhysicsModelParameterRangeExpression_ = "";
 std::string defineBackgroundOnlyModelParameterExpression_ = "";
 
@@ -123,6 +124,7 @@ Combine::Combine() :
       ("unbinned,U", "Generate unbinned datasets instead of binned ones (works only for extended pdfs)")
       ("generateBinnedWorkaround", "Make binned datasets generating unbinned ones and then binnning them. Workaround for a bug in RooFit.")
       ("setParameters", po::value<string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
+      ("setParametersFromList", po::value<string>(&setParametersFromList_)->default_value(""), "Set the values of relevant model parameters from a file containing a RooArgList with fit parameters")
       ("setParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")      
       ("defineBackgroundOnlyModelParameters", po::value<string>(&defineBackgroundOnlyModelParameterExpression_)->default_value(""), "If no background only (null) model is explicitly provided in physics model, one will be defined as these values of the POIs (default is r=0)")      
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
@@ -430,6 +432,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       // Possible that MH value was re-set above, so make sure mass is set to the correct value and not over-ridden later.
       if (w->var("MH")) mass_ = w->var("MH")->getVal();
     }
+    if (setParametersFromList_ != "" && !runtimedef::get("SETPARAMETERS_AFTER_NLL")) {
+      RooArgSet allParams(w->allVars());
+      allParams.add(w->allCats());
+      utils::setParametersFromList(setParametersFromList_, allParams);
+    }
 
   } else {
     std::cerr << "HLF not validated" << std::endl;
@@ -472,6 +479,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     w->import(*mc_bonly, modelConfigNameB_.c_str());
     if (setPhysicsModelParameterExpression_ != "") {
 	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
+    }
+    if (setParametersFromList_ != "") {
+	    utils::setParametersFromList( setParametersFromList_, w->allVars());
     }
   }
   gSystem->cd(pwd);
