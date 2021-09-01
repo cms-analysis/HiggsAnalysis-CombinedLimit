@@ -107,7 +107,7 @@ MultiDimFit::MultiDimFit() :
     ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
     ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
 	("saveFitResult",  "Save RooFitResult to multidimfit.root")
-	("saveFitResultWithoutHesse",  "Save RooFitResult to multidimfit.root")
+	("saveFitResultWithoutHesse",  "Save RooFitResult to multidimfit.root, without invoking Hesse")
     ("out", boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
     ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
     ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
@@ -187,6 +187,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::auto_ptr<RooFitResult> res;
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
+    if( saveFitResultWithoutHesse_) saveFitResult_ = true;
     bool doHesse = ((algo_ == Singles || algo_ == Impact) || (saveFitResult_) ) && !(saveFitResultWithoutHesse_);
     if ( !skipInitialFit_){
         res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, (saveFitResult_ && !robustHesse_ && !saveFitResultWithoutHesse_), 1, true, saveFitResultWithoutHesse_));
