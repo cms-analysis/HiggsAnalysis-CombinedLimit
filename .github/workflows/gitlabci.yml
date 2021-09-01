@@ -1,9 +1,9 @@
 name: trigger gitlab job
 on:
   push:
-    branches: [ master ]
+    branches: [ 102x ]
   pull_request:
-    branches: [ master ]
+    branches: [ 102x ]
   
 jobs:
   build:
