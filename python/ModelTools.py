@@ -93,7 +93,8 @@ class ModelBuilderBase():
         if self.options.bin: return self.factory_("%s::%s(%s)" % (type, name, X));
         else: self.out.write("%s = %s(%s);\n" % (name, type, X))
     def addDiscrete(self,var):
-	self.discrete_param_set.append(var)
+        if self.options.removeMultiPdf: return
+        self.discrete_param_set.append(var)
 
 class ModelBuilder(ModelBuilderBase):
     """This class defines the actual methods to build a model"""
