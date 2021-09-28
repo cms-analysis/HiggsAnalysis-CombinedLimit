@@ -36,7 +36,7 @@ obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
 paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {}; rateParamsOrder = set();
-extArgs = {}; binParFlags = {}
+extArgs = {}; binParFlags = {}; bpf_new2old = {}
 nuisanceEdits = [];
 
 def compareParamSystLines(a,b):
@@ -141,6 +141,7 @@ for ich,fname in enumerate(args):
     for K in DC.binParFlags.iterkeys():
         tbin = label if singlebin else label+K
         binParFlags[tbin] = DC.binParFlags[K]
+        bpf_new2old[tbin] = K
     # rate params
     for K in DC.rateParams.iterkeys():
         tbin,tproc = K.split("AND")[0],K.split("AND")[1]
@@ -307,6 +308,7 @@ for groupName,nuisanceNames in groups.iteritems():
     nuisances = ' '.join(nuisanceNames)
     print '%(groupName)s group = %(nuisances)s' % locals()
 for bpf in binParFlags.iterkeys():
+    if isVetoed(bpf_new2old[bpf], options.channelVetos) or not isIncluded(bpf_new2old[bpf],options.channelIncludes): continue
     if len(binParFlags[bpf]) == 1:
       print "%s autoMCStats %g" % (bpf,binParFlags[bpf][0])
     if len(binParFlags[bpf]) == 2:
