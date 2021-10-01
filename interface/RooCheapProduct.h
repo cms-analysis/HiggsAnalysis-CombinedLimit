@@ -14,9 +14,11 @@ class RooCheapProduct : public RooAbsReal {
         const RooArgList & components() const { return terms_; }
     protected:
         RooListProxy terms_;
-        std::vector<RooAbsReal *> vterms_;
+        std::vector<RooAbsReal *> vterms_; //! not to be serialized
         double offset_;
         virtual Double_t evaluate() const ;
+    private:
+        ClassDef(RooCheapProduct,1)
 };
 
 #endif
