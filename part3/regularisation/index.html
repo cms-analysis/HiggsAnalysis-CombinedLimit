@@ -226,8 +226,8 @@
 <p>This section details how to perform an unfolded cross-section measurement, <em>including regularization</em>, inside Combine. </p>
 <p>There are many resources available that describe unfolding, including when to use it (or not), and what are the usual issues around it. A useful summary is available at the <a href="https://twiki.cern.ch/twiki/bin/view/CMS/ScrecUnfolding">CMS Statistics Committee pages</a> on unfolding. You can also 
 find a nice overview of unfolding and its usage in combine in <a href="https://indico.cern.ch/event/399923/contributions/956409/attachments/800899/1097609/2015_06_24_LHCXSWG.pdf#search=Marini%20AND%20StartDate%3E%3D2015-06-24%20AND%20EndDate%3C%3D2015-06-24">these slides</a>.</p>
-<p>The basic idea behind the unfolding technique to describe smearing introduced through the reconstruction (eg of the particle energy) in a given truth level bin <span><span class="MathJax_Preview">x_{i}</span><script type="math/tex">x_{i}</script></span> through a linear relationship to the effects in the nearby truth-bins. We can make statements about the probability <span><span class="MathJax_Preview">p_{j}</span><script type="math/tex">p_{j}</script></span> that the event falling in the truth bin <span><span class="MathJax_Preview">x_{i}</span><script type="math/tex">x_{i}</script></span> is reconstructed in the bin <span><span class="MathJax_Preview">y_{i}</span><script type="math/tex">y_{i}</script></span> via the linear relationship,</p>
-<div>
+<p>The basic idea behind the unfolding technique to describe smearing introduced through the reconstruction (eg of the particle energy) in a given truth level bin <span class="arithmatex"><span class="MathJax_Preview">x_{i}</span><script type="math/tex">x_{i}</script></span> through a linear relationship to the effects in the nearby truth-bins. We can make statements about the probability <span class="arithmatex"><span class="MathJax_Preview">p_{j}</span><script type="math/tex">p_{j}</script></span> that the event falling in the truth bin <span class="arithmatex"><span class="MathJax_Preview">x_{i}</span><script type="math/tex">x_{i}</script></span> is reconstructed in the bin <span class="arithmatex"><span class="MathJax_Preview">y_{i}</span><script type="math/tex">y_{i}</script></span> via the linear relationship,</p>
+<div class="arithmatex">
 <div class="MathJax_Preview">
 y_{obs} = \tilde{\boldsymbol{R}}\cdot x_{true} + b
 </div>
@@ -236,7 +236,7 @@ y_{obs} = \tilde{\boldsymbol{R}}\cdot x_{true} + b
 </script>
 </div>
 <p>or, if the truth bins are expressed relative to some particular model, we use the usual <em>signal strength</em> terminology, </p>
-<div>
+<div class="arithmatex">
 <div class="MathJax_Preview">
 y_{obs} = \boldsymbol{R}\cdot \mu + b
 </div>
@@ -244,7 +244,7 @@ y_{obs} = \boldsymbol{R}\cdot \mu + b
 y_{obs} = \boldsymbol{R}\cdot \mu + b
 </script>
 </div>
-<p>Unfolding aims to find the distribution at truth level <span><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span>, given the observations <span><span class="MathJax_Preview">y</span><script type="math/tex">y</script></span> at reco-level.</p>
+<p>Unfolding aims to find the distribution at truth level <span class="arithmatex"><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span>, given the observations <span class="arithmatex"><span class="MathJax_Preview">y</span><script type="math/tex">y</script></span> at reco-level.</p>
 <h2 id="likelihood-based-unfolding">Likelihood-based unfolding</h2>
 <p>Since Combine has access to the full likelihood for any analysis written in the usual datacard format, we will use likelihood-based unfolding 
 throughout - for other approaches, there are many other tools available (eg <code>RooUnfold</code> or <code>TUnfold</code>), which can be used instead. </p>
@@ -256,8 +256,8 @@ throughout - for other approaches, there are many other tools available (eg <cod
 </ul>
 <p>In practice, one must construct the <em>response matrix</em> and unroll it in the reconstructed bins:</p>
 <ul>
-<li>First, one derives the truth  distribution, eg after the generator-cut only, <span><span class="MathJax_Preview">x_{i}</span><script type="math/tex">x_{i}</script></span>.</li>
-<li>Each reconstructed bin (eg each datacard) should describe the contribution from each truth bin - this is how combine knows about <span><span class="MathJax_Preview">\boldsymbol{R}</span><script type="math/tex">\boldsymbol{R}</script></span> 
+<li>First, one derives the truth  distribution, eg after the generator-cut only, <span class="arithmatex"><span class="MathJax_Preview">x_{i}</span><script type="math/tex">x_{i}</script></span>.</li>
+<li>Each reconstructed bin (eg each datacard) should describe the contribution from each truth bin - this is how combine knows about <span class="arithmatex"><span class="MathJax_Preview">\boldsymbol{R}</span><script type="math/tex">\boldsymbol{R}</script></span> 
 and folds in the acceptance/efficiency effects as usual.</li>
 <li>The out-of-acceptance contributions can also be included in the above.</li>
 </ul>
@@ -281,7 +281,7 @@ simple maximum likelihood fit with, </p>
 <p>Running <code>python createWs.py [-r]</code> will create a simple datacard and perform a fit both with and without including regularization.</p>
 <p>The simplest way to introduce regularization in the likelihood based approach, is to apply a penalty term in the likelihood function which 
 depends on the values of the truth bins (so called <em>Tickonov regularization</em>):</p>
-<div>
+<div class="arithmatex">
 <div class="MathJax_Preview">
 -2\ln L = -2\ln L + P(\vec{x}) 
 </div>
@@ -289,7 +289,7 @@ depends on the values of the truth bins (so called <em>Tickonov regularization</
 -2\ln L = -2\ln L + P(\vec{x}) 
 </script>
 </div>
-<p>where <span><span class="MathJax_Preview">P</span><script type="math/tex">P</script></span> is a linear operator. There are two different approches which are supported to construct <span><span class="MathJax_Preview">P</span><script type="math/tex">P</script></span>.
+<p>where <span class="arithmatex"><span class="MathJax_Preview">P</span><script type="math/tex">P</script></span> is a linear operator. There are two different approches which are supported to construct <span class="arithmatex"><span class="MathJax_Preview">P</span><script type="math/tex">P</script></span>.
 If instead you run <code>python makeModel.py</code>, you will create a more complex datacard with each the two regularization scheme implemented. You will need 
 to uncomment the relevant sections of code to activate SVD or TUnfold type regularization.</p>
 <div class="admonition warning">
@@ -298,8 +298,8 @@ to uncomment the relevant sections of code to activate SVD or TUnfold type regul
 </div>
 <p>inclusion of regularization, and how strong the associated regularization is. Advice on this can be found in the CMS Statistics Committee pages. </p>
 <h3 id="singular-value-decomposition-svd">Singular Value Decomposition (SVD)</h3>
-<p>In the SVD approach - as described in the SVD paper - the penalty term is constructed directly based on the strengths (<span><span class="MathJax_Preview">\vec{\mu}=\{\mu_{i}\}_{i=1}^{N}</span><script type="math/tex">\vec{\mu}=\{\mu_{i}\}_{i=1}^{N}</script></span>), </p>
-<div>
+<p>In the SVD approach - as described in the SVD paper - the penalty term is constructed directly based on the strengths (<span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}=\{\mu_{i}\}_{i=1}^{N}</span><script type="math/tex">\vec{\mu}=\{\mu_{i}\}_{i=1}^{N}</script></span>), </p>
+<div class="arithmatex">
 <div class="MathJax_Preview">
 P = \tau\left| A\cdot \vec{\mu} \right|^{2},
 </div>
@@ -307,8 +307,8 @@ P = \tau\left| A\cdot \vec{\mu} \right|^{2},
 P = \tau\left| A\cdot \vec{\mu} \right|^{2},
 </script>
 </div>
-<p>where <span><span class="MathJax_Preview">A</span><script type="math/tex">A</script></span> is typically the discrete curvature matrix, with </p>
-<div>
+<p>where <span class="arithmatex"><span class="MathJax_Preview">A</span><script type="math/tex">A</script></span> is typically the discrete curvature matrix, with </p>
+<div class="arithmatex">
 <div class="MathJax_Preview">
 A = 
 \begin{bmatrix} 
@@ -327,10 +327,10 @@ A =
 </script>
 </div>
 <p>Penalty terms on the derivatives can also be included. Such a penalty term is included by modifying the likelihood to include one constraint for each 
-row of the product <span><span class="MathJax_Preview">A\cdot\vec{\mu}</span><script type="math/tex">A\cdot\vec{\mu}</script></span>, by including them as lines in the datacard of the form, </p>
+row of the product <span class="arithmatex"><span class="MathJax_Preview">A\cdot\vec{\mu}</span><script type="math/tex">A\cdot\vec{\mu}</script></span>, by including them as lines in the datacard of the form, </p>
 <pre><code>    name constr formula dependents delta
 </code></pre>
-<p>where the regularization strength <span><span class="MathJax_Preview">\delta=\frac{1}{\sqrt{\tau}}</span><script type="math/tex">\delta=\frac{1}{\sqrt{\tau}}</script></span> and can either be a fixed value (eg by putting directly <code>0.01</code>) or as 
+<p>where the regularization strength <span class="arithmatex"><span class="MathJax_Preview">\delta=\frac{1}{\sqrt{\tau}}</span><script type="math/tex">\delta=\frac{1}{\sqrt{\tau}}</script></span> and can either be a fixed value (eg by putting directly <code>0.01</code>) or as 
 a modifiable parameter with eg <code>delta[0.01]</code>. </p>
 <p>For example, for 3 bins and a regularization strength of 0.03, the first line would be </p>
 <pre><code>    name constr @0-2*@2+@1 r_Bin0,r_Bin1,r_Bin2 0.03
@@ -343,7 +343,7 @@ a modifiable parameter with eg <code>delta[0.01]</code>. </p>
 </code></pre>
 <h3 id="tunfold-method">TUnfold method</h3>
 <p>The Tikhonov regularization as implemented in TUnfold uses the MC information, or rather the densities prediction, as a bias vector. 
-In order to give this information to Combine, a single datacard for each reco-level bin needs to be produced, so that we have access to the proper normalization terms during the minimization. In this case the bias vector is <span><span class="MathJax_Preview">\vec{x}_{obs}-\vec{x}_{true}</span><script type="math/tex">\vec{x}_{obs}-\vec{x}_{true}</script></span> </p>
+In order to give this information to Combine, a single datacard for each reco-level bin needs to be produced, so that we have access to the proper normalization terms during the minimization. In this case the bias vector is <span class="arithmatex"><span class="MathJax_Preview">\vec{x}_{obs}-\vec{x}_{true}</span><script type="math/tex">\vec{x}_{obs}-\vec{x}_{true}</script></span> </p>
 <p>Then one can write a constraint term in the datacard via (eg.)</p>
 <pre><code>    constr1 constr (r_Bin0-1.)*(shapeSig_GenBin0_RecoBin0__norm+shapeSig_GenBin0_RecoBin1__norm+shapeSig_GenBin0_RecoBin2__norm+shapeSig_GenBin0_RecoBin3__norm+shapeSig_GenBin0_RecoBin4__norm)+(r_Bin2-1.)*(shapeSig_GenBin2_RecoBin0__norm+shapeSig_GenBin2_RecoBin1__norm+shapeSig_GenBin2_RecoBin2__norm+shapeSig_GenBin2_RecoBin3__norm+shapeSig_GenBin2_RecoBin4__norm)-2*(r_Bin1-1.)*(shapeSig_GenBin1_RecoBin0__norm+shapeSig_GenBin1_RecoBin1__norm+shapeSig_GenBin1_RecoBin2__norm+shapeSig_GenBin1_RecoBin3__norm+shapeSig_GenBin1_RecoBin4__norm) {r_Bin0,r_Bin1,r_Bin2,shapeSig_GenBin1_RecoBin0__norm,shapeSig_GenBin0_RecoBin0__norm,shapeSig_GenBin2_RecoBin0__norm,shapeSig_GenBin1_RecoBin1__norm,shapeSig_GenBin0_RecoBin1__norm,shapeSig_GenBin2_RecoBin1__norm,shapeSig_GenBin1_RecoBin2__norm,shapeSig_GenBin0_RecoBin2__norm,shapeSig_GenBin2_RecoBin2__norm,shapeSig_GenBin1_RecoBin3__norm,shapeSig_GenBin0_RecoBin3__norm,shapeSig_GenBin2_RecoBin3__norm,shapeSig_GenBin1_RecoBin4__norm,shapeSig_GenBin0_RecoBin4__norm,shapeSig_GenBin2_RecoBin4__norm} delta[0.03]
 </code></pre></div>

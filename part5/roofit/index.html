@@ -273,8 +273,8 @@ func.Print(&quot;v&quot;);
 </details>
 
 <p>Notice how there is a list of the variables we passed (the servers or "actual vars"). We can now plot the function. RooFit has a special plotting object <code>RooPlot</code> which keeps track of the objects (and their normalisations) which we want to draw. Since RooFit doesn't know the difference between which objects are/aren't dependant, we need to tell it. </p>
-<p>Right now, we have the relative resolution as <span><span class="MathJax_Preview">R(m,\sigma)</span><script type="math/tex">R(m,\sigma)</script></span>, whereas we want to plot 
-<span><span class="MathJax_Preview">R(m,\sigma(m))</span><script type="math/tex">R(m,\sigma(m))</script></span>!</p>
+<p>Right now, we have the relative resolution as <span class="arithmatex"><span class="MathJax_Preview">R(m,\sigma)</span><script type="math/tex">R(m,\sigma)</script></span>, whereas we want to plot 
+<span class="arithmatex"><span class="MathJax_Preview">R(m,\sigma(m))</span><script type="math/tex">R(m,\sigma(m))</script></span>!</p>
 <pre><code class="language-c++">TCanvas *can = new TCanvas();
 
 //make the x-axis the &quot;mass&quot;
@@ -286,7 +286,7 @@ can-&gt;Draw();
 </code></pre>
 <p><img alt="" src="../images/expo.png" /></p>
 <p>The main objects we are interested in using from RooFit are <em>probability denisty functions</em> or (PDFs). We can construct the PDF,</p>
-<div>
+<div class="arithmatex">
 <div class="MathJax_Preview">
 f(m|M_{H},\sigma)
 </div>
@@ -325,7 +325,7 @@ Cached value = 0
 </details>
 
 <p>Notice how the gaussian PDF, like the <code>RooFormulaVar</code> depends on our <code>RooRealVar</code> objects, these are its servers.  Its evaluation will depend on their values. </p>
-<p>The main difference between PDFs and Functions in RooFit is that PDFs are <em>automatically normalised to unitiy</em>, hence they represent a probability density, you don't need to normalise yourself. Lets plot it for the different values of <span><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>.</p>
+<p>The main difference between PDFs and Functions in RooFit is that PDFs are <em>automatically normalised to unitiy</em>, hence they represent a probability density, you don't need to normalise yourself. Lets plot it for the different values of <span class="arithmatex"><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>.</p>
 <pre><code class="language-c++">plot = mass.frame();
 
 gauss.plotOn(plot);
@@ -346,7 +346,7 @@ can-&gt;Draw();
 </code></pre>
 <p><img alt="" src="../images/gaus.png" /></p>
 <p>Note that as we change the value of <code>MH</code>, the PDF gets updated at the same time.</p>
-<p>PDFs can be used to generate Monte Carlo data. One of the benefits of RooFit is that to do so only uses a single line of code! As before, we have to tell <code>RooFit</code> which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" <span><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>. The arguments for the function are the set of observables, follwed by the number of events,</p>
+<p>PDFs can be used to generate Monte Carlo data. One of the benefits of RooFit is that to do so only uses a single line of code! As before, we have to tell <code>RooFit</code> which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" <span class="arithmatex"><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>. The arguments for the function are the set of observables, follwed by the number of events,</p>
 <pre><code class="language-c++">RooDataSet *data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
 </code></pre>
 <p>Now we can plot the data as with other RooFit objects.</p>
@@ -439,35 +439,35 @@ can-&gt;Draw();
 <p><a href="../images/realdata.png"></a></p>
 <h1 id="likelihoods-and-fitting-to-data">Likelihoods and Fitting to data</h1>
 <p>The data we have in our file doesn't look like a Gaussian distribution. Instead, we could probably use something like an exponential to describe it. </p>
-<p>There is an exponential PDF already in <code>RooFit</code> (yep you guessed it) <code>RooExponential</code>. For a pdf, we only need one parameter which is the exponential slope <span><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> so our pdf is,  </p>
-<div>
+<p>There is an exponential PDF already in <code>RooFit</code> (yep you guessed it) <code>RooExponential</code>. For a pdf, we only need one parameter which is the exponential slope <span class="arithmatex"><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> so our pdf is,  </p>
+<div class="arithmatex">
 <div class="MathJax_Preview"> f(m|\alpha) = \dfrac{1}{N} e^{-\alpha m}</div>
 <script type="math/tex; mode=display"> f(m|\alpha) = \dfrac{1}{N} e^{-\alpha m}</script>
 </div>
-<p>Where of course, <span><span class="MathJax_Preview">N = \int_{110}^{150} e^{-\alpha m} dm</span><script type="math/tex">N = \int_{110}^{150} e^{-\alpha m} dm</script></span> is the normalisation constant.</p>
+<p>Where of course, <span class="arithmatex"><span class="MathJax_Preview">N = \int_{110}^{150} e^{-\alpha m} dm</span><script type="math/tex">N = \int_{110}^{150} e^{-\alpha m} dm</script></span> is the normalisation constant.</p>
 <p>You can fund a bunch of available RooFit functions here: <a href="https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html">https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html</a></p>
 <p>There is also support for a generic pdf in the form of a <code>RooGenericPdf</code>, check this link: <a href="https://root.cern.ch/doc/v608/classRooGenericPdf.html">https://root.cern.ch/doc/v608/classRooGenericPdf.html</a></p>
 <p>Let's create an exponential PDF for our background, </p>
 <pre><code class="language-c++">RooRealVar alpha(&quot;alpha&quot;,&quot;#alpha&quot;,-0.05,-0.2,0.01);
 RooExponential expo(&quot;exp&quot;,&quot;exponential function&quot;,*hgg_mass,alpha);
 </code></pre>
-<p>We can use RooFit to tell us to estimate the value of <span><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> using this dataset. You will learn more about parameter estimation but for now we will just assume you know about maximising likelihoods. This <em>maximum likelihood estimator</em> is common in HEP and is known to give unbiased estimates for things like distribution means etc. </p>
+<p>We can use RooFit to tell us to estimate the value of <span class="arithmatex"><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> using this dataset. You will learn more about parameter estimation but for now we will just assume you know about maximising likelihoods. This <em>maximum likelihood estimator</em> is common in HEP and is known to give unbiased estimates for things like distribution means etc. </p>
 <p>This also introduces the other main use of PDFs in RooFit. They can be used to construct <em>likelihoods</em> easily.</p>
-<p>The likelihood <span><span class="MathJax_Preview">\mathcal{L}</span><script type="math/tex">\mathcal{L}</script></span> is defined for a particluar dataset (and model) as being proportional to the probability to observe the data assuming some pdf. For our data, the probability to observe an event with a value in an interval bounded by a and b is given by,</p>
-<div>
+<p>The likelihood <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}</span><script type="math/tex">\mathcal{L}</script></span> is defined for a particluar dataset (and model) as being proportional to the probability to observe the data assuming some pdf. For our data, the probability to observe an event with a value in an interval bounded by a and b is given by,</p>
+<div class="arithmatex">
 <div class="MathJax_Preview"> P\left(m~\epsilon~[a,b] \right) = \int_{a}^{b} f(m|\alpha)dm  </div>
 <script type="math/tex; mode=display"> P\left(m~\epsilon~[a,b] \right) = \int_{a}^{b} f(m|\alpha)dm  </script>
 </div>
-<p>As that interval shrinks we can say this probability just becomes equal to <span><span class="MathJax_Preview">f(m|\alpha)dm</span><script type="math/tex">f(m|\alpha)dm</script></span>.</p>
+<p>As that interval shrinks we can say this probability just becomes equal to <span class="arithmatex"><span class="MathJax_Preview">f(m|\alpha)dm</span><script type="math/tex">f(m|\alpha)dm</script></span>.</p>
 <p>The probability to observe the dataset we have is given by the product of such probabilities for each of our data points, so that </p>
-<div>
+<div class="arithmatex">
 <div class="MathJax_Preview">\mathcal{L}(\alpha) \propto \prod_{i} f(m_{i}|\alpha)</div>
 <script type="math/tex; mode=display">\mathcal{L}(\alpha) \propto \prod_{i} f(m_{i}|\alpha)</script>
 </div>
-<p>Note that for a specific dataset, the <span><span class="MathJax_Preview">dm</span><script type="math/tex">dm</script></span> factors which should be there are constnant. They can therefore be absorbed into the constant of proportionality!</p>
-<p>The maximum likelihood esitmator for <span><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span>, usually written as <span><span class="MathJax_Preview">\hat{\alpha}</span><script type="math/tex">\hat{\alpha}</script></span>, is found by maximising <span><span class="MathJax_Preview">\mathcal{L}(\alpha)</span><script type="math/tex">\mathcal{L}(\alpha)</script></span>.</p>
+<p>Note that for a specific dataset, the <span class="arithmatex"><span class="MathJax_Preview">dm</span><script type="math/tex">dm</script></span> factors which should be there are constnant. They can therefore be absorbed into the constant of proportionality!</p>
+<p>The maximum likelihood esitmator for <span class="arithmatex"><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span>, usually written as <span class="arithmatex"><span class="MathJax_Preview">\hat{\alpha}</span><script type="math/tex">\hat{\alpha}</script></span>, is found by maximising <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}(\alpha)</span><script type="math/tex">\mathcal{L}(\alpha)</script></span>.</p>
 <p>Note that this won't depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the <em>ratio</em> of likelihoods is needed, in which the constant factors out. </p>
-<p>Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <strong>N</strong>egative <strong>L</strong>og <strong>L</strong>ikelihood : <span><span class="MathJax_Preview">\mathrm{-Log}\mathcal{L}(\alpha)</span><script type="math/tex">\mathrm{-Log}\mathcal{L}(\alpha)</script></span>.</p>
+<p>Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <strong>N</strong>egative <strong>L</strong>og <strong>L</strong>ikelihood : <span class="arithmatex"><span class="MathJax_Preview">\mathrm{-Log}\mathcal{L}(\alpha)</span><script type="math/tex">\mathrm{-Log}\mathcal{L}(\alpha)</script></span>.</p>
 <p><code>RooFit</code> can construct the <strong>NLL</strong> for us.</p>
 <pre><code class="language-c++">RooNLLVar *nll = (RooNLLVar*) expo.createNLL(*hgg_data);
 nll-&gt;Print(&quot;v&quot;);
@@ -569,7 +569,7 @@ minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;);
 --- RooRealVar ---
   Error = 0.00291959
 </code></pre>
-<p>Lets plot the resulting exponential on the data. Notice that the value of <span><span class="MathJax_Preview">\hat{\alpha}</span><script type="math/tex">\hat{\alpha}</script></span> is used for the exponential. </p>
+<p>Lets plot the resulting exponential on the data. Notice that the value of <span class="arithmatex"><span class="MathJax_Preview">\hat{\alpha}</span><script type="math/tex">\hat{\alpha}</script></span> is used for the exponential. </p>
 <pre><code class="language-c++">expo.plotOn(plot);
 expo.paramOn(plot);
 plot-&gt;Draw();
@@ -629,12 +629,12 @@ Cached value = 0
 
 </details>
 
-<p>Ok now lets fit the model. Note this time we add the option <code>Extended()</code> which tells RooFit that we care about the overall number of observed events in the data <span><span class="MathJax_Preview">n</span><script type="math/tex">n</script></span> too. It will add an additional Poisson term in the likelihood to account for this so our likelihood this time looks like,</p>
-<div>
+<p>Ok now lets fit the model. Note this time we add the option <code>Extended()</code> which tells RooFit that we care about the overall number of observed events in the data <span class="arithmatex"><span class="MathJax_Preview">n</span><script type="math/tex">n</script></span> too. It will add an additional Poisson term in the likelihood to account for this so our likelihood this time looks like,</p>
+<div class="arithmatex">
 <div class="MathJax_Preview">L_{s+b}(N_{s},N_{b},\alpha) = \dfrac{ N_{s}+N_{b}^{n} e^{N_{s}+N_{b}} }{n!} \cdot \prod_{i}^{n} \left[ c f_{s}(m_{i}|M_{H},\sigma)+ (1-c)f_{b}(m_{i}|\alpha)  \right] </div>
 <script type="math/tex; mode=display">L_{s+b}(N_{s},N_{b},\alpha) = \dfrac{ N_{s}+N_{b}^{n} e^{N_{s}+N_{b}} }{n!} \cdot \prod_{i}^{n} \left[ c f_{s}(m_{i}|M_{H},\sigma)+ (1-c)f_{b}(m_{i}|\alpha)  \right] </script>
 </div>
-<p>where <span><span class="MathJax_Preview">c = \dfrac{ N_{s} }{ N_{s} + N_{b} }</span><script type="math/tex">c = \dfrac{ N_{s} }{ N_{s} + N_{b} }</script></span>,   <span><span class="MathJax_Preview">f_{s}(m|M_{H},\sigma)</span><script type="math/tex">f_{s}(m|M_{H},\sigma)</script></span> is the Gaussian signal pdf and <span><span class="MathJax_Preview">f_{b}(m|\alpha)</span><script type="math/tex">f_{b}(m|\alpha)</script></span> is the exponential pdf. Remember that <span><span class="MathJax_Preview">M_{H}</span><script type="math/tex">M_{H}</script></span> and <span><span class="MathJax_Preview">\sigma</span><script type="math/tex">\sigma</script></span> are fixed so that they are no longer parameters of the likelihood.</p>
+<p>where <span class="arithmatex"><span class="MathJax_Preview">c = \dfrac{ N_{s} }{ N_{s} + N_{b} }</span><script type="math/tex">c = \dfrac{ N_{s} }{ N_{s} + N_{b} }</script></span>,   <span class="arithmatex"><span class="MathJax_Preview">f_{s}(m|M_{H},\sigma)</span><script type="math/tex">f_{s}(m|M_{H},\sigma)</script></span> is the Gaussian signal pdf and <span class="arithmatex"><span class="MathJax_Preview">f_{b}(m|\alpha)</span><script type="math/tex">f_{b}(m|\alpha)</script></span> is the exponential pdf. Remember that <span class="arithmatex"><span class="MathJax_Preview">M_{H}</span><script type="math/tex">M_{H}</script></span> and <span class="arithmatex"><span class="MathJax_Preview">\sigma</span><script type="math/tex">\sigma</script></span> are fixed so that they are no longer parameters of the likelihood.</p>
 <p>There is a simpler interface for maximum likelihood fits which is the <code>RooAbsPdf::fitTo</code> method. With this simple method, RooFit will construct the negative log-likelihood function, from the pdf, and minimize all of the free parameters in one step.</p>
 <pre><code class="language-c++">model.fitTo(*hgg_data,RooFit::Extended());
 
@@ -648,7 +648,7 @@ can-&gt;Update();
 can-&gt;Draw();
 </code></pre>
 <p><img alt="" src="../images/fit.png" /></p>
-<p>What about if we also fit for the mass (<span><span class="MathJax_Preview">M_{H}</span><script type="math/tex">M_{H}</script></span>)? we can easily do this by removing the constant setting on MH.</p>
+<p>What about if we also fit for the mass (<span class="arithmatex"><span class="MathJax_Preview">M_{H}</span><script type="math/tex">M_{H}</script></span>)? we can easily do this by removing the constant setting on MH.</p>
 <pre><code class="language-c++">MH.setConstant(false);
 model.fitTo(*hgg_data,RooFit::Extended());
 </code></pre>

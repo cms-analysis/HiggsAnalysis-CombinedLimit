@@ -255,7 +255,7 @@ deltaB  lnN      -   1.50   50% uncertainty on background
 </code></pre>
 <p>If we run <code>text2workspace.py</code> on this datacard and take a look at the workspace (<code>w</code>) inside the <code>.root</code> file produced, we will find a number of different objects representing the signal, background and observed event rates as well as the nuisance parameters and signal strength <strong>r</strong>.</p>
 <p>From these objects, the necessary pdf has been constructed (named <code>model_s</code>). For this counting experiment we will expect a simple pdf of the form</p>
-<div>
+<div class="arithmatex">
 <div class="MathJax_Preview">
 p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
 \dfrac{[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]^{n_{\mathrm{obs}}} }
@@ -271,8 +271,8 @@ p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
 \cdot e^{-\frac{1}{2}(\delta_{B}- \delta_{B}^{\mathrm{In}})^{2}}
 </script>
 </div>
-<p>where the expected signal and background rates are expressed as functions of the nuisance parameters, <span><span class="MathJax_Preview">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~</span><script type="math/tex">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~</script></span> and <span><span class="MathJax_Preview">~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</span><script type="math/tex">~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</script></span>.</p>
-<p>The first term represents the usual Poisson expression for observing <span><span class="MathJax_Preview">n_{\mathrm{obs}}</span><script type="math/tex">n_{\mathrm{obs}}</script></span> events while the second two are the Gaussian constraint terms for the nuisance parameters. In this case <span><span class="MathJax_Preview">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</span><script type="math/tex">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</script></span>, and the widths of both Gaussians are 1.</p>
+<p>where the expected signal and background rates are expressed as functions of the nuisance parameters, <span class="arithmatex"><span class="MathJax_Preview">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~</span><script type="math/tex">n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~</script></span> and <span class="arithmatex"><span class="MathJax_Preview">~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</span><script type="math/tex">~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}</script></span>.</p>
+<p>The first term represents the usual Poisson expression for observing <span class="arithmatex"><span class="MathJax_Preview">n_{\mathrm{obs}}</span><script type="math/tex">n_{\mathrm{obs}}</script></span> events while the second two are the Gaussian constraint terms for the nuisance parameters. In this case <span class="arithmatex"><span class="MathJax_Preview">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</span><script type="math/tex">{\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0</script></span>, and the widths of both Gaussians are 1.</p>
 <p>A combination of counting experiments (or a binned shape datacard) will look like a product of pdfs of this kind. For a parametric/unbinned analyses, the pdf for each process in each channel is provided instead of the using the Poisson terms and a product is over the bin counts/events.</p>
 <h2 id="model-building">Model building</h2>
 <p>For more complex models, <code>PhysicsModels</code> can be produced. To use a different physics model instead of the default one, use the option <code>-P</code> as in</p>
@@ -402,8 +402,8 @@ p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
 </code></pre>
 <p>The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be performed by setting <strong>x</strong> or <strong>not_x</strong> to 1 and 0 and comparing two likelihood evaluations.</p>
 <h3 id="interference">Interference</h3>
-<p>Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes and the parameter of interest <span><span class="MathJax_Preview">k</span><script type="math/tex">k</script></span>,</p>
-<div>
+<p>Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes and the parameter of interest <span class="arithmatex"><span class="MathJax_Preview">k</span><script type="math/tex">k</script></span>,</p>
+<div class="arithmatex">
 <div class="MathJax_Preview">
 \mathrm{Yield} = (k * A_{s} + A_{b})^2
 = k^2 * A_{s}^2 + k * 2 A_{s} A_{b} + A_{b}^2
@@ -416,9 +416,9 @@ p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
 </script>
 </div>
 <p>where</p>
-<p><span><span class="MathJax_Preview">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</span><script type="math/tex">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</script></span> and $ S+B+I = (As + Ab)^2$.</p>
+<p><span class="arithmatex"><span class="MathJax_Preview">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</span><script type="math/tex">\mu = k^2, ~S = A_{s}^2,~B = Ab^2</script></span> and $ S+B+I = (As + Ab)^2$.</p>
 <p>With some algebra you can work out that,</p>
-<p><span><span class="MathJax_Preview">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</span><script type="math/tex">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</script></span></p>
+<p><span class="arithmatex"><span class="MathJax_Preview">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</span><script type="math/tex">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</script></span></p>
 <p>where square brackets represent the input (histograms as <code>TH1</code> or <code>RooDataHists</code>) that one needs to provide.</p>
 <p>An example of this scheme is implemented in a <a href="https://gitlab.cern.ch/cms-hcg/cadi/hig-17-012/-/blob/master/2l2nu/HiggsWidth.py">HiggsWidth</a> and is completely general, since all of the three components above are strictly positive. In this example, the POI is <code>CMS_zz4l_mu</code> and the equations for the three components are scaled (separately for the <strong>qqH</strong> and <strong>ggH</strong> processes) as,</p>
 <pre><code class="language-python"> self.modelBuilder.factory_( &quot;expr::ggH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
