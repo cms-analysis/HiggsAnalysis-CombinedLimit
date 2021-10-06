@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
 
 #include "RooFit.h"
 #include "Riostream.h"
@@ -51,10 +52,6 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
   while((func = (RooAbsArg*)funcIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
       coutE(InputArguments) << "ERROR: VerticalInterpPdf::VerticalInterpPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << std::endl;
-      assert(0);
-    }
-    if (!dynamic_cast<RooProdPdf*>(func)) {
-      coutE(InputArguments) << "ERROR: with the HZZ hack in place, VerticalInterpPdf can only take RooProdPdf pdfs" << std::endl;
       assert(0);
     }
     _funcList.add(*func) ;
@@ -214,29 +211,18 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
   // Create new cache element
   cache = new CacheElem ;
 
-  TIterator* analVarsIter= analVars.createIterator() ;
-  RooRealVar *zmass= (RooRealVar*)analVarsIter->Next();
-  RooRealVar *dbkg = (RooRealVar*)analVarsIter->Next();
-//  std::cout<<zmass->GetName()<<std::endl;
-//  std::cout<<dbkg->GetName()<<std::endl;
-
   // Make list of function projection and normalization integrals 
   _funcIter->Reset() ;
-  RooProdPdf *func ;
-  while((func=(RooProdPdf*)_funcIter->Next())) {
-    int i = 0;
-    std::auto_ptr<TIterator> iter(func->pdfList().createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
-      i++;
-      RooAbsPdf *cterm = dynamic_cast<RooAbsPdf *>(a);
-      RooAbsReal* funcInt; 
-//      std::cout<<cterm->GetName()<<std::endl;
-      if(i==1)
-        funcInt= cterm->createIntegral(*zmass) ;
-      else
-        funcInt= cterm->createIntegral(*dbkg) ;
-      cache->_funcIntList.addOwned(*funcInt) ;
+  RooAbsReal *func ;
+  while((func=(RooAbsReal*)_funcIter->Next())) {
+    RooAbsReal* funcInt = nullptr;
+    if (isConditionalProdPdf(func)) {
+      RooProdPdf *prod = static_cast<RooProdPdf*>(func);
+      funcInt = makeConditionalProdPdfIntegral(prod, analVars);
+    } else {
+      funcInt = func->createIntegral(analVars) ;
     }
+    cache->_funcIntList.addOwned(*funcInt) ;
     if (normSet && normSet->getSize()>0) {
       RooAbsReal* funcNorm = func->createIntegral(*normSet) ;
       cache->_funcNormList.addOwned(*funcNorm) ;
@@ -253,7 +239,56 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
   return code+1 ; 
 }
 
+bool VerticalInterpPdf::isConditionalProdPdf(RooAbsReal *pdf) const {
+  // If pdf is not RooProdPdf, we can return false immediately
+  if (!dynamic_cast<RooProdPdf*>(pdf)) {
+    return false;
+  }
+  RooProdPdf *prod = static_cast<RooProdPdf*>(pdf);
 
+  // Now loop through prodPdf components, and find the saved "nset" for each one
+  // If this is a non-empty set, we have a conditional pdf
+  for (int i = 0; i < prod->pdfList().getSize(); ++i) {
+    RooAbsPdf *compPdf = static_cast<RooAbsPdf*>(prod->pdfList().at(i));
+    RooArgSet* nset = prod->findPdfNSet(*compPdf);
+    if (nset && TString(nset->GetName()) == "nset" && nset->getSize() > 0) {
+      // We can immediately return true
+      return true;
+    }
+  }
+  return false;
+}
+
+RooAbsReal* VerticalInterpPdf::makeConditionalProdPdfIntegral(RooAbsPdf* pdf, RooArgSet const& analVars) const {
+  // If pdf is not RooProdPdf, we can return false immediately
+  if (!dynamic_cast<RooProdPdf*>(pdf)) {
+    return nullptr;
+  }
+  RooProdPdf *prod = static_cast<RooProdPdf*>(pdf);
+
+  // Make a list of component integrals
+  RooArgList prodIntComps;
+  for (int i = 0; i < prod->pdfList().getSize(); ++i) {
+    RooAbsPdf *compPdf = static_cast<RooAbsPdf*>(prod->pdfList().at(i));
+    RooArgSet* nset = prod->findPdfNSet(*compPdf);
+    if (nset && TString(nset->GetName()) == "nset" && nset->getSize() > 0) {
+      // We integrate the subset of analVars variables that are in nset
+      std::unique_ptr<RooArgSet> selObs(static_cast<RooArgSet*>(nset->selectCommon(analVars)));
+      prodIntComps.add(*compPdf->createIntegral(*selObs));
+      // std::cout << "For ProdPdf=" << prod->GetName() << ", added integral of " << compPdf->GetName() << " for cond. observables: \n";
+      // selObs->Print();
+    } else {
+      std::unique_ptr<RooArgSet> iVars(compPdf->getVariables());
+      std::unique_ptr<RooArgSet> selObs(static_cast<RooArgSet*>(iVars->selectCommon(analVars)));
+      prodIntComps.add(*compPdf->createIntegral(*selObs));
+      // std::cout << "For ProdPdf=" << prod->GetName() << ", added integral of " << compPdf->GetName() << " for observables: \n";
+      // selObs->Print();
+    }
+  }
+  RooCheapProduct *intProd = new RooCheapProduct(TString("intProd_")+prod->GetName(), "", prodIntComps);
+  intProd->addOwnedComponents(prodIntComps);
+  return intProd;
+}
 
 
 //_____________________________________________________________________________
@@ -273,18 +308,15 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
 
   TIterator* funcIntIter = cache->_funcIntList.createIterator() ;
   RooAbsReal *funcInt = (RooAbsReal *) funcIntIter->Next();
-  RooAbsReal *funcInt2d = (RooAbsReal *) funcIntIter->Next();
   Double_t central = funcInt->getVal();
-  value += central*funcInt2d->getVal();
+  value += central;
 
   _coefIter->Reset() ;
   while((coef=(RooAbsReal*)_coefIter->Next())) {
     Double_t coefVal = coef->getVal(normSet2) ;
     RooAbsReal * funcIntUp = (RooAbsReal*)funcIntIter->Next() ;
-    /*RooAbsReal * funcIntUp2d =*/ (RooAbsReal*)funcIntIter->Next() ;
     RooAbsReal * funcIntDn = (RooAbsReal*)funcIntIter->Next() ;
-    /* RooAbsReal * funcIntDn2d =*/ (RooAbsReal*)funcIntIter->Next() ;
-    value += interpolate(coefVal, central, funcIntUp, funcIntDn)*funcInt2d->getVal();
+    value += interpolate(coefVal, central, funcIntUp, funcIntDn);
   }
   
   delete funcIntIter ;

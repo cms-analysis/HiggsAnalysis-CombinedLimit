@@ -146,6 +146,7 @@ class CMSHistFunc : public RooAbsReal {
 
   static void EnableFastVertical();
   friend class CMSHistV<CMSHistFunc>;
+  friend class CMSHistSum;
 
   /*
 
