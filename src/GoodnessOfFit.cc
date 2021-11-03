@@ -353,7 +353,7 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
         observable.setVal(observableval);
         // observable.bin
         current_cdf_val = cdf->getVal();
-        empirical_df += d->second/s_data;
+        empirical_df += (d->second==0 && s_data==0) ? 0. : d->second/s_data;
 
         if (plotDir_ && makePlots_) {
           hCdf->SetBinContent(bin+1, current_cdf_val);
