@@ -920,4 +920,13 @@ void CombineHarvester::setParInWs(const std::string name,double value) {
     }
   }
 
+void CombineHarvester::renameParInWs(const std::string& name, const std::string& newName)
+{ 
+    for (auto & item : wspaces_) { 
+        if (item.second.get()->var(name.c_str())){
+            item.second.get()->var(name.c_str())->SetName(newName.c_str());
+        }
+    }
+}
+
 }
