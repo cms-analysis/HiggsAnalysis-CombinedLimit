@@ -282,11 +282,12 @@ class ModelBuilder(ModelBuilderBase):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
     def doNuisances(self):
+        for cpar in self.DC.discretes: self.addDiscrete(cpar)
+
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
         globalobs = []
 
-        for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs:
             is_func_scaled = False
             func_scaler = None
