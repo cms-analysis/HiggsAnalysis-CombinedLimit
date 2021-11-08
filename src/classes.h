@@ -52,6 +52,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooDoubleCBFast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooTaylorExpansion.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleTaylorExpansion1D.h"
@@ -63,6 +64,9 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooNCSpline_2D_fast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooNCSpline_3D_fast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooFuncPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleProdPdf.h"
 
 namespace {
     struct dictionary {

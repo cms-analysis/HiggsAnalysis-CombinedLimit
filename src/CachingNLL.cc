@@ -13,6 +13,7 @@
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistV.h>
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h>
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h>
+#include <HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h>
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedGaussian.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedCB.h>
@@ -30,6 +31,7 @@ namespace cacheutils {
     typedef OptimizedCachingPdfT<CMSHistFunc, CMSHistV<CMSHistFunc>> CachingCMSHistFunc;
     typedef OptimizedCachingPdfT<CMSHistFuncWrapper, CMSHistV<CMSHistFuncWrapper>> CachingCMSHistFuncWrapper;
     typedef OptimizedCachingPdfT<CMSHistErrorPropagator, CMSHistV<CMSHistErrorPropagator>> CachingCMSHistErrorPropagator;
+    typedef OptimizedCachingPdfT<CMSHistSum, CMSHistV<CMSHistSum>> CachingCMSHistSum;
     typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
     typedef OptimizedCachingPdfT<RooCBShape,VectorizedCBShape> CachingCBPdf;
     typedef OptimizedCachingPdfT<RooExponential,VectorizedExponential> CachingExpoPdf;
@@ -248,33 +250,41 @@ std::pair<std::vector<Double_t> *, bool> cacheutils::ValuesCache::get()
     return std::pair<std::vector<Double_t> *, bool>(&items[found]->values, good);
 }
 
-cacheutils::CachingPdf::CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) :
-    obs_(obs),
-    pdfOriginal_(pdf),
-    pdfPieces_(),
-    pdf_(runtimedef::get("CACHINGPDF_NOCLONE") ? pdfOriginal_ : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
-    lastData_(0),
-    cache_(*pdf_,*obs_),
-    includeZeroWeights_(false)
-{
-    if (runtimedef::get("CACHINGPDF_DIRECT") || pdf->getAttribute("CachingPdf_Direct")) {
-        cache_.setDirectMode(true);
-    }
+cacheutils::CachingPdf::CachingPdf(RooAbsReal *pdf, const RooArgSet *obs)
+    : obs_(obs),
+      pdfOriginal_(pdf),
+      pdfPieces_(),
+      pdf_((runtimedef::get("CACHINGPDF_NOCLONE") &&
+            pdfOriginal_->getAttribute("CachingPdf_NoClone"))
+               ? pdfOriginal_
+               : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE")
+                      ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_)
+                      : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
+      lastData_(0),
+      cache_(*pdf_, *obs_),
+      includeZeroWeights_(false) {
+  if (runtimedef::get("CACHINGPDF_DIRECT") || pdf->getAttribute("CachingPdf_Direct")) {
+    cache_.setDirectMode(true);
+  }
 }
 
-cacheutils::CachingPdf::CachingPdf(const CachingPdf &other) :
-    obs_(other.obs_),
-    pdfOriginal_(other.pdfOriginal_),
-    pdfPieces_(),
-    pdf_(runtimedef::get("CACHINGPDF_NOCLONE") ? pdfOriginal_ : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
-    lastData_(0),
-    cache_(*pdf_,*obs_),
-    includeZeroWeights_(other.includeZeroWeights_)
-{
-    if (runtimedef::get("CACHINGPDF_DIRECT") || other.pdfOriginal_->getAttribute("CachingPdf_Direct")) {
-        cache_.setDirectMode(true);
-    }
-
+cacheutils::CachingPdf::CachingPdf(const CachingPdf &other)
+    : obs_(other.obs_),
+      pdfOriginal_(other.pdfOriginal_),
+      pdfPieces_(),
+      pdf_((runtimedef::get("CACHINGPDF_NOCLONE") &&
+            other.pdfOriginal_->getAttribute("CachingPdf_NoClone"))
+               ? pdfOriginal_
+               : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE")
+                      ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_)
+                      : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
+      lastData_(0),
+      cache_(*pdf_, *obs_),
+      includeZeroWeights_(other.includeZeroWeights_) {
+  if (runtimedef::get("CACHINGPDF_DIRECT") ||
+      other.pdfOriginal_->getAttribute("CachingPdf_Direct")) {
+    cache_.setDirectMode(true);
+  }
 }
 
 cacheutils::CachingPdf::~CachingPdf() 
@@ -507,6 +517,8 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
         return new CachingCMSHistFuncWrapper(pdf, obs);
     } else if (histfuncNll && typeid(*pdf) == typeid(CMSHistErrorPropagator)) {
         return new CachingCMSHistErrorPropagator(pdf, obs);
+    } else if (histfuncNll && typeid(*pdf) == typeid(CMSHistSum)) {
+        return new CachingCMSHistSum(pdf, obs);
     } else {
         if (verb) {
             std::cout << "I don't have an optimized implementation for " << pdf->ClassName() << " (" << pdf->GetName() << ")" << std::endl;
@@ -807,6 +819,10 @@ void cacheutils::CachingAddNLL::propagateData() {
             // printf("Passing data to %s\n", funci.pdf()->GetName());
             (static_cast<CMSHistErrorPropagator const*>(funci.pdf()))->setData(*data_);
         }
+        if (typeid(*(funci.pdf())) == typeid(CMSHistSum)) {
+            // printf("Passing data to %s\n", funci.pdf()->GetName());
+            (static_cast<CMSHistSum const*>(funci.pdf()))->setData(*data_);
+        }
     }
 }
 
@@ -816,6 +832,10 @@ void cacheutils::CachingAddNLL::setAnalyticBarlowBeeston(bool flag) {
         if (typeid(*(funci.pdf())) == typeid(CMSHistErrorPropagator)) {
             (static_cast<CMSHistErrorPropagator const*>(funci.pdf()))->setAnalyticBarlowBeeston(flag);
         }
+        if (typeid(*(funci.pdf())) == typeid(CMSHistSum)) {
+            (static_cast<CMSHistSum const*>(funci.pdf()))->setAnalyticBarlowBeeston(flag);
+        }
+
     }
 }
 
