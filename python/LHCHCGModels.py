@@ -87,12 +87,19 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         self.modelBuilder.out._import(scaler7)
         self.modelBuilder.out._import(scaler8)
         self.modelBuilder.out._import(scaler13)
-        self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addAsymmLogNormal(1.0/114.5, 1.106, self.modelBuilder.out.var("QCDscale_bbH"))
-        self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addAsymmLogNormal(1.0/114.8, 1.103, self.modelBuilder.out.var("QCDscale_bbH"))
-        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addAsymmLogNormal(1.0/114.8, 1.103, self.modelBuilder.out.var("QCDscale_bbH")) # FIX ME
+        ## YR3
+        #self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addAsymmLogNormal(1.0/1.145, 1.106, self.modelBuilder.out.var("QCDscale_bbH"))
+        #self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addAsymmLogNormal(1.0/1.148, 1.103, self.modelBuilder.out.var("QCDscale_bbH"))
+        #self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addAsymmLogNormal(1.0/1.148, 1.103, self.modelBuilder.out.var("QCDscale_bbH")) 
+        ## YR4: QCDscale+pdf+alphas
+        self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addAsymmLogNormal(1.0/1.225, 1.207, self.modelBuilder.out.var("QCDscale_bbH"))
+        self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addAsymmLogNormal(1.0/1.224, 1.206, self.modelBuilder.out.var("QCDscale_bbH"))
+        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addAsymmLogNormal(1.0/1.239, 1.205, self.modelBuilder.out.var("QCDscale_bbH")) 
+        ## pdf split is reported in YR3. pdf+alphas. I didn't subtract them from above.
         self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addLogNormal(1.061, self.modelBuilder.out.var(self.bbH_pdf))
         self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addLogNormal(1.062, self.modelBuilder.out.var(self.bbH_pdf))
-        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addLogNormal(1.062, self.modelBuilder.out.var(self.bbH_pdf)) # FIX ME
+        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addLogNormal(1.061, self.modelBuilder.out.var(self.bbH_pdf)) 
+
     def doMH(self):
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
