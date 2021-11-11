@@ -49,6 +49,7 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         self.bbH_pdf = "pdf_Higgs_gg"
         self.promote_hmm = True
         self.promote_hccgluglu = False
+        self.promote_hzg = False
     def preProcessNuisances(self,nuisances):
         if self.add_bbH and not any(row for row in nuisances if row[0] == "QCDscale_bbH"):
             nuisances.append(("QCDscale_bbH",False, "param", [ "0", "1"], [] ) )
@@ -61,6 +62,11 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
                 if not self.promote_hmm:
                     print 'WARNING: hmm signal will be treated as htt'
                     CMS_to_LHCHCG_DecSimple['hmm'] = 'tautau'
+            if po.startswith("dohzg="):
+                self.promote_hzg = (po.replace("dohzg=","") in [ "yes", "1", "Yes", "True", "true" ])
+                if self.promote_hzg:
+                    print 'WARNING: hzg signal will be treated standalone'
+                    CMS_to_LHCHCG_DecSimple['hzg'] = 'Zgam'
             if po.startswith("bbh="):
                 self.add_bbH = [d.strip() for d in po.replace("bbh=","").split(",")]
             if po.startswith("dohccgluglu="):
@@ -375,6 +381,9 @@ class Kappas(LHCHCGBaseModel):
         if self.addKappaC: 
             self.modelBuilder.doVar("kappa_c[1,0.0,10.0]")
             pois += ',kappa_c'
+        if self.promote_hzg and not self.resolved:
+            self.modelBuilder.doVar("kappa_Zgam[1.0,0.0,5.0]")
+            pois+=",kappa_Zgam"
         self.doMH()
         self.modelBuilder.doSet("POI",pois)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
@@ -407,7 +416,8 @@ class Kappas(LHCHCGBaseModel):
         else:
             self.modelBuilder.factory_('expr::Scaling_hgluglu("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_hgg("@0*@0", kappa_gam)')
-            self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_gam)')
+            if self.promote_hzg: self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_Zgam)')
+            else: self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_gam)')
             self.modelBuilder.factory_('expr::Scaling_ggH_7TeV("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_ggH_8TeV("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_ggH_13TeV("@0*@0", kappa_g)')
