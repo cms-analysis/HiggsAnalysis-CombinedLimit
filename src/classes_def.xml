@@ -221,4 +221,9 @@
   <class name="CMSHggFormulaD1" />
   <class name="CMSHggFormulaD2" />
   <class name="SimpleProdPdf" />
+  <class name="RooModZPdf" />
+  <class name="RooExpPdf" />
+  <class name="RooSumTwoExpPdf" />
+  <class name="RooPowerLawPdf" />
+  <class name="RooSumTwoPowerLawPdf" />
 </lcgdict>
