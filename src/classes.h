@@ -17,6 +17,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ2L2QRooPdfs.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HGGRooPdfs.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HZGRooPdfs.h"
+#include "HiggsAnalysis/CombinedLimit/interface/HMuMuRooPdfs.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SequentialMinimizer.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProcessNormalization.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooRealFlooredSumPdf.h"
