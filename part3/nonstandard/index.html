@@ -224,6 +224,8 @@
                 
             <li class="second-level"><a href="#nuisance-parameter-impacts">Nuisance parameter impacts</a></li>
                 
+            <li class="second-level"><a href="#breakdown-of-uncertainties">Breakdown of uncertainties</a></li>
+                
             <li class="second-level"><a href="#channel-masking">Channel Masking</a></li>
                 
                 <li class="third-level"><a href="#example-removing-constraints-from-the-signal-region">Example: removing constraints from the signal region</a></li>
@@ -530,6 +532,54 @@ $ text2workspace.py htt_tt.txt -m 125
 <p>Since <code>combineTool</code> accepts the usual options for combine you can also generate the impacts on an Asimov or toy dataset. </p>
 </div>
 <p>The left panel in the summary plot shows the value of <span class="arithmatex"><span class="MathJax_Preview">(\theta-\theta_{0})/\Delta_{\theta}</span><script type="math/tex">(\theta-\theta_{0})/\Delta_{\theta}</script></span> where <span class="arithmatex"><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span> and <span class="arithmatex"><span class="MathJax_Preview">\theta_{0}</span><script type="math/tex">\theta_{0}</script></span> are the <strong>post</strong> and <strong>pre</strong>-fit values of the nuisance parameter and <span class="arithmatex"><span class="MathJax_Preview">\Delta_{\theta}</span><script type="math/tex">\Delta_{\theta}</script></span> is the <strong>pre</strong>-fit uncertainty. The asymmetric error bars show the <strong>post</strong>-fit uncertainty divided by the <strong>pre</strong>-fit uncertainty meaning that parameters with error bars smaller than <span class="arithmatex"><span class="MathJax_Preview">\pm 1</span><script type="math/tex">\pm 1</script></span> are constrained in the fit. As with the <code>diffNuisances.py</code> script, use the option <code>--pullDef</code> are defined (eg to show the <em>pull</em> instead). </p>
+<h2 id="breakdown-of-uncertainties">Breakdown of uncertainties</h2>
+<p>Often you will want to report the breakdown of your total (systematic) uncertainty on a measured parameter due to one or more groups of nuisance parameters. For example these groups could be theory uncertainties, trigger uncertainties, ... The prodecude to do this in combine is to sequentially freeze groups of nuisance parameters and subtract (in quadrature) from the total uncertainty. Below are the steps to do so. We will use the <code>data/tutorials/htt/125/htt_tt.txt</code> datacard for this. </p>
+<ol>
+<li>Add groups to the datacard to group nuisance parameters. Nuisance parameters not in groups will be considered as "rest" in the later steps. The lines should look like the following and you should add them to the end of the datacard</li>
+</ol>
+<pre><code>theory      group = QCDscale_VH QCDscale_ggH1in QCDscale_ggH2in QCDscale_qqH UEPS pdf_gg pdf_qqbar
+calibration group = CMS_scale_j_8TeV CMS_scale_t_tautau_8TeV CMS_htt_scale_met_8TeV
+efficiency  group = CMS_eff_b_8TeV   CMS_eff_t_tt_8TeV CMS_fake_b_8TeV
+</code></pre>
+<ol>
+<li>
+<p>Create the workspace with <code>text2workspace.py data/tutorials/htt/125/htt_tt.txt -m 125</code>. </p>
+</li>
+<li>
+<p>Run a post-fit with all nuisance parameters floating and store the workspace in an output file - <code>combine data/tutorials/htt/125/htt_tt.root -M MultiDimFit --saveWorkspace -n htt.postfit</code></p>
+</li>
+<li>
+<p>Run a scan from the postfit workspace </p>
+</li>
+</ol>
+<pre><code>combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit -n htt.total --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4
+</code></pre>
+<ol>
+<li>Run additional scans using the post-fit workspace sequentially adding another group to the list of groups to freeze</li>
+</ol>
+<pre><code>combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory -n htt.freeze_theory
+
+combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory,calibration -n htt.freeze_theory_calibration
+
+combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory,calibration,efficiency -n htt.freeze_theory_calibration_efficiency
+</code></pre>
+<ol>
+<li>Run one last scan freezing all of the constrained nuisances (this represents the statistics only uncertainty). </li>
+</ol>
+<pre><code>combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeParameters allConstrainedNuisances -n htt.freeze_all
+</code></pre>
+<ol>
+<li>Use the <code>combineTool</code> script <code>plot1D.py</code> to report the breakdown of uncertainties. </li>
+</ol>
+<pre><code>plot1DScan.py higgsCombinehtt.total.MultiDimFit.mH120.root --main-label &quot;Total Uncert.&quot;  --others higgsCombinehtt.freeze_theory.MultiDimFit.mH120.root:&quot;freeze theory&quot;:4 higgsCombinehtt.freeze_theory_calibration.MultiDimFit.mH120.root:&quot;freeze theory+calibration&quot;:7 higgsCombinehtt.freeze_theory_calibration_efficiency.MultiDimFit.mH120.root:&quot;freeze theory+calibration+efficiency&quot;:2 higgsCombinehtt.freeze_all.MultiDimFit.mH120.root:&quot;stat only&quot;:6  --output breakdown --y-max 10 --y-cut 40 --breakdown &quot;theory,calibration,efficiency,rest,stat&quot;
+</code></pre>
+<p>The final step calculates the contribution of each group of nuisances as the subtraction in quadrature of each scan from the previous one. This procedure guarantees that the sum in quadrature of the individual components is the same as the total uncertainty. </p>
+<p>The plot below is produced, </p>
+<p><img alt="" src="images/breakdown.png" /></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>While the above procedure is guaranteed the have the effect that the sum in quadrature of the breakdown will equal the total uncertainty, the order in which you freeze the groups can make a difference due to correlations induced by the fit. You should check if the answers change significantly if changing the order and we reccomend you start with the largest group (in terms of overall contribution to the uncertainty) first and work down the list in order of contribution.  </p>
+</div>
 <h2 id="channel-masking">Channel Masking</h2>
 <p>The <code>combine</code> tool has a number of features for diagnostics and plotting results of fits. It can often be useful to turn off particular channels in a combined analysis to see how constraints/pulls can vary. It can also be helpful to plot post-fit shapes + uncertainties of a particular channel (for example a signal region) <em>without</em> including the constraints from the data in that region. </p>
 <p>This can in some cases be achieved by removing a specific datacard when running <code>combineCards.py</code> however, when doing so the information of particular nuisances and pdfs in that region will be lost. Instead, it is possible to <strong><em>mask</em></strong> that channel from the likelihood! This is acheived at the <code>text2Workspace</code> step using the option <code>--channel-masks</code>.</p>

@@ -812,18 +812,26 @@ section <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3
 combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShapes --saveWithUncertainties --setParameters mask_ch1=1
 </code></pre>
 <p>By taking the total background, the total signal, and the data shapes from FitDiagnostics output, we can compare the post-fit predictions from the S+B fit (first case) and the CR-only fit (second case) with the observation as reported below:</p>
-<details><summary>FitDiagnostics S+B fit</summary><p><img alt="" src="../images/result_fitSB.png" /></p>
+<details>
+<summary>FitDiagnostics S+B fit</summary>
+<p><img alt="" src="../images/result_fitSB.png" /></p>
 </details>
-<details><summary>FitDiagnostics CR-only fit</summary><p><img alt="" src="../images/result_fitCRonly.png" /></p>
+<details>
+<summary>FitDiagnostics CR-only fit</summary>
+<p><img alt="" src="../images/result_fitCRonly.png" /></p>
 </details>
 <p>To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with expected distribution of the test-statistic obtained in toys:</p>
 <pre><code class="language-sh">    combine -M GoodnessOfFit combined_card.root --algo=saturated -n result_toy_sb --toysFrequentist -t 500
     combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_bonly_CRonly_toy --setParametersForFit mask_ch1=1 --setParametersForEval mask_ch1=0 --freezeParameters r --setParameters r=0,mask_ch1=1 -t 500 --toysFrequentist
 </code></pre>
 <p>where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command <code>--setParameters r=0,mask_ch1=1</code> is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:</p>
-<details><summary>Goodness-of-fit for S+B model</summary><p><img alt="" src="../images/gof_sb.png" /></p>
+<details>
+<summary>Goodness-of-fit for S+B model</summary>
+<p><img alt="" src="../images/gof_sb.png" /></p>
 </details>
-<details><summary>Goodness-of-fit for CR-only model</summary><p><img alt="" src="../images/gof_CRonly.png" /></p>
+<details>
+<summary>Goodness-of-fit for CR-only model</summary>
+<p><img alt="" src="../images/gof_CRonly.png" /></p>
 </details>
 <h3 id="making-a-plot-of-the-gof-test-statistic-distribution">Making a plot of the GoF test-statistic distribution</h3>
 <p>If you have also checked out the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool">combineTool</a>, you can use this to run batch jobs or on the grid (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">here</a>) and produce a plot of the results. Once you have the jobs, you can hadd them together and run (e.g for the saturated model),</p>
