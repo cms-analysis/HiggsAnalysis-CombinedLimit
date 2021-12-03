@@ -60,6 +60,7 @@ float MultiDimFit::centeredRange_ = -1.0;
 bool        MultiDimFit::robustHesse_ = false;
 std::string MultiDimFit::robustHesseLoad_ = "";
 std::string MultiDimFit::robustHesseSave_ = "";
+int MultiDimFit::pointsRandProf_ = 0;
 
 
 std::string MultiDimFit::saveSpecifiedFuncs_;
@@ -110,6 +111,7 @@ MultiDimFit::MultiDimFit() :
     ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
     ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
     ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
+    ("pointsRandProf",  boost::program_options::value<int>(&pointsRandProf_)->default_value(pointsRandProf_),  "Number of random start points to try for the profiled POIs")
       ;
 }
 
@@ -630,7 +632,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     }
 
     if (n == 1) {
-        if (verbose > 1) std::cout << "The nll0 from initial fit: " << nll0 << std::endl;
+        if (verbose > 1) std::cout << "\nStarting n==1. The nll0 from initial fit: " << nll0 << std::endl;
         unsigned int points = pointsPerPoi.size() == 0 ? points_ : pointsPerPoi[0];
 
         // Set seed for random points
@@ -683,7 +685,6 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             /////////////////// Loop over rand points for each profiled POI to get best nll ///////////////////
 
             bool ok;
-            int n_rand_start_pts_to_try = 0;
             int n_prof_params = specifiedVars_.size();
             std::vector<float> nll_at_alt_start_pts;
 
@@ -699,7 +700,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             wc_vals_vec_of_vec.push_back(default_start_pt_vec);
 
             // Append the random points to the vecotr of points to try
-            for (int pt_idx=0; pt_idx<n_rand_start_pts_to_try; pt_idx++) {
+            for (int pt_idx=0; pt_idx<pointsRandProf_; pt_idx++) {
                 std::vector<float> wc_vals_vec;
                 for (int prof_param_idx=0; prof_param_idx<n_prof_params; prof_param_idx++) {
                     // Get a random number in the range [-prof_start_pt_range_max,prof_start_pt_range_max]
@@ -737,7 +738,9 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                     }
                     if (verbose > 1) std::cout << "\t\t\tRange before: " << specifiedVars_[var_idx]->getMin() << " " << specifiedVars_[var_idx]->getMax() << std::endl;
                     if (verbose > 1) std::cout << "\t\t\t" << specifiedVars_[var_idx]->GetName() << " before setting: " << specifiedVars_[var_idx]->getVal() << " += " << specifiedVars_[var_idx]->getError() << std::endl;
-                    //specifiedVars_[var_idx]->removeRange(); // Do not impose a range
+                    if (pointsRandProf_ > 0) {
+                        specifiedVars_[var_idx]->removeRange(); // Do not impose a range if we're trying multiple random start points
+                    }
                     specifiedVars_[var_idx]->setVal(wc_vals_vec_of_vec.at(start_pt_idx).at(var_idx));
                     if (verbose > 1) std::cout << "\t\t\tRange after: " << specifiedVars_[var_idx]->getMin() << " " << specifiedVars_[var_idx]->getMax() << std::endl;
                     if (verbose > 1) std::cout << "\t\t\t" << specifiedVars_[var_idx]->GetName() << " after  setting: " << specifiedVars_[var_idx]->getVal() << " += " << specifiedVars_[var_idx]->getError() << std::endl;
@@ -814,7 +817,6 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
 
-            std::cout << "" << std::endl;
         }
     } else if (n == 2) {
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);

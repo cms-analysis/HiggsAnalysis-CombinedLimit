@@ -65,6 +65,8 @@ protected:
   static std::string robustHesseLoad_;
   static std::string robustHesseSave_;
 
+  static int pointsRandProf_;
+
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
   static std::string saveSpecifiedIndex_;
