@@ -141,6 +141,11 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         if (vm["floatOtherPOIs"].defaulted()) floatOtherPOIs_ = true;
         if (vm["saveInactivePOI"].defaulted()) saveInactivePOI_ = true;
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
+    if (pointsRandProf_ > 0) {
+        // Probably not the best way of doing this
+        // But right now the pointsRandProf_ option relies on saveInactivePOI_ being true to include the profiled POIs in specifiedVars_
+        saveInactivePOI_ = true;
+    }
     fastScan_ = (vm.count("fastScan") > 0);
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
     skipInitialFit_ = (vm.count("skipInitialFit") > 0);
