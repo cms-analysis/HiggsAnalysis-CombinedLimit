@@ -144,7 +144,7 @@ class SignalStrengths(LHCHCGBaseModel):
             self.doVar("mu_BR7_%s[1,0,5]" % X)
             self.doVar("mu_BR8_%s[1,0,5]" % X)
             self.doVar("mu_BR13_%s[1,0,5]" % X)
-        for X in CMS_to_LHCHCG_Prod.values() + [ "ZH", "tH", "ggFbbH", "ttHtH", "VH" ]:
+        for X in CMS_to_LHCHCG_Prod.values() + [ "ZH", "tH", "ggFbbH", "ttHtH", "VH", "VHttHtH"]:
             self.doVar("mu_XS_%s[1,0,5]" % X)
             self.doVar("mu_XS7_%s[1,0,5]" % X)
             self.doVar("mu_XS8_%s[1,0,5]" % X)
@@ -195,6 +195,9 @@ class SignalStrengths(LHCHCGBaseModel):
                     if P in [ "WH", "ZH", "ggZH" ]:
                         terms += [ "mu_XS_VH", "mu_XS%d_VH"%E ]
                         terms += [ "mu_XS_VH_BR_%s" % DS ]
+                    if P in [ "WH", "ZH", "ggZH", "tHW", "tHq", "ttH" ]:
+                        terms += [ "mu_XS_VHttHtH", "mu_XS%d_VHttHtH"%E ]
+                        terms += [ "mu_XS_VHttHtH_BR_%s" % DS ]
                     # for 2D scans
                     if P in [ "ggH", "ttH", "bbH", "tHq", "tHW" ]:
                         terms += [ "mu_F_"+CMS_to_LHCHCG_DecSimple[D] ]
