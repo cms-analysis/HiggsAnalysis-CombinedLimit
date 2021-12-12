@@ -2,43 +2,10 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 from HiggsAnalysis.CombinedLimit.LHCHCGModels import LHCHCGBaseModel
 import ROOT, os, json
+from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
+from HiggsAnalysis.CombinedLimit.STXSModels import getSTXSProdDecMode, CMS_to_LHCHCG_DecSimple 
 
-## Naming conventions
-CMS_to_LHCHCG_Dec = { 
-    'hww': 'WW',
-    'hzz': 'ZZ',
-    'hgg': 'gamgam',
-    'hbb': 'bb',
-    'hcc': 'cc',
-    'htt': 'tautau',
-    'hmm': 'mumu',
-    'hzg': 'Zgam',
-    'hgluglu': 'gluglu',
-    'hinv': 'inv',
-}
-CMS_to_LHCHCG_DecSimple = { 
-    'hww': 'WW',
-    'hzz': 'ZZ',
-    'hgg': 'gamgam',
-    'hbb': 'bb',
-    'hcc': 'bb',
-    'htt': 'tautau',
-    'hmm': 'tautau',
-    'hzg': 'gamgam',
-    'hgluglu': 'bb',
-    'hinv': 'inv',
-}
-CMS_to_LHCHCG_Prod = { 
-    'ggH': 'ggF',
-    'qqH': 'VBF',
-    'WH': 'WH',
-    'ZH': 'qqZH',
-    'ggZH': 'ggZH',
-    'ttH': 'ttH',
-    'tHq': 'tHjb',
-    'tHW': 'WtH',
-    'bbH': 'bbH',
- } 
+LHCHCG_DecSimple_to_CMS = dict(zip(CMS_to_LHCHCG_DecSimple.values(), CMS_to_LHCHCG_DecSimple.keys()))
 
 class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
     "assume the SM coupling but let the Higgs mass to float"
@@ -304,30 +271,6 @@ class TrilinearHiggsDifferential(PhysicsModel):
 	
         return name
 
-def getGenProdDecMode(bin,process,options):
-    """Return a triple of (production, decay, energy)"""
-    #assuming that process names have a form like 'STXSprocname_year_decay', e.g. 'ggH_0J_PTH_GT10_2016_hgg' 
-    processSource = process.rsplit('_',2)[0] 
-    decaySource = process.rsplit('_',2)[2] 
-    foundEnergy = None
-    for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
-	if D in decaySource:
-	    if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
-	    foundEnergy = D
-    if not foundEnergy:
-	for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
-	    if D in options.fileName+":"+bin:
-		if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
-		foundEnergy = D
-    if foundEnergy:
-        if foundEnergy != '13TeV':
-            raise RuntimeError, "Validation Error: only 13TeV energy supported"
-    else:
-        #print "[WARNING]: no energy found -> Assuming 13 TeV"
-        foundEnergy = '13TeV'
-
-    return (processSource, decaySource, foundEnergy)
-
 class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
     "assume the SM coupling but let the Higgs mass to float"
     def __init__(self,BRU=False):
@@ -473,8 +416,12 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
 
         if not self.DC.isSignal[process]: return 1
-        (processSource, foundDecay, foundEnergy) = getGenProdDecMode(bin,process,self.options)
-        
+        (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin,process,self.options)
+        # convert decay string back to CMS default syntax
+        if foundDecay in LHCHCG_DecSimple_to_CMS.keys():
+            foundDecay = LHCHCG_DecSimple_to_CMS[foundDecay]
+        else: raise RuntimeError, "Decay %s not supported" %foundDecay
+
         #print "doing", processSource, " -> ", foundDecay
         if len(self.ScaledProcs)>0 and not any( processSource.startswith(ScaledProc) for ScaledProc in self.ScaledProcs):
             return 1
