@@ -106,6 +106,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
 	    EWKmap_13  = {"ggH":1.049,"qqH":0.932,"WH":0.93,"ZH":0.947,"ttH":1.014}
 	    cXSmaps = {"7TeV":cXSmap_7, "8TeV":cXSmap_8, "13TeV":cXSmap_13}
 	    dZH = -1.536e-3
+
              
 	    if production in [ "ggZH", "tHq", "tHW"]: 
                 XSscal = ("@0", "Scaling_%s_%s" % (production,energy) )
@@ -432,6 +433,30 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
 
         #print "Scaling for ", processSource, decay, energy
         production = processSource.split('_')[0]
+	
+	m = {
+		'ZH_lep': 'ZH',
+		'WH_lep': 'WH',
+		'ZH_PTV_0_75': 'ZH_lep_PTV_0_75',
+		'ZH_PTV_75_150': 'ZH_lep_PTV_75_150',
+		'ZH_PTV_150_250_0J': 'ZH_lep_PTV_150_250_0J',
+		'ZH_PTV_150_250_GE1J': 'ZH_lep_PTV_150_250_GE1J',
+		'ZH_PTV_GT250': 'ZH_lep_PTV_GT250',
+		'WH_PTV_0_75'          :  'WH_lep_PTV_0_75',
+		'WH_PTV_75_150'        :  'WH_lep_PTV_75_150',
+		'WH_PTV_150_250_0J'    :  'WH_lep_PTV_150_250_0J',
+		'WH_PTV_150_250_GE1J'  :  'WH_lep_PTV_150_250_GE1J',
+		'WH_PTV_GT250'         :  'WH_lep_PTV_GT250',
+		'ttH_PTH_fwd': 'ttH_FWDH',
+		#'WH_FWDH': 'WH_lep_FWDH',
+
+	}
+	if processSource=='WH_FWDH' : return '1'
+	if processSource=='ZH_FWDH' : return '1'
+	if processSource=='ZH_lep_FWDH' : return '1'
+	if processSource=='WH_lep_FWDH' : return '1'
+
+	if processSource in m.keys(): processSource = m[processSource]
 
         if production in [ "ggZH", "tHq", "tHW", "ggH", "qqH", "bbH"]: # scale the inclusive XS
             XSscal = self.STXSScalingFunctions[production]
