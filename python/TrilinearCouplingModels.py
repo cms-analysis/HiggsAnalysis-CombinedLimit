@@ -380,12 +380,22 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
             elif production in  [ "ggZH", "tHW"]: #trilinear scaling is not available --> use only scaling from SMH
                 self.STXSScalingFunctions[production]="Scaling_%s_%s"%(production,energy)
 
-            elif production in [ "ggH", "qqH", "tHq"]: #the scaling built by SMH combined with inclusive trilinear scaling
+            elif production in [ "ggH", "tHq"]: #the scaling built by SMH combined with inclusive trilinear scaling
                 C1 =  trilinearcoeffs[production]["C1"]
                 EWK = trilinearcoeffs[production]["EWK"]
                 self.modelBuilder.factory_("expr::kVkFkl_XSscal_%s_%s(\"(@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))\",kappa_lambda,Scaling_%s_%s)"\
 	       				%(production,energy,C1,EWK,dZH,production,energy))
                 self.STXSScalingFunctions[production]="kVkFkl_XSscal_%s_%s"%(production,energy)
+
+            elif production in [ "qqH" ]: #k-scaling combined with trilinear scaling specific for each stxs bin 
+                for STXSprocname in trilinearcoeffs.keys():
+                    if not STXSprocname.startswith(production): continue
+                    C1 =  trilinearcoeffs[str(STXSprocname)]["C1"]
+                    EWK = trilinearcoeffs[str(STXSprocname)]["EWK"]
+                    self.modelBuilder.factory_("expr::kVkFkl_XSscal_%s_%s(\"(@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))\",kappa_lambda,Scaling_%s_%s)"\
+	       				%(str(STXSprocname),energy,C1,EWK,dZH,production,energy))
+                    self.STXSScalingFunctions[str(STXSprocname)]="kVkFkl_XSscal_%s_%s"%(str(STXSprocname),energy)
+
 
 	    elif production in [ "ZH", "WH"]: #k-scaling combined with trilinear scaling specific for each stxs bin 
                 for STXSprocname in trilinearcoeffs.keys():
@@ -458,9 +468,9 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
 
 	if processSource in m.keys(): processSource = m[processSource]
 
-        if production in [ "ggZH", "tHq", "tHW", "ggH", "qqH", "bbH"]: # scale the inclusive XS
+        if production in [ "ggZH", "tHq", "tHW", "ggH", "bbH"]: # scale the inclusive XS
             XSscal = self.STXSScalingFunctions[production]
-        elif production in [ "ZH", "WH", "ttH"]: # scale the specific STXS bin
+        elif production in [ "ZH", "WH", "ttH", "qqH"]: # scale the specific STXS bin
             XSscal = self.STXSScalingFunctions[processSource]
         else:
             raise RuntimeError, "Production %s not supported" % production
