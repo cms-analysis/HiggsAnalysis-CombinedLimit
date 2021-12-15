@@ -106,6 +106,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
 	    EWKmap_13  = {"ggH":1.049,"qqH":0.932,"WH":0.93,"ZH":0.947,"ttH":1.014}
 	    cXSmaps = {"7TeV":cXSmap_7, "8TeV":cXSmap_8, "13TeV":cXSmap_13}
 	    dZH = -1.536e-3
+
              
 	    if production in [ "ggZH", "tHq", "tHW"]: 
                 XSscal = ("@0", "Scaling_%s_%s" % (production,energy) )
@@ -379,12 +380,22 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
             elif production in  [ "ggZH", "tHW"]: #trilinear scaling is not available --> use only scaling from SMH
                 self.STXSScalingFunctions[production]="Scaling_%s_%s"%(production,energy)
 
-            elif production in [ "ggH", "qqH", "tHq"]: #the scaling built by SMH combined with inclusive trilinear scaling
+            elif production in [ "ggH", "tHq"]: #the scaling built by SMH combined with inclusive trilinear scaling
                 C1 =  trilinearcoeffs[production]["C1"]
                 EWK = trilinearcoeffs[production]["EWK"]
                 self.modelBuilder.factory_("expr::kVkFkl_XSscal_%s_%s(\"(@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))\",kappa_lambda,Scaling_%s_%s)"\
 	       				%(production,energy,C1,EWK,dZH,production,energy))
                 self.STXSScalingFunctions[production]="kVkFkl_XSscal_%s_%s"%(production,energy)
+
+            elif production in [ "qqH" ]: #k-scaling combined with trilinear scaling specific for each stxs bin 
+                for STXSprocname in trilinearcoeffs.keys():
+                    if not STXSprocname.startswith(production): continue
+                    C1 =  trilinearcoeffs[str(STXSprocname)]["C1"]
+                    EWK = trilinearcoeffs[str(STXSprocname)]["EWK"]
+                    self.modelBuilder.factory_("expr::kVkFkl_XSscal_%s_%s(\"(@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))\",kappa_lambda,Scaling_%s_%s)"\
+	       				%(str(STXSprocname),energy,C1,EWK,dZH,production,energy))
+                    self.STXSScalingFunctions[str(STXSprocname)]="kVkFkl_XSscal_%s_%s"%(str(STXSprocname),energy)
+
 
 	    elif production in [ "ZH", "WH"]: #k-scaling combined with trilinear scaling specific for each stxs bin 
                 for STXSprocname in trilinearcoeffs.keys():
@@ -432,10 +443,31 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
 
         #print "Scaling for ", processSource, decay, energy
         production = processSource.split('_')[0]
+        
+        m = {
+                'ZH_lep': 'ZH',
+                'WH_lep': 'WH',
+                'ZH_PTV_0_75': 'ZH_lep_PTV_0_75',
+                'ZH_PTV_75_150': 'ZH_lep_PTV_75_150',
+                'ZH_PTV_150_250_0J': 'ZH_lep_PTV_150_250_0J',
+                'ZH_PTV_150_250_GE1J': 'ZH_lep_PTV_150_250_GE1J',
+                'ZH_PTV_GT250': 'ZH_lep_PTV_GT250',
+                'WH_PTV_0_75'          :  'WH_lep_PTV_0_75',
+                'WH_PTV_75_150'        :  'WH_lep_PTV_75_150',
+                'WH_PTV_150_250_0J'    :  'WH_lep_PTV_150_250_0J',
+                'WH_PTV_150_250_GE1J'  :  'WH_lep_PTV_150_250_GE1J',
+                'WH_PTV_GT250'         :  'WH_lep_PTV_GT250',
+                'ttH_PTH_fwd': 'ttH_FWDH',
+                'WH_FWDH': 'WH_lep_FWDH',
+                'ZH_FWDH': 'ZH_lep_FWDH',
 
-        if production in [ "ggZH", "tHq", "tHW", "ggH", "qqH", "bbH"]: # scale the inclusive XS
+        }
+
+        if processSource in m.keys(): processSource = m[processSource]
+
+        if production in [ "ggZH", "tHq", "tHW", "ggH", "bbH"]: # scale the inclusive XS
             XSscal = self.STXSScalingFunctions[production]
-        elif production in [ "ZH", "WH", "ttH"]: # scale the specific STXS bin
+        elif production in [ "ZH", "WH", "ttH", "qqH"]: # scale the specific STXS bin
             XSscal = self.STXSScalingFunctions[processSource]
         else:
             raise RuntimeError, "Production %s not supported" % production
@@ -449,7 +481,7 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         
         XSBRscaling = "%s_%s"%(XSscal,BRscal)
         if self.modelBuilder.out.function(XSBRscaling) == None:
-	    self.modelBuilder.factory_('expr::%s("@0*@1", %s, %s)'%(XSBRscaling, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::%s("@0*@1", %s, %s)'%(XSBRscaling, XSscal, BRscal))
             print
             self.modelBuilder.out.function(XSBRscaling).Print("")
             self.modelBuilder.out.function(XSscal).Print("")
