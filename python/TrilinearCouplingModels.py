@@ -460,6 +460,16 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
                 'ttH_PTH_fwd': 'ttH_FWDH',
                 'WH_FWDH': 'WH_lep_FWDH',
                 'ZH_FWDH': 'ZH_lep_FWDH',
+                'qqH_QQ2HQQ_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25': 'qqH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25' ,
+                'qqH_QQ2HQQ_0J':'qqH_0J',
+                'qqH_QQ2HQQ_1J':'qqH_1J',
+                'qqH_QQ2HQQ_GE2J_MJJ_0_60':'qqH_GE2J_MJJ_0_60',
+                'qqH_QQ2HQQ_GE2J_MJJ_120_350':                     'qqH_GE2J_MJJ_120_350',
+                'qqH_QQ2HQQ_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25':'qqH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25',
+                'qqH_QQ2HQQ_GE2J_MJJ_60_120':                      'qqH_GE2J_MJJ_60_120',
+                'qqH_QQ2HQQ_GE2J_MJJ_GT350_PTH_GT200':             'qqH_GE2J_MJJ_GT350_PTH_GT200',
+                'qqH_QQ2HQQ_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25':  'qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25',
+                'qqH_QQ2HQQ_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25':  'qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25',
 
         }
 
