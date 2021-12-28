@@ -102,6 +102,10 @@ gr_fit_b    = ROOT.TGraphAsymmErrors(); gr_fit_b.SetTitle("fit_b_g")
 gr_fit_s    = ROOT.TGraphAsymmErrors(); gr_fit_s.SetTitle("fit_b_s")
 
 error_poi = fpf_s.find(options.poi).getError()
+
+# Compile regex object, since we will be checking regex patterns several times.
+regex_NP_obj = re.compile(args.regex)
+
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
 
@@ -113,7 +117,7 @@ for i in range(fpf_s.getSize()):
     # Skip this nuisance parameter if its name does not match the regex pattern.
     # The default pattern is .*
     # which will always match any name.
-    if not re.match(args.regex, name): continue
+    if not bool(regex_NP_obj.match(name)): continue
 
     # keeps information to be printed about the nuisance parameter
     row = []
