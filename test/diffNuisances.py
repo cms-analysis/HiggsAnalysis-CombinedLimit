@@ -37,6 +37,7 @@ parser.add_option("", "--pullDef",  dest="pullDef", default="", type="string", h
 parser.add_option("", "--skipFitS", dest="skipFitS", default=False, action='store_true', help="skip the S+B fit, instead the B-only fit will be repeated")
 parser.add_option("", "--skipFitB", dest="skipFitB", default=False, action='store_true', help="skip the B-only fit, instead the S+B fit will be repeated")
 parser.add_option("", "--sortBy", dest="sortBy", default="correlation", type='string', help="choose 'correlation' or 'impact' to sort rows by correlation with or impact on --poi (largest to smallest absolute)")
+parser.add_option("", "--regex", dest="regex", default=".*", type="string", help="Include only nuisance parameters that passes the following regex filter")
 
 (options, args) = parser.parse_args()
 if len(args) == 0:
@@ -108,6 +109,11 @@ for i in range(fpf_s.getSize()):
     name   = nuis_s.GetName();
     nuis_b = fpf_b.find(name)
     nuis_p = prefit.find(name)
+
+    # Skip this nuisance parameter if its name does not match the regex pattern.
+    # The default pattern is .*
+    # which will always match any name.
+    if not re.match(args.regex, name): continue
 
     # keeps information to be printed about the nuisance parameter
     row = []
