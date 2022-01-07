@@ -54,6 +54,10 @@ if options.pullDef : options.show_all_parameters=True
 
 if options.sortBy not in ['correlation','impact']: exit("choose one of [ %s ] for --sortBy"%(",".join()['correlation','impact']))
 
+if args.regex != ".*":
+    print("Including only nuisance parameters following this regex query:")
+    print(args.regex)
+
 setUpString = "diffNuisances run on %s, at %s with the following options ... "%(args[0],datetime.datetime.utcnow())+str(options)
 
 file = ROOT.TFile(args[0])
