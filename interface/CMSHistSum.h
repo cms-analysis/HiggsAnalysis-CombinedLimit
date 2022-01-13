@@ -50,6 +50,8 @@ public:
 
   Double_t evaluate() const;
 
+  std::map<std::string, Double_t> getProcessNorms() const;
+
   RooArgList * setupBinPars(double poissonThreshold);
 
   std::unique_ptr<RooArgSet> getSentryArgs() const;
