@@ -666,6 +666,32 @@ Double_t CMSHistSum::evaluate() const {
   return cache().GetAt(x_);
 }
 
+std::map<std::string, Double_t> CMSHistSum::getProcessNorms() const {
+  std::map<std::string, Double_t> vals_;
+  initialize();
+  if (!sentry_.good()) {
+    updateMorphs();
+
+    for (unsigned i = 0; i < vcoeffpars_.size(); ++i) {
+      Double_t coeffval = vcoeffpars_[i]->getVal();    
+
+      staging_ = compcache_[i];
+      if (vtype_[i] == CMSHistFunc::VerticalSetting::LogQuadLinear) {
+        staging_.Exp();
+      }
+      staging_.CropUnderflows();
+
+      double const * valarray = &(staging_[0]);
+      Double_t valsum = 0;
+      for(unsigned j=0; j < valsum_.size(); ++j ){
+        valsum += coeffval * valarray[j];
+      }
+
+      vals_[vcoeffpars_[i]->GetName()] = valsum;
+    }
+  }
+  return vals_;
+}
 
 void CMSHistSum::printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
                     TString indent) const {
