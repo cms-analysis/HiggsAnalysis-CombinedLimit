@@ -517,10 +517,15 @@ class ModelBuilder(ModelBuilderBase):
             if n in self.DC.frozenNuisances:
                 self.out.var(n).setConstant(True)
         if self.options.bin:
+	    # avoid duplicating  _Pdf in list 
+	    setNuisPdf = []
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
             for (n,nf,p,a,e) in self.DC.systs:
 		if p!= "constr": nuisVars.add(self.out.var(n))
+	        setNuisPdf.append(n)
+	    setNuisPdf = set(setNuisPdf)
+	    for n in setNuisPdf:
                 nuisPdfs.add(self.out.pdf(n+"_Pdf"))
             self.out.defineSet("nuisances", nuisVars)
             self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", nuisPdfs)
@@ -530,8 +535,10 @@ class ModelBuilder(ModelBuilderBase):
             for g in globalobs: gobsVars.add(self.out.var(g))
             self.out.defineSet("globalObservables", gobsVars)
         else: # doesn't work for too many nuisances :-(
+	    # avoid duplicating  _Pdf in list 
+	    setNuisPdf = set([n for (n,nf,p,a,e) in self.DC.systs])
             self.doSet("nuisances", ",".join(["%s"    % n for (n,nf,p,a,e) in self.DC.systs]))
-            self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,nf,p,a,e) in self.DC.systs]))
+            self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" %n for n  in setNuisPdf]))
             self.doSet("globalObservables", ",".join(globalobs))
 
     def doNuisancesGroups(self):
