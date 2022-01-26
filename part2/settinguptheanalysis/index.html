@@ -600,7 +600,7 @@ This kind of command will only effect nuisances of the type <strong><code>shape[
 <p>which will rename all <strong><code>shape[N]</code></strong>, <strong><code>lnN</code></strong> and <strong><code>param</code></strong> nuisances found in one go. You should make sure these commands come after any process/channel specific ones in the datacard. This version does not accept options.  </p>
 <p>Other edits are also supported as follows,</p>
 <ul>
-<li><code>nuisance edit add process channel name pdf value [options]</code>  -&gt; add a new or add to a nuisance. If options is <code>addq</code>, value will be added in quadrature to this nuisance for this process/channel. If options is <code>overwrite</code>, the nuisance value will be replaced with this value</li>
+<li><code>nuisance edit add process channel name pdf value [options]</code>  -&gt; add a new or add to a nuisance. </li>
 <li><code>nuisance edit drop process channel name [options]</code>  -&gt; remove this nuisance from the process/channel. Use options <code>ifexists</code> to skip/avoid error if nuisance not found.</li>
 <li><code>nuisance edit changepdf name newpdf</code> -&gt; change the pdf type of a given nuisance to <code>newpdf</code>.</li>
 <li><code>nuisance edit split process channel oldname newname1 newname2 value1 value2</code> -&gt; split a nuisance line into two separate nuisances called <code>newname1</code> and <code>newname2</code> with values <code>value1</code> and <code>value2</code>. Will produce two separate lines to that the original nuisance <code>oldname</code> becomes two uncorrelated nuisances.</li>
