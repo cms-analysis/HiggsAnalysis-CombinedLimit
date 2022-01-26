@@ -456,7 +456,7 @@ which will rename all **`shape[N]`**, **`lnN`** and **`param`** nuisances found 
 
 Other edits are also supported as follows,
 
-   * `nuisance edit add process channel name pdf value [options]`  -> add a new or add to a nuisance. If options is `addq`, value will be added in quadrature to this nuisance for this process/channel. If options is `overwrite`, the nuisance value will be replaced with this value
+   * `nuisance edit add process channel name pdf value [options]`  -> add a new or add to a nuisance. 
    * `nuisance edit drop process channel name [options]`  -> remove this nuisance from the process/channel. Use options `ifexists` to skip/avoid error if nuisance not found.
    * `nuisance edit changepdf name newpdf` -> change the pdf type of a given nuisance to `newpdf`.
    * `nuisance edit split process channel oldname newname1 newname2 value1 value2` -> split a nuisance line into two separate nuisances called `newname1` and `newname2` with values `value1` and `value2`. Will produce two separate lines to that the original nuisance `oldname` becomes two uncorrelated nuisances.
