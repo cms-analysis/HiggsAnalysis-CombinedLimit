@@ -98,6 +98,8 @@ The allowed combinations of minimizer types and minimizer algos are as follows
 |`Minuit2` 	      | `Migrad`, `Simplex`, `Combined`, `Scan` |
 |`GSLMultiMin`       | `ConjugateFR`, `ConjugatePR`, `BFGS`, `BFGS2`, `SteepestDescent`|
 
+You can find details about these in the Minuit2 documentation [here](https://root.cern.ch/root/htmldoc/guides/minuit2/Minuit2.html).
+
 More of these options can be found in the **Cascade Minimizer options** section when running `--help`.
 
 

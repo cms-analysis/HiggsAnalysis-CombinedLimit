@@ -1,0 +1,29 @@
+name: trigger gitlab job
+on:
+  push:
+    branches: [ 102x ]
+
+  pull_request_target:
+    types: [labeled , opened , edited , synchronize, reopened ]
+    branches: [ 102x ]
+  
+#  pull_request:
+#    branches: [ 102x ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: trigger Job REF
+        if : ${{ github.event.push }}
+        env:
+            TOKEN: '${{ secrets.TOKEN }}'
+        run: curl --request POST --form "variables[COMBINE_TAG]=${{ github.sha }}" --form "variables[COMBINE_REPO]=${{ github.repository_owner }}" --form "token=${{ secrets.TOKEN }}" --form ref=master https://gitlab.cern.ch/api/v4/projects/cms-hcg%2Fperformances%2Fci/trigger/pipeline 
+      - name: trigger Job PR
+        env:
+            TOKEN: '${{ secrets.TOKEN }}'
+        if: ${{ github.event.pull_request && contains(github.event.pull_request.labels.*.name, 'safe to test') }}
+        run: curl --request POST --form "variables[COMBINE_TAG]=${{ github.event.pull_request.base.ref }}" --form "variables[COMBINE_REPO]=${{ github.repository_owner }}" --form "variables[COMBINE_MERGE]=${{ github.event.pull_request.head.repo.owner.login}}/${{ github.event.pull_request.head.ref }}" --form "variables[GITHUB_PR]=${{ github.event.pull_request.number }}" --form "token=${{ secrets.TOKEN }}" --form ref=master https://gitlab.cern.ch/api/v4/projects/cms-hcg%2Fperformances%2Fci/trigger/pipeline 
+

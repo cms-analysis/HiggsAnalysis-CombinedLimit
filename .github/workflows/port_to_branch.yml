@@ -1,0 +1,43 @@
+### Original author: Andrea Carlo Marini, CERN
+### Date: Mon Nov  8 13:41:56 CET 2021
+### When a label is added to a PR, rebase it on another branch and open a PR from that rebase version.
+### run this just before merging.
+
+name: Port to 112x
+
+on:
+    pull_request_target:
+        types: [ labeled ]
+        branches: [ 102x ]
+
+jobs:
+  build:
+    name: Port to 112x
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: test rebase
+        env:
+            ONTO: 112x
+            REPO: cms-analysis/HiggsAnalysis-CombinedLimit
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.event.pull_request && contains(github.event.pull_request.labels.*.name, 'port to 112x') }}
+        run: |
+            ## checkout full repository
+            git config --global user.name "github-actions[bot]"
+            git clone https://github.com/${{env.REPO}} -b ${{ env.ONTO }} clone_dir
+            cd clone_dir
+            git remote set-url --push origin https://github-actions-bot:$GITHUB_TOKEN@github.com/${{ env.REPO }}
+            git remote add other https://github.com/${{github.event.pull_request.head.repo.full_name}}
+            git fetch other
+            git branch rebase_${{ github.event.pull_request.number }}_onto_${{ env.ONTO }} other/${{github.event.pull_request.head.ref}}
+            git rebase --onto ${{env.ONTO}} origin/${{ github.event.pull_request.base.ref }}  rebase_${{ github.event.pull_request.number }}_onto_${{ env.ONTO }}
+            echo "Done Rebasing"
+            #git log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all -n 10
+            echo "push"
+            git push origin rebase_${{ github.event.pull_request.number }}_onto_${{ env.ONTO }}
+            echo "curl"
+            curl  -X POST -H "Accept: application/vnd.github.v3+json" -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'   https://api.github.com/repos/${{env.REPO}}/pulls -d '{"head":"rebase_'${{ github.event.pull_request.number }}'_onto_'${{ env.ONTO }}'","base":"'${{env.ONTO}}'", "title":"rebase of '${{ github.event.pull_request.number }}'", "body":"This is a rebase of #'${{ github.event.pull_request.number }}' onto '${{ env.ONTO }}'"}'
+
+
+

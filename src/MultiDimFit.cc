@@ -372,6 +372,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 		    specifiedNuis_.clear();
 		    RooLinkedListIter iterN = mc_s->GetNuisanceParameters()->iterator();
 		    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
+			    if (poiList_.contains(*a)) continue;
 			    specifiedNuis_.push_back(a->GetName());
 		    }
 	    }else{
@@ -385,7 +386,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 				    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
 					    specifiedNuis_.push_back(a->GetName());
 				    }
-			    }else{
+			    }else if (!poiList_.find(token)){
 				    specifiedNuis_.push_back(token);
 			    }
 			    token = strtok(0,",") ; 
@@ -481,7 +482,7 @@ void MultiDimFit::doSingles(RooFitResult &res)
             //poiVals_[i] = rf->getMin("err95"); Combine::commitPoint(true, /*quantile=*/0.05);
             poiVals_[i] = bestFitVal;
             printf("   %*s :  %+8.3f   %+6.3f/%+6.3f (68%%)    %+6.3f/%+6.3f (95%%) \n", len, poi_[i].c_str(), 
-                    poiVals_[i], -loErr, hiErr, loErr95, -hiErr95);
+                    poiVals_[i], -loErr, hiErr, -loErr95, hiErr95);
         } else {
             poiVals_[i] = bestFitVal;
             printf("   %*s :  %+8.3f   %+6.3f/%+6.3f (68%%)\n", len, poi_[i].c_str(), 

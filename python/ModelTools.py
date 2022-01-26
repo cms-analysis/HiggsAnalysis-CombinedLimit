@@ -92,7 +92,8 @@ class ModelBuilderBase():
         if self.options.bin: return self.factory_("%s::%s(%s)" % (type, name, X));
         else: self.out.write("%s = %s(%s);\n" % (name, type, X))
     def addDiscrete(self,var):
-	self.discrete_param_set.append(var)
+        if self.options.removeMultiPdf: return
+        self.discrete_param_set.append(var)
 
 class ModelBuilder(ModelBuilderBase):
     """This class defines the actual methods to build a model"""
@@ -281,11 +282,12 @@ class ModelBuilder(ModelBuilderBase):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
     def doNuisances(self):
+        for cpar in self.DC.discretes: self.addDiscrete(cpar)
+
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
         globalobs = []
 
-        for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs:
             is_func_scaled = False
             func_scaler = None

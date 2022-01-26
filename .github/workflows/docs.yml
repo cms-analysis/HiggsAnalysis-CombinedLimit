@@ -1,0 +1,28 @@
+name: Docs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 102x
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    name: Build and deploy docs
+
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Build documentation
+      run: |
+        python3 -m pip install mkdocs pymdown-extensions mkdocs-cinder
+        mkdocs build --verbose --clean
+    - name: Deploy documentation
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./site
+
