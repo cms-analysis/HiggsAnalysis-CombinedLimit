@@ -97,18 +97,24 @@ def getGraph(hist,shift):
    return gr
 """
 
+# Compile regex object, since we will be checking regex patterns several times.
+regex_NP_obj = re.compile(options.regex)
+
+np_count = 0
+for i in range(fpf_s.getSize()):
+    nuis_s = fpf_s.at(i)
+    name = nuis_s.GetName();
+    if bool(regex_NP_obj.match(name)): np_count += 1
+
 # Also make histograms for pull distributions:
-hist_fit_b  = ROOT.TH1F("fit_b"   ,"B-only fit Nuisances;;%s "%title,prefit.getSize(),0,prefit.getSize())
-hist_fit_s  = ROOT.TH1F("fit_s"   ,"S+B fit Nuisances   ;;%s "%title,prefit.getSize(),0,prefit.getSize())
-hist_prefit = ROOT.TH1F("prefit_nuisancs","Prefit Nuisances    ;;%s "%title,prefit.getSize(),0,prefit.getSize())
+hist_fit_b  = ROOT.TH1F("fit_b"   ,"B-only fit Nuisances;;%s "%title,np_count,0,np_count)
+hist_fit_s  = ROOT.TH1F("fit_s"   ,"S+B fit Nuisances   ;;%s "%title,np_count,0,np_count)
+hist_prefit = ROOT.TH1F("prefit_nuisancs","Prefit Nuisances    ;;%s "%title,np_count,0,np_count)
 # Store also the *asymmetric* uncertainties
 gr_fit_b    = ROOT.TGraphAsymmErrors(); gr_fit_b.SetTitle("fit_b_g")
 gr_fit_s    = ROOT.TGraphAsymmErrors(); gr_fit_s.SetTitle("fit_b_s")
 
 error_poi = fpf_s.find(options.poi).getError()
-
-# Compile regex object, since we will be checking regex patterns several times.
-regex_NP_obj = re.compile(options.regex)
 
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
