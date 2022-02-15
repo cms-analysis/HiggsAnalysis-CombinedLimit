@@ -218,7 +218,7 @@ class ShapeBuilder(ModelBuilder):
                         n = arg.GetName()
                         bbb_names.append(n)
                         parname = n
-                        self.out._import(arg)
+                        self.out.safe_import(arg)
                         if arg.getAttribute("createGaussianConstraint"):
                             if self.options.noOptimizePdf:
                                 self.doObj(
@@ -412,31 +412,31 @@ class ShapeBuilder(ModelBuilder):
                 # take care of any variables which were renamed (eg for "param")
                 paramString, renameParamString, toFreeze = self.getRenamingParameters()
                 if len(renameParamString):
-                    self.out._import(
+                    self.out.safe_import(
                         simPdf,
                         ROOT.RooFit.RecycleConflictNodes(),
                         ROOT.RooFit.RenameVariable(paramString, renameParamString),
                     )
                 else:
-                    self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes())
+                    self.out.safe_import(simPdf, ROOT.RooFit.RecycleConflictNodes())
                 for pfreeze in toFreeze:
                     if self.out.var(pfreeze):
                         self.out.var(pfreeze).setConstant(True)
                 if self.options.noBOnly:
                     break
         else:
-            self.out._import(
+            self.out.safe_import(
                 self.getObj("pdf_bin%s" % self.DC.bins[0]).clone("model_s"),
                 ROOT.RooFit.Silence(),
             )
             if not self.options.noBOnly:
-                self.out._import(
+                self.out.safe_import(
                     self.getObj("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"),
                     ROOT.RooFit.Silence(),
                 )
         for arg in self.extraImports:
             # print 'Importing extra arg: %s' % arg.GetName()
-            self.out._import(arg, ROOT.RooFit.RecycleConflictNodes())
+            self.out.safe_import(arg, ROOT.RooFit.RecycleConflictNodes())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
             iter = pars.createIterator()
@@ -604,7 +604,7 @@ class ShapeBuilder(ModelBuilder):
                         self.out.binVars.add(shapeObs[obs_key], True)
             else:
                 self.out.binVars = list(shapeObs.values())[0]
-            self.out._import(self.out.binVars)
+            self.out.safe_import(self.out.binVars)
         else:
             self.out.mode = "binned"
             if self.options.verbose > 1:
@@ -614,12 +614,12 @@ class ShapeBuilder(ModelBuilder):
             if len(list(shapeObs.keys())) != 1:
                 raise RuntimeError("There's more than once choice of observables: %s\n" % str(list(shapeObs.keys())))
             self.out.binVars = list(shapeObs.values())[0]
-            self.out._import(self.out.binVars)
+            self.out.safe_import(self.out.binVars)
 
     def doCombinedDataset(self):
         if len(self.DC.bins) == 1 and self.options.forceNonSimPdf:
             data = self.getData(self.DC.bins[0], self.options.dataname).Clone(self.options.dataname)
-            self.out._import(data)
+            self.out.safe_import(data)
             return
 
         # Combine is able to handle the binned/vs unbinned properly so no need for separate commands
@@ -630,19 +630,19 @@ class ShapeBuilder(ModelBuilder):
         #     for b in self.DC.bins:
         #         combiner.addSetBin(b, self.getData(b,self.options.dataname))
         #     self.out.data_obs = combiner.done(self.options.dataname,self.options.dataname)
-        #     self.out._import(self.out.data_obs)
+        #     self.out.safe_import(self.out.data_obs)
         # elif self.out.mode == "unbinned":
         #     combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
         #     for b in self.DC.bins: combiner.addSetAny(b, self.getData(b,self.options.dataname))
         #     self.out.data_obs = combiner.doneUnbinned(self.options.dataname,self.options.dataname)
-        #     self.out._import(self.out.data_obs)
+        #     self.out.safe_import(self.out.data_obs)
         # else: raise RuntimeException, "Only combined datasets are supported"
 
         combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
         for b in self.DC.bins:
             combiner.addSetAny(b, self.getData(b, self.options.dataname))
         self.out.data_obs = combiner.doneUnbinned(self.options.dataname, self.options.dataname)
-        self.out._import(self.out.data_obs)
+        self.out.safe_import(self.out.data_obs)
         if self.options.verbose > 2:
             print(
                 "Created combined dataset with ",
@@ -774,13 +774,13 @@ class ShapeBuilder(ModelBuilder):
                             toFreeze,
                         ) = self.getRenamingParameters()
                         if len(renameParamString):
-                            self.out._import(
+                            self.out.safe_import(
                                 norm,
                                 ROOT.RooFit.RecycleConflictNodes(),
                                 ROOT.RooFit.RenameVariable(paramString, renameParamString),
                             )
                         else:
-                            self.out._import(norm, ROOT.RooFit.RecycleConflictNodes())
+                            self.out.safe_import(norm, ROOT.RooFit.RecycleConflictNodes())
                 if self.options.verbose > 2:
                     print("import (%s,%s) -> %s\n" % (finalNames[0], objname, ret.GetName()))
                 return ret
@@ -1237,7 +1237,7 @@ class ShapeBuilder(ModelBuilder):
                     ROOT.RooArgList(self.out.var(self.TH1Observables[channel])),
                     rebinh1,
                 )
-                # self.out._import(rdh)
+                # self.out.safe_import(rdh)
                 _cache[shape.GetName()] = rdh
             elif shape.ClassName() in ["RooDataHist", "RooDataSet"]:
                 return shape

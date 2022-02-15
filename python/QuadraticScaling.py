@@ -45,7 +45,7 @@ class Quadratic(PhysicsModel):
                 template = "expr::{name}('{a0} + ({a1} * {c}) + ({a2} * {c} * {c})', {c})"
                 a0, a1, a2 = scaling[self.coefficient][process]
                 quadratic = self.modelBuilder.factory_(template.format(name=name, a0=a0, a1=a1, a2=a2, c=self.coefficient))
-                self.modelBuilder.out._import(quadratic)
+                self.modelBuilder.out.safe_import(quadratic)
 
     def doParametersOfInterest(self):
         # user should call combine with `--setPhysicsModelParameterRanges` set to sensible ranges
