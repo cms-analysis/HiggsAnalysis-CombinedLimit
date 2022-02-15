@@ -51,9 +51,9 @@ class ModelBuilderBase:
             options.baseDir = os.path.dirname(options.fileName)
             ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
             ROOT.TH1.AddDirectory(False)
-            self.out = ROOT.RooWorkspace("w", "w")
-            # self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
-            self.out._import = SafeWorkspaceImporter(self.out)
+            self.out = ROOT.RooWorkspace("w", "w");
+            #self.out.safe_import = getattr(self.out,"import") # workaround: import is a python keyword
+            self.out.safe_import = SafeWorkspaceImporter(self.out)
             self.objstore = {}
             self.out.dont_delete = []
             if options.verbose == 0:
@@ -228,7 +228,7 @@ class ModelBuilder(ModelBuilderBase):
                     wstmp = open_files[(fin, wsn)]
                     if not wstmp.arg(rp):
                         raise RuntimeError("No parameter '%s' found for extArg in workspace %s from file %s" % (rp, wsn, fin))
-                    self.out._import(wstmp.arg(rp), *importargs)
+                    self.out.safe_import(wstmp.arg(rp), *importargs)
                 else:
                     fitmp = ROOT.TFile.Open(fin)
                     if not fitmp:
@@ -238,7 +238,7 @@ class ModelBuilder(ModelBuilderBase):
                         raise RuntimeError("Workspace '%s' not in file %s" % (wsn, fin))
                     if not wstmp.arg(rp):
                         raise RuntimeError("No parameter '%s' found for extArg in workspace %s from file %s" % (rp, wsn, fin))
-                    self.out._import(wstmp.arg(rp), *importargs)
+                    self.out.safe_import(wstmp.arg(rp), *importargs)
                     open_files[(fin, wsn)] = wstmp
             else:
                 param_range = ""
@@ -286,7 +286,7 @@ class ModelBuilder(ModelBuilderBase):
                     wstmp = open_files[(fin, wsn)]
                     if not wstmp.arg(argu):
                         raise RuntimeError("No parameter '%s' found for rateParam in workspace %s from file %s" % (argu, wsn, fin))
-                    self.out._import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
+                    self.out.safe_import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
                 else:
                     fitmp = ROOT.TFile.Open(fin)
                     if not fitmp:
@@ -296,7 +296,7 @@ class ModelBuilder(ModelBuilderBase):
                         raise RuntimeError("Workspace '%s' not in file %s" % (wsn, fin))
                     if not wstmp.arg(argu):
                         raise RuntimeError("No parameter '%s' found for rateParam in workspace %s from file %s" % (argu, wsn, fin))
-                    self.out._import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
+                    self.out.safe_import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
                     open_files[(fin, wsn)] = wstmp
                     # fitmp.Close()
 
@@ -780,7 +780,7 @@ class ModelBuilder(ModelBuilderBase):
                 nuisPdfs.add(self.out.pdf(n + "_Pdf"))
             self.out.defineSet("nuisances", nuisVars)
             self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", nuisPdfs)
-            self.out._import(self.out.nuisPdf)
+            self.out.safe_import(self.out.nuisPdf)
             self.out.nuisPdfs = nuisPdfs
             gobsVars = ROOT.RooArgSet()
             for g in globalobs:
@@ -951,13 +951,13 @@ class ModelBuilder(ModelBuilderBase):
                         toFreeze,
                     ) = self.getRenamingParameters()
                     if len(renameParamString):
-                        self.out._import(
+                        self.out.safe_import(
                             procNorm,
                             ROOT.RooFit.RecycleConflictNodes(),
                             ROOT.RooFit.RenameVariable(paramString, renameParamString),
                         )
                     else:
-                        self.out._import(procNorm)
+                        self.out.safe_import(procNorm)
 
     def doIndividualModels(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
@@ -1003,13 +1003,13 @@ class ModelBuilder(ModelBuilderBase):
                 mc.SetGlobalObservables(gObsSet)
             if self.options.verbose > 2:
                 mc.Print("V")
-            self.out._import(mc, mc.GetName())
+            self.out.safe_import(mc, mc.GetName())
             if self.options.noBOnly:
                 break
         discparams = ROOT.RooArgSet("discreteParams")
         for cpar in self.discrete_param_set:
             discparams.add(self.out.cat(cpar))
-        self.out._import(discparams, discparams.GetName())
+        self.out.safe_import(discparams, discparams.GetName())
         self.out.writeToFile(self.options.out)
 
     def isShapeSystematic(self, channel, process, syst):
@@ -1041,7 +1041,7 @@ class CountingModelBuilder(ModelBuilder):
             if self.options.bin:
                 self.out.data_obs = ROOT.RooDataSet(self.options.dataname, "observed data", self.out.set("observables"))
                 self.out.data_obs.add(self.out.set("observables"))
-                self.out._import(self.out.data_obs)
+                self.out.safe_import(self.out.data_obs)
 
     def doIndividualModels(self):
         self.doComment(" --- Expected events in each bin, total (S+B and B) ----")
