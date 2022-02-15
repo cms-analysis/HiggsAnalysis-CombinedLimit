@@ -54,9 +54,9 @@ if options.pullDef : options.show_all_parameters=True
 
 if options.sortBy not in ['correlation','impact']: exit("choose one of [ %s ] for --sortBy"%(",".join()['correlation','impact']))
 
-if args.regex != ".*":
+if options.regex != ".*":
     print("Including only nuisance parameters following this regex query:")
-    print(args.regex)
+    print(options.regex)
 
 setUpString = "diffNuisances run on %s, at %s with the following options ... "%(args[0],datetime.datetime.utcnow())+str(options)
 
@@ -108,7 +108,7 @@ gr_fit_s    = ROOT.TGraphAsymmErrors(); gr_fit_s.SetTitle("fit_b_s")
 error_poi = fpf_s.find(options.poi).getError()
 
 # Compile regex object, since we will be checking regex patterns several times.
-regex_NP_obj = re.compile(args.regex)
+regex_NP_obj = re.compile(options.regex)
 
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
