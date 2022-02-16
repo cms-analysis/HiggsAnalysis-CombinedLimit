@@ -37,6 +37,7 @@ parser.add_option("", "--pullDef",  dest="pullDef", default="", type="string", h
 parser.add_option("", "--skipFitS", dest="skipFitS", default=False, action='store_true', help="skip the S+B fit, instead the B-only fit will be repeated")
 parser.add_option("", "--skipFitB", dest="skipFitB", default=False, action='store_true', help="skip the B-only fit, instead the S+B fit will be repeated")
 parser.add_option("", "--sortBy", dest="sortBy", default="correlation", type='string', help="choose 'correlation' or 'impact' to sort rows by correlation with or impact on --poi (largest to smallest absolute)")
+parser.add_option("", "--regex", dest="regex", default=".*", type="string", help="Include only nuisance parameters that passes the following regex filter")
 
 (options, args) = parser.parse_args()
 if len(args) == 0:
@@ -52,6 +53,10 @@ if options.pullDef and options.absolute_values :
 if options.pullDef : options.show_all_parameters=True
 
 if options.sortBy not in ['correlation','impact']: exit("choose one of [ %s ] for --sortBy"%(",".join()['correlation','impact']))
+
+if args.regex != ".*":
+    print("Including only nuisance parameters following this regex query:")
+    print(args.regex)
 
 setUpString = "diffNuisances run on %s, at %s with the following options ... "%(args[0],datetime.datetime.utcnow())+str(options)
 
@@ -101,6 +106,10 @@ gr_fit_b    = ROOT.TGraphAsymmErrors(); gr_fit_b.SetTitle("fit_b_g")
 gr_fit_s    = ROOT.TGraphAsymmErrors(); gr_fit_s.SetTitle("fit_b_s")
 
 error_poi = fpf_s.find(options.poi).getError()
+
+# Compile regex object, since we will be checking regex patterns several times.
+regex_NP_obj = re.compile(args.regex)
+
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
 
@@ -108,6 +117,11 @@ for i in range(fpf_s.getSize()):
     name   = nuis_s.GetName();
     nuis_b = fpf_b.find(name)
     nuis_p = prefit.find(name)
+
+    # Skip this nuisance parameter if its name does not match the regex pattern.
+    # The default pattern is .*
+    # which will always match any name.
+    if not bool(regex_NP_obj.match(name)): continue
 
     # keeps information to be printed about the nuisance parameter
     row = []
