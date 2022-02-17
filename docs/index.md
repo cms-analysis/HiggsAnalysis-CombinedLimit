@@ -55,7 +55,7 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a recommended tag - currently the recommended tag is **v7.0.13**:
+Update to a recommended tag - currently the recommended tag for CMSSW_8_1_X is **v7.0.13**:
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
