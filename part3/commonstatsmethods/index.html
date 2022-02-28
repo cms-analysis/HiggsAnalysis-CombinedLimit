@@ -723,7 +723,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory<
 <pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root
 </code></pre>
 <p>and similarly, the median expected and quantiles can be determined using</p>
-<pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --quantileExpected &lt;quantile&gt;
+<pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --expectedFromGrid &lt;quantile&gt;
 </code></pre>
 <p>substituting <code>&lt;quantile&gt;</code> with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, 0.025 for the -ve side of the 95% band.</p>
 <p>The splitting of the jobs can be left to the user's preference. However, users may wish to use the <strong>combineTool</strong> for automating this as described in the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a></p>
