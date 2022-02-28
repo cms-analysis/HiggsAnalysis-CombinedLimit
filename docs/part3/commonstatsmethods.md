@@ -567,7 +567,7 @@ combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --gri
 and similarly, the median expected and quantiles can be determined using
 
 ```sh
-combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --quantileExpected <quantile>
+combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --expectedFromGrid <quantile>
 ```
 
 substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, 0.025 for the -ve side of the 95% band.
