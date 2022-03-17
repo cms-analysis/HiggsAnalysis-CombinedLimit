@@ -49,6 +49,7 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         self.bbH_pdf = "pdf_Higgs_gg"
         self.promote_hmm = True
         self.promote_hccgluglu = False
+        self.promote_hzg = False
     def preProcessNuisances(self,nuisances):
         if self.add_bbH and not any(row for row in nuisances if row[0] == "QCDscale_bbH"):
             nuisances.append(("QCDscale_bbH",False, "param", [ "0", "1"], [] ) )
@@ -61,6 +62,11 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
                 if not self.promote_hmm:
                     print 'WARNING: hmm signal will be treated as htt'
                     CMS_to_LHCHCG_DecSimple['hmm'] = 'tautau'
+            if po.startswith("dohzg="):
+                self.promote_hzg = (po.replace("dohzg=","") in [ "yes", "1", "Yes", "True", "true" ])
+                if self.promote_hzg:
+                    print 'WARNING: hzg signal will be treated standalone'
+                    CMS_to_LHCHCG_DecSimple['hzg'] = 'Zgam'
             if po.startswith("bbh="):
                 self.add_bbH = [d.strip() for d in po.replace("bbh=","").split(",")]
             if po.startswith("dohccgluglu="):
@@ -87,12 +93,19 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         self.modelBuilder.out._import(scaler7)
         self.modelBuilder.out._import(scaler8)
         self.modelBuilder.out._import(scaler13)
-        self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addAsymmLogNormal(1.0/114.5, 1.106, self.modelBuilder.out.var("QCDscale_bbH"))
-        self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addAsymmLogNormal(1.0/114.8, 1.103, self.modelBuilder.out.var("QCDscale_bbH"))
-        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addAsymmLogNormal(1.0/114.8, 1.103, self.modelBuilder.out.var("QCDscale_bbH")) # FIX ME
+        ## YR3
+        #self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addAsymmLogNormal(1.0/1.145, 1.106, self.modelBuilder.out.var("QCDscale_bbH"))
+        #self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addAsymmLogNormal(1.0/1.148, 1.103, self.modelBuilder.out.var("QCDscale_bbH"))
+        #self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addAsymmLogNormal(1.0/1.148, 1.103, self.modelBuilder.out.var("QCDscale_bbH")) 
+        ## YR4: QCDscale+pdf+alphas
+        self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addAsymmLogNormal(1.0/1.225, 1.207, self.modelBuilder.out.var("QCDscale_bbH"))
+        self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addAsymmLogNormal(1.0/1.224, 1.206, self.modelBuilder.out.var("QCDscale_bbH"))
+        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addAsymmLogNormal(1.0/1.239, 1.205, self.modelBuilder.out.var("QCDscale_bbH")) 
+        ## pdf split is reported in YR3. pdf+alphas. I didn't subtract them from above.
         self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addLogNormal(1.061, self.modelBuilder.out.var(self.bbH_pdf))
         self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addLogNormal(1.062, self.modelBuilder.out.var(self.bbH_pdf))
-        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addLogNormal(1.062, self.modelBuilder.out.var(self.bbH_pdf)) # FIX ME
+        self.modelBuilder.out.function("CMS_bbH_scaler_13TeV").addLogNormal(1.061, self.modelBuilder.out.var(self.bbH_pdf)) 
+
     def doMH(self):
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
@@ -375,6 +388,9 @@ class Kappas(LHCHCGBaseModel):
         if self.addKappaC: 
             self.modelBuilder.doVar("kappa_c[1,0.0,10.0]")
             pois += ',kappa_c'
+        if self.promote_hzg and not self.resolved:
+            self.modelBuilder.doVar("kappa_Zgam[1.0,0.0,5.0]")
+            pois+=",kappa_Zgam"
         self.doMH()
         self.modelBuilder.doSet("POI",pois)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
@@ -407,7 +423,8 @@ class Kappas(LHCHCGBaseModel):
         else:
             self.modelBuilder.factory_('expr::Scaling_hgluglu("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_hgg("@0*@0", kappa_gam)')
-            self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_gam)')
+            if self.promote_hzg: self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_Zgam)')
+            else: self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_gam)')
             self.modelBuilder.factory_('expr::Scaling_ggH_7TeV("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_ggH_8TeV("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_ggH_13TeV("@0*@0", kappa_g)')
