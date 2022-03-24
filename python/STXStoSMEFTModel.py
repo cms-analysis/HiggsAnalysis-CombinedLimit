@@ -13,50 +13,57 @@ import yaml
 from collections import OrderedDict as od
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Ordered dicts crucial: e.g. choose WH_had before WH
 
-MAP_HIGGS_DECAY_SMEFT = {
-  "hgg":"gamgam",
-  "hzz":"ZZ",
-  "hbb":"bb",
-  "hww":"WW",
-  "htt":"tautau"
-}
+MAP_HIGGS_DECAY_SMEFT = od()
+MAP_HIGGS_DECAY_SMEFT["hgg"] = "gamgam"
+MAP_HIGGS_DECAY_SMEFT["hzz"] = "ZZ"
+MAP_HIGGS_DECAY_SMEFT["hbb"] = "bb"
+MAP_HIGGS_DECAY_SMEFT["hww"] = "WW"
+MAP_HIGGS_DECAY_SMEFT["htt"] = "tautau"
+MAP_HIGGS_DECAY_SMEFT["hmm"] = "mumu"
+MAP_HIGGS_DECAY_SMEFT["hzg"] = "Zgam"
 
-MAP_HIGGS_PROD_SMEFT = {
-  "ggH":"GG2H",
-  "qqH":"QQ2HQQ",
-  "WH_had":"QQ2HQQ",
-  "ZH_had":"QQ2HQQ",
-  "ggZH_had":"GG2H",
-  "ggZH_qq":"GG2H",
-  "WH_lep":"QQ2HLNU",
-  "ZH_lep":"QQ2HLL",
-  "ggZH_lep":"GG2HLL",
-  "ggZH_ll":"GG2HLL",
-  "ggZH_nunu":"GG2HLL",
-  "ttH":"TTH",
-  "tHq":"THQ",
-  "tHW":"THW",
-  "bbH":"BBH"
-}
+MAP_HIGGS_PROD_SMEFT = od()
+MAP_HIGGS_PROD_SMEFT["ggH"] = "GG2H"
+MAP_HIGGS_PROD_SMEFT["qqH"] = "QQ2HQQ"
+MAP_HIGGS_PROD_SMEFT["WH_had"] = "QQ2HQQ"
+MAP_HIGGS_PROD_SMEFT["ZH_had"] = "QQ2HQQ"
+MAP_HIGGS_PROD_SMEFT["ggZH_had"] = "GG2H"
+MAP_HIGGS_PROD_SMEFT["ggZH_qq"] = "GG2H"
+MAP_HIGGS_PROD_SMEFT["WH_lep"] = "QQ2HLNU"
+MAP_HIGGS_PROD_SMEFT["ZH_lep"] = "QQ2HLL"
+MAP_HIGGS_PROD_SMEFT["ggZH_lep"] = "GG2HLL"
+MAP_HIGGS_PROD_SMEFT["ggZH_ll"] = "GG2HLL"
+MAP_HIGGS_PROD_SMEFT["ggZH_nunu"] = "GG2HLL"
+MAP_HIGGS_PROD_SMEFT["ttH"] = "TTH"
+MAP_HIGGS_PROD_SMEFT["tHq"] = "THQ"
+MAP_HIGGS_PROD_SMEFT["tHW"] = "THW"
+MAP_HIGGS_PROD_SMEFT["bbH"] = "BBH"
+# If only specify VH: use leptonic equations as most likely to enter VH leptonic tag?
+#MAP_HIGGS_PROD_SMEFT["WH"] = "QQ2HLNU"
+#MAP_HIGGS_PROD_SMEFT["ZH"] = "QQ2HLL"
+#MAP_HIGGS_PROD_SMEFT["ggZH"] = "GG2HLL"
 
-MAP_HIGGS_PROD_SMEFT_ATLAS = {
-  "ggH":"GG2H",
-  "qqH":"QQ2HQQ",
-  "WH_had":"QQ2HQQ",
-  "ZH_had":"QQ2HQQ",
-  "ggZH_had":"GG2H",
-  "ggZH_qq":"GG2H",
-  "WH_lep":"QQ2HLNU",
-  "ZH_lep":"QQ2HLL",
-  "ggZH_lep":"GG2HLL",
-  "ggZH_ll":"GG2HLL",
-  "ggZH_nunu":"GG2HLL",
-  "ttH":"TTH",
-  "tHq":"TH",
-  "tHW":"TH",
-  "bbH":"BBH"
-}
+MAP_HIGGS_PROD_SMEFT_ATLAS = od()
+MAP_HIGGS_PROD_SMEFT_ATLAS["ggH"] = "GG2H"
+MAP_HIGGS_PROD_SMEFT_ATLAS["qqH"] = "QQ2HQQ"
+MAP_HIGGS_PROD_SMEFT_ATLAS["WH_had"] = "QQ2HQQ"
+MAP_HIGGS_PROD_SMEFT_ATLAS["ZH_had"] = "QQ2HQQ"
+MAP_HIGGS_PROD_SMEFT_ATLAS["ggZH_had"] = "GG2H"
+MAP_HIGGS_PROD_SMEFT_ATLAS["ggZH_qq"] = "GG2H"
+MAP_HIGGS_PROD_SMEFT_ATLAS["WH_lep"] = "QQ2HLNU"
+MAP_HIGGS_PROD_SMEFT_ATLAS["ZH_lep"] = "QQ2HLL"
+MAP_HIGGS_PROD_SMEFT_ATLAS["ggZH_lep"] = "GG2HLL"
+MAP_HIGGS_PROD_SMEFT_ATLAS["ggZH_ll"] = "GG2HLL"
+MAP_HIGGS_PROD_SMEFT_ATLAS["ggZH_nunu"] = "GG2HLL"
+MAP_HIGGS_PROD_SMEFT_ATLAS["ttH"] = "TTH"
+MAP_HIGGS_PROD_SMEFT_ATLAS["tHq"] = "TH"
+MAP_HIGGS_PROD_SMEFT_ATLAS["tHW"] = "TH"
+MAP_HIGGS_PROD_SMEFT_ATLAS["bbH"] = "BBH"
+# If only specify VH: use leptonic equations as most likely to enter VH leptonic tag?
+#MAP_HIGGS_PROD_SMEFT_ATLAS["WH"] = "QQ2HLNU"
+#MAP_HIGGS_PROD_SMEFT_ATLAS["ZH"] = "QQ2HLL"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Global function to extract reco category, STXS bin, decay mode and energy from process name
@@ -77,6 +84,9 @@ def getProcessInfo(bin,process):
   for Y in ['2016','2017','2018']:
     if "_%s"%Y in foundSTXSBin:
       foundSTXSBin = re.sub('_%s'%Y,'',foundSTXSBin)
+
+  # Catch for H->Zgam
+  if( foundDecay == "hzg" )|( "bkg" in foundSTXSBin ): foundSTXSBin = foundSTXSBin.split("_")[0]
 
   if not matchedDecayString: raise RuntimeError, "Validation Error: no supported decay found in process"
 
@@ -101,7 +111,8 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     self.floatMass = False
     self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
     self.linearOnly=False
-    self.parametrisation="CMS-prelim-SMEFT-topU3l_22_03_15"
+    self.stage0=False
+    self.parametrisation="CMS-prelim-SMEFT-topU3l_22_03_21"
  
   def setPhysicsOptionsBase(self,physOptions):
     for po in physOptions:
@@ -116,6 +127,8 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
         self.fixProcesses = (po.replace("fixProcesses=","")).split(",")
       if po.startswith("linearOnly="): 
         self.linearOnly = (po.replace("linearOnly=","") in ["yes","1","Yes","True","true"])
+      if po.startswith("stage0="): 
+        self.stage0 = (po.replace("stage0=","") in ["yes","1","Yes","True","true"])
       if po.startswith("parametrisation="): 
         self.parametrisation = po.replace("parametrisation=","")
         if "ATLAS" in self.parametrisation: self.map_prod = MAP_HIGGS_PROD_SMEFT_ATLAS
@@ -190,7 +203,22 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     else:
       for P in self.map_prod.keys():
         if P in what: 
-          k = re.sub(P,self.map_prod[P],what)    
+          k = re.sub(P,self.map_prod[P],what)  
+
+    # Fix for ttH multilepton: missing lep label in VH bins
+    if "WH_PTV" in k: k = re.sub("WH","QQ2HLNU",k)
+    if "ZH_PTV" in k: k = re.sub("ZH","QQ2HLL",k)
+    if "ggZH_PTV" in k: k = re.sub("ggZH","GG2HLL",k)
+
+    # Fix for ttH multilepton: duplicate of proc names
+    if not isDecay:
+      for P in self.map_prod.values():
+        if "%s_%s"%(P,P) in k: k = re.sub("%s_%s"%(P,P),P,k)
+
+    # Fix for VH procs without had/lep label: use leptonic scaling function. Is this accurate?
+    if k == "WH": k = "QQ2HLNU"
+    if k == "ZH": k = "QQ2HLL"
+    if k == "ggZH": k = "GG2HLL"
 
     # Extract terms for dict
     if k in self.STXSScalingTerms: terms = self.STXSScalingTerms[k] 
@@ -243,8 +271,7 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
     self.SMH = SMHiggsBuilder(self.modelBuilder)
     
     #Read in parameters of interest from yaml file
-    #self.extractPOIs("%s/src/HiggsAnalysis/CombinedLimit/data/eft/EFTScalingEquations/equations/%s/pois.yaml"%(os.environ['CMSSW_BASE'],self.parametrisation))
-    self.extractPOIs("%s/src/HiggsAnalysis/CombinedLimit/data/eft/EFTScalingEquations/equations/%s/pois_exponent.yaml"%(os.environ['CMSSW_BASE'],self.parametrisation))
+    self.extractPOIs("%s/src/HiggsAnalysis/CombinedLimit/data/eft/EFTScalingEquations/equations/%s/pois.yaml"%(os.environ['CMSSW_BASE'],self.parametrisation))
 
     # Create list of pois and build RooRealVars
     POIs = []
@@ -276,6 +303,11 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
 
     # Function to convert troublesome procs into viable one for HC combination
     production = convert_to_STXS(production,decay)
+
+    # Stage 0 option: use stage 0 bin scaling
+    if self.stage0:
+      for P in self.map_prod.keys():
+        if P in production: production = P
 
     name = "stxstosmeft_scaling_%s_%s_%s"%(production,decay,energy)
 
