@@ -16,6 +16,7 @@ parser.add_option("--ic", "--include-channel", type="string", dest="channelInclu
 parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
 parser.add_option("--xn-file", "--exclude-nuisances-from-file", type="string", dest="nuisVetoFile", help="Exclude all the nuisances in this file")
 parser.add_option("--en-file", "--edit-nuisances-from-file", type="string", dest="editNuisFile", help="edit the nuisances in this file")
+parser.add_option("--drop_regularization_terms", default=False, action="store_true", help="Drop regularization terms that would not be correctly combined.")
 
 (options, args) = parser.parse_args()
 options.bin = True # fake that is a binary output, so that we parse shape lines
@@ -113,14 +114,17 @@ for ich,fname in enumerate(args):
                     r = str(errline[b][p]);
                 except TypeError:
                     import warnings
-                    warning_message = "\nYou probably have a regularization term in datacard {}.\n".format(fname)\
+                    warning_message = "\nYou probably have one or more regularization term(s) in datacard {}.\n".format(fname)\
                             + "A constraint term is a line that looks like the following:\n\n"\
-                            + "\tconstr0 constr @3*(@0-2*@1+@2) r_0,r_1,r_2,regularize[0.] delta[10.]\n\n"\
-                            + "It will be appended to the datacard."
+                            + "\tconstr0 constr @3*(@0-2*@1+@2) r_0,r_1,r_2,regularize[0.] delta[10.]\n\n"
+                    if options.drop_regularization_terms:
+                        warning_message += "It (they) will be dropped."
+                    else:
+                        warning_message += "It (they) will be appended to the datacard."
+                        line = " ".join([lsyst, pdf] + pdfargs)
+                        if line not in constraint_terms:
+                            constraint_terms.append(line)
                     warnings.warn(warning_message, RuntimeWarning)
-                    line = " ".join([lsyst, pdf] + pdfargs)
-                    if line not in constraint_terms:
-                        constraint_terms.append(line)
                     break
                 if type(errline[b][p]) == list: r = "%s/%s" % (FloatToString(errline[b][p][0]), FloatToString(errline[b][p][1]))
                 elif type in ("lnN",'gmM'): r = "%s" % FloatToString(errline[b][p])
@@ -346,6 +350,5 @@ if options.editNuisFile:
     str = file.read();
     print str
 
-if constraint_terms:
-    for ct in constraint_terms:
-        print ct
+for ct in constraint_terms:
+    print ct
