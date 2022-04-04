@@ -353,7 +353,11 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
         observable.setVal(observableval);
         // observable.bin
         current_cdf_val = cdf->getVal();
-        empirical_df += d->second/s_data;
+        if (d->second==0 && s_data ==0){
+          empirical_df = -1.;
+        } else {
+          empirical_df += d->second/s_data;
+        }
 
         if (plotDir_ && makePlots_) {
           hCdf->SetBinContent(bin+1, current_cdf_val);
@@ -366,6 +370,7 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
               std::cout << "Observable: " << observableval << "\tdata: " << d->second << "\tedf: " << empirical_df << "\tcdf: " << current_cdf_val << "\tdistance: " << distance << "\n";
             }
             if (distance > test_stat) test_stat = distance;
+            if (empirical_df < 0. ) test_stat = empirical_df; //To set negative test stat in case the sum of data entries is 0.
         }else{
             bin_prob = current_cdf_val-last_cdf_val;
             distance = s_data*pow((empirical_df-current_cdf_val), 2)/current_cdf_val/(1.-current_cdf_val)*bin_prob;
@@ -377,6 +382,7 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
             }
             // from L. Demortier, CDF/ANAL/JET/CDFR/3419
             test_stat += distance;
+            if(empirical_df < 0. ) test_stat = empirical_df; //To set negative test stat in case the sum of data entries is 0.
         }
         if (plotDir_ && makePlots_) {
           hDiff->SetBinContent(bin+1, distance);
