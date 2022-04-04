@@ -696,9 +696,11 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     std::map<std::string,double> norm_tot, norm_sig, norm_bkg;
     std::map<std::string,double> sumx2_tot, sumx2_sig, sumx2_bkg;
     std::map<std::string,double> diff_tot, diff_sig, diff_bkg;
+    std::vector<std::string> channel_names;
     IT bg = snm.begin(), ed = snm.end(), pair; int i;
     for (pair = bg, i = 0; pair != ed; ++pair, ++i) {  
         vals[i] = pair->second.norm->getVal();
+        channel_names.push_back(pair->second.channel);
 	norm_tot.find(pair->second.channel) == norm_tot.end() ? norm_tot[pair->second.channel] = vals[i] : norm_tot[pair->second.channel] += vals[i];
 	if (pair->second.signal) norm_sig.find(pair->second.channel) == norm_sig.end() ? norm_sig[pair->second.channel] = vals[i] : norm_sig[pair->second.channel] += vals[i];
 	else norm_bkg.find(pair->second.channel) == norm_bkg.end() ? norm_bkg[pair->second.channel] = vals[i] : norm_bkg[pair->second.channel] += vals[i];
@@ -827,6 +829,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 	  for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) h->second->Reset(), diff_tot[h->first] = 0.0;
 	  for (IH h = sigByCh1.begin(), eh = sigByCh1.end(); h != eh; ++h) h->second->Reset(), diff_sig[h->first] = 0.0;
 	  for (IH h = bkgByCh1.begin(), eh = bkgByCh1.end(); h != eh; ++h) h->second->Reset(), diff_bkg[h->first] = 0.0;
+          for (auto chname : channel_names) diff_tot[chname]=0.0, diff_sig[chname]=0.0, diff_bkg[chname] = 0.0;
             // randomize numbers
             params->assignValueOnly( sampler.get(t) );
             for (pair = bg, i = 0; pair != ed; ++pair, ++i) { 
