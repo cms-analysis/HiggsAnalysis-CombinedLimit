@@ -13,6 +13,7 @@
 #include "RooRealConstant.h"
 #include "RooRealIntegral.h"
 #include "RooMsgService.h"
+#include "RooProdPdf.h"
 
 
 
