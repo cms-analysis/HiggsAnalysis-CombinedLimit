@@ -58,26 +58,51 @@ void ProcessNormalization::addOtherFactor(RooAbsReal &factor) {
 
 Double_t ProcessNormalization::evaluate() const {
     double logVal = 0.0;
+    if (thetaListVec_.empty()) {
+        RooFIter iterTheta = thetaList_.fwdIterator();
+        std::vector<RooAbsReal *> & thetaListVec = const_cast<std::vector<RooAbsReal *>&>(thetaListVec_);
+        thetaListVec.reserve(thetaList_.getSize());
+        for (RooAbsArg *a = iterTheta.next(); a != 0; a = iterTheta.next()) {
+            thetaListVec.push_back(dynamic_cast<RooAbsReal *>(a));
+        }
+    }
+    if (asymmThetaListVec_.empty()) {
+        RooFIter iterTheta = asymmThetaList_.fwdIterator();
+        std::vector<RooAbsReal *> & asymmThetaListVec = const_cast<std::vector<RooAbsReal *>&>(asymmThetaListVec_);
+        asymmThetaListVec.reserve(asymmThetaList_.getSize());
+        for (RooAbsArg *a = iterTheta.next(); a != 0; a = iterTheta.next()) {
+            asymmThetaListVec.push_back(dynamic_cast<RooAbsReal *>(a));
+        }
+    }
+    if (otherFactorListVec_.empty()) {
+        RooFIter iterOther = otherFactorList_.fwdIterator();
+        std::vector<RooAbsReal *> & otherFactorListVec = const_cast<std::vector<RooAbsReal *>&>(otherFactorListVec_);
+        otherFactorListVec.reserve(otherFactorList_.getSize());
+        for (RooAbsArg *a = iterOther.next(); a != 0; a = iterOther.next()) {
+            otherFactorListVec.push_back(dynamic_cast<RooAbsReal *>(a));
+        }
+    }
     if (!logKappa_.empty()) {
-        RooLinkedListIter iterTheta = thetaList_.iterator();
-        std::vector<double>::const_iterator logKappa = logKappa_.begin();
-        for (RooAbsReal *theta = (RooAbsReal*) iterTheta.Next(); theta != 0; theta = (RooAbsReal*) iterTheta.Next(), ++logKappa) {
-            logVal += theta->getVal() * (*logKappa);
+        assert(logKappa_.size()==thetaListVec_.size());
+        for(unsigned int i=0; i < thetaListVec_.size() ; i++){
+            const RooAbsReal *theta = thetaListVec_.at(i);
+            const double logKappa = logKappa_.at(i);
+            logVal += theta->getVal() * (logKappa);
         }
     }
     if (!logAsymmKappa_.empty()) {
-        RooLinkedListIter iterTheta = asymmThetaList_.iterator();
-        std::vector<std::pair<double,double> >::const_iterator logKappas = logAsymmKappa_.begin();
-        for (RooAbsReal *theta = (RooAbsReal*) iterTheta.Next(); theta != 0; theta = (RooAbsReal*) iterTheta.Next(), ++logKappas) {
+        assert(logAsymmKappa_.size()==asymmThetaListVec_.size());
+        for( unsigned int i=0; i < asymmThetaListVec_.size(); i++){
+            const RooAbsReal *theta = asymmThetaListVec_.at(i);
+            const std::pair<double,double> logKappas = logAsymmKappa_.at(i);
             double x = theta->getVal();
-            logVal +=  x * logKappaForX(x, *logKappas);
+            logVal +=  x * logKappaForX(x, logKappas);
         }
     }
     double norm = nominalValue_;
     if (logVal) norm *= std::exp(logVal);
     if (otherFactorList_.getSize()) {
-        RooLinkedListIter iterOther = otherFactorList_.iterator();
-        for (RooAbsReal *fact = (RooAbsReal*) iterOther.Next(); fact != 0; fact = (RooAbsReal*) iterOther.Next()) {
+        for (const RooAbsReal *fact :otherFactorListVec_){
             norm *= fact->getVal();
         }
     }
