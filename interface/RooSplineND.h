@@ -23,6 +23,7 @@
 #include "TGraph.h"
 #include "TDirectory.h"
 #include "RooRealVar.h"
+#include "Rtypes.h"
 
 #include <map>
 #include <vector>
@@ -51,7 +52,7 @@ for different f-vectors
 3) Make the decomposition a persistent member. Can be used to apply to 
 different functions after decomposition is performed.
 
-4) Any better linear algebra packages from / rather than ROOT
+4) Any better linear algebra packages ?
 
 </p>
 END_HTML
@@ -60,7 +61,8 @@ END_HTML
 class RooSplineND : public RooAbsReal {
 
    public:
-      RooSplineND() : ndim_(0),M_(0),eps_(3.) {}
+      //RooSplineND() : ndim_(0),M_(0),eps_(3.) {}
+      RooSplineND() {};
       RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char* fName="f", double eps=3., bool rescale=false, std::string cutstring="" ) ;
       RooSplineND(const RooSplineND& other, const char *name) ; 
       RooSplineND(const char *name, const char *title, const RooListProxy &vars, int ndim, int M, double eps, bool rescale, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > & ,double,double) ;
@@ -80,19 +82,20 @@ class RooSplineND : public RooAbsReal {
 	mutable std::map<int,std::vector<double> > v_map;
 	mutable std::map<int,std::pair<double,double> > r_map;
 	
-	int ndim_;
-	int M_;
-	double eps_;
-  	double axis_pts_;
+	mutable int ndim_;
+	mutable int M_;
+	mutable double eps_;
+  	mutable double axis_pts_;
 	
-	double w_mean, w_rms;
+	mutable double w_mean, w_rms;
 
 	void calculateWeights(std::vector<double> &);
 	double getDistSquare(int i, int j);
 	double getDistFromSquare(int i) const;
-	double radialFunc(double d2, double eps) const;
+	void   printPoint(int i) const;
+	double radialFunc(double d2, double eps, double cutoff = -1) const;
 
-	bool rescaleAxis;
+	mutable bool rescaleAxis;
 	
 
   ClassDef(RooSplineND,1) 

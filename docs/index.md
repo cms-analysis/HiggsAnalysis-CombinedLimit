@@ -30,12 +30,12 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a reccomended tag - currently the reccomended tag is **v8.0.1**:
+Update to a recommended tag - currently the recommended tag is **v8.2.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0)
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v8.0.1
+git checkout v8.2.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
@@ -45,9 +45,9 @@ Setting up the environment (once):
 
 ```sh
 # For CC7:
-export SCRAM_ARCH=slc7_64_gcc530
+export SCRAM_ARCH=slc7_amd64_gcc530
 # For SLC6:
-export SCRAM_ARCH=slc6_64_gcc530
+export SCRAM_ARCH=slc6_amd64_gcc530
 
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
@@ -55,7 +55,7 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a reccomended tag - currently the reccomended tag is **v7.0.13**:
+Update to a recommended tag - currently the recommended tag for CMSSW_8_1_X is **v7.0.13**:
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
@@ -64,6 +64,22 @@ git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
+## Standalone version 
+
+The standalone version can be easily compiled using the \verb@cvmfs@ as it relies on dependencies which are already installed at [/cvmfs/cms.cern.ch/](/cvmfs/cms.cern.ch/). 
+
+Access to `/cvmfs/cms.cern.ch/` can be obtained from lxplus machines or via `CernVM`, by adding the `CMS` group to the CVMFS Configuration. A minimal `CernVM` working context setup can be found in the CernVM Marketplace under `Experimental/HiggsCombine` or at [https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). At least 2GB of disk space should be reserved on the virtual machine for Combine to work properly. In case you do not want to use the `cvmfs` area, you will need to adapt the location of the dependencies listed in both the `Makefile` and `env_standalone.sh` files.
+
+```
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit/ 
+git fetch origin
+git checkout v8.1.0
+. env_standalone.sh
+make
+```
+
+You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login.
 
 ## What has changed between tags? 
 
@@ -140,3 +156,29 @@ make sure to run `scram`  to compile the `CombineTools` package.
 
 See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
 
+# Standalone version of combine
+
+Combine is also released as a standalone package, still meant to be run on SLC7 machines. Please note that while the CMSSW version is maintained regularly, the same might not be true for the standalone version. For CMS members, we advise to use the CMSSW version when possible.
+
+To compile the standalone version on suitable machines, please run:
+```
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit/ 
+git fetch origin
+git checkout v8.2.0
+. env_standalone.sh
+make
+```
+You will need to source env_standalone.sh each time you want to use the package, or add it to your login. 
+
+## Available machines for standalone combine
+
+The standalone version can be easily compiled via _CVMFS_ as it relies on dependencies which are already installed at _/cvmfs/cms.cern.ch/_. Access to _/cvmfs/cms.cern.ch/_ can be obtained from lxplus machines or via [`CernVM`](https://cernvm-online.cern.ch/). The only requirement will be to add the _CMS_ group to the CVMFS configuration as shown in the picture
+
+![](cvmsf_config.png)
+
+At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). 
+
+To use this predefined context, first locally launch the CernVM (eg you can use the .ova with VirtualBox, by downloading from [here](http://cernvm.cern.ch/releases/production/cernvm4-micro-2020.07-1.ova) and launching the downloaded file. You can click on "pair an instance of CernVM" from the cernvm-online dashboard, which displays a PIN. In the VirtualBox terminal, pair the virtual machine with this PIN code (enter in the terminal using #PIN eg `#123456`. After this, you will be asked again for username (use `user`) and then a password (use `hcomb`).
+
+In case you do not want to use the cvmfs area, you will need to adapt the location of the dependencies listed in both the Makefile and env_standalone.sh files.

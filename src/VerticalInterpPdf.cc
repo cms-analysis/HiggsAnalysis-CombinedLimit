@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
 
 #include "RooFit.h"
 #include "Riostream.h"
@@ -12,6 +13,7 @@
 #include "RooRealConstant.h"
 #include "RooRealIntegral.h"
 #include "RooMsgService.h"
+#include "RooProdPdf.h"
 
 
 
@@ -26,6 +28,8 @@ VerticalInterpPdf::VerticalInterpPdf()
   _funcIter  = _funcList.createIterator() ;
   _coefIter  = _coefList.createIterator() ;
   _quadraticRegion = 0;
+  _pdfFloorVal = 1e-15;
+  _integralFloorVal = 1e-10;
 }
 
 
@@ -36,7 +40,9 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
   _funcList("!funcList","List of functions",this),
   _coefList("!coefList","List of coefficients",this),
   _quadraticRegion(quadraticRegion),
-  _quadraticAlgo(quadraticAlgo)
+  _quadraticAlgo(quadraticAlgo),
+  _pdfFloorVal(1e-15),
+  _integralFloorVal(1e-10)
 { 
 
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1) {
@@ -89,7 +95,9 @@ VerticalInterpPdf::VerticalInterpPdf(const VerticalInterpPdf& other, const char*
   _funcList("!funcList",this,other._funcList),
   _coefList("!coefList",this,other._coefList),
   _quadraticRegion(other._quadraticRegion),
-  _quadraticAlgo(other._quadraticAlgo)
+  _quadraticAlgo(other._quadraticAlgo),
+  _pdfFloorVal(other._pdfFloorVal),
+  _integralFloorVal(other._integralFloorVal)
 {
   // Copy constructor
 
@@ -140,7 +148,7 @@ Double_t VerticalInterpPdf::evaluate() const
       }
   }
    
-  return ( value > 0 ? value : 1E-15 ); // Last IEEE double precision
+  return ( value > 0. ? value : _pdfFloorVal);
 }
 
 
@@ -213,7 +221,13 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
   _funcIter->Reset() ;
   RooAbsReal *func ;
   while((func=(RooAbsReal*)_funcIter->Next())) {
-    RooAbsReal* funcInt = func->createIntegral(analVars) ;
+    RooAbsReal* funcInt = nullptr;
+    if (isConditionalProdPdf(func)) {
+      RooProdPdf *prod = static_cast<RooProdPdf*>(func);
+      funcInt = makeConditionalProdPdfIntegral(prod, analVars);
+    } else {
+      funcInt = func->createIntegral(analVars) ;
+    }
     cache->_funcIntList.addOwned(*funcInt) ;
     if (normSet && normSet->getSize()>0) {
       RooAbsReal* funcNorm = func->createIntegral(*normSet) ;
@@ -231,7 +245,56 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
   return code+1 ; 
 }
 
+bool VerticalInterpPdf::isConditionalProdPdf(RooAbsReal *pdf) const {
+  // If pdf is not RooProdPdf, we can return false immediately
+  if (!dynamic_cast<RooProdPdf*>(pdf)) {
+    return false;
+  }
+  RooProdPdf *prod = static_cast<RooProdPdf*>(pdf);
 
+  // Now loop through prodPdf components, and find the saved "nset" for each one
+  // If this is a non-empty set, we have a conditional pdf
+  for (int i = 0; i < prod->pdfList().getSize(); ++i) {
+    RooAbsPdf *compPdf = static_cast<RooAbsPdf*>(prod->pdfList().at(i));
+    RooArgSet* nset = prod->findPdfNSet(*compPdf);
+    if (nset && TString(nset->GetName()) == "nset" && nset->getSize() > 0) {
+      // We can immediately return true
+      return true;
+    }
+  }
+  return false;
+}
+
+RooAbsReal* VerticalInterpPdf::makeConditionalProdPdfIntegral(RooAbsPdf* pdf, RooArgSet const& analVars) const {
+  // If pdf is not RooProdPdf, we can return false immediately
+  if (!dynamic_cast<RooProdPdf*>(pdf)) {
+    return nullptr;
+  }
+  RooProdPdf *prod = static_cast<RooProdPdf*>(pdf);
+
+  // Make a list of component integrals
+  RooArgList prodIntComps;
+  for (int i = 0; i < prod->pdfList().getSize(); ++i) {
+    RooAbsPdf *compPdf = static_cast<RooAbsPdf*>(prod->pdfList().at(i));
+    RooArgSet* nset = prod->findPdfNSet(*compPdf);
+    if (nset && TString(nset->GetName()) == "nset" && nset->getSize() > 0) {
+      // We integrate the subset of analVars variables that are in nset
+      std::unique_ptr<RooArgSet> selObs(static_cast<RooArgSet*>(nset->selectCommon(analVars)));
+      prodIntComps.add(*compPdf->createIntegral(*selObs));
+      // std::cout << "For ProdPdf=" << prod->GetName() << ", added integral of " << compPdf->GetName() << " for cond. observables: \n";
+      // selObs->Print();
+    } else {
+      std::unique_ptr<RooArgSet> iVars(compPdf->getVariables());
+      std::unique_ptr<RooArgSet> selObs(static_cast<RooArgSet*>(iVars->selectCommon(analVars)));
+      prodIntComps.add(*compPdf->createIntegral(*selObs));
+      // std::cout << "For ProdPdf=" << prod->GetName() << ", added integral of " << compPdf->GetName() << " for observables: \n";
+      // selObs->Print();
+    }
+  }
+  RooCheapProduct *intProd = new RooCheapProduct(TString("intProd_")+prod->GetName(), "", prodIntComps);
+  intProd->addOwnedComponents(prodIntComps);
+  return intProd;
+}
 
 
 //_____________________________________________________________________________
@@ -284,8 +347,8 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
   }
 
   Double_t result = 0;
-  if(normVal>0) result = value / normVal;
-  return (result > 0 ? result : 1E-10);
+  if(normVal>0.) result = value / normVal;
+  return (result > 0. ? result : _integralFloorVal);
 }
 
 Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbsReal *fUp, RooAbsReal *fDn) const  
@@ -364,3 +427,7 @@ Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbs
         }
     }
 }
+
+
+//_____________________________________________________________________________
+void VerticalInterpPdf::setFloorVals(Double_t const& pdf_val, Double_t const& integral_val){ _pdfFloorVal = pdf_val; _integralFloorVal = integral_val; }

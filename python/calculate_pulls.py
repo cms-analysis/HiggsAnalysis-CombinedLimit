@@ -8,7 +8,7 @@ def allowed_methods():
 
 def unconstPull(x,x0,sx):
   # Common to plot (x-x0)/sigma - i.e difference relative to post-fit uncertainty
-  if (sx0 == 0): return [0,1]; 
+  if (sx == 0): return [0,1]; 
   return [(x - x0)/sx,0]
 
 def compat(x,x0,sx,sx0):
@@ -42,8 +42,9 @@ def diffPullAsym(x,x0,sxu,sxu0,sxd,sxd0):
   return ret
 
 def unconstPullAsym(x,x0,sxu,sxu0,sxd,sxd0):
-  if x<x0: ret = relDiff(x,x0,sxu)
-  else :  ret =  relDiff(x,x0,sxd)
+  if x<x0: ret = unconstPull(x,x0,sxu)
+  else :  ret =  unconstPull(x,x0,sxd)
+  ret.append(0)
   return ret
 
 def relDiffAsymErrs(x,x0,sxu,sxu0,sxd,sxd0):

@@ -62,6 +62,7 @@ void CloseCoutSentry::reallyClear()
         open_   = true;
         owner_ = 0;
     }
+    if (fdTmp_) close(fdTmp_);
 }
 
 void CloseCoutSentry::breakFree() 

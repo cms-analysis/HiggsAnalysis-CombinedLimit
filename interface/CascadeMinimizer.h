@@ -24,7 +24,7 @@ class CascadeMinimizer {
         // run hesse
         bool hesse(int verbose = 0 );
         // do a new minimization, assuming a plausible initial state
-        bool improve(int verbose=0, bool cascade=true);
+        bool improve(int verbose=0, bool cascade=true, bool forceResetMinimizer=false);
         // declare nuisance parameters for pre-fit
         void setNuisanceParameters(const RooArgSet *nuis) { nuisances_ = nuis; }
         RooMinimizer & minimizer() { return *minimizer_; }
@@ -59,6 +59,9 @@ class CascadeMinimizer {
 		,std::vector<std::vector<bool> > & );
        
         bool iterativeMinimize(double &,int,bool); 
+
+        void remakeMinimizer() ;
+
         /// options configured from command line
         static boost::program_options::options_description options_;
         /// compact information about an algorithm

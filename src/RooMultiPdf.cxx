@@ -32,8 +32,10 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
 	c.add(*fPdf);
 	// This is done by the user BUT is there a way to do it at construction?
 	_x.defineType(Form("_pdf%d",count),count);//(fPdf->getParameters())->getSize());
+  std::unique_ptr<RooArgSet> variables(fPdf->getVariables());
+  std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
 	// Isn't there a better wat to hold on to these values?
-	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName()),"",fPdf->getVariables()->getSize());
+	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName()),"",nonConstVariables->getSize());
 	corr.add(*tmp);
 	count++;
   }
@@ -57,8 +59,11 @@ RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
  RooAbsPdf *fPdf;
  while ( (fPdf = (RooAbsPdf*) pdfIter->Next()) ){
 	c.add(*fPdf);
+  std::unique_ptr<RooArgSet> variables(fPdf->getVariables());
+  std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
+
 	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName())
-		,"",fPdf->getVariables()->getSize());
+		,"",nonConstVariables->getSize());
 	corr.add(*tmp);
  }
 

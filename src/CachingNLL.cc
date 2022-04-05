@@ -5,6 +5,7 @@
 #include <RooCategory.h>
 #include <RooDataSet.h>
 #include <RooProduct.h>
+#include <RooStats/RooStatsUtils.h>
 
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include <HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h>
@@ -12,6 +13,7 @@
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistV.h>
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h>
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h>
+#include <HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h>
 #include <HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedGaussian.h>
 #include <HiggsAnalysis/CombinedLimit/interface/VectorizedCB.h>
@@ -29,6 +31,7 @@ namespace cacheutils {
     typedef OptimizedCachingPdfT<CMSHistFunc, CMSHistV<CMSHistFunc>> CachingCMSHistFunc;
     typedef OptimizedCachingPdfT<CMSHistFuncWrapper, CMSHistV<CMSHistFuncWrapper>> CachingCMSHistFuncWrapper;
     typedef OptimizedCachingPdfT<CMSHistErrorPropagator, CMSHistV<CMSHistErrorPropagator>> CachingCMSHistErrorPropagator;
+    typedef OptimizedCachingPdfT<CMSHistSum, CMSHistV<CMSHistSum>> CachingCMSHistSum;
     typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
     typedef OptimizedCachingPdfT<RooCBShape,VectorizedCBShape> CachingCBPdf;
     typedef OptimizedCachingPdfT<RooExponential,VectorizedExponential> CachingExpoPdf;
@@ -247,33 +250,41 @@ std::pair<std::vector<Double_t> *, bool> cacheutils::ValuesCache::get()
     return std::pair<std::vector<Double_t> *, bool>(&items[found]->values, good);
 }
 
-cacheutils::CachingPdf::CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) :
-    obs_(obs),
-    pdfOriginal_(pdf),
-    pdfPieces_(),
-    pdf_(runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_)),
-    lastData_(0),
-    cache_(*pdf_,*obs_),
-    includeZeroWeights_(false)
-{
-    if (runtimedef::get("CACHINGPDF_DIRECT") || pdf->getAttribute("CachingPdf_Direct")) {
-        cache_.setDirectMode(true);
-    }
+cacheutils::CachingPdf::CachingPdf(RooAbsReal *pdf, const RooArgSet *obs)
+    : obs_(obs),
+      pdfOriginal_(pdf),
+      pdfPieces_(),
+      pdf_((runtimedef::get("CACHINGPDF_NOCLONE") &&
+            pdfOriginal_->getAttribute("CachingPdf_NoClone"))
+               ? pdfOriginal_
+               : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE")
+                      ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_)
+                      : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
+      lastData_(0),
+      cache_(*pdf_, *obs_),
+      includeZeroWeights_(false) {
+  if (runtimedef::get("CACHINGPDF_DIRECT") || pdf->getAttribute("CachingPdf_Direct")) {
+    cache_.setDirectMode(true);
+  }
 }
 
-cacheutils::CachingPdf::CachingPdf(const CachingPdf &other) :
-    obs_(other.obs_),
-    pdfOriginal_(other.pdfOriginal_),
-    pdfPieces_(),
-    pdf_(runtimedef::get("CACHINGPDF_NOCHEAPCLONE") ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_) : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_)),
-    lastData_(0),
-    cache_(*pdf_,*obs_),
-    includeZeroWeights_(other.includeZeroWeights_)
-{
-    if (runtimedef::get("CACHINGPDF_DIRECT") || other.pdfOriginal_->getAttribute("CachingPdf_Direct")) {
-        cache_.setDirectMode(true);
-    }
-
+cacheutils::CachingPdf::CachingPdf(const CachingPdf &other)
+    : obs_(other.obs_),
+      pdfOriginal_(other.pdfOriginal_),
+      pdfPieces_(),
+      pdf_((runtimedef::get("CACHINGPDF_NOCLONE") &&
+            other.pdfOriginal_->getAttribute("CachingPdf_NoClone"))
+               ? pdfOriginal_
+               : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE")
+                      ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_)
+                      : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
+      lastData_(0),
+      cache_(*pdf_, *obs_),
+      includeZeroWeights_(other.includeZeroWeights_) {
+  if (runtimedef::get("CACHINGPDF_DIRECT") ||
+      other.pdfOriginal_->getAttribute("CachingPdf_Direct")) {
+    cache_.setDirectMode(true);
+  }
 }
 
 cacheutils::CachingPdf::~CachingPdf() 
@@ -380,6 +391,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, Ro
     RooAbsReal(name, title),
     pdf_(pdf),
     params_("params","parameters",this),
+    catParams_("catParams","RooCategory parameters",this),
     includeZeroWeights_(includeZeroWeights),
     zeroPoint_(0),
     constantZeroPoint_(0)
@@ -395,6 +407,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char 
     RooAbsReal(name ? name : (TString("nll_")+other.pdf_->GetName()).Data(), ""),
     pdf_(other.pdf_),
     params_("params","parameters",this),
+    catParams_("catParams","RooCategory parameters",this),
     includeZeroWeights_(other.includeZeroWeights_),
     zeroPoint_(0),
     constantZeroPoint_(0)
@@ -472,6 +485,10 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
     } else if (histNll && typeid(*pdf) == typeid(FastVerticalInterpHistPdf2)) {
         return new CachingHistPdf2(pdf, obs);
     } else if (gaussNll && typeid(*pdf) == typeid(RooGaussian)) {
+        if (runtimedef::get("DBG_GAUSS")) {
+            std::cout << "Creating CachingGaussPdf for " << pdf->GetName() << "\n";
+            pdf->Print("v");
+        }
         return new CachingGaussPdf(pdf, obs);
     } else if (cbNll && typeid(*pdf) == typeid(RooCBShape)) {
         return new CachingCBPdf(pdf, obs);
@@ -500,6 +517,8 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
         return new CachingCMSHistFuncWrapper(pdf, obs);
     } else if (histfuncNll && typeid(*pdf) == typeid(CMSHistErrorPropagator)) {
         return new CachingCMSHistErrorPropagator(pdf, obs);
+    } else if (histfuncNll && typeid(*pdf) == typeid(CMSHistSum)) {
+        return new CachingCMSHistSum(pdf, obs);
     } else {
         if (verb) {
             std::cout << "I don't have an optimized implementation for " << pdf->ClassName() << " (" << pdf->GetName() << ")" << std::endl;
@@ -567,9 +586,8 @@ cacheutils::CachingAddNLL::setup_()
     std::auto_ptr<RooArgSet> params(pdf_->getParameters(*data_));
     std::auto_ptr<TIterator> iter(params->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
-        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        //if (rrv != 0 && !rrv->isConstant()) params_.add(*rrv);
-        if (rrv != 0) params_.add(*rrv);
+        if (dynamic_cast<RooRealVar *>(a))  params_.add(*a);
+        else if (dynamic_cast<RooCategory *>(a)) catParams_.add(*a);
     }
 
     multiPdfs_.clear();
@@ -598,16 +616,6 @@ cacheutils::CachingAddNLL::evaluate() const
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingAddNLL::evaluate called");
 #endif
-
-    // For multi pdf's need to reset the cache if index changed before evaluations
-    // unless they're being properly treated in the CachingPdf
-    static bool multiNll  = runtimedef::get("ADDNLL_MULTINLL");
-    if (!multiNll && !multiPdfs_.empty()) {
-        for (std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> >::iterator itp = multiPdfs_.begin(), edp = multiPdfs_.end(); itp != edp; ++itp) {
-		bool hasChangedPdf = itp->first->checkIndexDirty();
-		if (hasChangedPdf) itp->second->setDataDirty();
-        }
-    }
 
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
 
@@ -666,6 +674,7 @@ cacheutils::CachingAddNLL::evaluate() const
     // then get the final nll
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
     double ret = constantZeroPoint_;
+    if (runtimedef::get("REMOVE_CONSTANT_ZERO_POINT") ) ret = 0; 
     for (its = bgs; its != eds ; ++its) {
         if (!isnormal(*its) || *its <= 0) {
             if ((weights_[its-bgs] == 0) && (*its == 0)) {
@@ -809,6 +818,10 @@ void cacheutils::CachingAddNLL::propagateData() {
             // printf("Passing data to %s\n", funci.pdf()->GetName());
             (static_cast<CMSHistErrorPropagator const*>(funci.pdf()))->setData(*data_);
         }
+        if (typeid(*(funci.pdf())) == typeid(CMSHistSum)) {
+            // printf("Passing data to %s\n", funci.pdf()->GetName());
+            (static_cast<CMSHistSum const*>(funci.pdf()))->setData(*data_);
+        }
     }
 }
 
@@ -818,6 +831,10 @@ void cacheutils::CachingAddNLL::setAnalyticBarlowBeeston(bool flag) {
         if (typeid(*(funci.pdf())) == typeid(CMSHistErrorPropagator)) {
             (static_cast<CMSHistErrorPropagator const*>(funci.pdf()))->setAnalyticBarlowBeeston(flag);
         }
+        if (typeid(*(funci.pdf())) == typeid(CMSHistSum)) {
+            (static_cast<CMSHistSum const*>(funci.pdf()))->setAnalyticBarlowBeeston(flag);
+        }
+
     }
 }
 
@@ -830,7 +847,9 @@ cacheutils::CachingAddNLL::getObservables(const RooArgSet* depList, Bool_t value
 RooArgSet* 
 cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
-    return new RooArgSet(params_); 
+    RooArgSet *ret = new RooArgSet(params_);
+    ret->add(catParams_);
+    return ret;
 }
 
 
@@ -838,7 +857,9 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
     pdfOriginal_(pdf),
     dataOriginal_(data),
     nuis_(nuis),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    catParams_("catParams","Category parameters",this),
+    hideRooCategories_(false), hideConstants_(false), maskConstraints_(false), maskingOffset_(0), maskingOffsetZero_(0)
 {
     setup_();
 }
@@ -847,7 +868,14 @@ cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char 
     pdfOriginal_(other.pdfOriginal_),
     dataOriginal_(other.dataOriginal_),
     nuis_(other.nuis_),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    catParams_("catParams","Category parameters",this),
+    hideRooCategories_(other.hideRooCategories_),
+    hideConstants_(other.hideConstants_),
+    internalMasks_(other.internalMasks_),
+    maskConstraints_(other.maskConstraints_),
+    maskingOffset_(other.maskingOffset_),
+    maskingOffsetZero_(other.maskingOffsetZero_)
 {
     setup_();
 }
@@ -860,6 +888,7 @@ cacheutils::CachingSimNLL::clone(const char *name) const
 
 cacheutils::CachingSimNLL::~CachingSimNLL()
 {
+    constrainPdfGroups_.clear();
     std::vector<bool>::const_iterator ito = constrainPdfsFastOwned_.begin();
     for (std::vector<SimpleGaussianConstraint*>::iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++ito) {
         if (*ito) { delete *it; }
@@ -947,7 +976,25 @@ cacheutils::CachingSimNLL::setup_()
             std::cout << "Constraints of type " << p.first << ": " << p.second << std::endl;
           }
 	}
-
+        int GroupConstraints = std::min<int>(runtimedef::get("SIMNLL_GROUPCONSTRAINTS"), constrainPdfsFastPoisson_.size() + constrainPdfsFast_.size());
+        if (GroupConstraints > 1) {
+            std::cout << "Will create " << GroupConstraints << " groups for " << constrainPdfsFast_.size() << " + " << constrainPdfsFastPoisson_.size() << " constraints." << std::endl;
+            constrainPdfGroups_.resize(GroupConstraints);
+            int npois = constrainPdfsFastPoisson_.size(), ngaus = constrainPdfsFast_.size(), nitems = ngaus + npois;
+            int nPerGroup = (nitems + GroupConstraints - 1)/GroupConstraints;
+            int ig = 0, ng = 0;
+            for (auto *gaus : constrainPdfsFast_) {
+                constrainPdfGroups_[ig].add(gaus);
+                if (++ng == nPerGroup) { ++ig; ng = 0; }
+            }
+            for (auto *pois : constrainPdfsFastPoisson_) {
+                constrainPdfGroups_[ig].add(pois);
+                if (++ng == nPerGroup) { ++ig; ng = 0; }
+            }
+            for (const auto & cg : constrainPdfGroups_) {
+                std::cout << "ConstrainPdfGroup with " << cg.size() << " constraints." << std::endl;
+            }
+        }
     } else {
         std::cerr << "PDF didn't factorize!" << std::endl;
         std::cout << "Parameters: " << std::endl;
@@ -966,6 +1013,7 @@ cacheutils::CachingSimNLL::setup_()
     datasets_.resize(pdfs_.size(), 0);
     splitWithWeights(*dataOriginal_, simpdf->indexCat(), true);
     //std::cout << "Pdf " << simpdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << pdfs_.size() << " bins" << std::endl;
+    unsigned int nchannels = 0;
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         catClone->setBin(ib);
         RooAbsPdf *pdf = simpdf->getPdf(catClone->getLabel());
@@ -977,12 +1025,20 @@ cacheutils::CachingSimNLL::setup_()
             bool includeZeroWeights = (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && (dynamic_cast<RooRealSumPdf*>(pdf)!=0));
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data, includeZeroWeights);
             params_.add(pdfs_[ib]->params(), /*silent=*/true); 
+            catParams_.add(pdfs_[ib]->catParams(), /*silent=*/true); 
+            ++nchannels;
         } else { 
             pdfs_[ib] = 0; 
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has no pdf" << std::endl;
         }
     }   
 
+    std::cout << "SimNLL created with " << nchannels << " channels, " <<
+                 constrainPdfs_.size() << " generic constraints, " << 
+                 constrainPdfsFast_.size() << " fast gaussian constraints, " << 
+                 constrainPdfsFastPoisson_.size() << " fast poisson constraints, " << 
+                 constrainPdfGroups_.size() << " fast group constraints, " << 
+                 std::endl;
     setValueDirty();
 }
 
@@ -1002,10 +1058,13 @@ cacheutils::CachingSimNLL::evaluate() const
     unsigned idx = 0;
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
         if (*it != 0) {
-            if (channelMasks_.size() > 0 && channelMasks_[idx]->getVal() != 0.) {
+            if (!channelMasks_.empty() && channelMasks_[idx]->getVal() != 0.) {
                 // std::cout << "Channel " << (*it)->GetName() << " will be masked as " 
                 //     << channelMasks_[idx]->GetName() << " evalutes to " 
                 //     << channelMasks_[idx]->getVal() << "\n";
+                continue;
+            }
+            if (!internalMasks_.empty() && !internalMasks_[idx]) {
                 continue;
             }
             double nllval = (*it)->getVal();
@@ -1013,7 +1072,7 @@ cacheutils::CachingSimNLL::evaluate() const
             ret += nllval;
         }
     }
-    if (!constrainPdfs_.empty() || !constrainPdfsFast_.empty()) {
+    if (!maskConstraints_ && (!constrainPdfs_.empty() || !constrainPdfsFast_.empty() || !constrainPdfsFastPoisson_.empty() || !constrainPdfGroups_.empty())) {
         DefaultAccumulator<double> ret2 = 0;
         /// ============= GENERIC CONSTRAINTS  =========
         std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
@@ -1028,22 +1087,29 @@ cacheutils::CachingSimNLL::evaluate() const
             }
             ret2 += (log(pdfval) + *itz);
         }
-        /// ============= FAST GAUSSIAN CONSTRAINTS  =========
-        itz = constrainZeroPointsFast_.begin();
-        for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) { 
-            double logpdfval = (*it)->getLogValFast();
-            //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
-            ret2 += (logpdfval + *itz);
-        }
-        /// ============= FAST POISSON CONSTRAINTS  =========
-        itz = constrainZeroPointsFastPoisson_.begin();
-        for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) { 
-            double logpdfval = (*it)->getLogValFast();
-            //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
-            ret2 += (logpdfval + *itz);
+        if (!constrainPdfGroups_.empty()) {
+            for (const SimpleConstraintGroup & g : constrainPdfGroups_) {
+                ret2 += g.getVal();
+            }
+        } else {
+            /// ============= FAST GAUSSIAN CONSTRAINTS  =========
+            itz = constrainZeroPointsFast_.begin();
+            for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) { 
+                double logpdfval = (*it)->getLogValFast();
+                //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
+                ret2 += (logpdfval + *itz);
+            }
+            /// ============= FAST POISSON CONSTRAINTS  =========
+            itz = constrainZeroPointsFastPoisson_.begin();
+            for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) { 
+                double logpdfval = (*it)->getLogValFast();
+                //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
+                ret2 += (logpdfval + *itz);
+            }
         }
         ret -= ret2.sum();
     }
+    ret += (maskingOffset_ - maskingOffsetZero_);
 #ifdef TRACE_NLL_EVALS
     static unsigned long _trace_ = 0; _trace_++;
     if (_trace_ % 10 == 0)  { putchar('.'); fflush(stdout); }
@@ -1141,6 +1207,10 @@ void cacheutils::CachingSimNLL::setZeroPoint() {
         double logpdfval = (*it)->getLogValFast();
         *itz = -logpdfval;
     }
+    for (SimpleConstraintGroup & g : constrainPdfGroups_) {
+        g.setZeroPoint();
+    }
+    maskingOffsetZero_ = maskingOffset_;
     setValueDirty();
 }
 
@@ -1151,6 +1221,8 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
     std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
     std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
     std::fill(constrainZeroPointsFastPoisson_.begin(), constrainZeroPointsFastPoisson_.end(), 0.0);
+    for (SimpleConstraintGroup & g : constrainPdfGroups_) g.clearZeroPoint();
+    maskingOffsetZero_ = 0;
     setValueDirty();
 }
 
@@ -1176,13 +1248,21 @@ void cacheutils::CachingSimNLL::setChannelMasks(const RooArgList &args) {
 }
 
 void cacheutils::CachingSimNLL::setAnalyticBarlowBeeston(bool flag) {
-    if (flag) {
+   /*
+      if (flag) {
         printf(">> Enabling analytic minimisation of bin-wise statistical uncertainty parameters\n");
-    } else {
+      } else {
         printf(">> Disabling analytic minimisation of bin-wise statistical uncertainty parameters\n");
-    }
+      }
+    */
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
-        pdfs_[ib]->setAnalyticBarlowBeeston(flag);
+        // If channel is masked we must always make sure analytic minimisation is off
+        if (!channelMasks_.empty() && channelMasks_[ib]->getVal() != 0.) {
+            pdfs_[ib]->setAnalyticBarlowBeeston(false);
+        } else {
+            pdfs_[ib]->setAnalyticBarlowBeeston(flag);
+
+        }
     }
 }
 
@@ -1195,6 +1275,55 @@ cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t value
 RooArgSet* 
 cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
-    return new RooArgSet(params_); 
+    RooArgSet *ret;
+    if (internalMasks_.empty()) {
+        ret = new RooArgSet(params_); 
+        if (!hideRooCategories_) ret->add(catParams_);
+    } else {
+        ret = new RooArgSet(activeParameters_); 
+        if (!hideRooCategories_) ret->add(activeCatParameters_);
+    }
+    if (hideConstants_) RooStats::RemoveConstantParameters(ret);
+    return ret;
+}
+
+void cacheutils::CachingSimNLL::setMaskConstraints(bool flag) {
+    double nllBefore = evaluate();
+    maskConstraints_ = flag;
+    double nllAfter = evaluate();
+    maskingOffset_ += (nllBefore - nllAfter);
+    //printf("CachingSimNLL: setMaskConstraints(%d): nll before %.12g, nll after %.12g (diff %.12g), new maskingOffset %.12g, check = %.12g\n",
+    //            int(flag), nllBefore, nllAfter, (nllBefore-nllAfter), maskingOffset_, evaluate() - nllBefore);
+}
+
+void cacheutils::CachingSimNLL::setMaskNonDiscreteChannels(bool mask) {
+    double nllBefore = evaluate();
+    internalMasks_.clear(); // reset
+    activeParameters_.removeAll(); 
+    activeCatParameters_.removeAll();
+    if (mask) {
+        internalMasks_.resize(pdfs_.size(), false);
+        unsigned int idx = 0;
+        for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
+            if ((*it) == 0) continue;
+            RooLinkedListIter iter = (*it)->catParams().iterator();
+            for (RooAbsArg *P = (RooAbsArg *) iter.Next(); P != 0; P = (RooAbsArg *) iter.Next()) {
+                RooCategory *cat = dynamic_cast<RooCategory *>(P);
+                if (!cat) continue;
+                if (cat && !cat->isConstant()) {
+                    internalMasks_[idx] = true; 
+                    activeParameters_.add((*it)->params(), /*silent=*/true); 
+                    activeCatParameters_.add((*it)->catParams(), /*silent=*/true); 
+                    std::cout << "Enabling channel " << (*it)->GetName() << " that depends on non-const category " << cat->GetName() << std::endl;
+                    break;
+                }
+            }
+        }
+    }
+    double nllAfter = evaluate();
+    maskingOffset_ += (nllBefore - nllAfter);
+    //printf("CachingSimNLL: setMaskNonDiscreteChannels(%d): nll before %.12g, nll after %.12g (diff %.12g), new maskingOffset %.12g, check = %.12g\n",
+    //            int(mask), nllBefore, nllAfter, (nllBefore-nllAfter), maskingOffset_, evaluate() - nllBefore);
+    
 }
 

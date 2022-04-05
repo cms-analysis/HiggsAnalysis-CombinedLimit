@@ -28,6 +28,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleConstraintGroup.h"
 #include "HiggsAnalysis/CombinedLimit/interface/AtlasPdfs.h"
 #include "HiggsAnalysis/CombinedLimit/interface/FastTemplateFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf.h"
@@ -51,8 +52,10 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooDoubleCBFast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooTaylorExpansion.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleTaylorExpansion1D.h"
 
 #include "HiggsAnalysis/CombinedLimit/interface/RooPiecewisePolynomial.h"
 
@@ -61,6 +64,9 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooNCSpline_2D_fast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooNCSpline_3D_fast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooFuncPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimpleProdPdf.h"
 
 namespace {
     struct dictionary {

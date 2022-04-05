@@ -14,7 +14,13 @@ nav:
           - "Common statistical methods": part3/commonstatsmethods.md
           - "Advanced use cases":         part3/nonstandard.md
           - "Unfolding & regularization": part3/regularisation.md
+          - "Validating datacards":       part3/validation.md
+          - "Debugging fit failures":     part3/debugging.md
         - Links & FAQ: part4/usefullinks.md
+        - Tutorials:
+          - "RooFit Basics":              part5/roofit.md
+          - "Exercise: main features":    part5/longexercise.md
+          - "Solutions to long exercise": part5/longexerciseanswers.md
 
 theme:
         name: cinder
