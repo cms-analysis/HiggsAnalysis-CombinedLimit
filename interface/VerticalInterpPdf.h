@@ -54,7 +54,8 @@ protected:
 
   Double_t interpolate(Double_t coeff, Double_t central, RooAbsReal *fUp, RooAbsReal *fDown) const ; 
 
-private:
+  bool isConditionalProdPdf(RooAbsReal *pdf) const;
+  RooAbsReal* makeConditionalProdPdfIntegral(RooAbsPdf* pdf, RooArgSet const& analVars) const;
 
   ClassDef(VerticalInterpPdf,3) // PDF constructed from a sum of (non-pdf) functions
 };
