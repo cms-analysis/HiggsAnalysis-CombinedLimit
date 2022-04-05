@@ -40,6 +40,9 @@ class ProcessNormalization : public RooAbsReal {
         std::vector<std::pair<double,double> > logAsymmKappa_; // Logarithm of asymmetric kappas (low, high)
         RooListProxy asymmThetaList_;                           // List of nuisances for asymmetric kappas
         RooListProxy otherFactorList_;     // Other multiplicative terms 
+        std::vector<RooAbsReal *> thetaListVec_; //! Don't serialize me
+        std::vector<RooAbsReal *> asymmThetaListVec_; //! Don't serialize me
+        std::vector<RooAbsReal *> otherFactorListVec_; //! Don't serialize me
 
         // get the kappa for the appropriate x
         Double_t logKappaForX(double x, const std::pair<double,double> &logKappas ) const ;
