@@ -220,4 +220,5 @@
   <class name="CMSHggFormulaC1" />
   <class name="CMSHggFormulaD1" />
   <class name="CMSHggFormulaD2" />
+  <class name="SimpleProdPdf" />
 </lcgdict>
