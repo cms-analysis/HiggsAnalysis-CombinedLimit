@@ -21,6 +21,7 @@ def addDatacardParserOptions(parser):
     parser.add_option("--no-wrappers", dest="noHistFuncWrappers", default=False, action="store_true", help="Do not create and save the CMSHistFuncWrapper objects for autoMCStats-based models (saves time)")
     parser.add_option("--use-histsum", dest="useCMSHistSum", default=False, action="store_true", help="Use memory-optimized CMSHistSum instead of CMSHistErrorPropagator")
     parser.add_option("--no-optimize-pdfs",    dest="noOptimizePdf", default=False, action="store_true", help="Do not save the RooSimultaneous as RooSimultaneousOpt and Gaussian constraints as SimpleGaussianConstraint")
+    parser.add_option("--no-data",    dest="noData", default=False, action="store_true", help="Do not save the RooDataSet in the ouput workspace")
     parser.add_option("--optimize-simpdf-constraints",    dest="moreOptimizeSimPdf", default="none", type="string", help="Handling of constraints in simultaneous pdf: 'none' = add all constraints on all channels (default); 'lhchcg' = add constraints on only the first channel; 'cms' = add constraints to the RooSimultaneousOpt.")
     #parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--channel-masks",  dest="doMasks", default=False, action="store_true", help="Create channel-masking RooRealVars")
