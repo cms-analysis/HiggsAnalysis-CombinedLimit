@@ -210,15 +210,16 @@ double RooParametricHist::evaluateMorphFunction(int j) const
 }
 double RooParametricHist::evaluatePartial() const
 {
-  int bin_i;
-  if (x < bins[0]) 	   	return 0;    // should set to 0 instead?
-  else if (x >= bins[N_bins])   return 0;
-
-  else {
-    for(bin_i=0; bin_i<N_bins; bin_i++) {   // faster way to loop through ?
-      if (x>=bins[bin_i] && x < bins[bin_i+1] ) break;
-    }
+  auto it = std::upper_bound(std::begin(bins), std::end(bins), x);
+  if ( it == std::begin(bins) ) {
+    // underflow
+    return 0;
   }
+  else if ( it == std::end(bins) ) {
+    // overflow
+    return 0;
+  }
+  size_t bin_i = std::distance(std::begin(bins), it) - 1;
   RooAbsReal *retVar = (RooAbsReal*)pars.at(bin_i);
 
   double ret = retVar->getVal();

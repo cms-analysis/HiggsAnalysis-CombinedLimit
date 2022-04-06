@@ -201,50 +201,34 @@ Double_t RooParametricHist2D::analyticalIntegral(Int_t code, const char* rangeNa
 
 Double_t RooParametricHist2D::evaluate() const 
 { 
+  auto itx = std::upper_bound(std::begin(bins_x), std::end(bins_x), x);
+  if ( itx == std::begin(bins_x) ) {
+    // underflow
+    return 0;
+  }
+  else if ( itx == std::end(bins_x) ) {
+    // overflow
+    return 0;
+  }
+  auto ity = std::upper_bound(std::begin(bins_y), std::end(bins_y), y);
+  if ( ity == std::begin(bins_y) ) {
+    // underflow
+    return 0;
+  }
+  else if ( ity == std::end(bins_y) ) {
+    // overflow
+    return 0;
+  }
+  size_t bin_ix = std::distance(std::begin(bins_x), itx) - 1;
+  size_t bin_iy = std::distance(std::begin(bins_y), ity) - 1;
 
-    int bin_ix;
-    int bin_iy;
-    
-    // std::cout << "Evaluating..." << std::endl;
-    // std::cout << "bins_x size = " << bins_x.size() << std::endl;
-    // std::cout << "bins_x type = " << typeid(bins_x).name() << std::endl;
-    // for (auto i = bins_x.begin(); i != bins_x.end(); ++i){
-    //     std::cout << *i << ' ';
-    // }
-    // std::cout << std::endl;
+  int globalbin = N_bins_x * bin_iy + bin_ix;
 
-    // std::cout << "bins_y size = " << bins_y.size() << std::endl;
-    // std::cout << "bins_y type = " << typeid(bins_y).name() << std::endl;
-    // for (auto i = bins_y.begin(); i != bins_y.end(); ++i){
-    //     std::cout << *i << ' ';
-    // }
-    // std::cout << std::endl;
+  RooAbsReal *retVar = (RooAbsReal*)pars.at(globalbin);
 
-    if (x < bins_x[0]) {
-        return 0; // should set to 0 instead?
-    } else if (y < bins_y[0]) {
-        return 0; 
-    } else if (x >= bins_x[N_bins_x]) {
-        return 0;
-    } else if (y >= bins_y[N_bins_y]) {
-        return 0;
-    } else {
-        for(bin_ix=0; bin_ix<N_bins_x; bin_ix++) {   // faster way to loop through ?
-            if (x>=bins_x[bin_ix] && x < bins_x[bin_ix+1] ) break;
-        }
-        for(bin_iy=0; bin_iy<N_bins_y; bin_iy++) {   // faster way to loop through ?
-            if (y>=bins_y[bin_iy] && y < bins_y[bin_iy+1] ) break;
-        }
-    }
+  double ret = retVar->getVal() / (widths_x[bin_ix]*widths_y[bin_iy]);
 
-    int globalbin = N_bins_x * bin_iy + bin_ix;
-
-    RooAbsReal *retVar = (RooAbsReal*)pars.at(globalbin);
-
-    double ret = retVar->getVal() / (widths_x[bin_ix]*widths_y[bin_iy]);
-
-    cval=ret;
-    // std::cout << "Evaluated" << std::endl;
-    return ret; 
+  cval=ret;
+  return ret;
 }
 
