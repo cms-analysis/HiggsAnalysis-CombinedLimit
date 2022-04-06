@@ -17,6 +17,8 @@ class SimplePoissonConstraint : public RooPoisson {
         virtual TObject* clone(const char* newname) const { return new SimplePoissonConstraint(*this,newname); }
         inline virtual ~SimplePoissonConstraint() { }
 
+        const RooAbsReal & getMean() const { return mean.arg(); }
+
         double getLogValFast() const { 
             if (_valueDirty) {
                 Double_t expected = mean;

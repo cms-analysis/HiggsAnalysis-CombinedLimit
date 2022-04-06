@@ -31,6 +31,9 @@
 	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>::const_iterator" />
 	<class name="std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<Double_t>>>>>>::const_iterator" />
 
+	<class name="std::map<int, std::vector<double>>"/>
+	<class name="std::map<int, std::pair<double,double>>"/>
+
 	<class name="AsymPow" />
 	<class name="AsymQuad" />
 
@@ -187,6 +190,7 @@
 	<class name="SimpleCacheSentry" />
 	<class name="SimpleGaussianConstraint" />
 	<class name="SimplePoissonConstraint" />
+	<class name="SimpleConstraintGroup" transient="true" />
 	<class name="TH1Keys" />
 	<class name="Triangle" />
 	<class name="VerticalInterpHistPdf" />
@@ -199,7 +203,9 @@
         <function name="function th1fmorph" />
   <class name="CMSHistFunc" />
   <class name="CMSHistErrorPropagator" />
+  <class name="CMSHistSum" />
   <class name="CMSHistFuncWrapper" />
+  <class name="SimpleTaylorExpansion1D" />
   <class name="RooTaylorExpansion" />
 	<class name="RooDoubleCBFast" />
 	<class name="CombDataSetFactory"  transient="true" />
@@ -207,4 +213,13 @@
 	<class name="cmsmath::SequentialMinimizer"  transient="true" />
 	<class name="rVrFLikelihood"  transient="true" />
         <class name="TestProposal"  transient="true" />
+  <class name="RooCheapProduct" />
+  <class name="CMSHggFormulaA1" />
+  <class name="CMSHggFormulaA2" />
+  <class name="CMSHggFormulaB1" />
+  <class name="CMSHggFormulaB2" />
+  <class name="CMSHggFormulaC1" />
+  <class name="CMSHggFormulaD1" />
+  <class name="CMSHggFormulaD2" />
+  <class name="SimpleProdPdf" />
 </lcgdict>

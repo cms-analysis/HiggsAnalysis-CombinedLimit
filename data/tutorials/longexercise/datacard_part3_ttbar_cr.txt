@@ -1,0 +1,20 @@
+imax    1 number of bins
+jmax    4 number of processes minus 1
+kmax    * number of nuisance parameters
+--------------------------------------------------------------------------------
+shapes * tt_control_region datacard_part3_ttbar_cr.shapes.root tt_control_region/$PROCESS tt_control_region/$PROCESS_$SYSTEMATIC
+--------------------------------------------------------------------------------
+bin          tt_control_region 
+observation  79251.0         
+--------------------------------------------------------------------------------
+bin                         tt_control_region tt_control_region tt_control_region tt_control_region tt_control_region 
+process                     W               QCD             ttbar           VV              Ztautau         
+process                     1               2               3               4               5               
+rate                        597.336         308.965         67280.4         10589.6         150.025         
+--------------------------------------------------------------------------------
+CMS_eff_e           lnN     1.02            -               1.02            1.02            1.02            
+CMS_eff_m           lnN     1.02            -               1.02            1.02            1.02            
+acceptance_ttbar_cr lnN     -               -               1.01            -               -               
+lumi_13TeV          lnN     1.025           -               1.025           1.025           1.025           
+top_pt_ttbar_shape  shape   -               -               1               -               -               
+* autoMCStats 0

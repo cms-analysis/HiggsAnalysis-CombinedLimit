@@ -21,7 +21,7 @@ The last two settings are optional. The first of these, `include-signal` has a d
 
 When `threshold` is set to a number of effective unweighted events greater than or equal to zero, denoted $n^{\text{threshold}}$, the following algorithm is applied to each bin:
 
- 1. Sum the yields $n_{i}$ and uncertainities $e_{i}$ of each background process $i$ in the bin. Note that the $n_i$ and $e_i$ include the nominal effect of any scaling parameters that have been set in the datacard, for example [`rateParams`](/part2/settinguptheanalysis#rate-parameters).
+ 1. Sum the yields $n_{i}$ and uncertainities $e_{i}$ of each background process $i$ in the bin. Note that the $n_i$ and $e_i$ include the nominal effect of any scaling parameters that have been set in the datacard, for example [`rateParams`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/settinguptheanalysis/#rate-parameters).
 $n_{\text{tot}} = \sum_{i\,\in\,\text{bkg}}n_i$, $e_{\text{tot}} = \sqrt{\sum_{i\,\in\,\text{bkg}}e_i^{2}}$
  2. If $e_{\text{tot}} = 0$, the bin is skipped and no parameters are created. (Though you might want to check why there is no uncertainty on the background prediction in this bin!)
  3. The effective number of unweighted events is defined as $n_{\text{tot}}^{\text{eff}} = n_{\text{tot}}^{2} / e_{\text{tot}}^{2}$, rounded to the nearest integer.
@@ -68,7 +68,7 @@ Bin        Contents        Error           Notes
 </details>
 
 ## Analytic minimisation
-One significant advantage of the Barlow-Beeston-lite approach is that the maximum likelihood estimate of each nuisance parameter has a simple analytic form that depends only on $n_{\text{tot}}$, $e_{\text{tot}}$ and the observed number of data events in the relevant bin. Therefore when minimising the negative log-likelihood of the whole model it is possible to remove these parameters from the fit and set them to their best-fit values automatically. For models with large numbers of bins this can reduce the fit time and increase the fit stability. To enable the analytic minimisation add the option `--X-rtd MINIMIZER_analytic` when running combine.
+One significant advantage of the Barlow-Beeston-lite approach is that the maximum likelihood estimate of each nuisance parameter has a simple analytic form that depends only on $n_{\text{tot}}$, $e_{\text{tot}}$ and the observed number of data events in the relevant bin. Therefore when minimising the negative log-likelihood of the whole model it is possible to remove these parameters from the fit and set them to their best-fit values automatically. For models with large numbers of bins this can reduce the fit time and increase the fit stability. The analytic minimisation is enabled by default starting in combine v8.2.0, you can disable it by adding the option `--X-rtd MINIMIZER_no_analytic` when running combine.
 
 
 ## Technical details

@@ -36,8 +36,21 @@ obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
 paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {}; rateParamsOrder = set();
-extArgs = {}; binParFlags = {}
+extArgs = {}; binParFlags = {}; bpf_new2old = {}
 nuisanceEdits = [];
+
+def compareParamSystLines(a,b):
+  if float(a[0])!=float(b[0]): return False
+  if "/" in a[1]:
+    if "/" not in b[1] : return False
+    a1,a2 = a[1].split("/")
+    b1,b2 = b[1].split("/")
+    if float(a1)!=float(b1): return False
+    if float(a2)!=float(b2): return False
+  else:
+    if float(a[1])!=float(a[1]): return False
+  return True
+
 
 cmax = 5 # column width
 if not args:
@@ -47,7 +60,12 @@ for ich,fname in enumerate(args):
     if "=" in fname: (label,fname) = fname.split("=")
     fname = options.fprefix+fname
     dirname = os.path.dirname(fname)
-    file = open(fname, "r")
+    if fname.endswith(".gz"):
+        import gzip
+        file = gzip.open(fname, "rb")
+        fname = fname[:-3]
+    else:
+        file = open(fname, "r")
     DC = parseCard(file, options)
     singlebin = (len(DC.bins) == 1)
     if label == ".":
@@ -75,7 +93,8 @@ for ich,fname in enumerate(args):
         systeffect = {}
         if pdf == "param":
             if paramSysts.has_key(lsyst):
-               if paramSysts[lsyst] != pdfargs: raise RuntimeError, "Parameter uncerainty %s mismatch between cards." % lsyst
+               #if paramSysts[lsyst] != pdfargs:
+	       if not compareParamSystLines(paramSysts[lsyst],pdfargs) : raise RuntimeError, "Parameter uncerainty %s mismatch between cards, %g != %g" % lsyst
             else:
                 paramSysts[lsyst] = pdfargs
             continue
@@ -122,6 +141,7 @@ for ich,fname in enumerate(args):
     for K in DC.binParFlags.iterkeys():
         tbin = label if singlebin else label+K
         binParFlags[tbin] = DC.binParFlags[K]
+        bpf_new2old[tbin] = K
     # rate params
     for K in DC.rateParams.iterkeys():
         tbin,tproc = K.split("AND")[0],K.split("AND")[1]
@@ -147,12 +167,14 @@ for ich,fname in enumerate(args):
             p2sMapD = DC.shapeMap['*'] if DC.shapeMap.has_key('*') else {}
             for p, x in p2sMap.items():
                 xrep = [xi.replace("$CHANNEL",b) for xi in x]
-                if xrep[0] != 'FAKE' and dirname != '': xrep[0] = dirname+"/"+xrep[0]
+                if xrep[0] != 'FAKE' and dirname != '' and not xrep[0].startswith("/"):
+                    xrep[0] = dirname+"/"+xrep[0]
                 shapeLines.append((p,bout,xrep))
             for p, x in p2sMapD.items():
                 if p2sMap.has_key(p): continue
                 xrep = [xi.replace("$CHANNEL",b) for xi in x]
-                if xrep[0] != 'FAKE' and dirname != '': xrep[0] = dirname+"/"+xrep[0]
+                if xrep[0] != 'FAKE' and dirname != '' and not xrep[0].startswith("/"):
+                    xrep[0] = dirname+"/"+xrep[0]
                 shapeLines.append((p,bout,xrep))
     elif options.shape:
         for b in DC.bins:
@@ -178,24 +200,39 @@ for ich,fname in enumerate(args):
     # Finally report nuisance edits propagated to end of card
     for editline in DC.nuisanceEditLines:
       if len(editline)==2: nuisanceEdits.append("%s %s"%(editline[0]," ".join(editline[1])))
+      elif len(editline)==4 and not editline[3]: nuisanceEdits.append(" ".join(editline[0:3]))
       else:
-
         tmp_chan = editline[2]
         tmp_proc = editline[1]
         if tmp_chan == "*": # all channels
           tmp_chan = "%s(%s)"%(label,"|".join(c for c in DC.bins)) if len (DC.bins)>1 else label
+	  if "ifexists" not in editline[3]: editline[3].append("ifexists")
 	else: tmp_chan = label+tmp_chan
         if tmp_proc == "*":
           tmp_proc = "(%s)"%("|".join(p for p in DC.processes))
+	  if "ifexists" not in editline[3]: editline[3].append("ifexists")
         nuisanceEdits.append("%s %s %s %s"%(editline[0],tmp_proc,tmp_chan," ".join(editline[3])))
 
+
 bins = []
+check_processes = {}
+process_errors = []
 for (b,p,s) in keyline:
     if b not in bins: bins.append(b)
+    if p not in check_processes:
+        check_processes[p] = (s,b)
+    else:
+        if check_processes[p][0] != s:
+            process_errors.append(" - process %s %s a signal in %s and %s a signal in %s" % (p,
+                            "is" if s else "is not", b,
+                            "is" if check_processes[p][0] else "is not", check_processes[p][1]))
     if s:
         if p not in signals: signals.append(p)
     else:
         if p not in backgrounds: backgrounds.append(p)
+
+if process_errors:
+    raise RuntimeError("ERROR: mismatch between process signal labels:\n%s" % ("\n".join(process_errors)))
 
 print "Combination of", "  ".join(args)
 print "imax %d number of bins" % len(bins)
@@ -271,6 +308,7 @@ for groupName,nuisanceNames in groups.iteritems():
     nuisances = ' '.join(nuisanceNames)
     print '%(groupName)s group = %(nuisances)s' % locals()
 for bpf in binParFlags.iterkeys():
+    if isVetoed(bpf_new2old[bpf], options.channelVetos) or not isIncluded(bpf_new2old[bpf],options.channelIncludes): continue
     if len(binParFlags[bpf]) == 1:
       print "%s autoMCStats %g" % (bpf,binParFlags[bpf][0])
     if len(binParFlags[bpf]) == 2:
@@ -279,6 +317,11 @@ for bpf in binParFlags.iterkeys():
       print "%s autoMCStats %g %i %i" % (bpf,binParFlags[bpf][0], binParFlags[bpf][1], binParFlags[bpf][2])
 
 nuisanceEdits = set(nuisanceEdits)
+nuisanceEdits_lengths = [ [len(e.split()),e] for e in nuisanceEdits ]
+nuisanceEdits_lengths = sorted(nuisanceEdits_lengths,reverse=True)
+nuisanceEdits = [e[1] for e in nuisanceEdits_lengths]
+nuisanceEdits_lengths = 0
+
 for edit in nuisanceEdits:
     print "nuisance edit ", edit
 

@@ -1,6 +1,6 @@
 import ROOT
 import re, os, os.path
-from sys import stderr, stdout
+from sys import stderr, stdout, exit
 from math import *
 ROOFIT_EXPR = "expr"
 ROOFIT_EXPR_PDF = "EXPR"
@@ -92,7 +92,8 @@ class ModelBuilderBase():
         if self.options.bin: return self.factory_("%s::%s(%s)" % (type, name, X));
         else: self.out.write("%s = %s(%s);\n" % (name, type, X))
     def addDiscrete(self,var):
-	self.discrete_param_set.append(var)
+        if self.options.removeMultiPdf: return
+        self.discrete_param_set.append(var)
 
 class ModelBuilder(ModelBuilderBase):
     """This class defines the actual methods to build a model"""
@@ -106,8 +107,8 @@ class ModelBuilder(ModelBuilderBase):
     def setPhysics(self,physicsModel):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
-    def doModel(self):
-        self.doObservables()
+    def doModel(self, justCheckPhysicsModel=False):
+        if not justCheckPhysicsModel: self.doObservables()
         self.physics.doParametersOfInterest()
 
         # set a group attribute on POI variables
@@ -121,6 +122,10 @@ class ModelBuilder(ModelBuilderBase):
 	self.doExtArgs()
 	self.doRateParams()
         self.doExpectedEvents()
+        if justCheckPhysicsModel:
+            self.physics.done()
+            print "Model is OK"
+            exit(0)
         self.doIndividualModels()
         self.doNuisancesGroups() # this needs to be called after both doNuisances and doIndividualModels
         self.doCombination()
@@ -133,7 +138,21 @@ class ModelBuilder(ModelBuilderBase):
                 self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
                 print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
 
+    
+    def getRenamingParameters(self):
 
+        toFreeze = []
+	renameParamString = [] 
+	paramString       = []
+      	for n in self.DC.systematicsParamMap.keys():
+	  paramString.append(n)
+	  renameParamString.append(self.DC.systematicsParamMap[n])
+	  if n!=self.DC.systematicsParamMap[n]: toFreeze.append(n)
+	if len(renameParamString): 
+	  renameParamString=",".join(renameParamString)
+	  paramString=",".join(paramString)
+	return paramString,renameParamString,toFreeze
+       
     def runPostProcesses(self):
       for n in self.DC.frozenNuisances:
          self.out.arg(n).setConstant(True)
@@ -263,11 +282,12 @@ class ModelBuilder(ModelBuilderBase):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
     def doNuisances(self):
+        for cpar in self.DC.discretes: self.addDiscrete(cpar)
+
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
         globalobs = []
 
-        for cpar in self.DC.discretes: self.addDiscrete(cpar)
         for (n,nofloat,pdf,args,errline) in self.DC.systs:
             is_func_scaled = False
             func_scaler = None
@@ -440,6 +460,7 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                           self.doVar("%s[%g,%g]" % (n, mean-4*float(sigmaL), mean+4*float(sigmaR)))
                     self.out.var(n).setVal(mean)
+                    self.out.var(n).setError(0.5*(float(sigmaL)+float(sigmaR)))
 
                     sigmaStrL = sigmaL
                     sigmaStrR = sigmaR
@@ -456,6 +477,7 @@ class ModelBuilder(ModelBuilderBase):
                         self.out.var(n).setRange(self.out.function('%s_BoundLo' % n), self.out.function('%s_BoundHi' % n))
                 else:
                     if len(args) == 3: # mean, sigma, range
+                        sigma = float(args[1])
                         if self.out.var(n):
                           bounds = [float(x) for x in args[2][1:-1].split(",")]
                           self.out.var(n).setConstant(False)
@@ -472,7 +494,7 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                           self.doVar("%s[%g,%g]" % (n, mean-4*sigma, mean+4*sigma))
                     self.out.var(n).setVal(mean)
-                    #self.out.var(n).setError(sigma)
+                    self.out.var(n).setError(sigma)
                     sigmaStr = args[1]
                     if is_func_scaled:
                         sigmaStr = '%s_WidthScaled' % n
@@ -497,10 +519,15 @@ class ModelBuilder(ModelBuilderBase):
             if n in self.DC.frozenNuisances:
                 self.out.var(n).setConstant(True)
         if self.options.bin:
+	    # avoid duplicating  _Pdf in list 
+	    setNuisPdf = []
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
             for (n,nf,p,a,e) in self.DC.systs:
 		if p!= "constr": nuisVars.add(self.out.var(n))
+	        setNuisPdf.append(n)
+	    setNuisPdf = set(setNuisPdf)
+	    for n in setNuisPdf:
                 nuisPdfs.add(self.out.pdf(n+"_Pdf"))
             self.out.defineSet("nuisances", nuisVars)
             self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", nuisPdfs)
@@ -510,8 +537,10 @@ class ModelBuilder(ModelBuilderBase):
             for g in globalobs: gobsVars.add(self.out.var(g))
             self.out.defineSet("globalObservables", gobsVars)
         else: # doesn't work for too many nuisances :-(
+	    # avoid duplicating  _Pdf in list 
+	    setNuisPdf = set([n for (n,nf,p,a,e) in self.DC.systs])
             self.doSet("nuisances", ",".join(["%s"    % n for (n,nf,p,a,e) in self.DC.systs]))
-            self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,nf,p,a,e) in self.DC.systs]))
+            self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" %n for n  in setNuisPdf]))
             self.doSet("globalObservables", ",".join(globalobs))
 
     def doNuisancesGroups(self):
@@ -632,8 +661,14 @@ class ModelBuilder(ModelBuilderBase):
                     for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
                     for factorName in factors:
 		    	if self.out.function(factorName): procNorm.addOtherFactor(self.out.function(factorName))
-			else: procNorm.addOtherFactor(self.out.var(factorName))
-                    self.out._import(procNorm)
+		    	elif self.out.var(factorName): procNorm.addOtherFactor(self.out.var(factorName))
+		    	elif self.out.arg(factorName): raise RuntimeError("Factor %s for process %s, bin %s is a %s (not supported)" % (factorName, p, b, self.out.arg(factorName).ClassName()))
+		    	else: raise RuntimeError("Cannot add non-existant factor %s for process %s, bin %s" % (factorName, p, b))
+	
+		    # take care of any variables which were renamed (eg for "param")
+		    paramString,renameParamString,toFreeze = self.getRenamingParameters()
+		    if len(renameParamString): self.out._import(procNorm, ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.RenameVariable(paramString,renameParamString))
+                    else: self.out._import(procNorm)
     def doIndividualModels(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"

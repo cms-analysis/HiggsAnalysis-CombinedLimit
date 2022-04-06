@@ -107,7 +107,7 @@ row of the product $A\cdot\vec{\mu}$, by including them as lines in the datacard
 ```
     name constr formula dependents delta
 ```
-where the regularization strength $\delta=\frac{1}{2\tau}$ and can either be a fixed value (eg by putting directly `0.01`) or as 
+where the regularization strength $\delta=\frac{1}{\sqrt{\tau}}$ and can either be a fixed value (eg by putting directly `0.01`) or as 
 a modifiable parameter with eg `delta[0.01]`. 
 
 For example, for 3 bins and a regularization strength of 0.03, the first line would be 

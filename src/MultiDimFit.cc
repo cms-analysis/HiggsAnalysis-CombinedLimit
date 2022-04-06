@@ -18,6 +18,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -27,6 +28,9 @@
 using namespace RooStats;
 
 std::string MultiDimFit::name_ = "";
+std::string MultiDimFit::massName_ = "";
+std::string MultiDimFit::toyName_ = "";
+std::string MultiDimFit::out_ = ".";
 MultiDimFit::Algo MultiDimFit::algo_ = None;
 MultiDimFit::GridType MultiDimFit::gridType_ = G1x1;
 std::vector<std::string>  MultiDimFit::poi_;
@@ -37,6 +41,7 @@ float                     MultiDimFit::deltaNLL_ = 0;
 unsigned int MultiDimFit::points_ = 50;
 unsigned int MultiDimFit::firstPoint_ = 0;
 unsigned int MultiDimFit::lastPoint_  = std::numeric_limits<unsigned int>::max();
+std::string MultiDimFit::gridPoints_ = "";
 bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 bool MultiDimFit::fastScan_ = false;
@@ -85,6 +90,7 @@ MultiDimFit::MultiDimFit() :
         ("squareDistPoiStep","POI step size based on distance from midpoint (max-min)/2 rather than linear")
         ("skipInitialFit","Skip initial fit (save time if snapshot is loaded from previous fit)")
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
+        ("gridPoints",  boost::program_options::value<std::string>(&gridPoints_)->default_value(gridPoints_), "Comma separated list of points per POI for multidimensional grid scans. When set, --points is ignored.")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
         ("autoRange", boost::program_options::value<float>(&autoRange_)->default_value(autoRange_), "Set to any X >= 0 to do the scan in the +/- X sigma range (where the sigma is from the initial fit, so it may be fairly approximate)")
@@ -99,7 +105,8 @@ MultiDimFit::MultiDimFit() :
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
     ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
     ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
-	("saveFitResult",  "Save RooFitResult to muiltidimfit.root")
+	("saveFitResult",  "Save RooFitResult to multidimfit.root")
+    ("out", boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
     ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
     ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
     ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
@@ -138,7 +145,9 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
     loadedSnapshot_ = !vm["snapshotName"].defaulted();
     savingSnapshot_ = vm.count("saveWorkspace");
-    name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
+    name_ = vm["name"].as<std::string>();
+    massName_ = vm["massName"].as<std::string>();
+    toyName_ = vm["toyName"].as<std::string>();
     saveFitResult_ = (vm.count("saveFitResult") > 0);
 }
 
@@ -154,6 +163,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
 
     // Process POI not in list
     nOtherFloatingPoi_ = 0;
+    deltaNLL_ = 0;
     int nConstPoi=0;
     RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
     std::string setConstPOI;
@@ -362,6 +372,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 		    specifiedNuis_.clear();
 		    RooLinkedListIter iterN = mc_s->GetNuisanceParameters()->iterator();
 		    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
+			    if (poiList_.contains(*a)) continue;
 			    specifiedNuis_.push_back(a->GetName());
 		    }
 	    }else{
@@ -375,7 +386,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 				    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
 					    specifiedNuis_.push_back(a->GetName());
 				    }
-			    }else{
+			    }else if (!poiList_.find(token)){
 				    specifiedNuis_.push_back(token);
 			    }
 			    token = strtok(0,",") ; 
@@ -471,7 +482,7 @@ void MultiDimFit::doSingles(RooFitResult &res)
             //poiVals_[i] = rf->getMin("err95"); Combine::commitPoint(true, /*quantile=*/0.05);
             poiVals_[i] = bestFitVal;
             printf("   %*s :  %+8.3f   %+6.3f/%+6.3f (68%%)    %+6.3f/%+6.3f (95%%) \n", len, poi_[i].c_str(), 
-                    poiVals_[i], -loErr, hiErr, loErr95, -hiErr95);
+                    poiVals_[i], -loErr, hiErr, -loErr95, hiErr95);
         } else {
             poiVals_[i] = bestFitVal;
             printf("   %*s :  %+8.3f   %+6.3f/%+6.3f (68%%)\n", len, poi_[i].c_str(), 
@@ -597,26 +608,46 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
     RooArgSet snap; params->snapshot(snap);
     //snap.Print("V");
+
+    // check if gridPoints are defined
+    std::vector<unsigned int> pointsPerPoi;
+    if (!gridPoints_.empty()) {
+        splitGridPoints(gridPoints_, pointsPerPoi);
+        if (pointsPerPoi.size() != n) {
+            throw std::logic_error("Number of passed gridPoints "
+                + std::to_string(pointsPerPoi.size()) + " does not match number of POIs "
+                + std::to_string(n));
+        }
+        std::cout << "Parsed number of points per POI: ";
+        for (unsigned int i = 0; i < n; i++) {
+            std::cout << poi_[i] << " -> " << pointsPerPoi[i];
+            if (i < n - 1) std::cout << ", ";
+        }
+        std::cout << std::endl;
+    }
+
     if (n == 1) {
-        double xspacing = (pmax[0]-pmin[0]) / points_;
+        unsigned int points = pointsPerPoi.size() == 0 ? points_ : pointsPerPoi[0];
+
+        double xspacing = (pmax[0]-pmin[0]) / points;
         double xspacingOffset = 0.5;
         if (alignEdges_) {
-          xspacing = (pmax[0]-pmin[0]) / (points_ - 1);
-          if (points_ == 1) xspacing = 0;
+          xspacing = (pmax[0]-pmin[0]) / (points - 1);
+          if (points == 1) xspacing = 0;
           xspacingOffset = 0.0;
         }
         // can do a more intellegent spacing of points
         double xbestpoint = (p0[0] - pmin[0]) / xspacing;
         if (lastPoint_ == std::numeric_limits<unsigned int>::max()) {
-          lastPoint_ = points_ - 1;
+          lastPoint_ = points - 1;
         }
-        for (unsigned int i = 0; i < points_; ++i) {
+        for (unsigned int i = 0; i < points; ++i) {
           if (i < firstPoint_) continue;
           if (i > lastPoint_)  break;
           double x = pmin[0] + (i + xspacingOffset) * xspacing;
           // If we're aligning with the edges and this is the last point,
           // set x to pmax[0] exactly
-          if (alignEdges_ && i == (points_ - 1)) {
+          if (alignEdges_ && i == (points - 1)) {
             x = pmax[0];
           }
           if (xbestpoint > lastPoint_) {
@@ -634,9 +665,9 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             }
           }
 
-            //if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
-             std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
-            *params = snap; 
+            //if (verbose > 1) std::cout << "Point " << i << "/" << points << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+             std::cout << "Point " << i << "/" << points << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+            *params = snap;
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
             // now we minimize
@@ -653,7 +684,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                 Combine::commitPoint(true, /*quantile=*/0);
                 continue;
             }
-            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
+            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) || utils::countFloating(*params)==0 ? 
                         true : 
                         minim.minimize(verbose-1);
             if (ok) {
@@ -673,32 +704,57 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             }
         }
     } else if (n == 2) {
-        unsigned int sqrn = ceil(sqrt(double(points_)));
-        unsigned int ipoint = 0, nprint = ceil(0.005*sqrn*sqrn);
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
         CloseCoutSentry sentry(verbose < 2);
-        double deltaX = (pmax[0] - pmin[0]) / sqrn;
-        double deltaY = (pmax[1] - pmin[1]) / sqrn;
-        double spacingOffset = 0.5;
-        if (alignEdges_) {
-          deltaX = (pmax[0] - pmin[0]) / (sqrn - 1);
-          deltaY = (pmax[1] - pmin[1]) / (sqrn - 1);
-          spacingOffset = 0.0;
-          if (sqrn == 1) {
-            deltaX = 0;
-            deltaY = 0;
-          }
+
+        // get number of points per axis
+        unsigned int nX, nY;
+        if (pointsPerPoi.size() == 0) {
+            // same number of points per axis ("old" behavior)
+            unsigned int sqrn = ceil(sqrt(double(points_)));
+            nX = nY = sqrn;
+        } else {
+            // number of points different per axis
+            nX = pointsPerPoi[0];
+            nY = pointsPerPoi[1];
         }
-        for (unsigned int i = 0; i < sqrn; ++i) {
-            for (unsigned int j = 0; j < sqrn; ++j, ++ipoint) {
+        unsigned int nTotal = nX * nY;
+
+        // determine grid variables
+        double deltaX, deltaY, spacingOffsetX, spacingOffsetY;
+        if (nX == 1) {
+            deltaX = 0;
+            spacingOffsetX = 0;
+        } else if (alignEdges_) {
+            deltaX = (pmax[0] - pmin[0]) / (nX - 1);
+            spacingOffsetX = 0;
+        } else {
+            deltaX = (pmax[0] - pmin[0]) / nX;
+            spacingOffsetX = 0.5;
+        }
+        if (nY == 1) {
+            deltaY = 0;
+            spacingOffsetY = 0;
+        } else if (alignEdges_) {
+            deltaY = (pmax[1] - pmin[1]) / (nY - 1);
+            spacingOffsetY = 0;
+        } else {
+            deltaY = (pmax[1] - pmin[1]) / nY;
+            spacingOffsetY = 0.5;
+        }
+        unsigned int ipoint = 0, nprint = ceil(0.005 * nTotal);
+
+        // loop through the grid
+        for (unsigned int i = 0; i < nX; ++i) {
+            for (unsigned int j = 0; j < nY; ++j, ++ipoint) {
                 if (ipoint < firstPoint_) continue;
                 if (ipoint > lastPoint_)  break;
-                *params = snap; 
-                double x =  pmin[0] + (i + spacingOffset) * deltaX;
-                double y =  pmin[1] + (j + spacingOffset) * deltaY;
+                *params = snap;
+                double x =  pmin[0] + (i + spacingOffsetX) * deltaX;
+                double y =  pmin[1] + (j + spacingOffsetY) * deltaY;
                 if (verbose && (ipoint % nprint == 0)) {
                          fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
-                                        ipoint,sqrn*sqrn, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
+                                        ipoint,nTotal, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
                 }
                 poiVals_[0] = x;
                 poiVals_[1] = y;
@@ -804,90 +860,97 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             }
         }
 
-    } else { // Use utils routine if n > 2 
-
-        unsigned int rootn = ceil(TMath::Power(double(points_),double(1./n)));
-        unsigned int ipoint = 0, nprint = ceil(0.005*TMath::Power((double)rootn,(double)n));
-	
+    } else { // Use utils routine if n > 2
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
         CloseCoutSentry sentry(verbose < 2);
-	
-	// Create permutations 
+
+        // get number of points per axis
         std::vector<int> axis_points;
-	
-        for (unsigned int poi_i=0;poi_i<n;poi_i++){
-	  axis_points.push_back((int)rootn);
-    	}
-
-        std::vector<std::vector<int> > permutations = utils::generateCombinations(axis_points);
-	// Step through points
-        std::vector<std::vector<int> >::iterator perm_it = permutations.begin();
-	int npermutations = permutations.size();
-    	for (;perm_it!=permutations.end(); perm_it++){
-
-          if (ipoint < firstPoint_) {ipoint++; continue;}
-          if (ipoint > lastPoint_)  break;
-          *params = snap; 
-
-          if (verbose && (ipoint % nprint == 0)) {
-             fprintf(sentry.trueStdOut(), "Point %d/%d, ",
-                          ipoint,npermutations);
-          }	  
-          for (unsigned int poi_i=0;poi_i<n;poi_i++){
-	    int ip = (*perm_it)[poi_i];
-            double deltaXi = (pmax[poi_i]-pmin[poi_i])/rootn;
-            double spacingOffset = 0.5;
-            if (alignEdges_) {
-                deltaXi = (pmax[poi_i] - pmin[poi_i]) / (rootn - 1);
-                if (rootn == 1) {
-                    deltaXi = 0.;
-                }
-                spacingOffset = 0.0;
+        if (pointsPerPoi.size() == 0) {
+            // same number of points per axis ("old" behavior)
+            unsigned int rootn = ceil(TMath::Power(double(points_),double(1./n)));
+            axis_points.resize(n, (int)rootn);
+        } else {
+            for (auto p : pointsPerPoi) {
+                axis_points.push_back(p);
             }
-	    double xi = pmin[poi_i] + deltaXi * (ip + spacingOffset);
-            poiVals_[poi_i] = xi; poiVars_[poi_i]->setVal(xi);
-	    if (verbose && (ipoint % nprint == 0)){
-             fprintf(sentry.trueStdOut(), " %s = %f ",
-                          poiVars_[poi_i]->GetName(), xi);
-	    }
-	  }
-	  if (verbose && (ipoint % nprint == 0)) fprintf(sentry.trueStdOut(), "\n");
+        }
+        unsigned int nTotal = 1;
+        for (auto p : axis_points) nTotal *= p;
+        unsigned int ipoint = 0, nprint = ceil(0.005*nTotal);
 
-          nll.clearEvalErrorLog(); nll.getVal();
-          if (nll.numEvalErrors() > 0) { 
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-		}
-               deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
-               ipoint++;
-	       continue;
-	  }
-          // now we minimize
-          bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
-          bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
-          if (ok) {
-               deltaNLL_ = nll.getVal() - nll0;
-               double qN = 2*(deltaNLL_);
-               double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-		}
-               Combine::commitPoint(true, /*quantile=*/prob);
-          }
-	  ipoint++;	
-	} 
+        // Create permutations
+        std::vector<std::vector<int> > permutations = utils::generateCombinations(axis_points);
+
+        // Step through points
+        std::vector<std::vector<int> >::iterator perm_it = permutations.begin();
+        int npermutations = permutations.size();
+        for (;perm_it!=permutations.end(); perm_it++) {
+            if (ipoint < firstPoint_) {
+                ipoint++;
+                continue;
+            }
+            if (ipoint > lastPoint_) break;
+            *params = snap;
+
+            if (verbose && (ipoint % nprint == 0)) {
+                fprintf(sentry.trueStdOut(), "Point %d/%d, ", ipoint,npermutations);
+            }
+            for (unsigned int poi_i=0;poi_i<n;poi_i++) {
+                int ip = (*perm_it)[poi_i];
+                double deltaXi = (pmax[poi_i]-pmin[poi_i])/axis_points[poi_i];
+                double spacingOffset = 0.5;
+                if (alignEdges_) {
+                    deltaXi = (pmax[poi_i] - pmin[poi_i]) / (axis_points[poi_i] - 1);
+                    if (axis_points[poi_i] == 1) {
+                        deltaXi = 0.;
+                    }
+                    spacingOffset = 0.0;
+                }
+                double xi = pmin[poi_i] + deltaXi * (ip + spacingOffset);
+                poiVals_[poi_i] = xi; poiVars_[poi_i]->setVal(xi);
+                if (verbose && (ipoint % nprint == 0)) {
+                    fprintf(sentry.trueStdOut(), " %s = %f ", poiVars_[poi_i]->GetName(), xi);
+                }
+            }
+            if (verbose && (ipoint % nprint == 0)) fprintf(sentry.trueStdOut(), "\n");
+
+            nll.clearEvalErrorLog(); nll.getVal();
+            if (nll.numEvalErrors() > 0) {
+                for (unsigned int j=0; j<specifiedNuis_.size(); j++) {
+                    specifiedVals_[j]=specifiedVars_[j]->getVal();
+                }
+                for (unsigned int j=0; j<specifiedFuncNames_.size(); j++) {
+                    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+                }
+                for (unsigned int j=0; j<specifiedCatNames_.size(); j++) {
+                    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+                }
+                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0);
+                ipoint++;
+                continue;
+            }
+
+            // now we minimize
+            bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
+            bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
+            if (ok) {
+                deltaNLL_ = nll.getVal() - nll0;
+                double qN = 2*(deltaNLL_);
+                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                for (unsigned int j=0; j<specifiedNuis_.size(); j++) {
+                    specifiedVals_[j]=specifiedVars_[j]->getVal();
+                }
+                for (unsigned int j=0; j<specifiedFuncNames_.size(); j++) {
+                    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+                }
+                for (unsigned int j=0; j<specifiedCatNames_.size(); j++) {
+                    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+                }
+                Combine::commitPoint(true, /*quantile=*/prob);
+            }
+            ipoint++;
+        }
     }
 }
 
@@ -1147,9 +1210,27 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
 }
 
 void MultiDimFit::saveResult(RooFitResult &res) {
-    if (verbose>2) res.Print("V");
-    fitOut.reset(TFile::Open(("multidimfit"+name_+".root").c_str(), "RECREATE"));
+    if (verbose>2) res.Print();
+    if (out_ == "none") return;
+    const bool longName = runtimedef::get(std::string("longName"));
+    std::string mdname(out_+"/multidimfit"+name_);
+    if (longName)
+        mdname += "."+massName_+toyName_+"root";
+    else
+        mdname += ".root";
+    fitOut.reset(TFile::Open(mdname.c_str(), "RECREATE"));
     fitOut->WriteTObject(&res,"fit_mdf");
     fitOut->cd();
     fitOut.release()->Close();
+}
+
+void MultiDimFit::splitGridPoints(const std::string& s, std::vector<unsigned int>& points) const {
+    // split by comma
+    std::vector<std::string> strPoints;
+    boost::split(strPoints, s, boost::is_any_of(","));
+
+    // convert to int and add
+    for (const auto strPoint : strPoints) {
+        points.push_back(std::stoul(strPoint));
+    }
 }

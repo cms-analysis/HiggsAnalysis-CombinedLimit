@@ -48,8 +48,8 @@ $$
 p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
 \dfrac{[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]^{n_{\mathrm{obs}}} }
 {n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]}
-\cdot e^{\frac{1}{2}(\delta_{S}- \delta_{S}^{\mathrm{In}})^{2}}
-\cdot e^{\frac{1}{2}(\delta_{B}- \delta_{B}^{\mathrm{In}})^{2}}
+\cdot e^{-\frac{1}{2}(\delta_{S}- \delta_{S}^{\mathrm{In}})^{2}}
+\cdot e^{-\frac{1}{2}(\delta_{B}- \delta_{B}^{\mathrm{In}})^{2}}
 $$
 
 where the expected signal and background rates are expressed as functions of the nuisance parameters, $n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~$ and $~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}$.
@@ -233,7 +233,7 @@ $\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\r
 
 where square brackets represent the input (histograms as `TH1` or `RooDataHists`) that one needs to provide.
 
-An example of this scheme is implemented in a [HiggsWidth](https://svnweb.cern.ch/cern/wsvn/cmshcg/trunk/cadi/HIG-17-012/2l2nu/HiggsWidth.py) and is completely general, since all of the three components above are strictly positive. In this example, the POI is `CMS_zz4l_mu` and the equations for the three components are scaled (separately for the **qqH** and **ggH** processes) as,
+An example of this scheme is implemented in a [HiggsWidth](https://gitlab.cern.ch/cms-hcg/cadi/hig-17-012/-/blob/master/2l2nu/HiggsWidth.py) and is completely general, since all of the three components above are strictly positive. In this example, the POI is `CMS_zz4l_mu` and the equations for the three components are scaled (separately for the **qqH** and **ggH** processes) as,
 
 ```python
  self.modelBuilder.factory_( "expr::ggH_s_func(\"@0-sqrt(@0)\", CMS_zz4l_mu)")

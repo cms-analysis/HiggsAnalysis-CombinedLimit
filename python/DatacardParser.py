@@ -19,7 +19,9 @@ def addDatacardParserOptions(parser):
     parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
     parser.add_option("--no-b-only","--for-fits",    dest="noBOnly", default=False, action="store_true", help="Do not save the background-only pdf (saves time)")
     parser.add_option("--no-wrappers", dest="noHistFuncWrappers", default=False, action="store_true", help="Do not create and save the CMSHistFuncWrapper objects for autoMCStats-based models (saves time)")
+    parser.add_option("--use-histsum", dest="useCMSHistSum", default=False, action="store_true", help="Use memory-optimized CMSHistSum instead of CMSHistErrorPropagator")
     parser.add_option("--no-optimize-pdfs",    dest="noOptimizePdf", default=False, action="store_true", help="Do not save the RooSimultaneous as RooSimultaneousOpt and Gaussian constraints as SimpleGaussianConstraint")
+    parser.add_option("--no-data",    dest="noData", default=False, action="store_true", help="Do not save the RooDataSet in the ouput workspace")
     parser.add_option("--optimize-simpdf-constraints",    dest="moreOptimizeSimPdf", default="none", type="string", help="Handling of constraints in simultaneous pdf: 'none' = add all constraints on all channels (default); 'lhchcg' = add constraints on only the first channel; 'cms' = add constraints to the RooSimultaneousOpt.")
     #parser.add_option("--use-HistPdf",  dest="useHistPdf", type="string", default="always", help="Use RooHistPdf for TH1s: 'always' (default), 'never', 'when-constant' (i.e. not when doing template morphing)")
     parser.add_option("--channel-masks",  dest="doMasks", default=False, action="store_true", help="Create channel-masking RooRealVars")
@@ -38,6 +40,8 @@ def addDatacardParserOptions(parser):
     parser.add_option("--X-no-optimize-templates",  dest="optimizeExistingTemplates", default=True, action="store_false", help="Don't optimize templates on the fly (relevant for HZZ)")
     parser.add_option("--X-no-optimize-bound-nusances",  dest="optimizeBoundNuisances", default=True, action="store_false", help="Don't flag nuisances to have a different implementation of bounds")
     parser.add_option("--X-no-optimize-bins",  dest="optimizeTemplateBins", default=True, action="store_false", help="Don't optimize template bins (removes padding from TH1s)")
+    parser.add_option("--X-pack-asympows",  dest="packAsymPows", default=False, action="store_true", help="Try reduce the number of inputs by merging AsymPow instances into ProcessNormalization objects")
+    parser.add_option("--X-optimizeMHDependency",  dest="optimizeMHDependency", default=None, help="Simplify MH dependent objects: 'fixed', 'pol<N>' with N=0..4")
 
 
 from HiggsAnalysis.CombinedLimit.Datacard import Datacard
@@ -88,6 +92,7 @@ def parseCard(file, options):
     binline = []; processline = []; sigline = []
     shapesUseBin = False
     lineNumber = None
+    lineNumber2 = None
 
     try: getattr(options,"evaluateEdits")
     except: setattr(options,"evaluateEdits",True)
@@ -168,7 +173,7 @@ def parseCard(file, options):
                     ret.exp[b][p] = float(r)
                 break # rate is the last line before nuisances
         # parse nuisances
-        for lineNumber,l in enumerate(file):
+        for lineNumber2,l in enumerate(file):
             if l.startswith("--"): continue
             l  = re.sub("\\s*#.*","",l)
             l = re.sub("(?<=\\s)-+(\\s|$)"," 0\\1",l);
@@ -176,6 +181,12 @@ def parseCard(file, options):
             if len(f) <= 1: continue
             nofloat = False
             lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
+	    if lsyst in ret.systIDMap.keys() and pdf in ["shape","shapeN","lnN"]:
+	      types = [ ret.systs[j][2] for j in ret.systIDMap[lsyst] ]
+	      if "shape" in types: 
+	        if pdf == "lnN"   : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
+	      elif "lnN" in types: 
+	        if pdf == "shape" : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
             if lsyst.endswith("[nofloat]"):
               lsyst = lsyst.replace("[nofloat]","")
               nofloat = True
@@ -195,6 +206,7 @@ def parseCard(file, options):
 	    elif pdf == "constr":
                 args = f[2:]
                 ret.systs.append([lsyst,nofloat,pdf,args,[]])
+                ret.add_syst_id(lsyst)
                 continue
             elif pdf == "param":
                 # for parametric uncertainties, there's no line to account per bin/process effects
@@ -202,6 +214,7 @@ def parseCard(file, options):
                 args = f[2:]
                 if len(args) <= 1: raise RuntimeError, "Uncertainties of type 'param' must have at least two arguments (mean and sigma)"
                 ret.systs.append([lsyst,nofloat,pdf,args,[]])
+                ret.add_syst_id(lsyst)
                 continue
             elif pdf == "flatParam":
                 ret.flatParamNuisances[lsyst] = True
@@ -213,6 +226,7 @@ def parseCard(file, options):
 	    	continue
             elif pdf == "rateParam":
 	        if ("*" in f[3]) or ("*" in f[2]): # all channels/processes
+                  found = False
 		  for c in ret.processes:
 		   for b in ret.bins:
 		    if (not fnmatch.fnmatch(c, f[3])): continue
@@ -221,6 +235,8 @@ def parseCard(file, options):
 		    f_tmp[2]=b
 		    f_tmp[3]=c
 	            addRateParam(lsyst,f_tmp,ret)
+                    found = True
+                  if not found: raise RuntimeError, "rateParam %s with process %r bin %r doesn't match anything." % (lsyst,f[3],f[2])
 		else : addRateParam(lsyst,f,ret)
                 continue
             elif pdf=="discrete":
@@ -269,8 +285,8 @@ def parseCard(file, options):
 	        statIncludeSig = bool(int(f[3])) if len(f) >= 4 else False
 	        statHistMode = int(f[4]) if len(f) >= 5 else 1
 	        statFlags = (statThreshold, statIncludeSig, statHistMode)
-		if "*" in lsyst: 
-		  for b in ret.bins: 
+		if "*" in lsyst:
+		  for b in ret.bins:
 		    	if (not fnmatch.fnmatch(b, lsyst)): continue
 		  	ret.binParFlags[b]=statFlags
     		else:
@@ -295,8 +311,10 @@ def parseCard(file, options):
                 # set the rate to epsilon for backgrounds with zero observed sideband events.
                 if pdf == "gmN" and ret.exp[b][p] == 0 and float(r) != 0: ret.exp[b][p] = 1e-6
             ret.systs.append([lsyst,nofloat,pdf,args,errline])
+            ret.add_syst_id(lsyst)
     except Exception, ex:
         if lineNumber != None:
+            if lineNumber2 != None: lineNumber+=lineNumber2+1 # lineNumber2 also started at 0
             msg = "Error reading line %d" % (lineNumber + 1)
             if hasattr(file,'name'):
                 msg += " of file " + file.name
@@ -318,7 +336,7 @@ def parseCard(file, options):
     # cleanup systematics that have no effect to avoid zero derivatives
     syst2 = []
     for lsyst,nofloat,pdf,args,errline in ret.systs:
-        nonNullEntries = 0 
+        nonNullEntries = 0
         if pdf == "param" or pdf =="constr" or pdf=="discrete" or pdf=="rateParam": # this doesn't have an errline
             syst2.append((lsyst,nofloat,pdf,args,errline))
             continue
@@ -326,7 +344,8 @@ def parseCard(file, options):
             r = errline[b][p]
             nullEffect = (r == 0.0 or (pdf == "lnN" and r == 1.0))
             if not nullEffect and ret.exp[b][p] != 0: nonNullEntries += 1 # is this a zero background?
-        if nonNullEntries != 0: syst2.append((lsyst,nofloat,pdf,args,errline))
+        if nonNullEntries != 0:syst2.append((lsyst,nofloat,pdf,args,errline))
+
         elif nuisances != -1: nuisances -= 1 # remove from count of nuisances, since qe skipped it
     ret.systs = syst2
     # remove them if options.stat asks so

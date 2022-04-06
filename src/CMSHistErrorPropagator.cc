@@ -174,12 +174,12 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
           if (bintypes_[j][i] == 2) {
             // Poisson: this is a multiplier on the process yield
             scaledbinmods_[i][j] = ((vbinpars_[j][i]->getVal() - 1.) *
-                 vfuncs_[i]->cache()[j] * coeffvals_[i]);
-            cache_[j] += scaledbinmods_[i][j];
+                 vfuncs_[i]->cache()[j]);
+            cache_[j] += (scaledbinmods_[i][j] * coeffvals_[i]);
           } else if (bintypes_[j][i] == 3) {
             // Gaussian This is the addition of the scaled error
-            scaledbinmods_[i][j] = vbinpars_[j][i]->getVal() * vfuncs_[i]->errors()[j] * coeffvals_[i];
-            cache_[j] += scaledbinmods_[i][j];
+            scaledbinmods_[i][j] = vbinpars_[j][i]->getVal() * vfuncs_[i]->errors()[j];
+            cache_[j] += (scaledbinmods_[i][j] * coeffvals_[i]);
           }
         }
       }
