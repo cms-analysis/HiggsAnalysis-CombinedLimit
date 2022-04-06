@@ -693,9 +693,17 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     std::vector<int>    bins(snm.size(), 0), sig(snm.size(), 0);
     std::map<std::string,TH1*> totByCh, totByCh2, sigByCh, sigByCh2, bkgByCh, bkgByCh2;
     std::map<std::string,TH2*> totByCh2Covar;
+    std::map<std::string,double> norm_tot, norm_sig, norm_bkg;
+    std::map<std::string,double> sumx2_tot, sumx2_sig, sumx2_bkg;
+    std::map<std::string,double> diff_tot, diff_sig, diff_bkg;
+    std::vector<std::string> channel_names;
     IT bg = snm.begin(), ed = snm.end(), pair; int i;
     for (pair = bg, i = 0; pair != ed; ++pair, ++i) {  
         vals[i] = pair->second.norm->getVal();
+        channel_names.push_back(pair->second.channel);
+	norm_tot.find(pair->second.channel) == norm_tot.end() ? norm_tot[pair->second.channel] = vals[i] : norm_tot[pair->second.channel] += vals[i];
+	if (pair->second.signal) norm_sig.find(pair->second.channel) == norm_sig.end() ? norm_sig[pair->second.channel] = vals[i] : norm_sig[pair->second.channel] += vals[i];
+	else norm_bkg.find(pair->second.channel) == norm_bkg.end() ? norm_bkg[pair->second.channel] = vals[i] : norm_bkg[pair->second.channel] += vals[i];
         //out.addOwned(*(new RooConstVar(pair->first.c_str(), "", pair->second.norm->getVal())));
         if (fOut != 0 && saveShapes_ && pair->second.obs.getSize() == 1) {
             RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
@@ -720,7 +728,8 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
                     htot->SetDirectory(shapesByChannel[pair->second.channel]);
                     TH1 *htot2 = (TH1*) hist->Clone(); htot2->Reset();
                     htot2->SetDirectory(0);
-                    totByCh2[pair->second.channel] = htot2;
+		    totByCh2[pair->second.channel] = htot2;
+
 		    TH2F *htot2covar = new TH2F("total_covar","Covariance signal+background",bins[i],0,bins[i],bins[i],0,bins[i]);
 		    htot2covar->GetXaxis()->SetTitle("Bin number");
 		    htot2covar->GetYaxis()->SetTitle("Bin number");
@@ -816,15 +825,18 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
         for (IH h = sigByCh.begin(), eh = sigByCh.end(); h != eh; ++h) sigByCh1[h->first] = (TH1*) h->second->Clone();
         for (IH h = bkgByCh.begin(), eh = bkgByCh.end(); h != eh; ++h) bkgByCh1[h->first] = (TH1*) h->second->Clone();
         for (int t = 0; t < ntoys; ++t) {
-            // zero out partial sums
-            for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) h->second->Reset();
-            for (IH h = sigByCh1.begin(), eh = sigByCh1.end(); h != eh; ++h) h->second->Reset();
-            for (IH h = bkgByCh1.begin(), eh = bkgByCh1.end(); h != eh; ++h) h->second->Reset();
+	    // zero out partial sums
+	  for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) h->second->Reset(), diff_tot[h->first] = 0.0;
+	  for (IH h = sigByCh1.begin(), eh = sigByCh1.end(); h != eh; ++h) h->second->Reset(), diff_sig[h->first] = 0.0;
+	  for (IH h = bkgByCh1.begin(), eh = bkgByCh1.end(); h != eh; ++h) h->second->Reset(), diff_bkg[h->first] = 0.0;
+          for (auto chname : channel_names) diff_tot[chname]=0.0, diff_sig[chname]=0.0, diff_bkg[chname] = 0.0;
             // randomize numbers
             params->assignValueOnly( sampler.get(t) );
             for (pair = bg, i = 0; pair != ed; ++pair, ++i) { 
                 // add up deviations in numbers for each channel
                 sumx2[i] += std::pow(pair->second.norm->getVal() - vals[i], 2);  
+		diff_tot[pair->second.channel] += (pair->second.norm->getVal() - vals[i]);
+		pair->second.signal ? diff_sig[pair->second.channel] += (pair->second.norm->getVal() - vals[i]) : diff_bkg[pair->second.channel] += (pair->second.norm->getVal() - vals[i]);
                 if (saveShapes_ && pair->second.obs.getSize() == 1) {
                     // and also deviations in the shapes
                     RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
@@ -894,6 +906,12 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
                     target->AddBinContent(b, std::pow(h->second->GetBinContent(b) - reference->GetBinContent(b), 2));
                 }
             }           
+	    // Add diffs to sumx2 -- all in same loop since channels should match
+	    for (std::map<std::string,double>::const_iterator it = diff_tot.begin(), et = diff_tot.end(); it != et; ++it){
+	      (t == 0) ? sumx2_tot[it->first] = std::pow(diff_tot[it->first],2) : sumx2_tot[it->first] += std::pow(diff_tot[it->first],2);
+	      (t == 0) ? sumx2_sig[it->first] = std::pow(diff_sig[it->first],2) : sumx2_sig[it->first] += std::pow(diff_sig[it->first],2);
+	      (t == 0) ? sumx2_bkg[it->first] = std::pow(diff_bkg[it->first],2) : sumx2_bkg[it->first] += std::pow(diff_bkg[it->first],2);
+	    }
         } // end of the toy loop
         // now take square roots and such
         for (pair = bg, i = 0; pair != ed; ++pair, ++i) {
@@ -906,6 +924,13 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
             }
 
         }
+	
+    for (std::map<std::string,double>::const_iterator it = sumx2_tot.begin(), iend = sumx2_tot.end(); it != iend; ++it){
+	sumx2_tot[it->first] = sqrt(sumx2_tot[it->first]/ntoys);
+	sumx2_sig[it->first] = sqrt(sumx2_sig[it->first]/ntoys);
+	sumx2_bkg[it->first] = sqrt(sumx2_bkg[it->first]/ntoys);
+    }
+
         // and the same for the total histograms
         for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h) {
             TH1 *sum2   = totByCh2[h->first];
@@ -964,6 +989,20 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
         out.addOwned(*val); 
         if (shapes[i]) shapesByChannel[pair->second.channel]->WriteTObject(shapes[i]);
     }
+
+    for (std::map<std::string,double>::const_iterator isum = norm_tot.begin(), iend = norm_tot.end(); isum != iend; ++isum){
+	RooRealVar *norm_tot_val = new RooRealVar((isum->first+"/total").c_str(),"",norm_tot[isum->first]);
+	RooRealVar *norm_sig_val = new RooRealVar((isum->first+"/total_signal").c_str(),"",norm_sig[isum->first]);
+	RooRealVar *norm_bkg_val = new RooRealVar((isum->first+"/total_background").c_str(),"",norm_bkg[isum->first]);
+	norm_tot_val->setError(sumx2_tot[isum->first]);
+	norm_sig_val->setError(sumx2_sig[isum->first]);
+	norm_bkg_val->setError(sumx2_bkg[isum->first]);
+	out.addOwned(*norm_tot_val);
+	out.addOwned(*norm_sig_val);
+	out.addOwned(*norm_bkg_val);
+    }
+
+
     if (fOut) {
         fOut->WriteTObject(&out, (std::string("norm")+postfix).c_str());
         for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
