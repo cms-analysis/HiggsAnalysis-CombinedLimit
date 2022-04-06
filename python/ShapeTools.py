@@ -432,7 +432,6 @@ class ShapeBuilder(ModelBuilder):
             if self.options.verbose > 1: stderr.write("Observables: %s\n" % str(shapeObs.keys()))
             if len(shapeObs.keys()) != 1:
                 self.out.binVars = ROOT.RooArgSet()
-                # Custom code starts - LC 5/14/19
                 for obs_key in shapeObs.keys():
                      # RooArgSet does not have method to add another RooArgSet (RooCollection does!) so we have to manually loop over the RooArgSet contents (in obs) 
                      if ',' in obs_key: # if multiple vars and looking at a RooArgSet value
@@ -440,7 +439,6 @@ class ShapeBuilder(ModelBuilder):
                              self.out.binVars.add(shapeObs[obs_key].find(k), True)
                      else:
                          self.out.binVars.add(shapeObs[obs_key], True)
-                 # Custom code ends
             else:
                 self.out.binVars = shapeObs.values()[0]
             self.out._import(self.out.binVars)
@@ -706,7 +704,6 @@ class ShapeBuilder(ModelBuilder):
                     pdfs.Add(self.shape2Pdf(shapeDown,channel,process))
                 histpdf =  nominalPdf if nominalPdf.InheritsFrom("RooDataHist") else nominalPdf.dataHist()
                 xvar = histpdf.get().first()
-                # Custom code start - LC 5/14/19
                 histpdfSubset = histpdf.get().Clone()
                 histpdfSubset.remove(xvar)
                 if histpdfSubset.first() != False:
@@ -714,8 +711,6 @@ class ShapeBuilder(ModelBuilder):
                     rhp = ROOT.FastVerticalInterpHistPdf2D2("shape%s_%s_%s_morph" % (postFix,channel,process), "", xvar, yvar, False, pdfs, coeffs, qrange, qalgo)
                 else:
                     rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", xvar, pdfs, coeffs, qrange, qalgo)
-                # Custom code ends (plus the next line was commented out)
-                #rhp = ROOT.FastVerticalInterpHistPdf2("shape%s_%s_%s_morph" % (postFix,channel,process), "", xvar, pdfs, coeffs, qrange, qalgo)
                 _cache[(channel,process)] = rhp
                 return rhp
 	    elif nominalPdf.InheritsFrom("RooParametricHist") : 
