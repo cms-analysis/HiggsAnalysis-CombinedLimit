@@ -317,7 +317,7 @@ bg_others lnN    -     -     -   1.30   30% uncertainty on the rest of the backg
 <li>The normalization of the data histogram must correspond to the number of observed events</li>
 <li>The normalization of the expected histograms must match the expected yields</li>
 </ul>
-<p>The combine tool can take as input histograms saved as TH1 or as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/make_simple_shapes.cxx">github</a>).</p>
+<p>The combine tool can take as input histograms saved as TH1, as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/make_simple_shapes.cxx">github</a>), or from a pandas dataframe (<a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/data/tutorials/shapes/simple-shapes-df.txt">example</a>)</p>
 <p>The block of lines defining the mapping (first block in the datacard) contains one or more rows in the form</p>
 <ul>
 <li><strong>shapes <em>process</em> <em>channel</em> <em>file</em> <em>histogram</em> <em>[histogram_with_systematics]</em> </strong></li>
