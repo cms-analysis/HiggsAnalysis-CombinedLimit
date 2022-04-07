@@ -3,6 +3,7 @@ import os.path
 import ROOT
 from collections import defaultdict
 from math import *
+from .DataFrameWrapper import DataFrameWrapper
 
 RooArgSet_add_original = ROOT.RooArgSet.add
 def RooArgSet_add_patched(self, obj, *args, **kwargs):
@@ -34,7 +35,15 @@ class FileCache:
             trueFName = fname 
             if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self._basedir+"/"+trueFName):
                 trueFName = self._basedir+"/"+trueFName;
-            self._files[fname] = [ ROOT.TFile.Open(trueFName), self._total ]
+            # interpret file from extension - csv, json, html, pkl, xlsx, h5, parquet
+            filepath = trueFName.split(":")[0]
+            filename, ext = os.path.splitext(filepath)
+            if ext in [".csv", ".json", ".html", ".pkl", ".xlsx", ".h5", ".parquet"]:
+                filehandle = DataFrameWrapper(trueFName, ext)
+            else:
+                # fallback to ROOT file
+                filehandle = ROOT.TFile.Open(trueFName)
+            self._files[fname] = [ filehandle, self._total ]
         else:
             self._files[fname][1] = self._total
         self._hits[fname] += 1
@@ -517,7 +526,9 @@ class ShapeBuilder(ModelBuilder):
            finalNames = [ fn.replace("$%s"%mpname,mpv) for fn in finalNames ]
         file = self._fileCache[finalNames[0]]; objname = finalNames[1]
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])
-        if ":" in objname: # workspace:obj or ttree:xvar or th1::xvar
+
+        # follow histogram routine if file is a dataframe and load dataframe as histograms
+        if ":" in objname and not isinstance(file, DataFrameWrapper): # workspace:obj or ttree:xvar or th1::xvar
             (wname, oname) = objname.split(":")
             if (file,wname) not in self.wspnames : 
 		self.wspnames[(file,wname)] = file.Get(wname)
