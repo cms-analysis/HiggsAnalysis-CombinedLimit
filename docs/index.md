@@ -30,12 +30,12 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a recommended tag - currently the recommended tag is **v8.1.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.1.0)
+Update to a recommended tag - currently the recommended tag is **v8.2.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0)
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v8.1.0
+git checkout v8.2.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
@@ -55,7 +55,7 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a reccomended tag - currently the reccomended tag is **v7.0.13**:
+Update to a recommended tag - currently the recommended tag for CMSSW_8_1_X is **v7.0.13**:
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
@@ -165,7 +165,7 @@ To compile the standalone version on suitable machines, please run:
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit/ 
 git fetch origin
-git checkout v8.1.0
+git checkout v8.2.0
 . env_standalone.sh
 make
 ```

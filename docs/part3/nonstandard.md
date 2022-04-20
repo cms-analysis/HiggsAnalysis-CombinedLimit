@@ -285,6 +285,56 @@ that will rename the POI label on the plot.
 
 The left panel in the summary plot shows the value of $(\theta-\theta_{0})/\Delta_{\theta}$ where $\theta$ and $\theta_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\theta}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **post**-fit uncertainty divided by the **pre**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. As with the `diffNuisances.py` script, use the option `--pullDef` are defined (eg to show the *pull* instead). 
 
+## Breakdown of uncertainties
+
+Often you will want to report the breakdown of your total (systematic) uncertainty on a measured parameter due to one or more groups of nuisance parameters. For example these groups could be theory uncertainties, trigger uncertainties, ... The prodecude to do this in combine is to sequentially freeze groups of nuisance parameters and subtract (in quadrature) from the total uncertainty. Below are the steps to do so. We will use the `data/tutorials/htt/125/htt_tt.txt` datacard for this. 
+
+1. Add groups to the datacard to group nuisance parameters. Nuisance parameters not in groups will be considered as "rest" in the later steps. The lines should look like the following and you should add them to the end of the datacard
+```
+theory 	    group = QCDscale_VH QCDscale_ggH1in QCDscale_ggH2in QCDscale_qqH UEPS pdf_gg pdf_qqbar
+calibration group = CMS_scale_j_8TeV CMS_scale_t_tautau_8TeV CMS_htt_scale_met_8TeV
+efficiency  group = CMS_eff_b_8TeV   CMS_eff_t_tt_8TeV CMS_fake_b_8TeV
+```
+
+2. Create the workspace with `text2workspace.py data/tutorials/htt/125/htt_tt.txt -m 125`. 
+
+3. Run a post-fit with all nuisance parameters floating and store the workspace in an output file - `combine data/tutorials/htt/125/htt_tt.root -M MultiDimFit --saveWorkspace -n htt.postfit`
+
+4. Run a scan from the postfit workspace 
+```
+combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit -n htt.total --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4
+```
+
+5. Run additional scans using the post-fit workspace sequentially adding another group to the list of groups to freeze
+```
+combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory -n htt.freeze_theory
+
+combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory,calibration -n htt.freeze_theory_calibration
+
+combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory,calibration,efficiency -n htt.freeze_theory_calibration_efficiency
+```
+
+6. Run one last scan freezing all of the constrained nuisances (this represents the statistics only uncertainty). 
+```
+combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeParameters allConstrainedNuisances -n htt.freeze_all
+```
+
+7. Use the `combineTool` script `plot1D.py` to report the breakdown of uncertainties. 
+
+```
+plot1DScan.py higgsCombinehtt.total.MultiDimFit.mH120.root --main-label "Total Uncert."  --others higgsCombinehtt.freeze_theory.MultiDimFit.mH120.root:"freeze theory":4 higgsCombinehtt.freeze_theory_calibration.MultiDimFit.mH120.root:"freeze theory+calibration":7 higgsCombinehtt.freeze_theory_calibration_efficiency.MultiDimFit.mH120.root:"freeze theory+calibration+efficiency":2 higgsCombinehtt.freeze_all.MultiDimFit.mH120.root:"stat only":6  --output breakdown --y-max 10 --y-cut 40 --breakdown "theory,calibration,efficiency,rest,stat"
+```
+
+The final step calculates the contribution of each group of nuisances as the subtraction in quadrature of each scan from the previous one. This procedure guarantees that the sum in quadrature of the individual components is the same as the total uncertainty. 
+
+The plot below is produced, 
+
+![](images/breakdown.png)
+
+!!! warning 
+    While the above procedure is guaranteed the have the effect that the sum in quadrature of the breakdown will equal the total uncertainty, the order in which you freeze the groups can make a difference due to correlations induced by the fit. You should check if the answers change significantly if changing the order and we reccomend you start with the largest group (in terms of overall contribution to the uncertainty) first and work down the list in order of contribution.  
+
+
 ## Channel Masking 
 
 The `combine` tool has a number of features for diagnostics and plotting results of fits. It can often be useful to turn off particular channels in a combined analysis to see how constraints/pulls can vary. It can also be helpful to plot post-fit shapes + uncertainties of a particular channel (for example a signal region) *without* including the constraints from the data in that region. 
