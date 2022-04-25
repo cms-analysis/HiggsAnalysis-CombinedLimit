@@ -9,7 +9,8 @@ There are several tutorials which have been run over the last few years with ins
    * [2nd tutorial 30th Nov 2016](https://indico.cern.ch/event/577649/#b-229590-higgs-combine-tool-mi).
    * [3rd tutorial 29th Nov 2017](https://indico.cern.ch/event/677948/#day-2017-11-29) 
    * [4th tutorial 31st Oct 2018](https://indico.cern.ch/event/747340/overview) - Latest for `81x-root606` branch.
-   * [5th tutorial 2nd-4th Dec 2019](https://indico.cern.ch/event/859454/overview) - Latest for `102x` branch.
+   * [5th tutorial 2nd-4th Dec 2019](https://indico.cern.ch/event/859454/overview)
+   * [6th tutorial 14th-16th Dec 2020](https://indico.cern.ch/event/976099/overview) - Latest for `102x` branch
 
 
 * Worked examples from Higgs analyses using combine  
@@ -70,6 +71,7 @@ There is no document currently which can be cited for using the combine tool, ho
     * Combine reports the fit status in some routines (for example in the `FitDiagnostics` method). These are typically the status of the last call from Minuit. For details on the meanings of these status codes see the [Minuit2Minimizer](https://root.cern.ch/root/html/ROOT__Minuit2__Minuit2Minimizer.html) documentation page.
 * _Why does my fit not converge?_ 
     * There are several reasons why some fits may not converge. Often some indication can be obtained from the `RooFitResult` or status which you will see information from when using the `--verbose X` (with $X>2$) option. Sometimes however, it can be that the likelihood for your data is very unusual. You can get a rough idea about what the likelihood looks like as a function of your parameters (POIs and nuisances) using `combineTool.py -M FastScan -w myworkspace.root` (use --help for options). 
+    * We have  seen often that fits in combine using `RooCBShape` as a parametric function will fail. This is related to an optimisation that fails. You can try to fix the problem as described in this issue: https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/issues/347 (i.e add the option `--X-rtd ADDNLL_CBNLL=0`).
 * _Why does the fit/fits take so long?_ 
     * The minimisation routines are common to many methods in combine. You can tune the fitting using the generic optimisation command line options described [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#generic-minimizer-options). For example, setting the default minimizer strategy to 0 can greatly improve the speed since this avoids running Hesse. In calculations such as `AsymptoticLimits`, Hesse is not needed and hence this can be done, however, for `FitDiagnostics` the uncertainties and correlations are part of the output so using strategy 0 may not be particularly accurate. 
 * _Why are the results for my counting experiment so slow or unstable?_ 

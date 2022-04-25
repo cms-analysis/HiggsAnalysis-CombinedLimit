@@ -15,6 +15,7 @@ nav:
           - "Advanced use cases":         part3/nonstandard.md
           - "Unfolding & regularization": part3/regularisation.md
           - "Validating datacards":       part3/validation.md
+          - "Debugging fit failures":     part3/debugging.md
         - Links & FAQ: part4/usefullinks.md
         - Tutorials:
           - "RooFit Basics":              part5/roofit.md

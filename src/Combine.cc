@@ -265,13 +265,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       unlink(tmpFile); // this is to be deleted, since we'll use tmpFile+".root"
   }
 
-  bool isTextDatacard = false, isBinary = false;
-  TString fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
-  if (!boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
-  if (hlfFile.EndsWith(".hlf") ) {
+  bool isTextDatacard = false, isBinary = hlfFile.EndsWith(".root");
+  TString fileToLoad = ((hlfFile[0] == '/' || hlfFile.Contains("://")) ? hlfFile : pwd+"/"+hlfFile);
+  if (!(fileToLoad.Contains("://") && isBinary) && !boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
+  if (hlfFile.EndsWith(".hlf") || isBinary) {
     // nothing to do
-  } else if (hlfFile.EndsWith(".root")) {
-    isBinary = true;
   } else {
     TString txtFile = fileToLoad.Data();
     TString options = TString::Format(" -m %f -D %s", mass_, dataset.c_str());
@@ -309,6 +307,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (isBinary) {
     TFile *fIn = TFile::Open(fileToLoad); 
+    if (!fIn) throw std::runtime_error(("Could not open file "+fileToLoad).Data());
     garbageCollect.tfile = fIn; // request that we close this file when done
 
     w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));

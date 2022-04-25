@@ -170,7 +170,10 @@ def doRenameNuisance(datacard,args):
                 if "shape" in pdf0 or "lnN" in pdf0:
                     for b in errline0.keys():
                         for p in datacard.exp[b].keys():
-                            datacard.systematicsShapeMap[newname,b,p]=oldname
+			    if errline0[b][p] != "-" and errline0[b][p] != 0.:
+                               datacard.systematicsShapeMap[newname,b,p]=oldname
+		            #print " for ", b,p,oldname,newname, errline0[b][p],
+	            #print ""
                 datacard.systIDMap[oldname].remove(id)
             else: # more tricky
                 #print " local command, ", " looking at a ", pdf0, " at id=",id
