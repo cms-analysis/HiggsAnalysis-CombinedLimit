@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+from __future__ import print_function
 from optparse import OptionParser, OptionGroup
+from six.moves import range
 
 ## set up the option parser
 parser = OptionParser(usage="usage: %prog [options] ARG",
@@ -55,20 +58,20 @@ def main() :
     for idx in range(len(whitelist)) : whitelist[idx] = whitelist[idx].rstrip(',')
     whitelist = remove_empty_strings(whitelist)
 
-    print "# --------------------------------------------------------------------------------------"
-    print "# Pruning uncertainties. "
-    print "# --------------------------------------------------------------------------------------"
-    print "# You are using the following configuration: "
-    print "# --fit-results       :", fit_results
-    print "# --metric            :", options.metric
-    print "# --mass              :", options.mass
-    print "# --threshold         :", options.threshold
-    print "# --blacklist         :", blacklist
-    print "# --whitelist         :", whitelist
-    print "# --comment-nuisances :", options.comment_nuisances
-    print "# Check option --help in case of doubt about the meaning of one or more of these confi-"
-    print "# guration parameters.                           "
-    print "# --------------------------------------------------------------------------------------"
+    print("# --------------------------------------------------------------------------------------")
+    print("# Pruning uncertainties. ")
+    print("# --------------------------------------------------------------------------------------")
+    print("# You are using the following configuration: ")
+    print("# --fit-results       :", fit_results)
+    print("# --metric            :", options.metric)
+    print("# --mass              :", options.mass)
+    print("# --threshold         :", options.threshold)
+    print("# --blacklist         :", blacklist)
+    print("# --whitelist         :", whitelist)
+    print("# --comment-nuisances :", options.comment_nuisances)
+    print("# Check option --help in case of doubt about the meaning of one or more of these confi-")
+    print("# guration parameters.                           ")
+    print("# --------------------------------------------------------------------------------------")
 
     ## create a combined datacard from input datacards
     rnd_name=''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
@@ -88,10 +91,10 @@ def main() :
         for file in glob.glob(args[0]+'/*.txt') :
             num = pruner.manipulate_datacard(file, "COMMENT", dropped)
 
-    print "# Excluded", len(dropped), "uncertainties from", len(dropped)+len(kept), ": (", confused, "not pruned due to missmatch of inputs)."
-    print "# Check the output files uncertainty-pruning-keep.txt and uncertainty-pruning-drop.txt"
-    print "# for the full list of pruned and and kept parameters.                                "
-    print "# --------------------------------------------------------------------------------------"
+    print("# Excluded", len(dropped), "uncertainties from", len(dropped)+len(kept), ": (", confused, "not pruned due to missmatch of inputs).")
+    print("# Check the output files uncertainty-pruning-keep.txt and uncertainty-pruning-drop.txt")
+    print("# for the full list of pruned and and kept parameters.                                ")
+    print("# --------------------------------------------------------------------------------------")
 
 main()
 exit(0)

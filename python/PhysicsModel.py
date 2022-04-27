@@ -1,5 +1,8 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from abc import ABCMeta, abstractmethod
 import re
+import six
 
 ### Class that takes care of building a physics model by combining individual channels and processes together
 ### Things that it can do:
@@ -8,8 +11,7 @@ import re
 ###   - yields a scaling factor for each pair of bin and process (by default, constant for background and linear in "r" for signal)
 ###   - possibly modifies the systematical uncertainties (does nothing by default)
 
-class PhysicsModelBase(object):
-    __metaclass__ = ABCMeta
+class PhysicsModelBase(six.with_metaclass(ABCMeta, object)):
     def __init__(self):
         pass
     def setModelBuilder(self, modelBuilder):
@@ -127,16 +129,16 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
                 elif "=" in poi:
                     poiname,expr = poi.split("=")
                     poi = expr.replace(";",":")
-                    if self.verbose: print "Will create expression ",poiname," with factory ",poi
+                    if self.verbose: print("Will create expression ",poiname," with factory ",poi)
                     self.factories.append(poi)
                 elif poiname not in self.pois and poi not in [ "1", "0"]:
-                    if self.verbose: print "Will create a POI ",poiname," with factory ",poi
+                    if self.verbose: print("Will create a POI ",poiname," with factory ",poi)
                     self.pois[poiname] = poi
                 if self.verbose:
                     if poi == "super":
-                        print "Using super method to get scaling for ", maps, " patterns"
+                        print("Using super method to get scaling for ", maps, " patterns")
                     else:
-                        print "Mapping ",poiname," to ",maps," patterns"
+                        print("Mapping ",poiname," to ",maps," patterns")
                 self.poiMap.append((poiname, maps))
                 processed.append(po)
         return processed + super(MultiSignalModelBase, self).processPhysicsOptions(physOptions)
@@ -164,7 +166,7 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
             poi = super(MultiSignalModelBase, self).getYieldScale(bin,process)
         if poi is None:
             poi = "1"
-        print "Will scale ", string, " by ", poi
+        print("Will scale ", string, " by ", poi)
         if poi in ["1","0"]: return int(poi)
         return poi
 
@@ -184,13 +186,13 @@ class CanTurnOffBkgModel(PhysicsModelBase_NiceSubclasses):
         for po in physOptions:
             if po.lower() == "nobkg":
                 self.usebkg = False
-                print "turning off all background"
+                print("turning off all background")
                 processed.append(po)
         return processed
     def getYieldScale(self,bin,process):
         result = super(CanTurnOffBkgModel, self).getYieldScale(bin, process)
         if not self.usebkg and not self.DC.isSignal[process]:
-            print "turning off {}".format(process)
+            print("turning off {}".format(process))
             return 0
         return result
 
@@ -205,9 +207,9 @@ class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
                 processed.append(po)
         return processed
     def getPOIList(self):
@@ -215,21 +217,21 @@ class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
         poiNames += super(HiggsMassRangeModel, self).getPOIList()
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
                 poiNames += [ 'MH' ]
             else:
-                print 'MH will be assumed to be', self.options.mass
+                print('MH will be assumed to be', self.options.mass)
                 self.modelBuilder.out.var("MH").removeRange()
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
         else:
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
                 poiNames += [ 'MH' ]
             else:
-                print 'MH (not there before) will be assumed to be', self.options.mass
+                print('MH (not there before) will be assumed to be', self.options.mass)
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         return poiNames
 
@@ -250,30 +252,30 @@ def getHiggsProdDecMode(bin,process,options):
     if "_" in process:
         (processSource, decaySource) = (process.split("_")[0],process.split("_")[-1]) # ignore anything in the middle for SM-like higgs
         if decaySource not in ALL_HIGGS_DECAYS:
-            print "ERROR", "Validation Error in bin %r: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (bin,process,decaySource,ALL_HIGGS_DECAYS)
+            print("ERROR", "Validation Error in bin %r: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)" % (bin,process,decaySource,ALL_HIGGS_DECAYS))
     if processSource not in ALL_HIGGS_PROD :
-        raise RuntimeError, "Validation Error in bin %r, process %r: signal process %s not among the allowed ones." % (bin,process,decaySource)
+        raise RuntimeError("Validation Error in bin %r, process %r: signal process %s not among the allowed ones." % (bin,process,decaySource))
     #
     foundDecay = None
     for D in ALL_HIGGS_DECAYS:
         if D in decaySource:
-            if foundDecay: raise RuntimeError, "Validation Error in bin %r, process %r: decay string %s contains multiple known decay names" % (bin,process,decaySource)
+            if foundDecay: raise RuntimeError("Validation Error in bin %r, process %r: decay string %s contains multiple known decay names" % (bin,process,decaySource))
             foundDecay = D
-    if not foundDecay: raise RuntimeError, "Validation Error in bin %r, process %r: decay string %s does not contain any known decay name" % (bin,process,decaySource)
+    if not foundDecay: raise RuntimeError("Validation Error in bin %r, process %r: decay string %s does not contain any known decay name" % (bin,process,decaySource))
     #
     foundEnergy = None
     for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
         if D in decaySource:
-            if foundEnergy: raise RuntimeError, "Validation Error in bin %r, process %r: decay string %s contains multiple known energies" % (bin,process,decaySource)
+            if foundEnergy: raise RuntimeError("Validation Error in bin %r, process %r: decay string %s contains multiple known energies" % (bin,process,decaySource))
             foundEnergy = D
     if not foundEnergy:
         for D in [ '7TeV', '8TeV', '13TeV', '14TeV' ]:
             if D in options.fileName+":"+bin:
-                if foundEnergy: raise RuntimeError, "Validation Error in bin %r, process %r: decay string %s contains multiple known energies" % (bin,process,decaySource)
+                if foundEnergy: raise RuntimeError("Validation Error in bin %r, process %r: decay string %s contains multiple known energies" % (bin,process,decaySource))
                 foundEnergy = D
     if not foundEnergy:
         foundEnergy = '13TeV' ## if using 81x, chances are its 13 TeV
-        print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
+        print("Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy))
     if (processSource=="WPlusH" or processSource=="WMinusH"): processSource = "WH" # treat them the same for now
     return (processSource, foundDecay, foundEnergy)
 
@@ -290,7 +292,7 @@ class SMLikeHiggsModel(PhysicsModel):
 class StrictSMLikeHiggsModel(SMLikeHiggsModel):
     "Doesn't do anything more, but validates that the signal process names are correct"
     def getHiggsSignalYieldScale(self,production,decay, energy):
-        if production == "VH": print "WARNING: VH production is deprecated and not supported in coupling fits"
+        if production == "VH": print("WARNING: VH production is deprecated and not supported in coupling fits")
         return "r"
 
 class FloatingHiggsMass(SMLikeHiggsModel):
@@ -303,11 +305,11 @@ class FloatingHiggsMass(SMLikeHiggsModel):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po.startswith("signalStrengthMode="):
                 self.rMode = po.replace("signalStrengthMode=","")
     def doParametersOfInterest(self):
@@ -320,7 +322,7 @@ class FloatingHiggsMass(SMLikeHiggsModel):
             self.modelBuilder.doVar("r[1,0,10]")
             if   self.rMode == "poi": POIs = "r,MH"
             elif self.rMode == "nuisance":  self.modelBuilder.out.var("r").setAttribute("flatParam")
-            else: raise RuntimeError, "FloatingHiggsMass: the signal strength must be set to 'poi'(default), 'nuisance' or 'fixed,<value>'"
+            else: raise RuntimeError("FloatingHiggsMass: the signal strength must be set to 'poi'(default), 'nuisance' or 'fixed,<value>'")
         if self.modelBuilder.out.var("MH"):
             self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
             self.modelBuilder.out.var("MH").setConstant(False)
@@ -355,47 +357,47 @@ class FloatingXSHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Higgs mass range: Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Higgs mass range: Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po.startswith("ggHRange="):
                 self.ggHRange = po.replace("ggHRange=","").split(":")
                 if len(self.ggHRange) != 2:
-                    raise RuntimeError, "ggH signal strength range requires minimal and maximal value"
+                    raise RuntimeError("ggH signal strength range requires minimal and maximal value")
                 elif float(self.ggHRange[0]) >= float(self.ggHRange[1]):
-                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
             if po.startswith("qqHRange="):
                 self.qqHRange = po.replace("qqHRange=","").split(":")
                 if len(self.qqHRange) != 2:
-                    raise RuntimeError, "qqH signal strength range requires minimal and maximal value"
+                    raise RuntimeError("qqH signal strength range requires minimal and maximal value")
                 elif float(self.qqHRange[0]) >= float(self.qqHRange[1]):
-                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
             if po.startswith("VHRange="):
                 self.VHRange = po.replace("VHRange=","").split(":")
                 if len(self.VHRange) != 2:
-                    raise RuntimeError, "VH signal strength range requires minimal and maximal value"
+                    raise RuntimeError("VH signal strength range requires minimal and maximal value")
                 elif float(self.VHRange[0]) >= float(self.VHRange[1]):
-                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
             if po.startswith("WHRange="):
                 self.WHRange = po.replace("WHRange=","").split(":")
                 if len(self.WHRange) != 2:
-                    raise RuntimeError, "WH signal strength range requires minimal and maximal value"
+                    raise RuntimeError("WH signal strength range requires minimal and maximal value")
                 elif float(self.WHRange[0]) >= float(self.WHRange[1]):
-                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
             if po.startswith("ZHRange="):
                 self.ZHRange = po.replace("ZHRange=","").split(":")
                 if len(self.ZHRange) != 2:
-                    raise RuntimeError, "ZH signal strength range requires minimal and maximal value"
+                    raise RuntimeError("ZH signal strength range requires minimal and maximal value")
                 elif float(self.ZHRange[0]) >= float(self.ZHRange[1]):
-                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
             if po.startswith("ttHRange="):
                 self.ttHRange = po.replace("ttHRange=","").split(":")
                 if len(self.ttHRange) != 2:
-                    raise RuntimeError, "ttH signal strength range requires minimal and maximal value"
+                    raise RuntimeError("ttH signal strength range requires minimal and maximal value")
                 elif float(self.ttHRange[0]) >= float(self.ttHRange[1]):
-                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
         if self.ttHasggH:
-            if "ggH" not in self.modes: raise RuntimeError, "Cannot set ttH=ggH if ggH is not an allowed mode"
+            if "ggH" not in self.modes: raise RuntimeError("Cannot set ttH=ggH if ggH is not an allowed mode")
             if "ttH" in self.modes: self.modes.remove("ttH")
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
@@ -411,21 +413,21 @@ class FloatingXSHiggs(SMLikeHiggsModel):
         # --- Higgs Mass as other parameter ----
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
                 poi+=',MH'
             else:
-                print 'MH will be assumed to be', self.options.mass
+                print('MH will be assumed to be', self.options.mass)
                 self.modelBuilder.out.var("MH").removeRange()
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
         else:
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
                 poi+=',MH'
             else:
-                print 'MH (not there before) will be assumed to be', self.options.mass
+                print('MH (not there before) will be assumed to be', self.options.mass)
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         self.modelBuilder.doSet("POI",poi)
     def getHiggsSignalYieldScale(self,production,decay, energy):
@@ -433,7 +435,7 @@ class FloatingXSHiggs(SMLikeHiggsModel):
         if production == "qqH": return ("r_qqH" if "qqH" in self.modes else 1)
         if production in ["ttH","tHq","tHW"]: return ("r_ttH" if "ttH" in self.modes else ("r_ggH" if self.ttHasggH else 1))
         if production in [ "WPlusH", "WMinusH", "WH", "ZH", "VH", "ggZH" ]: return ("r_VH" if "VH" in self.modes else 1)
-        raise RuntimeError, "Unknown production mode '%s'" % production
+        raise RuntimeError("Unknown production mode '%s'" % production)
 
 class RvRfXSHiggs(SMLikeHiggsModel):
     "Float ggH and ttH together and VH and qqH together"
@@ -446,11 +448,11 @@ class RvRfXSHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema."
+                    raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI ---
@@ -476,7 +478,7 @@ class RvRfXSHiggs(SMLikeHiggsModel):
             return 'RF'
         if production in ['qqH', 'WH', 'ZH', 'VH', 'ggZH','WPlusH','WMinusH']:
             return 'RV'
-        raise RuntimeError, "Unknown production mode '%s'" % production
+        raise RuntimeError("Unknown production mode '%s'" % production)
 
 class FloatingBRHiggs(SMLikeHiggsModel):
     "Float independently branching ratios"
@@ -494,9 +496,9 @@ class FloatingBRHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Signal Strength as only POI ---
@@ -506,21 +508,21 @@ class FloatingBRHiggs(SMLikeHiggsModel):
         # --- Higgs Mass as other parameter ----
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
                 poi+=',MH'
             else:
-                print 'MH will be assumed to be', self.options.mass
+                print('MH will be assumed to be', self.options.mass)
                 self.modelBuilder.out.var("MH").removeRange()
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
         else:
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
                 poi+=',MH'
             else:
-                print 'MH (not there before) will be assumed to be', self.options.mass
+                print('MH (not there before) will be assumed to be', self.options.mass)
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         self.modelBuilder.doSet("POI",poi)
     def getHiggsSignalYieldScale(self,production,decay, energy):
@@ -531,7 +533,7 @@ class FloatingBRHiggs(SMLikeHiggsModel):
                 return int(self.modemap[decay])
             else:
                 return "r_"+self.modemap[decay]
-        raise RuntimeError, "Unknown decay mode '%s'" % decay
+        raise RuntimeError("Unknown decay mode '%s'" % decay)
 
 class RvfBRHiggs(SMLikeHiggsModel):
     "Float ratio of (VH+qqH)/(ggH+ttH) and BR's"
@@ -545,11 +547,11 @@ class RvfBRHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema."
+                    raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI ---
@@ -578,7 +580,7 @@ class RvfBRHiggs(SMLikeHiggsModel):
             return 'r_'+decay
         if production in ['qqH', 'WH','WPlusH','WMinusH', 'ZH', 'VH', "ggZH"]:
             return 'rv_'+decay
-        raise RuntimeError, "Unknown production mode '%s'" % production
+        raise RuntimeError("Unknown production mode '%s'" % production)
 
 class ThetaVFBRHiggs(SMLikeHiggsModel):
     "Float ratio of (VH+qqH)/(ggH+ttH) and BR's"
@@ -592,11 +594,11 @@ class ThetaVFBRHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema."
+                    raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI ---
@@ -627,7 +629,7 @@ class ThetaVFBRHiggs(SMLikeHiggsModel):
             return 'rf_'+decay
         if production in ['qqH', 'WH','WPlusH','WMinusH', 'ZH', 'VH', 'ggZH']:
             return 'rv_'+decay
-        raise RuntimeError, "Unknown production mode '%s'" % production
+        raise RuntimeError("Unknown production mode '%s'" % production)
 
 
 class FloatingXSBRHiggs(SMLikeHiggsModel):
@@ -641,29 +643,29 @@ class FloatingXSBRHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Higgs Mass as other parameter ----
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
                 self.poiNames += [ 'MH' ]
             else:
-                print 'MH will be assumed to be', self.options.mass
+                print('MH will be assumed to be', self.options.mass)
                 self.modelBuilder.out.var("MH").removeRange()
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
         else:
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
                 self.poiNames += [ 'MH' ]
             else:
-                print 'MH (not there before) will be assumed to be', self.options.mass
+                print('MH (not there before) will be assumed to be', self.options.mass)
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
     def getHiggsSignalYieldScale(self,production,decay, energy):
         prod = 'VH' if production in [ 'VH','WH','WPlusH','WMinusH', 'ZH', 'ggZH' ] else production
@@ -687,14 +689,14 @@ class DoubleRatioHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema."
+                    raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
-        if len(self.modes) != 2: raise RuntimeError, "must profide --PO modes=decay1,decay2"
+        if len(self.modes) != 2: raise RuntimeError("must profide --PO modes=decay1,decay2")
         # --- Signal Strength as only POI ---
         self.modelBuilder.doVar("rho[1,0,4]")
         self.modelBuilder.doVar("Rvf[1,0,4]")
@@ -719,13 +721,13 @@ class DoubleRatioHiggs(SMLikeHiggsModel):
             self.modelBuilder.doSet("POI",poi)
     def getHiggsSignalYieldScale(self,production,decay, energy):
         if decay not in self.modes:
-            print "Warning: BR of extra decay %s will be kept to SM value."
+            print("Warning: BR of extra decay %s will be kept to SM value.")
             return 1 if production in ['ggH', 'ttH', 'bbH', 'tHq', 'tHW'] else "Rvf"
         if production in ['ggH', 'ttH', 'bbH', 'tHq', 'tHW']:
             return 'rf_'+decay
         if production in ['qqH', 'WH', 'ZH', 'VH', 'ggZH']:
             return 'rv_'+decay
-        raise RuntimeError, "Unknown production mode '%s'" % production
+        raise RuntimeError("Unknown production mode '%s'" % production)
 
 class RatioBRSMHiggs(SMLikeHiggsModel):
     "Measure the ratio of BR's for two decay modes"
@@ -742,14 +744,14 @@ class RatioBRSMHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema."
+                    raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
         self.numerators = tuple(self.modes - set((self.denominator,)))
-        print 'denominator: ',self.denominator
-        print 'numerators: ',self.numerators
+        print('denominator: ',self.denominator)
+        print('numerators: ',self.numerators)
 
 
     def doParametersOfInterest(self):
@@ -790,12 +792,12 @@ class RatioBRSMHiggs(SMLikeHiggsModel):
     def getHiggsSignalYieldScale(self,production,decay, energy):
 #        if decay not in self.numerators and not in self.denominator:
         if production in ['ggH', 'ttH', 'bbH', 'tHq', 'tHW']:
-            print '%(production)s/%(decay)s scaled by r_F_%(decay)s'%locals()
+            print('%(production)s/%(decay)s scaled by r_F_%(decay)s'%locals())
             return 'r_F_'+decay
         if production in ['qqH', 'WH',"WPlusH","WMinusH", 'ZH', 'VH', 'ggZH']:
-            print '%(production)s/%(decay)s scaled by r_V_%(decay)s'%locals()
+            print('%(production)s/%(decay)s scaled by r_V_%(decay)s'%locals())
             return 'r_V_'+decay
-        raise RuntimeError, "Unknown production mode '%s'" % production
+        raise RuntimeError("Unknown production mode '%s'" % production)
 
 defaultModel = PhysicsModel()
 multiSignalModel = MultiSignalModel()

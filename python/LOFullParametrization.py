@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 import ROOT, os
@@ -13,11 +15,11 @@ class C5(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("kV[1,0.0,2.0]")
@@ -63,8 +65,8 @@ class C5(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c6_XSBRscal_%s_%s" % (production,decay)
-        print '[LOFullParametrization::C6]'
-        print name, production, decay, energy
+        print('[LOFullParametrization::C6]')
+        print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
             XSscal = "kgluon"
             if production in ["WH","ZH","VH","qqH"]: XSscal = "kV"
@@ -87,11 +89,11 @@ class C6(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po == 'doHZg':
                 self.doHZg = True
     def doParametersOfInterest(self):
@@ -153,8 +155,8 @@ class C6(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c6_XSBRscal_%s_%s" % (production,decay)
-        print '[LOFullParametrization::C6]'
-        print name, production, decay, energy
+        print('[LOFullParametrization::C6]')
+        print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
             XSscal = "kgluon"
             if production in ["WH","ZH","VH","qqH"]: XSscal = "kV"
@@ -184,11 +186,11 @@ class C7(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po == 'doHZg':
                 self.doHZg = True
             if po == 'doHInv':
@@ -256,8 +258,8 @@ class C7(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s" % (production,decay)
-        print '[LOFullParametrization::C7]'
-        print name, production, decay, energy
+        print('[LOFullParametrization::C7]')
+        print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
             XSscal = "kgluon"
             if production in ["WH","ZH","VH","qqH"]: XSscal = "kV"
@@ -281,11 +283,11 @@ class PartialWidthsModel(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("r_WZ[1,0.0,1.0]") # bounded to 1
@@ -358,7 +360,7 @@ class PartialWidthsModel(SMLikeHiggsModel):
         dscale = self.decayScales_[decay]
         pscale = self.prodScales_[production]
         if production == "qqH": pscale += "_%s" % energy
-        print '[LOFullParametrization::PartialWidthModel]: ', name, production, decay, energy, pscale, dscale
+        print('[LOFullParametrization::PartialWidthModel]: ', name, production, decay, energy, pscale, dscale)
         self.modelBuilder.factory_("prod::%s(%s,sc_gluZ,%s)" % (name, dscale, pscale))
         return name
 

@@ -1,4 +1,6 @@
+from __future__ import absolute_import
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
+import six
 
 class BRChargedHiggs(PhysicsModel):
     def __init__(self):
@@ -21,7 +23,7 @@ class BRChargedHiggs(PhysicsModel):
 
     def getYieldScale(self,bin,process):
 
-        for prefix, model in self.processScaling.iteritems():
+        for prefix, model in six.iteritems(self.processScaling):
             if process.startswith(prefix):
                 return 'Scaling_'+model
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
 from pprint import pprint
@@ -16,7 +17,7 @@ masses = list()
 parser = OptionParser(usage="usage: %prog [options] dir \nrun with --help to get list of options")
 parser.add_option("--dir", dest="dir",  default='systs',  type="string", help="Output directory for results and intermediates.")
 parser.add_option("--masses", dest="masses",  default=[120],  type="string", action="callback", help="Which mass points to scan.",
-                  callback = lambda option, opt_str, value, parser: masses.extend(map(lambda x: int(x), value.split(',')))
+                  callback = lambda option, opt_str, value, parser: masses.extend([int(x) for x in value.split(',')])
                   )
 parser.add_option("--X-keep-global-nuisances", dest="keepGlobalNuisances", action="store_true", default=False, help="When excluding nuisances, do not exclude standard nuisances that are correlated CMS-wide even if their effect is small.")
 (options, args) = parser.parse_args()
@@ -67,8 +68,8 @@ def metric(x, ref='AllIn'):
 #results.sort(lambda x,y: int( metric(x[1]) - metric(y[1]) ) )
 results.sort(key = lambda x: metric(x[1], 'AllIn'), reverse=True )
 
-Singles    = filter(lambda x: len(x[0]) == len(nuisances)-1, results)
-nMinusOnes = filter(lambda x: len(x[0]) == 1, results)
+Singles    = [x for x in results if len(x[0]) == len(nuisances)-1]
+nMinusOnes = [x for x in results if len(x[0]) == 1]
 
 nuisancesKept = dict([ (
     tuple(v[0]),

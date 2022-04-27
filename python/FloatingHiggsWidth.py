@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 class FloatingHiggsWidth(SMLikeHiggsModel):
@@ -12,21 +14,21 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
         for po in physOptions:
             if po.startswith("higgsWidthRange="):
                 self.widthRange = po.replace("higgsWidthRange=","").split(",")
-                print 'The Higgs Width range:', self.widthRange
+                print('The Higgs Width range:', self.widthRange)
                 if len(self.widthRange) != 2:
-                    raise RuntimeError, "Higgs Width range definition requires two extrema"
+                    raise RuntimeError("Higgs Width range definition requires two extrema")
                 elif float(self.widthRange[0]) >= float(self.widthRange[1]):
-                    raise RuntimeError, "Extrama for Higgs Width range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs Width range defined with inverterd order. Second must be larger the first")
             if po.startswith("signalStrengthMode="):
                 self.rMode = po.replace("signalStrengthMode=","")
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema."
+                    raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and Width"""
@@ -63,7 +65,7 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
                     self.modelBuilder.out.var("MH").setConstant(True)
                 else:
                     self.modelBuilder.doVar("MH[%g]" % self.options.mass)
-        else: raise RuntimeError, "FloatingHiggsWidth: the signal strength must be set to 'poi'(default), 'nuisance'"
+        else: raise RuntimeError("FloatingHiggsWidth: the signal strength must be set to 'poi'(default), 'nuisance'")
 
         if self.modelBuilder.out.var("HiggsDecayWidth"):
             self.modelBuilder.out.var("HiggsDecayWidth").setRange(float(self.widthRange[0]),float(self.widthRange[1]))

@@ -3,10 +3,15 @@
 # Description: Model to describe how bins in STXS (0,1,1.1) scale using full set of dimension-6 EFT parameters
 #              Equations calculated using Higgs Effective Lagrangian (Madgraph)
 
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 from math import exp
 import ROOT, os, re, sys
+import six
+from six.moves import range
+from six.moves import zip
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -26,7 +31,7 @@ def getSTXSProdDecMode(bin,process,options):
             processSource = re.sub('_%s'%D,'',process)
             foundDecay = D
             matchedDecayString = True
-    if not matchedDecayString: raise RuntimeError, "Validation Error: no supported decay found in process"
+    if not matchedDecayString: raise RuntimeError("Validation Error: no supported decay found in process")
     return (processSource, foundDecay, foundEnergy)
 
 #################################################################################################################
@@ -68,9 +73,9 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po.startswith("BRU="):
                 self.doBRU = (po.replace("BRU=","") in ["yes","1","Yes","True","true"])
             if po.startswith("STXSU="):
@@ -87,15 +92,15 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
                 self.linearOnly = (po.replace("linearOnly=","") in ["yes","1","Yes","True","true"])
 
         #Output options to screen
-        print " --> [STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU
-        print " --> [STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU
-        if( self.doSTXSU ): print " --> [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/*_binuncertainties.txt"
-        if( self.freezeOtherParameters ): print " --> [STXStoEFT] Freezing all but [cG,cu,cd,cHW,cHB,cA,cWWMinuscB,cl] (distinct: %s) to 0"%(self.distinctParametersOfInterest)
-        else: print " --> [STXStoEFT] Allowing all HEL parameters to float"
-        if( len( self.fixProcesses ) > 0 ): print " --> [STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses
-        if self.useExtendedVBFScheme: print " --> [STXStoEFT] Use extended VBF scheme (different scaling for pure + V(qq)H)"
-        if self.useLHCHXSWGNumbers: print " --> [STXStoEFT] Using LHCHXSWG numbers for stage 1 scaling functions"
-        if self.linearOnly: print " --> [STXStoEFT] Only linear terms (Ai)"
+        print(" --> [STXStoEFT] Theory uncertainties in partial widths: %s"%self.doBRU)
+        print(" --> [STXStoEFT] Theory uncertainties in STXS bins: %s"%self.doSTXSU)
+        if( self.doSTXSU ): print(" --> [WARNING]: theory uncertainties in STXS bins are currently incorrect. Need to update: data/lhc-hxswg/eft/HEL/*_binuncertainties.txt")
+        if( self.freezeOtherParameters ): print(" --> [STXStoEFT] Freezing all but [cG,cu,cd,cHW,cHB,cA,cWWMinuscB,cl] (distinct: %s) to 0"%(self.distinctParametersOfInterest))
+        else: print(" --> [STXStoEFT] Allowing all HEL parameters to float")
+        if( len( self.fixProcesses ) > 0 ): print(" --> [STXStoEFT] Fixing following processes to SM: %s"%self.fixProcesses)
+        if self.useExtendedVBFScheme: print(" --> [STXStoEFT] Use extended VBF scheme (different scaling for pure + V(qq)H)")
+        if self.useLHCHXSWGNumbers: print(" --> [STXStoEFT] Using LHCHXSWG numbers for stage 1 scaling functions")
+        if self.linearOnly: print(" --> [STXStoEFT] Only linear terms (Ai)")
 
     def doMH(self):
         if self.floatMass:
@@ -243,7 +248,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
             if sumString in sumTerms: sumTerms[ sumString ] += "%s,"%formulaTerms[_termIdx]
             else: sumTerms[ sumString ] = "%s,"%formulaTerms[_termIdx ]
         #Add sizeable sums as RooAdditions
-        for key, value in sumTerms.iteritems(): self.modelBuilder.factory_( "sum::%s(%s)"%(key,value[:-1]) )
+        for key, value in six.iteritems(sumTerms): self.modelBuilder.factory_( "sum::%s(%s)"%(key,value[:-1]) )
 
         #Define string for total: 1 + sizeable sums
         if( what in self.DecayScalingFunctions )&( what != "tot" ): totalStr = "sum::scaling_partial_%s(1,"%what
@@ -299,9 +304,9 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
         from HiggsAnalysis.CombinedLimit.STXS import fixed_procs, stage0_procs, stage1_procs, stage1_1_procs
         #self.PROCESSES = {}
         for s in ['0','1','1_1']:
-            if s=='0': self.PROCESSES["stage%s"%s] = [x for v in stage0_procs.itervalues() for x in v]
-            elif s=='1': self.PROCESSES["stage%s"%s] = [x for v in stage1_procs.itervalues() for x in v]
-            else: self.PROCESSES["stage%s"%s] = [x for v in stage1_1_procs.itervalues() for x in v]
+            if s=='0': self.PROCESSES["stage%s"%s] = [x for v in six.itervalues(stage0_procs) for x in v]
+            elif s=='1': self.PROCESSES["stage%s"%s] = [x for v in six.itervalues(stage1_procs) for x in v]
+            else: self.PROCESSES["stage%s"%s] = [x for v in six.itervalues(stage1_1_procs) for x in v]
         self.PROCESSES["fixedproc"] = fixed_procs
         self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','hzg','hmm','tot']
 
@@ -309,14 +314,14 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
         self.setPhysicsOptionsBase(physOptions)
 
     def doParametersOfInterest(self):
-        if self.floatMass: print " --> [WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
+        if self.floatMass: print(" --> [WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV")
         self.doMH()
         self.SMH = SMHiggsBuilder(self.modelBuilder)
 
         #Read in parameter list from file using textToPOIList function
         self.textToPOIList( os.path.join(self.SMH.datadir,'eft/HEL/pois.txt') )
-        POIs = ','.join(self.pois.keys())
-        for poi, poi_range in self.pois.iteritems(): self.modelBuilder.doVar("%s%s"%(poi,poi_range))
+        POIs = ','.join(list(self.pois.keys()))
+        for poi, poi_range in six.iteritems(self.pois): self.modelBuilder.doVar("%s%s"%(poi,poi_range))
         # Remove cWW+cB from POI list if freezing other parameters
         if self.freezeOtherParameters: POIs = re.sub("cWWPluscB_x02,","",POIs)
         self.modelBuilder.doSet("POI",POIs)
@@ -388,7 +393,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
                 self.modelBuilder.factory_("expr::scaling_%s(\"@0\",1.)"%production)
                 key = None
             else:
-                print "[WARNING] Process %s is not supported in STXStoEFT Model, Setting to 1"%production
+                print("[WARNING] Process %s is not supported in STXStoEFT Model, Setting to 1"%production)
                 return 1
                 #raise ValueError("[ERROR] Process %s is not supported in STXStoEFT Model"%production)
             # Give production correct scaling
@@ -397,7 +402,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
             # Check decay scaling exists:
             if decay in self.DECAYS: BRscal = "scaling_BR_%s"%decay
             else:
-                print "[WARNING] Decay %s is not supported in STXStoEFT Model, setting to 1"%decay
+                print("[WARNING] Decay %s is not supported in STXStoEFT Model, setting to 1"%decay)
                 return 1
                 #raise ValueError("[ERROR] Decay %s is not supported in STXStoEFT Model"%decay)
 
@@ -433,7 +438,7 @@ class StageXToEFTModel(STXStoEFTBaseModel):
         STXStoEFTBaseModel.__init__(self)
         self.stage = stage
         import HiggsAnalysis.CombinedLimit.STXS as STXS
-        self.PROCESSES['stage%s'%self.stage] = [x for v in getattr(STXS,"stage%s_procs"%self.stage).itervalues() for x in v]
+        self.PROCESSES['stage%s'%self.stage] = [x for v in six.itervalues(getattr(STXS,"stage%s_procs"%self.stage)) for x in v]
         self.PROCESSES["fixedproc"] = STXS.fixed_procs
         self.DECAYS = ['hzz','hbb','htt','hww','hgg','hgluglu','hcc','hzg','hmm','tot']
 
@@ -441,14 +446,14 @@ class StageXToEFTModel(STXStoEFTBaseModel):
         self.setPhysicsOptionsBase(physOptions)
 
     def doParametersOfInterest(self):
-        if self.floatMass: print " --> [WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV"
+        if self.floatMass: print(" --> [WARNING] Floating Higgs mass selected. STXStoEFT model assumes MH=125.0 GeV")
         self.doMH()
         self.SMH = SMHiggsBuilder(self.modelBuilder)
 
         #Read in parameter list from file using textToPOIList function
         self.textToPOIList( os.path.join(self.SMH.datadir,'eft/HEL/pois.txt') )
-        POIs = ','.join(self.pois.keys())
-        for poi, poi_range in self.pois.iteritems():
+        POIs = ','.join(list(self.pois.keys()))
+        for poi, poi_range in six.iteritems(self.pois):
             self.modelBuilder.doVar("%s%s"%(poi,poi_range))
         self.modelBuilder.doSet("POI",POIs)
         #POIs for cWW and cB defined in terms of constraints on cWW+cB and cWW-cB: define expression for individual coefficient

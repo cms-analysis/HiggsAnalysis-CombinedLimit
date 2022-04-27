@@ -1,9 +1,12 @@
 ### Original Author: Andrea Carlo Marini
 ### Date: 9/11/2017
 
+from __future__ import absolute_import
+from __future__ import print_function
 import ROOT
 from array import array
 import re
+from six.moves import range
 
 # construct model and datacard
 # type = cut & count / pdf
@@ -35,13 +38,13 @@ class Model():
         return
 
     def info(self):
-        print "-------------------------"
-        print "bins truth:",self.nbins_x,"smeared",self.nbins_y
-        print "n. events: sig:",self.nevents, ("bkg: %s"%self.nbkg) if self.bkg else "bkg: None"
-        print "type:",self.type
-        print "workspace:",self.fname
-        print "datacard:",self.dname
-        print "-------------------------"
+        print("-------------------------")
+        print("bins truth:",self.nbins_x,"smeared",self.nbins_y)
+        print("n. events: sig:",self.nevents, ("bkg: %s"%self.nbkg) if self.bkg else "bkg: None")
+        print("type:",self.type)
+        print("workspace:",self.fname)
+        print("datacard:",self.dname)
+        print("-------------------------")
 
     def run(self):
         self.doModel()
@@ -124,7 +127,7 @@ class Model():
                 self.M.SetBinContent(binX,binY,c * x)
 
     def Import(self,obj):
-        print "* importing",obj.GetName()
+        print("* importing",obj.GetName())
         #getattr(self.w,'import')(obj,ROOT.RooCmdArg())
         getattr(self.w,'import')(obj,ROOT.RooCmdArg(ROOT.RooFit.RecycleConflictNodes()))
 
@@ -133,7 +136,7 @@ class Model():
         ROOT.SetOwnership(self.w,False)
         ##self.pdf = ROOT.TF1("myfunc","x*x*x*TMath::Exp(-x)/5.9380",0,10)
         #create observable x (truth)
-        print "-> construct real or fake pdfs for each entry in the matrix"
+        print("-> construct real or fake pdfs for each entry in the matrix")
         self.mgg = ROOT.RooRealVar("mgg","mgg",110,150)
         self.MH = ROOT.RooRealVar("MH","MH",125.)
 
@@ -198,9 +201,9 @@ class Model():
                 self.Import(pdf)
 
 
-        print "-> writing worspace to file",self.fname
+        print("-> writing worspace to file",self.fname)
         self.w.writeToFile(self.fname)
-        print "-> adding  histograms to",self.fname
+        print("-> adding  histograms to",self.fname)
         self.fOut = ROOT.TFile.Open(self.fname,"UPDATE")
         self.fOut.cd()
         self.y_th1.Write()
@@ -347,4 +350,4 @@ if __name__=="__main__":
         model.dname = "datacard_cc.txt"
     #model.type='c&c'
     model.run()
-    print "---- DONE ----"
+    print("---- DONE ----")

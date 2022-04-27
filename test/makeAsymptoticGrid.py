@@ -1,5 +1,7 @@
 # Script for batch sumbission of Asymptotic Limit Calculator
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import sys,os,commands,glob,numpy
 from optparse import OptionParser
 
@@ -17,7 +19,7 @@ parser.add_option("-O","",dest="options",default="")
 ws=options.workspace
 mass=options.mass
 outputname=options.outputname
-print options.range
+print(options.range)
 step=(options.range[1]-options.range[0])/options.npoints
 points=numpy.arange(options.range[0],options.range[1]+step,step)
 
@@ -44,7 +46,7 @@ ext = " & " if options.nCPU>1 else " "
 for i,po in enumerate(points):
     f.write("combine -M Asymptotic %s -m %.1f --singlePoint %f -n %.1f %s %s \n" % (ws,mass,po,po,ext,options.options) )
     if (i>0 and i%options.nCPU==0): f.write("wait\n")
-print i
+print(i)
 if options.nCPU>i: f.write("wait\n")
 f.write("hadd -f grid_%.1f%s.root higgsCombine* \n"%(mass,outputname))
 f.write("cp -f grid_%.1f%s.root %s \n"%(mass,outputname,workingDir))

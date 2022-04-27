@@ -1,8 +1,12 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import re, os
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
 from math import *
+import six
+from six.moves import zip
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 argv.append( '-b-' )
@@ -49,7 +53,7 @@ def file2map(x):
             headers = [i.strip() for i in cols[1:]]
         else:
             fields = [ float(i) for i in cols ]
-            ret[fields[0]] = dict(zip(headers,fields[1:]))
+            ret[fields[0]] = dict(list(zip(headers,fields[1:])))
     return ret
 path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";
 ggXS = file2map(path+"YR-XS-ggH.txt")
@@ -58,10 +62,10 @@ br   = file2map(path+"YR-BR3.txt")
 sm4  = file2map(path+"SM4-600GeV.txt")
 # create points at 450, 550 by interpolation
 for M in (450,550):
-    ggXS[M] = dict([ (key, 0.5*(ggXS[M+10][key] + ggXS[M-10][key])) for key in ggXS[M+10].iterkeys() ])
-    qqXS[M] = dict([ (key, 0.5*(qqXS[M+10][key] + qqXS[M-10][key])) for key in qqXS[M+10].iterkeys() ])
-    br[M] = dict([ (key, 0.5*(br[M+10][key] + br[M-10][key])) for key in br[M+10].iterkeys() ])
-    sm4[M] = dict([ (key, 0.5*(sm4[M+10][key] + sm4[M-10][key])) for key in sm4[M+10].iterkeys() ])
+    ggXS[M] = dict([ (key, 0.5*(ggXS[M+10][key] + ggXS[M-10][key])) for key in six.iterkeys(ggXS[M+10]) ])
+    qqXS[M] = dict([ (key, 0.5*(qqXS[M+10][key] + qqXS[M-10][key])) for key in six.iterkeys(qqXS[M+10]) ])
+    br[M] = dict([ (key, 0.5*(br[M+10][key] + br[M-10][key])) for key in six.iterkeys(br[M+10]) ])
+    sm4[M] = dict([ (key, 0.5*(sm4[M+10][key] + sm4[M-10][key])) for key in six.iterkeys(sm4[M+10]) ])
 if options.xsbr:
     xsbr1['ggH'] = ggXS[mass1]['XS_pb'] * br[mass1]['H_evmv']
     xsbr ['ggH'] = ggXS[mass ]['XS_pb'] * br[mass ]['H_evmv'] * sm4[mass ]['XS_over_SM'] * sm4[mass ]['brWW_over_SM']
@@ -72,7 +76,7 @@ else:
     xsbr['qqH'] = sm4[mass1]['brWW_over_SM']
 
 
-print "Will interpolate %g from %d" % (mass, mass1)
+print("Will interpolate %g from %d" % (mass, mass1))
 
 for X in [ 'hwwof_0j_shape',  'hwwof_1j_shape',  'hwwsf_0j_shape',  'hwwsf_1j_shape', 'hww_2j_cut']:
     #print "Considering datacard ",X
@@ -85,15 +89,15 @@ for X in [ 'hwwof_0j_shape',  'hwwof_1j_shape',  'hwwsf_0j_shape',  'hwwsf_1j_sh
     options.fileName = file1; options.mass = mass1;
     DC1 = parseCard(open(file1,"r"), options)
 
-    if len(DC1.bins) != 1: raise RuntimeError, "This does not work on multi-channel"
+    if len(DC1.bins) != 1: raise RuntimeError("This does not work on multi-channel")
     obsline = [str(x) for x in DC1.obs.values()]; obskeyline = DC1.bins; cmax = 5;
     keyline = []; expline = []; systlines = {};
     signals = []; backgrounds = []; shapeLines = [];
     paramSysts = {}; flatParamNuisances = {}
     for (name,nf,pdf,args,errline) in DC1.systs:
         if options.etu != 0 and name in [ "QCDscale_ggH", "QCDscale_ggH1in", "QCDscale_ggH2in" ]:
-            for b in errline.iterkeys():
-                for p in errline[b].iterkeys():
+            for b in six.iterkeys(errline):
+                for p in six.iterkeys(errline[b]):
                     if errline[b][p] != 0 and errline[b][p] != 1:
                         inflated = errline[b][p]+options.etu if errline[b][p] > 1 else errline[b][p]-options.etu
                         #print "Inflating uncertainty from %s to %s" % (errline[b][p], inflated);
@@ -151,7 +155,7 @@ for X in [ 'hwwof_0j_shape',  'hwwof_1j_shape',  'hwwsf_0j_shape',  'hwwsf_1j_sh
     xfile.write(" ".join([hfmt % "process", "  ".join([cfmt % x for x in pidline])])+"\n")
     xfile.write(" ".join([hfmt % "rate",    "  ".join([cfmt % x for x in expline])])+"\n")
     xfile.write(" ".join(["-" * 150])+"\n")
-    sysnamesSorted = systlines.keys(); sysnamesSorted.sort()
+    sysnamesSorted = list(systlines.keys()); sysnamesSorted.sort()
     for name in sysnamesSorted:
         (pdf,pdfargs,effect,nofloat) = systlines[name]
         if nofloat: name += "[nofloat]"
@@ -165,5 +169,5 @@ for X in [ 'hwwof_0j_shape',  'hwwof_1j_shape',  'hwwsf_0j_shape',  'hwwsf_1j_sh
     for (pname, pargs) in paramSysts.items():
         xfile.write(" ".join(["%-12s  param  %s" %  (pname, " ".join(pargs))])+"\n")
 
-    for pname in flatParamNuisances.iterkeys():
+    for pname in six.iterkeys(flatParamNuisances):
         xfile.write(" ".join(["%-12s  flatParam" % pname])+"\n")

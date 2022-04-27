@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import re
 import os.path
 from math import *
@@ -38,7 +40,7 @@ DC = parseCard(file, options)
 if not DC.hasShapes: DC.hasShapes = True
 MB = ShapeBuilder(DC, options)
 for b in DC.bins:
-    print " ============= ", b , "===================="
+    print(" ============= ", b , "====================")
     if options.channel != None and (options.channel != b): continue
     exps = {}
     for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
@@ -74,9 +76,9 @@ for b in DC.bins:
                     ratios = [sUp.Integral()/s0.Integral(), sDown.Integral()/s0.Integral()]
                     ratios += [1/ratios[0], 1/ratios[1]]
                     exps[p][1].append(max(ratios) - 1)
-    procs = DC.exp[b].keys(); procs.sort()
+    procs = list(DC.exp[b].keys()); procs.sort()
     fmt = ("%%-%ds " % max([len(p) for p in procs]))+"  "+options.format;
     for p in procs:
         relunc = sqrt(sum([x*x for x in exps[p][1]]))
-        print fmt % (p, exps[p][0], exps[p][0]*relunc)
+        print(fmt % (p, exps[p][0], exps[p][0]*relunc))
 

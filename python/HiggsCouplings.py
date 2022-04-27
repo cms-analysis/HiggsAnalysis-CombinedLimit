@@ -1,6 +1,7 @@
 # Benchmark Higgs models as defined in (put ref to LHCXSWG document)
 
 # the model equivalent to mu
+from __future__ import absolute_import
 from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.CSquared import CSquaredHiggs
 cSq = CSquaredHiggs()
 

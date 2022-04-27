@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import sys,os
 from subprocess import call
 
@@ -6,6 +8,7 @@ from subprocess import call
 
 #global options
 from optparse import OptionParser
+from six.moves import range
 parser=OptionParser()
 #parser.add_option("-n","--name",help="NAME [%default]",default="")
 parser.add_option("-o","--output",dest="output",help="output name [%default]",default="regularization.root")
@@ -81,7 +84,7 @@ for col in range(nbinsR):
     ##
     ## BIAS
     if col == 2:
-        print "-> BIAS in Bin=2, to study reg"
+        print("-> BIAS in Bin=2, to study reg")
         S *= 2
     reco.SetBinContent(col+1,S)
 
@@ -107,7 +110,7 @@ def importPdf(h,name):
 if opts.reg:
     ## import POI in the ws
     for i in range(nbinsG):
-        print "-> importing bin","r_Bin%d[1,-1,20]"%i
+        print("-> importing bin","r_Bin%d[1,-1,20]"%i)
         ws.factory("r_Bin%d[1,-1,20]"%i)
     #ws.factory("delta[1.0]") # const, sigma=2/sqrt(delta), INF= NO REG, 0 = SUPER REG
     #ws.factory("delta[1e-5]") # const, sigma=2/sqrt(delta), INF= NO REG, 0 = SUPER REG
@@ -207,10 +210,10 @@ cmd+= " --PO map='.*Bkg.*':r_Bkg[1]"
 
 cmd += " --X-allow-no-background "
 
-print "Calling command:\n",cmd
+print("Calling command:\n",cmd)
 st=call(cmd,shell=True)
-if st==0: print "Datacard: Success"
-else: print "Datacard: Error"
+if st==0: print("Datacard: Success")
+else: print("Datacard: Error")
 
 time.sleep(1)
 import re
@@ -219,10 +222,10 @@ cmd= "combine -M MultiDimFit " + re.sub('.txt','.root',opts.datacard )
 cmd += " --floatOtherPOIs=1 "
 cmd += " --saveWorkspace "
 
-print "Run with:\n",cmd
+print("Run with:\n",cmd)
 st=call(cmd,shell=True)
-if st==0: print "Fit: Success"
-else: print "Fit: Error"
+if st==0: print("Fit: Success")
+else: print("Fit: Error")
 
 del ws
 

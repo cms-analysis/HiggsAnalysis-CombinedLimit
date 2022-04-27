@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
 from optparse import OptionParser, OptionGroup
 
 ## set up the option parser

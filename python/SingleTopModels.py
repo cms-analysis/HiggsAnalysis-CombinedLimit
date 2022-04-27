@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 from HiggsAnalysis.CombinedLimit.LHCHCGModels import *
@@ -25,7 +27,7 @@ class KappaVKappaT(LHCHCGBaseModel):
         for po in physOptions:
             if po.startswith("BRU="):
                 self.doBRU = (po.replace("BRU=","") in [ "yes", "1", "Yes", "True", "true" ])
-        print "BR uncertainties in partial widths: %s " % self.doBRU
+        print("BR uncertainties in partial widths: %s " % self.doBRU)
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("r[1,0.0,10.0]")
@@ -133,10 +135,10 @@ class KappaVKappaT(LHCHCGBaseModel):
             elif production == "ZH":  XSscal = ("@0*@0", "kappa_V")
             elif production == "ttH": XSscal = ("@0*@0", "kappa_t")
             elif production == "bbH": XSscal = ("@0*@0", "kappa_b")
-            else: raise RuntimeError, "Production %s not supported" % production
+            else: raise RuntimeError("Production %s not supported" % production)
             BRscal = decay
             if not self.modelBuilder.out.function("c7_BRscal_"+BRscal):
-                raise RuntimeError, "Decay mode %s not supported" % decay
+                raise RuntimeError("Decay mode %s not supported" % decay)
             if decay == "hss": BRscal = "hbb"
             if production in ['tHq', 'tHW', 'ttH']:
                 self.modelBuilder.factory_('expr::%s("%s*@1*@2", %s, c7_BRscal_%s, r)' % (name, XSscal[0], XSscal[1], BRscal))
@@ -146,7 +148,7 @@ class KappaVKappaT(LHCHCGBaseModel):
                 self.modelBuilder.factory_('expr::%s("(%s + @1*@1*@2*@3)*@4", %s, kappa_b, %s, %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], b2g, b2gs, BRscal))
             else:
                 self.modelBuilder.factory_('expr::%s("%s*@1*@2", %s, c7_BRscal_%s,r)' % (name, XSscal[0], XSscal[1], BRscal))
-            print '[LHC-HCG Kappas]', name, production, decay, energy,": ",
+            print('[LHC-HCG Kappas]', name, production, decay, energy,": ", end=' ')
             self.modelBuilder.out.function(name).Print("")
         return name
 

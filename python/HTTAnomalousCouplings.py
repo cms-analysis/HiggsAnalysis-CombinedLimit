@@ -1,5 +1,7 @@
-from PhysicsModel import PhysicsModelBase_NiceSubclasses
-from SpinZeroStructure import MultiSignalSpinZeroHiggs
+from __future__ import absolute_import
+from .PhysicsModel import PhysicsModelBase_NiceSubclasses
+from .SpinZeroStructure import MultiSignalSpinZeroHiggs
+import six
 
 #conventions:
 #sigma1 is for a1=1
@@ -187,7 +189,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
 
         pureBSMs = {"fa3": "0M", "fa2": "0PH", "fL1": "0L1", "fL1Zg": "0L1Zg"}
 
-        for anomalouscoupling, pureBSM in pureBSMs.iteritems():
+        for anomalouscoupling, pureBSM in six.iteritems(pureBSMs):
             if anomalouscoupling != self.anomalouscoupling and (process.endswith(pureBSM) or process.endswith(pureBSM+"f05ph0")):
                 raise ValueError("Can't have "+process+" for "+self.anomalouscoupling+" (it's for "+anomalouscoupling+")")
             if process in ["reweighted_qqH_htt_"+pureBSM,]:

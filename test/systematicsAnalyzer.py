@@ -1,9 +1,13 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import re
 import os.path
 from math import *
 from optparse import OptionParser
 import sys
+import six
+from six.moves import range
 
 parser = OptionParser()
 parser.add_option("-f", "--format",  type="string",   dest="format", default="html", help="Format for output number (choose html or brief)")
@@ -90,22 +94,22 @@ def commonStems(list, sep="_"):
             if base not in hits: hits[base] = 0
             hits[base] += 1
     veto = {}
-    for k,v in hits.iteritems():
+    for k,v in six.iteritems(hits):
         pieces = k.split(sep)
-        for i in xrange(1, len(pieces)):
+        for i in range(1, len(pieces)):
             k2 = "_".join(pieces[:-i])
             if hits[k2] == v:
                 veto[k2] = True
             else:
                 veto[k] = True
     ret = []
-    for k,v in hits.iteritems():
+    for k,v in six.iteritems(hits):
         if k not in veto: ret.append((k,v))
     ret.sort()
     return ret
 
 def addTo(dic,key,l):
-    if key in dic.keys():
+    if key in list(dic.keys()):
         dic[key].append(l)
     else:
         dic[key]=[l]
@@ -126,7 +130,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     if not options.t2w and "param" in pdf : continue
     if "param" in pdf:
         if not lsyst in seen_systematics:
-            if not len(errline): errline = {b:{p:0 for p in DC.exp[b].iterkeys() } for b in DC.bins}
+            if not len(errline): errline = {b:{p:0 for p in six.iterkeys(DC.exp[b]) } for b in DC.bins}
         else: errline=errlines[lsyst]
     types = []
     minEffect, maxEffect = 999.0, 1.0
@@ -138,8 +142,8 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     for b in DC.bins:
         numKeysFound = 0
         channels.append(b)
-        for p in DC.exp[b].iterkeys():
-            if lsyst in check_list.keys():
+        for p in six.iterkeys(DC.exp[b]):
+            if lsyst in list(check_list.keys()):
                 if [p,b] in check_list[lsyst]: continue
             if (not pdf=="param") and errline[b][p] == 0: continue
             if pdf == "gmN":
@@ -180,7 +184,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
                 if errline[b][p]==0: continue
                 systShapeName = lsyst
                 #vals = []
-                if (lsyst,b,p) in DC.systematicsShapeMap.keys(): systShapeName = DC.systematicsShapeMap[(lsyst,b,p)]
+                if (lsyst,b,p) in list(DC.systematicsShapeMap.keys()): systShapeName = DC.systematicsShapeMap[(lsyst,b,p)]
 
                 objU,objD,objC = MB.getShape(b,p,systShapeName+"Up"), MB.getShape(b,p,systShapeName+"Down"), MB.getShape(b,p)
 
@@ -215,7 +219,7 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     channelsShort = commonStems(channels)
     types = set(types)
     types = ",".join(types)
-    if lsyst in report.keys():
+    if lsyst in list(report.keys()):
         report[lsyst]['channels'].extend(channelsShort)
         report[lsyst]['bins'].extend(channels)
         report[lsyst]['processes'].extend(processes)
@@ -230,9 +234,9 @@ for (lsyst,nofloat,pdf,pdfargs,errline) in DC.systs:
     seen_systematics.append(lsyst)
 
 # Get list
-names = report.keys()
+names = list(report.keys())
 if "brief" in options.format:
-    names = [ k for (k,v) in report.iteritems()  ]
+    names = [ k for (k,v) in six.iteritems(report)  ]
 if options.process:
     names = [ k for k in names if any(p for p in report[k]['processes'] if re.match(options.process, p)) ]
 if options.grep:
@@ -248,7 +252,7 @@ namesRest   = [ n for n in names if n not in namesCommon and n not in namesCMS1 
 names = namesCommon + namesCMS1 + namesCMS2 + namesRest
 
 if "html" in options.format:
-    print """
+    print("""
 <html>
 <head>
 <style type="text/css">
@@ -274,35 +278,35 @@ All numbers shown report the +/- 1-sigma variation in the yield for each affecte
 %s 
 <table>
 <tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
-"""%("You didn't run with the option --t2w so param types will only show the line from the datacard" if not options.t2w else "")
+"""%("You didn't run with the option --t2w so param types will only show the line from the datacard" if not options.t2w else ""))
     for nuis in names:
         val = report[nuis]
-        print "<tr><td><a name=\"%s\"><b>%s</b></a></td>" % (nuis,nuis+"  ("+val['types']+")")
+        print("<tr><td><a name=\"%s\"><b>%s</b></a></td>" % (nuis,nuis+"  ("+val['types']+")"))
         #print "<td>%5.3f</td><td>%5.3f</td>" % ( val['effect'][0],val['effect'][1] )
-        print "<td>%s</td><td>%s</td>" % ( val['effect'][0],val['effect'][1] )
-        print "<td>",", ".join(val['processes']), "</td>"
-        print "<td>%s" % ", ".join(["%s(%d)" % (k,v) for (k,v) in sorted(val['channels'])]),
-        print "<a id=\"%s_chann_toggle\" href=\"#%s\" onclick=\"toggleChann(&quot;%s&quot;)\">[+]</a></td>" % (nuis,nuis,nuis)
-        print "</tr>"
-        print "<tr id=\"%s_chann\" style=\"display: none\">" % nuis
-        print "\t<td colspan=\"5\"><table class=\"channDetails\">"
-        for x in sorted(val["bins"]): print "\t\t<tr><td>%s</td><td>%s</td></li>" % (x, ", ".join(["%s(%s)"%(k,v) for (k,v) in errlines[nuis][x].iteritems() if v != 0]))
-        print "\t</table></td>"
-        print "</tr>\n"
+        print("<td>%s</td><td>%s</td>" % ( val['effect'][0],val['effect'][1] ))
+        print("<td>",", ".join(val['processes']), "</td>")
+        print("<td>%s" % ", ".join(["%s(%d)" % (k,v) for (k,v) in sorted(val['channels'])]), end=' ')
+        print("<a id=\"%s_chann_toggle\" href=\"#%s\" onclick=\"toggleChann(&quot;%s&quot;)\">[+]</a></td>" % (nuis,nuis,nuis))
+        print("</tr>")
+        print("<tr id=\"%s_chann\" style=\"display: none\">" % nuis)
+        print("\t<td colspan=\"5\"><table class=\"channDetails\">")
+        for x in sorted(val["bins"]): print("\t\t<tr><td>%s</td><td>%s</td></li>" % (x, ", ".join(["%s(%s)"%(k,v) for (k,v) in six.iteritems(errlines[nuis][x]) if v != 0])))
+        print("\t</table></td>")
+        print("</tr>\n")
     for x in outParams.keys():
-        print "\t\t<tr><td><b>%s(%s)</b></td><td>%s</td></li>" % (x,  outParams[x][0] , ", ".join([a for a in outParams[x][1]]))
-        print "</tr>\n"
-    print """
+        print("\t\t<tr><td><b>%s(%s)</b></td><td>%s</td></li>" % (x,  outParams[x][0] , ", ".join([a for a in outParams[x][1]])))
+        print("</tr>\n")
+    print("""
 </table>
 </body>
-</html>"""
+</html>""")
 else:
     if "brief" in options.format:
-        print "%-50s  [%5s, %5s]   %-40s  %-30s" % ("   NUISANCE (TYPE)", " MIN", " MAX", "PROCESSES", "CHANNELS(#SUBCHANNELS)" )
-        print "%-50s  %14s   %-40s  %-30s" % ("-"*50, "-"*14, "-"*30, "-"*30)
+        print("%-50s  [%5s, %5s]   %-40s  %-30s" % ("   NUISANCE (TYPE)", " MIN", " MAX", "PROCESSES", "CHANNELS(#SUBCHANNELS)" ))
+        print("%-50s  %14s   %-40s  %-30s" % ("-"*50, "-"*14, "-"*30, "-"*30))
         for nuis in names:
             val = report[nuis]
-            print "%-50s (%s)  [%s, %s]   %-40s  %-30s" % ( nuis,val['types'], val['effect'][0],val['effect'][1],
+            print("%-50s (%s)  [%s, %s]   %-40s  %-30s" % ( nuis,val['types'], val['effect'][0],val['effect'][1],
                                                                 ",".join(val['processes']),
-                                                                ",".join(["%s(%d)" % (k,v) for (k,v) in sorted(val['channels'])]))
+                                                                ",".join(["%s(%d)" % (k,v) for (k,v) in sorted(val['channels'])])))
 

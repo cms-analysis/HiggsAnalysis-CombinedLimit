@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import ROOT
 from sys import argv, stdout, stderr, exit
 import datetime
 from optparse import OptionParser
 from collections import OrderedDict as od
+from six.moves import range
 
 hasHelp = False
 for X in ("-h", "-?", "--help"):
@@ -98,18 +101,18 @@ default_norms = od()
 
 for chan in chan_procs.keys():
     default_norms[chan] = od()
-    print "---------------------------------------------------------------------------"
-    print "---------------------------------------------------------------------------"
-    print "Channel - %s "%chan
+    print("---------------------------------------------------------------------------")
+    print("---------------------------------------------------------------------------")
+    print("Channel - %s "%chan)
     chanInfo  = chan_procs[chan]
     for proc in chanInfo :
         skipProc=False
         if options.min_threshold > 0 : skipProc = (proc[1].getVal() < options.min_threshold)
         if options.max_threshold > 0 : skipProc = (proc[1].getVal() > options.max_threshold)
         if skipProc: continue
-        print "---------------------------------------------------------------------------"
-        print "  Top-level normalisation for process %s -> %s"%(proc[0],proc[1].GetName())
-        print "  -------------------------------------------------------------------------"
+        print("---------------------------------------------------------------------------")
+        print("  Top-level normalisation for process %s -> %s"%(proc[0],proc[1].GetName()))
+        print("  -------------------------------------------------------------------------")
         if options.use_cms_histsum:
             if chan in chan_CMSHistSum_norms:
                 default_val = chan_CMSHistSum_norms[chan][proc[1].GetName()]
@@ -119,17 +122,17 @@ for chan in chan_procs.keys():
             default_val = proc[1].getVal()
         default_norms[chan][proc[1].GetName()] = default_val
 
-        if options.printValueOnly: print "  default value = ",default_val
+        if options.printValueOnly: print("  default value = ",default_val)
         #if options.printValueOnly: print " --xcp %s:%s "%(chan,proc[0]),
         else:
             if proc[2]:
                 proc_norm_var = ws.function("n_exp_bin%s_proc_%s"%(chan,proc[0]))
                 proc[1].Print()
                 if (proc_norm_var.Class().GetName()==ROOT.ProcessNormalization().Class().GetName()):
-                    print " ... is a product, which contains ",proc_norm_var.GetName()
+                    print(" ... is a product, which contains ",proc_norm_var.GetName())
                     proc_norm_var.dump()
                 else:
-                    print " ... is a product, which contains ",proc_norm_var.GetName()
+                    print(" ... is a product, which contains ",proc_norm_var.GetName())
                     #proc_norm_var = ws.var("n_exp_bin%s_proc_%s"%(chan,proc[0]))
                     proc_norm_var.Print()
             else:
@@ -137,22 +140,22 @@ for chan in chan_procs.keys():
                     if (proc[1].Class().GetName()==ROOT.ProcessNormalization().Class().GetName()): proc[1].dump()
                     else:
                         proc[1].Print()
-                        print " ... is a constant (formula)"
+                        print(" ... is a constant (formula)")
                 else:
                     proc[1].Print()
-                    print " ... is a constant (RooRealVar)"
-            print "  -------------------------------------------------------------------------"
-            print "  default value = ", default_val
+                    print(" ... is a constant (RooRealVar)")
+            print("  -------------------------------------------------------------------------")
+            print("  default value = ", default_val)
 
 # Save norms to json file
 if options.output_json != '':
     if ".json" not in options.output_json: options.output_json += ".json"
     with open(options.output_json,"w") as jf:
         jf.write("{\n")
-        chans = default_norms.keys()
+        chans = list(default_norms.keys())
         for chan in chans:
             jf.write("    \"%s\":{\n"%chan)
-            procs = default_norms[chan].keys()
+            procs = list(default_norms[chan].keys())
             for proc in default_norms[chan]:
                 if proc == procs[-1]:
                     jf.write("        \"%s\":%.8f\n"%(proc,default_norms[chan][proc]))

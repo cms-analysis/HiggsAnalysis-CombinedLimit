@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 from math import *
 import os
 from optparse import OptionParser
 import ROOT
+from six.moves import zip
 parser = OptionParser(usage="usage: %prog [options] workspace(s) \nrun with --help to get list of options")
 parser.add_option("-o", "--out",      dest="out",      default="TestGrid",  type="string", help="output file prefix")
 parser.add_option("--lsf",            dest="lsf",      default=False,   action="store_true", help="Run on LSF instead of GRID (can be changed in .cfg file)")
@@ -21,14 +24,14 @@ parser.add_option("-P", "--priority", dest="prio",     default=False, action="st
 workspaces = args
 masses = options.mass.split(",")
 if len(masses) == 1 and len(workspaces) != 1: masses = [ masses[0] for w in workspaces ]
-elif len(workspaces) != len(masses): raise RuntimeError, "You must specify a number of masses equal to the number of workspaces, or just one mass for all of them"
+elif len(workspaces) != len(masses): raise RuntimeError("You must specify a number of masses equal to the number of workspaces, or just one mass for all of them")
 for i, (w, m) in enumerate(zip(workspaces,masses)):
     if w.endswith(".txt"):
         os.system("text2workspace.py -b %s -o %s.workspace.root -m %s" % (w, options.out,m))
         workspaces[i] = options.out+".workspace.root"
-        print "Converted workspace to binary",w
+        print("Converted workspace to binary",w)
 
-print "Creating executable script ",options.out+".sh"
+print("Creating executable script ",options.out+".sh")
 script = open(options.out+".sh", "w")
 script.write("""
 #!/bin/bash
@@ -71,14 +74,14 @@ script.close()
 os.system("chmod +x %s.sh" % options.out)
 
 if not os.path.exists("combine"):
-    print "Creating a symlink to the combine binary"
+    print("Creating a symlink to the combine binary")
     os.system("cp -s $(which combine) .")
 
 sched = "glite"
 if options.lsf: sched = "lsf"
 if options.condor: sched = "condor"
 
-print "Creating crab cfg ",options.out+".cfg"
+print("Creating crab cfg ",options.out+".cfg")
 cfg = open(options.out+".cfg", "w")
 cfg.write("""
 [CRAB]

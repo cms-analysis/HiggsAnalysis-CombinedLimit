@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from TestClasses import *
 from Reports import *
 import os, shutil, sys, subprocess
@@ -8,13 +10,13 @@ _jobs_done    = 0
 def _async_run(test,dir):
     global _jobs_started, _jobs_total
     _jobs_started += 1
-    print " - "+test.name()+(" started (%d/%d)..." % (_jobs_started, _jobs_total))
+    print(" - "+test.name()+(" started (%d/%d)..." % (_jobs_started, _jobs_total)))
     subprocess.call([test.scriptName(dir)])
     return test
 def _async_cb(test):
     global _jobs_done, _jobs_total
     _jobs_done += 1
-    print " - "+test.name()+(" done (%d/%d)." % (_jobs_done, _jobs_total))
+    print(" - "+test.name()+(" done (%d/%d)." % (_jobs_done, _jobs_total)))
 
 class TestSuite:
     def __init__(self,dir,options,allTests):
@@ -27,27 +29,27 @@ class TestSuite:
             if l != "*"            and options.suite  != l:   continue
             if options.select  and not re.search(options.select,  test.name()): continue
             if options.exclude and     re.search(options.exclude, test.name()): continue
-            if test.name() in dups: raise RuntimeError, "Duplicate test %s" % test.name()
+            if test.name() in dups: raise RuntimeError("Duplicate test %s" % test.name())
             if options.nofork: test.forceSingleCPU()
             self._tests.append(test)
             dups.append(test.name())
     def listJobs(self):
-        print "The following jobs will be considered: ";
+        print("The following jobs will be considered: ");
         for t in self._tests:
-            print " - ",t.name()
+            print(" - ",t.name())
     def createJobs(self):
         self._createDir()
         for t in self._tests:
             t.createScriptBase(self._dir)
     def runLocallySync(self):
-        print "The following jobs will be run: "
+        print("The following jobs will be run: ")
         for t in self._tests:
-            print " - ",t.name(),"...",; sys.stdout.flush()
+            print(" - ",t.name(),"...", end=' '); sys.stdout.flush()
             os.system(t.scriptName(self._dir))
-            print " done."
+            print(" done.")
     def runLocallyASync(self,threads):
         global _jobs_total
-        print "Running jobs in parallel on %d cores" % threads
+        print("Running jobs in parallel on %d cores" % threads)
         from multiprocessing import Pool
         pool = Pool(processes=threads);
         _jobs_total = 0
@@ -74,10 +76,10 @@ class TestSuite:
         fout.close()
     def printIt(self,format,reference=None):
         if os.access("%s/report.json" % self._dir, os.R_OK) == False:
-            raise RuntimeError, "%s/report.json not found. please run 'report' before." % self._dir
+            raise RuntimeError("%s/report.json not found. please run 'report' before." % self._dir)
         obj = json.loads(''.join([f for f in open("%s/report.json" % self._dir)]))
         if reference:
-            if not os.access(reference, os.R_OK): raise RuntimeError, "Reference % not found." % reference
+            if not os.access(reference, os.R_OK): raise RuntimeError("Reference % not found." % reference)
             ref = json.loads(''.join([f for f in open(reference)]))
             self._collate(obj,ref);
         if format == "text": textReport(obj)
@@ -92,23 +94,23 @@ class TestSuite:
         return jobs
     def _createDir(self, clear=False):
         "Prepare directoy"
-        if self._dir[0] == "/": raise RuntimeError, "directory must be a relative path"
+        if self._dir[0] == "/": raise RuntimeError("directory must be a relative path")
         if clear and os.access(self._dir, os.W_OK): shutil.rmtree(self._dir)
         if not os.access(self._dir, os.W_OK): os.mkdir(self._dir)
         if not os.access(self._dir, os.W_OK): RuntimeError, "Could not create dir %d" % self._dir
     def _collate(self,report,reference):
         for tn,tv in report.items():
-            if not reference.has_key(tn): continue
-            if not tv.has_key('results'): continue
+            if tn not in reference: continue
+            if 'results' not in tv: continue
             if tv['status'] == 'aborted': continue
             tv_ref = reference[tn]
             tv['ref_comment'] = tv_ref['comment']
-            if not tv_ref.has_key('results'): continue
+            if 'results' not in tv_ref: continue
             for name, res in tv['results'].items():
                 if res['status'] != 'done':  continue
-                if not tv_ref['results'].has_key(name): continue
+                if name not in tv_ref['results']: continue
                 ref = tv_ref['results'][name]
-                if not ref.has_key('limit'):
+                if 'limit' not in ref:
                     res['ref'] = { 'comment': ref['comment'] }
                     continue
                 (limit, limitErr, time)  = res['limit'], res['limitErr'], res['t_real']
@@ -132,9 +134,9 @@ class TestSuite:
             warnings = sum([res['status'] in ['warning', 'w unc.', 'w time'] for res in tv['results'].values()])
             aborts   = sum([res['status'] == 'aborted' for res in tv['results'].values()])
             if (len(tv['results']) == 1):
-                rv = tv['results'].values()[0]
+                rv = list(tv['results'].values())[0]
                 tv['status'] = rv['status']
-                if tv.has_key('has_ref'): report['has_ref'] = True
+                if 'has_ref' in tv: report['has_ref'] = True
             else:
                 if errors > 0:
                     tv['status'] = 'error'; tv['comment'] = '%d errors, %d warnings' % (errors, warnings)
@@ -144,7 +146,7 @@ class TestSuite:
                     report['has_ref'] = True
                 elif aborts > 0:
                     tv['status'] = 'mixed'
-                elif tv.has_key('has_ref'):
+                elif 'has_ref' in tv:
                     tv['status'] = 'ok'
                     report['has_ref'] = True
 

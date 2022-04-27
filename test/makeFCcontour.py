@@ -10,6 +10,8 @@
 ###############################################
 
 
+from __future__ import absolute_import
+from __future__ import print_function
 from array import array
 import os,sys
 import ROOT
@@ -28,7 +30,7 @@ def return_filenames(rootdir,searchstring) :
         for fi in files:
             fullpath = os.path.join(folders,fi)
             if ".root" in fi: fileslist.append(fullpath)
-    if searchstring: fileslist=filter(lambda x: searchstring in x,fileslist)
+    if searchstring: fileslist=[x for x in fileslist if searchstring in x]
     return fileslist
 
 from optparse import OptionParser
@@ -202,7 +204,7 @@ def getPoints(tree,varx,vary):
 
     # grab all the distributions:
     hypoResults = tree.GetListOfKeys()
-    hypoResults = filter(lambda ke: "HypoTestResult" in ke.GetName(),hypoResults)
+    hypoResults = [ke for ke in hypoResults if "HypoTestResult" in ke.GetName()]
 
     #for a in range(tree.GetEntries()):
     for k_i,key in enumerate(hypoResults):
@@ -360,26 +362,26 @@ if options.datafile and options.oned:
     nlltree.Draw("deltaNLL:%s"%xvar)
     gDataNLL = (ROOT.gPad.FindObject("Graph").Clone())
 
-if options.oned: print "Calculating 1D FC interval for ", xvar
-else : print "Constructing 2D FC contours, x=",xvar, "y=",yvar
+if options.oned: print("Calculating 1D FC interval for ", xvar)
+else : print("Constructing 2D FC contours, x=",xvar, "y=",yvar)
 if options.teststat=="TwoSided" or options.teststat=="LEP" : sys.exit("Using two sided test statistic NOT Implemented fully yet! ")
 treeName  = str(options.treename)
-print "Grabbing all points from files (Getting Points can be very slow if all contained in one file!)"
+print("Grabbing all points from files (Getting Points can be very slow if all contained in one file!)")
 
 
 n_tot_files = len(allFiles)
 failedFiles = []
 for f_it,fileName in enumerate(allFiles):
-    print "Opening File (%d/%d) -- "%(f_it,n_tot_files), fileName
+    print("Opening File (%d/%d) -- "%(f_it,n_tot_files), fileName)
 
     tFile = ROOT.TFile.Open(fileName)
     if tFile == None :
-        print "File Corrupted, skipping"
+        print("File Corrupted, skipping")
         failedFiles.append(fileName)
         continue
     tToys = tFile.Get(treeName)
     if tToys == None :
-        print "File doesn't contain ", treeName
+        print("File doesn't contain ", treeName)
         failedFiles.append(fileName)
         continue
 
@@ -412,9 +414,9 @@ if options.oned:
         zval = pt[1]
         eval = pt[2]
         dval = pt[3]
-        print "Found %d toys for point (%f)" % (numtoys[pt_i],xval), "CL = " ,zval
+        print("Found %d toys for point (%f)" % (numtoys[pt_i],xval), "CL = " ,zval)
         if options.minToys > -1  and numtoys[pt_i] < options.minToys:
-            print " -----> (not enough toys, ignore point) "
+            print(" -----> (not enough toys, ignore point) ")
         else:
             tgrD.SetPoint(grCounter,xval,dval)
             tgrX.SetPoint(grCounter,zval,xval)
@@ -424,7 +426,7 @@ if options.oned:
 
     for c_i,confLevel in enumerate(confidenceLevels):
         lowcl,highcl = findInterval(values,confLevel)
-        print "%f < %s < %f"%(lowcl,xvar,highcl) ,"(%.3f CL)"%confLevel
+        print("%f < %s < %f"%(lowcl,xvar,highcl) ,"(%.3f CL)"%confLevel)
 
     outFile.cd();
     tgrX.Write("confcurve");
@@ -456,16 +458,16 @@ else:
         yval = pt.y
         ptXY.SetPoint(pt_i,xval,yval)
         zval = pt.get_cl()
-        print "Found %d toys for point (%f,%f)" % (pt.get_n_toys(),xval,yval)
+        print("Found %d toys for point (%f,%f)" % (pt.get_n_toys(),xval,yval))
         if options.minToys > -1  and pt.get_n_toys() < options.minToys:
-            print " -----> (not enough toys, ignore point) "
+            print(" -----> (not enough toys, ignore point) ")
         else:
             tgrXY.SetPoint(pt_i,xval,yval,zval)
             ntXY.SetPoint(pt_i,xval,yval,pt.get_n_toys())
             pt_i+=1
 
-    print "Found points in grid: %s = %.2f->%.2f (%d points), %s = %.2f->%.2f (%d points) "\
-        %(xvar,xmin,xmax,nx,yvar,ymin,ymax,ny)
+    print("Found points in grid: %s = %.2f->%.2f (%d points), %s = %.2f->%.2f (%d points) "\
+        %(xvar,xmin,xmax,nx,yvar,ymin,ymax,ny))
 
     clXY = tgrXY.GetHistogram()
     clXY.GetXaxis().SetTitle(xvar)
@@ -487,7 +489,7 @@ else:
     # more honest but looks uglier (good to check agreement in anycase)
 
     for c_i,confLevel in enumerate(confidenceLevels):
-        print "Finding %.3f confidence region"%(confLevel)
+        print("Finding %.3f confidence region"%(confLevel))
         #grXY = ROOT.TH2F("h2_confcontour_%d"%(100*confLevel),\
         #";%s;%s"%(xvar,yvar),len(xbins)-1,xbins_d,len(ybins)-1,ybins_d)
         grXY = ROOT.TGraph2D()
@@ -506,8 +508,8 @@ else:
         outFile.cd(); grXY.Write()
 
 outFile.Close()
-print "Created File ",outFile.GetName(), " containing confidance contours"
-if options.storeToys: print "Saved histograms of toys and data to file"
+print("Created File ",outFile.GetName(), " containing confidance contours")
+if options.storeToys: print("Saved histograms of toys and data to file")
 #for f in failedFiles : print f, # for debugging/removing failed files
 # ---------------------------------------------------------------------//
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 #class for testing two near mass-degenerate Higgs model
@@ -27,59 +29,59 @@ class QuasiDegenerate(PhysicsModel):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po.startswith("DMHRange="):
                 self.DMHRange = po.replace("DMHRange=","").split(",")
-                print 'The Higgs mass range:', self.DMHRange
+                print('The Higgs mass range:', self.DMHRange)
                 if len(self.DMHRange) != 2:
-                    raise RuntimeError, "DMH range definition requires two extrema"
+                    raise RuntimeError("DMH range definition requires two extrema")
                 elif float(self.DMHRange[0]) >= float(self.DMHRange[1]):
-                    raise RuntimeError, "Extrema for DMH range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for DMH range defined with inverterd order. Second must be larger the first")
 
             if po == "muAsPOI":
-                print "Will consider the signal strength as a parameter of interest"
+                print("Will consider the signal strength as a parameter of interest")
                 self.muAsPOI = True
                 self.floatMu = True
             if po.startswith("fixMu="):
                 self.floatMu = False
                 self.muAsPOI = False
                 self.mu = po.replace("fixMu=","")
-                print "will set mu to be %s" % self.mu
+                print("will set mu to be %s" % self.mu)
             if po == "mHAsPOI":
-                print "Will consider the mass 1 as a parameter of interest"
+                print("Will consider the mass 1 as a parameter of interest")
                 self.mHAsPOI = True
                 self.floatMH = True
             if po.startswith("fixMH="):
                 self.floatMH = False
                 self.mHAsPOI = False
                 self.mH = po.replace("fixMH=","")
-                print "will set mH to be %s" % self.mH
+                print("will set mH to be %s" % self.mH)
 
 
             if po == "DMHAsPOI":
-                print "Will consider the DMH  as a parameter of interest"
+                print("Will consider the DMH  as a parameter of interest")
                 self.DMHAsPOI = True
                 self.floatDMH = True
             if po.startswith("fixDMH="):
                 self.floatDMH = False
                 self.DMHAsPOI = False
                 self.DMH = po.replace("fixDMH=","")
-                print "will set DMH to be %s" % self.DMH
+                print("will set DMH to be %s" % self.DMH)
 
 
             if po == "fracAsPOI":
-                print "Will consider the frac  as a parameter of interest"
+                print("Will consider the frac  as a parameter of interest")
                 self.fracAsPOI = True
                 self.floatFrac = True
             if po.startswith("fixFrac="):
                 self.floatFrac = False
                 self.fracAsPOI = False
                 self.frac = po.replace("fixFrac=","")
-                print "will set frac to be %s" % self.frac
+                print("will set frac to be %s" % self.frac)
 
 
     def doParametersOfInterest(self):
@@ -142,9 +144,9 @@ class QuasiDegenerate(PhysicsModel):
                 self.modelBuilder.doVar("MH[%g]" % self.mH)
             self.modelBuilder.out.var("MH").setConstant(True)
 
-        if poi.startswith(","): print poi; poi = poi.replace(",","",1)
+        if poi.startswith(","): print(poi); poi = poi.replace(",","",1)
         self.modelBuilder.doSet("POI",poi)
-        print "pois %s" %poi
+        print("pois %s" %poi)
 
 
 

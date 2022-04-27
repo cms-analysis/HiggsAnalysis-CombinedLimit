@@ -1,5 +1,8 @@
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
+from __future__ import absolute_import
+from __future__ import print_function
 from sys import argv
+from six.moves import range
 argv.append( '-b-' )
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -45,7 +48,7 @@ for fname in args:
     while True:
         iToyInFile += 1; iToy += 1; dataset = infile.Get("toys/toy_%d" % iToyInFile);
         if dataset == None: break
-        print "Processing dataset ",iToy," (", iToyInFile," in file ", fname, ")"
+        print("Processing dataset ",iToy," (", iToyInFile," in file ", fname, ")")
         if iToy < options.first: continue
         if iToy > options.last: break
         if options.verbose > 1:
@@ -64,48 +67,48 @@ for fname in args:
             obs = obsout
         else:
             cat = dataset.get().find(options.cat)
-            if cat == None: raise RuntimeError, "Cannot find category %s in dataset." % options.cat
+            if cat == None: raise RuntimeError("Cannot find category %s in dataset." % options.cat)
             obs.remove(cat)
             if options.verbose > 1:
-                print " observables in reduced dataset: "; obs.Print("V");
+                print(" observables in reduced dataset: "); obs.Print("V");
             datasets = []
             if not options.manualSplit:
                 list = dataset.split(cat)
-                datasets = [ list.At(i) for i in xrange(list.GetSize()) ]
+                datasets = [ list.At(i) for i in range(list.GetSize()) ]
             else:
                 datamap = {}
                 obsPlusW = ROOT.RooArgSet(obs); obsPlusW.add(outw._wv);
-                for ic in xrange(cat.numBins("")):
+                for ic in range(cat.numBins("")):
                     cat.setBin(ic)
                     datamap[cat.getLabel()] = ROOT.RooDataSet(cat.getLabel(), cat.getLabel(), obsPlusW, "_weight_");
-                    if options.verbose > 1: print "Category ",cat.getLabel()
-                for i in xrange(dataset.numEntries()):
+                    if options.verbose > 1: print("Category ",cat.getLabel())
+                for i in range(dataset.numEntries()):
                     entry = dataset.get(i)
                     if options.verbose > 2:
-                        print "  input entry %d of weight %g" % (i, dataset.weight())
+                        print("  input entry %d of weight %g" % (i, dataset.weight()))
                         entry.Print("V")
                     obs.assignValueOnly(entry)
                     datamap[entry.getCatLabel(options.cat)].add(obs, dataset.weight())
-                datasets = datamap.values()
+                datasets = list(datamap.values())
             if options.verbose > 2:
                 for d in datasets:
-                    print "Dumping dataset %15s, %6d entries, %8.1f events" %  (d.GetName(),d.numEntries(),d.sumEntries())
-                    for i in xrange(d.numEntries()):
+                    print("Dumping dataset %15s, %6d entries, %8.1f events" %  (d.GetName(),d.numEntries(),d.sumEntries()))
+                    for i in range(d.numEntries()):
                         entry = d.get(i)
-                        print "  entry %d of weight %g" % (i, d.weight())
+                        print("  entry %d of weight %g" % (i, d.weight()))
                         entry.Print("V")
             population = ";".join(["%s=%g" % (d.GetName(),d.sumEntries()) for d in datasets])
             if population in dupCheck:
-                print "DUPLICATE population: %s (toys %s)" % (population, ", ".join(dupCheck[population]))
+                print("DUPLICATE population: %s (toys %s)" % (population, ", ".join(dupCheck[population])))
                 dupCheck[population].append(str(iToy))
             else:
                 dupCheck[population] = [ str(iToy) ]
         if options.binned:
             datasets = [ ROOT.RooDataHist(d.GetName(),d.GetTitle(),obs,d) for d in datasets ]
         if options.verbose:
-            print " splitted datasets:"
+            print(" splitted datasets:")
             for i,d in enumerate(datasets):
-                print "   dataset %d: %15s, %6d entries, %8.1f events"%(i,d.GetName(),d.numEntries(),d.sumEntries())
+                print("   dataset %d: %15s, %6d entries, %8.1f events"%(i,d.GetName(),d.numEntries(),d.sumEntries()))
                 if options.verbose > 1: d.get().Print("V")
         for d in datasets:
             d.SetName(options.outn.format(channel=d.GetName(),number=iToy))

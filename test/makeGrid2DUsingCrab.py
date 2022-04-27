@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 from math import *
 import os,sys
 from optparse import OptionParser
 import ROOT
+from six.moves import range
 parser = OptionParser()#usage="usage: %prog [options] workspace min max \nrun with --help to get list of options")
 parser.add_option("-o", "--out",      dest="out",      default="TestGrid",  type="string", help="output file prefix")
 parser.add_option("--lsf",            dest="lsf",      default=False, action="store_true", help="Run on LSF instead of GRID (can be changed in .cfg file)")
@@ -34,7 +37,7 @@ workspace = args[0]
 if workspace.endswith(".txt"):
     os.system("text2workspace.py -b %s -o %s.workspace.root -m %f" % (workspace, options.out, options.mass))
     workspace = options.out+".workspace.root"
-    print "Converted workspace to binary",workspace
+    print("Converted workspace to binary",workspace)
 
 #if options.diagnosticRun : options.points = 1
 
@@ -47,7 +50,7 @@ for x in [ xmin + dx*i for i in range(options.points[0]) ]:
     for y in [ ymin + dy*i for i in range(options.points[1]) ]:
         points.append((x,y))
 
-print "Creating executable script ",options.out+".sh"
+print("Creating executable script ",options.out+".sh")
 script = open(options.out+".sh", "w")
 script.write("""
 #!/bin/bash
@@ -111,7 +114,7 @@ script.close()
 os.system("chmod +x %s.sh" % options.out)
 
 if not os.path.exists("combine"):
-    print "Creating a symlink to the combine binary"
+    print("Creating a symlink to the combine binary")
     os.system("cp -s $(which combine) .")
 
 sched = "glite"
@@ -123,7 +126,7 @@ uidir_line = ''
 if options.uidir:
     uidir_line = "ui_working_dir = %s" % options.uidir
 
-print "Creating crab cfg ",options.out+".cfg"
+print("Creating crab cfg ",options.out+".cfg")
 cfg = open(options.out+".cfg", "w")
 cfg.write("""
 [CRAB]

@@ -1,8 +1,11 @@
+from __future__ import absolute_import
 from math import *
 from array import array
 import os
 import ROOT
 from HiggsAnalysis.CombinedLimit.PhysicsModel import ALL_HIGGS_DECAYS
+import six
+from six.moves import zip
 
 class SMHiggsBuilder:
     def __init__(self,modelBuilder,datadir=None):
@@ -68,7 +71,7 @@ class SMHiggsBuilder:
         elif what.startswith('ggH'):
             structure = {'c_kt2':1, 'c_kb2':2, 'c_ktkb':3, 'c_ktkc':4, 'c_kbkc':5, 'c_kc2':6}
             for sqrts in ('7TeV', '8TeV', '13TeV', '14TeV'):
-                for qty, column in structure.iteritems():
+                for qty, column in six.iteritems(structure):
                     rooName = prefix+qty+'_'+sqrts
                     self.textToSpline(rooName, os.path.join(self.coupPath, 'ggH_%(sqrts)s.txt'%locals()), ycol=column )
                 scalingName = 'Scaling_'+what+'_'+sqrts
@@ -87,7 +90,7 @@ class SMHiggsBuilder:
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith('hgluglu'):
             structure = {'Gamma_tt':2, 'Gamma_bb':3, 'Gamma_tb':4}
-            for qty, column in structure.iteritems():
+            for qty, column in six.iteritems(structure):
                 rooName = prefix+qty
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'Gamma_Hgluongluon.txt'), ycol=column )
             scalingName = 'Scaling_'+what
@@ -106,7 +109,7 @@ class SMHiggsBuilder:
                          'Gamma_tb':5, 'Gamma_tW':6, 'Gamma_bW':7,
                          'Gamma_ll':8,
                          'Gamma_tl':9, 'Gamma_bl':10, 'Gamma_lW':11}
-            for qty, column in structure.iteritems():
+            for qty, column in six.iteritems(structure):
                 rooName = prefix+qty
                 self.textToSpline(rooName, os.path.join(self.coupPath, fileFor['hgg' if what.startswith('hgg') else 'hzg']), ycol=column )
             scalingName = 'Scaling_'+what
@@ -124,7 +127,7 @@ class SMHiggsBuilder:
         elif what.startswith('ggZH'):
             structure = {'c_kt2':1, 'c_kb2':2, 'c_kZ2':3, 'c_ktkb':4, 'c_ktkZ':5, 'c_kbkZ':6}
             for sqrts in ('7TeV','8TeV','13TeV','14TeV'):
-                for qty, column in structure.iteritems():
+                for qty, column in six.iteritems(structure):
                     rooName = prefix+qty+'_'+sqrts
                     self.textToSpline(rooName, os.path.join(self.coupPath, 'ggZH_%(sqrts)s.txt'%locals()), ycol=column )
                 scalingName = 'Scaling_'+what+'_'+sqrts
@@ -148,7 +151,7 @@ class SMHiggsBuilder:
                 rooExpr = 'expr::%(scalingName)s'%locals()+'( "( (@0*@0)*(%g)  + (@1*@1)*(%g) + (@0*@1)*(%g) )/%g"'%tuple((coeffs[sqrts] + [sum(coeffs[sqrts])] ))+', %(Ctop)s, %(CW)s,)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         else:
-            raise RuntimeError, "There is no scaling defined for %(what)s" % locals()
+            raise RuntimeError("There is no scaling defined for %(what)s" % locals())
 
 
     def makePartialWidthUncertainties(self):
@@ -195,7 +198,7 @@ class SMHiggsBuilder:
     def dump(self,name,xvar,values,logfile):
         xv = self.modelBuilder.out.var(xvar)
         yf = self.modelBuilder.out.function(name)
-        if yf == None: raise RuntimeError, "Missing "+name
+        if yf == None: raise RuntimeError("Missing "+name)
         log = open(logfile, "w")
         for x in values:
             xv.setVal(x)

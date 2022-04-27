@@ -1,8 +1,12 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import re, os
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
 from math import *
+import six
+from six.moves import zip
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 argv.append( '-b-' )
@@ -37,7 +41,7 @@ else:
     mass1 = int(args[0])
     mass  = float(args[1])
 
-if mass in refmasses and options.postfix == "": raise RuntimeError, "Will not overwrite the reference masses"
+if mass in refmasses and options.postfix == "": raise RuntimeError("Will not overwrite the reference masses")
 
 xsbr1 = { 'ggH':1.0, 'qqH':1.0 }
 xsbr  = { 'ggH':1.0, 'qqH':1.0 }
@@ -51,7 +55,7 @@ if options.xsbr:
                 headers = [i.strip() for i in cols[1:]]
             else:
                 fields = [ float(i) for i in cols ]
-                ret[fields[0]] = dict(zip(headers,fields[1:]))
+                ret[fields[0]] = dict(list(zip(headers,fields[1:])))
         return ret
     path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";
     ggXS = file2map(path+"YR-XS-ggH.txt")
@@ -60,19 +64,19 @@ if options.xsbr:
     sm4  = file2map(path+"SM4-600GeV.txt")
     # create points at 450, 550 by interpolation
     for M in (450,550):
-        ggXS[M] = dict([ (key, 0.5*(ggXS[M+10][key] + ggXS[M-10][key])) for key in ggXS[M+10].iterkeys() ])
-        qqXS[M] = dict([ (key, 0.5*(qqXS[M+10][key] + qqXS[M-10][key])) for key in qqXS[M+10].iterkeys() ])
-        br[M] = dict([ (key, 0.5*(br[M+10][key] + br[M-10][key])) for key in br[M+10].iterkeys() ])
-        sm4[M] = dict([ (key, 0.5*(sm4[M+10][key] + sm4[M-10][key])) for key in sm4[M+10].iterkeys() ])
+        ggXS[M] = dict([ (key, 0.5*(ggXS[M+10][key] + ggXS[M-10][key])) for key in six.iterkeys(ggXS[M+10]) ])
+        qqXS[M] = dict([ (key, 0.5*(qqXS[M+10][key] + qqXS[M-10][key])) for key in six.iterkeys(qqXS[M+10]) ])
+        br[M] = dict([ (key, 0.5*(br[M+10][key] + br[M-10][key])) for key in six.iterkeys(br[M+10]) ])
+        sm4[M] = dict([ (key, 0.5*(sm4[M+10][key] + sm4[M-10][key])) for key in six.iterkeys(sm4[M+10]) ])
     xsbr1['ggH'] = ggXS[mass1]['XS_pb'] * br[mass1]['H_evmv'] * sm4[mass1]['XS_over_SM'] * sm4[mass1]['brWW_over_SM']
     xsbr ['ggH'] = ggXS[mass ]['XS_pb'] * br[mass ]['H_evmv'] * sm4[mass ]['XS_over_SM'] * sm4[mass ]['brWW_over_SM']
     xsbr1['qqH'] = qqXS[mass1]['XS_pb'] * br[mass1]['H_evmv']
     xsbr ['qqH'] = qqXS[mass ]['XS_pb'] * br[mass ]['H_evmv']
 
-print "Will interpolate %g from %d" % (mass, mass1)
+print("Will interpolate %g from %d" % (mass, mass1))
 
 for X in [ 'SM4_hwwof_0j_shape',  'SM4_hwwof_1j_shape',  'SM4_hwwsf_0j_shape',  'SM4_hwwsf_1j_shape', 'SM4_hww_2j_cut']:
-    print "Considering datacard ",X
+    print("Considering datacard ",X)
     if "shape" in X:
         XS = X.replace("_shape","")
         os.system("cp %s/%d/%s.input.root  %s/%g/%s%s.input.root" % (options.ddir,mass1,XS,options.ddir,mass,XS,options.postfix))
@@ -82,7 +86,7 @@ for X in [ 'SM4_hwwof_0j_shape',  'SM4_hwwof_1j_shape',  'SM4_hwwsf_0j_shape',  
     options.fileName = file1; options.mass = mass1;
     DC1 = parseCard(open(file1,"r"), options)
 
-    if len(DC1.bins) != 1: raise RuntimeError, "This does not work on multi-channel"
+    if len(DC1.bins) != 1: raise RuntimeError("This does not work on multi-channel")
     obsline = [str(x) for x in DC1.obs.values()]; obskeyline = DC1.bins; cmax = 5;
     keyline = []; expline = []; systlines = {};
     signals = []; backgrounds = []; shapeLines = [];
@@ -140,7 +144,7 @@ for X in [ 'SM4_hwwof_0j_shape',  'SM4_hwwof_1j_shape',  'SM4_hwwsf_0j_shape',  
     xfile.write(" ".join([hfmt % "process", "  ".join([cfmt % x for x in pidline])])+"\n")
     xfile.write(" ".join([hfmt % "rate",    "  ".join([cfmt % x for x in expline])])+"\n")
     xfile.write(" ".join(["-" * 150])+"\n")
-    sysnamesSorted = systlines.keys(); sysnamesSorted.sort()
+    sysnamesSorted = list(systlines.keys()); sysnamesSorted.sort()
     for name in sysnamesSorted:
         (pdf,pdfargs,effect,nofloat) = systlines[name]
         if nofloat: name += "[nofloat]"
@@ -154,5 +158,5 @@ for X in [ 'SM4_hwwof_0j_shape',  'SM4_hwwof_1j_shape',  'SM4_hwwsf_0j_shape',  
     for (pname, pargs) in paramSysts.items():
         xfile.write(" ".join(["%-12s  param  %s" %  (pname, " ".join(pargs))])+"\n")
 
-    for pname in flatParamNuisances.iterkeys():
+    for pname in six.iterkeys(flatParamNuisances):
         xfile.write(" ".join(["%-12s  flatParam" % pname])+"\n")

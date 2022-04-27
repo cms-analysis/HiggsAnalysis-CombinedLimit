@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 ### This base class implements signal yields by production and decay mode
@@ -30,23 +32,23 @@ class TwoHypotesisHiggs(PhysicsModel):
                     if re.match(el, target):
                         scale = p + self.sigNorms[isAlt]
 
-            print "Will scale ", target, " by ", scale
+            print("Will scale ", target, " by ", scale)
             return scale;
 
         elif self.fqqIncluded:
             ret = self.sigNorms[isAlt]
             if isAlt: ret+= self.sigNormsqqH["qqbarH" in process]
-            print "Process ", process, " will get scaled by ", ret
+            print("Process ", process, " will get scaled by ", ret)
             return ret
 
         else:
-            print "Process ", process, " will get norm ", self.sigNorms[isAlt]
+            print("Process ", process, " will get norm ", self.sigNorms[isAlt])
             return self.sigNorms[isAlt]
 
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po == "fqqIncluded":
-                print "Will consider fqq = fraction of qqH in Alt signal (signal strength will be left floating)"
+                print("Will consider fqq = fraction of qqH in Alt signal (signal strength will be left floating)")
                 # Here alsways setting muFloating if fqq in model, should this be kept optional?
                 self.fqqIncluded = True
                 self.muFloating = True
@@ -61,23 +63,23 @@ class TwoHypotesisHiggs(PhysicsModel):
                 self.muFloating = True
                 self.fqqRange = po.replace("fqqRange=","").split(",")
                 if len(self.fqqRange) != 2:
-                    raise RuntimeError, "fqq range definition requires two extrema"
+                    raise RuntimeError("fqq range definition requires two extrema")
                 elif float(self.fqqRange[0]) >= float(self.fqqRange[1]):
-                    raise RuntimeError, "Extrema for fqq range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for fqq range defined with inverterd order. Second must be larger the first")
             if po == "muAsPOI":
-                print "Will consider the signal strength as a parameter of interest"
+                print("Will consider the signal strength as a parameter of interest")
                 self.muAsPOI = True
                 self.muFloating = True
             if po == "muFloating":
-                print "Will consider the signal strength as a floating parameter (as a parameter of interest if --PO muAsPOI is specified, as a nuisance otherwise)"
+                print("Will consider the signal strength as a floating parameter (as a parameter of interest if --PO muAsPOI is specified, as a nuisance otherwise)")
                 self.muFloating = True
             if po.startswith("altSignal="): self.altSignal = po.split(",")[1]
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po.startswith("verbose"):
                 self.verbose = True
             if po.startswith("map="):
@@ -86,9 +88,9 @@ class TwoHypotesisHiggs(PhysicsModel):
                 maps = maplist.split(",")
                 poiname = re.sub("\[.*","", poi)
                 if poiname not in self.pois:
-                    if self.verbose: print "Will create a var ",poiname," with factory ",poi
+                    if self.verbose: print("Will create a var ",poiname," with factory ",poi)
                     self.pois[poiname] = poi
-                if self.verbose:  print "Mapping ",poiname," to ",maps," patterns"
+                if self.verbose:  print("Mapping ",poiname," to ",maps," patterns")
                 self.poiMap.append((poiname, maps))
 
     def doParametersOfInterest(self):
@@ -102,7 +104,7 @@ class TwoHypotesisHiggs(PhysicsModel):
                 for pn,pf in self.pois.items():
                     self.modelBuilder.doVar(pf)
                     if self.muAsPOI:
-                        print 'Treating %(pn)s as a POI' % locals()
+                        print('Treating %(pn)s as a POI' % locals())
                         poi += ','+pn
 
                     self.modelBuilder.factory_('expr::%(pn)s_times_not_x("@0*(1-@1)", %(pn)s, x)' % locals())
@@ -112,7 +114,7 @@ class TwoHypotesisHiggs(PhysicsModel):
             else:
                 self.modelBuilder.doVar("r[1,0,4]");
                 if self.muAsPOI:
-                    print 'Treating r as a POI'
+                    print('Treating r as a POI')
                     poi += ",r"
 
                 self.modelBuilder.factory_("expr::r_times_not_x(\"@0*(1-@1)\", r, x)")
@@ -133,21 +135,21 @@ class TwoHypotesisHiggs(PhysicsModel):
             self.sigNorms = { True:'x', False:'not_x' }
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
                 poi+=',MH'
             else:
-                print 'MH will be assumed to be', self.options.mass
+                print('MH will be assumed to be', self.options.mass)
                 self.modelBuilder.out.var("MH").removeRange()
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
         else:
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
                 poi+=',MH'
             else:
-                print 'MH (not there before) will be assumed to be', self.options.mass
+                print('MH (not there before) will be assumed to be', self.options.mass)
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         self.modelBuilder.doSet("POI",poi)
 

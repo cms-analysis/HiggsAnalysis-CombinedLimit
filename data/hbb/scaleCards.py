@@ -1,8 +1,12 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import re, os
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
 from math import *
+from six.moves import range
+from six.moves import zip
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 argv.append( '-b-' )
@@ -23,7 +27,7 @@ if len(args) not in [1]:
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
-refmasses = range(110,135+1,5)
+refmasses = list(range(110,135+1,5))
 mass = float(args[0])
 
 if options.refmass == 0:
@@ -32,7 +36,7 @@ if options.refmass == 0:
         if abs(mass-m) < abs(mass-options.refmass):
             options.refmass = m
 
-if mass in refmasses and options.postfix == "": raise RuntimeError, "Will not overwrite the reference masses"
+if mass in refmasses and options.postfix == "": raise RuntimeError("Will not overwrite the reference masses")
 
 xsbrR = { 'WH':1.0, 'ZH':1.0 }
 xsbr  = { 'WH':1.0, 'ZH':1.0 }
@@ -46,7 +50,7 @@ if options.xsbr:
                 headers = [i.strip() for i in cols[1:]]
             else:
                 fields = [ float(i) for i in cols ]
-                ret[fields[0]] = dict(zip(headers,fields[1:]))
+                ret[fields[0]] = dict(list(zip(headers,fields[1:])))
         return ret
     path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";
     whXS = file2map(path+"YR-XS-WH.txt")
@@ -56,9 +60,9 @@ if options.xsbr:
     xsbr ['WH'] = whXS[mass           ]['XS_pb'] * br[mass           ]['H_bb']
     xsbrR['ZH'] = zhXS[options.refmass]['XS_pb'] * br[options.refmass]['H_bb']
     xsbr ['ZH'] = zhXS[mass           ]['XS_pb'] * br[mass           ]['H_bb']
-    print "Will interpolate %g from %g (XS*BR ratio: %.3f for WH, %.3f for ZH)" % (mass, options.refmass, xsbr['WH']/xsbrR['WH'], xsbr['ZH']/xsbrR['ZH'])
+    print("Will interpolate %g from %g (XS*BR ratio: %.3f for WH, %.3f for ZH)" % (mass, options.refmass, xsbr['WH']/xsbrR['WH'], xsbr['ZH']/xsbrR['ZH']))
 else:
-    print "Will copy %g from %g" % (mass, options.refmass)
+    print("Will copy %g from %g" % (mass, options.refmass))
 
 fileR = options.ddir+"/%g/vhbb_DC_ALL_%s.%.1f.txt" % (options.refmass, options.flavour, options.refmass)
 options.fileName = fileR; options.mass = options.refmass;
@@ -110,7 +114,7 @@ xfile.write(" ".join([hfmt % "process", "  ".join([cfmt % b for p,b,s in keyline
 xfile.write(" ".join([hfmt % "process", "  ".join([cfmt % x for x in pidline])])+"\n")
 xfile.write(" ".join([hfmt % "rate",    "  ".join([cfmt % x for x in expline])])+"\n")
 xfile.write(" ".join(["-" * 150])+"\n")
-sysnamesSorted = systlines.keys(); sysnamesSorted.sort()
+sysnamesSorted = list(systlines.keys()); sysnamesSorted.sort()
 for name in sysnamesSorted:
     (pdf,pdfargs,effect,nofloat) = systlines[name]
     if nofloat: name += "[nofloat]"

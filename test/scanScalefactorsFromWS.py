@@ -1,8 +1,11 @@
 # Massive simplification of the scaling function plotter which is more generic/much better
+from __future__ import absolute_import
+from __future__ import print_function
 import os,sys,numpy,array
 import itertools
 
 from optparse import OptionParser
+from six.moves import range
 parser = OptionParser(usage="usage: %prog [options] file \nrun with --help to get list of options")
 parser.add_option("-m","--mh",dest="mh",default=125.09,type='float',help="Lightest Higgs Mass")
 parser.add_option("","--scaling_prefix",dest="scaling_prefix",type='str',default="XSBRscal", help="Prefix for scaler, eg usually this is XSBRscal")
@@ -30,7 +33,7 @@ if options.snapshotName: work.loadSnapshot(snapshotName)
 
 if len(options.setDefaultParameterValues) : paramCList=options.setDefaultParameterValues.split(",")
 else: paramCList=[]
-print paramCList
+print(paramCList)
 # create the map of default values
 default_parameter_vals = {}
 iter = params.createIterator()
@@ -44,11 +47,11 @@ while 1:
             pn,v = parameterc.split("=")
             if pn==name:
                 p.setVal(float(v))
-                print "setting default of parameter %s to %g"%(name,float(v))
+                print("setting default of parameter %s to %g"%(name,float(v)))
     default_parameter_vals[name] = p.getVal()
 
 nparams = params.getSize()
-print "Number of parameters in Model: ", nparams
+print("Number of parameters in Model: ", nparams)
 params.Print("V")
 
 def resetVals():
@@ -60,7 +63,7 @@ def resetVals():
         work.var(p.GetName()).setVal(default_parameter_vals[p.GetName()])
 
 def runScan(function,tfilename,param):
-    print "Plotting function values %s for profiled parameters saved in %s for parameter %s as POI"%(function,tfilename,param)
+    print("Plotting function values %s for profiled parameters saved in %s for parameter %s as POI"%(function,tfilename,param))
     tfi = ROOT.TFile.Open(tfilename)
     tree = tfi.Get("limit")
     g = ROOT.TGraph()
@@ -99,7 +102,7 @@ while 1:
     iter_f = allScalingFunctions.createIterator()
     for i in range(allScalingFunctions.getSize()):
         f = iter_f.Next()
-        print  work.function(f.GetName()).getParameters(ROOT.RooArgSet()).find(p.GetName())
+        print(work.function(f.GetName()).getParameters(ROOT.RooArgSet()).find(p.GetName()))
         if ( work.function(f.GetName()).getParameters(ROOT.RooArgSet()).find(p.GetName()) ):
             resetVals()
             pl=p.frame()
@@ -129,4 +132,4 @@ while 1:
             c.SetGridx()
             c.SaveAs("%s/%s_vs_%s.pdf"%(options.out,f.GetName(),p.GetName()))
             c.SaveAs("%s/%s_vs_%s.png"%(options.out,f.GetName(),p.GetName()))
-print "Done!"
+print("Done!")

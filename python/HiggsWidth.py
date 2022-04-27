@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 ### This is the base python class to study the Higgs width
@@ -74,28 +76,28 @@ class Higgswidth(PhysicsModel):
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if 'GGsmfixed' in po:
-                print "Will fix CMS_zz4l_GGsm to 1 and float muV, muF"
+                print("Will fix CMS_zz4l_GGsm to 1 and float muV, muF")
                 self.GGsmfixed = True
             if 'RVRFfixed' in po:
-                print "Will fix muV, muF to 1 and float mu"
+                print("Will fix muV, muF to 1 and float mu")
                 self.RVRFfixed = True
             if 'GGsmRVRFfixed' in po:
-                print "Will fix muV, muF, CMS_zz4l_GGsm to 1 and float mu"
+                print("Will fix muV, muF, CMS_zz4l_GGsm to 1 and float mu")
                 self.GGsmRVRFfixed = True
             if 'is2l2nu' in po:
-                print "Will consider cards in 2l2nu style (separated S, B, S+B+I)"
+                print("Will consider cards in 2l2nu style (separated S, B, S+B+I)")
                 self.is2l2nu = True
             if 'useRVoverRF' in po:
-                print "Will use RV=RV/RF, R=RF instead"
+                print("Will use RV=RV/RF, R=RF instead")
                 self.useRVoverRF = True
             if 'ACfai1' in po:
-                print "Model will consider fai1 for anomalous couplings onshell and offshell. Notice that it is not going to be the single POI"
+                print("Model will consider fai1 for anomalous couplings onshell and offshell. Notice that it is not going to be the single POI")
                 self.hasACfai1 = True
                 if 'forbidPMF' in po:
-                    print "Negative real phase will be forbidden for anomalous couplings"
+                    print("Negative real phase will be forbidden for anomalous couplings")
                     self.forbidPMF = True
             if 'muOffshell' in po:
-                print "Will fix CMS_zz4l_GGsm to 1 and float on-shell and off-shell separately"
+                print("Will fix CMS_zz4l_GGsm to 1 and float on-shell and off-shell separately")
                 self.muOffshell = True
                 self.GGsmfixed = True
 
@@ -118,7 +120,7 @@ class Higgswidth(PhysicsModel):
         self.modelBuilder.out.var("CMS_widthH_kbkg").setVal(1)
 
         if self.muOffshell:
-            print "Creating r, rv, rf"
+            print("Creating r, rv, rf")
             if not self.modelBuilder.out.var("r"):
                 self.modelBuilder.doVar("r[1.,0.,100.]")
             if not self.modelBuilder.out.var("rv"):
@@ -132,7 +134,7 @@ class Higgswidth(PhysicsModel):
 
         if self.GGsmfixed:
             self.modelBuilder.out.var("CMS_zz4l_GGsm").setConstant(True)
-            print "Fixing CMS_zz4l_GGsm and R"
+            print("Fixing CMS_zz4l_GGsm and R")
             if self.useRVoverRF:
                 self.modelBuilder.out.var("RF").setConstant(True)
                 poi = "RV,R"
@@ -141,7 +143,7 @@ class Higgswidth(PhysicsModel):
                 poi = "RV,RF"
         elif self.GGsmRVRFfixed:
             self.modelBuilder.out.var("CMS_zz4l_GGsm").setConstant(True)
-            print "Fixing CMS_zz4l_GGsm and RV, RF"
+            print("Fixing CMS_zz4l_GGsm and RV, RF")
             self.modelBuilder.out.var("RV").setConstant(True)
             self.modelBuilder.out.var("RF").setConstant(True)
             poi = "R"
@@ -158,16 +160,16 @@ class Higgswidth(PhysicsModel):
 
         if self.hasACfai1:
             if not self.modelBuilder.out.var("CMS_zz4l_fai1"):
-                print "Could not detect fai1, building a new one"
+                print("Could not detect fai1, building a new one")
                 self.modelBuilder.doVar("CMS_zz4l_fai1[0,-1.,1.]")
             self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
             if self.forbidPMF:
-                print "fai1 cannot fall below 0"
+                print("fai1 cannot fall below 0")
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(0,1)
             poi += ",CMS_zz4l_fai1"
         else:
             if self.modelBuilder.out.var("CMS_zz4l_fai1"):
-                print "Found fai1 but will fix it to 0"
+                print("Found fai1 but will fix it to 0")
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setConstant()
 

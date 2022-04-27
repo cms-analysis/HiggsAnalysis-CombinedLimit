@@ -3,12 +3,15 @@
 ##  run combine -M MultiDimFit scans in multiple local jobs in parallel
 ##  usage: just replace "combine" with "parallelScan.py" in the command line
 ##         and add a "-j" to select how many threads to use
+from __future__ import absolute_import
+from __future__ import print_function
 import os, sys, subprocess;
 from math import ceil
 from re import match
+from six.moves import range
 
 if len(sys.argv) < 3:
-    print "usage: parallelScan.py <arguments to combine>  [ -j processes ]"
+    print("usage: parallelScan.py <arguments to combine>  [ -j processes ]")
     exit()
 
 jobs, points, name, method, mass, hadd = 0, 0, "Test", None, 120, False
@@ -49,28 +52,28 @@ while i < len(sys.argv):
         args.append(sys.argv[i]);
         i += 1
 
-if points == 0: raise RuntimeError, "parallelScan requires that there be a --points=<n> or --points <n> option in the command line\n";
+if points == 0: raise RuntimeError("parallelScan requires that there be a --points=<n> or --points <n> option in the command line\n");
 if jobs == 0:
     cpuinfo = open("/proc/cpuinfo","r")
     cores = sum([(1 if match("^processor\\b.*",l) else 0) for l in cpuinfo])
-    if cores == 0: raise RuntimeError, "Cannot determine number of cores from /proc/cpuinfo, so I need a -j <n> option\n";
+    if cores == 0: raise RuntimeError("Cannot determine number of cores from /proc/cpuinfo, so I need a -j <n> option\n");
     if cores > 2 and match("(lxplus|cmslpc).*", os.environ['HOSTNAME']):
         jobs = cores/2
-        print "Will run with %d jobs (half of the cores, for respect to other users)" % jobs
+        print("Will run with %d jobs (half of the cores, for respect to other users)" % jobs)
     else:
         jobs = cores
-        print "Will run with %d jobs (one per core)" % jobs
+        print("Will run with %d jobs (one per core)" % jobs)
 if hadd:
     if not method:
-        print "Cannot understand what method of combine you are using, so cannot do hadd"
+        print("Cannot understand what method of combine you are using, so cannot do hadd")
         exit()
 
 workers = []
-for j in xrange(jobs):
+for j in range(jobs):
     start = int(ceil(points*j/float(jobs)))
     end   = int(ceil(points*(j+1)/float(jobs))-1)
     myargs = ["combine"] + args[:] + [ "-n", "%s.%d" % (name,j), "--firstPoint", str(start), "--lastPoint", str(end) ]
-    print "spawning %s" % (" ".join(myargs))
+    print("spawning %s" % (" ".join(myargs)))
     workers.append( subprocess.Popen(myargs) )
 
 for w in workers:
@@ -78,12 +81,12 @@ for w in workers:
 
 if hadd:
     if not method:
-        print "Cannot understand what method of combine you are using, so cannot do hadd"
+        print("Cannot understand what method of combine you are using, so cannot do hadd")
     else:
         output = "higgsCombine%s.%s.mH%g.root" % (name,method,mass)
-        input  = "  ".join(["higgsCombine%s.%d.%s.mH%g.root" % (name,j,method,mass) for j in xrange(jobs)])
-        print "All workers done, doing the hadd to make %s out of higgsCombine%s.{0..%d}.%s.mH%g.root" % (output, name,jobs-1,method,mass)
+        input  = "  ".join(["higgsCombine%s.%d.%s.mH%g.root" % (name,j,method,mass) for j in range(jobs)])
+        print("All workers done, doing the hadd to make %s out of higgsCombine%s.{0..%d}.%s.mH%g.root" % (output, name,jobs-1,method,mass))
         os.system("hadd -f %s %s" % (output,input))
 else:
-    print "All workers done, now you have to hadd the results yourself."
+    print("All workers done, now you have to hadd the results yourself.")
 

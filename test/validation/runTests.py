@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 
 from optparse import OptionParser
@@ -44,9 +46,9 @@ for cmd in args:
     if cmd == "list":
         thisSuite.listJobs()
     elif cmd == "create":
-        print "Creating test suite in directory",dir
+        print("Creating test suite in directory",dir)
         thisSuite.createJobs()
-        print "Done."
+        print("Done.")
     elif cmd == "run":
         if options.threads:
             thisSuite.runLocallyASync(threads=options.threads)

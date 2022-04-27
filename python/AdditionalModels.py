@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 import ROOT, os
@@ -14,11 +16,11 @@ class C8(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po == 'doHZg':
                 self.doHZg = True
             if po == 'doHInv':
@@ -87,8 +89,8 @@ class C8(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c8_XSBRscal_%s_%s" % (production,decay)
-        print '[LOFullParametrization::C7]'
-        print name, production, decay, energy
+        print('[LOFullParametrization::C7]')
+        print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
             XSscal = "kgluon"
             if production in ["WH","ZH","VH","qqH"]: XSscal = "kV"
@@ -115,11 +117,11 @@ class CWidth(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po == 'doHZg':
                 self.doHZg = True
             if po == 'doHInv':
@@ -222,8 +224,8 @@ class CWidth(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "c7_XSBRscal_%s_%s" % (production,decay)
-        print '[LOFullParametrization::C7]'
-        print name, production, decay, energy
+        print('[LOFullParametrization::C7]')
+        print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
             XSscal = "kgluon"
             if production in ["WH","ZH","VH","qqH"]: XSscal = "kV"
@@ -248,17 +250,17 @@ class TwoHDM(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po.startswith("thdmtype="):
                 self.thdmtype= po.replace("thdmtype=","")
                 if len(self.thdmtype) != 1:
-                    raise RuntimeError, "2HDM type requires one value"
+                    raise RuntimeError("2HDM type requires one value")
                 elif int(self.thdmtype[0]) != 1 and int(self.thdmtype[0]) !=2 and int(self.thdmtype[0]) !=3 and int(self.thdmtype[0]) !=4:
-                    raise RuntimeError, "2HDM type must be 1 (default) or 2 or 3 or 4 "
+                    raise RuntimeError("2HDM type must be 1 (default) or 2 or 3 or 4 ")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("cosbma[0,-1,1]")

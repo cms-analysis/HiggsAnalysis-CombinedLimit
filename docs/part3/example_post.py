@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import ROOT
+from six.moves import range
 
 rmin = 0
 rmax = 30
@@ -56,4 +59,4 @@ lu = ROOT.TLine(vu,0,vu,2*hist.GetBinContent(hist.FindBin(vu))); lu.SetLineColor
 ll.Draw()
 lu.Draw()
 
-print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
+print(" %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu))

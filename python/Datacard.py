@@ -1,3 +1,5 @@
+from __future__ import print_function
+import six
 class Datacard():
     """
     Description:
@@ -61,7 +63,7 @@ class Datacard():
         """
         Print the contents of the -> should allow for direct text2workspace on python config
         """
-        print """
+        print("""
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 from HiggsAnalysis.CombinedLimit.ModelTools import *
 from HiggsAnalysis.CombinedLimit.ShapeTools import *
@@ -78,32 +80,32 @@ DC = Datacard()
 MB = None
 
 ############## Setup the datacard (must be filled in) ###########################
-	"""
+	""")
 
-        print "DC.bins = 	"		, self.bins			,"#",type(self.bins)
-        print "DC.obs = 	"		, self.obs                      ,"#",type(self.obs)
-        print "DC.processes = 	"		, self.processes                ,"#",type(self.processes)
-        print "DC.signals = 	"		, self.signals                  ,"#",type(self.signals)
-        print "DC.isSignal = 	"		, self.isSignal                 ,"#",type(self.isSignal)
-        print "DC.keyline = 	"		, self.keyline                  ,"#",type(self.keyline)
-        print "DC.exp = 	"		, self.exp                      ,"#",type(self.exp)
-        print "DC.systs = 	"		, self.systs                    ,"#",type(self.systs)
-        print "DC.shapeMap = 	"		, self.shapeMap                 ,"#",type(self.shapeMap)
-        print "DC.hasShapes = 	"		, self.hasShapes                ,"#",type(self.hasShapes)
-        print "DC.flatParamNuisances = "	, self.flatParamNuisances       ,"#",type(self.flatParamNuisances)
-        print "DC.rateParams = "		, self.rateParams               ,"#",type(self.rateParams)
-        print "DC.extArgs = 	"		, self.extArgs                  ,"#",type(self.extArgs)
-        print "DC.rateParamsOrder 	= "	, self.rateParamsOrder          ,"#",type(self.rateParamsOrder)
-        print "DC.frozenNuisances 	= "	, self.frozenNuisances          ,"#",type(self.frozenNuisances)
-        print "DC.systematicsShapeMap = "	, self.systematicsShapeMap      ,"#",type(self.systematicsShapeMap)
-        print "DC.systematicsParamMap = "	, self.systematicsParamMap      ,'#',type(self.systematicsParamMap)
-        print "DC.systIDMap = "			, self.systIDMap		,'#',type(self.systIDMap)
-        print "DC.nuisanceEditLines 	= "	, self.nuisanceEditLines        ,"#",type(self.nuisanceEditLines)
-        print "DC.binParFlags 	= "	  	, self.binParFlags        	,"#",type(self.binParFlags)
-        print "DC.groups 	= "		, self.groups        		,"#",type(self.groups)
-        print "DC.discretes 	= "		, self.discretes        	,"#",type(self.discretes)
+        print("DC.bins = 	"		, self.bins			,"#",type(self.bins))
+        print("DC.obs = 	"		, self.obs                      ,"#",type(self.obs))
+        print("DC.processes = 	"		, self.processes                ,"#",type(self.processes))
+        print("DC.signals = 	"		, self.signals                  ,"#",type(self.signals))
+        print("DC.isSignal = 	"		, self.isSignal                 ,"#",type(self.isSignal))
+        print("DC.keyline = 	"		, self.keyline                  ,"#",type(self.keyline))
+        print("DC.exp = 	"		, self.exp                      ,"#",type(self.exp))
+        print("DC.systs = 	"		, self.systs                    ,"#",type(self.systs))
+        print("DC.shapeMap = 	"		, self.shapeMap                 ,"#",type(self.shapeMap))
+        print("DC.hasShapes = 	"		, self.hasShapes                ,"#",type(self.hasShapes))
+        print("DC.flatParamNuisances = "	, self.flatParamNuisances       ,"#",type(self.flatParamNuisances))
+        print("DC.rateParams = "		, self.rateParams               ,"#",type(self.rateParams))
+        print("DC.extArgs = 	"		, self.extArgs                  ,"#",type(self.extArgs))
+        print("DC.rateParamsOrder 	= "	, self.rateParamsOrder          ,"#",type(self.rateParamsOrder))
+        print("DC.frozenNuisances 	= "	, self.frozenNuisances          ,"#",type(self.frozenNuisances))
+        print("DC.systematicsShapeMap = "	, self.systematicsShapeMap      ,"#",type(self.systematicsShapeMap))
+        print("DC.systematicsParamMap = "	, self.systematicsParamMap      ,'#',type(self.systematicsParamMap))
+        print("DC.systIDMap = "			, self.systIDMap		,'#',type(self.systIDMap))
+        print("DC.nuisanceEditLines 	= "	, self.nuisanceEditLines        ,"#",type(self.nuisanceEditLines))
+        print("DC.binParFlags 	= "	  	, self.binParFlags        	,"#",type(self.binParFlags))
+        print("DC.groups 	= "		, self.groups        		,"#",type(self.groups))
+        print("DC.discretes 	= "		, self.discretes        	,"#",type(self.discretes))
 
-        print """
+        print("""
 
 ###### User defined options #############################################
 
@@ -121,7 +123,7 @@ else:
 # Set physics models
 MB.setPhysics(defaultModel)
 MB.doModel()
-	"""
+	""")
 
         # map of which bins should have automated Barlow-Beeston parameters
         self.binParFlags = {}
@@ -141,7 +143,7 @@ MB.doModel()
             return self.signals
         elif type == 'b' :
             bgs = []
-            for (proc, sig) in self.isSignal.iteritems() :
+            for (proc, sig) in six.iteritems(self.isSignal) :
                 if not sig : bgs.append(proc)
             return bgs
         else :
@@ -169,10 +171,10 @@ MB.doModel()
         returned.
         """
         path = ''
-        if not bin in self.shapeMap.keys() :
-            if '*' in self.shapeMap.keys() :
+        if not bin in list(self.shapeMap.keys()) :
+            if '*' in list(self.shapeMap.keys()) :
                 if not proc in self.shapeMap['*'] :
-                    if '*' in self.shapeMap['*'].keys() :
+                    if '*' in list(self.shapeMap['*'].keys()) :
                         path = self.shapeMap['*']['*'][idx]
                 else :
                     path = self.shapeMap['*'][proc][idx]
@@ -241,7 +243,7 @@ MB.doModel()
         """
         Return all variables defined in the datacard
         """
-        allVars = tuple([syst[0] for syst in self.systs]+self.flatParamNuisances.keys()+self.extArgs.keys()+self.discretes)
+        allVars = tuple([syst[0] for syst in self.systs]+list(self.flatParamNuisances.keys())+list(self.extArgs.keys())+self.discretes)
         for rp in self.rateParams:
             modifiers = self.rateParams[rp]
             for p in modifiers : allVars+=tuple([p[0][0]])
@@ -249,7 +251,7 @@ MB.doModel()
         return list(set(allVars))
 
     def add_syst_id(self,lsyst):
-        if lsyst in self.systIDMap.keys(): self.systIDMap[lsyst].append(len(self.systs)-1)
+        if lsyst in list(self.systIDMap.keys()): self.systIDMap[lsyst].append(len(self.systs)-1)
         else: self.systIDMap[lsyst] = [len(self.systs)-1]
 
     def renameNuisanceParameter(self,oldname,newname,process_list=[],channel_list=[]):
@@ -280,7 +282,7 @@ MB.doModel()
                 nuisanceID = i
                 found = True
                 # check if the new name exists
-                if lsyst in existingclashes.keys():
+                if lsyst in list(existingclashes.keys()):
                     nofloat1,pdf1,args1,errline1 = existingclashes[lsyst]
 
                 else: pass
@@ -291,5 +293,5 @@ MB.doModel()
                             datacard.systematicsShapeMap[newname,b,p]=oldname
                 if "param" in pdf0 : datacard.systematicsParamMap[oldname]=newname
 
-        if not found: raise RuntimeError, "Error: no parameter found with = %s\n" % oldname
+        if not found: raise RuntimeError("Error: no parameter found with = %s\n" % oldname)
         return 0

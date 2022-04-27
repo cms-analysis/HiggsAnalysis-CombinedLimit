@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+from __future__ import print_function
 import ROOT
 import argparse
+from six.moves import range
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -18,9 +21,9 @@ rfr = fin.Get(args.input.split(':')[1])
 
 all_pars = rfr.floatParsFinal()
 correlations = []
-for i in xrange(all_pars.getSize()):
+for i in range(all_pars.getSize()):
     par = all_pars.at(i)
-    for j in xrange(all_pars.getSize()):
+    for j in range(all_pars.getSize()):
         if j<i:
             par_corr = all_pars.at(j)
             correlations.append((par.GetName(), par_corr.GetName(),
@@ -29,6 +32,6 @@ for i in xrange(all_pars.getSize()):
 correlations.sort(key=lambda x: abs(x[2]), reverse=True)
 # print correlations
 
-print 'covQual: %i' % rfr.covQual()
-for i in xrange(min(len(correlations), args.max)):
-    print '%i %-50s %-50s  %+.3f' % (i, correlations[i][0], correlations[i][1], correlations[i][2])
+print('covQual: %i' % rfr.covQual())
+for i in range(min(len(correlations), args.max)):
+    print('%i %-50s %-50s  %+.3f' % (i, correlations[i][0], correlations[i][1], correlations[i][2]))

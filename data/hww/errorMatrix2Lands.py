@@ -1,6 +1,9 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import re
 from sys import argv
 from optparse import OptionParser
+from six.moves import range
 parser = OptionParser()
 parser.add_option("-s", "--stat",     dest="stat",     default=False, action="store_true")
 parser.add_option("-S", "--signal",   dest="signal",   default=False, action="store_true")
@@ -10,7 +13,7 @@ parser.add_option("-l", "--label",    dest="label",    type="string", default="h
 parser.add_option("-4", "--4th-gen",  dest="sm4",      default=False, action="store_true")
 (options, args) = parser.parse_args()
 
-if len(args) < 1: raise RuntimeError, "Usage: errorMatrix2Lands.py [options] errorMatrix.txt "
+if len(args) < 1: raise RuntimeError("Usage: errorMatrix2Lands.py [options] errorMatrix.txt ")
 
 file = open(args[0], "r")
 
@@ -25,7 +28,7 @@ for l in file:
     if not m: break
     mh = m.group(1)
     yields = [float(x) for x in m.group(2).split()];
-    if len(yields) != len(processnames)+1: raise RuntimeError, "Length of yields does not match with process names"
+    if len(yields) != len(processnames)+1: raise RuntimeError("Length of yields does not match with process names")
     data[mh] = { 'obs':yields[0], 'exp':yields[1:], 'processnames':processnames[:], 'nuis':[] }
 
 # read nuisances
@@ -33,15 +36,15 @@ if not options.stat:
     for l in file:
         l = l.replace("---","0")
         m = re.match(r"(.*?)\s+0\s+((\d+\.?\d*(E[+\-]\d+)?\s+)+)", l)
-        if m == None: raise ValueError, "Missing line "+l
+        if m == None: raise ValueError("Missing line "+l)
         sysname = m.group(1)
         syseff  = [float(x) for x in m.group(2).split()]
         # decide which selections are affected
-        mhs = data.keys()
-        if re.match(r"\d{3}\s+.*?", sysname) and data.has_key(sysname[0:3]):
+        mhs = list(data.keys())
+        if re.match(r"\d{3}\s+.*?", sysname) and sysname[0:3] in data:
             mhs = [ sysname[0:3] ]
         for mh in mhs:
-            if len(data[mh]['exp']) != len(syseff): raise RuntimeError, "Sysline %s: len(syseff) = %d, len(exp) = %d\n" % (l,len(syseff),len(data[mh]['exp']))
+            if len(data[mh]['exp']) != len(syseff): raise RuntimeError("Sysline %s: len(syseff) = %d, len(exp) = %d\n" % (l,len(syseff),len(data[mh]['exp'])))
             # special case: the stats line have to be expanded in N independent systematics
             if sysname != mh+" Stats":
                 data[mh]['nuis'].append(syseff)
@@ -65,18 +68,18 @@ if options.asimov:
         data[mh]['obs'] = sum(data[mh]['exp'][(2 if options.sm4 else 1):])
         if options.signal: data[mh]['obs'] += data[mh]['exp'][0]
 
-print "Generating datacards: "
+print("Generating datacards: ")
 models = [ 'SM', '4G' ] if options.sm4 else [ 'SM' ]
 for (isig,name) in enumerate(models):
     for mh,D in  data.items():
         # prepare variables
         nproc = len(D['exp'])-(1 if options.sm4 else 0) # there's 1 more column, as it has both SM and 4G
-        indices = [isig] + range(len(models),nproc+(1 if options.sm4 else 0))
+        indices = [isig] + list(range(len(models),nproc+(1 if options.sm4 else 0)))
         # open file
         filename = "%s-%s-mH%s.txt" % (options.label,name,mh)
         fout = open(filename, "w")
-        if fout == None: raise RuntimeError, "Cannot open %s for writing" % filename
-        print " - "+filename
+        if fout == None: raise RuntimeError("Cannot open %s for writing" % filename)
+        print(" - "+filename)
         # write datacard
         fout.write( "%s limit (%s), mH = %s GeV\n" % (name,options.label,mh) )
         fout.write( "date 2010.11.30\n" )

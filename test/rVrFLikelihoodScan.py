@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import re
 from sys import argv, stdout, stderr, exit, modules
 import array
 from optparse import OptionParser
+from six.moves import range
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 argv.append( '-b-' )
@@ -43,9 +46,9 @@ MB = ModelBuilder(DC, options)
 __import__(physModMod)
 mod = modules[physModMod]
 physics = getattr(mod, physModName)
-if mod     == None: raise RuntimeError, "Physics model module %s not found" % physModMod
+if mod     == None: raise RuntimeError("Physics model module %s not found" % physModMod)
 if physics == None or not isinstance(physics, PhysicsModel):
-    raise RuntimeError, "Physics model %s in module %s not found, or not inheriting from PhysicsModel" % (physModName, physModMod)
+    raise RuntimeError("Physics model %s in module %s not found, or not inheriting from PhysicsModel" % (physModName, physModMod))
 physics.setPhysicsOptions(options.physOpt)
 ## Attach model to tools, and declare parameters
 MB.setPhysics(physics)
@@ -122,7 +125,7 @@ fullMinimizer.minimize("Minuit","minimize")
 fullMinimizer.minos() ## minos is cheap on these models ;-)
 
 ## Print it out
-print "Best fit point: "
+print("Best fit point: ")
 fullMinimizer.save().Print("V")
 
 ## select parameters to scan
@@ -131,15 +134,15 @@ if options.poi != []:
     if not options.floatOtherPOI:
         ## if needed, freeze all the parameters that are not of interest
         poiList.add(MB.out.set("POI"))
-        for i in xrange(poiList.getSize()):
+        for i in range(poiList.getSize()):
             if poiList.at(i).GetName() not in options.poi:
                 poiList.at(i).setConstant(True)
         poiList = ROOT.RooArgList()
     else:
         poiList.add(MB.out.set("POI"))
-        for i in xrange(poiList.getSize()):
+        for i in range(poiList.getSize()):
             if poiList.at(i).GetName() not in options.poi:
-                print "Will profile ",poiList.at(i).GetName()
+                print("Will profile ",poiList.at(i).GetName())
         poiList = ROOT.RooArgList()
     for pn in options.poi:
         ## make list of parameters
@@ -152,15 +155,15 @@ else:
     poiList.add(MB.out.set("POI"))
 
 ## Allocate variables and create tree branches
-poi = [ array.array('f',[poiList.at(i).getVal()]) for i in xrange(poiList.getSize()) ]
-for i in xrange(poiList.getSize()):
+poi = [ array.array('f',[poiList.at(i).getVal()]) for i in range(poiList.getSize()) ]
+for i in range(poiList.getSize()):
     poiNam = poiList.at(i).GetName()
     tree.Branch(poiNam, poi[i], poiNam+"/F")
 
 
 ## Add global minimum to tree
 nll0 = likelihood.getVal()
-for i in xrange(poiList.getSize()):
+for i in range(poiList.getSize()):
     poi[i][0] = poiList.at(i).getVal()
 deltaNLL[0] = 0.;
 tree.Fill()
@@ -176,23 +179,23 @@ if options.algo == "grid":
     ## set default number of points if needed
     if options.points == 0: options.points = int(pow(200,len(poi)))
     ## ger parameter ranges
-    pmin = [ poiList.at(i).getMin() for i in xrange(len(poi)) ]
-    pmax = [ poiList.at(i).getMax() for i in xrange(len(poi)) ]
+    pmin = [ poiList.at(i).getMin() for i in range(len(poi)) ]
+    pmax = [ poiList.at(i).getMax() for i in range(len(poi)) ]
     if len(poi) == 1:
-        print "1D scan of %s with %d points" % (poiList.at(0).GetName(), options.points)
-        for i in xrange(options.points):
+        print("1D scan of %s with %d points" % (poiList.at(0).GetName(), options.points))
+        for i in range(options.points):
             x = pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/options.points
             poiList.at(0).setVal(x); poi[0][0] = x
             if mustMinim and likelihood.getVal() < 999: constrMinimizer.minimize("Minuit","minimize")
             deltaNLL[0] = likelihood.getVal() - nll0;
             tree.Fill()
     elif len(poi) == 2:
-        print "2D scan of %s, %s with %d points" % (poiList.at(0).GetName(), poiList.at(1).GetName(), options.points)
+        print("2D scan of %s, %s with %d points" % (poiList.at(0).GetName(), poiList.at(1).GetName(), options.points))
         sqrn = int(ceil(sqrt(float(options.points))))
         deltaX = (pmax[0]-pmin[0])/sqrn
         deltaY = (pmax[1]-pmin[1])/sqrn
-        for i in xrange(sqrn):
-            for j in xrange(sqrn):
+        for i in range(sqrn):
+            for j in range(sqrn):
                 x = pmin[0] + (i+0.5)*deltaX;
                 y = pmin[1] + (j+0.5)*deltaY;
                 poiList.at(0).setVal(x); poi[0][0] = x
@@ -202,7 +205,7 @@ if options.algo == "grid":
                 deltaNLL[0] = likelihood.getVal() - nll0;
                 tree.Fill()
 elif options.algo not in [ "none", "singles" ]:
-    raise RuntimeError, "Unknown algorithm: '%s'" % options.algo
+    raise RuntimeError("Unknown algorithm: '%s'" % options.algo)
 
 # save tree to disk
 tree.Write()

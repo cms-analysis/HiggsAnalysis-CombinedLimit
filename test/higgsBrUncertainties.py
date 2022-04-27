@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import math
 from sys import argv
 from optparse import OptionParser
+from six.moves import zip
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 argv.append( '-b-' )
@@ -93,17 +96,17 @@ for s,decs in THU_GROUPS:
         val[d] = effect
     uncertainties.append( (key, val) )
 
-print "%-30s   " % "Nuisance", "  ".join(["%-7s" % d for d in decays])
-print "%-30s   " % "-----------------", "  ".join(["%-7s" % "-----" for d in decays])
+print("%-30s   " % "Nuisance", "  ".join(["%-7s" % d for d in decays]))
+print("%-30s   " % "-----------------", "  ".join(["%-7s" % "-----" for d in decays]))
 for k,v in uncertainties:
-    print "%-30s  " % k,
+    print("%-30s  " % k, end=' ')
     for d in decays:
         effect = v[d]
         if abs(effect) < options.negligible:
-            print " %-7s" % (" -"),
+            print(" %-7s" % (" -"), end=' ')
         else:
             if options.kind == "lnN": effect = math.exp(effect)
             elif options.kind == "%": effect *= 100.0
-            print " %-7s" % (("%"+options.fmt) % effect),
-    print ""
+            print(" %-7s" % (("%"+options.fmt) % effect), end=' ')
+    print("")
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import re
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
@@ -8,20 +10,22 @@ import os
 import os.path
 import json
 from datetime import datetime, timedelta
+from six.moves import range
+from functools import reduce
 
 class Timer:
     def __init__(self):
         self.times = list()
     def addLap(self, ev):
         dt = datetime.now()
-        print "[Timer event at %s] %s" % (dt, ev)
+        print("[Timer event at %s] %s" % (dt, ev))
         self.times.append( (ev, dt) )
     def printLaps(self):
-        print "\nTotal running time: %s" % ( self.times[-1][1] - self.times[0][1] )
-        print "Breakdown:"
+        print("\nTotal running time: %s" % ( self.times[-1][1] - self.times[0][1] ))
+        print("Breakdown:")
         for i in range(len(self.times)-1):
             delta = ( self.times[i+1][1] - self.times[i][1] )
-            print " [%s] to [%s]: %s sec." % (self.times[i][0], self.times[i+1][0], delta)
+            print(" [%s] to [%s]: %s sec." % (self.times[i][0], self.times[i+1][0], delta))
 
 timer = Timer()
 
@@ -49,7 +53,7 @@ parser.add_option("--depth", dest="depth",  default=1,  type="int", help="Scans 
 parser.add_option("--two-sided", dest="twosided",  default=False,  action='store_true', help="If specified, scans both including up to DEPTH and by removing down to DEPTH.")
 parser.add_option("--dir", dest="dir",  default='systs',  type="string", help="Output directory for results and intermediates.")
 parser.add_option("--masses", dest="masses",  default=[120],  type="string", action="callback", help="Which mass points to scan.",
-                  callback = lambda option, opt_str, value, parser: masses.extend(map(lambda x: int(x), value.split(',')))
+                  callback = lambda option, opt_str, value, parser: masses.extend([int(x) for x in value.split(',')])
                   )
 parser.add_option("--X-keep-global-nuisances", dest="keepGlobalNuisances", action="store_true", default=False, help="When excluding nuisances, do not exclude standard nuisances that are correlated CMS-wide even if their effect is small.")
 addDatacardParserOptions(parser)
@@ -82,9 +86,9 @@ OWD = os.getcwd()
 os.chdir(options.dir)
 
 
-nuisances = map(lambda x: x[0], DC.systs )
+nuisances = [x[0] for x in DC.systs]
 if options.keepGlobalNuisances:
-    nuisances = filter(lambda x: not globalNuisances.match(x), nuisances)
+    nuisances = [x for x in nuisances if not globalNuisances.match(x)]
 
 #pprint(nuisances)
 g = open('nuisances.json','w')
@@ -95,12 +99,12 @@ g.close()
 # (and pairs and nMinusTwos, etc) if twosided is specified
 maxdepth = 2*options.depth if options.twosided else options.depth
 if len(nuisances) < maxdepth:
-    raise RuntimeError, "Cannot process a depth that large."
+    raise RuntimeError("Cannot process a depth that large.")
 
 
 # create combinations of interest
 combinationsToRemove = list()
-for level in xrange(options.depth+1):
+for level in range(options.depth+1):
     combinationsToRemove.extend( combinations(nuisances, level) )
 
     if options.twosided:
@@ -118,7 +122,7 @@ g.close()
 # make hash strings for each combination to use in file names
 # (yes, it is not human readable... it's life)
 import hashlib
-import cPickle as pickle
+import six.moves.cPickle as pickle
 combinationsHash = dict(
     [ (combination, hashlib.md5( pickle.dumps(combination) ).hexdigest() )
       for combination in combinationsToRemove
@@ -179,17 +183,17 @@ pool = Pool()
 
 timer.addLap("Running text2Workspace")
 # run all the text2workspace in parallel
-filterCmds = map(lambda x: x[0], jobs.values())
+filterCmds = [x[0] for x in list(jobs.values())]
 ret = pool.map(runCmd, filterCmds)
 if reduce(lambda x, y: x+y, ret):
-    raise RuntimeError, "Non-zero return code in text2workspace. Check logs."
+    raise RuntimeError("Non-zero return code in text2workspace. Check logs.")
 
 timer.addLap("Running combine")
 # run all the combine jobs in parallel
-combineCmds = [ item for sublist in map(lambda x: x[1], jobs.values()) for item in sublist ]
+combineCmds = [ item for sublist in [x[1] for x in list(jobs.values())] for item in sublist ]
 ret =  pool.map(runCmd, combineCmds)
 if reduce(lambda x, y: x+y, ret):
-    raise RuntimeError, "Non-zero return code in combine. Check logs."
+    raise RuntimeError("Non-zero return code in combine. Check logs.")
 
 
 timer.addLap("Harvesting root files")

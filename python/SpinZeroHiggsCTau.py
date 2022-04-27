@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import math
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
@@ -28,7 +30,7 @@ class SpinZeroHiggsCTau(PhysicsModel):
         if self.DC.isSignal[process]:
             self.my_norm = "r"
 
-            print "Process {0} will scale by {1}".format(process,self.my_norm)
+            print("Process {0} will scale by {1}".format(process,self.my_norm))
             return self.my_norm
 
         elif not self.DC.isSignal[process]: return 1
@@ -37,21 +39,21 @@ class SpinZeroHiggsCTau(PhysicsModel):
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if 'muFixed' in po:
-                print "Will consider the signal strength as a fixed parameter"
+                print("Will consider the signal strength as a fixed parameter")
                 self.muFloating = False
             elif 'muAsPOI' in po:
-                print "Will consider the signal strength as a parameter of interest"
+                print("Will consider the signal strength as a parameter of interest")
                 self.muAsPOI = True
 
             if 'ctauFixed' in po or 'ctauNotPOI' in po:
-                print "CMS_zz4l_ctau is NOT A POI"
+                print("CMS_zz4l_ctau is NOT A POI")
                 self.ctauPOI = False
                 if 'ctauFixed' in po:
-                    print "Will fix CMS_zz4l_ctau to 0"
+                    print("Will fix CMS_zz4l_ctau to 0")
                     self.ctauFloating = False
 
             if not self.muAsPOI and not self.ctauPOI:
-                print "No POIs detected: Switching to default configuration: Floating nuisance mu, floating POI ctau, eveything else fixed"
+                print("No POIs detected: Switching to default configuration: Floating nuisance mu, floating POI ctau, eveything else fixed")
                 self.muFloating = True
                 self.muAsPOI = False
                 self.ctauFloating = True
@@ -61,13 +63,13 @@ class SpinZeroHiggsCTau(PhysicsModel):
         """Create POI and other parameters, and define the POI set."""
         if self.ctauFloating:
             if self.modelBuilder.out.var("CMS_zz4l_ctau"):
-                print "CTau variable is present, no need to rebuild"
+                print("CTau variable is present, no need to rebuild")
                 self.modelBuilder.out.var("CMS_zz4l_ctau").setVal(0)
             else:
-                print "CTau variable is NOT present, rebuilding"
+                print("CTau variable is NOT present, rebuilding")
                 self.modelBuilder.doVar("CMS_zz4l_ctau[0,0,1000]")
                 self.modelBuilder.out.var("CMS_zz4l_ctau").setBins(50)
-            print "Floating CMS_zz4l_ctau"
+            print("Floating CMS_zz4l_ctau")
             if self.ctauPOI:
                 poi = "CMS_zz4l_ctau"
             else:
@@ -79,7 +81,7 @@ class SpinZeroHiggsCTau(PhysicsModel):
                 self.modelBuilder.out.var("CMS_zz4l_ctau").setConstant()
             else:
                 self.modelBuilder.doVar("CMS_zz4l_ctau[0]")
-            print "Fixing CMS_zz4l_ctau"
+            print("Fixing CMS_zz4l_ctau")
 
         if self.muFloating:
             if self.modelBuilder.out.var("r"):
@@ -89,7 +91,7 @@ class SpinZeroHiggsCTau(PhysicsModel):
                 self.modelBuilder.doVar("r[1,0,40]")
 
             if self.muAsPOI:
-                print "Treating r as a POI"
+                print("Treating r as a POI")
                 if self.ctauPOI:
                     poi += ",r"
                 else:
@@ -104,7 +106,7 @@ class SpinZeroHiggsCTau(PhysicsModel):
                 self.modelBuilder.doVar("r[1]")
 
         if self.modelBuilder.out.var("CMS_zz4l_prod"):
-            print "Found production systematic"
+            print("Found production systematic")
             self.modelBuilder.out.var("CMS_zz4l_prod").setAttribute("flatParam")
 
         self.modelBuilder.doSet("POI",poi)

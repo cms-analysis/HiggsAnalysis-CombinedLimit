@@ -1,5 +1,8 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import ROOT
 import argparse
+from six.moves import range
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -17,10 +20,10 @@ rfr = fin.Get(args.input.split(':')[1])
 
 all_pars = rfr.floatParsFinal()
 correlations = []
-for i in xrange(all_pars.getSize()):
+for i in range(all_pars.getSize()):
     par = all_pars.at(i)
     if par.GetName() == args.parameter:
-        print '%s: %+.3f +/- %.3f' % (par.GetName(), par.getVal(), par.getError())
+        print('%s: %+.3f +/- %.3f' % (par.GetName(), par.getVal(), par.getError()))
         continue
     correlations.append((par.GetName(),
         rfr.correlation(args.parameter, par.GetName()),
@@ -30,6 +33,6 @@ for i in xrange(all_pars.getSize()):
 correlations.sort(key=lambda x: abs(x[1]), reverse=True)
 # print correlations
 
-print 'covQual: %i' % rfr.covQual()
-for i in xrange(min(len(correlations), args.max)):
-    print '%-50s %+.3f +/- %.3f    %+.3f' % (correlations[i][0], correlations[i][2], correlations[i][3], correlations[i][1])
+print('covQual: %i' % rfr.covQual())
+for i in range(min(len(correlations), args.max)):
+    print('%-50s %+.3f +/- %.3f    %+.3f' % (correlations[i][0], correlations[i][2], correlations[i][3], correlations[i][1]))

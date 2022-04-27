@@ -1,7 +1,10 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import re
 from sys import argv
 from math import *
 from optparse import OptionParser
+from six.moves import range
 parser = OptionParser()
 parser.add_option("-s", "--stat",     dest="stat",     default=False, action="store_true")
 parser.add_option("-S", "--signal",   dest="signal",   default=False, action="store_true")
@@ -17,7 +20,7 @@ parser.add_option("-n", "--nch",      dest="nch",      type="int",    default=1)
 parser.add_option("-B", "--b-fluct",  dest="bfluct",   type="float",  default=0)
 (options, args) = parser.parse_args()
 
-if len(args) < 1: raise RuntimeError, "Usage: errorMatrix2Lands.py [options] errorMatrix.txt "
+if len(args) < 1: raise RuntimeError("Usage: errorMatrix2Lands.py [options] errorMatrix.txt ")
 
 file = open(args[0], "r")
 
@@ -42,7 +45,7 @@ if (options.nch > 1):
     processnames = header.split()[1:]
     nproc = len(processnames)/options.nch-1
     processnames = processnames[1:(nproc+1)]
-    print processnames
+    print(processnames)
 # read yields
 for l in file:
     l = re.sub("--+","0",l)
@@ -52,7 +55,7 @@ for l in file:
     yields = [float(x) for x in m.group(2).split()];
     line = []
     if len(yields) != (options.nch * (nproc+1)):
-        raise RuntimeError, "len(yields) = %d != options.nch * (nproc + 1) = %d * (%d+1)" % (len(yields),options.nch,nproc)
+        raise RuntimeError("len(yields) = %d != options.nch * (nproc + 1) = %d * (%d+1)" % (len(yields),options.nch,nproc))
     data[mh] = { 'nch':0, 'obs':[], 'exp':[], 'processnames':[], 'nuis':[], 'nuisname':[]}
     for i in range(options.nch):
         start = i*(nproc+1); end = start + nproc + 1
@@ -67,14 +70,14 @@ if not options.stat:
         if l.rstrip().rstrip() == "": continue
         l = re.sub("--+","0",l)
         m = re.match(r"(.*?)\s+(0\s+(\d+\.?\d*(E[+\-]\d+)?\s+)+)", l)
-        if m == None: raise ValueError, "Missing line "+l
+        if m == None: raise ValueError("Missing line "+l)
         sysname = m.group(1)
         syseff  = [float(x) for x in m.group(2).split()]
         if len(syseff) != (options.nch * (nproc+1)):
-            raise RuntimeError, "len(syseff) = %d != options.nch * (nproc + 1) = %d * (%d+1)" % (len(syseff),options.nch,nproc)
+            raise RuntimeError("len(syseff) = %d != options.nch * (nproc + 1) = %d * (%d+1)" % (len(syseff),options.nch,nproc))
         # decide which selections are affected
-        mhs = data.keys()
-        if re.match(r"\d{3}\s+.*?", sysname) and data.has_key(sysname[0:3]):
+        mhs = list(data.keys())
+        if re.match(r"\d{3}\s+.*?", sysname) and sysname[0:3] in data:
             mhs = [ sysname[0:3] ]
         for mh in mhs:
             nuisline = []
@@ -110,7 +113,7 @@ if options.optimize:
             for p in range(nproc):
                 if data[mh]['exp'][p] != 0: hasrate[p] = 1
         for p in range(nproc):
-            if hasrate[p] == 0: print "For mH = ", mh , " process ", processnames[p], " does not contribute."
+            if hasrate[p] == 0: print("For mH = ", mh , " process ", processnames[p], " does not contribute.")
         data[mh]['nuis']         = [ [x for i,x in enumerate(n) if hasrate[i%nproc]] for n in data[mh]['nuis'] ]
         data[mh]['processnames'] = [  x for i,x in enumerate(data[mh]['processnames']) if hasrate[i%nproc] ]
         data[mh]['exp']          = [  x for i,x in enumerate(data[mh]['exp'])          if hasrate[i%nproc] ]
@@ -118,14 +121,14 @@ if options.optimize:
         data[mh]['nuisname'] = [ data[mh]['nuisname'][i] for i,n in enumerate(data[mh]['nuis']) if sum(n) > 0 ]
         data[mh]['nuis']     = [ n                       for i,n in enumerate(data[mh]['nuis']) if sum(n) > 0 ]
 
-print "Generating datacards: "
+print("Generating datacards: ")
 for mh,D in  data.items():
     # prepare variables
     # open file
     filename = "%s-mH%s.txt" % (options.label,mh)
     fout = open(filename, "w")
-    if fout == None: raise RuntimeError, "Cannot open %s for writing" % filename
-    print " - "+filename
+    if fout == None: raise RuntimeError("Cannot open %s for writing" % filename)
+    print(" - "+filename)
     nproc = len(data[mh]['exp'])/data[mh]['nch']
     # write datacard
     fout.write( "Limit (%s), mH = %s GeV\n" % (options.label,mh) )

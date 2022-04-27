@@ -22,6 +22,8 @@
 #
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+from __future__ import print_function
 import time
 import os
 import sys
@@ -32,13 +34,14 @@ import subprocess
 import glob
 
 from ROOT import TF1, TFile, TH2F, gROOT, gStyle,TH1F, TCanvas, TString, TLegend, TPaveLabel, TH2D, TPave, Double
+from six.moves import range
 
 if len(sys.argv) < 2:
-    print "Must specify the root file that you wish to parse."
+    print("Must specify the root file that you wish to parse.")
     sys.exit()
 
 if len(sys.argv) < 3:
-    print "Must specify the number of toys that you ran over."
+    print("Must specify the number of toys that you ran over.")
     sys.exit()
 
 inputFile = str(sys.argv[1])
@@ -70,4 +73,4 @@ h.Write()
 outputFile.Write()
 outputFile.Close()
 
-print "Finished writing output to " + outputFile.GetName()
+print("Finished writing output to " + outputFile.GetName())

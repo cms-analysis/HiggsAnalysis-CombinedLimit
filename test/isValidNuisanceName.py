@@ -1,5 +1,8 @@
 
+from __future__ import absolute_import
 import re
+from six.moves import map
+from six.moves import zip
 
 validNuisancePatterns = [
     {'prefix':'lumi', 'remainder':''},
@@ -24,5 +27,5 @@ def isValidNuisanceName(name):
 if __name__ == "__main__":
     from pprint import pprint
     names = ['CMS_eff_j', 'CMS_eff_k', 'CMS_p_scale_e', 'lumi', 'QCDscale']
-    results = map(validateNuisance, names)
-    pprint(zip(names, results))
+    results = list(map(validateNuisance, names))
+    pprint(list(zip(names, results)))

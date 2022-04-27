@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import re
 import glob
@@ -5,6 +7,7 @@ import math
 import ROOT
 import random
 import string
+from six.moves import range
 
 class DatacardPruner(object) :
     """
@@ -68,7 +71,7 @@ class DatacardPruner(object) :
                 ## skip POI
                 if key == 'r' :
                     continue
-                if not key in output.keys() :
+                if not key in list(output.keys()) :
                     output[key] = line
                 else :
                     pulls_old  = pull_pattern.findall(output[key])
@@ -246,7 +249,7 @@ class DatacardPruner(object) :
             if not name in UNCERTS :
                 confused += 1
                 missmatch = True
-                print "Warning: uncertainty:", name,  " found in output file of maximum likelihood fit but NOT in list of uncertainties as defined by datacards."
+                print("Warning: uncertainty:", name,  " found in output file of maximum likelihood fit but NOT in list of uncertainties as defined by datacards.")
             pulls = pull_pattern.findall(line)
             if pulls :
                 val = 0.
@@ -330,7 +333,7 @@ class DatacardPruner(object) :
                         excl+=1
                         line = line.lstrip('#')
                     else :
-                        print "Warning: MANIPULATION:", MANIPULATION, "unknown. Possible values are: COMMENT, UNCOMMENT."
+                        print("Warning: MANIPULATION:", MANIPULATION, "unknown. Possible values are: COMMENT, UNCOMMENT.")
             output.write(line)
         file.close()
         output.close()

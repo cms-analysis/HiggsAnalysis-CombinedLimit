@@ -10,6 +10,7 @@ w = f.Get("w")
 FixAll(w)
 """
 
+from __future__ import absolute_import
 import ROOT
 
 __inited = False

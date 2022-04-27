@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import re
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
@@ -8,6 +10,8 @@ import os
 import os.path
 import json
 from operator import div
+import six
+from six.moves import zip
 
 # search for the nuisances that have identical correlation matrix:
 # given two log-normal systematics X, Y for which affect exactly the same
@@ -23,8 +27,8 @@ from operator import div
 # errline is a map that gives you kappa[channel][process].
 
 def filterForPDFType(allSysts, type):
-    filteredSysts = filter(lambda x: x[2] == type, allSysts)
-    print 'Keeping PDFs of type [%s]: kept %d of %d nuisances.' % ( type, len(filteredSysts), len(allSysts) )
+    filteredSysts = [x for x in allSysts if x[2] == type]
+    print('Keeping PDFs of type [%s]: kept %d of %d nuisances.' % ( type, len(filteredSysts), len(allSysts) ))
     return filteredSysts
 
 def all_same(items):
@@ -35,7 +39,7 @@ from types import *
 def asymDivide(something):
 
     if len(something) != 2:
-        raise TypeError, "asymDivision requires a pair."
+        raise TypeError("asymDivision requires a pair.")
 
     (a, b) = something
     theType = (type(a), type(b))
@@ -50,10 +54,10 @@ def asymDivide(something):
         theType == (ListType, ListType)
         ):
         if len(a) != len(b):
-            raise TypeError, 'For pairs of lists, they must have the same length.'
+            raise TypeError('For pairs of lists, they must have the same length.')
         return asymDivideLists(something)
     else:
-        raise TypeError, "Don't know how to divide this data structure."
+        raise TypeError("Don't know how to divide this data structure.")
 
 
 def handleZeroes(numerator):
@@ -67,7 +71,7 @@ def handleZeroes(numerator):
 def asymDivideLists(listAndList):
 
     (numerators, denominators) = listAndList
-    pairs = zip(numerators, denominators)
+    pairs = list(zip(numerators, denominators))
 
     quotients = list()
     for pair in pairs:
@@ -108,8 +112,8 @@ def lnN_redundancies(allSysts):
         )
 
     nuisNames = [ s[0] for s in systs ]
-    channelNames = systs[0][4].keys()
-    processNames = systs[0][4][channelNames[0]].keys()
+    channelNames = list(systs[0][4].keys())
+    processNames = list(systs[0][4][channelNames[0]].keys())
 
     nuisPairs = combinations(nuisNames, 2)
 
@@ -122,7 +126,7 @@ def lnN_redundancies(allSysts):
         kappaRatios[pair] = list()
         for channel in channelNames:
             for process in processNames:
-                kappas = map(lambda nuis: systsDict[nuis][channel][process], pair)
+                kappas = [systsDict[nuis][channel][process] for nuis in pair]
 
                 #print 'Kappas in ', channel, process
                 #pprint(kappas)
@@ -143,7 +147,7 @@ def lnN_redundancies(allSysts):
                         kappaRatio = asymDivide(kappas)
                         kappaRatios[pair].extend(kappaRatio)
                     except TypeError as e:
-                        print "Could not divide " + channel + '/' + process + ': ', e
+                        print("Could not divide " + channel + '/' + process + ': ', e)
                         pprint(pair)
                         pprint(kappas)
 
@@ -159,7 +163,7 @@ def lnN_redundancies(allSysts):
 #                print set(kappaRatios[pair])
 #                rejectedPairs.append(pair)
 #                break
-        temp = filter( lambda x: x!=None, kappaRatios[pair])
+        temp = [x for x in kappaRatios[pair] if x!=None]
         kappaRatios[pair] = list(set(temp))
         if 0.0 not in kappaRatios[pair]:
             correlatedPairs.append(pair)
@@ -170,10 +174,7 @@ def lnN_redundancies(allSysts):
 #    pprint(kappaRatios)
 
     pprint(
-        filter(
-            lambda x: x[0] in correlatedPairs,
-            kappaRatios.iteritems()
-        )
+        [x for x in six.iteritems(kappaRatios) if x[0] in correlatedPairs]
         )
 
 if __name__ == '__main__':

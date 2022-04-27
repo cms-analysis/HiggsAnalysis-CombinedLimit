@@ -1,6 +1,12 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import xlrd
 import sys
 import logging
+import six
+from six.moves import map
+from six.moves import range
+from six.moves import zip
 
 stdHeading = ('mH_GeV','XS_pb','Sca_Hi','Sca_Lo','Pdf_alpha_s','Pdf','alpha_s')
 xsecGroups = {
@@ -106,7 +112,7 @@ morespecs = {
 def print_table(table):
     col_width = [max(len(x) for x in col) for col in zip(*table)]
     for line in table:
-        print '  '.join('{:{}}'.format(x, col_width[i]) for i, x in enumerate(line))
+        print('  '.join('{:{}}'.format(x, col_width[i]) for i, x in enumerate(line)))
 
 # Based on http://stackoverflow.com/a/12640614/665025
 def col2num(col_str):
@@ -139,7 +145,7 @@ def main(o):
             logging.info('Skipping sheet [%s]: I do not have parsing rules for it.', s.name)
             continue
         logging.info('Processing sheet ['+ s.name +']')
-        for group,props in spec['groups'].iteritems():
+        for group,props in six.iteritems(spec['groups']):
             table = []
             logging.info('Processing ['+group+'] in ['+ s.name +']')
             # open output
@@ -147,16 +153,16 @@ def main(o):
             heading = props['heading']
             table.append(heading)
             (startRow, endRow) = spec['rows']
-            for r in xrange(startRow - 1, endRow):
+            for r in range(startRow - 1, endRow):
                 offset = col2num(props['col']) - 1
                 vals = s.row_values(r)[offset:offset+len(heading)]
                 if set(vals[1:]) == set(('',)):
                     continue
                 try:
-                    table.append(map(formatval,vals))
+                    table.append(list(map(formatval,vals)))
                 except ValueError:
-                    print 'Could not parse the followig tuple: '
-                    print vals
+                    print('Could not parse the followig tuple: ')
+                    print(vals)
                     raise
 
 

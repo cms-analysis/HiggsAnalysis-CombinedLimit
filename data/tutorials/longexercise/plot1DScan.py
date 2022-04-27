@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import ROOT
 import math
 from functools import partial
@@ -6,6 +8,7 @@ import CombineHarvester.CombineTools.plotting as plot
 import json
 import argparse
 import os.path
+from six.moves import range
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -35,7 +38,7 @@ def Eval(obj, x, params):
 def BuildScan(scan, param, files, color, yvals, ycut):
     graph = read(scan, param, files, ycut)
     bestfit = None
-    for i in xrange(graph.GetN()):
+    for i in range(graph.GetN()):
         if graph.GetY()[i] == 0.:
             bestfit = graph.GetX()[i]
     graph.SetMarkerColor(color)
@@ -102,9 +105,9 @@ parser.add_argument('--logo', default='CMS')
 parser.add_argument('--logo-sub', default='Internal')
 args = parser.parse_args()
 
-print '--------------------------------------'
-print  args.output
-print '--------------------------------------'
+print('--------------------------------------')
+print(args.output)
+print('--------------------------------------')
 
 fixed_name = args.POI
 if args.translate is not None:
@@ -216,12 +219,12 @@ if args.breakdown is not None:
     for i, br in enumerate(breakdown):
         if i < (len(breakdown) - 1):
             if (abs(v_hi[i+1]) > abs(v_hi[i])):
-                print 'ERROR SUBTRACTION IS NEGATIVE FOR %s HI' % br
+                print('ERROR SUBTRACTION IS NEGATIVE FOR %s HI' % br)
                 hi = 0.
             else:
                 hi = math.sqrt(v_hi[i]*v_hi[i] - v_hi[i+1]*v_hi[i+1])
             if (abs(v_lo[i+1]) > abs(v_lo[i])):
-                print 'ERROR SUBTRACTION IS NEGATIVE FOR %s LO' % br
+                print('ERROR SUBTRACTION IS NEGATIVE FOR %s LO' % br)
                 lo = 0.
             else:
                 lo = math.sqrt(v_lo[i]*v_lo[i] - v_lo[i+1]*v_lo[i+1])

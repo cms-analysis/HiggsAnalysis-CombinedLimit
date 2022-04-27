@@ -1,6 +1,9 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import os, os.path, re, json, stat
 import ROOT
 from math import *
+from six.moves import range
 
 class Test:
     def __init__(name):
@@ -19,7 +22,7 @@ class Test:
         pass
     def createScriptBase(self,dir):
         """Creates script file, writes preamble, then calls createScript to fill it"""
-        print "  creating script", self.scriptName(dir)
+        print("  creating script", self.scriptName(dir))
         fname = self.scriptName(dir)
         output = open(fname, "w")
         self._createPreamble(output,dir)
@@ -28,7 +31,7 @@ class Test:
         os.chmod(fname,stat.S_IRWXU)
     def createScript(self,dir,file):
         """Print out whatever commands have to be printed in the script after it's created"""
-        raise RuntimeError, "Not implemented"
+        raise RuntimeError("Not implemented")
     def readOutputBase(self,dir):
         """Calls readOutput to read the output, saves it as JSON file"""
         output = self.readOutput(dir)
@@ -36,11 +39,11 @@ class Test:
             fout = open(self.jsonName(dir), "w");
             fout.write(json.dumps({self._name : output}, sort_keys=True, indent=4))
             fout.close()
-            print "  wrote individual output to",self.jsonName(dir)
+            print("  wrote individual output to",self.jsonName(dir))
         return output
     def readOutput(self,dir):
         """Read output, and return output as python object"""
-        raise RuntimeError, "Not implemented"
+        raise RuntimeError("Not implemented")
     def _createPreamble(self,file,dir):
         E=os.environ;
         file.write("#!/bin/bash\n")
@@ -144,7 +147,7 @@ class SingleDatacardTest(Test):
     def createScript(self,dir,file):
         datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % self._datacard
         if os.access(datacard_full, os.R_OK) == False:
-            raise RuntimeError, "Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % self._datacard
+            raise RuntimeError("Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % self._datacard)
         file.write("echo    %s -n %s -M %s %s -m %s > %s.log\n" % (datacard_full, self._name, self._method, self._options, self._mass, self._name));
         file.write("combine %s -n %s -M %s %s -m %s 2>&1 | cat >> %s.log\n" % (datacard_full, self._name, self._method, self._options, self._mass, self._name));
     def readOutput(self,dir):
@@ -181,7 +184,7 @@ class MultiDatacardTest(Test):
         for dc, mass in self._datacards:
             datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % dc
             if os.access(datacard_full, os.R_OK) == False:
-                raise RuntimeError, "Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % dc
+                raise RuntimeError("Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % dc)
             file.write("echo    %s -n %s -M %s %s -m %s >  %s.%s.log     \n" % (datacard_full, self._name, self._method, self._options, mass, self._name, mass));
             file.write("combine %s -n %s -M %s %s -m %s 2>&1 | cat >> %s.%s.log\n" % (datacard_full, self._name, self._method, self._options, mass, self._name, mass));
     def readOutput(self,dir):
@@ -225,7 +228,7 @@ class WorkspaceWithExpectedTest(MultiDatacardTest):
             datacard_base = os.path.splitext(os.path.basename(datacard_full))[0]
             dc_list.append(datacard_base+"="+datacard_full)
             if os.access(datacard_full, os.R_OK) == False:
-                raise RuntimeError, "Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % dc
+                raise RuntimeError("Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % dc)
         file.write("combineCards.py -S %s &> %s\n" % (" ".join(dc_list), self._cmb_card))
         file.write("text2workspace.py %s -b %s -o %s -m %s\n" % (self._ws_options, self._cmb_card, self._cmb_wsp, self._mass))
         file.write("echo    %s -n %s -M %s %s -m %s >  %s.%s.log     \n" % (self._cmb_wsp, self._name, self._method, self._options, self._mass, self._name, self._mass));
@@ -257,7 +260,7 @@ def datacardGlob(pattern):
     from glob import glob
     base = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/"
     ret = [ f.replace(base, "") for f in glob(base+pattern) ]
-    if ret == []: raise RuntimeError, "Pattern '%s' does not expand to any datacard in data/benchmarks." % pattern
+    if ret == []: raise RuntimeError("Pattern '%s' does not expand to any datacard in data/benchmarks." % pattern)
     return ret
 
 class MultiOptionTest(Test):
@@ -272,7 +275,7 @@ class MultiOptionTest(Test):
     def createScript(self,dir,file):
         datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % self._datacard
         if os.access(datacard_full, os.R_OK) == False:
-            raise RuntimeError, "Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % self._datacard
+            raise RuntimeError("Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % self._datacard)
         for on, ov, mass in self._options:
             file.write("echo    %s -n %s -M %s %s -m %s >  %s.%s.log     \n" % (datacard_full, self._name, self._method, ov, mass, self._name, mass));
             file.write("combine %s -n %s -M %s %s -m %s >> %s.%s.log 2>&1\n" % (datacard_full, self._name, self._method, ov, mass, self._name, mass));

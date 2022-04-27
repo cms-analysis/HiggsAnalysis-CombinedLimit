@@ -1,6 +1,8 @@
+from __future__ import absolute_import
 import numpy as np
 import pandas as pd
 import ROOT
+from six.moves import range
 
 class DataFrameWrapper(object):
     th1_class = "TH1F"

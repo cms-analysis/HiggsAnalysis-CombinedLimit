@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 class AllMuiLambdaHiggs(SMLikeHiggsModel):
@@ -15,9 +17,9 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI ---
@@ -34,7 +36,7 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
         for decay in self.decays:
             #poi.append('mu_'+decay);
             if decay in self.fixDecays:
-                print "It seems that you set signal strength ggH->"+decay+" as missing, I will set that as POI. Please set it to unity when running HybridNew."
+                print("It seems that you set signal strength ggH->"+decay+" as missing, I will set that as POI. Please set it to unity when running HybridNew.")
                 self.modelBuilder.doVar("mu_%s[1,0,5]" % decay)
                 poi.append('mu_'+decay)
             else:
@@ -45,28 +47,28 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
         self.modelBuilder.doSet("POI", ",".join(poi) )
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
                 poi.append('MH');
                 self.modelBuilder.doSet("POI", ",".join(poi) )
                 #self.modelBuilder.doSet('POI','poi,MH')
             else:
-                print 'MH will be assumed to be', self.options.mass
+                print('MH will be assumed to be', self.options.mass)
                 self.modelBuilder.out.var("MH").removeRange()
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
         else:
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
                 poi.append('MH');
                 self.modelBuilder.doSet("POI", ",".join(poi) )
                 #self.modelBuilder.doSet('POI','poi,MH')
             else:
-                print 'MH (not there before) will be assumed to be', self.options.mass
+                print('MH (not there before) will be assumed to be', self.options.mass)
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         for item in poi:
-            print item
+            print(item)
         #the next part is for the special case, where the ratio (look for your papers) is constant
     def getHiggsSignalYieldScale(self,production,decay, energy):
         if decay=="hmm":
@@ -83,7 +85,7 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
             return 'lambdavmu_'+decay
         elif production == "ttH":
             return 'lambdatmu_'+decay
-        else: raise RuntimeError, "Unknown production mode '%s'" %production
+        else: raise RuntimeError("Unknown production mode '%s'" %production)
 
 
 
@@ -102,9 +104,9 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI ---
@@ -122,7 +124,7 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
                 elif production == "ttH":
                     poi.append('lambdat_'+decay);
             if decay in self.fixDecays:
-                print "It seems that you set signal strength ggH->"+decay+" as missing, I will set that equal to unity."
+                print("It seems that you set signal strength ggH->"+decay+" as missing, I will set that equal to unity.")
                 self.modelBuilder.doVar("mu_%s[1.0]" % decay)
             else:
                 self.modelBuilder.doVar("mu_%s[1,0,5]" % decay)
@@ -135,28 +137,28 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
         self.modelBuilder.doSet("POI", ",".join(poi) )
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
                 poi.append('MH');
                 self.modelBuilder.doSet("POI", ",".join(poi) )
                 #self.modelBuilder.doSet('POI','poi,MH')
             else:
-                print 'MH will be assumed to be', self.options.mass
+                print('MH will be assumed to be', self.options.mass)
                 self.modelBuilder.out.var("MH").removeRange()
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
         else:
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
                 poi.append('MH');
                 self.modelBuilder.doSet("POI", ",".join(poi) )
                 #self.modelBuilder.doSet('POI','poi,MH')
             else:
-                print 'MH (not there before) will be assumed to be', self.options.mass
+                print('MH (not there before) will be assumed to be', self.options.mass)
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         for item in poi:
-            print item
+            print(item)
     #the next part is for the special case, where the ratio (look for your papers) is constant
     def getHiggsSignalYieldScale(self,production,decay, energy):
         #print 'Printing out:', production, decay, energy, 'mu_'+decay
@@ -175,7 +177,7 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
             return 'lambdav_'+decay+'mu_'+decay
         elif production == "ttH":
             return 'lambdat_'+decay+'mu_'+decay
-        else: raise RuntimeError, "Unknown production mode '%s'" %production
+        else: raise RuntimeError("Unknown production mode '%s'" %production)
 
 allmuilambda= AllMuiLambdaHiggs()
 allmuilambdas = AllMuiLambdasHiggs()

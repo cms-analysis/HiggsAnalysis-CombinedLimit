@@ -1,8 +1,12 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import re, os
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
 from math import *
+import six
+from six.moves import zip
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 argv.append( '-b-' )
@@ -37,7 +41,7 @@ else:
     mass2 = int(args[1])
     mass  = float(args[2])
 
-if mass in refmasses and options.postfix == "": raise RuntimeError, "Will not overwrite the reference masses"
+if mass in refmasses and options.postfix == "": raise RuntimeError("Will not overwrite the reference masses")
 
 ## Make sure mass1 is always the closest (and pick the worse one in case of a tie)
 dm1 = abs(mass1 - mass)
@@ -59,7 +63,7 @@ if options.xsbr:
                 headers = [i.strip() for i in cols[1:]]
             else:
                 fields = [ float(i) for i in cols ]
-                ret[fields[0]] = dict(zip(headers,fields[1:]))
+                ret[fields[0]] = dict(list(zip(headers,fields[1:])))
         return ret
     path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";
     ggXS = file2map(path+"YR-XS-ggH.txt")
@@ -67,9 +71,9 @@ if options.xsbr:
     br   = file2map(path+"YR-BR3.txt")
     # create points at 450, 550 by interpolation
     for M in (450,550):
-        ggXS[M] = dict([ (key, 0.5*(ggXS[M+10][key] + ggXS[M-10][key])) for key in ggXS[M+10].iterkeys() ])
-        qqXS[M] = dict([ (key, 0.5*(qqXS[M+10][key] + qqXS[M-10][key])) for key in qqXS[M+10].iterkeys() ])
-        br[M] = dict([ (key, 0.5*(br[M+10][key] + br[M-10][key])) for key in br[M+10].iterkeys() ])
+        ggXS[M] = dict([ (key, 0.5*(ggXS[M+10][key] + ggXS[M-10][key])) for key in six.iterkeys(ggXS[M+10]) ])
+        qqXS[M] = dict([ (key, 0.5*(qqXS[M+10][key] + qqXS[M-10][key])) for key in six.iterkeys(qqXS[M+10]) ])
+        br[M] = dict([ (key, 0.5*(br[M+10][key] + br[M-10][key])) for key in six.iterkeys(br[M+10]) ])
     xsbr1['ggH'] = ggXS[mass1]['XS_pb'] * br[mass1]['H_evmv']
     xsbr2['ggH'] = ggXS[mass2]['XS_pb'] * br[mass2]['H_evmv']
     xsbr ['ggH'] = ggXS[mass ]['XS_pb'] * br[mass ]['H_evmv']
@@ -77,7 +81,7 @@ if options.xsbr:
     xsbr2['qqH'] = qqXS[mass2]['XS_pb'] * br[mass2]['H_evmv']
     xsbr ['qqH'] = qqXS[mass ]['XS_pb'] * br[mass ]['H_evmv']
 
-print "Will interpolate %g from [%d, %d]" % (mass, mass1, mass2)
+print("Will interpolate %g from [%d, %d]" % (mass, mass1, mass2))
 
 alpha = abs(mass2 - mass)/abs(mass2 - mass1) if mass1 != mass2 else 1.0;
 beta = 1 - alpha;
@@ -93,12 +97,12 @@ options.fileName = file2; options.mass = mass2;
 DC2 = parseCard(open(file2,"r"), options)
 
 ## Basic consistency check
-if DC1.bins != DC2.bins: raise RuntimeError, "The two datacards have different bins: %s has %s, %s has %s" % (file1, DC1.bins, file2, DC2.bins)
-if DC1.processes != DC2.processes: raise RuntimeError, "The two datacards have different processes: %s has %s, %s has %s" % (file1, DC1.processes, file2, DC2.processes)
-if DC1.signals   != DC2.signals:   raise RuntimeError, "The two datacards have different signals: %s has %s, %s has %s" % (file1, DC1.signals, file2, DC2.signals)
-if DC1.isSignal  != DC2.isSignal:  raise RuntimeError, "The two datacards have different isSignal: %s has %s, %s has %s" % (file1, DC1.isSignal, file2, DC2.isSignal)
+if DC1.bins != DC2.bins: raise RuntimeError("The two datacards have different bins: %s has %s, %s has %s" % (file1, DC1.bins, file2, DC2.bins))
+if DC1.processes != DC2.processes: raise RuntimeError("The two datacards have different processes: %s has %s, %s has %s" % (file1, DC1.processes, file2, DC2.processes))
+if DC1.signals   != DC2.signals:   raise RuntimeError("The two datacards have different signals: %s has %s, %s has %s" % (file1, DC1.signals, file2, DC2.signals))
+if DC1.isSignal  != DC2.isSignal:  raise RuntimeError("The two datacards have different isSignal: %s has %s, %s has %s" % (file1, DC1.isSignal, file2, DC2.isSignal))
 
-if len(DC1.bins) != 1: raise RuntimeError, "This does not work on multi-channel"
+if len(DC1.bins) != 1: raise RuntimeError("This does not work on multi-channel")
 obsline = [str(x) for x in DC1.obs.values()]; obskeyline = DC1.bins; cmax = 5;
 keyline = []; expline = []; systlines = {}; systlines2 = {}
 signals = []; backgrounds = []; shapeLines = [];
@@ -108,7 +112,7 @@ for (name,nf,pdf,args,errline) in DC1.systs:
 for (name,nf,pdf,args,errline) in DC2.systs:
     systlines2[name] = [ pdf, args, errline, nf ]
 for b,p,sig in DC1.keyline:
-    if p not in DC2.exp[b].keys(): raise RuntimeError, "Process %s contributes to bin %s in card %s but not in card %s" % (p, b, file1, file2)
+    if p not in list(DC2.exp[b].keys()): raise RuntimeError("Process %s contributes to bin %s in card %s but not in card %s" % (p, b, file1, file2))
     rate = DC1.exp[b][p]
     if p in  ['ggH', 'qqH']:
         eff = rate/xsbr1[p]
@@ -168,7 +172,7 @@ xfile.write(" ".join([hfmt % "process", "  ".join([cfmt % b for p,b,s in keyline
 xfile.write(" ".join([hfmt % "process", "  ".join([cfmt % x for x in pidline])])+"\n")
 xfile.write(" ".join([hfmt % "rate",    "  ".join([cfmt % x for x in expline])])+"\n")
 xfile.write(" ".join(["-" * 150])+"\n")
-sysnamesSorted = systlines.keys(); sysnamesSorted.sort()
+sysnamesSorted = list(systlines.keys()); sysnamesSorted.sort()
 for name in sysnamesSorted:
     (pdf,pdfargs,effect,nofloat) = systlines[name]
     if nofloat: name += "[nofloat]"
@@ -182,5 +186,5 @@ for name in sysnamesSorted:
 for (pname, pargs) in paramSysts.items():
     xfile.write(" ".join(["%-12s  param  %s" %  (pname, " ".join(pargs))])+"\n")
 
-for pname in flatParamNuisances.iterkeys():
+for pname in six.iterkeys(flatParamNuisances):
     xfile.write(" ".join(["%-12s  flatParam" % pname])+"\n")

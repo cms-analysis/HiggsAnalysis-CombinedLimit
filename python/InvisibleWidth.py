@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 import ROOT, os
@@ -13,11 +15,11 @@ class InvisibleWidth(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
-                print 'The Higgs mass range:', self.mHRange
+                print('The Higgs mass range:', self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("kV[1,0.0,1.1]") # bounded to 1
@@ -67,7 +69,7 @@ class InvisibleWidth(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "invisibleWidth_XSBRscal_%s_%s" % (production,decay)
-        print name, production, decay, energy
+        print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
             XSscal = "kgluon"
             if production in ["WH","ZH","VH","qqH"]: XSscal = "kV"
@@ -77,7 +79,7 @@ class InvisibleWidth(SMLikeHiggsModel):
             else:
                 if decay in ["hbb", "htt", "hgg"]: BRscal = decay
                 elif decay in ["hww", "hzz"]: BRscal = "hvv"
-                else: print "Unknown decay mode:", decay
+                else: print("Unknown decay mode:", decay)
                 self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, invisibleWidth_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 

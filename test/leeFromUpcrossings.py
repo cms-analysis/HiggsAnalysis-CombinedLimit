@@ -1,6 +1,9 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 from sys import argv, stdout, stderr, exit
 from math import *
+from six.moves import range
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 argv.append( '-b-' )
@@ -18,16 +21,16 @@ if len(args) not in [2,4]:
     exit(1)
 
 file = ROOT.TFile(args[0]);
-if file == None: raise RuntimeError, "Cannot open %s" % args[0]
+if file == None: raise RuntimeError("Cannot open %s" % args[0])
 
 graph = file.Get(args[1]);
-if graph == None: raise RuntimeError, "Cannot find %s in %s" % (args[1], args[0])
+if graph == None: raise RuntimeError("Cannot find %s in %s" % (args[1], args[0]))
 
 graphUp = graph
 if options.level == 0:
-    if options.fit == None: raise RuntimeError, "Must specify a the graph of fitted signal strength to count upcrossings at zero"
+    if options.fit == None: raise RuntimeError("Must specify a the graph of fitted signal strength to count upcrossings at zero")
     graphUp = file.Get(options.fit)
-    if graphUp == None: raise RuntimeError, "Cannot find %s in %s" % (options.fit, args[0])
+    if graphUp == None: raise RuntimeError("Cannot find %s in %s" % (options.fit, args[0]))
 
 (mhmin, mhmax) = (0, 999)
 if len(args) == 4:
@@ -63,7 +66,7 @@ zglobal_ehi = ROOT.ROOT.Math.normal_quantile_c(pglobal_min, 1.0) - zglobal
 zglobal_elo = ROOT.ROOT.Math.normal_quantile_c(pglobal_max, 1.0) - zglobal
 trials  = pglobal/pmin
 
-print "Number of upcrossings:      Z0   = %4.2f (pval %.2e), N0 = %2d" % (options.level, pupcross, upcrossings)
-print "Maximum local significance: Zmax = %4.2f (pval %.2e)" % (zmax, pmin)
-print "Corrected significance:     Zglb = %4.1f %+.1f/%+.1f (pval %.2e), trials factor %d" % (zglobal, zglobal_elo, zglobal_ehi, pglobal, trials)
+print("Number of upcrossings:      Z0   = %4.2f (pval %.2e), N0 = %2d" % (options.level, pupcross, upcrossings))
+print("Maximum local significance: Zmax = %4.2f (pval %.2e)" % (zmax, pmin))
+print("Corrected significance:     Zglb = %4.1f %+.1f/%+.1f (pval %.2e), trials factor %d" % (zglobal, zglobal_elo, zglobal_ehi, pglobal, trials))
 

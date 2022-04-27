@@ -5,6 +5,8 @@
 # Currently only supported for 1D (eg limits) although running
 # --val all will work, labels will not be correct.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 from optparse import OptionParser
 
@@ -54,7 +56,7 @@ canvases = []
 if not len(options.mass): sys.exit("Need at least one mass (or put any number if you know it will work)")
 if options.Print:
     tdir = ifile.Get("toys")
-    print "Contents of toys directory in file ", ifile.GetName()
+    print("Contents of toys directory in file ", ifile.GetName())
     tdir.ls()
     sys.exit()
 
@@ -64,15 +66,15 @@ for m in options.mass:
         poivals = list(set(poivals))
     else: poivals = [float(v) for v in options.val.split(",")]
     for i,pv in enumerate(poivals):
-        print "Point %d/%d"%(i+1,len(poivals))
+        print("Point %d/%d"%(i+1,len(poivals)))
         ifile = ROOT.TFile.Open(options.input)
-        print "Converting HypoTestResults from %s to Tree (%s=%g,mH=%s) ..."%(ifile.GetName(),options.poi,pv,m)
+        print("Converting HypoTestResults from %s to Tree (%s=%g,mH=%s) ..."%(ifile.GetName(),options.poi,pv,m))
         #hypoTestResultTree("tmp_out%s%d.root"%(m,i),float(m),pv,options.poi)
         hypoTestResultTree("tmp_out.root",float(m),pv,options.poi)
         ifile.Close()
         #ft = ROOT.TFile.Open("tmp_out%s%d.root"%(m,i))
         ft = ROOT.TFile.Open("tmp_out.root")
-        print "Plotting ... "
+        print("Plotting ... ")
         if options.signif : can = q0Plot(float(m),options.poi,options.rebin)
         else: can = qmuPlot(float(m),options.poi,float(pv),int(options.doublesided),int(options.invert),options.rebin,options.expected,options.quantileExpected)
         canvases.append(can.Clone())
@@ -80,5 +82,5 @@ for m in options.mass:
 ofile = ROOT.TFile(options.output,"RECREATE")
 for can in canvases:
     ofile.WriteTObject(can)
-print "All Plots saved to ", ofile.GetName()
+print("All Plots saved to ", ofile.GetName())
 ofile.Close()

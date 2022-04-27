@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 import re
 
@@ -28,70 +30,70 @@ class TwoHiggsBase(PhysicsModel):
             (production,decay, energy) = getHiggsProdDecMode(bin,process.replace("_SM",""),self.options)
             return self.getHiggsYieldScaleSM(production,decay, energy)
         if self.DC.isSignal[process]:
-            raise RuntimeError, "Found a signal process '%s' that is not among the supported ones: %s" % (process, self.modes)
+            raise RuntimeError("Found a signal process '%s' that is not among the supported ones: %s" % (process, self.modes))
         return 1;
     def setPhysicsOptionsBase(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassSM="):
                 self.mHSM = float((po.replace("higgsMassSM=","").split(","))[0]) # without index, this will try to case list as a float !
             if po == "mHAsPOI":
-                print "Will consider the mass of the second Higgs as a parameter of interest"
+                print("Will consider the mass of the second Higgs as a parameter of interest")
                 self.mHAsPOI = True
             if po == "mHSMAsPOI":
-                print "Will consider the mass of the SM Higgs as a parameter of interest"
+                print("Will consider the mass of the SM Higgs as a parameter of interest")
                 self.mHSMAsPOI = True
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
             if po.startswith("higgsMassRangeSM="):
                 self.mHSMRange = po.replace("higgsMassRangeSM=","").split(",")
                 if len(self.mHSMRange) != 2:
-                    raise RuntimeError, "SM Higgs mass range definition requires two extrema"
+                    raise RuntimeError("SM Higgs mass range definition requires two extrema")
                 elif float(self.mHSMRange[0]) >= float(self.mHSMRange[1]):
-                    raise RuntimeError, "Extrema for SM Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for SM Higgs mass range defined with inverterd order. Second must be larger the first")
     def doMasses(self):
         """Create mass variables, return a postfix to the POIs if needed"""
         poi = ""
         ## Searched-for higgs
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
                 if self.mHAsPOI: poi+=',MH'
             else:
-                print 'MH will be assumed to be', self.options.mass
+                print('MH will be assumed to be', self.options.mass)
                 self.modelBuilder.out.var("MH").removeRange()
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
         else:
             if len(self.mHRange):
-                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                print('MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1])
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
                 if self.mHAsPOI: poi+=',MH'
             else:
-                print 'MH (not there before) will be assumed to be', self.options.mass
+                print('MH (not there before) will be assumed to be', self.options.mass)
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         ## Already-found higgs
         if self.modelBuilder.out.var("MH_SM"):
             if len(self.mHSMRange):
-                print 'MH_SM will be left floating within', self.mHSMRange[0], 'and', self.mHSMRange[1]
+                print('MH_SM will be left floating within', self.mHSMRange[0], 'and', self.mHSMRange[1])
                 self.modelBuilder.out.var("MH_SM").setRange(float(self.mHSMRange[0]),float(self.mHSMRange[1]))
                 self.modelBuilder.out.var("MH_SM").setConstant(False)
                 if self.mHSMAsPOI: poi+=',MH_SM'
             else:
-                print 'MH_SM will be assumed to be', self.mHSM
+                print('MH_SM will be assumed to be', self.mHSM)
                 self.modelBuilder.out.var("MH_SM").removeRange()
                 self.modelBuilder.out.var("MH_SM").setVal(self.mHSM)
         else:
             if len(self.mHSMRange):
-                print 'MH_SM will be left floating within', self.mHSMRange[0], 'and', self.mHSMRange[1]
+                print('MH_SM will be left floating within', self.mHSMRange[0], 'and', self.mHSMRange[1])
                 self.modelBuilder.doVar("MH_SM[%s,%s]" % (self.mHSMRange[0],self.mHSMRange[1]))
                 if self.mHSMAsPOI: poi+=',MH_SM'
             else:
-                print 'MH_SM (not there before) will be assumed to be', self.mHSM
+                print('MH_SM (not there before) will be assumed to be', self.mHSM)
                 self.modelBuilder.doVar("MH_SM[%g]" % self.mHSM)
         return poi
 
@@ -130,11 +132,11 @@ class TwoHiggsUnconstrained(TwoHiggsBase):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
             if po == "muSMAsPOI":
-                print "Will consider the signal strength of the SM Higgs as a parameter of interest"
+                print("Will consider the signal strength of the SM Higgs as a parameter of interest")
                 self.muSMAsPOI = True
                 self.muSMFloating = True
             if po == "muSMFloating":
-                print "Will consider the signal strength of the SM Higgs as a floating parameter (as a parameter of interest if --PO muAsPOI is specified, as a nuisance otherwise)"
+                print("Will consider the signal strength of the SM Higgs as a floating parameter (as a parameter of interest if --PO muAsPOI is specified, as a nuisance otherwise)")
                 self.muSMFloating = True
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
@@ -239,15 +241,15 @@ class TwoHiggsCvCf(TwoHiggsBase):
             if po.startswith("cVRange="):
                 self.cVRange = po.replace("cVRange=","").split(":")
                 if len(self.cVRange) != 2:
-                    raise RuntimeError, "cV signal strength range requires minimal and maximal value"
+                    raise RuntimeError("cV signal strength range requires minimal and maximal value")
                 elif float(self.cVRange[0]) >= float(self.cVRange[1]):
-                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
             if po.startswith("cFRange="):
                 self.cFRange = po.replace("cFRange=","").split(":")
                 if len(self.cFRange) != 2:
-                    raise RuntimeError, "cF signal strength range requires minimal and maximal value"
+                    raise RuntimeError("cF signal strength range requires minimal and maximal value")
                 elif float(self.cFRange[0]) >= float(self.cFRange[1]):
-                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
 
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
