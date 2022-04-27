@@ -30,7 +30,7 @@ OWD = os.getcwd()
 os.chdir(options.dir)
 
 limits = json.load(open('limits.json','r'))
-limits.sort(lambda x,y: len(x[0]) - len(y[0]))
+limits.sort(key=lambda x: len(x[0]))
 
 allIn  = limits[0][1]
 allOut = limits[-1][1]
@@ -65,7 +65,6 @@ def metric(x, ref='AllIn'):
         )
         )
 
-#results.sort(lambda x,y: int( metric(x[1]) - metric(y[1]) ) )
 results.sort(key = lambda x: metric(x[1], 'AllIn'), reverse=True )
 
 Singles    = [x for x in results if len(x[0]) == len(nuisances)-1]

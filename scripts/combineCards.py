@@ -267,7 +267,7 @@ print("-" * 130)
 if shapeLines:
     chmax = max([max(len(p),len(c)) for p,c,x in shapeLines]);
     cfmt = "%-"+str(chmax)+"s ";
-    shapeLines.sort( lambda x,y : cmp(x[0],y[0]) if x[1] == y[1] else cmp(x[1],y[1]) )
+    shapeLines.sort(key=lambda x: (x[1], x[0]))
     for (process,channel,stuff) in shapeLines:
         print("shapes", cfmt % process, cfmt % channel, ' '.join(stuff));
     print("-" * 130)
