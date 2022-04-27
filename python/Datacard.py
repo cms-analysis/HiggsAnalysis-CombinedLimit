@@ -32,11 +32,11 @@ class Datacard():
         self.hasShapes = False
         ## dirct of {name of uncert, boolean to indicate whether it is a flat parametric uncertainty or not}
         self.flatParamNuisances = {}
-              ## dict of rateParam
+              ## dict of rateParam, key is f"{bin}AND{process}", per bin/process they are a list
         self.rateParams = {}
               ## dict of extArgs
         self.extArgs = {}
-              ## maintain the order for rate modifiers
+              ## maintain the names of rate modifiers
         self.rateParamsOrder = set()
         ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
         self.frozenNuisances = set()

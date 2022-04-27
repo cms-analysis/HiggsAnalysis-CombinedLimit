@@ -75,8 +75,9 @@ def addRateParam(lsyst,f,ret):
         else: tmp_exp = [[lsyst,f[4],f[5],1],""]
     # check for malformed bin/process
     if f[2] not in ret.bins or f[3] not in ret.processes: raise RuntimeError(" No such channel/process '%s/%s', malformed line:\n   %s" % (f[2],f[3], ' '.join(f)))
-    if ("%sAND%s"%(f[2],f[3])) in list(ret.rateParams.keys()): ret.rateParams["%sAND%s"%(f[2],f[3])].append(tmp_exp)
-    else: ret.rateParams["%sAND%s"%(f[2],f[3])] = [tmp_exp]
+    key = "%sAND%s"%(f[2],f[3])
+    if key in ret.rateParams: ret.rateParams[key].append(tmp_exp)
+    else: ret.rateParams[key] = [tmp_exp]
     ret.rateParamsOrder.add(lsyst)
 
 def parseCard(file, options):

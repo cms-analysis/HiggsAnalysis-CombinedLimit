@@ -39,7 +39,7 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
-paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParams = {}; rateParamsOrder = set();
+paramSysts = {}; flatParamNuisances = {}; discreteNuisances = {}; groups = {}; rateParamsPerCard = [];
 extArgs = {}; binParFlags = {}; bpf_new2old = {}
 nuisanceEdits = [];
 constraint_terms = []
@@ -166,16 +166,14 @@ for ich,fname in enumerate(args):
         tbin = label if singlebin else label+K
         binParFlags[tbin] = DC.binParFlags[K]
         bpf_new2old[tbin] = K
-    # rate params
-    for K in six.iterkeys(DC.rateParams):
+    # rate params (sort to provide consistent per-card ordering)
+    for K in sorted(DC.rateParams):
         tbin,tproc = K.split("AND")[0],K.split("AND")[1]
         b_in = tbin
         tbin = label if singlebin else label+tbin
         if isVetoed(b_in,options.channelVetos): continue
         if not isIncluded(b_in,options.channelIncludes): continue
-        nK = tbin+"AND"+tproc
-        rateParams[nK] = DC.rateParams[K]
-        rateParamsOrder.update(DC.rateParamsOrder)
+        rateParamsPerCard.append((tbin, tproc, DC.rateParams[K]))
     # discrete nuisance
     for K in DC.discretes:
         if K in discreteNuisances: raise RuntimeError("Cannot currently correlate discrete nuisances across categories. Rename %s in one."%K)
@@ -318,11 +316,11 @@ for (pname, pargs) in paramSysts.items():
 
 for pname in six.iterkeys(flatParamNuisances):
     print("%-12s  flatParam" % pname)
-for pname in six.iterkeys(rateParams):
-    for pk in range(len(rateParams[pname])):
-        print("%-12s  rateParam %s"% (rateParams[pname][pk][0][0],pname.replace("AND"," ")), end=' ')
-        for p in rateParams[pname][pk][0][1:-1]: print(p, end=' ')
-        print(rateParams[pname][pk][1], end=' ')
+for tbin, tproc, params in rateParamsPerCard:
+    for param in params:
+        print("%-12s  rateParam %s"% (param[0][0],tbin + " " + tproc), end=' ')
+        for p in param[0][1:-1]: print(p, end=' ')
+        print(param[1], end=' ')
         print("\n", end=' ')
 for dname in six.iterkeys(discreteNuisances):
     print("%-12s  discrete" % dname)
