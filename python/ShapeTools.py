@@ -878,7 +878,7 @@ class ShapeBuilder(ModelBuilder):
             if shape.ClassName().startswith("TH1"):
                 if self.options.useHistPdf == "never":
                     shape = self.rebinH1(shape)
-                    list = ROOT.TList(); list.Add(shape);
+                    tlist = ROOT.TList(); tlist.Add(shape);
                     if channelBinParFlag:
                         rhp = ROOT.CMSHistFunc("%sPdf" % shape.GetName(), "", self.out.var(self.TH1Observables[channel]), shape)
                         rhp.prepareStorage()
@@ -886,7 +886,7 @@ class ShapeBuilder(ModelBuilder):
                         if self.options.optimizeTemplateBins:
                             rhp.setActiveBins(shape._original_bins)
                     else:
-                        rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.var(self.TH1Observables[channel]), list, ROOT.RooArgList())
+                        rhp = ROOT.FastVerticalInterpHistPdf2("%sPdf" % shape.GetName(), "", self.out.var(self.TH1Observables[channel]), tlist, ROOT.RooArgList())
                     _cache[shape.GetName()+"Pdf"] = rhp
                 else:
                     rdh = self.shape2Data(shape,channel,process)
