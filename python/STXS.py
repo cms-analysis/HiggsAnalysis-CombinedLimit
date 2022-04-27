@@ -20,7 +20,7 @@ stage0_procs = {
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-stage1_procs = { 
+stage1_procs = {
   'ggH':[   'ggH_VBFTOPO_JET3VETO', 'ggH_VBFTOPO_JET3',
             'ggH_0J',
             'ggH_1J_PTH_0_60', 'ggH_1J_PTH_60_120', 'ggH_1J_PTH_120_200', 'ggH_1J_PTH_GT200',

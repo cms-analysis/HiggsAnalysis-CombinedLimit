@@ -5,7 +5,7 @@ def isort(map):
     keys = map.keys()
     keys.sort()
     return [ (k, map[k]) for k in keys]
-        
+
 def textReport(report):
     tlength = max([10]+[len(t) for t in report.keys()])
     slength = max([max([0]+[len(r) for r in v['results']]) for v in report.values() if v != True and v.has_key('results')])

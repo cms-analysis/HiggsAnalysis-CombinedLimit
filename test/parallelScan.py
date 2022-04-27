@@ -25,35 +25,35 @@ while i < len(sys.argv):
         i += 2
     elif sys.argv[i] == "--points":
         points = int(sys.argv[i+1])
-        args.append(sys.argv[i]); 
-        args.append(sys.argv[i+1]); 
+        args.append(sys.argv[i]);
+        args.append(sys.argv[i+1]);
         i += 2
     elif "--points=" in sys.argv[i]:
         points = int(sys.argv[i].replace("--points=",""))
-        args.append(sys.argv[i]); 
+        args.append(sys.argv[i]);
         i += 1
     elif sys.argv[i] in [ "--mass", "-m" ]:
         mass = float(sys.argv[i+1])
-        args.append(sys.argv[i]); 
-        args.append(sys.argv[i+1]); 
+        args.append(sys.argv[i]);
+        args.append(sys.argv[i+1]);
         i += 2
     elif sys.argv[i] in [ "-M", "--method" ]:
         method = sys.argv[i+1]
-        args.append(sys.argv[i]); 
-        args.append(sys.argv[i+1]); 
+        args.append(sys.argv[i]);
+        args.append(sys.argv[i+1]);
         i += 2
     elif sys.argv[i] == "--hadd":
         hadd = True
         i += 1
     else:
-        args.append(sys.argv[i]); 
+        args.append(sys.argv[i]);
         i += 1
-        
+
 if points == 0: raise RuntimeError, "parallelScan requires that there be a --points=<n> or --points <n> option in the command line\n";
 if jobs == 0:
     cpuinfo = open("/proc/cpuinfo","r")
     cores = sum([(1 if match("^processor\\b.*",l) else 0) for l in cpuinfo])
-    if cores == 0: raise RuntimeError, "Cannot determine number of cores from /proc/cpuinfo, so I need a -j <n> option\n"; 
+    if cores == 0: raise RuntimeError, "Cannot determine number of cores from /proc/cpuinfo, so I need a -j <n> option\n";
     if cores > 2 and match("(lxplus|cmslpc).*", os.environ['HOSTNAME']):
         jobs = cores/2
         print "Will run with %d jobs (half of the cores, for respect to other users)" % jobs
@@ -61,7 +61,7 @@ if jobs == 0:
         jobs = cores
         print "Will run with %d jobs (one per core)" % jobs
 if hadd:
-    if not method: 
+    if not method:
         print "Cannot understand what method of combine you are using, so cannot do hadd"
         exit()
 
@@ -77,7 +77,7 @@ for w in workers:
     w.wait()
 
 if hadd:
-    if not method: 
+    if not method:
         print "Cannot understand what method of combine you are using, so cannot do hadd"
     else:
         output = "higgsCombine%s.%s.mH%g.root" % (name,method,mass)
@@ -86,4 +86,4 @@ if hadd:
         os.system("hadd -f %s %s" % (output,input))
 else:
     print "All workers done, now you have to hadd the results yourself."
-    
+

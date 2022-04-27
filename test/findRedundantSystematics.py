@@ -24,7 +24,7 @@ from operator import div
 
 def filterForPDFType(allSysts, type):
     filteredSysts = filter(lambda x: x[2] == type, allSysts)
-    print 'Keeping PDFs of type [%s]: kept %d of %d nuisances.' % ( type, len(filteredSysts), len(allSysts) ) 
+    print 'Keeping PDFs of type [%s]: kept %d of %d nuisances.' % ( type, len(filteredSysts), len(allSysts) )
     return filteredSysts
 
 def all_same(items):
@@ -36,10 +36,10 @@ def asymDivide(something):
 
     if len(something) != 2:
         raise TypeError, "asymDivision requires a pair."
-    
+
     (a, b) = something
     theType = (type(a), type(b))
-    
+
     if(
         theType == (FloatType, ListType)
         or
@@ -54,7 +54,7 @@ def asymDivide(something):
         return asymDivideLists(something)
     else:
         raise TypeError, "Don't know how to divide this data structure."
-    
+
 
 def handleZeroes(numerator):
     if numerator:
@@ -76,7 +76,7 @@ def asymDivideLists(listAndList):
         except ZeroDivisionError:
             quotients.append(handleZeroes(pair[0]))
 
-    return quotients 
+    return quotients
 
 def asymDivideMixed(elementAndList):
     # divide x by [y,z,...] by expanding x into [x,x,...]
@@ -96,14 +96,14 @@ def asymDivideMixed(elementAndList):
     return asymDivideLists(listAndList)
 
 
-    
+
 def lnN_redundancies(allSysts):
     systs = filterForPDFType(allSysts,'lnN')
 
     systsDict = dict(
         [
-        (s[0],s[4])
-        for s in systs
+            (s[0],s[4])
+            for s in systs
         ]
         )
 
@@ -118,7 +118,7 @@ def lnN_redundancies(allSysts):
     kappaRatios = dict()
     correlatedPairs = list()
     for pair in nuisPairs:
-        #print 'Checking', pair 
+        #print 'Checking', pair
         kappaRatios[pair] = list()
         for channel in channelNames:
             for process in processNames:
@@ -146,7 +146,7 @@ def lnN_redundancies(allSysts):
                         print "Could not divide " + channel + '/' + process + ': ', e
                         pprint(pair)
                         pprint(kappas)
-                
+
                 #print 'Ratios after:'
                 #pprint(kappaRatios[pair])
 
@@ -171,11 +171,11 @@ def lnN_redundancies(allSysts):
 
     pprint(
         filter(
-        lambda x: x[0] in correlatedPairs,
-        kappaRatios.iteritems()
+            lambda x: x[0] in correlatedPairs,
+            kappaRatios.iteritems()
         )
         )
-    
+
 if __name__ == '__main__':
 
     # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
@@ -201,9 +201,9 @@ if __name__ == '__main__':
         options.fileName = options.fileName[:-3]
     else:
         file = open(options.fileName, "r")
-        
+
     DC = parseCard(file, options)
 
     lnN_redundancies(DC.systs)
-    
+
 

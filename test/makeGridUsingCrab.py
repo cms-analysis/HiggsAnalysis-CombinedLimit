@@ -38,7 +38,7 @@ if workspace.endswith(".txt"):
     workspace = options.out+".workspace.root"
     print "Converted workspace to binary",workspace
 
-#if options.diagnosticRun : options.points = 1 
+#if options.diagnosticRun : options.points = 1
 
 min, max = float(args[1]), float(args[2])
 dx = (max-min)/(options.points-1) if options.points > 1 else 0
@@ -96,16 +96,16 @@ for i,x in enumerate(points):
             toys = "$(( 2 * $n ))";
     what = "--singlePoint %g " % x if options.signif == False else "--signif";
     if options.diagnosticRun:
-      what = "--expectSignal %g --preFitValue %g "%(x,x)
-      script.write("./combine {wsp} -M MaxLikelihoodFit {opts} -m {mass} --toysFrequentist -v {v} -n {out} -s {seed} -t $n {what} --minos none --noErrors \n".format(
-                wsp=workspace, opts=options.options, fork=options.fork, seed=seed, out=options.out+str(i), what=what, v=options.v,
-                toys=toys,mass=options.mass
-              ))
+        what = "--expectSignal %g --preFitValue %g "%(x,x)
+        script.write("./combine {wsp} -M MaxLikelihoodFit {opts} -m {mass} --toysFrequentist -v {v} -n {out} -s {seed} -t $n {what} --minos none --noErrors \n".format(
+                  wsp=workspace, opts=options.options, fork=options.fork, seed=seed, out=options.out+str(i), what=what, v=options.v,
+                  toys=toys,mass=options.mass
+                ))
     else:
-      script.write("{cond} ./combine {wsp} -M HybridNew {opts} -m {mass} --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}\n".format(
-                wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
-                cond=interleave, toys=toys,mass=options.mass
-              ))
+        script.write("{cond} ./combine {wsp} -M HybridNew {opts} -m {mass} --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}\n".format(
+                  wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
+                  cond=interleave, toys=toys,mass=options.mass
+                ))
 
 script.write("\n");
 script.write("hadd %s.root higgsCombine*.root\n" % options.out)

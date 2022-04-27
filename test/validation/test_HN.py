@@ -21,7 +21,7 @@ suite += [ (M, '*', MultiOptionTest("HWW_TestStats", "hww4ch-1fb-B-mH140.txt", M
                 "--singlePoint 1 --onlyTestStat",
                 {'Atlas':'--testStat=Atlas', 'LEP':'--testStat=LEP', 'TEV':'--testStat=TEV'})) ]
 
-### Test the p-values 
+### Test the p-values
 for R in [ 'CLs', 'CLsplusb' ]:
     suite += [ (M, 'fast', MultiOptionTest("Counting_pValues_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30B.txt", M,
                             "--singlePoint 5 --fork 2 --clsAcc=0 -i 5  --rule=%s" % R,
@@ -37,10 +37,10 @@ for R in [ 'CLs', 'CLsplusb' ]:
                             {'Atlas':'--testStat=Atlas', 'LEP':'--testStat=LEP', 'TEV':'--testStat=TEV'})) ]
 
 for X in [ "LHC", "LEP", "TEV" ]:
-        suite += [ (M, 'fast', SingleDatacardTest("HWW_pValues_%s"%X, "hww4ch-1fb-B-mH140.txt", M, 
-                        "--singlePoint 1 --fork 2 --clsAcc=0.01  --testStat=%s"%X )) ]
-        suite += [ (M, 'full', SingleDatacardTest("HWW_pValues_%s"%X, "hww4ch-1fb-B-mH140.txt", M, 
-                        "--singlePoint 1 --fork 6 --clsAcc=0.005 --testStat=%s"%X )) ]
+    suite += [ (M, 'fast', SingleDatacardTest("HWW_pValues_%s"%X, "hww4ch-1fb-B-mH140.txt", M,
+                    "--singlePoint 1 --fork 2 --clsAcc=0.01  --testStat=%s"%X )) ]
+    suite += [ (M, 'full', SingleDatacardTest("HWW_pValues_%s"%X, "hww4ch-1fb-B-mH140.txt", M,
+                    "--singlePoint 1 --fork 6 --clsAcc=0.005 --testStat=%s"%X )) ]
 
 
 ### Test the limits

@@ -6,7 +6,7 @@ from optparse import OptionParser
 
 parser = OptionParser()
 parser.add_option("-c", "--channel", type="string", dest="channel", default=None, help="Channel to dump")
-parser.add_option("-N", "--norm-only",   dest="norm",    default=False, action="store_true", help="Include only normalization uncertainties, not shape ones") 
+parser.add_option("-N", "--norm-only",   dest="norm",    default=False, action="store_true", help="Include only normalization uncertainties, not shape ones")
 parser.add_option("-f", "--format", type="string", dest="format", default="%8.3f +/- %6.3f", help="Format for output number")
 parser.add_option("--xs", "--exclude-syst", type="string", dest="excludeSyst", default=[], action="append", help="Systematic to exclude (regexp)")
 parser.add_option("-m", "--mass",     dest="mass",     default=0,  type="float",  help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.")
@@ -51,7 +51,7 @@ for b in DC.bins:
         # begin skip systematics
         skipme = False
         for xs in options.excludeSyst:
-            if re.search(xs, lsyst): 
+            if re.search(xs, lsyst):
                 skipme = True
         if skipme: continue
         # end skip systematics
@@ -61,7 +61,7 @@ for b in DC.bins:
                 exps[p][1].append(1/sqrt(pdfargs[0]+1));
             elif pdf == 'gmM':
                 exps[p][1].append(errline[b][p]);
-            elif type(errline[b][p]) == list: 
+            elif type(errline[b][p]) == list:
                 kmax = max(errline[b][p][0], errline[b][p][1], 1.0/errline[b][p][0], 1.0/errline[b][p][1]);
                 exps[p][1].append(kmax-1.);
             elif pdf == 'lnN':
@@ -79,4 +79,4 @@ for b in DC.bins:
     for p in procs:
         relunc = sqrt(sum([x*x for x in exps[p][1]]))
         print fmt % (p, exps[p][0], exps[p][0]*relunc)
-    
+

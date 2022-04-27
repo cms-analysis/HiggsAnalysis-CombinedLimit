@@ -14,10 +14,10 @@ for d in datacardGlob("hww4ch-1fb-B*mH*.txt"):
     n = re.sub("hww4ch-1fb-(.*mH..0).txt","\\1",d)
     suite += [ (M, 'full',  SingleDatacardTest('HWW_'+n, d, M,'-H ProfileLikelihood --tries 200 -i 20000')) ]
 
-suite += [ ('MarkovChainMC', 'fast', 
+suite += [ ('MarkovChainMC', 'fast',
             MultiOptionTest("Proposals", "simple-counting/counting-B5p5-Obs6-Syst30B.txt", "MarkovChainMC", "--tries 20",
                             { 'Uniform':'--proposal=uniform', 'Gaus':'--proposal=gaus', 'Ortho':'--proposal=ortho'} )) ]
-suite += [ ('MarkovChainMC', 'full', 
+suite += [ ('MarkovChainMC', 'full',
             MultiOptionTest("Proposals", "simple-counting/counting-B5p5-Obs6-Syst30U.txt", "MarkovChainMC", "--tries 100 -i 20000",
                             { 'Uniform':'--proposal=uniform', 'Gaus':'--proposal=gaus', 'Ortho':'--proposal=ortho'} )) ]
 

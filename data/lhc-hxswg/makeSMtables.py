@@ -32,56 +32,56 @@ xsecGroupsBSM = {
     }
 
 specs = {
-'YR4 SM 7TeV' : {
-    'rows' : (6,43),
-    'groups' : xsecGroups,
+    'YR4 SM 7TeV' : {
+        'rows' : (6,43),
+        'groups' : xsecGroups,
     },
 
-'YR4 SM 8TeV' : {
-    'rows' : (6,43),
-    'groups' : xsecGroups,
+    'YR4 SM 8TeV' : {
+        'rows' : (6,43),
+        'groups' : xsecGroups,
     },
 
-'YR4 SM 13TeV' : {
-    'rows' : (6,43),
-    'groups' : xsecGroups,
+    'YR4 SM 13TeV' : {
+        'rows' : (6,43),
+        'groups' : xsecGroups,
     },
 
-'YR4 SM 14TeV' : {
-    'rows' : (6,43),
-    'groups' : xsecGroups,
+    'YR4 SM 14TeV' : {
+        'rows' : (6,43),
+        'groups' : xsecGroups,
     },
 
-'YR4 BSM 7TeV' : {
-    'rows' : (6,119),
-    'groups' : xsecGroupsBSM,
+    'YR4 BSM 7TeV' : {
+        'rows' : (6,119),
+        'groups' : xsecGroupsBSM,
     },
 
-'YR4 BSM 8TeV' : {
-    'rows' : (6,119),
-    'groups' : xsecGroupsBSM,
+    'YR4 BSM 8TeV' : {
+        'rows' : (6,119),
+        'groups' : xsecGroupsBSM,
     },
 
-'YR4 BSM 13TeV' : {
-    'rows' : (6,119),
-    'groups' : xsecGroupsBSM,
+    'YR4 BSM 13TeV' : {
+        'rows' : (6,119),
+        'groups' : xsecGroupsBSM,
     },
 
-'YR4 BSM 14TeV' : {
-    'rows' : (6,119),
-    'groups' : xsecGroupsBSM,
+    'YR4 BSM 14TeV' : {
+        'rows' : (6,119),
+        'groups' : xsecGroupsBSM,
     },
 
-'YR4 SM BR' : {
-    'rows' : (7,44),
-    'groups' : {
-        'BR1': {'col':'A', 'heading':('mH_GeV',
+    'YR4 SM BR' : {
+        'rows' : (7,44),
+        'groups' : {
+            'BR1': {'col':'A', 'heading':('mH_GeV',
             'H_bb', 'THU_Hi','THU_Lo','PU_mq_Hi','PU_mq_Lo','PU_as_Hi','PU_as_Lo',
             'H_tautau', 'THU_Hi','THU_Lo','PU_mq_Hi','PU_mq_Lo','PU_as_Hi','PU_as_Lo',
             'H_mumu', 'THU_Hi','THU_Lo','PU_mq_Hi','PU_mq_Lo','PU_as_Hi','PU_as_Lo',
             'H_ccbar', 'THU_Hi','THU_Lo','PU_mq_Hi','PU_mq_Lo','PU_as_Hi','PU_as_Lo',
             )},
-        'BR': {'col':'AS','heading':('mH_GeV',
+            'BR': {'col':'AS','heading':('mH_GeV',
             'H_gg', 'THU_Hi','THU_Lo','PU_mq_Hi','PU_mq_Lo','PU_as_Hi','PU_as_Lo',
             'H_gamgam', 'THU_Hi','THU_Lo','PU_mq_Hi','PU_mq_Lo','PU_as_Hi','PU_as_Lo',
             'H_Zgam', 'THU_Hi','THU_Lo','PU_mq_Hi','PU_mq_Lo','PU_as_Hi','PU_as_Lo',
@@ -89,7 +89,7 @@ specs = {
             'H_ZZ', 'THU_Hi','THU_Lo','PU_mq_Hi','PU_mq_Lo','PU_as_Hi','PU_as_Lo',
             'Total_Width_GeV', 'THU_Hi','THU_Lo','PU_mq_Hi','PU_mq_Lo','PU_as_Hi','PU_as_Lo',
             )},
-        'BR2': {'col':'CK','heading':('mH_GeV',
+            'BR2': {'col':'CK','heading':('mH_GeV',
             'H_llll_emt', 'H_llll_em', 'H_eeee', 'H_eemm', 'H_llvv_emt',
             'H_evev', 'H_llqq_emt', 'H_llqq_em', 'H_lvqq_em', 'H_vvqq', 'H_qqqq', 'H_ffff', 'DBR',
             )},
@@ -98,7 +98,7 @@ specs = {
 }
 
 morespecs = {
-#'sm/xs/7TeV/7TeV-ggH.txt'
+    #'sm/xs/7TeV/7TeV-ggH.txt'
 
 }
 

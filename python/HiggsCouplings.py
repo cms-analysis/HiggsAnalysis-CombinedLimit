@@ -4,7 +4,7 @@
 from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.CSquared import CSquaredHiggs
 cSq = CSquaredHiggs()
 
-# LHC HCG models 
+# LHC HCG models
 
 # kappa models
 from HiggsAnalysis.CombinedLimit.LHCHCGModels import KappaVKappaF,Kappas
@@ -15,7 +15,7 @@ c5 = Kappas(resolved=True)
 c7 = Kappas(resolved=False)
 c7inv = Kappas(resolved=False,addInvisible=True);
 
-# lambda models 
+# lambda models
 from HiggsAnalysis.CombinedLimit.LHCHCGModels import Lambdas,LambdasReduced
 
 lambdadu = LambdasReduced(model="ldu")
@@ -33,9 +33,9 @@ c5ud = C5udHiggs()
 
 # Models to test Custodial symmetry
 from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.CustodialSymmetryModels import CwzHiggs, CzwHiggs, RzwHiggs, RwzHiggs, LambdaWZHiggs
-lambdaWZ  = LambdaWZHiggs() 
-cWZ       = CwzHiggs() 
-cZW       = CzwHiggs() 
+lambdaWZ  = LambdaWZHiggs()
+cWZ       = CwzHiggs()
+cZW       = CzwHiggs()
 rZW       = RzwHiggs()
 rWZ       = RwzHiggs()
 
@@ -44,7 +44,7 @@ rWZ       = RwzHiggs()
 from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.MinimalModels import HiggsMinimal
 higgsMinimal = HiggsMinimal()
 
-# Model with full LO parametrization 
+# Model with full LO parametrization
 from HiggsAnalysis.CombinedLimit.LOFullParametrization import  PartialWidthsModel
 partialWidths = PartialWidthsModel()
 

@@ -21,11 +21,11 @@ if len(args) < 1: raise RuntimeError, "Usage: errorMatrix2Lands.py [options] err
 
 file = open(args[0], "r")
 
-data = {} 
+data = {}
 
 def iddify(x):
     id = x
-    slang = { "[Cc]ross[ -][Ss]ection":"XS", 
+    slang = { "[Cc]ross[ -][Ss]ection":"XS",
               "[Tt]rigger(\s+[Ee]ff(s|ic(ienc(y|ies))?))?":"Trig",
               "([Ii]ntegrated\s+)?[Ll]umi(nosity)":"Lumi",
               "[Ee]ff(s|ic(ienc(y|ies))?)":"Eff",
@@ -34,7 +34,7 @@ def iddify(x):
               "[Ss]stat(istics?)":"Stat"}
     for s,r in slang.items(): id = re.sub(s,r,id)
     return re.sub("[^A-Za-z0-9_]", "", re.sub("\s+|-|/","_", re.sub("^\s+|\s+$","",id)))
-     
+
 header = file.readline() # skip header
 processnames = header.split()[2:]
 nproc = len(processnames)
@@ -51,7 +51,7 @@ for l in file:
     mh = m.group(1)
     yields = [float(x) for x in m.group(2).split()];
     line = []
-    if len(yields) != (options.nch * (nproc+1)): 
+    if len(yields) != (options.nch * (nproc+1)):
         raise RuntimeError, "len(yields) = %d != options.nch * (nproc + 1) = %d * (%d+1)" % (len(yields),options.nch,nproc)
     data[mh] = { 'nch':0, 'obs':[], 'exp':[], 'processnames':[], 'nuis':[], 'nuisname':[]}
     for i in range(options.nch):
@@ -70,7 +70,7 @@ if not options.stat:
         if m == None: raise ValueError, "Missing line "+l
         sysname = m.group(1)
         syseff  = [float(x) for x in m.group(2).split()]
-        if len(syseff) != (options.nch * (nproc+1)): 
+        if len(syseff) != (options.nch * (nproc+1)):
             raise RuntimeError, "len(syseff) = %d != options.nch * (nproc + 1) = %d * (%d+1)" % (len(syseff),options.nch,nproc)
         # decide which selections are affected
         mhs = data.keys()
@@ -80,12 +80,12 @@ if not options.stat:
             nuisline = []
             for i in range(options.nch):
                 start = i*(nproc+1); end = start + nproc + 1
-                nuisline += syseff[start+1:end] 
+                nuisline += syseff[start+1:end]
             # special case: the stats line have to be expanded in N independent systematics
             if sysname != mh+" Stats":
                 data[mh]['nuis'].append(nuisline)
                 data[mh]['nuisname'].append(sysname)
-            else:   
+            else:
                 for k in range(0, nproc * options.nch):
                     if nuisline[k] < 0.005: continue
                     data[mh]['nuis'].append([(x if j == k else 0) for j,x in enumerate(nuisline)])
@@ -100,14 +100,14 @@ if options.asimov:
                 data[mh]['obs'][i] = max(0, data[mh]['obs'][i] + options.bfluct * sqrt(data[mh]['obs'][i]))
             if options.signal: data[mh]['obs'][i] += data[mh]['exp'][start]
             if options.floor:  data[mh]['obs'][i] = floor(data[mh]['obs'][i])
-    
+
 
 if options.optimize:
     for mh in data.keys():
         # step 1: strip processes with no rate
         hasrate = [0 for p in range(nproc)]
-        for i in range(options.nch): 
-            for p in range(nproc):  
+        for i in range(options.nch):
+            for p in range(nproc):
                 if data[mh]['exp'][p] != 0: hasrate[p] = 1
         for p in range(nproc):
             if hasrate[p] == 0: print "For mH = ", mh , " process ", processnames[p], " does not contribute."
@@ -117,53 +117,53 @@ if options.optimize:
         # step 2: strip nuisances with no non-zero value
         data[mh]['nuisname'] = [ data[mh]['nuisname'][i] for i,n in enumerate(data[mh]['nuis']) if sum(n) > 0 ]
         data[mh]['nuis']     = [ n                       for i,n in enumerate(data[mh]['nuis']) if sum(n) > 0 ]
-        
-print "Generating datacards: " 
+
+print "Generating datacards: "
 for mh,D in  data.items():
-        # prepare variables
-        # open file
-        filename = "%s-mH%s.txt" % (options.label,mh)
-        fout = open(filename, "w")
-        if fout == None: raise RuntimeError, "Cannot open %s for writing" % filename
-        print " - "+filename
-        nproc = len(data[mh]['exp'])/data[mh]['nch']
-        # write datacard
-        fout.write( "Limit (%s), mH = %s GeV\n" % (options.label,mh) )
-        fout.write( "date 2010.11.30\n" )
-        fout.write( "\n" )
-        fout.write( "imax %d number of channels\n"            % D['nch'] )
-        fout.write( "jmax %d number of background\n"          % (nproc-1) )
-        fout.write( "kmax %d number of nuisance parameters\n" % len(D['nuis']) )
-        fout.write( "---------------------------------------------------------------------------------------------------------------\n" );
-        fout.write( "Observation " + (" ".join( "%7.3f" % X for X in D['obs'])) + "\n" )
-        fout.write( "---------------------------------------------------------------------------------------------------------------\n" );
-        pad = " "*27 if options.labelSyst else "";
-        fout.write( "bin      " + pad + ("  ".join("%6d" % (X/nproc+1) for X in range(nproc*options.nch)) ) + "\n" )
-        fout.write( "process  " + pad + ("  ".join("%6.6s" % X for X in D['processnames'])) + "\n" )
-        fout.write( "process  " + pad + ("  ".join("%6d" % (i%nproc) for i in range(nproc*options.nch))) + "\n")
-        fout.write( "rate     " + pad + ("  ".join("%6.2f" % f for f in D['exp'])) + "\n")
-        fout.write( "---------------------------------------------------------------------------------------------------------------\n" );
-        used_syst_labels = {}
-        for (inuis,N) in enumerate(D['nuis']):
-            name = "%-3d"  % (inuis+1); id = name
-            isStat = (D['nuisname'][inuis] == "Statistics in MC or control sample")
-            if options.labelSyst: 
-                id = iddify(D['nuisname'][inuis])
-                if isStat: id = "Stat%d" % inuis 
-                if id in used_syst_labels: id += "_%d" % inuis
-                used_syst_labels[id] = True
-                name = "%-30s" % id
-            if options.gamma and isStat:
-                # make some room for label
-                name = "%-22s" % id
-                # have to guess N
-                sumN = sum([1.0/(X*X) for X in N if X > 0]); ## people filling error matrix uses the naive 1/sqrt(N) errors
-                nN   = sum([1         for X in N if X > 0]);
-                realN = int(floor(sumN/nN+1.5)) if nN else 1
-                alphas = [ (D['exp'][i]/(realN) if X else 0) for i,X in enumerate(N) ]
-                fout.write( name+"  gmN %7d " % realN  + (" ".join([("%7.5f" % X if X else "   0   ") for X in alphas])) + "     " + D['nuisname'][inuis] +  "\n")
+    # prepare variables
+    # open file
+    filename = "%s-mH%s.txt" % (options.label,mh)
+    fout = open(filename, "w")
+    if fout == None: raise RuntimeError, "Cannot open %s for writing" % filename
+    print " - "+filename
+    nproc = len(data[mh]['exp'])/data[mh]['nch']
+    # write datacard
+    fout.write( "Limit (%s), mH = %s GeV\n" % (options.label,mh) )
+    fout.write( "date 2010.11.30\n" )
+    fout.write( "\n" )
+    fout.write( "imax %d number of channels\n"            % D['nch'] )
+    fout.write( "jmax %d number of background\n"          % (nproc-1) )
+    fout.write( "kmax %d number of nuisance parameters\n" % len(D['nuis']) )
+    fout.write( "---------------------------------------------------------------------------------------------------------------\n" );
+    fout.write( "Observation " + (" ".join( "%7.3f" % X for X in D['obs'])) + "\n" )
+    fout.write( "---------------------------------------------------------------------------------------------------------------\n" );
+    pad = " "*27 if options.labelSyst else "";
+    fout.write( "bin      " + pad + ("  ".join("%6d" % (X/nproc+1) for X in range(nproc*options.nch)) ) + "\n" )
+    fout.write( "process  " + pad + ("  ".join("%6.6s" % X for X in D['processnames'])) + "\n" )
+    fout.write( "process  " + pad + ("  ".join("%6d" % (i%nproc) for i in range(nproc*options.nch))) + "\n")
+    fout.write( "rate     " + pad + ("  ".join("%6.2f" % f for f in D['exp'])) + "\n")
+    fout.write( "---------------------------------------------------------------------------------------------------------------\n" );
+    used_syst_labels = {}
+    for (inuis,N) in enumerate(D['nuis']):
+        name = "%-3d"  % (inuis+1); id = name
+        isStat = (D['nuisname'][inuis] == "Statistics in MC or control sample")
+        if options.labelSyst:
+            id = iddify(D['nuisname'][inuis])
+            if isStat: id = "Stat%d" % inuis
+            if id in used_syst_labels: id += "_%d" % inuis
+            used_syst_labels[id] = True
+            name = "%-30s" % id
+        if options.gamma and isStat:
+            # make some room for label
+            name = "%-22s" % id
+            # have to guess N
+            sumN = sum([1.0/(X*X) for X in N if X > 0]); ## people filling error matrix uses the naive 1/sqrt(N) errors
+            nN   = sum([1         for X in N if X > 0]);
+            realN = int(floor(sumN/nN+1.5)) if nN else 1
+            alphas = [ (D['exp'][i]/(realN) if X else 0) for i,X in enumerate(N) ]
+            fout.write( name+"  gmN %7d " % realN  + (" ".join([("%7.5f" % X if X else "   0   ") for X in alphas])) + "     " + D['nuisname'][inuis] +  "\n")
+        else:
+            if id in options.gmM:
+                fout.write( name+"  gmM "  + ("  ".join(["%6.3f" % (0.0+X) for X in N])) + "     " + D['nuisname'][inuis] +  "\n")
             else:
-                if id in options.gmM:
-                    fout.write( name+"  gmM "  + ("  ".join(["%6.3f" % (0.0+X) for X in N])) + "     " + D['nuisname'][inuis] +  "\n")
-                else:
-                    fout.write( name+"  lnN "  + ("  ".join(["%6.3f" % (1.0+X) for X in N])) + "     " + D['nuisname'][inuis] +  "\n")
+                fout.write( name+"  lnN "  + ("  ".join(["%6.3f" % (1.0+X) for X in N])) + "     " + D['nuisname'][inuis] +  "\n")

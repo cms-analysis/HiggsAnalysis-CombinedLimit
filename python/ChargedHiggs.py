@@ -18,13 +18,13 @@ class BRChargedHiggs(PhysicsModel):
         self.processScaling = { 'HH':'HH', 'WH':'WH', 'HW':'WH', 'tt':'tt' }
 
         self.modelBuilder.out.Print()
-        
+
     def getYieldScale(self,bin,process):
 
         for prefix, model in self.processScaling.iteritems():
             if process.startswith(prefix):
                 return 'Scaling_'+model
-            
+
         return 1
 
 

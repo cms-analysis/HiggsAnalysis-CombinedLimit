@@ -61,12 +61,12 @@ for fname in args:
                 val = entry.find(obsin.at(i).GetName()).getVal()
                 data.add(obsout, val)
                 datasets.append(data)
-            obs = obsout 
+            obs = obsout
         else:
             cat = dataset.get().find(options.cat)
             if cat == None: raise RuntimeError, "Cannot find category %s in dataset." % options.cat
             obs.remove(cat)
-            if options.verbose > 1: 
+            if options.verbose > 1:
                 print " observables in reduced dataset: "; obs.Print("V");
             datasets = []
             if not options.manualSplit:
@@ -102,7 +102,7 @@ for fname in args:
                 dupCheck[population] = [ str(iToy) ]
         if options.binned:
             datasets = [ ROOT.RooDataHist(d.GetName(),d.GetTitle(),obs,d) for d in datasets ]
-        if options.verbose: 
+        if options.verbose:
             print " splitted datasets:"
             for i,d in enumerate(datasets):
                 print "   dataset %d: %15s, %6d entries, %8.1f events"%(i,d.GetName(),d.numEntries(),d.sumEntries())

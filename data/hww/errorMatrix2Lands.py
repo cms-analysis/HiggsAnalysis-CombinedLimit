@@ -45,7 +45,7 @@ if not options.stat:
             # special case: the stats line have to be expanded in N independent systematics
             if sysname != mh+" Stats":
                 data[mh]['nuis'].append(syseff)
-            else:   
+            else:
                 nproc = len(syseff)-(1 if options.sm4 else 0)
                 data[mh]['nuis'].append(syseff[0:(2 if options.sm4 else 1)] + [0] * (nproc-1))
                 for i in range(1,nproc):
@@ -59,13 +59,13 @@ if options.optimize:
         data[mh]['exp']          = [ k for k in data[mh]['exp'] if k > 0 ]
         # step 2: strip nuisances with no non-zero value
         data[mh]['nuis'] = [ n for n in data[mh]['nuis'] if sum(n) > 0 ]
-        
+
 if options.asimov:
     for mh in data.keys():
         data[mh]['obs'] = sum(data[mh]['exp'][(2 if options.sm4 else 1):])
         if options.signal: data[mh]['obs'] += data[mh]['exp'][0]
 
-print "Generating datacards: " 
+print "Generating datacards: "
 models = [ 'SM', '4G' ] if options.sm4 else [ 'SM' ]
 for (isig,name) in enumerate(models):
     for mh,D in  data.items():

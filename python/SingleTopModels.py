@@ -1,6 +1,6 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
-from HiggsAnalysis.CombinedLimit.LHCHCGModels import * 
+from HiggsAnalysis.CombinedLimit.LHCHCGModels import *
 
 import ROOT
 
@@ -8,7 +8,7 @@ class KappaVKappaT(LHCHCGBaseModel):
     """
     Copy of Kappas model with a combined kappa_V (for kappa_W and kappa_Z),
     and where hcc is independent of kappa_t.
-   
+
     For tHq multilepton analysis (HIG-17-005)
 
     NOTE - Do not use this model for a generic analysis, 

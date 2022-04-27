@@ -6,8 +6,8 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.widthRange = ['0.001','5000'] # default
         self.rMode   = 'poi'
-	self.mHRange = ['115','135']
-	self.floatMass = False
+        self.mHRange = ['115','135']
+        self.floatMass = False
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsWidthRange="):
@@ -27,43 +27,43 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
                     raise RuntimeError, "Higgs mass range definition requires two extrema."
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
- 
+
     def doParametersOfInterest(self):
         """Create POI out of signal strength and Width"""
         # --- Signal Strength as only POI ---    // currently HiggsDecayWidth
         POIs="HiggsDecayWidth"
-	self.modelBuilder.doVar("r[1,0,10]")
-	if   self.rMode == "poi": 
-    		if self.floatMass:
-        	    if self.modelBuilder.out.var("MH"):
-        	        self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
-        	        self.modelBuilder.out.var("MH").setConstant(False)
-        	    else:
-        	        self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
-        	    POIs = "r,MH,HiggsDecayWidth"
-        	else:
-        	    if self.modelBuilder.out.var("MH"):
-        	        self.modelBuilder.out.var("MH").setVal(self.options.mass)
-        	        self.modelBuilder.out.var("MH").setConstant(True)
-        	    else:
-        	        self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
-        	    POIs = "r,HiggsDecayWidth"
-	elif self.rMode == "nuisance":  
-		self.modelBuilder.out.var("r").setAttribute("flatParam")
-    		if self.floatMass:
-        	    if self.modelBuilder.out.var("MH"):
-        	        self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
-        	        self.modelBuilder.out.var("MH").setConstant(False)
-        	    else:
-        	        self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
-        	    POIs = "MH,HiggsDecayWidth"
-        	else:
-        	    if self.modelBuilder.out.var("MH"):
-        	        self.modelBuilder.out.var("MH").setVal(self.options.mass)
-        	        self.modelBuilder.out.var("MH").setConstant(True)
-        	    else:
-        	        self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
-	else: raise RuntimeError, "FloatingHiggsWidth: the signal strength must be set to 'poi'(default), 'nuisance'"
+        self.modelBuilder.doVar("r[1,0,10]")
+        if   self.rMode == "poi":
+            if self.floatMass:
+                if self.modelBuilder.out.var("MH"):
+                    self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
+                    self.modelBuilder.out.var("MH").setConstant(False)
+                else:
+                    self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
+                POIs = "r,MH,HiggsDecayWidth"
+            else:
+                if self.modelBuilder.out.var("MH"):
+                    self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                    self.modelBuilder.out.var("MH").setConstant(True)
+                else:
+                    self.modelBuilder.doVar("MH[%g]" % self.options.mass)
+                POIs = "r,HiggsDecayWidth"
+        elif self.rMode == "nuisance":
+            self.modelBuilder.out.var("r").setAttribute("flatParam")
+            if self.floatMass:
+                if self.modelBuilder.out.var("MH"):
+                    self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
+                    self.modelBuilder.out.var("MH").setConstant(False)
+                else:
+                    self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
+                POIs = "MH,HiggsDecayWidth"
+            else:
+                if self.modelBuilder.out.var("MH"):
+                    self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                    self.modelBuilder.out.var("MH").setConstant(True)
+                else:
+                    self.modelBuilder.doVar("MH[%g]" % self.options.mass)
+        else: raise RuntimeError, "FloatingHiggsWidth: the signal strength must be set to 'poi'(default), 'nuisance'"
 
         if self.modelBuilder.out.var("HiggsDecayWidth"):
             self.modelBuilder.out.var("HiggsDecayWidth").setRange(float(self.widthRange[0]),float(self.widthRange[1]))
@@ -73,6 +73,6 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
         self.modelBuilder.doSet("POI",POIs)
 
     def getHiggsSignalYieldScale(self,production,decay, energy):
-            return "r"
+        return "r"
 
 floatingHiggsWidth = FloatingHiggsWidth()

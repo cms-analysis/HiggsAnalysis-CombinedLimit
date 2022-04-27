@@ -32,7 +32,7 @@ f.write("#!/bin/bash\n")
 f.write("set -x\n")
 f.write("cd %s\n"%workingDir)
 f.write("eval `scramv1 runtime -sh`\n")
-		
+
 f.write("cd -\n")
 f.write("cp -p $CMSSW_BASE/lib/${CMSSW_ARCH}/libHiggsAnalysisCombinedLimit.{so,dylib} . \n" )
 f.write("mkdir scratch\n")
@@ -40,16 +40,16 @@ f.write("cd scratch\n")
 f.write("cp -p %s . \n" % (wslocation) )
 
 # Loop over number of points, and add wait after npoints/nCPU jobs
-ext = " & " if options.nCPU>1 else " " 
+ext = " & " if options.nCPU>1 else " "
 for i,po in enumerate(points):
-  f.write("combine -M Asymptotic %s -m %.1f --singlePoint %f -n %.1f %s %s \n" % (ws,mass,po,po,ext,options.options) )
-  if (i>0 and i%options.nCPU==0): f.write("wait\n")
+    f.write("combine -M Asymptotic %s -m %.1f --singlePoint %f -n %.1f %s %s \n" % (ws,mass,po,po,ext,options.options) )
+    if (i>0 and i%options.nCPU==0): f.write("wait\n")
 print i
 if options.nCPU>i: f.write("wait\n")
 f.write("hadd -f grid_%.1f%s.root higgsCombine* \n"%(mass,outputname))
 f.write("cp -f grid_%.1f%s.root %s \n"%(mass,outputname,workingDir))
 f.write("echo 'DONE' \n")
- 
+
 # make it executable
 os.system("chmod 755 %s.sh"%(jobname))
 

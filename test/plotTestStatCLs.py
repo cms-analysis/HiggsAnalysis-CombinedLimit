@@ -1,8 +1,8 @@
-#!/usr/bin/env python 
-# plotTestStatCLs.py -- Nicholas Wardle 
+#!/usr/bin/env python
+# plotTestStatCLs.py -- Nicholas Wardle
 
 # Plot test-statistics distributions from HybridNew Grids
-# Currently only supported for 1D (eg limits) although running 
+# Currently only supported for 1D (eg limits) although running
 # --val all will work, labels will not be correct.
 
 import sys
@@ -30,55 +30,55 @@ ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plot
 from ROOT import hypoTestResultTree
 from ROOT import qmuPlot, q0Plot
 
-if options.quantileExpected >= 0 : options.expected=True 
+if options.quantileExpected >= 0 : options.expected=True
 if options.expected and options.quantileExpected <0 : sys.exit("You should specify a quantile for the expected result, eg 0.5 for median expected")
 
 def findPOIvals(fi,m):
- retvals = []
- ti = fi.Get("toys")
- for k in ti.GetListOfKeys():
-  obj = k
-  nam = obj.GetName()
-  if not "HypoTestResult" in nam: continue 
-  if not m in nam: continue 
-  if not options.poi in nam: continue
-  lhs = nam[nam.find(options.poi)+len(options.poi):-1]
-  val = float(lhs[0:lhs.find('_')])
-  retvals.append(val)
- return retvals
+    retvals = []
+    ti = fi.Get("toys")
+    for k in ti.GetListOfKeys():
+        obj = k
+        nam = obj.GetName()
+        if not "HypoTestResult" in nam: continue
+        if not m in nam: continue
+        if not options.poi in nam: continue
+        lhs = nam[nam.find(options.poi)+len(options.poi):-1]
+        val = float(lhs[0:lhs.find('_')])
+        retvals.append(val)
+    return retvals
 
 ifile = ROOT.TFile.Open(options.input)
 ifile.cd()
 
 canvases = []
 if not len(options.mass): sys.exit("Need at least one mass (or put any number if you know it will work)")
-if options.Print:  
-  tdir = ifile.Get("toys")
-  print "Contents of toys directory in file ", ifile.GetName()
-  tdir.ls()
-  sys.exit()
+if options.Print:
+    tdir = ifile.Get("toys")
+    print "Contents of toys directory in file ", ifile.GetName()
+    tdir.ls()
+    sys.exit()
 
-for m in options.mass: 
- if options.val == "all": 
-  poivals = findPOIvals(ifile,m)
-  poivals = list(set(poivals))
- else: poivals = [float(v) for v in options.val.split(",")]
- for i,pv in enumerate(poivals):
-  print "Point %d/%d"%(i+1,len(poivals))
-  ifile = ROOT.TFile.Open(options.input)
-  print "Converting HypoTestResults from %s to Tree (%s=%g,mH=%s) ..."%(ifile.GetName(),options.poi,pv,m)
-  #hypoTestResultTree("tmp_out%s%d.root"%(m,i),float(m),pv,options.poi)
-  hypoTestResultTree("tmp_out.root",float(m),pv,options.poi)
-  ifile.Close()
-  #ft = ROOT.TFile.Open("tmp_out%s%d.root"%(m,i))
-  ft = ROOT.TFile.Open("tmp_out.root")
-  print "Plotting ... "
-  if options.signif : can = q0Plot(float(m),options.poi,options.rebin)
-  else: can = qmuPlot(float(m),options.poi,float(pv),int(options.doublesided),int(options.invert),options.rebin,options.expected,options.quantileExpected) 
-  canvases.append(can.Clone())
-  ft.Close()
+for m in options.mass:
+    if options.val == "all":
+        poivals = findPOIvals(ifile,m)
+        poivals = list(set(poivals))
+    else: poivals = [float(v) for v in options.val.split(",")]
+    for i,pv in enumerate(poivals):
+        print "Point %d/%d"%(i+1,len(poivals))
+        ifile = ROOT.TFile.Open(options.input)
+        print "Converting HypoTestResults from %s to Tree (%s=%g,mH=%s) ..."%(ifile.GetName(),options.poi,pv,m)
+        #hypoTestResultTree("tmp_out%s%d.root"%(m,i),float(m),pv,options.poi)
+        hypoTestResultTree("tmp_out.root",float(m),pv,options.poi)
+        ifile.Close()
+        #ft = ROOT.TFile.Open("tmp_out%s%d.root"%(m,i))
+        ft = ROOT.TFile.Open("tmp_out.root")
+        print "Plotting ... "
+        if options.signif : can = q0Plot(float(m),options.poi,options.rebin)
+        else: can = qmuPlot(float(m),options.poi,float(pv),int(options.doublesided),int(options.invert),options.rebin,options.expected,options.quantileExpected)
+        canvases.append(can.Clone())
+        ft.Close()
 ofile = ROOT.TFile(options.output,"RECREATE")
 for can in canvases:
-  ofile.WriteTObject(can)
+    ofile.WriteTObject(can)
 print "All Plots saved to ", ofile.GetName()
 ofile.Close()

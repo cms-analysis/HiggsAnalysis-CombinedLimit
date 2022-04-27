@@ -40,18 +40,18 @@ else:
 
 xsbr1 = { 'ggH':1.0, 'qqH':1.0 }
 xsbr  = { 'ggH':1.0, 'qqH':1.0 }
-def file2map(x): 
+def file2map(x):
     ret = {}; headers = []
     for x in open(x,"r"):
         cols = x.split()
         if len(cols) < 2: continue
-        if "mH" in x: 
+        if "mH" in x:
             headers = [i.strip() for i in cols[1:]]
         else:
             fields = [ float(i) for i in cols ]
             ret[fields[0]] = dict(zip(headers,fields[1:]))
     return ret
-path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";   
+path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";
 ggXS = file2map(path+"YR-XS-ggH.txt")
 qqXS = file2map(path+"YR-XS-vbfH.txt")
 br   = file2map(path+"YR-BR3.txt")
@@ -63,7 +63,7 @@ for M in (450,550):
     br[M] = dict([ (key, 0.5*(br[M+10][key] + br[M-10][key])) for key in br[M+10].iterkeys() ])
     sm4[M] = dict([ (key, 0.5*(sm4[M+10][key] + sm4[M-10][key])) for key in sm4[M+10].iterkeys() ])
 if options.xsbr:
-    xsbr1['ggH'] = ggXS[mass1]['XS_pb'] * br[mass1]['H_evmv'] 
+    xsbr1['ggH'] = ggXS[mass1]['XS_pb'] * br[mass1]['H_evmv']
     xsbr ['ggH'] = ggXS[mass ]['XS_pb'] * br[mass ]['H_evmv'] * sm4[mass ]['XS_over_SM'] * sm4[mass ]['brWW_over_SM']
     xsbr1['qqH'] = qqXS[mass1]['XS_pb'] * br[mass1]['H_evmv']
     xsbr ['qqH'] = qqXS[mass ]['XS_pb'] * br[mass ]['H_evmv'] * sm4[mass ]['brWW_over_SM']
@@ -87,12 +87,12 @@ for X in [ 'hwwof_0j_shape',  'hwwof_1j_shape',  'hwwsf_0j_shape',  'hwwsf_1j_sh
 
     if len(DC1.bins) != 1: raise RuntimeError, "This does not work on multi-channel"
     obsline = [str(x) for x in DC1.obs.values()]; obskeyline = DC1.bins; cmax = 5;
-    keyline = []; expline = []; systlines = {}; 
-    signals = []; backgrounds = []; shapeLines = []; 
+    keyline = []; expline = []; systlines = {};
+    signals = []; backgrounds = []; shapeLines = [];
     paramSysts = {}; flatParamNuisances = {}
     for (name,nf,pdf,args,errline) in DC1.systs:
         if options.etu != 0 and name in [ "QCDscale_ggH", "QCDscale_ggH1in", "QCDscale_ggH2in" ]:
-            for b in errline.iterkeys(): 
+            for b in errline.iterkeys():
                 for p in errline[b].iterkeys():
                     if errline[b][p] != 0 and errline[b][p] != 1:
                         inflated = errline[b][p]+options.etu if errline[b][p] > 1 else errline[b][p]-options.etu
@@ -104,7 +104,7 @@ for X in [ 'hwwof_0j_shape',  'hwwof_1j_shape',  'hwwsf_0j_shape',  'hwwsf_1j_sh
         if p in  ['ggH', 'qqH']:
             eff = rate/xsbr1[p]
             rate = eff * xsbr[p]
-        if (rate != 0) and ("shape" in X): 
+        if (rate != 0) and ("shape" in X):
             histo = ofile.Get("histo_%s" % p);
             histo.Scale(rate/histo.Integral())
             ofile.WriteTObject(histo,"histo_%s" % p,"Overwrite");
@@ -165,5 +165,5 @@ for X in [ 'hwwof_0j_shape',  'hwwof_1j_shape',  'hwwsf_0j_shape',  'hwwsf_1j_sh
     for (pname, pargs) in paramSysts.items():
         xfile.write(" ".join(["%-12s  param  %s" %  (pname, " ".join(pargs))])+"\n")
 
-    for pname in flatParamNuisances.iterkeys(): 
+    for pname in flatParamNuisances.iterkeys():
         xfile.write(" ".join(["%-12s  flatParam" % pname])+"\n")

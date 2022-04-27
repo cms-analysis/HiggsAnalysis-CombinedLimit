@@ -3,9 +3,9 @@ import sys
 from math import log,exp,hypot
 
 def appendMap(tmap,k,thing):
-     if k in tmap.keys():
-         if not thing in tmap[k]: tmap[k].append(thing)
-     else: tmap[k] = [thing]
+    if k in tmap.keys():
+        if not thing in tmap[k]: tmap[k].append(thing)
+    else: tmap[k] = [thing]
 
 def fullmatch(regex, line):
     """Performs regex match requiring the full string to match
@@ -170,10 +170,10 @@ def doRenameNuisance(datacard,args):
                 if "shape" in pdf0 or "lnN" in pdf0:
                     for b in errline0.keys():
                         for p in datacard.exp[b].keys():
-			    if errline0[b][p] != "-" and errline0[b][p] != 0.:
-                               datacard.systematicsShapeMap[newname,b,p]=oldname
-		            #print " for ", b,p,oldname,newname, errline0[b][p],
-	            #print ""
+                            if errline0[b][p] != "-" and errline0[b][p] != 0.:
+                                datacard.systematicsShapeMap[newname,b,p]=oldname
+                            #print " for ", b,p,oldname,newname, errline0[b][p],
+                    #print ""
                 datacard.systIDMap[oldname].remove(id)
             else: # more tricky
                 #print " local command, ", " looking at a ", pdf0, " at id=",id
@@ -321,15 +321,15 @@ def doFreezeNuisance(datacard, args):
 
     # first check in the list of paramters as flatParam, rateParam or discretes not included in datacard.systs (smaller usually)
     for lsyst in datacard.flatParamNuisances.keys()+list(datacard.rateParamsOrder)+datacard.discretes +datacard.extArgs.keys():
-         if fullmatch(pat,lsyst):
+        if fullmatch(pat,lsyst):
             datacard.frozenNuisances.add(lsyst)
             found.append(lsyst)
 
     if not found:
-      for lsyst,nofloat,pdf,args0,errline in datacard.systs:
-        if fullmatch(pat,lsyst):
-            datacard.frozenNuisances.add(lsyst)
-            found.append(lsyst)
+        for lsyst,nofloat,pdf,args0,errline in datacard.systs:
+            if fullmatch(pat,lsyst):
+                datacard.frozenNuisances.add(lsyst)
+                found.append(lsyst)
 
 
     # Warn user/exit

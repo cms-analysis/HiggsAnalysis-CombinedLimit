@@ -30,20 +30,20 @@ class SpinZeroHiggsCTau(PhysicsModel):
 
             print "Process {0} will scale by {1}".format(process,self.my_norm)
             return self.my_norm
-        
+
         elif not self.DC.isSignal[process]: return 1
-            
+
 
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
-            if 'muFixed' in po: 
+            if 'muFixed' in po:
                 print "Will consider the signal strength as a fixed parameter"
                 self.muFloating = False
-            elif 'muAsPOI' in po: 
+            elif 'muAsPOI' in po:
                 print "Will consider the signal strength as a parameter of interest"
                 self.muAsPOI = True
 
-            if 'ctauFixed' in po or 'ctauNotPOI' in po: 
+            if 'ctauFixed' in po or 'ctauNotPOI' in po:
                 print "CMS_zz4l_ctau is NOT A POI"
                 self.ctauPOI = False
                 if 'ctauFixed' in po:
@@ -56,7 +56,7 @@ class SpinZeroHiggsCTau(PhysicsModel):
                 self.muAsPOI = False
                 self.ctauFloating = True
                 self.ctauPOI = True
-            
+
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         if self.ctauFloating:
@@ -80,7 +80,7 @@ class SpinZeroHiggsCTau(PhysicsModel):
             else:
                 self.modelBuilder.doVar("CMS_zz4l_ctau[0]")
             print "Fixing CMS_zz4l_ctau"
-                
+
         if self.muFloating:
             if self.modelBuilder.out.var("r"):
                 self.modelBuilder.out.var("r").setRange(0.,40.)
@@ -108,5 +108,5 @@ class SpinZeroHiggsCTau(PhysicsModel):
             self.modelBuilder.out.var("CMS_zz4l_prod").setAttribute("flatParam")
 
         self.modelBuilder.doSet("POI",poi)
-        
+
 spinZeroHiggsCTau = SpinZeroHiggsCTau()

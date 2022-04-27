@@ -40,7 +40,7 @@ def remove_empty_strings(list) :
     for idx in indices :
         list.pop(idx)
     return list
-        
+
 def main() :
     ## turn options.fit_results into a list
     fit_results = options.fit_results.replace('$PWD', os.getcwd()).split(' ')
@@ -75,7 +75,7 @@ def main() :
     os.system("combineCards.py -S {PATH}/*.txt > /tmp/{NAME}".format(PATH=args[0], NAME=rnd_name))
 
     pruner = DatacardPruner(fit_results, options.metric, options.mass, options.threshold, blacklist, whitelist, options.comment_nuisances)
-    ## determine list of all uncertainties from input datacards 
+    ## determine list of all uncertainties from input datacards
     uncerts = pruner.determine_uncerts("/tmp/{NAME}".format(NAME=rnd_name))
     ## determine list of dropped and kept uncertainties from input datacards
     (dropped, kept, confused) = pruner.prune(uncerts)
@@ -85,13 +85,13 @@ def main() :
     ## comment dropped uncertainties from datacards if configured such
     if options.comment_nuisances :
         num = 0
-        for file in glob.glob(args[0]+'/*.txt') : 
+        for file in glob.glob(args[0]+'/*.txt') :
             num = pruner.manipulate_datacard(file, "COMMENT", dropped)
 
     print "# Excluded", len(dropped), "uncertainties from", len(dropped)+len(kept), ": (", confused, "not pruned due to missmatch of inputs)."
     print "# Check the output files uncertainty-pruning-keep.txt and uncertainty-pruning-drop.txt"
     print "# for the full list of pruned and and kept parameters.                                "
     print "# --------------------------------------------------------------------------------------"
-    
+
 main()
 exit(0)

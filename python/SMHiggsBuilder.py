@@ -1,6 +1,6 @@
 from math import *
 from array import array
-import os 
+import os
 import ROOT
 from HiggsAnalysis.CombinedLimit.PhysicsModel import ALL_HIGGS_DECAYS
 
@@ -24,7 +24,7 @@ class SMHiggsBuilder:
         if process == "bbH":  self.textToSpline("SM_XS_bbH_"+energy,  os.path.join(self.xspath, energy+"-bbH.txt") );
         if process == "tHq":  self.textToSpline("SM_XS_tHq_"+energy,  os.path.join(self.xspath, energy+"-tHq.txt") );
         if process == "tHW":  self.textToSpline("SM_XS_tHW_"+energy,  os.path.join(self.xspath, energy+"-tHW.txt") );
-        if process == "VH":  
+        if process == "VH":
             makeXS("WH", energy); makeXS("ZH", energy);
             self.modelBuilder.factory_('sum::SM_XS_VH_'+energy+'(SM_XS_WH_'+energy+',SM_XS_ZH_'+energy+')')
     def makeTotalWidth(self):
@@ -42,7 +42,7 @@ class SMHiggsBuilder:
         if decay == "hgluglu": self.textToSpline("SM_BR_hgluglu", os.path.join(self.brpath, "BR4.txt"), ycol=7);
         if decay == "htoptop": self.textToSpline("SM_BR_htoptop", os.path.join(self.brpath, "BR4.txt"), ycol=6);
     def makePartialWidth(self,decay):
-        self.makeTotalWidth(); 
+        self.makeTotalWidth();
         self.makeBR(decay);
         self.modelBuilder.factory_('prod::SM_Gamma_%s(SM_GammaTot,SM_BR_%s)' % (decay,decay))
     def makeScaling(self,what, Cb='Cb', Ctop='Ctop', CW='CW', CZ='CZ', Ctau='Ctau', Cc='Ctop', suffix=''):
@@ -51,7 +51,7 @@ class SMHiggsBuilder:
             suffix += '_'
             prefix += suffix
 #        self.modelBuilder.doVar('One[1]')
-#        self.modelBuilder.doVar('Zero[0]') 
+#        self.modelBuilder.doVar('Zero[0]')
         if what.startswith('qqH'):
             for sqrts in ('7TeV', '8TeV','13TeV','14TeV'):
                 rooName = prefix+'RVBF_'+sqrts
@@ -73,7 +73,7 @@ class SMHiggsBuilder:
                     self.textToSpline(rooName, os.path.join(self.coupPath, 'ggH_%(sqrts)s.txt'%locals()), ycol=column )
                 scalingName = 'Scaling_'+what+'_'+sqrts
 #                print 'Building '+scalingName
-		coeffSum = 'expr::coeff_sum_%(scalingName)s(\
+                coeffSum = 'expr::coeff_sum_%(scalingName)s(\
 "@0+@1+@2+@3+@4+@5",\
  %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkc_%(sqrts)s, %(prefix)sc_kbkc_%(sqrts)s, %(prefix)sc_kc2_%(sqrts)s\
 )'%locals()
@@ -136,13 +136,13 @@ class SMHiggsBuilder:
 		%(Ctop)s, %(Cb)s, %(CZ)s, %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_kZ2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkZ_%(sqrts)s, %(prefix)sc_kbkZ_%(sqrts)s, coeff_sum_%(scalingName)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith('tHq'):
-	    coeffs = {'7TeV':[3.099,3.980,-6.078], '8TeV':[2.984,3.886,-5.870],'13TeV':[2.633,3.578,-5.211],'14TeV':[2.582,3.538,-5.120]}  # coefficients for  kt^{2}, kW^{2}, ktkW @ MH = 125 GeV
+            coeffs = {'7TeV':[3.099,3.980,-6.078], '8TeV':[2.984,3.886,-5.870],'13TeV':[2.633,3.578,-5.211],'14TeV':[2.582,3.538,-5.120]}  # coefficients for  kt^{2}, kW^{2}, ktkW @ MH = 125 GeV
             for sqrts in ('7TeV', '8TeV','13TeV','14TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
                 rooExpr = 'expr::%(scalingName)s'%locals()+'( "( (@0*@0)*(%g)  + (@1*@1)*(%g) + (@0*@1)*(%g) )/%g"'%tuple((coeffs[sqrts] + [sum(coeffs[sqrts])] ))+', %(Ctop)s, %(CW)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith('tHW'):
-	    coeffs = {'7TeV':[2.306,1.697,-3.003], '8TeV':[2.426,1.818,-3.244],'13TeV':[2.909,2.310,-4.220],'14TeV':[2.988,2.397,-4.385]}  # coefficients for  kt^{2}, kW^{2}, ktkW @ MH = 125 GeV
+            coeffs = {'7TeV':[2.306,1.697,-3.003], '8TeV':[2.426,1.818,-3.244],'13TeV':[2.909,2.310,-4.220],'14TeV':[2.988,2.397,-4.385]}  # coefficients for  kt^{2}, kW^{2}, ktkW @ MH = 125 GeV
             for sqrts in ('7TeV', '8TeV','13TeV','14TeV'):
                 scalingName = 'Scaling_'+what+'_'+sqrts
                 rooExpr = 'expr::%(scalingName)s'%locals()+'( "( (@0*@0)*(%g)  + (@1*@1)*(%g) + (@0*@1)*(%g) )/%g"'%tuple((coeffs[sqrts] + [sum(coeffs[sqrts])] ))+', %(Ctop)s, %(CW)s,)'%locals()
@@ -150,7 +150,7 @@ class SMHiggsBuilder:
         else:
             raise RuntimeError, "There is no scaling defined for %(what)s" % locals()
 
-                
+
     def makePartialWidthUncertainties(self):
         THU_GROUPS = [
            ('hvv' , [ 'hww', 'hzz' ] ),
@@ -166,7 +166,7 @@ class SMHiggsBuilder:
                 widthUncertaintiesKeys = line.split()[1:]
             else:
                 fields = line.split()
-                widthUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(widthUncertaintiesKeys, fields[1:])]) 
+                widthUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(widthUncertaintiesKeys, fields[1:])])
         for K in widthUncertaintiesKeys[:-1]:
             self.modelBuilder.doVar("param_%s[-7,7]" % K)
         for K, DS in THU_GROUPS:

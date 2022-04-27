@@ -31,102 +31,102 @@ if options.snapshotName: work.loadSnapshot(snapshotName)
 if len(options.setDefaultParameterValues) : paramCList=options.setDefaultParameterValues.split(",")
 else: paramCList=[]
 print paramCList
-# create the map of default values 
+# create the map of default values
 default_parameter_vals = {}
 iter = params.createIterator()
-while 1: 
-  p = iter.Next()
-  if p == None: break
-  name = p.GetName()
-  #p.setVal(1)
-  if len(paramCList): 
-   for parameterc in paramCList: 
-    pn,v = parameterc.split("=")
-    if pn==name: 
-          p.setVal(float(v))
-          print "setting default of parameter %s to %g"%(name,float(v))
-  default_parameter_vals[name] = p.getVal() 
+while 1:
+    p = iter.Next()
+    if p == None: break
+    name = p.GetName()
+    #p.setVal(1)
+    if len(paramCList):
+        for parameterc in paramCList:
+            pn,v = parameterc.split("=")
+            if pn==name:
+                p.setVal(float(v))
+                print "setting default of parameter %s to %g"%(name,float(v))
+    default_parameter_vals[name] = p.getVal()
 
 nparams = params.getSize()
 print "Number of parameters in Model: ", nparams
 params.Print("V")
 
 def resetVals():
-  # set the parameters 
-  it = params.createIterator()
-  for j in range(nparams):
-	p = it.Next()
-	if p==None : break		
-	work.var(p.GetName()).setVal(default_parameter_vals[p.GetName()])
+    # set the parameters
+    it = params.createIterator()
+    for j in range(nparams):
+        p = it.Next()
+        if p==None : break
+        work.var(p.GetName()).setVal(default_parameter_vals[p.GetName()])
 
-def runScan(function,tfilename,param): 
-  print "Plotting function values %s for profiled parameters saved in %s for parameter %s as POI"%(function,tfilename,param)
-  tfi = ROOT.TFile.Open(tfilename)
-  tree = tfi.Get("limit")
-  g = ROOT.TGraph()
-  g.SetLineColor(4)
-  g.SetMarkerColor(4)
-  g.SetMarkerStyle(21)
-  g.SetMarkerSize(1)
-  g.SetLineWidth(2)
-  for i in range(tree.GetEntries()):
-    tree.GetEntry(i)
-    xv = getattr(tree,param)
-    iter = params.createIterator()
-    while 1: 
-      p = iter.Next()
-      if p == None: break
-      name = p.GetName()
-      p.setVal(getattr(tree,name))
-      #print "Set parameter %s to %g"%(p.GetName(),p.getVal())
-    g.SetPoint(i,xv,function.getVal())
-  
-  g.GetXaxis().SetTitle(param)
-  g.GetYaxis().SetTitle(function.GetName())
-  g.SetTitle("Profiled from %s"%tfilename)
-  return g
+def runScan(function,tfilename,param):
+    print "Plotting function values %s for profiled parameters saved in %s for parameter %s as POI"%(function,tfilename,param)
+    tfi = ROOT.TFile.Open(tfilename)
+    tree = tfi.Get("limit")
+    g = ROOT.TGraph()
+    g.SetLineColor(4)
+    g.SetMarkerColor(4)
+    g.SetMarkerStyle(21)
+    g.SetMarkerSize(1)
+    g.SetLineWidth(2)
+    for i in range(tree.GetEntries()):
+        tree.GetEntry(i)
+        xv = getattr(tree,param)
+        iter = params.createIterator()
+        while 1:
+            p = iter.Next()
+            if p == None: break
+            name = p.GetName()
+            p.setVal(getattr(tree,name))
+            #print "Set parameter %s to %g"%(p.GetName(),p.getVal())
+        g.SetPoint(i,xv,function.getVal())
 
-  
+    g.GetXaxis().SetTitle(param)
+    g.GetYaxis().SetTitle(function.GetName())
+    g.SetTitle("Profiled from %s"%tfilename)
+    return g
+
+
 allScalingFunctions = work.allFunctions().selectByName("*%s*"%(options.scaling_prefix))
 
 iter = params.createIterator()
-while 1: 
-  p = iter.Next()
-  if p == None: break
-  name = p.GetName()
-  # now go through the scaling functions and plot on parameter 
-  resetVals()
-  iter_f = allScalingFunctions.createIterator()
-  for i in range(allScalingFunctions.getSize()):
-    f = iter_f.Next()
-    print  work.function(f.GetName()).getParameters(ROOT.RooArgSet()).find(p.GetName()) 
-    if ( work.function(f.GetName()).getParameters(ROOT.RooArgSet()).find(p.GetName()) ): 
-      resetVals()
-      pl=p.frame()
-      c = ROOT.TCanvas()
-      param=""
-      if options.loadScan: 
-        fil,param=options.loadScan.split(":")
-      if param==name: 
-        g = runScan(f,fil,param)
-	g.Draw("AP")
-      else: 
-        f.plotOn(pl)
-        pl.GetYaxis().SetTitle(f.GetName())
-	pl.Draw()
-	resetVals()
-	ymax=pl.GetYaxis().GetXmax()
-	ymin=pl.GetYaxis().GetXmin()
-	xmax=pl.GetXaxis().GetXmax()
-	xmin=pl.GetXaxis().GetXmin()
-	l1 = ROOT.TLine(p.getVal(),ymin,p.getVal(),ymax)
-	l2 = ROOT.TLine(xmin,1,xmax,1)
-	l1.SetLineColor(2)
-	l2.SetLineColor(2)
-	l1.Draw()
-	l2.Draw()
-      c.SetGridy()
-      c.SetGridx()
-      c.SaveAs("%s/%s_vs_%s.pdf"%(options.out,f.GetName(),p.GetName()))
-      c.SaveAs("%s/%s_vs_%s.png"%(options.out,f.GetName(),p.GetName()))
+while 1:
+    p = iter.Next()
+    if p == None: break
+    name = p.GetName()
+    # now go through the scaling functions and plot on parameter
+    resetVals()
+    iter_f = allScalingFunctions.createIterator()
+    for i in range(allScalingFunctions.getSize()):
+        f = iter_f.Next()
+        print  work.function(f.GetName()).getParameters(ROOT.RooArgSet()).find(p.GetName())
+        if ( work.function(f.GetName()).getParameters(ROOT.RooArgSet()).find(p.GetName()) ):
+            resetVals()
+            pl=p.frame()
+            c = ROOT.TCanvas()
+            param=""
+            if options.loadScan:
+                fil,param=options.loadScan.split(":")
+            if param==name:
+                g = runScan(f,fil,param)
+                g.Draw("AP")
+            else:
+                f.plotOn(pl)
+                pl.GetYaxis().SetTitle(f.GetName())
+                pl.Draw()
+                resetVals()
+                ymax=pl.GetYaxis().GetXmax()
+                ymin=pl.GetYaxis().GetXmin()
+                xmax=pl.GetXaxis().GetXmax()
+                xmin=pl.GetXaxis().GetXmin()
+                l1 = ROOT.TLine(p.getVal(),ymin,p.getVal(),ymax)
+                l2 = ROOT.TLine(xmin,1,xmax,1)
+                l1.SetLineColor(2)
+                l2.SetLineColor(2)
+                l1.Draw()
+                l2.Draw()
+            c.SetGridy()
+            c.SetGridx()
+            c.SaveAs("%s/%s_vs_%s.pdf"%(options.out,f.GetName(),p.GetName()))
+            c.SaveAs("%s/%s_vs_%s.png"%(options.out,f.GetName(),p.GetName()))
 print "Done!"

@@ -15,13 +15,13 @@ import ROOT
 __inited = False
 
 def __init():
-  global __inited
-  if __inited: return
-  __inited = True
-  ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-  ROOT.gROOT.ProcessLine("#include <HiggsAnalysis/CombinedLimit/interface/utils.h>")
+    global __inited
+    if __inited: return
+    __inited = True
+    ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
+    ROOT.gROOT.ProcessLine("#include <HiggsAnalysis/CombinedLimit/interface/utils.h>")
 
 def FixAll(workspace):
-  __init()
-  fixer = ROOT.utils.RooAddPdfFixer()
-  fixer.FixAll(workspace)
+    __init()
+    fixer = ROOT.utils.RooAddPdfFixer()
+    fixer.FixAll(workspace)

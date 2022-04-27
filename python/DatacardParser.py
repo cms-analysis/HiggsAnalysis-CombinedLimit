@@ -65,11 +65,11 @@ def addRateParam(lsyst,f,ret):
     if len(f) > 6 or len(f) < 5: raise RuntimeError, "Error, directives of type 'rateParam' should be of form .. name rateParam channel process initial value OR name rateParam channel process formula args"
     if len(f)==5  :
         if ".root" in f[4] and ":" in f[4]: ty = 2
-	else: ty=0
-    	tmp_exp = [[lsyst,f[4],ty],""]    # Case for free parameter with no range
+        else: ty=0
+        tmp_exp = [[lsyst,f[4],ty],""]    # Case for free parameter with no range
     elif len(f)==6:
-    	if '[' in f[-1] and ']' in f[-1]: tmp_exp = [[lsyst,f[4],0],f[-1]]
-    	else: tmp_exp = [[lsyst,f[4],f[5],1],""]
+        if '[' in f[-1] and ']' in f[-1]: tmp_exp = [[lsyst,f[4],0],f[-1]]
+        else: tmp_exp = [[lsyst,f[4],f[5],1],""]
     # check for malformed bin/process
     if f[2] not in ret.bins or f[3] not in ret.processes: raise RuntimeError, " No such channel/process '%s/%s', malformed line:\n   %s" % (f[2],f[3], ' '.join(f))
     if ("%sAND%s"%(f[2],f[3])) in ret.rateParams.keys(): ret.rateParams["%sAND%s"%(f[2],f[3])].append(tmp_exp)
@@ -128,7 +128,7 @@ def parseCard(file, options):
                 binline = []
                 for b in f[1:]:
                     if re.match("[0-9]+", b):
-			raise RuntimeError, "Error: Bin %(b)s starts with a digit!" % locals()
+                        raise RuntimeError, "Error: Bin %(b)s starts with a digit!" % locals()
                     binline.append(b)
             if f[0] == "process":
                 if processline == []: # first line contains names
@@ -181,15 +181,15 @@ def parseCard(file, options):
             if len(f) <= 1: continue
             nofloat = False
             lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
-	    if lsyst in ret.systIDMap.keys() and pdf in ["shape","shapeN","lnN"]:
-	      types = [ ret.systs[j][2] for j in ret.systIDMap[lsyst] ]
-	      if "shape" in types: 
-	        if pdf == "lnN"   : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
-	      elif "lnN" in types: 
-	        if pdf == "shape" : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
+            if lsyst in ret.systIDMap.keys() and pdf in ["shape","shapeN","lnN"]:
+                types = [ ret.systs[j][2] for j in ret.systIDMap[lsyst] ]
+                if "shape" in types:
+                    if pdf == "lnN"   : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
+                elif "lnN" in types:
+                    if pdf == "shape" : raise RuntimeError, "Cannot have shape and lnN in same datacard for systematic %s. Use 'shape?'"%lsyst
             if lsyst.endswith("[nofloat]"):
-              lsyst = lsyst.replace("[nofloat]","")
-              nofloat = True
+                lsyst = lsyst.replace("[nofloat]","")
+                nofloat = True
             if options.nuisancesToExclude and isVetoed(lsyst, options.nuisancesToExclude):
                 if options.verbose > 0: stderr.write("Excluding nuisance %s selected by a veto pattern among %s\n" % (lsyst, options.nuisancesToExclude))
                 if nuisances != -1: nuisances -= 1
@@ -203,7 +203,7 @@ def parseCard(file, options):
                 args = [float(f[2]), float(f[3])]; numbers = f[4:];
             elif pdf == "dFD" or pdf == "dFD2":
                 args = [float(f[2])];  numbers = f[3:];
-	    elif pdf == "constr":
+            elif pdf == "constr":
                 args = f[2:]
                 ret.systs.append([lsyst,nofloat,pdf,args,[]])
                 ret.add_syst_id(lsyst)
@@ -220,24 +220,24 @@ def parseCard(file, options):
                 ret.flatParamNuisances[lsyst] = True
                 #for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
                 continue
-	    elif pdf == "extArg":
-	        # look for additional parameters in workspaces
-	        ret.extArgs[lsyst]=f[:]
-	    	continue
+            elif pdf == "extArg":
+                # look for additional parameters in workspaces
+                ret.extArgs[lsyst]=f[:]
+                continue
             elif pdf == "rateParam":
-	        if ("*" in f[3]) or ("*" in f[2]): # all channels/processes
-                  found = False
-		  for c in ret.processes:
-		   for b in ret.bins:
-		    if (not fnmatch.fnmatch(c, f[3])): continue
-		    if (not fnmatch.fnmatch(b, f[2])): continue
-		    f_tmp = f[:]
-		    f_tmp[2]=b
-		    f_tmp[3]=c
-	            addRateParam(lsyst,f_tmp,ret)
-                    found = True
-                  if not found: raise RuntimeError, "rateParam %s with process %r bin %r doesn't match anything." % (lsyst,f[3],f[2])
-		else : addRateParam(lsyst,f,ret)
+                if ("*" in f[3]) or ("*" in f[2]): # all channels/processes
+                    found = False
+                    for c in ret.processes:
+                        for b in ret.bins:
+                            if (not fnmatch.fnmatch(c, f[3])): continue
+                            if (not fnmatch.fnmatch(b, f[2])): continue
+                            f_tmp = f[:]
+                            f_tmp[2]=b
+                            f_tmp[3]=c
+                            addRateParam(lsyst,f_tmp,ret)
+                            found = True
+                    if not found: raise RuntimeError, "rateParam %s with process %r bin %r doesn't match anything." % (lsyst,f[3],f[2])
+                else : addRateParam(lsyst,f,ret)
                 continue
             elif pdf=="discrete":
                 args = f[2:]
@@ -245,14 +245,14 @@ def parseCard(file, options):
                 continue
             elif pdf=="edit":
                 if nuisances != -1: nuisances = -1
-		if options.evaluateEdits :
-                  if options.verbose > 1: print "Before edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
-                  if options.verbose > 1: print "Edit command: %s\n" % numbers
-                  doEditNuisance(ret, numbers[0], numbers[1:])
-                  if options.verbose > 1: print "After edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
-		else:
-			if numbers[0] in ["changepdf","freeze"]: ret.nuisanceEditLines.append([numbers[0],numbers[1:]])
-			else: ret.nuisanceEditLines.append([numbers[0],numbers[1],numbers[2],numbers[3:]])
+                if options.evaluateEdits :
+                    if options.verbose > 1: print "Before edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
+                    if options.verbose > 1: print "Edit command: %s\n" % numbers
+                    doEditNuisance(ret, numbers[0], numbers[1:])
+                    if options.verbose > 1: print "After edit: \n\t%s\n" % ("\n\t".join( [str(x) for x in ret.systs] ))
+                else:
+                    if numbers[0] in ["changepdf","freeze"]: ret.nuisanceEditLines.append([numbers[0],numbers[1:]])
+                    else: ret.nuisanceEditLines.append([numbers[0],numbers[1],numbers[2],numbers[3:]])
                 continue
             elif pdf=="group":
                 # This is not really a pdf type, but a way to be able to name groups of nuisances together
@@ -279,19 +279,19 @@ def parseCard(file, options):
                         raise RuntimeError, "Will not redefine group '%s'. It previously contained '%s' and you now wanted it to contain '%s'." % (groupName,ret.groups[groupName],groupNuisances)
 
                 continue
-	    elif pdf=="autoMCStats":
-	        if len(f)>5: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats threshold [include-signal = 0] [hist-mode = 0]"
-	        statThreshold = float(f[2])
-	        statIncludeSig = bool(int(f[3])) if len(f) >= 4 else False
-	        statHistMode = int(f[4]) if len(f) >= 5 else 1
-	        statFlags = (statThreshold, statIncludeSig, statHistMode)
-		if "*" in lsyst:
-		  for b in ret.bins:
-		    	if (not fnmatch.fnmatch(b, lsyst)): continue
-		  	ret.binParFlags[b]=statFlags
-    		else:
-		  if lsyst not in ret.bins: raise RuntimeError, " No such channel '%s', malformed line:\n   %s" % (lsyst,' '.join(f))
-	          ret.binParFlags[lsyst]=statFlags
+            elif pdf=="autoMCStats":
+                if len(f)>5: raise RuntimeError, "Syntax for autoMCStats should be 'channel autoMCStats threshold [include-signal = 0] [hist-mode = 0]"
+                statThreshold = float(f[2])
+                statIncludeSig = bool(int(f[3])) if len(f) >= 4 else False
+                statHistMode = int(f[4]) if len(f) >= 5 else 1
+                statFlags = (statThreshold, statIncludeSig, statHistMode)
+                if "*" in lsyst:
+                    for b in ret.bins:
+                        if (not fnmatch.fnmatch(b, lsyst)): continue
+                        ret.binParFlags[b]=statFlags
+                else:
+                    if lsyst not in ret.bins: raise RuntimeError, " No such channel '%s', malformed line:\n   %s" % (lsyst,' '.join(f))
+                    ret.binParFlags[lsyst]=statFlags
                 continue
             else:
                 raise RuntimeError, "Unsupported pdf %s" % pdf

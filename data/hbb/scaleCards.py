@@ -29,7 +29,7 @@ mass = float(args[0])
 if options.refmass == 0:
     options.refmass = refmasses[0]
     for m in refmasses[1:]:
-        if abs(mass-m) < abs(mass-options.refmass): 
+        if abs(mass-m) < abs(mass-options.refmass):
             options.refmass = m
 
 if mass in refmasses and options.postfix == "": raise RuntimeError, "Will not overwrite the reference masses"
@@ -37,18 +37,18 @@ if mass in refmasses and options.postfix == "": raise RuntimeError, "Will not ov
 xsbrR = { 'WH':1.0, 'ZH':1.0 }
 xsbr  = { 'WH':1.0, 'ZH':1.0 }
 if options.xsbr:
-    def file2map(x): 
+    def file2map(x):
         ret = {}; headers = []
         for x in open(x,"r"):
             cols = x.split()
             if len(cols) < 2: continue
-            if "mH" in x: 
+            if "mH" in x:
                 headers = [i.strip() for i in cols[1:]]
             else:
                 fields = [ float(i) for i in cols ]
                 ret[fields[0]] = dict(zip(headers,fields[1:]))
         return ret
-    path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";   
+    path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";
     whXS = file2map(path+"YR-XS-WH.txt")
     zhXS = file2map(path+"YR-XS-ZH.txt")
     br   = file2map(path+"YR-BR1.txt")
@@ -64,11 +64,11 @@ fileR = options.ddir+"/%g/vhbb_DC_ALL_%s.%.1f.txt" % (options.refmass, options.f
 options.fileName = fileR; options.mass = options.refmass;
 DCR = parseCard(open(fileR,"r"), options)
 
-obskeyline = DCR.bins; 
-obsline    = [str(DCR.obs[b]) for b in DCR.bins]; 
+obskeyline = DCR.bins;
+obsline    = [str(DCR.obs[b]) for b in DCR.bins];
 cmax = 5;
 keyline = []; expline = []; systlines = {}; systlines2 = {}
-signals = []; backgrounds = []; shapeLines = []; 
+signals = []; backgrounds = []; shapeLines = [];
 paramSysts = {}; flatParamNuisances = {}
 for (name,nf,pdf,args,errline) in DCR.systs:
     systlines[name] = [ pdf, args, errline, nf ]

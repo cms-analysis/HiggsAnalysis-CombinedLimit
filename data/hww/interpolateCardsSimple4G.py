@@ -42,18 +42,18 @@ if mass in refmasses and options.postfix == "": raise RuntimeError, "Will not ov
 xsbr1 = { 'ggH':1.0, 'qqH':1.0 }
 xsbr  = { 'ggH':1.0, 'qqH':1.0 }
 if options.xsbr:
-    def file2map(x): 
+    def file2map(x):
         ret = {}; headers = []
         for x in open(x,"r"):
             cols = x.split()
             if len(cols) < 2: continue
-            if "mH" in x: 
+            if "mH" in x:
                 headers = [i.strip() for i in cols[1:]]
             else:
                 fields = [ float(i) for i in cols ]
                 ret[fields[0]] = dict(zip(headers,fields[1:]))
         return ret
-    path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";   
+    path = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/";
     ggXS = file2map(path+"YR-XS-ggH.txt")
     qqXS = file2map(path+"YR-XS-vbfH.txt")
     br   = file2map(path+"YR-BR3.txt")
@@ -84,8 +84,8 @@ for X in [ 'SM4_hwwof_0j_shape',  'SM4_hwwof_1j_shape',  'SM4_hwwsf_0j_shape',  
 
     if len(DC1.bins) != 1: raise RuntimeError, "This does not work on multi-channel"
     obsline = [str(x) for x in DC1.obs.values()]; obskeyline = DC1.bins; cmax = 5;
-    keyline = []; expline = []; systlines = {}; 
-    signals = []; backgrounds = []; shapeLines = []; 
+    keyline = []; expline = []; systlines = {};
+    signals = []; backgrounds = []; shapeLines = [];
     paramSysts = {}; flatParamNuisances = {}
     for (name,nf,pdf,args,errline) in DC1.systs:
         systlines[name] = [ pdf, args, errline, nf ]
@@ -94,7 +94,7 @@ for X in [ 'SM4_hwwof_0j_shape',  'SM4_hwwof_1j_shape',  'SM4_hwwsf_0j_shape',  
         if p in  ['ggH', 'qqH']:
             eff = rate/xsbr1[p]
             rate = eff * xsbr[p]
-        if (rate != 0) and ("shape" in X): 
+        if (rate != 0) and ("shape" in X):
             histo = ofile.Get("histo_%s" % p);
             histo.Scale(rate/histo.Integral())
             ofile.WriteTObject(histo,"histo_%s" % p,"Overwrite");
@@ -154,5 +154,5 @@ for X in [ 'SM4_hwwof_0j_shape',  'SM4_hwwof_1j_shape',  'SM4_hwwsf_0j_shape',  
     for (pname, pargs) in paramSysts.items():
         xfile.write(" ".join(["%-12s  param  %s" %  (pname, " ".join(pargs))])+"\n")
 
-    for pname in flatParamNuisances.iterkeys(): 
+    for pname in flatParamNuisances.iterkeys():
         xfile.write(" ".join(["%-12s  flatParam" % pname])+"\n")

@@ -70,7 +70,7 @@ class Higgswidth(PhysicsModel):
                         return "RV"
         else:
             return 1
-            
+
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if 'GGsmfixed' in po:
@@ -98,7 +98,7 @@ class Higgswidth(PhysicsModel):
                 print "Will fix CMS_zz4l_GGsm to 1 and float on-shell and off-shell separately"
                 self.muOffshell = True
                 self.GGsmfixed = True
-            
+
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         if not self.modelBuilder.out.var("R"):
@@ -186,5 +186,5 @@ class Higgswidth(PhysicsModel):
                 self.modelBuilder.factory_("expr::RRV(\"@0*@1\",R,RV)")
 
         self.modelBuilder.doSet("POI",poi)
-        
+
 higgswidth = Higgswidth()

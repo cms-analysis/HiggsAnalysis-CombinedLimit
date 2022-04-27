@@ -28,14 +28,14 @@ class HiggsMinimal(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
             self.modelBuilder.doSet("POI",'kgluon,kgamma,kV,kf,MH')
         else:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
                 self.modelBuilder.out.var("MH").setConstant(True)
             else:
-                self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass)
             self.modelBuilder.doSet("POI",'kgluon,kgamma,kV,kf')
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
@@ -61,21 +61,21 @@ class HiggsMinimal(SMLikeHiggsModel):
         }
 
         self.SMH.makeScaling('hzg', Cb='kf', Ctop='kf', CW='kV', Ctau='kf')
-        
+
         # SM BR
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
 
         ## total witdh, normalized to the SM one
-        self.modelBuilder.factory_('expr::minimal_Gscal_gg("@0*@0 * @1", kgamma, SM_BR_hgg)') 
+        self.modelBuilder.factory_('expr::minimal_Gscal_gg("@0*@0 * @1", kgamma, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::minimal_Gscal_gluglu("@0*@0 * @1", kgluon, SM_BR_hgluglu)')
-        self.modelBuilder.factory_('expr::minimal_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)", kf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)') 
-        self.modelBuilder.factory_('expr::minimal_Gscal_sumv("@0*@0 * (@1+@2)", kV, SM_BR_hww, SM_BR_hzz)') 
-        self.modelBuilder.factory_('expr::minimal_Gscal_Zg("@0 * @1", Scaling_hzg, SM_BR_hzg)') 
-        
+        self.modelBuilder.factory_('expr::minimal_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)", kf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)')
+        self.modelBuilder.factory_('expr::minimal_Gscal_sumv("@0*@0 * (@1+@2)", kV, SM_BR_hww, SM_BR_hzz)')
+        self.modelBuilder.factory_('expr::minimal_Gscal_Zg("@0 * @1", Scaling_hzg, SM_BR_hzg)')
+
         self.modelBuilder.factory_('sum::minimal_Gscal_tot(minimal_Gscal_sumf, minimal_Gscal_sumv, minimal_Gscal_Zg, minimal_Gscal_gg, minimal_Gscal_gluglu)')
 
-        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
+        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2
         self.modelBuilder.factory_('expr::minimal_BRscal_hgg("@0*@0/@1", kgamma, minimal_Gscal_tot)')
         self.modelBuilder.factory_('expr::minimal_BRscal_hzg("@0/@1", Scaling_hzg, minimal_Gscal_tot)')
         self.modelBuilder.factory_('expr::minimal_BRscal_hff("@0*@0/@1", kf, minimal_Gscal_tot)')
@@ -85,12 +85,12 @@ class HiggsMinimal(SMLikeHiggsModel):
         #self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
-        
+
         name = "minimal_XSBRscal_%s_%s" % (production,decay)
 
         if self.modelBuilder.out.function(name):
             return name
-        
+
         XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
         self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, minimal_BRscal_%s)' % (name, XSscal, BRscal))

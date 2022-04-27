@@ -1,19 +1,19 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
-import fnmatch 
+import fnmatch
 
 ALL_STXS_PROCS = {
-	"Stage0": {
-	 "ggH*": 	  "ggH"
-	,"bbH*": 	  "ggH"
-	,"qqH*": 	  "qqH"
-	,"ttH*":    	  "ttH"
-	,"tH[Wq]*":    	  "ttH"
-	,"ggZH_lep*": 	  "QQ2HLL"
-	,"ZH_lep*": 	  "QQ2HLL"
-	,"WH_lep*": 	  "QQ2HLNU"
-	,"[VWZ]H_had*":   "VH2HQQ"
-	}
+        "Stage0": {
+         "ggH*": 	  "ggH"
+            ,"bbH*": 	  "ggH"
+            ,"qqH*": 	  "qqH"
+            ,"ttH*":    	  "ttH"
+            ,"tH[Wq]*":    	  "ttH"
+            ,"ggZH_lep*": 	  "QQ2HLL"
+            ,"ZH_lep*": 	  "QQ2HLL"
+            ,"WH_lep*": 	  "QQ2HLNU"
+            ,"[VWZ]H_had*":   "VH2HQQ"
+        }
 }
 
 CMS_to_LHCHCG_DecSimple = {
@@ -33,7 +33,7 @@ def getSTXSProdDecMode(bin,process,options):
     """Return a triple of (production)"""
     processSource = process
     decaySource   = options.fileName+":"+bin # by default, decay comes from the datacard name or bin label
-    if "_" in process: 
+    if "_" in process:
         (processSource, decaySource) = "_".join(process.split("_")[0:-1]),process.split("_")[-1]
     foundDecay = None
     for D in ALL_HIGGS_DECAYS:
@@ -65,11 +65,11 @@ class STXSBaseModel(PhysicsModel):
         self.floatMass = False
         self.denominator=denominator
     def preProcessNuisances(self,nuisances):
-    	# add here any pre-processed nuisances such as constraint terms for the mass profiling?
-    	return 
+        # add here any pre-processed nuisances such as constraint terms for the mass profiling?
+        return
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
-	    print po
+            print po
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
@@ -85,9 +85,9 @@ class STXSBaseModel(PhysicsModel):
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
-	    self.POIs+=",MH"
+            self.POIs+=",MH"
         else:
-            if self.modelBuilder.out.var("MH"): 
+            if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
                 self.modelBuilder.out.var("MH").setConstant(True)
             else:
@@ -95,10 +95,10 @@ class STXSBaseModel(PhysicsModel):
 
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
-        #if process=="ggH_hzz": return self.getHiggsSignalYieldScale('ggH', 'hzz', '13TeV') # hzz process in the hww datacard is a background                                                                                    
-        #if process=="ggH_hww125": return self.getHiggsSignalYieldScale('ggH', 'hww', '13TeV') # hww process in the htt datacard is a background                                                                                 
-        #if process=="qqH_hww125": return self.getHiggsSignalYieldScale('qqH', 'hww', '13TeV') # hww process in the htt datacard is a background                                                                                 
-        #if process=="H_htt": return self.getHiggsSignalYieldScale('ggH', 'htt', '13TeV') # hack to make combination work, since WW datacrd has an improper naming 
+        #if process=="ggH_hzz": return self.getHiggsSignalYieldScale('ggH', 'hzz', '13TeV') # hzz process in the hww datacard is a background
+        #if process=="ggH_hww125": return self.getHiggsSignalYieldScale('ggH', 'hww', '13TeV') # hww process in the htt datacard is a background
+        #if process=="qqH_hww125": return self.getHiggsSignalYieldScale('qqH', 'hww', '13TeV') # hww process in the htt datacard is a background
+        #if process=="H_htt": return self.getHiggsSignalYieldScale('ggH', 'htt', '13TeV') # hack to make combination work, since WW datacrd has an improper naming
         if not self.DC.isSignal[process]: return 1
         (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin,process,self.options)
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
@@ -117,7 +117,7 @@ class StageZero(STXSBaseModel):
         print "SignalStrengths:: declaring %s as %s" % (vname,x)
     def doParametersOfInterest(self):
         """Create POI out of signal strengths (and MH)"""
-	pois = []
+        pois = []
 
         allProds = []
         for regproc in ALL_STXS_PROCS["Stage0"].keys():
@@ -136,7 +136,7 @@ class StageZero(STXSBaseModel):
                         pois.append("mu_BR_%s_r_BR_%s"%(D,self.denominator))
 
         print pois
-	self.POIs=",".join(pois)
+        self.POIs=",".join(pois)
 
         self.doMH()
         print "Default parameters of interest: ", self.POIs
@@ -146,15 +146,15 @@ class StageZero(STXSBaseModel):
 
 
     def setup(self):
-        for d in SM_HIGG_DECAYS + [ "hss" ]: 
+        for d in SM_HIGG_DECAYS + [ "hss" ]:
             self.SMH.makeBR(d)
         allProds = []
-	for regproc in ALL_STXS_PROCS["Stage0"].keys():
+        for regproc in ALL_STXS_PROCS["Stage0"].keys():
             P = ALL_STXS_PROCS["Stage0"][regproc]
             if P in allProds: continue
             allProds.append(P)
             allDecs = []
-            for dec in SM_HIGG_DECAYS:                
+            for dec in SM_HIGG_DECAYS:
                 D = CMS_to_LHCHCG_DecSimple[dec]
                 if (D in allDecs): continue
                 allDecs.append(D)
@@ -165,12 +165,12 @@ class StageZero(STXSBaseModel):
                     muXSBR = "mu_XS_%s_x_BR_%s"%(P,self.denominator)
                     muBR =  "mu_BR_%s_r_BR_%s"%(D,self.denominator)
                     decDen = CMS_to_LHCHCG_DecSimple.keys()[CMS_to_LHCHCG_DecSimple.values().index(self.denominator)]
-                    #self.modelBuilder.factory_('expr::scaling_'+P+'_'+D+'_13TeV("@0*@1*@2/@3",'+muXSBR+','+muBR+',SM_BR_'+dec+',SM_BR_'+decDen+')') 
+                    #self.modelBuilder.factory_('expr::scaling_'+P+'_'+D+'_13TeV("@0*@1*@2/@3",'+muXSBR+','+muBR+',SM_BR_'+dec+',SM_BR_'+decDen+')')
                     self.modelBuilder.factory_('expr::scaling_'+P+'_'+D+'_13TeV("@0*@1",'+muXSBR+','+muBR+')')
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
-	for regproc in ALL_STXS_PROCS["Stage0"].keys():
-	    if	fnmatch.fnmatch(production, regproc): 
+        for regproc in ALL_STXS_PROCS["Stage0"].keys():
+            if	fnmatch.fnmatch(production, regproc):
                 return "scaling_%s_%s_%s" % (ALL_STXS_PROCS["Stage0"][regproc],decay,energy)
 
         #raise RuntimeError, "No production process matching %s for Stage0 found !"%production

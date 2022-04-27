@@ -41,22 +41,22 @@ from TestSuite import *
 dir = options.name if options.name else options.suite
 thisSuite = TestSuite(dir, options, suite)
 for cmd in args:
-    if cmd == "list": 
+    if cmd == "list":
         thisSuite.listJobs()
-    elif cmd == "create": 
+    elif cmd == "create":
         print "Creating test suite in directory",dir
         thisSuite.createJobs()
         print "Done."
-    elif cmd == "run": 
-        if options.threads: 
+    elif cmd == "run":
+        if options.threads:
             thisSuite.runLocallyASync(threads=options.threads)
-        else: 
+        else:
             thisSuite.runLocallySync()
-    elif cmd == "submit": 
+    elif cmd == "submit":
         thisSuite.runBatch(options.queue)
-    elif cmd == "report": 
+    elif cmd == "report":
         thisSuite.report()
         thisSuite.printIt(options.format,reference=options.reference)
-    elif cmd == "print": 
+    elif cmd == "print":
         thisSuite.printIt(options.format,reference=options.reference)
     else: RuntimeError, "Unknown command %s" % cmd

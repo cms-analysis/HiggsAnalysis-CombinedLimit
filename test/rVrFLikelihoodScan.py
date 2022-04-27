@@ -44,7 +44,7 @@ __import__(physModMod)
 mod = modules[physModMod]
 physics = getattr(mod, physModName)
 if mod     == None: raise RuntimeError, "Physics model module %s not found" % physModMod
-if physics == None or not isinstance(physics, PhysicsModel): 
+if physics == None or not isinstance(physics, PhysicsModel):
     raise RuntimeError, "Physics model %s in module %s not found, or not inheriting from PhysicsModel" % (physModName, physModMod)
 physics.setPhysicsOptions(options.physOpt)
 ## Attach model to tools, and declare parameters
@@ -52,7 +52,7 @@ MB.setPhysics(physics)
 MB.physics.doParametersOfInterest()
 
 ## Define all possible decay modes, and the dominant V, F productions
-decays = [ 
+decays = [
   ('hbb', ('VH', 'ttH')),
   ('htt', ('qqH', 'ggH')),
   ('hgg', ('qqH', 'ggH')),
@@ -126,7 +126,7 @@ print "Best fit point: "
 fullMinimizer.save().Print("V")
 
 ## select parameters to scan
-poiList = ROOT.RooArgList(); 
+poiList = ROOT.RooArgList();
 if options.poi != []:
     if not options.floatOtherPOI:
         ## if needed, freeze all the parameters that are not of interest
@@ -151,16 +151,16 @@ else:
     ## take all parameters
     poiList.add(MB.out.set("POI"))
 
-## Allocate variables and create tree branches 
+## Allocate variables and create tree branches
 poi = [ array.array('f',[poiList.at(i).getVal()]) for i in xrange(poiList.getSize()) ]
 for i in xrange(poiList.getSize()):
     poiNam = poiList.at(i).GetName()
-    tree.Branch(poiNam, poi[i], poiNam+"/F")    
+    tree.Branch(poiNam, poi[i], poiNam+"/F")
 
 
 ## Add global minimum to tree
 nll0 = likelihood.getVal()
-for i in xrange(poiList.getSize()): 
+for i in xrange(poiList.getSize()):
     poi[i][0] = poiList.at(i).getVal()
 deltaNLL[0] = 0.;
 tree.Fill()
@@ -205,4 +205,4 @@ elif options.algo not in [ "none", "singles" ]:
     raise RuntimeError, "Unknown algorithm: '%s'" % options.algo
 
 # save tree to disk
-tree.Write() 
+tree.Write()

@@ -43,7 +43,7 @@ for line in open(SMH.brpath+"/WidthUncertainties_126GeV.txt"):
         widthUncertaintiesKeys = line.split()[1:]
     else:
         fields = line.split()
-        widthUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(widthUncertaintiesKeys, fields[1:])]) 
+        widthUncertainties[fields[0]] = dict([(k,0.01*float(v)) for (k,v) in zip(widthUncertaintiesKeys, fields[1:])])
 
 BRs = {}
 for d in SM_HIGGS_DECAYS:
@@ -87,7 +87,7 @@ for s,decs in THU_GROUPS:
             #print "decay %s takes effect of %sTHU at numerator" % (d,s)
             effect += (1.0 - BRs[d]) * widthUncertainties[d]['thu']
         for d2 in SM_HIGGS_DECAYS:
-            if d2 != d and d2 in decs: 
+            if d2 != d and d2 in decs:
                 #print "decay %s takes effect of %sTHU at denominator" % (d2,s)
                 effect -= BRs[d2] * widthUncertainties[d2]['thu']
         val[d] = effect
@@ -96,7 +96,7 @@ for s,decs in THU_GROUPS:
 print "%-30s   " % "Nuisance", "  ".join(["%-7s" % d for d in decays])
 print "%-30s   " % "-----------------", "  ".join(["%-7s" % "-----" for d in decays])
 for k,v in uncertainties:
-    print "%-30s  " % k, 
+    print "%-30s  " % k,
     for d in decays:
         effect = v[d]
         if abs(effect) < options.negligible:

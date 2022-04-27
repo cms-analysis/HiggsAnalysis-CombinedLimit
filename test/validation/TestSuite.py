@@ -33,15 +33,15 @@ class TestSuite:
             dups.append(test.name())
     def listJobs(self):
         print "The following jobs will be considered: ";
-        for t in self._tests: 
+        for t in self._tests:
             print " - ",t.name()
-    def createJobs(self): 
+    def createJobs(self):
         self._createDir()
-        for t in self._tests: 
+        for t in self._tests:
             t.createScriptBase(self._dir)
     def runLocallySync(self):
         print "The following jobs will be run: "
-        for t in self._tests: 
+        for t in self._tests:
             print " - ",t.name(),"...",; sys.stdout.flush()
             os.system(t.scriptName(self._dir))
             print " done."
@@ -49,15 +49,15 @@ class TestSuite:
         global _jobs_total
         print "Running jobs in parallel on %d cores" % threads
         from multiprocessing import Pool
-        pool = Pool(processes=threads); 
+        pool = Pool(processes=threads);
         _jobs_total = 0
-        for t in self._tests: 
+        for t in self._tests:
             _jobs_total += 1;
             ret = pool.apply_async(_async_run, (t,self._dir), callback=_async_cb)
         pool.close()
         pool.join()
     def runBatch(self,queue="8nh",command="bsub -q %(queue)s %(script)s"):
-        for t in self._tests: 
+        for t in self._tests:
             cmd = command % {'queue':queue,'script':os.getcwd()+"/"+t.scriptName(self._dir)}
             if t.numCPUs() > 1 and "bsub " in command:
                 cmd = cmd.replace("bsub ", "bsub -n %d -R 'span[hosts=1]' " % t.numCPUs())
@@ -74,10 +74,10 @@ class TestSuite:
         fout.close()
     def printIt(self,format,reference=None):
         if os.access("%s/report.json" % self._dir, os.R_OK) == False:
-            raise RuntimeError, "%s/report.json not found. please run 'report' before." % self._dir 
+            raise RuntimeError, "%s/report.json not found. please run 'report' before." % self._dir
         obj = json.loads(''.join([f for f in open("%s/report.json" % self._dir)]))
         if reference:
-            if not os.access(reference, os.R_OK): raise RuntimeError, "Reference % not found." % reference 
+            if not os.access(reference, os.R_OK): raise RuntimeError, "Reference % not found." % reference
             ref = json.loads(''.join([f for f in open(reference)]))
             self._collate(obj,ref);
         if format == "text": textReport(obj)
@@ -85,7 +85,7 @@ class TestSuite:
         else: RuntimeError, "Unknown format %s" % format
     def _selTests(self,method="*",length="full"):
         jobs = []
-        for m,l,t in self._tests: 
+        for m,l,t in self._tests:
             if m != method and method != "*": continue
             if l == "full" and length == "short": continue
             jobs.append(t)
@@ -108,7 +108,7 @@ class TestSuite:
                 if res['status'] != 'done':  continue
                 if not tv_ref['results'].has_key(name): continue
                 ref = tv_ref['results'][name]
-                if not ref.has_key('limit'): 
+                if not ref.has_key('limit'):
                     res['ref'] = { 'comment': ref['comment'] }
                     continue
                 (limit, limitErr, time)  = res['limit'], res['limitErr'], res['t_real']
@@ -119,11 +119,11 @@ class TestSuite:
                 else:                  res['status'] = 'error'
                 if res['status'] == 'ok':
                     if limitErr > 0 and limitErrR > 0:
-                        if limitErr/limitErrR >= 1.5 and ref['comment'] == '': 
+                        if limitErr/limitErrR >= 1.5 and ref['comment'] == '':
                             res['status']  = 'w unc.'
                             res['comment'] += 'worse uncertainty'
                     if time > 0.5 and timeR > 0.5 and ref['comment'] == '':
-                        if time/timeR >= 2: 
+                        if time/timeR >= 2:
                             res['status'] = 'w time'
                             res['comment'] += 'worse timing'
                 res['ref'] = { 'limit':limitR, 'limitErr':limitErrR, 't_real':timeR, 'comment':ref['comment'] }

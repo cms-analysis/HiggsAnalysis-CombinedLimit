@@ -79,7 +79,7 @@ timer.addLap("Building structures")
 mkdir_p(options.dir+"/log")
 mkdir_p(options.dir+"/root")
 OWD = os.getcwd()
-os.chdir(options.dir) 
+os.chdir(options.dir)
 
 
 nuisances = map(lambda x: x[0], DC.systs )
@@ -93,21 +93,21 @@ g.close()
 
 # the factor two is related to the fact that we do singles and nMinusOnes
 # (and pairs and nMinusTwos, etc) if twosided is specified
-maxdepth = 2*options.depth if options.twosided else options.depth   
+maxdepth = 2*options.depth if options.twosided else options.depth
 if len(nuisances) < maxdepth:
     raise RuntimeError, "Cannot process a depth that large."
-    
+
 
 # create combinations of interest
 combinationsToRemove = list()
 for level in xrange(options.depth+1):
     combinationsToRemove.extend( combinations(nuisances, level) )
-    
+
     if options.twosided:
         if(level == len(nuisances)-level):
             # center of the pascal triangle, do only one
             continue
-        combinationsToRemove.extend( combinations(nuisances, len(nuisances)-level) ) 
+        combinationsToRemove.extend( combinations(nuisances, len(nuisances)-level) )
 
 #pprint(combinationsToRemove)
 g = open('combinationsToRemove.json','w')
@@ -116,7 +116,7 @@ g.close()
 
 
 # make hash strings for each combination to use in file names
-# (yes, it is not human readable... it's life) 
+# (yes, it is not human readable... it's life)
 import hashlib
 import cPickle as pickle
 combinationsHash = dict(
@@ -129,10 +129,10 @@ combinationsHash = dict(
 g = open('combinationsHash.json','w')
 g.write(json.dumps(list(combinationsHash.items()), sort_keys=True, indent=2))
 g.close()
-           
-    
+
+
 # make list of jobs to run
-jobs = dict() 
+jobs = dict()
 for combo in combinationsToRemove:
     nuisStr = '|'.join(combo)
     fName   = 'Syst.%s' % combinationsHash[combo]
@@ -143,7 +143,7 @@ for combo in combinationsToRemove:
     if os.path.isfile('root/'+tempOut):
 #        print "Not queuing text2workspace job for %s. (output already present)" % tempOut
         filterCmd = ''
-        
+
     combineCmds = list()
     for mass in options.masses:
         combineMethod = "Asymptotic"
@@ -160,15 +160,15 @@ for combo in combinationsToRemove:
 
     jobs[combo] = (filterCmd, combineCmds, 'root/'+combineOut)
 
-#pprint(jobs) 
+#pprint(jobs)
 g = open('jobs.json','w')
 g.write(json.dumps(list(jobs.items()), sort_keys=True, indent=2))
 g.close()
 
 
-#function to be used in parallel 
+#function to be used in parallel
 def runCmd(cmd):
-    if not cmd: return 0 
+    if not cmd: return 0
     from subprocess import call
     #print cmd
     return call(cmd, shell=True)
@@ -186,7 +186,7 @@ if reduce(lambda x, y: x+y, ret):
 
 timer.addLap("Running combine")
 # run all the combine jobs in parallel
-combineCmds = [ item for sublist in map(lambda x: x[1], jobs.values()) for item in sublist ] 
+combineCmds = [ item for sublist in map(lambda x: x[1], jobs.values()) for item in sublist ]
 ret =  pool.map(runCmd, combineCmds)
 if reduce(lambda x, y: x+y, ret):
     raise RuntimeError, "Non-zero return code in combine. Check logs."
@@ -204,7 +204,7 @@ else:
     for combination in combinationsToRemove:
         f = ROOT.TFile(jobs[combination][2])
         t = f.Get("limit")
-    
+
         leaves = t.GetListOfLeaves()
 
         class Event(dict) :
@@ -233,5 +233,5 @@ import rankSystematics
 
 timer.addLap("All done")
 timer.printLaps()
-    
+
 

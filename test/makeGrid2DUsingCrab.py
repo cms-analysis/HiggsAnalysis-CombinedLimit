@@ -36,7 +36,7 @@ if workspace.endswith(".txt"):
     workspace = options.out+".workspace.root"
     print "Converted workspace to binary",workspace
 
-#if options.diagnosticRun : options.points = 1 
+#if options.diagnosticRun : options.points = 1
 
 xmin, xmax = float(args[1]), float(args[2])
 dx = (xmax-xmin)/(options.points[0]-1) if options.points[0] > 1 else 0
@@ -86,15 +86,15 @@ for i,x in enumerate(points):
     seed = ("$((%d + $i))" % (i*10000)) if options.random == False else "-1"
     interleave = "(( ($i + %d) %% %d == 0 )) && " % (i, options.interl)
     if ( options.parameterRanges ) :
-		xrngemin = options.parameterRanges[0]
-		xrngemax = options.parameterRanges[1]
-		yrngemin = options.parameterRanges[2]
-		yrngemax = options.parameterRanges[3]
-    else : 
-		xrngemin = xmin
-		xrngemax = xmax
-		yrngemin = ymin
-		yrngemax = ymax
+        xrngemin = options.parameterRanges[0]
+        xrngemax = options.parameterRanges[1]
+        yrngemin = options.parameterRanges[2]
+        yrngemax = options.parameterRanges[3]
+    else :
+        xrngemin = xmin
+        xrngemax = xmax
+        yrngemin = ymin
+        yrngemax = ymax
 
     ranges = "--setPhysicsModelParameterRanges %s=%g,%g:%s=%g,%g" % (options.POI[0], xrngemin,xrngemax,options.POI[1],yrngemin,yrngemax)  # Needed for naming of HypoTestResults and physics boundaries
     toys = "$n"

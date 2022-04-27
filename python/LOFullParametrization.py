@@ -30,14 +30,14 @@ class C5(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
             self.modelBuilder.doSet("POI",'kV,ktau,kquark,kgluon,kgamma,MH')
         else:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
                 self.modelBuilder.out.var("MH").setConstant(True)
             else:
-                self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass)
             self.modelBuilder.doSet("POI",'kV,ktau,kquark,kgluon,kgamma')
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
@@ -48,14 +48,14 @@ class C5(SMLikeHiggsModel):
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]: self.SMH.makeBR(d)
 
         ## total witdhs, normalized to the SM one
-        self.modelBuilder.factory_('expr::c6_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)') 
-        self.modelBuilder.factory_('expr::c6_Gscal_tau("@0*@0 * (@1+@2)", ktau, SM_BR_htt, SM_BR_hmm)') 
-        self.modelBuilder.factory_('expr::c6_Gscal_quark("@0*@0 * (@1+@2+@3+@4)", kquark, SM_BR_htoptop, SM_BR_hcc,SM_BR_hbb, SM_BR_hss)') 
+        self.modelBuilder.factory_('expr::c6_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)')
+        self.modelBuilder.factory_('expr::c6_Gscal_tau("@0*@0 * (@1+@2)", ktau, SM_BR_htt, SM_BR_hmm)')
+        self.modelBuilder.factory_('expr::c6_Gscal_quark("@0*@0 * (@1+@2+@3+@4)", kquark, SM_BR_htoptop, SM_BR_hcc,SM_BR_hbb, SM_BR_hss)')
         self.modelBuilder.factory_('expr::c6_Gscal_gluon("@0*@0 * @1", kgluon, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::c6_Gscal_gamma("@0*@0 * (@1+@2)", kgamma, SM_BR_hgg, SM_BR_hzg)')
         self.modelBuilder.factory_('sum::c6_Gscal_tot(c6_Gscal_Vectors, c6_Gscal_tau, c6_Gscal_quark, c6_Gscal_gluon, c6_Gscal_gamma)')
 
-        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
+        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2
         self.modelBuilder.factory_('expr::c6_BRscal_hvv("@0*@0/@1", kV, c6_Gscal_tot)')
         self.modelBuilder.factory_('expr::c6_BRscal_htt("@0*@0/@1", ktau, c6_Gscal_tot)')
         self.modelBuilder.factory_('expr::c6_BRscal_hbb("@0*@0/@1", kquark, c6_Gscal_tot)')
@@ -103,7 +103,7 @@ class C6(SMLikeHiggsModel):
         self.modelBuilder.doVar("kgluon[1,0.0,2.0]")
         self.modelBuilder.doVar("kgamma[1,0.0,2.0]")
         pois = 'kV,ktau,ktop,kbottom,kgluon,kgamma'
-        if self.doHZg: 
+        if self.doHZg:
             self.modelBuilder.doVar("kZgamma[1,0.0,30.0]")
             pois += ",kZgamma"
         if self.floatMass:
@@ -111,14 +111,14 @@ class C6(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
             self.modelBuilder.doSet("POI",pois+',MH')
         else:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
                 self.modelBuilder.out.var("MH").setConstant(True)
             else:
-                self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass)
             self.modelBuilder.doSet("POI",pois)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
@@ -132,18 +132,18 @@ class C6(SMLikeHiggsModel):
         self.SMH.makeScaling("tHW", CW='kV', Ctop="ktop")
 
         ## total witdhs, normalized to the SM one
-        self.modelBuilder.factory_('expr::c6_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)') 
-        self.modelBuilder.factory_('expr::c6_Gscal_tau("@0*@0 * (@1+@2)", ktau, SM_BR_htt, SM_BR_hmm)') 
+        self.modelBuilder.factory_('expr::c6_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)')
+        self.modelBuilder.factory_('expr::c6_Gscal_tau("@0*@0 * (@1+@2)", ktau, SM_BR_htt, SM_BR_hmm)')
         self.modelBuilder.factory_('expr::c6_Gscal_top("@0*@0 * (@1+@2)", ktop, SM_BR_htoptop, SM_BR_hcc)')
-        self.modelBuilder.factory_('expr::c6_Gscal_bottom("@0*@0 * (@1+@2)", kbottom, SM_BR_hbb, SM_BR_hss)') 
+        self.modelBuilder.factory_('expr::c6_Gscal_bottom("@0*@0 * (@1+@2)", kbottom, SM_BR_hbb, SM_BR_hss)')
         self.modelBuilder.factory_('expr::c6_Gscal_gluon("@0*@0 * @1", kgluon, SM_BR_hgluglu)')
-        if not self.doHZg: 
+        if not self.doHZg:
             self.modelBuilder.factory_('expr::c6_Gscal_gamma("@0*@0 * (@1+@2)", kgamma, SM_BR_hgg, SM_BR_hzg)')
         else:
             self.modelBuilder.factory_('expr::c6_Gscal_gamma("@0*@0 *@1+@2*@2*@3", kgamma, SM_BR_hgg, kZgamma, SM_BR_hzg)')
         self.modelBuilder.factory_('sum::c6_Gscal_tot(c6_Gscal_Vectors, c6_Gscal_tau, c6_Gscal_top, c6_Gscal_bottom, c6_Gscal_gluon, c6_Gscal_gamma)')
 
-        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
+        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2
         self.modelBuilder.factory_('expr::c6_BRscal_hvv("@0*@0/@1", kV, c6_Gscal_tot)')
         self.modelBuilder.factory_('expr::c6_BRscal_htt("@0*@0/@1", ktau, c6_Gscal_tot)')
         self.modelBuilder.factory_('expr::c6_BRscal_hbb("@0*@0/@1", kbottom, c6_Gscal_tot)')
@@ -157,7 +157,7 @@ class C6(SMLikeHiggsModel):
         print name, production, decay, energy
         if self.modelBuilder.out.function(name) == None:
             XSscal = "kgluon"
-            if production in ["WH","ZH","VH","qqH"]: XSscal = "kV" 
+            if production in ["WH","ZH","VH","qqH"]: XSscal = "kV"
             if production == "ttH": XSscal = "ktop"
             if production in [ "tHq", "tHW" ]: XSscal = "Scaling_%s_%s" % (production, energy)
             BRscal = "hgg"
@@ -168,7 +168,7 @@ class C6(SMLikeHiggsModel):
                 self.modelBuilder.factory_('expr::%s("@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
             else: # plain coupling, put (XSscal)^2
                 self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
-    
+
         return name
 
 
@@ -201,8 +201,8 @@ class C7(SMLikeHiggsModel):
         self.modelBuilder.doVar("kbottom[1,0.0,3.0]")
         self.modelBuilder.doVar("kgluon[1,0.0,2.0]")
         self.modelBuilder.doVar("kgamma[1,0.0,2.5]")
-	self.modelBuilder.doVar("BRInvUndet[0,0,1]")
-        pois = 'kV,ktau,ktop,kbottom,kgluon,kgamma,BRInvUndet' 
+        self.modelBuilder.doVar("BRInvUndet[0,0,1]")
+        pois = 'kV,ktau,ktop,kbottom,kgluon,kgamma,BRInvUndet'
         if self.doHZg:
             self.modelBuilder.doVar("kZgamma[1,0.0,30.0]")
             pois += ",kZgamma"
@@ -242,7 +242,7 @@ class C7(SMLikeHiggsModel):
 
         self.modelBuilder.factory_('expr::c7_Gscal_tot("(@1+@2+@3+@4+@5+@6)/(1-@0)",BRInvUndet,c7_Gscal_Vectors, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma)')
 
-        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
+        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2
         self.modelBuilder.factory_('expr::c7_BRscal_hvv("@0*@0/@1", kV, c7_Gscal_tot)')
         self.modelBuilder.factory_('expr::c7_BRscal_htt("@0*@0/@1", ktau, c7_Gscal_tot)')
         self.modelBuilder.factory_('expr::c7_BRscal_hbb("@0*@0/@1", kbottom, c7_Gscal_tot)')
@@ -301,28 +301,28 @@ class PartialWidthsModel(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
             self.modelBuilder.doSet("POI",'r_WZ,r_gZ,r_tZ,r_bZ,r_mZ,r_topglu,r_Zglu,c_gluZ,MH')
         else:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
                 self.modelBuilder.out.var("MH").setConstant(True)
             else:
-                self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass)
             self.modelBuilder.doSet("POI",'r_WZ,r_gZ,r_tZ,r_bZ,r_mZ,r_topglu,r_Zglu,c_gluZ')
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
     def setup(self):
         self.modelBuilder.doVar("PW_one[1]")
 
-	self.modelBuilder.factory_("prod::sr_WZ(r_WZ,r_WZ)")
-	self.modelBuilder.factory_("prod::sr_bZ(r_bZ,r_bZ)")
-	self.modelBuilder.factory_("prod::sr_tZ(r_tZ,r_tZ)")
-	self.modelBuilder.factory_("prod::sr_mZ(r_mZ,r_mZ)")
-	self.modelBuilder.factory_("prod::sr_gZ(r_gZ,r_gZ)")
-	self.modelBuilder.factory_("prod::sr_Zglu(r_Zglu,r_Zglu)")
-	self.modelBuilder.factory_("prod::sr_topglu(r_topglu,r_topglu)")
-	self.modelBuilder.factory_("prod::sc_gluZ(c_gluZ,c_gluZ)")
+        self.modelBuilder.factory_("prod::sr_WZ(r_WZ,r_WZ)")
+        self.modelBuilder.factory_("prod::sr_bZ(r_bZ,r_bZ)")
+        self.modelBuilder.factory_("prod::sr_tZ(r_tZ,r_tZ)")
+        self.modelBuilder.factory_("prod::sr_mZ(r_mZ,r_mZ)")
+        self.modelBuilder.factory_("prod::sr_gZ(r_gZ,r_gZ)")
+        self.modelBuilder.factory_("prod::sr_Zglu(r_Zglu,r_Zglu)")
+        self.modelBuilder.factory_("prod::sr_topglu(r_topglu,r_topglu)")
+        self.modelBuilder.factory_("prod::sc_gluZ(c_gluZ,c_gluZ)")
 
         self.modelBuilder.factory_("prod::PW_XSscal_WH(sr_Zglu,sr_WZ)")
         #self.modelBuilder.factory_("expr::PW_lambdaWZ(\"sqrt(@0)\",sr_WZ)")
@@ -337,10 +337,10 @@ class PartialWidthsModel(SMLikeHiggsModel):
             'htt' : 'sr_tZ',
             'hmm' : 'sr_mZ',
             'hgg' : 'sr_gZ',
-	    'hss' : 'sr_bZ',
-	    'hcc' : 'PW_one',   #
+            'hss' : 'sr_bZ',
+            'hcc' : 'PW_one',   #
             'hgluglu' : 'PW_one', #
-	    'hzg' : 'PW_one', #
+            'hzg' : 'PW_one', #
         }
         self.prodScales_ = {
             'ggH' : 'PW_one',

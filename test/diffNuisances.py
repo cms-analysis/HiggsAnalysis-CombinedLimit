@@ -3,7 +3,7 @@ import re
 from sys import argv, stdout, stderr, exit
 import datetime
 from optparse import OptionParser
-import HiggsAnalysis.CombinedLimit.calculate_pulls as CP 
+import HiggsAnalysis.CombinedLimit.calculate_pulls as CP
 
 # tool to compare fitted nuisance parameters to prefit values.
 #
@@ -46,9 +46,9 @@ if len(args) == 0:
 
 if options.pullDef!="" and options.pullDef not in CP.allowed_methods(): exit("Method %s not allowed, choose one of [%s]"%(options.pullDef,",".join(CP.allowed_methods())))
 
-if options.pullDef and options.absolute_values : 
-  print "Pulls are always defined as absolute, will modify --absolute_values to False for you"
-  options.absolute_values = False 
+if options.pullDef and options.absolute_values :
+    print "Pulls are always defined as absolute, will modify --absolute_values to False for you"
+    options.absolute_values = False
 
 if options.pullDef : options.show_all_parameters=True
 
@@ -141,97 +141,97 @@ for i in range(fpf_s.getSize()):
         row += [ "[%.2f, %.2f]" % (nuis_s.getMin(), nuis_s.getMax()) ]
 
     else:
-        # get best-fit value and uncertainty at prefit for this 
+        # get best-fit value and uncertainty at prefit for this
         # nuisance parameter
- 	if nuis_p.getErrorLo()==0 : nuis_p.setError(nuis_p.getErrorHi())
+        if nuis_p.getErrorLo()==0 : nuis_p.setError(nuis_p.getErrorHi())
         mean_p, sigma_p, sigma_pu,sigma_pd = (nuis_p.getVal(), nuis_p.getError(),nuis_p.getErrorHi(),nuis_p.getErrorLo())
 
-	if not sigma_p > 0: sigma_p = (nuis_p.getMax()-nuis_p.getMin())/2
-	nuisIsSymm = abs(abs(nuis_p.getErrorLo())-abs(nuis_p.getErrorHi()))<0.01 or nuis_p.getErrorLo() == 0
-        if options.absolute_values: 
-		if nuisIsSymm : row += [ "%.6f +/- %.6f" % (nuis_p.getVal(), nuis_p.getError()) ]
-		else: row += [ "%.6f +%.6f %.6f" % (nuis_p.getVal(), nuis_p.getErrorHi(), nuis_p.getErrorLo()) ]
+        if not sigma_p > 0: sigma_p = (nuis_p.getMax()-nuis_p.getMin())/2
+        nuisIsSymm = abs(abs(nuis_p.getErrorLo())-abs(nuis_p.getErrorHi()))<0.01 or nuis_p.getErrorLo() == 0
+        if options.absolute_values:
+            if nuisIsSymm : row += [ "%.6f +/- %.6f" % (nuis_p.getVal(), nuis_p.getError()) ]
+            else: row += [ "%.6f +%.6f %.6f" % (nuis_p.getVal(), nuis_p.getErrorHi(), nuis_p.getErrorLo()) ]
 
     for fit_name, nuis_x in [('b', nuis_b), ('s',nuis_s)]:
         if nuis_x == None:
             row += [ " n/a " ]
         else:
-	    nuisIsSymm = abs(abs(nuis_x.getErrorLo())-abs(nuis_x.getErrorHi()))<0.01 or nuis_x.getErrorLo() == 0
- 	    if nuisIsSymm : nuis_x.setError(nuis_x.getErrorHi())
-	    nuiselo = abs(nuis_x.getErrorLo()) if nuis_x.getErrorLo()>0 else nuis_x.getError()
-	    nuisehi = nuis_x.getErrorHi()
-	    if options.pullDef and nuis_p!=None: 
-	    	nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuisehi,sigma_pu,abs(nuiselo),abs(sigma_pd))
-	    else: 
-	        nx,ned,neu = nuis_x.getVal(), nuiselo, nuisehi
+            nuisIsSymm = abs(abs(nuis_x.getErrorLo())-abs(nuis_x.getErrorHi()))<0.01 or nuis_x.getErrorLo() == 0
+            if nuisIsSymm : nuis_x.setError(nuis_x.getErrorHi())
+            nuiselo = abs(nuis_x.getErrorLo()) if nuis_x.getErrorLo()>0 else nuis_x.getError()
+            nuisehi = nuis_x.getErrorHi()
+            if options.pullDef and nuis_p!=None:
+                nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuisehi,sigma_pu,abs(nuiselo),abs(sigma_pd))
+            else:
+                nx,ned,neu = nuis_x.getVal(), nuiselo, nuisehi
 
             if nuisIsSymm : row += [ "%+.2f +/- %.2f" % (nx, (abs(ned)+abs(neu))/2) ]
-	    else: row += [ "%+.2f +%.2f %.2f" % (nx, neu, ned) ]
+            else: row += [ "%+.2f +%.2f %.2f" % (nx, neu, ned) ]
 
             if nuis_p != None:
-	        if options.plotfile: 
-	          if fit_name=='b':
-	    	    nuis_p_i+=1
-		    if options.pullDef and nuis_p!=None:
-		      #nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getErrorHi(),sigma_pu,abs(nuis_x.getErrorLo()),abs(sigma_pd))
-		      gr_fit_b.SetPoint(nuis_p_i-1,nuis_p_i-0.5+0.1,nx)
-		      gr_fit_b.SetPointError(nuis_p_i-1,0,0,ned,neu)
-		    else:
-		      gr_fit_b.SetPoint(nuis_p_i-1,nuis_p_i-0.5+0.1,nuis_x.getVal())
-		      gr_fit_b.SetPointError(nuis_p_i-1,0,0,abs(nuis_x.getErrorLo()),nuis_x.getErrorHi())
-	      	    hist_fit_b.SetBinContent(nuis_p_i,nuis_x.getVal())
-	      	    hist_fit_b.SetBinError(nuis_p_i,nuis_x.getError())
-	      	    hist_fit_b.GetXaxis().SetBinLabel(nuis_p_i,name)
-	      	    gr_fit_b.GetXaxis().SetBinLabel(nuis_p_i,name)
-	          if fit_name=='s':
-		    if options.pullDef and nuis_p!=None:
-		      #nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getErrorHi(),sigma_pu,abs(nuis_x.getErrorLo()),abs(sigma_pd))
-		      gr_fit_s.SetPoint(nuis_p_i-1,nuis_p_i-0.5-0.1,nx)
-		      gr_fit_s.SetPointError(nuis_p_i-1,0,0,ned,neu)
-		    else:
-		      gr_fit_s.SetPoint(nuis_p_i-1,nuis_p_i-0.5-0.1,nuis_x.getVal())
-		      gr_fit_s.SetPointError(nuis_p_i-1,0,0,abs(nuis_x.getErrorLo()),nuis_x.getErrorHi())
-	      	    hist_fit_s.SetBinContent(nuis_p_i,nuis_x.getVal())
-	      	    hist_fit_s.SetBinError(nuis_p_i,nuis_x.getError())
-	      	    hist_fit_s.GetXaxis().SetBinLabel(nuis_p_i,name)
-	      	    gr_fit_s.GetXaxis().SetBinLabel(nuis_p_i,name)
-		  hist_prefit.SetBinContent(nuis_p_i,mean_p)
-		  hist_prefit.SetBinError(nuis_p_i,sigma_p)
-	      	  hist_prefit.GetXaxis().SetBinLabel(nuis_p_i,name)
+                if options.plotfile:
+                    if fit_name=='b':
+                        nuis_p_i+=1
+                        if options.pullDef and nuis_p!=None:
+                            #nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getErrorHi(),sigma_pu,abs(nuis_x.getErrorLo()),abs(sigma_pd))
+                            gr_fit_b.SetPoint(nuis_p_i-1,nuis_p_i-0.5+0.1,nx)
+                            gr_fit_b.SetPointError(nuis_p_i-1,0,0,ned,neu)
+                        else:
+                            gr_fit_b.SetPoint(nuis_p_i-1,nuis_p_i-0.5+0.1,nuis_x.getVal())
+                            gr_fit_b.SetPointError(nuis_p_i-1,0,0,abs(nuis_x.getErrorLo()),nuis_x.getErrorHi())
+                        hist_fit_b.SetBinContent(nuis_p_i,nuis_x.getVal())
+                        hist_fit_b.SetBinError(nuis_p_i,nuis_x.getError())
+                        hist_fit_b.GetXaxis().SetBinLabel(nuis_p_i,name)
+                        gr_fit_b.GetXaxis().SetBinLabel(nuis_p_i,name)
+                    if fit_name=='s':
+                        if options.pullDef and nuis_p!=None:
+                            #nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getErrorHi(),sigma_pu,abs(nuis_x.getErrorLo()),abs(sigma_pd))
+                            gr_fit_s.SetPoint(nuis_p_i-1,nuis_p_i-0.5-0.1,nx)
+                            gr_fit_s.SetPointError(nuis_p_i-1,0,0,ned,neu)
+                        else:
+                            gr_fit_s.SetPoint(nuis_p_i-1,nuis_p_i-0.5-0.1,nuis_x.getVal())
+                            gr_fit_s.SetPointError(nuis_p_i-1,0,0,abs(nuis_x.getErrorLo()),nuis_x.getErrorHi())
+                        hist_fit_s.SetBinContent(nuis_p_i,nuis_x.getVal())
+                        hist_fit_s.SetBinError(nuis_p_i,nuis_x.getError())
+                        hist_fit_s.GetXaxis().SetBinLabel(nuis_p_i,name)
+                        gr_fit_s.GetXaxis().SetBinLabel(nuis_p_i,name)
+                    hist_prefit.SetBinContent(nuis_p_i,mean_p)
+                    hist_prefit.SetBinError(nuis_p_i,sigma_p)
+                    hist_prefit.GetXaxis().SetBinLabel(nuis_p_i,name)
 
-                if sigma_p>0: 
+                if sigma_p>0:
                     if options.pullDef:
-			valShift = nx 
-			sigShift = 1
-                    else: 
-		        # calculate the difference of the nuisance parameter
+                        valShift = nx
+                        sigShift = 1
+                    else:
+                        # calculate the difference of the nuisance parameter
                         # w.r.t to the prefit value in terms of the uncertainty
                         # on the prefit value
-			valShift = (nuis_x.getVal() - mean_p)/sigma_p
+                        valShift = (nuis_x.getVal() - mean_p)/sigma_p
 
                         # ratio of the nuisance parameter's uncertainty
                         # w.r.t the prefit uncertainty
-                	sigShift = nuis_x.getError()/sigma_p
+                        sigShift = nuis_x.getError()/sigma_p
 
-		else :
-			#print "No definition for prefit uncertainty %s. Printing absolute shifts"%(nuis_p.GetName())
-			valShift = (nuis_x.getVal() - mean_p)
-                	sigShift = nuis_x.getError()
+                else :
+                    #print "No definition for prefit uncertainty %s. Printing absolute shifts"%(nuis_p.GetName())
+                    valShift = (nuis_x.getVal() - mean_p)
+                    sigShift = nuis_x.getError()
 
                 if options.pullDef:
                     row[-1] += ""
-		elif options.absolute_values:
+                elif options.absolute_values:
                     row[-1] += " (%+4.2fsig, %4.2f)" % (valShift, sigShift)
                 else:
                     row[-1] = " %+4.2f, %4.2f" % (valShift, sigShift)
-                
-		if fit_name == 'b':
-                      pulls.append(valShift)
+
+                if fit_name == 'b':
+                    pulls.append(valShift)
 
                 if (abs(valShift) > options.vtol2 or abs(sigShift-1) > options.stol2):
 
                     # severely report this nuisance:
-                    # 
+                    #
                     # the best fit moved by more than 2.0 sigma or the uncertainty (sigma)
                     # changed by more than 50% (default thresholds) w.r.t the prefit values
 
@@ -242,7 +242,7 @@ for i in range(fpf_s.getSize()):
                 elif (abs(valShift) > options.vtol  or abs(sigShift-1) > options.stol):
 
                     # report this nuisance:
-                    # 
+                    #
                     # the best fit moved by more than 0.3 sigma or the uncertainty (sigma)
                     # changed by more than 10% (default thresholds) w.r.t the prefit values
 
@@ -252,7 +252,7 @@ for i in range(fpf_s.getSize()):
 
                 elif options.show_all_parameters:
                     flag = True
-	
+
     # end of loop over s and b
 
     row += [ "%+4.2f"  % fit_s.correlation(name, options.poi) ]
@@ -267,7 +267,7 @@ for i in range(fpf_s.getSize()):
 
 #print details
 print setUpString
-print 
+print
 
 fmtstring = "%-40s     %15s    %15s  %10s  %10s"
 highlight = "*%s*"
@@ -353,7 +353,7 @@ names.sort()
 if options.sortBy == "correlation":
     names = [[abs(float(table[t][-2])),t] for t in table.keys()]
     names.sort(); names.reverse(); names=[n[1] for n in names]
-elif options.sortBy == "impact": 
+elif options.sortBy == "impact":
     names = [[abs(float(table[t][-1])),t] for t in table.keys()]
     names.sort(); names.reverse(); names=[n[1] for n in names]
 
@@ -366,9 +366,9 @@ for n in names:
     if (n,'s') in isFlagged: v[-2] = highlighters[isFlagged[(n,'s')]] % v[-2]
     if options.format == "latex": n = n.replace(r"_", r"\_")
     if options.absolute_values:
-       print fmtstring % (n, v[0], v[1], v[2], v[3],v[4])
+        print fmtstring % (n, v[0], v[1], v[2], v[3],v[4])
     else:
-       print fmtstring % (n, v[0], v[1], v[2],v[3])
+        print fmtstring % (n, v[0], v[1], v[2],v[3])
 
 if options.format == "latex":
     print " \\hline\n\end{tabular}"
@@ -430,12 +430,12 @@ if options.plotfile:
     leg.Draw()
     fout.WriteTObject(canvas_nuis)
     canvas_pferrs = ROOT.TCanvas("post_fit_errs", "post_fit_errs", 900, 600)
-    for b in range(1,hist_fit_e_s.GetNbinsX()+1): 
-      if hist_prefit.GetBinError(b) < 0.000001: continue 
-      hist_fit_e_s.SetBinContent(b,hist_fit_s.GetBinError(b)/hist_prefit.GetBinError(b))
-      hist_fit_e_b.SetBinContent(b,hist_fit_b.GetBinError(b)/hist_prefit.GetBinError(b))
-      hist_fit_e_s.SetBinError(b,0)
-      hist_fit_e_b.SetBinError(b,0)
+    for b in range(1,hist_fit_e_s.GetNbinsX()+1):
+        if hist_prefit.GetBinError(b) < 0.000001: continue
+        hist_fit_e_s.SetBinContent(b,hist_fit_s.GetBinError(b)/hist_prefit.GetBinError(b))
+        hist_fit_e_b.SetBinContent(b,hist_fit_b.GetBinError(b)/hist_prefit.GetBinError(b))
+        hist_fit_e_s.SetBinError(b,0)
+        hist_fit_e_b.SetBinError(b,0)
     hist_fit_e_s.SetFillColor(ROOT.kRed)
     hist_fit_e_b.SetFillColor(ROOT.kBlue)
     hist_fit_e_s.SetBarWidth(0.4)
@@ -460,5 +460,5 @@ if options.plotfile:
 
     fout.WriteTObject(canvas_pferrs)
 
-   
+
 

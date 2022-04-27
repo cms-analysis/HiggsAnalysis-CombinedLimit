@@ -17,7 +17,7 @@ if len(args) not in [2,4]:
     parser.print_usage()
     exit(1)
 
-file = ROOT.TFile(args[0]); 
+file = ROOT.TFile(args[0]);
 if file == None: raise RuntimeError, "Cannot open %s" % args[0]
 
 graph = file.Get(args[1]);
@@ -28,9 +28,9 @@ if options.level == 0:
     if options.fit == None: raise RuntimeError, "Must specify a the graph of fitted signal strength to count upcrossings at zero"
     graphUp = file.Get(options.fit)
     if graphUp == None: raise RuntimeError, "Cannot find %s in %s" % (options.fit, args[0])
-    
+
 (mhmin, mhmax) = (0, 999)
-if len(args) == 4: 
+if len(args) == 4:
     mhmin = float(args[2])
     mhmax = float(args[3])
 
@@ -42,20 +42,20 @@ valsUp = [ graphUp.GetY()[i] for i in range(n) if (graphUp.GetX()[i] >= mhmin an
 pmin = min(pvals);
 zmax = ROOT.ROOT.Math.normal_quantile_c(pmin, 1.0)
 
-upcrossings = 0; 
+upcrossings = 0;
 if options.level > 0:
     pupcross = ROOT.ROOT.Math.normal_cdf_c(options.level, 1.0)
     for i in range(len(pvals)-1):
-        if pvals[i] > pupcross and pvals[i+1] <= pupcross: 
+        if pvals[i] > pupcross and pvals[i+1] <= pupcross:
             upcrossings += 1
 else:
     pupcross = 0.5
     for i in range(len(valsUp)-1):
-        if valsUp[i] <= options.level and valsUp[i+1] > options.level: 
+        if valsUp[i] <= options.level and valsUp[i+1] > options.level:
             upcrossings += 1
 
 expfactor = exp(-0.5*(zmax**2 - options.level**2))
-pglobal     = pmin + expfactor * upcrossings 
+pglobal     = pmin + expfactor * upcrossings
 pglobal_min = pmin + expfactor * (upcrossings-sqrt(upcrossings))
 pglobal_max = pmin + expfactor * (upcrossings+sqrt(upcrossings))
 zglobal     = ROOT.ROOT.Math.normal_quantile_c(pglobal, 1.0)

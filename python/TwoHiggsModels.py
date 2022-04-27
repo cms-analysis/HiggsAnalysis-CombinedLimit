@@ -5,7 +5,7 @@ import re
 ### Scale the backgroud higgs_SM at MH_SM by r_SM
 ### r_SM can be fixed or floating (as nuisance or POI)
 class TwoHiggsBase(PhysicsModel):
-    def __init__(self): 
+    def __init__(self):
         self.mHSM      = 125.8
         self.mHRange = []
         self.mHSMRange = []
@@ -21,10 +21,10 @@ class TwoHiggsBase(PhysicsModel):
     def getYieldScale(self,bin,process):
         #sigproc = self.modes.findall(process)
         #print sigproc
-        if self.DC.isSignal[process] and process in self.modes: 
+        if self.DC.isSignal[process] and process in self.modes:
             (production,decay, energy) = getHiggsProdDecMode(bin,process,self.options)
             return self.getHiggsYieldScale(production,decay, energy)
-        if process.endswith(self.altSignal) and process.replace(self.altSignal,"") in self.modes: 
+        if process.endswith(self.altSignal) and process.replace(self.altSignal,"") in self.modes:
             (production,decay, energy) = getHiggsProdDecMode(bin,process.replace("_SM",""),self.options)
             return self.getHiggsYieldScaleSM(production,decay, energy)
         if self.DC.isSignal[process]:
@@ -34,10 +34,10 @@ class TwoHiggsBase(PhysicsModel):
         for po in physOptions:
             if po.startswith("higgsMassSM="):
                 self.mHSM = float((po.replace("higgsMassSM=","").split(","))[0]) # without index, this will try to case list as a float !
-            if po == "mHAsPOI": 
+            if po == "mHAsPOI":
                 print "Will consider the mass of the second Higgs as a parameter of interest"
                 self.mHAsPOI = True
-            if po == "mHSMAsPOI": 
+            if po == "mHSMAsPOI":
                 print "Will consider the mass of the SM Higgs as a parameter of interest"
                 self.mHSMAsPOI = True
             if po.startswith("higgsMassRange="):
@@ -52,7 +52,7 @@ class TwoHiggsBase(PhysicsModel):
                     raise RuntimeError, "SM Higgs mass range definition requires two extrema"
                 elif float(self.mHSMRange[0]) >= float(self.mHSMRange[1]):
                     raise RuntimeError, "Extrema for SM Higgs mass range defined with inverterd order. Second must be larger the first"
-    def doMasses(self): 
+    def doMasses(self):
         """Create mass variables, return a postfix to the POIs if needed"""
         poi = ""
         ## Searched-for higgs
@@ -97,14 +97,14 @@ class TwoHiggsBase(PhysicsModel):
 
 class JustOneHiggs(TwoHiggsBase):
     ## only put in the second Higgs, as a cross-check of the 1-higgs models
-    def __init__(self): 
+    def __init__(self):
         TwoHiggsBase.__init__(self)
         self.muSMAsPOI    = False
         self.muSMFloating = False
     def getHiggsYieldScaleSM(self,production,decay, energy):
         return 0
     def getHiggsYieldScale(self,production,decay, energy):
-        return "r" 
+        return "r"
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
     def doParametersOfInterest(self):
@@ -118,22 +118,22 @@ class JustOneHiggs(TwoHiggsBase):
         self.modelBuilder.doSet("POI",poi)
 
 class TwoHiggsUnconstrained(TwoHiggsBase):
-    def __init__(self): 
+    def __init__(self):
         TwoHiggsBase.__init__(self)
         self.muSMAsPOI    = False
         self.muSMFloating = False
     def getHiggsYieldScaleSM(self,production,decay, energy):
-        return "r_SM" 
+        return "r_SM"
     def getHiggsYieldScale(self,production,decay, energy):
-        return "r" 
+        return "r"
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
-            if po == "muSMAsPOI": 
+            if po == "muSMAsPOI":
                 print "Will consider the signal strength of the SM Higgs as a parameter of interest"
                 self.muSMAsPOI = True
                 self.muSMFloating = True
-            if po == "muSMFloating": 
+            if po == "muSMFloating":
                 print "Will consider the signal strength of the SM Higgs as a floating parameter (as a parameter of interest if --PO muAsPOI is specified, as a nuisance otherwise)"
                 self.muSMFloating = True
     def doParametersOfInterest(self):
@@ -142,7 +142,7 @@ class TwoHiggsUnconstrained(TwoHiggsBase):
         self.modelBuilder.doVar("r[1,0,4]");
         poi = "r"
         # take care of the SM Higgs yield
-        if self.muSMFloating: self.modelBuilder.doVar("r_SM[1,0,4]"); 
+        if self.muSMFloating: self.modelBuilder.doVar("r_SM[1,0,4]");
         else:                 self.modelBuilder.doVar("r_SM[1]");
         if self.muSMAsPOI: poi += ",r_SM"
         # take care of masses
@@ -158,7 +158,7 @@ class SingletMixing(TwoHiggsBase):
       - BSM & Visible mu:  r               r_SM := 1 - r/(1-BR_BSM) 
       note that in the third case there's no way to enforce at model level that r/(1-BR_BSM) <= 1
     """
-    def __init__(self): 
+    def __init__(self):
         TwoHiggsBase.__init__(self)
         self.withBSM = False
         self.useVisibleMu = False
@@ -169,9 +169,9 @@ class SingletMixing(TwoHiggsBase):
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
-            if po == "BSMDecays": 
+            if po == "BSMDecays":
                 self.withBSM = True
-            if po == "UseVisibleMu": 
+            if po == "UseVisibleMu":
                 self.useVisibleMu = True
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
@@ -196,7 +196,7 @@ class SingletMixing(TwoHiggsBase):
 class SingletMixingForExclusion(TwoHiggsBase):
     """ The prediction for this model is mu + mu' == 1 (or <= 1)
         So we just go probing mu+mu' """
-    def __init__(self): 
+    def __init__(self):
         TwoHiggsBase.__init__(self)
         self.withBSM = False
     def getHiggsYieldScaleSM(self,production,decay, energy):
@@ -206,7 +206,7 @@ class SingletMixingForExclusion(TwoHiggsBase):
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
-            if po == "BSMDecays": 
+            if po == "BSMDecays":
                 self.withBSM = True
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
@@ -228,7 +228,7 @@ class SingletMixingForExclusion(TwoHiggsBase):
         self.modelBuilder.doSet("POI",poi)
 
 class TwoHiggsCvCf(TwoHiggsBase):
-    def __init__(self): 
+    def __init__(self):
         TwoHiggsBase.__init__(self)
         self.cVRange = ['0','2']
         self.cFRange = ['-2','2']
@@ -256,12 +256,12 @@ class TwoHiggsCvCf(TwoHiggsBase):
 
         self.modelBuilder.doSet("POI",'CV,CF')
 
-        self.modelBuilder.factory_('expr::CV_SM("sqrt(1-@0*@0)", CV)') 
-        self.modelBuilder.factory_('expr::CF_SM("(1-@0*@1)/@2", CV, CF, CV_SM)') 
-        
+        self.modelBuilder.factory_('expr::CV_SM("sqrt(1-@0*@0)", CV)')
+        self.modelBuilder.factory_('expr::CF_SM("(1-@0*@1)/@2", CV, CF, CV_SM)')
+
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
-        
+
     def setup(self):
         self.decayScaling = {
             'hgg':'hgg',
@@ -279,31 +279,31 @@ class TwoHiggsCvCf(TwoHiggsBase):
             'ZH':'CV',
             'VH':'CV',
             }
-        
+
         self.SMH.makeScaling('hgg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
         self.SMH.makeScaling('hZg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
 
         ## partial widths, normalized to the SM one, for decays scaling with F, V and total
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
-        self.modelBuilder.factory_('expr::2HCvCf_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6+@7)", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)') 
-        self.modelBuilder.factory_('expr::2HCvCf_Gscal_sumv("@0*@0 * (@1+@2)", CV, SM_BR_hww, SM_BR_hzz)') 
-        self.modelBuilder.factory_('expr::2HCvCf_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)') 
-        self.modelBuilder.factory_('expr::2HCvCf_Gscal_Zg("@0 * @1", Scaling_hZg, SM_BR_hZg)') 
+        self.modelBuilder.factory_('expr::2HCvCf_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6+@7)", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)')
+        self.modelBuilder.factory_('expr::2HCvCf_Gscal_sumv("@0*@0 * (@1+@2)", CV, SM_BR_hww, SM_BR_hzz)')
+        self.modelBuilder.factory_('expr::2HCvCf_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)')
+        self.modelBuilder.factory_('expr::2HCvCf_Gscal_Zg("@0 * @1", Scaling_hZg, SM_BR_hZg)')
         self.modelBuilder.factory_('sum::2HCvCf_Gscal_tot(2HCvCf_Gscal_sumf, 2HCvCf_Gscal_sumv, 2HCvCf_Gscal_gg, 2HCvCf_Gscal_Zg)')
-        ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2 
+        ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2
         self.modelBuilder.factory_('expr::2HCvCf_BRscal_hgg("@0/@1", Scaling_hgg, 2HCvCf_Gscal_tot)')
         self.modelBuilder.factory_('expr::2HCvCf_BRscal_hZg("@0/@1", Scaling_hZg, 2HCvCf_Gscal_tot)')
         self.modelBuilder.factory_('expr::2HCvCf_BRscal_hff("@0*@0/@1", CF, 2HCvCf_Gscal_tot)')
         self.modelBuilder.factory_('expr::2HCvCf_BRscal_hvv("@0*@0/@1", CV, 2HCvCf_Gscal_tot)')
 
-        
+
 
     def getHiggsYieldScaleSM(self,production,decay, energy):
         name = "2HCvCf_XSBRscal_%s_%s" % (production,decay)
         if self.modelBuilder.out.function(name):
             return name
-        
+
         XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
         self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, 2HCvCf_BRscal_%s)' % (name, XSscal, BRscal))
@@ -313,7 +313,7 @@ class TwoHiggsCvCf(TwoHiggsBase):
         name = "2HCvCf_XSBRscal_%s_%s" % (production,decay)
         if self.modelBuilder.out.function(name):
             return name
-        
+
         XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
         self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, 2HCvCf_BRscal_%s)' % (name, XSscal, BRscal))

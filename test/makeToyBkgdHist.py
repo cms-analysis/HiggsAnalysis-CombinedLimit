@@ -13,12 +13,12 @@
 # can generate 10K toys in ~1 min
 #
 # Can use the --toysFreqentist to generate frequentist toys.  See:
-# https://hypernews.cern.ch/HyperNews/CMS/get/higgs-combination/572/1/2/1/1/1.html 
+# https://hypernews.cern.ch/HyperNews/CMS/get/higgs-combination/572/1/2/1/1/1.html
 #
 ##############
 # Usage: python parseCombine.py name_of_output_root_file_from_combine_command ntoys
 ##############
-# 
+#
 #
 #!/usr/bin/env python
 
@@ -36,11 +36,11 @@ from ROOT import TF1, TFile, TH2F, gROOT, gStyle,TH1F, TCanvas, TString, TLegend
 if len(sys.argv) < 2:
     print "Must specify the root file that you wish to parse."
     sys.exit()
-    
+
 if len(sys.argv) < 3:
     print "Must specify the number of toys that you ran over."
     sys.exit()
-    
+
 inputFile = str(sys.argv[1])
 nToys = int(sys.argv[2])
 
@@ -70,4 +70,4 @@ h.Write()
 outputFile.Write()
 outputFile.Close()
 
-print "Finished writing output to " + outputFile.GetName() 
+print "Finished writing output to " + outputFile.GetName()

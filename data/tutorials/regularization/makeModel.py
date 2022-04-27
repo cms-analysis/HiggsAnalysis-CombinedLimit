@@ -1,7 +1,7 @@
 ### Original Author: Andrea Carlo Marini
 ### Date: 9/11/2017
 
-import ROOT 
+import ROOT
 from array import array
 import re
 
@@ -59,12 +59,12 @@ class Model():
         self.bkg_cont = ROOT.RooGenericPdf("pt-bkg","Exp(-@0)",ROOT.RooArgList(self.x_cont))
         #self.cdf_pt = self.pt_cont.createCdf()
 
-        ### 
+        ###
         ## binned model
         self.x_th1 = ROOT.TH1D("x_th1","binned version of truth model",self.nbins_x, xmin,xmax)
         for i in range(0,self.nbins_x):
             rangename = "truth_range_%d"%i
-            low  = i 
+            low  = i
             high = i+1
             self.x_cont . setRange(rangename, low,high)
             count = self.pdf_cont.createIntegral(ROOT.RooArgSet(self.x_cont),ROOT.RooArgSet(self.x_cont),rangename).getVal() * self.nevents
@@ -93,12 +93,12 @@ class Model():
         if self.bkg:
             for i in range(0,self.nbins_y):
                 rangename = "bkg_range_%d"%i
-                low  = i 
+                low  = i
                 high = i+1
                 self.x_cont . setRange(rangename, low,high)
                 count = self.pdf_cont.createIntegral(ROOT.RooArgSet(self.x_cont),ROOT.RooArgSet(self.x_cont),rangename).getVal() * self.nbkg
                 self.b_th1 .SetBinContent( self.b_th1.FindBin(i+0.5), count)
-            
+
         ## construct reco y = Mhat . x + b
         self.y_th1 = ROOT.TH1D("y_th1","binned version of reco model",self.nbins_y, xmin,xmax)
         for j in range(0,self.nbins_y):
@@ -121,7 +121,7 @@ class Model():
                 binY= self.Mhat.GetYaxis().FindBin(j+0.5)
                 c = self.Mhat.GetBinContent(binX,binY)
                 x = self.x_th1.GetBinContent(binX)
-                self.M.SetBinContent(binX,binY,c * x) 
+                self.M.SetBinContent(binX,binY,c * x)
 
     def Import(self,obj):
         print "* importing",obj.GetName()
@@ -133,7 +133,7 @@ class Model():
         ROOT.SetOwnership(self.w,False)
         ##self.pdf = ROOT.TF1("myfunc","x*x*x*TMath::Exp(-x)/5.9380",0,10)
         #create observable x (truth)
-        print "-> construct real or fake pdfs for each entry in the matrix" 
+        print "-> construct real or fake pdfs for each entry in the matrix"
         self.mgg = ROOT.RooRealVar("mgg","mgg",110,150)
         self.MH = ROOT.RooRealVar("MH","MH",125.)
 
@@ -152,7 +152,7 @@ class Model():
             #self.dataObs.extend([h,dh])
             #ROOT.SetOwnership(h,False)
             #ROOT.SetOwnership(dh,False)
-        
+
         ## construct pdfs
         if self.type =='pdf':
             self.sigmaD = ROOT.RooRealVar("sigmaD","sigma diagonal elements",1.)
@@ -188,7 +188,7 @@ class Model():
                 binY= self.Mhat.GetYaxis().FindBin(j+0.5)
                 norm = ROOT.RooRealVar(name +"_norm","normalization of xxx",self.b_th1.GetBinContent(binY))
                 norm.setConstant()
-                
+
                 if self.type=='c&c':
                     pdf = ROOT.RooUniform(name,"Fake pdf for "+name,ROOT.RooArgSet(self.mgg))
                 elif self.type == 'pdf':
@@ -196,7 +196,7 @@ class Model():
 
                 self.Import(norm)
                 self.Import(pdf)
-                    
+
 
         print "-> writing worspace to file",self.fname
         self.w.writeToFile(self.fname)
@@ -239,14 +239,14 @@ class Model():
 
         for i in range(0,self.nbins_x):
             for j in range(0,self.nbins_y):
-                binline +="\t"+'RecoBin%d'%j 
+                binline +="\t"+'RecoBin%d'%j
                 procline += "\t"+'GenBin%d'%i
                 procline2 += "\t"+'%d'%(-i)
                 rateline += "\t" +"1"
 
         if self.bkg:
             for j in range(0,self.nbins_y):
-                binline +="\t"+'RecoBin%d'%j 
+                binline +="\t"+'RecoBin%d'%j
                 procline += "\t"+'Bkg'
                 procline2 += "\t"+'1' ## >0: bkg ; <=0: sig
                 rateline += "\t" +"1"
@@ -341,7 +341,7 @@ if __name__=="__main__":
 
     model=Model()
     model.type='pdf'
-    if opts.doCC : 
+    if opts.doCC :
         model.type = 'c&c'
         model.fname = "workspace_cc.root"
         model.dname = "datacard_cc.txt"

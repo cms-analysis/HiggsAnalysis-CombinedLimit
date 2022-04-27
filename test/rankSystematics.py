@@ -12,7 +12,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 argv.remove( '-b-' )
 
-masses = list() 
+masses = list()
 parser = OptionParser(usage="usage: %prog [options] dir \nrun with --help to get list of options")
 parser.add_option("--dir", dest="dir",  default='systs',  type="string", help="Output directory for results and intermediates.")
 parser.add_option("--masses", dest="masses",  default=[120],  type="string", action="callback", help="Which mass points to scan.",
@@ -36,22 +36,22 @@ allOut = limits[-1][1]
 nuisances = set(limits[-1][0])
 variations = limits[1:-1]
 
-def rel(test, ref, what='500'): 
+def rel(test, ref, what='500'):
     return (test[what]-ref[what])/ref[what]
 
 results = [
     (tuple(limit[0]),
      {
-    'obs':
-    {
-    'AllIn' : rel( limit[1],  allIn, '-1000'),
-    'AllOut': rel( limit[1], allOut, '-1000')
-    },
-    'exp':
-    {
-    'AllIn' : rel( limit[1],  allIn, '500'),
-    'AllOut': rel( limit[1], allOut, '500')
-    }
+        'obs':
+        {
+            'AllIn' : rel( limit[1],  allIn, '-1000'),
+            'AllOut': rel( limit[1], allOut, '-1000')
+            },
+        'exp':
+        {
+            'AllIn' : rel( limit[1],  allIn, '500'),
+            'AllOut': rel( limit[1], allOut, '500')
+            }
     }
     )
     for limit in variations ]
@@ -59,8 +59,8 @@ results = [
 def metric(x, ref='AllIn'):
     return max(
         (
-        abs(x['obs'][ref]),
-        abs(x['exp'][ref])
+            abs(x['obs'][ref]),
+            abs(x['exp'][ref])
         )
         )
 
@@ -73,11 +73,11 @@ nMinusOnes = filter(lambda x: len(x[0]) == 1, results)
 nuisancesKept = dict([ (
     tuple(v[0]),
     str(list(
-    set(nuisances)-set(v[0])
+        set(nuisances)-set(v[0])
     )[0])
                ) for v in Singles])
 
-SinglesLabelled = [ (nuisancesKept[v[0]], v[1]) for v in Singles ] 
+SinglesLabelled = [ (nuisancesKept[v[0]], v[1]) for v in Singles ]
 
 #pprint(nMinusOnesLabelled)
 g = open('Kept1.json','w')
@@ -90,5 +90,5 @@ g.close()
 
 os.chdir(OWD)
 
-    
+
 
