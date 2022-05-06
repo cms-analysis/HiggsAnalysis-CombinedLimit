@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 ########
 # Author: Jessica Brinson (jbrinson@cern.ch), The Ohio State Unversity
 # Date created: 7 Aug, 2014
@@ -18,10 +19,6 @@
 ##############
 # Usage: python parseCombine.py name_of_output_root_file_from_combine_command ntoys
 ##############
-#
-#
-#!/usr/bin/env python
-
 from __future__ import absolute_import
 from __future__ import print_function
 import time

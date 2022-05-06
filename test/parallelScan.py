@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ##  run combine -M MultiDimFit scans in multiple local jobs in parallel
 ##  usage: just replace "combine" with "parallelScan.py" in the command line

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import absolute_import
 from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
