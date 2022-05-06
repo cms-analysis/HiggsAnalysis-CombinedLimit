@@ -32,7 +32,7 @@ if len(args) == 0:
 options.fileName = args[0]
 if options.fileName.endswith(".gz"):
     import gzip
-    file = gzip.open(options.fileName, "rb")
+    file = gzip.open(options.fileName, "rt")
     options.fileName = options.fileName[:-3]
 else:
     file = open(options.fileName, "r")
