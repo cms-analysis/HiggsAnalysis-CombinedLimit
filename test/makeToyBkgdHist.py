@@ -19,19 +19,20 @@
 ##############
 # Usage: python parseCombine.py name_of_output_root_file_from_combine_command ntoys
 ##############
-from __future__ import absolute_import
-from __future__ import print_function
-import time
-import os
-import sys
-import math
+from __future__ import absolute_import, print_function
+
 import copy
+import glob
+import math
+import os
 import re
 import subprocess
-import glob
+import sys
+import time
 
-from ROOT import TF1, TFile, TH2F, gROOT, gStyle,TH1F, TCanvas, TString, TLegend, TPaveLabel, TH2D, TPave, Double
 from six.moves import range
+
+from ROOT import TF1, TH1F, TH2D, TH2F, Double, TCanvas, TFile, TLegend, TPave, TPaveLabel, TString, gROOT, gStyle
 
 if len(sys.argv) < 2:
     print("Must specify the root file that you wish to parse.")
@@ -47,20 +48,26 @@ nToys = int(sys.argv[2])
 file = TFile.Open(inputFile)
 file.cd()
 
-for key in  file.GetListOfKeys():
-    if (key.GetClassName() != "TDirectoryFile"):
+for key in file.GetListOfKeys():
+    if key.GetClassName() != "TDirectoryFile":
         continue
     rootDirectory = key.GetName()
 
-#loop over the toys and extract nToyBkgd
+# loop over the toys and extract nToyBkgd
 nToyBkgdList = []
-for i in range (1,nToys+1):
+for i in range(1, nToys + 1):
     toyTemp = file.Get(rootDirectory + "/toy_" + str(i)).Clone()
     nToyBkgd = toyTemp.get(0).getRealValue("n_obs_binMyChan")
     nToyBkgdList.append(nToyBkgd)
 
 # fill histogram with the number of simulated background events for each toy
-h = TH1F("nToyBkgd", ";background yield;number of toys", 100, float(min(nToyBkgdList)), float(max(nToyBkgdList)))
+h = TH1F(
+    "nToyBkgd",
+    ";background yield;number of toys",
+    100,
+    float(min(nToyBkgdList)),
+    float(max(nToyBkgdList)),
+)
 for item in nToyBkgdList:
     h.Fill(float(item))
 

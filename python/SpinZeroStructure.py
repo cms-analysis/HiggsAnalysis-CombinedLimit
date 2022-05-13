@@ -1,9 +1,11 @@
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import absolute_import, print_function
+
 import math
+
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 ### This is the base python class to study the SpinZero structure
+
 
 class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
@@ -31,55 +33,60 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
         super(SpinZeroHiggsBase, self).setModelBuilder(modelBuilder)
         self.modelBuilder.doModelBOnly = False
 
-    def getYieldScale(self,bin,process):
-        "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
+    def getYieldScale(self, bin, process):
+        "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds"
         result = super(SpinZeroHiggsBase, self).getYieldScale(bin, process)
-        if result not in (0, 1): print("Process {0} will scale by {1}".format(process,result))
+        if result not in (0, 1):
+            print("Process {0} will scale by {1}".format(process, result))
         return result
 
-    def processPhysicsOptions(self,physOptions):
+    def processPhysicsOptions(self, physOptions):
         processed = super(SpinZeroHiggsBase, self).processPhysicsOptions(physOptions)
         for po in physOptions:
-            if po.lower()=='fai1fixed' or po.lower()=='fai1notpoi':
-                if not self.fai1POI: raise ValueError("Specified fai1Fixed and/or fai1NotPOI multiple times!\n{}".format(physOptions))
+            if po.lower() == "fai1fixed" or po.lower() == "fai1notpoi":
+                if not self.fai1POI:
+                    raise ValueError("Specified fai1Fixed and/or fai1NotPOI multiple times!\n{}".format(physOptions))
                 print("CMS_zz4l_fai1 is NOT A POI")
                 self.fai1POI = False
-                if po.lower()=='fai1fixed':
+                if po.lower() == "fai1fixed":
                     print("Will fix CMS_zz4l_fai1 to 0")
                     self.fai1Floating = False
                 processed.append(po)
 
-            if po.lower()=='phiai1floating' or po.lower()=='phiai1aspoi':
-                if self.phiai1Floating: raise ValueError("Specified phiai1Floating and/or phiai1AsPOI multiple times!\n{}".format(physOptions))
+            if po.lower() == "phiai1floating" or po.lower() == "phiai1aspoi":
+                if self.phiai1Floating:
+                    raise ValueError("Specified phiai1Floating and/or phiai1AsPOI multiple times!\n{}".format(physOptions))
                 print("Will consider phase ai1 as a floating parameter")
                 self.phiai1Floating = True
-                if po.lower()=='phiai1aspoi':
+                if po.lower() == "phiai1aspoi":
                     print("Will consider phase ai1 as a parameter of interest")
                     self.phiai1POI = True
                 processed.append(po)
 
-            if po.lower() == 'fai2floating' or po.lower() == 'fai2aspoi':
-                if self.fai2Floating: raise ValueError("Specified fai2Floating and/or fai2AsPOI multiple times!\n{}".format(physOptions))
+            if po.lower() == "fai2floating" or po.lower() == "fai2aspoi":
+                if self.fai2Floating:
+                    raise ValueError("Specified fai2Floating and/or fai2AsPOI multiple times!\n{}".format(physOptions))
                 print("Will float CMS_zz4l_fai2")
                 self.fai2Floating = True
-                if po.lower() == 'fai2aspoi':
+                if po.lower() == "fai2aspoi":
                     self.fai2POI = True
                 processed.append(po)
 
-            if po.lower() == 'phiai2floating' or po.lower() == 'phiai2aspoi':
-                if self.phiai2Floating: raise ValueError("Specified phiai2Floating and/or phiai2AsPOI multiple times!\n{}".format(physOptions))
+            if po.lower() == "phiai2floating" or po.lower() == "phiai2aspoi":
+                if self.phiai2Floating:
+                    raise ValueError("Specified phiai2Floating and/or phiai2AsPOI multiple times!\n{}".format(physOptions))
                 print("Will consider phase ai2 as a floating parameter")
                 self.phiai2Floating = True
-                if po.lower() == 'phiai2aspoi':
+                if po.lower() == "phiai2aspoi":
                     print("Will consider phase ai2 as a parameter of interest")
                     self.phiai2POI = True
                 processed.append(po)
 
-            if po.lower() == 'allowpmf':
+            if po.lower() == "allowpmf":
                 self.allowPMF = True
                 processed.append(po)
 
-            if po.lower() == 'hwwcombination':
+            if po.lower() == "hwwcombination":
                 self.HWWcombination = True
                 processed.append(po)
 
@@ -96,14 +103,14 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         if self.fai1Floating:
             if self.modelBuilder.out.var("CMS_zz4l_fai1"):
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(0.,1.)
+                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(0.0, 1.0)
                 self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
             else:
                 self.modelBuilder.doVar("CMS_zz4l_fai1[0.,0,1]")
             print("Floating CMS_zz4l_fai1")
             self.modelBuilder.out.var("CMS_zz4l_fai1").setConstant(False)
             if self.allowPMF:
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(-1.,1.)
+                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(-1.0, 1.0)
                 print("Allowing negative CMS_zz4l_fai1")
             if self.fai1POI:
                 poi.append("CMS_zz4l_fai1")
@@ -119,14 +126,14 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         if self.fai2Floating:
             if self.modelBuilder.out.var("CMS_zz4l_fai2"):
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(0.,1.)
+                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(0.0, 1.0)
                 self.modelBuilder.out.var("CMS_zz4l_fai2").setVal(0)
             else:
                 self.modelBuilder.doVar("CMS_zz4l_fai2[0.,0,1]")
             print("Floating CMS_zz4l_fai2")
             self.modelBuilder.out.var("CMS_zz4l_fai2").setConstant(False)
             if self.allowPMF:
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(-1.,1.)
+                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(-1.0, 1.0)
                 print("Allowing negative CMS_zz4l_fai2")
             if self.fai2POI:
                 poi.append("CMS_zz4l_fai2")
@@ -142,7 +149,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         if self.phiai1Floating:
             if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setRange(-3.14159265359,3.14159265359)
+                self.modelBuilder.out.var("CMS_zz4l_phiai1").setRange(-3.14159265359, 3.14159265359)
                 self.modelBuilder.out.var("CMS_zz4l_phiai1").setVal(0)
             else:
                 self.modelBuilder.doVar("CMS_zz4l_phiai1[0.,-3.14159265359,3.14159265359]")
@@ -163,7 +170,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         if self.phiai2Floating:
             if self.modelBuilder.out.var("CMS_zz4l_phiai2"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setRange(-3.14159265359,3.14159265359)
+                self.modelBuilder.out.var("CMS_zz4l_phiai2").setRange(-3.14159265359, 3.14159265359)
                 self.modelBuilder.out.var("CMS_zz4l_phiai2").setVal(0)
             else:
                 self.modelBuilder.doVar("CMS_zz4l_phiai2[0.,-3.14159265359,3.14159265359]")
@@ -221,20 +228,21 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         return poi
 
+
 class SpinZeroHiggs(SpinZeroHiggsBase):
     def __init__(self):
         super(SpinZeroHiggs, self).__init__()
         self.muFloating = True
         self.muAsPOI = False
 
-    def processPhysicsOptions(self,physOptions):
+    def processPhysicsOptions(self, physOptions):
         processed = super(SpinZeroHiggs, self).processPhysicsOptions(physOptions)
         for po in physOptions:
-            if po.lower() == 'mufixed':
+            if po.lower() == "mufixed":
                 print("Will consider the signal strength as a fixed parameter")
                 self.muFloating = False
                 processed.append(po)
-            elif po.lower() == 'muaspoi':
+            elif po.lower() == "muaspoi":
                 print("Will consider the signal strength as a parameter of interest")
                 self.muAsPOI = True
                 processed.append(po)
@@ -262,7 +270,7 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
         poi = super(SpinZeroHiggs, self).getPOIList()
         if self.muFloating:
             if self.modelBuilder.out.var("r"):
-                self.modelBuilder.out.var("r").setRange(0.,400.)
+                self.modelBuilder.out.var("r").setRange(0.0, 400.0)
                 self.modelBuilder.out.var("r").setVal(1)
             else:
                 self.modelBuilder.doVar("r[1,0,400]")
@@ -285,7 +293,8 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
                 self.modelBuilder.doVar("r[1]")
         return poi
 
-class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalModel):
+
+class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase, CanTurnOffBkgModel, MultiSignalModel):
     def __init__(self):
         super(MultiSignalSpinZeroHiggs, self).__init__()
 
@@ -295,13 +304,13 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         self.sqrts = None
         self.fixed = []
         self.floated = []
-        #not doing muAsPOI or fixMu, there are too many permutations.
-        #should just be set when running combine.
+        # not doing muAsPOI or fixMu, there are too many permutations.
+        # should just be set when running combine.
 
     def setPhysicsOptions(self, physOptions):
         if not any(po.startswith("map=") for po in physOptions):
-            #no po started with map --> no manual overriding --> use the defaults
-            #can still override with e.g. turnoff=ZH,WH
+            # no po started with map --> no manual overriding --> use the defaults
+            # can still override with e.g. turnoff=ZH,WH
             physOptions = ["map=.*/(gg|qq|Z|W|tt)H:1"] + physOptions
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
 
@@ -315,7 +324,8 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
                 self.scaledifferentsqrtsseparately = True
                 processed.append(po)
             if po.lower().startswith("sqrts="):
-                if self.sqrts is not None: raise ValueError("Duplicate physicsoption sqrts=?? provided")
+                if self.sqrts is not None:
+                    raise ValueError("Duplicate physicsoption sqrts=?? provided")
                 self.sqrts = [int(_) for _ in po.replace("sqrts=", "").split(",")]
                 processed.append(po)
             if po.lower() == "uservoverrf":
@@ -356,18 +366,18 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
     def getPOIList(self):
         result = super(MultiSignalSpinZeroHiggs, self).getPOIList()
 
-        fixedorfloated = self.fixed+self.floated
+        fixedorfloated = self.fixed + self.floated
         for variable in fixedorfloated:
             if not self.modelBuilder.out.var(variable):
                 print("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable))
             else:
-                if 'r' in variable.lower():
+                if "r" in variable.lower():
                     print("Setting {} range to [1.,0.,400.]".format(variable))
-                    self.modelBuilder.out.var(variable).setRange(0.,400.)
+                    self.modelBuilder.out.var(variable).setRange(0.0, 400.0)
                     self.modelBuilder.out.var(variable).setVal(1)
                 elif "ggsm" in variable.lower():
                     print("Setting {} range to [1.,0.,50.]".format(variable))
-                    self.modelBuilder.out.var(variable).setRange(0.,50.)
+                    self.modelBuilder.out.var(variable).setRange(0.0, 50.0)
                     self.modelBuilder.out.var(variable).setVal(1)
                 else:
                     print("Setting {} value to 0".format(variable))
@@ -383,6 +393,7 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
                 self.modelBuilder.out.var(variable).setAttribute("flatParam")
 
         return result
+
 
 spinZeroHiggs = SpinZeroHiggs()
 multiSignalSpinZeroHiggs = MultiSignalSpinZeroHiggs()
