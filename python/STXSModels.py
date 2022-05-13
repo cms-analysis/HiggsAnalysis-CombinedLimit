@@ -166,8 +166,6 @@ class StageZero(STXSBaseModel):
                 else:
                     muXSBR = "mu_XS_%s_x_BR_%s"%(P,self.denominator)
                     muBR =  "mu_BR_%s_r_BR_%s"%(D,self.denominator)
-                    decDen = list(CMS_to_LHCHCG_DecSimple.keys())[list(CMS_to_LHCHCG_DecSimple.values()).index(self.denominator)]
-                    #self.modelBuilder.factory_('expr::scaling_'+P+'_'+D+'_13TeV("@0*@1*@2/@3",'+muXSBR+','+muBR+',SM_BR_'+dec+',SM_BR_'+decDen+')')
                     self.modelBuilder.factory_('expr::scaling_'+P+'_'+D+'_13TeV("@0*@1",'+muXSBR+','+muBR+')')
 
     def getHiggsSignalYieldScale(self,production,decay,energy):

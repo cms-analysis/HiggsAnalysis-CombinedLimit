@@ -20,7 +20,6 @@ from six.moves import zip
 def getSTXSProdDecMode(bin,process,options):
     matchedDecayString = False#Boolean
     processSource = process
-    decaySource = options.fileName+":"+bin # by default, decay comes from datacard name or bin label
     foundDecay = None
     foundEnergy = "13TeV"
     #Iterate over Higgs decays

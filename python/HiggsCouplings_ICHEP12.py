@@ -89,7 +89,7 @@ class C5qlHiggs(SMLikeHiggsModel):
         self.fix = []
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
-            if po == "universalCF": universalCF = True
+            if po == "universalCF": self.universalCF = True
             if po.startswith("fix="): self.fix = po.replace("fix=","").split(",")
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
@@ -179,7 +179,7 @@ class C5udHiggs(SMLikeHiggsModel):
         self.fix = []
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
-            if po == "universalCF": universalCF = True
+            if po == "universalCF": self.universalCF = True
             if po.startswith("fix="): self.fix = po.replace("fix=","").split(",")
             if po.startswith("higgsMassRange="):
                 self.floatMass = True

@@ -60,9 +60,9 @@ def relDiffAsymErrs(x,x0,sxu,sxu0,sxd,sxd0):
     return [pull,pull_hi,pull_lo]
 
 def returnPull(method,x,x0,sx,sx0):
-    if   method == "unconstPull" : return unconstPullDiff(x,x0,sx,sx)
-    elif method == "compat"  : return compat(x,x0,sx,sx0)
+    if method == "compat"  : return compat(x,x0,sx,sx0)
     elif method == "diffPull"  : return diffPull(x,x0,sx,sx0)
+    # missing method unconstPull ?
     else: sys.exit("python/calculate_pulls.py -- Error, pulls method %s not understood!"%method)
 
 def returnPullAsym(method,x,x0,sxu,sxu0,sxd,sxd0):

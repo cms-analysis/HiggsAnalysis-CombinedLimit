@@ -88,9 +88,8 @@ def main() :
     pruner.list_to_file(dropped, "uncertainty-pruning-drop.txt")
     ## comment dropped uncertainties from datacards if configured such
     if options.comment_nuisances :
-        num = 0
         for file in glob.glob(args[0]+'/*.txt') :
-            num = pruner.manipulate_datacard(file, "COMMENT", dropped)
+            pruner.manipulate_datacard(file, "COMMENT", dropped)
 
     print("# Excluded", len(dropped), "uncertainties from", len(dropped)+len(kept), ": (", confused, "not pruned due to missmatch of inputs).")
     print("# Check the output files uncertainty-pruning-keep.txt and uncertainty-pruning-drop.txt")
