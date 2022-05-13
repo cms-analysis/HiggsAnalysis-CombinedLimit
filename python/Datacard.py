@@ -221,7 +221,7 @@ MB.doModel()
         """
         This is a safe way to determine the histogram name of the uncert template for a given bin and proc.
         """
-        path =  self.path_to_uncert(bin, proc, contact)
+        path = self.path_to_uncert(bin, proc, resolve)
         if '/' in path :
             return path[path.rfind('/')+1:]
         else :
@@ -263,11 +263,9 @@ MB.doModel()
         for specific channels/processes, then you should specify a 
         process (list or leave empty for all) and channel (list or leave empty for all)
         """
-        newnameExists = False
         existingclashes = {}
         for lsyst,nofloat,pdf0,args0,errline0 in (self.systs[:]):
             if lsyst == newname : # found the nuisance exists
-                newnameExists = True
                 existingclashes[lsyst]=(nofloat,pdf0,args0,errline0)
 
         found=False
@@ -286,12 +284,12 @@ MB.doModel()
                     nofloat1,pdf1,args1,errline1 = existingclashes[lsyst]
 
                 else: pass
-                datacard.systs[nuisanceID][0]=newname
+                self.systs[nuisanceID][0]=newname
                 if "shape" in pdf0 :
                     for b in channel_list:
                         for p in process_list :
-                            datacard.systematicsShapeMap[newname,b,p]=oldname
-                if "param" in pdf0 : datacard.systematicsParamMap[oldname]=newname
+                            self.systematicsShapeMap[newname,b,p]=oldname
+                if "param" in pdf0 : self.systematicsParamMap[oldname]=newname
 
         if not found: raise RuntimeError("Error: no parameter found with = %s\n" % oldname)
         return 0
