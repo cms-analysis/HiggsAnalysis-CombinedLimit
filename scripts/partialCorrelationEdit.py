@@ -69,7 +69,7 @@ cb.ParseDatacard(args.datacard, mass=args.mass)
 
 if args.process != '':
     actions = [X.split(',') for X in args.process.split(':')]
-    
+
     for name, correlation in actions:
         print '>> Setting correlation coefficient of %s to %f' % (name, float(correlation))
         if float(correlation) == 0.:

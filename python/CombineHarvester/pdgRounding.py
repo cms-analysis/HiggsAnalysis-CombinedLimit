@@ -50,5 +50,5 @@ def test(valueError=(0., 0.)) :
     print ' ',val,' +/- ',err
 
 if __name__=='__main__' :
-  for x in [(26710, 177)
-              ] : test(x)
+    for x in [(26710, 177)
+                ] : test(x)
