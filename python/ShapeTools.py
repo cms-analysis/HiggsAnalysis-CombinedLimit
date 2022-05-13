@@ -971,15 +971,8 @@ class ShapeBuilder(ModelBuilder):
         else:
             print("%s%s depends on MH and other %d variables." % (indent, arg.GetName(), depvars.getSize()))
             #depvars.Print("")
-            srviter = arg.serverMIterator()
-            servers = []
-            while True:
-                a = next(srviter)
-                if not a: break
-                servers.append(a)
-            #print "%sFound %d servers: %s" % (indent, len(servers), ", ".join(a.GetName() for a in servers))
             newservers = []
-            for a in servers:
+            for a in arg.servers():
                 aopt = self.optimizeMHDependency(a,wsp,MH,indent=indent+"   ")
                 if aopt != a:
                     newservers.append((a,aopt))
