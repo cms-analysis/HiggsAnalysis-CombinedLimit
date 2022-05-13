@@ -1,0 +1,12 @@
+[flake8]
+# --- These are all default flake8 ignores
+# F403: ‘from module import *’ used; unable to detect undefined names
+# F405: name may be undefined, or defined from star imports: module
+# E402: module level import not at top of file
+# W504: Raised by flake8 even when it is followed
+# E203: is not PEP 8 compliant https://github.com/psf/black/issues/315
+# W503: Line break occurred before a binary operator (black will do this)
+# The rest will hopefully go away with auto-formatting (black)
+ignore = F403,F405,E402,W504,E203,W503,F401,E401,E115,E121,E201,E202,E211,E221,E222,E225,E226,E242,E262,E273,E251,E228,E231,E241,E261,E265,E266,E271,E272,E301,E302,E303,E305,E701,E702,E703,W391,E711,E741,W291,E227,E126,E131,E123,E128,E502,E501
+max-line-length = 160
+exclude = data, docs, test
