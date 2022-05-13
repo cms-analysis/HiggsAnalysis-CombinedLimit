@@ -5,7 +5,7 @@ from math import log,exp,hypot
 
 def appendMap(tmap,k,thing):
     if k in list(tmap.keys()):
-        if not thing in tmap[k]: tmap[k].append(thing)
+        if thing not in tmap[k]: tmap[k].append(thing)
     else: tmap[k] = [thing]
 
 def fullmatch(regex, line):
@@ -53,7 +53,7 @@ def doAddNuisance(datacard, args):
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit add process channel name pdf value [ options ]")
     (process, channel, name, pdf, value) = args[:5]
     if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    if channel != "*": cchannel = re.compile(channel.replace("+",r"\+"))
     opts = args[5:]
     found = False
     errline = dict([(b,dict([(p,0) for p in datacard.exp[b]])) for b in datacard.bins])
@@ -98,7 +98,7 @@ def doDropNuisance(datacard, args):
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit drop process channel name [ options ]")
     (process, channel, name) = args[:3]
     if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    if channel != "*": cchannel = re.compile(channel.replace("+",r"\+"))
     opts = args[3:]
     foundProc = False
     for lsyst,nofloat,pdf,args0,errline in datacard.systs:
@@ -147,7 +147,7 @@ def doRenameNuisance(datacard,args):
     else:
         (process, channel, oldname, newname) = args[:4]
         if process != "*": cprocess = re.compile(process)
-        if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+        if channel != "*": cchannel = re.compile(channel.replace("+",r"\+"))
         opts = args[4:]
 
     #print "map before ->", datacard.systIDMap
@@ -266,7 +266,7 @@ def doMergeNuisance(datacard, args):
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit merge process channel name1 name2 [ options ]")
     (process, channel, name1, name2) = args[:4]
     if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    if channel != "*": cchannel = re.compile(channel.replace("+",r"\+"))
     opts = args[4:]
     foundProc = False
 
@@ -292,7 +292,7 @@ def doSplitNuisance(datacard, args):
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit split process channel oldname newname1 newname2 value1 value2")
     (process, channel, oldname, newname1, newname2, value1, value2) = args[:7]
     if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    if channel != "*": cchannel = re.compile(channel.replace("+",r"\+"))
     opts = args[7:]
     foundProc = False
     for lsyst,nofloat,pdf,args0,errline in datacard.systs:
@@ -345,7 +345,7 @@ def doFlipNuisance(datacard,args):
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit flip process channel name [options: ifexists, p2n (only positive to negative), n2p (only negative to positive)]")
     (process, channel, name) = args[:3]
     if process != "*": cprocess = re.compile(process)
-    if channel != "*": cchannel = re.compile(channel.replace("+","\+"))
+    if channel != "*": cchannel = re.compile(channel.replace("+",r"\+"))
     opts = args[3:]
     if "n2p" not in opts and "p2n" not in opts:
         raise RuntimeError("Error: nuisance edit flip %s missed option n2p and/or p2n" % (args))

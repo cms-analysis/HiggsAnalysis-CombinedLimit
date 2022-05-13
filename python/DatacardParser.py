@@ -81,7 +81,7 @@ def addRateParam(lsyst,f,ret):
     ret.rateParamsOrder.add(lsyst)
 
 def parseCard(file, options):
-    if type(file) == type("str"):
+    if isinstance(file, str):
         raise RuntimeError("You should pass as argument to parseCards a file object, stream or a list of lines, not a string")
     ret = Datacard()
 
@@ -98,8 +98,8 @@ def parseCard(file, options):
     lineNumber = None
     lineNumber2 = None
 
-    try: getattr(options,"evaluateEdits")
-    except: setattr(options,"evaluateEdits",True)
+    if not hasattr(options, "evaluateEdits"):
+        setattr(options, "evaluateEdits", True)
 
     try:
         for lineNumber,l in enumerate(file):
@@ -167,7 +167,7 @@ def parseCard(file, options):
                         ret.isSignal[p] = s
                     elif ret.isSignal[p] != s:
                         raise RuntimeError("Process %s is declared as signal in some bin and as background in some other bin" % p)
-                ret.signals = [p for p,s in ret.isSignal.items() if s == True]
+                ret.signals = [p for p,s in ret.isSignal.items() if s]
                 if len(ret.signals) == 0 and not options.allowNoSignal: raise RuntimeError("You must have at least one signal process (id <= 0)")
             if f[0] == "rate":
                 if processline == []: raise RuntimeError("Missing line with process names before rate line")
@@ -332,8 +332,8 @@ def parseCard(file, options):
     # check if there are bins with no rate
     for b in ret.bins:
         np_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b])
-        ns_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s == True])
-        nb_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s != True])
+        ns_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s])
+        nb_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and not s])
         if np_bin == 0: raise RuntimeError("Bin %s has no processes contributing to it" % b)
         if ns_bin == 0 and not options.allowNoSignal: stderr.write("Warning: Bin %s has no signal processes contributing to it\n" % b)
         if nb_bin == 0 and not options.allowNoBackground: raise RuntimeError("Bin %s has no background processes contributing to it" % b)

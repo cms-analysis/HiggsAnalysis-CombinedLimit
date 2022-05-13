@@ -123,7 +123,7 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
             if po.startswith("map="):
                 (maplist,poi) = po.replace("map=","").split(":",1)
                 maps = maplist.split(",")
-                poiname = re.sub("\[.*","", poi)
+                poiname = re.sub(r"\[.*","", poi)
                 if poi == "super":
                     pass
                 elif "=" in poi:

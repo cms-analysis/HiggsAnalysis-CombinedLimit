@@ -32,11 +32,11 @@ class Datacard():
         self.hasShapes = False
         ## dirct of {name of uncert, boolean to indicate whether it is a flat parametric uncertainty or not}
         self.flatParamNuisances = {}
-              ## dict of rateParam, key is f"{bin}AND{process}", per bin/process they are a list
+        ## dict of rateParam, key is f"{bin}AND{process}", per bin/process they are a list
         self.rateParams = {}
-              ## dict of extArgs
+        ## dict of extArgs
         self.extArgs = {}
-              ## maintain the names of rate modifiers
+        ## maintain the names of rate modifiers
         self.rateParamsOrder = set()
         ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
         self.frozenNuisances = set()
@@ -80,7 +80,7 @@ DC = Datacard()
 MB = None
 
 ############## Setup the datacard (must be filled in) ###########################
-	""")
+""")
 
         print("DC.bins = 	"		, self.bins			,"#",type(self.bins))
         print("DC.obs = 	"		, self.obs                      ,"#",type(self.obs))
@@ -123,7 +123,7 @@ else:
 # Set physics models
 MB.setPhysics(defaultModel)
 MB.doModel()
-	""")
+""")
 
         # map of which bins should have automated Barlow-Beeston parameters
         self.binParFlags = {}
@@ -171,9 +171,9 @@ MB.doModel()
         returned.
         """
         path = ''
-        if not bin in list(self.shapeMap.keys()) :
+        if bin not in list(self.shapeMap.keys()) :
             if '*' in list(self.shapeMap.keys()) :
-                if not proc in self.shapeMap['*'] :
+                if proc not in self.shapeMap['*'] :
                     if '*' in list(self.shapeMap['*'].keys()) :
                         path = self.shapeMap['*']['*'][idx]
                 else :

@@ -144,9 +144,6 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
             self.modelBuilder.out.function(name).Print("")
         return name
 
-from HiggsAnalysis.CombinedLimit.PhysicsModel import *
-#from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
-import ROOT, os
 
 def getGenProdDecMode(bin,process,options):
     """Return a triple of (production, decay, energy)"""

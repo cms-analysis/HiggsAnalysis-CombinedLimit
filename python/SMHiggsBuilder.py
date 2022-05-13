@@ -131,12 +131,10 @@ class SMHiggsBuilder:
                     rooName = prefix+qty+'_'+sqrts
                     self.textToSpline(rooName, os.path.join(self.coupPath, 'ggZH_%(sqrts)s.txt'%locals()), ycol=column )
                 scalingName = 'Scaling_'+what+'_'+sqrts
-                coeffSum = 'expr::coeff_sum_%(scalingName)s( "@0+@1+@2+@3+@4+@5",\
-		%(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_kZ2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkZ_%(sqrts)s, %(prefix)sc_kbkZ_%(sqrts)s)'%locals()
+                coeffSum = 'expr::coeff_sum_%(scalingName)s( "@0+@1+@2+@3+@4+@5",%(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_kZ2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkZ_%(sqrts)s, %(prefix)sc_kbkZ_%(sqrts)s)'%locals()
                 self.modelBuilder.factory_(coeffSum)
 
-                rooExpr = 'expr::%(scalingName)s( "( (@0*@0)*(@3)  + (@1*@1)*(@4) + (@2*@2)*(@5) + (@0*@1)*(@6)  + (@0*@2)*(@7) + (@1*@2)*(@8) )/@9",\
-		%(Ctop)s, %(Cb)s, %(CZ)s, %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_kZ2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkZ_%(sqrts)s, %(prefix)sc_kbkZ_%(sqrts)s, coeff_sum_%(scalingName)s)'%locals()
+                rooExpr = 'expr::%(scalingName)s( "( (@0*@0)*(@3)  + (@1*@1)*(@4) + (@2*@2)*(@5) + (@0*@1)*(@6)  + (@0*@2)*(@7) + (@1*@2)*(@8) )/@9",%(Ctop)s, %(Cb)s, %(CZ)s, %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_kZ2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkZ_%(sqrts)s, %(prefix)sc_kbkZ_%(sqrts)s, coeff_sum_%(scalingName)s)'%locals()
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith('tHq'):
             coeffs = {'7TeV':[3.099,3.980,-6.078], '8TeV':[2.984,3.886,-5.870],'13TeV':[2.633,3.578,-5.211],'14TeV':[2.582,3.538,-5.120]}  # coefficients for  kt^{2}, kW^{2}, ktkW @ MH = 125 GeV

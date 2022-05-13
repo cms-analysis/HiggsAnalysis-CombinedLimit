@@ -55,7 +55,7 @@ class DatacardPruner(object) :
         """
         output = {}
         headline = ''
-        pull_pattern = re.compile('[+-]\d+\.\d+(?=sig)')
+        pull_pattern = re.compile(r'[+-]\d+\.\d+(?=sig)')
         for fit_result in self.fit_results :
             file= open(fit_result,'r')
             for line in file :
@@ -71,7 +71,7 @@ class DatacardPruner(object) :
                 ## skip POI
                 if key == 'r' :
                     continue
-                if not key in list(output.keys()) :
+                if key not in list(output.keys()) :
                     output[key] = line
                 else :
                     pulls_old  = pull_pattern.findall(output[key])
@@ -239,14 +239,14 @@ class DatacardPruner(object) :
         confused = 0
         file_name = self.combine_fit_results(self.fit_results)
         file = open(file_name,'r')
-        pull_pattern = re.compile('[+-]\d+\.\d+(?=sig)')
+        pull_pattern = re.compile(r'[+-]\d+\.\d+(?=sig)')
         for line in file :
             ## first element is the name of the nuisance parameter
             name=line.split()[0]
             if name == 'name' or name == 'r' :
                 continue
             missmatch = False
-            if not name in UNCERTS :
+            if name not in UNCERTS:
                 confused += 1
                 missmatch = True
                 print("Warning: uncertainty:", name,  " found in output file of maximum likelihood fit but NOT in list of uncertainties as defined by datacards.")

@@ -86,7 +86,7 @@ class TwoHypotesisHiggs(PhysicsModel):
                 self.muFloating = True
                 (maplist,poi) = po.replace("map=","").split(":")
                 maps = maplist.split(",")
-                poiname = re.sub("\[.*","", poi)
+                poiname = re.sub(r"\[.*","", poi)
                 if poiname not in self.pois:
                     if self.verbose: print("Will create a var ",poiname," with factory ",poi)
                     self.pois[poiname] = poi

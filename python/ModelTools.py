@@ -180,15 +180,16 @@ class ModelBuilder(ModelBuilderBase):
                         raise RuntimeError("No parameter '%s' found for extArg in workspace %s from file %s"%(rp,wsn,fin))
                     self.out._import(wstmp.arg(rp), *importargs)
                 else:
-                    try:
-                        fitmp = ROOT.TFile.Open(fin)
-                        wstmp = fitmp.Get(wsn)
-                        if not wstmp.arg(rp):
-                            raise RuntimeError("No parameter '%s' found for extArg in workspace %s from file %s"%(rp,wsn,fin))
-                        self.out._import(wstmp.arg(rp), *importargs)
-                        open_files[(fin,wsn)] = wstmp
-                    except:
-                        raise RuntimeError("No File '%s' found for extArg, or workspace '%s' not in file "%(fin,wsn))
+                    fitmp = ROOT.TFile.Open(fin)
+                    if not fitmp:
+                        raise RuntimeError("No File '%s' found for extArg"%fin)
+                    wstmp = fitmp.Get(wsn)
+                    if not wstmp:
+                        raise RuntimeError("Workspace '%s' not in file %s" % (wsn, fin))
+                    if not wstmp.arg(rp):
+                        raise RuntimeError("No parameter '%s' found for extArg in workspace %s from file %s"%(rp,wsn,fin))
+                    self.out._import(wstmp.arg(rp), *importargs)
+                    open_files[(fin,wsn)] = wstmp
             else:
                 param_range = ""
                 param_val   = self.DC.extArgs[rp][-1]
@@ -230,16 +231,17 @@ class ModelBuilder(ModelBuilderBase):
                         raise RuntimeError("No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin))
                     self.out._import(wstmp.arg(argu),ROOT.RooFit.RecycleConflictNodes())
                 else:
-                    try:
-                        fitmp = ROOT.TFile.Open(fin)
-                        wstmp = fitmp.Get(wsn)
-                        if not wstmp.arg(argu):
-                            raise RuntimeError("No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin))
-                        self.out._import(wstmp.arg(argu),ROOT.RooFit.RecycleConflictNodes())
-                        open_files[(fin,wsn)] = wstmp
-                        #fitmp.Close()
-                    except:
-                        raise RuntimeError("No File '%s' found for rateParam, or workspace '%s' not in file "%(fin,wsn))
+                    fitmp = ROOT.TFile.Open(fin)
+                    if not fitmp:
+                        raise RuntimeError("No File '%s' found for rateParam" % fin)
+                    wstmp = fitmp.Get(wsn)
+                    if not wstmp:
+                        raise RuntimeError("Workspace '%s' not in file %s" % (wsn, fin))
+                    if not wstmp.arg(argu):
+                        raise RuntimeError("No parameter '%s' found for rateParam in workspace %s from file %s"%(argu,wsn,fin))
+                    self.out._import(wstmp.arg(argu),ROOT.RooFit.RecycleConflictNodes())
+                    open_files[(fin,wsn)] = wstmp
+                    #fitmp.Close()
 
         # First do independant parameters, then expressions
         for rp in self.DC.rateParams.keys():
@@ -411,10 +413,15 @@ class ModelBuilder(ModelBuilderBase):
                 ##   r_Bin0+r_Bin2-2*r_Bin1 0.001
                 ## or r_Bin0+r_Bin2-2*r_Bin1 {r_Bin0,r_Bin1,r_Bin2} 0.001000
                 ## the parameter can be a number or a variable
-                d={ "pdf":"%s_Pdf"%n, "name":n, "function":"%s_Func"%n,"in":"%s_In"%n,
-                        "sigma":"%s_S"%n,
-                        "formula":args[0],
-                        "param":args[-1]}
+                d = {
+                    "pdf":"%s_Pdf"%n,
+                    "name":n,
+                    "function":"%s_Func"%n,
+                    "in":"%s_In"%n,
+                    "sigma":"%s_S"%n,
+                    "formula":args[0],
+                    "param":args[-1]
+                }
                 if len(args) >2: d["depend"]= args[1] if args[1][0]=='{' else '{'+args[1]+'}'
                 else:
                     remove=set(["TMath","Exp","::",""])
@@ -571,12 +578,12 @@ class ModelBuilder(ModelBuilderBase):
                 if self.options.verbose > 1:
                     print('Nuisance "%(n)s" is assigned to the following nuisance groups: %(groupNames)s' % locals())
                 for groupName in groupNames:
-                    try:
-                        self.out.var(n).setAttribute('group_'+groupName,True)
-                    except:
-                        try:
-                            self.out.cat(n).setAttribute('group_'+groupName,True)
-                        except: raise RuntimeError('Nuisance group "%(groupName)s" refers to nuisance but it is not an independant parameter.' % locals())
+                    var = self.out.var(n)
+                    if not var:
+                        var = self.out.cat(n)
+                    if not var:
+                        raise RuntimeError('Nuisance group "%(groupName)s" refers to nuisance but it is not an independant parameter.' % locals())
+                    var.setAttribute('group_'+groupName,True)
 
 
         for groupName,nuisanceNames in six.iteritems(self.DC.groups):
@@ -713,7 +720,6 @@ class ModelBuilder(ModelBuilderBase):
             if self.options.noBOnly: break
         discparams = ROOT.RooArgSet("discreteParams")
         for cpar in self.discrete_param_set:
-            roocpar =  self.out.cat(cpar)
             discparams.add(self.out.cat(cpar))
         self.out._import(discparams,discparams.GetName())
         self.out.writeToFile(self.options.out)
@@ -747,7 +753,7 @@ class CountingModelBuilder(ModelBuilder):
     def doIndividualModels(self):
         self.doComment(" --- Expected events in each bin, total (S+B and B) ----")
         for b in self.DC.bins:
-            self.doObj("n_exp_bin%s_bonly" % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in self.DC.exp[b].keys() if self.DC.isSignal[p] == False]) )
+            self.doObj("n_exp_bin%s_bonly" % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in self.DC.exp[b].keys() if not self.DC.isSignal[p]]) )
             self.doObj("n_exp_bin%s"       % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in self.DC.exp[b].keys()                        ]) )
             self.doObj("pdf_bin%s"       % b, "Poisson", "n_obs_bin%s, n_exp_bin%s, 1"       % (b,b))
             self.doObj("pdf_bin%s_bonly" % b, "Poisson", "n_obs_bin%s, n_exp_bin%s_bonly, 1" % (b,b))

@@ -260,7 +260,8 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         self.modelBuilder.factory_( totalStr )
 
     #Function to make BR scaling functions: partial width/total width
-    def makeBRScalingFunction( self, what ): self.modelBuilder.factory_( 'expr::scaling_BR_%s("@0/@1", scaling_partial_%s, scaling_tot)'%(what,what) )
+    def makeBRScalingFunction( self, what ):
+        self.modelBuilder.factory_( 'expr::scaling_BR_%s("@0/@1", scaling_partial_%s, scaling_tot)'%(what,what) )
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #Function extracting the STXS bin uncertainties
@@ -570,7 +571,8 @@ def convert_to_STXS( _production, _decay ):
         if _production == "tH": _production = "tHq"
 
     # No binnning in ttH up to stage 1.1 so can remove any X in ttH_decay
-    if "ttH" in _production: _production = "ttH"
+    if "ttH" in _production:
+        _production = "ttH"
         #_production = re.sub("_faketau","",_production)
         #_production = re.sub("_gentau","",_production)
 

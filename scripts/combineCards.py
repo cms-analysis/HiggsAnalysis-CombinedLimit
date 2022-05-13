@@ -84,7 +84,7 @@ for ich,fname in enumerate(args):
         if not isIncluded(b_in,options.channelIncludes): continue
         obskeyline.append(bout)
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
-            if DC.isSignal[p] == False: continue
+            if not DC.isSignal[p]: continue
             #print "in DC.exp.items:b,p", b,p
             expline.append("%s" % FloatToString(e)) if (e == 0 or e > 1e-3) else expline.append("%s" % FloatToStringScientific(e))
             keyline.append((bout, p, DC.isSignal[p]))
@@ -118,9 +118,11 @@ for ich,fname in enumerate(args):
                     r = str(errline[b][p]);
                 except TypeError:
                     import warnings
-                    warning_message = "\nYou probably have one or more regularization term(s) in datacard {}.\n".format(fname)\
-                            + "A constraint term is a line that looks like the following:\n\n"\
-                            + "\tconstr0 constr @3*(@0-2*@1+@2) r_0,r_1,r_2,regularize[0.] delta[10.]\n\n"
+                    warning_message = (
+                        "\nYou probably have one or more regularization term(s) in datacard {}.\n".format(fname)
+                        + "A constraint term is a line that looks like the following:\n\n"
+                        + "\tconstr0 constr @3*(@0-2*@1+@2) r_0,r_1,r_2,regularize[0.] delta[10.]\n\n"
+                    )
                     if options.drop_regularization_terms:
                         warning_message += "It (they) will be dropped."
                     else:
