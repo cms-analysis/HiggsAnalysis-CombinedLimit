@@ -6,6 +6,8 @@
 # which is not readily adaptable to python. Instead we write the functionality entirely in a
 # python function, then "attach" this function to the CombineHarvester class.
 
+from __future__ import absolute_import
+from __future__ import print_function
 try:
     from libCombineHarvesterCombineTools import *
 except ImportError:
@@ -91,7 +93,7 @@ def AddSyst(self, target, name, type, valmap):
     tuples = valmap.GetTupleSet()
     self.ForEachProc(lambda x: procs.append(x))
     if self.Verbosity() >= 1:
-        print name + ':' + type
+        print(name + ':' + type)
     for proc in procs:
         if not valmap.Contains(proc):
             not_added_procs.append(proc)
@@ -119,16 +121,16 @@ def AddSyst(self, target, name, type, valmap):
         target.AddSystFromProc(
             proc, name, type, is_asymm, val_u, val_d, formula, args)
     if len(tuples) > 0 and self.Verbosity() >= 1:
-        print '>> Map keys that were not used to create a Systematic:'
+        print('>> Map keys that were not used to create a Systematic:')
         for tup in tuples:
-            print tup
+            print(tup)
     if self.Verbosity() >= 2:
-        print '>> Process entries that did not get a Systematic:'
+        print('>> Process entries that did not get a Systematic:')
         for proc in not_added_procs:
-            print proc
-        print '>> Process entries that did get a Systematic:'
+            print(proc)
+        print('>> Process entries that did get a Systematic:')
         for proc in added_procs:
-            print proc
+            print(proc)
 
 # Now we turn these free functions into member functions
 # of the CombineHarvester class

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+from __future__ import print_function
 import CombineHarvester.CombineTools.ch as ch
 import ROOT as R
 import glob
@@ -41,18 +43,18 @@ def print_uncertainty(js_dict, dict_key, err_type_msg):
         for uncert in js_dict[dict_key]:
             probs=0;
             for mybin in js_dict[dict_key][uncert]:
-                num_problems+=len(js_dict[dict_key][uncert][mybin].keys())
-                probs+=len(js_dict[dict_key][uncert][mybin].keys())
+                num_problems+=len(list(js_dict[dict_key][uncert][mybin].keys()))
+                probs+=len(list(js_dict[dict_key][uncert][mybin].keys()))
             num_problems_peruncert[uncert]=probs
-        print ">>>There were ",num_problems, "warnings of type ",err_type_msg
+        print(">>>There were ",num_problems, "warnings of type ",err_type_msg)
         if args.printLevel > 1:
             for uncert in js_dict[dict_key]:
-                print "    For uncertainty",uncert, "there were ",num_problems_peruncert[uncert]," such warnings"
+                print("    For uncertainty",uncert, "there were ",num_problems_peruncert[uncert]," such warnings")
                 if args.printLevel > 2 :
                     for mybin in js_dict[dict_key][uncert]:
-                        print "        In bin ",mybin, "the affected processes are: ",json.dumps(js_dict[dict_key][uncert][mybin].keys())
+                        print("        In bin ",mybin, "the affected processes are: ",json.dumps(list(js_dict[dict_key][uncert][mybin].keys())))
     else:
-        print ">>>There were no warnings of type ", err_type_msg
+        print(">>>There were no warnings of type ", err_type_msg)
 
 
 def print_process(js_dict, dict_key, err_type_msg):
@@ -63,12 +65,12 @@ def print_process(js_dict, dict_key, err_type_msg):
             probs=0;
             num_problems+=len(js_dict[dict_key][mybin])
             num_problems_peruncert[mybin]=len(js_dict[dict_key][mybin])
-        print ">>>There were ",num_problems, "warnings of type ",err_type_msg
+        print(">>>There were ",num_problems, "warnings of type ",err_type_msg)
         if args.printLevel > 1:
             for mybin in js_dict[dict_key]:
-                print "    For bin",mybin, "there were ", num_problems_peruncert[mybin]," such warnings. The affected processes are: ", json.dumps(js_dict[dict_key][mybin])
+                print("    For bin",mybin, "there were ", num_problems_peruncert[mybin]," such warnings. The affected processes are: ", json.dumps(js_dict[dict_key][mybin]))
     else:
-        print ">>>There were no warnings of type", err_type_msg
+        print(">>>There were no warnings of type", err_type_msg)
 
 def print_process_info(js_dict, dict_key, err_type_msg):
     num_problems=0
@@ -78,12 +80,12 @@ def print_process_info(js_dict, dict_key, err_type_msg):
             probs=0;
             num_problems+=len(js_dict[dict_key][mybin])
             num_problems_peruncert[mybin]=len(js_dict[dict_key][mybin])
-        print ">>>INFO: there were ",num_problems," alerts of type ",err_type_msg
+        print(">>>INFO: there were ",num_problems," alerts of type ",err_type_msg)
         if args.printLevel > 1:
             for mybin in js_dict[dict_key]:
-                print "    For bin",mybin, "there were ", num_problems_peruncert[mybin]," such alerts. The affected processes are: ", json.dumps(js_dict[dict_key][mybin])
+                print("    For bin",mybin, "there were ", num_problems_peruncert[mybin]," such alerts. The affected processes are: ", json.dumps(js_dict[dict_key][mybin]))
     else:
-        print ">>>There were no alerts of type", err_type_msg
+        print(">>>There were no alerts of type", err_type_msg)
 
 def print_bin(js_dict, dict_key, err_type_msg):
     num_problems=0
@@ -93,12 +95,12 @@ def print_bin(js_dict, dict_key, err_type_msg):
             probs=0;
             num_problems+=len(js_dict[dict_key][mybin])
             num_problems_peruncert[mybin]=len(js_dict[dict_key][mybin])
-        print ">>>There were ",num_problems, "warnings of type ",err_type_msg
+        print(">>>There were ",num_problems, "warnings of type ",err_type_msg)
         if args.printLevel > 1:
             for mybin in js_dict[dict_key]:
-                print "    For bin",mybin, "there were ", num_problems_peruncert[mybin]," such warnings. The affected bins of the template are: ", json.dumps(js_dict[dict_key][mybin])
+                print("    For bin",mybin, "there were ", num_problems_peruncert[mybin]," such warnings. The affected bins of the template are: ", json.dumps(js_dict[dict_key][mybin]))
     else:
-        print ">>>There were no warnings of type", err_type_msg
+        print(">>>There were no warnings of type", err_type_msg)
 
 
 
@@ -112,13 +114,13 @@ if not args.readOnly:
     ch.ValidateCards(cb,args.jsonFile,args.checkUncertOver,args.reportSigUnder)
 
 if args.printLevel > 0:
-    print "================================"
-    print "=======Validation results======="
-    print "================================"
+    print("================================")
+    print("=======Validation results=======")
+    print("================================")
     with open (args.jsonFile) as f:
         data = json.load(f)
         if not data:
-            print ">>>There were no warnings"
+            print(">>>There were no warnings")
         else :
             print_uncertainty(data,"uncertVarySameDirect","\'up/down templates vary the yield in the same direction\'")
             print_uncertainty(data,"uncertTemplSame","\'up/down templates are identical\'")

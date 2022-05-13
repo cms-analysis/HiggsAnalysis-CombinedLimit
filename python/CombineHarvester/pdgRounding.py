@@ -12,6 +12,7 @@
 # davide.gerbaudo@gmail.com
 # September 2012
 
+from __future__ import print_function
 def pdgRound(value, error) :
     "Given a value and an error, round and format them according to the PDG rules for significant digits"
     def threeDigits(value) :
@@ -45,9 +46,9 @@ def pdgRound(value, error) :
 
 def test(valueError=(0., 0.)) :
     val, err = valueError
-    print val,' +/- ',err,' --> ',
+    print(val,' +/- ',err,' --> ', end=' ')
     val, err = pdgRound(val, err)
-    print ' ',val,' +/- ',err
+    print(' ',val,' +/- ',err)
 
 if __name__=='__main__' :
     for x in [(26710, 177)

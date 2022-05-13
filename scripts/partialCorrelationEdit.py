@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 import CombineHarvester.CombineTools.ch as ch
 import ROOT
 import argparse
@@ -40,7 +42,7 @@ def Decorrelate(cb, name, correlation, postfix_corr, postfix_uncorr):
     if correlation <= 0. or correlation >= 1.:
         raise RuntimeError('Correlation coeff X must be 0 <= X < 1')
     cb_syst = cb.cp().syst_name([name])
-    print '>> The following systematics will be cloned and adjusted:'
+    print('>> The following systematics will be cloned and adjusted:')
     cb_syst.PrintSysts()
     ch.CloneSysts(cb_syst, cb, lambda x: ScaleTo(x, math.sqrt(1. - correlation * correlation), name + postfix_uncorr))
     cb_syst.ForEachSyst(lambda x: ScaleTo(x, correlation, name+postfix_corr))
@@ -71,11 +73,11 @@ if args.process != '':
     actions = [X.split(',') for X in args.process.split(':')]
 
     for name, correlation in actions:
-        print '>> Setting correlation coefficient of %s to %f' % (name, float(correlation))
+        print('>> Setting correlation coefficient of %s to %f' % (name, float(correlation)))
         if float(correlation) == 0.:
             cb.cp().RenameSystematic(cb,name,name+args.postfix_uncorr)
         else:
             Decorrelate(cb, name, float(correlation), args.postfix_corr, args.postfix_uncorr)
 
-print '>> Writing new card and ROOT file: %s' % ((args.output_txt, args.output_root),)
+print('>> Writing new card and ROOT file: %s' % ((args.output_txt, args.output_root),))
 cb.WriteDatacard(args.output_txt, args.output_root)
