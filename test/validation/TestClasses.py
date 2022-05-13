@@ -76,7 +76,7 @@ class Test:
 
 
 def _readRootFile(fname):
-    if os.access(fname, os.R_OK) == False:
+    if not os.access(fname, os.R_OK):
         return {"status": "aborted", "comment": "rootfile does not exist"}
     if os.stat(fname).st_size < 1000:
         return {"status": "aborted", "comment": "rootfile is smaller than 1kb"}
@@ -102,7 +102,7 @@ def _readRootFile(fname):
 
 
 def _readRootFileWithExpected(fname):
-    if os.access(fname, os.R_OK) == False:
+    if not os.access(fname, os.R_OK):
         return {"status": "aborted", "comment": "rootfile does not exist"}
     if os.stat(fname).st_size < 1000:
         return {"status": "aborted", "comment": "rootfile is smaller than 1kb"}
@@ -146,7 +146,7 @@ def _readRootFileWithExpected(fname):
 
 
 def _readRootFileWithPOI(fname, poi):
-    if os.access(fname, os.R_OK) == False:
+    if not os.access(fname, os.R_OK):
         return {"status": "aborted", "comment": "rootfile does not exist"}
     if os.stat(fname).st_size < 1000:
         return {"status": "aborted", "comment": "rootfile is smaller than 1kb"}
@@ -215,7 +215,7 @@ class SingleDatacardTest(Test):
 
     def createScript(self, dir, file):
         datacard_full = os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % self._datacard
-        if os.access(datacard_full, os.R_OK) == False:
+        if not os.access(datacard_full, os.R_OK):
             raise RuntimeError("Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % self._datacard)
         file.write(
             "echo    %s -n %s -M %s %s -m %s > %s.log\n"
@@ -294,7 +294,7 @@ class MultiDatacardTest(Test):
     def createScript(self, dir, file):
         for dc, mass in self._datacards:
             datacard_full = os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % dc
-            if os.access(datacard_full, os.R_OK) == False:
+            if not os.access(datacard_full, os.R_OK):
                 raise RuntimeError("Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % dc)
             file.write(
                 "echo    %s -n %s -M %s %s -m %s >  %s.%s.log     \n"
@@ -375,7 +375,7 @@ class WorkspaceWithExpectedTest(MultiDatacardTest):
             datacard_full = os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % dc
             datacard_base = os.path.splitext(os.path.basename(datacard_full))[0]
             dc_list.append(datacard_base + "=" + datacard_full)
-            if os.access(datacard_full, os.R_OK) == False:
+            if not os.access(datacard_full, os.R_OK):
                 raise RuntimeError("Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % dc)
         file.write("combineCards.py -S %s &> %s\n" % (" ".join(dc_list), self._cmb_card))
         file.write("text2workspace.py %s -b %s -o %s -m %s\n" % (self._ws_options, self._cmb_card, self._cmb_wsp, self._mass))
@@ -456,7 +456,7 @@ class MultiOptionTest(Test):
 
     def createScript(self, dir, file):
         datacard_full = os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % self._datacard
-        if os.access(datacard_full, os.R_OK) == False:
+        if not os.access(datacard_full, os.R_OK):
             raise RuntimeError("Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % self._datacard)
         for on, ov, mass in self._options:
             file.write("echo    %s -n %s -M %s %s -m %s >  %s.%s.log     \n" % (datacard_full, self._name, self._method, ov, mass, self._name, mass))

@@ -72,7 +72,7 @@ ws = file_in.Get("w")
 
 def find_chan_proc(name):
     chan = norm_name[norm_name.find("_bin") + len("_bin") : norm_name.find("_proc")]
-    if not "proc" in name:
+    if "proc" not in name:
         return chan, ""
     proc = norm_name[norm_name.find("_proc_") + len("_proc_") :]
     return chan, proc

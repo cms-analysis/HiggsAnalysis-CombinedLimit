@@ -12,7 +12,7 @@ def isort(map):
 
 def textReport(report):
     tlength = max([10] + [len(t) for t in report.keys()])
-    slength = max([max([0] + [len(r) for r in v["results"]]) for v in report.values() if v != True and "results" in v])
+    slength = max([max([0] + [len(r) for r in v["results"]]) for v in report.values() if not v and "results" in v])
     tfmt = "%-" + str(tlength) + "s"
     sfmt = "%-" + str(slength) + "s"
     hasref = "has_ref" in report
@@ -78,10 +78,6 @@ def twikiReport(report):
         "failed": "choice-no",
         "warning": "warning",
     }
-    thfmt = "| *%s*"
-    thfmt = "| %s  "
-    shfmt = "| *%s*"
-    shfmt = "| %s  "
     hasref = "has_ref" in report
     if hasref:
         print("| *Test* | *Subtest* | *%ICON{info}%* | *Result* || *Comments* | *Reference* || *Ref. comments* |")

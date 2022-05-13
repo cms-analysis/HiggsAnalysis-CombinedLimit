@@ -117,10 +117,10 @@ script.write(
 #!/bin/bash
 #############################################################
 #
-# Driver script for comuting Bayesian Limits 
+# Driver script for comuting Bayesian Limits
 #
-# author: Giovanni Petrucciani, UCSD                       
-#         from a similar script by Luca Lista, INFN        
+# author: Giovanni Petrucciani, UCSD
+#         from a similar script by Luca Lista, INFN
 #
 ##############################################################
 
@@ -144,7 +144,7 @@ for I in $(seq 1 $n); do
 """
 )
 for i, (w, m) in enumerate(zip(workspaces, masses)):
-    seed = ("$((%d + $i))" % (i * 10000)) if options.random == False else "-1"
+    seed = ("$((%d + $i))" % (i * 10000)) if not options.random else "-1"
     script.write(
         "./combine {wsp} -m {mass} -M MarkovChainMC {opts} -i {iters} --tries 1 -v {v} -n {out} -s {seed}\n".format(
             wsp=w,

@@ -64,7 +64,7 @@ mc_s = work.genobj("ModelConfig")
 params = mc_s.GetParametersOfInterest()
 
 if options.snapshotName:
-    work.loadSnapshot(snapshotName)
+    work.loadSnapshot(options.snapshotName)
 
 if len(options.setDefaultParameterValues):
     paramCList = options.setDefaultParameterValues.split(",")

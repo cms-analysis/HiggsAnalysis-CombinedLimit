@@ -209,7 +209,7 @@ echo "## Starting at $(date)"
     )
 )
 for i, x in enumerate(points):
-    seed = ("$((%d + $i))" % (i * 10000)) if options.random == False else "-1"
+    seed = ("$((%d + $i))" % (i * 10000)) if not options.random else "-1"
     interleave = "(( ($i + %d) %% %d == 0 )) && " % (i, options.interl)
     if options.parameterRanges:
         xrngemin = options.parameterRanges[0]
@@ -236,7 +236,6 @@ for i, x in enumerate(points):
         "{cond} ./combine {wsp} -M HybridNew {opts} -m {mass} --testStat=PL --rule=CLsplusb --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}  {ranges} \n".format(
             wsp=workspace,
             opts=options.options,
-            fork=options.fork,
             T=options.T,
             seed=seed,
             out=options.out,

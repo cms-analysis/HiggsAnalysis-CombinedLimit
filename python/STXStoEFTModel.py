@@ -19,6 +19,7 @@ from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
 # Global function to extract STXS production, decay mode and energy from process name
 #   * this has changed with STXS under naming convention
 def getSTXSProdDecMode(bin, process, options):

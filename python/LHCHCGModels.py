@@ -1137,17 +1137,13 @@ class XSBRratiosAlternative(LHCHCGBaseModel):
             for D in SM_HIGG_DECAYS:
                 for E in 7, 8, 13:
                     terms = []
-                    if P in ["ggH", "bbH", "ttH", "tHq", "tHW",] and CMS_to_LHCHCG_DecSimple[
-                        D
-                    ] in ["WW", "ZZ", "gamgam"]:
+                    if P in ["ggH", "bbH", "ttH", "tHq", "tHW"] and CMS_to_LHCHCG_DecSimple[D] in ["WW", "ZZ", "gamgam"]:
                         terms = ["mu_XS_ggF_x_BR_WW"]
                         if CMS_to_LHCHCG_DecSimple[D] in ["ZZ", "gamgam"]:
                             terms += ["mu_BR_%s_r_BR_WW" % CMS_to_LHCHCG_DecSimple[D]]
                         if P in ["ttH", "tHq", "tHW"]:
                             terms += ["mu_XS_ttH_r_XS_ggF"]
-                    elif P in ["ggH", "bbH", "ttH", "tHq", "tHW",] and CMS_to_LHCHCG_DecSimple[
-                        D
-                    ] in ["tautau", "bb"]:
+                    elif P in ["ggH", "bbH", "ttH", "tHq", "tHW"] and CMS_to_LHCHCG_DecSimple[D] in ["tautau", "bb"]:
                         terms = ["mu_XS_ggF_x_BR_WW", "mu_BR_tautau_r_BR_WW"]
                         if CMS_to_LHCHCG_DecSimple[D] == "bb":
                             terms += ["mu_BR_bb_r_BR_tautau"]

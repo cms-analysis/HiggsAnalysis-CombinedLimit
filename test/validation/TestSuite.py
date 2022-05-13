@@ -76,7 +76,7 @@ class TestSuite:
         _jobs_total = 0
         for t in self._tests:
             _jobs_total += 1
-            ret = pool.apply_async(_async_run, (t, self._dir), callback=_async_cb)
+            pool.apply_async(_async_run, (t, self._dir), callback=_async_cb)
         pool.close()
         pool.join()
 
@@ -104,12 +104,12 @@ class TestSuite:
         fout.close()
 
     def printIt(self, format, reference=None):
-        if os.access("%s/report.json" % self._dir, os.R_OK) == False:
+        if not os.access("%s/report.json" % self._dir, os.R_OK):
             raise RuntimeError("%s/report.json not found. please run 'report' before." % self._dir)
         obj = json.loads("".join([f for f in open("%s/report.json" % self._dir)]))
         if reference:
             if not os.access(reference, os.R_OK):
-                raise RuntimeError("Reference % not found." % reference)
+                raise RuntimeError("Reference %r not found." % reference)
             ref = json.loads("".join([f for f in open(reference)]))
             self._collate(obj, ref)
         if format == "text":

@@ -491,7 +491,7 @@ for n in names:
         print(fmtstring % (n, v[0], v[1], v[2]))
 
 if options.format == "latex":
-    print(" \\hline\n\end{tabular}")
+    print(" \\hline\n\\end{tabular}")
 elif options.format == "html":
     print("</table></body></html>")
 

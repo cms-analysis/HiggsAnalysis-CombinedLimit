@@ -123,9 +123,11 @@ getattr(ws, "import")(data_obs, ROOT.RooCmdArg())
 datacard.write("shapes data_obs *\t" + opts.output + "\t" + opts.workspace + ":data_obs\n")
 ## construct model
 
+
 ########################
 def importPdf(h, name):
     """Import a Pdf based on hist with name. ws and x global vars used"""
+    global ws
     dh = ROOT.RooDataHist("roohist_" + h.GetName(), h.GetName(), ROOT.RooArgList(x), h)
     pdf = ROOT.RooHistPdf(name, "dh_Bin%d", ROOT.RooArgSet(x), dh)
     getattr(ws, "import")(pdf, ROOT.RooCmdArg())

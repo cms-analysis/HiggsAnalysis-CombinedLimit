@@ -61,17 +61,17 @@ data = {}
 def iddify(x):
     id = x
     slang = {
-        "[Cc]ross[ -][Ss]ection": "XS",
-        "[Tt]rigger(\s+[Ee]ff(s|ic(ienc(y|ies))?))?": "Trig",
-        "([Ii]ntegrated\s+)?[Ll]umi(nosity)": "Lumi",
-        "[Ee]ff(s|ic(ienc(y|ies))?)": "Eff",
-        "[Nn]orm(alization)": "Norm",
-        "[Rr]eco(nstruction)": "Reco",
-        "[Ss]stat(istics?)": "Stat",
+        r"[Cc]ross[ -][Ss]ection": "XS",
+        r"[Tt]rigger(\s+[Ee]ff(s|ic(ienc(y|ies))?))?": "Trig",
+        r"([Ii]ntegrated\s+)?[Ll]umi(nosity)": "Lumi",
+        r"[Ee]ff(s|ic(ienc(y|ies))?)": "Eff",
+        r"[Nn]orm(alization)": "Norm",
+        r"[Rr]eco(nstruction)": "Reco",
+        r"[Ss]stat(istics?)": "Stat",
     }
     for s, r in slang.items():
         id = re.sub(s, r, id)
-    return re.sub("[^A-Za-z0-9_]", "", re.sub("\s+|-|/", "_", re.sub("^\s+|\s+$", "", id)))
+    return re.sub("[^A-Za-z0-9_]", "", re.sub(r"\s+|-|/", "_", re.sub(r"^\s+|\s+$", "", id)))
 
 
 header = file.readline()  # skip header

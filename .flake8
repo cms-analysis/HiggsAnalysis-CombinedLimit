@@ -6,7 +6,14 @@
 # W504: Raised by flake8 even when it is followed
 # E203: is not PEP 8 compliant https://github.com/psf/black/issues/315
 # W503: Line break occurred before a binary operator (black will do this)
-# The rest will hopefully go away with auto-formatting (black)
-ignore = F403,F405,E402,W504,E203,W503,F401,E401,E115,E121,E201,E202,E211,E221,E222,E225,E226,E242,E262,E273,E251,E228,E231,E241,E261,E265,E266,E271,E272,E301,E302,E303,E305,E701,E702,E703,W391,E711,E741,W291,E227,E126,E131,E123,E128,E502,E501
+# --- Leaving comment formatting alone for now
+# E262: inline comment should start with '# '
+# E265: block comment should start with '# '
+# E266: too many leading '#' for block comment
+# E501: line too long (only on comments after black run)
+# ---
+# E741: ambiguous variable name 'l' (too pedantic! get a good font)
+# E711: sometimes needed for comparison to ROOT nullptr (better to cast to bool)
+# F401: unused import (some may have side effects, need to clean by hand)
+ignore = F403,F405,E402,W504,E203,W503,E262,E265,E266,E501,E741,E711,F401
 max-line-length = 160
-exclude = data, docs, test

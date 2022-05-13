@@ -105,11 +105,11 @@ def findPOIvals(fi, m):
     for k in ti.GetListOfKeys():
         obj = k
         nam = obj.GetName()
-        if not "HypoTestResult" in nam:
+        if "HypoTestResult" not in nam:
             continue
-        if not m in nam:
+        if m not in nam:
             continue
-        if not options.poi in nam:
+        if options.poi not in nam:
             continue
         lhs = nam[nam.find(options.poi) + len(options.poi) : -1]
         val = float(lhs[0 : lhs.find("_")])

@@ -327,7 +327,6 @@ def findStringValue(fullstr, substr):
 
 
 def getPoints(tree, varx, vary):
-    points = set([])
     gPoints = []
 
     # grab all the distributions:

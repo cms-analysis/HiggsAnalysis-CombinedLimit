@@ -208,7 +208,7 @@ for (lsyst, nofloat, pdf, pdfargs, errline) in DC.systs:
     if not options.t2w and "param" in pdf:
         continue
     if "param" in pdf:
-        if not lsyst in seen_systematics:
+        if lsyst not in seen_systematics:
             if not len(errline):
                 errline = {b: {p: 0 for p in six.iterkeys(DC.exp[b])} for b in DC.bins}
         else:
@@ -397,7 +397,7 @@ function toggleChann(id) {
 </head><body>
 <h1>Nuisance Report</h1>
 All numbers shown report the +/- 1-sigma variation in the yield for each affected channel/process. The Range shows the minimum and maximum effects across all channels/processes.
-%s 
+%s
 <table>
 <tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
 """
