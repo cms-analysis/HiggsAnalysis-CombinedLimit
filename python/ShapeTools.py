@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
 
+from __future__ import division
 import os.path
 from collections import defaultdict
 from math import *
@@ -41,7 +42,7 @@ class FileCache:
                 print("Flushing file cache of size %d" % len(self._files))
                 keys = list(self._files.keys())
                 keys.sort(key=lambda k: self._files[k][1] + 10 * self._hits[k])
-                for k in keys[: self._maxsize / 2]:
+                for k in keys[: self._maxsize // 2]:
                     self._files[k][0].Close()
                     del self._files[k]
             trueFName = fname

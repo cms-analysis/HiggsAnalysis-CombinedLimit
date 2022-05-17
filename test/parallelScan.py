@@ -6,6 +6,7 @@
 ##         and add a "-j" to select how many threads to use
 from __future__ import absolute_import, print_function
 
+from __future__ import division
 import os
 import subprocess
 import sys
@@ -65,7 +66,7 @@ if jobs == 0:
     if cores == 0:
         raise RuntimeError("Cannot determine number of cores from /proc/cpuinfo, so I need a -j <n> option\n")
     if cores > 2 and match("(lxplus|cmslpc).*", os.environ["HOSTNAME"]):
-        jobs = cores / 2
+        jobs = cores // 2
         print("Will run with %d jobs (half of the cores, for respect to other users)" % jobs)
     else:
         jobs = cores

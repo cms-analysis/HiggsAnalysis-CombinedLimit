@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
 
+from __future__ import division
 import re
 from math import *
 from optparse import OptionParser
@@ -79,7 +80,7 @@ processnames = header.split()[2:]
 nproc = len(processnames)
 if options.nch > 1:
     processnames = header.split()[1:]
-    nproc = len(processnames) / options.nch - 1
+    nproc = len(processnames) // options.nch - 1
     processnames = processnames[1 : (nproc + 1)]
     print(processnames)
 # read yields
@@ -190,7 +191,7 @@ for mh, D in data.items():
     if fout == None:
         raise RuntimeError("Cannot open %s for writing" % filename)
     print(" - " + filename)
-    nproc = len(data[mh]["exp"]) / data[mh]["nch"]
+    nproc = len(data[mh]["exp"]) // data[mh]["nch"]
     # write datacard
     fout.write("Limit (%s), mH = %s GeV\n" % (options.label, mh))
     fout.write("date 2010.11.30\n")
@@ -202,7 +203,7 @@ for mh, D in data.items():
     fout.write("Observation " + (" ".join("%7.3f" % X for X in D["obs"])) + "\n")
     fout.write("---------------------------------------------------------------------------------------------------------------\n")
     pad = " " * 27 if options.labelSyst else ""
-    fout.write("bin      " + pad + ("  ".join("%6d" % (X / nproc + 1) for X in range(nproc * options.nch))) + "\n")
+    fout.write("bin      " + pad + ("  ".join("%6d" % (X // nproc + 1) for X in range(nproc * options.nch))) + "\n")
     fout.write("process  " + pad + ("  ".join("%6.6s" % X for X in D["processnames"])) + "\n")
     fout.write("process  " + pad + ("  ".join("%6d" % (i % nproc) for i in range(nproc * options.nch))) + "\n")
     fout.write("rate     " + pad + ("  ".join("%6.2f" % f for f in D["exp"])) + "\n")
