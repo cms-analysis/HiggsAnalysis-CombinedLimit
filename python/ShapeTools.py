@@ -834,7 +834,7 @@ class ShapeBuilder(ModelBuilder):
                 _neverDelete.append(rds)
                 return rds
             else:
-                raise RuntimeError("Object %s in file %s has unrecognized type %s"(wname, finalNames[0], self.wsp.ClassName()))
+                raise RuntimeError("Object %s in file %s has unrecognized type %s" % (wname, finalNames[0], self.wsp.ClassName()))
         else:  # histogram
             ret = file.Get(objname)
             if not ret:

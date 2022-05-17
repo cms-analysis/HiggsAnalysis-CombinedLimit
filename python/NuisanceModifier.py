@@ -205,7 +205,7 @@ def doRenameNuisance(datacard, args):
                 )
             if newname in list(datacard.systIDMap.keys()):
                 if not checkRenameSafety(id, datacard, newname):
-                    raise RuntimeError("Error: Cannot rename %s to %s, which exists and is incompatible"(oldname, newname))
+                    raise RuntimeError("Error: Cannot rename %s to %s, which exists and is incompatible" % (oldname, newname))
 
             if isGlobal:  # easy case
                 # print " global command, ", " looking at "
