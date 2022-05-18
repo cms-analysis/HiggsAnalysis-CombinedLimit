@@ -575,16 +575,17 @@ void CombineHarvester::LoadShapes(Systematic* entry,
   } else if (mapping.IsPdf()) {
     if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooDataHist");
     // Try and get this as RooAbsData first. If this doesn't work try pdf
+    
     RooDataHist* h =
-        dynamic_cast<RooDataHist*>(mapping.sys_ws->data(mapping.WorkspaceObj().c_str()));
+        (mapping.sys_ws) ? dynamic_cast<RooDataHist*>(mapping.sys_ws->data(mapping.WorkspaceObj().c_str())) : nullptr;
     RooDataHist* h_u =
-        dynamic_cast<RooDataHist*>(mapping.sys_ws->data(p_s_hi.c_str()));
+        (mapping.sys_ws) ? dynamic_cast<RooDataHist*>(mapping.sys_ws->data(p_s_hi.c_str())): nullptr;
     RooDataHist* h_d =
-        dynamic_cast<RooDataHist*>(mapping.sys_ws->data(p_s_lo.c_str()));
-    RooAbsReal* pdf = mapping.sys_ws->function(mapping.WorkspaceObj().c_str());
-    RooAbsReal* pdf_u = mapping.sys_ws->function(p_s_hi.c_str());
-    RooAbsReal* pdf_d = mapping.sys_ws->function(p_s_lo.c_str());
-
+        (mapping.sys_ws) ? dynamic_cast<RooDataHist*>(mapping.sys_ws->data(p_s_lo.c_str())): nullptr;
+    RooAbsReal* pdf =   (mapping.sys_ws) ? mapping.sys_ws->function(mapping.WorkspaceObj().c_str()):nullptr;
+    RooAbsReal* pdf_u = (mapping.sys_ws) ? mapping.sys_ws->function(p_s_hi.c_str()):nullptr;
+    RooAbsReal* pdf_d = (mapping.sys_ws) ? mapping.sys_ws->function(p_s_lo.c_str()):nullptr;
+    
     if ((!h || !h_u || !h_d) && (!pdf || !pdf_u || !pdf_d)) {
       if (flags_.at("allow-missing-shapes")) {
         LOGLINE(log(), "Warning, shape missing:");
@@ -919,5 +920,14 @@ void CombineHarvester::setParInWs(const std::string name,double value) {
         }
     }
   }
+
+void CombineHarvester::renameParInWs(const std::string& name, const std::string& newName, const std::string& wsName)
+{ 
+    for (auto & item : wspaces_) { 
+        if ( (wsName=="" or item.first == wsName ) and item.second.get()->var(name.c_str())){
+            item.second.get()->var(name.c_str())->SetName(newName.c_str());
+        }
+    }
+}
 
 }

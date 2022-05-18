@@ -17,7 +17,7 @@ class Systematic : public Object {
   Systematic(Systematic&& other);
   Systematic& operator=(Systematic other);
 
-  void set_name(std::string const& name) { name_ = name; }
+  void set_name(std::string const& name);
   std::string const& name() const { return name_; }
 
   void set_type(std::string const& type) { type_ = type; }
