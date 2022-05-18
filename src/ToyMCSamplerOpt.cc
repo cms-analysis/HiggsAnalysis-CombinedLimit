@@ -29,7 +29,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAb
 }
 
 
-ToyMCSamplerOpt::ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) :
+/*ToyMCSamplerOpt::ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) :
     ToyMCSampler(base),
     globalObsPdf_(0),
     globalObsValues_(0), globalObsIndex_(-1),
@@ -43,7 +43,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(const ToyMCSamplerOpt &other) :
     globalObsValues_(0), globalObsIndex_(-1),
     weightVar_(0)
 {
-}
+}*/
 
 ToyMCSamplerOpt::~ToyMCSamplerOpt()
 {

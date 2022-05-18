@@ -56,8 +56,8 @@ namespace toymcoptutils {
 class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
     public:
         ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf = 0, bool generateNuisances = false) ;
-        ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) ;
-        ToyMCSamplerOpt(const ToyMCSamplerOpt &other) ;
+        //ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) ;
+        //ToyMCSamplerOpt(const ToyMCSamplerOpt &other) ;
         ~ToyMCSamplerOpt() ;
         virtual void SetPdf(RooAbsPdf& pdf) ;
         void setGlobalObsPdf(RooAbsPdf *pdf) { globalObsPdf_ = pdf; }
