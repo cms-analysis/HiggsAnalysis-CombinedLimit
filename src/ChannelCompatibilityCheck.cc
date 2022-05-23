@@ -25,7 +25,7 @@ bool  ChannelCompatibilityCheck::fixedMu_ = false;
 bool  ChannelCompatibilityCheck::saveFitResult_ = true;
 bool  ChannelCompatibilityCheck::runMinos_ = true;
 std::vector<std::string> ChannelCompatibilityCheck::groups_;
-std::map<TString,std::pair<double,double>> groupRanges_;
+std::map<TString,std::pair<double,double>> ChannelCompatibilityCheck::groupRanges_;
 
 ChannelCompatibilityCheck::ChannelCompatibilityCheck() :
     FitterAlgoBase("ChannelCompatibilityCheck specific options")
