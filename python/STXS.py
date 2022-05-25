@@ -145,7 +145,13 @@ stage1_2_fine_procs={ #Hopefully temporary while VH(bb) haven't provided correct
   'ggH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25' : ['ggZH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25'],
   'ggH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25' : ['ggZH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25'],
   'ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25' : ['ggZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25'],
-  'ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25' : ['ggZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25']
+  'ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25' : ['ggZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25'],
+  'WH_lep_PTV_0_75' : ['WH_lep_PTV_LT150'],
+  'ZH_lep_PTV_0_75' : ['ZH_lep_PTV_LT150'],
+  'ggZH_lep_PTV_0_75' : ['ggZH_lep_PTV_LT150'],
+  'WH_lep_PTV_150_250_0J' : ['WH_lep_PTV_GT150'],
+  'ZH_lep_PTV_150_250_0J' : ['ZH_lep_PTV_GT150'],
+  'ggZH_lep_PTV_150_250_0J' : ['ggZH_lep_PTV_GT150']
 
 
 }
