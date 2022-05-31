@@ -27,11 +27,12 @@ jobs:
     strategy:
       matrix:
         python: ["3.8"]
-        root: ["6.22", "6.24"]
+        root: ["6.22"]
         include:
           # to deprecate (11_2_X py2)
           - python: "2.7.18"
             root: "6.22.0"
+          # future: python 3.9 root 6.24 (12_3_X)
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
 
@@ -49,7 +50,7 @@ jobs:
     - name: Install build environment
       shell: bash -l {0}
       run: |
-        mamba install -c conda-forge python==${{ matrix.python }} pip root==${{ matrix.root }} gsl tbb vdt boost pcre eigen certifi[version='>=2017.4.17']
+        mamba install -c conda-forge python==${{ matrix.python }} pip root==${{ matrix.root }} gsl tbb vdt boost pcre eigen
         cd HiggsAnalysis/CombinedLimit
         bash set_conda_env_vars.sh
     - name: Build
