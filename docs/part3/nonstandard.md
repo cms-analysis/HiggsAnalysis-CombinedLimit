@@ -1051,6 +1051,6 @@ To calculate the look-elsewhere effect for a single parameter (in this case the 
 
    * Generate background-only toys	`combine ws.root -M GenerateOnly --toysFrequentist -m 16.5 -t 100 --saveToys --expectSignal=0`. The output will be something like `higgsCombineTest.GenerateOnly.mH16.5.123456.root`.
    * For each toy, calculate the significance for a predefined range	- e.g $m\in [10,35]$ GeV in steps suitable to the resolution - eg 1 GeV. `for i in $(seq 10 35); do combine ws.root -M Significance --redefineSignalPOI r --freezeParameters MH --setParameter MH=$i -n $i`. Calculate the maximum significance over all of these mass points - call this $\sigma_{max}$.
-   * Count how many toys have a maximum significance larger than the local one for your observed excess. This fraction of toys with $sigma_{max}>\sigma$ is the global p-value. 
+   * Count how many toys have a maximum significance larger than the local one for your observed excess. This fraction of toys with $\sigma_{max}>\sigma$ is the global p-value. 
 
 You can find more tutorials on the LEE [here](https://indico.cern.ch/event/456547/contributions/1126036/attachments/1188691/1724680/20151117_comb_tutorial_Lee.pdf)
