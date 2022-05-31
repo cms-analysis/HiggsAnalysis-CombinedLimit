@@ -1213,7 +1213,7 @@ r     = 0.00716347   +/-  12.513    (limited)
 <ul>
 <li>Generate background-only toys  <code>combine ws.root -M GenerateOnly --toysFrequentist -m 16.5 -t 100 --saveToys --expectSignal=0</code>. The output will be something like <code>higgsCombineTest.GenerateOnly.mH16.5.123456.root</code>.</li>
 <li>For each toy, calculate the significance for a predefined range    - e.g <span class="arithmatex"><span class="MathJax_Preview">m\in [10,35]</span><script type="math/tex">m\in [10,35]</script></span> GeV in steps suitable to the resolution - eg 1 GeV. <code>for i in $(seq 10 35); do combine ws.root -M Significance --redefineSignalPOI r --freezeParameters MH --setParameter MH=$i -n $i</code>. Calculate the maximum significance over all of these mass points - call this <span class="arithmatex"><span class="MathJax_Preview">\sigma_{max}</span><script type="math/tex">\sigma_{max}</script></span>.</li>
-<li>Count how many toys have a maximum significance larger than the local one for your observed excess. This fraction of toys with <span class="arithmatex"><span class="MathJax_Preview">sigma_{max}&gt;\sigma</span><script type="math/tex">sigma_{max}>\sigma</script></span> is the global p-value. </li>
+<li>Count how many toys have a maximum significance larger than the local one for your observed excess. This fraction of toys with <span class="arithmatex"><span class="MathJax_Preview">\sigma_{max}&gt;\sigma</span><script type="math/tex">\sigma_{max}>\sigma</script></span> is the global p-value. </li>
 </ul>
 <p>You can find more tutorials on the LEE <a href="https://indico.cern.ch/event/456547/contributions/1126036/attachments/1188691/1724680/20151117_comb_tutorial_Lee.pdf">here</a></p></div>
         
