@@ -47,7 +47,7 @@ public:
   }
   U GetBinWidth(const unsigned int bin) const{
     if (size()==0) return U(0);
-    else if (bin>=0 && bin<size()-1) return (binEdges_[bin+1]-binEdges_[bin]);
+    else if (bin<size()-1) return (binEdges_[bin+1]-binEdges_[bin]);
     else return U(1);
   }
   U GetBinLowEdge(const int bin=-1) const {

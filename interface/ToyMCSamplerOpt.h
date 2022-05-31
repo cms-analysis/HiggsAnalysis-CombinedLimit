@@ -56,8 +56,11 @@ namespace toymcoptutils {
 class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
     public:
         ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf = 0, bool generateNuisances = false) ;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
+// A private std::unique_ptr was introduced in RooStats::ToyMCSampler, disallowing copy construction
         ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) ;
         ToyMCSamplerOpt(const ToyMCSamplerOpt &other) ;
+#endif
         ~ToyMCSamplerOpt() ;
         virtual void SetPdf(RooAbsPdf& pdf) ;
         void setGlobalObsPdf(RooAbsPdf *pdf) { globalObsPdf_ = pdf; }
