@@ -24,8 +24,16 @@ jobs:
         black -l 160 --check --diff .
 
   build:
+    strategy:
+      matrix:
+        python: ["3.8"]
+        root: ["6.22", "6.24"]
+        include:
+          # to deprecate (11_2_X py2)
+          - python: "2.7"
+            root: "6.22"
     runs-on: ubuntu-latest
-    name: Test compilation using conda env
+    name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
 
     steps:
     - uses: actions/checkout@master
@@ -37,11 +45,11 @@ jobs:
         mamba-version: "*"
         channels: conda-forge,defaults
         channel-priority: true
-        environment-file: HiggsAnalysis/CombinedLimit/conda_env.yml
         activate-environment: combine
-    - name: Set up conda env variables
+    - name: Install build environment
       shell: bash -l {0}
       run: |
+        mamba install -c conda-forge python==${{ matrix.python }} pip root==${{ matrix.root }} gsl tbb vdt boost pcre eigen certifi[version='>=2017.4.17']
         cd HiggsAnalysis/CombinedLimit
         bash set_conda_env_vars.sh
     - name: Build
