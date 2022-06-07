@@ -4,6 +4,18 @@
 #include "boost/format.hpp"
 #include "CombineHarvester/CombineTools/interface/Logging.h"
 
+namespace {
+auto format_proc(const ch::Process& val) {
+  return boost::format(
+             "%-6s %-9s %-6s %-8s %-28s %-3i %-16s %-4i %-10.5g %-5i") %
+             val.mass() % val.analysis() % val.era() % val.channel() %
+             val.bin() % val.bin_id() % val.process() % val.signal() %
+             val.rate() %
+             (bool(val.shape()) || bool(val.pdf()) || bool(val.data()));
+}
+}
+
+
 namespace ch {
 
 Process::Process()
@@ -151,13 +163,12 @@ std::ostream& Process::PrintHeader(std::ostream& out) {
   return out;
 }
 
+std::string Process::to_string() const {
+  return ::format_proc(*this).str();
+}
+
 std::ostream& operator<< (std::ostream &out, Process const& val) {
-  out << boost::format(
-             "%-6s %-9s %-6s %-8s %-28s %-3i %-16s %-4i %-10.5g %-5i") %
-             val.mass() % val.analysis() % val.era() % val.channel() %
-             val.bin() % val.bin_id() % val.process() % val.signal() %
-             val.rate() %
-             (bool(val.shape()) || bool(val.pdf()) || bool(val.data()));
+  out << ::format_proc(val);
   return out;
 }
 }

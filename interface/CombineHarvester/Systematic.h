@@ -65,6 +65,7 @@ class Systematic : public Object {
   void set_shapes(TH1 const& shape_u, TH1 const& shape_d,
                   TH1 const& nominal);
 
+  std::string to_string() const;
   friend std::ostream& operator<< (std::ostream &out, Systematic const& val);
   static std::ostream& PrintHeader(std::ostream &out);
 

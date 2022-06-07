@@ -50,6 +50,10 @@ ValidateShapeTemplates = cppyy.gbl.ch.ValidateShapeTemplates
 ValidateShapeUncertaintyDirection = cppyy.gbl.ch.ValidateShapeUncertaintyDirection
 ValsFromRange = cppyy.gbl.ch.ValsFromRange
 
+Observation.__str__ = Observation.to_string
+Process.__str__ = Process.to_string
+Systematic.__str__ = Systematic.to_string
+
 
 def patch(cls):
     def patch_method(func):
