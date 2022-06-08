@@ -1,4 +1,8 @@
 from __future__ import absolute_import
+from os import environ
+
+# Prevent cppyy's check for the PCH
+environ['CLING_STANDARD_PCH'] = 'none'
 import cppyy
 
 cppyy.include("CombineHarvester/CombinePdfs/interface/MorphFunctions.h")

@@ -8,6 +8,10 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import itertools
+from os import environ
+
+# Prevent cppyy's check for the PCH
+environ['CLING_STANDARD_PCH'] = 'none'
 import cppyy
 
 
