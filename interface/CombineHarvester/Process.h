@@ -68,6 +68,7 @@ class Process : public Object {
   void set_observable(RooRealVar* obs) { cached_obs_ = obs; }
   RooRealVar * observable() const { return cached_obs_; }
 
+  std::string to_string() const;
   friend std::ostream& operator<< (std::ostream &out, Process const& val);
   static std::ostream& PrintHeader(std::ostream &out);
 

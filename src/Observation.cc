@@ -3,6 +3,21 @@
 #include "boost/format.hpp"
 #include "CombineHarvester/CombineTools/interface/Logging.h"
 
+namespace {
+auto format_obs(const ch::Observation& val) {
+  return boost::format("%-6s %-9s %-6s %-8s %-28s %-3i %-21s %-10.5g %-5i")
+  % val.mass()
+  % val.analysis()
+  % val.era()
+  % val.channel()
+  % val.bin()
+  % val.bin_id()
+  % "data_obs"
+  % val.rate()
+  % (bool(val.shape()) || bool(val.data()));
+}
+}
+
 namespace ch {
 
 Observation::Observation()
@@ -122,17 +137,12 @@ std::ostream& Observation::PrintHeader(std::ostream &out) {
   return out;
 }
 
+std::string Observation::to_string() const {
+  return ::format_obs(*this).str();
+}
+
 std::ostream& operator<< (std::ostream &out, Observation const& val) {
-  out << boost::format("%-6s %-9s %-6s %-8s %-28s %-3i %-21s %-10.5g %-5i")
-  % val.mass()
-  % val.analysis()
-  % val.era()
-  % val.channel()
-  % val.bin()
-  % val.bin_id()
-  % "data_obs"
-  % val.rate()
-  % (bool(val.shape()) || bool(val.data()));
+  out << ::format_obs(val);
   return out;
 }
 }
