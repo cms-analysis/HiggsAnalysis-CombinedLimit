@@ -217,12 +217,51 @@ def SetFromSysts(self, func):
     return res
 
 
-# these used to produce lists in the boost::python binding
-_set_producers = ["bin_set", "bin_id_set", "process_set", "analysis_set", "era_set", "channel_set", "mass_set", "syst_name_set", "syst_type_set"]
-for method_name in _set_producers:
-    hidden_name = "__%s__" % method_name
-    setattr(CombineHarvester, hidden_name, getattr(CombineHarvester, method_name))
-    setattr(CombineHarvester, method_name, lambda self: list(getattr(self, hidden_name)()))
+# These used to produce lists in the boost::python binding
+
+@patch(CombineHarvester)
+def bin_set(self):
+    return list(self.__bin_set__())
+
+
+@patch(CombineHarvester)
+def bin_id_set(self):
+    return list(self.__bin_id_set__())
+
+
+@patch(CombineHarvester)
+def process_set(self):
+    return list(self.__process_set__())
+
+
+@patch(CombineHarvester)
+def analysis_set(self):
+    return list(self.__analysis_set__())
+
+
+@patch(CombineHarvester)
+def era_set(self):
+    return list(self.__era_set__())
+
+
+@patch(CombineHarvester)
+def channel_set(self):
+    return list(self.__channel_set__())
+
+
+@patch(CombineHarvester)
+def mass_set(self):
+    return list(self.__mass_set__())
+
+
+@patch(CombineHarvester)
+def syst_name_set(self):
+    return list(self.__syst_name_set__())
+
+
+@patch(CombineHarvester)
+def syst_type_set(self):
+    return list(self.__syst_type_set__())
 
 
 class SystMap:
