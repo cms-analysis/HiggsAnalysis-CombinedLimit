@@ -74,7 +74,7 @@ Access to `/cvmfs/cms.cern.ch/` can be obtained from lxplus machines or via `Cer
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit/ 
 git fetch origin
-git checkout v8.1.0
+git checkout v8.2.0
 . env_standalone.sh
 make
 ```
