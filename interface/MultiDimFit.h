@@ -66,6 +66,7 @@ protected:
   static std::string robustHesseSave_;
 
   static int pointsRandProf_;
+  static std::string randPointsRanges_;
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
@@ -94,6 +95,9 @@ protected:
   void doContour2D(RooWorkspace *w, RooAbsReal &nll) ;
   void doStitch2D(RooWorkspace *w, RooAbsReal &nll) ;
   void doImpact(RooFitResult &res, RooAbsReal &nll) ;
+
+  std::map<std::string, std::vector<float>> getRangesDictFromInString(std::string) ;
+
 
   // utilities
   /// for each RooRealVar, set a range 'box' from the PL profiling all other parameters

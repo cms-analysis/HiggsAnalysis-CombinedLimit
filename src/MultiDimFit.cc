@@ -61,6 +61,7 @@ bool        MultiDimFit::robustHesse_ = false;
 std::string MultiDimFit::robustHesseLoad_ = "";
 std::string MultiDimFit::robustHesseSave_ = "";
 int MultiDimFit::pointsRandProf_ = 0;
+std::string MultiDimFit::randPointsRanges_;
 
 
 std::string MultiDimFit::saveSpecifiedFuncs_;
@@ -112,6 +113,7 @@ MultiDimFit::MultiDimFit() :
     ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
     ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
     ("pointsRandProf",  boost::program_options::value<int>(&pointsRandProf_)->default_value(pointsRandProf_),  "Number of random start points to try for the profiled POIs")
+    ("randPointsRanges",  boost::program_options::value<std::string>(&randPointsRanges_)->default_value(""),  "Range from which to draw random start points for the profiled POIs")
       ;
 }
 
@@ -694,7 +696,6 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             std::vector<float> nll_at_alt_start_pts;
 
             // Get vector of points to try
-            float prof_start_pt_range_max = 20.0; // Is this what we want?
             std::vector<std::vector<float>> wc_vals_vec_of_vec = {};
 
             // Append the defualt start pt to the list of points to try
@@ -705,9 +706,19 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             wc_vals_vec_of_vec.push_back(default_start_pt_vec);
 
             // Append the random points to the vecotr of points to try
+            float prof_start_pt_range_max = 20.0; // Default to 20 if we're not asking for custom ranges
+            std::map<std::string, std::vector<float>> rand_ranges_dict;
+            if (randPointsRanges_ != "") {
+                rand_ranges_dict = getRangesDictFromInString(randPointsRanges_);
+            }
             for (int pt_idx=0; pt_idx<pointsRandProf_; pt_idx++) {
                 std::vector<float> wc_vals_vec;
                 for (int prof_param_idx=0; prof_param_idx<n_prof_params; prof_param_idx++) {
+                    if (randPointsRanges_ != "") {
+                        float rand_range_lo = rand_ranges_dict[specifiedVars_[prof_param_idx]->GetName()][0];
+                        float rand_range_hi = rand_ranges_dict[specifiedVars_[prof_param_idx]->GetName()][1];
+                        prof_start_pt_range_max = std::max(abs(rand_range_lo),abs(rand_range_hi));
+                    }
                     // Get a random number in the range [-prof_start_pt_range_max,prof_start_pt_range_max]
                     float rand_num = (rand()*2.0*prof_start_pt_range_max)/RAND_MAX - prof_start_pt_range_max;
                     wc_vals_vec.push_back(rand_num);
@@ -770,7 +781,11 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                             minim.minimize(verbose-1);
 
                 if (verbose > 1) std::cout << "\t\tThe nll.getVal() is: " << nll.getVal() << std::endl;
-                nll_at_alt_start_pts.push_back(nll.getVal());
+                if (ok) {
+                    nll_at_alt_start_pts.push_back(nll.getVal());
+                } else {
+                    nll_at_alt_start_pts.push_back(999999.9); // Placeholder for now
+                }
 
             }
 
@@ -1353,4 +1368,24 @@ void MultiDimFit::splitGridPoints(const std::string& s, std::vector<unsigned int
     for (const auto strPoint : strPoints) {
         points.push_back(std::stoul(strPoint));
     }
+}
+
+// Extract the ranges map from the input string
+// Assumes the string is formatted with colons like "poi_name1=lo_lim,hi_lim:poi_name2=lo_lim,hi_lim"
+std::map<std::string, std::vector<float>> MultiDimFit::getRangesDictFromInString(std::string params_ranges_string_in) {
+    std::map<std::string, std::vector<float>> out_range_dict;
+    std::vector<std::string> params_ranges_string_lst;
+    boost::split(params_ranges_string_lst, params_ranges_string_in, boost::is_any_of(":"));
+    for (UInt_t p = 0; p < params_ranges_string_lst.size(); ++p) {
+        std::vector<std::string> params_ranges_string;
+        boost::split(params_ranges_string, params_ranges_string_lst[p], boost::is_any_of("=,"));
+        if (params_ranges_string.size() != 3) {
+            std::cout << "Error parsing expression : " << params_ranges_string_lst[p] << std::endl;
+        }
+        std::string wc_name =params_ranges_string[0];
+        float lim_lo = atof(params_ranges_string[1].c_str());
+        float lim_hi = atof(params_ranges_string[2].c_str());
+        out_range_dict.insert({wc_name,{lim_lo,lim_hi}});
+    }
+    return out_range_dict;
 }
