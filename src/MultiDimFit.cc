@@ -81,6 +81,7 @@ std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
 std::vector<float>        MultiDimFit::specifiedVals_;
 RooArgList                MultiDimFit::specifiedList_;
 bool MultiDimFit::saveInactivePOI_= false;
+bool MultiDimFit::skipDefaultStart_ = false;
 
 MultiDimFit::MultiDimFit() :
     FitterAlgoBase("MultiDimFit specific options")
@@ -104,6 +105,7 @@ MultiDimFit::MultiDimFit() :
 	("saveSpecifiedFunc",   boost::program_options::value<std::string>(&saveSpecifiedFuncs_)->default_value(""), "Save specified function values (default = none)")
 	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
+	("skipDefaultStart",   boost::program_options::value<bool>(&skipDefaultStart_)->default_value(skipDefaultStart_), "Do not include the default start point in list of points to fit")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
     ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
     ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
@@ -700,11 +702,13 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             std::vector<std::vector<float>> wc_vals_vec_of_vec = {};
 
             // Append the defualt start pt to the list of points to try
-            std::vector<float> default_start_pt_vec;
-            for (int prof_param_idx=0; prof_param_idx<n_prof_params; prof_param_idx++) {
-                default_start_pt_vec.push_back(specifiedVars_[prof_param_idx]->getVal());
+            if (!skipDefaultStart_) {
+                std::vector<float> default_start_pt_vec;
+                for (int prof_param_idx=0; prof_param_idx<n_prof_params; prof_param_idx++) {
+                    default_start_pt_vec.push_back(specifiedVars_[prof_param_idx]->getVal());
+                }
+                wc_vals_vec_of_vec.push_back(default_start_pt_vec);
             }
-            wc_vals_vec_of_vec.push_back(default_start_pt_vec);
 
             // Append the random points to the vecotr of points to try
             float prof_start_pt_range_max = 20.0; // Default to 20 if we're not asking for custom ranges
