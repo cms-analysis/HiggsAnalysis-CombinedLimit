@@ -61,6 +61,7 @@ bool        MultiDimFit::robustHesse_ = false;
 std::string MultiDimFit::robustHesseLoad_ = "";
 std::string MultiDimFit::robustHesseSave_ = "";
 int MultiDimFit::pointsRandProf_ = 0;
+int MultiDimFit::randPointsSeed_ = 0;
 std::string MultiDimFit::randPointsRanges_;
 
 
@@ -115,6 +116,7 @@ MultiDimFit::MultiDimFit() :
     ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
     ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
     ("pointsRandProf",  boost::program_options::value<int>(&pointsRandProf_)->default_value(pointsRandProf_),  "Number of random start points to try for the profiled POIs")
+    ("randPointsSeed",  boost::program_options::value<int>(&randPointsSeed_)->default_value(randPointsSeed_),  "Seed to use when generating random start points to try for the profiled POIs")
     ("randPointsRanges",  boost::program_options::value<std::string>(&randPointsRanges_)->default_value(""),  "Range from which to draw random start points for the profiled POIs")
       ;
 }
@@ -646,7 +648,9 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
         unsigned int points = pointsPerPoi.size() == 0 ? points_ : pointsPerPoi[0];
 
         // Set seed for random points
-        srand(1);
+        if (pointsRandProf_ > 0) {
+            srand(randPointsSeed_);
+        }
 
         double xspacing = (pmax[0]-pmin[0]) / points;
         double xspacingOffset = 0.5;
