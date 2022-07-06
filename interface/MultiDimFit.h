@@ -67,6 +67,7 @@ protected:
 
   static int pointsRandProf_;
   static std::string randPointsRanges_;
+  static int randPointsSeed_;
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
