@@ -742,6 +742,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             }
 
             // Loop over starting points to try for the prof WCs
+            float current_best_nll;
             for (unsigned int start_pt_idx=0; start_pt_idx<wc_vals_vec_of_vec.size(); start_pt_idx++){
                 *params = snap;
                 poiVals_[0] = x;
@@ -780,68 +781,36 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                     Combine::commitPoint(true, /*quantile=*/0);
                     continue;
                 }
-                ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) || utils::countFloating(*params)==0 ?
-                            true :
+                ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) || utils::countFloating(*params)==0 ? 
+                            true : 
                             minim.minimize(verbose-1);
 
-                if (verbose > 1) std::cout << "\t\tThe nll.getVal() is: " << nll.getVal() << std::endl;
                 if (ok) {
-                    nll_at_alt_start_pts.push_back(nll.getVal());
-                } else {
-                    nll_at_alt_start_pts.push_back(999999.9); // Placeholder for now
+                    deltaNLL_ = nll.getVal() - nll0;
+                    double qN = 2*(deltaNLL_);
+                    double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
+                        specifiedVals_[j]=specifiedVars_[j]->getVal();
+                    }
+                    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
+                        specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
+                    }
+                    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
+                        specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
+                    }
+                    //Combine::commitPoint(true, /*quantile=*/prob);
+                    if (start_pt_idx==0) {
+                        Combine::commitPoint(true, /*quantile=*/prob);
+                        current_best_nll = nll.getVal();
+                    } else if (nll.getVal() < current_best_nll) {
+                        Combine::commitPoint(true, /*quantile=*/prob);
+                        current_best_nll = nll.getVal();
+                    }
                 }
 
-            }
+            } // End loop over random start points
 
-            // Rerun the fit for the point with the min nll
-            int min_nll_idx;
-            min_nll_idx = std::min_element(nll_at_alt_start_pts.begin(),nll_at_alt_start_pts.end()) - nll_at_alt_start_pts.begin();
-            if (verbose > 1) std::cout << "\tMin nll at idx: " << min_nll_idx << " " << nll_at_alt_start_pts.at(min_nll_idx) << std::endl;
-            if (verbose > 1) std::cout << "\tResetting for rerunning at the point that gives best nll:" << std::endl;
-            *params = snap;
-            poiVals_[0] = x;
-            poiVars_[0]->setVal(x);
-            for (unsigned int var_idx=0; var_idx<specifiedVars_.size(); var_idx++){
-                if (verbose > 1) std::cout << "\t\tSetting " << specifiedVars_[var_idx]->GetName() << " to " << wc_vals_vec_of_vec.at(min_nll_idx).at(var_idx) << std::endl;
-                specifiedVars_[var_idx]->setVal(wc_vals_vec_of_vec.at(min_nll_idx).at(var_idx));
-            }
-            // now we minimize
-            nll.clearEvalErrorLog();
-            deltaNLL_ = nll.getVal() - nll0;
-            if (nll.numEvalErrors() > 0) {
-                deltaNLL_ = 9990;
-                for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-                    specifiedVals_[j]=specifiedVars_[j]->getVal();
-                }
-                for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-                    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-                }
-                Combine::commitPoint(true, /*quantile=*/0);
-                continue;
-            }
-            ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) || utils::countFloating(*params)==0 ? 
-                        true : 
-                        minim.minimize(verbose-1);
-
-            ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-            if (ok) {
-                deltaNLL_ = nll.getVal() - nll0;
-                double qN = 2*(deltaNLL_);
-                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-                for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-                    specifiedVals_[j]=specifiedVars_[j]->getVal();
-                }
-                for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-                    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-                }
-                for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-                    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-                }
-                Combine::commitPoint(true, /*quantile=*/prob);
-            }
-
-        }
+        } // End of the loop over scan points
     } else if (n == 2) {
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
         CloseCoutSentry sentry(verbose < 2);
