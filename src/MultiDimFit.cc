@@ -700,7 +700,6 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
 
             bool ok;
             int n_prof_params = specifiedVars_.size();
-            std::vector<float> nll_at_alt_start_pts;
 
             // Get vector of points to try
             std::vector<std::vector<float>> wc_vals_vec_of_vec = {};
@@ -747,7 +746,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             }
 
             // Loop over starting points to try for the prof WCs
-            float current_best_nll;
+            float current_best_nll = 0; // This variable will be properly initialized within the for loop, just initialize to a dummy value here to avoid compiling warnings
             for (unsigned int start_pt_idx=0; start_pt_idx<wc_vals_vec_of_vec.size(); start_pt_idx++){
                 *params = snap;
                 poiVals_[0] = x;
