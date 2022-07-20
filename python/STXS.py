@@ -175,11 +175,8 @@ stage1_2_procs = {
 stage1_2_fine_procs = {  # Hopefully temporary while VH(bb) haven't provided correct stage 1.2 splitting
     "WH_lep_PTV_GT250": ["WH_lep_PTV_250_400", "WH_lep_PTV_GT400"],
     "ZH_lep_PTV_GT250": ["ZH_lep_PTV_250_400", "ZH_lep_PTV_GT400"],
-    "ggZH_lep_PTV_GT250": ["ggZH_lep_PTV_250_400", "ggZH_lep_PTV_GT400"],
     "ttH_PTH_GT300": ["ttH_PTH_300_450", "ttH_PTH_GT450"],
-    "ggZH_lep_PTV_0_75": ["ggZH_ll_PTV_0_75", "ggZH_nunu_PTV_0_75"],
     "ggZH_lep_PTV_75_150": ["ggZH_ll_PTV_75_150", "ggZH_nunu_PTV_75_150"],
-    "ggZH_lep_PTV_150_250_0J": ["ggZH_ll_PTV_150_250_0J", "ggZH_nunu_PTV_150_250_0J"],
     "ggZH_lep_PTV_150_250_GE1J": ["ggZH_ll_PTV_150_250_GE1J", "ggZH_nunu_PTV_150_250_GE1J"],
     "ggZH_lep_PTV_GT250": ["ggZH_ll_PTV_GT250", "ggZH_nunu_PTV_GT250"],
     "ggH_PTH_200_300": ["ggZH_had_PTH_200_300"],
