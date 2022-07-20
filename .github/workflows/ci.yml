@@ -27,12 +27,14 @@ jobs:
     strategy:
       matrix:
         python: ["3.8"]
-        root: ["6.22", "6.24"]
+        root: ["6.22"]
         include:
           # to deprecate (11_2_X py2)
           - python: "2.7.18"
             root: "6.22.0"
-          # future: python 3.9 root 6.24 (12_3_X)
+          # python 3.9 root 6.24 (12_3_X)
+          - python: "3.9"
+            root: "6.24"
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
 
