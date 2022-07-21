@@ -44,6 +44,7 @@ options.optimizeMHDependency = False
 options.optimizeTemplateBins=False
 options.forceNonSimPdf = False
 options.removeMultiPdf = False
+options.noData = False
 options.physModel = "HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 import sys
