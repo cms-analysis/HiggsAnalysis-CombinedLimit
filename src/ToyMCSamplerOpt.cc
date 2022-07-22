@@ -29,6 +29,8 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAb
 }
 
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
+// A private std::unique_ptr was introduced in RooStats::ToyMCSampler, disallowing copy construction
 ToyMCSamplerOpt::ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) :
     ToyMCSampler(base),
     globalObsPdf_(0),
@@ -44,6 +46,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(const ToyMCSamplerOpt &other) :
     weightVar_(0)
 {
 }
+#endif
 
 ToyMCSamplerOpt::~ToyMCSamplerOpt()
 {

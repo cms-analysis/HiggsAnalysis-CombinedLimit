@@ -11,6 +11,7 @@
 #include "RooConstVar.h"
 #include "RooArgList.h"
 #include "RooMsgService.h"
+#include "RooListProxy.h"
 
 class RooNCSplineCore : public RooAbsReal{
 public:

@@ -17,6 +17,8 @@
 using namespace std;
 using namespace RooFit;
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
+// This (and its later uses) is a performance patch for older root versions
 namespace {
   class RooRealVarSharedPropertiesSmart : public RooRealVarSharedProperties {
     public:
@@ -29,6 +31,7 @@ namespace {
       int getHashTableSize() const { return ((RooRealVarSharedPropertiesSmart*)sharedProp().get())->getHashTableSize(); }
   };
 }
+#endif
 
 ClassImp(RooParametricShapeBinPdf)
 //---------------------------------------------------------------------------
@@ -52,10 +55,12 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
   setTH1Binning(_shape);
   RooAbsReal* myintegral;
 
-  //modify x to use hash table for range lookup
   RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
+  //modify x to use hash table for range lookup
   RooRealVarSmart* x_smart(static_cast<RooRealVarSmart*>(&x_rrv));
   x_smart->setHashTableSize(1);
+#endif
 
   RooListProxy obs;
   obs.add(x.arg());
@@ -144,9 +149,11 @@ Double_t RooParametricShapeBinPdf::evaluate() const
   if (!x.arg().hasRange(rangeName.c_str())) {
     RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
     //modify x to use hash table for range lookup
     RooRealVarSmart* x_smart(static_cast<RooRealVarSmart*>(&x_rrv));
     if(x_smart->getHashTableSize()==0) x_smart->setHashTableSize(1);
+#endif
 
     Double_t xLow = xArray[iBin];
     Double_t xHigh = xArray[iBin+1];
