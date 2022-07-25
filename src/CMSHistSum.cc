@@ -185,8 +185,8 @@ CMSHistSum::CMSHistSum(
       vsmooth_par_(other.vsmooth_par_),
       bintypes_(other.bintypes_),
       cache_(other.cache_),
-      sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
-      binsentry_(name ? TString(name) + "_binsentry" : TString(other.binsentry_.GetName()), ""),
+      sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", ""),
+      binsentry_(name ? TString(name) + "_binsentry" : TString(other.GetName())+"_binsentry", ""),
       initialized_(false),
       fast_mode_(0) {
       initialize();
