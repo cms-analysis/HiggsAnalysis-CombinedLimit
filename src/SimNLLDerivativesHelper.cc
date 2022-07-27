@@ -433,8 +433,17 @@ void SimNLLDerivativesHelper::init(){
             if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< " Considering "<< nll_->constrainPdfsFast_[i]->getX().GetName() <<std::endl;
             if (nll_->constrainPdfsFast_[i]->getX().GetName() != name) continue;
 
-            if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< "Loop. found constraint "<< nll_->constrainPdfsFast_[i]->getX().GetName() <<" == "<<name<<". Building RooFormulaVar" <<std::endl;
-            RooFormulaVar *constr = new RooFormulaVar( (std::string("constr_")+name).c_str(),"@3*(@0-@1)/(@2*@2)",RooArgList(nll_->constrainPdfsFast_[i]->getX(),nll_->constrainPdfsFast_[i]->getMean(), nll_->constrainPdfsFast_[i]->getSigma(),unmask_));// (x-mean)/sigma^2
+            //nll_->constrainPdfsFast_[i]->getMean().Print("V");
+            if(verbose) std::cout<<"[SimNLLDerivativesHelper][init]"<< "Loop. found constraint "<< nll_->constrainPdfsFast_[i]->getX().GetName() <<" == "<<name<<". Building RooFormulaVar.  X="<<nll_->constrainPdfsFast_[i]->getX().GetName()<< ", "<<nll_->constrainPdfsFast_[i]->getMean().GetName()<<", "<<nll_->constrainPdfsFast_[i]->getSigma().GetName() <<std::endl;
+
+            RooFormulaVar *constr;
+            if ( std::string(nll_->constrainPdfsFast_[i]->getSigma().GetName()) == std::string("1")) // new RooFormulaVar get crazy if they parse 1
+            {
+                constr = new RooFormulaVar( (std::string("constr_")+name).c_str(),"@2*(@0-@1)",RooArgList(nll_->constrainPdfsFast_[i]->getX(),nll_->constrainPdfsFast_[i]->getMean(),unmask_));// (x-mean)/sigma^2
+            }
+            else{ // likely untested
+                constr = new RooFormulaVar( (std::string("constr_")+name).c_str(),"@3*(@0-@1)/(@2*@2)",RooArgList(nll_->constrainPdfsFast_[i]->getX(),nll_->constrainPdfsFast_[i]->getMean(), nll_->constrainPdfsFast_[i]->getSigma(),unmask_));// (x-mean)/sigma^2
+            }
             list.add(*constr) ; // or addOwned or add?
         }
         if (verbose) {std::cout <<"[SimNLLDerivativesHelper][init] --- LIST OF addition ---"<<std::endl;
