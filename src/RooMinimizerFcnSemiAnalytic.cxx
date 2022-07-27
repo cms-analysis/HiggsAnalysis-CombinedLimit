@@ -34,6 +34,9 @@
 #include "RooMsgService.h"
 
 #include "RooMinimizer.h"
+
+#include <fstream>
+#include <iomanip>
 #include <stdexcept>
 
 #include "RooAddition.h" // DEBUG & Print
@@ -557,7 +560,7 @@ double RooMinimizerFcnSemiAnalytic::DoEval(const double *x) const
   RooAbsReal::setHideOffset(kTRUE) ;
 
   //if (RooAbsReal::numEvalErrors()>0 || fvalue > 1e30) { REMOVEME
-  if (RooAbsPdf::evalError() || RooAbsReal::numEvalErrors()>0 || fvalue>1e30) {
+  if ( !std::isfinite(fvalue) || RooAbsReal::numEvalErrors()>0 || fvalue>1e30) {
 
     if (_printEvalErrors>=0) {
 
@@ -588,6 +591,8 @@ double RooMinimizerFcnSemiAnalytic::DoEval(const double *x) const
 
     if (_doEvalErrorWall) {
       fvalue = _maxFCN+1;
+      //const double badness = RooNaNPacker::unpackNaN(fvalue);
+      //fvalue = (std::isfinite(_maxFCN) ? _maxFCN : 0.) + _recoverFromNaNStrength * badness;
     }
 
     RooAbsReal::clearEvalErrorLog() ;

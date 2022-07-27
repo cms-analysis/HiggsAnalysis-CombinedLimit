@@ -1,5 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/SimNLLDerivativesHelper.h"
 #include "RooDataHist.h"
+#include "RooFormulaVar.h"
 
 //#define DERIVATIVE_RATEPARAM_DEBUG 1
 //#define DERIVATIVE_LOGNORMAL_DEBUG 1
