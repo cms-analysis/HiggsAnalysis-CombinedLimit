@@ -15,11 +15,11 @@
 #######################################################################
 
 # Boost
-BOOST = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/boost/1.72.0-gchjei
-VDT   = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/cms/vdt/0.4.0-ghbfee
-PCRE = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/pcre/8.43-bcolbf
-GSL = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/gsl/2.6-bcolbf3
-EIGEN = /cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/eigen/d812f411c3f9-ghbfee
+BOOST = /cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/boost/1.75.0-ljfedo
+VDT   = /cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/vdt/0.4.0-ghbfee
+PCRE = /cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/pcre/8.43-bcolbf
+GSL = /cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/gsl/2.6-ljfedo
+EIGEN = /cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/eigen/011e0db31d1bed8b7f73662be6d57d9f30fa457a
 # Compiler and flags -----------------------------------------------------------
 CXX = $(shell root-config --cxx)
 ROOTCFLAGS = $(shell root-config --cflags)
@@ -61,10 +61,11 @@ endif
 PARENT_DIR = $(shell pwd)/../../
 SRC_DIR = src
 INC_DIR = interface
-LIB_DIR = lib
 PROG_DIR = bin
-EXE_DIR = exe
+PYTHON_DIR = python
 OBJ_DIR = obj
+LIB_DIR = lib
+EXE_DIR = exe
 
 
 # Useful shortcuts -------------------------------------------------------------
@@ -79,19 +80,18 @@ EXES = $(PROGS:.cpp=)
 .PHONY: clean dirs dict obj lib exe debug
 
 
-all: dirs dict obj lib exe compile_python
+all: dirs dict obj lib exe python
 
 #---------------------------------------
 
 dirs:
 	@mkdir -p $(OBJ_DIR)/a
-	@mkdir -p $(SRC_DIR)
 	@mkdir -p $(LIB_DIR)
-	@mkdir -p $(EXE_DIR)
 	@mkdir -p $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit
 	@touch $(LIB_DIR)/python/__init__.py
 	@touch $(LIB_DIR)/python/HiggsAnalysis/__init__.py
 	@touch $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit/__init__.py
+	@mkdir -p $(EXE_DIR)
 
 #---------------------------------------
 
@@ -134,8 +134,9 @@ exe: $(addprefix $(EXE_DIR)/,$(EXES))
 $(EXE_DIR)/% : $(PROG_DIR)/%.cpp lib
 	$(CXX) $< -o $@ $(CCFLAGS) -L $(LIB_DIR) -l $(LIBNAME) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) $(BOOST_INC) $(LIBS) $(EXELDFLAGS)
 
-compile_python:
-	@python -m compileall -q python 
+python: $(wildcard ${PYTHON_DIR}/*.py)
+	cp $^ $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit/
+	python3 -m compileall -q $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit/
 
 #---------------------------------------
 
