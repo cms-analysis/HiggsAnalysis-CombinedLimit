@@ -51,7 +51,7 @@ ROOTLDFLAGS   = $(shell root-config --ldflags)
 DARWIN := $(shell uname|grep Darwin)
 ifdef DARWIN
 LDFLAGS       = $(ROOTLDFLAGS) -shared -install_name @rpath/$(SONAME) -fPIC
-EXELDFLAGS    = -undefined dynamic_lookup -Wl,-rpath,'@executable_path/../lib'
+EXELDFLAGS    = -Wl,-rpath,'@executable_path/../lib'
 else
 LDFLAGS       = $(ROOTLDFLAGS) -shared -Wl,-soname,$(SONAME) -Wl,-E -Wl,-z,defs -fPIC
 EXELDFLAGS    = 
@@ -77,7 +77,7 @@ PROGS = $(notdir $(wildcard ${PROG_DIR}/*.cpp))
 EXES = $(PROGS:.cpp=)
 
 #Makefile Rules ---------------------------------------------------------------
-.PHONY: clean dirs dict obj lib exe debug
+.PHONY: clean dirs dict obj lib exe debug python
 
 
 all: dirs dict obj lib exe python
