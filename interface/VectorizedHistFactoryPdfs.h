@@ -28,7 +28,7 @@ namespace cacheutils {
             VectorizedParamHistFunc(const ParamHistFunc &pdf, const RooAbsData &data, bool includeZeroWeights=false) ;
             void fill(std::vector<Double_t> &out) const ;
         private:
-            std::vector<const RooRealVar *> yvars_;
+            std::vector<RooAbsReal *> yvars_;
     };
 
     class CachingPiecewiseInterpolation : public CachingPdfBase {
