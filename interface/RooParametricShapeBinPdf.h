@@ -32,8 +32,8 @@ public:
    Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const;
 
    //accessors
-   RooRealProxy getX() const { return x; }
-   RooListProxy getPars() const { return pars; }
+   RooRealProxy const& getX() const { return x; }
+   RooListProxy const& getPars() const { return pars; }
    const Double_t* getBins() const { return &xArray[0]; }
    Int_t getNbins() const { return xBins; }
 

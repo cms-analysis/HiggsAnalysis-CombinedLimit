@@ -67,8 +67,7 @@ cacheutils::VectorizedParamHistFunc::VectorizedParamHistFunc(const ParamHistFunc
     for (unsigned int i = 0, n = data.numEntries(); i < n; ++i) {
         obs.assignValueOnly(*data.get(i), true);
         if (data.weight() || includeZeroWeights) {
-            RooRealVar * rrv = & pdf.getParameter();
-            yvars_.push_back(rrv);        
+            yvars_.push_back(&pdf.getParameter());
         }
     }
 }

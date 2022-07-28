@@ -193,7 +193,7 @@ Double_t RooRealFlooredSumPdf::evaluate() const
 		func = (RooAbsReal*)funcIter.next();
 		Double_t coefVal = coef->getVal();
 		if (coefVal) {
-			cxcoutD(Eval) << "RooRealFlooredSumPdf::eval(" << GetName() << ") coefVal = " << coefVal << " funcVal = " << func->IsA()->GetName() << "::" << func->GetName() << " = " << func->getVal() << endl;
+			cxcoutD(Eval) << "RooRealFlooredSumPdf::eval(" << GetName() << ") coefVal = " << coefVal << " funcVal = " << func->ClassName() << "::" << func->GetName() << " = " << func->getVal() << endl;
 			value += func->getVal()*coefVal;
 			lastCoef -= coef->getVal();
 		}
