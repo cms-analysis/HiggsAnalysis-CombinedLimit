@@ -1,5 +1,2 @@
 site
 *.pyc
-exe
-lib
-obj
