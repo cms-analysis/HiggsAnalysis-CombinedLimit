@@ -56,7 +56,7 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
   int nbins = cat->numBins((const char *)0);
   TString satname = TString::Format("%s_freeform", sim->GetName());
-  std::auto_ptr<RooSimultaneous> newsim((typeid(*sim) == typeid(RooSimultaneousOpt)) ? new RooSimultaneousOpt(satname, "", *cat) : new RooSimultaneous(satname, "", *cat)); 
+  std::unique_ptr<RooSimultaneous> newsim((typeid(*sim) == typeid(RooSimultaneousOpt)) ? new RooSimultaneousOpt(satname, "", *cat) : new RooSimultaneous(satname, "", *cat)); 
   std::map<std::string,std::string> rs;
   RooArgList minosVars, minosOneVar; if (runMinos_) minosOneVar.add(*r);
   for (int ic = 0, nc = nbins; ic < nc; ++ic) {
@@ -76,12 +76,12 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
 
   CloseCoutSentry sentry(verbose < 2);
   const RooCmdArg &constCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1); // use something dummy 
-  std::auto_ptr<RooFitResult> result_nominal (doFit(   *sim, data, minosOneVar, constCmdArg, runMinos_)); // let's run Hesse if we want to run Minos
+  std::unique_ptr<RooFitResult> result_nominal (doFit(   *sim, data, minosOneVar, constCmdArg, runMinos_)); // let's run Hesse if we want to run Minos
   if (dynamic_cast<cacheutils::CachingSimNLL*>(nll.get())) {
     static_cast<cacheutils::CachingSimNLL*>(nll.get())->clearConstantZeroPoint();
   }
   double nll_nominal   = nll->getVal();
-  std::auto_ptr<RooFitResult> result_freeform(doFit(*newsim, data, minosVars,   constCmdArg, runMinos_));
+  std::unique_ptr<RooFitResult> result_freeform(doFit(*newsim, data, minosVars,   constCmdArg, runMinos_));
   if (dynamic_cast<cacheutils::CachingSimNLL*>(nll.get())) {
     static_cast<cacheutils::CachingSimNLL*>(nll.get())->clearConstantZeroPoint();
   }

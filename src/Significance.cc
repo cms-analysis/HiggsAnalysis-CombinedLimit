@@ -115,7 +115,7 @@ bool Significance::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::M
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
   bool success = false;
   std::vector<double> limits; double rMax = r->getMax();  
-  std::auto_ptr<RooAbsPdf> nuisancePdf(0);
+  std::unique_ptr<RooAbsPdf> nuisancePdf(nullptr);
   for (int i = 0; i < maxTries_; ++i) {
       w->loadSnapshot("clean");
       if (i > 0) { // randomize starting point
@@ -195,7 +195,7 @@ bool Significance::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooAbs
 
   while (!success) {
     ProfileLikelihoodCalculator plcB(data, *mc_s, 1.0-cl);
-    std::auto_ptr<LikelihoodInterval> plInterval;
+    std::unique_ptr<LikelihoodInterval> plInterval;
     if (useMinos_ || bruteForce_) {
         // try first with Minos, unless brute force requested
         if (!bruteForce_) { 
@@ -272,7 +272,7 @@ bool Significance::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       Double_t q0 = testStat.Evaluate(data, nullParamValues);
       limit = (q0 > 0 ? sqrt(2*q0) : (uncapped_ ? -sqrt(-2*q0) : 0));
   } else {
-      std::auto_ptr<HypoTestResult> result(plcS.GetHypoTest());
+      std::unique_ptr<HypoTestResult> result(plcS.GetHypoTest());
       if (result.get() == 0) return false;
       limit = result->Significance();
       if (uncapped_ && r->getVal() < signalForSignificance_) limit = -limit;
@@ -298,7 +298,7 @@ bool Significance::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
 
 double Significance::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
-    std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    std::unique_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
     RooMinimizer minim(*nll);
     minim.setStrategy(0);
     minim.setPrintLevel(verbose-1);
@@ -306,7 +306,7 @@ double Significance::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRe
     nllutils::robustMinimize(*nll, minim, verbose-1);
     int minosStat = minim.minos(RooArgSet(poi));
     if (minosStat == -1) return std::numeric_limits<double>::quiet_NaN();
-    std::auto_ptr<RooFitResult> res(minim.save());
+    std::unique_ptr<RooFitResult> res(minim.save());
     double muhat = poi.getVal(), limit = poi.getVal() + (lowerLimit_ ? poi.getAsymErrorLo() : poi.getAsymErrorHi());
     double nll0 = nll->getVal();
     poi.setVal(limit);
@@ -322,7 +322,7 @@ double Significance::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRe
 
 std::pair<double,double> Significance::upperLimitBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
     poi.setConstant(false);
-    std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    std::unique_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
     RooMinimizer minim0(*nll);
     minim0.setStrategy(0);
     minim0.setPrintLevel(-1);
@@ -334,7 +334,7 @@ std::pair<double,double> Significance::upperLimitBruteForce(RooAbsPdf &pdf, RooA
         std::cerr << "Initial minimization failed. Aborting." << std::endl;
         return std::pair<double,double>(0, -1);
     }
-    std::auto_ptr<RooFitResult> start(minim.save());
+    std::unique_ptr<RooFitResult> start(minim.save());
     double minnll = nll->getVal();
     double rval = poi.getVal() + (lowerLimit_ ? -3 : +3)*poi.getError(), rlow = poi.getVal(), rhigh = lowerLimit_ ? poi.getMin() : poi.getMax();
     if (rval >= rhigh || rval <= rlow) rval = 0.5*(rlow + rhigh);
@@ -370,7 +370,7 @@ std::pair<double,double> Significance::upperLimitBruteForce(RooAbsPdf &pdf, RooA
     } while (fabs(rhigh - rlow) > tolerance);
     if (fail) {
         // try do do it in small steps instead
-        std::auto_ptr<RooArgSet> pars(nll->getParameters((const RooArgSet *)0));
+        std::unique_ptr<RooArgSet> pars(nll->getParameters((const RooArgSet *)0));
         double dx = (lowerLimit_ ? -0.05 : +0.05)*poi.getError();
         *pars = start->floatParsFinal();
         rval = poi.getVal() + dx;
@@ -404,7 +404,7 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
     poi.setConstant(false);
     //poi.setMin(0); 
     poi.setVal(0.05*poi.getMax());
-    std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    std::unique_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
     CascadeMinimizer minim0(*nll, CascadeMinimizer::Unconstrained, &poi);
     minim0.setStrategy(0);
     minim0.minimize(verbose-2);
@@ -421,7 +421,7 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
         printf("Minimum found at %s = %8.5f\n", poi.GetName(), poi.getVal());
     }
     MinimizerSentry minimizerConfig(minimizerAlgoForBF_, minimizerToleranceForBF_);
-    std::auto_ptr<RooFitResult> start(minim.save());
+    std::unique_ptr<RooFitResult> start(minim.save());
     double minnll = nll->getVal(), thisnll = minnll, lastnll = thisnll;
     double rbest = poi.getVal(), rval = rbest;
     TGraph *points = 0;
@@ -479,7 +479,7 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
 }
 
 double Significance::significanceFromScan(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, int steps) const {
-    std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    std::unique_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
     double maxScan = poi.getMax()*0.7;
     bool stepDown = (bfAlgo_.find("stepDown") != std::string::npos);
     bool twice    = (bfAlgo_.find("Twice")    != std::string::npos);
@@ -506,7 +506,7 @@ double Significance::significanceFromScan(RooAbsPdf &pdf, RooAbsData &data, RooR
         printf("Minimum found at %s = %8.5f\n", poi.GetName(), poi.getVal());
     }
     MinimizerSentry minimizerConfig(minimizerAlgoForBF_, minimizerToleranceForBF_);
-    std::auto_ptr<RooFitResult> start(minim.save());
+    std::unique_ptr<RooFitResult> start(minim.save());
     double minnll = nll->getVal(), thisnll = minnll, refnll = thisnll, maxnll = thisnll;
     double rbest = poi.getVal(), rval = rbest;
     TGraph *points = new TGraph(steps+1); points->SetName(Form("nll_scan_%g", mass_));

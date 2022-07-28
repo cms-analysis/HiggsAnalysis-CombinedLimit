@@ -103,7 +103,7 @@ bool GoodnessOfFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
 void GoodnessOfFit::initKSandAD(RooStats::ModelConfig *mc_s) {
   RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(mc_s->GetPdf());
   if (sim) {
-    std::auto_ptr<RooAbsCategoryLValue> cat(
+    std::unique_ptr<RooAbsCategoryLValue> cat(
         static_cast<RooAbsCategoryLValue *>(sim->indexCat().Clone()));
     int nbins = cat->numBins((const char *)0);
     binNames_.resize(nbins);
@@ -120,7 +120,7 @@ void GoodnessOfFit::initKSandAD(RooStats::ModelConfig *mc_s) {
 bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
   RooAbsPdf *pdf_nominal = mc_s->GetPdf();
   // now I need to make the saturated pdf
-  std::auto_ptr<RooAbsPdf> saturated;
+  std::unique_ptr<RooAbsPdf> saturated;
   // factorize away constraints anyway
   RooArgList constraints;
   RooAbsPdf *obsOnlyPdf = utils::factorizePdf(*mc_s->GetObservables(), *pdf_nominal, constraints);
@@ -128,7 +128,7 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(obsOnlyPdf);
   if (sim) {
       RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
-      std::auto_ptr<TList> datasets(data.split(*cat, true));
+      std::unique_ptr<TList> datasets(data.split(*cat, true));
       int nbins = cat->numBins((const char *)0);
       RooArgSet newPdfs;
       TString satname = TString::Format("%s_saturated", sim->GetName());
@@ -173,8 +173,8 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   CloseCoutSentry sentry(verbose < 2);
 
   const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
-  std::auto_ptr<RooAbsReal> nominal_nll(pdf_nominal->createNLL(data, constrainCmdArg));
-  std::auto_ptr<RooAbsReal> saturated_nll(saturated->createNLL(data, constrainCmdArg));
+  std::unique_ptr<RooAbsReal> nominal_nll(pdf_nominal->createNLL(data, constrainCmdArg));
+  std::unique_ptr<RooAbsReal> saturated_nll(saturated->createNLL(data, constrainCmdArg));
 
   if (setParametersForFit_ != "") {
     utils::setModelParameters(setParametersForFit_, w->allVars());
@@ -239,12 +239,12 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
                                              ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
   int minimizerStrategy_  = ROOT::Math::MinimizerOptions::DefaultStrategy();
 
-  std::auto_ptr<RooFitResult> result(pdf->fitTo(data, RooFit::Save(1), minim, RooFit::Strategy(minimizerStrategy_), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+  std::unique_ptr<RooFitResult> result(pdf->fitTo(data, RooFit::Save(1), minim, RooFit::Strategy(minimizerStrategy_), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
   sentry.clear();
   */
 
   const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
-  std::auto_ptr<RooAbsReal> nll(pdf->createNLL(data, constrainCmdArg));
+  std::unique_ptr<RooAbsReal> nll(pdf->createNLL(data, constrainCmdArg));
   CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained);
   //minims.setStrategy(minimizerStrategy_);
   minim.minimize(verbose-2);
@@ -259,7 +259,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
   if (binNames_.size()) {
     RooAbsCategoryLValue const &cat = sim->indexCat();    
     // Split the data using the option "true" to include empty datasets
-    std::auto_ptr<TList> datasets(data.split(cat, true));
+    std::unique_ptr<TList> datasets(data.split(cat, true));
     
     // Number of categories should always equal the number of datasets
     if (datasets->GetSize() != int(binNames_.size())) {
@@ -270,7 +270,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
     for (unsigned i = 0; i < binNames_.size(); i++) {
       RooAbsData *cat_data = dynamic_cast<RooAbsData *>(datasets->At(i));
       RooAbsPdf *cat_pdf = sim->getPdf(binNames_[i].c_str());
-      std::auto_ptr<RooArgSet> observables(cat_pdf->getObservables(cat_data));
+      std::unique_ptr<RooArgSet> observables(cat_pdf->getObservables(cat_data));
       if (observables->getSize() > 1) {
         std::cout << "Warning, KS and AD statistics are not well defined for "
                      "models with more than one observable\n";
@@ -281,7 +281,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
     limit = std::accumulate(qVals_.begin(), qVals_.end(), 0.);
   } else {
     RooRealVar *obs = dynamic_cast<RooRealVar *>(
-        std::auto_ptr<RooArgSet>(pdf->getObservables(data))->first());
+        std::unique_ptr<RooArgSet>(pdf->getObservables(data))->first());
     limit = EvaluateADDistance(*pdf, data, *obs, kolmo);
   }
 
@@ -328,7 +328,7 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
     // CDF of the PDF
     // If RooFit needs to use the scanning technique then increase the number
     // of sampled bins from 1000 to 10000
-    std::auto_ptr<RooAbsReal> cdf(pdf.createCdf(observable, RooFit::ScanAllCdf(), RooFit::ScanParameters(10000, 2)));
+    std::unique_ptr<RooAbsReal> cdf(pdf.createCdf(observable, RooFit::ScanAllCdf(), RooFit::ScanParameters(10000, 2)));
     TH1 * hCdf = nullptr;
     TH1 * hEdf = nullptr;
     TH1 * hDiff = nullptr;

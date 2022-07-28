@@ -1,6 +1,7 @@
 #include <vector>
 #include <algorithm>
-struct RooAbsData;
+#include <random>
+class RooAbsData;
 
 class QuantileCalculator {
     public:
@@ -23,6 +24,7 @@ class QuantileCalculator {
         std::vector<point> points_;
         std::vector<double> sumw_;
         std::vector<float> quantiles_;
+        std::mt19937 rng_{std::random_device{}()};
 
         int guessPartitions(int size, double quantile) ;
         template<typename T> void import(const std::vector<T> &values, const std::vector<T> &weights) ;

@@ -107,7 +107,7 @@ bool AsymptoticLimits::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
     */
     hasDiscreteParams_ = false;  
     if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
-    std::auto_ptr<TIterator> itparam(params_->createIterator());
+    std::unique_ptr<TIterator> itparam(params_->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
       if (a->IsA()->InheritsFrom(RooCategory::Class())) { hasDiscreteParams_ = true; break; }
     }
@@ -164,7 +164,7 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
 
   hasFloatParams_ = false;
-  std::auto_ptr<TIterator> itparam(params_->createIterator());
+  std::unique_ptr<TIterator> itparam(params_->createIterator());
   for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
       RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
       if ( rrv != 0 && rrv != r && rrv->isConstant() == false ) { hasFloatParams_ = true; break; }
@@ -403,7 +403,7 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     r->setError(0.1*r->getMax());
     //r->removeMax();
     
-    std::auto_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+    std::unique_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, r);
     //minim.setStrategy(minimizerStrategy_);
     minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); // the 0.5 is because qmu is -2*NLL
@@ -413,7 +413,7 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     sentry.clear();
     if (verbose > 1) {
         std::cout << "Fit to asimov dataset:" << std::endl;
-        std::auto_ptr<RooFitResult> res(minim.save());
+        std::unique_ptr<RooFitResult> res(minim.save());
         res->Print("V");
     }
     if (r->getVal()/r->getMax() > 1e-3) {

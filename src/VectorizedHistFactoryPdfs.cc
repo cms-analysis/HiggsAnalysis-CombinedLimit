@@ -11,7 +11,7 @@ void
 cacheutils::VectorizedHistFunc::fill() 
 {
     RooArgSet obs(*data_->get());
-    std::auto_ptr<RooArgSet> params(pdf_->getObservables(obs));
+    std::unique_ptr<RooArgSet> params(pdf_->getObservables(obs));
 
     yvals_.reserve(data_->numEntries());
     for (unsigned int i = 0, n = data_->numEntries(); i < n; ++i) {
@@ -37,7 +37,7 @@ cacheutils::VectorizedHistFunc::VectorizedHistFunc(const RooHistFunc &pdf, const
     
 {
     RooArgSet obs(*data.get());
-    std::auto_ptr<RooArgSet> params(pdf.getParameters(data));
+    std::unique_ptr<RooArgSet> params(pdf.getParameters(data));
     if (params->getSize() != 0) throw std::invalid_argument("HistFunc with parameters !?");
 
     //const RooRealVar * x_ = dynamic_cast<const RooRealVar*>(obs.first());

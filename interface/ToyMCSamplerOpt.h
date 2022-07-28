@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <RooStats/ToyMCSampler.h>
-struct RooProdPdf;
-struct RooPoisson;
+class RooProdPdf;
+class RooPoisson;
 
 namespace toymcoptutils {
     class SinglePdfGenInfo {
@@ -81,7 +81,7 @@ class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
         mutable RooRealVar *weightVar_;
         mutable std::map<RooAbsPdf *, toymcoptutils::SimPdfGenInfo *> genCache_;
 
-        mutable std::auto_ptr<RooArgSet> paramsForImportanceSampling_;
+        mutable std::unique_ptr<RooArgSet> paramsForImportanceSampling_;
         mutable std::vector<RooArgSet *> importanceSnapshots_;
 };
 
