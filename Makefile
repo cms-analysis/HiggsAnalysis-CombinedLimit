@@ -62,10 +62,12 @@ PARENT_DIR = $(shell pwd)/../../
 SRC_DIR = src
 INC_DIR = interface
 PROG_DIR = bin
+SCRIPTS_DIR = scripts
 PYTHON_DIR = python
-OBJ_DIR = obj
-LIB_DIR = lib
-EXE_DIR = exe
+# outputs
+OBJ_DIR = build/obj
+LIB_DIR = build/lib
+EXE_DIR = build/bin
 
 
 # Useful shortcuts -------------------------------------------------------------
@@ -75,46 +77,35 @@ OBJS = $(SRCS:.cc=.o)
 OBJS += $(SRXS:.cxx=.o)
 PROGS = $(notdir $(wildcard ${PROG_DIR}/*.cpp)) 
 EXES = $(PROGS:.cpp=)
+SCRIPTS = $(notdir $(wildcard ${SCRIPTS_DIR}/*.py)) 
+PYLIB_DIR = $(LIB_DIR)/python
 
 #Makefile Rules ---------------------------------------------------------------
-.PHONY: clean dirs dict obj lib exe debug python
+.PHONY: clean exe python
 
-
-all: dirs dict obj lib exe python
+all: exe python
 
 #---------------------------------------
 
-dirs:
+$(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)/a
-	@mkdir -p $(LIB_DIR)
-	@mkdir -p $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit
-	@touch $(LIB_DIR)/python/__init__.py
-	@touch $(LIB_DIR)/python/HiggsAnalysis/__init__.py
-	@touch $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit/__init__.py
-	@mkdir -p $(EXE_DIR)
 
-#---------------------------------------
-
-dict: dirs $(OBJ_DIR)/a/$(DICTNAME).cc
-$(OBJ_DIR)/a/$(DICTNAME).cc : $(SRC_DIR)/classes_def.xml
-# 	@echo "\n*** Generating dictionaries ..."
-	genreflex $(SRC_DIR)/classes.h -s $(SRC_DIR)/classes_def.xml -o $(OBJ_DIR)/a/$(DICTNAME).cc --deep --fail_on_warnings --rootmap=$(OBJ_DIR)/a/$(DICTNAME).rootmap --rootmap-lib=$(SONAME) -I$(PARENT_DIR) 
+$(OBJ_DIR)/a/$(DICTNAME).cc: $(SRC_DIR)/classes_def.xml | $(OBJ_DIR)
+	genreflex $(SRC_DIR)/classes.h -s $< -o $@ --deep --fail_on_warnings --rootmap=$(OBJ_DIR)/a/$(DICTNAME).rootmap --rootmap-lib=$(SONAME) -I$(PARENT_DIR) 
 	mv $(OBJ_DIR)/a/$(DICTNAME).rootmap $(LIB_DIR)/
 	mv $(OBJ_DIR)/a/$(DICTNAME)_rdict.pcm $(LIB_DIR)/
 
-#---------------------------------------
-
-obj: dict 
-# 	@echo "\n*** Compiling ..."
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc $(INC_DIR)/%.h
-	$(CXX) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc $(SRC_DIR)/%.h
-	$(CXX) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
-	$(CXX) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
-$(OBJ_DIR)/a/%.o : $(OBJ_DIR)/a/%.cc 
+$(OBJ_DIR)/a/%.o: $(OBJ_DIR)/a/%.cc | $(OBJ_DIR)
 	$(CXX) $(CCFLAGS) -I . -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
 
+#---------------------------------------
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc $(INC_DIR)/%.h | $(OBJ_DIR)
+	$(CXX) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc $(SRC_DIR)/%.h | $(OBJ_DIR)
+	$(CXX) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h | $(OBJ_DIR)
+	$(CXX) $(CCFLAGS) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) -c $< -o $@
 
 # this has no header
 $(OBJ_DIR)/tdrstyle.o: $(SRC_DIR)/tdrstyle.cc
@@ -122,33 +113,47 @@ $(OBJ_DIR)/tdrstyle.o: $(SRC_DIR)/tdrstyle.cc
 
 #---------------------------------------
 
-lib: dirs ${LIB_DIR}/$(SONAME)
-${LIB_DIR}/$(SONAME):$(addprefix $(OBJ_DIR)/,$(OBJS)) $(OBJ_DIR)/a/$(DICTNAME).o 
-#	@echo "\n*** Building $(SONAME) library:"
-	$(LD) $(LDFLAGS) $(BOOST_INC) $(addprefix $(OBJ_DIR)/,$(OBJS)) $(OBJ_DIR)/a/$(DICTNAME).o $(SOFLAGS) -o $@ $(LIBS)
+$(LIB_DIR):
+	@mkdir -p $(LIB_DIR)
+
+${LIB_DIR}/$(SONAME): $(addprefix $(OBJ_DIR)/,$(OBJS)) $(OBJ_DIR)/a/$(DICTNAME).o | $(LIB_DIR)
+	$(LD) $(LDFLAGS) $(BOOST_INC) $^ $(SOFLAGS) -o $@ $(LIBS)
 
 #---------------------------------------
 
-exe: $(addprefix $(EXE_DIR)/,$(EXES))
-# 	@echo "\n*** Compiling executables ..."
-$(EXE_DIR)/% : $(PROG_DIR)/%.cpp lib
+$(EXE_DIR):
+	@mkdir -p $(EXE_DIR)
+
+exe: $(addprefix $(EXE_DIR)/,$(EXES)) $(addprefix $(EXE_DIR)/,$(SCRIPTS))
+	@echo $^
+
+$(EXE_DIR)/%: $(PROG_DIR)/%.cpp $(LIB_DIR)/$(SONAME) | $(EXE_DIR)
+	@echo $<
 	$(CXX) $< -o $@ $(CCFLAGS) -L $(LIB_DIR) -l $(LIBNAME) -I $(INC_DIR) -I $(SRC_DIR) -I $(PARENT_DIR) $(BOOST_INC) $(LIBS) $(EXELDFLAGS)
 
-python: $(wildcard ${PYTHON_DIR}/*.py)
-	cp $^ $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit/
-	python3 -m compileall -q $(LIB_DIR)/python/HiggsAnalysis/CombinedLimit/
+$(EXE_DIR)/%.py: $(SCRIPTS_DIR)/%.py | $(EXE_DIR)
+	cp $< $@
+# macOS System Integrity Protection unsets LD_LIBRARY_PATH for child process started by system programs
+# breaking the use of /usr/bin/env in the scripts, so we hardcode the path to python executable instead
+ifdef DARWIN
+	sed -i "" "1s@/.*@$(shell which python)@" $@
+endif
+
+#---------------------------------------
+
+.FORCE:
+
+python: .FORCE | $(LIB_DIR)
+	@mkdir -p $(PYLIB_DIR)/HiggsAnalysis/CombinedLimit
+	@touch $(PYLIB_DIR)/__init__.py
+	@touch $(PYLIB_DIR)/HiggsAnalysis/__init__.py
+	@touch $(PYLIB_DIR)/HiggsAnalysis/CombinedLimit/__init__.py
+	cp -r $(PYTHON_DIR)/* $(PYLIB_DIR)/HiggsAnalysis/CombinedLimit
+	python3 -m compileall -q $(PYLIB_DIR)
 
 #---------------------------------------
 
 clean:
-# 	@echo "*** Cleaning all directories and dictionaries ..."
 	@rm -rf $(OBJ_DIR) 
 	@rm -rf $(EXE_DIR)
 	@rm -rf $(LIB_DIR)
-	@rm -rf python/*pyc python/*/*pyc
-
-#---------------------------------------
-
-debug:
-	@echo "OBJS: $(OBJS)"
-	@echo "SRCS: $(SRCS)"

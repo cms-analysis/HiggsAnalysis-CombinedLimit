@@ -10,6 +10,6 @@
 . /cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/boost/1.75.0-ljfedo/etc/profile.d/init.sh
 . /cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/pcre/8.43-bcolbf/etc/profile.d/init.sh
 . /cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/eigen/011e0db31d1bed8b7f73662be6d57d9f30fa457a/etc/profile.d/init.sh
- export PATH=${PATH}:${PWD}/exe:${PWD}/scripts
- export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/lib
- export PYTHONPATH=${PYTHONPATH}:${PWD}/lib/python
+ export PATH=${PATH}:${PWD}/build/bin
+ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/build/lib
+ export PYTHONPATH=${PYTHONPATH}:${PWD}/build/lib/python
