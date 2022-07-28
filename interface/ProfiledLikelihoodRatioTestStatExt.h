@@ -35,14 +35,14 @@ class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
         RooAbsPdf *pdfNull_, *pdfAlt_;
         RooArgSet snapNull_, snapAlt_; 
         RooArgSet nuisances_; 
-        std::auto_ptr<RooArgSet> paramsNull_, paramsAlt_;
-        std::auto_ptr<RooAbsReal> nllNull_, nllAlt_;
+        std::unique_ptr<RooArgSet> paramsNull_, paramsAlt_;
+        std::unique_ptr<RooAbsReal> nllNull_, nllAlt_;
         Int_t verbosity_;
 
         // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
-        bool createNLL(RooAbsPdf &pdf, RooAbsData &data, std::auto_ptr<RooAbsReal> &nll) ;
+        bool createNLL(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll) ;
 
-        double minNLL(std::auto_ptr<RooAbsReal> &nll) ;
+        double minNLL(std::unique_ptr<RooAbsReal> &nll) ;
 }; // TestSimpleStatistics
 
 
@@ -68,10 +68,10 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
 
         RooAbsPdf *pdf_;
         RooArgSet snap_, poi_; // snapshot of parameters, and of the subset which are POI
-        std::auto_ptr<RooArgSet>  params_;
+        std::unique_ptr<RooArgSet>  params_;
         RooArgSet                 nuisances_; // subset of params which are nuisances (not a snapshot)
         RooArgSet                 poiParams_; // subset of params which are POI (not a snapshot)
-        std::auto_ptr<RooAbsReal> nll_;
+        std::unique_ptr<RooAbsReal> nll_;
         RooArgList gobsParams_, gobs_;
         Int_t verbosity_;
         OneSidedness oneSided_;

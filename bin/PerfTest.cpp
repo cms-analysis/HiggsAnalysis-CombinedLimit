@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
         RooAbsPdf &pdf = *mc_s->GetPdf();
         RooAbsData *dobs = w->data("data_obs");
         const RooCmdArg &constrainCmdArg = RooFit::Constrain(*mc_s->GetNuisanceParameters());
-        std::auto_ptr<RooAbsReal> nll;
+        std::unique_ptr<RooAbsReal> nll;
         nll.reset(pdf.createNLL(*dobs, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
         nll->getVal();
 	if(dump_) {

@@ -50,7 +50,7 @@ protected:
   static std::string autoBoundsPOIs_, autoMaxPOIs_;
   RooArgSet autoBoundsPOISet_, autoMaxPOISet_;
   static double nllValue_, nll0Value_;
-  std::auto_ptr<RooAbsReal> nll;
+  std::unique_ptr<RooAbsReal> nll;
 
   RooArgSet allParameters_;
 

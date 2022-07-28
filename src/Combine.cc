@@ -303,7 +303,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (verbose <= 2) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
   RooWorkspace *w = 0; RooStats::ModelConfig *mc = 0, *mc_bonly = 0;
-  std::auto_ptr<RooStats::HLFactory> hlf(0);
+  std::unique_ptr<RooStats::HLFactory> hlf(nullptr);
 
   if (isBinary) {
     TFile *fIn = TFile::Open(fileToLoad); 
@@ -341,15 +341,17 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (POI->getSize() > 1) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest. This is not supported in some statistical methods." << std::endl;
     if (mc->GetObservables() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define observables.");
     if (mc->GetPdf() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define a pdf.");
-    if (rebuildSimPdf_ && typeid(*mc->GetPdf()) == typeid(RooSimultaneous)) {
-        RooSimultaneous *newpdf = utils::rebuildSimPdf(*mc->GetObservables(), dynamic_cast<RooSimultaneous*>(mc->GetPdf()));
-        w->import(*newpdf);
-        mc->SetPdf(*newpdf);
-    }
-    if (optSimPdf_ && typeid(*mc->GetPdf()) == typeid(RooSimultaneous)) {
-        RooSimultaneousOpt *optpdf = new RooSimultaneousOpt(static_cast<RooSimultaneous&>(*mc->GetPdf()), TString(mc->GetPdf()->GetName())+"_opt");
-        w->import(*optpdf);
-        mc->SetPdf(*optpdf);
+    if (auto pdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf()); pdf!=nullptr) {
+      if (rebuildSimPdf_) {
+          pdf = utils::rebuildSimPdf(*mc->GetObservables(), pdf);
+          w->import(*pdf);
+          mc->SetPdf(*pdf);
+      }
+      if (optSimPdf_) {
+          RooSimultaneousOpt *optpdf = new RooSimultaneousOpt(*pdf, TString(mc->GetPdf()->GetName())+"_opt");
+          w->import(*optpdf);
+          mc->SetPdf(*optpdf);
+      }
     }
     if (expectSignalSet_ && POI->getSize() > 1 ) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest and you have set --expectSignal=" << expectSignal_ << ", which combine will likely interpret incorrectly. You should use --setParameters instead of --expectSignal." << std::endl;
     if (mc_bonly == 0 && !noMCbonly_) {
@@ -590,7 +592,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (verbose > 0) {  
       	std::cout << "Set floating the following parameters: "; toFloat.Print(""); 
         Logger::instance().log(std::string(Form("Combine.cc: %d -- Set floating the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
-        std::auto_ptr<TIterator> iter(toFloat.createIterator());
+        std::unique_ptr<TIterator> iter(toFloat.createIterator());
         for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
            Logger::instance().log(std::string(Form("Combine.cc: %d  %s ",__LINE__,a->GetName())),Logger::kLogLevelInfo,__func__); 
 	}
@@ -612,7 +614,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           std::regex rgx( reg_esp, std::regex::ECMAScript);
           
           std::string matchingParams="";
-          std::auto_ptr<TIterator> iter(nuisances->createIterator());
+          std::unique_ptr<TIterator> iter(nuisances->createIterator());
           for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
               const std::string &target = a->GetName();
               std::smatch match;
@@ -638,7 +640,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           std::regex rgx( reg_esp, std::regex::ECMAScript);
           
           std::string matchingParams="";
-          std::auto_ptr<TIterator> iter(w->componentIterator());
+          std::unique_ptr<TIterator> iter(w->componentIterator());
           for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
 
               if ( ! (a->IsA()->InheritsFrom(RooRealVar::Class()) || a->IsA()->InheritsFrom(RooCategory::Class()))) continue;
@@ -681,7 +683,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (verbose > 0) {  
       	std::cout << "Freezing the following parameters: "; toFreeze.Print("");
         Logger::instance().log(std::string(Form("Combine.cc: %d -- Freezing the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
-        std::auto_ptr<TIterator> iter(toFreeze.createIterator());
+        std::unique_ptr<TIterator> iter(toFreeze.createIterator());
         for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
            Logger::instance().log(std::string(Form("Combine.cc: %d  %s ",__LINE__,a->GetName())),Logger::kLogLevelInfo,__func__); 
 	}
@@ -958,7 +960,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	    // print the values of the parameters used to generate the toy
 	    if (verbose > 2) {
 	      Logger::instance().log(std::string(Form("Combine.cc: %d -- Generate Asimov toy from parameter values ... ",__LINE__)),Logger::kLogLevelInfo,__func__);
-    	      std::auto_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    	      std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
     	      for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
 	  	TString varstring = utils::printRooArgAsString(a);
 	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
@@ -993,7 +995,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
   
   std::vector<double> limitHistory;
-  std::auto_ptr<RooAbsPdf> nuisancePdf;
+  std::unique_ptr<RooAbsPdf> nuisancePdf;
   if (nToys > 0) {
     if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
     toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
@@ -1015,7 +1017,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
               CloseCoutSentry sentry(verbose < 3);
               //genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));	
-                std::auto_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
+                std::unique_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));
                 CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
                 minim.setStrategy(1);
                 minim.minimize();
@@ -1027,7 +1029,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           if (nuisancePdf.get()) systDs = nuisancePdf->generate(*nuisances, nToys);
       } 
     }
-    std::auto_ptr<RooArgSet> vars(genPdf->getVariables());
+    std::unique_ptr<RooArgSet> vars(genPdf->getVariables());
     algo->setNToys(nToys);
 
     for (iToy = 1; iToy <= nToys; ++iToy) {
@@ -1057,7 +1059,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (verbose > 2) {
 	  Logger::instance().log(std::string(Form("Combine.cc: %d -- Generating toy %d/%d, from parameter values ... ",__LINE__,iToy,nToys)),Logger::kLogLevelInfo,__func__);
-    	  std::auto_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    	  std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
     	  for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
 	  	TString varstring = utils::printRooArgAsString(a);
 	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
@@ -1245,7 +1247,7 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
       (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs).add(*(dynamic_cast<RooMultiPdf*>(arg)));
       RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(arg);
       RooArgSet *pdfPars = pdf->getParameters((const RooArgSet*)0);
-      std::auto_ptr<TIterator> iter_v(pdfPars->createIterator());
+      std::unique_ptr<TIterator> iter_v(pdfPars->createIterator());
       for (RooAbsArg *a = (RooAbsArg *) iter_v->Next(); a != 0; a = (RooAbsArg *) iter_v->Next()) {
 	RooRealVar *v = dynamic_cast<RooRealVar *>(a);
 	if (!v) continue;
@@ -1266,7 +1268,7 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
           std::regex rgx( reg_esp, std::regex::ECMAScript);
 
           RooArgSet allParams(w->allVars());
-          std::auto_ptr<TIterator> iter(allParams.createIterator());
+          std::unique_ptr<TIterator> iter(allParams.createIterator());
           for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
               Var *tmp = dynamic_cast<Var *>(a);
               if(tmp==nullptr) continue;

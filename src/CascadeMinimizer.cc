@@ -542,7 +542,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     }
 
     // keep hold of best fitted parameters! 
-    std::auto_ptr<RooArgSet> params;
+    std::unique_ptr<RooArgSet> params;
     params.reset(nll_.getParameters((const RooArgSet *)0) );
     params->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
 

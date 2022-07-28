@@ -59,9 +59,9 @@ class SimplerLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
         /// snapshots of parameters for the two pdfs
         RooArgSet snapNull_, snapAlt_; 
         /// parameter sets to apply snapshots to
-        std::auto_ptr<RooArgSet> paramsNull_, paramsAlt_;
+        std::unique_ptr<RooArgSet> paramsNull_, paramsAlt_;
         /// owned copy of the pdfs after factorizing
-        std::auto_ptr<RooAbsPdf> pdfNullOwned_, pdfAltOwned_;
+        std::unique_ptr<RooAbsPdf> pdfNullOwned_, pdfAltOwned_;
         /// pdfNull, pdfAlt cast to sympdf (may be null) after factorization
         RooSimultaneous *simPdfNull_, *simPdfAlt_;
         /// components of the sim pdfs after factorization, for each bin in sim. category. can contain nulls
@@ -91,8 +91,8 @@ class SimplerLikelihoodRatioTestStatExt : public RooStats::TestStatistic {
     private:
         RooAbsPdf *pdfNull_, *pdfAlt_;
         RooArgSet snapNull_, snapAlt_; 
-        std::auto_ptr<RooArgSet> paramsNull_, paramsAlt_;
-        std::auto_ptr<RooAbsPdf> pdfNullOwned_, pdfAltOwned_;
+        std::unique_ptr<RooArgSet> paramsNull_, paramsAlt_;
+        std::unique_ptr<RooAbsPdf> pdfNullOwned_, pdfAltOwned_;
 }; // TestSimpleStatistics
 #endif
 

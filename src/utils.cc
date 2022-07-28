@@ -94,20 +94,20 @@ void utils::printRAD(const RooAbsData *d) {
 
 void utils::printPdf(const RooAbsReal *pdf) {
   std::cout << "Pdf " << pdf->GetName() << " parameters." << std::endl;
-  std::auto_ptr<RooArgSet> params(pdf->getVariables());
+  std::unique_ptr<RooArgSet> params(pdf->getVariables());
   params->Print("V");
 }
 
 
 void utils::printPdf(RooStats::ModelConfig &mc) {
   std::cout << "ModelConfig " << mc.GetName() << " (" << mc.GetTitle() << "): pdf parameters." << std::endl;
-  std::auto_ptr<RooArgSet> params(mc.GetPdf()->getVariables());
+  std::unique_ptr<RooArgSet> params(mc.GetPdf()->getVariables());
   params->Print("V");
 }
 
 void utils::printPdf(RooWorkspace *w, const char *pdfName) {
   std::cout << "PDF " << pdfName << " parameters." << std::endl;
-  std::auto_ptr<RooArgSet> params(w->pdf(pdfName)->getVariables());
+  std::unique_ptr<RooArgSet> params(w->pdf(pdfName)->getVariables());
   params->Print("V");
 }
 
@@ -238,7 +238,7 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
         RooProduct *prod = dynamic_cast<RooProduct *>(&func);
         RooArgList components(utils::factors(*prod));
         //std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
-        std::auto_ptr<TIterator> iter(components.createIterator());
+        std::unique_ptr<TIterator> iter(components.createIterator());
         for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
             //std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << "(dep obs? " << funci->dependsOn(observables) << ")" << std::endl;
             factorizeFunc(observables, *funci, obsTerms, constraints, true);
@@ -306,11 +306,11 @@ RooAbsReal *utils::fullCloneFunc(const RooAbsReal *pdf, const RooArgSet &obs, Ro
 
 
 void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &allObjects, RooAbsCollection &clients) {
-    std::auto_ptr<TIterator> iterAll(allObjects.createIterator());
-    std::auto_ptr<TIterator> iterVal(values.createIterator());
+    std::unique_ptr<TIterator> iterAll(allObjects.createIterator());
+    std::unique_ptr<TIterator> iterVal(values.createIterator());
     for (RooAbsArg *v = (RooAbsArg *) iterVal->Next(); v != 0; v = (RooAbsArg *) iterVal->Next()) {
         if (typeid(*v) != typeid(RooRealVar) && typeid(*v) != typeid(RooCategory)) continue;
-        std::auto_ptr<TIterator> clientIter(v->clientIterator());
+        std::unique_ptr<TIterator> clientIter(v->clientIterator());
         for (RooAbsArg *a = (RooAbsArg *) clientIter->Next(); a != 0; a = (RooAbsArg *) clientIter->Next()) {
             if (allObjects.containsInstance(*a) && !clients.containsInstance(*a)) clients.add(*a);
         }
@@ -319,7 +319,7 @@ void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &a
 
 bool utils::setAllConstant(const RooAbsCollection &coll, bool constant) {
     bool changed = false;
-    std::auto_ptr<TIterator> iter(coll.createIterator());
+    std::unique_ptr<TIterator> iter(coll.createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
         RooRealVar *v = dynamic_cast<RooRealVar *>(a);
         RooCategory *cv = dynamic_cast<RooCategory *>(a);
@@ -350,7 +350,7 @@ TString utils::printRooArgAsString(RooAbsArg *a){
 
 bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
     bool ok = true; std::ostringstream errors; 
-    std::auto_ptr<TIterator> iter;
+    std::unique_ptr<TIterator> iter;
     RooAbsPdf *pdf = model.GetPdf(); if (pdf == 0) throw std::invalid_argument("Model without Pdf");
     RooArgSet allowedToFloat; 
     if (model.GetObservables() == 0) { 
@@ -391,7 +391,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
             if (!pdf->dependsOn(*v)) { errors << "WARNING: pdf does not depend on global observable " << a->GetName() << "\n"; continue; }
         }
     }
-    std::auto_ptr<RooArgSet> params(pdf->getParameters(*model.GetObservables()));
+    std::unique_ptr<RooArgSet> params(pdf->getParameters(*model.GetObservables()));
     iter.reset(params->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
         if (a->getAttribute("flatParam") && a->isConstant()) {
@@ -416,12 +416,12 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
 
     if (model.GetNuisanceParameters() != 0) {
         RooArgList constraints;
-        std::auto_ptr<RooAbsPdf> factorizedPdf(utils::factorizePdf(*model.GetObservables(), *model.GetPdf(), constraints));
+        std::unique_ptr<RooAbsPdf> factorizedPdf(utils::factorizePdf(*model.GetObservables(), *model.GetPdf(), constraints));
         if (factorizedPdf.get() == 0 || factorizedPdf.get() == model.GetPdf()) {
             factorizedPdf.release();
             ok = false; errors << "ERROR: have nuisance parameters, but can't factorize the pdf\n";
         }
-        std::auto_ptr<RooArgSet> obsParams(factorizedPdf->getParameters(*model.GetObservables()));
+        std::unique_ptr<RooArgSet> obsParams(factorizedPdf->getParameters(*model.GetObservables()));
         iter.reset(model.GetNuisanceParameters()->createIterator());
         for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
             if (!obsParams->contains(*a))  {
@@ -596,7 +596,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
         TIter next(datasets);
         for (RooAbsData *ds = (RooAbsData *) next(); ds != 0; ds = (RooAbsData *) next()) {
             RooAbsPdf *pdfi  = sim->getPdf(ds->GetName());
-            std::auto_ptr<RooArgSet> obs(pdfi->getObservables(ds));
+            std::unique_ptr<RooArgSet> obs(pdfi->getObservables(ds));
             if (obs->getSize() == 0) break;
 	    TIterator *obs_iter = obs->createIterator();
 	    //std::cout << " PDF CHECKING " << std::endl; 
@@ -627,7 +627,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
         }
         delete datasets;
     } else if (pdf.canBeExtended()) {
-        std::auto_ptr<RooArgSet> obs(pdf.getObservables(&data));
+        std::unique_ptr<RooArgSet> obs(pdf.getObservables(&data));
 
 	//for (int iobs=0;iobs<obs->getSize();iobs++){
 	TIterator *obs_iter = obs->createIterator();
@@ -751,7 +751,7 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
         std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
         std::regex rgx( reg_esp, std::regex::ECMAScript);
 
-        std::auto_ptr<TIterator> iter(params.createIterator());
+        std::unique_ptr<TIterator> iter(params.createIterator());
         for (RooAbsArg *tmp = (RooAbsArg*) iter->Next(); tmp != 0; tmp = (RooAbsArg*) iter->Next()) {
 
             bool isrvar = tmp->IsA()->InheritsFrom(RooRealVar::Class());  // check its type    
@@ -873,7 +873,7 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
           std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
           std::regex rgx( reg_esp, std::regex::ECMAScript);
 
-          std::auto_ptr<TIterator> iter(params.createIterator());
+          std::unique_ptr<TIterator> iter(params.createIterator());
           for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
               RooRealVar *tmpParameter = dynamic_cast<RooRealVar *>(a);
               const std::string &target = tmpParameter->GetName();
@@ -1094,7 +1094,7 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiP
 	 setAllConstant(multiPdfParams,freeze);
 
 	 //std::cout << " Current state of all MultiPdfParams -> " << std::endl; 
-	 //std::auto_ptr<TIterator> iter_par(allRooMultiPdfParams.createIterator());
+	 //std::unique_ptr<TIterator> iter_par(allRooMultiPdfParams.createIterator());
 	 //for (RooAbsArg *P = (RooAbsArg *) iter_par->Next(); P != 0; P = (RooAbsArg *) iter_par->Next()){
 	 //  std::cout << P->GetName() << ", constant=" << P->isConstant() << std::endl; 
 	 //}
