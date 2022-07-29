@@ -37,6 +37,14 @@ class SafeWorkspaceImporter:
         else:
             self.imp(*args)
 
+def goodpath(self,s,permissive=False):
+    ''' Need to be used in FileCache for shapes and here for rateParameters'''
+    if not s.startswith('/'): return True
+    if 'CMSSW_BASE' in os.environ and s.startswith(os.environ['CMSSW_BASE']+'/src/HiggsAnalysis/CombinedLimit/data'): return True
+    if 'HiggsAnalysis' in s.split('/') and 'CombinedLimit' in  s.split('/') and 'data' in s.split('/'): return True ## standalone?
+    if permissive: print("Warning: you have an absolute path in your datacard: ",s)
+    raise RuntimeError("No!No!No! You can't use absolute paths anymore")
+
 
 class ModelBuilderBase:
     """This class defines the basic stuff for a model builder, and it's an interface on top of RooWorkspace::factory or HLF files"""
@@ -70,6 +78,7 @@ class ModelBuilderBase:
         if options.cexpr:
             global ROOFIT_EXPR
             ROOFIT_EXPR = "cexpr"
+        if not hasattr(options, 'absPath'): options.absPath=False
 
     def addObj(self, classtype, name, *args):
         if name not in self.objstore:
@@ -231,6 +240,7 @@ class ModelBuilder(ModelBuilderBase):
                     self.out._import(wstmp.arg(rp), *importargs)
                 else:
                     fitmp = ROOT.TFile.Open(fin)
+                    goodpath(fin,options.absPath)
                     if not fitmp:
                         raise RuntimeError("No File '%s' found for extArg" % fin)
                     wstmp = fitmp.Get(wsn)
@@ -289,6 +299,7 @@ class ModelBuilder(ModelBuilderBase):
                     self.out._import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
                 else:
                     fitmp = ROOT.TFile.Open(fin)
+                    goodpath(fin)
                     if not fitmp:
                         raise RuntimeError("No File '%s' found for rateParam" % fin)
                     wstmp = fitmp.Get(wsn)
