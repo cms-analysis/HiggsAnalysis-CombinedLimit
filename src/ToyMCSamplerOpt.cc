@@ -55,7 +55,10 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
         delete it->second;
     }
     genCache_.clear();
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
+    // With ROOT 6.26, _allVars became a smart pointer
     delete _allVars; _allVars = 0;
+#endif
     delete globalObsValues_;
 }
 
@@ -507,7 +510,10 @@ ToyMCSamplerOpt::SetPdf(RooAbsPdf& pdf)
     //std::cout << "ToyMCSamplerOpt::SetPdf called" << std::endl;
     //utils::printPdf(&pdf);
     ToyMCSampler::SetPdf(pdf);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
+    // With ROOT 6.26, _allVars became a smart pointer
     delete _allVars; _allVars = 0; 
+#endif
     delete globalObsValues_; globalObsValues_ = 0; globalObsIndex_ = -1;
     delete nuisValues_; nuisValues_ = 0; nuisIndex_ = -1;
 }
@@ -630,7 +636,12 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/, double& wei
           globalObsIndex_  = 0;
       }
       const RooArgSet *values = globalObsValues_->get(globalObsIndex_++);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
       if (!_allVars) _allVars = fPdf->getObservables(*fGlobalObservables);
+#else
+      // With ROOT 6.26, _allVars became a smart pointer
+      if (!_allVars) _allVars.reset(fPdf->getObservables(*fGlobalObservables));
+#endif
       *_allVars = *values;
    }
 
