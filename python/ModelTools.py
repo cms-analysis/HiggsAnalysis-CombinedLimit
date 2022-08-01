@@ -321,7 +321,7 @@ class ModelBuilder(ModelBuilderBase):
                     ## check range. The parameter needs to be created in range. Then we will remove it
                     param_range = "%g,%g" % (-2.0 * abs(v), 2.0 * abs(v))
                 # additional check for range requested
-                lo_r, hi_r = map( float, param_range.split(','))
+                lo_r, hi_r = map(float, param_range.split(','))
                 if v < lo_r or v > hi_r:
                     raise ValueError("Parameter: " + argu + " asked to be created out-of-range (it will lead to an error): " + argv + ":" + param_range)
 
