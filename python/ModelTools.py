@@ -253,7 +253,8 @@ class ModelBuilder(ModelBuilderBase):
                 removeRange = False
                 setConst = param_range == "const"
                 if param_range in ["", "const"]:
-                    param_range = "0,1"
+                    v = float(param_val)
+                    param_range="%g,%g"%(-2*abs(v),2*abs(v))
                     removeRange = True
 
                 self.doVar("%s[%s,%s]" % (rp, float(param_val), param_range))
@@ -314,9 +315,15 @@ class ModelBuilder(ModelBuilderBase):
                 if self.out.arg(argu):
                     continue
 
+                v = float(argv)
                 removeRange = len(param_range) == 0
                 if param_range == "":
-                    param_range = "0,1"
+                    ## check range. The parameter needs to be created in range. Then we will remove it
+                    param_range="%g,%g"%(-2*abs(v),2*abs(v))
+                #additional check for range requested
+                lo_r,hi_r=(float(param_range.split(',')[0]),float(param_range.split(',')[1]),)
+                if v<lo_r or v >hi_r: raise ValueError("Parameter: "+argu+"asked to be created out-of-range (it will lead to an error): "+argv+":"+param_range)
+
                 self.doVar("%s[%s,%s]" % (argu, argv, param_range))
                 if removeRange:
                     self.out.var(argu).removeRange()
