@@ -246,7 +246,7 @@ class ModelBuilder(ModelBuilderBase):
 	  argu,argv = self.DC.rateParams[rp][rk][0][0],self.DC.rateParams[rp][rk][0][1]
 	  if self.out.arg(argu): continue
 
-	  v = float(param_val)
+	  v = float(argv)
 	  removeRange = (len(param_range)==0)
 	  if param_range == "": 
 	          param_range="%g,%g"%(-2*abs(v),2*abs(v))
