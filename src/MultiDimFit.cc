@@ -182,7 +182,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
  
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
-    std::auto_ptr<RooFitResult> res;
+    std::unique_ptr<RooFitResult> res;
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
     bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
     if ( !skipInitialFit_){
@@ -496,7 +496,7 @@ void MultiDimFit::doImpact(RooFitResult &res, RooAbsReal &nll) {
   std::cout << "Parameter impacts: " << std::endl;
 
   // Save the initial parameters here to reset between NPs
-  std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
+  std::unique_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
   RooArgSet init_snap;
   params->snapshot(init_snap);
 
@@ -605,7 +605,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     //minim.setStrategy(minimizerStrategy_);
-    std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
+    std::unique_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
     RooArgSet snap; params->snapshot(snap);
     //snap.Print("V");
 

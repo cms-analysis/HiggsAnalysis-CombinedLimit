@@ -8,7 +8,7 @@
 VectorizedExponential::VectorizedExponential(const RooExponential &pdf, const RooAbsData &data, bool includeZeroWeights)
 {
     RooArgSet obs(*data.get());
-    std::auto_ptr<RooArgSet> params(pdf.getParameters(data));
+    std::unique_ptr<RooArgSet> params(pdf.getParameters(data));
     if (params->getSize() != 1) throw std::invalid_argument("Can't resolve which is the parameter of the exponential");
 
     x_ = dynamic_cast<const RooRealVar*>(obs.first());

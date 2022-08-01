@@ -43,7 +43,7 @@ protected:
   static std::string massName_;
   static std::string toyName_;
   static std::string out_;
-  std::auto_ptr<TFile> fitOut;
+  std::unique_ptr<TFile> fitOut;
 
   // options
   static unsigned int points_, firstPoint_, lastPoint_;

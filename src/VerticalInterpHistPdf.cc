@@ -26,7 +26,7 @@
 #include "RooDataHist.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 namespace {
-    std::auto_ptr<TH1> safeCreateHist2D(RooAbsPdf *pdf, const RooRealVar &x, const RooRealVar &y, bool conditional) {
+    std::unique_ptr<TH1> safeCreateHist2D(RooAbsPdf *pdf, const RooRealVar &x, const RooRealVar &y, bool conditional) {
         if (!pdf->getAttribute("safeCreateHist2D:ok") && typeid(*pdf) == typeid(RooHistPdf)) {
             RooHistPdf *hpdf = static_cast<RooHistPdf *>(pdf);
             RooDataHist &dataHist = hpdf->dataHist();
@@ -59,7 +59,7 @@ namespace {
                 std::vector<double> ybins(yarray, yarray+(y.numBins()+1));
                 for (double &xe : xbins) xe += xdelta;
                 for (double &ye : ybins) ye += ydelta;
-                std::auto_ptr<TH1> hist(new TH2F("","",x.numBins(),&xbins[0],y.numBins(),&ybins[0]));
+                std::unique_ptr<TH1> hist(new TH2F("","",x.numBins(),&xbins[0],y.numBins(),&ybins[0]));
                 TH2F *h2d = static_cast<TH2F*>(hist.get()); h2d->SetDirectory(0);
                 TAxis *xaxis = h2d->GetXaxis(), * yaxis = h2d->GetYaxis();
                 for (unsigned int id = 0, nd = dataHist.numEntries(); id < nd; ++id) {
@@ -88,7 +88,7 @@ namespace {
             }
         }
         const RooCmdArg &cond = conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
-        return std::auto_ptr<TH1>(pdf->createHistogram("", x, RooFit::YVar(y), cond));
+        return std::unique_ptr<TH1>(pdf->createHistogram("", x, RooFit::YVar(y), cond));
     }
 }
 #endif
@@ -426,7 +426,7 @@ void FastVerticalInterpHistPdf::syncNominal() const {
     TRACEME()
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(_funcList.at(0));
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
-    std::auto_ptr<TH1> hist(pdf->createHistogram("",x));
+    std::unique_ptr<TH1> hist(pdf->createHistogram("",x));
     hist->SetDirectory(0); 
     _cacheNominal = FastHisto(*hist);
     _cacheNominal.Normalize();
@@ -442,10 +442,10 @@ void FastVerticalInterpHistPdf2D::syncNominal() const {
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
     const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
 #ifdef PATCH_FOR_HZZ_TEMPLATES
-    std::auto_ptr<TH1> hist(::safeCreateHist2D(pdf,x,y,_conditional));
+    std::unique_ptr<TH1> hist(::safeCreateHist2D(pdf,x,y,_conditional));
 #else
     const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
-    std::auto_ptr<TH1> hist(pdf->createHistogram("", x, RooFit::YVar(y), cond));
+    std::unique_ptr<TH1> hist(pdf->createHistogram("", x, RooFit::YVar(y), cond));
 #endif
     hist->SetDirectory(0); 
     _cacheNominal = FastHisto2D(dynamic_cast<TH2F&>(*hist), _conditional);
@@ -466,7 +466,7 @@ void FastVerticalInterpHistPdf3D::syncNominal() const {
     const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
     const RooRealVar &z = dynamic_cast<const RooRealVar &>(_z.arg());
     const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
-    std::auto_ptr<TH1> hist(pdf->createHistogram("", x, RooFit::YVar(y), RooFit::ZVar(z),cond));
+    std::unique_ptr<TH1> hist(pdf->createHistogram("", x, RooFit::YVar(y), RooFit::ZVar(z),cond));
     hist->SetDirectory(0); 
     _cacheNominal = FastHisto3D(dynamic_cast<TH3F&>(*hist), _conditional);
     if (_conditional) _cacheNominal.NormalizeXSlices(); 
@@ -495,8 +495,8 @@ void FastVerticalInterpHistPdf::syncComponents(int dim) const {
     RooAbsPdf *pdfHi = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+1));
     RooAbsPdf *pdfLo = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+2));
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
-    std::auto_ptr<TH1> histHi(pdfHi->createHistogram("",x)); histHi->SetDirectory(0); 
-    std::auto_ptr<TH1> histLo(pdfLo->createHistogram("",x)); histLo->SetDirectory(0);
+    std::unique_ptr<TH1> histHi(pdfHi->createHistogram("",x)); histHi->SetDirectory(0); 
+    std::unique_ptr<TH1> histLo(pdfLo->createHistogram("",x)); histLo->SetDirectory(0);
 
     FastHisto hi(*histHi), lo(*histLo); 
     //printf("Un-normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
@@ -510,12 +510,12 @@ void FastVerticalInterpHistPdf2D::syncComponents(int dim) const {
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
     const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
 #ifdef PATCH_FOR_HZZ_TEMPLATES
-    std::auto_ptr<TH1> histHi(::safeCreateHist2D(pdfHi,x,y,_conditional)); histHi->SetDirectory(0);
-    std::auto_ptr<TH1> histLo(::safeCreateHist2D(pdfLo,x,y,_conditional)); histLo->SetDirectory(0);
+    std::unique_ptr<TH1> histHi(::safeCreateHist2D(pdfHi,x,y,_conditional)); histHi->SetDirectory(0);
+    std::unique_ptr<TH1> histLo(::safeCreateHist2D(pdfLo,x,y,_conditional)); histLo->SetDirectory(0);
 #else
     const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
-    std::auto_ptr<TH1> histHi(pdfHi->createHistogram("", x, RooFit::YVar(y), cond)); histHi->SetDirectory(0); 
-    std::auto_ptr<TH1> histLo(pdfLo->createHistogram("", x, RooFit::YVar(y), cond)); histLo->SetDirectory(0);
+    std::unique_ptr<TH1> histHi(pdfHi->createHistogram("", x, RooFit::YVar(y), cond)); histHi->SetDirectory(0); 
+    std::unique_ptr<TH1> histLo(pdfLo->createHistogram("", x, RooFit::YVar(y), cond)); histLo->SetDirectory(0);
 #endif
 
     FastHisto2D hi(dynamic_cast<TH2&>(*histHi), _conditional), lo(dynamic_cast<TH2&>(*histLo), _conditional); 
@@ -535,8 +535,8 @@ void FastVerticalInterpHistPdf3D::syncComponents(int dim) const {
     const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
     const RooRealVar &z = dynamic_cast<const RooRealVar &>(_z.arg());
     const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
-    std::auto_ptr<TH1> histHi(pdfHi->createHistogram("", x, RooFit::YVar(y),RooFit::ZVar(z), cond)); histHi->SetDirectory(0); 
-    std::auto_ptr<TH1> histLo(pdfLo->createHistogram("", x, RooFit::YVar(y),RooFit::ZVar(z), cond)); histLo->SetDirectory(0);
+    std::unique_ptr<TH1> histHi(pdfHi->createHistogram("", x, RooFit::YVar(y),RooFit::ZVar(z), cond)); histHi->SetDirectory(0); 
+    std::unique_ptr<TH1> histLo(pdfLo->createHistogram("", x, RooFit::YVar(y),RooFit::ZVar(z), cond)); histLo->SetDirectory(0);
 
     FastHisto3D hi(dynamic_cast<TH3&>(*histHi), _conditional), lo(dynamic_cast<TH3&>(*histLo), _conditional); 
     //printf("Un-normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();

@@ -55,10 +55,10 @@ private:
 
   bool    hasFloatParams_;
   bool    hasDiscreteParams_;
-  mutable std::auto_ptr<RooArgSet>  params_;
-  mutable std::auto_ptr<RooAbsReal> nllD_, nllA_; 
-  //mutable std::auto_ptr<RooFitResult> fitFreeD_, fitFreeA_;
-  //mutable std::auto_ptr<RooFitResult> fitFixD_,  fitFixA_;
+  mutable std::unique_ptr<RooArgSet>  params_;
+  mutable std::unique_ptr<RooAbsReal> nllD_, nllA_; 
+  //mutable std::unique_ptr<RooFitResult> fitFreeD_, fitFreeA_;
+  //mutable std::unique_ptr<RooFitResult> fitFixD_,  fitFixA_;
   utils::CheapValueSnapshot fitFreeD_, fitFreeA_, fitFixD_,  fitFixA_;
 
   mutable double                      minNllD_,  minNllA_, rBestD_;

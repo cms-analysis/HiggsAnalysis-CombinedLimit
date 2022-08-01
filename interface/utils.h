@@ -10,19 +10,19 @@
 #include <RooFitResult.h>
 #include <RooAddPdf.h>
 #include <TH1.h>
-struct RooDataHist;
-struct RooAbsData;
-struct RooAbsPdf;
-struct RooAbsReal;
-struct RooAbsArg;
-struct RooArgSet;
-struct RooArgList;
-struct RooSimultaneous;
-struct RooAbsCollection;
-struct RooWorkspace;
-struct RooPlot;
-struct RooRealVar;
-struct RooProduct;
+class RooDataHist;
+class RooAbsData;
+class RooAbsPdf;
+class RooAbsReal;
+class RooAbsArg;
+class RooArgSet;
+class RooArgList;
+class RooSimultaneous;
+class RooAbsCollection;
+class RooWorkspace;
+class RooPlot;
+class RooRealVar;
+class RooProduct;
 namespace RooStats { class ModelConfig; }
 namespace utils {
     void printRDH(RooAbsData *data) ;

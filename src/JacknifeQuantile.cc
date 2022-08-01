@@ -48,7 +48,7 @@ QuantileCalculator::QuantileCalculator(const RooAbsData &data, const char *varNa
 
 void QuantileCalculator::randomizePoints()
 {
-    std::random_shuffle(points_.begin(), points_.end());
+    std::shuffle(points_.begin(), points_.end(), rng_);
 }
 
 std::pair<double,double> QuantileCalculator::quantileAndError(double quantile, Method method) 

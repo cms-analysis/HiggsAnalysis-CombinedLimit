@@ -29,8 +29,8 @@ class BestFitSigmaTestStat : public RooStats::TestStatistic {
 
         RooAbsPdf *pdf_;
         RooArgSet snap_, poi_, nuisances_; 
-        std::auto_ptr<RooArgSet> params_;
-        std::auto_ptr<RooAbsReal> nll_;
+        std::unique_ptr<RooArgSet> params_;
+        std::unique_ptr<RooAbsReal> nll_;
         Int_t verbosity_;
 
         // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
