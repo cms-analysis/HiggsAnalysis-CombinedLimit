@@ -247,7 +247,7 @@ class ModelBuilder(ModelBuilderBase):
                     self.out._import(wstmp.arg(rp), *importargs)
                 else:
                     fitmp = ROOT.TFile.Open(fin)
-                    goodpath(fin, options.absPath)
+                    goodpath(fin, self.options.absPath)
                     if not fitmp:
                         raise RuntimeError("No File '%s' found for extArg" % fin)
                     wstmp = fitmp.Get(wsn)
