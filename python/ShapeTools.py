@@ -51,7 +51,7 @@ class FileCache:
                 trueFName = self._basedir + "/" + trueFName
             # interpret file from extension - csv, json, html, pkl, xlsx, h5, parquet
             filepath = trueFName.split(":")[0]
-            goodfile(trueFName, self._absPath)
+            goodpath(trueFName, self._absPath)
             filename, ext = os.path.splitext(filepath)
             if ext in [".csv", ".json", ".html", ".pkl", ".xlsx", ".h5", ".parquet"]:
                 filehandle = DataFrameWrapper(trueFName, ext)
