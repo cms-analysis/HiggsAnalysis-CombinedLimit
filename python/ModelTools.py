@@ -38,7 +38,7 @@ class SafeWorkspaceImporter:
             self.imp(*args)
 
 
-def goodpath(self, s, permissive=False):
+def goodpath(s, permissive=False):
     """Need to be used in FileCache for shapes and here for rateParameters"""
     if not s.startswith("/"):
         return True
