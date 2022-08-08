@@ -2,8 +2,10 @@
 #include "RooDataHist.h"
 #include "RooFormulaVar.h"
 
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h"
 //#define DERIVATIVE_RATEPARAM_DEBUG 1
 //#define DERIVATIVE_LOGNORMAL_DEBUG 1
+#define DEBUG_CMSHISTSUM 1
 
 DerivativeLogNormal::DerivativeLogNormal(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data, const std::string& thetaname,int&found) :
     RooAbsReal(name, title),
@@ -177,7 +179,7 @@ Double_t DerivativeLogNormal::evaluate() const {
 // construct RooAbsReal 
 // keep track of what I can't do like that.
 
-void SimNLLDerivativesHelper::init(){
+void SimNLLDerivativesHelper::init(){ // TODO. Will need to decompose this into list of logical operations. Split it in two: first find the parameters we know how to deal with, and second construct the derivatives
     if (verbose) std::cout<<"Init SimNLLDerivativesHelper"<<std::endl;
     // clean
     for (auto p : derivatives_) p.second->Delete(); 
@@ -243,7 +245,13 @@ void SimNLLDerivativesHelper::init(){
             ProcessNormalization * pn = dynamic_cast<ProcessNormalization*> (coeff);
             RooProduct *pp = dynamic_cast<RooProduct*>(coeff);
             RooRealVar *rv = dynamic_cast<RooRealVar*>(coeff);
+            const CMSHistSum*hs = dynamic_cast<const CMSHistSum*>(pdfi);
             //if (rv !=nullptr) std::cout<<"[SimNLLDerivativesHelper]::[FIXME]"<<"derivative for "<rv->GetName()<<" is known, but discarded in the loop :( "<<std::endl;
+#ifdef DEBUG_CMSHISTSUM
+            std::cout<<"[SimNLLDerivativeHelper][init] DEBUG CMSHistSum: Coeff ClassName"<<coeff->ClassName() <<std::endl;
+            std::cout<< "coeff name: "<<coeff->GetName()<<" val="<<coeff->getVal()<<std::endl;
+            std::cout<<"[SimNLLDerivativeHelper][init] DEBUG CMSHistSum: PDF is "<<pdfi->ClassName() << " is CMS histSum" << ((hs==nullptr)?"no":"yes") <<std::endl;
+#endif
 
             if (pn == nullptr and pp != nullptr){
                 for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
@@ -272,22 +280,121 @@ void SimNLLDerivativesHelper::init(){
                 }
             }
 
-            // look inside pdfi if name is there -> likely shape 
-            if (verbose) { std::cout <<"removing pdf variables (shape):";}
-            std::set<std::string> servers= getServersVars(pdfi);
-            for(auto v : servers) {
-                    if (logNormal.find(v) != logNormal.end()) {
-                    logNormal.erase(v);
-                    if (verbose) std::cout<<"|(LN)"<<v;
-                    }
-                    if (rateParams.find(v) != rateParams.end()) {
-                        if (verbose) std::cout<< "|(R)"<<v;
-                        rateParams.erase(v);
-                    } // 
-                }
-            if (verbose) { std::cout<<std::endl;}
+#ifdef DEBUG_CMSHISTSUM
+            // THIS Guy below I need to do it only if it is not a hist sum. For them I need to do something else
+#endif
+            if (hs != nullptr) { // this is to establish what I know how to make a derivative
+                // this is an CMSHistSum pdf
+                // loop over the parameters and remove asymm theta variables and
+                // things different from rate parameters
+                std::cout<<"[SimNLLDerivativesHelper][init][HS]"<< ">> Removing all asymmThetaList from histsum "<<std::endl;
+                // remove all asymmThetaList
+                for (int i=0;i<hs->coefList().getSize() ;++i)
+                {
+                    std::cout<<"[SimNLLDerivativesHelper][init][HS]"<< "  Considering coeff n."<<i<<" with name"<< hs->coefList()[i].GetName()<<" of class "<< hs->coefList()[i].ClassName()<<std::endl;
+                    ProcessNormalization *pn= dynamic_cast<ProcessNormalization*> ( &hs->coefList()[i]);
+                    RooProduct *pp = dynamic_cast<RooProduct*>( &hs->coefList()[i]);
+                    RooRealVar *rv = dynamic_cast<RooRealVar*>( &hs->coefList()[i]);
 
-            if (pn == nullptr or not isWeighted ) {  // remove all the lognormal candidates. Don't know how to deal with them
+                    if (pn == nullptr and pp != nullptr){// removing strange components from RooProduct
+                        for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
+                        {
+                            std::cout<<"[SimNLLDerivativesHelper][DEBUG][HS]: RooProduct component "<<ip<<"/"<<pp->components().getSize()<<" is a "<<pp->components()[ip].ClassName() <<std::endl;
+                            if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) pn = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
+                            else {
+                                if (verbose) { std::cout <<"components:";}
+                                std::set<std::string> servers= getServersVars(&pp->components()[ip]);
+                                for(auto v : servers) {
+                                    if (logNormal.find(v) != logNormal.end()) {
+                                        logNormal.erase(v);
+                                        if (verbose) std::cout<<"|(LN)"<<v;
+                                    }
+                                    if (rateParams.find(v) != rateParams.end() and rv == nullptr) {
+                                        if (verbose) std::cout<< "|(R)"<<v;
+                                        rateParams.erase(v);
+                                    } // what if v is a RooRealVar in the RooProduct?
+                                }
+                                if (verbose) { std::cout <<std::endl;}
+
+                            }
+                        } 
+                        if (verbose) {
+                            if(pn) std::cout<<"[SimNLLDerivativesHelper][init][HS]: RooProduct has inside a ProcessNormalization. using it"<<std::endl;
+                            else std::cout<<"[SimNLLDerivativesHelper][init][HS]: RooProduct has no product normalization inside"<<std::endl;
+                        }
+                    }
+
+                    if (pn != nullptr){
+                        for(int idx=0; idx< pn->asymmThetaList_.getSize() ;++idx){
+                            RooAbsArg*v=pn->asymmThetaList_.at(idx);
+                            if (verbose) {
+                                std::cout<<"[SimNLLDerivativesHelper][INFO]:"
+                                    <<"Removing "<<v->GetName()<<" from the list of known derivatives because appears in an asymmThetaList "
+                                    <<std::endl;
+                            }
+                            if (logNormal.find(v->GetName()) != logNormal.end()) logNormal.erase(v->GetName());
+                            if (rateParams.find(v->GetName()) != rateParams.end()) {rateParams.erase(v->GetName());}  // probably not necessary, since this are constrained
+                        }
+
+                        for(int idx=0; idx< pn->thetaList_.getSize() ;++idx){
+                            RooAbsArg*v=pn->thetaList_.at(idx);
+                            if (verbose) {
+                                std::cout<<"[SimNLLDerivativesHelper][INFO]:"
+                                    <<"Removing "<<v->GetName()
+                                    <<" from the list of known derivatives because appears in an thetaList "
+                                    <<std::endl;
+                            }
+                            if (rateParams.find(v->GetName()) != rateParams.end()) {rateParams.erase(v->GetName());}  // probably not necessary, since this are constrained
+                            //if (logNormal.find(v->GetName()) != logNormal.end()) logNormal.erase(v->GetName()); //FIXME: remove this when implemented. This are the logNormal
+                        }
+                    }// if there is a process normalization do something
+                    // rv
+                    if (pn == nullptr and rv == nullptr) { // remove everything. I don't know how to deal with it
+                        if (verbose) { std::cout <<"coeff variables:";}
+                        std::set<std::string> servers= getServersVars(coeff);
+                        for(auto v : servers) {
+                            if (logNormal.find(v) != logNormal.end()) {
+                                logNormal.erase(v);
+                                if (verbose) std::cout<<"|(LN)"<<v;
+                            }
+                            if (rateParams.find(v) != rateParams.end()) {
+                                if (verbose) std::cout<<"|(R)"<<v;
+                                rateParams.erase(v);
+                            } 
+                        }
+                    }
+
+                }//coeff loop
+
+                if (verbose) std::cout<<"[SimNLLDerivativeHelper][init] Removing bin-by-bin parameters: ";
+                for (const auto bp : hs->binpars_){ // this are constrained parameters for which I don't know the derivatives
+                    if (logNormal.find( bp->GetName() ) != logNormal.end()) {
+                            logNormal.erase(bp->GetName());
+                            if (verbose) std::cout<<bp->GetName()<<", ";
+                    }
+                if (verbose) std::cout<<std::endl;
+
+                }//binpars loop
+            }// histsum
+
+            if (hs == nullptr){
+                // look inside pdfi if name is there -> likely shape 
+                if (verbose) { std::cout <<"removing pdf variables (shape):";}
+                std::set<std::string> servers= getServersVars(pdfi);
+                for(auto v : servers) {
+                        if (logNormal.find(v) != logNormal.end()) {
+                        logNormal.erase(v);
+                        if (verbose) std::cout<<"|(LN)"<<v;
+                        }
+                        if (rateParams.find(v) != rateParams.end()) {
+                            if (verbose) std::cout<< "|(R)"<<v;
+                            rateParams.erase(v);
+                        } // 
+                    }
+                if (verbose) { std::cout<<std::endl;}
+            }
+
+            if ( (pn == nullptr and hs==nullptr) or not isWeighted ) {  // remove all the lognormal candidates. Don't know how to deal with them
 
                 if (verbose) {
                     std::cout<<"[SimNLLDerivativesHelper][init]:"
@@ -336,8 +443,10 @@ void SimNLLDerivativesHelper::init(){
                 }
                 if (verbose) { std::cout<<std::endl;}
 
-                continue; //  if pn==nullptr or not weighted  
+                continue; //  if pn==nullptr or not weighted   (A)
             } //  not a process normalization coefficient
+
+            if (hs != nullptr) continue; // match the one above (A), since in this case all the things should have been already dealt wit
 
             std::cout<<"[SimNLLDerivativesHelper][init]"<< ">> Removing all asymmThetaList "<<std::endl;
             // remove all asymmThetaList
@@ -403,8 +512,10 @@ void SimNLLDerivativesHelper::init(){
         std::cout<<"[SimNLLDerivativesHelper][init]"<< "> Continue loop "<<std::endl;
 
     } // loop over sim components
+
     // Construct derivatives
     std::cout<<"[SimNLLDerivativesHelper][init]"<< "Constructing the derivatives sum for logNormal"<<std::endl;
+    std::cout<<"[SimNLLDerivativesHelper][init]"<<"logNormals derivatives : "; for (auto name :logNormal) std::cout<<name<<","; std::cout<<std::endl;
     for (auto name : logNormal){
         RooArgList list;
         // loop over sim components
@@ -419,6 +530,12 @@ void SimNLLDerivativesHelper::init(){
             DerivativeLogNormal *der= new DerivativeLogNormal((std::string("dln_")+name+Form("_%d",idx)).c_str(),"",pdf,dynamic_cast<const RooDataSet*>(data),name,found);
             if(found) list.add(*der); // or addOwned or add?
             else der->Delete();
+
+            if (not found){
+                DerivativeLogNormalCMSHistSum *der= new DerivativeLogNormalCMSHistSum((std::string("dln_")+name+Form("_%d",idx)).c_str(),"",pdf,dynamic_cast<const RooDataSet*>(data),name,found);
+                if(found) list.add(*der); // or addOwned or add?
+                else der->Delete();
+            }
         }
 
         if (list.getSize() == 0){ // old fix for shapes. Leave it, probably useful for debug
@@ -466,10 +583,27 @@ void SimNLLDerivativesHelper::init(){
             if (pdf==nullptr) continue ; // ?!? needed?
             const RooAbsData* data= pdf->data();
             //(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data,std::string thetaname)
+            const RooAbsReal* pdfi= (not pdf->pdfs_.empty()) ?  pdf->pdfs_[0].pdf() :nullptr;
+            const CMSHistSum*hs = dynamic_cast<const CMSHistSum*>(pdfi);
+
             int found;
-            DerivativeRateParam *der= new DerivativeRateParam((std::string("dln_")+name+Form("_%d",idx)).c_str(),"",pdf,dynamic_cast<const RooDataSet*>(data),name,found);
-            if(found) list.add(*der); // or addOwned or add?
-            else der->Delete();
+            if (hs == nullptr){
+                DerivativeRateParam *der= new DerivativeRateParam((std::string("dln_")+name+Form("_%d",idx)).c_str(),"",pdf,dynamic_cast<const RooDataSet*>(data),name,found);
+                if(found) {
+                    std::cout<<"[SimNLLDerivativesHelper][init]"<< " adding DerivativeRateParam for parameter "<<name<<std::endl;
+                    list.add(*der); // or addOwned or add?
+                }
+                else der->Delete();
+            }
+
+            if (hs) { // try HistSum
+                DerivativeRateParamCMSHistSum *der= new DerivativeRateParamCMSHistSum((std::string("dln_")+name+Form("_%d",idx)).c_str(),"",pdf,dynamic_cast<const RooDataSet*>(data),name,found);
+                if(found) {
+                    list.add(*der); // or addOwned or add?
+                    std::cout<<"[SimNLLDerivativesHelper][init]"<< " adding DerivativeRateParamiCMSHistSum for parameter "<<name<<std::endl;
+                }
+                else der->Delete();
+            }
         }
 
         if (list.getSize() == 0){ // old fix for shapes. Leave it, probably useful for debug
@@ -687,3 +821,273 @@ DerivativeRateParam* DerivativeRateParam::clone(const char *name) const {
     return new DerivativeRateParam( 
             (name)?name:GetName(), GetTitle(), pdf_, data(), ratename_, found) ;
 }
+
+
+// ------------------------------------------------ CMS HIST SUM  part 
+
+DerivativeRateParamCMSHistSum* DerivativeRateParamCMSHistSum::clone(const char *name) const {
+    if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: clone"<<std::endl;
+    int found;
+    return new DerivativeRateParamCMSHistSum( 
+            (name)?name:GetName(), GetTitle(), pdf_, data(), ratename_, found) ;
+}
+
+DerivativeRateParamCMSHistSum::DerivativeRateParamCMSHistSum(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data, const std::string& ratename,int&found) :
+    DerivativeAbstract(name,title,pdf,data),
+    ratename_(ratename)
+{
+    if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: constructor"<<std::endl;
+    //setDirtyInhibit(true); // TODO: understand cache and proxies
+    setOperMode(RooAbsArg::ADirty,false); // Recursive, bool
+    if (this->pdf_->pdfs_.size() !=1 ) {
+        std::cout<<"[DerivativeRateParamCMSHistSum]: ERROR expected only one component in CachingAddNLL. I got: " << this->pdf()->pdfs_.size() <<std::endl;
+        // [TODO: raise exception here]
+     }
+    const CMSHistSum * histsum = dynamic_cast<const CMSHistSum*> (this->pdf()->pdfs_[0].pdf());
+    if (histsum==nullptr)
+    {
+        std::cout<<"[DerivativeRateParamCMSHistSum]: ERROR. Pdf is not an HistSum but "<<this->pdf()->pdfs_[0].pdf()->ClassName() <<std::endl;
+        // [TODO: raise exception here]
+    }
+    histsum->updateCache(); // we need to have an up-to-date  ?!?
+    found=0; // keep track if at least one depends on the given kappa
+    for (unsigned int i=0; i< histsum->coefList().size(); ++i){ // process loop
+        if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: loop "<< i <<"/"<< histsum->coefList().size() <<std::endl;
+        int val=-1;
+        ProcessNormalization *p = dynamic_cast<ProcessNormalization*> (&histsum->coefList()[i]);
+        if (verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: coeff is of class "<<histsum->coefList()[i].ClassName()<<std::endl;
+        // RooProduct
+        RooProduct *pp = dynamic_cast<RooProduct*>(&histsum->coefList()[i]);
+        if (p == nullptr and pp != nullptr){
+            std::cout<<"[DerivativeRateParamCMSHistSum]: looking for a ProcessNormalization in a RooProduct"<<std::endl;
+            for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
+            {
+                if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) {
+                    if (p!=nullptr) std::cout<<"[DerivativeRateParamCMSHistSum] ERROR. there is more than 1 ProcessNormalization in the RooProduct"<<std::endl;
+                    p = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
+                }
+            }
+        }
+        //
+        RooRealVar *rv = dynamic_cast<RooRealVar*> (&histsum->coefList()[i]);
+        if (rv !=nullptr){
+            val=-2; // the whole coeff is a RooRealVar
+            found=1;
+            rate_.setArg(*rv);
+            if(verbose) std::cout<<"[DerivativeRateParamCMSHistsum]: All Coeff corresponding to "<<ratename_<<" in pdf n."<<i <<" is a RooRealVar"<<std::endl;
+        }
+        else if (p != nullptr) { // unable to add the sum for this process
+            if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: Looking inside otherFactors in process normalization " <<std::endl;
+            for (int j=0 ; j<p->otherFactorList_.getSize();++j)
+            {
+                if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: otherFactor "<<j<<"/"<<p->otherFactorList_.getSize() <<std::endl;
+                if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: the onthefactor pointer is "<< p->otherFactorList_.at(j)->ClassName()<<std::endl;
+                if ( p->otherFactorList_.at(j)->GetName() == ratename_  ) {
+                    val=int(j);
+                    //rate_.setArg(*p->otherFactorListVec_.at(j));
+                    rv_= dynamic_cast<RooAbsReal*>(p->otherFactorList_.at(j));
+                    if (rv_ == nullptr) std::cout<<"[DerivativeRateParamCMSHistSum] ERROR: Rate is not a RooAbsReal?!?"<<std::endl;
+                }
+            }
+            if (val==-1) { 
+                if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: Unable to find rate corresponding to "<<ratename_<<" in pdf n."<<i <<std::endl;
+            }// something
+            else{
+                found=1;
+            }
+        }
+        else{
+            if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: Unable to find rate corresponding to "<<ratename_<<" in pdf n."<<i << "because not ProcessNormalization" <<std::endl;
+        }
+        rate_pos_.push_back(val);
+    }// process loop
+    if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: -- construction done --"<<std::endl;
+}// constructor
+
+Double_t DerivativeRateParamCMSHistSum::evaluate() const {
+#ifdef DEBUG_CMSHISTSUM
+    if(verbose) std::cout<<"[DerivativeRateParamCMSHistSum]: evaluate"<<std::endl;
+#endif
+    /* The derivative of a kappa in a channel is
+     *   sum_bin lambdat_b - data_b lambdat_b/lambda_b
+     *   lambda_b -> sum of expectations in the bin
+     *   lambdat_b -> sum of ( expectations with delta(rate param))
+     */
+    double sum=0.0;
+    const CMSHistSum * histsum = dynamic_cast<const CMSHistSum*> ( pdf_->pdfs_[0].pdf()); // TODO save it somewhere
+    histsum->updateCache(); // we need to have an up-to-date compcache_
+    for (unsigned ib=0;ib<histsum->data_.size(); ++ib)
+    {
+        double db = histsum->data_[ib];
+        double lambdat=0.0;
+        double lambda=0.0; // expected events
+        for (unsigned i = 0 ; i < histsum -> vcoeffpars_.size() ; ++i)
+        {
+            double coeffval = histsum->vcoeffpars_[i]->getVal();
+            double frac = histsum->compcache_[i][ib];
+
+            int diracDelta = (rate_pos_[i]>=0 or rate_pos_[i]==-2)?1 : 0;
+            
+#ifdef DEBUG_CMSHISTSUM
+            /*
+            std::cout<<"[DerivativeRateParamCMSHistSum][evaluate] Considering:"<<std::endl;
+            std::cout<<"                               * data bin "<<ib<<") data="<<db<<std::endl;
+            std::cout<<"                               * process "<<i<<") expected= " <<coeffval*frac<<std::endl;
+            std::cout<<"                               * delta_p "<<diracDelta<<std::endl;
+            */
+#endif
+            // I need to fetch the rate parameter and get its value
+
+            lambda += coeffval * frac;
+            if (diracDelta){
+                double r = rv_->getVal();
+#ifdef DEBUG_CMSHISTSUM
+                std::cout<<"[DerivativeRateParamCMSHistSum] rate != 0 ? "<< ((abs(r)>1E-15)?"yes":"no")<<std::endl;
+#endif
+                // close to 0 this may have a problem; I could set rate to one and recompute the cache each time :( as done for the nonCMSHist version
+                //  rate -> setVal = 1; expectedEventsTilde = coeff*frac; rate->setVal current
+                lambdat += (abs(r)>1E-15) ? (coeffval * frac / r ) : 0.; 
+            }
+        }
+#ifdef DEBUG_CMSHISTSUM
+        std::cout<<"[DerivativeRateParamCMSHistSum]: lambda="<<lambda<<std::endl;
+        std::cout<<"[DerivativeRateParamCMSHistSum]: lambdat="<<lambdat<<std::endl;
+#endif
+        sum += lambdat * (1. - db/lambda);
+    }//bin loop
+    return sum;
+}
+
+// -- CMS HIST SUM  part  logNormal
+DerivativeLogNormalCMSHistSum* DerivativeLogNormalCMSHistSum::clone(const char *name) const {
+    if(verbose) std::cout<<"[DerivativeLogNormalCMSHistSum]: clone"<<std::endl;
+    int found;
+    return new DerivativeLogNormalCMSHistSum( 
+            (name)?name:GetName(), GetTitle(), pdf_, data(), thetaname_, found) ;
+}
+
+// constructor
+DerivativeLogNormalCMSHistSum::DerivativeLogNormalCMSHistSum(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data,const std::string& thetaname,int&found) :
+    DerivativeAbstract(name,title,pdf,data),
+    thetaname_(thetaname)
+{
+    if(verbose) std::cout<<"[DerivativeLogNormalCMSHistSum]: constructor"<<std::endl;
+    setOperMode(RooAbsArg::ADirty,false); // Recursive, bool
+
+    if (this->pdf_->pdfs_.size() !=1 ) {
+        std::cout<<"[DerivativeLogNormalCMSHistSum]: ERROR expected only one component in CachingAddNLL. I got: " << this->pdf()->pdfs_.size() <<std::endl;
+        // [TODO: raise exception here]
+     }
+    const CMSHistSum * histsum = dynamic_cast<const CMSHistSum*> (this->pdf()->pdfs_[0].pdf());
+    if (histsum==nullptr)
+    {
+        std::cout<<"[DerivativeLogNormalCMSHistSum]: ERROR. Pdf is not an HistSum but "<<this->pdf()->pdfs_[0].pdf()->ClassName() <<std::endl;
+        // [TODO: raise exception here]
+    }
+
+    histsum->updateCache(); // we need to have an up-to-date  ?!?
+
+    found=0; // keep track if at least one depends on the given kappa
+
+    for (unsigned int i=0; i< histsum->coefList().size(); ++i){ // process loop
+        if(verbose) std::cout<<"[DerivativeLogNormalCMSHistSum]: loop "<< i <<"/"<< histsum->coefList().size() <<std::endl;
+        int val=-1;
+        if (verbose) std::cout<<"[DerivativeLogNormal]: coeff is of class "<<histsum->coefList()[i].ClassName()<<std::endl;
+
+        ProcessNormalization *p = dynamic_cast<ProcessNormalization*> (&histsum->coefList()[i]);
+        RooProduct *pp = dynamic_cast<RooProduct*>(&histsum->coefList()[i]);
+
+        if (p == nullptr and pp != nullptr){
+            for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
+            {
+                    if (p!=nullptr) std::cout<<"[DerivativeLogNormalCMSHistSum] ERROR. there is more than 1 ProcessNormalization in the RooProduct"<<std::endl;
+                if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) p = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
+            }
+        }
+
+        //
+        if (p != nullptr) { // unable to add the sum for this process
+
+            for (unsigned int j=0 ; j<p->logKappa_.size();++j)
+            {
+                if ( p->thetaList_.at(j)->GetName() == thetaname_  ) {val=int(j);}
+            }
+            if (val==-1) { 
+                if(verbose) std::cout<<"[DerivativeLogNormalCMSHistSum]: Unable to find kappa corresponding to "<<thetaname_<<" in pdfi "<< i <<std::endl;
+            }// something
+            else{
+                found=1;
+            }
+        }
+        else{
+            if(verbose) std::cout<<"[DerivativeLogNormalCMSHistSum]: Unable to find kappa corresponding to "<<thetaname_<<" in pdfi "<<i << " because not ProcessNormalization" <<std::endl;
+        }
+
+        kappa_pos_.push_back(val);
+    } // process loop
+    if(verbose) std::cout<<"[DerivativeLogNormal]: constructed derivative for "<<thetaname_<<" of pdf "<<pdf_->GetName() <<std::endl;
+}
+
+Double_t DerivativeLogNormalCMSHistSum::evaluate() const {
+#ifdef DEBUG_CMSHISTSUM
+    if(verbose) std::cout<<"[DerivativeLogNormalCMSHistSum]: evaluate"<<std::endl;
+#endif
+    /* The derivative of a kappa in a channel is
+     *   sum_bin lambdat_b - data_b lambdat_b/lambda_b
+     *   lambda_b -> sum of expectations in the bin
+     *   lambdat_b -> sum of ( expecations times logK)
+     */
+
+    double sum=0.0;
+    const CMSHistSum * histsum = dynamic_cast<const CMSHistSum*> ( pdf_->pdfs_[0].pdf()); // TODO save it somewhere
+    histsum->updateCache(); // we need to have an up-to-date compcache_
+
+    for (unsigned ib=0;ib<histsum->data_.size(); ++ib)
+    {
+
+        double db = histsum->data_[ib];
+        double lambdat=0.0;
+        double lambda=0.0; // expected events
+        for (unsigned i = 0 ; i < histsum -> vcoeffpars_.size() ; ++i)
+        {
+            double coeffval = histsum->vcoeffpars_[i]->getVal();
+            double frac = histsum->compcache_[i][ib];
+            ProcessNormalization *c = dynamic_cast<ProcessNormalization*> (&histsum->coefList()[i]);
+            // find kappa
+            RooProduct *pp = dynamic_cast<RooProduct*>(&histsum->coefList()[i]);
+            if (c == nullptr and pp != nullptr){
+                for ( int ip =0 ;ip<pp->components().getSize(); ++ip)
+                {
+                    if ( dynamic_cast<ProcessNormalization*>( &pp->components()[ip]) != nullptr) c = dynamic_cast<ProcessNormalization*>( &pp->components()[ip]);
+                }
+            }
+
+            //---
+            double logK = (kappa_pos_[i]>=0)? c -> logKappa_ [kappa_pos_[i]] : 0.0;
+
+            double expectedEvents= coeffval * frac;
+            
+#ifdef DEBUG_CMSHISTSUM
+            std::cout<<"[DerivativeLogNormalCMSHistSum][evaluate] Considering:"<<std::endl;
+            std::cout<<"                               * data bin "<<ib<<") data="<<db<<std::endl;
+            std::cout<<"                               * process "<<i<<") expected= " <<expectedEvents<<std::endl;
+            std::cout<<"                               * logK "<<logK<<std::endl;
+#endif
+            lambdat+= expectedEvents * logK;
+            lambda += expectedEvents;
+
+        } // process loop
+#ifdef DEBUG_CMSHISTSUM
+            std::cout<<"[DerivativeLogNormalCMSHistSum][evaluate] lambda = "<<lambda<<", lambdat = "<<lambdat<<std::endl;
+#endif
+        sum += lambdat * (1. - db/lambda);
+
+    } // data bin loop
+
+#ifdef DEBUG_CMSHISTSUM
+    if(verbose) std::cout<<"[DerivativeLogNormalCMSHistSum]: thetaname="<<thetaname_<<" partial="<<sum<<std::endl;
+#endif
+    return sum;
+}
+
+// -----------------------------------------------------------

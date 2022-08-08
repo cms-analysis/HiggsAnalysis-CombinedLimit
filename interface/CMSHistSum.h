@@ -14,8 +14,15 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
 
+class DerivativeRateParamCMSHistSum;
+class DerivativeLogNormalCMSHistSum;
+class SimNLLDerivativesHelper;
+
 class CMSHistSum : public RooAbsReal {
 private:
+  friend DerivativeRateParamCMSHistSum;
+  friend DerivativeLogNormalCMSHistSum;
+  friend SimNLLDerivativesHelper;
   struct BarlowBeeston {
     bool init = false;
     std::vector<unsigned> use;

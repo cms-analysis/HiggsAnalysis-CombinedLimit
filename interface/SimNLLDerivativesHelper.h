@@ -33,6 +33,7 @@ class DerivativeAbstract: public RooAbsReal
         // RooRealProxy?
         cacheutils::CachingAddNLL * pdf_{nullptr}; // CachingAddNLL
         RooRealProxy pdfproxy_;
+
     public:
 
         DerivativeAbstract(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data): 
@@ -96,6 +97,36 @@ class DerivativeRateParam : public DerivativeAbstract
         // name-> index association per process in otherFactorList
         std::vector<int> rate_pos_;
 
+};
+
+// For CMSHistSum, use a dedicated class that looks inside it
+class DerivativeLogNormalCMSHistSum : public DerivativeAbstract
+{
+    std::string thetaname_{""};
+    RooRealProxy theta_;// useful for numerical derivatives -> terms
+    public:
+        DerivativeLogNormalCMSHistSum(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data,const std::string& thetaname,int&found);
+        ~DerivativeLogNormalCMSHistSum(){};
+        virtual DerivativeLogNormalCMSHistSum *clone(const char *name = 0) const ;
+        virtual Double_t evaluate() const override ; // cacheutils::ReminderSum
+
+        // name-> index association per process
+        std::vector<int> kappa_pos_;
+};
+
+class DerivativeRateParamCMSHistSum : public DerivativeAbstract
+{
+    std::string ratename_{""};
+    RooRealProxy rate_;// useful for numerical derivatives -> terms
+    RooAbsReal * rv_ ; // not owned
+    public:
+        DerivativeRateParamCMSHistSum(const char *name, const char *title, cacheutils::CachingAddNLL *pdf, const RooDataSet *data,const std::string& thetaname,int&found);
+        ~DerivativeRateParamCMSHistSum(){};
+        virtual DerivativeRateParamCMSHistSum *clone(const char *name = 0) const ;
+
+        virtual Double_t evaluate() const override ; // cacheutils::ReminderSum
+        // name-> index association per process in otherFactorList
+        std::vector<int> rate_pos_;
 };
 
 //This class takes the nll and constructs the derivatives terms
