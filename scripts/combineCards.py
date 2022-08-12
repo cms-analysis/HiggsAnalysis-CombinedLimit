@@ -156,7 +156,7 @@ for ich, fname in enumerate(args):
     if fname.endswith(".gz"):
         import gzip
 
-        file = gzip.open(fname, "rb")
+        file = gzip.open(fname, "rt")
         fname = fname[:-3]
     else:
         file = open(fname, "r")
