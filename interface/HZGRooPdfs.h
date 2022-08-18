@@ -1,15 +1,3 @@
-/*****************************************************************************
- * Project: RooFit                                                           *
- * Package: RooFitModels                                                     *
- *    File: $Id: HZGRooPdfs.h,v 1.1 2013/02/18 11:52:16 gpetrucc Exp $
- * Authors:                                                                  *
- *   Kyle Cranmer (L. Gray for step function piece)
- *                                                                           *
- *                                                                           *
- * Redistribution and use in source and binary forms,                        *
- * with or without modification, are permitted according to the terms        *
- * listed in LICENSE (http://roofit.sourceforge.net/license.txt)             *
- *****************************************************************************/
 #ifndef ROO_STEPBERNSTEIN
 #define ROO_STEPBERNSTEIN
 

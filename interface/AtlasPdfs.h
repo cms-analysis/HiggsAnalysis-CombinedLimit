@@ -1,11 +1,10 @@
-// @(#)root/roostats:$Id: RooBSplineBases.h 873 2014-02-24 22:16:29Z adye $
-// Author: Aaron Armbruster
+
 /*************************************************************************
- * Copyright (C) 1995-2008, Rene Brun and Fons Rademakers.               *
- * All rights reserved.                                                  *
- *                                                                       *
- * For the licensing terms see $ROOTSYS/LICENSE.                         *
- * For the list of contributors see $ROOTSYS/README/CREDITS.             *
+ * The code in this page is provided to the CMS Collaboration by the ATLAS Collaboration 
+ * for the scopes of the LHC-Higgs Combination Group.
+ * The Copyright (C) 2022  CERN, for the benefits of the ATLAS Collobaration. 
+ * All rights reserved.
+ * (The ATLAS Collaboration or the ROOT team, may distribute it under different conditions)
  *************************************************************************/
 
 #ifndef ROOSTATS_ROOBSPLINEBASES
@@ -70,15 +69,6 @@ namespace HistFactory{
 }
 
 #endif
-// @(#)root/roostats:$Id: RooBSpline.h 873 2014-02-24 22:16:29Z adye $
-// Author: Aaron Armbruster
-/*************************************************************************
- * Copyright (C) 1995-2008, Rene Brun and Fons Rademakers.               *
- * All rights reserved.                                                  *
- *                                                                       *
- * For the licensing terms see $ROOTSYS/LICENSE.                         *
- * For the list of contributors see $ROOTSYS/README/CREDITS.             *
- *************************************************************************/
 
 #ifndef ROOSTATS_ROOBSPLINE
 #define ROOSTATS_ROOBSPLINE
@@ -167,22 +157,6 @@ namespace HistFactory{
 }
 
 #endif
-/*****************************************************************************
- * Project: RooFit                                                           *
- * Package: RooFitModels                                                     *
- *    File: $Id: RooParamKeysPdf.h 888 2014-08-01 19:54:39Z adye $
- * Authors:                                                                  *
- *   GR, Gerhard Raven,   UC San Diego,        raven@slac.stanford.edu       *
- *   DK, David Kirkby,    UC Irvine,         dkirkby@uci.edu                 *
- *   WV, Wouter Verkerke, UC Santa Barbara, verkerke@slac.stanford.edu       *
- *                                                                           *
- * Copyright (c) 2000-2005, Regents of the University of California          *
- *                          and Stanford University. All rights reserved.    *
- *                                                                           *
- * Redistribution and use in source and binary forms,                        *
- * with or without modification, are permitted according to the terms        *
- * listed in LICENSE (http://roofit.sourceforge.net/license.txt)             *
- *****************************************************************************/
 #ifndef ROO_PARAM_KEYS
 #define ROO_PARAM_KEYS
 

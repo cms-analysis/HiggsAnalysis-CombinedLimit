@@ -4,6 +4,10 @@
 #include <iostream>
 #include <chrono>
 
+/* This is shared with CombineHarvester
+ * 
+ */
+
 
 /**
  * \brief Extracts the fully-qualified function name from a complete function

@@ -1,21 +1,10 @@
-// @(#)root/roostats:$Id: RooBSplineBases.cxx 873 2014-02-24 22:16:29Z adye $
-// Author: Aaron Armbruster
 /*************************************************************************
- * Copyright (C) 1995-2008, Rene Brun and Fons Rademakers.               *
- * All rights reserved.                                                  *
- *                                                                       *
- * For the licensing terms see $ROOTSYS/LICENSE.                         *
- * For the list of contributors see $ROOTSYS/README/CREDITS.             *
+ * The code in this page is provided to the CMS Collaboration by the ATLAS Collaboration 
+ * for the scopes of the LHC-Higgs Combination Group.
+ * The Copyright (C) 2022  CERN, for the benefits of the ATLAS Collobaration. 
+ * All rights reserved.
+ * (The ATLAS Collaboration or the ROOT team, may distribute it under different conditions)
  *************************************************************************/
-
-//_________________________________________________
-/*
-BEGIN_HTML
-<p>
-</p>
-END_HTML
-*/
-//
 
 #include "RooFit.h"
 
@@ -360,25 +349,6 @@ Double_t RooBSplineBases::getBasisVal(int n, int i, bool rebuild) const
 }
 
 
-
-// @(#)root/roostats:$Id: RooBSpline.cxx 873 2014-02-24 22:16:29Z adye $
-// Author: Aaron Armbruster
-/*************************************************************************
- * Copyright (C) 1995-2008, Rene Brun and Fons Rademakers.               *
- * All rights reserved.                                                  *
- *                                                                       *
- * For the licensing terms see $ROOTSYS/LICENSE.                         *
- * For the list of contributors see $ROOTSYS/README/CREDITS.             *
- *************************************************************************/
-
-//_________________________________________________
-/*
-BEGIN_HTML
-<p>
-</p>
-END_HTML
-*/
-//
 
 #include "RooFit.h"
 
@@ -810,22 +780,6 @@ RooBSpline::CacheElem::~CacheElem()
 
 
 
-/*****************************************************************************
- * Project: RooFit                                                           *
- * Package: RooFitModels                                                     *
- * @(#)root/roofit:$Id: RooParamKeysPdf.cxx 888 2014-08-01 19:54:39Z adye $
- * Authors:                                                                  *
- *   GR, Gerhard Raven,   UC San Diego,        raven@slac.stanford.edu       *
- *   DK, David Kirkby,    UC Irvine,         dkirkby@uci.edu                 *
- *   WV, Wouter Verkerke, UC Santa Barbara, verkerke@slac.stanford.edu       *
- *                                                                           *
- * Copyright (c) 2000-2005, Regents of the University of California          *
- *                          and Stanford University. All rights reserved.    *
- *                                                                           *
- * Redistribution and use in source and binary forms,                        *
- * with or without modification, are permitted according to the terms        *
- * listed in LICENSE (http://roofit.sourceforge.net/license.txt)             *
- *****************************************************************************/
 #include "RooFit.h"
 
 #include <math.h>

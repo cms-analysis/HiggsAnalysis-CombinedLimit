@@ -1,18 +1,3 @@
-/*****************************************************************************
- * Project: RooFit                                                           *
- * Package: RooFitModels                                                     *
- *    File: $Id: RooPower.h,v 1.10 2007/07/12 20:30:49 wouter Exp $
- * Authors:                                                                  *
- *   WV, Wouter Verkerke, UC Santa Barbara, verkerke@slac.stanford.edu       *
- *   DK, David Kirkby,    UC Irvine,         dkirkby@uci.edu                 *
- *                                                                           *
- * Copyright (c) 2000-2005, Regents of the University of California          *
- *                          and Stanford University. All rights reserved.    *
- *                                                                           *
- * Redistribution and use in source and binary forms,                        *
- * with or without modification, are permitted according to the terms        *
- * listed in LICENSE (http://roofit.sourceforge.net/license.txt)             *
- *****************************************************************************/
 #ifndef HiggsAnalysis_CombinedLimit_HGGRooPdfs_h
 #define HiggsAnalysis_CombinedLimit_HGGRooPdfs_h
 
