@@ -112,7 +112,7 @@ _floorVal(1e-100)
 	func = (RooAbsReal*)funcIter->Next();
 	if (func) {
 		if (!dynamic_cast<RooAbsReal*>(func)) {
-			coutE(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName() << ") last func " << coef->GetName() << " is not of type RooAbsReal, fatal error" << endl;
+			coutE(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName() << ") last func " << func->GetName() << " is not of type RooAbsReal, fatal error" << endl;
 			assert(0);
 		}
 		_funcList.add(*func);
