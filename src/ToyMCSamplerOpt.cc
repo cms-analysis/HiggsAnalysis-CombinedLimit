@@ -519,7 +519,7 @@ RooDataSet* ToyMCSamplerOpt::GetSamplingDistributionsSingleWorker(RooArgSet& par
    //paramPointIn.Print("V");
    //// <<<<<<=======================>>>>>>
    //return ToyMCSampler::GetSamplingDistributionsSingleWorker(paramPointIn);
-   /// Taken from http://root.cern.ch/viewcvs/tags/v5-34-03/roofit/roostats/src/ToyMCSampler.cxx?revision=46856&view=markup
+   /// Originally taken from http://root.cern.ch/viewcvs/tags/v5-34-03/roofit/roostats/src/ToyMCSampler.cxx?revision=46856&view=markup
 
    ClearCache();
 
