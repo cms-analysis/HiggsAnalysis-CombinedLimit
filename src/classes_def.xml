@@ -212,6 +212,12 @@
 	<class name="DebugProposal"  transient="true" />
 	<class name="cmsmath::SequentialMinimizer"  transient="true" />
 	<class name="rVrFLikelihood"  transient="true" />
+  <ioread sourceClass="rVrFLikelihood" version="[1]" targetClass="rVrFLikelihood" source="std::vector<rVrFLikelihood::Channel> channels_" target="channels_">
+          <![CDATA[ channels_.clear();
+                    for(auto const& ch : onfile.channels_) {
+                        newObj->addChannel(ch.chi2, const_cast<RooAbsReal &>(ch.muV.arg()), const_cast<RooAbsReal &>(ch.muF.arg()));
+                    } ]]>
+  </ioread>
         <class name="TestProposal"  transient="true" />
   <class name="RooCheapProduct" />
   <class name="CMSHggFormulaA1" />
