@@ -1230,7 +1230,7 @@ void MultiDimFit::splitGridPoints(const std::string& s, std::vector<unsigned int
     boost::split(strPoints, s, boost::is_any_of(","));
 
     // convert to int and add
-    for (const auto strPoint : strPoints) {
+    for (const auto& strPoint : strPoints) {
         points.push_back(std::stoul(strPoint));
     }
 }
