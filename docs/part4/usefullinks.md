@@ -25,7 +25,9 @@ There are several tutorials which have been run over the last few years with ins
 
 ### Citations
 
-There is no document currently which can be cited for using the combine tool, however you can use the following publications for the procedures we use,
+There is no document currently which can be cited for using the combine tool, you can quote either as `CMS Collaboration, Higgs Combination Tool, http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/` or one of the last Higgs combination papers, for instance, `CMS Collaboration, "A portrait of the Higgs boson by the CMS experiment", Nature 607 (2022) 60, doi:10.1038/s41586-022-04892-x`
+
+For the procedures we use, youu can use the following publications:
 
 * [Summer 2011 public ATLAS-CMS note](https://cds.cern.ch/record/1379837) for any Frequentist limit setting procedures with toys or Bayesian limits, constructing likelihoods, descriptions of nuisance parameter options (like log-normals (`lnN`) or gamma (`gmN`), and for definitions of test-statistics.
 
@@ -38,6 +40,10 @@ There is no document currently which can be cited for using the combine tool, ho
 * If you are extracting uncertainties from LH scans - i.e using $-2\Delta Log{L}=1$ etc for the 1$\sigma$ intervals, you can cite either the [ATLAS+CMS](https://arxiv.org/abs/1606.02266) or [CMS](https://link.springer.com/article/10.1140/epjc/s10052-015-3351-7) Higgs paper.
 
 * There is also a long list of citation recommendations from the [CMS Statistics Committee](https://twiki.cern.ch/twiki/bin/view/CMS/StatisticsReferences) pages.
+
+Some of the Physics model implemented refer to the publication that proposed them:
+* The ``Yellow Reports'' 3 and 4 are used for the kappa models and all the models that implement those construction (SMHiggsBuilder) and the data stored in the directory `data/lhc-hxswg`. [arXiv:1610.07922](https://arxiv.org/pdf/1610.07922.pdf), [arXiv:1307.1347](https://arxiv.org/pdf/1307.1347.pdf)
+* The Trilinear models should cite these notes [arXiv:1709.08649](https://arxiv.org/pdf/1709.08649.pdf), [arXiv:1607.04251v1](https://arxiv.org/pdf/1607.04251v1.pdf). The STXS trilinear should also cite [LHCHWG-2022-002](https://cds.cern.ch/record/2803606/files/LHCHWG-2022-002_2.pdf)
 
 ### Combine based packages
 

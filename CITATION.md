@@ -14,6 +14,5 @@ CMS Collaboration, "A portrait of the Higgs boson by the CMS experiment", Nature
 ```
 
 ## Specific method or Models
-Some models or methods should cite the original article. 
-A collection of them is avaible in the documentation http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/
-or in the model files, from which the model is derived.
+A list of publication to the models and method we use is available in the documentation http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#citations
+
