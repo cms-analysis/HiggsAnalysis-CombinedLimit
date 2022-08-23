@@ -598,7 +598,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	     for (std::vector<int>::iterator it = cit.begin();
 	         it!=cit.end(); it++){
 
-		 isValidCombo *= (contributingIndeces)[pdfIndex][*it];
+		 isValidCombo &= (contributingIndeces)[pdfIndex][*it];
 		 if (!isValidCombo ) /*&& runShortCombinations)*/ continue;
 
 	     	 fPdf = (RooCategory*) pdfCategoryIndeces.at(pdfIndex);

@@ -1631,7 +1631,6 @@ void HybridNew::updateGridDataFC(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 }
 
 std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, std::map<double, RooStats::HypoTestResult *>::iterator point) {
-    typedef std::pair<double,double> CLs_t;
     bool isProfile = (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile");
     if (point->first == 0 && CLs_) return std::pair<double,double>(1,0);
     RooArgSet  poi(*mc_s->GetParametersOfInterest());

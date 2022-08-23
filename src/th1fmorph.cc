@@ -477,8 +477,11 @@ TH1_t *th1fmorph_(const char *chname,
   
   //......Clean up the temporary arrays we allocated.
 
-  delete sigdis1; delete sigdis2; 
-  delete sigdisn; delete xdisn; delete sigdisf;
+  delete[] sigdis1;
+  delete[] sigdis2;
+  delete[] sigdisn;
+  delete[] xdisn;
+  delete[] sigdisf;
 
   //......All done, return the result.
 

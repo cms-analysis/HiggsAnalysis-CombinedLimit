@@ -194,7 +194,7 @@ std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::Mo
         if (verbose > 2) { std::cout << "\n\n==== POINT "<< t << ","<<i<<" ====" << std::endl; params->Print("V"); }
         double nllVal = nll->getVal();
         if (offset) { 
-            if (isnan(*offset)) *offset = nllVal; 
+            if (std::isnan(*offset)) *offset = nllVal; 
             nllVal -= *offset; 
         }
         if (verbose > 1) std::cout << "nll[" << t << ","<<i<<"] = " << nllVal << ", p = " << std::exp(-nllVal) << std::endl;
