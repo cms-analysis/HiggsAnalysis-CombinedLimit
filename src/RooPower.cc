@@ -4,7 +4,7 @@
 #include "Riostream.h"
 #include <math.h>
 
-#include "HiggsAnalysis/CombinedLimit/interface/HGGRooPdfs.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooPower.h"
 #include "RooRealVar.h"
 
 ClassImp(RooPower)

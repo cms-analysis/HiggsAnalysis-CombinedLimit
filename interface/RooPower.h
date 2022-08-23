@@ -1,5 +1,5 @@
-#ifndef HiggsAnalysis_CombinedLimit_HGGRooPdfs_h
-#define HiggsAnalysis_CombinedLimit_HGGRooPdfs_h
+#ifndef HiggsAnalysis_CombinedLimit_RooPower_h
+#define HiggsAnalysis_CombinedLimit_RooPower_h
 
 #include "RooAbsPdf.h"
 #include "RooRealProxy.h"
