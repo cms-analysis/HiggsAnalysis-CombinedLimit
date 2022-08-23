@@ -112,7 +112,7 @@ _floorVal(1e-100)
 	func = (RooAbsReal*)funcIter->Next();
 	if (func) {
 		if (!dynamic_cast<RooAbsReal*>(func)) {
-			coutE(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName() << ") last func " << coef->GetName() << " is not of type RooAbsReal, fatal error" << endl;
+			coutE(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName() << ") last func " << func->GetName() << " is not of type RooAbsReal, fatal error" << endl;
 			assert(0);
 		}
 		_funcList.add(*func);
@@ -325,10 +325,18 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 	if (cache == 0) { // revive the (sterilized) cache
 		//cout << "RooRealFlooredSumPdf("<<this<<")::analyticalIntegralWN:"<<GetName()<<"("<<code<<","<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << ": reviving cache "<< endl;
 		std::unique_ptr<RooArgSet> vars(getParameters(RooArgSet()));
+		RooArgSet dummy;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
 		std::unique_ptr<RooArgSet> iset(_normIntMgr.nameSet2ByIndex(code - 1)->select(*vars));
 		std::unique_ptr<RooArgSet> nset(_normIntMgr.nameSet1ByIndex(code - 1)->select(*vars));
-		RooArgSet dummy;
 		Int_t code2 = getAnalyticalIntegralWN(*iset, dummy, nset.get(), rangeName);
+#else
+		// In ROOT 6.26, the RooNameSet was removed and the "selectFromSet*"
+		// functions were introduced to replace its functionality
+		RooArgSet iset{_normIntMgr.selectFromSet2(*vars, code - 1)};
+		RooArgSet nset{_normIntMgr.selectFromSet1(*vars, code - 1)};
+		Int_t code2 = getAnalyticalIntegralWN(iset, dummy, &nset, rangeName);
+#endif
 		assert(code == code2); // must have revived the right (sterilized) slot...
 		cache = (CacheElem*)_normIntMgr.getObjByIndex(code - 1);
 		assert(cache != 0);

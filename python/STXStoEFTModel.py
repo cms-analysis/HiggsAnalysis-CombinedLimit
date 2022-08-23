@@ -399,7 +399,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
                     for _u in stxsUncertaintiesKeys:
                         var = self.modelBuilder.out.var("param_%s" % _u)
                         pnorm.addLogNormal(exp(stxsUncertainties[proc][_u]), var)
-                    self.modelBuilder.out._import(pnorm)
+                    self.modelBuilder.out.safe_import(pnorm)
 
 
 #################################################################################################################

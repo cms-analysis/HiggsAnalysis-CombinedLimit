@@ -315,7 +315,7 @@ class SMHiggsBuilder:
                 # print " [ %+.1f%% from %s ]  " % (widthUncertainties[D][K]*100, var.GetName()),
                 pnorm.addLogNormal(exp(widthUncertainties[D][K]), var)
             # print "."
-            self.modelBuilder.out._import(pnorm)
+            self.modelBuilder.out.safe_import(pnorm)
 
     def dump(self, name, xvar, values, logfile):
         xv = self.modelBuilder.out.var(xvar)
@@ -350,7 +350,7 @@ class SMHiggsBuilder:
             array("d", y),
             algo,
         )
-        self.modelBuilder.out._import(spline)
+        self.modelBuilder.out.safe_import(spline)
 
 
 # if __name__ == "__main__":

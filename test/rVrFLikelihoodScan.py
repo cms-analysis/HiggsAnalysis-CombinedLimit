@@ -176,7 +176,7 @@ MB.physics.done()
 MB.out.var("MH").setVal(options.mass)
 
 ## import in workspace (maybe not needed?)
-MB.out._import(likelihood)
+MB.out.safe_import(likelihood)
 
 if options.verbose > 1:
     MB.out.Print("V")

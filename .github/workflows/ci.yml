@@ -35,6 +35,9 @@ jobs:
           # python 3.9 root 6.24 (12_3_X)
           - python: "3.9"
             root: "6.24"
+          # python 3.10 root 6.26
+          - python: "3.10"
+            root: "6.26.4"
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
 

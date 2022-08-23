@@ -177,13 +177,17 @@ Bool_t VerticalInterpPdf::checkObservables(const RooArgSet* nset) const
   }
 
   _funcIter->Reset() ;
+  _coefIter->Reset() ;
   RooAbsReal* func ;
+  unsigned int ifunc = 0;
   while((func = (RooAbsReal*)_funcIter->Next())) { 
-    if (func->observableOverlaps(nset,*coef)) {
+    if (ifunc % 2 == 0) coef = (RooAbsReal*)_coefIter->Next(); 
+    if (coef && func->observableOverlaps(nset,*coef)) {
       coutE(InputArguments) << "VerticalInterpPdf::checkObservables(" << GetName() << "): ERROR: coefficient " << coef->GetName() 
-			    << " and FUNC " << func->GetName() << " have one or more observables in common" << std::endl ;
+			    << " and FUNC " << func->GetName() << " have one or more observables in common" << std::endl;
       return true;
     }
+    ifunc++;
   }
   
   return false;
