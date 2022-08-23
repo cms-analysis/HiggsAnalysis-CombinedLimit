@@ -8,6 +8,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/TH1Keys.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/th1fmorph.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooCTauPdf_1D.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooCTauPdf_1D_Expanded.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooCTauPdf_2D.h"
