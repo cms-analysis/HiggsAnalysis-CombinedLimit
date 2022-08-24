@@ -304,12 +304,12 @@ class StageOnePTwo(STXSBaseModel):
                 for stxs12binname in self.stage1_2_fine_procs:
                     if P in self.stage1_2_fine_procs[stxs12binname]:
                         terms = ["mu", "mu_XS_%s" % stxs12binname, "mu_BR_" + D, "mu_XS_%s_BR_%s" % (stxs12binname, D)]
-                    for merged_prod_bin in self.mergeSchemes["prod_only"]:
-                        if stxs12binname in self.mergeSchemes["prod_only"][merged_prod_bin]:
-                            terms += ["mu_XS_%s" % merged_prod_bin]
-                    for merged_proddec_bin in self.mergeSchemes["prod_times_dec"]:
-                        if stxs12binname in self.mergeSchemes["prod_times_dec"][merged_proddec_bin]:
-                            terms += ["mu_XS_%s_BR_%s" % (merged_proddec_bin, D)]
+                        for merged_prod_bin in self.mergeSchemes["prod_only"]:
+                            if stxs12binname in self.mergeSchemes["prod_only"][merged_prod_bin]:
+                                terms += ["mu_XS_%s" % merged_prod_bin]
+                        for merged_proddec_bin in self.mergeSchemes["prod_times_dec"]:
+                            if stxs12binname in self.mergeSchemes["prod_times_dec"][merged_proddec_bin]:
+                                terms += ["mu_XS_%s_BR_%s" % (merged_proddec_bin, D)]
                 self.modelBuilder.factory_("prod::scaling_%s_%s_13TeV(%s)" % (P, D, ",".join(terms)))
                 self.modelBuilder.out.function("scaling_%s_%s_13TeV" % (P, D)).Print("")
 
