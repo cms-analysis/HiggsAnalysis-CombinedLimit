@@ -23,7 +23,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooSplineND.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooScaleLOSM.h"
-#include "HiggsAnalysis/CombinedLimit/interface/rVrFLikelihood.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
