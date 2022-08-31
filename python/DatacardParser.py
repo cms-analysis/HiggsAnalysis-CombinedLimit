@@ -282,6 +282,14 @@ def addDatacardParserOptions(parser):
     )
 
 
+def strip(l):
+    """Strip comments and whitespace from end of line"""
+    idx = l.find("#")
+    if idx > 0:
+        return l[:idx].rstrip()
+    return l.rstrip()
+
+
 def isVetoed(name, vetoList):
     for pattern in vetoList:
         if not pattern:
@@ -453,10 +461,10 @@ def parseCard(file, options):
                 break  # rate is the last line before nuisances
         # parse nuisances
         for lineNumber2, l in enumerate(file):
-            if l.startswith("--"):
+            if l.startswith("--") or l.startswith("#"):
                 continue
-            l = re.sub("\\s*#.*", "", l)
-            l = re.sub("(?<=\\s)-+(\\s|$)", " 0\\1", l)
+
+            l = strip(l)
             f = l.split()
             if len(f) <= 1:
                 continue
@@ -623,6 +631,8 @@ def parseCard(file, options):
                         if v <= 0.00:
                             raise ValueError('Found "%s" in the nuisances affecting %s for %s. This would lead to NANs later on, so please fix it.' % (r, p, b))
                 else:
+                    if r == "-" * len(r):
+                        r = 0.0
                     errline[b][p] = float(r)
                     # values of 0.0 are treated as 1.0; scrap negative values.
                     if pdf not in ["trG", "dFD", "dFD2"] and errline[b][p] < 0:
