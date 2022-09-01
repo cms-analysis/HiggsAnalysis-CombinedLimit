@@ -282,6 +282,41 @@ def addDatacardParserOptions(parser):
     )
 
 
+class ErrorLine:
+    """Encodes strength of systematic effect on a given bin and process
+
+    Emulates a doubly-nested defaultdict but in a more memory-efficient manner
+    on the assumption that callers always know which keys are valid
+    """
+
+    class Nested:
+        def __init__(self, parent, key1):
+            self._parent = parent
+            self._key1 = key1
+
+        def __getitem__(self, key2):
+            return self._parent._get(self._key1, key2)
+
+        def __setitem__(self, key2, value):
+            self._parent._set(self._key1, key2, value)
+
+    def __init__(self, default=0.0):
+        self._d = {}
+        self._default = default
+
+    def __getitem__(self, key1):
+        return self.Nested(self, key1)
+
+    def _get(self, key1, key2):
+        try:
+            return self._d[key1, key2]
+        except KeyError:
+            return self._default
+
+    def _set(self, key1, key2, value):
+        self._d[key1, key2] = value
+
+
 def strip(l):
     """Strip comments and whitespace from end of line"""
     idx = l.find("#")
@@ -620,7 +655,7 @@ def parseCard(file, options):
                 raise RuntimeError(
                     "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))
                 )
-            errline = dict([(b, {}) for b in ret.bins])
+            errline = ErrorLine()
             nonNullEntries = 0
             for (b, p, s), r in zip(ret.keyline, numbers):
                 if "/" in r:  # "number/number"
@@ -632,8 +667,11 @@ def parseCard(file, options):
                             raise ValueError('Found "%s" in the nuisances affecting %s for %s. This would lead to NANs later on, so please fix it.' % (r, p, b))
                 else:
                     if r == "-" * len(r):
-                        r = 0.0
-                    errline[b][p] = float(r)
+                        continue
+                    r_float = float(r)
+                    if r_float == 0.0:
+                        continue
+                    errline[b][p] = r_float
                     # values of 0.0 are treated as 1.0; scrap negative values.
                     if pdf not in ["trG", "dFD", "dFD2"] and errline[b][p] < 0:
                         raise ValueError('Found "%s" in the nuisances affecting %s in %s. This would lead to NANs later on, so please fix it.' % (r, p, b))
