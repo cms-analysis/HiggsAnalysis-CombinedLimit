@@ -2,12 +2,14 @@
 
 ClassImp(RooEFTScalingFunction)
 
-RooEFTScalingFunction::RooEFTScalingFunction(const char *name, const char *title, const std::map<std::string,double> &coeffs, const RooArgList &terms) :
+RooEFTScalingFunction::RooEFTScalingFunction(const char *name, const char *title, const std::map<std::string,double> &coeffs, const RooArgList &terms, RooAbsReal &qts) :
     RooAbsReal(name,title),
     coeffs_(coeffs),
     terms_("!terms","RooArgList of Wilson coefficients",this),
+    qts_("qts","qts", this, qts),
     offset_(1.0)
 {
+
     // Add Wilson coefficients to terms_ container
     RooFIter iter = terms.fwdIterator();
     for( RooAbsArg *a = iter.next(); a != 0; a = iter.next()) {
@@ -22,6 +24,7 @@ RooEFTScalingFunction::RooEFTScalingFunction(const char *name, const char *title
     for( auto const& x : coeffs ) {
         TString term_name = x.first;
         double term_prefactor = x.second;
+
         if( term_name.Contains("_") ) {
             TString first_term = dynamic_cast<TObjString *>( term_name.Tokenize("_")->At(0))->GetString();
             TString second_term = dynamic_cast<TObjString *>( term_name.Tokenize("_")->At(1))->GetString();
@@ -63,6 +66,7 @@ RooEFTScalingFunction::RooEFTScalingFunction(const RooEFTScalingFunction& other,
     RooAbsReal(other, name),
     coeffs_(other.coeffs_),
     terms_("!terms",this,other.terms_),
+    qts_("qts", this, other.qts_),
     vcomponents_(other.vcomponents_),
     offset_(other.offset_)
 {
@@ -75,11 +79,24 @@ Double_t RooEFTScalingFunction::evaluate() const
     }
     double ret = offset_;
     for (auto const &x : vcomponents_) {
+
         double res = x.second;
-        for( auto const &y : x.first ){
-            res *= y->getVal();
+
+        if( x.first.size() == 2 ){
+            // Quadratic terms
+            if( qts_ != 0. ){
+                for( auto const &y : x.first ){
+                    res *= y->getVal();
+                }
+                ret += res;
+            } 
+        } else {
+            // Linear terms
+            for( auto const &y : x.first ){
+                res *= y->getVal();
+            }
+            ret += res;
         }
-        ret += res;
     }
     return ret;
 }

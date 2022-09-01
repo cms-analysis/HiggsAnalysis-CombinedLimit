@@ -2,7 +2,9 @@
 #define ROO_EFTSCALINGFUNCTION
 #include <RooAbsReal.h>
 #include <RooListProxy.h>
+#include <RooRealProxy.h>
 #include <TString.h>
+#include <TObjString.h>
 
 #include <vector>
 #include <string>
@@ -12,7 +14,7 @@
 class RooEFTScalingFunction : public RooAbsReal {
     public:
         RooEFTScalingFunction() {}
-        RooEFTScalingFunction(const char *name, const char *title, const std::map<std::string,double> &coeffs, const RooArgList &terms);
+        RooEFTScalingFunction(const char *name, const char *title, const std::map<std::string,double> &coeffs, const RooArgList &terms, RooAbsReal &qts);
         RooEFTScalingFunction(const RooEFTScalingFunction& other, const char* name=0);
         virtual ~RooEFTScalingFunction() {}
         virtual TObject *clone(const char *newname) const { return new RooEFTScalingFunction(*this,newname); } 
@@ -21,6 +23,7 @@ class RooEFTScalingFunction : public RooAbsReal {
     protected:
         std::map<std::string,double> coeffs_;
         RooListProxy terms_;
+        RooRealProxy qts_;
         std::map< std::vector<RooAbsReal *>, double> vcomponents_;
         double offset_;
         virtual Double_t evaluate() const ;

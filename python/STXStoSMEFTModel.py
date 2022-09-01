@@ -88,7 +88,7 @@ def getProcessInfo(bin,process):
   # Catch for H->Zgam
   if( foundDecay == "hzg" )|( "bkg" in foundSTXSBin ): foundSTXSBin = foundSTXSBin.split("_")[0]
 
-  if not matchedDecayString: raise RuntimeError, "Validation Error: no supported decay found in process"
+  if not matchedDecayString: raise RuntimeError("Validation Error: no supported decay found in process")
 
   return (foundRecoCategory, foundSTXSBin, foundDecay, foundEnergy)
 
@@ -110,9 +110,10 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     # Options
     self.floatMass = False
     self.fixProcesses = fixProcesses #Option to fix certain STXS bins: comma separated list of STXS bins
-    self.linearOnly=False
+    self.linearisedModel=False # Option to build linearised model into the workspace
     self.stage0=False
-    self.parametrisation="CMS-prelim-SMEFT-topU3l_22_03_21"
+    self.parametrisation="CMS-prelim-SMEFT-topU3l_22_05_05_AccCorr_0p01"
+    self.eigenvalueThreshold=-1
  
   def setPhysicsOptionsBase(self,physOptions):
     for po in physOptions:
@@ -120,23 +121,26 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
         self.floatMass = True
         self.mHRange = po.replace("higgsMassRange=","").split(",")
         if len(self.mHRange) != 2:
-          raise RuntimeError, "Higgs mass range definition requires two extrema"
+          raise RuntimeError("Higgs mass range definition requires two extrema")
         elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-          raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+          raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
       if po.startswith("fixProcesses="): 
         self.fixProcesses = (po.replace("fixProcesses=","")).split(",")
-      if po.startswith("linearOnly="): 
-        self.linearOnly = (po.replace("linearOnly=","") in ["yes","1","Yes","True","true"])
+      if po.startswith("linearisedModel="): 
+        self.linearisedModel = (po.replace("linearisedModel=","") in ["yes","1","Yes","True","true"])
       if po.startswith("stage0="): 
         self.stage0 = (po.replace("stage0=","") in ["yes","1","Yes","True","true"])
       if po.startswith("parametrisation="): 
         self.parametrisation = po.replace("parametrisation=","")
         if "ATLAS" in self.parametrisation: self.map_prod = MAP_HIGGS_PROD_SMEFT_ATLAS
+      if po.startswith("eigenvalueThreshold="): 
+        self.eigenvalueThreshold = po.replace("eigenvalueThreshold=","")
+
 
     #Output options to screen
-    print " --> [STXStoSMEFT] Using (%s) parametrisation"%self.parametrisation
-    if( len( self.fixProcesses ) > 0 ): print " --> [STXStoSMEFT] Fixing following processes to SM: %s"%self.fixProcesses
-    if self.linearOnly: print " --> [STXStoSMEFT] Only linear terms (Aj)"
+    print(" --> [STXStoSMEFT] Using (%s) parametrisation"%self.parametrisation)
+    if( len( self.fixProcesses ) > 0 ): print(" --> [STXStoSMEFT] Fixing following processes to SM: %s"%self.fixProcesses)
+    if self.linearisedModel: print(" --> [STXStoSMEFT] Also adding linearised EFT model to workspace")
 
   def doMH(self):
     if self.floatMass:
@@ -173,8 +177,18 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     with open( filename, 'r' ) as fpois:
       try:
         self.pois = yaml.safe_load(fpois)
+        # Apply eigenvector threshold if set
+        if self.eigenvalueThreshold != -1.:
+          pois_to_keep = {}
+          for poi,v in self.pois.items():
+            if 'eigenvalue' in v:
+              if v['eigenvalue'] > float(self.eigenvalueThreshold): pois_to_keep[poi] = v
+            else:
+              pois_to_keep[poi] = v
+          self.pois = pois_to_keep
+               
       except yaml.YAMLERROR as exc:
-        print exc
+        print(exc)
 
   #Function to extract STXS scaling terms from json file
   def extractSTXSScalingTerms( self, filename="" ):
@@ -224,40 +238,123 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     if k in self.STXSScalingTerms: terms = self.STXSScalingTerms[k] 
     elif k in self.DecayScalingTerms: terms = self.DecayScalingTerms[k]
     else:
-      print " --> [WARNING] Scaling terms for %s do not exist in input json. Setting to 1"%k
+      print(" --> [WARNING] Scaling terms for %s do not exist in input json. Setting to 1"%k)
       terms = {}
       #raise ValueError("[ERROR] Scaling terms for %s do not exist"%what)
 
     # Loop over pois and extract the terms from scaling function, stored in C++ map
     coeffs = ROOT.std.map("string","double")()
+    list_pois = []
+
     A, B = od(), od()
     for jpoi in self.pois:
       # Interference terms: Aj
       e_jpoi = 10**(-1*self.pois[jpoi]['exponent'])
       jpoi_name = self.poiNameMap[jpoi]
-      if "A_%s"%jpoi in terms: coeffs[jpoi_name] = e_jpoi*terms["A_%s"%jpoi]
+      if "A_%s"%jpoi in terms: 
+        coeffs[jpoi_name] = e_jpoi*terms["A_%s"%jpoi]
+        if jpoi_name not in list_pois: list_pois.append(jpoi_name)
       # BSM-only terms: Bjk
-      if not self.linearOnly:
-	if "B_%s_2"%jpoi in terms: coeffs['%s_2'%jpoi_name] = e_jpoi*e_jpoi*terms["B_%s_2"%jpoi]
-	# Cross terms
-	for kpoi in self.pois:
-          e_kpoi = 10**(-1*self.pois[kpoi]['exponent'])
-          kpoi_name = self.poiNameMap[kpoi]
-	  if "B_%s_%s"%(jpoi,kpoi) in terms: coeffs['%s_%s'%(jpoi_name,kpoi_name)] = e_jpoi*e_kpoi*terms["B_%s_%s"%(jpoi,kpoi)]
-        
+      if "B_%s_2"%jpoi in terms: 
+        coeffs['%s_2'%jpoi_name] = e_jpoi*e_jpoi*terms["B_%s_2"%jpoi]
+        if jpoi_name not in list_pois: list_pois.append(jpoi_name)
+      # Cross terms
+      for kpoi in self.pois:
+        e_kpoi = 10**(-1*self.pois[kpoi]['exponent'])
+        kpoi_name = self.poiNameMap[kpoi]
+        if "B_%s_%s"%(jpoi,kpoi) in terms: 
+          coeffs['%s_%s'%(jpoi_name,kpoi_name)] = e_jpoi*e_kpoi*terms["B_%s_%s"%(jpoi,kpoi)]
+          if kpoi_name not in list_pois: list_pois.append(kpoi_name)
+
+    # Make RooArgList of pois in equation
+    arglist_pois = ROOT.RooArgList() 
+    for jpoi in list_pois: arglist_pois.add( self.modelBuilder.out.var(jpoi) )
+
     # Make RooEFTScalingFunction
     if( isDecay )&( what != "tot" ): name = "scaling_partial_%s"%what 
     else: name = "scaling_%s"%what 
-    eft_scaling = ROOT.RooEFTScalingFunction(name,name,coeffs,self.POIs)
+    eft_scaling = ROOT.RooEFTScalingFunction(name,name,coeffs,arglist_pois,self.quadraticTermsSwitch)
           
     #Add scaling function as RooAddition into model
     self.modelBuilder.out._import(eft_scaling)
 
   #Function to make BR scaling functions: partial width/total width
   def makeBRScalingFunction( self, what ): self.modelBuilder.factory_( 'expr::scaling_BR_%s("@0/@1", scaling_partial_%s, scaling_tot)'%(what,what) )
+
+  #Function to make scaling function in workspace for linearised model
+  def makeLinearScalingFunction( self, what_production, what_decay):
+
+    # Apply mapping of production mode/decay to match inputs in json file
+    k_production = what_production
+    for P in self.map_prod.keys():
+      if P in what_production:
+        k_production = re.sub(P,self.map_prod[P],what_production)
+
+    k_decay = what_decay
+    for D in self.map_decay.keys():
+      if what_decay == D:
+        k_decay = self.map_decay[D]
+
+    # Fix for ttH multilepton: missing lep label in VH bins
+    if "WH_PTV" in k_production: k_production = re.sub("WH","QQ2HLNU",k_production)
+    if "ZH_PTV" in k_production: k_production = re.sub("ZH","QQ2HLL",k_production)
+    if "ggZH_PTV" in k_production: k_production = re.sub("ggZH","GG2HLL",k_production)
+
+    # Fix for ttH multilepton: duplicate of proc names
+    for P in self.map_prod.values():
+      if "%s_%s"%(P,P) in k_production: k_production = re.sub("%s_%s"%(P,P),P,k_production)
+
+    # Fix for VH procs without had/lep label: use leptonic scaling function. Is this accurate?
+    if k_production == "WH": k_production = "QQ2HLNU"
+    if k_production == "ZH": k_production = "QQ2HLL"
+    if k_production == "ggZH": k_production = "GG2HLL"
+
+    # Extract terms for dict
+    if k_production in self.STXSScalingTerms: terms_production = self.STXSScalingTerms[k_production] 
+    else:
+      print(" --> [WARNING] Scaling terms for %s do not exist in input json. Setting to 1"%k_production)
+      terms_production = {}
+
+    if k_decay in self.DecayScalingTerms: terms_decay = self.DecayScalingTerms[k_decay]
+    else:
+      print(" --> [WARNING] Scaling terms for %s do not exist in input json. Setting to 1"%k_decay)
+      terms_decay = {}
+
+    if "tot" in self.DecayScalingTerms: terms_tot = self.DecayScalingTerms["tot"]
+    else:
+      print(" --> [WARNING] Scaling terms for Higgs total decay width (tot) do not exist in input json. Setting to 1")
+      terms_tot = {}
+
+    # Loop over pois and extract the terms from scaling function, stored in C++ map
+    coeffs = ROOT.std.map("string","double")()
+    arglist_lpois = ROOT.RooArgList() 
+
+    # Interference terms only: Aj
+    A = od()
+    for jpoi in self.pois:
+      A_sum = 0.
+      jpoi_name = "l%s"%self.poiNameMap[jpoi]
+      if "A_%s"%jpoi in terms_production: A_sum += terms_production["A_%s"%jpoi]
+      if "A_%s"%jpoi in terms_decay: A_sum += terms_decay["A_%s"%jpoi]
+      if "A_%s"%jpoi in terms_tot: A_sum -= terms_tot["A_%s"%jpoi]
+      # Multiply by exponent factor
+      e_jpoi = 10**(-1*self.pois[jpoi]['exponent'])
+      A_sum *= e_jpoi
+      # If non-zero then add to coeffs
+      if A_sum != 0.:
+        arglist_lpois.add( self.modelBuilder.out.var(jpoi_name) )
+        coeffs[jpoi_name] = A_sum
+        
+    # Make RooEFTScalingFunction
+    name = "scaling_linear_XS_%s_BR_%s"%(what_production,what_decay)
+    #eft_scaling = ROOT.RooEFTScalingFunction(name,name,coeffs,self.lPOIs,self.dummySwitch)
+    eft_scaling = ROOT.RooEFTScalingFunction(name,name,coeffs,arglist_lpois,self.dummySwitch)
+          
+    #Add scaling function as RooAddition into model
+    self.modelBuilder.out._import(eft_scaling)
+
     
 #################################################################################################################
-# Combination of different stages
 class STXSToSMEFTModel(STXStoSMEFTBaseModel):
   def __init__(self):
     STXStoSMEFTBaseModel.__init__(self)
@@ -266,24 +363,46 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
     self.setPhysicsOptionsBase(physOptions)
   
   def doParametersOfInterest(self):
-    if self.floatMass: print " --> [WARNING] Floating Higgs mass selected. STXStoSMEFT model assumes MH=125.0 GeV"
+    if self.floatMass: print(" --> [WARNING] Floating Higgs mass selected. STXStoSMEFT model assumes MH=125.0 GeV")
     self.doMH()
     self.SMH = SMHiggsBuilder(self.modelBuilder)
     
     #Read in parameters of interest from yaml file
-    self.extractPOIs("%s/src/HiggsAnalysis/CombinedLimit/data/eft/EFTScalingEquations/equations/%s/pois.yaml"%(os.environ['CMSSW_BASE'],self.parametrisation))
+    self.extractPOIs("%s/src/HiggsAnalysis/CombinedLimit/data/eft/STXStoSMEFT/%s/pois.yaml"%(os.environ['CMSSW_BASE'],self.parametrisation))
 
     # Create list of pois and build RooRealVars
-    POIs = []
+    POIs, lPOIs = [], []
     for poi in self.pois: 
-      poi_name = poi if self.pois[poi]['exponent'] == 0 else "%sXE%g"%(poi,self.pois[poi]['exponent'])
+      if self.pois[poi]['exponent'] < 0: poi_name = "%sXEm%g"%(poi,abs(self.pois[poi]['exponent']))
+      elif self.pois[poi]['exponent'] >= 1: poi_name = "%sXE%g"%(poi,self.pois[poi]['exponent'])
+      else: poi_name = poi
+
       self.poiNameMap[poi] = poi_name
       POIs.append(poi_name)
       self.modelBuilder.doVar("%s[%g,%g,%g]"%(poi_name,self.pois[poi]['val'],self.pois[poi]['min'],self.pois[poi]['max']))
       self.modelBuilder.out.var(poi_name).setConstant(True)
 
+      if self.linearisedModel:
+        lpoi_name = "l%s"%poi_name
+        lPOIs.append(lpoi_name)
+        self.modelBuilder.doVar("%s[%g,%g,%g]"%(lpoi_name,self.pois[poi]['val'],self.pois[poi]['min'],self.pois[poi]['max']))
+        self.modelBuilder.out.var(lpoi_name).setConstant(True)
+
     self.modelBuilder.doSet("POI",",".join(POIs))
     self.POIs = ROOT.RooArgList( self.modelBuilder.out.set("POI") )
+
+    # Create boolean switch to do linear-terms only in full model
+    self.modelBuilder.doVar("quadraticTermsSwitch[1,0,1]")
+    self.quadraticTermsSwitch = ROOT.RooRealVar( self.modelBuilder.out.var("quadraticTermsSwitch") )
+    self.quadraticTermsSwitch.setConstant(True)
+
+    if self.linearisedModel:
+      self.modelBuilder.doSet("lPOI",",".join(lPOIs))
+      self.lPOIs = ROOT.RooArgList( self.modelBuilder.out.set("lPOI") )
+      # Ensure not to share switch between full/linearised model: helps for caching functions
+      self.modelBuilder.doVar("dummySwitch[1,0,1]")
+      self.dummySwitch = ROOT.RooRealVar( self.modelBuilder.out.var("dummySwitch") )
+      self.dummySwitch.setConstant(True)
 
     #set up model
     self.setup()
@@ -292,8 +411,8 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
   def setup(self):
  
     # Extract scaling terms from json files: inclusive vs reco-level
-    self.extractSTXSScalingTerms(filename="%s/src/HiggsAnalysis/CombinedLimit/data/eft/EFTScalingEquations/equations/%s/prod.json"%(os.environ['CMSSW_BASE'],self.parametrisation))    
-    self.extractDecayScalingTerms(filename="%s/src/HiggsAnalysis/CombinedLimit/data/eft/EFTScalingEquations/equations/%s/decay.json"%(os.environ['CMSSW_BASE'],self.parametrisation))    
+    self.extractSTXSScalingTerms(filename="%s/src/HiggsAnalysis/CombinedLimit/data/eft/STXStoSMEFT/%s/prod.json"%(os.environ['CMSSW_BASE'],self.parametrisation))    
+    self.extractDecayScalingTerms(filename="%s/src/HiggsAnalysis/CombinedLimit/data/eft/STXStoSMEFT/%s/decay.json"%(os.environ['CMSSW_BASE'],self.parametrisation))    
 
     # Make total scaling function for decay side
     self.makeScalingFunction("tot", isDecay=True)
@@ -315,18 +434,29 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
 
       # Build scaling functions if they do not exist
       if self.modelBuilder.out.function("scaling_%s"%production) == None:
-        print " --> [STXStoSMEFT] Making scaling function for STXS bin: %s"%production
+        print(" --> [STXStoSMEFT] Making scaling function for STXS bin: %s"%production)
         self.makeScalingFunction(production)
       XSscal = "scaling_%s"%production
 
       if self.modelBuilder.out.function("scaling_BR_%s"%decay) == None:
-        print " --> [STXStoSMEFT] Making scaling function for decay: %s"%decay
+        print(" --> [STXStoSMEFT] Making scaling function for decay: %s"%decay)
         self.makeScalingFunction(decay, isDecay=True)
         self.makeBRScalingFunction(decay)
       BRscal = "scaling_BR_%s"%decay
+
+      # Linearised model
+      if self.linearisedModel:
+        if self.modelBuilder.out.function("scaling_linear_XS_%s_BR_%s"%(production,decay)) == None:
+          print(" --> [STXStoSMEFT] Making linearised model for (STXS bin,decay): (%s,%s)"%(production,decay))
+          self.makeLinearScalingFunction(production,decay)
+        linearscal = "scaling_linear_XS_%s_BR_%s"%(production,decay)
+
+        #Combine XS,BR and linear scaling
+        self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal,linearscal])))
   
-      #Combine XS and BR scaling: incuding theory unc if option selected
-      self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
+      else:
+        #Combine XS and BR scaling: incuding theory unc if option selected
+        self.modelBuilder.factory_("prod::%s(%s)"%(name,",".join([XSscal,BRscal])))
       
     return name
  
