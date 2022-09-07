@@ -1,3 +1,6 @@
+#ifndef HiggsAnalysis_CombinedLimit_FastTemplate_hpp
+#define HiggsAnalysis_CombinedLimit_FastTemplate_hpp
+
 #include "Accumulators.h"
 
 #include <cmath>
@@ -361,3 +364,4 @@ typedef FastHistoAxis_d FastHistoAxis;
 // typedef FastHisto2D_d FastHisto2D;
 // typedef FastHisto3D_d FastHisto3D;
 
+#endif

@@ -1,3 +1,6 @@
+#ifndef HiggsAnalysis_CombinedLimit_JacknifeQuantile_h
+#define HiggsAnalysis_CombinedLimit_JacknifeQuantile_h
+
 #include <vector>
 #include <algorithm>
 #include <random>
@@ -33,3 +36,4 @@ class QuantileCalculator {
          
 };
 
+#endif
