@@ -43,7 +43,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/VVHZZ4L_RooSpinZeroPdf_1D_fast.h"
 
 #include "HiggsAnalysis/CombinedLimit/interface/HWWLVJJRooPdfs.h"
-//#include "HiggsAnalysis/CombinedLimit/interface/RooMomentMorphND.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist2D.h"
@@ -67,15 +66,3 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleProdPdf.h"
-
-namespace {
-    struct dictionary {
-	RooBernsteinFast<1> my_RooBernsteinFast_1;
-	RooBernsteinFast<2> my_RooBernsteinFast_2;
-	RooBernsteinFast<3> my_RooBernsteinFast_3;
-	RooBernsteinFast<4> my_RooBernsteinFast_4;
-	RooBernsteinFast<5> my_RooBernsteinFast_5;
-	RooBernsteinFast<6> my_RooBernsteinFast_6;
-	RooBernsteinFast<7> my_RooBernsteinFast_7;
-    };
-}
