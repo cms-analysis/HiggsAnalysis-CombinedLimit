@@ -1,6 +1,6 @@
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
+#include "../interface/utils.h"
+#include "../interface/RooSimultaneousOpt.h"
+#include "../interface/CascadeMinimizer.h"
 
 #include <cstdio>
 #include <iostream>
@@ -36,10 +36,10 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <regex>
 
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/ProfilingTools.h"
+#include "../interface/Logger.h"
+#include "../interface/RooMultiPdf.h"
 
 using namespace std;
 

@@ -7,7 +7,7 @@
 */
 
 #include <stdexcept>
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "../interface/Logger.h"
 
 using namespace std;
 

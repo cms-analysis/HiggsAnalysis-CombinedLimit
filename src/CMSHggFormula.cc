@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
+#include "../interface/CMSHggFormula.h"
 #include "RooConstVar.h"
 
 CMSHggFormulaA1::CMSHggFormulaA1(const char* name, const char* title, RooAbsReal& p0, RooAbsReal& p1,

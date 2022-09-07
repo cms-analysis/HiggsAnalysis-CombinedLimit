@@ -1,6 +1,6 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CachingMultiPdf.h"
+#include "../interface/CachingMultiPdf.h"
 #include "vectorized.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/utils.h"
 
 // Uncomment do do regression testing wrt uncached multipdf
 //#define CachingMultiPdf_VALIDATE

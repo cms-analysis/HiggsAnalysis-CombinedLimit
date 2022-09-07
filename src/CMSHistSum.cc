@@ -1,5 +1,5 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistSum.h"
+#include "../interface/CMSHistFuncWrapper.h"
 #include <stdexcept>
 #include <vector>
 #include <ostream>

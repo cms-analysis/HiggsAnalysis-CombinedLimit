@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistFuncWrapper.h"
 #include <vector>
 #include <ostream>
 #include "RooRealProxy.h"

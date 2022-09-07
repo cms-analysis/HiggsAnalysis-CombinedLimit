@@ -1,5 +1,5 @@
-#include <HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_phase_fast.h>
-#include <HiggsAnalysis/CombinedLimit/interface/FastTemplateFunc.h>
+#include "../interface/HZZ4L_RooSpinZeroPdf_phase_fast.h"
+#include "../interface/FastTemplateFunc.h"
 #include <cmath>
 #include <cassert>
 #include "TMath.h"

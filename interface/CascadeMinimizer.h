@@ -7,7 +7,7 @@ class RooRealVar;
 #include <RooArgSet.h>
 #include <RooListProxy.h>
 #include <RooSetProxy.h>
-//#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+//#include "RooMinimizerOpt.h"
 #include "RooMinimizer.h"
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>

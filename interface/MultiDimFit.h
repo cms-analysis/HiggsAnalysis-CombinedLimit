@@ -8,7 +8,7 @@
  *
  *
  */
-#include "HiggsAnalysis/CombinedLimit/interface/FitterAlgoBase.h"
+#include "FitterAlgoBase.h"
 #include <RooRealVar.h>
 #include "TFile.h"
 #include <vector>

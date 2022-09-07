@@ -1,8 +1,8 @@
 #ifndef SimpleGaussianConstraintGroup_h
 #define SimpleGaussianConstraintGroup_h
 
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
+#include "SimpleGaussianConstraint.h"
+#include "SimplePoissonConstraint.h"
 #include "RooSetProxy.h"
 
 class SimpleConstraintGroup : public RooAbsReal {

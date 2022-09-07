@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "HiggsAnalysis/CombinedLimit/interface/AsymptoticLimits.h"
+#include "../interface/AsymptoticLimits.h"
 #include <RooRealVar.h>
 #include <RooArgSet.h>
 #include <RooAbsPdf.h>
@@ -9,16 +9,16 @@
 #include <RooCategory.h>
 #include <RooStats/ModelConfig.h>
 #include <Math/DistFuncMathCore.h>
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "../interface/Combine.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/RooFitGlobalKillSentry.h"
+#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/ToyMCSamplerOpt.h"
+#include "../interface/Significance.h"
+#include "../interface/CascadeMinimizer.h"
+#include "../interface/utils.h"
+#include "../interface/AsimovUtils.h"
+#include "../interface/Logger.h"
 
 #include <boost/bind.hpp>
 

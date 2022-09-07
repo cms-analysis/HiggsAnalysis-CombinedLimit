@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/Accumulators.h"
+#include "Accumulators.h"
 
 #include <cmath>
 #include <cstdlib>
