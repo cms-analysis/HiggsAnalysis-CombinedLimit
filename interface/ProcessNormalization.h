@@ -14,6 +14,13 @@ ProcessNormalization is helper class for implementing process normalizations
 END_HTML
 */
 //
+class SimNLLDerivativesHelper;
+class DerivativeAbstract;
+class DerivativeLogNormal;
+class DerivativeRateParam;
+class DerivativeLogNormalCMSHistSum;
+class DerivativeRateParamCMSHistSum;
+
 class ProcessNormalization : public RooAbsReal {
    public:
       ProcessNormalization() : nominalValue_(1) {}
@@ -33,6 +40,12 @@ class ProcessNormalization : public RooAbsReal {
         Double_t evaluate() const;
 
     private:
+        friend SimNLLDerivativesHelper;
+        friend DerivativeAbstract;
+        friend DerivativeLogNormal;
+        friend DerivativeRateParam;
+        friend DerivativeLogNormalCMSHistSum;
+        friend DerivativeRateParamCMSHistSum;
         // ---- PERSISTENT ----
         double nominalValue_;                         
         std::vector<double> logKappa_; // Logarithm of symmetric kappas

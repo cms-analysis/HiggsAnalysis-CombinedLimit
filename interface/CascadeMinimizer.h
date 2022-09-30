@@ -12,6 +12,9 @@ class RooRealVar;
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerSemiAnalytic.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimNLLDerivativesHelper.h"
+#include <stdexcept>
 
 class CascadeMinimizer {
     public:
@@ -27,10 +30,10 @@ class CascadeMinimizer {
         bool improve(int verbose=0, bool cascade=true, bool forceResetMinimizer=false);
         // declare nuisance parameters for pre-fit
         void setNuisanceParameters(const RooArgSet *nuis) { nuisances_ = nuis; }
-        RooMinimizer & minimizer() { return *minimizer_; }
+        RooMinimizer & minimizer() { if(isSemiAnalyticMinimizer) throw std::runtime_error("unimplemented");  return *minimizer_; }
         RooFitResult *save() { return minimizer().save(); }
         void  setStrategy(int strategy) { strategy_ = strategy; }
-        void  setErrorLevel(float errorLevel) { minimizer_->setErrorLevel(errorLevel); }
+        void  setErrorLevel(float errorLevel) { (not isSemiAnalyticMinimizer)? minimizer_->setErrorLevel(errorLevel):minimizerSemiAnalytic_->setErrorLevel(errorLevel); }
         static void  initOptions() ;
         static void  applyOptions(const boost::program_options::variables_map &vm) ;
         static const boost::program_options::options_description & options() { return options_; }
@@ -43,7 +46,14 @@ class CascadeMinimizer {
 	std::string algo() {return defaultMinimizerAlgo_;};
     private:
         RooAbsReal & nll_;
+
         std::unique_ptr<RooMinimizer> minimizer_;
+        //
+        bool isSemiAnalyticMinimizer{false};
+        std::unique_ptr<RooMinimizerSemiAnalytic> minimizerSemiAnalytic_;
+        std::map<std::string,RooAbsReal*> derivatives_; // not used
+        std::unique_ptr<SimNLLDerivativesHelper> helper_;
+        //
         Mode         mode_;
         static int          strategy_;
         RooRealVar * poi_; 

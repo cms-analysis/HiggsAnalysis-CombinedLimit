@@ -5,7 +5,7 @@
 
 class SimpleGaussianConstraint : public RooGaussian {
     public:
-        SimpleGaussianConstraint() {} ;
+        SimpleGaussianConstraint() {};
         SimpleGaussianConstraint(const char *name, const char *title,
                 RooAbsReal& _x, RooAbsReal& _mean, RooAbsReal& _sigma):
             RooGaussian(name,title,_x,_mean,_sigma) { init(); }
@@ -17,6 +17,8 @@ class SimpleGaussianConstraint : public RooGaussian {
         inline virtual ~SimpleGaussianConstraint() { }
 
         const RooAbsReal & getX() const { return x.arg(); }
+        const RooAbsReal & getMean() const { return mean.arg(); }
+        const RooAbsReal & getSigma() const { return sigma.arg(); }
 
         double getLogValFast() const { 
             if (_valueDirty) {
@@ -24,7 +26,8 @@ class SimpleGaussianConstraint : public RooGaussian {
                 //Double_t sig = sigma ;
                 //return -0.5*arg*arg/(sig*sig);
                 _value = scale_*arg*arg;
-                _valueDirty = false;
+                //_valueDirty = false;
+                _valueDirty = true; // something wrong with cache?
             }
             return _value;
         }
