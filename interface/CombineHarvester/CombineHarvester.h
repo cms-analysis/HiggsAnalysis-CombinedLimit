@@ -280,6 +280,7 @@ class CombineHarvester {
   // 
   double getParFromWs(const std::string name);
   void setParInWs(const std::string name,double value) ;
+  void renameParInWs(const std::string& name, const std::string& newName,const std::string& wsName="");
 
   /**
    * Add parameters to a given group

@@ -2,6 +2,7 @@
 #include <iostream>
 #include "boost/format.hpp"
 #include "CombineHarvester/CombineTools/interface/Logging.h"
+#include <regex>
 
 namespace ch {
 
@@ -22,6 +23,15 @@ Systematic::Systematic()
   }
 
 Systematic::~Systematic() { }
+
+void Systematic::set_name(std::string const& name) { 
+//test = std::regex_replace(test, std::regex("def"), "klm");
+    if (data_u_) data_u_->SetName(std::regex_replace(data_u_->GetName(),std::regex(name_),name).c_str());
+    if (data_d_) data_d_->SetName(std::regex_replace(data_d_->GetName(),std::regex(name_),name).c_str());
+    if (pdf_u_) pdf_u_->SetName(std::regex_replace(pdf_u_->GetName(),std::regex(name_),name).c_str());
+    if (pdf_d_) pdf_d_->SetName(std::regex_replace(pdf_d_->GetName(),std::regex(name_),name).c_str());
+    name_ = name; 
+}
 
 void swap(Systematic& first, Systematic& second) {
   using std::swap;

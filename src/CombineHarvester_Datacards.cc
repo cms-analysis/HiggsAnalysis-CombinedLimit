@@ -432,7 +432,7 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
       }
     }
 
-    if (start_nuisance_scan && words[i].size()-1 == words[r].size()) {
+    if (start_nuisance_scan && words[i].size()-1 == words[r].size() && !boost::iequals(words[i][1], "autoMCStats")) {
       for (unsigned p = 2; p < words[i].size(); ++p) {
         if (words[i][p] == "-") continue;
         auto sys = std::make_shared<Systematic>();
