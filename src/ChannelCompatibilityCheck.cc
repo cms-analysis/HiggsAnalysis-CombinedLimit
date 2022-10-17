@@ -136,7 +136,11 @@ std::string ChannelCompatibilityCheck::nameForLabel(const char *label)
 {
     std::string ret(label);
     for (std::vector<std::string>::const_iterator it = groups_.begin(), ed = groups_.end(); it != ed; ++it) {
-        if (ret.find(*it) != std::string::npos) { ret = *it; break; }
+        std::string search(*it);
+        std::string poi(*it);
+        size_t pos= search.find(":");
+        if ( pos !=std::string::npos) { search = it->substr(0,pos); poi= it->substr(pos+1) ; }
+        if (ret.find(search) != std::string::npos) { ret = poi; break; }
     }
     return ret;
 }
