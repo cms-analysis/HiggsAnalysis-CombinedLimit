@@ -23,7 +23,7 @@ TODO:
 3) Remove morphing proc errors
 */
 
-CMSHistFuncFactory::CMSHistFuncFactory() : v_(1), hist_mode_(0), rebin_(true) {}
+CMSHistFuncFactory::CMSHistFuncFactory() : v_(1), hist_mode_(0), rebin_(false) {}
 
 void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws, std::map<std::string, std::string> process_vs_norm_postfix_map) {
   for (auto const& bin : cb.bin_set()) {
