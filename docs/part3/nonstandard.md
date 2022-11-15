@@ -227,7 +227,7 @@ A similar option, `--X-nuisance-group-function`, can be used to scale whole grou
 
 ## Nuisance parameter impacts
 
-The impact of a nuisance parameter (NP) θ on a parameter of interest (POI) μ is defined as the shift Δμ that is induced as θ is fixed and brought to its +1σ or −1σ post-fit values, with all other parameters profiled as normal. 
+The impact of a nuisance parameter (NP) θ on a parameter of interest (POI) μ is defined as the shift Δμ that is induced as θ is fixed and brought to its +1σ or −1σ post-fit values, with all other parameters profiled as normal (see [JHEP 01 (2015) 069](https://link.springer.com/article/10.1007/JHEP01(2015)069) for a description of this method). 
 
 This is effectively a measure of the correlation between the NP and the POI, and is useful for determining which NPs have the largest effect on the POI uncertainty.
 
