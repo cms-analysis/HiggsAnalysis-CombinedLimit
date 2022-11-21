@@ -282,41 +282,6 @@ def addDatacardParserOptions(parser):
     )
 
 
-class ErrorLine:
-    """Encodes strength of systematic effect on a given bin and process
-
-    Emulates a doubly-nested defaultdict but in a more memory-efficient manner
-    on the assumption that callers always know which keys are valid
-    """
-
-    class Nested:
-        def __init__(self, parent, key1):
-            self._parent = parent
-            self._key1 = key1
-
-        def __getitem__(self, key2):
-            return self._parent._get(self._key1, key2)
-
-        def __setitem__(self, key2, value):
-            self._parent._set(self._key1, key2, value)
-
-    def __init__(self, default=0.0):
-        self._d = {}
-        self._default = default
-
-    def __getitem__(self, key1):
-        return self.Nested(self, key1)
-
-    def _get(self, key1, key2):
-        try:
-            return self._d[key1, key2]
-        except KeyError:
-            return self._default
-
-    def _set(self, key1, key2, value):
-        self._d[key1, key2] = value
-
-
 def strip(l):
     """Strip comments and whitespace from end of line"""
     idx = l.find("#")
@@ -655,7 +620,7 @@ def parseCard(file, options):
                 raise RuntimeError(
                     "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))
                 )
-            errline = ErrorLine()
+            errline = {b: {} for b in ret.bins}
             nonNullEntries = 0
             for (b, p, s), r in zip(ret.keyline, numbers):
                 if "/" in r:  # "number/number"
@@ -712,7 +677,7 @@ def parseCard(file, options):
             syst2.append((lsyst, nofloat, pdf, args, errline))
             continue
         for (b, p, s) in ret.keyline:
-            r = errline[b][p]
+            r = errline[b].get(p, 0.0)
             nullEffect = r == 0.0 or (pdf == "lnN" and r == 1.0)
             if not nullEffect and ret.exp[b][p] != 0:
                 nonNullEntries += 1  # is this a zero background?
