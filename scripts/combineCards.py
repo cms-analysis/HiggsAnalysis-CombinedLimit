@@ -230,15 +230,15 @@ for ich, fname in enumerate(args):
                             constraint_terms.append(line)
                     warnings.warn(warning_message, RuntimeWarning)
                     break
-                if type(errline[b][p]) == list:
+                if errline[b].get(p, 0.0) == 0.0:
+                    r = "-"
+                elif type(errline[b][p]) == list:
                     r = "%s/%s" % (
                         FloatToString(errline[b][p][0]),
                         FloatToString(errline[b][p][1]),
                     )
                 elif type in ("lnN", "gmM"):
                     r = "%s" % FloatToString(errline[b][p])
-                if errline[b][p] == 0:
-                    r = "-"
                 if len(r) > cmax:
                     cmax = len(r)  # get max col length, as it's more tricky to do it later with a map
                 systeffect[bout][p] = r

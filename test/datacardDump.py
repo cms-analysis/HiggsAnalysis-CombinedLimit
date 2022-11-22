@@ -111,7 +111,7 @@ for b in DC.bins:
             continue
         # end skip systematics
         for p in DC.exp[b].keys():  # so that we get only self.DC.processes contributing to this bin
-            if errline[b][p] == 0:
+            if errline[b].get(p, 0.0) == 0.0:
                 continue
             if pdf == "gmN":
                 exps[p][1].append(1 / sqrt(pdfargs[0] + 1))
