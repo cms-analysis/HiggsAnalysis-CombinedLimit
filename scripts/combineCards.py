@@ -471,11 +471,8 @@ for pname in six.iterkeys(flatParamNuisances):
     print("%-12s  flatParam" % pname)
 for tbin, tproc, params in rateParamsPerCard:
     for param in params:
-        print("%-12s  rateParam %s" % (param[0][0], tbin + " " + tproc), end=" ")
-        for p in param[0][1:-1]:
-            print(p, end=" ")
-        print(param[1], end=" ")
-        print("\n", end=" ")
+        print("%-12s  rateParam %s %s %s" % (param[0][0], tbin + " " + tproc, " ".join(param[0][1:-1]), param[1]))
+        # param[0][-1] is parameter type, see DatacardParser:addRateParam()
 for dname in six.iterkeys(discreteNuisances):
     print("%-12s  discrete" % dname)
 for ext in six.iterkeys(extArgs):
