@@ -691,7 +691,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     std::vector<double> vals(snm.size(), 0.), sumx2(snm.size(), 0.);
     std::vector<TH1*>   shapes(snm.size(), 0), shapes2(snm.size(), 0);
     std::vector<int>    bins(snm.size(), 0), sig(snm.size(), 0);
-    std::map<std::string,TH1*> totByCh, totByCh2, sigByCh, sigByCh2, bkgByCh, bkgByCh2, widthByCh;
+    std::map<std::string,TH1*> totByCh, totByCh2, totByCh23rdMoment, sigByCh, sigByCh2, bkgByCh, bkgByCh2, widthByCh;
     std::map<std::string,TH2*> totByCh2Covar;
     std::map<std::string,double> norm_tot, norm_sig, norm_bkg;
     std::map<std::string,double> sumx2_tot, sumx2_sig, sumx2_bkg;
@@ -729,7 +729,6 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
                     TH1 *htot2 = (TH1*) hist->Clone(); htot2->Reset();
                     htot2->SetDirectory(0);
 		    totByCh2[pair->second.channel] = htot2;
-
 		    TH2F *htot2covar = new TH2F("total_covar","Covariance signal+background",bins[i],0,bins[i],bins[i],0,bins[i]);
 		    htot2covar->GetXaxis()->SetTitle("Bin number");
 		    htot2covar->GetYaxis()->SetTitle("Bin number");
@@ -737,6 +736,11 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 		    htot2covar->SetDirectory(0);
 		    totByCh2Covar[pair->second.channel] = htot2covar;
 
+		    TH1 *htot23rdmoment = new TH1F("total_3rdmoment","3rd moment signal+background",bins[i],0,bins[i]);
+		    htot23rdmoment->GetXaxis()->SetTitle("Bin number");
+		    htot23rdmoment->GetYaxis()->SetTitle(Form("3rd moment(%s)",hist->GetYaxis()->GetTitle()));
+		    htot23rdmoment->SetDirectory(0);
+		    totByCh23rdMoment[pair->second.channel] = htot23rdmoment;
 
                 // The bin width is stored so that
                 // one can later reverse bin width normalization
@@ -780,6 +784,12 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
     totOverall2Covar->GetXaxis()->SetTitle("Bin number");
     totOverall2Covar->GetYaxis()->SetTitle("Bin number");
     totOverall2Covar->SetDirectory(0);
+
+    //3rd moments 
+    TH1D* totOverall23rdMoment = new TH1D("total_overall_3rdmoment","3rd moment signal+background",totalBins,0,totalBins);
+    totOverall23rdMoment->GetXaxis()->SetTitle("Bin number");
+    totOverall23rdMoment->SetDirectory(0);
+
     //Total background
     TH1D* totOverall = new TH1D("total_overall","signal+background",totalBins,0,totalBins);
     totOverall->SetDirectory(0);
@@ -821,6 +831,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 
             totOverall2Covar->GetXaxis()->SetBinLabel(iBinOverall,label);
             totOverall2Covar->GetYaxis()->SetBinLabel(iBinOverall,label);
+            totOverall23rdMoment->GetXaxis()->SetBinLabel(iBinOverall,label);
         }
     }
 
@@ -867,15 +878,23 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
                     (sig[i] ? sigByCh1 : bkgByCh1)[pair->second.channel]->Add(&*hist);
                 }
             }
-            // now add up the deviations within channels in this toy
+            // now add up the deviations within channels in this toy (note we are treating E[x]=MLE[x] )
             for (IH h = totByCh1.begin(), eh = totByCh1.end(); h != eh; ++h) {
                 TH1 *target = totByCh2[h->first], *reference = totByCh[h->first];
+                TH1 *target3rdMoment = totByCh23rdMoment[h->first];
                 TH2 *targetCovar = totByCh2Covar[h->first];
                 for (int b = 1, nb = target->GetNbinsX(); b <= nb; ++b) {
 		    double deltaBi = h->second->GetBinContent(b) - reference->GetBinContent(b);
+            double deltaBi3 = std::pow(deltaBi, 3);
+
 		    target->AddBinContent(b, std::pow(deltaBi, 2));
-		    int binX = b - 1;
+            target3rdMoment->AddBinContent(b, deltaBi3);
+		    
+
+            int binX = b - 1;
 		    TString xLabel = Form("%s_%d",h->first.c_str(),binX);
+            totOverall23rdMoment->Fill(xLabel, deltaBi3); // 3rd moment 
+            
 		    for (int bj = 1;bj <= b; bj++) {
 			int binY = bj - 1;
 			TString yLabel = Form("%s_%d",h->first.c_str(),binY);
@@ -1024,6 +1043,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
         for (IH h = totByCh.begin(), eh = totByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
         for (IH h = sigByCh.begin(), eh = sigByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
         for (IH h = bkgByCh.begin(), eh = bkgByCh.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
+        for (IH h = totByCh23rdMoment.begin(), eh = totByCh23rdMoment.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
         for (IH2 h = totByCh2Covar.begin(), eh = totByCh2Covar.end(); h != eh; ++h) { shapesByChannel[h->first]->WriteTObject(h->second); }
 	//Save total shapes or clean up if not keeping
 	if (saveShapes_) shapeDir->cd();
@@ -1043,9 +1063,11 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 	}
 	if (saveWithUncertainties_ && saveOverallShapes_){
 	    totOverall2Covar->Write();
+	    totOverall23rdMoment->Write();
 	}
 	else{
 	    delete totOverall2Covar;
+	    delete totOverall23rdMoment;
 	}
     }
 }
