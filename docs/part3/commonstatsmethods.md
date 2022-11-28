@@ -303,7 +303,7 @@ For example, lets use the toy datacard [test/multiDim/toy-hgg-125.txt](https://g
 
 Now we just run one (or more) MCMC chain(s) and save them in the output tree.By default, the nuisance parameters will be marginalized (integrated) over their pdfs. You can ignore the complaints about not being able to compute an upper limit (since for more than 1D, this isn't well defined),
 
-    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s seed --noDefaultPrior=0
+    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345 --noDefaultPrior=0
 
 The output of the markov chain is again a RooDataSet of weighted events distributed according to the posterior pdf (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior pdf. See as an example [bayesPosterior2D.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/bayesPosterior2D.cxx).
 
