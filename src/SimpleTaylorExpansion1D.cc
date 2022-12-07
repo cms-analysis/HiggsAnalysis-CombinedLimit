@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleTaylorExpansion1D.h"
+#include "../interface/SimpleTaylorExpansion1D.h"
 
 #include <cmath>
 #include <cassert>

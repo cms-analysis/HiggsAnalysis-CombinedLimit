@@ -1,6 +1,6 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Accumulators.h"
+#include "../interface/CMSHistFunc.h"
+#include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/Accumulators.h"
 #include <vector>
 #include <ostream>
 #include <memory>

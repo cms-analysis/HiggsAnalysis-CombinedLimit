@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/ChannelCompatibilityCheck.h"
+#include "../interface/ChannelCompatibilityCheck.h"
 #include <TFile.h>
 #include <RooRealVar.h>
 #include <RooArgSet.h>
@@ -8,12 +8,12 @@
 #include <RooCustomizer.h>
 #include <RooSimultaneous.h>
 #include <RooStats/ModelConfig.h>
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "../interface/Combine.h"
+#include "../interface/Significance.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/RooSimultaneousOpt.h"
+#include "../interface/utils.h"
+#include "../interface/CachingNLL.h"
 
 
 #include <Math/MinimizerOptions.h>

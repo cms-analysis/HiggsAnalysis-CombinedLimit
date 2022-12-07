@@ -1,5 +1,5 @@
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleProdPdf.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
+#include "../interface/SimpleProdPdf.h"
+#include "../interface/RooCheapProduct.h"
 
 #include <string>
 #include <memory>

@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/RooSplineND.h"
+#include "../interface/RooSplineND.h"
 //#include </afs/cern.ch/work/n/nckw/combine-versions/102x/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/cpStudies/eigen/Eigen/Dense>
 #include <Eigen/Dense>
 

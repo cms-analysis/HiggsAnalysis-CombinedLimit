@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
+#include "../interface/RobustHesse.h"
 
 #include <cstdio>
 #include <iostream>

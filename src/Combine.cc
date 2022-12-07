@@ -1,7 +1,7 @@
 /**************************************
   Simple multiChannel significance & limit calculator
 ***************************************/
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "../interface/Combine.h"
 #include <cstring>
 #include <cerrno>
 #include <iostream>
@@ -53,19 +53,19 @@
 #include <boost/algorithm/string.hpp> 
 #include <regex>
 
-#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h"
+#include "../interface/LimitAlgo.h"
+#include "../interface/utils.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/RooSimultaneousOpt.h"
+#include "../interface/ToyMCSamplerOpt.h"
+#include "../interface/AsimovUtils.h"
+#include "../interface/CascadeMinimizer.h"
+#include "../interface/ProfilingTools.h"
+#include "../interface/RooMultiPdf.h"
+#include "../interface/CMSHistFunc.h"
+#include "../interface/CMSHistSum.h"
 
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "../interface/Logger.h"
 
 using namespace RooStats;
 using namespace RooFit;

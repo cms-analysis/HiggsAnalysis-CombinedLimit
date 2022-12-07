@@ -1,28 +1,28 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FnTimer.h"
+#include "../interface/CachingNLL.h"
+#include "../interface/utils.h"
+#include "../interface/FnTimer.h"
 #include <stdexcept>
 #include <RooCategory.h>
 #include <RooDataSet.h>
 #include <RooProduct.h>
 #include <RooStats/RooStatsUtils.h>
 
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
-#include <HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h>
-#include <HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h>
-#include <HiggsAnalysis/CombinedLimit/interface/CMSHistV.h>
-#include <HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h>
-#include <HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h>
-#include <HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h>
-#include <HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h>
-#include <HiggsAnalysis/CombinedLimit/interface/VectorizedGaussian.h>
-#include <HiggsAnalysis/CombinedLimit/interface/VectorizedCB.h>
-#include <HiggsAnalysis/CombinedLimit/interface/VectorizedSimplePdfs.h>
-#include <HiggsAnalysis/CombinedLimit/interface/VectorizedHistFactoryPdfs.h>
-#include <HiggsAnalysis/CombinedLimit/interface/CachingMultiPdf.h>
-#include <HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h>
-#include <HiggsAnalysis/CombinedLimit/interface/Accumulators.h>
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "../interface/ProfilingTools.h"
+#include "../interface/RooMultiPdf.h"
+#include "../interface/VerticalInterpHistPdf.h"
+#include "../interface/CMSHistV.h"
+#include "../interface/CMSHistFunc.h"
+#include "../interface/CMSHistErrorPropagator.h"
+#include "../interface/CMSHistSum.h"
+#include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/VectorizedGaussian.h"
+#include "../interface/VectorizedCB.h"
+#include "../interface/VectorizedSimplePdfs.h"
+#include "../interface/VectorizedHistFactoryPdfs.h"
+#include "../interface/CachingMultiPdf.h"
+#include "../interface/RooCheapProduct.h"
+#include "../interface/Accumulators.h"
+#include "../interface/Logger.h"
 #include "vectorized.h"
 
 namespace cacheutils {
@@ -66,7 +66,7 @@ namespace cacheutils {
 //---- Uncomment to dump PDF values inside CachingAddNLL
 //#define LOG_ADDPDFS
 
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "../interface/ProfilingTools.h"
 
 //std::map<std::string,double> cacheutils::CachingAddNLL::offsets_;
 bool cacheutils::CachingSimNLL::noDeepLEE_ = false;

@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/TH1Keys.h"
+#include "../interface/TH1Keys.h"
 #include <RooBinning.h>
 #include <RooMsgService.h>
 

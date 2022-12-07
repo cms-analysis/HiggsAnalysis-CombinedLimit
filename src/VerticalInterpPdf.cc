@@ -1,5 +1,5 @@
-#include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpPdf.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
+#include "../interface/VerticalInterpPdf.h"
+#include "../interface/RooCheapProduct.h"
 
 #include "RooFit.h"
 #include "Riostream.h"

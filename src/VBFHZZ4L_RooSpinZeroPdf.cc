@@ -6,7 +6,7 @@ multiplied by a very large g1_prime2^4.
 */
 
 #include "Riostream.h"
-#include <HiggsAnalysis/CombinedLimit/interface/VBFHZZ4L_RooSpinZeroPdf.h>
+#include "../interface/VBFHZZ4L_RooSpinZeroPdf.h"
 #include "RooAbsReal.h"
 #include "RooAbsCategory.h"
 #include <math.h>
