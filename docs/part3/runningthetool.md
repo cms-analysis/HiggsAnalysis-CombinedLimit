@@ -15,7 +15,7 @@ The option `-M` allows to chose the method used. There are several groups of sta
     -   `BayesianSimple`: performing a classical numerical integration (for simple models only)
     -   `MarkovChainMC`: performing Markov Chain integration, for arbitrarily complex models.
 -   **Frequentist** or hybrid bayesian-frequentist methods:
-    -   `HybridNew`: compute modified frequentist limits according to several possible prescriptions
+    -   `HybridNew`: compute modified frequentist limits or significance/p-values according to several possible prescriptions with toys. 
 -   **Fitting**
     - `FitDiagnostics`: performs maximum likelihood fits to extract the signal yield and provide diagnostic tools such as pre and post-fit models and correlations
     - `MultiDimFit`: perform maximum likelihood fits in multiple parameters and likelihood scans
