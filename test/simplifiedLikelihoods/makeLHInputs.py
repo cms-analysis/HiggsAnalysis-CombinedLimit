@@ -53,7 +53,6 @@ def makeAggregate(aggregateDict, covarianceInput, totalBackground, totalSignal, 
         # set bin labels
         aggregateTotal.GetXaxis().SetBinLabel(binNumAgg1, label)
         aggregateBackground.GetXaxis().SetBinLabel(binNumAgg1, label)
-        aggregate3rdMoment.GetXaxis().SetBinLabel(binNumAgg1, label)
         aggregateSignal.GetXaxis().SetBinLabel(binNumAgg1, label)
         aggregateData.GetXaxis().SetBinLabel(binNumAgg1, label)
         aggregateCovariance.GetXaxis().SetBinLabel(binNumAgg1, label)
@@ -74,14 +73,13 @@ def makeAggregate(aggregateDict, covarianceInput, totalBackground, totalSignal, 
                 break
             binNumAgg2 += 1
 
-        dataX = 0.0
+        #dataX = 0.0
         dataY = 0.0
         for binNum in binNums:
             # totalData.GetPoint(binNum-1,dataX[0],dataY[0])
-            dataX = totalData.GetX()[binNum - 1]
+            #dataX = totalData.GetX()[binNum - 1]
             dataY = totalData.GetY()[binNum - 1]
             aggregateBackground.AddBinContent(binNumAgg1, totalBackground.GetBinContent(binNum))
-            aggregate3rdMoment.AddBinContent(binNumAgg1, total3rdMoment.GetBinContent(binNum))
             aggregateTotal.AddBinContent(binNumAgg1, total.GetBinContent(binNum))
             aggregateData.AddBinContent(binNumAgg1, dataY)
             aggregateSignal.AddBinContent(binNumAgg1, totalSignal.GetBinContent(binNum))
@@ -167,7 +165,7 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
             # set output contents/errors + labels
             for iBinMinusOne, binLabel in enumerate(binLabelsFiltered):
                 # totalData.GetPoint(binDict[binLabel]-1,dataX[0],dataY[0])
-                dataX = totalData.GetX()[binDict[binLabel] - 1]
+                #dataX = totalData.GetX()[binDict[binLabel] - 1]
                 dataY = totalData.GetY()[binDict[binLabel] - 1]
 
                 # All bin contents are normalized to bin width
