@@ -2,7 +2,8 @@
 import ROOT as r
 
 r.gROOT.SetBatch(True)
-import os, sys
+import os 
+import sys
 import optparse
 import fnmatch
 import pickle
