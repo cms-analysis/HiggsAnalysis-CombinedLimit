@@ -2,7 +2,7 @@
 import ROOT as r
 
 r.gROOT.SetBatch(True)
-import os 
+import os
 import sys
 import optparse
 import fnmatch
@@ -20,15 +20,38 @@ def parse_args():
     parser.add_option("-i", "--inFile", help="Input mlfit.root file")
     parser.add_option("-o", "--outFileName", default="simplified_input.root", help="Output file")
     parser.add_option("-w", "--whichFits", default="fit_b,prefit,fit_s", help="Which fit(s) to use")
-    parser.add_option("--filterStrings", default="*", help="Take only bins with this in name (can give comma separated list)")
-    parser.add_option("--config", action="store_true", help="choose bins to combine for aggregate regions (NB this overwrites the filter)")
-    parser.add_option("--threshold", default=1.0e-5, type=float, help="Only take bins with yield higher than threshold")
+    parser.add_option(
+        "--filterStrings",
+        default="*",
+        help="Take only bins with this in name (can give comma separated list)",
+    )
+    parser.add_option(
+        "--config",
+        action="store_true",
+        help="choose bins to combine for aggregate regions (NB this overwrites the filter)",
+    )
+    parser.add_option(
+        "--threshold",
+        default=1.0e-5,
+        type=float,
+        help="Only take bins with yield higher than threshold",
+    )
 
     options, args = parser.parse_args()
     return options
 
 
-def makeAggregate(aggregateDict, covarianceInput, totalBackground, totalSignal, total, totalData, totalM1, totalM2, totalM3):
+def makeAggregate(
+    aggregateDict,
+    covarianceInput,
+    totalBackground,
+    totalSignal,
+    total,
+    totalData,
+    totalM1,
+    totalM2,
+    totalM3,
+):
     binLabels = [covarianceInput.GetXaxis().GetBinLabel(iBin) for iBin in range(1, covarianceInput.GetNbinsX() + 1)]
     # binLabelsAggregate = {}
     binLabelsAggregate = odict()
@@ -40,13 +63,31 @@ def makeAggregate(aggregateDict, covarianceInput, totalBackground, totalSignal, 
                 binLabelsAggregate[aggregateBinLabel].append(binIndex)
     consistencyChecks(binLabelsAggregate)
 
-    aggregateCovariance = r.TH2D("total_covar", "covariance", len(aggregateDict), 0, len(aggregateDict), len(aggregateDict), 0, len(aggregateDict))
+    aggregateCovariance = r.TH2D(
+        "total_covar",
+        "covariance",
+        len(aggregateDict),
+        0,
+        len(aggregateDict),
+        len(aggregateDict),
+        0,
+        len(aggregateDict),
+    )
     aggregateBackground = r.TH1D("total_background", "background", len(aggregateDict), 0, len(aggregateDict))
     aggregateTotal = r.TH1D("total", "total", len(aggregateDict), 0, len(aggregateDict))
     aggregateData = r.TH1D("total_data", "data", len(aggregateDict), 0, len(aggregateDict))
     aggregateSignal = r.TH1D("total_signal", "signal", len(aggregateDict), 0, len(aggregateDict))
     aggregateM1 = r.TH1D("total_M1", "total m1", len(aggregateDict), 0, len(aggregateDict))
-    aggregateM2 = r.TH2D("total_M2", "total m2", len(aggregateDict), 0, len(aggregateDict), len(aggregateDict), 0, len(aggregateDict))
+    aggregateM2 = r.TH2D(
+        "total_M2",
+        "total m2",
+        len(aggregateDict),
+        0,
+        len(aggregateDict),
+        len(aggregateDict),
+        0,
+        len(aggregateDict),
+    )
     aggregateM3 = r.TH1D("total_M3", "total m3", len(aggregateDict), 0, len(aggregateDict))
 
     binNumAgg1 = 1
@@ -74,20 +115,32 @@ def makeAggregate(aggregateDict, covarianceInput, totalBackground, totalSignal, 
                 break
             binNumAgg2 += 1
 
-        #dataX = 0.0
+        # dataX = 0.0
         dataY = 0.0
         for binNum in binNums:
             # totalData.GetPoint(binNum-1,dataX[0],dataY[0])
-            #dataX = totalData.GetX()[binNum - 1]
+            # dataX = totalData.GetX()[binNum - 1]
             dataY = totalData.GetY()[binNum - 1]
             aggregateBackground.AddBinContent(binNumAgg1, totalBackground.GetBinContent(binNum))
             aggregateTotal.AddBinContent(binNumAgg1, total.GetBinContent(binNum))
             aggregateData.AddBinContent(binNumAgg1, dataY)
             aggregateSignal.AddBinContent(binNumAgg1, totalSignal.GetBinContent(binNum))
 
-        aggregateTotal.SetBinError(binNumAgg1, (aggregateCovariance.GetBinContent(binNumAgg1, binNumAgg1)) ** 0.5)
+        aggregateTotal.SetBinError(
+            binNumAgg1,
+            (aggregateCovariance.GetBinContent(binNumAgg1, binNumAgg1)) ** 0.5,
+        )
         binNumAgg1 += 1
-    return aggregateCovariance, aggregateBackground, aggregateSignal, aggregateTotal, aggregateData, aggregateM1, aggregateM2, aggregateM3
+    return (
+        aggregateCovariance,
+        aggregateBackground,
+        aggregateSignal,
+        aggregateTotal,
+        aggregateData,
+        aggregateM1,
+        aggregateM2,
+        aggregateM3,
+    )
 
 
 def consistencyChecks(binLabelsAggregate):
@@ -138,8 +191,16 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
         binLabelsFiltered = []
         binDict = {}
         if config:
-            outCovar, outBackground, outSignal, outTotal, outData, outM1, outM2, outM3 = makeAggregate(
-                aggregateCFG.aggregateDict, covarianceInput, totalBackground, totalSignal, total, totalData, totalM1, totalM2, totalM3
+            (outCovar, outBackground, outSignal, outTotal, outData, outM1, outM2, outM3,) = makeAggregate(
+                aggregateCFG.aggregateDict,
+                covarianceInput,
+                totalBackground,
+                totalSignal,
+                total,
+                totalData,
+                totalM1,
+                totalM2,
+                totalM3,
             )
         else:
             for iBinMinusOne, binLabel in enumerate(binLabels):
@@ -152,21 +213,67 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
                 binDict[binLabel] = iBinMinusOne + 1
 
             # define outputs
-            outBackground = r.TH1D("total_background", "total_background", len(binLabelsFiltered), 0, len(binLabelsFiltered))
-            outSignal = r.TH1D("total_signal", "total_signal", len(binLabelsFiltered), 0, len(binLabelsFiltered))
-            outTotal = r.TH1D("total", "total", len(binLabelsFiltered), 0, len(binLabelsFiltered))
-            outData = r.TH1D("total_data", "total_data", len(binLabelsFiltered), 0, len(binLabelsFiltered))
-            outCovar = r.TH2D(
-                "total_covar", "total_covar", len(binLabelsFiltered), 0, len(binLabelsFiltered), len(binLabelsFiltered), 0, len(binLabelsFiltered)
+            outBackground = r.TH1D(
+                "total_background",
+                "total_background",
+                len(binLabelsFiltered),
+                0,
+                len(binLabelsFiltered),
             )
-            outM1 = r.TH1D("total_M1", "total_M1", len(binLabelsFiltered), 0, len(binLabelsFiltered))
-            outM2 = r.TH2D("total_M2", "total_M2", len(binLabelsFiltered), 0, len(binLabelsFiltered), len(binLabelsFiltered), 0, len(binLabelsFiltered))
-            outM3 = r.TH1D("total_M3", "total_M3", len(binLabelsFiltered), 0, len(binLabelsFiltered))
+            outSignal = r.TH1D(
+                "total_signal",
+                "total_signal",
+                len(binLabelsFiltered),
+                0,
+                len(binLabelsFiltered),
+            )
+            outTotal = r.TH1D("total", "total", len(binLabelsFiltered), 0, len(binLabelsFiltered))
+            outData = r.TH1D(
+                "total_data",
+                "total_data",
+                len(binLabelsFiltered),
+                0,
+                len(binLabelsFiltered),
+            )
+            outCovar = r.TH2D(
+                "total_covar",
+                "total_covar",
+                len(binLabelsFiltered),
+                0,
+                len(binLabelsFiltered),
+                len(binLabelsFiltered),
+                0,
+                len(binLabelsFiltered),
+            )
+            outM1 = r.TH1D(
+                "total_M1",
+                "total_M1",
+                len(binLabelsFiltered),
+                0,
+                len(binLabelsFiltered),
+            )
+            outM2 = r.TH2D(
+                "total_M2",
+                "total_M2",
+                len(binLabelsFiltered),
+                0,
+                len(binLabelsFiltered),
+                len(binLabelsFiltered),
+                0,
+                len(binLabelsFiltered),
+            )
+            outM3 = r.TH1D(
+                "total_M3",
+                "total_M3",
+                len(binLabelsFiltered),
+                0,
+                len(binLabelsFiltered),
+            )
 
             # set output contents/errors + labels
             for iBinMinusOne, binLabel in enumerate(binLabelsFiltered):
                 # totalData.GetPoint(binDict[binLabel]-1,dataX[0],dataY[0])
-                #dataX = totalData.GetX()[binDict[binLabel] - 1]
+                # dataX = totalData.GetX()[binDict[binLabel] - 1]
                 dataY = totalData.GetY()[binDict[binLabel] - 1]
 
                 # All bin contents are normalized to bin width
@@ -178,12 +285,30 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
                 outData.SetBinContent(iBinMinusOne + 1, dataY * bin_width)
                 outTotal.SetBinError(iBinMinusOne + 1, total.GetBinError(binDict[binLabel]) * bin_width)
                 outTotal.SetBinContent(iBinMinusOne + 1, total.GetBinContent(binDict[binLabel]) * bin_width)
-                outBackground.SetBinContent(iBinMinusOne + 1, totalBackground.GetBinContent(binDict[binLabel]) * bin_width)
-                outBackground.SetBinError(iBinMinusOne + 1, totalBackground.GetBinError(binDict[binLabel]) * bin_width)
-                outSignal.SetBinError(iBinMinusOne + 1, totalSignal.GetBinError(binDict[binLabel]) * bin_width)
-                outSignal.SetBinContent(iBinMinusOne + 1, totalSignal.GetBinContent(binDict[binLabel]) * bin_width)
-                outM1.SetBinContent(iBinMinusOne + 1, totalM1.GetBinContent(binDict[binLabel]) * bin_width)
-                outM3.SetBinContent(iBinMinusOne + 1, totalM3.GetBinContent(binDict[binLabel]) * bin_width ** 3)
+                outBackground.SetBinContent(
+                    iBinMinusOne + 1,
+                    totalBackground.GetBinContent(binDict[binLabel]) * bin_width,
+                )
+                outBackground.SetBinError(
+                    iBinMinusOne + 1,
+                    totalBackground.GetBinError(binDict[binLabel]) * bin_width,
+                )
+                outSignal.SetBinError(
+                    iBinMinusOne + 1,
+                    totalSignal.GetBinError(binDict[binLabel]) * bin_width,
+                )
+                outSignal.SetBinContent(
+                    iBinMinusOne + 1,
+                    totalSignal.GetBinContent(binDict[binLabel]) * bin_width,
+                )
+                outM1.SetBinContent(
+                    iBinMinusOne + 1,
+                    totalM1.GetBinContent(binDict[binLabel]) * bin_width,
+                )
+                outM3.SetBinContent(
+                    iBinMinusOne + 1,
+                    totalM3.GetBinContent(binDict[binLabel]) * bin_width ** 3,
+                )
 
                 outBackground.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
                 outSignal.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)

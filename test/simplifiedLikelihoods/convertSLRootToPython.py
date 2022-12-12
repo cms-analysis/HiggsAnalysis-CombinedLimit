@@ -1,12 +1,25 @@
-import sys, optparse
+import sys
+import optparse
 from optparse import OptionParser
 
 parser = OptionParser()
 parser.add_option("-s", "--signal", help=".root file:histogram for signal expectation")
 parser.add_option("-d", "--data", help=".root file:histogram for data")
-parser.add_option("-b", "--background", help=".root file:histogram for nominal background (eg from fit_b)")
-parser.add_option("-c", "--covariance", help=".root file:2D histogram for covariance (should be same fit as background)")
-parser.add_option("-t", "--thirdmoment", help=".root file:2D histogram for third moment for each bin (should be same fit as background)")
+parser.add_option(
+    "-b",
+    "--background",
+    help=".root file:histogram for nominal background (eg from fit_b)",
+)
+parser.add_option(
+    "-c",
+    "--covariance",
+    help=".root file:2D histogram for covariance (should be same fit as background)",
+)
+parser.add_option(
+    "-t",
+    "--thirdmoment",
+    help=".root file:2D histogram for third moment for each bin (should be same fit as background)",
+)
 parser.add_option("-O", "--outname", default="test.py", help="outname for python config")
 options, args = parser.parse_args()
 
