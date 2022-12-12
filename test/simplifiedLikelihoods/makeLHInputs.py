@@ -307,7 +307,7 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
                 )
                 outM3.SetBinContent(
                     iBinMinusOne + 1,
-                    totalM3.GetBinContent(binDict[binLabel]) * bin_width ** 3,
+                    totalM3.GetBinContent(binDict[binLabel]) * bin_width**3,
                 )
 
                 outBackground.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
