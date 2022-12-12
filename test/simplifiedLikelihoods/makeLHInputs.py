@@ -124,10 +124,10 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
         total = iFile.Get("shapes_{0}/total_overall".format(whichFit))
         totalData = iFile.Get("shapes_{0}/total_data".format(whichFit))
         totalWidth = iFile.Get("shapes_{0}/total_bin_width".format(whichFit))
-	# Also include the total moments 
-	totalM1 = iFile.Get("shapes_{0}/overall_total_M1".format(whichFit))
-	totalM2 = iFile.Get("shapes_{0}/overall_total_M2".format(whichFit))
-	totalM3 = iFile.Get("shapes_{0}/overall_total_M3".format(whichFit))
+        # Also include the total moments
+        totalM1 = iFile.Get("shapes_{0}/overall_total_M1".format(whichFit))
+        totalM2 = iFile.Get("shapes_{0}/overall_total_M2".format(whichFit))
+        totalM3 = iFile.Get("shapes_{0}/overall_total_M3".format(whichFit))
         if totalSignal:
             totalSignal.SetName("signalTemp")
 
@@ -164,7 +164,6 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
             outM2 = r.TH2D("total_M2", "total_M2", len(binLabelsFiltered), 0, len(binLabelsFiltered), len(binLabelsFiltered), 0, len(binLabelsFiltered))
             outM3 = r.TH1D("total_M3", "total_M3", len(binLabelsFiltered), 0, len(binLabelsFiltered))
 
-
             # set output contents/errors + labels
             for iBinMinusOne, binLabel in enumerate(binLabelsFiltered):
                 # totalData.GetPoint(binDict[binLabel]-1,dataX[0],dataY[0])
@@ -181,12 +180,11 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
                 outTotal.SetBinError(iBinMinusOne + 1, total.GetBinError(binDict[binLabel]) * bin_width)
                 outTotal.SetBinContent(iBinMinusOne + 1, total.GetBinContent(binDict[binLabel]) * bin_width)
                 outBackground.SetBinContent(iBinMinusOne + 1, totalBackground.GetBinContent(binDict[binLabel]) * bin_width)
-		outBackground.SetBinError(iBinMinusOne + 1, totalBackground.GetBinError(binDict[binLabel]) * bin_width)
+                outBackground.SetBinError(iBinMinusOne + 1, totalBackground.GetBinError(binDict[binLabel]) * bin_width)
                 outSignal.SetBinError(iBinMinusOne + 1, totalSignal.GetBinError(binDict[binLabel]) * bin_width)
                 outSignal.SetBinContent(iBinMinusOne + 1, totalSignal.GetBinContent(binDict[binLabel]) * bin_width)
-                
-		outM1.SetBinContent(iBinMinusOne + 1, totalM1.GetBinContent(binDict[binLabel]) * bin_width)
-		outM3.SetBinContent(iBinMinusOne + 1, totalM3.GetBinContent(binDict[binLabel]) * bin_width**3)
+                outM1.SetBinContent(iBinMinusOne + 1, totalM1.GetBinContent(binDict[binLabel]) * bin_width)
+                outM3.SetBinContent(iBinMinusOne + 1, totalM3.GetBinContent(binDict[binLabel]) * bin_width ** 3)
 
                 outBackground.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
                 outSignal.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
@@ -194,11 +192,10 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
                 outData.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
                 outCovar.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
                 outCovar.GetYaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
-
-		outM1.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
-		outM2.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
-		outM2.GetYaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
-		outM3.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
+                outM1.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
+                outM2.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
+                outM2.GetYaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
+                outM3.GetXaxis().SetBinLabel(iBinMinusOne + 1, binLabel)
 
                 for jBinMinusOne, binLabel2 in enumerate(binLabelsFiltered):
                     # The covariance is also bin width normalized
@@ -218,11 +215,10 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
         outSignal.Write()
         outCovar.Write()
         outData.Write()
-	outM1.Write()
-	outM2.Write()
-	outM3.Write()
-
-    outFile.Close()
+        outM1.Write()
+        outM2.Write()
+        outM3.Write()
+        outFile.Close()
 
 
 if __name__ == "__main__":
