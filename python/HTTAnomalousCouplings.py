@@ -16,10 +16,10 @@ from .SpinZeroStructure import MultiSignalSpinZeroHiggs
 
 xsecs = {
     "sigma1_HZZ": 1,
-    "sigma3_HZZ": 2.55052 ** -2,
-    "sigma2_HZZ": 1.65684 ** -2,
-    "sigmaL1_HZZ": 12100.42 ** -2,
-    "sigmaL1Zg_HZZ": 7613.351302119843 ** -2,
+    "sigma3_HZZ": 2.55052**-2,
+    "sigma2_HZZ": 1.65684**-2,
+    "sigmaL1_HZZ": 12100.42**-2,
+    "sigmaL1Zg_HZZ": 7613.351302119843**-2,
     "sigma1_VBF": 968.674,
     "sigma3_VBF": 10909.54,
     "sigma2_VBF": 13102.71,
