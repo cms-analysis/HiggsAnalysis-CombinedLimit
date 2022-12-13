@@ -145,10 +145,14 @@ The option `-t` is used to specify to combine to first generate a toy dataset(s)
 
    * `-t -1` will produce an Asimov dataset in which statistical fluctuations are suppressed. The procedure to generate this Asimov dataset depends on which type of analysis you are using, see below for details.
 
-The output file will contain the toys (as `RooDataSets` for the observables, including global observables) in the **toys** directory if the option `--saveToys` is provided. If you include this option, the `limit` TTree in the output will have an entry corresponding to the state of the POI used for the generation of the toy, with the value of **`quantileExpected`** set to **-2**. You can add additional branches using the `--trackParameters` option as described in the [common command line options](#common-command-line-options) section above.
-
 !!! warning
     The default values of the nuisance parameters (or any parameter) are used to generate the toy. This means that if, for example, you are using parametric shapes and the parameters inside the workspace are set to arbitrary values, *those* arbitrary values will be used to generate the toy. This behaviour can be modified through the use of the option `--setParameters x=value_x,y=value_y...` which will set the values of the parameters (`x` and `y`) before toy generation. You can also load a snap-shot from a previous fit to set the nuisances to their *post-fit* values (see below).
+
+The output file will contain the toys (as `RooDataSets` for the observables, including global observables) in the **toys** directory if the option `--saveToys` is provided. If you include this option, the `limit` TTree in the output will have an entry corresponding to the state of the POI used for the generation of the toy, with the value of **`quantileExpected`** set to **-2**. 
+
+!!! info
+    The branches that are created by methods like `MultiDimFit` *will not* show the values used to generate the toy. If you also want the TTree to show the values of the POIs used to generate to toy, you should add additional branches using the `--trackParameters` option as described in the [common command line options](#common-command-line-options) section above. These branches will behave as expected when adding the option `--saveToys`. 
+
 
 #### Asimov datasets
 
