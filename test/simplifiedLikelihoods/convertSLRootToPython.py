@@ -18,7 +18,7 @@ parser.add_option(
 parser.add_option(
     "-t",
     "--thirdmoment",
-    help=".root file:2D histogram for third moment for each bin (should be same fit as background)",
+    help=".root file:histogram for third moment for each bin (should be same fit as background)",
 )
 parser.add_option("-O", "--outname", default="test.py", help="outname for python config")
 options, args = parser.parse_args()
@@ -64,19 +64,6 @@ def printObject(obj, out, name, is1D=True):
     out.write("])" + "\n")
 
 
-def filter3rdMoments(h1, h2):
-    ret = h1.Clone()
-    h1.SetName("dummy")
-    for b in range(h1.GetNbinsX()):
-        skew = h1.GetBinContent(b + 1) / (h2.GetBinContent(b + 1, b + 1) ** 1.5)
-        print(b, skew)
-        if abs(skew) > 0.1:
-            ret.SetBinContent(b + 1, h1.GetBinContent(b + 1))
-        else:
-            ret.SetBinContent(0)
-    return ret
-
-
 outf = open(outname, "w")
 outf.write("import numpy" + "\n")
 outf.write("import array" + "\n")
@@ -90,12 +77,6 @@ printObject(getObject(options.data), outf, "data", 1)
 printObject(getObject(options.signal), outf, "signal", 1)
 printObject(getObject(options.background), outf, "background", 1)
 printObject(getObject(options.covariance), outf, "covariance", 0)
-
-# option to filter out small skew terms?
-# if options.thirdmoment:
-# output3rm = filter3rdMoments(getObject(options.thirdmoment),getObject(options.covariance))
-# printObject(output3rm,outf,"third_moment",1)
-
 printObject(getObject(options.thirdmoment), outf, "third_moment", 1)
 
 outf.close()
