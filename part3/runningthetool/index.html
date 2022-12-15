@@ -247,7 +247,7 @@
 </ul>
 </li>
 <li><strong>Frequentist</strong> or hybrid bayesian-frequentist methods:<ul>
-<li><code>HybridNew</code>: compute modified frequentist limits, significance/p-values and confidence intervals according to several possible prescriptions with toys. </li>
+<li><code>HybridNew</code>: compute modified frequentist limits according to several possible prescriptions</li>
 </ul>
 </li>
 <li><strong>Fitting</strong><ul>
@@ -445,14 +445,10 @@
 <p><code>-t -1</code> will produce an Asimov dataset in which statistical fluctuations are suppressed. The procedure to generate this Asimov dataset depends on which type of analysis you are using, see below for details.</p>
 </li>
 </ul>
+<p>The output file will contain the toys (as <code>RooDataSets</code> for the observables, including global observables) in the <strong>toys</strong> directory if the option <code>--saveToys</code> is provided. If you include this option, the <code>limit</code> TTree in the output will have an entry corresponding to the state of the POI used for the generation of the toy, with the value of <strong><code>quantileExpected</code></strong> set to <strong>-2</strong>. You can add additional branches using the <code>--trackParameters</code> option as described in the <a href="#common-command-line-options">common command line options</a> section above.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The default values of the nuisance parameters (or any parameter) are used to generate the toy. This means that if, for example, you are using parametric shapes and the parameters inside the workspace are set to arbitrary values, <em>those</em> arbitrary values will be used to generate the toy. This behaviour can be modified through the use of the option <code>--setParameters x=value_x,y=value_y...</code> which will set the values of the parameters (<code>x</code> and <code>y</code>) before toy generation. You can also load a snap-shot from a previous fit to set the nuisances to their <em>post-fit</em> values (see below).</p>
-</div>
-<p>The output file will contain the toys (as <code>RooDataSets</code> for the observables, including global observables) in the <strong>toys</strong> directory if the option <code>--saveToys</code> is provided. If you include this option, the <code>limit</code> TTree in the output will have an entry corresponding to the state of the POI used for the generation of the toy, with the value of <strong><code>quantileExpected</code></strong> set to <strong>-2</strong>. </p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>The branches that are created by methods like <code>MultiDimFit</code> <em>will not</em> show the values used to generate the toy. If you also want the TTree to show the values of the POIs used to generate to toy, you should add additional branches using the <code>--trackParameters</code> option as described in the <a href="#common-command-line-options">common command line options</a> section above. These branches will behave as expected when adding the option <code>--saveToys</code>. </p>
 </div>
 <h4 id="asimov-datasets">Asimov datasets</h4>
 <p>If you are using wither <code>-t -1</code> or using <code>AsymptoticLimits</code>, combine will calculate results based on an Asimov dataset.</p>

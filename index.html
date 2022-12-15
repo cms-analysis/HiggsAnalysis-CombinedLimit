@@ -278,12 +278,12 @@ git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 </code></pre>
 <h2 id="standalone-version">Standalone version</h2>
-<p>The standalone version can be easily compiled using the <code>cvmfs</code> as it relies on dependencies which are already installed at <a href="/cvmfs/cms.cern.ch/">/cvmfs/cms.cern.ch/</a>. </p>
-<p>Access to <code>/cvmfs/cms.cern.ch/</code> can be obtained from lxplus machines or via <code>CernVM</code>, by adding the <code>CMS</code> group to the CVMFS Configuration. See instructions for <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#standalone-version-of-combine">standalone version</a>. In case you do not want to use the <code>cvmfs</code> area, you will need to adapt the location of the dependencies listed in both the <code>Makefile</code> and <code>env_standalone.sh</code> files.</p>
+<p>The standalone version can be easily compiled using the \verb@cvmfs@ as it relies on dependencies which are already installed at <a href="/cvmfs/cms.cern.ch/">/cvmfs/cms.cern.ch/</a>. </p>
+<p>Access to <code>/cvmfs/cms.cern.ch/</code> can be obtained from lxplus machines or via <code>CernVM</code>, by adding the <code>CMS</code> group to the CVMFS Configuration. A minimal <code>CernVM</code> working context setup can be found in the CernVM Marketplace under <code>Experimental/HiggsCombine</code> or at <a href="https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382">https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382</a>. At least 2GB of disk space should be reserved on the virtual machine for Combine to work properly. In case you do not want to use the <code>cvmfs</code> area, you will need to adapt the location of the dependencies listed in both the <code>Makefile</code> and <code>env_standalone.sh</code> files.</p>
 <pre><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit/ 
 git fetch origin
-git checkout v8.2.0
+git checkout v8.1.0
 . env_standalone.sh
 make
 </code></pre>
@@ -463,5 +463,5 @@ make
 
 <!--
 MkDocs version : 1.4.2
-Build Date UTC : 2022-12-13 11:13:53.525163+00:00
+Build Date UTC : 2022-12-15 16:32:14.058238+00:00
 -->
