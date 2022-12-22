@@ -184,10 +184,11 @@ Done in 0.14 min (cpu), 0.15 min (real)
 
 Again, the resulting limit tree will contain the result. You can also save the chains using the option `--saveChain` which will then also be included in the output file.
 
-Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf...)
-Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` eg for a burn-in of 200. 
+Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf). Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` eg for a burn-in of 200. 
 
-```python
+<details>
+<summary><b>Show example script</b></summary>
+<pre class="python"><code>
 import ROOT
 
 rmin = 0
@@ -248,7 +249,8 @@ ll.Draw()
 lu.Draw()
 
 print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
-```
+</code></pre>
+</details>
 
 Running the script on the output file produced for the same datacard (including the `--saveChain` option) will produce the following output
 
@@ -316,7 +318,6 @@ bayesPosterior2D("bayes2D","Posterior PDF")
 ```
 
 ![](images/bayes2D.png)
-
 
 ## Computing Limits with toys
 
