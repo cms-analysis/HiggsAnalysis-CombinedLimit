@@ -317,6 +317,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     rfloat = ret->constPars().find(r.GetName());
     if (!rfloat) {
       fprintf(sentry.trueStdOut(), "Skipping %s. Parameter not found in the RooFitResult.\n",r.GetName());
+      continue ;
     }
   }
 	//rfloat->Print("V");

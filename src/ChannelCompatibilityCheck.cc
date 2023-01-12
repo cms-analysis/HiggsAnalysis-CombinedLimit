@@ -113,7 +113,9 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   }
   for (std::map<std::string,std::string>::const_iterator it = rs.begin(), ed = rs.end(); it != ed; ++it) {
       RooRealVar *ri = (RooRealVar*) result_freeform->floatParsFinal().find(it->second.c_str());
-      if (runMinos_ && do95_) {
+      if (ri == NULL){
+      printf("Parameter %s not found in channel %s. Does this region contain signal templates?\n", r->GetName(), it->first.c_str());
+      } else if (runMinos_ && do95_) {
 	  printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f (68%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
 	  printf("               %s = %7.4f  %+6.4f/%+6.4f (95%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getMin("err95")-ri->getVal(), ri->getMax("err95")-ri->getVal(), it->first.c_str());
       } else if (runMinos_) {
