@@ -342,7 +342,7 @@ The choice of test-statistic can be made via the option `--testStat` and differe
     * For the purposes of toy generation, the nuisance parameters are fixed to their **post-fit** values from the data (conditionally on the value of **r**), while the constraint terms are randomized in the evaluation of the likelihood.
 
 !!! warning
-    The recommended style is the **LHC-style**. Please note that this method is sensitive to the *observation in data* since the *post-fit* (after a fit to the data) values of the nuisance parameters (assuming different values of **r**) are used when generating the toys. For completely blind limits you can first generate a *pre-fit* asimov toy dataset (described in the [toy data generation](runningthetool.md#toy-data-generation) section) and use that in place of the data.
+    The recommended style is the **LHC-style**. Please note that this method is sensitive to the *observation in data* since the *post-fit* (after a fit to the data) values of the nuisance parameters (assuming different values of **r**) are used when generating the toys. For completely blind limits you can first generate a *pre-fit* asimov toy dataset (described in the [toy data generation](runningthetool.md#toy-data-generation) section) and use that in place of the data.  You can then use this toy by passing `-D toysFileName.root:toys/toy_asimov`
 
 While the above shortcuts are the common variants, you can also try others. The treatment of the nuisances can be changed to the so-called "Hybrid-Bayesian" method which effectively integrates over the nuisance parameters. This can be achieved (with any test-statistic which is not profiled over the nuisances) by setting `--generateNuisances=1 --generateExternalMeasurements=0 --fitNuisances=0`.
 
