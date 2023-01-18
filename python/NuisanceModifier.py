@@ -370,10 +370,10 @@ def doSplitNuisance(datacard, args):
                     for p in datacard.exp[b]:
                         if process == "*" or fullmatch(cprocess, p):
                             foundProc = True
-                            if errline[b][p] not in [0.0, 1.0]:
+                            if errline[b].get(p, 0.0) not in [0.0, 1.0]:
                                 doAddNuisance(datacard, [p, b, newname1, pdf, value1, "overwrite"])
                                 doAddNuisance(datacard, [p, b, newname2, pdf, value2, "overwrite"])
-                            errline[b][p] = 0
+                            del errline[b][p]
 
     if not foundProc and channel != "*":
         if "ifexists" not in opts:
@@ -432,7 +432,7 @@ def doFlipNuisance(datacard, args):
                     for p in datacard.exp[b]:
                         if process == "*" or fullmatch(cprocess, p):
                             foundProc = True
-                            if errline[b][p] not in [0.0, 1.0]:
+                            if errline[b].get(p, 0.0) not in [0.0, 1.0]:
                                 if type(errline[b][p]) is list:
                                     if errline[b][p][0] < 1:
                                         if "p2n" in opts:

@@ -228,7 +228,7 @@ for (lsyst, nofloat, pdf, pdfargs, errline) in DC.systs:
             if lsyst in list(check_list.keys()):
                 if [p, b] in check_list[lsyst]:
                     continue
-            if (not pdf == "param") and errline[b][p] == 0:
+            if (not pdf == "param") and errline[b].get(p, 0.0) == 0.0:
                 continue
             if pdf == "gmN":
                 numKeysFound += 1
@@ -273,7 +273,7 @@ for (lsyst, nofloat, pdf, pdfargs, errline) in DC.systs:
 
             elif "shape" in pdf and MB.isShapeSystematic(b, p, lsyst):
 
-                if errline[b][p] == 0:
+                if errline[b].get(p, 0.0) == 0.0:
                     continue
                 systShapeName = lsyst
                 # vals = []

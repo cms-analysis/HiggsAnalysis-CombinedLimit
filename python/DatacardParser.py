@@ -620,7 +620,7 @@ def parseCard(file, options):
                 raise RuntimeError(
                     "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))
                 )
-            errline = dict([(b, {}) for b in ret.bins])
+            errline = {b: {} for b in ret.bins}
             nonNullEntries = 0
             for (b, p, s), r in zip(ret.keyline, numbers):
                 if "/" in r:  # "number/number"
@@ -632,8 +632,11 @@ def parseCard(file, options):
                             raise ValueError('Found "%s" in the nuisances affecting %s for %s. This would lead to NANs later on, so please fix it.' % (r, p, b))
                 else:
                     if r == "-" * len(r):
-                        r = 0.0
-                    errline[b][p] = float(r)
+                        continue
+                    r_float = float(r)
+                    if r_float == 0.0:
+                        continue
+                    errline[b][p] = r_float
                     # values of 0.0 are treated as 1.0; scrap negative values.
                     if pdf not in ["trG", "dFD", "dFD2"] and errline[b][p] < 0:
                         raise ValueError('Found "%s" in the nuisances affecting %s in %s. This would lead to NANs later on, so please fix it.' % (r, p, b))
@@ -674,7 +677,7 @@ def parseCard(file, options):
             syst2.append((lsyst, nofloat, pdf, args, errline))
             continue
         for (b, p, s) in ret.keyline:
-            r = errline[b][p]
+            r = errline[b].get(p, 0.0)
             nullEffect = r == 0.0 or (pdf == "lnN" and r == 1.0)
             if not nullEffect and ret.exp[b][p] != 0:
                 nonNullEntries += 1  # is this a zero background?
