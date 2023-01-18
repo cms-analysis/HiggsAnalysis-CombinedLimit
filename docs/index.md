@@ -1,6 +1,9 @@
 # Introduction
 
-These pages document the [RooStats](https://twiki.cern.ch/twiki/bin/view/RooStats/WebHome) / [RooFit](https://root.cern.ch/roofit) - based software tools used for statistical analysis within the [Higgs PAG](HiggsWG) - **combine**.
+These pages document the
+[RooStats](https://twiki.cern.ch/twiki/bin/view/RooStats/WebHome) /
+[RooFit](https://root.cern.ch/roofit) - based software tools used for
+statistical analysis within the [Higgs PAG](HiggsWG) - **combine**.
 
 Combine provides a command line interface to many different statistical techniques available inside RooFit/RooStats used widely inside CMS.
 
@@ -10,15 +13,40 @@ For more information about GIT and its usage in CMS, see [http://cms-sw.github.i
 
 The code can be checked out from GIT and compiled on top of a CMSSW release that includes a recent RooFit/RooStats
 
-# Setting up the environment and installation
+# Installation instructions
 
-The instructions below are for installation within a CMSSW environment
+## Within CMSSW (recommended)
 
-## For end users that don't need to commit or do any development
+The instructions below are for installation within a CMSSW environment. For end
+users that don't need to commit or do any development, the following recipes
+should be sufficient. To choose a release version, you can find the latest
+releases on github under
+[https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
 
-You can find the latest releases on github under [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
+### Combine v9 - recommended version
 
-### CC7 release `CMSSW_10_2_X` - recommended version
+The nominal installation method is inside CMSSW. The current release targets
+CMSSW `11_3_X` series because this release has both python2 and python3 ROOT
+bindings, allowing a more gradual migration of user code to python3. Combine is
+fully python3-compatible and can work also in 12_X releases.
+
+```sh
+cmsrel CMSSW_11_3_4
+cd CMSSW_11_3_4/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+```
+Update to a recommended tag - currently the recommended tag is **v9.0.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.0.0)
+
+```sh
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v9.0.0
+scramv1 b clean; scramv1 b # always make a clean build
+```
+
+### Combine v8: `CMSSW_10_2_X` release series
 
 Setting up the environment (once):
 
@@ -64,24 +92,63 @@ git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
-## Standalone version 
+## Standalone compilation
 
-The standalone version can be easily compiled using the \verb@cvmfs@ as it relies on dependencies which are already installed at [/cvmfs/cms.cern.ch/](/cvmfs/cms.cern.ch/). 
-
-Access to `/cvmfs/cms.cern.ch/` can be obtained from lxplus machines or via `CernVM`, by adding the `CMS` group to the CVMFS Configuration. A minimal `CernVM` working context setup can be found in the CernVM Marketplace under `Experimental/HiggsCombine` or at [https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). At least 2GB of disk space should be reserved on the virtual machine for Combine to work properly. In case you do not want to use the `cvmfs` area, you will need to adapt the location of the dependencies listed in both the `Makefile` and `env_standalone.sh` files.
+The standalone version can be easily compiled using
+[cvmfs](https://cernvm.cern.ch/fs/) as it relies on dependencies which are
+already installed at `/cvmfs/cms.cern.ch/`. Access to `/cvmfs/cms.cern.ch/` can
+be obtained from lxplus machines or via `CernVM`. See [CernVM](CernVM.md) for
+further details on the latter. In case you do not want to use the `cvmfs`
+area, you will need to adapt the location of the dependencies listed in both
+the `Makefile` and `env_standalone.sh` files.
 
 ```
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit/ 
-git fetch origin
-git checkout v8.1.0
+# git checkout <some release>
 . env_standalone.sh
-make
+make -j 4
 ```
 
 You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login.
 
-## What has changed between tags? 
+### Standalone compilation with LCG
+LCG102 contains ROOT 6.26, which at the time of writing is not available in any CMSSW release.
+This repo can be compiled against LCG102 with:
+```
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+source env_lcg.sh 
+make LCG=1 -j 8
+```
+
+### Standalone compilation with `conda`
+This recipe will work both for linux and MacOS
+```
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+
+conda install --name base mamba # faster conda
+mamba env create -f conda_env.yml
+
+conda activate combine
+source set_conda_env_vars.sh
+# Need to reactivate
+conda deactivate
+conda activate combine
+
+make CONDA=1 -j 8
+```
+
+Using combine from then on should only require sourcing the conda environment 
+```
+conda activate combine
+```
+
+**Note:** on OS X, `combine` can only accept workspaces, so run `text2workspace.py` first.
+This is due to some ridiculous issue with child processes and `LD_LIBRARY_PATH` (see note in Makefile)
+
+# What has changed between tags? 
 
 You can generate a diff of any two tags (eg for `v7.0.8` and `v7.0.6`) by using following the url:
 
@@ -89,7 +156,7 @@ You can generate a diff of any two tags (eg for `v7.0.8` and `v7.0.6`) by using 
 
 Replace the tag names in the url to any tags you which to compare.
 
-## For developers
+# For developers
 
 We use the _Fork and Pull_ model for development: each user creates a copy of the repository on github, commits their requests there and then sends pull requests for the administrators to merge.
 
@@ -101,42 +168,7 @@ _Prerequisites_
 
 You will now be able to browse your fork of the repository from [https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit](https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit)
 
-### Recommended way to develop a feature (in a branch)
-
-```sh
-# get the updates of the master branch of the remote repository
-git fetch upstream
-
-# branch straight off the upstream master
-git checkout -b feature_name_branch upstream/81x-root606
-
-# implement the feature
-# commit, etc
-
-# before publishing:
-# get the updates of the master branch of the remote repository
-git fetch upstream
-
-# if you're ready to integrate the upstream changes into your repository do
-git rebase upstream/81x-root606
-
-# fix any conflicts
-git push origin feature_name_branch
-```
-
-And proceed to make a pull request from the branch you created.
-
-#### Committing changes to your repository
-
-```sh
-git add ....
-git commit -m "...."
-git push
-```
-
-You can now make a pull request to the repository.
-
-## Combine Tool
+# Combine Tool
 
 An additional tool for submitting combine jobs to batch/crab, developed originally for HiggsToTauTau. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/) subpackage, speeding up the checkout and compile times:
 
@@ -156,29 +188,4 @@ make sure to run `scram`  to compile the `CombineTools` package.
 
 See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
 
-# Standalone version of combine
 
-Combine is also released as a standalone package, still meant to be run on SLC7 machines. Please note that while the CMSSW version is maintained regularly, the same might not be true for the standalone version. For CMS members, we advise to use the CMSSW version when possible.
-
-To compile the standalone version on suitable machines, please run:
-```
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit/ 
-git fetch origin
-git checkout v8.2.0
-. env_standalone.sh
-make
-```
-You will need to source env_standalone.sh each time you want to use the package, or add it to your login. 
-
-## Available machines for standalone combine
-
-The standalone version can be easily compiled via _CVMFS_ as it relies on dependencies which are already installed at _/cvmfs/cms.cern.ch/_. Access to _/cvmfs/cms.cern.ch/_ can be obtained from lxplus machines or via [`CernVM`](https://cernvm-online.cern.ch/). The only requirement will be to add the _CMS_ group to the CVMFS configuration as shown in the picture
-
-![](cvmsf_config.png)
-
-At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). 
-
-To use this predefined context, first locally launch the CernVM (eg you can use the .ova with VirtualBox, by downloading from [here](http://cernvm.cern.ch/releases/production/cernvm4-micro-2020.07-1.ova) and launching the downloaded file. You can click on "pair an instance of CernVM" from the cernvm-online dashboard, which displays a PIN. In the VirtualBox terminal, pair the virtual machine with this PIN code (enter in the terminal using #PIN eg `#123456`. After this, you will be asked again for username (use `user`) and then a password (use `hcomb`).
-
-In case you do not want to use the cvmfs area, you will need to adapt the location of the dependencies listed in both the Makefile and env_standalone.sh files.

@@ -8,7 +8,7 @@ name: Port to 112x-releases
 on:
     pull_request_target:
         types: [ labeled ]
-        branches: [ 112x ]
+        branches: [ main ]
 
 jobs:
   port_112x_comb2022:
@@ -21,7 +21,6 @@ jobs:
             ONTO: 112x-comb2022
             REPO: cms-analysis/HiggsAnalysis-CombinedLimit
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        #if: ${{ github.event.pull_request && contains(github.event.pull_request.labels.*.name, 'port to 112x-comb2022') }}
         if: ${{ github.event.pull_request && contains(github.event.label.name, 'port to 112x-comb2022') }}
         run: |
             ## checkout full repository
