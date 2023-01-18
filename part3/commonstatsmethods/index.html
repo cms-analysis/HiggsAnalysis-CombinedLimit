@@ -127,6 +127,12 @@
                         
                             
 <li >
+    <a href="../simplifiedlikelihood/">Simplified Likelihoods</a>
+</li>
+
+                        
+                            
+<li >
     <a href="../regularisation/">Unfolding & regularization</a>
 </li>
 
@@ -257,7 +263,10 @@
 <p>This section will assume that you are using the default model unless otherwise specified.</p>
 <h2 id="asymptotic-frequentist-limits">Asymptotic Frequentist Limits</h2>
 <p>The <code>AsymptoticLimits</code> method allows to compute quickly an estimate of the observed and expected limits, which is fairly accurate when the event yields are not too small and the systematic uncertainties don't play a major role in the result.
-The limit calculation relies on an asymptotic approximation of the distributions of the <strong>LHC</strong> test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute two p-values <span class="arithmatex"><span class="MathJax_Preview">p_{\mu}, p_{b}</span><script type="math/tex">p_{\mu}, p_{b}</script></span> and therefore <span class="arithmatex"><span class="MathJax_Preview">CL_s=p_{\mu}/(1-p_{b})</span><script type="math/tex">CL_s=p_{\mu}/(1-p_{b})</script></span> (see the (see the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq">FAQ</a> section for a description of these) - i.e it is the asymptotic approximation of computing limits with frequentist toys.</p>
+The limit calculation relies on an asymptotic approximation of the distributions of the <strong>LHC</strong> test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute two p-values <span class="arithmatex"><span class="MathJax_Preview">p_{\mu}, p_{b}</span><script type="math/tex">p_{\mu}, p_{b}</script></span> and therefore <span class="arithmatex"><span class="MathJax_Preview">CL_s=p_{\mu}/(1-p_{b})</span><script type="math/tex">CL_s=p_{\mu}/(1-p_{b})</script></span> (see the (see the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq">FAQ</a> section for a description of these) - i.e it is the asymptotic approximation of computing limits with frequentist toys using the LHC test-statistic for limits: </p>
+<ul>
+<li>The test statistic is defined using the ratio of likelihoods <span class="arithmatex"><span class="MathJax_Preview">q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta})]</span><script type="math/tex">q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta})]</script></span> , in which the nuisance parameters are profiled separately for <span class="arithmatex"><span class="MathJax_Preview">r=\hat{r}</span><script type="math/tex">r=\hat{r}</script></span> and <span class="arithmatex"><span class="MathJax_Preview">r</span><script type="math/tex">r</script></span>. The value of <span class="arithmatex"><span class="MathJax_Preview">q_{r}</span><script type="math/tex">q_{r}</script></span> set to 0 when <span class="arithmatex"><span class="MathJax_Preview">\hat{r}&gt;r</span><script type="math/tex">\hat{r}>r</script></span> giving a one sided limit. Furthermore, the constraint <span class="arithmatex"><span class="MathJax_Preview">r&gt;0</span><script type="math/tex">r>0</script></span> is enforced in the fit. This means that if the unconstrained value of <span class="arithmatex"><span class="MathJax_Preview">\hat{r}</span><script type="math/tex">\hat{r}</script></span> would be negative, the test statistic <span class="arithmatex"><span class="MathJax_Preview">q_{r}</span><script type="math/tex">q_{r}</script></span> is evaluated as <span class="arithmatex"><span class="MathJax_Preview">-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})]</span><script type="math/tex">-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})]</script></span></li>
+</ul>
 <p>This method is so commonly used that it is the default method (i.e not specifying <code>-M</code> will run <code>AsymptoticLimits</code>)</p>
 <p>A realistic example of datacard for a counting experiment can be found in the HiggsCombination package: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt">data/tutorials/counting/realistic-counting-experiment.txt</a></p>
 <p>The method can be run using</p>
@@ -377,15 +386,17 @@ Average chain acceptance: 0.078118
 Done in 0.14 min (cpu), 0.15 min (real)
 </code></pre>
 <p>Again, the resulting limit tree will contain the result. You can also save the chains using the option <code>--saveChain</code> which will then also be included in the output file.</p>
-<p>Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf...)
-Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the <em>smallest</em> such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing <code>for i in range(mychain.numEntries()):</code> to <code>for i in range(200,mychain.numEntries()):</code> eg for a burn-in of 200. </p>
-<pre><code class="language-python">import ROOT
+<p>Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf). Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the <em>smallest</em> such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing <code>for i in range(mychain.numEntries()):</code> to <code>for i in range(200,mychain.numEntries()):</code> eg for a burn-in of 200. </p>
+<details>
+<summary><b>Show example script</b></summary>
+<pre class="python"><code>
+import ROOT
 
 rmin = 0
 rmax = 30
 nbins = 100
 CL = 0.95
-chains = &quot;higgsCombineTest.MarkovChainMC.blahblahblah.root&quot;
+chains = "higgsCombineTest.MarkovChainMC.blahblahblah.root"
 
 def findSmallestInterval(hist,CL):
  bins = hist.GetNbinsX()
@@ -397,10 +408,10 @@ def findSmallestInterval(hist,CL):
    integral = hist.GetBinContent(i)
    for j in range(i+1,bins+2):
     integral += hist.GetBinContent(j)
-    if integral &gt; CL :
+    if integral > CL :
       val = integral
       break
-   if integral &gt; CL and  j-i &lt; bd :
+   if integral > CL and  j-i < bd :
      bd = j-i
      best_j = j+1
      best_i = i
@@ -410,36 +421,38 @@ def findSmallestInterval(hist,CL):
 fi_MCMC = ROOT.TFile.Open(chains)
 # Sum up all of the chains (or we could take the average limit)
 mychain=0
-for k in fi_MCMC.Get(&quot;toys&quot;).GetListOfKeys():
+for k in fi_MCMC.Get("toys").GetListOfKeys():
     obj = k.ReadObj
     if mychain ==0:
         mychain = k.ReadObj().GetAsDataSet()
     else :
         mychain.append(k.ReadObj().GetAsDataSet())
-hist = ROOT.TH1F(&quot;h_post&quot;,&quot;;r;posterior probability&quot;,nbins,rmin,rmax)
+hist = ROOT.TH1F("h_post",";r;posterior probability",nbins,rmin,rmax)
 for i in range(mychain.numEntries()):
 #for i in range(200,mychain.numEntries()): burn-in of 200 
   mychain.get(i)
-  hist.Fill(mychain.get(i).getRealValue(&quot;r&quot;), mychain.weight())
+  hist.Fill(mychain.get(i).getRealValue("r"), mychain.weight())
 hist.Scale(1./hist.Integral())
 hist.SetLineColor(1)
 vl,vu,trueCL = findSmallestInterval(hist,CL)
 histCL = hist.Clone()
 for b in range(nbins):
-  if histCL.GetBinLowEdge(b+1) &lt; vl or histCL.GetBinLowEdge(b+2)&gt;vu: histCL.SetBinContent(b+1,0)
+  if histCL.GetBinLowEdge(b+1) < vl or histCL.GetBinLowEdge(b+2)>vu: histCL.SetBinContent(b+1,0)
 c6a = ROOT.TCanvas()
 histCL.SetFillColor(ROOT.kAzure-3)
 histCL.SetFillStyle(1001)
 hist.Draw()
-histCL.Draw(&quot;histFsame&quot;)
-hist.Draw(&quot;histsame&quot;)
+histCL.Draw("histFsame")
+hist.Draw("histsame")
 ll = ROOT.TLine(vl,0,vl,2*hist.GetBinContent(hist.FindBin(vl))); ll.SetLineColor(2); ll.SetLineWidth(2)
 lu = ROOT.TLine(vu,0,vu,2*hist.GetBinContent(hist.FindBin(vu))); lu.SetLineColor(2); lu.SetLineWidth(2)
 ll.Draw()
 lu.Draw()
 
-print &quot; %g %% (%g %%) interval (target)  = %g &lt; r &lt; %g &quot;%(trueCL,CL,vl,vu)
+print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 </code></pre>
+</details>
+
 <p>Running the script on the output file produced for the same datacard (including the <code>--saveChain</code> option) will produce the following output</p>
 <pre><code>0.950975 % (0.95 %) interval (target)  = 0 &lt; r &lt; 2.2
 </code></pre>
@@ -471,9 +484,11 @@ print &quot; %g %% (%g %%) interval (target)  = %g &lt; r &lt; %g &quot;%(trueCL
 <p>For more heavy methods (eg the <code>MarkovChainMC</code>) you'll probably want to split this in multiple jobs. To do this, just run <code>combine</code> multiple times specifying a smaller number of toys (can be as low as <code>1</code>) each time using a different seed to initialize the random number generator (option <code>-s</code> if you set it to -1, the starting seed will be initialized randomly at the beginning of the job), then merge the resulting trees with <code>hadd</code> and look at the distribution in the merged file.</p>
 <h3 id="multidimensional-bayesian-credible-regions">Multidimensional bayesian credible regions</h3>
 <p>The <code>MarkovChainMC</code> method allows the user to produce the posterior pdf as a function of (in principle) any number of parameter of interest. In order to do so, you first need to create a workspace with more than one parameter, as explained in the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/">physics models</a> section.</p>
-<p>For example, lets use the toy datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/toy-hgg-125.txt">test/multiDim/toy-hgg-125.txt</a> (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV) and convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections using <code>text2workspace</code> with the option <code>-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH</code>.</p>
+<p>For example, lets use the toy datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/toy-hgg-125.txt">test/multiDim/toy-hgg-125.txt</a> (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV) and convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections using <code>text2workspace</code>.</p>
+<pre><code>text2workspace.py test/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o workspace.root
+</code></pre>
 <p>Now we just run one (or more) MCMC chain(s) and save them in the output tree.By default, the nuisance parameters will be marginalized (integrated) over their pdfs. You can ignore the complaints about not being able to compute an upper limit (since for more than 1D, this isn't well defined),</p>
-<pre><code>combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s seed --noDefaultPrior=0
+<pre><code>combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345 --noDefaultPrior=0
 </code></pre>
 <p>The output of the markov chain is again a RooDataSet of weighted events distributed according to the posterior pdf (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior pdf. See as an example <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/bayesPosterior2D.cxx">bayesPosterior2D.cxx</a>.</p>
 <p>Below is an example of the output of the macro,</p>
@@ -505,15 +520,15 @@ bayesPosterior2D(&quot;bayes2D&quot;,&quot;Posterior PDF&quot;)
 <p><strong>LHC-style</strong>: <code>--LHCmode LHC-limits</code>
 , which is the shortcut for <code>--testStat LHC --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1</code></p>
 <ul>
-<li>The test statistic is defined using the ratio of likelihoods <span class="arithmatex"><span class="MathJax_Preview">q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta}])</span><script type="math/tex">q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta}])</script></span> , in which the nuisance parameters are profiled separately for <span class="arithmatex"><span class="MathJax_Preview">r=\hat{r}</span><script type="math/tex">r=\hat{r}</script></span> and <span class="arithmatex"><span class="MathJax_Preview">r</span><script type="math/tex">r</script></span>.</li>
-<li>The value of <span class="arithmatex"><span class="MathJax_Preview">q_{r}</span><script type="math/tex">q_{r}</script></span> set to 0 when <span class="arithmatex"><span class="MathJax_Preview">\hat{r}&gt;r</span><script type="math/tex">\hat{r}>r</script></span> giving a one sided limit. Furthermore, the constraint <span class="arithmatex"><span class="MathJax_Preview">r&gt;0</span><script type="math/tex">r>0</script></span> is enforced in the fit. This means that if the unconstrained value of <span class="arithmatex"><span class="MathJax_Preview">\hat{r}</span><script type="math/tex">\hat{r}</script></span> would be negative, the test statistic <span class="arithmatex"><span class="MathJax_Preview">q_{r}</span><script type="math/tex">q_{r}</script></span> is evaluated as <span class="arithmatex"><span class="MathJax_Preview">-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0}])</span><script type="math/tex">-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0}])</script></span></li>
+<li>The test statistic is defined using the ratio of likelihoods <span class="arithmatex"><span class="MathJax_Preview">q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta})]</span><script type="math/tex">q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta})]</script></span> , in which the nuisance parameters are profiled separately for <span class="arithmatex"><span class="MathJax_Preview">r=\hat{r}</span><script type="math/tex">r=\hat{r}</script></span> and <span class="arithmatex"><span class="MathJax_Preview">r</span><script type="math/tex">r</script></span>.</li>
+<li>The value of <span class="arithmatex"><span class="MathJax_Preview">q_{r}</span><script type="math/tex">q_{r}</script></span> set to 0 when <span class="arithmatex"><span class="MathJax_Preview">\hat{r}&gt;r</span><script type="math/tex">\hat{r}>r</script></span> giving a one sided limit. Furthermore, the constraint <span class="arithmatex"><span class="MathJax_Preview">r&gt;0</span><script type="math/tex">r>0</script></span> is enforced in the fit. This means that if the unconstrained value of <span class="arithmatex"><span class="MathJax_Preview">\hat{r}</span><script type="math/tex">\hat{r}</script></span> would be negative, the test statistic <span class="arithmatex"><span class="MathJax_Preview">q_{r}</span><script type="math/tex">q_{r}</script></span> is evaluated as <span class="arithmatex"><span class="MathJax_Preview">-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})]</span><script type="math/tex">-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})]</script></span></li>
 <li>For the purposes of toy generation, the nuisance parameters are fixed to their <strong>post-fit</strong> values from the data (conditionally on the value of <strong>r</strong>), while the constraint terms are randomized in the evaluation of the likelihood.</li>
 </ul>
 </li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The recommended style is the <strong>LHC-style</strong>. Please note that this method is sensitive to the <em>observation in data</em> since the <em>post-fit</em> (after a fit to the data) values of the nuisance parameters (assuming different values of <strong>r</strong>) are used when generating the toys. For completely blind limits you can first generate a <em>pre-fit</em> asimov toy dataset (described in the <a href="/HiggsAnalysis-CombinedLimit/part3/runningthetool#toy-data-generation">toy data generation</a> section) and use that in place of the data. You can then use this toy by passing <code>-D toysFileName.root:toys/toy_asimov</code>.</p>
+<p>The recommended style is the <strong>LHC-style</strong>. Please note that this method is sensitive to the <em>observation in data</em> since the <em>post-fit</em> (after a fit to the data) values of the nuisance parameters (assuming different values of <strong>r</strong>) are used when generating the toys. For completely blind limits you can first generate a <em>pre-fit</em> asimov toy dataset (described in the <a href="/part3/runningthetool#toy-data-generation">toy data generation</a> section) and use that in place of the data.</p>
 </div>
 <p>While the above shortcuts are the common variants, you can also try others. The treatment of the nuisances can be changed to the so-called "Hybrid-Bayesian" method which effectively integrates over the nuisance parameters. This can be achieved (with any test-statistic which is not profiled over the nuisances) by setting <code>--generateNuisances=1 --generateExternalMeasurements=0 --fitNuisances=0</code>.</p>
 <div class="admonition info">
