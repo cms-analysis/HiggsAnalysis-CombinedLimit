@@ -13,6 +13,7 @@ nav:
           - "Running the tool":           part3/runningthetool.md
           - "Common statistical methods": part3/commonstatsmethods.md
           - "Advanced use cases":         part3/nonstandard.md
+          - "Simplified Likelihoods":     part3/simplifiedlikelihood.md
           - "Unfolding & regularization": part3/regularisation.md
           - "Validating datacards":       part3/validation.md
           - "Debugging fit failures":     part3/debugging.md
