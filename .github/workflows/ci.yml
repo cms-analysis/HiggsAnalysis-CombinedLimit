@@ -46,8 +46,9 @@ jobs:
       with:
         path: HiggsAnalysis/CombinedLimit # Required to match compile instructions
     - name: Set up Conda
-      uses: conda-incubator/setup-miniconda@v2.1.1
+      uses: conda-incubator/setup-miniconda@v2.2.0
       with:
+        python-version: ${{ matrix.python }}
         mamba-version: "*"
         channels: conda-forge,defaults
         channel-priority: true
