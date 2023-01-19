@@ -273,7 +273,7 @@ With this model it would take too long to find the limit in one go, so instead w
 
 For this we will use `combineTool.py`
 
-First we need to build a workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/data/tutorials/htt/125/htt_tt.txt),
+First we need to build a workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/htt/125/htt_tt.txt),
 
 ```sh
 $ text2workspace.py data/tutorials/htt/125/htt_mt.txt -m 125

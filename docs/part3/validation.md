@@ -1,7 +1,7 @@
 # Validating datacards
 
 This section covers the main features of the datacard validation tool which helps you spot potential problems with your datacards at an early stage. The tool is implemented
-in the [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools) subpackage. See the [`combineTool`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) 
+in the [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/113x/CombineTools) subpackage. See the [`combineTool`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) 
 section of the documentation for checkout instructions.
 
 The datacard validation tool contains a number of checks. It is possible to call sub-sets of these checks when creating datacards within CombineHarvester. However, for now we will only

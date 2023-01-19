@@ -4,7 +4,7 @@ The input to combine, which defines the details of the experiment, is a datacard
 
 ## A simple counting experiment
 
-The file [data/tutorials/counting/realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) shows an example of a counting experiment.
+The file [data/tutorials/counting/realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt) shows an example of a counting experiment.
 
 The first lines can be used as a description and are not parsed by the program. They have to begin with a "#":
 
@@ -106,7 +106,7 @@ For each channel, histograms have to be provided for the observed shape and for 
 -   The normalization of the data histogram must correspond to the number of observed events
 -   The normalization of the expected histograms must match the expected yields
 
-The combine tool can take as input histograms saved as TH1, as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in [github](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/make_simple_shapes.cxx)), or from a pandas dataframe ([example](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/data/tutorials/shapes/simple-shapes-df.txt))
+The combine tool can take as input histograms saved as TH1, as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in [github](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/shapes/make_simple_shapes.cxx)), or from a pandas dataframe ([example](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-df.txt))
 
 The block of lines defining the mapping (first block in the datacard) contains one or more rows in the form
 
@@ -144,7 +144,7 @@ For each given source of shape uncertainty, in the part of the datacard containi
 The effect can be "-" or 0 for no effect, 1 for normal effect, and possibly something different from 1 to test larger or smaller effects (in that case, the unit gaussian is scaled by that factor before using it as parameter for the interpolation)
 
 
-The datacard in [data/tutorials/shapes/simple-shapes-TH1.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/shapes/simple-shapes-TH1.txt) is a clear example of how to include shapes in the datacard. In the first block the following line specifies the shape mapping:
+The datacard in [data/tutorials/shapes/simple-shapes-TH1.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-TH1.txt) is a clear example of how to include shapes in the datacard. In the first block the following line specifies the shape mapping:
 
 ```nohighlight
 shapes * * simple-shapes-TH1.root $PROCESS $PROCESS_$SYSTEMATIC
@@ -164,7 +164,7 @@ There are two options for the interpolation algorithm in the "shape" uncertainty
 
 In this case there are two processes, *signal* and *background*, and two uncertainties affecting background (*alpha*) and signal shape (*sigma*). Within the root file 2 histograms per systematic have to be provided, they are the shape obtained, for the specific process, shifting up and down the parameter associated to the uncertainty: `background_alphaUp` and `background_alphaDown`, `signal_sigmaUp` and `signal_sigmaDown`.
 
-This is the content of the root file [simple-shapes-TH1.root ](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/simple-shapes-TH1.root) associated to the datacard [data/tutorials/shapes/simple-shapes-TH1.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/shapes/simple-shapes-TH1.txt):
+This is the content of the root file [simple-shapes-TH1.root ](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/shapes/simple-shapes-TH1.root) associated to the datacard [data/tutorials/shapes/simple-shapes-TH1.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/shapes/simple-shapes-TH1.txt):
 
 ```nohighlight
 root [0]
@@ -225,7 +225,7 @@ The first part identifies the name of the input [RooWorkspace](http://root.cern.
 !!! warning
     If you are using RooAddPdfs in your model in which the coefficients are *not defined recursively*, combine will not interpret them properly. You can add the option `--X-rtd ADDNLL_RECURSIVE=0` to any combine command in order to recover the correct interpretation, however we recommend that you instead redefine your pdf so that the coefficients are recursive (as described on the [RooAddPdf documentation](https://root.cern.ch/doc/master/classRooAddPdf.html)) and keep the total normalisation (i.e extended term) as a separate object as in the case of the tutorial datacard.
 
-For example, take a look at the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/shapes/simple-shapes-parametric.txt). We see the following line.
+For example, take a look at the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt). We see the following line.
 
 ```nohighlight
 shapes * * simple-shapes-parametric_input.root w:$PROCESS
@@ -268,7 +268,7 @@ The part of the datacard related to the systematics can include lines with the s
 
 These lines encode uncertainties on the parameters of the signal and background pdfs. The parameter is to be assigned a Gaussian uncertainty of **Y** around its mean value of **X**. One can change the mean value from 0 to 1 (or really any value, if one so chooses) if the parameter in question is multiplicative instead of additive.
 
-In the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/shapes/simple-shapes-parametric.txt) datacard, there are lines for one such parametric uncertainty,
+In the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt) datacard, there are lines for one such parametric uncertainty,
 
 ```nohighlight
 sigma   param 1.0      0.1
@@ -299,7 +299,7 @@ It is recommended to use bins that are significantly finer than the characterist
 
 **2. Use a RooParametricShapeBinPdf**
 
-Another solution (currently implemented for 1-dimensional histograms only) is to use a custom pdf which performs the correct integrals internally as in [RooParametricShapeBinPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/src/RooParametricShapeBinPdf.cc)
+Another solution (currently implemented for 1-dimensional histograms only) is to use a custom pdf which performs the correct integrals internally as in [RooParametricShapeBinPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/src/RooParametricShapeBinPdf.cc)
 
 Note that this pdf class now allows parameters that are themselves **RooAbsReal** objects (i.e. functions of other variables). The integrals are handled internally by calling the underlying pdf’s `createIntegral()` method with named ranges created for each of the bins. This means that if the analytical integrals for the underlying pdf are available, they will be used.
 
@@ -380,9 +380,9 @@ Finally, any pre-existing RooAbsReal inside some rootfile with a workspace can b
 name rateParam bin process rootfile:workspacename
 ```
 
-The name should correspond to the name of the object which is being picked up inside the RooWorkspace. A simple example using the SM XS and BR splines available in HiggsAnalysis/CombinedLimit can be found under [data/tutorials/rate_params/simple_sm_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/rate_params/simple_sm_datacard.txt)
+The name should correspond to the name of the object which is being picked up inside the RooWorkspace. A simple example using the SM XS and BR splines available in HiggsAnalysis/CombinedLimit can be found under [data/tutorials/rate_params/simple_sm_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/rate_params/simple_sm_datacard.txt)
 
-After running `text2workspace.py` on your datacard, you can check the normalisation objects using the tool `test/printWorkspaceNormalisations.py`. See the example below for the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/shapes/simple-shapes-parametric.txt) datacard.
+After running `text2workspace.py` on your datacard, you can check the normalisation objects using the tool `test/printWorkspaceNormalisations.py`. See the example below for the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt) datacard.
 
 
 ```nohighlight
@@ -498,7 +498,7 @@ The `combineCards.py` script will complain if you are trying to combine a *shape
 
 ### Automatic production of datacards and workspaces
 
-For complicated analyses or cases in which multiple datacards are needed (e.g. optimisation studies), you can avoid writing these by hand. The object [Datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/Datacard.py) defines the analysis and can be created as a python object. The template python script below will produce the same workspace as running `textToWorkspace.py` (see the section on [Physics Models](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/)) on the [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard.
+For complicated analyses or cases in which multiple datacards are needed (e.g. optimisation studies), you can avoid writing these by hand. The object [Datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/Datacard.py) defines the analysis and can be created as a python object. The template python script below will produce the same workspace as running `textToWorkspace.py` (see the section on [Physics Models](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/)) on the [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt) datacard.
 
 ```python
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
