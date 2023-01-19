@@ -267,7 +267,7 @@ throughout - for other approaches, there are many other tools available (eg <cod
 and folds in the acceptance/efficiency effects as usual.</li>
 <li>The out-of-acceptance contributions can also be included in the above.</li>
 </ul>
-<p>The model we use for this is then just the usual <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/python/PhysicsModel.py#L98"><code>PhysicsModel:multiSignalModel</code></a>, where each <em>signal</em> refers to a particular truth level bin. The results can be extracted through a 
+<p>The model we use for this is then just the usual <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/PhysicsModel.py#L98"><code>PhysicsModel:multiSignalModel</code></a>, where each <em>signal</em> refers to a particular truth level bin. The results can be extracted through a 
 simple maximum likelihood fit with, </p>
 <pre><code>    text2workspace.py -m 125 --X-allow-no-background -o datacard.root datacard.txt
        -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO map='.*GenBin0.*:r_Bin0[1,-1,20]' --PO map='.*GenBin1.*:r_Bin1[1,-1,20]' --PO map='.*GenBin2.*:r_Bin2[1,-1,20]' --PO map='.*GenBin3.*:r_Bin3[1,-1,20]' --PO map='.*GenBin4.*:r_Bin4[1,-1,20]'
