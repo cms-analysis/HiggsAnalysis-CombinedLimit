@@ -23,28 +23,29 @@ should be sufficient. To choose a release version, you can find the latest
 releases on github under
 [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
 
-### Combine v9 - recommended version
+[### Combine v9 - recommended version]: #
 
-The nominal installation method is inside CMSSW. The current release targets
-CMSSW `11_3_X` series because this release has both python2 and python3 ROOT
-bindings, allowing a more gradual migration of user code to python3. Combine is
-fully python3-compatible and can work also in 12_X releases.
+[The nominal installation method is inside CMSSW. The current release targets]: #
+[CMSSW `11_3_X` series because this release has both python2 and python3 ROOT]: #
+[bindings, allowing a more gradual migration of user code to python3. Combine is]: #
+[fully python3-compatible and can work also in 12_X releases.]: #
 
-```sh
-cmsrel CMSSW_11_3_4
-cd CMSSW_11_3_4/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-```
-Update to a recommended tag - currently the recommended tag is **v9.0.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.0.0)
+[```sh]: # 
+[cmsrel CMSSW_11_3_4]: #
+[cd CMSSW_11_3_4/src]: #
+[cmsenv]: #
+[git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit]: #
+[cd HiggsAnalysis/CombinedLimit]: #
+[```]: #
 
-```sh
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v9.0.0
-scramv1 b clean; scramv1 b # always make a clean build
-```
+[Update to a recommended tag - currently the recommended tag is **v9.0.0**: see release notes(https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.0.0)]: #
+
+[```sh]: #
+[cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit]: # 
+[git fetch origin]: #
+[git checkout v9.0.0]: #
+[scramv1 b clean; scramv1 b # always make a clean build]: # 
+[```]: #
 
 ### Combine v8: `CMSSW_10_2_X` release series
 
