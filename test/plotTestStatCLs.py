@@ -11,6 +11,10 @@ import sys
 from optparse import OptionParser
 
 import ROOT
+ROOT.gROOT.SetBatch(1)
+ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTree.cxx")
+ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/qmuPlot.cxx")
+
 from ROOT import hypoTestResultTree, q0Plot, qmuPlot
 
 parser = OptionParser()
@@ -89,9 +93,6 @@ parser.add_option(
 (options, args) = parser.parse_args()
 
 
-ROOT.gROOT.SetBatch(1)
-ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTree.cxx")
-ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/qmuPlot.cxx")
 
 if options.quantileExpected >= 0:
     options.expected = True
