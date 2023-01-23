@@ -92,8 +92,6 @@ parser.add_option(
 )
 (options, args) = parser.parse_args()
 
-
-
 if options.quantileExpected >= 0:
     options.expected = True
 if options.expected and options.quantileExpected < 0:
