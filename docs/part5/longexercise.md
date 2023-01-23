@@ -32,12 +32,10 @@ Now make sure the CMSSW area is compiled:
 ```shell 
 scramv1 b clean; scramv1 b
 ```
-Finally we will checkout the working directory for these tutorials - this contains all the inputs needed to run the exercises below:
+Now we will move to the working directory for this tutorial, which contains all the inputs needed to run the exercises below:
 
 ```shell
-cd $CMSSW_BASE/src
-git clone https://gitlab.cern.ch/agilbert/cms-das-stats.git
-cd cms-das-stats
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/
 ```
 ## Part 1: A one-bin counting experiment
 
@@ -113,7 +111,7 @@ In this case we only computed the values for one signal mass hypothesis, indicat
 
 **Tasks and questions:**
 
-  -   There are some important uncertainties missing from the datacard above. Add the uncertainty on the luminosity (name: `lumi_13TeV`) which has a 2.5% effect on all processes (except the `jetFakes`, which are taken from data), and uncertainties on the inclusive cross sections of the `Ztautau` and `ttbar` processes (with names `xsec_Ztautau` and `xsec_diboson`) which are 4% and 6% respectively.
+  -   There are some important uncertainties missing from the datacard above. Add the uncertainty on the luminosity (name: `lumi_13TeV`) which has a 2.5% effect on all processes (except the `jetFakes`, which are taken from data), and uncertainties on the inclusive cross sections of the `Ztautau` and `ttbar` processes (with names `xsec_Ztautau` and `xsec_ttbar`) which are 4% and 6% respectively.
   -   Try changing the values of some uncertainties (up or down, or removing them altogether) - how do the expected and observed limits change?
   -   Now try changing the number of observed events. The observed limit will naturally change, but the expected does too - why might this be?
 
@@ -259,7 +257,7 @@ With the s+b fit combine will report the best-fit value of our signal strength m
 ```shell
 combine -M FitDiagnostics workspace_part2.root -m 800 --rMin -20 --rMax 20
 ```
-Open the resulting `fitDiagnostics.root` interactively and print the contents of the s+b RooFitResult:
+Open the resulting `fitDiagnosticsTest.root` interactively and print the contents of the s+b RooFitResult:
 
 ```shell
 root [1] fit_s->Print()
@@ -267,28 +265,28 @@ root [1] fit_s->Print()
 <details>
 <summary><b>Show output</b></summary>
 ```shell
- RooFitResult: minimized FCN value: -4.7666, estimated distance to minimum: 3.31389e-05
+RooFitResult: minimized FCN value: -2.55338e-05, estimated distance to minimum: 7.54243e-06
                 covariance matrix quality: Full, accurate covariance matrix
                 Status : MINIMIZE=0 HESSE=0
 
-   Floating Parameter    FinalValue +/-  Error
---------------------  --------------------------
-             CMS_eff_b   -4.3559e-02 +/-  9.87e-01
-             CMS_eff_t   -2.6382e-01 +/-  7.27e-01
-      CMS_eff_t_highpt   -4.7214e-01 +/-  9.56e-01
-      CMS_scale_t_1prong0pi0_13TeV   -1.5884e-01 +/-  5.89e-01
-      CMS_scale_t_1prong1pi0_13TeV   -1.6512e-01 +/-  4.91e-01
-      CMS_scale_t_3prong0pi0_13TeV   -3.0668e-01 +/-  6.03e-01
-    acceptance_Ztautau   -3.1059e-01 +/-  8.57e-01
-        acceptance_bbH   -5.8325e-04 +/-  9.94e-01
-      acceptance_ttbar    4.7839e-03 +/-  9.94e-01
-            lumi_13TeV   -5.4684e-02 +/-  9.83e-01
-         norm_jetFakes   -9.3975e-02 +/-  2.54e-01
-                     r   -2.7327e+00 +/-  2.57e+00
-    top_pt_ttbar_shape    1.7614e-01 +/-  6.97e-01
-          xsec_Ztautau   -1.5991e-01 +/-  9.61e-01
-          xsec_diboson    3.8745e-02 +/-  9.94e-01
-            xsec_ttbar    5.8025e-02 +/-  9.41e-01
+    Floating Parameter    FinalValue +/-  Error
+  --------------------  --------------------------
+             CMS_eff_b   -4.5380e-02 +/-  9.93e-01
+             CMS_eff_t   -2.6311e-01 +/-  7.33e-01
+      CMS_eff_t_highpt   -4.7146e-01 +/-  9.62e-01
+  CMS_scale_t_1prong0pi0_13TeV   -1.5989e-01 +/-  5.93e-01
+  CMS_scale_t_1prong1pi0_13TeV   -1.6426e-01 +/-  4.94e-01
+  CMS_scale_t_3prong0pi0_13TeV   -3.0698e-01 +/-  6.06e-01
+    acceptance_Ztautau   -3.1262e-01 +/-  8.62e-01
+        acceptance_bbH   -2.8676e-05 +/-  1.00e+00
+      acceptance_ttbar    4.9981e-03 +/-  1.00e+00
+            lumi_13TeV   -5.6366e-02 +/-  9.89e-01
+         norm_jetFakes   -9.3327e-02 +/-  2.56e-01
+                     r   -2.7220e+00 +/-  2.59e+00
+    top_pt_ttbar_shape    1.7586e-01 +/-  7.00e-01
+          xsec_Ztautau   -1.6007e-01 +/-  9.66e-01
+          xsec_diboson    3.9758e-02 +/-  1.00e+00
+            xsec_ttbar    5.7794e-02 +/-  9.46e-01
 ```
 </details>
 
@@ -299,37 +297,37 @@ Underneath this the best-fit values ($\theta$) and symmetrised uncertainties for
 A more useful way of looking at this is to compare the pre- and post-fit values of the parameters, to see how much the fit to data has shifted and constrained these parameters with respect to the input uncertainty. The script `diffNuisances.py` can be used for this:
 
 ```shell
-python diffNuisances.py fitDiagnostics.root --all
+python diffNuisances.py fitDiagnosticsTest.root --all
 ```
 <details>
 <summary><b>Show output</b></summary>
 ```shell
 name                                              b-only fit            s+b fit         rho
-CMS_eff_b                                        -0.04, 0.99        -0.04, 0.99       +0.01
+CMS_eff_b                                        -0.04, 0.99        -0.05, 0.99       +0.01
 CMS_eff_t                                     * -0.24, 0.73*     * -0.26, 0.73*       +0.06
-CMS_eff_t_highpt                              * -0.56, 0.93*     * -0.47, 0.96*       +0.03
+CMS_eff_t_highpt                              * -0.56, 0.94*     * -0.47, 0.96*       +0.02
 CMS_scale_t_1prong0pi0_13TeV                  * -0.17, 0.58*     * -0.16, 0.59*       -0.04
-CMS_scale_t_1prong1pi0_13TeV                  ! -0.12, 0.45!     ! -0.17, 0.49!       +0.21
-CMS_scale_t_3prong0pi0_13TeV                  * -0.31, 0.60*     * -0.31, 0.60*       +0.02
+CMS_scale_t_1prong1pi0_13TeV                  ! -0.12, 0.45!     ! -0.16, 0.49!       +0.20
+CMS_scale_t_3prong0pi0_13TeV                  * -0.31, 0.61*     * -0.31, 0.61*       +0.02
 acceptance_Ztautau                            * -0.31, 0.86*     * -0.31, 0.86*       -0.05
-acceptance_bbH                                   +0.00, 0.99        -0.00, 0.99       +0.05
-acceptance_ttbar                                 +0.01, 0.99        +0.00, 0.99       +0.00
-lumi_13TeV                                       -0.05, 0.98        -0.05, 0.98       +0.01
-norm_jetFakes                                 ! -0.09, 0.25!     ! -0.09, 0.25!       -0.05
-top_pt_ttbar_shape                            * +0.24, 0.69*     * +0.18, 0.70*       +0.23
-xsec_Ztautau                                     -0.16, 0.96        -0.16, 0.96       -0.02
-xsec_diboson                                     +0.03, 0.99        +0.04, 0.99       -0.02
-xsec_ttbar                                       +0.08, 0.94        +0.06, 0.94       +0.02
+acceptance_bbH                                   +0.00, 1.00        -0.00, 1.00       +0.05
+acceptance_ttbar                                 +0.01, 1.00        +0.00, 1.00       +0.00
+lumi_13TeV                                       -0.05, 0.99        -0.06, 0.99       +0.01
+norm_jetFakes                                 ! -0.09, 0.26!     ! -0.09, 0.26!       -0.05
+top_pt_ttbar_shape                            * +0.24, 0.69*     * +0.18, 0.70*       +0.22
+xsec_Ztautau                                     -0.16, 0.97        -0.16, 0.97       -0.02
+xsec_diboson                                     +0.03, 1.00        +0.04, 1.00       -0.02
+xsec_ttbar                                       +0.08, 0.95        +0.06, 0.95       +0.02
 ```
 </details>
 
-The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (often called the **pull**, though note that more than one definition is in use for this), where $\sigma_I$ is the input uncertainty; and the ratio of the post-fit to the pre-fit uncertainty $\frac{\sigma}{\sigma_I}$.
+The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (This is often called the pull, but note that this is a misnomer. In this tutorial we will refer to it as the fitted value of the nuisance parameter relative to the input uncertainty. The true pull is defined as discussed under `diffPullAsym` [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#pre-and-post-fit-nuisance-parameters-and-pulls) ), where $\sigma_I$ is the input uncertainty; and the ratio of the post-fit to the pre-fit uncertainty $\frac{\sigma}{\sigma_I}$. 
 
 **Tasks and questions:**
 
-  - Which parameter has the largest pull? Which has the tightest constraint?
+  - Which parameter has the largest shift from the nominal value (0) in the fitted value of the nuisance parameter relative to the input uncertainty? Which has the tightest constraint?
   - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. $\frac{\sigma}{\sigma_I}<1.0$)?
-  - Check the pulls and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
+  - Check the fitted values of the nuisance parameters and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
   - **Advanced task:** Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics) to explore the tools available for this.
 
 ### D: MC statistical uncertainties
@@ -466,7 +464,7 @@ This will take a little bit of time. When finished we collect all the output and
 ```shell
 combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --output impacts.json
 ```
-We can then make a plot showing the pulls and parameter impacts, sorted by the largest impact:
+We can then make a plot showing the fitted values of the nuisance parameters, relative to the input uncertainty, and parameter impacts, sorted by the largest impact:
 ```shell
 plotImpacts.py -i impacts.json -o impacts
 ```
@@ -474,7 +472,7 @@ plotImpacts.py -i impacts.json -o impacts
 **Tasks and questions:**
 
   - Identify the most important uncertainties using the impacts tool.
-  - In the plot, some parameters do not show a pull, but rather just a numerical value - why?
+  - In the plot, some parameters do not show a fitted value of the nuisance parameter relative to the input uncertainty, but rather just a numerical value - why?
 
 ### C: Post-fit distributions
 Another thing the `FitDiagnostics` mode can help us with is visualising the distributions we are fitting, and the uncertainties on those distributions, both before the fit is performed ("pre-fit") and after ("post-fit"). The pre-fit can give us some idea of how well our uncertainties cover any data-MC discrepancy, and the post-fit if discrepancies remain after the fit to data (as well as possibly letting us see the presence of a significant signal!).
@@ -550,37 +548,37 @@ root [1] limit->Scan("r:deltaNLL")
 ************************************
 *    Row   *         r *  deltaNLL *
 ************************************
-*        0 * 0.5007491 *         0 *
-*        1 * -0.949999 * 5.0564951 *
-*        2 * -0.850000 * 4.4238934 *
-*        3 *     -0.75 * 3.8231189 *
-*        4 * -0.649999 * 3.2575576 *
-*        5 * -0.550000 * 2.7291250 *
-*        6 * -0.449999 * 2.2421045 *
-*        7 * -0.349999 * 1.7985963 *
-*        8 *     -0.25 * 1.4009944 *
-*        9 * -0.150000 * 1.0515967 *
-*       10 * -0.050000 * 0.7510029 *
-*       11 * 0.0500000 * 0.5008214 *
-*       12 * 0.1500000 * 0.3021477 *
-*       13 *      0.25 * 0.1533777 *
-*       14 * 0.3499999 * 0.0552866 *
-*       15 * 0.4499999 * 0.0067232 *
-*       16 * 0.5500000 * 0.0062941 *
-*       17 * 0.6499999 * 0.0515425 *
-*       18 *      0.75 * 0.1421113 *
-*       19 * 0.8500000 * 0.2767190 *
-*       20 * 0.9499999 * 0.4476667 *
-*       21 * 1.0499999 * 0.6578899 *
-*       22 * 1.1499999 * 0.9042779 *
-*       23 *      1.25 * 1.1839065 *
-*       24 * 1.3500000 * 1.4943070 *
-*       25 * 1.4500000 * 1.8335367 *
-*       26 * 1.5499999 * 2.1992974 *
-*       27 * 1.6499999 * 2.5904724 *
-*       28 *      1.75 * 3.0033872 *
-*       29 * 1.8500000 * 3.4358899 *
-*       30 * 1.9500000 * 3.8883462 *
+*        0 * 0.5010952 *         0 *
+*        1 * -0.949999 * 5.0565371 *
+*        2 * -0.850000 * 4.4238944 *
+*        3 *     -0.75 * 3.8230235 *
+*        4 * -0.649999 * 3.2571268 *
+*        5 * -0.550000 * 2.7290999 *
+*        6 * -0.449999 * 2.2421050 *
+*        7 * -0.349999 * 1.7986002 *
+*        8 *     -0.25 * 1.4009695 *
+*        9 * -0.150000 * 1.0512697 *
+*       10 * -0.050000 * 0.7508889 *
+*       11 * 0.0500000 * 0.5007593 *
+*       12 * 0.1500000 * 0.3015080 *
+*       13 *      0.25 * 0.1530667 *
+*       14 * 0.3499999 * 0.0549822 *
+*       15 * 0.4499999 * 0.0062253 *
+*       16 * 0.5500000 * 0.0055419 *
+*       17 * 0.6499999 * 0.0512909 *
+*       18 *      0.75 * 0.1416319 *
+*       19 * 0.8500000 * 0.2743169 *
+*       20 * 0.9499999 * 0.4471097 *
+*       21 * 1.0499999 * 0.6578967 *
+*       22 * 1.1499999 * 0.9042429 *
+*       23 *      1.25 * 1.1838192 *
+*       24 * 1.3500000 * 1.4944315 *
+*       25 * 1.4500000 * 1.8335464 *
+*       26 * 1.5499999 * 2.1993224 *
+*       27 * 1.6499999 * 2.5896029 *
+*       28 *      1.75 * 3.0024433 *
+*       29 * 1.8500000 * 3.4359285 *
+*       30 * 1.9500000 * 3.8883554 *
 ************************************
 ```
 </details>
