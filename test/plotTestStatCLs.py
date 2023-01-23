@@ -11,6 +11,7 @@ import sys
 from optparse import OptionParser
 
 import ROOT
+
 ROOT.gROOT.SetBatch(1)
 ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTree.cxx")
 ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/qmuPlot.cxx")
