@@ -14,17 +14,7 @@ from os import environ
 environ['CLING_STANDARD_PCH'] = 'none'
 import cppyy
 
-
-cppyy.include("CombineHarvester/CombineTools/interface/CombineHarvester.h")
-cppyy.include("CombineHarvester/CombineTools/interface/Observation.h")
-cppyy.include("CombineHarvester/CombineTools/interface/Parameter.h")
-cppyy.include("CombineHarvester/CombineTools/interface/CardWriter.h")
-cppyy.include("CombineHarvester/CombineTools/interface/BinByBin.h")
-cppyy.include("CombineHarvester/CombineTools/interface/AutoRebin.h")
-cppyy.include("CombineHarvester/CombineTools/interface/CopyTools.h")
-cppyy.include("CombineHarvester/CombineTools/interface/Utilities.h")
-cppyy.include("CombineHarvester/CombineTools/interface/ValidationToolsNoJSON.h")
-cppyy.include("CombineHarvester/CombineTools/interface/ParseCombineWorkspace.h")
+cppyy.load_reflection_info("libCombineHarvesterCombineTools")
 AutoRebin = cppyy.gbl.ch.AutoRebin
 BinByBinFactory = cppyy.gbl.ch.BinByBinFactory
 CardWriter = cppyy.gbl.ch.CardWriter
