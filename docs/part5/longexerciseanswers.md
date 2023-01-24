@@ -45,7 +45,7 @@
 <details>
 <summary><b>Show answer</b></summary>
 
-*For this we need the definition of CLs = CLs+b / CLb. The 0.025 expected quantile is by definition where CLb = 0.025, so for a 95% CL limit we have CLs = 0.05, implying we are looking for the value of r where CLs+b = 0.00125. With 1000 s+b toys we would then only expect `1000 * 0.00125 = 1.25 toys` in the tail region we have to integrate over. Contrast this to the median limit where 25 toys would be in this region. This means we have to generate a much larger numbers of toys to get the same statistical power.*
+<b>For this we need the definition of CLs = CLs+b / CLb. The 0.025 expected quantile is by definition where CLb = 0.025, so for a 95% CL limit we have CLs = 0.05, implying we are looking for the value of r where CLs+b = 0.00125. With 1000 s+b toys we would then only expect `1000 * 0.00125 = 1.25` toys in the tail region we have to integrate over. Contrast this to the median limit where 25 toys would be in this region. This means we have to generate a much larger numbers of toys to get the same statistical power.</b>
 
 </details>
 
@@ -101,7 +101,7 @@ Only tasks, no questions in this section
 <details>
 <summary><b>Show answer</b></summary>
 
-`CMS_eff_t_highpt` should have the largest shift from the nominal value (around 0.47), `norm_jetFakes` has the tightest constraint (to 25% of the input uncertainty).
+```shell CMS_eff_t_highpt``` should have the largest shift from the nominal value (around 0.47), ```shell norm_jetFakes``` has the tightest constraint (to 25% of the input uncertainty).
 
 </details>
   - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. $\frac{\sigma}{\sigma_I}<1.0$)?
