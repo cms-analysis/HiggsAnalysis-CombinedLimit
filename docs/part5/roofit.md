@@ -687,3 +687,110 @@ nominal_values = (MH=124.627 +/- 0.398094,resolution=1[C],norm_s=33.9097 +/- 11.
  </details>
 
 This is exactly what needs to be done when you want to use shape based datacards in combine with parametric models.
+
+## A likelihood for a counting experiment
+An introductory presentation about likelihoods and interval estimation is available [here](https://indico.cern.ch/event/976099/contributions/4138517/).
+
+**Note: We will use python syntax in this section; you should use a .py script. Make sure to do `from ROOT import *` at the top of your script **
+
+We've seen how to create variables and pdfs, and how to fit a pdf to data. But what if we have a counting experiment, or a histogram template shape? And what about systematic uncertainties?  Let's build a likelihood
+for this:
+
+$\mathcal{L} \propto p(\text{data}|\text{parameters})$
+
+where our parameters are parameters of interest, $\mu$, and nuisance parameters, $\theta$. The nuisance parameters are constrained by external measurements, so we add constraint terms $\pi(\vec{\theta}_0|\vec{\theta})$
+
+So we have
+$\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})$
+
+let's try to build the likelihood by hand for a 1-bin counting experiment.
+The data is the number of observed events $N$, and the probability is just a poisson probability $p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}$, where $\lambda$ is the number of events expected in our signal+background model: $\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})$. 
+
+In the expression, s and b are the numbers of expected signal- and background events, which both depend on the nuisance parameters. Let's start by building a simple likelihood function with one signal process and one background process. We'll assume there are no nuisance parameters for now. The number of observed events in data is 15, the expected number of signal events is 5 and the expected number of background events 8.1.
+
+It's easiest to use the RooFit workspace factory to build our model ([this tutorial](https://root.cern/doc/master/rf511__wsfactory__basic_8py.html) has more information on the factory syntax).
+
+```
+from ROOT import *
+w = RooWorkspace("w")
+```
+We need to create an expression for the number of events in our model, $\mu s +b$:
+
+```
+w.factory('expr::n("mu*s +b", mu[1.0,0,4], s[5],b[8.1])')
+```
+Now we can build the likelihood, which is just our poisson pdf:
+```
+w.factory('Poisson::poisN(N[15],n)')
+```
+
+To find the best-fit value for our parameter of interest $\mu$ we need to maximize the likelihood. In practice it's actually easier to minimize the **N**egative **l**og of the **l**ikelihood, or NLL:
+
+```
+w.factory('expr::NLL("-log(@0)",poisN)')
+```
+
+We can now use the RooMinimizer to find the minimum of the NLL
+
+
+```
+nll = w.function("NLL")
+minim = RooMinimizer(nll)
+minim.setErrorLevel(0.5)
+minim.minimize("Minuit2","migrad")
+bestfitnll = nll.getVal()
+```
+Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!) - note that there is a more reliable way of extracting the confidence interval (explicitly rather than relying on migrad). We will discuss this a bit later in this section.
+
+Now let's add a nuisance parameter, *lumi*, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at $+1\sigma$ the signal and background normalizations will be multiplied by 1.025 and at $-1\sigma$ they will be divided by 1.025.  We should modify the expression for the number of events in our model:
+
+```
+w.factory('expr::n("mu*s*pow(1.025,lumi) +b*pow(1.025,lumi)", mu[1.0,0,4], s[5],b[8.1],lumi[0,-4,4])')
+```
+
+And we add a unit gaussian constraint 
+```
+w.factory('Gaussian::lumiconstr(lumi,0,1)')
+```
+
+Our full likelihood will now be
+```
+w.factory('PROD::likelihood(poisN,lumiconstr)')
+```
+and the NLL
+```
+w.factory('expr::NLL("-log(@0)",likelihood)')
+```
+
+Which we can minimize in the same way as before. 
+
+Now let's extend our model a bit. 
+
+- Expanding on what was demonstrated above, build the likelihood for $N=15$, a signal process *s* with expectation 5 events, a background *ztt* with expectation 3.7 events and a background *tt* with expectation 4.4 events. The luminosity uncertainty applies to all three processes. The signal process is further subject to a 5% log-normally distributed uncertainty *sigth*, *tt* is subject to a 6% log-normally distributed uncertainty *ttxs*, and *ztt* is subject to a 4% log-normally distributed uncertainty *zttxs*. Find the best-fit value and the associated uncertainty
+- Also perform an explicit scan of the $\Delta$ NLL ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started. Hint: you'll need to perform fits for different values of mu, where mu is fixed. In RooFit you can set a variable to be constant as `var("VARNAME").setConstant(True)`
+- From the curve that you've created by performing an explicit scan, we can extract the 68% CL interval. You can do so by eye or by writing some code to find the relevant intersections of the curve. 
+
+```
+gr = TGraph()
+
+npoints = 0
+for i in range(0,60):
+  npoints+=1
+  mu=0.05*i
+  ...
+  [perform fits for different values of mu with mu fixed]
+  ...
+  deltanll = ...
+  gr.SetPoint(npoints,mu,deltanll)
+
+
+canv = TCanvas();
+gr.Draw("ALP");
+canv.SaveAs("likelihoodscan.pdf")
+```
+
+Well, this is doable - but we were only looking at a simple one-bin counting experiment. This might become rather cumbersome for large models... $[*]$
+We'll now switch to Combine which will make it a lot easier to set up your model and do the statistical analysis than trying to build the likelihood yourself.
+
+$[*]$ Side note - RooFit does have additional functionality to help with statistical model building, but we won't go into detail today.   
+
