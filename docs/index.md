@@ -175,13 +175,13 @@ An additional tool for submitting combine jobs to batch/crab, developed original
 git clone via ssh:
 
 ```sh
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
+bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-ssh.sh)
 ```
 
 git clone via https:
 
 ```sh
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh)
+bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
 ```
 
 make sure to run `scram`  to compile the `CombineTools` package.

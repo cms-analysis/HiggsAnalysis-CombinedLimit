@@ -11,32 +11,32 @@ Initially we will start with the simplest analysis possible: a one-bin counting 
 We need to set up a new CMSSW area and checkout the combine package: 
 
 ```shell
-export SCRAM_ARCH=slc7_amd64_gcc700
-cmsrel CMSSW_10_2_13
-cd CMSSW_10_2_13/src
+cmsrel CMSSW_11_3_4
+cd CMSSW_11_3_4/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v8.1.0
-
-cd $CMSSW_BASE/src
+git checkout v9.0.0
+scramv1 b clean; scramv1 b # always make a clean build
 ```
+
 We will also make use another package, `CombineHarvester`, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this tutorial:
 ```shell
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh)
+bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
 ```
 Now make sure the CMSSW area is compiled:
 ```shell 
 scramv1 b clean; scramv1 b
 ```
-Now we will move to the working directory for this tutorial, which contains all the inputs needed to run the exercises below:
 
+Now we will move to the working directory for this tutorial, which contains all the inputs needed to run the exercises below:
 ```shell
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/
 ```
+
 ## Part 1: A one-bin counting experiment
 
 Topics covered in this section:
