@@ -281,7 +281,7 @@ cd $CMSSW_BASE/src
 <li>A: Computing limits using the asymptotic approximation</li>
 <li>Advanced section: B: Computing limits with toys</li>
 </ul>
-<p>We will begin with a simplified version of a datacard from the MSSM <span class="arithmatex"><span class="MathJax_Preview">\phi\rightarrow\tau\tau</span><script type="math/tex">\phi\rightarrow\tau\tau</script></span> analysis that has been converted to a one-bin counting experiment, as described above. While the full analysis considers a range of signal mass hypotheses, we will start by considering just one: <span class="arithmatex"><span class="MathJax_Preview">m_{\phi}</span><script type="math/tex">m_{\phi}</script></span>=800GeV. Click the text below to study the datacard (<code>datacard_part1.txt</code> in the <code>cms-das-stats</code> directory):</p>
+<p>We will begin with a simplified version of a datacard from the MSSM <span class="arithmatex"><span class="MathJax_Preview">\phi\rightarrow\tau\tau</span><script type="math/tex">\phi\rightarrow\tau\tau</script></span> analysis that has been converted to a one-bin counting experiment, as described above. While the full analysis considers a range of signal mass hypotheses, we will start by considering just one: <span class="arithmatex"><span class="MathJax_Preview">m_{\phi}</span><script type="math/tex">m_{\phi}</script></span>=800GeV. Click the text below to study the datacard (<code>datacard_part1.txt</code> in the <code>longexercise</code> directory):</p>
 <details>
 <summary><b>Show datacard</b></summary>
 
@@ -304,11 +304,8 @@ CMS_eff_t_highpt   lnN   1.1             1.1             1.1             -      
 acceptance_Ztautau lnN   -               -               1.08            -               -
 acceptance_bbH     lnN   -               -               -               -               1.05
 acceptance_ttbar   lnN   1.005           -               -               -               -
-lumi_13TeV         lnN   1.025           1.025           1.025           -               1.025
 norm_jetFakes      lnN   -               -               -               1.2             -
-xsec_Ztautau       lnN   -               -               1.04            -               -
 xsec_diboson       lnN   -               1.05            -               -               -
-xsec_ttbar         lnN   1.06            -               -               -               -
 </code></pre>
 
 </details>
@@ -325,7 +322,7 @@ xsec_ttbar         lnN   1.06            -               -               -      
 <pre><code class="language-shell">combine -M [method] [datacard] [additional options...]
 </code></pre>
 <h3 id="a-computing-limits-using-the-asymptotic-approximation">A: Computing limits using the asymptotic approximation</h3>
-<p>As we are searching for a signal process that does not exist in the standard mode, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). Combine has dedicated method for calculating upper limits. The most commonly used one is <code>AsymptoticLimits</code>, which implements the CLs criterion and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the asymptotic approximation, so there is no need for more time-intensive toy throwing and fitting. Try running the following command:</p>
+<p>As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). Combine has dedicated method for calculating upper limits. The most commonly used one is <code>AsymptoticLimits</code>, which implements the <a href="https://inspirehep.net/literature/599622">CLs criterion</a> and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the <a href="https://arxiv.org/abs/1007.1727">asymptotic approximation</a>, so there is no need for more time-intensive toy throwing and fitting. Try running the following command:</p>
 <pre><code class="language-shell">combine -M AsymptoticLimits datacard_part1.txt -n .part1A
 </code></pre>
 <p>You should see the results of the observed and expected limit calculations printed to the screen. Here we have added an extra option, <code>-n .part1A</code>, which is short for <code>--name</code>, and is used to label the output file combine produces, which in this case will be called <code>higgsCombine.part1A.AsymptoticLimits.mH120.root</code>. The file name depends on the options we ran with, and is of the form: <code>higgsCombine[name].[method].mH[mass].root</code>. The file contains a TTree called <code>limit</code> which stores the numerical values returned by the limit computation. Note that in our case we did not set a signal mass when running combine (i.e. <code>-m 800</code>), so the output file just uses the default value of <code>120</code>. This does not affect our result in any way though, just the label that is used on the output file.</p>
@@ -349,7 +346,7 @@ xsec_ttbar         lnN   1.06            -               -               -      
 <p>Run the following command:</p>
 <pre><code class="language-shell">combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --fork 0
 </code></pre>
-<p>In contrast to <code>AsymptoticLimits</code> this will only determine the observed limit, and will take around five minutes. There will not be much output to the screen while combine is running. You can add the option <code>-v 1</code> to get a better idea of what is going on. You should see combine stepping around in <code>r</code>, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The <code>--saveHybridResult</code> option will cause the test statistic distributions that are generated at each tested value of <code>r</code> to be saved in the output ROOT file.</p>
+<p>In contrast to <code>AsymptoticLimits</code> this will only determine the observed limit, and will take a few minutes. There will not be much output to the screen while combine is running. You can add the option <code>-v 1</code> to get a better idea of what is going on. You should see combine stepping around in <code>r</code>, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The <code>--saveHybridResult</code> option will cause the test statistic distributions that are generated at each tested value of <code>r</code> to be saved in the output ROOT file.</p>
 <p>To get an expected limit add the option <code>--expectedFromGrid X</code>, where <code>X</code> is the desired quantile, e.g. for the median:</p>
 <pre><code class="language-shell">combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --fork 0 --expectedFromGrid 0.500
 </code></pre>
@@ -359,10 +356,10 @@ xsec_ttbar         lnN   1.06            -               -               -      
 - How good is the agreement between the asymptotic and toy-based methods?
 - Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on CLs+b and CLb.</p>
 <p>Next plot the test statistic distributions stored in the output file:</p>
-<pre><code class="language-shell">python $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py --input higgsCombine.part1B.HybridNew.mH120.root --poi r --val all --mass 120
+<pre><code class="language-shell">python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py --input higgsCombine.part1B.HybridNew.mH120.root --poi r --val all --mass 120
 </code></pre>
 <p>This produces a new ROOT file <code>cls_qmu_distributions.root</code> containing the plots, to save them as pdf/png files run this small script and look at the resulting figures:</p>
-<pre><code class="language-shell">python printTestStatPlots.py cls_qmu_distributions.root
+<pre><code class="language-shell">python3 printTestStatPlots.py cls_qmu_distributions.root
 </code></pre>
 <h4 id="advanced-exercises">Advanced exercises</h4>
 <p>These distributions can be useful in understanding features in the CLs limits, especially in the low statistics regime. To explore this, try reducing the observed and expected yields in the datacard by a factor of 10, and rerun the above steps to compare the observed and expected limits with the asymptotic approach, and plot the test statistic distributions.</p>
@@ -414,7 +411,7 @@ alpha  shape    -          1
 <li>In the list of systematic uncertainties some are marked as shape instead of lnN</li>
 </ul>
 <p>The syntax of the "shapes" line is: <code>shapes [process] [channel] [file] [histogram] [histogram_with_systematics]</code>. It is possible to use the <code>*</code> wildcard to map multiple processes and/or channels with one line. The histogram entries can contain the <code>$PROCESS</code>, <code>$CHANNEL</code> and <code>$MASS</code> place-holders which will be substituted when searching for a given (process, channel) combination. The value of <code>$MASS</code> is specified by the <code>-m</code> argument when combine. By default the observed data process name will be <code>data_obs</code>.</p>
-<p>Shape uncertainties can be added by supplying two additional histograms for a process, corresponding to the distribution obtained by shifting that parameter up and down by one standard deviation. These shapes will be interpolated quadratically for shifts below <span class="arithmatex"><span class="MathJax_Preview">1\sigma</span><script type="math/tex">1\sigma</script></span> and linearly beyond. The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties.</p>
+<p>Shape uncertainties can be added by supplying two additional histograms for a process, corresponding to the distribution obtained by shifting that parameter up and down by one standard deviation. These shapes will be interpolated (see the <a href="../../part2/settinguptheanalysis/#template-shape-uncertainties">template shape uncertainties</a> section for details) for shifts within <span class="arithmatex"><span class="MathJax_Preview">\pm1\sigma</span><script type="math/tex">\pm1\sigma</script></span> and linearly extrapolated beyond. The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties.</p>
 <p><img alt="" src="../images/shape_morphing.jpg" /></p>
 <p>The final argument of the "shapes" line above should contain the <code>$SYSTEMATIC</code> place-holder which will be substituted by the systematic name given in the datacard.</p>
 <p>In the list of uncertainties the interpretation of the values for <code>shape</code> lines is a bit different from <code>lnN</code>. The effect can be "-" or 0 for no effect, 1 for normal effect, and possibly something different from 1 to test larger or smaller effects (in that case, the unit Gaussian is scaled by that factor before using it as parameter for the interpolation).</p>
@@ -443,7 +440,7 @@ alpha  shape    -          1
 <li>A "background-only" (b-only) fit: first POI (usually "r") fixed to zero</li>
 <li>A "signal+background" (s+b) fit: all POIs are floating</li>
 </ul>
-<p>With the s+b fit combine will report the best-fit value of our signal strength modifier <code>r</code>. As well as the usual output file, a file named <code>fitdiagnostics.root</code> is produced which contains additional information. In particular it includes two <code>RooFitResult</code> objects, one for the b-only and one for the s+b fit, which store the fitted values of all the <strong>nuisance parameters (NPs)</strong> and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the <code>FitDiagnostics</code> method on our workspace:</p>
+<p>With the s+b fit combine will report the best-fit value of our signal strength modifier <code>r</code>. As well as the usual output file, a file named <code>fitDiagnosticsTest.root</code> is produced which contains additional information. In particular it includes two <code>RooFitResult</code> objects, one for the b-only and one for the s+b fit, which store the fitted values of all the <strong>nuisance parameters (NPs)</strong> and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the <code>FitDiagnostics</code> method on our workspace:</p>
 <pre><code class="language-shell">combine -M FitDiagnostics workspace_part2.root -m 800 --rMin -20 --rMax 20
 </code></pre>
 <p>Open the resulting <code>fitDiagnosticsTest.root</code> interactively and print the contents of the s+b RooFitResult:</p>
@@ -594,6 +591,7 @@ rate                                              198.521        683.017        
 ----------------------------------------------------------------------------------------------------------------------------------
 CMS_eff_b               lnN                       1.02           1.02           1.02           1.02           -              -              -              -              -              -              -              -              -              -              -              -
 CMS_eff_e               lnN                       -              -              -              -              -              1.02           1.02           1.02           1.02           -              -              -              -              -              -              -
+...
 </code></pre>
 
 </details>
@@ -611,8 +609,8 @@ rateScale rateParam * procB 1.0
 <p>is perfectly valid and only one <code>rateParam</code> will be created. These parameters will allow the yields to float in the fit without prior constraint (unlike a regular <code>lnN</code> or <code>shape</code> systematic), with the yields in the CRs and SR tied together.</p>
 <p><strong>Tasks and questions:</strong></p>
 <ul>
-<li>Run <code>text2workspace.py</code> on this combined card and then use <code>FitDiagnostics</code> on an Asimov dataset with <code>r=1</code> to get the expected uncertainty. Suggested command line options: <code>--rMin 0 --rMax 2</code></li>
-<li>Using the RooFitResult in the <code>fitdiagnostics.root</code> file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?</li>
+<li>Run <code>text2workspace.py</code> on this combined card (don't forget to set the mass and output name <code>-m 200 -o workspace_part3.root</code>) and then use <code>FitDiagnostics</code> on an Asimov dataset with <code>r=1</code> to get the expected uncertainty. Suggested command line options: <code>--rMin 0 --rMax 2</code></li>
+<li>Using the RooFitResult in the <code>fitDiagnosticsTest.root</code> file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?</li>
 <li>To compare to the previous approach of fitting the SR only, with cross section and acceptance uncertainties restored, an additional card is provided: <code>datacard_part3_nocrs.txt</code>. Run the same fit on this card to verify the improvement of the SR+CR approach</li>
 </ul>
 <h3 id="b-nuisance-parameter-impacts">B: Nuisance parameter impacts</h3>
@@ -636,15 +634,15 @@ rateScale rateParam * procB 1.0
 <h3 id="c-post-fit-distributions">C: Post-fit distributions</h3>
 <p>Another thing the <code>FitDiagnostics</code> mode can help us with is visualising the distributions we are fitting, and the uncertainties on those distributions, both before the fit is performed ("pre-fit") and after ("post-fit"). The pre-fit can give us some idea of how well our uncertainties cover any data-MC discrepancy, and the post-fit if discrepancies remain after the fit to data (as well as possibly letting us see the presence of a significant signal!).</p>
 <p>To produce these distributions add the <code>--saveShapes</code> and <code>--saveWithUncertainties</code> options when running <code>FitDiagnostics</code>:</p>
-<pre><code class="language-shell">combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveShapes --saveWithUncertainties
+<pre><code class="language-shell">combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveShapes --saveWithUncertainties -n .part3B
 </code></pre>
-<p>Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitdiagnostics.root output file:</p>
+<p>Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitDiagnosticsTest.root output file:</p>
 <p><img alt="" src="../images/fit_diag_shapes.png" /></p>
 <p><strong>Tasks and questions:</strong></p>
 <ul>
 <li>
-<p>Make a plot showing the expected background and signal contributions using the output from <code>FitDiagnostics</code> - do this for both the pre-fit and post-fit. You will find a script <code>postFitPlot.py</code> in the <code>cms-das-stats</code> repository that can help you get started.
- The bin errors on the TH1s in the fitdiagnostics file are determined from the systematic uncertainties. In the post-fit these take into account the additional constraints on the nuisance parameters as well as any correlations.</p>
+<p>Make a plot showing the expected background and signal contributions using the output from <code>FitDiagnostics</code> - do this for both the pre-fit and post-fit. You will find a script <code>postFitPlot.py</code> in the <code>longexercise</code> directory that can help you get started.
+ The bin errors on the TH1s in the fitDiagnostics file are determined from the systematic uncertainties. In the post-fit these take into account the additional constraints on the nuisance parameters as well as any correlations.</p>
 </li>
 <li>
 <p>Why is the uncertainty on the post-fit so much smaller than on the pre-fit?</p>
@@ -744,7 +742,7 @@ python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsC
 </code></pre>
 <p>Now the plot should look correct:</p>
 <p><img alt="" src="../images/freeze_second_attempt.png" /></p>
-<p>We added the <code>--breakdown Syst,Stat</code> option to the plotting script to make it calculate the systematic component, which is defined simply as $\sigma_{\text{syst}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{stat}}}.
+<p>We added the <code>--breakdown Syst,Stat</code> option to the plotting script to make it calculate the systematic component, which is defined simply as <span class="arithmatex"><span class="MathJax_Preview">\sigma_{\text{syst}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{stat}}}</span><script type="math/tex">\sigma_{\text{syst}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{stat}}}</script></span>.
 To split the systematic uncertainty into different components we just need to run another scan with a subset of the systematics frozen. For example, say we want to split this into experimental and theoretical uncertainties, we would calculate the uncertainties as:</p>
 <p><span class="arithmatex"><span class="MathJax_Preview">\sigma_{\text{theory}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{fr.theory}}}</span><script type="math/tex">\sigma_{\text{theory}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{fr.theory}}}</script></span></p>
 <p><span class="arithmatex"><span class="MathJax_Preview">\sigma_{\text{expt}} = \sqrt{\sigma^2_{\text{fr.theory}} - \sigma^2_{\text{fr.theory+expt}}}</span><script type="math/tex">\sigma_{\text{expt}} = \sqrt{\sigma^2_{\text{fr.theory}} - \sigma^2_{\text{fr.theory+expt}}}</script></span></p>
@@ -780,20 +778,22 @@ For example, when measuring the couplings of the Higgs boson to the different SM
 <details>
 <summary><b>Show DASModel.py</b></summary>
 
-<pre><code class="language-python">from HiggsAnalysis.CombinedLimit.PhysicsModel import *
+<pre><code class="language-python">from HiggsAnalysis.CombinedLimit.PhysicsModel import PhysicsModel
+
 
 class DASModel(PhysicsModel):
     def doParametersOfInterest(self):
         &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
         self.modelBuilder.doVar(&quot;r[0,0,10]&quot;)
-        self.modelBuilder.doSet(&quot;POI&quot;, &quot;,&quot;.join(['r']))
+        self.modelBuilder.doSet(&quot;POI&quot;, &quot;,&quot;.join([&quot;r&quot;]))
 
     def getYieldScale(self, bin, process):
         &quot;Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don't scale, and set to zero)&quot;
         if self.DC.isSignal[process]:
-            print 'Scaling %s/%s by r' % (bin, process)
+            print(&quot;Scaling %s/%s by r&quot; % (bin, process))
             return &quot;r&quot;
         return 1
+
 
 dasModel = DASModel()
 </code></pre>
