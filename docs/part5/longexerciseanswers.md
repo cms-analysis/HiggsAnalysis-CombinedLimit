@@ -148,21 +148,21 @@ Only tasks, no questions in this section
 <details>
 <summary><b>Show answer</b></summary>
 
-  <b> As expected uncertainty you should get <code> -0.42542/+0.458748 </code> </b>
+  <b> As expected uncertainty you should get <code> -0.417238/+0.450593 </code> </b>
 
 </details>
-  - Using the RooFitResult in the `fitdiagnostics.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
+  - Using the RooFitResult in the `fitDiagnosticsTest.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
 <details>
 <summary><b>Show answer</b></summary>
 
-  <b> They are constrained to around 4-5% </b>
+  <b> They are constrained to around 1-2% </b>
 
 </details>
   - To compare to the previous approach of fitting the SR only, with cross section and acceptance uncertainties restored, an additional card is provided: `datacard_part3_nocrs.txt`. Run the same fit on this card to verify the improvement of the SR+CR approach
 <details>
 <summary><b>Show answer</b></summary>
 
-  <b> The expected uncertainty is larger with only the SR: <code> -0.463273/+0.499161 </code> compared with <code> -0.42542/+0.458748 </code> in the SR+CR approach. </b>
+  <b> The expected uncertainty is larger with only the SR: <code> -0.465799/+0.502088 </code> compared with <code> -0.417238/+0.450593 </code> in the SR+CR approach. </b>
 
 </details>
 
