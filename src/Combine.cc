@@ -341,7 +341,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (POI->getSize() > 1) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest. This is not supported in some statistical methods." << std::endl;
     if (mc->GetObservables() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define observables.");
     if (mc->GetPdf() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define a pdf.");
-    if (auto pdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf()); pdf!=nullptr) {
+    if (auto pdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf()); pdf!=nullptr && dynamic_cast<RooSimultaneousOpt*>(pdf)==nullptr) {
       if (rebuildSimPdf_) {
           pdf = utils::rebuildSimPdf(*mc->GetObservables(), pdf);
           w->import(*pdf);

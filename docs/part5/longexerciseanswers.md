@@ -148,21 +148,21 @@ Only tasks, no questions in this section
 <details>
 <summary><b>Show answer</b></summary>
 
-*As expected uncertainty you should get  `-0.42542/+0.458748`*
+*As expected uncertainty you should get  `-0.417238/+0.450593`*
 
 </details>
-  - Using the RooFitResult in the `fitdiagnostics.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
+  - Using the RooFitResult in the `fitDiagnosticsTest.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
 <details>
 <summary><b>Show answer</b></summary>
 
-*They are constrained to around 4-5%*
+*They are constrained to around 1-2%*
 
 </details>
   - To compare to the previous approach of fitting the SR only, with cross section and acceptance uncertainties restored, an additional card is provided: `datacard_part3_nocrs.txt`. Run the same fit on this card to verify the improvement of the SR+CR approach
 <details>
 <summary><b>Show answer</b></summary>
 
-*The expected uncertainty is larger with only the SR: `-0.463273/+0.499161` compared with `-0.42542/+0.458748` in the SR+CR approach.*
+*The expected uncertainty is larger with only the SR: `-0.465799/+0.502088` compared with `-0.417238/+0.450593` in the SR+CR approach.*
 
 </details>
 
@@ -174,7 +174,7 @@ Only tasks, no questions in this section
 <details>
 <summary><b>Show answer</b></summary>
 
-*The most important uncertainty is *`norm_jetFakes`*, followed by two MC statistical uncerainties* (`prop_binsignal_region_bin8` *and* `prop_binsignal_region_bin9`).
+*The most important uncertainty is *`norm_jetFakes`*, followed by two MC statistical uncertainties* (`prop_binsignal_region_bin8` *and* `prop_binsignal_region_bin9`).
 
 </details>
   - In the plot, some parameters do not show a plotted point for the fitted value, but rather just a numerical value - why?

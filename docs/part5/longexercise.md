@@ -411,16 +411,16 @@ shapes *              signal_region  datacard_part3.shapes.root signal_region/$P
 shapes bbHtautau      signal_region  datacard_part3.shapes.root signal_region/bbHtautau$MASS signal_region/bbHtautau$MASS_$SYSTEMATIC
 shapes *              ttbar_cr       datacard_part3_ttbar_cr.shapes.root tt_control_region/$PROCESS tt_control_region/$PROCESS_$SYSTEMATIC
 ----------------------------------------------------------------------------------------------------------------------------------
-bin          signal_region  ttbar_cr       DY_cr
-observation  3416           79251          365754
+bin          signal_region  ttbar_cr       DY_cr        
+observation  3416           79251          365754       
 ----------------------------------------------------------------------------------------------------------------------------------
-bin                                               signal_region  signal_region  signal_region  signal_region  signal_region  ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       DY_cr          DY_cr          DY_cr          DY_cr          DY_cr          DY_cr
-process                                           bbHtautau      ttbar          diboson        Ztautau        jetFakes       Ztautau        ttbar          VV             W              QCD            W              Ztautau        VV             QCD            ttbar          Zmumu
-process                                           0              1              2              3              4              3              1              5              6              7              6              3              5              7              1              8
-rate                                              198.521        683.017        96.5185        742.649        2048.94        150.025        67280.4        10589.6        597.336        308.965        59.9999        115.34         5273.43        141.725        34341.1        305423
+bin                                               signal_region  signal_region  signal_region  signal_region  signal_region  ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       DY_cr          DY_cr          DY_cr          DY_cr          DY_cr          DY_cr        
+process                                           bbHtautau      ttbar          diboson        Ztautau        jetFakes       W              QCD            ttbar          VV             Ztautau        W              QCD            Zmumu          ttbar          VV             Ztautau      
+process                                           0              1              2              3              4              5              6              1              7              3              5              6              8              1              7              3            
+rate                                              198.521        683.017        96.5185        742.649        2048.94        597.336        308.965        67280.4        10589.6        150.025        59.9999        141.725        305423         34341.1        5273.43        115.34       
 ----------------------------------------------------------------------------------------------------------------------------------
-CMS_eff_b               lnN                       1.02           1.02           1.02           1.02           -              -              -              -              -              -              -              -              -              -              -              -
-CMS_eff_e               lnN                       -              -              -              -              -              1.02           1.02           1.02           1.02           -              -              -              -              -              -              -
+CMS_eff_b               lnN                       1.02           1.02           1.02           1.02           -              -              -              -              -              -              -              -              -              -              -              -            
+CMS_eff_e               lnN                       -              -              -              -              -              1.02           -              -              1.02           1.02           -              -              -              -              -              -            
 ```
 </details>
 
@@ -446,7 +446,7 @@ is perfectly valid and only one `rateParam` will be created. These parameters wi
 **Tasks and questions:**
 
   - Run `text2workspace.py` on this combined card and then use `FitDiagnostics` on an Asimov dataset with `r=1` to get the expected uncertainty. Suggested command line options: `--rMin 0 --rMax 2`
-  - Using the RooFitResult in the `fitdiagnostics.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
+  - Using the RooFitResult in the `fitDiagnosticsTest.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
   - To compare to the previous approach of fitting the SR only, with cross section and acceptance uncertainties restored, an additional card is provided: `datacard_part3_nocrs.txt`. Run the same fit on this card to verify the improvement of the SR+CR approach
 
 ### B: Nuisance parameter impacts
@@ -483,13 +483,13 @@ To produce these distributions add the `--saveShapes` and `--saveWithUncertainti
 combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveShapes --saveWithUncertainties
 ```
 
-Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitdiagnostics.root output file:
+Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitDiagnosticsTest.root output file:
 
 ![](images/fit_diag_shapes.png)
 
 **Tasks and questions:**
 
-  - Make a plot showing the expected background and signal contributions using the output from `FitDiagnostics` - do this for both the pre-fit and post-fit. You will find a script `postFitPlot.py` in the `cms-das-stats` repository that can help you get started.
+  - Make a plot showing the expected background and signal contributions using the output from `FitDiagnostics` - do this for both the pre-fit and post-fit. You will find a script `postFitPlot.py` in the `data/tutorials/longexercise` directory that can help you get started.
  The bin errors on the TH1s in the fitdiagnostics file are determined from the systematic uncertainties. In the post-fit these take into account the additional constraints on the nuisance parameters as well as any correlations.
 
   - Why is the uncertainty on the post-fit so much smaller than on the pre-fit?
@@ -548,37 +548,37 @@ root [1] limit->Scan("r:deltaNLL")
 ************************************
 *    Row   *         r *  deltaNLL *
 ************************************
-*        0 * 0.5010952 *         0 *
-*        1 * -0.949999 * 5.0565371 *
-*        2 * -0.850000 * 4.4238944 *
-*        3 *     -0.75 * 3.8230235 *
-*        4 * -0.649999 * 3.2571268 *
-*        5 * -0.550000 * 2.7290999 *
-*        6 * -0.449999 * 2.2421050 *
-*        7 * -0.349999 * 1.7986002 *
-*        8 *     -0.25 * 1.4009695 *
-*        9 * -0.150000 * 1.0512697 *
-*       10 * -0.050000 * 0.7508889 *
-*       11 * 0.0500000 * 0.5007593 *
-*       12 * 0.1500000 * 0.3015080 *
-*       13 *      0.25 * 0.1530667 *
-*       14 * 0.3499999 * 0.0549822 *
-*       15 * 0.4499999 * 0.0062253 *
-*       16 * 0.5500000 * 0.0055419 *
-*       17 * 0.6499999 * 0.0512909 *
-*       18 *      0.75 * 0.1416319 *
-*       19 * 0.8500000 * 0.2743169 *
-*       20 * 0.9499999 * 0.4471097 *
-*       21 * 1.0499999 * 0.6578967 *
-*       22 * 1.1499999 * 0.9042429 *
-*       23 *      1.25 * 1.1838192 *
-*       24 * 1.3500000 * 1.4944315 *
-*       25 * 1.4500000 * 1.8335464 *
-*       26 * 1.5499999 * 2.1993224 *
-*       27 * 1.6499999 * 2.5896029 *
-*       28 *      1.75 * 3.0024433 *
-*       29 * 1.8500000 * 3.4359285 *
-*       30 * 1.9500000 * 3.8883554 *
+*        0 * 0.5399457 *         0 *
+*        1 * -0.949999 * 5.6350698 *
+*        2 * -0.850000 * 4.9482779 *
+*        3 *     -0.75 * 4.2942519 *
+*        4 * -0.649999 * 3.6765284 *
+*        5 * -0.550000 * 3.0985388 *
+*        6 * -0.449999 * 2.5635135 *
+*        7 * -0.349999 * 2.0743820 *
+*        8 *     -0.25 * 1.6337506 *
+*        9 * -0.150000 * 1.2438088 *
+*       10 * -0.050000 * 0.9059833 *
+*       11 * 0.0500000 * 0.6215767 *
+*       12 * 0.1500000 * 0.3910581 *
+*       13 *      0.25 * 0.2144184 *
+*       14 * 0.3499999 * 0.0911308 *
+*       15 * 0.4499999 * 0.0201983 *
+*       16 * 0.5500000 * 0.0002447 *
+*       17 * 0.6499999 * 0.0294311 *
+*       18 *      0.75 * 0.1058298 *
+*       19 * 0.8500000 * 0.2272539 *
+*       20 * 0.9499999 * 0.3912534 *
+*       21 * 1.0499999 * 0.5952836 *
+*       22 * 1.1499999 * 0.8371513 *
+*       23 *      1.25 * 1.1142146 *
+*       24 * 1.3500000 * 1.4240909 *
+*       25 * 1.4500000 * 1.7644306 *
+*       26 * 1.5499999 * 2.1329684 *
+*       27 * 1.6499999 * 2.5273966 *
+*       28 *      1.75 * 2.9458723 *
+*       29 * 1.8500000 * 3.3863399 *
+*       30 * 1.9500000 * 3.8469560 *
 ************************************
 ```
 </details>
@@ -715,6 +715,3 @@ For a model with two POIs it is often useful to look at the how well we are able
 
   - Run a 2D likelihood scan in `r_ggH` and `r_bbH`. You can start with around 100 points but may need to increase this later too see more detail in the resulting plot.
   - Have a look at the output limit tree, it should have branches for each POI as well as the usual deltaNLL value. You can use TTree::Draw to plot a 2D histogram of deltaNLL with `r_ggH` and `r_bbH` on the axes.
-
-
-
