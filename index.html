@@ -221,6 +221,7 @@
         <li class="first-level "><a href="#installation-instructions">Installation instructions</a></li>
             <li class="second-level"><a href="#within-cmssw-recommended">Within CMSSW (recommended)</a></li>
                 
+                <li class="third-level"><a href="#combine-v9-recommended-version">Combine v9 - recommended version</a></li>
                 <li class="third-level"><a href="#combine-v8-cmssw_10_2_x-release-series">Combine v8: CMSSW_10_2_X release series</a></li>
                 <li class="third-level"><a href="#slc6cc7-release-cmssw_8_1_x">SLC6/CC7 release CMSSW_8_1_X</a></li>
             <li class="second-level"><a href="#standalone-compilation">Standalone compilation</a></li>
@@ -250,6 +251,23 @@ users that don't need to commit or do any development, the following recipes
 should be sufficient. To choose a release version, you can find the latest
 releases on github under
 <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases</a></p>
+<h3 id="combine-v9-recommended-version">Combine v9 - recommended version</h3>
+<p>The nominal installation method is inside CMSSW. The current release targets
+CMSSW <code>11_3_X</code> series because this release has both python2 and python3 ROOT
+bindings, allowing a more gradual migration of user code to python3. Combine is
+fully python3-compatible and can work also in 12_X releases.</p>
+<pre><code class="language-sh">cmsrel CMSSW_11_3_4
+cd CMSSW_11_3_4/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+</code></pre>
+<p>Update to a recommended tag - currently the recommended tag is <strong>v9.0.0</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.0.0">see release notes</a></p>
+<pre><code class="language-sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v9.0.0
+scramv1 b clean; scramv1 b # always make a clean build
+</code></pre>
 <h3 id="combine-v8-cmssw_10_2_x-release-series">Combine v8: <code>CMSSW_10_2_X</code> release series</h3>
 <p>Setting up the environment (once):</p>
 <pre><code class="language-sh">export SCRAM_ARCH=slc7_amd64_gcc700
@@ -459,5 +477,5 @@ This is due to some ridiculous issue with child processes and <code>LD_LIBRARY_P
 
 <!--
 MkDocs version : 1.4.2
-Build Date UTC : 2023-01-25 10:55:09.757689+00:00
+Build Date UTC : 2023-01-25 17:14:42.338358+00:00
 -->
