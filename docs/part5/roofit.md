@@ -691,7 +691,7 @@ This is exactly what needs to be done when you want to use shape based datacards
 ## A likelihood for a counting experiment
 An introductory presentation about likelihoods and interval estimation is available [here](https://indico.cern.ch/event/976099/contributions/4138517/).
 
-**Note: We will use python syntax in this section; you should use a .py script. Make sure to do `from ROOT import *` at the top of your script **
+**Note: We will use python syntax in this section; you should use a .py script. Make sure to do `import ROOT` at the top of your script **
 
 We've seen how to create variables and pdfs, and how to fit a pdf to data. But what if we have a counting experiment, or a histogram template shape? And what about systematic uncertainties?  Let's build a likelihood
 for this:
@@ -711,8 +711,8 @@ In the expression, s and b are the numbers of expected signal- and background ev
 It's easiest to use the RooFit workspace factory to build our model ([this tutorial](https://root.cern/doc/master/rf511__wsfactory__basic_8py.html) has more information on the factory syntax).
 
 ```
-from ROOT import *
-w = RooWorkspace("w")
+import ROOT
+w = ROOT.RooWorkspace("w")
 ```
 We need to create an expression for the number of events in our model, $\mu s +b$:
 
@@ -735,7 +735,7 @@ We can now use the RooMinimizer to find the minimum of the NLL
 
 ```
 nll = w.function("NLL")
-minim = RooMinimizer(nll)
+minim = ROOT.RooMinimizer(nll)
 minim.setErrorLevel(0.5)
 minim.minimize("Minuit2","migrad")
 bestfitnll = nll.getVal()
@@ -771,7 +771,7 @@ Now let's extend our model a bit.
 - From the curve that you've created by performing an explicit scan, we can extract the 68% CL interval. You can do so by eye or by writing some code to find the relevant intersections of the curve. 
 
 ```
-gr = TGraph()
+gr = ROOT.TGraph()
 
 npoints = 0
 for i in range(0,60):
@@ -784,8 +784,8 @@ for i in range(0,60):
   gr.SetPoint(npoints,mu,deltanll)
 
 
-canv = TCanvas();
-gr.Draw("ALP");
+canv = ROOT.TCanvas()
+gr.Draw("ALP")
 canv.SaveAs("likelihoodscan.pdf")
 ```
 
