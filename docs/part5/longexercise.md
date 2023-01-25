@@ -24,7 +24,6 @@ cd HiggsAnalysis/CombinedLimit
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
 git checkout v9.0.0
-scramv1 b clean; scramv1 b # always make a clean build
 ```
 
 We will also make use another package, `CombineHarvester`, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this tutorial:
