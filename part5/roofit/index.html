@@ -223,6 +223,8 @@
             <li class="second-level"><a href="#datasets">Datasets</a></li>
                 
         <li class="first-level "><a href="#likelihoods-and-fitting-to-data">Likelihoods and Fitting to data</a></li>
+            <li class="second-level"><a href="#a-likelihood-for-a-counting-experiment">A likelihood for a counting experiment</a></li>
+                
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -809,7 +811,79 @@ nominal_values = (MH=124.627 +/- 0.398094,resolution=1[C],norm_s=33.9097 +/- 11.
 
  </details>
 
-<p>This is exactly what needs to be done when you want to use shape based datacards in combine with parametric models.</p></div>
+<p>This is exactly what needs to be done when you want to use shape based datacards in combine with parametric models.</p>
+<h2 id="a-likelihood-for-a-counting-experiment">A likelihood for a counting experiment</h2>
+<p>An introductory presentation about likelihoods and interval estimation is available <a href="https://indico.cern.ch/event/976099/contributions/4138517/">here</a>.</p>
+<p><strong>Note: We will use python syntax in this section; you should use a .py script. Make sure to do <code>import ROOT</code> at the top of your script </strong></p>
+<p>We've seen how to create variables and pdfs, and how to fit a pdf to data. But what if we have a counting experiment, or a histogram template shape? And what about systematic uncertainties?  Let's build a likelihood
+for this:</p>
+<p><span class="arithmatex"><span class="MathJax_Preview">\mathcal{L} \propto p(\text{data}|\text{parameters})</span><script type="math/tex">\mathcal{L} \propto p(\text{data}|\text{parameters})</script></span></p>
+<p>where our parameters are parameters of interest, <span class="arithmatex"><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span>, and nuisance parameters, <span class="arithmatex"><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span>. The nuisance parameters are constrained by external measurements, so we add constraint terms <span class="arithmatex"><span class="MathJax_Preview">\pi(\vec{\theta}_0|\vec{\theta})</span><script type="math/tex">\pi(\vec{\theta}_0|\vec{\theta})</script></span></p>
+<p>So we have
+<span class="arithmatex"><span class="MathJax_Preview">\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})</span><script type="math/tex">\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})</script></span></p>
+<p>let's try to build the likelihood by hand for a 1-bin counting experiment.
+The data is the number of observed events <span class="arithmatex"><span class="MathJax_Preview">N</span><script type="math/tex">N</script></span>, and the probability is just a poisson probability <span class="arithmatex"><span class="MathJax_Preview">p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}</span><script type="math/tex">p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}</script></span>, where <span class="arithmatex"><span class="MathJax_Preview">\lambda</span><script type="math/tex">\lambda</script></span> is the number of events expected in our signal+background model: <span class="arithmatex"><span class="MathJax_Preview">\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})</span><script type="math/tex">\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})</script></span>. </p>
+<p>In the expression, s and b are the numbers of expected signal- and background events, which both depend on the nuisance parameters. Let's start by building a simple likelihood function with one signal process and one background process. We'll assume there are no nuisance parameters for now. The number of observed events in data is 15, the expected number of signal events is 5 and the expected number of background events 8.1.</p>
+<p>It's easiest to use the RooFit workspace factory to build our model (<a href="https://root.cern/doc/master/rf511__wsfactory__basic_8py.html">this tutorial</a> has more information on the factory syntax).</p>
+<pre><code>import ROOT
+w = ROOT.RooWorkspace(&quot;w&quot;)
+</code></pre>
+<p>We need to create an expression for the number of events in our model, <span class="arithmatex"><span class="MathJax_Preview">\mu s +b</span><script type="math/tex">\mu s +b</script></span>:</p>
+<pre><code>w.factory('expr::n(&quot;mu*s +b&quot;, mu[1.0,0,4], s[5],b[8.1])')
+</code></pre>
+<p>Now we can build the likelihood, which is just our poisson pdf:</p>
+<pre><code>w.factory('Poisson::poisN(N[15],n)')
+</code></pre>
+<p>To find the best-fit value for our parameter of interest <span class="arithmatex"><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span> we need to maximize the likelihood. In practice it's actually easier to minimize the <strong>N</strong>egative <strong>l</strong>og of the <strong>l</strong>ikelihood, or NLL:</p>
+<pre><code>w.factory('expr::NLL(&quot;-log(@0)&quot;,poisN)')
+</code></pre>
+<p>We can now use the RooMinimizer to find the minimum of the NLL</p>
+<pre><code>nll = w.function(&quot;NLL&quot;)
+minim = ROOT.RooMinimizer(nll)
+minim.setErrorLevel(0.5)
+minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;)
+bestfitnll = nll.getVal()
+</code></pre>
+<p>Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!) - note that there is a more reliable way of extracting the confidence interval (explicitly rather than relying on migrad). We will discuss this a bit later in this section.</p>
+<p>Now let's add a nuisance parameter, <em>lumi</em>, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at <span class="arithmatex"><span class="MathJax_Preview">+1\sigma</span><script type="math/tex">+1\sigma</script></span> the signal and background normalizations will be multiplied by 1.025 and at <span class="arithmatex"><span class="MathJax_Preview">-1\sigma</span><script type="math/tex">-1\sigma</script></span> they will be divided by 1.025.  We should modify the expression for the number of events in our model:</p>
+<pre><code>w.factory('expr::n(&quot;mu*s*pow(1.025,lumi) +b*pow(1.025,lumi)&quot;, mu[1.0,0,4], s[5],b[8.1],lumi[0,-4,4])')
+</code></pre>
+<p>And we add a unit gaussian constraint </p>
+<pre><code>w.factory('Gaussian::lumiconstr(lumi,0,1)')
+</code></pre>
+<p>Our full likelihood will now be</p>
+<pre><code>w.factory('PROD::likelihood(poisN,lumiconstr)')
+</code></pre>
+<p>and the NLL</p>
+<pre><code>w.factory('expr::NLL(&quot;-log(@0)&quot;,likelihood)')
+</code></pre>
+<p>Which we can minimize in the same way as before. </p>
+<p>Now let's extend our model a bit. </p>
+<ul>
+<li>Expanding on what was demonstrated above, build the likelihood for <span class="arithmatex"><span class="MathJax_Preview">N=15</span><script type="math/tex">N=15</script></span>, a signal process <em>s</em> with expectation 5 events, a background <em>ztt</em> with expectation 3.7 events and a background <em>tt</em> with expectation 4.4 events. The luminosity uncertainty applies to all three processes. The signal process is further subject to a 5% log-normally distributed uncertainty <em>sigth</em>, <em>tt</em> is subject to a 6% log-normally distributed uncertainty <em>ttxs</em>, and <em>ztt</em> is subject to a 4% log-normally distributed uncertainty <em>zttxs</em>. Find the best-fit value and the associated uncertainty</li>
+<li>Also perform an explicit scan of the <span class="arithmatex"><span class="MathJax_Preview">\Delta</span><script type="math/tex">\Delta</script></span> NLL ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started. Hint: you'll need to perform fits for different values of mu, where mu is fixed. In RooFit you can set a variable to be constant as <code>var("VARNAME").setConstant(True)</code></li>
+<li>From the curve that you've created by performing an explicit scan, we can extract the 68% CL interval. You can do so by eye or by writing some code to find the relevant intersections of the curve. </li>
+</ul>
+<pre><code>gr = ROOT.TGraph()
+
+npoints = 0
+for i in range(0,60):
+  npoints+=1
+  mu=0.05*i
+  ...
+  [perform fits for different values of mu with mu fixed]
+  ...
+  deltanll = ...
+  gr.SetPoint(npoints,mu,deltanll)
+
+
+canv = ROOT.TCanvas()
+gr.Draw(&quot;ALP&quot;)
+canv.SaveAs(&quot;likelihoodscan.pdf&quot;)
+</code></pre>
+<p>Well, this is doable - but we were only looking at a simple one-bin counting experiment. This might become rather cumbersome for large models... <span class="arithmatex"><span class="MathJax_Preview">[*]</span><script type="math/tex">[*]</script></span>
+We'll now switch to Combine which will make it a lot easier to set up your model and do the statistical analysis than trying to build the likelihood yourself.</p>
+<p><span class="arithmatex"><span class="MathJax_Preview">[*]</span><script type="math/tex">[*]</script></span> Side note - RooFit does have additional functionality to help with statistical model building, but we won't go into detail today.   </p></div>
         
         
     </div>
