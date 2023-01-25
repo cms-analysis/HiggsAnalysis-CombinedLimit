@@ -7,6 +7,10 @@ For the majority of this course we will work with a simplified version of a real
 
 Initially we will start with the simplest analysis possible: a one-bin counting experiment using just the high $M_{\mathrm{T}}^{\mathrm{tot}}$ region of this distribution, and from there each section of this exercise will expand on this, introducing a shape-based analysis and adding control regions to constrain the backgrounds.
 
+## Background
+You can find a presentation with some more background on likelihoods and extracting confidence intervals [here](https://indico.cern.ch/event/976099/contributions/4138517/). A presentation that discusses limit setting in more detail can be found [here](https://indico.cern.ch/event/976099/contributions/4138520/).
+If you are not yet familiar with these concepts, or would like to refresh your memory, we recommend that you have a look at these presentations before you start with the exercise. 
+
 ## Getting started
 We need to set up a new CMSSW area and checkout the combine package: 
 
