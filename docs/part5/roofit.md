@@ -213,7 +213,7 @@ There are also other ways to manipulate datasets in this way as shown in the dia
 
 Luckily there are also Constructors for a `RooDataSet` from a `TTree` and for a `RooDataHist` from a `TH1` so its simple to convert from your usual ROOT objects.
 
-Let's take an example dataset put together already.
+Let's take an example dataset put together already. The file `tutorial.root` is available in the `HiggsAnalysis/CombinedLimit/data/tutorials/roofit` directory.
 
 ```c++
 TFile *file = TFile::Open("tutorial.root");
