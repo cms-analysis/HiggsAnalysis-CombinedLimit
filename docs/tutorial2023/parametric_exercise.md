@@ -76,7 +76,9 @@ can.SaveAs("part1_signal_model_v0.png")
 It looks like a good fit!
 
 But what if the mean of the model does not correspond directly to the Higgs boson mass i.e. there are some reconstruction effects. Let's instead define the mean of the model as:
-$$ \mu = m_H + \delta$$
+
+$$\mu = m_H + \delta$$
+
 and we can fit for $\delta$ in the model construction. For this we introduce a `RooFormulaVar`.
 ```python
 dMH = ROOT.RooRealVar("dMH_ggH_Tag0", "dMH_ggH_Tag0", 0, -1, 1 )
@@ -118,7 +120,9 @@ w_sig.Write()
 f_out.Close()
 ```
 We have successfully constructed a parametric model to fit the shape of the signal peak. But we also need to know the yield/normalisation of the signal process. In the SM, the ggH event yield is equal to:
+
 $$ N = \sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma} \cdot \epsilon \cdot \mathcal{L}$$
+
 Where $\sigma_{ggH}$ is the SM cross section, $\mathcal{B}^{\gamma\gamma}$ is the SM branching fraction of the Higgs boson to two photons, $\epsilon$ is the efficiency factor and corresponds to the fraction of the total ggH events landing in the Tag0 analysis category. Finally $\mathcal{L}$ is the integrated luminosity.
 
 In this example, the ggH MC events are normalised to $\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}$ **before any selection**, taking the values from the [LHCHWG twiki](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWG#Production_cross_sections_and_de). Therefore, we can calculate the efficiency factor $\epsilon$ by taking the sum of weights in the MC dataset and dividing through by $\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}$. 
@@ -525,9 +529,13 @@ smearDown01Sigma: mean = 125.007 +- 0.009 GeV, sigma = 1.912 +- 0.006 GeV
 The values tell us that the scale uncertainty (at $\pm 1 \sigma$) varies the signal peak mean by around 0.3%, and the smear uncertainty (at $\pm 1 \sigma$) varies the signal width (sigma) by around 4.5% (average of up and down variations). 
 
 Now we need to bake these effects into the parametric signal model. The mean of the Gaussian was previously defined as:
+
 $$ \mu = m_H + \delta$$
+
 We introduce the nuisance parameter `nuisance_scale` = $\eta$ to account for a shift in the signal peak mean using:
+
 $$ \mu = (m_H + \delta) \cdot (1+0.003\eta)$$
+
 At $\eta = +1 (-1)$ the signal peak mean will shift up (down) by 0.3%. To build this into the RooFit signal model we simply define a new parameter, $\eta$, and update the definition of the mean formula variable:
 ```python
 # Building the workspace with systematic variations
@@ -543,6 +551,7 @@ mean_formula = ROOT.RooFormulaVar("mean_ggH_Tag0", "mean_ggH_Tag0", "(@0+@1)*(1+
 * Why do we set the nuisance parameter to constant at this stage?
 
 Similar for the width introducing a nuisance parameter, $\chi$:
+
 $$ \sigma = \sigma \cdot (1+0.045\chi)$$
 
 ```python
@@ -724,7 +733,9 @@ for pdf in {exp,poly,pow}; do text2workspace.py datacard_part4_${pdf}.txt -m 125
 
 ### Bias studies
 For the bias studies we want to generate ("throw") toy datasets with some choice of background function and fit back with another. The toys are thrown with a known value of the signal strength (r=1 in this example), which we will call $r_{truth}$. The fitted value of r is defined as $r_{fit}$, with some uncertainty $\sigma_{fit}$. A pull value, $P$, is calculated for each toy dataset according to,
+
 $$ P = (r_{truth}-r_{fit})/\sigma_{fit}$$
+
 By repeating the process for many toys we can build up a pull distribution. If there is no bias present then we would expect to obtain a normal distribution centred at 0, with a standard deviation of 1. Let's calculate the bias for our analysis.
 
 Firstly,  we generate N=1000 toys from each of the background function choices and save them in a ROOT file. For this we use the `GenerateOnly` method of combine. We will inject signal in the toys by setting `r=1` using the `--expectSignal 1` option. 
@@ -749,7 +760,9 @@ The potential bias is defined as the (fitted) mean of the pull distribution. In 
 * What threshold do we use to define "acceptable" bias? 
 
 The bias is defined relative to the total uncertainty in the signal strength. Some analyses use 0.14 as the threshold because a bias below this value would change the total uncertainty (when added in quadrature) by less than 1% (see equation below). Other analyses use 0.2 as this will change the total uncertainty by less than 2%. We should define the threshold before performing the bias study.
+
 $$ \sqrt{ 1^2 + 0.14^2} = 1.0098 $$
+
 * How does our bias value compare to the thresholds? If we are using a threshold of 0.2 then the bias in this case is outside the acceptable region! We therefore should account for this using a **spurious signal** method (see advanced exercises TBA).
 * Repeat the bias study for each possible truth and fitted background function combinations. Do the bias values induced by the choice of background function merit adding a spurious signal component into the fit?
 * What would you expect the bias value to be for a background function that does not fit the data well? Should we be worried about such functions? What test could we use to reject such functions from the study beforehand?
@@ -815,7 +828,9 @@ In reality, there are multiple Higgs boson processes which contribute to the tot
 ### Building the models
 Firstly, lets build the necessary inputs for this section using `construct_models_part6.py`. This script uses everything we have learnt in the previous sections:
 * Signal models (Gaussians) are built separately for each process (ggH and VBF) in each analysis category (Tag0 and Tag1). This uses separate `TTrees` for each contribution in the `mc_part6.root` file. The mean and width of the Gaussians include the effect of the parametric shape uncertainties, `nuisance_scale` and `nuisance_smear`. Each signal model is normalised according to the following equation, where $\epsilon_{ij}$ labels the fraction of process, $i$ (=ggH,VBF), landing in analysis category, $j$ (=Tag0,Tag1), and $\mathcal{L}$ is the integrated luminosity (defined in the datacard).
+
 $$ N_{ij} = \sigma_i \cdot \mathcal{B}^{\gamma\gamma} \cdot \epsilon_{ij} \cdot \mathcal{L}$$
+
 * A background model is constructed for each analysis category by fitting the mass sidebands in data. The input data is stored in the `data_part6.root` file. The models are `RooMultiPdfs` which contain an exponential, a 4th-order Chebychev polynomial and a power law function. The shape parameters and normalisation terms of the background models are freely floating in the final fit.
 * Have a look through the `construct_models_part6.py` script and try to understand all parts of the model construction. When you are happy, go ahead and construct the models with:
 ```
