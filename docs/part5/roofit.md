@@ -153,7 +153,7 @@ Note that as we change the value of `MH`, the PDF gets updated at the same time.
 PDFs can be used to generate Monte Carlo data. One of the benefits of RooFit is that to do so only uses a single line of code! As before, we have to tell `RooFit` which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" $m$. The arguments for the function are the set of observables, follwed by the number of events,
 
 ```c++
-RooDataSet *data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
+RooDataSet *gen_data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
 ```
 
 Now we can plot the data as with other RooFit objects.
@@ -161,7 +161,7 @@ Now we can plot the data as with other RooFit objects.
 ```c++
 plot = mass.frame();
 
-data->plotOn(plot);
+gen_data->plotOn(plot);
 gauss.plotOn(plot);
 gauss.paramOn(plot);
 
@@ -258,7 +258,7 @@ Let's have a look at the data. The `RooWorkspace` has several accessor functions
 There are also `RooWorkspace::var`, `RooWorkspace::function` and `RooWorkspace::pdf` with (hopefully) obvious purposes.
 
 ```c++
-RooDataSet *hgg_data = (RooDataSereat*) wspace->data("dataset");
+RooDataSet *hgg_data = (RooDataSet*) wspace->data("dataset");
 RooRealVar *hgg_mass = (RooRealVar*) wspace->var("CMS_hgg_mass");
 
 plot = hgg_mass->frame();
@@ -266,9 +266,10 @@ plot = hgg_mass->frame();
 hgg_data->plotOn(plot,RooFit::Binning(160)); 
 // Here we've picked a certain number of bins just for plotting purposes 
 
+TCanvas *hggcan = new TCanvas();
 plot->Draw();
-can->Update();
-can->Draw();
+hggcan->Update();
+hggcan->Draw();
 ```
 [](images/realdata.png)
 
@@ -432,8 +433,8 @@ Lets plot the resulting exponential on the data. Notice that the value of $\hat{
 expo.plotOn(plot);
 expo.paramOn(plot);
 plot->Draw();
-can->Update();
-can->Draw();
+hggcan->Update();
+hggcan->Draw();
 ```
 
 ![](images/expofit.png)
@@ -513,10 +514,10 @@ model.plotOn(plot,RooFit::Components("exp"),RooFit::LineColor(kGreen));
 model.plotOn(plot,RooFit::LineColor(kRed));
 model.paramOn(plot);
 
-can->Clear();
+hggcan->Clear();
 plot->Draw();
-can->Update();
-can->Draw();
+hggcan->Update();
+hggcan->Draw();
 ```
 
 ![](images/fit.png)
