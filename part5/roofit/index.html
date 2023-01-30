@@ -355,12 +355,12 @@ can-&gt;Draw();
 <p><img alt="" src="../images/gaus.png" /></p>
 <p>Note that as we change the value of <code>MH</code>, the PDF gets updated at the same time.</p>
 <p>PDFs can be used to generate Monte Carlo data. One of the benefits of RooFit is that to do so only uses a single line of code! As before, we have to tell <code>RooFit</code> which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" <span class="arithmatex"><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>. The arguments for the function are the set of observables, follwed by the number of events,</p>
-<pre><code class="language-c++">RooDataSet *data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
+<pre><code class="language-c++">RooDataSet *gen_data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
 </code></pre>
 <p>Now we can plot the data as with other RooFit objects.</p>
 <pre><code class="language-c++">plot = mass.frame();
 
-data-&gt;plotOn(plot);
+gen_data-&gt;plotOn(plot);
 gauss.plotOn(plot);
 gauss.paramOn(plot);
 
@@ -432,7 +432,7 @@ RooDataSet::dataset(CMS_hgg_mass)
 
 <p>Let's have a look at the data. The <code>RooWorkspace</code> has several accessor functions, we will use the <code>RooWorkspace::data</code> one. 
 There are also <code>RooWorkspace::var</code>, <code>RooWorkspace::function</code> and <code>RooWorkspace::pdf</code> with (hopefully) obvious purposes.</p>
-<pre><code class="language-c++">RooDataSet *hgg_data = (RooDataSereat*) wspace-&gt;data(&quot;dataset&quot;);
+<pre><code class="language-c++">RooDataSet *hgg_data = (RooDataSet*) wspace-&gt;data(&quot;dataset&quot;);
 RooRealVar *hgg_mass = (RooRealVar*) wspace-&gt;var(&quot;CMS_hgg_mass&quot;);
 
 plot = hgg_mass-&gt;frame();
@@ -440,9 +440,10 @@ plot = hgg_mass-&gt;frame();
 hgg_data-&gt;plotOn(plot,RooFit::Binning(160)); 
 // Here we've picked a certain number of bins just for plotting purposes 
 
+TCanvas *hggcan = new TCanvas();
 plot-&gt;Draw();
-can-&gt;Update();
-can-&gt;Draw();
+hggcan-&gt;Update();
+hggcan-&gt;Draw();
 </code></pre>
 <p><a href="../images/realdata.png"></a></p>
 <h1 id="likelihoods-and-fitting-to-data">Likelihoods and Fitting to data</h1>
@@ -581,8 +582,8 @@ minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;);
 <pre><code class="language-c++">expo.plotOn(plot);
 expo.paramOn(plot);
 plot-&gt;Draw();
-can-&gt;Update();
-can-&gt;Draw();
+hggcan-&gt;Update();
+hggcan-&gt;Draw();
 </code></pre>
 <p><img alt="" src="../images/expofit.png" /></p>
 <p>It looks like there could be a small region near 125 GeV for which our fit doesn't quite go through the points. Maybe our hypothetical H-boson isn't so hypothetical after all!</p>
@@ -650,10 +651,10 @@ model.plotOn(plot,RooFit::Components(&quot;exp&quot;),RooFit::LineColor(kGreen))
 model.plotOn(plot,RooFit::LineColor(kRed));
 model.paramOn(plot);
 
-can-&gt;Clear();
+hggcan-&gt;Clear();
 plot-&gt;Draw();
-can-&gt;Update();
-can-&gt;Draw();
+hggcan-&gt;Update();
+hggcan-&gt;Draw();
 </code></pre>
 <p><img alt="" src="../images/fit.png" /></p>
 <p>What about if we also fit for the mass (<span class="arithmatex"><span class="MathJax_Preview">M_{H}</span><script type="math/tex">M_{H}</script></span>)? we can easily do this by removing the constant setting on MH.</p>
