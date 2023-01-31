@@ -60,6 +60,7 @@ protected:
   static std::string fixedPointPOIs_;
   static float centeredRange_;
   static std::string setParametersForGrid_;
+  static std::string setParameterRangesForGrid_;
 
   static bool robustHesse_;
   static std::string robustHesseLoad_;
