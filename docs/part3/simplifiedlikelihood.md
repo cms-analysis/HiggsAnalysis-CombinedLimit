@@ -27,51 +27,45 @@ Producing the necessary predictions and covariance for recasting varies dependin
 !!! warning
     The instructions below will calculate moments based on the assumption that $E[x]=\hat{x}$, i.e it will use the maximum likelihood estimators for the yields as the expectation values. If instead you want to use the full definition of the moments, you can run the `FitDiagnostics` method with the `-t` option and include `--savePredictionsPerToy` and remove the other options, which will produce a tree of the toys in the output from which moments can be calculated. 
 
-<details>
-<summary><b>Type A - Control regions included in datacard</b></summary>
+### Type A - Control regions included in datacard
 
 For an example datacard 'datacard.txt' including two signal channels 'Signal1' and 'Signal2', make the workspace including the masking flags
 
-<pre><code>
+```
 text2workspace.py --channel-masks --X-allow-no-signal --X-allow-no-background datacard.txt -o datacard.root
-</pre></code>
+```
     
 Run the fit making the covariance (output saved as `fitDiagnostics.root`) masking the Signal channel. Note that all signal channels must be masked!
 
-<pre><code>
+```
 combine datacard.root -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 2000 --setParameters mask_Signal1=1,mask_Signal2=1 --saveOverall  -N Name
-</pre></code>
+```
 Where "Name" can be specified by you.
 
 Outputs including predictions and covariance will be saved in `fitDiagnosticsName.root` folder `shapes_fit_b`
 
-</details>
-
-<details>
-<summary><b>Type B - Control regions not included in datacard</b></summary>
+### Type B - Control regions not included in datacard 
 
 For an example datacard 'datacard.txt' including two signal channels 'Signal1' and 'Signal2', make the workspace
     
-<pre><code>
+```
 text2workspace.py --X-allow-no-signal --X-allow-no-background datacard.txt -o datacard.root
-</pre></code>
+```
     
 Run the fit making the covariance (output saved as `fitDiagnosticsName.root`) setting no signal contribution in the prefit. Note we *must* set `--preFitValue 0` in this case since we will be using the pre-fit uncertainties for the covariance calculation and we don't want to include the  uncertainties on the signal. 
 
-<pre><code>
+```
 combine datacard.root -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 2000 --saveOverall --preFitValue 0   -n Name
-</pre></code>
- Where "Name" can be specified by you.
+```
+Where "Name" can be specified by you.
 
 Outputs including predictions and covariance will be saved in `fitDiagnosticsName.root` folder `shapes_prefit`
 
 In order to also pull out the signal yields corresponding to `r=1` (in case you want to run the validation step later), you also need to produce a second file with the prefit value set to 1. For this you don't need to run many toys so to save time, just set `--numToysForShape` to some low value. 
 
-<pre><code>
+```
 combine datacard.root -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 1 --saveOverall --preFitValue 1   -n Name2
-</pre></code>
-
-</details>
+```
 
 You should check that the order of the bins in the covariance matrix is as expected.
 
@@ -80,39 +74,34 @@ You should check that the order of the bins in the covariance matrix is as expec
 
 Head over to the `test/simplifiedLikelihoods` directory inside your combine area. The following instructions depend on whether you are aggregating or not aggregating your signal regions. Choose the instructions for your case. 
 
-<details>
-<summary><b>Not Aggregating</b></summary>    
+### Not Aggregating    
 Run the `makeLHInputs.py` script to prepare the inputs for the simplified likelihood. The filter flag can be used to select only signal regions based on the channel names. To include all channels don't include the filter flag.
 
 The SL input must NOT include any control regions which were not masked in the fit.
  
 If your analysis is Type B (i.e everything in the datacard is a signal region), then you can just run 
 
-<pre><code>
+```
 python makeLHInputs.py -i fitDiagnosticsName.root -o SLinput.root 
-</pre></code>
+```
 
 If necessary (i.e as in Type B analyses) you may also need to run the same on the run where the prefit value was set to 1. 
 
-<pre><code>
+```
 python makeLHInputs.py -i fitDiagnosticsName2.root -o SLinput2.root 
-</pre></code>
+```
 
 If you instead have a Type A analysis (some of the regions are control regions that were used to fit but not masked) then you should add the option `--filter SignalName` where `SignalName` is some string that defines the signal regions in your datacards (eg "SR" is a common name for these).
 
 Note: If your signal regions cannot be easily identified by a string, follow the instructions below for aggregating but define only one channel for each aggregate region which will maintain the full information and won't actually aggregate any regions.
 
-</details>
 
-<details>
-<summary><b>Aggregating</b></summary>    
+### Aggregating    
 If aggregating based on covariance edit the config file `aggregateCFG.py` to define aggregate regions based on channel names, note that wildcards are supported. You can then make likelihood inputs using
     
-<pre><code>
+```
 python makeLHInputs.py -i fitDiagnosticsName.root -o SLinput.root --config aggregateCFG.py
-</pre></code>
-
-</details>
+```
 
 At this point you now have the inputs as ROOT files necessary to publish and run the simplified likelihood. 
 
