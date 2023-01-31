@@ -1,20 +1,78 @@
 # Parametric fitting exercise
 
 ## Getting started
+By now you should have a working setup of Combine v9 from the pre-tutorial exercise. If not then you need to set up a CMSSW area and checkout the combine package:
+```
+cmsrel CMSSW_11_3_4
+cd CMSSW_11_3_4/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
 
-Add getting started details here
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v9.0.0
+```
+We will also make use of another package, `CombineHarvester`, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this exercise:
+```
+bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
+```
+Now let's compile the CMSSW area:
+```
+scramv1 b clean; scramv1 b
+cmsenv
+```
+Finally, let's clone the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:
+```
+git clone https://gitlab.cern.ch/jlangfor/combinetutorial-2023-parametric.git
+cd combinetutorial-2023-parametric
+```
 
 ## Session structure
-All code is in python version 3. Don't forget to import `ROOT`
+The exercise is split into six parts which cover:
+
+1) Parametric model building
+2) Simple fits
+3) Systematic uncertainties
+4) Toy generation
+5) RooMultiPdfs
+6) Multi-signal hypothesis
+
+All the code required to run the different parts is available in python scripts. You should run the scripts with python3 e.g.
+```
+python3 construct_models_part1.py
+```
+Before running everything blindly, it is important that you understand what the scripts are doing by looking through the code. A number of scripts will produce plots (as .png files). The default path to store these plots is in the current working directory. You can change this (e.g. pipe to an eos webpage) by changing the `plot_dir` variable in the `config.py` script.
+
+There's also a set of combine datacards which will help you get through the various parts of the exercise.
+
+Alternatively, we have provided `Jupyter` notebooks to run the different parts of the exercise (`.ipynb`). TODO: add information for running the Jupyter notebooks.
+
+Finally, this exercise is heavily based off the `RooFit` package. So if you find yourself using the python interpreter for any checks, don't forget to...
+```python
+python3
+
+import ROOT
+```
 
 ## Analysis overview
-TODO: define the fitting strategy.
+In this exercise we will look at one of the most famous parametric fitting analyses at the LHC: the Higgs boson decaying to two photons (H $\rightarrow \gamma\gamma$). This decay channel is key in understanding the properties of the Higgs boson due to its clean final state topology. The excellent energy resolution- of the CMS electromagnetic calorimeter leads to narrow signal peak in the diphoton invariant mass spectrum, $m_{\gamma\gamma}$, above a smoothly falling background continuum. The mass spectrum for the [legacy Run 2 analysis](http://cms-results.web.cern.ch/cms-results/public-results/publications/HIG-19-015/index.html) is shown below.
+
+<img src="plots/overview.png" width="500"/>
+
+In the analysis, we construct parametric models (analytic functions) of both signal and background events to fit the $m_{\gamma\gamma}$ spectrum in data. From the fit we can extract measurements of Higgs boson properties including its rate of production, its mass ($m_H$), its coupling behaviour, to name a few. This exercise will show how to construct parametric models using RooFit, and subsequently how to use combine to extract the results.
 
 ## Part 1: Parametric model building
 As with any fitting exercise, the first step is to understand the format of the input data, explore its contents and construct a model. The python script which performs the model construction is `construct_models_part1.py`. This section will explain what the various lines of code are doing.
 
 ### Signal modelling
-Firstly, we will construct a model to fit the signal (H $\rightarrow\gamma\gamma$) mass peak using a Monte Carlo simulation sample of gluon-gluon fusion (ggH) events with $m_H=125$ GeV, which enter some analysis category (Tag0). The events are stored in a ROOT `TTree`, where the diphoton mass (`CMS_hgg_mass`) and the event weight are saved. We begin by loading the MC, and converting the `TTree` data into `RooDataSet`:
+Firstly, we will construct a model to fit the signal (H $\rightarrow\gamma\gamma$) mass peak using a Monte Carlo simulation sample of gluon-gluon fusion production (ggH) events with $m_H=125$ GeV. This production mode has the largest cross section in the SM, and the LO Feynman diagram is shown below.
+
+<img src="plots/part1_feynman.png" width="500"/>
+
+There has already been a dedicated selection performed on the events to increase the signal-to-background ratio (e.g. using some ML event classifier). Events passing this selection enter the analysis category, Tag0. Events entering Tag0 are used for the parametric fitting of the $m_{\gamma\gamma}$ spectrum. 
+
+The events are stored in a ROOT `TTree`, where the diphoton mass, `CMS_hgg_mass`, and the event weight, `weight`, are saved. Let's begin by loading the MC, and converting the `TTree` data into `RooDataSet`:
 ```python
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -106,7 +164,10 @@ can.SaveAs("part1_signal_model_v1.png")
 <img src="plots/part1_signal_model_v1.png" width="700"/>
 </details>
 
-Let's now save the model inside a `RooWorkspace`. Combine will load this model when performing the fits. Crucially, we need to freeze the fit parameters of the signal model, otherwise they will be freely floating in the final results extraction.
+Let's now save the model inside a `RooWorkspace`. Combine will load this model when performing the fits. Crucially, we need to freeze the fit parameters of the signal model, otherwise they will be freely floating in the final results extraction. 
+
+* This choice of setting the shape parameters to constant means we believe our MC will perfectly model the Higgs boson events in data. Is this the case? How could we account for the MC mis-modelling in the fit? (See part 3).
+
 ```python
 MH.setVal(125)
 dMH.setConstant(True)
@@ -119,11 +180,11 @@ w_sig.Print()
 w_sig.Write()
 f_out.Close()
 ```
-We have successfully constructed a parametric model to fit the shape of the signal peak. But we also need to know the yield/normalisation of the signal process. In the SM, the ggH event yield is equal to:
+We have successfully constructed a parametric model to fit the shape of the signal peak. But we also need to know the yield/normalisation of the ggH signal process. In the SM, the ggH event yield is equal to:
 
 $$ N = \sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma} \cdot \epsilon \cdot \mathcal{L}$$
 
-Where $\sigma_{ggH}$ is the SM cross section, $\mathcal{B}^{\gamma\gamma}$ is the SM branching fraction of the Higgs boson to two photons, $\epsilon$ is the efficiency factor and corresponds to the fraction of the total ggH events landing in the Tag0 analysis category. Finally $\mathcal{L}$ is the integrated luminosity.
+Where $\sigma_{ggH}$ is the SM ggH cross section, $\mathcal{B}^{\gamma\gamma}$ is the SM branching fraction of the Higgs boson to two photons, $\epsilon$ is the efficiency factor and corresponds to the fraction of the total ggH events landing in the Tag0 analysis category. Finally $\mathcal{L}$ is the integrated luminosity.
 
 In this example, the ggH MC events are normalised to $\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}$ **before any selection**, taking the values from the [LHCHWG twiki](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWG#Production_cross_sections_and_de). Therefore, we can calculate the efficiency factor $\epsilon$ by taking the sum of weights in the MC dataset and dividing through by $\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}$. 
 ```python
@@ -205,7 +266,7 @@ can.SaveAs("part1_bkg_model.png")
 <img src="plots/part1_bkg_model.png" width="700"/>
 </details>
 
-As the background model is extracted from data, we want to introduce a freely floating normalisation term. We use the total number of data events (including in the signal region) as the initial prefit value of this normalisation object i.e. assuming no signal in the data. The syntax to the name this object is `{model}_norm` which will the be picked up automatically by combine. Note we also allow the shape parameter to float in the final fit to data.
+As the background model is extracted from data, we want to introduce a freely floating normalisation term. We use the total number of data events (including in the signal region) as the initial prefit value of this normalisation object i.e. assuming no signal in the data. The syntax to name this normalisation object is `{model}_norm` which will the be picked up automatically by combine. Note we also allow the shape parameter to float in the final fit to data (by not setting to constant).
 ```python
 norm = ROOT.RooRealVar("model_bkg_Tag0_norm", "Number of background events in Tag0", data.numEntries(), 0, 3*data.numEntries() )
 alpha.setConstant(False)
@@ -223,7 +284,7 @@ f_out.Close()
 ```
 
 ### Datacard
-The model workspaces have now been constructed. But before we can run any fits in combine we need to build the so-called **datacard**. This is a text file which defines the different processes entering the fit and their expected yields, and maps these processes to the corresponding models. We also store information on the systematic uncertainties in the datacard (see part 3). Given the low complexity of this example, the datacard is reasonably short. The datacard for this section is titled `datacard_part1.txt`. Take some time to understand the different lines. In particular, the values for the process normalisations:
+The model workspaces have now been constructed. But before we can run any fits in combine we need to build the so-called **datacard**. This is a text file which defines the different processes entering the fit and their expected yields, and maps these processes to the corresponding (parametric) models. We also store information on the systematic uncertainties in the datacard (see part 3). Given the low complexity of this example, the datacard is reasonably short. The datacard for this section is titled `datacard_part1.txt`. Take some time to understand the different lines. In particular, the values for the process normalisations:
 
 * Where does the signal (ggH) normalisation come from?
 * Why do we use a value of 1.0 for the background model normalisation in this analysis?
@@ -825,6 +886,10 @@ There are a number of options which can be added to the combine command to impro
 ## Part 6: Multi-signal model
 In reality, there are multiple Higgs boson processes which contribute to the total signal model, not only ggH. This section will explain how we can add an additional signal process (VBF) into the fit. Following this, we will add a second analysis category (Tag1), which has a higher purity of VBF events. To put this in context, the selection for Tag1 may require two jets with a large pseudorapidity separation and high invariant mass, which are typical properties of the VBF topology. By including this additional category with a different relative yield of VBF to ggH production, we are able to simultaneously constrain the rate of the two production modes.
 
+In the SM, the VBF process has a cross section which is roughly 10 times smaller than the ggH cross section. This explains why we need to use certain features of the event to boost the purity of VBF events. The LO Feynman diagram for VBF production is shown below.
+
+<img src="plots/part6_feynman.png" width="500"/>
+
 ### Building the models
 Firstly, lets build the necessary inputs for this section using `construct_models_part6.py`. This script uses everything we have learnt in the previous sections:
 * Signal models (Gaussians) are built separately for each process (ggH and VBF) in each analysis category (Tag0 and Tag1). This uses separate `TTrees` for each contribution in the `mc_part6.root` file. The mean and width of the Gaussians include the effect of the parametric shape uncertainties, `nuisance_scale` and `nuisance_smear`. Each signal model is normalised according to the following equation, where $\epsilon_{ij}$ labels the fraction of process, $i$ (=ggH,VBF), landing in analysis category, $j$ (=Tag0,Tag1), and $\mathcal{L}$ is the integrated luminosity (defined in the datacard).
@@ -934,7 +999,7 @@ plotImpacts.py -i impacts_part6.json -o impacts_part6_r_VBF --POI r_VBF
 ```
 * Look at the output PDF files. How does the ranking of the nuisance parameters change for the different signal strengths? 
 
-## Advanced exercises
+## Advanced exercises (to be added)
 The combine experts will include additional exercises here in due course. These will include:
 * Convolution of model pdfs: `RooAddPdf`
 * Application of the spurious signal method
