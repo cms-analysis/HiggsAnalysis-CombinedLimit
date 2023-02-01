@@ -112,7 +112,9 @@ can.SaveAs("part1_signal_mass.png")
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part1_signal_mass.png)
+
 </details>
 
 
@@ -142,7 +144,9 @@ can.SaveAs("part1_signal_model_v0.png")
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part1_signal_model_v0.png)
+
 </details>
 
 It looks like a good fit!
@@ -175,7 +179,9 @@ can.SaveAs("part1_signal_model_v1.png")
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part1_signal_model_v1.png)
+
 </details>
 
 Let's now save the model inside a `RooWorkspace`. Combine will load this model when performing the fits. Crucially, we need to freeze the fit parameters of the signal model, otherwise they will be freely floating in the final results extraction. 
@@ -251,7 +257,9 @@ can.SaveAs("part1_data_sidebands.png")
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part1_data_sidebands.png)
+
 </details>
 
 By eye, it looks like an exponential function would fit the data sidebands well. Let's construct the background model using a `RooExponential` and fit the data sidebands:
@@ -277,7 +285,9 @@ can.SaveAs("part1_bkg_model.png")
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part1_bkg_model.png)
+
 </details>
 
 As the background model is extracted from data, we want to introduce a freely floating normalisation term. We use the total number of data events (including in the signal region) as the initial prefit value of this normalisation object i.e. assuming no signal in the data. The syntax to name this normalisation object is `{model}_norm` which will the be picked up automatically by combine. Note we also allow the shape parameter to float in the final fit to data (by not setting to constant).
@@ -445,7 +455,9 @@ can.SaveAs("part2_sb_model.png")
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part2_sb_model.png)
+
 </details>
 
 ### Confidence intervals
@@ -467,7 +479,9 @@ plot1DScan.py higgsCombine.scan.MultiDimFit.mH125.root -o part2_scan
 
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part2_scan.png)
+
 </details>
 
 * Do you understand what the plot is showing? What information about the signal strength parameter can be inferred from the plot?
@@ -713,7 +727,9 @@ plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label "W
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part3_scan_v0.png)
+
 </details>
 
 * Can you spot the problem? 
@@ -732,7 +748,9 @@ plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label "W
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part3_scan_v1.png)
+
 </details>
 
 We can also freeze groups of nuisance parameters defined in the datacard with the option `--freezeNuisanceGroups`. Let's run a scan freezing only the theory uncertainties (using the nuisance group we defined in the datacard):
@@ -745,7 +763,9 @@ plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label To
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part3_scan_v2.png)
+
 </details>
 
 These methods are not limited to this particular grouping of systematics. We can use the above procedure to assess the impact of any nuisance parameter(s) on the signal strength confidence interval. 
@@ -780,7 +800,9 @@ plotImpacts.py -i impacts_part3.json -o impacts_part3
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part3_impacts.png)
+
 </details>
 
 There is a lot of information in these plots, which can be of invaluable use to analysers in understanding the fit. Do you understand everything that the plot is showing?
@@ -806,7 +828,9 @@ The outputs are a set of workspaces which correspond to different choices of bac
 
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part4_data_sidebands.png)
+
 </details>
 
 The datacards for the different background model functions are saved as `datacard_part4_{pdf}.txt` where `pdf = {exp,poly,pow}`. Have a look inside the .txt files and understand what changes have been made to pick up the different functions. Compile the datacards with:
@@ -837,7 +861,9 @@ python3 plot_bias_pull.py
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part4_pull_truth_exp_fit_poly.png)
+
 </details>
 
 The potential bias is defined as the (fitted) mean of the pull distribution. 
@@ -887,7 +913,9 @@ python3 plot_pdfindex.py
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part5_r_vs_pdfindex.png)
+
 </details>
 
 By floating the discrete nuisance parameter `pdfindex_Tag0`, at each point in the likelihood scan the pdfs will be iterated over and the one which gives the max likelihood (lowest 2NLL) including the correction factor will be used. The plot above shows that the `pdfindex_Tag0=0` (exponential) is chosen for the majority of r values, but this switches to `pdfindex_Tag0=1` (Chebychev polynomial) at the lower edge of the r range. We can see the impact on the likelihood scan by fixing the pdf to the exponential:
@@ -900,7 +928,9 @@ plot1DScan.py higgsCombine.scan.multidimfit.MultiDimFit.mH125.root --main-label 
 ```
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part5_scan.png)
+
 </details>
 
 The impact on the likelihood scan is evident at the lower edge, where the scan in which the index is floating flattens out. In this example, neither the $1\sigma$ or $2\sigma$ intervals are affected. But this is not always the case! Ultimately, this method allows us to account for the uncertainty in the choice of background function in the signal strength measurement. 
@@ -990,7 +1020,9 @@ This script interpolates the 2NLL value between the points ran in the scan so th
 
 <details>
 <summary><b> [Show Plot] </b></summary>
+
 ![](plots/part6_scan2D_r_ggH_vs_r_VBF.png)
+
 </details>
 
 * The plot shows that the data is in agreement with the SM within the $2\sigma$ CL. Here, the $1\sigma$ and $2\sigma$ confidence interval contours corresponds to 2NLL values of 2.3 and 5.99, respectively. Do you understand why this? Think about Wilk's theorem.
