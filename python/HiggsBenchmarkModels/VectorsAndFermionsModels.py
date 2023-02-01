@@ -122,7 +122,6 @@ class CvCfHiggs(SMLikeHiggsModel):
         self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "CvCf_XSBRscal_%s_%s" % (production, decay)
         if self.modelBuilder.out.function(name):
             return name
@@ -447,7 +446,6 @@ class CvCfInvHiggs(SMLikeHiggsModel):
         self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "CvCf_XSBRscal_%s_%s" % (production, decay)
         if self.modelBuilder.out.function(name):
             return name

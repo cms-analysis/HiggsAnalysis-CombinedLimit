@@ -65,7 +65,6 @@ class MepsHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         self.modelBuilder.doVar("SM_VEV[246.22]")
         self.msbar = {
             "top": (172.5, (-4.3, +4.8)),
@@ -152,7 +151,6 @@ class MepsHiggs(SMLikeHiggsModel):
         self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "Meps_XSBRscal_%(production)s_%(decay)s" % locals()
 
         if production in ("ggH", "qqH", "tHq", "tHW", "ggZH"):
@@ -231,7 +229,6 @@ class ResolvedC6(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         self.productionScaling = {
             "ttH": "Ctop",
             "bbH": "Cb",
@@ -289,7 +286,6 @@ class ResolvedC6(SMLikeHiggsModel):
         self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "wztbtm_XSBRscal_%(production)s_%(decay)s" % locals()
 
         if production in ("ggH", "qqH"):

@@ -22,6 +22,7 @@ nav:
           - "RooFit Basics":              part5/roofit.md
           - "Exercise: main features":    part5/longexercise.md
           - "Solutions to long exercise": part5/longexerciseanswers.md
+          - "Exercise: parametric fit":   tutorial2023/parametric_exercise.md
 
 theme:
         name: cinder

@@ -178,7 +178,6 @@ def checkRenameSafety(id, datacard, newname):
 
 
 def doRenameNuisance(datacard, args):
-
     vetoTypes = ["flatParam", "constr", "trG", "gmN"]
     isGlobal = False
     if len(args) == 2:

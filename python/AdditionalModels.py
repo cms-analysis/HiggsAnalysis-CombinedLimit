@@ -64,7 +64,6 @@ class C8(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         # SM BR
         for d in [
             "htt",
@@ -191,7 +190,6 @@ class CWidth(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         # SM BR
         for d in [
             "htt",
@@ -336,7 +334,6 @@ class TwoHDM(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         self.modelBuilder.factory_('expr::kV("sqrt(1-@0*@0)",cosbma)')
         self.modelBuilder.factory_('expr::tana("(@0*@1-@2)/(@1-@0*@2)", tanbeta, cosbma, kV)')
         self.modelBuilder.factory_('expr::cosa("1/sqrt(1+@0*@0)",tana)')
@@ -427,7 +424,6 @@ class TwoHDM(SMLikeHiggsModel):
         # self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "twohdm_XSBRscal_%(production)s_%(decay)s" % locals()
 
         # Special case that depends on Energy

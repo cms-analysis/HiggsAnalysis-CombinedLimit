@@ -11,6 +11,7 @@ There are several tutorials which have been run over the last few years with ins
    * [4th tutorial 31st Oct 2018](https://indico.cern.ch/event/747340/overview) - Latest for `81x-root606` branch.
    * [5th tutorial 2nd-4th Dec 2019](https://indico.cern.ch/event/859454/overview)
    * [6th tutorial 14th-16th Dec 2020](https://indico.cern.ch/event/976099/overview) - Latest for `102x` branch
+   * [7th tutorial 3rd Feb 2023](https://indico.cern.ch/event/1227742/) - Uses `113x` branch
 
 
 * Worked examples from Higgs analyses using combine  

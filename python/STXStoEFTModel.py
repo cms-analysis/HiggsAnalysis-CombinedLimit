@@ -44,7 +44,6 @@ def getSTXSProdDecMode(bin, process, options):
 #################################################################################################################
 # STXS to EFT abstract base class: inherited classes for different stages
 class STXStoEFTBaseModel(SMLikeHiggsModel):
-
     # initialisation: include options for STXS bin and BR uncertainties
     #    * note: STXS bin uncertainties are defined in data/lhc-hxswg/eft/stageX/BinUncertainties.txt. Needs updating!
     def __init__(
@@ -210,7 +209,6 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
                 if line.split()[0].split("_")[0] not in self.parametersOfInterest:
                     skip_poi = True
             if not skip_poi:
-
                 self.pois["%s" % line.split()[0]] = "[%s,%s,%s]" % (
                     line.split()[1],
                     line.split()[2],
@@ -277,7 +275,6 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
     #   > defines each terms as RooProduct
     #   > sum of terms as RooAddition
     def makeScalingFunction(self, what, STXSstage=""):
-
         # if in processes/decays extract formula from corresponding dict
         if what in self.STXSScalingFunctions:
             formula = self.STXSScalingFunctions[what]
@@ -405,6 +402,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
 #################################################################################################################
 # Define inherited classes: AllStageToEFT and StageXToEFT
 
+
 # Combination of different stages
 class AllStagesToEFTModel(STXStoEFTBaseModel):
     def __init__(self):
@@ -518,13 +516,11 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         # Function to convert troublesome procs into viable one for HC combination
         production = convert_to_STXS(production, decay)
 
         name = "stxstoeft_scaling_%s_%s_%s" % (production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
-
             XSscal = None
             BRscal = None
 
@@ -672,7 +668,6 @@ class StageXToEFTModel(STXStoEFTBaseModel):
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = "stxstoeft_scaling_%s_%s_%s" % (production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
-
             XSscal = None
             BRscal = None
 

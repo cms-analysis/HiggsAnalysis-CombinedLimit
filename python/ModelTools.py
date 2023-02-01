@@ -193,7 +193,6 @@ class ModelBuilder(ModelBuilderBase):
                 print("Wrote GraphVizTree of model_s to ", self.options.out + ".dot")
 
     def getRenamingParameters(self):
-
         toFreeze = []
         renameParamString = []
         paramString = []
@@ -266,7 +265,6 @@ class ModelBuilder(ModelBuilderBase):
                 self.out.var(rp).setAttribute("flatParam")
 
     def doRateParams(self):
-
         # First support external functions/parameters
         # keep a map of open files/workspaces
         open_files = {}
@@ -386,7 +384,7 @@ class ModelBuilder(ModelBuilderBase):
         self.doComment(" ----- nuisances -----")
         globalobs = []
 
-        for (n, nofloat, pdf, args, errline) in self.DC.systs:
+        for n, nofloat, pdf, args, errline in self.DC.systs:
             is_func_scaled = False
             func_scaler = None
             for pn, pf in self.options.nuisanceFunctions:
@@ -779,7 +777,7 @@ class ModelBuilder(ModelBuilderBase):
             setNuisPdf = []
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
-            for (n, nf, p, a, e) in self.DC.systs:
+            for n, nf, p, a, e in self.DC.systs:
                 if p != "constr":
                     nuisVars.add(self.out.var(n))
                 setNuisPdf.append(n)
@@ -875,7 +873,7 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                             raise RuntimeError("No rate parameter found %s, are you sure you defined it correctly in the datacard?" % (argu))
                 selfNormRate = 1.0
-                for (n, nofloat, pdf, args, errline) in self.DC.systs:
+                for n, nofloat, pdf, args, errline in self.DC.systs:
                     if pdf == "param":
                         continue
                     if pdf == "constr":
@@ -987,7 +985,7 @@ class ModelBuilder(ModelBuilderBase):
                 stderr.write("Missing variable %s declared as flatParam, will create one!\n" % nuis)
         mc_s = ROOT.RooStats.ModelConfig("ModelConfig", self.out)
         mc_b = ROOT.RooStats.ModelConfig("ModelConfig_bonly", self.out)
-        for (l, mc) in [("s", mc_s), ("b", mc_b)]:
+        for l, mc in [("s", mc_s), ("b", mc_b)]:
             if self.doModelBOnly:
                 mc.SetPdf(self.out.pdf("model_" + l))
             else:

@@ -48,7 +48,6 @@ class LambdaduHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         self.decayScaling = {
             "hgg": "hgg",
             "hzg": "hzg",
@@ -117,7 +116,6 @@ class LambdaduHiggs(SMLikeHiggsModel):
         # self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "lambdadu_XSBRscal_%(production)s_%(decay)s" % locals()
 
         # Special case that depends on Energy
@@ -178,7 +176,6 @@ class LambdalqHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         self.decayScaling = {
             "hgg": "hgg",
             "hzg": "hzg",
@@ -244,7 +241,6 @@ class LambdalqHiggs(SMLikeHiggsModel):
         # self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "lambdalq_XSBRscal_%(production)s_%(decay)s" % locals()
         if self.modelBuilder.out.function(name):
             return name

@@ -174,20 +174,20 @@ for ich, fname in enumerate(args):
         if not isIncluded(b_in, options.channelIncludes):
             continue
         obskeyline.append(bout)
-        for (p, e) in DC.exp[b].items():  # so that we get only self.DC.processes contributing to this bin
+        for p, e in DC.exp[b].items():  # so that we get only self.DC.processes contributing to this bin
             if not DC.isSignal[p]:
                 continue
             # print "in DC.exp.items:b,p", b,p
             expline.append("%s" % FloatToString(e)) if (e == 0 or e > 1e-3) else expline.append("%s" % FloatToStringScientific(e))
             keyline.append((bout, p, DC.isSignal[p]))
-        for (p, e) in DC.exp[b].items():  # so that we get only self.DC.processes contributing to this bin
+        for p, e in DC.exp[b].items():  # so that we get only self.DC.processes contributing to this bin
             if DC.isSignal[p]:
                 continue
             # print "in DC.exp.items:b,p", b,p
             expline.append("%s" % FloatToString(e)) if (e == 0 or e > 1e-3) else expline.append("%s" % FloatToStringScientific(e))
             keyline.append((bout, p, DC.isSignal[p]))
     # systematics
-    for (lsyst, nofloat, pdf, pdfargs, errline) in DC.systs:
+    for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
         systeffect = {}
         if pdf == "param":
             if lsyst in paramSysts:
@@ -371,7 +371,7 @@ for ich, fname in enumerate(args):
 bins = []
 check_processes = {}
 process_errors = []
-for (b, p, s) in keyline:
+for b, p, s in keyline:
     if b not in bins:
         bins.append(b)
     if p not in check_processes:
@@ -408,7 +408,7 @@ if shapeLines:
     chmax = max([max(len(p), len(c)) for p, c, x in shapeLines])
     cfmt = "%-" + str(chmax) + "s "
     shapeLines.sort(key=lambda x: (x[1], x[0]))
-    for (process, channel, stuff) in shapeLines:
+    for process, channel, stuff in shapeLines:
         print("shapes", cfmt % process, cfmt % channel, " ".join(stuff))
     print("-" * 130)
 
@@ -424,11 +424,11 @@ pidline = []
 signals = []
 backgrounds = []
 tmpsignals = []
-for (b, p, s) in keyline:
+for b, p, s in keyline:
     if s:
         if p not in tmpsignals:
             tmpsignals.append(p)
-for (b, p, s) in keyline:
+for b, p, s in keyline:
     if s:
         if p not in signals:
             signals.append(p)
@@ -464,7 +464,7 @@ for name in sysnamesSorted:
         hfmt % ("%-21s   %s  %s" % (name, pdf, " ".join(pdfargs))),
         "  ".join([cfmt % x for x in systline]),
     )
-for (pname, pargs) in paramSysts.items():
+for pname, pargs in paramSysts.items():
     print("%-12s  param  %s" % (pname, " ".join(pargs)))
 
 for pname in six.iterkeys(flatParamNuisances):

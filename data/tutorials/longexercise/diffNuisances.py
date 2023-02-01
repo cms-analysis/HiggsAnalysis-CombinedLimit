@@ -192,7 +192,6 @@ gr_fit_s.SetTitle("fit_b_s")
 
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
-
     nuis_s = fpf_s.at(i)
     name = nuis_s.GetName()
     nuis_b = fpf_b.find(name)
@@ -331,7 +330,6 @@ for i in range(fpf_s.getSize()):
                     pulls.append(valShift)
 
                 if abs(valShift) > options.vtol2 or abs(sigShift - 1) > options.stol2:
-
                     # severely report this nuisance:
                     #
                     # the best fit moved by more than 2.0 sigma or the uncertainty (sigma)
@@ -342,7 +340,6 @@ for i in range(fpf_s.getSize()):
                     flag = True
 
                 elif abs(valShift) > options.vtol or abs(sigShift - 1) > options.stol:
-
                     # report this nuisance:
                     #
                     # the best fit moved by more than 0.3 sigma or the uncertainty (sigma)

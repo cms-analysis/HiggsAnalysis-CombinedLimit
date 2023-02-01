@@ -254,7 +254,6 @@ def main(o):
 
 
 if __name__ == "__main__":
-
     from optparse import OptionParser
 
     parser = OptionParser(usage="%prog -i FILE.xls[x]", version="%prog 3.141")
