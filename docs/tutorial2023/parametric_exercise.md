@@ -72,7 +72,7 @@ replacing `xxx` with the same three digit number. You should now be able to copy
 ## Analysis overview
 In this exercise we will look at one of the most famous parametric fitting analyses at the LHC: the Higgs boson decaying to two photons (H $\rightarrow \gamma\gamma$). This decay channel is key in understanding the properties of the Higgs boson due to its clean final state topology. The excellent energy resolution- of the CMS electromagnetic calorimeter leads to narrow signal peak in the diphoton invariant mass spectrum, $m_{\gamma\gamma}$, above a smoothly falling background continuum. The mass spectrum for the [legacy Run 2 analysis](http://cms-results.web.cern.ch/cms-results/public-results/publications/HIG-19-015/index.html) is shown below.
 
-<img src="plots/overview.png" width="500"/>
+![](plots/overview.png)
 
 In the analysis, we construct parametric models (analytic functions) of both signal and background events to fit the $m_{\gamma\gamma}$ spectrum in data. From the fit we can extract measurements of Higgs boson properties including its rate of production, its mass ($m_H$), its coupling behaviour, to name a few. This exercise will show how to construct parametric models using RooFit, and subsequently how to use combine to extract the results.
 
