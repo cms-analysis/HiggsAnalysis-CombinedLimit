@@ -25,6 +25,7 @@ cmsenv
 ```
 Finally, let's clone the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:
 ```
+cd $CMSSW_BASE/src/
 git clone https://gitlab.cern.ch/jlangfor/combinetutorial-2023-parametric.git
 cd combinetutorial-2023-parametric
 ```
@@ -41,7 +42,7 @@ The exercise is split into six parts which cover:
 
 Throughout the tutorial there are a number of questions and exercises for you to complete. These are shown by the bullet points in this markdown file.
 
-All the code required to run the different parts is available in python scripts. You should run the scripts with python3 e.g.
+All the code required to run the different parts is available in python scripts. You should run the scripts with python3. For example:
 ```
 python3 construct_models_part1.py
 ```
@@ -49,14 +50,26 @@ Before running everything blindly, it is important that you understand what the 
 
 There's also a set of combine datacards which will help you get through the various parts of the exercise.
 
-Alternatively, we have provided `Jupyter` notebooks to run the different parts of the exercise (`.ipynb`). TODO: add information for running the Jupyter notebooks.
-
 Finally, this exercise is heavily based off the `RooFit` package. So if you find yourself using the python interpreter for any checks, don't forget to...
 ```python
 python3
 
 import ROOT
 ```
+## Jupyter notebooks
+Alternatively, we have provided `Jupyter` notebooks to run the different parts of the exercise e.g. `part1.ipynb`. You will have already downloaded these notebooks when cloning the gitlab repo. To open Jupyter notebooks on lxplus **within a CMSSW environment**, you can add the following option when you `ssh` into lxplus:
+```
+ssh -X -Y username@lxplus.cern.ch -L8xxx:localhost:8xxx
+```
+where you should replace `xxx` with some three digit number. Then `cd` into the `combinetutorial-2023-parametric` directory and set up the CMSSW environment with:
+```
+cmsenv
+```
+You can then open the Jupyter notebook inside the environment with:
+```
+jupyter notebook --no-browser --port 8xxx
+```
+replacing `xxx` with the same three digit number. You should now be able to copy the url it provides into a browser and access the various exercise notebooks.
 
 ## Analysis overview
 In this exercise we will look at one of the most famous parametric fitting analyses at the LHC: the Higgs boson decaying to two photons (H $\rightarrow \gamma\gamma$). This decay channel is key in understanding the properties of the Higgs boson due to its clean final state topology. The excellent energy resolution- of the CMS electromagnetic calorimeter leads to narrow signal peak in the diphoton invariant mass spectrum, $m_{\gamma\gamma}$, above a smoothly falling background continuum. The mass spectrum for the [legacy Run 2 analysis](http://cms-results.web.cern.ch/cms-results/public-results/publications/HIG-19-015/index.html) is shown below.
@@ -318,7 +331,7 @@ To compile the datacard we run the following command, using a value of the Higgs
 ```
 text2workspace.py datacard_part1.txt -m 125
 ```
-* Try opening the compiled workspace (`root datacard_part1.root`) and print the contents.
+* This compiles the datacard into a RooWorkspace, effectively building the likelihood function. Try opening the compiled workspace (`root datacard_part1.root`) and print the contents.
 ```
 w->Print()
 ```
@@ -818,14 +831,15 @@ python3 plot_bias_pull.py
 <img src="plots/part4_pull_truth_exp_fit_poly.png" width="700"/>
 </details>
 
-The potential bias is defined as the (fitted) mean of the pull distribution. In this case it is -0.233. 
+The potential bias is defined as the (fitted) mean of the pull distribution. 
+* What is our bias value? Have we generated enough toys to be confident of the bias value? You could try generating more toys if not.
 * What threshold do we use to define "acceptable" bias? 
 
 From the pull definition, we see the bias value is defined relative to the total uncertainty in the signal strength (denominator of $\sigma_{fit}$). Some analyses use 0.14 as the threshold because a bias below this value would change the total uncertainty (when added in quadrature) by less than 1% (see equation below). Other analyses use 0.2 as this will change the total uncertainty by less than 2%. We should define the threshold before performing the bias study.
 
 $$ \sqrt{ 1^2 + 0.14^2} = 1.0098 $$
 
-* How does our bias value compare to the thresholds? If we are using a threshold of 0.2 then the bias in this case is outside the acceptable region! We therefore should account for this using a **spurious signal** method (see advanced exercises TBA).
+* How does our bias value compare to the thresholds? If we the bias is outside the acceptable region we should account for this using a **spurious signal** method (see advanced exercises TBA). 
 * Repeat the bias study for each possible truth and fitted background function combinations. Do the bias values induced by the choice of background function merit adding a spurious signal component into the fit?
 * What would you expect the bias value to be for a background function that does not fit the data well? Should we be worried about such functions? What test could we use to reject such functions from the study beforehand?
 
@@ -905,7 +919,7 @@ python3 construct_models_part6.py
 ```
 
 The datacards for the two analysis categories are saved separately as `datacard_part6_Tag0.txt` and `datacard_part6_Tag1.txt`. 
-* Do you understand the changes made to include multiple signal processes in the datacard?
+* Do you understand the changes made to include multiple signal processes in the datacard? What value in the `process` line is used to label VBF as a signal?
 * Try compiling the individual datacards. What are the prefit ggH and VBF yields in each analysis category? You can find these by opening the workspace and printing the contents.
 * Run the best fits and plot the prefit and postfit S+B models along with the data (see code in part 2). How does the absolute number of data events in Tag1 compare to Tag0? What about the signal-to-background ratio, S/B? 
 
