@@ -284,7 +284,7 @@ $$ f(m|\alpha) = \dfrac{1}{N} e^{-\alpha m}$$
 
 Where of course, $N = \int_{110}^{150} e^{-\alpha m} dm$ is the normalisation constant.
 
-You can fund a bunch of available RooFit functions here: [https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html](https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html)
+You can find a bunch of available RooFit functions here: [https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html](https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html)
 
 There is also support for a generic pdf in the form of a `RooGenericPdf`, check this link: [https://root.cern.ch/doc/v608/classRooGenericPdf.html](https://root.cern.ch/doc/v608/classRooGenericPdf.html)
 
