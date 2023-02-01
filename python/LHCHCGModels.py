@@ -945,7 +945,6 @@ class LambdasReduced(LHCHCGBaseModel):
             POIset = "lambda_du,lambda_Vu,kappa_uu"
 
         elif self.model == "llq":
-
             self.modelBuilder.out.var("lambda_lq").setConstant(False)
             self.modelBuilder.out.var("lambda_Vq").setConstant(False)
             self.modelBuilder.out.var("kappa_qq").setConstant(False)
@@ -959,7 +958,6 @@ class LambdasReduced(LHCHCGBaseModel):
             POIset = "lambda_lq,lambda_Vq,kappa_qq"
 
         elif self.model == "lfv":
-
             self.modelBuilder.out.var("lambda_FV").setConstant(False)
             self.modelBuilder.out.var("kappa_VV").setConstant(False)
 

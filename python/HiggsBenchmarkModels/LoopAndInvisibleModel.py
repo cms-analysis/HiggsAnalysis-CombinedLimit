@@ -58,7 +58,6 @@ class HiggsLoops(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         self.decayScaling = {
             "hgg": "hgg",
             "hzg": "hxx",
@@ -123,7 +122,6 @@ class HiggsLoops(SMLikeHiggsModel):
         # self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "loopGluonGamma_XSBRscal_%s_%s" % (production, decay)
 
         if self.modelBuilder.out.function(name):
@@ -180,7 +178,6 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         self.decayScaling = {
             "hgg": "hgg",
             "hzg": "hxx",

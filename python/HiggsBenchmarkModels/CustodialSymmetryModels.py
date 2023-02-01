@@ -52,7 +52,6 @@ class LambdaWZHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         self.decayScaling = {
             "hgg": "hgg",
             "hzg": "hzg",
@@ -117,7 +116,6 @@ class LambdaWZHiggs(SMLikeHiggsModel):
         # self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "lambdaWZ_XSBRscal_%(production)s_%(decay)s" % locals()
 
         # Special case that depends on Energy

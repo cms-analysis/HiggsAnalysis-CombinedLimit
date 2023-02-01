@@ -169,8 +169,8 @@ class DatacardPruner(object):
                         uncerts.append((words[0], procs[idx], bins[idx], words[idx + 2]))
         file.close()
         ## open root input files, find all shape histograms
-        for (u_unc, u_proc, u_bin, u_value) in uncerts:
-            for (s_proc, s_bin, s_path, s_shape, s_syst) in shapes:
+        for u_unc, u_proc, u_bin, u_value in uncerts:
+            for s_proc, s_bin, s_path, s_shape, s_syst in shapes:
                 if valid(u_bin, s_bin, bin_excepts):
                     if valid(u_proc, s_proc, proc_excepts):
                         root_file = ROOT.TFile(s_path, "READ")

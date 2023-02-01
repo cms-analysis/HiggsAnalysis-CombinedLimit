@@ -181,7 +181,7 @@ MB.doModel()
             return self.signals
         elif type == "b":
             bgs = []
-            for (proc, sig) in six.iteritems(self.isSignal):
+            for proc, sig in six.iteritems(self.isSignal):
                 if not sig:
                     bgs.append(proc)
             return bgs

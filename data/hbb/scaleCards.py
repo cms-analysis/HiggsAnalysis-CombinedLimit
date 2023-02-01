@@ -118,7 +118,7 @@ backgrounds = []
 shapeLines = []
 paramSysts = {}
 flatParamNuisances = {}
-for (name, nf, pdf, args, errline) in DCR.systs:
+for name, nf, pdf, args, errline in DCR.systs:
     systlines[name] = [pdf, args, errline, nf]
 
 for b, p, sig in DCR.keyline:
@@ -148,7 +148,7 @@ xfile.write(" ".join(["-" * 150]) + "\n")
 pidline = []
 signals = []
 backgrounds = []
-for (b, p, s) in keyline:
+for b, p, s in keyline:
     if s:
         if p not in signals:
             signals.append(p)

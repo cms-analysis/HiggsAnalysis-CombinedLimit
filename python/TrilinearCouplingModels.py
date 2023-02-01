@@ -47,7 +47,6 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
         self.setup()
 
     def setup(self):
-
         # self.dobbH()
         # SM BR
 
@@ -145,10 +144,8 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
         )
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "kVkFkl_XSBRscal_%s_%s_%s" % (production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
-
             # now make production scaling --> taken from Tab. 2 of https://arxiv.org/pdf/1607.04251v1.pdf, using formula from https://arxiv.org/pdf/1709.08649.pdf (eqn 18)
             cXSmap_7 = {
                 "ggH": 0.66e-2,
@@ -386,7 +383,6 @@ class TrilinearHiggsDifferential(PhysicsModel):
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "XSBRscal_%s_%s" % (production, decay)
         print(name)
         # If name has been defined in doParameterOfInterest()
@@ -437,7 +433,6 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         self.setup()
 
     def setup(self):
-
         print("setup")
         # self.dobbH()
         # SM BR
@@ -641,7 +636,6 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
             return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
     def getHiggsSignalYieldScale(self, processSource, decay, energy):
-
         # print "Scaling for ", processSource, decay, energy
         production = processSource.split("_")[0]
 

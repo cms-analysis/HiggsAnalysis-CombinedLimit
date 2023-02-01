@@ -49,7 +49,6 @@ class HiggsMinimal(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         self.decayScaling = {
             "hgg": "hgg",
             "hzg": "hzg",
@@ -107,7 +106,6 @@ class HiggsMinimal(SMLikeHiggsModel):
         # self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "minimal_XSBRscal_%s_%s" % (production, decay)
 
         if self.modelBuilder.out.function(name):
