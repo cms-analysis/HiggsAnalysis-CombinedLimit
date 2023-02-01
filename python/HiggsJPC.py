@@ -109,7 +109,6 @@ class TwoHypotesisHiggs(PhysicsModel):
         poi = "x"
 
         if self.muFloating:
-
             if self.pois:
                 for pn, pf in self.pois.items():
                     self.modelBuilder.doVar(pf)
@@ -132,7 +131,6 @@ class TwoHypotesisHiggs(PhysicsModel):
                 self.sigNorms = {True: "r_times_x", False: "r_times_not_x"}
 
                 if self.fqqIncluded:
-
                     if self.fqqFloating:
                         self.modelBuilder.doVar("fqq[0,%s,%s]" % (self.fqqRange[0], self.fqqRange[1]))
                     else:

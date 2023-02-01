@@ -209,7 +209,7 @@ for mh, D in data.items():
     fout.write("rate     " + pad + ("  ".join("%6.2f" % f for f in D["exp"])) + "\n")
     fout.write("---------------------------------------------------------------------------------------------------------------\n")
     used_syst_labels = {}
-    for (inuis, N) in enumerate(D["nuis"]):
+    for inuis, N in enumerate(D["nuis"]):
         name = "%-3d" % (inuis + 1)
         id = name
         isStat = D["nuisname"][inuis] == "Statistics in MC or control sample"

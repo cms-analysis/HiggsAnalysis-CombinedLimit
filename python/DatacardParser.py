@@ -311,7 +311,6 @@ def isIncluded(name, includeList):
 
 
 def addRateParam(lsyst, f, ret):
-
     if len(f) > 6 or len(f) < 5:
         raise RuntimeError(
             "Error, directives of type 'rateParam' should be of form .. name rateParam channel process initial value OR name rateParam channel process formula args"
@@ -441,7 +440,7 @@ def parseCard(file, options):
                 ret.isSignal = dict([(p, None) for p in ret.processes])
                 if ret.obs != [] and type(ret.obs) == list:  # still as list, must change into map with bin names
                     ret.obs = dict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
-                for (b, p, s) in ret.keyline:
+                for b, p, s in ret.keyline:
                     if ret.isSignal[p] == None:
                         ret.isSignal[p] = s
                     elif ret.isSignal[p] != s:
@@ -673,7 +672,7 @@ def parseCard(file, options):
         if pdf == "param" or pdf == "constr" or pdf == "discrete" or pdf == "rateParam":  # this doesn't have an errline
             syst2.append((lsyst, nofloat, pdf, args, errline))
             continue
-        for (b, p, s) in ret.keyline:
+        for b, p, s in ret.keyline:
             r = errline[b][p]
             nullEffect = r == 0.0 or (pdf == "lnN" and r == 1.0)
             if not nullEffect and ret.exp[b][p] != 0:

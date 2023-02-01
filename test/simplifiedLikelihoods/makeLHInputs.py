@@ -13,7 +13,6 @@ from collections import OrderedDict as odict
 
 
 def parse_args():
-
     usage = "usage: %prog getCorrelationMatrix.py [options]\n" + "%prog -h for help"
     parser = optparse.OptionParser(usage)
 
@@ -191,7 +190,16 @@ def main(filterStrings, inFile, outFileName, whichFits, threshold, config):
         binLabelsFiltered = []
         binDict = {}
         if config:
-            (outCovar, outBackground, outSignal, outTotal, outData, outM1, outM2, outM3,) = makeAggregate(
+            (
+                outCovar,
+                outBackground,
+                outSignal,
+                outTotal,
+                outData,
+                outM1,
+                outM2,
+                outM3,
+            ) = makeAggregate(
                 aggregateCFG.aggregateDict,
                 covarianceInput,
                 totalBackground,

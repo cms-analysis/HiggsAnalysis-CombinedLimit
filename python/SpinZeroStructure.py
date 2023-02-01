@@ -97,7 +97,6 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
         return processed
 
     def getPOIList(self):
-
         poi = []
         poi += super(SpinZeroHiggsBase, self).getPOIList()
 

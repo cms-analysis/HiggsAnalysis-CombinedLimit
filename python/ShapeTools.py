@@ -391,7 +391,7 @@ class ShapeBuilder(ModelBuilder):
                 maskList = ROOT.RooArgList()
                 for b in self.DC.bins:
                     maskList.add(self.out.arg(self.physics.getChannelMask(b)))
-            for (postfixIn, postfixOut) in [("", "_s"), ("_bonly", "_b")]:
+            for postfixIn, postfixOut in [("", "_s"), ("_bonly", "_b")]:
                 simPdf = (
                     ROOT.RooSimultaneous("model" + postfixOut, "model" + postfixOut, self.out.binCat)
                     if self.options.noOptimizePdf
@@ -861,7 +861,7 @@ class ShapeBuilder(ModelBuilder):
         morphs = []
         shapeAlgo = None
         channelBinParFlag = channel in list(self.DC.binParFlags.keys())
-        for (syst, nofloat, pdf, args, errline) in self.DC.systs:
+        for syst, nofloat, pdf, args, errline in self.DC.systs:
             if "shape" not in pdf:
                 continue
             if errline[channel][process] == 0:
@@ -911,7 +911,7 @@ class ShapeBuilder(ModelBuilder):
             pdfs.Add(nominalPdf)
         coeffs = ROOT.RooArgList()
         minscale = 1
-        for (syst, scale, pdfUp, pdfDown) in morphs:
+        for syst, scale, pdfUp, pdfDown in morphs:
             if self.options.useHistPdf == "always":
                 pdfs.add(pdfUp)
                 pdfs.add(pdfDown)
@@ -999,7 +999,7 @@ class ShapeBuilder(ModelBuilder):
                 pdfs.Clear()
                 ## now it contains "RooDataHist", it should contain "RooHistPdf"
                 pdfs.Add(nominalPdf)
-                for (syst, scale, shapeUp, shapeDown) in morphs:
+                for syst, scale, shapeUp, shapeDown in morphs:
                     pdfs.Add(self.shape2Pdf(shapeUp, channel, process))
                     pdfs.Add(self.shape2Pdf(shapeDown, channel, process))
                 histpdf = nominalPdf if nominalPdf.InheritsFrom("RooDataHist") else nominalPdf.dataHist()
@@ -1034,7 +1034,7 @@ class ShapeBuilder(ModelBuilder):
                 return rhp
             elif nominalPdf.InheritsFrom("RooParametricHist"):
                 # Add the shape morphs to it. Cannot pass a collection of DataHists so we have to convert to PDFs first?!
-                for (syst, scale, shapeUp, shapeDown) in morphs:
+                for syst, scale, shapeUp, shapeDown in morphs:
                     nominalPdf.addMorphs(shapeUp, shapeDown, coeffs.find(syst), qrange)
                 _cache[(channel, process)] = nominalPdf
                 return nominalPdf
@@ -1043,7 +1043,7 @@ class ShapeBuilder(ModelBuilder):
                 pdflist = ROOT.RooArgList()
                 nominalPdf = self.shape2Pdf(shapeNominal, channel, process)
                 pdflist.add(nominalPdf)
-                for (syst, scale, shapeUp, shapeDown) in morphs:
+                for syst, scale, shapeUp, shapeDown in morphs:
                     pdflist.add(self.shape2Pdf(shapeUp, channel, process))
                     pdflist.add(self.shape2Pdf(shapeDown, channel, process))
                 pdfs = pdflist
@@ -1128,7 +1128,7 @@ class ShapeBuilder(ModelBuilder):
             return None
         if normNominal == 0:
             raise RuntimeError("Null norm for channel %s, process %s" % (channel, process))
-        for (syst, nofloat, pdf, args, errline) in self.DC.systs:
+        for syst, nofloat, pdf, args, errline in self.DC.systs:
             if "shape" not in pdf:
                 continue
             if errline[channel][process] != 0:
@@ -1187,7 +1187,6 @@ class ShapeBuilder(ModelBuilder):
         return terms if terms else None
 
     def rebinH1(self, shape):
-
         if self.options.optimizeTemplateBins:
             rebinh1 = ROOT.TH1F(
                 shape.GetName() + "_rebin",
@@ -1412,7 +1411,7 @@ class ShapeBuilder(ModelBuilder):
                 # print "-- Before --"
                 # arg.Print("t")
                 cust = ROOT.RooCustomizer(arg, "__optMH")
-                for (a, aopt) in newservers:
+                for a, aopt in newservers:
                     cust.replaceArg(a, aopt)
                 ret = cust.build(True)
                 self.out.dont_delete.append(ret)

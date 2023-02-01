@@ -50,7 +50,6 @@ class C5(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         # SM BR
         for d in [
             "htt",
@@ -151,7 +150,6 @@ class C6(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         # SM BR
         for d in [
             "htt",
@@ -273,7 +271,6 @@ class C7(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         # SM BR
         for d in [
             "htt",

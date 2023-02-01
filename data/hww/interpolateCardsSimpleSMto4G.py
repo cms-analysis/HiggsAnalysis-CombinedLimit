@@ -153,7 +153,7 @@ for X in [
     shapeLines = []
     paramSysts = {}
     flatParamNuisances = {}
-    for (name, nf, pdf, args, errline) in DC1.systs:
+    for name, nf, pdf, args, errline in DC1.systs:
         if options.etu != 0 and name in [
             "QCDscale_ggH",
             "QCDscale_ggH1in",
@@ -201,7 +201,7 @@ for X in [
     if shapeLines:
         chmax = max([max(len(p), len(c)) for p, c, x in shapeLines])
         cfmt = "%-" + str(chmax) + "s "
-        for (process, channel, stuff) in shapeLines:
+        for process, channel, stuff in shapeLines:
             xfile.write(" ".join(["shapes", cfmt % process, cfmt % channel, " ".join(stuff)]) + "\n")
         xfile.write(" ".join(["-" * 130]) + "\n")
 
@@ -216,7 +216,7 @@ for X in [
     pidline = []
     signals = []
     backgrounds = []
-    for (b, p, s) in keyline:
+    for b, p, s in keyline:
         if s:
             if p not in signals:
                 signals.append(p)
@@ -255,7 +255,7 @@ for X in [
             )
             + "\n"
         )
-    for (pname, pargs) in paramSysts.items():
+    for pname, pargs in paramSysts.items():
         xfile.write(" ".join(["%-12s  param  %s" % (pname, " ".join(pargs))]) + "\n")
 
     for pname in six.iterkeys(flatParamNuisances):
