@@ -42,7 +42,7 @@ The exercise is split into six parts which cover:
 
 Throughout the tutorial there are a number of questions and exercises for you to complete. These are shown by the bullet points in this markdown file.
 
-All the code required to run the different parts is available in python scripts. We have purposely **commented out the code** to encourage you to open the scripts and take a look what is inside. When you are happy with what the code is doing then you can uncomment and run the scripts (using python3) e.g.:
+All the code required to run the different parts is available in python scripts. We have purposely **commented out the code** to encourage you to open the scripts and take a look what is inside. Each block is separated by a divider and a blank line. When you are happy and understand the code, you can uncomment (block by block) and then run the scripts (using python3) e.g.:
 ```shell
 python3 construct_models_part1.py
 ```
@@ -143,7 +143,9 @@ can.SaveAs("part1_signal_model_v0.png")
 ![](plots/part1_signal_model_v0.png)
 
 
-It looks like a good fit!
+It looks like a good fit! 
+
+* Do you understand the output from the `fitTo` command (i.e the mimimization)? From now on we will add the option `ROOT.RooFit.PrintLevel(-1)` when fitting the models to surpress the minimizer output. 
 
 But what if the mean of the model does not correspond directly to the Higgs boson mass i.e. there are some reconstruction effects. Let's instead define the mean of the model as:
 
@@ -156,7 +158,7 @@ mean = ROOT.RooFormulaVar("mean_ggH_Tag0", "mean_ggH_Tag0", "(@0+@1)", ROOT.RooA
 model = ROOT.RooGaussian( "model_ggH_Tag0", "model_ggH_Tag0", mass, mean, sigma )
 
 # Fit the new model with a variable mean
-model.fitTo(mc,ROOT.RooFit.SumW2Error(True))
+model.fitTo(mc,ROOT.RooFit.SumW2Error(True),ROOT.RooFit.PrintLevel(-1))
 
 # Model is parametric in MH. Let's show this by plotting for different values of MH
 can = ROOT.TCanvas()
@@ -256,7 +258,7 @@ alpha = ROOT.RooRealVar("alpha", "alpha", -0.05, -0.2, 0 )
 model_bkg = ROOT.RooExponential("model_bkg_Tag0", "model_bkg_Tag0", mass, alpha )
 
 # Fit model to data sidebands
-model_bkg.fitTo( data, ROOT.RooFit.Range(fit_range) )
+model_bkg.fitTo( data, ROOT.RooFit.Range(fit_range),  ROOT.RooFit.PrintLevel(-1))
 
 # Let's plot the model fit to the data
 can = ROOT.TCanvas()
@@ -586,8 +588,8 @@ sigma = ROOT.RooRealVar("sigma", "sigma", 2, 1.5, 2.5)
 gaus = ROOT.RooGaussian("model", "model", mass, mean, sigma)
 
 # Run the fits twice (second time from the best-fit of first run) to obtain more reliable results
-gaus.fitTo(mc['scaleUp01Sigma'], ROOT.RooFit.SumW2Error(True))
-gaus.fitTo(mc['scaleUp01Sigma'], ROOT.RooFit.SumW2Error(True))
+gaus.fitTo(mc['scaleUp01Sigma'], ROOT.RooFit.SumW2Error(True),ROOT.RooFit.PrintLevel(-1))
+gaus.fitTo(mc['scaleUp01Sigma'], ROOT.RooFit.SumW2Error(True),ROOT.RooFit.PrintLevel(-1))
 print("Mean = %.3f +- %.3f GeV, Sigma = %.3f +- %.3f GeV"%(mean.getVal(),mean.getError(),sigma.getVal(),sigma.getError()) )
 ```
 Gives the output:
@@ -597,8 +599,8 @@ Mean = 125.370 +- 0.009 GeV, Sigma = 2.011 +- 0.006 GeV
 Now let's compare the values to the nominal fit for all systematic-varied trees. We observe a significant variation in the mean for the **scale** uncertainty, and a significant variation in sigma for the **smear** uncertainty. 
 ```python
 # First fit the nominal dataset
-gaus.fitTo(mc['nominal'], ROOT.RooFit.SumW2Error(True) )
-gaus.fitTo(mc['nominal'], ROOT.RooFit.SumW2Error(True) )
+gaus.fitTo(mc['nominal'], ROOT.RooFit.SumW2Error(True), ROOT.RooFit.PrintLevel(-1) )
+gaus.fitTo(mc['nominal'], ROOT.RooFit.SumW2Error(True), ROOT.RooFit.PrintLevel(-1) )
 # Save the mean and sigma values and errors to python dicts
 mean_values, sigma_values = {}, {}
 mean_values['nominal'] = [mean.getVal(),mean.getError()]
@@ -608,8 +610,8 @@ sigma_values['nominal'] = [sigma.getVal(),sigma.getError()]
 for syst in ['scale','smear']:
     for direction in ['Up','Down']:
         key = "%s%s01Sigma"%(syst,direction)
-        gaus.fitTo(mc[key] , ROOT.RooFit.SumW2Error(True) )
-        gaus.fitTo(mc[key], ROOT.RooFit.SumW2Error(True))
+        gaus.fitTo(mc[key] , ROOT.RooFit.SumW2Error(True),  ROOT.RooFit.PrintLevel(-1))
+        gaus.fitTo(mc[key], ROOT.RooFit.SumW2Error(True), ROOT.RooFit.PrintLevel(-1))
         mean_values[key] = [mean.getVal(), mean.getError()]
         sigma_values[key] = [sigma.getVal(), sigma.getError()]
 
@@ -666,7 +668,7 @@ Let's now fit the new model to the signal Monte-Carlo dataset, build the normali
 model = ROOT.RooGaussian( "model_ggH_Tag0", "model_ggH_Tag0", mass, mean_formula, sigma_formula )
 
 # Fit model to MC
-model.fitTo( mc['nominal'], ROOT.RooFit.SumW2Error(True) )
+model.fitTo( mc['nominal'], ROOT.RooFit.SumW2Error(True), ROOT.RooFit.PrintLevel(-1) )
 
 # Build signal model normalisation object
 xs_ggH = ROOT.RooRealVar("xs_ggH", "Cross section of ggH in [pb]", 48.58 )
@@ -725,9 +727,9 @@ combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH -n .scan
 ```
 Our aim is to break down the total uncertainty into the systematic and statistical components. To get the statistical-uncertainty-only scan it should be as simple as freezing the nuisance parameters in the fit... right? 
 
-Try it by adding `,rgx{.*}` to the `--freezeParameters` option. This will freeze all nuisance parameters by using a wildcard in the regular expression. Note, in combine you can usually add the option `--freezeParameters allConstrainedNuisances`, but this will not work here as we want to additionally freeze `MH` in the fit.
+Try it by adding `,allConstrainedNuisances` to the `--freezeParameters` option. This will freeze all (constrained) nuisance parameters in the fit. You can also feed in regular expressions with wildcards using `rgx{.*}`. For instance to freeze only the `nuisance_scale` and `nuisance_smear` you could run with `--freezeParameters MH,rgx{nuisance_.*}`.
 ```shell
-combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH,rgx{.*} -n .scan.with_syst.statonly --algo grid --points 20 --setParameterRanges r=0.5,2.5
+combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH,allConstrainedNuisances -n .scan.with_syst.statonly --algo grid --points 20 --setParameterRanges r=0.5,2.5
 ```
 You can plot the two likelihood scans on the same axis with the command:
 ```shell
@@ -745,7 +747,7 @@ The correct approach is to freeze the nuisance parameters to their respective be
 ```shell
 combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH -n .bestfit.with_syst --setParameterRanges r=0.5,2.5 --saveWorkspace
 
-combine -M MultiDimFit higgsCombine.bestfit.with_syst.MultiDimFit.mH125.root -m 125 --freezeParameters MH,rgx{.*} -n .scan.with_syst.statonly_correct --algo grid --points 20 --setParameterRanges r=0.5,2.5 --snapshotName MultiDimFit
+combine -M MultiDimFit higgsCombine.bestfit.with_syst.MultiDimFit.mH125.root -m 125 --freezeParameters MH,allConstrainedNuisances -n .scan.with_syst.statonly_correct --algo grid --points 20 --setParameterRanges r=0.5,2.5 --snapshotName MultiDimFit
 ```
 Adding the option `--breakdown syst,stat` to the `plot1DScan.py` command will automatically calculate the uncertainty breakdown for you.
 ```shell
