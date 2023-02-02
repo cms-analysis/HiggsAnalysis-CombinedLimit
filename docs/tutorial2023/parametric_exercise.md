@@ -42,20 +42,20 @@ The exercise is split into six parts which cover:
 
 Throughout the tutorial there are a number of questions and exercises for you to complete. These are shown by the bullet points in this markdown file.
 
-All the code required to run the different parts is available in python scripts. You should run the scripts with python3. For example:
+All the code required to run the different parts is available in python scripts. We have purposely **commented out the code** to encourage you to open the scripts and take a look what is inside. When you are happy with what the code is doing then you can uncomment and run the scripts (using python3) e.g.:
 ```shell
 python3 construct_models_part1.py
 ```
-Before running everything blindly, it is important that you understand what the scripts are doing by looking through the code. A number of scripts will produce plots (as .png files). The default path to store these plots is in the current working directory. You can change this (e.g. pipe to an eos webpage) by changing the `plot_dir` variable in the `config.py` script.
+A number of scripts will produce plots (as .png files). The default path to store these plots is in the current working directory. You can change this (e.g. pipe to an eos webpage) by changing the `plot_dir` variable in the `config.py` script.
 
-There's also a set of combine datacards which will help you get through the various parts of the exercise.
+There's also a set of combine (.txt) datacards which will help you get through the various parts of the exercise. The exercises should help you become familiar with the structure of parametric fitting datacards.
 
 Finally, this exercise is heavily based off the `RooFit` package. So if you find yourself using the python interpreter for any checks, don't forget to...
 ```python
 import ROOT
 ```
 ## Jupyter notebooks
-Alternatively, we have provided `Jupyter` notebooks to run the different parts of the exercise e.g. `part1.ipynb`. You will have already downloaded these notebooks when cloning the gitlab repo. To open Jupyter notebooks on lxplus **within a CMSSW environment**, you can add the following option when you `ssh` into lxplus:
+Alternatively, we have provided `Jupyter` notebooks to run the different parts of the exercise e.g. `part1.ipynb`. You will have already downloaded these notebooks when cloning the tutorial gitlab repo. To open Jupyter notebooks on lxplus **within a CMSSW environment**, you can add the following option when you `ssh` into lxplus:
 ```shell
 ssh -X -Y username@lxplus.cern.ch -L8xxx:localhost:8xxx
 ```
@@ -110,12 +110,9 @@ plot.Draw()
 can.Update()
 can.SaveAs("part1_signal_mass.png")
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part1_signal_mass.png)
 
-</details>
 
 
 The plot shows a peak centred on the Higgs mass at 125 GeV. Let's use a simple Gaussian to model the peak.
@@ -142,12 +139,9 @@ can.Update()
 can.Draw()
 can.SaveAs("part1_signal_model_v0.png")
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part1_signal_model_v0.png)
 
-</details>
 
 It looks like a good fit!
 
@@ -177,12 +171,9 @@ plot.Draw()
 can.Update()
 can.SaveAs("part1_signal_model_v1.png")
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part1_signal_model_v1.png)
 
-</details>
 
 Let's now save the model inside a `RooWorkspace`. Combine will load this model when performing the fits. Crucially, we need to freeze the fit parameters of the signal model, otherwise they will be freely floating in the final results extraction. 
 
@@ -200,13 +191,13 @@ w_sig.Print()
 w_sig.Write()
 f_out.Close()
 ```
-We have successfully constructed a parametric model to fit the shape of the signal peak. But we also need to know the yield/normalisation of the ggH signal process. In the SM, the ggH event yield is equal to:
+We have successfully constructed a parametric model to fit the shape of the signal peak. But we also need to know the yield/normalisation of the ggH signal process. In the SM, the ggH event yield in Tag0 is equal to:
 
 $$ N = \sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma} \cdot \epsilon \cdot \mathcal{L}$$
 
 Where $\sigma_{ggH}$ is the SM ggH cross section, $\mathcal{B}^{\gamma\gamma}$ is the SM branching fraction of the Higgs boson to two photons, $\epsilon$ is the efficiency factor and corresponds to the fraction of the total ggH events landing in the Tag0 analysis category. Finally $\mathcal{L}$ is the integrated luminosity.
 
-In this example, the ggH MC events are normalised to $\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}$ **before any selection**, taking the values from the [LHCHWG twiki](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWG#Production_cross_sections_and_de). Therefore, we can calculate the efficiency factor $\epsilon$ by taking the sum of weights in the MC dataset and dividing through by $\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}$. 
+In this example, the ggH MC events are normalised **before any selection is performed** to $\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}$, taking the values from the [LHCHWG twiki](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWG#Production_cross_sections_and_de). Note this does not include the lumi scaling, which may be different to what you have in your own analyses! We can then calculate the efficiency factor, $\epsilon$, by taking the sum of weights in the MC dataset and dividing through by $\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}$. This will tell us what fraction of ggH events land in Tag0.
 ```python
 # Define SM cross section and branching fraction values
 xs_ggH = 48.58 #in [pb]
@@ -227,7 +218,7 @@ Gives the output:
 Efficiency of ggH events landing in Tag0 is: 1.00%
 For 138fb^-1, total normalisation of signal is: N = xs * br * eff * lumi = 181.01 events
 ```
-We need to make a note of the signal yield (`181.01`) for later.
+So we find 1% of all ggH events enter Tag0. And the total expected yield of ggH events in Tag0 (with lumi scaling) is `181.01`. Lets make a note of this for later!
 
 ### Background modelling
 In the H $\rightarrow\gamma\gamma$ analysis we construct the background model directly from data. To avoid biasing our background estimate, we remove the signal region from the model construction and fit the mass sidebands. Let's begin by loading the data `TTree` and converting to a `RooDataSet`. We will then plot the mass sidebands.
@@ -255,12 +246,9 @@ can.Update()
 can.Draw()
 can.SaveAs("part1_data_sidebands.png")
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part1_data_sidebands.png)
 
-</details>
 
 By eye, it looks like an exponential function would fit the data sidebands well. Let's construct the background model using a `RooExponential` and fit the data sidebands:
 ```python
@@ -283,12 +271,9 @@ can.Update()
 can.Draw()
 can.SaveAs("part1_bkg_model.png")
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part1_bkg_model.png)
 
-</details>
 
 As the background model is extracted from data, we want to introduce a freely floating normalisation term. We use the total number of data events (including in the signal region) as the initial prefit value of this normalisation object i.e. assuming no signal in the data. The syntax to name this normalisation object is `{model}_norm` which will the be picked up automatically by combine. Note we also allow the shape parameter to float in the final fit to data (by not setting to constant).
 ```python
@@ -453,12 +438,9 @@ leg.Draw("Same")
 can.Update()
 can.SaveAs("part2_sb_model.png")
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part2_sb_model.png)
 
-</details>
 
 ### Confidence intervals
 We not only want to find the best-fit value of the signal strength, r, but also the confidence intervals. The `singles` algorithm will find the 68% CL intervals:
@@ -477,12 +459,9 @@ We can use the `plot1DScan.py` function from combineTools to plot the likelihood
 plot1DScan.py higgsCombine.scan.MultiDimFit.mH125.root -o part2_scan
 ```
 
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part2_scan.png)
 
-</details>
 
 * Do you understand what the plot is showing? What information about the signal strength parameter can be inferred from the plot?
 
@@ -496,7 +475,36 @@ You can use the `--expectSignal 1` option to set the signal strength parameter t
 ### Extension: goodness-of-fit tests
 The goodness-of-fit tests available in combine are only well-defined for binned maximum likelihood fits. Therefore, to perform a goodness-of-fit test with a parametric datacard, make sure to save the data object as a `RooDataHist`, as in `workspace_bkg_binned.root`. 
 
-* Using what you have learnt from the goodness-of-fit checks in the template-based analysis pre-exercise, can you run a goodness-of-fit check for this analysis?
+* Try editing the `datacard_part1_with_norm.txt` file to pick up the correct binned workspace file, and the `RooDataHist`. The goodness-of-fit method requires at-least one nuisance parameter in the model to run successfully. Append the following line to the end of the datacard:
+```shell
+lumi_13TeV      lnN          1.01         -
+```
+
+* Does the datacard compile with the `text2workspace.py` command?
+
+We use the `GoodnessOfFit` method in combine to evaluate how compatible the observed data are with the model pdf. There are three types of GoF algorithm within combine, this example will use the `saturated` algorithm. You can find more information about the other algorithms [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#goodness-of-fit-tests).
+
+Firstly, we want to calculate the value of the test statistic for the observed data:
+```shell
+combine -M GoodnessOfFit datacard_part1_binned.root --algo saturated -m 125 --freezeParameters MH -n .goodnessOfFit_data
+```
+
+Now lets calculate the test statistic value for many toys thrown from the model:
+```shell
+combine -M GoodnessOfFit datacard_part1_binned.root --algo saturated -m 125 --freezeParameters MH -n .goodnessOfFit_toys -t 1000
+```
+
+To make a plot of the GoF test-statistic distribution you can run the following commands, which first collect the values of the test-statistic into a json file, and then plots from the json file:
+```shell
+combineTool.py -M CollectGoodnessOfFit --input higgsCombine.goodnessOfFit_data.GoodnessOfFit.mH125.root higgsCombine.goodnessOfFit_toys.GoodnessOfFit.mH125.123456.root -m 125.0 -o gof.json
+
+plotGof.py gof.json --statistic saturated --mass 125.0 -o part2_gof
+```
+
+![](plots/part2_gof.png)
+
+
+* What does the plot tell us? Does the model fit the data well? You can refer back to the discussion [here](https://indico.cern.ch/event/1227742/contributions/5240056/)
 
 ## Part 3: Systematic uncertainties
 In this section, we will learn how to add systematic uncertainties to a parametric fit analysis. The python commands are taken from the `systematics.py` script. 
@@ -725,12 +733,9 @@ You can plot the two likelihood scans on the same axis with the command:
 ```shell
 plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label "With systematics" --main-color 1 --others higgsCombine.scan.with_syst.statonly.MultiDimFit.mH125.root:"Stat-only":2 -o part3_scan_v0
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part3_scan_v0.png)
 
-</details>
 
 * Can you spot the problem? 
 
@@ -746,12 +751,9 @@ Adding the option `--breakdown syst,stat` to the `plot1DScan.py` command will au
 ```shell
 plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label "With systematics" --main-color 1 --others higgsCombine.scan.with_syst.statonly_correct.MultiDimFit.mH125.root:"Stat-only":2 -o part3_scan_v1 --breakdown syst,stat
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part3_scan_v1.png)
 
-</details>
 
 We can also freeze groups of nuisance parameters defined in the datacard with the option `--freezeNuisanceGroups`. Let's run a scan freezing only the theory uncertainties (using the nuisance group we defined in the datacard):
 ```shell
@@ -761,12 +763,9 @@ To breakdown the total uncertainty into the theory, experimental and statistical
 ```shell
 plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label Total --main-color 1 --others higgsCombine.scan.with_syst.freezeTheory.MultiDimFit.mH125.root:"Freeze theory":4 higgsCombine.scan.with_syst.statonly_correct.MultiDimFit.mH125.root:"Stat-only":2 -o part3_scan_v2 --breakdown theory,exp,stat
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part3_scan_v2.png)
 
-</details>
 
 These methods are not limited to this particular grouping of systematics. We can use the above procedure to assess the impact of any nuisance parameter(s) on the signal strength confidence interval. 
 
@@ -798,12 +797,9 @@ combineTool.py -M Impacts -d datacard_part3.root -m 125 --freezeParameters MH -n
 ```shell
 plotImpacts.py -i impacts_part3.json -o impacts_part3
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part3_impacts.png)
 
-</details>
 
 There is a lot of information in these plots, which can be of invaluable use to analysers in understanding the fit. Do you understand everything that the plot is showing?
 
@@ -826,12 +822,9 @@ python3  construct_models_bias_study_part4.py
 
 The outputs are a set of workspaces which correspond to different choices of background model functions, and a plot showing fits of the different functions to the data mass sidebands.
 
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part4_data_sidebands.png)
 
-</details>
 
 The datacards for the different background model functions are saved as `datacard_part4_{pdf}.txt` where `pdf = {exp,poly,pow}`. Have a look inside the .txt files and understand what changes have been made to pick up the different functions. Compile the datacards with:
 ```shell
@@ -859,12 +852,9 @@ The script `plot_bias_pull.py` will plot the pull distribution and fit a Gaussia
 ```shell
 python3 plot_bias_pull.py
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part4_pull_truth_exp_fit_poly.png)
 
-</details>
 
 The potential bias is defined as the (fitted) mean of the pull distribution. 
 
@@ -911,12 +901,9 @@ The option `--saveSpecifiedIndex pdfindex_Tag0` saves the value of the index at 
 ```shell
 python3 plot_pdfindex.py
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part5_r_vs_pdfindex.png)
 
-</details>
 
 By floating the discrete nuisance parameter `pdfindex_Tag0`, at each point in the likelihood scan the pdfs will be iterated over and the one which gives the max likelihood (lowest 2NLL) including the correction factor will be used. The plot above shows that the `pdfindex_Tag0=0` (exponential) is chosen for the majority of r values, but this switches to `pdfindex_Tag0=1` (Chebychev polynomial) at the lower edge of the r range. We can see the impact on the likelihood scan by fixing the pdf to the exponential:
 ```shell
@@ -926,12 +913,9 @@ Plotting the two scans on the same axis:
 ```shell
 plot1DScan.py higgsCombine.scan.multidimfit.MultiDimFit.mH125.root --main-label "Pdf choice floating" --main-color 1 --others higgsCombine.scan.multidimfit.fix_exp.MultiDimFit.mH125.root:"Pdf fixed to exponential":2 -o part5_scan --y-cut 35 --y-max 35
 ```
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part5_scan.png)
 
-</details>
 
 The impact on the likelihood scan is evident at the lower edge, where the scan in which the index is floating flattens out. In this example, neither the $1\sigma$ or $2\sigma$ intervals are affected. But this is not always the case! Ultimately, this method allows us to account for the uncertainty in the choice of background function in the signal strength measurement. 
 
@@ -1018,12 +1002,9 @@ python3 plot_2D_scan.py
 ```
 This script interpolates the 2NLL value between the points ran in the scan so that the plot shows a smooth likelihood surface. You may find in some cases, the number of scanned points and interpolation parameters need to be tuned to get a sensible looking surface. This basically depends on how complicated the likelihood surface is.
 
-<details>
-<summary><b> [Show Plot] </b></summary>
 
 ![](plots/part6_scan2D_r_ggH_vs_r_VBF.png)
 
-</details>
 
 * The plot shows that the data is in agreement with the SM within the $2\sigma$ CL. Here, the $1\sigma$ and $2\sigma$ confidence interval contours corresponds to 2NLL values of 2.3 and 5.99, respectively. Do you understand why this? Think about Wilk's theorem.
 * Does the plot show any correlation between the ggH and VBF signal strengths? Are the two positively or negatively correlated? Does this make sense for this pair of parameters given the analysis setup? Try repeating the 2D likelihood scan using the "Tag0" only datacard. How does the correlation behaviour change?
