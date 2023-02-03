@@ -34,10 +34,15 @@ cd combinetutorial-2023-parametric
 The exercise is split into six parts which cover:
 
 1) Parametric model building
+
 2) Simple fits
+
 3) Systematic uncertainties
+
 4) Toy generation
-5) RooMultiPdfs
+
+5) Discrete profiling
+
 6) Multi-signal hypothesis
 
 Throughout the tutorial there are a number of questions and exercises for you to complete. These are shown by the bullet points in this markdown file.
