@@ -654,7 +654,7 @@
         }, 
         "status": "done"
     }, 
-    "Counting_pValues_CLsplusb_Hybrid": {
+    "Counting_pValues_Pmu_Hybrid": {
         "comment": "NOTE: for S = 5", 
         "results": {
             "counting-B5p5-Obs6-Syst30B.txt LEP": {
@@ -674,7 +674,7 @@
         }, 
         "status": "done"
     }, 
-    "Counting_pValues_CLsplusb_HybridNew": {
+    "Counting_pValues_Pmu_HybridNew": {
         "comment": "NOTE: for S = 5", 
         "results": {
             "counting-B5p5-Obs6-Syst30B.txt Atlas": {
@@ -1055,28 +1055,28 @@
         }, 
         "status": "done"
     },
-    "Counting_pValues_Freq_0_CLsplusb_HybridNew": {
+    "Counting_pValues_Freq_0_Pmu_HybridNew": {
         "comment": "", 
         "results": {
             "counting-B5p5-Obs6-StatOnly.txt": { "comment": "note: more toys used here", "limit": 0.098489999999999994, "limitErr": 0.00094228297182958796, "status": "done", "t_real": 0.24138765037059784 }
         }, 
         "status": "done"
     }, 
-    "Counting_pValues_Freq_B_CLsplusb_HybridNew": {
+    "Counting_pValues_Freq_B_Pmu_HybridNew": {
         "comment": "", 
         "results": {
             "counting-B5p5-Obs6-Syst30B.txt": { "comment": "note: more toys used here", "limit": 0.093240000000000003, "limitErr": 0.00091949063290497964, "status": "done", "t_real": 1.5756527185440063 }
         }, 
         "status": "done"
     }, 
-    "Counting_pValues_Freq_S_CLsplusb_HybridNew": {
+    "Counting_pValues_Freq_S_Pmu_HybridNew": {
         "comment": "", 
         "results": {
             "counting-B5p5-Obs6-Syst30S.txt": { "comment": "note: more toys used here", "limit": 0.089819999999999997, "limitErr": 0.00090417015876437777, "status": "done", "t_real": 1.5730928182601929 }
         }, 
         "status": "done"
     }, 
-    "Counting_pValues_Freq_U_CLsplusb_HybridNew": {
+    "Counting_pValues_Freq_U_Pmu_HybridNew": {
         "comment": "", 
         "results": {
             "counting-B5p5-Obs6-Syst30U.txt": { "comment": "note: more toys used here", "limit": 0.11123, "limitErr": 0.00099427303644421521, "status": "done", "t_real": 1.7407045364379883 }

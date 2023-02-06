@@ -701,7 +701,7 @@ Calculate the median expected limit and the 68% range. The 95% range could also 
 **Tasks and questions:**
 - In contrast to `AsymptoticLimits`, with `HybridNew` each limit comes with an uncertainty. What is the origin of this uncertainty?
 - How good is the agreement between the asymptotic and toy-based methods?
-- Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on CLs+b and CLb.
+- Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on Pmu and Pb.
 
 Next plot the test statistic distributions stored in the output file:
 ```shell

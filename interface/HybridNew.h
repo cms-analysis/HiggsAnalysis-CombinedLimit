@@ -111,7 +111,7 @@ private:
 
   std::pair<double,double> eval(RooStats::HybridCalculator &hc, const RooAbsCollection & rVals, bool adaptive=false, double clsTarget=-1) ;
 
-  // Compute CLs or CLsb from a HypoTestResult. In the case of the LHCFC test statistics, do the proper transformation to LHC or Profile (which needs to know the POI)
+  // Compute CLs or Pmu from a HypoTestResult. In the case of the LHCFC test statistics, do the proper transformation to LHC or Profile (which needs to know the POI)
   std::pair<double,double> eval(const RooStats::HypoTestResult &hcres, const RooAbsCollection & rVals) ;
   std::pair<double,double> eval(const RooStats::HypoTestResult &hcres, double rVal) ;
 

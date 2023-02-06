@@ -121,7 +121,7 @@ void toyByHand(double r0 = 1.0, int toys=500, int seed=1) {
     double qData = (nll_S - nll_F);
     std::cout << "Test statistics on data: " << qData << std::endl;
 
-    // Compute CLsb
+    // Compute Pmu
     int Nabove = 0, Nbelow = 0;
     for (int i = 0; i < toys; ++i) {
         // Reset nuisances
@@ -135,10 +135,10 @@ void toyByHand(double r0 = 1.0, int toys=500, int seed=1) {
         //std::cout << "q toy (" << i << ") = " << qToy << std::endl;
         if (qToy <= qData) Nbelow++; else Nabove++;
     }
-    double CLsb = Nabove/double(Nabove+Nbelow), CLsbError = sqrt(CLsb*(1.-CLsb)/double(Nabove+Nbelow));
-    std::cout << "CLsb = " << Nabove << "/" << Nabove+Nbelow << " = " << CLsb << " +/- " << CLsbError << std::endl;
+    double Pmu = Nabove/double(Nabove+Nbelow), PmuError = sqrt(Pmu*(1.-Pmu)/double(Nabove+Nbelow));
+    std::cout << "Pmu = " << Nabove << "/" << Nabove+Nbelow << " = " << Pmu << " +/- " << PmuError << std::endl;
 
-    // Compute CLb
+    // Compute 1-Pb
     int Nabove2 = 0, Nbelow2 = 0;
     for (int i = 0; i < toys/4; ++i) {
         // Reset nuisances
@@ -153,10 +153,10 @@ void toyByHand(double r0 = 1.0, int toys=500, int seed=1) {
         //std::cout << "q toy (" << i << ") = " << qToy << std::endl;
         if (qToy <= qData) Nbelow2++; else Nabove2++;
     }
-    double CLb = Nabove2/double(Nabove2+Nbelow2), CLbError = sqrt(CLb*(1.-CLb)/double(Nabove2+Nbelow2));
-    std::cout << "CLb  = " << Nabove2 << "/" << Nabove2+Nbelow2 << " = " << CLb << " +/- " << CLbError << std::endl;
+    double OnemPb = Nabove2/double(Nabove2+Nbelow2), OnemPbError = sqrt(*(1.-OnemPb)/double(Nabove2+Nbelow2));
+    std::cout << "1-Pb  = " << Nabove2 << "/" << Nabove2+Nbelow2 << " = " << OnemPb << " +/- " << OnemPbError << std::endl;
 
-    std::cout << "CLs  = "<< CLsb/CLb << " +/- " << hypot(CLsbError/CLb, CLsb*CLbError/CLb/CLb) << std::endl;
+    std::cout << "CLs  = "<< Pmu/OnemPg << " +/- " << hypot(PmuError/OnemPg, Pmu*OnemPbError/OnemPb/OnemPb) << std::endl;
 }
 
 int main(int argc, char **argv) {
