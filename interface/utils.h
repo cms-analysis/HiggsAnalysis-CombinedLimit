@@ -108,6 +108,7 @@ namespace utils {
 
     // Set values of physics model parameters
     void setModelParameters( const std::string & setPhysicsModelParameterExpression, const RooArgSet & params);
+    void setParametersFromList( const std::string & setParameterFile, const RooArgSet & params);
     // Set range of physics model parameters
     void setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params);
 

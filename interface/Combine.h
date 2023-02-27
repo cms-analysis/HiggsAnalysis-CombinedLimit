@@ -30,6 +30,7 @@ extern bool doSignificance_, lowerLimit_;
 extern float cl;
 extern bool bypassFrequentistFit_;
 extern  std::string setPhysicsModelParameterExpression_;
+extern  std::string setParametersFromList_;
 extern  std::string setPhysicsModelParameterRangeExpression_;
 extern  std::string defineBackgroundOnlyModelParameterExpression_;
 
