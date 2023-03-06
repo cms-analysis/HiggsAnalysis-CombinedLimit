@@ -323,7 +323,7 @@ bayesPosterior2D("bayes2D","Posterior PDF")
 
 The `HybridNew` method is used to compute either the hybrid bayesian-frequentist limits popularly known as "CL<sub>s</sub> of LEP or Tevatron type" or the fully frequentist limits which are the current recommended method by the LHC Higgs Combination Group. Note that these methods can be resource intensive for complex models.
 
-It is possible to define the criterion used for setting limits using `--rule CLs` (to use the CL<sub>s</sub> criterion) or `--rule CLsplusb` (to calculate the limit using $p_{\mu}$) and as always the confidence level desired using `--cl=X`
+It is possible to define the criterion used for setting limits using `--rule CLs` (to use the CL<sub>s</sub> criterion) or `--rule Pmu` (to calculate the limit using $p_{\mu}$) and as always the confidence level desired using `--cl=X`
 
 The choice of test-statistic can be made via the option `--testStat` and different methodologies for treatment of the nuisance parameters are available. While it is possible to mix different test-statistics with different nuisance parameter treatments, this is highly **not-reccomended**. Instead one should follow one of the following three procedures,
 
@@ -369,32 +369,32 @@ Computing results starting from observation (a-posteriori)
 Search for upper limit to the limit
   r = 20 +/- 0
 	CLs = 0 +/- 0
-	CLs      = 0 +/- 0
-	CLb      = 0.264 +/- 0.0394263
-	CLsplusb = 0 +/- 0
+	CLs     = 0 +/- 0
+	Pb      = 0.264 +/- 0.0394263
+	Pmu 	= 0 +/- 0
 
 Search for lower limit to the limit
 Now doing proper bracketing & bisection
   r = 10 +/- 10
 	CLs = 0 +/- 0
 	CLs      = 0 +/- 0
-	CLb      = 0.288 +/- 0.0405024
-	CLsplusb = 0 +/- 0
+	Pb      = 0.288 +/- 0.0405024
+	Pmu 	= 0 +/- 0
 
   r = 5 +/- 5
 	CLs = 0 +/- 0
 	CLs      = 0 +/- 0
-	CLb      = 0.152 +/- 0.0321118
-	CLsplusb = 0 +/- 0
+	Pb       = 0.152 +/- 0.0321118
+	Pmu 	 = 0 +/- 0
 
   r = 2.5 +/- 2.5
 	CLs = 0.0192308 +/- 0.0139799
 	CLs = 0.02008 +/- 0.0103371
 	CLs = 0.0271712 +/- 0.00999051
 	CLs = 0.0239524 +/- 0.00783634
-	CLs      = 0.0239524 +/- 0.00783634
-	CLb      = 0.208748 +/- 0.0181211
-	CLsplusb = 0.005 +/- 0.00157718
+	CLs     = 0.0239524 +/- 0.00783634
+	Pb      = 0.208748 +/- 0.0181211
+	Pmu 	= 0.005 +/- 0.00157718
 
   r = 2.00696 +/- 1.25
 	CLs = 0.0740741 +/- 0.0288829
@@ -419,15 +419,15 @@ Now doing proper bracketing & bisection
 	CLs = 0.0516837 +/- 0.0052607
 	CLs = 0.0496776 +/- 0.00499783
 	CLs      = 0.0496776 +/- 0.00499783
-	CLb      = 0.216635 +/- 0.00801002
-	CLsplusb = 0.0107619 +/- 0.00100693
+	Pb       = 0.216635 +/- 0.00801002
+	Pmu	 = 0.0107619 +/- 0.00100693
 
 Trying to move the interval edges closer
   r = 1.00348 +/- 0
 	CLs = 0.191176 +/- 0.0459911
-	CLs      = 0.191176 +/- 0.0459911
-	CLb      = 0.272 +/- 0.0398011
-	CLsplusb = 0.052 +/- 0.00992935
+	CLs     = 0.191176 +/- 0.0459911
+	Pb      = 0.272 +/- 0.0398011
+	Pmu 	= 0.052 +/- 0.00992935
 
   r = 1.50522 +/- 0
 	CLs = 0.125 +/- 0.0444346
@@ -438,8 +438,8 @@ Trying to move the interval edges closer
 	CLs = 0.0828468 +/- 0.0126789
 	CLs = 0.0879647 +/- 0.0122332
 	CLs      = 0.0879647 +/- 0.0122332
-	CLb      = 0.211124 +/- 0.0137494
-	CLsplusb = 0.0185714 +/- 0.00228201
+	Pb       = 0.211124 +/- 0.0137494
+	Pmu	 = 0.0185714 +/- 0.00228201
 
   r = 1.75609 +/- 0
 	CLs = 0.0703125 +/- 0.0255807
@@ -469,15 +469,15 @@ Trying to move the interval edges closer
 	CLs = 0.0602028 +/- 0.00502875
 	CLs = 0.058667 +/- 0.00486263
 	CLs      = 0.058667 +/- 0.00486263
-	CLb      = 0.222901 +/- 0.00727258
-	CLsplusb = 0.0130769 +/- 0.000996375
+	Pb       = 0.222901 +/- 0.00727258
+	Pmu	 = 0.0130769 +/- 0.000996375
 
   r = 2.25348 +/- 0
 	CLs = 0.0192308 +/- 0.0139799
 	CLs = 0.0173103 +/- 0.00886481
 	CLs      = 0.0173103 +/- 0.00886481
-	CLb      = 0.231076 +/- 0.0266062
-	CLsplusb = 0.004 +/- 0.001996
+	Pb       = 0.231076 +/- 0.0266062
+	Pmu	 = 0.004 +/- 0.001996
 
   r = 2.13022 +/- 0
 	CLs = 0.0441176 +/- 0.0190309
@@ -491,8 +491,8 @@ Trying to move the interval edges closer
 	CLs = 0.0337633 +/- 0.00597315
 	CLs = 0.0321262 +/- 0.00551608
 	CLs      = 0.0321262 +/- 0.00551608
-	CLb      = 0.230342 +/- 0.0118665
-	CLsplusb = 0.0074 +/- 0.00121204
+	Pb       = 0.230342 +/- 0.0118665
+	Pmu	 = 0.0074 +/- 0.00121204
 
   r = 2.06859 +/- 0
 	CLs = 0.0357143 +/- 0.0217521
@@ -516,8 +516,8 @@ Trying to move the interval edges closer
 	CLs = 0.0427647 +/- 0.00501322
 	CLs = 0.0414894 +/- 0.00479711
 	CLs      = 0.0414894 +/- 0.00479711
-	CLb      = 0.202461 +/- 0.00800632
-	CLsplusb = 0.0084 +/- 0.000912658
+	Pb       = 0.202461 +/- 0.00800632
+	Pmu	 = 0.0084 +/- 0.000912658
 
 
  -- HybridNew, before fit --

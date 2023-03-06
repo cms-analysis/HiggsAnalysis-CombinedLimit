@@ -74,6 +74,13 @@ void AsymptoticLimits::applyOptions(const boost::program_options::variables_map 
     }
     picky_ = vm.count("picky");
     noFitAsimov_ = vm.count("noFitAsimov") || vm.count("bypassFrequentistFit"); // aslo pick up base option from combine
+    
+    // Add a backward compatibility mode for specifying rule
+    if (rule_=="CLsplusb"){
+      std::cout << "INFO: The option for rule=CLsplusb is deprecated, you should specify 'rule=Pmu'. Combine will now act as though you did" <<std::endl;
+      rule_="Pmu";
+    }
+    //
 
     if (rule_=="CLs") doCLs_ = true;
     else if (rule_=="Pmu") doCLs_ = false;
