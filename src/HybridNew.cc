@@ -171,7 +171,13 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         }
     }
     
-	
+    // Add a backward compatibility mode for specifying rule
+    if (rule_=="CLsplusb"){
+      std::cout << "INFO: The option for rule=CLsplusb is deprecated, you should specify 'rule=Pmu'. Combine will now act as though you did" <<std::endl;
+      rule_="Pmu";
+    }
+    //
+    
     doFC_=false;
 
     mode_ = vm["LHCmode"].as<std::string>();

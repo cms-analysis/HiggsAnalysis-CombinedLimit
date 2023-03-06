@@ -39,7 +39,7 @@ Expected 97.5%: r < 6.6194
 Done in 0.01 min (cpu), 0.01 min (real)
 ```
 
-By default, the limits are calculated using the CL<sub>s</sub> prescription, as noted in the output, which takes the ratio of p-values under the signal plus background and background only hypothesis. This can be altered to using the strict p-value by using the option `--rule CLsplusb` (note that `CLsplusb` is the jargon for calculating the p-value $p_{\mu}$). You can also change the confidence level (default is 95%) to 90% using the option `--cl 0.9` or any other confidence level. You can find the full list of options for `AsymptoticLimits` using `--help -M AsymptoticLimits`.
+By default, the limits are calculated using the CL<sub>s</sub> prescription, as noted in the output, which takes the ratio of p-values under the signal plus background and background only hypothesis. This can be altered to using the strict p-value by using the option `--rule Pmu`. You can also change the confidence level (default is 95%) to 90% using the option `--cl 0.9` or any other confidence level. You can find the full list of options for `AsymptoticLimits` using `--help -M AsymptoticLimits`.
 
 
 !!! warning
@@ -545,7 +545,7 @@ The output file will contain the value of the quantile in the branch **quantileE
 The search for the limit is performed using an adaptive algorithm, terminating when the estimate of the limit value is below some limit or when the precision cannot be futher improved with the specified options. The options controlling this behaviour are:
 
 -   `rAbsAcc`, `rRelAcc`: define the accuracy on the limit at which the search stops. The default values are 0.1 and 0.05 respectively, meaning that the search is stopped when Δr < 0.1 or Δr/r < 0.05.
--   `clsAcc`: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will increase significantly the time to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N, you can consider enlarging this value if you're computing limits with a larger CL (e.g. 90% or 68%). Note that if you're using the `CLsplusb` rule then this parameter will control the uncertainty on $p_{\mu}$ rather than CL<sub>s</sub>.
+-   `clsAcc`: this determines the absolute accuracy up to which the CL<sub>s</sub> values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will increase significantly the time to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N, you can consider enlarging this value if you're computing limits with a larger CL (e.g. 90% or 68%). Note that if you're using the `Pmu` rule then this parameter will control the uncertainty on $p_{\mu}$ rather than CL<sub>s</sub>.
 -   `T` or `toysH`: controls the minimum number of toys that are generated for each point. The default value of 500 should be ok when computing the limit with 90-95% CL. You can decrease this number if you're computing limits at 68% CL, or increase it if you're using 99% CL.
 
 Note, to further improve the accuracy when searching for the upper limit, combine will also fit an exponential function to several of the points and interpolate to find the crossing.
