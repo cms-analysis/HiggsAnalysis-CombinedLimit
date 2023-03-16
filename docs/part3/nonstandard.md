@@ -184,7 +184,7 @@ The results can be plotted using the macro [test/plotParametersFromToys.C](https
 ```c++
 $ root -l
 .L plotParametersFromToys.C+
-plotParametersFomToys("fitDiagnosticsToys.root","fitDiagnosticsData.root","workspace.root","r<0")
+plotParametersFromToys("fitDiagnosticsToys.root","fitDiagnosticsData.root","workspace.root","r<0")
 ```
 
 The first argument is the name of the output file from running with toys, and the second and third (optional) arguments are the name of the file containing the result from a fit to the data and the workspace (created from `text2workspace.py`). The fourth argument can be used to specify a cut string applied to one of the branches in the tree which can be used to correlate strange behaviour with specific conditions. The output will be 2 pdf files (**`tree_fit_(s)b.pdf`**) and 2 root files  (**`tree_fit_(s)b.root`**) containing canvases of the fit results of the tool. For details on the output plots, consult [AN-2012/317](http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2012/317).
