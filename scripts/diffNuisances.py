@@ -492,7 +492,7 @@ if options.plotfile and options.workspace:
         nbins = min(len_dnll, options.max_nuis, len_dnll - options.max_nuis * hist_idx)
         hist_dnll += [ROOT.TH1F("dnll %s" % hist_idx, "delta log-likelihoods   ;;%s %s" % (title, hist_idx), nbins, 0, nbins)]
         hist_cdnll += [ROOT.TH1F("cdnll %s" % hist_idx, "cumulative delta log-likelihoods   ;;%s %s" % (title, hist_idx), nbins, 0, nbins)]
-    dnlls.sort(key = lambda x: -x[1])
+    dnlls.sort(key=lambda x: -x[1])
     cdnll = 0
     for idx, (nm, val) in enumerate(dnlls):
         hist_idx = idx // options.max_nuis
