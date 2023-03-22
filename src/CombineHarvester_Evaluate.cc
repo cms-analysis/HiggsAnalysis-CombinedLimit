@@ -134,7 +134,14 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const& fit,
                                                unsigned n_samples) {
   auto lookup = GenerateProcSystMap();
   TH1F shape = GetShapeInternal(lookup);
-  TH1F yield_sum =GetShape();
+  TH1F yield_sum = GetShape();
+
+//  TTree sample_tree("sample_tree", "sample_tree");
+//  int bin_ind = 0; double yield = 0;
+//  sample_tree.Branch("bin_ind",&bin_ind);
+//  sample_tree.Branch("yield",&yield);
+  std::map<int, std::vector<float>> sample_yields_perbin;    
+  
   for (int i = 1; i <= shape.GetNbinsX(); ++i) {
     shape.SetBinError(i, 0.0);
     yield_sum.SetBinContent(i, 0.0);
@@ -167,27 +174,19 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const& fit,
     TH1F rand_shape = this->GetShapeInternal(lookup);
     for (int i = 1; i <= shape.GetNbinsX(); ++i) {
       double yield = rand_shape.GetBinContent(i);
+      sample_yields_perbin[i].push_back(yield);
       yield_sum.SetBinContent(i, yield_sum.GetBinContent(i) + yield);
-    }
-  }
-  
-  for (unsigned i = 0; i < n_samples; ++i) {
-    // Randomise and update values
-    fit.randomizePars();
-    for (int n = 0; n < n_pars; ++n) {
-      if (p_vec[n]) p_vec[n]->set_val(r_vec[n]->getVal());
-    }
-
-    TH1F rand_shape = this->GetShapeInternal(lookup);
-    for (int i = 1; i <= shape.GetNbinsX(); ++i) {
-      double err = std::fabs(rand_shape.GetBinContent(i) - yield_sum.GetBinContent(i)/double(n_samples));
-      shape.SetBinError(i, err*err + shape.GetBinError(i));
     }
   }
 
   for (int i = 1; i <= shape.GetNbinsX(); ++i) {
+    for (auto x :sample_yields_perbin[i]){
+      double err = std::fabs(x - yield_sum.GetBinContent(i)/double(n_samples));
+      shape.SetBinError(i, err*err + shape.GetBinError(i));
+    }
     shape.SetBinError(i, std::sqrt(shape.GetBinError(i)/double(n_samples)));
   }
+
   this->UpdateParameters(backup);
   return shape;
 }
