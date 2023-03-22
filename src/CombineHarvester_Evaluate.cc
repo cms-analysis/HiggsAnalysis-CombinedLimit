@@ -136,10 +136,6 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const& fit,
   TH1F shape = GetShapeInternal(lookup);
   TH1F yield_sum = GetShape();
 
-//  TTree sample_tree("sample_tree", "sample_tree");
-//  int bin_ind = 0; double yield = 0;
-//  sample_tree.Branch("bin_ind",&bin_ind);
-//  sample_tree.Branch("yield",&yield);
   std::map<int, std::vector<float>> sample_yields_perbin;    
   
   for (int i = 1; i <= shape.GetNbinsX(); ++i) {
