@@ -620,7 +620,7 @@ elif options.format == "html":
     else:
         what = "&Delta;x/&sigma;<sub>in</sub>, &sigma;<sub>out</sub>/&sigma;<sub>in</sub>"
         header = "<tr><th>nuisance</th><th>background fit<br/>%s </th><th>signal fit<br/>%s</th><th>&rho;(&mu;, &theta;)<th>I(&mu;, &theta;)</th>" % (
-            what, 
+            what,
             what,
         )
         fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-15s </td><td> %-15s </td><td> %-15s </td>"
