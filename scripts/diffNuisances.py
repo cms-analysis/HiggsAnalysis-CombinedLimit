@@ -485,7 +485,7 @@ for i in range(fpf_s.getSize()):
 
 # end of loop over all fitted parameters
 
-#fill dnll and cumulative dnll plots
+# fill dnll and cumulative dnll plots
 if options.plotfile and options.workspace:
     len_dnll = len(dnlls)
     hist_dnll = []
