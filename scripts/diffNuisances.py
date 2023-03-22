@@ -175,8 +175,8 @@ if options.pullDef and options.absolute_values:
 if options.pullDef:
     options.show_all_parameters = True
 
-if options.sortBy not in ["correlation", "impact","dnll"]:
-    exit("choose one of [ %s ] for --sortBy" % (",".join()["correlation", "impact","dnll"]))
+if options.sortBy not in ["correlation", "impact", "dnll"]:
+    exit("choose one of [ %s ] for --sortBy" % (",".join()["correlation", "impact", "dnll"]))
 elif options.sortBy == "dnll" and (not options.workspace):
     exit("can only sort by deltaNLL if a workspace is provided, otherwise no dnll can be calcualted")
 
@@ -204,7 +204,7 @@ if prefit == None or prefit.ClassName() != "RooArgSet":
 
 workspace = None
 if options.workspace:
-    workspace_file = ROOT.TFile( options.workspace, "READ" )
+    workspace_file = ROOT.TFile(options.workspace, "READ")
     workspace = workspace_file.Get("w")
 
 isFlagged = {}
@@ -246,7 +246,7 @@ for i in range(fpf_s.getSize()):
     nuis_p = prefit.find(name)
     if nuis_p == None:
         if not options.absolute_values and not (options.pullDef == "unconstPullAsym"):
-              continue
+            continue
     if bool(regex_NP_obj.match(name)):
         np_count += 1
 
@@ -262,26 +262,26 @@ gr_fit_b = []
 gr_fit_s = []
 hist_dnll = []
 hist_cdnll = []
-for idx in range( ((np_count - 1) // options.max_nuis) + 1 ):
+for idx in range(((np_count - 1) // options.max_nuis) + 1):
     # Also make histograms for pull distributions:
-    nbins = min(np_count, options.max_nuis, np_count - (options.max_nuis * idx) )
-    hist_fit_b += [ ROOT.TH1F("fit_b %s" % idx, "B-only fit Nuisances;;%s %s" % (title, idx), nbins, 0, nbins)] 
-    hist_fit_s += [ ROOT.TH1F("fit_s %s" % idx, "S+B fit Nuisances   ;;%s %s" % (title, idx), nbins, 0, nbins)]
-    hist_prefit +=[ ROOT.TH1F(
+    nbins = min(np_count, options.max_nuis, np_count - (options.max_nuis * idx))
+    hist_fit_b += [ROOT.TH1F("fit_b %s" % idx, "B-only fit Nuisances;;%s %s" % (title, idx), nbins, 0, nbins)]
+    hist_fit_s += [ROOT.TH1F("fit_s %s" % idx, "S+B fit Nuisances   ;;%s %s" % (title, idx), nbins, 0, nbins)]
+    hist_prefit += [ROOT.TH1F(
         "prefit_nuisancs %s" % idx,
         "Prefit Nuisances    ;;%s %s" % (title, idx),
         nbins,
         0,
         nbins,
-    ) ]
+    )]
     # Store also the *asymmetric* uncertainties
-    gr_fit_b += [ ROOT.TGraphAsymmErrors() ]
+    gr_fit_b += [ROOT.TGraphAsymmErrors()]
     gr_fit_b[idx].SetTitle("fit_b_g % s" % idx)
-    gr_fit_s += [ ROOT.TGraphAsymmErrors() ]
+    gr_fit_s += [ROOT.TGraphAsymmErrors()]
     gr_fit_s[idx].SetTitle("fit_b_s % s" % idx)
 
-    hist_dnll += [ ROOT.TH1F("dnll %s" % idx, "delta log-likelihoods   ;;%s %s" % (title, idx), nbins, 0, nbins) ]
-    hist_cdnll += [ ROOT.TH1F("cdnll %s" % idx, "cumulative delta log-likelihoods   ;;%s %s" % (title, idx), nbins, 0, nbins) ]
+    hist_dnll += [ROOT.TH1F("dnll %s" % idx, "delta log-likelihoods   ;;%s %s" % (title, idx), nbins, 0, nbins)]
+    hist_cdnll += [ROOT.TH1F("cdnll %s" % idx, "cumulative delta log-likelihoods   ;;%s %s" % (title, idx), nbins, 0, nbins)]
 
 error_poi = fpf_s.find(options.poi).getError()
 
@@ -360,12 +360,12 @@ for i in range(fpf_s.getSize()):
 
             if options.workspace:
                 if fit_name == "b":
-                        pdf = workspace.pdf(name + "_Pdf")
-                        var = workspace.var(name)
-                        var_val = var.getVal()
-                        var.setVal(nuis_x.getVal())
-                        bfit_nll = -pdf.getLogVal(ROOT.RooArgSet(var))
-                        var.setVal(var_val)
+                    pdf = workspace.pdf(name + "_Pdf")
+                    var = workspace.var(name)
+                    var_val = var.getVal()
+                    var.setVal(nuis_x.getVal())
+                    bfit_nll = -pdf.getLogVal(ROOT.RooArgSet(var))
+                    var.setVal(var_val)
 
                 if options.workspace:
                     var.setVal(nuis_x.getVal())
@@ -476,8 +476,8 @@ for i in range(fpf_s.getSize()):
     row += ["%+4.3f" % (nuis_x.getError() * fit_s.correlation(name, options.poi) * error_poi)]
     if options.workspace:
         dnll = bfit_nll - sfit_nll
-        dnlls.append( (name, dnll) )
-        row += ["%.4f" % dnll ]
+        dnlls.append((name, dnll))
+        row += ["%.4f" % dnll]
     if flag or options.show_all_parameters:
         table[name] = row
 
@@ -488,19 +488,19 @@ if options.plotfile and options.workspace:
     len_dnll = len(dnlls)
     hist_dnll = []
     hist_cdnll = []
-    for hist_idx in range( ((len_dnll - 1) // options.max_nuis) + 1 ):
-        nbins = min(len_dnll, options.max_nuis, len_dnll - options.max_nuis * hist_idx )
-        hist_dnll += [ ROOT.TH1F("dnll %s" % hist_idx, "delta log-likelihoods   ;;%s %s" % (title, hist_idx), nbins, 0, nbins) ]
-        hist_cdnll += [ ROOT.TH1F("cdnll %s" % hist_idx, "cumulative delta log-likelihoods   ;;%s %s" % (title, hist_idx), nbins, 0, nbins) ]
-    dnlls.sort( key= lambda x: -x[1] )
+    for hist_idx in range(((len_dnll - 1) // options.max_nuis) + 1):
+        nbins = min(len_dnll, options.max_nuis, len_dnll - options.max_nuis * hist_idx)
+        hist_dnll += [ROOT.TH1F("dnll %s" % hist_idx, "delta log-likelihoods   ;;%s %s" % (title, hist_idx), nbins, 0, nbins)]
+        hist_cdnll += [ROOT.TH1F("cdnll %s" % hist_idx, "cumulative delta log-likelihoods   ;;%s %s" % (title, hist_idx), nbins, 0, nbins)]
+    dnlls.sort(key= lambda x: -x[1])
     cdnll = 0
     for idx, (nm, val) in enumerate(dnlls):
-         hist_idx = idx // options.max_nuis
-         bin_idx = idx % options.max_nuis
-         hist_dnll[hist_idx].SetBinContent(bin_idx+1, val)
-         hist_dnll[hist_idx].GetXaxis().SetBinLabel(bin_idx+1, nm)
-         cdnll += val
-         hist_cdnll[hist_idx].SetBinContent( bin_idx+1, cdnll )
+        hist_idx = idx // options.max_nuis
+        bin_idx = idx % options.max_nuis
+        hist_dnll[hist_idx].SetBinContent(bin_idx + 1, val)
+        hist_dnll[hist_idx].GetXaxis().SetBinLabel(bin_idx + 1, nm)
+        cdnll += val
+        hist_cdnll[hist_idx].SetBinContent(bin_idx + 1, cdnll)
 
 # ----------
 # print the results
@@ -545,17 +545,17 @@ elif options.format == "latex":
     if options.pullDef:
         fmtstring = "%-40s & %30s & %30s & %6s & %6s  "
         tab_header="\\begin{tabular}{|l|r|r|r|r|"
-        headers  = ["name", "$b$-only fit pull", "$s+b$ fit pull", r"$\rho(\theta, \mu)$", r"I(\theta, \mu)" ]
+        headers  = ["name", "$b$-only fit pull", "$s+b$ fit pull", r"$\rho(\theta, \mu)$", r"I(\theta, \mu)"]
     elif options.absolute_values:
         fmtstring = "%-40s &  %15s & %30s & %30s & %6s & %6s "
         tab_header = "\\begin{tabular}{|l|r|r|r|r|r|"
-        headers  = ["name", "pre fit", "$b$-only fit pull", "$s+b$ fit pull", r"$\rho(\theta, \mu)$", r"I(\theta, \mu)" ]
+        headers  = ["name", "pre fit", "$b$-only fit pull", "$s+b$ fit pull", r"$\rho(\theta, \mu)$", r"I(\theta, \mu)"]
     else:
         fmtstring = "%-40s &  %15s & %15s & %6s & %6s "
         tab_header = "\\begin{tabular}{|l|r|r|r|r|"
         # what = r"$(x_\text{out} - x_\text{in})/\sigma_{\text{in}}$, $\sigma_{\text{out}}/\sigma_{\text{in}}$"
         what = r"\Delta x/\sigma_{\text{in}}$, $\sigma_{\text{out}}/\sigma_{\text{in}}$"
-        headers_first = [ "", "$b$-only fit", "$s+b$ fit", "", "" ]
+        headers_first = ["", "$b$-only fit", "$s+b$ fit", "", ""]
         headers = ["name", what, what, r"$\rho(\theta, \mu)$", r"I(\theta, \mu)"]
     if options.workspace:
         tab_header += "r|"
@@ -564,10 +564,11 @@ elif options.format == "latex":
             headers_first += [""]
         headers += [r"\Delta NLL"]
     fmtstring += " \\\\"
-    print( tab_header + "} \\hline " )
+    print(tab_header + "} \\hline ")
     if headers_first is not None:
-        print( fmtstring % tuple(headers_first) )
-    print( fmtstring % tuple(headers), " \\hline")
+        print(fmtstring % tuple(headers_first))
+    print(fmtstring % tuple(headers), " \\hline")
+
 elif options.format == "twiki":
     pmsub = (r"(\S+) \+/- (\S+)", r"\1 &plusmn; \2")
     sigsub = ("sig", r"&sigma;")
@@ -579,7 +580,7 @@ elif options.format == "twiki":
         print(" option '--skipFitB' set true. $b$-only Fit is just a copy of the $s+b$ fit")
     if options.pullDef:
         fmtstring = "| <verbatim>%-40s</verbatim>  | %-30s  | %-30s   | %-15s  | %-15s  | %-15s  |"
-        header =  "| *name* | *b-only fit pull* | *s+b fit pull* | *corr.* | *approx. impact* |"
+        header = "| *name* | *b-only fit pull* | *s+b fit pull* | *corr.* | *approx. impact* |"
     elif options.absolute_values:
         fmtstring = "| <verbatim>%-40s</verbatim>  | %-15s  | %-30s  | %-30s   | %-15s  | %-15s  |"
         header = "| *name* | *pre fit* | *b-only fit* | *s+b fit* | *corr.* | *approx. impact* |"
@@ -609,7 +610,7 @@ elif options.format == "html":
 """
     )
     if options.pullDef:
-        header =  "<tr><th>nuisance</th><th>background fit pull </th><th>signal fit pull</th><th>&rho;(&mu;, &theta;)</th><th>I(&mu;, &theta;)</th>"
+        header = "<tr><th>nuisance</th><th>background fit pull </th><th>signal fit pull</th><th>&rho;(&mu;, &theta;)</th><th>I(&mu;, &theta;)</th>"
         fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-30s </td><td> %-30s </td><td> %-15s </td><td> %-15s </td></tr>"
     elif options.absolute_values:
         header = "<tr><th>nuisance</th><th>pre fit</th><th>background fit </th><th>signal fit</th><th>correlation</th>"
@@ -680,7 +681,7 @@ if options.plotfile:
     histogram = ROOT.TH1F("pulls", "Pulls", 60, -3, 3)
     for pull in pulls:
         histogram.Fill(pull)
-    canvas = ROOT.TCanvas("asdf","asdf", 800, 800)
+    canvas = ROOT.TCanvas("asdf", "asdf", 800, 800)
     if options.pullDef:
         histogram.GetXaxis().SetTitle("pull")
     else:
@@ -761,7 +762,6 @@ if options.plotfile:
 
         fout.WriteTObject(canvas_pferrs)
 
-
         if options.workspace:
             canvas_dnll = ROOT.TCanvas("dnlls_%s" % idx, "dnlls_%s" % idx, 900, 600)
             hist_dnll[idx].SetStats(0)
@@ -788,5 +788,5 @@ if options.plotfile:
             leg.Draw()
             latex = ROOT.TLatex()
             posx = 4 if hist_dnll[idx].GetNbinsX() > 10 else 0.5
-            latex.DrawLatex(posx, 1.5, "Total #Delta NLL %.3f" % (cdnll) )
+            latex.DrawLatex(posx, 1.5, "Total #Delta NLL %.3f" % (cdnll))
             fout.WriteTObject(canvas_dnll)
