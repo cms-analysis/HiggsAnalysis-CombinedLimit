@@ -149,7 +149,7 @@ parser.add_option(
     dest="workspace",
     default="",
     type="string",
-    help="Workspace to use for evaluating NLL differences."
+    help="Workspace to use for evaluating NLL differences. If no workspace is passed, NLL differences won't be calculated.",
 )
 parser.add_option(
     "",
@@ -157,7 +157,7 @@ parser.add_option(
     dest="max_nuis",
     default=65,
     type="int",
-    help="Maximum nuisances for a single plot."
+    help="Maximum nuisances for a single plot. If more than the specified number of nuisance parameters exist they will be split across multiple plots.",
 )
 
 (options, args) = parser.parse_args()
@@ -267,13 +267,15 @@ for idx in range(((np_count - 1) // options.max_nuis) + 1):
     nbins = min(np_count, options.max_nuis, np_count - (options.max_nuis * idx))
     hist_fit_b += [ROOT.TH1F("fit_b %s" % idx, "B-only fit Nuisances;;%s %s" % (title, idx), nbins, 0, nbins)]
     hist_fit_s += [ROOT.TH1F("fit_s %s" % idx, "S+B fit Nuisances   ;;%s %s" % (title, idx), nbins, 0, nbins)]
-    hist_prefit += [ROOT.TH1F(
-        "prefit_nuisancs %s" % idx,
-        "Prefit Nuisances    ;;%s %s" % (title, idx),
-        nbins,
-        0,
-        nbins,
-    )]
+    hist_prefit += [
+        ROOT.TH1F(
+            "prefit_nuisancs %s" % idx,
+            "Prefit Nuisances    ;;%s %s" % (title, idx),
+            nbins,
+            0,
+            nbins,
+        )
+    ]
     # Store also the *asymmetric* uncertainties
     gr_fit_b += [ROOT.TGraphAsymmErrors()]
     gr_fit_b[idx].SetTitle("fit_b_g % s" % idx)
@@ -617,7 +619,10 @@ elif options.format == "html":
         fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-30s </td><td> %-30s </td><td> %-15s </td><td> %-15s </td>"
     else:
         what = "&Delta;x/&sigma;<sub>in</sub>, &sigma;<sub>out</sub>/&sigma;<sub>in</sub>"
-        header = "<tr><th>nuisance</th><th>background fit<br/>%s </th><th>signal fit<br/>%s</th><th>&rho;(&mu;, &theta;)<th>I(&mu;, &theta;)</th>" % (what, what)
+        header = "<tr><th>nuisance</th><th>background fit<br/>%s </th><th>signal fit<br/>%s</th><th>&rho;(&mu;, &theta;)<th>I(&mu;, &theta;)</th>" % (
+            what, 
+            what,
+        )
         fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-15s </td><td> %-15s </td><td> %-15s </td>"
     if options.workspace:
         header += "<th>&Delta;NLL</th></tr>"
