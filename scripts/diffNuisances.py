@@ -492,7 +492,7 @@ if options.plotfile and options.workspace:
         nbins = min(len_dnll, options.max_nuis, len_dnll - options.max_nuis * hist_idx)
         hist_dnll += [ROOT.TH1F("dnll %s" % hist_idx, "delta log-likelihoods   ;;%s %s" % (title, hist_idx), nbins, 0, nbins)]
         hist_cdnll += [ROOT.TH1F("cdnll %s" % hist_idx, "cumulative delta log-likelihoods   ;;%s %s" % (title, hist_idx), nbins, 0, nbins)]
-    dnlls.sort(key= lambda x: -x[1])
+    dnlls.sort(key = lambda x: -x[1])
     cdnll = 0
     for idx, (nm, val) in enumerate(dnlls):
         hist_idx = idx // options.max_nuis
@@ -530,7 +530,7 @@ if options.format == "text":
     if options.workspace:
         fmtstring = fmtstring + " %10s"
         headers += ["dnll"]
-    print( fmtstring % tuple(headers) )
+    print(fmtstring % tuple(headers))
 
 elif options.format == "latex":
     pmsub = (r"(\S+) \+/- (\S+)", r"$\1 \\pm \2$")
@@ -544,12 +544,12 @@ elif options.format == "latex":
         print(" option '--skipFitB' set true. $b$-only Fit is just a copy of the $s+b$ fit")
     if options.pullDef:
         fmtstring = "%-40s & %30s & %30s & %6s & %6s  "
-        tab_header="\\begin{tabular}{|l|r|r|r|r|"
-        headers  = ["name", "$b$-only fit pull", "$s+b$ fit pull", r"$\rho(\theta, \mu)$", r"I(\theta, \mu)"]
+        tab_header = "\\begin{tabular}{|l|r|r|r|r|"
+        headers = ["name", "$b$-only fit pull", "$s+b$ fit pull", r"$\rho(\theta, \mu)$", r"I(\theta, \mu)"]
     elif options.absolute_values:
         fmtstring = "%-40s &  %15s & %30s & %30s & %6s & %6s "
         tab_header = "\\begin{tabular}{|l|r|r|r|r|r|"
-        headers  = ["name", "pre fit", "$b$-only fit pull", "$s+b$ fit pull", r"$\rho(\theta, \mu)$", r"I(\theta, \mu)"]
+        headers = ["name", "pre fit", "$b$-only fit pull", "$s+b$ fit pull", r"$\rho(\theta, \mu)$", r"I(\theta, \mu)"]
     else:
         fmtstring = "%-40s &  %15s & %15s & %6s & %6s "
         tab_header = "\\begin{tabular}{|l|r|r|r|r|"
