@@ -478,7 +478,7 @@ A discontinuity in the NLL function or its derivatives at or near the minimum.</
 <p>The results can be plotted using the macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/plotParametersFromToys.C">test/plotParametersFromToys.C</a></p>
 <pre><code class="language-c++">$ root -l
 .L plotParametersFromToys.C+
-plotParametersFomToys(&quot;fitDiagnosticsToys.root&quot;,&quot;fitDiagnosticsData.root&quot;,&quot;workspace.root&quot;,&quot;r&lt;0&quot;)
+plotParametersFromToys(&quot;fitDiagnosticsToys.root&quot;,&quot;fitDiagnosticsData.root&quot;,&quot;workspace.root&quot;,&quot;r&lt;0&quot;)
 </code></pre>
 <p>The first argument is the name of the output file from running with toys, and the second and third (optional) arguments are the name of the file containing the result from a fit to the data and the workspace (created from <code>text2workspace.py</code>). The fourth argument can be used to specify a cut string applied to one of the branches in the tree which can be used to correlate strange behaviour with specific conditions. The output will be 2 pdf files (<strong><code>tree_fit_(s)b.pdf</code></strong>) and 2 root files  (<strong><code>tree_fit_(s)b.root</code></strong>) containing canvases of the fit results of the tool. For details on the output plots, consult <a href="http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2012/317">AN-2012/317</a>.</p>
 <h2 id="scaling-constraints">Scaling constraints</h2>
