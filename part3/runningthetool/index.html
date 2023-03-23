@@ -337,6 +337,7 @@
 </ul>
 </li>
 </ul>
+<p>By default, the dataset used by combine will be the one pointed to in the datacard. You can tell combine to use a different dataset (for example a toy one that you generated) by using the option <code>--dataset</code>. The argument should be <code>rootfile.root:workspace:location</code> or <code>rootfile.root:location</code>. In order to use this option, you must first convert your datacard to a binary workspace and use this binary workspace as the input to the command line. </p>
 <h4 id="generic-minimizer-options">Generic Minimizer Options</h4>
 <p>Combine uses its own minimizer class which is used to steer Minuit (via RooMinimizer) named the <code>CascadeMinimizer</code>. This allows for sequential minimization which can help in case a particular setting/algo fails. Also, the <code>CascadeMinimizer</code> knows about extra features of Combine such as <em>discrete</em> nuisance parameters.</p>
 <p>All of the fits which are performed in several of the methods available use this minimizer. This means that the fits can be tuned using these common options,</p>
