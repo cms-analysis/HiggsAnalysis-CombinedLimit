@@ -888,7 +888,7 @@ class ModelBuilder(ModelBuilderBase):
                         continue
                     if pdf == "constr":
                         continue
-                    if pdf == "rateParam" or pdf=="flatParam":
+                    if pdf == "rateParam":
                         continue
                     if p not in errline[b]:
                         continue
@@ -909,7 +909,7 @@ class ModelBuilder(ModelBuilderBase):
                             logNorms.append((errline[b][p], n))
                     elif pdf == "gmM":
                         factors.append(n)
-                    elif pdf == "trG" or pdf == "unif" or pdf == "dFD" or pdf == "dFD2":
+                    elif pdf == "trG" or pdf == "unif" or pdf == "flatParam" or pdf == "dFD" or pdf == "dFD2":
                         myname = "n_exp_shift_bin%s_proc_%s_%s" % (b, p, n)
                         self.doObj(myname, ROOFIT_EXPR, "'1+%f*@0', %s" % (errline[b][p], n))
                         factors.append(myname)

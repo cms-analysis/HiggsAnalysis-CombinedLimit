@@ -289,7 +289,6 @@ def addDatacardParserOptions(parser):
     )
 
 
-
 def strip(l):
     """Strip comments and whitespace from end of line"""
     idx = l.find("#")
@@ -530,10 +529,10 @@ def parseCard(file, options):
                 continue
             elif pdf == "flatParam":
                 ret.flatParamNuisances[lsyst] = True
-                if options.flatParamPrior:
-                  ret.systs.append([lsyst, nofloat, pdf, args, []])
-                  ret.add_syst_id(lsyst)
                 # for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
+                if options.flatParamPrior:
+                    ret.systs.append([lsyst, nofloat, pdf, args, []])
+                    ret.add_syst_id(lsyst)
                 continue
             elif pdf == "extArg":
                 # look for additional parameters in workspaces
@@ -680,7 +679,7 @@ def parseCard(file, options):
     syst2 = []
     for lsyst, nofloat, pdf, args, errline in ret.systs:
         nonNullEntries = 0
-        if pdf == "param" or pdf == "constr" or pdf == "discrete" or pdf == "rateParam" or pdf=="flatParam":  # this doesn't have an errline
+        if pdf == "param" or pdf == "constr" or pdf == "discrete" or pdf == "rateParam" or pdf == "flatParam":  # this doesn't have an errline
             syst2.append((lsyst, nofloat, pdf, args, errline))
             continue
         for b, p, s in ret.keyline:
