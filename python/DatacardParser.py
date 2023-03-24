@@ -281,7 +281,7 @@ def addDatacardParserOptions(parser):
         help="Simplify MH dependent objects: 'fixed', 'pol<N>' with N=0..4",
     )
     parser.add_option(
-        "--X-assignflatParamPrior",
+        "--X-assign-flatParam-prior",
         dest="flatParamPrior",
         default=False,
         action="store_true",

@@ -522,11 +522,14 @@ class ModelBuilder(ModelBuilderBase):
             elif pdf == "unif":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n, args[0], args[1]))
             elif pdf == "flatParam" and self.options.flatParamPrior:
+                self.doExp(
+                    "%s_expr" % n,
+                    "%s-%s_In" % (n,n),
+                    "%s[-1,1],%s_In[0,-1,1]" % (n,n))
                 self.doObj(
-                        "%s_Pdf" % n,
-                        "Uniform",
-                        "%s[-1,1]" % (n))
-                self.doVar("%s_In[0,-1,1]" % (n))
+                    "%s_Pdf" % n,
+                    "Uniform",
+                    "%s_expr" % n)
                 self.out.var("%s_In" % n).setConstant(True)       
                 globalobs.append("%s_In" % n)
             elif pdf == "dFD" or pdf == "dFD2":
