@@ -137,7 +137,6 @@ class ModelBuilderBase:
             return self.factory_("%s::%s(%s)" % (type, name, X))
         else:
             self.out.write("%s = %s(%s);\n" % (name, type, X))
-
     def addDiscrete(self, var):
         if self.options.removeMultiPdf:
             return
@@ -522,6 +521,14 @@ class ModelBuilder(ModelBuilderBase):
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[-1,1]" % n)
             elif pdf == "unif":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n, args[0], args[1]))
+            elif pdf == "flatParam" and self.options.flatParamPrior:
+                self.doObj(
+                        "%s_Pdf" % n,
+                        "Uniform",
+                        "%s[-1,1]" % (n))
+                self.doVar("%s_In[0,-1,1]" % (n))
+                self.out.var("%s_In" % n).setConstant(True)       
+                globalobs.append("%s_In" % n)
             elif pdf == "dFD" or pdf == "dFD2":
                 dFD_min = -(1 + 8 / args[0])
                 dFD_max = +(1 + 8 / args[0])
@@ -878,7 +885,7 @@ class ModelBuilder(ModelBuilderBase):
                         continue
                     if pdf == "constr":
                         continue
-                    if pdf == "rateParam":
+                    if pdf == "rateParam" or pdf=="flatParam":
                         continue
                     if p not in errline[b]:
                         continue

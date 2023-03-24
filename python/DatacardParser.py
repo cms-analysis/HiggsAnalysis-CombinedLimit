@@ -280,6 +280,14 @@ def addDatacardParserOptions(parser):
         default=None,
         help="Simplify MH dependent objects: 'fixed', 'pol<N>' with N=0..4",
     )
+    parser.add_option(
+        "--X-assignflatParamPrior",
+        dest="flatParamPrior",
+        default=False,
+        action="store_true",
+        help="Assign RooUniform pdf for flatParam NPs",
+    )
+
 
 
 def strip(l):
@@ -522,6 +530,9 @@ def parseCard(file, options):
                 continue
             elif pdf == "flatParam":
                 ret.flatParamNuisances[lsyst] = True
+                if options.flatParamPrior:
+                  ret.systs.append([lsyst, nofloat, pdf, args, []])
+                  ret.add_syst_id(lsyst)
                 # for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
                 continue
             elif pdf == "extArg":
@@ -669,7 +680,7 @@ def parseCard(file, options):
     syst2 = []
     for lsyst, nofloat, pdf, args, errline in ret.systs:
         nonNullEntries = 0
-        if pdf == "param" or pdf == "constr" or pdf == "discrete" or pdf == "rateParam":  # this doesn't have an errline
+        if pdf == "param" or pdf == "constr" or pdf == "discrete" or pdf == "rateParam" or pdf=="flatParam":  # this doesn't have an errline
             syst2.append((lsyst, nofloat, pdf, args, errline))
             continue
         for b, p, s in ret.keyline:
