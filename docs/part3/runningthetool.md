@@ -72,6 +72,8 @@ There are a number of useful command line options which can be used to alter the
     - the name of the branch will be **trackedError_*name***.
     - the behaviour is the same as `--trackParameters` above.
 
+By default, the dataset used by combine will be the one pointed to in the datacard. You can tell combine to use a different dataset (for example a toy one that you generated) by using the option `--dataset`. The argument should be `rootfile.root:workspace:location` or `rootfile.root:location`. In order to use this option, you must first convert your datacard to a binary workspace and use this binary workspace as the input to the command line. 
+
 #### Generic Minimizer Options
 
 Combine uses its own minimizer class which is used to steer Minuit (via RooMinimizer) named the `CascadeMinimizer`. This allows for sequential minimization which can help in case a particular setting/algo fails. Also, the `CascadeMinimizer` knows about extra features of Combine such as *discrete* nuisance parameters.

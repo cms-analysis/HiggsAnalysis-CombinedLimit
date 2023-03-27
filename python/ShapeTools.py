@@ -718,8 +718,14 @@ class ShapeBuilder(ModelBuilder):
             raise RuntimeError("Cannot open file %s (from pattern %s)" % (finalNames[0], names[0]))
 
         # follow histogram routine if file is a dataframe and load dataframe as histograms
-        if ":" in objname and not isinstance(file, DataFrameWrapper):  # workspace:obj or ttree:xvar or th1::xvar
-            (wname, oname) = objname.split(":")
+        if ":" in objname and not isinstance(file, DataFrameWrapper):  # file:workspace:obj or workspace:obj or ttree:xvar or th1:xvar
+            if len(objname.split(":")) == 2:
+                (wname, oname) = objname.split(":")
+            elif len(objname.split(":")) == 3:
+                (fname, wname, oname) = objname.split(":")
+                file = self._fileCache[fname]
+            else:
+                raise RuntimeError("Input pattern %s is not supported" % names[1])
             if (file, wname) not in self.wspnames:
                 self.wspnames[(file, wname)] = file.Get(wname)
             self.wsp = self.wspnames[(file, wname)]

@@ -184,7 +184,7 @@ The results can be plotted using the macro [test/plotParametersFromToys.C](https
 ```c++
 $ root -l
 .L plotParametersFromToys.C+
-plotParametersFomToys("fitDiagnosticsToys.root","fitDiagnosticsData.root","workspace.root","r<0")
+plotParametersFromToys("fitDiagnosticsToys.root","fitDiagnosticsData.root","workspace.root","r<0")
 ```
 
 The first argument is the name of the output file from running with toys, and the second and third (optional) arguments are the name of the file containing the result from a fit to the data and the workspace (created from `text2workspace.py`). The fourth argument can be used to specify a cut string applied to one of the branches in the tree which can be used to correlate strange behaviour with specific conditions. The output will be 2 pdf files (**`tree_fit_(s)b.pdf`**) and 2 root files  (**`tree_fit_(s)b.root`**) containing canvases of the fit results of the tool. For details on the output plots, consult [AN-2012/317](http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2012/317).
@@ -1050,7 +1050,7 @@ In case you see an excess somewhere in your analysis, you can evaluate the look-
 To calculate the look-elsewhere effect for a single parameter (in this case the mass of the resonance), you can follow the instructions. Note that these instructions assume you have a workspace which is parametric in your resonance mass $m$, otherwise you need to fit each background toy with separate workspaces. Assume the local significance for your excess is $\sigma$. 
 
    * Generate background-only toys	`combine ws.root -M GenerateOnly --toysFrequentist -m 16.5 -t 100 --saveToys --expectSignal=0`. The output will be something like `higgsCombineTest.GenerateOnly.mH16.5.123456.root`.
-   * For each toy, calculate the significance for a predefined range	- e.g $m\in [10,35]$ GeV in steps suitable to the resolution - eg 1 GeV. `for i in $(seq 10 35); do combine ws.root -M Significance --redefineSignalPOI r --freezeParameters MH --setParameter MH=$i -n $i`. Calculate the maximum significance over all of these mass points - call this $\sigma_{max}$.
+   * For each toy, calculate the significance for a predefined range	- e.g $m\in [10,35]$ GeV in steps suitable to the resolution - eg 1 GeV. For  `toy_1` the procedure would be: `for i in $(seq 10 35); do combine ws.root -M Significance --redefineSignalPOI r --freezeParameters MH --setParameter MH=$i -n $i -D higgsCombineTest.GenerateOnly.mH16.5.123456.root:toys/toy_1`. Calculate the maximum significance over all of these mass points - call this $\sigma_{max}$.
    * Count how many toys have a maximum significance larger than the local one for your observed excess. This fraction of toys with $\sigma_{max}>\sigma$ is the global p-value. 
 
 You can find more tutorials on the LEE [here](https://indico.cern.ch/event/456547/contributions/1126036/attachments/1188691/1724680/20151117_comb_tutorial_Lee.pdf)
