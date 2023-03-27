@@ -78,8 +78,7 @@ def addDatacardParserOptions(parser):
         help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.",
     )
     parser.add_option(
-        "-D",
-        "--dataset",
+        "--dataMapName",
         dest="dataname",
         default="data_obs",
         type="string",
