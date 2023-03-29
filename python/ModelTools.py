@@ -137,6 +137,7 @@ class ModelBuilderBase:
             return self.factory_("%s::%s(%s)" % (type, name, X))
         else:
             self.out.write("%s = %s(%s);\n" % (name, type, X))
+
     def addDiscrete(self, var):
         if self.options.removeMultiPdf:
             return
@@ -524,13 +525,13 @@ class ModelBuilder(ModelBuilderBase):
             elif pdf == "flatParam" and self.options.flatParamPrior:
                 self.doExp(
                     "%s_expr" % n,
-                    "%s-%s_In" % (n,n),
-                    "%s[-1,1],%s_In[0,-1,1]" % (n,n))
+                    "%s-%s_In" % (n, n),
+                    "%s[-1,1],%s_In[0,-1,1]" % (n, n))
                 self.doObj(
                     "%s_Pdf" % n,
                     "Uniform",
                     "%s_expr" % n)
-                self.out.var("%s_In" % n).setConstant(True)       
+                self.out.var("%s_In" % n).setConstant(True)
                 globalobs.append("%s_In" % n)
             elif pdf == "dFD" or pdf == "dFD2":
                 dFD_min = -(1 + 8 / args[0])
@@ -888,7 +889,7 @@ class ModelBuilder(ModelBuilderBase):
                         continue
                     if pdf == "constr":
                         continue
-                    if pdf == "rateParam":
+                    if pdf == "rateParam" or pdf == "flatParam":
                         continue
                     if p not in errline[b]:
                         continue
@@ -909,7 +910,7 @@ class ModelBuilder(ModelBuilderBase):
                             logNorms.append((errline[b][p], n))
                     elif pdf == "gmM":
                         factors.append(n)
-                    elif pdf == "trG" or pdf == "unif" or pdf == "flatParam" or pdf == "dFD" or pdf == "dFD2":
+                    elif pdf == "trG" or pdf == "unif" or pdf == "dFD" or pdf == "dFD2":
                         myname = "n_exp_shift_bin%s_proc_%s_%s" % (b, p, n)
                         self.doObj(myname, ROOFIT_EXPR, "'1+%f*@0', %s" % (errline[b][p], n))
                         factors.append(myname)
