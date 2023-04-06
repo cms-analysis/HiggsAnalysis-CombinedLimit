@@ -346,6 +346,9 @@ The choice of test-statistic can be made via the option `--testStat` and differe
 
 While the above shortcuts are the common variants, you can also try others. The treatment of the nuisances can be changed to the so-called "Hybrid-Bayesian" method which effectively integrates over the nuisance parameters. This can be achieved (with any test-statistic which is not profiled over the nuisances) by setting `--generateNuisances=1 --generateExternalMeasurements=0 --fitNuisances=0`.
 
+!!! warning
+    If you have unconstrained parameters in your model (`rateParam` or if using a `_norm` variable for a pdf) and you want to use the "Hybrid-Bayesian" method, you **must** declare these as `flatParam` in your datacard and when running text2workspace you must add the option `--X-assign-flatParam-prior` in the command line. This will create uniform priors for these parameters, which is needed for this method and which otherwise would not get created.   
+
 !!! info
     Note that (observed and toy) values of the test statistic stored in the instances of `RooStats::HypoTestResult` when the option `--saveHybridResult` has been specified, are defined without the factor 2 and therefore are twice as small as the values given by the formulas above. This factor is however included automatically by all plotting script supplied within the Combine package.
 
