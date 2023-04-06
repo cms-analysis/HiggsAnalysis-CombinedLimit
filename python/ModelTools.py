@@ -137,6 +137,7 @@ class ModelBuilderBase:
             return self.factory_("%s::%s(%s)" % (type, name, X))
         else:
             self.out.write("%s = %s(%s);\n" % (name, type, X))
+
     def addDiscrete(self, var):
         if self.options.removeMultiPdf:
             return
@@ -153,6 +154,13 @@ class ModelBuilder(ModelBuilderBase):
         self.selfNormBins = []
         self.extraNuisances = []
         self.extraGlobalObservables = []
+
+    def getSafeNormName(self, n):
+        # need to be careful in case user has _norm name and wants to auto-create flatPrior
+        if self.options.flatParamPrior:
+            if n in self.DC.pdfnorms.keys():
+                return self.DC.pdfnorms[n]
+        return n
 
     def setPhysics(self, physicsModel):
         self.physics = physicsModel
@@ -522,16 +530,16 @@ class ModelBuilder(ModelBuilderBase):
             elif pdf == "unif":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n, args[0], args[1]))
             elif pdf == "flatParam" and self.options.flatParamPrior:
+                c_param_name = self.getSafeNormName(n)
+                v, x1, x2 = self.out.var(c_param_name).getVal(), self.out.var(c_param_name).getMin(), self.out.var(c_param_name).getMax()
+                if self.options.verbose > 2:
+                    print("will create flat prior for parameter ", c_param_name, " in range [", x1, x2, "]")
                 self.doExp(
-                    "%s_expr" % n,
-                    "%s-%s_In" % (n,n),
-                    "%s[-1,1],%s_In[0,-1,1]" % (n,n))
-                self.doObj(
-                    "%s_Pdf" % n,
-                    "Uniform",
-                    "%s_expr" % n)
-                self.out.var("%s_In" % n).setConstant(True)       
-                globalobs.append("%s_In" % n)
+                    "%s_diff_expr" % c_param_name, "%s-%s_In" % (c_param_name, c_param_name), "%s,%s_In[%g,%g,%g]" % (c_param_name, c_param_name, v, x1, x2)
+                )
+                self.doObj("%s_Pdf" % c_param_name, "Uniform", "%s_diff_expr" % c_param_name)
+                self.out.var("%s_In" % c_param_name).setConstant(True)
+                globalobs.append("%s_In" % c_param_name)
             elif pdf == "dFD" or pdf == "dFD2":
                 dFD_min = -(1 + 8 / args[0])
                 dFD_max = +(1 + 8 / args[0])
@@ -788,9 +796,10 @@ class ModelBuilder(ModelBuilderBase):
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
             for n, nf, p, a, e in self.DC.systs:
+                c_param_name = self.getSafeNormName(n)
                 if p != "constr":
-                    nuisVars.add(self.out.var(n))
-                setNuisPdf.append(n)
+                    nuisVars.add(self.out.var(c_param_name))
+                setNuisPdf.append(c_param_name)
             setNuisPdf = set(setNuisPdf)
             for n in setNuisPdf:
                 nuisPdfs.add(self.out.pdf(n + "_Pdf"))
@@ -804,8 +813,8 @@ class ModelBuilder(ModelBuilderBase):
             self.out.defineSet("globalObservables", gobsVars)
         else:  # doesn't work for too many nuisances :-(
             # avoid duplicating  _Pdf in list
-            setNuisPdf = set([n for (n, nf, p, a, e) in self.DC.systs])
-            self.doSet("nuisances", ",".join(["%s" % n for (n, nf, p, a, e) in self.DC.systs]))
+            setNuisPdf = set([self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs])
+            self.doSet("nuisances", ",".join(["%s" % self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs]))
             self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for n in setNuisPdf]))
             self.doSet("globalObservables", ",".join(globalobs))
 
@@ -888,7 +897,7 @@ class ModelBuilder(ModelBuilderBase):
                         continue
                     if pdf == "constr":
                         continue
-                    if pdf == "rateParam":
+                    if pdf == "rateParam" or pdf == "flatParam":
                         continue
                     if p not in errline[b]:
                         continue
@@ -909,7 +918,8 @@ class ModelBuilder(ModelBuilderBase):
                             logNorms.append((errline[b][p], n))
                     elif pdf == "gmM":
                         factors.append(n)
-                    elif pdf == "trG" or pdf == "unif" or pdf == "flatParam" or pdf == "dFD" or pdf == "dFD2":
+                    # elif pdf == "trG" or pdf == "unif" or pdf == "flatParam" or pdf == "dFD" or pdf == "dFD2":
+                    elif pdf == "trG" or pdf == "unif" or pdf == "dFD" or pdf == "dFD2":
                         myname = "n_exp_shift_bin%s_proc_%s_%s" % (b, p, n)
                         self.doObj(myname, ROOFIT_EXPR, "'1+%f*@0', %s" % (errline[b][p], n))
                         factors.append(myname)
