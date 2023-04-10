@@ -21,6 +21,8 @@ public:
   }
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
+  friend class RandStartPt;
+
 protected:
   virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
 
