@@ -369,7 +369,7 @@ def parseCard(file, options):
 
     if not hasattr(options, "flatParamPrior"):
         setattr(options, "flatParamPrior", False)
-    
+
     try:
         for lineNumber, l in enumerate(file):
             f = l.split()
