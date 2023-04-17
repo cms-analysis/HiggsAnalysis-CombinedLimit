@@ -444,7 +444,7 @@ class ModelBuilder(ModelBuilderBase):
                     # Use existing constraint since it could be a param
                 self.out.var(n).setVal(0)
                 self.out.var(n).setError(1)
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
                 if self.options.optimizeBoundNuisances and not is_func_scaled:
