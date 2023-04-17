@@ -66,6 +66,9 @@ class Datacard:
         # list of parameters called _norm in user input workspace
         self.pdfnorms = {}
 
+        # collection of nuisances to auto-produce flat priors for
+        self.toCreateFlatParam = {}
+
     def print_structure(self):
         """
         Print the contents of the -> should allow for direct text2workspace on python config
