@@ -326,7 +326,12 @@ class ModelBuilder(ModelBuilderBase):
                 v = float(argv)
                 removeRange = len(param_range) == 0
                 if param_range == "":
-                    if self.options.flatParamPrior: raise ValueError("Cannot create flat Prior for rateParam nuisance parameter '" + argu + "' without specifying a range [a,b]. Please fix in the datacard")
+                    if self.options.flatParamPrior:
+                        raise ValueError(
+                            "Cannot create flat Prior for rateParam nuisance parameter '"
+                            + argu
+                            + "' without specifying a range [a,b]. Please fix in the datacard"
+                        )
                     ## check range. The parameter needs to be created in range. Then we will remove it
                     param_range = "%g,%g" % (-2.0 * abs(v), 2.0 * abs(v))
                 # additional check for range requested
@@ -393,7 +398,7 @@ class ModelBuilder(ModelBuilderBase):
         if len(self.DC.systs) == 0:
             return
         self.doComment(" ----- nuisances -----")
-        #globalobs = []
+        # globalobs = []
 
         for n, nofloat, pdf, args, errline in self.DC.systs:
             is_func_scaled = False
@@ -537,8 +542,9 @@ class ModelBuilder(ModelBuilderBase):
                 c_param_name = self.getSafeNormName(n)
                 if self.out.var(c_param_name):
                     v, x1, x2 = self.out.var(c_param_name).getVal(), self.out.var(c_param_name).getMin(), self.out.var(c_param_name).getMax()
-                    self.DC.toCreateFlatParam[c_param_name]=[v,x1,x2]
-                else: self.DC.toCreateFlatParam[c_param_name]=[]
+                    self.DC.toCreateFlatParam[c_param_name] = [v, x1, x2]
+                else:
+                    self.DC.toCreateFlatParam[c_param_name] = []
 
             elif pdf == "dFD" or pdf == "dFD2":
                 dFD_min = -(1 + 8 / args[0])
@@ -821,13 +827,15 @@ class ModelBuilder(ModelBuilderBase):
             self.doSet("globalObservables", ",".join(self.globalobs))
 
     def doAutoFlatNuisancePriors(self):
-        if len(self.DC.toCreateFlatParam.keys())>0: 
-            for flatNP in self.DC.toCreateFlatParam.items() : 
+        if len(self.DC.toCreateFlatParam.keys()) > 0:
+            for flatNP in self.DC.toCreateFlatParam.items():
                 c_param_name = flatNP[0]
-                c_param_details = flatNP[1] 
-                print(c_param_name,c_param_details)
-                if len(c_param_details) : v, x1, x2 = c_param_details 
-                else : v, x1, x2 = self.out.var(c_param_name).getVal(), self.out.var(c_param_name).getMin(), self.out.var(c_param_name).getMax()
+                c_param_details = flatNP[1]
+                print(c_param_name, c_param_details)
+                if len(c_param_details):
+                    v, x1, x2 = c_param_details
+                else:
+                    v, x1, x2 = self.out.var(c_param_name).getVal(), self.out.var(c_param_name).getMin(), self.out.var(c_param_name).getMax()
                 if self.options.verbose > 2:
                     print("Will create flat prior for parameter ", c_param_name, " with range [", x1, x2, "]")
                 self.doExp(
