@@ -831,7 +831,6 @@ class ModelBuilder(ModelBuilderBase):
             for flatNP in self.DC.toCreateFlatParam.items():
                 c_param_name = flatNP[0]
                 c_param_details = flatNP[1]
-                print(c_param_name, c_param_details)
                 if len(c_param_details):
                     v, x1, x2 = c_param_details
                 else:
