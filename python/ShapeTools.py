@@ -615,6 +615,8 @@ class ShapeBuilder(ModelBuilder):
                 raise RuntimeError("There's more than once choice of observables: %s\n" % str(list(shapeObs.keys())))
             self.out.binVars = list(shapeObs.values())[0]
             self.out.safe_import(self.out.binVars)
+        # keep hold of pdf_norm renaming
+        self.DC.pdfnorms = self.norm_rename_map.copy()
 
     def doCombinedDataset(self):
         if len(self.DC.bins) == 1 and self.options.forceNonSimPdf:

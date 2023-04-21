@@ -63,6 +63,12 @@ class Datacard:
         self.groups = {}
         self.discretes = []
 
+        # list of parameters called _norm in user input workspace
+        self.pdfnorms = {}
+
+        # collection of nuisances to auto-produce flat priors for
+        self.toCreateFlatParam = {}
+
     def print_structure(self):
         """
         Print the contents of the -> should allow for direct text2workspace on python config
@@ -140,6 +146,7 @@ MB = None
         print("DC.binParFlags 	= ", self.binParFlags, "#", type(self.binParFlags))
         print("DC.groups 	= ", self.groups, "#", type(self.groups))
         print("DC.discretes 	= ", self.discretes, "#", type(self.discretes))
+        print("DC.pdfnorms 	= ", self.pdfnorms, "#", type(self.pdfnorms))
 
         print(
             """

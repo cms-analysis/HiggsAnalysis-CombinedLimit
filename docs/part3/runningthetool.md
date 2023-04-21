@@ -186,7 +186,7 @@ You can turn off the internal logic by setting `--X-rtd TMCSO_AdaptivePseudoAsim
 
 #### Nuisance parameter generation
 
-The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, *before* generating the data. The *unconstrained* nuisance parameters (eg `flatParam` or `rateParam`) or those with *flat* priors are **not** randomised before the data generation.
+The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, *before* generating the data. The *unconstrained* nuisance parameters (eg `flatParam` or `rateParam`) or those with *flat* priors are **not** randomised before the data generation. If you wish to also randomise these parameters, you **must** declare these as `flatParam` in your datacard and when running text2workspace you must add the option `--X-assign-flatParam-prior` in the command line.
 
 The following are options which define how the toys will be generated,
 
