@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   namespace po = boost::program_options;
 
   string name;
-  string datacard, dataset;
+  string datacard, dataset, dataMapName;
   float iMass;
   string whichMethod, whichHintMethod;
   int runToys;
@@ -88,7 +88,8 @@ int main(int argc, char **argv) {
   combiner.ioOptions().add_options()
     ("name,n",     po::value<string>(&name)->default_value("Test"), "Name of the job, affects the name of the output tree")
     ("mass,m",     po::value<float>(&iMass)->default_value(120.), "Higgs mass to store in the output tree")
-    ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Name of the dataset for observed limit")
+    ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Name of the dataset for observed limit - use this to replace dataset in workspace for example with a toy dataset. Format as file:workspace:object or file:object")
+    ("dataMapName",  po::value<string>(&dataMapName)->default_value("data_obs"), "Name of the dataset for observed limit pattern in the datacard")
     ("toysFile",   po::value<string>(&toysFile)->default_value(""), "Read toy mc or other intermediate results from this file")
     ;
   combiner.miscOptions().add_options()

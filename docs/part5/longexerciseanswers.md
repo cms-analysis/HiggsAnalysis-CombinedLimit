@@ -31,7 +31,7 @@
 <details>
 <summary><b>Show answer</b></summary>
 
-<b> The uncertainty is caused by the limited number of toys: the values of CLs+b and CLb come from counting the number of toys in the tails of the test statistic distributions. The number of toys used can be adjusted with the option <code> --toysH </code> </b>
+<b> The uncertainty is caused by the limited number of toys: the values of Pmu and Pb come from counting the number of toys in the tails of the test statistic distributions. The number of toys used can be adjusted with the option <code> --toysH </code> </b>
 
 </details>
   - How good is the agreement between the asymptotic and toy-based methods?
@@ -41,11 +41,11 @@
 <b> The agreement should be pretty good in this example, but will generally break down once we get to the level of 0-5 events. </b>
 
 </details>
-  - Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on CLs+b and CLb.
+  - Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on Pmu and Pb.
 <details>
 <summary><b>Show answer</b></summary>
 
-<b> For this we need the definition of CLs = CLs+b / CLb. The 0.025 expected quantile is by definition where CLb = 0.025, so for a 95% CL limit we have CLs = 0.05, implying we are looking for the value of r where CLs+b = 0.00125. With 1000 s+b toys we would then only expect `1000 * 0.00125 = 1.25` toys in the tail region we have to integrate over. Contrast this to the median limit where 25 toys would be in this region. This means we have to generate a much larger numbers of toys to get the same statistical power.</b>
+<b> For this we need the definition of CLs = Pmu / (1-Pb). The 0.025 expected quantile is by definition where Pb = 0.025, so for a 95% CL limit we have CLs = 0.05, implying we are looking for the value of r where Pmu = 0.00125. With 1000 s+b toys we would then only expect `1000 * 0.00125 = 1.25` toys in the tail region we have to integrate over. Contrast this to the median limit where 25 toys would be in this region. This means we have to generate a much larger numbers of toys to get the same statistical power.</b>
 
 </details>
 

@@ -96,7 +96,7 @@ suite += [
 ]
 
 ### Test the p-values
-for R in ["CLs", "CLsplusb"]:
+for R in ["CLs", "Pmu"]:
     suite += [
         (
             M,

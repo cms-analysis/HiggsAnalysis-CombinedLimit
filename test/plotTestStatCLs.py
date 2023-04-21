@@ -75,7 +75,7 @@ parser.add_option(
     "--quantileExpected",
     default=-1,
     type="float",
-    help="Replace observation with expected quantile (under alt hyp, i.e CLb=quantileExpected)",
+    help="Replace observation with expected quantile (under alt hyp, i.e 1-Pb=quantileExpected)",
 )
 parser.add_option(
     "",
@@ -89,7 +89,7 @@ parser.add_option(
     "--signif",
     action="store_true",
     default=False,
-    help="If significance, don't plot CLs+b, i.e make the q0 plot",
+    help="If significance, don't plot Pmu, i.e make the q0 plot",
 )
 (options, args) = parser.parse_args()
 
