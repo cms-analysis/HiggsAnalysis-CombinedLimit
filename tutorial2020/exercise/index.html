@@ -775,7 +775,7 @@ Start by setting a threshold of 0, i.e. <code>[channel] autoMCStats 0</code>, to
 <p><strong>Tasks and questions:</strong>
 - In contrast to <code>AsymptoticLimits</code>, with <code>HybridNew</code> each limit comes with an uncertainty. What is the origin of this uncertainty?
 - How good is the agreement between the asymptotic and toy-based methods?
-- Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on CLs+b and CLb.</p>
+- Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on Pmu and Pb.</p>
 <p>Next plot the test statistic distributions stored in the output file:</p>
 <pre><code class="language-shell">python $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py --input higgsCombine.part4B.HybridNew.mH120.root --poi r --val all --mass 120
 </code></pre>

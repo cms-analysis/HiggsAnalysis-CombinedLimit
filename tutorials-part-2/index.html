@@ -586,7 +586,7 @@ plot-&amp;gt;Draw();
 </li>
 </ul>
 <p>In combine, you can perform this test on each individual point (param1,param2,...) = (value1,value2,...) by doing</p>
-<pre><code>combine workspace.root -M HybridNew --freq --testStat=PL --rule=CLsplusb --singlePoint  param1=value1,param2=value2,param3=value3,...   [other options of HybridNew]
+<pre><code>combine workspace.root -M HybridNew --freq --testStat=PL --rule=Pmu --singlePoint  param1=value1,param2=value2,param3=value3,...   [other options of HybridNew]
 </code></pre>
 <p>The point belongs to your confidence region if CL&lt;sub&gt;s+b&lt;/sub&gt; is larger than 1-CL (e.g. 0.3173 for a 1-sigma region, CL=0.6827).</p>
 <p>Imposing physical boundaries (such as requiring mu&gt;0) can be achieved by setting the ranges of the physics model parameters using</p>
@@ -594,7 +594,7 @@ plot-&amp;gt;Draw();
 </code></pre>
 <p>. If there is no upper/lower boundary, just set that value to something far from the region of interest.</p>
 <p>As in general for HybridNew, you can split the task into multiple tasks and then merge the outputs, as described in the <a href="SWGuideHiggsAnalysisCombinedLimit#HybridNew_algorithm">HybridNew chapter</a>.</p>
-<p>For uni-dimensional models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). In that case, the syntax is the same as per the CLs limits with <a href="HybridNew chapter">HybridNew chapter</a> except that you want <strong><code>--testStat=PL --rule=CLsplusb</code></strong> .</p>
+<p>For uni-dimensional models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). In that case, the syntax is the same as per the CLs limits with <a href="HybridNew chapter">HybridNew chapter</a> except that you want <strong><code>--testStat=PL --rule=Pmu</code></strong> .</p>
 <p><strong>Extracting Contours</strong></p>
 <p>There is a tool for extracting confidence intervals and 2D contours from the output of HybridNew located in <strong><code>test/makeFCcontour.py</code></strong> providing the option <strong><code>--saveToys</code></strong> was included when running HybridNew. I can be run taking as input, the toys files (or several of them) as,</p>
 <pre><code>./makeFCcontour.py  toysfile1.root toysfile2.root .... [options] -out outputfile.root
