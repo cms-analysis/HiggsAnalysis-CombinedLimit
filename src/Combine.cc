@@ -956,7 +956,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             utils::setAllConstant(*mc->GetParametersOfInterest(), false);
             w->saveSnapshot("clean", utils::returnAllVars(w));
         } else {
-            toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
+            toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_);
 
 	    // print the values of the parameters used to generate the toy
 	    if (verbose > 2) {
@@ -999,7 +999,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   std::unique_ptr<RooAbsPdf> nuisancePdf;
   if (nToys > 0) {
     if (genPdf == 0) throw std::invalid_argument("You can't generate background-only toys if you have no background-only pdf in the workspace and you have set --noMCbonly");
-    toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); 
+    toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_, NULL, 0, toysFrequentist_); 
     double expLimit = 0;
     unsigned int nLimits = 0;
     w->loadSnapshot("clean");
