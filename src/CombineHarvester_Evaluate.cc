@@ -182,7 +182,6 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const& fit,
     }
     shape.SetBinError(i, std::sqrt(shape.GetBinError(i)/double(n_samples)));
   }
-
   this->UpdateParameters(backup);
   return shape;
 }
