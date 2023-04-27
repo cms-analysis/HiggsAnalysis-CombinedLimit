@@ -352,7 +352,7 @@ double AsymptoticLimits::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected
         if (doCLs_) { *limit = (pb != 0 ? pmu/pb : 0); *limitErr = 0 ; }
 	else { *limit = (pmu); *limitErr = 0; }
         Combine::commitPoint(true, quantiles[iq]);
-        if (verbose > 0) printf("Expected %4.1f%%: Pmu = %.5f  Pb = %.5f   CLs = %.5f\n", quantiles[iq]*100, pmu, pb, pmu/pb);
+        if (verbose > 0) printf("Expected %4.1f%%: Pmu = %.5f  1-Pb = %.5f   CLs = %.5f\n", quantiles[iq]*100, pmu, pb, pmu/pb);
     }
   }
   return doCLs_ ? CLs : Pmu ; 
