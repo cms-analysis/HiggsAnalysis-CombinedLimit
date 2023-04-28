@@ -78,7 +78,7 @@ class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
         // We can't use the NuisanceParameterSampler because, even if public, there's no interface file for it
         mutable RooDataSet *nuisValues_; 
         mutable int nuisIndex_;
-        mutable bool genNuis_;
+        bool genNuis_;
 
         mutable RooRealVar *weightVar_;
         mutable std::map<RooAbsPdf *, toymcoptutils::SimPdfGenInfo *> genCache_;
