@@ -22,7 +22,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAb
     ToyMCSampler(ts, ntoys),
     globalObsPdf_(globalObsPdf),
     globalObsValues_(0), globalObsIndex_(-1),
-    nuisValues_(0), nuisIndex_(-1),
+    nuisValues_(0), nuisIndex_(-1), genNuis_(generateNuisances),
     weightVar_(0)
 {
     if (!generateNuisances) fPriorNuisance = 0; // set things straight from the beginning
@@ -706,7 +706,7 @@ ToyMCSamplerOpt::Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataS
    //utils::printPdf(&pdf);
    toymcoptutils::SimPdfGenInfo *& info = genCache_[&pdf];
    if (info == 0) { 
-       info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents);
+       info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents, !genNuis_);
        info->setCopyData(false);
        if (!fPriorNuisance && importanceSnapshots_.empty()) info->setCacheTemplates(true);
    }
