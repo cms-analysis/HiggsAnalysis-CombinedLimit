@@ -15,7 +15,7 @@ These last two types of analysis are often collectively referred to as "shape-ba
 
 Furthermore, models can be composed of multiple channels and processes.
 
-**Channels**: The model is a set of models for multiple channels. $\mathcal{M} = \{ \mathcal{m}_{c1}, \mathcal{m}_{c2}, .... \mathcal{m}_{cN}\}a$. 
+**Channels**: The model is a set of models for multiple channels. $\mathcal{M} = \{ m_{c1}, m_{c2}, .... m_{cN}\}$. 
     The expected observations which define the model is then the union of the sets of expected observations in each individual channel.
 
 **Processes**: The model consists of a sum over different processes, each processes having its own model defining it. $\mathcal{m}_c =  \Sum_p \mathcal{m}_{c,p}$
