@@ -2,7 +2,7 @@
 
 ## The Model
 
-The Model $\mathcal{M}(\vec{mu},\vec{theta})$ defines the expected observations given the input parameters of interest $\vec{\mu}$ and nuisance parameters $\vec{\theta}$.
+The Model $\mathcal{M}(\vec{\mu},\vec{\theta})$ defines the expected observations given the input parameters of interest $\vec{\mu}$ and nuisance parameters $\vec{\theta}$.
 
 Combine is designed for essentially counting experiments, where the number of events with particular features are counted.  
 Three basic types of model can be provided to combine:
@@ -29,7 +29,7 @@ Generally we are not interested in one specific model with perfectly known param
 
 The full model therefore defines the expected observations over all the channels, given all the processes and model parameters:
 
-$$\mathcal{M} = \{ \mathcal{m}_{c1}(\vec{\mu},\vec{\theta}), \mathcal{m}_{c2}(\vec{\mu},\vec{theta}), ... }$$
+$$ \mathcal{M} = \{ \mathcal{m}_{c1}(\vec{\mu},\vec{\theta}), \mathcal{m}_{c2}(\vec{\mu},\vec{theta}), ... } $$
 
 Combine provides tools and interfaces for defining the model as arbitrary functions of the input parameters.
 In practice, however, there are a number of most commonly used functional forms which define how the expected events depend on the model parameters.
