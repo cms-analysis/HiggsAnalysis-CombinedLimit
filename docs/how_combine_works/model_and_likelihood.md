@@ -45,7 +45,8 @@ The `text2workspace.py` script takes this datacard and any other input files it 
 
 The likelihood takes the general form:
 
-$$ \mathcal{L} =  \mathcal{L}_\textrm{data} \cdot \mathcal{L}_\textrm{constraint}$$
+$$ \mathcal{L} =  \mathcal{L}_{\textrm{data}} \mathcal{L}_{\textrm{constraint}} $$
+$$ \mathcal{L} =  \mathcal{L}_{\textrm{data}} \cdot \mathcal{L}_{\textrm{constraint}} $$
 
 Where $ \mathcal{L}_\text{data} $ is the likelihood of observing the data given your model, and $\mathcal{L}_\text{constraint}$ represent some external constraints.
 The data term determine how probable any set of data is given the model for particular values of the model parameters. 
