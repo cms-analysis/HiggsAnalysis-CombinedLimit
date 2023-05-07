@@ -18,7 +18,7 @@ Furthermore, models can be composed of multiple channels and processes.
 **Channels**: The model is a set of models for multiple channels. $\mathcal{M} = \{ m_{c1}, m_{c2}, .... m_{cN}\}$. 
     The expected observations which define the model is then the union of the sets of expected observations in each individual channel.
 
-**Processes**: The model consists of a sum over different processes, each processes having its own model defining it. $\mathcal{m}_c =  \Sum_p \mathcal{m}_{c,p}$
+**Processes**: The model consists of a sum over different processes, each processes having its own model defining it. $ m_{c} = \Sum_{p} m_{c,p} $
     the expected observations is then the sum of the expected observations for each of the processes.
 
 Combining full models together is then possible by combining their channels together, assuming that the channels are each independent.
@@ -29,7 +29,7 @@ Generally we are not interested in one specific model with perfectly known param
 
 The full model therefore defines the expected observations over all the channels, given all the processes and model parameters:
 
-$$ \mathcal{M} = \{ \mathcal{m}_{c1}(\vec{\mu},\vec{\theta}), \mathcal{m}_{c2}(\vec{\mu},\vec{theta}), ... } $$
+$$ \mathcal{M} = \{ m_{c1}(\vec{\mu},\vec{\theta}), m_{c2}(\vec{\mu},\vec{theta}), ... } $$
 
 Combine provides tools and interfaces for defining the model as arbitrary functions of the input parameters.
 In practice, however, there are a number of most commonly used functional forms which define how the expected events depend on the model parameters.
@@ -43,7 +43,7 @@ The `text2workspace.py` script takes this datacard and any other input files it 
 
 The likelihood takes the general form:
 
-$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint}$
+$$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint}$$
 
 Where $ \mathcal{L}_\mathrm{data} $ is the likelihood of observing the data given your model, and $\mathcal{L}_\mathrm{constraint}$ represent some external constraints.
 The data term determine how probable any set of data is given the model for particular values of the model parameters. 
@@ -59,25 +59,25 @@ However, as with the model itself, there are typical forms that the likelihoods 
 Combine is designed for constructing data likelihoods which refer to observation of some count of events, though they can be binned or unbinned.
 The constraint terms also often take on common forms, such as that of a gaussian distribution.
 
-### Binned Likelihood Models
+### Binned Data Likelihoods
 
 For a binned likelihood, the probability of observing a certain number of counts, given a model takes on a simple form. For each bin:
 
-$ \mathcal{L}_\mathrm{bin}(\vec{\mu},\vec{\theta};\mathrm{data}) = \mathrm{Poiss}(\mathrm{obs}; n_\mathrm{exp})$.
+$$ \mathcal{L}_\mathrm{bin}(\vec{\mu},\vec{\theta};\mathrm{data}) = \mathrm{Poiss}(\mathrm{obs}; n_\mathrm{exp}) $$.
 
 i.e. it is a poisson distribution with the mean given by the expected number of events in that bin. 
 The full data likelihood is simply the product of each of the bins' likelihoods:
 
-$ \mathcal{L}_\mathrm{data} = \Prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}.
+$$ \mathcal{L}_\mathrm{data} = \Prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}. $$
 
 This is the underlying likelihood model used for every binned analysis. 
 The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model parameters, and the constraints that are place on those parameters.
 
-### Unbinned Likelihood Models
+### Unbinned Data Likelihoods
 
 For unbinned likelihood models, a likelihood can be given to each data point. It is just equal to probability density function at that point, $\vec{x}$.
 
-$\mathcal{L}_\mathrm{data} = \Prod_{i} \mathrm{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} )$
+$$ \mathcal{L}_\mathrm{data} = \Prod_{i} \mathrm{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} ) $$
 
 ### Constraint Likelihoods
 
@@ -94,10 +94,59 @@ Any co-ordinate transformation of the parameter values can be absorbed into the 
 A reparameterization would change the mathematical form of the constraint term, but would also simultaneously change how the model depends on the parameter in such a way that the total likelihood is unchanged.
 e.g. if you define  $\theta = \sigma(tt)$ or $\theta = \sigma(tt) - \sigma_0$ you will change the form of the constraint term, but the you will not change the overall likelihood.
 
+While these can represent bayesian priors, they are often representing frequentist estimates of the nuisance parameter value based on external measurements (such as and independent luminosity measurement).
+In this context, it is often also useful to speak of "global observables" or the "constraint values", $\vec{\tilde{\theta}$ which represent the best estimate of the observed value from the external measurement.
+The likelihood constraint terms then depends on these global observables, in the same way that the data likelihood depends on the observed data.
 
-### How the model is constructed from the inputs
+We therefore write:
 
-Most of the magic and variability of the different likelihoods is encoded in what I have refered to as the "model"; i.e. the relationship between $n_\mathrm{exp}$ and the model parameters.
+$$ \mathcal{L}_\mathrm{constraint} = \Prod_{e=1}^{N_E} p_e(\tilde{\theta}|\theta) $$
+
+Where, $p_e$ is then the probability density for the external measurement to have measured a value of $\tilde{\theta}$ for the nuisance parameter if its true value is $\theta$.
+Often, though not always, $p_e$ is a normal distribution centered at $\tidle{\theta}$ and the coordinates are chosen such that $\tilde{\theta} \equiv 0$ and the width of the probability density is 1.
+i.e. $p_e \propto \exp{-0.5 (\frac{(\theta - \tilde{\theta})}{\sigma})^2 } = \exp{-0.5 \theta^2}$.
+
+
+
+### Generic binned likelihoods
+
+Although customizations are possible, binned likelihood models can be defined by the user by providing simple inputs such as a set of histograms and systematic uncertainties.
+
+Here, we describe the details of the mathematical form of these likelihoods. 
+As already mentioned, the likelihood can be written as a product of two parts:
+
+$$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \Prod_{c=1}^{N_c} \Prod_{b=1}^{N_b^c} \mathrm{Poiss}(n_cb; n^\mathrm{exp}_{cb}(\vec{\mu},\vec{\theta}) \Prod_{e=1}^{N_E} p_e(\tilde{\theta}_e | \theta_e) $$
+
+Where $c$ indexes the channel, $b$ indexes the histogram bin, and $e$ indexes the nuisance parameter. 
+For the standard binned likelihood fits the constraint terms are always implemented as either a gaussian or a uniform function. 
+
+$$ p_e \propto \exp{-0.5 (\frac{(\theta - \tilde{\theta})}{\sigma})^2 } \mathrm{; or} $$
+$$ p_e \propto constant \mathrm{ on a finite interval [a,b]}$$.
+
+Note that it is not always the case that $\tilde{\theta} = 0$ or $\sigma = 1$.
+
+Nonetheless, with this parameterization of the nuisance parameters, there is a lot of freedom in defining different types of models based on how the nuisance parameters affect the expected distribution $n^\mathrm{exp}_{cb}$.
+
+The generic model implemented in combine is given by:
+
+$$\n^\mathrm{exp}_{cb} = \mathrm{max}(0, \Sum_{p} M_{cp}(\vec{\mu})N_{cp}(\vec{\theta_L},\vec{\theta_S},\vec{\theta_G},\vec{\theta}_{\rho})y_{cb}(\vec{\theta}_S) + E_{cb}(\vec{\theta}_B) ) $$
+
+where here: 
+- $p$ indexes the processes contributing to the channel; 
+- $\vec{\theta_L}, \vec{\theta_S}, \vec{\theta_G}, \vec{\theta_{\rho}}$ and $\vec{\theta_B}$ are different types of nuisance parameters which modify the processes with different functional forms;
+- $M$ defines the effect of the parameters of interest on the signal process;
+- $N$ defines the overall normalization effect of the nuisance parameters;
+- $y$ defines the shape effects (i.e. bin-dependent effects) of the nuisance parameters; and
+- $E$ defines the impact of statistical uncertainties from the samples used to derive the histogram templates used to build the model.
+
+The form of $M$ can take on aribitrary functional forms, as defined by the user, but in the most common case, the nuisance parameters $\mu$ simply scale the contributions from signal processes:
+
+$$
+M_{cp}(\mu) = \begin{cases} 
+    \mu  &\mathrm{if } p \in \mathrm{signal} \\
+    1    &\mathrm{otherwise} \end{cases}
+$$
+
 
 
 
