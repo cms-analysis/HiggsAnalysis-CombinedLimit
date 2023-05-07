@@ -37,6 +37,8 @@ These are discussed in detail in the context of the full likelihood below.
 
 ## The Likelihood 
 
+$\mathcal{L}$
+
 Combine builds a likelihood model through the `text2workspace.py` script, given the model which is defined by the `Datacard`.
 The `Datacard` defines the observables being considered, the observations, the processes which contribute, the uncertainties, and various relationships between each of these.
 The `text2workspace.py` script takes this datacard and any other input files it references (for example root files which may contain histograms) and builds a `RooWorkspace` which defines the likelihood model.
