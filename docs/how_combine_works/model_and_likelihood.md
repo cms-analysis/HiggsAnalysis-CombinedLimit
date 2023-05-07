@@ -18,7 +18,7 @@ Furthermore, models can be composed of multiple channels and processes.
 **Channels**: The model is a set of models for multiple channels. $\mathcal{M} = \{ m_{c1}, m_{c2}, .... m_{cN}\}$. 
     The expected observations which define the model is then the union of the sets of expected observations in each individual channel.
 
-**Processes**: The model consists of a sum over different processes, each processes having its own model defining it. $ m_{c} = \Sum_{p} m_{c,p} $
+**Processes**: The model consists of a sum over different processes, each processes having its own model defining it. $ m_{c} = \sum_{p} m_{c,p} $
     the expected observations is then the sum of the expected observations for each of the processes.
 
 Combining full models together is then possible by combining their channels together, assuming that the channels are each independent.
@@ -43,9 +43,9 @@ The `text2workspace.py` script takes this datacard and any other input files it 
 
 The likelihood takes the general form:
 
-$$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint}$$
+$$ \mathcal{L} =  \mathcal{L}_\text{data} \cdot \mathcal{L}_\text{constraint}$$
 
-Where $ \mathcal{L}_\mathrm{data} $ is the likelihood of observing the data given your model, and $\mathcal{L}_\mathrm{constraint}$ represent some external constraints.
+Where $ \mathcal{L}_\text{data} $ is the likelihood of observing the data given your model, and $\mathcal{L}_\text{constraint}$ represent some external constraints.
 The data term determine how probable any set of data is given the model for particular values of the model parameters. 
 The constraint term does not depend on the observed data, but rather encodes other constraints which may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have. i.e. they encode the a priori likelihood of the given parameters.
 
@@ -63,21 +63,21 @@ The constraint terms also often take on common forms, such as that of a gaussian
 
 For a binned likelihood, the probability of observing a certain number of counts, given a model takes on a simple form. For each bin:
 
-$$ \mathcal{L}_\mathrm{bin}(\vec{\mu},\vec{\theta};\mathrm{data}) = \mathrm{Poiss}(\mathrm{obs}; n_\mathrm{exp}) $$.
+$$ \mathcal{L}_\text{bin}(\vec{\mu},\vec{\theta};\text{data}) = \text{Poiss}(\text{obs}; n_\text{exp}) $$.
 
 i.e. it is a poisson distribution with the mean given by the expected number of events in that bin. 
 The full data likelihood is simply the product of each of the bins' likelihoods:
 
-$$ \mathcal{L}_\mathrm{data} = \Prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}. $$
+$$ \mathcal{L}_\text{data} = \Prod_\text{bins} \mathcal{L}_\text{bin}. $$
 
 This is the underlying likelihood model used for every binned analysis. 
-The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model parameters, and the constraints that are place on those parameters.
+The freedom in the analysis comes in how $n_\text{exp}$ depends on the model parameters, and the constraints that are place on those parameters.
 
 ### Unbinned Data Likelihoods
 
 For unbinned likelihood models, a likelihood can be given to each data point. It is just equal to probability density function at that point, $\vec{x}$.
 
-$$ \mathcal{L}_\mathrm{data} = \Prod_{i} \mathrm{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} ) $$
+$$ \mathcal{L}_\text{data} = \Prod_{i} \text{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} ) $$
 
 ### Constraint Likelihoods
 
@@ -100,7 +100,7 @@ The likelihood constraint terms then depends on these global observables, in the
 
 We therefore write:
 
-$$ \mathcal{L}_\mathrm{constraint} = \Prod_{e=1}^{N_E} p_e(\tilde{\theta}|\theta) $$
+$$ \mathcal{L}_\text{constraint} = \Prod_{e=1}^{N_E} p_e(\tilde{\theta}|\theta) $$
 
 Where, $p_e$ is then the probability density for the external measurement to have measured a value of $\tilde{\theta}$ for the nuisance parameter if its true value is $\theta$.
 Often, though not always, $p_e$ is a normal distribution centered at $\tidle{\theta}$ and the coordinates are chosen such that $\tilde{\theta} \equiv 0$ and the width of the probability density is 1.
@@ -115,21 +115,21 @@ Although customizations are possible, binned likelihood models can be defined by
 Here, we describe the details of the mathematical form of these likelihoods. 
 As already mentioned, the likelihood can be written as a product of two parts:
 
-$$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \Prod_{c=1}^{N_c} \Prod_{b=1}^{N_b^c} \mathrm{Poiss}(n_cb; n^\mathrm{exp}_{cb}(\vec{\mu},\vec{\theta}) \Prod_{e=1}^{N_E} p_e(\tilde{\theta}_e | \theta_e) $$
+$$ \mathcal{L} =  \mathcal{L}_\text{data} \cdot \mathcal{L}_\text{constraint} = \Prod_{c=1}^{N_c} \Prod_{b=1}^{N_b^c} \text{Poiss}(n_cb; n^\text{exp}_{cb}(\vec{\mu},\vec{\theta}) \Prod_{e=1}^{N_E} p_e(\tilde{\theta}_e | \theta_e) $$
 
 Where $c$ indexes the channel, $b$ indexes the histogram bin, and $e$ indexes the nuisance parameter. 
 For the standard binned likelihood fits the constraint terms are always implemented as either a gaussian or a uniform function. 
 
-$$ p_e \propto \exp{-0.5 (\frac{(\theta - \tilde{\theta})}{\sigma})^2 } \mathrm{; or} $$
-$$ p_e \propto constant \mathrm{ on a finite interval [a,b]}$$.
+$$ p_e \propto \exp{-0.5 (\frac{(\theta - \tilde{\theta})}{\sigma})^2 } \text{; or} $$
+$$ p_e \propto constant \text{ on a finite interval [a,b]}$$.
 
 Note that it is not always the case that $\tilde{\theta} = 0$ or $\sigma = 1$.
 
-Nonetheless, with this parameterization of the nuisance parameters, there is a lot of freedom in defining different types of models based on how the nuisance parameters affect the expected distribution $n^\mathrm{exp}_{cb}$.
+Nonetheless, with this parameterization of the nuisance parameters, there is a lot of freedom in defining different types of models based on how the nuisance parameters affect the expected distribution $n^\text{exp}_{cb}$.
 
 The generic model implemented in combine is given by:
 
-$$\n^\mathrm{exp}_{cb} = \mathrm{max}(0, \Sum_{p} M_{cp}(\vec{\mu})N_{cp}(\vec{\theta_L},\vec{\theta_S},\vec{\theta_G},\vec{\theta}_{\rho})y_{cb}(\vec{\theta}_S) + E_{cb}(\vec{\theta}_B) ) $$
+$$\n^\text{exp}_{cb} = \text{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\vec{\theta_L},\vec{\theta_S},\vec{\theta_G},\vec{\theta}_{\rho})y_{cb}(\vec{\theta}_S) + E_{cb}(\vec{\theta}_B) ) $$
 
 where here: 
 - $p$ indexes the processes contributing to the channel; 
@@ -143,8 +143,8 @@ The form of $M$ can take on aribitrary functional forms, as defined by the user,
 
 $$
 M_{cp}(\mu) = \begin{cases} 
-    \mu  &\mathrm{if } p \in \mathrm{signal} \\
-    1    &\mathrm{otherwise} \end{cases}
+    \mu  &\text{if } p \in \text{signal} \\
+    1    &\text{otherwise} \end{cases}
 $$
 
 
@@ -155,7 +155,7 @@ $$
 There is a lot of flexibility in defining custom modifiers both for parameters of interest and nuisance parameters, such that they may alter the model in almost arbitrary ways.
 However, there are typical modifiers which cover most use cases.
 
-**Parameter of interest**: By default, the parameter of interest simply scales the overall expectation from any signal processes. $m_{c,\mathrm{sig}(\mu) = \mu * m_{c,\mathrm{sig}}^0
+**Parameter of interest**: By default, the parameter of interest simply scales the overall expectation from any signal processes. $m_{c,\text{sig}(\mu) = \mu * m_{c,\text{sig}}^0
 
 **Multiplicative Modifiers**: Generally speaking, there are many modifiers which modify the model in a multiplicative fashion. $m_{c,p}(\theta) = f(\theta) m_{c,p}^0$
     note that this is still quite general, as $f$ can take on arbitrary function forms.
