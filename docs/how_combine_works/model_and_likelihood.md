@@ -120,8 +120,8 @@ Nonetheless, with this parameterization of the nuisance parameters, there is a l
 
 #### Customizing constraint terms
 
-The constraint terms, while they are almost always taken to be gaussian distributions can also be customized by the user, providing almost arbitrary functionality.
-
+The constraint terms, while they are almost always taken to be gaussian distributions can in some cases also be set as any user defined function, providing almost arbitrary functionality.
+Nonetheless, some constraints are built in, such as the fact that each constraint term is a function of a single nuisance parameter.
 
 
 #### Binned Data Likelihood Model
@@ -137,7 +137,7 @@ where here:
     - $\vec{\theta}_{L}$ are log-normal nuisances,
     - $\vec{\theta}_{S}$ are "shape" nuisances,
     - $\vec{\theta}_{G}$ are gamma nuisances,
-    - $\vec{\theta}_{\rho}$ are rate parameters, and
+    - $\vec{\theta}_{\rho}$ are user defined rate parameters, and
     - $\vec{\theta}_{B}$ are nuisance parameters related to the statistical uncertainties in the simulation used to build the model.
 - $M$ defines the effect of the parameters of interest on the signal process;
 - $N$ defines the overall normalization effect of the nuisance parameters;
@@ -150,7 +150,7 @@ The function $M$ can take on aribitrary functional forms, as defined by the user
 
 $$\label{eq:sig_param}
 M_{cp}(\mu) = \begin{cases} 
-    \mu  &\mathrm{if } p \in \mathrm{signal} \\
+    \mu  &\mathrm{if\ } p \in \mathrm{signal} \\
     1    &\mathrm{otherwise} \end{cases}
 $$
 
@@ -159,7 +159,11 @@ As well as built-in support for models with multiple parameters of interest, com
 
 ##### Normalization Effects
 
-The overall normalization $N$ is affected differently by the different types of nuisances parameters, and takes the general form $N = \prod_X f_x(\vec{\theta}_X)$, multiplying together the morphings from each of the nuisance types.
+The overall normalization $N$ is affected differently by the different types of nuisances parameters, and takes the general form 
+
+$$N = \prod_X \prod_i f_X(\vec{\theta}_{X}^{i})\mathrm{,}$$ 
+
+multiplying together the morphings from each of the individual nuisance parameters from each of the nuisance types.
 
 <details>  
 <summary><b>Show Normalization Parameterization Details</b></summary> 
@@ -270,10 +274,11 @@ Although the above likelihood defines some specific functional forms, users are 
 In practice, this makes the functional form almost entirely general. 
 
 However, some constraints, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $y_{cbp}$ only depend on $\vec{\theta}$ do exist.
-Nonetheless, some constraints are built in, such as the fact that each constraint term is a function of a single nuisance parameter.
 
 ### Overview of the complete binned likelihood model in Combine
 
-An overview of the binned likelihood model built by combine is given below.
+An overview of the binned likelihood model built by combine is given below. 
+Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or defined by the user themselves.
+The constraint terms $p_{e}$ are almost always gaussians with width one centered at $\tilde{\theta}$, with a notable exception for $\theta_{B}$ terms which can use either a poisson or guassian constraint.
 
 ![](CombineLikelihoodEqns.png)
