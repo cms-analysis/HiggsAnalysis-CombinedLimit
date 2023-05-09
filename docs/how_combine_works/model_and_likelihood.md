@@ -83,7 +83,7 @@ In this framework, each constraint term represents the likelihood of some parame
 
 $$ \mathcal{L}_{\mathrm{constraint}}( \theta | \tilde{\theta} ) = p(\tilde{\theta} | \theta ) $$
 
-In principle the form of the likelihood can be any valid probability distribution.
+In principle the form of the likelihood can be any function where the corresponding $p$ is a valid probability distribution.
 In practice, most constraint terms are gaussian, and the definition of $\theta$ is chosen such that the central observation $\tilde{\theta} = 0$ , and the width of the gaussian is one.
 
 Note that on its own, the form of the constraint term is not meaningful; what is meaningful is the relationship between the constraint term and how the model expectation is altered by the parameter.
