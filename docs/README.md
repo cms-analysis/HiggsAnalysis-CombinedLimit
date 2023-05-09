@@ -2,6 +2,8 @@
 
 Note to developers: navigation bar found in `mkdocs.yml`.
 
+* [**INTRO**](how_combine_works/introduction.md)
+* [**MODEL AND LIKELIHOOD**](how_combine_works/model_and_likelihood.md)
 * [**Getting started**](index.md)
 * **Setting up the analysis**
   * [Preparing the datacard](part2/settinguptheanalysis.md#preparing-the-datacard)

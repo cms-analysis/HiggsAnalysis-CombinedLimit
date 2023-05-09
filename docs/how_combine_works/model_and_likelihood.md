@@ -1,35 +1,29 @@
-# Models and Likelihoods
+# Observation Models and Likelihoods
 
-## The Model
+## The Observation Model
 
-The Model $\mathcal{M}(\vec{\mu},\vec{\theta})$ defines the expected observations given the input parameters of interest $\vec{\mu}$ and nuisance parameters $\vec{\theta}$.
+The observation model, $\mathcal{M}_0(\vec{\mu}_{0},\vec{\theta}_{0})$ defines the expected observations given specific values of the input parameters of interest $\vec{\mu}$ and nuisance parameters $\vec{\theta}$.
 
-Combine is designed for essentially counting experiments, where the number of events with particular features are counted.  
-Three basic types of model can be provided to combine:
+Combine is designed for counting experiments, where the number of events with particular features are counted, and so the model is a model of observed event counts.
+The events can either be binned, as in histograms, or unbinned, where continuous values are stored for each event.
 
-1. A simple counting experiment, in which only the expected number of observed events is specified and how this number depends on a set of parameters.
-2. A template analysis, in which observed events are divided into various regions (e.g. histogram bins defining regions of invariant mass of two photons in an event), and the expected observation for each bin is defined
-3. A parametric analysis, in which continuous functions define the probability density of observing events with a given set of characterstics (e.g. where the highest energy photon has a given pseudorapidity and transvere momentum).
+The model consists of a sum over different processes, each processes having its own model defining it,  $m_{c} =\sum_{p} m_{c,p}$.
+The expected observations is then the sum of the expected observations for each of the processes.
 
-These last two types of analysis are often collectively referred to as "shape-based" analyses. 
+The model can also be composed of multiple channels. $\mathcal{M}_{0} = \{ m_{c1}, m_{c2}, .... m_{cN}\}$. 
+The expected observations which define the model is then the union of the sets of expected observations in each individual channel.
 
-Furthermore, models can be composed of multiple channels and processes.
+Combining full models together is possible by combining their channels together, assuming that the channels are each independent.
 
-**Channels**: The model is a set of models for multiple channels. $\mathcal{M} = \{ m_{c1}, m_{c2}, .... m_{cN}\}$. 
-    The expected observations which define the model is then the union of the sets of expected observations in each individual channel.
+### Sets of Observation Models
 
-**Processes**: The model consists of a sum over different processes, each processes having its own model defining it. $ m_{c} = \sum_{p} m_{c,p} $
-    the expected observations is then the sum of the expected observations for each of the processes.
+We are typically not interested in a single model, but in a set of models, parameterized by a set of real numbers representing possible versions of the model.
 
-Combining full models together is then possible by combining their channels together, assuming that the channels are each independent.
-
-Generally we are not interested in one specific model with perfectly known parameters. We are typically interested in a set of models, parameterized by a set of real numbers representing possible versions of the model.
-
-**Model Parameters**: A number of parameters can modify the model expectation. These include the parameters of interest ( $\vec{\mu}$, those being measured) as well as nuisance parameters ($\vec{\theta}$), which may not be of interest but still affect the model expectation.
+Model parameters include the parameters of interest ( $\vec{\mu}$, those being measured such as a cross section) as well as nuisance parameters ($\vec{\theta}$), which may not be of interest but still affect the model expectation.
 
 The full model therefore defines the expected observations over all the channels, given all the processes and model parameters:
 
-$$ \mathcal{M} = \{ m_{c1}(\vec{\mu},\vec{\theta}), m_{c2}(\vec{\mu},\vec{theta}), ... } $$
+$$ \mathcal{M} = \{ m_{c1}(\vec{\mu},\vec{\theta}), m_{c2}(\vec{\mu},\vec{\theta}), ..., m_{cN}(\vec{\mu},\vec{\theta}) \} $$
 
 Combine provides tools and interfaces for defining the model as arbitrary functions of the input parameters.
 In practice, however, there are a number of most commonly used functional forms which define how the expected events depend on the model parameters.
@@ -37,42 +31,37 @@ These are discussed in detail in the context of the full likelihood below.
 
 ## The Likelihood 
 
-$\mathcal{L}$
-$x = \mathrm{y}_{\mathrm{hello}}$
+For any given model, $\mathcal{M}(\vec{\mu},\vec{\theta})$, [the likelihood](https://en.wikipedia.org/wiki/Likelihood_function) defines the probability of observing a given dataset. 
+It is numerically equal to the probability of observing the data, given the model. 
 
-Combine builds a likelihood model through the `text2workspace.py` script, given the model which is defined by the `Datacard`.
-The `Datacard` defines the observables being considered, the observations, the processes which contribute, the uncertainties, and various relationships between each of these.
-The `text2workspace.py` script takes this datacard and any other input files it references (for example root files which may contain histograms) and builds a `RooWorkspace` which defines the likelihood model.
+$$ \mathcal{L}(\vec{\mu},\vec{\theta}|\mathrm{data}) = p(\mathrm{data}|\vec{\mu},\vec{\theta}) $$
+
+It should be understood through, that the likelihood depends on the parameters through the observation model, $\mathcal{L}(\vec{\theta},\vec{\mu}) = \mathcal{L}_{\mathcal{M}}(\vec{\mu},\vec{\theta})$.
+Changing the observation model, though it may depend on the same parameters, will also change the likelihood function.
 
 The likelihood takes the general form:
 
-$$ \mathcal{L} =  \mathcal{L}_{\mathrm{data}} \mathcal{L}_{\mathrm{constraint}} $$
 $$ \mathcal{L} =  \mathcal{L}_{\textrm{data}} \cdot \mathcal{L}_{\textrm{constraint}} $$
 
-Where $ \mathcal{L}_\mathrm{data} $ is the likelihood of observing the data given your model, and $\mathcal{L}_\mathrm{constraint}$ represent some external constraints.
-The data term determine how probable any set of data is given the model for particular values of the model parameters. 
-The constraint term does not depend on the observed data, but rather encodes other constraints which may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have. i.e. they encode the a priori likelihood of the given parameters.
+Where $\mathcal{L}_{\mathrm{data}}$ is the probability of observing the data given your model, and $\mathcal{L}_{\mathrm{constraint}}$ represent some external constraints.
+The constraint term does not depend on the observed data, but rather encodes other constraints which may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have. 
 
-In general each is, in turn, composed of many sublikelihoods. 
-For example in a binned shape analysis every bin has its own term representing the probability of observing the actual observed number of events given the expected number of events.
-Similarly, for every systematic uncertainty there will be some constraint term associated with the uncertainty.
+Both $\mathcal{L}_{\mathrm{data}}$ and $\mathcal{L}_{\mathrm{constraint}}$ can be composed of many sublikelihoods, for example for observations of different bins and constraints on different nuisance parameters. 
 
-This model is extremely general. Without yet specifying any function forms for these likelihoods, this model can represent anything at all.
-However, as with the model itself, there are typical forms that the likelihoods take which will cover most use cases, and for which combine is primarily designed.
-
-Combine is designed for constructing data likelihoods which refer to observation of some count of events, though they can be binned or unbinned.
-The constraint terms also often take on common forms, such as that of a gaussian distribution.
+This form is entirely general, however, as with the model itself, there are typical forms that the likelihoods take which will cover most use cases, and for which combine is primarily designed.
 
 ### Binned Data Likelihoods
 
 For a binned likelihood, the probability of observing a certain number of counts, given a model takes on a simple form. For each bin:
 
-$$ \mathcal{L}_\mathrm{bin}(\vec{\mu},\vec{\theta};\mathrm{data}) = \mathrm{Poiss}(\mathrm{obs}; n_\mathrm{exp}) $$.
+$$
+\mathcal{L}_{\mathrm{bin}}(\vec{\mu},\vec{\theta}|\mathrm{data}) = \mathrm{Poiss}(n_{\mathrm{obs}}| n_{\mathrm{exp}}) 
+$$
 
 i.e. it is a poisson distribution with the mean given by the expected number of events in that bin. 
 The full data likelihood is simply the product of each of the bins' likelihoods:
 
-$$ \mathcal{L}_\mathrm{data} = \Prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}. $$
+$$ \mathcal{L}_\mathrm{data} = \prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}. $$
 
 This is the underlying likelihood model used for every binned analysis. 
 The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model parameters, and the constraints that are place on those parameters.
@@ -81,99 +70,210 @@ The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model p
 
 For unbinned likelihood models, a likelihood can be given to each data point. It is just equal to probability density function at that point, $\vec{x}$.
 
-$$ \mathcal{L}_\mathrm{data} = \Prod_{i} \mathrm{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} ) $$
+$$ \mathcal{L}_\mathrm{data} = \prod_{i} \mathrm{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} ) $$
 
 ### Constraint Likelihoods
 
-In principle, the constraint terms in the likelihood can be arbitrary. 
-They simply encode the probability of model parameters taking on a certain value.
-This might represent the probability that a cross section has a certain value, or that the true luminosity is shifted by some amount as compared to the nominal value.
-In practice, most constraint terms are gaussian, of the form $\mathcal{N}(0,1)$ where the model parameter, often denoted $\theta$, has been defined such that 0 is its nominal value and $\pm1$ represent its value shifted to the edges of the 68\% confidence range; i.e. these two values define the bounds of the region in which you expect to find the parameter 68\% of the time.
+The constraint terms  encode the probability of model nuisance parameters taking on a certain value.
+In [frequentist](https://en.wikipedia.org/wiki/Frequentist_probability) frameworks, this usually represents the result of a previous measurement (such as of the jet energy scale).
+In [bayesian](https://en.wikipedia.org/wiki/Bayesian_probability) frameworks, these terms represent the [prior](https://en.wikipedia.org/wiki/Prior_probability).
 
-It is not *necessary* that these constraint terms take on such a gaussian form. They can be arbitrary functions.
-However, it is very convenient to use gaussian constraints for a number of reasons\*. 
+We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses.
+In this framework, each constraint term represents the likelihood of some parameter, $\theta$, given some previous observation $\tilde{\theta}$, often called a "global observable".
 
-Furthermore, the form of the constraint terms, on their own is not in and of itself meaningful; what is meaningful is the relationship between the constraint term and how the model expectation is altered by the parameter.
-Any co-ordinate transformation of the parameter values can be absorbed into the definition of the parameter; i.e. the likelihood model is independent of how it is parameterized.
+$$ \mathcal{L}_{\mathrm{constraint}}( \theta | \tilde{\theta} ) = p(\tilde{\theta} | \theta ) $$
+
+In principle the form of the likelihood can be any valid probability distribution.
+In practice, most constraint terms are gaussian, and the definition of $\theta$ is chosen such that the central observation $\tilde{\theta} = 0$ , and the width of the gaussian is one.
+
+Note that on its own, the form of the constraint term is not meaningful; what is meaningful is the relationship between the constraint term and how the model expectation is altered by the parameter.
+Any co-ordinate transformation of the parameter values can be absorbed into the definition of the parameter. 
 A reparameterization would change the mathematical form of the constraint term, but would also simultaneously change how the model depends on the parameter in such a way that the total likelihood is unchanged.
 e.g. if you define  $\theta = \sigma(tt)$ or $\theta = \sigma(tt) - \sigma_0$ you will change the form of the constraint term, but the you will not change the overall likelihood.
 
-While these can represent bayesian priors, they are often representing frequentist estimates of the nuisance parameter value based on external measurements (such as and independent luminosity measurement).
-In this context, it is often also useful to speak of "global observables" or the "constraint values", $\vec{\tilde{\theta}$ which represent the best estimate of the observed value from the external measurement.
-The likelihood constraint terms then depends on these global observables, in the same way that the data likelihood depends on the observed data.
-
-We therefore write:
-
-$$ \mathcal{L}_\mathrm{constraint} = \Prod_{e=1}^{N_E} p_e(\tilde{\theta}|\theta) $$
-
-Where, $p_e$ is then the probability density for the external measurement to have measured a value of $\tilde{\theta}$ for the nuisance parameter if its true value is $\theta$.
-Often, though not always, $p_e$ is a normal distribution centered at $\tidle{\theta}$ and the coordinates are chosen such that $\tilde{\theta} \equiv 0$ and the width of the probability density is 1.
-i.e. $p_e \propto \exp{-0.5 (\frac{(\theta - \tilde{\theta})}{\sigma})^2 } = \exp{-0.5 \theta^2}$.
-
-
-
-### Generic binned likelihoods
+### Details of Generic binned likelihoods
 
 Although customizations are possible, binned likelihood models can be defined by the user by providing simple inputs such as a set of histograms and systematic uncertainties.
 
 Here, we describe the details of the mathematical form of these likelihoods. 
 As already mentioned, the likelihood can be written as a product of two parts:
 
-$$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \Prod_{c=1}^{N_c} \Prod_{b=1}^{N_b^c} \mathrm{Poiss}(n_cb; n^\mathrm{exp}_{cb}(\vec{\mu},\vec{\theta}) \Prod_{e=1}^{N_E} p_e(\tilde{\theta}_e | \theta_e) $$
+$$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \prod_{c=1}^{N_c} \prod_{b=1}^{N_b^c} \mathrm{Poiss}(n_{cb}| n^\mathrm{exp}_{cb}(\vec{\mu},\vec{\theta})) \prod_{e=1}^{N_E} p_e(\tilde{\theta}_e | \theta_e) $$
 
 Where $c$ indexes the channel, $b$ indexes the histogram bin, and $e$ indexes the nuisance parameter. 
-For the standard binned likelihood fits the constraint terms are always implemented as either a gaussian or a uniform function. 
 
-$$ p_e \propto \exp{-0.5 (\frac{(\theta - \tilde{\theta})}{\sigma})^2 } \mathrm{; or} $$
-$$ p_e \propto constant \mathrm{ on a finite interval [a,b]}$$.
+#### Standard Constraint Likelihood terms
+
+For the standard binned likelihood fits the constraint terms are almost always implemented a gaussian constraint.
+
+$$ p_e \propto \exp{(-0.5 (\frac{(\theta - \tilde{\theta})}{\sigma})^2 )} \mathrm{; or} $$
+
 
 Note that it is not always the case that $\tilde{\theta} = 0$ or $\sigma = 1$.
+In some special cases, the constraint is implemented as a Poisson or a uniform function. 
+
+$$ p_e = \mathrm{Poiss}( \theta_{e}; \tilde{\theta}_{e} ) $$
+$$ p_e \propto \mathrm{constant\ (on\ some\ interval\ [a,b])}$$.
 
 Nonetheless, with this parameterization of the nuisance parameters, there is a lot of freedom in defining different types of models based on how the nuisance parameters affect the expected distribution $n^\mathrm{exp}_{cb}$.
 
+
+#### Customizing constraint terms
+
+The constraint terms, while they are almost always taken to be gaussian distributions can also be customized by the user, providing almost arbitrary functionality.
+
+
+
+#### Binned Data Likelihood Model
+
 The generic model implemented in combine is given by:
 
-$$\n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\vec{\theta_L},\vec{\theta_S},\vec{\theta_G},\vec{\theta}_{\rho})y_{cb}(\vec{\theta}_S) + E_{cb}(\vec{\theta}_B) ) $$
+$$n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\vec{\theta}_L,\vec{\theta}_S,\vec{\theta}_G,\vec{\theta}_{\rho})y_{cbp}(\vec{\theta}_S) + E_{cb}(\vec{\theta}_B) ) $$
 
 where here: 
+
 - $p$ indexes the processes contributing to the channel; 
-- $\vec{\theta_L}, \vec{\theta_S}, \vec{\theta_G}, \vec{\theta_{\rho}}$ and $\vec{\theta_B}$ are different types of nuisance parameters which modify the processes with different functional forms;
+- $\vec{\theta}_L, \vec{\theta}_S, \vec{\theta}_G, \vec{\theta}_{\rho}$ and $\vec{\theta}_B$ are different types of nuisance parameters which modify the processes with different functional forms;
+    - $\vec{\theta}_{L}$ are log-normal nuisances,
+    - $\vec{\theta}_{S}$ are "shape" nuisances,
+    - $\vec{\theta}_{G}$ are gamma nuisances,
+    - $\vec{\theta}_{\rho}$ are rate parameters, and
+    - $\vec{\theta}_{B}$ are nuisance parameters related to the statistical uncertainties in the simulation used to build the model.
 - $M$ defines the effect of the parameters of interest on the signal process;
 - $N$ defines the overall normalization effect of the nuisance parameters;
 - $y$ defines the shape effects (i.e. bin-dependent effects) of the nuisance parameters; and
 - $E$ defines the impact of statistical uncertainties from the samples used to derive the histogram templates used to build the model.
 
-The form of $M$ can take on aribitrary functional forms, as defined by the user, but in the most common case, the nuisance parameters $\mu$ simply scale the contributions from signal processes:
+##### Parameter of Interest Model
 
-$$
+The function $M$ can take on aribitrary functional forms, as defined by the user, but in the most common case, the nuisance parameters $\mu$ simply scale the contributions from signal processes:
+
+$$\label{eq:sig_param}
 M_{cp}(\mu) = \begin{cases} 
     \mu  &\mathrm{if } p \in \mathrm{signal} \\
     1    &\mathrm{otherwise} \end{cases}
 $$
 
+However, combine supports many more models beyond this. 
+As well as built-in support for models with multiple parameters of interest, combine comes with many pre-defined models targetted at various types of searches and measurements beyond simple process normalization.
+
+##### Normalization Effects
+
+The overall normalization $N$ is affected differently by the different types of nuisances parameters, and takes the general form $N = \prod_X f_x(\vec{\theta}_X)$, multiplying together the morphings from each of the nuisance types.
+
+<details>  
+<summary><b>Show Normalization Parameterization Details</b></summary> 
+
+### Details of Normalization Parameterization
+
+The full functional form of the normalization term is given by:
+
+$$ N_{cp} = N_{\mathrm{0}}(\theta_{G})\prod_{n} {\kappa_{n}}^{\theta_{L,n}}\prod_{a} {\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})}^{\theta_{L(S)}^{a}} \prod_{r}F_{r}(\rho) $$
+
+where:
+
+- $N_{\mathrm{0}}(\theta_{G})$, in which each process normalization is optionally adjusted by a single gamma uncertainty, in terms of the number of externally observed events $\tilde{\theta}_{G}$, where $N_\mathrm{0}$ is $\theta_{G} / \tilde{\theta}_{G}$ if the uncertainty is applied, and unity otherwise;
+- $\kappa_{n}^{\theta_{L,n}}$, the log-normal uncertainties specified by a fixed value $\kappa$;
+- $\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})$: the asymmetric log-normal uncertainties, in which the value of $\kappa^{\mathrm{A}}$ depends on the nuisance parameter and two fixed values $\kappa^{+}_{a}$ and $\kappa^{-}_{a}$. The functions, $\kappa^A$, defines a smooth interpolation for the asymmetric uncertainty, which would otherwise not be smooth.
+- $F_{r}(\rho)$, which are arbitrary user-defined functions of the unconstrained nuisance parameters
+
+The function for the asymmetric normalization modifier, $\kappa^A$ is 
+
+$$
+    \kappa^{\mathrm{A}}(\theta,\kappa^{+}, \kappa^{-}) =
+    \begin{cases}
+        \kappa^{+}, &\mathrm{for } \theta \geq 0.5 \\
+        \kappa^{-}, &\mathrm{for } \theta \leq -0.5 \\
+        \exp\left(\frac{1}{2} \left( (\ln{\kappa^{+}}+\ln{\kappa^{+}}) + \frac{1}{4}(\ln{\kappa^{+}}-\ln{\kappa^{-}})I(\theta)\right)\right), &\mathrm{otherwise}\end{cases}
+$$
+
+where $I(\theta) = 48\theta^5 - 40\theta^3 + 15\theta$, which ensures $\kappa^{\mathrm{A}}$ and its first and second derivatives are continuous for all values of $\theta$.
+
+and the $\kappa^{+}$ and $\kappa^{-}$ values are defined as
+
+$$
+\kappa^{\pm}_{s} = \frac{\sum_{b}y_{b}^{s,\pm}}{\sum_{b}y_{b}^{0}}.
+$$
+
+where $y_{b}^{s,\pm}$ is the bin yield as defined by the two shifted values  $\theta_{S} = \theta_{S}^{\pm}$, and $y_{b}^{0}$ is the bin yield when $\theta_{S} = \tilde{\theta}_{S}$.
+
+</details>
+
+##### Shape Morhping Systematics
+
+The number of events in a given bin $b$, $y_{cbp}$, is a function of the shape parameters $\vec{\theta}_{S}$. 
+The shape interpolation works with the fractional yields in each bin, where the interpolation can be performed either directly on the fractional yield, or on the logarithm of the fraction yield, which is then exponentiated again.
 
 
+<details>
+<summary><b>Show shape parameterization Details</b></summary>
 
-**Modifiers**: A number of parameters can modify the model expectation. These include the parameters of interest (those being measured) as well as nuisance parameters, which may not be of interest but still affect the model expectation.
+### Details of Shape Parameterization
 
-There is a lot of flexibility in defining custom modifiers both for parameters of interest and nuisance parameters, such that they may alter the model in almost arbitrary ways.
-However, there are typical modifiers which cover most use cases.
+In the following, the channel and process labels $c$ and $p$ apply to every term, and so are omitted.
 
-**Parameter of interest**: By default, the parameter of interest simply scales the overall expectation from any signal processes. $m_{c,\mathrm{sig}(\mu) = \mu * m_{c,\mathrm{sig}}^0
+The fixed nominal number of events is denoted $y_{b}^{0}$.
+For each applicable shape uncertainty $s$, two additional predictions are specified, $y_{b}^{s,+}$ and $y_{b}^{s,-}$, typically corresponding to the $+1\sigma$ and $-1\sigma$ variations, respectively.
+These may change both the shape and normalization of the process.
+The two effects are separated; the shape transformation is constructed in terms of the fractional event counts in the templates via a smooth vertical interpolation, and the normalization is treated as an asymmetric log-normal uncertainty, as described above in the description of the $N$ term in the likelihood. 
 
-**Multiplicative Modifiers**: Generally speaking, there are many modifiers which modify the model in a multiplicative fashion. $m_{c,p}(\theta) = f(\theta) m_{c,p}^0$
-    note that this is still quite general, as $f$ can take on arbitrary function forms.
-    However, the most common forms are:
-        - $f = \theta$
-        - $f = \kappa^{\theta} $
+For a given process, the shape may be interpolated either directly in terms of the fractional bin yields, $f_b = y_b / \sum y_{b}$ or their logarithms, $\ln(f_b)$. The transformed yield is then given as, respectively,
 
-**Additive Modifiers**: We also often use modifiers which modify the model in an additive way. $m_{c,p}(\theta) = m_{c,p}^0 + f(\theta)$
-    where again, $f$ can take o arbitrary functional forms, leaving this quite general.
-    The most common forms are:
-        
+$$
+y_{b}(\vec{\theta}) =
+\begin{cases}
+\max\left(0, y^{0}\left(f^{0}_{b} + \sum_{s} F(\theta_{s}, \delta^{s,+}_{b}, \delta^{s,-}_{b}), \epsilon_{s}\right)\right) & \text{(direct),}\\
+\max\left(0, y^{0}\exp\left(\ln(f^{0}_{b}) + \sum_{s} F(\theta_{s}, \Delta^{s,+}_{b}, \Delta^{s,-}_{b}, \epsilon_{s})\right) \right) & \text{(logarithmic)},
+\end{cases}
+$$
 
-The resolution order of these parameters is important, since $ f\cdot m + g \neq f\cdot(m+g)$. 
-
+where $y^{0} = \sum y_{b}^{0}$, $\delta^{\pm} = f^{\pm}_{i} - f^{0}_{i}$, and $\Delta^{\pm} = \ln(\frac{f^{\pm}_{i}}{f^{0}_{i}})$. 
 
 
+The smooth interpolating function $F$, defined below, depends on a set of coefficients, $\epsilon_{s}$. These are assumed to be unity by default, but may be set to different values, for example if the $y_{b}^{s,\pm}$ correspond to the $\pm X\sigma$ variations, then $\epsilon_{s} = 1/X$ is typically set. The minimum value of $\epsilon$ over the shape uncertainties for a given process is  $q = \min({{\epsilon_{s}}})$. The function ${F}$ is then defined as
 
+$$
+f(\theta, \delta^{+}, \delta^{-}) = 
+\begin{cases}
+\frac{1}{2}\theta^{'} \left( (\delta^{+}-\delta^{-}) + \frac{1}{8}(\delta^{+}+\delta^{-})(3\bar{\theta}^5 - 10\bar{\theta}^3 + 15\bar{\theta}) \right), & \text{for } -q < \theta < q; \\
+\theta^{'}\delta^{+}, & \text{for } \theta \ge q;\\
+-\theta^{'}\delta^{-}, & \text{for } \theta \le -q;\\
+\end{cases}
+$$
+
+where $\theta^{'} = \theta\epsilon$, $\bar{\theta} = \theta^{'} / q$, and the label $s$ has been omitted. This function ensures the yield and its first and second derivatives are continuous for all values of $\theta$.
+
+</details>
+
+##### Statistical Uncertainties in the Simulation used to build the Model
+
+Since the histograms used in a binned shape analysis are typically created from simulated samples, the yields in each bin are also subject to statistical uncertainties on the bin yields.
+These are taken into account by either assigning one nuisance parameter per bin, or as many parameters as contributing processes per bin.
+
+If the uncertainty in each bin is modelled as a single nuisance parameter it takes the form:
+
+$$
+E_{cb}(\theta) = \theta\left(\sum_{p} (e_{cpb}N_{cp}M_{cp}(\vec{\alpha}))^{2}\right)^{\frac{1}{2}}.
+$$
+
+Alternatively, one parameter is assigned per process, which may be modelled with either a Poisson or Gaussian constraint pdf:
+
+$$
+    E_{cb}(\vec{\theta}) = \sum_{i}^{\text{Poisson}} \left(\frac{\theta_{i}}{\tilde{\theta}_{i}} - 1\right)y_{cib}N_{ci}M_{ci}(\vec{\alpha}) + \sum_{j}^{\text{Gaussian}} \theta_{j}e_{cjb}N_{cj}M_{cj}(\vec{\alpha}),
+$$
+
+where the indices $i$ and $j$ runs over the Poisson- and Gaussian-constrained processes, respectively. The parameters $\tilde{\theta}_{i}$ represent the nominal unweighted numbers of events, and are treated as the external measurements and $N_{cp}$ and $y_{cib}$ are defined as above.
+
+#### Customizing the form of $n_{exp}$ 
+
+Although the above likelihood defines some specific functional forms, users are also able to implement custom functional forms for $M$, $N$, and $y_{cbp}$.
+In practice, this makes the functional form almost entirely general. 
+
+However, some constraints, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $y_{cbp}$ only depend on $\vec{\theta}$ do exist.
+Nonetheless, some constraints are built in, such as the fact that each constraint term is a function of a single nuisance parameter.
+
+### Overview of the complete binned likelihood model in Combine
+
+An overview of the binned likelihood model built by combine is given below.
+
+![](CombineLikelihoodEqns.png)

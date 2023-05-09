@@ -4,6 +4,9 @@ repo_url: https://github.com/kcormi/HiggsAnalysis-CombinedLimit
 edit_uri: edit/main/docs
 
 nav:
+        - Intro: how_combine_works/introduction.md
+        - Model: how_combine_works/model_and_likelihood.md
+        - Statistical Tests: how_combine_works/statistical_tests.md
         - Home: index.md
         - Setting up the analysis:
           - "Preparing the datacard": part2/settinguptheanalysis.md
