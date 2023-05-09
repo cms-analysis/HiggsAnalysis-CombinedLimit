@@ -278,7 +278,7 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     double pSerr  = clS * TMath::Hypot(pBerr/pB, pMUerr/pMU);
     printf("Pmu   = %.4f +/- %.4f\n", pMU , pMUerr);
     printf("1-Pb   = %.4f +/- %.4f\n", pB , pBerr);
-    printf("CLs    = %.4f +/- %.4f\n", pMu , pMuerr);
+    printf("CLs    = %.4f +/- %.4f\n", clS , pSerr);
 
     // Worst way to calculate !
     TH1F *qS1 = tail(qS, qObs,mode); 
@@ -316,7 +316,7 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     leg2->AddEntry(qS1, Form("p_{#mu} = %.4f", pMU), "F"); 
     //if (mode==0) 
     leg2->AddEntry(qB1, Form("1-p_{b}  = %.4f", pB), "F");
-    leg2->AddEntry("",  Form("CL_{s}   = %.4f", pS), "");
+    leg2->AddEntry("",  Form("CL_{s}   = %.4f", clS), "");
 
     qB->Draw();
 

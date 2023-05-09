@@ -22,7 +22,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAb
     ToyMCSampler(ts, ntoys),
     globalObsPdf_(globalObsPdf),
     globalObsValues_(0), globalObsIndex_(-1),
-    nuisValues_(0), nuisIndex_(-1),
+    nuisValues_(0), nuisIndex_(-1), genNuis_(generateNuisances),
     weightVar_(0)
 {
     if (!generateNuisances) fPriorNuisance = 0; // set things straight from the beginning
@@ -63,9 +63,10 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
 }
 
 
-toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
+toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents, bool canUseSpec) :
    mode_(pdf.canBeExtended() ? (preferBinned ? Binned : Unbinned) : Counting),
    pdf_(&pdf),
+   canUseSpec_(canUseSpec),
    spec_(0),histoSpec_(0),keepHistoSpec_(0),weightVar_(0)
 {
    if (pdf.canBeExtended()) {
@@ -104,7 +105,7 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     RooAbsData *ret = 0;
     switch (mode_) {
         case Unbinned:
-            if (spec_ == 0) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
+            if (spec_ == 0 && canUseSpec_) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
                                               : pdf_->prepareMultiGen(observables_, RooFit::Extended());
             if (spec_) ret = pdf_->generate(*spec_);
             else ret = pdf_->generate(observables_, RooFit::Extended());
@@ -324,7 +325,7 @@ toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs)
     myobs->setVal(myexp->getVal());
 }
 
-toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
+toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents, bool canUseSpec) :
     pdf_(&pdf),
     cat_(0),
     observables_(observables),
@@ -342,13 +343,13 @@ toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& obs
             RooAbsPdf *pdfi = simPdf->getPdf(cat_->getLabel());
             if (pdfi == 0) throw std::logic_error(std::string("Unmapped category state: ") + cat_->getLabel());
             RooAbsPdf *newpdf = utils::factorizePdf(observables, *pdfi, dummy);
-            pdfs_[ic] = new SinglePdfGenInfo(*newpdf, observables, preferBinned);
+            pdfs_[ic] = new SinglePdfGenInfo(*newpdf, observables, preferBinned, NULL, 0, canUseSpec);
             if (newpdf != 0 && newpdf != pdfi) {
                 ownedCrap_.addOwned(*newpdf); 
             }
         }
     } else {
-        pdfs_.push_back(new SinglePdfGenInfo(pdf, observables, preferBinned, protoData, forceEvents));
+        pdfs_.push_back(new SinglePdfGenInfo(pdf, observables, preferBinned, protoData, forceEvents, canUseSpec));
     }
 }
 
@@ -705,7 +706,7 @@ ToyMCSamplerOpt::Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataS
    //utils::printPdf(&pdf);
    toymcoptutils::SimPdfGenInfo *& info = genCache_[&pdf];
    if (info == 0) { 
-       info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents);
+       info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents, !genNuis_);
        info->setCopyData(false);
        if (!fPriorNuisance && importanceSnapshots_.empty()) info->setCacheTemplates(true);
    }
