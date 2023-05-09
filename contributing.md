@@ -23,9 +23,9 @@ We ask that you put some effort into the readability of your code.
 We are, however, always happy to help if there is an issue.
 
 We use linting as part of our ci/cd for the python code. 
-That means your code will be checked automatically, and you must make sure it confirms to certain rules.
+That means your code will be checked automatically, and you must make sure it conforms to certain rules.
 
-Currently no linting or automatic checks of C++ code is implemented.
+Currently no linting or automatic checks of C++ code are implemented.
 Although we do not have a well-defined style guide for C++, we always appreciate readable and well-formatted code.
 
 ### Technical details on linting
@@ -59,13 +59,13 @@ The black linting uses the default [black style](https://black.readthedocs.io/en
 
 ## Updating Documentation
 
-It is crucial to our user base and developers that the documentation is well-mainted.
+It is crucial to our user base and developers that the documentation is well-maintained.
 For that reason, whenever you make a change you should consider whether this requires a corresponding documentation update.
 
 If the change is user-facing it almost certainly does require a documentation update.
 
 Documentation is **very important** to us. 
-Therefore, we will be picky to make sure it is done well!
+Therefore, we will be picky and make sure it is done well!
 However, we don't want to put extra burden on you, so we are happy to help and will make our own edits and updates to improve the documentation of your change.
 
 We appreciate you putting in some effort and thought to ensure:
@@ -91,7 +91,7 @@ mkdocs serve
 
 from the main repository directory. mkdocs will then print a link you can open to check the page generated in your browser.
 
-## Big Code Changes
+## Big Contributions
 
 We welcome large contributions to combine. 
 Note, however, that we also follow long term planning, and there is a dedicated group stewarding the overall direction and development of the code.
@@ -100,10 +100,10 @@ This means that the code development should fit in with our long term vision;
 if you have an idea for a big improvement or change it will be most efficient if you [contact us](mailto:cms-cat-stats-conveners@cern.ch) first, in order to ensure that we can integrate it as seemlessly as possible into our plans.
 This will simplify any potential conflicts when you make your pull request.
 
-## Solicited Changes
+## Requested Contributions
 
-As part of the long term planning, we have a number of changes we are targetting, but have not yet had a chance to implement.
-As well as the issues listed on the github issues tracker, you can see the projects listed, where we have defined several areas we are targetting.
+As part of the long term planning, we have a number of changes we are targeting, but have not yet had a chance to implement.
+As well as the [issues](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/issues) listed on the github issues tracker, you can see the [projects](https://github.com/orgs/cms-analysis/projects) listed under the general cms-analysis organization, where we have defined several projects and areas we are targeting.
 If you're interested in getting involved in any of these projects please contact us at [cms-cat-stats-conveners@cern.ch](mailto:cms-cat-stats-conveners@cern.ch).
 
 
