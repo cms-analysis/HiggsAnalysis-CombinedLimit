@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions to combine of all sizes, from minor documentation updates, to big code improvements, are welcome and encouraged.
+Contributions to combine of all sizes, from minor documentation updates to big code improvements, are welcome and encouraged.
 
 To ensure good development of the tool, we try to coordinate contributions.
 However, we are happy to help overcome any steps that may pose issues for contributors.
