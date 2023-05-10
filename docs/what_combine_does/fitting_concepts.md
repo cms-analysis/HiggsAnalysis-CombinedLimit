@@ -1,7 +1,7 @@
 # Likelihood based fitting
 
-"Fitting" simply means estimating some parameters of a model (or really a [set of models](how_combine_works/model_and_likelihood.md#sets-of-observation-models)) based on data.
-Likelihood-based fitting does this through the [likelihood function](how_combine_works/model_and_likelihood.md#the-likelihood).
+"Fitting" simply means estimating some parameters of a model (or really a [set of models](what_combine_does/model_and_likelihood.md#sets-of-observation-models)) based on data.
+Likelihood-based fitting does this through the [likelihood function](what_combine_does/model_and_likelihood.md#the-likelihood).
 
 In frequentist frameworks, this typically means doing maximum likelihood estimation.
 In bayesian frameworks, usually [posterior distributios](https://en.wikipedia.org/wiki/Posterior_probability) of the parameters are calculated from the likelihood.
@@ -15,7 +15,7 @@ Likelihood fits typically either follow a frequentist framework of maximum likel
 A [maximum likelihood fit](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) means finding the values of the model parameters $(\vec{\mu}, \vec{\theta})$ which maximize the likelihood, $\mathcal{L}(\vec{\mu},\vec{\theta})$
 The values which maximize the likelihood, 
 
-$$(\vec{\hat{\mu}}, \vec{\hat{\theta}}) \equiv \mathrm{argmax\ } \mathcal{L}(\vec{\mu}, \vec{\theta})$$ 
+$$(\vec{\hat{\mu}}, \vec{\hat{\theta}}) \equiv \underset{\vec{\mu},\vec{\theta}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\theta})$$ 
 
 are taken to be the best estimates of the parameter values.
 These values provide **point estimates** for the parameter values.

@@ -14,7 +14,8 @@ $$ t(\mathrm{data}) \in \mathbb{R} $$
 The choice of tests statistic is, however, very important.
 Ideally a good test statistic should return different values for likely outcomes as compared to unlikely outcomes.
 
-As it turns out, in many situations, extremely useful test statistics, and sometimes optimal ones, can be constructed from the likelihood function itself.
+In many situations, extremely useful test statistics, sometimes optimal ones, can be constructed from the likelihood function itself.
+
 
 ### Rejecting a model
 
@@ -62,21 +63,6 @@ In order to be confident that we are doing something interesting in rejecting a 
 For example, we would like to show that we can reject the standard model, while simultaneously *not* rejecting a model with a hypothetical new particle.
 
 In that case we gain confidence in our hypothetical new particle, and we are more confident that we have not simply mismodelled some uniteresting parameter.
-
-#### Discoveries
-
-In order to claim discovery of a new phenomenon, we would like to find some data which reject the standard model, while failing to reject the standard model + new phenomenon.
-
-#### Limit Setting
-
-In order to set limits on a model, for example on the cross section of a new process, the model rejection procedure can be applied.
-
-In this case, we would like to reject the model where the cross section is larger than a certain value, while failing to reject the model where it the cross section is small or 0.
-
-#### Measurements 
-
-In order to measure some parameter, we would like to find ranges of some physics parameters which are not rejected, while simultaneously rejecting other ranges of those parameters.
-
 
 ## Likelihood related test statistics
 

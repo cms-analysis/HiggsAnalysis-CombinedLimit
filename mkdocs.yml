@@ -6,10 +6,10 @@ edit_uri: edit/main/docs
 nav:
         - Home: index.md
         - What Combine Does:
-            - Intro: how_combine_works/introduction.md
-            - Model: how_combine_works/model_and_likelihood.md
-            - Fitting Concepts: how_combine_works/fitting_concepts.md
-            - Statistical Tests: how_combine_works/statistical_tests.md
+            - Intro: what_combine_does/introduction.md
+            - Model: what_combine_does/model_and_likelihood.md
+            - Fitting Concepts: what_combine_does/fitting_concepts.md
+            - Statistical Tests: what_combine_does/statistical_tests.md
         - Setting up the analysis:
           - "Preparing the datacard": part2/settinguptheanalysis.md
           - "Physics models": part2/physicsmodels.md
