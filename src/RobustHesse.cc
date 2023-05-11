@@ -26,6 +26,11 @@ RobustHesse::RobustHesse(RooAbsReal &nll, unsigned verbose) : nll_(&nll), verbos
   targetNllForStencils_ = 0.1;
   minNllForStencils_ = 0.095;
   maxNllForStencils_ = 0.105;
+  // FIXME: test to see effect of changing stepsize on rotated basis correlations
+  //targetNllForStencils_ = 0.001;
+  //minNllForStencils_ = 0.00095;
+  //maxNllForStencils_ = 0.00105;
+
   doRescale_ = true;
   maxRemovalsFromHessian_ = 20;
   initialize();

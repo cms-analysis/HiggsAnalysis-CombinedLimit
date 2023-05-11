@@ -229,4 +229,5 @@
   <class name="RooPowerLawPdf" />
   <class name="RooSumTwoPowerLawPdf" />
   <class name="RooEFTScalingFunction" />
+  <class name="RooEFTScalingFunction_v2" />
 </lcgdict>

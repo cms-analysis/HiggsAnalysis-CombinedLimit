@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from __future__ import absolute_import, print_function
 
 import os.path
@@ -10,6 +11,7 @@ import six
 from six.moves import range
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
+
 
 parser = OptionParser(
     usage="%prog [options] [label=datacard.txt | datacard.txt]",
@@ -156,7 +158,7 @@ for ich, fname in enumerate(args):
     if fname.endswith(".gz"):
         import gzip
 
-        file = gzip.open(fname, "rb")
+        file = gzip.open(fname, "rt")
         fname = fname[:-3]
     else:
         file = open(fname, "r")
