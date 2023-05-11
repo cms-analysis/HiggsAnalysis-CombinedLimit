@@ -23,7 +23,7 @@ The ordering allows us to recast the question "how likely was this observation?"
 The choice of tests statistic is very important as it influences the power of the statistical test.
 Ideally a good test statistic should return different values for likely outcomes as compared to unlikely outcomes.
 
-In many situations, extremely useful test statistics, sometimes optimal ones, can be constructed from the likelihood function itself: 
+In many situations, extremely useful test statistics, sometimes optimal ones for particular tasks, can be constructed from the likelihood function itself: 
 
 $$t = f(\mathcal{L}(\mathrm{data}))$$
 
@@ -82,9 +82,9 @@ In that case we gain confidence in our hypothetical new particle, and we are mor
 
 Incorporating alternative models in the statistical testing framework described here can either be done by including them in the definition of the test statistic, or by altering the steps above to include steps based on the alternative model.
 
-## Likelihood related test statistics
+## Tests with Likelihood Ratio Test Statistics
 
-The [likelihood](model_and_likelihood.md#the-likelihood) itself often forms a good basis for building test statistics.
+The [likelihood function](model_and_likelihood.md#the-likelihood) itself often forms a good basis for building test statistics.
 
 Typically the absolute value of the likelihood itself is not very meaningful.
 However, quantities such as the ratio of the likelihood at two different points in parameter space are very informative about the relative merits of those two models.
@@ -92,11 +92,9 @@ However, quantities such as the ratio of the likelihood at two different points 
 
 ### The likelihood ratio and likelihood ratio based test statistics
 
-The likelihood ratio of two models: 
+A very useful test statistic is the likelihood ratio of two models: 
 
 $$ \Lambda \equiv \frac{\mathcal{L}_{\mathcal{M}}}{\mathcal{L}_{\mathcal{M}'}} $$ 
-
-is a very useful ingredient in statistics.
 
 The absolute value of the likelihood depends on many things, such as the size of the parameter space being considered and of the possible sets of observations.
 However, the likelihood ratio is very informative.
@@ -104,17 +102,17 @@ It describes how much more likely the data is under one model than the other.
 
 For technical and convenience reasons, often the logarithm of the likelihood ratio: 
 
-$$\log(\Lambda) = \log(\mathcal{L}_{\mathcal{M}}) - \log(\mathcal{L}_{\mathcal{M}'})$$
+$$t \propto \log(\Lambda) = \log(\mathcal{L}_{\mathcal{M}}) - \log(\mathcal{L}_{\mathcal{M}'})$$
 
-or some multiple of it, such as $-2\log(\Lambda)$ is used.
+Different proportionality constants are most convenient in different circumstances.
 
-Typically, both models being compared are "composite" models, or ["sets" of models](model_and_likelihood.md#sets-of-observation-models), defined by some set of parameters $(\vec{\mu}, \vec{\theta})$.
+Both models being compared may be "composite" models, or ["sets" of models](model_and_likelihood.md#sets-of-observation-models), defined by some set of parameters $(\vec{\mu}, \vec{\theta})$.
 In these cases, the likelihood ratio (or a function of it) is not a single test statistic, but a set of test statistics parameterized by the model parameters.
-If the parameters of the likelihoods in the ratio are fixed, either a priori or based on the data, then that defines a single test statistic.
+If the parameters of both likelihoods in the ratio are fixed, either a priori or based on the data, then that defines a single test statistic.
 
 Often, the parameters in one of the two likelihood terms is fixed, and the other is not.
 In this case a different test statistic is used at every point in the parameter space, i.e. for each set of model parameters. 
-For example, one can define the family of test statistics:
+For example, a very useful set of test statistics is:
 
 $$ t_{\vec{x}} = -2\log(\frac{\mathcal{L}(\vec{x})}{\mathcal{L}(\vec{\hat{x}})}) $$.
 
@@ -123,26 +121,33 @@ Where the likelihood parameters in the bottom are fixed to their maximum likelih
 In these cases, when calculating the p-values for statistical tests, the p-value is calculated assuming the true model has the parameters used to define the test statistic. 
 i.e. as $p_\vec{\mu} = p(t_{\vec{\mu}}(\mathrm{data}) | \mathcal{M}_{\vec{\mu}})$.
 
+
+Under appropriate conditions, the distribution of $t_\vec{\mu}$ can be approximated analytically, via [Wilks' Theorem](https://en.wikipedia.org/wiki/Wilks'_theorem) or other extensions of that work.
+In these cases the p-value used in a test can be calculated from the known form of the expected distribution.
+
+In the general case, however, the distribution of the test statistic is not known, and it must be estimated.
+Typically it is estimated by generating many sets of pseudo-data from the model and using the emprirical distribution of the test statistic.
+
 ### Parameter Estimation using the likelihood ratio
 
 A common use case for likelihood ratios is estimating the values of some parameters, such as the parameters of interest, $\vec{\mu}$.
 The point estimate for the parameters is simply the maximum likelihood estimate, but the likelihood ratio can be used for estimating the uncertainty as a confidence set.
 
-A [confidence set](fitting_concepts.md#uncertainties-in-maxmimum-likelihood-fits-confidence-sets) for the parameters $\vec{\mu}$ can be defined by using an appropriate test statistic.
-A good choice is the log likelihood ratio:
+A [confidence region](fitting_concepts.md#frequentist-confidence-regions) for the parameters $\vec{\mu}$ can be defined by using an appropriate test statistic.
+Typically, we use the log likelihood ratio:
 
 $$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\theta}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\theta}})}) $$
 
 Where the likelihood in the top is the value of the likelihood at a point $\vec{\mu}$ [profiled over](fitting_concepts.md#profiling) $\vec{\theta}$; and the likelihood on the bottom is at the best fit point.
 
-Then the confience set is the set where the p-value of the observed test-statistic is less than the confidence level:
+Then the confience region can be defined as the region where the p-value of the observed test-statistic is less than the confidence level:
 
 $$ \{ \vec{\mu}_{\mathrm{CL}} \} =  \{ \vec{\mu} : p_{\vec{\mu}} \lt \mathrm{CL} \}.$$
 
-Under appropriate conditions, the distribution of $t_\vec{\mu}$ is known analytically, via [Wilks' Theorem](https://en.wikipedia.org/wiki/Wilks'_theorem) or other appropriate extensions.
-In these cases, one convert the criteria $p_{\vec{\mu}} \lt \mathrm{CL}$ directly into a criteria on $t_{\vec{\mu}}$ itself, $t_{\vec{\mu}} \lt \gamma_{\mathrm{CL}}$.
+This construction will satisfy the frequentist coverage property that the confidence region contains the parameter values used to generate the data in $\mathrm{CL}$ fraction of cases.
 
-In the general case, the distribution $t_{\vec{\mu}}$ may not be known a priori and then it must be estimated from pseudo-experiments.
+In many cases, Wilks' theorem can be used to calculate the p-value and the criteria on $p_{\vec{\mu}}$ can be converted directly into a criterion on $t_{\vec{\mu}}$ itself, $t_{\vec{\mu}} \lt \gamma_{\mathrm{CL}}$.
+Where $\gamma_{\mathrm{CL}}$ is a known function of the confidence level.
 
 ### Discoveries using the likelihood ratio
 
@@ -150,20 +155,21 @@ A common method for claiming discovery is based on a likelihood ratio test by sh
 
 This could be done by using the standard log likelihood ratio test statistic:
 
-$$ t_{\mathrm{NP}} \propto -\log(\frac{\mathcal{L}_{\mathrm{SM}}}{\mathcal{L}_{\mathrm{SM+NP}}}) $$
+$$ t_{\mathrm{NP}} \propto -\log(\frac{\mathcal{L}(\mu_{\mathrm{NP}} = 0, \vec{\hat{\theta}}(\mu_{\mathrm{NP}} = 0))}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}},\vec{\hat{\theta}})}) $$
 
+Where $\mu_{\mathrm{NP}}$ represents the strength of some new physics quantity, such as the cross section for creation of a new particle.
 However, this would also allow for claiming "discovery" in cases where $\hat{\mu} \lt 0$, which in particle physics is often an unphysical model, such as a negative cross section.
 In order to avoid such a situation, we typically use a modified test statistic:
 
-$$ q_{0} \propto \begin{cases}
+$$ q_{0} = \begin{cases}
     0 & \hat{\mu} \lt 0 \\ 
-    -\log(\frac{\mathcal{L}_{\mathrm{SM}}}{\mathcal{L}_{\mathrm{SM+NP}}}) & \hat{\mu} \geq 0 
+    -2\log(\frac{\mathcal{L}_{\mathrm{SM}}}{\mathcal{L}_{\mathrm{SM+NP}}}) & \hat{\mu} \geq 0 
 \end{cases}
 $$
 
 As with the likelihood ratio test statistic, $t$, defined above, under suitable conditions, analytic expressions for the distribution of $q_0$ are known.
 
-Once the value $\vec{q}_{0}(\mathrm{data})$ is calculated, it can be compared to the expected distribution of $q_{0}$ under the standard model hypothesis to calculate the p-value.
+Once the value $q_{0}(\mathrm{data})$ is calculated, it can be compared to the expected distribution of $q_{0}$ under the standard model hypothesis to calculate the p-value.
 If the p-value is below some threshold, discovery is often claimed. 
 In high-energy physics the standard threshold is $\sim 0.0000005$.
 
@@ -204,19 +210,19 @@ $$
 \end{cases}
 $$
 
-In following the [standard test-methodology](#statistical-tests_1) described above, one can then set a limit at a given confidence level $\mathrm{CL}$ by finding the value of $\mu$ for which $p_{\mu} = p(t_{\mu}(\mathrm{data})|\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ are excluded at the given confidence level.
+In following the [standard test-methodology](#statistical-tests_1) described above, one can then set a limit at a given confidence level $\mathrm{CL}$ by finding the value of $\mu$ for which $p_{\mu} \equiv p(t_{\mu}(\mathrm{data})|\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ are then considered excluded at the given confidence level.
 
 However, this procedure is rarely used, in almost every case we use a modified procedure called the $\mathrm{CL}_{s}$ criterion.
 
 #### The $\mathrm{CL}_{s}$ criterion 
 
 Regardless of which test statistic is used, the standard test-methodology described above would lead to setting limits even in cases where there is no sensitivity.
-For example, with the usual 95% confidence level for the limit setting ( requiring $p_{\mu} = p(t_{\mu}(\mathrm{data})|\mathcal{M}_{\mu}) \lt 0.05$) would lead to excluding the true value of the parameter 5% of the time.
+For example, with the usual 95% confidence level for the limit setting (requiring $p_{\mu} \lt 0.05$) would lead to excluding the true value of the parameter 5% of the time.
 
 This can lead to some very undesirable results in the context of limit setting. 
 For an experiment with no sensitivity to new physics $\mu$ is indistinguishable from 0 for that experiment.
-Nonetheless, 5% of the time this experiment is performed the experimenter will find $p_{0} \lt 0.05$ and will set a limit of 0, seemingly claiming that there is no new physics.
-This, despite the fact that the experiment is entirely insensitive to new physics.
+Nonetheless, 5% of the time this experiment is performed the experimenter will find $p_{0} \lt 0.05$ and will set a limit of 0, seemingly claiming that there is no new physics
+despite the fact that the experiment is entirely insensitive to new physics!
 
 In order to avoid such situations, the $\mathrm{CL}_{s}$ criteria was developped.
 Rather than requiring $p_{\mu} \lt (1-\mathrm{CL})$ to exclude $\mu$, as would be done in the general framework described above, the $\mathrm{CL}_{s}$ criterion requires:
@@ -225,23 +231,25 @@ $$ \frac{p_{\mu}}{p_{0}} \lt (1-\mathrm{CL}) $$
 
 Where $p_{\mu}$ is the usual probability of observing the observed value of the test statistic under the signal + background model with signal strength $\mu$.
 
-Using the $\mathrm{CL}_{s}$ criteria fixes the issue of setting limits using models with no sensitivty, because in that case $p_{\mu} = p_{0}$ and the criteria can never be satisfied for any $\mathrm{CL} \gt 0$.
+Using the $\mathrm{CL}_{s}$ criterion fixes the issue of setting limits using models with no sensitivty, because in that case $p_{\mu} = p_{0}$ and the criteria can never be satisfied for any $\mathrm{CL} \gt 0$.
 
 Note that this means that a limit set using the $\mathrm{CL}_{s}$ criterion at a given $\mathrm{CL}$ will exclude the true parameter value $\mu$ with a frequency less than the nominal rate of $1-\mathrm{CL}$.
 The actual frequency at which it is excluded depends on the sensitivity of the experiment to that parameter value.
 
-
-
 ### Goodness of fit tests using the likelihood ratio
 
+The likelihood ratio can also be used as a measure of goodness of fit, i.e. describing how well the data match the model for binned data.
 
+A standard likelihood-based measure of the goodness of fit is determined by using the log likelihood ratio with the likelihood in the denominator coming from the **saturated model**.
 
-### Distributions of Test Statistics
+$$ t_{\mathrm{saturated}} \propto -\log(\frac{\mathcal{L}_{\mathcal{M}}}{\mathcal{L}_{\mathcal{M}_\mathrm{saturated}}}) $$
 
-In order to perform statistical tests as outlined above, the distribution of the test statistic, given some model $\mathcal{M}$ must be known in order to calculate the p-value.
+Here $\mathcal{M}$ is whatever model one is testing the goodness of fit for, and the saturated model is a model for which the prediction matches the observed value in every bin.
+Typically, the saturated model would be one in which there are as many free parameters as bins.
 
-In some cases analytic formula approximating the distribution of likelihood based test statistics are known.
-This is an extremely helpful property, because when the expected distribution of the test statistic is known, only the observed value needs to be calculated and then it can be compared to the expected distribution.
+This ratio is then providing a comparison between how well the actual data are fit as compared to a hypothetical optimal fit.
 
-On the other hand, in the general case where the distriubtion of the test statistic is not known a priori, one has to generate pseudodata from the model to estimate the expected distribution.
-This process is subject to limitations of how many pseudodata samples are produced, and can be computationally very expensive.
+Unfortunately, the distribution of $t_{\mathcal{saturated}}$ often is not known a priori and must typically be estimated by generating pseudodata from the model $\mathcal{L}$ and calculating the empirical distribution of the statistic.
+
+Once the distribution is determed a p-value for the statistic can be derived which indicates the likelihood of the data given the model, and therefore serves as a measure of the goodness of fit.
+
