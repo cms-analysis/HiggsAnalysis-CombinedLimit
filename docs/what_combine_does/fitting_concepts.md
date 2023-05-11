@@ -12,12 +12,12 @@ Likelihood fits typically either follow a frequentist framework of maximum likel
 
 ### Maximum Likelihood fits
 
-A [maximum likelihood fit](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) means finding the values of the model parameters $(\vec{\mu}, \vec{\theta})$ which maximize the likelihood, $\mathcal{L}(\vec{\mu},\vec{\theta})$
+A [maximum likelihood fit](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) means finding the values of the model parameters $(\vec{\mu}, \vec{\theta})$ which maximize the likelihood, $\mathcal{L}(\vec{\mu},\vec{\theta}|\mathrm{data})$
 The values which maximize the likelihood, 
 
-$$(\vec{\hat{\mu}}, \vec{\hat{\theta}}) \equiv \underset{\vec{\mu},\vec{\theta}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\theta})$$ 
+$$(\vec{\hat{\mu}}, \vec{\hat{\theta}}) \equiv \underset{\vec{\mu},\vec{\theta}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\theta}|\mathrm{data})$$ 
 
-are taken to be the best estimates of the parameter values.
+are taken to be the best estimates of the parameter values, given the observed data.
 These values provide **point estimates** for the parameter values.
 
 Because the likelihood is equal to the probability of observing the data given the model, the maximum likelihood estimate finds the parameter values for which the data is most probable.
@@ -95,7 +95,7 @@ i.e. the ratio of the profile likelihood at point $\vec{\mu}$ to the maxmimum li
 
 By determining how much the likelihood changes when the parameter values are changed, we can find the parameter values for which the data are more likely than some predetermined cutoff value, $\gamma$.
 
-$$ \{ \vec{\theta}_{\mathrm{CL}} \} = \{ \vec{\theta} : -\log(\Lambda) \lt  \gamma_{\mathrm{CL}} \} $$
+$$ \{ \vec{\theta} \}_{\mathrm{CL}} = \{ \vec{\theta} : -\log(\Lambda) \lt  \gamma_{\mathrm{CL}} \} $$
 
 The cutoff value $\gamma_{\mathrm{CL}}$ must be chosen to match this desired coverage of the confidence set. 
 
@@ -111,7 +111,7 @@ The credible region represents a region in which the bayesian probability of the
 
 In most situations of interest, the credibility region or confidence region for a single parameter, $\theta$, is effectively described by an interval:
 
-$$ \{ \theta_{\mathrm{CL}} \} = [ \theta^{-}_{\mathrm{CL}}, \theta^{+}_{\mathrm{CL}} ] $$
+$$ \{ \theta \}_{\mathrm{CL}} = [ \theta^{-}_{\mathrm{CL}}, \theta^{+}_{\mathrm{CL}} ] $$
 
 Often this is indicated as:
 
