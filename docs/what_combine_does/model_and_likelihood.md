@@ -233,7 +233,7 @@ where $y^{0} = \sum y_{b}^{0}$, $\delta^{\pm} = f^{\pm}_{i} - f^{0}_{i}$, and $\
 The smooth interpolating function $F$, defined below, depends on a set of coefficients, $\epsilon_{s}$. These are assumed to be unity by default, but may be set to different values, for example if the $y_{b}^{s,\pm}$ correspond to the $\pm X\sigma$ variations, then $\epsilon_{s} = 1/X$ is typically set. The minimum value of $\epsilon$ over the shape uncertainties for a given process is  $q = \min({{\epsilon_{s}}})$. The function ${F}$ is then defined as
 
 $$
-f(\theta, \delta^{+}, \delta^{-}) = 
+F(\theta, \delta^{+}, \delta^{-}) = 
 \begin{cases}
 \frac{1}{2}\theta^{'} \left( (\delta^{+}-\delta^{-}) + \frac{1}{8}(\delta^{+}+\delta^{-})(3\bar{\theta}^5 - 10\bar{\theta}^3 + 15\bar{\theta}) \right), & \text{for } -q < \theta < q; \\
 \theta^{'}\delta^{+}, & \text{for } \theta \ge q;\\
@@ -275,11 +275,5 @@ However, some constraints, such as the requirement that bin contents be positive
 
 An overview of the binned likelihood model built by combine is given below. 
 Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or defined by the user themselves.
-The constraint terms $p_{e}$ are:
-
-- gaussians with width one centered at $\tilde{\theta}$ for $\vec{\theta}_{S}$, and $\vec{\theta}_{L}$; 
-- Poisson with mean $\tilde{\theta}$ for $\vec{\theta}_{G}$; 
-- Either  poisson or guassian for $\vec{\theta}_{B}$; 
-- they can be Gaussian or Uniform for $\vec{\theta}_{\rho}$. The user can also provide $\vec{\theta}_{\rho}$ terms with user defined pdfs.
 
 ![](CombineLikelihoodEqns.png)
