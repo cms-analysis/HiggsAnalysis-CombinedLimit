@@ -15,7 +15,7 @@ The code can be checked out from GIT and compiled on top of a CMSSW release that
 
 # Installation instructions
 
-## Within CMSSW (recommended)
+## Within CMSSW (recommended for CMS users)
 
 The instructions below are for installation within a CMSSW environment. For end
 users that don't need to commit or do any development, the following recipes
