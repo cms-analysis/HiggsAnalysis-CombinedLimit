@@ -120,7 +120,7 @@ Nonetheless, with this parameterization of the nuisance parameters, there is a l
 
 #### Customizing constraint terms
 
-The constraint terms, while they are almost always taken to be gaussian distributions can in some cases also be set as any user defined function, providing almost arbitrary functionality.
+The constraint terms, while they are almost always taken to be gaussian or poisson distributions, they can in some cases also be set as any user defined function, providing almost arbitrary functionality.
 Nonetheless, some constraints are built in, such as the fact that each constraint term is a function of a single nuisance parameter.
 
 
@@ -279,6 +279,11 @@ However, some constraints, such as the requirement that bin contents be positive
 
 An overview of the binned likelihood model built by combine is given below. 
 Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or defined by the user themselves.
-The constraint terms $p_{e}$ are almost always gaussians with width one centered at $\tilde{\theta}$, with a notable exception for $\theta_{B}$ terms which can use either a poisson or guassian constraint.
+The constraint terms $p_{e}$ are:
+
+- gaussians with width one centered at $\tilde{\theta}$ for $\vec{\theta}_{S}$, and $\vec{\theta}_{L}$; 
+- Poisson with mean $\tilde{\theta}$ for $\vec{\theta}_{G}$; 
+- Either  poisson or guassian for $\vec{\theta}_{B}$; 
+- they can be Gaussian or Uniform for $\vec{\theta}_{\rho}$. The user can also provide $\vec{\theta}_{\rho}$ terms with user defined pdfs.
 
 ![](CombineLikelihoodEqns.png)
