@@ -165,7 +165,7 @@ $$N = \prod_X \prod_i f_X(\vec{\theta}_{X}^{i})\mathrm{,}$$
 
 multiplying together the morphings from each of the individual nuisance parameters from each of the nuisance types.
 
-/// details | **Show Normalization Parameterization Details**
+/// details | **Normalization Parameterization Details**
 
 
 The full functional form of the normalization term is given by:
@@ -174,7 +174,7 @@ $$ N_{cp} = N_{\mathrm{0}}(\theta_{G})\prod_{n} {\kappa_{n}}^{\theta_{L,n}}\prod
 
 where:
 
-- $N_{\mathrm{0}}(\theta_{G}) \equiv \frac{\theta_{G}}{\tilde{\theta}_{G}}$, is the normalization effect of a gamma uncertainty. $\tilde{\theta}_{G}$ is taken as the observed number of events in some external control region and $\theta_{G} has a constraint pdf $\mathrm{Poiss}(\theta; \tilde{\theta}})
+- $N_{\mathrm{0}}(\theta_{G}) \equiv \frac{\theta_{G}}{\tilde{\theta}_{G}}$, is the normalization effect of a gamma uncertainty. $\tilde{\theta}_{G}$ is taken as the observed number of events in some external control region and $\theta_{G}$ has a constraint pdf $\mathrm{Poiss}(\theta; \tilde{\theta})$
 - $\kappa_{n}^{\theta_{L,n}}$, are log-normal uncertainties specified by a fixed value $\kappa$;
 - $\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})$ are asymmetric log-normal uncertainties, in which the value of $\kappa^{\mathrm{A}}$ depends on the nuisance parameter and two fixed values $\kappa^{+}_{a}$ and $\kappa^{-}_{a}$. The functions, $\kappa^A$, define a smooth interpolation for the asymmetric uncertainty; and
 - $F_{r}(\vec{\theta}_\rho)$ are arbitrary user-defined functions of the user defined nuisance parameters which may have uniform or gaussian constraint terms.
@@ -207,7 +207,7 @@ The number of events in a given bin $b$, $y_{cbp}$, is a function of the shape p
 The shape interpolation works with the fractional yields in each bin, where the interpolation can be performed either directly on the fractional yield, or on the logarithm of the fraction yield, which is then exponentiated again.
 
 
-/// details | **Show shape parameterization Details**
+/// details | **Shape parameterization Details**
 
 
 In the following, the channel and process labels $c$ and $p$ apply to every term, and so are omitted.

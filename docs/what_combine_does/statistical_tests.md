@@ -1,4 +1,4 @@
-# Statistical Tests
+# Statistical Tests 
 
 
 Combine is a likelihood based statistical tool. 
@@ -44,7 +44,7 @@ The most common statistical test can be characterized by the following steps:
 For example, if the p-value is sufficiently small, the model may be considered rejected;
 This would be the case if we were testing a coin for fairness, using the fraction of flips that came up as heads as the test statistic and observed its value to be 0.987.
 
-/// details | **Show Mathematical details of the general statistical test** 
+/// details | **Mathematical details of the general statistical test**
 
 The distribution of the test statistic, $t$ under some model hypothesis $\mathcal{M}$ is:
 
