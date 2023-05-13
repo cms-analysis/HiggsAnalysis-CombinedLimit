@@ -18,7 +18,7 @@ For example, in a simple coin-flipping experiment, the number of heads could be 
 
 The importance of the test statistic is that it associates with every observation a single value. 
 This provides a method of ordering all possible observations.
-The ordering allows us to recast the question "how likely was this observation?" in the form of a question about where the observation falls in the assigned ordering.
+The ordering allows us to recast the question "how likely was this observation?" in the form of a quantitative question about where the observation falls in the assigned ordering.
 
 The choice of tests statistic is very important as it influences the power of the statistical test.
 Ideally a good test statistic should return different values for likely outcomes as compared to unlikely outcomes.
@@ -76,7 +76,7 @@ However, unless that data also appears unlikely given the standard model, this i
 Alternatively if the data appear unlikely given our standard model-based observation model, but we do not have a corresponding new physics scenario for which the data appear likely, it may just be that we've mismodelled some aspect of the detector.
 
 To find new physics, we would like to show that we can reject the standard model, while simultaneously *not* rejecting a model with a hypothetical new particle.
-In that case we gain confidence in our hypothetical new particle, and we are more confident that we have not simply mismodelled some uniteresting parameter.
+In that case we gain confidence in our hypothetical new particle, and we are more confident that we have not simply mismodelled some other, less interesting aspect of the experiment.
 
 Incorporating alternative models in the statistical testing framework described here can either be done by including them in the definition of the test statistic, or by altering the steps above to include steps based on the alternative model.
 
@@ -163,7 +163,7 @@ This could be done by using the standard log likelihood ratio test statistic:
 $$ t_{\mathrm{NP}} = -2\log(\frac{\mathcal{L}(\mu_{\mathrm{NP}} = 0, \vec{\hat{\theta}}(\mu_{\mathrm{NP}} = 0))}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}},\vec{\hat{\theta}})}) $$
 
 Where $\mu_{\mathrm{NP}}$ represents the strength of some new physics quantity, such as the cross section for creation of a new particle.
-However, this would also allow for claiming "discovery" in cases where $\hat{\mu} \lt 0$, which in particle physics is often an unphysical model, such as a negative cross section.
+However, this would also allow for claiming "discovery" in cases where  the best fit value is negative, i.e. $\hat{\mu} \lt 0$, which in particle physics is often an unphysical model, such as a negative cross section.
 In order to avoid such a situation, we typically use a modified test statistic:
 
 $$ q_{0} = \begin{cases}
@@ -178,7 +178,7 @@ As with the likelihood ratio test statistic, $t$, defined above, under suitable 
 
 Once the value $q_{0}(\mathrm{data})$ is calculated, it can be compared to the expected distribution of $q_{0}$ under the standard model hypothesis to calculate the p-value.
 If the p-value is below some threshold, discovery is often claimed. 
-In high-energy physics the standard threshold is $\sim 0.0000005$.
+In high-energy physics the standard threshold is $\sim 5\times10^{-7}$.
 
 
 
@@ -222,19 +222,16 @@ However, this procedure is rarely used, in almost every case we use a modified t
 
 #### The $\mathrm{CL}_{s}$ criterion 
 
-Regardless of which of these test statistics is used, the standard test-methodology described above would lead to setting limits even in cases where there is very poor sensitivity.
-For example, with the usual 95% confidence level for the limit setting (requiring $p_{\mu} \lt 0.05$) would lead to excluding true positive values of the parameter 5% of the time even for fairly insensitive tests. 
+Regardless of which of these test statistics is used, the standard test-methodology has some undesirable properties for limit setting.
 
-This can lead to some undesirable results in the context of limit setting. 
-Even for an experiment with almost no sensitivity to new physics, 5% of the time this experiment is performed the experimenter will find $p_{\mu} \lt 0.05$ for small values of $\mu$ to which the experiment is not sensitive. 
-Following the standard test procedure this would set a stringent limit on $\vec{\mu}$ despite the fact that the experiment is not sensitive to these values!
+Even for an experiment with almost no sensitivity to new physics, 5% of the time the experiment is performed the experimenter will find $p_{\mu} \lt 0.05$ for small values of $\mu$ and set limits on parameter values to which the experiment is not sensitive. 
 
 In order to avoid such situations, the $\mathrm{CL}_{s}$ criterion was developped.
 Rather than requiring $p_{\mu} \lt (1-\mathrm{CL})$ to exclude $\mu$, as would be done in the general framework described above, the $\mathrm{CL}_{s}$ criterion requires:
 
 $$ \frac{p_{\mu}}{p_{0}} \lt (1-\mathrm{CL}) $$
 
-Where $p_{\mu}$ is the usual probability of observing the observed value of the test statistic under the signal + background model with signal strength $\mu$.
+Where $p_{\mu}$ is the usual probability of observing the observed value of the test statistic under the signal + background model with signal strength $\mu$ (and $p_0$ for signal strength 0).
 
 Using the $\mathrm{CL}_{s}$ criterion fixes the issue of setting limits much stricter than the experimental sensitivity, because for values of $\vec{\mu}$ to which the experiment is not sensitive $p_{\mu} \approx p_{0}$ and the ratio approaches 1.
 

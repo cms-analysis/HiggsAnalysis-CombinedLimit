@@ -17,7 +17,7 @@ Combine can be used for analyses in HEP ranging from simple counting experiments
 ## Model Building 
 
 Combine provides a powerful, human-readable, and lightweight interface for building likelihood models for both binned an unbinned data.
-The likelihood definition allows the user to define many process which contribute to the observation, as well as multiple channels which may be fit simultaneously.
+The likelihood definition allows the user to define many processes which contribute to the observation, as well as multiple channels which may be fit simultaneously.
 
 Furthermore, combine provides a powerful and intuitive interface for combining models, as it was originally developped for combinations of higgs boson analysis at the CMS experiment.
 
