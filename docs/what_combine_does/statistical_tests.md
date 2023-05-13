@@ -255,3 +255,35 @@ Unfortunately, the distribution of $t_{\mathcal{saturated}}$ often is not known 
 
 Once the distribution is determined a p-value for the statistic can be derived which indicates the probability of observing data with that quality of fit given the model, and therefore serves as a measure of the goodness of fit.
 
+### Channel Compatibility test us the likelihood ratio
+
+When performing an anlysis across many different channels (for example, different Higgs decay modes), it is often interesting to check the leval of compatibility of the various channels.
+
+Combine implements a channel compatibility test, by considering the a model, $\mathcal{M}_{\mathrm{c-independent}}$, in which the signal is independent in every channel.
+As a test statistic, this test uses the likelihood ratio between the best fit value of the nominal model and the model with independent signal strength for each channel:
+
+$$ t = -\log(\frac{\mathcal{L}_{\mathcal{M}}(\vec{\hat{\mu}},\vec{\hat{\theta}})}{\mathcal{L}_{\mathcal{M}_{\mathrm{c-indep}}}(\vec{\hat{\mu}}_{c1}, \vec{\hat{\mu}}_{c2}, ..., \vec{\hat{\theta}})}) $$
+
+The distribution of the test statistic is not known a priori, and needs to be calculated by generating pseudo-data samples.
+
+## Other Statistical Tests
+
+While combine is a likelihood based statistical framework, it does not require that all statistical tests use the likelihood ratio.
+
+### Other Goodness of Fit Tests
+
+As well as the saturated goodness of fit test, defined above, combine implements [Kolmogorov-Smirnov](https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test) and [Anderson-Darling](https://en.wikipedia.org/wiki/Anderson%E2%80%93Darling_test) goodness of fit tests.
+
+For the Kolomogorov-Smirnov (KS) test, the test statistic is the maximum absolute difference between the cumulative distribution function between the data and the model:
+
+$$ D = \max_{x} | F_{\mathcal{M}}(x) - F_{\mathrm{data}}(x) | $$
+
+Where $F(x)$ is the Cumulative Distribution Function (i.e. cumulative sum) of the model or data at point $\vec{x}$.
+
+For the Anderson-Darling (AD) test, the test statistic is the integral of the square of difference between the two cumulative distribution functions:
+
+$$ A^2 = \int_{x_{\mathrm{min}}}^{x_{\mathrm{max}}} \frac{ (F_{\mathcal{M}}(x) - F_{\mathrm{data}}(x))^2}{ F_\mathcal{M}(x) (1 - F_{\mathcal{M}}(x)) } \mathrm{d}F_\mathcal{M}(x) $$
+
+Notably, both the Anderson-Darling and Kolmogorov-Smirnov test rely on the cumulative distribution.
+Because the ordering of different channels of a model is not well defined, the tests themselves are not well defined over multiple channels.
+
