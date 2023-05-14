@@ -70,11 +70,13 @@ The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model p
 
 For unbinned likelihood models, a likelihood can be given to each data point. It is proportional to the probability density function at that point, $\vec{x}$.
 
-$$ \mathcal{L}_\mathrm{data} \propto \prod_{i} \mathrm{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} ) $$
+$$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(N_{\mathrm{obs}} | N_{\mathrm{exp}}(\vec{x})) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} ) $$
+
+Where $N_{\mathrm{obs}}$ and $N_{\mathrm{exp}}$ are the total number of observed and expected events, respectively.
 
 ### Constraint Likelihoods
 
-The constraint terms  encode the probability of model nuisance parameters taking on a certain value.
+The constraint terms encode the probability of model nuisance parameters taking on a certain value.
 In [frequentist](https://en.wikipedia.org/wiki/Frequentist_probability) frameworks, this usually represents the result of a previous measurement (such as of the jet energy scale).
 In [bayesian](https://en.wikipedia.org/wiki/Bayesian_probability) frameworks, these terms represent the [prior](https://en.wikipedia.org/wiki/Prior_probability).
 
