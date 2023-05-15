@@ -70,7 +70,7 @@ The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model p
 
 For unbinned likelihood models, a likelihood can be given to each data point. It is proportional to the probability density function at that point, $\vec{x}$.
 
-$$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(N_{\mathrm{obs}} | N_{\mathrm{exp}}(\vec{x})) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} ) $$
+$$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(n_{\mathrm{obs}} | n_{\mathrm{exp}}) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i | \vec{\mu}, \vec{\theta} ) $$
 
 Where $N_{\mathrm{obs}}$ and $N_{\mathrm{exp}}$ are the total number of observed and expected events, respectively.
 
@@ -93,7 +93,13 @@ Any co-ordinate transformation of the parameter values can be absorbed into the 
 A reparameterization would change the mathematical form of the constraint term, but would also simultaneously change how the model depends on the parameter in such a way that the total likelihood is unchanged.
 e.g. if you define  $\theta = \sigma(tt)$ or $\theta = \sigma(tt) - \sigma_0$ you will change the form of the constraint term, but the you will not change the overall likelihood.
 
-### Details of Generic binned likelihoods
+## Likelihoods implemented in Combine
+
+Combine builds on the generic forms of the likelihood for counting experiments given above to provide specific functional forms which are commonly most useful in high energy physics, such as separating contributions between different processes.
+
+
+
+### Binned Likelihoods in Combine
 
 Although customizations are possible, binned likelihood models can be defined by the user by providing simple inputs such as a set of histograms and systematic uncertainties.
 
@@ -105,19 +111,19 @@ $$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint
 Where $c$ indexes the channel, $b$ indexes the histogram bin, and $e$ indexes the nuisance parameter. 
 
 
-#### Binned Data Likelihood Model
+#### Model of $n_{\mathrm{exp}}$
 
 The generic model implemented in combine is given by:
 
-$$n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\vec{\theta}_L,\vec{\theta}_S,\vec{\theta}_G,\vec{\theta}_{\rho})y_{cbp}(\vec{\theta}_S) + E_{cb}(\vec{\theta}_B) ) $$
+$$n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\theta_G, \vec{\theta}_L,\vec{\theta}_S,\vec{\theta}_{\rho})y_{cbp}(\vec{\theta}_S) + E_{cb}(\vec{\theta}_B) ) $$
 
 where here: 
 
 - $p$ indexes the processes contributing to the channel; 
-- $\vec{\theta}_L, \vec{\theta}_S, \vec{\theta}_G, \vec{\theta}_{\rho}$ and $\vec{\theta}_B$ are different types of nuisance parameters which modify the processes with different functional forms;
+- $\theta_{G}, \vec{\theta}_L, \vec{\theta}_S, \vec{\theta}_{\rho}$ and $\vec{\theta}_B$ are different types of nuisance parameters which modify the processes with different functional forms;
+    - $\theta_{G}$ is a gamma nuisances,
     - $\vec{\theta}_{L}$ are log-normal nuisances,
     - $\vec{\theta}_{S}$ are "shape" nuisances,
-    - $\vec{\theta}_{G}$ are gamma nuisances,
     - $\vec{\theta}_{\rho}$ are user defined rate parameters, and
     - $\vec{\theta}_{B}$ are nuisance parameters related to the statistical uncertainties in the simulation used to build the model.
 - $M$ defines the effect of the parameters of interest on the signal process;
@@ -125,7 +131,8 @@ where here:
 - $y$ defines the shape effects (i.e. bin-dependent effects) of the nuisance parameters; and
 - $E$ defines the impact of statistical uncertainties from the samples used to derive the histogram templates used to build the model.
 
-##### Parameter of Interest Model
+
+#### Parameter of Interest Model
 
 The function $M$ can take on aribitrary functional forms, as defined by the user, but in the most common case, the nuisance parameters $\mu$ simply scale the contributions from signal processes:
 
@@ -138,7 +145,7 @@ $$
 However, combine supports many more models beyond this. 
 As well as built-in support for models with multiple parameters of interest, combine comes with many pre-defined models targetted at various types of searches and measurements beyond simple process normalization.
 
-##### Normalization Effects
+#### Normalization Effects
 
 The overall normalization $N$ is affected differently by the different types of nuisances parameters, and takes the general form 
 
@@ -151,7 +158,7 @@ multiplying together the morphings from each of the individual nuisance paramete
 
 The full functional form of the normalization term is given by:
 
-$$ N_{cp} = N_{\mathrm{0}}(\theta_{G})\prod_{n} {\kappa_{n}}^{\theta_{L,n}}\prod_{a} {\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})}^{\theta_{L(S)}^{a}} \prod_{r}F_{r}(\rho) $$
+$$ N_{cp} = N_{\mathrm{0}}(\theta_{G})\prod_{n} {\kappa_{n}}^{\theta_{L,n}}\prod_{a} {\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})}^{\theta_{L(S)}^{a}} \prod_{r}F_{r}(\theta_\rho) $$
 
 where:
 
@@ -182,7 +189,7 @@ where $y_{b}^{s,\pm}$ is the bin yield as defined by the two shifted values  $\t
 
 ///
 
-##### Shape Morhping Systematics
+#### Shape Morhping Effects
 
 The number of events in a given bin $b$, $y_{cbp}$, is a function of the shape parameters $\vec{\theta}_{S}$. 
 The shape interpolation works with the fractional yields in each bin, where the interpolation can be performed either directly on the fractional yield, or on the logarithm of the fraction yield, which is then exponentiated again.
@@ -226,7 +233,7 @@ where $\theta^{'} = \theta\epsilon$, $\bar{\theta} = \theta^{'} / q$, and the la
 
 ///
 
-##### Statistical Uncertainties in the Simulation used to build the Model
+#### Statistical Uncertainties in the Simulation used to build the Model
 
 Since the histograms used in a binned shape analysis are typically created from simulated samples, the yields in each bin are also subject to statistical uncertainties on the bin yields.
 These are taken into account by either assigning one nuisance parameter per bin, or as many parameters as contributing processes per bin.
@@ -282,3 +289,64 @@ An overview of the binned likelihood model built by combine is given below.
 Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or defined by the user themselves.
 
 ![](CombineLikelihoodEqns.png)
+
+
+
+### Unbinned Likelihoods in Combine
+
+As with the binned likelihood, the unbinned likelihood implemented in combine implements unbinned likelihoods which for multiple process and multiple channels.
+The unbinned model implemented in combine is given by:
+
+
+$$ \mathcal{L} = \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \prod_c \mathrm{Poiss}(n_c^{\mathrm{obs}} | n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\theta})) \left(\prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i | \vec{\mu}, \vec{\theta} )\right) \prod_e p_e(\vec{\theta} | \vec{\tilde{\theta}}) $$
+
+where $c$ indexes the channel, $p$ indexes the process, and $e$ indexes the nuisance parameter.
+
+- $n_{c,\mathrm{tot}}$ is the total number of expected events in channel $c$;
+- $\mathrm{pdf}_{cp}$ are user defined probability density functions, which may take on the form of any valid probability density; and
+- $f_{cp}^{\mathrm{exp}}$ is the fraction of the total events in channel $c$ from process $p$, $f_{cp} = \frac{n_{cp}}{\sum_p n_{cp}}$.
+
+#### Model of $n^{\mathrm{exp}}$
+
+The total number of expected events for a process is modelled as:
+
+$$n_{cp}^\mathrm{exp} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\theta_{G},\vec{\theta}_L,\vec{\theta}_{\rho})) $$
+
+where, as for the binned likelihoods $\theta_G, \vec{\theta}_L$, and $\vec{\theta}_{\rho}$  are different types of nuisance parameters which modify the processes with different functional forms, as in the binned case;
+
+/// details | **Details of Process Normalization**
+
+As in the binned case, the different types of nuisance parameters affecting the process normalizations are:
+
+- $\theta_{G}$ is a gamma nuisance, with linear normalization effects and a poisson constraint term.
+- $\vec{\theta}_{L}$ are log-normal nuisances, with log-normal normalization effects and gaussian constraint terms.
+- $\vec{\theta}_{\rho}$ are user defined rate parameters, with user-defined normalization effects and gaussian or uniform constraint terms.
+- $N$ defines the overall normalization effect of the nuisance parameters;
+
+and $N$ is defined as in the binned case, except that there are no $\vec{\theta}_S$ uncertainties.
+
+$$ N_{cp} = N_{\mathrm{0}}(\theta_{G})\prod_{n} {\kappa_{n}}^{\theta_{L,n}}\prod_{a} {\kappa^{\mathrm{A}}_{a}(\theta_{L}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})}^{\theta_{L}^{a}} \prod_{r}F_{r}(\theta_\rho) $$
+
+The function $F_{r}$ is any user-defined mathematical expression. 
+The functions $\kappa(\theta,\kappa^+,\kappa^-)$ are defined to create smooth asymmetric log-normal uncertainties. 
+The details of the interpolations which are used are found in the section on [normalization effects in the binned model](#normalization-effects).
+
+///
+
+
+#### Parameter of Interest Model
+
+As in the binned case, the parameter of interest model, $M_{cp}(\vec{\mu})$, can take on arbitrary user-defined forms.
+The default model is one where $\vec{\mu}$ simply scales the signal processes' normalizations.
+
+#### Shape Morphing Effects
+
+The user may define any number of nuisance parameters which morph the shape of the pdf according to arbitrary functional forms.
+These nuisance parameters are included as $\vec{\theta}_\rho$ uncertainties, which may have gaussian or uniform constraints, and include arbitrary user-defined process normalization effects.
+
+### Combining Binned and Unbinned Likelihoods 
+
+While we presented the likelihoods for the binned and unbinned models separately, they can also be combined into a single likelihood.
+When combining the models, the data likelihoods of the binned and unbinned channels are multiplied.
+
+$$ \mathcal{L}_{\mathrm{combined}} = \mathcal{L}_{\mathrm{data}} \cdot \mathcal{L}_\mathrm{constraint} =  (\prod_{c_\mathrm{binned}} \mathcal{L}_{\mathrm{data}}^{c_\mathrm{binned}}) (\prod_{c_\mathrm{unbinned}} \mathcal{L}_{\mathrm{data}}^{c_\mathrm{unbined}}) \mathcal{L}_{\mathrm{constraint}} $$
