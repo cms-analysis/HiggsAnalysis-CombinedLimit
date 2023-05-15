@@ -263,7 +263,7 @@ In practice, this makes the functional form almost entirely general.
 
 However, some constraints, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $y_{cbp}$ only depend on $\vec{\theta}$ do exist.
 
-#### Standard Constraint Likelihood terms
+#### Constraint Likelihood terms
 
 The constraint terms implemented in combine are Gaussian, Poisson or Uniform:
 
@@ -280,7 +280,6 @@ Which form they have depends on the type of nuisance paramater:
 - The rate parameters ($\vec{\theta}_{\rho}$) may have either Gaussian or Uniform constraints; and
 - The model statistical uncertiainties ($\vec{\theta}_{B}$) may use Gaussian or  Poisson Constraints.
 
-Nonetheless, with this parameterization of the nuisance parameters, there is a lot of freedom in defining different types of models based on how the nuisance parameters affect the expected distribution $n^\mathrm{exp}_{cb}$.
 While combine does not provide functionality for user-defined constraint term pdfs, the effect of nuisance paramters is highly customizable through the form of the dependence of $n^\mathrm{exp}_{cb}$ on the parameter.
 
 ### Overview of the complete binned likelihood model in Combine
