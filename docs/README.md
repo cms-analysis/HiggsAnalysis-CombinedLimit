@@ -2,6 +2,7 @@
 
 Note to developers: navigation bar found in `mkdocs.yml`.
 
+* [**Getting started**](index.md)
 * **What Combine Does**
   * [Intro](what_combine_does/introduction.md)
   * [Model and Likelihood](what_combine_does/model_and_likelihood.md)
