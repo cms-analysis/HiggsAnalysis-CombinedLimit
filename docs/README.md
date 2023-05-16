@@ -2,9 +2,11 @@
 
 Note to developers: navigation bar found in `mkdocs.yml`.
 
-* [**INTRO**](how_combine_works/introduction.md)
-* [**MODEL AND LIKELIHOOD**](how_combine_works/model_and_likelihood.md)
-* [**Getting started**](index.md)
+* **What Combine Does**
+  * [Intro](what_combine_does/introduction.md)
+  * [Model and Likelihood](what_combine_does/model_and_likelihood.md)
+  * [Fitting Concepts](what_combine_does/fitting_concepts.md)
+  * [Statistical Tests](what_combine_does/statistical_tests.md)
 * **Setting up the analysis**
   * [Preparing the datacard](part2/settinguptheanalysis.md#preparing-the-datacard)
     * [Counting experiment](part2/settinguptheanalysis.md#a-simple-counting-experiment)
