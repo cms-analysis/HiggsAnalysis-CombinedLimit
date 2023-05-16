@@ -1,6 +1,6 @@
 site_name: Combine
 repo_name: GitHub
-repo_url: https://github.com/kcormi/HiggsAnalysis-CombinedLimit
+repo_url: https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit
 edit_uri: edit/main/docs
 
 nav:
