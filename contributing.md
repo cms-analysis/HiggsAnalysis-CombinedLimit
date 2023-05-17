@@ -82,7 +82,13 @@ The documentation files are all under the `docs/` folder.
 Which pages get included in the site, and other configuration details are set in the `mkdocs.yml` file.
 
 In order to check the documentation rendering (features such as latex math rendering, etc) locally, you can generate the site on your local computer and check it in your browser.
-To do so, after [installing mkdocs](https://www.mkdocs.org/getting-started/) and [pymdown extensions](https://facelessuser.github.io/pymdown-extensions/installation/) you can do:
+To do so, after [installing mkdocs](https://www.mkdocs.org/getting-started/) and [pymdown extensions](https://facelessuser.github.io/pymdown-extensions/installation/) and the [cinder theme](https://sourcefoundry.org/cinder/) via:
+
+```
+python -m pip install mkdocs pymdown-extensions mkdocs-cinder
+```
+
+ you can do:
 
 ```
 mkdocs build
