@@ -15,6 +15,10 @@ The code can be checked out from GIT and compiled on top of a CMSSW release that
 
 # Installation instructions
 
+Installation instructions and recommended versions can be found below. 
+Since v9.0.0, the versioning follows the [semantic versioning 2.0.0 standard](https://semver.org/).
+Earlier versions are not guaranteed to follow the standard.
+
 ## Within CMSSW (recommended for CMS users)
 
 The instructions below are for installation within a CMSSW environment. For end
@@ -167,6 +171,9 @@ _Prerequisites_
 2. Register your SSH key on github: [https://help.github.com/articles/generating-ssh-keys](https://help.github.com/articles/generating-ssh-keys) 1 Fork the repository to create your copy of it: [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork) (more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) )
 
 You will now be able to browse your fork of the repository from [https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit](https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit)
+
+We strongly encourage you to contribute any developments you make back into the main repository. 
+See [contributing.md](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/contributing.md) for details about contributing. 
 
 # Combine Tool
 
