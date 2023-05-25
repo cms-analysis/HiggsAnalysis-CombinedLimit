@@ -100,7 +100,7 @@ double tailReal(TTree *t, std::string br, double cv, int mode){
 
 
 
-TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
+TCanvas *q0Plot(float mass, std::string poinam , float poival, int rebin=0, bool plotBoth=false) {
 
     if (gFile == 0) { std::cerr << "You must have a file open " << std::endl; return 0; }
     TTree *t = (TTree *) gFile->Get("q");
@@ -110,12 +110,19 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     c1->SetBottomMargin(0.15);
     
     TH1F *qB;
-    TH1F *qS;
+    //TH1F *qS;
 
     t->Draw("max(2*q,0)>>qB","weight*(type==-1)");
     qB = (TH1F*) gROOT->FindObject("qB")->Clone();
     qB->SetName("NullHyp");
     qB->Print();
+    
+    TH1F *qS = new TH1F("qS","qS",qB->GetNbinsX(),qB->GetBinLowEdge(1),qB->GetBinLowEdge(qB->GetNbinsX())+1);
+    
+    t->Draw("max(2*q,0)>>qS","weight*(type==+1)");
+    qS = (TH1F*) gROOT->FindObject("qS")->Clone();
+    qS->SetName("AltHyp");
+    qS->Print();
 
     double yMin = 4.9/qB->Integral();
 
@@ -126,14 +133,18 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     
     if (rebin>0){
 	qB->Rebin(rebin);
+	qS->Rebin(rebin);
     }
 
     double  nB = qB->Integral();
     qB->Scale(1.0/qB->Integral());
+    qS->Scale(1.0/qS->Integral());
 
     gStyle->SetOptStat(0); c1->SetLogy(1);
     qB->SetLineColor(kRed);
     qB->SetLineWidth(2);
+    qS->SetLineColor(kBlue);
+    qS->SetLineWidth(2);
     qO->SetLineColor(kBlack);
     qO->SetLineWidth(3);
 
@@ -159,6 +170,7 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     leg1->SetLineColor(1);
 
     leg1->AddEntry(qB, "expected for Null", "L");
+    if (plotBoth) leg1->AddEntry(qS, Form("expected for Alternative (%s=%g)",poinam.c_str(),poival), "L");
     leg1->AddEntry(qO, "observed value", "L");
 
     TLegend *leg2 = new TLegend(.58,.67,.93,.54);
@@ -170,6 +182,9 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     leg2->AddEntry(qB1, Form("CL_{b}   = %.4f (%.1f#sigma)", pB,sig), "F");
     qB->Draw();
     qB1->Draw("HIST SAME"); 
+    if (plotBoth){
+	qS->Draw("same");
+    }
     qO->Draw(); 
     qB->Draw("AXIS SAME");
     qB->GetYaxis()->SetRangeUser(yMin, 2.0);
