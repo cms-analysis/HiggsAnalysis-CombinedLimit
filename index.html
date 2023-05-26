@@ -251,6 +251,9 @@ statistical analysis within the <a href="HiggsWG">Higgs PAG</a> - <strong>combin
 <p>For more information about GIT and its usage in CMS, see <a href="http://cms-sw.github.io/cmssw/faq.html">http://cms-sw.github.io/cmssw/faq.html</a></p>
 <p>The code can be checked out from GIT and compiled on top of a CMSSW release that includes a recent RooFit/RooStats</p>
 <h1 id="installation-instructions">Installation instructions</h1>
+<p>Installation instructions and recommended versions can be found below. 
+Since v9.0.0, the versioning follows the <a href="https://semver.org/">semantic versioning 2.0.0 standard</a>.
+Earlier versions are not guaranteed to follow the standard.</p>
 <h2 id="within-cmssw-recommended-for-cms-users">Within CMSSW (recommended for CMS users)</h2>
 <p>The instructions below are for installation within a CMSSW environment. For end
 users that don't need to commit or do any development, the following recipes
@@ -368,6 +371,8 @@ This is due to some ridiculous issue with child processes and <code>LD_LIBRARY_P
 </li>
 </ol>
 <p>You will now be able to browse your fork of the repository from <a href="https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit">https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit</a></p>
+<p>We strongly encourage you to contribute any developments you make back into the main repository. 
+See <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/contributing.md">contributing.md</a> for details about contributing. </p>
 <h1 id="combine-tool">Combine Tool</h1>
 <p>An additional tool for submitting combine jobs to batch/crab, developed originally for HiggsToTauTau. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core <a href="https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/"><code>CombineHarvester/CombineTools</code></a> subpackage, speeding up the checkout and compile times:</p>
 <p>git clone via ssh:</p>
@@ -483,5 +488,5 @@ This is due to some ridiculous issue with child processes and <code>LD_LIBRARY_P
 
 <!--
 MkDocs version : 1.4.3
-Build Date UTC : 2023-05-25 12:53:51.111347+00:00
+Build Date UTC : 2023-05-26 11:57:17.251012+00:00
 -->
