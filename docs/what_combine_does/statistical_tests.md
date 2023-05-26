@@ -30,19 +30,31 @@ $$t = f(\mathcal{L}(\mathrm{data}))$$
 
 ### Statistical tests
 
-Test statistics can be used in order to perform statistical tests, such as parameter estimation, limit setting, or alternative hypothesis testing.
-
-The statistical test is always performed given some model, and allows us to make statements about that model, e.g. that we have found new physics.
+The statistical test is always performed given some model, and allows us to make statements about that model, e.g. that we have found new physics, or that we reject certain new physics models.
+In almost all cases, we actually perform tests considering at least two models, [as described below](#considering-alternative-models-in-the-test).
 
 The most common statistical test can be characterized by the following steps:
 
 1. Determine the expected distribution of the test statistic, given the model. 
-2. Check the value of the test statistic for the actual observed data.
-3. Determine the p-value for observing a test statistic at least as extreme as the actual observed value.
-4. Draw some conclusion from the p-value.
+2. Define a region which contains a fixed fraction of the the total expected distribution, e.g. 68%.
+3. Check the value of the test statistic for the actual observed data.
+4. Draw some conclusion based on whether or not the observed test statistic falls within the defined region.
 
-For example, if the p-value is sufficiently small, the model may be considered rejected;
-This would be the case if we were testing a coin for fairness, using the fraction of flips that came up as heads as the test statistic and observed its value to be 0.987.
+For example, one may define a region which is expected to contain the test statistic 95% of the time, given the model. 
+If the observed test statistic is outside of this region, the model might be rejected.
+
+In many cases, as well as a binary outcome (e.g. rejecting a model), we may also report a number based on the value of the test statistic itself from step 3.
+Most often this is the p-value of the observed test statistic, or some similar value, such as a z-score or significance.
+This provides somewhat more information than the binary outcome of step 4 outlined above.
+
+/// details | **Simple Hypothesis test example**
+
+Consider if we were testing a coin for fairness, using the fraction of flips that came up as heads as the test statistic, and defined our acceptance region as a symmetric region around 0.5 in which we had calculated the test statistic should fall 95% of the time. 
+If we performed, 1000 tosses, the acceptance region for the test statistic would be approximately $[0.46 -- 0.54]$ and if its observed value was 0.85, we would then reject the fair coin hypothesis.
+
+///
+
+<br>
 
 /// details | **Mathematical details of the general statistical test**
 
@@ -51,18 +63,18 @@ The distribution of the test statistic, $t$ under some model hypothesis $\mathca
 $$t \stackrel{\mathcal{M}}{\sim} D_{\mathcal{M}}$$
 
 And the observed value of the test statistic is $t_{\mathrm{obs}}$.
-The p-value can then be calculated as:
+The strength of the test can be set by chosing some value $\alpha$ and some region $\Omega$ such that:
 
-$$p(t_{\mathrm{obs}}) = \int_{\Omega(t_{\mathrm{obs}})} D_{\mathcal{M}}$$
+$$\alpha = \int_{\Omega} D_{\mathcal{M}}$$
 
-where $\Omega(t_{\mathrm{obs}})$ is a region in the space of the test statistic bounded by $t_{\mathrm{obs}}$.
-Its precise definition depends on the test under consideration but it is often either:
+In principle, the shape of $\Omega$ can be anything that satistfies the above equation.
+In practice, however, it is usually taken to be one of a few continuous intervals, such as:
 
 $$
-[t_{\mathrm{min}}, t_{\mathrm{obs}} ] \mathrm{\ or\ } [t_{\mathrm{obs}}, t_{\mathrm{max}} ] 
+[-t_{\mathrm{crit}}, t_{\mathrm{crit}} ], [t_{\mathrm{min}}, t_{\mathrm{crit}}], \mathrm{\ or\ } [t_{\mathrm{crit}}, t_{\mathrm{max}} ] 
 $$
 
-Where $t_{\mathrm{min}}$ and  $t_{\mathrm{max}}$ are the lower and upper bounds of the domain of the test statistic.
+Where $t_{\mathrm{min}}$ and  $t_{\mathrm{max}}$ are the lower and upper bounds of the domain of the test statistic and $t_{\mathrm{crit}}$ is some critical value of the test static which depends on the choice of $\alpha$.
 
 ///
 
