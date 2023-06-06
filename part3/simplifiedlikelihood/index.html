@@ -245,7 +245,7 @@
         <div class="col-md-9" role="main">
 
 <h1 id="procedure-for-creating-and-validating-simplified-likelihood-inputs">Procedure for creating and validating simplified likelihood inputs</h1>
-<p>This page is to give a brief outline for the creation of (potentially aggregated) predictions and their covariance to facilitate external reinterpretation using the simplified likelihood (SL) approach. Instructions for validating the simplified likelihood method (detailed in the note <a href="https://cds.cern.ch/record/2242860/files/NOTE2017_001.pdf">here</a> and <a href="https://arxiv.org/abs/1809.05548">here</a>) in the linear mode are also given.</p>
+<p>This page is to give a brief outline for the creation of (potentially aggregated) predictions and their covariance to facilitate external reinterpretation using the simplified likelihood (SL) approach. Instructions for validating the simplified likelihood method (detailed in the CMS note <a href="https://cds.cern.ch/record/2242860/files/NOTE2017_001.pdf">here</a> and "<a href="https://link.springer.com/article/10.1007/JHEP04(2019)064">The Simplified Likelihood Framework</a>" paper) are also given.</p>
 <h2 id="requirements">Requirements</h2>
 <p>You need an up to date version of combine. Note You should use the latest release of combine for the exact commands on this page. You should be using combine tag <code>v9.0.0</code> or higher or the latest version of the <code>112x</code> branch to follow these instructions.  </p>
 <p>You will find the python scripts needed to convert combine outputs into simplified likelihood inputs under <code>test/simplifiedLikelihood</code></p>
@@ -254,7 +254,7 @@
 bash checkoutSL.sh
 ls work-tools/stats-tools
 </code></pre>
-<p>If you also want to validate your inputs and perform fits/scans using them, you can use the package <a href="https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md">SLtools</a> for this.</p>
+<p>If you also want to validate your inputs and perform fits/scans using them, you can use the package <a href="https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md">SLtools</a> from <a href="https://link.springer.com/article/10.1007/JHEP04(2019)064">The Simplified Likelihood Framework</a> paper for this.</p>
 <pre><code>git clone https://gitlab.cern.ch/SimplifiedLikelihood/SLtools.git
 </code></pre>
 <h2 id="producing-covariance-for-recasting">Producing covariance for recasting</h2>
@@ -305,7 +305,7 @@ ls work-tools/stats-tools
 <p>At this point you now have the inputs as ROOT files necessary to publish and run the simplified likelihood. </p>
 <h2 id="validating-the-simplified-likelihood-approach">Validating the simplified likelihood approach</h2>
 <p>The simplified likelihood relies on several assumptions (detailed in the documentation at the top). To test the validity for your analysis, statistical results between combine and the simplified likelihood can be compared. </p>
-<p>We will use the package <a href="https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md">SLtools</a> for this. The first step is to convert the ROOT files into python configs to run in the tool. </p>
+<p>We will use the package <a href="https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md">SLtools</a> from the <a href="https://link.springer.com/article/10.1007/JHEP04(2019)064">Simplified Likelihood Paper</a> for this. The first step is to convert the ROOT files into python configs to run in the tool. </p>
 <h3 id="convert-root-to-python">Convert ROOT to Python</h3>
 <p>If you followed the steps above, you have all of the histograms already necessary to generate the python configs. The script <code>test/simplifiedLikelihoods/convertSLRootToPython.py</code>  can be used to do the conversion. Just provide the following options when running with python.</p>
 <ul>
