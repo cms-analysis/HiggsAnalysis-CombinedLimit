@@ -3,25 +3,25 @@
 ### When a label is added to a PR, rebase it on another branch and open a PR from that rebase version.
 ### run this just before merging.
 
-name: Port to 112x
+name: Port to 112x-releases
 
 on:
     pull_request_target:
         types: [ labeled ]
-        branches: [ 102x ]
+        branches: [ main ]
 
 jobs:
-  build:
-    name: Port to 112x
+  port_112x_comb2022:
+    name: Port to 112x-comb2022
     runs-on: ubuntu-latest
 
     steps:
       - name: test rebase
         env:
-            ONTO: 112x
+            ONTO: 112x-comb2022
             REPO: cms-analysis/HiggsAnalysis-CombinedLimit
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ github.event.pull_request && contains(github.event.pull_request.labels.*.name, 'port to 112x') }}
+        if: ${{ github.event.pull_request && contains(github.event.label.name, 'port to 112x-comb2022') }}
         run: |
             ## checkout full repository
             git config --global user.name "github-actions[bot]"
@@ -39,5 +39,31 @@ jobs:
             echo "curl"
             curl  -X POST -H "Accept: application/vnd.github.v3+json" -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'   https://api.github.com/repos/${{env.REPO}}/pulls -d '{"head":"rebase_'${{ github.event.pull_request.number }}'_onto_'${{ env.ONTO }}'","base":"'${{env.ONTO}}'", "title":"rebase of '${{ github.event.pull_request.number }}'", "body":"This is a rebase of #'${{ github.event.pull_request.number }}' onto '${{ env.ONTO }}'"}'
 
+  port_112x_comb2021:
+    name: Port to 112x-comb2021
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: test rebase
+        env:
+            ONTO: 112x-comb2021
+            REPO: cms-analysis/HiggsAnalysis-CombinedLimit
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.event.pull_request && contains(github.event.label.name, 'port to 112x-comb2021') }}
+        run: |
+            ## checkout full repository
+            git config --global user.name "github-actions[bot]"
+            git clone https://github.com/${{env.REPO}} -b ${{ env.ONTO }} clone_dir
+            cd clone_dir
+            git remote set-url --push origin https://github-actions-bot:$GITHUB_TOKEN@github.com/${{ env.REPO }}
+            git remote add other https://github.com/${{github.event.pull_request.head.repo.full_name}}
+            git fetch other
+            git branch rebase_${{ github.event.pull_request.number }}_onto_${{ env.ONTO }} other/${{github.event.pull_request.head.ref}}
+            git rebase --onto ${{env.ONTO}} origin/${{ github.event.pull_request.base.ref }}  rebase_${{ github.event.pull_request.number }}_onto_${{ env.ONTO }}
+            echo "Done Rebasing"
+            echo "push"
+            git push origin rebase_${{ github.event.pull_request.number }}_onto_${{ env.ONTO }}
+            echo "curl"
+            curl  -X POST -H "Accept: application/vnd.github.v3+json" -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'   https://api.github.com/repos/${{env.REPO}}/pulls -d '{"head":"rebase_'${{ github.event.pull_request.number }}'_onto_'${{ env.ONTO }}'","base":"'${{env.ONTO}}'", "title":"rebase of '${{ github.event.pull_request.number }}'", "body":"This is a rebase of #'${{ github.event.pull_request.number }}' onto '${{ env.ONTO }}'"}'
 
 

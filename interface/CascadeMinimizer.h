@@ -7,7 +7,7 @@ class RooRealVar;
 #include <RooArgSet.h>
 #include <RooListProxy.h>
 #include <RooSetProxy.h>
-//#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+//#include "RooMinimizerOpt.h"
 #include "RooMinimizer.h"
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
@@ -43,7 +43,7 @@ class CascadeMinimizer {
 	std::string algo() {return defaultMinimizerAlgo_;};
     private:
         RooAbsReal & nll_;
-        std::auto_ptr<RooMinimizer> minimizer_;
+        std::unique_ptr<RooMinimizer> minimizer_;
         Mode         mode_;
         static int          strategy_;
         RooRealVar * poi_; 
@@ -123,12 +123,12 @@ class CascadeMinimizerGlobalConfigs{
 	public:
 
 	  //RooCategory* x;
-	  RooListProxy pdfCategories; 
-	  RooListProxy nuisanceParameters; 
-	  RooListProxy allFloatingParameters; 
-	  RooListProxy parametersOfInterest; 
-	  RooListProxy allRooMultiPdfParams;
-	  RooListProxy allRooMultiPdfs;
+	  RooArgList pdfCategories; 
+	  RooArgList nuisanceParameters; 
+	  RooArgList allFloatingParameters; 
+	  RooArgList parametersOfInterest; 
+	  RooArgList allRooMultiPdfParams;
+	  RooArgList allRooMultiPdfs;
 
 	  static CascadeMinimizerGlobalConfigs& O(){
 

@@ -1,3 +1,3 @@
-#include "HiggsAnalysis/CombinedLimit/interface/RooFuncPdf.h" 
+#include "../interface/RooFuncPdf.h" 
 
 ClassImp(RooFuncPdf)

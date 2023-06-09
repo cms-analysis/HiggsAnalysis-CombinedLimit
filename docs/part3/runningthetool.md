@@ -72,6 +72,8 @@ There are a number of useful command line options which can be used to alter the
     - the name of the branch will be **trackedError_*name***.
     - the behaviour is the same as `--trackParameters` above.
 
+By default, the dataset used by combine will be the one pointed to in the datacard. You can tell combine to use a different dataset (for example a toy one that you generated) by using the option `--dataset`. The argument should be `rootfile.root:workspace:location` or `rootfile.root:location`. In order to use this option, you must first convert your datacard to a binary workspace and use this binary workspace as the input to the command line. 
+
 #### Generic Minimizer Options
 
 Combine uses its own minimizer class which is used to steer Minuit (via RooMinimizer) named the `CascadeMinimizer`. This allows for sequential minimization which can help in case a particular setting/algo fails. Also, the `CascadeMinimizer` knows about extra features of Combine such as *discrete* nuisance parameters.
@@ -184,7 +186,7 @@ You can turn off the internal logic by setting `--X-rtd TMCSO_AdaptivePseudoAsim
 
 #### Nuisance parameter generation
 
-The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, *before* generating the data. The *unconstrained* nuisance parameters (eg `flatParam` or `rateParam`) or those with *flat* priors are **not** randomised before the data generation.
+The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, *before* generating the data. The *unconstrained* nuisance parameters (eg `flatParam` or `rateParam`) or those with *flat* priors are **not** randomised before the data generation. If you wish to also randomise these parameters, you **must** declare these as `flatParam` in your datacard and when running text2workspace you must add the option `--X-assign-flatParam-prior` in the command line.
 
 The following are options which define how the toys will be generated,
 
@@ -273,7 +275,7 @@ With this model it would take too long to find the limit in one go, so instead w
 
 For this we will use `combineTool.py`
 
-First we need to build a workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/data/tutorials/htt/125/htt_tt.txt),
+First we need to build a workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/htt/125/htt_tt.txt),
 
 ```sh
 $ text2workspace.py data/tutorials/htt/125/htt_mt.txt -m 125

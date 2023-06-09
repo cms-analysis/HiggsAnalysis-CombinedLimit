@@ -13,7 +13,7 @@ A full set of options for `text2workspace` can be found by using `--help`.
 The default model which will be produced when running `text2workspace` is one in which all processes identified as signal are multiplied by a common multiplier **r**. This is all that is needed for simply setting limits or calculating significances.
 
 `text2workspace` will convert the datacard into a pdf which summaries the analysis.
-For example, lets take a look at the [data/tutorials/counting/simple-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/simple-counting-experiment.txt) datacard.
+For example, lets take a look at the [data/tutorials/counting/simple-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/simple-counting-experiment.txt) datacard.
 
 ```nohighlight
 # Simple counting experiment, with one signal and one background process
@@ -72,7 +72,7 @@ Generic models can be implemented by writing a python class that:
 -   defines how signal and background yields depend on the parameters (by default, signal scale linearly with **`r`**, backgrounds are constant)
 -   potentially also modifies the systematics (e.g. switch off theory uncertainties on cross section when measuring the cross section itself)
 
-In the case of SM-like Higgs searches the class should inherit from **`SMLikeHiggsModel`** (redefining **`getHiggsSignalYieldScale`**), while beyond that one can inherit from **`PhysicsModel`**. You can find some examples in [PhysicsModel.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/PhysicsModel.py).
+In the case of SM-like Higgs searches the class should inherit from **`SMLikeHiggsModel`** (redefining **`getHiggsSignalYieldScale`**), while beyond that one can inherit from **`PhysicsModel`**. You can find some examples in [PhysicsModel.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/PhysicsModel.py).
 
 In the 4-process model (`PhysicsModel:floatingXSHiggs`, you will see that each of the 4 dominant Higgs production modes get separate scaling parameters, **`r_ggH`**, **`r_qqH`**, **`r_ttH`** and **`r_VH`** (or **`r_ZH`** and **`r_WH`**) as defined in,
 
@@ -104,7 +104,7 @@ def getHiggsSignalYieldScale(self,production,decay, energy):
 
 You should note that `text2workspace` will look for the python module in `PYTHONPATH`. If you want to keep your model local, you'll need to add the location of the python file to `PYTHONPATH`.
 
-A number of models used in the LHC Higgs combination paper can be found in [LHCHCGModels.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/python/LHCHCGModels.py). These can be easily accessed by providing for example `-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7` and others defined un [HiggsCouplings.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/python/HiggsCouplings.py).
+A number of models used in the LHC Higgs combination paper can be found in [LHCHCGModels.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/LHCHCGModels.py). These can be easily accessed by providing for example `-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7` and others defined un [HiggsCouplings.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsCouplings.py).
 
 Below are some (more generic) example models which also exist in gitHub.
 
@@ -124,7 +124,7 @@ Passing the additional option **`--PO verbose`** will set the code to verbose mo
 
 The MultiSignalModel will define all parameters as parameters of interest, but that can be then changed from the command line of combine, as described in the following sub-section.
 
-Some examples, taking as reference the toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/toy-hgg-125.txt):
+Some examples, taking as reference the toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/toy-hgg-125.txt):
 
 -   Scale both `ggH` and `qqH` with the same signal strength `r` (that's what the default physics model of combine does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)
 
@@ -197,7 +197,7 @@ Some examples, taking as reference the toy datacard [test/multiDim/toy-hgg-125.t
 
 ### Two Hypothesis testing
 
-The `PhysicsModel` that encodes the signal model above is the [twoHypothesisHiggs](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/python/HiggsJPC.py), which assumes that there will exist signal processes with suffix **_ALT** in the datacard. An example of such a datacard can be found under [data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt)
+The `PhysicsModel` that encodes the signal model above is the [twoHypothesisHiggs](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsJPC.py), which assumes that there will exist signal processes with suffix **_ALT** in the datacard. An example of such a datacard can be found under [data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt)
 
 ```nohighlight
  $ text2workspace.py twoSignals-3bin-bigBSyst.txt -P HiggsAnalysis.CombinedLimit.HiggsJPC:twoHypothesisHiggs -m 125.7 --PO verbose -o jcp_hww.root

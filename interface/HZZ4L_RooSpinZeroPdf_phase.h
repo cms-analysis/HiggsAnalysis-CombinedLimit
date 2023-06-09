@@ -17,6 +17,8 @@
 #include "TH1.h"
 #include "RooDataHist.h"
 #include "RooHistFunc.h"
+#include "RooListProxy.h"
+
 using namespace RooFit;
 class HZZ4L_RooSpinZeroPdf_phase : public RooAbsPdf {
 protected:

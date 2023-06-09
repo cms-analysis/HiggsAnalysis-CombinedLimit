@@ -1,5 +1,5 @@
 #include "Riostream.h" 
-#include <HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooSpinZeroPdf_1D.h>
+#include "../interface/HZZ4L_RooSpinZeroPdf_1D.h"
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h>
@@ -7,6 +7,7 @@
 #include "TH3F.h"
 #include "TAxis.h"
 #include "RooDataHist.h"
+#include "RooListProxy.h"
 
 using namespace TMath;
 

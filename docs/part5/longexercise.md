@@ -7,38 +7,39 @@ For the majority of this course we will work with a simplified version of a real
 
 Initially we will start with the simplest analysis possible: a one-bin counting experiment using just the high $M_{\mathrm{T}}^{\mathrm{tot}}$ region of this distribution, and from there each section of this exercise will expand on this, introducing a shape-based analysis and adding control regions to constrain the backgrounds.
 
+## Background
+You can find a presentation with some more background on likelihoods and extracting confidence intervals [here](https://indico.cern.ch/event/976099/contributions/4138517/). A presentation that discusses limit setting in more detail can be found [here](https://indico.cern.ch/event/976099/contributions/4138520/).
+If you are not yet familiar with these concepts, or would like to refresh your memory, we recommend that you have a look at these presentations before you start with the exercise. 
+
 ## Getting started
 We need to set up a new CMSSW area and checkout the combine package: 
 
 ```shell
-export SCRAM_ARCH=slc7_amd64_gcc700
-cmsrel CMSSW_10_2_13
-cd CMSSW_10_2_13/src
+cmsrel CMSSW_11_3_4
+cd CMSSW_11_3_4/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v8.1.0
-
-cd $CMSSW_BASE/src
+git checkout v9.0.0
 ```
+
 We will also make use another package, `CombineHarvester`, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this tutorial:
 ```shell
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh)
+bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
 ```
 Now make sure the CMSSW area is compiled:
 ```shell 
 scramv1 b clean; scramv1 b
 ```
-Finally we will checkout the working directory for these tutorials - this contains all the inputs needed to run the exercises below:
 
+Now we will move to the working directory for this tutorial, which contains all the inputs needed to run the exercises below:
 ```shell
-cd $CMSSW_BASE/src
-git clone https://gitlab.cern.ch/agilbert/cms-das-stats.git
-cd cms-das-stats
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/
 ```
+
 ## Part 1: A one-bin counting experiment
 
 Topics covered in this section:
@@ -46,7 +47,7 @@ Topics covered in this section:
   - A: Computing limits using the asymptotic approximation
   - Advanced section: B: Computing limits with toys
 
-We will begin with a simplified version of a datacard from the MSSM $\phi\rightarrow\tau\tau$ analysis that has been converted to a one-bin counting experiment, as described above. While the full analysis considers a range of signal mass hypotheses, we will start by considering just one: $m_{\phi}$=800GeV. Click the text below to study the datacard (`datacard_part1.txt` in the `cms-das-stats` directory):
+We will begin with a simplified version of a datacard from the MSSM $\phi\rightarrow\tau\tau$ analysis that has been converted to a one-bin counting experiment, as described above. While the full analysis considers a range of signal mass hypotheses, we will start by considering just one: $m_{\phi}$=800GeV. Click the text below to study the datacard (`datacard_part1.txt` in the `longexercise` directory):
 
 <details>
 <summary><b>Show datacard</b></summary>
@@ -70,11 +71,8 @@ CMS_eff_t_highpt   lnN   1.1             1.1             1.1             -      
 acceptance_Ztautau lnN   -               -               1.08            -               -
 acceptance_bbH     lnN   -               -               -               -               1.05
 acceptance_ttbar   lnN   1.005           -               -               -               -
-lumi_13TeV         lnN   1.025           1.025           1.025           -               1.025
 norm_jetFakes      lnN   -               -               -               1.2             -
-xsec_Ztautau       lnN   -               -               1.04            -               -
 xsec_diboson       lnN   -               1.05            -               -               -
-xsec_ttbar         lnN   1.06            -               -               -               -
 ```
 </details>
 
@@ -95,7 +93,7 @@ combine -M [method] [datacard] [additional options...]
 
 ### A: Computing limits using the asymptotic approximation 
 
-As we are searching for a signal process that does not exist in the standard mode, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). Combine has dedicated method for calculating upper limits. The most commonly used one is `AsymptoticLimits`, which implements the CLs criterion and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the asymptotic approximation, so there is no need for more time-intensive toy throwing and fitting. Try running the following command:
+As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). Combine has dedicated method for calculating upper limits. The most commonly used one is `AsymptoticLimits`, which implements the [CLs criterion](https://inspirehep.net/literature/599622) and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the [asymptotic approximation](https://arxiv.org/abs/1007.1727), so there is no need for more time-intensive toy throwing and fitting. Try running the following command:
 
 ```shell
 combine -M AsymptoticLimits datacard_part1.txt -n .part1A
@@ -113,7 +111,7 @@ In this case we only computed the values for one signal mass hypothesis, indicat
 
 **Tasks and questions:**
 
-  -   There are some important uncertainties missing from the datacard above. Add the uncertainty on the luminosity (name: `lumi_13TeV`) which has a 2.5% effect on all processes (except the `jetFakes`, which are taken from data), and uncertainties on the inclusive cross sections of the `Ztautau` and `ttbar` processes (with names `xsec_Ztautau` and `xsec_diboson`) which are 4% and 6% respectively.
+  -   There are some important uncertainties missing from the datacard above. Add the uncertainty on the luminosity (name: `lumi_13TeV`) which has a 2.5% effect on all processes (except the `jetFakes`, which are taken from data), and uncertainties on the inclusive cross sections of the `Ztautau` and `ttbar` processes (with names `xsec_Ztautau` and `xsec_ttbar`) which are 4% and 6% respectively.
   -   Try changing the values of some uncertainties (up or down, or removing them altogether) - how do the expected and observed limits change?
   -   Now try changing the number of observed events. The observed limit will naturally change, but the expected does too - why might this be?
 
@@ -130,7 +128,7 @@ Run the following command:
 ```shell
 combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --fork 0
 ```
-In contrast to `AsymptoticLimits` this will only determine the observed limit, and will take around five minutes. There will not be much output to the screen while combine is running. You can add the option `-v 1` to get a better idea of what is going on. You should see combine stepping around in `r`, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The `--saveHybridResult` option will cause the test statistic distributions that are generated at each tested value of `r` to be saved in the output ROOT file.
+In contrast to `AsymptoticLimits` this will only determine the observed limit, and will take a few minutes. There will not be much output to the screen while combine is running. You can add the option `-v 1` to get a better idea of what is going on. You should see combine stepping around in `r`, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The `--saveHybridResult` option will cause the test statistic distributions that are generated at each tested value of `r` to be saved in the output ROOT file.
 
 To get an expected limit add the option `--expectedFromGrid X`, where `X` is the desired quantile, e.g. for the median:
 
@@ -143,17 +141,17 @@ Calculate the median expected limit and the 68% range. The 95% range could also 
 **Tasks and questions:**
 - In contrast to `AsymptoticLimits`, with `HybridNew` each limit comes with an uncertainty. What is the origin of this uncertainty?
 - How good is the agreement between the asymptotic and toy-based methods?
-- Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on CLs+b and CLb.
+- Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on Pmu and Pb.
 
 Next plot the test statistic distributions stored in the output file:
 ```shell
-python $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py --input higgsCombine.part1B.HybridNew.mH120.root --poi r --val all --mass 120
+python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py --input higgsCombine.part1B.HybridNew.mH120.root --poi r --val all --mass 120
 ```
 
 This produces a new ROOT file `cls_qmu_distributions.root` containing the plots, to save them as pdf/png files run this small script and look at the resulting figures:
 
 ```shell
-python printTestStatPlots.py cls_qmu_distributions.root
+python3 printTestStatPlots.py cls_qmu_distributions.root
 ```
 
 #### Advanced exercises
@@ -211,7 +209,7 @@ There are two other differences with respect to the one-bin card:
 
 The syntax of the "shapes" line is: `shapes [process] [channel] [file] [histogram] [histogram_with_systematics]`. It is possible to use the `*` wildcard to map multiple processes and/or channels with one line. The histogram entries can contain the `$PROCESS`, `$CHANNEL` and `$MASS` place-holders which will be substituted when searching for a given (process, channel) combination. The value of `$MASS` is specified by the `-m` argument when combine. By default the observed data process name will be `data_obs`.
 
-Shape uncertainties can be added by supplying two additional histograms for a process, corresponding to the distribution obtained by shifting that parameter up and down by one standard deviation. These shapes will be interpolated quadratically for shifts below $1\sigma$ and linearly beyond. The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties.
+Shape uncertainties can be added by supplying two additional histograms for a process, corresponding to the distribution obtained by shifting that parameter up and down by one standard deviation. These shapes will be interpolated (see the [template shape uncertainties](../part2/settinguptheanalysis.md#template-shape-uncertainties) section for details) for shifts within $\pm1\sigma$ and linearly extrapolated beyond. The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties.
 
 ![](images/shape_morphing.jpg)
 
@@ -254,12 +252,12 @@ We will now explore one of the most commonly used modes of combine: `FitDiagnost
   - A "background-only" (b-only) fit: first POI (usually "r") fixed to zero
   - A "signal+background" (s+b) fit: all POIs are floating
  
-With the s+b fit combine will report the best-fit value of our signal strength modifier `r`. As well as the usual output file, a file named `fitdiagnostics.root` is produced which contains additional information. In particular it includes two `RooFitResult` objects, one for the b-only and one for the s+b fit, which store the fitted values of all the **nuisance parameters (NPs)** and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the `FitDiagnostics` method on our workspace:
+With the s+b fit combine will report the best-fit value of our signal strength modifier `r`. As well as the usual output file, a file named `fitDiagnosticsTest.root` is produced which contains additional information. In particular it includes two `RooFitResult` objects, one for the b-only and one for the s+b fit, which store the fitted values of all the **nuisance parameters (NPs)** and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the `FitDiagnostics` method on our workspace:
 
 ```shell
 combine -M FitDiagnostics workspace_part2.root -m 800 --rMin -20 --rMax 20
 ```
-Open the resulting `fitDiagnostics.root` interactively and print the contents of the s+b RooFitResult:
+Open the resulting `fitDiagnosticsTest.root` interactively and print the contents of the s+b RooFitResult:
 
 ```shell
 root [1] fit_s->Print()
@@ -267,28 +265,28 @@ root [1] fit_s->Print()
 <details>
 <summary><b>Show output</b></summary>
 ```shell
- RooFitResult: minimized FCN value: -4.7666, estimated distance to minimum: 3.31389e-05
+RooFitResult: minimized FCN value: -2.55338e-05, estimated distance to minimum: 7.54243e-06
                 covariance matrix quality: Full, accurate covariance matrix
                 Status : MINIMIZE=0 HESSE=0
 
-   Floating Parameter    FinalValue +/-  Error
---------------------  --------------------------
-             CMS_eff_b   -4.3559e-02 +/-  9.87e-01
-             CMS_eff_t   -2.6382e-01 +/-  7.27e-01
-      CMS_eff_t_highpt   -4.7214e-01 +/-  9.56e-01
-      CMS_scale_t_1prong0pi0_13TeV   -1.5884e-01 +/-  5.89e-01
-      CMS_scale_t_1prong1pi0_13TeV   -1.6512e-01 +/-  4.91e-01
-      CMS_scale_t_3prong0pi0_13TeV   -3.0668e-01 +/-  6.03e-01
-    acceptance_Ztautau   -3.1059e-01 +/-  8.57e-01
-        acceptance_bbH   -5.8325e-04 +/-  9.94e-01
-      acceptance_ttbar    4.7839e-03 +/-  9.94e-01
-            lumi_13TeV   -5.4684e-02 +/-  9.83e-01
-         norm_jetFakes   -9.3975e-02 +/-  2.54e-01
-                     r   -2.7327e+00 +/-  2.57e+00
-    top_pt_ttbar_shape    1.7614e-01 +/-  6.97e-01
-          xsec_Ztautau   -1.5991e-01 +/-  9.61e-01
-          xsec_diboson    3.8745e-02 +/-  9.94e-01
-            xsec_ttbar    5.8025e-02 +/-  9.41e-01
+    Floating Parameter    FinalValue +/-  Error
+  --------------------  --------------------------
+             CMS_eff_b   -4.5380e-02 +/-  9.93e-01
+             CMS_eff_t   -2.6311e-01 +/-  7.33e-01
+      CMS_eff_t_highpt   -4.7146e-01 +/-  9.62e-01
+  CMS_scale_t_1prong0pi0_13TeV   -1.5989e-01 +/-  5.93e-01
+  CMS_scale_t_1prong1pi0_13TeV   -1.6426e-01 +/-  4.94e-01
+  CMS_scale_t_3prong0pi0_13TeV   -3.0698e-01 +/-  6.06e-01
+    acceptance_Ztautau   -3.1262e-01 +/-  8.62e-01
+        acceptance_bbH   -2.8676e-05 +/-  1.00e+00
+      acceptance_ttbar    4.9981e-03 +/-  1.00e+00
+            lumi_13TeV   -5.6366e-02 +/-  9.89e-01
+         norm_jetFakes   -9.3327e-02 +/-  2.56e-01
+                     r   -2.7220e+00 +/-  2.59e+00
+    top_pt_ttbar_shape    1.7586e-01 +/-  7.00e-01
+          xsec_Ztautau   -1.6007e-01 +/-  9.66e-01
+          xsec_diboson    3.9758e-02 +/-  1.00e+00
+            xsec_ttbar    5.7794e-02 +/-  9.46e-01
 ```
 </details>
 
@@ -299,37 +297,37 @@ Underneath this the best-fit values ($\theta$) and symmetrised uncertainties for
 A more useful way of looking at this is to compare the pre- and post-fit values of the parameters, to see how much the fit to data has shifted and constrained these parameters with respect to the input uncertainty. The script `diffNuisances.py` can be used for this:
 
 ```shell
-python diffNuisances.py fitDiagnostics.root --all
+python diffNuisances.py fitDiagnosticsTest.root --all
 ```
 <details>
 <summary><b>Show output</b></summary>
 ```shell
 name                                              b-only fit            s+b fit         rho
-CMS_eff_b                                        -0.04, 0.99        -0.04, 0.99       +0.01
+CMS_eff_b                                        -0.04, 0.99        -0.05, 0.99       +0.01
 CMS_eff_t                                     * -0.24, 0.73*     * -0.26, 0.73*       +0.06
-CMS_eff_t_highpt                              * -0.56, 0.93*     * -0.47, 0.96*       +0.03
+CMS_eff_t_highpt                              * -0.56, 0.94*     * -0.47, 0.96*       +0.02
 CMS_scale_t_1prong0pi0_13TeV                  * -0.17, 0.58*     * -0.16, 0.59*       -0.04
-CMS_scale_t_1prong1pi0_13TeV                  ! -0.12, 0.45!     ! -0.17, 0.49!       +0.21
-CMS_scale_t_3prong0pi0_13TeV                  * -0.31, 0.60*     * -0.31, 0.60*       +0.02
+CMS_scale_t_1prong1pi0_13TeV                  ! -0.12, 0.45!     ! -0.16, 0.49!       +0.20
+CMS_scale_t_3prong0pi0_13TeV                  * -0.31, 0.61*     * -0.31, 0.61*       +0.02
 acceptance_Ztautau                            * -0.31, 0.86*     * -0.31, 0.86*       -0.05
-acceptance_bbH                                   +0.00, 0.99        -0.00, 0.99       +0.05
-acceptance_ttbar                                 +0.01, 0.99        +0.00, 0.99       +0.00
-lumi_13TeV                                       -0.05, 0.98        -0.05, 0.98       +0.01
-norm_jetFakes                                 ! -0.09, 0.25!     ! -0.09, 0.25!       -0.05
-top_pt_ttbar_shape                            * +0.24, 0.69*     * +0.18, 0.70*       +0.23
-xsec_Ztautau                                     -0.16, 0.96        -0.16, 0.96       -0.02
-xsec_diboson                                     +0.03, 0.99        +0.04, 0.99       -0.02
-xsec_ttbar                                       +0.08, 0.94        +0.06, 0.94       +0.02
+acceptance_bbH                                   +0.00, 1.00        -0.00, 1.00       +0.05
+acceptance_ttbar                                 +0.01, 1.00        +0.00, 1.00       +0.00
+lumi_13TeV                                       -0.05, 0.99        -0.06, 0.99       +0.01
+norm_jetFakes                                 ! -0.09, 0.26!     ! -0.09, 0.26!       -0.05
+top_pt_ttbar_shape                            * +0.24, 0.69*     * +0.18, 0.70*       +0.22
+xsec_Ztautau                                     -0.16, 0.97        -0.16, 0.97       -0.02
+xsec_diboson                                     +0.03, 1.00        +0.04, 1.00       -0.02
+xsec_ttbar                                       +0.08, 0.95        +0.06, 0.95       +0.02
 ```
 </details>
 
-The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (often called the **pull**, though note that more than one definition is in use for this), where $\sigma_I$ is the input uncertainty; and the ratio of the post-fit to the pre-fit uncertainty $\frac{\sigma}{\sigma_I}$.
+The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (This is often called the pull, but note that this is a misnomer. In this tutorial we will refer to it as the fitted value of the nuisance parameter relative to the input uncertainty. The true pull is defined as discussed under `diffPullAsym` [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#pre-and-post-fit-nuisance-parameters-and-pulls) ), where $\sigma_I$ is the input uncertainty; and the ratio of the post-fit to the pre-fit uncertainty $\frac{\sigma}{\sigma_I}$. 
 
 **Tasks and questions:**
 
-  - Which parameter has the largest pull? Which has the tightest constraint?
+  - Which parameter has the largest shift from the nominal value (0) in the fitted value of the nuisance parameter relative to the input uncertainty? Which has the tightest constraint?
   - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. $\frac{\sigma}{\sigma_I}<1.0$)?
-  - Check the pulls and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
+  - Check the fitted values of the nuisance parameters and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
   - **Advanced task:** Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics) to explore the tools available for this.
 
 ### D: MC statistical uncertainties
@@ -413,16 +411,17 @@ shapes *              signal_region  datacard_part3.shapes.root signal_region/$P
 shapes bbHtautau      signal_region  datacard_part3.shapes.root signal_region/bbHtautau$MASS signal_region/bbHtautau$MASS_$SYSTEMATIC
 shapes *              ttbar_cr       datacard_part3_ttbar_cr.shapes.root tt_control_region/$PROCESS tt_control_region/$PROCESS_$SYSTEMATIC
 ----------------------------------------------------------------------------------------------------------------------------------
-bin          signal_region  ttbar_cr       DY_cr
-observation  3416           79251          365754
+bin          signal_region  ttbar_cr       DY_cr        
+observation  3416           79251          365754       
 ----------------------------------------------------------------------------------------------------------------------------------
-bin                                               signal_region  signal_region  signal_region  signal_region  signal_region  ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       DY_cr          DY_cr          DY_cr          DY_cr          DY_cr          DY_cr
-process                                           bbHtautau      ttbar          diboson        Ztautau        jetFakes       Ztautau        ttbar          VV             W              QCD            W              Ztautau        VV             QCD            ttbar          Zmumu
-process                                           0              1              2              3              4              3              1              5              6              7              6              3              5              7              1              8
-rate                                              198.521        683.017        96.5185        742.649        2048.94        150.025        67280.4        10589.6        597.336        308.965        59.9999        115.34         5273.43        141.725        34341.1        305423
+bin                                               signal_region  signal_region  signal_region  signal_region  signal_region  ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       DY_cr          DY_cr          DY_cr          DY_cr          DY_cr          DY_cr        
+process                                           bbHtautau      ttbar          diboson        Ztautau        jetFakes       W              QCD            ttbar          VV             Ztautau        W              QCD            Zmumu          ttbar          VV             Ztautau      
+process                                           0              1              2              3              4              5              6              1              7              3              5              6              8              1              7              3            
+rate                                              198.521        683.017        96.5185        742.649        2048.94        597.336        308.965        67280.4        10589.6        150.025        59.9999        141.725        305423         34341.1        5273.43        115.34       
 ----------------------------------------------------------------------------------------------------------------------------------
-CMS_eff_b               lnN                       1.02           1.02           1.02           1.02           -              -              -              -              -              -              -              -              -              -              -              -
-CMS_eff_e               lnN                       -              -              -              -              -              1.02           1.02           1.02           1.02           -              -              -              -              -              -              -
+CMS_eff_b               lnN                       1.02           1.02           1.02           1.02           -              -              -              -              -              -              -              -              -              -              -              -            
+CMS_eff_e               lnN                       -              -              -              -              -              1.02           -              -              1.02           1.02           -              -              -              -              -              -            
+...
 ```
 </details>
 
@@ -447,8 +446,8 @@ is perfectly valid and only one `rateParam` will be created. These parameters wi
 
 **Tasks and questions:**
 
-  - Run `text2workspace.py` on this combined card and then use `FitDiagnostics` on an Asimov dataset with `r=1` to get the expected uncertainty. Suggested command line options: `--rMin 0 --rMax 2`
-  - Using the RooFitResult in the `fitdiagnostics.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
+  - Run `text2workspace.py` on this combined card (don't forget to set the mass and output name `-m 200 -o workspace_part3.root`) and then use `FitDiagnostics` on an Asimov dataset with `r=1` to get the expected uncertainty. Suggested command line options: `--rMin 0 --rMax 2`
+  - Using the RooFitResult in the `fitDiagnosticsTest.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
   - To compare to the previous approach of fitting the SR only, with cross section and acceptance uncertainties restored, an additional card is provided: `datacard_part3_nocrs.txt`. Run the same fit on this card to verify the improvement of the SR+CR approach
 
 ### B: Nuisance parameter impacts
@@ -466,7 +465,7 @@ This will take a little bit of time. When finished we collect all the output and
 ```shell
 combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --output impacts.json
 ```
-We can then make a plot showing the pulls and parameter impacts, sorted by the largest impact:
+We can then make a plot showing the fitted values of the nuisance parameters, relative to the input uncertainty, and parameter impacts, sorted by the largest impact:
 ```shell
 plotImpacts.py -i impacts.json -o impacts
 ```
@@ -474,7 +473,7 @@ plotImpacts.py -i impacts.json -o impacts
 **Tasks and questions:**
 
   - Identify the most important uncertainties using the impacts tool.
-  - In the plot, some parameters do not show a pull, but rather just a numerical value - why?
+  - In the plot, some parameters do not show a fitted value of the nuisance parameter relative to the input uncertainty, but rather just a numerical value - why?
 
 ### C: Post-fit distributions
 Another thing the `FitDiagnostics` mode can help us with is visualising the distributions we are fitting, and the uncertainties on those distributions, both before the fit is performed ("pre-fit") and after ("post-fit"). The pre-fit can give us some idea of how well our uncertainties cover any data-MC discrepancy, and the post-fit if discrepancies remain after the fit to data (as well as possibly letting us see the presence of a significant signal!).
@@ -482,17 +481,17 @@ Another thing the `FitDiagnostics` mode can help us with is visualising the dist
 To produce these distributions add the `--saveShapes` and `--saveWithUncertainties` options when running `FitDiagnostics`:
 
 ```shell
-combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveShapes --saveWithUncertainties
+combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveShapes --saveWithUncertainties -n .part3B
 ```
 
-Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitdiagnostics.root output file:
+Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitDiagnosticsTest.root output file:
 
 ![](images/fit_diag_shapes.png)
 
 **Tasks and questions:**
 
-  - Make a plot showing the expected background and signal contributions using the output from `FitDiagnostics` - do this for both the pre-fit and post-fit. You will find a script `postFitPlot.py` in the `cms-das-stats` repository that can help you get started.
- The bin errors on the TH1s in the fitdiagnostics file are determined from the systematic uncertainties. In the post-fit these take into account the additional constraints on the nuisance parameters as well as any correlations.
+  - Make a plot showing the expected background and signal contributions using the output from `FitDiagnostics` - do this for both the pre-fit and post-fit. You will find a script `postFitPlot.py` in the `longexercise` directory that can help you get started.
+ The bin errors on the TH1s in the fitDiagnostics file are determined from the systematic uncertainties. In the post-fit these take into account the additional constraints on the nuisance parameters as well as any correlations.
 
   - Why is the uncertainty on the post-fit so much smaller than on the pre-fit?
 
@@ -550,37 +549,37 @@ root [1] limit->Scan("r:deltaNLL")
 ************************************
 *    Row   *         r *  deltaNLL *
 ************************************
-*        0 * 0.5007491 *         0 *
-*        1 * -0.949999 * 5.0564951 *
-*        2 * -0.850000 * 4.4238934 *
-*        3 *     -0.75 * 3.8231189 *
-*        4 * -0.649999 * 3.2575576 *
-*        5 * -0.550000 * 2.7291250 *
-*        6 * -0.449999 * 2.2421045 *
-*        7 * -0.349999 * 1.7985963 *
-*        8 *     -0.25 * 1.4009944 *
-*        9 * -0.150000 * 1.0515967 *
-*       10 * -0.050000 * 0.7510029 *
-*       11 * 0.0500000 * 0.5008214 *
-*       12 * 0.1500000 * 0.3021477 *
-*       13 *      0.25 * 0.1533777 *
-*       14 * 0.3499999 * 0.0552866 *
-*       15 * 0.4499999 * 0.0067232 *
-*       16 * 0.5500000 * 0.0062941 *
-*       17 * 0.6499999 * 0.0515425 *
-*       18 *      0.75 * 0.1421113 *
-*       19 * 0.8500000 * 0.2767190 *
-*       20 * 0.9499999 * 0.4476667 *
-*       21 * 1.0499999 * 0.6578899 *
-*       22 * 1.1499999 * 0.9042779 *
-*       23 *      1.25 * 1.1839065 *
-*       24 * 1.3500000 * 1.4943070 *
-*       25 * 1.4500000 * 1.8335367 *
-*       26 * 1.5499999 * 2.1992974 *
-*       27 * 1.6499999 * 2.5904724 *
-*       28 *      1.75 * 3.0033872 *
-*       29 * 1.8500000 * 3.4358899 *
-*       30 * 1.9500000 * 3.8883462 *
+*        0 * 0.5399457 *         0 *
+*        1 * -0.949999 * 5.6350698 *
+*        2 * -0.850000 * 4.9482779 *
+*        3 *     -0.75 * 4.2942519 *
+*        4 * -0.649999 * 3.6765284 *
+*        5 * -0.550000 * 3.0985388 *
+*        6 * -0.449999 * 2.5635135 *
+*        7 * -0.349999 * 2.0743820 *
+*        8 *     -0.25 * 1.6337506 *
+*        9 * -0.150000 * 1.2438088 *
+*       10 * -0.050000 * 0.9059833 *
+*       11 * 0.0500000 * 0.6215767 *
+*       12 * 0.1500000 * 0.3910581 *
+*       13 *      0.25 * 0.2144184 *
+*       14 * 0.3499999 * 0.0911308 *
+*       15 * 0.4499999 * 0.0201983 *
+*       16 * 0.5500000 * 0.0002447 *
+*       17 * 0.6499999 * 0.0294311 *
+*       18 *      0.75 * 0.1058298 *
+*       19 * 0.8500000 * 0.2272539 *
+*       20 * 0.9499999 * 0.3912534 *
+*       21 * 1.0499999 * 0.5952836 *
+*       22 * 1.1499999 * 0.8371513 *
+*       23 *      1.25 * 1.1142146 *
+*       24 * 1.3500000 * 1.4240909 *
+*       25 * 1.4500000 * 1.7644306 *
+*       26 * 1.5499999 * 2.1329684 *
+*       27 * 1.6499999 * 2.5273966 *
+*       28 *      1.75 * 2.9458723 *
+*       29 * 1.8500000 * 3.3863399 *
+*       30 * 1.9500000 * 3.8469560 *
 ************************************
 ```
 </details>
@@ -618,7 +617,7 @@ Now the plot should look correct:
 
 ![](images/freeze_second_attempt.png)
 
-We added the `--breakdown Syst,Stat` option to the plotting script to make it calculate the systematic component, which is defined simply as $\sigma_{\text{syst}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{stat}}}.
+We added the `--breakdown Syst,Stat` option to the plotting script to make it calculate the systematic component, which is defined simply as $\sigma_{\text{syst}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{stat}}}$.
 To split the systematic uncertainty into different components we just need to run another scan with a subset of the systematics frozen. For example, say we want to split this into experimental and theoretical uncertainties, we would calculate the uncertainties as:
 
 $\sigma_{\text{theory}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{fr.theory}}}$
@@ -671,20 +670,22 @@ An example physics model that just implements a single parameter `r` is given in
 <details>
 <summary><b>Show DASModel.py</b></summary>
 ```python
-from HiggsAnalysis.CombinedLimit.PhysicsModel import *
+from HiggsAnalysis.CombinedLimit.PhysicsModel import PhysicsModel
+
 
 class DASModel(PhysicsModel):
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         self.modelBuilder.doVar("r[0,0,10]")
-        self.modelBuilder.doSet("POI", ",".join(['r']))
+        self.modelBuilder.doSet("POI", ",".join(["r"]))
 
     def getYieldScale(self, bin, process):
         "Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don't scale, and set to zero)"
         if self.DC.isSignal[process]:
-            print 'Scaling %s/%s by r' % (bin, process)
+            print("Scaling %s/%s by r" % (bin, process))
             return "r"
         return 1
+
 
 dasModel = DASModel()
 ```
@@ -717,6 +718,3 @@ For a model with two POIs it is often useful to look at the how well we are able
 
   - Run a 2D likelihood scan in `r_ggH` and `r_bbH`. You can start with around 100 points but may need to increase this later too see more detail in the resulting plot.
   - Have a look at the output limit tree, it should have branches for each POI as well as the usual deltaNLL value. You can use TTree::Draw to plot a 2D histogram of deltaNLL with `r_ggH` and `r_bbH` on the axes.
-
-
-

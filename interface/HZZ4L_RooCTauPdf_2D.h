@@ -17,6 +17,7 @@
 #include "TH1.h"
 #include "RooDataHist.h"
 #include "RooHistFunc.h"
+#include "RooListProxy.h"
 
 
 class HZZ4L_RooCTauPdf_2D : public RooAbsPdf {

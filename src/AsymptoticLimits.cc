@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "HiggsAnalysis/CombinedLimit/interface/AsymptoticLimits.h"
+#include "../interface/AsymptoticLimits.h"
 #include <RooRealVar.h>
 #include <RooArgSet.h>
 #include <RooAbsPdf.h>
@@ -9,16 +9,16 @@
 #include <RooCategory.h>
 #include <RooStats/ModelConfig.h>
 #include <Math/DistFuncMathCore.h>
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "../interface/Combine.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/RooFitGlobalKillSentry.h"
+#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/ToyMCSamplerOpt.h"
+#include "../interface/Significance.h"
+#include "../interface/CascadeMinimizer.h"
+#include "../interface/utils.h"
+#include "../interface/AsimovUtils.h"
+#include "../interface/Logger.h"
 
 #include <boost/bind.hpp>
 
@@ -54,7 +54,7 @@ LimitAlgo("AsymptoticLimits specific options") {
         //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         //("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
-        ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, CLsplusb")
+        ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, Pmu")
         ("picky", "Abort on fit failures")
         ("noFitAsimov", "Use the pre-fit asimov dataset")
 	("getLimitFromGrid", boost::program_options::value<std::string>(&gridFileName_), "calculates the limit from a grid of r,cls values")
@@ -76,8 +76,8 @@ void AsymptoticLimits::applyOptions(const boost::program_options::variables_map 
     noFitAsimov_ = vm.count("noFitAsimov") || vm.count("bypassFrequentistFit"); // aslo pick up base option from combine
 
     if (rule_=="CLs") doCLs_ = true;
-    else if (rule_=="CLsplusb") doCLs_ = false;
-    else throw std::invalid_argument("AsymptoticLimits: Rule must be either 'CLs' or 'CLsplusb'");
+    else if (rule_=="Pmu") doCLs_ = false;
+    else throw std::invalid_argument("AsymptoticLimits: Rule must be either 'CLs' or 'Pmu'");
 
     if (what_ == "blind") { what_ = "expected"; noFitAsimov_ = true; } 
     if (noFitAsimov_) std::cout << "Will use a-priori expected background instead of a-posteriori one." << std::endl; 
@@ -107,7 +107,7 @@ bool AsymptoticLimits::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
     */
     hasDiscreteParams_ = false;  
     if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
-    std::auto_ptr<TIterator> itparam(params_->createIterator());
+    std::unique_ptr<TIterator> itparam(params_->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
       if (a->IsA()->InheritsFrom(RooCategory::Class())) { hasDiscreteParams_ = true; break; }
     }
@@ -164,7 +164,7 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
 
   hasFloatParams_ = false;
-  std::auto_ptr<TIterator> itparam(params_->createIterator());
+  std::unique_ptr<TIterator> itparam(params_->createIterator());
   for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
       RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
       if ( rrv != 0 && rrv != r && rrv->isConstant() == false ) { hasFloatParams_ = true; break; }
@@ -328,34 +328,34 @@ double AsymptoticLimits::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected
   }
   double qA  = 2*(nllA_->getVal() - minNllA_); if (qA < 0) qA = 0;
 
-  double CLsb = ROOT::Math::normal_cdf_c(sqrt(qmu));
-  double CLb  = ROOT::Math::normal_cdf(sqrt(qA)-sqrt(qmu));
+  double Pmu = ROOT::Math::normal_cdf_c(sqrt(qmu));
+  double OnemPb  = ROOT::Math::normal_cdf(sqrt(qA)-sqrt(qmu));
   if (qtilde_ && qmu > qA) {
     // In this region, things are tricky
     double mos = sqrt(qA); // mu/sigma
-    CLsb = ROOT::Math::normal_cdf_c( (qmu + qA)/(2*mos) );
-    CLb  = ROOT::Math::normal_cdf_c( (qmu - qA)/(2*mos) );
+    Pmu = ROOT::Math::normal_cdf_c( (qmu + qA)/(2*mos) );
+    OnemPb  = ROOT::Math::normal_cdf_c( (qmu - qA)/(2*mos) );
   }
-  double CLs  = (CLb == 0 ? 0 : CLsb/CLb);
+  double CLs  = (OnemPb == 0 ? 0 : Pmu/OnemPb);
   sentry.clear();
   if (verbose > 0) {
-  	printf("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tCLsb = %7.5f\tCLb  = %7.5f\tCLs  = %7.5f\n", r.GetName(), rVal, qmu, qA, CLsb, CLb, CLs);
-  	Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tCLsb = %7.5f\tCLb  = %7.5f\tCLs  = %7.5f",__LINE__,r.GetName(), rVal, qmu, qA, CLsb, CLb, CLs)),Logger::kLogLevelInfo,__func__);
+  	printf("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tPmu = %7.5f\t1-Pb  = %7.5f\tCLs  = %7.5f\n", r.GetName(), rVal, qmu, qA, Pmu, OnemPb, CLs);
+  	Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tPmu = %7.5f\t1-Pb  = %7.5f\tCLs  = %7.5f",__LINE__,r.GetName(), rVal, qmu, qA, Pmu, OnemPb, CLs)),Logger::kLogLevelInfo,__func__);
   }
 
   if (getAlsoExpected) {
     const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };
     for (int iq = 0; iq < 5; ++iq) {
         double N = ROOT::Math::normal_quantile(quantiles[iq], 1.0);
-        double clb = quantiles[iq];
-        double clsplusb = ROOT::Math::normal_cdf_c( sqrt(qA) - N, 1.);
-        if (doCLs_) { *limit = (clb != 0 ? clsplusb/clb : 0); *limitErr = 0 ; }
-	else { *limit = (clsplusb); *limitErr = 0; }
+        double pb = quantiles[iq]; // note that this is really 1-pb !
+        double pmu = ROOT::Math::normal_cdf_c( sqrt(qA) - N, 1.);
+        if (doCLs_) { *limit = (pb != 0 ? pmu/pb : 0); *limitErr = 0 ; }
+	else { *limit = (pmu); *limitErr = 0; }
         Combine::commitPoint(true, quantiles[iq]);
-        if (verbose > 0) printf("Expected %4.1f%%: CLsb = %.5f  CLb = %.5f   CLs = %.5f\n", quantiles[iq]*100, clsplusb, clb, clsplusb/clb);
+        if (verbose > 0) printf("Expected %4.1f%%: Pmu = %.5f  1-Pb = %.5f   CLs = %.5f\n", quantiles[iq]*100, pmu, pb, pmu/pb);
     }
   }
-  return doCLs_ ? CLs : CLsb ; 
+  return doCLs_ ? CLs : Pmu ; 
 }   
 
 std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -403,7 +403,7 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     r->setError(0.1*r->getMax());
     //r->removeMax();
     
-    std::auto_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+    std::unique_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, r);
     //minim.setStrategy(minimizerStrategy_);
     minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); // the 0.5 is because qmu is -2*NLL
@@ -413,7 +413,7 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     sentry.clear();
     if (verbose > 1) {
         std::cout << "Fit to asimov dataset:" << std::endl;
-        std::auto_ptr<RooFitResult> res(minim.save());
+        std::unique_ptr<RooFitResult> res(minim.save());
         res->Print("V");
     }
     if (r->getVal()/r->getMax() > 1e-3) {
@@ -462,17 +462,17 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
 
 }
 
-float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, double rMin, double rMax, double nll0, double clb) {
+float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, double rMin, double rMax, double nll0, double pb) {
     // EQ 37 of CMS NOTE 2011-005:
     //   mu_N = sigma * ( normal_quantile_c( (1-cl) * normal_cdf(N) ) + N )
-    // --> (mu_N/sigma) = N + normal_quantile_c( (1-cl) * clb )
+    // --> (mu_N/sigma) = N + normal_quantile_c( (1-cl) * (1-Pb) ) but in our code here we refer to pb=1-Pb
     // but qmu = (mu_N/sigma)^2
-    // --> qmu = [ N + normal_quantile_c( (1-cl)*CLb ) ]^2
+    // --> qmu = [ N + normal_quantile_c( (1-cl)*(1-Pb) ) ]^2
     // remember that qmu = 2*nll
     
 
-    double N = ROOT::Math::normal_quantile(clb, 1.0);
-    double errorlevel = 0.5 * pow(N+ROOT::Math::normal_quantile_c((doCLs_ ? clb:1.)*(1-cl),1.0), 2);
+    double N = ROOT::Math::normal_quantile(pb, 1.0);
+    double errorlevel = 0.5 * pow(N+ROOT::Math::normal_quantile_c((doCLs_ ? pb:1.)*(1-cl),1.0), 2);
     int minosStat = -1;
     if (minosAlgo_ == "minos") {
         double rMax0 = r->getMax();

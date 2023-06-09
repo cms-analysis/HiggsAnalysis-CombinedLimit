@@ -1,15 +1,12 @@
 name: trigger gitlab job
 on:
   push:
-    branches: [ 102x ]
+    branches: [main]
 
   pull_request_target:
-    types: [labeled , opened , edited , synchronize, reopened ]
-    branches: [ 102x ]
+    types: [labeled, opened, edited, synchronize, reopened]
+    branches: [main]
   
-#  pull_request:
-#    branches: [ 102x ]
-
 jobs:
   build:
     name: Build

@@ -1,7 +1,7 @@
 site_name: Combine
 repo_name: GitHub
 repo_url: https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit
-edit_uri: edit/102x/docs
+edit_uri: edit/main/docs
 
 nav:
         - Home: index.md
@@ -13,6 +13,7 @@ nav:
           - "Running the tool":           part3/runningthetool.md
           - "Common statistical methods": part3/commonstatsmethods.md
           - "Advanced use cases":         part3/nonstandard.md
+          - "Simplified Likelihoods":     part3/simplifiedlikelihood.md
           - "Unfolding & regularization": part3/regularisation.md
           - "Validating datacards":       part3/validation.md
           - "Debugging fit failures":     part3/debugging.md
@@ -21,6 +22,7 @@ nav:
           - "RooFit Basics":              part5/roofit.md
           - "Exercise: main features":    part5/longexercise.md
           - "Solutions to long exercise": part5/longexerciseanswers.md
+          - "Exercise: parametric fit":   tutorial2023/parametric_exercise.md
 
 theme:
         name: cinder

@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
+#include "../interface/SimplePoissonConstraint.h"
 
 #include <string>
 #include <memory>

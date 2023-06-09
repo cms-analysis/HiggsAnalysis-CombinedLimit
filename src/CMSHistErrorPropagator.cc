@@ -1,5 +1,5 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistErrorPropagator.h"
+#include "../interface/CMSHistFuncWrapper.h"
 #include <stdexcept>
 #include <vector>
 #include <ostream>
@@ -45,8 +45,8 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(
       coeffs_("coeffs", this, other.coeffs_),
       binpars_("binpars", this, other.binpars_),
       bintypes_(other.bintypes_),
-      sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
-      binsentry_(name ? TString(name) + "_binsentry" : TString(other.binsentry_.GetName()), ""),
+      sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", ""),
+      binsentry_(name ? TString(name) + "_binsentry" : TString(other.GetName())+"_binsentry", ""),
       initialized_(false),
       last_eval_(-1) {
 }

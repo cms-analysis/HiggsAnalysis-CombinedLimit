@@ -1,6 +1,6 @@
-#include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "../interface/ToyMCSamplerOpt.h"
+#include "../interface/utils.h"
+#include "../interface/Logger.h"
 #include <memory>
 #include <stdexcept>
 #include <TH1.h>
@@ -13,7 +13,7 @@
 #include <RooDataHist.h>
 #include <RooDataSet.h>
 #include <RooRandom.h>
-#include <HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h>
+#include "../interface/ProfilingTools.h"
 #include "RooStats/DetailedOutputAggregator.h"
 
 using namespace std;
@@ -22,13 +22,15 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAb
     ToyMCSampler(ts, ntoys),
     globalObsPdf_(globalObsPdf),
     globalObsValues_(0), globalObsIndex_(-1),
-    nuisValues_(0), nuisIndex_(-1),
+    nuisValues_(0), nuisIndex_(-1), genNuis_(generateNuisances),
     weightVar_(0)
 {
     if (!generateNuisances) fPriorNuisance = 0; // set things straight from the beginning
 }
 
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
+// A private std::unique_ptr was introduced in RooStats::ToyMCSampler, disallowing copy construction
 ToyMCSamplerOpt::ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) :
     ToyMCSampler(base),
     globalObsPdf_(0),
@@ -44,6 +46,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(const ToyMCSamplerOpt &other) :
     weightVar_(0)
 {
 }
+#endif
 
 ToyMCSamplerOpt::~ToyMCSamplerOpt()
 {
@@ -52,14 +55,18 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
         delete it->second;
     }
     genCache_.clear();
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
+    // With ROOT 6.26, _allVars became a smart pointer
     delete _allVars; _allVars = 0;
+#endif
     delete globalObsValues_;
 }
 
 
-toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
+toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents, bool canUseSpec) :
    mode_(pdf.canBeExtended() ? (preferBinned ? Binned : Unbinned) : Counting),
    pdf_(&pdf),
+   canUseSpec_(canUseSpec),
    spec_(0),histoSpec_(0),keepHistoSpec_(0),weightVar_(0)
 {
    if (pdf.canBeExtended()) {
@@ -98,7 +105,7 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     RooAbsData *ret = 0;
     switch (mode_) {
         case Unbinned:
-            if (spec_ == 0) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
+            if (spec_ == 0 && canUseSpec_) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
                                               : pdf_->prepareMultiGen(observables_, RooFit::Extended());
             if (spec_) ret = pdf_->generate(*spec_);
             else ret = pdf_->generate(observables_, RooFit::Extended());
@@ -167,7 +174,7 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
         if ( verbose > 2 ) printf("  ToyMCSamplerOpt -- Generating PseudoAsimov dataset for pdf %s: with %d weighted events\n", pdf_->GetName(), nPoints);
         if ( verbose > 0 ) Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- Generating PseudoAsimov dataset for pdf %s: with %d weighted events",__LINE__,pdf_->GetName(),nPoints)),Logger::kLogLevelInfo,__func__);
         double expEvents = pdf_->expectedEvents(observables_);
-        std::auto_ptr<RooDataSet> data(pdf_->generate(observables_, nPoints));
+        std::unique_ptr<RooDataSet> data(pdf_->generate(observables_, nPoints));
         if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
         RooArgSet obsPlusW(observables_); obsPlusW.add(*weightVar);
         RooDataSet *rds = new RooDataSet(data->GetName(), "", obsPlusW, weightVar->GetName());
@@ -282,7 +289,7 @@ toymcoptutils::SinglePdfGenInfo::generateCountingAsimov()
 void
 toymcoptutils::SinglePdfGenInfo::setToExpected(RooProdPdf &prod, RooArgSet &obs) 
 {
-    std::auto_ptr<TIterator> iter(prod.pdfList().createIterator());
+    std::unique_ptr<TIterator> iter(prod.pdfList().createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
         if (!a->dependsOn(obs)) continue;
         RooPoisson *pois = 0;
@@ -301,7 +308,7 @@ toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs)
 {
     RooRealVar *myobs = 0;
     RooAbsReal *myexp = 0;
-    std::auto_ptr<TIterator> iter(pois.serverIterator());
+    std::unique_ptr<TIterator> iter(pois.serverIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
         if (obs.contains(*a)) {
             assert(myobs == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two observables??");
@@ -318,7 +325,7 @@ toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs)
     myobs->setVal(myexp->getVal());
 }
 
-toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
+toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents, bool canUseSpec) :
     pdf_(&pdf),
     cat_(0),
     observables_(observables),
@@ -336,13 +343,13 @@ toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& obs
             RooAbsPdf *pdfi = simPdf->getPdf(cat_->getLabel());
             if (pdfi == 0) throw std::logic_error(std::string("Unmapped category state: ") + cat_->getLabel());
             RooAbsPdf *newpdf = utils::factorizePdf(observables, *pdfi, dummy);
-            pdfs_[ic] = new SinglePdfGenInfo(*newpdf, observables, preferBinned);
+            pdfs_[ic] = new SinglePdfGenInfo(*newpdf, observables, preferBinned, NULL, 0, canUseSpec);
             if (newpdf != 0 && newpdf != pdfi) {
                 ownedCrap_.addOwned(*newpdf); 
             }
         }
     } else {
-        pdfs_.push_back(new SinglePdfGenInfo(pdf, observables, preferBinned, protoData, forceEvents));
+        pdfs_.push_back(new SinglePdfGenInfo(pdf, observables, preferBinned, protoData, forceEvents, canUseSpec));
     }
 }
 
@@ -504,7 +511,12 @@ ToyMCSamplerOpt::SetPdf(RooAbsPdf& pdf)
     //std::cout << "ToyMCSamplerOpt::SetPdf called" << std::endl;
     //utils::printPdf(&pdf);
     ToyMCSampler::SetPdf(pdf);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
+    // With ROOT 6.26, _allVars became a smart pointer
     delete _allVars; _allVars = 0; 
+#else
+    _allVars.reset();
+#endif
     delete globalObsValues_; globalObsValues_ = 0; globalObsIndex_ = -1;
     delete nuisValues_; nuisValues_ = 0; nuisIndex_ = -1;
 }
@@ -627,7 +639,12 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/, double& wei
           globalObsIndex_  = 0;
       }
       const RooArgSet *values = globalObsValues_->get(globalObsIndex_++);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
       if (!_allVars) _allVars = fPdf->getObservables(*fGlobalObservables);
+#else
+      // With ROOT 6.26, _allVars became a smart pointer
+      if (!_allVars) _allVars.reset(fPdf->getObservables(*fGlobalObservables));
+#endif
       *_allVars = *values;
    }
 
@@ -689,7 +706,7 @@ ToyMCSamplerOpt::Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataS
    //utils::printPdf(&pdf);
    toymcoptutils::SimPdfGenInfo *& info = genCache_[&pdf];
    if (info == 0) { 
-       info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents);
+       info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents, !genNuis_);
        info->setCopyData(false);
        if (!fPriorNuisance && importanceSnapshots_.empty()) info->setCacheTemplates(true);
    }

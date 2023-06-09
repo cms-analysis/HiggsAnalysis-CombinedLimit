@@ -100,7 +100,7 @@ double tailReal(TTree *t, std::string br, double cv, int mode){
 
 
 
-TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
+TCanvas *q0Plot(float mass, std::string poinam , float poival, int rebin=0, bool plotBoth=false) {
 
     if (gFile == 0) { std::cerr << "You must have a file open " << std::endl; return 0; }
     TTree *t = (TTree *) gFile->Get("q");
@@ -110,12 +110,19 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     c1->SetBottomMargin(0.15);
     
     TH1F *qB;
-    TH1F *qS;
+    //TH1F *qS;
 
     t->Draw("max(2*q,0)>>qB","weight*(type==-1)");
     qB = (TH1F*) gROOT->FindObject("qB")->Clone();
     qB->SetName("NullHyp");
     qB->Print();
+    
+    TH1F *qS = new TH1F("qS","qS",qB->GetNbinsX(),qB->GetBinLowEdge(1),qB->GetBinLowEdge(qB->GetNbinsX())+1);
+    
+    t->Draw("max(2*q,0)>>qS","weight*(type==+1)");
+    qS = (TH1F*) gROOT->FindObject("qS")->Clone();
+    qS->SetName("AltHyp");
+    qS->Print();
 
     double yMin = 4.9/qB->Integral();
 
@@ -126,25 +133,29 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     
     if (rebin>0){
 	qB->Rebin(rebin);
+	qS->Rebin(rebin);
     }
 
     double  nB = qB->Integral();
     qB->Scale(1.0/qB->Integral());
+    qS->Scale(1.0/qS->Integral());
 
     gStyle->SetOptStat(0); c1->SetLogy(1);
     qB->SetLineColor(kRed);
     qB->SetLineWidth(2);
+    qS->SetLineColor(kBlue);
+    qS->SetLineWidth(2);
     qO->SetLineColor(kBlack);
     qO->SetLineWidth(3);
 
-    double clB;
-    clB  = tailReal(t,"qB",qObs,0);
+    double pB;
+    pB  = tailReal(t,"qB",qObs,0);
 
-    double clBerr  = sqrt(clB*(1-clB)/nB);
-    double sig = RooStats::PValueToSignificance(clB);
-    double sigerr = 0.5*( TMath::Abs(RooStats::PValueToSignificance(clB+clBerr)-sig) + TMath::Abs(RooStats::PValueToSignificance(clB-clBerr)-sig));
+    double pBerr  = sqrt(pB*(1-pB)/nB);
+    double sig = RooStats::PValueToSignificance(pB);
+    double sigerr = 0.5*( TMath::Abs(RooStats::PValueToSignificance(pB+pBerr)-sig) + TMath::Abs(RooStats::PValueToSignificance(pB-pBerr)-sig));
 
-    printf("P-val (CLb)  = %.4f +/- %.4f\n", clB , clBerr);
+    printf("P-val (1-Pb)  = %.4f +/- %.4f\n", pB , pBerr);
     printf("Signif  = %.1f +/- %.2f sigma\n",  sig, sigerr);
 
     // Worst way to calculate !
@@ -159,6 +170,7 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     leg1->SetLineColor(1);
 
     leg1->AddEntry(qB, "expected for Null", "L");
+    if (plotBoth) leg1->AddEntry(qS, Form("expected for Alternative (%s=%g)",poinam.c_str(),poival), "L");
     leg1->AddEntry(qO, "observed value", "L");
 
     TLegend *leg2 = new TLegend(.58,.67,.93,.54);
@@ -167,9 +179,12 @@ TCanvas *q0Plot(float mass, std::string poinam , int rebin=0) {
     leg2->SetTextFont(42);
     leg2->SetTextSize(0.04);
     leg2->SetLineColor(1);
-    leg2->AddEntry(qB1, Form("CL_{b}   = %.4f (%.1f#sigma)", clB,sig), "F");
+    leg2->AddEntry(qB1, Form("CL_{b}   = %.4f (%.1f#sigma)", pB,sig), "F");
     qB->Draw();
     qB1->Draw("HIST SAME"); 
+    if (plotBoth){
+	qS->Draw("same");
+    }
     qO->Draw(); 
     qB->Draw("AXIS SAME");
     qB->GetYaxis()->SetRangeUser(yMin, 2.0);
@@ -261,24 +276,24 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     qO->SetLineColor(kBlack);
     qO->SetLineWidth(3);
 
-    double clSB;
-    double clB;
+    double pMU;
+    double pB;
     if (invert){ 
-    	clSB = tailReal(t,"qB",qObs,mode);
-    	clB  = tailReal(t,"qS",qObs,mode);
+    	pMU = tailReal(t,"qB",qObs,mode);
+    	pB  = tailReal(t,"qS",qObs,mode);
     } else {
-    	clSB = tailReal(t,"qS",qObs,mode);
-    	clB  = tailReal(t,"qB",qObs,mode);
+    	pMU = tailReal(t,"qS",qObs,mode);
+    	pB  = tailReal(t,"qB",qObs,mode);
     }
 
-    //double clSB = qS1->Integral(), clB = qB1->Integral(), 
-    double clS = clSB/clB;
-    double clSBerr = sqrt(clSB*(1-clSB)/nS);
-    double clBerr  = sqrt(clB*(1-clB)/nB);
-    double clSerr  = clS * TMath::Hypot(clBerr/clB, clSBerr/clSB);
-    printf("CLs+b = %.4f +/- %.4f\n", clSB, clSBerr);
-    printf("CLb   = %.4f +/- %.4f\n", clB , clBerr);
-    printf("CLs   = %.4f +/- %.4f\n", clS , clSerr);
+    //double pMU = qS1->Integral(), pB := qB1->Integral() (# note this is really 1-p_{b}) 
+    double clS = pMU/pB;
+    double pMUerr = sqrt(pMU*(1-pMU)/nS);
+    double pBerr  = sqrt(pB*(1-pB)/nB);
+    double pSerr  = clS * TMath::Hypot(pBerr/pB, pMUerr/pMU);
+    printf("Pmu   = %.4f +/- %.4f\n", pMU , pMUerr);
+    printf("1-Pb   = %.4f +/- %.4f\n", pB , pBerr);
+    printf("CLs    = %.4f +/- %.4f\n", clS , pSerr);
 
     // Worst way to calculate !
     TH1F *qS1 = tail(qS, qObs,mode); 
@@ -313,9 +328,9 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     leg2->SetTextSize(0.04);
     leg2->SetLineColor(1);
     //if (mode==0) 
-    leg2->AddEntry(qS1, Form("CL_{s+b} = %.4f", clSB), "F"); 
+    leg2->AddEntry(qS1, Form("p_{#mu} = %.4f", pMU), "F"); 
     //if (mode==0) 
-    leg2->AddEntry(qB1, Form("CL_{b}   = %.4f", clB), "F");
+    leg2->AddEntry(qB1, Form("1-p_{b}  = %.4f", pB), "F");
     leg2->AddEntry("",  Form("CL_{s}   = %.4f", clS), "");
 
     qB->Draw();

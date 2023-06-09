@@ -15,9 +15,9 @@
 #include <RooGaussian.h>
 #include <RooPoisson.h>
 #include <RooProduct.h>
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleGaussianConstraint.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimplePoissonConstraint.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleConstraintGroup.h"
+#include "SimpleGaussianConstraint.h"
+#include "SimplePoissonConstraint.h"
+#include "SimpleConstraintGroup.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
@@ -193,7 +193,7 @@ class CachingSimNLL  : public RooAbsReal {
         RooSetProxy        params_, catParams_;
         bool hideRooCategories_, hideConstants_;
         RooArgSet piecesForCloning_;
-        std::auto_ptr<RooSimultaneous>  factorizedPdf_;
+        std::unique_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
         std::vector<SimpleGaussianConstraint *>  constrainPdfsFast_;
         std::vector<bool>                        constrainPdfsFastOwned_;
@@ -201,7 +201,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<bool>                        constrainPdfsFastPoissonOwned_;
         std::vector<SimpleConstraintGroup>       constrainPdfGroups_;
         std::vector<CachingAddNLL*>     pdfs_;
-        std::auto_ptr<TList>            dataSets_;
+        std::unique_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
         static bool noDeepLEE_;
         static bool hasError_;

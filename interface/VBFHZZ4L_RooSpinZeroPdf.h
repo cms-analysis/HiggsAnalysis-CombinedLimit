@@ -16,6 +16,7 @@
 #include "RooHistFunc.h"
 #include "RooRealProxy.h"
 #include "RooRealVar.h"
+#include "RooListProxy.h"
 
 #include "TH3F.h"
 #include "TH1.h"

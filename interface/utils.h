@@ -10,19 +10,19 @@
 #include <RooFitResult.h>
 #include <RooAddPdf.h>
 #include <TH1.h>
-struct RooDataHist;
-struct RooAbsData;
-struct RooAbsPdf;
-struct RooAbsReal;
-struct RooAbsArg;
-struct RooArgSet;
-struct RooArgList;
-struct RooSimultaneous;
-struct RooAbsCollection;
-struct RooWorkspace;
-struct RooPlot;
-struct RooRealVar;
-struct RooProduct;
+class RooDataHist;
+class RooAbsData;
+class RooAbsPdf;
+class RooAbsReal;
+class RooAbsArg;
+class RooArgSet;
+class RooArgList;
+class RooSimultaneous;
+class RooAbsCollection;
+class RooWorkspace;
+class RooPlot;
+class RooRealVar;
+class RooProduct;
 namespace RooStats { class ModelConfig; }
 namespace utils {
     void printRDH(RooAbsData *data) ;
@@ -121,16 +121,5 @@ namespace utils {
     RooArgSet returnAllVars(RooWorkspace *);
     bool freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiPdfs, const RooArgSet & allRooMultiPdfParams, bool freeze=true);
 
-    // This is a workaround for a bug (?) in RooAddPdf that limits the number of elements
-    // to 100 when de-serialised from a TFile. We have to access a protected array and reallocate
-    // it with the correct size
-    class RooAddPdfFixer : public RooAddPdf {
-    public:
-      RooAddPdfFixer() : RooAddPdf() {}
-      RooAddPdfFixer(RooAddPdfFixer const& other) : RooAddPdf(other) {}
-
-      void Fix(RooAddPdf & fixme);
-      void FixAll(RooWorkspace & w);
-    };
 }
 #endif

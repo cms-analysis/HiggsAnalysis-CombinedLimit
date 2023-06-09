@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
+#include "../interface/MarkovChainMC.h"
 #include <stdexcept> 
 #include <cmath> 
 #include "TKey.h"
@@ -18,15 +18,15 @@ class THnSparse;
 #include "RooStats/ProposalHelper.h"
 #include "RooStats/ProposalFunction.h"
 #include "RooStats/RooStatsUtils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/TestProposal.h"
-#include "HiggsAnalysis/CombinedLimit/interface/DebugProposal.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/JacknifeQuantile.h"
+#include "../interface/Combine.h"
+#include "../interface/TestProposal.h"
+#include "../interface/DebugProposal.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/RooFitGlobalKillSentry.h"
+#include "../interface/JacknifeQuantile.h"
 
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/ProfilingTools.h"
+#include "../interface/utils.h"
 
 using namespace RooStats;
 using namespace std;
@@ -200,7 +200,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   }
   
   w->loadSnapshot("clean");
-  std::auto_ptr<RooFitResult> fit(0);
+  std::unique_ptr<RooFitResult> fit(nullptr);
   if (proposalType_ == FitP || (cropNSigmas_ > 0)) {
       CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
       fit.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(), RooFit::Minos(runMinos_)));
@@ -231,7 +231,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       }
   }
 
-  std::auto_ptr<ProposalFunction> ownedPdfProp; 
+  std::unique_ptr<ProposalFunction> ownedPdfProp; 
   ProposalFunction* pdfProp = 0;
   ProposalHelper ph;
   switch (proposalType_) {
@@ -278,7 +278,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       if (proposalHelperUniformFraction_ > 0) ph.SetUniformFraction(proposalHelperUniformFraction_);
   }
 
-  std::auto_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, mc_s->GetPdf(), &data, debugProposal_) : 0);
+  std::unique_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, mc_s->GetPdf(), &data, debugProposal_) : 0);
   
   MCMCCalculator mc(data, *mc_s);
   mc.SetNumIters(iterations_); 
@@ -287,11 +287,11 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   mc.SetProposalFunction(debugProposal_ > 0 ? *pdfDebugProp : *pdfProp);
   mc.SetLeftSideTailFraction(0);
 
-  if (typeid(*mc_s->GetPriorPdf()) == typeid(RooUniform)) {
+  if (auto ptr = dynamic_cast<RooUniform*>(mc_s->GetPriorPdf()); ptr!=nullptr) {
     mc.SetPriorPdf(*((RooAbsPdf *)0));
   }
 
-  std::auto_ptr<MCMCInterval> mcInt;
+  std::unique_ptr<MCMCInterval> mcInt;
   try {  
       mcInt.reset((MCMCInterval*)mc.GetInterval()); 
   } catch (std::length_error &ex) {

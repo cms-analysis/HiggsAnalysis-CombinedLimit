@@ -27,14 +27,14 @@ class SimpleCacheSentry : public RooAbsArg {
         virtual RooAbsArg *createFundamental(const char* newname=0) const { return 0; }
         virtual Bool_t readFromStream(std::istream& is, Bool_t compact, Bool_t verbose=kFALSE) { return false; }
         virtual void writeToStream(std::ostream& os, Bool_t compact) const { }
-        virtual Bool_t operator==(const RooAbsArg& other) { return this == &other; }
+        virtual Bool_t operator==(const RooAbsArg& other) const { return this == &other; }
         virtual void syncCache(const RooArgSet* nset=0) {}
         virtual void copyCache(const RooAbsArg* source, Bool_t valueOnly=kFALSE, Bool_t setValDirty=kTRUE) {}
         virtual void attachToTree(TTree& t, Int_t bufSize=32000) {}
         virtual void attachToVStore(RooVectorDataStore& vstore) {}
         virtual void setTreeBranchStatus(TTree& t, Bool_t active) {}
         virtual void fillTreeBranch(TTree& t) {}
-	virtual Bool_t isIdentical(const RooAbsArg& other, Bool_t assumeSameType=kFALSE) ;
+        virtual Bool_t isIdentical(const RooAbsArg& other, Bool_t assumeSameType=kFALSE) const;
     private:
         RooSetProxy _deps;
         ClassDef(SimpleCacheSentry,1) 

@@ -1,3 +1,6 @@
+#ifndef HiggsAnalysis_CombinedLimit_th1fmorph_h
+#define HiggsAnalysis_CombinedLimit_th1fmorph_h
+
 #include "TH1.h"
 
 TH1F *th1fmorph(const char *chname, 
@@ -70,3 +73,4 @@ TH1D *th1fmorph(const char *chname,
   //   well-tested).
   // *------------------------------------------------------------------------
 
+#endif

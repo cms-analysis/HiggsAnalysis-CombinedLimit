@@ -171,7 +171,7 @@ namespace cmsmath {
             bool improve(int smallsteps=5);
             bool doFullMinim(); 
 
-            std::auto_ptr<MinimizerContext> func_;
+            std::unique_ptr<MinimizerContext> func_;
             unsigned int nDim_, nFree_;
 
             // status information
@@ -183,7 +183,7 @@ namespace cmsmath {
             State state_;
 
             // ROOT::Math::Minimizer for strategy 2
-            std::auto_ptr<ROOT::Math::Minimizer> fullMinimizer_;
+            std::unique_ptr<ROOT::Math::Minimizer> fullMinimizer_;
             std::vector<int> subspaceIndices_;
                     
     };
