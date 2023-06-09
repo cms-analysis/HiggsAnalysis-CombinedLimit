@@ -53,11 +53,12 @@ DICTNAME=$(LIBNAME)_xr
 # Linker and flags -------------------------------------------------------------
 LD = $(shell root-config --ld)
 ROOTLDFLAGS   = $(shell root-config --ldflags)
+ROOTLIBDIR = $(shell root-config --libdir)
 # OS x specific linkage
 DARWIN := $(shell uname|grep Darwin)
 ifdef DARWIN
-LDFLAGS       = $(ROOTLDFLAGS) -shared -install_name @rpath/$(SONAME) -fPIC
-EXELDFLAGS    = -Wl,-rpath,'@executable_path/../lib'
+LDFLAGS       = $(ROOTLDFLAGS) -g -shared -install_name @rpath/$(SONAME) -fPIC
+EXELDFLAGS    = -Wl,-rpath,'@executable_path/../lib' -Wl,-rpath,$(ROOTLIBDIR)
 else
 LDFLAGS       = $(ROOTLDFLAGS) -shared -Wl,-soname,$(SONAME) -Wl,-E -Wl,-z,defs -fPIC
 EXELDFLAGS    = 
