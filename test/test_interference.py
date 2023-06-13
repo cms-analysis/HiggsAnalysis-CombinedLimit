@@ -295,7 +295,5 @@ w.Write()
 fout.Close()
 
 subprocess.call(
-    "combine -M MultiDimFit card_morph.root --redefineSignalPOIs kv,k2v,kl --freezeParameters r  --setParameters r=1,kv=1,k2v=1,kl=1 -t 100".split(
-        " "
-    )
+    "combine -M MultiDimFit card_morph.root --redefineSignalPOIs kv,k2v,kl --freezeParameters r  --setParameters r=1,kv=1,k2v=1,kl=1 -t 100".split(" ")
 )
