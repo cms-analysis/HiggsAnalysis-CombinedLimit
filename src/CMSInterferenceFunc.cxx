@@ -42,9 +42,8 @@ CMSInterferenceFunc::CMSInterferenceFunc(
     RooAbsReal(other, name), x_("x", this, other.x_),
     coefficients_("coefficients", this, other.coefficients_),
     edges_(other.edges_), binscaling_(other.binscaling_),
-    sentry_(other.sentry_, name)
+    sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", "")
 {
-    initialize();
 }
 
 CMSInterferenceFunc::CMSInterferenceFunc(
@@ -55,10 +54,9 @@ CMSInterferenceFunc::CMSInterferenceFunc(
     RooAbsReal(name, title), x_("x", "", this, x),
     coefficients_("coefficients", "", this),
     edges_(edges), binscaling_(binscaling),
-    sentry_(TString(name) + "_sentry", "", coefficients)
+    sentry_(TString(name) + "_sentry", "")
 {
     coefficients_.add(coefficients);
-    initialize();
 }
 
 CMSInterferenceFunc::~CMSInterferenceFunc() = default;
@@ -67,7 +65,7 @@ void CMSInterferenceFunc::printMultiline(
         std::ostream& os, Int_t contents, Bool_t verbose, TString indent
         ) const {
     RooAbsReal::printMultiline(os, contents, verbose, indent);
-    os << ">> Sentry: " << sentry_.hasChanged(false) << "\n";
+    os << ">> Sentry: " << (sentry_.good() ? "clean" : "dirty") << "\n";
     sentry_.Print("v");
 }
 
@@ -93,18 +91,25 @@ void CMSInterferenceFunc::initialize() const {
         }
     }
 
+    sentry_.SetName(TString(GetName()) + "_sentry");
+    sentry_.addVars(coefficients_);
+    sentry_.setValueDirty();
     evaluator_ = std::make_unique<_InterferenceEval>(binscaling_, ncoef);
 }
 
 void CMSInterferenceFunc::updateCache() const {
     for (int i=0; i < coefficients_.getSize(); ++i) {
-         evaluator_->setCoefficient(i, dynamic_cast<RooAbsReal const*>(coefficients_.at(i))->getVal());
+        auto* coef = dynamic_cast<RooAbsReal const*>(coefficients_.at(i));
+        if ( coef == nullptr ) throw std::runtime_error("Lost coef!");
+        evaluator_->setCoefficient(i, coef->getVal());
     }
     evaluator_->computeValues();
+    sentry_.reset();
 }
 
 double CMSInterferenceFunc::evaluate() const {
-    if ( sentry_.hasChanged(true) ) updateCache();
+    if ( not evaluator_ ) initialize();
+    if ( not sentry_.good() ) updateCache();
 
     auto it = std::upper_bound(std::begin(edges_), std::end(edges_), x_->getVal());
     if ( (it == std::begin(edges_)) or (it == std::end(edges_)) ) {
@@ -117,7 +122,8 @@ double CMSInterferenceFunc::evaluate() const {
 const std::vector<double>& CMSInterferenceFunc::batchGetBinValues() const {
     // we don't really expect the cache to be valid, as upstream callers are
     // managing their own and calling this only when dirty, but let's check anyway
-    if ( not sentry_.hasChanged(true) ) updateCache();
+    if ( not evaluator_ ) initialize();
+    if ( not sentry_.good() ) updateCache();
     return evaluator_->getValues();
 }
 

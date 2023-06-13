@@ -222,7 +222,4 @@
   <class name="CMSHggFormulaD2" />
   <class name="SimpleProdPdf" />
   <class name="CMSInterferenceFunc" />
-	<ioread sourceClass="CMSInterferenceFunc" version="[1-]" source="" targetClass="CMSInterferenceFunc" target="">
-		<![CDATA[newObj->initialize();]]>
-	</ioread>
 </lcgdict>

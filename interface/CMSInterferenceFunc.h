@@ -6,8 +6,6 @@
 #include "RooRealVar.h"
 #include "RooRealProxy.h"
 #include "RooListProxy.h"
-#include "RooChangeTracker.h"
-
 #include "SimpleCacheSentry.h"
 
 class _InterferenceEval;
@@ -40,10 +38,8 @@ class CMSInterferenceFunc : public RooAbsReal {
         std::ostream& os, Int_t contents, Bool_t verbose, TString indent
         ) const override;
 
-    // public because it is called on deserializing, in classes_def.xml
-    void initialize() const;
-
     // batch accessor for CMSHistFunc / CMSHistSum
+    bool hasChanged() const { return !sentry_.good(); };
     const std::vector<double>& batchGetBinValues() const;
 
   protected:
@@ -52,12 +48,13 @@ class CMSInterferenceFunc : public RooAbsReal {
     std::vector<double> edges_;
     std::vector<std::vector<double>> binscaling_;
 
-    mutable RooChangeTracker sentry_; //!
+    mutable SimpleCacheSentry sentry_; //!
     mutable std::unique_ptr<_InterferenceEval> evaluator_; //!
 
     double evaluate() const override;
 
   private:
+    void initialize() const;
     void updateCache() const;
 
     ClassDefOverride(CMSInterferenceFunc, 1)
