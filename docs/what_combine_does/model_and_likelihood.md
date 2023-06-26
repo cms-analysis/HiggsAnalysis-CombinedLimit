@@ -13,7 +13,7 @@ The expected observation is then the sum of the expected observations for each o
 The model can also be composed of multiple channels. $\mathcal{M}_{0} = \{ m_{c1}, m_{c2}, .... m_{cN}\}$. 
 The expected observations which define the model is then the union of the sets of expected observations in each individual channel.
 
-Combining full models together is possible by combining their channels together, assuming that the channels are each independent.
+[Combining full models](/part2/settinguptheanalysis/#combination-of-multiple-datacards) is possible by combining their channels, assuming that the channels are mutually independent.
 
 ### Sets of Observation Models
 
@@ -31,7 +31,7 @@ These are discussed in detail in the context of the full likelihood below.
 
 ## The Likelihood 
 
-For any given model, $\mathcal{M}(\vec{\mu},\vec{\theta})$, [the likelihood](https://en.wikipedia.org/wiki/Likelihood_function) defines the probability of observing a given dataset. 
+For any given model, $\mathcal{M}(\vec{\mu},\vec{\theta})$, [the likelihood](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.1) defines the probability of observing a given dataset. 
 It is numerically equal to the probability of observing the data, given the model. 
 
 $$ \mathcal{L}(\vec{\mu},\vec{\theta}|\mathrm{data}) = p(\mathrm{data}|\vec{\mu},\vec{\theta}) $$
@@ -77,8 +77,10 @@ Where $N_{\mathrm{obs}}$ and $N_{\mathrm{exp}}$ are the total number of observed
 ### Constraint Likelihoods
 
 The constraint terms encode the probability of model nuisance parameters taking on a certain value.
-In [frequentist](https://en.wikipedia.org/wiki/Frequentist_probability) frameworks, this usually represents the result of a previous measurement (such as of the jet energy scale).
-In [bayesian](https://en.wikipedia.org/wiki/Bayesian_probability) frameworks, these terms represent the [prior](https://en.wikipedia.org/wiki/Prior_probability).
+In frequentist frameworks, this usually represents the result of a previous measurement (such as of the jet energy scale).
+In bayesian frameworks, these terms represent the prior[^1]. 
+
+[^1]: see: the first paragraphs of the [PDGs statistics review](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf) for more information on these two frameworks 
 
 We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses.
 In this framework, each constraint term represents the likelihood of some parameter, $\theta$, given some previous observation $\tilde{\theta}$, often called a "global observable".
@@ -99,9 +101,10 @@ Combine builds on the generic forms of the likelihood for counting experiments g
 
 
 
-### Binned Likelihoods in Combine
+### Binned Likelihoods using Templates
 
-Although customizations are possible, binned likelihood models can be defined by the user by providing simple inputs such as a set of histograms and systematic uncertainties.
+Binned likelihood models can be defined by the user by providing simple inputs such as a set of histograms and systematic uncertainties.
+These likelihood models are referred to as template-based because they rely heavily on histograms as templates for building the full likelihood function.
 
 Here, we describe the details of the mathematical form of these likelihoods. 
 As already mentioned, the likelihood can be written as a product of two parts:
@@ -129,12 +132,12 @@ where here:
 - $M$ defines the effect of the parameters of interest on the signal process;
 - $N$ defines the overall normalization effect of the nuisance parameters;
 - $y$ defines the shape effects (i.e. bin-dependent effects) of the nuisance parameters; and
-- $E$ defines the impact of statistical uncertainties from the samples used to derive the histogram templates used to build the model.
+- $E$ defines the impact of [statistical uncertainties from the samples](/part2/bin-wise-stats/) used to derive the histogram templates used to build the model.
 
 
 #### Parameter of Interest Model
 
-The function $M$ can take on aribitrary functional forms, as defined by the user, but in the most common case, the nuisance parameters $\mu$ simply scale the contributions from signal processes:
+The function $M$ can take on aribitrary functional forms, as [defined by the user](/part2/physicsmodels/#model-building), but in the most common case, the parameter of interest $\mu$ simply scales the contributions from signal processes:
 
 $$\label{eq:sig_param}
 M_{cp}(\mu) = \begin{cases} 
@@ -143,7 +146,7 @@ M_{cp}(\mu) = \begin{cases}
 $$
 
 However, combine supports many more models beyond this. 
-As well as built-in support for models with multiple parameters of interest, combine comes with many pre-defined models targetted at various types of searches and measurements beyond simple process normalization.
+As well as built-in support for models with [multiple parameters of interest](/part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes), combine comes with many pre-defined models which go beyond simple process normalization, which are targetted at various types of searches and measurements.
 
 #### Normalization Effects
 
@@ -151,7 +154,7 @@ The overall normalization $N$ is affected differently by the different types of 
 
 $$N = \prod_X \prod_i f_X(\vec{\theta}_{X}^{i})\mathrm{,}$$ 
 
-multiplying together the morphings from each of the individual nuisance parameters from each of the nuisance types.
+With $X$ identifying a given nuisance parameter type; i.e. $N$ multiplies together the morphings from each of the individual nuisance parameters from each of the nuisance types.
 
 /// details | **Normalization Parameterization Details**
 
@@ -164,7 +167,7 @@ where:
 
 - $N_{\mathrm{0}}(\theta_{G}) \equiv \frac{\theta_{G}}{\tilde{\theta}_{G}}$, is the normalization effect of a gamma uncertainty. $\tilde{\theta}_{G}$ is taken as the observed number of events in some external control region and $\theta_{G}$ has a constraint pdf $\mathrm{Poiss}(\theta; \tilde{\theta})$
 - $\kappa_{n}^{\theta_{L,n}}$, are log-normal uncertainties specified by a fixed value $\kappa$;
-- $\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})$ are asymmetric log-normal uncertainties, in which the value of $\kappa^{\mathrm{A}}$ depends on the nuisance parameter and two fixed values $\kappa^{+}_{a}$ and $\kappa^{-}_{a}$. The functions, $\kappa^A$, define a smooth interpolation for the asymmetric uncertainty; and
+- $\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})^{\theta_{L(S)}^{a}}$ are asymmetric log-normal uncertainties, in which the value of $\kappa^{\mathrm{A}}$ depends on the nuisance parameter and two fixed values $\kappa^{+}_{a}$ and $\kappa^{-}_{a}$. The functions, $\kappa^A$, define a smooth interpolation for the asymmetric uncertainty; and
 - $F_{r}(\vec{\theta}_\rho)$ are arbitrary user-defined functions of the user defined nuisance parameters which may have uniform or gaussian constraint terms.
 
 The function for the asymmetric normalization modifier, $\kappa^A$ is 
@@ -189,7 +192,7 @@ where $y_{b}^{s,\pm}$ is the bin yield as defined by the two shifted values  $\t
 
 ///
 
-#### Shape Morhping Effects
+#### Shape Morphing Effects
 
 The number of events in a given bin $b$, $y_{cbp}$, is a function of the shape parameters $\vec{\theta}_{S}$. 
 The shape interpolation works with the fractional yields in each bin, where the interpolation can be performed either directly on the fractional yield, or on the logarithm of the fraction yield, which is then exponentiated again.
@@ -238,9 +241,10 @@ where $\theta^{'} = \theta\epsilon$, $\bar{\theta} = \theta^{'} / q$, and the la
 Since the histograms used in a binned shape analysis are typically created from simulated samples, the yields in each bin are also subject to statistical uncertainties on the bin yields.
 These are taken into account by either assigning one nuisance parameter per bin, or as many parameters as contributing processes per bin.
 
-If the uncertainty in each bin is modelled as a single nuisance parameter it takes the form:
 
 /// details | **Model Statistical Uncertainty Details**
+
+If the uncertainty in each bin is modelled as a single nuisance parameter it takes the form:
 
 $$
 E_{cb}(\theta) = \theta\left(\sum_{p} (e_{cpb}N_{cp}M_{cp}(\vec{\alpha}))^{2}\right)^{\frac{1}{2}}.
@@ -258,7 +262,7 @@ where the indices $i$ and $j$ runs over the Poisson- and Gaussian-constrained pr
 
 #### Customizing the form of $n_{exp}$ 
 
-Although the above likelihood defines some specific functional forms, users are also able to implement custom functional forms for $M$, $N$, and $y_{cbp}$.
+Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](/part2/physicsmodels/#model-building-poop), [$N$](/part2/settinguptheanalysis/#rate-parameters), and [$y_{cbp}$](/part3/nonstandard/#rooparametrichist-gamman-for-shapes).
 In practice, this makes the functional form almost entirely general. 
 
 However, some constraints, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $y_{cbp}$ only depend on $\vec{\theta}$ do exist.
@@ -282,7 +286,7 @@ Which form they have depends on the type of nuisance paramater:
 
 While combine does not provide functionality for user-defined constraint term pdfs, the effect of nuisance paramters is highly customizable through the form of the dependence of $n^\mathrm{exp}_{cb}$ on the parameter.
 
-### Overview of the complete binned likelihood model in Combine
+### Overview of the template-based likelihood model in Combine
 
 An overview of the binned likelihood model built by combine is given below. 
 Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or defined by the user themselves.
@@ -291,13 +295,16 @@ Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or
 
 
 
-### Unbinned Likelihoods in Combine
+### Parametric Likelihoods in Combine
 
-As with the binned likelihood, the unbinned likelihood implemented in combine implements unbinned likelihoods which for multiple process and multiple channels.
+As with the template likelihood, the parameteric likelihood implemented in combine implements likelihoods which for multiple process and multiple channels.
+Unlike the template likelihoods, the [parametric likelihoods are defined using custom probability density functions](/part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis), which are functions of continuous observables, rather than discrete, binned counts.
+Because the pdfs are functions of a continuous variable, the likelihood can be evaluated over unbinned data.
+They can still, also, be used for analysis on [binned data](/part2/settinguptheanalysis/#caveat-on-usin-parametric-pdfs-with-binned-datasets).
+
 The unbinned model implemented in combine is given by:
 
-
-$$ \mathcal{L} = \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \prod_c \mathrm{Poiss}(n_c^{\mathrm{obs}} | n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\theta})) \left(\prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i | \vec{\mu}, \vec{\theta} )\right) \prod_e p_e(\vec{\theta} | \vec{\tilde{\theta}}) $$
+$$ \mathcal{L} = \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \prod_c \mathrm{Poiss}(n_{c,\mathrm{tot}}^{\mathrm{obs}} | n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\theta})) \left(\prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i | \vec{\mu}, \vec{\theta} )\right) \prod_e p_e(\vec{\theta} | \vec{\tilde{\theta}}) $$
 
 where $c$ indexes the channel, $p$ indexes the process, and $e$ indexes the nuisance parameter.
 
@@ -305,24 +312,33 @@ where $c$ indexes the channel, $p$ indexes the process, and $e$ indexes the nuis
 - $\mathrm{pdf}_{cp}$ are user defined probability density functions, which may take on the form of any valid probability density; and
 - $f_{cp}^{\mathrm{exp}}$ is the fraction of the total events in channel $c$ from process $p$, $f_{cp} = \frac{n_{cp}}{\sum_p n_{cp}}$.
 
-#### Model of $n^{\mathrm{exp}}$
+for parametric likelihoods on binned data, the data likelihood is first converted into the [binned data likelihood](#binned-data-likelihoods) format before evaluation. i.e.
 
-The total number of expected events for a process is modelled as:
 
-$$n_{cp}^\mathrm{exp} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\theta_{G},\vec{\theta}_L,\vec{\theta}_{\rho})) $$
 
-where, as for the binned likelihoods $\theta_G, \vec{\theta}_L$, and $\vec{\theta}_{\rho}$  are different types of nuisance parameters which modify the processes with different functional forms, as in the binned case;
+
+$$ \mathcal{L} = \prod_c \prod_b  \mathrm{Poiss}(n_{cb}^{\mathrm{obs}}| n_{cb}^{\mathrm{exp}})  \prod_e p_e(\vec{\theta} | \vec{\tilde{\theta}}) $$
+
+where $n^\mathrm{exp}$ is calculated from the input pdf and normalization, based on the model parameters.
+
+#### Model of $n_{\mathrm{tot}}^{\mathrm{exp}}$
+
+The total number of expected events is modelled as:
+
+$$n_{c,\mathrm{tot}}^\mathrm{exp} = \mathrm{max}(0, \sum_{p} n^{cp}_0 M_{cp}(\vec{\mu})N_{cp}(\theta_{G},\vec{\theta}_L,\vec{\theta}_{\rho})) $$
+
+where, $n^{cp}_0$  is a default normalization for the process; and as for the binned likelihoods $\theta_G, \vec{\theta}_L$, and $\vec{\theta}_{\rho}$  are different types of nuisance parameters which modify the processes normalizations with different functional forms, as in the binned case;
 
 /// details | **Details of Process Normalization**
 
-As in the binned case, the different types of nuisance parameters affecting the process normalizations are:
+As in the template-based case, the different types of nuisance parameters affecting the process normalizations are:
 
 - $\theta_{G}$ is a gamma nuisance, with linear normalization effects and a poisson constraint term.
 - $\vec{\theta}_{L}$ are log-normal nuisances, with log-normal normalization effects and gaussian constraint terms.
 - $\vec{\theta}_{\rho}$ are user defined rate parameters, with user-defined normalization effects and gaussian or uniform constraint terms.
 - $N$ defines the overall normalization effect of the nuisance parameters;
 
-and $N$ is defined as in the binned case, except that there are no $\vec{\theta}_S$ uncertainties.
+and $N$ is defined as in the template-based case, except that there are no $\vec{\theta}_S$ uncertainties.
 
 $$ N_{cp} = N_{\mathrm{0}}(\theta_{G})\prod_{n} {\kappa_{n}}^{\theta_{L,n}}\prod_{a} {\kappa^{\mathrm{A}}_{a}(\theta_{L}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})}^{\theta_{L}^{a}} \prod_{r}F_{r}(\theta_\rho) $$
 
@@ -335,7 +351,7 @@ The details of the interpolations which are used are found in the section on [no
 
 #### Parameter of Interest Model
 
-As in the binned case, the parameter of interest model, $M_{cp}(\vec{\mu})$, can take on arbitrary user-defined forms.
+As in the template-based case, the parameter of interest model, $M_{cp}(\vec{\mu})$, can take on arbitrary forms [defined by the user](/part2/physicsmodels/#model-building).
 The default model is one where $\vec{\mu}$ simply scales the signal processes' normalizations.
 
 #### Shape Morphing Effects
@@ -343,9 +359,15 @@ The default model is one where $\vec{\mu}$ simply scales the signal processes' n
 The user may define any number of nuisance parameters which morph the shape of the pdf according to arbitrary functional forms.
 These nuisance parameters are included as $\vec{\theta}_\rho$ uncertainties, which may have gaussian or uniform constraints, and include arbitrary user-defined process normalization effects.
 
-### Combining Binned and Unbinned Likelihoods 
 
-While we presented the likelihoods for the binned and unbinned models separately, they can also be combined into a single likelihood.
+### Combining template-based and parametric Likelihoods 
+
+While we presented the likelihoods for the template and parameteric models separately, they can also be combined into a single likelihood, by treating them each as separate channels.
 When combining the models, the data likelihoods of the binned and unbinned channels are multiplied.
 
-$$ \mathcal{L}_{\mathrm{combined}} = \mathcal{L}_{\mathrm{data}} \cdot \mathcal{L}_\mathrm{constraint} =  (\prod_{c_\mathrm{binned}} \mathcal{L}_{\mathrm{data}}^{c_\mathrm{binned}}) (\prod_{c_\mathrm{unbinned}} \mathcal{L}_{\mathrm{data}}^{c_\mathrm{unbined}}) \mathcal{L}_{\mathrm{constraint}} $$
+$$ \mathcal{L}_{\mathrm{combined}} = \mathcal{L}_{\mathrm{data}} \cdot \mathcal{L}_\mathrm{constraint} =  (\prod_{c_\mathrm{template}} \mathcal{L}_{\mathrm{data}}^{c_\mathrm{template}}) (\prod_{c_\mathrm{parametric}} \mathcal{L}_{\mathrm{data}}^{c_\mathrm{parametric}}) \mathcal{L}_{\mathrm{constraint}} $$
+
+# References and External Literature
+
+- See the Particle Data Group's [Review of Statistics](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf) for various fundamental concepts used here.
+- The Particle Data Group's Review of Probability also has definitions of [commonly used distributions](https://pdg.lbl.gov/2022/reviews/rpp2022-rev-probability.pdf#section.39.4), some of which are used here.

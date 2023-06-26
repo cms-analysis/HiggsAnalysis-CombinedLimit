@@ -30,13 +30,16 @@ $$t = f(\mathcal{L}(\mathrm{data}))$$
 
 ### Statistical tests
 
-The statistical test is always performed given some model, and allows us to make statements about that model, e.g. that we have found new physics, or that we reject certain new physics models.
-In almost all cases, we actually perform tests considering at least two models, [as described below](#considering-alternative-models-in-the-test).
+Once a test statistic is chosen, a statistical test can be performed. 
+There are several statistical testing frameworks, but the general concept is to consider a model (a null hypothesis), usually in conjunction with some alternate model.
 
-The most common statistical test can be characterized by the following steps:
+Given the null hypothesis, and the alternate hypothesis, the expected distribution of the test statistic under the two cases can be determined.
+Then the observed value of the test statistic can be compared to the two expected distributions, and the result of the test is be reported.
+
+A common example could be:
 
 1. Determine the expected distribution of the test statistic, given the model. 
-2. Define a region which contains a fixed fraction of the the total expected distribution, e.g. 68%.
+2. Define a region which contains a fixed fraction of the the total expected distribution, e.g. 68\%.
 3. Check the value of the test statistic for the actual observed data.
 4. Draw some conclusion based on whether or not the observed test statistic falls within the defined region.
 
@@ -46,6 +49,15 @@ If the observed test statistic is outside of this region, the model might be rej
 In many cases, as well as a binary outcome (e.g. rejecting a model), we may also report a number based on the value of the test statistic itself from step 3.
 Most often this is the p-value of the observed test statistic, or some similar value, such as a z-score or significance.
 This provides somewhat more information than the binary outcome of step 4 outlined above.
+
+Many of the combine commands perform some version of the statistical test described above. 
+Combine uses a number of default choices for the test statistic depending on the test being performed, as described below. 
+In some cases the user can chose from one of a number of common test statistics used for that particular test.
+
+The estimation of the of the expected distribution of the test statistic is also performed by combine.
+Here, again, a number of different methods are provided for the estimation, using either asymptotic approximations or with pseudo-experiments.
+The user must decide which case is most appropriate given their analysis.
+
 
 /// details | **Simple Hypothesis test example**
 
@@ -90,11 +102,10 @@ Alternatively if the data appear unlikely given our standard model-based observa
 To find new physics, we would like to show that we can reject the standard model, while simultaneously *not* rejecting a model with a hypothetical new particle.
 In that case we gain confidence in our hypothetical new particle, and we are more confident that we have not simply mismodelled some other, less interesting aspect of the experiment.
 
-Incorporating alternative models in the statistical testing framework described here can either be done by including them in the definition of the test statistic, or by altering the steps above to include steps based on the alternative model.
 
 ## Tests with Likelihood Ratio Test Statistics
 
-The [likelihood function](model_and_likelihood.md#the-likelihood) itself often forms a good basis for building test statistics.
+The [likelihood function](/what_combine_does/model_and_likelihood/#the-likelihood) itself often forms a good basis for building test statistics.
 
 Typically the absolute value of the likelihood itself is not very meaningful as it depends on many fixed aspects we are usually not interested in on their own, like the size of the parameter space and the number of observations.
 However, quantities such as the ratio of the likelihood at two different points in parameter space are very informative about the relative merits of those two models.
@@ -117,7 +128,7 @@ This way, $t$ is positive, and larger values of $t$ represent larger differences
 #### Sets of test statistics
 
 If the parameters of both likelihoods in the ratio are fixed, either a priori or as a definite function of the data, then that defines a single test statistic.
-Often, however, we are interested in testing ["sets" of models](model_and_likelihood.md#sets-of-observation-models), parameterized by some set of values $(\vec{\mu}, \vec{\theta})$.
+Often, however, we are interested in testing ["sets" of models](/what_combine_does/model_and_likelihood/#sets-of-observation-models), parameterized by some set of values $(\vec{\mu}, \vec{\theta})$.
 
 This is important in limit setting for example, where we perform statistical tests to exclude entire ranges of the parameter space.
 
@@ -150,12 +161,12 @@ On the other hand, the expected distributions are all aproximations which are su
 A common use case for likelihood ratios is estimating the values of some parameters, such as the parameters of interest, $\vec{\mu}$.
 The point estimate for the parameters is simply the maximum likelihood estimate, but the likelihood ratio can be used for estimating the uncertainty as a confidence region.
 
-A [confidence region](fitting_concepts.md#frequentist-confidence-regions) for the parameters $\vec{\mu}$ can be defined by using an appropriate test statistic.
+A [confidence region](/what_combine_does/fitting_concepts/#frequentist-confidence-regions) for the parameters $\vec{\mu}$ can be defined by using an appropriate test statistic.
 Typically, we use the log likelihood ratio:
 
 $$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\theta}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\theta}})}) $$
 
-Where the likelihood in the top is the value of the likelihood at a point $\vec{\mu}$ [profiled over](fitting_concepts.md#profiling) $\vec{\theta}$; and the likelihood on the bottom is at the best fit point.
+Where the likelihood in the top is the value of the likelihood at a point $\vec{\mu}$ [profiled over](/what_combine_does/fitting_concepts/#profiling) $\vec{\theta}$; and the likelihood on the bottom is at the best fit point.
 
 Then the confience region can be defined as the region where the p-value of the observed test-statistic is less than the confidence level:
 
@@ -267,9 +278,9 @@ Unfortunately, the distribution of $t_{\mathcal{saturated}}$ often is not known 
 
 Once the distribution is determined a p-value for the statistic can be derived which indicates the probability of observing data with that quality of fit given the model, and therefore serves as a measure of the goodness of fit.
 
-### Channel Compatibility test us the likelihood ratio
+### Channel Compatibility test using the likelihood ratio
 
-When performing an anlysis across many different channels (for example, different Higgs decay modes), it is often interesting to check the leval of compatibility of the various channels.
+When performing an anlysis across many different channels (for example, different Higgs decay modes), it is often interesting to check the level of compatibility of the various channels.
 
 Combine implements a channel compatibility test, by considering the a model, $\mathcal{M}_{\mathrm{c-independent}}$, in which the signal is independent in every channel.
 As a test statistic, this test uses the likelihood ratio between the best fit value of the nominal model and the model with independent signal strength for each channel:

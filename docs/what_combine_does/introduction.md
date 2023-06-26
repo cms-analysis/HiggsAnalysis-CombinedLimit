@@ -16,16 +16,16 @@ Combine can be used for analyses in HEP ranging from simple counting experiments
 
 ## Model Building 
 
-Combine provides a powerful, human-readable, and lightweight interface for building likelihood models for both binned an unbinned data.
+Combine provides a powerful, human-readable, and lightweight interface for [building likelihood models](/part2/settinguptheanalysis/#preparing-the-datacard) for both [binned](/part2/settinguptheanalysis/#binned-shape-analysis) and [unbinned](/part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis) data.
 The likelihood definition allows the user to define many processes which contribute to the observation, as well as multiple channels which may be fit simultaneously.
 
-Furthermore, combine provides a powerful and intuitive interface for combining models, as it was originally developped for combinations of higgs boson analysis at the CMS experiment.
+Furthermore, combine provides a powerful and intuitive interface for [combining models](/part2/settinguptheanalysis/#combination-of-multiple-datacards), as it was originally developped for combinations of higgs boson analysis at the CMS experiment.
 
 The interface simplifies many common tasks, while providing many options for customizations.
 Common nuisance parameter types are defined for easy use, while user-defined functions can also be provided.
 Input histograms defining the model can be provide in root format, or in other tabular formats compatable with pandas.
 
-Custom physics models can be defined in python which determine how the parameters of interest alter the model, and a number of predefined models are provided by default.
+Custom [physics models](/part2/physicsmodels/) can be defined in python which determine how the parameters of interest alter the model, and a number of predefined models are provided by default.
 
 A number of tools are also provided for run-time alterations of the model, allowing for straightforward comparisons of alternative models.
 
@@ -33,7 +33,7 @@ A number of tools are also provided for run-time alterations of the model, allow
 
 Combine can be used for statistical tests in frequentist or bayesian frameworks as well as some hybrid frequentist-bayesian methods.
 
-Combine implements various methods for commonly used statistical tests in high energy physics, including for discovery, limit setting, and parameter estimation.
+Combine implements various methods for [commonly used statistical tests](/part3/commonstatsmethods/) in high energy physics, including for discovery, limit setting, and parameter estimation.
 Statistical tests can be customized to use various test statistics and confidence levels, as well as providing different output formats.
 
 A number of asymptotic methods, relying on Wilks' theorem, and valid in appropriate conditions are implemented for fast evaluation.
@@ -42,13 +42,13 @@ Pseudo-data generation and fitting over the pseudo-data can be customized in a n
 
 ## Validation and Inspection
 
-Combine provides tools for inspecting the model for things like potentially problematic input templates.
+Combine provides tools for [inspecting the model](/part3/validation/#validating-datacards) for things like potentially problematic input templates.
 
-A number of functions are provided for inspecting the likelihood function and the performance of the fits.
+[Various methods](/part3/nonstandard/) are provided for inspecting the likelihood function and the performance of the fits.
 
 Methods are provided for comparing pre-fit and postfit results of all values including nuisance parameters, and summaries of the results can produced.
 
-Plotting utilities allow the pre- and post-fit model expectations and their uncertainties to be plotted.
+[Plotting utilities](/part3/nonstandard/#plotting) allow the pre- and post-fit model expectations and their uncertainties to be plotted.
 
 
 

@@ -60,3 +60,4 @@ markdown_extensions:
         - pymdownx.details
         - pymdownx.blocks.details
         - admonition
+        - footnotes 
