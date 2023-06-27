@@ -59,20 +59,6 @@ $$ t(\mathrm{data}) = f(\mathcal{L}) $$
 
 Even for a given statistical tests, several likelihood-based test-statistics may be suitable, and for some tests combine implements multiple test-statistics from which the user can chose.
 
-#### Considering Alternative Models in the test
-
-Often, we are not interested in statistical tests performed on a single model in isolation, but in how one model relates to another.
-
-For example, we might find that the data appears very likely given some new physics scenario. 
-However, unless that data also appears unlikely given the standard model, this is not a particularly interesting result.
-
-Alternatively if the data appear unlikely given our standard model-based observation model, but we do not have a corresponding new physics scenario for which the data appear likely, it may just be that we've mismodelled some aspect of the detector.
-
-To find new physics, we would like to show that we can reject the standard model, while simultaneously *not* rejecting a model with a hypothetical new particle.
-In that case we gain confidence in our hypothetical new particle, and we are more confident that we have not simply mismodelled some other, less interesting aspect of the experiment.
-
--->
-
 ## Tests with Likelihood Ratio Test Statistics
 
 The [likelihood function](../../what_combine_does/model_and_likelihood/#the-likelihood) itself often forms a good basis for building test statistics.
