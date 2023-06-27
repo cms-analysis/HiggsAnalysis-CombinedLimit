@@ -16,7 +16,7 @@ Combine can be used for analyses in HEP ranging from simple counting experiments
 
 ## Model Building 
 
-Combine provides a powerful, human-readable, and lightweight interface for [building likelihood models](/part2/settinguptheanalysis/#preparing-the-datacard) for both [binned](/part2/settinguptheanalysis/#binned-shape-analysis) and [unbinned](/part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis) data.
+Combine provides a powerful, human-readable, and lightweight interface for [building likelihood models](../../part2/settinguptheanalysis/#preparing-the-datacard) for both [binned](/part2/settinguptheanalysis/#binned-shape-analysis) and [unbinned](/part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis) data.
 The likelihood definition allows the user to define many processes which contribute to the observation, as well as multiple channels which may be fit simultaneously.
 
 Furthermore, combine provides a powerful and intuitive interface for [combining models](/part2/settinguptheanalysis/#combination-of-multiple-datacards), as it was originally developped for combinations of higgs boson analysis at the CMS experiment.
