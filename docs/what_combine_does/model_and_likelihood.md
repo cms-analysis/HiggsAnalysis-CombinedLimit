@@ -262,7 +262,7 @@ where the indices $i$ and $j$ runs over the Poisson- and Gaussian-constrained pr
 
 #### Customizing the form of $n_{exp}$ 
 
-Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](../../part2/physicsmodels/#model-building-poop), [$N$](../../part2/settinguptheanalysis/#rate-parameters), and [$y_{cbp}$](../../part3/nonstandard/#rooparametrichist-gamman-for-shapes).
+Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](../../part2/physicsmodels/#model-building-poop), [ $N$](../../part2/settinguptheanalysis/#rate-parameters), and [ $y_{cbp}$](../../part3/nonstandard/#rooparametrichist-gamman-for-shapes).
 In practice, this makes the functional form almost entirely general. 
 
 However, some constraints, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $y_{cbp}$ only depend on $\vec{\theta}$ do exist.
@@ -300,7 +300,7 @@ Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or
 As with the template likelihood, the parameteric likelihood implemented in combine implements likelihoods which for multiple process and multiple channels.
 Unlike the template likelihoods, the [parametric likelihoods are defined using custom probability density functions](../../part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis), which are functions of continuous observables, rather than discrete, binned counts.
 Because the pdfs are functions of a continuous variable, the likelihood can be evaluated over unbinned data.
-They can still, also, be used for analysis on [binned data](../../part2/settinguptheanalysis/#caveat-on-usin-parametric-pdfs-with-binned-datasets).
+They can still, also, be used for analysis on [binned data](../../part2/settinguptheanalysis/#caveat-on-using-parametric-pdfs-with-binned-datasets).
 
 The unbinned model implemented in combine is given by:
 

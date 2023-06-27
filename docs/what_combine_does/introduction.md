@@ -48,7 +48,7 @@ Combine provides tools for [inspecting the model](../../part3/validation/#valida
 
 Methods are provided for comparing pre-fit and postfit results of all values including nuisance parameters, and summaries of the results can produced.
 
-[Plotting utilities](../../part3/nonstandard/#plotting) allow the pre- and post-fit model expectations and their uncertainties to be plotted.
+Plotting utilities allow the pre- and post-fit model expectations and their uncertainties to be plotted, as well as plotted summaries of debugging stups such as the nuisance parameter values and likelihood scans.
 
 
 
