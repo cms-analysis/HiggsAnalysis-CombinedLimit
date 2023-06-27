@@ -13,7 +13,7 @@ The expected observation is then the sum of the expected observations for each o
 The model can also be composed of multiple channels. $\mathcal{M}_{0} = \{ m_{c1}, m_{c2}, .... m_{cN}\}$. 
 The expected observations which define the model is then the union of the sets of expected observations in each individual channel.
 
-[Combining full models](/part2/settinguptheanalysis/#combination-of-multiple-datacards) is possible by combining their channels, assuming that the channels are mutually independent.
+[Combining full models](../../part2/settinguptheanalysis/#combination-of-multiple-datacards) is possible by combining their channels, assuming that the channels are mutually independent.
 
 ### Sets of Observation Models
 
@@ -132,12 +132,12 @@ where here:
 - $M$ defines the effect of the parameters of interest on the signal process;
 - $N$ defines the overall normalization effect of the nuisance parameters;
 - $y$ defines the shape effects (i.e. bin-dependent effects) of the nuisance parameters; and
-- $E$ defines the impact of [statistical uncertainties from the samples](/part2/bin-wise-stats/) used to derive the histogram templates used to build the model.
+- $E$ defines the impact of [statistical uncertainties from the samples](../../part2/bin-wise-stats/) used to derive the histogram templates used to build the model.
 
 
 #### Parameter of Interest Model
 
-The function $M$ can take on aribitrary functional forms, as [defined by the user](/part2/physicsmodels/#model-building), but in the most common case, the parameter of interest $\mu$ simply scales the contributions from signal processes:
+The function $M$ can take on aribitrary functional forms, as [defined by the user](../../part2/physicsmodels/#model-building), but in the most common case, the parameter of interest $\mu$ simply scales the contributions from signal processes:
 
 $$\label{eq:sig_param}
 M_{cp}(\mu) = \begin{cases} 
@@ -146,7 +146,7 @@ M_{cp}(\mu) = \begin{cases}
 $$
 
 However, combine supports many more models beyond this. 
-As well as built-in support for models with [multiple parameters of interest](/part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes), combine comes with many pre-defined models which go beyond simple process normalization, which are targetted at various types of searches and measurements.
+As well as built-in support for models with [multiple parameters of interest](../../part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes), combine comes with many pre-defined models which go beyond simple process normalization, which are targetted at various types of searches and measurements.
 
 #### Normalization Effects
 
@@ -262,7 +262,7 @@ where the indices $i$ and $j$ runs over the Poisson- and Gaussian-constrained pr
 
 #### Customizing the form of $n_{exp}$ 
 
-Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](/part2/physicsmodels/#model-building-poop), [$N$](/part2/settinguptheanalysis/#rate-parameters), and [$y_{cbp}$](/part3/nonstandard/#rooparametrichist-gamman-for-shapes).
+Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](../../part2/physicsmodels/#model-building-poop), [$N$](../../part2/settinguptheanalysis/#rate-parameters), and [$y_{cbp}$](../../part3/nonstandard/#rooparametrichist-gamman-for-shapes).
 In practice, this makes the functional form almost entirely general. 
 
 However, some constraints, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $y_{cbp}$ only depend on $\vec{\theta}$ do exist.
@@ -298,9 +298,9 @@ Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or
 ### Parametric Likelihoods in Combine
 
 As with the template likelihood, the parameteric likelihood implemented in combine implements likelihoods which for multiple process and multiple channels.
-Unlike the template likelihoods, the [parametric likelihoods are defined using custom probability density functions](/part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis), which are functions of continuous observables, rather than discrete, binned counts.
+Unlike the template likelihoods, the [parametric likelihoods are defined using custom probability density functions](../../part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis), which are functions of continuous observables, rather than discrete, binned counts.
 Because the pdfs are functions of a continuous variable, the likelihood can be evaluated over unbinned data.
-They can still, also, be used for analysis on [binned data](/part2/settinguptheanalysis/#caveat-on-usin-parametric-pdfs-with-binned-datasets).
+They can still, also, be used for analysis on [binned data](../../part2/settinguptheanalysis/#caveat-on-usin-parametric-pdfs-with-binned-datasets).
 
 The unbinned model implemented in combine is given by:
 
@@ -351,7 +351,7 @@ The details of the interpolations which are used are found in the section on [no
 
 #### Parameter of Interest Model
 
-As in the template-based case, the parameter of interest model, $M_{cp}(\vec{\mu})$, can take on arbitrary forms [defined by the user](/part2/physicsmodels/#model-building).
+As in the template-based case, the parameter of interest model, $M_{cp}(\vec{\mu})$, can take on arbitrary forms [defined by the user](../../part2/physicsmodels/#model-building).
 The default model is one where $\vec{\mu}$ simply scales the signal processes' normalizations.
 
 #### Shape Morphing Effects

@@ -1,7 +1,7 @@
 # Likelihood based fitting
 
-"Fitting" simply means estimating some parameters of a model (or really a [set of models](/what_combine_does/model_and_likelihood.md#sets-of-observation-models)) based on data.
-Likelihood-based fitting does this through the [likelihood function](/what_combine_does/model_and_likelihood.md#the-likelihood).
+"Fitting" simply means estimating some parameters of a model (or really a [set of models](../../what_combine_does/model_and_likelihood.md#sets-of-observation-models)) based on data.
+Likelihood-based fitting does this through the [likelihood function](../../what_combine_does/model_and_likelihood.md#the-likelihood).
 
 In frequentist frameworks, this typically means doing [maximum likelihood estimation](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2).
 In bayesian frameworks, usually [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6) of the parameters are calculated from the likelihood.

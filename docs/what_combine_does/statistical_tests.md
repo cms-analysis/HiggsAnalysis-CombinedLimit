@@ -59,60 +59,6 @@ $$ t(\mathrm{data}) = f(\mathcal{L}) $$
 
 Even for a given statistical tests, several likelihood-based test-statistics may be suitable, and for some tests combine implements multiple test-statistics from which the user can chose.
 
-<!---
-A common example could be:
-
-1. Determine the expected distribution of the test statistic, given the model. 
-2. Define a region which contains a fixed fraction of the the total expected distribution, e.g. 68\%.
-3. Check the value of the test statistic for the actual observed data.
-4. Draw some conclusion based on whether or not the observed test statistic falls within the defined region.
-
-For example, one may define a region which is expected to contain the test statistic 95% of the time, given the model. 
-If the observed test statistic is outside of this region, the model might be rejected.
-
-In many cases, as well as a binary outcome (e.g. rejecting a model), we may also report a number based on the value of the test statistic itself from step 3.
-Most often this is the p-value of the observed test statistic, or some similar value, such as a z-score or significance.
-This provides somewhat more information than the binary outcome of step 4 outlined above.
-
-Many of the combine commands perform some version of the statistical test described above. 
-Combine uses a number of default choices for the test statistic depending on the test being performed, as described below. 
-In some cases the user can chose from one of a number of common test statistics used for that particular test.
-
-The estimation of the of the expected distribution of the test statistic is also performed by combine.
-Here, again, a number of different methods are provided for the estimation, using either asymptotic approximations or with pseudo-experiments.
-The user must decide which case is most appropriate given their analysis.
-
-
-/// details | **Simple Hypothesis test example**
-
-Consider if we were testing a coin for fairness, using the fraction of flips that came up as heads as the test statistic, and defined our acceptance region as a symmetric region around 0.5 in which we had calculated the test statistic should fall 95% of the time. 
-If we performed, 1000 tosses, the acceptance region for the test statistic would be approximately $[0.46 -- 0.54]$ and if its observed value was 0.85, we would then reject the fair coin hypothesis.
-
-///
-
-<br>
-
-/// details | **Mathematical details of the general statistical test**
-
-The distribution of the test statistic, $t$ under some model hypothesis $\mathcal{M}$ is:
-
-$$t \stackrel{\mathcal{M}}{\sim} D_{\mathcal{M}}$$
-
-And the observed value of the test statistic is $t_{\mathrm{obs}}$.
-The strength of the test can be set by chosing some value $\alpha$ and some region $\Omega$ such that:
-
-$$\alpha = \int_{\Omega} D_{\mathcal{M}}$$
-
-In principle, the shape of $\Omega$ can be anything that satistfies the above equation.
-In practice, however, it is usually taken to be one of a few continuous intervals, such as:
-
-$$
-[-t_{\mathrm{crit}}, t_{\mathrm{crit}} ], [t_{\mathrm{min}}, t_{\mathrm{crit}}], \mathrm{\ or\ } [t_{\mathrm{crit}}, t_{\mathrm{max}} ] 
-$$
-
-Where $t_{\mathrm{min}}$ and  $t_{\mathrm{max}}$ are the lower and upper bounds of the domain of the test statistic and $t_{\mathrm{crit}}$ is some critical value of the test static which depends on the choice of $\alpha$.
-
-///
 #### Considering Alternative Models in the test
 
 Often, we are not interested in statistical tests performed on a single model in isolation, but in how one model relates to another.
@@ -129,7 +75,7 @@ In that case we gain confidence in our hypothetical new particle, and we are mor
 
 ## Tests with Likelihood Ratio Test Statistics
 
-The [likelihood function](/what_combine_does/model_and_likelihood/#the-likelihood) itself often forms a good basis for building test statistics.
+The [likelihood function](../../what_combine_does/model_and_likelihood/#the-likelihood) itself often forms a good basis for building test statistics.
 
 Typically the absolute value of the likelihood itself is not very meaningful as it depends on many fixed aspects we are usually not interested in on their own, like the size of the parameter space and the number of observations.
 However, quantities such as the ratio of the likelihood at two different points in parameter space are very informative about the relative merits of those two models.
@@ -152,7 +98,7 @@ This way, $t$ is positive, and larger values of $t$ represent larger differences
 #### Sets of test statistics
 
 If the parameters of both likelihoods in the ratio are fixed, either a priori or as a definite function of the data, then that defines a single test statistic.
-Often, however, we are interested in testing ["sets" of models](/what_combine_does/model_and_likelihood/#sets-of-observation-models), parameterized by some set of values $(\vec{\mu}, \vec{\theta})$.
+Often, however, we are interested in testing ["sets" of models](../../what_combine_does/model_and_likelihood/#sets-of-observation-models), parameterized by some set of values $(\vec{\mu}, \vec{\theta})$.
 
 This is important in limit setting for example, where we perform statistical tests to exclude entire ranges of the parameter space.
 
@@ -173,25 +119,25 @@ Under [appropriate conditions](https://arxiv.org/abs/1911.10237), the distributi
 Then, the p-value of the observed test statistic can be calculated from the known form of the expected distribution. 
 This is also true for a number of the other test statistics derived from the likelihood ratio, where [asymptotic approximations have been derived](https://arxiv.org/abs/1007.1727).
 
-Combine provides asymptotic methods, for [limit setting](/part3/commonstatsmethods/#asymptotic-frequentist-limits) and [significance tests](/part3/commonstatsmethods/#asymptotic-significances), which make used of these approximations for fast calculations.
+Combine provides asymptotic methods, for [limit setting](../../part3/commonstatsmethods/#asymptotic-frequentist-limits) and [significance tests](../../part3/commonstatsmethods/#asymptotic-significances), which make used of these approximations for fast calculations.
 
 In the general case, however, the distribution of the test statistic is not known, and it must be estimated.
 Typically it is estimated by generating many sets of pseudo-data from the model and using the emprirical distribution of the test statistic.
 
-Combine provides methods for [limit setting](/part3/commonstatsmethods/#computing-limits-with-toys) and [significance tests](/part3/commonstatsmethods/#computing-significances-with-toys) which use pseudodata generation to estimate the expected test-statistic distributions, and therefore don't depend on the asymptotic approximation.
-Methods are also provided for [generating pseudodata](/part3/runningthetool/#toy-data-generation) without running a particular test, which can be saved and used for estimating expected distributions.
+Combine provides methods for [limit setting](../../part3/commonstatsmethods/#computing-limits-with-toys) and [significance tests](../../part3/commonstatsmethods/#computing-significances-with-toys) which use pseudodata generation to estimate the expected test-statistic distributions, and therefore don't depend on the asymptotic approximation.
+Methods are also provided for [generating pseudodata](../../part3/runningthetool/#toy-data-generation) without running a particular test, which can be saved and used for estimating expected distributions.
 
 ### Parameter Estimation using the likelihood ratio
 
 A common use case for likelihood ratios is estimating the values of some parameters, such as the parameters of interest, $\vec{\mu}$.
 The point estimate for the parameters is simply the maximum likelihood estimate, but the likelihood ratio can be used for estimating the uncertainty as a confidence region.
 
-A [confidence region](/what_combine_does/fitting_concepts/#frequentist-confidence-regions) for the parameters $\vec{\mu}$ can be defined by using an appropriate test statistic.
+A [confidence region](../../what_combine_does/fitting_concepts/#frequentist-confidence-regions) for the parameters $\vec{\mu}$ can be defined by using an appropriate test statistic.
 Typically, we use the log likelihood ratio:
 
 $$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\theta}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\theta}})}) $$
 
-Where the likelihood in the top is the value of the likelihood at a point $\vec{\mu}$ [profiled over](/what_combine_does/fitting_concepts/#profiling) $\vec{\theta}$; and the likelihood on the bottom is at the best fit point.
+Where the likelihood in the top is the value of the likelihood at a point $\vec{\mu}$ [profiled over](../../what_combine_does/fitting_concepts/#profiling) $\vec{\theta}$; and the likelihood on the bottom is at the best fit point.
 
 Then the confidence region can be defined as the region where the p-value of the observed test-statistic is less than the confidence level:
 
@@ -307,7 +253,7 @@ Once the distribution is determined a p-value for the statistic can be derived w
 
 When performing an anlysis across many different channels (for example, different Higgs decay modes), it is often interesting to check the level of compatibility of the various channels.
 
-Combine implements a [channel compatibility test](/part3/commonstatsmethods/#channel-compatibility), by considering the a model, $\mathcal{M}_{\mathrm{c-independent}}$, in which the signal is independent in every channel.
+Combine implements a [channel compatibility test](../../part3/commonstatsmethods/#channel-compatibility), by considering the a model, $\mathcal{M}_{\mathrm{c-independent}}$, in which the signal is independent in every channel.
 As a test statistic, this test uses the likelihood ratio between the best fit value of the nominal model and the model with independent signal strength for each channel:
 
 $$ t = -\log(\frac{\mathcal{L}_{\mathcal{M}}(\vec{\hat{\mu}},\vec{\hat{\theta}})}{\mathcal{L}_{\mathcal{M}_{\mathrm{c-indep}}}(\vec{\hat{\mu}}_{c1}, \vec{\hat{\mu}}_{c2}, ..., \vec{\hat{\theta}})}) $$
