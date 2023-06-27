@@ -4,38 +4,62 @@
 Combine is a likelihood based statistical tool. 
 That means that it uses the likelihood function to define statistical tests.
 
+Combine provides a number of customization options for each test; as always it is up to the user to chose an appropriate test and options.
+
 
 ## General Framework
 
 
-### Test Statistics
+### Statistical tests
 
-Most statistical analyses involve devising some "**test statistic**", $t$, which is simply any real-valued function of the observed data:
+Combine implements a number of different customizable [statistical tests](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.3). 
+These tests can be used for purposes such as determining the significance of some new physics model over the standard model, setting limits, estimating parameters, and checking goodness of fit.
+
+These tests are all performed on a given model (null hypothesis), and often require additional specification of an alternative model.
+The statistical test then typically requires defining some "**test statistic**", $t$, which is simply any real-valued function of the observed data:
 
 $$ t(\mathrm{data}) \in \mathbb{R} $$
 
 For example, in a simple coin-flipping experiment, the number of heads could be used as the test statistic.
 
-The importance of the test statistic is that it associates with every observation a single value. 
-This provides a method of ordering all possible observations.
-The ordering allows us to recast the question "how likely was this observation?" in the form of a quantitative question about where the observation falls in the assigned ordering.
+The distribution of the test statistic should be estimated under the null hypothesis (and the alternative hypothesis, if applicable).
+Then the value of the test statistic on the actual observed data, $t^{\mathrm{obs}}$ is compared with its expected value under the relevant hypotheses.
 
-The choice of tests statistic is very important as it influences the power of the statistical test.
-Ideally a good test statistic should return different values for likely outcomes as compared to unlikely outcomes.
+This comparison, which depends on the test in question, will the define the results of the test, which may be simple binary results (e.g. this model point is rejected at a given confidence level), or continuous (e.g. defining the degree to which the data are considered surprising, given the model).
+Often, as either a final result or as an intermediate step, the p-value of the observed test statistic under a given hypothesis is calculated.
+
+
+/// details | **How p-values are calculated**
+
+
+The distribution of the test statistic, $t$ under some model hypothesis $\mathcal{M}$ is:
+
+$$t \stackrel{\mathcal{M}}{\sim} D_{\mathcal{M}}$$
+
+And the observed value of the test statistic is $t_{\mathrm{obs}}$.
+The p-value of the observed result gives the probability of having observed a test statistic at least as extreme as the actual observation. For example, this may be:
+
+$$p = \int_{t_{\mathrm{min}}}^{t_\mathrm{obs}} D_{\mathcal{M}} \mathrm{d}t$$
+
+In some cases, the bounds of the integral may be modified, such as $( t_{\mathrm{obs}}, t_{\mathrm{max}} )$ or $(-t_{\mathrm{obs}}, t_{\mathrm{obs}} )$, depending on the details of the test being performed.
+
+///
+
+#### Test Statistics
+
+The test statistic can be any real valued function of the data.
+While in principle, many valid test statistics can be used, the choice of tests statistic is very important as it influences the power of the statistical test.
+
+By associating a single real value with every observation, the test statistic allows us to recast the question "how likely was this observation?" in the form of a quantitative question about where the value of the test statistic.
+Ideally a good test statistic should return different values for likely outcomes as compared to unlikely outcomes and the expected distributions under the null and alternate hypotheses should be well-separated.
 
 In many situations, extremely useful test statistics, sometimes optimal ones for particular tasks, can be constructed from the likelihood function itself: 
 
-$$t = f(\mathcal{L}(\mathrm{data}))$$
+$$ t(\mathrm{data}) = f(\mathcal{L}) $$
 
+Even for a given statistical tests, several likelihood-based test-statistics may be suitable, and for some tests combine implements multiple test-statistics from which the user can chose.
 
-### Statistical tests
-
-Once a test statistic is chosen, a statistical test can be performed. 
-There are several statistical testing frameworks, but the general concept is to consider a model (a null hypothesis), usually in conjunction with some alternate model.
-
-Given the null hypothesis, and the alternate hypothesis, the expected distribution of the test statistic under the two cases can be determined.
-Then the observed value of the test statistic can be compared to the two expected distributions, and the result of the test is be reported.
-
+<!---
 A common example could be:
 
 1. Determine the expected distribution of the test statistic, given the model. 
@@ -89,7 +113,6 @@ $$
 Where $t_{\mathrm{min}}$ and  $t_{\mathrm{max}}$ are the lower and upper bounds of the domain of the test statistic and $t_{\mathrm{crit}}$ is some critical value of the test static which depends on the choice of $\alpha$.
 
 ///
-
 #### Considering Alternative Models in the test
 
 Often, we are not interested in statistical tests performed on a single model in isolation, but in how one model relates to another.
@@ -102,6 +125,7 @@ Alternatively if the data appear unlikely given our standard model-based observa
 To find new physics, we would like to show that we can reject the standard model, while simultaneously *not* rejecting a model with a hypothetical new particle.
 In that case we gain confidence in our hypothetical new particle, and we are more confident that we have not simply mismodelled some other, less interesting aspect of the experiment.
 
+-->
 
 ## Tests with Likelihood Ratio Test Statistics
 
@@ -143,18 +167,19 @@ When calculating the p-values for these statistical tests, the p-values are calc
 i.e. as $p_\vec{\mu} \equiv p(t_{\vec{\mu}}(\mathrm{data}) | \mathcal{M}_{\vec{\mu}})$.
 In other words, the observed and expected distributions of the test statistics are computed separately at each parameter point $\vec{x}$ being considered.
 
-#### Distributions of likelihood ratio test statistics
+#### Expected distributions of likelihood ratio test statistics
 
-Under appropriate conditions, the distribution of $t_\vec{\mu}$ can be approximated analytically, via [Wilks' Theorem](https://en.wikipedia.org/wiki/Wilks'_theorem) or other extensions of that work.
+Under [appropriate conditions](https://arxiv.org/abs/1911.10237), the distribution of $t_\vec{\mu}$ can be approximated analytically, via [Wilks' Theorem](https://en.wikipedia.org/wiki/Wilks'_theorem) or other extensions of that work.
 Then, the p-value of the observed test statistic can be calculated from the known form of the expected distribution. 
-This is also true for a number of the other test statistics derived from the likelihood ratio.
+This is also true for a number of the other test statistics derived from the likelihood ratio, where [asymptotic approximations have been derived](https://arxiv.org/abs/1007.1727).
+
+Combine provides asymptotic methods, for [limit setting](/part3/commonstatsmethods/#asymptotic-frequentist-limits) and [significance tests](/part3/commonstatsmethods/#asymptotic-significances), which make used of these approximations for fast calculations.
 
 In the general case, however, the distribution of the test statistic is not known, and it must be estimated.
 Typically it is estimated by generating many sets of pseudo-data from the model and using the emprirical distribution of the test statistic.
 
-When the expected distribution is known, computation of the test results is typically much faster, which can be extremely beneficial.
-On the other hand, the expected distributions are all aproximations which are sufficiently good under appropriate conditions, and its important to ensure that these approximations work well for the case at hand.
-
+Combine provides methods for [limit setting](/part3/commonstatsmethods/#computing-limits-with-toys) and [significance tests](/part3/commonstatsmethods/#computing-significances-with-toys) which use pseudodata generation to estimate the expected test-statistic distributions, and therefore don't depend on the asymptotic approximation.
+Methods are also provided for [generating pseudodata](/part3/runningthetool/#toy-data-generation) without running a particular test, which can be saved and used for estimating expected distributions.
 
 ### Parameter Estimation using the likelihood ratio
 
@@ -168,7 +193,7 @@ $$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\theta}}(\v
 
 Where the likelihood in the top is the value of the likelihood at a point $\vec{\mu}$ [profiled over](/what_combine_does/fitting_concepts/#profiling) $\vec{\theta}$; and the likelihood on the bottom is at the best fit point.
 
-Then the confience region can be defined as the region where the p-value of the observed test-statistic is less than the confidence level:
+Then the confidence region can be defined as the region where the p-value of the observed test-statistic is less than the confidence level:
 
 $$ \{ \vec{\mu}_{\mathrm{CL}} \} =  \{ \vec{\mu} : p_{\vec{\mu}} \lt \mathrm{CL} \}.$$
 
@@ -197,7 +222,7 @@ $$
 
 which excludes the possibility of claiming discovery when the best fit value of $\mu$ is negative.
 
-As with the likelihood ratio test statistic, $t$, defined above, under suitable conditions, analytic expressions for the distribution of $q_0$ are known.
+As with the likelihood ratio test statistic, $t$, defined above, under suitable conditions, [analytic expressions for the distribution of $q_0$](https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS5) are known.
 
 Once the value $q_{0}(\mathrm{data})$ is calculated, it can be compared to the expected distribution of $q_{0}$ under the standard model hypothesis to calculate the p-value.
 If the p-value is below some threshold, discovery is often claimed. 
@@ -210,7 +235,7 @@ In high-energy physics the standard threshold is $\sim 5\times10^{-7}$.
 
 Various test statistics built from likelihood ratios can be used for limit setting, i.e. excluding some parameter values.
 
-The simplest thing one could do to set a limit on a parameter $\mu$ is to find the values of $\mu$ that are outside the confidence regions defined above by using the likelihood ratio test statistic:
+One could do to set limits on a parameter $\mu$ by finding the values of $\mu$ that are outside the confidence regions defined above by using the likelihood ratio test statistic:
 
 $$ t_{\mu} = -2\log(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})}) $$
 
@@ -239,7 +264,7 @@ $$
 \end{cases}
 $$
 
-In following the [standard test-methodology](#statistical-tests_1) described above, one can then set a limit at a given confidence level $\mathrm{CL}$ by finding the value of $\mu$ for which $p_{\mu} \equiv p(t_{\mu}(\mathrm{data})|\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ will have smaller p-values and are considered excluded at the given confidence level.
+Which also has a [known distribution](https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7) under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, $\mathrm{CL}$, by finding the value of $\mu$ for which $p_{\mu} \equiv p(t_{\mu}(\mathrm{data})|\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ will have smaller p-values and are considered excluded at the given confidence level.
 
 However, this procedure is rarely used, in almost every case we use a modified test procedure which uses the $\mathrm{CL}_{s}$ criterion, explained below.
 
@@ -263,7 +288,7 @@ The actual frequency at which it is excluded depends on the sensitivity of the e
 
 ### Goodness of fit tests using the likelihood ratio
 
-The likelihood ratio can also be used as a measure of goodness of fit, i.e. describing how well the data match the model for binned data.
+The likelihood ratio can also be used [as a measure of goodness of fit](https://www.physics.ucla.edu/~cousins/stats/cousins_saturated.pdf), i.e. describing how well the data match the model for binned data.
 
 A standard likelihood-based measure of the goodness of fit is determined by using the log likelihood ratio with the likelihood in the denominator coming from the **saturated model**.
 
@@ -282,7 +307,7 @@ Once the distribution is determined a p-value for the statistic can be derived w
 
 When performing an anlysis across many different channels (for example, different Higgs decay modes), it is often interesting to check the level of compatibility of the various channels.
 
-Combine implements a channel compatibility test, by considering the a model, $\mathcal{M}_{\mathrm{c-independent}}$, in which the signal is independent in every channel.
+Combine implements a [channel compatibility test](/part3/commonstatsmethods/#channel-compatibility), by considering the a model, $\mathcal{M}_{\mathrm{c-independent}}$, in which the signal is independent in every channel.
 As a test statistic, this test uses the likelihood ratio between the best fit value of the nominal model and the model with independent signal strength for each channel:
 
 $$ t = -\log(\frac{\mathcal{L}_{\mathcal{M}}(\vec{\hat{\mu}},\vec{\hat{\theta}})}{\mathcal{L}_{\mathcal{M}_{\mathrm{c-indep}}}(\vec{\hat{\mu}}_{c1}, \vec{\hat{\mu}}_{c2}, ..., \vec{\hat{\theta}})}) $$
