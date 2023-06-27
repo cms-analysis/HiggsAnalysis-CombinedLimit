@@ -115,7 +115,7 @@ Under some conditions, the value of $\gamma_{\mathrm{CL}}$ is known analytically
 
 /// details | **Constructing Frequentist Confidence Regions in Practice**
 
-When a single fit is performed and parameter values are reported along with some uncertainty values, they are usually reported as frequentist intervals.
+When a single fit is performed by some numerical minimization program and parameter values are reported along with some uncertainty values, they are usually reported as frequentist intervals.
 The [MINUIT minimizer](https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf) which evaluates likelihood functions has two methods for [estimating parameter uncertainties](https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#section.2.5).
 
 These two methods are the most commonly used methods for estimating confidence regions in a fit; they are the [**minos** method](https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#subsection.2.5.3), and the [**hessian** method](https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#subsection.2.5.2).
