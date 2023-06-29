@@ -214,7 +214,7 @@ Regardless of which of these test statistics is used, the standard test-methodol
 
 Even for an experiment with almost no sensitivity to new physics, 5% of the time the experiment is performed the experimenter will find $p_{\mu} \lt 0.05$ for small values of $\mu$ and set limits on parameter values to which the experiment is not sensitive. 
 
-In order to avoid such situations, the $\mathrm{CL}_{s}$ criterion was developped, as explained in these [two](https://cdsweb.cern.ch/record/451614) [papers](https://arxiv.org/abs/hep-ex/9902006).
+In order to avoid such situations the $\mathrm{CL}_{s}$ criterion was developped, as explained in these [two](https://cdsweb.cern.ch/record/451614) [papers](https://arxiv.org/abs/hep-ex/9902006).
 Rather than requiring $p_{\mu} \lt (1-\mathrm{CL})$ to exclude $\mu$, as would be done in the general framework described above, the $\mathrm{CL}_{s}$ criterion requires:
 
 
