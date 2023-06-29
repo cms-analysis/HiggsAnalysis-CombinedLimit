@@ -25,8 +25,13 @@ For example, in a simple coin-flipping experiment, the number of heads could be 
 The distribution of the test statistic should be estimated under the null hypothesis (and the alternative hypothesis, if applicable).
 Then the value of the test statistic on the actual observed data, $t^{\mathrm{obs}}$ is compared with its expected value under the relevant hypotheses.
 
+<div class="p value explainer", id="pvalexplainer">
+<p hidden> this div exists as a convenient link target to the p-value explainer.</p>
+</div>
+
 This comparison, which depends on the test in question, will the define the results of the test, which may be simple binary results (e.g. this model point is rejected at a given confidence level), or continuous (e.g. defining the degree to which the data are considered surprising, given the model).
 Often, as either a final result or as an intermediate step, the p-value of the observed test statistic under a given hypothesis is calculated.
+
 
 
 /// details | **How p-values are calculated**
@@ -42,6 +47,9 @@ The p-value of the observed result gives the probability of having observed a te
 $$p = \int_{t_{\mathrm{min}}}^{t_\mathrm{obs}} D_{\mathcal{M}} \mathrm{d}t$$
 
 In some cases, the bounds of the integral may be modified, such as $( t_{\mathrm{obs}}, t_{\mathrm{max}} )$ or $(-t_{\mathrm{obs}}, t_{\mathrm{obs}} )$, depending on the details of the test being performed.
+And specifically, for the distribution in question, whether an observed value in the right tail, left tail, or either tail of the distribution is considered as unexpected.
+
+The p-values using the left-tail and right tail are related to each other via $p_{\mathrm{left}} = 1 - p_{\mathrm{right}}$.
 
 ///
 
@@ -206,12 +214,18 @@ Regardless of which of these test statistics is used, the standard test-methodol
 
 Even for an experiment with almost no sensitivity to new physics, 5% of the time the experiment is performed the experimenter will find $p_{\mu} \lt 0.05$ for small values of $\mu$ and set limits on parameter values to which the experiment is not sensitive. 
 
-In order to avoid such situations, the $\mathrm{CL}_{s}$ criterion was developped.
+In order to avoid such situations, the $\mathrm{CL}_{s}$ criterion was developped, as explained in these [two](https://cdsweb.cern.ch/record/451614) [papers](https://arxiv.org/abs/hep-ex/9902006).
 Rather than requiring $p_{\mu} \lt (1-\mathrm{CL})$ to exclude $\mu$, as would be done in the general framework described above, the $\mathrm{CL}_{s}$ criterion requires:
+
+
 
 $$ \frac{p_{\mu}}{p_{0}} \lt (1-\mathrm{CL}) $$
 
-Where $p_{\mu}$ is the usual probability of observing the observed value of the test statistic under the signal + background model with signal strength $\mu$ (and $p_0$ for signal strength 0).
+Where $p_{\mu}$ is the usual probability of observing the observed value of the test statistic under the signal + background model with signal strength $\mu$ (and $p_0$ for signal strength 0). 
+Often the model with $\mu = 0$ is referred to as the background model, and its p-value is written $p_{b}$, with the p-value defined [using the opposite tail](#pvalexplainer) from the definition of $p_{\mu}$.
+Then, the $\mathrm{CL}_{s}$ criterion is written:
+
+$$ \frac{p_{\mu}}{1-p_{b}} \lt (1-\mathrm{CL}) $$
 
 Using the $\mathrm{CL}_{s}$ criterion fixes the issue of setting limits much stricter than the experimental sensitivity, because for values of $\vec{\mu}$ to which the experiment is not sensitive $p_{\mu} \approx p_{0}$ and the ratio approaches 1.
 
