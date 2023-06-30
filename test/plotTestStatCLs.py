@@ -182,11 +182,11 @@ for m in options.mass:
                 options.rebin,
                 options.expected,
                 options.quantileExpected,
-		options.sub_label
+                options.sub_label,
             )
         canvases.append(can.Clone())
-	if options.save_as_pdf: 
-	    can.SaveAs(options.output+"_"+can.GetName()+".pdf")
+        if options.save_as_pdf:
+            can.SaveAs(options.output + "_" + can.GetName() + ".pdf")
         ft.Close()
 ofile = ROOT.TFile(options.output, "RECREATE")
 for can in canvases:
