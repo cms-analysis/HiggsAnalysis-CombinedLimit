@@ -26,7 +26,7 @@ The distribution of the test statistic should be estimated under the null hypoth
 Then the value of the test statistic on the actual observed data, $t^{\mathrm{obs}}$ is compared with its expected value under the relevant hypotheses.
 
 <div class="p value explainer", id="pvalexplainer">
-<p hidden> this div exists as a convenient link target to the p-value explainer.</p>
+<!--- this div exists as a convenient link target to the p-value explainer below. It is placed slightly above the explainer, because otherwise the explainer is covered by the page header-->
 </div>
 
 This comparison, which depends on the test in question, will the define the results of the test, which may be simple binary results (e.g. this model point is rejected at a given confidence level), or continuous (e.g. defining the degree to which the data are considered surprising, given the model).
@@ -219,15 +219,36 @@ Rather than requiring $p_{\mu} \lt (1-\mathrm{CL})$ to exclude $\mu$, as would b
 
 
 
-$$ \frac{p_{\mu}}{p_{0}} \lt (1-\mathrm{CL}) $$
-
-Where $p_{\mu}$ is the usual probability of observing the observed value of the test statistic under the signal + background model with signal strength $\mu$ (and $p_0$ for signal strength 0). 
-Often the model with $\mu = 0$ is referred to as the background model, and its p-value is written $p_{b}$, with the p-value defined [using the opposite tail](#pvalexplainer) from the definition of $p_{\mu}$.
-Then, the $\mathrm{CL}_{s}$ criterion is written:
-
 $$ \frac{p_{\mu}}{1-p_{b}} \lt (1-\mathrm{CL}) $$
 
-Using the $\mathrm{CL}_{s}$ criterion fixes the issue of setting limits much stricter than the experimental sensitivity, because for values of $\vec{\mu}$ to which the experiment is not sensitive $p_{\mu} \approx p_{0}$ and the ratio approaches 1.
+Where $p_{\mu}$ is the usual probability of observing the observed value of the test statistic under the signal + background model with signal strength $\mu$, and $p_{b}$ is the p-value for the background-only hypothesis, with the p-value defined [using the opposite tail](#pvalexplainer) from the definition of $p_{\mu}$.
+
+Using the $\mathrm{CL}_{s}$ criterion fixes the issue of setting limits much stricter than the experimental sensitivity, because for values of $\mu$ to which the experiment is not sensitive the distribution of the test statistic under the signal hypothesis is nearly the same as under the background hypothesis. Therefore, given the use of opposite tails in the p-value definition, $p_{\mu} \approx 1-p_{b}$, and the ratio approaches 1.
+
+<!---
+/// details | **Why $p_{b}$ uses the opposite tail from $p_\mu$**
+
+When considering a null hypothesis and an alternate hypothesis, conventionally the p-values of the two hypotheses are defined using opposite tails.
+
+A diagram showing the expected distributions of the test statistic under a null and alternate hypothesis, as well as their corresponding p-values when defined using opposite tails is shown below.
+
+
+![](null_alternate_distribution_pvals.png)
+
+By using this convention, for well-separated hypothesis, the p-value for both hypotheses will be small when the test statistic appears in the tails between the two distributions.
+If the observed test statistic is on either extreme end,  (either larger or smaller than expected from either distribution), then the closer of the two distributions will have a large p-value, and the other distribution will have a small p-value.
+
+If the same tail is used for both distributions, then 
+
+By defining the p-values using opposite tails, a small p-value for the null hypothesis, disfavouring the null hypothesis, corresponds to a large p-value for the alternative hypothesis and vice versa.
+This is illustrated in the figures below. 
+
+When setting limits, the null hypothesis, which we are rejecting by setting a limit, is that there is a signal with strength $\mu$, and the alternate hypothesis is that there is no signal, i.e. the background-only hypothesis.
+Therefore, by convention, $p_{b}$ is typically defined using the opposite tail as used for $p_{\mu}$.
+
+///
+<br>
+-->
 
 Note that this means that a limit set using the $\mathrm{CL}_{s}$ criterion at a given $\mathrm{CL}$ will exclude the true parameter value $\mu$ with a frequency less than the nominal rate of $1-\mathrm{CL}$.
 The actual frequency at which it is excluded depends on the sensitivity of the experiment to that parameter value.
