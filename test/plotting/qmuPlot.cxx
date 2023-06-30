@@ -202,7 +202,7 @@ TCanvas *q0Plot(float mass, std::string poinam , float poival, int rebin=0, bool
 
 
 
-TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int invert=0,int rebin=0, int runExpected_=0, double quantileExpected_=0.5) {
+TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int invert=0,int rebin=0, int runExpected_=0, double quantileExpected_=0.5,std::string testStatSublabel="") {
     if (gFile == 0) { std::cerr << "You must have a file open " << std::endl; return 0; }
     TTree *t = (TTree *) gFile->Get("q");
     if (t == 0) { std::cerr << "File " << gFile->GetName() << " does not contain a tree called 'q'" << std::endl; return 0; }
@@ -321,7 +321,9 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     }
     leg1->AddEntry(qO, "observed value", "L");
 
-    TLegend *leg2 = new TLegend(.63,.67,.93,.48);
+    TLegend *leg2; 
+    if (mode==0) leg2 = new TLegend(.63,.67,.93,.48);
+    else leg2 = new TLegend(.13,.87,.43,.68);
     leg2->SetFillColor(0);
     leg2->SetShadowColor(0);
     leg2->SetTextFont(42);
@@ -354,7 +356,8 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     leg2->Draw();
     qB->SetTitle("");
     qB->GetYaxis()->SetTitle("");
-    qB->GetXaxis()->SetTitle(Form("q_{%s}(%s = %g, m_{H} = %g GeV)",poinam.c_str(),poinam.c_str(),poival,mass));
+    if (testStatSublabel.length()>0) qB->GetXaxis()->SetTitle(Form("q_{%s}(%s = %g, m_{H} = %g GeV)",testStatSublabel.c_str(),poinam.c_str(),poival,mass));
+    else qB->GetXaxis()->SetTitle(Form("q_{%s}(%s = %g, m_{H} = %g GeV)",poinam.c_str(),poinam.c_str(),poival,mass));
     qB->GetXaxis()->SetTitleOffset(1.05);
 
 
