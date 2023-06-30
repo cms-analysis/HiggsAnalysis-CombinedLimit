@@ -599,7 +599,18 @@ The distributions of the test-statistic can also be plotted, at each value in th
 python test/plotTestStatCLs.py --input mygrid.root --poi r --val all --mass MASS
 ```
 
-The resulting output file will contain a canvas showing the distribution of the test statistic background only and signal+background hypothesis at each value of **r**. Use `--help` to see more options for this script.
+The resulting output file will contain a canvas showing the distribution of the test statistic background only and signal+background hypothesis at each value of **r**. Use `--help` to see more options for this script. Click on the examples below to see what a typical output of this plotting tool will look like. 
+
+<details>
+<summary><b>qLHC test stat example</b></summary>
+![](images/exampleLHC.jpg)
+</details>
+
+<details>
+<summary><b>qTEV test stat example</b></summary>
+![](images/exampleTEV.jpg)
+</details>
+
 
 !!! info
     If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option `--doublesided`, which will also take care of defining the correct integrals for $p_{\mu}$ and $p_{b}$.
