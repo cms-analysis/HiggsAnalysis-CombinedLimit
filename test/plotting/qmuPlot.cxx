@@ -213,6 +213,16 @@ TCanvas *qmuPlot(float mass, std::string poinam, double poival, int mode=0, int 
     TH1F *qB;
     TH1F *qS;
 
+    // check if should use --doublesided (mode==1) option 
+    if (mode==0) {
+    	TH1F *qTest;
+        t->Draw("2*q>>qTest","weight*(type==-1)");
+	qTest = (TH1F*) gROOT->FindObject("qTest")->Clone();
+	if (qTest->Integral(1,qTest->FindBin(0)) > 0.3*qTest->Integral()) {
+	    std::cout << "WARNING -- It looks like you are using either the TEV or LEP style test-statistic. If so, you should use the option --doublesided" << std::endl;
+	}
+    }
+
     if (mode==0) t->Draw("max(2*q,0)>>qB","weight*(type==-1)");
     else t->Draw("2*q>>qB","weight*(type==-1)");
 

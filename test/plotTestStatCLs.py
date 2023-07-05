@@ -45,9 +45,10 @@ parser.add_option(
 )
 parser.add_option(
     "",
-    "--sub_label",
+    "--sub-label",
     default="",
     type="str",
+    dest="sub_label",
     help="change sub-label from q to q_sub_label (doesn't apply if using --signif option",
 )
 parser.add_option(
@@ -109,7 +110,8 @@ parser.add_option(
 )
 parser.add_option(
     "",
-    "--save_as_pdf",
+    "--save-as-pdf",
+    dest="save_as_pdf",
     action="store_true",
     default=False,
     help="Save plots as pdfs as well as Canvases in root files.",
