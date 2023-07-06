@@ -465,14 +465,14 @@ print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 <p><img alt="" src="../images/bayes1D.png" /></p>
 <p>An example to make contours when ordering by probability density is in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesContours.cxx">bayesContours.cxx</a>, but the implementation is very simplistic, with no clever handling of bin sizes nor any smoothing of statistical fluctuations.</p>
 <p>The <code>MarkovChainMC</code> algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all)</p>
-<h5 id="iterations-burn-in-tries">Iterations, burn-in, tries</h5>
+<h4 id="iterations-burn-in-tries">Iterations, burn-in, tries</h4>
 <p>Three parameters control how the MCMC integration is performed:</p>
 <ul>
 <li>the number of <strong>tries</strong> (option <code>--tries</code>): the algorithm will run multiple times with different ransom seeds and report as result the truncated mean and rms of the different results. The default value is 10, which should be ok for a quick computation, but for something more accurate you might want to increase this number even up to ~200.</li>
 <li>the number of <strong>iterations</strong> (option <code>-i</code>) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Usually beyond 30k you get a better tradeoff in time vs accuracy by increasing the number of chains (option <code>--tries</code>)</li>
 <li>the number of <strong>burn-in steps</strong> (option <code>-b</code>) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If your chain is very long, you might want to try increase this a bit (e.g. to some hundreds). Instead going below 50 is probably dangerous.</li>
 </ul>
-<h5 id="proposals">Proposals</h5>
+<h4 id="proposals">Proposals</h4>
 <p>The option <code>--proposal</code> controls the way new points are proposed to fill in the MC chain.</p>
 <ul>
 <li><strong>uniform</strong>: pick points at random. This works well if you have very few nuisance parameters (or none at all), but normally fails if you have many.</li>
@@ -1009,7 +1009,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <p>If running <code>--robustFit=1</code> with the algo <strong>singles</strong>, you can tune the accuracy of the routine used to find the crossing points of the likelihood using the option <code>--setCrossingTolerance</code> (default is set to 0.0001)</p>
 <p>If you suspect your fits/uncertainties are not stable, you may also try to run custom HESSE-style calculation of the covariance matrix. This is enabled by running <code>MultiDimFit</code> with the <code>--robustHesse=1</code> option. A simple example of how the default behaviour in a simple datacard is given <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/issues/498">here</a>.</p>
 <p>For a full list of options use <code>combine -M MultiDimFit --help</code></p>
-<h5 id="fitting-only-some-parameters">Fitting only some parameters</h5>
+<h4 id="fitting-only-some-parameters">Fitting only some parameters</h4>
 <p>If your model contains more than one parameter of interest, you can still decide to fit a smaller number of them, using the option <code>--parameters</code> (or <code>-P</code>), with a syntax like this:</p>
 <pre><code class="language-sh">combine -M MultiDimFit [...] -P poi1 -P poi2 ... --floatOtherPOIs=(0|1)
 </code></pre>
@@ -1064,7 +1064,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <p class="admonition-title">Warning</p>
 <p>You should not use this method without the option <code>--singlePoint</code>. Although combine will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.</p>
 </div>
-<h4 id="physical-boundaries">Physical boundaries</h4>
+<h3 id="physical-boundaries">Physical boundaries</h3>
 <p>Imposing physical boundaries (such as requiring <span class="arithmatex"><span class="MathJax_Preview">\mu&gt;0</span><script type="math/tex">\mu>0</script></span> for a signal strength) is achieved by setting the ranges of the physics model parameters using</p>
 <pre><code class="language-sh">--setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
 </code></pre>
@@ -1078,15 +1078,15 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <p>One can also imagine imposing the boundaries by first allowing Minuit to find the minimum in the <em>un-restricted</em>  region and then setting the test-statistic to that above in the case that minimum lies outside the physical boundary. This would avoid potential issues of convergence - If you are interested in implementing this version in combine, please contact the development team.</p>
 </div>
 <p>As in general for <code>HybridNew</code>, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs, as described in the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a> section.</p>
-<h4 id="extracting-contours">Extracting contours</h4>
+<h3 id="extracting-contours">Extracting contours</h3>
 <p>As in general for <code>HybridNew</code>, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with <code>hadd</code>. You can also refer to the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a> section for submitting the jobs to the grid/batch.</p>
-<h5 id="1d-intervals">1D intervals</h5>
+<h4 id="extracting-1d-intervals">Extracting 1D intervals</h4>
 <p>For <em>one-dimensional</em> models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). As with limits, read in the grid of points and extract 1D intervals using,</p>
 <pre><code class="language-sh">combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=mergedfile.root --cl &lt;1-alpha&gt;
 </code></pre>
 <p>The output tree will contain the values of the POI which crosses the critical value (<span class="arithmatex"><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span>) - i.e, the boundaries of the confidence intervals,</p>
 <p>You can produce a plot of the value of <span class="arithmatex"><span class="MathJax_Preview">p_{x}</span><script type="math/tex">p_{x}</script></span> vs the parameter of interest <span class="arithmatex"><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
-<h5 id="2d-contours">2D contours</h5>
+<h4 id="2d-contours">2D contours</h4>
 <p>There is a tool for extracting <em>2D contours</em> from the output of <code>HybridNew</code> located in <code>test/makeFCcontour.py</code> provided the option <code>--saveHybridResult</code> was included when running <code>HybridNew</code>. It can be run with the usual combine  output files (or several of them) as input,</p>
 <pre><code class="language-sh">./test/makeFCcontour.py  toysfile1.root toysfile2.root .... [options] -out outputfile.root
 </code></pre>
