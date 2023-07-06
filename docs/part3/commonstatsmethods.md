@@ -609,13 +609,12 @@ The resulting output file will contain a canvas showing the distribution of the 
 
 ///
 
-<br>
-
-/// details | **qTEV test stat example**
+/// details |  **qTEV test stat example**
 
 ![](images/exampleTEV.jpg)
 
 ///
+
 
 ## Computing Significances with toys
 
