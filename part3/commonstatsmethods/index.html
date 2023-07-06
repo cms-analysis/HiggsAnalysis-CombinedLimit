@@ -760,11 +760,21 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory<
 <p>The distributions of the test-statistic can also be plotted, at each value in the grid, using the simple python tool,</p>
 <pre><code class="language-sh">python test/plotTestStatCLs.py --input mygrid.root --poi r --val all --mass MASS
 </code></pre>
-<p>The resulting output file will contain a canvas showing the distribution of the test statistic background only and signal+background hypothesis at each value of <strong>r</strong>. Use <code>--help</code> to see more options for this script.</p>
+<p>The resulting output file will contain a canvas showing the distribution of the test statistic background only and signal+background hypothesis at each value of <strong>r</strong>. Use <code>--help</code> to see more options for this script. </p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option <code>--doublesided</code>, which will also take care of defining the correct integrals for <span class="arithmatex"><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span> and <span class="arithmatex"><span class="MathJax_Preview">p_{b}</span><script type="math/tex">p_{b}</script></span>.</p>
+<p>If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option <code>--doublesided</code>, which will also take care of defining the correct integrals for <span class="arithmatex"><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span> and <span class="arithmatex"><span class="MathJax_Preview">p_{b}</span><script type="math/tex">p_{b}</script></span>. Click on the examples below to see what a typical output of this plotting tool will look like when using the LHC test statistic, or TEV test statistic. </p>
 </div>
+<details>
+<summary><b>qLHC test stat example</b></summary>
+![](images/exampleLHC.jpg)
+</details>
+
+<details>
+<summary><b>qTEV test stat example</b></summary>
+![](images/exampleTEV.jpg)
+</details>
+
 <h2 id="computing-significances-with-toys">Computing Significances with toys</h2>
 <p>Computation of expected significance with toys is a two step procedure: first you need to run one or more jobs to construct the expected distribution of the test statistic. As with setting limits, there are a number of different configurations for generating toys but we will use the preferred option using,</p>
 <ul>
