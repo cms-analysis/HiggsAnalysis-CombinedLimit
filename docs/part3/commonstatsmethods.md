@@ -606,12 +606,12 @@ The resulting output file will contain a canvas showing the distribution of the 
 
 <details>
 <summary><b>qLHC test stat example</b></summary>
-<img src="/images/exampleLHC.jpg">
+<img src="/docs/part3/images/exampleLHC.jpg" width="768"">
 </details>
 
 <details>
 <summary><b>qTEV test stat example</b></summary>
-<img src="/images/exampleTEV.jpg">
+<img src="/docs/part3/images/exampleTEV.jpg" width="768">
 </details>
 
 
