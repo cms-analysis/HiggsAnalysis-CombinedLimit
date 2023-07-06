@@ -394,7 +394,7 @@ Done in 0.14 min (cpu), 0.15 min (real)
 <p>Again, the resulting limit tree will contain the result. You can also save the chains using the option <code>--saveChain</code> which will then also be included in the output file.</p>
 <p>Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf). Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the <em>smallest</em> such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing <code>for i in range(mychain.numEntries()):</code> to <code>for i in range(200,mychain.numEntries()):</code> eg for a burn-in of 200. </p>
 <details>
-<summary><b>Show example script</b></summary>
+<summary><strong>Show example script</strong></summary>
 <pre class="python"><code>
 import ROOT
 
@@ -458,7 +458,6 @@ lu.Draw()
 print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 </code></pre>
 </details>
-
 <p>Running the script on the output file produced for the same datacard (including the <code>--saveChain</code> option) will produce the following output</p>
 <pre><code>0.950975 % (0.95 %) interval (target)  = 0 &lt; r &lt; 2.2
 </code></pre>
@@ -550,8 +549,7 @@ bayesPosterior2D(&quot;bayes2D&quot;,&quot;Posterior PDF&quot;)
 <pre><code class="language-sh">combine realistic-counting-experiment.txt -M HybridNew --LHCmode LHC-limits
 </code></pre>
 <details>
-<summary><b>Show output</b></summary>
-
+<summary><strong>Show output</strong></summary>
 <pre><code> <<< Combine >>>
 >>> including systematics
 >>> using the Profile Likelihood test statistics modified for upper limits (Q_LHC)
@@ -720,9 +718,10 @@ Fit to 5 points: 1.91034 +/- 0.0388334
  -- Hybrid New --
 Limit: r < 1.91034 +/- 0.0388334 @ 95% CL
 Done in 0.01 min (cpu), 4.09 min (real)
-Failed to delete temporary file roostats-Sprxsw.root: No such file or directory</pre></code>
+Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
+</pre>
+<p></code></p>
 </details>
-
 <p>The result stored in the <strong>limit</strong> branch of the output tree will be the upper limit (and its error stored in <strong>limitErr</strong>). The default behavior will be, as above, to search for the upper limit on <strong>r</strong> however, the values of <span class="arithmatex"><span class="MathJax_Preview">p_{\mu}, p_{b}</span><script type="math/tex">p_{\mu}, p_{b}</script></span> and CL<sub>s</sub> can be calculated for a particular value <strong>r=X</strong> by specifying the option <code>--singlePoint=X</code>. In this case, the value stored in the branch <strong>limit</strong> will be the value of CL<sub>s</sub> (or <span class="arithmatex"><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span>) (see the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq">FAQ</a> section). </p>
 <h4 id="expected-limits">Expected Limits</h4>
 <p>For the simple models, we can just run interactively 5 times to compute the median expected and the 68% and 95% interval boundaries. Use the <code>HybridNew</code> method with the same options as per the observed limit but adding a <code>--expectedFromGrid=&lt;quantile&gt;</code> where the quantile is 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, 0.025 for the -ve side of the 95% band.</p>
@@ -846,11 +845,11 @@ combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShap
 </code></pre>
 <p>By taking the total background, the total signal, and the data shapes from FitDiagnostics output, we can compare the post-fit predictions from the S+B fit (first case) and the CR-only fit (second case) with the observation as reported below:</p>
 <details>
-<summary>FitDiagnostics S+B fit</summary>
+<summary><strong>FitDiagnostics S+B fit</strong></summary>
 <p><img alt="" src="../images/result_fitSB.png" /></p>
 </details>
 <details>
-<summary>FitDiagnostics CR-only fit</summary>
+<summary><strong>FitDiagnostics CR-only fit</strong></summary>
 <p><img alt="" src="../images/result_fitCRonly.png" /></p>
 </details>
 <p>To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with expected distribution of the test-statistic obtained in toys:</p>
@@ -859,11 +858,11 @@ combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShap
 </code></pre>
 <p>where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command <code>--setParameters r=0,mask_ch1=1</code> is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:</p>
 <details>
-<summary>Goodness-of-fit for S+B model</summary>
+<summary><strong>Goodness-of-fit for S+B model</strong></summary>
 <p><img alt="" src="../images/gof_sb.png" /></p>
 </details>
 <details>
-<summary>Goodness-of-fit for CR-only model</summary>
+<summary><strong>Goodness-of-fit for CR-only model</strong></summary>
 <p><img alt="" src="../images/gof_CRonly.png" /></p>
 </details>
 <h3 id="making-a-plot-of-the-gof-test-statistic-distribution">Making a plot of the GoF test-statistic distribution</h3>
@@ -945,7 +944,7 @@ fit_nominal-&gt;floatParsFinal().selectByName(&quot;r&quot;)-&gt;Print(&quot;v&q
 <pre><code class="language-sh">combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2000 --setParameterRanges r_qqH=0,10:r_ggH=0,4 -m 125 --fastScan
 </code></pre>
 <details>
-<summary><b>Show output</b> </summary>
+<summary><strong>Show output</strong></summary>
 <pre><code>
  <<< Combine >>>
 >>> including systematics
@@ -982,7 +981,6 @@ Point 220/2025, (i,j) = (4,40), r_ggH = 0.400000, r_qqH = 9.000000
 Done in 0.00 min (cpu), 0.02 min (real)
 </code></pre>
 </details>
-
 <p>The scan, along with the best fit point can be drawn using root,</p>
 <pre><code class="language-c++">$ root -l higgsCombineTest.MultiDimFit.mH125.root
 
