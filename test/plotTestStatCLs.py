@@ -15,6 +15,7 @@ import ROOT
 ROOT.gROOT.SetBatch(1)
 ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTree.cxx")
 ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/qmuPlot.cxx")
+ROOT.gStyle.SetOptStat(0)
 
 from ROOT import hypoTestResultTree, q0Plot, qmuPlot
 
@@ -41,6 +42,14 @@ parser.add_option(
     default="all",
     type="str",
     help="poi values, comma separated (type all to make a plot for every value found in the file)",
+)
+parser.add_option(
+    "",
+    "--sub-label",
+    default="",
+    type="str",
+    dest="sub_label",
+    help="change sub-label from q to q_sub_label (doesn't apply if using --signif option",
 )
 parser.add_option(
     "-r",
@@ -98,6 +107,14 @@ parser.add_option(
     action="store_true",
     default=False,
     help="If --signif, Force plotting of both distributions (including for signal injected).",
+)
+parser.add_option(
+    "",
+    "--save-as-pdf",
+    dest="save_as_pdf",
+    action="store_true",
+    default=False,
+    help="Save plots as pdfs as well as Canvases in root files.",
 )
 (options, args) = parser.parse_args()
 
@@ -167,8 +184,11 @@ for m in options.mass:
                 options.rebin,
                 options.expected,
                 options.quantileExpected,
+                options.sub_label,
             )
         canvases.append(can.Clone())
+        if options.save_as_pdf:
+            can.SaveAs(options.output + "_" + can.GetName() + ".pdf")
         ft.Close()
 ofile = ROOT.TFile(options.output, "RECREATE")
 for can in canvases:
