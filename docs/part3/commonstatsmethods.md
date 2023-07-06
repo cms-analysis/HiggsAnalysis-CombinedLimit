@@ -264,7 +264,7 @@ An example to make contours when ordering by probability density is in [bayesCon
 
 The `MarkovChainMC` algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all)
 
-##### Iterations, burn-in, tries
+#### Iterations, burn-in, tries
 
 Three parameters control how the MCMC integration is performed:
 
@@ -272,7 +272,7 @@ Three parameters control how the MCMC integration is performed:
 -   the number of **iterations** (option `-i`) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Usually beyond 30k you get a better tradeoff in time vs accuracy by increasing the number of chains (option `--tries`)
 -   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If your chain is very long, you might want to try increase this a bit (e.g. to some hundreds). Instead going below 50 is probably dangerous.
 
-##### Proposals
+#### Proposals
 
 The option `--proposal` controls the way new points are proposed to fill in the MC chain.
 
@@ -933,7 +933,7 @@ If you suspect your fits/uncertainties are not stable, you may also try to run c
 
 For a full list of options use `combine -M MultiDimFit --help`
 
-##### Fitting only some parameters
+#### Fitting only some parameters
 
 If your model contains more than one parameter of interest, you can still decide to fit a smaller number of them, using the option `--parameters` (or `-P`), with a syntax like this:
 
@@ -1002,7 +1002,7 @@ The point belongs to your confidence region if $p_{x}$ is larger than $\alpha$ (
 !!! warning
     You should not use this method without the option `--singlePoint`. Although combine will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
 
-#### Physical boundaries
+### Physical boundaries
 
 Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) is achieved by setting the ranges of the physics model parameters using
 
@@ -1026,11 +1026,11 @@ This can sometimes be an issue as Minuit may not know if has successfully conver
 As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs, as described in the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section.
 
 
-#### Extracting contours
+### Extracting contours
 
 As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with `hadd`. You can also refer to the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section for submitting the jobs to the grid/batch.
 
-##### 1D intervals
+#### Extracting 1D intervals
 
 For *one-dimensional* models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). As with limits, read in the grid of points and extract 1D intervals using,
 
@@ -1042,7 +1042,7 @@ The output tree will contain the values of the POI which crosses the critical va
 
 You can produce a plot of the value of $p_{x}$ vs the parameter of interest $x$ by adding the option `--plot <plotname>`.
 
-##### 2D contours
+#### 2D contours
 
 There is a tool for extracting *2D contours* from the output of `HybridNew` located in `test/makeFCcontour.py` provided the option `--saveHybridResult` was included when running `HybridNew`. It can be run with the usual combine  output files (or several of them) as input,
 
