@@ -8,25 +8,12 @@
 }
 
 details {
-  font: 16px "Open Sans", Calibri, sans-serif;
-  width: 620px;
+    display: block;
+    border-left: 0.1em solid #909090;
+    padding-left: 0.5em;
 }
 
-details > summary {
-  padding: 2px 6px;
-  width: 15em;
-  background-color: #ddd;
-  border: none;
-  cursor: pointer;
+details[open] {
+    padding-bottom: 0.5em;
 }
 
-details > p {
-  border-radius: 0 0 10px 10px;
-  background-color: #ddd;
-  padding: 2px 6px;
-  margin: 0;
-}
-
-details[open] > summary {
-  background-color: #ccf;
-}

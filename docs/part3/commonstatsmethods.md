@@ -604,16 +604,17 @@ The resulting output file will contain a canvas showing the distribution of the 
 !!! info
     If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option `--doublesided`, which will also take care of defining the correct integrals for $p_{\mu}$ and $p_{b}$. Click on the examples below to see what a typical output of this plotting tool will look like when using the LHC test statistic, or TEV test statistic. 
 
-<details>
-<summary><b>qLHC test stat example</b></summary>
-<img src="https://raw.githubusercontent.com/cms-analysis/HiggsAnalysis-CombinedLimit/main/docs/part3/images/exampleLHC.jpg" width="768"">
-</details>
+/// details | **qLHC test stat example**
 
-<details>
-<summary><b>qTEV test stat example</b></summary>
-<img src="https://raw.githubusercontent.com/cms-analysis/HiggsAnalysis-CombinedLimit/main/docs/part3/images/exampleTEV.jpg" width="768">
-</details>
+![](images/exampleLHC.jpg)
 
+///
+
+/// details |  **qTEV test stat example**
+
+![](images/exampleTEV.jpg)
+
+///
 
 ## Computing Significances with toys
 
