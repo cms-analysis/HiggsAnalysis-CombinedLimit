@@ -186,8 +186,7 @@ Again, the resulting limit tree will contain the result. You can also save the c
 
 Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf). Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` eg for a burn-in of 200. 
 
-<details>
-<summary><b>Show example script</b></summary>
+/// details | **Show example script**
 <pre class="python"><code>
 import ROOT
 
@@ -250,7 +249,7 @@ lu.Draw()
 
 print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 </code></pre>
-</details>
+///
 
 Running the script on the output file produced for the same datacard (including the `--saveChain` option) will produce the following output
 
@@ -360,8 +359,7 @@ For relatively simple models, the observed and expected limits can be calculated
 combine realistic-counting-experiment.txt -M HybridNew --LHCmode LHC-limits
 ```
 
-<details>
-<summary><b>Show output</b></summary>
+/// details | **Show output**
 
 <pre><code> <<< Combine >>>
 >>> including systematics
@@ -531,8 +529,9 @@ Fit to 5 points: 1.91034 +/- 0.0388334
  -- Hybrid New --
 Limit: r < 1.91034 +/- 0.0388334 @ 95% CL
 Done in 0.01 min (cpu), 4.09 min (real)
-Failed to delete temporary file roostats-Sprxsw.root: No such file or directory</pre></code>
-</details>
+Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
+</pre></code>
+///
 
 The result stored in the **limit** branch of the output tree will be the upper limit (and its error stored in **limitErr**). The default behavior will be, as above, to search for the upper limit on **r** however, the values of $p_{\mu}, p_{b}$ and CL<sub>s</sub> can be calculated for a particular value **r=X** by specifying the option `--singlePoint=X`. In this case, the value stored in the branch **limit** will be the value of CL<sub>s</sub> (or $p_{\mu}$) (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section). 
 
@@ -726,11 +725,17 @@ combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShap
 
 By taking the total background, the total signal, and the data shapes from FitDiagnostics output, we can compare the post-fit predictions from the S+B fit (first case) and the CR-only fit (second case) with the observation as reported below:
 
-??? "FitDiagnostics S+B fit"
-    ![](images/result_fitSB.png)
+/// details |  **FitDiagnostics S+B fit**
 
-??? "FitDiagnostics CR-only fit"
-    ![](images/result_fitCRonly.png)
+![](images/result_fitSB.png)
+
+///
+
+/// details | **FitDiagnostics CR-only fit**
+
+![](images/result_fitCRonly.png)
+
+///
 
 To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with expected distribution of the test-statistic obtained in toys:
 
@@ -741,11 +746,15 @@ To compute a p-value for the two results, one needs to compare the observed good
 
 where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command `--setParameters r=0,mask_ch1=1` is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:
 
-??? "Goodness-of-fit for S+B model"
-    ![](images/gof_sb.png)
+/// details | **Goodness-of-fit for S+B model**
 
-??? "Goodness-of-fit for CR-only model"
-    ![](images/gof_CRonly.png)
+![](images/gof_sb.png)
+///
+
+/// details |  **Goodness-of-fit for CR-only model**
+
+![](images/gof_CRonly.png)
+///
 
 ### Making a plot of the GoF test-statistic distribution
 
@@ -845,8 +854,7 @@ As an example, lets produce the $-2\Delta\ln{\mathcal{L}}$ scan as a function of
 combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2000 --setParameterRanges r_qqH=0,10:r_ggH=0,4 -m 125 --fastScan
 ```
 
-<details>
-<summary><b>Show output</b> </summary>
+/// details | **Show output**
 <pre><code>
  <<< Combine >>>
 >>> including systematics
@@ -882,7 +890,7 @@ Point 220/2025, (i,j) = (4,40), r_ggH = 0.400000, r_qqH = 9.000000
 
 Done in 0.00 min (cpu), 0.02 min (real)
 </code></pre>
-</details>
+///
 
 The scan, along with the best fit point can be drawn using root,
 
