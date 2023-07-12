@@ -97,6 +97,10 @@ mkdocs serve
 
 from the main repository directory. mkdocs will then print a link you can open to check the page generated in your browser.
 
+**NOTE:** mkdocs builds which use internal links (or images etc) with absolute paths will work for local deployment, but will break when deployed to the public documentations pages. 
+Please ensure you use relative paths. Currently, this is the only known feature where the behvaiour differs between local mkdocs and public pages deployment. 
+If you'd like to test the deployment directly, the suggested method is to set up a docs page using your personal github account; this should mimic the exact settings of the official page.
+
 ## Big Contributions
 
 We welcome large contributions to combine. 

@@ -186,8 +186,7 @@ Again, the resulting limit tree will contain the result. You can also save the c
 
 Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf). Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` eg for a burn-in of 200. 
 
-<details>
-<summary><b>Show example script</b></summary>
+/// details | **Show example script**
 <pre class="python"><code>
 import ROOT
 
@@ -250,7 +249,7 @@ lu.Draw()
 
 print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 </code></pre>
-</details>
+///
 
 Running the script on the output file produced for the same datacard (including the `--saveChain` option) will produce the following output
 
@@ -265,7 +264,7 @@ An example to make contours when ordering by probability density is in [bayesCon
 
 The `MarkovChainMC` algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all)
 
-##### Iterations, burn-in, tries
+#### Iterations, burn-in, tries
 
 Three parameters control how the MCMC integration is performed:
 
@@ -273,7 +272,7 @@ Three parameters control how the MCMC integration is performed:
 -   the number of **iterations** (option `-i`) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Usually beyond 30k you get a better tradeoff in time vs accuracy by increasing the number of chains (option `--tries`)
 -   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If your chain is very long, you might want to try increase this a bit (e.g. to some hundreds). Instead going below 50 is probably dangerous.
 
-##### Proposals
+#### Proposals
 
 The option `--proposal` controls the way new points are proposed to fill in the MC chain.
 
@@ -360,8 +359,7 @@ For relatively simple models, the observed and expected limits can be calculated
 combine realistic-counting-experiment.txt -M HybridNew --LHCmode LHC-limits
 ```
 
-<details>
-<summary><b>Show output</b></summary>
+/// details | **Show output**
 
 <pre><code> <<< Combine >>>
 >>> including systematics
@@ -531,8 +529,9 @@ Fit to 5 points: 1.91034 +/- 0.0388334
  -- Hybrid New --
 Limit: r < 1.91034 +/- 0.0388334 @ 95% CL
 Done in 0.01 min (cpu), 4.09 min (real)
-Failed to delete temporary file roostats-Sprxsw.root: No such file or directory</pre></code>
-</details>
+Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
+</pre></code>
+///
 
 The result stored in the **limit** branch of the output tree will be the upper limit (and its error stored in **limitErr**). The default behavior will be, as above, to search for the upper limit on **r** however, the values of $p_{\mu}, p_{b}$ and CL<sub>s</sub> can be calculated for a particular value **r=X** by specifying the option `--singlePoint=X`. In this case, the value stored in the branch **limit** will be the value of CL<sub>s</sub> (or $p_{\mu}$) (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section). 
 
@@ -615,6 +614,7 @@ The resulting output file will contain a canvas showing the distribution of the 
 ![](images/exampleTEV.jpg)
 
 ///
+
 
 ## Computing Significances with toys
 
@@ -724,11 +724,17 @@ combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShap
 
 By taking the total background, the total signal, and the data shapes from FitDiagnostics output, we can compare the post-fit predictions from the S+B fit (first case) and the CR-only fit (second case) with the observation as reported below:
 
-??? "FitDiagnostics S+B fit"
-    ![](images/result_fitSB.png)
+/// details |  **FitDiagnostics S+B fit**
 
-??? "FitDiagnostics CR-only fit"
-    ![](images/result_fitCRonly.png)
+![](images/result_fitSB.png)
+
+///
+
+/// details | **FitDiagnostics CR-only fit**
+
+![](images/result_fitCRonly.png)
+
+///
 
 To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with expected distribution of the test-statistic obtained in toys:
 
@@ -739,11 +745,15 @@ To compute a p-value for the two results, one needs to compare the observed good
 
 where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command `--setParameters r=0,mask_ch1=1` is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:
 
-??? "Goodness-of-fit for S+B model"
-    ![](images/gof_sb.png)
+/// details | **Goodness-of-fit for S+B model**
 
-??? "Goodness-of-fit for CR-only model"
-    ![](images/gof_CRonly.png)
+![](images/gof_sb.png)
+///
+
+/// details |  **Goodness-of-fit for CR-only model**
+
+![](images/gof_CRonly.png)
+///
 
 ### Making a plot of the GoF test-statistic distribution
 
@@ -843,8 +853,7 @@ As an example, lets produce the $-2\Delta\ln{\mathcal{L}}$ scan as a function of
 combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2000 --setParameterRanges r_qqH=0,10:r_ggH=0,4 -m 125 --fastScan
 ```
 
-<details>
-<summary><b>Show output</b> </summary>
+/// details | **Show output**
 <pre><code>
  <<< Combine >>>
 >>> including systematics
@@ -880,7 +889,7 @@ Point 220/2025, (i,j) = (4,40), r_ggH = 0.400000, r_qqH = 9.000000
 
 Done in 0.00 min (cpu), 0.02 min (real)
 </code></pre>
-</details>
+///
 
 The scan, along with the best fit point can be drawn using root,
 
@@ -924,7 +933,7 @@ If you suspect your fits/uncertainties are not stable, you may also try to run c
 
 For a full list of options use `combine -M MultiDimFit --help`
 
-##### Fitting only some parameters
+#### Fitting only some parameters
 
 If your model contains more than one parameter of interest, you can still decide to fit a smaller number of them, using the option `--parameters` (or `-P`), with a syntax like this:
 
@@ -993,7 +1002,7 @@ The point belongs to your confidence region if $p_{x}$ is larger than $\alpha$ (
 !!! warning
     You should not use this method without the option `--singlePoint`. Although combine will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
 
-#### Physical boundaries
+### Physical boundaries
 
 Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) is achieved by setting the ranges of the physics model parameters using
 
@@ -1017,11 +1026,11 @@ This can sometimes be an issue as Minuit may not know if has successfully conver
 As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs, as described in the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section.
 
 
-#### Extracting contours
+### Extracting contours
 
 As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with `hadd`. You can also refer to the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section for submitting the jobs to the grid/batch.
 
-##### 1D intervals
+#### Extracting 1D intervals
 
 For *one-dimensional* models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). As with limits, read in the grid of points and extract 1D intervals using,
 
@@ -1033,7 +1042,7 @@ The output tree will contain the values of the POI which crosses the critical va
 
 You can produce a plot of the value of $p_{x}$ vs the parameter of interest $x$ by adding the option `--plot <plotname>`.
 
-##### 2D contours
+#### 2D contours
 
 There is a tool for extracting *2D contours* from the output of `HybridNew` located in `test/makeFCcontour.py` provided the option `--saveHybridResult` was included when running `HybridNew`. It can be run with the usual combine  output files (or several of them) as input,
 
