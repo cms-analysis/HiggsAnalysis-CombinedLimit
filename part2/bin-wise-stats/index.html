@@ -301,7 +301,7 @@ Bin        Contents        Error           Notes
 <p>The figure below shows a performance comparison of the analytical minimization versus the number of bins in the likelihood function. The real time (in sections) for a typical minimisation of a binned likelihood is shown as a function of the number of bins when invoking the analytic minimisation of the nuisance parameters versus the default numerical approach.</p>
 <details>
 <summary><strong>Show Comparison</strong></summary>
-<p><img alt="" src="images/BB.png" /></p>
+<p><img alt="" src="../images/BB.png" /></p>
 </details>
 <h2 id="technical-details">Technical details</h2>
 <p>Up until recently <code>text2workspace.py</code> would only construct the PDF for each channel using a <code>RooAddPdf</code>, i.e. each component process is represented by a separate PDF and  normalisation coefficient. However in order to model bin-wise statistical uncertainties the alternative <code>RooRealSumPdf</code> can be more useful, as each process is represented by a RooFit function object instead of a PDF, and we can vary the bin yields directly. As such, a new RooFit histogram class <code>CMSHistFunc</code> is introduced, which offers the same vertical template morphing algorithms offered by the current default histogram PDF, <code>FastVerticalInterpHistPdf2</code>. Accompanying this is the <code>CMSHistErrorPropagator</code>  class. This evaluates a sum of <code>CMSHistFunc</code> objects, each multiplied by a coefficient. It is also able to scale the summed yield of each bin to account for bin-wise statistical uncertainty nuisance parameters.</p>
