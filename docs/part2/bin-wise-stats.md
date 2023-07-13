@@ -70,6 +70,14 @@ Bin        Contents        Error           Notes
 ## Analytic minimisation
 One significant advantage of the Barlow-Beeston-lite approach is that the maximum likelihood estimate of each nuisance parameter has a simple analytic form that depends only on $n_{\text{tot}}$, $e_{\text{tot}}$ and the observed number of data events in the relevant bin. Therefore when minimising the negative log-likelihood of the whole model it is possible to remove these parameters from the fit and set them to their best-fit values automatically. For models with large numbers of bins this can reduce the fit time and increase the fit stability. The analytic minimisation is enabled by default starting in combine v8.2.0, you can disable it by adding the option `--X-rtd MINIMIZER_no_analytic` when running combine.
 
+The figure below shows a performance comparison of the analytical minimization versus the number of bins in the likelihood function. The real time (in sections) for a typical minimisation of a binned likelihood is shown as a function of the number of bins when invoking the analytic minimisation of the nuisance parameters versus the default numerical approach.
+
+ /// details | **Show Comparison**
+
+ ![](images/BB.png)
+
+///
+
 
 ## Technical details
 
