@@ -149,14 +149,12 @@ The output format is the same as for observed signifiances: the variable **limit
 
 Bayesian calculation of limits requires the user to assume a particular prior distribution for the parameter of interest (default **r**). You can specify the prior using the `--prior` option, the default is a flat pior in **r**.
 
-Since the Bayesian methods are much less frequently used, the tool will not build the default prior. For running the two methods below, you should include the option ``--noDefaultPrior=0``.
-
 ### Computing the observed bayesian limit (for simple models)
 
 The `BayesianSimple` method computes a Bayesian limit performing classical numerical integration; very fast and accurate but only works for simple models (a few channels and nuisance parameters).
 
 ```nohighlight
-combine -M BayesianSimple simple-counting-experiment.txt --noDefaultPrior=0
+combine -M BayesianSimple simple-counting-experiment.txt
 [...]
 
  -- BayesianSimple --
@@ -173,7 +171,7 @@ The `MarkovChainMC` method computes a Bayesian limit performing a monte-carlo in
 To use the MarkovChainMC method, users need to specify this method in the command line, together with the options they want to use. For instance, to set the number of times the algorithm will run with different random seeds, use option `--tries`:
 
 ```nohighlight
-combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100 --noDefaultPrior=0
+combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100 
 [...]
 
  -- MarkovChainMC --
@@ -261,8 +259,7 @@ along with a plot of the posterior shown below. This is the same as the output f
 
 An example to make contours when ordering by probability density is in [bayesContours.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesContours.cxx), but the implementation is very simplistic, with no clever handling of bin sizes nor any smoothing of statistical fluctuations.
 
-
-The `MarkovChainMC` algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all)
+The `MarkovChainMC` algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all).
 
 #### Iterations, burn-in, tries
 
@@ -288,7 +285,7 @@ If you believe there's something going wrong, e.g. if your chain remains stuck a
 
 The expected limit is computed by generating many toy mc observations and compute the limit for each of them. This can be done passing the option `-t` . E.g. to run 100 toys with the `BayesianSimple` method, just do
 
-    combine -M BayesianSimple datacard.txt -t 100 --noDefaultPrior=0
+    combine -M BayesianSimple datacard.txt -t 100 
 
 The program will print out the mean and median limit, and the 68% and 95% quantiles of the distributions of the limits. This time, the output root tree will contain **one entry per toy**.
 
@@ -304,7 +301,7 @@ For example, lets use the toy datacard [test/multiDim/toy-hgg-125.txt](https://g
 
 Now we just run one (or more) MCMC chain(s) and save them in the output tree.By default, the nuisance parameters will be marginalized (integrated) over their pdfs. You can ignore the complaints about not being able to compute an upper limit (since for more than 1D, this isn't well defined),
 
-    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345 --noDefaultPrior=0
+    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345 
 
 The output of the markov chain is again a RooDataSet of weighted events distributed according to the posterior pdf (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior pdf. See as an example [bayesPosterior2D.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesPosterior2D.cxx).
 
