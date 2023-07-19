@@ -369,10 +369,9 @@ Done in 0.00 min (cpu), 0.01 min (real)
 <p>The output format is the same as for observed signifiances: the variable <strong>limit</strong> in the tree will be filled with the significance (or with the p-value if you put also the option <code>--pvalue</code>)</p>
 <h2 id="bayesian-limits-and-credible-regions">Bayesian Limits and Credible regions</h2>
 <p>Bayesian calculation of limits requires the user to assume a particular prior distribution for the parameter of interest (default <strong>r</strong>). You can specify the prior using the <code>--prior</code> option, the default is a flat pior in <strong>r</strong>.</p>
-<p>Since the Bayesian methods are much less frequently used, the tool will not build the default prior. For running the two methods below, you should include the option <code>--noDefaultPrior=0</code>.</p>
 <h3 id="computing-the-observed-bayesian-limit-for-simple-models">Computing the observed bayesian limit (for simple models)</h3>
 <p>The <code>BayesianSimple</code> method computes a Bayesian limit performing classical numerical integration; very fast and accurate but only works for simple models (a few channels and nuisance parameters).</p>
-<pre><code class="language-nohighlight">combine -M BayesianSimple simple-counting-experiment.txt --noDefaultPrior=0
+<pre><code class="language-nohighlight">combine -M BayesianSimple simple-counting-experiment.txt
 [...]
 
  -- BayesianSimple --
@@ -383,7 +382,7 @@ Done in 0.04 min (cpu), 0.05 min (real)
 <h3 id="computing-the-observed-bayesian-limit-for-arbitrary-models">Computing the observed bayesian limit (for arbitrary models)</h3>
 <p>The <code>MarkovChainMC</code> method computes a Bayesian limit performing a monte-carlo integration. From the statistics point of view it is identical to the <code>BayesianSimple</code> method, only the technical implementation is different. The method is slower, but can also handle complex models. For this method, you can increase the accuracy of the result by increasing the number of markov chains at the expense of a longer running time (option <code>--tries</code>, default is 10). Let's use the realistic counting experiment datacard to test the method</p>
 <p>To use the MarkovChainMC method, users need to specify this method in the command line, together with the options they want to use. For instance, to set the number of times the algorithm will run with different random seeds, use option <code>--tries</code>:</p>
-<pre><code class="language-nohighlight">combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100 --noDefaultPrior=0
+<pre><code class="language-nohighlight">combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100 
 [...]
 
  -- MarkovChainMC --
@@ -464,7 +463,7 @@ print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 <p>along with a plot of the posterior shown below. This is the same as the output from combine but the script can also be used to find lower limits (for example) or credible intervals.</p>
 <p><img alt="" src="../images/bayes1D.png" /></p>
 <p>An example to make contours when ordering by probability density is in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesContours.cxx">bayesContours.cxx</a>, but the implementation is very simplistic, with no clever handling of bin sizes nor any smoothing of statistical fluctuations.</p>
-<p>The <code>MarkovChainMC</code> algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all)</p>
+<p>The <code>MarkovChainMC</code> algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all).</p>
 <h4 id="iterations-burn-in-tries">Iterations, burn-in, tries</h4>
 <p>Three parameters control how the MCMC integration is performed:</p>
 <ul>
@@ -483,7 +482,7 @@ print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 <p>If you believe there's something going wrong, e.g. if your chain remains stuck after accepting only a few events, the option <code>--debugProposal</code> can be used to have a printout of the first <em>N</em> proposed points to see what's going on (e.g. if you have some region of the phase space with probability zero, the <strong>gaus</strong> and <strong>fit</strong> proposal can get stuck there forever)</p>
 <h3 id="computing-the-expected-bayesian-limit">Computing the expected bayesian limit</h3>
 <p>The expected limit is computed by generating many toy mc observations and compute the limit for each of them. This can be done passing the option <code>-t</code> . E.g. to run 100 toys with the <code>BayesianSimple</code> method, just do</p>
-<pre><code>combine -M BayesianSimple datacard.txt -t 100 --noDefaultPrior=0
+<pre><code>combine -M BayesianSimple datacard.txt -t 100
 </code></pre>
 <p>The program will print out the mean and median limit, and the 68% and 95% quantiles of the distributions of the limits. This time, the output root tree will contain <strong>one entry per toy</strong>.</p>
 <p>For more heavy methods (eg the <code>MarkovChainMC</code>) you'll probably want to split this in multiple jobs. To do this, just run <code>combine</code> multiple times specifying a smaller number of toys (can be as low as <code>1</code>) each time using a different seed to initialize the random number generator (option <code>-s</code> if you set it to -1, the starting seed will be initialized randomly at the beginning of the job), then merge the resulting trees with <code>hadd</code> and look at the distribution in the merged file.</p>
@@ -493,7 +492,7 @@ print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 <pre><code>text2workspace.py test/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o workspace.root
 </code></pre>
 <p>Now we just run one (or more) MCMC chain(s) and save them in the output tree.By default, the nuisance parameters will be marginalized (integrated) over their pdfs. You can ignore the complaints about not being able to compute an upper limit (since for more than 1D, this isn't well defined),</p>
-<pre><code>combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345 --noDefaultPrior=0
+<pre><code>combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345
 </code></pre>
 <p>The output of the markov chain is again a RooDataSet of weighted events distributed according to the posterior pdf (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior pdf. See as an example <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesPosterior2D.cxx">bayesPosterior2D.cxx</a>.</p>
 <p>Below is an example of the output of the macro,</p>
