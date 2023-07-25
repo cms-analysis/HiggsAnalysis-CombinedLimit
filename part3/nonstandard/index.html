@@ -530,7 +530,8 @@ $ text2workspace.py htt_tt.txt -m 125
 </code></pre>
 <p>The first page of the output is shown below. </p>
 <p><img alt="" src="../images/impacts.png" /></p>
-<p>The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it. </p>
+<p>The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it.</p>
+<p>For models with multiple POIs, the combine option <code>--redefineSignalPOIs X,Y,Z...</code> should be specified in all three of the <code>combineTool.py -M Impacts [...]</code> steps above. The final step will produce the <code>impacts.json</code> file which will contain the impacts for all the specified POIs. In the <code>plotImpacts.py</code> script, a particular POI can be specified with <code>--POI X</code>. </p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The plot also shows the <em>best fit</em> value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using <code>--setParameterRanges</code> or <code>--rMin</code>) to avoid getting one-sided impacts!</p>
