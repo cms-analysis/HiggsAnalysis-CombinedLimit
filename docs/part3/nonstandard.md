@@ -265,7 +265,9 @@ The first page of the output is shown below.
 ![](images/impacts.png)
 
 
-The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it. 
+The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it.
+
+For models with multiple POIs, the combine option `--redefineSignalPOIs X,Y,Z...` should be specified in all three of the `combineTool.py -M Impacts [...]` steps above. The final step will produce the `impacts.json` file which will contain the impacts for all the specified POIs. In the `plotImpacts.py` script, a particular POI can be specified with `--POI X`. 
 
 !!! warning 
     The plot also shows the *best fit* value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using `--setParameterRanges` or `--rMin`) to avoid getting one-sided impacts!
