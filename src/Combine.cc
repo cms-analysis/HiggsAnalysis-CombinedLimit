@@ -215,6 +215,64 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   makeToyGenSnapshot_ = (method == "FitDiagnostics" && !vm.count("justFit"));
 }
 
+std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, RooWorkspace *w) {
+  // expand regexps          
+  while (instr.find("rgx{") != std::string::npos) {          
+    size_t pos1 = instr.find("rgx{");
+    size_t pos2 = instr.find("}",pos1);
+    std::string prestr = instr.substr(0,pos1);
+    std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
+    std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
+    
+    //std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
+    std::regex rgx( reg_esp, std::regex::ECMAScript);
+    
+    std::string matchingParams="";
+    std::unique_ptr<TIterator> iter(nuisances->createIterator());
+    for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+        const std::string &target = a->GetName();
+        std::smatch match;
+        if (std::regex_match(target, match, rgx)) {
+            matchingParams = matchingParams + target + ",";
+        }
+    }
+
+    instr = prestr+matchingParams+poststr;
+    instr = boost::replace_all_copy(instr, ",,", ","); 
+  }
+
+  // expand regexps          
+  while (instr.find("var{") != std::string::npos) {          
+    size_t pos1 = instr.find("var{");
+    size_t pos2 = instr.find("}",pos1);
+    std::string prestr = instr.substr(0,pos1);
+    std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
+    std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
+    
+    // std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
+    std::regex rgx( reg_esp, std::regex::ECMAScript);
+    
+    std::string matchingParams="";
+    std::unique_ptr<TIterator> iter(w->componentIterator());
+    for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+
+        if ( ! (a->IsA()->InheritsFrom(RooRealVar::Class()) || a->IsA()->InheritsFrom(RooCategory::Class()))) continue;
+
+        const std::string &target = a->GetName();
+        // std::cout<<"var "<<target<<std::endl;
+        std::smatch match;
+        if (std::regex_match(target, match, rgx)) {
+            matchingParams = matchingParams + target + ",";
+        }
+    }
+
+    instr = prestr+matchingParams+poststr;
+    instr = boost::replace_all_copy(instr, ",,", ","); 
+  }
+
+  return instr;
+}
+
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
   TStopwatch timer;
 
@@ -589,61 +647,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   if (floatNuisances_ != "") {
-      // expand regexps          
-      while (floatNuisances_.find("rgx{") != std::string::npos) {          
-          size_t pos1 = floatNuisances_.find("rgx{");
-          size_t pos2 = floatNuisances_.find("}",pos1);
-          std::string prestr = floatNuisances_.substr(0,pos1);
-          std::string poststr = floatNuisances_.substr(pos2+1,floatNuisances_.size()-pos2);
-          std::string reg_esp = floatNuisances_.substr(pos1+4,pos2-pos1-4);
-          
-          //std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
-          std::regex rgx( reg_esp, std::regex::ECMAScript);
-          
-          std::string matchingParams="";
-          std::unique_ptr<TIterator> iter(nuisances->createIterator());
-          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-              const std::string &target = a->GetName();
-              std::smatch match;
-              if (std::regex_match(target, match, rgx)) {
-                  matchingParams = matchingParams + target + ",";
-              }
-          }
-
-          floatNuisances_ = prestr+matchingParams+poststr;
-          floatNuisances_ = boost::replace_all_copy(floatNuisances_, ",,", ","); 
-          
-      }
-
-      // expand regexps          
-      while (floatNuisances_.find("var{") != std::string::npos) {          
-          size_t pos1 = floatNuisances_.find("var{");
-          size_t pos2 = floatNuisances_.find("}",pos1);
-          std::string prestr = floatNuisances_.substr(0,pos1);
-          std::string poststr = floatNuisances_.substr(pos2+1,floatNuisances_.size()-pos2);
-          std::string reg_esp = floatNuisances_.substr(pos1+4,pos2-pos1-4);
-          
-          // std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
-          std::regex rgx( reg_esp, std::regex::ECMAScript);
-          
-          std::string matchingParams="";
-          std::unique_ptr<TIterator> iter(w->componentIterator());
-          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-
-              if ( ! (a->IsA()->InheritsFrom(RooRealVar::Class()) || a->IsA()->InheritsFrom(RooCategory::Class()))) continue;
- 
-              const std::string &target = a->GetName();
-              // std::cout<<"var "<<target<<std::endl;
-              std::smatch match;
-              if (std::regex_match(target, match, rgx)) {
-                  matchingParams = matchingParams + target + ",";
-              }
-          }
-
-          floatNuisances_ = prestr+matchingParams+poststr;
-          floatNuisances_ = boost::replace_all_copy(floatNuisances_, ",,", ","); 
-          
-      }
+      floatNuisances_ = parseRegex(floatNuisances_, nuisances, w);
 
       //RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
       RooArgSet toFloat;
@@ -679,62 +683,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
   
   if (freezeNuisances_ != "") {
-
-      // expand regexps          
-      while (freezeNuisances_.find("rgx{") != std::string::npos) {          
-          size_t pos1 = freezeNuisances_.find("rgx{");
-          size_t pos2 = freezeNuisances_.find("}",pos1);
-          std::string prestr = freezeNuisances_.substr(0,pos1);
-          std::string poststr = freezeNuisances_.substr(pos2+1,freezeNuisances_.size()-pos2);
-          std::string reg_esp = freezeNuisances_.substr(pos1+4,pos2-pos1-4);
-          
-          //std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
-          std::regex rgx( reg_esp, std::regex::ECMAScript);
-          
-          std::string matchingParams="";
-          std::unique_ptr<TIterator> iter(nuisances->createIterator());
-          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-              const std::string &target = a->GetName();
-              std::smatch match;
-              if (std::regex_match(target, match, rgx)) {
-                  matchingParams = matchingParams + target + ",";
-              }
-          }
-
-          freezeNuisances_ = prestr+matchingParams+poststr;
-          freezeNuisances_ = boost::replace_all_copy(freezeNuisances_, ",,", ","); 
-          
-      }
-
-      // expand regexps          
-      while (freezeNuisances_.find("var{") != std::string::npos) {          
-          size_t pos1 = freezeNuisances_.find("var{");
-          size_t pos2 = freezeNuisances_.find("}",pos1);
-          std::string prestr = freezeNuisances_.substr(0,pos1);
-          std::string poststr = freezeNuisances_.substr(pos2+1,freezeNuisances_.size()-pos2);
-          std::string reg_esp = freezeNuisances_.substr(pos1+4,pos2-pos1-4);
-          
-          // std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
-          std::regex rgx( reg_esp, std::regex::ECMAScript);
-          
-          std::string matchingParams="";
-          std::unique_ptr<TIterator> iter(w->componentIterator());
-          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-
-              if ( ! (a->IsA()->InheritsFrom(RooRealVar::Class()) || a->IsA()->InheritsFrom(RooCategory::Class()))) continue;
- 
-              const std::string &target = a->GetName();
-              // std::cout<<"var "<<target<<std::endl;
-              std::smatch match;
-              if (std::regex_match(target, match, rgx)) {
-                  matchingParams = matchingParams + target + ",";
-              }
-          }
-
-          freezeNuisances_ = prestr+matchingParams+poststr;
-          freezeNuisances_ = boost::replace_all_copy(freezeNuisances_, ",,", ","); 
-          
-      }
+      freezeNuisances_ = parseRegex(freezeNuisances_, nuisances, w);
 
       //RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       RooArgSet toFreeze;
