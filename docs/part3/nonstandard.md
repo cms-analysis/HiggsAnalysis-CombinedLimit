@@ -444,8 +444,8 @@ void makeRooMultiPdfWorkspace(){
 
 
    // Save to a new workspace
-   TFile *fout = new TFile("toyhgg_in.root","RECREATE");
-   RooWorkspace wout("multipdf","multipdf");
+   TFile *fout = new TFile("workspace.root","RECREATE");
+   RooWorkspace wout("workspace","workspace");
 
    data->SetName("data");
    wout.import(*data);
@@ -460,7 +460,7 @@ void makeRooMultiPdfWorkspace(){
 
 The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the [RooMultiPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/interface/RooMultiPdf.h) object which can switch between the functions by setting its associated index (herein called **pdf_index**). This (as with all parameters in combine) is accessible via the `--setParameters` option.
 
-To asses the bias, one can throw toys using one function and fit with another. All of this only needs to use one datacard [hgg_toy_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/hgg_toy_datacard.txt)
+To asses the bias, one can throw toys using one function and fit with another. All of this only needs to use one datacard [hgg_toy_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/main/data/tutorials/bias_studies/hgg_toy_datacard.txt)
  
 The bias studies are performed in two stages. The first is to generate toys using one of the functions under some value of the signal strength **r** (or $\mu$). This can be repeated for several values of **r** and also at different masses, but here the Higgs mass is fixed to 125 GeV. 
 
