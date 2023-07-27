@@ -759,7 +759,7 @@ To split the systematic uncertainty into different components we just need to ru
 <p>While it is perfectly fine to just list the relevant nuisance parameters in the <code>--freezeParameters</code> argument for the <span class="arithmatex"><span class="MathJax_Preview">\sigma_{\text{fr.theory}}</span><script type="math/tex">\sigma_{\text{fr.theory}}</script></span> scan, a convenient way can be to define a named group of parameters in the text datacard and then freeze all parameters in this group with <code>--freezeNuisanceGroups</code>. The syntax for defining a group is:</p>
 <pre><code class="language-shell">[group name] group = uncertainty_1 uncertainty_2 ... uncertainty_N
 </code></pre>
-<p><strong> Tasks and questions: </strong></p>
+<p>** Tasks and questions: **</p>
 <ul>
 <li>Take our stat+syst split one step further and separate the systematic part into two: one part for hadronic tau uncertainties and one for all others.</li>
 <li>Do this by defining a <code>tauID</code> group in the datacard including the following parameters: <code>CMS_eff_t</code>, <code>CMS_eff_t_highpt</code>, and the three <code>CMS_scale_t_X</code> uncertainties.</li>

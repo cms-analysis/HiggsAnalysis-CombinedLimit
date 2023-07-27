@@ -687,8 +687,8 @@ combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo gri
 
 
    // Save to a new workspace
-   TFile *fout = new TFile(&quot;workspace.root&quot;,&quot;RECREATE&quot;);
-   RooWorkspace wout(&quot;workspace&quot;,&quot;workspaace&quot;);
+   TFile *fout = new TFile(&quot;toyhgg_in.root&quot;,&quot;RECREATE&quot;);
+   RooWorkspace wout(&quot;multipdf&quot;,&quot;multipdf&quot;);
 
    data-&gt;SetName(&quot;data&quot;);
    wout.import(*data);
