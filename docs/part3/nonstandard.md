@@ -444,8 +444,8 @@ void makeRooMultiPdfWorkspace(){
 
 
    // Save to a new workspace
-   TFile *fout = new TFile("workspace.root","RECREATE");
-   RooWorkspace wout("workspace","workspaace");
+   TFile *fout = new TFile("toyhgg_in.root","RECREATE");
+   RooWorkspace wout("multipdf","multipdf");
 
    data->SetName("data");
    wout.import(*data);
