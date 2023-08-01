@@ -507,7 +507,7 @@
 <p><code>--toysNoSystematics</code> the nuisance parameters in each toy are <em>not</em> randomised when generating the toy datasets - i.e their nominal values are used to generate the data. Note that for methods which profile (fit) the nuisances, the parameters are still floating when evaluating the likelihood.</p>
 </li>
 <li>
-<p><code>--toysFrequentist</code> the nuisance parameters in each toy are set to their nominal values which are obtained <em>after fitting first to the data</em>, with POIs fixed, before generating the data. For evaluating likelihoods, the constraint terms are instead randomised within their Gaussian constraint pdfs around the post-fit nuisance parameter values.</p>
+<p><code>--toysFrequentist</code> the nuisance parameters in each toy are set to their nominal values which are obtained <em>after fitting first to the data</em>, with POIs fixed, before generating the data. For evaluating likelihoods, the constraint terms are instead randomised within their pdfs around the post-fit nuisance parameter values.</p>
 </li>
 </ul>
 <p>If you are using <code>toysFrequentist</code>, be aware that the values set by <code>--setParameters</code> will be <em>ignored</em> for the toy generation as the <em>post-fit</em> values will instead be used (except for any parameter which is also a parameter of interest). You can override this behaviour and choose the nominal values for toy generation for any parameter by adding the option <code>--bypassFrequentistFit</code> which will skip the initial fit to data or by loading a snapshot (see below).</p>
