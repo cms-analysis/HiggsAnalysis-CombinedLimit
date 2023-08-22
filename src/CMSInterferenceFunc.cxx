@@ -74,6 +74,16 @@ void CMSInterferenceFunc::initialize() const {
     size_t nbins = edges_.size() - 1;
     size_t ncoef = coefficients_.getSize();
 
+    for (size_t i=0; i < ncoef; ++i) {
+      if ( coefficients_.at(i) == nullptr ) {
+        throw std::invalid_argument("Lost coefficient " + std::to_string(i));
+      }
+      if ( not coefficients_.at(i)->InheritsFrom("RooAbsReal") ) {
+        throw std::invalid_argument(
+            "Coefficient " + std::to_string(i) + " is not a RooAbsReal"
+            );
+      }
+    }
     if ( binscaling_.size() != nbins ) {
         throw std::invalid_argument(
                 "Number of bins as determined from bin edges ("
@@ -99,7 +109,7 @@ void CMSInterferenceFunc::initialize() const {
 
 void CMSInterferenceFunc::updateCache() const {
     for (int i=0; i < coefficients_.getSize(); ++i) {
-        auto* coef = dynamic_cast<RooAbsReal const*>(coefficients_.at(i));
+        auto* coef = static_cast<RooAbsReal const*>(coefficients_.at(i));
         if ( coef == nullptr ) throw std::runtime_error("Lost coef!");
         evaluator_->setCoefficient(i, coef->getVal());
     }
