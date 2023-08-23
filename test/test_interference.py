@@ -2,6 +2,7 @@
 import ROOT
 import numpy as np
 import subprocess
+import json
 
 
 def array2vector_2d(array):
@@ -92,13 +93,13 @@ lumi                    lnN       1.02        1.02
 """
     )
 
-subprocess.call("text2workspace.py card.txt".split(" "))
-fcard = ROOT.TFile.Open("card.root")
-w = fcard.Get("w")
-
-scaling = array2vector_2d(
-    np.array(
-        [
+# write the scaling data
+scaling = [
+    {
+        "channel": "ch1",
+        "process": "VBFHH",
+        "parameters": ["expr::a0('@0*@1', kv[1,0,2], kl[1,0,2])", "expr::a1('@0*@0', kv[1,0,2])", "k2v[1,0,2]"],
+        "scaling": [
             [
                 3.303536746664150e00,
                 -8.541709820382220e00,
@@ -259,41 +260,25 @@ scaling = array2vector_2d(
                 -4.949344845658728e01,
                 4.515984622267106e01,
             ],
-        ]
-    )
-)
+        ],
+    },
+]
 
-kv, k2v, kl = (
-    w.factory("kv[1, 0, 2]"),
-    w.factory("k2v[1, 0, 2]"),
-    w.factory("kl[1, 0, 2]"),
-)
+with open("scaling.json", "w") as fout:
+    json.dump(scaling, fout)
 
-w.Import(
-    ROOT.CMSInterferenceFunc(
-        "ch1_vbfhh_morph",
-        "",
-        w.var("CMS_th1x"),
-        ROOT.RooArgList(
-            w.factory("expr('@0*@1', kv, kl)"),
-            w.factory("expr('@0*@0', kv)"),
-            k2v,
-        ),
-        list(range(21)),
-        scaling,
-    ),
-    ROOT.RooFit.RecycleConflictNodes(),
-)
-func = w.function("ch1_vbfhh_morph")
-print(func.getVal())
+t2wcmd = [
+    "text2workspace.py",
+    "card.txt",
+    "-P",
+    "HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel",
+    "--PO",
+    "verbose",
+    "--PO",
+    "scalingData=scaling.json",
+    "--PO",
+    "POIs=kl[1,0,2]:kv[1,0,2]:k2v[1,0,2]",
+]
 
-histfunc = w.function("shapeSig_ch1_VBFHH_morph")
-histfunc.injectExternalMorph(func)
-
-fout = ROOT.TFile("card_morph.root", "recreate")
-w.Write()
-fout.Close()
-
-subprocess.call(
-    "combine -M MultiDimFit card_morph.root --redefineSignalPOIs kv,k2v,kl --freezeParameters r --setParameters r=1,kv=1,k2v=1,kl=1 -t 100".split(" ")
-)
+subprocess.call(t2wcmd)
+subprocess.call("combine -M MultiDimFit card.root -t 100".split(" "))
