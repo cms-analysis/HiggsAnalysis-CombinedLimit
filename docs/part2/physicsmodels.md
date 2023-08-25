@@ -215,17 +215,17 @@ The two processes (S and S_ALT) will get different scaling parameters. The LEP-s
 
 ### Signal-background interference
 
-Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes and the parameter of interest $k$,
+Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes $A$ and the parameter of interest $k$,
 
 $$
-\mathrm{Yield} = (k * A_{s} + A_{b})^2
-= k^2 * A_{s}^2 + k * 2 A_{s} A_{b} + A_{b}^2
+\mathrm{Yield} = |k * A_{s} + A_{b}|^2
+= k^2 * |A_{s}|^2 + k * 2 \Re(A_{s}^* A_{b}) + |A_{b}|^2
 = \mu * S + \sqrt{\mu} * I + B
 $$
 
 where
 
-$\mu = k^2, ~S = A_{s}^2,~B = A_b^2$ and $S+B+I = (A_s + A_b)^2$.
+$\mu = k^2, ~S = |A_{s}|^2,~B = |A_b|^2$ and $S+B+I = |A_s + A_b|^2$.
 
 With some algebra you can work out that,
 
@@ -254,15 +254,27 @@ for an example. However, the computational performance scales quadratically
 with the number of POIs, and can get extremely expensive for 10 or more, as may
 be encountered often with EFT analyses. To alleviate this issue, an accelerated
 interference modeling technique is implemented for template-based analyses via
-the `interferenceModel` physics model. At present, this technique only works with
+the `interferenceModel` physics model. In this model, each bin yield $y$ is parameterized
+$$y(\theta) = y_0 (\theta^\top M \theta)$$
+as a function of the POI vector $\theta$, a nominal template $y_0$, and a scaling matrix $M$.
+To see how this parameterization relates to that of the previous section, we can define:
+
+$$
+y_0 = A_b^2, \qquad
+M = \frac{1}{A_b^2} \begin{bmatrix}
+ |A_s|^2 & \Re(A_s^* A_b) \\
+ \Re(A_s A_b^*) & |A_b|^2
+ \end{bmatrix}, \qquad \theta = \begin{bmatrix}
+ \sqrt{\mu} \\
+ 1
+ \end{bmatrix}
+$$
+
+which leads to the same parameterization. At present, this technique only works with
 `CMSHistFunc`-based workspaces, as these are the most common workspace types
 encountered and the default when using
 [autoMCStats](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/bin-wise-stats).
-
-To use this physics model, you will first need to derive a nominal template and
-a scaling matrix that describes how the POI vector $\theta$ morphs the nominal
-template. For each bin yield $y(\theta) = y_0 (\theta^\top M \theta)$;
-find $y_0$ and put it into the datacard as a signal process; then find $M$ and
+To use this model, for each bin find $y_0$ and put it into the datacard as a signal process, then find $M$ and
 save the upper triangular component as an array in a `scaling.json` file with a
 syntax as follows:
 
@@ -282,29 +294,29 @@ syntax as follows:
 ```
 
 where the parameters are declared using RooFit's [factory
-syntax](https://root.cern.ch/doc/v622/classRooWorkspace.html#a0ddded1d65f5c6c4732a7a3daa8d16b0).
+syntax](https://root.cern.ch/doc/v622/classRooWorkspace.html#a0ddded1d65f5c6c4732a7a3daa8d16b0)
+and each row of the `scaling` field represents the scaling information of a bin, e.g. if $y_0 = |A_b|^2$
+then each row would contain three entries:
+$$|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1$$
+
+For several coefficients, one would enumerate as follows:
+```python
+scaling = []
+for ibin in range(nbins):
+    binscaling = []
+    for icoef in range(ncoef):
+        for jcoef in range(icoef, ncoef):
+            binscaling.append(amplitude_squared_for(ibin, icoef, jcoef))
+    scaling.append(binscaling)
+```
+
 Then, to construct the workspace, run
 
 ```bash
 text2workspace.py card.txt -P HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel \
     --PO verbose --PO scalingData=scaling.json
 ```
-For large amounts of scaling data, you can optionally use gzipped json (`.json.gz`) or pickle (`.pkl.gz`) files with 2D numpy arrays for the scaling coefficients instead of lists.
-
-The above formulation, assuming the nominal template `B` has three bins, would
-be equivalent to the previous section's if the `S` template is `[0.5, 0.6,
-0.7]*B` and the `I` template is `[0.05, 0.1, 0.15]*B`. More explicitly, we are setting
-
-$$
-y_0 = A_b^2, \qquad
-M = \frac{1}{A_b^2} \begin{bmatrix}
- A_s^2 & A_s A_b \\
- A_s A_b & A_b^2
- \end{bmatrix}, \qquad \theta = \begin{bmatrix}
- \sqrt{\mu} \\
- 1
- \end{bmatrix}
-$$
+For large amounts of scaling data, you can optionally use gzipped json (`.json.gz`) or pickle (`.pkl.gz`) files with 2D numpy arrays for the scaling coefficients instead of lists. The function `numpy.triu_indices(ncoef)` is helpful for extracting the upper triangle of a square matrix.
 
 You could pick any
 nominal template, and adjust the scaling as appropriate. Generally it is
