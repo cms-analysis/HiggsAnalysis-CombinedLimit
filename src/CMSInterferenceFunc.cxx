@@ -10,7 +10,7 @@ class _InterferenceEval {
             Eigen::MatrixXd mat(ncoef, ncoef);
             size_t k=0;
             for(size_t i=0; i<ncoef; i++) {
-                for(size_t j=i; j<ncoef; j++) {
+                for(size_t j=0; j<=i; j++) {
                     mat(i, j) = mat(j, i) = bin[k++];
                 }
             }
@@ -94,7 +94,7 @@ void CMSInterferenceFunc::initialize() const {
     for (size_t i=0; i < nbins; ++i) {
         if ( binscaling_[i].size() != ncoef*(ncoef+1)/2 ) {
             throw std::invalid_argument(
-                    "Length of bin scaling matrix upper triangle for bin " + std::to_string(i)
+                    "Length of bin scaling matrix lower triangle for bin " + std::to_string(i)
                     + " (" + std::to_string(binscaling_[i].size() ) + ") is not consistent"
                     + " with the length of the coefficient array (" + std::to_string(ncoef) + ")"
                     );

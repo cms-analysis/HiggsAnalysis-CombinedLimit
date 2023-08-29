@@ -17,8 +17,8 @@ class CMSInterferenceFunc : public RooAbsReal {
     /*
      * For a coefficients list of length n and edges array of length b+1,
      * the binscaling nested vector should have b entries (for b bins) with
-     * each being of length n*(n+1)/2, corresponding to the upper triangular
-     * elements of the scaling matrix, i.e. (m_00, m_01, m_02, ..., m_11, m_12, ...)
+     * each being of length n*(n+1)/2, corresponding to the lower triangular
+     * elements of the scaling matrix, i.e. (m_00, m_10, m_11, m_20, m_21, m_22, ...)
      */
     CMSInterferenceFunc(
         const char* name,
