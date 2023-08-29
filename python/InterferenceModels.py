@@ -8,7 +8,7 @@ import ROOT
 from HiggsAnalysis.CombinedLimit.PhysicsModel import PhysicsModelBase_NiceSubclasses
 
 
-def read_scaling(path: str):
+def read_scaling(path):
     if path.endswith(".json"):
         with open(path) as fin:
             out = json.load(fin)
@@ -19,7 +19,7 @@ def read_scaling(path: str):
         with gzip.open(path, "rb") as fin:
             out = pickle.load(fin)
     else:
-        raise RuntimeError(f"Unrecognized scaling data path {path}; must be either .json, .json.gz, or .pkl.gz")
+        raise RuntimeError("Unrecognized scaling data path {path}; must be either .json, .json.gz, or .pkl.gz".format(path=path))
     # normalize
     if not isinstance(out, list):
         raise RuntimeError("Scaling data in invalid format: expected list")
@@ -29,19 +29,20 @@ def read_scaling(path: str):
             raise RuntimeError("Scaling data in invalid format: expected each item in list to be a dict")
         missing = expected_fields - set(item)
         if missing:
-            raise RuntimeError(f"Missing fields in scaling item: {missing}")
+            raise RuntimeError("Missing fields in scaling item: {missing}".format(missing=missing))
         shortname = item["channel"] + "/" + item["process"]
         if not all(isinstance(par, str) for par in item["parameters"]):
-            raise RuntimeError(f"Parameters must be a list of strings in {shortname}")
+            raise RuntimeError("Parameters must be a list of strings in {shortname}".format(shortname=shortname))
         try:
             item["scaling"] = np.array(item["scaling"], dtype=float)
-        except ValueError as ex:
-            raise RuntimeError(f"Scaling data invalid: could not normalize array for {shortname}") from ex
+        except ValueError:
+            # python3: raise from ex
+            raise RuntimeError("Scaling data invalid: could not normalize array for {shortname}".format(shortname=shortname))
         if len(item["scaling"].shape) != 2:
-            raise RuntimeError(f"Scaling data invalid: array shape incorrect for {shortname}")
+            raise RuntimeError("Scaling data invalid: array shape incorrect for {shortname}".format(shortname=shortname))
         npar = len(item["parameters"])
         if item["scaling"].shape[1] != npar * (npar + 1) // 2:
-            raise RuntimeError(f"Scaling data invalid: array has insufficent terms for parameters in {shortname}")
+            raise RuntimeError("Scaling data invalid: array has insufficent terms for parameters in {shortname}".format(shortname=shortname))
     return out
 
 
@@ -79,11 +80,11 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
                 print("Building explicitly requested POIs:")
             for poi in self.explict_pois:
                 if self.verbose:
-                    print(f" - {poi}")
+                    print(" - {poi}".format(poi=poi))
                 self.modelBuilder.doVar(poi)
                 poiname = re.sub(r"\[.*", "", poi)
                 if not self.modelBuilder.out.var(poiname):
-                    raise RuntimeError(f"Could not find POI {poiname} after factory call")
+                    raise RuntimeError("Could not find POI {poiname} after factory call".format(poiname=poiname))
                 poiNames.append(poiname)
         # RooFit would also detect duplicate params with mismatched factory, but this is faster
         constructed = {}
@@ -95,16 +96,16 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
                 else:
                     rooparam = self.modelBuilder.factory_(param)
                     if not rooparam:
-                        raise RuntimeError(f"Failed to build {param}")
+                        raise RuntimeError("Failed to build {param}".format(param=param))
                     if not self.explict_pois and isinstance(rooparam, ROOT.RooRealVar) and not rooparam.isConstant():
                         if self.verbose:
-                            print(f"Assuming parameter {param} is to be a POI (name: {rooparam.GetName()})")
+                            print("Assuming parameter {param} is to be a POI (name: {name})".format(param=param, name=rooparam.GetName()))
                         poiNames.append(rooparam.GetName())
                     constructed[param] = rooparam
                 # save for later use in making CMSInterferenceFunc
                 item["parameters_inworkspace"].append(rooparam)
         if self.verbose:
-            print(f"All POIs: {poiNames}")
+            print("All POIs: {poiNames}".format(poiNames=poiNames))
         return poiNames
 
     def getYieldScale(self, channel, process):
@@ -113,9 +114,9 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
             item = self.scaling_map[(channel, process)]
         except KeyError:
             if self.verbose:
-                print(f"Will scale {string} by 1")
+                print("Will scale {string} by 1".format(string=string))
             return 1
-        print(f"Will scale {string} using CMSInterferenceFunc dependent on parameters {item['parameters']}")
+        print("Will scale {string} using CMSInterferenceFunc dependent on parameters {parameters}".format(string=string, parameters=item["parameters"]))
         item["found"] = True
         # We don't actually scale the total via this mechanism
         # and we'll set up the shape effects in done() since shapes aren't available yet
@@ -128,20 +129,22 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
             string = "%s/%s" % (channel, process)
             if "found" not in item:
                 if self.verbose:
-                    print(f"Did not find {string} in workspace, even though it is in scaling data")
+                    print("Did not find {string} in workspace, even though it is in scaling data".format(string=string))
                 continue
 
-            hfname = f"shapeSig_{channel}_{process}_morph"
+            hfname = "shapeSig_{channel}_{process}_morph".format(channel=channel, process=process)
             histfunc = self.modelBuilder.out.function(hfname)
             if not histfunc:
                 # if there are no systematics, it ends up with a different name?
-                hfname = f"shapeSig_{process}_{channel}_rebinPdf"
+                hfname = "shapeSig_{process}_{channel}_rebinPdf".format(channel=channel, process=process)
                 histfunc = self.modelBuilder.out.function(hfname)
             # TODO: support FastVerticalInterpHistPdf2
             if not isinstance(histfunc, ROOT.CMSHistFunc):
                 self.modelBuilder.out.Print("v")
                 raise RuntimeError(
-                    f"Could not locate the CMSHistFunc for {string}.\nNote that CMSInterferenceFunc currently only supports workspaces that use CMSHistFunc"
+                    "Could not locate the CMSHistFunc for {string}.\nNote that CMSInterferenceFunc currently only supports workspaces that use CMSHistFunc".format(
+                        string=string
+                    )
                 )
 
             funcname = hfname + "_externalMorph"
