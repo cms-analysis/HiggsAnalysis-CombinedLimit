@@ -157,7 +157,7 @@ def setvars(x, kl, kv, k2v):
     w.var("k2v").setVal(k2v)
 
 
-func = w.function(f"shapeSig_ch1_VBFHH_morph_externalMorph")
+func = w.function("shapeSig_ch1_VBFHH_morph_externalMorph")
 assert func
 
 setvars(0, 1, 1, 1)

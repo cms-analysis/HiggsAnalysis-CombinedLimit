@@ -275,7 +275,7 @@ which leads to the same parameterization. At present, this technique only works 
 encountered and the default when using
 [autoMCStats](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/bin-wise-stats).
 To use this model, for each bin find $y_0$ and put it into the datacard as a signal process, then find $M$ and
-save the upper triangular component as an array in a `scaling.json` file with a
+save the lower triangular component as an array in a `scaling.json` file with a
 syntax as follows:
 
 ```json
@@ -305,7 +305,7 @@ scaling = []
 for ibin in range(nbins):
     binscaling = []
     for icoef in range(ncoef):
-        for jcoef in range(icoef, ncoef):
+        for jcoef in range(icoef + 1):
             binscaling.append(amplitude_squared_for(ibin, icoef, jcoef))
     scaling.append(binscaling)
 ```
@@ -316,7 +316,9 @@ Then, to construct the workspace, run
 text2workspace.py card.txt -P HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel \
     --PO verbose --PO scalingData=scaling.json
 ```
-For large amounts of scaling data, you can optionally use gzipped json (`.json.gz`) or pickle (`.pkl.gz`) files with 2D numpy arrays for the scaling coefficients instead of lists. The function `numpy.triu_indices(ncoef)` is helpful for extracting the upper triangle of a square matrix.
+For large amounts of scaling data, you can optionally use gzipped json (`.json.gz`) or pickle (`.pkl.gz`)
+files with 2D numpy arrays for the scaling coefficients instead of lists. The function `numpy.tril_indices(ncoef)`
+is helpful for extracting the lower triangle of a square matrix.
 
 You could pick any
 nominal template, and adjust the scaling as appropriate. Generally it is
@@ -339,8 +341,8 @@ amplitude as follows:
     "process": "VBFHH",
     "parameters": ["expr::a0('@0*@1', kv[1,0,2], kl[1,0,2])", "expr::a1('@0*@0', kv[1,0,2])", "k2v[1,0,2]"],
     "scaling": [
-      [3.303536746664150e00, -8.541709820382220e00, 4.235348320712800e00, 2.296464188467882e01, -1.107996258835088e01, 5.504469544697623e00],
-      [2.206443321428910e00, -7.076836641962523e00, 4.053185685866683e00, 2.350989689214267e01, -1.308569222837996e01, 7.502346155380032e00]
+      [3.30353674666415, -8.54170982038222, 22.96464188467882, 4.2353483207128, -11.07996258835088, 5.504469544697623],
+      [2.20644332142891, -7.076836641962523, 23.50989689214267, 4.053185685866683, -13.08569222837996, 7.502346155380032]
     ]
   }
 ]
