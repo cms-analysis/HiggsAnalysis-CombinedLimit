@@ -281,4 +281,24 @@ t2wcmd = [
 ]
 
 subprocess.call(t2wcmd)
+
+fws = ROOT.TFile.Open("card.root")
+w = fws.Get("w")
+
+def setvars(x, kl, kv, k2v):
+    w.var("CMS_th1x").setVal(x)
+    w.var("kl").setVal(kl)
+    w.var("kv").setVal(kv)
+    w.var("k2v").setVal(k2v)
+
+func = w.function(f"shapeSig_ch1_VBFHH_morph_externalMorph")
+assert func
+
+setvars(0, 1, 1, 1)
+assert abs(func.getVal() - 1.0) < 1e-14, func.getVal()
+setvars(1, 1.1, 1, 1)
+assert abs(func.getVal() - 0.8586229062809139) < 1e-14, func.getVal()
+setvars(2, 1.1, 0.9, 1.3)
+assert abs(func.getVal() - 4.372110974178483) < 1e-14, func.getVal()
+
 subprocess.call("combine -M MultiDimFit card.root -t 100".split(" "))
