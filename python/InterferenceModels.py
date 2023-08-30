@@ -34,7 +34,8 @@ def read_scaling(path):
         if not all(isinstance(par, str) for par in item["parameters"]):
             raise RuntimeError("Parameters must be a list of strings in {shortname}".format(shortname=shortname))
         try:
-            item["scaling"] = np.array(item["scaling"], dtype=float)
+            # coerce into numpy with C-contiguous memory (needed for fast std::vector copy)
+            item["scaling"] = np.ascontiguousarray(item["scaling"], dtype=float)
         except ValueError:
             # python3: raise from ex
             raise RuntimeError("Scaling data invalid: could not normalize array for {shortname}".format(shortname=shortname))
