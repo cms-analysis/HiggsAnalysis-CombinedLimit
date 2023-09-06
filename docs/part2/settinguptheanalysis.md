@@ -541,58 +541,7 @@ The default output is a `.html` file which allows you to expand to give more det
 $ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt > out.html
 ```
 
-<html>
-<head>
-<style type="text/css">
-body { font-family: 'Consolas', 'Courier New', courier, monospace; font-size: small; }
-td, th { border-bottom: 1px solid black; padding: 1px 1em; vertical-align: top; }
-td.channDetails { font-size: x-small; }
-</style>
-<script type="text/javascript">
-function toggleChann(id) {
-    if (document.getElementById(id+"_chann_toggle").innerHTML == "[+]") {
-        document.getElementById(id+"_chann").style = "";
-        document.getElementById(id+"_chann_toggle").innerHTML = "[-]";
-    } else {
-        document.getElementById(id+"_chann").style = "display: none";
-        document.getElementById(id+"_chann_toggle").innerHTML = "[+]";
-    }
-}
-</script>
-<title>Nuisance Report</title>
-</head><body>
-<h1>Nuisance Report</h1>
-All numbers shown report the +/- 1-sigma variation in the yield for each affected channel/process. The Range shows the minimum and maximum effects across all channels/processes.
-You didn't run with the option --t2w so param types will only show the line from the datacard
-<table>
-<tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
-
-<tr><td><a name="lumi"><b>lumi  (lnN)</b></a></td>
-<td>1.000</td><td>1.100</td>
-<td> background, signal </td>
-<td>bin1(1) <a id="lumi_chann_toggle" href="#lumi" onclick="toggleChann(&quot;lumi&quot;)">[+]</a></td>
-</tr>
-<tr id="lumi_chann" style="display: none">
-	<td colspan="5"><table class="channDetails">
-		<tr><td>bin1</td><td>signal(1.1), background(1.0)</td></li>
-	</table></td>
-</tr>
-
-<tr><td><a name="bgnorm"><b>bgnorm  (lnN)</b></a></td>
-<td>1.000</td><td>1.300</td>
-<td> background, signal </td>
-<td>bin1(1) <a id="bgnorm_chann_toggle" href="#bgnorm" onclick="toggleChann(&quot;bgnorm&quot;)">[+]</a></td>
-</tr>
-<tr id="bgnorm_chann" style="display: none">
-	<td colspan="5"><table class="channDetails">
-		<tr><td>bin1</td><td>signal(1.0), background(1.3)</td></li>
-	</table></td>
-</tr>
-
-
-</table>
-</body>
-</html>
+![systematics analyzer output](images/sysanalyzer.png)
 
 In case you only have a cut-and-count style card, include the option `--noshape`.
 
