@@ -382,41 +382,6 @@ name rateParam bin process rootfile:workspacename
 
 The name should correspond to the name of the object which is being picked up inside the RooWorkspace. A simple example using the SM XS and BR splines available in HiggsAnalysis/CombinedLimit can be found under [data/tutorials/rate_params/simple_sm_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/rate_params/simple_sm_datacard.txt)
 
-After running `text2workspace.py` on your datacard, you can check the normalisation objects using the tool `test/printWorkspaceNormalisations.py`. See the example below for the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt) datacard.
-
-
-```nohighlight
-  text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
-  python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root
-  ...
-
-  ---------------------------------------------------------------------------
-  ---------------------------------------------------------------------------
-  Channel - bin1
-  ---------------------------------------------------------------------------
-    Top-level normalisation for process bkg -> n_exp_final_binbin1_proc_bkg
-    -------------------------------------------------------------------------
-  RooProduct::n_exp_final_binbin1_proc_bkg[ n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm ] = 521.163
-   ... is a product, which contains  n_exp_binbin1_proc_bkg
-  RooRealVar::n_exp_binbin1_proc_bkg = 1 C  L(-INF - +INF)
-    -------------------------------------------------------------------------
-    default value =  521.163204829
-  ---------------------------------------------------------------------------
-    Top-level normalisation for process sig -> n_exp_binbin1_proc_sig
-    -------------------------------------------------------------------------
-  Dumping ProcessNormalization n_exp_binbin1_proc_sig @ 0x464f700
-	  nominal value: 1
-	  log-normals (1):
-		   kappa = 1.1, logKappa = 0.0953102, theta = lumi = 0
-	  asymm log-normals (0):
-	  other terms (1):
-		   term r (class RooRealVar), value = 1
-
-    -------------------------------------------------------------------------
-    default value =  1.0
-```
-
-This tells us that the normalisation for the background process, named `n_exp_final_binbin1_proc_bkg` is a product of two objects `n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm`. The first object is just from the **rate** line in the datacard (equal to 1) and the second is a floating parameter. For the signal, the normalisation is called `n_exp_binbin1_proc_sig` and is a `ProcessNormalization` object which contains the rate modifications due to the systematic uncertainties. You can see that it also has a "*nominal value*" which again is just from the value given in the **rate** line of the datacard (again=1).
 
 #### Extra arguments
 
@@ -576,13 +541,65 @@ The default output is a `.html` file which allows you to expand to give more det
 $ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt > out.html
 ```
 
-![systematics analyzer output](images/sysanalyzer.png)
+<html>
+<head>
+<style type="text/css">
+body { font-family: 'Consolas', 'Courier New', courier, monospace; font-size: small; }
+td, th { border-bottom: 1px solid black; padding: 1px 1em; vertical-align: top; }
+td.channDetails { font-size: x-small; }
+</style>
+<script type="text/javascript">
+function toggleChann(id) {
+    if (document.getElementById(id+"_chann_toggle").innerHTML == "[+]") {
+        document.getElementById(id+"_chann").style = "";
+        document.getElementById(id+"_chann_toggle").innerHTML = "[-]";
+    } else {
+        document.getElementById(id+"_chann").style = "display: none";
+        document.getElementById(id+"_chann_toggle").innerHTML = "[+]";
+    }
+}
+</script>
+<title>Nuisance Report</title>
+</head><body>
+<h1>Nuisance Report</h1>
+All numbers shown report the +/- 1-sigma variation in the yield for each affected channel/process. The Range shows the minimum and maximum effects across all channels/processes.
+You didn't run with the option --t2w so param types will only show the line from the datacard
+<table>
+<tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
+
+<tr><td><a name="lumi"><b>lumi  (lnN)</b></a></td>
+<td>1.000</td><td>1.100</td>
+<td> background, signal </td>
+<td>bin1(1) <a id="lumi_chann_toggle" href="#lumi" onclick="toggleChann(&quot;lumi&quot;)">[+]</a></td>
+</tr>
+<tr id="lumi_chann" style="display: none">
+	<td colspan="5"><table class="channDetails">
+		<tr><td>bin1</td><td>signal(1.1), background(1.0)</td></li>
+	</table></td>
+</tr>
+
+<tr><td><a name="bgnorm"><b>bgnorm  (lnN)</b></a></td>
+<td>1.000</td><td>1.300</td>
+<td> background, signal </td>
+<td>bin1(1) <a id="bgnorm_chann_toggle" href="#bgnorm" onclick="toggleChann(&quot;bgnorm&quot;)">[+]</a></td>
+</tr>
+<tr id="bgnorm_chann" style="display: none">
+	<td colspan="5"><table class="channDetails">
+		<tr><td>bin1</td><td>signal(1.0), background(1.3)</td></li>
+	</table></td>
+</tr>
+
+
+</table>
+</body>
+</html>
 
 In case you only have a cut-and-count style card, include the option `--noshape`.
 
 If you have a datacard which uses several `rateParams` or a Physics model which includes some complicated product of normalisation terms in each process, you can check the values of the normalisation (and which objects in the workspace comprise them) using the `test/printWorkspaceNormalisations.py` tool. As an example, below is the first few blocks of output for the tutorial card `data/tutorials/counting/realistic-multi-channel.txt`. 
- 
-```nohighlight
+
+/// details | **Show example output**
+<pre><code>
 $ text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
 $ python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root                                                                                                           
 
@@ -647,7 +664,47 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
   -------------------------------------------------------------------------
   default value =  88.0
 ---------------------------------------------------------------------------
-```
+</code></pre>
+///
+
 
 As you can see, for each channel, a report is given for the top-level rate object in the workspace, for each process contributing to that channel. You can also see the various terms which make up that rate. The default value is for the default parameters in the workspace (i.e when running `text2workspace`, these are the values created as default).
+
+Another example is shown below for the workspace produced from the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt) datacard.
+
+
+/// details | **Show example output**
+<pre><code>
+  text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
+  python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root
+  ...
+
+  ---------------------------------------------------------------------------
+  ---------------------------------------------------------------------------
+  Channel - bin1
+  ---------------------------------------------------------------------------
+    Top-level normalisation for process bkg -> n_exp_final_binbin1_proc_bkg
+    -------------------------------------------------------------------------
+  RooProduct::n_exp_final_binbin1_proc_bkg[ n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm ] = 521.163
+   ... is a product, which contains  n_exp_binbin1_proc_bkg
+  RooRealVar::n_exp_binbin1_proc_bkg = 1 C  L(-INF - +INF)
+    -------------------------------------------------------------------------
+    default value =  521.163204829
+  ---------------------------------------------------------------------------
+    Top-level normalisation for process sig -> n_exp_binbin1_proc_sig
+    -------------------------------------------------------------------------
+  Dumping ProcessNormalization n_exp_binbin1_proc_sig @ 0x464f700
+	  nominal value: 1
+	  log-normals (1):
+		   kappa = 1.1, logKappa = 0.0953102, theta = lumi = 0
+	  asymm log-normals (0):
+	  other terms (1):
+		   term r (class RooRealVar), value = 1
+
+    -------------------------------------------------------------------------
+    default value =  1.0
+</code></pre>
+///
+
+This tells us that the normalisation for the background process, named `n_exp_final_binbin1_proc_bkg` is a product of two objects `n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm`. The first object is just from the **rate** line in the datacard (equal to 1) and the second is a floating parameter. For the signal, the normalisation is called `n_exp_binbin1_proc_sig` and is a `ProcessNormalization` object which contains the rate modifications due to the systematic uncertainties. You can see that it also has a "*nominal value*" which again is just from the value given in the **rate** line of the datacard (again=1).
  
