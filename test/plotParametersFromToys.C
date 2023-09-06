@@ -1,5 +1,5 @@
 // Producing suite of plots for diagnostic purposes in CombinedLimit
-// Designed to work with mlfit.root file produced with MaxLikelihoodFit
+// Designed to work with fitDiagnostics.root file produced with FitDiagnostics
 
 // ROOT includes
 
