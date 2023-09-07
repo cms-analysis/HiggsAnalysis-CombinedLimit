@@ -15,5 +15,6 @@
 # E741: ambiguous variable name 'l' (too pedantic! get a good font)
 # E711: sometimes needed for comparison to ROOT nullptr (better to cast to bool)
 # F401: unused import (some may have side effects, need to clean by hand)
-ignore = F403,F405,E402,W504,E203,W503,E262,E265,E266,E501,E741,E711,F401
+# E721: do not compare types (new, could be fixed relatively easily)
+ignore = F403,F405,E402,W504,E203,W503,E262,E265,E266,E501,E741,E711,F401,E721
 max-line-length = 160
