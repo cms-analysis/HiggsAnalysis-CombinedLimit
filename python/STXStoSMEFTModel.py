@@ -7,7 +7,10 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 from math import exp
-import ROOT, os, re, sys
+import ROOT
+import os
+import re
+import sys
 import json
 import yaml
 from collections import OrderedDict as od
@@ -264,7 +267,6 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
         coeffs = ROOT.std.map("string", "double")()
         list_pois = []
 
-        A, B = od(), od()
         for j, jpoi in enumerate(self.pois):
             if mode == "linear":
                 jpoi_name = "l%s" % self.poiNameMap[jpoi]
