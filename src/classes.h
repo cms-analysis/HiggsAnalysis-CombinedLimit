@@ -69,6 +69,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleProdPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooEFTScalingFunction.h"
 
 namespace {
     struct dictionary {
