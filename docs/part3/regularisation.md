@@ -58,6 +58,14 @@ Notice that one can also perform the so called bin-by-bin unfolding (though it i
 
 Nuisance parameters can be added to the likelihood function and profiled in the usual way via the datacards. Theory uncertainties on the inclusive cross section are typically not included in unfolded measurements.
 
+The figure below shows a comparison of Likelihood based unfolding and a least-squares based unfolding as implemented in `RooUnfold`. 
+
+/// details | **Show comparison**
+
+![](images/Unfolding_Comparison.png)
+
+///
+
 ## Regularization
 
 The main difference with respect to other models with multiple signal contributions is the introduction of **Regularization**, which is used to stabilize the unfolding process. 
@@ -124,9 +132,18 @@ Alternative, valid syntaxes are
     constr1 constr r_bin0+r_bin1 r_bin0,r_bin1 0.01
     constr1 constr r_bin0+r_bin1 {r_bin0,r_bin1} delta[0.01]
 ```
+
+The figure below shows an example unfolding using the "SVD regularization" approach with the least squares method (as implemented by `RooUnfold`) and implemented as a penalty term added to the likelihood using the maximum likelihood approach in `Combine`.
+
+/// details | **Show comparison**
+
+![](images/Unfolding_Regularization_comparison.png)
+
+///
+
 ### TUnfold method
 
-The Tikhonov regularization as implemented in TUnfold uses the MC information, or rather the densities prediction, as a bias vector. 
+The Tikhonov regularization as implemented in `TUnfold` uses the MC information, or rather the densities prediction, as a bias vector. 
 In order to give this information to Combine, a single datacard for each reco-level bin needs to be produced, so that we have access to the proper normalization terms during the minimization. In this case the bias vector is $\vec{x}_{obs}-\vec{x}_{true}$ 
 
 Then one can write a constraint term in the datacard via (eg.)

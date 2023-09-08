@@ -1,6 +1,6 @@
 # Procedure for creating and validating simplified likelihood inputs
 
-This page is to give a brief outline for the creation of (potentially aggregated) predictions and their covariance to facilitate external reinterpretation using the simplified likelihood (SL) approach. Instructions for validating the simplified likelihood method (detailed in the note [here](https://cds.cern.ch/record/2242860/files/NOTE2017_001.pdf) and [here](https://arxiv.org/abs/1809.05548)) in the linear mode are also given.
+This page is to give a brief outline for the creation of (potentially aggregated) predictions and their covariance to facilitate external reinterpretation using the simplified likelihood (SL) approach. Instructions for validating the simplified likelihood method (detailed in the CMS note [here](https://cds.cern.ch/record/2242860/files/NOTE2017_001.pdf) and "[The Simplified Likelihood Framework](https://link.springer.com/article/10.1007/JHEP04(2019)064)" paper) are also given.
 
 ## Requirements 
 
@@ -15,7 +15,7 @@ bash checkoutSL.sh
 ls work-tools/stats-tools
 ```
 
-If you also want to validate your inputs and perform fits/scans using them, you can use the package [SLtools](https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md) for this.
+If you also want to validate your inputs and perform fits/scans using them, you can use the package [SLtools](https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md) from [The Simplified Likelihood Framework](https://link.springer.com/article/10.1007/JHEP04(2019)064) paper for this.
 ```
 git clone https://gitlab.cern.ch/SimplifiedLikelihood/SLtools.git
 ```
@@ -109,7 +109,7 @@ At this point you now have the inputs as ROOT files necessary to publish and run
 
 The simplified likelihood relies on several assumptions (detailed in the documentation at the top). To test the validity for your analysis, statistical results between combine and the simplified likelihood can be compared. 
 
-We will use the package [SLtools](https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md) for this. The first step is to convert the ROOT files into python configs to run in the tool. 
+We will use the package [SLtools](https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md) from the [Simplified Likelihood Paper](https://link.springer.com/article/10.1007/JHEP04(2019)064) for this. The first step is to convert the ROOT files into python configs to run in the tool. 
 
 ### Convert ROOT to Python 
 

@@ -6,8 +6,8 @@
 #include "RooMsgService.h"
 #include <dlfcn.h>
 #include <RooStats/ModelConfig.h>
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "../interface/CachingNLL.h"
+#include "../interface/ProfilingTools.h"
 
 void (*dump_)(const char *);
 

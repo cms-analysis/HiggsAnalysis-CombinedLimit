@@ -1638,14 +1638,14 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
     RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
     if (expectedFromGrid_) {
         applyExpectedQuantile(*point->second);
-        point->second->SetTestStatisticData(point->second->GetTestStatisticData() + (isProfile ? EPS : EPS));
+        point->second->SetTestStatisticData(point->second->GetTestStatisticData() + (isProfile ? -EPS : EPS));
     } else {
         Setup setup;
         std::unique_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, point->first, setup);
         RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
         if (isProfile) nullPOI.setRealValue(r->GetName(), point->first);
         double testStat = setup.qvar->Evaluate(data, nullPOI);
-        point->second->SetTestStatisticData(testStat + (isProfile ? EPS : EPS));
+        point->second->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
     }
     if (verbose > 1) {
         std::cout << "At " << r->GetName() << " = " << point->first << ":\n" << 

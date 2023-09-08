@@ -265,7 +265,9 @@ The first page of the output is shown below.
 ![](images/impacts.png)
 
 
-The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it. 
+The direction of the +1σ and -1σ impacts (i.e. when the NP is moved to its +1σ or -1σ values) on the POI indicates whether the parameter is correlated or anti-correlated with it.
+
+For models with multiple POIs, the combine option `--redefineSignalPOIs X,Y,Z...` should be specified in all three of the `combineTool.py -M Impacts [...]` steps above. The final step will produce the `impacts.json` file which will contain the impacts for all the specified POIs. In the `plotImpacts.py` script, a particular POI can be specified with `--POI X`. 
 
 !!! warning 
     The plot also shows the *best fit* value of the POI at the top and its uncertainty. You may wish to allow the range to go -ve (i.e using `--setParameterRanges` or `--rMin`) to avoid getting one-sided impacts!
@@ -443,7 +445,7 @@ void makeRooMultiPdfWorkspace(){
 
    // Save to a new workspace
    TFile *fout = new TFile("workspace.root","RECREATE");
-   RooWorkspace wout("workspace","workspaace");
+   RooWorkspace wout("workspace","workspace");
 
    data->SetName("data");
    wout.import(*data);
@@ -458,7 +460,7 @@ void makeRooMultiPdfWorkspace(){
 
 The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the [RooMultiPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/interface/RooMultiPdf.h) object which can switch between the functions by setting its associated index (herein called **pdf_index**). This (as with all parameters in combine) is accessible via the `--setParameters` option.
 
-To asses the bias, one can throw toys using one function and fit with another. All of this only needs to use one datacard [hgg_toy_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/hgg_toy_datacard.txt)
+To asses the bias, one can throw toys using one function and fit with another. All of this only needs to use one datacard [hgg_toy_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/main/data/tutorials/bias_studies/hgg_toy_datacard.txt)
  
 The bias studies are performed in two stages. The first is to generate toys using one of the functions under some value of the signal strength **r** (or $\mu$). This can be repeated for several values of **r** and also at different masses, but here the Higgs mass is fixed to 125 GeV. 
 
