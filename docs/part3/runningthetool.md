@@ -316,10 +316,10 @@ When the `--dry-run` option is removed each command will be run in sequence.
 
 #### Grid submission
 
-Submission to the grid with `crab3` works in a similar way. Before doing so ensure that the `crab3` environment has been sourced, then for compatibility reasons source the CMSSW environment again. We will use the example of generating a grid of test-statistic distributions for limits.
+Submission to the grid with `crab3` works in a similar way. Before doing so ensure that the `crab3` environment has been sourced in addition to the  CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.
 
 ```sh
-$ source /cvmfs/cms.cern.ch/crab3/crab.sh; cmsenv
+$ cmsenv; source /cvmfs/cms.cern.ch/crab3/crab.sh
 $ combineTool.py -d htt_mt.root -M HybridNew --LHCmode LHC-limits --clsAcc 0 -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveToys --saveHybridResult -m 125 --job-mode crab3 --task-name grid-test --custom-crab custom_crab.py
 ```
 
