@@ -595,8 +595,8 @@ Expected 97.5%: r &lt; 1.7200
 </code></pre>
 <p>When the <code>--dry-run</code> option is removed each command will be run in sequence.</p>
 <h4 id="grid-submission">Grid submission</h4>
-<p>Submission to the grid with <code>crab3</code> works in a similar way. Before doing so ensure that the <code>crab3</code> environment has been sourced, then for compatibility reasons source the CMSSW environment again. We will use the example of generating a grid of test-statistic distributions for limits.</p>
-<pre><code class="language-sh">$ source /cvmfs/cms.cern.ch/crab3/crab.sh; cmsenv
+<p>Submission to the grid with <code>crab3</code> works in a similar way. Before doing so ensure that the <code>crab3</code> environment has been sourced in addition to the  CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.</p>
+<pre><code class="language-sh">$ cmsenv; source /cvmfs/cms.cern.ch/crab3/crab.sh
 $ combineTool.py -d htt_mt.root -M HybridNew --LHCmode LHC-limits --clsAcc 0 -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveToys --saveHybridResult -m 125 --job-mode crab3 --task-name grid-test --custom-crab custom_crab.py
 </code></pre>
 <p>The option <code>--custom-crab</code> should point to a python file python containing a function of the form <code>custom_crab(config)</code> that will be used to modify the default crab configuration. You can use this to set the output site to your local grid site, or modify other options such as the voRole, or the site blacklist/whitelist.</p>
