@@ -8,7 +8,7 @@
  *
  *
  */
-#include "../interface/LimitAlgo.h"
+#include "LimitAlgo.h"
 class RooArgSet; 
 
 class BayesianToyMC : public LimitAlgo {

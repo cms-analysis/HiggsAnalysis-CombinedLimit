@@ -29,7 +29,7 @@ class ProfiledLikelihoodRatioTestStat : public RooStats::TestStatistic {
         RooAbsPdf *pdfNull_, *pdfAlt_;
         RooArgSet snapNull_, snapAlt_; 
         RooArgSet nuisances_; 
-        std::auto_ptr<RooArgSet> paramsNull_, paramsAlt_;
+        std::unique_ptr<RooArgSet> paramsNull_, paramsAlt_;
 }; // TestSimpleStatistics
 
 

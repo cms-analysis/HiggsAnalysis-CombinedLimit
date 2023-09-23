@@ -200,7 +200,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   }
   
   w->loadSnapshot("clean");
-  std::auto_ptr<RooFitResult> fit(0);
+  std::unique_ptr<RooFitResult> fit(nullptr);
   if (proposalType_ == FitP || (cropNSigmas_ > 0)) {
       CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
       fit.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(), RooFit::Minos(runMinos_)));
@@ -231,7 +231,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       }
   }
 
-  std::auto_ptr<ProposalFunction> ownedPdfProp; 
+  std::unique_ptr<ProposalFunction> ownedPdfProp; 
   ProposalFunction* pdfProp = 0;
   ProposalHelper ph;
   switch (proposalType_) {
@@ -278,7 +278,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       if (proposalHelperUniformFraction_ > 0) ph.SetUniformFraction(proposalHelperUniformFraction_);
   }
 
-  std::auto_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, mc_s->GetPdf(), &data, debugProposal_) : 0);
+  std::unique_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, mc_s->GetPdf(), &data, debugProposal_) : 0);
   
   MCMCCalculator mc(data, *mc_s);
   mc.SetNumIters(iterations_); 
@@ -287,11 +287,11 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   mc.SetProposalFunction(debugProposal_ > 0 ? *pdfDebugProp : *pdfProp);
   mc.SetLeftSideTailFraction(0);
 
-  if (typeid(*mc_s->GetPriorPdf()) == typeid(RooUniform)) {
+  if (auto ptr = dynamic_cast<RooUniform*>(mc_s->GetPriorPdf()); ptr!=nullptr) {
     mc.SetPriorPdf(*((RooAbsPdf *)0));
   }
 
-  std::auto_ptr<MCMCInterval> mcInt;
+  std::unique_ptr<MCMCInterval> mcInt;
   try {  
       mcInt.reset((MCMCInterval*)mc.GetInterval()); 
   } catch (std::length_error &ex) {

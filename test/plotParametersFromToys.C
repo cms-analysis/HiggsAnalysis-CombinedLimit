@@ -223,7 +223,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 
 		if ( isFitted ){
 			c->cd(4); 
-			tree_->Draw(Form("%s:%s_In>>%s_%s_2d",name,name,name,tree_->GetName()),""); 
+			tree_->Draw(Form("%s:%s_In>>%s_%s_2d",name,name,name,tree_->GetName()),"","COLZ"); 
 			//TH2D *h2d_corr = (TH2D*)gROOT->FindObject(Form("%s_2d",name));
 			//h2d_corr->SetMarkerColor(4);
 			//h2d_corr->SetTitle("");
@@ -328,8 +328,8 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 void plotLLRdistribution(TTree *tree_, TFile *fdata_){
 
 	TCanvas *c = new TCanvas("llr","",960,800);
-	tree_->Draw("0*nll_nll0>>htemp_llr(100,0,4)","mu<0");
-	tree_->Draw("-2*nll_nll0>>htemp_llr_2(100,0,4)","mu>=0");
+	tree_->Draw("0*nll_nll0>>htemp_llr(100,0,4)","r<0");
+	tree_->Draw("-2*nll_nll0>>htemp_llr_2(100,0,4)","r>=0");
 	TH1F *ht0  = (TH1F*) gROOT->FindObject("htemp_llr");
 	TH1F *htmu = (TH1F*) gROOT->FindObject("htemp_llr_2");
 	ht0->Add(htmu);
@@ -356,14 +356,14 @@ void plotLLRdistribution(TTree *tree_, TFile *fdata_){
 
 }
 
-void plotParametersFromToys(std::string inputFile, std::string dataFits="", std::string workspace="", std::string selectString="mu>0"){
+void plotParametersFromToys(std::string inputFile, std::string dataFits="", std::string workspace="", std::string selectString="r>0"){
 
 	// Some Global preferences
 	gSystem->Load("libHiggsAnalysisCombinedLimit");
 	gROOT->SetBatch(true);
 	gStyle->SetOptFit(0);
 	gStyle->SetOptStat(0);
-	gStyle->SetPalette(1,0);
+	//gStyle->SetPalette(1,0);
 
 	TFile *fi_ = TFile::Open(inputFile.c_str());
 	TFile *fd_=0;

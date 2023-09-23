@@ -14,7 +14,7 @@ class RooAbsData;
 class DebugProposal : public RooStats::ProposalFunction {
 
    public:
-      DebugProposal() : RooStats::ProposalFunction(), prop_(0), nll_(0), params_(), tries_(0)  {}
+      DebugProposal() : RooStats::ProposalFunction(), prop_(0), nll_(nullptr), params_(), tries_(0)  {}
       DebugProposal(RooStats::ProposalFunction *p, RooAbsPdf *pdf, RooAbsData *data, int tries) ;
 
       // Populate xPrime with a new proposed point
@@ -35,7 +35,7 @@ class DebugProposal : public RooStats::ProposalFunction {
 
     private:
         RooStats::ProposalFunction *prop_;
-        std::auto_ptr<RooAbsReal> nll_;
+        std::unique_ptr<RooAbsReal> nll_;
         RooAbsPdf                 *pdf_;
         RooArgSet                 params_;
         int  tries_;

@@ -8,7 +8,7 @@
  *
  *
  */
-#include "../interface/LimitAlgo.h"
+#include "LimitAlgo.h"
 
 class RooAbsPdf; class RooRealVar; class RooAbsData; class RooArgSet;
 

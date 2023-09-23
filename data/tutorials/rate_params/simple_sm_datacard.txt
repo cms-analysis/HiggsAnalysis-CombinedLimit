@@ -1,0 +1,19 @@
+# Extremely simplified version of a counting analysis to show use of rateParams with xsec/br splines 
+imax 1  number of channels
+jmax 1  number of backgrounds 
+kmax *  number of nuisance parameters (sources of systematical uncertainties)
+------------
+# we have just one channel, in which we observe 0 events
+bin         1
+observation 110
+
+# the rate for the signal is the lumi*acceptance*efficiency
+------------
+bin             1      1
+process       ggH_hgg Background 
+process         0      1
+rate           0.4    100    	
+------------
+
+hgg rateParam 	    * ggH_hgg $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/sm_br_yr4.root:br
+ggH_13TeV rateParam * ggH_hgg $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/sm_yr4_13TeV.root:xs_13TeV 

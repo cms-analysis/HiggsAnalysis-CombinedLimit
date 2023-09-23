@@ -282,7 +282,7 @@ ClassImp(RooErfPow2Pdf)
 Double_t  ErfPow2(Double_t x,Double_t c0,Double_t c1, Double_t offset, Double_t width){
 
    if(width<1e-2)width=1e-2;
-   Double_t sqrt_s=2000.;
+   Double_t sqrt_s=13000.;
    return TMath::Power(x/sqrt_s ,-1*(c0+c1*TMath::Log(x/sqrt_s)) )*(1+ TMath::Erf((x-offset)/width)) /2. ; 
  }
 
@@ -367,7 +367,7 @@ ClassImp(RooErfPowExpPdf)
 
 Double_t  ErfPowExp(Double_t x,Double_t c0,Double_t c1, Double_t offset, Double_t width){
    if(width<1e-2)width=1e-2;
-   Double_t sqrt_s=2000.;
+   Double_t sqrt_s=13000.;
    return TMath::Power(x/sqrt_s ,-1*(c1*TMath::Log(x/sqrt_s)) )*TMath::Exp(-1*x/sqrt_s*c0)*(1+ TMath::Erf((x-offset)/width)) /2. ; 
 }
 
@@ -521,7 +521,7 @@ ClassImp(RooErfPowPdf)
 
 Double_t  ErfPow(Double_t x,Double_t c, Double_t offset, Double_t width){
    if(width<1e-2)width=1e-2;
-   Double_t sqrt_s=2000.;
+   Double_t sqrt_s=13000.;
    return TMath::Power(x/sqrt_s ,c)*(1+ TMath::Erf((x-offset)/width)) /2. ; 
 }
 
@@ -610,7 +610,7 @@ RooPow2Pdf::RooPow2Pdf(const RooPow2Pdf& other, const char* name) :
    p1("p1",this,other.p1){} 
 
 Double_t RooPow2Pdf::evaluate() const { 
-   Double_t sqrt_s=2000.;
+   Double_t sqrt_s=13000.;
    return TMath::Power( x/sqrt_s,-1*( p0+p1*TMath::Log(x/sqrt_s) ) )  ; 
 } 
 
@@ -634,7 +634,7 @@ RooPowPdf::RooPowPdf(const RooPowPdf& other, const char* name) :
 
 Double_t RooPowPdf::evaluate() const { 
    // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE 
-   Double_t sqrt_s=2000.;
+   Double_t sqrt_s=13000.;
    return TMath::Power( x/sqrt_s, p0 )  ; 
 } 
 
@@ -664,7 +664,7 @@ RooQCDPdf::RooQCDPdf(const RooQCDPdf& other, const char* name) :
 
 Double_t RooQCDPdf::evaluate() const { 
 
-   Double_t sqrt_s=2000.;
+   Double_t sqrt_s=13000.;
    return TMath::Power(1-x/sqrt_s ,p0)/TMath::Power(x/sqrt_s, p1+p2*TMath::Log(x/sqrt_s))  ; 
 } 
 

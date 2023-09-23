@@ -3,29 +3,45 @@
 
 #include <vector>
 #include <string>
-struct RooDataHist;
-struct RooAbsData;
-struct RooAbsPdf;
-struct RooAbsReal;
-struct RooAbsArg;
-struct RooArgSet;
-struct RooArgList;
-struct RooSimultaneous;
-struct RooAbsCollection;
-struct RooWorkspace;
-struct RooPlot;
+#include <unordered_map>
+#include <TGraphAsymmErrors.h>
+#include <TString.h>
+#include <RooHistError.h>
+#include <RooFitResult.h>
+#include <RooAddPdf.h>
+#include <TH1.h>
+class RooDataHist;
+class RooAbsData;
+class RooAbsPdf;
+class RooAbsReal;
+class RooAbsArg;
+class RooArgSet;
+class RooArgList;
+class RooSimultaneous;
+class RooAbsCollection;
+class RooWorkspace;
+class RooPlot;
+class RooRealVar;
+class RooProduct;
 namespace RooStats { class ModelConfig; }
 namespace utils {
     void printRDH(RooAbsData *data) ;
     void printRAD(const RooAbsData *d) ;
-    void printPdf(RooAbsPdf *pdf) ;
+    void printPdf(const RooAbsReal *pdf) ;
     void printPdf(RooStats::ModelConfig &model) ;
     void printPdf(RooWorkspace *w, const char *pdfName) ;
+    TGraphAsymmErrors * makeDataGraph(TH1 * dataHist, bool asDensity=false);
+    //Make a tgraph asym errors from th1 of data
+    
+    //// print as a string, the name and value of a RooRealVar or RooCategoryVar
+    TString printRooArgAsString(RooAbsArg *a); 
 
-    // Clone a pdf and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
+    // Clone a pdf and all its branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsPdf *fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
-    // Clone a function and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
+    // Clone a function and all its branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsReal *fullCloneFunc(const RooAbsReal *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
+    // Clone a function and all its branch nodes that depends on the observables. on request, clone also leaf nodes (i.e. RooRealVars)
+    RooAbsReal *fullCloneFunc(const RooAbsReal *pdf, const RooArgSet &obs, RooArgSet &holder, bool cloneLeafNodes=false) ;
 
     /// Create a pdf which depends only on observables, and collect the other constraint terms
     /// Will return 0 if it's all constraints, &pdf if it's all observables, or a new pdf if it's something mixed
@@ -39,7 +55,9 @@ namespace utils {
     RooAbsPdf *makeNuisancePdf(RooAbsPdf &pdf, const RooArgSet &observables, const char *name="nuisancePdf") ;
 
     /// factorize a RooAbsReal
-    void factorizeFunc(const RooArgSet &observables, RooAbsReal &pdf, RooArgList &obsTerms, RooArgList &otherTerms, bool debug=false);
+    void factorizeFunc(const RooArgSet &observables, RooAbsReal &pdf, RooArgList &obsTerms, RooArgList &otherTerms, bool keepDuplicates = true, bool debug=false);
+    /// workaround for RooProdPdf::components()
+    RooArgList factors(const RooProduct &prod) ;
 
     /// Note: doesn't recompose Simultaneous pdfs properly, for that use factorizePdf method
     RooAbsPdf *makeObsOnlyPdf(RooStats::ModelConfig &model, const char *name="obsPdf") ;
@@ -62,12 +80,13 @@ namespace utils {
     void copyAttributes(const RooAbsArg &from, RooAbsArg &to) ;
 
     void guessChannelMode(RooSimultaneous &simPdf, RooAbsData &simData, bool verbose=false) ;
+    void setChannelGenModes(RooSimultaneous &simPdf, const std::string &binned, const std::string &unbinned, int verbose) ;
 
     /// set style for plots
     void tdrStyle() ;
     
     /// make plots, if possible
-    std::vector<RooPlot *> makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel=0, const char *backgroundSel=0, float rebinFactor=1.0);
+    std::vector<RooPlot *> makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel=0, const char *backgroundSel=0, float rebinFactor=1.0, RooFitResult *fitRes=0);
 
     struct CheapValueSnapshot {
         public:
@@ -92,9 +111,15 @@ namespace utils {
     // Set range of physics model parameters
     void setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params);
 
+    bool isParameterAtBoundary( const RooRealVar &);
+    bool anyParameterAtBoundaries( const RooArgSet &, int verbosity);
+
     void reorderCombinations(std::vector<std::vector<int> > &, const std::vector<int> &, const std::vector<int> &);
     std::vector<std::vector<int> > generateCombinations(const std::vector<int> &vec);
     std::vector<std::vector<int> > generateOrthogonalCombinations(const std::vector<int> &vec);
-}
+    int countFloating(const RooArgSet &);
+    RooArgSet returnAllVars(RooWorkspace *);
+    bool freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiPdfs, const RooArgSet & allRooMultiPdfParams, bool freeze=true);
 
+}
 #endif

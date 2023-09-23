@@ -1,0 +1,19 @@
+# Simple parametric shape based on a RooChebyChev background with freely floating normalisation and a RooVoigtian signal model.
+# To run, make sure to add the option `-m 30` since the MH parameter is contained in the input workspace
+
+imax 1
+jmax 1
+kmax *
+---------------
+shapes * * simple-shapes-parametric_input.root w:$PROCESS
+---------------
+bin bin1
+observation -1
+------------------------------
+bin          bin1       bin1
+process      sig 	bkg
+process      0          1
+rate         1          1
+--------------------------------
+lumi    lnN  1.1       1.0
+vogian_sigma   param 1.0      0.1

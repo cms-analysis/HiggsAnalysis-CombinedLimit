@@ -9,10 +9,11 @@
 #include <RooSimultaneous.h>
 #include <RooStats/ModelConfig.h>
 #include "../interface/Combine.h"
-#include "../interface/ProfileLikelihood.h"
+#include "../interface/Significance.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/utils.h"
+#include "../interface/CachingNLL.h"
 
 
 #include <Math/MinimizerOptions.h>
@@ -55,7 +56,7 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
   int nbins = cat->numBins((const char *)0);
   TString satname = TString::Format("%s_freeform", sim->GetName());
-  std::auto_ptr<RooSimultaneous> newsim((typeid(*sim) == typeid(RooSimultaneousOpt)) ? new RooSimultaneousOpt(satname, "", *cat) : new RooSimultaneous(satname, "", *cat)); 
+  std::unique_ptr<RooSimultaneous> newsim((typeid(*sim) == typeid(RooSimultaneousOpt)) ? new RooSimultaneousOpt(satname, "", *cat) : new RooSimultaneous(satname, "", *cat)); 
   std::map<std::string,std::string> rs;
   RooArgList minosVars, minosOneVar; if (runMinos_) minosOneVar.add(*r);
   for (int ic = 0, nc = nbins; ic < nc; ++ic) {
@@ -75,9 +76,15 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
 
   CloseCoutSentry sentry(verbose < 2);
   const RooCmdArg &constCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1); // use something dummy 
-  std::auto_ptr<RooFitResult> result_nominal (doFit(   *sim, data, minosOneVar, constCmdArg, runMinos_)); // let's run Hesse if we want to run Minos
+  std::unique_ptr<RooFitResult> result_nominal (doFit(   *sim, data, minosOneVar, constCmdArg, runMinos_)); // let's run Hesse if we want to run Minos
+  if (dynamic_cast<cacheutils::CachingSimNLL*>(nll.get())) {
+    static_cast<cacheutils::CachingSimNLL*>(nll.get())->clearConstantZeroPoint();
+  }
   double nll_nominal   = nll->getVal();
-  std::auto_ptr<RooFitResult> result_freeform(doFit(*newsim, data, minosVars,   constCmdArg, runMinos_));
+  std::unique_ptr<RooFitResult> result_freeform(doFit(*newsim, data, minosVars,   constCmdArg, runMinos_));
+  if (dynamic_cast<cacheutils::CachingSimNLL*>(nll.get())) {
+    static_cast<cacheutils::CachingSimNLL*>(nll.get())->clearConstantZeroPoint();
+  }
   double nll_freeform   = nll->getVal();
   sentry.clear();
 
@@ -90,32 +97,34 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   limit = 2*(nll_nominal-nll_freeform);
   
   std::cout << "\n --- ChannelCompatibilityCheck --- " << std::endl;
-  if (verbose) {
-    if (fixedMu_) { 
-        printf("Nominal fit: %s fixed at %7.4f\n", r->GetName(), r->getVal());
-    } else {
-        RooRealVar *rNominal = (RooRealVar*) result_nominal->floatParsFinal().find(r->GetName());
-        if (runMinos_ && do95_) {
-            printf("Nominal fit  : %s = %7.4f  %+6.4f/%+6.4f (68%% CL)\n", r->GetName(), rNominal->getVal(), rNominal->getAsymErrorLo(), rNominal->getAsymErrorHi());
-            printf("               %s = %7.4f  %+6.4f/%+6.4f (95%% CL)\n", r->GetName(), rNominal->getVal(), rNominal->getMin("err95")-rNominal->getVal(), rNominal->getMax("err95")-rNominal->getVal());
-        } else if (runMinos_) {
-            printf("Nominal fit  : %s = %7.4f  %+6.4f/%+6.4f\n", r->GetName(), rNominal->getVal(), rNominal->getAsymErrorLo(), rNominal->getAsymErrorHi());
-        } else {
-            printf("Nominal fit  : %s = %7.4f  +/- %6.4f\n", r->GetName(), rNominal->getVal(), rNominal->getError());
-        }
-    }
-    for (std::map<std::string,std::string>::const_iterator it = rs.begin(), ed = rs.end(); it != ed; ++it) {
-        RooRealVar *ri = (RooRealVar*) result_freeform->floatParsFinal().find(it->second.c_str());
-        if (runMinos_ && do95_) {
-            printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f (68%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
-            printf("               %s = %7.4f  %+6.4f/%+6.4f (95%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getMin("err95")-ri->getVal(), ri->getMax("err95")-ri->getVal(), it->first.c_str());
-        } else if (runMinos_) {
-            printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
-        } else {
-            printf("Alternate fit: %s = %7.4f  +/- %6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getError(), it->first.c_str());
-        }
-    }
+  //if (verbose) { // We should print out the results by default 
+  if (fixedMu_) { 
+      printf("Nominal fit: %s fixed at %7.4f\n", r->GetName(), r->getVal());
+  } else {
+      RooRealVar *rNominal = (RooRealVar*) result_nominal->floatParsFinal().find(r->GetName());
+      if (runMinos_ && do95_) {
+	  printf("Nominal fit  : %s = %7.4f  %+6.4f/%+6.4f (68%% CL)\n", r->GetName(), rNominal->getVal(), rNominal->getAsymErrorLo(), rNominal->getAsymErrorHi());
+	  printf("               %s = %7.4f  %+6.4f/%+6.4f (95%% CL)\n", r->GetName(), rNominal->getVal(), rNominal->getMin("err95")-rNominal->getVal(), rNominal->getMax("err95")-rNominal->getVal());
+      } else if (runMinos_) {
+	  printf("Nominal fit  : %s = %7.4f  %+6.4f/%+6.4f\n", r->GetName(), rNominal->getVal(), rNominal->getAsymErrorLo(), rNominal->getAsymErrorHi());
+      } else {
+	  printf("Nominal fit  : %s = %7.4f  +/- %6.4f\n", r->GetName(), rNominal->getVal(), rNominal->getError());
+      }
   }
+  for (std::map<std::string,std::string>::const_iterator it = rs.begin(), ed = rs.end(); it != ed; ++it) {
+      RooRealVar *ri = (RooRealVar*) result_freeform->floatParsFinal().find(it->second.c_str());
+      if (ri == NULL){
+      printf("Parameter %s not found in channel %s. Does this region contain signal templates?\n", r->GetName(), it->first.c_str());
+      } else if (runMinos_ && do95_) {
+	  printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f (68%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
+	  printf("               %s = %7.4f  %+6.4f/%+6.4f (95%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getMin("err95")-ri->getVal(), ri->getMax("err95")-ri->getVal(), it->first.c_str());
+      } else if (runMinos_) {
+	  printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
+      } else {
+	  printf("Alternate fit: %s = %7.4f  +/- %6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getError(), it->first.c_str());
+      }
+  }
+  //}
   std::cout << "Chi2-like compatibility variable: " << limit << std::endl;
 
   if (saveFitResult_) {

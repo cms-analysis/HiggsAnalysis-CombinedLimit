@@ -1,0 +1,21 @@
+imax    1 number of bins
+jmax    4 number of processes minus 1
+kmax    * number of nuisance parameters
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+bin          signal_region   
+observation  10.0            
+--------------------------------------------------------------------------------
+bin                        signal_region   signal_region   signal_region   signal_region   signal_region   
+process                    ttbar           diboson         Ztautau         jetFakes        bbHtautau       
+process                    1               2               3               4               0               
+rate                       4.43803         3.18309         3.7804          1.63396         0.711064        
+--------------------------------------------------------------------------------
+CMS_eff_b          lnN     1.02            1.02            1.02            -               1.02            
+CMS_eff_t          lnN     1.12            1.12            1.12            -               1.12            
+CMS_eff_t_highpt   lnN     1.1             1.1             1.1             -               1.1             
+acceptance_Ztautau lnN     -               -               1.08            -               -               
+acceptance_bbH     lnN     -               -               -               -               1.05            
+acceptance_ttbar   lnN     1.005           -               -               -               -               
+norm_jetFakes      lnN     -               -               -               1.2             -               
+xsec_diboson       lnN     -               1.05            -               -               -               

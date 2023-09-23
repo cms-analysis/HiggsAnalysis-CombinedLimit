@@ -94,7 +94,7 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
     return ret;
 }
 
-bool ProfiledLikelihoodRatioTestStatOpt::createNLL(RooAbsPdf &pdf, RooAbsData &data, std::auto_ptr<RooAbsReal> &nll_) 
+bool ProfiledLikelihoodRatioTestStatOpt::createNLL(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll_) 
 {
     if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
         if (nll_.get() == 0) nll_.reset(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
@@ -107,18 +107,18 @@ bool ProfiledLikelihoodRatioTestStatOpt::createNLL(RooAbsPdf &pdf, RooAbsData &d
 }
 
 
-double ProfiledLikelihoodRatioTestStatOpt::minNLL(std::auto_ptr<RooAbsReal> &nll_) 
+double ProfiledLikelihoodRatioTestStatOpt::minNLL(std::unique_ptr<RooAbsReal> &nll_) 
 {
 #if defined(DBG_TestStat_NOFIT) && (DBG_TestStat_NOFIT > 0)
     if (verbosity_ > 0) std::cout << "Profiling likelihood for pdf " << pdf.GetName() << std::endl;
-    std::auto_ptr<RooAbsReal> nll_(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
+    std::unique_ptr<RooAbsReal> nll_(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
     return nll_->getVal();
 #endif
     CascadeMinimizer minim(*nll_, CascadeMinimizer::Constrained);
     minim.setStrategy(0);
     minim.minimize(verbosity_-2);
     if (verbosity_ > 1) {
-        std::auto_ptr<RooFitResult> res(minim.save());
+        std::unique_ptr<RooFitResult> res(minim.save());
         res->Print("V");
     }
     return nll_->getVal();
@@ -227,11 +227,14 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
         utils::setAllConstant(poiParams_,true);
     }
     double thisNLL = nullNLL;
+
+    // Check number of floating paramters 
+    int nfloatingpars = utils::countFloating(*(nll_->getParameters( (const RooArgSet*) 0)));
     if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
         // must do constrained fit (if there's something to fit besides XS)
         //std::cout << "PERFORMING CONSTRAINED FIT " << r->GetName() << " == " << r->getVal() << std::endl;
         if (do_debug) std::cout << "NLL shift from unconstrained fit before re-profiling: " << nll_->getVal() - nullNLL << std::endl;    
-        thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
+        thisNLL = (nfloatingpars > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
         if (thisNLL - nullNLL < -0.02) { 
             DBG(DBG_PLTestStat_main, (printf("  --> constrained fit is better... will repeat unconstrained fit\n")))
             utils::setAllConstant(poiParams_,false);
@@ -338,10 +341,12 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
         r->setVal(initialR); 
         r->setConstant(true);
         double thisNLL = nullNLL, sign = +1.0;
+    	int nfloatingpars = utils::countFloating(*(nll_->getParameters( (const RooArgSet*) 0)));
         if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
             // must do constrained fit (if there's something to fit besides XS)
             //std::cout << "PERFORMING CONSTRAINED FIT " << r->GetName() << " == " << r->getVal() << std::endl;
-            thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
+            thisNLL = (nfloatingpars > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
+            //thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
             if (thisNLL - nullNLL < 0 && thisNLL - nullNLL >= -EPS) {
                 thisNLL = nullNLL;
             } else if (thisNLL - nullNLL < 0) {
@@ -401,11 +406,11 @@ double ProfiledLikelihoodTestStatOpt::minNLL(bool constrained, RooRealVar *r)
 }
 
 //============================================================ProfiledLikelihoodRatioTestStatExt
-bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minim, int verbosity, bool zeroPoint) 
+bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosity, bool zeroPoint) 
 {
     static bool do_debug = (runtimedef::get("DEBUG_MINIM") || runtimedef::get("DEBUG_PLTSO") > 1);
     double initialNll = nll.getVal();
-    std::auto_ptr<RooArgSet> pars;
+    std::unique_ptr<RooArgSet> pars;
     bool ret = false;
     cacheutils::CachingSimNLL *simnll = (zeroPoint ?  dynamic_cast<cacheutils::CachingSimNLL *>(&nll) : 0);
     for (int tries = 0, maxtries = 4; tries <= maxtries; ++tries) {
@@ -414,7 +419,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minim, int verbo
         if (simnll) simnll->clearZeroPoint();
         //if (verbosity > 1) res->Print("V");
         if (status == 0 && nll.getVal() > initialNll + 0.02) {
-            std::auto_ptr<RooFitResult> res(minim.save());
+            std::unique_ptr<RooFitResult> res(minim.save());
             //PerfCounter::add("Minimizer.save() called for false minimum"); 
             DBG(DBG_PLTestStat_main, (printf("\n  --> false minimum, status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
             if (pars.get() == 0) pars.reset(nll.getParameters((const RooArgSet*)0));
@@ -455,9 +460,9 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minim, int verbo
             ret = true;
             break;
         } else if (tries != maxtries) {
-            std::auto_ptr<RooFitResult> res(do_debug ? minim.save() : 0);
+            std::unique_ptr<RooFitResult> res(do_debug ? minim.save() : 0);
             //PerfCounter::add("Minimizer.save() called for failed minimization"); 
-            if (tries > 0 && minim.edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) {
+            if (tries > 0 && res->edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) {
                 DBG(DBG_PLTestStat_main, (printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
                 if (do_debug) printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
                 COUNT_ONE("nllutils::robustMinimize: accepting fit with bad status but good EDM")
@@ -479,7 +484,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minim, int verbo
                 minim.setStrategy(2);
             }
         } else {
-            std::auto_ptr<RooFitResult> res(do_debug ? minim.save() : 0);
+            std::unique_ptr<RooFitResult> res(do_debug ? minim.save() : 0);
             DBG(DBG_PLTestStat_main, (printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
             if (do_debug) printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
             COUNT_ONE("nllutils::robustMinimize: final fail")

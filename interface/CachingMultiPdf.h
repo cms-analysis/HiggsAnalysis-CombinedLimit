@@ -1,10 +1,11 @@
 #ifndef CachingMultiPdf_h
 #define CachingMultiPdf_h
 
-#include "../interface/RooMultiPdf.h"
-#include "../interface/CachingNLL.h"
+#include "RooMultiPdf.h"
+#include "CachingNLL.h"
 #include <RooAbsData.h>
 #include <RooAddPdf.h>
+#include <RooProduct.h>
 #include <vector>
 
 namespace cacheutils {
@@ -15,6 +16,7 @@ namespace cacheutils {
             virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
             const RooAbsReal *pdf() const { return pdf_; }
             virtual void  setDataDirty() ;
+            virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         protected:
             const RooMultiPdf * pdf_;
             boost::ptr_vector<CachingPdfBase>  cachingPdfs_;
@@ -27,12 +29,29 @@ namespace cacheutils {
             virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
             const RooAbsReal *pdf() const { return pdf_; }
             virtual void  setDataDirty() ;
+            virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         protected:
             const RooAddPdf * pdf_;
             std::vector<const RooAbsReal *> coeffs_;
             boost::ptr_vector<CachingPdfBase>  cachingPdfs_;
             std::vector<Double_t> work_;
     };
+
+    class CachingProduct : public CachingPdfBase {
+        public:
+            CachingProduct(const RooProduct &pdf, const RooArgSet &obs) ;
+            ~CachingProduct() ;
+            virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
+            const RooAbsReal *pdf() const { return pdf_; }
+            virtual void  setDataDirty() ;
+            virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
+        protected:
+            const RooProduct * pdf_;
+            boost::ptr_vector<CachingPdfBase>  cachingPdfs_;
+            std::vector<Double_t> work_;
+    };
+
+
 
 } // namespace
 

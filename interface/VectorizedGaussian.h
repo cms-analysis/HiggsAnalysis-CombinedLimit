@@ -14,7 +14,7 @@ class VectorizedGaussian {
             const RooAbsReal & sigvar()  const { return sigma.arg(); }
     };
     public:
-        VectorizedGaussian(const RooGaussian &gaus, const RooAbsData &data) ;
+        VectorizedGaussian(const RooGaussian &gaus, const RooAbsData &data, bool includeZeroWeights=false) ;
         void fill(std::vector<Double_t> &out) const ;
     private:
         const RooRealVar * x_;

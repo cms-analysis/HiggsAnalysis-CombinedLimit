@@ -76,7 +76,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t 
 
 
 TH1Keys::TH1Keys(const TH1Keys &other)  :
-    TH1(other),
+    TH1(),
     min_(other.min_), max_(other.max_),
     x_(new RooRealVar("x", "x", min_, max_)),
     w_(new RooRealVar("w", "w", 1.0)),
@@ -89,6 +89,7 @@ TH1Keys::TH1Keys(const TH1Keys &other)  :
     cache_((TH1*)other.cache_->Clone()),
     isCacheGood_(other.isCacheGood_)
 {
+    other.Copy(*this);
     fDimension = 1;
     x_->setBinning(other.x_->getBinning());
 }
@@ -174,6 +175,6 @@ void TH1Keys::FillH1() const
 }
 
 void TH1Keys::dont(const char *msg) const {
-    TObject::Error("TH1Keys",msg);
+    TObject::Error("TH1Keys","%s",msg);
     throw std::runtime_error(std::string("Error in TH1Keys: ")+msg);
 }

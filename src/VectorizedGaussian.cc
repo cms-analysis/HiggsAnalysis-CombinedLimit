@@ -4,7 +4,7 @@
 #include <RooRealVar.h>
 #include <stdexcept>
 
-VectorizedGaussian::VectorizedGaussian(const RooGaussian &gaus, const RooAbsData &data)
+VectorizedGaussian::VectorizedGaussian(const RooGaussian &gaus, const RooAbsData &data, bool includeZeroWeights)
 {
     RooArgSet obs(*data.get());
     if (obs.getSize() != 1) throw std::invalid_argument("Multi-dimensional dataset?");
@@ -26,7 +26,7 @@ VectorizedGaussian::VectorizedGaussian(const RooGaussian &gaus, const RooAbsData
     xvals_.reserve(data.numEntries());
     for (unsigned int i = 0, n = data.numEntries(); i < n; ++i) {
         obs.assignValueOnly(*data.get(i), true);
-        if (data.weight()) xvals_.push_back(x->getVal());        
+        if (data.weight() || includeZeroWeights) xvals_.push_back(x->getVal());        
     }
     work_.resize(xvals_.size());
     work2_.resize(xvals_.size());
@@ -34,8 +34,10 @@ VectorizedGaussian::VectorizedGaussian(const RooGaussian &gaus, const RooAbsData
 
 void VectorizedGaussian::fill(std::vector<Double_t> &out) const {
     // calculate normalizatio integral
-    constexpr Double_t root2 = std::sqrt(2.) ;
-    constexpr Double_t rootPiBy2 = std::sqrt(M_PI/2.0);
+    // cannot use constexpr sqrt outside gcc:
+    // https://stackoverflow.com/questions/27744079/is-it-a-conforming-compiler-extension-to-treat-non-constexpr-standard-library-fu
+    constexpr double root2{1.4142135623730951455}; // std::sqrt(2.)
+    constexpr double rootPiBy2{1.2533141373155001208}; // std::sqrt(M_PI/2.0)
     Double_t xscale = root2*sigma_->getVal();
     Double_t mean = mean_->getVal();
     Double_t norm = rootPiBy2*sigma_->getVal()*(RooMath::erf((x_->getMax()-mean)/xscale)-RooMath::erf((x_->getMin()-mean)/xscale));

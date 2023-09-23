@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstdio>
-#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+//#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+#include <RooMinimizer.h>
 #include <TMath.h>
 #include <TFile.h>
 #include <TStopwatch.h>
@@ -31,7 +32,7 @@ RooWorkspace *w;
 double runSeqMin(RooAbsReal *nll, RooRealVar *poi, bool improve) {
     ProfileLikelihood::MinimizerSentry cfg("SeqMinimizer",ROOT::Math::MinimizerOptions::DefaultTolerance());
     std::cout << "Initial NLL is " << nll->getVal() << std::endl;
-    RooMinimizerOpt minim(*nll);
+    RooMinimizer minim(*nll);
     bool ret = nllutils::robustMinimize(*nll, minim, 0);
     std::cout << "Final NLL is " << nll->getVal() << std::endl;
     std::cout << "Result is " << (ret ? "OK" : "FAIL") << std::endl;
@@ -40,7 +41,7 @@ double runSeqMin(RooAbsReal *nll, RooRealVar *poi, bool improve) {
 
 double runRooMin(RooAbsReal *nll, RooRealVar *poi, bool improve) {
     std::cout << "Initial NLL is " << nll->getVal() << std::endl;
-    RooMinimizerOpt minim(*nll);
+    RooMinimizer minim(*nll);
     bool ret = nllutils::robustMinimize(*nll, minim, 0);
     std::cout << "Final NLL is " << nll->getVal() << std::endl;
     std::cout << "Result is " << (ret ? "OK" : "FAIL") << std::endl;

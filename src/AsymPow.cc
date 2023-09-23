@@ -11,15 +11,18 @@ AsymPow::AsymPow(const char *name, const char *title, RooAbsReal &kappaLow, RooA
         theta_("theta", "Exponent (unit gaussian)", this, theta) 
         { }
 
+AsymPow::AsymPow(const AsymPow &other, const char *newname) :
+    RooAbsReal(other, newname),
+    kappaLow_("kappaLow",this,other.kappaLow_),
+    kappaHigh_("kappaHigh",this,other.kappaHigh_),
+    theta_("theta",this,other.theta_)
+    { }
+
 AsymPow::~AsymPow() {}
 
 TObject *AsymPow::clone(const char *newname) const 
 {
-    // never understood if RooFit actually cares of const-correctness or not.
-    return new AsymPow(newname, this->GetTitle(), 
-                const_cast<RooAbsReal &>(kappaLow_.arg()), 
-                const_cast<RooAbsReal &>(kappaHigh_.arg()),
-                const_cast<RooAbsReal &>(theta_.arg()));
+    return new AsymPow(*this,newname);
 }
 
 Double_t AsymPow::evaluate() const {

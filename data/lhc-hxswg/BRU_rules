@@ -1,0 +1,68 @@
+=================================
+# grand combination has processes  
+# non-ttH htt:   qqH_hww ggH_hww  WH_hww WH_htt  ZH_hww ZH_htt 
+# non-ttH hww3l:  WH_htt WH_hww 
+# ttH(bbttww):   ttH_[cc,bb,tt,gg,gluglu,ww,zz,zg]      
+# keep also in mind processes like ggH_SM in two state searches
+
+# first drop old BR unc implementation from individual analyses
+nuisance edit drop * * BRhiggs_hbb
+nuisance edit drop * * BRhiggs_htt
+nuisance edit drop * * BRhiggs_hvv
+nuisance edit drop * * BRhiggs_hzz4l
+nuisance edit drop * * CMS_hgg_BR
+
+# adding nuisances according to
+# https://indico.cern.ch/event/317643/contribution/0/material/0/0.pdf#page=6
+
+# Lines come in pairs:
+# - first line takes care of all signal names we know only in cards for given decays
+# - second line takes care of special signal names that involve the decay and does it in all cards
+
+#param_alphaS
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$	h(ww|zz|gg|tt|zg|mm) 		param_alphaS lnN 1.012  
+nuisance edit add h(tt|ww|zz|zg|gg|mm)	 			*			param_alphaS lnN 1.012  
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$	hbb 				param_alphaS lnN 0.989 
+nuisance edit add hbb 	 							*	param_alphaS lnN 0.989
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$	hcc 				param_alphaS lnN 0.942 
+nuisance edit add hcc 								*	param_alphaS lnN 0.942
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$	hgluglu  			param_alphaS lnN 1.055 
+nuisance edit add hgluglu							*	param_alphaS lnN 1.055
+
+#param_mB
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$	h(ww|zz|gg|tt|zg|mm|cc|gluglu)	param_mB lnN 0.981 
+nuisance edit add h(ww|zz|gg|tt|zg|mm|cc|gluglu)	*				param_mB lnN 0.981
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$	hbb 				param_mB lnN 1.014
+nuisance edit add hbb								*	param_mB lnN 1.014
+
+#param_mC
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$	hcc 	param_mC lnN 1.062
+nuisance edit add hcc 								* 	param_mC lnN 1.062
+
+#param_mt
+
+#HiggsDecayWidthTHU_hqq
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$ h(ww|zz|gg|tt|zg|mm|gluglu) 	HiggsDecayWidthTHU_hqq lnN 0.988 
+nuisance edit add h(ww|zz|gg|tt|zg|mm|gluglu) 	*				HiggsDecayWidthTHU_hqq lnN 0.988
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)$ 	h(bb|cc)			HiggsDecayWidthTHU_hqq lnN 1.008 
+nuisance edit add h(bb|cc) 						*	HiggsDecayWidthTHU_hqq lnN 1.008
+
+#HiggsDecayWidthTHU_hvv
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$ h(ww|zz)			HiggsDecayWidthTHU_hvv lnN 1.004 
+nuisance edit add h(ww|zz)						*	HiggsDecayWidthTHU_hvv lnN 1.004
+
+#HiggsDecayWidthTHU_hll
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$ h(tt|mm)			HiggsDecayWidthTHU_hll lnN 1.019 
+nuisance edit add h(tt|mm)						*	HiggsDecayWidthTHU_hll lnN 1.019
+
+#HiggsDecayWidthTHU_hgg
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$ hgg 				HiggsDecayWidthTHU_hgg lnN 1.010
+nuisance edit add hgg							*	HiggsDecayWidthTHU_hgg lnN 1.010
+
+#HiggsDecayWidthTHU_hzg
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$ hzg 				HiggsDecayWidthTHU_hzg lnN 1.051 
+nuisance edit add hzg							*	HiggsDecayWidthTHU_hzg lnN 1.051
+
+#HiggsDecayWidthTHU_hgluglu
+nuisance edit add ^((W|qq|tt|Z|V|gg)H|VBF)(|_SM)$ hgluglu 			HiggsDecayWidthTHU_hgluglu lnN 1.028 
+nuisance edit add hgluglu						*	HiggsDecayWidthTHU_hgluglu lnN 1.028 

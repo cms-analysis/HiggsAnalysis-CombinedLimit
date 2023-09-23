@@ -24,6 +24,8 @@ class AsymPow : public RooAbsReal {
    public:
       AsymPow() {}
       AsymPow(const char *name, const char *title, RooAbsReal &kappaLow, RooAbsReal &kappaHigh, RooAbsReal &theta) ;
+      AsymPow(const AsymPow &other, const char *newname=0) ;
+
       ~AsymPow() ;
 
       TObject * clone(const char *newname) const ;

@@ -28,6 +28,8 @@ public:
   const RooArgList& funcList() const { return _funcList ; }
   const RooArgList& coefList() const { return _coefList ; }
 
+  void setFloorVals(Double_t const& pdf_val, Double_t const& integral_val);
+
 protected:
   
   class CacheElem : public RooAbsCacheElement {
@@ -47,11 +49,15 @@ protected:
   TIterator* _funcIter ;     //! Iterator over FUNC list
   TIterator* _coefIter ;    //! Iterator over coefficient list
 
+  Double_t _pdfFloorVal; // PDF floor should be customizable, default is 1e-15
+  Double_t _integralFloorVal; // PDF integral floor should be customizable, default is 1e-10
+
   Double_t interpolate(Double_t coeff, Double_t central, RooAbsReal *fUp, RooAbsReal *fDown) const ; 
 
-private:
+  bool isConditionalProdPdf(RooAbsReal *pdf) const;
+  RooAbsReal* makeConditionalProdPdfIntegral(RooAbsPdf* pdf, RooArgSet const& analVars) const;
 
-  ClassDef(VerticalInterpPdf,2) // PDF constructed from a sum of (non-pdf) functions
+  ClassDef(VerticalInterpPdf,3) // PDF constructed from a sum of (non-pdf) functions
 };
 
 #endif

@@ -1,0 +1,23 @@
+Control Region Datacard (Singlemuon) -- htsearch category
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+--------------------------------------------------------
+
+shapes data_obs  htsearch   shapes-TH1.root CR_smu_data
+shapes wjets     htsearch   shapes-TH1.root CR_smu_wjets
+
+--------------------------------------------------------
+bin 	     htsearch
+observation  -1 
+--------------------------------------------------------
+bin          		 htsearch    
+process      		 wjets       
+process      		 1           
+rate        		-1           
+--------------------------------------------------------
+muonEfficiency    lnN    1.10
+--------------------------------------------------------
+w_norm rateParam  htsearch wjets 1 

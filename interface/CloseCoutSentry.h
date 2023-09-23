@@ -13,13 +13,15 @@ class CloseCoutSentry {
         // break through any sentry, even the ones above myself (for critical error messages, or debug)
         static void breakFree() ;
         FILE *trueStdOut();
+        static FILE *trueStdOutGlobal();
     private:
         bool silent_;
-        static int fdOut_, fdErr_;
+        static int fdOut_, fdErr_, fdTmp_, fdOutDup_;
         static bool open_;
         // always clear, even if I was not the one closing it
         void static reallyClear() ;
         static FILE *trueStdOut_; 
+        static CloseCoutSentry *owner_;
         bool stdOutIsMine_;
 };
 
