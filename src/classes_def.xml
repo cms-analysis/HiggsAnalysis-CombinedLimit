@@ -221,4 +221,7 @@
   <class name="CMSHggFormulaD1" />
   <class name="CMSHggFormulaD2" />
   <class name="SimpleProdPdf" />
+  <class name="HZZ4L_RooHighmass" />
+  <class name="HZZ4L_RooHighmass_WoInt" />
+
 </lcgdict>

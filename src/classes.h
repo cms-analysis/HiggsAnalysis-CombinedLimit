@@ -66,3 +66,8 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleProdPdf.h"
+
+#include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooHighmass.h"
+#include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooHighmass_WoInt.h"
+
+
