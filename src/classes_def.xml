@@ -222,5 +222,11 @@
   <class name="CMSHggFormulaD1" />
   <class name="CMSHggFormulaD2" />
   <class name="SimpleProdPdf" />
+<<<<<<< HEAD
   <class name="RooEFTScalingFunction" />
+=======
+  <class name="HZZ4L_RooHighmass" />
+  <class name="HZZ4L_RooHighmass_WoInt" />
+
+>>>>>>> master
 </lcgdict>
