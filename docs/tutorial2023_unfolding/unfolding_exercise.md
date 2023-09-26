@@ -34,23 +34,19 @@ cd combine-unfolding-tutorial-2023
 
 The hands-on exercise is split into eight parts: 
 
-1) Counting experiment (multi-signal signal model)
+1) Counting experiment
 
-2) Signal Fractions
+2) Migration matrix from the datacards
 
-3) Shape analysis (SRs only)
+3) Shape analysis with control regions
 
-4) Adding CRs and systematic uncertainties
+4) Extract the expected intervals for POIs measurements 
 
-5) Extract the expected intervals for POIs measurements (likelihood scans for each POI)
+5) Impacts 
 
-6) Impacts for each POI
-
-5) Unblind the measurements (likelihood scans for each POI)
-
+6) Unfold to the gen-level quantities (freeze the TH NPs, scan, multiply predicted cross-sections)
+   
 7) Extract POIs correlations from FitDiagnostics
-
-8) Unfold to the gen-level quantities (freeze the TH NPs, scan, multiply predicted cross-sections)
 
  > Throughout the tutorial there are a number of questions and exercises for you to complete. These are shown in the boxes like this one. 
 
@@ -72,7 +68,7 @@ In this tutorial we will focus on the ZH production, with Z boson decaying to ch
 
 When constructing the reco-level for any differential analysis the main goal is to match the gen-level bins as closely as possible. In the simplest case it can be done with the cut-based approach, i.e. applying the selection on the corresponding reco-level variables: $p_{T}(Z)$ and $n_{\text{add. jets}}$. Due to the good lepton $p_{T}$ resolution we can follow the original STXS scheme quite closely with the reco-level selection, with one exception, it is not possible to access the very-low transverse momenta bin $p_{T}(Z)<75$ GeV.  
 
-In `counting/` dicrectory you can find the datacards with for five reco-level categories, each targetting a corresponding gen-level bin. Below you can find an example of the datacard for reco-level bin >400 GeV, 
+In `counting/regions` dicrectory you can find the datacards with for five reco-level categories, each targetting a corresponding gen-level bin. Below you can find an example of the datacard for reco-level bin with $p_{T}(Z)$>400 GeV, 
 
 ```
 imax    1 number of bins
@@ -91,7 +87,7 @@ rate                                  0.0907733              0.668303           
 
 ```
 
-where you can see the contributions from various backgground processes, namely Z+jets, $t\bar{t}$ and the single top, as well as signal processes corresponding to the STXS scheme discussed above. 
+where you can see the contributions from various background processes, namely Z+jets, $t\bar{t}$ and the single top, as well as signal processes corresponding to the STXS scheme discussed above. 
 
 One of the most important stages in the analysis design, is to make sure that the reco-level categories are pure with the corresponding gen-level processes.
 
