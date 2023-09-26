@@ -209,11 +209,9 @@ Now we can combine the results into the `.json` format and use it to produce the
 combineTool.py -M Impacts -d ws_full.root -m 125 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --output impacts.json 
 
 plotImpacts.py -i impacts.json -o impacts_r_zh_75_150 --POI r_zh_75_150
+```
 
 ![](figures/impacts.png)
-
-``` 
-
 > Do you observe differences in impacts plots for different POIs, do these differences make sense to you? 
 
 
