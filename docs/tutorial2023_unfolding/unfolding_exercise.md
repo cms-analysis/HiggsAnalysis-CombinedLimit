@@ -229,15 +229,19 @@ Also since we want to unfold the measurements to the gen-level observables, i.e.
 Plot the scans and collect the measurements in the json file `summary_zh_stxs.json`. 
 
 ```shell
-python scripts/plot1DScan.py scan_r_zh_gt400.root -o r_zh_gt400 --POI r_zh_gt400 --json summary_zh_stxs.json  
+python scripts/plot1DScan.py scan_r_zh_75_150.root -o r_zh_75_150 --POI r_zh_75_150 --json summary_zh_stxs.json  
 ``` 
+
+![](figures/r_zh_75_150.png)
+
 And finally make the cross section plot
 
 ```
 python scripts/make_XSplot.py summary_zh_stxs.json
 
 ```
-![](figures/r_zh_75_150.png)
+![](figures/stxs_zh.png)
+
 ## POIs correlations
 
 In addition to the cross-section measurements it is very important to publish correlation matrix of measured cross sections.  
