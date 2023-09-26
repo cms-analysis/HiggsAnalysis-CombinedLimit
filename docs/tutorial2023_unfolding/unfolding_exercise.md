@@ -97,7 +97,7 @@ One of the most important stages in the analysis design, is to make sure that th
 
 To explicitly check it, one can plot the contributions of gen-level bins in all of the reco-level bins. We propose to use the script provided in the tutorial git-lab page. 
 
-```python
+```shell
 python scripts/get_migration_matrix.py counting/combined_ratesOnly.txt
 
 ```
@@ -163,7 +163,6 @@ text2workspace.py -m 125  full_model_datacards/comb_full_model.txt -P HiggsAnaly
 Since this time the datacards include shape uncertainties as well as additional categories to improve the background description the fit might take much longer, but we can submit condor jobs and have results ready to look at in a few minutes. 
 ```shell 
 combineTool.py -M MultiDimFit -d ws_full.root --setParameters r_zh_250_400=1,r_zh_150_250noj=1,r_zh_75_150=1,r_zh_150_250wj=1,r_zh_gt400=1 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400  -t -1 --X-rtd FAST_VERTICAL_MORPH --algo=grid --points=50 --floatOtherPOIs=1 -n .scans_blinded --job-mode condor --task-name scans_zh  --split-points 1 --generate P:n::r_zh_gt400,r_zh_gt400:r_zh_250_400,r_zh_250_400:r_zh_150_250wj,r_zh_150_250wj:r_zh_150_250noj,r_zh_150_250noj:r_zh_75_150,r_zh_75_150
-
 ```
 The job submission is handled by the `CombineHarvester`, the combination of options `--job-mode condor --task-name scans_zh  --split-points 1 --generate P:n::r_zh_gt400,r_zh_gt400:r_zh_250_400,r_zh_250_400:r_zh_150_250wj,r_zh_150_250wj:r_zh_150_250noj,r_zh_150_250noj:r_zh_75_150,r_zh_75_150` will submit the jobs to HTCondor for POI. 
 You can add `--dry-run` option to create the submissions files first and check them, and then submit the jobs with `condor_submit condor_scans_zh.sub`. 
@@ -199,7 +198,6 @@ After the initial fit is completed we can perform the likelihood scans for each 
 
 ```shell
 combineTool.py -M Impacts -d ws_full.root -m 125 --robustFit 1 --doFits --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --job-mode condor --task-name impacts_zh 
-
 ```
 We will submit the jobs to the HTCondor to speed up the process.
 
@@ -232,11 +230,10 @@ python scripts/plot1DScan.py scan_r_zh_75_150.root -o r_zh_75_150 --POI r_zh_75_
 
 ![](figures/r_zh_75_150.png)
 
-And finally make the cross section plot
+Repeat the same command for other POIs to fill the `summary_zh_stxs.json`, which can then be used to create the cross section plot as shown below. 
 
-```
+```shell
 python scripts/make_XSplot.py summary_zh_stxs.json
-
 ```
 ![](figures/stxs_zh.png)
 
