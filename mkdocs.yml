@@ -23,6 +23,7 @@ nav:
           - "Exercise: main features":    part5/longexercise.md
           - "Solutions to long exercise": part5/longexerciseanswers.md
           - "Exercise: parametric fit":   tutorial2023/parametric_exercise.md
+          - "Exercise: unfolding in combine":   tutorial2023_unfolding/unfolding_exercise.md
 
 theme:
         name: cinder
