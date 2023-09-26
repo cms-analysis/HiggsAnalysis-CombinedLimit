@@ -64,7 +64,7 @@ In this tutorial we will look at the cross section measurements of on of the SM 
 
 The measurement is performed within Simplified Template Cross Section framework, which provides the prediction in the bins of gen-level quantities $p_{T}(V)$ and number of additional jets. The maximum likelihood based unfolding is performed to measure the cross section in the gen-level bins defined by STXS scheme. At the reco level we defined appropriate categories to match the STXS bins as close as possible. 
 
-![](figues/simplifiedXS_VH_1_2.pdf) 
+![](figues/simplifiedXS_VH_1_2.png) 
 
 In this tutorial we will focus on the ZH production, with Z boson decaying to charged leptons, and Higgs boson reconstructed with the resolved $b\bar{b}$ pair. We will also use only a part of the Run 2 categories, so the analysis sensitivity is not going to be achieved. Note that ggZH and ZH production modes are combined in the fit, since it is not possible to resolve them at this stage of the analysis. The STXS categories are defined independently of the Higgs decay channel, to streamline the combinations of the cross section measurement. 
 
@@ -98,17 +98,15 @@ One of the most important stages in the analysis design, is to make sure that th
 To explicitly check it, one can plot the contributions of gen-level bins in all of the reco-level bins. We propose to use the script provided in the tutorial git-lab page. 
 
 ```python
-python scripts/get_migration_matrix.py combined_ratesOnly.txt
+python scripts/get_migration_matrix.py counting/combined_ratesOnly.txt
 
 ```
-![](figures/migration_matrix_zh.pdf) 
-
-> How would you interpret the results? Which gen-level bins would you expect to come out more correlated in the measurement? (add a meaningful question)
+![](figures/migration_matrix_zh.png) 
 
 Now that we checked the response matrix we can attempt the maximum likelihood unfolding. We can use the `multiSignalModel` physics model available in `Combine`. To prepare the workspace we can run the following command: 
 
 ```shell
-text2workspace.py -m 125  counting/ -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' -o ws_counting.root
+text2workspace.py -m 125  counting/* -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' -o ws_counting.root
 ```
 where we use `--PO 'map=bin/process:poi[init, min, max]'`. So in the example above a signal POI is assigned to each gen-level bin independent on reco-level bin. This allows to take into account the non-trivial acceptance effects. One can also perform bin-by-bin unfolding using the mapping to the bin names rather that processes, e.g. `'map= vhbb_Zmm_gt400_13TeV/.*:r_reco_zh_gt400[1,-5,5]'`, but this method is not recommended and can be used for tests.
 
@@ -157,7 +155,7 @@ When we unfold to the gen-level observable we should remove the nuisances affect
 Now we can create the workspace using the same `multiSignalmodel` 
 
 ```shell
-text2workspace.py -m 125  full_model_datacards/comb_full_model.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' --for-fits --no-wrappers --X-pack-asympows --optimize-simpdf-constraints=cms --use-histsum -o ws_full.root
+text2workspace.py -m 125  full_model_datacards/comb_full_model.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' --for-fits --no-wrappers --X-pack-asympows --optimize-si.png-constraints=cms --use-histsum -o ws_full.root
 ```
 
 > Following the instructions given earlier, create the workspace and run the initial fit with `-t -1` and set the name `-n .BestFit`. 
@@ -184,7 +182,7 @@ And finally plot the likelihood scans
 ```shell
 python scripts/plot1DScan.py scan_r_zh_75_150_blinded.root  -o scan_r_zh_75_150_blinded --POI r_zh_75_150 --json summary_zh_stxs_blinded.json
 ```
-![](figures/scan_r_zh_75_150_blinded.pdf)
+![](figures/scan_r_zh_75_150_blinded.png)
 Feel free to remove all of the `.err`, `.out` and `.root` files after they are successfully combined.
 
 ## Impacts
@@ -210,7 +208,9 @@ Now we can combine the results into the `.json` format and use it to produce the
 ```shell
 combineTool.py -M Impacts -d ws_full.root -m 125 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --output impacts.json 
 
-plotImpacts.py -i impacts.json -o impacts_r_zh_gt400 --POI r_zh_gt400
+plotImpacts.py -i impacts.json -o impacts_r_zh_75_150 --POI r_zh_75_150
+
+![](figures/impacts.png)
 
 ``` 
 
@@ -237,7 +237,7 @@ And finally make the cross section plot
 python scripts/make_XSplot.py summary_zh_stxs.json
 
 ```
-![](figures/r_zh_75_150.pdf)
+![](figures/r_zh_75_150.png)
 ## POIs correlations
 
 In addition to the cross-section measurements it is very important to publish correlation matrix of measured cross sections.  
@@ -254,4 +254,4 @@ Then the `RooFitResult`, containing correlations matrix, can be found in the `fi
 python scripts/plotCorrelations_pois.py -i fitDiagnostics.full_model.root:fit_s -p r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400
 
 ```
-![](figures/correlationMatrix_pois.pdf)
+![](figures/correlationMatrix_pois.png)
