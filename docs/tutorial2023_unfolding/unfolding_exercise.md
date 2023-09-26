@@ -50,7 +50,7 @@ The hands-on exercise is split into seven parts:
 
  > Throughout the tutorial there are a number of questions and exercises for you to complete. These are shown in the boxes like this one. 
 
-Note that the general recomendation on unfolding in `Combine` are available [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/regularisation/), which also includes recommendations on regularisation techniques and when to use it, which is completely is not discussed in this tutorial at all. 
+Note that the general recomendation on unfolding in `Combine` are available [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/regularisation/), which also includes recommendations on regularisation techniques and when to use it, which is not discussed in this tutorial at all. 
   
 ## Analysis overview
 
@@ -102,7 +102,7 @@ Now that we checked the response matrix we can attempt the maximum likelihood un
 ```shell
 text2workspace.py -m 125  counting/combined_ratesOnly.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' -o ws_counting.root
 ```
-In the example given above a signal POI is assigned to each gen-level bin independent on reco-level bin. This allows to take into account the non-trivial acceptance effects. One can also perform bin-by-bin unfolding using the mapping to the bin names rather that processes, e.g. `'map= vhbb_Zmm_gt400_13TeV/.*:r_reco_zh_gt400[1,-5,5]'`, but this method is not recommended and can be used only for tests as another way to ensure that the migration matrix is close to diagonal. 
+In the example given above a signal POI is assigned to each gen-level bin independent on reco-level bin. This allows to take into account the non-trivial to take into account migration. One can also perform bin-by-bin unfolding using the mapping to the bin names rather that processes, e.g. `'map= vhbb_Zmm_gt400_13TeV/.*:r_reco_zh_gt400[1,-5,5]'`, but this method is not recommended and can be used only for tests as another way to ensure that the migration matrix is close to diagonal. 
 
 To extract the measurement let's run the initial fit first using the `MultiDimFit` implemented in `Combine` to extract the best-fit values and uncertainties on all floating parameters:  
 
@@ -139,13 +139,11 @@ For the shape datacards one has to specify the mapping of histograms and channel
 ```
 shapes [process] [channel] [file] [nominal] [systematics_templates]
 ```
-Then the `shape` nuisance parameters can be defined in the systematics block in the datacard. 
+Then the `shape` nuisance parameters can be defined in the systematics block in the datacard. More details can be found in `Combine` [documentation pages](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/settinguptheanalysis/#binned-shape-analysis).
 
 In the realistic CMS analysis there are hundreds of nuisance parameters corresponding to various source of systematics. 
 
-When we unfold to the gen-level observable we should remove the nuisances affecting the rate of the gen-level bins, i.e. the `lnN` NPs: `THU_ZH_mig*, THU_ZH_inc` and keep only the acceptance `shape` uncertainties: `THU_ZH_acc` and `THU_ggZH_acc`, which do not scale the inclusive cross sections by construction. 
-This can be achieved by freezing the respective nuisance parameters with the option `--freezeParameters par_name1,par_name2`. Alternatively you can create a group following the syntax given below at the end of the combined datacard, and freeze the parameters with the `--freezeNuisanceGroups group_name` option.
-
+When we unfold to the gen-level observable we should remove the nuisances affecting the rate of the gen-level bins, i.e. the `lnN` NPs: `THU_ZH_mig*, THU_ZH_inc` and keep only the acceptance `shape` uncertainties: `THU_ZH_acc` and `THU_ggZH_acc`, which do not scale the inclusive cross sections by construction. In this analysis the normalisation effects in the `THU_ZH_acc` and `THU_ggZH_acc` templates were removed. This can be achieved by freezing the respective nuisance parameters with the option `--freezeParameters par_name1,par_name2`. Alternatively you can create a group following the syntax given below at the end of the combined datacard, and freeze the parameters with the `--freezeNuisanceGroups group_name` option.
 
 ```
 [group_name] group = uncertainty_1 uncertainty_2 ... uncertainty_N
