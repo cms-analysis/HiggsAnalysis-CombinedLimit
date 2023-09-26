@@ -229,12 +229,12 @@ python scripts/plot1DScan.py scan_r_zh_75_150.root -o r_zh_75_150 --POI r_zh_75_
 
 ![](figures/scan_plot_r_zh_75_150.png)
 
-Repeat the same command for other POIs to fill the `summary_zh_stxs.json`, which can then be used to create the cross section plot as shown below. 
+Repeat the same command for other POIs to fill the `summary_zh_stxs.json`, which can then be used to make the cross section plot by multiplying the standard model cross sections by the signal strengths' best-fit values as shown below. 
 
 ```shell
 python scripts/make_XSplot.py summary_zh_stxs.json
 ```
-![](figures/stxs_zh.png)
+![](figures/stxs_zh.png) 
 
 ## POIs correlations
 
