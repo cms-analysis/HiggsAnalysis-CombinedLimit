@@ -26,8 +26,8 @@ cmsenv
 Finally, let's clone the working directory for this tutorial which contains all of the inputs and scripts needed to run the unfolding fitting exercise:
 ```shell
 cd $CMSSW_BASE/src/
-git clone https://gitlab.cern.ch/cms-analysis/combinetutorial_unfolding_2023.git
-cd combinetutorial_2023_unfolding
+git clone https://gitlab.cern.ch/cms-analysis/general/combine-unfolding-tutorial-2023.git
+cd combine-unfolding-tutorial-2023
 ```
 
 ## Exercise outline
