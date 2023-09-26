@@ -182,7 +182,6 @@ And finally plot the likelihood scans
 python scripts/plot1DScan.py scan_r_zh_75_150_blinded.root  -o scan_r_zh_75_150_blinded --POI r_zh_75_150 --json summary_zh_stxs_blinded.json
 ```
 ![](figures/scan_r_zh_75_150_blinded.png)
-Feel free to remove all of the `.err`, `.out` and `.root` files after they are successfully combined.
 
 ## Impacts
 
