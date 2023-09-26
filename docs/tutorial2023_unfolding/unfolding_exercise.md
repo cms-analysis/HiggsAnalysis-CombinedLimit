@@ -64,7 +64,7 @@ In this tutorial we will look at the cross section measurements of on of the SM 
 
 The measurement is performed within Simplified Template Cross Section framework, which provides the prediction in the bins of gen-level quantities $p_{T}(V)$ and number of additional jets. The maximum likelihood based unfolding is performed to measure the cross section in the gen-level bins defined by STXS scheme. At the reco level we defined appropriate categories to match the STXS bins as close as possible. 
 
-![](figues/simplifiedXS_VH_1_2.png) 
+![](figures/simplifiedXS_VH_1_2.png) 
 
 In this tutorial we will focus on the ZH production, with Z boson decaying to charged leptons, and Higgs boson reconstructed with the resolved $b\bar{b}$ pair. We will also use only a part of the Run 2 categories, so the analysis sensitivity is not going to be achieved. Note that ggZH and ZH production modes are combined in the fit, since it is not possible to resolve them at this stage of the analysis. The STXS categories are defined independently of the Higgs decay channel, to streamline the combinations of the cross section measurement. 
 
