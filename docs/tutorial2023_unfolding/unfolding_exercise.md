@@ -67,7 +67,7 @@ In this tutorial we will focus on the ZH production, with Z boson decaying to ch
 When constructing the reco-level for any differential analysis the main goal is to match the gen-level bins as closely as possible. In the simplest case it can be done with the cut-based approach, i.e. applying the selection on the corresponding reco-level variables: $p_{T}(Z)$ and $n_{\text{add. jets}}$. 
 Due to the good lepton $p_{T}$ resolution we can follow the original STXS scheme quite closely with the reco-level selection, with one exception, it is not possible to access the very-low transverse momenta bin $p_{T}(Z)<75$ GeV.  
 
-In `counting/regions` dicrectory you can find the datacards with five reco-level categories, each targetting a corresponding gen-level bin. Below you can find an example of the datacard for reco-level bin with $p_{T}(Z)$>400 GeV, 
+In `counting/regions` dicrectory you can find the datacards with five reco-level categories, each targetting a corresponding gen-level bin. Below you can find an example of the datacard for reco-level bin with $p_{T}(Z)>400$ GeV, 
 
 ```
 imax    1 number of bins
@@ -156,7 +156,7 @@ text2workspace.py -m 125  full_model_datacards/comb_full_model.txt -P HiggsAnaly
 ```
 > As you might have noticed we are using a few extra versions `--for-fits --no-wrappers --X-pack-asympows --optimize-simpdf-constraints=cms --use-histsum` to create a workspace. They are needed to construct a more optimised pdf using the `CMSHistSum` class implemented in Combine to significantly lower the memory consumption.
  
-* Following the instructions given earlier, create the workspace and run the initial fit with `-t -1` and set the name `-n .BestFit`. 
+* Following the instructions given earlier, create the workspace and run the initial fit with `-t -1`. 
 
 Since this time the datacards include shape uncertainties as well as additional categories to improve the background description the fit might take much longer, but we can submit condor jobs and have results ready to look at in a few minutes. 
 
@@ -189,7 +189,7 @@ python scripts/plot1DScan.py scan_r_zh_75_150_blinded.root  -o scan_r_zh_75_150_
 One of the important tests before we move to the unblinding stage is to check the impacts of nuisance parameters on each POI. For this we can run the `combineTool.py` with `-M Impacts` method. We start with the initial fit, which should take ~20 minutes (good time to have a coffee break!):
  
 ```shell
-combineTool.py -M Impacts -d ws_full.root -m 125 --robustFit 1 --doInitialFit --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400
+combineTool.py -M Impacts -d ws_full.root -m 125 --robustFit 1 --doInitialFit --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --X-rtd FAST_VERTICAL_MORPH
 ```
 
 > Note that it is important to add the option `--redefineSignalPOIs [list of parameters]`, to produce the impacts for all POIs we defined when the workspace was created with the `multiSignalModel`.
@@ -197,7 +197,7 @@ combineTool.py -M Impacts -d ws_full.root -m 125 --robustFit 1 --doInitialFit --
 After the initial fit is completed we can perform the likelihood scans for each nuisance parameter as shown below
 
 ```shell
-combineTool.py -M Impacts -d ws_full.root -m 125 --robustFit 1 --doFits --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --job-mode condor --task-name impacts_zh 
+combineTool.py -M Impacts -d ws_full.root -m 125 --robustFit 1 --doFits --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --job-mode condor --task-name impacts_zh --X-rtd FAST_VERTICAL_MORPH 
 ```
 We will submit the jobs to the HTCondor to speed up the process.
 
