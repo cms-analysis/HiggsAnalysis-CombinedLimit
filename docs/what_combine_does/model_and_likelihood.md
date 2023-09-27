@@ -165,10 +165,8 @@ $$N = \prod_X \prod_i f_X(\vec{\theta}_{X}^{i})\mathrm{,}$$
 
 multiplying together the morphings from each of the individual nuisance parameters from each of the nuisance types.
 
-<details>  
-<summary><b>Show Normalization Parameterization Details</b></summary> 
+/// details | **Show Normalization Parameterization Details**
 
-### Details of Normalization Parameterization
 
 The full functional form of the normalization term is given by:
 
@@ -176,10 +174,10 @@ $$ N_{cp} = N_{\mathrm{0}}(\theta_{G})\prod_{n} {\kappa_{n}}^{\theta_{L,n}}\prod
 
 where:
 
-- $N_{\mathrm{0}}(\theta_{G})$, in which each process normalization is optionally adjusted by a single gamma uncertainty, in terms of the number of externally observed events $\tilde{\theta}_{G}$, where $N_\mathrm{0}$ is $\theta_{G} / \tilde{\theta}_{G}$ if the uncertainty is applied, and unity otherwise;
-- $\kappa_{n}^{\theta_{L,n}}$, the log-normal uncertainties specified by a fixed value $\kappa$;
-- $\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})$: the asymmetric log-normal uncertainties, in which the value of $\kappa^{\mathrm{A}}$ depends on the nuisance parameter and two fixed values $\kappa^{+}_{a}$ and $\kappa^{-}_{a}$. The functions, $\kappa^A$, defines a smooth interpolation for the asymmetric uncertainty, which would otherwise not be smooth.
-- $F_{r}(\rho)$, which are arbitrary user-defined functions of the unconstrained nuisance parameters
+- $N_{\mathrm{0}}(\theta_{G}) \equiv \frac{\theta_{G}}{\tilde{\theta}_{G}}$, is the normalization effect of a gamma uncertainty. $\tilde{\theta}_{G}$ is taken as the observed number of events in some external control region and $\theta_{G} has a constraint pdf $\mathrm{Poiss}(\theta; \tilde{\theta}})
+- $\kappa_{n}^{\theta_{L,n}}$, are log-normal uncertainties specified by a fixed value $\kappa$;
+- $\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})$ are asymmetric log-normal uncertainties, in which the value of $\kappa^{\mathrm{A}}$ depends on the nuisance parameter and two fixed values $\kappa^{+}_{a}$ and $\kappa^{-}_{a}$. The functions, $\kappa^A$, define a smooth interpolation for the asymmetric uncertainty; and
+- $F_{r}(\vec{\theta}_\rho)$ are arbitrary user-defined functions of the user defined nuisance parameters which may have uniform or gaussian constraint terms.
 
 The function for the asymmetric normalization modifier, $\kappa^A$ is 
 
@@ -201,7 +199,7 @@ $$
 
 where $y_{b}^{s,\pm}$ is the bin yield as defined by the two shifted values  $\theta_{S} = \theta_{S}^{\pm}$, and $y_{b}^{0}$ is the bin yield when $\theta_{S} = \tilde{\theta}_{S}$.
 
-</details>
+///
 
 ##### Shape Morhping Systematics
 
@@ -209,10 +207,8 @@ The number of events in a given bin $b$, $y_{cbp}$, is a function of the shape p
 The shape interpolation works with the fractional yields in each bin, where the interpolation can be performed either directly on the fractional yield, or on the logarithm of the fraction yield, which is then exponentiated again.
 
 
-<details>
-<summary><b>Show shape parameterization Details</b></summary>
+/// details | **Show shape parameterization Details**
 
-### Details of Shape Parameterization
 
 In the following, the channel and process labels $c$ and $p$ apply to every term, and so are omitted.
 
@@ -247,7 +243,7 @@ $$
 
 where $\theta^{'} = \theta\epsilon$, $\bar{\theta} = \theta^{'} / q$, and the label $s$ has been omitted. This function ensures the yield and its first and second derivatives are continuous for all values of $\theta$.
 
-</details>
+///
 
 ##### Statistical Uncertainties in the Simulation used to build the Model
 
