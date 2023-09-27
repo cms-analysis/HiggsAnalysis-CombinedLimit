@@ -1,7 +1,7 @@
 # Combine unfolding exercise
 
 ## Getting started
-By now you should have a working setup of Combine v9 from the pre-tutorial exercise. If so then move onto the cloning of the parametric fitting exercise gitlab repo below. If not then you need to set up a CMSSW area and checkout the combine package:
+
 ```shell
 cmsrel CMSSW_11_3_4
 cd CMSSW_11_3_4/src
@@ -54,17 +54,21 @@ Note that the general recomendation on unfolding in `Combine` are available [her
   
 ## Analysis overview
 
+In the first part of the tutorial, we will setup a relatively simple unfolding, where there is a single detector-level bin for every generator-level bin we are trying to measure. We will then perform a blind analysis using this setup to see the expected sensitivity.
+
+In the second part of the tutorial we will perform the same measurement with a more advanced setup, making use of differential distributions per generator-level bin we are trying to measure, as well as control regions. By providing this additional information to the fit, we are able to achieve a better and more robust unfolding result. After checking the expected sensitivity, we will take a look at the impacts and pulls of the nuisance parameters. Then we will unblind and look at the results of the measurement, produce generator-level plots and provide the correlation matrix for our measured observables.
+
 In this tutorial we will look at the cross section measurements of on of the SM Higgs processes VH, in $H\to b\bar{b}$ (VHbb) final state. 
 
 The measurement is performed within the Simplified Template Cross Section framework, which provides the prediction in the bins of gen-level quantities $p_{T}(V)$ and number of additional jets. The maximum likelihood based unfolding is performed to measure the cross section in the gen-level bins defined by STXS scheme. At the reco-level we defined appropriate categories to match the STXS bins as close as possible. 
 
 ![](figures/simplifiedXS_VH_1_2.png) 
 
-In this tutorial we will focus on the ZH production, with Z boson decaying to charged leptons, and Higgs boson reconstructed with the resolved $b\bar{b}$ pair. We will also use only a part of the Run 2 categories, so the analysis sensitivity is not going to be achieved. Note that ggZH and ZH production modes are combined in the fit, since it is not possible to resolve them at this stage of the analysis. The STXS categories are defined independently of the Higgs decay channel, to streamline the combinations of the cross section measurement. 
+In this tutorial we will focus on the ZH production, with Z boson decaying to charged leptons, and Higgs boson reconstructed with the resolved $b\bar{b}$ pair. We will also use only a part of the Run 2 categories, we will not achieve the same sensitivity as the full analysis. Note that ggZH and ZH production modes are combined in the fit, since it is not possible to resolve them at this stage of the analysis. The STXS categories are defined independently of the Higgs decay channel, to streamline the combinations of the cross section measurement. 
 
-## Simple datacards, one-bin measurement
+## Simplified unfolding
 
-When constructing the reco-level for any differential analysis the main goal is to match the gen-level bins as closely as possible. In the simplest case it can be done with the cut-based approach, i.e. applying the selection on the corresponding reco-level variables: $p_{T}(Z)$ and $n_{\text{add. jets}}$. 
+When determining the reco-level binning for any differential analysis the main goal is to match the gen-level bins as closely as possible. In the simplest case it can be done with the cut-based approach, i.e. applying the selection on the corresponding reco-level variables: $p_{T}(Z)$ and $n_{\text{add. jets}}$. 
 Due to the good lepton $p_{T}$ resolution we can follow the original STXS scheme quite closely with the reco-level selection, with one exception, it is not possible to access the very-low transverse momenta bin $p_{T}(Z)<75$ GeV.  
 
 In `counting/regions` dicrectory you can find the datacards with five reco-level categories, each targetting a corresponding gen-level bin. Below you can find an example of the datacard for reco-level bin with $p_{T}(Z)>400$ GeV, 
@@ -102,7 +106,7 @@ Now that we checked the response matrix we can attempt the maximum likelihood un
 ```shell
 text2workspace.py -m 125  counting/combined_ratesOnly.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' -o ws_counting.root
 ```
-In the example given above a signal POI is assigned to each gen-level bin independent on reco-level bin. This allows to take into account the non-trivial to take into account migration. One can also perform bin-by-bin unfolding using the mapping to the bin names rather that processes, e.g. `'map= vhbb_Zmm_gt400_13TeV/.*:r_reco_zh_gt400[1,-5,5]'`, but this method is not recommended and can be used only for tests as another way to ensure that the migration matrix is close to diagonal. 
+In the example given above a signal POI is assigned to each gen-level bin independent of reco-level bin. This allows to take into account the non-trivial to take into account migration. One can also perform bin-by-bin unfolding using the mapping to the bin names rather that processes, e.g. `'map= vhbb_Zmm_gt400_13TeV/.*:r_reco_zh_gt400[1,-5,5]'`, but this method is not recommended and can be used only for tests as another way to ensure that the migration matrix is close to diagonal. 
 
 To extract the measurement let's run the initial fit first using the `MultiDimFit` implemented in `Combine` to extract the best-fit values and uncertainties on all floating parameters:  
 
@@ -215,7 +219,7 @@ plotImpacts.py -i impacts.json -o impacts_r_zh_75_150 --POI r_zh_75_150
 ## Unfolded measurements
 
 Now that we studied the NP impacts for each POI, we can finally extract the measurements.
-Note, that in this exercise we are skipping further checks and validation that you should do on your analysis for the purposes of the tutorial. Namely the goodness of fit test and the post-fit plots of folded observables. Both of these checks were detailed in the previous exercises, you can find the description under the following links. 
+Note, that in this exercise, for the purposes of the tutorial, we are skipping further checks and validation that you should do on your analysis. Namely the goodness of fit test and the post-fit plots of folded observables. Both of these checks were detailed in the previous exercises, you can find the description under the [following link](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/). 
 
 At this stage we'll run the `MultiDimFit` again scanning each POI to calculate the intervals, but this time we'll remove the `-t -1` option to extract the unblinded results. 
 
