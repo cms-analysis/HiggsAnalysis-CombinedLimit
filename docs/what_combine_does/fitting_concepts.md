@@ -12,10 +12,10 @@ Likelihood fits typically either follow a frequentist framework of maximum likel
 
 ### Maximum Likelihood fits
 
-A [maximum likelihood fit](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2) means finding the values of the model parameters $(\vec{\mu}, \vec{\theta})$ which maximize the likelihood, $\mathcal{L}(\vec{\mu},\vec{\theta}|\mathrm{data})$
+A [maximum likelihood fit](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2) means finding the values of the model parameters $(\vec{\mu}, \vec{\theta})$ which maximize the likelihood, $\mathcal{L}(\vec{\mu},\vec{\theta};\mathrm{data})$
 The values which maximize the likelihood, are the parameter estimates, denoted with a "hat" ($\hat{}$):
 
-$$(\vec{\hat{\mu}}, \vec{\hat{\theta}}) \equiv \underset{\vec{\mu},\vec{\theta}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\theta}|\mathrm{data})$$ 
+$$(\vec{\hat{\mu}}, \vec{\hat{\theta}}) \equiv \underset{\vec{\mu},\vec{\theta}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\theta};\mathrm{data})$$ 
 
 These values provide **point estimates** for the parameter values.
 
@@ -27,7 +27,7 @@ In a bayesian framework, the likelihood represents the probability of observing 
 
 Beliefs about the values of the parameters are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
 
-$$ p(\vec{\theta}|\mathrm{data}) = \frac{ p(\mathrm{data}|\vec{\theta}) p(\vec{\theta}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}_{\mathrm{data}}(\vec{\theta}|\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\theta}) }{ \int_{\vec{\theta'}} \mathcal{L}_{\mathrm{data}}(\vec{\theta'}|\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\theta'}) }$$ 
+$$ p(\vec{\theta}|\mathrm{data}) = \frac{ p(\mathrm{data}|\vec{\theta}) p(\vec{\theta}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}_{\mathrm{data}}(\vec{\theta};\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\theta}) }{ \int_{\vec{\theta'}} \mathcal{L}_{\mathrm{data}}(\vec{\theta'};\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\theta'}) }$$ 
 
 The posterior distribution p$(\vec{\theta}|\mathrm{data})$ defines the updated belief about the parameters $\vec{\theta}$.
 
@@ -74,8 +74,8 @@ Parameter uncertainties describe regions of parameter values which are considere
 These can be defined either in terms of frequentist **confidence regions** or bayesian **credibility regions**.
 
 In both cases the region is defined by a confidence or credibility level $CL$, which quantifies the meaning of the region.
-For frequentist confidence regions, the confidence level $CL$ describes how often the confidence region will contain the true parameter values.
-For bayesian credibility regions, the credibility level $CL$ describes the bayesian probability that the true parameter value is in that region.
+For frequentist confidence regions, the confidence level $CL$ describes how often the confidence region will contain the true parameter values if the model is a sufficiently accurate approximation of the truth.
+For bayesian credibility regions, the credibility level $CL$ describes the bayesian probability that the true parameter value is in that region for under the given model.
 
 
 The confidence or credibility regions are described by a set of points $\{ \vec{\theta} \}_{\mathrm{CL}}$ which meet some criteria.

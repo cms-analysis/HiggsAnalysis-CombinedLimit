@@ -34,7 +34,7 @@ These are discussed in detail in the context of the full likelihood below.
 For any given model, $\mathcal{M}(\vec{\mu},\vec{\theta})$, [the likelihood](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.1) defines the probability of observing a given dataset. 
 It is numerically equal to the probability of observing the data, given the model. 
 
-$$ \mathcal{L}(\vec{\mu},\vec{\theta}|\mathrm{data}) = p(\mathrm{data}|\vec{\mu},\vec{\theta}) $$
+$$ \mathcal{L}(\vec{\mu},\vec{\theta};\mathrm{data}) = p(\mathrm{data}|\vec{\mu},\vec{\theta}) $$
 
 It should be understood through, that the likelihood depends on the parameters through the observation model, $\mathcal{L}(\vec{\theta},\vec{\mu}) = \mathcal{L}_{\mathcal{M}}(\vec{\mu},\vec{\theta})$.
 Changing the observation model, though it may depend on the same parameters, will also change the likelihood function.
@@ -55,7 +55,7 @@ This form is entirely general. However, as with the model itself, there are typi
 For a binned likelihood, the probability of observing a certain number of counts, given a model takes on a simple form. For each bin:
 
 $$
-\mathcal{L}_{\mathrm{bin}}(\vec{\mu},\vec{\theta}|\mathrm{data}) = \mathrm{Poiss}(n_{\mathrm{obs}}| n_{\mathrm{exp}}) 
+\mathcal{L}_{\mathrm{bin}}(\vec{\mu},\vec{\theta};\mathrm{data}) = \mathrm{Poiss}(n_{\mathrm{obs}}| n_{\mathrm{exp}}) 
 $$
 
 i.e. it is a poisson distribution with the mean given by the expected number of events in that bin. 
@@ -85,7 +85,7 @@ In bayesian frameworks, these terms represent the prior[^1].
 We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses.
 In this framework, each constraint term represents the likelihood of some parameter, $\theta$, given some previous observation $\tilde{\theta}$, often called a "global observable".
 
-$$ \mathcal{L}_{\mathrm{constraint}}( \theta | \tilde{\theta} ) = p(\tilde{\theta} | \theta ) $$
+$$ \mathcal{L}_{\mathrm{constraint}}( \theta ; \tilde{\theta} ) = p(\tilde{\theta} | \theta ) $$
 
 In principle the form of the likelihood can be any function where the corresponding $p$ is a valid probability distribution.
 In practice, most constraint terms are gaussian, and the definition of $\theta$ is chosen such that the central observation $\tilde{\theta} = 0$ , and the width of the gaussian is one.
@@ -297,7 +297,7 @@ Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or
 
 ### Parametric Likelihoods in Combine
 
-As with the template likelihood, the parameteric likelihood implemented in combine implements likelihoods which for multiple process and multiple channels.
+As with the template likelihood, the parameteric likelihood implemented in combine implements likelihoods for multiple process and multiple channels.
 Unlike the template likelihoods, the [parametric likelihoods are defined using custom probability density functions](../../part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis), which are functions of continuous observables, rather than discrete, binned counts.
 Because the pdfs are functions of a continuous variable, the likelihood can be evaluated over unbinned data.
 They can still, also, be used for analysis on [binned data](../../part2/settinguptheanalysis/#caveat-on-using-parametric-pdfs-with-binned-datasets).
