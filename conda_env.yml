@@ -10,5 +10,6 @@ dependencies:
   - tbb
   - vdt
   - boost
+  - boost-cpp
   - pcre
   - eigen
