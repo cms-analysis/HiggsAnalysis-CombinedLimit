@@ -39,7 +39,7 @@ jobs:
           # python 3.10 root 6.26
           - python: "3.10"
             root: "6.26.4"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
 
     steps:
