@@ -17,8 +17,8 @@ dependencies:
   - binutils_linux-64=2.34=hc952b39_18
   - blas=1.0=mkl
   - bleach=3.3.0=pyh44b312d_0
-  - boost=1.72.0=py27h9de70de_0
-  - boost-cpp=1.72.0=h9d3c048_4
+  - boost=1.82.0=py38h757e2ef_0
+  - boost-cpp=1.82.0=h44aadfe_3
   - bzip2=1.0.8=h7f98852_4
   - c-ares=1.17.1=h7f98852_1
   - c-compiler=1.1.1=h516909a_0
