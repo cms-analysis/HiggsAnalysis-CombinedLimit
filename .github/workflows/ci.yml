@@ -39,7 +39,7 @@ jobs:
           # python 3.10 root 6.26
           - python: "3.10"
             root: "6.26.4"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
 
     steps:
@@ -60,6 +60,11 @@ jobs:
         mamba install -c conda-forge python==${{ matrix.python }} pip pandas root==${{ matrix.root }} gsl tbb vdt boost pcre eigen
         cd HiggsAnalysis/CombinedLimit
         bash set_conda_env_vars.sh
+    - name: Install boost lib
+      shell: bash -l {0}
+      run: | 
+        sudo apt-get update
+        sudo apt-get install libboost-all-dev    
     - name: Build
       shell: bash -l {0}
       run: |
