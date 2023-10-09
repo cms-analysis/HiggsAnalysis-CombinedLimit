@@ -111,6 +111,12 @@ namespace utils {
     // Set range of physics model parameters
     void setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params);
 
+    /** @return true if the parameter's value is less than one sigma away from the lower end of the range */
+    bool isParameterAtLowerBoundary( const RooRealVar &);
+
+    /** @return true if the parameter's value is less than one sigma away from the upper end of the range */
+    bool isParameterAtUpperBoundary( const RooRealVar &);
+
     bool isParameterAtBoundary( const RooRealVar &);
     bool anyParameterAtBoundaries( const RooArgSet &, int verbosity);
 
