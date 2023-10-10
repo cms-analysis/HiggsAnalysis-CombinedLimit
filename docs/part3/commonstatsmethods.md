@@ -771,6 +771,8 @@ By default, the signal strength is kept floating in the fit with the nominal mod
 
 In the default models build from the datacards the signal strengths in all channels are constrained to be non-negative. One can allow negative signal strengths in the fits by changing the bound on the variable (option `--rMin=<value>`), which should make the quantity more chisquare-like under the hypothesis of zero signal; this however can create issues in channels with small backgrounds, since total expected yields and pdfs in each channel must be positive.
 
+Optionally, channels can be grouped together by using the option `-g <name_fragment>` where `<name_fragment>` is a string which is common to all channels to be grouped together. The `-g` option can also be used to set the range for the each POI separately via `-g <name>=<min>,<max>`.
+
 When run with the a verbosity of 1, as the default, the program also prints out the best fit signal strengths in all channels; as the fit to all channels is done simultaneously, the correlation between the other systematical uncertainties is taken into account, and so these results can differ from the ones obtained fitting each channel separately.
 
 
