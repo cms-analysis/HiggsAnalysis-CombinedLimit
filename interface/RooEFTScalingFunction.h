@@ -22,9 +22,10 @@ class RooEFTScalingFunction : public RooAbsReal {
     protected:
         std::map<std::string,double> coeffs_;
         RooListProxy terms_;
-        std::map< std::vector<RooAbsReal *>, double> vcomponents_;
+        mutable std::map< std::vector<RooAbsReal *>, double> vcomponents_; //! do not serialize
         double offset_;
         virtual Double_t evaluate() const ;
+        void init() const;
     private:
         ClassDef(RooEFTScalingFunction,1)
 };

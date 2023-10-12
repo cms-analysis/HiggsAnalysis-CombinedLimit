@@ -18,9 +18,12 @@ RooEFTScalingFunction::RooEFTScalingFunction(const char *name, const char *title
         }
         terms_.add(*rar);
     }
+    init();
+}
 
+void RooEFTScalingFunction::init() const {
     // Loop over elements in mapping: add components to vector depending on string
-    for( auto const& x : coeffs ) {
+    for( auto const& x : coeffs_ ) {
         TString term_name = x.first;
         double term_prefactor = x.second;
 
@@ -30,20 +33,20 @@ RooEFTScalingFunction::RooEFTScalingFunction(const char *name, const char *title
 
             // Squared-quadratic components
             if( second_term == "2" ){
-                if( terms.find(first_term) ){
+                if( terms_.find(first_term) ){
                     std::vector<RooAbsReal *> vterms;
-                    RooAbsReal *rar1 = dynamic_cast<RooAbsReal *>( terms.find(first_term) );
-                    RooAbsReal *rar2 = dynamic_cast<RooAbsReal *>( terms.find(first_term) );
+                    RooAbsReal *rar1 = dynamic_cast<RooAbsReal *>( terms_.find(first_term) );
+                    RooAbsReal *rar2 = dynamic_cast<RooAbsReal *>( terms_.find(first_term) );
                     vterms.push_back(rar1);
                     vterms.push_back(rar2);
                     vcomponents_.emplace(vterms,term_prefactor);
                 }
             } else{
                 // Cross-quadratic components
-                if( terms.find(first_term) && terms.find(second_term) ){
+                if( terms_.find(first_term) && terms_.find(second_term) ){
                     std::vector<RooAbsReal *> vterms;
-                    RooAbsReal *rar1 = dynamic_cast<RooAbsReal *>( terms.find(first_term) );
-                    RooAbsReal *rar2 = dynamic_cast<RooAbsReal *>( terms.find(second_term) );
+                    RooAbsReal *rar1 = dynamic_cast<RooAbsReal *>( terms_.find(first_term) );
+                    RooAbsReal *rar2 = dynamic_cast<RooAbsReal *>( terms_.find(second_term) );
                     vterms.push_back(rar1);
                     vterms.push_back(rar2);
                     vcomponents_.emplace(vterms,term_prefactor);
@@ -51,9 +54,9 @@ RooEFTScalingFunction::RooEFTScalingFunction(const char *name, const char *title
             }
         } else {
 
-          if( terms.find(term_name) ) {
+          if( terms_.find(term_name) ) {
               std::vector<RooAbsReal *> vterms;
-              RooAbsReal *rar = dynamic_cast<RooAbsReal *>( terms.find(term_name) );
+              RooAbsReal *rar = dynamic_cast<RooAbsReal *>( terms_.find(term_name) );
               vterms.push_back(rar);
               vcomponents_.emplace(vterms,term_prefactor);
           } 
@@ -65,15 +68,14 @@ RooEFTScalingFunction::RooEFTScalingFunction(const RooEFTScalingFunction& other,
     RooAbsReal(other, name),
     coeffs_(other.coeffs_),
     terms_("!terms",this,other.terms_),
-    vcomponents_(other.vcomponents_),
     offset_(other.offset_)
-{
-}
+{ }
 
 Double_t RooEFTScalingFunction::evaluate() const 
 {
     if (vcomponents_.empty()) {
-        return offset_;
+        init();
+        // return offset_;
     }
     double ret = offset_;
     for (auto const &x : vcomponents_) {
