@@ -2,7 +2,7 @@
 
 ## Getting started
 
-To get started, you should have a working setup of Combine and CombineHarvester. This setup can be done following any of the [installation instructions](index.md#installation-instructions).
+To get started, you should have a working setup of Combine and CombineHarvester. This setup can be done following any of the [installation instructions](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#installation-instructions).
 
 After setting up CMSSW, you can clone the working directory for this tutorial which contains all of the inputs and scripts needed to run the unfolding fitting exercise:
 
@@ -39,9 +39,11 @@ Note that some additional information on unfolding in `Combine` are available [h
 
 In this tutorial we will look at the cross section measurements of on of the SM Higgs processes VH, in $H\to b\bar{b}$ (VHbb) final state. 
 
-The measurement is performed within the Simplified Template Cross Section (STXS) framework, which provides the prediction in the bins of generator-level quantities $p_{T}(V)$ and number of additional jets. The maximum likelihood based unfolding is performed to measure the cross section in the generator-level bins defined by STXS scheme. At the detector-level we define appropriate categories to match the STXS bins as closely as possible so that there is a good correspondence between the detector-level observable and the underlying generator-level quantity we are interested in. 
+The measurement is performed within the Simplified Template Cross Section (STXS) framework, which provides the prediction in the bins of generator-level quantities $p_{T}(V)$ and number of additional jets. The maximum likelihood based unfolding is performed to measure the cross section in the generator-level bins defined by STXS scheme. At the detector-level we define appropriate categories to match the STXS bins as closely as possible so that there is a good correspondence between the detector-level observable and the underlying generator-level quantity we are interested in.  
 
 ![](figures/simplifiedXS_VH_1_2.png) 
+
+Note that for this STXS measurement, as well as measuring the cross-section as a function of the $p_{T}$ of the vector boson, the measurement includes some information on the number of additional jets and is performed over multiple different production modes, for different production processes. However, it is common to focus on a single distribution (e.g. $p_{T}$ for a signle process, e.g. $t\bar{t}$).
 
 In this tutorial we will focus on the ZH production, with the Z boson decaying to charged leptons, and Higgs boson reconstructed with the resolved $b\bar{b}$ pair. We will also use only a part of the Run 2 categories, we will not achieve the same sensitivity as the full analysis. Note that ggZH and ZH production modes are combined in the fit, since it is not possible to resolve them at this stage of the analysis. The STXS categories are defined independently of the Higgs decay channel, to streamline the combinations of the cross section measurement. 
 
@@ -232,9 +234,10 @@ python scripts/make_XSplot.py summary_zh_stxs.json
 
 ## POI correlations
 
-In addition to the cross-section measurements it is very important to publish covariance information of the measured cross sections.  
+In addition to the cross-section measurements it is very important to publish covariance or correlation information of the measured cross sections. 
+This allows the measurement to be properly intepreted or reused in combined fits.  
 
-The correlation matrix can be extracted from the covariance matrix after the fit. Here we can use the `FitDiagnostics` or `MultiDimFit` method.
+The correlation matrix or covariance matrix can be extracted from the results after the fit. Here we can use the `FitDiagnostics` or `MultiDimFit` method.
 
 ``` shell
 combineTool.py -M FitDiagnostics --datacard ws_full.root --setParameters r_zh_250_400=1,r_zh_150_250noj=1,r_zh_75_150=1,r_zh_150_250wj=1,r_zh_gt400=1 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400  --robustHesse 1 -n .full_model --X-rtd FAST_VERTICAL_MORPH
