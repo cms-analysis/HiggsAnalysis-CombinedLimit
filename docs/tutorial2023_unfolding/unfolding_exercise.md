@@ -16,23 +16,23 @@ cd combine-unfolding-tutorial-2023
 
 The hands-on exercise is split into seven parts: 
 
-1) Simple Unfolding Experiment
+1) "Simple" Unfolding Experiment
 
 2) Producing the Migration matrix from the datacards
 
 3) Advanced Unfolding with more detector-level information and control regions
 
-4) Extract the expected intervals
+4) Extracting the expected intervals
 
-5) Impacts for multiple POIs
+5) Producing Impacts for multiple POIs
 
 6) Unfold to the generator-level quantities 
    
-7) Extract POI correlations from the FitDiagnostics output
+7) Extracting POI correlations from the FitDiagnostics output
 
  > Throughout the tutorial there are a number of questions and exercises for you to complete. These are shown in the boxes like this one. 
 
-Note that some additional information on unfolding in `Combine` are available [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/regularisation/), which also includes recommendations on regularisation techniques and when to use it, which is not discussed in this tutorial at all. 
+Note that some additional information on unfolding in `Combine` are available [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/regularisation/), which also includes some information on regularization, which is not discussed in this tutorial. 
   
 ## Analysis overview
 
@@ -43,13 +43,13 @@ The measurement is performed within the Simplified Template Cross Section (STXS)
 
 ![](figures/simplifiedXS_VH_1_2.png) 
 
-Note that for this STXS measurement, as well as measuring the cross-section as a function of the $p_{T}$ of the vector boson, the measurement includes some information on the number of additional jets and is performed over multiple different production modes, for different production processes. However, it is common to focus on a single distribution (e.g. $p_{T}$ for a signle process, e.g. $t\bar{t}$).
+Note that for this STXS measurement, as well as measuring the cross-section as a function of the $p_{T}$ of the vector boson, the measurement includes some information on the number of additional jets and is performed over multiple different production modes, for different production processes. However, it is common to focus on a single distribution (e.g. $p_{T}$) for a signle process, (e.g. $t\bar{t}$).
 
 In this tutorial we will focus on the ZH production, with the Z boson decaying to charged leptons, and Higgs boson reconstructed with the resolved $b\bar{b}$ pair. We will also use only a part of the Run 2 categories, we will not achieve the same sensitivity as the full analysis. Note that ggZH and ZH production modes are combined in the fit, since it is not possible to resolve them at this stage of the analysis. The STXS categories are defined independently of the Higgs decay channel, to streamline the combinations of the cross section measurement. 
 
 In the first part of the tutorial, we will setup a relatively simple unfolding, where there is a single detector-level bin for every generator-level bin we are trying to measure. We will then perform a blind analysis using this setup to see the expected sensitivity. 
 
-In this analysis, we use a series of datacards, one for each detector-level bin, implemented as a counting experiment, and then combining the datacards.    
+In this simple version of the analysis, we use a series of datacards, one for each detector-level bin, implemented as a counting experiment. We then combine the datacards for the full measurement. It is also possible to implement the same analysis as a single datacard, passing a histogram with each of the detector-level bins. Either method can be used, depending on which is more practical for the analysis being considered. 
 
 In the second part of the tutorial we will perform the same measurement with a more advanced setup, making use of differential distributions per generator-level bin we are trying to measure, as well as control regions. By providing this additional information to the fit, we are able to achieve a better and more robust unfolding result. After checking the expected sensitivity, we will take a look at the impacts and pulls of the nuisance parameters. Then we will unblind and look at the results of the measurement, produce generator-level plots and provide the correlation matrix for our measured observables.
 
@@ -82,7 +82,7 @@ You can see the contributions from various background processes, namely Z+jets, 
 
 One of the most important stages in the analysis design, is to make sure that the detector-level categories are well-chosen to target the corresponding generator-level processes.
 
-To explicitly check the correspondance between detector- and generator-level, one can plot the contributions of each of the generator-level bins in all of the detector-level bins. You can use the script provided in the tutorial git-lab page. This script uses `CombineHarvester` to loop over detector-level bins, and get the rate at which each of the signal processes (generator-level bins) contributes to that detector-level bin; which is then used to plot the migration matrix.
+To explicitly check the correspondance between detector- and generator-level, one can plot the contributions of each of the generator-level bins in all of the detector-level bins. You can use the script provided in the tutorial git-lab page. This script uses `CombineHarvester` to loop over detector-level bins, and get the rate at which each of the signal processes (generator-level bins) contributes to that detector-level bin; which is then used to plot the migration matrix. 
 
 ```shell
 python scripts/get_migration_matrix.py counting/combined_ratesOnly.txt
@@ -90,7 +90,9 @@ python scripts/get_migration_matrix.py counting/combined_ratesOnly.txt
 ```
 ![](figures/migration_matrix_zh.png) 
 
-Now that we checked the response matrix we can attempt the maximum likelihood unfolding. We can use the `multiSignalModel` physics model available in `Combine`, which assigns a parameter of interest `poi` to a process `p` within a bin `b` using the syntax `--PO 'map=b/p:poi[init, min, max]'` to linearly scale the normalisation of this process under the POI variations. To create the workspace we can run the following command: 
+The migration matrix show the generator-level bins on the x-axis and the corresponding detector-level bins on the y-axis. The entries are normalized such that the sum of all contributions for a given generator-level bin sum up to 1. With this convention, the numbers in each bin represent the probability that an event from a given generator-level bin is reconstructed in a given detector-level bin if it is reconstructed at all within the considered bins.
+
+Now that we checked the response matrix we can attempt the maximum likelihood unfolding. We can use the `multiSignalModel` physics model available in `Combine`, which assigns a parameter of interest `poi` to a process `p` within a bin `b` using the syntax `--PO 'map=b/p:poi[init, min, max]'` to linearly scale the normalisation of this process under the parameter of interest (POI) variations. To create the workspace we can run the following command: 
 ```shell
 text2workspace.py -m 125  counting/combined_ratesOnly.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' -o ws_counting.root
 ```
@@ -106,7 +108,7 @@ combineTool.py -M MultiDimFit --datacard ws_counting.root --setParameters r_zh_2
 > The `--setParameters <param>=<value>` set the initial value of parameter named <param>.
 > `--redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400` set the POIs to the comma-separated list, instead of the default one `r`.
 
-While the uncertainties on the POI can be extracted in multiple ways, the most robust way is to run the likelihood scans for a POI corresponding to each generator-level bin, it allows you to spot discontinuities in the likelihood shape in case of problems with the fit or the model. 
+While the uncertainties on the parameters of interest (POIs) can be extracted in multiple ways, the most robust way is to run the likelihood scans for a POI corresponding to each generator-level bin, it allows you to spot discontinuities in the likelihood shape in case of problems with the fit or the model. 
 
 ```shell
 combineTool.py -M MultiDimFit --datacard ws_counting.root -t -1 --setParameters r_zh_250_400=1,r_zh_150_250noj=1,r_zh_75_150=1,r_zh_150_250wj=1,r_zh_gt400=1 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --algo=grid --points=100 -P r_zh_75_150 --floatOtherPOIs=1 -n scan_r_zh_75_150
@@ -160,7 +162,9 @@ combineTool.py -M MultiDimFit -d ws_full.root --setParameters r_zh_250_400=1,r_z
 ```
 > The option `--X-rtd FAST_VERTICAL_MORPH` is added here and for all `combineTool.py -M MultiDimFit ...` to speed up the minimisation. 
 
-> The job submission is handled by the `CombineHarvester`, the combination of options `--job-mode condor --task-name scans_zh  --split-points 1 --generate P:n::r_zh_gt400,r_zh_gt400:r_zh_250_400,r_zh_250_400:r_zh_150_250wj,r_zh_150_250wj:r_zh_150_250noj,r_zh_150_250noj:r_zh_75_150,r_zh_75_150` will submit the jobs to HTCondor for POI. You can add `--dry-run` option to create the submissions files first and check them, and then submit the jobs with `condor_submit condor_scans_zh.sub`. 
+> The job submission is handled by the `CombineHarvester`, the combination of options `--job-mode condor --task-name scans_zh  --split-points 1 --generate P:n::r_zh_gt400,r_zh_gt400:r_zh_250_400,r_zh_250_400:r_zh_150_250wj,r_zh_150_250wj:r_zh_150_250noj,r_zh_150_250noj:r_zh_75_150,r_zh_75_150` will submit the jobs to HTCondor for each POI. 
+> The `--generate` option is is being used to automatically generate jobs attaching the options `-P <POI> -n <name>` with each of the pairs of values `<POI>,<name>` specified between the colons.
+> You can add `--dry-run` option to create the submissions files first and check them, and then submit the jobs with `condor_submit condor_scans_zh.sub`. 
 
 > If you are running the tutorial from a cluster where HTCondor is not available you can also submit the jobs to the slurm system, just change the `--job-mode condor` to `--job-mode slurm`. 
 
