@@ -90,13 +90,13 @@ python scripts/get_migration_matrix.py counting/combined_ratesOnly.txt
 ```
 ![](figures/migration_matrix_zh.png) 
 
-The migration matrix show the generator-level bins on the x-axis and the corresponding detector-level bins on the y-axis. The entries are normalized such that the sum of all contributions for a given generator-level bin sum up to 1. With this convention, the numbers in each bin represent the probability that an event from a given generator-level bin is reconstructed in a given detector-level bin if it is reconstructed at all within the considered bins.
+The migration matrix shows the generator-level bins on the x-axis and the corresponding detector-level bins on the y-axis. The entries are normalized such that the sum of all contributions for a given generator-level bin sum up to 1. With this convention, the numbers in each bin represent the probability that an event from a given generator-level bin is reconstructed in a given detector-level bin if it is reconstructed at all within the considered bins.
 
 Now that we checked the response matrix we can attempt the maximum likelihood unfolding. We can use the `multiSignalModel` physics model available in `Combine`, which assigns a parameter of interest `poi` to a process `p` within a bin `b` using the syntax `--PO 'map=b/p:poi[init, min, max]'` to linearly scale the normalisation of this process under the parameter of interest (POI) variations. To create the workspace we can run the following command: 
 ```shell
 text2workspace.py -m 125  counting/combined_ratesOnly.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' -o ws_counting.root
 ```
-In the example given above a signal POI is assigned to each generator-level bin independent of detector-level bin. This allows to take into account migration. One can also perform bin-by-bin unfolding using the mapping to the bin names rather that processes, e.g. `'map= vhbb_Zmm_gt400_13TeV/.*:r_reco_zh_gt400[1,-5,5]'`, but this method is not recommended and can be used only for tests as another way to ensure that the migration matrix is close to diagonal. 
+In the example given above a signal POI is assigned to each generator-level bin independent of detector-level bin. This allows the measurement to take into account migrations. 
 
 To extract the measurement let's run the initial fit first using the `MultiDimFit` method implemented in `Combine` to extract the best-fit values and uncertainties on all floating parameters:  
 
@@ -215,7 +215,7 @@ plotImpacts.py -i impacts.json -o impacts_r_zh_75_150 --POI r_zh_75_150
 ## Unfolded measurements
 
 Now that we studied the nuisance parameter impacts for each POI, we can finally perform the measurement.
-Note that for the purposes of the tutorial, we are skipping further checks and validation that you should do on your analysis. Namely the goodness of fit test and the post-fit plots of folded observables. Both of these checks were detailed in the previous exercises, you can find the description under the [following link](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/). 
+Note that for the purposes of the tutorial, we are skipping further checks and validation that you should do on your analysis. Namely the goodness of fit test and the post-fit plots of folded observables. Both of these checks were detailed in the previous exercises, which you can find under the [following link](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/). 
 
 At this stage we'll run the `MultiDimFit` again scanning each POI to calculate the intervals, but this time we'll remove the `-t -1` option to extract the unblinded results. 
 
