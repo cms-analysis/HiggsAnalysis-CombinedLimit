@@ -538,13 +538,15 @@ In order to get a quick view of the systematic uncertainties included in the dat
 The default output is a `.html` file which allows you to expand to give more details about the affect of the systematic for each channel/process. Add the option `--format brief` to give a simpler summary report direct to the terminal. An example output for the tutorial card `data/tutorials/shapes/simple-shapes-TH1.txt` is shown below.
 
 ```nohighlight 
-$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt > out.html
+$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt --all -f html > out.html
 ```
+
+which will produce the following output in html format. 
 
 <html>
 <head>
 <style type="text/css">
-body { }
+body {  }
 td, th { border-bottom: 1px solid black; padding: 1px 1em; vertical-align: top; }
 td.channDetails { font-size: x-small; }
 </style>
@@ -576,6 +578,17 @@ function toggleChann(id) {
 	</table></td>
 </tr>
 
+<tr><td><a name="alpha"><b>alpha  (shape)</b></a></td>
+<td>1.111</td><td>1.150</td>
+<td> background </td>
+<td>bin1(1) <a id="alpha_chann_toggle" href="#alpha" onclick="toggleChann(&quot;alpha&quot;)">[+]</a></td>
+</tr>
+<tr id="alpha_chann" style="display: none">
+	<td colspan="5"><table class="channDetails">
+		<tr><td>bin1</td><td>background(0.900/1.150 (shape))</td></li>
+	</table></td>
+</tr>
+
 <tr><td><a name="bgnorm"><b>bgnorm  (lnN)</b></a></td>
 <td>1.000</td><td>1.300</td>
 <td> background, signal </td>
@@ -584,6 +597,17 @@ function toggleChann(id) {
 <tr id="bgnorm_chann" style="display: none">
 	<td colspan="5"><table class="channDetails">
 		<tr><td>bin1</td><td>signal(1.0), background(1.3)</td></li>
+	</table></td>
+</tr>
+
+<tr><td><a name="sigma"><b>sigma  (shape)</b></a></td>
+<td>1.000</td><td>1.000</td>
+<td> signal </td>
+<td>bin1(1) <a id="sigma_chann_toggle" href="#sigma" onclick="toggleChann(&quot;sigma&quot;)">[+]</a></td>
+</tr>
+<tr id="sigma_chann" style="display: none">
+	<td colspan="5"><table class="channDetails">
+		<tr><td>bin1</td><td>signal(1.000/1.000 (shape))</td></li>
 	</table></td>
 </tr>
 
