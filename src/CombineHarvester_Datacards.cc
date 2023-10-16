@@ -290,14 +290,10 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         start_nuisance_scan = true;
       }
     }
-
     if (start_nuisance_scan && words[i].size() >= 4) {
       if (boost::iequals(words[i][1], "param")) {
         std::string param_name = words[i][0];
-        if (!params_.count(param_name))
-          params_[param_name] = std::make_shared<Parameter>(Parameter());
-        Parameter * param = params_.at(param_name).get();
-        param->set_name(param_name);
+        Parameter * param = SetupRateParamVar(param_name, boost::lexical_cast<double>(words[i][2]));
         param->set_val(boost::lexical_cast<double>(words[i][2]));
         std::size_t slash_pos = words[i][3].find("/");
         if (slash_pos != words[i][3].npos) {
@@ -318,6 +314,10 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
             param->set_range_u(boost::lexical_cast<double>(tokens[2]));
           }
         }
+        auto sys = std::make_shared<Systematic>();
+        sys->set_name(param_name);
+        sys->set_type("param");
+        systs_.push_back(sys);
         continue;  // skip the rest of this now
       }
     }
@@ -763,13 +763,16 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   auto bin_set = this->SetFromProcs(std::mem_fn(&ch::Process::bin));
   auto proc_set = this->SetFromProcs(std::mem_fn(&ch::Process::process));
   std::set<std::string> sys_set;
+  std::set<std::string> param_set;
   std::set<std::string> rateparam_set;
   this->ForEachSyst([&](ch::Systematic const* sys) {
     if (sys->type() == "rateParam") {
       rateparam_set.insert(sys->name());
-    } else {
-      sys_set.insert(sys->name());
     }
+    else if (sys->type() == "param"){
+      param_set.insert(sys->name());
+    }
+    else sys_set.insert(sys->name());
   });
   txt_file << "imax    " << bin_set.size()
             << " number of bins\n";
@@ -1016,6 +1019,21 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     }
   }
 
+  for (auto par : params_) {
+    Parameter const* p = par.second.get();
+    if (p->err_d() != 0.0 && p->err_u() != 0.0 &&
+        param_set.count(p->name()) && !sys_set.count(p->name())) {
+      txt_file << format((format("%%-%is param %%g %%g") % sys_str_len).str()) %
+                      p->name() % p->val() % ((p->err_u() - p->err_d()) / 2.0);
+      if (p->range_d() != std::numeric_limits<double>::lowest() &&
+          p->range_u() != std::numeric_limits<double>::max()) {
+        txt_file << format(" [%.4g,%.4g]") % p->range_d() % p->range_u();
+      }
+      txt_file << "\n";
+    }
+  }
+
+
   for (auto const& sys : sys_set) {
     std::vector<std::string> line(procs_.size() + 2);
     line[0] = sys;
@@ -1024,6 +1042,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     bool seen_shape = false;
     bool seen_shapeN2 = false;
     bool seen_shapeU = false;
+    if (param_set.count(sys)) continue;
     for (unsigned p = 0; p < procs_.size(); ++p) {
       line[p + 2] = "-";
       for (unsigned n = 0; n < proc_sys_map[p].size(); ++n) {
