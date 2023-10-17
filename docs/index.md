@@ -167,6 +167,21 @@ conda activate combine
 **Note:** on OS X, `combine` can only accept workspaces, so run `text2workspace.py` first.
 This is due to some ridiculous issue with child processes and `LD_LIBRARY_PATH` (see note in Makefile)
 
+### Standalone compilation with CernVM 
+
+The standalone version can be compiled via CVMFS using access to `/cvmfs/cms.cern.ch/`  obtained using a virtual machine - [`CernVM`](https://cernvm-online.cern.ch/). 
+
+In case you want to use `CernVM`, a step-by-step guide, with figures, to setup a virtual machine to install the standalone version of combine is available [here](combineCernVMStandalone.pdf)
+
+At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). 
+The main requirements will be to add the `CMS`` group to the CVMFS configuration as shown in the image below,
+
+![](cvmsf_config.png)
+
+To use this predefined context, first locally launch the CernVM (eg you can use the .ova with VirtualBox, by downloading it from [here](http://cernvm.cern.ch/releases/production/cernvm4-micro-2020.07-1.ova) and launching the downloaded file. You can click on "pair an instance of CernVM" from the cernvm-online dashboard, which displays a PIN. In the VirtualBox terminal, pair the virtual machine with this PIN code (enter in the terminal using #PIN eg `#123456`. After this, you will be asked again for username (use `user`) and then a password (use `hcomb`).
+
+Installation through CernVM is maintained on a best-effort basis and these instructions may not be up to date. 
+
 # What has changed between tags? 
 
 You can generate a diff of any two tags (eg for `v7.0.8` and `v7.0.6`) by using following the url:
@@ -209,5 +224,3 @@ bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/m
 make sure to run `scram`  to compile the `CombineTools` package.
 
 See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
-
-
