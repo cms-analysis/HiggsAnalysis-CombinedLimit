@@ -19,6 +19,7 @@ ROOT.gStyle.SetMarkerSize(0.7)
 
 NAMECOUNTER = 0
 
+
 def read(scan, param, files, ycut):
     goodfiles = [f for f in files if plot.TFileIsGood(f)]
     limit = plot.MakeTChain(goodfiles, 'limit')
@@ -37,13 +38,16 @@ def Eval(obj, x, params):
 
 def BuildScan(scan, param, files, color, yvals, ycut):
     graph = read(scan, param, files, ycut)
+
     if graph.GetN() <= 1:
         graph.Print()
         raise RuntimeError('Attempting to build %s scan from TGraph with zero or one point (see above)' % files)
+
     bestfit = None
     for i in range(graph.GetN()):
         if graph.GetY()[i] == 0.:
             bestfit = graph.GetX()[i]
+
     graph.SetMarkerColor(color)
     spline = ROOT.TSpline3("spline3", graph)
     global NAMECOUNTER
@@ -94,6 +98,7 @@ def BuildScan(scan, param, files, color, yvals, ycut):
         "other_2sig" : other_2sig
     }
 
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument('main', help='Main input file for the scan')
@@ -108,8 +113,8 @@ parser.add_argument('--others', nargs='*', help='add secondary scans processed a
 parser.add_argument('--breakdown', help='do quadratic error subtraction using --others')
 parser.add_argument('--model', default='STXS')
 parser.add_argument('--logo', default='CMS')
-parser.add_argument('--json', default=None, help = 'json file to save the intervals')
-parser.add_argument('--envelope', default=None, help = 'json file to save the intervals')
+parser.add_argument('--json', default=None, help='json file to save the intervals')
+parser.add_argument('--envelope', default=None, help='json file to save the intervals')
 parser.add_argument('--logo-sub', default='Material for Combine tutorial')
 args = parser.parse_args()
 
@@ -129,8 +134,8 @@ yvals = [1., 4.]
 
 main_scan = BuildScan(args.output, args.POI, [args.main], args.main_color, yvals, args.y_cut)
 
-other_scans = [ ]
-other_scans_opts = [ ]
+other_scans = []
+other_scans_opts = []
 if args.others is not None:
     for oargs in args.others:
         splitargs = oargs.split(':')
@@ -177,8 +182,10 @@ for yval in yvals:
     plot.DrawHorizontalLine(pads[0], line, yval)
     if (len(other_scans) == 0):
         for cr in main_scan['crossings'][yval]:
-            if cr['valid_lo']: line.DrawLine(cr['lo'], 0, cr['lo'], yval)
-            if cr['valid_hi']: line.DrawLine(cr['hi'], 0, cr['hi'], yval)
+            if cr['valid_lo']: 
+                line.DrawLine(cr['lo'], 0, cr['lo'], yval)
+            if cr['valid_hi']: 
+                line.DrawLine(cr['hi'], 0, cr['hi'], yval)
 
 main_scan['func'].Draw('same')
 for other in other_scans:
@@ -186,7 +193,6 @@ for other in other_scans:
         other['func'].SetLineStyle(2)
         other['func'].SetLineWidth(2)
     other['func'].Draw('SAME')
-
 
 
 box = ROOT.TBox(axishist.GetXaxis().GetXmin(), 0.625*args.y_max, axishist.GetXaxis().GetXmax(), args.y_max)
@@ -248,7 +254,7 @@ pt.SetTextAlign(11)
 pt.SetTextFont(42)
 pt.Draw()
 
-plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.045, 0.035, 1.2,  cmsTextSize = 1.)
+plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.045, 0.035, 1.2, cmsTextSize=1.)
 
 legend_l = 0.69
 if len(other_scans) > 0:
@@ -269,7 +275,7 @@ if args.json is not None:
             js = json.load(jsonfile)
     else:
         js = {}
-    if not args.model in js:
+    if args.model in js:
         js[args.model] = {}
     js[args.model][args.POI] = {
         'Val': val_nom[0],
@@ -304,9 +310,7 @@ if args.json is not None:
         json.dump(js, outfile, sort_keys=True, indent=4, separators=(',', ': '))
 
 
-
 save_graph = main_scan['graph'].Clone()
 save_graph.GetXaxis().SetTitle('%s = %.3f %+.3f/%+.3f' % (fixed_name, val_nom[0], val_nom[2], val_nom[1]))
 canv.Print('.pdf')
 canv.Print('.png')
-
