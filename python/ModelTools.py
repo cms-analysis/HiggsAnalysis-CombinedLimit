@@ -168,9 +168,9 @@ class ModelBuilder(ModelBuilderBase):
         self.physics.setModelBuilder(self)
 
     def doModel(self, justCheckPhysicsModel=False):
+        self.physics.doParametersOfInterest()
         if not justCheckPhysicsModel:
             self.doObservables()
-        self.physics.doParametersOfInterest()
 
         # set a group attribute on POI variables
         poiIter = self.out.set("POI").createIterator()
