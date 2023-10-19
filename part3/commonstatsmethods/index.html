@@ -255,11 +255,12 @@
             <li class="second-level"><a href="#likelihood-fits-and-scans">Likelihood Fits and Scans</a></li>
                 
                 <li class="third-level"><a href="#useful-options-for-likelihood-scans">Useful options for likelihood scans</a></li>
+                <li class="third-level"><a href="#fitting-only-some-parameters">Fitting only some parameters</a></li>
                 <li class="third-level"><a href="#using-best-fit-snapshots">Using best fit snapshots</a></li>
             <li class="second-level"><a href="#feldman-cousins">Feldman Cousins</a></li>
                 
                 <li class="third-level"><a href="#physical-boundaries">Physical boundaries</a></li>
-                <li class="third-level"><a href="#extracting-contours">Extracting contours</a></li>
+                <li class="third-level"><a href="#extracting-contours-from-results-files">Extracting contours from results files</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -1008,7 +1009,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <p>If running <code>--robustFit=1</code> with the algo <strong>singles</strong>, you can tune the accuracy of the routine used to find the crossing points of the likelihood using the option <code>--setCrossingTolerance</code> (default is set to 0.0001)</p>
 <p>If you suspect your fits/uncertainties are not stable, you may also try to run custom HESSE-style calculation of the covariance matrix. This is enabled by running <code>MultiDimFit</code> with the <code>--robustHesse=1</code> option. A simple example of how the default behaviour in a simple datacard is given <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/issues/498">here</a>.</p>
 <p>For a full list of options use <code>combine -M MultiDimFit --help</code></p>
-<h4 id="fitting-only-some-parameters">Fitting only some parameters</h4>
+<h3 id="fitting-only-some-parameters">Fitting only some parameters</h3>
 <p>If your model contains more than one parameter of interest, you can still decide to fit a smaller number of them, using the option <code>--parameters</code> (or <code>-P</code>), with a syntax like this:</p>
 <pre><code class="language-sh">combine -M MultiDimFit [...] -P poi1 -P poi2 ... --floatOtherPOIs=(0|1)
 </code></pre>
@@ -1077,7 +1078,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <p>One can also imagine imposing the boundaries by first allowing Minuit to find the minimum in the <em>un-restricted</em>  region and then setting the test-statistic to that above in the case that minimum lies outside the physical boundary. This would avoid potential issues of convergence - If you are interested in implementing this version in combine, please contact the development team.</p>
 </div>
 <p>As in general for <code>HybridNew</code>, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs, as described in the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a> section.</p>
-<h3 id="extracting-contours">Extracting contours</h3>
+<h3 id="extracting-contours-from-results-files">Extracting contours from results files</h3>
 <p>As in general for <code>HybridNew</code>, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with <code>hadd</code>. You can also refer to the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a> section for submitting the jobs to the grid/batch or if you have more than one parameter of interest, see the instructions for running <code>HybridNew</code> on a grid of parameter points on the <a href="http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html">CombineHarvest - HybridNewGrid</a> documentation. </p>
 <h4 id="extracting-1d-intervals">Extracting 1D intervals</h4>
 <p>For <em>one-dimensional</em> models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). As with limits, read in the grid of points and extract 1D intervals using,</p>
@@ -1085,7 +1086,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 </code></pre>
 <p>The output tree will contain the values of the POI which crosses the critical value (<span class="arithmatex"><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span>) - i.e, the boundaries of the confidence intervals,</p>
 <p>You can produce a plot of the value of <span class="arithmatex"><span class="MathJax_Preview">p_{x}</span><script type="math/tex">p_{x}</script></span> vs the parameter of interest <span class="arithmatex"><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
-<h4 id="2d-contours">2D contours</h4>
+<h4 id="extracting-2d-contours">Extracting 2D contours</h4>
 <p>There is a tool for extracting <em>2D contours</em> from the output of <code>HybridNew</code> located in <code>test/makeFCcontour.py</code> provided the option <code>--saveHybridResult</code> was included when running <code>HybridNew</code>. It can be run with the usual combine  output files (or several of them) as input,</p>
 <pre><code class="language-sh">./test/makeFCcontour.py  toysfile1.root toysfile2.root .... [options] -out outputfile.root
 </code></pre>

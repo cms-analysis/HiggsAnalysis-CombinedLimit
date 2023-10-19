@@ -237,7 +237,8 @@
             <li class="second-level"><a href="#combinetool-for-job-submission">combineTool for job submission</a></li>
                 
                 <li class="third-level"><a href="#submission-to-condor">Submission to Condor</a></li>
-                <li class="third-level"><a href="#running-combine-jobs-on-the-grid">Running combine jobs on the Grid</a></li>
+                <li class="third-level"><a href="#grid-submission-with-combinetool">Grid submission with combineTool</a></li>
+                <li class="third-level"><a href="#grid-submission-with-crab3">Grid submission with crab3</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -338,7 +339,7 @@
 </li>
 </ul>
 <p>By default, the dataset used by combine will be the one pointed to in the datacard. You can tell combine to use a different dataset (for example a toy one that you generated) by using the option <code>--dataset</code>. The argument should be <code>rootfile.root:workspace:location</code> or <code>rootfile.root:location</code>. In order to use this option, you must first convert your datacard to a binary workspace and use this binary workspace as the input to the command line. </p>
-<h4 id="generic-minimizer-options">Generic Minimizer Options</h4>
+<h3 id="generic-minimizer-options">Generic Minimizer Options</h3>
 <p>Combine uses its own minimizer class which is used to steer Minuit (via RooMinimizer) named the <code>CascadeMinimizer</code>. This allows for sequential minimization which can help in case a particular setting/algo fails. Also, the <code>CascadeMinimizer</code> knows about extra features of Combine such as <em>discrete</em> nuisance parameters.</p>
 <p>All of the fits which are performed in several of the methods available use this minimizer. This means that the fits can be tuned using these common options,</p>
 <ul>
@@ -381,7 +382,7 @@
 </table>
 <p>You can find details about these in the Minuit2 documentation <a href="https://root.cern.ch/root/htmldoc/guides/minuit2/Minuit2.html">here</a>.</p>
 <p>More of these options can be found in the <strong>Cascade Minimizer options</strong> section when running <code>--help</code>.</p>
-<h4 id="output-from-combine">Output from combine</h4>
+<h3 id="output-from-combine">Output from combine</h3>
 <p>Most methods will print the results of the computation to the screen, however, in addition, combine will also produce a root file containing a tree called <strong>limit</strong> with these results. The name of this file will be of the format,</p>
 <pre><code>higgsCombineTest.MethodName.mH$MASS.[word$WORD].root
 </code></pre>
@@ -467,7 +468,7 @@
 <p class="admonition-title">Info</p>
 <p>The branches that are created by methods like <code>MultiDimFit</code> <em>will not</em> show the values used to generate the toy. If you also want the TTree to show the values of the POIs used to generate to toy, you should add additional branches using the <code>--trackParameters</code> option as described in the <a href="#common-command-line-options">common command line options</a> section above. These branches will behave as expected when adding the option <code>--saveToys</code>. </p>
 </div>
-<h4 id="asimov-datasets">Asimov datasets</h4>
+<h3 id="asimov-datasets">Asimov datasets</h3>
 <p>If you are using wither <code>-t -1</code> or using <code>AsymptoticLimits</code>, combine will calculate results based on an Asimov dataset.</p>
 <ul>
 <li>
@@ -499,7 +500,7 @@
 <p class="admonition-title">Info</p>
 <p>If you set <code>--X-rtd TMCSO_PseudoAsimov=X</code> with <code>X&gt;0</code> and also turn on <code>--X-rtd TMCSO_AdaptivePseudoAsimov=</code><span class="arithmatex"><span class="MathJax_Preview">\beta</span><script type="math/tex">\beta</script></span>, with <span class="arithmatex"><span class="MathJax_Preview">\beta&gt;0</span><script type="math/tex">\beta>0</script></span>, the internal logic will be used but this time the default will be to generate Pseudo-Asimov datasets, rather than the normal Asimov ones.</p>
 </div>
-<h4 id="nuisance-parameter-generation">Nuisance parameter generation</h4>
+<h3 id="nuisance-parameter-generation">Nuisance parameter generation</h3>
 <p>The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, <em>before</em> generating the data. The <em>unconstrained</em> nuisance parameters (eg <code>flatParam</code> or <code>rateParam</code>) or those with <em>flat</em> priors are <strong>not</strong> randomised before the data generation. If you wish to also randomise these parameters, you <strong>must</strong> declare these as <code>flatParam</code> in your datacard and when running text2workspace you must add the option <code>--X-assign-flatParam-prior</code> in the command line.</p>
 <p>The following are options which define how the toys will be generated,</p>
 <ul>
@@ -515,13 +516,13 @@
 <p class="admonition-title">Warning</p>
 <p>The methods such as <code>AsymptoticLimits</code> and <code>HybridNew --LHCmode LHC-limits</code>, the  "nominal" nuisance parameter values are taken from fits to the data and are therefore not "blind" to the observed data by default (following the fully frequentist paradigm). See the detailed documentation on these methods for avoiding this and running in a completely "blind" mode.</p>
 </div>
-<h4 id="generate-only">Generate only</h4>
+<h3 id="generate-only">Generate only</h3>
 <p>It is also possible to generate the toys first and then feed them to the Methods in combine. This can be done using <code>-M GenerateOnly --saveToys</code>. The toys can then be read and used with the other methods by specifying <code>--toysFile=higgsCombineTest.GenerateOnly...</code> and using the same options for the toy generation.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Some Methods also use toys within the method itself (eg <code>AsymptoticLimits</code> and <code>HybridNew</code>). For these, you should <strong>not</strong> specify the toy generation with <code>-t</code> or the options above and instead follow the specific instructions.</p>
 </div>
-<h4 id="loading-snapshots">Loading snapshots</h4>
+<h3 id="loading-snapshots">Loading snapshots</h3>
 <p>Snapshots from workspaces can be loaded and used in order to generate toys using the option <code>--snapshotName &lt;name of snapshot&gt;</code>. This will first set the parameters to the values in the snapshot <em>before</em> any other parameter options are set and toys are generated.</p>
 <p>See the section on <a href="/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#using-best-fit-snapshots">saving post-fit workspaces</a> for creating workspaces with post-fit snapshots from <code>MultiDimFit</code>.</p>
 <p>Here are a few examples of calculations with toys from post-fit workspaces using a workspace with <span class="arithmatex"><span class="MathJax_Preview">r, m_{H}</span><script type="math/tex">r, m_{H}</script></span> as parameters of interest</p>
@@ -562,7 +563,7 @@
 <p class="admonition-title">Info</p>
 <p>The option <code>-n NAME</code> should be included to avoid overwriting output files as the jobs will be run inside the directory from which the command is issued.</p>
 </div>
-<h3 id="running-combine-jobs-on-the-grid">Running combine jobs on the Grid</h3>
+<h3 id="grid-submission-with-combinetool">Grid submission with combineTool</h3>
 <p>For more CPU-intensive tasks, for example determining limits for complex models using toys, it is generally not feasible to compute all the results interactively. Instead, these jobs can be submitted to the Grid.</p>
 <p>In this example we will use the <code>HybridNew</code> method of combine to determine an upper limit for a sub-channel of the Run 1 SM <span class="arithmatex"><span class="MathJax_Preview">H\rightarrow\tau\tau</span><script type="math/tex">H\rightarrow\tau\tau</script></span> analysis. For full documentation, see the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys">computing limits with toys</a>.</p>
 <p>With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using <code>crab3</code>. From the set of output distributions it is possible to extract the expected and observed limits.</p>
@@ -594,7 +595,7 @@ Expected 97.5%: r &lt; 1.7200
 [DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 2.0 -n .Test.POINT.2.0
 </code></pre>
 <p>When the <code>--dry-run</code> option is removed each command will be run in sequence.</p>
-<h4 id="grid-submission">Grid submission</h4>
+<h3 id="grid-submission-with-crab3">Grid submission with crab3</h3>
 <p>Submission to the grid with <code>crab3</code> works in a similar way. Before doing so ensure that the <code>crab3</code> environment has been sourced in addition to the  CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.</p>
 <pre><code class="language-sh">$ cmsenv; source /cvmfs/cms.cern.ch/crab3/crab.sh
 $ combineTool.py -d htt_mt.root -M HybridNew --LHCmode LHC-limits --clsAcc 0 -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveToys --saveHybridResult -m 125 --job-mode crab3 --task-name grid-test --custom-crab custom_crab.py

@@ -234,6 +234,7 @@
             <li class="second-level"><a href="#beyond-simple-datacards">Beyond simple datacards</a></li>
                 
                 <li class="third-level"><a href="#rate-parameters">Rate parameters</a></li>
+                <li class="third-level"><a href="#extra-arguments">Extra arguments</a></li>
                 <li class="third-level"><a href="#manipulation-of-nuisance-parameters">Manipulation of Nuisance parameters</a></li>
                 <li class="third-level"><a href="#combination-of-multiple-datacards">Combination of multiple datacards</a></li>
                 <li class="third-level"><a href="#automatic-production-of-datacards-and-workspaces">Automatic production of datacards and workspaces</a></li>
@@ -559,7 +560,7 @@ delta rateParam D bkg 500
 <pre><code class="language-nohighlight">name rateParam bin process rootfile:workspacename
 </code></pre>
 <p>The name should correspond to the name of the object which is being picked up inside the RooWorkspace. A simple example using the SM XS and BR splines available in HiggsAnalysis/CombinedLimit can be found under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/rate_params/simple_sm_datacard.txt">data/tutorials/rate_params/simple_sm_datacard.txt</a></p>
-<h4 id="extra-arguments">Extra arguments</h4>
+<h3 id="extra-arguments">Extra arguments</h3>
 <p>If a parameter is intended to be used and it is <em>not</em> a user defined <code>param</code> or <code>rateParam</code>, it can be picked up by first issuing an <code>extArgs</code> directive before this line in the datacard. The syntax for <code>extArgs</code> is</p>
 <pre><code class="language-nohighlight">name extArg rootfile:workspacename
 </code></pre>

@@ -598,7 +598,7 @@ combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo gri
 <h2 id="channel-masking">Channel Masking</h2>
 <p>The <code>combine</code> tool has a number of features for diagnostics and plotting results of fits. It can often be useful to turn off particular channels in a combined analysis to see how constraints/pulls can vary. It can also be helpful to plot post-fit shapes + uncertainties of a particular channel (for example a signal region) <em>without</em> including the constraints from the data in that region. </p>
 <p>This can in some cases be achieved by removing a specific datacard when running <code>combineCards.py</code> however, when doing so the information of particular nuisances and pdfs in that region will be lost. Instead, it is possible to <strong><em>mask</em></strong> that channel from the likelihood! This is acheived at the <code>text2Workspace</code> step using the option <code>--channel-masks</code>.</p>
-<h4 id="example-removing-constraints-from-the-signal-region">Example: removing constraints from the signal region</h4>
+<h3 id="example-removing-constraints-from-the-signal-region">Example: removing constraints from the signal region</h3>
 <p>We will take the control region example from the rate parameters tutorial from <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params">data/tutorials/rate_params/</a>.</p>
 <p>The first step is to combine the cards 
     combineCards.py signal=signal_region.txt dimuon=dimuon_control_region.txt singlemuon=singlemuon_control_region.txt &gt; datacard.txt</p>
