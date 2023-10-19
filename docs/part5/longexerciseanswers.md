@@ -49,7 +49,8 @@
 
 </details>
 
-#### Advanced exercises
+### Advanced section: B: Asymptotic approximation limitations
+
 **Tasks and questions:**
 
   - Is the asymptotic limit still a good approximation?

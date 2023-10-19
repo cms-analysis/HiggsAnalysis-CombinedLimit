@@ -383,7 +383,7 @@ name rateParam bin process rootfile:workspacename
 The name should correspond to the name of the object which is being picked up inside the RooWorkspace. A simple example using the SM XS and BR splines available in HiggsAnalysis/CombinedLimit can be found under [data/tutorials/rate_params/simple_sm_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/rate_params/simple_sm_datacard.txt)
 
 
-#### Extra arguments
+### Extra arguments
 
 If a parameter is intended to be used and it is *not* a user defined `param` or `rateParam`, it can be picked up by first issuing an `extArgs` directive before this line in the datacard. The syntax for `extArgs` is
 

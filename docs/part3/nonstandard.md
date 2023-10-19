@@ -343,7 +343,7 @@ The `combine` tool has a number of features for diagnostics and plotting results
 
 This can in some cases be achieved by removing a specific datacard when running `combineCards.py` however, when doing so the information of particular nuisances and pdfs in that region will be lost. Instead, it is possible to ***mask*** that channel from the likelihood! This is acheived at the `text2Workspace` step using the option `--channel-masks`.
 
-#### Example: removing constraints from the signal region
+### Example: removing constraints from the signal region
 
 We will take the control region example from the rate parameters tutorial from [data/tutorials/rate_params/](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params).
 

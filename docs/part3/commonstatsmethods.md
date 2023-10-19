@@ -930,7 +930,7 @@ If you suspect your fits/uncertainties are not stable, you may also try to run c
 
 For a full list of options use `combine -M MultiDimFit --help`
 
-#### Fitting only some parameters
+### Fitting only some parameters
 
 If your model contains more than one parameter of interest, you can still decide to fit a smaller number of them, using the option `--parameters` (or `-P`), with a syntax like this:
 
@@ -1023,7 +1023,7 @@ This can sometimes be an issue as Minuit may not know if has successfully conver
 As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs, as described in the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section.
 
 
-### Extracting contours
+### Extracting contours from results files
 
 As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with `hadd`. You can also refer to the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section for submitting the jobs to the grid/batch or if you have more than one parameter of interest, see the instructions for running `HybridNew` on a grid of parameter points on the [CombineHarvest - HybridNewGrid](http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html) documentation. 
 
@@ -1039,7 +1039,7 @@ The output tree will contain the values of the POI which crosses the critical va
 
 You can produce a plot of the value of $p_{x}$ vs the parameter of interest $x$ by adding the option `--plot <plotname>`.
 
-#### 2D contours
+#### Extracting 2D contours
 
 There is a tool for extracting *2D contours* from the output of `HybridNew` located in `test/makeFCcontour.py` provided the option `--saveHybridResult` was included when running `HybridNew`. It can be run with the usual combine  output files (or several of them) as input,
 
