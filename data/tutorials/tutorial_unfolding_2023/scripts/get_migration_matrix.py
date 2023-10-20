@@ -27,11 +27,11 @@ for i, b in enumerate(bins):
         procs += cb.cp().bin([b.replace('Zee', 'Zmm')]).process([p]).GetRate()
         procs += cb.cp().bin([b.replace('Zee', 'Zmm')]).process([p.replace('ZH', 'ggZH')]).GetRate()
         total_signal += procs
-        hist.SetBinContent(j+1, i+1, procs)
-        hist.GetXaxis().SetBinLabel(j+1, p)
-    hist.GetYaxis().SetBinLabel(i+1, b.replace('Zee', 'Zll'))
-    for j, p in enumerate(signals): 
-        hist.SetBinContent(j+1, i+1, hist.GetBinContent(j+1, i+1)/total_signal)
+        hist.SetBinContent(j + 1, i + 1, procs)
+        hist.GetXaxis().SetBinLabel(j + 1, p)
+    hist.GetYaxis().SetBinLabel(i + 1, b.replace('Zee', 'Zll'))
+    for j, p in enumerate(signals):
+        hist.SetBinContent(j + 1, i + 1, hist.GetBinContent(j + 1, i + 1) / total_signal)
 
 c1 = ROOT.TCanvas()
 c1.cd()

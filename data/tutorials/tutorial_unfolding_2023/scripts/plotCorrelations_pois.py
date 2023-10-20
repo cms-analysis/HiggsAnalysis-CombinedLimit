@@ -43,9 +43,9 @@ for p1 in range(0, len(parameters_stxs)):
     for p2 in range(0, len(parameters_stxs)):
         param1 = parameters_stxs[p1]
         param2 = parameters_stxs[p2]
-        correlation_matrix_pruned.SetBinContent(p1+1, p2+1, rfr.correlation(param1, param2))
-    correlation_matrix_pruned.GetXaxis().SetBinLabel(p1+1, parameters_stxs[p1])
-    correlation_matrix_pruned.GetYaxis().SetBinLabel(p1+1, parameters_stxs[p1])
+        correlation_matrix_pruned.SetBinContent(p1 + 1, p2 + 1, rfr.correlation(param1, param2))
+    correlation_matrix_pruned.GetXaxis().SetBinLabel(p1 + 1, parameters_stxs[p1])
+    correlation_matrix_pruned.GetYaxis().SetBinLabel(p1 + 1, parameters_stxs[p1])
 
 correlation_matrix_pruned.SetStats(0)
 correlation_matrix_pruned.GetZaxis().SetRangeUser(-1, 1)

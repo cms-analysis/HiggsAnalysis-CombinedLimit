@@ -52,12 +52,12 @@ def BuildScan(scan, param, files, color, yvals, ycut):
     spline = ROOT.TSpline3("spline3", graph)
     global NAMECOUNTER
     func_method = partial(Eval, spline)
-    func = ROOT.TF1('splinefn'+str(NAMECOUNTER), func_method, graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
+    func = ROOT.TF1('splinefn' + str(NAMECOUNTER), func_method, graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
     func._method = func_method
     NAMECOUNTER += 1
     func.SetLineColor(color)
     func.SetLineWidth(3)
-    assert(bestfit is not None)
+    assert bestfit is not None
     crossings = {}
     cross_1sig = None
     cross_2sig = None
@@ -161,13 +161,13 @@ mins = []
 maxs = []
 for other in other_scans:
     mins.append(other['graph'].GetX()[0])
-    maxs.append(other['graph'].GetX()[other['graph'].GetN()-1])
+    maxs.append(other['graph'].GetX()[other['graph'].GetN() - 1])
 
 if len(other_scans) > 0:
     if min(mins) < main_scan['graph'].GetX()[0]:
         new_min = min(mins) - (main_scan['graph'].GetX()[0] - new_min)
-    if max(maxs) > main_scan['graph'].GetX()[main_scan['graph'].GetN()-1]:
-        new_max = max(maxs) + (new_max - main_scan['graph'].GetX()[main_scan['graph'].GetN()-1])
+    if max(maxs) > main_scan['graph'].GetX()[main_scan['graph'].GetN() - 1]:
+        new_max = max(maxs) + (new_max - main_scan['graph'].GetX()[main_scan['graph'].GetN() - 1])
     axishist.GetXaxis().SetLimits(new_min, new_max)
 
 for other in other_scans:
@@ -182,9 +182,9 @@ for yval in yvals:
     plot.DrawHorizontalLine(pads[0], line, yval)
     if (len(other_scans) == 0):
         for cr in main_scan['crossings'][yval]:
-            if cr['valid_lo']: 
+            if cr['valid_lo']:
                 line.DrawLine(cr['lo'], 0, cr['lo'], yval)
-            if cr['valid_hi']: 
+            if cr['valid_hi']:
                 line.DrawLine(cr['hi'], 0, cr['hi'], yval)
 
 main_scan['func'].Draw('same')
@@ -195,7 +195,7 @@ for other in other_scans:
     other['func'].Draw('SAME')
 
 
-box = ROOT.TBox(axishist.GetXaxis().GetXmin(), 0.625*args.y_max, axishist.GetXaxis().GetXmax(), args.y_max)
+box = ROOT.TBox(axishist.GetXaxis().GetXmin(), 0.625 * args.y_max, axishist.GetXaxis().GetXmax(), args.y_max)
 box.Draw()
 pads[0].GetFrame().Draw()
 pads[0].RedrawAxis()
@@ -207,7 +207,7 @@ val_2sig = main_scan['val_2sig']
 textfit = '%s = %.3f{}^{#plus %.3f}_{#minus %.3f}' % (fixed_name, val_nom[0], val_nom[1], abs(val_nom[2]))
 
 
-pt = ROOT.TPaveText(0.59, 0.82 - len(other_scans)*0.08, 0.95, 0.91, 'NDCNB')
+pt = ROOT.TPaveText(0.59, 0.82 - len(other_scans) * 0.08, 0.95, 0.91, 'NDCNB')
 pt.AddText(textfit)
 
 if args.breakdown is None:
@@ -229,20 +229,20 @@ if args.breakdown is not None:
     for other in other_scans:
         v_hi.append(other['val'][1])
         v_lo.append(other['val'][2])
-    assert(len(v_hi) == len(breakdown))
+    assert len(v_hi) == len(breakdown)
     textfit = '%s = %.3f' % (fixed_name, val_nom[0])
     for i, br in enumerate(breakdown):
         if i < (len(breakdown) - 1):
-            if (abs(v_hi[i+1]) > abs(v_hi[i])):
+            if (abs(v_hi[i + 1]) > abs(v_hi[i])):
                 print('ERROR SUBTRACTION IS NEGATIVE FOR %s HI' % br)
                 hi = 0.
             else:
-                hi = math.sqrt(v_hi[i]*v_hi[i] - v_hi[i+1]*v_hi[i+1])
-            if (abs(v_lo[i+1]) > abs(v_lo[i])):
+                hi = math.sqrt(v_hi[i] * v_hi[i] - v_hi[i + 1] * v_hi[i + 1])
+            if (abs(v_lo[i + 1]) > abs(v_lo[i])):
                 print('ERROR SUBTRACTION IS NEGATIVE FOR %s LO' % br)
                 lo = 0.
             else:
-                lo = math.sqrt(v_lo[i]*v_lo[i] - v_lo[i+1]*v_lo[i+1])
+                lo = math.sqrt(v_lo[i] * v_lo[i] - v_lo[i + 1] * v_lo[i + 1])
         else:
             hi = v_hi[i]
             lo = v_lo[i]
@@ -294,16 +294,16 @@ if args.json is not None:
             for oi, other in enumerate(other_scans):
                 if len(other['other_1sig']) >= 1:
                     interval = other['other_1sig'][0]
-                    js_extra['OtherLimit%sLo' % breakdown[oi+1]] = interval['lo']
-                    js_extra['OtherLimit%sHi' % breakdown[oi+1]] = interval['hi']
-                    js_extra['ValidOtherLimit%sLo' % breakdown[oi+1]] = interval['valid_lo']
-                    js_extra['ValidOtherLimit%sHi' % breakdown[oi+1]] = interval['valid_hi']
+                    js_extra['OtherLimit%sLo' % breakdown[oi + 1]] = interval['lo']
+                    js_extra['OtherLimit%sHi' % breakdown[oi + 1]] = interval['hi']
+                    js_extra['ValidOtherLimit%sLo' % breakdown[oi + 1]] = interval['valid_lo']
+                    js_extra['ValidOtherLimit%sHi' % breakdown[oi + 1]] = interval['valid_hi']
                 if len(main_scan['other_2sig']) >= 1:
                     interval = other['other_2sig'][0]
-                    js_extra['2sig_OtherLimit%sLo' % breakdown[oi+1]] = interval['lo']
-                    js_extra['2sig_OtherLimit%sHi' % breakdown[oi+1]] = interval['hi']
-                    js_extra['2sig_ValidOtherLimit%sLo' % breakdown[oi+1]] = interval['valid_lo']
-                    js_extra['2sig_ValidOtherLimit%sHi' % breakdown[oi+1]] = interval['valid_hi']
+                    js_extra['2sig_OtherLimit%sLo' % breakdown[oi + 1]] = interval['lo']
+                    js_extra['2sig_OtherLimit%sHi' % breakdown[oi + 1]] = interval['hi']
+                    js_extra['2sig_ValidOtherLimit%sLo' % breakdown[oi + 1]] = interval['valid_lo']
+                    js_extra['2sig_ValidOtherLimit%sHi' % breakdown[oi + 1]] = interval['valid_hi']
         js[args.model][args.POI].update(js_extra)
 
     with open(args.json, 'w') as outfile:
