@@ -22,7 +22,7 @@
 #include "../interface/CachingMultiPdf.h"
 #include "../interface/RooCheapProduct.h"
 #include "../interface/Accumulators.h"
-#include "../interface/Logger.h"
+#include "../interface/CombineLogger.h"
 #include "vectorized.h"
 
 namespace cacheutils {
@@ -716,8 +716,8 @@ cacheutils::CachingAddNLL::evaluate() const
     static bool expEventsNoNorm = runtimedef::get("ADDNLL_ROOREALSUM_NONORM");
     double expectedEvents = (isRooRealSum_ && !expEventsNoNorm ? pdf_->getNorm(data_->get()) : sumCoeff);
     if (expectedEvents <= 0) {
-        std::cout << "WARNING: underflow in total event yield for " << pdf_->GetName() << ", expected yield = " << expectedEvents << " (observed: " << sumWeights_ << ")" << std::endl;
-    	Logger::instance().log(std::string(Form("CachingNLL.cc: %d -- underflow (expected events <=0) in total event yield for %s, expected yield = %g (observed: %g)",__LINE__,pdf_->GetName(), expectedEvents, sumWeights_)),Logger::kLogLevelInfo,__func__);
+        //std::cout << "WARNING: underflow in total event yield for " << pdf_->GetName() << ", expected yield = " << expectedEvents << " (observed: " << sumWeights_ << ")" << std::endl;
+    	CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("underflow (expected events <=0) in total event yield for %s, expected yield = %g (observed: %g)",pdf_->GetName(), expectedEvents, sumWeights_)),__func__);
         if (!CachingSimNLL::noDeepLEE_) logEvalError("Expected number of events is negative"); else CachingSimNLL::hasError_ = true;
         expectedEvents = 1e-6;
     }
@@ -798,8 +798,10 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
                 //printf("bin %3d: center %+8.5f ( data %+8.5f , diff %+8.5f ), width %8.5f, data weight %10.5f, channel %s\n", ibin, bc, dc, abs(dc-bc)/bins.binWidth(ibin), bins.binWidth(ibin), data_->weight(), pdf_->GetName());
                 binWidths_[ibin] = bins.binWidth(ibin);
                 if (std::abs(bc-dc) > 1e-5*binWidths_[ibin]) {
-                    printf("channel %s, for observable %s, bin %d mismatch: binning %+8.5f ( data %+8.5f , diff %+7.8f of width %8.5f\n",
-                        pdf_->GetName(), xvar->GetName(), ibin, bc, dc, std::abs(bc-dc)/binWidths_[ibin], binWidths_[ibin]);
+                    //printf("channel %s, for observable %s, bin %d mismatch: binning %+8.5f ( data %+8.5f , diff %+7.8f of width %8.5f\n",
+                    //    pdf_->GetName(), xvar->GetName(), ibin, bc, dc, std::abs(bc-dc)/binWidths_[ibin], binWidths_[ibin]);
+                    CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("channel %s, for observable %s, bin %d mismatch: binning %+8.5f ( data %+8.5f , diff %+7.8f of width %8.5f",
+                            pdf_->GetName(), xvar->GetName(), ibin, bc, dc, std::abs(bc-dc)/binWidths_[ibin], binWidths_[ibin])),__func__);
                     canBasicIntegrals_ = 0; 
                     break;
                 }
@@ -807,7 +809,9 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
             }
             if (all_equal) binWidths_.resize(1);
         } else {
-            printf("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d\n", pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries());
+            //printf("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d\n", pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries());
+            CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d"
+                    , pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries())),__func__);
         }
     }
     propagateData();
@@ -1078,8 +1082,8 @@ cacheutils::CachingSimNLL::evaluate() const
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 
             double pdfval = (*it)->getVal(nuis_);
             if (!isnormal(pdfval) || pdfval <= 0) {
-                std::cout << "WARNING: underflow constraint pdf " << (*it)->GetName() << ", value = " << pdfval << std::endl;
-    		Logger::instance().log(std::string(Form("CachingNLL.cc: %d -- underflow (pdf evaluates to <=0) of constraint pdf %s, value = %g ",__LINE__,(*it)->GetName(), pdfval)),Logger::kLogLevelInfo,__func__);
+                //std::cout << "WARNING: underflow constraint pdf " << (*it)->GetName() << ", value = " << pdfval << std::endl;
+    		    CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("underflow (pdf evaluates to <=0) of constraint pdf %s, value = %g ",(*it)->GetName(), pdfval)),__func__);
                 if (gentleNegativePenalty_) { ret += 25; continue; }
                 if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero, negative or error").c_str());
                 pdfval = 1e-9;
