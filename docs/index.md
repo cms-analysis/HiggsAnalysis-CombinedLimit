@@ -169,16 +169,20 @@ This is due to some ridiculous issue with child processes and `LD_LIBRARY_PATH` 
 
 ### Standalone compilation with CernVM 
 
-The standalone version can be compiled via CVMFS using access to `/cvmfs/cms.cern.ch/`  obtained using a virtual machine - [`CernVM`](https://cernvm-online.cern.ch/). 
+`combine`, either standalone or not, can be compiled via CVMFS using access to `/cvmfs/cms.cern.ch/`  obtained using a virtual machine - [`CernVM`](https://cernvm.cern.ch/). To use `CernVM` You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
+If you have a CERN user account, we strongly suggest you simply run one of the other standalone installations, which are simpler and faster than using a VM.
 
-In case you want to use `CernVM`, a step-by-step guide, with figures, to setup a virtual machine to install the standalone version of combine is available [here](combineCernVMStandalone.pdf)
+You should have a working VM on your local machine, compatible with CernVM, such as `VirtualBox`. All the required software can be downloaded [here](https://cernvm.cern.ch/appliance/).
+At least 2GB of disk space should be reserved on the virtual machine for `combine` to work properly and the machine must be contextualized to add the `CMS`` group to CVMFS. A minimal working setup is described below.
 
-At least 2GB of disk space should be reserved on the virtual machine for combine to work properly. A minimal CernVM working context setup can be found in the CernVM Marketplace under [`Experimental/HiggsCombine`](https://cernvm-online.cern.ch/context/view/9ee5960ce4b143f5829e72bbbb26d382). 
-The main requirements will be to add the `CMS`` group to the CVMFS configuration as shown in the image below,
+0. Download the CernVM-launcher for your operating system, following the instructions available [`here`] for your operating system (https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation
 
-![](cvmsf_config.png)
+1. Prepare a CMS context. You can use the CMS open data one already available on gitHub: 
+```wget https://raw.githubusercontent.com/cernvm/public-contexts/master/cms-opendata-2011.context)```
 
-To use this predefined context, first locally launch the CernVM (eg you can use the .ova with VirtualBox, by downloading it from [here](http://cernvm.cern.ch/releases/production/cernvm4-micro-2020.07-1.ova) and launching the downloaded file. You can click on "pair an instance of CernVM" from the cernvm-online dashboard, which displays a PIN. In the VirtualBox terminal, pair the virtual machine with this PIN code (enter in the terminal using #PIN eg `#123456`. After this, you will be asked again for username (use `user`) and then a password (use `hcomb`).
+2. Launch the virtual machine ```cernvm-launch create --name combine --cpus 2 cms-opendata-2011.context```
+
+3. In the VM, proceed with an installation of combine
 
 Installation through CernVM is maintained on a best-effort basis and these instructions may not be up to date. 
 
