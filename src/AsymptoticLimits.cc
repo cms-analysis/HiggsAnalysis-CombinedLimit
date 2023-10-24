@@ -302,11 +302,7 @@ double AsymptoticLimits::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected
   // qmu is zero when mu < mu^ (CMS NOTE-2011/005)
   // --> prevents us excluding from below
   if (what_ == "singlePoint" && rVal < rBestD_) {
-    if (verbose > 0) {
-      std::cout << "Value being tested (" << r.GetName() << " = " << rValue_
-                << ") is lower than the best fit (" << r.GetName() << " = "
-                << rBestD_ << "). Setting q_mu to zero.\n";
-    }
+    if (verbose > 0) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("Value being tested (%s=%f) is lower than the best fit(%s=%f). Setting q_mu to zero.",r.GetName(),rValue_,r.GetName(),rBestD_)),__func__);
     qmu = 0.;
   }
 
@@ -340,7 +336,6 @@ double AsymptoticLimits::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected
   double CLs  = (OnemPb == 0 ? 0 : Pmu/OnemPb);
   sentry.clear();
   if (verbose > 0) {
-  	//printf("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tPmu = %7.5f\t1-Pb  = %7.5f\tCLs  = %7.5f\n", r.GetName(), rVal, qmu, qA, Pmu, OnemPb, CLs);
   	CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tPmu = %7.5f\t1-Pb  = %7.5f\tCLs  = %7.5f",r.GetName(), rVal, qmu, qA, Pmu, OnemPb, CLs)),__func__);
   }
 
@@ -519,7 +514,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
         CascadeMinimizer minim2(nll, CascadeMinimizer::Constrained);
         //minim2.setStrategy(minimizerStrategy_);
         if (minosAlgo_ == "bisection") {
-            if (verbose > 1) printf("Will search for NLL crossing by bisection\n");
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,"Will search for NLL crossing by bisection",__func__);
             if (strictBounds_) minosStat = 0; // the bracket is correct by construction in this case
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
                 if (!strictBounds_ && rCross >= r->getMax()) r->setMax(rCross*1.1);
@@ -532,13 +527,13 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                 }
                 if (!ok && picky_) break; else minosStat = 0;
                 double here = nll.getVal();
-                if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
+                if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0)),__func__);
                 if (fabs(here - threshold) < 0.05*minim2.tolerance()) break;
                 if (here < threshold) rMin = rCross; else rMax = rCross;
                 rCross = 0.5*(rMin+rMax); rErr = 0.5*(rMax-rMin);
             } 
         } else if (minosAlgo_ == "stepping") {
-            if (verbose > 1) printf("Will search for NLL crossing by stepping.\n");
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,"Will search for NLL crossing by stepping",__func__);
             rCross = 0.05 * rMax; rErr = rMax; 
             double stride = rCross; bool overstepped = false;
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
@@ -556,12 +551,12 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                 }
                 if (!ok && picky_) break; else minosStat = 0;
                 double here = nll.getVal();
-                if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
+                if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0)),__func__);
                 if (fabs(here - threshold) < 0.05*minim2.tolerance()) break;
                 if (here < threshold) { 
                     if ((threshold-here) < 0.5*fabs(threshold-there)) stride *= 0.5;
                     if (strictBounds_ && rCross == r->getMax()) {
-                        if (verbose > 1) printf("reached hard bound at %s = %f\n", r->GetName(), rCross);
+                        if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("reached hard bound at %s = %f\n", r->GetName(), rCross)),__func__);
                         return rCross;
                     }
                     rCross += stride; 
@@ -573,7 +568,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
             }
         } else if (minosAlgo_ == "new") {
             if (strictBounds_) throw std::invalid_argument("AsymptoticLimits: --minosAlgo=new doesn't work with --strictBounds\n"); 
-            if (verbose > 1) printf("Will search for NLL crossing with new algorithm.\n");
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,"Will search for NLL crossing with new algorithm",__func__);
             // 
             // Let X(x,y) = (x-a*y)^2 / s^2 + y^2    be the chi-square in case of correlations
             // then yhat(x) = a*x / (a^2 + s^2)
@@ -604,7 +599,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                 bool binNLLchange = (nll_1 < threshold && nll_1 - nll_0 > 0.5);
                 bool aboveThresh  = (nll_1 > threshold + kappa*std::pow(r_1-r_0,2));
                 if (binNLLchange || aboveThresh) { 
-                    if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\t                         \tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
+                    if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\t\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa)),__func__);
                     { 
                         CloseCoutSentry sentry2(verbose < 3);
                         bool ok=true;
@@ -614,7 +609,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                     }
                     double nll_1_prof = nll.getVal();
                     kappa = (nll_1 - nll_1_prof) / std::pow(r_1 - r_0,2);
-                    if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, nll.getVal()-nll0, kappa);
+                    if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, nll.getVal()-nll0, kappa)),__func__);
                     if (nll_1_prof > threshold) { 
                         nll_1 = nll_1_prof; 
                         break; 
@@ -624,13 +619,13 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                         if (aboveThresh) rStep *= 2;
                     }
                 } else {
-                    if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\t                         \tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
+                    if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\t                         \tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa)),__func__);
                 }
                 if (r_1 > rMax0) return std::numeric_limits<float>::quiet_NaN();
             } while (true);
             // now crossing is bracketed, do bisection
-            if (verbose > 1) printf("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_0, nll_0-nll0, kappa);
-            if (verbose > 1) printf("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_0, nll_0-nll0, kappa)),__func__);
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_0, nll_1-nll0, kappa)),__func__);
             minosStat = 0;
             do {
                // LOOP PRECONDITIONS:
@@ -643,7 +638,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                    double r_2 = 0.5*(r_hi+r_lo); 
                    r->setVal(r_2);
                    double y0 = nll.getVal(), y = y0 - kappa*std::pow(r_2-r_1,2);
-                   if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll appr) = %.5f\tkappa=%.5f\n", r->GetName(), r_2, y0-nll0, y-nll0, kappa);
+                   if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll appr) = %.5f\tkappa=%.5f\n", r->GetName(), r_2, y0-nll0, y-nll0, kappa)),__func__);
                    if (y < threshold) { r_lo = r_2; } else { r_hi = r_2; }
                } 
                // profile at that point
@@ -657,7 +652,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                }
                if (!ok && picky_) return std::numeric_limits<float>::quiet_NaN();
                double nll_prof = nll.getVal();
-               if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tdelta(nll appr) = %.5f\n", r->GetName(), rCross, nll_unprof-nll0, nll_prof-nll0, nll_unprof-nll0 - kappa*std::pow(rCross-r_1,2));
+               if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tdelta(nll appr) = %.5f\n", r->GetName(), rCross, nll_unprof-nll0, nll_prof-nll0, nll_unprof-nll0 - kappa*std::pow(rCross-r_1,2))),__func__);
                if (fabs(nll_prof - threshold) < 0.1*minim2.tolerance()) { break; }
                // not yet bang on, so update r_0, kappa
                kappa = (nll_unprof - nll_prof)/std::pow(rCross-r_1,2);

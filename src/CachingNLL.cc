@@ -486,7 +486,7 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
         return new CachingHistPdf2(pdf, obs);
     } else if (gaussNll && typeid(*pdf) == typeid(RooGaussian)) {
         if (runtimedef::get("DBG_GAUSS")) {
-            std::cout << "Creating CachingGaussPdf for " << pdf->GetName() << "\n";
+            CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("Creating CachingGaussPdf for  %s",pdf->GetName())),__func__);
             pdf->Print("v");
         }
         return new CachingGaussPdf(pdf, obs);
@@ -521,7 +521,7 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
         return new CachingCMSHistSum(pdf, obs);
     } else {
         if (verb) {
-            std::cout << "I don't have an optimized implementation for " << pdf->ClassName() << " (" << pdf->GetName() << ")" << std::endl;
+            CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("I don't have an optimized implementation for %s (%s)",pdf->ClassName(),pdf->GetName())),__func__);
         }
         return new CachingPdf(pdf, obs);
     }
@@ -646,7 +646,7 @@ cacheutils::CachingAddNLL::evaluate() const
                 double refintegral = integrals_[itc - coeffs_.begin()]->getVal();
                 if (refintegral > 0) {
                     if (std::abs((integral - refintegral)/refintegral) > 1e-5) {
-                        printf("integrals don't match: %+10.6f  %+10.6f  %10.7f %s\n", refintegral, integral, refintegral ? std::abs((integral - refintegral)/refintegral) : 0,  itp->pdf()->GetName());
+                        CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("integrals don't match: %+10.6f  %+10.6f  %10.7f %s\n", refintegral, integral, refintegral ? std::abs((integral - refintegral)/refintegral) : 0,  itp->pdf()->GetName()  )),__func__);
                         allBasicIntegralsOk = false;
                         basicIntegrals_ = 0; // don't waste time on this anymore
                     }
@@ -656,10 +656,10 @@ cacheutils::CachingAddNLL::evaluate() const
             }
         }
 #ifdef LOG_ADDPDFS
-        printf("%s coefficient %s (%s) = %20.15f\n", itp->pdf()->GetName(), (*itc)->GetName(), (*itc)->ClassName(), coeff);
+        CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("%s coefficient %s (%s) = %20.15f\n", itp->pdf()->GetName(), (*itc)->GetName(), (*itc)->ClassName(), coeff)),__func__);
         //(*itc)->Print("");
         for (unsigned int i = 0, n = pdfvals.size(); i < n; ++i) {
-            if (i%84==0) printf("%-80s[%3d] = %20.15f\n", itp->pdf()->GetName(), i, pdfvals[i]);
+            if (i%84==0) CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("%-80s[%3d] = %20.15f\n", itp->pdf()->GetName(), i, pdfvals[i])),__func__);
         }
 #endif
         // update running sum
@@ -1317,7 +1317,7 @@ void cacheutils::CachingSimNLL::setMaskNonDiscreteChannels(bool mask) {
                     internalMasks_[idx] = true; 
                     activeParameters_.add((*it)->params(), /*silent=*/true); 
                     activeCatParameters_.add((*it)->catParams(), /*silent=*/true); 
-                    std::cout << "Enabling channel " << (*it)->GetName() << " that depends on non-const category " << cat->GetName() << std::endl;
+                    CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("Enabling channel %s that depends on non-constant category %s",(*it)->GetName(), cat->GetName())),__func__);
                     break;
                 }
             }

@@ -229,10 +229,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     double nll0 = nll->getVal();
     if (runtimedef::get("SETPARAMETERS_AFTER_NLL")) {
         utils::setModelParameters(setPhysicsModelParameterExpression_, allParameters_);
-        if (verbose >= 3) {
-            double nll_new = nll->getVal();
-            std::cout << "DELTA NLL FROM SETPARAMETERS = " << nll_new - nll0 << std::endl;
-        }
+        if (verbose >= 3) CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,std::string(Form("DELTA NLL FROM SETPARAMETERS = %f",nll->getVal() - nll0 )),__func__);
     }
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
     double delta95 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.95,ndim);
@@ -242,27 +239,28 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     CloseCoutSentry sentry(verbose < 3);    
-    if (verbose>1) std::cout << "do first Minimization " << std::endl;
+    if (verbose>1) CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,"do first Minimization",__func__); 
     TStopwatch tw; 
     if (verbose) tw.Start();
     bool ok = minim.minimize(verbose);
-    if (verbose>1) {
-       std::cout << "Minimized in : " ; tw.Print();
-    }
+    if (verbose>1) CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,std::string(Form("Minimized in %f seconds (%f CPU time)",tw.RealTime(),tw.CpuTime())),__func__);
     nll0Value_ =  nll0;
     nllValue_ =  nll->getVal() - nll0;
     if (verbose >= 3) {
-        printf("FINAL NLL - NLL0 VALUE = %.10g\n", nllValue_);
+        CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,std::string(Form("FINAL NLL - NLL0 VALUE = %.10g\n", nllValue_)),__func__);
         if (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0) {
-            printf("FINAL CATEGORIES: ");
+            CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,"FINAL CATEGORIES",__func__);
             for (unsigned int ic = 0, nc = CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize(); ic != nc; ++ic) {
                 const RooCategory *cat = (RooCategory*)(CascadeMinimizerGlobalConfigs::O().pdfCategories.at(ic));
-                printf("%s%s=%d", (ic > 0 ? "," : ""), cat->GetName(), cat->getIndex());
+                CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,std::string(Form("%s%s=%d", (ic > 0 ? "," : ""), cat->GetName(), cat->getIndex())),__func__);
             }
-            printf("\n");
         }
     }
-    if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
+    if (!ok && !keepFailures_) { 
+        std::cout << "Initial minimization failed. Aborting." << std::endl; 
+        CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,"Initial minimization failed. Aborting.",__func__); 
+        return 0; 
+    }
     if (doHesse) minim.hesse();
     sentry.clear();
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
@@ -349,9 +347,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
             minim.minimizer().setPrintLevel(2);
             if (verbose>1) {tw.Reset(); tw.Start();}
             if (minim.minos(RooArgSet(r))) {
-               if (verbose>1) {  
-	       	std::cout << "Run Minos in  "; tw.Print(); std::cout << std::endl;
-	       }
+               if (verbose>1)CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,std::string(Form("Run Minos in %f seconds (%f CPU time)",tw.RealTime(),tw.CpuTime() )),__func__); 
                rf.setRange("err68", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                rf.setAsymError(r.getAsymErrorLo(), r.getAsymErrorHi());
             }
