@@ -269,6 +269,8 @@ for i, other in enumerate(other_scans):
     legend.AddEntry(other['func'], other_scans_opts[i][1], 'L')
 legend.Draw()
 
+breakdown_json = {}
+js_extra = {}
 if args.json is not None:
     if os.path.isfile(args.json):
         with open(args.json) as jsonfile:

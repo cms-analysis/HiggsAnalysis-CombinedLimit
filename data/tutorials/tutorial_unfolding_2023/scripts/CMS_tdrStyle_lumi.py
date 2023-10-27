@@ -1,16 +1,6 @@
 import ROOT as rt
 
 
-def tdrGrid(gridOn):
-    tdrStyle.SetPadGridX(gridOn)
-    tdrStyle.SetPadGridY(gridOn)
-
-
-#fixOverlay: Redraws the axis
-def fixOverlay():
-    gPad.RedrawAxis()
-
-
 def setTDRStyle():
     tdrStyle = rt.TStyle("tdrStyle", "Style for P-TDR")
 
@@ -217,7 +207,6 @@ def CMS_lumi(pad, iPeriod, iPosX):
     t = pad.GetTopMargin()
     r = pad.GetRightMargin() + 0.05
     b = pad.GetBottomMargin()
-    e = 0.025
 
     pad.cd()
 
