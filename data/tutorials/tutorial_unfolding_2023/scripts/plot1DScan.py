@@ -19,6 +19,7 @@ ROOT.gStyle.SetMarkerSize(0.7)
 
 NAMECOUNTER = 0
 
+
 def read(scan, param, files, ycut):
     goodfiles = [f for f in files if plot.TFileIsGood(f)]
     limit = plot.MakeTChain(goodfiles, 'limit')
@@ -37,23 +38,26 @@ def Eval(obj, x, params):
 
 def BuildScan(scan, param, files, color, yvals, ycut):
     graph = read(scan, param, files, ycut)
+
     if graph.GetN() <= 1:
         graph.Print()
         raise RuntimeError('Attempting to build %s scan from TGraph with zero or one point (see above)' % files)
+
     bestfit = None
     for i in range(graph.GetN()):
         if graph.GetY()[i] == 0.:
             bestfit = graph.GetX()[i]
+
     graph.SetMarkerColor(color)
     spline = ROOT.TSpline3("spline3", graph)
     global NAMECOUNTER
     func_method = partial(Eval, spline)
-    func = ROOT.TF1('splinefn'+str(NAMECOUNTER), func_method, graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
+    func = ROOT.TF1('splinefn' + str(NAMECOUNTER), func_method, graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
     func._method = func_method
     NAMECOUNTER += 1
     func.SetLineColor(color)
     func.SetLineWidth(3)
-    assert(bestfit is not None)
+    assert bestfit is not None
     crossings = {}
     cross_1sig = None
     cross_2sig = None
@@ -94,6 +98,7 @@ def BuildScan(scan, param, files, color, yvals, ycut):
         "other_2sig" : other_2sig
     }
 
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument('main', help='Main input file for the scan')
@@ -108,8 +113,8 @@ parser.add_argument('--others', nargs='*', help='add secondary scans processed a
 parser.add_argument('--breakdown', help='do quadratic error subtraction using --others')
 parser.add_argument('--model', default='STXS')
 parser.add_argument('--logo', default='CMS')
-parser.add_argument('--json', default=None, help = 'json file to save the intervals')
-parser.add_argument('--envelope', default=None, help = 'json file to save the intervals')
+parser.add_argument('--json', default=None, help='json file to save the intervals')
+parser.add_argument('--envelope', default=None, help='json file to save the intervals')
 parser.add_argument('--logo-sub', default='Material for Combine tutorial')
 args = parser.parse_args()
 
@@ -129,8 +134,8 @@ yvals = [1., 4.]
 
 main_scan = BuildScan(args.output, args.POI, [args.main], args.main_color, yvals, args.y_cut)
 
-other_scans = [ ]
-other_scans_opts = [ ]
+other_scans = []
+other_scans_opts = []
 if args.others is not None:
     for oargs in args.others:
         splitargs = oargs.split(':')
@@ -156,13 +161,13 @@ mins = []
 maxs = []
 for other in other_scans:
     mins.append(other['graph'].GetX()[0])
-    maxs.append(other['graph'].GetX()[other['graph'].GetN()-1])
+    maxs.append(other['graph'].GetX()[other['graph'].GetN() - 1])
 
 if len(other_scans) > 0:
     if min(mins) < main_scan['graph'].GetX()[0]:
         new_min = min(mins) - (main_scan['graph'].GetX()[0] - new_min)
-    if max(maxs) > main_scan['graph'].GetX()[main_scan['graph'].GetN()-1]:
-        new_max = max(maxs) + (new_max - main_scan['graph'].GetX()[main_scan['graph'].GetN()-1])
+    if max(maxs) > main_scan['graph'].GetX()[main_scan['graph'].GetN() - 1]:
+        new_max = max(maxs) + (new_max - main_scan['graph'].GetX()[main_scan['graph'].GetN() - 1])
     axishist.GetXaxis().SetLimits(new_min, new_max)
 
 for other in other_scans:
@@ -177,8 +182,10 @@ for yval in yvals:
     plot.DrawHorizontalLine(pads[0], line, yval)
     if (len(other_scans) == 0):
         for cr in main_scan['crossings'][yval]:
-            if cr['valid_lo']: line.DrawLine(cr['lo'], 0, cr['lo'], yval)
-            if cr['valid_hi']: line.DrawLine(cr['hi'], 0, cr['hi'], yval)
+            if cr['valid_lo']:
+                line.DrawLine(cr['lo'], 0, cr['lo'], yval)
+            if cr['valid_hi']:
+                line.DrawLine(cr['hi'], 0, cr['hi'], yval)
 
 main_scan['func'].Draw('same')
 for other in other_scans:
@@ -188,8 +195,7 @@ for other in other_scans:
     other['func'].Draw('SAME')
 
 
-
-box = ROOT.TBox(axishist.GetXaxis().GetXmin(), 0.625*args.y_max, axishist.GetXaxis().GetXmax(), args.y_max)
+box = ROOT.TBox(axishist.GetXaxis().GetXmin(), 0.625 * args.y_max, axishist.GetXaxis().GetXmax(), args.y_max)
 box.Draw()
 pads[0].GetFrame().Draw()
 pads[0].RedrawAxis()
@@ -201,7 +207,7 @@ val_2sig = main_scan['val_2sig']
 textfit = '%s = %.3f{}^{#plus %.3f}_{#minus %.3f}' % (fixed_name, val_nom[0], val_nom[1], abs(val_nom[2]))
 
 
-pt = ROOT.TPaveText(0.59, 0.82 - len(other_scans)*0.08, 0.95, 0.91, 'NDCNB')
+pt = ROOT.TPaveText(0.59, 0.82 - len(other_scans) * 0.08, 0.95, 0.91, 'NDCNB')
 pt.AddText(textfit)
 
 if args.breakdown is None:
@@ -223,20 +229,20 @@ if args.breakdown is not None:
     for other in other_scans:
         v_hi.append(other['val'][1])
         v_lo.append(other['val'][2])
-    assert(len(v_hi) == len(breakdown))
+    assert len(v_hi) == len(breakdown)
     textfit = '%s = %.3f' % (fixed_name, val_nom[0])
     for i, br in enumerate(breakdown):
         if i < (len(breakdown) - 1):
-            if (abs(v_hi[i+1]) > abs(v_hi[i])):
+            if (abs(v_hi[i + 1]) > abs(v_hi[i])):
                 print('ERROR SUBTRACTION IS NEGATIVE FOR %s HI' % br)
                 hi = 0.
             else:
-                hi = math.sqrt(v_hi[i]*v_hi[i] - v_hi[i+1]*v_hi[i+1])
-            if (abs(v_lo[i+1]) > abs(v_lo[i])):
+                hi = math.sqrt(v_hi[i] * v_hi[i] - v_hi[i + 1] * v_hi[i + 1])
+            if (abs(v_lo[i + 1]) > abs(v_lo[i])):
                 print('ERROR SUBTRACTION IS NEGATIVE FOR %s LO' % br)
                 lo = 0.
             else:
-                lo = math.sqrt(v_lo[i]*v_lo[i] - v_lo[i+1]*v_lo[i+1])
+                lo = math.sqrt(v_lo[i] * v_lo[i] - v_lo[i + 1] * v_lo[i + 1])
         else:
             hi = v_hi[i]
             lo = v_lo[i]
@@ -248,7 +254,7 @@ pt.SetTextAlign(11)
 pt.SetTextFont(42)
 pt.Draw()
 
-plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.045, 0.035, 1.2,  cmsTextSize = 1.)
+plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.045, 0.035, 1.2, cmsTextSize=1.)
 
 legend_l = 0.69
 if len(other_scans) > 0:
@@ -269,7 +275,7 @@ if args.json is not None:
             js = json.load(jsonfile)
     else:
         js = {}
-    if not args.model in js:
+    if args.model in js:
         js[args.model] = {}
     js[args.model][args.POI] = {
         'Val': val_nom[0],
@@ -288,25 +294,23 @@ if args.json is not None:
             for oi, other in enumerate(other_scans):
                 if len(other['other_1sig']) >= 1:
                     interval = other['other_1sig'][0]
-                    js_extra['OtherLimit%sLo' % breakdown[oi+1]] = interval['lo']
-                    js_extra['OtherLimit%sHi' % breakdown[oi+1]] = interval['hi']
-                    js_extra['ValidOtherLimit%sLo' % breakdown[oi+1]] = interval['valid_lo']
-                    js_extra['ValidOtherLimit%sHi' % breakdown[oi+1]] = interval['valid_hi']
+                    js_extra['OtherLimit%sLo' % breakdown[oi + 1]] = interval['lo']
+                    js_extra['OtherLimit%sHi' % breakdown[oi + 1]] = interval['hi']
+                    js_extra['ValidOtherLimit%sLo' % breakdown[oi + 1]] = interval['valid_lo']
+                    js_extra['ValidOtherLimit%sHi' % breakdown[oi + 1]] = interval['valid_hi']
                 if len(main_scan['other_2sig']) >= 1:
                     interval = other['other_2sig'][0]
-                    js_extra['2sig_OtherLimit%sLo' % breakdown[oi+1]] = interval['lo']
-                    js_extra['2sig_OtherLimit%sHi' % breakdown[oi+1]] = interval['hi']
-                    js_extra['2sig_ValidOtherLimit%sLo' % breakdown[oi+1]] = interval['valid_lo']
-                    js_extra['2sig_ValidOtherLimit%sHi' % breakdown[oi+1]] = interval['valid_hi']
+                    js_extra['2sig_OtherLimit%sLo' % breakdown[oi + 1]] = interval['lo']
+                    js_extra['2sig_OtherLimit%sHi' % breakdown[oi + 1]] = interval['hi']
+                    js_extra['2sig_ValidOtherLimit%sLo' % breakdown[oi + 1]] = interval['valid_lo']
+                    js_extra['2sig_ValidOtherLimit%sHi' % breakdown[oi + 1]] = interval['valid_hi']
         js[args.model][args.POI].update(js_extra)
 
     with open(args.json, 'w') as outfile:
         json.dump(js, outfile, sort_keys=True, indent=4, separators=(',', ': '))
 
 
-
 save_graph = main_scan['graph'].Clone()
 save_graph.GetXaxis().SetTitle('%s = %.3f %+.3f/%+.3f' % (fixed_name, val_nom[0], val_nom[2], val_nom[1]))
 canv.Print('.pdf')
 canv.Print('.png')
-
