@@ -4,16 +4,16 @@ import ROOT as rt
 def setTDRStyle():
     tdrStyle = rt.TStyle("tdrStyle", "Style for P-TDR")
 
-    #for the canvas:
+    # for the canvas:
     tdrStyle.SetCanvasBorderMode(0)
     tdrStyle.SetCanvasColor(rt.kWhite)
-    tdrStyle.SetCanvasDefH(600)  #Height of canvas
-    tdrStyle.SetCanvasDefW(800)  #Width of canvas
-    tdrStyle.SetCanvasDefX(0)    #POsition on screen
+    tdrStyle.SetCanvasDefH(600)  # Height of canvas
+    tdrStyle.SetCanvasDefW(800)  # Width of canvas
+    tdrStyle.SetCanvasDefX(0)  # POsition on screen
     tdrStyle.SetCanvasDefY(0)
 
     tdrStyle.SetPadBorderMode(0)
-    #tdrStyle.SetPadBorderSize(Width_t size = 1)
+    # tdrStyle.SetPadBorderSize(Width_t size = 1)
     tdrStyle.SetPadColor(rt.kWhite)
     tdrStyle.SetPadGridX(False)
     tdrStyle.SetPadGridY(False)
@@ -21,7 +21,7 @@ def setTDRStyle():
     tdrStyle.SetGridStyle(3)
     tdrStyle.SetGridWidth(1)
 
-    #For the frame:
+    # For the frame:
     tdrStyle.SetFrameBorderMode(0)
     tdrStyle.SetFrameBorderSize(1)
     tdrStyle.SetFrameFillColor(0)
@@ -30,29 +30,29 @@ def setTDRStyle():
     tdrStyle.SetFrameLineStyle(1)
     tdrStyle.SetFrameLineWidth(1)
 
-    #For the histo:
-    #tdrStyle.SetHistFillColor(1)
-    #tdrStyle.SetHistFillStyle(0)
+    # For the histo:
+    # tdrStyle.SetHistFillColor(1)
+    # tdrStyle.SetHistFillStyle(0)
     tdrStyle.SetHistLineColor(1)
     tdrStyle.SetHistLineStyle(0)
     tdrStyle.SetHistLineWidth(1)
-    #tdrStyle.SetLegoInnerR(Float_t rad = 0.5)
-    #tdrStyle.SetNumberContours(Int_t number = 20)
+    # tdrStyle.SetLegoInnerR(Float_t rad = 0.5)
+    # tdrStyle.SetNumberContours(Int_t number = 20)
 
     tdrStyle.SetEndErrorSize(2)
-    #tdrStyle.SetErrorMarker(20)
-    #tdrStyle.SetErrorX(0.)
+    # tdrStyle.SetErrorMarker(20)
+    # tdrStyle.SetErrorX(0.)
 
     tdrStyle.SetMarkerStyle(20)
 
-    #For the fit/function:
+    # For the fit/function:
     tdrStyle.SetOptFit(1)
     tdrStyle.SetFitFormat("5.4g")
     tdrStyle.SetFuncColor(2)
     tdrStyle.SetFuncStyle(1)
     tdrStyle.SetFuncWidth(1)
 
-    #For the date:
+    # For the date:
     tdrStyle.SetOptDate(0)
     # tdrStyle.SetDateX(Float_t x = 0.01)
     # tdrStyle.SetDateY(Float_t y = 0.01)
@@ -116,7 +116,7 @@ def setTDRStyle():
     tdrStyle.SetAxisColor(1, "XYZ")
     tdrStyle.SetStripDecimals(True)
     tdrStyle.SetTickLength(0.03, "XYZ")
-#3    tdrStyle.SetNdivisions(510, "XYZ")
+    # 3    tdrStyle.SetNdivisions(510, "XYZ")
     tdrStyle.SetNdivisions(510, "XYZ")
     tdrStyle.SetNdivisions(505, "X")
     tdrStyle.SetPadTickX(1)  # To get tick marks on the opposite side of the frame
@@ -128,7 +128,7 @@ def setTDRStyle():
     tdrStyle.SetOptLogz(0)
 
     # Postscript options:
-    tdrStyle.SetPaperSize(20., 20.)
+    tdrStyle.SetPaperSize(20.0, 20.0)
     # tdrStyle.SetLineScalePS(Float_t scale = 3)
     # tdrStyle.SetLineStyleString(Int_t i, const char* text)
     # tdrStyle.SetHeaderPS(const char* header)
@@ -184,20 +184,20 @@ drawLogo = False
 
 def CMS_lumi(pad, iPeriod, iPosX):
     outOfFrame = False
-    if (iPosX / 10 == 0):
+    if iPosX / 10 == 0:
         outOfFrame = True
 
     alignY_ = 3
     alignX_ = 2
-    if (iPosX / 10 == 0):
+    if iPosX / 10 == 0:
         alignX_ = 1
-    if (iPosX == 0):
+    if iPosX == 0:
         alignY_ = 1
-    if (iPosX / 10 == 1):
+    if iPosX / 10 == 1:
         alignX_ = 1
-    if (iPosX / 10 == 2):
+    if iPosX / 10 == 2:
         alignX_ = 2
-    if (iPosX / 10 == 3):
+    if iPosX / 10 == 3:
         alignX_ = 3
     align_ = 10 * alignX_ + alignY_
 
@@ -211,24 +211,24 @@ def CMS_lumi(pad, iPeriod, iPosX):
     pad.cd()
 
     lumiText = ""
-    if (iPeriod == 1):
+    if iPeriod == 1:
         lumiText += lumi_7TeV
         lumiText += " (7 TeV)"
-    elif (iPeriod == 2):
+    elif iPeriod == 2:
         lumiText += lumi_8TeV
         lumiText += " (8 TeV)"
 
-    elif (iPeriod == 3):
+    elif iPeriod == 3:
         lumiText = lumi_8TeV
         lumiText += " (8 TeV)"
         lumiText += " + "
         lumiText += lumi_7TeV
         lumiText += " (7 TeV)"
-    elif (iPeriod == 4):
+    elif iPeriod == 4:
         lumiText += lumi_13TeV
         lumiText += " (13 TeV)"
-    elif (iPeriod == 7):
-        if (outOfFrame):
+    elif iPeriod == 7:
+        if outOfFrame:
             lumiText += "#scale[0.85]{"
         lumiText += lumi_13TeV
         lumiText += " (13 TeV)"
@@ -238,11 +238,11 @@ def CMS_lumi(pad, iPeriod, iPosX):
         lumiText += " + "
         lumiText += lumi_7TeV
         lumiText += " (7 TeV)"
-        if (outOfFrame):
+        if outOfFrame:
             lumiText += "}"
-    elif (iPeriod == 12):
+    elif iPeriod == 12:
         lumiText += "8 TeV"
-    elif (iPeriod == 0):
+    elif iPeriod == 0:
         lumiText += lumi_sqrtS
 
     print(lumiText)
@@ -260,7 +260,7 @@ def CMS_lumi(pad, iPeriod, iPosX):
     print(1 - r, 1 - t + lumiTextOffset * t, lumiText)
     latex.DrawLatex(1 - r - 0.03, 1 - t + lumiTextOffset * t, lumiText)
 
-    if (outOfFrame):
+    if outOfFrame:
         latex.SetTextFont(cmsTextFont)
         latex.SetTextAlign(11)
         latex.SetTextSize(cmsTextSize * t)
@@ -269,18 +269,18 @@ def CMS_lumi(pad, iPeriod, iPosX):
     pad.cd()
 
     posX_ = 0
-    if (iPosX % 10 <= 1):
+    if iPosX % 10 <= 1:
         posX_ = l + relPosX * (1 - l - r)
-    elif (iPosX % 10 == 2):
+    elif iPosX % 10 == 2:
         posX_ = l + 0.5 * (1 - l - r)
-    elif (iPosX % 10 == 3):
+    elif iPosX % 10 == 3:
         posX_ = 1 - r - relPosX * (1 - l - r)
 
     posY_ = 1 - t - relPosY * (1 - t - b)
     print("posX_", posX_)
     posX_ = 0.05
-    if (not outOfFrame):
-        if (drawLogo):
+    if not outOfFrame:
+        if drawLogo:
             posX_ = l + 0.045 * (1 - l - r) * W / H
             posY_ = 1 - t - 0.045 * (1 - t - b)
             xl_0 = posX_
@@ -300,13 +300,13 @@ def CMS_lumi(pad, iPeriod, iPosX):
             latex.SetTextAlign(align_)
             posX_ = 0.1
             latex.DrawLatex(posX_, posY_, cmsText)
-            if (writeExtraText) :
+            if writeExtraText:
                 latex.SetTextFont(extraTextFont)
                 latex.SetTextAlign(align_)
                 latex.SetTextSize(extraTextSize * t)
                 latex.DrawLatex(posX_, posY_ - relExtraDY * cmsTextSize * t, extraText)
-    elif (writeExtraText):
-        if (iPosX == 0):
+    elif writeExtraText:
+        if iPosX == 0:
             posX_ = l + relPosX * (1 - l - r) + cmsTextConsumedWidth
             posY_ = 1 - t + lumiTextOffset * t
         latex.SetTextFont(extraTextFont)
