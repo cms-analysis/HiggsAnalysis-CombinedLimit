@@ -65,3 +65,8 @@ jobs:
       run: |
         cd HiggsAnalysis/CombinedLimit
         make CONDA=1 -j 2
+    - name: Run tests
+      shell: bash -l {0}
+      run: |
+        cd HiggsAnalysis/CombinedLimit/test
+        python test_interference.py

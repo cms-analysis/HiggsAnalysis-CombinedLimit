@@ -144,7 +144,8 @@ t2wcmd = [
     "POIs=kl[1,0,2]:kv[1,0,2]:k2v[1,0,2]",
 ]
 
-subprocess.call(t2wcmd)
+ret = subprocess.call(t2wcmd)
+assert ret == 0
 
 fws = ROOT.TFile.Open("card.root")
 w = fws.Get("w")
@@ -167,4 +168,5 @@ assert abs(func.getVal() - 0.8586229062809139) < 1e-14, func.getVal()
 setvars(2, 1.1, 0.9, 1.3)
 assert abs(func.getVal() - 4.372110974178483) < 1e-14, func.getVal()
 
-subprocess.call("combine -M MultiDimFit card.root -t 100".split(" "))
+ret = subprocess.call("combine -M MultiDimFit card.root -t 100".split(" "))
+assert ret == 0
