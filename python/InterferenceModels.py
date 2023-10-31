@@ -139,13 +139,15 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
                 # if there are no systematics, it ends up with a different name?
                 hfname = "shapeSig_{process}_{channel}_rebinPdf".format(channel=channel, process=process)
                 histfunc = self.modelBuilder.out.function(hfname)
+            if not histfunc:
+                # assume this is a CMSHistSum workspace
+                hfname = f"prop_bin{channel}"
+                histfunc = self.modelBuilder.out.function(hfname)
             # TODO: support FastVerticalInterpHistPdf2
-            if not isinstance(histfunc, ROOT.CMSHistFunc):
-                self.modelBuilder.out.Print("v")
+            if not isinstance(histfunc, (ROOT.CMSHistFunc, ROOT.CMSHistSum)):
                 raise RuntimeError(
-                    "Could not locate the CMSHistFunc for {string}.\nNote that CMSInterferenceFunc currently only supports workspaces that use CMSHistFunc".format(
-                        string=string
-                    )
+                    "Could not locate the CMSHistFunc or CMSHistSum for {string}.\n".format(string=string)
+                    + "Note that CMSInterferenceFunc currently only supports workspaces that use these classes"
                 )
 
             funcname = hfname + "_externalMorph"
@@ -164,7 +166,16 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
 
             self.modelBuilder.out.safe_import(ROOT.CMSInterferenceFunc(funcname, "", histfunc.getXVar(), params, edges, scaling_array))
             func = self.modelBuilder.out.function(funcname)
-            histfunc.injectExternalMorph(func)
+            if isinstance(histfunc, ROOT.CMSHistFunc):
+                histfunc.injectExternalMorph(func)
+            elif isinstance(histfunc, ROOT.CMSHistSum):
+                coefname = "n_exp_final_bin{channel}_proc_{process}".format(channel=channel, process=process)
+                for idx, coef in enumerate(histfunc.coefList()):
+                    if coef.GetName() == coefname:
+                        if self.verbose:
+                            print("Injecting external morph for " + coefname)
+                        histfunc.injectExternalMorph(idx, func)
+                        break
 
 
 interferenceModel = InterferenceModel()

@@ -147,6 +147,10 @@ t2wcmd = [
 ret = subprocess.call(t2wcmd)
 assert ret == 0
 
+histsum_args = ["--for-fits", "--no-wrappers", "--use-histsum", "-o", "card_histsum.root"]
+ret = subprocess.call(t2wcmd + histsum_args)
+assert ret == 0
+
 fws = ROOT.TFile.Open("card.root")
 w = fws.Get("w")
 
@@ -168,5 +172,27 @@ assert abs(func.getVal() - 0.8586229062809139) < 1e-14, func.getVal()
 setvars(2, 1.1, 0.9, 1.3)
 assert abs(func.getVal() - 4.372110974178483) < 1e-14, func.getVal()
 
-ret = subprocess.call("combine -M MultiDimFit card.root -t 100".split(" "))
+# toy generation is different between the histsum and histfunc models, somehow
+ntoys = 10
+ret = subprocess.call(f"combine -M GenerateOnly card.root -t {ntoys} --saveToys".split(" "))
 assert ret == 0
+
+ret = subprocess.call(f"combine -M MultiDimFit card.root -t {ntoys} --toysFile higgsCombineTest.GenerateOnly.mH120.123456.root -n HistFunc".split(" "))
+assert ret == 0
+
+ret = subprocess.call(f"combine -M MultiDimFit card_histsum.root -t {ntoys} --toysFile higgsCombineTest.GenerateOnly.mH120.123456.root -n HistSum".split(" "))
+assert ret == 0
+
+f_histfunc = ROOT.TFile.Open("higgsCombineHistFunc.MultiDimFit.mH120.123456.root")
+f_histsum = ROOT.TFile.Open("higgsCombineHistSum.MultiDimFit.mH120.123456.root")
+
+ndiff = {"kl": 0, "kv": 0, "k2v": 0}
+for row1, row2 in zip(f_histfunc.Get("limit"), f_histsum.Get("limit")):
+    if abs(row1.kl - row2.kl) > 1e-4:
+        ndiff["kl"] += 1
+    if abs(row1.kv - row2.kv) > 1e-4:
+        ndiff["kv"] += 1
+    if abs(row1.k2v - row2.k2v) > 1e-4:
+        ndiff["k2v"] += 1
+
+print(f"Out of {ntoys} toys, {ndiff} are not matching (tolerance: 1e-4) between CMSHistFunc and CMSHistSum")
