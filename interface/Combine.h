@@ -70,6 +70,7 @@ public:
 private:
   bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
  
+  std::string parseRegex(std::string instr, const RooArgSet *nuisances, RooWorkspace *w) ;
   void addDiscreteNuisances(RooWorkspace *);
   void addNuisances(const RooArgSet *);
   void addFloatingParameters(const RooArgSet &);

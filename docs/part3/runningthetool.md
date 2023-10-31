@@ -74,7 +74,7 @@ There are a number of useful command line options which can be used to alter the
 
 By default, the dataset used by combine will be the one pointed to in the datacard. You can tell combine to use a different dataset (for example a toy one that you generated) by using the option `--dataset`. The argument should be `rootfile.root:workspace:location` or `rootfile.root:location`. In order to use this option, you must first convert your datacard to a binary workspace and use this binary workspace as the input to the command line. 
 
-#### Generic Minimizer Options
+### Generic Minimizer Options
 
 Combine uses its own minimizer class which is used to steer Minuit (via RooMinimizer) named the `CascadeMinimizer`. This allows for sequential minimization which can help in case a particular setting/algo fails. Also, the `CascadeMinimizer` knows about extra features of Combine such as *discrete* nuisance parameters.
 
@@ -105,7 +105,7 @@ You can find details about these in the Minuit2 documentation [here](https://roo
 More of these options can be found in the **Cascade Minimizer options** section when running `--help`.
 
 
-#### Output from combine
+### Output from combine
 
 Most methods will print the results of the computation to the screen, however, in addition, combine will also produce a root file containing a tree called **limit** with these results. The name of this file will be of the format,
 
@@ -156,7 +156,7 @@ The output file will contain the toys (as `RooDataSets` for the observables, inc
     The branches that are created by methods like `MultiDimFit` *will not* show the values used to generate the toy. If you also want the TTree to show the values of the POIs used to generate to toy, you should add additional branches using the `--trackParameters` option as described in the [common command line options](#common-command-line-options) section above. These branches will behave as expected when adding the option `--saveToys`. 
 
 
-#### Asimov datasets
+### Asimov datasets
 
 If you are using wither `-t -1` or using `AsymptoticLimits`, combine will calculate results based on an Asimov dataset.
 
@@ -184,7 +184,7 @@ You can turn off the internal logic by setting `--X-rtd TMCSO_AdaptivePseudoAsim
     If you set `--X-rtd TMCSO_PseudoAsimov=X` with `X>0` and also turn on `--X-rtd TMCSO_AdaptivePseudoAsimov=`$\beta$, with $\beta>0$, the internal logic will be used but this time the default will be to generate Pseudo-Asimov datasets, rather than the normal Asimov ones.
 
 
-#### Nuisance parameter generation
+### Nuisance parameter generation
 
 The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, *before* generating the data. The *unconstrained* nuisance parameters (eg `flatParam` or `rateParam`) or those with *flat* priors are **not** randomised before the data generation. If you wish to also randomise these parameters, you **must** declare these as `flatParam` in your datacard and when running text2workspace you must add the option `--X-assign-flatParam-prior` in the command line.
 
@@ -192,21 +192,21 @@ The following are options which define how the toys will be generated,
 
    * `--toysNoSystematics` the nuisance parameters in each toy are *not* randomised when generating the toy datasets - i.e their nominal values are used to generate the data. Note that for methods which profile (fit) the nuisances, the parameters are still floating when evaluating the likelihood.
 
-   * `--toysFrequentist` the nuisance parameters in each toy are set to their nominal values which are obtained *after fitting first to the data*, with POIs fixed, before generating the data. For evaluating likelihoods, the constraint terms are instead randomised within their Gaussian constraint pdfs around the post-fit nuisance parameter values.
+   * `--toysFrequentist` the nuisance parameters in each toy are set to their nominal values which are obtained *after fitting first to the data*, with POIs fixed, before generating the data. For evaluating likelihoods, the constraint terms are instead randomised within their pdfs around the post-fit nuisance parameter values.
 
 If you are using `toysFrequentist`, be aware that the values set by `--setParameters` will be *ignored* for the toy generation as the *post-fit* values will instead be used (except for any parameter which is also a parameter of interest). You can override this behaviour and choose the nominal values for toy generation for any parameter by adding the option `--bypassFrequentistFit` which will skip the initial fit to data or by loading a snapshot (see below).
 
 !!! warning
     The methods such as `AsymptoticLimits` and `HybridNew --LHCmode LHC-limits`, the  "nominal" nuisance parameter values are taken from fits to the data and are therefore not "blind" to the observed data by default (following the fully frequentist paradigm). See the detailed documentation on these methods for avoiding this and running in a completely "blind" mode.
 
-#### Generate only
+### Generate only
 
 It is also possible to generate the toys first and then feed them to the Methods in combine. This can be done using `-M GenerateOnly --saveToys`. The toys can then be read and used with the other methods by specifying `--toysFile=higgsCombineTest.GenerateOnly...` and using the same options for the toy generation.
 
 !!! warning
     Some Methods also use toys within the method itself (eg `AsymptoticLimits` and `HybridNew`). For these, you should **not** specify the toy generation with `-t` or the options above and instead follow the specific instructions.
 
-#### Loading snapshots
+### Loading snapshots
 
 Snapshots from workspaces can be loaded and used in order to generate toys using the option `--snapshotName <name of snapshot>`. This will first set the parameters to the values in the snapshot *before* any other parameter options are set and toys are generated.
 
@@ -265,7 +265,7 @@ Remember, any usual options (such as redefining POIs or freezing parameters) are
     The option `-n NAME` should be included to avoid overwriting output files as the jobs will be run inside the directory from which the command is issued.
 
 
-### Running combine jobs on the Grid
+### Grid submission with combineTool
 
 For more CPU-intensive tasks, for example determining limits for complex models using toys, it is generally not feasible to compute all the results interactively. Instead, these jobs can be submitted to the Grid.
 
@@ -314,12 +314,12 @@ combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.
 
 When the `--dry-run` option is removed each command will be run in sequence.
 
-#### Grid submission
+### Grid submission with crab3
 
-Submission to the grid with `crab3` works in a similar way. Before doing so ensure that the `crab3` environment has been sourced, then for compatibility reasons source the CMSSW environment again. We will use the example of generating a grid of test-statistic distributions for limits.
+Submission to the grid with `crab3` works in a similar way. Before doing so ensure that the `crab3` environment has been sourced in addition to the  CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.
 
 ```sh
-$ source /cvmfs/cms.cern.ch/crab3/crab.sh; cmsenv
+$ cmsenv; source /cvmfs/cms.cern.ch/crab3/crab.sh
 $ combineTool.py -d htt_mt.root -M HybridNew --LHCmode LHC-limits --clsAcc 0 -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveToys --saveHybridResult -m 125 --job-mode crab3 --task-name grid-test --custom-crab custom_crab.py
 ```
 

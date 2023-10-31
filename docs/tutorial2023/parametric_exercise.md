@@ -890,7 +890,7 @@ Compile the datacard with:
 text2workspace.py datacard_part5.txt -m 125
 ```
 
-The `RooMultiPdf` is a handy object for performing bias studies as all functions can be stored in a single workspace. You can then set which function is used for generating the toys with the `--setParameters pdfindex=i` option, and which function is used for fitting with `--setParameters pdfindex=i --freezeParameters pdfindex=j` options. 
+The `RooMultiPdf` is a handy object for performing bias studies as all functions can be stored in a single workspace. You can then set which function is used for generating the toys with the `--setParameters pdfindex_Tag0=i` option, and which function is used for fitting with `--setParameters pdfindex_Tag0=j --freezeParameters pdfindex_Tag0` options. 
 
 * It would be a useful exercise to repeat the bias studies from part 4 but using the RooMultiPdf workspace. What happens when you do not freeze the index in the fitting step?
 

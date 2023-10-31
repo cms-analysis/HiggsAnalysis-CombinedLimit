@@ -25,6 +25,7 @@ bool  ChannelCompatibilityCheck::fixedMu_ = false;
 bool  ChannelCompatibilityCheck::saveFitResult_ = true;
 bool  ChannelCompatibilityCheck::runMinos_ = true;
 std::vector<std::string> ChannelCompatibilityCheck::groups_;
+std::map<TString,std::pair<double,double>> ChannelCompatibilityCheck::groupRanges_;
 
 ChannelCompatibilityCheck::ChannelCompatibilityCheck() :
     FitterAlgoBase("ChannelCompatibilityCheck specific options")
@@ -32,7 +33,7 @@ ChannelCompatibilityCheck::ChannelCompatibilityCheck() :
     options_.add_options()
         ("fixedSignalStrength", boost::program_options::value<float>(&mu_)->default_value(mu_),  "Compute the compatibility for a fixed signal strength. If not specified, it's left floating")
         ("saveFitResult",       "Save fit results in output file")
-        ("group,g",             boost::program_options::value<std::vector<std::string> >(&groups_), "Group together channels that contain a given name. Can be used multiple times.")
+        ("group,g",             boost::program_options::value<std::vector<std::string> >(&groups_), "Group together channels that contain a given name. Can be used multiple times. Optionally, set range as name=rMin,rMax")
         ("runMinos", boost::program_options::value<bool>(&runMinos_)->default_value(runMinos_), "Compute also uncertainties using profile likeilhood (MINOS or robust variants of it)")
     ;
 }
@@ -42,6 +43,19 @@ void ChannelCompatibilityCheck::applyOptions(const boost::program_options::varia
     applyOptionsBase(vm);
     fixedMu_ = !vm["fixedSignalStrength"].defaulted();
     saveFitResult_ = vm.count("saveFitResult");
+    for(unsigned int i = 0; i < groups_.size(); i++) {
+        std::vector<std::string> groupExpr;
+        boost::split(groupExpr, groups_[i], boost::is_any_of("=,")); // "-g channel=rMin,rMax" or just "-g channel"
+        if (groupExpr.size() == 3) {
+            groups_[i] = groupExpr[0];
+            groupRanges_[groupExpr[0]] = {atof(groupExpr[1].c_str()), atof(groupExpr[2].c_str())};
+            if (verbose>=0) std::cout << "Will set range of channel " << groupExpr[0] << " to [" << groupExpr[1] << ", " << groupExpr[2] << "]" << std::endl;
+        } else if (groupExpr.size() == 1) {
+            if (verbose>=1) std::cout << "No range to parse for channel " << groups_[i] << std::endl;
+        } else {
+            std::cout << "Error parsing group expression : " << groups_[i] << std::endl;
+        }
+    }
 }
 
 bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -64,10 +78,13 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
       RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
       if (pdfi == 0) continue;
       RooCustomizer customizer(*pdfi, "freeform");
-      TString riName = TString::Format("_ChannelCompatibilityCheck_%s_%s", r->GetName(), nameForLabel(cat->getLabel()).c_str());
-      rs.insert(std::pair<std::string,std::string>(nameForLabel(cat->getLabel()), riName.Data()));
+      std::string label = nameForLabel(cat->getLabel());
+      TString riName = TString::Format("_ChannelCompatibilityCheck_%s_%s", r->GetName(), label.c_str());
+      rs.insert(std::pair<std::string,std::string>(label, riName.Data()));
+      std::pair<double,double> range = {r->getMin(),r->getMax()};
+      if (groupRanges_.find(TString(label)) != groupRanges_.end()) range = groupRanges_[label];
       if (w->var(riName) == 0) {
-        w->factory(TString::Format("%s[%g,%g]", riName.Data(), r->getMin(), r->getMax()));
+        w->factory(TString::Format("%s[%g,%g]", riName.Data(), range.first, range.second));
       }
       customizer.replaceArg(*r, *w->var(riName));
       newsim->addPdf((RooAbsPdf&)*customizer.build(), cat->getLabel());
@@ -138,7 +155,10 @@ std::string ChannelCompatibilityCheck::nameForLabel(const char *label)
 {
     std::string ret(label);
     for (std::vector<std::string>::const_iterator it = groups_.begin(), ed = groups_.end(); it != ed; ++it) {
-        if (ret.find(*it) != std::string::npos) { ret = *it; break; }
+        if (ret.find(*it) != std::string::npos) {
+            if (verbose>=1) std::cout << "Grouping channel" << label << " with " << *it << std::endl;
+            ret = *it; break;
+        }
     }
     return ret;
 }

@@ -117,13 +117,17 @@ make -j 4
 You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login.
 
 ### Standalone compilation with LCG
-LCG102 contains ROOT 6.26, which at the time of writing is not available in any CMSSW release.
-This repo can be compiled against LCG102 with:
-```
+For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102 which contains ROOT 6.26:
+```sh
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 source env_lcg.sh 
 make LCG=1 -j 8
+```
+To change the LCG version, edit `env_lcg.sh`. The resulting binaries can be relocated (e.g. for use in a
+batch job) if the following files are included in the job tarball:
+```sh
+tar -zcf Combine_LCG_env.tar.gz build interface src/classes.h --exclude=obj
 ```
 
 ### Standalone compilation with `conda`

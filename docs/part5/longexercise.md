@@ -153,8 +153,8 @@ This produces a new ROOT file `cls_qmu_distributions.root` containing the plots,
 ```shell
 python3 printTestStatPlots.py cls_qmu_distributions.root
 ```
+### Advanced section: B: Asymptotic approximation limitations
 
-#### Advanced exercises
 These distributions can be useful in understanding features in the CLs limits, especially in the low statistics regime. To explore this, try reducing the observed and expected yields in the datacard by a factor of 10, and rerun the above steps to compare the observed and expected limits with the asymptotic approach, and plot the test statistic distributions.
 
 **Tasks and questions:**
