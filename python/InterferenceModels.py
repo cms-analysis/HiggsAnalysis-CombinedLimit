@@ -141,8 +141,11 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
                 histfunc = self.modelBuilder.out.function(hfname)
             if not histfunc:
                 # assume this is a CMSHistSum workspace
-                hfname = "prop_bin{channel}".format(channel=channel)
-                histfunc = self.modelBuilder.out.function(hfname)
+                histsum_name = "prop_bin{channel}".format(channel=channel)
+                histfunc = self.modelBuilder.out.function(histsum_name)
+                # in this workspace there is no object representing the process morphing
+                # make one up so that funcname is still unique
+                hfname = "prop_bin{channel}_process{process}".format(channel=channel, process=process)
             # TODO: support FastVerticalInterpHistPdf2
             if not isinstance(histfunc, (ROOT.CMSHistFunc, ROOT.CMSHistSum)):
                 raise RuntimeError(
