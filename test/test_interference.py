@@ -174,13 +174,17 @@ assert abs(func.getVal() - 4.372110974178483) < 1e-14, func.getVal()
 
 # toy generation is different between the histsum and histfunc models, somehow
 ntoys = 10
-ret = subprocess.call(f"combine -M GenerateOnly card.root -t {ntoys} --saveToys".split(" "))
+ret = subprocess.call("combine -M GenerateOnly card.root -t {ntoys} --saveToys".format(ntoys=ntoys).split(" "))
 assert ret == 0
 
-ret = subprocess.call(f"combine -M MultiDimFit card.root -t {ntoys} --toysFile higgsCombineTest.GenerateOnly.mH120.123456.root -n HistFunc".split(" "))
+ret = subprocess.call(
+    "combine -M MultiDimFit card.root -t {ntoys} --toysFile higgsCombineTest.GenerateOnly.mH120.123456.root -n HistFunc".format(ntoys=ntoys).split(" ")
+)
 assert ret == 0
 
-ret = subprocess.call(f"combine -M MultiDimFit card_histsum.root -t {ntoys} --toysFile higgsCombineTest.GenerateOnly.mH120.123456.root -n HistSum".split(" "))
+ret = subprocess.call(
+    "combine -M MultiDimFit card_histsum.root -t {ntoys} --toysFile higgsCombineTest.GenerateOnly.mH120.123456.root -n HistSum".format(ntoys=ntoys).split(" ")
+)
 assert ret == 0
 
 f_histfunc = ROOT.TFile.Open("higgsCombineHistFunc.MultiDimFit.mH120.123456.root")
@@ -195,4 +199,4 @@ for row1, row2 in zip(f_histfunc.Get("limit"), f_histsum.Get("limit")):
     if abs(row1.k2v - row2.k2v) > 1e-4:
         ndiff["k2v"] += 1
 
-print(f"Out of {ntoys} toys, {ndiff} are not matching (tolerance: 1e-4) between CMSHistFunc and CMSHistSum")
+print("Out of {ntoys} toys, {ndiff} are not matching (tolerance: 1e-4) between CMSHistFunc and CMSHistSum".format(ntoys=ntoys, ndiff=ndiff))

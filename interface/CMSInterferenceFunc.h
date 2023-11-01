@@ -1,16 +1,13 @@
 #ifndef CMSInterferenceFunc_h
 #define CMSInterferenceFunc_h
-#include <vector>
-
-#include "RooAbsReal.h"
-#include "RooRealVar.h"
-#include "RooRealProxy.h"
 #include "RooListProxy.h"
 #include "SimpleCacheSentry.h"
 
+#include "CMSExternalMorph.h"
+
 class _InterferenceEval;
 
-class CMSInterferenceFunc : public RooAbsReal {
+class CMSInterferenceFunc : public CMSExternalMorph {
   public:
     CMSInterferenceFunc();
     CMSInterferenceFunc(CMSInterferenceFunc const& other, const char* name = 0);
@@ -24,8 +21,8 @@ class CMSInterferenceFunc : public RooAbsReal {
         const char* name,
         const char* title,
         RooRealVar& x,
-        const RooArgList& coefficients,
         const std::vector<double>& edges,
+        const RooArgList& coefficients,
         const std::vector<std::vector<double>> binscaling
         );
     virtual ~CMSInterferenceFunc();
@@ -38,20 +35,15 @@ class CMSInterferenceFunc : public RooAbsReal {
         std::ostream& os, Int_t contents, Bool_t verbose, TString indent
         ) const override;
 
-    // batch accessor for CMSHistFunc / CMSHistSum
-    bool hasChanged() const { return !sentry_.good(); };
-    const std::vector<double>& batchGetBinValues() const;
+    bool hasChanged() const override { return !sentry_.good(); };
+    const std::vector<double>& batchGetBinValues() const override;
 
   protected:
-    RooRealProxy x_;
     RooListProxy coefficients_;
-    std::vector<double> edges_;
     std::vector<std::vector<double>> binscaling_;
 
     mutable SimpleCacheSentry sentry_; //!
     mutable std::unique_ptr<_InterferenceEval> evaluator_; //!
-
-    double evaluate() const override;
 
   private:
     void initialize() const;

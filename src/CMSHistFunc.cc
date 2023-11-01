@@ -323,7 +323,7 @@ void CMSHistFunc::updateCache() const {
     if (mcache_.size() == 0) mcache_.resize(storage_.size());
   }
 
-  bool external_morph_updated = (external_morph_.getSize() && static_cast<CMSInterferenceFunc*>(external_morph_.at(0))->hasChanged());
+  bool external_morph_updated = (external_morph_.getSize() && static_cast<CMSExternalMorph*>(external_morph_.at(0))->hasChanged());
   if (step1 || external_morph_updated) {
     fast_vertical_ = false;
   }
@@ -567,7 +567,7 @@ void CMSHistFunc::updateCache() const {
           std::cout << "Template before external morph update:" << mcache_[idx].step2.Integral() << "\n";
           mcache_[idx].step2.Dump();
 #endif
-          auto& extdata = static_cast<CMSInterferenceFunc*>(external_morph_.at(0))->batchGetBinValues();
+          auto& extdata = static_cast<CMSExternalMorph*>(external_morph_.at(0))->batchGetBinValues();
           for(size_t i=0; i<extdata.size(); ++i) {
             mcache_[idx].step2[i] *= extdata[i];
           }
@@ -1220,7 +1220,7 @@ void CMSHistFunc::EnableFastVertical() {
 }
 
 
-void CMSHistFunc::injectExternalMorph(CMSInterferenceFunc& morph) {
+void CMSHistFunc::injectExternalMorph(CMSExternalMorph& morph) {
   if ( morph.batchGetBinValues().size() != cache_.size() ) {
     throw std::runtime_error("Mismatched binning between external morph and CMSHistFunc");
     // equal edges are user responsibility for now

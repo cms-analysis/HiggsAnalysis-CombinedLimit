@@ -39,21 +39,24 @@ CMSInterferenceFunc::CMSInterferenceFunc() {};
 CMSInterferenceFunc::CMSInterferenceFunc(
     CMSInterferenceFunc const& other, const char* name
   ) :
-    RooAbsReal(other, name), x_("x", this, other.x_),
+    CMSExternalMorph(other, name),
     coefficients_("coefficients", this, other.coefficients_),
-    edges_(other.edges_), binscaling_(other.binscaling_),
+    binscaling_(other.binscaling_),
     sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", "")
 {
 }
 
 CMSInterferenceFunc::CMSInterferenceFunc(
-    const char* name, const char* title, RooRealVar& x,
-    RooArgList const& coefficients, const std::vector<double>& edges,
+    const char* name,
+    const char* title,
+    RooRealVar& x,
+    const std::vector<double>& edges,
+    RooArgList const& coefficients,
     const std::vector<std::vector<double>> binscaling
   ) :
-    RooAbsReal(name, title), x_("x", "", this, x),
+    CMSExternalMorph(name, title, x, edges), 
     coefficients_("coefficients", "", this),
-    edges_(edges), binscaling_(binscaling),
+    binscaling_(binscaling),
     sentry_(TString(name) + "_sentry", "")
 {
     coefficients_.add(coefficients);
@@ -117,21 +120,7 @@ void CMSInterferenceFunc::updateCache() const {
     sentry_.reset();
 }
 
-double CMSInterferenceFunc::evaluate() const {
-    if ( not evaluator_ ) initialize();
-    if ( not sentry_.good() ) updateCache();
-
-    auto it = std::upper_bound(std::begin(edges_), std::end(edges_), x_->getVal());
-    if ( (it == std::begin(edges_)) or (it == std::end(edges_)) ) {
-        return 0.0;
-    }
-    size_t idx = std::distance(std::begin(edges_), it) - 1;
-    return evaluator_->getValues()[idx];
-}
-
 const std::vector<double>& CMSInterferenceFunc::batchGetBinValues() const {
-    // we don't really expect the cache to be valid, as upstream callers are
-    // managing their own and calling this only when dirty, but let's check anyway
     if ( not evaluator_ ) initialize();
     if ( not sentry_.good() ) updateCache();
     return evaluator_->getValues();

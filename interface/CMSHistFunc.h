@@ -15,7 +15,7 @@
 #include "CMSHistV.h"
 #include "FastTemplate_Old.h"
 #include "SimpleCacheSentry.h"
-#include "CMSInterferenceFunc.h"
+#include "CMSExternalMorph.h"
 
 class CMSHistFuncWrapper;
 
@@ -149,8 +149,7 @@ class CMSHistFunc : public RooAbsReal {
   friend class CMSHistV<CMSHistFunc>;
   friend class CMSHistSum;
 
-  // TODO: allow any class that implements hasChanged() and batchGetBinValues()
-  void injectExternalMorph(CMSInterferenceFunc& morph);
+  void injectExternalMorph(CMSExternalMorph& morph);
   /*
 
   – RooAbsArg::setVerboseEval(Int_t level) • Level 0 – No messages

@@ -164,7 +164,7 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
             for sbin in item["scaling"]:
                 scaling_array.push_back(sbin)
 
-            self.modelBuilder.out.safe_import(ROOT.CMSInterferenceFunc(funcname, "", histfunc.getXVar(), params, edges, scaling_array))
+            self.modelBuilder.out.safe_import(ROOT.CMSInterferenceFunc(funcname, "", histfunc.getXVar(), edges, params, scaling_array))
             func = self.modelBuilder.out.function(funcname)
             if isinstance(histfunc, ROOT.CMSHistFunc):
                 histfunc.injectExternalMorph(func)

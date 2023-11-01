@@ -261,10 +261,10 @@ void CMSHistSum::initialize() const {
 
 void CMSHistSum::updateMorphs() const {
   // set up pointers ahead of time for quick loop
-  std::vector<CMSInterferenceFunc*> process_morphs(compcache_.size(), nullptr);
+  std::vector<CMSExternalMorph*> process_morphs(compcache_.size(), nullptr);
   // if any external morphs are dirty, disable fast_mode_
   for(size_t i=0; i < external_morph_indices_.size(); ++i) {
-    auto* morph = static_cast<CMSInterferenceFunc*>(external_morphs_.at(i));
+    auto* morph = static_cast<CMSExternalMorph*>(external_morphs_.at(i));
     process_morphs[external_morph_indices_[i]] = morph;
     if (morph->hasChanged()) {
       fast_mode_ = 0;
@@ -780,7 +780,7 @@ void CMSHistSum::EnableFastVertical() {
   enable_fast_vertical_ = true;
 }
 
-void CMSHistSum::injectExternalMorph(int idx, CMSInterferenceFunc& morph) {
+void CMSHistSum::injectExternalMorph(int idx, CMSExternalMorph& morph) {
   if ( idx >= coeffpars_.getSize() ) {
     throw std::runtime_error("Process index larger than number of processes in CMSHistSum");
   }

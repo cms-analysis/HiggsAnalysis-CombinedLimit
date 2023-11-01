@@ -78,8 +78,7 @@ public:
   static void EnableFastVertical();
   friend class CMSHistV<CMSHistSum>;
 
-  // TODO: allow any class that implements hasChanged() and batchGetBinValues()
-  void injectExternalMorph(int idx, CMSInterferenceFunc& morph);
+  void injectExternalMorph(int idx, CMSExternalMorph& morph);
 
  protected:
   RooRealProxy x_;
