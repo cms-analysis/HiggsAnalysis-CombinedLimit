@@ -141,7 +141,7 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
                 histfunc = self.modelBuilder.out.function(hfname)
             if not histfunc:
                 # assume this is a CMSHistSum workspace
-                hfname = f"prop_bin{channel}"
+                hfname = "prop_bin{channel}".format(channel=channel)
                 histfunc = self.modelBuilder.out.function(hfname)
             # TODO: support FastVerticalInterpHistPdf2
             if not isinstance(histfunc, (ROOT.CMSHistFunc, ROOT.CMSHistSum)):
