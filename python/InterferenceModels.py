@@ -172,11 +172,11 @@ class InterferenceModel(PhysicsModelBase_NiceSubclasses):
             if isinstance(histfunc, ROOT.CMSHistFunc):
                 histfunc.injectExternalMorph(func)
             elif isinstance(histfunc, ROOT.CMSHistSum):
-                coefname = "n_exp_final_bin{channel}_proc_{process}".format(channel=channel, process=process)
+                postfix = "bin{channel}_proc_{process}".format(channel=channel, process=process)
                 for idx, coef in enumerate(histfunc.coefList()):
-                    if coef.GetName() == coefname:
+                    if coef.GetName() in ("n_exp_" + postfix, "n_exp_final_" + postfix):
                         if self.verbose:
-                            print("Injecting external morph for " + coefname)
+                            print("Injecting external morph for " + funcname)
                         histfunc.injectExternalMorph(idx, func)
                         break
 
