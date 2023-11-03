@@ -1227,7 +1227,7 @@ void HybridNew::applyExpectedQuantile(RooStats::HypoTestResult &hcres) {
           std::vector<Double_t> btoys = hcres.GetNullDistribution()->GetSamplingDistribution();
           std::sort(btoys.begin(), btoys.end());
           Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
-          if (verbose > 0) std::cout << "Text statistics for " << quantileForExpectedFromGrid_ << " quantile: " << testStat << std::endl;
+          if (verbose > 0) CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("Test statistics for %.3f quantile: %.3f",quantileForExpectedFromGrid_,testStat)),__func__); 
           hcres.SetTestStatisticData(testStat);
           //std::cout << "CLs quantile = " << (CLs_ ? hcres.CLs() : hcres.CLsplusb()) << " for test stat = " << testStat << std::endl;
       }
@@ -1366,19 +1366,19 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
         RooRandom::randomGenerator()->SetSeed(newSeeds[ich]); 
         freopen(TString::Format("%s.%d.out.txt", tmpfile, ich).Data(), "w", stdout);
         freopen(TString::Format("%s.%d.err.txt", tmpfile, ich).Data(), "w", stderr);
-        std::cout << " I'm child " << ich << ", seed " << newSeeds[ich] << std::endl;
+        CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("  I am child %d, seed %d",ich, newSeeds[ich])),__func__);
         RooStats::HypoTestResult *hcResult = evalGeneric(hc, /*noFork=*/true);
         TFile *f = TFile::Open(TString::Format("%s.%d.root", tmpfile, ich), "RECREATE");
         f->WriteTObject(hcResult, "result");
         f->ls();
         f->Close();
         fflush(stdout); fflush(stderr);
-        std::cout << "And I'm done" << std::endl;
+        CombineLogger::instance().log("HybridNew.cc",__LINE__,"And I'm done",__func__);
         throw std::runtime_error("done"); // I have to throw instead of exiting, otherwise there's no proper stack unwinding
                                           // and deleting of intermediate objects, and when the statics get deleted it crashes
                                           // in 5.27.06 (but not in 5.28)
     }
-    if (verbose > 1) { std::cout << "      Evaluation of p-values done in  " << timer.RealTime() << " s" << std::endl; }
+    if (verbose > 1) CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("      Evaluation of p-values done in %f s",timer.RealTime())),__func__);
     return result.release();
 }
 
