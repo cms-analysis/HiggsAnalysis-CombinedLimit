@@ -19,6 +19,7 @@
 #include "../interface/utils.h"
 #include "../interface/RobustHesse.h"
 #include "../interface/ProfilingTools.h"
+#include "../interface/CombineLogger.h"
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -254,13 +255,12 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if (savingSnapshot_) w->saveSnapshot("MultiDimFit",utils::returnAllVars(w));
     
     if (autoRange_ > 0) {
-        CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Adjusting range of POIs to +/- %d standard deviations",autoRange_)),__func__);
+        CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Adjusting range of POIs to +/- %.3f standard deviations",autoRange_)),__func__);
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             double val = poiVars_[i]->getVal(), err = poiVars_[i]->getError(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
             double min1 = std::max(min0, val - autoRange_ * err);
             double max1 = std::min(max0, val + autoRange_ * err);
-            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("%s: %.3f +/- %.3f [%.5f,%.5f] ==> [%.5f,%.5f] ",poi_[i], val, err, min0, max0, min1, max1)),__func__);
-            std::cout <<  << " ]" << std::endl;
+            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("%s: %.3f +/- %.3f [%.5f,%.5f] ==> [%.5f,%.5f] ",poi_[i].c_str(), val, err, min0, max0, min1, max1)),__func__);
             poiVars_[i]->setRange(min1, max1);
         }
     }
@@ -270,8 +270,8 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
             double val = poiVars_[i]->getVal(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
             double min1 = std::max(min0, val - centeredRange_);
             double max1 = std::min(max0, val + centeredRange_);
-            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("%s: %.3f [%.5f,%.5f] ==> [%.5f,%.5f] ",poi_[i], val, min0, max0, min1, max1)),__func__);
-            std::cout << poi_[i] << ": " << val << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("%s: %.3f [%.5f,%.5f] ==> [%.5f,%.5f] ",poi_[i].c_str(), val, min0, max0, min1, max1)),__func__);
+            //std::cout << poi_[i] << ": " << val << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
             poiVars_[i]->setRange(min1, max1);
         }
     }
@@ -621,7 +621,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                 + std::to_string(n));
         }
         CombineLogger::instance().log("MultiDimFit.cc",__LINE__,"Parsed number of points per POI: ",__func__);
-        for (unsigned int i = 0; i < n; i++) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("  %d/%d) %s -> %d",i+1,n,poi_[i],pointsPerPoi[i])),__func__);
+        for (unsigned int i = 0; i < n; i++) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("  %d/%d) %s -> %d",i+1,n,poi_[i].c_str(),pointsPerPoi[i])),__func__);
     }
 
     if (n == 1) {
@@ -666,7 +666,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             //if (verbose > 1) std::cout << "Point " << i << "/" << points << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
             //I suggest keeping this message on terminal as well, to let users monitor the progress
             std::cout << "Point " << i << "/" << points << " " << poiVars_[0]->GetName() << " = " << x << std::endl; 
-            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Point %d/%d) %s = %f",i,points,poiVars[0]->GetName(),x)),__func__);
+            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Point %d/%d) %s = %f",i,points,poiVars_[0]->GetName(),x)),__func__);
             *params = snap;
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
@@ -1083,7 +1083,7 @@ void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll)
             minimXI.minimize(verbose-1);
         }
         double xc = xv->getVal(); xv->setConstant(true);
-        if (verbose>-1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Best fit %s for %s = %.4f is at %.4f",xv->GetName(),yv->GetName(),yv->GetVal(),xc)),__func__);
+        if (verbose>-1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Best fit %s for %s = %.4f is at %.4f",xv->GetName(),yv->GetName(),yv->getVal(),xc)),__func__);
         // ===== Then get the range =====
         CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
         if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
