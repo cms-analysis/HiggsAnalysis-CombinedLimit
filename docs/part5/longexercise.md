@@ -297,7 +297,7 @@ Underneath this the best-fit values ($\theta$) and symmetrised uncertainties for
 A more useful way of looking at this is to compare the pre- and post-fit values of the parameters, to see how much the fit to data has shifted and constrained these parameters with respect to the input uncertainty. The script `diffNuisances.py` can be used for this:
 
 ```shell
-python diffNuisances.py fitDiagnosticsTest.root --all
+diffNuisances.py fitDiagnosticsTest.root --all
 ```
 <details>
 <summary><b>Show output</b></summary>
