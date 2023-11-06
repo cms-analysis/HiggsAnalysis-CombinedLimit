@@ -213,19 +213,19 @@ The `PhysicsModel` that encodes the signal model above is the [twoHypothesisHigg
 
 The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be performed by setting **x** or **not_x** to 1 and 0 and comparing two likelihood evaluations.
 
-### Interference
+### Signal-background interference
 
-Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes and the parameter of interest $k$,
+Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes $A$ and the parameter of interest $k$,
 
 $$
-\mathrm{Yield} = (k * A_{s} + A_{b})^2
-= k^2 * A_{s}^2 + k * 2 A_{s} A_{b} + A_{b}^2
+\mathrm{Yield} = |k * A_{s} + A_{b}|^2
+= k^2 * |A_{s}|^2 + k * 2 \Re(A_{s}^* A_{b}) + |A_{b}|^2
 = \mu * S + \sqrt{\mu} * I + B
 $$
 
 where
 
-$\mu = k^2, ~S = A_{s}^2,~B = Ab^2$ and $ S+B+I = (As + Ab)^2$.
+$\mu = k^2, ~S = |A_{s}|^2,~B = |A_b|^2$ and $S+B+I = |A_s + A_b|^2$.
 
 With some algebra you can work out that,
 
@@ -243,4 +243,114 @@ An example of this scheme is implemented in a [HiggsWidth](https://gitlab.cern.c
  self.modelBuilder.factory_( "expr::qqH_s_func(\"@0-sqrt(@0)\", CMS_zz4l_mu)")
  self.modelBuilder.factory_(  "expr::qqH_b_func(\"1-sqrt(@0)\", CMS_zz4l_mu)")
  self.modelBuilder.factory_(  "expr::qqH_sbi_func(\"sqrt(@0)\", CMS_zz4l_mu)")
+```
+
+### Multi-process interference
+
+The above formulation can be extended to multiple parameters of interest
+(POIs). See
+[AnalyticAnomalousCoupling](https://github.com/amassiro/AnalyticAnomalousCoupling)
+for an example. However, the computational performance scales quadratically
+with the number of POIs, and can get extremely expensive for 10 or more, as may
+be encountered often with EFT analyses. To alleviate this issue, an accelerated
+interference modeling technique is implemented for template-based analyses via
+the `interferenceModel` physics model. In this model, each bin yield $y$ is parameterized
+$$y(\theta) = y_0 (\theta^\top M \theta)$$
+as a function of the POI vector $\theta$, a nominal template $y_0$, and a scaling matrix $M$.
+To see how this parameterization relates to that of the previous section, we can define:
+
+$$
+y_0 = A_b^2, \qquad
+M = \frac{1}{A_b^2} \begin{bmatrix}
+ |A_s|^2 & \Re(A_s^* A_b) \\
+ \Re(A_s A_b^*) & |A_b|^2
+ \end{bmatrix}, \qquad \theta = \begin{bmatrix}
+ \sqrt{\mu} \\
+ 1
+ \end{bmatrix}
+$$
+
+which leads to the same parameterization. At present, this technique only works with
+`CMSHistFunc`-based workspaces, as these are the most common workspace types
+encountered and the default when using
+[autoMCStats](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/bin-wise-stats).
+To use this model, for each bin find $y_0$ and put it into the datacard as a signal process, then find $M$ and
+save the lower triangular component as an array in a `scaling.json` file with a
+syntax as follows:
+
+```json
+[
+  {
+    "channel": "my_channel",
+    "process": "my_nominal_process",
+    "parameters": ["sqrt_mu[1,0,2]", "Bscaling[1]"],
+    "scaling": [
+      [0.5, 0.1, 1.0],
+      [0.6, 0.2, 1.0],
+      [0.7, 0.3, 1.0]
+    ]
+  }
+]
+```
+
+where the parameters are declared using RooFit's [factory
+syntax](https://root.cern.ch/doc/v622/classRooWorkspace.html#a0ddded1d65f5c6c4732a7a3daa8d16b0)
+and each row of the `scaling` field represents the scaling information of a bin, e.g. if $y_0 = |A_b|^2$
+then each row would contain three entries:
+$$|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1$$
+
+For several coefficients, one would enumerate as follows:
+```python
+scaling = []
+for ibin in range(nbins):
+    binscaling = []
+    for icoef in range(ncoef):
+        for jcoef in range(icoef + 1):
+            binscaling.append(amplitude_squared_for(ibin, icoef, jcoef))
+    scaling.append(binscaling)
+```
+
+Then, to construct the workspace, run
+
+```bash
+text2workspace.py card.txt -P HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel \
+    --PO verbose --PO scalingData=scaling.json
+```
+For large amounts of scaling data, you can optionally use gzipped json (`.json.gz`) or pickle (`.pkl.gz`)
+files with 2D numpy arrays for the scaling coefficients instead of lists. The function `numpy.tril_indices(ncoef)`
+is helpful for extracting the lower triangle of a square matrix.
+
+You could pick any
+nominal template, and adjust the scaling as appropriate. Generally it is
+advisable to use a nominal template corresponding to near where you expect the
+POIs to land so that the shape systematic effects are well-modeled in that
+region.
+
+It may be the case that the relative contributions of the terms are themselves
+a function of the POIs. For example, in VBF di-Higgs production, BSM
+modifications to the production rate can be parameterized in the "kappa"
+framework via three diagrams, with scaling coefficients $\kappa_V \kappa_\lambda$,
+$\kappa_V^2$, and $\kappa_{2V}$, respectively, that interfere.  In
+that case, you can declare formulas with the factory syntax to represent each
+amplitude as follows:
+
+```json
+[
+  {
+    "channel": "a_vbf_channel",
+    "process": "VBFHH",
+    "parameters": ["expr::a0('@0*@1', kv[1,0,2], kl[1,0,2])", "expr::a1('@0*@0', kv[1,0,2])", "k2v[1,0,2]"],
+    "scaling": [
+      [3.30353674666415, -8.54170982038222, 22.96464188467882, 4.2353483207128, -11.07996258835088, 5.504469544697623],
+      [2.20644332142891, -7.076836641962523, 23.50989689214267, 4.053185685866683, -13.08569222837996, 7.502346155380032]
+    ]
+  }
+]
+```
+
+However, you will need to manually specify what the POIs should be when creating the workspace using the `POIs=` physics option, e.g.
+
+```bash
+text2workspace.py card.txt -P HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel \
+  --PO scalingData=scaling.json --PO 'POIs=kl[1,0,2]:kv[1,0,2]:k2v[1,0,2]'
 ```

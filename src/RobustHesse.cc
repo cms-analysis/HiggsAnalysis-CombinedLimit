@@ -101,6 +101,13 @@ int RobustHesse::setParameterStencil(unsigned i) {
   double boundLo = rrv->getMin();
   double boundHi = rrv->getMax();
 
+  // If we skip initial fit (e.g. to compute from asimov point)
+  // need a guess for the initial step size
+  if ( rrv->getError() == 0.0 ) {
+    valLo = x + 1e-3*(boundLo - x);
+    valHi = x + 1e-3*(boundHi - x);
+  }
+
   bool closeToLo = valLo < boundLo;
   bool closeToHi = valHi > boundHi;
 

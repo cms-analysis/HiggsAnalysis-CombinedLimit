@@ -66,4 +66,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleProdPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSExternalMorph.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSInterferenceFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooEFTScalingFunction.h"
