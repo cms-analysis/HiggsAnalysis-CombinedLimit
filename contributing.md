@@ -42,19 +42,19 @@ ensure `flake8` and `black` are installed:
 and then from the main directory of this repository run
 
 
-flake8:
+`flake8`:
 ```
 flake8 .
 ```
 
-and black:
+and `black`:
 
 ```
 black -l 160 --check --diff .
 ```
 
 If you'd like to see the details of the configuration `flake8` is using, check the `.flake8` file in the main directory.
-The black linting uses the default [black style](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html) (for v23.3.0), with only the command line options shown above.
+The `black` linting uses the default [black style](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html) (for v23.3.0), with only the command line options shown above.
 
 
 ## Updating Documentation
@@ -65,7 +65,7 @@ For that reason, whenever you make a change you should consider whether this req
 If the change is user-facing it almost certainly does require a documentation update.
 
 Documentation is **very important** to us. 
-Therefore, we will be picky and make sure it is done well!
+Therefore, we will be meticulous and make sure it is done well!
 However, we don't want to put extra burden on you, so we are happy to help and will make our own edits and updates to improve the documentation of your change.
 
 We appreciate you putting in some effort and thought to ensure:
@@ -97,8 +97,8 @@ mkdocs serve
 
 from the main repository directory. mkdocs will then print a link you can open to check the page generated in your browser.
 
-**NOTE:** mkdocs builds which use internal links (or images etc) with absolute paths will work for local deployment, but will break when deployed to the public documentations pages. 
-Please ensure you use relative paths. Currently, this is the only known feature where the behvaiour differs between local mkdocs and public pages deployment. 
+**NOTE:** mkdocs builds that use internal links (or images, etc.) with absolute paths will work for local deployment, but will break when deployed to the public documentations pages. 
+Please ensure you use relative paths. Currently, this is the only known feature where the behvaiour differs between local mkdocs and public page deployment. 
 If you'd like to test the deployment directly, the suggested method is to set up a docs page using your personal github account; this should mimic the exact settings of the official page.
 
 ## Big Contributions
@@ -107,7 +107,7 @@ We welcome large contributions to combine.
 Note, however, that we also follow long term planning, and there is a dedicated group stewarding the overall direction and development of the code.
 
 This means that the code development should fit in with our long term vision;
-if you have an idea for a big improvement or change it will be most efficient if you [contact us](mailto:cms-cat-stats-conveners@cern.ch) first, in order to ensure that we can integrate it as seemlessly as possible into our plans.
+if you have an idea for a big improvement or change it will be most efficient if you [contact us](mailto:cms-cat-stats-conveners@cern.ch) first, in order to ensure that we can integrate it as seamlessly as possible into our plans.
 This will simplify any potential conflicts when you make your pull request.
 
 ## Requested Contributions
