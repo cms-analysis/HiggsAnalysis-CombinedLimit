@@ -134,6 +134,18 @@ void CombineHarvester::AddSystFromProc(Process const& proc,
   systs_.push_back(sys);
 }
 
+void CombineHarvester::AddSystVar(std::string const& name,
+                                  double val, double err) {
+  Parameter * param = SetupRateParamVar(name,val);
+  param->set_val(val);
+  param->set_err_u(+1.0 *err);
+  param->set_err_d(-1.0 *err);
+  auto sys = std::make_shared<Systematic>();
+  sys->set_name(name);
+  sys->set_type("param");
+  systs_.push_back(sys);
+}
+
 void CombineHarvester::RenameSystematic(CombineHarvester &target, std::string const& old_name,
                                         std::string const& new_name) {
  for(unsigned i = 0; i<systs_.size(); ++i){

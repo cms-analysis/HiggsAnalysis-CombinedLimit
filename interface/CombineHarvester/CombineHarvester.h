@@ -406,7 +406,7 @@ class CombineHarvester {
                     std::vector<std::string> channel,
                     std::vector<std::string> procs,
                     ch::Categories bin, bool signal);
-
+  void AddSystVar(std::string const& name, double val, double err);
   void AddSystFromProc(Process const& proc, std::string const& name,
                        std::string const& type, bool asymm, double val_u,
                        double val_d, std::string const& formula,
