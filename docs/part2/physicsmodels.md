@@ -1,6 +1,6 @@
 # Physics Models
 
-Combine can be run directly on the text based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace can be performed by the user. To create a binary workspace starting from a `datacard.txt`, just do
+Combine can be run directly on the text-based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace should be performed by the user. To create a binary workspace starting from a `datacard.txt`, you can run
 
 ```sh
 text2workspace.py datacard.txt -o workspace.root
@@ -8,12 +8,12 @@ text2workspace.py datacard.txt -o workspace.root
 
 By default (without the `-o` option), the binary workspace will be named `datacard.root` - i.e the **.txt** suffix will be replaced by **.root**.
 
-A full set of options for `text2workspace` can be found by using `--help`.
+A full set of options for `text2workspace` can be found by running `text2workspace.py --help`.
 
-The default model which will be produced when running `text2workspace` is one in which all processes identified as signal are multiplied by a common multiplier **r**. This is all that is needed for simply setting limits or calculating significances.
+The default model that will be produced when running `text2workspace` is one in which all processes identified as signal are multiplied by a common multiplier **r**. This is all that is needed for simply setting limits or calculating significances.
 
-`text2workspace` will convert the datacard into a pdf which summaries the analysis.
-For example, lets take a look at the [data/tutorials/counting/simple-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/simple-counting-experiment.txt) datacard.
+`text2workspace` will convert the datacard into a PDF that summarizes the analysis.
+For example, let's take a look at the [data/tutorials/counting/simple-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/simple-counting-experiment.txt) datacard.
 
 ```nohighlight
 # Simple counting experiment, with one signal and one background process
@@ -40,9 +40,9 @@ deltaS  lnN    1.20    -    20% uncertainty on signal
 deltaB  lnN      -   1.50   50% uncertainty on background
 ```
 
-If we run `text2workspace.py` on this datacard and take a look at the workspace (`w`) inside the `.root` file produced, we will find a number of different objects representing the signal, background and observed event rates as well as the nuisance parameters and signal strength **r**.
+If we run `text2workspace.py` on this datacard and take a look at the workspace (`w`) inside the `.root` file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength **r**.
 
-From these objects, the necessary pdf has been constructed (named `model_s`). For this counting experiment we will expect a simple pdf of the form
+From these objects, the necessary PDF has been constructed (named `model_s`). For this counting experiment we will expect a simple PDF of the form
 
 $$
 p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
@@ -54,9 +54,9 @@ $$
 
 where the expected signal and background rates are expressed as functions of the nuisance parameters, $n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~$ and $~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}$.
 
-The first term represents the usual Poisson expression for observing $n_{\mathrm{obs}}$ events while the second two are the Gaussian constraint terms for the nuisance parameters. In this case ${\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0$, and the widths of both Gaussians are 1.
+The first term represents the usual Poisson expression for observing $n_{\mathrm{obs}}$ events, while the second two are the Gaussian constraint terms for the nuisance parameters. In this case ${\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0$, and the widths of both Gaussians are 1.
 
-A combination of counting experiments (or a binned shape datacard) will look like a product of pdfs of this kind. For a parametric/unbinned analyses, the pdf for each process in each channel is provided instead of the using the Poisson terms and a product is over the bin counts/events.
+A combination of counting experiments (or a binned shape datacard) will look like a product of PDFs of this kind. For parametric/unbinned analyses, the PDF for each process in each channel is provided instead of the using the Poisson terms and a product runs over the bin counts/events.
 
 ## Model building
 
@@ -68,13 +68,13 @@ text2workspace.py datacard -P HiggsAnalysis.CombinedLimit.PythonFile:modelName
 
 Generic models can be implemented by writing a python class that:
 
--   defines the model parameters (by default it's just the signal strength modifier **`r`**)
--   defines how signal and background yields depend on the parameters (by default, signal scale linearly with **`r`**, backgrounds are constant)
--   potentially also modifies the systematics (e.g. switch off theory uncertainties on cross section when measuring the cross section itself)
+-   defines the model parameters (by default it is just the signal strength modifier **`r`**)
+-   defines how signal and background yields depend on the parameters (by default, the signal scales linearly with **`r`**, backgrounds are constant)
+-   potentially also modifies the systematic uncertainties (e.g. switch off theory uncertainties on cross section when measuring the cross section itself)
 
-In the case of SM-like Higgs searches the class should inherit from **`SMLikeHiggsModel`** (redefining **`getHiggsSignalYieldScale`**), while beyond that one can inherit from **`PhysicsModel`**. You can find some examples in [PhysicsModel.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/PhysicsModel.py).
+In the case of SM-like Higgs boson measurements, the class should inherit from **`SMLikeHiggsModel`** (redefining **`getHiggsSignalYieldScale`**), while beyond that one can inherit from **`PhysicsModel`**. You can find some examples in [PhysicsModel.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/PhysicsModel.py).
 
-In the 4-process model (`PhysicsModel:floatingXSHiggs`, you will see that each of the 4 dominant Higgs production modes get separate scaling parameters, **`r_ggH`**, **`r_qqH`**, **`r_ttH`** and **`r_VH`** (or **`r_ZH`** and **`r_WH`**) as defined in,
+In the 4-process model (`PhysicsModel:floatingXSHiggs`, you will see that each of the 4 dominant Higgs boson production modes get separate scaling parameters, **`r_ggH`**, **`r_qqH`**, **`r_ttH`** and **`r_VH`** (or **`r_ZH`** and **`r_WH`**) as defined in,
 
 ```python
 def doParametersOfInterest(self):
@@ -106,27 +106,27 @@ You should note that `text2workspace` will look for the python module in `PYTHON
 
 A number of models used in the LHC Higgs combination paper can be found in [LHCHCGModels.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/LHCHCGModels.py). These can be easily accessed by providing for example `-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7` and others defined un [HiggsCouplings.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsCouplings.py).
 
-Below are some (more generic) example models which also exist in gitHub.
+Below are some (more generic) example models that also exist in GitHub.
 
 ### MultiSignalModel ready made model for multiple signal processes
 
 Combine already contains a model **`HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel`** that can be used to assign different signal strengths to multiple processes in a datacard, configurable from the command line.
 
-The model is configured passing to text2workspace one or more mappings in the form **`--PO 'map=bin/process:parameter'`**
+The model is configured by passing one or more mappings in the form **`--PO 'map=bin/process:parameter'`** to text2workspace:
 
--   **`bin`** and **`process`** can be arbitrary regular expressions matching the bin names and process names in the datacard
+-   **`bin`** and **`process`** can be arbitrary regular expressions matching the bin names and process names in the datacard.
     Note that mappings are applied both to signals and to background processes; if a line matches multiple mappings, precedence is given to the last one in the order they are in the command line.
-    it is suggested to put quotes around the argument of **`--PO`** so that the shell does not try to expand any **`*`** signs in the patterns.
--   **`parameter`** is the POI to use to scale that process (`name[starting_value,min,max]` the first time a parameter is defined, then just `name` if used more than once)
-    Special values are **`1`** and **`0==; ==0`** means to drop the process completely from the card, while **`1`** means to keep the yield as is in the card with no scaling (as normally done for backgrounds); **`1`** is the default that is applied to processes that have no mappings, so it's normally not needed, but it may be used either to make the thing explicit, or to override a previous more generic match on the same command line (e.g. `--PO 'map=.*/ggH:r[1,0,5]' --PO 'map=bin37/ggH:1'` would treat ggH as signal in general, but count it as background in the channel `bin37`)
+    It is suggested to put quotes around the argument of **`--PO`** so that the shell does not try to expand any **`*`** signs in the patterns.
+-   **`parameter`** is the POI to use to scale that process (`name[starting_value,min,max]` the first time a parameter is defined, then just `name` if used more than once).
+    Special values are **`1`** and **`0==; ==0`** means "drop the process completely from the model", while **`1`** means to "keep the yield as is in the card with no scaling" (as normally done for backgrounds); **`1`** is the default that is applied to processes that have no mappings. Therefore it is normally not needed, but it may be used to override a previous more generic match in the same command line (e.g. `--PO 'map=.*/ggH:r[1,0,5]' --PO 'map=bin37/ggH:1'` would treat ggH as signal in general, but count it as background in the channel `bin37`).
 
-Passing the additional option **`--PO verbose`** will set the code to verbose mode, printing out the scaling factors for each process; people are encouraged to use this option to make sure that the processes are being scaled correctly.
+Passing the additional option **`--PO verbose`** will set the code to verbose mode, printing out the scaling factors for each process; we encourage the use this option to make sure that the processes are being scaled correctly.
 
-The MultiSignalModel will define all parameters as parameters of interest, but that can be then changed from the command line of combine, as described in the following sub-section.
+The MultiSignalModel will define all parameters as parameters of interest, but that can be then changed from the command line, as described in the following subsection.
 
 Some examples, taking as reference the toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/toy-hgg-125.txt):
 
--   Scale both `ggH` and `qqH` with the same signal strength `r` (that's what the default physics model of combine does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)
+-   Scale both `ggH` and `qqH` with the same signal strength `r` (that is what the default physics model of combine does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)
 
 ```nohighlight
   $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r[1,0,10]' --PO 'map=.*/qqH:r' toy-hgg-125.txt -o toy-1d.root
@@ -197,7 +197,7 @@ Some examples, taking as reference the toy datacard [test/multiDim/toy-hgg-125.t
 
 ### Two Hypothesis testing
 
-The `PhysicsModel` that encodes the signal model above is the [twoHypothesisHiggs](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsJPC.py), which assumes that there will exist signal processes with suffix **_ALT** in the datacard. An example of such a datacard can be found under [data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt)
+The `PhysicsModel` that encodes the signal model above is the [twoHypothesisHiggs](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsJPC.py), which assumes signal processes with suffix **_ALT** will exist in the datacard. An example of such a datacard can be found under [data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt)
 
 ```nohighlight
  $ text2workspace.py twoSignals-3bin-bigBSyst.txt -P HiggsAnalysis.CombinedLimit.HiggsJPC:twoHypothesisHiggs -m 125.7 --PO verbose -o jcp_hww.root
@@ -211,11 +211,11 @@ The `PhysicsModel` that encodes the signal model above is the [twoHypothesisHigg
  Process  S_ALT  will get norm  x
 ```
 
-The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be performed by setting **x** or **not_x** to 1 and 0 and comparing two likelihood evaluations.
+The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be used by setting **x** or **not_x** to 1 and 0 and comparing the two likelihood evaluations.
 
 ### Signal-background interference
 
-Since there are no such things as negative probability distribution functions, the recommended way to implement this is to start from the expression for the individual amplitudes $A$ and the parameter of interest $k$,
+Since negative probability distribution functions do not exist, the recommended way to implement this is to start from the expression for the individual amplitudes $A$ and the parameter of interest $k$,
 
 $$
 \mathrm{Yield} = |k * A_{s} + A_{b}|^2
@@ -323,7 +323,7 @@ is helpful for extracting the lower triangle of a square matrix.
 You could pick any
 nominal template, and adjust the scaling as appropriate. Generally it is
 advisable to use a nominal template corresponding to near where you expect the
-POIs to land so that the shape systematic effects are well-modeled in that
+best-fit values of the POIs to be so that the shape systematic effects are well-modeled in that
 region.
 
 It may be the case that the relative contributions of the terms are themselves
