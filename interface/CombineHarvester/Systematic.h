@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include "TH1.h"
+#include "RooAbsReal.h"
 #include "RooDataHist.h"
 #include "CombineHarvester/CombineTools/interface/MakeUnique.h"
 #include "CombineHarvester/CombineTools/interface/Object.h"
