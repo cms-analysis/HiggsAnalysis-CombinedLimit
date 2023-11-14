@@ -69,3 +69,4 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSExternalMorph.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSInterferenceFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooEFTScalingFunction.h"
+#include "HiggsAnalysis/CombinedLimit/interface/DoubleSidedGaussian.h"
