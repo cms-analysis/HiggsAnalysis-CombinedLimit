@@ -7,11 +7,13 @@ This section will assume that you are using the default model unless otherwise s
 ## Asymptotic Frequentist Limits
 
 The `AsymptoticLimits` method allows to compute quickly an estimate of the observed and expected limits, which is fairly accurate when the event yields are not too small and the systematic uncertainties don't play a major role in the result.
-The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute two p-values $p_{\mu}, p_{b}$ and therefore $CL_s=p_{\mu}/(1-p_{b})$ (see the (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section for a description of these) - i.e it is the asymptotic approximation of computing limits with frequentist toys.
+The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test-statistic, which is based on a profile likelihood ratio, under signal and background hypotheses to compute two p-values $p_{\mu}, p_{b}$ and therefore $CL_s=p_{\mu}/(1-p_{b})$ (see the (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section for a description of these) - i.e it is the asymptotic approximation of computing limits with frequentist toys using the LHC test-statistic for limits: 
+
+   * The test statistic is defined using the ratio of likelihoods $q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta})]$ , in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r$. The value of $q_{r}$ set to 0 when $\hat{r}>r$ giving a one sided limit. Furthermore, the constraint $r>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{r}$ would be negative, the test statistic $q_{r}$ is evaluated as $-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})]$
 
 This method is so commonly used that it is the default method (i.e not specifying `-M` will run `AsymptoticLimits`)
 
-A realistic example of datacard for a counting experiment can be found in the HiggsCombination package: [data/tutorials/counting/realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt)
+A realistic example of datacard for a counting experiment can be found in the HiggsCombination package: [data/tutorials/counting/realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt)
 
 The method can be run using
 
@@ -106,7 +108,7 @@ The observed significance is calculated using the `Significance` method, as
 
   `combine -M Significance datacard.txt`
 
-The printed output will report the significance and the p-value, for example, when using the [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard, you will see
+The printed output will report the significance and the p-value, for example, when using the [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt) datacard, you will see
 
 ```nohighlight
  <<< Combine >>>
@@ -182,10 +184,11 @@ Done in 0.14 min (cpu), 0.15 min (real)
 
 Again, the resulting limit tree will contain the result. You can also save the chains using the option `--saveChain` which will then also be included in the output file.
 
-Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf...)
-Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` eg for a burn-in of 200. 
+Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf). Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` eg for a burn-in of 200. 
 
-```python
+<details>
+<summary><b>Show example script</b></summary>
+<pre class="python"><code>
 import ROOT
 
 rmin = 0
@@ -246,7 +249,8 @@ ll.Draw()
 lu.Draw()
 
 print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
-```
+</code></pre>
+</details>
 
 Running the script on the output file produced for the same datacard (including the `--saveChain` option) will produce the following output
 
@@ -256,7 +260,7 @@ along with a plot of the posterior shown below. This is the same as the output f
 
 ![](images/bayes1D.png)
 
-An example to make contours when ordering by probability density is in [bayesContours.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/81x-root606/master/test/multiDim/bayesContours.cxx), but the implementation is very simplistic, with no clever handling of bin sizes nor any smoothing of statistical fluctuations.
+An example to make contours when ordering by probability density is in [bayesContours.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesContours.cxx), but the implementation is very simplistic, with no clever handling of bin sizes nor any smoothing of statistical fluctuations.
 
 
 The `MarkovChainMC` algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all)
@@ -295,13 +299,15 @@ For more heavy methods (eg the `MarkovChainMC`) you'll probably want to split th
 
 The `MarkovChainMC` method allows the user to produce the posterior pdf as a function of (in principle) any number of parameter of interest. In order to do so, you first need to create a workspace with more than one parameter, as explained in the [physics models](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/) section.
 
-For example, lets use the toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV) and convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections using `text2workspace` with the option `-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH`.
+For example, lets use the toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV) and convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections using `text2workspace`.
+
+    text2workspace.py test/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o workspace.root
 
 Now we just run one (or more) MCMC chain(s) and save them in the output tree.By default, the nuisance parameters will be marginalized (integrated) over their pdfs. You can ignore the complaints about not being able to compute an upper limit (since for more than 1D, this isn't well defined),
 
-    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s seed --noDefaultPrior=0
+    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345 --noDefaultPrior=0
 
-The output of the markov chain is again a RooDataSet of weighted events distributed according to the posterior pdf (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior pdf. See as an example [bayesPosterior2D.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/bayesPosterior2D.cxx).
+The output of the markov chain is again a RooDataSet of weighted events distributed according to the posterior pdf (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior pdf. See as an example [bayesPosterior2D.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesPosterior2D.cxx).
 
 Below is an example of the output of the macro,
 
@@ -312,7 +318,6 @@ bayesPosterior2D("bayes2D","Posterior PDF")
 ```
 
 ![](images/bayes2D.png)
-
 
 ## Computing Limits with toys
 
@@ -332,14 +337,17 @@ The choice of test-statistic can be made via the option `--testStat` and differe
 
 * **LHC-style**: `--LHCmode LHC-limits`
 , which is the shortcut for `--testStat LHC --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1`
-    * The test statistic is defined using the ratio of likelihoods $q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta}])$ , in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r$.
-    * The value of $q_{r}$ set to 0 when $\hat{r}>r$ giving a one sided limit. Furthermore, the constraint $r>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{r}$ would be negative, the test statistic $q_{r}$ is evaluated as $-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0}])$
+    * The test statistic is defined using the ratio of likelihoods $q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta})]$ , in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r$.
+    * The value of $q_{r}$ set to 0 when $\hat{r}>r$ giving a one sided limit. Furthermore, the constraint $r>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{r}$ would be negative, the test statistic $q_{r}$ is evaluated as $-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})]$
     * For the purposes of toy generation, the nuisance parameters are fixed to their **post-fit** values from the data (conditionally on the value of **r**), while the constraint terms are randomized in the evaluation of the likelihood.
 
 !!! warning
-    The recommended style is the **LHC-style**. Please note that this method is sensitive to the *observation in data* since the *post-fit* (after a fit to the data) values of the nuisance parameters (assuming different values of **r**) are used when generating the toys. For completely blind limits you can first generate a *pre-fit* asimov toy dataset (described in the [toy data generation](/part3/runningthetool#toy-data-generation) section) and use that in place of the data.
+    The recommended style is the **LHC-style**. Please note that this method is sensitive to the *observation in data* since the *post-fit* (after a fit to the data) values of the nuisance parameters (assuming different values of **r**) are used when generating the toys. For completely blind limits you can first generate a *pre-fit* asimov toy dataset (described in the [toy data generation](runningthetool.md#toy-data-generation) section) and use that in place of the data.  You can then use this toy by passing `-D toysFileName.root:toys/toy_asimov`
 
-While the above shortcuts are the common variants, you can also try others. The treatment of the nuisances can be changed to the so-called "Hybrid-Bayesian" method which effectively integrates over the nuisance parameters. This can be achieved (with any test-statistic which is not profiled over the nuisances) by setting `--generateNuisances=1 --generateExternalMeasurements=0 --fitNuisances=0`.
+While the above shortcuts are the common variants, you can also try others. The treatment of the nuisances can be changed to the so-called "Hybrid-Bayesian" method which effectively integrates over the nuisance parameters. This is especially relevant when you have very few expected events in your data and you are using those events to constrain background processes. This can be achieved by setting `--generateNuisances=1 --generateExternalMeasurements=0`. You might also want to avoid first fitting to the data to choose the nominal values in this case, which can be done by also setting `--fitNuisances=0`. 
+
+!!! warning
+    If you have unconstrained parameters in your model (`rateParam` or if using a `_norm` variable for a pdf) and you want to use the "Hybrid-Bayesian" method, you **must** declare these as `flatParam` in your datacard and when running text2workspace you must add the option `--X-assign-flatParam-prior` in the command line. This will create uniform priors for these parameters, which is needed for this method and which otherwise would not get created.   
 
 !!! info
     Note that (observed and toy) values of the test statistic stored in the instances of `RooStats::HypoTestResult` when the option `--saveHybridResult` has been specified, are defined without the factor 2 and therefore are twice as small as the values given by the formulas above. This factor is however included automatically by all plotting script supplied within the Combine package.
@@ -579,7 +587,7 @@ The splitting of the jobs can be left to the user's preference. However, users m
 
 A plot of the CL<sub>s</sub> (or $p_{\mu}$) as a function of **r**, which is used to find the crossing, can be produced using the option `--plot=limit_scan.png`. This can be useful for judging if the grid was sufficient in determining the upper limit.
 
-If we use our [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/counting/realistic-counting-experiment.txt) datacard and generate a grid of points $r\varepsilon[1.4,2.2]$ in steps of 0.1, with 5000 toys for each point, the plot of the observed CL<sub>s</sub> vs **r** should look like the following,
+If we use our [realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt) datacard and generate a grid of points $r\varepsilon[1.4,2.2]$ in steps of 0.1, with 5000 toys for each point, the plot of the observed CL<sub>s</sub> vs **r** should look like the following,
 
 ![](images/limit_scan.png)
 
@@ -781,13 +789,13 @@ fit_alternate->floatParsFinal().selectByName("*ChannelCompatibilityCheck*")->Pri
 fit_nominal->floatParsFinal().selectByName("r")->Print("v");
 ```
 
-The macro [cccPlot.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x--rot606/test/plotting/cccPlot.cxx) can be used to produce a comparison plot of the best fit signals from all channels.
+The macro [cccPlot.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/plotting/cccPlot.cxx) can be used to produce a comparison plot of the best fit signals from all channels.
 
 ## Likelihood Fits and Scans
 
 The `MultiDimFit` method can do multi-dimensional fits and likelihood based scans/contours using models with several parameters of interest.
 
-Taking a toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV), we need to convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections
+Taking a toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV), we need to convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections
 
 ```sh
 text2workspace.py toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
@@ -801,7 +809,7 @@ A number of different algorithms can be used with the option `--algo <algo>`,
 
 -  **`cross`**:  Perform joint fit of all parameters: `combine -M MultiDimFit toy-hgg-125.root --algo=cross --cl=0.68`. The output root tree will have one row with the best fit point, and two rows for each parameter, corresponding to the minimum and maximum of that parameter on the likelihood contour corresponding to the specified CL, according to a *N-dimensional chisquare* (i.e. uncertainties on each fitted parameter *do* increase when adding other parameters, even if they're uncorrelated). Note that the output of this way of running *are not* 1D uncertainties on each parameter, and shouldn't be taken as such.
 
--   **`contour2d`**: Make a 68% CL contour a la minos `combine -M MultiDimFit toy-hgg-125.root --algo contour2d --points=20 --cl=0.68`. The output will contain values corresponding to the best fit point (with `quantileExpected` set to -1) and for a set of points on the contour (with `quantileExpected` set to 1-CL, or something larger than that if the contour is hitting the boundary of the parameters). Probabilities are computed from the the n-dimensional $\chi^{2}$ distribution. For slow models, you can split it up by running several times with *different* number of points and merge the outputs (something better can be implemented). You can look at the [contourPlot.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/multiDim/contourPlot.cxx) macro for how to make plots out of this algorithm.
+-   **`contour2d`**: Make a 68% CL contour a la minos `combine -M MultiDimFit toy-hgg-125.root --algo contour2d --points=20 --cl=0.68`. The output will contain values corresponding to the best fit point (with `quantileExpected` set to -1) and for a set of points on the contour (with `quantileExpected` set to 1-CL, or something larger than that if the contour is hitting the boundary of the parameters). Probabilities are computed from the the n-dimensional $\chi^{2}$ distribution. For slow models, you can split it up by running several times with *different* number of points and merge the outputs (something better can be implemented). You can look at the [contourPlot.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/contourPlot.cxx) macro for how to make plots out of this algorithm.
 
 -   **`random`**: Scan N random points and compute the probability out of the profile likelihood `combine -M MultiDimFit toy-hgg-125.root --algo random --points=20 --cl=0.68`. Again, best fit will have `quantileExpected` set to -1, while each random point will have `quantileExpected` set to the probability given by the profile likelihood at that point.
 
@@ -879,7 +887,7 @@ best_fit->SetMarkerSize(3); best_fit->SetMarkerStyle(34); best_fit->Draw("p same
 
 To make the full profiled scan just remove the `--fastScan` option from the combine command.
 
-Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the [`CombineHarvester/CombineTools`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) package [plot1DScan.py](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/scripts/plot1DScan.py) which can be used to make plots and extract the crossings of the `2*deltaNLL` - e.g the 1σ/2σ boundaries.
+Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the [`CombineHarvester/CombineTools`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) package [plot1DScan.py](https://github.com/cms-analysis/CombineHarvester/blob/113x/CombineTools/scripts/plot1DScan.py) which can be used to make plots and extract the crossings of the `2*deltaNLL` - e.g the 1σ/2σ boundaries.
 
 
 ### Useful options for likelihood scans

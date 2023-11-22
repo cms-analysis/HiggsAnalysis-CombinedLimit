@@ -11,6 +11,11 @@ import sys
 from optparse import OptionParser
 
 import ROOT
+
+ROOT.gROOT.SetBatch(1)
+ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTree.cxx")
+ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/qmuPlot.cxx")
+
 from ROOT import hypoTestResultTree, q0Plot, qmuPlot
 
 parser = OptionParser()
@@ -70,7 +75,7 @@ parser.add_option(
     "--quantileExpected",
     default=-1,
     type="float",
-    help="Replace observation with expected quantile (under alt hyp, i.e CLb=quantileExpected)",
+    help="Replace observation with expected quantile (under alt hyp, i.e 1-Pb=quantileExpected)",
 )
 parser.add_option(
     "",
@@ -84,14 +89,9 @@ parser.add_option(
     "--signif",
     action="store_true",
     default=False,
-    help="If significance, don't plot CLs+b, i.e make the q0 plot",
+    help="If significance, don't plot Pmu, i.e make the q0 plot",
 )
 (options, args) = parser.parse_args()
-
-
-ROOT.gROOT.SetBatch(1)
-ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTree.cxx")
-ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/qmuPlot.cxx")
 
 if options.quantileExpected >= 0:
     options.expected = True

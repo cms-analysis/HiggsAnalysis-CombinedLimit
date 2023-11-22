@@ -218,7 +218,7 @@ class ShapeBuilder(ModelBuilder):
                         n = arg.GetName()
                         bbb_names.append(n)
                         parname = n
-                        self.out._import(arg)
+                        self.out.safe_import(arg)
                         if arg.getAttribute("createGaussianConstraint"):
                             if self.options.noOptimizePdf:
                                 self.doObj(
@@ -391,7 +391,7 @@ class ShapeBuilder(ModelBuilder):
                 maskList = ROOT.RooArgList()
                 for b in self.DC.bins:
                     maskList.add(self.out.arg(self.physics.getChannelMask(b)))
-            for (postfixIn, postfixOut) in [("", "_s"), ("_bonly", "_b")]:
+            for postfixIn, postfixOut in [("", "_s"), ("_bonly", "_b")]:
                 simPdf = (
                     ROOT.RooSimultaneous("model" + postfixOut, "model" + postfixOut, self.out.binCat)
                     if self.options.noOptimizePdf
@@ -412,31 +412,31 @@ class ShapeBuilder(ModelBuilder):
                 # take care of any variables which were renamed (eg for "param")
                 paramString, renameParamString, toFreeze = self.getRenamingParameters()
                 if len(renameParamString):
-                    self.out._import(
+                    self.out.safe_import(
                         simPdf,
                         ROOT.RooFit.RecycleConflictNodes(),
                         ROOT.RooFit.RenameVariable(paramString, renameParamString),
                     )
                 else:
-                    self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes())
+                    self.out.safe_import(simPdf, ROOT.RooFit.RecycleConflictNodes())
                 for pfreeze in toFreeze:
                     if self.out.var(pfreeze):
                         self.out.var(pfreeze).setConstant(True)
                 if self.options.noBOnly:
                     break
         else:
-            self.out._import(
+            self.out.safe_import(
                 self.getObj("pdf_bin%s" % self.DC.bins[0]).clone("model_s"),
                 ROOT.RooFit.Silence(),
             )
             if not self.options.noBOnly:
-                self.out._import(
+                self.out.safe_import(
                     self.getObj("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"),
                     ROOT.RooFit.Silence(),
                 )
         for arg in self.extraImports:
             # print 'Importing extra arg: %s' % arg.GetName()
-            self.out._import(arg, ROOT.RooFit.RecycleConflictNodes())
+            self.out.safe_import(arg, ROOT.RooFit.RecycleConflictNodes())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
             iter = pars.createIterator()
@@ -604,7 +604,7 @@ class ShapeBuilder(ModelBuilder):
                         self.out.binVars.add(shapeObs[obs_key], True)
             else:
                 self.out.binVars = list(shapeObs.values())[0]
-            self.out._import(self.out.binVars)
+            self.out.safe_import(self.out.binVars)
         else:
             self.out.mode = "binned"
             if self.options.verbose > 1:
@@ -614,12 +614,14 @@ class ShapeBuilder(ModelBuilder):
             if len(list(shapeObs.keys())) != 1:
                 raise RuntimeError("There's more than once choice of observables: %s\n" % str(list(shapeObs.keys())))
             self.out.binVars = list(shapeObs.values())[0]
-            self.out._import(self.out.binVars)
+            self.out.safe_import(self.out.binVars)
+        # keep hold of pdf_norm renaming
+        self.DC.pdfnorms = self.norm_rename_map.copy()
 
     def doCombinedDataset(self):
         if len(self.DC.bins) == 1 and self.options.forceNonSimPdf:
             data = self.getData(self.DC.bins[0], self.options.dataname).Clone(self.options.dataname)
-            self.out._import(data)
+            self.out.safe_import(data)
             return
 
         # Combine is able to handle the binned/vs unbinned properly so no need for separate commands
@@ -630,19 +632,19 @@ class ShapeBuilder(ModelBuilder):
         #     for b in self.DC.bins:
         #         combiner.addSetBin(b, self.getData(b,self.options.dataname))
         #     self.out.data_obs = combiner.done(self.options.dataname,self.options.dataname)
-        #     self.out._import(self.out.data_obs)
+        #     self.out.safe_import(self.out.data_obs)
         # elif self.out.mode == "unbinned":
         #     combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
         #     for b in self.DC.bins: combiner.addSetAny(b, self.getData(b,self.options.dataname))
         #     self.out.data_obs = combiner.doneUnbinned(self.options.dataname,self.options.dataname)
-        #     self.out._import(self.out.data_obs)
+        #     self.out.safe_import(self.out.data_obs)
         # else: raise RuntimeException, "Only combined datasets are supported"
 
         combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
         for b in self.DC.bins:
             combiner.addSetAny(b, self.getData(b, self.options.dataname))
         self.out.data_obs = combiner.doneUnbinned(self.options.dataname, self.options.dataname)
-        self.out._import(self.out.data_obs)
+        self.out.safe_import(self.out.data_obs)
         if self.options.verbose > 2:
             print(
                 "Created combined dataset with ",
@@ -774,13 +776,13 @@ class ShapeBuilder(ModelBuilder):
                             toFreeze,
                         ) = self.getRenamingParameters()
                         if len(renameParamString):
-                            self.out._import(
+                            self.out.safe_import(
                                 norm,
                                 ROOT.RooFit.RecycleConflictNodes(),
                                 ROOT.RooFit.RenameVariable(paramString, renameParamString),
                             )
                         else:
-                            self.out._import(norm, ROOT.RooFit.RecycleConflictNodes())
+                            self.out.safe_import(norm, ROOT.RooFit.RecycleConflictNodes())
                 if self.options.verbose > 2:
                     print("import (%s,%s) -> %s\n" % (finalNames[0], objname, ret.GetName()))
                 return ret
@@ -861,7 +863,7 @@ class ShapeBuilder(ModelBuilder):
         morphs = []
         shapeAlgo = None
         channelBinParFlag = channel in list(self.DC.binParFlags.keys())
-        for (syst, nofloat, pdf, args, errline) in self.DC.systs:
+        for syst, nofloat, pdf, args, errline in self.DC.systs:
             if "shape" not in pdf:
                 continue
             if errline[channel][process] == 0:
@@ -911,7 +913,7 @@ class ShapeBuilder(ModelBuilder):
             pdfs.Add(nominalPdf)
         coeffs = ROOT.RooArgList()
         minscale = 1
-        for (syst, scale, pdfUp, pdfDown) in morphs:
+        for syst, scale, pdfUp, pdfDown in morphs:
             if self.options.useHistPdf == "always":
                 pdfs.add(pdfUp)
                 pdfs.add(pdfDown)
@@ -999,7 +1001,7 @@ class ShapeBuilder(ModelBuilder):
                 pdfs.Clear()
                 ## now it contains "RooDataHist", it should contain "RooHistPdf"
                 pdfs.Add(nominalPdf)
-                for (syst, scale, shapeUp, shapeDown) in morphs:
+                for syst, scale, shapeUp, shapeDown in morphs:
                     pdfs.Add(self.shape2Pdf(shapeUp, channel, process))
                     pdfs.Add(self.shape2Pdf(shapeDown, channel, process))
                 histpdf = nominalPdf if nominalPdf.InheritsFrom("RooDataHist") else nominalPdf.dataHist()
@@ -1034,7 +1036,7 @@ class ShapeBuilder(ModelBuilder):
                 return rhp
             elif nominalPdf.InheritsFrom("RooParametricHist"):
                 # Add the shape morphs to it. Cannot pass a collection of DataHists so we have to convert to PDFs first?!
-                for (syst, scale, shapeUp, shapeDown) in morphs:
+                for syst, scale, shapeUp, shapeDown in morphs:
                     nominalPdf.addMorphs(shapeUp, shapeDown, coeffs.find(syst), qrange)
                 _cache[(channel, process)] = nominalPdf
                 return nominalPdf
@@ -1043,7 +1045,7 @@ class ShapeBuilder(ModelBuilder):
                 pdflist = ROOT.RooArgList()
                 nominalPdf = self.shape2Pdf(shapeNominal, channel, process)
                 pdflist.add(nominalPdf)
-                for (syst, scale, shapeUp, shapeDown) in morphs:
+                for syst, scale, shapeUp, shapeDown in morphs:
                     pdflist.add(self.shape2Pdf(shapeUp, channel, process))
                     pdflist.add(self.shape2Pdf(shapeDown, channel, process))
                 pdfs = pdflist
@@ -1128,7 +1130,7 @@ class ShapeBuilder(ModelBuilder):
             return None
         if normNominal == 0:
             raise RuntimeError("Null norm for channel %s, process %s" % (channel, process))
-        for (syst, nofloat, pdf, args, errline) in self.DC.systs:
+        for syst, nofloat, pdf, args, errline in self.DC.systs:
             if "shape" not in pdf:
                 continue
             if errline[channel][process] != 0:
@@ -1187,7 +1189,6 @@ class ShapeBuilder(ModelBuilder):
         return terms if terms else None
 
     def rebinH1(self, shape):
-
         if self.options.optimizeTemplateBins:
             rebinh1 = ROOT.TH1F(
                 shape.GetName() + "_rebin",
@@ -1237,7 +1238,7 @@ class ShapeBuilder(ModelBuilder):
                     ROOT.RooArgList(self.out.var(self.TH1Observables[channel])),
                     rebinh1,
                 )
-                # self.out._import(rdh)
+                # self.out.safe_import(rdh)
                 _cache[shape.GetName()] = rdh
             elif shape.ClassName() in ["RooDataHist", "RooDataSet"]:
                 return shape
@@ -1412,7 +1413,7 @@ class ShapeBuilder(ModelBuilder):
                 # print "-- Before --"
                 # arg.Print("t")
                 cust = ROOT.RooCustomizer(arg, "__optMH")
-                for (a, aopt) in newservers:
+                for a, aopt in newservers:
                     cust.replaceArg(a, aopt)
                 ret = cust.build(True)
                 self.out.dont_delete.append(ret)

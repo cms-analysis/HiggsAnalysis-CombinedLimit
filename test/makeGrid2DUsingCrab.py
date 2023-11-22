@@ -233,7 +233,7 @@ for i, x in enumerate(points):
     toys = "$n"
     what = "--singlePoint %s=%g,%s=%g " % (options.POI[0], x[0], options.POI[1], x[1])
     script.write(
-        "{cond} ./combine {wsp} -M HybridNew {opts} -m {mass} --testStat=PL --rule=CLsplusb --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}  {ranges} \n".format(
+        "{cond} ./combine {wsp} -M HybridNew {opts} -m {mass} --testStat=PL --rule=Pmu --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}  {ranges} \n".format(
             wsp=workspace,
             opts=options.options,
             T=options.T,

@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/MultiDimFit.h"
+#include "../interface/MultiDimFit.h"
 #include <stdexcept>
 #include <cmath>
 
@@ -10,15 +10,15 @@
 #include "RooAbsData.h"
 #include "RooCategory.h"
 #include "RooFitResult.h"
-//#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+//#include "../interface/RooMinimizerOpt.h"
 #include "RooMinimizer.h"
 #include <RooStats/ModelConfig.h>
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RobustHesse.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "../interface/Combine.h"
+#include "../interface/CascadeMinimizer.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/utils.h"
+#include "../interface/RobustHesse.h"
+#include "../interface/ProfilingTools.h"
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -182,7 +182,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
  
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
-    std::auto_ptr<RooFitResult> res;
+    std::unique_ptr<RooFitResult> res;
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
     bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
     if ( !skipInitialFit_){
@@ -496,7 +496,7 @@ void MultiDimFit::doImpact(RooFitResult &res, RooAbsReal &nll) {
   std::cout << "Parameter impacts: " << std::endl;
 
   // Save the initial parameters here to reset between NPs
-  std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
+  std::unique_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
   RooArgSet init_snap;
   params->snapshot(init_snap);
 
@@ -605,7 +605,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     //minim.setStrategy(minimizerStrategy_);
-    std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
+    std::unique_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
     RooArgSet snap; params->snapshot(snap);
     //snap.Print("V");
 
@@ -1230,7 +1230,7 @@ void MultiDimFit::splitGridPoints(const std::string& s, std::vector<unsigned int
     boost::split(strPoints, s, boost::is_any_of(","));
 
     // convert to int and add
-    for (const auto strPoint : strPoints) {
+    for (const auto& strPoint : strPoints) {
         points.push_back(std::stoul(strPoint));
     }
 }

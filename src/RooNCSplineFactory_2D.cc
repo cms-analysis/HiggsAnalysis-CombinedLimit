@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/RooNCSplineFactory_2D.h"
+#include "../interface/RooNCSplineFactory_2D.h"
 
 using namespace std;
 

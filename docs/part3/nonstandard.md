@@ -75,7 +75,7 @@ If you are aware that your analysis has any of these features you could try reso
 
 ### Pre and post fit nuisance parameters and pulls
 
-It is possible to compare pre-fit and post-fit nuisance parameters with the script [diffNuisances.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/diffNuisances.py). Taking as input a `fitDiagnostics.root` file, the script will by default print out the parameters which have changed significantly w.r.t. their initial estimate. For each of those parameters, it will print out the shift in value and the post-fit uncertainty, both normalized to the input values, and the linear correlation between the parameter and the signal strength.
+It is possible to compare pre-fit and post-fit nuisance parameters with the script [diffNuisances.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/diffNuisances.py). Taking as input a `fitDiagnostics.root` file, the script will by default print out the parameters which have changed significantly w.r.t. their initial estimate. For each of those parameters, it will print out the shift in value and the post-fit uncertainty, both normalized to the input values, and the linear correlation between the parameter and the signal strength.
 
     python diffNuisances.py fitDiagnostics.root
 
@@ -113,7 +113,7 @@ This script has the option (`-g outputfile.root`) to produce plots of the fitted
 
 For a certain class of models, like those made from datacards for shape-based analysis, the tool can also compute and save to the output root file the best fit yields of all processes. If this feature is turned on with the option `--saveNormalizations`, the file will also contain three RooArgSet `norm_prefit`, `norm_fit_s`, `norm_fit_b` objects each containing one RooConstVar for each channel `xxx` and process `yyy` with name **`xxx/yyy`** and value equal to the best fit yield. You can use `RooRealVar::getVal` and `RooRealVar::getError` to estimate both the post-(or pre-)fit values and uncertainties of these normalisations. 
 
-The sample pyroot macro [mlfitNormsToText.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/mlfitNormsToText.py) can be used to convert the root file into a text table with four columns: channel, process, yield from the signal+background fit and yield from the background-only fit. To include the uncertainties in the table, add the option `--uncertainties`
+The sample pyroot macro [mlfitNormsToText.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/mlfitNormsToText.py) can be used to convert the root file into a text table with four columns: channel, process, yield from the signal+background fit and yield from the background-only fit. To include the uncertainties in the table, add the option `--uncertainties`
 
 
 !!! warning
@@ -179,12 +179,12 @@ Additionally, the covariance matrix **between** bin yields (or yields/bin-widths
 
 `FitDiagnostics` can also be used to diagnose the fitting procedure in toy experiments to identify potentially problematic nuisance parameters when running the full limits/p-values. This can be done by adding the option `-t <num toys>`. The output file, `fitDiagnostics.root` the three `TTrees` will contain the value of the constraint fitted result in each toy, as a separate entry. It is recommended to use the following options when investigating toys to reduce the running time: `--toysFrequentist` `--noErrors` `--minos none`
 
-The results can be plotted using the macro [test/plotParametersFromToys.C](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/test/plotParametersFromToys.C)
+The results can be plotted using the macro [test/plotParametersFromToys.C](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/plotParametersFromToys.C)
 
 ```c++
 $ root -l
 .L plotParametersFromToys.C+
-plotParametersFomToys("fitDiagnosticsToys.root","fitDiagnosticsData.root","workspace.root","r<0")
+plotParametersFromToys("fitDiagnosticsToys.root","fitDiagnosticsData.root","workspace.root","r<0")
 ```
 
 The first argument is the name of the output file from running with toys, and the second and third (optional) arguments are the name of the file containing the result from a fit to the data and the workspace (created from `text2workspace.py`). The fourth argument can be used to specify a cut string applied to one of the branches in the tree which can be used to correlate strange behaviour with specific conditions. The output will be 2 pdf files (**`tree_fit_(s)b.pdf`**) and 2 root files  (**`tree_fit_(s)b.root`**) containing canvases of the fit results of the tool. For details on the output plots, consult [AN-2012/317](http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2012/317).
@@ -227,13 +227,13 @@ A similar option, `--X-nuisance-group-function`, can be used to scale whole grou
 
 ## Nuisance parameter impacts
 
-The impact of a nuisance parameter (NP) θ on a parameter of interest (POI) μ is defined as the shift Δμ that is induced as θ is fixed and brought to its +1σ or −1σ post-fit values, with all other parameters profiled as normal. 
+The impact of a nuisance parameter (NP) θ on a parameter of interest (POI) μ is defined as the shift Δμ that is induced as θ is fixed and brought to its +1σ or −1σ post-fit values, with all other parameters profiled as normal (see [JHEP 01 (2015) 069](https://link.springer.com/article/10.1007/JHEP01(2015)069) for a description of this method). 
 
 This is effectively a measure of the correlation between the NP and the POI, and is useful for determining which NPs have the largest effect on the POI uncertainty.
 
 It is possible to use the `FitDiagnostics` method of combine with the option `--algo impact -P parameter` to calculate the impact of a particular nuisance parameter on the parameter(s) of interest. We will use the `combineTool.py` script to automate the fits (see the [`combineTool`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) section to check out the tool.
 
-We will use an example workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/data/tutorials/htt/125/htt_tt.txt),
+We will use an example workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/htt/125/htt_tt.txt),
 
 ```
 $ cp HiggsAnalysis/CombinedLimit/data/tutorials/htt/125/htt_tt.txt .
@@ -456,7 +456,7 @@ void makeRooMultiPdfWorkspace(){
 }
 ```
 
-The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the [RooMultiPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooMultiPdf.h) object which can switch between the functions by setting its associated index (herein called **pdf_index**). This (as with all parameters in combine) is accessible via the `--setParameters` option.
+The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution and the background is a choice of 3 functions. An exponential, a power-law and a 2nd order polynomial. This choice is accessible inside combine through the use of the [RooMultiPdf](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/interface/RooMultiPdf.h) object which can switch between the functions by setting its associated index (herein called **pdf_index**). This (as with all parameters in combine) is accessible via the `--setParameters` option.
 
 To asses the bias, one can throw toys using one function and fit with another. All of this only needs to use one datacard [hgg_toy_datacard.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/bias_studies/hgg_toy_datacard.txt)
  
@@ -535,7 +535,7 @@ You may want to check with the combine dev team if using these options as they a
 
 ## RooSplineND multidimensional splines
 
-[RooSplineND](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooSplineND.h) can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. 
+[RooSplineND](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/interface/RooSplineND.h) can be used to interpolate from tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies etc OR can be used to up-scale the resolution of likelihood scans (i.e like those produced from combine) to produce smooth contours. 
 
 The spline makes use of a radial basis decomposition to produce a continous $N \to 1$ map (function) from $M$ provided sample points. The function of the $N$ variables $\vec{x}$ 
 is assumed to be of the form, 
@@ -694,7 +694,7 @@ Running the script will produce the following plot. The plot shows the sampled p
 
 Currently, there is no straight-forward implementation of using per-bin **gmN** like uncertainties with shape (histogram) analyses. Instead, it is possible to tie control regions (written as datacards) with the signal region using three methods. 
 
-For analyses who take the normalisation of some process from a control region, it is possible to use either **lnU** or **rateParam** directives to float the normalisation in a correlated way of some process between two regions. Instead if each bin is intended to be determined via a control region, one can use a number of RooFit histogram pdfs/functions to accomplish this. The example below shows a simple implementation of a [RooParametricHist](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606/interface/RooParametricHist.h) to achieve this.
+For analyses who take the normalisation of some process from a control region, it is possible to use either **lnU** or **rateParam** directives to float the normalisation in a correlated way of some process between two regions. Instead if each bin is intended to be determined via a control region, one can use a number of RooFit histogram pdfs/functions to accomplish this. The example below shows a simple implementation of a [RooParametricHist](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/interface/RooParametricHist.h) to achieve this.
 
 copy the script below into a file called `examplews.C` and create the input workspace using `root -l examplews.C`...
 
@@ -1041,3 +1041,16 @@ The example given here  is extremely basic and it should be noted that additiona
 
 !!! danger 
     If trying to implement parametric uncertainties in this setup (eg on transfer factors) which are correlated with other channels and implemented separately, you ***MUST*** normalise the uncertainty effect so that the datacard line can read `param name X 1`. That is the uncertainty on this parameter must be 1. Without this, there will be inconsistency with other nuisances of the same name in other channels implemented as **shape** or **lnN**.
+
+
+## Look-elsewhere effect for one parameter
+
+In case you see an excess somewhere in your analysis, you can evaluate the look-elsewhere effect (LEE) of that excess. For an explanation of the LEE, take a look at the CMS Statistics Committee Twiki [here](https://twiki.cern.ch/twiki/bin/viewauth/CMS/LookElsewhereEffect). 
+
+To calculate the look-elsewhere effect for a single parameter (in this case the mass of the resonance), you can follow the instructions. Note that these instructions assume you have a workspace which is parametric in your resonance mass $m$, otherwise you need to fit each background toy with separate workspaces. Assume the local significance for your excess is $\sigma$. 
+
+   * Generate background-only toys	`combine ws.root -M GenerateOnly --toysFrequentist -m 16.5 -t 100 --saveToys --expectSignal=0`. The output will be something like `higgsCombineTest.GenerateOnly.mH16.5.123456.root`.
+   * For each toy, calculate the significance for a predefined range	- e.g $m\in [10,35]$ GeV in steps suitable to the resolution - eg 1 GeV. For  `toy_1` the procedure would be: `for i in $(seq 10 35); do combine ws.root -M Significance --redefineSignalPOI r --freezeParameters MH --setParameter MH=$i -n $i -D higgsCombineTest.GenerateOnly.mH16.5.123456.root:toys/toy_1`. Calculate the maximum significance over all of these mass points - call this $\sigma_{max}$.
+   * Count how many toys have a maximum significance larger than the local one for your observed excess. This fraction of toys with $\sigma_{max}>\sigma$ is the global p-value. 
+
+You can find more tutorials on the LEE [here](https://indico.cern.ch/event/456547/contributions/1126036/attachments/1188691/1724680/20151117_comb_tutorial_Lee.pdf)

@@ -25,7 +25,6 @@ class BRChargedHiggs(PhysicsModel):
         self.modelBuilder.out.Print()
 
     def getYieldScale(self, bin, process):
-
         for prefix, model in six.iteritems(self.processScaling):
             if process.startswith(prefix):
                 return "Scaling_" + model

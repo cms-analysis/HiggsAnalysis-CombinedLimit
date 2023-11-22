@@ -5,7 +5,7 @@ on:
   pull_request:
   push:
     branches:
-      - 112x
+      - main
 
 jobs:
   lint:
@@ -17,9 +17,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
-    - name: Lint with flake8 and black
+    - name: Lint with flake8 and black -l 160
       run: |
         python -m pip install -q flake8 black
+        black --version
         flake8 .
         black -l 160 --check --diff .
 
@@ -35,6 +36,9 @@ jobs:
           # python 3.9 root 6.24 (12_3_X)
           - python: "3.9"
             root: "6.24"
+          # python 3.10 root 6.26
+          - python: "3.10"
+            root: "6.26.4"
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
 
@@ -43,16 +47,17 @@ jobs:
       with:
         path: HiggsAnalysis/CombinedLimit # Required to match compile instructions
     - name: Set up Conda
-      uses: conda-incubator/setup-miniconda@v2.1.1
+      uses: conda-incubator/setup-miniconda@v2.2.0
       with:
-        mamba-version: "*"
+        python-version: ${{ matrix.python }}
+        miniforge-variant: Mambaforge
         channels: conda-forge,defaults
         channel-priority: true
         activate-environment: combine
     - name: Install build environment
       shell: bash -l {0}
       run: |
-        mamba install -c conda-forge python==${{ matrix.python }} pip root==${{ matrix.root }} gsl tbb vdt boost pcre eigen
+        mamba install -c conda-forge python==${{ matrix.python }} pip pandas root==${{ matrix.root }} gsl tbb vdt boost pcre eigen
         cd HiggsAnalysis/CombinedLimit
         bash set_conda_env_vars.sh
     - name: Build

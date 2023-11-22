@@ -122,7 +122,6 @@ class CvCfHiggs(SMLikeHiggsModel):
         self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "CvCf_XSBRscal_%s_%s" % (production, decay)
         if self.modelBuilder.out.function(name):
             return name
@@ -185,9 +184,9 @@ class CvCfXgHiggs(SMLikeHiggsModel):
         XG = self.modelBuilder.out.var("XG")
 
         RHggCvCfXg = ROOT.RooScaleHGamGamLOSMPlusX("CvCfXg_cgammaSq", "LO SM Hgamgam scaling", mH, CF, CV, mb, CF, XG)
-        self.modelBuilder.out._import(RHggCvCfXg)
+        self.modelBuilder.out.safe_import(RHggCvCfXg)
         # Rgluglu = ROOT.RooScaleHGluGluLOSMPlusX('Rgluglu', 'LO SM Hgluglu scaling', mH, CF, mb, CF)
-        # self.modelBuilder.out._import(Rgluglu)
+        # self.modelBuilder.out.safe_import(Rgluglu)
 
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
         for d in [
@@ -282,9 +281,9 @@ class CfXgHiggs(SMLikeHiggsModel):
         XG = self.modelBuilder.out.var("XG")
 
         RHggCfXg = ROOT.RooScaleHGamGamLOSMPlusX("CfXg_cgammaSq", "LO SM Hgamgam scaling", mH, CF, CV, mb, CF, XG)
-        self.modelBuilder.out._import(RHggCfXg)
+        self.modelBuilder.out.safe_import(RHggCfXg)
         # Rgluglu = ROOT.RooScaleHGluGluLOSMPlusX('Rgluglu', 'LO SM Hgluglu scaling', mH, CF, mb, CF)
-        # self.modelBuilder.out._import(Rgluglu)
+        # self.modelBuilder.out.safe_import(Rgluglu)
 
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
         for d in [
@@ -447,7 +446,6 @@ class CvCfInvHiggs(SMLikeHiggsModel):
         self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-
         name = "CvCf_XSBRscal_%s_%s" % (production, decay)
         if self.modelBuilder.out.function(name):
             return name

@@ -1,3 +1,6 @@
+#ifndef HiggsAnalysis_CombinedLimit_Logger_h
+#define HiggsAnalysis_CombinedLimit_Logger_h
+
 /* 
  * Logger adapted from 
  * Professional C++, 2nd Edition, Oct 2011
@@ -72,3 +75,5 @@ private:
 	Logger& operator=(const Logger&);
 	static std::mutex sMutex;
 };
+
+#endif

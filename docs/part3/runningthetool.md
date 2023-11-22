@@ -15,7 +15,7 @@ The option `-M` allows to chose the method used. There are several groups of sta
     -   `BayesianSimple`: performing a classical numerical integration (for simple models only)
     -   `MarkovChainMC`: performing Markov Chain integration, for arbitrarily complex models.
 -   **Frequentist** or hybrid bayesian-frequentist methods:
-    -   `HybridNew`: compute modified frequentist limits according to several possible prescriptions
+    -   `HybridNew`: compute modified frequentist limits, significance/p-values and confidence intervals according to several possible prescriptions with toys. 
 -   **Fitting**
     - `FitDiagnostics`: performs maximum likelihood fits to extract the signal yield and provide diagnostic tools such as pre and post-fit models and correlations
     - `MultiDimFit`: perform maximum likelihood fits in multiple parameters and likelihood scans
@@ -71,6 +71,8 @@ There are a number of useful command line options which can be used to alter the
 
     - the name of the branch will be **trackedError_*name***.
     - the behaviour is the same as `--trackParameters` above.
+
+By default, the dataset used by combine will be the one pointed to in the datacard. You can tell combine to use a different dataset (for example a toy one that you generated) by using the option `--dataset`. The argument should be `rootfile.root:workspace:location` or `rootfile.root:location`. In order to use this option, you must first convert your datacard to a binary workspace and use this binary workspace as the input to the command line. 
 
 #### Generic Minimizer Options
 
@@ -145,10 +147,14 @@ The option `-t` is used to specify to combine to first generate a toy dataset(s)
 
    * `-t -1` will produce an Asimov dataset in which statistical fluctuations are suppressed. The procedure to generate this Asimov dataset depends on which type of analysis you are using, see below for details.
 
-The output file will contain the toys (as `RooDataSets` for the observables, including global observables) in the **toys** directory if the option `--saveToys` is provided. If you include this option, the `limit` TTree in the output will have an entry corresponding to the state of the POI used for the generation of the toy, with the value of **`quantileExpected`** set to **-2**. You can add additional branches using the `--trackParameters` option as described in the [common command line options](#common-command-line-options) section above.
-
 !!! warning
     The default values of the nuisance parameters (or any parameter) are used to generate the toy. This means that if, for example, you are using parametric shapes and the parameters inside the workspace are set to arbitrary values, *those* arbitrary values will be used to generate the toy. This behaviour can be modified through the use of the option `--setParameters x=value_x,y=value_y...` which will set the values of the parameters (`x` and `y`) before toy generation. You can also load a snap-shot from a previous fit to set the nuisances to their *post-fit* values (see below).
+
+The output file will contain the toys (as `RooDataSets` for the observables, including global observables) in the **toys** directory if the option `--saveToys` is provided. If you include this option, the `limit` TTree in the output will have an entry corresponding to the state of the POI used for the generation of the toy, with the value of **`quantileExpected`** set to **-2**. 
+
+!!! info
+    The branches that are created by methods like `MultiDimFit` *will not* show the values used to generate the toy. If you also want the TTree to show the values of the POIs used to generate to toy, you should add additional branches using the `--trackParameters` option as described in the [common command line options](#common-command-line-options) section above. These branches will behave as expected when adding the option `--saveToys`. 
+
 
 #### Asimov datasets
 
@@ -180,7 +186,7 @@ You can turn off the internal logic by setting `--X-rtd TMCSO_AdaptivePseudoAsim
 
 #### Nuisance parameter generation
 
-The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, *before* generating the data. The *unconstrained* nuisance parameters (eg `flatParam` or `rateParam`) or those with *flat* priors are **not** randomised before the data generation.
+The default method of dealing with systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior pdfs centred around their default values, *before* generating the data. The *unconstrained* nuisance parameters (eg `flatParam` or `rateParam`) or those with *flat* priors are **not** randomised before the data generation. If you wish to also randomise these parameters, you **must** declare these as `flatParam` in your datacard and when running text2workspace you must add the option `--X-assign-flatParam-prior` in the command line.
 
 The following are options which define how the toys will be generated,
 
@@ -269,7 +275,7 @@ With this model it would take too long to find the limit in one go, so instead w
 
 For this we will use `combineTool.py`
 
-First we need to build a workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/81x-root606-integration/data/tutorials/htt/125/htt_tt.txt),
+First we need to build a workspace from the [$H\rightarrow\tau\tau$ datacard](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/htt/125/htt_tt.txt),
 
 ```sh
 $ text2workspace.py data/tutorials/htt/125/htt_mt.txt -m 125

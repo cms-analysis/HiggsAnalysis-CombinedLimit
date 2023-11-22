@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
+#include "../interface/RooCheapProduct.h"
 #include <RooConstVar.h>
 
 RooCheapProduct::RooCheapProduct(const char *name, const char *title, const RooArgList &terms, bool pruneConstants) :

@@ -370,7 +370,7 @@ The F-C procedure for a generic model is:
 
 In combine, you can perform this test on each individual point (param1,param2,...) = (value1,value2,...) by doing
 
-    combine workspace.root -M HybridNew --freq --testStat=PL --rule=CLsplusb --singlePoint  param1=value1,param2=value2,param3=value3,...   [other options of HybridNew]
+    combine workspace.root -M HybridNew --freq --testStat=PL --rule=Pmu --singlePoint  param1=value1,param2=value2,param3=value3,...   [other options of HybridNew]
 
 The point belongs to your confidence region if CL&lt;sub&gt;s+b&lt;/sub&gt; is larger than 1-CL (e.g. 0.3173 for a 1-sigma region, CL=0.6827).
 
@@ -382,7 +382,7 @@ Imposing physical boundaries (such as requiring mu&gt;0) can be achieved by sett
 
 As in general for HybridNew, you can split the task into multiple tasks and then merge the outputs, as described in the [HybridNew chapter](SWGuideHiggsAnalysisCombinedLimit#HybridNew_algorithm).
 
-For uni-dimensional models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). In that case, the syntax is the same as per the CLs limits with [HybridNew chapter](HybridNew chapter) except that you want **`--testStat=PL --rule=CLsplusb`** .
+For uni-dimensional models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). In that case, the syntax is the same as per the CLs limits with [HybridNew chapter](HybridNew chapter) except that you want **`--testStat=PL --rule=Pmu`** .
 
 **Extracting Contours**
 

@@ -1,5 +1,5 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistErrorPropagator.h"
+#include "../interface/CMSHistFuncWrapper.h"
 #include <stdexcept>
 #include <vector>
 #include <ostream>

@@ -53,8 +53,8 @@ class ModelBuilderBase:
             ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
             ROOT.TH1.AddDirectory(False)
             self.out = ROOT.RooWorkspace("w", "w")
-            # self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
-            self.out._import = SafeWorkspaceImporter(self.out)
+            # self.out.safe_import = getattr(self.out,"import") # workaround: import is a python keyword
+            self.out.safe_import = SafeWorkspaceImporter(self.out)
             self.objstore = {}
             self.out.dont_delete = []
             if options.verbose == 0:
@@ -155,6 +155,14 @@ class ModelBuilder(ModelBuilderBase):
         self.selfNormBins = []
         self.extraNuisances = []
         self.extraGlobalObservables = []
+        self.globalobs = []
+
+    def getSafeNormName(self, n):
+        # need to be careful in case user has _norm name and wants to auto-create flatPrior
+        if self.options.flatParamPrior:
+            if n in self.DC.pdfnorms.keys():
+                return self.DC.pdfnorms[n]
+        return n
 
     def setPhysics(self, physicsModel):
         self.physics = physicsModel
@@ -175,6 +183,8 @@ class ModelBuilder(ModelBuilderBase):
         self.doNuisances()
         self.doExtArgs()
         self.doRateParams()
+        self.doAutoFlatNuisancePriors()
+        self.doFillNuisPdfsAndSets()
         self.doExpectedEvents()
         if justCheckPhysicsModel:
             self.physics.done()
@@ -194,7 +204,6 @@ class ModelBuilder(ModelBuilderBase):
                 print("Wrote GraphVizTree of model_s to ", self.options.out + ".dot")
 
     def getRenamingParameters(self):
-
         toFreeze = []
         renameParamString = []
         paramString = []
@@ -229,7 +238,7 @@ class ModelBuilder(ModelBuilderBase):
                     wstmp = open_files[(fin, wsn)]
                     if not wstmp.arg(rp):
                         raise RuntimeError("No parameter '%s' found for extArg in workspace %s from file %s" % (rp, wsn, fin))
-                    self.out._import(wstmp.arg(rp), *importargs)
+                    self.out.safe_import(wstmp.arg(rp), *importargs)
                 else:
                     fitmp = ROOT.TFile.Open(fin)
                     if not fitmp:
@@ -239,7 +248,7 @@ class ModelBuilder(ModelBuilderBase):
                         raise RuntimeError("Workspace '%s' not in file %s" % (wsn, fin))
                     if not wstmp.arg(rp):
                         raise RuntimeError("No parameter '%s' found for extArg in workspace %s from file %s" % (rp, wsn, fin))
-                    self.out._import(wstmp.arg(rp), *importargs)
+                    self.out.safe_import(wstmp.arg(rp), *importargs)
                     open_files[(fin, wsn)] = wstmp
             else:
                 param_range = ""
@@ -267,7 +276,6 @@ class ModelBuilder(ModelBuilderBase):
                 self.out.var(rp).setAttribute("flatParam")
 
     def doRateParams(self):
-
         # First support external functions/parameters
         # keep a map of open files/workspaces
         open_files = {}
@@ -288,7 +296,7 @@ class ModelBuilder(ModelBuilderBase):
                     wstmp = open_files[(fin, wsn)]
                     if not wstmp.arg(argu):
                         raise RuntimeError("No parameter '%s' found for rateParam in workspace %s from file %s" % (argu, wsn, fin))
-                    self.out._import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
+                    self.out.safe_import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
                 else:
                     fitmp = ROOT.TFile.Open(fin)
                     if not fitmp:
@@ -298,7 +306,7 @@ class ModelBuilder(ModelBuilderBase):
                         raise RuntimeError("Workspace '%s' not in file %s" % (wsn, fin))
                     if not wstmp.arg(argu):
                         raise RuntimeError("No parameter '%s' found for rateParam in workspace %s from file %s" % (argu, wsn, fin))
-                    self.out._import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
+                    self.out.safe_import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
                     open_files[(fin, wsn)] = wstmp
                     # fitmp.Close()
 
@@ -319,6 +327,12 @@ class ModelBuilder(ModelBuilderBase):
                 v = float(argv)
                 removeRange = len(param_range) == 0
                 if param_range == "":
+                    if self.options.flatParamPrior:
+                        raise ValueError(
+                            "Cannot create flat Prior for rateParam nuisance parameter '"
+                            + argu
+                            + "' without specifying a range [a,b]. Please fix in the datacard"
+                        )
                     ## check range. The parameter needs to be created in range. Then we will remove it
                     param_range = "%g,%g" % (-2.0 * abs(v), 2.0 * abs(v))
                 # additional check for range requested
@@ -385,9 +399,9 @@ class ModelBuilder(ModelBuilderBase):
         if len(self.DC.systs) == 0:
             return
         self.doComment(" ----- nuisances -----")
-        globalobs = []
+        # globalobs = []
 
-        for (n, nofloat, pdf, args, errline) in self.DC.systs:
+        for n, nofloat, pdf, args, errline in self.DC.systs:
             is_func_scaled = False
             func_scaler = None
             for pn, pf in self.options.nuisanceFunctions:
@@ -436,7 +450,7 @@ class ModelBuilder(ModelBuilderBase):
                     # Use existing constraint since it could be a param
                 self.out.var(n).setVal(0)
                 self.out.var(n).setError(1)
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
                 if self.options.optimizeBoundNuisances and not is_func_scaled:
@@ -469,7 +483,7 @@ class ModelBuilder(ModelBuilderBase):
                         theta,
                     ),
                 )
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "gmN":
@@ -504,7 +518,7 @@ class ModelBuilder(ModelBuilderBase):
                         "Poisson",
                         "%s_In[%d,%f,%f], %s[%f,%f,%f], 1" % (n, args[0], minObs, maxObs, n, args[0] + 1, minExp, maxExp),
                     )
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "trG":
@@ -518,13 +532,21 @@ class ModelBuilder(ModelBuilderBase):
                             trG_max = -1.0 / v
                 r = "%f,%f" % (trG_min, trG_max)
                 self.doObj("%s_Pdf" % n, "Gaussian", "%s[0,%s], %s_In[0,%s], 1" % (n, r, n, r))
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "lnU" or pdf == "shapeU":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[-1,1]" % n)
             elif pdf == "unif":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n, args[0], args[1]))
+            elif pdf == "flatParam" and self.options.flatParamPrior:
+                c_param_name = self.getSafeNormName(n)
+                if self.out.var(c_param_name):
+                    v, x1, x2 = self.out.var(c_param_name).getVal(), self.out.var(c_param_name).getMin(), self.out.var(c_param_name).getMax()
+                    self.DC.toCreateFlatParam[c_param_name] = [v, x1, x2]
+                else:
+                    self.DC.toCreateFlatParam[c_param_name] = []
+
             elif pdf == "dFD" or pdf == "dFD2":
                 dFD_min = -(1 + 8 / args[0])
                 dFD_max = +(1 + 8 / args[0])
@@ -549,7 +571,7 @@ class ModelBuilder(ModelBuilderBase):
                         ROOFIT_EXPR_PDF,
                         "'1/(2*(1+exp(%f*(@0-1)))*(1+exp(-%f*(@0+1))))', %s[0,%s], %s_In[0,%s]" % (args[0], args[0], n, r, n, r),
                     )
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "constr":
@@ -763,7 +785,7 @@ class ModelBuilder(ModelBuilderBase):
                             self.out.function("%s_BoundLo" % n),
                             self.out.function("%s_BoundHi" % n),
                         )
-                globalobs.append("%s_In" % n)
+                self.globalobs.append("%s_In" % n)
                 # if self.options.optimizeBoundNuisances: self.out.var(n).setAttribute("optimizeBounds")
             elif pdf == "extArg":
                 continue
@@ -775,32 +797,53 @@ class ModelBuilder(ModelBuilderBase):
             # self.out.var(n).Print('V')
             if n in self.DC.frozenNuisances:
                 self.out.var(n).setConstant(True)
+
+    def doFillNuisPdfsAndSets(self):
         if self.options.bin:
             # avoid duplicating  _Pdf in list
             setNuisPdf = []
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
-            for (n, nf, p, a, e) in self.DC.systs:
+            for n, nf, p, a, e in self.DC.systs:
+                c_param_name = self.getSafeNormName(n)
                 if p != "constr":
-                    nuisVars.add(self.out.var(n))
-                setNuisPdf.append(n)
+                    nuisVars.add(self.out.var(c_param_name))
+                setNuisPdf.append(c_param_name)
             setNuisPdf = set(setNuisPdf)
             for n in setNuisPdf:
                 nuisPdfs.add(self.out.pdf(n + "_Pdf"))
             self.out.defineSet("nuisances", nuisVars)
             self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", nuisPdfs)
-            self.out._import(self.out.nuisPdf)
+            self.out.safe_import(self.out.nuisPdf)
             self.out.nuisPdfs = nuisPdfs
             gobsVars = ROOT.RooArgSet()
-            for g in globalobs:
+            for g in self.globalobs:
                 gobsVars.add(self.out.var(g))
             self.out.defineSet("globalObservables", gobsVars)
         else:  # doesn't work for too many nuisances :-(
             # avoid duplicating  _Pdf in list
-            setNuisPdf = set([n for (n, nf, p, a, e) in self.DC.systs])
-            self.doSet("nuisances", ",".join(["%s" % n for (n, nf, p, a, e) in self.DC.systs]))
+            setNuisPdf = set([self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs])
+            self.doSet("nuisances", ",".join(["%s" % self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs]))
             self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for n in setNuisPdf]))
-            self.doSet("globalObservables", ",".join(globalobs))
+            self.doSet("globalObservables", ",".join(self.globalobs))
+
+    def doAutoFlatNuisancePriors(self):
+        if len(self.DC.toCreateFlatParam.keys()) > 0:
+            for flatNP in self.DC.toCreateFlatParam.items():
+                c_param_name = flatNP[0]
+                c_param_details = flatNP[1]
+                if len(c_param_details):
+                    v, x1, x2 = c_param_details
+                else:
+                    v, x1, x2 = self.out.var(c_param_name).getVal(), self.out.var(c_param_name).getMin(), self.out.var(c_param_name).getMax()
+                if self.options.verbose > 2:
+                    print("Will create flat prior for parameter ", c_param_name, " with range [", x1, x2, "]")
+                self.doExp(
+                    "%s_diff_expr" % c_param_name, "%s-%s_In" % (c_param_name, c_param_name), "%s,%s_In[%g,%g,%g]" % (c_param_name, c_param_name, v, x1, x2)
+                )
+                self.doObj("%s_Pdf" % c_param_name, "Uniform", "%s_diff_expr" % c_param_name)
+                self.out.var("%s_In" % c_param_name).setConstant(True)
+                self.globalobs.append("%s_In" % c_param_name)
 
     def doNuisancesGroups(self):
         # Prepare a dictionary of which group a certain nuisance belongs to
@@ -876,12 +919,12 @@ class ModelBuilder(ModelBuilderBase):
                         else:
                             raise RuntimeError("No rate parameter found %s, are you sure you defined it correctly in the datacard?" % (argu))
                 selfNormRate = 1.0
-                for (n, nofloat, pdf, args, errline) in self.DC.systs:
+                for n, nofloat, pdf, args, errline in self.DC.systs:
                     if pdf == "param":
                         continue
                     if pdf == "constr":
                         continue
-                    if pdf == "rateParam":
+                    if pdf == "rateParam" or pdf == "flatParam":
                         continue
                     if p not in errline[b]:
                         continue
@@ -902,6 +945,7 @@ class ModelBuilder(ModelBuilderBase):
                             logNorms.append((errline[b][p], n))
                     elif pdf == "gmM":
                         factors.append(n)
+                    # elif pdf == "trG" or pdf == "unif" or pdf == "flatParam" or pdf == "dFD" or pdf == "dFD2":
                     elif pdf == "trG" or pdf == "unif" or pdf == "dFD" or pdf == "dFD2":
                         myname = "n_exp_shift_bin%s_proc_%s_%s" % (b, p, n)
                         self.doObj(myname, ROOFIT_EXPR, "'1+%f*@0', %s" % (errline[b][p], n))
@@ -960,13 +1004,13 @@ class ModelBuilder(ModelBuilderBase):
                         toFreeze,
                     ) = self.getRenamingParameters()
                     if len(renameParamString):
-                        self.out._import(
+                        self.out.safe_import(
                             procNorm,
                             ROOT.RooFit.RecycleConflictNodes(),
                             ROOT.RooFit.RenameVariable(paramString, renameParamString),
                         )
                     else:
-                        self.out._import(procNorm)
+                        self.out.safe_import(procNorm)
 
     def doIndividualModels(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
@@ -988,7 +1032,7 @@ class ModelBuilder(ModelBuilderBase):
                 stderr.write("Missing variable %s declared as flatParam, will create one!\n" % nuis)
         mc_s = ROOT.RooStats.ModelConfig("ModelConfig", self.out)
         mc_b = ROOT.RooStats.ModelConfig("ModelConfig_bonly", self.out)
-        for (l, mc) in [("s", mc_s), ("b", mc_b)]:
+        for l, mc in [("s", mc_s), ("b", mc_b)]:
             if self.doModelBOnly:
                 mc.SetPdf(self.out.pdf("model_" + l))
             else:
@@ -1012,13 +1056,13 @@ class ModelBuilder(ModelBuilderBase):
                 mc.SetGlobalObservables(gObsSet)
             if self.options.verbose > 2:
                 mc.Print("V")
-            self.out._import(mc, mc.GetName())
+            self.out.safe_import(mc, mc.GetName())
             if self.options.noBOnly:
                 break
         discparams = ROOT.RooArgSet("discreteParams")
         for cpar in self.discrete_param_set:
             discparams.add(self.out.cat(cpar))
-        self.out._import(discparams, discparams.GetName())
+        self.out.safe_import(discparams, discparams.GetName())
         self.out.writeToFile(self.options.out)
         mystr = ROOT.TNamed("myname", self.stringout)
         fileout = ROOT.TFile("./" + self.options.out, "UPDATE")
@@ -1054,7 +1098,7 @@ class CountingModelBuilder(ModelBuilder):
             if self.options.bin:
                 self.out.data_obs = ROOT.RooDataSet(self.options.dataname, "observed data", self.out.set("observables"))
                 self.out.data_obs.add(self.out.set("observables"))
-                self.out._import(self.out.data_obs)
+                self.out.safe_import(self.out.data_obs)
 
     def doIndividualModels(self):
         self.doComment(" --- Expected events in each bin, total (S+B and B) ----")

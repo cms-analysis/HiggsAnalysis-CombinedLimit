@@ -52,7 +52,6 @@ class InvisibleWidth(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-
         # SM BR
         for d in [
             "htt",

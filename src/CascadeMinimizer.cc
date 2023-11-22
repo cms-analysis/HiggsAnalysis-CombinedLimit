@@ -1,10 +1,10 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "../interface/CascadeMinimizer.h"
+#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/Significance.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/utils.h"
+#include "../interface/ProfilingTools.h"
+#include "../interface/Logger.h"
 
 #include <Math/MinimizerOptions.h>
 #include <Math/IOptions.h>
@@ -32,7 +32,7 @@ bool CascadeMinimizer::runShortCombinations = true;
 float CascadeMinimizer::nuisancePruningThreshold_ = 0;
 double CascadeMinimizer::discreteMinTol_ = 0.001;
 std::string CascadeMinimizer::defaultMinimizerType_="Minuit2"; // default to minuit2 (not always the default !?)
-std::string CascadeMinimizer::defaultMinimizerAlgo_=ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
+std::string CascadeMinimizer::defaultMinimizerAlgo_="Migrad";
 double CascadeMinimizer::defaultMinimizerTolerance_=1e-1;  
 double CascadeMinimizer::defaultMinimizerPrecision_=-1.0;
 int  CascadeMinimizer::strategy_=1; 
@@ -542,7 +542,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     }
 
     // keep hold of best fitted parameters! 
-    std::auto_ptr<RooArgSet> params;
+    std::unique_ptr<RooArgSet> params;
     params.reset(nll_.getParameters((const RooArgSet *)0) );
     params->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
 
@@ -598,7 +598,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	     for (std::vector<int>::iterator it = cit.begin();
 	         it!=cit.end(); it++){
 
-		 isValidCombo *= (contributingIndeces)[pdfIndex][*it];
+		 isValidCombo &= (contributingIndeces)[pdfIndex][*it];
 		 if (!isValidCombo ) /*&& runShortCombinations)*/ continue;
 
 	     	 fPdf = (RooCategory*) pdfCategoryIndeces.at(pdfIndex);

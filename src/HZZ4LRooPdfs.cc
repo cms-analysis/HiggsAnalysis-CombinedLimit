@@ -1,6 +1,6 @@
 #include "Riostream.h"
 
-#include "HiggsAnalysis/CombinedLimit/interface/HZZ4LRooPdfs.h"
+#include "../interface/HZZ4LRooPdfs.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 #include "RooVoigtian.h"

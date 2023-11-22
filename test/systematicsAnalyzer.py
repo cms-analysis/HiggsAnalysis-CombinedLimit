@@ -196,7 +196,7 @@ errlines = {}
 outParams = {}
 check_list = {}
 seen_systematics = []
-for (lsyst, nofloat, pdf, pdfargs, errline) in DC.systs:
+for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
     if ("rateParam" in pdf) or ("discrete" in pdf):
         if options.all:
             outParams[lsyst] = [pdf, pdfargs]
@@ -272,7 +272,6 @@ for (lsyst, nofloat, pdf, pdfargs, errline) in DC.systs:
                 addTo(check_list, lsyst, [p, b])
 
             elif "shape" in pdf and MB.isShapeSystematic(b, p, lsyst):
-
                 if errline[b][p] == 0:
                     continue
                 systShapeName = lsyst

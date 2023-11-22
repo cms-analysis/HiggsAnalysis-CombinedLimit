@@ -40,7 +40,6 @@ def all_same(items):
 
 
 def asymDivide(something):
-
     if len(something) != 2:
         raise TypeError("asymDivision requires a pair.")
 
@@ -67,7 +66,6 @@ def handleZeroes(numerator):
 
 
 def asymDivideLists(listAndList):
-
     (numerators, denominators) = listAndList
     pairs = list(zip(numerators, denominators))
 
@@ -169,7 +167,6 @@ def lnN_redundancies(allSysts):
 
 
 if __name__ == "__main__":
-
     # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
     argv.append("-b-")
     import ROOT

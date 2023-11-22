@@ -47,13 +47,9 @@ def BuildScan(scan, param, files, color, yvals, ycut):
     graph.SetMarkerColor(color)
     spline = ROOT.TSpline3("spline3", graph)
     global NAMECOUNTER
-    func = ROOT.TF1(
-        "splinefn" + str(NAMECOUNTER),
-        partial(Eval, spline),
-        graph.GetX()[0],
-        graph.GetX()[graph.GetN() - 1],
-        1,
-    )
+    func_method = partial(Eval, spline)
+    func = ROOT.TF1("splinefn" + str(NAMECOUNTER), func_method, graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
+    func._method = func_method
     NAMECOUNTER += 1
     func.SetLineColor(color)
     func.SetLineWidth(3)
@@ -279,7 +275,7 @@ pt.SetTextAlign(11)
 pt.SetTextFont(42)
 pt.Draw()
 
-plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.045, 0.035, 1.2, cmsTextSize=1.0)
+plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.085, 0.035, 1.2, cmsTextSize=1.0)
 
 legend_l = 0.69
 if len(other_scans) > 0:

@@ -9,10 +9,10 @@
 #include "RooRealProxy.h"
 #include "Rtypes.h"
 #include "TH1F.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate_Old.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
+#include "FastTemplate_Old.h"
+#include "SimpleCacheSentry.h"
+#include "CMSHistFunc.h"
+#include "CMSHistV.h"
 
 class CMSHistErrorPropagator : public RooAbsReal {
 private:

@@ -7,7 +7,7 @@
 #include <cmath>
 #include <math.h>
 
-#include "HiggsAnalysis/CombinedLimit/interface/RooParametricShapeBinPdf.h"
+#include "../interface/RooParametricShapeBinPdf.h"
 #include "RooRealVar.h"
 #include "RooRealVarSharedProperties.h"
 #include "RooArgList.h"

@@ -78,8 +78,7 @@ def addDatacardParserOptions(parser):
         help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.",
     )
     parser.add_option(
-        "-D",
-        "--dataset",
+        "--dataMapName",
         dest="dataname",
         default="data_obs",
         type="string",
@@ -280,6 +279,21 @@ def addDatacardParserOptions(parser):
         default=None,
         help="Simplify MH dependent objects: 'fixed', 'pol<N>' with N=0..4",
     )
+    parser.add_option(
+        "--X-assign-flatParam-prior",
+        dest="flatParamPrior",
+        default=False,
+        action="store_true",
+        help="Assign RooUniform pdf for flatParam NPs",
+    )
+
+
+def strip(l):
+    """Strip comments and whitespace from end of line"""
+    idx = l.find("#")
+    if idx > 0:
+        return l[:idx].rstrip()
+    return l.rstrip()
 
 
 def strip(l):
@@ -311,7 +325,6 @@ def isIncluded(name, includeList):
 
 
 def addRateParam(lsyst, f, ret):
-
     if len(f) > 6 or len(f) < 5:
         raise RuntimeError(
             "Error, directives of type 'rateParam' should be of form .. name rateParam channel process initial value OR name rateParam channel process formula args"
@@ -360,6 +373,9 @@ def parseCard(file, options):
 
     if not hasattr(options, "evaluateEdits"):
         setattr(options, "evaluateEdits", True)
+
+    if not hasattr(options, "flatParamPrior"):
+        setattr(options, "flatParamPrior", False)
 
     try:
         for lineNumber, l in enumerate(file):
@@ -441,7 +457,7 @@ def parseCard(file, options):
                 ret.isSignal = dict([(p, None) for p in ret.processes])
                 if ret.obs != [] and type(ret.obs) == list:  # still as list, must change into map with bin names
                     ret.obs = dict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
-                for (b, p, s) in ret.keyline:
+                for b, p, s in ret.keyline:
                     if ret.isSignal[p] == None:
                         ret.isSignal[p] = s
                     elif ret.isSignal[p] != s:
@@ -524,6 +540,9 @@ def parseCard(file, options):
             elif pdf == "flatParam":
                 ret.flatParamNuisances[lsyst] = True
                 # for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
+                if options.flatParamPrior:
+                    ret.systs.append([lsyst, nofloat, pdf, args, []])
+                    ret.add_syst_id(lsyst)
                 continue
             elif pdf == "extArg":
                 # look for additional parameters in workspaces
@@ -670,10 +689,10 @@ def parseCard(file, options):
     syst2 = []
     for lsyst, nofloat, pdf, args, errline in ret.systs:
         nonNullEntries = 0
-        if pdf == "param" or pdf == "constr" or pdf == "discrete" or pdf == "rateParam":  # this doesn't have an errline
+        if pdf == "param" or pdf == "constr" or pdf == "discrete" or pdf == "rateParam" or pdf == "flatParam":  # this doesn't have an errline
             syst2.append((lsyst, nofloat, pdf, args, errline))
             continue
-        for (b, p, s) in ret.keyline:
+        for b, p, s in ret.keyline:
             r = errline[b][p]
             nullEffect = r == 0.0 or (pdf == "lnN" and r == 1.0)
             if not nullEffect and ret.exp[b][p] != 0:

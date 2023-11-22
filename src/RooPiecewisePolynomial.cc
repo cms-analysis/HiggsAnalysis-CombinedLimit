@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/RooPiecewisePolynomial.h"
+#include "../interface/RooPiecewisePolynomial.h"
 #include <iostream>
 #include <cassert>
 #include <cmath>

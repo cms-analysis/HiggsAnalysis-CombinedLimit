@@ -199,7 +199,6 @@ class physicsPoint:
         return self.data
 
     def set_data_nll(self, gr):
-
         # self.datanllgr=gr.Clone()
         self.usedatanll = True
         self.data = gr.Eval(self.x)
@@ -245,7 +244,6 @@ class physicsPoint:
             self.toys.append(val)
 
     def set_data(self, dat):
-
         if self.hasdata and self.data > -999.0:
             return
         # if self.usedatanll:
@@ -268,7 +266,6 @@ class physicsPoint:
         return self.hasdata
 
     def get_cl(self):
-
         if self.nToys == 0:
             return 1
         if self.onesided:
@@ -385,7 +382,6 @@ def getPoints(tree, varx, vary):
 
 
 def findRange(mySet, index):
-
     if index == 0:
         myList = [m.x for m in mySet]
     else:
@@ -413,7 +409,6 @@ points = []
 def mergePoints(original, appended):
     # take 2 lists of physics points and merge the second into the first
     for p in appended:
-
         pointexists = False
         for po in original:
             if po.is_point(p.x, p.y):
@@ -557,7 +552,6 @@ if options.storeToys:
 
 # For 1D /************************************************************************/
 if options.oned:
-
     tgrX = ROOT.TGraphErrors()
     tgrX.SetMarkerStyle(21)
     tgrX.SetMarkerSize(1.0)

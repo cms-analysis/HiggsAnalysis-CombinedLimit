@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/TH1Keys.h"
+#include "../interface/TH1Keys.h"
 #include <RooBinning.h>
 #include <RooMsgService.h>
 
@@ -175,6 +175,6 @@ void TH1Keys::FillH1() const
 }
 
 void TH1Keys::dont(const char *msg) const {
-    TObject::Error("TH1Keys",msg);
+    TObject::Error("TH1Keys","%s",msg);
     throw std::runtime_error(std::string("Error in TH1Keys: ")+msg);
 }

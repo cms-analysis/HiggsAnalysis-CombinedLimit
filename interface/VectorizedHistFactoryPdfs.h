@@ -4,7 +4,7 @@
 #include <RooHistFunc.h>
 #include <RooStats/HistFactory/ParamHistFunc.h>
 #include <RooStats/HistFactory/PiecewiseInterpolation.h>
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "CachingNLL.h"
 
 namespace cacheutils {
     class VectorizedHistFunc : public CachingPdfBase {
@@ -28,7 +28,7 @@ namespace cacheutils {
             VectorizedParamHistFunc(const ParamHistFunc &pdf, const RooAbsData &data, bool includeZeroWeights=false) ;
             void fill(std::vector<Double_t> &out) const ;
         private:
-            std::vector<const RooRealVar *> yvars_;
+            std::vector<RooAbsReal *> yvars_;
     };
 
     class CachingPiecewiseInterpolation : public CachingPdfBase {

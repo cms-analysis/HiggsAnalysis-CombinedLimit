@@ -83,7 +83,7 @@ if options.asimov:
 
 print("Generating datacards: ")
 models = ["SM", "4G"] if options.sm4 else ["SM"]
-for (isig, name) in enumerate(models):
+for isig, name in enumerate(models):
     for mh, D in data.items():
         # prepare variables
         nproc = len(D["exp"]) - (1 if options.sm4 else 0)  # there's 1 more column, as it has both SM and 4G
@@ -106,5 +106,5 @@ for (isig, name) in enumerate(models):
         fout.write("process " + (" ".join([D["processnames"][i] for i in indices])) + "\n")
         fout.write("process " + (" ".join([str(i) for i in range(nproc)])) + "\n")
         fout.write("rate " + str(D["exp"][isig]) + " " + (" ".join([str(f) for f in D["exp"][(2 if options.sm4 else 1) :]])) + "\n")
-        for (inuis, N) in enumerate(D["nuis"]):
+        for inuis, N in enumerate(D["nuis"]):
             fout.write(str(inuis + 1) + " lnN " + (" ".join([str(1.0 + N[i]) for i in indices])) + "\n")

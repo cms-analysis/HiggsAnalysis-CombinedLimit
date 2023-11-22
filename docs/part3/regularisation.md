@@ -38,7 +38,7 @@ In practice, one must construct the *response matrix* and unroll it in the recon
 and folds in the acceptance/efficiency effects as usual.
 * The out-of-acceptance contributions can also be included in the above.
 
-The model we use for this is then just the usual [`PhysicsModel:multiSignalModel`](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/python/PhysicsModel.py#L98), where each *signal* refers to a particular truth level bin. The results can be extracted through a 
+The model we use for this is then just the usual [`PhysicsModel:multiSignalModel`](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/PhysicsModel.py#L98), where each *signal* refers to a particular truth level bin. The results can be extracted through a 
 simple maximum likelihood fit with, 
 
 ```

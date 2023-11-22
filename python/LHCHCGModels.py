@@ -114,9 +114,9 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
         scaler7 = ROOT.ProcessNormalization("CMS_bbH_scaler_7TeV", "", 1.0)
         scaler8 = ROOT.ProcessNormalization("CMS_bbH_scaler_8TeV", "", 1.0)
         scaler13 = ROOT.ProcessNormalization("CMS_bbH_scaler_13TeV", "", 1.0)
-        self.modelBuilder.out._import(scaler7)
-        self.modelBuilder.out._import(scaler8)
-        self.modelBuilder.out._import(scaler13)
+        self.modelBuilder.out.safe_import(scaler7)
+        self.modelBuilder.out.safe_import(scaler8)
+        self.modelBuilder.out.safe_import(scaler13)
         ## YR3
         # self.modelBuilder.out.function("CMS_bbH_scaler_7TeV").addAsymmLogNormal(1.0/1.145, 1.106, self.modelBuilder.out.var("QCDscale_bbH"))
         # self.modelBuilder.out.function("CMS_bbH_scaler_8TeV").addAsymmLogNormal(1.0/1.148, 1.103, self.modelBuilder.out.var("QCDscale_bbH"))
@@ -945,7 +945,6 @@ class LambdasReduced(LHCHCGBaseModel):
             POIset = "lambda_du,lambda_Vu,kappa_uu"
 
         elif self.model == "llq":
-
             self.modelBuilder.out.var("lambda_lq").setConstant(False)
             self.modelBuilder.out.var("lambda_Vq").setConstant(False)
             self.modelBuilder.out.var("kappa_qq").setConstant(False)
@@ -959,7 +958,6 @@ class LambdasReduced(LHCHCGBaseModel):
             POIset = "lambda_lq,lambda_Vq,kappa_qq"
 
         elif self.model == "lfv":
-
             self.modelBuilder.out.var("lambda_FV").setConstant(False)
             self.modelBuilder.out.var("kappa_VV").setConstant(False)
 
