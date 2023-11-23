@@ -66,6 +66,9 @@ class Systematic : public Object {
   void set_shapes(TH1 const& shape_u, TH1 const& shape_d,
                   TH1 const& nominal);
 
+  void set_param_str_ext(std::string const& param_str_ext) { param_str_ext_ = param_str_ext; }
+  std::string const& param_str_ext() const { return param_str_ext_; }
+
   std::string to_string() const;
   friend std::ostream& operator<< (std::ostream &out, Systematic const& val);
   static std::ostream& PrintHeader(std::ostream &out);
@@ -85,6 +88,7 @@ class Systematic : public Object {
   RooAbsReal * pdf_d_;
   RooDataHist * data_u_;
   RooDataHist * data_d_;
+  std::string param_str_ext_;
 
   friend void swap(Systematic& first, Systematic& second);
 };
