@@ -317,6 +317,18 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         auto sys = std::make_shared<Systematic>();
         sys->set_name(param_name);
         sys->set_type("param");
+        sys->set_analysis(analysis);
+        sys->set_era(era);
+        sys->set_channel(channel);
+        sys->set_bin_id(bin_id);
+        sys->set_mass(mass);
+        // Add string extension for edge case where param and rateParam have the same name
+        std::string syst_str_ext = (boost::format("%g %g") % param->val() % ((param->err_u() - param->err_d()) / 2.0)).str(); 
+        if (param->range_d() != std::numeric_limits<double>::lowest() &&
+            param->range_u() != std::numeric_limits<double>::max()) {
+                syst_str_ext += (boost::format(" [%.4g,%.4g]") % param->range_d() % param->range_u()).str();
+        }
+        sys->set_param_str_ext(syst_str_ext);
         systs_.push_back(sys);
         continue;  // skip the rest of this now
       }
@@ -1019,6 +1031,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     }
   }
 
+  // Write parameters here that feature in param set but not in the syst set
   for (auto par : params_) {
     Parameter const* p = par.second.get();
     if (p->err_d() != 0.0 && p->err_u() != 0.0 &&
@@ -1033,6 +1046,14 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     }
   }
 
+  // Write members of syst collection here that feature in both param set and rateParam set (constraint on rateParam term)
+  for (auto syst : systs_) {
+    if (syst->type() == "param" && param_set.count(syst->name()) && rateparam_set.count(syst->name())) {
+      txt_file << format((format("%%-%is param %%s") % sys_str_len).str()) %
+                      syst->name() % syst->param_str_ext();
+      txt_file << "\n";
+    }
+  }
 
   for (auto const& sys : sys_set) {
     std::vector<std::string> line(procs_.size() + 2);
@@ -1254,10 +1275,11 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   //  - it has non-zero errors
   //  - it appears in the first list
   //  - it doesn't appear in the second list
+  //  - it doesn't appear in the third list
   for (auto par : params_) {
     Parameter const* p = par.second.get();
     if (p->err_d() != 0.0 && p->err_u() != 0.0 &&
-        all_dependents_pars.count(p->name()) && !sys_set.count(p->name())) {
+        all_dependents_pars.count(p->name()) && !sys_set.count(p->name()) && !param_set.count(p->name())) {
       txt_file << format((format("%%-%is param %%g %%g") % sys_str_len).str()) %
                       p->name() % p->val() % ((p->err_u() - p->err_d()) / 2.0);
       if (p->range_d() != std::numeric_limits<double>::lowest() &&
