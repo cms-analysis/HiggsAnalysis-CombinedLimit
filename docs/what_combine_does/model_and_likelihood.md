@@ -8,7 +8,7 @@ Combine is designed for counting experiments, where the number of events with pa
 The events can either be binned, as in histograms, or unbinned, where continuous values are stored for each event.
 
 The model consists of a sum over different processes, each processes having its own model defining it.  
-The expected observation is then the sum of the expected observations for each of the processes, $m =\sum_{p} m_{p}$.
+The expected observations are then the sum of the expected observations for each of the processes, $m =\sum_{p} m_{p}$.
 
 The model can also be composed of multiple channels. $\mathcal{M}_{0} = \{ m_{c1}, m_{c2}, .... m_{cN}\}$. 
 The expected observations which define the model is then the union of the sets of expected observations in each individual channel.
@@ -25,7 +25,7 @@ The full model therefore defines the expected observations over all the channels
 
 $$ \mathcal{M} = \{ m_{c1}(\vec{\mu},\vec{\theta}), m_{c2}(\vec{\mu},\vec{\theta}), ..., m_{cN}(\vec{\mu},\vec{\theta}) \} $$
 
-Combine provides tools and interfaces for defining the model as arbitrary functions of the input parameters.
+Combine provides tools and interfaces for defining the model as pre-defined or user-defined functions of the input parameters.
 In practice, however, there are a number of most commonly used functional forms which define how the expected events depend on the model parameters.
 These are discussed in detail in the context of the full likelihood below.
 
@@ -168,7 +168,7 @@ where:
 - $N_{\mathrm{0}}(\theta_{G}) \equiv \frac{\theta_{G}}{\tilde{\theta}_{G}}$, is the normalization effect of a gamma uncertainty. $\tilde{\theta}_{G}$ is taken as the observed number of events in some external control region and $\theta_{G}$ has a constraint pdf $\mathrm{Poiss}(\theta; \tilde{\theta})$
 - $\kappa_{n}^{\theta_{L,n}}$, are log-normal uncertainties specified by a fixed value $\kappa$;
 - $\kappa^{\mathrm{A}}_{a}(\theta_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})^{\theta_{L(S)}^{a}}$ are asymmetric log-normal uncertainties, in which the value of $\kappa^{\mathrm{A}}$ depends on the nuisance parameter and two fixed values $\kappa^{+}_{a}$ and $\kappa^{-}_{a}$. The functions, $\kappa^A$, define a smooth interpolation for the asymmetric uncertainty; and
-- $F_{r}(\vec{\theta}_\rho)$ are arbitrary user-defined functions of the user defined nuisance parameters which may have uniform or gaussian constraint terms.
+- $F_{r}(\vec{\theta}_\rho)$ are user-defined functions of the user defined nuisance parameters which may have uniform or gaussian constraint terms.
 
 The function for the asymmetric normalization modifier, $\kappa^A$ is 
 
@@ -262,10 +262,10 @@ where the indices $i$ and $j$ runs over the Poisson- and Gaussian-constrained pr
 
 #### Customizing the form of $n_{exp}$ 
 
-Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](../../part2/physicsmodels/#model-building-poop), [ $N$](../../part2/settinguptheanalysis/#rate-parameters), and [ $y_{cbp}$](../../part3/nonstandard/#rooparametrichist-gamman-for-shapes).
-In practice, this makes the functional form almost entirely general. 
+Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](../../part2/physicsmodels/#model-building), [ $N$](../../part2/settinguptheanalysis/#rate-parameters), and [ $y_{cbp}$](../../part3/nonstandard/#rooparametrichist-gamman-for-shapes).
+In practice, this makes the functional form much more general than the default forms used above. 
 
-However, some constraints, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $y_{cbp}$ only depend on $\vec{\theta}$ do exist.
+However, some constraints do exist, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $y_{cbp}$ only depend on $\vec{\theta}$.
 
 #### Constraint Likelihood terms
 
@@ -351,13 +351,13 @@ The details of the interpolations which are used are found in the section on [no
 
 #### Parameter of Interest Model
 
-As in the template-based case, the parameter of interest model, $M_{cp}(\vec{\mu})$, can take on arbitrary forms [defined by the user](../../part2/physicsmodels/#model-building).
+As in the template-based case, the parameter of interest model, $M_{cp}(\vec{\mu})$, can take on different forms [defined by the user](../../part2/physicsmodels/#model-building).
 The default model is one where $\vec{\mu}$ simply scales the signal processes' normalizations.
 
 #### Shape Morphing Effects
 
-The user may define any number of nuisance parameters which morph the shape of the pdf according to arbitrary functional forms.
-These nuisance parameters are included as $\vec{\theta}_\rho$ uncertainties, which may have gaussian or uniform constraints, and include arbitrary user-defined process normalization effects.
+The user may define any number of nuisance parameters which morph the shape of the pdf according to functional forms defined by the user.
+These nuisance parameters are included as $\vec{\theta}_\rho$ uncertainties, which may have gaussian or uniform constraints, and include user-defined process normalization effects.
 
 
 ### Combining template-based and parametric Likelihoods 

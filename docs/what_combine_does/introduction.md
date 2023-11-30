@@ -12,7 +12,7 @@ Roughly, combine does three things:
 2. Runs statistical tests on the model and observed data;
 3. Provides tools for validating, inspecting, and understanding the model and the statistical tests.
 
-Combine can be used for analyses in HEP ranging from simple counting experiments, to unfolded measurements, new physics searches, combinations of measurements and EFT fits.
+Combine can be used for analyses in HEP ranging from simple counting experiments, to unfolded measurements, new physics searches,combinations of measurements, and EFT fits.
 
 ## Model Building 
 
@@ -48,7 +48,7 @@ Combine provides tools for [inspecting the model](../../part3/validation/#valida
 
 Methods are provided for comparing pre-fit and postfit results of all values including nuisance parameters, and summaries of the results can produced.
 
-Plotting utilities allow the pre- and post-fit model expectations and their uncertainties to be plotted, as well as plotted summaries of debugging stups such as the nuisance parameter values and likelihood scans.
+Plotting utilities allow the pre- and post-fit model expectations and their uncertainties to be plotted, as well as plotted summaries of debugging steps such as the nuisance parameter values and likelihood scans.
 
 
 

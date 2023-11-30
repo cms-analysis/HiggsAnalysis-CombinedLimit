@@ -29,7 +29,7 @@ Then the value of the test statistic on the actual observed data, $t^{\mathrm{ob
 <!--- this div exists as a convenient link target to the p-value explainer below. It is placed slightly above the explainer, because otherwise the explainer is covered by the page header-->
 </div>
 
-This comparison, which depends on the test in question, will the define the results of the test, which may be simple binary results (e.g. this model point is rejected at a given confidence level), or continuous (e.g. defining the degree to which the data are considered surprising, given the model).
+This comparison, which depends on the test in question, defines the results of the test, which may be simple binary results (e.g. this model point is rejected at a given confidence level), or continuous (e.g. defining the degree to which the data are considered surprising, given the model).
 Often, as either a final result or as an intermediate step, the p-value of the observed test statistic under a given hypothesis is calculated.
 
 
