@@ -175,9 +175,9 @@ The function for the asymmetric normalization modifier, $\kappa^A$ is
 $$
     \kappa^{\mathrm{A}}(\theta,\kappa^{+}, \kappa^{-}) =
     \begin{cases}
-        \kappa^{+}, &\mathrm{for } \theta \geq 0.5 \\
-        \kappa^{-}, &\mathrm{for } \theta \leq -0.5 \\
-        \exp\left(\frac{1}{2} \left( (\ln{\kappa^{+}}+\ln{\kappa^{-}}) + \frac{1}{4}(\ln{\kappa^{+}}-\ln{\kappa^{-}})I(\theta)\right)\right), &\mathrm{otherwise}\end{cases}
+        \kappa^{+}, &\mathrm{for\,} \theta \geq 0.5 \\
+        \frac{1}{\kappa^{-}}, &\mathrm{for\,} \theta \leq -0.5 \\
+        \exp\left(\frac{1}{2} \left( (\ln{\kappa^{+}}-\ln{\kappa^{-}}) + \frac{1}{4}(\ln{\kappa^{+}}+\ln{\kappa^{-}})I(\theta)\right)\right), &\mathrm{otherwise}\end{cases}
 $$
 
 where $I(\theta) = 48\theta^5 - 40\theta^3 + 15\theta$, which ensures $\kappa^{\mathrm{A}}$ and its first and second derivatives are continuous for all values of $\theta$.
@@ -226,9 +226,9 @@ The smooth interpolating function $F$, defined below, depends on a set of coeffi
 $$
 F(\theta, \delta^{+}, \delta^{-}, \epsilon) = 
 \begin{cases}
-\frac{1}{2}\theta^{'} \left( (\delta^{+}-\delta^{-}) + \frac{1}{8}(\delta^{+}+\delta^{-})(3\bar{\theta}^5 - 10\bar{\theta}^3 + 15\bar{\theta}) \right), & \text{for } -q < \theta < q; \\
-\theta^{'}\delta^{+}, & \text{for } \theta \ge q;\\
--\theta^{'}\delta^{-}, & \text{for } \theta \le -q;\\
+\frac{1}{2}\theta^{'} \left( (\delta^{+}-\delta^{-}) + \frac{1}{8}(\delta^{+}+\delta^{-})(3\bar{\theta}^5 - 10\bar{\theta}^3 + 15\bar{\theta}) \right), & \text{for } -q < \theta' < q; \\
+\theta^{'}\delta^{+}, & \text{for } \theta' \ge q;\\
+-\theta^{'}\delta^{-}, & \text{for } \theta' \le -q;\\
 \end{cases}
 $$
 
