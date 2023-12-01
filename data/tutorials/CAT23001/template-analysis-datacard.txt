@@ -10,7 +10,7 @@ observation 85
 bin             ch1        ch1
 process         signal     background
 process         0          1
-rate            10         100
+rate            24         100
 # --------------------------------
 lumi     lnN    1.1       1.0
 bgnorm   lnN    1.0       1.3
