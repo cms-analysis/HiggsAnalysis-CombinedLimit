@@ -17,7 +17,6 @@
 #include "RooConstVar.h"
 
 
-#include "TIterator.h"
 #include "RooListProxy.h"
 
 #include <iostream>

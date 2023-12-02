@@ -6,8 +6,7 @@ RooCheapProduct::RooCheapProduct(const char *name, const char *title, const RooA
     terms_("!terms","Set of real product components",this),
     offset_(1.0)
 {
-    RooFIter iter = terms.fwdIterator();
-    for (RooAbsArg *a = iter.next(); a != 0; a = iter.next()) {
+    for (RooAbsArg *a : terms) {
         RooAbsReal *rar = dynamic_cast<RooAbsReal *>(a);
         if (!rar) { 
             throw std::invalid_argument(std::string("Component ")+a->GetName()+" of RooCheapProduct is a "+a->ClassName()); 
@@ -32,10 +31,9 @@ RooCheapProduct::RooCheapProduct(const RooCheapProduct& other, const char* name)
 Double_t RooCheapProduct::evaluate() const 
 {
     if (vterms_.empty()) {
-        RooFIter iter = terms_.fwdIterator();
         std::vector<RooAbsReal *> & vterms = const_cast<std::vector<RooAbsReal *>&>(vterms_);
         vterms.reserve(terms_.getSize());
-        for (RooAbsArg *a = iter.next(); a != 0; a = iter.next()) {
+        for (RooAbsArg *a : terms_) {
             vterms.push_back(dynamic_cast<RooAbsReal *>(a));
         }
     }

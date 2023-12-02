@@ -48,11 +48,7 @@ RooMorphingPdf::RooMorphingPdf(const char* name, const char* title,
       mh_lo_(0.),
       mh_hi_(0.) {
   SetAxisInfo();
-  TIterator* pdf_iter = pdfs.createIterator();
-  RooAbsArg* pdf;
-  while ((pdf = reinterpret_cast<RooAbsArg*>(pdf_iter->Next())))
-    pdfs_.add(*pdf);
-  delete pdf_iter;
+  pdfs_.add(pdfs);
 }
 
 RooMorphingPdf::RooMorphingPdf(const RooMorphingPdf& other, const char* name)

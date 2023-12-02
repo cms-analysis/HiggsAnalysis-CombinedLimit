@@ -107,8 +107,7 @@ bool AsymptoticLimits::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
     */
     hasDiscreteParams_ = false;  
     if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
-    std::unique_ptr<TIterator> itparam(params_->createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
+    for (RooAbsArg *a : *params_) {
       if (a->IsA()->InheritsFrom(RooCategory::Class())) { hasDiscreteParams_ = true; break; }
     }
 
@@ -164,8 +163,7 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
 
   hasFloatParams_ = false;
-  std::unique_ptr<TIterator> itparam(params_->createIterator());
-  for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
+  for (RooAbsArg *a : *params_) {
       RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
       if ( rrv != 0 && rrv != r && rrv->isConstant() == false ) { hasFloatParams_ = true; break; }
   }

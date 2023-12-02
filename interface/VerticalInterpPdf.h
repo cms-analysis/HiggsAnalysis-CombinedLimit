@@ -46,8 +46,6 @@ protected:
   RooListProxy _coefList ;  //  List of coefficients
   Double_t     _quadraticRegion;
   Int_t        _quadraticAlgo;
-  TIterator* _funcIter ;     //! Iterator over FUNC list
-  TIterator* _coefIter ;    //! Iterator over coefficient list
 
   Double_t _pdfFloorVal; // PDF floor should be customizable, default is 1e-15
   Double_t _integralFloorVal; // PDF integral floor should be customizable, default is 1e-10

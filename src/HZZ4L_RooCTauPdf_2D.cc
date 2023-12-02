@@ -33,16 +33,13 @@ _coefList("coefList", "List of funcficients", this),
 ctau_min(_ctau_min),
 ctau_max(_ctau_max)
 {
-	TIterator* coefIter = inCoefList.createIterator();
-	RooAbsArg* func;
-	while ((func = (RooAbsArg*)coefIter->Next())) {
+    for (RooAbsArg *func : inCoefList) {
 		if (!dynamic_cast<RooAbsReal*>(func)) {
 			coutE(InputArguments) << "ERROR: :HZZ4L_RooCTauPdf_2D(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << endl;
 			assert(0);
 		}
 		_coefList.add(*func);
 	}
-	delete coefIter;
 
 	nbins_ctau = _coefList.getSize();
 	Integral_T = new double[nbins_ctau];
