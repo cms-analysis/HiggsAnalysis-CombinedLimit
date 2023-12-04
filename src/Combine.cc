@@ -65,7 +65,7 @@
 #include "../interface/CMSHistFunc.h"
 #include "../interface/CMSHistSum.h"
 
-#include "../interface/Logger.h"
+#include "../interface/CombineLogger.h"
 
 using namespace RooStats;
 using namespace RooFit;
@@ -669,11 +669,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
 
       if (verbose > 0) {  
-      	std::cout << "Floating the following parameters: "; toFloat.Print(""); 
-        Logger::instance().log(std::string(Form("Combine.cc: %d -- Floating the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
+      	//std::cout << "Floating the following parameters: "; toFloat.Print(""); 
+        CombineLogger::instance().log("Combine.cc",__LINE__,"Floating the following parameters:",__func__); 
         std::unique_ptr<TIterator> iter(toFloat.createIterator());
         for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-           Logger::instance().log(std::string(Form("Combine.cc: %d  %s ",__LINE__,a->GetName())),Logger::kLogLevelInfo,__func__); 
+           CombineLogger::instance().log("Combine.cc",__LINE__,a->GetName(),__func__); 
 	      }
       }
       utils::setAllConstant(toFloat, false);
@@ -704,11 +704,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
 
       if (verbose > 0) {  
-      	std::cout << "Freezing the following parameters: "; toFreeze.Print("");
-        Logger::instance().log(std::string(Form("Combine.cc: %d -- Freezing the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
+      	//std::cout << "Freezing the following parameters: "; toFreeze.Print("");
+        CombineLogger::instance().log("Combine.cc",__LINE__,"Freezing the following parameters: ",__func__); 
         std::unique_ptr<TIterator> iter(toFreeze.createIterator());
         for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-           Logger::instance().log(std::string(Form("Combine.cc: %d  %s ",__LINE__,a->GetName())),Logger::kLogLevelInfo,__func__); 
+           CombineLogger::instance().log("Combine.cc",__LINE__,a->GetName(),__func__); 
 	      }
       }
       utils::setAllConstant(toFreeze, true);
@@ -982,11 +982,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
 	    // print the values of the parameters used to generate the toy
 	    if (verbose > 2) {
-	      Logger::instance().log(std::string(Form("Combine.cc: %d -- Generate Asimov toy from parameter values ... ",__LINE__)),Logger::kLogLevelInfo,__func__);
-    	      std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
-    	      for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
-	  	TString varstring = utils::printRooArgAsString(a);
-	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	      CombineLogger::instance().log("Combine.cc",__LINE__, "Generate Asimov toy from parameter values ... ",__func__);
+    	  std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    	  for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+	  	    TString varstring = utils::printRooArgAsString(a);
+	  	    CombineLogger::instance().log("Combine.cc",__LINE__,varstring.Data(),__func__);
 	      }
 	    }
 	    // Also save the current state of the tree here but specify the quantile as -2 (i.e not the default, something specific to the toys)
@@ -1007,8 +1007,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
         }
     }
-    //std::cout << "Computing" <<  (iToy==0 ? " observed " :" expected ")<<" results starting from " << ((toysFrequentist_ && !bypassFrequentistFit_) ? " post-fit " : " pre-fit ") << " (nuisance) parameters " << std::endl;
-    //if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Computing %s results starting from %s parameters",__LINE__, (iToy==0 ? " observed " :" expected "), ( (toysFrequentist_ && !bypassFrequentistFit_) ? "post-fit" : "pre-fit") )),Logger::kLogLevelInfo,__func__);
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();
@@ -1081,11 +1079,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	*/
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (verbose > 2) {
-	  Logger::instance().log(std::string(Form("Combine.cc: %d -- Generating toy %d/%d, from parameter values ... ",__LINE__,iToy,nToys)),Logger::kLogLevelInfo,__func__);
-    	  std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
-    	  for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+	  CombineLogger::instance().log("Combine.cc",__LINE__, std::string(Form("Generating toy %d/%d, from parameter values ... ",iToy,nToys)),__func__);
+    std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
 	  	TString varstring = utils::printRooArgAsString(a);
-	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	  	CombineLogger::instance().log("Combine.cc" ,__LINE__,varstring.Data(),__func__);
 	  }
 	}
 
@@ -1237,10 +1235,10 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
         while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
           RooCategory *cat = dynamic_cast<RooCategory*>(arg);
           if (cat && (!cat->isConstant() || runtimedef::get("ADD_DISCRETE_FALLBACK"))) {
-	    if (verbose){
-              std::cout << "Adding discrete " << cat->GetName() << "\n";
-      	      if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Adding discrete %s ",__LINE__,cat->GetName())),Logger::kLogLevelInfo,__func__);
-	    }
+	        if (verbose){
+              //std::cout << "Adding discrete " << cat->GetName() << "\n";
+      	      CombineLogger::instance().log("Combine.cc",__LINE__,std::string(Form("Adding discrete %s ",cat->GetName())),__func__);
+	        }
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
           }
         }
@@ -1253,10 +1251,10 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
          RooCategory *cat = dynamic_cast<RooCategory*>(arg);
          if (! (std::string(cat->GetName()).find("pdfindex") != std::string::npos )) continue;
          if (cat/* && !cat->isConstant()*/) {
-	    if (verbose){
-              std::cout << "Adding discrete " << cat->GetName() << "\n";
-      	      if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Adding discrete %s ",__LINE__,cat->GetName())),Logger::kLogLevelInfo,__func__);
-	    }
+	       if (verbose){
+              //std::cout << "Adding discrete " << cat->GetName() << "\n";
+      	      CombineLogger::instance().log("Combine.cc",__LINE__,std::string(Form("Adding discrete %s ",cat->GetName())),__func__);
+	        }
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
          }
 	}
