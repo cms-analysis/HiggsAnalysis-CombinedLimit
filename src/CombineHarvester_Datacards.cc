@@ -1231,16 +1231,25 @@ void CombineHarvester::WriteDatacard(std::string const& name,
     do {
       RooRealVar *y = dynamic_cast<RooRealVar*>(**v);
       if (y && y->getAttribute("extArg") && all_fn_param_args.count(std::string(y->GetName()))) {
-        Parameter const* p = params_.at(y->GetName()).get();
-        txt_file << format("%-" + sys_str_short + "s %-10s %g") %
-                        y->GetName() % "extArg" % p->val();
-        if (p->range_d() != std::numeric_limits<double>::lowest() &&
-            p->range_u() != std::numeric_limits<double>::max()) {
-          txt_file << format(" [%.4g,%.4g]") % p->range_d() % p->range_u();
+        if (!params_.count(y->GetName()) &&  y->getStringAttribute("wspSource")) {
+          txt_file << format("%-" + sys_str_short +
+                             "s %-10s %-20s\n") %
+                          y->GetName() % "extArg"  % std::string(y->getStringAttribute("wspSource"));
+          
         }
-        txt_file << "\n";
+        else{
+          Parameter const* p = params_.at(y->GetName()).get();
+          txt_file << format("%-" + sys_str_short + "s %-10s %g") %
+                          y->GetName() % "extArg" % p->val();
+          if (p->range_d() != std::numeric_limits<double>::lowest() &&
+              p->range_u() != std::numeric_limits<double>::max()) {
+            txt_file << format(" [%.4g,%.4g]") % p->range_d() % p->range_u();
+          }
+          txt_file << "\n";
+        }
 
       }
+      
     } while (v->Next());
     RooArgSet funcs = rp_ws->allFunctions();
     v = funcs.createIterator();
