@@ -81,24 +81,32 @@ cacheutils::VectorizedParamHistFunc::fill(std::vector<Double_t> &out) const
     }
 }
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
 namespace {
     class PiecewiseInterpolationWithAccessor : public PiecewiseInterpolation {
         public:
             PiecewiseInterpolationWithAccessor(const PiecewiseInterpolation &p) :
                 PiecewiseInterpolation(p) {}
-            const RooAbsReal & nominal() const { return _nominal.arg(); }
-            int getInterpCode(int i) const { return _interpCode[i]; }
+            const RooAbsReal* nominalHist() const { return &_nominal.arg(); }
+            const std::vector<int>&  interpolationCodes() const { return _interpCode; }
             bool positiveDefinite() const { return _positiveDefinite; }
     };
 }
+#endif
 
 cacheutils::CachingPiecewiseInterpolation::CachingPiecewiseInterpolation(const PiecewiseInterpolation &pdf, const RooArgSet &obs) :
     pdf_(&pdf)
 {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
+    // Since ROOT 6.30, the public accessors are in upstream RooFit and we
+    // don't need this hack.
     PiecewiseInterpolationWithAccessor fixme(pdf);
+#else
+    auto& fixme = pdf;
+#endif
     const RooArgList & highList  = pdf.highList();
     const RooArgList & lowList   = pdf.lowList();
-    const RooAbsReal & nominal   = fixme.nominal(); 
+    const RooAbsReal & nominal   = *fixme.nominalHist();
     const RooArgList & coeffs = pdf.paramList();
     //std::cout << "Making a CachingPiecewiseInterpolation for " << pdf.GetName() << " with " << highList.getSize() << " pdfs, " << coeffs.getSize() << " coeffs." << std::endl;
     positiveDefinite_ = fixme.positiveDefinite();
@@ -109,7 +117,7 @@ cacheutils::CachingPiecewiseInterpolation::CachingPiecewiseInterpolation(const P
         RooAbsReal *pdfiLo = (RooAbsReal*) lowList.at(i);
         cachingPdfsLow_.push_back(makeCachingPdf(pdfiLo, &obs));
         coeffs_.push_back((RooAbsReal*) coeffs.at(i));
-        codes_.push_back(fixme.getInterpCode(i));
+        codes_.push_back(fixme.interpolationCodes()[i]);
         //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Hi    : " << pdfiHi->ClassName() << " " << pdfiHi->GetName() << " using " << typeid(cachingPdfsHi_.back()).name() << std::endl;
         //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Hi    : " << pdfiHi->ClassName() << " " << pdfiHi->GetName() << " using " << typeid(cachingPdfsHi_.back()).name() << std::endl;
         //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Coeff : " << coeffs_.back()->ClassName() << " " << coeffs_.back()->GetName()  << std::endl;
