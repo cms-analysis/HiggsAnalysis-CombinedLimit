@@ -66,3 +66,12 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooCheapProduct.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHggFormula.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleProdPdf.h"
+
+
+#include "HiggsAnalysis/CombinedLimit/interface/PolinomialExponent_1p.hpp"
+#include "HiggsAnalysis/CombinedLimit/interface/PolinomialExponent_2p.hpp"
+#include "HiggsAnalysis/CombinedLimit/interface/PolinomialExponent_3p.hpp"
+#include "HiggsAnalysis/CombinedLimit/interface/PolinomialExponent_4p.hpp"
+#include "HiggsAnalysis/CombinedLimit/interface/PolinomialExponent_5p.hpp"
+#include "HiggsAnalysis/CombinedLimit/interface/PolinomialExponent_6p.hpp"
+#include "HiggsAnalysis/CombinedLimit/interface/ExpGaussExp.hpp"
