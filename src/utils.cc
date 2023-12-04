@@ -38,7 +38,7 @@
 
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/ProfilingTools.h"
-#include "../interface/Logger.h"
+#include "../interface/CombineLogger.h"
 #include "../interface/RooMultiPdf.h"
 
 using namespace std;
@@ -1029,14 +1029,9 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
 
         if(isBad){
             std::string varName((*a).GetName());
-
-            if( verbosity >= 9 || (timesFoundAtBoundary[varName] < 3 && verbosity > -1) ){
-                fprintf(CloseCoutSentry::trueStdOutGlobal(),"  [WARNING] Found [%s] at boundary. \n", (*a).GetName());
-                std::cout << "       "; (*a).Print();
-            }
 	    
             if( verbosity > 0 ){
-            	Logger::instance().log(std::string(Form("utils.cc: %d -- Found parameter %s at boundary (within ~1sigma): %g+/-%g",__LINE__,(*a).GetName(),(*a).getVal(),(*a).getError())),Logger::kLogLevelInfo,__func__);
+            	CombineLogger::instance().log("utils.cc",__LINE__,std::string(Form("[WARNING] Found parameter %s at boundary (within ~1sigma): %g+/-%g",(*a).GetName(),(*a).getVal(),(*a).getError())),__func__);
 	    }
 
             timesFoundAtBoundary[varName]++;

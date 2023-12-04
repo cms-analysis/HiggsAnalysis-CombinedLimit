@@ -149,14 +149,12 @@ The output format is the same as for observed signifiances: the variable **limit
 
 Bayesian calculation of limits requires the user to assume a particular prior distribution for the parameter of interest (default **r**). You can specify the prior using the `--prior` option, the default is a flat pior in **r**.
 
-Since the Bayesian methods are much less frequently used, the tool will not build the default prior. For running the two methods below, you should include the option ``--noDefaultPrior=0``.
-
 ### Computing the observed bayesian limit (for simple models)
 
 The `BayesianSimple` method computes a Bayesian limit performing classical numerical integration; very fast and accurate but only works for simple models (a few channels and nuisance parameters).
 
 ```nohighlight
-combine -M BayesianSimple simple-counting-experiment.txt --noDefaultPrior=0
+combine -M BayesianSimple simple-counting-experiment.txt
 [...]
 
  -- BayesianSimple --
@@ -173,7 +171,7 @@ The `MarkovChainMC` method computes a Bayesian limit performing a monte-carlo in
 To use the MarkovChainMC method, users need to specify this method in the command line, together with the options they want to use. For instance, to set the number of times the algorithm will run with different random seeds, use option `--tries`:
 
 ```nohighlight
-combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100 --noDefaultPrior=0
+combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100 
 [...]
 
  -- MarkovChainMC --
@@ -186,8 +184,7 @@ Again, the resulting limit tree will contain the result. You can also save the c
 
 Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there's infinite possible regions that contain 68% of the posterior pdf). Below is a simple example script which can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in (but you can add it by just editing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` eg for a burn-in of 200. 
 
-<details>
-<summary><b>Show example script</b></summary>
+/// details | **Show example script**
 <pre class="python"><code>
 import ROOT
 
@@ -250,7 +247,7 @@ lu.Draw()
 
 print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 </code></pre>
-</details>
+///
 
 Running the script on the output file produced for the same datacard (including the `--saveChain` option) will produce the following output
 
@@ -262,24 +259,23 @@ along with a plot of the posterior shown below. This is the same as the output f
 
 An example to make contours when ordering by probability density is in [bayesContours.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesContours.cxx), but the implementation is very simplistic, with no clever handling of bin sizes nor any smoothing of statistical fluctuations.
 
+The `MarkovChainMC` algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all).
 
-The `MarkovChainMC` algorithm has many configurable parameters, and you're encouraged to experiment with those because the default configuration might not be the best for you (or might not even work for you at all)
-
-##### Iterations, burn-in, tries
+#### Iterations, burn-in, tries
 
 Three parameters control how the MCMC integration is performed:
 
 -   the number of **tries** (option `--tries`): the algorithm will run multiple times with different ransom seeds and report as result the truncated mean and rms of the different results. The default value is 10, which should be ok for a quick computation, but for something more accurate you might want to increase this number even up to ~200.
 -   the number of **iterations** (option `-i`) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Usually beyond 30k you get a better tradeoff in time vs accuracy by increasing the number of chains (option `--tries`)
--   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If your chain is very long, you might want to try increase this a bit (e.g. to some hundreds). Instead going below 50 is probably dangerous.
+-   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If your chain is very long, you might want to try increase this a bit (e.g. to some hundreds). Instead using a burn-on below 50 is likely to result in bias towards earlier stages of the chain before a reasonable convergence.
 
-##### Proposals
+#### Proposals
 
 The option `--proposal` controls the way new points are proposed to fill in the MC chain.
 
 -   **uniform**: pick points at random. This works well if you have very few nuisance parameters (or none at all), but normally fails if you have many.
--   **gaus**: Use a product of independent gaussians one for each nuisance parameter; the sigma of the gaussian for each variable is 1/5 of the range of the variable (this can be controlled using the parameter `--propHelperWidthRangeDivisor`). This proposal appears to work well for a reasonable number of nuisances (up to ~15), provided that the range of the nuisance parameters is reasonable, like ±5σ. It does **not** work without systematics.
--   **ortho** (**default**): This proposalis similar to the multi-gaussian proposal but at every step only a single coordinate of the point is varied, so that the acceptance of the chain is high even for a large number of nuisances (i.e. more than 20).
+-   **gaus**: Use a product of independent gaussians one for each nuisance parameter; the sigma of the gaussian for each variable is 1/5 of the range of the variable (this can be controlled using the parameter `--propHelperWidthRangeDivisor`). This proposal appears to work well for a reasonable number of nuisances (up to ~15), provided that the range of the nuisance parameters is reasonable - something like ±5σ. This method does **not** work when there are no nuisance parameters.
+-   **ortho** (**default**): This proposal is similar to the multi-gaussian proposal but at every step only a single coordinate of the point is varied, so that the acceptance of the chain is high even for a large number of nuisances (i.e. more than 20).
 -   **fit**: Run a fit and use the uncertainty matrix from HESSE to construct a proposal (or the one from MINOS if the option `--runMinos` is specified). This sometimes work fine, but sometimes gives biased results, so we don't recommend it in general.
 
 If you believe there's something going wrong, e.g. if your chain remains stuck after accepting only a few events, the option `--debugProposal` can be used to have a printout of the first *N* proposed points to see what's going on (e.g. if you have some region of the phase space with probability zero, the **gaus** and **fit** proposal can get stuck there forever)
@@ -289,7 +285,7 @@ If you believe there's something going wrong, e.g. if your chain remains stuck a
 
 The expected limit is computed by generating many toy mc observations and compute the limit for each of them. This can be done passing the option `-t` . E.g. to run 100 toys with the `BayesianSimple` method, just do
 
-    combine -M BayesianSimple datacard.txt -t 100 --noDefaultPrior=0
+    combine -M BayesianSimple datacard.txt -t 100 
 
 The program will print out the mean and median limit, and the 68% and 95% quantiles of the distributions of the limits. This time, the output root tree will contain **one entry per toy**.
 
@@ -299,13 +295,13 @@ For more heavy methods (eg the `MarkovChainMC`) you'll probably want to split th
 
 The `MarkovChainMC` method allows the user to produce the posterior pdf as a function of (in principle) any number of parameter of interest. In order to do so, you first need to create a workspace with more than one parameter, as explained in the [physics models](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/) section.
 
-For example, lets use the toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV) and convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections using `text2workspace`.
+For example, lets use the toy datacard [data/tutorials/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV) and convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections using `text2workspace`.
 
-    text2workspace.py test/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o workspace.root
+    text2workspace.py data/tutorials/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o workspace.root
 
 Now we just run one (or more) MCMC chain(s) and save them in the output tree.By default, the nuisance parameters will be marginalized (integrated) over their pdfs. You can ignore the complaints about not being able to compute an upper limit (since for more than 1D, this isn't well defined),
 
-    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345 --noDefaultPrior=0
+    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345 
 
 The output of the markov chain is again a RooDataSet of weighted events distributed according to the posterior pdf (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior pdf. See as an example [bayesPosterior2D.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesPosterior2D.cxx).
 
@@ -360,8 +356,7 @@ For relatively simple models, the observed and expected limits can be calculated
 combine realistic-counting-experiment.txt -M HybridNew --LHCmode LHC-limits
 ```
 
-<details>
-<summary><b>Show output</b></summary>
+/// details | **Show output**
 
 <pre><code> <<< Combine >>>
 >>> including systematics
@@ -531,8 +526,9 @@ Fit to 5 points: 1.91034 +/- 0.0388334
  -- Hybrid New --
 Limit: r < 1.91034 +/- 0.0388334 @ 95% CL
 Done in 0.01 min (cpu), 4.09 min (real)
-Failed to delete temporary file roostats-Sprxsw.root: No such file or directory</pre></code>
-</details>
+Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
+</pre></code>
+///
 
 The result stored in the **limit** branch of the output tree will be the upper limit (and its error stored in **limitErr**). The default behavior will be, as above, to search for the upper limit on **r** however, the values of $p_{\mu}, p_{b}$ and CL<sub>s</sub> can be calculated for a particular value **r=X** by specifying the option `--singlePoint=X`. In this case, the value stored in the branch **limit** will be the value of CL<sub>s</sub> (or $p_{\mu}$) (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section). 
 
@@ -599,10 +595,23 @@ The distributions of the test-statistic can also be plotted, at each value in th
 python test/plotTestStatCLs.py --input mygrid.root --poi r --val all --mass MASS
 ```
 
-The resulting output file will contain a canvas showing the distribution of the test statistic background only and signal+background hypothesis at each value of **r**.
+The resulting output file will contain a canvas showing the distribution of the test statistic background only and signal+background hypothesis at each value of **r**. Use `--help` to see more options for this script. 
 
 !!! info
-    If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option `--doublesided`, which will also take care of defining the correct integrals for $p_{\mu}$ and $p_{b}$.
+    If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option `--doublesided`, which will also take care of defining the correct integrals for $p_{\mu}$ and $p_{b}$. Click on the examples below to see what a typical output of this plotting tool will look like when using the LHC test statistic, or TEV test statistic. 
+
+/// details | **qLHC test stat example**
+
+![](images/exampleLHC.jpg)
+
+///
+
+/// details |  **qTEV test stat example**
+
+![](images/exampleTEV.jpg)
+
+///
+
 
 ## Computing Significances with toys
 
@@ -712,11 +721,17 @@ combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShap
 
 By taking the total background, the total signal, and the data shapes from FitDiagnostics output, we can compare the post-fit predictions from the S+B fit (first case) and the CR-only fit (second case) with the observation as reported below:
 
-??? "FitDiagnostics S+B fit"
-    ![](images/result_fitSB.png)
+/// details |  **FitDiagnostics S+B fit**
 
-??? "FitDiagnostics CR-only fit"
-    ![](images/result_fitCRonly.png)
+![](images/result_fitSB.png)
+
+///
+
+/// details | **FitDiagnostics CR-only fit**
+
+![](images/result_fitCRonly.png)
+
+///
 
 To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with expected distribution of the test-statistic obtained in toys:
 
@@ -727,11 +742,15 @@ To compute a p-value for the two results, one needs to compare the observed good
 
 where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command `--setParameters r=0,mask_ch1=1` is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:
 
-??? "Goodness-of-fit for S+B model"
-    ![](images/gof_sb.png)
+/// details | **Goodness-of-fit for S+B model**
 
-??? "Goodness-of-fit for CR-only model"
-    ![](images/gof_CRonly.png)
+![](images/gof_sb.png)
+///
+
+/// details |  **Goodness-of-fit for CR-only model**
+
+![](images/gof_CRonly.png)
+///
 
 ### Making a plot of the GoF test-statistic distribution
 
@@ -795,7 +814,7 @@ The macro [cccPlot.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLi
 
 The `MultiDimFit` method can do multi-dimensional fits and likelihood based scans/contours using models with several parameters of interest.
 
-Taking a toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV), we need to convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections
+Taking a toy datacard [data/tutorials/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/multiDim/toy-hgg-125.txt) (counting experiment which vaguely resembles the H→γγ analysis at 125 GeV), we need to convert the datacard into a workspace with 2 parameters, ggH and qqH cross sections
 
 ```sh
 text2workspace.py toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
@@ -831,8 +850,7 @@ As an example, lets produce the $-2\Delta\ln{\mathcal{L}}$ scan as a function of
 combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2000 --setParameterRanges r_qqH=0,10:r_ggH=0,4 -m 125 --fastScan
 ```
 
-<details>
-<summary><b>Show output</b> </summary>
+/// details | **Show output**
 <pre><code>
  <<< Combine >>>
 >>> including systematics
@@ -868,7 +886,7 @@ Point 220/2025, (i,j) = (4,40), r_ggH = 0.400000, r_qqH = 9.000000
 
 Done in 0.00 min (cpu), 0.02 min (real)
 </code></pre>
-</details>
+///
 
 The scan, along with the best fit point can be drawn using root,
 
@@ -912,7 +930,7 @@ If you suspect your fits/uncertainties are not stable, you may also try to run c
 
 For a full list of options use `combine -M MultiDimFit --help`
 
-##### Fitting only some parameters
+### Fitting only some parameters
 
 If your model contains more than one parameter of interest, you can still decide to fit a smaller number of them, using the option `--parameters` (or `-P`), with a syntax like this:
 
@@ -981,7 +999,7 @@ The point belongs to your confidence region if $p_{x}$ is larger than $\alpha$ (
 !!! warning
     You should not use this method without the option `--singlePoint`. Although combine will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
 
-#### Physical boundaries
+### Physical boundaries
 
 Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) is achieved by setting the ranges of the physics model parameters using
 
@@ -1005,11 +1023,11 @@ This can sometimes be an issue as Minuit may not know if has successfully conver
 As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs, as described in the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section.
 
 
-#### Extracting contours
+### Extracting contours from results files
 
-As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with `hadd`. You can also refer to the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section for submitting the jobs to the grid/batch.
+As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with `hadd`. You can also refer to the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section for submitting the jobs to the grid/batch or if you have more than one parameter of interest, see the instructions for running `HybridNew` on a grid of parameter points on the [CombineHarvest - HybridNewGrid](http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html) documentation. 
 
-##### 1D intervals
+#### Extracting 1D intervals
 
 For *one-dimensional* models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). As with limits, read in the grid of points and extract 1D intervals using,
 
@@ -1021,7 +1039,7 @@ The output tree will contain the values of the POI which crosses the critical va
 
 You can produce a plot of the value of $p_{x}$ vs the parameter of interest $x$ by adding the option `--plot <plotname>`.
 
-##### 2D contours
+#### Extracting 2D contours
 
 There is a tool for extracting *2D contours* from the output of `HybridNew` located in `test/makeFCcontour.py` provided the option `--saveHybridResult` was included when running `HybridNew`. It can be run with the usual combine  output files (or several of them) as input,
 

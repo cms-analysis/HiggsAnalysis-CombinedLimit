@@ -11,7 +11,7 @@
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/CascadeMinimizer.h"
-#include "../interface/Logger.h"
+#include "../interface/CombineLogger.h"
 
 RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double poiValue, int verbose) {
         RooArgSet  poi(*mc->GetParametersOfInterest());
@@ -20,11 +20,11 @@ RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double 
         toymcoptutils::SimPdfGenInfo newToyMC(*mc->GetPdf(), *mc->GetObservables(), false); 
 
 	if (verbose>2) {
-	    Logger::instance().log(std::string(Form("AsimovUtils.cc: %d -- Parameters after fit for asimov dataset",__LINE__)),Logger::kLogLevelInfo,__func__);
+	    CombineLogger::instance().log("AsimovUtils.cc",__LINE__,"Parameters after fit for asimov dataset",__func__);
     	    std::unique_ptr<TIterator> iter(mc->GetPdf()->getParameters((const RooArgSet*) 0)->createIterator());
     	    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
 	  	TString varstring = utils::printRooArgAsString(a);
-	  	Logger::instance().log(std::string(Form("AsimovUtils.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	  	CombineLogger::instance().log("AsimovUtils.cc",__LINE__,std::string(Form("%s",varstring.Data())),__func__);
 	    }
 	}
 
@@ -66,11 +66,11 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
         }
 
 	if (verbose>2) { 
-	    Logger::instance().log(std::string(Form("AsimovUtils.cc: %d -- Parameters after fit for asimov dataset",__LINE__)),Logger::kLogLevelInfo,__func__);
+	    CombineLogger::instance().log("AsimovUtils.cc",__LINE__,"Parameters after fit for asimov dataset",__func__);
     	    std::unique_ptr<TIterator> iter(mc->GetPdf()->getParameters(realdata)->createIterator());
     	    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
 	  	TString varstring = utils::printRooArgAsString(a);
-	  	Logger::instance().log(std::string(Form("AsimovUtils.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	  	CombineLogger::instance().log("AsimovUtils.cc",__LINE__,std::string(Form("%s",varstring.Data())),__func__);
 	    }
 	}
 

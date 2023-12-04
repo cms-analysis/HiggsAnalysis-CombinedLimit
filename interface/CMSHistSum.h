@@ -73,8 +73,12 @@ public:
   RooArgList const& coefList() const { return coeffpars_; }
   // RooArgList const& funcList() const { return funcs_; }
 
+  RooAbsReal const& getXVar() const { return x_.arg(); }
+
   static void EnableFastVertical();
   friend class CMSHistV<CMSHistSum>;
+
+  void injectExternalMorph(int idx, CMSExternalMorph& morph);
 
  protected:
   RooRealProxy x_;
@@ -128,6 +132,9 @@ public:
   mutable int fast_mode_; //! not to be serialized
   static bool enable_fast_vertical_; //! not to be serialized
 
+  RooListProxy external_morphs_;
+  std::vector<int> external_morph_indices_;
+
   inline int& morphField(int const& ip, int const& iv) {
     return vmorph_fields_[ip * n_morphs_ + iv];
   }
@@ -143,7 +150,7 @@ public:
 
 
  private:
-  ClassDef(CMSHistSum,1)
+  ClassDef(CMSHistSum,2)
 };
 
 #endif

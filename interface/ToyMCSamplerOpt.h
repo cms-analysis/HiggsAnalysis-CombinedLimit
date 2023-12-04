@@ -10,7 +10,7 @@ namespace toymcoptutils {
     class SinglePdfGenInfo {
         public:
             enum Mode { Binned, BinnedNoWorkaround, Poisson, Unbinned, Counting };
-            SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
+            SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0, bool canUseSpec = true) ;
             ~SinglePdfGenInfo() ;
             RooAbsData *generate(const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             RooDataSet *generateAsimov(RooRealVar *&weightVar, double weightScale = 1.0, int verbose = 0) ;
@@ -22,6 +22,7 @@ namespace toymcoptutils {
             Mode mode_;
             RooAbsPdf *pdf_; 
             RooArgSet observables_;
+            bool       canUseSpec_;
             RooAbsPdf::GenSpec *spec_;
             TH1        *histoSpec_;
             bool        keepHistoSpec_;
@@ -33,7 +34,7 @@ namespace toymcoptutils {
     };
     class SimPdfGenInfo {
         public:
-            SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
+            SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0, bool canUseSpec = true) ;
             ~SimPdfGenInfo() ;
             RooAbsData *generate(RooRealVar *&weightVar, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             RooAbsData *generateAsimov(RooRealVar *&weightVar, int verbose = 0 ) ;
@@ -77,6 +78,7 @@ class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
         // We can't use the NuisanceParameterSampler because, even if public, there's no interface file for it
         mutable RooDataSet *nuisValues_; 
         mutable int nuisIndex_;
+        bool genNuis_;
 
         mutable RooRealVar *weightVar_;
         mutable std::map<RooAbsPdf *, toymcoptutils::SimPdfGenInfo *> genCache_;

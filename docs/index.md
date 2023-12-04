@@ -15,7 +15,11 @@ The code can be checked out from GIT and compiled on top of a CMSSW release that
 
 # Installation instructions
 
-## Within CMSSW (recommended)
+Installation instructions and recommended versions can be found below. 
+Since v9.0.0, the versioning follows the [semantic versioning 2.0.0 standard](https://semver.org/).
+Earlier versions are not guaranteed to follow the standard.
+
+## Within CMSSW (recommended for CMS users)
 
 The instructions below are for installation within a CMSSW environment. For end
 users that don't need to commit or do any development, the following recipes
@@ -37,12 +41,12 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a recommended tag - currently the recommended tag is **v9.0.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.0.0)
+Update to a recommended tag - currently the recommended tag is **v9.1.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.1.0)
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v9.0.0
+git checkout v9.1.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
@@ -113,13 +117,17 @@ make -j 4
 You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login.
 
 ### Standalone compilation with LCG
-LCG102 contains ROOT 6.26, which at the time of writing is not available in any CMSSW release.
-This repo can be compiled against LCG102 with:
-```
+For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102 which contains ROOT 6.26:
+```sh
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 source env_lcg.sh 
 make LCG=1 -j 8
+```
+To change the LCG version, edit `env_lcg.sh`. The resulting binaries can be relocated (e.g. for use in a
+batch job) if the following files are included in the job tarball:
+```sh
+tar -zcf Combine_LCG_env.tar.gz build interface src/classes.h --exclude=obj
 ```
 
 ### Standalone compilation with `conda`
@@ -167,6 +175,9 @@ _Prerequisites_
 2. Register your SSH key on github: [https://help.github.com/articles/generating-ssh-keys](https://help.github.com/articles/generating-ssh-keys) 1 Fork the repository to create your copy of it: [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork) (more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) )
 
 You will now be able to browse your fork of the repository from [https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit](https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit)
+
+We strongly encourage you to contribute any developments you make back into the main repository. 
+See [contributing.md](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/contributing.md) for details about contributing. 
 
 # Combine Tool
 
