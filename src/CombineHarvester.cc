@@ -872,6 +872,38 @@ void CombineHarvester::SetupRateParamWspObj(std::string const& name,
   if (is_ext_arg) ws->arg(name.c_str())->setAttribute("extArg");
 }
 
+bool CombineHarvester::SetupRateParamWspObjFromWsStore(std::string const& name, std::string const& obj,
+                                     std::map<std::string, std::shared_ptr<RooWorkspace>> const& ws_store) {
+  bool found_arg_in_ws = false;
+  RooWorkspace *ws = nullptr;
+  if (!wspaces_.count("_rateParams")) {
+    ws = this->SetupWorkspace(RooWorkspace("_rateParams","_rateParams")).get();
+  } else {
+    ws = wspaces_.at("_rateParams").get();
+  }
+  std::vector<std::string> tokens;
+  boost::split(tokens, obj, boost::is_any_of(":"));
+
+  std::string file_name_extArg = tokens[0];
+  std::string wsp_name_extArg = tokens[1];
+
+  RooAbsArg* warg  = nullptr;
+  for (auto const& it : ws_store) {
+    if (boost::ends_with(it.first, file_name_extArg+wsp_name_extArg)){
+      warg = it.second->arg(name.c_str()) ;
+      break;
+    }
+  }
+
+  if(warg && !ws->arg(name.c_str())) {
+    ws->import(*warg, RooFit::RecycleConflictNodes());
+    ws->arg(name.c_str())->setStringAttribute("wspSource", obj.c_str());
+    ws->arg(name.c_str())->setAttribute("extArg");
+    found_arg_in_ws = true;
+  }
+  return found_arg_in_ws;
+}
+
 void CombineHarvester::SetAutoMCStats(CombineHarvester &target, double thresh, bool sig, int mode) {
   for (auto const& bin : this->bin_set()) {
     target.auto_stats_settings_[bin] = AutoMCStatsSettings(thresh, sig, mode);
