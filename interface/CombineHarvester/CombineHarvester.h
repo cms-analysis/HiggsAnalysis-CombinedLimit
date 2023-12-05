@@ -544,6 +544,7 @@ class CombineHarvester {
   void SetupRateParamFunc(std::string const& name, std::string const& formula,
                           std::string const& pars);
   void SetupRateParamWspObj(std::string const& name, std::string const& obj, bool is_ext_arg = false);
+  bool SetupRateParamWspObjFromWsStore(std::string const& name, std::string const& obj,                                                                                               std::map<std::string, std::shared_ptr<RooWorkspace>> const& ws_store);
   // ---------------------------------------------------------------
   // Private methods for the shape writing routines
   // ---------------------------------------------------------------

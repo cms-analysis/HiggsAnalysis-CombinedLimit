@@ -197,7 +197,9 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
           }
         }
       } else if (words[i].size() == 3 && is_wsp_rateparam) {
-        SetupRateParamWspObj(param_name, words[i][2], true);
+          if (!SetupRateParamWspObjFromWsStore(param_name, words[i][2], ws_store)) {
+            SetupRateParamWspObj(param_name, words[i][2], true);
+          }
       }
     }
   }
