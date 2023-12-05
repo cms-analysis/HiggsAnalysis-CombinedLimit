@@ -52,9 +52,7 @@ for p1 in range(0, len(parameters_stxs)):
     for p2 in range(0, len(parameters_stxs)):
         param1 = parameters_stxs[p1]
         param2 = parameters_stxs[p2]
-        correlation_matrix_pruned.SetBinContent(
-            p1 + 1, p2 + 1, rfr.correlation(param1, param2)
-        )
+        correlation_matrix_pruned.SetBinContent(p1 + 1, p2 + 1, rfr.correlation(param1, param2))
     correlation_matrix_pruned.GetXaxis().SetBinLabel(p1 + 1, parameters_stxs[p1])
     correlation_matrix_pruned.GetYaxis().SetBinLabel(p1 + 1, parameters_stxs[p1])
 
@@ -80,9 +78,7 @@ ROOT.gStyle.SetTitleXOffset(1.2)
 c2.SetFixedAspectRatio()
 pads[0].cd()
 correlation_matrix_pruned.Draw("COLZTEXT")
-plot.DrawCMSLogo(
-    pads[0], "CMS", "Material for Combine tutorial", 0.0, 0.15, 0.04, 1.0, "", 0.6
-)
+plot.DrawCMSLogo(pads[0], "CMS", "Material for Combine tutorial", 0.0, 0.15, 0.04, 1.0, "", 0.6)
 plot.DrawTitle(pads[0], "", 3, textSize=0.4)
 
 c2.SaveAs("%(outname)s_pois.pdf" % vars())

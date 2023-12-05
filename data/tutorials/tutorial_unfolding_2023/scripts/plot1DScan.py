@@ -41,10 +41,7 @@ def BuildScan(scan, param, files, color, yvals, ycut):
 
     if graph.GetN() <= 1:
         graph.Print()
-        raise RuntimeError(
-            "Attempting to build %s scan from TGraph with zero or one point (see above)"
-            % files
-        )
+        raise RuntimeError("Attempting to build %s scan from TGraph with zero or one point (see above)" % files)
 
     bestfit = None
     for i in range(graph.GetN()):
@@ -111,23 +108,13 @@ def BuildScan(scan, param, files, color, yvals, ycut):
 parser = argparse.ArgumentParser()
 
 parser.add_argument("main", help="Main input file for the scan")
-parser.add_argument(
-    "--y-cut", type=float, default=7.0, help="Remove points with y > y-cut"
-)
+parser.add_argument("--y-cut", type=float, default=7.0, help="Remove points with y > y-cut")
 parser.add_argument("--y-max", type=float, default=8.0, help="y-axis maximum")
-parser.add_argument(
-    "--output", "-o", help="output name without file extension", default="scan"
-)
+parser.add_argument("--output", "-o", help="output name without file extension", default="scan")
 parser.add_argument("--POI", help="use this parameter of interest", default="r")
-parser.add_argument(
-    "--translate", default=None, help="json file with POI name translation"
-)
-parser.add_argument(
-    "--main-label", default="Observed", type=str, help="legend label for the main scan"
-)
-parser.add_argument(
-    "--main-color", default=1, type=int, help="line and marker color for main scan"
-)
+parser.add_argument("--translate", default=None, help="json file with POI name translation")
+parser.add_argument("--main-label", default="Observed", type=str, help="legend label for the main scan")
+parser.add_argument("--main-color", default=1, type=int, help="line and marker color for main scan")
 parser.add_argument(
     "--others",
     nargs="*",
@@ -155,9 +142,7 @@ if args.translate is not None:
 yvals = [1.0, 4.0]
 
 
-main_scan = BuildScan(
-    args.output, args.POI, [args.main], args.main_color, yvals, args.y_cut
-)
+main_scan = BuildScan(args.output, args.POI, [args.main], args.main_color, yvals, args.y_cut)
 
 other_scans = []
 other_scans_opts = []
@@ -201,9 +186,7 @@ if len(other_scans) > 0:
     if min(mins) < main_scan["graph"].GetX()[0]:
         new_min = min(mins) - (main_scan["graph"].GetX()[0] - new_min)
     if max(maxs) > main_scan["graph"].GetX()[main_scan["graph"].GetN() - 1]:
-        new_max = max(maxs) + (
-            new_max - main_scan["graph"].GetX()[main_scan["graph"].GetN() - 1]
-        )
+        new_max = max(maxs) + (new_max - main_scan["graph"].GetX()[main_scan["graph"].GetN() - 1])
     axishist.GetXaxis().SetLimits(new_min, new_max)
 
 for other in other_scans:
@@ -306,9 +289,7 @@ pt.SetTextAlign(11)
 pt.SetTextFont(42)
 pt.Draw()
 
-plot.DrawCMSLogo(
-    pads[0], args.logo, args.logo_sub, 11, 0.045, 0.035, 1.2, cmsTextSize=1.0
-)
+plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.045, 0.035, 1.2, cmsTextSize=1.0)
 
 legend_l = 0.69
 if len(other_scans) > 0:
@@ -352,22 +333,14 @@ if args.json is not None:
                     interval = other["other_1sig"][0]
                     js_extra["OtherLimit%sLo" % breakdown[oi + 1]] = interval["lo"]
                     js_extra["OtherLimit%sHi" % breakdown[oi + 1]] = interval["hi"]
-                    js_extra["ValidOtherLimit%sLo" % breakdown[oi + 1]] = interval[
-                        "valid_lo"
-                    ]
-                    js_extra["ValidOtherLimit%sHi" % breakdown[oi + 1]] = interval[
-                        "valid_hi"
-                    ]
+                    js_extra["ValidOtherLimit%sLo" % breakdown[oi + 1]] = interval["valid_lo"]
+                    js_extra["ValidOtherLimit%sHi" % breakdown[oi + 1]] = interval["valid_hi"]
                 if len(main_scan["other_2sig"]) >= 1:
                     interval = other["other_2sig"][0]
                     js_extra["2sig_OtherLimit%sLo" % breakdown[oi + 1]] = interval["lo"]
                     js_extra["2sig_OtherLimit%sHi" % breakdown[oi + 1]] = interval["hi"]
-                    js_extra["2sig_ValidOtherLimit%sLo" % breakdown[oi + 1]] = interval[
-                        "valid_lo"
-                    ]
-                    js_extra["2sig_ValidOtherLimit%sHi" % breakdown[oi + 1]] = interval[
-                        "valid_hi"
-                    ]
+                    js_extra["2sig_ValidOtherLimit%sLo" % breakdown[oi + 1]] = interval["valid_lo"]
+                    js_extra["2sig_ValidOtherLimit%sHi" % breakdown[oi + 1]] = interval["valid_hi"]
         js[args.model][args.POI].update(js_extra)
 
     with open(args.json, "w") as outfile:
@@ -375,8 +348,6 @@ if args.json is not None:
 
 
 save_graph = main_scan["graph"].Clone()
-save_graph.GetXaxis().SetTitle(
-    "%s = %.3f %+.3f/%+.3f" % (fixed_name, val_nom[0], val_nom[2], val_nom[1])
-)
+save_graph.GetXaxis().SetTitle("%s = %.3f %+.3f/%+.3f" % (fixed_name, val_nom[0], val_nom[2], val_nom[1]))
 canv.Print(".pdf")
 canv.Print(".png")

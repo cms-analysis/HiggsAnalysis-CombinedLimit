@@ -42,9 +42,7 @@ with open(sys.argv[1]) as json_file:
     meas_dict = json.load(json_file)["STXS"]
 
 for i, p in enumerate(pois):
-    symm_err = (
-        float(meas_dict[p]["ErrorHi"]) + float(-1 * meas_dict[p]["ErrorLo"])
-    ) / 2.0
+    symm_err = (float(meas_dict[p]["ErrorHi"]) + float(-1 * meas_dict[p]["ErrorLo"])) / 2.0
     unfolded.SetBinContent(i + 2, meas_dict[p]["Val"] * sm_xs.GetBinContent(i + 2))
     unfolded.SetBinError(i + 2, symm_err * sm_xs.GetBinContent(i + 2))
     sm_xs.GetXaxis().SetBinLabel(i + 2, bin_labels_ZH[i])
