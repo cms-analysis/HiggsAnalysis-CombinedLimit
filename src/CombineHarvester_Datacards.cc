@@ -1234,6 +1234,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       RooRealVar *y = dynamic_cast<RooRealVar*>(**v);
       if (y && y->getAttribute("extArg") && all_fn_param_args.count(std::string(y->GetName()))) {
         if (!params_.count(y->GetName()) &&  y->getStringAttribute("wspSource")) {
+          std::vector<std::string> tokens;
+          boost::split(tokens, y->getStringAttribute("wspSource"), boost::is_any_of(":"));
+          std::string wsp_name_extArg = tokens[1];
+          y->setStringAttribute("wspSource", (std::string(root_file.GetName()) + ":" + tokens[1]).c_str());
           txt_file << format("%-" + sys_str_short +
                              "s %-10s %-20s\n") %
                           y->GetName() % "extArg"  % std::string(y->getStringAttribute("wspSource"));
