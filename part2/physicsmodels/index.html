@@ -450,9 +450,16 @@ for an example. However, the computational performance scales quadratically
 with the number of POIs, and can get extremely expensive for 10 or more, as may
 be encountered often with EFT analyses. To alleviate this issue, an accelerated
 interference modeling technique is implemented for template-based analyses via
-the <code>interferenceModel</code> physics model. In this model, each bin yield <span class="arithmatex"><span class="MathJax_Preview">y</span><script type="math/tex">y</script></span> is parameterized
-<span class="arithmatex"><span class="MathJax_Preview"><span class="arithmatex"><span class="MathJax_Preview">y(\theta) = y_0 (\theta^\top M \theta)</span><script type="math/tex">y(\theta) = y_0 (\theta^\top M \theta)</script></span></span><script type="math/tex"><span class="arithmatex"><span class="MathJax_Preview">y(\theta) = y_0 (\theta^\top M \theta)</span><script type="math/tex">y(\theta) = y_0 (\theta^\top M \theta)</script></span></script></span>
-as a function of the POI vector <span class="arithmatex"><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span>, a nominal template <span class="arithmatex"><span class="MathJax_Preview">y_0</span><script type="math/tex">y_0</script></span>, and a scaling matrix <span class="arithmatex"><span class="MathJax_Preview">M</span><script type="math/tex">M</script></span>.
+the <code>interferenceModel</code> physics model. In this model, each bin yield <span class="arithmatex"><span class="MathJax_Preview">y</span><script type="math/tex">y</script></span> is parameterized</p>
+<div class="arithmatex">
+<div class="MathJax_Preview">
+y(\theta) = y_0 (\theta^\top M \theta)
+</div>
+<script type="math/tex; mode=display">
+y(\theta) = y_0 (\theta^\top M \theta)
+</script>
+</div>
+<p>as a function of the POI vector <span class="arithmatex"><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span>, a nominal template <span class="arithmatex"><span class="MathJax_Preview">y_0</span><script type="math/tex">y_0</script></span>, and a scaling matrix <span class="arithmatex"><span class="MathJax_Preview">M</span><script type="math/tex">M</script></span>.
 To see how this parameterization relates to that of the previous section, we can define:</p>
 <div class="arithmatex">
 <div class="MathJax_Preview">
@@ -499,8 +506,15 @@ syntax as follows:</p>
 <p>where the parameters are declared using RooFit's <a href="https://root.cern.ch/doc/v622/classRooWorkspace.html#a0ddded1d65f5c6c4732a7a3daa8d16b0">factory
 syntax</a>
 and each row of the <code>scaling</code> field represents the scaling information of a bin, e.g. if <span class="arithmatex"><span class="MathJax_Preview">y_0 = |A_b|^2</span><script type="math/tex">y_0 = |A_b|^2</script></span>
-then each row would contain three entries:
-<span class="arithmatex"><span class="MathJax_Preview"><span class="arithmatex"><span class="MathJax_Preview">|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1</span><script type="math/tex">|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1</script></span></span><script type="math/tex"><span class="arithmatex"><span class="MathJax_Preview">|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1</span><script type="math/tex">|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1</script></span></script></span></p>
+then each row would contain three entries:</p>
+<div class="arithmatex">
+<div class="MathJax_Preview">
+|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1
+</div>
+<script type="math/tex; mode=display">
+|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1
+</script>
+</div>
 <p>For several coefficients, one would enumerate as follows:</p>
 <pre><code class="language-python">scaling = []
 for ibin in range(nbins):
