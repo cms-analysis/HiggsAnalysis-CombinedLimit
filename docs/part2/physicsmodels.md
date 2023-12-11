@@ -255,7 +255,11 @@ with the number of POIs, and can get extremely expensive for 10 or more, as may
 be encountered often with EFT analyses. To alleviate this issue, an accelerated
 interference modeling technique is implemented for template-based analyses via
 the `interferenceModel` physics model. In this model, each bin yield $y$ is parameterized
-$$y(\theta) = y_0 (\theta^\top M \theta)$$
+
+$$
+y(\theta) = y_0 (\theta^\top M \theta)
+$$
+
 as a function of the POI vector $\theta$, a nominal template $y_0$, and a scaling matrix $M$.
 To see how this parameterization relates to that of the previous section, we can define:
 
@@ -297,7 +301,10 @@ where the parameters are declared using RooFit's [factory
 syntax](https://root.cern.ch/doc/v622/classRooWorkspace.html#a0ddded1d65f5c6c4732a7a3daa8d16b0)
 and each row of the `scaling` field represents the scaling information of a bin, e.g. if $y_0 = |A_b|^2$
 then each row would contain three entries:
-$$|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1$$
+
+$$
+|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1
+$$
 
 For several coefficients, one would enumerate as follows:
 ```python
