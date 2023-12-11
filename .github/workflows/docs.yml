@@ -18,7 +18,7 @@ jobs:
         python-version: 3.8
     - name: Build documentation
       run: |
-        python3 -m pip install mkdocs pymdown-extensions mkdocs-cinder
+        python3 -m pip install mkdocs pymdown-extensions mkdocs-material
         mkdocs build --verbose --clean
     - name: Deploy documentation
       uses: peaceiris/actions-gh-pages@v3

@@ -26,9 +26,16 @@ nav:
           - "Exercise: unfolding in combine":   tutorial2023_unfolding/unfolding_exercise.md
 
 theme:
-        name: cinder
-        include_sidebar: true
-        highlightjs: true
+        name: material
+        logo: logo.png
+        features: 
+            - content.code.copy
+            - navigation.footer
+            - navigation.expand
+            - search.highlight
+            - search.suggest
+            - toc.follow
+
 
 extra_css:
   - "mystyle.css"
