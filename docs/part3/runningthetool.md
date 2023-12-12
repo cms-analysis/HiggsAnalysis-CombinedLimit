@@ -1,6 +1,6 @@
 # How to run the tool
 
-The executable **`combine`** provided by the package is used to invoke the tools via the command line. The statistical analysis method, as well as user settings, are also specified on the command line. To see the full list of available options, you can run:
+The executable <sub><sup>COMBINE</sup></sub> provided by the package is used to invoke the tools via the command line. The statistical analysis method, as well as user settings, are also specified on the command line. To see the full list of available options, you can run:
 
 ```sh
 combine --help
@@ -72,13 +72,13 @@ There are a number of useful command-line options that can be used to alter the 
     - The name of the branch will be **trackedError_*name***.
     - The behaviour, in terms of which values are saved, is the same as `--trackParameters` above.
 
-By default, the data set used by **combine** will be the one listed in the datacard. You can tell combine to use a different data set (for example a toy data set that you generated) by using the option `--dataset`. The argument should be `rootfile.root:workspace:location` or `rootfile.root:location`. In order to use this option, you must first convert your datacard to a binary workspace and use this binary workspace as the input to **combine**. 
+By default, the data set used by <sub><sup>COMBINE</sup></sub> will be the one listed in the datacard. You can tell <sub><sup>COMBINE</sup></sub> to use a different data set (for example a toy data set that you generated) by using the option `--dataset`. The argument should be `rootfile.root:workspace:location` or `rootfile.root:location`. In order to use this option, you must first convert your datacard to a binary workspace and use this binary workspace as the input to <sub><sup>COMBINE</sup></sub>. 
 
 ### Generic Minimizer Options
 
-**Combine** uses its own minimizer class, which is used to steer Minuit (via RooMinimizer), named the `CascadeMinimizer`. This allows for sequential minimization, which can help in case a particular setting or algorithm fails. The `CascadeMinimizer` also knows about extra features of **Combine** such as *discrete* nuisance parameters.
+<sub><sup>COMBINE</sup></sub> uses its own minimizer class, which is used to steer Minuit (via RooMinimizer), named the `CascadeMinimizer`. This allows for sequential minimization, which can help in case a particular setting or algorithm fails. The `CascadeMinimizer` also knows about extra features of <sub><sup>COMBINE</sup></sub> such as *discrete* nuisance parameters.
 
-All of the fits that are performed in **Combine**'s methods use this minimizer. This means that the fits can be tuned using these common options,
+All of the fits that are performed in <sub><sup>COMBINE</sup></sub>'s methods use this minimizer. This means that the fits can be tuned using these common options,
 
 * `--cminPoiOnlyFit`: First, perform a fit floating *only* the parameters of interest. This can be useful to find, roughly, where the global minimum is.
 * `--cminPreScan`: Do a scan before the first minimization.
@@ -107,7 +107,7 @@ More of these options can be found in the **Cascade Minimizer options** section 
 
 ### Output from combine
 
-Most methods will print the results of the computation to the screen. However, in addition, **Combine** will also produce a root file containing a tree called **limit** with these results. The name of this file will be of the format,
+Most methods will print the results of the computation to the screen. However, in addition, <sub><sup>COMBINE</sup></sub> will also produce a root file containing a tree called **limit** with these results. The name of this file will be of the format,
 
     higgsCombineTest.MethodName.mH$MASS.[word$WORD].root
 
@@ -141,9 +141,9 @@ In some cases, the precise meanings of the branches will depend on the method be
 
 By default, each of the methods described so far will be run using the **observed data** as the input. In several cases (as detailed below), it is useful to run the tool using toy datasets, including Asimov data sets.
 
-The option `-t` is used to tell **combine** to first generate one or more toy data sets, which will be used instead of the observed data. There are two versions,
+The option `-t` is used to tell <sub><sup>COMBINE</sup></sub> to first generate one or more toy data sets, which will be used instead of the observed data. There are two versions,
 
-   * `-t N` with N > 0. **Combine** will generate N toy datasets from the model and re-run the method once per toy. The seed for the toy generation can be modified with the option `-s` (use `-s -1` for a random seed). The output file will contain one entry in the tree for each of these toys.
+   * `-t N` with N > 0. <sub><sup>COMBINE</sup></sub> will generate N toy datasets from the model and re-run the method once per toy. The seed for the toy generation can be modified with the option `-s` (use `-s -1` for a random seed). The output file will contain one entry in the tree for each of these toys.
 
    * `-t -1` will produce an Asimov data set, in which statistical fluctuations are suppressed. The procedure for generating this Asimov data set depends on the type of analysis you are using. More details are given below. 
 
@@ -158,15 +158,15 @@ The output file will contain the toys (as `RooDataSets` for the observables, inc
 
 ### Asimov datasets
 
-If you are using either `-t -1` or  `AsymptoticLimits`, **combine** will calculate results based on an Asimov data set.
+If you are using either `-t -1` or  `AsymptoticLimits`, <sub><sup>COMBINE</sup></sub> will calculate results based on an Asimov data set.
 
    * For counting experiments, the Asimov data set will just be the total number of expected events (given the values of the nuisance parameters and POIs of the model)
 
    * For shape analyses with templates, the Asimov data set will be constructed as a histogram using the same binning that is defined for your analysis.
 
-   * If your model uses parametric shapes, there are some options as to what Asimov data set to produce. By *default*, **combine** will produce the Asimov data set as a histogram using the binning that is associated with each observable (ie as set using `RooRealVar::setBins`). If this binning does not exist, **combine** will **guess** a suitable binning - it is therefore best to use `RooRealVar::setBins` to associate a binning with each observable, even if your data is unbinned, if you intend to use Asimov data sets.
+   * If your model uses parametric shapes, there are some options as to what Asimov data set to produce. By *default*, <sub><sup>COMBINE</sup></sub> will produce the Asimov data set as a histogram using the binning that is associated with each observable (ie as set using `RooRealVar::setBins`). If this binning does not exist, <sub><sup>COMBINE</sup></sub> will **guess** a suitable binning - it is therefore best to use `RooRealVar::setBins` to associate a binning with each observable, even if your data is unbinned, if you intend to use Asimov data sets.
 
-You can also ask **combine** to use a **Pseudo-Asimov** dataset, which is created from many weighted unbinned events.
+You can also ask <sub><sup>COMBINE</sup></sub> to use a **Pseudo-Asimov** dataset, which is created from many weighted unbinned events.
 
 Setting `--X-rtd TMCSO_AdaptivePseudoAsimov=`$\beta$ with $\beta>0$ will trigger the internal logic of whether to produce a Pseudo-Asimov dataset. This logic is as follows;
 
@@ -201,7 +201,7 @@ If you are using `toysFrequentist`, be aware that the values set by `--setParame
 
 ### Generate only
 
-It is also possible to generate the toys first, and then feed them to the methods in combine. This can be done using `-M GenerateOnly --saveToys`. The toys can then be read and used with the other methods by specifying `--toysFile=higgsCombineTest.GenerateOnly...` and using the same options for the toy generation.
+It is also possible to generate the toys first, and then feed them to the methods in <sub><sup>COMBINE</sup></sub>. This can be done using `-M GenerateOnly --saveToys`. The toys can then be read and used with the other methods by specifying `--toysFile=higgsCombineTest.GenerateOnly...` and using the same options for the toy generation.
 
 !!! warning
     Some methods also use toys within the method itself (eg `AsymptoticLimits` and `HybridNew`). For these, you should **not** specify the toy generation with `-t` or the options above. Instead, you should follow the method-specific instructions.
@@ -225,7 +225,7 @@ Here are a few examples of calculations with toys from post-fit workspaces using
 
 ## combineTool for job submission
 
-For longer tasks that cannot be run locally, several methods in combine can be split to run on a *batch* system or on the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) section to check out the tool)
+For longer tasks that cannot be run locally, several methods in <sub><sup>COMBINE</sup></sub> can be split to run on a *batch* system or on the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) section to check out the tool)
 
 
 ### Submission to Condor
@@ -236,7 +236,7 @@ The syntax for running on condor with the tool is
 combineTool.py -M ALGO [options] --job-mode condor --sub-opts='CLASSADS' --task-name NAME [--dry-run]
 ```
 
-with `options` being the usual list of `combine` options. The help option `-h` will give a list of both `combine` and `combineTool` options. It is possible to use this tool with several different methods from `combine`.
+with `options` being the usual list of <sub><sup>COMBINE</sup></sub> options. The help option `-h` will give a list of both <sub><sup>COMBINE</sup></sub> and `combineTool` options. It is possible to use this tool with several different methods from <sub><sup>COMBINE</sup></sub>.
 
 The `--sub-opts` option takes a string with the different ClassAds that you want to set, separated by `\n` as argument (e.g. `'+JobFlavour="espresso"\nRequestCpus=1'`).
 
@@ -259,7 +259,7 @@ The option `--split-points` issues the command to split the jobs for `MultiDimFi
 combineTool.py datacard.txt -M MultiDimFit --algo grid --points 50 --rMin 0 --rMax 1 --job-mode condor --split-points 10 --sub-opts='+JobFlavour="workday"' --task-name mytask -n mytask
 ```
 
-Remember, any usual options (such as redefining POIs or freezing parameters) are passed to combine and can be added to the command line for `combineTool`.
+Remember, any usual options (such as redefining POIs or freezing parameters) are passed to <sub><sup>COMBINE</sup></sub> and can be added to the command line for `combineTool`.
 
 !!! info
     The option `-n NAME` should be included to avoid overwriting output files, as the jobs will be run inside the directory from which the command is issued.
@@ -269,7 +269,7 @@ Remember, any usual options (such as redefining POIs or freezing parameters) are
 
 For more CPU-intensive tasks, for example determining limits for complex models using toys, it is generally not feasible to compute all the results interactively. Instead, these jobs can be submitted to the Grid.
 
-In this example we will use the `HybridNew` method of combine to determine an upper limit for a sub-channel of the Run 1 SM $H\rightarrow\tau\tau$ analysis. For full documentation, see the section on [computing limits with toys](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys).
+In this example we will use the `HybridNew` method of <sub><sup>COMBINE</sup></sub> to determine an upper limit for a sub-channel of the Run 1 SM $H\rightarrow\tau\tau$ analysis. For full documentation, see the section on [computing limits with toys](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys).
 
 With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using `crab3`. From the set of output distributions it is possible to extract the expected and observed limits.
 
@@ -282,7 +282,7 @@ $ text2workspace.py data/tutorials/htt/125/htt_mt.txt -m 125
 $ mv data/tutorials/htt/125/htt_mt.root ./
 ```
 
-To get an idea of the range of signal strength values we will need to build test-statistic distributions for, we will first use the `AsymptoticLimits` method of combine,
+To get an idea of the range of signal strength values we will need to build test-statistic distributions for, we will first use the `AsymptoticLimits` method of <sub><sup>COMBINE</sup></sub>,
 
 ```nohighlight
 $ combine -M Asymptotic htt_mt.root -m 125
@@ -299,9 +299,9 @@ Expected 97.5%: r < 1.7200
 
 Based on this, a range of 0.2 to 2.0 should be suitable.
 
-We can use the same command for generating the distribution of test statistics with `combineTool`. The `--singlePoint` option is now enhanced to support expressions that generate a set of calls to combine with different values. The accepted syntax is of the form **MIN:MAX:STEPSIZE**, and multiple comma-separated expressions can be specified.
+We can use the same command for generating the distribution of test statistics with `combineTool`. The `--singlePoint` option is now enhanced to support expressions that generate a set of calls to <sub><sup>COMBINE</sup></sub> with different values. The accepted syntax is of the form **MIN:MAX:STEPSIZE**, and multiple comma-separated expressions can be specified.
 
-The script also adds an option `--dry-run`, which will not actually call combine but just prints out the commands that would be run, e.g,
+The script also adds an option `--dry-run`, which will not actually call com<sub><sup>COMBINE</sup></sub>bine but just prints out the commands that would be run, e.g,
 
 ```sh
 combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.2:2.0:0.2 -T 2000 -s -1 --saveToys --saveHybridResult -m 125 --dry-run
@@ -347,5 +347,5 @@ $ mv higgsCombine*.root ../../
 $ cd ../../
 ```
 
-These output files should be combined with `hadd`, after which we invoke combine as usual to calculate observed and expected limits from the merged grid, as usual.
+These output files should be combined with `hadd`, after which we invoke <sub><sup>COMBINE</sup></sub> as usual to calculate observed and expected limits from the merged grid, as usual.
 

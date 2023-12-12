@@ -1,19 +1,19 @@
 # Preparing the datacard
 
-The input to combine, which defines the details of the analysis, is a plain ASCII file we will refer to as datacard. This is true whether the analysis is a simple counting experiment or a shape analysis.
+The input to <sub><sup>COMBINE</sup></sub>, which defines the details of the analysis, is a plain ASCII file we will refer to as datacard. This is true whether the analysis is a simple counting experiment or a shape analysis.
 
 ## A simple counting experiment
 
 The file [data/tutorials/counting/realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt) shows an example of a counting experiment.
 
-The first lines can be used to add some descriptive information. Those lines must start with a "#", and they are not parsed by Combine:
+The first lines can be used to add some descriptive information. Those lines must start with a "#", and they are not parsed by <sub><sup>COMBINE</sup></sub>:
 
 ```nohighlight
 # Simple counting experiment, with one signal and a few background processes
 # Simplified version of the 35/pb H->WW analysis for mH = 160 GeV
 ```
 
-Following this, one declares the **number of observables**, **`imax`**, that are present in the model used to set limits / extract confidence intervals. The number of observables will typically be the number of channels in a counting experiment. The value **`*`** can be specified for **`imax`**, which tells Combine to determine the number of observables from the rest of the datacard. In order to better catch mistakes, it is recommended to explicitly specify the value. 
+Following this, one declares the **number of observables**, **`imax`**, that are present in the model used to set limits / extract confidence intervals. The number of observables will typically be the number of channels in a counting experiment. The value **`*`** can be specified for **`imax`**, which tells <sub><sup>COMBINE</sup></sub> to determine the number of observables from the rest of the datacard. In order to better catch mistakes, it is recommended to explicitly specify the value. 
 
 ```nohighlight
 imax 1  number of channels
@@ -95,7 +95,7 @@ The expected shape can be parametric, or not. In the first case the parametric P
 
 As with the counting experiment, the total nominal *rate* of a given process must be identified in the **rate** line of the datacard. However, there are special options for shape-based analyses, as follows:
 
-   * A value of **-1** in the rate line means combine will calculate the rate from the input TH1 (via TH1::Integral) or RooDataSet/RooDataHist (via RooAbsData::sumEntries).
+   * A value of **-1** in the rate line means <sub><sup>COMBINE</sup></sub> will calculate the rate from the input TH1 (via TH1::Integral) or RooDataSet/RooDataHist (via RooAbsData::sumEntries).
    * For parametric shapes (RooAbsPdf), if a parameter with the name pdfname**_norm** is found in the input workspace, the rate will be multiplied by the value of that parameter. Note that since this parameter can be freely floating, the normalization of a process can be set freely float this way. This can also be achieved through the use of [`rateParams`](#rate-parameters).
 
 ### Binned shape analyses
@@ -106,7 +106,7 @@ For each channel, histograms have to be provided for the observed shape and for 
 -   The normalization of the data histogram must correspond to the number of observed events.
 -   The normalization of the expected histograms must match the expected event yields.
 
-The combine tool can take as input histograms saved as TH1, as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in [github](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/shapes/make_simple_shapes.cxx)), or from a pandas dataframe ([example](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-df.txt)).
+The <sub><sup>COMBINE</sup></sub> tool can take as input histograms saved as TH1, as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in [github](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/shapes/make_simple_shapes.cxx)), or from a pandas dataframe ([example](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-df.txt)).
 
 The block of lines defining the mapping (first block in the datacard) contains one or more rows of the form
 
@@ -206,7 +206,7 @@ or a postifx can be added to the histogram name:
 `shapes * * shapes.root $CHANNEL/$PROCESS  $CHANNEL/$PROCESS_$SYSTEMATIC`
 
 !!! warning
-    If you have a nuisance parameter that has shape effects on some processes (using `shape`) *and* rate effects on other processes (using `lnN`) you should use a single line for the systematic uncertainty with `shape?`. This will tell combine to fist look for Up/Down systematic templates for that process and if it doesnt find them, it will interpret the number that you put for the process as a `lnN` instead. 
+    If you have a nuisance parameter that has shape effects on some processes (using `shape`) *and* rate effects on other processes (using `lnN`) you should use a single line for the systematic uncertainty with `shape?`. This will tell <sub><sup>COMBINE</sup></sub> to fist look for Up/Down systematic templates for that process and if it doesnt find them, it will interpret the number that you put for the process as a `lnN` instead. 
 
 For a detailed example of a template-based binned analysis, see the [H→ττ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates)
 
@@ -223,7 +223,7 @@ In the datacard using templates, the column after the file name would have been 
 The first part identifies the name of the input [RooWorkspace](http://root.cern.ch/root/htmldoc/RooWorkspace.html) containing the PDF, and the second part the name of the [RooAbsPdf](http://root.cern.ch/root/htmldoc/RooAbsPdf.html) inside it (or, for the observed data, the [RooAbsData](http://root.cern.ch/root/htmldoc/RooAbsData.html)). It is possible to have multiple input workspaces, just as there can be multiple input ROOT files. You can use any of the usual RooFit pre-defined PDFs for your signal and background models.
 
 !!! warning
-    If in your model you are using RooAddPdfs, in which the coefficients are *not defined recursively*, combine will not interpret them correctly. You can add the option `--X-rtd ADDNLL_RECURSIVE=0` to any combine command in order to recover the correct interpretation, however we recommend that you instead re-define your PDF so that the coefficients are recursive (as described in the [RooAddPdf documentation](https://root.cern.ch/doc/master/classRooAddPdf.html)) and keep the total normalization (i.e the extended term) as a separate object, as in the case of the tutorial datacard.
+    If in your model you are using RooAddPdfs, in which the coefficients are *not defined recursively*, <sub><sup>COMBINE</sup></sub> will not interpret them correctly. You can add the option `--X-rtd ADDNLL_RECURSIVE=0` to any <sub><sup>COMBINE</sup></sub> command in order to recover the correct interpretation, however we recommend that you instead re-define your PDF so that the coefficients are recursive (as described in the [RooAddPdf documentation](https://root.cern.ch/doc/master/classRooAddPdf.html)) and keep the total normalization (i.e the extended term) as a separate object, as in the case of the tutorial datacard.
 
 For example, take a look at the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt). We see the following line:
 
@@ -256,11 +256,11 @@ RooDataSet::data_obs(j)
 ```
 
 
-In this datacard, the signal is parameterized in terms of the hypothesized mass (`MH`). Combine will use this variable, instead of creating its own, which will be interpreted as the value for `-m`. For this reason, we should add the option `-m 30` (or something else within the observable range) when running combine. You will also see there is a variable named `bkg_norm`. This is used to normalize the background rate (see the section on [Rate parameters](#rate-parameters) below for details).
+In this datacard, the signal is parameterized in terms of the hypothesized mass (`MH`). <sub><sup>COMBINE</sup></sub> will use this variable, instead of creating its own, which will be interpreted as the value for `-m`. For this reason, we should add the option `-m 30` (or something else within the observable range) when running <sub><sup>COMBINE</sup></sub>. You will also see there is a variable named `bkg_norm`. This is used to normalize the background rate (see the section on [Rate parameters](#rate-parameters) below for details).
 
 
 !!! warning
-    Combine will not accept RooExtendedPdfs as input. This is to alleviate a bug that lead to improper treatment of the normalization when using multiple RooExtendedPdfs to describe a single process. You should instead use RooAbsPdfs and provide the rate as a separate object (see the [Rate parameters](#rate-parameters) section).
+    <sub><sup>COMBINE</sup></sub> will not accept RooExtendedPdfs as input. This is to alleviate a bug that lead to improper treatment of the normalization when using multiple RooExtendedPdfs to describe a single process. You should instead use RooAbsPdfs and provide the rate as a separate object (see the [Rate parameters](#rate-parameters) section).
 
 The part of the datacard related to the systematics can include lines with the syntax
 
@@ -274,16 +274,16 @@ In the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/c
 sigma   param 1.0      0.1
 ```
 
-meaning there is a parameter in the input workspace called **`sigma`**, that should be *constrained* with a Gaussian centered at 1.0 with a width of 0.1. Note that the exact interpretation of these parameters is left to the user since the signal PDF is constructed externally by you. All combine knows is that 1.0 should be the most likely value and 0.1 is its 1σ uncertainy. Asymmetric uncertainties are written using the syntax **-1σ/+1σ** in the datacard, as is the case for `lnN` uncertainties. 
+meaning there is a parameter in the input workspace called **`sigma`**, that should be *constrained* with a Gaussian centered at 1.0 with a width of 0.1. Note that the exact interpretation of these parameters is left to the user since the signal PDF is constructed externally by you. All <sub><sup>COMBINE</sup></sub> knows is that 1.0 should be the most likely value and 0.1 is its 1σ uncertainy. Asymmetric uncertainties are written using the syntax **-1σ/+1σ** in the datacard, as is the case for `lnN` uncertainties. 
 
 If one wants to specify a parameter that is freely floating across its given range, and not Gaussian constrained, the following syntax is used:
 
  - **name *flatParam* **
 
-Though this is *not strictly necessary* in frequentist methods using profiled likelihoods, as combine will still profile these nuisances when performing fits (as is the case for the `simple-shapes-parametric.txt` datacard).
+Though this is *not strictly necessary* in frequentist methods using profiled likelihoods, as <sub><sup>COMBINE</sup></sub> will still profile these nuisances when performing fits (as is the case for the `simple-shapes-parametric.txt` datacard).
 
 !!! warning
-    All parameters that are floating or constant in the user's input workspaces will remain floating or constant. Combine will ***not*** modify those for you!
+    All parameters that are floating or constant in the user's input workspaces will remain floating or constant. <sub><sup>COMBINE</sup></sub> will ***not*** modify those for you!
 
 A full example of a parametric analysis can be found in this [H→γγ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_parametric_shape_analysis_H).
 
@@ -332,7 +332,7 @@ The overall rate "expected" of a particular process in a particular bin does not
 name rateParam bin process initial_value [min,max]
 ```
 
-The `[min,max]` argument is optional. If it is not included, combine  will remove the range of this parameter. This will produce a new parameter, which multiplies the rate of that particular **process** in the given **bin** by its value, in the model (unless it already exists).
+The `[min,max]` argument is optional. If it is not included, <sub><sup>COMBINE</sup></sub>  will remove the range of this parameter. This will produce a new parameter, which multiplies the rate of that particular **process** in the given **bin** by its value, in the model (unless it already exists).
 
 You can attach the same `rateParam` to multiple processes/bins by either using a wild card (eg `*` will match everything, `QCD_*` will match everything starting with `QCD_`, etc.) in the name of the bin and/or process, or by repeating the `rateParam` line in the datacard for different bins/processes with the same name.
 
@@ -350,7 +350,7 @@ name rateParam bin process formula args
 
 where `args` is a comma-separated list of the arguments for the string `formula`. You can include other nuisance parameters in the `formula`, including ones that are Gaussian constrained (i,e via the `param` directive.)
 
-Below is an example datacard that uses the `rateParam` directive to implement an ABCD-like method in combine. For a more realistic description of its use for ABCD, see the single-lepton SUSY search implementation described [here](http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2015_207_v5.pdf).
+Below is an example datacard that uses the `rateParam` directive to implement an ABCD-like method in <sub><sup>COMBINE</sup></sub>. For a more realistic description of its use for ABCD, see the single-lepton SUSY search implementation described [here](http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2015_207_v5.pdf).
 
 ```nohighlight
 imax 4  number of channels
@@ -457,7 +457,7 @@ The syntax is simple: **`combineCards.py Name1=card1.txt Name2=card2.txt .... > 
 If the input datacards had just one bin each, the output channels will be called `Name1`, `Name2`, and so on. Otherwise, a prefix `Name1_` ... `Name2_` will be added to the bin labels in each datacard. The supplied bin names `Name1`, `Name2`, etc. must themselves conform to valid C++/python identifier syntax.
 
 !!! warning
-    When combining datacards, you should keep in mind that systematic uncertainties that have different names will be assumed to be uncorrelated, and those with the same name will be assumed 100% correlated. An uncertainty correlated across channels must have the same PDF. in all cards (i.e. always **`lnN`**, or all **`gmN`** with same `N`. Note that `shape` and `lnN` can be interchanged via the `shape?` directive). Furthermore, when using *parametric models*, "parameter" objects such as `RooRealVar`, `RooAbsReal`, and `RooAbsCategory` (parameters, PDF indices etc) with the same name will be assumed to be the same object. If this is not intended, you may encounter unexpected behaviour, such as the order of combining cards having an impact on the results. Make sure that such objects are named differently in your inputs if they represent different things! Instead, Combine will try to rename other "shape" objects (such as PDFs) automatically. 
+    When combining datacards, you should keep in mind that systematic uncertainties that have different names will be assumed to be uncorrelated, and those with the same name will be assumed 100% correlated. An uncertainty correlated across channels must have the same PDF. in all cards (i.e. always **`lnN`**, or all **`gmN`** with same `N`. Note that `shape` and `lnN` can be interchanged via the `shape?` directive). Furthermore, when using *parametric models*, "parameter" objects such as `RooRealVar`, `RooAbsReal`, and `RooAbsCategory` (parameters, PDF indices etc) with the same name will be assumed to be the same object. If this is not intended, you may encounter unexpected behaviour, such as the order of combining cards having an impact on the results. Make sure that such objects are named differently in your inputs if they represent different things! Instead, <sub><sup>COMBINE</sup></sub> will try to rename other "shape" objects (such as PDFs) automatically. 
 
 The `combineCards.py` script will fail if you are trying to combine a *shape* datacard with a *counting* datacard. You can however convert a *counting* datacard into an equivalent shape-based one by adding a line `shapes * * FAKE` in the datacard after the `imax`, `jmax`, and `kmax` section. Alternatively, you can add the option `-S` to `combineCards.py`, which will do this for you while creating the combined datacard.
 

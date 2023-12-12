@@ -547,7 +547,7 @@ The search for the limit is performed using an adaptive algorithm, terminating w
 -   `clsAcc`: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will significantly increase the time needed to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N. You can consider increasing this value if you are computing limits with a larger CL (e.g. 90% or 68%). Note that if you are using the `CLsplusb` rule, this parameter will control the uncertainty on $p_{\mu}$ rather than CL<sub>s</sub>.
 -   `T` or `toysH`: controls the minimum number of toys that are generated for each point. The default value of 500 should be sufficient when computing the limit at 90-95% CL. You can decrease this number if you are computing limits at 68% CL, or increase it if you are using 99% CL.
 
-Note, to further improve the accuracy when searching for the upper limit, combine will also fit an exponential function to several of the points and interpolate to find the crossing.
+Note, to further improve the accuracy when searching for the upper limit, <sub><sup>COMBINE</sup></sub> will also fit an exponential function to several of the points and interpolate to find the crossing.
 
 ### Complex models
 
@@ -774,7 +774,7 @@ In the default model built from the datacards, the signal strengths in all chann
 When run with a verbosity of 1, as is the default, the program also prints out the best fit signal strengths in all channels. As the fit to all channels is done simultaneously, the correlation between the other systematic uncertainties is taken into account. Therefore, these results can differ from the ones obtained when fitting each channel separately.
 
 
-Below is an example output from combine,
+Below is an example output from <sub><sup>COMBINE</sup></sub>,
 
 ```nohighlight
 $ combine -M ChannelCompatibilityCheck comb_hww.txt -m 160 -n HWW
@@ -918,7 +918,7 @@ A number of common, useful options (especially for computing likelihood scans wi
 * `--squareDistPoiStep`:  POI step size based on distance from the midpoint ( either (max-min)/2 or the best fit if used with `--autoRange` or `--centeredRange` ) rather than linear separation.
 * `--skipInitialFit`: Skip the initial fit (saves time if, for example, a snapshot is loaded from a previous fit)
 
-Below is a comparison in a likelihood scan, with 20 points, as a function of **`r_qqH`** with our `toy-hgg-125.root` workspace with and without some of these options. The options added tell combine to scan more points closer to the minimum (best-fit) than with the default.
+Below is a comparison in a likelihood scan, with 20 points, as a function of **`r_qqH`** with our `toy-hgg-125.root` workspace with and without some of these options. The options added tell <sub><sup>COMBINE</sup></sub> to scan more points closer to the minimum (best-fit) than with the default.
 
 ![](images/r_qqH.png)
 
@@ -988,7 +988,7 @@ The Feldman-Cousins (FC) procedure for computing confidence intervals for a gene
 
 With a critical value $\alpha$.
 
-In `combine`, you can perform this test on each individual point (**param1, param2,...**) = (**value1,value2,...**) by doing,
+In <sub><sup>COMBINE</sup></sub>, you can perform this test on each individual point (**param1, param2,...**) = (**value1,value2,...**) by doing,
 
 ```sh
 combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
@@ -997,7 +997,7 @@ combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --s
 The point belongs to your confidence region if $p_{x}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
 !!! warning
-    You should not use this method without the option `--singlePoint`. Although combine will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
+    You should not use this method without the option `--singlePoint`. Although <sub><sup>COMBINE</sup></sub> will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
 
 ### Physical boundaries
 
