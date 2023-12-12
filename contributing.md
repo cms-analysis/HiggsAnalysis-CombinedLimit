@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions to combine of all sizes, from minor documentation updates to big code improvements, are welcome and encouraged.
+Contributions to <span style="font-variant:small-caps;">Combine</span> of all sizes, from minor documentation updates to big code improvements, are welcome and encouraged.
 
 To ensure good development of the tool, we try to coordinate contributions.
 However, we are happy to help overcome any steps that may pose issues for contributors.
@@ -76,7 +76,7 @@ We appreciate you putting in some effort and thought to ensure:
 
 ### Technical details of the documentation
 
-We use [mkdocs](www.mkdocs.org) to produce the static website that documents combine.
+We use [mkdocs](www.mkdocs.org) to produce the static website that documents <span style="font-variant:small-caps;">Combine</span>.
 
 The documentation files are all under the `docs/` folder.
 Which pages get included in the site, and other configuration details are set in the `mkdocs.yml` file.
@@ -103,7 +103,7 @@ If you'd like to test the deployment directly, the suggested method is to set up
 
 ## Big Contributions
 
-We welcome large contributions to combine. 
+We welcome large contributions to <span style="font-variant:small-caps;">Combine</span>. 
 Note, however, that we also follow long term planning, and there is a dedicated group stewarding the overall direction and development of the code.
 
 This means that the code development should fit in with our long term vision;

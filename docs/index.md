@@ -3,9 +3,9 @@
 These pages document the
 [RooStats](https://twiki.cern.ch/twiki/bin/view/RooStats/WebHome) /
 [RooFit](https://root.cern.ch/roofit) - based software tool used for
-statistical analysis within the CMS experiment - **combine**. Note that while this tool was originally developed in the [Higgs PAG](HiggsWG), its usage is now widespread within CMS. 
+statistical analysis within the CMS experiment - <span style="font-variant:small-caps;">Combine</span>. Note that while this tool was originally developed in the [Higgs PAG](HiggsWG), its usage is now widespread within CMS. 
 
-Combine provides a command-line interface to many different statistical techniques, available inside RooFit/RooStats, that are used widely inside CMS.
+<span style="font-variant:small-caps;">Combine</span> provides a command-line interface to many different statistical techniques, available inside RooFit/RooStats, that are used widely inside CMS.
 
 The package exists on GitHub under [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit)
 
@@ -31,7 +31,7 @@ releases on github under
 
 The nominal installation method is inside CMSSW. The current release targets
 the CMSSW `11_3_X` series because this release has both python2 and python3 ROOT
-bindings, allowing a more gradual migration of user code to python3. Combine is
+bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
 fully python3-compatible and, with some adaptations, can also work in 12_X releases.
 
 ```sh
@@ -150,12 +150,12 @@ conda activate combine
 make CONDA=1 -j 8
 ```
 
-Using combine from then on should only require sourcing the conda environment 
+Using <span style="font-variant:small-caps;">Combine</span> from then on should only require sourcing the conda environment 
 ```
 conda activate combine
 ```
 
-**Note:** on OS X, `combine` can only accept workspaces, so run `text2workspace.py` first.
+**Note:** on OS X, <span style="font-variant:small-caps;">Combine</span> can only accept workspaces, so run `text2workspace.py` first.
 This is due to an issue with child processes and `LD_LIBRARY_PATH` (see note in Makefile)
 
 # What has changed between tags? 
@@ -185,7 +185,7 @@ See [contributing.md](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimi
 
 # CombineHarvester/CombineTools
 
-CombineTools is an additional tool for submitting combine jobs to batch systems or crab, which was originally developed in the context of Higgs to tau tau analyses. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/) subpackage, speeding up the checkout and compile times:
+CombineTools is an additional tool for submitting <span style="font-variant:small-caps;">Combine</span> jobs to batch systems or crab, which was originally developed in the context of Higgs to tau tau analyses. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/) subpackage, speeding up the checkout and compile times:
 
 git clone via ssh:
 

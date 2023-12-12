@@ -1,6 +1,6 @@
 # Common Statistical Methods
 
-In this section, the most commonly used statistical methods from combine will be covered, including specific instructions on how to obtain limits, significances, and likelihood scans. For all of these methods, the assumed parameter of interest (POI) is the overall signal strength **r** (i.e the default PhysicsModel). In general however, the first POI in the list of POIs (as defined by the PhysicsModel) will be taken instead of **r**. This may or may not make sense for any particular method, so care must be taken. 
+In this section, the most commonly used statistical methods from <span style="font-variant:small-caps;">Combine</span> will be covered, including specific instructions on how to obtain limits, significances, and likelihood scans. For all of these methods, the assumed parameter of interest (POI) is the overall signal strength **r** (i.e the default PhysicsModel). In general however, the first POI in the list of POIs (as defined by the PhysicsModel) will be taken instead of **r**. This may or may not make sense for any particular method, so care must be taken. 
 
 This section will assume that you are using the default physics model, unless otherwise specified.
 
@@ -11,7 +11,7 @@ The limit calculation relies on an asymptotic approximation of the distributions
 
    * The test statistic is defined using the ratio of likelihoods $q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta})]$ , in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r$. The value of $q_{r}$ is set to 0 when $\hat{r}>r$, giving a one-sided limit. Furthermore, the constraint $r>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{r}$ would be negative, the test statistic $q_{r}$ is evaluated as $-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})]$
 
-This method is the default combine method: if you call Combine without specifying `-M`, the `AsymptoticLimits` method will be run.
+This method is the default <span style="font-variant:small-caps;">Combine</span> method: if you call <span style="font-variant:small-caps;">Combine</span> without specifying `-M`, the `AsymptoticLimits` method will be run.
 
 A realistic example of a datacard for a counting experiment can be found in the HiggsCombination package: [data/tutorials/counting/realistic-counting-experiment.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt)
 
@@ -43,7 +43,7 @@ By default, the limits are calculated using the CL<sub>s</sub> prescription, as 
 
 
 !!! warning
-    You may find that combine issues a warning that the best fit for the background-only Asimov dataset returns a nonzero value for the signal strength;
+    You may find that <span style="font-variant:small-caps;">Combine</span> issues a warning that the best fit for the background-only Asimov dataset returns a nonzero value for the signal strength;
 
     `WARNING: Best fit of asimov dataset is at r = 0.220944 (0.011047 times` `rMax), while it should be at zero`
 
@@ -253,7 +253,7 @@ Running the script on the output file produced for the same datacard (including 
 
 	0.950975 % (0.95 %) interval (target)  = 0 < r < 2.2
 
-along with a plot of the posterior distribution shown below. This is the same as the output from combine, but the script can also be used to find lower limits (for example) or credible intervals.
+along with a plot of the posterior distribution shown below. This is the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits (for example) or credible intervals.
 
 ![](images/bayes1D.png)
 
@@ -289,7 +289,7 @@ The expected limit is computed by generating many toy MC data sets and computing
 
 The program will print out the mean and median limit, as well as the 68% and 95% quantiles of the distributions of the limits. This time, the output ROOT tree will contain **one entry per toy**.
 
-For more heavy methods (eg the `MarkovChainMC`) you will probably want to split this calculation into multiple jobs. To do this, just run `combine` multiple times specifying a smaller number of toys (as low as `1`), using a different seed to initialize the random number generator each time. The option `-s` can be used for this; if you set it to -1, the starting seed will be initialized randomly at the beginning of the job. Finally, you can merge the resulting trees with `hadd` and look at the distribution in the merged file.
+For more heavy methods (eg the `MarkovChainMC`) you will probably want to split this calculation into multiple jobs. To do this, just run <span style="font-variant:small-caps;">Combine</span> multiple times specifying a smaller number of toys (as low as `1`), using a different seed to initialize the random number generator each time. The option `-s` can be used for this; if you set it to -1, the starting seed will be initialized randomly at the beginning of the job. Finally, you can merge the resulting trees with `hadd` and look at the distribution in the merged file.
 
 ### Multidimensional bayesian credible regions
 
@@ -346,7 +346,7 @@ While the above shortcuts are the commonly used versions, variations can be test
     If you have unconstrained parameters in your model (`rateParam`, or if you are using a `_norm` variable for a PDF) and you want to use the "Hybrid-Bayesian" method, you **must** declare these as `flatParam` in your datacard. When running text2workspace you must add the option `--X-assign-flatParam-prior` in the command line. This will create uniform priors for these parameters. These are needed for this method and they would otherwise not get created.   
 
 !!! info
-    Note that (observed and expected) values of the test statistic stored in the instances of `RooStats::HypoTestResult` when the option `--saveHybridResult` is passed are defined without the factor 2. They are therefore twice as small as the values given by the formulas above. This factor is however included automatically by all plotting scripts supplied within the Combine package. If you use your own plotting scripts, you need to make sure to incorporate the factor 2. 
+    Note that (observed and expected) values of the test statistic stored in the instances of `RooStats::HypoTestResult` when the option `--saveHybridResult` is passed are defined without the factor 2. They are therefore twice as small as the values given by the formulas above. This factor is however included automatically by all plotting scripts supplied within the <span style="font-variant:small-caps;">Combine</span> package. If you use your own plotting scripts, you need to make sure to incorporate the factor 2. 
 
 ### Simple models
 
@@ -547,7 +547,7 @@ The search for the limit is performed using an adaptive algorithm, terminating w
 -   `clsAcc`: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will significantly increase the time needed to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N. You can consider increasing this value if you are computing limits with a larger CL (e.g. 90% or 68%). Note that if you are using the `CLsplusb` rule, this parameter will control the uncertainty on $p_{\mu}$ rather than CL<sub>s</sub>.
 -   `T` or `toysH`: controls the minimum number of toys that are generated for each point. The default value of 500 should be sufficient when computing the limit at 90-95% CL. You can decrease this number if you are computing limits at 68% CL, or increase it if you are using 99% CL.
 
-Note, to further improve the accuracy when searching for the upper limit, <sub><sup>COMBINE</sup></sub> will also fit an exponential function to several of the points and interpolate to find the crossing.
+Note, to further improve the accuracy when searching for the upper limit, <span style="font-variant:small-caps;">Combine</span> will also fit an exponential function to several of the points and interpolate to find the crossing.
 
 ### Complex models
 
@@ -690,9 +690,9 @@ The output limit tree will contain the value of the test statistic in each toy (
 
 For analyses that employ a simultaneous fit across signal and control regions, it may be useful to mask one or more analysis regions, either when the likelihood is maximized (fit) or when the test statistic is computed. This can be done by using the options `--setParametersForFit` and `--setParametersForEval`, respectively. The former will set parameters *before* each fit, while the latter is used to set parameters *after* each fit, but before the NLL is evaluated. Note, of course, that if the parameter in the list is floating, it will still be floating in each fit. Therefore, it will not affect the results when using `--setParametersForFit`.  
 
-A realistic example for a binned shape analysis performed in one signal region and two control samples can be found in this directory of the combine package [Datacards-shape-analysis-multiple-regions](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params).
+A realistic example for a binned shape analysis performed in one signal region and two control samples can be found in this directory of the <span style="font-variant:small-caps;">Combine</span> package [Datacards-shape-analysis-multiple-regions](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params).
 
-First of all, one needs to combine the individual datacards to build a single model, and to introduce the channel masking variables as follow:
+First of all, one needs to <span style="font-variant:small-caps;">Combine</span> the individual datacards to build a single model, and to introduce the channel masking variables as follow:
 
 ```sh
 combineCards.py signal_region.txt dimuon_control_region.txt singlemuon_control_region.txt > combined_card.txt
@@ -774,7 +774,7 @@ In the default model built from the datacards, the signal strengths in all chann
 When run with a verbosity of 1, as is the default, the program also prints out the best fit signal strengths in all channels. As the fit to all channels is done simultaneously, the correlation between the other systematic uncertainties is taken into account. Therefore, these results can differ from the ones obtained when fitting each channel separately.
 
 
-Below is an example output from <sub><sup>COMBINE</sup></sub>,
+Below is an example output from <span style="font-variant:small-caps;">Combine</span>,
 
 ```nohighlight
 $ combine -M ChannelCompatibilityCheck comb_hww.txt -m 160 -n HWW
@@ -903,7 +903,7 @@ best_fit->SetMarkerSize(3); best_fit->SetMarkerStyle(34); best_fit->Draw("p same
 
 ![](images/nll2D.png)
 
-To make the full profiled scan, just remove the `--fastScan` option from the combine command.
+To make the full profiled scan, just remove the `--fastScan` option from the <span style="font-variant:small-caps;">Combine</span> command.
 
 Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the [`CombineHarvester/CombineTools`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) package [plot1DScan.py](https://github.com/cms-analysis/CombineHarvester/blob/113x/CombineTools/scripts/plot1DScan.py) that can be used to make plots and extract the crossings of the `2*deltaNLL` - e.g the 1σ/2σ boundaries.
 
@@ -918,7 +918,7 @@ A number of common, useful options (especially for computing likelihood scans wi
 * `--squareDistPoiStep`:  POI step size based on distance from the midpoint ( either (max-min)/2 or the best fit if used with `--autoRange` or `--centeredRange` ) rather than linear separation.
 * `--skipInitialFit`: Skip the initial fit (saves time if, for example, a snapshot is loaded from a previous fit)
 
-Below is a comparison in a likelihood scan, with 20 points, as a function of **`r_qqH`** with our `toy-hgg-125.root` workspace with and without some of these options. The options added tell <sub><sup>COMBINE</sup></sub> to scan more points closer to the minimum (best-fit) than with the default.
+Below is a comparison in a likelihood scan, with 20 points, as a function of **`r_qqH`** with our `toy-hgg-125.root` workspace with and without some of these options. The options added tell <span style="font-variant:small-caps;">Combine</span> to scan more points closer to the minimum (best-fit) than with the default.
 
 ![](images/r_qqH.png)
 
@@ -988,7 +988,7 @@ The Feldman-Cousins (FC) procedure for computing confidence intervals for a gene
 
 With a critical value $\alpha$.
 
-In <sub><sup>COMBINE</sup></sub>, you can perform this test on each individual point (**param1, param2,...**) = (**value1,value2,...**) by doing,
+In <span style="font-variant:small-caps;">Combine</span>, you can perform this test on each individual point (**param1, param2,...**) = (**value1,value2,...**) by doing,
 
 ```sh
 combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
@@ -997,7 +997,7 @@ combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --s
 The point belongs to your confidence region if $p_{x}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
 !!! warning
-    You should not use this method without the option `--singlePoint`. Although <sub><sup>COMBINE</sup></sub> will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
+    You should not use this method without the option `--singlePoint`. Although <span style="font-variant:small-caps;">Combine</span> will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
 
 ### Physical boundaries
 
@@ -1018,7 +1018,7 @@ $q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathr
 This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.
 
 !!! info
-    One can also imagine imposing the boundaries by first allowing Minuit to find the minimum in the *unrestricted*  region and then setting the test statistic to that in the case that minimum lies outside the physical boundary. This would avoid potential issues of convergence. If you are interested in implementing this version in combine, please contact the development team.
+    One can also imagine imposing the boundaries by first allowing Minuit to find the minimum in the *unrestricted*  region and then setting the test statistic to that in the case that minimum lies outside the physical boundary. This would avoid potential issues of convergence. If you are interested in implementing this version in <span style="font-variant:small-caps;">Combine</span>, please contact the development team.
 
 
 ### Extracting contours from results files
@@ -1039,7 +1039,7 @@ You can produce a plot of the value of $p_{x}$ vs the parameter of interest $x$ 
 
 #### Extracting 2D contours
 
-There is a tool for extracting *2D contours* from the output of `HybridNew` located in `test/makeFCcontour.py`. This can be used provided the option `--saveHybridResult` was included when running `HybridNew`. It can be run with the usual combine output files (or several of them) as input,
+There is a tool for extracting *2D contours* from the output of `HybridNew` located in `test/makeFCcontour.py`. This can be used provided the option `--saveHybridResult` was included when running `HybridNew`. It can be run with the usual <span style="font-variant:small-caps;">Combine</span> output files (or several of them) as input,
 
 ```sh
 ./test/makeFCcontour.py  toysfile1.root toysfile2.root .... [options] -out outputfile.root

@@ -69,7 +69,7 @@ To print information to screen, the script parses the json file that contains th
 
 The options `--checkUncertOver` and `--reportSigUnder` will be described in more detail in the section that discusses the checks for which they are relevant.
 
-Note: the `--mass` argument should only be set if you normally use it when running <sub><sup>COMBINE</sup></sub>, otherwise you can leave it at the default.
+Note: the `--mass` argument should only be set if you normally use it when running <span style="font-variant:small-caps;">Combine</span>, otherwise you can leave it at the default.
 
 The datacard validation tool is primarily intended for shape (histogram) based analyses. However, when running on a parametric model or counting experiment the checks for small signal processes, empty processes, and uncertainties with large normalization effects can still be performed. 
 

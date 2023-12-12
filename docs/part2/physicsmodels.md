@@ -1,6 +1,6 @@
 # Physics Models
 
-<sub><sup>COMBINE</sup></sub> can be run directly on the text-based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace should be performed by the user. To create a binary workspace starting from a `datacard.txt`, you can run
+<span style="font-variant:small-caps;">Combine</span> can be run directly on the text-based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace should be performed by the user. To create a binary workspace starting from a `datacard.txt`, you can run 
 
 ```sh
 text2workspace.py datacard.txt -o workspace.root
@@ -110,7 +110,7 @@ Below are some (more generic) example models that also exist in GitHub.
 
 ### MultiSignalModel ready made model for multiple signal processes
 
-<sub><sup>COMBINE</sup></sub> already contains a model **`HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel`** that can be used to assign different signal strengths to multiple processes in a datacard, configurable from the command line.
+<span style="font-variant:small-caps;">Combine</span> already contains a model **`HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel`** that can be used to assign different signal strengths to multiple processes in a datacard, configurable from the command line.
 
 The model is configured by passing one or more mappings in the form **`--PO 'map=bin/process:parameter'`** to text2workspace:
 
@@ -126,7 +126,7 @@ The MultiSignalModel will define all parameters as parameters of interest, but t
 
 Some examples, taking as reference the toy datacard [test/multiDim/toy-hgg-125.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/toy-hgg-125.txt):
 
--   Scale both `ggH` and `qqH` with the same signal strength `r` (that is what the default physics model of <sub><sup>COMBINE</sup></sub> does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)
+-   Scale both `ggH` and `qqH` with the same signal strength `r` (that is what the default physics model of <span style="font-variant:small-caps;">Combine</span> does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)
 
 ```nohighlight
   $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r[1,0,10]' --PO 'map=.*/qqH:r' toy-hgg-125.txt -o toy-1d.root

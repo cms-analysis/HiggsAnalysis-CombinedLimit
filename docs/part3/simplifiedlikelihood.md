@@ -4,9 +4,9 @@ This page is to give a brief outline for the creation of (potentially aggregated
 
 ## Requirements 
 
-You need an up to date version of <sub><sup>COMBINE</sup></sub>. Note You should use the latest release of <sub><sup>COMBINE</sup></sub> for the exact commands on this page. You should be using <sub><sup>COMBINE</sup></sub> tag `v9.0.0` or higher or the latest version of the `112x` branch to follow these instructions.  
+You need an up to date version of <span style="font-variant:small-caps;">Combine</span>. Note You should use the latest release of <span style="font-variant:small-caps;">Combine</span> for the exact commands on this page. You should be using <span style="font-variant:small-caps;">Combine</span> tag `v9.0.0` or higher or the latest version of the `112x` branch to follow these instructions.  
 
-You will find the python scripts needed to convert <sub><sup>COMBINE</sup></sub> outputs into simplified likelihood inputs under `test/simplifiedLikelihood`
+You will find the python scripts needed to convert <span style="font-variant:small-caps;">Combine</span> outputs into simplified likelihood inputs under `test/simplifiedLikelihood`
 
 If you're using the `102x` branch (not recommended), then you can obtain these scripts from here by running: 
 ```
@@ -72,7 +72,7 @@ You should check that the order of the bins in the covariance matrix is as expec
 
 ## Produce simplified likelihood inputs
 
-Head over to the `test/simplifiedLikelihoods` directory inside your <sub><sup>COMBINE</sup></sub> area. The following instructions depend on whether you are aggregating or not aggregating your signal regions. Choose the instructions for your case. 
+Head over to the `test/simplifiedLikelihoods` directory inside your <span style="font-variant:small-caps;">Combine</span> area. The following instructions depend on whether you are aggregating or not aggregating your signal regions. Choose the instructions for your case. 
 
 ### Not Aggregating    
 Run the `makeLHInputs.py` script to prepare the inputs for the simplified likelihood. The filter flag can be used to select only signal regions based on the channel names. To include all channels do not include the filter flag.
@@ -107,7 +107,7 @@ At this point you have the inputs as ROOT files necessary to publish and run the
 
 ## Validating the simplified likelihood approach
 
-The simplified likelihood relies on several assumptions (detailed in the documentation at the top). To test the validity for your analysis, statistical results between <sub><sup>COMBINE</sup></sub> and the simplified likelihood can be compared. 
+The simplified likelihood relies on several assumptions (detailed in the documentation at the top). To test the validity for your analysis, statistical results between <span style="font-variant:small-caps;">Combine</span> and the simplified likelihood can be compared. 
 
 We will use the package [SLtools](https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md) from the [Simplified Likelihood Paper](https://link.springer.com/article/10.1007/JHEP04(2019)064) for this. The first step is to convert the ROOT files into python configs to run in the tool. 
 
@@ -191,7 +191,7 @@ combine data/tutorials/longexercise/datacard_part3.root -M FitDiagnostics --save
 
 combine data/tutorials/longexercise/datacard_part3.root -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 1 --saveOverall --preFitValue 1   -n SimpleTH1_Signal1 -m 200
 ```
-We will also want to compare our scan to that from the full likelihood, which we can get as usual from <sub><sup>COMBINE</sup></sub>. 
+We will also want to compare our scan to that from the full likelihood, which we can get as usual from <span style="font-variant:small-caps;">Combine</span>. 
 
 ```
 combine -M MultiDimFit data/tutorials/longexercise/datacard_part3.root --rMin -0.5 --rMax 2 --algo grid -n SimpleTH1 -m 200
@@ -227,7 +227,7 @@ We can convert this to a python module that we can use to run a scan with the `S
 python test/simplifiedLikelihoods/convertSLRootToPython.py -O mymodel.py -s SLinput_Signal1.root:shapes_prefit/total_signal  -b SLinput.root:shapes_prefit/total_M1-d SLinput.root:shapes_prefit/total_data -c SLinput.root:shapes_prefit/total_M2
 ```
 
-We can compare the profiled likelihood scans from our simplified likelihood (using the python file we just created) and from the full likelihood (that we created with <sub><sup>COMBINE</sup></sub>.). For the former, we need to first checkout the `SLtools` package 
+We can compare the profiled likelihood scans from our simplified likelihood (using the python file we just created) and from the full likelihood (that we created with <span style="font-variant:small-caps;">Combine</span>.). For the former, we need to first checkout the `SLtools` package 
 
 ```
 git clone https://gitlab.cern.ch/SimplifiedLikelihood/SLtools.git
@@ -277,4 +277,4 @@ This will produce a figure like the one below.
 
 ![](SLexample.jpg)
 
-It is also possible to include the third moment of each bin to improve the precision of the simplified likelihood [ [JHEP 64 2019](https://link.springer.com/article/10.1007/JHEP04(2019)064) ]. The necessary information is stored in the outputs from <sub><sup>COMBINE</sup></sub>, therefore you just need to include the option `-t SLinput.root:shapes_prefit/total_M3` in the options list for `convertSLRootToPython.py` to  include this in the model file. The third moment information can be included in `SLtools` by using ` sl.SLParams(background, covariance, third_moment, obs=data, sig=signal)`
+It is also possible to include the third moment of each bin to improve the precision of the simplified likelihood [ [JHEP 64 2019](https://link.springer.com/article/10.1007/JHEP04(2019)064) ]. The necessary information is stored in the outputs from <span style="font-variant:small-caps;">Combine</span>, therefore you just need to include the option `-t SLinput.root:shapes_prefit/total_M3` in the options list for `convertSLRootToPython.py` to  include this in the model file. The third moment information can be included in `SLtools` by using ` sl.SLParams(background, covariance, third_moment, obs=data, sig=signal)`

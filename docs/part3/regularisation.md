@@ -1,9 +1,9 @@
 # Unfolding & regularization
 
-This section details how to perform an unfolded cross-section measurement, *including regularization*, within <sub><sup>COMBINE</sup></sub>. 
+This section details how to perform an unfolded cross-section measurement, *including regularization*, within <span style="font-variant:small-caps;">Combine</span>. 
 
 There are many resources available that describe unfolding, including when to use it (or not), and what the common issues surrounding it are. For CMS users, useful summary is available in the [CMS Statistics Committee pages](https://twiki.cern.ch/twiki/bin/view/CMS/ScrecUnfolding) on unfolding. You can also 
-find an overview of unfolding and its usage in <sub><sup>COMBINE</sup></sub> in [these slides](https://indico.cern.ch/event/399923/contributions/956409/attachments/800899/1097609/2015_06_24_LHCXSWG.pdf#search=Marini%20AND%20StartDate%3E%3D2015-06-24%20AND%20EndDate%3C%3D2015-06-24).
+find an overview of unfolding and its usage in <span style="font-variant:small-caps;">Combine</span> in [these slides](https://indico.cern.ch/event/399923/contributions/956409/attachments/800899/1097609/2015_06_24_LHCXSWG.pdf#search=Marini%20AND%20StartDate%3E%3D2015-06-24%20AND%20EndDate%3C%3D2015-06-24).
 
 The basic idea behind the unfolding technique is to describe smearing introduced through the reconstruction (e.g. of the particle energy) in a given truth level bin $x_{i}$ through a linear relationship with the effects in the nearby truth-bins. We can make statements about the probability $p_{j}$ that the event falling in the truth bin $x_{i}$ is reconstructed in the bin $y_{i}$ via the linear relationship,
 
@@ -22,7 +22,7 @@ Unfolding aims to find the distribution at truth level $x$, given the observatio
 
 ## Likelihood-based unfolding
 
-Since <sub><sup>COMBINE</sup></sub> has access to the full likelihood for any analysis written in the usual datacard format, we will use likelihood-based unfolding 
+Since <span style="font-variant:small-caps;">Combine</span> has access to the full likelihood for any analysis written in the usual datacard format, we will use likelihood-based unfolding 
 throughout - for other approaches, there are many other tools available (eg `RooUnfold` or `TUnfold`), which can be used instead. 
 
 The benefits of the likelihood-based approach are that, 
@@ -34,7 +34,7 @@ The benefits of the likelihood-based approach are that,
 In practice, one must construct the *response matrix* and unroll it in the reconstructed bins:
 
 * First, one derives the truth distribution, e.g. after the generator-level selection only, $x_{i}$.
-* Each reconstructed bin (e.g. each datacard) should describe the contribution from each truth bin - this is how <sub><sup>COMBINE</sup></sub> knows about the response matrix $\boldsymbol{R}$ 
+* Each reconstructed bin (e.g. each datacard) should describe the contribution from each truth bin - this is how <span style="font-variant:small-caps;">Combine</span> knows about the response matrix $\boldsymbol{R}$ 
 and folds in the acceptance/efficiency effects as usual.
 * The out-of-acceptance contributions can also be included in the above.
 
@@ -70,7 +70,7 @@ The figure below shows a comparison of likelihood-based unfolding and a least-sq
 
 The main difference with respect to other models with multiple signal contributions is the introduction of **Regularization**, which is used to stabilize the unfolding process. 
 
-An example of unfolding in <sub><sup>COMBINE</sup></sub> with and without regularization, can be found under 
+An example of unfolding in <span style="font-variant:small-caps;">Combine</span> with and without regularization, can be found under 
 [data/tutorials/regularization](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/102x/data/tutorials/regularization). 
 
 Running `python createWs.py [-r]` will create a simple datacard and perform a fit both with and without including regularization.
@@ -133,7 +133,7 @@ Alternative valid syntaxes are
     constr1 constr r_bin0+r_bin1 {r_bin0,r_bin1} delta[0.01]
 ```
 
-The figure below shows an example unfolding using the "SVD regularization" approach with the least squares method (as implemented by `RooUnfold`) and implemented as a penalty term added to the likelihood using the maximum likelihood approach in <sub><sup>COMBINE</sup></sub>.
+The figure below shows an example unfolding using the "SVD regularization" approach with the least squares method (as implemented by `RooUnfold`) and implemented as a penalty term added to the likelihood using the maximum likelihood approach in <span style="font-variant:small-caps;">Combine</span>.
 
 /// details | **Show comparison**
 
@@ -144,7 +144,7 @@ The figure below shows an example unfolding using the "SVD regularization" appro
 ### TUnfold method
 
 The Tikhonov regularization as implemented in `TUnfold` uses the MC information, or rather the density prediction, as a bias vector. 
-In order to give this information to <sub><sup>COMBINE</sup></sub>, a single datacard for each reconstruction-level bin needs to be produced, so that we have access to the proper normalization terms during the minimization. In this case the bias vector is $\vec{x}_{obs}-\vec{x}_{true}$ 
+In order to give this information to <span style="font-variant:small-caps;">Combine</span>, a single datacard for each reconstruction-level bin needs to be produced, so that we have access to the proper normalization terms during the minimization. In this case the bias vector is $\vec{x}_{obs}-\vec{x}_{true}$ 
 
 Then one can write a constraint term in the datacard via, for example,
 

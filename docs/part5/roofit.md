@@ -687,7 +687,7 @@ nominal_values = (MH=124.627 +/- 0.398094,resolution=1[C],norm_s=33.9097 +/- 11.
 ```
  </details>
 
-This is exactly what needs to be done when you want to use shape based datacards in <sub><sup>COMBINE</sup></sub> with parametric models.
+This is exactly what needs to be done when you want to use shape based datacards in <span style="font-variant:small-caps;">Combine</span> with parametric models.
 
 ## A likelihood for a counting experiment
 An introductory presentation about likelihoods and interval estimation is available [here](https://indico.cern.ch/event/976099/contributions/4138517/).
@@ -791,7 +791,7 @@ canv.SaveAs("likelihoodscan.pdf")
 ```
 
 Well, this is doable - but we were only looking at a simple one-bin counting experiment. This might become rather cumbersome for large models... $[*]$
-We will now switch to <sub><sup>COMBINE</sup></sub> which will make it a lot easier to set up your model and do the statistical analysis than trying to build the likelihood yourself.
+We will now switch to <span style="font-variant:small-caps;">Combine</span> which will make it a lot easier to set up your model and do the statistical analysis than trying to build the likelihood yourself.
 
 $[*]$ Side note - `RooFit` does have additional functionality to help with statistical model building, but we will not go into detail today.   
 
