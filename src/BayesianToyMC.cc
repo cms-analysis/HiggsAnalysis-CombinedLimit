@@ -108,9 +108,9 @@ bool BayesianToyMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
     if (verbose > -1) {
         std::cout << "\n -- BayesianToyMC -- " << "\n";
         if (limitErr > 0) {
-            std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL" << std::endl;
+            std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% credibility" << std::endl;
         } else {
-            std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+            std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% credibility" << std::endl;
         }
     }
     break;
