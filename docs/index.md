@@ -96,6 +96,17 @@ git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
+## Oustide of CMSSW (recommended for non-CMS users)
+
+Pre-compiled versions of the tool are available as containers from the [CMS cloud pages](https://gitlab.cern.ch/cms-cloud/combine-standalone). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/. If you have docker running you can pull and run the *latest* version using, 
+
+```sh
+docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:latest
+```
+
+You will now have the compiled `combine` binary available as well as the complete package of tool. 
+The container can be re-started using `docker start -i combine`. 
+
 ## Standalone compilation
 
 The standalone version can be easily compiled using
@@ -158,6 +169,25 @@ conda activate combine
 **Note:** on OS X, <span style="font-variant:small-caps;">Combine</span> can only accept workspaces, so run `text2workspace.py` first.
 This is due to an issue with child processes and `LD_LIBRARY_PATH` (see note in Makefile)
 
+### Standalone compilation with CernVM 
+
+`combine`, either standalone or not, can be compiled via CVMFS using access to `/cvmfs/cms.cern.ch/`  obtained using a virtual machine - [`CernVM`](https://cernvm.cern.ch/). To use `CernVM` You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
+If you have a CERN user account, we strongly suggest you simply run one of the other standalone installations, which are simpler and faster than using a VM.
+
+You should have a working VM on your local machine, compatible with CernVM, such as `VirtualBox`. All the required software can be downloaded [here](https://cernvm.cern.ch/appliance/).
+At least 2GB of disk space should be reserved on the virtual machine for `combine` to work properly and the machine must be contextualized to add the `CMS`` group to CVMFS. A minimal working setup is described below.
+
+0. Download the CernVM-launcher for your operating system, following the instructions available [`here`] for your operating system (https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation
+
+1. Prepare a CMS context. You can use the CMS open data one already available on gitHub: 
+```wget https://raw.githubusercontent.com/cernvm/public-contexts/master/cms-opendata-2011.context)```
+
+2. Launch the virtual machine ```cernvm-launch create --name combine --cpus 2 cms-opendata-2011.context```
+
+3. In the VM, proceed with an installation of combine
+
+Installation through CernVM is maintained on a best-effort basis and these instructions may not be up to date. 
+
 # What has changed between tags? 
 
 You can generate a diff of any two tags (eg for `v9.1.0` and `v9.0.0`) by using the following url:
@@ -202,5 +232,3 @@ bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/m
 make sure to run `scram`  to compile the `CombineTools` package.
 
 See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
-
-
