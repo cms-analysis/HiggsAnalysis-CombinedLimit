@@ -35,6 +35,7 @@ bindings, allowing a more gradual migration of user code to python3. <span style
 fully python3-compatible and, with some adaptations, can also work in 12_X releases.
 
 ```sh
+export SCRAM_ARCH=slc7_amd64_gcc900
 cmsrel CMSSW_11_3_4
 cd CMSSW_11_3_4/src
 cmsenv
