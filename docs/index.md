@@ -98,7 +98,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 
 ## Oustide of CMSSW (recommended for non-CMS users)
 
-Pre-compiled versions of the tool are available as containers from the [CMS cloud pages](https://gitlab.cern.ch/cms-cloud/combine-standalone). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/. If you have docker running you can pull and run the *latest* version using, 
+Pre-compiled versions of the tool are available as containers from the [CMS cloud pages](https://gitlab.cern.ch/cms-cloud/combine-standalone). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/). If you have docker running you can pull and run the *latest* version using, 
 
 ```sh
 docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:latest
