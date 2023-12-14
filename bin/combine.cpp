@@ -31,6 +31,10 @@
 
 using namespace std;
 
+// Update whenever we have a new Tag
+std::string combineTagString = "v9.1.0";
+// 
+
 int main(int argc, char **argv) {
   using namespace boost;
   namespace po = boost::program_options;
@@ -147,6 +151,8 @@ int main(int argc, char **argv) {
    splashFile.close(); 
   } else {
    std::cout << " <<< Combine >>> " << std::endl;
+   // UPDATE THIS TO THE LATEST TAG WHENEVER RELEASED 
+   std::cout << Form(" <<< %s >>>",combineTagString.c_str() ) << std::endl;
   }
 
   // now search for algo, and add option
