@@ -1,5 +1,5 @@
 # Long exercise: main features of Combine
-This exercise is designed to give a broad overview of the tools available for statistical analysis in CMS using the combine tool. Combine is a high-level tool for building RooFit/RooStats models and running common statistical methods. We will cover the typical aspects of setting up an analysis and producing the results, as well as look at ways in which we can diagnose issues and get a deeper understanding of the statistical model. This is a long exercise - expect to spend some time on it especially if you are new to Combine. If you get stuck while working through this exercise or have questions specifically about the exercise, you can ask them on [this mattermost channel](https://mattermost.web.cern.ch/cms-exp/channels/hcomb-tutorial). Finally, we also provide some solutions to some of the questions that are asked as part of the exercise. These are available [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexerciseanswers).
+This exercise is designed to give a broad overview of the tools available for statistical analysis in CMS using the combine tool. <span style="font-variant:small-caps;">Combine</span> is a high-level tool for building `RooFit`/`RooStats` models and running common statistical methods. We will cover the typical aspects of setting up an analysis and producing the results, as well as look at ways in which we can diagnose issues and get a deeper understanding of the statistical model. This is a long exercise - expect to spend some time on it especially if you are new to <span style="font-variant:small-caps;">Combine</span>. If you get stuck while working through this exercise or have questions specifically about the exercise, you can ask them on [this mattermost channel](https://mattermost.web.cern.ch/cms-exp/channels/hcomb-tutorial). Finally, we also provide some solutions to some of the questions that are asked as part of the exercise. These are available [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexerciseanswers).
 
 For the majority of this course we will work with a simplified version of a real analysis, that nonetheless will have many features of the full analysis. The analysis is a search for an additional heavy neutral Higgs boson decaying to tau lepton pairs. Such a signature is predicted in many extensions of the standard model, in particular the minimal supersymmetric standard model (MSSM). You can read about the analysis in the paper [here](https://arxiv.org/pdf/1803.06553.pdf). The statistical inference makes use of a variable called the total transverse mass ($M_{\mathrm{T}}^{\mathrm{tot}}$) that provides good discrimination between the resonant high-mass signal and the main backgrounds, which have a falling distribution in this high-mass region. The events selected in the analysis are split into a several categories which target the main di-tau final states as well as the two main production modes: gluon-fusion (ggH) and b-jet associated production (bbH). One example is given below for the fully-hadronic final state in the b-tag category which targets the bbH signal:
 
@@ -12,7 +12,7 @@ You can find a presentation with some more background on likelihoods and extract
 If you are not yet familiar with these concepts, or would like to refresh your memory, we recommend that you have a look at these presentations before you start with the exercise. 
 
 ## Getting started
-We need to set up a new CMSSW area and checkout the combine package: 
+We need to set up a new CMSSW area and checkout the <span style="font-variant:small-caps;">Combine</span> package: 
 
 ```shell
 cmsrel CMSSW_11_3_4
@@ -26,7 +26,7 @@ git fetch origin
 git checkout v9.0.0
 ```
 
-We will also make use another package, `CombineHarvester`, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this tutorial:
+We will also make use another package, `CombineHarvester`, which contains some high-level tools for working with <span style="font-variant:small-caps;">Combine</span>. The following command will download the repository and checkout just the parts of it we need for this tutorial:
 ```shell
 bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
 ```
@@ -82,10 +82,10 @@ The layout of the datacard is as follows:
   -   The first line starting with `bin` gives a unique label to each channel, and the following line starting with `observation` gives the number of events observed in data.
   -   In the remaining part of the card there are several columns: each one represents one process in one channel. The first four lines labelled `bin`, `process`, `process` and `rate` give the channel label, the process label, a process identifier (`<=0` for signal, `>0` for background) and the number of expected events respectively.
   -   The remaining lines describe sources of systematic uncertainty. Each line gives the name of the uncertainty, (which will become the name of the nuisance parameter inside our RooFit model), the type of uncertainty ("lnN" = log-normal normalisation uncertainty) and the effect on each process in each channel. E.g. a 20% uncertainty on the yield is written as 1.20.
-  -   It is also possible to add a hash symbol (`#`) at the start of a line, which combine will then ignore when it reads the card.
+  -   It is also possible to add a hash symbol (`#`) at the start of a line, which <span style="font-variant:small-caps;">Combine</span> will then ignore when it reads the card.
 
 
-We can now run combine directly using this datacard as input. The general format for running combine is:
+We can now run <span style="font-variant:small-caps;">Combine</span> directly using this datacard as input. The general format for running <span style="font-variant:small-caps;">Combine</span> is:
 
 ```shell
 combine -M [method] [datacard] [additional options...]
@@ -93,15 +93,15 @@ combine -M [method] [datacard] [additional options...]
 
 ### A: Computing limits using the asymptotic approximation 
 
-As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). Combine has dedicated method for calculating upper limits. The most commonly used one is `AsymptoticLimits`, which implements the [CLs criterion](https://inspirehep.net/literature/599622) and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the [asymptotic approximation](https://arxiv.org/abs/1007.1727), so there is no need for more time-intensive toy throwing and fitting. Try running the following command:
+As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). <span style="font-variant:small-caps;">Combine</span> has dedicated method for calculating upper limits. The most commonly used one is `AsymptoticLimits`, which implements the [CLs criterion](https://inspirehep.net/literature/599622) and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the [asymptotic approximation](https://arxiv.org/abs/1007.1727), so there is no need for more time-intensive toy throwing and fitting. Try running the following command:
 
 ```shell
 combine -M AsymptoticLimits datacard_part1.txt -n .part1A
 ```
 
-You should see the results of the observed and expected limit calculations printed to the screen. Here we have added an extra option, `-n .part1A`, which is short for `--name`, and is used to label the output file combine produces, which in this case will be called `higgsCombine.part1A.AsymptoticLimits.mH120.root`. The file name depends on the options we ran with, and is of the form: `higgsCombine[name].[method].mH[mass].root`. The file contains a TTree called `limit` which stores the numerical values returned by the limit computation. Note that in our case we did not set a signal mass when running combine (i.e. `-m 800`), so the output file just uses the default value of `120`. This does not affect our result in any way though, just the label that is used on the output file.
+You should see the results of the observed and expected limit calculations printed to the screen. Here we have added an extra option, `-n .part1A`, which is short for `--name`, and is used to label the output file <span style="font-variant:small-caps;">Combine</span> produces, which in this case will be called `higgsCombine.part1A.AsymptoticLimits.mH120.root`. The file name depends on the options we ran with, and is of the form: `higgsCombine[name].[method].mH[mass].root`. The file contains a TTree called `limit` which stores the numerical values returned by the limit computation. Note that in our case we did not set a signal mass when running <span style="font-variant:small-caps;">Combine</span> (i.e. `-m 800`), so the output file just uses the default value of `120`. This does not affect our result in any way though, just the label that is used on the output file.
 
-The limits are given on a parameter called `r`. This is the default **parameter of interest (POI)** that is added to the model automatically. It is a linear scaling of the normalisation of all signal processes given in the datacard, i.e. if $s_{i,j}$ is the nominal number of signal events in channel $i$ for signal process $j$, then the normalisation of that signal in the model is given as $r\cdot s_{i,j}(\vec{\theta})$, where $\vec{\theta}$ represents the set of nuisance parameters which may also affect the signal normalisation. We therefore have some choice in the interpretation of r: for the measurement of a process with a well defined SM prediction we may enter this as the nominal yield in the datacard, such that $r=1$ corresponds to this SM expectation, whereas for setting limits on BSM processes we may choose the nominal yield to correspond to some cross section, e.g. 1 pb, such that we can interpret the limit as a cross section limit directly. In this example the signal has been normalised to a cross section times branching fraction of 1 fb.
+The limits are given on a parameter called `r`. This is the default **parameter of interest (POI)** that is added to the model automatically. It is a linear scaling of the normalization of all signal processes given in the datacard, i.e. if $s_{i,j}$ is the nominal number of signal events in channel $i$ for signal process $j$, then the normalization of that signal in the model is given as $r\cdot s_{i,j}(\vec{\theta})$, where $\vec{\theta}$ represents the set of nuisance parameters which may also affect the signal normalization. We therefore have some choice in the interpretation of r: for the measurement of a process with a well-defined SM prediction we may enter this as the nominal yield in the datacard, such that $r=1$ corresponds to this SM expectation, whereas for setting limits on BSM processes we may choose the nominal yield to correspond to some cross section, e.g. 1 pb, such that we can interpret the limit as a cross section limit directly. In this example the signal has been normalised to a cross section times branching fraction of 1 fb.
 
 The expected limit is given under the background-only hypothesis. The median value under this hypothesis as well as the quantiles needed to give the 68% and 95% intervals are also calculated. These are all the ingredients needed to produce the standard limit plots you will see in many CMS results, for example the $\sigma \times \mathcal{B}$ limits for the $\text{bb}\phi\rightarrow\tau\tau$ process:
 
@@ -116,19 +116,19 @@ In this case we only computed the values for one signal mass hypothesis, indicat
   -   Now try changing the number of observed events. The observed limit will naturally change, but the expected does too - why might this be?
 
 
-There are other command line options we can supply to combine which will change its behaviour when run. You can see the full set of supported options by doing `combine -h`. Many options are specific to a given method, but others are more general and are applicable to all methods. Throughout this tutorial we will highlight some of the most useful options you may need to use, for example:
+There are other command line options we can supply to <span style="font-variant:small-caps;">Combine</span> which will change its behaviour when run. You can see the full set of supported options by doing `combine -h`. Many options are specific to a given method, but others are more general and are applicable to all methods. Throughout this tutorial we will highlight some of the most useful options you may need to use, for example:
 
-  - The range on the signal strength modifier: `--rMin=X` and `--rMax=Y`: In RooFit parameters can optionally have a range specified. The implication of this is that their values cannot be adjusted beyond the limits of this range. The min and max values can be adjusted though, and we might need to do this for our POI `r` if the order of magnitude of our measurement is different from the default range of `[0, 20]`. This will be discussed again later in the tutorial.
+  - The range on the signal strength modifier: `--rMin=X` and `--rMax=Y`: In `RooFit` parameters can optionally have a range specified. The implication of this is that their values cannot be adjusted beyond the limits of this range. The min and max values can be adjusted though, and we might need to do this for our POI `r` if the order of magnitude of our measurement is different from the default range of `[0, 20]`. This will be discussed again later in the tutorial.
   - Verbosity: `-v X`: By default combine does not usually produce much output on the screen other the main result at the end. However, much more detailed information can be printed by setting the `-v N` with N larger than zero. For example at `-v 3` the logs from the minimizer, Minuit, will also be printed. These are very useful for debugging problems with the fit.
 
 ### Advanced section: B: Computing limits with toys
-Now we will look at computing limits without the asymptotic approximation, so instead using toy datasets to determine the test statistic distributions under the signal+background and background-only hypotheses. This can be necessary if we are searching for signal in bins with a small number of events expected. In combine we will use the `HybridNew` method to calculate limits using toys. This mode is capable of calculating limits with several different test statistics and with fine-grained control over how the toy datasets are generated internally. To calculate LHC-style profile likelihood limits (i.e. the same as we did with the asymptotic) we set the option `--LHCmode LHC-limits`. You can read more about the different options in the [Combine documentation](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys).
+Now we will look at computing limits without the asymptotic approximation, so instead using toy datasets to determine the test statistic distributions under the signal+background and background-only hypotheses. This can be necessary if we are searching for signal in bins with a small number of events expected. In <span style="font-variant:small-caps;">Combine</span> we will use the `HybridNew` method to calculate limits using toys. This mode is capable of calculating limits with several different test statistics and with fine-grained control over how the toy datasets are generated internally. To calculate LHC-style profile likelihood limits (i.e. the same as we did with the asymptotic) we set the option `--LHCmode LHC-limits`. You can read more about the different options in the [Combine documentation](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys).
 
 Run the following command:
 ```shell
 combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --fork 0
 ```
-In contrast to `AsymptoticLimits` this will only determine the observed limit, and will take a few minutes. There will not be much output to the screen while combine is running. You can add the option `-v 1` to get a better idea of what is going on. You should see combine stepping around in `r`, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The `--saveHybridResult` option will cause the test statistic distributions that are generated at each tested value of `r` to be saved in the output ROOT file.
+In contrast to `AsymptoticLimits` this will only determine the observed limit, and will take a few minutes. There will not be much output to the screen while combine is running. You can add the option `-v 1` to get a better idea of what is going on. You should see <span style="font-variant:small-caps;">Combine</span> stepping around in `r`, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The `--saveHybridResult` option will cause the test statistic distributions that are generated at each tested value of `r` to be saved in the output ROOT file.
 
 To get an expected limit add the option `--expectedFromGrid X`, where `X` is the desired quantile, e.g. for the median:
 
@@ -136,7 +136,7 @@ To get an expected limit add the option `--expectedFromGrid X`, where `X` is the
 combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --fork 0 --expectedFromGrid 0.500
 ```
 
-Calculate the median expected limit and the 68% range. The 95% range could also be done, but note it will take much longer to run the 0.025 quantile. While combine is running you can move on to the next steps below.
+Calculate the median expected limit and the 68% range. The 95% range could also be done, but note it will take much longer to run the 0.025 quantile. While <span style="font-variant:small-caps;">Combine</span> is running you can move on to the next steps below.
 
 **Tasks and questions:**
 - In contrast to `AsymptoticLimits`, with `HybridNew` each limit comes with an uncertainty. What is the origin of this uncertainty?
@@ -169,7 +169,7 @@ Note that for more complex models the fitting time can increase significantly, m
 Topics covered in this section:
 
   - A: Setting up the datacard
-  - B: Running combine for a blind analysis
+  - B: Running <span style="font-variant:small-caps;">Combine</span> for a blind analysis
   - C: Using FitDiagnostics
   - D: MC statistical uncertainties
 
@@ -247,12 +247,12 @@ A more general way of blinding is to use combine's toy and Asimov dataset genera
 **Task:** Calculate a blind limit by generating a background-only Asimov with the `-t -1` option instead of using the `AsymptoticLimits` specific options. You should find the observed limit is the same as the expected. Then see what happens if you inject a signal into the Asimov dataset using the `--expectSignal [X]` option.
 
 ### C: Using FitDiagnostics
-We will now explore one of the most commonly used modes of combine: `FitDiagnostics` . As well as allowing us to make a **measurement** of some physical quantity (as opposed to just setting a limit on it), this method is useful to gain additional information about the model and the behaviour of the fit. It performs two fits:
+We will now explore one of the most commonly used modes of <span style="font-variant:small-caps;">Combine</span>: `FitDiagnostics` . As well as allowing us to make a **measurement** of some physical quantity (as opposed to just setting a limit on it), this method is useful to gain additional information about the model and the behaviour of the fit. It performs two fits:
 
   - A "background-only" (b-only) fit: first POI (usually "r") fixed to zero
   - A "signal+background" (s+b) fit: all POIs are floating
  
-With the s+b fit combine will report the best-fit value of our signal strength modifier `r`. As well as the usual output file, a file named `fitDiagnosticsTest.root` is produced which contains additional information. In particular it includes two `RooFitResult` objects, one for the b-only and one for the s+b fit, which store the fitted values of all the **nuisance parameters (NPs)** and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the `FitDiagnostics` method on our workspace:
+With the s+b fit <span style="font-variant:small-caps;">Combine</span> will report the best-fit value of our signal strength modifier `r`. As well as the usual output file, a file named `fitDiagnosticsTest.root` is produced which contains additional information. In particular it includes two `RooFitResult` objects, one for the b-only and one for the s+b fit, which store the fitted values of all the **nuisance parameters (NPs)** and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the `FitDiagnostics` method on our workspace:
 
 ```shell
 combine -M FitDiagnostics workspace_part2.root -m 800 --rMin -20 --rMax 20
@@ -334,13 +334,13 @@ The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (
 
 So far there is an important source of uncertainty we have neglected. Our estimates of the backgrounds come either from MC simulation or from sideband regions in data, and in both cases these estimates are subject to a statistical uncertainty on the number of simulated or data events. 
 In principle we should include an independent statistical uncertainty for every bin of every process in our model. 
-It's important to note that combine/RooFit does not take this into account automatically - statistical fluctuations of the data are implicitly accounted 
+It's important to note that <span style="font-variant:small-caps;">Combine</span>/`RooFit` does not take this into account automatically - statistical fluctuations of the data are implicitly accounted 
 for in the likelihood formalism, but statistical uncertainties in the model must be specified by us.
 
 One way to implement these uncertainties is to create a `shape` uncertainty for each bin of each process, in which the up and down histograms have the contents of the bin
  shifted up and down by the $1\sigma$ uncertainty. 
 However this makes the likelihood evaluation computationally inefficient, and can lead to a large number of nuisance parameters 
-in more complex models. Instead we will use a feature in combine called `autoMCStats` that creates these automatically from the datacard, 
+in more complex models. Instead we will use a feature in <span style="font-variant:small-caps;">Combine</span> called `autoMCStats` that creates these automatically from the datacard, 
 and uses a technique called "Barlow-Beeston-lite" to reduce the number of systematic uncertainties that are created. 
 This works on the assumption that for high MC event counts we can model the uncertainty with a Gaussian distribution. Given the uncertainties in different bins are independent, the total uncertainty of several processes in a particular bin is just the sum of $N$ individual Gaussians, which is itself a Gaussian distribution. 
 So instead of $N$ nuisance parameters we need only one. This breaks down when the number of events is small and we are not in the Gaussian regime. 
@@ -484,7 +484,7 @@ To produce these distributions add the `--saveShapes` and `--saveWithUncertainti
 combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveShapes --saveWithUncertainties -n .part3B
 ```
 
-Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitDiagnosticsTest.root output file:
+<span style="font-variant:small-caps;">Combine</span> will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitDiagnosticsTest.root output file:
 
 ![](images/fit_diag_shapes.png)
 
@@ -497,7 +497,7 @@ Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in th
 
 
 ### D: Calculating the significance
-In the event that you observe a deviation from your null hypothesis, in this case the b-only hypothesis, combine can be used to calculate the p-value or significance. To do this using the asymptotic approximation simply do:
+In the event that you observe a deviation from your null hypothesis, in this case the b-only hypothesis, <span style="font-variant:small-caps;">Combine</span> can be used to calculate the p-value or significance. To do this using the asymptotic approximation simply do:
 
 ```shell
 combine -M Significance workspace_part3.root -m 200 --rMin -1 --rMax 2
@@ -601,7 +601,7 @@ python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsC
 
 ![](images/freeze_first_attempt.png)
 
-This doesn't look quite right - the best-fit has been shifted because unfortunately the `--freezeParameters` option acts before the initial fit, whereas we only want to add it for the scan after this fit. To remedy this we can use a feature of combine that lets us save a "snapshot" of the best-fit parameter values, and reuse this snapshot in subsequent fits. First we perform a single fit, adding the `--saveWorkspace` option:
+This doesn't look quite right - the best-fit has been shifted because unfortunately the `--freezeParameters` option acts before the initial fit, whereas we only want to add it for the scan after this fit. To remedy this we can use a feature of <span style="font-variant:small-caps;">Combine</span> that lets us save a "snapshot" of the best-fit parameter values, and reuse this snapshot in subsequent fits. First we perform a single fit, adding the `--saveWorkspace` option:
 
 ```shell
 combine -M MultiDimFit workspace_part3.root -n .part3E.snapshot -m 200 --rMin -1 --rMax 2 --saveWorkspace
@@ -642,7 +642,7 @@ While it is perfectly fine to just list the relevant nuisance parameters in the 
   - How important are these tau-related uncertainties compared to the others?
 
 ### F: Use of channel masking
-We will now return briefly to the topic of blinding. We've seen that we can compute expected results by performing any combine method on an Asimov dataset generated using `-t -1`. This is useful, because we can optimise our analysis without introducing any accidental bias that might come from looking at the data in the signal region. However our control regions have been chosen specifically to be signal-free, and it would be useful to use the data here to set the normalisation of our backgrounds even while the signal region remains blinded. Unfortunately there's no easy way to generate a partial Asimov dataset just for the signal region, but instead we can use a feature called "channel masking" to remove specific channels from the likelihood evaluation. One useful application of this feature is to make post-fit plots of the signal region from a control-region-only fit.
+We will now return briefly to the topic of blinding. We've seen that we can compute expected results by performing any <span style="font-variant:small-caps;">Combine</span> method on an Asimov dataset generated using `-t -1`. This is useful, because we can optimise our analysis without introducing any accidental bias that might come from looking at the data in the signal region. However our control regions have been chosen specifically to be signal-free, and it would be useful to use the data here to set the normalisation of our backgrounds even while the signal region remains blinded. Unfortunately there's no easy way to generate a partial Asimov dataset just for the signal region, but instead we can use a feature called "channel masking" to remove specific channels from the likelihood evaluation. One useful application of this feature is to make post-fit plots of the signal region from a control-region-only fit.
 
 To use the masking we first need to rerun `text2workspace.py` with an extra option that will create variables named like `mask_[channel]` in the workspace:
 
@@ -659,7 +659,7 @@ Topics covered in this section:
   - A: Writing a simple physics model
   - B: Performing and plotting 2D likelihood scans
 
-With combine we are not limited to parametrising the signal with a single scaling parameter `r`. In fact we can define any arbitrary scaling using whatever functions and parameters we would like. 
+With <span style="font-variant:small-caps;">Combine</span> we are not limited to parametrising the signal with a single scaling parameter `r`. In fact we can define any arbitrary scaling using whatever functions and parameters we would like. 
 For example, when measuring the couplings of the Higgs boson to the different SM particles we would introduce a POI for each coupling parameter, for example $\kappa_{\text{W}}$, $\kappa_{\text{Z}}$, $\kappa_{\tau}$ etc. We would then generate scaling terms for each $i\rightarrow \text{H}\rightarrow j$ process in terms of how the cross section ($\sigma_i(\kappa)$) and branching ratio ($\frac{\Gamma_i(\kappa)}{\Gamma_{\text{tot}}(\kappa)}$) scale relative to the SM prediction.
 
 This parametrisation of the signal (and possibly backgrounds too) is specified in a **physics model**. This is a python class that is used by `text2workspace.py` to construct the model in terms of RooFit objects. There is documentation on using phyiscs models [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/#physics-models).
@@ -692,7 +692,7 @@ dasModel = DASModel()
 </details>
 
 In this we override two methods of the basic `PhysicsModel` class: `doParametersOfInterest` and `getYieldScale`. In the first we define our POI variables, using the doVar function which accepts the RooWorkspace factory syntax for creating variables, and then define all our POIs in a set via the doSet function. The second function will be called for every process in every channel (bin), and using the corresponding strings we have to specify how that process should be scaled. Here we check if the process was declared as signal in the datacard, and if so scale it by `r`, otherwise if it is a background no scaling is applied (`1`).
-To use the physics model with `text2workspace.py` first copy it to the python directory in the combine package:
+To use the physics model with `text2workspace.py` first copy it to the python directory in the <span style="font-variant:small-caps;">Combine</span> package:
 ```shell
 cp DASModel.py $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/python/
 ```
@@ -712,7 +712,7 @@ combine -M MultiDimFit workspace_part4.root -n .part4A -m 200 --rMin 0 --rMax 2
 
 ### B: Performing and plotting 2D likelihood scans
 
-For a model with two POIs it is often useful to look at the how well we are able to measure both simultaneously. A natural extension of determining 1D confidence intervals on a single parameter like we did in part 3D is to determine confidence level regions in 2D. To do this we also use combine in a similar way, with `-M MultiDimFit --algo grid`. When two POIs are found combine will scan a 2D grid of points instead of a 1D array.
+For a model with two POIs it is often useful to look at the how well we are able to measure both simultaneously. A natural extension of determining 1D confidence intervals on a single parameter like we did in part 3D is to determine confidence level regions in 2D. To do this we also use combine in a similar way, with `-M MultiDimFit --algo grid`. When two POIs are found, <span style="font-variant:small-caps;">Combine</span> will scan a 2D grid of points instead of a 1D array.
 
 **Tasks and questions:**
 

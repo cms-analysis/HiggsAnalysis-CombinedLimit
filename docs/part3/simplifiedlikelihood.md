@@ -4,11 +4,11 @@ This page is to give a brief outline for the creation of (potentially aggregated
 
 ## Requirements 
 
-You need an up to date version of combine. Note You should use the latest release of combine for the exact commands on this page. You should be using combine tag `v9.0.0` or higher or the latest version of the `112x` branch to follow these instructions.  
+You need an up to date version of <span style="font-variant:small-caps;">Combine</span>. Note You should use the latest release of <span style="font-variant:small-caps;">Combine</span> for the exact commands on this page. You should be using <span style="font-variant:small-caps;">Combine</span> tag `v9.0.0` or higher or the latest version of the `112x` branch to follow these instructions.  
 
-You will find the python scripts needed to convert combine outputs into simplified likelihood inputs under `test/simplifiedLikelihood`
+You will find the python scripts needed to convert <span style="font-variant:small-caps;">Combine</span> outputs into simplified likelihood inputs under `test/simplifiedLikelihood`
 
-If you're using the `102x` branch (not reccomended), then you can obtain these scripts from here by running: 
+If you're using the `102x` branch (not recommended), then you can obtain these scripts from here by running: 
 ```
 curl -s https://raw.githubusercontent.com/nucleosynthesis/work-tools/master/sparse-checkout-SL-ssh.sh > checkoutSL.sh
 bash checkoutSL.sh
@@ -22,7 +22,7 @@ git clone https://gitlab.cern.ch/SimplifiedLikelihood/SLtools.git
 
 ## Producing covariance for recasting
 
-Producing the necessary predictions and covariance for recasting varies depending on whether control regions are explicitly included in the datacard when running fits. Instructions for cases where the control regions *are* and *are not* included are detailed below.
+Producing the necessary predictions and covariance for recasting varies depending on whether or not control regions are explicitly included in the datacard when running fits. Instructions for cases where the control regions *are* and *are not* included are detailed below.
 
 !!! warning
     The instructions below will calculate moments based on the assumption that $E[x]=\hat{x}$, i.e it will use the maximum likelihood estimators for the yields as the expectation values. If instead you want to use the full definition of the moments, you can run the `FitDiagnostics` method with the `-t` option and include `--savePredictionsPerToy` and remove the other options, which will produce a tree of the toys in the output from which moments can be calculated. 
@@ -35,14 +35,14 @@ For an example datacard 'datacard.txt' including two signal channels 'Signal1' a
 text2workspace.py --channel-masks --X-allow-no-signal --X-allow-no-background datacard.txt -o datacard.root
 ```
     
-Run the fit making the covariance (output saved as `fitDiagnostics.root`) masking the Signal channel. Note that all signal channels must be masked!
+Run the fit making the covariance (output saved as `fitDiagnostics.root`) masking the signal channels. Note that all signal channels must be masked!
 
 ```
 combine datacard.root -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 2000 --setParameters mask_Signal1=1,mask_Signal2=1 --saveOverall  -N Name
 ```
 Where "Name" can be specified by you.
 
-Outputs including predictions and covariance will be saved in `fitDiagnosticsName.root` folder `shapes_fit_b`
+Outputs, including predictions and covariance, will be saved in `fitDiagnosticsName.root` folder `shapes_fit_b`
 
 ### Type B - Control regions not included in datacard 
 
@@ -52,16 +52,16 @@ For an example datacard 'datacard.txt' including two signal channels 'Signal1' a
 text2workspace.py --X-allow-no-signal --X-allow-no-background datacard.txt -o datacard.root
 ```
     
-Run the fit making the covariance (output saved as `fitDiagnosticsName.root`) setting no signal contribution in the prefit. Note we *must* set `--preFitValue 0` in this case since we will be using the pre-fit uncertainties for the covariance calculation and we don't want to include the  uncertainties on the signal. 
+Run the fit making the covariance (output saved as `fitDiagnosticsName.root`) setting no pre-fit signal contribution. Note we *must* set `--preFitValue 0` in this case since, we will be using the pre-fit uncertainties for the covariance calculation and we do not want to include the uncertainties on the signal. 
 
 ```
 combine datacard.root -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 2000 --saveOverall --preFitValue 0   -n Name
 ```
 Where "Name" can be specified by you.
 
-Outputs including predictions and covariance will be saved in `fitDiagnosticsName.root` folder `shapes_prefit`
+Outputs, including predictions and covariance, will be saved in `fitDiagnosticsName.root` folder `shapes_prefit`
 
-In order to also pull out the signal yields corresponding to `r=1` (in case you want to run the validation step later), you also need to produce a second file with the prefit value set to 1. For this you don't need to run many toys so to save time, just set `--numToysForShape` to some low value. 
+In order to also extract the signal yields corresponding to `r=1` (in case you want to run the validation step later), you also need to produce a second file with the pre-fit value set to 1. For this you do not need to run many toys. To save time you can set `--numToysForShape` to a low value. 
 
 ```
 combine datacard.root -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 1 --saveOverall --preFitValue 1   -n Name2
@@ -72,12 +72,12 @@ You should check that the order of the bins in the covariance matrix is as expec
 
 ## Produce simplified likelihood inputs
 
-Head over to the `test/simplifiedLikelihoods` directory inside your combine area. The following instructions depend on whether you are aggregating or not aggregating your signal regions. Choose the instructions for your case. 
+Head over to the `test/simplifiedLikelihoods` directory inside your <span style="font-variant:small-caps;">Combine</span> area. The following instructions depend on whether you are aggregating or not aggregating your signal regions. Choose the instructions for your case. 
 
 ### Not Aggregating    
-Run the `makeLHInputs.py` script to prepare the inputs for the simplified likelihood. The filter flag can be used to select only signal regions based on the channel names. To include all channels don't include the filter flag.
+Run the `makeLHInputs.py` script to prepare the inputs for the simplified likelihood. The filter flag can be used to select only signal regions based on the channel names. To include all channels do not include the filter flag.
 
-The SL input must NOT include any control regions which were not masked in the fit.
+The SL input must NOT include any control regions that were not masked in the fit.
  
 If your analysis is Type B (i.e everything in the datacard is a signal region), then you can just run 
 
@@ -85,29 +85,29 @@ If your analysis is Type B (i.e everything in the datacard is a signal region), 
 python makeLHInputs.py -i fitDiagnosticsName.root -o SLinput.root 
 ```
 
-If necessary (i.e as in Type B analyses) you may also need to run the same on the run where the prefit value was set to 1. 
+If necessary (i.e as in Type B analyses) you may also need to run the same on the output of the run where the pre-fit value was set to 1. 
 
 ```
 python makeLHInputs.py -i fitDiagnosticsName2.root -o SLinput2.root 
 ```
 
-If you instead have a Type A analysis (some of the regions are control regions that were used to fit but not masked) then you should add the option `--filter SignalName` where `SignalName` is some string that defines the signal regions in your datacards (eg "SR" is a common name for these).
+If you instead have a Type A analysis (some of the regions are control regions that were used to fit but not masked) then you should add the option `--filter SignalName` where `SignalName` is some string that defines the signal regions in your datacards (for example, "SR" is a common name for these).
 
-Note: If your signal regions cannot be easily identified by a string, follow the instructions below for aggregating but define only one channel for each aggregate region which will maintain the full information and won't actually aggregate any regions.
+Note: If your signal regions cannot be easily identified by a string, follow the instructions below for aggregating, but define only one channel for each aggregate region. This will maintain the full information and will not actually aggregate any regions.
 
 
 ### Aggregating    
-If aggregating based on covariance edit the config file `aggregateCFG.py` to define aggregate regions based on channel names, note that wildcards are supported. You can then make likelihood inputs using
+If aggregating based on covariance, edit the config file `aggregateCFG.py` to define aggregate regions based on channel names. Note that wildcards are supported. You can then make likelihood inputs using
     
 ```
 python makeLHInputs.py -i fitDiagnosticsName.root -o SLinput.root --config aggregateCFG.py
 ```
 
-At this point you now have the inputs as ROOT files necessary to publish and run the simplified likelihood. 
+At this point you have the inputs as ROOT files necessary to publish and run the simplified likelihood. 
 
 ## Validating the simplified likelihood approach
 
-The simplified likelihood relies on several assumptions (detailed in the documentation at the top). To test the validity for your analysis, statistical results between combine and the simplified likelihood can be compared. 
+The simplified likelihood relies on several assumptions (detailed in the documentation at the top). To test the validity for your analysis, statistical results between <span style="font-variant:small-caps;">Combine</span> and the simplified likelihood can be compared. 
 
 We will use the package [SLtools](https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md) from the [Simplified Likelihood Paper](https://link.springer.com/article/10.1007/JHEP04(2019)064) for this. The first step is to convert the ROOT files into python configs to run in the tool. 
 
@@ -121,13 +121,13 @@ If you followed the steps above, you have all of the histograms already necessar
    * `-d/--data` : The data TGraph, should be of format `file.root:location/to/graph`
    * `-c/--covariance` : The covariance TH2 histogram, should be of format `file.root:location/to/histogram`
 
-For example to get the correct output from a Type B analysis with no Aggregating, you can run 
+For example, to get the correct output from a Type B analysis with no aggregating, you can run 
 
 ```sh
 python test/simplifiedLikelihoods/convertSLRootToPython.py -O mymodel.py -s SLinput.root:shapes_prefit/total_signal  -b SLinput.root:shapes_prefit/total_M2 d -d SLinput.root:shapes_prefit/total_data -c SLinput.root:shapes_prefit/total_M2
 ```
 
-The output will be a python file with the right format for the SL tool. You can mix different ROOT files for these inputs. Note that the SLtools package also has some tools to covert `.yaml` based inputs into the python config for you.
+The output will be a python file with the right format for the SL tool. You can mix different ROOT files for these inputs. Note that the `SLtools` package also has some tools to covert `.yaml`-based inputs into the python config for you.
 
 ### Run a likelihood scan with the SL 
 
@@ -149,7 +149,7 @@ plt.plot(mus,tmus1)
 plt.show()
 ```
 
-Where, the `mymodel.py` config is a simple python file defined as;
+Where the `mymodel.py` config is a simple python file defined as;
 
    * `data` : A python array of observed data, one entry per bin.
    * `background` : A python array of expected background, one entry per bin.
@@ -178,26 +178,26 @@ covariance = array.array('d', [ 18774.2, -2866.97, -5807.3, -4460.52, -2777.25, 
 
 ## Example using tutorial datacard
 
-For this example, we'll use the tutorial datacard `data/tutorials/longexercise/datacard_part3.txt`. This datacard is of **Type B** since there are no control regions (all regions are signal regions). 
+For this example, we will use the tutorial datacard `data/tutorials/longexercise/datacard_part3.txt`. This datacard is of **Type B** since there are no control regions (all regions are signal regions). 
 
-First, we'll create the binary file (run `text2workspace`)
+First, we will create the binary file (run `text2workspace`)
 ```
 text2workspace.py --X-allow-no-signal --X-allow-no-background data/tutorials/longexercise/datacard_part3.txt  -m 200
 ```
 
-And next, we'll generate the covariance between the bins of the background model. 
+And next, we will generate the covariance between the bins of the background model. 
 ```
 combine data/tutorials/longexercise/datacard_part3.root -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 10000 --saveOverall --preFitValue 0   -n SimpleTH1 -m 200
 
 combine data/tutorials/longexercise/datacard_part3.root -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 1 --saveOverall --preFitValue 1   -n SimpleTH1_Signal1 -m 200
 ```
-We will also want to compare our scan to that from the full likelihood, which we can get as usual from combine. 
+We will also want to compare our scan to that from the full likelihood, which we can get as usual from <span style="font-variant:small-caps;">Combine</span>. 
 
 ```
 combine -M MultiDimFit data/tutorials/longexercise/datacard_part3.root --rMin -0.5 --rMax 2 --algo grid -n SimpleTH1 -m 200
 ```
 
-Next, since we don't plan to aggregate any of the bins, we'll follow the instructions for this and pick out the right covariance matrix.
+Next, since we do not plan to aggregate any of the bins, we will follow the instructions for this and pick out the right covariance matrix.
 
 ```
 python test/simplifiedLikelihoods/makeLHInputs.py -i fitDiagnosticsSimpleTH1.root -o SLinput.root 
@@ -205,7 +205,7 @@ python test/simplifiedLikelihoods/makeLHInputs.py -i fitDiagnosticsSimpleTH1.roo
 python test/simplifiedLikelihoods/makeLHInputs.py -i fitDiagnosticsSimpleTH1_Signal1.root -o SLinput_Signal1.root 
 ```
 
-We now have everything we need to provide the simplified likelihood inputs. E.G
+We now have everything we need to provide the simplified likelihood inputs:
 
 ```
 $ root -l SLinput.root
@@ -221,13 +221,13 @@ TFile**         SLinput.root
   KEY: TDirectoryFile   shapes_fit_s;1  shapes_fit_s
 ```
 
-We can convert this to a python module that we can use to run a scan with the SLtools package. Note, since we have a **Type B** datacard, we'll be using the *pre-fit* covariance matrix. Also, this means we want to take the signal from the file where the prefit value of `r` was 1. 
+We can convert this to a python module that we can use to run a scan with the `SLtools` package. Note, since we have a **Type B** datacard, we will be using the *pre-fit* covariance matrix. Also, this means we want to take the signal from the file where the prefit value of `r` was 1. 
 
 ```
 python test/simplifiedLikelihoods/convertSLRootToPython.py -O mymodel.py -s SLinput_Signal1.root:shapes_prefit/total_signal  -b SLinput.root:shapes_prefit/total_M1-d SLinput.root:shapes_prefit/total_data -c SLinput.root:shapes_prefit/total_M2
 ```
 
-Let's compare the profiled likelihood scans from our simplified likelihood (using the python file we just created) and from the full likelihood (that we created with combine.). For the former, we need to first checkout the SLtools package 
+We can compare the profiled likelihood scans from our simplified likelihood (using the python file we just created) and from the full likelihood (that we created with <span style="font-variant:small-caps;">Combine</span>.). For the former, we need to first checkout the `SLtools` package 
 
 ```
 git clone https://gitlab.cern.ch/SimplifiedLikelihood/SLtools.git
@@ -277,4 +277,4 @@ This will produce a figure like the one below.
 
 ![](SLexample.jpg)
 
-It is also possible to include the 3rd moment of each bin to improve the precision of the simplified likelihood [ [JHEP 64 2019](https://link.springer.com/article/10.1007/JHEP04(2019)064) ]. The necessary information is stored in the outputs from combine so you just need to include the option `-t SLinput.root:shapes_prefit/total_M3` in the options list for `convertSLRootToPython.py` to  include this in the model file. The 3rd moment information can be included in SLtools by using ` sl.SLParams(background, covariance, third_moment, obs=data, sig=signal)`
+It is also possible to include the third moment of each bin to improve the precision of the simplified likelihood [ [JHEP 64 2019](https://link.springer.com/article/10.1007/JHEP04(2019)064) ]. The necessary information is stored in the outputs from <span style="font-variant:small-caps;">Combine</span>, therefore you just need to include the option `-t SLinput.root:shapes_prefit/total_M3` in the options list for `convertSLRootToPython.py` to  include this in the model file. The third moment information can be included in `SLtools` by using ` sl.SLParams(background, covariance, third_moment, obs=data, sig=signal)`
