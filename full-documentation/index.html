@@ -216,7 +216,7 @@
         <li class="first-level active"><a href="#full-documentation">Full documentation</a></li>
             <li class="second-level"><a href="#common-options">Common options</a></li>
                 
-                <li class="third-level"><a href="#choice-of-the-prior-for-bayesian-methods">Choice of the prior for bayesian methods</a></li>
+                <li class="third-level"><a href="#choice-of-the-prior-for-bayesian-methods">Choice of the prior for Bayesian methods</a></li>
             <li class="second-level"><a href="#algorithm-specific-options">Algorithm-specific options</a></li>
                 
                 <li class="third-level"><a href="#profilelikelihood-algorithm">ProfileLikelihood algorithm</a></li>
@@ -243,8 +243,8 @@
 
 <h2 id="full-documentation">Full documentation</h2>
 <h3 id="common-options">Common options</h3>
-<h4 id="choice-of-the-prior-for-bayesian-methods">Choice of the prior for bayesian methods</h4>
-<p>For methods based on bayesian inference (BayesianSimple, MarkovChainMC) you can specify a prior for the signal strength. This is controlled through option <strong><code>--prior</code></strong>, and the values that are currently allowed are:</p>
+<h4 id="choice-of-the-prior-for-bayesian-methods">Choice of the prior for Bayesian methods</h4>
+<p>For methods based on Bayesian inference (BayesianSimple, MarkovChainMC) you can specify a prior for the signal strength. This is controlled through option <strong><code>--prior</code></strong>, and the values that are currently allowed are:</p>
 <ul>
 <li><strong>uniform</strong>: flat prior</li>
 <li><strong>1/sqrt(r)</strong>: prior proportional to <em>1/sqrt(r)</em>, where <em>r</em> is the signal strength; for a counting experiment with a single channel and no systematics, this is Jeffrey's prior.
@@ -288,7 +288,7 @@ The option <strong><code>--proposal</code></strong> controls the way new points 
 <p>#HybridNew</p>
 <h4 id="hybridnew-algorithm">HybridNew algorithm</h4>
 <p><strong>Type of limit</strong>
-By default, HybridNew computes hybrid bayesian-frequentist limits. If one specifies the command line option <strong><code>--freqentist</code></strong> then it will instead compute the fully frequentist limits.</p>
+By default, HybridNew computes hybrid Bayesian-frequentist limits. If one specifies the command line option <strong><code>--freqentist</code></strong> then it will instead compute the fully frequentist limits.</p>
 <p><strong>Rule</strong> (option <strong><code>--rule</code></strong>)
 The rule defines how the distribution of the test statistics is used to compute a limit. When using the <em>CL&lt;sub&gt;s+b&lt;/sub&gt;</em> rule the limit to the value of the signal strength for which 95% of the pseudo-experiments give a result more signal-like than the current one, &lt;nobr&gt;<em>P(x &lt; x&lt;sub&gt;obs&lt;/sub&gt;|r*s+b) = 1 - CL</em>&lt;/nobr&gt;. For the more conservative <em>CL&lt;sub&gt;s&lt;/sub&gt;</em> rule, the limit is set by the condition &lt;nobr&gt;<em>P(x &lt; x&lt;sub&gt;obs&lt;/sub&gt;|r*s+b) /P(x &lt; x&lt;sub&gt;obs&lt;/sub&gt;|b) = 1 - CL</em>&lt;/nobr&gt; .
 <strong>The default rule is <em>CL&lt;sub&gt;s&lt;/sub&gt;</em></strong>.</p>
@@ -300,7 +300,7 @@ The <strong>test statistics</strong> is the measure of how signal-like or backgr
 <li><strong>Profile Likelihood modified for upper limits</strong> (option value <strong><code>LHC</code></strong> or <strong><code>MPL</code></strong>): The LHC-like (or Atlas-like) profiled likelihood in which the maximization of the likelihood is done also in the signal strength (<em>max&lt;sub&gt;θ&lt;/sub&gt; L(x|r*s+b,θ) / max&lt;sub&gt;r', θ&lt;/sub&gt; L(x|r'*s+b,θ)</em> ), with the constraints <em>0 ≤ r' ≤ r</em> where the upper bound is applied to force the method to always give an upper limit and not a two-sided interval.</li>
 <li><strong>Profile Likelihood (not modified for upper limits)</strong> (option value <strong><code>PL</code></strong>): The traditional profiled likelihood in which the maximization of the likelihood is done also in the signal strength (<em>max&lt;sub&gt;θ&lt;/sub&gt;L(x|r*s+b,θ) / max&lt;sub&gt;r', θ&lt;/sub&gt;L(x|x|r'*s+b,θ)</em> ), with just the physical constraints <em>0 ≤ r'</em> This test statistics can give two-sided limits, as it starts decreasing when the number of observed events is above the expectations from the signal+background hypothesis.</li>
 </ul>
-<p>The default value when computing hybrid bayesian-frequentist limits is <strong><code>LEP</code></strong>. The default value when computing frequentist limits is <strong><code>LHC</code></strong>.</p>
+<p>The default value when computing hybrid Bayesian-frequentist limits is <strong><code>LEP</code></strong>. The default value when computing frequentist limits is <strong><code>LHC</code></strong>.</p>
 <p><strong>Accuracy</strong>
 The search for the limit is performed using an adaptive algorithm, terminating when the estimate of the limit value is below some limit or when the precision cannot be futher improved with the specified options. The options controlling this behaviour are:</p>
 <ul>
