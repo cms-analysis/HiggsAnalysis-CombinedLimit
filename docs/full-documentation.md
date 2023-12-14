@@ -3,9 +3,9 @@ Full documentation
 
 ### Common options
 
-#### Choice of the prior for bayesian methods
+#### Choice of the prior for Bayesian methods
 
-For methods based on bayesian inference (BayesianSimple, MarkovChainMC) you can specify a prior for the signal strength. This is controlled through option **`--prior`**, and the values that are currently allowed are:
+For methods based on Bayesian inference (BayesianSimple, MarkovChainMC) you can specify a prior for the signal strength. This is controlled through option **`--prior`**, and the values that are currently allowed are:
 
 -   **uniform**: flat prior
 -   **1/sqrt(r)**: prior proportional to *1/sqrt(r)*, where *r* is the signal strength; for a counting experiment with a single channel and no systematics, this is Jeffrey's prior.
@@ -63,7 +63,7 @@ If you believe there's something going wrong, e.g. if your chain remains stuck a
 #### HybridNew algorithm
 
 **Type of limit**
-By default, HybridNew computes hybrid bayesian-frequentist limits. If one specifies the command line option **`--freqentist`** then it will instead compute the fully frequentist limits.
+By default, HybridNew computes hybrid Bayesian-frequentist limits. If one specifies the command line option **`--freqentist`** then it will instead compute the fully frequentist limits.
 
 **Rule** (option **`--rule`**)
 The rule defines how the distribution of the test statistics is used to compute a limit. When using the *CL&lt;sub&gt;s+b&lt;/sub&gt;* rule the limit to the value of the signal strength for which 95% of the pseudo-experiments give a result more signal-like than the current one, &lt;nobr&gt;*P(x &lt; x&lt;sub&gt;obs&lt;/sub&gt;|r\*s+b) = 1 - CL*&lt;/nobr&gt;. For the more conservative *CL&lt;sub&gt;s&lt;/sub&gt;* rule, the limit is set by the condition &lt;nobr&gt;*P(x &lt; x&lt;sub&gt;obs&lt;/sub&gt;|r\*s+b) /P(x &lt; x&lt;sub&gt;obs&lt;/sub&gt;|b) = 1 - CL*&lt;/nobr&gt; .
@@ -77,7 +77,7 @@ The **test statistics** is the measure of how signal-like or background-like is 
 -   **Profile Likelihood modified for upper limits** (option value **`LHC`** or **`MPL`**): The LHC-like (or Atlas-like) profiled likelihood in which the maximization of the likelihood is done also in the signal strength (*max&lt;sub&gt;θ&lt;/sub&gt; L(x|r\*s+b,θ) / max&lt;sub&gt;r', θ&lt;/sub&gt; L(x|r'\*s+b,θ)* ), with the constraints *0 ≤ r' ≤ r* where the upper bound is applied to force the method to always give an upper limit and not a two-sided interval.
 -   **Profile Likelihood (not modified for upper limits)** (option value **`PL`**): The traditional profiled likelihood in which the maximization of the likelihood is done also in the signal strength (*max&lt;sub&gt;θ&lt;/sub&gt;L(x|r\*s+b,θ) / max&lt;sub&gt;r', θ&lt;/sub&gt;L(x|x|r'\*s+b,θ)* ), with just the physical constraints *0 ≤ r'* This test statistics can give two-sided limits, as it starts decreasing when the number of observed events is above the expectations from the signal+background hypothesis.
 
-The default value when computing hybrid bayesian-frequentist limits is **`LEP`**. The default value when computing frequentist limits is **`LHC`**.
+The default value when computing hybrid Bayesian-frequentist limits is **`LEP`**. The default value when computing frequentist limits is **`LHC`**.
 
 **Accuracy**
 The search for the limit is performed using an adaptive algorithm, terminating when the estimate of the limit value is below some limit or when the precision cannot be futher improved with the specified options. The options controlling this behaviour are:

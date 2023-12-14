@@ -120,7 +120,10 @@ public:
           }
           return *this;
         }
-        virtual FastTemplate_t<T> & operator=(const TH1 &other) {
+        virtual FastTemplate_t & operator=(const TH1 &other) {
+          if(other.GetDimension() != 1) {
+             throw std::invalid_argument("FastTemplate_t assignment error: right hand histogram must be 1-dimensional");
+          }
           if ((int)size() != other.GetNbinsX()) {
             size_ = (unsigned int)other.GetNbinsX();
             values_.resize(size_);
@@ -200,7 +203,7 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        ~FastHisto_t<T,U>(){}
+        ~FastHisto_t(){}
 };
 template <typename T, typename U=Double_t> class FastHisto2D_t : public FastTemplate_t<T> {
 private:
@@ -278,9 +281,12 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        FastHisto2D_t<T,U>& operator=(const TH2 &other) {
-          if (GetNbinsX() != other.GetNbinsX() || GetNbinsY() != other.GetNbinsY()) {
-            FastHisto2D_t<T,U> fh(other);
+        FastHisto2D_t& operator=(const TH1 &other) {
+          if(other.GetDimension() != 2) {
+             throw std::invalid_argument("FastHisto2D_t assignment error: right hand histogram must be 2-dimensional");
+          }
+          if (int(GetNbinsX()) != other.GetNbinsX() || int(GetNbinsY()) != other.GetNbinsY()) {
+            FastHisto2D_t<T,U> fh(static_cast<TH2 const&>(other));
             swap(fh);
           }
           else this->CopyValues(other);
@@ -374,9 +380,12 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        FastHisto3D_t<T,U>& operator=(const TH3 &other) {
-          if (GetNbinsX() != other.GetNbinsX() || GetNbinsY() != other.GetNbinsY() || GetNbinsZ() != other.GetNbinsZ()) {
-            FastHisto3D_t<T,U> fh(other);
+        FastHisto3D_t<T,U>& operator=(const TH1 &other) {
+          if(other.GetDimension() != 3) {
+             throw std::invalid_argument("FastHisto3D_t assignment error: right hand histogram must be 3-dimensional");
+          }
+          if (int(GetNbinsX()) != other.GetNbinsX() || int(GetNbinsY()) != other.GetNbinsY() || int(GetNbinsZ()) != other.GetNbinsZ()) {
+            FastHisto3D_t<T,U> fh(static_cast<TH3 const&>(other));
             swap(fh);
           }
           else this->CopyValues(other);
