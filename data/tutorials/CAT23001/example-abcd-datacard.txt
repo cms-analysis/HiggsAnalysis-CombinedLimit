@@ -1,6 +1,6 @@
-imax 4  number of channels
-jmax 1  number of processes -1
-kmax *  number of nuisance parameters (sources of systematical uncertainties)
+imax 4 
+jmax 1 
+kmax * 
 # -------
 bin         B      C      D      A
 observation 50    100     500    16
