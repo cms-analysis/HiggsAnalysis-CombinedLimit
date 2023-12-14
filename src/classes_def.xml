@@ -36,7 +36,6 @@
         <class name="std::map<std::vector<RooAbsReal*>, double>" />
 
 	<class name="AsymPow" />
-	<class name="AsymQuad" />
 
 	<class name="FastTemplate" />
 	<class name="FastHisto" />
@@ -88,13 +87,6 @@
 	<class name="HZZ4L_RooSpinZeroPdf_phase_fast" />
 	<class name="VVHZZ4L_RooSpinZeroPdf_1D_fast" />
 
-	<class name="RooPiecewisePolynomial" />
-
-	<class name="RooNCSplineCore" />
-	<class name="RooNCSpline_1D_fast" />
-	<class name="RooNCSpline_2D_fast" />
-	<class name="RooNCSpline_3D_fast" />
-	<class name="RooFuncPdf" />
 
 	<class name="ProcessNormalization" />
 	<class name="Roo2ExpPdf" />
@@ -154,7 +146,6 @@
 	<class name="RooPowerFunction" />
 	<class name="RooPowerLaw" />
 	<class name="RooQCDPdf" />
-	<class name="RooRealFlooredSumPdf" />
 	<class name="RooRelBW" />
 	<class name="RooRelBW1" />
 	<class name="RooRelBWHighMass" />
