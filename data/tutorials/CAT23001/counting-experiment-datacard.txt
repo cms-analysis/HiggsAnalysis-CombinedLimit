@@ -1,0 +1,15 @@
+imax 1
+jmax 2
+kmax 3
+# A single channel - ch1 - in which 0 events are observed in data
+bin            ch1
+observation    0
+# ----------
+bin            ch1   ch1   ch1
+process        ppX   WW    tt
+process        0     1     2     
+rate           1.47  0.64  0.22
+# ----------
+lumi    lnN    1.11  1.11   1.11
+xs      lnN    1.20    -     - 
+nWW     gmN 4    -   0.16    - 
