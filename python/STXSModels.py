@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 
 import fnmatch
 import json
+import re
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
@@ -29,7 +30,7 @@ CMS_to_LHCHCG_DecSimple = {
     "hcc": "cc",
     "htt": "tautau",
     "hmm": "mumu",
-    "hzg": "gamgam",
+    "hzg": "Zgam",
     "hgluglu": "gluglu",
     "hinv": "inv",
 }
@@ -82,6 +83,7 @@ class STXSBaseModel(PhysicsModel):
         self.denominator = denominator
         self.mergeBins = False
         self.mergeJson = ""
+        self.addStage0 = False
 
     def preProcessNuisances(self, nuisances):
         # add here any pre-processed nuisances such as constraint terms for the mass profiling?
@@ -101,6 +103,9 @@ class STXSBaseModel(PhysicsModel):
             if po.startswith("mergejson="):
                 self.mergeBins = True
                 self.mergeJson = po.replace("mergejson=", "")
+            if po.startswith("addStage0="):
+                self.addStage0 = po.replace("addStage0=", "") in ["yes", "1", "Yes", "True", "true"]
+
 
     def doMH(self):
         if self.floatMass:
@@ -217,7 +222,6 @@ class StageOnePTwo(STXSBaseModel):
         STXSBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
         self.POIs = "mu"
         from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
-
         self.stage1_2_fine_procs = stage1_2_fine_procs
         self.PROCESSES = [x for v in six.itervalues(stage1_2_procs) for x in v]
         self.FINEPROCESSES = [x for v in six.itervalues(stage1_2_fine_procs) for x in v]
@@ -239,6 +243,14 @@ class StageOnePTwo(STXSBaseModel):
                 self.mergeSchemes = json.load(f)
                 self.modelBuilder.stringout = json.dumps(self.mergeSchemes)
             f.close()
+
+        # Add stage 0 processes
+        if self.addStage0:
+            from HiggsAnalysis.CombinedLimit.STXS import stage0_procs
+            PROCESSES_STAGE0 = [x for v in six.itervalues(stage0_procs) for x in v]
+            for proc_stage0 in PROCESSES_STAGE0:
+                if proc_stage0 not in self.PROCESSES: self.PROCESSES.append(proc_stage0)
+
 
         allProds = []
         for registered_proc in self.PROCESSES:
@@ -314,6 +326,10 @@ class StageOnePTwo(STXSBaseModel):
                 self.modelBuilder.out.function("scaling_%s_%s_13TeV" % (P, D)).Print("")
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
+        # Catch for H->Zgam: taken from STXStoSMEFT model
+        if (decay == "Zgam") | ("bkg" in production):
+            production = production.split("_")[0]
+
         for regproc in self.PROCESSES:
             if fnmatch.fnmatch(production, regproc):
                 return "scaling_%s_%s_%s" % (regproc, decay, energy)
