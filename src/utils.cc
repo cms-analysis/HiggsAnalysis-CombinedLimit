@@ -387,7 +387,8 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
         }
     }
     ;
-    for (RooAbsArg *a : *std::unique_ptr<RooArgSet>{pdf->getParameters(*model.GetObservables())}) {
+    std::unique_ptr<RooArgSet> params{pdf->getParameters(*model.GetObservables())};
+    for (RooAbsArg *a : *params) {
         if (a->getAttribute("flatParam") && a->isConstant()) {
             ok = false; errors << "ERROR: parameter " << a->GetName() << " is declared as flatParam but is constant.\n";
         }
