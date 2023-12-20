@@ -151,8 +151,8 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
               break;
       }
 
-      ;
-      for (RooAbsArg *a : *std::unique_ptr<RooArgSet>{mc_s->GetPdf()->getParameters(data)}) {
+      std::unique_ptr<RooArgSet> params{mc_s->GetPdf()->getParameters(data)};
+      for (RooAbsArg *a : *params) {
           RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
           if (rrv == 0 || rrv->isConstant()) continue;
           if (profileMode_ == ProfileUnconstrained && mc_s->GetNuisanceParameters()->find(*rrv) != 0) {

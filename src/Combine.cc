@@ -973,7 +973,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	    // print the values of the parameters used to generate the toy
 	    if (verbose > 2) {
 	      CombineLogger::instance().log("Combine.cc",__LINE__, "Generate Asimov toy from parameter values ... ",__func__);
-              for (RooAbsArg *a : *std::unique_ptr<RooArgSet>{genPdf->getParameters((const RooArgSet*)0)}) {
+              std::unique_ptr<RooArgSet> params{genPdf->getParameters((const RooArgSet*)0)};
+              for (RooAbsArg *a : *params) {
 	  	    TString varstring = utils::printRooArgAsString(a);
 	  	    CombineLogger::instance().log("Combine.cc",__LINE__,varstring.Data(),__func__);
 	      }
@@ -1069,7 +1070,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (verbose > 2) {
 	  CombineLogger::instance().log("Combine.cc",__LINE__, std::string(Form("Generating toy %d/%d, from parameter values ... ",iToy,nToys)),__func__);
-    for (RooAbsArg *a : *std::unique_ptr<RooArgSet>{genPdf->getParameters((const RooArgSet*)0)}) {
+    std::unique_ptr<RooArgSet> params{genPdf->getParameters((const RooArgSet*)0)};
+    for (RooAbsArg *a : *params) {
 	  	TString varstring = utils::printRooArgAsString(a);
 	  	CombineLogger::instance().log("Combine.cc" ,__LINE__,varstring.Data(),__func__);
 	  }

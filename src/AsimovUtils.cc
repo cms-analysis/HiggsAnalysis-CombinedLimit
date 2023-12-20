@@ -20,7 +20,8 @@ RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double 
 
 	if (verbose>2) {
 	    CombineLogger::instance().log("AsimovUtils.cc",__LINE__,"Parameters after fit for asimov dataset",__func__);
-    	    for (RooAbsArg *a : *std::unique_ptr<RooArgSet>{mc->GetPdf()->getParameters((const RooArgSet*) 0)}) {
+    	    std::unique_ptr<RooArgSet> params{mc->GetPdf()->getParameters((const RooArgSet*) 0)};
+    	    for (RooAbsArg *a : *params) {
 	  	TString varstring = utils::printRooArgAsString(a);
 	  	CombineLogger::instance().log("AsimovUtils.cc",__LINE__,std::string(Form("%s",varstring.Data())),__func__);
 	    }
@@ -64,7 +65,8 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
 
 	if (verbose>2) { 
 	    CombineLogger::instance().log("AsimovUtils.cc",__LINE__,"Parameters after fit for asimov dataset",__func__);
-            for (RooAbsArg *a : *std::unique_ptr<RooArgSet>{mc->GetPdf()->getParameters(realdata)}) {
+            std::unique_ptr<RooArgSet> params{mc->GetPdf()->getParameters(realdata)};
+            for (RooAbsArg *a : *params) {
 	  	TString varstring = utils::printRooArgAsString(a);
 	  	CombineLogger::instance().log("AsimovUtils.cc",__LINE__,std::string(Form("%s",varstring.Data())),__func__);
 	    }
