@@ -43,7 +43,13 @@
 
 using namespace std;
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,28,0)
+
 // This is needed to be able to factorize products in factorizeFunc, since RooProduct::components() strips duplicates
+//
+// Note: since ROOT 6.28.00, this workaround is not necessary more, because
+// there is direct public access to the _compRSet via
+// RooProduct::realComponents().
 namespace {
     class RooProductWithAccessors : public RooProduct {
         public:
@@ -60,6 +66,12 @@ namespace {
             }
     };
 }
+
+RooArgList utils::factors(const RooProduct &prod) {
+    return ::RooProductWithAccessors(prod).realTerms();
+}
+
+#endif
 
 void utils::printRDH(RooAbsData *data) {
   std::vector<std::string> varnames, catnames;
@@ -224,9 +236,6 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
 }
 
 
-RooArgList utils::factors(const RooProduct &prod) {
-    return ::RooProductWithAccessors(prod).realTerms();
-}
 void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArgList &obsTerms, RooArgList &constraints, bool keepDuplicate, bool debug) {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(&func);
     if (pdf != 0) { 
@@ -236,7 +245,11 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
     const std::type_info & id = typeid(func);
     if (id == typeid(RooProduct)) {
         RooProduct *prod = dynamic_cast<RooProduct *>(&func);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,28,0)
         RooArgList components(utils::factors(*prod));
+#else
+        RooArgList components(prod->realComponents());
+#endif
         //std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
         std::unique_ptr<TIterator> iter(components.createIterator());
         for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
