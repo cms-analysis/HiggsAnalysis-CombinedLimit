@@ -28,7 +28,6 @@ protected:
 //  RooRealProxy ksmd ;
   RooRealProxy fai ;
   RooListProxy _coefList ;  //  List of funcficients
-  TIterator* _coefIter ;    //! Iterator over funcficient lis
   Double_t evaluate() const ;
 public:
   HZZ4L_RooSpinZeroPdf_1D() {} ; 

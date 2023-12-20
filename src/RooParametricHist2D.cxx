@@ -33,29 +33,13 @@ RooParametricHist2D::RooParametricHist2D( const char *name,
     pars("pars","pars",this)
     //SM_shape("SM_shape","SM_shape",this,_SM_shape),
 { 
-    // std::cout << "Constructing..." << std::endl;
-    // std::cout << "_pars size... " << _pars.getSize() << std::endl;
-    // std::cout << "_pars type... " << typeid(_pars.first()).name() << std::endl;
-
-    TIterator *varIter=_pars.createIterator(); 
-    RooAbsReal *fVar;
-    while ( (fVar = (RooAbsReal*)varIter->Next()) ){
-        // std::cout << "fVar type... " << typeid(fVar).name() << std::endl;
-        // std::cout << "*fVar type... " << typeid(*fVar).name() << std::endl;
-
-        pars.add(*fVar);
-    }
-
-    // std::cout << "Constructed..." << std::endl;
-    // std::cout << "pars size... " << pars.getSize() << std::endl;
-    // std::cout << "pars type... " << typeid(pars.first()).name() << std::endl;
+    pars.add(_pars);
 
     if ( pars.getSize() != _shape.GetNbinsY()*_shape.GetNbinsX() ){
         std::cout << " Warning, number of parameters not equal to number of bins in shape histogram! " << std::endl;
     }
     
     initializeBins(_shape);
-    // std::cout << "Bins initialized" << std::endl;
     
 //  initializeNorm();
     cval = -1; 
@@ -75,20 +59,7 @@ RooParametricHist2D::RooParametricHist2D( const RooParametricHist2D& other,
     N_bins_y = other.N_bins_y;
     //sum    = other.sum;
 
-    // std::cout << "Clone _pars size... " << other.pars.getSize() << std::endl;
-    // std::cout << "Clone other.pars.first() type... " << typeid(other.pars.first()).name() << std::endl;
-    // std::cout << "Clone *other.pars.first() type... " << typeid(*other.pars.first()).name() << std::endl;
-    // std::cout << "Clone &other.pars.first() type... " << typeid(&other.pars.first()).name() << std::endl;
-
-
-    TIterator *varIter=other.pars.createIterator(); 
-    RooAbsReal *fVar;
-    // std::cout << "Check 1" << std::endl;
-    while ( (fVar = (RooAbsReal*)varIter->Next()) ){
-        // std::cout << fVar->GetName() << ": " << typeid(&fVar).name() << std::endl;
-        pars.add(*fVar);
-    }
-    // std::cout << "Check 2" << std::endl;
+    pars.add(other.pars);
 
     for(int i=0; i<=N_bins_x; ++i) {
         bins_x.push_back(other.bins_x[i]);
@@ -136,13 +107,10 @@ void RooParametricHist2D::initializeBins(const TH2 &shape) const {
 }
 
 double RooParametricHist2D::getFullSum() const {
-    //std::cout << "Getting full sum" << std::endl;
     double sum=0;
 
-    TIterator *varIter=pars.createIterator(); 
-    RooAbsReal *fVar;
-    while ( (fVar = (RooAbsReal*)varIter->Next()) ){
-        sum+=fVar->getVal();
+    for (RooAbsArg *arg : pars) {
+        sum += static_cast<RooAbsReal*>(arg)->getVal();
     }
 
     return sum;

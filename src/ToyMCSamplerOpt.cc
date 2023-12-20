@@ -145,8 +145,7 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double w
     if (boostAPA>0) {  // trigger adaptive PA (setting boostAPA=1 will just use internal logic)
         if ( verbose > 0 ) CombineLogger::instance().log("ToyMCSamplerOpt.cc",__LINE__, "Using internal logic for binned/unbinned Asimov dataset generation",__func__);
         int nbins = 1;
-        RooLinkedListIter iter = observables_.iterator(); 
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+        for (RooAbsArg *a : observables_) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a); 
             int mybins = rrv->getBins();
             nbins *= (mybins ? mybins : 100);
@@ -283,8 +282,7 @@ toymcoptutils::SinglePdfGenInfo::generateCountingAsimov()
 void
 toymcoptutils::SinglePdfGenInfo::setToExpected(RooProdPdf &prod, RooArgSet &obs) 
 {
-    std::unique_ptr<TIterator> iter(prod.pdfList().createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg *a : prod.pdfList()) {
         if (!a->dependsOn(obs)) continue;
         RooPoisson *pois = 0;
         if ((pois = dynamic_cast<RooPoisson *>(a)) != 0) {
@@ -302,8 +300,7 @@ toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs)
 {
     RooRealVar *myobs = 0;
     RooAbsReal *myexp = 0;
-    std::unique_ptr<TIterator> iter(pois.serverIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg *a : pois.servers()) {
         if (obs.contains(*a)) {
             assert(myobs == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two observables??");
             myobs = dynamic_cast<RooRealVar *>(a);

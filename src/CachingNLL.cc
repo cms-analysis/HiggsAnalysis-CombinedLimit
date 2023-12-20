@@ -117,10 +117,7 @@ namespace { unsigned long CachingSimNLLEvalCount = 0; }
 
 cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection &set) 
 {
-    std::unique_ptr<TIterator> iter(set.createIterator());
-    for (RooAbsArg *a  = dynamic_cast<RooAbsArg *>(iter->Next()); 
-                    a != 0; 
-                    a  = dynamic_cast<RooAbsArg *>(iter->Next())) {
+    for (RooAbsArg *a : set) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv) { // && !rrv->isConstant()) { 
             vars_.push_back(rrv);
@@ -375,10 +372,9 @@ cacheutils::ReminderSum::ReminderSum(const char *name, const char *title, const 
     RooAbsReal(name,title),
     list_("deps","",this)
 {
-    RooLinkedListIter iter(sumSet.iterator());
-    for (RooAbsReal *rar = (RooAbsReal *) iter.Next(); rar != 0; rar = (RooAbsReal *) iter.Next()) {
+    for (RooAbsArg * rar : sumSet) {
         list_.add(*rar);
-        terms_.push_back(rar);
+        terms_.push_back(static_cast<RooAbsReal*>(rar));
     }
 }
 Double_t cacheutils::ReminderSum::evaluate() const {
@@ -585,8 +581,7 @@ cacheutils::CachingAddNLL::setup_()
     }
 
     std::unique_ptr<RooArgSet> params(pdf_->getParameters(*data_));
-    std::unique_ptr<TIterator> iter(params->createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg *a : *params) {
         if (dynamic_cast<RooRealVar *>(a))  params_.add(*a);
         else if (dynamic_cast<RooCategory *>(a)) catParams_.add(*a);
     }
@@ -1309,8 +1304,7 @@ void cacheutils::CachingSimNLL::setMaskNonDiscreteChannels(bool mask) {
         unsigned int idx = 0;
         for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
             if ((*it) == 0) continue;
-            RooLinkedListIter iter = (*it)->catParams().iterator();
-            for (RooAbsArg *P = (RooAbsArg *) iter.Next(); P != 0; P = (RooAbsArg *) iter.Next()) {
+            for (RooAbsArg *P : (*it)->catParams()) {
                 RooCategory *cat = dynamic_cast<RooCategory *>(P);
                 if (!cat) continue;
                 if (cat && !cat->isConstant()) {

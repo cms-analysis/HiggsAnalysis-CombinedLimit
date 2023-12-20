@@ -31,8 +31,7 @@ RooSimultaneousOpt::addExtraConstraints(const RooAbsCollection &pdfs)
         _extraConstraints.add(pdfs);
     } else {
         // slow
-        RooLinkedListIter iter = pdfs.iterator();
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+        for (RooAbsArg *a : pdfs) {
             if (!_extraConstraints.contains(*a)) _extraConstraints.add(*a);
         }
     }

@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/RooEFTScalingFunction.h"
+#include "../interface/RooEFTScalingFunction.h"
 
 ClassImp(RooEFTScalingFunction)
 
@@ -10,8 +10,7 @@ RooEFTScalingFunction::RooEFTScalingFunction(const char *name, const char *title
 {
 
     // Add Wilson coefficients to terms_ container
-    RooFIter iter = terms.fwdIterator();
-    for( RooAbsArg *a = iter.next(); a != 0; a = iter.next()) {
+    for (RooAbsArg *a : terms) {
         RooAbsReal *rar = dynamic_cast<RooAbsReal *>(a);
         if (!rar) {
             throw std::invalid_argument(std::string("Term ")+a->GetName()+" of RooEFTScalingFunction is a "+a->ClassName());

@@ -10,9 +10,7 @@ SimpleProdPdf::SimpleProdPdf() : RooAbsPdf() {}
 
 SimpleProdPdf::SimpleProdPdf(const char* name, const char* title, RooArgList const& pdfList)
     : RooAbsPdf(name, title), _pdfList("!pdfs", "List of PDFs", this) {
-  RooFIter iter = pdfList.fwdIterator();
-  RooAbsArg* arg;
-  while ((arg = (RooAbsArg*)iter.next())) {
+  for (RooAbsArg *arg : pdfList) {
     RooAbsPdf* pdf = dynamic_cast<RooAbsPdf*>(arg);
     if (!pdf) {
       coutW(InputArguments) << "SimpleProdPdf::SimpleProdPdf(" << GetName() << ") list arg "
@@ -27,10 +25,8 @@ SimpleProdPdf::SimpleProdPdf(const char* name, const char* title, RooArgList con
 SimpleProdPdf::SimpleProdPdf(const char* name, const char* title, RooArgList& pdfList,
                              std::vector<int> const& pdfSettings)
     : RooAbsPdf(name, title), _pdfList("!pdfs", "List of PDFs", this) {
-  RooFIter iter = pdfList.fwdIterator();
-  RooAbsArg* arg;
   int iSetting = -1;
-  while ((arg = (RooAbsArg*)iter.next())) {
+  for (RooAbsArg *arg : pdfList) {
     ++iSetting;
     RooAbsPdf* pdf = dynamic_cast<RooAbsPdf*>(arg);
     if (!pdf) {
@@ -130,10 +126,8 @@ void SimpleProdPdf::printMetaArgs(std::ostream& os) const
 
 std::list<Double_t>* SimpleProdPdf::binBoundaries(RooAbsRealLValue& obs, Double_t xlo,
                                                   Double_t xhi) const {
-  RooAbsPdf* pdf;
-  RooFIter pdfIter = _pdfList.fwdIterator();
-  while ((pdf = (RooAbsPdf*)pdfIter.next())) {
-    std::list<Double_t>* hint = pdf->binBoundaries(obs, xlo, xhi);
+  for (RooAbsArg *pdf : _pdfList) {
+    std::list<Double_t>* hint = static_cast<RooAbsPdf*>(pdf)->binBoundaries(obs, xlo, xhi);
     if (hint) {
       return hint;
     }

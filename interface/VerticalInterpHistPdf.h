@@ -41,8 +41,6 @@ protected:
   RooListProxy _coefList ;  //  List of coefficients
   Double_t     _smoothRegion;
   Int_t        _smoothAlgo;
-  TIterator* _funcIter ;     //! Iterator over FUNC list
-  TIterator* _coefIter ;    //! Iterator over coefficient list
 
   // TH1 containing the histogram of this pdf
   mutable SimpleCacheSentry _sentry; // !not to be serialized
@@ -93,8 +91,6 @@ protected:
   RooListProxy _coefList ;  //  List of coefficients
   Double_t     _smoothRegion;
   Int_t        _smoothAlgo;
-  TIterator* _funcIter ;     //! Iterator over FUNC list
-  TIterator* _coefIter ;    //! Iterator over coefficient list
 
   // TH1 containing the histogram of this pdf
   mutable bool              _init; //! not to be serialized
