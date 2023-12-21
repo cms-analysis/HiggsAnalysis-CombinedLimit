@@ -273,7 +273,7 @@ void HybridNew::setupPOI(RooStats::ModelConfig *mc_s) {
 }
 
 bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-    RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
+    RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::FATAL : RooFit::DEBUG);
 
     //double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
     //std::string minimizerAlgo_  = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();

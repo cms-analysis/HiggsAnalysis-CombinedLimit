@@ -1031,12 +1031,12 @@ cacheutils::CachingSimNLL::setup_()
         }
     }   
 
-    std::cout << "SimNLL created with " << nchannels << " channels, " <<
-                 constrainPdfs_.size() << " generic constraints, " << 
-                 constrainPdfsFast_.size() << " fast gaussian constraints, " << 
-                 constrainPdfsFastPoisson_.size() << " fast poisson constraints, " << 
-                 constrainPdfGroups_.size() << " fast group constraints, " << 
-                 std::endl;
+     
+    if (verb) {
+            CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form(
+	    "SimNLL created with %d channels, %d generic constraints, %d fast gaussian constraints, %d fast poisson constraints, %d fast group constraints.",
+	    (int)nchannels, (int)constrainPdfs_.size(),(int)constrainPdfsFast_.size(),(int)constrainPdfsFastPoisson_.size(),(int)constrainPdfGroups_.size())),__func__);
+    }
     setValueDirty();
 }
 
