@@ -13,6 +13,6 @@ process         0          1
 rate            24         100
 # --------------------------------
 lumi     lnN    1.1       1.0
-bgnorm   lnN    1.0       1.3
+bgnorm   lnN    -         1.3
 alpha  shape    -          1   # uncertainty on background shape and normalization.
 sigma  shape    0.5        -   # uncertainty on signal shape. 
