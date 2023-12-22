@@ -159,7 +159,7 @@ for chan in chan_procs.keys():
         if skipProc:
             continue
         print("---------------------------------------------------------------------------")
-        print("  Top-level normalisation for process %s -> %s" % (proc[0], proc[1].GetName()))
+        print("  Top-level normalization for process %s -> %s" % (proc[0], proc[1].GetName()))
         print("  -------------------------------------------------------------------------")
         if options.use_cms_histsum:
             if chan in chan_CMSHistSum_norms:

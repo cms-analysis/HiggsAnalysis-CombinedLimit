@@ -48,5 +48,5 @@ void hypoTestResultTree(TString fOutName, double mass, double rValue=1.0, const 
     }
     tree->Write();
     fOut->Close();
-    std::cout << "Saved test statistics distributions for " << nS << " signal toys and " << nB << " background toys to " << fOutName << "." << std::endl;
+    std::cout << "Saved test statistic distributions for " << nS << " signal toys and " << nB << " background toys to " << fOutName << "." << std::endl;
 }

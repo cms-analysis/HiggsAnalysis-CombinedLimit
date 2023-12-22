@@ -819,7 +819,7 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
                string newline=line.substr(0,line.find(" = "));
                size_t pos1=line.find("=")+1, pos2=line.find(" +/- ");
                float value=std::atof(line.substr(pos1, pos2-pos1).c_str());
-               std::cout<<"->Obtainig value from:"<<pos1<<","<<pos2<<":"<<line.substr(pos1, pos2-pos1).c_str()<<std::endl;
+               std::cout<<"->Obtaining value from:"<<pos1<<","<<pos2<<":"<<line.substr(pos1, pos2-pos1).c_str()<<std::endl;
                size_t pos3=line.find(" ",pos2+5);
                float err = std::atof(line.substr(pos2+5,pos3-(pos2+5)).c_str());
                float mult=7; // arbitrary number
@@ -898,7 +898,7 @@ void utils::createSnapshotFromString( const std::string expression, const RooArg
             eqidx   = expression.find("=", colidx);
             colidx2 = expression.find(",", colidx+1);
             if (eqidx == std::string::npos || (colidx2 != std::string::npos && colidx2 < eqidx)) {
-                throw std::invalid_argument(std::string("Error: the argument to ")+context+" is not in the forms 'value' or 'name1=value1,name2=value2,...'\n");
+                throw std::invalid_argument(std::string("Error: the argument to ")+context+" is not in the form 'value' or 'name1=value1,name2=value2,...'\n");
             }
             std::string poiName = expression.substr(colidx, eqidx-colidx);
             std::string poiVal  = expression.substr(eqidx+1, (colidx2 == std::string::npos ? std::string::npos : colidx2 - eqidx - 1));

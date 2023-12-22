@@ -19,7 +19,7 @@ def addDatacardParserOptions(parser):
         dest="stat",
         default=False,
         action="store_true",
-        help="keep only statistical uncertainties, no systematics",
+        help="Keep only statistical uncertainties, no systematics",
     )
     parser.add_option(
         "-f",
@@ -27,7 +27,7 @@ def addDatacardParserOptions(parser):
         dest="fixpars",
         default=False,
         action="store_true",
-        help="fix all floating parameters of the pdfs except for the POI",
+        help="Fix all floating parameters of the pdfs except for the POI",
     )
     parser.add_option(
         "-c",
@@ -35,7 +35,7 @@ def addDatacardParserOptions(parser):
         dest="cexpr",
         default=False,
         action="store_true",
-        help="use compiled expressions (not suggested)",
+        help="Use compiled expressions (not suggested)",
     )
     parser.add_option(
         "-a",
@@ -43,7 +43,7 @@ def addDatacardParserOptions(parser):
         dest="bin",
         default=True,
         action="store_false",
-        help="produce a Workspace in a rootfile in an HLF file (legacy, unsupported)",
+        help="Produce a workspace in a rootfile in an HLF file (legacy, unsupported)",
     )
     parser.add_option(
         "-b",
@@ -51,7 +51,7 @@ def addDatacardParserOptions(parser):
         dest="bin",
         default=True,
         action="store_true",
-        help="produce a Workspace in a rootfile (default)",
+        help="Produce a workspace in a rootfile (default)",
     )
     parser.add_option(
         "-o",
@@ -59,7 +59,7 @@ def addDatacardParserOptions(parser):
         dest="out",
         default=None,
         type="string",
-        help="output file (if none, it will print to stdout). Required for binary mode.",
+        help="Output file (if none, it will print to stdout). Required for binary mode.",
     )
     parser.add_option(
         "-v",
@@ -75,7 +75,7 @@ def addDatacardParserOptions(parser):
         dest="mass",
         default=0,
         type="float",
-        help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.",
+        help="Mass to use. Will also be written in the workspace as RooRealVar 'MH'.",
     )
     parser.add_option(
         "--dataMapName",
@@ -106,7 +106,7 @@ def addDatacardParserOptions(parser):
         dest="poisson",
         default=0,
         type="int",
-        help="If set to a positive number, binned datasets wih more than this number of entries will be generated using poissonians",
+        help="If set to a positive number, binned datasets wih more than this number of entries will be generated using Poissonians",
     )
     parser.add_option(
         "--default-morphing",
@@ -345,7 +345,7 @@ def addRateParam(lsyst, f, ret):
 
 def parseCard(file, options):
     if isinstance(file, str):
-        raise RuntimeError("You should pass as argument to parseCards a file object, stream or a list of lines, not a string")
+        raise RuntimeError("Argument to parseCards should be a file object, stream or a list of lines, not a string")
     ret = Datacard()
 
     # resetting these here to defaults, parseCard will fill them up
@@ -453,7 +453,7 @@ def parseCard(file, options):
                     if ret.isSignal[p] == None:
                         ret.isSignal[p] = s
                     elif ret.isSignal[p] != s:
-                        raise RuntimeError("Process %s is declared as signal in some bin and as background in some other bin" % p)
+                        raise RuntimeError("Process %s is declared as signal in some bins and as background in other bins" % p)
                 ret.signals = [p for p, s in ret.isSignal.items() if s]
                 if len(ret.signals) == 0 and not options.allowNoSignal:
                     raise RuntimeError("You must have at least one signal process (id <= 0)")
@@ -603,7 +603,7 @@ def parseCard(file, options):
                         ret.groups[groupName].update(set(groupNuisances))
                     else:
                         raise RuntimeError(
-                            "Will not redefine group '%s'. It previously contained '%s' and you now wanted it to contain '%s'."
+                            "Will not redefine group '%s'. It previously contained '%s' and you now want it to contain '%s'."
                             % (groupName, ret.groups[groupName], groupNuisances)
                         )
 

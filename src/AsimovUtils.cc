@@ -92,7 +92,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
             if (prod == 0) throw std::runtime_error("AsimovUtils: the nuisance pdf is not a RooProdPdf!");
             for (RooAbsArg *a : prod->pdfList()) {
                 RooAbsPdf *cterm = dynamic_cast<RooAbsPdf *>(a); 
-                if (!cterm) throw std::logic_error("AsimovUtils: a factor of the nuisance pdf is not a Pdf!");
+                if (!cterm) throw std::logic_error("AsimovUtils: a factor of the nuisance pdf is not a pdf!");
                 if (!cterm->dependsOn(nuis)) continue; // dummy constraints
                 if (typeid(*cterm) == typeid(RooUniform)) continue;
                 std::unique_ptr<RooArgSet> cpars(cterm->getParameters(&gobs));
@@ -115,12 +115,12 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                     }
                 }
                 if (match == 0) {   
-                    std::cerr << "ERROR: AsimovUtils: can't find nuisance for constraint term " << cterm->GetName() << std::endl;
+                    std::cerr << "ERROR: AsimovUtils: can't find nuisance parameter for constraint term " << cterm->GetName() << std::endl;
                     std::cerr << "Parameters: " << std::endl;
                     cpars->Print("V");
                     std::cerr << "Observables: " << std::endl;
                     cgobs->Print("V");
-                    throw std::runtime_error(Form("AsimovUtils: can't find nuisance for constraint term %s", cterm->GetName()));
+                    throw std::runtime_error(Form("AsimovUtils: can't find nuisance parameter for constraint term %s", cterm->GetName()));
                 }
                 std::string pdfName(cterm->ClassName());
                 if (pdfName == "RooGaussian" || pdfName == "SimpleGaussianConstraint"  || pdfName == "RooBifurGauss" || pdfName == "RooPoisson"  || pdfName == "SimplePoissonConstraint" || pdfName == "RooGenericPdf") {

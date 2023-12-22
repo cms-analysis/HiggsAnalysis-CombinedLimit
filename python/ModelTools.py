@@ -574,7 +574,7 @@ class ModelBuilder(ModelBuilderBase):
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "constr":
-                print("-------------- WARNING, constrain found --> you are supposed to know what you are doing!")
+                print("-------------- WARNING, constraint found --> make sure that you know what you are doing!")
                 ## I want to construct this line
                 ## constr1_In[0.],RooFormulaVar::fconstr1("r_Bin0+r_Bin2-2*r_Bin1",{r_Bin0,r_Bin1,r_Bin2}),constr1_S[0.001000]
                 ##  Assuming args=
@@ -873,7 +873,7 @@ class ModelBuilder(ModelBuilderBase):
                     if not var:
                         var = self.out.cat(n)
                     if not var:
-                        raise RuntimeError('Nuisance group "%(groupName)s" refers to nuisance but it is not an independant parameter.' % locals())
+                        raise RuntimeError('Nuisance group "%(groupName)s" refers to nuisance but it is not an independent parameter.' % locals())
                     var.setAttribute("group_" + groupName, True)
 
         for groupName, nuisanceNames in six.iteritems(self.DC.groups):
@@ -907,7 +907,7 @@ class ModelBuilder(ModelBuilderBase):
                 elif type(scale) == str:
                     factors.append(scale)
                 else:
-                    raise RuntimeError("Physics model returned something which is neither a name, nor 0, nor 1.")
+                    raise RuntimeError("Physics model returned something that is neither a name, nor 0, nor 1.")
 
                 # look for rate param for this bin
                 if "%sAND%s" % (b, p) in list(self.DC.rateParams.keys()):
@@ -994,7 +994,7 @@ class ModelBuilder(ModelBuilderBase):
                                 )
                             )
                         else:
-                            raise RuntimeError("Cannot add non-existant factor %s for process %s, bin %s" % (factorName, p, b))
+                            raise RuntimeError("Cannot add nonexistent factor %s for process %s, bin %s" % (factorName, p, b))
 
                     # take care of any variables which were renamed (eg for "param")
                     (

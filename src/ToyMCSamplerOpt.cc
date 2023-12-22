@@ -302,13 +302,13 @@ toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs)
     RooAbsReal *myexp = 0;
     for (RooAbsArg *a : pois.servers()) {
         if (obs.contains(*a)) {
-            assert(myobs == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two observables??");
+            assert(myobs == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two observables?");
             myobs = dynamic_cast<RooRealVar *>(a);
-            assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Observables is not a RooRealVar??");
+            assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Observable is not a RooRealVar?");
         } else {
-            assert(myexp == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two expecteds??");
+            assert(myexp == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two expecteds?");
             myexp = dynamic_cast<RooAbsReal *>(a);
-            assert(myexp != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Expectedis not a RooAbsReal??");
+            assert(myexp != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Expected is not a RooAbsReal?");
         }
     }
     assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): No observable?");
@@ -322,7 +322,7 @@ toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& obs
     observables_(observables),
     copyData_(true)
 {
-    assert(forceEvents == 0 && "SimPdfGenInfo: forceEvents must be zero at least for now");
+    assert(forceEvents == 0 && "SimPdfGenInfo: forceEvents must be zero.");
     RooSimultaneous *simPdf = dynamic_cast<RooSimultaneous *>(&pdf);
     if (simPdf) {
         cat_ = const_cast<RooAbsCategoryLValue *>(&simPdf->indexCat());

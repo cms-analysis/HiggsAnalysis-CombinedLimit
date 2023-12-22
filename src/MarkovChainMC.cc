@@ -196,7 +196,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   }
 
   if (withSystematics && (mc_s->GetNuisanceParameters() == 0)) {
-    throw std::logic_error("MarkovChainMC: running with systematics enabled, but nuisances not defined.");
+    throw std::logic_error("MarkovChainMC: running with systematics enabled, but nuisance parameters not defined.");
   }
   
   w->loadSnapshot("clean");
@@ -366,7 +366,7 @@ void MarkovChainMC::limitAndError(double &limit, double &limitErr, const std::ve
       std::pair<double,double> qj = qc.quantileAndError(0.5, QuantileCalculator::Jacknife);
       std::cout << "Median of limits (simple):     " << qn.first << " +/- " << qn.second << std::endl;
       std::cout << "Median of limits (sectioning): " << qs.first << " +/- " << qs.second << std::endl;
-      std::cout << "Median of limits (jacknife):   " << qj.first << " +/- " << qj.second << std::endl;
+      std::cout << "Median of limits (jackknife):   " << qj.first << " +/- " << qj.second << std::endl;
 #endif
   } else {
       int noutl = floor(truncatedMeanFraction_ * num);

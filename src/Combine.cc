@@ -121,19 +121,19 @@ Combine::Combine() :
       ("expectSignalMass", po::value<float>(&expectSignalMass_)->default_value(-99.), "If set to non-zero, generate *signal* toys instead of background ones, with the specified mass.")            
       ("unbinned,U", "Generate unbinned datasets instead of binned ones (works only for extended pdfs)")
       ("generateBinnedWorkaround", "Make binned datasets generating unbinned ones and then binnning them. Workaround for a bug in RooFit.")
-      ("setParameters", po::value<string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
-      ("setParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")      
-      ("defineBackgroundOnlyModelParameters", po::value<string>(&defineBackgroundOnlyModelParameterExpression_)->default_value(""), "If no background only (null) model is explicitly provided in physics model, one will be defined as these values of the POIs (default is r=0)")      
+      ("setParameters", po::value<string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma-separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
+      ("setParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon-separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")      
+      ("defineBackgroundOnlyModelParameters", po::value<string>(&defineBackgroundOnlyModelParameterExpression_)->default_value(""), "If no background only (null) model is explicitly provided in physics model, one will be defined using these values of the POIs (default is r=0)")      
       ("redefineSignalPOIs", po::value<string>(&redefineSignalPOIs_)->default_value(""), "Redefines the POIs to be this comma-separated list of variables from the workspace.")      
-      ("freezeParameters", po::value<string>(&freezeNuisances_)->default_value(""), "Set as constant all these parameters. use --freezeParameters allConstrainedNuisances to freeze all constrained nuisance parameters (i.e doesn't include rateParams etc)")      
+      ("freezeParameters", po::value<string>(&freezeNuisances_)->default_value(""), "Set these parameters as constant. Use --freezeParameters allConstrainedNuisances to freeze all constrained nuisance parameters (i.e doesn't include rateParams etc)")      
       ("freezeNuisanceGroups", po::value<string>(&freezeNuisanceGroups_)->default_value(""), "Set as constant all these groups of nuisance parameters.")      
       ("freezeWithAttributes", po::value<string>(&freezeWithAttributes_)->default_value(""), "Set as constant all variables carrying one of these attribute strings.")      
       ;
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
-      ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a rootfile.")
+      ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a ROOT file.")
       ("snapshotName", po::value<std::string>(&snapshotName_)->default_value(""), "Default snapshot name for pre-fit snapshot for reading or writing to workspace")
-      ("modelConfigName",  po::value<std::string>(&modelConfigName_)->default_value("ModelConfig"), "ModelConfig name, when reading it from or writing it to a rootfile.")
+      ("modelConfigName",  po::value<std::string>(&modelConfigName_)->default_value("ModelConfig"), "ModelConfig name, when reading it from or writing it to a ROOT file.")
       ("modelConfigNameB", po::value<std::string>(&modelConfigNameB_)->default_value("%s_bonly"), "Name of the ModelConfig for b-only hypothesis.\n"
                                                                                                   "If not present, it will be made from the singal model taking zero signal strength.\n"
                                                                                                   "A '%s' in the name will be replaced with the modelConfigName.")
@@ -143,7 +143,7 @@ Combine::Combine() :
       ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
       ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(false), "Make all nuisance parameters floating")
-      ("floatParameters", po::value<string>(&floatNuisances_)->default_value(""), "Set to floating these parameters (note freeze will take priority over float), also accepts regexp with syntax 'rgx{<my regexp>}' or 'var{<my regexp>}'")
+      ("floatParameters", po::value<string>(&floatNuisances_)->default_value(""), "Set these parameters floating(note freeze will take priority over float), also accepts regexp with syntax 'rgx{<my regexp>}' or 'var{<my regexp>}'")
       ("freezeAllGlobalObs", po::value<bool>(&freezeAllGlobalObs_)->default_value(true), "Make all global observables constant")
       ;
     miscOptions_.add_options()
@@ -153,7 +153,7 @@ Combine::Combine() :
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
-      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset")
+      ("guessGenMode", "Guess whether to generate binned or unbinned based on dataset")
       ("genBinnedChannels", po::value<std::string>(&genAsBinned_)->default_value(genAsBinned_), "Flag the given channels to be generated binned (irrespectively of how they were flagged at workspace creation)") 
       ("genUnbinnedChannels", po::value<std::string>(&genAsUnbinned_)->default_value(genAsUnbinned_), "Flag the given channels to be generated unbinned (irrespectively of how they were flagged at workspace creation)") 
       ("text2workspace",   boost::program_options::value<std::string>(&textToWorkspaceString_)->default_value(""), "Pass along options to text2workspace (default = none)")
@@ -379,7 +379,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (verbose > 3) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
     RooRealVar *MH = w->var("MH");
     if (MH!=0) {
-      if (verbose > 2) std::cerr << "Setting variable 'MH' in workspace to the higgs mass " << mass_ << std::endl;
+      if (verbose > 2) std::cerr << "Setting variable 'MH' in workspace to the mass " << mass_ << std::endl;
       MH->setVal(mass_);
     }
     mc       = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
@@ -432,7 +432,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  }
         } else {
 
-	  std::cerr << "Will make one from the signal ModelConfig '" << modelConfigName_ << "' setting signal strenth '" << POI->first()->GetName() << "' to zero"  << std::endl;
+	  std::cerr << "Will make one from the signal ModelConfig '" << modelConfigName_ << "' setting signal strength '" << POI->first()->GetName() << "' to zero"  << std::endl;
 	  w->factory("_zero_[0]");
 	  make_model_s.replaceArg(*POI->first(), *w->var("_zero_"));
 	}
@@ -833,7 +833,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   // Should have the PDF at this point, if not something is really odd?
   if (!(mc->GetPdf())){
-	std::cerr << " FATAL ERROR! PDF not found in ModelConfig. \n Try to build the workspace first with text2workspace.py and run with the binary output." << std::endl;
+	std::cerr << " FATAL ERROR! PDF not found in ModelConfig. \n Try to build the workspace first with text2workspace.py and run on the binary output." << std::endl;
 	assert(0);
   }
 
@@ -1018,14 +1018,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     allFloatingParameters.remove(*mc->GetParametersOfInterest());
     int nFloatingNonPoiParameters = utils::countFloating(allFloatingParameters); 
     if (nFloatingNonPoiParameters && !toysNoSystematics_ && (readToysFromHere == 0)) {
-      if (nuisances == 0) throw std::logic_error("Running with systematic variation in toys enabled, but I found floating parameters (which are not POIs) but no constrain terms have been defined in the datacard. If this is ok, re-run with -S 0");
+      if (nuisances == 0) throw std::logic_error("Running with systematic variation in toys enabled, but I found floating parameters (which are not POIs) and no constraint terms have been defined in the datacard. If this is ok, re-run with -S 0");
       nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
-          if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
+          if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist without global observables");
           w->saveSnapshot("reallyClean", utils::returnAllVars(w));
           if (!bypassFrequentistFit_) {
               utils::setAllConstant(*mc->GetParametersOfInterest(), true); 
-              if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
+              if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist without input dataset");
               CloseCoutSentry sentry(verbose < 3);
               //genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));	
                 std::unique_ptr<RooAbsReal> nll(genPdf->createNLL(*dobs, RooFit::Constrain(*(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? mc:mc_bonly)->GetNuisanceParameters()), RooFit::Extended(genPdf->canBeExtended())));

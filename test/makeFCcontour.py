@@ -83,7 +83,7 @@ parser.add_option(
     default=(-9999.0, -9999.0),
     nargs=2,
     type="float",
-    help="only pick points inside here",
+    help="Only pick points inside here",
 )
 parser.add_option(
     "",
@@ -92,7 +92,7 @@ parser.add_option(
     default=(-9999.0, -9999.0),
     nargs=2,
     type="float",
-    help="only pick points inside here",
+    help="Only pick points inside here",
 )
 parser.add_option(
     "",

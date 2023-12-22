@@ -392,10 +392,10 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 	    }
 	    for (std::vector<std::string>::const_iterator it = specifiedNuis_.begin(), ed = specifiedNuis_.end(); it != ed; ++it) {
 		    RooAbsArg *a = mcNuis.find(it->c_str());
-		    if (a == 0) throw std::invalid_argument(std::string("Nuisance Parameter ")+*it+" not in model.");
+		    if (a == 0) throw std::invalid_argument(std::string("Nuisance parameter ")+*it+" not in model.");
 		    if (poiList_.contains(*a)) continue;
 		    RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-		    if (rrv == 0) throw std::invalid_argument(std::string("Nuisance Parameter ")+*it+" not a RooRealVar.");
+		    if (rrv == 0) throw std::invalid_argument(std::string("Nuisance parameter ")+*it+" not a RooRealVar.");
 		    specifiedVars_.push_back(rrv);
 		    specifiedVals_.push_back(rrv->getVal());
 		    specifiedList_.add(*rrv);
