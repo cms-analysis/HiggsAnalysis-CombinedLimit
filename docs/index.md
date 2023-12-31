@@ -32,9 +32,11 @@ releases on github under
 The nominal installation method is inside CMSSW. The current release targets
 the CMSSW `11_3_X` series because this release has both python2 and python3 ROOT
 bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
-fully python3-compatible and, with some adaptations, can also work in 12_X releases.
+fully python3-compatible and, with some adaptations, can also work in 12_X releases. 
 
+CMSSW `11_3_X` runs on slc7, which can be setup using apptainer ([see detailed instructions](http://cms-sw.github.io/singularity.html)):
 ```sh
+cmssw-el7
 cmsrel CMSSW_11_3_4
 cd CMSSW_11_3_4/src
 cmsenv
@@ -55,7 +57,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 Setting up the environment (once):
 
 ```sh
-export SCRAM_ARCH=slc7_amd64_gcc700
+cmssw-el7
 cmsrel CMSSW_10_2_13
 cd CMSSW_10_2_13/src
 cmsenv
@@ -73,13 +75,13 @@ scramv1 b clean; scramv1 b # always make a clean build
 
 ### SLC6/CC7 release `CMSSW_8_1_X`
 
-Setting up the environment (once):
+Setting up OS using apptainer ([see detailed instructions](http://cms-sw.github.io/singularity.html)):
 
 ```sh
 # For CC7:
-export SCRAM_ARCH=slc7_amd64_gcc530
+cmssw-el7
 # For SLC6:
-export SCRAM_ARCH=slc6_amd64_gcc530
+cmssw-el6
 
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
