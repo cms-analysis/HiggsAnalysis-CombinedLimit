@@ -267,8 +267,10 @@ releases on github under
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>11_3_X</code> series because this release has both python2 and python3 ROOT
 bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
-fully python3-compatible and, with some adaptations, can also work in 12_X releases.</p>
-<pre><code class="language-sh">cmsrel CMSSW_11_3_4
+fully python3-compatible and, with some adaptations, can also work in 12_X releases. </p>
+<p>CMSSW <code>11_3_X</code> runs on slc7, which can be setup using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>):</p>
+<pre><code class="language-sh">cmssw-el7
+cmsrel CMSSW_11_3_4
 cd CMSSW_11_3_4/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
@@ -282,7 +284,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 </code></pre>
 <h3 id="combine-v8-cmssw_10_2_x-release-series">Combine v8: <code>CMSSW_10_2_X</code> release series</h3>
 <p>Setting up the environment (once):</p>
-<pre><code class="language-sh">export SCRAM_ARCH=slc7_amd64_gcc700
+<pre><code class="language-sh">cmssw-el7
 cmsrel CMSSW_10_2_13
 cd CMSSW_10_2_13/src
 cmsenv
@@ -296,11 +298,11 @@ git checkout v8.2.0
 scramv1 b clean; scramv1 b # always make a clean build
 </code></pre>
 <h3 id="slc6cc7-release-cmssw_8_1_x">SLC6/CC7 release <code>CMSSW_8_1_X</code></h3>
-<p>Setting up the environment (once):</p>
+<p>Setting up OS using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>):</p>
 <pre><code class="language-sh"># For CC7:
-export SCRAM_ARCH=slc7_amd64_gcc530
+cmssw-el7
 # For SLC6:
-export SCRAM_ARCH=slc6_amd64_gcc530
+cmssw-el6
 
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
@@ -525,5 +527,5 @@ See <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/ma
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2023-12-29 20:56:16.206239+00:00
+Build Date UTC : 2023-12-31 19:23:07.482395+00:00
 -->
