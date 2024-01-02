@@ -109,17 +109,17 @@ MultiDimFit::MultiDimFit() :
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("skipDefaultStart",   boost::program_options::value<bool>(&skipDefaultStart_)->default_value(skipDefaultStart_), "Do not include the default start point in list of points to fit")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
-    ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
-    ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
-	("saveFitResult",  "Save RooFitResult to multidimfit.root")
-    ("out", boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
-    ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
-    ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
-    ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
-    ("pointsRandProf",  boost::program_options::value<int>(&pointsRandProf_)->default_value(pointsRandProf_),  "Number of random start points to try for the profiled POIs")
-    ("randPointsSeed",  boost::program_options::value<int>(&randPointsSeed_)->default_value(randPointsSeed_),  "Seed to use when generating random start points to try for the profiled POIs")
-    ("randPointsRanges",  boost::program_options::value<std::string>(&randPointsRanges_)->default_value(""),  "Range from which to draw random start points for the profiled POIs")
-      ;
+        ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
+        ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
+        ("saveFitResult",  "Save RooFitResult to multidimfit.root")
+        ("out", boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
+        ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
+        ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
+        ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
+        ("pointsRandProf",  boost::program_options::value<int>(&pointsRandProf_)->default_value(pointsRandProf_),  "Number of random start points to try for the profiled POIs")
+        ("randPointsSeed",  boost::program_options::value<int>(&randPointsSeed_)->default_value(randPointsSeed_),  "Seed to use when generating random start points to try for the profiled POIs")
+        ("randPointsRanges",  boost::program_options::value<std::string>(&randPointsRanges_)->default_value(""),  "Range from which to draw random start points for the profiled POIs")
+        ;
 }
 
 void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm) 
@@ -644,14 +644,15 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     }
 
     if (n == 1) {
-        if (verbose > 1) std::cout << "\nStarting n==1. The nll0 from initial fit: " << nll0 << std::endl;
+        if (verbose > 1){
+            std::cout << "\nStarting n==1. The nll0 from initial fit: " << nll0 << std::endl;
+        }
         unsigned int points = pointsPerPoi.size() == 0 ? points_ : pointsPerPoi[0];
-
         // Set seed for random points
         if (pointsRandProf_ > 0) {
             std::cout<<"\n************************************************************************************"<<std::endl;
             std::cout<<"* Random starting point set to non-zero value. This will take some time to complete. *"<<std::endl;
-             std::cout<<"************************************************************************************\n"<<std::endl;
+            std::cout<<"************************************************************************************\n"<<std::endl;
             srand(randPointsSeed_);
         }
         else {
@@ -659,7 +660,6 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             std::cout<<"* Random starting point set to zero. Only default starting point will be used. *"<<std::endl;
             std::cout<<"**********************************************************************************\n"<<std::endl;
         }
-
         double xspacing = (pmax[0]-pmin[0]) / points;
         double xspacingOffset = 0.5;
         if (alignEdges_) {
@@ -713,15 +713,15 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
 
         } // End of the loop over scan points
     } else if (n == 2) {
-        if (verbose > 1) std::cout << "\nStarting n==2. The nll0 from initial fit: " << nll0 << std::endl;
+        if (verbose > 1){
+            std::cout << "\nStarting n==2. The nll0 from initial fit: " << nll0 << std::endl;
+        }
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
-        CloseCoutSentry sentry(verbose < 2);
-
         //Set seed for random points
         if (pointsRandProf_ > 0) {
             std::cout<<"\n************************************************************************************"<<std::endl;
             std::cout<<"* Random starting point set to non-zero value. This will take some time to complete. *"<<std::endl;
-             std::cout<<"************************************************************************************\n"<<std::endl;
+            std::cout<<"************************************************************************************\n"<<std::endl;
             srand(randPointsSeed_);
         }
         else {
@@ -775,10 +775,13 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                 *params = snap;
                 double x =  pmin[0] + (i + spacingOffsetX) * deltaX;
                 double y =  pmin[1] + (j + spacingOffsetY) * deltaY;
-                if (verbose && (ipoint % nprint == 0)) {
-                         fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
-                                        ipoint,nTotal, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
-                }
+                //if (verbose && (ipoint % nprint == 0)) {
+                         //fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
+                //         fprintf("Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
+                //                        ipoint,nTotal, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
+                //}
+                //Explicitly printing this out to allow users to monitor the progress
+                std::cout << "Point " << ipoint << "/" << nTotal << " " <<"(i,j)= "<<"("<<i<<","<<j<<") "<<poiVars_[0]->GetName() << " = " << x <<" "<<poiVars_[1]->GetName() << " = " <<y<<std::endl;
                 poiVals_[0] = x;
                 poiVals_[1] = y;
                 poiVars_[0]->setVal(x);

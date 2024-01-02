@@ -146,7 +146,7 @@ void RandStartPt::setValSpecifiedObjs(){
     }
 }
 
-void RandStartPt::doRandomStartPt1DGridScan(double &xval, unsigned int poiSize, std::vector<float> &poival, std::vector<RooRealVar* > &poivars, std::auto_ptr <RooArgSet> &param, RooArgSet &snap, float &deltaNLL, double &nll_init, CascadeMinimizer &minimObj){
+void RandStartPt::doRandomStartPt1DGridScan(double &xval, unsigned int poiSize, std::vector<float> &poival, std::vector<RooRealVar* > &poivars, std::unique_ptr <RooArgSet> &param, RooArgSet &snap, float &deltaNLL, double &nll_init, CascadeMinimizer &minimObj){
     float current_best_nll = 0;
     //the nested vector to hold random starting points to try
     std::vector<std::vector<float>> nested_vector_of_wc_vals =  vectorOfPointsToTry ();
@@ -181,7 +181,7 @@ void RandStartPt::doRandomStartPt1DGridScan(double &xval, unsigned int poiSize, 
     }
 }
 
-void RandStartPt::doRandomStartPt2DGridScan(double &xval, double &yval, unsigned int poiSize, std::vector<float> &poival, std::vector<RooRealVar* > &poivars, std::auto_ptr <RooArgSet> &param, RooArgSet &snap, float &deltaNLL, double &nll_init, MultiDimFit::GridType gridType, double deltaX, double deltaY, CascadeMinimizer &minimObj){
+void RandStartPt::doRandomStartPt2DGridScan(double &xval, double &yval, unsigned int poiSize, std::vector<float> &poival, std::vector<RooRealVar* > &poivars, std::unique_ptr <RooArgSet> &param, RooArgSet &snap, float &deltaNLL, double &nll_init, MultiDimFit::GridType gridType, double deltaX, double deltaY, CascadeMinimizer &minimObj){
     float current_best_nll = 0;
     //the nested vector to hold random starting points to try
     std::vector<std::vector<float>> nested_vector_of_wc_vals =  vectorOfPointsToTry ();
