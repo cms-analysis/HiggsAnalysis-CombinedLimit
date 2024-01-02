@@ -1020,8 +1020,9 @@ class ModelBuilder(ModelBuilderBase):
             discparams.add(self.out.cat(cpar))
         self.out._import(discparams, discparams.GetName())
         self.out.writeToFile(self.options.out)
-        mystr = ROOT.TNamed("myname", self.stringout)
-        fileout = ROOT.TFile("./" + self.options.out, "UPDATE")
+        mystr = ROOT.TNamed("stxs_scaling", self.stringout)
+        filename_fornamed = self.options.out if self.options.out.startswith("/") else "./" + self.options.out
+        fileout = ROOT.TFile(filename_fornamed, "UPDATE")
         mystr.Write()
         fileout.Close()
 
