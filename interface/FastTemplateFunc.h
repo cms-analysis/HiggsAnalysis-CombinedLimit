@@ -19,15 +19,12 @@ public:
   virtual inline ~FastTemplateFunc_t(){}
 
   void setProxyList(RooListProxy& proxyList, RooArgList& varList){
-    TIterator* varIter = varList.createIterator();
-    RooAbsArg* var;
-    while ((var = (RooAbsArg*)varIter->Next())) {
+    for (RooAbsArg *var : varList) {
       if (!dynamic_cast<RooAbsReal*>(var)) {
         assert(0);
       }
       proxyList.add(*var);
     }
-    delete varIter;
   }
 
   virtual TObject* clone(const char* newname) const = 0;

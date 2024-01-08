@@ -19,7 +19,6 @@
 #include <TFile.h>
 #include <TFileCacheRead.h>
 #include <TGraphErrors.h>
-#include <TIterator.h>
 #include <TLine.h>
 #include <TMath.h>
 #include <TString.h>
@@ -65,7 +64,7 @@
 #include "../interface/CMSHistFunc.h"
 #include "../interface/CMSHistSum.h"
 
-#include "../interface/Logger.h"
+#include "../interface/CombineLogger.h"
 
 using namespace RooStats;
 using namespace RooFit;
@@ -144,7 +143,7 @@ Combine::Combine() :
       ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
       ("floatAllNuisances", po::value<bool>(&floatAllNuisances_)->default_value(false), "Make all nuisance parameters floating")
-      ("floatParameters", po::value<string>(&floatNuisances_)->default_value(""), "Set to floating these parameters (note freeze will take priority over float)")
+      ("floatParameters", po::value<string>(&floatNuisances_)->default_value(""), "Set to floating these parameters (note freeze will take priority over float), also accepts regexp with syntax 'rgx{<my regexp>}' or 'var{<my regexp>}'")
       ("freezeAllGlobalObs", po::value<bool>(&freezeAllGlobalObs_)->default_value(true), "Make all global observables constant")
       ;
     miscOptions_.add_options()
@@ -213,6 +212,60 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   }
 
   makeToyGenSnapshot_ = (method == "FitDiagnostics" && !vm.count("justFit"));
+}
+
+std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, RooWorkspace *w) {
+  // expand regexps inside the "rgx{}" option
+  while (instr.find("rgx{") != std::string::npos) {          
+    size_t pos1 = instr.find("rgx{");
+    size_t pos2 = instr.find("}",pos1);
+    std::string prestr = instr.substr(0,pos1);
+    std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
+    std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
+    
+    std::regex rgx( reg_esp, std::regex::ECMAScript);
+    
+    std::string matchingParams="";
+    for (RooAbsArg *a : *nuisances) {
+        const std::string &target = a->GetName();
+        std::smatch match;
+        if (std::regex_match(target, match, rgx)) {
+            matchingParams = matchingParams + target + ",";
+        }
+    }
+
+    instr = prestr+matchingParams+poststr;
+    instr = boost::replace_all_copy(instr, ",,", ","); 
+  }
+
+  // expand regexps inside the "var{}" option        
+  while (instr.find("var{") != std::string::npos) {          
+    size_t pos1 = instr.find("var{");
+    size_t pos2 = instr.find("}",pos1);
+    std::string prestr = instr.substr(0,pos1);
+    std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
+    std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
+    
+    std::regex rgx( reg_esp, std::regex::ECMAScript);
+    
+    std::string matchingParams="";
+    for (RooAbsArg *a : w->components()) {
+
+        if ( ! (a->IsA()->InheritsFrom(RooRealVar::Class()) || a->IsA()->InheritsFrom(RooCategory::Class()))) continue;
+
+        const std::string &target = a->GetName();
+        // std::cout<<"var "<<target<<std::endl;
+        std::smatch match;
+        if (std::regex_match(target, match, rgx)) {
+            matchingParams = matchingParams + target + ",";
+        }
+    }
+
+    instr = prestr+matchingParams+poststr;
+    instr = boost::replace_all_copy(instr, ",,", ","); 
+  }
+
+  return instr;
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -484,8 +537,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (nuisances && runtimedef::get("ADD_DISCRETE_FALLBACK")) {
     RooArgSet newNuis;
     std::string startswith = "u_CMS_Hgg_env_pdf_";
-    TIterator *np = nuisances->createIterator();
-    while (RooRealVar *arg = (RooRealVar*)np->Next()) {
+    for (RooAbsArg *arg : *nuisances) {
       if (std::string(arg->GetName()).compare(0, startswith.size(), startswith)) {
         newNuis.add(*arg);
       } else {
@@ -560,11 +612,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (redefineSignalPOIs_ != "") {
       RooArgSet newPOIs(w->argSet(redefineSignalPOIs_.c_str()));
-      TIterator *np = newPOIs.createIterator();
-      while (RooRealVar *arg = (RooRealVar*)np->Next()) {
+      for (RooAbsArg *arg : newPOIs) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(arg);
         if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << arg->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
-	arg->setConstant(0);
+	rrv->setConstant(0);
 	// also set ignoreConstraint flag for constraint PDF 
 	if ( w->pdf(Form("%s_Pdf",arg->GetName())) ) w->pdf(Form("%s_Pdf",arg->GetName()))->setAttribute("ignoreConstraint");
       }
@@ -583,83 +634,47 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   // Always reset the POIs to floating (post-fit workspaces can actually have them frozen in some cases, in any case they can be re-frozen in the next step 
-  TIterator *pois = POI->createIterator();
-  while (RooRealVar *arg = (RooRealVar*)pois->Next()) {
-      arg->setConstant(0);
+  for (RooAbsArg *arg : *POI) {
+      static_cast<RooRealVar*>(arg)->setConstant(0);
   }
 
   if (floatNuisances_ != "") {
-      RooArgSet toFloat((floatNuisances_=="all")?*nuisances:(w->argSet(floatNuisances_.c_str())));
+      floatNuisances_ = parseRegex(floatNuisances_, nuisances, w);
+
+      RooArgSet toFloat;
+      if (floatNuisances_=="all") {
+          toFloat.add(*nuisances);
+      } else {
+          std::vector<std::string> nuisToFloat;
+          boost::split(nuisToFloat, floatNuisances_, boost::is_any_of(","), boost::token_compress_on);
+          for (int k=0; k<(int)nuisToFloat.size(); k++) {
+              if (nuisToFloat[k]=="") continue;
+              else if(nuisToFloat[k]=="all") {
+                  toFloat.add(*nuisances);
+                  continue;
+              }
+              else if (!w->fundArg(nuisToFloat[k].c_str())) {
+                  std::cout<<"WARNING: cannot float nuisance parameter "<<nuisToFloat[k].c_str()<<" if it doesn't exist!"<<std::endl;
+                  continue;
+              }
+              const RooAbsArg *arg = (RooAbsArg*)w->fundArg(nuisToFloat[k].c_str());              
+              toFloat.add(*arg);
+          }
+      }
+
       if (verbose > 0) {  
-      	std::cout << "Set floating the following parameters: "; toFloat.Print(""); 
-        Logger::instance().log(std::string(Form("Combine.cc: %d -- Set floating the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
-        std::unique_ptr<TIterator> iter(toFloat.createIterator());
-        for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-           Logger::instance().log(std::string(Form("Combine.cc: %d  %s ",__LINE__,a->GetName())),Logger::kLogLevelInfo,__func__); 
-	}
+      	//std::cout << "Floating the following parameters: "; toFloat.Print(""); 
+        CombineLogger::instance().log("Combine.cc",__LINE__,"Floating the following parameters:",__func__); 
+        for (RooAbsArg *a : toFloat) {
+           CombineLogger::instance().log("Combine.cc",__LINE__,a->GetName(),__func__); 
+	      }
       }
       utils::setAllConstant(toFloat, false);
   }
   
   if (freezeNuisances_ != "") {
+      freezeNuisances_ = parseRegex(freezeNuisances_, nuisances, w);
 
-      // expand regexps          
-      while (freezeNuisances_.find("rgx{") != std::string::npos) {          
-          size_t pos1 = freezeNuisances_.find("rgx{");
-          size_t pos2 = freezeNuisances_.find("}",pos1);
-          std::string prestr = freezeNuisances_.substr(0,pos1);
-          std::string poststr = freezeNuisances_.substr(pos2+1,freezeNuisances_.size()-pos2);
-          std::string reg_esp = freezeNuisances_.substr(pos1+4,pos2-pos1-4);
-          
-          //std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
-          std::regex rgx( reg_esp, std::regex::ECMAScript);
-          
-          std::string matchingParams="";
-          std::unique_ptr<TIterator> iter(nuisances->createIterator());
-          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-              const std::string &target = a->GetName();
-              std::smatch match;
-              if (std::regex_match(target, match, rgx)) {
-                  matchingParams = matchingParams + target + ",";
-              }
-          }
-
-          freezeNuisances_ = prestr+matchingParams+poststr;
-          freezeNuisances_ = boost::replace_all_copy(freezeNuisances_, ",,", ","); 
-          
-      }
-
-      // expand regexps          
-      while (freezeNuisances_.find("var{") != std::string::npos) {          
-          size_t pos1 = freezeNuisances_.find("var{");
-          size_t pos2 = freezeNuisances_.find("}",pos1);
-          std::string prestr = freezeNuisances_.substr(0,pos1);
-          std::string poststr = freezeNuisances_.substr(pos2+1,freezeNuisances_.size()-pos2);
-          std::string reg_esp = freezeNuisances_.substr(pos1+4,pos2-pos1-4);
-          
-          // std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
-          std::regex rgx( reg_esp, std::regex::ECMAScript);
-          
-          std::string matchingParams="";
-          std::unique_ptr<TIterator> iter(w->componentIterator());
-          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-
-              if ( ! (a->IsA()->InheritsFrom(RooRealVar::Class()) || a->IsA()->InheritsFrom(RooCategory::Class()))) continue;
- 
-              const std::string &target = a->GetName();
-              // std::cout<<"var "<<target<<std::endl;
-              std::smatch match;
-              if (std::regex_match(target, match, rgx)) {
-                  matchingParams = matchingParams + target + ",";
-              }
-          }
-
-          freezeNuisances_ = prestr+matchingParams+poststr;
-          freezeNuisances_ = boost::replace_all_copy(freezeNuisances_, ",,", ","); 
-          
-      }
-
-      //RooArgSet toFreeze((freezeNuisances_=="all")?*nuisances:(w->argSet(freezeNuisances_.c_str())));
       RooArgSet toFreeze;
       if (freezeNuisances_=="allConstrainedNuisances") {
           toFreeze.add(*nuisances);
@@ -682,12 +697,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
 
       if (verbose > 0) {  
-      	std::cout << "Freezing the following parameters: "; toFreeze.Print("");
-        Logger::instance().log(std::string(Form("Combine.cc: %d -- Freezing the following parameters: ",__LINE__)),Logger::kLogLevelInfo,__func__); 
-        std::unique_ptr<TIterator> iter(toFreeze.createIterator());
-        for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
-           Logger::instance().log(std::string(Form("Combine.cc: %d  %s ",__LINE__,a->GetName())),Logger::kLogLevelInfo,__func__); 
-	}
+      	//std::cout << "Freezing the following parameters: "; toFreeze.Print("");
+        CombineLogger::instance().log("Combine.cc",__LINE__,"Freezing the following parameters: ",__func__); 
+        for (RooAbsArg *a : toFreeze) {
+           CombineLogger::instance().log("Combine.cc",__LINE__,a->GetName(),__func__); 
+	      }
       }
       utils::setAllConstant(toFreeze, true);
       if (nuisances) {
@@ -705,24 +719,24 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       for (std::vector<string>::iterator ng_it=nuisanceGroups.begin();ng_it!=nuisanceGroups.end();ng_it++){
         bool freeze_complement=false;
       	if (boost::algorithm::starts_with((*ng_it),"^")){
-	  freeze_complement=true;
-	  (*ng_it).erase(0,1);
-	} 
+          freeze_complement=true;
+          (*ng_it).erase(0,1);
+        } 
 
-	if (!w->set(Form("group_%s",(*ng_it).c_str()))){
-          std::cerr << "Unknown nuisance group: " << (*ng_it) << std::endl;
-          throw std::invalid_argument("Unknown nuisance group name");
-	}
-  RooArgSet groupNuisances(*(w->set(Form("group_%s",(*ng_it).c_str()))));
-  RooArgSet toFreeze;
+        if (!w->set(Form("group_%s",(*ng_it).c_str()))){
+                std::cerr << "Unknown nuisance group: " << (*ng_it) << std::endl;
+                throw std::invalid_argument("Unknown nuisance group name");
+        }
+        RooArgSet groupNuisances(*(w->set(Form("group_%s",(*ng_it).c_str()))));
+        RooArgSet toFreeze;
 
-	if (freeze_complement) {
-	  RooArgSet still_floating(*mc->GetNuisanceParameters());
-	  still_floating.remove(groupNuisances,true,true);	
-	  toFreeze.add(still_floating);
-	} else {
-	  toFreeze.add(groupNuisances);
-	}
+        if (freeze_complement) {
+          RooArgSet still_floating(*mc->GetNuisanceParameters());
+          still_floating.remove(groupNuisances,true,true);	
+          toFreeze.add(still_floating);
+        } else {
+          toFreeze.add(groupNuisances);
+        }
 	
         if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
         utils::setAllConstant(toFreeze, true);
@@ -732,7 +746,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           mc->SetNuisanceParameters(newnuis);
           if (mc_bonly) mc_bonly->SetNuisanceParameters(newnuis);
           nuisances = mc->GetNuisanceParameters();
-       }
+        }
       }
   }
 
@@ -742,9 +756,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     for (auto const& attr : nuisanceAttrs) {
       RooArgSet toFreeze;
       if (nuisances) {
-         RooAbsArg *arg = nullptr;
-         auto iter = nuisances->createIterator();
-         while ((arg = (RooAbsArg*)iter->Next())) {
+         for (RooAbsArg *arg : *nuisances) {
            if (arg->attributes().count(attr)) toFreeze.add(*arg);
          }
          if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
@@ -960,11 +972,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
 	    // print the values of the parameters used to generate the toy
 	    if (verbose > 2) {
-	      Logger::instance().log(std::string(Form("Combine.cc: %d -- Generate Asimov toy from parameter values ... ",__LINE__)),Logger::kLogLevelInfo,__func__);
-    	      std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
-    	      for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
-	  	TString varstring = utils::printRooArgAsString(a);
-	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	      CombineLogger::instance().log("Combine.cc",__LINE__, "Generate Asimov toy from parameter values ... ",__func__);
+              std::unique_ptr<RooArgSet> params{genPdf->getParameters((const RooArgSet*)0)};
+              for (RooAbsArg *a : *params) {
+	  	    TString varstring = utils::printRooArgAsString(a);
+	  	    CombineLogger::instance().log("Combine.cc",__LINE__,varstring.Data(),__func__);
 	      }
 	    }
 	    // Also save the current state of the tree here but specify the quantile as -2 (i.e not the default, something specific to the toys)
@@ -985,8 +997,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
             if (snap) writeToysHere->WriteTObject(snap, "toy_asimov_snapshot");
         }
     }
-    //std::cout << "Computing" <<  (iToy==0 ? " observed " :" expected ")<<" results starting from " << ((toysFrequentist_ && !bypassFrequentistFit_) ? " post-fit " : " pre-fit ") << " (nuisance) parameters " << std::endl;
-    //if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Computing %s results starting from %s parameters",__LINE__, (iToy==0 ? " observed " :" expected "), ( (toysFrequentist_ && !bypassFrequentistFit_) ? "post-fit" : "pre-fit") )),Logger::kLogLevelInfo,__func__);
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();
@@ -1059,11 +1069,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	*/
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (verbose > 2) {
-	  Logger::instance().log(std::string(Form("Combine.cc: %d -- Generating toy %d/%d, from parameter values ... ",__LINE__,iToy,nToys)),Logger::kLogLevelInfo,__func__);
-    	  std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
-    	  for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+	  CombineLogger::instance().log("Combine.cc",__LINE__, std::string(Form("Generating toy %d/%d, from parameter values ... ",iToy,nToys)),__func__);
+    std::unique_ptr<RooArgSet> params{genPdf->getParameters((const RooArgSet*)0)};
+    for (RooAbsArg *a : *params) {
 	  	TString varstring = utils::printRooArgAsString(a);
-	  	Logger::instance().log(std::string(Form("Combine.cc: %d -- %s",__LINE__,varstring.Data())),Logger::kLogLevelInfo,__func__);
+	  	CombineLogger::instance().log("Combine.cc" ,__LINE__,varstring.Data(),__func__);
 	  }
 	}
 
@@ -1178,8 +1188,7 @@ void Combine::addPOI(const RooArgSet *poi){
    // RooArgSet *nuisances = (RooArgSet*) w->set("nuisances");
     CascadeMinimizerGlobalConfigs::O().parametersOfInterest = RooArgList();
     if (poi != 0) {
-        TIterator *pp = poi->createIterator();
-        while (RooAbsArg *arg = (RooAbsArg*)pp->Next()) (CascadeMinimizerGlobalConfigs::O().parametersOfInterest).add(*arg);
+        for (RooAbsArg *arg : *poi) (CascadeMinimizerGlobalConfigs::O().parametersOfInterest).add(*arg);
     }
 
 }
@@ -1188,20 +1197,15 @@ void Combine::addNuisances(const RooArgSet *nuisances){
    // RooArgSet *nuisances = (RooArgSet*) w->set("nuisances");
     CascadeMinimizerGlobalConfigs::O().nuisanceParameters = RooArgList();
     if (nuisances != 0) {
-        TIterator *np = nuisances->createIterator();
-        while (RooAbsArg *arg = (RooAbsArg*)np->Next()) (CascadeMinimizerGlobalConfigs::O().nuisanceParameters).add(*arg);
+        for (RooAbsArg *arg : *nuisances) (CascadeMinimizerGlobalConfigs::O().nuisanceParameters).add(*arg);
     }
 
 }
 void Combine::addFloatingParameters(const RooArgSet &parameters){
     CascadeMinimizerGlobalConfigs::O().allFloatingParameters = RooArgList();
-    //if (parameters != 0) {
-        TIterator *np = parameters.createIterator();
-        while (RooAbsArg *arg = (RooAbsArg*)np->Next()) {
+        for (RooAbsArg *arg : parameters) {
 	 if (! arg->isConstant()) (CascadeMinimizerGlobalConfigs::O().allFloatingParameters).add(*arg);
         }
-    //}
-
 }
 void Combine::addDiscreteNuisances(RooWorkspace *w){
 
@@ -1211,14 +1215,13 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams = RooArgList();
 
     if (discreteParameters != 0) {
-        TIterator *dp = discreteParameters->createIterator();
-        while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
+        for (RooAbsArg *arg : *discreteParameters) {
           RooCategory *cat = dynamic_cast<RooCategory*>(arg);
           if (cat && (!cat->isConstant() || runtimedef::get("ADD_DISCRETE_FALLBACK"))) {
-	    if (verbose){
-              std::cout << "Adding discrete " << cat->GetName() << "\n";
-      	      if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Adding discrete %s ",__LINE__,cat->GetName())),Logger::kLogLevelInfo,__func__);
-	    }
+	        if (verbose){
+              //std::cout << "Adding discrete " << cat->GetName() << "\n";
+      	      CombineLogger::instance().log("Combine.cc",__LINE__,std::string(Form("Adding discrete %s ",cat->GetName())),__func__);
+	        }
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
           }
         }
@@ -1226,15 +1229,14 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     // Run through all of the categories in the workspace and look for "pdfindex" -> fall back option 
     else if (runtimedef::get("ADD_DISCRETE_FALLBACK")) {
         RooArgSet discreteParameters_C = w->allCats();
-        TIterator *dp = discreteParameters_C.createIterator();
-        while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
+        for (RooAbsArg *arg : discreteParameters_C) {
          RooCategory *cat = dynamic_cast<RooCategory*>(arg);
          if (! (std::string(cat->GetName()).find("pdfindex") != std::string::npos )) continue;
          if (cat/* && !cat->isConstant()*/) {
-	    if (verbose){
-              std::cout << "Adding discrete " << cat->GetName() << "\n";
-      	      if (verbose) Logger::instance().log(std::string(Form("Combine.cc: %d -- Adding discrete %s ",__LINE__,cat->GetName())),Logger::kLogLevelInfo,__func__);
-	    }
+	       if (verbose){
+              //std::cout << "Adding discrete " << cat->GetName() << "\n";
+      	      CombineLogger::instance().log("Combine.cc",__LINE__,std::string(Form("Adding discrete %s ",cat->GetName())),__func__);
+	        }
             (CascadeMinimizerGlobalConfigs::O().pdfCategories).add(*arg);
          }
 	}
@@ -1242,14 +1244,11 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     // Now lets go through the list of parameters which are associated to this discrete nuisance
     RooArgSet clients;
     utils::getClients(CascadeMinimizerGlobalConfigs::O().pdfCategories,(w->allPdfs()),clients);
-    TIterator *it = clients.createIterator();
-    // clients.Print();
-    while (RooAbsArg *arg = (RooAbsArg*)it->Next()) {
+    for (RooAbsArg *arg : clients) {
       (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs).add(*(dynamic_cast<RooMultiPdf*>(arg)));
       RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(arg);
-      RooArgSet *pdfPars = pdf->getParameters((const RooArgSet*)0);
-      std::unique_ptr<TIterator> iter_v(pdfPars->createIterator());
-      for (RooAbsArg *a = (RooAbsArg *) iter_v->Next(); a != 0; a = (RooAbsArg *) iter_v->Next()) {
+      std::unique_ptr<RooArgSet> pdfPars{pdf->getParameters((const RooArgSet*)0)};
+      for (RooAbsArg *a : *pdfPars) {
 	RooRealVar *v = dynamic_cast<RooRealVar *>(a);
 	if (!v) continue;
 	if (! (v->isConstant())) (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams).add(*v) ;
@@ -1269,8 +1268,7 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
           std::regex rgx( reg_esp, std::regex::ECMAScript);
 
           RooArgSet allParams(w->allVars());
-          std::unique_ptr<TIterator> iter(allParams.createIterator());
-          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+          for (RooAbsArg *a : allParams) {
               Var *tmp = dynamic_cast<Var *>(a);
               if(tmp==nullptr) continue;
               const std::string &target = tmp->GetName();

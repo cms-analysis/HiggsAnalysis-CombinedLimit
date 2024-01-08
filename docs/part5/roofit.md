@@ -4,8 +4,8 @@
 This section covers a few of the basics of `RooFit`. There are many more tutorials available at this link: [https://root.cern.ch/root/html600/tutorials/roofit/index.html](https://root.cern.ch/root/html600/tutorials/roofit/index.html)
 
 ## Objects
-In Roofit, any variable, data point, function, PDF (etc.) is represented by a c++ object
-The most basic of these is the `RooRealVar`. Let's create one which will represent the mass of some hypothetical particle, we name it and give it an initial starting value and range.
+In `RooFit`, any variable, data point, function, PDF (etc.) is represented by a c++ object
+The most basic of these is the `RooRealVar`. We will create one that will represent the mass of some hypothetical particle, we name it and give it an initial starting value and range.
 
 ```c++
 RooRealVar MH("MH","mass of the Hypothetical Boson (H-boson) in GeV",125,120,130);
@@ -15,26 +15,26 @@ MH.Print();
 RooRealVar::MH = 125  L(120 - 130)
 ```
 
-ok, great. This variable is now an object we can play around with. We can access this object and modify it's properties, such as its value. 
+Ok, great. This variable is now an object we can play around with. We can access this object and modify its properties, such as its value. 
 
 ```c++
 MH.setVal(130);
 MH.getVal();
 ```
 
-In particle detectors we typically don't observe this particle mass but usually define some observable which is *sensitive* to this mass. Lets assume we can detect and reconstruct the decay products of the H-boson and measure the invariant mass of those particles. We need to make another variable which represents that invariant mass.
+In particle detectors we typically do not observe this particle mass, but usually define some observable which is *sensitive* to this mass. We will assume we can detect and reconstruct the decay products of the H-boson and measure the invariant mass of those particles. We need to make another variable that represents that invariant mass.
 
 ```c++
 RooRealVar mass("m","m (GeV)",100,80,200);
 ```
 
-In the perfect world we would perfectly measure the exact mass of the particle in every single event. However, our detectors are usually far from perfect so there will be some resolution effect. Lets assume the resolution of our measurement of the invariant mass is 10 GeV and call it "sigma"
+In the perfect world we would perfectly measure the exact mass of the particle in every single event. However, our detectors are usually far from perfect so there will be some resolution effect. We will assume the resolution of our measurement of the invariant mass is 10 GeV and call it "sigma"
 
 ```c++
 RooRealVar sigma("resolution","#sigma",10,0,20);
 ```
 
-More exotic variables can be constructed out of these `RooRealVar`s using `RooFormulaVars`. For example, suppose we wanted to make a function out of the variables which represented the relative resolution as a function of the hypothetical mass MH. 
+More exotic variables can be constructed out of these `RooRealVar`s using `RooFormulaVars`. For example, suppose we wanted to make a function out of the variables that represented the relative resolution as a function of the hypothetical mass MH. 
 
 ```c++
 RooFormulaVar func("R","@0/@1",RooArgList(sigma,mass));
@@ -67,7 +67,7 @@ func.Print("v");
 </details>
 
 
-Notice how there is a list of the variables we passed (the servers or "actual vars"). We can now plot the function. RooFit has a special plotting object `RooPlot` which keeps track of the objects (and their normalisations) which we want to draw. Since RooFit doesn't know the difference between which objects are/aren't dependant, we need to tell it. 
+Notice how there is a list of the variables we passed (the servers or "actual vars"). We can now plot the function. `RooFit` has a special plotting object `RooPlot` which keeps track of the objects (and their normalisations) that we want to draw. Since `RooFit` does not know the difference between objects that are and are not dependent, we need to tell it. 
 
 Right now, we have the relative resolution as $R(m,\sigma)$, whereas we want to plot 
 $R(m,\sigma(m))$!
@@ -84,13 +84,13 @@ can->Draw();
 ```
 ![](images/expo.png)
 
-The main objects we are interested in using from RooFit are *probability denisty functions* or (PDFs). We can construct the PDF,
+The main objects we are interested in using from `RooFit` are *probability denisty functions* or (PDFs). We can construct the PDF,
 
 $$
 f(m|M_{H},\sigma)
 $$
 
-as a simple Gaussian shape for example or a `RooGaussian` in RooFit language (think McDonald's logic, everything is a `RooSomethingOrOther`)
+as a simple Gaussian shape for example or a `RooGaussian` in `RooFit` language (think McDonald's logic, everything is a `RooSomethingOrOther`)
 
 ```c++
 RooGaussian gauss("gauss","f(m|M_{H},#sigma)",mass,MH,sigma);
@@ -150,7 +150,7 @@ can->Draw();
 
 Note that as we change the value of `MH`, the PDF gets updated at the same time.
 
-PDFs can be used to generate Monte Carlo data. One of the benefits of RooFit is that to do so only uses a single line of code! As before, we have to tell `RooFit` which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" $m$. The arguments for the function are the set of observables, follwed by the number of events,
+PDFs can be used to generate Monte Carlo data. One of the benefits of `RooFit` is that to do so only uses a single line of code! As before, we have to tell `RooFit` which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" $m$. The arguments for the function are the set of observables, follwed by the number of events,
 
 ```c++
 RooDataSet *gen_data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
@@ -172,11 +172,11 @@ can->Draw();
 
 ![](images/gausdata.png)
 
-Of course we're not in the business of generating MC events, but collecting *real data!*. Next we will look at using real data in `RooFit`.
+Of course we are not in the business of generating MC events, but collecting *real data!*. Next we will look at using real data in `RooFit`.
 
 ## Datasets
 
-A dataset is essentially just a collection of points in N-dimensional (N-observables) space. There are two basic implementations in RooFit, 
+A dataset is essentially just a collection of points in N-dimensional (N-observables) space. There are two basic implementations in `RooFit`, 
 
 1) an "unbinned" dataset - `RooDataSet`
 
@@ -186,7 +186,7 @@ both of these use the same basic structure as below
 
 ![](images/datastructure.png)
 
-Lets create an empty dataset where the only observable, the mass. Points can be added to the dataset one by one ...
+We will create an empty dataset where the only observable is the mass. Points can be added to the dataset one by one ...
 
 ```c++
 RooDataSet mydata("dummy","My dummy dataset",RooArgSet(mass)); 
@@ -213,7 +213,7 @@ There are also other ways to manipulate datasets in this way as shown in the dia
 
 Luckily there are also Constructors for a `RooDataSet` from a `TTree` and for a `RooDataHist` from a `TH1` so its simple to convert from your usual ROOT objects.
 
-Let's take an example dataset put together already. The file `tutorial.root` can be downloaded [here](https://github.com/amarini/Prefit2020/blob/master/Session%201/tutorial.root).
+We will take an example dataset put together already. The file `tutorial.root` can be downloaded [here](https://github.com/amarini/Prefit2020/blob/master/Session%201/tutorial.root).
 
 ```c++
 TFile *file = TFile::Open("tutorial.root");
@@ -230,9 +230,9 @@ TFile**		tutorial.root
 </details>
 
 
-Inside the file, there is something called a `RooWorkspace`. This is just the RooFit way of keeping a persistent link between the objects for a model. It is a very useful way to share data and PDFs/functions etc among CMS collaborators.
+Inside the file, there is something called a `RooWorkspace`. This is just the `RooFit` way of keeping a persistent link between the objects for a model. It is a very useful way to share data and PDFs/functions etc among CMS collaborators.
 
-Let's take a look at it. It contains a `RooDataSet` and one variable. This time we called our variable (or observable) `CMS_hgg_mass`, let's assume now that this is the invariant mass of photon pairs where we assume our H-boson decays to photons.  
+We will now take a look at it. It contains a `RooDataSet` and one variable. This time we called our variable (or observable) `CMS_hgg_mass`, we will assume that this is the invariant mass of photon pairs where we assume our H-boson decays to photons.  
 
 ```c++
 RooWorkspace *wspace = (RooWorkspace*) file->Get("workspace");
@@ -254,7 +254,7 @@ RooDataSet::dataset(CMS_hgg_mass)
 ```
 </details>
 
-Let's have a look at the data. The `RooWorkspace` has several accessor functions, we will use the `RooWorkspace::data` one. 
+Now we will have a look at the data. The `RooWorkspace` has several accessor functions, we will use the `RooWorkspace::data` one. 
 There are also `RooWorkspace::var`, `RooWorkspace::function` and `RooWorkspace::pdf` with (hopefully) obvious purposes.
 
 ```c++
@@ -275,29 +275,29 @@ hggcan->Draw();
 
 # Likelihoods and Fitting to data 
 
-The data we have in our file doesn't look like a Gaussian distribution. Instead, we could probably use something like an exponential to describe it. 
+The data we have in our file does not look like a Gaussian distribution. Instead, we could probably use something like an exponential to describe it. 
 
-There is an exponential PDF already in `RooFit` (yep you guessed it) `RooExponential`. For a pdf, we only need one parameter which is the exponential slope $\alpha$ so our pdf is,  
+There is an exponential PDF already in `RooFit` (yes, you guessed it) `RooExponential`. For a PDF, we only need one parameter which is the exponential slope $\alpha$ so our pdf is,  
 
 $$ f(m|\alpha) = \dfrac{1}{N} e^{-\alpha m}$$
 
 
 Where of course, $N = \int_{110}^{150} e^{-\alpha m} dm$ is the normalisation constant.
 
-You can find a bunch of available RooFit functions here: [https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html](https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html)
+You can find several available `RooFit` functions here: [https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html](https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html)
 
-There is also support for a generic pdf in the form of a `RooGenericPdf`, check this link: [https://root.cern.ch/doc/v608/classRooGenericPdf.html](https://root.cern.ch/doc/v608/classRooGenericPdf.html)
+There is also support for a generic PDF in the form of a `RooGenericPdf`, check this link: [https://root.cern.ch/doc/v608/classRooGenericPdf.html](https://root.cern.ch/doc/v608/classRooGenericPdf.html)
 
-Let's create an exponential PDF for our background, 
+Now we will create an exponential PDF for our background, 
 
 ```c++
 RooRealVar alpha("alpha","#alpha",-0.05,-0.2,0.01);
 RooExponential expo("exp","exponential function",*hgg_mass,alpha);
 ```
 
-We can use RooFit to tell us to estimate the value of $\alpha$ using this dataset. You will learn more about parameter estimation but for now we will just assume you know about maximising likelihoods. This *maximum likelihood estimator* is common in HEP and is known to give unbiased estimates for things like distribution means etc. 
+We can use `RooFit` to tell us to estimate the value of $\alpha$ using this dataset. You will learn more about parameter estimation, but for now we will just assume you know about maximizing likelihoods. This *maximum likelihood estimator* is common in HEP and is known to give unbiased estimates for things like distribution means etc. 
 
-This also introduces the other main use of PDFs in RooFit. They can be used to construct *likelihoods* easily.
+This also introduces the other main use of PDFs in `RooFit`. They can be used to construct *likelihoods* easily.
 
 The likelihood $\mathcal{L}$ is defined for a particluar dataset (and model) as being proportional to the probability to observe the data assuming some pdf. For our data, the probability to observe an event with a value in an interval bounded by a and b is given by,
 
@@ -314,7 +314,7 @@ Note that for a specific dataset, the $dm$ factors which should be there are con
 
 The maximum likelihood esitmator for $\alpha$, usually written as $\hat{\alpha}$, is found by maximising $\mathcal{L}(\alpha)$.
 
-Note that this won't depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the *ratio* of likelihoods is needed, in which the constant factors out. 
+Note that this will not depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the *ratio* of likelihoods is needed, in which the constant factors out. 
 
 Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting **N**egative **L**og **L**ikelihood : $\mathrm{-Log}\mathcal{L}(\alpha)$.
 
@@ -345,9 +345,9 @@ nll->Print("v");
 ```
 </details>
 
-Notice that the NLL object knows which RooRealVar is the parameter because it doesn't find that one in the dataset. This is how RooFit distiguishes between *observables* and *parameters*.
+Notice that the NLL object knows which RooRealVar is the parameter because it doesn't find that one in the dataset. This is how `RooFit` distiguishes between *observables* and *parameters*.
 
-RooFit has an interface to Minuit via the `RooMinimizer` class which takes the NLL as an argument. To minimize, we just call the `RooMinimizer::minimize()` function. **`Minuit2`** is the program and **`migrad`** is the minimization routine which uses gradient descent.
+`RooFit` has an interface to Minuit via the `RooMinimizer` class which takes the NLL as an argument. To minimize, we just call the `RooMinimizer::minimize()` function. **`Minuit2`** is the program and **`migrad`** is the minimization routine which uses gradient descent.
 
 ```c++
 RooMinimizer minim(*nll);
@@ -427,7 +427,7 @@ alpha.Print("v");
   Error = 0.00291959
 ```
 
-Lets plot the resulting exponential on the data. Notice that the value of $\hat{\alpha}$ is used for the exponential. 
+We will plot the resulting exponential on top of the data. Notice that the value of $\hat{\alpha}$ is used for the exponential. 
 
 ```c++
 expo.plotOn(plot);
@@ -439,9 +439,9 @@ hggcan->Draw();
 
 ![](images/expofit.png)
 
-It looks like there could be a small region near 125 GeV for which our fit doesn't quite go through the points. Maybe our hypothetical H-boson isn't so hypothetical after all!
+It looks like there could be a small region near 125 GeV for which our fit does not quite go through the points. Maybe our hypothetical H-boson is not so hypothetical after all!
 
-Let's see what happens if we include some resonant signal into the fit. We can take our Gaussian function again and use that as a signal model. A reasonable value for the resolution of a resonant signal with a mass around 125 GeV decaying to a pair of photons is around a GeV.
+We will now see what happens if we include some resonant signal into the fit. We can take our Gaussian function again and use that as a signal model. A reasonable value for the resolution of a resonant signal with a mass around 125 GeV decaying to a pair of photons is around a GeV.
 
 ```c++
 sigma.setVal(1.);
@@ -453,9 +453,9 @@ MH.setConstant();
 RooGaussian hgg_signal("signal","Gaussian PDF",*hgg_mass,MH,sigma);
 ```
 
-By setting these parameters constant, RooFit knows (either when creating the NLL by hand or when using `fitTo`) that there is not need to fit for these parameters. 
+By setting these parameters constant, `RooFit` knows (either when creating the NLL by hand or when using `fitTo`) that there is not need to fit for these parameters. 
 
-We need to add this to our exponential model and fit a "Sigmal+Background model" by creating a `RooAddPdf`. In RooFit there are two ways to add PDFs, recursively where the fraction of yields for the signal and background is a parameter or absolutely where each PDF has its own normalisation. We're going to use the second one.
+We need to add this to our exponential model and fit a "Sigmal+Background model" by creating a `RooAddPdf`. In `RooFit` there are two ways to add PDFs, recursively where the fraction of yields for the signal and background is a parameter or absolutely where each PDF has its own normalization. We're going to use the second one.
 
 ```c++
 RooRealVar norm_s("norm_s","N_{s}",10,100);
@@ -498,14 +498,14 @@ Cached value = 0
 ```
 </details>
 
-Ok now lets fit the model. Note this time we add the option `Extended()` which tells RooFit that we care about the overall number of observed events in the data $n$ too. It will add an additional Poisson term in the likelihood to account for this so our likelihood this time looks like,
+Ok, now we will fit the model. Note this time we add the option `Extended()`, which tells `RooFit` that we care about the overall number of observed events in the data $n$ too. It will add an additional Poisson term in the likelihood to account for this so our likelihood this time looks like,
 
 $$L_{s+b}(N_{s},N_{b},\alpha) = \dfrac{ N_{s}+N_{b}^{n} e^{N_{s}+N_{b}} }{n!} \cdot \prod_{i}^{n} \left[ c f_{s}(m_{i}|M_{H},\sigma)+ (1-c)f_{b}(m_{i}|\alpha)  \right] $$
 
 
 where $c = \dfrac{ N_{s} }{ N_{s} + N_{b} }$,   $f_{s}(m|M_{H},\sigma)$ is the Gaussian signal pdf and $f_{b}(m|\alpha)$ is the exponential pdf. Remember that $M_{H}$ and $\sigma$ are fixed so that they are no longer parameters of the likelihood.
 
-There is a simpler interface for maximum likelihood fits which is the `RooAbsPdf::fitTo` method. With this simple method, RooFit will construct the negative log-likelihood function, from the pdf, and minimize all of the free parameters in one step.
+There is a simpler interface for maximum-likelihood fits which is the `RooAbsPdf::fitTo` method. With this simple method, `RooFit` will construct the negative log-likelihood function, from the pdf, and minimize all of the free parameters in one step.
 
 ```c++
 model.fitTo(*hgg_data,RooFit::Extended());
@@ -687,14 +687,14 @@ nominal_values = (MH=124.627 +/- 0.398094,resolution=1[C],norm_s=33.9097 +/- 11.
 ```
  </details>
 
-This is exactly what needs to be done when you want to use shape based datacards in combine with parametric models.
+This is exactly what needs to be done when you want to use shape based datacards in <span style="font-variant:small-caps;">Combine</span> with parametric models.
 
 ## A likelihood for a counting experiment
 An introductory presentation about likelihoods and interval estimation is available [here](https://indico.cern.ch/event/976099/contributions/4138517/).
 
 **Note: We will use python syntax in this section; you should use a .py script. Make sure to do `import ROOT` at the top of your script **
 
-We've seen how to create variables and pdfs, and how to fit a pdf to data. But what if we have a counting experiment, or a histogram template shape? And what about systematic uncertainties?  Let's build a likelihood
+We have seen how to create variables and PDFs, and how to fit a PDF to data. But what if we have a counting experiment, or a histogram template shape? And what about systematic uncertainties?  We are going to build a likelihood 
 for this:
 
 $\mathcal{L} \propto p(\text{data}|\text{parameters})$
@@ -704,12 +704,12 @@ where our parameters are parameters of interest, $\mu$, and nuisance parameters,
 So we have
 $\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})$
 
-let's try to build the likelihood by hand for a 1-bin counting experiment.
-The data is the number of observed events $N$, and the probability is just a poisson probability $p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}$, where $\lambda$ is the number of events expected in our signal+background model: $\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})$. 
+now we will try to build the likelihood by hand for a 1-bin counting experiment.
+The data is the number of observed events $N$, and the probability is just a Poisson probability $p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}$, where $\lambda$ is the number of events expected in our signal+background model: $\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})$. 
 
-In the expression, s and b are the numbers of expected signal- and background events, which both depend on the nuisance parameters. Let's start by building a simple likelihood function with one signal process and one background process. We'll assume there are no nuisance parameters for now. The number of observed events in data is 15, the expected number of signal events is 5 and the expected number of background events 8.1.
+In the expression, s and b are the numbers of expected signal and background events, which both depend on the nuisance parameters. We will start by building a simple likelihood function with one signal process and one background process. We will assume there are no nuisance parameters for now. The number of observed events in data is 15, the expected number of signal events is 5 and the expected number of background events 8.1.
 
-It's easiest to use the RooFit workspace factory to build our model ([this tutorial](https://root.cern/doc/master/rf511__wsfactory__basic_8py.html) has more information on the factory syntax).
+It is easiest to use the `RooFit` workspace factory to build our model ([this tutorial](https://root.cern/doc/master/rf511__wsfactory__basic_8py.html) has more information on the factory syntax).
 
 ```
 import ROOT
@@ -720,18 +720,18 @@ We need to create an expression for the number of events in our model, $\mu s +b
 ```
 w.factory('expr::n("mu*s +b", mu[1.0,0,4], s[5],b[8.1])')
 ```
-Now we can build the likelihood, which is just our poisson pdf:
+Now we can build the likelihood, which is just our Poisson PDF:
 ```
 w.factory('Poisson::poisN(N[15],n)')
 ```
 
-To find the best-fit value for our parameter of interest $\mu$ we need to maximize the likelihood. In practice it's actually easier to minimize the **N**egative **l**og of the **l**ikelihood, or NLL:
+To find the best fit value for our parameter of interest $\mu$ we need to maximize the likelihood. In practice it is actually easier to minimize the **N**egative **l**og of the **l**ikelihood, or NLL:
 
 ```
 w.factory('expr::NLL("-log(@0)",poisN)')
 ```
 
-We can now use the RooMinimizer to find the minimum of the NLL
+We can now use the `RooMinimizer` to find the minimum of the NLL
 
 
 ```
@@ -743,7 +743,7 @@ bestfitnll = nll.getVal()
 ```
 Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!) - note that there is a more reliable way of extracting the confidence interval (explicitly rather than relying on migrad). We will discuss this a bit later in this section.
 
-Now let's add a nuisance parameter, *lumi*, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at $+1\sigma$ the signal and background normalizations will be multiplied by 1.025 and at $-1\sigma$ they will be divided by 1.025.  We should modify the expression for the number of events in our model:
+Now we will add a nuisance parameter, *lumi*, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at $+1\sigma$ the signal and background normalizations will be multiplied by 1.025 and at $-1\sigma$ they will be divided by 1.025.  We should modify the expression for the number of events in our model:
 
 ```
 w.factory('expr::n("mu*s*pow(1.025,lumi) +b*pow(1.025,lumi)", mu[1.0,0,4], s[5],b[8.1],lumi[0,-4,4])')
@@ -765,11 +765,11 @@ w.factory('expr::NLL("-log(@0)",likelihood)')
 
 Which we can minimize in the same way as before. 
 
-Now let's extend our model a bit. 
+Now we will extend our model a bit. 
 
 - Expanding on what was demonstrated above, build the likelihood for $N=15$, a signal process *s* with expectation 5 events, a background *ztt* with expectation 3.7 events and a background *tt* with expectation 4.4 events. The luminosity uncertainty applies to all three processes. The signal process is further subject to a 5% log-normally distributed uncertainty *sigth*, *tt* is subject to a 6% log-normally distributed uncertainty *ttxs*, and *ztt* is subject to a 4% log-normally distributed uncertainty *zttxs*. Find the best-fit value and the associated uncertainty
-- Also perform an explicit scan of the $\Delta$ NLL ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started. Hint: you'll need to perform fits for different values of mu, where mu is fixed. In RooFit you can set a variable to be constant as `var("VARNAME").setConstant(True)`
-- From the curve that you've created by performing an explicit scan, we can extract the 68% CL interval. You can do so by eye or by writing some code to find the relevant intersections of the curve. 
+- Also perform an explicit scan of the $\Delta$ NLL ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started. Hint: you'll need to perform fits for different values of mu, where mu is fixed. In `RooFit` you can set a variable to be constant as `var("VARNAME").setConstant(True)`
+- From the curve that you have created by performing an explicit scan, we can extract the 68% CL interval. You can do so by eye or by writing some code to find the relevant intersections of the curve. 
 
 ```
 gr = ROOT.TGraph()
@@ -791,7 +791,7 @@ canv.SaveAs("likelihoodscan.pdf")
 ```
 
 Well, this is doable - but we were only looking at a simple one-bin counting experiment. This might become rather cumbersome for large models... $[*]$
-We'll now switch to Combine which will make it a lot easier to set up your model and do the statistical analysis than trying to build the likelihood yourself.
+We will now switch to <span style="font-variant:small-caps;">Combine</span> which will make it a lot easier to set up your model and do the statistical analysis than trying to build the likelihood yourself.
 
-$[*]$ Side note - RooFit does have additional functionality to help with statistical model building, but we won't go into detail today.   
+$[*]$ Side note - `RooFit` does have additional functionality to help with statistical model building, but we will not go into detail today.   
 

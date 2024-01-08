@@ -26,10 +26,14 @@
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfilingTools.h"
 #include "../interface/GenerateOnly.h"
-#include "../interface/Logger.h"
+#include "../interface/CombineLogger.h"
 #include <map>
 
 using namespace std;
+
+// Update whenever we have a new Tag
+std::string combineTagString = "v9.1.0";
+// 
 
 int main(int argc, char **argv) {
   using namespace boost;
@@ -50,6 +54,9 @@ int main(int argc, char **argv) {
   vector<string> modelParamValVector_;
 
   Combine combiner;
+
+  // Set name of Log file (ideally would make this similar format to out file)
+  CombineLogger::instance().setName("combine_logger.out");
 
   map<string, LimitAlgo *> methods;
   algo = new Significance(); methods.insert(make_pair(algo->name(), algo));
@@ -144,6 +151,8 @@ int main(int argc, char **argv) {
    splashFile.close(); 
   } else {
    std::cout << " <<< Combine >>> " << std::endl;
+   // UPDATE THIS TO THE LATEST TAG WHENEVER RELEASED 
+   std::cout << Form(" <<< %s >>>",combineTagString.c_str() ) << std::endl;
   }
 
   // now search for algo, and add option
@@ -250,6 +259,7 @@ int main(int argc, char **argv) {
   }
   
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
+
   TFile *test = new TFile(fileName, "RECREATE"); outputFile = test;
   TTree *t = new TTree("limit", "limit");
   int syst, iToy, iSeed, iChannel; 
@@ -324,7 +334,7 @@ int main(int argc, char **argv) {
 
   try {
      combiner.run(datacard, dataset, limit, limitErr, iToy, t, runToys);
-     if (verbose>0) Logger::instance().printLog(); 
+     if (verbose>0) CombineLogger::instance().printLog(); 
   } catch (std::exception &ex) {
      cerr << "Error when running the combination:\n\t" << ex.what() << std::endl;
      test->Close();

@@ -1,0 +1,286 @@
+---
+chgtil:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chbox:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chdd:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chg:
+    exponent: 3
+    val: 0.
+    max: 5.
+    min: -5.
+chw:
+    exponent: 2
+    val: 0.
+    max: 5.
+    min: -5.
+chb:
+    exponent: 2
+    val: 0.
+    max: 5.
+    min: -5.
+chwb:
+    exponent: 2
+    val: 0.
+    max: 5.
+    min: -5.
+cbhre:
+    exponent: 2
+    val: 0.
+    max: 5.
+    min: -5.
+cbgre:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chj1:
+    exponent: 1
+    val: 0.
+    max: 5.
+    min: -5.
+chq1:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chj3:
+    exponent: 1
+    val: 0.
+    max: 5.
+    min: -5.
+chq3:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chu:
+    exponent: 1
+    val: 0.
+    max: 5.
+    min: -5.
+chd:
+    exponent: 1
+    val: 0.
+    max: 5.
+    min: -5.
+chl3:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cll1:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chwtil:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cbgim:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cbhim:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cgtil:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cg:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chwbtil:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chbtil:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctgre:
+    exponent: 1
+    val: 0.
+    max: 5.
+    min: -5.
+cthre:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cht:
+    exponent: -2
+    val: 0.
+    max: 5.
+    min: -5.
+chl1:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+che:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chbq:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctwre:
+    exponent: 1
+    val: 0.
+    max: 5.
+    min: -5.
+cqj31:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cqj38:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctgim:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctwim:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cbwim:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chtbim:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cbwre:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+chtbre:
+    exponent: -1
+    val: 0.
+    max: 5.
+    min: -5.
+cthim:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cqj18:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctu8:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctd8:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cqu8:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctj8:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cqd8:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cqj11:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctu1:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctd1:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cqu1:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctj1:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cqd1:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+ctbre:
+    exponent: 2
+    val: 0.
+    max: 5.
+    min: -5.
+ctbim:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cw:
+    exponent: 1
+    val: 0.
+    max: 5.
+    min: -5.
+cehre:
+    exponent: 0
+    val: 0.
+    max: 5.
+    min: -5.
+cuhre:
+    exponent: -2
+    val: 0.
+    max: 5.
+    min: -5.

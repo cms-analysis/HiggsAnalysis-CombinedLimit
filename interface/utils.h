@@ -56,8 +56,10 @@ namespace utils {
 
     /// factorize a RooAbsReal
     void factorizeFunc(const RooArgSet &observables, RooAbsReal &pdf, RooArgList &obsTerms, RooArgList &otherTerms, bool keepDuplicates = true, bool debug=false);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,28,0)
     /// workaround for RooProdPdf::components()
     RooArgList factors(const RooProduct &prod) ;
+#endif
 
     /// Note: doesn't recompose Simultaneous pdfs properly, for that use factorizePdf method
     RooAbsPdf *makeObsOnlyPdf(RooStats::ModelConfig &model, const char *name="obsPdf") ;

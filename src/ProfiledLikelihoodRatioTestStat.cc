@@ -1,6 +1,7 @@
 #include "../interface/ProfiledLikelihoodRatioTestStat.h"
 #include "../interface/CloseCoutSentry.h"
 #include <stdexcept>
+#include <RooFitResult.h>
 #include <RooRealVar.h>
 
 Double_t ProfiledLikelihoodRatioTestStat::Evaluate(RooAbsData& data, RooArgSet& nullPOI)

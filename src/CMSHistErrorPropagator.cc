@@ -249,9 +249,7 @@ void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
       if (bintypes_[j][0] == 1 && !vbinpars_[j][0]->isConstant()) {
         bb_.use.push_back(j);
         double gobs_val = 0.;
-        RooFIter iter = vbinpars_[j][0]->valueClientMIterator();
-        RooAbsArg *arg = nullptr;
-        while((arg = iter.next())) {
+        for (RooAbsArg * arg : vbinpars_[j][0]->valueClients()) {
           if (arg == this || arg == &binsentry_) {
             // std::cout << "Skipping " << this << " " << this->GetName() << "\n";
           } else {

@@ -66,7 +66,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
     }
     if (verbose > -1) {
         std::cout << "\n -- BayesianSimple -- " << "\n";
-        std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+        std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% credibility" << std::endl;
     }
     if (verbose > 200) {
       // FIXME!!!!!

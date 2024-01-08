@@ -2,16 +2,16 @@
 
 These pages document the
 [RooStats](https://twiki.cern.ch/twiki/bin/view/RooStats/WebHome) /
-[RooFit](https://root.cern.ch/roofit) - based software tools used for
-statistical analysis within the [Higgs PAG](HiggsWG) - **combine**.
+[RooFit](https://root.cern.ch/roofit) - based software tool used for
+statistical analysis within the CMS experiment - <span style="font-variant:small-caps;">Combine</span>. Note that while this tool was originally developed in the [Higgs PAG](HiggsWG), its usage is now widespread within CMS. 
 
-Combine provides a command line interface to many different statistical techniques available inside RooFit/RooStats used widely inside CMS.
+<span style="font-variant:small-caps;">Combine</span> provides a command-line interface to many different statistical techniques, available inside RooFit/RooStats, that are used widely inside CMS.
 
-The package exists in GIT under [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit)
+The package exists on GitHub under [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit)
 
-For more information about GIT and its usage in CMS, see [http://cms-sw.github.io/cmssw/faq.html](http://cms-sw.github.io/cmssw/faq.html)
+For more information about Git, GitHub and its usage in CMS, see [http://cms-sw.github.io/cmssw/faq.html](http://cms-sw.github.io/cmssw/faq.html)
 
-The code can be checked out from GIT and compiled on top of a CMSSW release that includes a recent RooFit/RooStats
+The code can be checked out from GitHub and compiled on top of a CMSSW release that includes a recent RooFit/RooStats
 
 # Installation instructions
 
@@ -22,7 +22,7 @@ Earlier versions are not guaranteed to follow the standard.
 ## Within CMSSW (recommended for CMS users)
 
 The instructions below are for installation within a CMSSW environment. For end
-users that don't need to commit or do any development, the following recipes
+users that do not need to commit or do any development, the following recipes
 should be sufficient. To choose a release version, you can find the latest
 releases on github under
 [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
@@ -30,11 +30,13 @@ releases on github under
 ### Combine v9 - recommended version
 
 The nominal installation method is inside CMSSW. The current release targets
-CMSSW `11_3_X` series because this release has both python2 and python3 ROOT
-bindings, allowing a more gradual migration of user code to python3. Combine is
-fully python3-compatible and can work also in 12_X releases.
+the CMSSW `11_3_X` series because this release has both python2 and python3 ROOT
+bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
+fully python3-compatible and, with some adaptations, can also work in 12_X releases. 
 
+CMSSW `11_3_X` runs on slc7, which can be setup using apptainer ([see detailed instructions](http://cms-sw.github.io/singularity.html)):
 ```sh
+cmssw-el7
 cmsrel CMSSW_11_3_4
 cd CMSSW_11_3_4/src
 cmsenv
@@ -55,7 +57,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 Setting up the environment (once):
 
 ```sh
-export SCRAM_ARCH=slc7_amd64_gcc700
+cmssw-el7
 cmsrel CMSSW_10_2_13
 cd CMSSW_10_2_13/src
 cmsenv
@@ -73,13 +75,13 @@ scramv1 b clean; scramv1 b # always make a clean build
 
 ### SLC6/CC7 release `CMSSW_8_1_X`
 
-Setting up the environment (once):
+Setting up OS using apptainer ([see detailed instructions](http://cms-sw.github.io/singularity.html)):
 
 ```sh
 # For CC7:
-export SCRAM_ARCH=slc7_amd64_gcc530
+cmssw-el7
 # For SLC6:
-export SCRAM_ARCH=slc6_amd64_gcc530
+cmssw-el6
 
 cmsrel CMSSW_8_1_0
 cd CMSSW_8_1_0/src
@@ -96,14 +98,25 @@ git checkout v7.0.13
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
+## Oustide of CMSSW (recommended for non-CMS users)
+
+Pre-compiled versions of the tool are available as containers from the [CMS cloud pages](https://gitlab.cern.ch/cms-cloud/combine-standalone). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/). If you have docker running you can pull and run the *latest* version using, 
+
+```sh
+docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:latest
+```
+
+You will now have the compiled `combine` binary available as well as the complete package of tool. 
+The container can be re-started using `docker start -i combine`. 
+
 ## Standalone compilation
 
 The standalone version can be easily compiled using
-[cvmfs](https://cernvm.cern.ch/fs/) as it relies on dependencies which are
+[cvmfs](https://cernvm.cern.ch/fs/) as it relies on dependencies that are
 already installed at `/cvmfs/cms.cern.ch/`. Access to `/cvmfs/cms.cern.ch/` can
 be obtained from lxplus machines or via `CernVM`. See [CernVM](CernVM.md) for
 further details on the latter. In case you do not want to use the `cvmfs`
-area, you will need to adapt the location of the dependencies listed in both
+area, you will need to adapt the locations of the dependencies listed in both
 the `Makefile` and `env_standalone.sh` files.
 
 ```
@@ -114,16 +127,22 @@ cd HiggsAnalysis/CombinedLimit/
 make -j 4
 ```
 
-You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login.
+You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login environment.
 
 ### Standalone compilation with LCG
-LCG102 contains ROOT 6.26, which at the time of writing is not available in any CMSSW release.
-This repo can be compiled against LCG102 with:
-```
+For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102, which contains ROOT 6.26:
+```sh
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 source env_lcg.sh 
 make LCG=1 -j 8
+```
+To change the LCG version, edit `env_lcg.sh`. 
+
+The resulting binaries can be moved for use in a
+batch job if the following files are included in the job tarball:
+```sh
+tar -zcf Combine_LCG_env.tar.gz build interface src/classes.h --exclude=obj
 ```
 
 ### Standalone compilation with `conda`
@@ -144,40 +163,61 @@ conda activate combine
 make CONDA=1 -j 8
 ```
 
-Using combine from then on should only require sourcing the conda environment 
+Using <span style="font-variant:small-caps;">Combine</span> from then on should only require sourcing the conda environment 
 ```
 conda activate combine
 ```
 
-**Note:** on OS X, `combine` can only accept workspaces, so run `text2workspace.py` first.
-This is due to some ridiculous issue with child processes and `LD_LIBRARY_PATH` (see note in Makefile)
+**Note:** on OS X, <span style="font-variant:small-caps;">Combine</span> can only accept workspaces, so run `text2workspace.py` first.
+This is due to an issue with child processes and `LD_LIBRARY_PATH` (see note in Makefile)
+
+### Standalone compilation with CernVM 
+
+`combine`, either standalone or not, can be compiled via CVMFS using access to `/cvmfs/cms.cern.ch/`  obtained using a virtual machine - [`CernVM`](https://cernvm.cern.ch/). To use `CernVM` You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
+If you have a CERN user account, we strongly suggest you simply run one of the other standalone installations, which are simpler and faster than using a VM.
+
+You should have a working VM on your local machine, compatible with CernVM, such as `VirtualBox`. All the required software can be downloaded [here](https://cernvm.cern.ch/appliance/).
+At least 2GB of disk space should be reserved on the virtual machine for `combine` to work properly and the machine must be contextualized to add the `CMS`` group to CVMFS. A minimal working setup is described below.
+
+0. Download the CernVM-launcher for your operating system, following the instructions available [`here`] for your operating system (https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation
+
+1. Prepare a CMS context. You can use the CMS open data one already available on gitHub: 
+```wget https://raw.githubusercontent.com/cernvm/public-contexts/master/cms-opendata-2011.context)```
+
+2. Launch the virtual machine ```cernvm-launch create --name combine --cpus 2 cms-opendata-2011.context```
+
+3. In the VM, proceed with an installation of combine
+
+Installation through CernVM is maintained on a best-effort basis and these instructions may not be up to date. 
 
 # What has changed between tags? 
 
-You can generate a diff of any two tags (eg for `v7.0.8` and `v7.0.6`) by using following the url:
+You can generate a diff of any two tags (eg for `v9.1.0` and `v9.0.0`) by using the following url:
 
-[https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v7.0.6...v7.0.7)
+[https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.0.0...v9.1.0](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.0.0...v9.1.0)
 
-Replace the tag names in the url to any tags you which to compare.
+Replace the tag names in the url to any tags you would like to compare.
 
 # For developers
 
-We use the _Fork and Pull_ model for development: each user creates a copy of the repository on github, commits their requests there and then sends pull requests for the administrators to merge.
+We use the _Fork and Pull_ model for development: each user creates a copy of the repository on GitHub, commits their requests there, and then sends pull requests for the administrators to merge.
 
 _Prerequisites_
 
-1. Register on github, as needed anyway for CMSSW development: [http://cms-sw.github.io/cmssw/faq.html](http://cms-sw.github.io/cmssw/faq.html)
+1. Register on GitHub, as needed anyway for CMSSW development: [http://cms-sw.github.io/cmssw/faq.html](http://cms-sw.github.io/cmssw/faq.html)
 
-2. Register your SSH key on github: [https://help.github.com/articles/generating-ssh-keys](https://help.github.com/articles/generating-ssh-keys) 1 Fork the repository to create your copy of it: [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork) (more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) )
+2. Register your SSH key on GitHub: [https://help.github.com/articles/generating-ssh-keys](https://help.github.com/articles/generating-ssh-keys) 
+
+3. Fork the repository to create your copy of it: [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork) (more documentation at [https://help.github.com/articles/fork-a-repo](https://help.github.com/articles/fork-a-repo) )
 
 You will now be able to browse your fork of the repository from [https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit](https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit)
 
-We strongly encourage you to contribute any developments you make back into the main repository. 
+We strongly encourage you to contribute any developments you make back to the main repository. 
 See [contributing.md](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/contributing.md) for details about contributing. 
 
-# Combine Tool
+# CombineHarvester/CombineTools
 
-An additional tool for submitting combine jobs to batch/crab, developed originally for HiggsToTauTau. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/) subpackage, speeding up the checkout and compile times:
+CombineTools is an additional tool for submitting <span style="font-variant:small-caps;">Combine</span> jobs to batch systems or crab, which was originally developed in the context of Higgs to tau tau analyses. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/) subpackage, speeding up the checkout and compile times:
 
 git clone via ssh:
 
@@ -194,5 +234,3 @@ bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/m
 make sure to run `scram`  to compile the `CombineTools` package.
 
 See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
-
-
