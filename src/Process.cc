@@ -150,6 +150,38 @@ TH1F Process::ShapeAsTH1F() const {
   return res;
 }
 
+TH2F Process::ShapeAsTH2F() const {
+  if (!shape_ && !data_) {
+    throw std::runtime_error(
+        FNERROR("Process object does not contain a shape"));
+  }
+  TH2F res;
+  if (this->shape()) {
+    // Need to get the shape as a concrete type (TH2F or TH1D)
+    // A nice way to do this is just to use TH1D::Copy into a fresh TH2F
+    TH2F const* test_f = dynamic_cast<TH2F const*>(this->shape());
+    TH2D const* test_d = dynamic_cast<TH2D const*>(this->shape());
+    if (test_f) {
+      test_f->Copy(res);
+    } else if (test_d) {
+      test_d->Copy(res);
+    } else {
+      throw std::runtime_error(FNERROR("TH2 shape is not a TH2F or a TH2D"));
+    }
+  } else if (this->data()) {
+    RooArgSet* temp_vars = (RooArgSet*)this->data()->get()->Clone();
+    RooRealVar temp_xvar = *(RooRealVar*)temp_vars->first();
+    temp_vars->remove(temp_xvar,true,true);
+    RooRealVar temp_yvar = *(RooRealVar*)temp_vars->first();
+    TH2F *tmp = dynamic_cast<TH2F*>(this->data()->createHistogram("",
+                           temp_xvar,RooFit::YVar(temp_yvar)));
+    res = *tmp;
+    delete tmp;
+    if (res.Integral() > 0.) res.Scale(1. / res.Integral());
+  }
+  return res;
+}
+
 std::ostream& Process::PrintHeader(std::ostream& out) {
   std::string line =
       (boost::format(

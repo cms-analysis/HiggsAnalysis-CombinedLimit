@@ -176,6 +176,92 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const& fit,
   return shape;
 }
 
+TH2F CombineHarvester::Get2DShapeWithUncertainty() {
+  auto lookup = GenerateProcSystMap();
+  TH2F shape = Get2DShape();
+  for (int i = 1; i <= shape.GetNbinsX(); ++i) {
+    for (int j = 1; j <= shape.GetNbinsY(); ++j) {
+      shape.SetBinError(i,j, 0.0);
+    }
+  }
+  for (auto param_it : params_) {
+    double backup = param_it.second->val();
+    param_it.second->set_val(backup+param_it.second->err_d());
+    TH2F shape_d = this->Get2DShapeInternal(lookup, param_it.first);
+    param_it.second->set_val(backup+param_it.second->err_u());
+    TH2F shape_u = this->Get2DShapeInternal(lookup, param_it.first);
+    for (int i = 1; i <= shape.GetNbinsX(); ++i) {
+      for (int j = 1; j <= shape.GetNbinsY(); ++j) {
+        double err = std::fabs(shape_u.GetBinContent(i,j) - shape_d.GetBinContent(i,j)) / 2.0;
+        shape.SetBinError(i,j, err*err + shape.GetBinError(i,j));
+      }
+    }
+    param_it.second->set_val(backup);
+  }
+  for (int i = 1; i <= shape.GetNbinsX(); ++i) {
+    for (int j = 1; j <= shape.GetNbinsY(); ++j) {
+      shape.SetBinError(i,j, std::sqrt(shape.GetBinError(i,j)));
+    }
+  }
+  return shape;
+}
+
+TH2F CombineHarvester::Get2DShapeWithUncertainty(RooFitResult const* fit,
+                                               unsigned n_samples) {
+  return Get2DShapeWithUncertainty(*fit, n_samples);
+}
+
+TH2F CombineHarvester::Get2DShapeWithUncertainty(RooFitResult const& fit,
+                                               unsigned n_samples) {
+  auto lookup = GenerateProcSystMap();
+  TH2F shape = Get2DShapeInternal(lookup);
+  for (int i = 1; i <= shape.GetNbinsX(); ++i) {
+    for (int j = 1; j <= shape.GetNbinsY(); ++j) {
+      shape.SetBinError(i,j, 0.0);
+    }
+  }
+  // Create a backup copy of the current parameter values
+  auto backup = GetParameters();
+
+  // Calling randomizePars() ensures that the RooArgList of sampled parameters
+  // is already created within the RooFitResult
+  RooArgList const& rands = fit.randomizePars();
+
+  // Now create two aligned vectors of the RooRealVar parameters and the
+  // corresponding ch::Parameter pointers
+  int n_pars = rands.getSize();
+  std::vector<RooRealVar const*> r_vec(n_pars, nullptr);
+  std::vector<ch::Parameter*> p_vec(n_pars, nullptr);
+  for (unsigned n = 0; n < p_vec.size(); ++n) {
+    r_vec[n] = dynamic_cast<RooRealVar const*>(rands.at(n));
+    p_vec[n] = GetParameter(r_vec[n]->GetName());
+  }
+
+  // Main loop through n_samples
+  for (unsigned i = 0; i < n_samples; ++i) {
+    // Randomise and update values
+    fit.randomizePars();
+    for (int n = 0; n < n_pars; ++n) {
+      if (p_vec[n]) p_vec[n]->set_val(r_vec[n]->getVal());
+    }
+
+    TH2F rand_shape = this->Get2DShapeInternal(lookup);
+    for (int i = 1; i <= shape.GetNbinsX(); ++i) {
+      for (int j = 1; j <= shape.GetNbinsY(); ++j) {
+        double err = std::fabs(rand_shape.GetBinContent(i,j) - shape.GetBinContent(i,j));
+        shape.SetBinError(i,j, err*err + shape.GetBinError(i,j));
+      }
+    }
+  }
+  for (int i = 1; i <= shape.GetNbinsX(); ++i) {
+    for (int j = 1; j <= shape.GetNbinsY(); ++j) {
+      shape.SetBinError(i,j, std::sqrt(shape.GetBinError(i,j)/double(n_samples)));
+    }
+  }
+  this->UpdateParameters(backup);
+  return shape;
+}
+
 TH2F CombineHarvester::GetRateCovariance(RooFitResult const& fit,
                                          unsigned n_samples) {
   auto lookup = GenerateProcSystMap();
@@ -422,6 +508,145 @@ TH1F CombineHarvester::GetShapeInternal(ProcSystMap const& lookup,
   return shape;
 }
 
+TH2F CombineHarvester::Get2DShape() {
+  auto lookup = GenerateProcSystMap();
+  return Get2DShapeInternal(lookup);
+}
+
+TH2F CombineHarvester::Get2DShapeInternal(ProcSystMap const& lookup,
+    std::string const& single_sys) {
+  TH2F shape;
+  bool shape_init = false;
+
+  for (unsigned i = 0; i < procs_.size(); ++i) {
+    // Might be able to skip if only interested in one nuisance
+    // However - we can't skip if the process has a pdf, as
+    // we haven't checked what the parameters are
+    if (single_sys != "" && !procs_[i]->pdf()) {
+      if (!ch::any_of(lookup[i], [&](Systematic const* sys) {
+        return sys->name() == single_sys;
+      })) continue;
+    }
+    double p_rate = procs_[i]->rate();
+    if (procs_[i]->shape() || procs_[i]->data()) {
+      TH2F proc_shape = procs_[i]->ShapeAsTH2F();
+      for (auto sys_it : lookup[i]) {
+        if (sys_it->type() == "rateParam") {
+          continue;  // don't evaluate this for now
+        }
+        auto param_it = params_.find(sys_it->name());
+        if (param_it == params_.end()) {
+          throw std::runtime_error(
+              FNERROR("Parameter " + sys_it->name() +
+                      " not found in CombineHarvester instance"));
+        }
+        double x = param_it->second->val();
+        if (sys_it->asymm()) {
+          p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
+                                 sys_it->value_u());
+          if (sys_it->type() == "shape" || sys_it->type() == "shapeN2" ||
+              sys_it->type() == "shapeU") {
+            bool linear = true;
+            if (sys_it->type() == "shapeN2") linear = false;
+            if (sys_it->shape_u() && sys_it->shape_d()) {
+              ShapeDiff2D(x * sys_it->scale(), &proc_shape, procs_[i]->shape(),
+                        sys_it->shape_d(), sys_it->shape_u(), linear);
+            }
+            if (sys_it->data_u() && sys_it->data_d()) {
+              RooDataHist const* nom =
+                  dynamic_cast<RooDataHist const*>(procs_[i]->data());
+              if (nom) {
+                ShapeDiff2D(x * sys_it->scale(), &proc_shape, nom,
+                          sys_it->data_d(), sys_it->data_u());
+              }
+            }
+          }
+        } else {
+          p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
+        }
+      }
+      for (int bx = 1; bx <= proc_shape.GetNbinsX(); ++bx) {
+        for (int by = 1; by <= proc_shape.GetNbinsY(); ++by) {
+          if (proc_shape.GetBinContent(bx,by) < 0.) proc_shape.SetBinContent(bx,by, 0.);
+        }
+      }
+      proc_shape.Scale(p_rate);
+      if (!shape_init) {
+        proc_shape.Copy(shape);
+        shape.Reset();
+        shape_init = true;
+      }
+      shape.Add(&proc_shape);
+    } else if (procs_[i]->pdf()) {
+      if (!procs_[i]->observable()) {
+        RooAbsData const* data_obj = FindMatchingData(procs_[i].get());
+        std::string var_name = "CMS_th1x";
+        // CUSTOM CODE
+        std::string var_name_y = "CMS_th1y";
+        if (data_obj) {
+          var_name = data_obj->get()->first()->GetName();
+          RooArgSet* temp_vars = (RooArgSet*)data_obj->get()->Clone();
+          RooAbsArg* temp_xvar = data_obj->get()->first();
+          temp_vars->remove(*temp_xvar,true,true);
+          var_name_y = temp_vars->first()->GetName();
+        }
+        if (procs_[i]->pdf()->findServer(var_name.c_str())) {
+            procs_[i]->set_observable((RooRealVar *)procs_[i]->pdf()->findServer(var_name.c_str()));
+            procs_[i]->set_observable_y((RooRealVar *)procs_[i]->pdf()->findServer(var_name_y.c_str()));
+        }
+        else {
+            VerticalInterpPdf* proc_pdf = (VerticalInterpPdf*)procs_[i]->pdf();
+            auto nom_template = proc_pdf->funcList().at(0);
+            procs_[i]->set_observable((RooRealVar *)nom_template->findServer(var_name.c_str()));
+            procs_[i]->set_observable_y((RooRealVar *)nom_template->findServer(var_name_y.c_str()));
+        }
+      }
+
+      TH1::AddDirectory(false);
+      TH2F* tmp = (TH2F*)procs_[i]->observable()->createHistogram("",RooFit::Binning(procs_[i]->observable()->getBinning()),
+                                                                    RooFit::YVar(*(RooAbsRealLValue*)procs_[i]->observable_y(),RooFit::Binning(procs_[i]->observable_y()->getBinning()))
+                                                                  );
+      for (int bx = 1; bx <= tmp->GetNbinsX(); ++bx) {
+        for (int by = 1; by <= tmp->GetNbinsY(); ++by) {
+          procs_[i]->observable()->setVal(tmp->GetXaxis()->GetBinCenter(bx));
+          procs_[i]->observable_y()->setVal(tmp->GetYaxis()->GetBinCenter(by));
+          tmp->SetBinContent(bx,by, tmp->GetXaxis()->GetBinWidth(bx) * tmp->GetYaxis()->GetBinWidth(by) * procs_[i]->pdf()->getVal());
+        }
+      }
+      TH2F proc_shape = *tmp;
+      delete tmp;
+      RooAbsPdf const* aspdf = dynamic_cast<RooAbsPdf const*>(procs_[i]->pdf());
+      if ((aspdf && !aspdf->selfNormalized()) || (!aspdf)) {
+        // LOGLINE(log(), "Have a pdf that is not selfNormalized");
+        // std::cout << "Integral: " << proc_shape.Integral() << "\n";
+        if (proc_shape.Integral() > 0.) {
+          proc_shape.Scale(1. / proc_shape.Integral());
+        }
+      }
+      for (auto sys_it : lookup[i]) {
+        if (sys_it->type() == "rateParam") {
+          continue;  // don't evaluate this for now
+        }
+        double x = params_[sys_it->name()]->val();
+        if (sys_it->asymm()) {
+          p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(),
+                                 sys_it->value_u());
+        } else {
+          p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
+        }
+      }
+      proc_shape.Scale(p_rate);
+      if (!shape_init) {
+        proc_shape.Copy(shape);
+        shape.Reset();
+        shape_init = true;
+      }
+      shape.Add(&proc_shape);
+    }
+  }
+  return shape;
+}
+
 double CombineHarvester::GetObservedRate() {
   double rate = 0.0;
   for (unsigned i = 0; i < obs_.size(); ++i) {
@@ -446,6 +671,39 @@ TH1F CombineHarvester::GetObservedShape() {
       tmp->SetBinErrorOption(TH1::kPoisson);
       proc_shape = *tmp;
       delete tmp;
+      proc_shape.Scale(1. / proc_shape.Integral());
+    }
+    proc_shape.Scale(p_rate);
+    if (!shape_init) {
+      proc_shape.Copy(shape);
+      shape.Reset();
+      shape_init = true;
+    }
+    shape.Add(&proc_shape);
+  }
+  return shape;
+}
+
+TH2F CombineHarvester::GetObserved2DShape() {
+  TH2F shape;
+  bool shape_init = false;
+
+  for (unsigned i = 0; i < obs_.size(); ++i) {
+    TH2F proc_shape;
+    double p_rate = obs_[i]->rate();
+    if (obs_[i]->shape()) {
+      proc_shape = obs_[i]->ShapeAsTH2F();
+    } else if (obs_[i]->data()) {
+      RooArgSet* temp_vars = (RooArgSet*)obs_[i]->data()->get()->Clone();
+      RooRealVar temp_xvar = *(RooRealVar*)temp_vars->first();
+      temp_vars->remove(temp_xvar,true,true);
+      RooRealVar temp_yvar = *(RooRealVar*)temp_vars->first();
+      TH2F* tmp = dynamic_cast<TH2F*>(obs_[i]->data()->createHistogram(
+          "", temp_xvar,RooFit::YVar(temp_yvar))); // This is probably wrong
+      tmp->Sumw2(false);
+      tmp->SetBinErrorOption(TH1::kPoisson);
+      proc_shape = *tmp;
+      //delete &tmp;
       proc_shape.Scale(1. / proc_shape.Integral());
     }
     proc_shape.Scale(p_rate);
@@ -511,6 +769,59 @@ void CombineHarvester::ShapeDiff(double x,
 //     params_[params[i].name()] = std::make_shared<ch::Parameter>(params[i]);
 //   }
 // }
+
+void CombineHarvester::ShapeDiff2D(double x,
+    TH2F * target,
+    TH1 const* nom,
+    TH1 const* low,
+    TH1 const* high,
+    bool linear) {
+  double fx = smoothStepFunc(x);
+  for (int i = 1; i <= target->GetNbinsX(); ++i) {
+    for (int j = 1; j <= target->GetNbinsY(); ++j) {
+      float h = high->GetBinContent(i,j);
+      float l = low->GetBinContent(i,j);
+      float n = nom->GetBinContent(i,j);
+      if (!linear) {
+        float t = target->GetBinContent(i,j);
+        target->SetBinContent(i,j, t > 0. ? std::log(t) : -999.);
+        h = (h > 0. && n > 0.) ? std::log(h/n) : 0.;
+        l = (l > 0. && n > 0.) ? std::log(l/n) : 0.;
+        target->SetBinContent(i,j, target->GetBinContent(i,j) +
+                                     0.5 * x * ((h - l) + (h + l) * fx));
+        target->SetBinContent(i,j, std::exp(target->GetBinContent(i,j)));
+      } else {
+        target->SetBinContent(i,j, target->GetBinContent(i,j) +
+                                     0.5 * x * ((h - l) + (h + l - 2. * n) * fx));
+      }
+    }
+  }
+}
+
+void CombineHarvester::ShapeDiff2D(double x,
+    TH2F * target,
+    RooDataHist const* nom,
+    RooDataHist const* low,
+    RooDataHist const* high) {
+  double fx = smoothStepFunc(x);
+  int k = 0;
+  for (int i = 1; i <= target->GetNbinsX(); ++i) {
+    for (int j = 1; j <= target->GetNbinsY(); ++j) {
+      high->get(k);
+      low->get(k);
+      nom->get(k);
+      // The RooDataHists are not scaled to unity (unlike in the TH1 case above)
+      // so we have to normalise the bin contents on the fly
+      float h = high->weight() / high->sumEntries();
+      float l = low->weight() / low->sumEntries();
+      float n = nom->weight() / nom->sumEntries();
+      target->SetBinContent(i,j, target->GetBinContent(i,j) +
+                                   0.5 * x * ((h - l) + (h + l - 2. * n) * fx));
+      ++k;
+    }
+  }
+}
+
 
 void CombineHarvester::RenameParameter(std::string const& oldname,
                                        std::string const& newname) {
@@ -743,6 +1054,39 @@ void CombineHarvester::SetPdfBins(unsigned nbins) {
         RooRealVar* avar =
             dynamic_cast<RooRealVar*>(it.second->var(var.c_str()));
         if (avar) avar->setBins(nbins);
+      }
+    }
+  }
+}
+
+void CombineHarvester::Set2DPdfBins(unsigned nbinsx, unsigned nbinsy) {
+  for (unsigned i = 0; i < procs_.size(); ++i) {
+    std::set<std::string> binning_varsx;
+    std::set<std::string> binning_varsy;
+    if (procs_[i]->pdf()) {
+      RooAbsData const* data_obj = FindMatchingData(procs_[i].get());
+      std::string var_name = "CMS_th1x";
+      std::string var_name_y = "CMS_th1y";
+      if (data_obj) {
+        var_name = data_obj->get()->first()->GetName();
+        RooArgSet* temp_vars = (RooArgSet*)data_obj->get()->Clone();
+        RooRealVar temp_xvar = *(RooRealVar*)temp_vars->first();
+        temp_vars->remove(temp_xvar,true,true);
+        var_name_y = temp_vars->first()->GetName();
+      }
+      binning_varsx.insert(var_name);
+      binning_varsy.insert(var_name_y);
+    }
+    for (auto & it : wspaces_) {
+      for (auto & var : binning_varsx) {
+        RooRealVar* avar =
+            dynamic_cast<RooRealVar*>(it.second->var(var.c_str()));
+        if (avar) avar->setBins(nbinsx);
+      }
+      for (auto & var : binning_varsy) {
+        RooRealVar* avar =
+            dynamic_cast<RooRealVar*>(it.second->var(var.c_str()));
+        if (avar) avar->setBins(nbinsy);
       }
     }
   }
