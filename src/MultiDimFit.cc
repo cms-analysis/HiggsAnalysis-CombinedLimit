@@ -646,13 +646,15 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             std::cout<<"\n************************************************************************************"<<std::endl;
             std::cout<<"* Random starting point set to non-zero value. This will take some time to complete. *"<<std::endl;
             std::cout<<"************************************************************************************\n"<<std::endl;
+            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,"Random starting point set to non-zero value. This will take some time to complete.",__func__);
             srand(randPointsSeed_);
         }
-        else {
+        /*else {
             std::cout<<"\n**********************************************************************************"<<std::endl;
             std::cout<<"* Random starting point set to zero. Only default starting point will be used. *"<<std::endl;
             std::cout<<"**********************************************************************************\n"<<std::endl;
         }
+	*/
         double xspacing = (pmax[0]-pmin[0]) / points;
         double xspacingOffset = 0.5;
         if (alignEdges_) {
@@ -717,13 +719,16 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             std::cout<<"\n************************************************************************************"<<std::endl;
             std::cout<<"* Random starting point set to non-zero value. This will take some time to complete. *"<<std::endl;
             std::cout<<"************************************************************************************\n"<<std::endl;
+            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,"Random starting point set to non-zero value. This will take some time to complete.",__func__);
             srand(randPointsSeed_);
         }
+	/*
         else {
             std::cout<<"\n**********************************************************************************"<<std::endl;
             std::cout<<"* Random starting point set to zero. Only default starting point will be used. *"<<std::endl;
             std::cout<<"**********************************************************************************\n"<<std::endl;
         }
+	*/
 
         // get number of points per axis
         unsigned int nX, nY;
