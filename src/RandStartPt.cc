@@ -20,12 +20,12 @@
 #include <Math/QuantFuncMathCore.h>
 #include <Math/ProbFunc.h>
 
-RandStartPt::RandStartPt(RooAbsReal& nll, std::vector<RooRealVar* > &specifiedvars, std::vector<float> &specifiedvals, bool skipdefaultstart, std::string randptsranges, int numrandpts, int verbose, bool fastscan, bool hasmaxdeltaNLLforprof, float maxdeltaNLLforprof, std::vector<std::string> &specifiednuis, std::vector<std::string> &specifiedfuncnames, std::vector<RooAbsReal*> &specifiedfunc, std::vector<float> &specifiedfuncvals, std::vector<std::string> &specifiedcatnames, std::vector<RooCategory*> &specifiedcat, std::vector<int> &specifiedcatvals, unsigned int nOtherFloatingPOI) :
+RandStartPt::RandStartPt(RooAbsReal& nll, std::vector<RooRealVar* > &specifiedvars, std::vector<float> &specifiedvals, bool skipdefaultstart, std::string parameterRandInitialValranges, int numrandpts, int verbose, bool fastscan, bool hasmaxdeltaNLLforprof, float maxdeltaNLLforprof, std::vector<std::string> &specifiednuis, std::vector<std::string> &specifiedfuncnames, std::vector<RooAbsReal*> &specifiedfunc, std::vector<float> &specifiedfuncvals, std::vector<std::string> &specifiedcatnames, std::vector<RooCategory*> &specifiedcat, std::vector<int> &specifiedcatvals, unsigned int nOtherFloatingPOI) :
     nll_(nll),
     specifiedvars_(specifiedvars),
     specifiedvals_(specifiedvals),
     skipdefaultstart_(skipdefaultstart), 
-    randptsranges_(randptsranges), 
+    parameterRandInitialValranges_(parameterRandInitialValranges), 
     numrandpts_(numrandpts), 
     verbosity_(verbose),
     fastscan_(fastscan),
@@ -57,16 +57,22 @@ std::vector<std::vector<float>> RandStartPt::vectorOfPointsToTry (){
     // Append the random points to the vector of points to try
     float prof_start_pt_range_max = 20.0; // Default to 20 if we're not asking for custom ranges
     std::map<std::string, std::vector<float>> rand_ranges_dict;
-    if (randptsranges_ != "") {
-        rand_ranges_dict = RandStartPt::getRangesDictFromInString(randptsranges_);
+    if (parameterRandInitialValranges_ != "") {
+        rand_ranges_dict = RandStartPt::getRangesDictFromInString(parameterRandInitialValranges_);
     }
+
     for (int pt_idx = 0; pt_idx<numrandpts_; pt_idx++){
         std::vector<float> wc_vals_vec;
         for (int prof_param_idx=0; prof_param_idx<n_prof_params; prof_param_idx++) {
-            if (randptsranges_ != "") {
-                float rand_range_lo = rand_ranges_dict[specifiedvars_[prof_param_idx]->GetName()][0];
-                float rand_range_hi = rand_ranges_dict[specifiedvars_[prof_param_idx]->GetName()][1];
-                prof_start_pt_range_max = std::max(abs(rand_range_lo),abs(rand_range_hi));
+            if (parameterRandInitialValranges_ != "") {
+                if (rand_ranges_dict.find(specifiedvars_[prof_param_idx]->GetName()) != rand_ranges_dict.end()){   //if the random starting point range for this floating POI was supplied during runtime
+                    float rand_range_lo = rand_ranges_dict[specifiedvars_[prof_param_idx]->GetName()][0];
+                    float rand_range_hi = rand_ranges_dict[specifiedvars_[prof_param_idx]->GetName()][1];
+                    prof_start_pt_range_max = std::max(abs(rand_range_lo),abs(rand_range_hi));
+                }
+                else {   //if the random starting point range for this floating POI was not supplied during runtime, set the default low to -20 and high to +20
+                    rand_ranges_dict.insert({specifiedvars_[prof_param_idx]->GetName(),{-20.0,20.0}});
+                }
             }
             //Get a random number in the range [-prof_start_pt_range_max,prof_start_pt_range_max]
             float rand_num = (rand()*2.0*prof_start_pt_range_max)/RAND_MAX - prof_start_pt_range_max;
@@ -78,11 +84,13 @@ std::vector<std::vector<float>> RandStartPt::vectorOfPointsToTry (){
 
     //Print vector of points to try
     if (verbosity_ > 1) {
-        std::cout<<"List of points to try: "<<std::endl;
+        std::cout<<"List of points to try for : "<<std::endl;
         for (auto vals_vec: wc_vals_vec_of_vec){
+            int index = 0;
             std::cout<<"\tThe vals at this point: "<<std::endl;
             for (auto val:vals_vec){
-                std::cout << "\t\tPoint val: " << val << std::endl;
+                std::cout << "\t\tPoint val for: "<<specifiedvars_[index]->GetName() <<" = "<< val << std::endl;
+                index++;
             }
         }
     }
@@ -125,9 +133,6 @@ void RandStartPt::setProfPOIvalues(unsigned int startptIdx, std::vector<std::vec
         if (verbosity_ > 1) std::cout << "\t\tThe var name: " << specifiedvars_[var_idx]->GetName() << std::endl;
         if (verbosity_ > 1) std::cout << "\t\t\tRange before: " << specifiedvars_[var_idx]->getMin() << " " << specifiedvars_[var_idx]->getMax() << std::endl;
         if (verbosity_ > 1) std::cout << "\t\t\t" << specifiedvars_[var_idx]->GetName() << " before setting: " << specifiedvars_[var_idx]->getVal() << " += " << specifiedvars_[var_idx]->getError() << std::endl;
-        if (numrandpts_ > 0){
-            specifiedvars_[var_idx]->removeRange(); //Do not impose a range if we are trying multiple random start points
-        }
         specifiedvars_[var_idx]->setVal(nested_vector_of_wc_vals.at(startptIdx).at(var_idx));
         if (verbosity_ > 1) std::cout << "\t\t\tRange after: " << specifiedvars_[var_idx]->getMin() << " " << specifiedvars_[var_idx]->getMax() << std::endl;   
         if (verbosity_ > 1) std::cout << "\t\t\t" << specifiedvars_[var_idx]->GetName() << " after  setting: " << specifiedvars_[var_idx]->getVal() << " += " << specifiedvars_[var_idx]->getError() << std::endl;   

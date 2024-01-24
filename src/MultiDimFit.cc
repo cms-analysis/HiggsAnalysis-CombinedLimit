@@ -64,7 +64,7 @@ std::string MultiDimFit::robustHesseLoad_ = "";
 std::string MultiDimFit::robustHesseSave_ = "";
 int MultiDimFit::pointsRandProf_ = 0;
 int MultiDimFit::randPointsSeed_ = 0;
-std::string MultiDimFit::randPointsRanges_;
+std::string MultiDimFit::setParameterRandomInitialValueRanges_;
 
 
 std::string MultiDimFit::saveSpecifiedFuncs_;
@@ -119,7 +119,7 @@ MultiDimFit::MultiDimFit() :
         ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
         ("pointsRandProf",  boost::program_options::value<int>(&pointsRandProf_)->default_value(pointsRandProf_),  "Number of random start points to try for the profiled POIs")
         ("randPointsSeed",  boost::program_options::value<int>(&randPointsSeed_)->default_value(randPointsSeed_),  "Seed to use when generating random start points to try for the profiled POIs")
-        ("randPointsRanges",  boost::program_options::value<std::string>(&randPointsRanges_)->default_value(""),  "Range from which to draw random start points for the profiled POIs")
+        ("setParameterRandomInitialValueRanges",  boost::program_options::value<std::string>(&setParameterRandomInitialValueRanges_)->default_value(""),  "Range from which to draw random start points for the profiled POIs. This range should be equal to or smaller than the max and min values for the profiled POIs. Does not override max/min ranges for the given POIs. E.g. usage: c1=-5,5:c2=-1,1")
         ;
 }
 
@@ -702,8 +702,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             ////////////////// Rand starting points for each profiled POI to get best nll ////////////////////////////////////////////////////////////////////////////
             /////////////////  The default behavior (i.e. no random start point) is incorporated within the function below ////////////////////////////////////////////
             ///////////////// To retrieve only default start point usage, set pointsRandProf_ to 0 or leave it unspecified. /////////////////////////////////////////
-
-            RandStartPt randStartPt(nll, specifiedVars_, specifiedVals_, skipDefaultStart_, randPointsRanges_, pointsRandProf_, verbose, fastScan_, hasMaxDeltaNLLForProf_, maxDeltaNLLForProf_, specifiedNuis_, specifiedFuncNames_, specifiedFunc_, specifiedFuncVals_, specifiedCatNames_, specifiedCat_, specifiedCatVals_, nOtherFloatingPoi_);
+            RandStartPt randStartPt(nll, specifiedVars_, specifiedVals_, skipDefaultStart_, setParameterRandomInitialValueRanges_, pointsRandProf_, verbose, fastScan_, hasMaxDeltaNLLForProf_, maxDeltaNLLForProf_, specifiedNuis_, specifiedFuncNames_, specifiedFunc_, specifiedFuncVals_, specifiedCatNames_, specifiedCat_, specifiedCatVals_, nOtherFloatingPoi_);
             randStartPt.doRandomStartPt1DGridScan(x, n, poiVals_, poiVars_, params, snap, deltaNLL_, nll0, minim);
 
         } // End of the loop over scan points
@@ -787,7 +786,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                 //////////////////  The default behavior (i.e. no random start pt) is incorporated within the function below ////////////////////////////////////////////
                 ///////////////// To retrieve only default start point usage, set pointsRandProf_ to 0 or leave it unspecified. /////////////////////////////////
 
-                RandStartPt randStartPt(nll, specifiedVars_, specifiedVals_, skipDefaultStart_, randPointsRanges_, pointsRandProf_, verbose, fastScan_, hasMaxDeltaNLLForProf_, maxDeltaNLLForProf_, specifiedNuis_, specifiedFuncNames_, specifiedFunc_, specifiedFuncVals_, specifiedCatNames_, specifiedCat_, specifiedCatVals_, nOtherFloatingPoi_);
+                RandStartPt randStartPt(nll, specifiedVars_, specifiedVals_, skipDefaultStart_, setParameterRandomInitialValueRanges_, pointsRandProf_, verbose, fastScan_, hasMaxDeltaNLLForProf_, maxDeltaNLLForProf_, specifiedNuis_, specifiedFuncNames_, specifiedFunc_, specifiedFuncVals_, specifiedCatNames_, specifiedCat_, specifiedCatVals_, nOtherFloatingPoi_);
                 randStartPt.doRandomStartPt2DGridScan(x, y, n, poiVals_, poiVars_, params, snap, deltaNLL_, nll0, gridType_, deltaX, deltaY, minim);
             } //End of loop over y scan points
         } //End of loop over x scan points

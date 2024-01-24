@@ -17,7 +17,7 @@ class RandStartPt {
       std::vector<RooRealVar* > &specifiedvars_;
       std::vector<float> &specifiedvals_;
       bool skipdefaultstart_;
-      std::string randptsranges_;
+      std::string parameterRandInitialValranges_;
       int numrandpts_;
       int verbosity_;
       bool fastscan_;
@@ -32,7 +32,7 @@ class RandStartPt {
       std::vector<int> &specifiedcatvals_;
       unsigned int nOtherFloatingPOI_;
   public:
-      RandStartPt(RooAbsReal& nll, std::vector<RooRealVar* > &specifiedvars, std::vector<float> &specifiedvals, bool skipdefaultstart, std::string randptsranges, int numrandpts, int verbose, bool fastscan, bool hasmaxdeltaNLLforprof, float maxdeltaNLLforprof, std::vector<std::string> &specifiednuis, std::vector<std::string> &specifiedfuncnames, std::vector<RooAbsReal*> &specifiedfunc, std::vector<float> &specifiedfuncvals, std::vector<std::string> &specifiedcatnames, std::vector<RooCategory*> &specifiedcat, std::vector<int> &specifiedcatvals, unsigned int nOtherFloatingPOI);
+      RandStartPt(RooAbsReal& nll, std::vector<RooRealVar* > &specifiedvars, std::vector<float> &specifiedvals, bool skipdefaultstart, std::string parameterRandInitialValranges, int numrandpts, int verbose, bool fastscan, bool hasmaxdeltaNLLforprof, float maxdeltaNLLforprof, std::vector<std::string> &specifiednuis, std::vector<std::string> &specifiedfuncnames, std::vector<RooAbsReal*> &specifiedfunc, std::vector<float> &specifiedfuncvals, std::vector<std::string> &specifiedcatnames, std::vector<RooCategory*> &specifiedcat, std::vector<int> &specifiedcatvals, unsigned int nOtherFloatingPOI);
       std::map<std::string, std::vector<float>> getRangesDictFromInString(std::string params_ranges_string_in);
       std::vector<std::vector<float>> vectorOfPointsToTry ();
       void commitBestNLLVal(unsigned int idx, float &nllVal, double &probVal);

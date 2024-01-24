@@ -70,7 +70,7 @@ protected:
   static std::string robustHesseSave_;
 
   static int pointsRandProf_;
-  static std::string randPointsRanges_;
+  static std::string setParameterRandomInitialValueRanges_;
   static int randPointsSeed_;
 
   static std::string saveSpecifiedFuncs_;
