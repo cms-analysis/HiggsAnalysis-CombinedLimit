@@ -81,7 +81,7 @@ FitDiagnostics::FitDiagnostics() :
         ("out",                	boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
         ("plots",              	"Make pre/post-fit RooPlots of 1D distributions of observables and fitted models")
         ("rebinFactor",        	boost::program_options::value<float>(&rebinFactor_)->default_value(rebinFactor_), "Rebin by this factor before plotting (does not affect fitting!)")
-        ("signalPdfNames",     	boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ,)")
+        ("signalPdfNames",     	boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ',')")
         ("backgroundPdfNames", 	boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
         ("saveNormalizations",  "Save post-fit normalizations RooArgSet (single toy only)")
         ("savePredictionsPerToy",  "Save post-fit normalizations and shapes per toy")
@@ -147,7 +147,7 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
 bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
 
   if (reuseParams_ && minos_!="none"){
-	std::cout << "Cannot reuse b-only fit params when running minos. Parameters will be reset when running S+B fit"<<std::endl;
+	std::cout << "Cannot re-use b-only fit parameters when running minos. Parameters will be reset when running S+B fit"<<std::endl;
 	reuseParams_=false;
   }
 
@@ -174,7 +174,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   if ( currentToy_ > 1 && (saveShapes_) ) {
       //std::cerr << " ERROR, cannot use saveShapes  with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove those options." << std::endl;
-      CombineLogger::instance().log("FitDiagnostics.cc",__LINE__,"[ERROR] cannot use saveShapes with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove those options",__func__);
+      CombineLogger::instance().log("FitDiagnostics.cc",__LINE__,"[ERROR] cannot use saveShapes with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove the saveShapes option",__func__);
       assert(0);
   }
 
@@ -531,7 +531,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	}
       } else {
       	std::cout << "\n --- FitDiagnostics ---" << std::endl;
-      	std::cout << "Done! fit s+b and fit b should be identical" << std::endl;
+      	std::cout << "Done! s+b fit and b-only fit should be identical" << std::endl;
       }
   } else if (!skipSBFit_) {
       std::cout << "\n --- FitDiagnostics ---" << std::endl;

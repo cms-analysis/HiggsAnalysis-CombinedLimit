@@ -29,7 +29,7 @@ parser.add_option(
     dest="binned",
     default=False,
     action="store_true",
-    help="produce a RooDataHist",
+    help="Produce a RooDataHist",
 )
 parser.add_option(
     "-C",

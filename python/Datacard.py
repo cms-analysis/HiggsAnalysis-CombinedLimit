@@ -8,9 +8,8 @@ class Datacard:
     Description:
 
     This is a container class that is filled by the function parseCards in HiggsAnalysis/CombinedLimit/python/DatacardParser.py.
-    This function parses a given datacards file and fills Datacard as a data structure that is easily accessible within python
-    scripts. To simplify access a set of getter c++ like function have been added to the class. Some more access function for
-    systematics will be added later.
+    This function parses a given datacards file and fills a Datacard as a data structure that is easily accessible within python
+    scripts. To simplify access, a set of getter c++-like functions has been added to the class.
     """
 
     def __init__(self):
@@ -71,7 +70,7 @@ class Datacard:
 
     def print_structure(self):
         """
-        Print the contents of the -> should allow for direct text2workspace on python config
+        Print the contents of the container -> should allow for direct text2workspace on python config
         """
         print(
             """
@@ -281,7 +280,7 @@ MB.doModel()
 
     def rate(self, bin, proc):
         """
-        Return thenumber of expected events for a given bin and process.
+        Return the number of expected events for a given bin and process.
         """
         return self.exp[bin][proc]
 

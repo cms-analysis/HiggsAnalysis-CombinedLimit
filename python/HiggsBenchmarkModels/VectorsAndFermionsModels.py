@@ -8,7 +8,7 @@ from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 
 
 class CvCfHiggs(SMLikeHiggsModel):
-    "assume the SM coupling but let the Higgs mass to float"
+    "assume the SM coupling but leave the Higgs mass to float"
 
     def __init__(self):
         SMLikeHiggsModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
@@ -25,19 +25,19 @@ class CvCfHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
             if po.startswith("cVRange="):
                 self.cVRange = po.replace("cVRange=", "").split(":")
                 if len(self.cVRange) != 2:
                     raise RuntimeError("cV signal strength range requires minimal and maximal value")
                 elif float(self.cVRange[0]) >= float(self.cVRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than first one")
             if po.startswith("cFRange="):
                 self.cFRange = po.replace("cFRange=", "").split(":")
                 if len(self.cFRange) != 2:
                     raise RuntimeError("cF signal strength range requires minimal and maximal value")
                 elif float(self.cFRange[0]) >= float(self.cFRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than first one")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -148,7 +148,7 @@ class CvCfXgHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -245,7 +245,7 @@ class CfXgHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -344,19 +344,19 @@ class CvCfInvHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
             if po.startswith("cVRange="):
                 self.cVRange = po.replace("cVRange=", "").split(":")
                 if len(self.cVRange) != 2:
                     raise RuntimeError("cV signal strength range requires minimal and maximal value")
                 elif float(self.cVRange[0]) >= float(self.cVRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than first one")
             if po.startswith("cFRange="):
                 self.cFRange = po.replace("cFRange=", "").split(":")
                 if len(self.cFRange) != 2:
                     raise RuntimeError("cF signal strength range requires minimal and maximal value")
                 elif float(self.cFRange[0]) >= float(self.cFRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than first one")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""

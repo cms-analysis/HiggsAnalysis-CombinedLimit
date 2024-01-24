@@ -198,7 +198,7 @@ void RooSplineND::calculateWeights(std::vector<double> &f){
         double d2  = getDistSquare(i,j);
 	if (d2 < 0.0001) {
 		std::cout << " ERROR  - points likely duplicated, which will lead to errors in solving for weights. \
-		The distnace^2 is smaller than 0.0001 for points "<< i << " and " << j << " ... " <<  std::endl;
+		The distance^2 is smaller than 0.0001 for points "<< i << " and " << j << " ... " <<  std::endl;
 		printPoint(i);
 		printPoint(j);
 	}

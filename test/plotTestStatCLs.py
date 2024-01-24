@@ -41,7 +41,7 @@ parser.add_option(
     "--val",
     default="all",
     type="str",
-    help="poi values, comma separated (type all to make a plot for every value found in the file)",
+    help="POI values, comma separated (type all to make a plot for every value found in the file)",
 )
 parser.add_option(
     "",
@@ -49,7 +49,7 @@ parser.add_option(
     default="",
     type="str",
     dest="sub_label",
-    help="change sub-label from q to q_sub_label (doesn't apply if using --signif option",
+    help="Change sub-label from q to q_sub_label (doesn't apply if using --signif option",
 )
 parser.add_option(
     "-r",
@@ -63,7 +63,7 @@ parser.add_option(
     "--mass",
     default=[],
     action="append",
-    help="mass value(s) (same as -m for combine)",
+    help="Mass value(s) (same as -m for combine)",
 )
 parser.add_option(
     "-P",

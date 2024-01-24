@@ -37,7 +37,7 @@ parser.add_option(
     dest="vtol",
     default=0.30,
     type="float",
-    help="Report nuisances whose value changes by more than this amount of sigmas",
+    help="Report nuisances whose value changes by more than this number of sigmas",
 )
 parser.add_option(
     "--stol",
@@ -53,7 +53,7 @@ parser.add_option(
     dest="vtol2",
     default=2.0,
     type="float",
-    help="Report severely nuisances whose value changes by more than this amount of sigmas",
+    help="Report severely nuisances whose value changes by more than this number of sigmas",
 )
 parser.add_option(
     "--stol2",
@@ -426,9 +426,9 @@ morelight = "!%s!"
 pmsub, sigsub = None, None
 if options.format == "text":
     if options.skipFitS:
-        print(" option '--skipFitS' set true. s+b Fit is just a copy of the b-only fit")
+        print(" option '--skipFitS' set true. s+b fit is just a copy of the b-only fit")
     if options.skipFitB:
-        print(" option '--skipFitB' set true. b-only Fit is just a copy of the s+b fit")
+        print(" option '--skipFitB' set true. b-only fit is just a copy of the s+b fit")
     if options.pullDef:
         fmtstring = "%-40s       %30s    %30s  %10s  %10s"
         print(fmtstring % ("name", "b-only fit pull", "s+b fit pull", "rho", "approx impact"))
@@ -443,9 +443,9 @@ elif options.format == "latex":
     highlight = "\\textbf{%s}"
     morelight = "{{\\color{red}\\textbf{%s}}}"
     if options.skipFitS:
-        print(" option '--skipFitS' set true. $s+b$ Fit is just a copy of the $b$-only fit")
+        print(" option '--skipFitS' set true. $s+b$ fit is just a copy of the $b$-only fit")
     if options.skipFitB:
-        print(" option '--skipFitB' set true. $b$-only Fit is just a copy of the $s+b$ fit")
+        print(" option '--skipFitB' set true. $b$-only fit is just a copy of the $s+b$ fit")
     if options.pullDef:
         fmtstring = "%-40s & %30s & %30s & %6s & %6s  \\\\"
         print("\\begin{tabular}{|l|r|r|r|r|} \\hline ")

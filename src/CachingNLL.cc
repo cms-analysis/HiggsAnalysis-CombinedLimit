@@ -1125,7 +1125,7 @@ cacheutils::CachingSimNLL::setData(const RooAbsData &data)
     //utils::printRAD(&data);
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
     if (!(RooCategory*)data.get()->find("CMS_channel")) { 
-    	throw  std::logic_error("Error: no category in dataset. You should try to recreate your datacard as a Fake shape -- combineCards.py mycard.txt -S > myshapecard.txt OR rerun with option --forceRecreateNLL");
+    	throw  std::logic_error("Error: no category in dataset. You should try to recreate your datacard as a Fake shape datacard -- combineCards.py mycard.txt -S > myshapecard.txt OR rerun with option --forceRecreateNLL");
 	assert(0);
     }
     splitWithWeights(*dataOriginal_, pdfOriginal_->indexCat(), true);

@@ -28,7 +28,7 @@ parser.add_option(
     dest="snapshotName",
     type="str",
     default="",
-    help="load a snapshot in the workspace at which the other parameters will be set to in each scan",
+    help="Load a snapshot in the workspace at which the other parameters will be set to in each scan",
 )
 parser.add_option(
     "",
@@ -36,7 +36,7 @@ parser.add_option(
     dest="setDefaultParameterValues",
     type="str",
     default="",
-    help="set parameter values when not scanning (default is to use the values in the workspace/loaded from the snapshot). use p1=x,p2=y,p3=...",
+    help="Set parameter values when not scanning (default is to use the values in the workspace/loaded from the snapshot). use p1=x,p2=y,p3=...",
 )
 parser.add_option("", "--out", dest="out", type="str", default="", help="output folder")
 parser.add_option(
