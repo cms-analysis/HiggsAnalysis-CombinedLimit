@@ -646,13 +646,14 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             std::cout<<"\n************************************************************************************"<<std::endl;
             std::cout<<"* Random starting point set to non-zero value. This will take some time to complete. *"<<std::endl;
             std::cout<<"************************************************************************************\n"<<std::endl;
+	    CombineLogger::instance().log("MultiDimFit.cc",__LINE__,"Random starting point set to non-zero value. This will take some time to complete.",__func__);
             srand(randPointsSeed_);
         }
-        else {
-            std::cout<<"\n**********************************************************************************"<<std::endl;
-            std::cout<<"* Random starting point set to zero. Only default starting point will be used. *"<<std::endl;
-            std::cout<<"**********************************************************************************\n"<<std::endl;
-        }
+        //else {
+        //    std::cout<<"\n**********************************************************************************"<<std::endl;
+        //    std::cout<<"* Random starting point set to zero. Only default starting point will be used. *"<<std::endl;
+        //    std::cout<<"**********************************************************************************\n"<<std::endl;
+        //}
         double xspacing = (pmax[0]-pmin[0]) / points;
         double xspacingOffset = 0.5;
         if (alignEdges_) {
@@ -701,8 +702,8 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             ////////////////// Rand starting points for each profiled POI to get best nll ////////////////////////////////////////////////////////////////////////////
             /////////////////  The default behavior (i.e. no random start point) is incorporated within the function below ////////////////////////////////////////////
-            ///////////////// To retrieve only default start point usage, set pointsRandProf_ to 0 or leave it unspecified. /////////////////////////////////////////
-            RandStartPt randStartPt(nll, specifiedVars_, specifiedVals_, skipDefaultStart_, setParameterRandomInitialValueRanges_, pointsRandProf_, verbose, fastScan_, hasMaxDeltaNLLForProf_, maxDeltaNLLForProf_, specifiedNuis_, specifiedFuncNames_, specifiedFunc_, specifiedFuncVals_, specifiedCatNames_, specifiedCat_, specifiedCatVals_, nOtherFloatingPoi_);
+            ///////////////// To retrieve only default start point usage, set _ to 0 or leave it unspecified. /////////////////////////////////////////
+            RandStartPt randStartPt(nll, specifiedVars_, specifiedVals_, skipDefaultStart_, setParameterRandomInitialValueRanges_, _, verbose, fastScan_, hasMaxDeltaNLLForProf_, maxDeltaNLLForProf_, specifiedNuis_, specifiedFuncNames_, specifiedFunc_, specifiedFuncVals_, specifiedCatNames_, specifiedCat_, specifiedCatVals_, nOtherFloatingPoi_);
             randStartPt.doRandomStartPt1DGridScan(x, n, poiVals_, poiVars_, params, snap, deltaNLL_, nll0, minim);
 
         } // End of the loop over scan points
@@ -716,13 +717,14 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             std::cout<<"\n************************************************************************************"<<std::endl;
             std::cout<<"* Random starting point set to non-zero value. This will take some time to complete. *"<<std::endl;
             std::cout<<"************************************************************************************\n"<<std::endl;
+	    CombineLogger::instance().log("MultiDimFit.cc",__LINE__,"Random starting point set to non-zero value. This will take some time to complete.",__func__);
             srand(randPointsSeed_);
         }
-        else {
-            std::cout<<"\n**********************************************************************************"<<std::endl;
-            std::cout<<"* Random starting point set to zero. Only default starting point will be used. *"<<std::endl;
-            std::cout<<"**********************************************************************************\n"<<std::endl;
-        }
+        //else {
+        //    std::cout<<"\n**********************************************************************************"<<std::endl;
+        //    std::cout<<"* Random starting point set to zero. Only default starting point will be used. *"<<std::endl;
+        //    std::cout<<"**********************************************************************************\n"<<std::endl;
+        //}
 
         // get number of points per axis
         unsigned int nX, nY;
