@@ -114,6 +114,7 @@ options.optimizeMHDependency = False
 options.optimizeTemplateBins = False
 options.forceNonSimPdf = False
 options.removeMultiPdf = False
+options.noData = False
 options.physModel = "HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"
 
 sys.argv = ["-b-"]

@@ -1052,7 +1052,9 @@ In case you see an excess somewhere in your analysis, you can evaluate the look-
 To calculate the look-elsewhere effect for a single parameter (in this case the mass of the resonance), you can follow the instructions below. Note that these instructions assume you have a workspace that is parametric in your resonance mass $m$, otherwise you need to fit each background toy with separate workspaces. We will assume the local significance for your excess is $\sigma$. 
 
    * Generate background-only toys	`combine ws.root -M GenerateOnly --toysFrequentist -m 16.5 -t 100 --saveToys --expectSignal=0`. The output will be something like `higgsCombineTest.GenerateOnly.mH16.5.123456.root`.
+
    * For each toy, calculate the significance for a predefined range (e.g $m\in [10,35]$ GeV) in steps suitable to the resolution (e.g. 1 GeV). For  `toy_1` the procedure would be: `for i in $(seq 10 35); do combine ws.root -M Significance --redefineSignalPOI r --freezeParameters MH --setParameter MH=$i -n $i -D higgsCombineTest.GenerateOnly.mH16.5.123456.root:toys/toy_1`. Calculate the maximum significance over all of these mass points - call this $\sigma_{max}$.
+
    * Count how many toys have a maximum significance larger than the local one for your observed excess. This fraction of toys with $\sigma_{max}>\sigma$ is the global p-value. 
 
 You can find more tutorials on the LEE [here](https://indico.cern.ch/event/456547/contributions/1126036/attachments/1188691/1724680/20151117_comb_tutorial_Lee.pdf)
