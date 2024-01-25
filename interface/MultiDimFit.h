@@ -23,6 +23,8 @@ public:
   }
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
+  friend class RandStartPt;
+
 protected:
   virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
 
@@ -67,6 +69,10 @@ protected:
   static std::string robustHesseLoad_;
   static std::string robustHesseSave_;
 
+  static int pointsRandProf_;
+  static std::string setParameterRandomInitialValueRanges_;
+  static int randPointsSeed_;
+
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;
   static std::string saveSpecifiedIndex_;
@@ -83,6 +89,7 @@ protected:
   static std::vector<float>        specifiedVals_;
   static RooArgList                specifiedList_;
   static bool saveInactivePOI_;
+  static bool skipDefaultStart_;
   // initialize variables
   void initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) ;
 
@@ -94,6 +101,9 @@ protected:
   void doContour2D(RooWorkspace *w, RooAbsReal &nll) ;
   void doStitch2D(RooWorkspace *w, RooAbsReal &nll) ;
   void doImpact(RooFitResult &res, RooAbsReal &nll) ;
+
+  std::map<std::string, std::vector<float>> getRangesDictFromInString(std::string) ;
+
 
   // utilities
   /// for each RooRealVar, set a range 'box' from the PL profiling all other parameters
