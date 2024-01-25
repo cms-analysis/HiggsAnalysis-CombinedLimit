@@ -1224,9 +1224,15 @@ r     = 0.00716347   +/-  12.513    (limited)
 <p>In case you see an excess somewhere in your analysis, you can evaluate the look-elsewhere effect (LEE) of that excess. For an explanation of the LEE, take a look at the CMS Statistics Committee Twiki <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/LookElsewhereEffect">here</a>. </p>
 <p>To calculate the look-elsewhere effect for a single parameter (in this case the mass of the resonance), you can follow the instructions below. Note that these instructions assume you have a workspace that is parametric in your resonance mass <span class="arithmatex"><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>, otherwise you need to fit each background toy with separate workspaces. We will assume the local significance for your excess is <span class="arithmatex"><span class="MathJax_Preview">\sigma</span><script type="math/tex">\sigma</script></span>. </p>
 <ul>
-<li>Generate background-only toys  <code>combine ws.root -M GenerateOnly --toysFrequentist -m 16.5 -t 100 --saveToys --expectSignal=0</code>. The output will be something like <code>higgsCombineTest.GenerateOnly.mH16.5.123456.root</code>.</li>
-<li>For each toy, calculate the significance for a predefined range (e.g <span class="arithmatex"><span class="MathJax_Preview">m\in [10,35]</span><script type="math/tex">m\in [10,35]</script></span> GeV) in steps suitable to the resolution (e.g. 1 GeV). For  <code>toy_1</code> the procedure would be: <code>for i in $(seq 10 35); do combine ws.root -M Significance --redefineSignalPOI r --freezeParameters MH --setParameter MH=$i -n $i -D higgsCombineTest.GenerateOnly.mH16.5.123456.root:toys/toy_1</code>. Calculate the maximum significance over all of these mass points - call this <span class="arithmatex"><span class="MathJax_Preview">\sigma_{max}</span><script type="math/tex">\sigma_{max}</script></span>.</li>
-<li>Count how many toys have a maximum significance larger than the local one for your observed excess. This fraction of toys with <span class="arithmatex"><span class="MathJax_Preview">\sigma_{max}&gt;\sigma</span><script type="math/tex">\sigma_{max}>\sigma</script></span> is the global p-value. </li>
+<li>
+<p>Generate background-only toys  <code>combine ws.root -M GenerateOnly --toysFrequentist -m 16.5 -t 100 --saveToys --expectSignal=0</code>. The output will be something like <code>higgsCombineTest.GenerateOnly.mH16.5.123456.root</code>.</p>
+</li>
+<li>
+<p>For each toy, calculate the significance for a predefined range (e.g <span class="arithmatex"><span class="MathJax_Preview">m\in [10,35]</span><script type="math/tex">m\in [10,35]</script></span> GeV) in steps suitable to the resolution (e.g. 1 GeV). For  <code>toy_1</code> the procedure would be: <code>for i in $(seq 10 35); do combine ws.root -M Significance --redefineSignalPOI r --freezeParameters MH --setParameter MH=$i -n $i -D higgsCombineTest.GenerateOnly.mH16.5.123456.root:toys/toy_1</code>. Calculate the maximum significance over all of these mass points - call this <span class="arithmatex"><span class="MathJax_Preview">\sigma_{max}</span><script type="math/tex">\sigma_{max}</script></span>.</p>
+</li>
+<li>
+<p>Count how many toys have a maximum significance larger than the local one for your observed excess. This fraction of toys with <span class="arithmatex"><span class="MathJax_Preview">\sigma_{max}&gt;\sigma</span><script type="math/tex">\sigma_{max}>\sigma</script></span> is the global p-value. </p>
+</li>
 </ul>
 <p>You can find more tutorials on the LEE <a href="https://indico.cern.ch/event/456547/contributions/1126036/attachments/1188691/1724680/20151117_comb_tutorial_Lee.pdf">here</a></p></div>
         
