@@ -319,10 +319,10 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    are freely floating. We should cut them down to find which ones are
    */
 
-   //std::cout << " Staring in iterativeMinimize and the minimum NLL so far is  " << minimumNLL << std::endl; 
+   std::cout << " Staring in iterativeMinimize and the minimum NLL so far is  " << minimumNLL << std::endl; 
    if ( fabs(minimumNLL - nll_.getVal()) > discreteMinTol_ ) { 
      improve(verbose,cascade);
-     //std::cout << " Had to improve further since tolerance is not yet reached   " << nll_.getVal() << std::endl; 
+     std::cout << " Had to improve further since tolerance is not yet reached   " << nll_.getVal() << std::endl; 
    }
 
    // First freeze all parameters that have nothing to do with the current active pdfs
@@ -438,11 +438,18 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 
         double minimumNLL  = nll_.getVal();
         double previousNLL = nll_.getVal();
-        int maxIterations = 15; int iterationCounter=0;
-        for (;iterationCounter<maxIterations;iterationCounter++){
+        int maxIterations = runtimedef::get(std::string("MINIMIZER_MaxDiscreteIterations")); //int iterationCounter=0;
+        std::cout << "max iterations discrete:" << maxIterations << std::endl;
+        for (int iterationCounter=0; iterationCounter<maxIterations;iterationCounter++){
           ret = iterativeMinimize(minimumNLL,verbose,cascade);
-          if ( fabs(previousNLL-minimumNLL) < discreteMinTol_ ) break; // should be minimizer tolerance
+          std::cout<< "minNLL=" <<minimumNLL<< "; previousNLL="<<previousNLL << std::endl;
+          if ( fabs(previousNLL-minimumNLL) < discreteMinTol_ ) 
+          {
+            std::cout<< "found a better min in " << iterationCounter<< " iterations" << std::endl;
+            break; // should be minimizer tolerance
+          }
           previousNLL = minimumNLL ;
+          std::cout<< "minimumNLL at" << iterationCounter<< " =" <<minimumNLL << std::endl;
         }
         approxPreFitTolerance_ = backupApproxPreFitTolerance;
       } else {
@@ -598,22 +605,22 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	     for (std::vector<int>::iterator it = cit.begin();
 	         it!=cit.end(); it++){
 
-		 isValidCombo &= (contributingIndeces)[pdfIndex][*it];
-		 if (!isValidCombo ) /*&& runShortCombinations)*/ continue;
+    		 isValidCombo &= (contributingIndeces)[pdfIndex][*it];
+		     if (!isValidCombo ) /*&& runShortCombinations)*/ continue;
 
 	     	 fPdf = (RooCategory*) pdfCategoryIndeces.at(pdfIndex);
-                 if (fPdf->getIndex() != *it) changedIndex = pdfIndex;
-		 fPdf->setIndex(*it);
-		 pdfIndex++;
+         if (fPdf->getIndex() != *it) changedIndex = pdfIndex;
+    		 fPdf->setIndex(*it);
+    		 pdfIndex++;
 	     }
 	
       if (!isValidCombo )/*&& runShortCombinations)*/ continue;
       
       if (verbose>2) {
-	std::cout << "Setting indices := ";
-	for (int id=0;id<numIndeces;id++) {
-		std::cout << ((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex() << " ";
-	}
+	      std::cout << "Setting indices := ";
+      	for (int id=0;id<numIndeces;id++) {
+      		std::cout << ((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex() << " ";
+      	}
         std::cout << std::endl;
       }
 
@@ -664,7 +671,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
       }
 
       // FIXME this should be made configurable!
-      double maxDeviation = 5;
+      double maxDeviation = runtimedef::get(std::string("MINIMIZER_MaxDeviation"));
 
       if (mode==1 )/*&& runShortCombinations)*/{
 

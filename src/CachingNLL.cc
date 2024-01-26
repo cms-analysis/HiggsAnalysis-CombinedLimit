@@ -1321,8 +1321,8 @@ void cacheutils::CachingSimNLL::setMaskNonDiscreteChannels(bool mask) {
     }
     double nllAfter = evaluate();
     maskingOffset_ += (nllBefore - nllAfter);
-    //printf("CachingSimNLL: setMaskNonDiscreteChannels(%d): nll before %.12g, nll after %.12g (diff %.12g), new maskingOffset %.12g, check = %.12g\n",
-    //            int(mask), nllBefore, nllAfter, (nllBefore-nllAfter), maskingOffset_, evaluate() - nllBefore);
+    printf("CachingSimNLL: setMaskNonDiscreteChannels(%d): nll before %.12g, nll after %.12g (diff %.12g), new maskingOffset %.12g, check = %.12g\n",
+                int(mask), nllBefore, nllAfter, (nllBefore-nllAfter), maskingOffset_, evaluate() - nllBefore);
     
 }
 
