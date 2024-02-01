@@ -83,7 +83,7 @@ The script has several options to toggle the thresholds used to decide whether a
 
 By default, the changes in the nuisance parameter values and uncertainties are given relative to their initial (pre-fit) values (usually relative to initial values of 0 and 1 for most nuisance types). 
 
-The values in the output will be $(\theta-\theta_{I})/\sigma_{I}$ if the nuisance has a pre-fit uncertainty, otherwise they will be $\theta-\theta_{I}$ (for example, a `flatParam` has no pre-fit uncertainty). 
+The values in the output will be $(\nu-\nu_{I})/\sigma_{I}$ if the nuisance has a pre-fit uncertainty, otherwise they will be $\nu-\nu_{I}$ (for example, a `flatParam` has no pre-fit uncertainty). 
 
 The reported uncertainty will be the ratio $\sigma/\sigma_{I}$ - i.e the ratio of the post-fit to the pre-fit uncertainty. If there is no pre-fit uncertainty (as for `flatParam` nuisances), the post-fit uncertainty is shown. 
 
@@ -96,18 +96,18 @@ If instead of the nuisance parameter values, you wish to report the _pulls_, you
 
 - `relDiffAsymErrs`: This is the same as the default output of the tool, except that only constrained parameters (i.e. where the pre-fit uncertainty is defined) are reported. The uncertainty is also reported and calculated as $\sigma/\sigma_{I}$. 
 
-- `unconstPullAsym`: Report the pull as $\frac{\theta-\theta_{I}}{\sigma}$, where $\theta_{I}$ and $\sigma$ are the initial value and **post-fit** uncertainty of that nuisance parameter. The pull defined in this way will have no error bar, but *all* nuisance parameters will have a result in this case. 
+- `unconstPullAsym`: Report the pull as $\frac{\nu-\nu_{I}}{\sigma}$, where $\nu_{I}$ and $\sigma$ are the initial value and **post-fit** uncertainty of that nuisance parameter. The pull defined in this way will have no error bar, but *all* nuisance parameters will have a result in this case. 
 
-- `compatAsym`: The pull is defined as $\frac{\theta-\theta_{D}}{\sqrt{\sigma^{2}+\sigma_{D}^{2}}}$, where $\theta_{D}$ and $\sigma_{D}$ are calculated as $\sigma_{D} = (\frac{1}{\sigma^{2}} - \frac{1}{\sigma_{I}^{2}})^{-1}$ and $\theta_{D} = \sigma_{D}(\theta - \frac{\theta_{I}}{\sigma_{I}^{2}})$. In this expression $\theta_{I}$ and $\sigma_{I}$ are the initial value and uncertainty of that nuisance parameter. This can be thought of as a _compatibility_ between the initial measurement (prior) and an imagined measurement where only the data (with no constraint on the nuisance parameter) is used to measure the nuisance parameter. There is no error bar associated with this value. 
+- `compatAsym`: The pull is defined as $\frac{\nu-\nu_{D}}{\sqrt{\sigma^{2}+\sigma_{D}^{2}}}$, where $\nu_{D}$ and $\sigma_{D}$ are calculated as $\sigma_{D} = (\frac{1}{\sigma^{2}} - \frac{1}{\sigma_{I}^{2}})^{-1}$ and $\nu_{D} = \sigma_{D}(\nu - \frac{\nu_{I}}{\sigma_{I}^{2}})$. In this expression $\nu_{I}$ and $\sigma_{I}$ are the initial value and uncertainty of that nuisance parameter. This can be thought of as a _compatibility_ between the initial measurement (prior) and an imagined measurement where only the data (with no constraint on the nuisance parameter) is used to measure the nuisance parameter. There is no error bar associated with this value. 
 
-- `diffPullAsym`: The pull is defined as $\frac{\theta-\theta_{I}}{\sqrt{\sigma_{I}^{2}-\sigma^{2}}}$, where $\theta_{I}$ and $\sigma_{I}$ are the pre-fit value and uncertainty (from [L. Demortier and L. Lyons](http://physics.rockefeller.edu/luc/technical_reports/cdf5776_pulls.pdf)). If the denominator is close to 0 or the post-fit uncertainty is larger than the pre-fit (usually due to some failure in the calculation), the pull is not defined and the result will be reported as `0 +/- 999`. 
+- `diffPullAsym`: The pull is defined as $\frac{\nu-\nu_{I}}{\sqrt{\sigma_{I}^{2}-\sigma^{2}}}$, where $\nu_{I}$ and $\sigma_{I}$ are the pre-fit value and uncertainty (from [L. Demortier and L. Lyons](http://physics.rockefeller.edu/luc/technical_reports/cdf5776_pulls.pdf)). If the denominator is close to 0 or the post-fit uncertainty is larger than the pre-fit (usually due to some failure in the calculation), the pull is not defined and the result will be reported as `0 +/- 999`. 
 
 If using `--pullDef`, the results for *all* parameters for which the pull can be calculated will be shown (i.e `--all` will be set to `true`), not just those that have moved by some metric.
 
 This script has the option (`-g outputfile.root`) to produce plots of the fitted _values_ of the nuisance parameters and their post-fit, asymmetric uncertainties. Instead, the pulls defined using one of the options above, can be plotted using the option `--pullDef X`. In addition this will produce a plot showing a comparison between the post-fit and pre-fit (symmetrized) uncertainties on the nuisance parameters. 
 
 !!! info
-    In the above options, if an asymmetric uncertainty is associated with the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\theta-\theta_{I}$. 
+    In the above options, if an asymmetric uncertainty is associated with the nuisance parameter, then the choice of which uncertainty is used in the definition of the pull will depend on the sign of $\nu-\nu_{I}$. 
 
 ### Normalizations
 
@@ -260,7 +260,7 @@ A plot summarizing the nuisance parameter values and impacts can be made with `p
 
     plotImpacts.py -i impacts.json -o impacts
 
-The first page of the output is shown below. 
+The first page of the output is shown below. Note that in these figures, the nuisance parameters are labelled as $\theta$ instead of $\nu$. 
 
 ![](images/impacts.png)
 
@@ -285,7 +285,7 @@ that will rename the POI label on the plot.
 !!! info 
     Since `combineTool` accepts the usual options for combine you can also generate the impacts on an Asimov or toy dataset. 
 
-The left panel in the summary plot shows the value of $(\theta-\theta_{0})/\Delta_{\theta}$ where $\theta$ and $\theta_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\theta}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **post**-fit uncertainty divided by the **pre**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. The pull will additionally be shown. As with the `diffNuisances.py` script, the option `--pullDef` can be used (to modify the definition of the *pull* that is shown). 
+The left panel in the summary plot shows the value of $(\nu-\nu_{0})/\Delta_{\nua}$ where $\nu$ and $\nu_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\nu}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **post**-fit uncertainty divided by the **pre**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. The pull will additionally be shown. As with the `diffNuisances.py` script, the option `--pullDef` can be used (to modify the definition of the *pull* that is shown). 
 
 ## Breakdown of uncertainties
 

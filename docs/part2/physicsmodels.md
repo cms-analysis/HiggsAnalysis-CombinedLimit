@@ -40,21 +40,21 @@ deltaS  lnN    1.20    -    20% uncertainty on signal
 deltaB  lnN      -   1.50   50% uncertainty on background
 ```
 
-If we run `text2workspace.py` on this datacard and take a look at the workspace (`w`) inside the `.root` file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength **r**.
+If we run `text2workspace.py` on this datacard and take a look at the workspace (`w`) inside the `.root` file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength $r$. Note that often in the statistics literature, this parameter is referred to as $\mu$. 
 
 From these objects, the necessary PDF has been constructed (named `model_s`). For this counting experiment we will expect a simple PDF of the form
 
 $$
-p(n_{\mathrm{obs}}| r,\delta_{S},\delta_{B})\propto
-\dfrac{[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]^{n_{\mathrm{obs}}} }
-{n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\delta_{S})+n_{B}(\delta_{B})]}
-\cdot e^{-\frac{1}{2}(\delta_{S}- \delta_{S}^{\mathrm{In}})^{2}}
-\cdot e^{-\frac{1}{2}(\delta_{B}- \delta_{B}^{\mathrm{In}})^{2}}
+p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
+\dfrac{[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]^{n_{\mathrm{obs}}} }
+{n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]}
+\cdot e^{-\frac{1}{2}(\nu_{S}- y_{S})^{2}}
+\cdot e^{-\frac{1}{2}(\nu_{B}- y_{B})^{2}}
 $$
 
-where the expected signal and background rates are expressed as functions of the nuisance parameters, $n_{S}(\delta_{S}) = 4.76(1+0.2)^{\delta_{S}}~$ and $~n_{B}(\delta_{B}) = 1.47(1+0.5)^{\delta_{B}}$.
+where the expected signal and background rates are expressed as functions of the nuisance parameters, $n_{S}(\nu_{S}) = 4.76(1+0.2)^{\nu_{S}}~$ and $~n_{B}(\nu_{B}) = 1.47(1+0.5)^{\nu_{B}}$. The $y_{S},~y_{B}$ are the auxiliary observables. In the code, these will have the same name as the corresponding nuisance parameter, with the extension `_In`. 
 
-The first term represents the usual Poisson expression for observing $n_{\mathrm{obs}}$ events, while the second two are the Gaussian constraint terms for the nuisance parameters. In this case ${\delta^{\mathrm{In}}_S}={\delta^{\mathrm{In}}_B}=0$, and the widths of both Gaussians are 1.
+The first term represents the usual Poisson expression for observing $n_{\mathrm{obs}}$ events, while the second two are the Gaussian constraint terms for the nuisance parameters. In this case ${y_S}={y_B}=0$, and the widths of both Gaussians are 1.
 
 A combination of counting experiments (or a binned shape datacard) will look like a product of PDFs of this kind. For parametric/unbinned analyses, the PDF for each process in each channel is provided instead of the using the Poisson terms and a product runs over the bin counts/events.
 
@@ -254,21 +254,21 @@ for an example. However, the computational performance scales quadratically
 with the number of POIs, and can get extremely expensive for 10 or more, as may
 be encountered often with EFT analyses. To alleviate this issue, an accelerated
 interference modeling technique is implemented for template-based analyses via
-the `interferenceModel` physics model. In this model, each bin yield $y$ is parameterized
+the `interferenceModel` physics model. In this model, each bin yield $w$ is parameterized
 
 $$
-y(\theta) = y_0 (\theta^\top M \theta)
+w(\vec{\mu}) = w_0 (\vec{\mu}^\top M \theta)
 $$
 
-as a function of the POI vector $\theta$, a nominal template $y_0$, and a scaling matrix $M$.
+as a function of the POI vector $\vec{\mu}$, a nominal template $w_0$, and a scaling matrix $M$.
 To see how this parameterization relates to that of the previous section, we can define:
 
 $$
-y_0 = A_b^2, \qquad
+w_0 = A_b^2, \qquad
 M = \frac{1}{A_b^2} \begin{bmatrix}
  |A_s|^2 & \Re(A_s^* A_b) \\
  \Re(A_s A_b^*) & |A_b|^2
- \end{bmatrix}, \qquad \theta = \begin{bmatrix}
+ \end{bmatrix}, \qquad \vec{\mu} = \begin{bmatrix}
  \sqrt{\mu} \\
  1
  \end{bmatrix}

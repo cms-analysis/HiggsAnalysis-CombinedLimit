@@ -126,14 +126,14 @@ In addition, user-defined keywords can be used. Any word in the datacard **$WORD
 
 #### Template shape uncertainties
 
-Shape uncertainties can be taken into account by vertical interpolation of the histograms. The shapes (fraction of events $f$ in each bin) are interpolated using a spline for shifts below +/- 1σ and linearly outside of that. Specifically, for nuisance parameter values $|\theta|\leq 1$ 
+Shape uncertainties can be taken into account by vertical interpolation of the histograms. The shapes (fraction of events $f$ in each bin) are interpolated using a spline for shifts below +/- 1σ and linearly outside of that. Specifically, for nuisance parameter values $|\nu|\leq 1$ 
 
-$$ f(\theta) = \frac{1}{2} \left( (\delta^{+}-\delta^{-})\theta + \frac{1}{8}(\delta^{+}+\delta^{-})(3\theta^6 - 10\theta^4 + 15\theta^2) \right) $$
+$$ f(\nu) = \frac{1}{2} \left( (\delta^{+}-\delta^{-})\nu + \frac{1}{8}(\delta^{+}+\delta^{-})(3\nu^6 - 10\nu^4 + 15\nu^2) \right) $$
 
-and for $|\theta|> 1$ ($|\theta|<-1$), $f(\theta)$ is a straight line with gradient $\delta^{+}$ ($\delta^{-}$), where $\delta^{+}=f(\theta=1)-f(\theta=0)$, and $\delta^{-}=f(\theta=-1)-f(\theta=0)$, derived using the nominal and up/down histograms.  
-This interpolation is designed so that the values of $f(\theta)$ and its derivatives are continuous for all values of $\theta$. 
+and for $|\nu|> 1$ ($|\nu|<-1$), $f(\nu)$ is a straight line with gradient $\delta^{+}$ ($\delta^{-}$), where $\delta^{+}=f(\nu=1)-f(\nu=0)$, and $\delta^{-}=f(\nu=-1)-f(\nu=0)$, derived using the nominal and up/down histograms.  
+This interpolation is designed so that the values of $f(\nu)$ and its derivatives are continuous for all values of $\nu$. 
 
-The normalizations are interpolated linearly in log scale, just like we do for log-normal uncertainties. If the value in a given bin is negative for some value of $\theta$, the value will be truncated at 0.
+The normalizations are interpolated linearly in log scale, just like we do for log-normal uncertainties. If the value in a given bin is negative for some value of $\nu$, the value will be truncated at 0.
 
 For each shape uncertainty and process/channel affected by it, two additional input shapes have to be provided. These are obtained by shifting the parameter up and down by one standard deviation. When building the likelihood, each shape uncertainty is associated to a nuisance parameter taken from a unit gaussian distribution, which is used to interpolate or extrapolate using the specified histograms.
 

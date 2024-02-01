@@ -1,15 +1,15 @@
 # Common Statistical Methods
 
-In this section, the most commonly used statistical methods from <span style="font-variant:small-caps;">Combine</span> will be covered, including specific instructions on how to obtain limits, significances, and likelihood scans. For all of these methods, the assumed parameter of interest (POI) is the overall signal strength **r** (i.e the default PhysicsModel). In general however, the first POI in the list of POIs (as defined by the PhysicsModel) will be taken instead of **r**. This may or may not make sense for any particular method, so care must be taken. 
+In this section, the most commonly used statistical methods from <span style="font-variant:small-caps;">Combine</span> will be covered, including specific instructions on how to obtain limits, significances, and likelihood scans. For all of these methods, the assumed parameter of interest (POI) is the overall signal strength $r$ (i.e the default PhysicsModel). In general however, the first POI in the list of POIs (as defined by the PhysicsModel) will be taken instead of **r**. This may or may not make sense for any particular method, so care must be taken. 
 
 This section will assume that you are using the default physics model, unless otherwise specified.
 
 ## Asymptotic Frequentist Limits
 
 The `AsymptoticLimits` method can be used to quickly compute an estimate of the observed and expected limits, which is accurate when the event yields are not too small and the systematic uncertainties do not play a major role in the result.
-The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test statistic, which is based on a profile likelihood ratio, under the signal and background hypotheses to compute two p-values $p_{\mu}, p_{b}$ and therefore $CL_s=p_{\mu}/(1-p_{b})$ (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section for a description). This means it is the asymptotic approximation for evaluating limits with frequentist toys using the LHC test statistic for limits.
+The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test statistic, which is based on a profile likelihood ratio, under the signal and background hypotheses to compute two p-values $p_{\mu}, p_{b}$ and therefore $CL_s=p_{\mu}/(1-p_{b})$ (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section for a description). This means it is the asymptotic approximation for evaluating limits with frequentist toys using the LHC test statistic for limits. In the definition below, the parameter $\mu=r$. 
 
-   * The test statistic is defined using the ratio of likelihoods $q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta})]$ , in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r$. The value of $q_{r}$ is set to 0 when $\hat{r}>r$, giving a one-sided limit. Furthermore, the constraint $r>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{r}$ would be negative, the test statistic $q_{r}$ is evaluated as $-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})]$
+   * The test statistic is defined using the ratio of likelihoods $q_{\mu} = -2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(\hat{\mu},\hat{\nu})]$ , in which the nuisance parameters are profiled separately for $\mu=\hat{\mu}$ and $\mu$. The value of $q_{\mu}$ is set to 0 when $\hat{\mu}>\mu$, giving a one-sided limit. Furthermore, the constraint $\mu>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{\mu}$ would be negative, the test statistic $q_{\mu}$ is evaluated as $-2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(0,\hat{\hat{\nu}}(0))]$
 
 This method is the default <span style="font-variant:small-caps;">Combine</span> method: if you call <span style="font-variant:small-caps;">Combine</span> without specifying `-M`, the `AsymptoticLimits` method will be run.
 
@@ -93,7 +93,7 @@ combine -M AsymptoticLimits realistic-counting-experiment.txt --getLimitFromGrid
 
 ## Asymptotic Significances
 
-The significance of a result is calculated using a ratio of profiled likelihoods, one in which the signal strength is set to 0 and the other in which it is free to float. The evaluated quantity is $-2\ln[\mathcal{L}(\textrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\textrm{data}|r=\hat{r},\hat{\theta})]$, in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r=0$.
+The significance of a result is calculated using a ratio of profiled likelihoods, one in which the signal strength is set to 0 and the other in which it is free to float. The evaluated quantity is $-2\ln[\mathcal{L}(\mu=0,\hat{\hat{\nu}}(0))/\mathcal{L}(\hat{\mu},\hat{\nu})]$, in which the nuisance parameters are profiled separately for $\mu=\hat{\mu}$ and $\mu=0$.
 
 The distribution of this test statistic can be determined using Wilks' theorem provided the number of events is large enough (i.e in the *Asymptotic limit*). The significance (or p-value) can therefore be calculated very quickly. The `Significance` method can be used for this.
 
@@ -321,21 +321,21 @@ The `HybridNew` method is used to compute either the hybrid bayesian-frequentist
 
 It is possible to define the criterion used for setting limits using `--rule CLs` (to use the CL<sub>s</sub> criterion) or `--rule CLsplusb` (to calculate the limit using $p_{\mu}$) and as always the confidence level desired using `--cl=X`.
 
-The choice of test statistic can be made via the option `--testStat`. Different methodologies for the treatment of the nuisance parameters are available. While it is possible to mix different test statistics with different nuisance parameter treatments, **we strongly do not recommend  this**. Instead one should follow one of the following three procedures,
+The choice of test statistic can be made via the option `--testStat`. Different methodologies for the treatment of the nuisance parameters are available. While it is possible to mix different test statistics with different nuisance parameter treatments, **we strongly do not recommend  this**. Instead one should follow one of the following three procedures. Note that the signal strength $r$ here is given the more common notation $\mu$. 
 
 * **LEP-style**: `--testStat LEP --generateNuisances=1 --fitNuisances=0`
-    * The test statistic is defined using the ratio of likelihoods $q_{\mathrm{LEP}}=-2\ln[\mathcal{L}(\mathrm{data}|r=0)/\mathcal{L}(\mathrm{data}|r)]$.
+    * The test statistic is defined using the ratio of likelihoods $q_{\mathrm{LEP}}=-2\ln[\mathcal{L}(\mu=0)/\mathcal{L}(\mu)]$.
     * The nuisance parameters are fixed to their nominal values for the purpose of evaluating the likelihood, while for generating toys, the nuisance parameters are first randomized within their PDFs before generation of the toy.
 
 * **TEV-style**: `--testStat TEV --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1`
-    * The test statistic is defined using the ratio of likelihoods $q_{\mathrm{TEV}}=-2\ln[\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})]$, in which the nuisance parameters are profiled separately for $r=0$ and $r$.
-    * For the purposes of toy generation, the nuisance parameters are fixed to their post-fit values from the data (conditional on r), while the constraint terms are randomized for the evaluation of the likelihood.
+    * The test statistic is defined using the ratio of likelihoods $q_{\mathrm{TEV}}=-2\ln[\mathcal{L}(\mu=0,\hat{\hat{\mu}}(0))/\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))]$, in which the nuisance parameters are profiled separately for $\mu=0$ and $\mu$.
+    * For the purposes of toy generation, the nuisance parameters are fixed to their post-fit values from the data (conditional on $\mu$), while the constraint terms are randomized for the evaluation of the likelihood.
 
 * **LHC-style**: `--LHCmode LHC-limits`
 , which is the shortcut for `--testStat LHC --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1`
-    * The test statistic is defined using the ratio of likelihoods $q_{r} = -2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=\hat{r},\hat{\theta})]$ , in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r$.
-    * The value of $q_{r}$ set to 0 when $\hat{r}>r$ giving a one-sided limit. Furthermore, the constraint $r>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{r}$ would be negative, the test statistic $q_{r}$ is evaluated as $-2\ln[\mathcal{L}(\mathrm{data}|r,\hat{\theta}_{r})/\mathcal{L}(\mathrm{data}|r=0,\hat{\theta}_{0})]$
-    * For the purposes of toy generation, the nuisance parameters are fixed to their **post-fit** values from the data (conditionally on the value of **r**), while the constraint terms are randomized in the evaluation of the likelihood.
+    * The test statistic is defined using the ratio of likelihoods $q_{\mu} = -2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(\hat{\mu},\hat{\nu})]$ , in which the nuisance parameters are profiled separately for $mu=\hat{\mu}$ and $\mu$.
+    * The value of $q_{\mu}$ set to 0 when $\hat{\mu}>\mu$ giving a one-sided limit. Furthermore, the constraint $\mu>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{\mu}$ would be negative, the test statistic $q_{\mu}$ is evaluated as $-2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(0,\hat{\hat{\nu}}(0))]$.
+    * For the purposes of toy generation, the nuisance parameters are fixed to their **post-fit** values from the data (conditionally on the value of $\mu$), while the constraint terms are randomized in the evaluation of the likelihood.
 
 !!! warning
     The recommended style is the **LHC-style**. Please note that this method is sensitive to the *observation in data* since the *post-fit* (after a fit to the data) values of the nuisance parameters (assuming different values of **r**) are used when generating the toys. For completely blind limits you can first generate a *pre-fit* asimov toy data set (described in the [toy data generation](runningthetool.md#toy-data-generation) section) and use that in place of the data.  You can use this toy by passing the argument `-D toysFileName.root:toys/toy_asimov`
@@ -619,8 +619,8 @@ Computation of the expected significance with toys is a two-step procedure: firs
 
 * **LHC-style**: `--LHCmode LHC-significance`
 , which is the shortcut for `--testStat LHC --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --significance`
-    * The test statistic is defined using the ratio of likelihoods $q_{0} = -2\ln[\mathcal{L}(\textrm{data}|r=0,\hat{\theta}_{0})/\mathcal{L}(\textrm{data}|r=\hat{r},\hat{\theta})]$, in which the nuisance parameters are profiled separately for $r=\hat{r}$ and $r=0$.
-    * The value of the test statistic is set to 0 when $\hat{r}<0$
+    * The test statistic is defined using the ratio of likelihoods $q_{0} = -2\ln[\mathcal{L}(\mu=0,\hat{\hat{\nu}}(0))/\mathcal{L}(\hat{\mu},\hat{\nu})]$, in which the nuisance parameters are profiled separately for $\mu=\hat{\mu}$ and $\mu=0$.
+    * The value of the test statistic is set to 0 when $\hat{\mu}<0$
     * For the purposes of toy generation, the nuisance parameters are fixed to their post-fit values from the data assuming **no** signal, while the constraint terms are randomized for the evaluation of the likelihood.
 
 ### Observed significance
@@ -976,11 +976,11 @@ Now we can load the best fit $\hat{r},\hat{m}_{H}$ and fit for $r$ freezing $m_{
 ```sh
 combine -m 123 -M MultiDimFit -d higgsCombineteststep1.MultiDimFit.mH123.root -w w --snapshotName "MultiDimFit" -n teststep2  --verbose 9 --freezeParameters MH,lumi_8TeV
 ```
-## Feldman Cousins
+## Feldman-Cousins
 
 The Feldman-Cousins (FC) procedure for computing confidence intervals for a generic model is,
 
--   use the profile likelihood ratio as the test statistic, $q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})$ where $x$ is a point in the (N-dimensional) parameter space, and $\hat{x}$ is the point corresponding to the best fit. In this test statistic, the nuisance parameters are profiled, both in the numerator and denominator.
+-   use the profile likelihood ratio as the test statistic, $q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(\hat{x},\hat{\nu})$ where $x$ is a point in the (N-dimensional) parameter space, and $\hat{x}$ is the point corresponding to the best fit. In this test statistic, the nuisance parameters are profiled, both in the numerator and denominator.
 -   for each point $x$:
     -   compute the observed test statistic $q_{\mathrm{obs}}(x)$
     -   compute the expected distribution of $q(x)$ under the hypothesis of $x$ as the true value.
@@ -1009,11 +1009,11 @@ Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) i
 
 The boundary is imposed by **restricting the parameter range(s)** to those set by the user, in the fits. Note that this is a trick! The actual fitted value, as one of an ensemble of outcomes, can fall outside of the allowed region, while the boundary should be imposed on the physical parameter. The effect of restricting the parameter value in the fit is such that the test statistic is modified as follows ; 
 
-$q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})$, if $\hat{x}$ in contained in the bounded range 
+$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\theta}}(x))/\mathcal{L}(\hat{x},\hat{\nu})$, if $\hat{x}$ in contained in the bounded range 
 
 and, 
 
-$q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|x_{B},\hat{\theta}_{B})$, if $\hat{x}$ is outside of the bounded range. Here $x_{B}$ and $\hat{\theta}_{B}$ are the values of $x$ and $\theta$ which maximise the likelihood *excluding values outside of the bounded region* for $x$ - typically, $x_{B}$ will be found at one of the boundaries which is imposed. For example, if the boundary $x>0$ is imposed, you will typically expect $x_{B}=0$, when $\hat{x}\leq 0$, and $x_{B}=\hat{x}$ otherewise. 
+$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(x_{B},\hat{\hat{\nu}}(x_{B}))$, if $\hat{x}$ is outside of the bounded range. Here $x_{B}$ and $\hat{\hat{\nu}}(x_{B})$ are the values of $x$ and $\nu$ which maximise the likelihood *excluding values outside of the bounded region* for $x$ - typically, $x_{B}$ will be found at one of the boundaries which is imposed. For example, if the boundary $x>0$ is imposed, you will typically expect $x_{B}=0$, when $\hat{x}\leq 0$, and $x_{B}=\hat{x}$ otherewise. 
 
 This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.
 
