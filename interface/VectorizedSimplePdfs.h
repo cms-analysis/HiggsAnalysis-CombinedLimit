@@ -19,7 +19,7 @@ class VectorizedExponential {
 
 class VectorizedPower {
     public:
-        VectorizedPower(const RooPower &pdf, const RooAbsData &data, bool includeZeroWeights=false) ;
+        VectorizedPower(const RooPowerCMS &pdf, const RooAbsData &data, bool includeZeroWeights=false) ;
         void fill(std::vector<Double_t> &out) const ;
     private:
         const RooRealVar * x_;

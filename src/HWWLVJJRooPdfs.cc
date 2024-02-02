@@ -434,134 +434,134 @@ ClassImp(RooPowerFunction)
    return 0 ; 
  } 
 
-ClassImp(RooExpPoly) 
-
-
-RooExpPoly::RooExpPoly(const char *name, const char *title, 
-		       RooAbsReal& _x,
-		       RooArgList& _coefs) :
-  RooAbsPdf(name,title), 
-  x("x","x",this,_x),
-  coefs("coefs","coefs",this)
-{
-  TIterator *cx = _coefs.createIterator();
-  RooAbsReal *coef;
-  while ((coef = (RooAbsReal*)cx->Next())) {
-    if (!dynamic_cast<RooAbsReal*>(coef)) {
-      std::cerr << "Coefficient " << coef->GetName() << " is not good." << std::endl;
-      assert(0);
-    }
-    coefs.add(*coef);
-  }
-  delete cx;
-}
-
-
-RooExpPoly::RooExpPoly(const RooExpPoly& other, const char* name) :  
-  RooAbsPdf(other,name), 
-  x("x",this,other.x),
-  coefs("coefs",this,other.coefs)
-{ 
-} 
-
-
-
-Double_t RooExpPoly::evaluate() const 
-{ 
-  // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE 
-  Double_t exponent(0.);
-  Int_t order(0);
-  RooAbsReal *coef;
-  for (order = 1; order <= coefs.getSize(); ++order) {
-    coef = dynamic_cast<RooAbsReal *>(coefs.at(order-1));
-    exponent += coef->getVal()*TMath::Power(x, order);
-  }
-  return TMath::Exp(exponent) ; 
-} 
-
-Int_t RooExpPoly::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-					const char */*rangeName*/) const {
-  if ( (coefs.getSize()<2) && (matchArgs(allVars, analVars, x)) )
-    return 1;
-  if ( (coefs.getSize()==2) && 
-       // (dynamic_cast<RooAbsReal *>(coefs.at(1))->getVal() <= 0) && 
-       (matchArgs(allVars, analVars, x)) )
-    return 1;
-
-  return 0;
-}
-
-Double_t RooExpPoly::analyticalIntegral(Int_t code, 
-					const char *rangeName) const {
-  assert(code);
-  double coef1(0.), coef2(0.);
-  static Double_t const rootpi(TMath::Sqrt(TMath::Pi()));
-  
-  Double_t val(x.max(rangeName) - x.min(rangeName));
-  if (coefs.getSize() > 0) {
-    coef1 = dynamic_cast<RooAbsReal *>(coefs.at(0))->getVal();
-    if (coef1 != 0.)
-      val = (TMath::Exp(coef1*x.max(rangeName)) -
-	     TMath::Exp(coef1*x.min(rangeName)))/coef1;
-    if (coefs.getSize() > 1) {
-      coef2 = dynamic_cast<RooAbsReal *>(coefs.at(1))->getVal();
-      double absrootc2(TMath::Sqrt(TMath::Abs(coef2)));
-      if (coef2 != 0) {
-	// std::cout << "coef1: " << coef1 << " coef2: " << coef2 << '\n';
-	DoubleComplex_t c1(coef1, 0); DoubleComplex_t c2(coef2, 0);
-	DoubleComplex_t rootc2((coef2 > 0) ? DoubleComplex_t(TMath::Sqrt(coef2),0) :
-			  DoubleComplex_t(0,TMath::Sqrt(-1*coef2)));
-	DoubleComplex_t zmax = c1*0.5/rootc2 + rootc2*x.max(rangeName);
-	DoubleComplex_t zmin = c1*0.5/rootc2 + rootc2*x.min(rangeName);
-	double erfimax((coef2 > 0) ? erfi(zmax).real() : erfi(zmax).imag());
-	double erfimin((coef2 > 0) ? erfi(zmin).real() : erfi(zmin).imag());
-	// if (coef2 < 0) {
-	//   erfimax = TMath::Erf(absrootc2*x.max(rangeName) - 
-	// 		       coef1*0.5/absrootc2);
-	//   erfimin = TMath::Erf(absrootc2*x.min(rangeName) - 
-	// 		       coef1*0.5/absrootc2);
-	//   // std::cout << "erfimax: " << erfimax << '\n'
-	//   // 	    << "erfimin: " << erfimin << '\n';
-	// }
-	double zval_max(erfimax*0.5*rootpi*
-			TMath::Exp(-coef1*coef1/4./coef2)/absrootc2);
-	double zval_min(erfimin*0.5*rootpi*
-			TMath::Exp(-coef1*coef1/4./coef2)/absrootc2);
-	// std::cout << "c1: "; c1.Print();
-	// std::cout << "c2: "; c2.Print();
-	// std::cout << "rootc2: "; rootc2.Print();
-	// std::cout << "zmax: "; zmax.Print();
-	// std::cout << "zval_max: " << zval_max << '\n';
-	// std::cout << "zmin: "; zmin.Print();
-	// std::cout << "zval_min: " << zval_min << '\n';
-	val = zval_max - zval_min;
-      }
-    }
-  }
-  return val;
-}
-
-RooExpPoly::DoubleComplex_t RooExpPoly::erfi(DoubleComplex_t z) {
-  static DoubleComplex_t myi(0,1);
-  static DoubleComplex_t myone(1,0);
-
-  DoubleComplex_t zsq(z*z);
-  DoubleComplex_t ret(1,0);
-  // std::cout << "z: "; z.Print();
-  if (z.imag() > 5.)
-    ret =  DoubleComplex_t(0., 1.);
-  else if (z.imag() < -5.)
-    ret =  DoubleComplex_t(0.,-1.);
-  else {
-    // For some reason the replacement function is as follows
-    // "[#0] WARN: RooMath::ComplexErrFunc is deprecated, please use RooMath::faddeeva instead."
-    DoubleComplex_t w(RooMath::faddeeva(z));
-    // std::cout << "w(z): "; w.Print();
-    // std::cout << "zsq: "; zsq.Print();
-    // std::cout << "zsq.exp(): "; zsq.exp().Print();
-    ret = myi*(myone - ((std::exp(zsq))*(w)));
-  }
-
-  // std::cout << "erfi: "; ret.Print();
-  return ret;
-}
+//ClassImp(RooExpPoly) 
+//
+//
+//RooExpPoly::RooExpPoly(const char *name, const char *title, 
+//		       RooAbsReal& _x,
+//		       RooArgList& _coefs) :
+//  RooAbsPdf(name,title), 
+//  x("x","x",this,_x),
+//  coefs("coefs","coefs",this)
+//{
+//  TIterator *cx = _coefs.createIterator();
+//  RooAbsReal *coef;
+//  while ((coef = (RooAbsReal*)cx->Next())) {
+//    if (!dynamic_cast<RooAbsReal*>(coef)) {
+//      std::cerr << "Coefficient " << coef->GetName() << " is not good." << std::endl;
+//      assert(0);
+//    }
+//    coefs.add(*coef);
+//  }
+//  delete cx;
+//}
+//
+//
+//RooExpPoly::RooExpPoly(const RooExpPoly& other, const char* name) :  
+//  RooAbsPdf(other,name), 
+//  x("x",this,other.x),
+//  coefs("coefs",this,other.coefs)
+//{ 
+//} 
+//
+//
+//
+//Double_t RooExpPoly::evaluate() const 
+//{ 
+//  // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE 
+//  Double_t exponent(0.);
+//  Int_t order(0);
+//  RooAbsReal *coef;
+//  for (order = 1; order <= coefs.getSize(); ++order) {
+//    coef = dynamic_cast<RooAbsReal *>(coefs.at(order-1));
+//    exponent += coef->getVal()*TMath::Power(x, order);
+//  }
+//  return TMath::Exp(exponent) ; 
+//} 
+//
+//Int_t RooExpPoly::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
+//					const char */*rangeName*/) const {
+//  if ( (coefs.getSize()<2) && (matchArgs(allVars, analVars, x)) )
+//    return 1;
+//  if ( (coefs.getSize()==2) && 
+//       // (dynamic_cast<RooAbsReal *>(coefs.at(1))->getVal() <= 0) && 
+//       (matchArgs(allVars, analVars, x)) )
+//    return 1;
+//
+//  return 0;
+//}
+//
+//Double_t RooExpPoly::analyticalIntegral(Int_t code, 
+//					const char *rangeName) const {
+//  assert(code);
+//  double coef1(0.), coef2(0.);
+//  static Double_t const rootpi(TMath::Sqrt(TMath::Pi()));
+//  
+//  Double_t val(x.max(rangeName) - x.min(rangeName));
+//  if (coefs.getSize() > 0) {
+//    coef1 = dynamic_cast<RooAbsReal *>(coefs.at(0))->getVal();
+//    if (coef1 != 0.)
+//      val = (TMath::Exp(coef1*x.max(rangeName)) -
+//	     TMath::Exp(coef1*x.min(rangeName)))/coef1;
+//    if (coefs.getSize() > 1) {
+//      coef2 = dynamic_cast<RooAbsReal *>(coefs.at(1))->getVal();
+//      double absrootc2(TMath::Sqrt(TMath::Abs(coef2)));
+//      if (coef2 != 0) {
+//	// std::cout << "coef1: " << coef1 << " coef2: " << coef2 << '\n';
+//	DoubleComplex_t c1(coef1, 0); DoubleComplex_t c2(coef2, 0);
+//	DoubleComplex_t rootc2((coef2 > 0) ? DoubleComplex_t(TMath::Sqrt(coef2),0) :
+//			  DoubleComplex_t(0,TMath::Sqrt(-1*coef2)));
+//	DoubleComplex_t zmax = c1*0.5/rootc2 + rootc2*x.max(rangeName);
+//	DoubleComplex_t zmin = c1*0.5/rootc2 + rootc2*x.min(rangeName);
+//	double erfimax((coef2 > 0) ? erfi(zmax).real() : erfi(zmax).imag());
+//	double erfimin((coef2 > 0) ? erfi(zmin).real() : erfi(zmin).imag());
+//	// if (coef2 < 0) {
+//	//   erfimax = TMath::Erf(absrootc2*x.max(rangeName) - 
+//	// 		       coef1*0.5/absrootc2);
+//	//   erfimin = TMath::Erf(absrootc2*x.min(rangeName) - 
+//	// 		       coef1*0.5/absrootc2);
+//	//   // std::cout << "erfimax: " << erfimax << '\n'
+//	//   // 	    << "erfimin: " << erfimin << '\n';
+//	// }
+//	double zval_max(erfimax*0.5*rootpi*
+//			TMath::Exp(-coef1*coef1/4./coef2)/absrootc2);
+//	double zval_min(erfimin*0.5*rootpi*
+//			TMath::Exp(-coef1*coef1/4./coef2)/absrootc2);
+//	// std::cout << "c1: "; c1.Print();
+//	// std::cout << "c2: "; c2.Print();
+//	// std::cout << "rootc2: "; rootc2.Print();
+//	// std::cout << "zmax: "; zmax.Print();
+//	// std::cout << "zval_max: " << zval_max << '\n';
+//	// std::cout << "zmin: "; zmin.Print();
+//	// std::cout << "zval_min: " << zval_min << '\n';
+//	val = zval_max - zval_min;
+//      }
+//    }
+//  }
+//  return val;
+//}
+//
+//RooExpPoly::DoubleComplex_t RooExpPoly::erfi(DoubleComplex_t z) {
+//  static DoubleComplex_t myi(0,1);
+//  static DoubleComplex_t myone(1,0);
+//
+//  DoubleComplex_t zsq(z*z);
+//  DoubleComplex_t ret(1,0);
+//  // std::cout << "z: "; z.Print();
+//  if (z.imag() > 5.)
+//    ret =  DoubleComplex_t(0., 1.);
+//  else if (z.imag() < -5.)
+//    ret =  DoubleComplex_t(0.,-1.);
+//  else {
+//    // For some reason the replacement function is as follows
+//    // "[#0] WARN: RooMath::ComplexErrFunc is deprecated, please use RooMath::faddeeva instead."
+//    DoubleComplex_t w(RooMath::faddeeva(z));
+//    // std::cout << "w(z): "; w.Print();
+//    // std::cout << "zsq: "; zsq.Print();
+//    // std::cout << "zsq.exp(): "; zsq.exp().Print();
+//    ret = myi*(myone - ((std::exp(zsq))*(w)));
+//  }
+//
+//  // std::cout << "erfi: "; ret.Print();
+//  return ret;
+//}

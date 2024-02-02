@@ -199,34 +199,34 @@ private:
   ClassDef(RooPowerLaw, 1) // Power law PDF
 };
  
-class RooExpPoly : public RooAbsPdf {
-public:
-  RooExpPoly() {} ; 
-  RooExpPoly(const char *name, const char *title,
-	      RooAbsReal& _x,
-	      RooArgList& _coefs);
-  RooExpPoly(const RooExpPoly& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooExpPoly(*this,newname); }
-  inline virtual ~RooExpPoly() { }
-
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, 
-			      const char *rangeName = 0) const;
-  Double_t analyticalIntegral(Int_t code, const char *rangeName = 0) const;
-
-  //Emuation of deprecated RooComplex (that used Double_t)
-  typedef std::complex<Double_t> DoubleComplex_t;
-
-  static DoubleComplex_t erfi(DoubleComplex_t xval);
-protected:
-
-  RooRealProxy x ;
-  RooListProxy coefs ;
-  
-  Double_t evaluate() const ;
-
-private:
-
-  ClassDef(RooExpPoly,1) // Your description goes here...
-};
+//class RooExpPoly : public RooAbsPdf {
+//public:
+//  RooExpPoly() {} ; 
+//  RooExpPoly(const char *name, const char *title,
+//	      RooAbsReal& _x,
+//	      RooArgList& _coefs);
+//  RooExpPoly(const RooExpPoly& other, const char* name=0) ;
+//  virtual TObject* clone(const char* newname) const { return new RooExpPoly(*this,newname); }
+//  inline virtual ~RooExpPoly() { }
+//
+//  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, 
+//			      const char *rangeName = 0) const;
+//  Double_t analyticalIntegral(Int_t code, const char *rangeName = 0) const;
+//
+//  //Emuation of deprecated RooComplex (that used Double_t)
+//  typedef std::complex<Double_t> DoubleComplex_t;
+//
+//  static DoubleComplex_t erfi(DoubleComplex_t xval);
+//protected:
+//
+//  RooRealProxy x ;
+//  RooListProxy coefs ;
+//  
+//  Double_t evaluate() const ;
+//
+//private:
+//
+//  ClassDef(RooExpPoly,1) // Your description goes here...
+//};
 
 #endif
