@@ -55,7 +55,7 @@ There are a number of useful command-line options that can be used to alter the 
 
 -   `--freezeParameters name1[,name2,...]` Will freeze the parameters with the given names to their set values. This option supports the use of regular expression by replacing `name` with `rgx{some regular expression}` for matching to *constrained nuisance parameters* or `var{some regular expression}` for matching to *any* parameter. For example `--freezeParameters rgx{CMS_scale_j.*}` will freeze all constrained nuisance parameters with the prefix `CMS_scale_j`, while `--freezeParameters var{.*rate_scale}` will freeze any parameter (constrained nuisance parameter or otherwise) with the suffix `rate_scale`.
     - Use the option `--freezeParameters allConstrainedNuisances` to freeze all nuisance parameters that have a constraint term (i.e not `flatParams` or `rateParams` or other freely floating parameters).
-    - Similarly, the option `--floatParameters name1[,name2,...]` sets the parameter(s) floating.
+    - Similarly, the option `--floatParameters name1[,name2,...]` sets the parameter(s) floating and also accepts regular expressions.
     - Groups of nuisance parameters (constrained or otherwise), as defined in the datacard, can be frozen using `--freezeNuisanceGroups`. You can also freeze all nuisances that are *not* contained in a particular group using a **^** before the group name (`--freezeNuisanceGroups=^group_name` will freeze everything except nuisance parameters in the group "group_name".)
     - All *constrained* nuisance parameters (not `flatParam` or `rateParam`) can be set floating using `--floatAllNuisances`.
 
