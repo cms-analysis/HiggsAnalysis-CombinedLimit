@@ -2,10 +2,10 @@ name: combine
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python=3.10
   - pip
   - pandas
-  - root=6.22
+  - root=6.26
   - gsl
   - tbb
   - vdt
