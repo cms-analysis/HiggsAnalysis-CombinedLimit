@@ -31,7 +31,7 @@ A number of tools are also provided for run-time alterations of the model, allow
 
 ## Statistical Tests
 
-Combine can be used for statistical tests in frequentist or bayesian frameworks as well as some hybrid frequentist-bayesian methods.
+Combine can be used for statistical tests in frequentist or bayesian frameworks as well as perform some hybrid frequentist-bayesian analysis tasks.
 
 Combine implements various methods for [commonly used statistical tests](../../part3/commonstatsmethods/) in high energy physics, including for discovery, limit setting, and parameter estimation.
 Statistical tests can be customized to use various test statistics and confidence levels, as well as providing different output formats.
