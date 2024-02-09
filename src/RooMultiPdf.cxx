@@ -22,6 +22,7 @@ ClassImp(RooMultiPdf)
 RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, const RooArgList& _c) : 
   RooAbsPdf(name, title),  //Why is this here? just to use the names to be used? 
   c("_pdfs","The list of pdfs",this),
+  corr("_corr","The list of const",this),
   x("_index","the pdf index",this,_x) 
 {
   TIterator *pdfIter=_c.createIterator(); 
@@ -36,7 +37,7 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
   std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
 	// Isn't there a better wat to hold on to these values?
 	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName()),"",nonConstVariables->getSize());
-	corr.add(*tmp);
+  corr.add(*tmp);
 	count++;
   }
   nPdfs=c.getSize();
@@ -48,7 +49,7 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
 
 //_____________________________________________________________________________
 RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
- RooAbsPdf(other, name),c("_pdfs",this,RooListProxy()),x("_index",this,other.x)
+ RooAbsPdf(other, name),c("_pdfs",this,RooListProxy()), corr("_corrs",this,RooListProxy()),x("_index",this,other.x)
 {
 
  fIndex=other.fIndex;
@@ -59,12 +60,14 @@ RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
  RooAbsPdf *fPdf;
  while ( (fPdf = (RooAbsPdf*) pdfIter->Next()) ){
 	c.add(*fPdf);
+  c.Print();
   std::unique_ptr<RooArgSet> variables(fPdf->getVariables());
   std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
 
 	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName())
 		,"",nonConstVariables->getSize());
 	corr.add(*tmp);
+  corr.Print();
  }
 
  _oldIndex=fIndex;
