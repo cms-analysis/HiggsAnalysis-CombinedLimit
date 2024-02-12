@@ -41,7 +41,7 @@ jobs:
           - python: "3.10"
             root: "6.26.4"
     runs-on: ${{ matrix.os }}
-    name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
+    name: Compile (os${{ matrix.os }} py${{ matrix.python }}, root${{ matrix.root }})
 
     steps:
     - uses: actions/checkout@master
