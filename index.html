@@ -326,7 +326,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 <p>Pre-compiled versions of the tool are available as container images from the <a href="[https://gitlab.cern.ch/cms-cloud/combine-standalone](https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235)">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the <em>latest</em> image using, </p>
 <pre><code class="language-sh">docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:latest
 </code></pre>
-<p>You will now have the compiled <code>combine</code> binary available as well as the complete package of tool. 
+<p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
 The container can be re-started using <code>docker start -i combine</code>. </p>
 <h2 id="standalone-compilation">Standalone compilation</h2>
 <p>The standalone version can be easily compiled using
@@ -377,10 +377,10 @@ make CONDA=1 -j 8
 <p><strong>Note:</strong> on OS X, <span style="font-variant:small-caps;">Combine</span> can only accept workspaces, so run <code>text2workspace.py</code> first.
 This is due to an issue with child processes and <code>LD_LIBRARY_PATH</code> (see note in Makefile)</p>
 <h3 id="standalone-compilation-with-cernvm">Standalone compilation with CernVM</h3>
-<p><code>combine</code>, either standalone or not, can be compiled via CVMFS using access to <code>/cvmfs/cms.cern.ch/</code>  obtained using a virtual machine - <a href="https://cernvm.cern.ch/"><code>CernVM</code></a>. To use <code>CernVM</code> You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
+<p><span style="font-variant:small-caps;">Combine</span>, either standalone or not, can be compiled via CVMFS using access to <code>/cvmfs/cms.cern.ch/</code>  obtained using a virtual machine - <a href="https://cernvm.cern.ch/"><code>CernVM</code></a>. To use <code>CernVM</code> You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
 If you have a CERN user account, we strongly suggest you simply run one of the other standalone installations, which are simpler and faster than using a VM.</p>
 <p>You should have a working VM on your local machine, compatible with CernVM, such as <code>VirtualBox</code>. All the required software can be downloaded <a href="https://cernvm.cern.ch/appliance/">here</a>.
-At least 2GB of disk space should be reserved on the virtual machine for <code>combine</code> to work properly and the machine must be contextualized to add the `CMS`` group to CVMFS. A minimal working setup is described below.</p>
+At least 2GB of disk space should be reserved on the virtual machine for <span style="font-variant:small-caps;">Combine</span> to work properly and the machine must be contextualized to add the <code>CMS</code> group to CVMFS. A minimal working setup is described below.</p>
 <ol>
 <li>
 <p>Download the CernVM-launcher for your operating system, following the instructions available [<code>here</code>] for your operating system (https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation</p>
@@ -533,5 +533,5 @@ See <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/ma
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2024-02-15 13:41:32.883062+00:00
+Build Date UTC : 2024-02-15 13:45:16.213380+00:00
 -->
