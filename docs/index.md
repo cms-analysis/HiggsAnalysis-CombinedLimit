@@ -106,7 +106,7 @@ Pre-compiled versions of the tool are available as container images from the [CM
 docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:latest
 ```
 
-You will now have the compiled `combine` binary available as well as the complete package of tool. 
+You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
 The container can be re-started using `docker start -i combine`. 
 
 ## Standalone compilation
@@ -173,11 +173,11 @@ This is due to an issue with child processes and `LD_LIBRARY_PATH` (see note in 
 
 ### Standalone compilation with CernVM 
 
-`combine`, either standalone or not, can be compiled via CVMFS using access to `/cvmfs/cms.cern.ch/`  obtained using a virtual machine - [`CernVM`](https://cernvm.cern.ch/). To use `CernVM` You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
+<span style="font-variant:small-caps;">Combine</span>, either standalone or not, can be compiled via CVMFS using access to `/cvmfs/cms.cern.ch/`  obtained using a virtual machine - [`CernVM`](https://cernvm.cern.ch/). To use `CernVM` You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
 If you have a CERN user account, we strongly suggest you simply run one of the other standalone installations, which are simpler and faster than using a VM.
 
 You should have a working VM on your local machine, compatible with CernVM, such as `VirtualBox`. All the required software can be downloaded [here](https://cernvm.cern.ch/appliance/).
-At least 2GB of disk space should be reserved on the virtual machine for `combine` to work properly and the machine must be contextualized to add the `CMS`` group to CVMFS. A minimal working setup is described below.
+At least 2GB of disk space should be reserved on the virtual machine for <span style="font-variant:small-caps;">Combine</span> to work properly and the machine must be contextualized to add the `CMS` group to CVMFS. A minimal working setup is described below.
 
 0. Download the CernVM-launcher for your operating system, following the instructions available [`here`] for your operating system (https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation
 
