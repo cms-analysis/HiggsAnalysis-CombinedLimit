@@ -147,7 +147,7 @@ Three additional folders (**shapes\_prefit**, **shapes\_fit\_sb** and **shapes\_
 
 | Object | Description |
 |------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| **`data`** | `TGraphAsymmErrors` containing the observed data (or toy data if using `-t`). The vertical error bars correspond to the 68% interval for a Poisson distribution centered on the observed count. |
+| **`data`** | `TGraphAsymmErrors` containing the observed data (or toy data if using `-t`). The vertical error bars correspond to the 68% interval for a Poisson distribution centered on the observed count (Garwood intervals), following the [recipe provided by the CMS Statistics Committee](https://twiki.cern.ch/twiki/bin/view/CMS/PoissonErrorBars).  |
 | **`$PROCESS`** (id <= 0) | `TH1F` for each signal process in each channel, named as in the datacard |
 | **`$PROCESS`** (id > 0)  | `TH1F` for each background process in each channel, named as in the datacard|
 | **`total_signal`** | `TH1F` Sum over the signal components|
