@@ -33,9 +33,10 @@
 namespace ch {
 
 // Bug fix for RooConstVar CompatibilityA
-RooWorkspace* CombineHarvester::fixRooConstVar(RooWorkspace *win, bool useRooRealVar)
+RooWorkspace* CombineHarvester::fixRooConstVar(RooWorkspace *win, bool useRooRealVar, bool clean)
 { 
     if ( !GetFlag("fix-rooconstvar")) return win; 
+    std::cout<<"[INFO]"<< "Running fixRooConstVar on "<<win->GetName()<<std::endl;
     // to fix RooConstVar we need to create a new workspace, 
     // import them first and later reimport all the other objects
     std::string name = win->GetName();
@@ -65,7 +66,8 @@ RooWorkspace* CombineHarvester::fixRooConstVar(RooWorkspace *win, bool useRooRea
 
     // Import all other stuff
     wout -> import(win->components(), RooFit::RecycleConflictNodes());
-    delete win; // if chained with clone and other stuff, this is the best option.
+    for (auto d : win->allData() ) wout -> import(*d);
+    if (clean) delete win; // if chained with clone and other stuff, this is the best option.
     return wout; 
 }
 
@@ -165,7 +167,9 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         if (!ws_store.count(store_key)) {
           mapping.file->cd();
           std::shared_ptr<RooWorkspace> ptr(
+                      fixRooConstVar(
                       dynamic_cast<RooWorkspace*>(gDirectory->Get(mapping.WorkspaceName().c_str())) 
+                  )
                );
           if (!ptr) {
             throw std::runtime_error(FNERROR("Workspace not found in file"));
@@ -180,7 +184,9 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
         if (!ws_store.count(store_key)) {
           mapping.file->cd();
           std::shared_ptr<RooWorkspace> ptr(
+                  fixRooConstVar(
                       dynamic_cast<RooWorkspace*>(gDirectory->Get(mapping.SystWorkspaceName().c_str()))
+                      )
                   );
           if (!ptr) {
             throw std::runtime_error(FNERROR("Workspace not found in file"));

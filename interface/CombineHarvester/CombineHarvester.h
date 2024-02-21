@@ -588,7 +588,7 @@ void FillHistMappings(std::vector<HistMapping> & mappings);
                  RooDataHist const* low, RooDataHist const* high);
 
   // bug fix for RooConstVar compatibility between ROOT626 and workspace created with earlier versions
-  RooWorkspace* fixRooConstVar(RooWorkspace *win, bool useRooRealVar=true);
+  RooWorkspace* fixRooConstVar(RooWorkspace *win, bool useRooRealVar=true, bool clean=true);
 };
 
 
