@@ -19,6 +19,7 @@
 #include "RooRealVar.h"
 #include "RooFormulaVar.h"
 #include "RooCategory.h"
+#include "RooConstVar.h"
 
 #include "CombineHarvester/CombineTools/interface/Observation.h"
 #include "CombineHarvester/CombineTools/interface/Process.h"
@@ -30,6 +31,43 @@
 #include "CombineHarvester/CombineTools/interface/Algorithm.h"
 #include "CombineHarvester/CombineTools/interface/zstr.hpp"
 namespace ch {
+
+// Bug fix for RooConstVar CompatibilityA
+RooWorkspace* CombineHarvester::fixRooConstVar(RooWorkspace *win, bool useRooRealVar)
+{ 
+    if ( !GetFlag("fix-rooconstvar")) return win; 
+    // to fix RooConstVar we need to create a new workspace, 
+    // import them first and later reimport all the other objects
+    std::string name = win->GetName();
+    RooWorkspace *wout = new RooWorkspace(name.c_str(), (std::string( win->GetTitle() ) + "_RCVfix").c_str() ) ;
+    for (auto cobj : win->components()) {
+        if (cobj->IsA() == RooConstVar::Class() )
+        {
+            RooConstVar* cvar = dynamic_cast<RooConstVar*> (cobj);
+            std::cout<<"[INFO] Found RooConstVar '"<<cvar->GetName()<<"' with value "<< cvar->getVal()<<" in workspace "<<name<<std::endl; 
+            if (useRooRealVar)
+            {
+                RooRealVar rrv = RooRealVar(cvar->GetName(),cvar->GetTitle(),cvar->getVal());
+                rrv . removeRange(); // the line above may already do it
+                rrv . setConstant();
+                wout -> import ( rrv, RooFit::RecycleConflictNodes());
+            }
+            else{
+                RooConstVar rcv  = RooConstVar(cvar->GetName(),cvar->GetTitle(),cvar->getVal()); 
+                wout -> import ( rcv, RooFit::RecycleConflictNodes());
+            }
+
+            std::cout<<" -> imported in workspace"<<std::endl;
+            wout -> obj( cvar->GetName() ) -> Print("T");
+        }
+
+    }
+
+    // Import all other stuff
+    wout -> import(win->components(), RooFit::RecycleConflictNodes());
+    delete win; // if chained with clone and other stuff, this is the best option.
+    return wout; 
+}
 
 // Extract info from filename using parse rule like:
 // ".*{MASS}/{ANALYSIS}_{CHANNEL}_{BINID}_{ERA}.txt"
@@ -126,8 +164,9 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
             mapping.file->GetName() + mapping.WorkspaceName();
         if (!ws_store.count(store_key)) {
           mapping.file->cd();
-          std::shared_ptr<RooWorkspace> ptr(dynamic_cast<RooWorkspace*>(
-              gDirectory->Get(mapping.WorkspaceName().c_str())));
+          std::shared_ptr<RooWorkspace> ptr(
+                      dynamic_cast<RooWorkspace*>(gDirectory->Get(mapping.WorkspaceName().c_str())) 
+               );
           if (!ptr) {
             throw std::runtime_error(FNERROR("Workspace not found in file"));
           }
@@ -140,8 +179,9 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
             mapping.file->GetName() + mapping.SystWorkspaceName();
         if (!ws_store.count(store_key)) {
           mapping.file->cd();
-          std::shared_ptr<RooWorkspace> ptr(dynamic_cast<RooWorkspace*>(
-              gDirectory->Get(mapping.SystWorkspaceName().c_str())));
+          std::shared_ptr<RooWorkspace> ptr(
+                      dynamic_cast<RooWorkspace*>(gDirectory->Get(mapping.SystWorkspaceName().c_str()))
+                  );
           if (!ptr) {
             throw std::runtime_error(FNERROR("Workspace not found in file"));
           }
