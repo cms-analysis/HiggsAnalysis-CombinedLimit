@@ -237,7 +237,7 @@ class CombineToolBase(object):
     def flush_queue(self):
         if self.job_mode == "interactive":
             pool = Pool(processes=self.parallel)
-            result = pool.map(partial(run_command, self.dry_run, pre_cmd=self.pre_cmd), self.job_queue)
+            _ = pool.map(partial(run_command, self.dry_run, pre_cmd=self.pre_cmd), self.job_queue)
         script_list = []
         if self.job_mode in ["script", "lxbatch", "SGE", "slurm"]:
             if self.prefix_file != "":

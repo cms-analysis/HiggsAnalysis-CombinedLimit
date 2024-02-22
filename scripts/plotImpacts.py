@@ -270,8 +270,8 @@ def MakeSummaryPage():
     nDraw = 10
     max_y = 0.9
     min_y = 0.1
-    left_margin = 0.03
-    right_margin = 0.97
+    # left_margin = 0.03
+    # right_margin = 0.97
     row_h = (max_y - min_y) / float(nDraw)
     boxes = []
     occurances = {}

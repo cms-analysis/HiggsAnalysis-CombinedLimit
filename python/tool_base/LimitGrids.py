@@ -93,7 +93,7 @@ class AsymptoticGrid(CombineToolBase):
 
         for f in glob.glob("higgsCombine.%s.*.%s.*.AsymptoticLimits.mH*.root" % (POIs[0], POIs[1])):
             # print f
-            rgx = re.compile("higgsCombine\.%s\.(?P<p1>.*)\.%s\.(?P<p2>.*)\.AsymptoticLimits\.mH.*\.root" % (POIs[0], POIs[1]))
+            rgx = re.compile(r"higgsCombine\.%s\.(?P<p1>.*)\.%s\.(?P<p2>.*)\.AsymptoticLimits\.mH.*\.root" % (POIs[0], POIs[1]))
             matches = rgx.search(f)
             p = (matches.group("p1"), matches.group("p2"))
             if p in file_dict:
@@ -443,7 +443,7 @@ class HybridNewGrid(CombineToolBase):
             file_dict[p] = {}
 
         # The regex we will use to identify output files and extract POI values
-        rgx = re.compile("higgsCombine\.%s\.(?P<p1>.*)\.%s\.(?P<p2>.*)\.HybridNew\.mH.*\.(?P<toy>.*)\.root" % (POIs[0], POIs[1]))
+        rgx = re.compile(r"higgsCombine\.%s\.(?P<p1>.*)\.%s\.(?P<p2>.*)\.HybridNew\.mH.*\.(?P<toy>.*)\.root" % (POIs[0], POIs[1]))
 
         stats = {}
         if statfile and os.path.isfile(statfile):
