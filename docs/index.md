@@ -261,8 +261,13 @@ See [contributing.md](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimi
 
 ## CombineHarvester/CombineTools
 
-CombineTools is an additional tool with useful features for <span style="font-variant:small-caps;">Combine</span>, such as the automated production of datacards among others.
-Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/) subpackage, speeding up the checkout and compile times:
+!!! info
+    Starting with <span style="font-variant:small-caps;">Combine v10</span>, CombineTool functionalities for job submition and parallelization (combineTool.py) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package.
+    For these tasks you no longer have to follow the instructions below.
+
+
+CombineTools is an additional packages with useful features for <span style="font-variant:small-caps;">Combine</span>, which is used for example for the automated datacard validation (see [instructions](docs/part3/validation)).
+Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/tree/main/CombineTools/) subpackage, speeding up the checkout and compile times:
 
 git clone via ssh:
 
