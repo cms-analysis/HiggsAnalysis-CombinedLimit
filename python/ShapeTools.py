@@ -736,7 +736,9 @@ class ShapeBuilder(ModelBuilder):
                 if not ret:
                     if allowNoSyst:
                         return None
-                    raise RuntimeError("Object %s in workspace %s in file %s does not exist, or it is neither a dataset nor a pdf" % (oname, wname, finalNames[0]))
+                    raise RuntimeError(
+                        "Object %s in workspace %s in file %s does not exist, or it is neither a dataset nor a pdf" % (oname, wname, finalNames[0])
+                    )
                 # Fix the fact that more than one entry can refer to the same object
                 ret = ret.Clone("shape%s_%s_%s%s" % (postFix, process, channel, "_" + syst if syst else ""))
                 if self.options.removeMultiPdf and ret.InheritsFrom("RooMultiPdf"):
