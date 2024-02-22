@@ -66,6 +66,8 @@ protected:
   static bool robustHesse_;
   static std::string robustHesseLoad_;
   static std::string robustHesseSave_;
+  static int robustHesseSplit_;
+  static unsigned robustHesseIdx_;
 
   static std::string saveSpecifiedFuncs_;
   static std::string saveSpecifiedNuis_;

@@ -26,8 +26,10 @@ RobustHesse::RobustHesse(RooAbsReal &nll, unsigned verbose) : nll_(&nll), verbos
   targetNllForStencils_ = 0.1;
   minNllForStencils_ = 0.095;
   maxNllForStencils_ = 0.105;
-  doRescale_ = true;
+  doRescale_ = false;
   maxRemovalsFromHessian_ = 20;
+  nParallelJobs_ = 0;
+  jobIdx_ = 0;
   initialize();
 }
 
@@ -51,6 +53,11 @@ void RobustHesse::initialize() {
   std::cout << ">> Found " << allVars.size() << " floating parameters\n";
 
   ReplaceVars(allVars);
+}
+
+void RobustHesse::SetSplitJob(int N, unsigned id) {
+  nParallelJobs_ = N;
+  jobIdx_ = id;
 }
 
 double RobustHesse::deltaNLL() {
@@ -96,6 +103,10 @@ int RobustHesse::setParameterStencil(unsigned i) {
 
   double valLo = x - rrv->getError();
   double valHi = x + rrv->getError();
+  if (rrv->getError() == 0.) {
+    valLo = x - 1E-3;
+    valHi = x + 1E-3;
+  }
 
   // Am I near a boundary?
   double boundLo = rrv->getMin();
@@ -116,7 +127,7 @@ int RobustHesse::setParameterStencil(unsigned i) {
       std::cout << ">> Parameter " << rrv->GetName() << " is too close to the upper bound: \n";
       rrv->Print();
     }
-    valHi = boundHi + 1E-7;
+    valHi = boundHi - 1E-7;
   }
 
   double dNllLo = deltaNLL({i}, {valLo});
@@ -356,7 +367,10 @@ int RobustHesse::hesse() {
   hessian_ = std::unique_ptr<TMatrixDSym>(new TMatrixDSym(cVars_.size()));
   unsigned ntotal = (((cVars_.size() * cVars_.size()) - cVars_.size()) / 2) + cVars_.size();
   unsigned idx = 0;
-
+  int subrange = 0;
+  if (nParallelJobs_ > 0) {
+    subrange = (ntotal + nParallelJobs_ - 1) / nParallelJobs_; // ceil to int
+  }
   if (loadFile_ != "") {
     TFile fin(loadFile_.c_str());
     *hessian_ = *((TMatrixDSym*)gDirectory->Get("hessian"));
@@ -365,6 +379,12 @@ int RobustHesse::hesse() {
       for (unsigned j = i; j < cVars_.size(); ++j) {
         if (idx % 100 == 0) {
           if (verbosity_ > 0) std::cout << " - Done " << idx << "/" << ntotal << " terms (" << nllEvals_ << " evals, of which " << nllEvalsCached_ << " cached)\n";
+        }
+
+        // if (nParallelJobs_ > 0 && !((idx % nParallelJobs_) == jobIdx_)) {
+        if (nParallelJobs_ > 0 && !(idx >= (jobIdx_ * subrange) && idx < ((jobIdx_ + 1) * subrange))) {
+          ++idx;
+          continue;
         }
         double term = 0.;
         if (i == j) {
@@ -400,6 +420,13 @@ int RobustHesse::hesse() {
   if (saveFile_ != "") {
     TFile fout(saveFile_.c_str(), "RECREATE");
     gDirectory->WriteObject(hessian_.get(), "hessian");
+    std::cout << "saving hessian" << "\n";
+
+    RooArgList arglist("floatParsFinal");
+    for (unsigned i = 0; i < cVars_.size(); ++i) {
+      arglist.addClone(*cVars_[i].v);
+    }
+    gDirectory->WriteObject(arglist.snapshot(), "floatParsFinal");
   }
 
 
