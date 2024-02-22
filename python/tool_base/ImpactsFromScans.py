@@ -123,7 +123,6 @@ class ImpactsFromScans(CombineToolBase):
             d10 = res[p][p][1] - res[p][p][0]
             d20 = (res[p][p][2] - res[p][p][0]) / 2.0
             vlo = js[p]["ValidErrorLo"]
-            vhi = js[p]["ValidErrorHi"]
             print("%-30s %+.3f  %+.3f  %+.3f  %+.3f %+.3f" % (p, d1, d20, d21, d10, (d21 - d10) / (d21 + d10)))
             covv = 0.0
             if self.args.cov_method == "full":
@@ -199,7 +198,6 @@ class ImpactsFromScans(CombineToolBase):
                 cj_10 = res[ip][jp][1] - res[ip][jp][0]
                 cj_20 = (res[ip][jp][2] - res[ip][jp][0]) / 2.0
                 vi_lo = js[ip]["ValidErrorLo"]
-                vi_hi = js[ip]["ValidErrorHi"]
                 dj_1 = res[jp][jp][1]
                 dj_21 = res[jp][jp][2] - res[jp][jp][1]
                 dj_10 = res[jp][jp][1] - res[jp][jp][0]
@@ -208,7 +206,6 @@ class ImpactsFromScans(CombineToolBase):
                 ci_10 = res[jp][ip][1] - res[jp][ip][0]
                 ci_20 = (res[jp][ip][2] - res[jp][ip][0]) / 2.0
                 vj_lo = js[jp]["ValidErrorLo"]
-                vj_hi = js[jp]["ValidErrorHi"]
 
                 cij_20 = ci_20 / di_20
                 cij_21 = ci_21 / (di_21 if (ci_21 >= 0 or not vi_lo) else di_10)
@@ -223,8 +220,6 @@ class ImpactsFromScans(CombineToolBase):
                 # cji_10 = cj_10/dj_21
 
                 a_20 = (cij_20 - cji_20) / ((cij_20 + cji_20) if (cij_20 + cji_20) != 0.0 else 1.0)
-                a_21 = (cij_21 - cji_21) / ((cij_21 + cji_21) if (cij_21 + cji_21) != 0.0 else 1.0)
-                a_10 = (cij_10 - cji_10) / ((cij_10 + cji_10) if (cij_10 + cji_10) != 0.0 else 1.0)
 
                 a_i = (cij_21 - cij_10) / ((cij_21 + cij_10) if (cij_21 + cij_10) != 0.0 else 1.0)
                 a_j = (cji_21 - cji_10) / ((cji_21 + cji_10) if (cji_21 + cji_10) != 0.0 else 1.0)

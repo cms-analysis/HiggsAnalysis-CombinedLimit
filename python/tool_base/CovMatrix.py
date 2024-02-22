@@ -35,7 +35,7 @@ class CovMatrix(CombineToolBase):
             ws_in = self.args.POIs_from_set.split(":")
             print(ws_in)
             POIs = utils.list_from_workspace(ws_in[0], ws_in[1], ws_in[2])
-        
+
         compare = self.args.compare is not None
         if compare:
             f_in = self.args.compare.split(":")
