@@ -35,34 +35,7 @@ class CovMatrix(CombineToolBase):
             ws_in = self.args.POIs_from_set.split(":")
             print(ws_in)
             POIs = utils.list_from_workspace(ws_in[0], ws_in[1], ws_in[2])
-        # res = { }
-        # if len(args.input) == 1:
-        #   res.update(get_singles_results(args.input, POIs, POIs))
-        # elif len(args.input) > 1:
-        #   assert len(args.input) == len(POIs)
-        #   for i in range(len(POIs)):
-        #     res.update(get_singles_results(args.input[i], [POIs[i]], POIs))
-        # for p in POIs:
-        #   val = res[p][p]
-        #   print '%s = %.3f -%.3f/+%.3f' % (p, val[1], val[1] - val[0], val[2] - val[1])
-        # print res
-        # cor = ROOT.TMatrixDSym(len(POIs))
-        # cov = ROOT.TMatrixDSym(len(POIs))
-        # for i,p in enumerate(POIs):
-        # cor[i][i] = ctypes.c_double(1.) # diagonal correlation is 1
-        # cov[i][i] = ctypes.c_double(pow((res[p][p][2] - res[p][p][0])/2.,2.)) # symmetrized error
-        # for i,ip in enumerate(POIs):
-        #   for j,jp in enumerate(POIs):
-        #     if i == j: continue
-        #     val_i = ((res[ip][jp][2] - res[ip][jp][0])/2.)/math.sqrt(cov[j][j])
-        #     val_j = ((res[jp][ip][2] - res[jp][ip][0])/2.)/math.sqrt(cov[i][i])
-        # correlation = (val_i+val_j)/2. # take average correlation?
-        # correlation = min(val_i,val_j, key=abs) # take the max?
-        #     cor[i][j] = correlation
-        #     cor[j][i] = correlation
-        #     covariance = correlation * math.sqrt(cov[i][i]) * math.sqrt(cov[j][j])
-        #     cov[i][j] = covariance
-        #     cov[j][i] = covariance
+        
         compare = self.args.compare is not None
         if compare:
             f_in = self.args.compare.split(":")
@@ -79,13 +52,11 @@ class CovMatrix(CombineToolBase):
                 for j, jp in enumerate(POIs):
                     fitres_cor[i][j] = ctypes.c_double(fitres_cor_src[ipos[i]][ipos[j]])
                     fitres_cov[i][j] = ctypes.c_double(fitres_cov_src[ipos[i]][ipos[j]])
-        # print 'My correlation matrix:'
-        # cor.Print()
+
         if compare:
             print("RooFitResult correlation matrix:")
             fitres_cor.Print()
-        # print 'My covariance matrix:'
-        # cov.Print()
+
         if compare:
             print("RooFitResult covariance matrix:")
             fitres_cov.Print()
