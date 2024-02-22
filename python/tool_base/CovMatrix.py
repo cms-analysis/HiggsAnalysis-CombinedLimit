@@ -29,12 +29,12 @@ class CovMatrix(CombineToolBase):
 
     def run_method(self):
         POIs = []
-        if args.POIs is not None:
-            POIs = args.POIs.split(",")
-        if args.POIs_from_set is not None:
-            ws_in = args.POIs_from_set.split(":")
+        if self.args.POIs is not None:
+            POIs = self.args.POIs.split(",")
+        if self.args.POIs_from_set is not None:
+            ws_in = self.args.POIs_from_set.split(":")
             print(ws_in)
-            POIs = list_from_workspace(ws_in[0], ws_in[1], ws_in[2])
+            POIs = utils.list_from_workspace(ws_in[0], ws_in[1], ws_in[2])
         # res = { }
         # if len(args.input) == 1:
         #   res.update(get_singles_results(args.input, POIs, POIs))
@@ -63,9 +63,9 @@ class CovMatrix(CombineToolBase):
         #     covariance = correlation * math.sqrt(cov[i][i]) * math.sqrt(cov[j][j])
         #     cov[i][j] = covariance
         #     cov[j][i] = covariance
-        compare = args.compare is not None
+        compare = self.args.compare is not None
         if compare:
-            f_in = args.compare.split(":")
+            f_in = self.args.compare.split(":")
             f = ROOT.TFile(f_in[0])
             fitres = f.Get(f_in[1])
             fitres_cov = ROOT.TMatrixDSym(len(POIs))
@@ -89,16 +89,10 @@ class CovMatrix(CombineToolBase):
         if compare:
             print("RooFitResult covariance matrix:")
             fitres_cov.Print()
-        if args.output is not None:
-            out = args.output.split(":")
+        if self.args.output is not None:
+            out = self.args.output.split(":")
             fout = ROOT.TFile(out[0], "RECREATE")
             prefix = out[1]
-            # fout.WriteTObject(cor, prefix+'_cor')
-            # h_cor = self.fix_TH2(ROOT.TH2D(cor), POIs)
-            # fout.WriteTObject(h_cor, prefix+'_h_cor')
-            # fout.WriteTObject(cov, prefix+'_cov')
-            # h_cov = self.fix_TH2(ROOT.TH2D(cov), POIs)
-            # fout.WriteTObject(h_cov, prefix+'_h_cov')
             if compare:
                 fout.WriteTObject(fitres_cor, prefix + "_comp_cor")
                 h_cor_compare = self.fix_TH2(ROOT.TH2D(fitres_cor), POIs)
