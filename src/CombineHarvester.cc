@@ -25,6 +25,7 @@ CombineHarvester::CombineHarvester() : verbosity_(0), log_(&(std::cout)) {
   flags_["workspace-uuid-recycle"] = true;
   flags_["import-parameter-err"] = true;
   flags_["filters-use-regex"] = false;
+  flags_["fix-rooconstvar"] = false;
   // std::cout << "[CombineHarvester] Constructor called for " << this << "\n";
 }
 
@@ -681,7 +682,8 @@ std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
     // bugs
     if (GetFlag("workspaces-use-clone")) {
       wspaces_[std::string(ws.GetName())] = std::shared_ptr<RooWorkspace>(
-          reinterpret_cast<RooWorkspace*>(ws.Clone()));      
+              reinterpret_cast<RooWorkspace*>(ws.Clone())
+          );      
     } else {
       wspaces_[std::string(ws.GetName())] =
           std::make_shared<RooWorkspace>(RooWorkspace(ws));  
@@ -720,7 +722,8 @@ std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
   std::shared_ptr<RooWorkspace> new_wsp;
   if (GetFlag("workspaces-use-clone")) {
     new_wsp = std::shared_ptr<RooWorkspace>(
-        reinterpret_cast<RooWorkspace*>(ws.Clone(new_name.c_str())));    
+            reinterpret_cast<RooWorkspace*>(ws.Clone(new_name.c_str()))
+        );    
   } else {
     new_wsp = std::make_shared<RooWorkspace>(RooWorkspace(ws));
   }
