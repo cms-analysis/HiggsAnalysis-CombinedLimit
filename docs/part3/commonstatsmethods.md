@@ -754,7 +754,8 @@ where the former gives the result for the S+B model, while the latter gives the 
 
 ### Making a plot of the GoF test statistic distribution
 
-If you have also checked out the [combineTool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool), you can use this to run batch jobs or on the grid (see [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)) and produce a plot of the results. Once the jobs have completed, you can hadd them together and run (e.g for the saturated model),
+You can use `combineTool.py` to run batch jobs or on the grid (see [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)).
+Additionally, you can produce a plot of the results if you have also checked out the [combineTool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool). Once the jobs have completed, you can hadd them together and run (e.g for the saturated model),
 
 ```sh
 combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
