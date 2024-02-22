@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import CombineHarvester.CombineTools.plotting as plot
+import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import ROOT
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True

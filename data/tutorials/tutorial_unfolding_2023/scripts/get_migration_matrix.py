@@ -1,5 +1,5 @@
 import CombineHarvester.CombineTools.ch as ch
-import CombineHarvester.CombineTools.plotting as plot
+import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import ROOT
 import sys
 
