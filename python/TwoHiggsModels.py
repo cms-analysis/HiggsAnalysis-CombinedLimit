@@ -43,23 +43,23 @@ class TwoHiggsBase(PhysicsModel):
             if po.startswith("higgsMassSM="):
                 self.mHSM = float((po.replace("higgsMassSM=", "").split(","))[0])  # without index, this will try to case list as a float !
             if po == "mHAsPOI":
-                print("Will consider the mass of the second Higgs as a parameter of interest")
+                print("Will consider the mass of the second Higgs boson as a parameter of interest")
                 self.mHAsPOI = True
             if po == "mHSMAsPOI":
-                print("Will consider the mass of the SM Higgs as a parameter of interest")
+                print("Will consider the mass of the SM Higgs boson as a parameter of interest")
                 self.mHSMAsPOI = True
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=", "").split(",")
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs boson mass range defined with inverterd order. Second must be larger than the first")
             if po.startswith("higgsMassRangeSM="):
                 self.mHSMRange = po.replace("higgsMassRangeSM=", "").split(",")
                 if len(self.mHSMRange) != 2:
-                    raise RuntimeError("SM Higgs mass range definition requires two extrema")
+                    raise RuntimeError("SM Higgs boson mass range definition requires two extrema")
                 elif float(self.mHSMRange[0]) >= float(self.mHSMRange[1]):
-                    raise RuntimeError("Extrema for SM Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for SM Higgs mass range defined with inverterd order. Second must be larger than the first")
 
     def doMasses(self):
         """Create mass variables, return a postfix to the POIs if needed"""
@@ -172,12 +172,12 @@ class TwoHiggsUnconstrained(TwoHiggsBase):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
             if po == "muSMAsPOI":
-                print("Will consider the signal strength of the SM Higgs as a parameter of interest")
+                print("Will consider the signal strength of the SM Higgs boson as a parameter of interest")
                 self.muSMAsPOI = True
                 self.muSMFloating = True
             if po == "muSMFloating":
                 print(
-                    "Will consider the signal strength of the SM Higgs as a floating parameter (as a parameter of interest if --PO muAsPOI is specified, as a nuisance otherwise)"
+                    "Will consider the signal strength of the SM Higgs boson as a floating parameter (as a parameter of interest if --PO muAsPOI is specified, as a nuisance otherwise)"
                 )
                 self.muSMFloating = True
 
@@ -205,7 +205,7 @@ class SingletMixing(TwoHiggsBase):
     - default:           r               r_SM := 1 - r
     - with BSM:          r*(1-BR_BSM)    r_SM := 1 - r
     - BSM & Visible mu:  r               r_SM := 1 - r/(1-BR_BSM)
-    note that in the third case there's no way to enforce at model level that r/(1-BR_BSM) <= 1
+    note that in the third case there is no way to enforce at model level that r/(1-BR_BSM) <= 1
     """
 
     def __init__(self):
@@ -250,7 +250,7 @@ class SingletMixing(TwoHiggsBase):
 
 class SingletMixingForExclusion(TwoHiggsBase):
     """The prediction for this model is mu + mu' == 1 (or <= 1)
-    So we just go probing mu+mu'"""
+    So we just probe mu+mu'"""
 
     def __init__(self):
         TwoHiggsBase.__init__(self)
@@ -302,13 +302,13 @@ class TwoHiggsCvCf(TwoHiggsBase):
                 if len(self.cVRange) != 2:
                     raise RuntimeError("cV signal strength range requires minimal and maximal value")
                 elif float(self.cVRange[0]) >= float(self.cVRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first one")
             if po.startswith("cFRange="):
                 self.cFRange = po.replace("cFRange=", "").split(":")
                 if len(self.cFRange) != 2:
                     raise RuntimeError("cF signal strength range requires minimal and maximal value")
                 elif float(self.cFRange[0]) >= float(self.cFRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first one")
 
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
