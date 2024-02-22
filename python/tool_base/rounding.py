@@ -81,7 +81,7 @@ def getDigsMag(val):
     try:
         valMag = int(floor(log10(val)))
         valDigs = val / pow(10, valMag)
-    except:
+    except Exception:
         print(val)
         valDigs = 1
         valMag = 1
@@ -144,7 +144,7 @@ def roundMultiple(vals, uncs, method="PDG"):
         try:
             uncList.append(unc[0])
             uncList.append(unc[1])
-        except:
+        except Exception:
             uncList.append(unc)
 
     uncMin = min(uncList)
@@ -162,7 +162,7 @@ def roundMultiple(vals, uncs, method="PDG"):
     try:
         valsStr = [matchPrec(val / pow(10, uncRefMag), uncRefStr) for val in vals]
         print("foo")
-    except:
+    except Exception:
         valsStr = matchPrec(vals / pow(10, uncRefMag), uncRefStr)
 
     uncsStr = list()
@@ -202,7 +202,7 @@ def toLatexRounded(vals, uncs, uncLbls=None, units=None):
     return toROOTorLatex(valStr, uncsStr, mag, uncLbls, units, mode="Latex")
 
 
-commonSIPrefixes = {12: "T", 9: "G", 6: "M", 3: "k", -3: "m", -6: "\mu ", -9: "n", -12: "p", -15: "f"}
+commonSIPrefixes = {12: "T", 9: "G", 6: "M", 3: "k", -3: "m", -6: r"\mu ", -9: "n", -12: "p", -15: "f"}
 
 
 ###
@@ -231,7 +231,7 @@ def toROOTorLatex(valStr, uncsStr, mag, uncLbls=None, units=None, mode=None):
     if mode == "Latex":
         t = {
             "sep": "\\",
-            "space": "\;",
+            "space": "\;",  # noqa: W605
             "times": "\\times",
             "left": "\\left",
             "right": "\\right",
@@ -255,7 +255,8 @@ def toROOTorLatex(valStr, uncsStr, mag, uncLbls=None, units=None, mode=None):
         pwrStr = t["times"] + "10^{%d} " % magTen
     lblStr = t["sep"] + "mathrm{(%s)} "
 
-    transform = lambda x: downgradePrec(x, magTgt)
+    def transform(x):
+        return downgradePrec(x, magTgt)
 
     # Build the string
     outStr = ""
