@@ -39,6 +39,8 @@ class RobustHesse {
   void ProtectArgSet(RooArgSet const& set);
   void ProtectVars(std::vector<std::string> const& names);
 
+  void SetSplitJob(int N, unsigned id);
+
   int hesse();
 
   void WriteOutputFile(std::string const& outputFileName) const;
@@ -98,6 +100,8 @@ class RobustHesse {
   double minNllForStencils_;
   double maxNllForStencils_;
   unsigned maxRemovalsFromHessian_;
+  int nParallelJobs_;
+  unsigned int jobIdx_;
 
   bool doRescale_;
 

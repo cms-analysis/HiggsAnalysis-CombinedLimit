@@ -60,7 +60,8 @@ float MultiDimFit::centeredRange_ = -1.0;
 bool        MultiDimFit::robustHesse_ = false;
 std::string MultiDimFit::robustHesseLoad_ = "";
 std::string MultiDimFit::robustHesseSave_ = "";
-
+int MultiDimFit::robustHesseSplit_ = 0;
+unsigned MultiDimFit::robustHesseIdx_ = 0;
 
 std::string MultiDimFit::saveSpecifiedFuncs_;
 std::string MultiDimFit::saveSpecifiedIndex_;
@@ -110,6 +111,8 @@ MultiDimFit::MultiDimFit() :
     ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
     ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
     ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
+    ("robustHesseSplit",  boost::program_options::value<int>(&robustHesseSplit_)->default_value(robustHesseSplit_),  "Split the Hessian calculation into N jobs")
+    ("robustHesseIdx",  boost::program_options::value<unsigned>(&robustHesseIdx_)->default_value(robustHesseIdx_),  "Set job index (0..N-1) in split mode")
       ;
 }
 
@@ -241,6 +244,9 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         }
         if (robustHesseLoad_ != "") {
           robustHesse.LoadHessianFromFile(robustHesseLoad_);
+        }
+        if (robustHesseSplit_ > 0) {
+            robustHesse.SetSplitJob(robustHesseSplit_, robustHesseIdx_);
         }
         robustHesse.hesse();
         if (saveFitResult_) {
