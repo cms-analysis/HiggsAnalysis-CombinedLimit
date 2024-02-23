@@ -254,13 +254,13 @@ for an example. However, the computational performance scales quadratically
 with the number of POIs, and can get extremely expensive for 10 or more, as may
 be encountered often with EFT analyses. To alleviate this issue, an accelerated
 interference modeling technique is implemented for template-based analyses via
-the `interferenceModel` physics model. In this model, each bin yield $w$ is parameterized
+the `interferenceModel` physics model. In this model, each bin yield $y$ is parameterized
 
 $$
-w(\vec{\mu}) = w_0 (\vec{\mu}^\top M \theta)
+y(\theta) = y_0 (\theta^\top M \theta)
 $$
 
-as a function of the POI vector $\vec{\mu}$, a nominal template $w_0$, and a scaling matrix $M$.
+as a function of the POI vector $\theta$, a nominal template $y_0$, and a scaling matrix $M$.
 To see how this parameterization relates to that of the previous section, we can define:
 
 $$
