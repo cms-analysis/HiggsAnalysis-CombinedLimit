@@ -329,6 +329,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (verbose > 2) std::cerr << "Setting variable 'MH' in workspace to the higgs mass " << mass_ << std::endl;
       MH->setVal(mass_);
     }
+    auto* onevar = dynamic_cast<RooConstVar*>(w->obj("1"));
+    if ( onevar && onevar->getVal() != 1.0 ) {
+      if (verbose > 2) std::cout << "Setting 1 to 1...\n";
+      onevar->changeVal(1.0);
+    }
     mc       = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
     mc_bonly = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigNameB_.c_str()));
 

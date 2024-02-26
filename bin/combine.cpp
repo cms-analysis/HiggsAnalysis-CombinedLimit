@@ -1,6 +1,7 @@
 #include "../interface/Combine.h"
 #include <TString.h>
 #include <TSystem.h>
+#include <TPluginManager.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <RooRandom.h>
@@ -32,6 +33,14 @@
 using namespace std;
 
 int main(int argc, char **argv) {
+   std::string myMinuit2InstallDir = "/afs/cern.ch/user/n/ncsmith/higgs-comb/CMSSW_14_0_0_pre0/contrib/root/math/minuit2/install";
+   gInterpreter->AddIncludePath((myMinuit2InstallDir + "/include").c_str());
+   gSystem->AddDynamicPath((myMinuit2InstallDir + "/lib").c_str());
+   gInterpreter->Declare("#include \"MyMinuit2/Minuit2Minimizer.h\"");
+
+   gPluginMgr->AddHandler("ROOT::Math::Minimizer", "MyMinuit2", "ROOT::MyMinuit2::Minuit2Minimizer", "MyMinuit2",
+                          "Minuit2Minimizer(const char *)");
+
   using namespace boost;
   namespace po = boost::program_options;
 

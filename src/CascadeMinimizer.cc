@@ -40,6 +40,7 @@ int  CascadeMinimizer::strategy_=1;
 std::map<std::string,std::vector<std::string> > const CascadeMinimizer::minimizerAlgoMap_{
  {"Minuit"	 ,{"Migrad","Simplex","Combined","Scan"}}
 ,{"Minuit2" 	 ,{"Migrad","Simplex","Combined","Scan"}}
+,{"MyMinuit2" 	 ,{"Migrad","Simplex","Combined","Scan"}}
 ,{"GSLMultiMin"  ,{"ConjugateFR", "ConjugatePR", "BFGS", "BFGS2", "SteepestDescent"}}
 };
 
