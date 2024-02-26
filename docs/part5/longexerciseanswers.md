@@ -1,4 +1,4 @@
-# Answers to tasks and questions in long exercise
+# Answers to tasks and questions
 
 ## Part 1: A one-bin counting experiment
 
@@ -249,6 +249,3 @@ python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsC
 </details>
 
 
-### F: Use of channel masking
-
-No specific questions, just tasks

@@ -1,4 +1,4 @@
-# RooFit
+# RooFit Basics
 `RooFit` is a OO analysis environment built on `ROOT`. It has a collection of classes designed to augment root for data modeling.
 
 This section covers a few of the basics of `RooFit`. There are many more tutorials available at this link: [https://root.cern.ch/root/html600/tutorials/roofit/index.html](https://root.cern.ch/root/html600/tutorials/roofit/index.html)
