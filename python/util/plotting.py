@@ -1328,6 +1328,7 @@ def FixBoxPadding(pad, box, frac):
 #  @details Functions for drawing legends, logos, title, lines and boxes
 ##@{
 
+
 def DrawCMSLogo(pad, cmsText, extraText, iPosX, relPosX, relPosY, relExtraDY, extraText2="", cmsTextSize=0.8):
     """Blah
 
