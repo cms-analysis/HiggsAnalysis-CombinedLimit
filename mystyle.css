@@ -1,12 +1,3 @@
-@media (min-width: 992px) {
-  .bs-sidebar.affix {
-      position: fixed; /* Undo the static from mobile first approach */
-      top: 80px;
-      max-height: calc(100% - 90px);
-      overflow-y: auto
-  }
-}
-
 details {
     display: block;
     border-left: 0.1em solid #909090;
