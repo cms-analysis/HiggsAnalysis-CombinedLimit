@@ -257,14 +257,14 @@ interference modeling technique is implemented for template-based analyses via
 the `interferenceModel` physics model. In this model, each bin yield $y$ is parameterized
 
 $$
-y(\theta) = y_0 (\theta^\top M \theta)
+y(\vec{\mu}) = y_0 (\vec{\mu}^\top M \vec{\mu})
 $$
 
-as a function of the POI vector $\theta$, a nominal template $y_0$, and a scaling matrix $M$.
+as a function of the POI vector $\vec{\mu}$, a nominal template $y_0$, and a scaling matrix $M$.
 To see how this parameterization relates to that of the previous section, we can define:
 
 $$
-w_0 = A_b^2, \qquad
+y_0 = A_b^2, \qquad
 M = \frac{1}{A_b^2} \begin{bmatrix}
  |A_s|^2 & \Re(A_s^* A_b) \\
  \Re(A_s A_b^*) & |A_b|^2
