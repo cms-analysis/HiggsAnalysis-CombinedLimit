@@ -1,3 +1,6 @@
+hide:
+    - navigation 
+
 # Useful links and further reading
 
 ### Tutorials and reading material

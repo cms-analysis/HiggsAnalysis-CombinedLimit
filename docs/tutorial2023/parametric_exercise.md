@@ -1,4 +1,4 @@
-# Parametric fitting exercise
+# Parametric Models in Combine
 
 ## Getting started
 By now you should have a working setup of Combine v9 from the pre-tutorial exercise. If so then move onto the cloning of the parametric fitting exercise gitlab repo below. If not then you need to set up a CMSSW area and checkout the combine package:

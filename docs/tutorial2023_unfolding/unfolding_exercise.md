@@ -1,4 +1,4 @@
-# Combine unfolding exercise
+# Likelihood Based Unfolding Exercise in Combine
 
 ## Getting started
 

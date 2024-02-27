@@ -17,13 +17,14 @@ nav:
           - "Unfolding & regularization": part3/regularisation.md
           - "Validating datacards":       part3/validation.md
           - "Debugging fit failures":     part3/debugging.md
-        - Links & FAQ: part4/usefullinks.md
         - Tutorials:
           - "RooFit Basics":              part5/roofit.md
-          - "Exercise: main features":    part5/longexercise.md
-          - "Solutions to long exercise": part5/longexerciseanswers.md
-          - "Exercise: parametric fit":   tutorial2023/parametric_exercise.md
-          - "Exercise: unfolding in combine":   tutorial2023_unfolding/unfolding_exercise.md
+          - "Main Features":                
+            - "Exercises":                part5/longexercise.md
+            - "Solutions":                part5/longexerciseanswers.md
+          - "Parametric Models":          tutorial2023/parametric_exercise.md
+          - "Likelihood Based Unfolding": tutorial2023_unfolding/unfolding_exercise.md
+        - Links & FAQ: part4/usefullinks.md
 
 theme:
         name: material
@@ -32,9 +33,8 @@ theme:
         features: 
             - content.code.copy
             - navigation.footer
-            - navigation.expand
             - navigation.indexes
-            - navigation.sections
+            - navigation.expand
             - navigation.tracking
             - navigation.tabs
             - navigation.tabs.sticky
