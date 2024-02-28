@@ -169,6 +169,7 @@ class CachingSimNLL  : public RooAbsReal {
         void setData(const RooAbsData &data) ;
         virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
+        virtual bool getParameters(const RooArgSet* depList, RooArgSet& outputSet, bool stripDisconnected=true) const;
         void splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) ;
         static void setNoDeepLogEvalError(bool noDeep) { noDeepLEE_ = noDeep; }
         void setZeroPoint() ; 
