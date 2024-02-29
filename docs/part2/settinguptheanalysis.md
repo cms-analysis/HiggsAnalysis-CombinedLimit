@@ -208,7 +208,7 @@ or a postifx can be added to the histogram name:
 !!! warning
     If you have a nuisance parameter that has shape effects on some processes (using `shape`) *and* rate effects on other processes (using `lnN`) you should use a single line for the systematic uncertainty with `shape?`. This will tell <span style="font-variant:small-caps;">Combine</span> to fist look for Up/Down systematic templates for that process and if it doesnt find them, it will interpret the number that you put for the process as a `lnN` instead. 
 
-For a detailed example of a template-based binned analysis, see the [H→ττ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates)
+For a detailed example of a template-based binned analysis, see the [H→ττ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates), or in our [Tutorial](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#part-2-a-shape-based-analysis) pages. 
 
 ### Unbinned or parametric shape analyses
 
@@ -285,7 +285,7 @@ Though this is *not strictly necessary* in frequentist methods using profiled li
 !!! warning
     All parameters that are floating or constant in the user's input workspaces will remain floating or constant. <span style="font-variant:small-caps;">Combine</span> will ***not*** modify those for you!
 
-A full example of a parametric analysis can be found in this [H→γγ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_parametric_shape_analysis_H).
+A full example of a parametric analysis can be found in this [H→γγ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_parametric_shape_analysis_H) or in our [Tutorial](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/tutorial2023/parametric_exercise/) pages.
 
 #### Caveat on using parametric PDFs with binned datasets
 
