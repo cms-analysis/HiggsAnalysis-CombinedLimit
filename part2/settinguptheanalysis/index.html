@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.11">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.12">
     
     
       
@@ -1534,7 +1534,7 @@ Then, to give a simple example for two channels ("e", "mu") with three processes
 <p class="admonition-title">Warning</p>
 <p>If you have a nuisance parameter that has shape effects on some processes (using <code>shape</code>) <em>and</em> rate effects on other processes (using <code>lnN</code>) you should use a single line for the systematic uncertainty with <code>shape?</code>. This will tell <span style="font-variant:small-caps;">Combine</span> to fist look for Up/Down systematic templates for that process and if it doesnt find them, it will interpret the number that you put for the process as a <code>lnN</code> instead. </p>
 </div>
-<p>For a detailed example of a template-based binned analysis, see the <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates">H→ττ 2014 DAS tutorial</a></p>
+<p>For a detailed example of a template-based binned analysis, see the <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates">H→ττ 2014 DAS tutorial</a>, or in our <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#part-2-a-shape-based-analysis">Tutorial</a> pages. </p>
 <h3 id="unbinned-or-parametric-shape-analyses">Unbinned or parametric shape analyses</h3>
 <p>In some cases, it can be convenient to describe the expected signal and background shapes in terms of analytical functions, rather than templates. Typical examples are searches/measurements where the signal is apparent as a narrow peak over a smooth continuum background. In this context, uncertainties affecting the shapes of the signal and backgrounds can be implemented naturally as uncertainties in the parameters of those analytical functions. It is also possible to adopt an agnostic approach in which the parameters of the background model are left freely floating in the fit to the data, i.e. only requiring the background to be well described by a smooth function.</p>
 <p>Technically, this is implemented by means of the RooFit package, which allows writing generic probability density functions, and saving them into ROOT files. The PDFs can be either taken from RooFit's standard library of functions (e.g. Gaussians, polynomials, ...) or hand-coded in C++, and combined together to form even more complex shapes.</p>
@@ -1592,7 +1592,7 @@ RooDataSet::data_obs(j)
 <p class="admonition-title">Warning</p>
 <p>All parameters that are floating or constant in the user's input workspaces will remain floating or constant. <span style="font-variant:small-caps;">Combine</span> will <strong><em>not</em></strong> modify those for you!</p>
 </div>
-<p>A full example of a parametric analysis can be found in this <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_parametric_shape_analysis_H">H→γγ 2014 DAS tutorial</a>.</p>
+<p>A full example of a parametric analysis can be found in this <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_parametric_shape_analysis_H">H→γγ 2014 DAS tutorial</a> or in our <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/tutorial2023/parametric_exercise/">Tutorial</a> pages.</p>
 <h4 id="caveat-on-using-parametric-pdfs-with-binned-datasets">Caveat on using parametric PDFs with binned datasets</h4>
 <p>Users should be aware of a feature that affects the use of parametric PDFs together with binned datasets.</p>
 <p>RooFit uses the integral of the PDF, computed analytically (or numerically, but disregarding the binning), to normalize it, but computes the expected event yield in each bin by evaluating the PDF at the bin center. This means that if the variation of the pdf is sizeable within the bin, there is a mismatch between the sum of the event yields per bin and the PDF normalization, which can cause a bias in the fits. More specifically, the bias is present if the contribution of the second derivative integrated in the bin size is not negligible. For linear functions, an evaluation at the bin center is correct. There are two recommended ways to work around this issue:</p>
@@ -2046,7 +2046,7 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c8d2eff1.min.js"></script>
       
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
       
