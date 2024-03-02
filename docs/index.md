@@ -7,7 +7,7 @@ hide:
 These pages document the
 [RooStats](https://twiki.cern.ch/twiki/bin/view/RooStats/WebHome) /
 [RooFit](https://root.cern.ch/roofit) - based software tool used for
-statistical analysis within the CMS experiment - <span style="font-variant:small-caps;">Combine</span>. Note that while this tool was originally developed in the [Higgs PAG](HiggsWG), its usage is now widespread within CMS. 
+statistical analysis within the CMS experiment - <span style="font-variant:small-caps;">Combine</span>. Note that while this tool was originally developed in the Higgs Physics Analysis Group (PAG), its usage is now widespread within CMS. 
 
 <span style="font-variant:small-caps;">Combine</span> provides a command-line interface to many different statistical techniques, available inside RooFit/RooStats, that are used widely inside CMS.
 
