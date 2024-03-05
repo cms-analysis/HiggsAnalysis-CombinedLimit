@@ -126,14 +126,14 @@ Now we will look at computing limits without the asymptotic approximation, so in
 
 Run the following command:
 ```shell
-combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --fork 0
+combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult
 ```
 In contrast to `AsymptoticLimits` this will only determine the observed limit, and will take a few minutes. There will not be much output to the screen while combine is running. You can add the option `-v 1` to get a better idea of what is going on. You should see <span style="font-variant:small-caps;">Combine</span> stepping around in `r`, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The `--saveHybridResult` option will cause the test statistic distributions that are generated at each tested value of `r` to be saved in the output ROOT file.
 
 To get an expected limit add the option `--expectedFromGrid X`, where `X` is the desired quantile, e.g. for the median:
 
 ```shell
-combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --fork 0 --expectedFromGrid 0.500
+combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --expectedFromGrid 0.500
 ```
 
 Calculate the median expected limit and the 68% range. The 95% range could also be done, but note it will take much longer to run the 0.025 quantile. While <span style="font-variant:small-caps;">Combine</span> is running you can move on to the next steps below.

@@ -115,7 +115,7 @@ LimitAlgo("HybridNew specific options") {
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
         ("interpAcc", boost::program_options::value<double>(&interpAccuracy_)->default_value(interpAccuracy_), "Minimum uncertainty from interpolation delta(x)/(max(x)-min(x))")
         ("iterations,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero disabling adaptive generation)")
-        ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (0 by default == no forking)")
+        ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (0 by default == no forking). Only use if you're an expert in combine!")
         ("nCPU",    boost::program_options::value<unsigned int>(&nCpu_)->default_value(nCpu_),           "Use N CPUs with PROOF Lite (experimental!)")
         ("saveHybridResult",  "Save result in the output file")
         ("readHybridResults", "Read and merge results from file (requires 'toysFile' or 'grid')")
@@ -229,7 +229,10 @@ void HybridNew::applyDefaultOptions() {
 }
 
 void HybridNew::validateOptions() {
-    if (fork_ > 1) nToys_ /= fork_; // makes more sense
+    if (fork_ > 1) {
+        CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string("You have specified fork > 1. This can cause serious problems, especially when submitting to batch systems. Recommend reducing the number of iterations instead and submitting more jobs!"),__func__);
+        nToys_ /= fork_; // makes more sense
+    }
     if (rule_ == "CLs") {
         CLs_ = true;
     } else if (rule_ == "Pmu") {
