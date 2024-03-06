@@ -104,7 +104,7 @@ $$ t_{\vec{x}} \propto -\log(\frac{\mathcal{L}(\vec{x})}{\mathcal{L}(\vec{\hat{x
 Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter $\vec{x}$ indexing the test statistic appears in the numerator of the likelihood ratio.
 
 When calculating the p-values for these statistical tests, the p-values are calculated assuming the true model has the parameters used to define the test statistic. 
-i.e. as $p_\vec{\mu} \equiv p(t_{\vec{\mu}}(\mathrm{data}) | \mathcal{M}_{\vec{\mu}})$.
+i.e. as $p_\vec{\mu} \equiv p(t_{\vec{\mu}}(\mathrm{data}) ; \mathcal{M}_{\vec{\mu}})$.
 In other words, the observed and expected distributions of the test statistics are computed separately at each parameter point $\vec{x}$ being considered.
 
 #### Expected distributions of likelihood ratio test statistics
@@ -204,7 +204,7 @@ $$
 \end{cases}
 $$
 
-Which also has a [known distribution](https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7) under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, $\mathrm{CL}$, by finding the value of $\mu$ for which $p_{\mu} \equiv p(t_{\mu}(\mathrm{data})|\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ will have smaller p-values and are considered excluded at the given confidence level.
+Which also has a [known distribution](https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7) under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, $\mathrm{CL}$, by finding the value of $\mu$ for which $p_{\mu} \equiv p(t_{\mu}(\mathrm{data});\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ will have smaller p-values and are considered excluded at the given confidence level.
 
 However, this procedure is rarely used, in almost every case we use a modified test procedure which uses the $\mathrm{CL}_{s}$ criterion, explained below.
 
