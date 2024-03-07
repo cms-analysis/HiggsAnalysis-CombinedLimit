@@ -7,8 +7,7 @@ ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 
 f = ROOT.TFile(
-    "higgsCombine.scan2D.part6_multiSignalModel.MultiDimFit.mH125.root"
-    )
+    "higgsCombine.scan2D.part6_multiSignalModel.MultiDimFit.mH125.root")
 t = f.Get("limit")
 
 # Number of points in interpolation
@@ -31,8 +30,8 @@ for ev in t:
 dnll = np.asarray(deltaNLL)
 points = np.array([x, y]).transpose()
 # Set up grid
-grid_x, grid_y = np.mgrid[x_range[0]:x_range[1]:n_points*1j,
-                          y_range[0]:y_range[1]:n_points*1j
+grid_x, grid_y = np.mgrid[x_range[0]:x_range[1]:n_points * 1j,
+                          y_range[0]:y_range[1]:n_points * 1j
                           ]
 grid_vals = griddata(points, dnll, (grid_x, grid_y), "cubic")
 
@@ -51,11 +50,11 @@ h2D = ROOT.TProfile2D("h", "h",
 
 for i in range(len(grid_vals)):
     # Factor of 2 comes from 2*NLL
-    h2D.Fill(grid_x[i], grid_y[i], 2*grid_vals[i])
+    h2D.Fill(grid_x[i], grid_y[i], 2 * grid_vals[i])
 
 # Loop over bins: if content = 0 then set 999
-for ibin in range(1, h2D.GetNbinsX()+1):
-    for jbin in range(1, h2D.GetNbinsY()+1):
+for ibin in range(1, h2D.GetNbinsX() + 1):
+    for jbin in range(1, h2D.GetNbinsY() + 1):
         if h2D.GetBinContent(ibin, jbin) == 0:
             xc = h2D.GetXaxis().GetBinCenter(ibin)
             yc = h2D.GetYaxis().GetBinCenter(jbin)
@@ -68,8 +67,8 @@ canv.SetTicky()
 canv.SetLeftMargin(0.115)
 canv.SetBottomMargin(0.115)
 # Extract binwidth
-xw = (x_range[1]-x_range[0])/n_bins
-yw = (y_range[1]-y_range[0])/n_bins
+xw = (x_range[1] - x_range[0]) / n_bins
+yw = (y_range[1] - y_range[0]) / n_bins
 
 # Set histogram properties
 h2D.SetContour(999)
@@ -77,12 +76,12 @@ h2D.SetTitle("")
 h2D.GetXaxis().SetTitle("r_ggH")
 h2D.GetXaxis().SetTitleSize(0.05)
 h2D.GetXaxis().SetTitleOffset(0.9)
-h2D.GetXaxis().SetRangeUser(x_range[0], x_range[1]-xw)
+h2D.GetXaxis().SetRangeUser(x_range[0], x_range[1] - xw)
 
 h2D.GetYaxis().SetTitle("r_VBF")
 h2D.GetYaxis().SetTitleSize(0.05)
 h2D.GetYaxis().SetTitleOffset(0.9)
-h2D.GetYaxis().SetRangeUser(y_range[0], y_range[1]-yw)
+h2D.GetYaxis().SetRangeUser(y_range[0], y_range[1] - yw)
 
 h2D.GetZaxis().SetTitle("-2 #Delta ln L")
 h2D.GetZaxis().SetTitleSize(0.05)
@@ -106,10 +105,10 @@ c95.SetLineColor(ROOT.kBlack)
 h2D.Draw("COLZ")
 
 # Draw lines for SM point
-vline = ROOT.TLine(1, y_range[0], 1, y_range[1]-yw)
+vline = ROOT.TLine(1, y_range[0], 1, y_range[1] - yw)
 vline.SetLineColorAlpha(ROOT.kGray, 0.5)
 vline.Draw("Same")
-hline = ROOT.TLine(x_range[0], 1, x_range[1]-xw, 1)
+hline = ROOT.TLine(x_range[0], 1, x_range[1] - xw, 1)
 hline.SetLineColorAlpha(ROOT.kGray, 0.5)
 hline.Draw("Same")
 

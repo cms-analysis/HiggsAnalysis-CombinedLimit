@@ -28,23 +28,23 @@ sigma_values = np.array([])
 
 for i_toy in range(N_toys):
     # Best-fit value
-    t.GetEntry(i_toy*3)
+    t.GetEntry(i_toy * 3)
     r_fit = getattr(t, "r")
 
     # -1 sigma value
-    t.GetEntry(i_toy*3+1)
+    t.GetEntry(i_toy * 3 + 1)
     r_lo = getattr(t, "r")
 
     # +1 sigma value
-    t.GetEntry(i_toy*3+2)
+    t.GetEntry(i_toy * 3 + 2)
     r_hi = getattr(t, "r")
 
-    diff = r_truth-r_fit
+    diff = r_truth - r_fit
     # Use uncertainty depending on where mu_truth is relative to mu_fit
     if diff > 0:
-        sigma = abs(r_hi-r_fit)
+        sigma = abs(r_hi - r_fit)
     else:
-        sigma = abs(r_lo-r_fit)
+        sigma = abs(r_lo - r_fit)
 
     if sigma != 0:
         sigma_values = np.append(sigma_values, sigma)
@@ -52,7 +52,7 @@ for i_toy in range(N_toys):
         sigma = sigma_values.mean()
 
     if sigma != 0:
-        hist_pull.Fill(diff/sigma)
+        hist_pull.Fill(diff / sigma)
 
 canv = ROOT.TCanvas()
 hist_pull.Draw()
