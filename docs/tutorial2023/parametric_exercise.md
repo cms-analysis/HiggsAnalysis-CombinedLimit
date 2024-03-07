@@ -3,6 +3,7 @@
 ## Getting started
 By now you should have a working setup of Combine v9 from the pre-tutorial exercise. If so then move onto the cloning of the parametric fitting exercise gitlab repo below. If not then you need to set up a CMSSW area and checkout the combine package:
 ```shell   
+cmssw-el7
 cmsrel CMSSW_11_3_4
 cd CMSSW_11_3_4/src
 cmsenv
@@ -11,7 +12,7 @@ cd HiggsAnalysis/CombinedLimit
 
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v9.0.0
+git checkout v9.1.0
 ```
 We will also make use of another package, `CombineHarvester`, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this exercise:
 ```shell
@@ -23,11 +24,9 @@ Now let's compile the CMSSW area:
 scramv1 b clean; scramv1 b
 cmsenv
 ```
-Finally, let's clone the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:
+Finally, let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:
 ```shell
-cd $CMSSW_BASE/src/
-git clone https://gitlab.cern.ch/jlangfor/combinetutorial-2023-parametric.git
-cd combinetutorial-2023-parametric
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/parametric_exercise
 ```
 
 ## Session structure
