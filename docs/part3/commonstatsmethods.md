@@ -565,16 +565,19 @@ The above can be repeated several times, in parallel, to build the distribution 
 The observed limit can be obtained with
 
 ```sh
-combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --toysFile=merged.root
+combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root
 ```
 
 and similarly, the median expected and quantiles can be determined using
 
 ```sh
-combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --toysFile=merged.root --expectedFromGrid <quantile>
+combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --expectedFromGrid <quantile>
 ```
 
 substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band.
+
+!!! warning
+    Make sure that if you specified a particular mass value (`-m` or `--mass`) in the commands for calculating the toys, you also specify the same mass when reading in the grid of distributions.
 
 The splitting of the jobs can be left to the user's preference. However, users may wish to use the **combineTool** for automating this, as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
 
@@ -1033,7 +1036,7 @@ As in general for `HybridNew`, you can split the task into multiple tasks (grid 
 For *one-dimensional* models only, and if the parameter behaves like a cross section, the code is able to interpolate and determine the values of your parameter on the contour (just like it does for the limits). As with limits, read in the grid of points and extract 1D intervals using,
 
 ```sh
-combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --toysFile=mergedfile.root --cl <1-alpha>
+combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=mergedfile.root --cl <1-alpha>
 ```
 
 The output tree will contain the values of the POI that crosses the critical value ($\alpha$) - i.e, the boundaries of the confidence intervals.
