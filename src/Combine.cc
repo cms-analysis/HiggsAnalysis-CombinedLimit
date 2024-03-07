@@ -913,7 +913,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   // Warn the user that they might be using funky values of POIs 
-  if (!expectSignalSet_ && setPhysicsModelParameterExpression_ == "" && !(POI->getSize()==1 && POI->find("r"))) {
+  if (nToys!=0 && !expectSignalSet_ && setPhysicsModelParameterExpression_ == "" && !(POI->getSize()==1 && POI->find("r"))) {
 	  std::cerr << "Warning! -- You haven't picked default values for the Parameters of Interest (either with --expectSignal or --setParameters) for generating toys. Combine will use the 'B-only' ModelConfig to generate, which may lead to undesired behaviour if not using the default Physics Model" << std::endl;	  
   }	
   // Ok now we're ready to go lets save a "clean snapshot" for the current parameters state
