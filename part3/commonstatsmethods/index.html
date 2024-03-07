@@ -2241,12 +2241,16 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 </div>
 <p>The above can be repeated several times, in parallel, to build the distribution of the test statistic (passing the random seed option <code>-s -1</code>). Once all of the distributions have been calculated, the resulting output files can be merged into one using <strong>hadd</strong>, and read back to calculate the limit, specifying the merged file with <code>--grid=merged.root</code>.</p>
 <p>The observed limit can be obtained with</p>
-<pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --toysFile=merged.root
+<pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root
 </code></pre>
 <p>and similarly, the median expected and quantiles can be determined using</p>
-<pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --toysFile=merged.root --expectedFromGrid &lt;quantile&gt;
+<pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --expectedFromGrid &lt;quantile&gt;
 </code></pre>
 <p>substituting <code>&lt;quantile&gt;</code> with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Make sure that if you specified a particular mass value (<code>-m</code> or <code>--mass</code>) in the commands for calculating the toys, you also specify the same mass when reading in the grid of distributions.</p>
+</div>
 <p>The splitting of the jobs can be left to the user's preference. However, users may wish to use the <strong>combineTool</strong> for automating this, as described in the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a></p>
 <h4 id="plotting">Plotting</h4>
 <p>A plot of the CL<sub>s</sub> (or <span class="arithmatex"><span class="MathJax_Preview">p_{\mu}</span><script type="math/tex">p_{\mu}</script></span>) as a function of <strong>r</strong>, which is used to find the crossing, can be produced using the option <code>--plot=limit_scan.png</code>. This can be useful for judging if the chosen grid was sufficient for determining the upper limit.</p>
@@ -2579,7 +2583,7 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <p>As in general for <code>HybridNew</code>, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with <code>hadd</code>. You can also refer to the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a> section for submitting the jobs to the grid/batch or if you have more than one parameter of interest, see the instructions for running <code>HybridNew</code> on a grid of parameter points on the <a href="http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html">CombineHarvest - HybridNewGrid</a> documentation. </p>
 <h4 id="extracting-1d-intervals">Extracting 1D intervals</h4>
 <p>For <em>one-dimensional</em> models only, and if the parameter behaves like a cross section, the code is able to interpolate and determine the values of your parameter on the contour (just like it does for the limits). As with limits, read in the grid of points and extract 1D intervals using,</p>
-<pre><code class="language-sh">combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --toysFile=mergedfile.root --cl &lt;1-alpha&gt;
+<pre><code class="language-sh">combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=mergedfile.root --cl &lt;1-alpha&gt;
 </code></pre>
 <p>The output tree will contain the values of the POI that crosses the critical value (<span class="arithmatex"><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span>) - i.e, the boundaries of the confidence intervals.</p>
 <p>You can produce a plot of the value of <span class="arithmatex"><span class="MathJax_Preview">p_{x}</span><script type="math/tex">p_{x}</script></span> vs the parameter of interest <span class="arithmatex"><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
