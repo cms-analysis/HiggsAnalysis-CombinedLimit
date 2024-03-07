@@ -16,11 +16,7 @@ name = "truth_%s_fit_%s" % (truth_function, fit_function)
 f = ROOT.TFile("higgsCombine.bias_%s.MultiDimFit.mH125.123456.root" % name)
 t = f.Get("limit")
 
-hist_pull = ROOT.TH1F("pull_%s" % name,
-                      "Pull distribution: truth=%s, fit=%s" %
-                      (truth_function, fit_function),
-                      80, -4, 4
-                      )
+hist_pull = ROOT.TH1F("pull_%s" % name, "Pull distribution: truth=%s, fit=%s" % (truth_function, fit_function), 80, -4, 4)
 hist_pull.GetXaxis().SetTitle("Pull = (r_{truth}-r_{fit})/#sigma_{fit}")
 hist_pull.GetYaxis().SetTitle("Entries")
 

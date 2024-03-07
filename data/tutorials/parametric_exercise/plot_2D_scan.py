@@ -6,8 +6,8 @@ from config import plot_dir
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 
-f = ROOT.TFile(
-    "higgsCombine.scan2D.part6_multiSignalModel.MultiDimFit.mH125.root")
+file_name = "higgsCombine.scan2D.part6_multiSignalModel.MultiDimFit.mH125.root"
+f = ROOT.TFile(file_name)
 t = f.Get("limit")
 
 # Number of points in interpolation
@@ -30,9 +30,7 @@ for ev in t:
 dnll = np.asarray(deltaNLL)
 points = np.array([x, y]).transpose()
 # Set up grid
-grid_x, grid_y = np.mgrid[x_range[0]:x_range[1]:n_points * 1j,
-                          y_range[0]:y_range[1]:n_points * 1j
-                          ]
+grid_x, grid_y = np.mgrid[x_range[0] : x_range[1] : n_points * 1j, y_range[0] : y_range[1] : n_points * 1j]
 grid_vals = griddata(points, dnll, (grid_x, grid_y), "cubic")
 
 # Remove NANS
@@ -41,12 +39,8 @@ grid_y = grid_y[grid_vals == grid_vals]
 grid_vals = grid_vals[grid_vals == grid_vals]
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 # Define Profile2D histogram
-h2D = ROOT.TProfile2D("h", "h",
-                      n_bins, x_range[0], x_range[1],
-                      n_bins, y_range[0], y_range[1]
-                      )
+h2D = ROOT.TProfile2D("h", "h", n_bins, x_range[0], x_range[1], n_bins, y_range[0], y_range[1])
 
 for i in range(len(grid_vals)):
     # Factor of 2 comes from 2*NLL

@@ -1,7 +1,7 @@
 import ROOT
 from config import plot_dir
-ROOT.gROOT.SetBatch(True)
 
+ROOT.gROOT.SetBatch(True)
 
 # Open file with fits
 f = ROOT.TFile("higgsCombine.scan.multidimfit.MultiDimFit.mH125.root")
