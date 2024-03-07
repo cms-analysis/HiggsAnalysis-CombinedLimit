@@ -10,12 +10,12 @@ t = f.Get("limit")
 r, pdfindex = [], []
 
 for ev in t:
-    r.append( getattr(ev,"r") )
-    pdfindex.append( getattr(ev,"pdfindex_Tag0") )
+    r.append(getattr(ev, "r"))
+    pdfindex.append(getattr(ev, "pdfindex_Tag0"))
 
 gr = ROOT.TGraph()
-for i in range( len(r) ):
-    gr.SetPoint( gr.GetN(), r[i], pdfindex[i] )
+for i in range(len(r)):
+    gr.SetPoint(gr.GetN(), r[i], pdfindex[i])
 
 gr.GetXaxis().SetTitle("r")
 gr.GetYaxis().SetTitle("pdfindex_Tag0")
@@ -29,4 +29,4 @@ gr.Draw()
 
 canv.Update()
 
-canv.SaveAs("%s/part5_r_vs_pdfindex.png"%plot_dir)
+canv.SaveAs("%s/part5_r_vs_pdfindex.png" % plot_dir)
