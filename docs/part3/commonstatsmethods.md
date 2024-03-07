@@ -1,13 +1,13 @@
 # Common Statistical Methods
 
-In this section, the most commonly used statistical methods from <span style="font-variant:small-caps;">Combine</span> will be covered, including specific instructions on how to obtain limits, significances, and likelihood scans. For all of these methods, the assumed parameter of interest (POI) is the overall signal strength $r$ (i.e the default PhysicsModel). In general however, the first POI in the list of POIs (as defined by the PhysicsModel) will be taken instead of **r**. This may or may not make sense for any particular method, so care must be taken. 
+In this section, the most commonly used statistical methods from <span style="font-variant:small-caps;">Combine</span> will be covered, including specific instructions on how to obtain limits, significances, and likelihood scans. For all of these methods, the assumed parameter of interest (POI) is the overall signal strength $r$ (i.e the default PhysicsModel). In general however, the first POI in the list of POIs (as defined by the PhysicsModel) will be taken instead of **r**. This may or may not make sense for any particular method, so care must be taken.
 
 This section will assume that you are using the default physics model, unless otherwise specified.
 
 ## Asymptotic Frequentist Limits
 
 The `AsymptoticLimits` method can be used to quickly compute an estimate of the observed and expected limits, which is accurate when the event yields are not too small and the systematic uncertainties do not play a major role in the result.
-The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test statistic, which is based on a profile likelihood ratio, under the signal and background hypotheses to compute two p-values $p_{\mu}, p_{b}$ and therefore $CL_s=p_{\mu}/(1-p_{b})$ (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section for a description). This means it is the asymptotic approximation for evaluating limits with frequentist toys using the LHC test statistic for limits. In the definition below, the parameter $\mu=r$. 
+The limit calculation relies on an asymptotic approximation of the distributions of the **LHC** test statistic, which is based on a profile likelihood ratio, under the signal and background hypotheses to compute two p-values $p_{\mu}, p_{b}$ and therefore $CL_s=p_{\mu}/(1-p_{b})$ (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section for a description). This means it is the asymptotic approximation for evaluating limits with frequentist toys using the LHC test statistic for limits. In the definition below, the parameter $\mu=r$.
 
    * The test statistic is defined using the ratio of likelihoods $q_{\mu} = -2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(\hat{\mu},\hat{\nu})]$ , in which the nuisance parameters are profiled separately for $\mu=\hat{\mu}$ and $\mu$. The value of $q_{\mu}$ is set to 0 when $\hat{\mu}>\mu$, giving a one-sided limit. Furthermore, the constraint $\mu>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{\mu}$ would be negative, the test statistic $q_{\mu}$ is evaluated as $-2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(0,\hat{\hat{\nu}}(0))]$
 
@@ -171,7 +171,7 @@ The `MarkovChainMC` method computes a Bayesian limit performing a Monte Carlo in
 To use the MarkovChainMC method, users need to specify this method in the command line, together with the options they want to use. For instance, to set the number of times the algorithm will run with different random seeds, use option `--tries`:
 
 ```nohighlight
-combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100 
+combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100
 [...]
 
  -- MarkovChainMC --
@@ -182,7 +182,7 @@ Done in 0.14 min (cpu), 0.15 min (real)
 
 Again, the resulting limit tree will contain the result. You can also save the chains using the option `--saveChain`, which will then also be included in the output file.
 
-Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a simple example script that can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in. This can be added by e.g. changing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` for a burn-in of 200. 
+Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a simple example script that can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in. This can be added by e.g. changing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` for a burn-in of 200.
 
 /// details | **Show example script**
 <pre class="python"><code>
@@ -225,7 +225,7 @@ for k in fi_MCMC.Get("toys").GetListOfKeys():
         mychain.append(k.ReadObj().GetAsDataSet())
 hist = ROOT.TH1F("h_post",";r;posterior probability",nbins,rmin,rmax)
 for i in range(mychain.numEntries()):
-#for i in range(200,mychain.numEntries()): burn-in of 200 
+#for i in range(200,mychain.numEntries()): burn-in of 200
   mychain.get(i)
   hist.Fill(mychain.get(i).getRealValue("r"), mychain.weight())
 hist.Scale(1./hist.Integral())
@@ -285,7 +285,7 @@ If you believe there is something going wrong, e.g. if your chain remains stuck 
 
 The expected limit is computed by generating many toy MC data sets and computing the limit for each of them. This can be done passing the option `-t` . E.g. to run 100 toys with the `BayesianSimple` method, you can run
 
-    combine -M BayesianSimple datacard.txt -t 100 
+    combine -M BayesianSimple datacard.txt -t 100
 
 The program will print out the mean and median limit, as well as the 68% and 95% quantiles of the distributions of the limits. This time, the output ROOT tree will contain **one entry per toy**.
 
@@ -301,7 +301,7 @@ For example, let us use the toy datacard [data/tutorials/multiDim/toy-hgg-125.tx
 
 Now we just run one (or more) MCMC chain(s) and save them in the output tree. By default, the nuisance parameters will be marginalized (integrated) over their PDFs. You can ignore the complaints about not being able to compute an upper limit (since for more than 1D, this is not well-defined),
 
-    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345 
+    combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345
 
 The output of the Markov Chain is again a RooDataSet of weighted events distributed according to the posterior PDF (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior PDF. See as an example [bayesPosterior2D.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesPosterior2D.cxx).
 
@@ -321,7 +321,7 @@ The `HybridNew` method is used to compute either the hybrid bayesian-frequentist
 
 It is possible to define the criterion used for setting limits using `--rule CLs` (to use the CL<sub>s</sub> criterion) or `--rule CLsplusb` (to calculate the limit using $p_{\mu}$) and as always the confidence level desired using `--cl=X`.
 
-The choice of test statistic can be made via the option `--testStat`. Different methodologies for the treatment of the nuisance parameters are available. While it is possible to mix different test statistics with different nuisance parameter treatments, **we strongly do not recommend  this**. Instead one should follow one of the following three procedures. Note that the signal strength $r$ here is given the more common notation $\mu$. 
+The choice of test statistic can be made via the option `--testStat`. Different methodologies for the treatment of the nuisance parameters are available. While it is possible to mix different test statistics with different nuisance parameter treatments, **we strongly do not recommend  this**. Instead one should follow one of the following three procedures. Note that the signal strength $r$ here is given the more common notation $\mu$.
 
 * **LEP-style**: `--testStat LEP --generateNuisances=1 --fitNuisances=0`
     * The test statistic is defined using the ratio of likelihoods $q_{\mathrm{LEP}}=-2\ln[\mathcal{L}(\mu=0)/\mathcal{L}(\mu)]$.
@@ -340,13 +340,13 @@ The choice of test statistic can be made via the option `--testStat`. Different 
 !!! warning
     The recommended style is the **LHC-style**. Please note that this method is sensitive to the *observation in data* since the *post-fit* (after a fit to the data) values of the nuisance parameters (assuming different values of **r**) are used when generating the toys. For completely blind limits you can first generate a *pre-fit* asimov toy data set (described in the [toy data generation](runningthetool.md#toy-data-generation) section) and use that in place of the data.  You can use this toy by passing the argument `-D toysFileName.root:toys/toy_asimov`
 
-While the above shortcuts are the commonly used versions, variations can be tested. The treatment of the nuisances can be changed to the so-called "Hybrid-Bayesian" method, which effectively integrates over the nuisance parameters. This is especially relevant when you have very few expected events in your data, and you are using those events to constrain background processes. This can be achieved by setting `--generateNuisances=1 --generateExternalMeasurements=0`. In case you want to avoid first fitting to the data to choose the nominal values you can additionally pass `--fitNuisances=0`. 
+While the above shortcuts are the commonly used versions, variations can be tested. The treatment of the nuisances can be changed to the so-called "Hybrid-Bayesian" method, which effectively integrates over the nuisance parameters. This is especially relevant when you have very few expected events in your data, and you are using those events to constrain background processes. This can be achieved by setting `--generateNuisances=1 --generateExternalMeasurements=0`. In case you want to avoid first fitting to the data to choose the nominal values you can additionally pass `--fitNuisances=0`.
 
 !!! warning
-    If you have unconstrained parameters in your model (`rateParam`, or if you are using a `_norm` variable for a PDF) and you want to use the "Hybrid-Bayesian" method, you **must** declare these as `flatParam` in your datacard. When running text2workspace you must add the option `--X-assign-flatParam-prior` in the command line. This will create uniform priors for these parameters. These are needed for this method and they would otherwise not get created.   
+    If you have unconstrained parameters in your model (`rateParam`, or if you are using a `_norm` variable for a PDF) and you want to use the "Hybrid-Bayesian" method, you **must** declare these as `flatParam` in your datacard. When running text2workspace you must add the option `--X-assign-flatParam-prior` in the command line. This will create uniform priors for these parameters. These are needed for this method and they would otherwise not get created.
 
 !!! info
-    Note that (observed and expected) values of the test statistic stored in the instances of `RooStats::HypoTestResult` when the option `--saveHybridResult` is passed are defined without the factor 2. They are therefore twice as small as the values given by the formulas above. This factor is however included automatically by all plotting scripts supplied within the <span style="font-variant:small-caps;">Combine</span> package. If you use your own plotting scripts, you need to make sure to incorporate the factor 2. 
+    Note that (observed and expected) values of the test statistic stored in the instances of `RooStats::HypoTestResult` when the option `--saveHybridResult` is passed are defined without the factor 2. They are therefore twice as small as the values given by the formulas above. This factor is however included automatically by all plotting scripts supplied within the <span style="font-variant:small-caps;">Combine</span> package. If you use your own plotting scripts, you need to make sure to incorporate the factor 2.
 
 ### Simple models
 
@@ -530,7 +530,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 </pre></code>
 ///
 
-The result stored in the **limit** branch of the output tree will be the upper limit (and its error, stored in **limitErr**). The default behaviour will be, as above, to search for the upper limit on **r**. However, the values of $p_{\mu}, p_{b}$ and CL<sub>s</sub> can be calculated for a particular value **r=X** by specifying the option `--singlePoint=X`. In this case, the value stored in the branch **limit** will be the value of CL<sub>s</sub> (or $p_{\mu}$) (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section). 
+The result stored in the **limit** branch of the output tree will be the upper limit (and its error, stored in **limitErr**). The default behaviour will be, as above, to search for the upper limit on **r**. However, the values of $p_{\mu}, p_{b}$ and CL<sub>s</sub> can be calculated for a particular value **r=X** by specifying the option `--singlePoint=X`. In this case, the value stored in the branch **limit** will be the value of CL<sub>s</sub> (or $p_{\mu}$) (see the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) section).
 
 #### Expected Limits
 
@@ -574,7 +574,7 @@ and similarly, the median expected and quantiles can be determined using
 combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --expectedFromGrid <quantile>
 ```
 
-substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band.
+substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band. You should note that  <span style="font-variant:small-caps;">Combine</span> will update the grid to improve the accuracy on the extracted limit by default. If you want to avoid this, you can use the option `--noUpdateGrid`. This will mean only the toys/points you produced in the grid will be used to compute the limit.
 
 !!! warning
     Make sure that if you specified a particular mass value (`-m` or `--mass`) in the commands for calculating the toys, you also specify the same mass when reading in the grid of distributions.
@@ -598,10 +598,10 @@ The distributions of the test statistic can also be plotted, at each value in th
 python test/plotTestStatCLs.py --input mygrid.root --poi r --val all --mass MASS
 ```
 
-The resulting output file will contain a canvas showing the distribution of the test statistics for the background only and signal+background hypotheses at each value of **r**. Use `--help` to see more options for this script. 
+The resulting output file will contain a canvas showing the distribution of the test statistics for the background only and signal+background hypotheses at each value of **r**. Use `--help` to see more options for this script.
 
 !!! info
-    If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option `--doublesided`, which will also take care of defining the correct integrals for $p_{\mu}$ and $p_{b}$. Click on the examples below to see what a typical output of this plotting tool will look like when using the LHC test statistic, or the TEV test statistic. 
+    If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option `--doublesided`, which will also take care of defining the correct integrals for $p_{\mu}$ and $p_{b}$. Click on the examples below to see what a typical output of this plotting tool will look like when using the LHC test statistic, or the TEV test statistic.
 
 /// details | **qLHC test stat example**
 
@@ -634,12 +634,12 @@ To construct the distribution of the test statistic, the following command shoul
 combine -M HybridNew datacard.txt --LHCmode LHC-significance  --saveToys --fullBToys --saveHybridResult -T toys -i iterations -s seed
 ```
 
-with different seeds, or using `-s -1` for random seeds, then merge all those results into a single ROOT file with `hadd`.
+with different seeds, or using `-s -1` for random seeds, then merge all those results into a single ROOT file with `hadd`. The toys can then be read back into combine using the option `--toysFile=input.root --readHybridResult`.
 
 The *observed* significance can be calculated as
 
 ```sh
-combine -M HybridNew datacard.txt --LHCmode LHC-significance --readHybridResult --grid=input.root [--pvalue ]
+combine -M HybridNew datacard.txt --LHCmode LHC-significance --readHybridResult --toysFile=input.root [--pvalue ]
 ```
 
 where the option `--pvalue` will replace the result stored in the **limit** branch output tree to be the p-value instead of the signficance.
@@ -691,7 +691,7 @@ The output limit tree will contain the value of the test statistic in each toy (
 
 ### Masking analysis regions in the saturated model
 
-For analyses that employ a simultaneous fit across signal and control regions, it may be useful to mask one or more analysis regions, either when the likelihood is maximized (fit) or when the test statistic is computed. This can be done by using the options `--setParametersForFit` and `--setParametersForEval`, respectively. The former will set parameters *before* each fit, while the latter is used to set parameters *after* each fit, but before the NLL is evaluated. Note, of course, that if the parameter in the list is floating, it will still be floating in each fit. Therefore, it will not affect the results when using `--setParametersForFit`.  
+For analyses that employ a simultaneous fit across signal and control regions, it may be useful to mask one or more analysis regions, either when the likelihood is maximized (fit) or when the test statistic is computed. This can be done by using the options `--setParametersForFit` and `--setParametersForEval`, respectively. The former will set parameters *before* each fit, while the latter is used to set parameters *after* each fit, but before the NLL is evaluated. Note, of course, that if the parameter in the list is floating, it will still be floating in each fit. Therefore, it will not affect the results when using `--setParametersForFit`.
 
 A realistic example for a binned shape analysis performed in one signal region and two control samples can be found in this directory of the <span style="font-variant:small-caps;">Combine</span> package [Datacards-shape-analysis-multiple-regions](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params).
 
@@ -1013,13 +1013,13 @@ Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) i
 --setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
 ```
 
-The boundary is imposed by **restricting the parameter range(s)** to those set by the user, in the fits. Note that this is a trick! The actual fitted value, as one of an ensemble of outcomes, can fall outside of the allowed region, while the boundary should be imposed on the physical parameter. The effect of restricting the parameter value in the fit is such that the test statistic is modified as follows ; 
+The boundary is imposed by **restricting the parameter range(s)** to those set by the user, in the fits. Note that this is a trick! The actual fitted value, as one of an ensemble of outcomes, can fall outside of the allowed region, while the boundary should be imposed on the physical parameter. The effect of restricting the parameter value in the fit is such that the test statistic is modified as follows ;
 
-$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\theta}}(x))/\mathcal{L}(\hat{x},\hat{\nu})$, if $\hat{x}$ in contained in the bounded range 
+$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\theta}}(x))/\mathcal{L}(\hat{x},\hat{\nu})$, if $\hat{x}$ in contained in the bounded range
 
-and, 
+and,
 
-$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(x_{B},\hat{\hat{\nu}}(x_{B}))$, if $\hat{x}$ is outside of the bounded range. Here $x_{B}$ and $\hat{\hat{\nu}}(x_{B})$ are the values of $x$ and $\nu$ which maximise the likelihood *excluding values outside of the bounded region* for $x$ - typically, $x_{B}$ will be found at one of the boundaries which is imposed. For example, if the boundary $x>0$ is imposed, you will typically expect $x_{B}=0$, when $\hat{x}\leq 0$, and $x_{B}=\hat{x}$ otherewise. 
+$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(x_{B},\hat{\hat{\nu}}(x_{B}))$, if $\hat{x}$ is outside of the bounded range. Here $x_{B}$ and $\hat{\hat{\nu}}(x_{B})$ are the values of $x$ and $\nu$ which maximise the likelihood *excluding values outside of the bounded region* for $x$ - typically, $x_{B}$ will be found at one of the boundaries which is imposed. For example, if the boundary $x>0$ is imposed, you will typically expect $x_{B}=0$, when $\hat{x}\leq 0$, and $x_{B}=\hat{x}$ otherewise.
 
 This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.
 
@@ -1029,7 +1029,7 @@ This can sometimes be an issue as Minuit may not know if has successfully conver
 
 ### Extracting contours from results files
 
-As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with `hadd`. You can also refer to the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section for submitting the jobs to the grid/batch or if you have more than one parameter of interest, see the instructions for running `HybridNew` on a grid of parameter points on the [CombineHarvest - HybridNewGrid](http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html) documentation. 
+As in general for `HybridNew`, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with `hadd`. You can also refer to the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section for submitting the jobs to the grid/batch or if you have more than one parameter of interest, see the instructions for running `HybridNew` on a grid of parameter points on the [CombineHarvest - HybridNewGrid](http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html) documentation.
 
 #### Extracting 1D intervals
 
@@ -1054,7 +1054,3 @@ There is a tool for extracting *2D contours* from the output of `HybridNew` loca
 To extract 2D contours, the names of each parameter must be given `--xvar poi_x --yvar poi_y`. The output will be a ROOT file containing a 2D histogram of value of $p_{x,y}$ for each point $(x,y)$ which can be used to draw 2D contours. There will also be a histogram containing the number of toys found for each point.
 
 There are several options for reducing the running time, such as setting limits on the region of interest or the minimum number of toys required for a point to be included. Finally, adding the option `--storeToys` in this script will add histograms for each point to the output file of the test statistic distribution. This will increase the memory usage, as all of the toys will be kept in memory.
-
-
-
-
