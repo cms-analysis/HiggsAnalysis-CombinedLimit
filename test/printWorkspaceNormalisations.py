@@ -59,7 +59,7 @@ parser.add_option(
     "",
     "--procFilter",
     dest="process_filter_list",
-    type='string',
+    type="string",
     help="Filter (keep) only processes containing these names. Enter option as comma separated string",
 )
 parser.add_option(
@@ -84,7 +84,8 @@ if options.max_threshold < options.min_threshold:
 file_in = ROOT.TFile(args[0])
 ws = file_in.Get("w")
 ws.var("MH").setVal(options.massVal)
-print("Normalisation Values Evaluated at MH=",options.massVal)
+print("Normalisation Values Evaluated at MH=", options.massVal)
+
 
 def find_chan_proc(name):
     chan = norm_name[norm_name.find("_bin") + len("_bin") : norm_name.find("_proc")]
@@ -93,7 +94,8 @@ def find_chan_proc(name):
     proc = norm_name[norm_name.find("_proc_") + len("_proc_") :]
     return chan, proc
 
-process_filter_list = options.process_filter_list.split(',')
+
+process_filter_list = options.process_filter_list.split(",")
 
 chan_procs = {}
 
@@ -158,10 +160,13 @@ if options.use_cms_histsum:
                 if type(prop) == ROOT.CMSHistSum:
                     chan_CMSHistSum_norms[chan] = dict(prop.getProcessNorms())
 
+
 def checkFilter(proc):
     for pc in process_filter_list:
-      if pc in proc: return True
+        if pc in proc:
+            return True
     return False
+
 
 # Now print out information
 default_norms = od()
@@ -174,7 +179,8 @@ for chan in chan_procs.keys():
     chanInfo = chan_procs[chan]
     for proc in chanInfo:
         skipProc = False
-        if not checkFilter(proc): skipProc=True
+        if not checkFilter(proc):
+            skipProc = True
         if options.min_threshold > 0:
             skipProc = proc[1].getVal() < options.min_threshold
         if options.max_threshold > 0:
