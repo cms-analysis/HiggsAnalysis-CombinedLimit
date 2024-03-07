@@ -2,7 +2,7 @@
 
 ## The Observation Model
 
-The observation model, $p_0(\mathrm{data} ; ,\vec{\Phi}_{0})$ defines the expected observations given specific values of the input parameters of the model $\vec{\Phi}_0$.
+The observation model, $p_0(\mathrm{data} ; \vec{\Phi}_{0})$ defines the expected observations given specific values of the input parameters of the model $\vec{\Phi}_0$.
 
 Combine is designed for counting experiments, where the number of events with particular features are counted.
 The events can either be binned, as in histograms, or unbinned, where continuous values are stored for each event.
@@ -58,7 +58,7 @@ This form is entirely general. However, as with the model itself, there are typi
 For a binned likelihood, the probability of observing a certain number of counts, given a model takes on a simple form. For each bin:
 
 $$
-\mathcal{L}_{\mathrm{bin}}(\vec{\Phi};\mathrm{data}) = \mathrm{Poiss}(n_{\mathrm{obs}}; n_{\mathrm{exp}(\vec{\Phi})}) 
+\mathcal{L}_{\mathrm{bin}}(\vec{\Phi};\mathrm{data}) = \mathrm{Poiss}(n_{\mathrm{obs}}; n_{\mathrm{exp}}(\vec{\Phi})) 
 $$
 
 i.e. it is a poisson distribution with the mean given by the expected number of events in that bin. 
@@ -73,7 +73,7 @@ The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model p
 
 For unbinned likelihood models, a likelihood can be given to each data point. It is proportional to the probability density function at that point, $\vec{x}$.
 
-$$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(n_{\mathrm{obs}} ; n_{\mathrm{exp}(\vec{\Phi})) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i ; \vec{\Phi} ) $$
+$$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(n_{\mathrm{obs}} ; n_{\mathrm{exp}}(\vec{\Phi})) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i ; \vec{\Phi} ) $$
 
 Where $N_{\mathrm{obs}}$ and $N_{\mathrm{exp}}$ are the total number of observed and expected events, respectively.
 

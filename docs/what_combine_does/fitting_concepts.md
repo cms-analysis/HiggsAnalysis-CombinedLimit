@@ -27,9 +27,9 @@ In a bayesian framework, the likelihood represents the probability of observing 
 
 Beliefs about the values of the parameters are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
 
-$$ p(\vec{\nu}|\mathrm{data}) = \frac{ p(\mathrm{data}|\vec{\nu}) p(\vec{\nu}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}_{\mathrm{data}}(\vec{\nu};\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\nu}) }{ \int_{\vec{\nu'}} \mathcal{L}_{\mathrm{data}}(\vec{\nu'};\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\nu'}) }$$ 
+$$ p(\vec{\nu};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\nu}) p(\vec{\nu}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}_{\mathrm{data}}(\vec{\nu};\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\nu}) }{ \int_{\vec{\nu'}} \mathcal{L}_{\mathrm{data}}(\vec{\nu'};\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\nu'}) }$$ 
 
-The posterior distribution p$(\vec{\nu}|\mathrm{data})$ defines the updated belief about the parameters $\vec{\nu}$.
+The posterior distribution p$(\vec{\nu};\mathrm{data})$ defines the updated belief about the parameters $\vec{\nu}$.
 
 ## Methods for considering subsets of models
 
@@ -42,30 +42,30 @@ There are several methods for considering sub models which each have their own i
 ### Conditioning 
 
 Conditional Sub-models can be made by simply restricting the values of some parameters. 
-The conditional likelihood of the parameters $\vec{x}$ conditioned on particular values of the parameters $\vec{y}$ is:
+The conditional likelihood of the parameters $\vec{\mu}$ conditioned on particular values of the parameters $\vec{\nu}$ is:
 
-$$ \mathcal{L}(\vec{x},\vec{y}) \xrightarrow{\mathrm{conditioned\ on\ } \vec{y} = \vec{y}_0} \mathcal{L}(\vec{x}) = \mathcal{L}(\vec{x},\vec{y}_0) $$
+$$ \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{conditioned\ on\ } \vec{\nu} = \vec{\nu}_0} \mathcal{L}(\vec{\mu}) = \mathcal{L}(\vec{\mu},\vec{\nu}_0) $$
 
 ### Profiling
 
-The profiled likelihood $\mathcal{L}(\vec{x})$ is defined from the full likelihood, $\mathcal{L}(\vec{x},\vec{y})$, such that for every point $\vec{x}$ it is equal to the full likelihood at $\vec{x}$ maximized over $\vec{y}$.
+The profiled likelihood $\mathcal{L}(\vec{\mu})$ is defined from the full likelihood, $\mathcal{L}(\vec{\mu},\vec{\nu})$, such that for every point $\vec{\mu}$ it is equal to the full likelihood at $\vec{\mu}$ maximized over $\vec{\nu}$.
 
-$$ \mathcal{L}(\vec{x},\vec{y}) \xrightarrow{\mathrm{profiling\ } \vec{y}} \mathcal{L}({\vec{x}}) = \max_{\vec{y}} \mathcal{L}(\vec{x},\vec{y})$$
+$$ \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{profiling\ } \vec{\nu}} \mathcal{L}({\vec{\mu}}) = \max_{\vec{\nu}} \mathcal{L}(\vec{\mu},\vec{\nu})$$
 
-In some sense, the profiled likelihood is the best estimate of the likelihood at every point $\vec{x}$, it is sometimes also denoted $\mathcal{L}(\vec{x},\vec{\hat{y}}(\vec{x}))$.
+In some sense, the profiled likelihood is the best estimate of the likelihood at every point $\vec{\mu}$, it is sometimes also denoted $\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))$.
 
 ### Marginalization 
 
-Marginalization is a procedure for producing a probability distribution $p(\vec{x}|\mathrm{data})$ for a set of parameters $\vec{x}$, which are only a subset of the parameters in the full distribution $p(\vec{x},\vec{y}|\mathrm{data})$.
-The marginal probability density $p(\vec{x})$ is defined such that for every point $\vec{x}$ it is equal to the probability at $\vec{x}$ integrated over $\vec{y}$.
+Marginalization is a procedure for producing a probability distribution $p(\vec{\mu};\mathrm{data})$ for a set of parameters $\vec{\mu}$, which are only a subset of the parameters in the full distribution $p(\vec{\mu},\vec{\nu};\mathrm{data})$.
+The marginal probability density $p(\vec{\mu})$ is defined such that for every point $\vec{\mu}$ it is equal to the probability at $\vec{\mu}$ integrated over $\vec{\nu}$.
 
-$$ p(\vec{x},\vec{y}) \xrightarrow{\mathrm{marginalizing\ } \vec{y}} p({\vec{x}}) = \int_{\vec{y}} p(\vec{x},\vec{y})$$
+$$ p(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{marginalizing\ } \vec{\nu}} p({\vec{\mu}}) = \int_{\vec{\nu}} p(\vec{\mu},\vec{\nu})$$
 
-The marginalized probability $p(\vec{x})$ is the probability for the parameter values $\vec{x}$ taking into account all possible values of $\vec{y}$.
+The marginalized probability $p(\vec{\mu})$ is the probability for the parameter values $\vec{\mu}$ taking into account all possible values of $\vec{\nu}$.
 
 Marginalized likelihoods can also be defined, by their relationship to the probability distributions:
 
-$$ \mathcal{L}(\vec{x}|\mathrm{data}) = p(\mathrm{data}|\vec{x}) $$
+$$ \mathcal{L}(\vec{\mu};\mathrm{data}) = p(\mathrm{data};\vec{\mu}) $$
 
 
 ## Parameter Uncertainties 
@@ -152,7 +152,7 @@ By construction, this method always reports symmetric confidence intervals, as i
 
 Often the full posterior probability distribution is summarized in terms of some **credible region** which contains some specified portion of the posterior probability of the parameter.
 
-$$ \{ \vec{\mu} \}_{\mathrm{CL}} =  \{ \vec{\mu} : \vec{\mu} \in \Omega, \int_{\Omega} p(\vec{\mu}|\mathrm{data}) = \mathrm{CL}  \}$$
+$$ \{ \vec{\mu} \}_{\mathrm{CL}} =  \{ \vec{\mu} : \vec{\mu} \in \Omega, \int_{\Omega} p(\vec{\mu};\mathrm{data}) = \mathrm{CL}  \}$$
 
 The credible region represents a region in which the bayesian probability of the parameter being in that region is equal to the chosen Credibility Level.
 
