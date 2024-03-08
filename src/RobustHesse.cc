@@ -343,7 +343,7 @@ int RobustHesse::hesse() {
 
   std::vector<Var> validStencilVars;
   for (unsigned i = 0; i < cVars_.size(); ++i) {
-    if (cVars_[i].stencil.size() == 3) {
+    if (cVars_[i].stencil.size() >= 3) {
       validStencilVars.push_back(cVars_[i]);
     } else {
       invalidStencilVars_.push_back(cVars_[i]);
@@ -352,7 +352,7 @@ int RobustHesse::hesse() {
   ReplaceVars(validStencilVars);
 
   for (unsigned i = 0; i < cVars_.size(); ++i) {
-    if (cVars_[i].stencil.size() == 3) {
+    if (cVars_[i].stencil.size() >= 3) {
       cVars_[i].d1coeffs = getFdCoeffs(1, cVars_[i].stencil);
       cVars_[i].d2coeffs = getFdCoeffs(2, cVars_[i].stencil);
       if (verbosity_ > 0) printf("%-80s %-10.3f %-10.3f %-10.3f | %-10.3f %-10.3f %-10.3f | %-10.3f %-10.3f %-10.3f\n",
@@ -423,10 +423,14 @@ int RobustHesse::hesse() {
     std::cout << "saving hessian" << "\n";
 
     RooArgList arglist("floatParsFinal");
+    RooArgList rescalefactors("rescaleFactors");
     for (unsigned i = 0; i < cVars_.size(); ++i) {
       arglist.addClone(*cVars_[i].v);
+      RooRealVar rescale(cVars_[i].v->GetName(),cVars_[i].v->GetName(),cVars_[i].rescale);
+      rescalefactors.addClone(rescale);
     }
     gDirectory->WriteObject(arglist.snapshot(), "floatParsFinal");
+    gDirectory->WriteObject(rescalefactors.snapshot(), "rescaleFactors");
   }
 
 
@@ -534,8 +538,11 @@ void RobustHesse::WriteOutputFile(std::string const& outputFileName) const {
   TH2F h_cor("correlation", "correlation", cVars_.size(), 0, cVars_.size(), cVars_.size(), 0,
              cVars_.size());
   RooArgList arglist("floatParsFinal");
+  RooArgList rescalefactors("rescaleFactors");
   for (unsigned i = 0; i < cVars_.size(); ++i) {
     arglist.addClone(*cVars_[i].v);
+    RooRealVar rescale(cVars_[i].v->GetName(),cVars_[i].v->GetName(),cVars_[i].rescale);
+    rescalefactors.addClone(rescale);
     RooRealVar *rrv = dynamic_cast<RooRealVar*>(arglist.at(i));
     rrv->setError(std::sqrt((*covariance_)[i][i]) * cVars_[i].rescale);
     h_cov.GetXaxis()->SetBinLabel(i + 1, cVars_[i].v->GetName());
@@ -558,6 +565,7 @@ void RobustHesse::WriteOutputFile(std::string const& outputFileName) const {
   gDirectory->WriteObject(&h_cov, "h_covariance");
   gDirectory->WriteObject(&h_cor, "h_correlation");
   gDirectory->WriteObject(arglist.snapshot(), "floatParsFinal");
+  gDirectory->WriteObject(rescalefactors.snapshot(), "rescaleFactors");
   fout.Close();
 }
 
