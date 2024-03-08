@@ -23,13 +23,13 @@ Because the likelihood is equal to the probability of observing the data given t
 
 ### Bayesian Posterior Calculation
 
-In a bayesian framework, the likelihood represents the probability of observing the data given the model and some prior probability distribution over the model parameters.
+In a bayesian framework, the likelihood represents the probability of observing the data given the model and some prior probability distribution over the model parameters. 
 
-Beliefs about the values of the parameters are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
+The prior probability of the parameters $\pi(\Phi)$ are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
 
-$$ p(\vec{\nu};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\nu}) p(\vec{\nu}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}_{\mathrm{data}}(\vec{\nu};\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\nu}) }{ \int_{\vec{\nu'}} \mathcal{L}_{\mathrm{data}}(\vec{\nu'};\mathrm{data}) \mathcal{L}_{\mathrm{constraint}}(\vec{\nu'}) }$$ 
+$$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}_{\mathrm{data}}(\vec{\Phi};\mathrm{data}) \pi(\vec{\Phi}) }{ \int_{\vec{\Phi'}} \mathcal{L}_{\mathrm{data}}(\vec{\Phi'};\mathrm{data}) \pi(\vec{\Phi'}) }$$ 
 
-The posterior distribution p$(\vec{\nu};\mathrm{data})$ defines the updated belief about the parameters $\vec{\nu}$.
+The posterior distribution $p(\vec{\Phi};\mathrm{data})$ defines the updated belief about the parameters $\vec{\Phi}$.
 
 ## Methods for considering subsets of models
 
@@ -52,7 +52,7 @@ The profiled likelihood $\mathcal{L}(\vec{\mu})$ is defined from the full likeli
 
 $$ \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{profiling\ } \vec{\nu}} \mathcal{L}({\vec{\mu}}) = \max_{\vec{\nu}} \mathcal{L}(\vec{\mu},\vec{\nu})$$
 
-In some sense, the profiled likelihood is the best estimate of the likelihood at every point $\vec{\mu}$, it is sometimes also denoted $\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))$.
+In some sense, the profiled likelihood is the best estimate of the likelihood at every point $\vec{\mu}$, it is sometimes also denoted with a double hat notation $\mathcal{L}(\vec{\mu},\vec{\hat{\hat{\nu}}}(\vec{\mu}))$.
 
 ### Marginalization 
 
@@ -87,6 +87,10 @@ Typically indicated as:
 
 $$ \mu = X^{+\mathrm{up}}_{-\mathrm{down}} $$
 
+or, if symmetric intervals are used:
+
+$$ \mu = X \pm \mathm{unc.} $$
+
 
 ### Frequentist Confidence Regions
 
@@ -101,7 +105,7 @@ From first principles, the intervals can be constructed using the [Neyman constr
 
 In practice, the likelihood can be used to construct confidence regions for a set of parameters $\vec{\mu}$ by using the profile likelikhood ratio:
 
-$$ \Lambda \equiv \frac{\mathcal{L}(\vec{\mu},\vec{\hat{\mu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\mu}})} $$
+$$ \Lambda \equiv \frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})} $$
 
 i.e. the ratio of the profile likelihood at point $\vec{\mu}$ to the maxmimum likelihood. For technical reasons, the negative logarithm of this quantity is typically used in practice.
 
@@ -119,7 +123,7 @@ When a single fit is performed by some numerical minimization program and parame
 The [MINUIT minimizer](https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf) which evaluates likelihood functions has two methods for [estimating parameter uncertainties](https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#section.2.5).
 
 These two methods are the most commonly used methods for estimating confidence regions in a fit; they are the [**minos** method](https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#subsection.2.5.3), and the [**hessian** method](https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#subsection.2.5.2).
-In both cases, Wilk's theorem is assumed to hold at all points in parameter space, such the $\gamma_{\mathrm{CL}}$ is independent of $\vec{\mu}$.
+In both cases, Wilk's theorem is assumed to hold at all points in parameter space, such that $\gamma_{\mathrm{CL}}$ is independent of $\vec{\mu}$.
 
 When $\gamma_{\mathrm{CL}}$ is independent of $\vec{\mu}$ the problem simplifies to finding the boundaries where $-\log(\Lambda) = \gamma_{\mathrm{CL}}$.
 This boundary point is referred to as the "crossing", i.e. where $-\log(\Lambda)$ crosses the threshold value.
