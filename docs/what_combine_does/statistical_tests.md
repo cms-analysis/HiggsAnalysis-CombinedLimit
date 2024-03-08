@@ -92,7 +92,7 @@ This way, $t$ is positive, and larger values of $t$ represent larger differences
 #### Sets of test statistics
 
 If the parameters of both likelihoods in the ratio are fixed, either a priori or as a definite function of the data, then that defines a single test statistic.
-Often, however, we are interested in testing ["sets" of models](../../what_combine_does/model_and_likelihood/#sets-of-observation-models), parameterized by some set of values $(\vec{\mu}, \vec{\theta})$.
+Often, however, we are interested in testing ["sets" of models](../../what_combine_does/model_and_likelihood/#sets-of-observation-models), parameterized by some set of values $(\vec{\mu}, \vec{\nu})$.
 
 This is important in limit setting for example, where we perform statistical tests to exclude entire ranges of the parameter space.
 
@@ -103,7 +103,7 @@ $$ t_{\vec{x}} \propto -\log(\frac{\mathcal{L}(\vec{x})}{\mathcal{L}(\vec{\hat{x
 
 Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter $\vec{x}$ indexing the test statistic appears in the numerator of the likelihood ratio.
 
-When calculating the p-values for these statistical tests, the p-values are calculated assuming the true model has the parameters used to define the test statistic. 
+When calculating the p-values for these statistical tests, the p-values are calculated at each point in parameter space taking those parammeter values as the null hypothesis,
 i.e. as $p_\vec{\mu} \equiv p(t_{\vec{\mu}}(\mathrm{data}) ; \mathcal{M}_{\vec{\mu}})$.
 In other words, the observed and expected distributions of the test statistics are computed separately at each parameter point $\vec{x}$ being considered.
 
@@ -129,9 +129,9 @@ The point estimate for the parameters is simply the maximum likelihood estimate,
 A [confidence region](../../what_combine_does/fitting_concepts/#frequentist-confidence-regions) for the parameters $\vec{\mu}$ can be defined by using an appropriate test statistic.
 Typically, we use the log likelihood ratio:
 
-$$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\theta}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\theta}})}) $$
+$$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})}) $$
 
-Where the likelihood in the top is the value of the likelihood at a point $\vec{\mu}$ [profiled over](../../what_combine_does/fitting_concepts/#profiling) $\vec{\theta}$; and the likelihood on the bottom is at the best fit point.
+Where the likelihood in the top is the value of the likelihood at a point $\vec{\mu}$ [profiled over](../../what_combine_does/fitting_concepts/#profiling) $\vec{\nu}$; and the likelihood on the bottom is at the best fit point.
 
 Then the confidence region can be defined as the region where the p-value of the observed test-statistic is less than the confidence level:
 
@@ -148,7 +148,7 @@ A common method for claiming discovery is based on a likelihood ratio test by sh
 
 This could be done by using the standard log likelihood ratio test statistic:
 
-$$ t_{\mathrm{NP}} = -2\log(\frac{\mathcal{L}(\mu_{\mathrm{NP}} = 0, \vec{\hat{\theta}}(\mu_{\mathrm{NP}} = 0))}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}},\vec{\hat{\theta}})}) $$
+$$ t_{\mathrm{NP}} = -2\log(\frac{\mathcal{L}(\mu_{\mathrm{NP}} = 0, \vec{\hat{\nu}}(\mu_{\mathrm{NP}} = 0))}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}},\vec{\hat{\nu}})}) $$
 
 Where $\mu_{\mathrm{NP}}$ represents the strength of some new physics quantity, such as the cross section for creation of a new particle.
 However, this would also allow for claiming "discovery" in cases where  the best fit value is negative, i.e. $\hat{\mu} \lt 0$, which in particle physics is often an unphysical model, such as a negative cross section.
@@ -252,7 +252,7 @@ When performing an anlysis across many different channels (for example, differen
 Combine implements a [channel compatibility test](../../part3/commonstatsmethods/#channel-compatibility), by considering the a model, $\mathcal{M}_{\mathrm{c-independent}}$, in which the signal is independent in every channel.
 As a test statistic, this test uses the likelihood ratio between the best fit value of the nominal model and the model with independent signal strength for each channel:
 
-$$ t = -\log(\frac{\mathcal{L}_{\mathcal{M}}(\vec{\hat{\mu}},\vec{\hat{\theta}})}{\mathcal{L}_{\mathcal{M}_{\mathrm{c-indep}}}(\vec{\hat{\mu}}_{c1}, \vec{\hat{\mu}}_{c2}, ..., \vec{\hat{\theta}})}) $$
+$$ t = -\log(\frac{\mathcal{L}_{\mathcal{M}}(\vec{\hat{\mu}},\vec{\hat{\nu}})}{\mathcal{L}_{\mathcal{M}_{\mathrm{c-indep}}}(\vec{\hat{\mu}}_{c1}, \vec{\hat{\mu}}_{c2}, ..., \vec{\hat{\nu}})}) $$
 
 The distribution of the test statistic is not known a priori, and needs to be calculated by generating pseudo-data samples.
 

@@ -25,7 +25,7 @@ Because the likelihood is equal to the probability of observing the data given t
 
 In a bayesian framework, the likelihood represents the probability of observing the data given the model and some prior probability distribution over the model parameters. 
 
-The prior probability of the parameters $\pi(\Phi)$ are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
+The prior probability of the parameters, $\pi(\vec{\Phi})$, are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
 
 $$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}_{\mathrm{data}}(\vec{\Phi};\mathrm{data}) \pi(\vec{\Phi}) }{ \int_{\vec{\Phi'}} \mathcal{L}_{\mathrm{data}}(\vec{\Phi'};\mathrm{data}) \pi(\vec{\Phi'}) }$$ 
 
@@ -89,7 +89,7 @@ $$ \mu = X^{+\mathrm{up}}_{-\mathrm{down}} $$
 
 or, if symmetric intervals are used:
 
-$$ \mu = X \pm \mathm{unc.} $$
+$$ \mu = X \pm \mathrm{unc.} $$
 
 
 ### Frequentist Confidence Regions

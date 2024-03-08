@@ -42,7 +42,7 @@ $$ \mathcal{L}(\vec{\Phi};\mathrm{data}) = p(\mathrm{data};\vec{\Phi}) $$
 It should be understood through, that the likelihood depends on the parameters through the observation model, $\mathcal{L}(\vec{\nu},\vec{\mu}) = \mathcal{L}_{\mathcal{M}}(\vec{\mu},\vec{\nu})$.
 Changing the observation model, though it may depend on the same parameters, will also change the likelihood function.
 
-The likelihood takes the general form:
+The likelihood in combine takes the general form:
 
 $$ \mathcal{L} =  \mathcal{L}_{\textrm{data}} \cdot \mathcal{L}_{\textrm{constraint}} $$
 
@@ -75,7 +75,7 @@ For unbinned likelihood models, a likelihood can be given to each data point. It
 
 $$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(n_{\mathrm{obs}} ; n_{\mathrm{exp}}(\vec{\Phi})) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i ; \vec{\Phi} ) $$
 
-Where $N_{\mathrm{obs}}$ and $N_{\mathrm{exp}}$ are the total number of observed and expected events, respectively.
+Where $n_{\mathrm{obs}}$ and $n_{\mathrm{exp}}$ are the total number of observed and expected events, respectively.
 
 ### Constraint Likelihoods
 
@@ -86,7 +86,7 @@ In bayesian frameworks, these terms represent the prior[^1].
 [^1]: see: the first paragraphs of the [PDGs statistics review](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf) for more information on these two frameworks 
 
 We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses.
-In this framework, each constraint term represents the likelihood of some parameter, $\nu$, given some previous observation $y$, often called a "global observable".
+In this framework, each constraint term represents the likelihood of some parameter, $\nu$, given some previous observation $y$, sometimes referred to as a "global observable".
 
 $$ \mathcal{L}_{\mathrm{constraint}}( \nu ;  y ) = p( y ; \nu ) $$
 
