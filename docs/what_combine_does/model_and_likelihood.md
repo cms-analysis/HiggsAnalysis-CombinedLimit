@@ -11,7 +11,7 @@ The event counts are assumed to be of independent events, such as individual pro
 The model can also includes data and parameters related to non-count values, such as the observed luminosity or detector calibration constant. 
 
 The event-count portion of the model consists of a sum over different processes, each processes having its own model defining it.  
-The expected observations, $\vec{lambda}$, are then the sum of the expected observations for each of the processes, $\vec{lambda} =\sum_{p} \vec{\lambda}_{p}$.
+The expected observations, $\vec{\lambda}$, are then the sum of the expected observations for each of the processes, $\vec{\lambda} =\sum_{p} \vec{\lambda}_{p}$.
 
 The model can also be composed of multiple channels, in which case the expected observation is the set of all expected observations from the various channels $\vec{\lambda}_{0} = \{ \vec{\lambda}_{c1}, \vec{\lambda}_{c2}, .... \vec{\lambda}_{cN}\}$. 
 The expected observations which define the full event count model is then the union of the sets of expected observations in each individual channel.
@@ -121,7 +121,7 @@ Where $c$ indexes the channel, $b$ indexes the histogram bin, and $e$ indexes th
 
 The generic model implemented in combine is given by:
 
-$$n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\nu_G, \vec{\nu}_L,\vec{\nu}_S,\vec{\nu}_{\rho})y_{cbp}(\vec{\nu}_S) + E_{cb}(\vec{\nu}_B) ) $$
+$$n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\nu_G, \vec{\nu}_L,\vec{\nu}_S,\vec{\nu}_{\rho})\omega_{cbp}(\vec{\nu}_S) + E_{cb}(\vec{\nu}_B) ) $$
 
 where here: 
 
@@ -188,16 +188,16 @@ where $I(\nu) = 48\nu^5 - 40\nu^3 + 15\nu$, which ensures $\kappa^{\mathrm{A}}$ 
 and the $\kappa^{+}$ and $\kappa^{-}$ are the relative normalizations of the two systematics variations; i.e.:
 
 $$
-\kappa^{\pm}_{s} = \frac{\sum_{b}y_{b}^{s,\pm}}{\sum_{b}y_{b}^{0}}.
+\kappa^{\pm}_{s} = \frac{\sum_{b}\omega_{b}^{s,\pm}}{\sum_{b}\omega_{b}^{0}}.
 $$
 
-where $y_{b}^{s,\pm}$ is the bin yield as defined by the two shifted values  $\nu_{S} = \nu_{S}^{\pm}$, and $y_{b}^{0}$ is the bin yield when $\nu_{S} = y_{S}$.
+where $\omega_{b}^{s,\pm}$ is the bin yield as defined by the two shifted values  $\nu_{S} = \nu_{S}^{\pm}$, and $\omega_{b}^{0}$ is the bin yield when $\nu_{S} = \omega_{S}$.
 
 ///
 
 #### Shape Morphing Effects
 
-The number of events in a given bin $b$, $y_{cbp}$, is a function of the shape parameters $\vec{\nu}_{S}$. 
+The number of events in a given bin $b$, $\omega_{cbp}$, is a function of the shape parameters $\vec{\nu}_{S}$. 
 The shape interpolation works with the fractional yields in each bin, where the interpolation can be performed either directly on the fractional yield, or on the logarithm of the fraction yield, which is then exponentiated again.
 
 
@@ -206,25 +206,25 @@ The shape interpolation works with the fractional yields in each bin, where the 
 
 In the following, the channel and process labels $c$ and $p$ apply to every term, and so are omitted.
 
-The fixed nominal number of events is denoted $y_{b}^{0}$.
-For each applicable shape uncertainty $s$, two additional predictions are specified, $y_{b}^{s,+}$ and $y_{b}^{s,-}$, typically corresponding to the $+1\sigma$ and $-1\sigma$ variations, respectively.
+The fixed nominal number of events is denoted $\omega_{b}^{0}$.
+For each applicable shape uncertainty $s$, two additional predictions are specified, $\omega_{b}^{s,+}$ and $\omega_{b}^{s,-}$, typically corresponding to the $+1\sigma$ and $-1\sigma$ variations, respectively.
 These may change both the shape and normalization of the process.
 The two effects are separated; the shape transformation is constructed in terms of the fractional event counts in the templates via a smooth vertical interpolation, and the normalization is treated as an asymmetric log-normal uncertainty, as described above in the description of the $N$ term in the likelihood. 
 
-For a given process, the shape may be interpolated either directly in terms of the fractional bin yields, $f_b = y_b / \sum y_{b}$ or their logarithms, $\ln(f_b)$. The transformed yield is then given as, respectively,
+For a given process, the shape may be interpolated either directly in terms of the fractional bin yields, $f_b = \omega_b / \sum \omega_{b}$ or their logarithms, $\ln(f_b)$. The transformed yield is then given as, respectively,
 
 $$
-y_{b}(\vec{\nu}) =
+\omega_{b}(\vec{\nu}) =
 \begin{cases}
 \max\left(0, y^{0}\left(f^{0}_{b} + \sum_{s} F(\nu_{s}, \delta^{s,+}_{b}, \delta^{s,-}_{b}, \epsilon_{s})\right)\right) & \text{(direct),}\\
 \max\left(0, y^{0}\exp\left(\ln(f^{0}_{b}) + \sum_{s} F(\nu_{s}, \Delta^{s,+}_{b}, \Delta^{s,-}_{b}, \epsilon_{s})\right) \right) & \text{(logarithmic)},
 \end{cases}
 $$
 
-where $y^{0} = \sum y_{b}^{0}$, $\delta^{\pm} = f^{\pm}_{i} - f^{0}_{i}$, and $\Delta^{\pm} = \ln(\frac{f^{\pm}_{i}}{f^{0}_{i}})$. 
+where $\omega^{0} = \sum \omega_{b}^{0}$, $\delta^{\pm} = f^{\pm}_{i} - f^{0}_{i}$, and $\Delta^{\pm} = \ln(\frac{f^{\pm}_{i}}{f^{0}_{i}})$. 
 
 
-The smooth interpolating function $F$, defined below, depends on a set of coefficients, $\epsilon_{s}$. These are assumed to be unity by default, but may be set to different values, for example if the $y_{b}^{s,\pm}$ correspond to the $\pm X\sigma$ variations, then $\epsilon_{s} = 1/X$ is typically set. The minimum value of $\epsilon$ over the shape uncertainties for a given process is  $q = \min({{\epsilon_{s}}})$. The function ${F}$ is then defined as
+The smooth interpolating function $F$, defined below, depends on a set of coefficients, $\epsilon_{s}$. These are assumed to be unity by default, but may be set to different values, for example if the $\omega_{b}^{s,\pm}$ correspond to the $\pm X\sigma$ variations, then $\epsilon_{s} = 1/X$ is typically set. The minimum value of $\epsilon$ over the shape uncertainties for a given process is  $q = \min({{\epsilon_{s}}})$. The function ${F}$ is then defined as
 
 $$
 F(\nu, \delta^{+}, \delta^{-}, \epsilon) = 
@@ -250,25 +250,27 @@ These are taken into account by either assigning one nuisance parameter per bin,
 If the uncertainty in each bin is modelled as a single nuisance parameter it takes the form:
 
 $$
-E_{cb}(\nu) = \nu\left(\sum_{p} (e_{cpb}N_{cp}M_{cp}(\vec{\alpha}))^{2}\right)^{\frac{1}{2}}.
+E_{cb}(\vec{\mu},\vec{\nu},\nu) = \nu\left(\sum_{p} (e_{cpb}N_{cp}M_{cp}(\vec{\mu},\vec{\nu}))^{2}\right)^{\frac{1}{2}}.
 $$
+
+where $e_{cbp}$ is the uncertainty in the bin content for the histogram defining process $p$ in the channel $c$.
 
 Alternatively, one parameter is assigned per process, which may be modelled with either a Poisson or Gaussian constraint pdf:
 
 $$
-    E_{cb}(\vec{\nu}) = \sum_{i}^{\text{Poisson}} \left(\frac{\nu_{i}}{y_{i}} - 1\right)y_{cib}N_{ci}M_{ci}(\vec{\alpha}) + \sum_{j}^{\text{Gaussian}} \nu_{j}e_{cjb}N_{cj}M_{cj}(\vec{\alpha}),
+    E_{cb}(\vec{\mu},\vec{\nu},\vec{\nu}_{\alpha},\vec{\nu}_{\beta}) = \sum_{\alpha}^{\text{Poisson}} \left(\frac{\nu_{\alpha}}{\omega_{\alpha}} - 1\right)\omega_{c\alpha b}N_{c\alpha}(\vec{\nu})M_{c\alpha}(\vec{\mu},\vec{nu}) + \sum_{\beta}^{\text{Gaussian}} \nu_{\beta}e_{c\beta b}N_{c\beta}(\vec{\nu})M_{c\beta}(\vec{\mu},\vec{nu}),
 $$
 
-where the indices $i$ and $j$ runs over the Poisson- and Gaussian-constrained processes, respectively. The parameters $y_{i}$ represent the nominal unweighted numbers of events, and are treated as the external measurements and $N_{cp}$ and $y_{cib}$ are defined as above.
+where the indices $\alpha$ and $\beta$ runs over the Poisson- and Gaussian-constrained processes, respectively. The parameters $\omega_{\alpha}$ represent the nominal unweighted numbers of events, and are treated as the external measurements and $N_{cp}$ and $\omega_{c\alpha b}$ are defined as above.
 
 ///
 
 #### Customizing the form of $n_{exp}$ 
 
-Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](../../part2/physicsmodels/#model-building), [ $N$](../../part2/settinguptheanalysis/#rate-parameters), and [ $y_{cbp}$](../../part3/nonstandard/#rooparametrichist-gamman-for-shapes).
+Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](../../part2/physicsmodels/#model-building), [ $N$](../../part2/settinguptheanalysis/#rate-parameters), and [ $\omega_{cbp}$](../../part3/nonstandard/#rooparametrichist-gamman-for-shapes).
 In practice, this makes the functional form much more general than the default forms used above. 
 
-However, some constraints do exist, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $y_{cbp}$ only depend on $\vec{\nu}$.
+However, some constraints do exist, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $\omega_{cbp}$ only depend on $\vec{\nu}$.
 
 #### Constraint Likelihood terms
 
@@ -307,7 +309,7 @@ They can still, also, be used for analysis on [binned data](../../part2/settingu
 
 The unbinned model implemented in combine is given by:
 
-$$ \mathcal{L} = \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \prod_c \mathrm{Poiss}(n_{c,\mathrm{tot}}^{\mathrm{obs}} ; n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\nu})) \left(\prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i ; \vec{\mu}, \vec{\nu} )\right) \prod_e p_e(\vec{\nu} ; \vec{y}) $$
+$$ \mathcal{L} = \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \prod_c \mathrm{Poiss}(n_{c,\mathrm{tot}}^{\mathrm{obs}} ; n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\nu})) \left(\prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i ; \vec{\mu}, \vec{\nu} )\right) \prod_e p_e( y_e ; \nu_e) $$
 
 where $c$ indexes the channel, $p$ indexes the process, and $e$ indexes the nuisance parameter.
 
@@ -320,7 +322,7 @@ for parametric likelihoods on binned data, the data likelihood is first converte
 
 
 
-$$ \mathcal{L} = \prod_c \prod_b  \mathrm{Poiss}(n_{cb}^{\mathrm{obs}}; n_{cb}^{\mathrm{exp}})  \prod_e p_e(\vec{\nu} ; \vec{y}) $$
+$$ \mathcal{L} = \prod_c \prod_b  \mathrm{Poiss}(n_{cb}^{\mathrm{obs}}; n_{cb}^{\mathrm{exp}})  \prod_e p_e( y_e ; \nu_e) $$
 
 where $n^\mathrm{exp}$ is calculated from the input pdf and normalization, based on the model parameters.
 
