@@ -286,6 +286,13 @@ def addDatacardParserOptions(parser):
         action="store_true",
         help="Assign RooUniform pdf for flatParam NPs",
     )
+    parser.add_option(
+        "--X-physics-model-process-filter",
+        dest="physicsModelProcessFilter",
+        default=False,
+        action="store_true",
+        help="Don't build PDFs for processes whose yield is set to zero by the physics model",
+    )
 
 
 def strip(l):

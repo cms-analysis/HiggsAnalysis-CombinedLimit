@@ -480,6 +480,9 @@ class ShapeBuilder(ModelBuilder):
                     continue
                 if p != self.options.dataname and self.DC.exp[b][p] == 0:
                     continue
+                if p != self.options.dataname and self.options.physicsModelProcessFilter:
+                    if self.physics.getYieldScale(b, p) == 0:
+                        continue
                 shape = self.getShape(b, p)
                 norm = 0
                 if shape == None:  # counting experiment
