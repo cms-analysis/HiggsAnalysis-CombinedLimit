@@ -64,8 +64,8 @@ The likelihood in combine takes the general form:
 
 $$ \mathcal{L} =  \mathcal{L}_{\textrm{data}} \cdot \mathcal{L}_{\textrm{constraint}} $$
 
-Where $\mathcal{L}_{\mathrm{data}}$ is the probability of observing the event count data given your model, and $\mathcal{L}_{\mathrm{constraint}}$ represent some external constraints.
-The constraint term does not depend on the observed data, but rather encodes other constraints which may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have. 
+Where $\mathcal{L}_{\mathrm{data}}$ is equal to the probability of observing the event count data for a given set of model parameters, and $\mathcal{L}_{\mathrm{constraint}}$ represent some external constraints on the parameters.
+The constraint term may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have. 
 
 Both $\mathcal{L}_{\mathrm{data}}$ and $\mathcal{L}_{\mathrm{constraint}}$ can be composed of many sublikelihoods, for example for observations of different bins and constraints on different nuisance parameters. 
 
@@ -99,12 +99,11 @@ Where $n_{\mathrm{obs}}$ and $n_{\mathrm{exp}}$ are the total number of observed
 
 The constraint terms encode the probability of model nuisance parameters taking on a certain value.
 In frequentist frameworks, this usually represents the result of a previous measurement (such as of the jet energy scale).
-In bayesian frameworks, these terms represent the prior[^1]. 
+We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses[^1]. 
 
 [^1]: see: the first paragraphs of the [PDGs statistics review](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf) for more information on these two frameworks 
 
-We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses.
-In this framework, each constraint term represents the likelihood of some parameter, $\nu$, given some previous observation $y$, sometimes referred to as a "global observable".
+In this framework, each constraint term represents the likelihood of some parameter, $\nu$, given some previous observation $y$; the quantity $y$ is sometimes referred to as a "global observable".
 
 $$ \mathcal{L}_{\mathrm{constraint}}( \nu ;  y ) = p( y ; \nu ) $$
 
@@ -276,7 +275,7 @@ where $e_{cbp}$ is the uncertainty in the bin content for the histogram defining
 Alternatively, one parameter is assigned per process, which may be modelled with either a Poisson or Gaussian constraint pdf:
 
 $$
-    E_{cb}(\vec{\mu},\vec{\nu},\vec{\nu}_{\alpha},\vec{\nu}_{\beta}) = \sum_{\alpha}^{\text{Poisson}} \left(\frac{\nu_{\alpha}}{\omega_{\alpha}} - 1\right)\omega_{c\alpha b}N_{c\alpha}(\vec{\nu})M_{c\alpha}(\vec{\mu},\vec{nu}) + \sum_{\beta}^{\text{Gaussian}} \nu_{\beta}e_{c\beta b}N_{c\beta}(\vec{\nu})M_{c\beta}(\vec{\mu},\vec{nu}),
+    E_{cb}(\vec{\mu},\vec{\nu},\vec{\nu}_{\alpha},\vec{\nu}_{\beta}) = \sum_{\alpha}^{\text{Poisson}} \left(\frac{\nu_{\alpha}}{\omega_{\alpha}} - 1\right)\omega_{c\alpha b}N_{c\alpha}(\vec{\nu})M_{c\alpha}(\vec{\mu},\vec{nu}) + \sum_{\beta}^{\text{Gaussian}} \nu_{\beta}e_{c\beta b}N_{c\beta}(\vec{\nu})M_{c\beta}(\vec{\mu},\vec{\nu}),
 $$
 
 where the indices $\alpha$ and $\beta$ runs over the Poisson- and Gaussian-constrained processes, respectively. The parameters $\omega_{\alpha}$ represent the nominal unweighted numbers of events, and are treated as the external measurements and $N_{cp}$ and $\omega_{c\alpha b}$ are defined as above.
