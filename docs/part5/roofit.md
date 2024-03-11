@@ -791,7 +791,9 @@ canv.SaveAs("likelihoodscan.pdf")
 ```
 
 Well, this is doable - but we were only looking at a simple one-bin counting experiment. This might become rather cumbersome for large models... $[*]$
-We will now switch to <span style="font-variant:small-caps;">Combine</span> which will make it a lot easier to set up your model and do the statistical analysis than trying to build the likelihood yourself.
 
-$[*]$ Side note - `RooFit` does have additional functionality to help with statistical model building, but we will not go into detail today.   
+For the next set ot tutorials, we will now switch to working with <span style="font-variant:small-caps;">Combine</span> that will help in building the statistical model and do the statistical analysis, instead of  building the likelihood with `RooFit`.
+
+!!! info
+    `RooFit` does have additional functionality to help with statistical model building, but we will not go into detail in these tutorials.   
 
