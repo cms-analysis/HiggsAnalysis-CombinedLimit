@@ -27,7 +27,7 @@ In a bayesian framework, the likelihood represents the probability of observing 
 
 The prior probability of the parameters, $\pi(\vec{\Phi})$, are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
 
-$$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}(\vec{\Phi};\mathrm{data}) \pi(\vec{\Phi}) }{ \int_{\vec{\Phi'}} \mathcal{L}}(\vec{\Phi'};\mathrm{data}) \pi(\vec{\Phi'}) }$$ 
+$$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}(\vec{\Phi};\mathrm{data}) \pi(\vec{\Phi}) }{ \int_{\vec{\Phi'}} \mathcal{L}(\vec{\Phi'};\mathrm{data}) \pi(\vec{\Phi'}) }$$ 
 
 The posterior distribution $p(\vec{\Phi};\mathrm{data})$ defines the updated belief about the parameters $\vec{\Phi}$.
 
