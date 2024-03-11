@@ -5,15 +5,15 @@
 The observation model, $\mathcal{M}_0(\mathrm{data} ; \vec{\Phi}_{0})$ defines the probability for any set of observations given specific values of the input parameters of the model $\vec{\Phi}_0$.
 The probability for any observed data is denoted:
 
-$$ p_0^{\mathcal{M}(\mathrm{data}; \vec{\Phi}_0 ) $$
+$$ p_{\mathcal{M}_{0}}(\mathrm{data}; \vec{\Phi}_0 ) $$
 
-where the explicit superscript $\mathcal{M}$ is given here to remind us that these are the probabilities according to this particular model (though usually we will omit it for brevity).
+where the subscript $\mathcal{M}_{0}$ is given here to remind us that these are the probabilities according to this particular model (though usually we will omit it for brevity).
 
 Combine is designed for counting experiments, where the number of events with particular features are counted.
 The events can either be binned, as in histograms, or unbinned, where continuous values are stored for each event.
 The event counts are assumed to be of independent events, such as individual proton-proton collisions, which are not correlated with each other.
 
-The event-count portion of the model consists of a sum over different processes, each processes having its own model defining it.  
+The event-count portion of the model consists of a sum over different processes.  
 The expected observations, $\vec{\lambda}$, are then the sum of the expected observations for each of the processes, $\vec{\lambda} =\sum_{p} \vec{\lambda}_{p}$.
 
 The model can also be composed of multiple channels, in which case the expected observation is the set of all expected observations from the various channels $\vec{\lambda}_{0} = \{ \vec{\lambda}_{c1}, \vec{\lambda}_{c2}, .... \vec{\lambda}_{cN}\}$. 
@@ -24,6 +24,22 @@ These non-count data are usually considered as auxiliary information which are u
 The full model therefore defines the probability of any given observations over all the channels, given all the processes and model parameters.
 
 [Combining full models](../../part2/settinguptheanalysis/#combination-of-multiple-datacards) is possible by combining their channels, assuming that the channels are mutually independent.
+
+/// details | ***A simple example*** 
+
+Consider performing an analysis searching for a Higgs boson by looking for events where the Higgs decays into two photons.
+
+The event count data may be binned histograms of the number of events with two photons with different bins of invariant mass of the photons.
+The expected counts would include signal contributions from processes where a Higgs boson is produced, as well as background contributions from processes where two photons are produced through other mechanisms, like radiation off a quark. 
+The expected counts may also depend on parameters such as the energy resolution of the measured photons and the total luminosity of collisions being considered in the dataset, these can be parameterized in the model as auxiliary information.
+
+The analysis itself might be split into multiple channels, targetting different Higgs production modes with different event selection criteria.
+And furthermore, the analysis may eventually be combined with other analyses, such as a measurement targetting Higgs production where it subsequently decays into four leptons, rather than two photons.
+
+Combine provides the functionality for building the statistical models and combining all the channels or analyses togeher into one common analysis.
+
+
+///
 
 ### Sets of Observation Models
 
@@ -40,7 +56,7 @@ These are discussed in detail in the context of the full likelihood below.
 For any given model, $\mathcal{M}(\vec{\Phi})$, [the likelihood](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.1) defines the probability of observing a given dataset. 
 It is numerically equal to the probability of observing the data, given the model. 
 
-$$ \mathcal{L}_\mathcal{M}(\vec{\Phi};\mathrm{data}) = p^{\mathcal{M}}(\mathrm{data};\vec{\Phi}) $$
+$$ \mathcal{L}_\mathcal{M}(\vec{\Phi};\mathrm{data}) = p_{\mathcal{M}}(\mathrm{data};\vec{\Phi}) $$
 
 Note, however that the likelihood is a function of the model parameters, not the data, which is why we distinguish it from the probability itself. 
 
