@@ -26,7 +26,7 @@ RobustHesse::RobustHesse(RooAbsReal &nll, unsigned verbose) : nll_(&nll), verbos
   targetNllForStencils_ = 0.1;
   minNllForStencils_ = 0.095;
   maxNllForStencils_ = 0.105;
-  doRescale_ = false;
+  doRescale_ = true;
   maxRemovalsFromHessian_ = 20;
   nParallelJobs_ = 0;
   jobIdx_ = 0;
