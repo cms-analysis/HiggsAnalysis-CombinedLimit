@@ -158,7 +158,7 @@ where here:
 
 #### Parameter of Interest Model
 
-The function $M$ can take on aribitrary functional forms, as [defined by the user](../../part2/physicsmodels/#model-building), but in the most common case, the parameter of interest $\mu$ simply scales the contributions from signal processes:
+The function $M$ can take on custom functional forms, as [defined by the user](../../part2/physicsmodels/#model-building), but in the most common case, the parameter of interest $\mu$ simply scales the contributions from signal processes:
 
 $$\label{eq:sig_param}
 M_{cp}(\mu) = \begin{cases} 
