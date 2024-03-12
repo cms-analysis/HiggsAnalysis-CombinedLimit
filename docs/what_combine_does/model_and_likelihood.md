@@ -25,7 +25,7 @@ The full model therefore defines the probability of any given observations over 
 
 [Combining full models](../../part2/settinguptheanalysis/#combination-of-multiple-datacards) is possible by combining their channels, assuming that the channels are mutually independent.
 
-/// details | ***A simple example*** 
+/// details | **A Simple Example*** 
 
 Consider performing an analysis searching for a Higgs boson by looking for events where the Higgs decays into two photons.
 

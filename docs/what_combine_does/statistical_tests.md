@@ -58,14 +58,14 @@ The p-values using the left-tail and right tail are related to each other via $p
 The test statistic can be any real valued function of the data.
 While in principle, many valid test statistics can be used, the choice of tests statistic is very important as it influences the power of the statistical test.
 
-By associating a single real value with every observation, the test statistic allows us to recast the question "how likely was this observation?" in the form of a quantitative question about where the value of the test statistic.
+By associating a single real value with every observation, the test statistic allows us to recast the question "how likely was this observation?" in the form of a quantitative question about the value of the test statistic.
 Ideally a good test statistic should return different values for likely outcomes as compared to unlikely outcomes and the expected distributions under the null and alternate hypotheses should be well-separated.
 
 In many situations, extremely useful test statistics, sometimes optimal ones for particular tasks, can be constructed from the likelihood function itself: 
 
 $$ t(\mathrm{data}) = f(\mathcal{L}) $$
 
-Even for a given statistical tests, several likelihood-based test-statistics may be suitable, and for some tests combine implements multiple test-statistics from which the user can chose.
+Even for a given statistical test, several likelihood-based test-statistics may be suitable, and for some tests combine implements multiple test-statistics from which the user can choose.
 
 ## Tests with Likelihood Ratio Test Statistics
 
@@ -91,7 +91,7 @@ This way, $t$ is positive, and larger values of $t$ represent larger differences
 
 #### Sets of test statistics
 
-If the parameters of both likelihoods in the ratio are fixed, either a priori or as a definite function of the data, then that defines a single test statistic.
+If the parameters of both likelihoods in the ratio are fixed, either *a priori* or as a definite function of the data, then that defines a single test statistic.
 Often, however, we are interested in testing ["sets" of models](../../what_combine_does/model_and_likelihood/#sets-of-observation-models), parameterized by some set of values $(\vec{\mu}, \vec{\nu})$.
 
 This is important in limit setting for example, where we perform statistical tests to exclude entire ranges of the parameter space.
@@ -103,7 +103,7 @@ $$ t_{\vec{x}} \propto -\log(\frac{\mathcal{L}(\vec{x})}{\mathcal{L}(\vec{\hat{x
 
 Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter $\vec{x}$ indexing the test statistic appears in the numerator of the likelihood ratio.
 
-When calculating the p-values for these statistical tests, the p-values are calculated at each point in parameter space taking those parammeter values as the null hypothesis,
+When calculating the p-values for these statistical tests, the p-values are calculated at each point in parameter space taking those parameter values as the null hypothesis,
 i.e. as $p_\vec{\mu} \equiv p(t_{\vec{\mu}}(\mathrm{data}) ; \mathcal{M}_{\vec{\mu}})$.
 In other words, the observed and expected distributions of the test statistics are computed separately at each parameter point $\vec{x}$ being considered.
 
@@ -127,7 +127,7 @@ A common use case for likelihood ratios is estimating the values of some paramet
 The point estimate for the parameters is simply the maximum likelihood estimate, but the likelihood ratio can be used for estimating the uncertainty as a confidence region.
 
 A [confidence region](../../what_combine_does/fitting_concepts/#frequentist-confidence-regions) for the parameters $\vec{\mu}$ can be defined by using an appropriate test statistic.
-Typically, we use the log likelihood ratio:
+Typically, we use the profile likelihood ratio:
 
 $$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})}) $$
 
@@ -146,7 +146,7 @@ Where $\gamma_{\mathrm{CL}}$ is a known function of the confidence level which d
 
 A common method for claiming discovery is based on a likelihood ratio test by showing that the new physics model has a "significantly" larger likelihood than the standard model.
 
-This could be done by using the standard log likelihood ratio test statistic:
+This could be done by using the standard profile likelihood ratio test statistic:
 
 $$ t_{\mathrm{NP}} = -2\log(\frac{\mathcal{L}(\mu_{\mathrm{NP}} = 0, \vec{\hat{\nu}}(\mu_{\mathrm{NP}} = 0))}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}},\vec{\hat{\nu}})}) $$
 
@@ -175,7 +175,7 @@ In high-energy physics the standard threshold is $\sim 5\times10^{-7}$.
 
 Various test statistics built from likelihood ratios can be used for limit setting, i.e. excluding some parameter values.
 
-One could do to set limits on a parameter $\mu$ by finding the values of $\mu$ that are outside the confidence regions defined above by using the likelihood ratio test statistic:
+One could set limits on a parameter $\mu$ by finding the values of $\mu$ that are outside the confidence regions defined above by using the likelihood ratio test statistic:
 
 $$ t_{\mu} = -2\log(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})}) $$
 
@@ -212,7 +212,7 @@ However, this procedure is rarely used, in almost every case we use a modified t
 
 Regardless of which of these test statistics is used, the standard test-methodology has some undesirable properties for limit setting.
 
-Even for an experiment with almost no sensitivity to new physics, 5% of the time the experiment is performed the experimenter will find $p_{\mu} \lt 0.05$ for small values of $\mu$ and set limits on parameter values to which the experiment is not sensitive. 
+Even for an experiment with almost no sensitivity to new physics, 5% of the time the experiment is performed we expect the experimenter to find $p_{\mu} \lt 0.05$ for small values of $\mu$ and set limits on parameter values to which the experiment is not sensitive! 
 
 In order to avoid such situations the $\mathrm{CL}_{s}$ criterion was developped, as explained in these [two](https://cdsweb.cern.ch/record/451614) [papers](https://arxiv.org/abs/hep-ex/9902006).
 Rather than requiring $p_{\mu} \lt (1-\mathrm{CL})$ to exclude $\mu$, as would be done in the general framework described above, the $\mathrm{CL}_{s}$ criterion requires:
@@ -241,9 +241,9 @@ Typically, the saturated model would be one in which there are as many free para
 
 This ratio is then providing a comparison between how well the actual data are fit as compared to a hypothetical optimal fit.
 
-Unfortunately, the distribution of $t_{\mathcal{saturated}}$ often is not known a priori and must typically be estimated by generating pseudodata from the model $\mathcal{L}$ and calculating the empirical distribution of the statistic.
+Unfortunately, the distribution of $t_{\mathcal{saturated}}$ usually is not known *a priori* and has to be estimated by generating pseudodata from the model $\mathcal{L}$ and calculating the empirical distribution of the statistic.
 
-Once the distribution is determined a p-value for the statistic can be derived which indicates the probability of observing data with that quality of fit given the model, and therefore serves as a measure of the goodness of fit.
+Once the distribution is determined, a p-value for the statistic can be derived which indicates the probability of observing data with that quality of fit given the model, and therefore serves as a measure of the goodness of fit.
 
 ### Channel Compatibility test using the likelihood ratio
 
@@ -254,7 +254,7 @@ As a test statistic, this test uses the likelihood ratio between the best fit va
 
 $$ t = -\log(\frac{\mathcal{L}_{\mathcal{M}}(\vec{\hat{\mu}},\vec{\hat{\nu}})}{\mathcal{L}_{\mathcal{M}_{\mathrm{c-indep}}}(\vec{\hat{\mu}}_{c1}, \vec{\hat{\mu}}_{c2}, ..., \vec{\hat{\nu}})}) $$
 
-The distribution of the test statistic is not known a priori, and needs to be calculated by generating pseudo-data samples.
+The distribution of the test statistic is not known *a priori*, and needs to be calculated by generating pseudo-data samples.
 
 ## Other Statistical Tests
 
@@ -270,10 +270,11 @@ $$ D = \max_{x} | F_{\mathcal{M}}(x) - F_{\mathrm{data}}(x) | $$
 
 Where $F(x)$ is the Cumulative Distribution Function (i.e. cumulative sum) of the model or data at point $\vec{x}$.
 
-For the Anderson-Darling (AD) test, the test statistic is the integral of the square of difference between the two cumulative distribution functions:
+For the Anderson-Darling (AD) test, the test statistic is based on the integral of the square of the difference between the two cumulative distribution functions. 
+The square difference is modified by a weighting function which gives more importance to differences in the tails:
 
 $$ A^2 = \int_{x_{\mathrm{min}}}^{x_{\mathrm{max}}} \frac{ (F_{\mathcal{M}}(x) - F_{\mathrm{data}}(x))^2}{ F_\mathcal{M}(x) (1 - F_{\mathcal{M}}(x)) } \mathrm{d}F_\mathcal{M}(x) $$
 
 Notably, both the Anderson-Darling and Kolmogorov-Smirnov test rely on the cumulative distribution.
-Because the ordering of different channels of a model is not well defined, the tests themselves are not well defined over multiple channels.
+Because the ordering of different channels of a model is not well defined, the tests themselves are not unambiguously defined over multiple channels.
 
