@@ -2,7 +2,7 @@
 
 ## The Observation Model
 
-The observation model, $\mathcal{M}_0(\mathrm{data} ; \vec{\Phi}_{0})$ defines the probability for any set of observations given specific values of the input parameters of the model $\vec{\Phi}_0$.
+The observation model, $\mathcal{M}_0( \vec{\Phi}_{0})$ defines the probability for any set of observations given specific values of the input parameters of the model $\vec{\Phi}_0$.
 The probability for any observed data is denoted:
 
 $$ p_{\mathcal{M}_{0}}(\mathrm{data}; \vec{\Phi}_0 ) $$
@@ -25,7 +25,7 @@ The full model therefore defines the probability of any given observations over 
 
 [Combining full models](../../part2/settinguptheanalysis/#combination-of-multiple-datacards) is possible by combining their channels, assuming that the channels are mutually independent.
 
-/// details | **A Simple Example*** 
+/// details | **A Simple Example** 
 
 Consider performing an analysis searching for a Higgs boson by looking for events where the Higgs decays into two photons.
 
@@ -34,9 +34,9 @@ The expected counts would include signal contributions from processes where a Hi
 The expected counts may also depend on parameters such as the energy resolution of the measured photons and the total luminosity of collisions being considered in the dataset, these can be parameterized in the model as auxiliary information.
 
 The analysis itself might be split into multiple channels, targetting different Higgs production modes with different event selection criteria.
-And furthermore, the analysis may eventually be combined with other analyses, such as a measurement targetting Higgs production where it subsequently decays into four leptons, rather than two photons.
+Furthermore, the analysis may eventually be combined with other analyses, such as a measurement targetting Higgs production where the Higgs boson decays into four leptons, rather than two photons.
 
-Combine provides the functionality for building the statistical models and combining all the channels or analyses togeher into one common analysis.
+Combine provides the functionality for building the statistical models and combining all the channels or analyses together into one common analysis.
 
 
 ///
@@ -90,10 +90,12 @@ The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model p
 ### Unbinned Data Likelihoods
 
 For unbinned likelihood models, a likelihood can be given to each data point. It is proportional to the probability density function at that point, $\vec{x}$.
+For the full sset of observed data points, information about the total number of data points is also included:
 
 $$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(n_{\mathrm{obs}} ; n_{\mathrm{exp}}(\vec{\Phi})) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i ; \vec{\Phi} ) $$
 
-Where $n_{\mathrm{obs}}$ and $n_{\mathrm{exp}}$ are the total number of observed and expected events, respectively.
+Where $n_{\mathrm{obs}}$ and $n_{\mathrm{exp}}$ are the total number of observed and expected events, respectively. 
+This is sometimes referred to as an 'extended' likelihood, as the probability density has been 'extended' to include information about the total number of observations.
 
 ### Constraint Likelihoods
 
@@ -118,7 +120,6 @@ e.g. if you define  $\nu = \sigma(tt)$ or $\nu = \sigma(tt) - \sigma_0$ you will
 ## Likelihoods implemented in Combine
 
 Combine builds on the generic forms of the likelihood for counting experiments given above to provide specific functional forms which are commonly most useful in high energy physics, such as separating contributions between different processes.
-
 
 
 ### Binned Likelihoods using Templates
