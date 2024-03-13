@@ -97,7 +97,6 @@ double RooParametricHist::getFullSum() const {
 	  double thisVal = static_cast<RooAbsReal&>(pars[i]).getVal();
 	  if (_hasMorphs) thisVal*=evaluateMorphFunction(i);
 	  sum+=thisVal;
-	  i++;
     }
     return sum;
 }
