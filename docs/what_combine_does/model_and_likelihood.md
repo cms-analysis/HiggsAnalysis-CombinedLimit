@@ -135,9 +135,9 @@ $$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint
 Where $c$ indexes the channel, $b$ indexes the histogram bin, and $e$ indexes the nuisance parameter. 
 
 
-#### Model of $n_{\mathrm{exp}}$
+#### Model of expected event counts per bin
 
-The generic model implemented in combine is given by:
+The generic model of the expected event count in a given bin, $n^\mathrm{exp}_{cb}, implemented in combine for template based analyses is given by:
 
 $$n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\nu_G, \vec{\nu}_L,\vec{\nu}_S,\vec{\nu}_{\rho})\omega_{cbp}(\vec{\nu}_S) + E_{cb}(\vec{\nu}_B) ) $$
 
@@ -283,7 +283,7 @@ where the indices $\alpha$ and $\beta$ runs over the Poisson- and Gaussian-const
 
 ///
 
-#### Customizing the form of $n_{exp}$ 
+#### Customizing the form of the expected event counts
 
 Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](../../part2/physicsmodels/#model-building), [ $N$](../../part2/settinguptheanalysis/#rate-parameters), and [ $\omega_{cbp}$](../../part3/nonstandard/#rooparametrichist-gamman-for-shapes).
 In practice, this makes the functional form much more general than the default forms used above. 
@@ -344,7 +344,7 @@ $$ \mathcal{L} = \prod_c \prod_b  \mathrm{Poiss}(n_{cb}^{\mathrm{obs}}; n_{cb}^{
 
 where $n^\mathrm{exp}$ is calculated from the input pdf and normalization, based on the model parameters.
 
-#### Model of $n_{\mathrm{tot}}^{\mathrm{exp}}$
+#### Model of expected event counts
 
 The total number of expected events is modelled as:
 
