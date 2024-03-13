@@ -71,7 +71,7 @@ Both $\mathcal{L}_{\mathrm{primary}}$ and $\mathcal{L}_{\mathrm{auxiliary}}$ can
 
 This form is entirely general. However, as with the model itself, there are typical forms that the likelihood takes which will cover most use cases, and for which combine is primarily designed.
 
-### Binned Data Likelihoods
+### Primary Likelihoods for binned data
 
 For a binned likelihood, the probability of observing a certain number of counts, given a model takes on a simple form. For each bin:
 
@@ -82,12 +82,12 @@ $$
 i.e. it is a poisson distribution with the mean given by the expected number of events in that bin. 
 The full data likelihood is simply the product of each of the bins' likelihoods:
 
-$$ \mathcal{L}_\mathrm{data} = \prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}. $$
+$$ \mathcal{L}_\mathrm{primary} = \prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}. $$
 
 This is the underlying likelihood model used for every binned analysis. 
 The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model parameters, and the constraints that are placed on those parameters.
 
-### Unbinned Data Likelihoods
+### Primary Likelihoods for unbinned data
 
 For unbinned likelihood models, a likelihood can be given to each data point. It is proportional to the probability density function at that point, $\vec{x}$.
 For the full sset of observed data points, information about the total number of data points is also included:
@@ -97,7 +97,7 @@ $$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(n_{\mathrm{obs}} ; n_{\mathrm{exp}
 Where $n_{\mathrm{obs}}$ and $n_{\mathrm{exp}}$ are the total number of observed and expected events, respectively. 
 This is sometimes referred to as an 'extended' likelihood, as the probability density has been 'extended' to include information about the total number of observations.
 
-### Constraint Likelihoods
+### Auxiliary Likelihoods
 
 The constraint terms encode the probability of model nuisance parameters taking on a certain value.
 In frequentist frameworks, this usually represents the result of a previous measurement (such as of the jet energy scale).
