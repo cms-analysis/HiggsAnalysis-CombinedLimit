@@ -285,7 +285,7 @@ that will rename the POI label on the plot.
 !!! info 
     Since `combineTool` accepts the usual options for combine you can also generate the impacts on an Asimov or toy dataset. 
 
-The left panel in the summary plot shows the value of $(\nu-\nu_{0})/\Delta_{\nua}$ where $\nu$ and $\nu_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\nu}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **post**-fit uncertainty divided by the **pre**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. The pull will additionally be shown. As with the `diffNuisances.py` script, the option `--pullDef` can be used (to modify the definition of the *pull* that is shown). 
+The left panel in the summary plot shows the value of $(\nu-\nu_{0})/\Delta_{\nu}$ where $\nu$ and $\nu_{0}$ are the **post** and **pre**-fit values of the nuisance parameter and $\Delta_{\nu}$ is the **pre**-fit uncertainty. The asymmetric error bars show the **post**-fit uncertainty divided by the **pre**-fit uncertainty meaning that parameters with error bars smaller than $\pm 1$ are constrained in the fit. The pull will additionally be shown. As with the `diffNuisances.py` script, the option `--pullDef` can be used (to modify the definition of the *pull* that is shown). 
 
 ## Breakdown of uncertainties
 
