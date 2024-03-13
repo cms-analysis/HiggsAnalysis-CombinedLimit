@@ -27,7 +27,7 @@ In a bayesian framework, the likelihood represents the probability of observing 
 
 The prior probability of the parameters, $\pi(\vec{\Phi})$, are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
 
-$$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{ p(\mathrm{data}) } = \frac{ \mathcal{L}(\vec{\Phi};\mathrm{data}) \pi(\vec{\Phi}) }{ \int_{\vec{\Phi'}} \mathcal{L}(\vec{\Phi'};\mathrm{data}) \pi(\vec{\Phi'}) }$$ 
+$$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{\int p(\mathrm{data};\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' } = \frac{ \mathcal{L}(\vec{\Phi}) \pi(\vec{\Phi}) }{ \int \mathcal{L}(\vec{\Phi'}) \pi(\vec{\Phi'}) \mathrm{d}\vec{\Phi}' }$$ 
 
 The posterior distribution $p(\vec{\Phi};\mathrm{data})$ defines the updated belief about the parameters $\vec{\Phi}$.
 
@@ -145,7 +145,7 @@ The Hessian method relies on the second derivatives (i.e. the [hessian](https://
 
 By assuming that the shape of the likelihood function is well described by its second-order approximation, the values at which $-\log(\Lambda) = \gamma_{\mathrm{CL}}$ can be calculated analytically without the need for a seach
 
-$$ \mu_i^{\mathrm{crossing}} - \hat{\mu} \propto (\frac{\partial^2{\mathcal{L}(\vec{\hat{\mu}})}}{\partial\mu_i^2})^{-1} $$
+$$ \mu_i^{\mathrm{crossing}} - \hat{\mu} \propto (\frac{\partial^2{\mathcal{L}(\vec{\hat{\mu}})}}{\partial\mu_i^2})^{-2} $$
 
 By computing and then inverting the full hessian matrix, all individual confidence regions and the full covariance matrix are determined.
 By construction, this method always reports symmetric confidence intervals, as it assumes that the likelihood is well described by a second order expansion.

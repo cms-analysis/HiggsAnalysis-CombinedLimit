@@ -80,7 +80,7 @@ $$
 $$
 
 i.e. it is a poisson distribution with the mean given by the expected number of events in that bin. 
-The full data likelihood is simply the product of each of the bins' likelihoods:
+The full primary likelihood for binned data is simply the product of each of the bins' likelihoods:
 
 $$ \mathcal{L}_\mathrm{primary} = \prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}. $$
 
@@ -90,7 +90,7 @@ The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model p
 ### Primary Likelihoods for unbinned data
 
 For unbinned likelihood models, a likelihood can be given to each data point. It is proportional to the probability density function at that point, $\vec{x}$.
-For the full sset of observed data points, information about the total number of data points is also included:
+For the full set of observed data points, information about the total number of data points is also included:
 
 $$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(n_{\mathrm{obs}} ; n_{\mathrm{exp}}(\vec{\Phi})) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i ; \vec{\Phi} ) $$
 
@@ -99,22 +99,22 @@ This is sometimes referred to as an 'extended' likelihood, as the probability de
 
 ### Auxiliary Likelihoods
 
-The constraint terms encode the probability of model nuisance parameters taking on a certain value.
+The auxiliary likelihood terms encode the probability of model nuisance parameters taking on a certain value, without regards to the primary data.
 In frequentist frameworks, this usually represents the result of a previous measurement (such as of the jet energy scale).
 We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses[^1]. 
 
 [^1]: see: the first paragraphs of the [PDGs statistics review](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf) for more information on these two frameworks 
 
-In this framework, each constraint term represents the likelihood of some parameter, $\nu$, given some previous observation $y$; the quantity $y$ is sometimes referred to as a "global observable".
+In this framework, each auxiliary term represents the likelihood of some parameter, $\nu$, given some previous observation $y$; the quantity $y$ is sometimes referred to as a "global observable".
 
 $$ \mathcal{L}_{\mathrm{auxiliary}}( \nu ;  y ) = p( y ; \nu ) $$
 
 In principle the form of the likelihood can be any function where the corresponding $p$ is a valid probability distribution.
-In practice, most constraint terms are gaussian, and the definition of $\nu$ is chosen such that the central observation $y = 0$ , and the width of the gaussian is one.
+In practice, most of the auxiliary terms are gaussian, and the definition of $\nu$ is chosen such that the central observation $y = 0$ , and the width of the gaussian is one.
 
-Note that on its own, the form of the constraint term is not meaningful; what is meaningful is the relationship between the constraint term and how the model expectation is altered by the parameter.
+Note that on its own, the form of the auxiliary term is not meaningful; what is meaningful is the relationship between the auxiliary term and how the model expectation is altered by the parameter.
 Any co-ordinate transformation of the parameter values can be absorbed into the definition of the parameter. 
-A reparameterization would change the mathematical form of the constraint term, but would also simultaneously change how the model depends on the parameter in such a way that the total likelihood is unchanged.
+A reparameterization would change the mathematical form of the auxiliary term, but would also simultaneously change how the model depends on the parameter in such a way that the total likelihood is unchanged.
 e.g. if you define  $\nu = \sigma(tt)$ or $\nu = \sigma(tt) - \sigma_0$ you will change the form of the constraint term, but the you will not change the overall likelihood.
 
 ## Likelihoods implemented in Combine
@@ -130,14 +130,14 @@ These likelihood models are referred to as template-based because they rely heav
 Here, we describe the details of the mathematical form of these likelihoods. 
 As already mentioned, the likelihood can be written as a product of two parts:
 
-$$ \mathcal{L} =  \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \prod_{c=1}^{N_c} \prod_{b=1}^{N_b^c} \mathrm{Poiss}(n_{cb}; n^\mathrm{exp}_{cb}(\vec{\mu},\vec{\nu})) \prod_{e=1}^{N_E} p_e(y_e ; \nu_e) $$
+$$ \mathcal{L} =  \mathcal{L}_\mathrm{primary} \cdot \mathcal{L}_\mathrm{auxiliary} = \prod_{c=1}^{N_c} \prod_{b=1}^{N_b^c} \mathrm{Poiss}(n_{cb}; n^\mathrm{exp}_{cb}(\vec{\mu},\vec{\nu})) \prod_{e=1}^{N_E} p_e(y_e ; \nu_e) $$
 
 Where $c$ indexes the channel, $b$ indexes the histogram bin, and $e$ indexes the nuisance parameter. 
 
 
 #### Model of expected event counts per bin
 
-The generic model of the expected event count in a given bin, $n^\mathrm{exp}_{cb}, implemented in combine for template based analyses is given by:
+The generic model of the expected event count in a given bin, $n^\mathrm{exp}_{cb}$, implemented in combine for template based analyses is given by:
 
 $$n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\nu_G, \vec{\nu}_L,\vec{\nu}_S,\vec{\nu}_{\rho})\omega_{cbp}(\vec{\nu}_S) + E_{cb}(\vec{\nu}_B) ) $$
 
@@ -152,7 +152,7 @@ where here:
     - $\vec{\nu}_{B}$ are nuisance parameters related to the statistical uncertainties in the simulation used to build the model.
 - $M$ defines the effect of the parameters of interest on the signal process;
 - $N$ defines the overall normalization effect of the nuisance parameters;
-- $y$ defines the shape effects (i.e. bin-dependent effects) of the nuisance parameters; and
+- $\omega$ defines the shape effects (i.e. bin-dependent effects) of the nuisance parameters; and
 - $E$ defines the impact of [statistical uncertainties from the samples](../../part2/bin-wise-stats/) used to derive the histogram templates used to build the model.
 
 
@@ -290,9 +290,9 @@ In practice, this makes the functional form much more general than the default f
 
 However, some constraints do exist, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $\omega_{cbp}$ only depend on $\vec{\nu}$.
 
-#### Constraint Likelihood terms
+#### Auxiliary Likelihood terms
 
-The constraint terms implemented in combine are Gaussian, Poisson or Uniform:
+The auxiliary constraint terms implemented in combine are Gaussian, Poisson or Uniform:
 
 $$ 
 p_{e} \propto \exp{(-0.5 (\frac{(\nu_{e} - y_{e})}{\sigma})^2 )}\mathrm{;} \\
@@ -307,7 +307,7 @@ Which form they have depends on the type of nuisance paramater:
 - The rate parameters ($\vec{\nu}_{\rho}$) may have either Gaussian or Uniform constraints; and
 - The model statistical uncertiainties ($\vec{\nu}_{B}$) may use Gaussian or  Poisson Constraints.
 
-While combine does not provide functionality for user-defined constraint term pdfs, the effect of nuisance paramters is highly customizable through the form of the dependence of $n^\mathrm{exp}_{cb}$ on the parameter.
+While combine does not provide functionality for user-defined auxiliary pdfs, the effect of nuisance paramters is highly customizable through the form of the dependence of $n^\mathrm{exp}_{cb}$ on the parameter.
 
 ### Overview of the template-based likelihood model in Combine
 
