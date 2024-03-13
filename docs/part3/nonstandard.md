@@ -719,15 +719,10 @@ void examplews(){
     
     // A search in a MET tail, define MET as our variable
 
-    double xmin=200.;
-    double xmax=1000.;
-
     RooRealVar met("met","E_{T}^{miss}",200,xmin,xmax);
     RooArgList vars(met);
 
-    // better to create the bins rather than use the "nbins,min,max" to avoid spurious warning about adding bins with different 
-    // ranges in combine - see https://root-forum.cern.ch/t/attempt-to-divide-histograms-with-different-bin-limits/17624/3 for why!
-    double xbins[5] = {200.,400.,600.,800.,1000.};
+    
     // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
     // Make a dataset, this will be just four bins in MET.
     // its easiest to make this from a histogram. Set the contents to "somehting"
