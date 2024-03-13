@@ -7,7 +7,7 @@ The probability for any observed data is denoted:
 
 $$ p_{\mathcal{M}_{0}}(\mathrm{data}; \vec{\Phi}_0 ) $$
 
-where the subscript $\mathcal{M}_{0}$ is given here to remind us that these are the probabilities according to this particular model (though usually we will omit it for brevity).
+where the subscript $\mathcal{M}$ is given here to remind us that these are the probabilities according to this particular model (though usually we will omit it for brevity).
 
 Combine is designed for counting experiments, where the number of events with particular features are counted.
 The events can either be binned, as in histograms, or unbinned, where continuous values are stored for each event.
@@ -16,7 +16,7 @@ The event counts are assumed to be of independent events, such as individual pro
 The event-count portion of the model consists of a sum over different processes.  
 The expected observations, $\vec{\lambda}$, are then the sum of the expected observations for each of the processes, $\vec{\lambda} =\sum_{p} \vec{\lambda}_{p}$.
 
-The model can also be composed of multiple channels, in which case the expected observation is the set of all expected observations from the various channels $\vec{\lambda}_{0} = \{ \vec{\lambda}_{c1}, \vec{\lambda}_{c2}, .... \vec{\lambda}_{cN}\}$. 
+The model can also be composed of multiple channels, in which case the expected observation is the set of all expected observations from the various channels $\vec{\lambda} = \{ \vec{\lambda}_{c1}, \vec{\lambda}_{c2}, .... \vec{\lambda}_{cN}\}$. 
 
 The model can also include data and parameters related to non-count values, such as the observed luminosity or detector calibration constant. 
 These non-count data are usually considered as auxiliary information which are used to constrain our expectations about the observed event counts.
@@ -56,18 +56,18 @@ These are discussed in detail in the context of the full likelihood below.
 For any given model, $\mathcal{M}(\vec{\Phi})$, [the likelihood](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.1) defines the probability of observing a given dataset. 
 It is numerically equal to the probability of observing the data, given the model. 
 
-$$ \mathcal{L}_\mathcal{M}(\vec{\Phi};\mathrm{data}) = p_{\mathcal{M}}(\mathrm{data};\vec{\Phi}) $$
+$$ \mathcal{L}_\mathcal{M}(\vec{\Phi}) = p_{\mathcal{M}}(\mathrm{data};\vec{\Phi}) $$
 
 Note, however that the likelihood is a function of the model parameters, not the data, which is why we distinguish it from the probability itself. 
 
 The likelihood in combine takes the general form:
 
-$$ \mathcal{L} =  \mathcal{L}_{\textrm{data}} \cdot \mathcal{L}_{\textrm{constraint}} $$
+$$ \mathcal{L} =  \mathcal{L}_{\textrm{primary}} \cdot \mathcal{L}_{\textrm{auxiliary}} $$
 
-Where $\mathcal{L}_{\mathrm{data}}$ is equal to the probability of observing the event count data for a given set of model parameters, and $\mathcal{L}_{\mathrm{constraint}}$ represent some external constraints on the parameters.
+Where $\mathcal{L}_{\mathrm{auxiliary}}$ is equal to the probability of observing the event count data for a given set of model parameters, and $\mathcal{L}_{\mathrm{auxiliary}}$ represent some external constraints on the parameters.
 The constraint term may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have. 
 
-Both $\mathcal{L}_{\mathrm{data}}$ and $\mathcal{L}_{\mathrm{constraint}}$ can be composed of many sublikelihoods, for example for observations of different bins and constraints on different nuisance parameters. 
+Both $\mathcal{L}_{\mathrm{primary}}$ and $\mathcal{L}_{\mathrm{auxiliary}}$ can be composed of many sublikelihoods, for example for observations of different bins and constraints on different nuisance parameters. 
 
 This form is entirely general. However, as with the model itself, there are typical forms that the likelihood takes which will cover most use cases, and for which combine is primarily designed.
 
@@ -76,7 +76,7 @@ This form is entirely general. However, as with the model itself, there are typi
 For a binned likelihood, the probability of observing a certain number of counts, given a model takes on a simple form. For each bin:
 
 $$
-\mathcal{L}_{\mathrm{bin}}(\vec{\Phi};\mathrm{data}) = \mathrm{Poiss}(n_{\mathrm{obs}}; n_{\mathrm{exp}}(\vec{\Phi})) 
+\mathcal{L}_{\mathrm{bin}}(\vec{\Phi}) = \mathrm{Poiss}(n_{\mathrm{obs}}; n_{\mathrm{exp}}(\vec{\Phi})) 
 $$
 
 i.e. it is a poisson distribution with the mean given by the expected number of events in that bin. 
@@ -107,7 +107,7 @@ We will write in a mostly frequentist framework, though combine can be used for 
 
 In this framework, each constraint term represents the likelihood of some parameter, $\nu$, given some previous observation $y$; the quantity $y$ is sometimes referred to as a "global observable".
 
-$$ \mathcal{L}_{\mathrm{constraint}}( \nu ;  y ) = p( y ; \nu ) $$
+$$ \mathcal{L}_{\mathrm{auxiliary}}( \nu ;  y ) = p( y ; \nu ) $$
 
 In principle the form of the likelihood can be any function where the corresponding $p$ is a valid probability distribution.
 In practice, most constraint terms are gaussian, and the definition of $\nu$ is chosen such that the central observation $y = 0$ , and the width of the gaussian is one.
@@ -327,7 +327,7 @@ They can still, also, be used for analysis on [binned data](../../part2/settingu
 
 The unbinned model implemented in combine is given by:
 
-$$ \mathcal{L} = \mathcal{L}_\mathrm{data} \cdot \mathcal{L}_\mathrm{constraint} = \prod_c \mathrm{Poiss}(n_{c,\mathrm{tot}}^{\mathrm{obs}} ; n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\nu})) \left(\prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i ; \vec{\mu}, \vec{\nu} )\right) \prod_e p_e( y_e ; \nu_e) $$
+$$ \mathcal{L} = \mathcal{L}_\mathrm{primary} \cdot \mathcal{L}_\mathrm{auxiliary} = \prod_c \mathrm{Poiss}(n_{c,\mathrm{tot}}^{\mathrm{obs}} ; n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\nu})) \left(\prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i ; \vec{\mu}, \vec{\nu} )\right) \prod_e p_e( y_e ; \nu_e) $$
 
 where $c$ indexes the channel, $p$ indexes the process, and $e$ indexes the nuisance parameter.
 
@@ -388,7 +388,7 @@ These nuisance parameters are included as $\vec{\nu}_\rho$ uncertainties, which 
 While we presented the likelihoods for the template and parameteric models separately, they can also be combined into a single likelihood, by treating them each as separate channels.
 When combining the models, the data likelihoods of the binned and unbinned channels are multiplied.
 
-$$ \mathcal{L}_{\mathrm{combined}} = \mathcal{L}_{\mathrm{data}} \cdot \mathcal{L}_\mathrm{constraint} =  (\prod_{c_\mathrm{template}} \mathcal{L}_{\mathrm{data}}^{c_\mathrm{template}}) (\prod_{c_\mathrm{parametric}} \mathcal{L}_{\mathrm{data}}^{c_\mathrm{parametric}}) \mathcal{L}_{\mathrm{constraint}} $$
+$$ \mathcal{L}_{\mathrm{combined}} = \mathcal{L}_{\mathrm{primary}} \cdot \mathcal{L}_\mathrm{auxiliary} =  (\prod_{c_\mathrm{template}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{template}}) (\prod_{c_\mathrm{parametric}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{parametric}}) \mathcal{L}_{\mathrm{auxiliary}} $$
 
 # References and External Literature
 
