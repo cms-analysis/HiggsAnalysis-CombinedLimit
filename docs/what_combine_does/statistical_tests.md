@@ -99,13 +99,12 @@ This is important in limit setting for example, where we perform statistical tes
 In these cases, the likelihood ratio (or a function of it) is not a single test statistic, but a set of test statistics parameterized by the model parameters.
 For example, a very useful set of test statistics is:
 
-$$ t_{\vec{x}} \propto -\log(\frac{\mathcal{L}(\vec{x})}{\mathcal{L}(\vec{\hat{x}})}) $$.
+$$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}) $$.
 
-Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter $\vec{x}$ indexing the test statistic appears in the numerator of the likelihood ratio.
+Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter $\vec{\mu}$ indexing the test statistic appears in the numerator of the likelihood ratio.
 
-When calculating the p-values for these statistical tests, the p-values are calculated at each point in parameter space taking those parameter values as the null hypothesis,
-i.e. as $p_\vec{\mu} \equiv p(t_{\vec{\mu}}(\mathrm{data}) ; \mathcal{M}_{\vec{\mu}})$.
-In other words, the observed and expected distributions of the test statistics are computed separately at each parameter point $\vec{x}$ being considered.
+When calculating the p-values for these statistical tests, the p-values are calculated at each point in parameter space using the test statistic for that point.
+In other words, the observed and expected distributions of the test statistics are computed separately at each parameter point $\vec{\mu}$ being considered.
 
 #### Expected distributions of likelihood ratio test statistics
 
