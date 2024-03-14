@@ -107,7 +107,7 @@ We will write in a mostly frequentist framework, though combine can be used for 
 
 In this framework, each auxiliary term represents the likelihood of some parameter, $\nu$, given some previous observation $y$; the quantity $y$ is sometimes referred to as a "global observable".
 
-$$ \mathcal{L}_{\mathrm{auxiliary}}( \nu ;  y ) = p( y ; \nu ) $$
+$$ \mathcal{L}_{\mathrm{auxiliary}}( \nu ) = p( y ; \nu ) $$
 
 In principle the form of the likelihood can be any function where the corresponding $p$ is a valid probability distribution.
 In practice, most of the auxiliary terms are gaussian, and the definition of $\nu$ is chosen such that the central observation $y = 0$ , and the width of the gaussian is one.

@@ -12,10 +12,10 @@ Likelihood fits typically either follow a frequentist framework of maximum likel
 
 ### Maximum Likelihood fits
 
-A [maximum likelihood fit](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2) means finding the values of the model parameters $(\vec{\mu}, \vec{\nu})$ which maximize the likelihood, $\mathcal{L}(\vec{\mu},\vec{\nu};\mathrm{data})$
+A [maximum likelihood fit](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2) means finding the values of the model parameters $(\vec{\mu}, \vec{\nu})$ which maximize the likelihood, $\mathcal{L}(\vec{\mu},\vec{\nu})$
 The values which maximize the likelihood, are the parameter estimates, denoted with a "hat" ($\hat{}$):
 
-$$(\vec{\hat{\mu}}, \vec{\hat{\nu}}) \equiv \underset{\vec{\mu},\vec{\nu}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\nu};\mathrm{data})$$ 
+$$(\vec{\hat{\mu}}, \vec{\hat{\nu}}) \equiv \underset{\vec{\mu},\vec{\nu}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\nu})$$ 
 
 These values provide **point estimates** for the parameter values.
 
@@ -27,7 +27,7 @@ In a bayesian framework, the likelihood represents the probability of observing 
 
 The prior probability of the parameters, $\pi(\vec{\Phi})$, are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
 
-$$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{\int p(\mathrm{data};\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' } = \frac{ \mathcal{L}(\vec{\Phi}) \pi(\vec{\Phi}) }{ \int \mathcal{L}(\vec{\Phi'}) \pi(\vec{\Phi'}) \mathrm{d}\vec{\Phi}' }$$ 
+$$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{\int p(\mathrm{data};\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' } = \frac{ \mathcal{L}(\vec{\Phi}) \pi(\vec{\Phi}) }{ \int \mathcal{L}(\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' }$$ 
 
 The posterior distribution $p(\vec{\Phi};\mathrm{data})$ defines the updated belief about the parameters $\vec{\Phi}$.
 
@@ -63,10 +63,7 @@ $$ p(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{marginalizing\ } \vec{\nu}} p({\v
 
 The marginalized probability $p(\vec{\mu})$ is the probability for the parameter values $\vec{\mu}$ taking into account all possible values of $\vec{\nu}$.
 
-Marginalized likelihoods can also be defined, by their relationship to the probability distributions:
-
-$$ \mathcal{L}(\vec{\mu};\mathrm{data}) = p(\mathrm{data};\vec{\mu}) $$
-
+Marginalized likelihoods can also be defined, by their relationship to the probability distributions.
 
 ## Parameter Uncertainties 
 
