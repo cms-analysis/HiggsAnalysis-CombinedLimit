@@ -91,12 +91,12 @@ This way, $t$ is positive, and larger values of $t$ represent larger differences
 
 #### Sets of test statistics
 
-If the parameters of both likelihoods in the ratio are fixed, either *a priori* or as a definite function of the data, then that defines a single test statistic.
+If the parameters of both likelihoods in the ratio are fixed to a single value, then that defines a single test statistic.
 Often, however, we are interested in testing ["sets" of models](../../what_combine_does/model_and_likelihood/#sets-of-observation-models), parameterized by some set of values $(\vec{\mu}, \vec{\nu})$.
 
 This is important in limit setting for example, where we perform statistical tests to exclude entire ranges of the parameter space.
 
-In these cases, the likelihood ratio (or a function of it) is not a single test statistic, but a set of test statistics parameterized by the model parameters.
+In these cases, the likelihood ratio (or a function of it) can be used to define a set of test statistics parameterized by the model parameters.
 For example, a very useful set of test statistics is:
 
 $$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}) $$.
