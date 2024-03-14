@@ -1286,6 +1286,14 @@ cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     return ret;
 }
 
+bool cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList,
+                                                              RooArgSet& outputSet,
+                                                              bool stripDisconnected) const {
+  RooArgSet tempList = *getParameters(depList);
+  outputSet.add(tempList);
+  return true;
+}
+
 void cacheutils::CachingSimNLL::setMaskConstraints(bool flag) {
     double nllBefore = evaluate();
     maskConstraints_ = flag;
