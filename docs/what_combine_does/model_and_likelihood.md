@@ -2,10 +2,10 @@
 
 ## The Observation Model
 
-The observation model, $\mathcal{M}_0( \vec{\Phi}_{0})$ defines the probability for any set of observations given specific values of the input parameters of the model $\vec{\Phi}_0$.
+The observation model, $\mathcal{M}( \vec{\Phi}_{0})$ defines the probability for any set of observations given specific values of the input parameters of the model $\vec{\Phi}_0$.
 The probability for any observed data is denoted:
 
-$$ p_{\mathcal{M}_{0}}(\mathrm{data}; \vec{\Phi}_0 ) $$
+$$ p_{\mathcal{M}}(\mathrm{data}; \vec{\Phi}_0 ) $$
 
 where the subscript $\mathcal{M}$ is given here to remind us that these are the probabilities according to this particular model (though usually we will omit it for brevity).
 
