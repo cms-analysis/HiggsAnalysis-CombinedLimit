@@ -12,7 +12,7 @@ Roughly, combine does three things:
 2. Runs statistical tests on the model and observed data;
 3. Provides tools for validating, inspecting, and understanding the model and the statistical tests.
 
-Combine can be used for analyses in HEP ranging from simple counting experiments, to unfolded measurements, new physics searches,combinations of measurements, and EFT fits.
+Combine can be used for analyses in HEP ranging from simple counting experiments to unfolded measurements, new physics searches, combinations of measurements, and EFT fits.
 
 ## Model Building 
 
