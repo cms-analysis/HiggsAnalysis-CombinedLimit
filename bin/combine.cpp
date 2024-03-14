@@ -32,7 +32,7 @@
 using namespace std;
 
 // Update whenever we have a new Tag
-std::string combineTagString = "v9.1.0";
+std::string combineTagString = "v9.2.0";
 // 
 
 int main(int argc, char **argv) {
