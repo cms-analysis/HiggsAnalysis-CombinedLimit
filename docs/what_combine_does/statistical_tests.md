@@ -1,7 +1,7 @@
-# Statistical Tests 
+# Statistical Tests
 
 
-Combine is a likelihood based statistical tool. 
+Combine is a likelihood based statistical tool.
 That means that it uses the likelihood function to define statistical tests.
 
 Combine provides a number of customization options for each test; as always it is up to the user to chose an appropriate test and options.
@@ -12,7 +12,7 @@ Combine provides a number of customization options for each test; as always it i
 
 ### Statistical tests
 
-Combine implements a number of different customizable [statistical tests](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.3). 
+Combine implements a number of different customizable [statistical tests](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.3).
 These tests can be used for purposes such as determining the significance of some new physics model over the standard model, setting limits, estimating parameters, and checking goodness of fit.
 
 These tests are all performed on a given model (null hypothesis), and often require additional specification of an alternative model.
@@ -61,7 +61,7 @@ While in principle, many valid test statistics can be used, the choice of tests 
 By associating a single real value with every observation, the test statistic allows us to recast the question "how likely was this observation?" in the form of a quantitative question about the value of the test statistic.
 Ideally a good test statistic should return different values for likely outcomes as compared to unlikely outcomes and the expected distributions under the null and alternate hypotheses should be well-separated.
 
-In many situations, extremely useful test statistics, sometimes optimal ones for particular tasks, can be constructed from the likelihood function itself: 
+In many situations, extremely useful test statistics, sometimes optimal ones for particular tasks, can be constructed from the likelihood function itself:
 
 $$ t(\mathrm{data}) = f(\mathcal{L}) $$
 
@@ -77,15 +77,15 @@ However, quantities such as the ratio of the likelihood at two different points 
 
 ### The likelihood ratio and likelihood ratio based test statistics
 
-A very useful test statistic is the likelihood ratio of two models: 
+A very useful test statistic is the likelihood ratio of two models:
 
-$$ \Lambda \equiv \frac{\mathcal{L}_{\mathcal{M}}}{\mathcal{L}_{\mathcal{M}'}} $$ 
+$$ \Lambda \equiv \frac{\mathcal{L}_{\mathcal{M}}}{\mathcal{L}_{\mathcal{M}'}} $$
 
-For technical and convenience reasons, often the negative logarithm of the likelihood ratio is used: 
+For technical and convenience reasons, often the negative logarithm of the likelihood ratio is used:
 
 $$t \propto -\log(\Lambda) = \log(\mathcal{L}_{\mathcal{M}'}) - \log(\mathcal{L}_{\mathcal{M}})$$
 
-With different proportionality constants being most convenient in different circumstances. 
+With different proportionality constants being most convenient in different circumstances.
 The negative sign is used by convention since usually the ratios are constructed so that the larger likelihood value must be in the denominator.
 This way, $t$ is positive, and larger values of $t$ represent larger differences between the likelihoods of the two models.
 
@@ -99,7 +99,7 @@ This is important in limit setting for example, where we perform statistical tes
 In these cases, the likelihood ratio (or a function of it) can be used to define a set of test statistics parameterized by the model parameters.
 For example, a very useful set of test statistics is:
 
-$$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}) $$.
+$$ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}\right) $$.
 
 Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter $\vec{\mu}$ indexing the test statistic appears in the numerator of the likelihood ratio.
 
@@ -109,7 +109,7 @@ In other words, the observed and expected distributions of the test statistics a
 #### Expected distributions of likelihood ratio test statistics
 
 Under [appropriate conditions](https://arxiv.org/abs/1911.10237), the distribution of $t_\vec{\mu}$ can be approximated analytically, via [Wilks' Theorem](https://en.wikipedia.org/wiki/Wilks'_theorem) or other extensions of that work.
-Then, the p-value of the observed test statistic can be calculated from the known form of the expected distribution. 
+Then, the p-value of the observed test statistic can be calculated from the known form of the expected distribution.
 This is also true for a number of the other test statistics derived from the likelihood ratio, where [asymptotic approximations have been derived](https://arxiv.org/abs/1007.1727).
 
 Combine provides asymptotic methods, for [limit setting](../../part3/commonstatsmethods/#asymptotic-frequentist-limits), [significance tests](../../part3/commonstatsmethods/#asymptotic-significances), and [computing confidence intervals](../../part3/commonstatsmethods/#likelihood-fits-and-scans) which make used of these approximations for fast calculations.
@@ -128,7 +128,7 @@ The point estimate for the parameters is simply the maximum likelihood estimate,
 A [confidence region](../../what_combine_does/fitting_concepts/#frequentist-confidence-regions) for the parameters $\vec{\mu}$ can be defined by using an appropriate test statistic.
 Typically, we use the profile likelihood ratio:
 
-$$ t_{\vec{\mu}} \propto -\log(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})}) $$
+$$ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})}\right) $$
 
 Where the likelihood in the top is the value of the likelihood at a point $\vec{\mu}$ [profiled over](../../what_combine_does/fitting_concepts/#profiling) $\vec{\nu}$; and the likelihood on the bottom is at the best fit point.
 
@@ -147,15 +147,15 @@ A common method for claiming discovery is based on a likelihood ratio test by sh
 
 This could be done by using the standard profile likelihood ratio test statistic:
 
-$$ t_{\mathrm{NP}} = -2\log(\frac{\mathcal{L}(\mu_{\mathrm{NP}} = 0, \vec{\hat{\nu}}(\mu_{\mathrm{NP}} = 0))}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}},\vec{\hat{\nu}})}) $$
+$$ t_{\mathrm{NP}} = -2\log\left(\frac{\mathcal{L}(\mu_{\mathrm{NP}} = 0, \vec{\hat{\nu}}(\mu_{\mathrm{NP}} = 0))}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}},\vec{\hat{\nu}})}\right) $$
 
 Where $\mu_{\mathrm{NP}}$ represents the strength of some new physics quantity, such as the cross section for creation of a new particle.
 However, this would also allow for claiming "discovery" in cases where  the best fit value is negative, i.e. $\hat{\mu} \lt 0$, which in particle physics is often an unphysical model, such as a negative cross section.
 In order to avoid such a situation, we typically use a modified test statistic:
 
 $$ q_{0} = \begin{cases}
-    0 & \hat{\mu} \lt 0 \\ 
-    -2\log(\frac{\mathcal{L}(\mathrm{\mu}_{\mathrm{NP}} = 0)}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}})}) & \hat{\mu} \geq 0 
+    0 & \hat{\mu} \lt 0 \\
+    -2\log\left(\frac{\mathcal{L}(\mathrm{\mu}_{\mathrm{NP}} = 0)}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}})}\right) & \hat{\mu} \geq 0
 \end{cases}
 $$
 
@@ -164,7 +164,7 @@ which excludes the possibility of claiming discovery when the best fit value of 
 As with the likelihood ratio test statistic, $t$, defined above, under suitable conditions, [analytic expressions for the distribution of $q_0$](https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS5) are known.
 
 Once the value $q_{0}(\mathrm{data})$ is calculated, it can be compared to the expected distribution of $q_{0}$ under the standard model hypothesis to calculate the p-value.
-If the p-value is below some threshold, discovery is often claimed. 
+If the p-value is below some threshold, discovery is often claimed.
 In high-energy physics the standard threshold is $\sim 5\times10^{-7}$.
 
 
@@ -176,17 +176,17 @@ Various test statistics built from likelihood ratios can be used for limit setti
 
 One could set limits on a parameter $\mu$ by finding the values of $\mu$ that are outside the confidence regions defined above by using the likelihood ratio test statistic:
 
-$$ t_{\mu} = -2\log(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})}) $$
+$$ t_{\mu} = -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})}\right) $$
 
 However, this could "exclude" $\mu = 0$ or small values of $\mu$ at a typical limit setting confidence level, such as 95%, while still not claiming a discovery.
 This is considered undesirable, and often we only want to set upper limits on the value of $\mu$, rather than excluding any possible set of parameters outside our chosen confidence interval.
 
 This can be done using a modified test statistic:
 
-$$ \tilde{t}_{\mu} = -2\log(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\min(\mu,\hat{\mu}))}) = 
-\begin{cases} 
-    -2\log(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})})& \hat{\mu} \lt \mu  \\
-    0 &  \mu \leq \hat{\mu}  
+$$ \tilde{t}_{\mu} = -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\min(\mu,\hat{\mu}))}\right) =
+\begin{cases}
+    -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})}\right)& \hat{\mu} \lt \mu  \\
+    0 &  \mu \leq \hat{\mu}
 \end{cases}
 $$
 
@@ -195,11 +195,11 @@ In that case, we may set limits below 0.
 In order to avoid these situations, another modified test statistic can be used:
 
 
-$$ 
-\tilde{q}_{\mu} = \begin{cases} 
-    -2\log(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\mu = 0)})& \hat{\mu} \lt 0  \\
-    -2\log(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})})& 0 \lt \hat{\mu} \lt \mu  \\
-    0&  \mu \lt \hat{\mu}  
+$$
+\tilde{q}_{\mu} = \begin{cases}
+    -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\mu = 0)}\right)& \hat{\mu} \lt 0  \\
+    -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})}\right)& 0 \lt \hat{\mu} \lt \mu  \\
+    0&  \mu \lt \hat{\mu}
 \end{cases}
 $$
 
@@ -207,11 +207,11 @@ Which also has a [known distribution](https://ar5iv.labs.arxiv.org/html/1007.172
 
 However, this procedure is rarely used, in almost every case we use a modified test procedure which uses the $\mathrm{CL}_{s}$ criterion, explained below.
 
-#### The $\mathrm{CL}_{s}$ criterion 
+#### The CLs criterion
 
 Regardless of which of these test statistics is used, the standard test-methodology has some undesirable properties for limit setting.
 
-Even for an experiment with almost no sensitivity to new physics, 5% of the time the experiment is performed we expect the experimenter to find $p_{\mu} \lt 0.05$ for small values of $\mu$ and set limits on parameter values to which the experiment is not sensitive! 
+Even for an experiment with almost no sensitivity to new physics, 5% of the time the experiment is performed we expect the experimenter to find $p_{\mu} \lt 0.05$ for small values of $\mu$ and set limits on parameter values to which the experiment is not sensitive!
 
 In order to avoid such situations the $\mathrm{CL}_{s}$ criterion was developped, as explained in these [two](https://cdsweb.cern.ch/record/451614) [papers](https://arxiv.org/abs/hep-ex/9902006).
 Rather than requiring $p_{\mu} \lt (1-\mathrm{CL})$ to exclude $\mu$, as would be done in the general framework described above, the $\mathrm{CL}_{s}$ criterion requires:
@@ -233,7 +233,7 @@ The likelihood ratio can also be used [as a measure of goodness of fit](https://
 
 A standard likelihood-based measure of the goodness of fit is determined by using the log likelihood ratio with the likelihood in the denominator coming from the **saturated model**.
 
-$$ t_{\mathrm{saturated}} \propto -\log(\frac{\mathcal{L}_{\mathcal{M}}}{\mathcal{L}_{\mathcal{M}_\mathrm{saturated}}}) $$
+$$ t_{\mathrm{saturated}} \propto -\log\left(\frac{\mathcal{L}_{\mathcal{M}}}{\mathcal{L}_{\mathcal{M}_\mathrm{saturated}}}\right) $$
 
 Here $\mathcal{M}$ is whatever model one is testing the goodness of fit for, and the saturated model is a model for which the prediction matches the observed value in every bin.
 Typically, the saturated model would be one in which there are as many free parameters as bins.
@@ -251,7 +251,7 @@ When performing an anlysis across many different channels (for example, differen
 Combine implements a [channel compatibility test](../../part3/commonstatsmethods/#channel-compatibility), by considering the a model, $\mathcal{M}_{\mathrm{c-independent}}$, in which the signal is independent in every channel.
 As a test statistic, this test uses the likelihood ratio between the best fit value of the nominal model and the model with independent signal strength for each channel:
 
-$$ t = -\log(\frac{\mathcal{L}_{\mathcal{M}}(\vec{\hat{\mu}},\vec{\hat{\nu}})}{\mathcal{L}_{\mathcal{M}_{\mathrm{c-indep}}}(\vec{\hat{\mu}}_{c1}, \vec{\hat{\mu}}_{c2}, ..., \vec{\hat{\nu}})}) $$
+$$ t = -\log\left(\frac{\mathcal{L}_{\mathcal{M}}(\vec{\hat{\mu}},\vec{\hat{\nu}})}{\mathcal{L}_{\mathcal{M}_{\mathrm{c-indep}}}(\vec{\hat{\mu}}_{c1}, \vec{\hat{\mu}}_{c2}, ..., \vec{\hat{\nu}})}\right) $$
 
 The distribution of the test statistic is not known *a priori*, and needs to be calculated by generating pseudo-data samples.
 
@@ -269,11 +269,10 @@ $$ D = \max_{x} | F_{\mathcal{M}}(x) - F_{\mathrm{data}}(x) | $$
 
 Where $F(x)$ is the Cumulative Distribution Function (i.e. cumulative sum) of the model or data at point $\vec{x}$.
 
-For the Anderson-Darling (AD) test, the test statistic is based on the integral of the square of the difference between the two cumulative distribution functions. 
+For the Anderson-Darling (AD) test, the test statistic is based on the integral of the square of the difference between the two cumulative distribution functions.
 The square difference is modified by a weighting function which gives more importance to differences in the tails:
 
 $$ A^2 = \int_{x_{\mathrm{min}}}^{x_{\mathrm{max}}} \frac{ (F_{\mathcal{M}}(x) - F_{\mathrm{data}}(x))^2}{ F_\mathcal{M}(x) (1 - F_{\mathcal{M}}(x)) } \mathrm{d}F_\mathcal{M}(x) $$
 
 Notably, both the Anderson-Darling and Kolmogorov-Smirnov test rely on the cumulative distribution.
 Because the ordering of different channels of a model is not well defined, the tests themselves are not unambiguously defined over multiple channels.
-

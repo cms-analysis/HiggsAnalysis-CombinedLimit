@@ -15,7 +15,7 @@ Likelihood fits typically either follow a frequentist framework of maximum likel
 A [maximum likelihood fit](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2) means finding the values of the model parameters $(\vec{\mu}, \vec{\nu})$ which maximize the likelihood, $\mathcal{L}(\vec{\mu},\vec{\nu})$
 The values which maximize the likelihood, are the parameter estimates, denoted with a "hat" ($\hat{}$):
 
-$$(\vec{\hat{\mu}}, \vec{\hat{\nu}}) \equiv \underset{\vec{\mu},\vec{\nu}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\nu})$$ 
+$$(\vec{\hat{\mu}}, \vec{\hat{\nu}}) \equiv \underset{\vec{\mu},\vec{\nu}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\nu})$$
 
 These values provide **point estimates** for the parameter values.
 
@@ -23,25 +23,25 @@ Because the likelihood is equal to the probability of observing the data given t
 
 ### Bayesian Posterior Calculation
 
-In a bayesian framework, the likelihood represents the probability of observing the data given the model and some prior probability distribution over the model parameters. 
+In a bayesian framework, the likelihood represents the probability of observing the data given the model and some prior probability distribution over the model parameters.
 
 The prior probability of the parameters, $\pi(\vec{\Phi})$, are updated based on the data to provide a [posterior distributions](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6)
 
-$$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{\int p(\mathrm{data};\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' } = \frac{ \mathcal{L}(\vec{\Phi}) \pi(\vec{\Phi}) }{ \int \mathcal{L}(\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' }$$ 
+$$ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{\int p(\mathrm{data};\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' } = \frac{ \mathcal{L}(\vec{\Phi}) \pi(\vec{\Phi}) }{ \int \mathcal{L}(\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' }$$
 
 The posterior distribution $p(\vec{\Phi};\mathrm{data})$ defines the updated belief about the parameters $\vec{\Phi}$.
 
 ## Methods for considering subsets of models
 
-Often, one is interested in some particular aspect of a model. 
+Often, one is interested in some particular aspect of a model.
 This may be for example information related to the parameters of interest, but not the nuisance parameters.
 In this case, one needs a method for specifying precisely what is meant by a model considering only those parameters of interest.
 
 There are several methods for considering sub models which each have their own interpretations and use cases.
 
-### Conditioning 
+### Conditioning
 
-Conditional Sub-models can be made by simply restricting the values of some parameters. 
+Conditional Sub-models can be made by simply restricting the values of some parameters.
 The conditional likelihood of the parameters $\vec{\mu}$ conditioned on particular values of the parameters $\vec{\nu}$ is:
 
 $$ \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{conditioned\ on\ } \vec{\nu} = \vec{\nu}_0} \mathcal{L}(\vec{\mu}) = \mathcal{L}(\vec{\mu},\vec{\nu}_0) $$
@@ -54,7 +54,7 @@ $$ \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{profiling\ } \vec{\nu}}
 
 In some sense, the profiled likelihood is the best estimate of the likelihood at every point $\vec{\mu}$, it is sometimes also denoted with a double hat notation $\mathcal{L}(\vec{\mu},\vec{\hat{\hat{\nu}}}(\vec{\mu}))$.
 
-### Marginalization 
+### Marginalization
 
 Marginalization is a procedure for producing a probability distribution $p(\vec{\mu};\mathrm{data})$ for a set of parameters $\vec{\mu}$, which are only a subset of the parameters in the full distribution $p(\vec{\mu},\vec{\nu};\mathrm{data})$.
 The marginal probability density $p(\vec{\mu})$ is defined such that for every point $\vec{\mu}$ it is equal to the probability at $\vec{\mu}$ integrated over $\vec{\nu}$.
@@ -65,7 +65,7 @@ The marginalized probability $p(\vec{\mu})$ is the probability for the parameter
 
 Marginalized likelihoods can also be defined, by their relationship to the probability distributions.
 
-## Parameter Uncertainties 
+## Parameter Uncertainties
 
 Parameter uncertainties describe regions of parameter values which are considered reasonable parameter values, rather than single estimates.
 These can be defined either in terms of frequentist **confidence regions** or bayesian **credibility regions**.
@@ -91,11 +91,11 @@ $$ \mu = X \pm \mathrm{unc.} $$
 
 ### Frequentist Confidence Regions
 
-Frequentist confidence regions are random variables of the observed data. 
+Frequentist confidence regions are random variables of the observed data.
 These are very often the construction used to define the uncertainties reported on a parameter.
 
 If the same experiment is repeated multiple times, different data will be osbserved each time and a different confidence set $\{ \vec{\mu}\}_{\mathrm{CL}}^{i}$ will be found for each experiment.
-If the data are generated by the model with some set of values $\vec{\mu}_{\mathrm{gen}}$, then the fraction of the regions $\{ \vec{\mu}\}_{\mathrm{CL}}^{i}$ which contain the values $\vec{\mu}_{\mathrm{gen}}$ will be equal to the confidence level ${\mathrm{CL}}$. 
+If the data are generated by the model with some set of values $\vec{\mu}_{\mathrm{gen}}$, then the fraction of the regions $\{ \vec{\mu}\}_{\mathrm{CL}}^{i}$ which contain the values $\vec{\mu}_{\mathrm{gen}}$ will be equal to the confidence level ${\mathrm{CL}}$.
 The fraction of intervals which contain the generating parameter value is referred to as the "coverage".
 
 From first principles, the intervals can be constructed using the [Neyman construction](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsubsection.40.4.2.1).
@@ -110,7 +110,7 @@ Each point $\vec{\mu}$ can be tested to see if it is in the confidence region, b
 
 $$ \{ \vec{\mu} \}_{\mathrm{CL}} = \{ \vec{\mu} : -\log(\Lambda) \lt  \gamma_{\mathrm{CL}}(\vec{\mu}) \} $$
 
-The cutoff value $\gamma_{\mathrm{CL}}$ must be chosen to match this desired coverage of the confidence set. 
+The cutoff value $\gamma_{\mathrm{CL}}$ must be chosen to match this desired coverage of the confidence set.
 
 Under some conditions, the value of $\gamma_{\mathrm{CL}}$ is known analytically for any desired confidence level, and is independent of $\vec{\mu}$, which greatly simplifies estimating confidence regions.
 
@@ -142,7 +142,7 @@ The Hessian method relies on the second derivatives (i.e. the [hessian](https://
 
 By assuming that the shape of the likelihood function is well described by its second-order approximation, the values at which $-\log(\Lambda) = \gamma_{\mathrm{CL}}$ can be calculated analytically without the need for a seach
 
-$$ \mu_i^{\mathrm{crossing}} - \hat{\mu} \propto (\frac{\partial^2{\mathcal{L}(\vec{\hat{\mu}})}}{\partial\mu_i^2})^{-2} $$
+$$ \mu_i^{\mathrm{crossing}} - \hat{\mu} \propto \left(\frac{\partial^2{\mathcal{L}(\vec{\hat{\mu}})}}{\partial\mu_i^2}\right)^{-2} $$
 
 By computing and then inverting the full hessian matrix, all individual confidence regions and the full covariance matrix are determined.
 By construction, this method always reports symmetric confidence intervals, as it assumes that the likelihood is well described by a second order expansion.
@@ -156,4 +156,3 @@ Often the full posterior probability distribution is summarized in terms of some
 $$ \{ \vec{\mu} \}_{\mathrm{CL}} =  \{ \vec{\mu} : \vec{\mu} \in \Omega, \int_{\Omega} p(\vec{\mu};\mathrm{data}) = \mathrm{CL}  \}$$
 
 The credible region represents a region in which the bayesian probability of the parameter being in that region is equal to the chosen Credibility Level.
-

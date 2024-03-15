@@ -13,24 +13,24 @@ Combine is designed for counting experiments, where the number of events with pa
 The events can either be binned, as in histograms, or unbinned, where continuous values are stored for each event.
 The event counts are assumed to be of independent events, such as individual proton-proton collisions, which are not correlated with each other.
 
-The event-count portion of the model consists of a sum over different processes.  
+The event-count portion of the model consists of a sum over different processes.
 The expected observations, $\vec{\lambda}$, are then the sum of the expected observations for each of the processes, $\vec{\lambda} =\sum_{p} \vec{\lambda}_{p}$.
 
-The model can also be composed of multiple channels, in which case the expected observation is the set of all expected observations from the various channels $\vec{\lambda} = \{ \vec{\lambda}_{c1}, \vec{\lambda}_{c2}, .... \vec{\lambda}_{cN}\}$. 
+The model can also be composed of multiple channels, in which case the expected observation is the set of all expected observations from the various channels $\vec{\lambda} = \{ \vec{\lambda}_{c1}, \vec{\lambda}_{c2}, .... \vec{\lambda}_{cN}\}$.
 
-The model can also include data and parameters related to non-count values, such as the observed luminosity or detector calibration constant. 
+The model can also include data and parameters related to non-count values, such as the observed luminosity or detector calibration constant.
 These non-count data are usually considered as auxiliary information which are used to constrain our expectations about the observed event counts.
 
 The full model therefore defines the probability of any given observations over all the channels, given all the processes and model parameters.
 
 [Combining full models](../../part2/settinguptheanalysis/#combination-of-multiple-datacards) is possible by combining their channels, assuming that the channels are mutually independent.
 
-/// details | **A Simple Example** 
+/// details | **A Simple Example**
 
 Consider performing an analysis searching for a Higgs boson by looking for events where the Higgs decays into two photons.
 
 The event count data may be binned histograms of the number of events with two photons with different bins of invariant mass of the photons.
-The expected counts would include signal contributions from processes where a Higgs boson is produced, as well as background contributions from processes where two photons are produced through other mechanisms, like radiation off a quark. 
+The expected counts would include signal contributions from processes where a Higgs boson is produced, as well as background contributions from processes where two photons are produced through other mechanisms, like radiation off a quark.
 The expected counts may also depend on parameters such as the energy resolution of the measured photons and the total luminosity of collisions being considered in the dataset, these can be parameterized in the model as auxiliary information.
 
 The analysis itself might be split into multiple channels, targetting different Higgs production modes with different event selection criteria.
@@ -43,7 +43,7 @@ Combine provides the functionality for building the statistical models and combi
 
 ### Sets of Observation Models
 
-We are typically not interested in a single model, but in a set of models, parameterized by a set of real numbers representing possible versions of the model. 
+We are typically not interested in a single model, but in a set of models, parameterized by a set of real numbers representing possible versions of the model.
 
 Model parameters include the parameters of interest ( $\vec{\mu}$, those being measured such as a cross section) as well as nuisance parameters ($\vec{\nu}$), which may not be of interest but still affect the model expectation.
 
@@ -51,23 +51,23 @@ Combine provides tools and interfaces for defining the model as pre-defined or u
 In practice, however, there are a number of most commonly used functional forms which define how the expected events depend on the model parameters.
 These are discussed in detail in the context of the full likelihood below.
 
-## The Likelihood 
+## The Likelihood
 
-For any given model, $\mathcal{M}(\vec{\Phi})$, [the likelihood](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.1) defines the probability of observing a given dataset. 
-It is numerically equal to the probability of observing the data, given the model. 
+For any given model, $\mathcal{M}(\vec{\Phi})$, [the likelihood](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.1) defines the probability of observing a given dataset.
+It is numerically equal to the probability of observing the data, given the model.
 
 $$ \mathcal{L}_\mathcal{M}(\vec{\Phi}) = p_{\mathcal{M}}(\mathrm{data};\vec{\Phi}) $$
 
-Note, however that the likelihood is a function of the model parameters, not the data, which is why we distinguish it from the probability itself. 
+Note, however that the likelihood is a function of the model parameters, not the data, which is why we distinguish it from the probability itself.
 
 The likelihood in combine takes the general form:
 
 $$ \mathcal{L} =  \mathcal{L}_{\textrm{primary}} \cdot \mathcal{L}_{\textrm{auxiliary}} $$
 
 Where $\mathcal{L}_{\mathrm{auxiliary}}$ is equal to the probability of observing the event count data for a given set of model parameters, and $\mathcal{L}_{\mathrm{auxiliary}}$ represent some external constraints on the parameters.
-The constraint term may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have. 
+The constraint term may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have.
 
-Both $\mathcal{L}_{\mathrm{primary}}$ and $\mathcal{L}_{\mathrm{auxiliary}}$ can be composed of many sublikelihoods, for example for observations of different bins and constraints on different nuisance parameters. 
+Both $\mathcal{L}_{\mathrm{primary}}$ and $\mathcal{L}_{\mathrm{auxiliary}}$ can be composed of many sublikelihoods, for example for observations of different bins and constraints on different nuisance parameters.
 
 This form is entirely general. However, as with the model itself, there are typical forms that the likelihood takes which will cover most use cases, and for which combine is primarily designed.
 
@@ -76,15 +76,15 @@ This form is entirely general. However, as with the model itself, there are typi
 For a binned likelihood, the probability of observing a certain number of counts, given a model takes on a simple form. For each bin:
 
 $$
-\mathcal{L}_{\mathrm{bin}}(\vec{\Phi}) = \mathrm{Poiss}(n_{\mathrm{obs}}; n_{\mathrm{exp}}(\vec{\Phi})) 
+\mathcal{L}_{\mathrm{bin}}(\vec{\Phi}) = \mathrm{Poiss}(n_{\mathrm{obs}}; n_{\mathrm{exp}}(\vec{\Phi}))
 $$
 
-i.e. it is a poisson distribution with the mean given by the expected number of events in that bin. 
+i.e. it is a poisson distribution with the mean given by the expected number of events in that bin.
 The full primary likelihood for binned data is simply the product of each of the bins' likelihoods:
 
 $$ \mathcal{L}_\mathrm{primary} = \prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}. $$
 
-This is the underlying likelihood model used for every binned analysis. 
+This is the underlying likelihood model used for every binned analysis.
 The freedom in the analysis comes in how $n_\mathrm{exp}$ depends on the model parameters, and the constraints that are placed on those parameters.
 
 ### Primary Likelihoods for unbinned data
@@ -94,16 +94,16 @@ For the full set of observed data points, information about the total number of 
 
 $$ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(n_{\mathrm{obs}} ; n_{\mathrm{exp}}(\vec{\Phi})) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i ; \vec{\Phi} ) $$
 
-Where $n_{\mathrm{obs}}$ and $n_{\mathrm{exp}}$ are the total number of observed and expected events, respectively. 
+Where $n_{\mathrm{obs}}$ and $n_{\mathrm{exp}}$ are the total number of observed and expected events, respectively.
 This is sometimes referred to as an 'extended' likelihood, as the probability density has been 'extended' to include information about the total number of observations.
 
 ### Auxiliary Likelihoods
 
 The auxiliary likelihood terms encode the probability of model nuisance parameters taking on a certain value, without regards to the primary data.
 In frequentist frameworks, this usually represents the result of a previous measurement (such as of the jet energy scale).
-We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses[^1]. 
+We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses[^1].
 
-[^1]: see: the first paragraphs of the [PDGs statistics review](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf) for more information on these two frameworks 
+[^1]: see: the first paragraphs of the [PDGs statistics review](https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf) for more information on these two frameworks
 
 In this framework, each auxiliary term represents the likelihood of some parameter, $\nu$, given some previous observation $y$; the quantity $y$ is sometimes referred to as a "global observable".
 
@@ -113,7 +113,7 @@ In principle the form of the likelihood can be any function where the correspond
 In practice, most of the auxiliary terms are gaussian, and the definition of $\nu$ is chosen such that the central observation $y = 0$ , and the width of the gaussian is one.
 
 Note that on its own, the form of the auxiliary term is not meaningful; what is meaningful is the relationship between the auxiliary term and how the model expectation is altered by the parameter.
-Any co-ordinate transformation of the parameter values can be absorbed into the definition of the parameter. 
+Any co-ordinate transformation of the parameter values can be absorbed into the definition of the parameter.
 A reparameterization would change the mathematical form of the auxiliary term, but would also simultaneously change how the model depends on the parameter in such a way that the total likelihood is unchanged.
 e.g. if you define  $\nu = \sigma(tt)$ or $\nu = \sigma(tt) - \sigma_0$ you will change the form of the constraint term, but the you will not change the overall likelihood.
 
@@ -127,12 +127,12 @@ Combine builds on the generic forms of the likelihood for counting experiments g
 Binned likelihood models can be defined by the user by providing simple inputs such as a set of histograms and systematic uncertainties.
 These likelihood models are referred to as template-based because they rely heavily on histograms as templates for building the full likelihood function.
 
-Here, we describe the details of the mathematical form of these likelihoods. 
+Here, we describe the details of the mathematical form of these likelihoods.
 As already mentioned, the likelihood can be written as a product of two parts:
 
-$$ \mathcal{L} =  \mathcal{L}_\mathrm{primary} \cdot \mathcal{L}_\mathrm{auxiliary} = \prod_{c=1}^{N_c} \prod_{b=1}^{N_b^c} \mathrm{Poiss}(n_{cb}; n^\mathrm{exp}_{cb}(\vec{\mu},\vec{\nu})) \prod_{e=1}^{N_E} p_e(y_e ; \nu_e) $$
+$$ \mathcal{L} =  \mathcal{L}_\mathrm{primary} \cdot \mathcal{L}_\mathrm{auxiliary} = \prod_{c=1}^{N_c} \prod_{b=1}^{N_b^c} \mathrm{Poiss}(n_{cb}; n^\mathrm{exp}_{cb}(\vec{\mu},\vec{\nu})) \cdot \prod_{e=1}^{N_E}  p_e(y_e ; \nu_e) $$
 
-Where $c$ indexes the channel, $b$ indexes the histogram bin, and $e$ indexes the nuisance parameter. 
+Where $c$ indexes the channel, $b$ indexes the histogram bin, and $e$ indexes the nuisance parameter.
 
 
 #### Model of expected event counts per bin
@@ -141,9 +141,9 @@ The generic model of the expected event count in a given bin, $n^\mathrm{exp}_{c
 
 $$n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\nu_G, \vec{\nu}_L,\vec{\nu}_S,\vec{\nu}_{\rho})\omega_{cbp}(\vec{\nu}_S) + E_{cb}(\vec{\nu}_B) ) $$
 
-where here: 
+where here:
 
-- $p$ indexes the processes contributing to the channel; 
+- $p$ indexes the processes contributing to the channel;
 - $\nu_{G}, \vec{\nu}_L, \vec{\nu}_S, \vec{\nu}_{\rho}$ and $\vec{\nu}_B$ are different types of nuisance parameters which modify the processes with different functional forms;
     - $\nu_{G}$ is a gamma nuisances,
     - $\vec{\nu}_{L}$ are log-normal nuisances,
@@ -161,19 +161,19 @@ where here:
 The function $M$ can take on custom functional forms, as [defined by the user](../../part2/physicsmodels/#model-building), but in the most common case, the parameter of interest $\mu$ simply scales the contributions from signal processes:
 
 $$\label{eq:sig_param}
-M_{cp}(\mu) = \begin{cases} 
+M_{cp}(\mu) = \begin{cases}
     \mu  &\mathrm{if\ } p \in \mathrm{signal} \\
     1    &\mathrm{otherwise} \end{cases}
 $$
 
-However, combine supports many more models beyond this. 
+However, combine supports many more models beyond this.
 As well as built-in support for models with [multiple parameters of interest](../../part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes), combine comes with many pre-defined models which go beyond simple process normalization, which are targetted at various types of searches and measurements.
 
 #### Normalization Effects
 
-The overall normalization $N$ is affected differently by the different types of nuisances parameters, and takes the general form 
+The overall normalization $N$ is affected differently by the different types of nuisances parameters, and takes the general form
 
-$$N = \prod_X \prod_i f_X(\vec{\nu}_{X}^{i})\mathrm{,}$$ 
+$$N = \prod_X \prod_i f_X(\vec{\nu}_{X}^{i})\mathrm{,}$$
 
 With $X$ identifying a given nuisance parameter type; i.e. $N$ multiplies together the morphings from each of the individual nuisance parameters from each of the nuisance types.
 
@@ -191,7 +191,7 @@ where:
 - $\kappa^{\mathrm{A}}_{a}(\nu_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})^{\nu_{L(S)}^{a}}$ are asymmetric log-normal uncertainties, in which the value of $\kappa^{\mathrm{A}}$ depends on the nuisance parameter and two fixed values $\kappa^{+}_{a}$ and $\kappa^{-}_{a}$. The functions, $\kappa^A$, define a smooth interpolation for the asymmetric uncertainty; and
 - $F_{r}(\vec{\nu}_\rho)$ are user-defined functions of the user defined nuisance parameters which may have uniform or gaussian constraint terms.
 
-The function for the asymmetric normalization modifier, $\kappa^A$ is 
+The function for the asymmetric normalization modifier, $\kappa^A$ is
 
 $$
     \kappa^{\mathrm{A}}(\nu,\kappa^{+}, \kappa^{-}) =
@@ -215,7 +215,7 @@ where $\omega_{b}^{s,\pm}$ is the bin yield as defined by the two shifted values
 
 #### Shape Morphing Effects
 
-The number of events in a given bin $b$, $\omega_{cbp}$, is a function of the shape parameters $\vec{\nu}_{S}$. 
+The number of events in a given bin $b$, $\omega_{cbp}$, is a function of the shape parameters $\vec{\nu}_{S}$.
 The shape interpolation works with the fractional yields in each bin, where the interpolation can be performed either directly on the fractional yield, or on the logarithm of the fraction yield, which is then exponentiated again.
 
 
@@ -227,7 +227,7 @@ In the following, the channel and process labels $c$ and $p$ apply to every term
 The fixed nominal number of events is denoted $\omega_{b}^{0}$.
 For each applicable shape uncertainty $s$, two additional predictions are specified, $\omega_{b}^{s,+}$ and $\omega_{b}^{s,-}$, typically corresponding to the $+1\sigma$ and $-1\sigma$ variations, respectively.
 These may change both the shape and normalization of the process.
-The two effects are separated; the shape transformation is constructed in terms of the fractional event counts in the templates via a smooth vertical interpolation, and the normalization is treated as an asymmetric log-normal uncertainty, as described above in the description of the $N$ term in the likelihood. 
+The two effects are separated; the shape transformation is constructed in terms of the fractional event counts in the templates via a smooth vertical interpolation, and the normalization is treated as an asymmetric log-normal uncertainty, as described above in the description of the $N$ term in the likelihood.
 
 For a given process, the shape may be interpolated either directly in terms of the fractional bin yields, $f_b = \omega_b / \sum \omega_{b}$ or their logarithms, $\ln(f_b)$. The transformed yield is then given as, respectively,
 
@@ -239,13 +239,13 @@ $$
 \end{cases}
 $$
 
-where $\omega^{0} = \sum \omega_{b}^{0}$, $\delta^{\pm} = f^{\pm}_{i} - f^{0}_{i}$, and $\Delta^{\pm} = \ln(\frac{f^{\pm}_{i}}{f^{0}_{i}})$. 
+where $\omega^{0} = \sum \omega_{b}^{0}$, $\delta^{\pm} = f^{\pm}_{i} - f^{0}_{i}$, and $\Delta^{\pm} = \ln\left(\frac{f^{\pm}_{i}}{f^{0}_{i}}\right)$.
 
 
 The smooth interpolating function $F$, defined below, depends on a set of coefficients, $\epsilon_{s}$. These are assumed to be unity by default, but may be set to different values, for example if the $\omega_{b}^{s,\pm}$ correspond to the $\pm X\sigma$ variations, then $\epsilon_{s} = 1/X$ is typically set. The minimum value of $\epsilon$ over the shape uncertainties for a given process is  $q = \min({{\epsilon_{s}}})$. The function ${F}$ is then defined as
 
 $$
-F(\nu, \delta^{+}, \delta^{-}, \epsilon) = 
+F(\nu, \delta^{+}, \delta^{-}, \epsilon) =
 \begin{cases}
 \frac{1}{2}\nu^{'} \left( (\delta^{+}-\delta^{-}) + \frac{1}{8}(\delta^{+}+\delta^{-})(3\bar{\nu}^5 - 10\bar{\nu}^3 + 15\bar{\nu}) \right), & \text{for } -q < \nu' < q; \\
 \nu^{'}\delta^{+}, & \text{for } \nu' \ge q;\\
@@ -286,7 +286,7 @@ where the indices $\alpha$ and $\beta$ runs over the Poisson- and Gaussian-const
 #### Customizing the form of the expected event counts
 
 Although the above likelihood defines some specific functional forms, users are also able to implement [custom functional forms for $M$](../../part2/physicsmodels/#model-building), [ $N$](../../part2/settinguptheanalysis/#rate-parameters), and [ $\omega_{cbp}$](../../part3/nonstandard/#rooparametrichist-gamman-for-shapes).
-In practice, this makes the functional form much more general than the default forms used above. 
+In practice, this makes the functional form much more general than the default forms used above.
 
 However, some constraints do exist, such as the requirement that bin contents be positive, and that the function $M$ only depends on $\vec{\mu}$, whereas $N$, and $\omega_{cbp}$ only depend on $\vec{\nu}$.
 
@@ -294,8 +294,8 @@ However, some constraints do exist, such as the requirement that bin contents be
 
 The auxiliary constraint terms implemented in combine are Gaussian, Poisson or Uniform:
 
-$$ 
-p_{e} \propto \exp{(-0.5 (\frac{(\nu_{e} - y_{e})}{\sigma})^2 )}\mathrm{;} \\
+$$
+p_{e} \propto \exp{\left(-0.5 \left(\frac{(\nu_{e} - y_{e})}{\sigma}\right)^2 \right)}\mathrm{;} \\
 p_{e} = \mathrm{Poiss}( \nu_{e}; y_{e} ) \mathrm{;\ or} \\
 p_{e} \propto \mathrm{constant\ (on\ some\ interval\ [a,b])}.
 $$
@@ -311,7 +311,7 @@ While combine does not provide functionality for user-defined auxiliary pdfs, th
 
 ### Overview of the template-based likelihood model in Combine
 
-An overview of the binned likelihood model built by combine is given below. 
+An overview of the binned likelihood model built by combine is given below.
 Note that $M_{cp}$ can be chosen by the user from a set of predefined models, or defined by the user themselves.
 
 ![](CombineLikelihoodEqns.png)
@@ -327,7 +327,7 @@ They can still, also, be used for analysis on [binned data](../../part2/settingu
 
 The unbinned model implemented in combine is given by:
 
-$$ \mathcal{L} = \mathcal{L}_\mathrm{primary} \cdot \mathcal{L}_\mathrm{auxiliary} = \prod_c \mathrm{Poiss}(n_{c,\mathrm{tot}}^{\mathrm{obs}} ; n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\nu})) \left(\prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i ; \vec{\mu}, \vec{\nu} )\right) \prod_e p_e( y_e ; \nu_e) $$
+$$ \mathcal{L} = \mathcal{L}_\mathrm{primary} \cdot \mathcal{L}_\mathrm{auxiliary}  = \\ \left(\prod_c \mathrm{Poiss}(n_{c,\mathrm{tot}}^{\mathrm{obs}} ; n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\nu})) \prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i ; \vec{\mu}, \vec{\nu} ) \right) \cdot \prod_e p_e( y_e ; \nu_e) $$
 
 where $c$ indexes the channel, $p$ indexes the process, and $e$ indexes the nuisance parameter.
 
@@ -365,8 +365,8 @@ and $N$ is defined as in the template-based case, except that there are no $\vec
 
 $$ N_{cp} = N_{\mathrm{0}}(\nu_{G})\prod_{n} {\kappa_{n}}^{\nu_{L,n}}\prod_{a} {\kappa^{\mathrm{A}}_{a}(\nu_{L}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})}^{\nu_{L}^{a}} \prod_{r}F_{r}(\nu_\rho) $$
 
-The function $F_{r}$ is any user-defined mathematical expression. 
-The functions $\kappa(\nu,\kappa^+,\kappa^-)$ are defined to create smooth asymmetric log-normal uncertainties. 
+The function $F_{r}$ is any user-defined mathematical expression.
+The functions $\kappa(\nu,\kappa^+,\kappa^-)$ are defined to create smooth asymmetric log-normal uncertainties.
 The details of the interpolations which are used are found in the section on [normalization effects in the binned model](#normalization-effects).
 
 ///
@@ -383,12 +383,12 @@ The user may define any number of nuisance parameters which morph the shape of t
 These nuisance parameters are included as $\vec{\nu}_\rho$ uncertainties, which may have gaussian or uniform constraints, and include user-defined process normalization effects.
 
 
-### Combining template-based and parametric Likelihoods 
+### Combining template-based and parametric Likelihoods
 
 While we presented the likelihoods for the template and parameteric models separately, they can also be combined into a single likelihood, by treating them each as separate channels.
 When combining the models, the data likelihoods of the binned and unbinned channels are multiplied.
 
-$$ \mathcal{L}_{\mathrm{combined}} = \mathcal{L}_{\mathrm{primary}} \cdot \mathcal{L}_\mathrm{auxiliary} =  (\prod_{c_\mathrm{template}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{template}}) (\prod_{c_\mathrm{parametric}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{parametric}}) \mathcal{L}_{\mathrm{auxiliary}} $$
+$$ \mathcal{L}_{\mathrm{combined}} = \mathcal{L}_{\mathrm{primary}} \cdot \mathcal{L}_\mathrm{auxiliary} =  \left(\prod_{c_\mathrm{template}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{template}}\right) \left(\prod_{c_\mathrm{parametric}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{parametric}}\right)\cdot \mathcal{L}_{\mathrm{auxiliary}} $$
 
 # References and External Literature
 
