@@ -210,7 +210,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         workingMode_ = MakeLimit;
     }
     saveHybridResult_ = vm.count("saveHybridResult");
-    readHybridResults_ = ( vm.count("readHybridResults") || vm.count("grid") || vm.count("toysFile") );
+    readHybridResults_ = ( vm.count("readHybridResults") || vm.count("grid") );
     if (readHybridResults_ && !(vm.count("toysFile") || vm.count("grid")))     throw std::invalid_argument("HybridNew: must have 'toysFile' or 'grid' option to have 'readHybridResults'\n");
     mass_ = vm["mass"].as<float>();
     fullGrid_ = vm.count("fullGrid");
