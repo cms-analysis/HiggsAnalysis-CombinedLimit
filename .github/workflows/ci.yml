@@ -83,7 +83,6 @@ jobs:
         ls -l data/tutorials/shapes/simple-shapes-TH1.root
         text2workspace.py data/tutorials/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.LHCHCGModels:K3 -m 125
         ls -l data/tutorials/multiDim/toy-hgg-125.root
-        combine -M Significance tests/hzz4l_datacard.txt
         combine data/tutorials/CAT23001/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
         combine data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 100000 --mass 125
         combine data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M Significance --mass 125
