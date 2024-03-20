@@ -69,7 +69,11 @@ jobs:
       if: startsWith(matrix.python, '3.')
       shell: bash -l {0}
       run: |
-        cd HiggsAnalysis/CombinedLimit/test
+        export CMSSW_BASE=${PWD}
+        mkdir src
+        cd src
+        ln -s ../HiggsAnalysis
+        cd ../HiggsAnalysis/CombinedLimit/test
         python test_interference.py
         cd ..
         text2workspace.py --help
