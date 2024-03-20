@@ -88,5 +88,5 @@ jobs:
         combine data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M Significance --mass 125
         combine data/tutorials/CAT23001/datacard-1-counting-experiment.txt -M MarkovChainMC --tries 100
         text2workspace.py data/tutorials/CAT23001/datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125
-        combine data/tutorials/CAT23001/datacard-5-multi-signal.root -M MultiDimFit --algo singles --mass 125
+        combine datacard-5-multi-signal.root -M MultiDimFit --algo singles --mass 125
         combine data/tutorials/CAT23001/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125
