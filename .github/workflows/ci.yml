@@ -71,3 +71,19 @@ jobs:
       run: |
         cd HiggsAnalysis/CombinedLimit/test
         python test_interference.py
+        cd ..
+        text2workspace.py --help
+        text2workspace.py data/tutorials/counting/simple-counting-experiment.txt
+        ls -l data/tutorials/counting/simple-counting-experiment.root
+        text2workspace.py data/tutorials/shapes/simple-shapes-TH1.txt
+        ls -l data/tutorials/shapes/simple-shapes-TH1.root
+        text2workspace.py data/tutorials/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.LHCHCGModels:K3 -m 125
+        ls -l data/tutorials/multiDim/toy-hgg-125.root
+        combine -M Significance tests/hzz4l_datacard.txt
+        combine data/tutorials/CAT23001/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
+        combine data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 100000 --mass 125
+        combine data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M Significance --mass 125
+        combine data/tutorials/CAT23001/datacard-1-counting-experiment.txt -M MarkovChainMC --tries 100
+        text2workspace.py data/tutorials/CAT23001/datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125
+        combine data/tutorials/CAT23001/datacard-5-multi-signal.root -M MultiDimFit --algo singles --mass 125
+        combine data/tutorials/CAT23001/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125
