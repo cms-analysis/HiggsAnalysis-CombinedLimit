@@ -851,13 +851,13 @@ As usual, any *floating* nuisance parameters will be *profiled*. This behaviour 
 
 For most of the methods, for lower-precision results you can turn off the profiling of the nuisance parameters by using the option `--fastScan`, which for complex models speeds up the process by several orders of magnitude. **All** nuisance parameters will be kept fixed at the value corresponding to the best fit point.
 
-As an example, let's produce the $-2\Delta\ln{\mathcal{L}}$ scan as a function of **`r_ggH`** and **`r_qqH`** from the toy $H\rightarrow\gamma\gamma$ datacard.
+As an example, let's produce the $-2\Delta\ln{\mathcal{L}}$ scan as a function of **`r_ggH`** and **`r_qqH`** from the toy $H\rightarrow\gamma\gamma$ datacard. The command below should be pretty fast, as the statistical model is quite simple,
 
 ```sh
-combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2000 --setParameterRanges r_qqH=0,12:r_ggH=-1,4 -m 125
+combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2500 --setParameterRanges r_qqH=0,12:r_ggH=-1,4 -m 125
 ```
 
-The scan, along with the best fit point can be drawn using ROOT using something like the script below,
+The scan, along with the best fit point and $1\sigma$ CL contour can be drawn using ROOT using something like the script below,
 
 /// details | **Show script**
 <pre class="c++"><code>
@@ -868,7 +868,7 @@ void plot2D_LHScan(){
 
   // create histogram representing -2Delta Log(L)
   TCanvas *can = new TCanvas("c","c",600,540);
-  limit->Draw("2*deltaNLL:r_qqH:r_ggH>>h(44,-1,4,44,0,12)","2*deltaNLL<50","prof colz");
+  limit->Draw("2*deltaNLL:r_qqH:r_ggH>>h(50,-1,4,50,0,12)","2*deltaNLL<50","prof colz");
   TH2F *g2NLL = (TH2F*)gROOT->FindObject("h");
 
   g2NLL->SetName("g2NLL");
