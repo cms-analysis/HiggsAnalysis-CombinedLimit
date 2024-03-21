@@ -1421,22 +1421,16 @@ In bayesian frameworks, usually <a href="https://pdg.lbl.gov/2022/web/viewer.htm
 <h2 id="fitting-frameworks">Fitting Frameworks</h2>
 <p>Likelihood fits typically either follow a frequentist framework of maximum likelihood estimation, or a bayesian framework of updating estimates to find posterior distributions given the data.</p>
 <h3 id="maximum-likelihood-fits">Maximum Likelihood fits</h3>
-<p>A <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2">maximum likelihood fit</a> means finding the values of the model parameters <span class="arithmatex"><span class="MathJax_Preview">(\vec{\mu}, \vec{\nu})</span><script type="math/tex">(\vec{\mu}, \vec{\nu})</script></span> which maximize the likelihood, <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}(\vec{\mu},\vec{\nu})</span><script type="math/tex">\mathcal{L}(\vec{\mu},\vec{\nu})</script></span>
-The values which maximize the likelihood, are the parameter estimates, denoted with a "hat" (<span class="arithmatex"><span class="MathJax_Preview">\hat{}</span><script type="math/tex">\hat{}</script></span>):</p>
-<div class="arithmatex">
-<div class="MathJax_Preview">(\vec{\hat{\mu}}, \vec{\hat{\nu}}) \equiv \underset{\vec{\mu},\vec{\nu}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\nu})</div>
-<script type="math/tex; mode=display">(\vec{\hat{\mu}}, \vec{\hat{\nu}}) \equiv \underset{\vec{\mu},\vec{\nu}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\nu})</script>
-</div>
+<p>A <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2">maximum likelihood fit</a> means finding the values of the model parameters <span class="arithmatex">\((\vec{\mu}, \vec{\nu})\)</span> which maximize the likelihood, <span class="arithmatex">\(\mathcal{L}(\vec{\mu},\vec{\nu})\)</span>
+The values which maximize the likelihood, are the parameter estimates, denoted with a "hat" (<span class="arithmatex">\(\hat{}\)</span>):</p>
+<div class="arithmatex">\[(\vec{\hat{\mu}}, \vec{\hat{\nu}}) \equiv \underset{\vec{\mu},\vec{\nu}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\nu})\]</div>
 <p>These values provide <strong>point estimates</strong> for the parameter values.</p>
 <p>Because the likelihood is equal to the probability of observing the data given the model, the maximum likelihood estimate finds the parameter values for which the data is most probable.</p>
 <h3 id="bayesian-posterior-calculation">Bayesian Posterior Calculation</h3>
 <p>In a bayesian framework, the likelihood represents the probability of observing the data given the model and some prior probability distribution over the model parameters.</p>
-<p>The prior probability of the parameters, <span class="arithmatex"><span class="MathJax_Preview">\pi(\vec{\Phi})</span><script type="math/tex">\pi(\vec{\Phi})</script></span>, are updated based on the data to provide a <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6">posterior distributions</a></p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{\int p(\mathrm{data};\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' } = \frac{ \mathcal{L}(\vec{\Phi}) \pi(\vec{\Phi}) }{ \int \mathcal{L}(\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' }</div>
-<script type="math/tex; mode=display"> p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{\int p(\mathrm{data};\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' } = \frac{ \mathcal{L}(\vec{\Phi}) \pi(\vec{\Phi}) }{ \int \mathcal{L}(\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' }</script>
-</div>
-<p>The posterior distribution <span class="arithmatex"><span class="MathJax_Preview">p(\vec{\Phi};\mathrm{data})</span><script type="math/tex">p(\vec{\Phi};\mathrm{data})</script></span> defines the updated belief about the parameters <span class="arithmatex"><span class="MathJax_Preview">\vec{\Phi}</span><script type="math/tex">\vec{\Phi}</script></span>.</p>
+<p>The prior probability of the parameters, <span class="arithmatex">\(\pi(\vec{\Phi})\)</span>, are updated based on the data to provide a <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6">posterior distributions</a></p>
+<div class="arithmatex">\[ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{\int p(\mathrm{data};\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' } = \frac{ \mathcal{L}(\vec{\Phi}) \pi(\vec{\Phi}) }{ \int \mathcal{L}(\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' }\]</div>
+<p>The posterior distribution <span class="arithmatex">\(p(\vec{\Phi};\mathrm{data})\)</span> defines the updated belief about the parameters <span class="arithmatex">\(\vec{\Phi}\)</span>.</p>
 <h2 id="methods-for-considering-subsets-of-models">Methods for considering subsets of models</h2>
 <p>Often, one is interested in some particular aspect of a model.
 This may be for example information related to the parameters of interest, but not the nuisance parameters.
@@ -1444,99 +1438,69 @@ In this case, one needs a method for specifying precisely what is meant by a mod
 <p>There are several methods for considering sub models which each have their own interpretations and use cases.</p>
 <h3 id="conditioning">Conditioning</h3>
 <p>Conditional Sub-models can be made by simply restricting the values of some parameters.
-The conditional likelihood of the parameters <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> conditioned on particular values of the parameters <span class="arithmatex"><span class="MathJax_Preview">\vec{\nu}</span><script type="math/tex">\vec{\nu}</script></span> is:</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{conditioned\ on\ } \vec{\nu} = \vec{\nu}_0} \mathcal{L}(\vec{\mu}) = \mathcal{L}(\vec{\mu},\vec{\nu}_0) </div>
-<script type="math/tex; mode=display"> \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{conditioned\ on\ } \vec{\nu} = \vec{\nu}_0} \mathcal{L}(\vec{\mu}) = \mathcal{L}(\vec{\mu},\vec{\nu}_0) </script>
-</div>
+The conditional likelihood of the parameters <span class="arithmatex">\(\vec{\mu}\)</span> conditioned on particular values of the parameters <span class="arithmatex">\(\vec{\nu}\)</span> is:</p>
+<div class="arithmatex">\[ \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{conditioned\ on\ } \vec{\nu} = \vec{\nu}_0} \mathcal{L}(\vec{\mu}) = \mathcal{L}(\vec{\mu},\vec{\nu}_0) \]</div>
 <h3 id="profiling">Profiling</h3>
-<p>The profiled likelihood <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}(\vec{\mu})</span><script type="math/tex">\mathcal{L}(\vec{\mu})</script></span> is defined from the full likelihood, <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}(\vec{\mu},\vec{\nu})</span><script type="math/tex">\mathcal{L}(\vec{\mu},\vec{\nu})</script></span>, such that for every point <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> it is equal to the full likelihood at <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> maximized over <span class="arithmatex"><span class="MathJax_Preview">\vec{\nu}</span><script type="math/tex">\vec{\nu}</script></span>.</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{profiling\ } \vec{\nu}} \mathcal{L}({\vec{\mu}}) = \max_{\vec{\nu}} \mathcal{L}(\vec{\mu},\vec{\nu})</div>
-<script type="math/tex; mode=display"> \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{profiling\ } \vec{\nu}} \mathcal{L}({\vec{\mu}}) = \max_{\vec{\nu}} \mathcal{L}(\vec{\mu},\vec{\nu})</script>
-</div>
-<p>In some sense, the profiled likelihood is the best estimate of the likelihood at every point <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span>, it is sometimes also denoted with a double hat notation <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}(\vec{\mu},\vec{\hat{\hat{\nu}}}(\vec{\mu}))</span><script type="math/tex">\mathcal{L}(\vec{\mu},\vec{\hat{\hat{\nu}}}(\vec{\mu}))</script></span>.</p>
+<p>The profiled likelihood <span class="arithmatex">\(\mathcal{L}(\vec{\mu})\)</span> is defined from the full likelihood, <span class="arithmatex">\(\mathcal{L}(\vec{\mu},\vec{\nu})\)</span>, such that for every point <span class="arithmatex">\(\vec{\mu}\)</span> it is equal to the full likelihood at <span class="arithmatex">\(\vec{\mu}\)</span> maximized over <span class="arithmatex">\(\vec{\nu}\)</span>.</p>
+<div class="arithmatex">\[ \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{profiling\ } \vec{\nu}} \mathcal{L}({\vec{\mu}}) = \max_{\vec{\nu}} \mathcal{L}(\vec{\mu},\vec{\nu})\]</div>
+<p>In some sense, the profiled likelihood is the best estimate of the likelihood at every point <span class="arithmatex">\(\vec{\mu}\)</span>, it is sometimes also denoted with a double hat notation <span class="arithmatex">\(\mathcal{L}(\vec{\mu},\vec{\hat{\hat{\nu}}}(\vec{\mu}))\)</span>.</p>
 <h3 id="marginalization">Marginalization</h3>
-<p>Marginalization is a procedure for producing a probability distribution <span class="arithmatex"><span class="MathJax_Preview">p(\vec{\mu};\mathrm{data})</span><script type="math/tex">p(\vec{\mu};\mathrm{data})</script></span> for a set of parameters <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span>, which are only a subset of the parameters in the full distribution <span class="arithmatex"><span class="MathJax_Preview">p(\vec{\mu},\vec{\nu};\mathrm{data})</span><script type="math/tex">p(\vec{\mu},\vec{\nu};\mathrm{data})</script></span>.
-The marginal probability density <span class="arithmatex"><span class="MathJax_Preview">p(\vec{\mu})</span><script type="math/tex">p(\vec{\mu})</script></span> is defined such that for every point <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> it is equal to the probability at <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> integrated over <span class="arithmatex"><span class="MathJax_Preview">\vec{\nu}</span><script type="math/tex">\vec{\nu}</script></span>.</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> p(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{marginalizing\ } \vec{\nu}} p({\vec{\mu}}) = \int_{\vec{\nu}} p(\vec{\mu},\vec{\nu})</div>
-<script type="math/tex; mode=display"> p(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{marginalizing\ } \vec{\nu}} p({\vec{\mu}}) = \int_{\vec{\nu}} p(\vec{\mu},\vec{\nu})</script>
-</div>
-<p>The marginalized probability <span class="arithmatex"><span class="MathJax_Preview">p(\vec{\mu})</span><script type="math/tex">p(\vec{\mu})</script></span> is the probability for the parameter values <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> taking into account all possible values of <span class="arithmatex"><span class="MathJax_Preview">\vec{\nu}</span><script type="math/tex">\vec{\nu}</script></span>.</p>
+<p>Marginalization is a procedure for producing a probability distribution <span class="arithmatex">\(p(\vec{\mu};\mathrm{data})\)</span> for a set of parameters <span class="arithmatex">\(\vec{\mu}\)</span>, which are only a subset of the parameters in the full distribution <span class="arithmatex">\(p(\vec{\mu},\vec{\nu};\mathrm{data})\)</span>.
+The marginal probability density <span class="arithmatex">\(p(\vec{\mu})\)</span> is defined such that for every point <span class="arithmatex">\(\vec{\mu}\)</span> it is equal to the probability at <span class="arithmatex">\(\vec{\mu}\)</span> integrated over <span class="arithmatex">\(\vec{\nu}\)</span>.</p>
+<div class="arithmatex">\[ p(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{marginalizing\ } \vec{\nu}} p({\vec{\mu}}) = \int_{\vec{\nu}} p(\vec{\mu},\vec{\nu})\]</div>
+<p>The marginalized probability <span class="arithmatex">\(p(\vec{\mu})\)</span> is the probability for the parameter values <span class="arithmatex">\(\vec{\mu}\)</span> taking into account all possible values of <span class="arithmatex">\(\vec{\nu}\)</span>.</p>
 <p>Marginalized likelihoods can also be defined, by their relationship to the probability distributions.</p>
 <h2 id="parameter-uncertainties">Parameter Uncertainties</h2>
 <p>Parameter uncertainties describe regions of parameter values which are considered reasonable parameter values, rather than single estimates.
 These can be defined either in terms of frequentist <strong>confidence regions</strong> or bayesian <strong>credibility regions</strong>.</p>
-<p>In both cases the region is defined by a confidence or credibility level <span class="arithmatex"><span class="MathJax_Preview">CL</span><script type="math/tex">CL</script></span>, which quantifies the meaning of the region.
-For frequentist confidence regions, the confidence level <span class="arithmatex"><span class="MathJax_Preview">CL</span><script type="math/tex">CL</script></span> describes how often the confidence region will contain the true parameter values if the model is a sufficiently accurate approximation of the truth.
-For bayesian credibility regions, the credibility level <span class="arithmatex"><span class="MathJax_Preview">CL</span><script type="math/tex">CL</script></span> describes the bayesian probability that the true parameter value is in that region for under the given model.</p>
-<p>The confidence or credibility regions are described by a set of points <span class="arithmatex"><span class="MathJax_Preview">\{ \vec{\mu} \}_{\mathrm{CL}}</span><script type="math/tex">\{ \vec{\mu} \}_{\mathrm{CL}}</script></span> which meet some criteria.
-In most situations of interest, the credibility region or confidence region for a single parameter, <span class="arithmatex"><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span>, is effectively described by an interval:</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> \{ \mu \}_{\mathrm{CL}} = [ \mu^{-}_{\mathrm{CL}}, \mu^{+}_{\mathrm{CL}} ] </div>
-<script type="math/tex; mode=display"> \{ \mu \}_{\mathrm{CL}} = [ \mu^{-}_{\mathrm{CL}}, \mu^{+}_{\mathrm{CL}} ] </script>
-</div>
+<p>In both cases the region is defined by a confidence or credibility level <span class="arithmatex">\(CL\)</span>, which quantifies the meaning of the region.
+For frequentist confidence regions, the confidence level <span class="arithmatex">\(CL\)</span> describes how often the confidence region will contain the true parameter values if the model is a sufficiently accurate approximation of the truth.
+For bayesian credibility regions, the credibility level <span class="arithmatex">\(CL\)</span> describes the bayesian probability that the true parameter value is in that region for under the given model.</p>
+<p>The confidence or credibility regions are described by a set of points <span class="arithmatex">\(\{ \vec{\mu} \}_{\mathrm{CL}}\)</span> which meet some criteria.
+In most situations of interest, the credibility region or confidence region for a single parameter, <span class="arithmatex">\(\mu\)</span>, is effectively described by an interval:</p>
+<div class="arithmatex">\[ \{ \mu \}_{\mathrm{CL}} = [ \mu^{-}_{\mathrm{CL}}, \mu^{+}_{\mathrm{CL}} ] \]</div>
 <p>Typically indicated as:</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> \mu = X^{+\mathrm{up}}_{-\mathrm{down}} </div>
-<script type="math/tex; mode=display"> \mu = X^{+\mathrm{up}}_{-\mathrm{down}} </script>
-</div>
+<div class="arithmatex">\[ \mu = X^{+\mathrm{up}}_{-\mathrm{down}} \]</div>
 <p>or, if symmetric intervals are used:</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> \mu = X \pm \mathrm{unc.} </div>
-<script type="math/tex; mode=display"> \mu = X \pm \mathrm{unc.} </script>
-</div>
+<div class="arithmatex">\[ \mu = X \pm \mathrm{unc.} \]</div>
 <h3 id="frequentist-confidence-regions">Frequentist Confidence Regions</h3>
 <p>Frequentist confidence regions are random variables of the observed data.
 These are very often the construction used to define the uncertainties reported on a parameter.</p>
-<p>If the same experiment is repeated multiple times, different data will be osbserved each time and a different confidence set <span class="arithmatex"><span class="MathJax_Preview">\{ \vec{\mu}\}_{\mathrm{CL}}^{i}</span><script type="math/tex">\{ \vec{\mu}\}_{\mathrm{CL}}^{i}</script></span> will be found for each experiment.
-If the data are generated by the model with some set of values <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}_{\mathrm{gen}}</span><script type="math/tex">\vec{\mu}_{\mathrm{gen}}</script></span>, then the fraction of the regions <span class="arithmatex"><span class="MathJax_Preview">\{ \vec{\mu}\}_{\mathrm{CL}}^{i}</span><script type="math/tex">\{ \vec{\mu}\}_{\mathrm{CL}}^{i}</script></span> which contain the values <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}_{\mathrm{gen}}</span><script type="math/tex">\vec{\mu}_{\mathrm{gen}}</script></span> will be equal to the confidence level <span class="arithmatex"><span class="MathJax_Preview">{\mathrm{CL}}</span><script type="math/tex">{\mathrm{CL}}</script></span>.
+<p>If the same experiment is repeated multiple times, different data will be osbserved each time and a different confidence set <span class="arithmatex">\(\{ \vec{\mu}\}_{\mathrm{CL}}^{i}\)</span> will be found for each experiment.
+If the data are generated by the model with some set of values <span class="arithmatex">\(\vec{\mu}_{\mathrm{gen}}\)</span>, then the fraction of the regions <span class="arithmatex">\(\{ \vec{\mu}\}_{\mathrm{CL}}^{i}\)</span> which contain the values <span class="arithmatex">\(\vec{\mu}_{\mathrm{gen}}\)</span> will be equal to the confidence level <span class="arithmatex">\({\mathrm{CL}}\)</span>.
 The fraction of intervals which contain the generating parameter value is referred to as the "coverage".</p>
 <p>From first principles, the intervals can be constructed using the <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsubsection.40.4.2.1">Neyman construction</a>.</p>
-<p>In practice, the likelihood can be used to construct confidence regions for a set of parameters <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> by using the profile likelikhood ratio:</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> \Lambda \equiv \frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})} </div>
-<script type="math/tex; mode=display"> \Lambda \equiv \frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})} </script>
-</div>
-<p>i.e. the ratio of the profile likelihood at point <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> to the maxmimum likelihood. For technical reasons, the negative logarithm of this quantity is typically used in practice.</p>
-<p>Each point <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> can be tested to see if it is in the confidence region, by checking the value of the likelihood ratio at that point and comparing it to the expected distribution if that point were the true generating value of the data.</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> \{ \vec{\mu} \}_{\mathrm{CL}} = \{ \vec{\mu} : -\log(\Lambda) \lt  \gamma_{\mathrm{CL}}(\vec{\mu}) \} </div>
-<script type="math/tex; mode=display"> \{ \vec{\mu} \}_{\mathrm{CL}} = \{ \vec{\mu} : -\log(\Lambda) \lt  \gamma_{\mathrm{CL}}(\vec{\mu}) \} </script>
-</div>
-<p>The cutoff value <span class="arithmatex"><span class="MathJax_Preview">\gamma_{\mathrm{CL}}</span><script type="math/tex">\gamma_{\mathrm{CL}}</script></span> must be chosen to match this desired coverage of the confidence set.</p>
-<p>Under some conditions, the value of <span class="arithmatex"><span class="MathJax_Preview">\gamma_{\mathrm{CL}}</span><script type="math/tex">\gamma_{\mathrm{CL}}</script></span> is known analytically for any desired confidence level, and is independent of <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span>, which greatly simplifies estimating confidence regions.</p>
+<p>In practice, the likelihood can be used to construct confidence regions for a set of parameters <span class="arithmatex">\(\vec{\mu}\)</span> by using the profile likelikhood ratio:</p>
+<div class="arithmatex">\[ \Lambda \equiv \frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})} \]</div>
+<p>i.e. the ratio of the profile likelihood at point <span class="arithmatex">\(\vec{\mu}\)</span> to the maxmimum likelihood. For technical reasons, the negative logarithm of this quantity is typically used in practice.</p>
+<p>Each point <span class="arithmatex">\(\vec{\mu}\)</span> can be tested to see if it is in the confidence region, by checking the value of the likelihood ratio at that point and comparing it to the expected distribution if that point were the true generating value of the data.</p>
+<div class="arithmatex">\[ \{ \vec{\mu} \}_{\mathrm{CL}} = \{ \vec{\mu} : -\log(\Lambda) \lt  \gamma_{\mathrm{CL}}(\vec{\mu}) \} \]</div>
+<p>The cutoff value <span class="arithmatex">\(\gamma_{\mathrm{CL}}\)</span> must be chosen to match this desired coverage of the confidence set.</p>
+<p>Under some conditions, the value of <span class="arithmatex">\(\gamma_{\mathrm{CL}}\)</span> is known analytically for any desired confidence level, and is independent of <span class="arithmatex">\(\vec{\mu}\)</span>, which greatly simplifies estimating confidence regions.</p>
 <details>
 <summary><strong>Constructing Frequentist Confidence Regions in Practice</strong></summary>
 <p>When a single fit is performed by some numerical minimization program and parameter values are reported along with some uncertainty values, they are usually reported as frequentist intervals.
 The <a href="https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf">MINUIT minimizer</a> which evaluates likelihood functions has two methods for <a href="https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#section.2.5">estimating parameter uncertainties</a>.</p>
 <p>These two methods are the most commonly used methods for estimating confidence regions in a fit; they are the <a href="https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#subsection.2.5.3"><strong>minos</strong> method</a>, and the <a href="https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#subsection.2.5.2"><strong>hessian</strong> method</a>.
-In both cases, Wilk's theorem is assumed to hold at all points in parameter space, such that <span class="arithmatex"><span class="MathJax_Preview">\gamma_{\mathrm{CL}}</span><script type="math/tex">\gamma_{\mathrm{CL}}</script></span> is independent of <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span>.</p>
-<p>When <span class="arithmatex"><span class="MathJax_Preview">\gamma_{\mathrm{CL}}</span><script type="math/tex">\gamma_{\mathrm{CL}}</script></span> is independent of <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span> the problem simplifies to finding the boundaries where <span class="arithmatex"><span class="MathJax_Preview">-\log(\Lambda) = \gamma_{\mathrm{CL}}</span><script type="math/tex">-\log(\Lambda) = \gamma_{\mathrm{CL}}</script></span>.
-This boundary point is referred to as the "crossing", i.e. where <span class="arithmatex"><span class="MathJax_Preview">-\log(\Lambda)</span><script type="math/tex">-\log(\Lambda)</script></span> crosses the threshold value.</p>
+In both cases, Wilk's theorem is assumed to hold at all points in parameter space, such that <span class="arithmatex">\(\gamma_{\mathrm{CL}}\)</span> is independent of <span class="arithmatex">\(\vec{\mu}\)</span>.</p>
+<p>When <span class="arithmatex">\(\gamma_{\mathrm{CL}}\)</span> is independent of <span class="arithmatex">\(\vec{\mu}\)</span> the problem simplifies to finding the boundaries where <span class="arithmatex">\(-\log(\Lambda) = \gamma_{\mathrm{CL}}\)</span>.
+This boundary point is referred to as the "crossing", i.e. where <span class="arithmatex">\(-\log(\Lambda)\)</span> crosses the threshold value.</p>
 <h4 id="the-minos-method-for-estimating-confidence-regions">The Minos method for estimating confidence regions</h4>
-<p>In the minos method, once the best fit point <span class="arithmatex"><span class="MathJax_Preview">\vec{\hat{\mu}}</span><script type="math/tex">\vec{\hat{\mu}}</script></span> is determined, the confidence region for any parameter <span class="arithmatex"><span class="MathJax_Preview">\mu_i</span><script type="math/tex">\mu_i</script></span> can be found by moving away from its best fit value <span class="arithmatex"><span class="MathJax_Preview">\hat{\mu}_i</span><script type="math/tex">\hat{\mu}_i</script></span>.
-At each value of <span class="arithmatex"><span class="MathJax_Preview">\mu_i</span><script type="math/tex">\mu_i</script></span>, the other parameters are profiled, and <span class="arithmatex"><span class="MathJax_Preview">-\log{\Lambda}</span><script type="math/tex">-\log{\Lambda}</script></span> is calculated.</p>
-<p>Following this procedure, <span class="arithmatex"><span class="MathJax_Preview">\mu_i</span><script type="math/tex">\mu_i</script></span> is searched for the boundary of the confidence regions, where <span class="arithmatex"><span class="MathJax_Preview">-\log{\Lambda} = \gamma_{\mathrm{CL}}</span><script type="math/tex">-\log{\Lambda} = \gamma_{\mathrm{CL}}</script></span>.</p>
+<p>In the minos method, once the best fit point <span class="arithmatex">\(\vec{\hat{\mu}}\)</span> is determined, the confidence region for any parameter <span class="arithmatex">\(\mu_i\)</span> can be found by moving away from its best fit value <span class="arithmatex">\(\hat{\mu}_i\)</span>.
+At each value of <span class="arithmatex">\(\mu_i\)</span>, the other parameters are profiled, and <span class="arithmatex">\(-\log{\Lambda}\)</span> is calculated.</p>
+<p>Following this procedure, <span class="arithmatex">\(\mu_i\)</span> is searched for the boundary of the confidence regions, where <span class="arithmatex">\(-\log{\Lambda} = \gamma_{\mathrm{CL}}\)</span>.</p>
 <p>The search is performed in both directions, away from the best fit value of the parameter and the two crossings are taken as the borders of the confidence region.</p>
-<p>This procedure has to be followed sepately for each parameter <span class="arithmatex"><span class="MathJax_Preview">\mu_i</span><script type="math/tex">\mu_i</script></span> for which a confidence interval is calculated.</p>
+<p>This procedure has to be followed sepately for each parameter <span class="arithmatex">\(\mu_i\)</span> for which a confidence interval is calculated.</p>
 <h4 id="the-hessian-method-for-estimating-confidence-regions">The Hessian method for estimating confidence regions</h4>
 <p>The Hessian method relies on the second derivatives (i.e. the <a href="https://en.wikipedia.org/wiki/Hessian_matrix">hessian</a>) of the likelihood at the best fit point.</p>
-<p>By assuming that the shape of the likelihood function is well described by its second-order approximation, the values at which <span class="arithmatex"><span class="MathJax_Preview">-\log(\Lambda) = \gamma_{\mathrm{CL}}</span><script type="math/tex">-\log(\Lambda) = \gamma_{\mathrm{CL}}</script></span> can be calculated analytically without the need for a seach</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> \mu_i^{\mathrm{crossing}} - \hat{\mu} \propto \left(\frac{\partial^2{\mathcal{L}(\vec{\hat{\mu}})}}{\partial\mu_i^2}\right)^{-2} </div>
-<script type="math/tex; mode=display"> \mu_i^{\mathrm{crossing}} - \hat{\mu} \propto \left(\frac{\partial^2{\mathcal{L}(\vec{\hat{\mu}})}}{\partial\mu_i^2}\right)^{-2} </script>
-</div>
+<p>By assuming that the shape of the likelihood function is well described by its second-order approximation, the values at which <span class="arithmatex">\(-\log(\Lambda) = \gamma_{\mathrm{CL}}\)</span> can be calculated analytically without the need for a seach</p>
+<div class="arithmatex">\[ \mu_i^{\mathrm{crossing}} - \hat{\mu} \propto \left(\frac{\partial^2{\mathcal{L}(\vec{\hat{\mu}})}}{\partial\mu_i^2}\right)^{-2} \]</div>
 <p>By computing and then inverting the full hessian matrix, all individual confidence regions and the full covariance matrix are determined.
 By construction, this method always reports symmetric confidence intervals, as it assumes that the likelihood is well described by a second order expansion.</p>
 </details>
 <h3 id="bayesian-credibility-regions">Bayesian Credibility Regions</h3>
 <p>Often the full posterior probability distribution is summarized in terms of some <strong>credible region</strong> which contains some specified portion of the posterior probability of the parameter.</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> \{ \vec{\mu} \}_{\mathrm{CL}} =  \{ \vec{\mu} : \vec{\mu} \in \Omega, \int_{\Omega} p(\vec{\mu};\mathrm{data}) = \mathrm{CL}  \}</div>
-<script type="math/tex; mode=display"> \{ \vec{\mu} \}_{\mathrm{CL}} =  \{ \vec{\mu} : \vec{\mu} \in \Omega, \int_{\Omega} p(\vec{\mu};\mathrm{data}) = \mathrm{CL}  \}</script>
-</div>
+<div class="arithmatex">\[ \{ \vec{\mu} \}_{\mathrm{CL}} =  \{ \vec{\mu} : \vec{\mu} \in \Omega, \int_{\Omega} p(\vec{\mu};\mathrm{data}) = \mathrm{CL}  \}\]</div>
 <p>The credible region represents a region in which the bayesian probability of the parameter being in that region is equal to the chosen Credibility Level.</p>
 
 
@@ -1635,7 +1599,11 @@ By construction, this method always reports symmetric confidence intervals, as i
     
       <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
       
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

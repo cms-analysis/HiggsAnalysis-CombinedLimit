@@ -1283,26 +1283,17 @@ rate           4.76  1.47
 deltaS  lnN    1.20    -    20% uncertainty on signal
 deltaB  lnN      -   1.50   50% uncertainty on background
 </code></pre>
-<p>If we run <code>text2workspace.py</code> on this datacard and take a look at the workspace (<code>w</code>) inside the <code>.root</code> file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength <span class="arithmatex"><span class="MathJax_Preview">r</span><script type="math/tex">r</script></span>. Note that often in the statistics literature, this parameter is referred to as <span class="arithmatex"><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span>. </p>
+<p>If we run <code>text2workspace.py</code> on this datacard and take a look at the workspace (<code>w</code>) inside the <code>.root</code> file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength <span class="arithmatex">\(r\)</span>. Note that often in the statistics literature, this parameter is referred to as <span class="arithmatex">\(\mu\)</span>. </p>
 <p>From these objects, the necessary PDF has been constructed (named <code>model_s</code>). For this counting experiment we will expect a simple PDF of the form</p>
-<div class="arithmatex">
-<div class="MathJax_Preview">
+<div class="arithmatex">\[
 p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
 \dfrac{[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]^{n_{\mathrm{obs}}} }
 {n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]}
 \cdot e^{-\frac{1}{2}(\nu_{S}- y_{S})^{2}}
 \cdot e^{-\frac{1}{2}(\nu_{B}- y_{B})^{2}}
-</div>
-<script type="math/tex; mode=display">
-p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
-\dfrac{[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]^{n_{\mathrm{obs}}} }
-{n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]}
-\cdot e^{-\frac{1}{2}(\nu_{S}- y_{S})^{2}}
-\cdot e^{-\frac{1}{2}(\nu_{B}- y_{B})^{2}}
-</script>
-</div>
-<p>where the expected signal and background rates are expressed as functions of the nuisance parameters, <span class="arithmatex"><span class="MathJax_Preview">n_{S}(\nu_{S}) = 4.76(1+0.2)^{\nu_{S}}~</span><script type="math/tex">n_{S}(\nu_{S}) = 4.76(1+0.2)^{\nu_{S}}~</script></span> and <span class="arithmatex"><span class="MathJax_Preview">~n_{B}(\nu_{B}) = 1.47(1+0.5)^{\nu_{B}}</span><script type="math/tex">~n_{B}(\nu_{B}) = 1.47(1+0.5)^{\nu_{B}}</script></span>. The <span class="arithmatex"><span class="MathJax_Preview">y_{S},~y_{B}</span><script type="math/tex">y_{S},~y_{B}</script></span> are the auxiliary observables. In the code, these will have the same name as the corresponding nuisance parameter, with the extension <code>_In</code>. </p>
-<p>The first term represents the usual Poisson expression for observing <span class="arithmatex"><span class="MathJax_Preview">n_{\mathrm{obs}}</span><script type="math/tex">n_{\mathrm{obs}}</script></span> events, while the second two are the Gaussian constraint terms for the nuisance parameters. In this case <span class="arithmatex"><span class="MathJax_Preview">{y_S}={y_B}=0</span><script type="math/tex">{y_S}={y_B}=0</script></span>, and the widths of both Gaussians are 1.</p>
+\]</div>
+<p>where the expected signal and background rates are expressed as functions of the nuisance parameters, <span class="arithmatex">\(n_{S}(\nu_{S}) = 4.76(1+0.2)^{\nu_{S}}~\)</span> and <span class="arithmatex">\(~n_{B}(\nu_{B}) = 1.47(1+0.5)^{\nu_{B}}\)</span>. The <span class="arithmatex">\(y_{S},~y_{B}\)</span> are the auxiliary observables. In the code, these will have the same name as the corresponding nuisance parameter, with the extension <code>_In</code>. </p>
+<p>The first term represents the usual Poisson expression for observing <span class="arithmatex">\(n_{\mathrm{obs}}\)</span> events, while the second two are the Gaussian constraint terms for the nuisance parameters. In this case <span class="arithmatex">\({y_S}={y_B}=0\)</span>, and the widths of both Gaussians are 1.</p>
 <p>A combination of counting experiments (or a binned shape datacard) will look like a product of PDFs of this kind. For parametric/unbinned analyses, the PDF for each process in each channel is provided instead of the using the Poisson terms and a product runs over the bin counts/events.</p>
 <h2 id="model-building">Model building</h2>
 <p>For more complex models, <code>PhysicsModels</code> can be produced. To use a different physics model instead of the default one, use the option <code>-P</code> as in</p>
@@ -1433,23 +1424,16 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
 </code></pre>
 <p>The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be used by setting <strong>x</strong> or <strong>not_x</strong> to 1 and 0 and comparing the two likelihood evaluations.</p>
 <h3 id="signal-background-interference">Signal-background interference</h3>
-<p>Since negative probability distribution functions do not exist, the recommended way to implement this is to start from the expression for the individual amplitudes <span class="arithmatex"><span class="MathJax_Preview">A</span><script type="math/tex">A</script></span> and the parameter of interest <span class="arithmatex"><span class="MathJax_Preview">k</span><script type="math/tex">k</script></span>,</p>
-<div class="arithmatex">
-<div class="MathJax_Preview">
+<p>Since negative probability distribution functions do not exist, the recommended way to implement this is to start from the expression for the individual amplitudes <span class="arithmatex">\(A\)</span> and the parameter of interest <span class="arithmatex">\(k\)</span>,</p>
+<div class="arithmatex">\[
 \mathrm{Yield} = |k * A_{s} + A_{b}|^2
 = k^2 * |A_{s}|^2 + k * 2 \Re(A_{s}^* A_{b}) + |A_{b}|^2
 = \mu * S + \sqrt{\mu} * I + B
-</div>
-<script type="math/tex; mode=display">
-\mathrm{Yield} = |k * A_{s} + A_{b}|^2
-= k^2 * |A_{s}|^2 + k * 2 \Re(A_{s}^* A_{b}) + |A_{b}|^2
-= \mu * S + \sqrt{\mu} * I + B
-</script>
-</div>
+\]</div>
 <p>where</p>
-<p><span class="arithmatex"><span class="MathJax_Preview">\mu = k^2, ~S = |A_{s}|^2,~B = |A_b|^2</span><script type="math/tex">\mu = k^2, ~S = |A_{s}|^2,~B = |A_b|^2</script></span> and <span class="arithmatex"><span class="MathJax_Preview">S+B+I = |A_s + A_b|^2</span><script type="math/tex">S+B+I = |A_s + A_b|^2</script></span>.</p>
+<p><span class="arithmatex">\(\mu = k^2, ~S = |A_{s}|^2,~B = |A_b|^2\)</span> and <span class="arithmatex">\(S+B+I = |A_s + A_b|^2\)</span>.</p>
 <p>With some algebra you can work out that,</p>
-<p><span class="arithmatex"><span class="MathJax_Preview">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</span><script type="math/tex">\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]</script></span></p>
+<p><span class="arithmatex">\(\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]\)</span></p>
 <p>where square brackets represent the input (histograms as <code>TH1</code> or <code>RooDataHists</code>) that one needs to provide.</p>
 <p>An example of this scheme is implemented in a <a href="https://gitlab.cern.ch/cms-hcg/cadi/hig-17-012/-/blob/master/2l2nu/HiggsWidth.py">HiggsWidth</a> and is completely general, since all of the three components above are strictly positive. In this example, the POI is <code>CMS_zz4l_mu</code> and the equations for the three components are scaled (separately for the <strong>qqH</strong> and <strong>ggH</strong> processes) as,</p>
 <pre><code class="language-python"> self.modelBuilder.factory_( &quot;expr::ggH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
@@ -1468,19 +1452,13 @@ for an example. However, the computational performance scales quadratically
 with the number of POIs, and can get extremely expensive for 10 or more, as may
 be encountered often with EFT analyses. To alleviate this issue, an accelerated
 interference modeling technique is implemented for template-based analyses via
-the <code>interferenceModel</code> physics model. In this model, each bin yield <span class="arithmatex"><span class="MathJax_Preview">y</span><script type="math/tex">y</script></span> is parameterized</p>
-<div class="arithmatex">
-<div class="MathJax_Preview">
+the <code>interferenceModel</code> physics model. In this model, each bin yield <span class="arithmatex">\(y\)</span> is parameterized</p>
+<div class="arithmatex">\[
 y(\vec{\mu}) = y_0 (\vec{\mu}^\top M \vec{\mu})
-</div>
-<script type="math/tex; mode=display">
-y(\vec{\mu}) = y_0 (\vec{\mu}^\top M \vec{\mu})
-</script>
-</div>
-<p>as a function of the POI vector <span class="arithmatex"><span class="MathJax_Preview">\vec{\mu}</span><script type="math/tex">\vec{\mu}</script></span>, a nominal template <span class="arithmatex"><span class="MathJax_Preview">y_0</span><script type="math/tex">y_0</script></span>, and a scaling matrix <span class="arithmatex"><span class="MathJax_Preview">M</span><script type="math/tex">M</script></span>.
+\]</div>
+<p>as a function of the POI vector <span class="arithmatex">\(\vec{\mu}\)</span>, a nominal template <span class="arithmatex">\(y_0\)</span>, and a scaling matrix <span class="arithmatex">\(M\)</span>.
 To see how this parameterization relates to that of the previous section, we can define:</p>
-<div class="arithmatex">
-<div class="MathJax_Preview">
+<div class="arithmatex">\[
 y_0 = A_b^2, \qquad
 M = \frac{1}{A_b^2} \begin{bmatrix}
  |A_s|^2 &amp; \Re(A_s^* A_b) \\
@@ -1489,23 +1467,12 @@ M = \frac{1}{A_b^2} \begin{bmatrix}
  \sqrt{\mu} \\
  1
  \end{bmatrix}
-</div>
-<script type="math/tex; mode=display">
-y_0 = A_b^2, \qquad
-M = \frac{1}{A_b^2} \begin{bmatrix}
- |A_s|^2 & \Re(A_s^* A_b) \\
- \Re(A_s A_b^*) & |A_b|^2
- \end{bmatrix}, \qquad \vec{\mu} = \begin{bmatrix}
- \sqrt{\mu} \\
- 1
- \end{bmatrix}
-</script>
-</div>
+\]</div>
 <p>which leads to the same parameterization. At present, this technique only works with
 <code>CMSHistFunc</code>-based workspaces, as these are the most common workspace types
 encountered and the default when using
 <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/bin-wise-stats">autoMCStats</a>.
-To use this model, for each bin find <span class="arithmatex"><span class="MathJax_Preview">y_0</span><script type="math/tex">y_0</script></span> and put it into the datacard as a signal process, then find <span class="arithmatex"><span class="MathJax_Preview">M</span><script type="math/tex">M</script></span> and
+To use this model, for each bin find <span class="arithmatex">\(y_0\)</span> and put it into the datacard as a signal process, then find <span class="arithmatex">\(M\)</span> and
 save the lower triangular component as an array in a <code>scaling.json</code> file with a
 syntax as follows:</p>
 <pre><code class="language-json">[
@@ -1523,16 +1490,11 @@ syntax as follows:</p>
 </code></pre>
 <p>where the parameters are declared using RooFit's <a href="https://root.cern.ch/doc/v622/classRooWorkspace.html#a0ddded1d65f5c6c4732a7a3daa8d16b0">factory
 syntax</a>
-and each row of the <code>scaling</code> field represents the scaling information of a bin, e.g. if <span class="arithmatex"><span class="MathJax_Preview">y_0 = |A_b|^2</span><script type="math/tex">y_0 = |A_b|^2</script></span>
+and each row of the <code>scaling</code> field represents the scaling information of a bin, e.g. if <span class="arithmatex">\(y_0 = |A_b|^2\)</span>
 then each row would contain three entries:</p>
-<div class="arithmatex">
-<div class="MathJax_Preview">
+<div class="arithmatex">\[
 |A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1
-</div>
-<script type="math/tex; mode=display">
-|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1
-</script>
-</div>
+\]</div>
 <p>For several coefficients, one would enumerate as follows:</p>
 <pre><code class="language-python">scaling = []
 for ibin in range(nbins):
@@ -1557,8 +1519,8 @@ region.</p>
 <p>It may be the case that the relative contributions of the terms are themselves
 a function of the POIs. For example, in VBF di-Higgs production, BSM
 modifications to the production rate can be parameterized in the "kappa"
-framework via three diagrams, with scaling coefficients <span class="arithmatex"><span class="MathJax_Preview">\kappa_V \kappa_\lambda</span><script type="math/tex">\kappa_V \kappa_\lambda</script></span>,
-<span class="arithmatex"><span class="MathJax_Preview">\kappa_V^2</span><script type="math/tex">\kappa_V^2</script></span>, and <span class="arithmatex"><span class="MathJax_Preview">\kappa_{2V}</span><script type="math/tex">\kappa_{2V}</script></span>, respectively, that interfere.  In
+framework via three diagrams, with scaling coefficients <span class="arithmatex">\(\kappa_V \kappa_\lambda\)</span>,
+<span class="arithmatex">\(\kappa_V^2\)</span>, and <span class="arithmatex">\(\kappa_{2V}\)</span>, respectively, that interfere.  In
 that case, you can declare formulas with the factory syntax to represent each
 amplitude as follows:</p>
 <pre><code class="language-json">[
@@ -1674,7 +1636,11 @@ amplitude as follows:</p>
     
       <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
       
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

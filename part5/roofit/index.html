@@ -1237,8 +1237,8 @@ func.Print(&quot;v&quot;);
 </details>
 
 <p>Notice how there is a list of the variables we passed (the servers or "actual vars"). We can now plot the function. <code>RooFit</code> has a special plotting object <code>RooPlot</code> which keeps track of the objects (and their normalisations) that we want to draw. Since <code>RooFit</code> does not know the difference between objects that are and are not dependent, we need to tell it. </p>
-<p>Right now, we have the relative resolution as <span class="arithmatex"><span class="MathJax_Preview">R(m,\sigma)</span><script type="math/tex">R(m,\sigma)</script></span>, whereas we want to plot 
-<span class="arithmatex"><span class="MathJax_Preview">R(m,\sigma(m))</span><script type="math/tex">R(m,\sigma(m))</script></span>!</p>
+<p>Right now, we have the relative resolution as <span class="arithmatex">\(R(m,\sigma)\)</span>, whereas we want to plot 
+<span class="arithmatex">\(R(m,\sigma(m))\)</span>!</p>
 <pre><code class="language-c++">TCanvas *can = new TCanvas();
 
 //make the x-axis the &quot;mass&quot;
@@ -1250,14 +1250,9 @@ can-&gt;Draw();
 </code></pre>
 <p><img alt="" src="../images/expo.png" /></p>
 <p>The main objects we are interested in using from <code>RooFit</code> are <em>probability denisty functions</em> or (PDFs). We can construct the PDF,</p>
-<div class="arithmatex">
-<div class="MathJax_Preview">
+<div class="arithmatex">\[
 f(m|M_{H},\sigma)
-</div>
-<script type="math/tex; mode=display">
-f(m|M_{H},\sigma)
-</script>
-</div>
+\]</div>
 <p>as a simple Gaussian shape for example or a <code>RooGaussian</code> in <code>RooFit</code> language (think McDonald's logic, everything is a <code>RooSomethingOrOther</code>)</p>
 <pre><code class="language-c++">RooGaussian gauss(&quot;gauss&quot;,&quot;f(m|M_{H},#sigma)&quot;,mass,MH,sigma);
 gauss.Print(&quot;V&quot;);
@@ -1289,7 +1284,7 @@ Cached value = 0
 </details>
 
 <p>Notice how the gaussian PDF, like the <code>RooFormulaVar</code> depends on our <code>RooRealVar</code> objects, these are its servers.  Its evaluation will depend on their values. </p>
-<p>The main difference between PDFs and Functions in RooFit is that PDFs are <em>automatically normalised to unitiy</em>, hence they represent a probability density, you don't need to normalise yourself. Lets plot it for the different values of <span class="arithmatex"><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>.</p>
+<p>The main difference between PDFs and Functions in RooFit is that PDFs are <em>automatically normalised to unitiy</em>, hence they represent a probability density, you don't need to normalise yourself. Lets plot it for the different values of <span class="arithmatex">\(m\)</span>.</p>
 <pre><code class="language-c++">plot = mass.frame();
 
 gauss.plotOn(plot);
@@ -1310,7 +1305,7 @@ can-&gt;Draw();
 </code></pre>
 <p><img alt="" src="../images/gaus.png" /></p>
 <p>Note that as we change the value of <code>MH</code>, the PDF gets updated at the same time.</p>
-<p>PDFs can be used to generate Monte Carlo data. One of the benefits of <code>RooFit</code> is that to do so only uses a single line of code! As before, we have to tell <code>RooFit</code> which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" <span class="arithmatex"><span class="MathJax_Preview">m</span><script type="math/tex">m</script></span>. The arguments for the function are the set of observables, follwed by the number of events,</p>
+<p>PDFs can be used to generate Monte Carlo data. One of the benefits of <code>RooFit</code> is that to do so only uses a single line of code! As before, we have to tell <code>RooFit</code> which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" <span class="arithmatex">\(m\)</span>. The arguments for the function are the set of observables, follwed by the number of events,</p>
 <pre><code class="language-c++">RooDataSet *gen_data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
 </code></pre>
 <p>Now we can plot the data as with other RooFit objects.</p>
@@ -1404,35 +1399,26 @@ hggcan-&gt;Draw();
 <p><a href="../images/realdata.png"></a></p>
 <h1 id="likelihoods-and-fitting-to-data">Likelihoods and Fitting to data</h1>
 <p>The data we have in our file does not look like a Gaussian distribution. Instead, we could probably use something like an exponential to describe it. </p>
-<p>There is an exponential PDF already in <code>RooFit</code> (yes, you guessed it) <code>RooExponential</code>. For a PDF, we only need one parameter which is the exponential slope <span class="arithmatex"><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> so our pdf is,  </p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> f(m|\alpha) = \dfrac{1}{N} e^{-\alpha m}</div>
-<script type="math/tex; mode=display"> f(m|\alpha) = \dfrac{1}{N} e^{-\alpha m}</script>
-</div>
-<p>Where of course, <span class="arithmatex"><span class="MathJax_Preview">N = \int_{110}^{150} e^{-\alpha m} dm</span><script type="math/tex">N = \int_{110}^{150} e^{-\alpha m} dm</script></span> is the normalisation constant.</p>
+<p>There is an exponential PDF already in <code>RooFit</code> (yes, you guessed it) <code>RooExponential</code>. For a PDF, we only need one parameter which is the exponential slope <span class="arithmatex">\(\alpha\)</span> so our pdf is,  </p>
+<div class="arithmatex">\[ f(m|\alpha) = \dfrac{1}{N} e^{-\alpha m}\]</div>
+<p>Where of course, <span class="arithmatex">\(N = \int_{110}^{150} e^{-\alpha m} dm\)</span> is the normalisation constant.</p>
 <p>You can find several available <code>RooFit</code> functions here: <a href="https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html">https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html</a></p>
 <p>There is also support for a generic PDF in the form of a <code>RooGenericPdf</code>, check this link: <a href="https://root.cern.ch/doc/v608/classRooGenericPdf.html">https://root.cern.ch/doc/v608/classRooGenericPdf.html</a></p>
 <p>Now we will create an exponential PDF for our background, </p>
 <pre><code class="language-c++">RooRealVar alpha(&quot;alpha&quot;,&quot;#alpha&quot;,-0.05,-0.2,0.01);
 RooExponential expo(&quot;exp&quot;,&quot;exponential function&quot;,*hgg_mass,alpha);
 </code></pre>
-<p>We can use <code>RooFit</code> to tell us to estimate the value of <span class="arithmatex"><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span> using this dataset. You will learn more about parameter estimation, but for now we will just assume you know about maximizing likelihoods. This <em>maximum likelihood estimator</em> is common in HEP and is known to give unbiased estimates for things like distribution means etc. </p>
+<p>We can use <code>RooFit</code> to tell us to estimate the value of <span class="arithmatex">\(\alpha\)</span> using this dataset. You will learn more about parameter estimation, but for now we will just assume you know about maximizing likelihoods. This <em>maximum likelihood estimator</em> is common in HEP and is known to give unbiased estimates for things like distribution means etc. </p>
 <p>This also introduces the other main use of PDFs in <code>RooFit</code>. They can be used to construct <em>likelihoods</em> easily.</p>
-<p>The likelihood <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}</span><script type="math/tex">\mathcal{L}</script></span> is defined for a particluar dataset (and model) as being proportional to the probability to observe the data assuming some pdf. For our data, the probability to observe an event with a value in an interval bounded by a and b is given by,</p>
-<div class="arithmatex">
-<div class="MathJax_Preview"> P\left(m~\epsilon~[a,b] \right) = \int_{a}^{b} f(m|\alpha)dm  </div>
-<script type="math/tex; mode=display"> P\left(m~\epsilon~[a,b] \right) = \int_{a}^{b} f(m|\alpha)dm  </script>
-</div>
-<p>As that interval shrinks we can say this probability just becomes equal to <span class="arithmatex"><span class="MathJax_Preview">f(m|\alpha)dm</span><script type="math/tex">f(m|\alpha)dm</script></span>.</p>
+<p>The likelihood <span class="arithmatex">\(\mathcal{L}\)</span> is defined for a particluar dataset (and model) as being proportional to the probability to observe the data assuming some pdf. For our data, the probability to observe an event with a value in an interval bounded by a and b is given by,</p>
+<div class="arithmatex">\[ P\left(m~\epsilon~[a,b] \right) = \int_{a}^{b} f(m|\alpha)dm  \]</div>
+<p>As that interval shrinks we can say this probability just becomes equal to <span class="arithmatex">\(f(m|\alpha)dm\)</span>.</p>
 <p>The probability to observe the dataset we have is given by the product of such probabilities for each of our data points, so that </p>
-<div class="arithmatex">
-<div class="MathJax_Preview">\mathcal{L}(\alpha) \propto \prod_{i} f(m_{i}|\alpha)</div>
-<script type="math/tex; mode=display">\mathcal{L}(\alpha) \propto \prod_{i} f(m_{i}|\alpha)</script>
-</div>
-<p>Note that for a specific dataset, the <span class="arithmatex"><span class="MathJax_Preview">dm</span><script type="math/tex">dm</script></span> factors which should be there are constnant. They can therefore be absorbed into the constant of proportionality!</p>
-<p>The maximum likelihood esitmator for <span class="arithmatex"><span class="MathJax_Preview">\alpha</span><script type="math/tex">\alpha</script></span>, usually written as <span class="arithmatex"><span class="MathJax_Preview">\hat{\alpha}</span><script type="math/tex">\hat{\alpha}</script></span>, is found by maximising <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}(\alpha)</span><script type="math/tex">\mathcal{L}(\alpha)</script></span>.</p>
+<div class="arithmatex">\[\mathcal{L}(\alpha) \propto \prod_{i} f(m_{i}|\alpha)\]</div>
+<p>Note that for a specific dataset, the <span class="arithmatex">\(dm\)</span> factors which should be there are constnant. They can therefore be absorbed into the constant of proportionality!</p>
+<p>The maximum likelihood esitmator for <span class="arithmatex">\(\alpha\)</span>, usually written as <span class="arithmatex">\(\hat{\alpha}\)</span>, is found by maximising <span class="arithmatex">\(\mathcal{L}(\alpha)\)</span>.</p>
 <p>Note that this will not depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the <em>ratio</em> of likelihoods is needed, in which the constant factors out. </p>
-<p>Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <strong>N</strong>egative <strong>L</strong>og <strong>L</strong>ikelihood : <span class="arithmatex"><span class="MathJax_Preview">\mathrm{-Log}\mathcal{L}(\alpha)</span><script type="math/tex">\mathrm{-Log}\mathcal{L}(\alpha)</script></span>.</p>
+<p>Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <strong>N</strong>egative <strong>L</strong>og <strong>L</strong>ikelihood : <span class="arithmatex">\(\mathrm{-Log}\mathcal{L}(\alpha)\)</span>.</p>
 <p><code>RooFit</code> can construct the <strong>NLL</strong> for us.</p>
 <pre><code class="language-c++">RooNLLVar *nll = (RooNLLVar*) expo.createNLL(*hgg_data);
 nll-&gt;Print(&quot;v&quot;);
@@ -1534,7 +1520,7 @@ minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;);
 --- RooRealVar ---
   Error = 0.00291959
 </code></pre>
-<p>We will plot the resulting exponential on top of the data. Notice that the value of <span class="arithmatex"><span class="MathJax_Preview">\hat{\alpha}</span><script type="math/tex">\hat{\alpha}</script></span> is used for the exponential. </p>
+<p>We will plot the resulting exponential on top of the data. Notice that the value of <span class="arithmatex">\(\hat{\alpha}\)</span> is used for the exponential. </p>
 <pre><code class="language-c++">expo.plotOn(plot);
 expo.paramOn(plot);
 plot-&gt;Draw();
@@ -1594,12 +1580,9 @@ Cached value = 0
 
 </details>
 
-<p>Ok, now we will fit the model. Note this time we add the option <code>Extended()</code>, which tells <code>RooFit</code> that we care about the overall number of observed events in the data <span class="arithmatex"><span class="MathJax_Preview">n</span><script type="math/tex">n</script></span> too. It will add an additional Poisson term in the likelihood to account for this so our likelihood this time looks like,</p>
-<div class="arithmatex">
-<div class="MathJax_Preview">L_{s+b}(N_{s},N_{b},\alpha) = \dfrac{ N_{s}+N_{b}^{n} e^{N_{s}+N_{b}} }{n!} \cdot \prod_{i}^{n} \left[ c f_{s}(m_{i}|M_{H},\sigma)+ (1-c)f_{b}(m_{i}|\alpha)  \right] </div>
-<script type="math/tex; mode=display">L_{s+b}(N_{s},N_{b},\alpha) = \dfrac{ N_{s}+N_{b}^{n} e^{N_{s}+N_{b}} }{n!} \cdot \prod_{i}^{n} \left[ c f_{s}(m_{i}|M_{H},\sigma)+ (1-c)f_{b}(m_{i}|\alpha)  \right] </script>
-</div>
-<p>where <span class="arithmatex"><span class="MathJax_Preview">c = \dfrac{ N_{s} }{ N_{s} + N_{b} }</span><script type="math/tex">c = \dfrac{ N_{s} }{ N_{s} + N_{b} }</script></span>,   <span class="arithmatex"><span class="MathJax_Preview">f_{s}(m|M_{H},\sigma)</span><script type="math/tex">f_{s}(m|M_{H},\sigma)</script></span> is the Gaussian signal pdf and <span class="arithmatex"><span class="MathJax_Preview">f_{b}(m|\alpha)</span><script type="math/tex">f_{b}(m|\alpha)</script></span> is the exponential pdf. Remember that <span class="arithmatex"><span class="MathJax_Preview">M_{H}</span><script type="math/tex">M_{H}</script></span> and <span class="arithmatex"><span class="MathJax_Preview">\sigma</span><script type="math/tex">\sigma</script></span> are fixed so that they are no longer parameters of the likelihood.</p>
+<p>Ok, now we will fit the model. Note this time we add the option <code>Extended()</code>, which tells <code>RooFit</code> that we care about the overall number of observed events in the data <span class="arithmatex">\(n\)</span> too. It will add an additional Poisson term in the likelihood to account for this so our likelihood this time looks like,</p>
+<div class="arithmatex">\[L_{s+b}(N_{s},N_{b},\alpha) = \dfrac{ N_{s}+N_{b}^{n} e^{N_{s}+N_{b}} }{n!} \cdot \prod_{i}^{n} \left[ c f_{s}(m_{i}|M_{H},\sigma)+ (1-c)f_{b}(m_{i}|\alpha)  \right] \]</div>
+<p>where <span class="arithmatex">\(c = \dfrac{ N_{s} }{ N_{s} + N_{b} }\)</span>,   <span class="arithmatex">\(f_{s}(m|M_{H},\sigma)\)</span> is the Gaussian signal pdf and <span class="arithmatex">\(f_{b}(m|\alpha)\)</span> is the exponential pdf. Remember that <span class="arithmatex">\(M_{H}\)</span> and <span class="arithmatex">\(\sigma\)</span> are fixed so that they are no longer parameters of the likelihood.</p>
 <p>There is a simpler interface for maximum-likelihood fits which is the <code>RooAbsPdf::fitTo</code> method. With this simple method, <code>RooFit</code> will construct the negative log-likelihood function, from the pdf, and minimize all of the free parameters in one step.</p>
 <pre><code class="language-c++">model.fitTo(*hgg_data,RooFit::Extended());
 
@@ -1613,7 +1596,7 @@ hggcan-&gt;Update();
 hggcan-&gt;Draw();
 </code></pre>
 <p><img alt="" src="../images/fit.png" /></p>
-<p>What about if we also fit for the mass (<span class="arithmatex"><span class="MathJax_Preview">M_{H}</span><script type="math/tex">M_{H}</script></span>)? we can easily do this by removing the constant setting on MH.</p>
+<p>What about if we also fit for the mass (<span class="arithmatex">\(M_{H}\)</span>)? we can easily do this by removing the constant setting on MH.</p>
 <pre><code class="language-c++">MH.setConstant(false);
 model.fitTo(*hgg_data,RooFit::Extended());
 </code></pre>
@@ -1774,24 +1757,24 @@ nominal_values = (MH=124.627 +/- 0.398094,resolution=1[C],norm_s=33.9097 +/- 11.
 <p>**Note: We will use python syntax in this section; you should use a .py script. Make sure to do <code>import ROOT</code> at the top of your script **</p>
 <p>We have seen how to create variables and PDFs, and how to fit a PDF to data. But what if we have a counting experiment, or a histogram template shape? And what about systematic uncertainties?  We are going to build a likelihood 
 for this:</p>
-<p><span class="arithmatex"><span class="MathJax_Preview">\mathcal{L} \propto p(\text{data}|\text{parameters})</span><script type="math/tex">\mathcal{L} \propto p(\text{data}|\text{parameters})</script></span></p>
-<p>where our parameters are parameters of interest, <span class="arithmatex"><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span>, and nuisance parameters, <span class="arithmatex"><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span>. The nuisance parameters are constrained by external measurements, so we add constraint terms <span class="arithmatex"><span class="MathJax_Preview">\pi(\vec{\theta}_0|\vec{\theta})</span><script type="math/tex">\pi(\vec{\theta}_0|\vec{\theta})</script></span></p>
+<p><span class="arithmatex">\(\mathcal{L} \propto p(\text{data}|\text{parameters})\)</span></p>
+<p>where our parameters are parameters of interest, <span class="arithmatex">\(\mu\)</span>, and nuisance parameters, <span class="arithmatex">\(\theta\)</span>. The nuisance parameters are constrained by external measurements, so we add constraint terms <span class="arithmatex">\(\pi(\vec{\theta}_0|\vec{\theta})\)</span></p>
 <p>So we have
-<span class="arithmatex"><span class="MathJax_Preview">\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})</span><script type="math/tex">\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})</script></span></p>
+<span class="arithmatex">\(\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})\)</span></p>
 <p>now we will try to build the likelihood by hand for a 1-bin counting experiment.
-The data is the number of observed events <span class="arithmatex"><span class="MathJax_Preview">N</span><script type="math/tex">N</script></span>, and the probability is just a Poisson probability <span class="arithmatex"><span class="MathJax_Preview">p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}</span><script type="math/tex">p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}</script></span>, where <span class="arithmatex"><span class="MathJax_Preview">\lambda</span><script type="math/tex">\lambda</script></span> is the number of events expected in our signal+background model: <span class="arithmatex"><span class="MathJax_Preview">\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})</span><script type="math/tex">\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})</script></span>. </p>
+The data is the number of observed events <span class="arithmatex">\(N\)</span>, and the probability is just a Poisson probability <span class="arithmatex">\(p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}\)</span>, where <span class="arithmatex">\(\lambda\)</span> is the number of events expected in our signal+background model: <span class="arithmatex">\(\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})\)</span>. </p>
 <p>In the expression, s and b are the numbers of expected signal and background events, which both depend on the nuisance parameters. We will start by building a simple likelihood function with one signal process and one background process. We will assume there are no nuisance parameters for now. The number of observed events in data is 15, the expected number of signal events is 5 and the expected number of background events 8.1.</p>
 <p>It is easiest to use the <code>RooFit</code> workspace factory to build our model (<a href="https://root.cern/doc/master/rf511__wsfactory__basic_8py.html">this tutorial</a> has more information on the factory syntax).</p>
 <pre><code>import ROOT
 w = ROOT.RooWorkspace(&quot;w&quot;)
 </code></pre>
-<p>We need to create an expression for the number of events in our model, <span class="arithmatex"><span class="MathJax_Preview">\mu s +b</span><script type="math/tex">\mu s +b</script></span>:</p>
+<p>We need to create an expression for the number of events in our model, <span class="arithmatex">\(\mu s +b\)</span>:</p>
 <pre><code>w.factory('expr::n(&quot;mu*s +b&quot;, mu[1.0,0,4], s[5],b[8.1])')
 </code></pre>
 <p>Now we can build the likelihood, which is just our Poisson PDF:</p>
 <pre><code>w.factory('Poisson::poisN(N[15],n)')
 </code></pre>
-<p>To find the best fit value for our parameter of interest <span class="arithmatex"><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span> we need to maximize the likelihood. In practice it is actually easier to minimize the <strong>N</strong>egative <strong>l</strong>og of the <strong>l</strong>ikelihood, or NLL:</p>
+<p>To find the best fit value for our parameter of interest <span class="arithmatex">\(\mu\)</span> we need to maximize the likelihood. In practice it is actually easier to minimize the <strong>N</strong>egative <strong>l</strong>og of the <strong>l</strong>ikelihood, or NLL:</p>
 <pre><code>w.factory('expr::NLL(&quot;-log(@0)&quot;,poisN)')
 </code></pre>
 <p>We can now use the <code>RooMinimizer</code> to find the minimum of the NLL</p>
@@ -1802,7 +1785,7 @@ minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;)
 bestfitnll = nll.getVal()
 </code></pre>
 <p>Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!) - note that there is a more reliable way of extracting the confidence interval (explicitly rather than relying on migrad). We will discuss this a bit later in this section.</p>
-<p>Now we will add a nuisance parameter, <em>lumi</em>, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at <span class="arithmatex"><span class="MathJax_Preview">+1\sigma</span><script type="math/tex">+1\sigma</script></span> the signal and background normalizations will be multiplied by 1.025 and at <span class="arithmatex"><span class="MathJax_Preview">-1\sigma</span><script type="math/tex">-1\sigma</script></span> they will be divided by 1.025.  We should modify the expression for the number of events in our model:</p>
+<p>Now we will add a nuisance parameter, <em>lumi</em>, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at <span class="arithmatex">\(+1\sigma\)</span> the signal and background normalizations will be multiplied by 1.025 and at <span class="arithmatex">\(-1\sigma\)</span> they will be divided by 1.025.  We should modify the expression for the number of events in our model:</p>
 <pre><code>w.factory('expr::n(&quot;mu*s*pow(1.025,lumi) +b*pow(1.025,lumi)&quot;, mu[1.0,0,4], s[5],b[8.1],lumi[0,-4,4])')
 </code></pre>
 <p>And we add a unit gaussian constraint </p>
@@ -1817,8 +1800,8 @@ bestfitnll = nll.getVal()
 <p>Which we can minimize in the same way as before. </p>
 <p>Now we will extend our model a bit. </p>
 <ul>
-<li>Expanding on what was demonstrated above, build the likelihood for <span class="arithmatex"><span class="MathJax_Preview">N=15</span><script type="math/tex">N=15</script></span>, a signal process <em>s</em> with expectation 5 events, a background <em>ztt</em> with expectation 3.7 events and a background <em>tt</em> with expectation 4.4 events. The luminosity uncertainty applies to all three processes. The signal process is further subject to a 5% log-normally distributed uncertainty <em>sigth</em>, <em>tt</em> is subject to a 6% log-normally distributed uncertainty <em>ttxs</em>, and <em>ztt</em> is subject to a 4% log-normally distributed uncertainty <em>zttxs</em>. Find the best-fit value and the associated uncertainty</li>
-<li>Also perform an explicit scan of the <span class="arithmatex"><span class="MathJax_Preview">\Delta</span><script type="math/tex">\Delta</script></span> NLL ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started. Hint: you'll need to perform fits for different values of mu, where mu is fixed. In <code>RooFit</code> you can set a variable to be constant as <code>var("VARNAME").setConstant(True)</code></li>
+<li>Expanding on what was demonstrated above, build the likelihood for <span class="arithmatex">\(N=15\)</span>, a signal process <em>s</em> with expectation 5 events, a background <em>ztt</em> with expectation 3.7 events and a background <em>tt</em> with expectation 4.4 events. The luminosity uncertainty applies to all three processes. The signal process is further subject to a 5% log-normally distributed uncertainty <em>sigth</em>, <em>tt</em> is subject to a 6% log-normally distributed uncertainty <em>ttxs</em>, and <em>ztt</em> is subject to a 4% log-normally distributed uncertainty <em>zttxs</em>. Find the best-fit value and the associated uncertainty</li>
+<li>Also perform an explicit scan of the <span class="arithmatex">\(\Delta\)</span> NLL ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started. Hint: you'll need to perform fits for different values of mu, where mu is fixed. In <code>RooFit</code> you can set a variable to be constant as <code>var("VARNAME").setConstant(True)</code></li>
 <li>From the curve that you have created by performing an explicit scan, we can extract the 68% CL interval. You can do so by eye or by writing some code to find the relevant intersections of the curve. </li>
 </ul>
 <pre><code>gr = ROOT.TGraph()
@@ -1838,7 +1821,7 @@ canv = ROOT.TCanvas()
 gr.Draw(&quot;ALP&quot;)
 canv.SaveAs(&quot;likelihoodscan.pdf&quot;)
 </code></pre>
-<p>Well, this is doable - but we were only looking at a simple one-bin counting experiment. This might become rather cumbersome for large models... <span class="arithmatex"><span class="MathJax_Preview">[*]</span><script type="math/tex">[*]</script></span></p>
+<p>Well, this is doable - but we were only looking at a simple one-bin counting experiment. This might become rather cumbersome for large models... <span class="arithmatex">\([*]\)</span></p>
 <p>For the next set ot tutorials, we will now switch to working with <span style="font-variant:small-caps;">Combine</span> that will help in building the statistical model and do the statistical analysis, instead of  building the likelihood with <code>RooFit</code>.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1941,7 +1924,11 @@ canv.SaveAs(&quot;likelihoodscan.pdf&quot;)
     
       <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
       
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

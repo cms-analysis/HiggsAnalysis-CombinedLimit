@@ -1400,7 +1400,7 @@ ls work-tools/stats-tools
 <p>Producing the necessary predictions and covariance for recasting varies depending on whether or not control regions are explicitly included in the datacard when running fits. Instructions for cases where the control regions <em>are</em> and <em>are not</em> included are detailed below.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The instructions below will calculate moments based on the assumption that <span class="arithmatex"><span class="MathJax_Preview">E[x]=\hat{x}</span><script type="math/tex">E[x]=\hat{x}</script></span>, i.e it will use the maximum likelihood estimators for the yields as the expectation values. If instead you want to use the full definition of the moments, you can run the <code>FitDiagnostics</code> method with the <code>-t</code> option and include <code>--savePredictionsPerToy</code> and remove the other options, which will produce a tree of the toys in the output from which moments can be calculated. </p>
+<p>The instructions below will calculate moments based on the assumption that <span class="arithmatex">\(E[x]=\hat{x}\)</span>, i.e it will use the maximum likelihood estimators for the yields as the expectation values. If instead you want to use the full definition of the moments, you can run the <code>FitDiagnostics</code> method with the <code>-t</code> option and include <code>--savePredictionsPerToy</code> and remove the other options, which will produce a tree of the toys in the output from which moments can be calculated. </p>
 </div>
 <h3 id="type-a-control-regions-included-in-datacard">Type A - Control regions included in datacard</h3>
 <p>For an example datacard 'datacard.txt' including two signal channels 'Signal1' and 'Signal2', make the workspace including the masking flags</p>
@@ -1674,7 +1674,11 @@ plt.savefig(&quot;compareLH.pdf&quot;)
     
       <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
       
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>
