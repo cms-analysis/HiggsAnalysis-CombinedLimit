@@ -1048,7 +1048,7 @@ text2workspace.py -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSH
 ```
 
 First, we use `combineTool.py` to create jobs for each point in our parameter scan. We want to impose the boundaries that $r_{ggH}>0$, $r_{qqH}>0$.
-In the example below, we will run in interactive mode so this can take a little while. You can instead run in batch or grid submission mode to submit jobs for each point. We configure the tool by specifying the grid of points in `grid.json` as below. Here we want 5000 toys for each point.
+In the example below, we will run in interactive mode so this can take a little while. You can instead run in batch or grid submission mode to submit jobs for each point. We configure the tool by specifying the grid of points in `grid.json` as below. Here we want 5000 toys for each point, and we choose a grid of $r_{ggH}\in [0,4]$ in steps of 0.2, and $r_{qqH}\in[0,10]$ in steps of 0.5.
 
 ```
 {
@@ -1077,7 +1077,8 @@ The command will look like
 combineTool.py -M HybridNewGrid  ./grid.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 1
 ```
 
-Once this is done, we extract the contours using
+Once this is done, we extract the values of $p_{\vec{\mu}}$ for each point in our parameter space using
+
 ```sh
 combineTool.py -M HybridNewGrid  ./grid.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 0 --output
 ```
