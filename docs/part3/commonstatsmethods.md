@@ -1064,7 +1064,7 @@ In the example below, we will run in interactive mode so this can take a little 
   "max_toys": 50000,
   "output_incomplete" : true,
   "contours":["obs"],
-  "CL": 0.95,
+  "CL": 0.68,
   "output": "FeldmanCousins.root",
   "zipfile"         : "collected.zip",
   "statusfile"      : "status.json"
