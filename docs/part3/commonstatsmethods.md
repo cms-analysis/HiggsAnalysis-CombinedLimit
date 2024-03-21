@@ -978,11 +978,11 @@ combine -m 123 -M MultiDimFit -d higgsCombineteststep1.MultiDimFit.mH123.root -w
 
 The Feldman-Cousins (FC) procedure for computing confidence intervals for a generic model is,
 
--   use the profile likelihood ratio as the test statistic, $q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(\hat{x},\hat{\nu})$ where $x$ is a point in the (N-dimensional) parameter space, and $\hat{x}$ is the point corresponding to the best fit. In this test statistic, the nuisance parameters are profiled, both in the numerator and denominator.
--   for each point $x$:
-    -   compute the observed test statistic $q_{\mathrm{obs}}(x)$
-    -   compute the expected distribution of $q(x)$ under the hypothesis of $x$ as the true value.
-    -   accept the point in the region if $p_{x}=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha$
+-   use the profile likelihood ratio as the test statistic, $q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\hat{\vec{\mu}},\hat{\vec{\nu}})$ where $\vec{\mu}$ is a point in the (N-dimensional) parameter space, and $\hat{\vec{\mu}}$ is the point corresponding to the best fit. In this test statistic, the nuisance parameters are profiled, both in the numerator and denominator.
+-   for each point $\vec{\mu}$:
+    -   compute the observed test statistic $q_{\mathrm{obs}}(\vec{\mu})$
+    -   compute the expected distribution of $q(\vec{\mu})$ under the hypothesis of $\vec{\mu}$ as the true value.
+    -   accept the point in the region if $p_{\vec{\mu}}=P\left[q(\vec{\mu}) > q_{\mathrm{obs}}(\vec{\mu})| \vec{\mu}\right] > \alpha$
 
 With a critical value $\alpha$.
 
@@ -992,14 +992,14 @@ In <span style="font-variant:small-caps;">Combine</span>, you can perform this t
 combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 ```
 
-The point belongs to your confidence region if $p_{x}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
+The point belongs to your confidence region if $p_{\vec{\mu}}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
 !!! warning
     You should not use this method without the option `--singlePoint`. Although <span style="font-variant:small-caps;">Combine</span> will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
 
 ### Physical boundaries
 
-Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) is achieved by setting the ranges of the physics model parameters using
+Imposing physical boundaries (such as requiring $r>0$ for a signal strength $r$ ) is achieved by setting the ranges of the physics model parameters using
 
 ```sh
 --setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
@@ -1007,15 +1007,15 @@ Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) i
 
 The boundary is imposed by **restricting the parameter range(s)** to those set by the user, in the fits. Note that this is a trick! The actual fitted value, as one of an ensemble of outcomes, can fall outside of the allowed region, while the boundary should be imposed on the physical parameter. The effect of restricting the parameter value in the fit is such that the test statistic is modified as follows ;
 
-$$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\theta}}(x))/\mathcal{L}(\hat{x},\hat{\nu}),$$
+$$q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\hat{\vec{\mu}},\hat{\vec{\nu}}),$$
 
-if $\hat{x}$ in contained in the bounded range
+if $\hat{\vec{\mu}}$ in contained in the bounded range
 
 and,
 
-$$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(x_{B},\hat{\hat{\nu}}(x_{B})),$$
+$$q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\vec{\mu}_{B},\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})),$$
 
-if $\hat{x}$ is outside of the bounded range. Here $x_{B}$ and $\hat{\hat{\nu}}(x_{B})$ are the values of $x$ and $\nu$ which maximise the likelihood *excluding values outside of the bounded region* for $x$ - typically, $x_{B}$ will be found at one of the boundaries which is imposed. For example, if the boundary $x>0$ is imposed, you will typically expect $x_{B}=0$, when $\hat{x}\leq 0$, and $x_{B}=\hat{x}$ otherewise.
+if $\hat{\vec{\mu}}$ is outside of the bounded range. Here $\vec{\mu}_{B}$ and $\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})$ are the values of $\vec{\mu}$ and $\vec{\nu}$ which maximise the likelihood *excluding values outside of the bounded region* for $\vec{\mu}$ - typically, $\vec{\mu}_{B}$ will be found at one of the boundaries which is imposed. For example if there is one parameter of interest $\mu$ , if the boundary $\mu>0$ is imposed, you will typically expect $\mu_{B}=0$, when $\hat{\mu}\leq 0$, and $\mu_{B}=\hat{\mu}$ otherewise.
 
 This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.
 
@@ -1037,11 +1037,15 @@ combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridRe
 
 The output tree will contain the values of the POI that crosses the critical value ($\alpha$) - i.e, the boundaries of the confidence intervals.
 
-You can produce a plot of the value of $p_{x}$ vs the parameter of interest $x$ by adding the option `--plot <plotname>`.
+You can produce a plot of the value of $p_{\vec{\mu}}$ vs the parameter of interest $\vec{\mu}$ by adding the option `--plot <plotname>`.
 
 #### Extracting 2D contours / general intervals
 
-For *two-dimensional* models, or if the parameter does not behave like a cross section, you will need to extract the contours from the output of `HybridNew` and plot them yourself. We will use the `toy-hgg-125.txt` datacard in the example below to demonstrate how this can be done.
+For *two-dimensional* models, or if the parameter does not behave like a cross section, you will need to extract the contours from the output of `HybridNew` and plot them yourself. We will use the `data/tutorials/multiDim/toy-hgg-125.txt` datacard in the example below to demonstrate how this can be done. Let's build the model again as we did in the MultiDimFit section.
+
+```sh
+text2workspace.py -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH toy-hgg-125.txt -o toy-hgg-125.root
+```
 
 First, we use `combineTool.py` to create jobs for each point in our parameter scan. We want to impose the boundaries that $r_{ggH}>0$, $r_{qqH}>0$.
 In the example below, we will run in interactive mode so this can take a little while. You can instead run in batch or grid submission mode to submit jobs for each point. We configure the tool by specifying the grid of points in `grid.json` as below. Here we want 5000 toys for each point.
@@ -1060,7 +1064,6 @@ In the example below, we will run in interactive mode so this can take a little 
   "max_toys": 50000,
   "output_incomplete" : true,
   "contours":["obs"],
-  "make_plots": true,
   "CL": 0.95,
   "output": "FeldmanCousins.root",
   "zipfile"         : "collected.zip",
@@ -1079,7 +1082,7 @@ Once this is done, we extract the contours using
 combineTool.py -M HybridNewGrid  ./grid.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 0 --output
 ```
 
-which will produce a file `FeldmanCousins.root` that contains a `TGraph2D` which stores the calculated value of $p_{x}$ for each point in the grid. The script below can be used to draw these values and extract the contour corresponding to 68% CL ($\alpha=0.32$).
+which will produce a file `FeldmanCousins.root` that contains a `TGraph2D` which stores the calculated value of $p_{\vec{\mu}}$ for each point in the grid. The script below can be used to draw these values and extract the contour corresponding to 68% CL ($\alpha=0.32$).
 
 /// details | **Show script**
 <pre class="c++"><code>
