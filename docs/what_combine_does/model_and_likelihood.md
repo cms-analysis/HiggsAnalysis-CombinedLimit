@@ -295,8 +295,8 @@ However, some constraints do exist, such as the requirement that bin contents be
 The auxiliary constraint terms implemented in combine are Gaussian, Poisson or Uniform:
 
 $$
-p_{e} \propto \exp{\left(-0.5 \left(\frac{(\nu_{e} - y_{e})}{\sigma}\right)^2 \right)}\mathrm{;} \\
-p_{e} = \mathrm{Poiss}( \nu_{e}; y_{e} ) \mathrm{;\ or} \\
+p_{e} \propto \exp{\left(-0.5 \left(\frac{(\nu_{e} - y_{e})}{\sigma}\right)^2 \right)}\mathrm{;~} \\
+p_{e} = \mathrm{Poiss}( \nu_{e}; y_{e} ) \mathrm{;\ or~} \\
 p_{e} \propto \mathrm{constant\ (on\ some\ interval\ [a,b])}.
 $$
 
