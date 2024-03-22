@@ -9,7 +9,7 @@ from functools import partial
 
 from six.moves import range
 
-import CombineHarvester.CombineTools.plotting as plot
+import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import ROOT
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True

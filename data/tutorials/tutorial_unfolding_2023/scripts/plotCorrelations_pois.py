@@ -2,7 +2,7 @@
 
 import ROOT
 import argparse
-import CombineHarvester.CombineTools.plotting as plot
+import HiggsAnalysis.CombinedLimit.util.plotting as plot
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
