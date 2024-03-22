@@ -1,6 +1,6 @@
-# Physics Models
+# Introduction to Physics Models
 
-<span style="font-variant:small-caps;">Combine</span> can be run directly on the text-based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace should be performed by the user. To create a binary workspace starting from a `datacard.txt`, you can run 
+<span style="font-variant:small-caps;">Combine</span> can be run directly on the text-based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace should be performed by the user. To create a binary workspace starting from a `datacard.txt`, you can run
 
 ```sh
 text2workspace.py datacard.txt -o workspace.root
@@ -40,7 +40,7 @@ deltaS  lnN    1.20    -    20% uncertainty on signal
 deltaB  lnN      -   1.50   50% uncertainty on background
 ```
 
-If we run `text2workspace.py` on this datacard and take a look at the workspace (`w`) inside the `.root` file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength $r$. Note that often in the statistics literature, this parameter is referred to as $\mu$. 
+If we run `text2workspace.py` on this datacard and take a look at the workspace (`w`) inside the `.root` file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength $r$. Note that often in the statistics literature, this parameter is referred to as $\mu$.
 
 From these objects, the necessary PDF has been constructed (named `model_s`). For this counting experiment we will expect a simple PDF of the form
 
@@ -52,7 +52,7 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
 \cdot e^{-\frac{1}{2}(\nu_{B}- y_{B})^{2}}
 $$
 
-where the expected signal and background rates are expressed as functions of the nuisance parameters, $n_{S}(\nu_{S}) = 4.76(1+0.2)^{\nu_{S}}~$ and $~n_{B}(\nu_{B}) = 1.47(1+0.5)^{\nu_{B}}$. The $y_{S},~y_{B}$ are the auxiliary observables. In the code, these will have the same name as the corresponding nuisance parameter, with the extension `_In`. 
+where the expected signal and background rates are expressed as functions of the nuisance parameters, $n_{S}(\nu_{S}) = 4.76(1+0.2)^{\nu_{S}}~$ and $~n_{B}(\nu_{B}) = 1.47(1+0.5)^{\nu_{B}}$. The $y_{S},~y_{B}$ are the auxiliary observables. In the code, these will have the same name as the corresponding nuisance parameter, with the extension `_In`.
 
 The first term represents the usual Poisson expression for observing $n_{\mathrm{obs}}$ events, while the second two are the Gaussian constraint terms for the nuisance parameters. In this case ${y_S}={y_B}=0$, and the widths of both Gaussians are 1.
 
@@ -104,9 +104,9 @@ def getHiggsSignalYieldScale(self,production,decay, energy):
 
 You should note that `text2workspace` will look for the python module in `PYTHONPATH`. If you want to keep your model local, you'll need to add the location of the python file to `PYTHONPATH`.
 
-A number of models used in the LHC Higgs combination paper can be found in [LHCHCGModels.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/LHCHCGModels.py). 
+A number of models used in the LHC Higgs combination paper can be found in [LHCHCGModels.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/LHCHCGModels.py).
 
-The models can be applied to the datacard by using the `-P` option, for example `-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7`, and others that are defined in [HiggsCouplings.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsCouplings.py). 
+The models can be applied to the datacard by using the `-P` option, for example `-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7`, and others that are defined in [HiggsCouplings.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsCouplings.py).
 
 Below are some (more generic) example models that also exist in GitHub.
 
