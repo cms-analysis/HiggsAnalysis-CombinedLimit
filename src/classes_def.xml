@@ -216,4 +216,7 @@
   <class name="CMSExternalMorph" />
   <class name="CMSInterferenceFunc" />
   <class name="RooEFTScalingFunction" />
+  <class name="HZZ4L_RooHighmass" />
+  <class name="HZZ4L_RooHighmass_WoInt" />
+
 </lcgdict>
