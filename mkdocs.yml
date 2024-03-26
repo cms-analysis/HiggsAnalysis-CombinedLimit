@@ -35,6 +35,7 @@ theme:
         name: material
         logo: logo.png
         favicon: logo.png
+        custom_dir: docs/overrides
         features: 
             - content.code.copy
             - navigation.footer
@@ -48,6 +49,12 @@ theme:
             - search.suggest
             - toc.follow
 
+plugins:
+    - mike
+
+extra:
+    version:
+        provider: mike
 
 extra_css:
   - "mystyle.css"
