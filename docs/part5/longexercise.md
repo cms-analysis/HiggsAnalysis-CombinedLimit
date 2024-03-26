@@ -634,7 +634,7 @@ While it is perfectly fine to just list the relevant nuisance parameters in the 
 [group name] group = uncertainty_1 uncertainty_2 ... uncertainty_N
 ```
 
-** Tasks and questions: **
+**Tasks and questions:**
 
   - Take our stat+syst split one step further and separate the systematic part into two: one part for hadronic tau uncertainties and one for all others.
   - Do this by defining a `tauID` group in the datacard including the following parameters: `CMS_eff_t`, `CMS_eff_t_highpt`, and the three `CMS_scale_t_X` uncertainties.
