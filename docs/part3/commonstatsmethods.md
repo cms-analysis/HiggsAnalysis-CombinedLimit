@@ -1063,6 +1063,7 @@ In the example below, we will run in interactive mode so this can take a little 
   "min_toys": 5000,
   "max_toys": 50000,
   "output_incomplete" : true,
+  "make_plots": false,
   "contours":["obs"],
   "CL": 0.68,
   "output": "FeldmanCousins.root",
@@ -1084,7 +1085,7 @@ Once this is done, we extract the values of $p_{\vec{\mu}}$ for each point in ou
 combineTool.py -M HybridNewGrid  ./poi_grid_configuration.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 0 --output
 ```
 
-which will produce a file `FeldmanCousins.root` that contains a `TGraph2D` which stores the calculated value of $p_{\vec{\mu}}$ for each point in the grid. The script below can be used to draw these values and extract the contour corresponding to 68% CL ($\alpha=0.32$).
+which will produce a file `FeldmanCousins.root` (as defined in the `"output"` field of `poi_grid_configuration.json`) that contains a `TGraph2D` which stores the calculated value of $p_{\vec{\mu}}$ for each point in the grid. Using something like the macro below, these values can be plotted along with a contour corresponding to 68% CL ($\alpha=0.32$).
 
 /// details | **Show script**
 <pre class="c++"><code>
