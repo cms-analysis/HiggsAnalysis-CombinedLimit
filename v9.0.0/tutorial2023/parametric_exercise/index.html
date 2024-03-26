@@ -1,0 +1,2416 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../part5/longexerciseanswers/">
+      
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.13">
+    
+    
+      
+        <title>Exercise: parametric fit - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e359304.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#parametric-fitting-exercise" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Exercise: parametric fit
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Physics models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Running combine
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Running the tool
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Validating datacards
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exercise: main features
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Solutions to long exercise
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Exercise: parametric fit
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Exercise: parametric fit
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#session-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Session structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jupyter-notebooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jupyter notebooks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analysis-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analysis overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-1-parametric-model-building" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 1: Parametric model building
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 1: Parametric model building">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-modelling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Signal modelling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#background-modelling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Background modelling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datacard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datacard
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extension-signal-normalisation-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension: signal normalisation object
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extension-unbinned-vs-binned" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension: unbinned vs binned
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-2-simple-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 2: Simple fits
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 2: Simple fits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#confidence-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confidence intervals
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extension-expected-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension: expected fits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extension-goodness-of-fit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension: goodness-of-fit tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-3-systematic-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 3: Systematic uncertainties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 3: Systematic uncertainties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parametric-shape-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parametric shape uncertainties
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uncertainty-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainty breakdown
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-4-toy-generation-and-bias-studies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 4: Toy generation and bias studies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 4: Toy generation and bias studies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bias-studies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bias studies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-5-discrete-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 5: Discrete-profiling
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-6-multi-signal-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 6: Multi-signal model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 6: Multi-signal model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#building-the-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building the models
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running the fits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#two-dimensional-likelihood-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two-dimensional likelihood scan
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#correlations-between-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Correlations between parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacts_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-exercises-to-be-added" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced exercises (to be added)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#session-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Session structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jupyter-notebooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jupyter notebooks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analysis-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analysis overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-1-parametric-model-building" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 1: Parametric model building
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 1: Parametric model building">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-modelling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Signal modelling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#background-modelling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Background modelling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datacard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datacard
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extension-signal-normalisation-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension: signal normalisation object
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extension-unbinned-vs-binned" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension: unbinned vs binned
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-2-simple-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 2: Simple fits
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 2: Simple fits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#confidence-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confidence intervals
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extension-expected-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension: expected fits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extension-goodness-of-fit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension: goodness-of-fit tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-3-systematic-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 3: Systematic uncertainties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 3: Systematic uncertainties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parametric-shape-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parametric shape uncertainties
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uncertainty-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainty breakdown
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-4-toy-generation-and-bias-studies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 4: Toy generation and bias studies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 4: Toy generation and bias studies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bias-studies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bias studies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-5-discrete-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 5: Discrete-profiling
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-6-multi-signal-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Part 6: Multi-signal model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 6: Multi-signal model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#building-the-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building the models
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running the fits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#two-dimensional-likelihood-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two-dimensional likelihood scan
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#correlations-between-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Correlations between parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impacts_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-exercises-to-be-added" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced exercises (to be added)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="parametric-fitting-exercise">Parametric fitting exercise</h1>
+<h2 id="getting-started">Getting started</h2>
+<p>By now you should have a working setup of Combine v9 from the pre-tutorial exercise. If so then move onto the cloning of the parametric fitting exercise gitlab repo below. If not then you need to set up a CMSSW area and checkout the combine package:</p>
+<pre><code class="language-shell">cmsrel CMSSW_11_3_4
+cd CMSSW_11_3_4/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v9.0.0
+</code></pre>
+<p>We will also make use of another package, <code>CombineHarvester</code>, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this exercise:</p>
+<pre><code class="language-shell">cd $CMSSW_BASE/src/
+bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
+</code></pre>
+<p>Now let's compile the CMSSW area:</p>
+<pre><code class="language-shell">scramv1 b clean; scramv1 b
+cmsenv
+</code></pre>
+<p>Finally, let's clone the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:</p>
+<pre><code class="language-shell">cd $CMSSW_BASE/src/
+git clone https://gitlab.cern.ch/jlangfor/combinetutorial-2023-parametric.git
+cd combinetutorial-2023-parametric
+</code></pre>
+<h2 id="session-structure">Session structure</h2>
+<p>The exercise is split into six parts which cover:</p>
+<p>1) Parametric model building</p>
+<p>2) Simple fits</p>
+<p>3) Systematic uncertainties</p>
+<p>4) Toy generation</p>
+<p>5) Discrete profiling</p>
+<p>6) Multi-signal hypothesis</p>
+<p>Throughout the tutorial there are a number of questions and exercises for you to complete. These are shown by the bullet points in this markdown file.</p>
+<p>All the code required to run the different parts is available in python scripts. We have purposely <strong>commented out the code</strong> to encourage you to open the scripts and take a look what is inside. Each block is separated by a divider and a blank line. When you are happy and understand the code, you can uncomment (block by block) and then run the scripts (using python3) e.g.:</p>
+<pre><code class="language-shell">python3 construct_models_part1.py
+</code></pre>
+<p>A number of scripts will produce plots (as .png files). The default path to store these plots is in the current working directory. You can change this (e.g. pipe to an eos webpage) by changing the <code>plot_dir</code> variable in the <code>config.py</code> script.</p>
+<p>There's also a set of combine (.txt) datacards which will help you get through the various parts of the exercise. The exercises should help you become familiar with the structure of parametric fitting datacards.</p>
+<p>Finally, this exercise is heavily based off the <code>RooFit</code> package. So if you find yourself using the python interpreter for any checks, don't forget to...</p>
+<pre><code class="language-python">import ROOT
+</code></pre>
+<h2 id="jupyter-notebooks">Jupyter notebooks</h2>
+<p>Alternatively, we have provided <code>Jupyter</code> notebooks to run the different parts of the exercise e.g. <code>part1.ipynb</code>. You will have already downloaded these notebooks when cloning the tutorial gitlab repo. To open Jupyter notebooks on lxplus <strong>within a CMSSW environment</strong>, you can add the following option when you <code>ssh</code> into lxplus:</p>
+<pre><code class="language-shell">ssh -X -Y username@lxplus.cern.ch -L8xxx:localhost:8xxx
+</code></pre>
+<p>where you should replace <code>xxx</code> with some three digit number. Then <code>cd</code> into the <code>combinetutorial-2023-parametric</code> directory and set up the CMSSW environment with:</p>
+<pre><code class="language-shell">cmsenv
+</code></pre>
+<p>You can then open the Jupyter notebook inside the environment with:</p>
+<pre><code class="language-shell">jupyter notebook --no-browser --port 8xxx
+</code></pre>
+<p>replacing <code>xxx</code> with the same three digit number. You should now be able to copy the url it provides into a browser and access the various exercise notebooks.</p>
+<h2 id="analysis-overview">Analysis overview</h2>
+<p>In this exercise we will look at one of the most famous parametric fitting analyses at the LHC: the Higgs boson decaying to two photons (H <span class="arithmatex"><span class="MathJax_Preview">\rightarrow \gamma\gamma</span><script type="math/tex">\rightarrow \gamma\gamma</script></span>). This decay channel is key in understanding the properties of the Higgs boson due to its clean final state topology. The excellent energy resolution- of the CMS electromagnetic calorimeter leads to narrow signal peak in the diphoton invariant mass spectrum, <span class="arithmatex"><span class="MathJax_Preview">m_{\gamma\gamma}</span><script type="math/tex">m_{\gamma\gamma}</script></span>, above a smoothly falling background continuum. The mass spectrum for the <a href="http://cms-results.web.cern.ch/cms-results/public-results/publications/HIG-19-015/index.html">legacy Run 2 analysis</a> is shown below.</p>
+<p><img alt="" src="../plots/overview.png" /></p>
+<p>In the analysis, we construct parametric models (analytic functions) of both signal and background events to fit the <span class="arithmatex"><span class="MathJax_Preview">m_{\gamma\gamma}</span><script type="math/tex">m_{\gamma\gamma}</script></span> spectrum in data. From the fit we can extract measurements of Higgs boson properties including its rate of production, its mass (<span class="arithmatex"><span class="MathJax_Preview">m_H</span><script type="math/tex">m_H</script></span>), its coupling behaviour, to name a few. This exercise will show how to construct parametric models using RooFit, and subsequently how to use combine to extract the results.</p>
+<h2 id="part-1-parametric-model-building">Part 1: Parametric model building</h2>
+<p>As with any fitting exercise, the first step is to understand the format of the input data, explore its contents and construct a model. The python script which performs the model construction is <code>construct_models_part1.py</code>. This section will explain what the various lines of code are doing.</p>
+<h3 id="signal-modelling">Signal modelling</h3>
+<p>Firstly, we will construct a model to fit the signal (H <span class="arithmatex"><span class="MathJax_Preview">\rightarrow\gamma\gamma</span><script type="math/tex">\rightarrow\gamma\gamma</script></span>) mass peak using a Monte Carlo simulation sample of gluon-gluon fusion production (ggH) events with <span class="arithmatex"><span class="MathJax_Preview">m_H=125</span><script type="math/tex">m_H=125</script></span> GeV. This production mode has the largest cross section in the SM, and the LO Feynman diagram is shown below.</p>
+<p><img alt="" src="../plots/part1_feynman.png" /></p>
+<p>There has already been a dedicated selection performed on the events to increase the signal-to-background ratio (e.g. using some ML event classifier). Events passing this selection enter the analysis category, Tag0. Events entering Tag0 are used for the parametric fitting of the <span class="arithmatex"><span class="MathJax_Preview">m_{\gamma\gamma}</span><script type="math/tex">m_{\gamma\gamma}</script></span> spectrum. </p>
+<p>The events are stored in a ROOT <code>TTree</code>, where the diphoton mass, <code>CMS_hgg_mass</code>, and the event weight, <code>weight</code>, are saved. Let's begin by loading the MC, and converting the <code>TTree</code> data into <code>RooDataSet</code>:</p>
+<pre><code class="language-python">import ROOT
+ROOT.gROOT.SetBatch(True)
+
+f = ROOT.TFile(&quot;mc_part1.root&quot;,&quot;r&quot;)
+# Load TTree
+t = f.Get(&quot;ggH_Tag0&quot;)
+
+# Define mass and weight variables
+mass = ROOT.RooRealVar(&quot;CMS_hgg_mass&quot;, &quot;CMS_hgg_mass&quot;, 125, 100, 180)
+weight = ROOT.RooRealVar(&quot;weight&quot;,&quot;weight&quot;,0,0,1)
+
+# Convert to RooDataSet
+mc = ROOT.RooDataSet(&quot;ggH_Tag0&quot;,&quot;ggH_Tag0&quot;, t, ROOT.RooArgSet(mass,weight), &quot;&quot;, &quot;weight&quot; )
+
+# Lets plot the signal mass distribution
+can = ROOT.TCanvas()
+plot = mass.frame()
+mc.plotOn(plot)
+plot.Draw()
+can.Update()
+can.SaveAs(&quot;part1_signal_mass.png&quot;)
+</code></pre>
+<p><img alt="" src="../plots/part1_signal_mass.png" /></p>
+<p>The plot shows a peak centred on the Higgs mass at 125 GeV. Let's use a simple Gaussian to model the peak.</p>
+<pre><code class="language-python"># Introduce a RooRealVar into the workspace for the Higgs mass
+MH = ROOT.RooRealVar(&quot;MH&quot;, &quot;MH&quot;, 125, 120, 130 )
+MH.setConstant(True)
+
+# Signal peak width
+sigma = ROOT.RooRealVar(&quot;sigma_ggH_Tag0&quot;, &quot;sigma_ggH_Tag0&quot;, 2, 1, 5)
+
+# Define the Gaussian with mean=MH and width=sigma
+model = ROOT.RooGaussian( &quot;model_ggH_Tag0&quot;, &quot;model_ggH_Tag0&quot;, mass, MH, sigma ) 
+
+# Fit Gaussian to MC events and plot
+model.fitTo(mc,ROOT.RooFit.SumW2Error(True))
+
+can = ROOT.TCanvas()
+plot = mass.frame()
+mc.plotOn(plot)
+model.plotOn( plot, ROOT.RooFit.LineColor(2) )
+plot.Draw()
+can.Update()
+can.Draw()
+can.SaveAs(&quot;part1_signal_model_v0.png&quot;)
+</code></pre>
+<p><img alt="" src="../plots/part1_signal_model_v0.png" /></p>
+<p>It looks like a good fit! </p>
+<ul>
+<li>Do you understand the output from the <code>fitTo</code> command (i.e the mimimization)? From now on we will add the option <code>ROOT.RooFit.PrintLevel(-1)</code> when fitting the models to surpress the minimizer output. </li>
+</ul>
+<p>But what if the mean of the model does not correspond directly to the Higgs boson mass i.e. there are some reconstruction effects. Let's instead define the mean of the model as:</p>
+<div class="arithmatex">
+<div class="MathJax_Preview">\mu = m_H + \delta</div>
+<script type="math/tex; mode=display">\mu = m_H + \delta</script>
+</div>
+<p>and we can fit for <span class="arithmatex"><span class="MathJax_Preview">\delta</span><script type="math/tex">\delta</script></span> in the model construction. For this we introduce a <code>RooFormulaVar</code>.</p>
+<pre><code class="language-python">dMH = ROOT.RooRealVar(&quot;dMH_ggH_Tag0&quot;, &quot;dMH_ggH_Tag0&quot;, 0, -1, 1 )
+mean = ROOT.RooFormulaVar(&quot;mean_ggH_Tag0&quot;, &quot;mean_ggH_Tag0&quot;, &quot;(@0+@1)&quot;, ROOT.RooArgList(MH,dMH))
+model = ROOT.RooGaussian( &quot;model_ggH_Tag0&quot;, &quot;model_ggH_Tag0&quot;, mass, mean, sigma )
+
+# Fit the new model with a variable mean
+model.fitTo(mc,ROOT.RooFit.SumW2Error(True),ROOT.RooFit.PrintLevel(-1))
+
+# Model is parametric in MH. Let's show this by plotting for different values of MH
+can = ROOT.TCanvas()
+plot = mass.frame()
+MH.setVal(120)
+model.plotOn( plot, ROOT.RooFit.LineColor(2) )
+MH.setVal(125)
+model.plotOn( plot, ROOT.RooFit.LineColor(3) )
+MH.setVal(130)
+model.plotOn( plot, ROOT.RooFit.LineColor(4) )
+plot.Draw()
+can.Update()
+can.SaveAs(&quot;part1_signal_model_v1.png&quot;)
+</code></pre>
+<p><img alt="" src="../plots/part1_signal_model_v1.png" /></p>
+<p>Let's now save the model inside a <code>RooWorkspace</code>. Combine will load this model when performing the fits. Crucially, we need to freeze the fit parameters of the signal model, otherwise they will be freely floating in the final results extraction. </p>
+<ul>
+<li>This choice of setting the shape parameters to constant means we believe our MC will perfectly model the Higgs boson events in data. Is this the case? How could we account for the MC mis-modelling in the fit? (See part 3).</li>
+</ul>
+<pre><code class="language-python">MH.setVal(125)
+dMH.setConstant(True)
+sigma.setConstant(True)
+
+f_out = ROOT.TFile(&quot;workspace_sig.root&quot;, &quot;RECREATE&quot;)
+w_sig = ROOT.RooWorkspace(&quot;workspace_sig&quot;,&quot;workspace_sig&quot;)
+getattr(w_sig, &quot;import&quot;)(model)
+w_sig.Print()
+w_sig.Write()
+f_out.Close()
+</code></pre>
+<p>We have successfully constructed a parametric model to fit the shape of the signal peak. But we also need to know the yield/normalisation of the ggH signal process. In the SM, the ggH event yield in Tag0 is equal to:</p>
+<div class="arithmatex">
+<div class="MathJax_Preview"> N = \sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma} \cdot \epsilon \cdot \mathcal{L}</div>
+<script type="math/tex; mode=display"> N = \sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma} \cdot \epsilon \cdot \mathcal{L}</script>
+</div>
+<p>Where <span class="arithmatex"><span class="MathJax_Preview">\sigma_{ggH}</span><script type="math/tex">\sigma_{ggH}</script></span> is the SM ggH cross section, <span class="arithmatex"><span class="MathJax_Preview">\mathcal{B}^{\gamma\gamma}</span><script type="math/tex">\mathcal{B}^{\gamma\gamma}</script></span> is the SM branching fraction of the Higgs boson to two photons, <span class="arithmatex"><span class="MathJax_Preview">\epsilon</span><script type="math/tex">\epsilon</script></span> is the efficiency factor and corresponds to the fraction of the total ggH events landing in the Tag0 analysis category. Finally <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}</span><script type="math/tex">\mathcal{L}</script></span> is the integrated luminosity.</p>
+<p>In this example, the ggH MC events are normalised <strong>before any selection is performed</strong> to <span class="arithmatex"><span class="MathJax_Preview">\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}</span><script type="math/tex">\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}</script></span>, taking the values from the <a href="https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWG#Production_cross_sections_and_de">LHCHWG twiki</a>. Note this does not include the lumi scaling, which may be different to what you have in your own analyses! We can then calculate the efficiency factor, <span class="arithmatex"><span class="MathJax_Preview">\epsilon</span><script type="math/tex">\epsilon</script></span>, by taking the sum of weights in the MC dataset and dividing through by <span class="arithmatex"><span class="MathJax_Preview">\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}</span><script type="math/tex">\sigma_{ggH} \cdot \mathcal{B}^{\gamma\gamma}</script></span>. This will tell us what fraction of ggH events land in Tag0.</p>
+<pre><code class="language-python"># Define SM cross section and branching fraction values
+xs_ggH = 48.58 #in [pb]
+br_gamgam = 2.7e-3
+
+# Calculate the efficiency and print output
+sumw = mc.sumEntries()
+eff = sumw/(xs_ggH*br_gamgam)
+print(&quot;Efficiency of ggH events landing in Tag0 is: %.2f%%&quot;%(eff*100))
+
+# Calculate the total yield (assuming full Run 2 lumi) and print output
+lumi = 138000
+N = xs_ggH*br_gamgam*eff*lumi
+print(&quot;For 138fb^-1, total normalisation of signal is: N = xs * br * eff * lumi = %.2f events&quot;%N)
+</code></pre>
+<p>Gives the output:</p>
+<pre><code class="language-shell">Efficiency of ggH events landing in Tag0 is: 1.00%
+For 138fb^-1, total normalisation of signal is: N = xs * br * eff * lumi = 181.01 events
+</code></pre>
+<p>So we find 1% of all ggH events enter Tag0. And the total expected yield of ggH events in Tag0 (with lumi scaling) is <code>181.01</code>. Lets make a note of this for later!</p>
+<h3 id="background-modelling">Background modelling</h3>
+<p>In the H <span class="arithmatex"><span class="MathJax_Preview">\rightarrow\gamma\gamma</span><script type="math/tex">\rightarrow\gamma\gamma</script></span> analysis we construct the background model directly from data. To avoid biasing our background estimate, we remove the signal region from the model construction and fit the mass sidebands. Let's begin by loading the data <code>TTree</code> and converting to a <code>RooDataSet</code>. We will then plot the mass sidebands.</p>
+<pre><code class="language-python">f = ROOT.TFile(&quot;data_part1.root&quot;,&quot;r&quot;)
+t = f.Get(&quot;data_Tag0&quot;)
+
+# Convert TTree to a RooDataSet
+data = ROOT.RooDataSet(&quot;data_Tag0&quot;, &quot;data_Tag0&quot;, t, ROOT.RooArgSet(mass), &quot;&quot;, &quot;weight&quot;)
+
+# Define mass sideband ranges on the mass variable: 100-115 and 135-180
+n_bins = 80
+binning = ROOT.RooFit.Binning(n_bins,100,180)
+mass.setRange(&quot;loSB&quot;, 100, 115 )
+mass.setRange(&quot;hiSB&quot;, 135, 180 )
+mass.setRange(&quot;full&quot;, 100, 180 )
+fit_range = &quot;loSB,hiSB&quot;
+
+# Plot the data in the mass sidebands
+can = ROOT.TCanvas()
+plot = mass.frame()
+data.plotOn( plot, ROOT.RooFit.CutRange(fit_range), binning )
+plot.Draw()
+can.Update()
+can.Draw()
+can.SaveAs(&quot;part1_data_sidebands.png&quot;)
+</code></pre>
+<p><img alt="" src="../plots/part1_data_sidebands.png" /></p>
+<p>By eye, it looks like an exponential function would fit the data sidebands well. Let's construct the background model using a <code>RooExponential</code> and fit the data sidebands:</p>
+<pre><code class="language-python">alpha = ROOT.RooRealVar(&quot;alpha&quot;, &quot;alpha&quot;, -0.05, -0.2, 0 )
+model_bkg = ROOT.RooExponential(&quot;model_bkg_Tag0&quot;, &quot;model_bkg_Tag0&quot;, mass, alpha )
+
+# Fit model to data sidebands
+model_bkg.fitTo( data, ROOT.RooFit.Range(fit_range),  ROOT.RooFit.PrintLevel(-1))
+
+# Let's plot the model fit to the data
+can = ROOT.TCanvas()
+plot = mass.frame()
+# We have to be careful with the normalisation as we only fit over sidebands
+# First do an invisible plot of the full data set
+data.plotOn( plot, binning, ROOT.RooFit.MarkerColor(0), ROOT.RooFit.LineColor(0) )
+model_bkg.plotOn( plot, ROOT.RooFit.NormRange(fit_range), ROOT.RooFit.Range(&quot;full&quot;), ROOT.RooFit.LineColor(2))
+data.plotOn( plot, ROOT.RooFit.CutRange(fit_range), binning )
+plot.Draw()
+can.Update()
+can.Draw()
+can.SaveAs(&quot;part1_bkg_model.png&quot;)
+</code></pre>
+<p><img alt="" src="../plots/part1_bkg_model.png" /></p>
+<p>As the background model is extracted from data, we want to introduce a freely floating normalisation term. We use the total number of data events (including in the signal region) as the initial prefit value of this normalisation object i.e. assuming no signal in the data. The syntax to name this normalisation object is <code>{model}_norm</code> which will the be picked up automatically by combine. Note we also allow the shape parameter to float in the final fit to data (by not setting to constant).</p>
+<pre><code class="language-python">norm = ROOT.RooRealVar(&quot;model_bkg_Tag0_norm&quot;, &quot;Number of background events in Tag0&quot;, data.numEntries(), 0, 3*data.numEntries() )
+alpha.setConstant(False)
+</code></pre>
+<p>Let's then save the background model, the normalisation object, and the data distribution to a new <code>RooWorkspace</code>:</p>
+<pre><code class="language-python">f_out = ROOT.TFile(&quot;workspace_bkg.root&quot;, &quot;RECREATE&quot;)
+w_bkg = ROOT.RooWorkspace(&quot;workspace_bkg&quot;,&quot;workspace_bkg&quot;)
+getattr(w_bkg, &quot;import&quot;)(data)
+getattr(w_bkg, &quot;import&quot;)(norm)
+getattr(w_bkg, &quot;import&quot;)(model_bkg)
+w_bkg.Print()
+w_bkg.Write()
+f_out.Close()
+</code></pre>
+<h3 id="datacard">Datacard</h3>
+<p>The model workspaces have now been constructed. But before we can run any fits in combine we need to build the so-called <strong>datacard</strong>. This is a text file which defines the different processes entering the fit and their expected yields, and maps these processes to the corresponding (parametric) models. We also store information on the systematic uncertainties in the datacard (see part 3). Given the low complexity of this example, the datacard is reasonably short. The datacard for this section is titled <code>datacard_part1.txt</code>. Take some time to understand the different lines. In particular, the values for the process normalisations:</p>
+<ul>
+<li>Where does the signal (ggH) normalisation come from?</li>
+<li>Why do we use a value of 1.0 for the background model normalisation in this analysis?</li>
+</ul>
+<pre><code class="language-shell"># Datacard example for combine tutorial 2023 (part 1)
+---------------------------------------------
+imax 1
+jmax 1
+kmax *
+---------------------------------------------
+
+shapes      ggH          Tag0      workspace_sig.root      workspace_sig:model_ggH_Tag0
+shapes      bkg_mass     Tag0      workspace_bkg.root      workspace_bkg:model_bkg_Tag0
+shapes      data_obs     Tag0      workspace_bkg.root      workspace_bkg:data_Tag0
+
+---------------------------------------------
+bin             Tag0
+observation     -1
+---------------------------------------------
+bin             Tag0         Tag0
+process         ggH          bkg_mass
+process         0            1
+rate            181.01       1.0
+---------------------------------------------
+</code></pre>
+<p>To compile the datacard we run the following command, using a value of the Higgs mass of 125.0:</p>
+<pre><code class="language-shell">text2workspace.py datacard_part1.txt -m 125
+</code></pre>
+<ul>
+<li>This compiles the datacard into a RooWorkspace, effectively building the likelihood function. Try opening the compiled workspace (<code>root datacard_part1.root</code>) and print the contents.</li>
+</ul>
+<pre><code class="language-shell">w-&gt;Print()
+</code></pre>
+<ul>
+<li>Do you understand what all the different objects are? What does the variable <code>r</code> correspond to? Try (verbose) printing with: </li>
+</ul>
+<pre><code class="language-shell">w-&gt;var(&quot;r&quot;)-&gt;Print(&quot;v&quot;)
+</code></pre>
+<h3 id="extension-signal-normalisation-object">Extension: signal normalisation object</h3>
+<p>In the example above, the signal model normalisation is input by hand in the datacard. We can instead define the signal normalisation components in the model in a similar fashion to the background model normalisation object. Let's build the cross section (ggH), branching fraction (H-&gt;gamgam), and efficiency variables. It's important to set these terms to be constant for the final fit to data:</p>
+<pre><code class="language-python">xs_ggH = ROOT.RooRealVar(&quot;xs_ggH&quot;, &quot;Cross section of ggH in [pb]&quot;, 48.58 )
+br_gamgam = ROOT.RooRealVar(&quot;BR_gamgam&quot;, &quot;Branching ratio of Higgs to gamma gamma&quot;, 0.0027 )
+eff_ggH_Tag0 = ROOT.RooRealVar(&quot;eff_ggH_Tag0&quot;, &quot;Efficiency for ggH events to land in Tag0&quot;, eff )
+
+xs_ggH.setConstant(True)
+br_gamgam.setConstant(True)
+eff_ggH_Tag0.setConstant(True)
+</code></pre>
+<p>The normalisation component is then defined as the product of these three variables:</p>
+<pre><code class="language-python">norm_sig = ROOT.RooProduct(&quot;model_ggH_Tag0_norm&quot;, &quot;Normalisation term for ggH in Tag 0&quot;, ROOT.RooArgList(xs_ggH,br_gamgam,eff_ggH_Tag0))
+</code></pre>
+<p>Again the syntax <code>{model}_norm</code> has been used so that combine will automatically assign this object as the normalisation for the model (<code>model_ggH_Tag0</code>). Firstly we need to save a new version of the signal model workspace with the normalisation term included. </p>
+<pre><code class="language-python">f_out = ROOT.TFile(&quot;workspace_sig_with_norm.root&quot;, &quot;RECREATE&quot;)
+w_sig = ROOT.RooWorkspace(&quot;workspace_sig&quot;,&quot;workspace_sig&quot;)
+getattr(w_sig, &quot;import&quot;)(model)
+getattr(w_sig, &quot;import&quot;)(norm_sig)
+w_sig.Print()
+w_sig.Write()
+f_out.Close()
+</code></pre>
+<p>We then need to modify the datacard to account for this normalisation term. Importantly, the <code>{model}_norm</code> term in our updated signal model workspace does not contain the integrated luminosity. Therefore, the <code>rate</code> term in the datacard must be set equal to the integrated luminosity in [pb^-1] (as the cross section was defined in [pb]). The total normalisation for the signal model is then the product of the <code>{model}_norm</code> and the <code>rate</code> value. </p>
+<ul>
+<li>You can find the example datacard here: <code>datacard_part1_with_norm.txt</code> with the signal normalisation object included. Check if it compiles successfully using <code>text2workspace</code>? If so, try printing out the contents of the workspace. Can you see the normalisation component?</li>
+</ul>
+<h3 id="extension-unbinned-vs-binned">Extension: unbinned vs binned</h3>
+<p>In a parametric analysis, the fit can be performed using a binned or unbinned likelihood function. The consequences of binned vs unbinned likelihoods were discussed in the <a href="https://indico.cern.ch/event/1227742/contributions/5240048/">morning session</a>. In combine, we can simply toggle between binned and unbinned fits by changing how the data set is stored in the workspace. In the example above, the data was saved as a <code>RooDataSet</code>. This means that an unbinned maximum likelihood function would be used.</p>
+<p>To switch to a <strong>binned</strong> maximum likelihood fit, we need to store the data set in the workspace as a <code>RooDataHist</code>. Let's first load the data as a <code>RooDataSet</code> as before:</p>
+<pre><code class="language-python">f = ROOT.TFile(&quot;data_part1.root&quot;,&quot;r&quot;)
+t = f.Get(&quot;data_Tag0&quot;)
+
+# Convert TTree to a RooDataSet
+data = ROOT.RooDataSet(&quot;data_Tag0&quot;, &quot;data_Tag0&quot;, t, ROOT.RooArgSet(mass, weight), &quot;&quot;, &quot;weight&quot;)
+</code></pre>
+<p>We then need to set the number of bins in the observable and convert the data to a <code>RooDataHist</code>. In this example we will use 320 bins over the full mass range (0.25 GeV per bin). It is important that the binning is sufficiently granular so that we do not lose information in the data by switching to a binned likelihood fit. When fitting a signal peak over a background we want the bin width to be sufficiently smaller than the signal model mass resolution.</p>
+<pre><code class="language-python"># Set bin number for mass variables
+mass.setBins(320)
+data_hist = ROOT.RooDataHist(&quot;data_hist_Tag0&quot;, &quot;data_hist_Tag0&quot;, mass, data)
+
+# Save the background model with the RooDataHist instead
+f_out = ROOT.TFile(&quot;workspace_bkg_binned.root&quot;, &quot;RECREATE&quot;)
+w_bkg = ROOT.RooWorkspace(&quot;workspace_bkg&quot;,&quot;workspace_bkg&quot;)
+getattr(w_bkg, &quot;import&quot;)(data_hist)
+getattr(w_bkg, &quot;import&quot;)(norm)
+getattr(w_bkg, &quot;import&quot;)(model_bkg)
+w_bkg.Print()
+w_bkg.Write()
+f_out.Close()
+</code></pre>
+<h2 id="part-2-simple-fits">Part 2: Simple fits</h2>
+<p>Now the parametric models have been constructed and the datacard has been compiled, we are ready to start using combine for running fits. In CMS analyses we begin by blinding ourselves to the data in the signal region, and looking only at the expected results based off toys datasets (asimov or pseudo-experiments). In this exercise, we will look straight away at the observed results. Note, the python commands in this section are taken from <code>simple_fits.py</code>.</p>
+<p>To run a simple best-fit for the signal strength, <code>r</code>, fixing the Higgs mass to 125 GeV, you can run the command in the terminal:</p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part1_with_norm.root -m 125 --freezeParameters MH --saveWorkspace -n .bestfit
+</code></pre>
+<p>We obtain a best-fit signal strength of <code>r = 1.548</code> i.e. the observed signal yield is 1.548 times the SM prediction.</p>
+<p>The option <code>--saveWorkspace</code> stores a snapshot of the postfit workspace in the output file (<code>higgsCombine.bestfit.MultiDimFit.mH125.root</code>). We can load the postfit workspace and look at how the values of all the fit parameters change (compare the <code>clean</code> and <code>MultiDimFit</code> parameter snapshots):</p>
+<pre><code class="language-python">import ROOT
+
+f = ROOT.TFile(&quot;higgsCombine.bestfit.MultiDimFit.mH125.root&quot;)
+w = f.Get(&quot;w&quot;)
+w.Print(&quot;v&quot;)
+</code></pre>
+<p>We can even plot the postfit signal-plus-background model using the workspace snapshot:</p>
+<pre><code class="language-python">n_bins = 80
+binning = ROOT.RooFit.Binning(n_bins,100,180)
+
+can = ROOT.TCanvas()
+plot = w.var(&quot;CMS_hgg_mass&quot;).frame()
+w.data(&quot;data_obs&quot;).plotOn( plot, binning )
+
+# Load the S+B model
+sb_model = w.pdf(&quot;model_s&quot;).getPdf(&quot;Tag0&quot;)
+
+# Prefit
+sb_model.plotOn( plot, ROOT.RooFit.LineColor(2), ROOT.RooFit.Name(&quot;prefit&quot;) )
+
+# Postfit
+w.loadSnapshot(&quot;MultiDimFit&quot;)
+sb_model.plotOn( plot, ROOT.RooFit.LineColor(4), ROOT.RooFit.Name(&quot;postfit&quot;) )
+r_bestfit = w.var(&quot;r&quot;).getVal()
+
+plot.Draw()
+
+leg = ROOT.TLegend(0.55,0.6,0.85,0.85)
+leg.AddEntry(&quot;prefit&quot;, &quot;Prefit S+B model (r=1.00)&quot;, &quot;L&quot;)
+leg.AddEntry(&quot;postfit&quot;, &quot;Postfit S+B model (r=%.2f)&quot;%r_bestfit, &quot;L&quot;)
+leg.Draw(&quot;Same&quot;)
+
+can.Update()
+can.SaveAs(&quot;part2_sb_model.png&quot;)
+</code></pre>
+<p><img alt="" src="../plots/part2_sb_model.png" /></p>
+<h3 id="confidence-intervals">Confidence intervals</h3>
+<p>We not only want to find the best-fit value of the signal strength, r, but also the confidence intervals. The <code>singles</code> algorithm will find the 68% CL intervals:</p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part1_with_norm.root -m 125 --freezeParameters MH -n .singles --algo singles
+</code></pre>
+<p>To perform a likelihood scan (i.e. calculate 2NLL at fixed values of the signal strength, profiling the other parameters), we use the <code>grid</code> algorithm. We can control the number of points in the scan using the <code>--points</code> option. Also, it is important to set a suitable range for the signal strength parameter. The <code>singles</code> algorithm has shown us that the 1 stdev interval on r is around +/-0.2. </p>
+<ul>
+<li>Use these intervals to define a suitable range for the scan, and change <code>lo,hi</code> in the following options accordingly: <code>--setParameterRanges r=lo,hi</code>.</li>
+</ul>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part1_with_norm.root -m 125 --freezeParameters MH -n .scan --algo grid --points 20 --setParameterRanges r=lo,hi
+</code></pre>
+<p>We can use the <code>plot1DScan.py</code> function from combineTools to plot the likelihood scan:</p>
+<pre><code class="language-shell">plot1DScan.py higgsCombine.scan.MultiDimFit.mH125.root -o part2_scan
+</code></pre>
+<p><img alt="" src="../plots/part2_scan.png" /></p>
+<ul>
+<li>Do you understand what the plot is showing? What information about the signal strength parameter can be inferred from the plot?</li>
+</ul>
+<h3 id="extension-expected-fits">Extension: expected fits</h3>
+<p>To run <em>expected</em> fits we simply add <code>-t N</code> to the combine command. For <code>N&gt;0</code>, this will generate N random toys from the model and fit each one independently. For <code>N=-1</code>, this will generate an asimov toy in which all statistical fluctuations from the model are suppressed. </p>
+<p>You can use the <code>--expectSignal 1</code> option to set the signal strength parameter to 1 when generating the toy. Alternatively, <code>--expectSignal 0</code> will generate a toy from the background-only model. For multiple parameter models you can set the initial values when generating the toy(s) using the <code>--setParameters</code> option of combine. For example, if you want to throw a toy where the Higgs mass is at 124 GeV and the background slope parameter <code>alpha</code> is equal to -0.05, you would add <code>--setParameters MH=124.0,alpha=-0.05</code>.</p>
+<ul>
+<li>Try running the asimov likelihood scan for <code>r=1</code> and <code>r=0</code>, and plotting them using the <code>plot1DScan.py</code> script.</li>
+</ul>
+<h3 id="extension-goodness-of-fit-tests">Extension: goodness-of-fit tests</h3>
+<p>The goodness-of-fit tests available in combine are only well-defined for binned maximum likelihood fits. Therefore, to perform a goodness-of-fit test with a parametric datacard, make sure to save the data object as a <code>RooDataHist</code>, as in <code>workspace_bkg_binned.root</code>. </p>
+<ul>
+<li>Try editing the <code>datacard_part1_with_norm.txt</code> file to pick up the correct binned workspace file, and the <code>RooDataHist</code>. The goodness-of-fit method requires at-least one nuisance parameter in the model to run successfully. Append the following line to the end of the datacard:</li>
+</ul>
+<pre><code class="language-shell">lumi_13TeV      lnN          1.01         -
+</code></pre>
+<ul>
+<li>Does the datacard compile with the <code>text2workspace.py</code> command?</li>
+</ul>
+<p>We use the <code>GoodnessOfFit</code> method in combine to evaluate how compatible the observed data are with the model pdf. There are three types of GoF algorithm within combine, this example will use the <code>saturated</code> algorithm. You can find more information about the other algorithms <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#goodness-of-fit-tests">here</a>.</p>
+<p>Firstly, we want to calculate the value of the test statistic for the observed data:</p>
+<pre><code class="language-shell">combine -M GoodnessOfFit datacard_part1_binned.root --algo saturated -m 125 --freezeParameters MH -n .goodnessOfFit_data
+</code></pre>
+<p>Now lets calculate the test statistic value for many toys thrown from the model:</p>
+<pre><code class="language-shell">combine -M GoodnessOfFit datacard_part1_binned.root --algo saturated -m 125 --freezeParameters MH -n .goodnessOfFit_toys -t 1000
+</code></pre>
+<p>To make a plot of the GoF test-statistic distribution you can run the following commands, which first collect the values of the test-statistic into a json file, and then plots from the json file:</p>
+<pre><code class="language-shell">combineTool.py -M CollectGoodnessOfFit --input higgsCombine.goodnessOfFit_data.GoodnessOfFit.mH125.root higgsCombine.goodnessOfFit_toys.GoodnessOfFit.mH125.123456.root -m 125.0 -o gof.json
+
+plotGof.py gof.json --statistic saturated --mass 125.0 -o part2_gof
+</code></pre>
+<p><img alt="" src="../plots/part2_gof.png" /></p>
+<ul>
+<li>What does the plot tell us? Does the model fit the data well? You can refer back to the discussion <a href="https://indico.cern.ch/event/1227742/contributions/5240056/">here</a></li>
+</ul>
+<h2 id="part-3-systematic-uncertainties">Part 3: Systematic uncertainties</h2>
+<p>In this section, we will learn how to add systematic uncertainties to a parametric fit analysis. The python commands are taken from the <code>systematics.py</code> script. </p>
+<p>For uncertainties which only affect the process normalisation, we can simply implement these as <code>lnN</code> uncertainties in the datacard. The file <code>mc_part3.root</code> contains the systematic-varied trees i.e. Monte-Carlo events where some systematic uncertainty source <code>{photonID,JEC,scale,smear}</code> has been varied up and down by <span class="arithmatex"><span class="MathJax_Preview">1\sigma</span><script type="math/tex">1\sigma</script></span>.</p>
+<pre><code class="language-python">import ROOT
+
+f = ROOT.TFile(&quot;mc_part3.root&quot;)
+f.ls()
+</code></pre>
+<p>Gives the output:</p>
+<pre><code class="language-shell">TFile**     mc_part3.root   
+ TFile*     mc_part3.root   
+  KEY: TTree    ggH_Tag0;1  ggH_Tag0
+  KEY: TTree    ggH_Tag0_photonIDUp01Sigma;1    ggH_Tag0_photonIDUp01Sigma
+  KEY: TTree    ggH_Tag0_photonIDDown01Sigma;1  ggH_Tag0_photonIDDown01Sigma
+  KEY: TTree    ggH_Tag0_scaleUp01Sigma;1   ggH_Tag0_scaleUp01Sigma
+  KEY: TTree    ggH_Tag0_scaleDown01Sigma;1 ggH_Tag0_scaleDown01Sigma
+  KEY: TTree    ggH_Tag0_smearUp01Sigma;1   ggH_Tag0_smearUp01Sigma
+  KEY: TTree    ggH_Tag0_smearDown01Sigma;1 ggH_Tag0_smearDown01Sigma
+  KEY: TTree    ggH_Tag0_JECUp01Sigma;1 ggH_Tag0_JECUp01Sigma
+  KEY: TTree    ggH_Tag0_JECDown01Sigma;1   ggH_Tag0_JECDown01Sigma
+</code></pre>
+<p>Let's first load the systematic-varied trees as RooDataSets and store them in a python dictionary, <code>mc</code>:</p>
+<pre><code class="language-python"># Define mass and weight variables
+mass = ROOT.RooRealVar(&quot;CMS_hgg_mass&quot;, &quot;CMS_hgg_mass&quot;, 125, 100, 180)
+weight = ROOT.RooRealVar(&quot;weight&quot;,&quot;weight&quot;,0,0,1)
+
+mc = {}
+
+# Load the nominal dataset
+t = f.Get(&quot;ggH_Tag0&quot;)
+mc['nominal'] = ROOT.RooDataSet(&quot;ggH_Tag0&quot;,&quot;ggH_Tag0&quot;, t, ROOT.RooArgSet(mass,weight), &quot;&quot;, &quot;weight&quot; )
+
+# Load the systematic-varied datasets
+for syst in ['JEC','photonID','scale','smear']:
+    for direction in ['Up','Down']:
+        key = &quot;%s%s01Sigma&quot;%(syst,direction)
+        name = &quot;ggH_Tag0_%s&quot;%(key)
+        t = f.Get(name)
+        mc[key] = ROOT.RooDataSet(name, name, t, ROOT.RooArgSet(mass,weight), &quot;&quot;, &quot;weight&quot; )
+</code></pre>
+<p>The jet energy scale (JEC) and photon identification (photonID) uncertainties do not affect the shape of the <span class="arithmatex"><span class="MathJax_Preview">m_{\gamma\gamma}</span><script type="math/tex">m_{\gamma\gamma}</script></span> distribution i.e. they only effect the signal yield estimate. We can calculate their impact by comparing the sum of weights to the nominal dataset. Note, the photonID uncertainty changes the weight of the events in the tree, whereas the JEC varied trees contain a different set of events, generated by shifting the jet energy scale in the simulation. In any case, the means for calculating the yield variations is equivalent:</p>
+<pre><code class="language-python">for syst in ['JEC','photonID']:
+    for direction in ['Up','Down']:
+        yield_variation = mc['%s%s01Sigma'%(syst,direction)].sumEntries()/mc['nominal'].sumEntries()
+        print(&quot;Systematic varied yield (%s,%s): %.3f&quot;%(syst,direction,yield_variation))
+</code></pre>
+<pre><code class="language-shell">Systematic varied yield (JEC,Up): 1.056
+Systematic varied yield (JEC,Down): 0.951
+Systematic varied yield (photonID,Up): 1.050
+Systematic varied yield (photonID,Down): 0.950
+</code></pre>
+<p>We can write these yield variations in the datacard with the lines:</p>
+<pre><code class="language-shell">CMS_scale_j           lnN      0.951/1.056      -
+CMS_hgg_phoIdMva      lnN      1.05             -   
+</code></pre>
+<ul>
+<li>Why is the photonID uncertainty expressed as one number, whereas the JEC uncertainty is defined by two?</li>
+</ul>
+<p>Note in this analysis there are no systematic uncertainties affecting the background estimate (<code>-</code> in the datacard), as the background model has been derived directly from data.</p>
+<h3 id="parametric-shape-uncertainties">Parametric shape uncertainties</h3>
+<p>What about systematic uncertainties which affect the shape of the mass distribution?</p>
+<p>In a parametric analysis, we need to build the dependence directly into the model parameters. The example uncertainty sources in this tutorial are the photon energy scale and smearing uncertainties. From the names alone we can expect that the <strong>scale</strong> uncertainty will affect the mean of the signal Gaussian, and the <strong>smear</strong> uncertainty will impact the resolution (sigma). Let's first take a look at the <code>scaleUp01Sigma</code> dataset:</p>
+<pre><code class="language-python"># Build the model to fit the systematic-varied datasets
+mean = ROOT.RooRealVar(&quot;mean&quot;, &quot;mean&quot;, 125, 124, 126)
+sigma = ROOT.RooRealVar(&quot;sigma&quot;, &quot;sigma&quot;, 2, 1.5, 2.5)
+gaus = ROOT.RooGaussian(&quot;model&quot;, &quot;model&quot;, mass, mean, sigma)
+
+# Run the fits twice (second time from the best-fit of first run) to obtain more reliable results
+gaus.fitTo(mc['scaleUp01Sigma'], ROOT.RooFit.SumW2Error(True),ROOT.RooFit.PrintLevel(-1))
+gaus.fitTo(mc['scaleUp01Sigma'], ROOT.RooFit.SumW2Error(True),ROOT.RooFit.PrintLevel(-1))
+print(&quot;Mean = %.3f +- %.3f GeV, Sigma = %.3f +- %.3f GeV&quot;%(mean.getVal(),mean.getError(),sigma.getVal(),sigma.getError()) )
+</code></pre>
+<p>Gives the output:</p>
+<pre><code class="language-shell">Mean = 125.370 +- 0.009 GeV, Sigma = 2.011 +- 0.006 GeV
+</code></pre>
+<p>Now let's compare the values to the nominal fit for all systematic-varied trees. We observe a significant variation in the mean for the <strong>scale</strong> uncertainty, and a significant variation in sigma for the <strong>smear</strong> uncertainty. </p>
+<pre><code class="language-python"># First fit the nominal dataset
+gaus.fitTo(mc['nominal'], ROOT.RooFit.SumW2Error(True), ROOT.RooFit.PrintLevel(-1) )
+gaus.fitTo(mc['nominal'], ROOT.RooFit.SumW2Error(True), ROOT.RooFit.PrintLevel(-1) )
+# Save the mean and sigma values and errors to python dicts
+mean_values, sigma_values = {}, {}
+mean_values['nominal'] = [mean.getVal(),mean.getError()]
+sigma_values['nominal'] = [sigma.getVal(),sigma.getError()]
+
+# Next for the systematic varied datasets
+for syst in ['scale','smear']:
+    for direction in ['Up','Down']:
+        key = &quot;%s%s01Sigma&quot;%(syst,direction)
+        gaus.fitTo(mc[key] , ROOT.RooFit.SumW2Error(True),  ROOT.RooFit.PrintLevel(-1))
+        gaus.fitTo(mc[key], ROOT.RooFit.SumW2Error(True), ROOT.RooFit.PrintLevel(-1))
+        mean_values[key] = [mean.getVal(), mean.getError()]
+        sigma_values[key] = [sigma.getVal(), sigma.getError()]
+
+# Print the variations in mean and sigma
+for key in mean_values.keys():
+    print(&quot;%s: mean = %.3f +- %.3f GeV, sigma = %.3f +- %.3f GeV&quot;%(key,mean_values[key][0],mean_values[key][1],sigma_values[key][0],sigma_values[key][1]))
+</code></pre>
+<p>Prints the output:</p>
+<pre><code class="language-shell">nominal: mean = 125.001 +- 0.009 GeV, sigma = 1.996 +- 0.006 GeV
+scaleUp01Sigma: mean = 125.370 +- 0.009 GeV, sigma = 2.011 +- 0.006 GeV
+scaleDown01Sigma: mean = 124.609 +- 0.009 GeV, sigma = 2.005 +- 0.006 GeV
+smearUp01Sigma: mean = 125.005 +- 0.009 GeV, sigma = 2.097 +- 0.007 GeV
+smearDown01Sigma: mean = 125.007 +- 0.009 GeV, sigma = 1.912 +- 0.006 GeV
+</code></pre>
+<p>The values tell us that the scale uncertainty (at <span class="arithmatex"><span class="MathJax_Preview">\pm 1 \sigma</span><script type="math/tex">\pm 1 \sigma</script></span>) varies the signal peak mean by around 0.3%, and the smear uncertainty (at <span class="arithmatex"><span class="MathJax_Preview">\pm 1 \sigma</span><script type="math/tex">\pm 1 \sigma</script></span>) varies the signal width (sigma) by around 4.5% (average of up and down variations). </p>
+<p>Now we need to bake these effects into the parametric signal model. The mean of the Gaussian was previously defined as:</p>
+<div class="arithmatex">
+<div class="MathJax_Preview"> \mu = m_H + \delta</div>
+<script type="math/tex; mode=display"> \mu = m_H + \delta</script>
+</div>
+<p>We introduce the nuisance parameter <code>nuisance_scale</code> = <span class="arithmatex"><span class="MathJax_Preview">\eta</span><script type="math/tex">\eta</script></span> to account for a shift in the signal peak mean using:</p>
+<div class="arithmatex">
+<div class="MathJax_Preview"> \mu = (m_H + \delta) \cdot (1+0.003\eta)</div>
+<script type="math/tex; mode=display"> \mu = (m_H + \delta) \cdot (1+0.003\eta)</script>
+</div>
+<p>At <span class="arithmatex"><span class="MathJax_Preview">\eta = +1 (-1)</span><script type="math/tex">\eta = +1 (-1)</script></span> the signal peak mean will shift up (down) by 0.3%. To build this into the RooFit signal model we simply define a new parameter, <span class="arithmatex"><span class="MathJax_Preview">\eta</span><script type="math/tex">\eta</script></span>, and update the definition of the mean formula variable:</p>
+<pre><code class="language-python"># Building the workspace with systematic variations
+MH = ROOT.RooRealVar(&quot;MH&quot;, &quot;MH&quot;, 125, 120, 130 )
+MH.setConstant(True)
+
+# Define formula for mean of Gaussian
+dMH = ROOT.RooRealVar(&quot;dMH_ggH_Tag0&quot;, &quot;dMH_ggH_Tag0&quot;, 0, -5, 5 )
+eta = ROOT.RooRealVar(&quot;nuisance_scale&quot;, &quot;nuisance_scale&quot;, 0, -5, 5)
+eta.setConstant(True)
+mean_formula = ROOT.RooFormulaVar(&quot;mean_ggH_Tag0&quot;, &quot;mean_ggH_Tag0&quot;, &quot;(@0+@1)*(1+0.003*@2)&quot;, ROOT.RooArgList(MH,dMH,eta))
+</code></pre>
+<ul>
+<li>Why do we set the nuisance parameter to constant at this stage?</li>
+</ul>
+<p>Similar for the width introducing a nuisance parameter, <span class="arithmatex"><span class="MathJax_Preview">\chi</span><script type="math/tex">\chi</script></span>:</p>
+<div class="arithmatex">
+<div class="MathJax_Preview"> \sigma = \sigma \cdot (1+0.045\chi)</div>
+<script type="math/tex; mode=display"> \sigma = \sigma \cdot (1+0.045\chi)</script>
+</div>
+<pre><code class="language-python">sigma = ROOT.RooRealVar(&quot;sigma_ggH_Tag0_nominal&quot;, &quot;sigma_ggH_Tag0_nominal&quot;, 2, 1, 5)
+chi = ROOT.RooRealVar(&quot;nuisance_smear&quot;, &quot;nuisance_smear&quot;, 0, -5, 5)
+chi.setConstant(True)
+sigma_formula = ROOT.RooFormulaVar(&quot;sigma_ggH_Tag0&quot;, &quot;sigma_ggH_Tag0&quot;, &quot;@0*(1+0.045*@1)&quot;, ROOT.RooArgList(sigma,chi))
+</code></pre>
+<p>Let's now fit the new model to the signal Monte-Carlo dataset, build the normalisation object and save the workspace.</p>
+<pre><code class="language-python"># Define Gaussian
+model = ROOT.RooGaussian( &quot;model_ggH_Tag0&quot;, &quot;model_ggH_Tag0&quot;, mass, mean_formula, sigma_formula )
+
+# Fit model to MC
+model.fitTo( mc['nominal'], ROOT.RooFit.SumW2Error(True), ROOT.RooFit.PrintLevel(-1) )
+
+# Build signal model normalisation object
+xs_ggH = ROOT.RooRealVar(&quot;xs_ggH&quot;, &quot;Cross section of ggH in [pb]&quot;, 48.58 )
+br_gamgam = ROOT.RooRealVar(&quot;BR_gamgam&quot;, &quot;Branching ratio of Higgs to gamma gamma&quot;, 0.0027 )
+eff = mc['nominal'].sumEntries()/(xs_ggH.getVal()*br_gamgam.getVal())
+eff_ggH_Tag0 = ROOT.RooRealVar(&quot;eff_ggH_Tag0&quot;, &quot;Efficiency for ggH events to land in Tag0&quot;, eff )
+# Set values to be constant
+xs_ggH.setConstant(True)
+br_gamgam.setConstant(True)
+eff_ggH_Tag0.setConstant(True)
+# Define normalisation component as product of these three variables
+norm_sig = ROOT.RooProduct(&quot;model_ggH_Tag0_norm&quot;, &quot;Normalisation term for ggH in Tag 0&quot;, ROOT.RooArgList(xs_ggH,br_gamgam,eff_ggH_Tag0))
+
+# Set shape parameters of model to be constant (i.e. fixed in fit to data)
+dMH.setConstant(True)
+sigma.setConstant(True)
+
+# Build new signal model workspace with signal normalisation term. 
+f_out = ROOT.TFile(&quot;workspace_sig_with_syst.root&quot;, &quot;RECREATE&quot;)
+w_sig = ROOT.RooWorkspace(&quot;workspace_sig&quot;,&quot;workspace_sig&quot;)
+getattr(w_sig, &quot;import&quot;)(model)
+getattr(w_sig, &quot;import&quot;)(norm_sig)
+w_sig.Print()
+w_sig.Write()
+f_out.Close()
+</code></pre>
+<p>The final step is to add the parametric uncertainties as Gaussian-constrained nuisance parameters into the datacard. The syntax means the Gaussian constraint term in the likelihood function will have a mean of 0 and a width of 1.</p>
+<pre><code class="language-shell">nuisance_scale        param    0.0    1.0
+nuisance_smear        param    0.0    1.0
+</code></pre>
+<ul>
+<li>Try adding these lines to <code>datacard_part1_with_norm.txt</code>, along with the lines for the JEC and photonID yield uncertainties above, and compiling with the <code>text2workspace</code> command. Open the workspace and look at its contents. You will need to change the signal process workspace file name in the datacard to point to the new workspace (<code>workspace_sig_with_syst.root</code>).</li>
+<li>Can you see the new objects in the compiled datacard that have been created for the systematic uncertainties? What do they correspond to?</li>
+</ul>
+<p>We can now run a fit with the systematic uncertainties included. The option <code>--saveSpecifiedNuis</code> can be called to save the postfit nuisance parameter values in the combine output limit tree. </p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part1_with_norm.root -m 125 --freezeParameters MH --saveWorkspace -n .bestfit.with_syst --saveSpecifiedNuis CMS_scale_j,CMS_hgg_phoIdMva,nuisance_scale,nuisance_smear
+</code></pre>
+<ul>
+<li>What do the postfit values of the nuisances tell us here? You can check them by opening the output file (<code>root higgsCombine.bestfit.with_syst.MultiDimFit.mH125.root</code>) and running <code>limit-&gt;Show(0)</code>.</li>
+<li>Try plotting the postfit mass distribution (as detailed in part 2). Do you notice any difference?</li>
+</ul>
+<h3 id="uncertainty-breakdown">Uncertainty breakdown</h3>
+<p>A more complete datacard with additional nuisance parameters is stored in <code>datacard_part3.txt</code>. We will use this datacard for the rest of part 3. Open the text file and have a look at the contents.</p>
+<p>The following line has been appended to the end of the datacard to define the set of theory nuisance parameters. This will come in handy when calculating the uncertainty breakdown.</p>
+<pre><code class="language-shell">theory group = BR_hgg QCDscale_ggH pdf_Higgs_ggH alphaS_ggH UnderlyingEvent PartonShower
+</code></pre>
+<p>Compile the datacard and run an observed <code>MultiDimFit</code> likelihood scan over the signal strength, r:</p>
+<pre><code class="language-shell">text2workspace.py datacard_part3.txt -m 125
+
+combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH -n .scan.with_syst --algo grid --points 20 --setParameterRanges r=0.5,2.5
+</code></pre>
+<p>Our aim is to break down the total uncertainty into the systematic and statistical components. To get the statistical-uncertainty-only scan it should be as simple as freezing the nuisance parameters in the fit... right? </p>
+<p>Try it by adding <code>,allConstrainedNuisances</code> to the <code>--freezeParameters</code> option. This will freeze all (constrained) nuisance parameters in the fit. You can also feed in regular expressions with wildcards using <code>rgx{.*}</code>. For instance to freeze only the <code>nuisance_scale</code> and <code>nuisance_smear</code> you could run with <code>--freezeParameters MH,rgx{nuisance_.*}</code>.</p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH,allConstrainedNuisances -n .scan.with_syst.statonly --algo grid --points 20 --setParameterRanges r=0.5,2.5
+</code></pre>
+<p>You can plot the two likelihood scans on the same axis with the command:</p>
+<pre><code class="language-shell">plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label &quot;With systematics&quot; --main-color 1 --others higgsCombine.scan.with_syst.statonly.MultiDimFit.mH125.root:&quot;Stat-only&quot;:2 -o part3_scan_v0
+</code></pre>
+<p><img alt="" src="../plots/part3_scan_v0.png" /></p>
+<ul>
+<li>Can you spot the problem? </li>
+</ul>
+<p>The nuisance parameters introduced into the model have pulled the best-fit signal strength point! Therefore we cannot simply subtract the uncertainties in quadrature to get an estimate for the systematic/statistical uncertainty breakdown. </p>
+<p>The correct approach is to freeze the nuisance parameters to their respective best-fit values in the stat-only scan. We can do this by first saving a postfit workspace with all nuisance parameters profiled in the fit. Then we load the postfit snapshot values of the nuisance parameters (with the option <code>--snapshotName MultiDimFit</code>) from the combine output of the previous step, and then freeze the nuisance parameters for the stat-only scan.</p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH -n .bestfit.with_syst --setParameterRanges r=0.5,2.5 --saveWorkspace
+
+combine -M MultiDimFit higgsCombine.bestfit.with_syst.MultiDimFit.mH125.root -m 125 --freezeParameters MH,allConstrainedNuisances -n .scan.with_syst.statonly_correct --algo grid --points 20 --setParameterRanges r=0.5,2.5 --snapshotName MultiDimFit
+</code></pre>
+<p>Adding the option <code>--breakdown syst,stat</code> to the <code>plot1DScan.py</code> command will automatically calculate the uncertainty breakdown for you.</p>
+<pre><code class="language-shell">plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label &quot;With systematics&quot; --main-color 1 --others higgsCombine.scan.with_syst.statonly_correct.MultiDimFit.mH125.root:&quot;Stat-only&quot;:2 -o part3_scan_v1 --breakdown syst,stat
+</code></pre>
+<p><img alt="" src="../plots/part3_scan_v1.png" /></p>
+<p>We can also freeze groups of nuisance parameters defined in the datacard with the option <code>--freezeNuisanceGroups</code>. Let's run a scan freezing only the theory uncertainties (using the nuisance group we defined in the datacard):</p>
+<pre><code class="language-shell">combine -M MultiDimFit higgsCombine.bestfit.with_syst.MultiDimFit.mH125.root -m 125 --freezeParameters MH --freezeNuisanceGroups theory -n .scan.with_syst.freezeTheory --algo grid --points 20 --setParameterRanges r=0.5,2.5 --snapshotName MultiDimFit
+</code></pre>
+<p>To breakdown the total uncertainty into the theory, experimental and statistical components we can then use:</p>
+<pre><code class="language-shell">plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label Total --main-color 1 --others higgsCombine.scan.with_syst.freezeTheory.MultiDimFit.mH125.root:&quot;Freeze theory&quot;:4 higgsCombine.scan.with_syst.statonly_correct.MultiDimFit.mH125.root:&quot;Stat-only&quot;:2 -o part3_scan_v2 --breakdown theory,exp,stat
+</code></pre>
+<p><img alt="" src="../plots/part3_scan_v2.png" /></p>
+<p>These methods are not limited to this particular grouping of systematics. We can use the above procedure to assess the impact of any nuisance parameter(s) on the signal strength confidence interval. </p>
+<ul>
+<li>Try and calculate the contribution to the total uncertainty from the luminosity estimate using this approach.</li>
+</ul>
+<h3 id="impacts">Impacts</h3>
+<p>It is often useful/required to check the impacts of the nuisance parameters (NP) on the parameter of interest, r. The impact of a NP is defined as the shift <span class="arithmatex"><span class="MathJax_Preview">\Delta r</span><script type="math/tex">\Delta r</script></span> induced as the NP, <span class="arithmatex"><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span>, is fixed to its <span class="arithmatex"><span class="MathJax_Preview">\pm1\sigma</span><script type="math/tex">\pm1\sigma</script></span> values, with all other parameters profiled as normal. More information can be found in the combine documentation via this <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#nuisance-parameter-impacts">link</a>.</p>
+<p>Let's calculate the impacts for our analysis. We can use the <code>combineTool.py</code> from the <code>CombineHarvester</code> package to automate the scripts. The impacts are calculated in a few stages:</p>
+<p>1) Do an initial fit for the parameter of interest, adding the <code>--robustFit 1</code> option:</p>
+<pre><code class="language-shell">combineTool.py -M Impacts -d datacard_part3.root -m 125 --freezeParameters MH -n .impacts --setParameterRanges r=0.5,2.5 --doInitialFit --robustFit 1
+</code></pre>
+<ul>
+<li>What does the option <code>--robustFit 1</code> do? </li>
+</ul>
+<p>2) Next perform a similar scan for each NP with the <code>--doFits</code> option. This may take a few minutes:</p>
+<pre><code class="language-shell">combineTool.py -M Impacts -d datacard_part3.root -m 125 --freezeParameters MH -n .impacts --setParameterRanges r=0.5,2.5 --doFits --robustFit 1
+</code></pre>
+<p>3) Collect the outputs from the previous step and write the results to a json file:</p>
+<pre><code class="language-shell">combineTool.py -M Impacts -d datacard_part3.root -m 125 --freezeParameters MH -n .impacts --setParameterRanges r=0.5,2.5 -o impacts_part3.json
+</code></pre>
+<p>4) Produce a plot summarising the nuisance parameter values and impacts:</p>
+<pre><code class="language-shell">plotImpacts.py -i impacts_part3.json -o impacts_part3
+</code></pre>
+<p><img alt="" src="../plots/part3_impacts.png" /></p>
+<p>There is a lot of information in these plots, which can be of invaluable use to analysers in understanding the fit. Do you understand everything that the plot is showing?</p>
+<ul>
+<li>Which NP has the highest impact on the signal strength measurement?</li>
+<li>Which NP is pulled the most in the fit to data? What does this information imply about the signal model mean in relation to the data?</li>
+<li>Which NP is the most constrained in the fit to the data? What does it mean for a nuisance parameter to be constrained?</li>
+<li>Try adding the option <code>--summary</code> to the impacts plotting command. This is a nice new feature in combine!</li>
+</ul>
+<h2 id="part-4-toy-generation-and-bias-studies">Part 4: Toy generation and bias studies</h2>
+<p>With combine we can generate toy datasets from the compiled datacard workspace. Please read <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#toy-data-generation">this section</a> in the combine manual before proceeding.</p>
+<p>An interesting use case of toy generation is when performing bias studies. In the Higgs to two photon (Hgg) analysis, the background is fit with some functional form. However (due to the complexities of QCD) the exact form of this function is unknown. Therefore, we need to understand how our choice of background function may impact the fitted signal strength. This is performed using a bias study, which will indicate how much potential bias is present given a certain choice of functional form.</p>
+<p>In the classical bias studies we begin by building a set of workspaces which correspond to different background function choices. In addition to the <code>RooExponential</code> constructed in Section 1, let's also try a (4th order) <code>RooChebychev</code> polynomial and a simple power law function to fit the background <span class="arithmatex"><span class="MathJax_Preview">m_{\gamma\gamma}</span><script type="math/tex">m_{\gamma\gamma}</script></span> distribution. </p>
+<p>The script used to fit the different functions and build the workspaces is <code>construct_models_bias_study_part4.py</code>. Take some time to look at the script and understand what the code is doing. In particular notice how we have saved the data as a <code>RooDataHist</code> in the workspace. This means we are now performing <strong>binned</strong> maximum likelihood fits (this is useful for part 4 to speed up fitting the many toys). If the binning is sufficiently granular, then there will be no noticeable difference in the results to the <strong>unbinned</strong> likelihood fits. Run the script with:</p>
+<pre><code class="language-shell">python3  construct_models_bias_study_part4.py
+</code></pre>
+<p>The outputs are a set of workspaces which correspond to different choices of background model functions, and a plot showing fits of the different functions to the data mass sidebands.</p>
+<p><img alt="" src="../plots/part4_data_sidebands.png" /></p>
+<p>The datacards for the different background model functions are saved as <code>datacard_part4_{pdf}.txt</code> where <code>pdf = {exp,poly,pow}</code>. Have a look inside the .txt files and understand what changes have been made to pick up the different functions. Compile the datacards with:</p>
+<pre><code class="language-shell">for pdf in {exp,poly,pow}; do text2workspace.py datacard_part4_${pdf}.txt -m 125; done
+</code></pre>
+<h3 id="bias-studies">Bias studies</h3>
+<p>For the bias studies we want to generate ("throw") toy datasets with some choice of background function and fit back with another. The toys are thrown with a known value of the signal strength (r=1 in this example), which we will call <span class="arithmatex"><span class="MathJax_Preview">r_{truth}</span><script type="math/tex">r_{truth}</script></span>. The fitted value of r is defined as <span class="arithmatex"><span class="MathJax_Preview">r_{fit}</span><script type="math/tex">r_{fit}</script></span>, with some uncertainty <span class="arithmatex"><span class="MathJax_Preview">\sigma_{fit}</span><script type="math/tex">\sigma_{fit}</script></span>. A pull value, <span class="arithmatex"><span class="MathJax_Preview">P</span><script type="math/tex">P</script></span>, is calculated for each toy dataset according to,</p>
+<div class="arithmatex">
+<div class="MathJax_Preview"> P = (r_{truth}-r_{fit})/\sigma_{fit}</div>
+<script type="math/tex; mode=display"> P = (r_{truth}-r_{fit})/\sigma_{fit}</script>
+</div>
+<p>By repeating the process for many toys we can build up a pull distribution. If there is no bias present then we would expect to obtain a normal distribution centred at 0, with a standard deviation of 1. Let's calculate the bias for our analysis.</p>
+<p>Firstly,  we generate N=1000 toys from each of the background function choices and save them in a ROOT file. For this we use the <code>GenerateOnly</code> method of combine. We will inject signal in the toys by setting <code>r=1</code> using the <code>--expectSignal 1</code> option. </p>
+<ul>
+<li>If time allows, repeat the bias studies with <code>--expectSignal 0</code>. This will inform us of the potential bias in the signal strength measurement given that there is no true signal.</li>
+</ul>
+<p>The following commands show the example of throwing 1000 toys from the exponential function, and then fitting back with the 4th-order Chebychev polynomial. We use the <code>singles</code> algorithm to obtain a value for <span class="arithmatex"><span class="MathJax_Preview">r_{fit}</span><script type="math/tex">r_{fit}</script></span> and <span class="arithmatex"><span class="MathJax_Preview">\sigma_{fit}</span><script type="math/tex">\sigma_{fit}</script></span> simultaneously.</p>
+<pre><code class="language-shell">combine -M GenerateOnly datacard_part4_exp.root -m 125 --freezeParameters MH -t 1000 -n .generate_exp --expectSignal 1 --saveToys
+
+combine -M MultiDimFit datacard_part4_poly.root -m 125 --freezeParameters MH -t 1000 -n .bias_truth_exp_fit_poly --expectSignal 1 --toysFile higgsCombine.generate_exp.GenerateOnly.mH125.123456.root --algo singles
+</code></pre>
+<p>The script <code>plot_bias_pull.py</code> will plot the pull distribution and fit a Gaussian to it:</p>
+<pre><code class="language-shell">python3 plot_bias_pull.py
+</code></pre>
+<p><img alt="" src="../plots/part4_pull_truth_exp_fit_poly.png" /></p>
+<p>The potential bias is defined as the (fitted) mean of the pull distribution. </p>
+<ul>
+<li>What is our bias value? Have we generated enough toys to be confident of the bias value? You could try generating more toys if not.</li>
+<li>What threshold do we use to define "acceptable" bias? </li>
+</ul>
+<p>From the pull definition, we see the bias value is defined relative to the total uncertainty in the signal strength (denominator of <span class="arithmatex"><span class="MathJax_Preview">\sigma_{fit}</span><script type="math/tex">\sigma_{fit}</script></span>). Some analyses use 0.14 as the threshold because a bias below this value would change the total uncertainty (when added in quadrature) by less than 1% (see equation below). Other analyses use 0.2 as this will change the total uncertainty by less than 2%. We should define the threshold before performing the bias study.</p>
+<div class="arithmatex">
+<div class="MathJax_Preview"> \sqrt{ 1^2 + 0.14^2} = 1.0098 </div>
+<script type="math/tex; mode=display"> \sqrt{ 1^2 + 0.14^2} = 1.0098 </script>
+</div>
+<ul>
+<li>How does our bias value compare to the thresholds? If we the bias is outside the acceptable region we should account for this using a <strong>spurious signal</strong> method (see advanced exercises TBA). </li>
+<li>Repeat the bias study for each possible truth and fitted background function combinations. Do the bias values induced by the choice of background function merit adding a spurious signal component into the fit?</li>
+<li>What would you expect the bias value to be for a background function that does not fit the data well? Should we be worried about such functions? What test could we use to reject such functions from the study beforehand?</li>
+</ul>
+<h2 id="part-5-discrete-profiling">Part 5: Discrete-profiling</h2>
+<p>If multiple pdfs exist to fit some distribution, we can store all pdfs in a single workspace by using a <code>RooMultiPdf</code> object. The script <code>construct_models_multipdf_part5.py</code> shows how to store the exponential, (4th order) Chebychev polynomial and the power law function from the previous section in a <code>RooMultiPdf</code> object. This requires a <code>RooCategory</code> index, which controls the pdf which is active at any one time. Look at the contents of the script and then run with:</p>
+<pre><code class="language-shell">python3 construct_models_multipdf_part5.py
+</code></pre>
+<p>The file <code>datacard_part5.txt</code> will load the multipdf as the background model. Notice the line at the end of the datacard (see below). This tells combine about the <code>RooCategory</code> index.</p>
+<pre><code class="language-shell">pdfindex_Tag0         discrete
+</code></pre>
+<p>Compile the datacard with:</p>
+<pre><code class="language-shell">text2workspace.py datacard_part5.txt -m 125
+</code></pre>
+<p>The <code>RooMultiPdf</code> is a handy object for performing bias studies as all functions can be stored in a single workspace. You can then set which function is used for generating the toys with the <code>--setParameters pdfindex=i</code> option, and which function is used for fitting with <code>--setParameters pdfindex=i --freezeParameters pdfindex=j</code> options. </p>
+<ul>
+<li>It would be a useful exercise to repeat the bias studies from part 4 but using the RooMultiPdf workspace. What happens when you do not freeze the index in the fitting step?</li>
+</ul>
+<p>But simpler bias studies are not the only benefit of using the <code>RooMultiPdf</code>! It also allows us to apply the <a href="https://arxiv.org/pdf/1408.6865.pdf">discrete profiling method</a> in our analysis. In this method, the index labelling which pdf is active (a discrete nuisance parameter) is left floating in the fit, and will be profiled by looping through all the possible index values and finding the pdf which gives the best fit. In this manner, we are able to account for the <strong>uncertainty in the choice of the background function</strong>. </p>
+<p>Note, by default, the multipdf will tell combine to add 0.5 to the NLL for each parameter in the pdf. This is known as the penalty term (or correction factor) for the discrete profiling method. You can toggle this term when building the workspace with the command <code>multipdf.setCorrectionFactor(0.5)</code>. You may need to change the value of this term to obtain an acceptable bias in your fit!</p>
+<p>Let's run a likelihood scan using the compiled datacard with the <code>RooMultiPdf</code>:</p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part5.root -m 125 --freezeParameters MH -n .scan.multidimfit --algo grid --points 20 --cminDefaultMinimizerStrategy 0 --saveSpecifiedIndex pdfindex_Tag0 --setParameterRanges r=0.5,2.5
+</code></pre>
+<p>The option <code>--cminDefaultMinimizerStrategy 0</code> is required to prevent HESSE being called as this cannot handle discrete nuisance parameters. HESSE is the full calculation of the second derivative matrix (Hessian) of the likelihood using finite difference methods.</p>
+<p>The option <code>--saveSpecifiedIndex pdfindex_Tag0</code> saves the value of the index at each point in the likelihood scan. Let's have a look at how the index value changes as a function of the signal strength. You can make the following plot by running:</p>
+<pre><code class="language-shell">python3 plot_pdfindex.py
+</code></pre>
+<p><img alt="" src="../plots/part5_r_vs_pdfindex.png" /></p>
+<p>By floating the discrete nuisance parameter <code>pdfindex_Tag0</code>, at each point in the likelihood scan the pdfs will be iterated over and the one which gives the max likelihood (lowest 2NLL) including the correction factor will be used. The plot above shows that the <code>pdfindex_Tag0=0</code> (exponential) is chosen for the majority of r values, but this switches to <code>pdfindex_Tag0=1</code> (Chebychev polynomial) at the lower edge of the r range. We can see the impact on the likelihood scan by fixing the pdf to the exponential:</p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part5.root -m 125 --freezeParameters MH,pdfindex_Tag0 --setParameters pdfindex_Tag0=0 -n .scan.multidimfit.fix_exp --algo grid --points 20 --cminDefaultMinimizerStrategy 0 --saveSpecifiedIndex pdfindex_Tag0 --setParameterRanges r=0.5,2.5
+</code></pre>
+<p>Plotting the two scans on the same axis:</p>
+<pre><code class="language-shell">plot1DScan.py higgsCombine.scan.multidimfit.MultiDimFit.mH125.root --main-label &quot;Pdf choice floating&quot; --main-color 1 --others higgsCombine.scan.multidimfit.fix_exp.MultiDimFit.mH125.root:&quot;Pdf fixed to exponential&quot;:2 -o part5_scan --y-cut 35 --y-max 35
+</code></pre>
+<p><img alt="" src="../plots/part5_scan.png" /></p>
+<p>The impact on the likelihood scan is evident at the lower edge, where the scan in which the index is floating flattens out. In this example, neither the <span class="arithmatex"><span class="MathJax_Preview">1\sigma</span><script type="math/tex">1\sigma</script></span> or <span class="arithmatex"><span class="MathJax_Preview">2\sigma</span><script type="math/tex">2\sigma</script></span> intervals are affected. But this is not always the case! Ultimately, this method allows us to account for the uncertainty in the choice of background function in the signal strength measurement. </p>
+<p>Coming back to the bias studies. Do you now understand what you are testing if you do not freeze the index in the fitting stage? In this case you are fitting the toys back with the discrete profiling method. This is the standard approach for the bias studies when we use the discrete-profiling method in an analysis.</p>
+<p>There are a number of options which can be added to the combine command to improve the performance when using discrete nuisance parameters. These are detailed at the end of this <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#discrete-profiling">section</a> in the combine manual.</p>
+<h2 id="part-6-multi-signal-model">Part 6: Multi-signal model</h2>
+<p>In reality, there are multiple Higgs boson processes which contribute to the total signal model, not only ggH. This section will explain how we can add an additional signal process (VBF) into the fit. Following this, we will add a second analysis category (Tag1), which has a higher purity of VBF events. To put this in context, the selection for Tag1 may require two jets with a large pseudorapidity separation and high invariant mass, which are typical properties of the VBF topology. By including this additional category with a different relative yield of VBF to ggH production, we are able to simultaneously constrain the rate of the two production modes.</p>
+<p>In the SM, the VBF process has a cross section which is roughly 10 times smaller than the ggH cross section. This explains why we need to use certain features of the event to boost the purity of VBF events. The LO Feynman diagram for VBF production is shown below.</p>
+<p><img alt="" src="../plots/part6_feynman.png" /></p>
+<h3 id="building-the-models">Building the models</h3>
+<p>Firstly, lets build the necessary inputs for this section using <code>construct_models_part6.py</code>. This script uses everything we have learnt in the previous sections:
+1) Signal models (Gaussians) are built separately for each process (ggH and VBF) in each analysis category (Tag0 and Tag1). This uses separate <code>TTrees</code> for each contribution in the <code>mc_part6.root</code> file. The mean and width of the Gaussians include the effect of the parametric shape uncertainties, <code>nuisance_scale</code> and <code>nuisance_smear</code>. Each signal model is normalised according to the following equation, where <span class="arithmatex"><span class="MathJax_Preview">\epsilon_{ij}</span><script type="math/tex">\epsilon_{ij}</script></span> labels the fraction of process, <span class="arithmatex"><span class="MathJax_Preview">i</span><script type="math/tex">i</script></span> (=ggH,VBF), landing in analysis category, <span class="arithmatex"><span class="MathJax_Preview">j</span><script type="math/tex">j</script></span> (=Tag0,Tag1), and <span class="arithmatex"><span class="MathJax_Preview">\mathcal{L}</span><script type="math/tex">\mathcal{L}</script></span> is the integrated luminosity (defined in the datacard).</p>
+<div class="arithmatex">
+<div class="MathJax_Preview"> N_{ij} = \sigma_i \cdot \mathcal{B}^{\gamma\gamma} \cdot \epsilon_{ij} \cdot \mathcal{L}</div>
+<script type="math/tex; mode=display"> N_{ij} = \sigma_i \cdot \mathcal{B}^{\gamma\gamma} \cdot \epsilon_{ij} \cdot \mathcal{L}</script>
+</div>
+<p>2) A background model is constructed for each analysis category by fitting the mass sidebands in data. The input data is stored in the <code>data_part6.root</code> file. The models are <code>RooMultiPdfs</code> which contain an exponential, a 4th-order Chebychev polynomial and a power law function. The shape parameters and normalisation terms of the background models are freely floating in the final fit.</p>
+<ul>
+<li>Have a look through the <code>construct_models_part6.py</code> script and try to understand all parts of the model construction. When you are happy, go ahead and construct the models with:</li>
+</ul>
+<pre><code class="language-shell">python3 construct_models_part6.py
+</code></pre>
+<p>The datacards for the two analysis categories are saved separately as <code>datacard_part6_Tag0.txt</code> and <code>datacard_part6_Tag1.txt</code>. </p>
+<ul>
+<li>Do you understand the changes made to include multiple signal processes in the datacard? What value in the <code>process</code> line is used to label VBF as a signal?</li>
+<li>Try compiling the individual datacards. What are the prefit ggH and VBF yields in each analysis category? You can find these by opening the workspace and printing the contents.</li>
+<li>Run the best fits and plot the prefit and postfit S+B models along with the data (see code in part 2). How does the absolute number of data events in Tag1 compare to Tag0? What about the signal-to-background ratio, S/B? </li>
+</ul>
+<p>In order to combine the two categories into a single datacard, we make use of the <code>combineCards.py</code> script:</p>
+<pre><code class="language-shell">combineCards.py datacard_part6_Tag0.txt datacard_part6_Tag1.txt &gt; datacard_part6_combined.txt
+</code></pre>
+<h3 id="running-the-fits">Running the fits</h3>
+<p>If we use the default <code>text2workspace</code> command on the combined datacard, then this will introduce a single signal strength modifer which modifies the rate of all signal processes (ggH and VBF) by the same factor. </p>
+<ul>
+<li>Try compiling the combined datacard and running a likelihood scan. Does the sensitivity to the global signal strength improve by adding the additional analysis category "Tag1"?</li>
+</ul>
+<p>If we want to measure the independent rates of both processes simultaneously, then we need to introduce a separate signal strength for ggH and VBF. To do this we use the <code>multiSignalModel</code> physics model in combine by adding the following options to the <code>text2workspace</code> command:</p>
+<pre><code class="language-shell">text2workspace.py datacard_part6_combined.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO &quot;map=.*/ggH:r_ggH[1,0,2]&quot; --PO &quot;map=.*/VBF:r_VBF[1,0,3]&quot; -o datacard_part6_combined_multiSignalModel.root
+</code></pre>
+<p>The syntax for the parameter to process mapping is <code>map=category/process/POI[default,min,max]</code>. We have used the wildcard <code>.*</code> to tell combine that the POI (parameter of interest) should scale all cases of that process, regardless of the analysis category. The output of this command tells us what is scaled by the two signal strengths:</p>
+<pre><code class="language-shell">Will scale  ch1/ggH  by  r_ggH
+Will scale  ch1/VBF  by  r_VBF
+Will scale  ch1/bkg_mass  by  1
+Will scale  ch2/ggH  by  r_ggH
+Will scale  ch2/VBF  by  r_VBF
+Will scale  ch2/bkg_mass  by  1
+Will scale  ch1/ggH  by  r_ggH
+Will scale  ch1/VBF  by  r_VBF
+Will scale  ch1/bkg_mass  by  1
+Will scale  ch2/ggH  by  r_ggH
+Will scale  ch2/VBF  by  r_VBF
+Will scale  ch2/bkg_mass  by  1
+</code></pre>
+<p>Exactly what we require!</p>
+<p>To run a 1D "profiled" likelihood scan for ggH we use the following command:</p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part6_combined_multiSignalModel.root -m 125 --freezeParameters MH -n .scan.part6_multiSignalModel_ggH --algo grid --points 20 --cminDefaultMinimizerStrategy 0 --saveInactivePOI 1 -P r_ggH --floatOtherPOIs 1
+</code></pre>
+<ul>
+<li>"Profiled" here means we are profiling over the other parameter of interest, <code>r_VBF</code> in the fit. In other words, we are treating <code>r_VBF</code> as an additional nuisance parameter. The option <code>--saveInactivePOI 1</code> stores the value of <code>r_VBF</code> in the combine output. Take a look at the fit output. Does the value of <code>r_VBF</code> depend on <code>r_ggH</code>? Are the two parameters of interest correlated? Remember, to look at the contents of the TTree you can use <code>limit-&gt;Show(i)</code>, where i is an integer labelling the point in the likelihood scan.</li>
+<li>Run the profiled scan for the VBF signal strength. Plot the <code>r_ggH</code> and <code>r_VBF</code> likelihood scans using the <code>plot1DScan.py</code> script. You will need to change some of the input options, in particular the <code>--POI</code> option. You can list the full set of options by running:</li>
+</ul>
+<pre><code class="language-shell">plot1DScan.py --help
+</code></pre>
+<h3 id="two-dimensional-likelihood-scan">Two-dimensional likelihood scan</h3>
+<p>We can also run the fit at fixed points in (<code>r_ggH</code>,<code>r_VBF</code>) space. By using a sufficient number of points, we are able to up the 2D likelihood surface. Let's change the ranges of the parameters of interest to match what we have found in the profiled scans:</p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part6_combined_multiSignalModel.root -m 125 --freezeParameters MH -n .scan2D.part6_multiSignalModel --algo grid --points 800 --cminDefaultMinimizerStrategy 0 -P r_ggH -P r_VBF --setParameterRanges r_ggH=0.5,2.5:r_VBF=-1,2
+</code></pre>
+<p>To plot the output you can use the <code>plot_2D_scan.py</code> script:</p>
+<pre><code class="language-shell">python3 plot_2D_scan.py
+</code></pre>
+<p>This script interpolates the 2NLL value between the points ran in the scan so that the plot shows a smooth likelihood surface. You may find in some cases, the number of scanned points and interpolation parameters need to be tuned to get a sensible looking surface. This basically depends on how complicated the likelihood surface is.</p>
+<p><img alt="" src="../plots/part6_scan2D_r_ggH_vs_r_VBF.png" /></p>
+<ul>
+<li>The plot shows that the data is in agreement with the SM within the <span class="arithmatex"><span class="MathJax_Preview">2\sigma</span><script type="math/tex">2\sigma</script></span> CL. Here, the <span class="arithmatex"><span class="MathJax_Preview">1\sigma</span><script type="math/tex">1\sigma</script></span> and <span class="arithmatex"><span class="MathJax_Preview">2\sigma</span><script type="math/tex">2\sigma</script></span> confidence interval contours corresponds to 2NLL values of 2.3 and 5.99, respectively. Do you understand why this? Think about Wilk's theorem.</li>
+<li>Does the plot show any correlation between the ggH and VBF signal strengths? Are the two positively or negatively correlated? Does this make sense for this pair of parameters given the analysis setup? Try repeating the 2D likelihood scan using the "Tag0" only datacard. How does the correlation behaviour change?</li>
+<li>How can we read off the "profiled" 1D likelihood scan constraints from this plot?</li>
+</ul>
+<h3 id="correlations-between-parameters">Correlations between parameters</h3>
+<p>For template-based analyses we can use the <code>FitDiagnostics</code> method in combine to extract the covariance matrix for the fit parameters. Unfortunately, this method is not compatible when using discrete nuisance parameters (<code>RooMultiPdf</code>). Instead, we can use the <code>robustHesse</code> method to find the Hessian matrix by finite difference methods. The matrix is then inverted to get the covariance. Subsequently, we can use the covariance to extract the correlations between fit parameters. </p>
+<pre><code class="language-shell">combine -M MultiDimFit datacard_part6_combined_multiSignalModel.root -m 125 --freezeParameters MH -n .robustHesse.part6_multiSignalModel --cminDefaultMinimizerStrategy 0 -P r_ggH -P r_VBF --setParameterRanges r_ggH=0.5,2.5:r_VBF=-1,2 --robustHesse 1 --robustHesseSave 1 --saveFitResult
+</code></pre>
+<p>The output file <code>robustHesse.robustHesse.part6_multiSignalModel.root</code> stores the correlation matrix (<code>h_correlation</code>). This contains the correlations between all parameters including the nuisances. So if we are interested in the correlation between <code>r_ggH</code> and <code>r_VBF</code>, we first need to find which bin corresponds to these parameters:</p>
+<pre><code class="language-shell">root robustHesse.robustHesse.part6_multiSignalModel.root
+
+root [1] h_correlation-&gt;GetXaxis()-&gt;GetBinLabel(19)
+(const char *) &quot;r_VBF&quot;
+root [2] h_correlation-&gt;GetYaxis()-&gt;GetBinLabel(20)
+(const char *) &quot;r_ggH&quot;
+root [3] h_correlation-&gt;GetBinContent(19,20)
+(double) -0.19822058
+</code></pre>
+<ul>
+<li>The two parameters of interest have a correlation coefficient of -0.198. This means the two parameters are somewhat anti-correlated. Does this match what we see in the 2D likelihood scan?</li>
+</ul>
+<h3 id="impacts_1">Impacts</h3>
+<p>We extract the impacts for each parameter of interest using the following commands:</p>
+<pre><code class="language-shell">combineTool.py -M Impacts -d datacard_part6_combined_multiSignalModel.root -m 125 --freezeParameters MH -n .impacts_part6_multiSignal --robustFit 1 --cminDefaultMinimizerStrategy 0 -P r_ggH -P r_VBF --doInitialFit
+
+combineTool.py -M Impacts -d datacard_part6_combined_multiSignalModel.root -m 125 --freezeParameters MH -n .impacts_part6_multiSignal --robustFit 1 --cminDefaultMinimizerStrategy 0 -P r_ggH -P r_VBF --doFits
+
+combineTool.py -M Impacts -d datacard_part6_combined_multiSignalModel.root -m 125 --freezeParameters MH -n .impacts_part6_multiSignal --robustFit 1 --cminDefaultMinimizerStrategy 0 -P r_ggH -P r_VBF -o impacts_part6.json
+
+plotImpacts.py -i impacts_part6.json -o impacts_part6_r_ggH --POI r_ggH
+plotImpacts.py -i impacts_part6.json -o impacts_part6_r_VBF --POI r_VBF
+</code></pre>
+<ul>
+<li>Look at the output PDF files. How does the ranking of the nuisance parameters change for the different signal strengths? </li>
+</ul>
+<h2 id="advanced-exercises-to-be-added">Advanced exercises (to be added)</h2>
+<p>The combine experts will include additional exercises here in due course. These will include:</p>
+<ul>
+<li>Convolution of model pdfs: <code>RooAddPdf</code></li>
+<li>Application of the spurious signal method</li>
+<li>Advanced physics models including parametrised signal strengths e.g. SMEFT</li>
+<li>Mass fits</li>
+<li>Two-dimensional parametric models </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../part5/longexerciseanswers/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Solutions to long exercise">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Solutions to long exercise
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8d2eff1.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+  </body>
+</html>
