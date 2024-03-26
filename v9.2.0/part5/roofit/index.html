@@ -1,0 +1,1900 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../part3/debugging/">
+      
+      
+        <link rel="next" href="../longexercise/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.13">
+    
+    
+      
+        <title>RooFit Basics - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e359304.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#roofit-basics" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              RooFit Basics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    What Combine Does
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Physics models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Running combine
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Running the tool
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Validating datacards
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objects
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datasets
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Main Features
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../longexercise/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exercises
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../longexerciseanswers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Solutions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Parametric Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objects
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datasets
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="roofit-basics">RooFit Basics</h1>
+<p><code>RooFit</code> is a OO analysis environment built on <code>ROOT</code>. It has a collection of classes designed to augment root for data modeling.</p>
+<p>This section covers a few of the basics of <code>RooFit</code>. There are many more tutorials available at this link: <a href="https://root.cern.ch/root/html600/tutorials/roofit/index.html">https://root.cern.ch/root/html600/tutorials/roofit/index.html</a></p>
+<h2 id="objects">Objects</h2>
+<p>In <code>RooFit</code>, any variable, data point, function, PDF (etc.) is represented by a c++ object
+The most basic of these is the <code>RooRealVar</code>. We will create one that will represent the mass of some hypothetical particle, we name it and give it an initial starting value and range.</p>
+<pre><code class="language-c++">RooRealVar MH(&quot;MH&quot;,&quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;,125,120,130);
+MH.Print();
+</code></pre>
+<pre><code class="language-shell">RooRealVar::MH = 125  L(120 - 130)
+</code></pre>
+<p>Ok, great. This variable is now an object we can play around with. We can access this object and modify its properties, such as its value. </p>
+<pre><code class="language-c++">MH.setVal(130);
+MH.getVal();
+</code></pre>
+<p>In particle detectors we typically do not observe this particle mass, but usually define some observable which is <em>sensitive</em> to this mass. We will assume we can detect and reconstruct the decay products of the H-boson and measure the invariant mass of those particles. We need to make another variable that represents that invariant mass.</p>
+<pre><code class="language-c++">RooRealVar mass(&quot;m&quot;,&quot;m (GeV)&quot;,100,80,200);
+</code></pre>
+<p>In the perfect world we would perfectly measure the exact mass of the particle in every single event. However, our detectors are usually far from perfect so there will be some resolution effect. We will assume the resolution of our measurement of the invariant mass is 10 GeV and call it "sigma"</p>
+<pre><code class="language-c++">RooRealVar sigma(&quot;resolution&quot;,&quot;#sigma&quot;,10,0,20);
+</code></pre>
+<p>More exotic variables can be constructed out of these <code>RooRealVar</code>s using <code>RooFormulaVars</code>. For example, suppose we wanted to make a function out of the variables that represented the relative resolution as a function of the hypothetical mass MH. </p>
+<pre><code class="language-c++">RooFormulaVar func(&quot;R&quot;,&quot;@0/@1&quot;,RooArgList(sigma,mass));
+func.Print(&quot;v&quot;);
+</code></pre>
+<details>
+<summary><b>Show</b></summary>
+
+<pre><code class="language-shell">--- RooAbsArg ---
+  Value State: DIRTY
+  Shape State: DIRTY
+  Attributes: 
+  Address: 0x10e878068
+  Clients: 
+  Servers: 
+    (0x10dcd47b0,V-) RooRealVar::resolution &quot;#sigma&quot;
+    (0x10dcd4278,V-) RooRealVar::m &quot;m (GeV)&quot;
+  Proxies: 
+    actualVars -&gt; 
+      1)  resolution
+      2)           m
+--- RooAbsReal ---
+
+  Plot label is &quot;R&quot;
+    --- RooFormula ---
+    Formula: &quot;@0/@1&quot;
+    (resolution,m)
+</code></pre>
+
+</details>
+
+<p>Notice how there is a list of the variables we passed (the servers or "actual vars"). We can now plot the function. <code>RooFit</code> has a special plotting object <code>RooPlot</code> which keeps track of the objects (and their normalisations) that we want to draw. Since <code>RooFit</code> does not know the difference between objects that are and are not dependent, we need to tell it. </p>
+<p>Right now, we have the relative resolution as <span class="arithmatex">\(R(m,\sigma)\)</span>, whereas we want to plot 
+<span class="arithmatex">\(R(m,\sigma(m))\)</span>!</p>
+<pre><code class="language-c++">TCanvas *can = new TCanvas();
+
+//make the x-axis the &quot;mass&quot;
+RooPlot *plot = mass.frame(); 
+func.plotOn(plot);
+
+plot-&gt;Draw();
+can-&gt;Draw();
+</code></pre>
+<p><img alt="" src="../images/expo.png" /></p>
+<p>The main objects we are interested in using from <code>RooFit</code> are <em>probability denisty functions</em> or (PDFs). We can construct the PDF,</p>
+<div class="arithmatex">\[
+f(m|M_{H},\sigma)
+\]</div>
+<p>as a simple Gaussian shape for example or a <code>RooGaussian</code> in <code>RooFit</code> language (think McDonald's logic, everything is a <code>RooSomethingOrOther</code>)</p>
+<pre><code class="language-c++">RooGaussian gauss(&quot;gauss&quot;,&quot;f(m|M_{H},#sigma)&quot;,mass,MH,sigma);
+gauss.Print(&quot;V&quot;);
+</code></pre>
+<details>
+<summary><b>Show</b></summary>
+
+<pre><code class="language-shell">--- RooAbsArg ---
+  Value State: DIRTY
+  Shape State: DIRTY
+  Attributes: 
+  Address: 0x10ecf4188
+  Clients: 
+  Servers: 
+    (0x10dcd4278,V-) RooRealVar::m &quot;m (GeV)&quot;
+    (0x10a08a9d8,V-) RooRealVar::MH &quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;
+    (0x10dcd47b0,V-) RooRealVar::resolution &quot;#sigma&quot;
+  Proxies: 
+    x -&gt; m
+    mean -&gt; MH
+    sigma -&gt; resolution
+--- RooAbsReal ---
+
+  Plot label is &quot;gauss&quot;
+--- RooAbsPdf ---
+Cached value = 0
+</code></pre>
+
+</details>
+
+<p>Notice how the gaussian PDF, like the <code>RooFormulaVar</code> depends on our <code>RooRealVar</code> objects, these are its servers.  Its evaluation will depend on their values. </p>
+<p>The main difference between PDFs and Functions in RooFit is that PDFs are <em>automatically normalised to unitiy</em>, hence they represent a probability density, you don't need to normalise yourself. Lets plot it for the different values of <span class="arithmatex">\(m\)</span>.</p>
+<pre><code class="language-c++">plot = mass.frame();
+
+gauss.plotOn(plot);
+
+MH.setVal(120);
+gauss.plotOn(plot,RooFit::LineColor(kBlue));
+
+MH.setVal(125);
+gauss.plotOn(plot,RooFit::LineColor(kRed));
+
+MH.setVal(135);
+gauss.plotOn(plot,RooFit::LineColor(kGreen));
+
+plot-&gt;Draw();
+
+can-&gt;Update();
+can-&gt;Draw();
+</code></pre>
+<p><img alt="" src="../images/gaus.png" /></p>
+<p>Note that as we change the value of <code>MH</code>, the PDF gets updated at the same time.</p>
+<p>PDFs can be used to generate Monte Carlo data. One of the benefits of <code>RooFit</code> is that to do so only uses a single line of code! As before, we have to tell <code>RooFit</code> which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" <span class="arithmatex">\(m\)</span>. The arguments for the function are the set of observables, follwed by the number of events,</p>
+<pre><code class="language-c++">RooDataSet *gen_data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
+</code></pre>
+<p>Now we can plot the data as with other RooFit objects.</p>
+<pre><code class="language-c++">plot = mass.frame();
+
+gen_data-&gt;plotOn(plot);
+gauss.plotOn(plot);
+gauss.paramOn(plot);
+
+plot-&gt;Draw();
+can-&gt;Update();
+can-&gt;Draw();
+</code></pre>
+<p><img alt="" src="../images/gausdata.png" /></p>
+<p>Of course we are not in the business of generating MC events, but collecting <em>real data!</em>. Next we will look at using real data in <code>RooFit</code>.</p>
+<h2 id="datasets">Datasets</h2>
+<p>A dataset is essentially just a collection of points in N-dimensional (N-observables) space. There are two basic implementations in <code>RooFit</code>, </p>
+<p>1) an "unbinned" dataset - <code>RooDataSet</code></p>
+<p>2) a "binned" dataset - <code>RooDataHist</code></p>
+<p>both of these use the same basic structure as below</p>
+<p><img alt="" src="../images/datastructure.png" /></p>
+<p>We will create an empty dataset where the only observable is the mass. Points can be added to the dataset one by one ...</p>
+<pre><code class="language-c++">RooDataSet mydata(&quot;dummy&quot;,&quot;My dummy dataset&quot;,RooArgSet(mass)); 
+// We've made a dataset with one observable (mass)
+
+mass.setVal(123.4);
+mydata.add(RooArgSet(mass));
+mass.setVal(145.2);
+mydata.add(RooArgSet(mass));
+mass.setVal(170.8);
+mydata.add(RooArgSet(mass));
+
+mydata.Print();
+</code></pre>
+<pre><code class="language-shell">RooDataSet::dummy[m] = 3 entries
+</code></pre>
+<p>There are also other ways to manipulate datasets in this way as shown in the diagram below </p>
+<p><img alt="" src="../images/datasets_manip.png" /></p>
+<p>Luckily there are also Constructors for a <code>RooDataSet</code> from a <code>TTree</code> and for a <code>RooDataHist</code> from a <code>TH1</code> so its simple to convert from your usual ROOT objects.</p>
+<p>We will take an example dataset put together already. The file <code>tutorial.root</code> can be downloaded <a href="https://github.com/amarini/Prefit2020/blob/master/Session%201/tutorial.root">here</a>.</p>
+<pre><code class="language-c++">TFile *file = TFile::Open(&quot;tutorial.root&quot;);
+file-&gt;ls();
+</code></pre>
+<details>
+<summary><b>Show file contents</b></summary>
+
+<pre><code class="language-shell">TFile**     tutorial.root
+ TFile*     tutorial.root
+  KEY: RooWorkspace workspace;1 Tutorial Workspace
+  KEY: TProcessID   ProcessID0;1    48737500-e7e5-11e6-be6f-0d0011acbeef
+</code></pre>
+
+</details>
+
+<p>Inside the file, there is something called a <code>RooWorkspace</code>. This is just the <code>RooFit</code> way of keeping a persistent link between the objects for a model. It is a very useful way to share data and PDFs/functions etc among CMS collaborators.</p>
+<p>We will now take a look at it. It contains a <code>RooDataSet</code> and one variable. This time we called our variable (or observable) <code>CMS_hgg_mass</code>, we will assume that this is the invariant mass of photon pairs where we assume our H-boson decays to photons.  </p>
+<pre><code class="language-c++">RooWorkspace *wspace = (RooWorkspace*) file-&gt;Get(&quot;workspace&quot;);
+wspace-&gt;Print(&quot;v&quot;);
+</code></pre>
+<details>
+<summary><b>Show</b></summary>
+
+<pre><code class="language-shell">RooWorkspace(workspace) Tutorial Workspace contents
+
+variables
+---------
+(CMS_hgg_mass)
+
+datasets
+--------
+RooDataSet::dataset(CMS_hgg_mass)
+</code></pre>
+
+</details>
+
+<p>Now we will have a look at the data. The <code>RooWorkspace</code> has several accessor functions, we will use the <code>RooWorkspace::data</code> one. 
+There are also <code>RooWorkspace::var</code>, <code>RooWorkspace::function</code> and <code>RooWorkspace::pdf</code> with (hopefully) obvious purposes.</p>
+<pre><code class="language-c++">RooDataSet *hgg_data = (RooDataSet*) wspace-&gt;data(&quot;dataset&quot;);
+RooRealVar *hgg_mass = (RooRealVar*) wspace-&gt;var(&quot;CMS_hgg_mass&quot;);
+
+plot = hgg_mass-&gt;frame();
+
+hgg_data-&gt;plotOn(plot,RooFit::Binning(160)); 
+// Here we've picked a certain number of bins just for plotting purposes 
+
+TCanvas *hggcan = new TCanvas();
+plot-&gt;Draw();
+hggcan-&gt;Update();
+hggcan-&gt;Draw();
+</code></pre>
+<p><a href="../images/realdata.png"></a></p>
+<h1 id="likelihoods-and-fitting-to-data">Likelihoods and Fitting to data</h1>
+<p>The data we have in our file does not look like a Gaussian distribution. Instead, we could probably use something like an exponential to describe it. </p>
+<p>There is an exponential PDF already in <code>RooFit</code> (yes, you guessed it) <code>RooExponential</code>. For a PDF, we only need one parameter which is the exponential slope <span class="arithmatex">\(\alpha\)</span> so our pdf is,  </p>
+<div class="arithmatex">\[ f(m|\alpha) = \dfrac{1}{N} e^{-\alpha m}\]</div>
+<p>Where of course, <span class="arithmatex">\(N = \int_{110}^{150} e^{-\alpha m} dm\)</span> is the normalisation constant.</p>
+<p>You can find several available <code>RooFit</code> functions here: <a href="https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html">https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html</a></p>
+<p>There is also support for a generic PDF in the form of a <code>RooGenericPdf</code>, check this link: <a href="https://root.cern.ch/doc/v608/classRooGenericPdf.html">https://root.cern.ch/doc/v608/classRooGenericPdf.html</a></p>
+<p>Now we will create an exponential PDF for our background, </p>
+<pre><code class="language-c++">RooRealVar alpha(&quot;alpha&quot;,&quot;#alpha&quot;,-0.05,-0.2,0.01);
+RooExponential expo(&quot;exp&quot;,&quot;exponential function&quot;,*hgg_mass,alpha);
+</code></pre>
+<p>We can use <code>RooFit</code> to tell us to estimate the value of <span class="arithmatex">\(\alpha\)</span> using this dataset. You will learn more about parameter estimation, but for now we will just assume you know about maximizing likelihoods. This <em>maximum likelihood estimator</em> is common in HEP and is known to give unbiased estimates for things like distribution means etc. </p>
+<p>This also introduces the other main use of PDFs in <code>RooFit</code>. They can be used to construct <em>likelihoods</em> easily.</p>
+<p>The likelihood <span class="arithmatex">\(\mathcal{L}\)</span> is defined for a particluar dataset (and model) as being proportional to the probability to observe the data assuming some pdf. For our data, the probability to observe an event with a value in an interval bounded by a and b is given by,</p>
+<div class="arithmatex">\[ P\left(m~\epsilon~[a,b] \right) = \int_{a}^{b} f(m|\alpha)dm  \]</div>
+<p>As that interval shrinks we can say this probability just becomes equal to <span class="arithmatex">\(f(m|\alpha)dm\)</span>.</p>
+<p>The probability to observe the dataset we have is given by the product of such probabilities for each of our data points, so that </p>
+<div class="arithmatex">\[\mathcal{L}(\alpha) \propto \prod_{i} f(m_{i}|\alpha)\]</div>
+<p>Note that for a specific dataset, the <span class="arithmatex">\(dm\)</span> factors which should be there are constnant. They can therefore be absorbed into the constant of proportionality!</p>
+<p>The maximum likelihood esitmator for <span class="arithmatex">\(\alpha\)</span>, usually written as <span class="arithmatex">\(\hat{\alpha}\)</span>, is found by maximising <span class="arithmatex">\(\mathcal{L}(\alpha)\)</span>.</p>
+<p>Note that this will not depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the <em>ratio</em> of likelihoods is needed, in which the constant factors out. </p>
+<p>Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <strong>N</strong>egative <strong>L</strong>og <strong>L</strong>ikelihood : <span class="arithmatex">\(\mathrm{-Log}\mathcal{L}(\alpha)\)</span>.</p>
+<p><code>RooFit</code> can construct the <strong>NLL</strong> for us.</p>
+<pre><code class="language-c++">RooNLLVar *nll = (RooNLLVar*) expo.createNLL(*hgg_data);
+nll-&gt;Print(&quot;v&quot;);
+</code></pre>
+<details>
+<summary><b>Show</b></summary>
+
+<pre><code class="language-shell">--- RooAbsArg ---
+  Value State: DIRTY
+  Shape State: DIRTY
+  Attributes:
+  Address: 0x7fdddbe46200
+  Clients:
+  Servers:
+    (0x11eab5638,V-) RooRealVar::alpha &quot;#alpha&quot;
+  Proxies:
+    paramSet -&gt;
+      1)  alpha
+--- RooAbsReal ---
+
+  Plot label is &quot;nll_exp_dataset&quot;
+</code></pre>
+
+</details>
+
+<p>Notice that the NLL object knows which RooRealVar is the parameter because it doesn't find that one in the dataset. This is how <code>RooFit</code> distiguishes between <em>observables</em> and <em>parameters</em>.</p>
+<p><code>RooFit</code> has an interface to Minuit via the <code>RooMinimizer</code> class which takes the NLL as an argument. To minimize, we just call the <code>RooMinimizer::minimize()</code> function. <strong><code>Minuit2</code></strong> is the program and <strong><code>migrad</code></strong> is the minimization routine which uses gradient descent.</p>
+<pre><code class="language-c++">RooMinimizer minim(*nll);
+minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;);  
+</code></pre>
+<details>
+<summary><b>Show</b></summary>
+
+<pre><code class="language-shell"> **********
+ **    1 **SET PRINT           1
+ **********
+ **********
+ **    2 **SET NOGRAD
+ **********
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 alpha       -5.00000e-02  2.10000e-02   -2.00000e-01  1.00000e-02
+ **********
+ **    3 **SET ERR         0.5
+ **********
+ **********
+ **    4 **SET PRINT           1
+ **********
+ **********
+ **    5 **SET STR           1
+ **********
+ NOW USING STRATEGY  1: TRY TO BALANCE SPEED AGAINST RELIABILITY
+ **********
+ **    6 **MIGRAD         500           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=3589.52 FROM MIGRAD    STATUS=INITIATE        4 CALLS           5 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE
+   1  alpha       -5.00000e-02   2.10000e-02   2.24553e-01  -9.91191e+01
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=3584.68 FROM MIGRAD    STATUS=CONVERGED      18 CALLS          19 TOTAL
+                     EDM=1.4449e-08    STRATEGY= 1      ERROR MATRIX ACCURATE
+  EXT PARAMETER                                   STEP         FIRST
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE
+   1  alpha       -4.08262e-02   2.91959e-03   1.33905e-03  -3.70254e-03
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  1    ERR DEF=0.5
+  8.527e-06
+</code></pre>
+
+</details>
+
+<p><code>RooFit</code> has found the best fit value of alpha for this dataset. It also estimates an uncertainty on alpha using the Hessian matrix from the fit.</p>
+<pre><code class="language-c++">alpha.Print(&quot;v&quot;);
+</code></pre>
+<pre><code class="language-shell">--- RooAbsArg ---
+  Value State: clean
+  Shape State: clean
+  Attributes:
+  Address: 0x11eab5638
+  Clients:
+    (0x11eab5978,V-) RooExponential::exp &quot;exponential function&quot;
+    (0x7fdddbe46200,V-) RooNLLVar::nll_exp_dataset &quot;-log(likelihood)&quot;
+    (0x7fdddbe95600,V-) RooExponential::exp &quot;exponential function&quot;
+    (0x7fdddbe5a400,V-) RooRealIntegral::exp_Int[CMS_hgg_mass] &quot;Integral of exponential function&quot;
+  Servers:
+  Proxies:
+--- RooAbsReal ---
+
+  Plot label is &quot;alpha&quot;
+--- RooAbsRealLValue ---
+  Fit range is [ -0.2 , 0.01 ]
+--- RooRealVar ---
+  Error = 0.00291959
+</code></pre>
+<p>We will plot the resulting exponential on top of the data. Notice that the value of <span class="arithmatex">\(\hat{\alpha}\)</span> is used for the exponential. </p>
+<pre><code class="language-c++">expo.plotOn(plot);
+expo.paramOn(plot);
+plot-&gt;Draw();
+hggcan-&gt;Update();
+hggcan-&gt;Draw();
+</code></pre>
+<p><img alt="" src="../images/expofit.png" /></p>
+<p>It looks like there could be a small region near 125 GeV for which our fit does not quite go through the points. Maybe our hypothetical H-boson is not so hypothetical after all!</p>
+<p>We will now see what happens if we include some resonant signal into the fit. We can take our Gaussian function again and use that as a signal model. A reasonable value for the resolution of a resonant signal with a mass around 125 GeV decaying to a pair of photons is around a GeV.</p>
+<pre><code class="language-c++">sigma.setVal(1.);
+sigma.setConstant();
+
+MH.setVal(125);
+MH.setConstant();
+
+RooGaussian hgg_signal(&quot;signal&quot;,&quot;Gaussian PDF&quot;,*hgg_mass,MH,sigma);
+</code></pre>
+<p>By setting these parameters constant, <code>RooFit</code> knows (either when creating the NLL by hand or when using <code>fitTo</code>) that there is not need to fit for these parameters. </p>
+<p>We need to add this to our exponential model and fit a "Sigmal+Background model" by creating a <code>RooAddPdf</code>. In <code>RooFit</code> there are two ways to add PDFs, recursively where the fraction of yields for the signal and background is a parameter or absolutely where each PDF has its own normalization. We're going to use the second one.</p>
+<pre><code class="language-c++">RooRealVar norm_s(&quot;norm_s&quot;,&quot;N_{s}&quot;,10,100);
+RooRealVar norm_b(&quot;norm_b&quot;,&quot;N_{b}&quot;,0,1000);
+
+const RooArgList components(hgg_signal,expo);
+const RooArgList coeffs(norm_s,norm_b);
+
+RooAddPdf model(&quot;model&quot;,&quot;f_{s+b}&quot;,components,coeffs);
+model.Print(&quot;v&quot;);
+</code></pre>
+<details>
+<summary><b>Show</b></summary>
+
+<pre><code class="language-shell">--- RooAbsArg ---
+  Value State: DIRTY
+  Shape State: DIRTY
+  Attributes: 
+  Address: 0x11ed5d7a8
+  Clients: 
+  Servers: 
+    (0x11ed5a0f0,V-) RooGaussian::signal &quot;Gaussian PDF&quot;
+    (0x11ed5d058,V-) RooRealVar::norm_s &quot;N_{s}&quot;
+    (0x11eab5978,V-) RooExponential::exp &quot;exponential function&quot;
+    (0x11ed5d398,V-) RooRealVar::norm_b &quot;N_{b}&quot;
+  Proxies: 
+    !refCoefNorm -&gt; 
+    !pdfs -&gt; 
+      1)  signal
+      2)     exp
+    !coefficients -&gt; 
+      1)  norm_s
+      2)  norm_b
+--- RooAbsReal ---
+
+  Plot label is &quot;model&quot;
+--- RooAbsPdf ---
+Cached value = 0
+</code></pre>
+
+</details>
+
+<p>Ok, now we will fit the model. Note this time we add the option <code>Extended()</code>, which tells <code>RooFit</code> that we care about the overall number of observed events in the data <span class="arithmatex">\(n\)</span> too. It will add an additional Poisson term in the likelihood to account for this so our likelihood this time looks like,</p>
+<div class="arithmatex">\[L_{s+b}(N_{s},N_{b},\alpha) = \dfrac{ N_{s}+N_{b}^{n} e^{N_{s}+N_{b}} }{n!} \cdot \prod_{i}^{n} \left[ c f_{s}(m_{i}|M_{H},\sigma)+ (1-c)f_{b}(m_{i}|\alpha)  \right] \]</div>
+<p>where <span class="arithmatex">\(c = \dfrac{ N_{s} }{ N_{s} + N_{b} }\)</span>,   <span class="arithmatex">\(f_{s}(m|M_{H},\sigma)\)</span> is the Gaussian signal pdf and <span class="arithmatex">\(f_{b}(m|\alpha)\)</span> is the exponential pdf. Remember that <span class="arithmatex">\(M_{H}\)</span> and <span class="arithmatex">\(\sigma\)</span> are fixed so that they are no longer parameters of the likelihood.</p>
+<p>There is a simpler interface for maximum-likelihood fits which is the <code>RooAbsPdf::fitTo</code> method. With this simple method, <code>RooFit</code> will construct the negative log-likelihood function, from the pdf, and minimize all of the free parameters in one step.</p>
+<pre><code class="language-c++">model.fitTo(*hgg_data,RooFit::Extended());
+
+model.plotOn(plot,RooFit::Components(&quot;exp&quot;),RooFit::LineColor(kGreen));
+model.plotOn(plot,RooFit::LineColor(kRed));
+model.paramOn(plot);
+
+hggcan-&gt;Clear();
+plot-&gt;Draw();
+hggcan-&gt;Update();
+hggcan-&gt;Draw();
+</code></pre>
+<p><img alt="" src="../images/fit.png" /></p>
+<p>What about if we also fit for the mass (<span class="arithmatex">\(M_{H}\)</span>)? we can easily do this by removing the constant setting on MH.</p>
+<pre><code class="language-c++">MH.setConstant(false);
+model.fitTo(*hgg_data,RooFit::Extended());
+</code></pre>
+<details>
+<summary><b>Show output</b></summary>
+
+<pre><code class="language-shell">[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
+[#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (signal,exp)
+ **********
+ **    1 **SET PRINT           1
+ **********
+ **********
+ **    2 **SET NOGRAD
+ **********
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 MH           1.25000e+02  1.00000e+00    1.20000e+02  1.30000e+02
+     2 alpha       -4.08793e-02  2.96856e-03   -2.00000e-01  1.00000e-02
+     3 norm_b       9.67647e+02  3.25747e+01    0.00000e+00  1.00000e+03
+ MINUIT WARNING IN PARAMETR
+ ============== VARIABLE3 BROUGHT BACK INSIDE LIMITS.
+     4 norm_s       3.22534e+01  1.16433e+01    1.00000e+01  1.00000e+02
+ **********
+ **    3 **SET ERR         0.5
+ **********
+ **********
+ **    4 **SET PRINT           1
+ **********
+ **********
+ **    5 **SET STR           1
+ **********
+ NOW USING STRATEGY  1: TRY TO BALANCE SPEED AGAINST RELIABILITY
+ **********
+ **    6 **MIGRAD        2000           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=-2327.53 FROM MIGRAD    STATUS=INITIATE       10 CALLS          11 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  MH           1.25000e+02   1.00000e+00   2.01358e-01   1.12769e+01
+   2  alpha       -4.08793e-02   2.96856e-03   3.30048e-02  -1.22651e-01
+   3  norm_b       9.67647e+02   3.25747e+01   2.56674e-01  -1.96463e-02
+   4  norm_s       3.22534e+01   1.16433e+01   3.10258e-01  -8.97036e-04
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-2327.96 FROM MIGRAD    STATUS=CONVERGED      65 CALLS          66 TOTAL
+                     EDM=1.19174e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  MH           1.24628e+02   3.98153e-01   2.66539e-03   2.46327e-02
+   2  alpha       -4.07708e-02   2.97195e-03   1.10093e-03   8.33780e-02
+   3  norm_b       9.66105e+02   3.25772e+01   5.96627e-03   1.83523e-03
+   4  norm_s       3.39026e+01   1.17380e+01   9.60816e-03  -2.32681e-03
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  4    ERR DEF=0.5
+  1.589e-01 -3.890e-05  1.462e-01 -1.477e-01 
+ -3.890e-05  8.836e-06 -2.020e-04  2.038e-04 
+  1.462e-01 -2.020e-04  1.073e+03 -1.072e+02 
+ -1.477e-01  2.038e-04 -1.072e+02  1.420e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4
+        1  0.04518   1.000 -0.033  0.011 -0.031
+        2  0.03317  -0.033  1.000 -0.002  0.006
+        3  0.27465   0.011 -0.002  1.000 -0.275
+        4  0.27610  -0.031  0.006 -0.275  1.000
+ **********
+ **    7 **SET ERR         0.5
+ **********
+ **********
+ **    8 **SET PRINT           1
+ **********
+ **********
+ **    9 **HESSE        2000
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-2327.96 FROM HESSE     STATUS=OK             23 CALLS          89 TOTAL
+                     EDM=1.19078e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
+   1  MH           1.24628e+02   3.98106e-01   5.33077e-04  -7.45154e-02
+   2  alpha       -4.07708e-02   2.97195e-03   2.20186e-04   5.42722e-01
+   3  norm_b       9.66105e+02   3.26003e+01   2.38651e-04   1.20047e+00
+   4  norm_s       3.39026e+01   1.17445e+01   3.84326e-04  -4.87967e-01
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  4    ERR DEF=0.5
+  1.588e-01 -3.888e-05  1.304e-01 -1.304e-01 
+ -3.888e-05  8.836e-06 -1.954e-04  1.954e-04 
+  1.304e-01 -1.954e-04  1.074e+03 -1.082e+02 
+ -1.304e-01  1.954e-04 -1.082e+02  1.421e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4
+        1  0.04274   1.000 -0.033  0.010 -0.027
+        2  0.03314  -0.033  1.000 -0.002  0.006
+        3  0.27694   0.010 -0.002  1.000 -0.277
+        4  0.27806  -0.027  0.006 -0.277  1.000
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: deactivating const optimization
+</code></pre>
+
+</details>
+
+<p>Notice the result for the fitted MH is not 125 and is included in the list of fitted parameters. 
+We can get more information about the fit, via the <code>RooFitResult</code>, using the option <code>Save()</code>. </p>
+<pre><code class="language-c++">RooFitResult *fit_res = (RooFitResult*) model.fitTo(*hgg_data,RooFit::Extended(),RooFit::Save());
+</code></pre>
+<p>For example, we can get the Correlation Matrix from the fit result... Note that the order of the parameters are the same as listed in the "Floating Parameter" list above</p>
+<pre><code class="language-c++">TMatrixDSym cormat = fit_res-&gt;correlationMatrix();
+cormat.Print();
+</code></pre>
+<pre><code class="language-shell">4x4 matrix is as follows
+
+     |      0    |      1    |      2    |      3    |
+---------------------------------------------------------
+   0 |          1    -0.03282    0.009538    -0.02623 
+   1 |   -0.03282           1   -0.001978    0.005439 
+   2 |   0.009538   -0.001978           1     -0.2769 
+   3 |   -0.02623    0.005439     -0.2769           1 
+</code></pre>
+<p>A nice feature of <code>RooFit</code> is that once we have a PDF, data and results like this, we can import this new model into our <code>RooWorkspace</code> and show off our new discovery to our LHC friends (if we weren't already too late!). We can also save the "state" of our parameters for later, by creating a snapshot of the current values. </p>
+<pre><code class="language-c++">wspace-&gt;import(model);  
+RooArgSet *params = model.getParameters(*hgg_data);
+wspace-&gt;saveSnapshot(&quot;nominal_values&quot;,*params);
+
+wspace-&gt;Print(&quot;V&quot;);
+</code></pre>
+<details>
+<summary><b>Show output</b></summary>
+
+<pre><code class="language-bash">RooWorkspace(workspace) Tutorial Workspace contents
+
+variables
+---------
+(CMS_hgg_mass,MH,alpha,norm_b,norm_s,resolution)
+
+p.d.f.s
+-------
+RooExponential::exp[ x=CMS_hgg_mass c=alpha ] = 0.00248636
+RooAddPdf::model[ norm_s * signal + norm_b * exp ] = 0.00240205
+RooGaussian::signal[ x=CMS_hgg_mass mean=MH sigma=resolution ] = 5.34013e-110
+
+datasets
+--------
+RooDataSet::dataset(CMS_hgg_mass)
+
+parameter snapshots
+-------------------
+nominal_values = (MH=124.627 +/- 0.398094,resolution=1[C],norm_s=33.9097 +/- 11.7445,alpha=-0.040779 +/- 0.00297195,norm_b=966.109 +/- 32.6025)
+</code></pre>
+
+ </details>
+
+<p>This is exactly what needs to be done when you want to use shape based datacards in <span style="font-variant:small-caps;">Combine</span> with parametric models.</p>
+<h2 id="a-likelihood-for-a-counting-experiment">A likelihood for a counting experiment</h2>
+<p>An introductory presentation about likelihoods and interval estimation is available <a href="https://indico.cern.ch/event/976099/contributions/4138517/">here</a>.</p>
+<p>**Note: We will use python syntax in this section; you should use a .py script. Make sure to do <code>import ROOT</code> at the top of your script **</p>
+<p>We have seen how to create variables and PDFs, and how to fit a PDF to data. But what if we have a counting experiment, or a histogram template shape? And what about systematic uncertainties?  We are going to build a likelihood 
+for this:</p>
+<p><span class="arithmatex">\(\mathcal{L} \propto p(\text{data}|\text{parameters})\)</span></p>
+<p>where our parameters are parameters of interest, <span class="arithmatex">\(\mu\)</span>, and nuisance parameters, <span class="arithmatex">\(\theta\)</span>. The nuisance parameters are constrained by external measurements, so we add constraint terms <span class="arithmatex">\(\pi(\vec{\theta}_0|\vec{\theta})\)</span></p>
+<p>So we have
+<span class="arithmatex">\(\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})\)</span></p>
+<p>now we will try to build the likelihood by hand for a 1-bin counting experiment.
+The data is the number of observed events <span class="arithmatex">\(N\)</span>, and the probability is just a Poisson probability <span class="arithmatex">\(p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}\)</span>, where <span class="arithmatex">\(\lambda\)</span> is the number of events expected in our signal+background model: <span class="arithmatex">\(\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})\)</span>. </p>
+<p>In the expression, s and b are the numbers of expected signal and background events, which both depend on the nuisance parameters. We will start by building a simple likelihood function with one signal process and one background process. We will assume there are no nuisance parameters for now. The number of observed events in data is 15, the expected number of signal events is 5 and the expected number of background events 8.1.</p>
+<p>It is easiest to use the <code>RooFit</code> workspace factory to build our model (<a href="https://root.cern/doc/master/rf511__wsfactory__basic_8py.html">this tutorial</a> has more information on the factory syntax).</p>
+<pre><code>import ROOT
+w = ROOT.RooWorkspace(&quot;w&quot;)
+</code></pre>
+<p>We need to create an expression for the number of events in our model, <span class="arithmatex">\(\mu s +b\)</span>:</p>
+<pre><code>w.factory('expr::n(&quot;mu*s +b&quot;, mu[1.0,0,4], s[5],b[8.1])')
+</code></pre>
+<p>Now we can build the likelihood, which is just our Poisson PDF:</p>
+<pre><code>w.factory('Poisson::poisN(N[15],n)')
+</code></pre>
+<p>To find the best fit value for our parameter of interest <span class="arithmatex">\(\mu\)</span> we need to maximize the likelihood. In practice it is actually easier to minimize the <strong>N</strong>egative <strong>l</strong>og of the <strong>l</strong>ikelihood, or NLL:</p>
+<pre><code>w.factory('expr::NLL(&quot;-log(@0)&quot;,poisN)')
+</code></pre>
+<p>We can now use the <code>RooMinimizer</code> to find the minimum of the NLL</p>
+<pre><code>nll = w.function(&quot;NLL&quot;)
+minim = ROOT.RooMinimizer(nll)
+minim.setErrorLevel(0.5)
+minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;)
+bestfitnll = nll.getVal()
+</code></pre>
+<p>Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!) - note that there is a more reliable way of extracting the confidence interval (explicitly rather than relying on migrad). We will discuss this a bit later in this section.</p>
+<p>Now we will add a nuisance parameter, <em>lumi</em>, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at <span class="arithmatex">\(+1\sigma\)</span> the signal and background normalizations will be multiplied by 1.025 and at <span class="arithmatex">\(-1\sigma\)</span> they will be divided by 1.025.  We should modify the expression for the number of events in our model:</p>
+<pre><code>w.factory('expr::n(&quot;mu*s*pow(1.025,lumi) +b*pow(1.025,lumi)&quot;, mu[1.0,0,4], s[5],b[8.1],lumi[0,-4,4])')
+</code></pre>
+<p>And we add a unit gaussian constraint </p>
+<pre><code>w.factory('Gaussian::lumiconstr(lumi,0,1)')
+</code></pre>
+<p>Our full likelihood will now be</p>
+<pre><code>w.factory('PROD::likelihood(poisN,lumiconstr)')
+</code></pre>
+<p>and the NLL</p>
+<pre><code>w.factory('expr::NLL(&quot;-log(@0)&quot;,likelihood)')
+</code></pre>
+<p>Which we can minimize in the same way as before. </p>
+<p>Now we will extend our model a bit. </p>
+<ul>
+<li>Expanding on what was demonstrated above, build the likelihood for <span class="arithmatex">\(N=15\)</span>, a signal process <em>s</em> with expectation 5 events, a background <em>ztt</em> with expectation 3.7 events and a background <em>tt</em> with expectation 4.4 events. The luminosity uncertainty applies to all three processes. The signal process is further subject to a 5% log-normally distributed uncertainty <em>sigth</em>, <em>tt</em> is subject to a 6% log-normally distributed uncertainty <em>ttxs</em>, and <em>ztt</em> is subject to a 4% log-normally distributed uncertainty <em>zttxs</em>. Find the best-fit value and the associated uncertainty</li>
+<li>Also perform an explicit scan of the <span class="arithmatex">\(\Delta\)</span> NLL ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started. Hint: you'll need to perform fits for different values of mu, where mu is fixed. In <code>RooFit</code> you can set a variable to be constant as <code>var("VARNAME").setConstant(True)</code></li>
+<li>From the curve that you have created by performing an explicit scan, we can extract the 68% CL interval. You can do so by eye or by writing some code to find the relevant intersections of the curve. </li>
+</ul>
+<pre><code>gr = ROOT.TGraph()
+
+npoints = 0
+for i in range(0,60):
+  npoints+=1
+  mu=0.05*i
+  ...
+  [perform fits for different values of mu with mu fixed]
+  ...
+  deltanll = ...
+  gr.SetPoint(npoints,mu,deltanll)
+
+
+canv = ROOT.TCanvas()
+gr.Draw(&quot;ALP&quot;)
+canv.SaveAs(&quot;likelihoodscan.pdf&quot;)
+</code></pre>
+<p>Well, this is doable - but we were only looking at a simple one-bin counting experiment. This might become rather cumbersome for large models... <span class="arithmatex">\([*]\)</span></p>
+<p>For the next set ot tutorials, we will now switch to working with <span style="font-variant:small-caps;">Combine</span> that will help in building the statistical model and do the statistical analysis, instead of  building the likelihood with <code>RooFit</code>.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p><code>RooFit</code> does have additional functionality to help with statistical model building, but we will not go into detail in these tutorials.   </p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../part3/debugging/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Debugging fit failures">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Debugging fit failures
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../longexercise/" class="md-footer__link md-footer__link--next" aria-label="Next: Exercises">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Exercises
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8d2eff1.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
