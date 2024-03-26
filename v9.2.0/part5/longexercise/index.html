@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.13">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.15">
     
     
       
@@ -74,6 +74,20 @@
     </div>
     
       <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
         
       </div>
     
@@ -2045,7 +2059,7 @@ To split the systematic uncertainty into different components we just need to ru
 <p>While it is perfectly fine to just list the relevant nuisance parameters in the <code>--freezeParameters</code> argument for the <span class="arithmatex">\(\sigma_{\text{fr.theory}}\)</span> scan, a convenient way can be to define a named group of parameters in the text datacard and then freeze all parameters in this group with <code>--freezeNuisanceGroups</code>. The syntax for defining a group is:</p>
 <pre><code class="language-shell">[group name] group = uncertainty_1 uncertainty_2 ... uncertainty_N
 </code></pre>
-<p>** Tasks and questions: **</p>
+<p><strong>Tasks and questions:</strong></p>
 <ul>
 <li>Take our stat+syst split one step further and separate the systematic part into two: one part for hadronic tau uncertainties and one for all others.</li>
 <li>Do this by defining a <code>tauID</code> group in the datacard including the following parameters: <code>CMS_eff_t</code>, <code>CMS_eff_t_highpt</code>, and the three <code>CMS_scale_t_X</code> uncertainties.</li>
@@ -2209,7 +2223,7 @@ combine -M MultiDimFit workspace_part4.root -n .part4A -m 200 --rMin 0 --rMax 2
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c8d2eff1.min.js"></script>
+      <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       
