@@ -164,7 +164,7 @@ Where `value_u` and `value_d` are the values of the 'up' and 'down' normalizatio
 ### Uncertainty probably has no genuine shape effect
 
 In this check, applying only to shape uncertainties, the normalized nominal templates are compared with the normalized templates for the 'up' and 'down' systematic variations. The script calculates
-$$ \Sigma_i \frac{2|\text{up}(i) - \text{nominal}(i)|}{|\text{up}(i)| + |\text{nominal}(i)|}$$ and $$ \Sigma_i \frac{2|\text{down}(i) - \text{nominal}(i)|}{|\text{down}(i)| + |\text{nominal}(i)|} $$
+$\Sigma_i \frac{2|\text{up}(i) - \text{nominal}(i)|}{|\text{up}(i)| + |\text{nominal}(i)|}$ and $\Sigma_i \frac{2|\text{down}(i) - \text{nominal}(i)|}{|\text{down}(i)| + |\text{nominal}(i)|}$.
 
 where the sums run over all bins in the histograms, and 'nominal', 'up', and 'down' are the central template and up and down varied templates, all normalized.
 

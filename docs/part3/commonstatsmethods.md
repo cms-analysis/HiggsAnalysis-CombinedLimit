@@ -333,7 +333,7 @@ The choice of test statistic can be made via the option `--testStat`. Different 
 
 * **LHC-style**: `--LHCmode LHC-limits`
 , which is the shortcut for `--testStat LHC --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1`
-    * The test statistic is defined using the ratio of likelihoods $q_{\mu} = -2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(\hat{\mu},\hat{\nu})]$ , in which the nuisance parameters are profiled separately for $mu=\hat{\mu}$ and $\mu$.
+    * The test statistic is defined using the ratio of likelihoods $q_{\mu} = -2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(\hat{\mu},\hat{\nu})]$ , in which the nuisance parameters are profiled separately for $\mu=\hat{\mu}$ and $\mu$.
     * The value of $q_{\mu}$ set to 0 when $\hat{\mu}>\mu$ giving a one-sided limit. Furthermore, the constraint $\mu>0$ is enforced in the fit. This means that if the unconstrained value of $\hat{\mu}$ would be negative, the test statistic $q_{\mu}$ is evaluated as $-2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(0,\hat{\hat{\nu}}(0))]$.
     * For the purposes of toy generation, the nuisance parameters are fixed to their **post-fit** values from the data (conditionally on the value of $\mu$), while the constraint terms are randomized in the evaluation of the likelihood.
 
