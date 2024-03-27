@@ -441,6 +441,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#compilation-on-lxplus9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compilation on lxplus9
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#standalone-compilation-with-lcg" class="md-nav__link">
     <span class="md-ellipsis">
       Standalone compilation with LCG
@@ -1323,6 +1332,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#compilation-on-lxplus9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compilation on lxplus9
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#standalone-compilation-with-lcg" class="md-nav__link">
     <span class="md-ellipsis">
       Standalone compilation with LCG
@@ -1503,6 +1521,18 @@ cd HiggsAnalysis/CombinedLimit/
 make -j 4
 </code></pre>
 <p>You will need to source <code>env_standalone.sh</code> each time you want to use the package, or add it to your login environment.</p>
+<h5 id="compilation-on-lxplus9">Compilation on lxplus9</h5>
+<p>For slc9 architectures, you will need to do the compilation in an slc7 environment using apptainer. You can then source the standalone script outside of the apptainer.
+On lxplus this can be done as follows:</p>
+<pre><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit/ 
+# git checkout &lt;some release&gt;
+cmssw-el7
+. env_standalone.sh
+make -j 4
+exit
+source . env_standalone.sh
+</code></pre>
 <h5 id="standalone-compilation-with-lcg">Standalone compilation with LCG</h5>
 <p>For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102, which contains ROOT 6.26:</p>
 <pre><code class="language-sh">git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
