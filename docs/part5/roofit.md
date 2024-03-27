@@ -692,20 +692,20 @@ This is exactly what needs to be done when you want to use shape based datacards
 ## A likelihood for a counting experiment
 An introductory presentation about likelihoods and interval estimation is available [here](https://indico.cern.ch/event/976099/contributions/4138517/).
 
-**Note: We will use python syntax in this section; you should use a .py script. Make sure to do `import ROOT` at the top of your script **
+**Note: We will use python syntax in this section; you should use a .py script. Make sure to do `import ROOT` at the top of your script**
 
 We have seen how to create variables and PDFs, and how to fit a PDF to data. But what if we have a counting experiment, or a histogram template shape? And what about systematic uncertainties?  We are going to build a likelihood 
 for this:
 
 $\mathcal{L} \propto p(\text{data}|\text{parameters})$
 
-where our parameters are parameters of interest, $\mu$, and nuisance parameters, $\theta$. The nuisance parameters are constrained by external measurements, so we add constraint terms $\pi(\vec{\theta}_0|\vec{\theta})$
+where our parameters are parameters of interest, $\mu$, and nuisance parameters, $\nu$. The nuisance parameters are constrained by external measurements, so we add constraint terms $\pi(\vec{\nu}_0|\vec{\nu})$
 
 So we have
-$\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})$
+$\mathcal{L} \propto p(\text{data}|\mu,\vec{\nu})\cdot \pi(\vec{\nu}_0|\vec{\nu})$
 
 now we will try to build the likelihood by hand for a 1-bin counting experiment.
-The data is the number of observed events $N$, and the probability is just a Poisson probability $p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}$, where $\lambda$ is the number of events expected in our signal+background model: $\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})$. 
+The data is the number of observed events $N$, and the probability is just a Poisson probability $p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}$, where $\lambda$ is the number of events expected in our signal+background model: $\lambda = \mu\cdot s(\vec{\nu}) + b(\vec{\nu})$. 
 
 In the expression, s and b are the numbers of expected signal and background events, which both depend on the nuisance parameters. We will start by building a simple likelihood function with one signal process and one background process. We will assume there are no nuisance parameters for now. The number of observed events in data is 15, the expected number of signal events is 5 and the expected number of background events 8.1.
 
