@@ -99,7 +99,7 @@ This is important in limit setting for example, where we perform statistical tes
 In these cases, the likelihood ratio (or a function of it) can be used to define a set of test statistics parameterized by the model parameters.
 For example, a very useful set of test statistics is:
 
-$$ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}\right) $$.
+$$ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}\right) $$
 
 Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter $\vec{\mu}$ indexing the test statistic appears in the numerator of the likelihood ratio.
 
