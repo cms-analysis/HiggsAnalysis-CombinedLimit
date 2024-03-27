@@ -203,7 +203,7 @@ $$
 \end{cases}
 $$
 
-Which also has a [known distribution](https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7) under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, $\mathrm{CL}$, by finding the value of $\mu$ for which $p_{\mu} \equiv p(t_{\mu}(\mathrm{data});\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ will have smaller p-values and are considered excluded at the given confidence level.
+Which also has a [known distribution](https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7) under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, $\mathrm{CL}$, by finding the smallest value of $\mu$ for which $p_{\mu} \equiv P( t_{\mu} \gt t_{\mu}(\mathrm{data});\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ will have smaller p-values and are considered excluded at the given confidence level.
 
 However, this procedure is rarely used, in almost every case we use a modified test procedure which uses the $\mathrm{CL}_{s}$ criterion, explained below.
 
