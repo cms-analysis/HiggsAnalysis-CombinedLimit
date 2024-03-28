@@ -99,7 +99,7 @@ This is important in limit setting for example, where we perform statistical tes
 In these cases, the likelihood ratio (or a function of it) can be used to define a set of test statistics parameterized by the model parameters.
 For example, a very useful set of test statistics is:
 
-$$ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}\right) $$.
+$$ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}\right) $$
 
 Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter $\vec{\mu}$ indexing the test statistic appears in the numerator of the likelihood ratio.
 
@@ -203,7 +203,7 @@ $$
 \end{cases}
 $$
 
-Which also has a [known distribution](https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7) under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, $\mathrm{CL}$, by finding the value of $\mu$ for which $p_{\mu} \equiv p(t_{\mu}(\mathrm{data});\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ will have smaller p-values and are considered excluded at the given confidence level.
+Which also has a [known distribution](https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7) under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, $\mathrm{CL}$, by finding the smallest value of $\mu$ for which $p_{\mu} \equiv P( t_{\mu} \gt t_{\mu}(\mathrm{data});\mathcal{M}_{\mu}) = 1 - \mathrm{CL}$. Larger values of $\mu$ will have smaller p-values and are considered excluded at the given confidence level.
 
 However, this procedure is rarely used, in almost every case we use a modified test procedure which uses the $\mathrm{CL}_{s}$ criterion, explained below.
 
