@@ -53,6 +53,7 @@ theme:
 
 plugins:
     - mike
+    - search
 
 extra:
     version:
