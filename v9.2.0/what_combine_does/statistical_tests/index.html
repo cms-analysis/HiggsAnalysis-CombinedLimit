@@ -129,6 +129,45 @@
     
     
     
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
     
       <div class="md-header__source">
         <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
@@ -1527,7 +1566,7 @@ Often, however, we are interested in testing <a href="../../what_combine_does/mo
 <p>This is important in limit setting for example, where we perform statistical tests to exclude entire ranges of the parameter space.</p>
 <p>In these cases, the likelihood ratio (or a function of it) can be used to define a set of test statistics parameterized by the model parameters.
 For example, a very useful set of test statistics is:</p>
-<p>$$ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}\right) $$.</p>
+<div class="arithmatex">\[ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}\right) \]</div>
 <p>Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter <span class="arithmatex">\(\vec{\mu}\)</span> indexing the test statistic appears in the numerator of the likelihood ratio.</p>
 <p>When calculating the p-values for these statistical tests, the p-values are calculated at each point in parameter space using the test statistic for that point.
 In other words, the observed and expected distributions of the test statistics are computed separately at each parameter point <span class="arithmatex">\(\vec{\mu}\)</span> being considered.</p>
@@ -1592,7 +1631,7 @@ In order to avoid these situations, another modified test statistic can be used:
     0&amp;  \mu \lt \hat{\mu}
 \end{cases}
 \]</div>
-<p>Which also has a <a href="https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7">known distribution</a> under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, <span class="arithmatex">\(\mathrm{CL}\)</span>, by finding the value of <span class="arithmatex">\(\mu\)</span> for which <span class="arithmatex">\(p_{\mu} \equiv p(t_{\mu}(\mathrm{data});\mathcal{M}_{\mu}) = 1 - \mathrm{CL}\)</span>. Larger values of <span class="arithmatex">\(\mu\)</span> will have smaller p-values and are considered excluded at the given confidence level.</p>
+<p>Which also has a <a href="https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7">known distribution</a> under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, <span class="arithmatex">\(\mathrm{CL}\)</span>, by finding the smallest value of <span class="arithmatex">\(\mu\)</span> for which <span class="arithmatex">\(p_{\mu} \equiv P( t_{\mu} \gt t_{\mu}(\mathrm{data});\mathcal{M}_{\mu}) = 1 - \mathrm{CL}\)</span>. Larger values of <span class="arithmatex">\(\mu\)</span> will have smaller p-values and are considered excluded at the given confidence level.</p>
 <p>However, this procedure is rarely used, in almost every case we use a modified test procedure which uses the <span class="arithmatex">\(\mathrm{CL}_{s}\)</span> criterion, explained below.</p>
 <h4 id="the-cls-criterion">The CLs criterion</h4>
 <p>Regardless of which of these test statistics is used, the standard test-methodology has some undesirable properties for limit setting.</p>
