@@ -12,28 +12,7 @@ You can find a presentation with some more background on likelihoods and extract
 If you are not yet familiar with these concepts, or would like to refresh your memory, we recommend that you have a look at these presentations before you start with the exercise. 
 
 ## Getting started
-We need to set up a new CMSSW area and checkout the <span style="font-variant:small-caps;">Combine</span> package: 
-
-```shell
-cmsrel CMSSW_11_3_4
-cd CMSSW_11_3_4/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v9.0.0
-```
-
-We will also make use another package, `CombineHarvester`, which contains some high-level tools for working with <span style="font-variant:small-caps;">Combine</span>. The following command will download the repository and checkout just the parts of it we need for this tutorial:
-```shell
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
-```
-Now make sure the CMSSW area is compiled:
-```shell 
-scramv1 b clean; scramv1 b
-```
+To get started, you should have a working setup of `Combine` and `CombineHarvester`, please follow the instructions from the [home page](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users), to setup `CombineHarvester` checkout necessary scripts as described [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#combineharvestercombinetools). Make sure to use the latest recommended releases for both packages.
 
 Now we will move to the working directory for this tutorial, which contains all the inputs needed to run the exercises below:
 ```shell
