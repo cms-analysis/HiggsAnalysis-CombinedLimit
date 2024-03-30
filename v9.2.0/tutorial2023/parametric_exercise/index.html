@@ -1733,27 +1733,8 @@
 
 <h1 id="parametric-models-in-combine">Parametric Models in Combine</h1>
 <h2 id="getting-started">Getting started</h2>
-<p>By now you should have a working setup of Combine v9 from the pre-tutorial exercise. If so then move onto the cloning of the parametric fitting exercise gitlab repo below. If not then you need to set up a CMSSW area and checkout the combine package:</p>
-<pre><code class="language-shell">cmssw-el7
-cmsrel CMSSW_11_3_4
-cd CMSSW_11_3_4/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v9.1.0
-</code></pre>
-<p>We will also make use of another package, <code>CombineHarvester</code>, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this exercise:</p>
-<pre><code class="language-shell">cd $CMSSW_BASE/src/
-bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
-</code></pre>
-<p>Now let's compile the CMSSW area:</p>
-<pre><code class="language-shell">scramv1 b clean; scramv1 b
-cmsenv
-</code></pre>
-<p>Finally, let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:</p>
+<p>To get started, you should have a working setup of <code>Combine</code> and <code>CombineHarvester</code>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users">home page</a>, to setup <code>CombineHarvester</code> checkout necessary scripts as described <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#combineharvestercombinetools">here</a>. Make sure to use the latest recommended releases for both packages. </p>
+<p>Now let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:</p>
 <pre><code class="language-shell">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/parametric_exercise
 </code></pre>
 <h2 id="session-structure">Session structure</h2>

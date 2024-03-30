@@ -1602,23 +1602,7 @@
 <p>You can find a presentation with some more background on likelihoods and extracting confidence intervals <a href="https://indico.cern.ch/event/976099/contributions/4138517/">here</a>. A presentation that discusses limit setting in more detail can be found <a href="https://indico.cern.ch/event/976099/contributions/4138520/">here</a>.
 If you are not yet familiar with these concepts, or would like to refresh your memory, we recommend that you have a look at these presentations before you start with the exercise. </p>
 <h2 id="getting-started">Getting started</h2>
-<p>We need to set up a new CMSSW area and checkout the <span style="font-variant:small-caps;">Combine</span> package: </p>
-<pre><code class="language-shell">cmsrel CMSSW_11_3_4
-cd CMSSW_11_3_4/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v9.0.0
-</code></pre>
-<p>We will also make use another package, <code>CombineHarvester</code>, which contains some high-level tools for working with <span style="font-variant:small-caps;">Combine</span>. The following command will download the repository and checkout just the parts of it we need for this tutorial:</p>
-<pre><code class="language-shell">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
-</code></pre>
-<p>Now make sure the CMSSW area is compiled:</p>
-<pre><code class="language-shell">scramv1 b clean; scramv1 b
-</code></pre>
+<p>To get started, you should have a working setup of <code>Combine</code> and <code>CombineHarvester</code>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users">home page</a>, to setup <code>CombineHarvester</code> checkout necessary scripts as described <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#combineharvestercombinetools">here</a>. Make sure to use the latest recommended releases for both packages.</p>
 <p>Now we will move to the working directory for this tutorial, which contains all the inputs needed to run the exercises below:</p>
 <pre><code class="language-shell">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/
 </code></pre>
