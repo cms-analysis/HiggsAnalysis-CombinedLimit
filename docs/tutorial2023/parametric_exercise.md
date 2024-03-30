@@ -1,30 +1,10 @@
 # Parametric Models in Combine
 
 ## Getting started
-By now you should have a working setup of Combine v9 from the pre-tutorial exercise. If so then move onto the cloning of the parametric fitting exercise gitlab repo below. If not then you need to set up a CMSSW area and checkout the combine package:
-```shell   
-cmssw-el7
-cmsrel CMSSW_11_3_4
-cd CMSSW_11_3_4/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
 
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v9.1.0
-```
-We will also make use of another package, `CombineHarvester`, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this exercise:
-```shell
-cd $CMSSW_BASE/src/
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
-```
-Now let's compile the CMSSW area:
-```shell
-scramv1 b clean; scramv1 b
-cmsenv
-```
-Finally, let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:
+To get started, you should have a working setup of `Combine` and `CombineHarvester`, please follow the instructions from the [home page](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users), to setup `CombineHarvester` checkout necessary scripts as described [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#combineharvestercombinetools). Make sure to use the latest recommended releases for both packages. 
+
+Now let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:
 ```shell
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/parametric_exercise
 ```

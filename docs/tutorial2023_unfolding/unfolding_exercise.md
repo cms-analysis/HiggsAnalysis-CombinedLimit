@@ -1,10 +1,9 @@
 # Likelihood Based Unfolding Exercise in Combine
 
 ## Getting started
+To get started, you should have a working setup of `Combine` and `CombineHarvester`, please follow the instructions from the [home page](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users), to setup `CombineHarvester` checkout necessary scripts as described [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#combineharvestercombinetools). Make sure to use the latest recommended releases for both packages.
 
-To get started, you should have a working setup of Combine and CombineHarvester. This setup can be done following any of the [installation instructions](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#installation-instructions).
-
-After setting up CMSSW, you can access the working directory for this tutorial which contains all of the inputs and scripts needed to run the unfolding fitting exercise:
+After setting up `Combine`, you can access the working directory for this tutorial which contains all of the inputs and scripts needed to run the unfolding fitting exercise:
 
 ```shell
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_unfolding_2023/
