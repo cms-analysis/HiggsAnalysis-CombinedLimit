@@ -1541,7 +1541,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 </code></pre>
 <h3 id="oustide-of-cmssw-recommended-for-non-cms-users">Oustide of CMSSW (recommended for non-CMS users)</h3>
 <p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using, </p>
-<pre><code class="language-sh">docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:latest
+<pre><code class="language-sh">docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
 </code></pre>
 <p>where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool - eg - <code>v9.2.0</code>. See the top of this page for the latest recommended versions. </p>
 <p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
