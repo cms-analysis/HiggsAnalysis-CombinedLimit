@@ -108,7 +108,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 Pre-compiled versions of the tool are available as container images from the [CMS cloud](https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/). If you have docker running you can pull and run the image using, 
 
 ```sh
-docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:latest
+docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:<tag>
 ```
 where you must replace `<tag>` with a particular version of the tool - eg - `v9.2.0`. See the top of this page for the latest recommended versions. 
 
