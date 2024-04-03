@@ -694,7 +694,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             //if (verbose > 1) std::cout << "Point " << i << "/" << points << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
             //I suggest keeping this message on terminal as well, to let users monitor the progress
             std::cout << "Point " << i << "/" << points << " " << poiVars_[0]->GetName() << " = " << x << std::endl; 
-            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Point %d/%d) %s = %f",i,points,poiVars_[0]->GetName(),x)),__func__);
+            if (verbose > 1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Point (%d/%d) %s = %f",i,points,poiVars_[0]->GetName(),x)),__func__);
             *params = snap;
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
