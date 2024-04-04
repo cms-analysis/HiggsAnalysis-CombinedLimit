@@ -72,7 +72,7 @@ combine -M [method] [datacard] [additional options...]
 
 ### A: Computing limits using the asymptotic approximation 
 
-As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). <span style="font-variant:small-caps;">Combine</span> has dedicated method for calculating upper limits. The most commonly used one is `AsymptoticLimits`, which implements the [CLs criterion](https://inspirehep.net/literature/599622) and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the [asymptotic approximation](https://arxiv.org/abs/1007.1727), so there is no need for more time-intensive toy throwing and fitting. Try running the following command:
+As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). <span style="font-variant:small-caps;">Combine</span> has dedicated methods for calculating upper limits. The most commonly used one is `AsymptoticLimits`, which implements the [CLs criterion](https://inspirehep.net/literature/599622) and uses the [modified profile likelihood ratio for upper limits](../../what_combine_does/statistical_tests/#limit-setting-using-the-likelihood-ratio) as the default test statistic. As the name implies, the test statistic distributions are determined analytically in the [asymptotic approximation](https://arxiv.org/abs/1007.1727), so there is no need for more time-intensive toy throwing and fitting. Try running the following command:
 
 ```shell
 combine -M AsymptoticLimits datacard_part1.txt -n .part1A
@@ -127,10 +127,10 @@ Next plot the test statistic distributions stored in the output file:
 python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py --input higgsCombine.part1B.HybridNew.mH120.root --poi r --val all --mass 120
 ```
 
-This produces a new ROOT file `cls_qmu_distributions.root` containing the plots, to save them as pdf/png files run this small script and look at the resulting figures:
+This produces a new ROOT file `test_stat_distributions.root` containing the plots, to save them as pdf/png files run this small script and look at the resulting figures:
 
 ```shell
-python3 printTestStatPlots.py cls_qmu_distributions.root
+python3 printTestStatPlots.py test_stat_distributions.root
 ```
 ### Advanced section: B: Asymptotic approximation limitations
 
