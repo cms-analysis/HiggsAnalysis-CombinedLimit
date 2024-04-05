@@ -59,6 +59,7 @@ parser.add_option(
     "",
     "--procFilter",
     dest="process_filter_list",
+    default='',
     type="string",
     help="Filter (keep) only processes containing these names. Enter option as comma separated string",
 )
@@ -162,6 +163,7 @@ if options.use_cms_histsum:
 
 
 def checkFilter(proc):
+    if not options.process_filter_list: return True
     for pc in process_filter_list:
         if pc in proc:
             return True
