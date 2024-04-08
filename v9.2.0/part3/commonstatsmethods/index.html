@@ -1135,9 +1135,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#extracting-2d-contours" class="md-nav__link">
+  <a href="#extracting-2d-contours-general-intervals" class="md-nav__link">
     <span class="md-ellipsis">
-      Extracting 2D contours
+      Extracting 2D contours / general intervals
     </span>
   </a>
   
@@ -1905,9 +1905,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#extracting-2d-contours" class="md-nav__link">
+  <a href="#extracting-2d-contours-general-intervals" class="md-nav__link">
     <span class="md-ellipsis">
-      Extracting 2D contours
+      Extracting 2D contours / general intervals
     </span>
   </a>
   
@@ -2226,7 +2226,8 @@ bayesPosterior2D(&quot;bayes2D&quot;,&quot;Posterior PDF&quot;)
 </code></pre>
 <details>
 <summary><strong>Show output</strong></summary>
-<pre><code> <<< Combine >>>
+<pre><code>
+<<< Combine >>>
 >>> including systematics
 >>> using the Profile Likelihood test statistics modified for upper limits (Q_LHC)
 >>> method used is HybridNew
@@ -2621,59 +2622,53 @@ fit_nominal-&gt;floatParsFinal().selectByName(&quot;r&quot;)-&gt;Print(&quot;v&q
 <p>With the algorithms <code>none</code> and <code>singles</code> you can save the RooFitResult from the initial fit using the option <code>--saveFitResult</code>. The fit result is saved into a new file called <code>multidimfit.root</code>.</p>
 <p>As usual, any <em>floating</em> nuisance parameters will be <em>profiled</em>. This behaviour can be modified by using the <code>--freezeParameters</code> option.</p>
 <p>For most of the methods, for lower-precision results you can turn off the profiling of the nuisance parameters by using the option <code>--fastScan</code>, which for complex models speeds up the process by several orders of magnitude. <strong>All</strong> nuisance parameters will be kept fixed at the value corresponding to the best fit point.</p>
-<p>As an example, let's produce the <span class="arithmatex">\(-2\Delta\ln{\mathcal{L}}\)</span> scan as a function of <strong><code>r_ggH</code></strong> and <strong><code>r_qqH</code></strong> from the toy H→γγ datacard, with the nuisance parameters <em>fixed</em> to their global best fit values.</p>
-<pre><code class="language-sh">combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2000 --setParameterRanges r_qqH=0,10:r_ggH=0,4 -m 125 --fastScan
+<p>As an example, let's produce the <span class="arithmatex">\(-2\Delta\ln{\mathcal{L}}\)</span> scan as a function of <strong><code>r_ggH</code></strong> and <strong><code>r_qqH</code></strong> from the toy <span class="arithmatex">\(H\rightarrow\gamma\gamma\)</span> datacard. The command below should be pretty fast, as the statistical model is quite simple,</p>
+<pre><code class="language-sh">combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2500 --setParameterRanges r_qqH=0,12:r_ggH=-1,4 -m 125
 </code></pre>
+<p>The scan, along with the best fit point and <span class="arithmatex">\(1\sigma\)</span> CL contour can be drawn using ROOT using something like the script below,</p>
 <details>
-<summary><strong>Show output</strong></summary>
-<pre><code>
- <<< Combine >>>
->>> including systematics
->>> method used is MultiDimFit
->>> random number generator seed is 123456
-ModelConfig 'ModelConfig' defines more than one parameter of interest. This is not supported in some statistical methods.
-Set Range of Parameter r_qqH To : (0,10)
-Set Range of Parameter r_ggH To : (0,4)
-Computing results starting from observation (a-posteriori)
- POI: r_ggH= 0.88152 -> [0,4]
- POI: r_qqH= 4.68297 -> [0,10]
-Point 0/2025, (i,j) = (0,0), r_ggH = 0.044444, r_qqH = 0.111111
-Point 11/2025, (i,j) = (0,11), r_ggH = 0.044444, r_qqH = 2.555556
-Point 22/2025, (i,j) = (0,22), r_ggH = 0.044444, r_qqH = 5.000000
-Point 33/2025, (i,j) = (0,33), r_ggH = 0.044444, r_qqH = 7.444444
-Point 55/2025, (i,j) = (1,10), r_ggH = 0.133333, r_qqH = 2.333333
-Point 66/2025, (i,j) = (1,21), r_ggH = 0.133333, r_qqH = 4.777778
-Point 77/2025, (i,j) = (1,32), r_ggH = 0.133333, r_qqH = 7.222222
-Point 88/2025, (i,j) = (1,43), r_ggH = 0.133333, r_qqH = 9.666667
-Point 99/2025, (i,j) = (2,9), r_ggH = 0.222222, r_qqH = 2.111111
-Point 110/2025, (i,j) = (2,20), r_ggH = 0.222222, r_qqH = 4.555556
-Point 121/2025, (i,j) = (2,31), r_ggH = 0.222222, r_qqH = 7.000000
-Point 132/2025, (i,j) = (2,42), r_ggH = 0.222222, r_qqH = 9.444444
-Point 143/2025, (i,j) = (3,8), r_ggH = 0.311111, r_qqH = 1.888889
-Point 154/2025, (i,j) = (3,19), r_ggH = 0.311111, r_qqH = 4.333333
-Point 165/2025, (i,j) = (3,30), r_ggH = 0.311111, r_qqH = 6.777778
-Point 176/2025, (i,j) = (3,41), r_ggH = 0.311111, r_qqH = 9.222222
-Point 187/2025, (i,j) = (4,7), r_ggH = 0.400000, r_qqH = 1.666667
-Point 198/2025, (i,j) = (4,18), r_ggH = 0.400000, r_qqH = 4.111111
-Point 209/2025, (i,j) = (4,29), r_ggH = 0.400000, r_qqH = 6.555556
-Point 220/2025, (i,j) = (4,40), r_ggH = 0.400000, r_qqH = 9.000000
-[...]
+<summary><strong>Show script</strong></summary>
+<pre class="c++"><code>
+void plot2D_LHScan(){
 
-Done in 0.00 min (cpu), 0.02 min (real)
-</code></pre>
+  TFile *_file0 = TFile::Open("higgsCombineTest.MultiDimFit.mH125.root");
+  TTree *limit = (TTree*) _file0->Get("limit");
+
+  // create histogram representing -2Delta Log(L)
+  TCanvas *can = new TCanvas("c","c",600,540);
+  limit->Draw("2*deltaNLL:r_qqH:r_ggH>>h(50,-1,4,50,0,12)","2*deltaNLL<50","prof colz");
+  TH2F *g2NLL = (TH2F*)gROOT->FindObject("h");
+
+  g2NLL->SetName("g2NLL");
+  g2NLL->SetTitle("");
+  g2NLL->GetXaxis()->SetTitle("r_{ggH}");
+  g2NLL->GetYaxis()->SetTitle("r_{qqH}");
+
+  // Get best fit point
+  limit->Draw("r_qqH:r_ggH","quantileExpected == -1","P same");
+  TGraph *best_fit = (TGraph*)gROOT->FindObject("Graph");
+
+  best_fit->SetMarkerSize(3);
+  best_fit->SetMarkerStyle(34);
+  best_fit->Draw("p same");
+
+  // get 1-sigma contour
+  TH2F *h68 = (TH2F*)g2NLL->Clone();
+  h68->SetContour(2);
+  h68->SetContourLevel(1,2.3);
+  h68->SetLineWidth(3);
+  h68->SetLineColor(1);
+  h68->Draw("CONT3same");
+
+  gStyle->SetOptStat(0);
+  can->SaveAs("2D_LHScan.png");
+
+ }
+</pre>
+<p></code></p>
 </details>
-<p>The scan, along with the best fit point can be drawn using root,</p>
-<pre><code class="language-c++">$ root -l higgsCombineTest.MultiDimFit.mH125.root
-
-limit-&gt;Draw(&quot;2*deltaNLL:r_ggH:r_qqH&gt;&gt;h(44,0,10,44,0,4)&quot;,&quot;2*deltaNLL&lt;10&quot;,&quot;prof colz&quot;)
-
-limit-&gt;Draw(&quot;r_ggH:r_qqH&quot;,&quot;quantileExpected == -1&quot;,&quot;P same&quot;)
-TGraph *best_fit = (TGraph*)gROOT-&gt;FindObject(&quot;Graph&quot;)
-
-best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Draw(&quot;p same&quot;)
-</code></pre>
-<p><img alt="" src="../images/nll2D.png" /></p>
-<p>To make the full profiled scan, just remove the <code>--fastScan</code> option from the <span style="font-variant:small-caps;">Combine</span> command.</p>
+<p>This will produce a plot like the one below,</p>
+<p><img alt="" src="../images/2D_LHScan.png" /></p>
 <p>Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool"><code>CombineHarvester/CombineTools</code></a> package <a href="https://github.com/cms-analysis/CombineHarvester/blob/113x/CombineTools/scripts/plot1DScan.py">plot1DScan.py</a> that can be used to make plots and extract the crossings of the <code>2*deltaNLL</code> - e.g the 1σ/2σ boundaries.</p>
 <h3 id="useful-options-for-likelihood-scans">Useful options for likelihood scans</h3>
 <p>A number of common, useful options (especially for computing likelihood scans with the <strong>grid</strong> algo) are,</p>
@@ -2728,11 +2723,11 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <h2 id="feldman-cousins">Feldman-Cousins</h2>
 <p>The Feldman-Cousins (FC) procedure for computing confidence intervals for a generic model is,</p>
 <ul>
-<li>use the profile likelihood ratio as the test statistic, <span class="arithmatex">\(q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(\hat{x},\hat{\nu})\)</span> where <span class="arithmatex">\(x\)</span> is a point in the (N-dimensional) parameter space, and <span class="arithmatex">\(\hat{x}\)</span> is the point corresponding to the best fit. In this test statistic, the nuisance parameters are profiled, both in the numerator and denominator.</li>
-<li>for each point <span class="arithmatex">\(x\)</span>:<ul>
-<li>compute the observed test statistic <span class="arithmatex">\(q_{\mathrm{obs}}(x)\)</span></li>
-<li>compute the expected distribution of <span class="arithmatex">\(q(x)\)</span> under the hypothesis of <span class="arithmatex">\(x\)</span> as the true value.</li>
-<li>accept the point in the region if <span class="arithmatex">\(p_{x}=P\left[q(x) &gt; q_{\mathrm{obs}}(x)| x\right] &gt; \alpha\)</span></li>
+<li>use the profile likelihood ratio as the test statistic, <span class="arithmatex">\(q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\hat{\vec{\mu}},\hat{\vec{\nu}})\)</span> where <span class="arithmatex">\(\vec{\mu}\)</span> is a point in the (N-dimensional) parameter space, and <span class="arithmatex">\(\hat{\vec{\mu}}\)</span> is the point corresponding to the best fit. In this test statistic, the nuisance parameters are profiled, both in the numerator and denominator.</li>
+<li>for each point <span class="arithmatex">\(\vec{\mu}\)</span>:<ul>
+<li>compute the observed test statistic <span class="arithmatex">\(q_{\mathrm{obs}}(\vec{\mu})\)</span></li>
+<li>compute the expected distribution of <span class="arithmatex">\(q(\vec{\mu})\)</span> under the hypothesis of <span class="arithmatex">\(\vec{\mu}\)</span> as the true value.</li>
+<li>accept the point in the region if <span class="arithmatex">\(p_{\vec{\mu}}=P\left[q(\vec{\mu}) &gt; q_{\mathrm{obs}}(\vec{\mu})| \vec{\mu}\right] &gt; \alpha\)</span></li>
 </ul>
 </li>
 </ul>
@@ -2740,19 +2735,21 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <p>In <span style="font-variant:small-caps;">Combine</span>, you can perform this test on each individual point (<strong>param1, param2,...</strong>) = (<strong>value1,value2,...</strong>) by doing,</p>
 <pre><code class="language-sh">combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 </code></pre>
-<p>The point belongs to your confidence region if <span class="arithmatex">\(p_{x}\)</span> is larger than <span class="arithmatex">\(\alpha\)</span> (e.g. 0.3173 for a 1σ region, <span class="arithmatex">\(1-\alpha=0.6827\)</span>).</p>
+<p>The point belongs to your confidence region if <span class="arithmatex">\(p_{\vec{\mu}}\)</span> is larger than <span class="arithmatex">\(\alpha\)</span> (e.g. 0.3173 for a 1σ region, <span class="arithmatex">\(1-\alpha=0.6827\)</span>).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>You should not use this method without the option <code>--singlePoint</code>. Although <span style="font-variant:small-caps;">Combine</span> will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.</p>
 </div>
 <h3 id="physical-boundaries">Physical boundaries</h3>
-<p>Imposing physical boundaries (such as requiring <span class="arithmatex">\(\mu&gt;0\)</span> for a signal strength) is achieved by setting the ranges of the physics model parameters using</p>
+<p>Imposing physical boundaries (such as requiring <span class="arithmatex">\(r&gt;0\)</span> for a signal strength <span class="arithmatex">\(r\)</span> ) is achieved by setting the ranges of the physics model parameters using</p>
 <pre><code class="language-sh">--setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
 </code></pre>
 <p>The boundary is imposed by <strong>restricting the parameter range(s)</strong> to those set by the user, in the fits. Note that this is a trick! The actual fitted value, as one of an ensemble of outcomes, can fall outside of the allowed region, while the boundary should be imposed on the physical parameter. The effect of restricting the parameter value in the fit is such that the test statistic is modified as follows ;</p>
-<p><span class="arithmatex">\(q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\theta}}(x))/\mathcal{L}(\hat{x},\hat{\nu})\)</span>, if <span class="arithmatex">\(\hat{x}\)</span> in contained in the bounded range</p>
+<div class="arithmatex">\[q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\hat{\vec{\mu}},\hat{\vec{\nu}}),\]</div>
+<p>if <span class="arithmatex">\(\hat{\vec{\mu}}\)</span> in contained in the bounded range</p>
 <p>and,</p>
-<p><span class="arithmatex">\(q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(x_{B},\hat{\hat{\nu}}(x_{B}))\)</span>, if <span class="arithmatex">\(\hat{x}\)</span> is outside of the bounded range. Here <span class="arithmatex">\(x_{B}\)</span> and <span class="arithmatex">\(\hat{\hat{\nu}}(x_{B})\)</span> are the values of <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(\nu\)</span> which maximise the likelihood <em>excluding values outside of the bounded region</em> for <span class="arithmatex">\(x\)</span> - typically, <span class="arithmatex">\(x_{B}\)</span> will be found at one of the boundaries which is imposed. For example, if the boundary <span class="arithmatex">\(x&gt;0\)</span> is imposed, you will typically expect <span class="arithmatex">\(x_{B}=0\)</span>, when <span class="arithmatex">\(\hat{x}\leq 0\)</span>, and <span class="arithmatex">\(x_{B}=\hat{x}\)</span> otherewise.</p>
+<div class="arithmatex">\[q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\vec{\mu}_{B},\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})),\]</div>
+<p>if <span class="arithmatex">\(\hat{\vec{\mu}}\)</span> is outside of the bounded range. Here <span class="arithmatex">\(\vec{\mu}_{B}\)</span> and <span class="arithmatex">\(\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})\)</span> are the values of <span class="arithmatex">\(\vec{\mu}\)</span> and <span class="arithmatex">\(\vec{\nu}\)</span> which maximise the likelihood <em>excluding values outside of the bounded region</em> for <span class="arithmatex">\(\vec{\mu}\)</span> - typically, <span class="arithmatex">\(\vec{\mu}_{B}\)</span> will be found at one of the boundaries which is imposed. For example if there is one parameter of interest <span class="arithmatex">\(\mu\)</span> , if the boundary <span class="arithmatex">\(\mu&gt;0\)</span> is imposed, you will typically expect <span class="arithmatex">\(\mu_{B}=0\)</span>, when <span class="arithmatex">\(\hat{\mu}\leq 0\)</span>, and <span class="arithmatex">\(\mu_{B}=\hat{\mu}\)</span> otherewise.</p>
 <p>This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -2765,13 +2762,76 @@ best_fit-&gt;SetMarkerSize(3); best_fit-&gt;SetMarkerStyle(34); best_fit-&gt;Dra
 <pre><code class="language-sh">combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=mergedfile.root --cl &lt;1-alpha&gt;
 </code></pre>
 <p>The output tree will contain the values of the POI that crosses the critical value (<span class="arithmatex">\(\alpha\)</span>) - i.e, the boundaries of the confidence intervals.</p>
-<p>You can produce a plot of the value of <span class="arithmatex">\(p_{x}\)</span> vs the parameter of interest <span class="arithmatex">\(x\)</span> by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
-<h4 id="extracting-2d-contours">Extracting 2D contours</h4>
-<p>There is a tool for extracting <em>2D contours</em> from the output of <code>HybridNew</code> located in <code>test/makeFCcontour.py</code>. This can be used provided the option <code>--saveHybridResult</code> was included when running <code>HybridNew</code>. It can be run with the usual <span style="font-variant:small-caps;">Combine</span> output files (or several of them) as input,</p>
-<pre><code class="language-sh">./test/makeFCcontour.py  toysfile1.root toysfile2.root .... [options] -out outputfile.root
+<p>You can produce a plot of the value of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> vs the parameter of interest <span class="arithmatex">\(\vec{\mu}\)</span> by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
+<h4 id="extracting-2d-contours-general-intervals">Extracting 2D contours / general intervals</h4>
+<p>For <em>two-dimensional</em> models, or if the parameter does not behave like a cross section, you will need to extract the contours from the output of <code>HybridNew</code> and plot them yourself. We will use the <code>data/tutorials/multiDim/toy-hgg-125.txt</code> datacard in the example below to demonstrate how this can be done. Let's build the model again as we did in the MultiDimFit section.</p>
+<pre><code class="language-sh">text2workspace.py -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH toy-hgg-125.txt -o toy-hgg-125.root
 </code></pre>
-<p>To extract 2D contours, the names of each parameter must be given <code>--xvar poi_x --yvar poi_y</code>. The output will be a ROOT file containing a 2D histogram of value of <span class="arithmatex">\(p_{x,y}\)</span> for each point <span class="arithmatex">\((x,y)\)</span> which can be used to draw 2D contours. There will also be a histogram containing the number of toys found for each point.</p>
-<p>There are several options for reducing the running time, such as setting limits on the region of interest or the minimum number of toys required for a point to be included. Finally, adding the option <code>--storeToys</code> in this script will add histograms for each point to the output file of the test statistic distribution. This will increase the memory usage, as all of the toys will be kept in memory.</p>
+<p>First, we use <code>combineTool.py</code> to create jobs for each point in our parameter scan. We want to impose the boundaries that <span class="arithmatex">\(r_{ggH}&gt;0\)</span>, <span class="arithmatex">\(r_{qqH}&gt;0\)</span>.
+In the example below, we will run in interactive mode so this can take a little while. You can instead run using a batch cluster (eg <code>condor</code>) or the grid (<code>grid</code>) to submit sepaerate jobs for each point / set of points. We configure the tool by specifying the grid of points in <code>poi_grid_configuration.json</code> as below. Here we want 5000 toys for each point, and we choose a grid of <span class="arithmatex">\(r_{ggH}\in [0,4]\)</span> in steps of 0.2, and <span class="arithmatex">\(r_{qqH}\in[0,10]\)</span> in steps of 0.5.</p>
+<pre><code>{
+  &quot;verbose&quot; : true,
+  &quot;opts&quot; : &quot; --LHCmode LHC-feldman-cousins --saveHybridResult --clsAcc 0 &quot;,
+  &quot;POIs&quot; : [&quot;r_ggH&quot;, &quot;r_qqH&quot;],
+  &quot;grids&quot; : [
+    [&quot;0:4|.2&quot;,&quot;0:10|.5&quot;,&quot;&quot;]
+  ],
+  &quot;toys_per_cycle&quot;  : 5000,
+  &quot;FC&quot; : true,
+  &quot;min_toys&quot;: 5000,
+  &quot;max_toys&quot;: 50000,
+  &quot;output_incomplete&quot; : true,
+  &quot;make_plots&quot;: false,
+  &quot;contours&quot;:[&quot;obs&quot;],
+  &quot;CL&quot;: 0.68,
+  &quot;output&quot;: &quot;FeldmanCousins.root&quot;,
+  &quot;zipfile&quot;         : &quot;collected.zip&quot;,
+  &quot;statusfile&quot;      : &quot;status.json&quot;
+ }
+</code></pre>
+<p>The command will look like,</p>
+<pre><code class="language-sh">combineTool.py -M HybridNewGrid  ./poi_grid_configuration.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 1
+</code></pre>
+<p>As mentioned, this will take a while to run so you should consider going to make a cup of coffee at this point and reading through the <a href="http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html">HybridNewGrid documentation</a> to learn more about this tool.
+Once this is done, we extract the values of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> for each point in our parameter space using the same command, but this time setting <code>--cycles 0</code> and adding the option <code>--output</code>,</p>
+<pre><code class="language-sh">combineTool.py -M HybridNewGrid  ./poi_grid_configuration.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 0 --output
+</code></pre>
+<p>which will produce a file <code>FeldmanCousins.root</code> (as defined in the <code>"output"</code> field of <code>poi_grid_configuration.json</code>) that contains a <code>TGraph2D</code> which stores the calculated value of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> for each point in the grid. Using something like the macro below, these values can be plotted along with a contour corresponding to 68% CL (<span class="arithmatex">\(\alpha=0.32\)</span>).</p>
+<details>
+<summary><strong>Show script</strong></summary>
+<pre class="c++"><code>
+void plot_2DFC(){
+
+  TFile *_file0 = TFile::Open("FeldmanCousins.root");
+
+  TCanvas *can = new TCanvas("c","c",600,540);
+
+  // Draw p_x
+  TGraph2D *gpX = (TGraph2D*)_file0->Get("obs");
+  gpX->Draw("colz");
+
+  // Draw 68% contour
+  TH2F *h68 = (TH2F*)gpX->GetHistogram()->Clone("h68");
+  h68->SetContour(2);
+  h68->SetContourLevel(1,0.32);
+  h68->SetLineWidth(3);
+  h68->SetLineColor(1);
+  h68->Draw("CONT3same");
+
+  gpX->SetTitle("");
+  gpX->GetXaxis()->SetTitle("r_{ggH}");
+  gpX->GetYaxis()->SetTitle("r_{qqH}");
+
+
+  gStyle->SetOptStat(0);
+  can->SaveAs("2D_FC.png");
+ }
+ </pre>
+<p></code></p>
+</details>
+<p>It will produce the plot below.</p>
+<p><img alt="" src="../images/2D_FC.png" /></p>
+<p>There are several options for reducing the running time, such as setting limits on the region of interest or the minimum number of toys required for a point to be included.</p>
 
 
 
