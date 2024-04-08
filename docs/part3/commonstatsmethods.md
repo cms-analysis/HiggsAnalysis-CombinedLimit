@@ -358,7 +358,8 @@ combine realistic-counting-experiment.txt -M HybridNew --LHCmode LHC-limits
 
 /// details | **Show output**
 
-<pre><code> <<< Combine >>>
+<pre><code>
+<<< Combine >>>
 >>> including systematics
 >>> using the Profile Likelihood test statistics modified for upper limits (Q_LHC)
 >>> method used is HybridNew
@@ -850,66 +851,57 @@ As usual, any *floating* nuisance parameters will be *profiled*. This behaviour 
 
 For most of the methods, for lower-precision results you can turn off the profiling of the nuisance parameters by using the option `--fastScan`, which for complex models speeds up the process by several orders of magnitude. **All** nuisance parameters will be kept fixed at the value corresponding to the best fit point.
 
-As an example, let's produce the $-2\Delta\ln{\mathcal{L}}$ scan as a function of **`r_ggH`** and **`r_qqH`** from the toy H→γγ datacard, with the nuisance parameters *fixed* to their global best fit values.
+As an example, let's produce the $-2\Delta\ln{\mathcal{L}}$ scan as a function of **`r_ggH`** and **`r_qqH`** from the toy $H\rightarrow\gamma\gamma$ datacard. The command below should be pretty fast, as the statistical model is quite simple,
 
 ```sh
-combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2000 --setParameterRanges r_qqH=0,10:r_ggH=0,4 -m 125 --fastScan
+combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2500 --setParameterRanges r_qqH=0,12:r_ggH=-1,4 -m 125
 ```
 
-/// details | **Show output**
-<pre><code>
- <<< Combine >>>
->>> including systematics
->>> method used is MultiDimFit
->>> random number generator seed is 123456
-ModelConfig 'ModelConfig' defines more than one parameter of interest. This is not supported in some statistical methods.
-Set Range of Parameter r_qqH To : (0,10)
-Set Range of Parameter r_ggH To : (0,4)
-Computing results starting from observation (a-posteriori)
- POI: r_ggH= 0.88152 -> [0,4]
- POI: r_qqH= 4.68297 -> [0,10]
-Point 0/2025, (i,j) = (0,0), r_ggH = 0.044444, r_qqH = 0.111111
-Point 11/2025, (i,j) = (0,11), r_ggH = 0.044444, r_qqH = 2.555556
-Point 22/2025, (i,j) = (0,22), r_ggH = 0.044444, r_qqH = 5.000000
-Point 33/2025, (i,j) = (0,33), r_ggH = 0.044444, r_qqH = 7.444444
-Point 55/2025, (i,j) = (1,10), r_ggH = 0.133333, r_qqH = 2.333333
-Point 66/2025, (i,j) = (1,21), r_ggH = 0.133333, r_qqH = 4.777778
-Point 77/2025, (i,j) = (1,32), r_ggH = 0.133333, r_qqH = 7.222222
-Point 88/2025, (i,j) = (1,43), r_ggH = 0.133333, r_qqH = 9.666667
-Point 99/2025, (i,j) = (2,9), r_ggH = 0.222222, r_qqH = 2.111111
-Point 110/2025, (i,j) = (2,20), r_ggH = 0.222222, r_qqH = 4.555556
-Point 121/2025, (i,j) = (2,31), r_ggH = 0.222222, r_qqH = 7.000000
-Point 132/2025, (i,j) = (2,42), r_ggH = 0.222222, r_qqH = 9.444444
-Point 143/2025, (i,j) = (3,8), r_ggH = 0.311111, r_qqH = 1.888889
-Point 154/2025, (i,j) = (3,19), r_ggH = 0.311111, r_qqH = 4.333333
-Point 165/2025, (i,j) = (3,30), r_ggH = 0.311111, r_qqH = 6.777778
-Point 176/2025, (i,j) = (3,41), r_ggH = 0.311111, r_qqH = 9.222222
-Point 187/2025, (i,j) = (4,7), r_ggH = 0.400000, r_qqH = 1.666667
-Point 198/2025, (i,j) = (4,18), r_ggH = 0.400000, r_qqH = 4.111111
-Point 209/2025, (i,j) = (4,29), r_ggH = 0.400000, r_qqH = 6.555556
-Point 220/2025, (i,j) = (4,40), r_ggH = 0.400000, r_qqH = 9.000000
-[...]
+The scan, along with the best fit point and $1\sigma$ CL contour can be drawn using ROOT using something like the script below,
 
-Done in 0.00 min (cpu), 0.02 min (real)
-</code></pre>
+/// details | **Show script**
+<pre class="c++"><code>
+void plot2D_LHScan(){
+
+  TFile *_file0 = TFile::Open("higgsCombineTest.MultiDimFit.mH125.root");
+  TTree *limit = (TTree*) _file0->Get("limit");
+
+  // create histogram representing -2Delta Log(L)
+  TCanvas *can = new TCanvas("c","c",600,540);
+  limit->Draw("2*deltaNLL:r_qqH:r_ggH>>h(50,-1,4,50,0,12)","2*deltaNLL<50","prof colz");
+  TH2F *g2NLL = (TH2F*)gROOT->FindObject("h");
+
+  g2NLL->SetName("g2NLL");
+  g2NLL->SetTitle("");
+  g2NLL->GetXaxis()->SetTitle("r_{ggH}");
+  g2NLL->GetYaxis()->SetTitle("r_{qqH}");
+
+  // Get best fit point
+  limit->Draw("r_qqH:r_ggH","quantileExpected == -1","P same");
+  TGraph *best_fit = (TGraph*)gROOT->FindObject("Graph");
+
+  best_fit->SetMarkerSize(3);
+  best_fit->SetMarkerStyle(34);
+  best_fit->Draw("p same");
+
+  // get 1-sigma contour
+  TH2F *h68 = (TH2F*)g2NLL->Clone();
+  h68->SetContour(2);
+  h68->SetContourLevel(1,2.3);
+  h68->SetLineWidth(3);
+  h68->SetLineColor(1);
+  h68->Draw("CONT3same");
+
+  gStyle->SetOptStat(0);
+  can->SaveAs("2D_LHScan.png");
+
+ }
+</pre></code>
 ///
 
-The scan, along with the best fit point can be drawn using root,
+This will produce a plot like the one below,
 
-```c++
-$ root -l higgsCombineTest.MultiDimFit.mH125.root
-
-limit->Draw("2*deltaNLL:r_ggH:r_qqH>>h(44,0,10,44,0,4)","2*deltaNLL<10","prof colz")
-
-limit->Draw("r_ggH:r_qqH","quantileExpected == -1","P same")
-TGraph *best_fit = (TGraph*)gROOT->FindObject("Graph")
-
-best_fit->SetMarkerSize(3); best_fit->SetMarkerStyle(34); best_fit->Draw("p same")
-```
-
-![](images/nll2D.png)
-
-To make the full profiled scan, just remove the `--fastScan` option from the <span style="font-variant:small-caps;">Combine</span> command.
+![](images/2D_LHScan.png)
 
 Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the [`CombineHarvester/CombineTools`](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) package [plot1DScan.py](https://github.com/cms-analysis/CombineHarvester/blob/113x/CombineTools/scripts/plot1DScan.py) that can be used to make plots and extract the crossings of the `2*deltaNLL` - e.g the 1σ/2σ boundaries.
 
@@ -986,11 +978,11 @@ combine -m 123 -M MultiDimFit -d higgsCombineteststep1.MultiDimFit.mH123.root -w
 
 The Feldman-Cousins (FC) procedure for computing confidence intervals for a generic model is,
 
--   use the profile likelihood ratio as the test statistic, $q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(\hat{x},\hat{\nu})$ where $x$ is a point in the (N-dimensional) parameter space, and $\hat{x}$ is the point corresponding to the best fit. In this test statistic, the nuisance parameters are profiled, both in the numerator and denominator.
--   for each point $x$:
-    -   compute the observed test statistic $q_{\mathrm{obs}}(x)$
-    -   compute the expected distribution of $q(x)$ under the hypothesis of $x$ as the true value.
-    -   accept the point in the region if $p_{x}=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha$
+-   use the profile likelihood ratio as the test statistic, $q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\hat{\vec{\mu}},\hat{\vec{\nu}})$ where $\vec{\mu}$ is a point in the (N-dimensional) parameter space, and $\hat{\vec{\mu}}$ is the point corresponding to the best fit. In this test statistic, the nuisance parameters are profiled, both in the numerator and denominator.
+-   for each point $\vec{\mu}$:
+    -   compute the observed test statistic $q_{\mathrm{obs}}(\vec{\mu})$
+    -   compute the expected distribution of $q(\vec{\mu})$ under the hypothesis of $\vec{\mu}$ as the true value.
+    -   accept the point in the region if $p_{\vec{\mu}}=P\left[q(\vec{\mu}) > q_{\mathrm{obs}}(\vec{\mu})| \vec{\mu}\right] > \alpha$
 
 With a critical value $\alpha$.
 
@@ -1000,14 +992,14 @@ In <span style="font-variant:small-caps;">Combine</span>, you can perform this t
 combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 ```
 
-The point belongs to your confidence region if $p_{x}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
+The point belongs to your confidence region if $p_{\vec{\mu}}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
 !!! warning
     You should not use this method without the option `--singlePoint`. Although <span style="font-variant:small-caps;">Combine</span> will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.
 
 ### Physical boundaries
 
-Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) is achieved by setting the ranges of the physics model parameters using
+Imposing physical boundaries (such as requiring $r>0$ for a signal strength $r$ ) is achieved by setting the ranges of the physics model parameters using
 
 ```sh
 --setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
@@ -1015,11 +1007,15 @@ Imposing physical boundaries (such as requiring $\mu>0$ for a signal strength) i
 
 The boundary is imposed by **restricting the parameter range(s)** to those set by the user, in the fits. Note that this is a trick! The actual fitted value, as one of an ensemble of outcomes, can fall outside of the allowed region, while the boundary should be imposed on the physical parameter. The effect of restricting the parameter value in the fit is such that the test statistic is modified as follows ;
 
-$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\theta}}(x))/\mathcal{L}(\hat{x},\hat{\nu})$, if $\hat{x}$ in contained in the bounded range
+$$q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\hat{\vec{\mu}},\hat{\vec{\nu}}),$$
+
+if $\hat{\vec{\mu}}$ in contained in the bounded range
 
 and,
 
-$q(x) = - 2 \ln \mathcal{L}(x,\hat{\hat{\nu}}(x))/\mathcal{L}(x_{B},\hat{\hat{\nu}}(x_{B}))$, if $\hat{x}$ is outside of the bounded range. Here $x_{B}$ and $\hat{\hat{\nu}}(x_{B})$ are the values of $x$ and $\nu$ which maximise the likelihood *excluding values outside of the bounded region* for $x$ - typically, $x_{B}$ will be found at one of the boundaries which is imposed. For example, if the boundary $x>0$ is imposed, you will typically expect $x_{B}=0$, when $\hat{x}\leq 0$, and $x_{B}=\hat{x}$ otherewise.
+$$q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\vec{\mu}_{B},\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})),$$
+
+if $\hat{\vec{\mu}}$ is outside of the bounded range. Here $\vec{\mu}_{B}$ and $\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})$ are the values of $\vec{\mu}$ and $\vec{\nu}$ which maximise the likelihood *excluding values outside of the bounded region* for $\vec{\mu}$ - typically, $\vec{\mu}_{B}$ will be found at one of the boundaries which is imposed. For example if there is one parameter of interest $\mu$ , if the boundary $\mu>0$ is imposed, you will typically expect $\mu_{B}=0$, when $\hat{\mu}\leq 0$, and $\mu_{B}=\hat{\mu}$ otherewise.
 
 This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.
 
@@ -1041,16 +1037,89 @@ combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridRe
 
 The output tree will contain the values of the POI that crosses the critical value ($\alpha$) - i.e, the boundaries of the confidence intervals.
 
-You can produce a plot of the value of $p_{x}$ vs the parameter of interest $x$ by adding the option `--plot <plotname>`.
+You can produce a plot of the value of $p_{\vec{\mu}}$ vs the parameter of interest $\vec{\mu}$ by adding the option `--plot <plotname>`.
 
-#### Extracting 2D contours
+#### Extracting 2D contours / general intervals
 
-There is a tool for extracting *2D contours* from the output of `HybridNew` located in `test/makeFCcontour.py`. This can be used provided the option `--saveHybridResult` was included when running `HybridNew`. It can be run with the usual <span style="font-variant:small-caps;">Combine</span> output files (or several of them) as input,
+For *two-dimensional* models, or if the parameter does not behave like a cross section, you will need to extract the contours from the output of `HybridNew` and plot them yourself. We will use the `data/tutorials/multiDim/toy-hgg-125.txt` datacard in the example below to demonstrate how this can be done. Let's build the model again as we did in the MultiDimFit section.
 
 ```sh
-./test/makeFCcontour.py  toysfile1.root toysfile2.root .... [options] -out outputfile.root
+text2workspace.py -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH toy-hgg-125.txt -o toy-hgg-125.root
 ```
 
-To extract 2D contours, the names of each parameter must be given `--xvar poi_x --yvar poi_y`. The output will be a ROOT file containing a 2D histogram of value of $p_{x,y}$ for each point $(x,y)$ which can be used to draw 2D contours. There will also be a histogram containing the number of toys found for each point.
+First, we use `combineTool.py` to create jobs for each point in our parameter scan. We want to impose the boundaries that $r_{ggH}>0$, $r_{qqH}>0$.
+In the example below, we will run in interactive mode so this can take a little while. You can instead run using a batch cluster (eg `condor`) or the grid (`grid`) to submit sepaerate jobs for each point / set of points. We configure the tool by specifying the grid of points in `poi_grid_configuration.json` as below. Here we want 5000 toys for each point, and we choose a grid of $r_{ggH}\in [0,4]$ in steps of 0.2, and $r_{qqH}\in[0,10]$ in steps of 0.5.
 
-There are several options for reducing the running time, such as setting limits on the region of interest or the minimum number of toys required for a point to be included. Finally, adding the option `--storeToys` in this script will add histograms for each point to the output file of the test statistic distribution. This will increase the memory usage, as all of the toys will be kept in memory.
+```
+{
+  "verbose" : true,
+  "opts" : " --LHCmode LHC-feldman-cousins --saveHybridResult --clsAcc 0 ",
+  "POIs" : ["r_ggH", "r_qqH"],
+  "grids" : [
+    ["0:4|.2","0:10|.5",""]
+  ],
+  "toys_per_cycle"  : 5000,
+  "FC" : true,
+  "min_toys": 5000,
+  "max_toys": 50000,
+  "output_incomplete" : true,
+  "make_plots": false,
+  "contours":["obs"],
+  "CL": 0.68,
+  "output": "FeldmanCousins.root",
+  "zipfile"         : "collected.zip",
+  "statusfile"      : "status.json"
+ }
+```
+
+The command will look like,
+
+```sh
+combineTool.py -M HybridNewGrid  ./poi_grid_configuration.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 1
+```
+
+As mentioned, this will take a while to run so you should consider going to make a cup of coffee at this point and reading through the [HybridNewGrid documentation](http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html) to learn more about this tool.
+Once this is done, we extract the values of $p_{\vec{\mu}}$ for each point in our parameter space using the same command, but this time setting `--cycles 0` and adding the option `--output`,
+
+```sh
+combineTool.py -M HybridNewGrid  ./poi_grid_configuration.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 0 --output
+```
+
+which will produce a file `FeldmanCousins.root` (as defined in the `"output"` field of `poi_grid_configuration.json`) that contains a `TGraph2D` which stores the calculated value of $p_{\vec{\mu}}$ for each point in the grid. Using something like the macro below, these values can be plotted along with a contour corresponding to 68% CL ($\alpha=0.32$).
+
+/// details | **Show script**
+<pre class="c++"><code>
+void plot_2DFC(){
+
+  TFile *_file0 = TFile::Open("FeldmanCousins.root");
+
+  TCanvas *can = new TCanvas("c","c",600,540);
+
+  // Draw p_x
+  TGraph2D *gpX = (TGraph2D*)_file0->Get("obs");
+  gpX->Draw("colz");
+
+  // Draw 68% contour
+  TH2F *h68 = (TH2F*)gpX->GetHistogram()->Clone("h68");
+  h68->SetContour(2);
+  h68->SetContourLevel(1,0.32);
+  h68->SetLineWidth(3);
+  h68->SetLineColor(1);
+  h68->Draw("CONT3same");
+
+  gpX->SetTitle("");
+  gpX->GetXaxis()->SetTitle("r_{ggH}");
+  gpX->GetYaxis()->SetTitle("r_{qqH}");
+
+
+  gStyle->SetOptStat(0);
+  can->SaveAs("2D_FC.png");
+ }
+ </pre></code>
+ ///
+
+It will produce the plot below.
+
+![](images/2D_FC.png)
+
+There are several options for reducing the running time, such as setting limits on the region of interest or the minimum number of toys required for a point to be included.
