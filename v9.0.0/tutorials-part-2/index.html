@@ -1,0 +1,1510 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../logo.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.13">
+    
+    
+      
+        <title>Tutorials part 2 - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e359304.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../mystyle.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#datacard-for-shape-analyses" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tutorials part 2
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../part3/runningthetool/" class="md-tabs__link">
+          
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../part4/usefullinks/" class="md-tabs__link">
+        
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../part5/roofit/" class="md-tabs__link">
+          
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Physics models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Running combine
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part3/runningthetool/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Running the tool
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part3/nonstandard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part3/regularisation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part3/validation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Validating datacards
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part3/debugging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part4/usefullinks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part5/roofit/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part5/longexercise/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exercise: main features
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Solutions to long exercise
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exercise: parametric fit
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#datacard-for-shape-analyses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Datacard for Shape analyses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Datacard for Shape analyses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#not-parametric-shapes-and-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Not parametric shapes and uncertainties
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#binned-shape-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Binned shape analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unbinned-shape-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unbinned shape analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unbinned shape analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parametric-signal-normalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parametric signal normalization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-uncertainties-using-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shape uncertainties using parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caveat-on-using-parametric-pdfs-with-binned-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caveat on using parametric pdfs with binned datasets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analysis-with-more-generic-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analysis with more generic models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Analysis with more generic models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multidimensional-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multidimensional fits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feldman-cousins-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feldman-Cousins regions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-hypothesis-separation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Signal Hypothesis separation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Hypothesis separation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#throwing-post-fit-toys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Throwing post-fit toys
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modifying-parameters-of-interest-on-the-command-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modifying parameters of interest on the command line
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-tutorials" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Tutorials
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Tutorials part 2</h1>
+
+<h3 id="datacard-for-shape-analyses">Datacard for Shape analyses</h3>
+<p>The <a href="#DataCard">datacard</a> has to be supplemented with two extensions: 1 a new block of lines defining how channels and processes are mapped into shapes 1 the block for systematics that can contain also rows with shape uncertainties.</p>
+<p>The expected shape can be parametric or not parametric. In the first case the parametric pdfs have to be given as input to the tool. In the latter case, for each channel, histograms have to be provided for the expected shape of each process. For what concerns data, they have to be provided as input to the tool as a histogram to perform a <em>binned</em> shape analysis and as a tree to perform an <em>unbinned</em> shape analysis.</p>
+<h5 id="not-parametric-shapes-and-uncertainties">Not parametric shapes and uncertainties</h5>
+<p>For each channel, histograms have to be provided for the observed shape and for the expected shape of each process.</p>
+<ul>
+<li>Within each channel, all histograms must have the same binning.</li>
+<li>The normalization of the data histogram must correspond to the number of observed events</li>
+<li>The normalization of the expected histograms must match the expected yields</li>
+</ul>
+<p>The combine tool can take as input histograms saved as TH1 or as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/master/data/benchmarks/shapes/make_simple_shapes.cxx">github</a>).</p>
+<p>Shape uncertainties can be taken into account by vertical interpolation of the histograms, like in the HIG-10-002 analysis. The shapes are interpolated quadratically for shifts below 1σ and linearly beyond. The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties.</p>
+<p>For each shape uncertainty and process/channel affected by it, two additional input shapes have to be provided, obtained shifting that parameter up and down by one standard deviation. When building the likelihood, each shape uncertainty is associated to a nuisance parameter taken from a unit gaussian distribution, which is used to interpolate or extrapolate using the specified histograms.</p>
+<p>For each given source of shape uncertainty, in the part of the datacard containing shape uncertainties (last block), there must be a row</p>
+<ul>
+<li>_<em>name</em> %RED%shape<span class="twiki-macro ENDCOLOR"></span> <em>effect for each process and channel_</em></li>
+</ul>
+<p>The effect can be "-" or 0 for no effect, 1 for normal effect, and possibly something different from 1 to test larger or smaller effects (in that case, the unit gaussian is scaled by that factor before using it as parameter for the interpolation)
+fre
+The block of lines defining the mapping (first block in the datacard) contains one or more rows in the form</p>
+<ul>
+<li><strong><span class="twiki-macro RED"></span> shapes <span class="twiki-macro ENDCOLOR"></span> <em>process</em> <em>channel</em> <em>file</em> <em>histogram</em> [ _histogram_with<em>systematics</em> ]</strong></li>
+</ul>
+<p>In this line</p>
+<ul>
+<li><strong><em>process</em></strong> is any one the process names, or <strong>*</strong> for all processes, or <strong>data_obs</strong> for the observed data</li>
+<li><strong><em>channel</em></strong> is any one the process names, or <strong>*</strong> for all channels</li>
+<li>_<em>file</em>, <em>histogram</em> and _histogram_with<em>systematics_</em> identify the names of the files and of the histograms within the file, after doing some replacements (if any are found):<ul>
+<li><strong>$PROCESS</strong> is replaced with the process name (or "<strong>data_obs</strong>" for the observed data)</li>
+<li><strong>$CHANNEL</strong> is replaced with the channel name</li>
+<li><strong>$SYSTEMATIC</strong> is replaced with the name of the systematic + (<strong>Up, Down</strong>)</li>
+<li><strong>$MASS</strong> is replaced with the higgs mass value which is passed as option in the command line used to run the limit tool</li>
+</ul>
+</li>
+</ul>
+<p>The datacard in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/master/data/benchmarks/shapes/simple-shapes-TH1.txt">simple-shapes-TH1.txt</a> is a clear example of how to include shapes in the datacard. In the first block the following line specifies the shape mapping:</p>
+<pre><code>shapes * * simple-shapes-TH1.root $PROCESS $PROCESS_$SYSTEMATIC
+</code></pre>
+<p>The last block concerns the treatment of the systematics affecting shapes. In this part the two uncertainties effecting on the shape are listed.</p>
+<pre><code>alpha  shape    -           1   uncertainty on background shape and normalization
+sigma  shape    0.5         -   uncertainty on signal resolution. Assume the histogram is a 2 sigma shift, 
+#                                so divide the unit gaussian by 2 before doing the interpolation
+</code></pre>
+<p>There are two options for the interpolation algorithm in the "shape" uncertainty. Putting <strong><code>shape</code></strong> will result in a quadratic interpolation (within +/-1 sigma) and a linear extrapolation (beyond +/-1 sigma) of the <strong>fraction of events in each bin</strong> - i.e the histograms are first normalised before interpolation. Putting <strong><code>shapeN</code></strong> while instead base the interpolation on the logs of the fraction in each bin. The total normalisation is interpolated using an asymmetric log-normal so that the effect of the systematic on both the shape and normalisation are accounted for. The following image shows a comparison of those two algorithms for this datacard.</p>
+<p><span class="twiki-macro TWISTY" mode="div" showlink="Show comparison " hidelink="Hide " firststart="hide" showimgright="%ICONURLPATH{toggleopen-small}%" hideimgright="%ICONURLPATH{toggleclose-small}%"></span></p>
+<p>&lt;img alt="compare_shape_algo.png" src="%ATTACHURLPATH%/compare_shape_algo.png" /&gt;</p>
+<p><span class="twiki-macro ENDTWISTY"></span></p>
+<p>In this case there are two processes, <em>signal</em> and <em>background</em>, and two uncertainties affecting background (<em>alpha</em>) and signal shape (<em>sigma</em>). Within the root file 2 histograms per systematic have to be provided, they are the shape obtained, for the specific process, shifting up and down the parameter associated to the uncertainty: _background<em>alphaUp</em> and _background_alphaDown, _signal<em>sigmaUp</em> and _signal<em>sigmaDown</em>. This is the content of the root file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/master/data/benchmarks/shapes/simple-shapes-TH1.root">simple-shapes-TH1.root </a> associated to the datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/master/data/benchmarks/shapes/simple-shapes-TH1.txt">simple-shapes-TH1.txt</a>:</p>
+<pre><code>root [0] 
+Attaching file simple-shapes-TH1.root as _file0...
+root [1] _file0-&gt;ls()
+TFile**     simple-shapes-TH1.root  
+ TFile*     simple-shapes-TH1.root  
+  KEY: TH1F signal;1    Histogram of signal__x
+  KEY: TH1F signal_sigmaUp;1    Histogram of signal__x
+  KEY: TH1F signal_sigmaDown;1  Histogram of signal__x
+  KEY: TH1F background;1    Histogram of background__x
+  KEY: TH1F background_alphaUp;1    Histogram of background__x
+  KEY: TH1F background_alphaDown;1  Histogram of background__x
+  KEY: TH1F data_obs;1  Histogram of data_obs__x
+  KEY: TH1F data_sig;1  Histogram of data_sig__x
+</code></pre>
+<p><span class="twiki-macro TWISTY" mode="div" showlink="Show an example " hidelink="Hide " firststart="hide" showimgright="%ICONURLPATH{toggleopen-small}%" hideimgright="%ICONURLPATH{toggleclose-small}%"></span></p>
+<p>For example, without shape uncertainties you could have just one row with
+<code>shapes * * shapes.root $CHANNEL/$PROCESS</code>
+Then for a simple example for two channels "e", "mu" with three processes "higgs", "zz", "top" you should create a rootfile that contains the following</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">histogram</th>
+<th style="text-align: left;">meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>e/data_obs</code></td>
+<td style="text-align: left;">observed data in electron channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>e/higgs</code></td>
+<td style="text-align: left;">expected shape for higgs in electron channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>e/zz</code></td>
+<td style="text-align: left;">expected shape for ZZ in electron channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>e/top</code></td>
+<td style="text-align: left;">expected shape for top in electron channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mu/data_obs</code></td>
+<td style="text-align: left;">observed data in muon channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mu/higgs</code></td>
+<td style="text-align: left;">expected shape for higgs in muon channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mu/zz</code></td>
+<td style="text-align: left;">expected shape for ZZ in muon channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mu/top</code></td>
+<td style="text-align: left;">expected shape for top in muon channel</td>
+</tr>
+</tbody>
+</table>
+<p>If you also have one uncertainty that affects the shape, e.g. jet energy scale, you should create shape histograms for the jet energy scale shifted up by one sigma, you could for example do one folder for each process and write a like like
+<code>shapes * * shapes.root $CHANNEL/$PROCESS/nominal  $CHANNEL/$PROCESS/$SYSTEMATIC</code>
+or just attach a postifx to the name of the histogram
+<code>shapes * * shapes.root $CHANNEL/$PROCESS  $CHANNEL/$PROCESS_$SYSTEMATIC</code></p>
+<p><span class="twiki-macro ENDTWISTY"></span></p>
+<p><strong>Parametric shapes and uncertainties</strong></p>
+<p>If you want to combine a channel with shapes with one that is a simple counting experiment, you have to declare some fake shapes in the datacard of the counting experiment. This can be done simply by adding a line to the datacard</p>
+<ul>
+<li><strong><span class="twiki-macro RED"></span> shapes <span class="twiki-macro ENDCOLOR"></span> <em>process</em> <em>channel</em> %RED%FAKE%ENDCOLOR%</strong></li>
+</ul>
+<p><span class="twiki-macro TWISTY" mode="div" showlink="Implementation details and status " hidelink="Hide " firststart="hide" showimgright="%ICONURLPATH{toggleopen-small}%" hideimgright="%ICONURLPATH{toggleclose-small}%"></span></p>
+<p>As of tag <strong><code>T01-06-00</code></strong> <span class="twiki-macro COMPLETE5"></span> (note the initial <strong><code>T</code></strong> instead of <strong><code>V</code></strong>, since it's still only for testing)</p>
+<ul>
+<li><strong>Shapes:</strong> <span class="twiki-macro ICON">choice-yes</span><ul>
+<li><span class="twiki-macro X"></span> If doing toy mc generation, must run with <strong><code>--generateBinnedWorkaround</code></strong> (or <strong><code>-U</code></strong> / <strong><code>--unbinned</code></strong>), due to a bug in RooFit</li>
+</ul>
+</li>
+<li><strong>Shape uncertainties:</strong> <span class="twiki-macro ICON">choice-yes</span><ul>
+<li>shapes with vertical shape morphing (quadratic up to 1 sigma, then linear)</li>
+<li>exponential morphing on the normalization (just like for an asymmetric log-normal uncertainty)</li>
+<li>one can select linear morphing (<code>shapeL</code>) or multiplicative morphing (<code>shapeN</code>) as well, but with some caveats:<ul>
+<li>only one morphing algorithm can be used for a given shape</li>
+<li>multiplicative morphing is applied to the <em>normalized</em> shapes, and then the normalization is interpolated separately. also, note that this is <strong>much slower</strong> than quadratic or linear morphing (factor 10-100)</li>
+</ul>
+</li>
+<li>if you get results that look unreasonable, it could be that the truncation effects due to some part of the shape becoming negative are sizable. you can partially recover from this problem forcing roofit to re-normalize explicitly the function (just replace <strong><code>shape</code></strong> with ==shape*==; note, will be much slower), but it's likely that you need some other approach to handle the shape systematics</li>
+</ul>
+</li>
+</ul>
+<p>This includes also a few other features not in this twiki:</p>
+<ul>
+<li>Support for RooFit shapes (specifying &lt;tt&gt; <em>workspaceName</em> <strong>:</strong><em>objectName</em>&lt;/tt&gt; in place of <em>histogramName</em>):<ul>
+<li><strong>Binned datasets</strong> (RooDataHist) for data and for mc processes: <span class="twiki-macro ICON">choice-yes</span></li>
+<li><strong>Unbinned datasets</strong> (RooDataSet) for data: <span class="twiki-macro ICON">choice-yes</span></li>
+<li><strong>Arbitrary shapes</strong> (RooAbsPdf) for mc processes: <span class="twiki-macro ICON">choice-yes</span><ul>
+<li><span class="twiki-macro ICON">choice-yes</span> Parametric shape uncertainties can be specified among the other systematics in a line
+    &lt;tt&gt;<em>name</em> <strong>param</strong> <em>mean</em> <em>uncertainty</em> <em>[range]</em> &lt;/tt&gt;.
+    The uncertainty can be either the sigma of a gaussian or <code>-xx/+yy</code> (with no spaces) for a bifurcated gaussian.
+    The range is optional. if present, it should be <code>[hi,lo]</code> (with no spaces).</li>
+<li><span class="twiki-macro X"></span> Normalization will always be taken from text datacard</li>
+</ul>
+</li>
+<li>Unbinned templates (RooDataSet) for mc processes : <span class="twiki-macro ICON">choice-yes</span> (but not tested)</li>
+<li><span class="twiki-macro X"></span> arbitrary shapes must have unique parameter names and they should match with the names of the systematics</li>
+</ul>
+</li>
+<li>Support for plain <strong><code>TTrees</code></strong> as inputs instead of RooDataSet: <span class="twiki-macro ICON">choice-yes</span> (but not tested)</li>
+<li>Mixing of histograms with RooFit shapes is not supported.</li>
+</ul>
+<p><span class="twiki-macro ENDTWISTY"></span></p>
+<h3 id="binned-shape-analysis">Binned shape analysis</h3>
+<p><a href="%SCRIPTURL{&quot;view&quot;}%auth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates">See the 2014 Data Analysis School tutorial.</a></p>
+<h3 id="unbinned-shape-analysis">Unbinned shape analysis</h3>
+<p><span class="twiki-macro TWISTY" mode="div" showlink="Example from Higgs to gamma gamma" hidelink="Hide " firststart="hide" showimgright="%ICONURLPATH{toggleopen-small}%" hideimgright="%ICONURLPATH{toggleclose-small}%"></span></p>
+<p><em>This example is taken from <a href="%SCRIPTURL{&quot;view&quot;}%auth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_parametric_shape_analysis_H">2014 Data Analysis School</a> and use H-&gt;gg datacards as an example. This is an example of an unbinned, parametric analysis.</em></p>
+<p>In some cases, it can be convenient to describe the expected signal and background shapes in terms of analytical functions rather than templates; a typical example are the searches where the signal is apparent as a narrow peak over a smooth continuum background. In this context, uncertainties affecting the shapes of the signal and backgrounds can be implemented naturally as uncertainties on the parameters of those analytical functions. It is also possible to adapt an agnostic approach in which the parameters of the background model are left freely floating in the fit to the data, i.e. only requiring the background to be well described by a smooth function.</p>
+<p>Technically, this is implemented by means of the RooFit package, that allows writing generic probability density functions, and saving them into ROOT files. The pdfs can be either taken from RooFit's standard library of functions (e.g. Gaussians, polynomials, ...) or hand-coded in C++, and combined together to form even more complex shapes.</p>
+<p>A prototypical case for this kind of analysis is H→γγ analysis. For this excercise, we will use a datacard that contains only the 8 TeV data for four event categories: <strong>cat0</strong> and <strong>cat1</strong> are categories of untagged events containing good quality diphotons, the former of the two with a higer purity but lower event yield obtained preferentially selecting high p&lt;sub&gt;T&lt;/sub&gt; diphotons; <strong>cat4</strong> and <strong>cat5</strong> are categories of di-jet events with different levels of tightness (and so also different level of signal contamination from gluon fusion).</p>
+<p>The datacard is the following:</p>
+<pre><code>imax 4 number of bins
+jmax 5 number of processes minus 1
+kmax * number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes WH        cat0      hgg.inputsig_8TeV_MVA.root wsig_8TeV:hggpdfrel_wh_cat0
+shapes ZH        cat0      hgg.inputsig_8TeV_MVA.root wsig_8TeV:hggpdfrel_zh_cat0
+shapes bkg_mass  cat0      hgg.inputbkgdata_8TeV_MVA.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat0
+shapes data_obs  cat0      hgg.inputbkgdata_8TeV_MVA.root cms_hgg_workspace:roohist_data_mass_cat0
+shapes ggH       cat0      hgg.inputsig_8TeV_MVA.root wsig_8TeV:hggpdfrel_ggh_cat0
+shapes qqH       cat0      hgg.inputsig_8TeV_MVA.root wsig_8TeV:hggpdfrel_vbf_cat0
+shapes ttH       cat0      hgg.inputsig_8TeV_MVA.root wsig_8TeV:hggpdfrel_tth_cat0
+[... same as above for cat1, cat4, cat5 ...]
+----------------------------------------------------------------------------------------------------------------------------------
+bin          cat0         cat1         cat4         cat5       
+observation  -1.0         -1.0         -1.0         -1.0       
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                      cat0         cat0         cat0         cat0         cat0         cat0         cat1         cat1         cat1         cat1         cat1         cat1         cat4         cat4         cat4         cat4         cat4         cat4         cat5         cat5         cat5         cat5         cat5         cat5       
+process                                  ZH           qqH          WH           ttH          ggH          bkg_mass     ZH           qqH          WH           ttH          ggH          bkg_mass     ZH           qqH          WH           ttH          ggH          bkg_mass     ZH           qqH          WH           ttH          ggH          bkg_mass   
+process                                  -4           -3           -2           -1           0            1            -4           -3           -2           -1           0            1            -4           -3           -2           -1           0            1            -4           -3           -2           -1           0            1          
+rate                                     6867.0000    19620.0000   12753.0000   19620.0000   19620.0000   1.0000       7259.4000    19620.0000   12360.6000   19620.0000   19620.0000   1.0000       7063.2000    19620.0000   12556.8000   19620.0000   19620.0000   1.0000       3924.0000    19620.0000   15696.0000   19620.0000   19620.0000   1.0000     
+----------------------------------------------------------------------------------------------------------------------------------
+CMS_eff_j               lnN              0.999125     0.964688     0.999125     0.998262     0.996483     -            0.999616     0.980982     0.999616     0.99934      0.999012     -            1.02         1.02         1.02         1.02         1.02         -            1.02         1.02         1.02         1.02         1.02         -          
+CMS_hgg_JECmigration    lnN              -            -            -            -            -            -            -            -            -            -            -            -            0.853986     0.995971     0.853986     0.846677     0.927283     -            1.025        1.005        1.025        1.025        1.025        -          
+CMS_hgg_UEPSmigration   lnN              -            -            -            -            -            -            -            -            -            -            -            -            0.737174     0.991941     0.737174     0.724019     0.86911      -            1.045        1.01         1.045        1.045        1.045        -          
+CMS_hgg_eff_MET         lnN              -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -          
+CMS_hgg_eff_e           lnN              -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -          
+CMS_hgg_eff_m           lnN              -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -          
+CMS_hgg_eff_trig        lnN              1.01         1.01         1.01         1.01         1.01         -            1.01         1.01         1.01         1.01         1.01         -            1.01         1.01         1.01         1.01         1.01         -            1.01         1.01         1.01         1.01         1.01         -          
+CMS_hgg_n_id            lnN              1.034/0.958  1.039/0.949  1.034/0.958  1.053/0.915  1.035/0.958  -            1.042/0.936  1.038/0.948  1.042/0.936  1.053/0.909  1.038/0.954  -            1.016/0.972  1.022/0.963  1.016/0.972  1.017/0.967  1.019/0.964  -            1.024/0.959  1.030/0.948  1.024/0.959  1.014/0.975  1.023/0.962  -          
+CMS_hgg_n_pdf_1         lnN              -            0.998/0.996  -            -            1.002/0.998  -            -            0.992/0.999  -            -            1.001/1.000  -            -            0.999/0.998  -            -            1.003/0.999  -            -            0.996/1.000  -            -            1.002/0.999  -          
+CMS_hgg_n_pdf_10        lnN              -            1.028/1.004  -            -            0.998/0.998  -            -            1.051/0.997  -            -            1.004/0.999  -            -            1.020/1.000  -            -            1.000/0.998  -            -            1.010/0.999  -            -            0.999/1.000  -          
+[... and more rows like this ...]
+CMS_hgg_n_sc_gf         lnN              -            -            -            -            0.842/1.123  -            -            -            -            -            0.976/1.031  -            -            -            -            -            0.858/1.095  -            -            -            -            -            0.880/1.083  -          
+CMS_hgg_n_sc_vbf        lnN              -            0.993/1.010  -            -            -            -            -            0.994/0.994  -            -            -            -            -            0.997/1.001  -            -            -            -            -            0.999/0.996  -            -            -            -          
+CMS_hgg_n_sigmae        lnN              0.950/1.099  0.943/1.114  0.950/1.099  0.956/1.089  0.944/1.112  -            0.954/1.093  0.948/1.104  0.954/1.093  0.971/1.057  0.919/1.165  -            0.996/1.006  0.992/1.016  0.996/1.006  0.995/1.010  0.994/1.012  -            0.991/1.019  0.985/1.031  0.991/1.019  0.995/1.010  0.988/1.026  -          
+CMS_id_eff_eb           lnN              1.01999      1.020047     1.01999      1.02002      1.020022     -            1.018535     1.019332     1.018535     1.018642     1.019654     -            1.017762     1.017952     1.017762     1.018824     1.01812      -            1.016723     1.016872     1.016723     1.01884      1.017172     -          
+CMS_id_eff_ee           lnN              1.000284     1.000137     1.000284     1.000206     1.0002       -            1.004035     1.001979     1.004035     1.003759     1.001148     -            1.006058     1.005556     1.006058     1.003308     1.005127     -            1.008752     1.008351     1.008752     1.003254     1.007586     -          
+JEC                     lnN              0.995187     0.938204     0.995187     0.990442     0.980656     -            0.997891     0.966719     0.997891     0.996368     0.994567     -            1.11         1.035        1.11         1.11         1.11         -            1.11         1.035        1.11         1.11         1.11         -          
+QCDscale_VH             lnN              0.982/1.021  -            0.982/1.021  -            -            -            0.982/1.021  -            0.982/1.021  -            -            -            0.982/1.021  -            0.982/1.021  -            -            -            0.982/1.021  -            0.982/1.021  -            -            -          
+QCDscale_ggH            lnN              -            -            -            -            0.918/1.076  -            -            -            -            -            0.918/1.076  -            -            -            -            -            0.918/1.076  -            -            -            -            -            0.918/1.076  -          
+QCDscale_qqH            lnN              -            0.992/1.003  -            -            -            -            -            0.992/1.003  -            -            -            -            -            0.992/1.003  -            -            -            -            -            0.992/1.003  -            -            -            -          
+QCDscale_ttH            lnN              -            -            -            0.906/1.041  -            -            -            -            -            0.906/1.041  -            -            -            -            -            0.906/1.041  -            -            -            -            -            0.906/1.041  -            -          
+UEPS                    lnN              0.988624     0.858751     0.988624     0.977408     0.954278     -            0.995014     0.923929     0.995014     0.991416     0.987158     -            1.26         1.08         1.26         1.26         1.26         -            1.26         1.08         1.26         1.26         1.26         -          
+lumi_8TeV               lnN              1.044        1.044        1.044        1.044        1.044        -            1.044        1.044        1.044        1.044        1.044        -            1.044        1.044        1.044        1.044        1.044        -            1.044        1.044        1.044        1.044        1.044        -          
+pdf_gg                  lnN              -            -            -            0.920/1.080  0.930/1.076  -            -            -            -            0.920/1.080  0.930/1.076  -            -            -            -            0.920/1.080  0.930/1.076  -            -            -            -            0.920/1.080  0.930/1.076  -          
+pdf_qqbar               lnN              0.958/1.042  0.972/1.026  0.958/1.042  -            -            -            0.958/1.042  0.972/1.026  0.958/1.042  -            -            -            0.958/1.042  0.972/1.026  0.958/1.042  -            -            -            0.958/1.042  0.972/1.026  0.958/1.042  -            -            -          
+vtxEff                  lnN              0.991/1.025  0.989/1.030  0.991/1.025  0.993/1.020  0.989/1.030  -            0.990/1.026  0.990/1.027  0.990/1.026  0.994/1.016  0.984/1.042  -            1.000/0.999  0.997/1.007  1.000/0.999  1.000/1.003  0.998/1.006  -            0.999/1.004  0.998/1.006  0.999/1.004  1.000/1.000  0.997/1.007  -          
+CMS_hgg_nuissancedeltamcat4  param  0.0 0.001458
+CMS_hgg_nuissancedeltafracright_8TeV  param  1.0 0.002000
+CMS_hgg_nuissancedeltamcat1  param  0.0 0.001470
+CMS_hgg_nuissancedeltamcat0  param  0.0 0.001530
+CMS_hgg_nuissancedeltasmearcat4  param  0.0 0.001122
+CMS_hgg_nuissancedeltasmearcat1  param  0.0 0.001167
+CMS_hgg_nuissancedeltasmearcat0  param  0.0 0.001230
+CMS_hgg_globalscale  param  0.0 0.004717
+</code></pre>
+<p>The first difference compared to the template datacard is in the <strong><code>shapes</code></strong> line; let's take for example these two lines</p>
+<pre><code>shapes ggH       cat0      hgg.inputsig_8TeV_MVA.root wsig_8TeV:hggpdfrel_ggh_cat0
+shapes data_obs  cat0      hgg.inputbkgdata_8TeV_MVA.root cms_hgg_workspace:roohist_data_mass_cat0
+</code></pre>
+<p>In the datacard using templates, the column after the file name would have been the name of the histogram. Here, instead, we found two names, separated by a colon (<strong><code>:</code></strong>): the first part identifies the name of the <a href="http://root.cern.ch/root/htmldoc/RooWorkspace.html">RooWorkspace</a> containing the pdf, and the second part the name of the <a href="http://root.cern.ch/root/htmldoc/RooAbsPdf.html">RooAbsPdf</a> inside it (or, for the observed data, the <a href="http://root.cern.ch/root/htmldoc/RooAbsData.html">RooAbsData</a>).</p>
+<p>Let's inspect this workspace, starting with the data</p>
+<pre><code>%CODE{"cpp"}%
+TFile *fDat = TFile::Open("hgg.inputbkgdata_8TeV_MVA.root");
+RooAbsData *data = cms_hgg_workspace-&amp;gt;data("roohist_data_mass_cat0");
+data-&amp;gt;Print("")
+// --&amp;gt; RooDataHist::roohist_data_mass_cat0[CMS_hgg_mass] = 160 bins (1449 weights)
+// so, we have a binned dataset, whose variable is called CMS_hgg_mass:
+RooRealVar *mass = cms_hgg_workspace-&amp;gt;var("CMS_hgg_mass");
+mass-&amp;gt;Print("");
+// RooRealVar::CMS_hgg_mass = 140  L(100 - 180)
+
+// we can make a plot of the dataset with the following
+RooPlot *plot = mass-&amp;gt;frame();
+data-&amp;gt;plotOn(plot);
+plot-&amp;gt;Draw();
+%ENDCODE%
+</code></pre>
+<p>&lt;img alt="datacards_Hgg_data_cat0.png" src="%ATTACHURLPATH%/datacards_Hgg_data_cat0.png" /&gt;</p>
+<p>Now let's look also at the signal</p>
+<pre><code>%CODE{"cpp"}%
+TFile *sig = TFile::Open("hgg.inputsig_8TeV_MVA.root");
+RooWorkspace *wsig_8TeV = (RooWorkspace*)sig-&amp;gt;Get("wsig_8TeV")  // necessary to Get the workspace in ROOT6 to avoid reloading
+RooAbsPdf *ggH = wsig_8TeV-&amp;gt;pdf("hggpdfrel_ggh_cat0");
+ggH-&amp;gt;Print("");
+// --&amp;gt; RooAddPdf::hggpdfrel_ggh_cat0[ hist_func_frac_g0_ggh_cat0 * hgg_gaus_g0_ggh_cat0 + hist_func_frac_g1_ggh_cat0 * hgg_gaus_g1_ggh_cat0 + const_func_frac_g2_ggh_cat0 * hgg_gaus_g2_ggh_cat0 ] = 0.604097
+// this appears to be a linear combination of multiple gaussian pdfs (hgg_gaus_g0_ggh_cat0, hgg_gaus_g1_ggh_cat0, ...) with coefficents hist_func_frac_g0_ggh_cat0, hist_func_frac_g1_ggh_cat0
+
+// let's get the list of the parameters that describe it
+RooArgSet *params = ggH-&amp;gt;getParameters(*data);
+params-&amp;gt;Print("");
+// --&amp;gt; RooArgSet::parameters = (CMS_hgg_globalscale,CMS_hgg_nuissancedeltamcat0,CMS_hgg_nuissancedeltasmearcat0,MH)
+
+// MH is a special parameter, which combine and text2workspace set to the Higgs mass hypothesis.
+// now since we're just looking into the input workspace, we can set it by hand
+wsig_8TeV-&amp;gt;var("MH")-&amp;gt;setVal(125.7);
+
+// Now we can make a plot of the pdf, and show also the contributions from the different gaussians from which it is composed
+RooPlot *plot =  wsig_8TeV-&amp;gt;var("CMS_hgg_mass")-&amp;gt;frame();
+ggH-&amp;gt;plotOn(plot);
+ggH-&amp;gt;plotOn(plot, RooFit::Components("hgg_gaus_g0_ggh_cat0"), RooFit::LineColor(kRed));
+ggH-&amp;gt;plotOn(plot, RooFit::Components("hgg_gaus_g1_ggh_cat0"), RooFit::LineColor(209));
+ggH-&amp;gt;plotOn(plot, RooFit::Components("hgg_gaus_g2_ggh_cat0"), RooFit::LineColor(222));
+plot-&amp;gt;Draw();
+%ENDCODE%
+</code></pre>
+<p>&lt;img alt="datacards_Hgg_ggH_cat0.png" src="%ATTACHURLPATH%/datacards_Hgg_ggH_cat0.png" /&gt;</p>
+<h4 id="parametric-signal-normalization">Parametric signal normalization</h4>
+<p>There is also another feature of the H→γγ datacard that should catch your eye quicky: the event yields are remarkably strange: the the signal yield is <strong><code>19620.0000</code></strong> events for ggH, qqH and ttH, the background yield is <strong><code>1.0</code></strong>, and observed event yield is <strong><code>-1.0</code></strong>.</p>
+<p>Let's start with the simple case: an event yield of <strong><code>-1</code></strong> just instructs text2workspace and combine to take the yield from the corresponding dataset in the input rootfile, avoiding the need of writing it in the text datacard, but also making the datacard less human-readable. Incidentally, this feature can be used also for datacards that use root histograms like the H→ττ example above.</p>
+<p>Now, the signal and background yields: 19k signal events from each production mode with just one background event would be really nice to have, but of course it can't be true. The way the H→γγ works is by relying on an additional feature of text2workspace: in addition to providing generic shapes for the signals and backgrounds, it is also possible to provide generic functions that describe the expected signal and background yields. This additional functions are multiplied by the number in the <strong><code>rate</code></strong> column of the datacard to obtain the final expected event yield. This feature allows e.g. to use the very same datacard to describe all possible different Higgs boson mass hypotheses by just parameterizing properly the expected yield as function of the <strong><code>MH</code></strong> variable.</p>
+<p>At present, this feature is not indicated by any special line the datacard: simply, whenever a RooAbsPdf is loaded, text2workspace will search also for a RooAbsReal object with the same name but a <strong><code>_norm</code></strong> postfix, and if present it will use it to scale the event yield. <span class="twiki-macro RED"></span> WARNING <span class="twiki-macro ENDCOLOR"></span> As with <strong>all</strong> parameters in the workspace, if this RooAbsReal object is not set constant, (i.e is a RooRealVar which you have not set constant or a function of non-constant vars) it will be floating in the fit. This is especially problematic for the signal as the default parameter added to models for limits/p-values <code>r</code> (the floating signal strength) will be degenerate with this <strong><code>_norm</code></strong> parameter. In this H→γ&amp;gamma example, the object has been setup to be constant to avoid this.</p>
+<p>Note: The newest version of combine will not accept RooExtendedPdfs as an input anymore. This is to alleviate a bug that lead to improper treatment of normalization when using multiple RooExtendedPdfs to describe a single process. Simply follow the above instructions and combine will create the appropriate extended pdf as long as the name of the RooAbsReal is pdfname_norm. Make sure the variable is not set to constant if you intend to have the normalization float.</p>
+<p>Armed with this new piece of knowledge, we can now determine what is the expected signal yield for ggH in category 0:</p>
+<pre><code>%CODE{"cpp"}%
+TFile *sig = TFile::Open("hgg.inputsig_8TeV_MVA.root");
+RooWorkspace *wsig_8TeV = (RooWorkspace*)sig-&amp;gt;Get("wsig_8TeV")  // necessary to Get the workspace in ROOT6 to avoid reloading
+wsig_8TeV-&amp;gt;var("MH")-&amp;gt;setVal(125.7);
+RooAbsPdf *ggH = wsig_8TeV-&amp;gt;pdf("hggpdfrel_ggh_cat0");
+RooAbsReal *ggH_norm = wsig_8TeV-&amp;gt;function("hggpdfrel_ggh_cat0_norm");
+cout &amp;lt;&amp;lt; ggH_norm-&amp;gt;getVal()*19620.0000 &amp;lt;&amp;lt; endl;
+// --&amp;gt; 12.3902
+%ENDCODE%
+</code></pre>
+<p>This approach can also be used to make a background freely floating, by associating to them as normalization term a floating RooRealVar. However, this can be achieved in a more transparent way by putting instead a normalization uncertainty on that background using a flat pdf: e.g. to leave the background floating between 50% and 200% of its input prediction, a <strong><code>lnU</code></strong> systematic can be used with κ<code>2 ( ==lnU=</code> has a syntax like <strong><code>lnN</code></strong>, but produces a uniform pdf between 1/κ and κ rather than a log-normal; see <a href="%SCRIPTURL{&quot;view&quot;}%auth/CMS/SWGuideHiggsAnalysisCombinedLimit#How_to_prepare_the_datacard">SWGuideHiggsAnalysisCombinedLimit</a>)</p>
+<h4 id="shape-uncertainties-using-parameters">Shape uncertainties using parameters</h4>
+<p>The part of the H→γγ datacard related to the systematics starts with many lines of log-normals that should already be familiar, except possibly for the notation with two numbers separated by a slash (e.g. 0.950/1.099). This notation is used for asymmetrical uncertainties: a log-normal with 0.950/1.099 means that at -1σ the yield is scaled down by a factor 0.95, while at +1σ the yield is scaled up by a factor 1.099.</p>
+<p>The last part of the datacard contains some lines that use a different syntax, e.g.</p>
+<pre><code>CMS_hgg_globalscale  param  0.0 0.004717
+</code></pre>
+<p>These lines encode uncertainties on the parameters of the signal and background pdfs. The example line quoted here informs text2workspace that the parameter <strong><code>CMS_hgg_globalscale</code></strong> is to be assigned a Gaussian uncertainty of ±0.004717 around its mean value of zero (0.0). One can change the mean value from 0 to 1 (or really any value, if one so chooses) if the parameter in question is multiplicative instead of additive.</p>
+<p>The effect can be visualized from RooFit, e.g.</p>
+<pre><code>%CODE{"cpp"}%
+TFile *sig = TFile::Open("hgg.inputsig_8TeV_MVA.root");
+RooWorkspace *wsig_8TeV = (RooWorkspace*)sig-&amp;gt;Get("wsig_8TeV")  // necessary to Get the workspace in ROOT6 to avoid reloading
+
+wsig_8TeV-&amp;gt;var("MH")-&amp;gt;setVal(125.7);
+RooAbsPdf *ggH = wsig_8TeV-&amp;gt;pdf("hggpdfrel_ggh_cat0");
+
+// prepare the canvas
+RooPlot *plot =  wsig_8TeV-&amp;gt;var("CMS_hgg_mass")-&amp;gt;frame();
+
+// plot nominal pdf
+ggH-&amp;gt;plotOn(plot, RooFit::LineColor(kBlack));
+
+// plot minus 3 sigma pdf
+wsig_8TeV-&amp;gt;var("CMS_hgg_globalscale")-&amp;gt;setVal(-3*0.004717);
+ggH-&amp;gt;plotOn(plot, RooFit::LineColor(kBlue));
+
+// plot plus 3 sigma pdf
+wsig_8TeV-&amp;gt;var("CMS_hgg_globalscale")-&amp;gt;setVal(+3*0.004717);
+ggH-&amp;gt;plotOn(plot, RooFit::LineColor(kRed));
+plot-&amp;gt;Draw();
+%ENDCODE%
+</code></pre>
+<p>&lt;img alt="datacards_Hgg_ggH_cat0_syst.png" src="%ATTACHURLPATH%/datacards_Hgg_ggH_cat0_syst.png" /&gt;</p>
+<p>Note that if one wants to specify a parameter that is freely floating across its given range, and not gaussian constrained, the following syntax is used:</p>
+<pre><code> CMS_my_bg_param1  flatParam
+</code></pre>
+<p>The Hgg and HZg analyses use this syntax when adding in the parameters that correspond to their background shapes.</p>
+<p>#ParametricModelAndBinnedData</p>
+<h4 id="caveat-on-using-parametric-pdfs-with-binned-datasets">Caveat on using parametric pdfs with binned datasets</h4>
+<p>Users should be aware of a feature that affects the use of parametric pdfs together with binned datasets.</p>
+<p>RooFit uses the integral of the pdf, computed analytically (or numerically, but disregarding the binning), to normalize it, but then computes the expected event yield in each bin evaluating only the pdf at the bin center. This means that if the variation of the pdf is sizeable within the bin then there is a mismatch between the sum of the event yields per bin and the pdf normalization, and that can cause a bias in the fits (more properly, the bias is there if the contribution of the second derivative integrated on the bin size is not negligible, since for linear functions evaluating them at the bin center is correct).</p>
+<p>So, it is recommended to use bins that are significantly finer than the characteristic scale of the pdfs - which would anyway be the recommended thing even in the absence of this feature.</p>
+<p>Obviously, this caveat does not apply to analyses using templates (they're constant across each bin, so there's no bias), or using unbinned datasets.</p>
+<p><span class="twiki-macro ENDTWISTY"></span></p>
+<h3 id="analysis-with-more-generic-models">Analysis with more generic models</h3>
+<h4 id="multidimensional-fits">Multidimensional fits</h4>
+<h4 id="feldman-cousins-regions">Feldman-Cousins regions</h4>
+<p>The F-C procedure for a generic model is:</p>
+<ul>
+<li>use as test statistics the profile likelihood <em>q(x) = - 2 ln L(data|x)/L(data|x-hat)</em> where <em>x</em> is a point in the parameter space, and <em>x-hat</em> are the point corresponding to the best fit (nuisance parameters are profiled both at numerator and at denominator)</li>
+<li>for each point <em>x</em>:<ul>
+<li>compute the observed test statistics <em>q&lt;sub&gt;obs&lt;/sub&gt;(x)</em></li>
+<li>compute the expected distribution of <em>q(x)</em> under the hypothesis of x.</li>
+<li>accept the point in the region if <em>P(q(x) &lt; q&lt;sub&gt;obs&lt;/sub&gt;(x) | x) &lt; CL</em></li>
+</ul>
+</li>
+</ul>
+<p>In combine, you can perform this test on each individual point (param1,param2,...) = (value1,value2,...) by doing</p>
+<pre><code>combine workspace.root -M HybridNew --freq --testStat=PL --rule=CLsplusb --singlePoint  param1=value1,param2=value2,param3=value3,...   [other options of HybridNew]
+</code></pre>
+<p>The point belongs to your confidence region if CL&lt;sub&gt;s+b&lt;/sub&gt; is larger than 1-CL (e.g. 0.3173 for a 1-sigma region, CL=0.6827).</p>
+<p>Imposing physical boundaries (such as requiring mu&gt;0) can be achieved by setting the ranges of the physics model parameters using</p>
+<pre><code> --setPhysicsModelParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
+</code></pre>
+<p>. If there is no upper/lower boundary, just set that value to something far from the region of interest.</p>
+<p>As in general for HybridNew, you can split the task into multiple tasks and then merge the outputs, as described in the <a href="SWGuideHiggsAnalysisCombinedLimit#HybridNew_algorithm">HybridNew chapter</a>.</p>
+<p>For uni-dimensional models only, and if the parameter behaves like a cross-section, the code is somewhat able to do interpolation and determine the values of your parameter on the contour (just like it does for the limits). In that case, the syntax is the same as per the CLs limits with <a href="HybridNew chapter">HybridNew chapter</a> except that you want <strong><code>--testStat=PL --rule=CLsplusb</code></strong> .</p>
+<p><strong>Extracting Contours</strong></p>
+<p>There is a tool for extracting confidence intervals and 2D contours from the output of HybridNew located in <strong><code>test/makeFCcontour.py</code></strong> providing the option <strong><code>--saveToys</code></strong> was included when running HybridNew. I can be run taking as input, the toys files (or several of them) as,</p>
+<pre><code>./makeFCcontour.py  toysfile1.root toysfile2.root .... [options] -out outputfile.root
+</code></pre>
+<p>The tool has two modes (1D and 2D). For the 1D, add the option <strong><code>--d1</code></strong> and the name of the parameter of interest <strong><code>--xvar poi_name</code></strong>. For each confidence interval desired, add any confidence level of interest using <strong><code>--cl 0.68,0.95...</code></strong> The intervals corresponding to each confidence level will be printed to the terminal. The output file will contain a graph of the parameter of interest (x) vs 1-CL&lt;sub&gt;s+b&lt;/sub&gt; used to compute the intervals.</p>
+<p>To extract 2D contours, the names of each parameter must be given <strong><code>--xvar poi_x --yvar poi_y</code></strong>. The output will be a root file containing a 2D histogram of the confidence level (1-CL&lt;sub&gt;s+b&lt;/sub&gt;) for each point which can be used to draw 2D contours. There will also be a histogram containing the number of toys found for each point.</p>
+<p>There are several options for reducing the running time (such as setting limits on the region of interest or the minimum number of toys required for a point to be included) Finally, adding the option <strong><code>--storeToys</code></strong> will add histograms in for each point to the output file of the test-statistic distribution. This will increase the momory usage however as all of the toys will be stored.</p>
+<h3 id="signal-hypothesis-separation">Signal Hypothesis separation</h3>
+<p>In some cases, instead of separating a signal from a background, you might want to separate a signal of one type from a signal of another type (e.g. scalar vs pseudo-scalar Higgs boson).</p>
+<p>This is documented at <a href="HiggsWG.SWGuideHiggsCombinationSignalSeparation">SWGuideHiggsCombinationSignalSeparation</a></p>
+<h4 id="throwing-post-fit-toys">Throwing post-fit toys</h4>
+<p>From <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/pull/86">here</a>:</p>
+<pre><code>#build workspace for mu-mh fit
+text2workspace.py ../cards/hgg_datacard_mva_comb_bernsteins.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass --PO higgsMassRange=105,155 -o testmasshggcomb.root
+
+#perform s+b fit and save workspace+snapshot
+combine testmasshggcomb.root -m 125 -M MultiDimFit --saveWorkspace --verbose 9 -n mumhfit
+
+#throw post-fit toy with b from s+b(floating mu,mh) fit, s with r=1.0, m=best fit MH, using nuisance values and constraints re-centered on s+b(floating mu-mh) fit values (aka frequentist post-fit expected)
+#and compute post-fit expected mu uncertainty profiling MH
+combine higgsCombinemumhfit.MultiDimFit.mH125.root --snapshotName MultiDimFit -M MultiDimFit --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit  -t -1 --expectSignal=1 -P r --floatOtherPOIs=1 --algo singles
+
+#throw post-fit toy with b from s+b(floating mu,mh) fit, s with r=1.0, m=128.0, using nuisance values and constraints re-centered on s+b(floating mu-mh) fit values (aka frequentist post-fit expected)
+#and compute post-fit expected significance (with MH fixed at 128 implicitly)
+combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M ProfileLikelihood --significance --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit --overrideSnapshotMass -t -1 --expectSignal=1 --redefineSignalPOIs r --freezeNuisances MH
+
+#throw post-fit toy with b from s+b(floating mu,mh) fit, s with r=0.0, using nuisance values and constraints re-centered on s+b(floating mu-mh) fit values (aka frequentist post-fit expected)
+#and compute post-fit expected and observed asymptotic limit (with MH fixed at 128 implicitly)
+combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M Asymptotic --verbose 9 -n randomtest --bypassFrequentistFit --overrideSnapshotMass--redefineSignalPOIs r --freezeNuisances MH
+</code></pre>
+<h3 id="modifying-parameters-of-interest-on-the-command-line">Modifying parameters of interest on the command line</h3>
+<p>Normally, the parameters of interest of a model are defined by the PhysicsModel used by text2workspace.</p>
+<p>However, combine provides command line options to redefine on the fly what are the parameters of interest (useful also if the workspaces are built from external tools and not text2workspace), for setting the values of the parameters and their ranges. The MultiDimFit method already provides conventient handles to specify which parameter to analyze and how to deal with the others (floating or fixed), but these commands are more general as they apply to all statistical methods and they can affect any kind of parameters in the model, not only those that were pre-defined as parameters of interest (the wording "physics model parameter" or "nuisance" in the names of the options is there only because that's typically what they are applied to, not because their functionality is restricted to parameters of that kind)</p>
+<ul>
+<li><strong><code>--setPhysicsModelParameters name=value[,name2=value2,...]</code></strong> sets the starting values of the parameters, useful e.g. when generating toy MC or when also setting the parameters as fixed.</li>
+<li><strong><code>--setPhysicsModelParameterRanges name=min,max[:name2=min2,max2:...]</code></strong> sets the ranges of the parameters (useful e.g. for scanning in MultiDimFit, or for Bayesian integration)</li>
+<li><strong><code>--redefineSignalPOIs name[,name2,...]</code></strong> redefines the set of parameters of interest.<ul>
+<li>if the parameters where constant in the input workspace, they are re-defined to be floating.</li>
+<li>nuisances promoted to parameters of interest are removed from the list of nuisances, and thus they are not randomized in methods that randomize nuisances (e.g. HybridNew in non-frequentist mode, or BayesianToyMC, or in toy generation with <code>-t</code> but without <strong><code>--toysFreq</code></strong>).
+    This doesn't have any impact on algorithms that don't randomize nuisances (e.g. fits, Asymptotic, or HybridNew in fequentist mode) or on algorithms that treat all parameters in the same way (e.g. MarkovChainMC).</li>
+<li>Note that constraint terms for the nuisances are <strong>dropped</strong> after promotion to a POI using <code>--redefineSignalPOI</code>. To produce a likelihood scan for a nuisance parameter, using MultiDimFit with <strong><code>--algo grid</code></strong>, you should instead use the <strong><code>--poi</code></strong> option which will not cause the loss of the constraint term when scanning.</li>
+<li>parameters of interest of the input workspace that are not selected by this command become unconstrained nuisance parameters, but they are not added to the list of nuisances so they will not be randomized (see above)</li>
+</ul>
+</li>
+<li><strong><code>--freezeNuisances &lt;name&gt;</code></strong> sets the given parameters to constant</li>
+</ul>
+<p>A combination of the MultiSignalModel (defined above) and <strong><code>redefineSignalPOIs</code></strong> can be used to alter the way a datacard is interpreted to transform one signal or ordinary background process into a background with freely floating normalization, or with a fixed but different normalization (useful e.g. for cross-checks):</p>
+<ul>
+<li>First, use the MultiSignalModel to create a workspace in which that process has its own associated signal strenght parameter (e.g. <code>r_B</code>) different from that of the nomal signal (e.g. <code>r</code>)</li>
+<li>Then, fits or upper limits on <code>r</code> can be obtained running combine with <strong><code>--redefineSignalPOIs r</code></strong> so that <code>r_B</code> becomes freely floating.</li>
+<li><strong><code>setPhysicsModelParameterRanges</code></strong> can be used to redefine the range to make the process freely float only in some range (this is equivalent to adding a flat uncertainty to it, <strong><code>lnU</code></strong> or <strong><code>unif</code></strong>) while <strong><code>freezeNuisances</code></strong> and <strong><code>setPhysicsModelParameters</code></strong> can instead be used to pin it to some value.</li>
+<li>fits and likelihood scans of <code>r_B</code> can be used to check whether the information on this process from the data in the signal region is consistent with the a-priori prediction for it within the respective uncertainties (and <strong><code>freezeNuisances</code></strong> can be used to shut off the uncertainties on the a-priori prediction if one wants to see only the uncertainty from the data)</li>
+</ul>
+<h3 id="advanced-tutorials">Advanced Tutorials</h3>
+<p>Follow <a href="CMS/HiggsWG/SWGuideNonStandardCombineUses">this link</a> for advanced tutorials and non-standard uses of combine</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8d2eff1.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+  </body>
+</html>
