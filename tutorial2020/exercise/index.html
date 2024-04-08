@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../../img/favicon.ico">
+
+    
+    <title>Exercise - Combine</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../../css/base.min.css" rel="stylesheet">
+    <link href="../../css/cinder.min.css" rel="stylesheet">
+
+    
+        
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
+        
+    
+    <link href="../../mystyle.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            
+              <a class="navbar-brand" href="../..">Combine</a>
+            
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting up the analysis <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../part2/settinguptheanalysis/">Preparing the datacard</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part2/physicsmodels/">Physics models</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part2/bin-wise-stats/">Automatic MC statistical uncertainties</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Running combine <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../part3/runningthetool/">Running the tool</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/commonstatsmethods/">Common statistical methods</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/nonstandard/">Advanced use cases</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/regularisation/">Unfolding & regularization</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/validation/">Validating datacards</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part3/debugging/">Debugging fit failures</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../part4/usefullinks/">Links & FAQ</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tutorials <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../part5/roofit/">RooFit Basics</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part5/longexercise/">Exercise: main features</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../part5/longexerciseanswers/">Solutions to long exercise</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/edit/102x/docs/tutorial2020/exercise.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#getting-started">Getting started</a></li>
+        <li class="first-level "><a href="#session-structure">Session structure</a></li>
+        <li class="first-level "><a href="#part-1-roofit">Part 1: RooFit</a></li>
+            <li class="second-level"><a href="#a-variables">A: Variables</a></li>
+                
+            <li class="second-level"><a href="#b-functions-and-pdfs">B: Functions and PDFs</a></li>
+                
+            <li class="second-level"><a href="#c-plotting">C: Plotting</a></li>
+                
+            <li class="second-level"><a href="#d-workspaces">D: Workspaces</a></li>
+                
+            <li class="second-level"><a href="#e-fitting">E: Fitting</a></li>
+                
+        <li class="first-level "><a href="#part-2-measurements-of-parameters-in-combine">Part 2 Measurements of parameters in Combine</a></li>
+            <li class="second-level"><a href="#a-a-one-bin-counting-experiment">A: A one-bin counting experiment</a></li>
+                
+            <li class="second-level"><a href="#b-setting-up-the-datacard-for-a-shape-based-analysis">B: Setting up the datacard for a shape-based analysis</a></li>
+                
+            <li class="second-level"><a href="#c-mc-statistical-uncertainties">C: MC statistical uncertainties</a></li>
+                
+        <li class="first-level "><a href="#part-3-further-investigation-of-shape-based-models">Part 3: Further investigation of shape-based models</a></li>
+            <li class="second-level"><a href="#a-nuisance-parameter-impacts">A: Nuisance parameter impacts</a></li>
+                
+            <li class="second-level"><a href="#b-post-fit-distributions">B: Post-fit distributions</a></li>
+                
+        <li class="first-level "><a href="#part-4-setting-limits">Part 4: Setting limits</a></li>
+            <li class="second-level"><a href="#a-asymptotic-limits">A: Asymptotic limits</a></li>
+                
+            <li class="second-level"><a href="#b-computing-limits-with-toys">B: Computing limits with toys</a></li>
+                
+                <li class="third-level"><a href="#advanced-exercises">Advanced exercises</a></li>
+        <li class="first-level "><a href="#advanced-tasks">Advanced tasks</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h2 id="getting-started">Getting started</h2>
+<p>We need to set up a new CMSSW area and checkout the combine package: </p>
+<pre><code class="language-shell">export SCRAM_ARCH=slc7_amd64_gcc700
+cmsrel CMSSW_10_2_13
+cd CMSSW_10_2_13/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v8.1.0
+
+cd $CMSSW_BASE/src
+</code></pre>
+<p>We will also make use another package, <code>CombineHarvester</code>, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this tutorial:</p>
+<pre><code class="language-shell">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-https.sh)
+</code></pre>
+<p>Now make sure the CMSSW area is compiled:</p>
+<pre><code class="language-shell">scramv1 b clean; scramv1 b
+</code></pre>
+<p>Finally we will checkout the working directory for these tutorials - this contains all the inputs needed to run the exercises below:</p>
+<pre><code class="language-shell">cd $CMSSW_BASE/src
+git clone https://gitlab.cern.ch/adewit/combinetutorial-2020
+cd combinetutorial-2020
+</code></pre>
+<h2 id="session-structure">Session structure</h2>
+<p>These exercises are accompanied by introductory presentations given live during the tutorial mornings (and made available for later viewing for those who cannot follow them live)</p>
+<p>The introductory presentations that are scheduled appear:</p>
+<ul>
+<li>Before part 1 (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138516/attachments/2161880/3648363/02%20RooFitIntro.mp4">here</a> )</li>
+<li><strong>Before part 1E</strong> (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138517/attachments/2161767/3648364/03%20LikelihoodAndIntervals.mp4">here</a> )</li>
+<li>Before part 2 (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138518/attachments/2161882/3648365/04%20IntroToCombine.mp4">here</a> )</li>
+<li><strong>Before part 4</strong> (recording available <a href="https://indico.cern.ch/event/976099/contributions/4138520/attachments/2162856/3650080/AsymptoticLimits.mp4">here</a> )</li>
+</ul>
+<p>All presentations introduce the methods you'll learn about in the following sections and in addition the presentations in <strong>bold</strong> contain some theoretical background.</p>
+<p>If you get stuck while working on the exercises, or have specific questions about them, you can ask for help either directly in the zoom room during tutorial hours, or on <a href="https://mattermost.web.cern.ch/cms-exp/channels/hcomb-tutorial">this mattermost channel</a>. The mattermost channel will remain available after the tutorial, so if you're working on the exercises at a later date you can still ask questions about them there.</p>
+<h1 id="part-1-roofit">Part 1: RooFit</h1>
+<p>You can watch the introductory presentation <a href="https://indico.cern.ch/event/976099/contributions/4138516/attachments/2161880/3648363/02%20RooFitIntro.mp4">here</a></p>
+<p>RooFit is an object-oriented analysis environment built on ROOT, with a collection of classes designed to augment ROOT for data modelling. Combine is in turn built on RooFit, so before learning about Combine, it is useful to get to grips with a few RooFit basics. We will do that in this section.</p>
+<p>We will use python syntax in this section; you can either call the commands in an interactive python session, or just put them in a .py script. Make sure to do <code>from ROOT import *</code> at the top of your script (or in the interactive session)</p>
+<h2 id="a-variables">A: Variables</h2>
+<p>In RooFit, any variable, data point, function, PDF (etc.) is represented by a c++ object. The most basic of these is the RooRealVar. Let's create one which will represent the mass of some hypothetical particle, name it, and give a hypothetical starting value and range. </p>
+<pre><code>MH = RooRealVar(&quot;MH&quot;,&quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;,125,120,130)
+MH.Print()
+</code></pre>
+<p>The output of this is</p>
+<pre><code>RooRealVar::MH = 125  L(120 - 130)
+</code></pre>
+<p>So we now have a RooRealVar called MH, with default value 125 and range 120-130. We can now access the object and  change for example its value:</p>
+<pre><code>MH.setVal(130)
+print MH.getVal()
+</code></pre>
+<p>Which should print the new value, 130. </p>
+<p>In particle detectors we typically don't observe this particle mass but usually define some observable which is sensitive to this mass. Lets assume we can detect and reconstruct the decay products of the H-boson and measure the invariant mass of those particles. We need to make another variable which represents that invariant mass. </p>
+<ul>
+<li>Make a RooRealVar "mass" with a default value of 100 GeV and a range 80-200</li>
+</ul>
+<p>In a perfect world we would perfectly measure the exact mass of the particle in every single event. However, our detectors are usually far from perfect so there will be some resolution effect. Let's assume the resolution of our measurement of the invariant mass is 10 GeV (range 0-20 GeV) and call it "sigma"</p>
+<ul>
+<li>Create this variable "sigma"</li>
+</ul>
+<h2 id="b-functions-and-pdfs">B: Functions and PDFs</h2>
+<p>More exotic variables can be constructed out of these <code>RooRealVar</code>s using <code>RooFormulaVar</code>s. For example, suppose we wanted to make a function out of the variables which represented the relative resolution as a function of the hypothetical mass MH.</p>
+<pre><code>func = RooFormulaVar(&quot;R&quot;,&quot;@0/@1&quot;,RooArgList(sigma,mass))
+func.Print(&quot;v&quot;)
+</code></pre>
+<p>The main objects we are interested in using from RooFit are probability density functions (PDFs). We can construct the PDF <span class="arithmatex"><span class="MathJax_Preview">f(m|M_H,\sigma)</span><script type="math/tex">f(m|M_H,\sigma)</script></span> as a Gaussian shape, a <code>RooGaussian</code>:</p>
+<pre><code>gauss = RooGaussian(&quot;gauss&quot;,&quot;f(m|M_{H},#sigma)&quot;,mass,MH,sigma)
+gauss.Print(&quot;v&quot;)
+</code></pre>
+<p>Notice how the gaussian PDF, like the <code>RooFormulaVar</code> depends on our <code>RooRealVar</code> objects, these are its servers. Its evaluation will depend on their values.</p>
+<p>The main difference between PDFs and functions in RooFit is that PDFs are automatically normalised to unity, hence they represent a probability density, you don't need to normalise yourself. Let's plot it for the different values of <span class="arithmatex"><span class="MathJax_Preview">M_H</span><script type="math/tex">M_H</script></span>.</p>
+<h2 id="c-plotting">C: Plotting</h2>
+<p>First we need to make a canvas and a <code>RooPlot</code> object. This object needs to know what observable is going to be on the x-axis:</p>
+<pre><code>can = TCanvas()
+plot = mass.frame()
+</code></pre>
+<p>Now we can plot the gaussian PDF for several mass values. We set <span class="arithmatex"><span class="MathJax_Preview">M_H</span><script type="math/tex">M_H</script></span> to 130 GeV earlier on, so to plot this PDF for <span class="arithmatex"><span class="MathJax_Preview">M_H</span><script type="math/tex">M_H</script></span> of 130 GeV we just do</p>
+<pre><code>gauss.plotOn(plot,RooFit.LineColor(kGreen+3))
+</code></pre>
+<p>Where we're using <code>kGreen+3</code> as the line colour. Notice that we need to tell RooFit on which <code>RooPlot</code> object we want to plot our PDF, even if we only have one such object.</p>
+<p>Let's also plot the PDF with <span class="arithmatex"><span class="MathJax_Preview">M_H</span><script type="math/tex">M_H</script></span> at 120 GeV, in blue, and with <span class="arithmatex"><span class="MathJax_Preview">M_H</span><script type="math/tex">M_H</script></span> 125 GeV, in red:</p>
+<pre><code>MH.setVal(120)
+gauss.plotOn(plot,RooFit.LineColor(kBlue))
+
+MH.setVal(125)
+gauss.plotOn(plot,RooFit.LineColor(kRed))
+</code></pre>
+<p>Finally, let's try adding this PDF for <span class="arithmatex"><span class="MathJax_Preview">M_H</span><script type="math/tex">M_H</script></span> at 115 GeV in bright green. We'll use a dashed line for this one. Afterwards we'll draw the plot and save the canvas. </p>
+<pre><code>MH.setVal(115)
+gauss.plotOn(plot,RooFit.LineColor(kGreen),RooFit.LineStyle(2))
+
+plot.Draw()
+can.Draw()
+can.SaveAs(&quot;gaussians.pdf&quot;)
+</code></pre>
+<ul>
+<li>Why do the blue and bright green lines overlap?</li>
+</ul>
+<h2 id="d-workspaces">D: Workspaces</h2>
+<p>Next we'll look at how to store RooFit objects and links between them. We can do this with a <code>RooWorkspace</code>. Let's create one and import our PDF, and the <code>RooFormulaVar</code> we created earlier:</p>
+<pre><code>w = RooWorkspace(&quot;w&quot;)
+
+getattr(w,'import')(gauss)
+getattr(w,'import')(func)
+
+w.writeToFile(&quot;workspace.root&quot;)
+</code></pre>
+<p>Notice that the <code>RooRealVar</code>s we created are also getting imported into the workspace as our gaussian PDF depends on all three of them.</p>
+<p>Now we can open the file that we've created in root:</p>
+<pre><code>root workspace.root
+.ls
+</code></pre>
+<p>You should see that our workspace, named <code>w</code> is in the file:</p>
+<pre><code>TFile**     workspace.root
+ TFile*     workspace.root
+  KEY: RooWorkspace w;1 w
+  KEY: TProcessID   ProcessID0;1    94b05638-d0c4-11ea-a5b3-84978a89beef
+</code></pre>
+<p>We can inspect its contents:</p>
+<pre><code>w-&gt;Print()
+</code></pre>
+<details>
+<summary><b>Show output </b></summary>
+
+
+<pre><code>RooWorkspace(w) w contents
+
+variables
+---------
+(MH,m,resolution)
+
+p.d.f.s
+-------
+RooGaussian::gauss[ x=m mean=MH sigma=resolution ] = 0.135335
+
+functions
+--------
+RooFormulaVar::R[ actualVars=(resolution,m) formula=&quot;@0/@1&quot; ] = 0.1
+</code></pre>
+
+</details>
+
+<pre><code>
+</code></pre>
+<p>Now we can check the properties of some of the objects, for example:</p>
+<pre><code>w-&gt;pdf(&quot;gauss&quot;)-&gt;Print(&quot;v&quot;)
+</code></pre>
+<details>
+<summary><b>Show output </b></summary>
+
+
+<pre><code>--- RooAbsArg ---
+  Value State: DIRTY
+  Shape State: DIRTY
+  Attributes:
+  Address: 0x63b62e0
+  Clients:
+  Servers:
+    (0x6781400,V-) RooRealVar::m &quot;m (GeV)&quot;
+    (0x687edd0,V-) RooRealVar::MH &quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;
+    (0x6795740,V-) RooRealVar::resolution &quot;#sigma&quot;
+  Proxies:
+    x -&gt; m
+    mean -&gt; MH
+    sigma -&gt; resolution
+--- RooAbsReal ---
+
+  Plot label is &quot;gauss&quot;
+--- RooAbsPdf ---
+Cached value = 0
+</code></pre>
+
+</details>
+
+<pre><code>
+</code></pre>
+<p>We can also check and change the values of our <code>RooRealVar</code>s</p>
+<pre><code>w-&gt;var(&quot;MH&quot;)-&gt;Print()
+w-&gt;var(&quot;MH&quot;)-&gt;setVal(123)
+w-&gt;var(&quot;MH&quot;)-&gt;getVal()
+</code></pre>
+<p>Gives:</p>
+<pre><code>RooRealVar::MH = 120  L(120 - 130)
+</code></pre>
+<p>and</p>
+<pre><code>(double) 123.00000
+</code></pre>
+<p>Note that if you close the file containing the workspace, open it again and call
+<code>w-&gt;var("MH")-&gt;getVal()</code></p>
+<p>You will get the value as set when the workspace was created again, in our case that's 120 GeV:</p>
+<pre><code>(double) 120.00000
+</code></pre>
+<ul>
+<li>Have a look at how to use the workspace syntax in <a href="https://root.cern/doc/master/rf511__wsfactory__basic_8py.html">this</a> tutorial  and try to create the gaussian pdf and the formula directly in a workspace</li>
+</ul>
+<h2 id="e-fitting">E: Fitting</h2>
+<p>You can watch the introductory presentation to part 1E <a href="https://indico.cern.ch/event/976099/contributions/4138517/attachments/2161767/3648364/03%20LikelihoodAndIntervals.mp4">here</a></p>
+<p><strong>Note: from this point on if you were using the interactive python session, you should switch to a python script.</strong></p>
+<p>Of course we don't just want to create variables and pdfs, we want to do fits with them. Models that we define in combine make use of likelihood fitting, so let's build a likelihood</p>
+<p><span class="arithmatex"><span class="MathJax_Preview">\mathcal{L} \propto p(\text{data}|\text{parameters})</span><script type="math/tex">\mathcal{L} \propto p(\text{data}|\text{parameters})</script></span></p>
+<p>where our parameters are parameters of interest, <span class="arithmatex"><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span> and nuisance parameters <span class="arithmatex"><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span>. The nuisance parameters are constrained by external measurements, so we add constraint terms <span class="arithmatex"><span class="MathJax_Preview">\pi(\vec{\theta}_0|\vec{\theta})</span><script type="math/tex">\pi(\vec{\theta}_0|\vec{\theta})</script></span></p>
+<p>So we have
+<span class="arithmatex"><span class="MathJax_Preview">\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})</span><script type="math/tex">\mathcal{L} \propto p(\text{data}|\mu,\vec{\theta})\cdot \pi(\vec{\theta}_0|\vec{\theta})</script></span></p>
+<p>let's try to build the likelihood by hand for a 1-bin counting experiment.
+The data is the number of observed events <span class="arithmatex"><span class="MathJax_Preview">N</span><script type="math/tex">N</script></span>, and the probability is just a poisson probability <span class="arithmatex"><span class="MathJax_Preview">p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}</span><script type="math/tex">p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}</script></span>, where <span class="arithmatex"><span class="MathJax_Preview">\lambda</span><script type="math/tex">\lambda</script></span> is the number of events expected in our signal+background model: <span class="arithmatex"><span class="MathJax_Preview">\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})</span><script type="math/tex">\lambda = \mu\cdot s(\vec{\theta}) + b(\vec{\theta})</script></span>. </p>
+<p>In the expression, s and b are the numbers of expected signal- and background events, which both depend on the nuisance parameters. Let's start by building a simple likelihood function with one signal process and one background process. We'll assume there are no nuisance parameters for now. The number of observed events in data is 15, the expected number of signal events is 5 and the expected number of background events 8.1.</p>
+<p>It's easiest to use the RooFit workspace factory to build our model</p>
+<pre><code>from ROOT import *
+w = RooWorkspace(&quot;w&quot;)
+</code></pre>
+<p>We need to create an expression for the number of events in our model, <span class="arithmatex"><span class="MathJax_Preview">\mu s +b</span><script type="math/tex">\mu s +b</script></span>:</p>
+<pre><code>w.factory('expr::n(&quot;mu*s +b&quot;, mu[1.0,0,4], s[5],b[8.1])')
+</code></pre>
+<p>Now we can build the likelihood which is just our poisson pdf:</p>
+<pre><code>w.factory('Poisson::poisN(N[15],n)')
+</code></pre>
+<p>To find the best-fit value for our parameter of interest <span class="arithmatex"><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span> we need to maximize the likelihood. In practice it's actually easier to minimize the <strong>N</strong>egative <strong>l</strong>og of the <strong>l</strong>ikelihood, or NLL:</p>
+<pre><code>w.factory('expr::NLL(&quot;-log(@0)&quot;,poisN)')
+</code></pre>
+<p>We can now use the RooMinimizer to find the minimum of the NLL</p>
+<pre><code>nll = w.function(&quot;NLL&quot;)
+minim = RooMinimizer(nll)
+minim.setErrorLevel(0.5)
+minim.minimize(&quot;Minuit2&quot;,&quot;migrad&quot;)
+bestfitnll = nll.getVal()
+</code></pre>
+<p>Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!) - note that there is a more reliable way of extracting the confidence interval (explicitly rather than relying on migrad). We will discuss this a bit later in this section.</p>
+<p>Now let's add a nuisance parameter, <em>lumi</em>, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at <span class="arithmatex"><span class="MathJax_Preview">+1\sigma</span><script type="math/tex">+1\sigma</script></span> the signal and background normalizations will be multiplied by 1.025 and at <span class="arithmatex"><span class="MathJax_Preview">-1\sigma</span><script type="math/tex">-1\sigma</script></span> they will be divided by 1.025.  We should modify the expression for the number of events in our model:</p>
+<pre><code>w.factory('expr::n(&quot;mu*s*pow(1.025,lumi) +b*pow(1.025,lumi)&quot;, mu[1.0,0,4], s[5],b[8.1],lumi[0,-4,4])')
+</code></pre>
+<p>And we add a unit gaussian constraint </p>
+<pre><code>w.factory('Gaussian::lumiconstr(lumi,0,1)')
+</code></pre>
+<p>Our full likelihood will now be</p>
+<pre><code>w.factory('PROD::likelihood(poisN,lumiconstr)')
+</code></pre>
+<p>and the NLL</p>
+<pre><code>w.factory('expr::NLL(&quot;-log(@0)&quot;,likelihood)')
+</code></pre>
+<p>Which we can minimize in the same way as before. </p>
+<p>Now let's extend our model a bit. Don't hesitate to ask for help if you get stuck!</p>
+<ul>
+<li>Expanding on what was demonstrated above, build the likelihood for <span class="arithmatex"><span class="MathJax_Preview">N=15</span><script type="math/tex">N=15</script></span>, a signal process <em>s</em> with expectation 5 events, a background <em>ztt</em> with expectation 3.7 events and a background <em>tt</em> with expectation 4.4 events. The luminosity uncertainty applies to all three processes. The signal process is further subject to a 5% log-normally distributed uncertainty <em>sigth</em>, <em>tt</em> is subject to a 6% log-normally distributed uncertainty <em>ttxs</em>, and <em>ztt</em> is subject to a 4% log-normally distributed uncertainty <em>zttxs</em>. Find the best-fit value and the associated uncertainty</li>
+<li>Also perform an explicit scan of the <span class="arithmatex"><span class="MathJax_Preview">\Delta</span><script type="math/tex">\Delta</script></span> NLL ( = log of profile likelihood ratio) and make a graph of the scan. Some example code can be found below to get you started. Hint: you'll need to perform fits for different values of mu, where mu is fixed. In RooFit you can set a variable to be constant as <code>var("VARNAME").setConstant(True)</code></li>
+<li>From the curve that you've created by performing an explicit scan, we can extract the 68% CL interval. You can do so by eye or by writing some code to find the relevant intersections of the curve. </li>
+</ul>
+<pre><code>gr = TGraph()
+
+npoints = 0
+for i in range(0,60):
+  npoints+=1
+  mu=0.05*i
+  ...
+  [perform fits for different values of mu with mu fixed]
+  ...
+  deltanll = ...
+  gr.SetPoint(npoints,mu,deltanll)
+
+
+canv = TCanvas();
+gr.Draw(&quot;ALP&quot;);
+canv.SaveAs(&quot;likelihoodscan.pdf&quot;)
+</code></pre>
+<p>Well, this is doable - but we were only looking at a simple one-bin counting experiment. This might become rather cumbersome for large models... <span class="arithmatex"><span class="MathJax_Preview">[*]</span><script type="math/tex">[*]</script></span>
+We'll now switch to Combine which will make it a lot easier to set up your model and do the statistical analysis than trying to build the likelihood yourself.</p>
+<p><span class="arithmatex"><span class="MathJax_Preview">[*]</span><script type="math/tex">[*]</script></span> Side note - RooFit does have additional functionality to help with statistical model building, but we won't go into detail today.   </p>
+<h1 id="part-2-measurements-of-parameters-in-combine">Part 2 Measurements of parameters in Combine</h1>
+<p>You can watch the introductory presentation for parts 2 &amp; 3 <a href="https://indico.cern.ch/event/976099/contributions/4138518/attachments/2161882/3648365/04%20IntroToCombine.mp4">here</a></p>
+<p>For the parts of the tutorial that follow we will work with a simplified version of a real analysis, that nonetheless will have many features of the full analysis. The analysis is a search for an additional heavy neutral Higgs boson decaying to tau lepton pairs. Such a signature is predicted in many extensions of the standard model, in particular the minimal supersymmetric standard model (MSSM). You can read about the analysis in the paper <a href="https://arxiv.org/pdf/1803.06553.pdf">here</a>. The statistical inference makes use of a variable called the total transverse mass (<span class="arithmatex"><span class="MathJax_Preview">M_{\mathrm{T}}^{\mathrm{tot}}</span><script type="math/tex">M_{\mathrm{T}}^{\mathrm{tot}}</script></span>) that provides good discrimination between the resonant high-mass signal and the main backgrounds, which have a falling distribution in this high-mass region. The events selected in the analysis are split into a several categories which target the main di-tau final states as well as the two main production modes: gluon-fusion (ggH) and b-jet associated production (bbH). One example is given below for the fully-hadronic final state in the b-tag category which targets the bbH signal:</p>
+<p><img alt="" src="../../part5/images/CMS-DAS.003.jpeg" /></p>
+<h2 id="a-a-one-bin-counting-experiment">A: A one-bin counting experiment</h2>
+<p>We will begin by looking at a simplified version of a datacard from the MSSM <span class="arithmatex"><span class="MathJax_Preview">\phi\rightarrow\tau\tau</span><script type="math/tex">\phi\rightarrow\tau\tau</script></span> analysis that has been converted to a one-bin counting experiment, as discussed in the introductory presentation to this section. While the full analysis considers a range of signal mass hypotheses, we will start by considering just one: <span class="arithmatex"><span class="MathJax_Preview">m_{\phi}</span><script type="math/tex">m_{\phi}</script></span>=800GeV. Click the text below to study the datacard (<code>datacard_counting_part2.txt</code> in the <code>combinetutorial-2020</code> directory). It might bear some similarities to the model you just set up by hand. </p>
+<details>
+<summary><b>Show datacard</b></summary>
+
+<pre><code class="language-shell">imax    1 number of bins
+jmax    4 number of processes minus 1
+kmax    * number of nuisance parameters
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+bin          signal_region
+observation  10.0
+--------------------------------------------------------------------------------
+bin                      signal_region   signal_region   signal_region   signal_region   signal_region
+process                  ttbar           diboson         Ztautau         jetFakes        bbHtautau
+process                  1               2               3               4               0
+rate                     4.43803         3.18309         3.7804          1.63396         0.711064
+--------------------------------------------------------------------------------
+CMS_eff_b          lnN   1.02            1.02            1.02            -               1.02
+CMS_eff_t          lnN   1.12            1.12            1.12            -               1.12
+CMS_eff_t_highpt   lnN   1.1             1.1             1.1             -               1.1
+acceptance_Ztautau lnN   -               -               1.08            -               -
+acceptance_bbH     lnN   -               -               -               -               1.05
+acceptance_ttbar   lnN   1.005           -               -               -               -
+lumi_13TeV         lnN   1.025           1.025           1.025           -               1.025
+norm_jetFakes      lnN   -               -               -               1.2             -
+xsec_Ztautau       lnN   -               -               1.04            -               -
+xsec_diboson       lnN   -               1.05            -               -               -
+xsec_ttbar         lnN   1.06            -               -               -               -
+</code></pre>
+
+</details>
+
+<p>The layout of the datacard is as follows:</p>
+<ul>
+<li>At the top are the numbers <code>imax</code>, <code>jmax</code> and <code>kmax</code> representing the number of bins, processes and nuisance parameters respectively. Here a "bin" can refer to a literal single event count as in this example, or a full distribution we are fitting, in general with many histogram bins, as we will see later. We will refer to both as "channels" from now on. It is possible to replace these numbers with <code>*</code> and they will be deduced automatically.</li>
+<li>The first line starting with <code>bin</code> gives a unique label to each channel, and the following line starting with <code>observation</code> gives the number of events observed in data.</li>
+<li>In the remaining part of the card there are several columns: each one represents one process in one channel. The first four lines labelled <code>bin</code>, <code>process</code>, <code>process</code> and <code>rate</code> give the channel label, the process label, a process identifier (<code>&lt;=0</code> for signal, <code>&gt;0</code> for background) and the number of expected events respectively.</li>
+<li>The remaining lines describe sources of systematic uncertainty. Each line gives the name of the uncertainty, (which will become the name of the nuisance parameter inside our RooFit model), the type of uncertainty ("lnN" = log-normal normalisation uncertainty) and the effect on each process in each channel. E.g. a 20% uncertainty on the yield is written as 1.20.</li>
+<li>It is also possible to add a hash symbol (<code>#</code>) at the start of a line, which combine will then ignore when it reads the card.</li>
+</ul>
+<p>We can now run combine directly using this datacard as input. The general format for running combine is:</p>
+<pre><code class="language-shell">combine -M [method] [datacard] [additional options...]
+</code></pre>
+<p>By default, combine will report measurements on a parameter called <code>r</code>, which is the default <strong>parameter of interest (POI)</strong> that is added to the model automatically. It is a linear scaling of the normalisation of all signal processes given in the datacard, i.e. if <span class="arithmatex"><span class="MathJax_Preview">s_{i,j}</span><script type="math/tex">s_{i,j}</script></span> is the nominal number of signal events in channel <span class="arithmatex"><span class="MathJax_Preview">i</span><script type="math/tex">i</script></span> for signal process <span class="arithmatex"><span class="MathJax_Preview">j</span><script type="math/tex">j</script></span>, then the normalisation of that signal in the model is given as <span class="arithmatex"><span class="MathJax_Preview">r\cdot s_{i,j}(\vec{\theta})</span><script type="math/tex">r\cdot s_{i,j}(\vec{\theta})</script></span>, where <span class="arithmatex"><span class="MathJax_Preview">\vec{\theta}</span><script type="math/tex">\vec{\theta}</script></span> represents the set of nuisance parameters which may also affect the signal normalisation. So <code>r</code> is the equivalent of the parameter <span class="arithmatex"><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span> we introduced in the RooFit section. We have some choice in the interpretation of r: for the measurement of a process with a well defined SM prediction we may enter this as the nominal yield in the datacard, such that <span class="arithmatex"><span class="MathJax_Preview">r=1</span><script type="math/tex">r=1</script></span> corresponds to this SM expectation, whereas for setting limits on BSM processes we may choose the nominal yield to correspond to some cross section, e.g. 1 pb, such that we can interpret the limit as a cross section limit directly. In this example the signal has been normalised to a cross section times branching fraction of 1 fb.</p>
+<p>We will now explore one of the most commonly used modes of combine: <code>FitDiagnostics</code> . As well as allowing us to make a <strong>measurement</strong> of some physical quantity, this method is useful to gain additional information about the model and the behaviour of the fit. It performs two fits:</p>
+<ul>
+<li>A "background-only" (b-only) fit: first POI (usually "r") fixed to zero</li>
+<li>A "signal+background" (s+b) fit: all POIs are floating</li>
+</ul>
+<p>With the s+b fit combine will report the best-fit value of our signal strength modifier <code>r</code>. </p>
+<p>Two ouput files will be produced. One of these will be produced regardless of which combine method we use, and the file name depends on the options we ran with. It is of the form: higgsCombine[name].[method].mH[mass].root. The default name is <code>Test</code>, but you can change this with the <code>--name</code> (or <code>-n</code>) option. The file contains a TTree called <code>limit</code> which stores the numerical values returned by FitDiagnostics. Note that in our case we did not set a signal mass when running combine (i.e. -m 800), so the output file just uses the default value of 120. This does not affect our result in any way though, just the label that is used on the output file.</p>
+<p>The second file that is produced is a file named <code>fitdiagnostics.root</code>, which contains additional information. In particular it includes two <code>RooFitResult</code> objects, one for the b-only and one for the s+b fit, which store the fitted values of all the <strong>nuisance parameters (NPs)</strong> and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. </p>
+<p>Task:</p>
+<ul>
+<li>Make a datacard for the simple model that you previously set up directly in RooFit</li>
+</ul>
+<p>Now run the <code>FitDiagnostics</code> method on this datacard:</p>
+<pre><code class="language-shell">combine -M FitDiagnostics datacard.txt --forceRecreateNLL
+</code></pre>
+<p>Note that the <code>--forceRecreateNLL</code> option is only needed for counting experiments; we will soon look at a shape-based analysis instead where this is not needed.</p>
+<p>There are other command line options we can supply to combine which will change its behaviour when run. You can see the full set of supported options by doing <code>combine -h</code>. Many options are specific to a given method, but others are more general and are applicable to all methods. Throughout this tutorial we will highlight some of the most useful options you may need to use, for example:</p>
+<ul>
+<li>The range on the signal strength modifier: <code>--rMin=X</code> and <code>--rMax=Y</code>: In RooFit parameters can optionally have a range specified. The implication of this is that their values cannot be adjusted beyond the limits of this range. The min and max values can be adjusted though, and we might need to do this for our POI <code>r</code> if the order of magnitude of our measurement is different from the default range of <code>[0, 20]</code>. This will be discussed again later in the tutorial.</li>
+<li>Verbosity: <code>-v X</code>: By default combine does not usually produce much output on the screen other the main result at the end. However, much more detailed information can be printed by setting the <code>-v N</code> with N larger than zero. For example at <code>-v 3</code> the logs from the minimizer, Minuit, will also be printed. These are very useful for debugging problems with the fit.</li>
+</ul>
+<p>Task:</p>
+<ul>
+<li>Verify that the best-fit value and uncertainty on r are the same as what you extracted from the likelihood scan you did by hand in RooFit.</li>
+</ul>
+<p>Now open the resulting <code>fitDiagnostics.root</code> file interactively and print the contents of the s+b RooFit result:</p>
+<pre><code class="language-shell">root [1] fit_s-&gt;Print()
+</code></pre>
+<details>
+<summary><b>Show output</b></summary>
+
+
+<pre><code class="language-shell">      RooFitResult: minimized FCN value: 3.54419, estimated distance to minimum: 4.84873e-07
+                covariance matrix quality: Full, accurate covariance matrix
+                Status : MINIMIZE=0 HESSE=0
+
+    Floating Parameter    FinalValue +/-  Error
+  --------------------  --------------------------
+                  lumi    1.6988e-04 +/-  9.94e-01
+                     r    1.3792e+00 +/-  7.76e-01
+                 sigth   -7.5538e-05 +/-  9.94e-01
+                  ttxs    3.2043e-05 +/-  9.94e-01
+                 zttxs   -2.9580e-05 +/-  9.94e-01
+</code></pre>
+
+</details>
+
+<p>There are several useful pieces of information here. At the top the status codes from the fits that were performed is given. In this case we can see that two algorithms were run: <code>MINIMIZE</code> and <code>HESSE</code>, both of which returned a successful status code (0). Both of these are routines in the <strong>Minuit2</strong> minimization package - the default minimizer used in RooFit. The first performs the main fit to the data, and the second calculates the covariance matrix at the best-fit point. It is important to always check this second step was successful and the message "Full, accurate covariance matrix" is printed, otherwise the parameter uncertainties can be very inaccurate, even if the fit itself was successful.</p>
+<p>Underneath this the best-fit values (<span class="arithmatex"><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span>) and symmetrised uncertainties for all the floating parameters are given. For all the constrained nuisance parameters a convention is used by which the nominal value (<span class="arithmatex"><span class="MathJax_Preview">\theta_I</span><script type="math/tex">\theta_I</script></span>) is zero, corresponding to the mean of a Gaussian constraint PDF with width 1.0, such that the parameter values <span class="arithmatex"><span class="MathJax_Preview">\pm 1.0</span><script type="math/tex">\pm 1.0</script></span> correspond to the <span class="arithmatex"><span class="MathJax_Preview">\pm 1\sigma</span><script type="math/tex">\pm 1\sigma</script></span> input uncertainties.</p>
+<p>A more useful way of looking at this is to compare the pre- and post-fit values of the parameters, to see how much the fit to data has shifted and constrained these parameters with respect to the input uncertainty. The script <code>diffNuisances.py</code> can be used for this:</p>
+<pre><code class="language-shell">python diffNuisances.py fitDiagnostics.root --all
+</code></pre>
+<details>
+<summary><b>Show output</b></summary>
+
+<pre><code class="language-shell">name                                              b-only fit            s+b fit         rho
+lumi                                             +0.17, 0.99        +0.00, 0.99       -0.09
+sigth                                            +0.00, 0.99        -0.00, 0.99       -0.09
+ttxs                                             +0.22, 0.99        +0.00, 0.99       -0.07
+zttxs                                            +0.12, 0.99        -0.00, 0.99       -0.04
+</code></pre>
+
+</details>
+
+<p>The numbers in each column are respectively <span class="arithmatex"><span class="MathJax_Preview">\frac{\theta-\theta_I}{\sigma_I}</span><script type="math/tex">\frac{\theta-\theta_I}{\sigma_I}</script></span> (often called the <strong>pull</strong>, though note that more than one definition is in use for this), where <span class="arithmatex"><span class="MathJax_Preview">\sigma_I</span><script type="math/tex">\sigma_I</script></span> is the input uncertainty; and the ratio of the post-fit to the pre-fit uncertainty <span class="arithmatex"><span class="MathJax_Preview">\frac{\sigma}{\sigma_I}</span><script type="math/tex">\frac{\sigma}{\sigma_I}</script></span>.</p>
+<p>Question:</p>
+<ul>
+<li>Can you explain why none of the nuisance parameters are pulled in the s+b fit, but in the b-only fit some are?</li>
+</ul>
+<p>So far we've just been looking at our original single-bin counting experiment; let's make things a bit more interesting and move to a shape-based analysis</p>
+<h2 id="b-setting-up-the-datacard-for-a-shape-based-analysis">B: Setting up the datacard for a shape-based analysis</h2>
+<p>Now we move to the next step: instead of a one-bin counting experiment we will fit a binned distribution. In a typical analysis we will produce TH1 histograms of some variable sensitive to the presence of signal: one for the data and one for each signal and background process. Then we add a few extra lines to the datacard to link the declared processes to these shapes which are saved in a ROOT file, for example:</p>
+<details>
+<summary><b>Show datacard</b></summary>
+
+<pre><code class="language-shell">imax 1
+jmax 1
+kmax *
+---------------
+shapes * * simple-shapes-TH1_input.root $PROCESS $PROCESS_$SYSTEMATIC
+shapes sig * simple-shapes-TH1_input.root $PROCESS$MASS $PROCESS$MASS_$SYSTEMATIC
+---------------
+bin bin1
+observation 85
+------------------------------
+bin             bin1       bin1
+process         sig        background
+process         0          1
+rate            10         100
+--------------------------------
+lumi     lnN    1.10       1.0
+bgnorm   lnN    1.00       1.3
+alpha  shape    -          1
+</code></pre>
+
+</details>
+
+<p>Note that as with the one-bin card, the total nominal rate of a given process must be specified in the <code>rate</code> line of the datacard. This should agree with the value returned by <code>TH1::Integral</code>. However, we can also put a value of <code>-1</code> and the Integral value will be substituted automatically.</p>
+<p>There are two other differences with respect to the one-bin card:</p>
+<ul>
+<li>A new block of lines at the top defining how channels and processes are mapped to the histograms (more than one line can be used)</li>
+<li>In the list of systematic uncertainties some are marked as shape instead of lnN</li>
+</ul>
+<p>The syntax of the "shapes" line is: <code>shapes [process] [channel] [file] [histogram] [histogram_with_systematics]</code>. It is possible to use the <code>*</code> wildcard to map multiple processes and/or channels with one line. The histogram entries can contain the <code>$PROCESS</code>, <code>$CHANNEL</code> and <code>$MASS</code> place-holders which will be substituted when searching for a given (process, channel) combination. The value of <code>$MASS</code> is specified by the <code>-m</code> argument when combine. By default the observed data process name will be <code>data_obs</code>.</p>
+<p>Shape uncertainties can be added by supplying two additional histograms for a process, corresponding to the distribution obtained by shifting that parameter up and down by one standard deviation. These shapes will be interpolated with a 6th order polynomial for shifts below <span class="arithmatex"><span class="MathJax_Preview">1\sigma</span><script type="math/tex">1\sigma</script></span> and linearly beyond. The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties.</p>
+<p><img alt="" src="../../part5/images/shape_morphing.jpg" /></p>
+<p>The final argument of the "shapes" line above should contain the <code>$SYSTEMATIC</code> place-holder which will be substituted by the systematic name given in the datacard.</p>
+<p>In the list of uncertainties the interpretation of the values for <code>shape</code> lines is a bit different from <code>lnN</code>. The effect can be "-" or 0 for no effect, 1 for normal effect, and possibly something different from 1 to test larger or smaller effects (in that case, the unit Gaussian is scaled by that factor before using it as parameter for the interpolation).</p>
+<p>In this section we will use a datacard corresponding to the full distribution that was shown at the start of section 1, not just the high mass region. Have a look at <code>datacard_shape_part2.txt</code>: this is still currently a one-bin counting experiment, however the yields are much higher since we now consider the full range of <span class="arithmatex"><span class="MathJax_Preview">M_{\mathrm{T}}^{\mathrm{tot}}</span><script type="math/tex">M_{\mathrm{T}}^{\mathrm{tot}}</script></span>. If you run the asymptotic limit calculation on this you should find the sensitivity is significantly worse than before.</p>
+<p>The <strong>first task</strong> is to convert this to a shape analysis: the file <code>datacard_part2.shapes.root</code> contains all the necessary histograms, including those for the relevant shape systematic uncertainties. Add the relevant <code>shapes</code> lines to the top of the datacard (after the <code>kmax</code> line) to map the processes to the correct TH1s in this file. Hint: you will need a different line for the signal process.</p>
+<p>Compared to the counting experiment we must also consider the effect of uncertainties that change the shape of the distribution. Some, like <code>CMS_eff_t_highpt</code>, were present before, as it has both a shape and normalisation effect. Others are primarily shape effects so were not included before.</p>
+<p>Add the following shape uncertainties: <code>top_pt_ttbar_shape</code> affecting <code>ttbar</code>,the tau energy scale uncertainties <code>CMS_scale_t_1prong0pi0_13TeV</code>, <code>CMS_scale_t_1prong1pi0_13TeV</code> and <code>CMS_scale_t_3prong0pi0_13TeV</code> affecting all processes except <code>jetFakes</code>, and <code>CMS_eff_t_highpt</code> also affecting the same processes.</p>
+<p>Once this is done you can run FitDiagnostics on the datacard. From now on we will convert the text datacard into a RooFit workspace ourselves instead of combine doing it internally every time we run. This is a good idea for more complex analyses since the conversion step can take a notable amount of time. For this we use the <code>text2workspace.py</code> command:</p>
+<pre><code class="language-shell">text2workspace.py datacard_shape_part2.txt -m 800 -o workspace_part2.root
+</code></pre>
+<p>And then we can use this as input to combine instead of the text datacard:</p>
+<pre><code class="language-shell">combine -M FitDiagnostics --rMin -20 --rMax 20 workspace_part2.root -m 800
+</code></pre>
+<p>Note that we have changed the range of the parameter of interest, r, by using <code>--rMin</code> and <code>--rMax</code>. The default range is 0-20. </p>
+<p>Tasks and Questions:
+  - Run FitDiagnostics on this new workspace and re-run the diffNuisances script on the output <code>fitDiagnostics.root</code> file. 
+  - Which parameter has the largest pull? Which has the tightest constraint?
+  - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. <span class="arithmatex"><span class="MathJax_Preview">\frac{\sigma}{\sigma_I}&lt;1.0</span><script type="math/tex">\frac{\sigma}{\sigma_I}<1.0</script></span>)?</p>
+<h2 id="c-mc-statistical-uncertainties">C: MC statistical uncertainties</h2>
+<p>So far there is an important source of uncertainty we have neglected. Our estimates of the backgrounds come either from MC simulation or from sideband regions in data, and in both cases these estimates are subject to a statistical uncertainty on the number of simulated or data events. 
+In principle we should include an independent statistical uncertainty for every bin of every process in our model. 
+It's important to note that combine/RooFit does not take this into account automatically - statistical fluctuations of the data are implicitly accounted 
+for in the likelihood formalism, but statistical uncertainties in the model must be specified by us.</p>
+<p>One way to implement these uncertainties is to create a <code>shape</code> uncertainty for each bin of each process, in which the up and down histograms have the contents of the bin
+ shifted up and down by the <span class="arithmatex"><span class="MathJax_Preview">1\sigma</span><script type="math/tex">1\sigma</script></span> uncertainty. 
+However this makes the likelihood evaluation computationally inefficient, and can lead to a large number of nuisance parameters 
+in more complex models. Instead we will use a feature in combine called <code>autoMCStats</code> that creates these automatically from the datacard, 
+and uses a technique called "Barlow-Beeston-lite" to reduce the number of systematic uncertainties that are created. 
+This works on the assumption that for high MC event counts we can model the uncertainty with a Gaussian distribution. Given the uncertainties in different bins are independent, the total uncertainty of several processes in a particular bin is just the sum of <span class="arithmatex"><span class="MathJax_Preview">N</span><script type="math/tex">N</script></span> individual Gaussians, which is itself a Gaussian distribution. 
+So instead of <span class="arithmatex"><span class="MathJax_Preview">N</span><script type="math/tex">N</script></span> nuisance parameters we need only one. This breaks down when the number of events is small and we are not in the Gaussian regime. 
+The <code>autoMCStats</code> tool has a threshold setting on the number of events below which the the Barlow-Beeston-lite approach is not used, and instead a 
+Poisson PDF is used to model per-process uncertainties in that bin.</p>
+<p>After reading the full documentation on <code>autoMCStats</code> <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/bin-wise-stats/">here</a>, add the corresponding line to your datacard. 
+Start by setting a threshold of 0, i.e. <code>[channel] autoMCStats 0</code>, to force the use of Barlow-Beeston-lite in all bins.</p>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Check how much the cross section measurement and uncertainties change using <code>FitDiagnostics</code>.</li>
+</ul>
+<h1 id="part-3-further-investigation-of-shape-based-models">Part 3: Further investigation of shape-based models</h1>
+<h2 id="a-nuisance-parameter-impacts">A: Nuisance parameter impacts</h2>
+<p>It is often useful to examine in detail the effects the systematic uncertainties have on the signal strength measurement. This is often referred to as calculating the "impact" of each uncertainty. What this means is to determine the shift in the signal strength, with respect to the best-fit, that is induced if a given nuisance parameter is shifted by its <span class="arithmatex"><span class="MathJax_Preview">\pm1\sigma</span><script type="math/tex">\pm1\sigma</script></span> post-fit uncertainty values. If the signal strength shifts a lot, it tells us that it has a strong dependency on this systematic uncertainty. In fact, what we are measuring here is strongly related to the correlation coefficient between the signal strength and the nuisance parameter. The <code>MultiDimFit</code> method has an algorithm for calculating the impact for a given systematic: <code>--algo impact -P [parameter name]</code>, but it is typical to use a higher-level script, <code>combineTool.py</code> (part of the CombineHarvester package you checked out at the beginning) to automatically run the impacts for all parameters. Full documentation on this is given <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#nuisance-parameter-impacts">here</a>. There is a three step process for running this. We will demonstrate this with a similar analysis to what we were using before, but at a lower mass point (200 GeV) as this region is more sensitive to the background uncertainties. The datacard is provided for you (datacard_part3.txt). Make the workspace first to be able to perform the steps for the impacts. First we perform an initial fit for the signal strength and its uncertainty:</p>
+<pre><code class="language-shell">combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --doInitialFit
+</code></pre>
+<p>Then we run the impacts for all the nuisance parameters:</p>
+<pre><code class="language-shell">combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --doFits
+</code></pre>
+<p>This will take a little bit of time. When finished we collect all the output and convert it to a json file:</p>
+<pre><code class="language-shell">combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --output impacts.json
+</code></pre>
+<p>We can then make a plot showing the pulls and parameter impacts, sorted by the largest impact:</p>
+<pre><code class="language-shell">plotImpacts.py -i impacts.json -o impacts
+</code></pre>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Identify the most important uncertainties using the impacts tool.</li>
+</ul>
+<h2 id="b-post-fit-distributions">B: Post-fit distributions</h2>
+<p>Another thing the <code>FitDiagnostics</code> mode can help us with is visualising the distributions we are fitting, and the uncertainties on those distributions, both before the fit is performed ("pre-fit") and after ("post-fit"). The pre-fit can give us some idea of how well our uncertainties cover any data-MC discrepancy, and the post-fit if discrepancies remain after the fit to data (as well as possibly letting us see the presence of a significant signal!).</p>
+<p>To produce these distributions add the <code>--saveShapes</code> and <code>--saveWithUncertainties</code> options when running <code>FitDiagnostics</code>:</p>
+<pre><code class="language-shell">combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveShapes --saveWithUncertainties
+</code></pre>
+<p>Combine will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitdiagnostics.root output file:</p>
+<p><img alt="" src="../../part5/images/fit_diag_shapes.png" /></p>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>
+<p>Make a plot showing the expected background and signal contributions using the output from <code>FitDiagnostics</code> - do this for both the pre-fit and post-fit. You will find a script <code>postFitPlot.py</code> in the <code>combinetutorial-2020</code> repository that can help you get started.
+ The bin errors on the TH1s in the fitdiagnostics file are determined from the systematic uncertainties. In the post-fit these take into account the additional constraints on the nuisance parameters as well as any correlations.</p>
+</li>
+<li>
+<p>Why is the uncertainty on the post-fit so much smaller than on the pre-fit?</p>
+</li>
+</ul>
+<h1 id="part-4-setting-limits">Part 4: Setting limits</h1>
+<p>You can watch the introductory presentation to part 4 <a href="https://indico.cern.ch/event/976099/contributions/4138520/attachments/2162856/3650080/AsymptoticLimits.mp4">here</a></p>
+<h2 id="a-asymptotic-limits">A: Asymptotic limits</h2>
+<p>As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). Combine has dedicated method for calculating upper limits. The most commonly used one is <code>AsymptoticLimits</code>, which implements the CLs criterion and uses the profile likelihood ratio as the test statistic. As the name implies, the test statistic distributions are determined analytically in the asymptotic approximation, so there is no need for more time-intensive toy throwing and fitting. First we will go back to the first datacard we looked at, which is a one-bin counting experiment again. Try running the following command:</p>
+<pre><code class="language-shell">combine -M AsymptoticLimits datacard_counting_part2.txt 
+</code></pre>
+<p>You should see the results of the observed and expected limit calculations printed to the screen. They are also saved to the usual output file. </p>
+<p>The expected limit is given under the background-only hypothesis. The median value under this hypothesis as well as the quantiles needed to give the 68% and 95% intervals are also calculated. These are all the ingredients needed to produce the standard limit plots you will see in many CMS results, for example the <span class="arithmatex"><span class="MathJax_Preview">\sigma \times \mathcal{B}</span><script type="math/tex">\sigma \times \mathcal{B}</script></span> limits for the <span class="arithmatex"><span class="MathJax_Preview">\text{bb}\phi\rightarrow\tau\tau</span><script type="math/tex">\text{bb}\phi\rightarrow\tau\tau</script></span> process:</p>
+<p><img alt="" src="../../part5/images/CMS-DAS.002.jpeg" /></p>
+<p>In this case we only computed the values for one signal mass hypothesis, indicated by a red dashed line.</p>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Try changing the values of some uncertainties (up or down, or removing them altogether) - how do the expected and observed limits change?</li>
+<li>Now try changing the number of observed events. The observed limit will naturally change, but the expected does too - why might this be?</li>
+</ul>
+<p>Most analyses are developed and optimised while we are "blind" to the region of data where we expect our signal to be. With <code>AsymptoticLimits</code> we can choose just to run the expected limit (<code>--run expected</code>), so as not to calculate the observed. However the data is still used, even for the expected, since in the frequentist approach a background-only fit to the data is performed to define the Asimov dataset used to calculate the expected limits. To skip this fit to data and use the pre-fit state of the model the option <code>--run blind</code> or <code>--noFitAsimov</code> can be used. <strong>Task:</strong> Compare the expected limits calculated with <code>--run expected</code> and <code>--run blind</code>. Why are they different?</p>
+<p>A more general way of blinding is to use combine's toy and Asimov dataset generating functionality. You can read more about this <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#toy-data-generation">here</a>. These options can be used with any method in combine, not just <code>AsymptoticLimits</code>.</p>
+<p><strong>Task:</strong> Calculate a blind limit by generating a background-only Asimov with the <code>-t -1</code> option instead of using the <code>AsymptoticLimits</code> specific options. You should find the observed limit is the same (up to numerical differences) as the expected. Then see what happens if you inject a signal into the Asimov dataset using the <code>--expectSignal [X]</code> option.</p>
+<h2 id="b-computing-limits-with-toys">B: Computing limits with toys</h2>
+<p>Now we will look at computing limits without the asymptotic approximation, so instead using toy datasets to determine the test statistic distributions under the signal+background and background-only hypotheses. This can be necessary if we are searching for signal in bins with a small number of events expected. In combine we will use the <code>HybridNew</code> method to calculate limits using toys. This mode is capable of calculating limits with several different test statistics and with fine-grained control over how the toy datasets are generated internally. To calculate LHC-style profile likelihood limits (i.e. the same as we did with the asymptotic) we set the option <code>--LHCmode LHC-limits</code>. You can read more about the different options in the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys">Combine documentation</a>.</p>
+<p>Run the following command:</p>
+<pre><code class="language-shell">combine -M HybridNew datacard_counting_part2.txt --LHCmode LHC-limits -n .part4B --saveHybridResult --fork 0
+</code></pre>
+<p>In contrast to <code>AsymptoticLimits</code> this will only determine the observed limit, and will take around five minutes. There will not be much output to the screen while combine is running. You can add the option <code>-v 1</code> to get a better idea of what is going on. You should see combine stepping around in <code>r</code>, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The <code>--saveHybridResult</code> option will cause the test statistic distributions that are generated at each tested value of <code>r</code> to be saved in the output ROOT file.</p>
+<p>To get an expected limit add the option <code>--expectedFromGrid X</code>, where <code>X</code> is the desired quantile, e.g. for the median:</p>
+<pre><code class="language-shell">combine -M HybridNew datacard_counting_part2.txt --LHCmode LHC-limits -n .part4B --saveHybridResult --fork 0 --expectedFromGrid 0.500
+</code></pre>
+<p>Calculate the median expected limit and the 68% range. The 95% range could also be done, but note it will take much longer to run the 0.025 quantile. While combine is running you can move on to the next steps below.</p>
+<p><strong>Tasks and questions:</strong>
+- In contrast to <code>AsymptoticLimits</code>, with <code>HybridNew</code> each limit comes with an uncertainty. What is the origin of this uncertainty?
+- How good is the agreement between the asymptotic and toy-based methods?
+- Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on CLs+b and CLb.</p>
+<p>Next plot the test statistic distributions stored in the output file:</p>
+<pre><code class="language-shell">python $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py --input higgsCombine.part4B.HybridNew.mH120.root --poi r --val all --mass 120
+</code></pre>
+<p>This produces a new ROOT file <code>cls_qmu_distributions.root</code> containing the plots, to save them as pdf/png files run this small script and look at the resulting figures:</p>
+<pre><code class="language-shell">python printTestStatPlots.py cls_qmu_distributions.root
+</code></pre>
+<h3 id="advanced-exercises">Advanced exercises</h3>
+<p>These distributions can be useful in understanding features in the CLs limits, especially in the low statistics regime. To explore this, try reducing the observed and expected yields in the datacard by a factor of 10, and rerun the above steps to compare the observed and expected limits with the asymptotic approach, and plot the test statistic distributions.</p>
+<p><strong>Tasks and questions:</strong></p>
+<ul>
+<li>Is the asymptotic limit still a good approximation?</li>
+<li>You might notice that the test statistic distributions are not smooth but rather have several "bump" structures? Where might this come from? Try reducing the size of the systematic uncertainties to make them more pronounced.</li>
+</ul>
+<p>Note that for more complex models the fitting time can increase significantly, making it infeasible to run all the toy-based limits interactively like this. An alternative strategy is documented <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#complex-models">here</a></p>
+<h1 id="advanced-tasks">Advanced tasks</h1>
+<p>If you have time, you can go back to your shape analysis from part 2B and:</p>
+<ul>
+<li>Compare the expected sensitivities of the counting experiment and the shape-based analysis. Which one is more sensitive?</li>
+<li>Check the pulls and constraints on a b-only and s+b asimov dataset instead. This check is <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks">required</a> for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)</li>
+<li>Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics">here</a> to explore the tools available for this.</li>
+</ul></div>
+        
+        
+    </div>
+
+    
+      <footer class="col-md-12 text-center">
+          
+          
+            <hr>
+            <p>
+            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+            </p>
+          
+
+          
+          
+      </footer>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+
+    
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    <script>var base_url = "../.."</script>
+    
+    <script src="../../js/base.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script src="../../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>
