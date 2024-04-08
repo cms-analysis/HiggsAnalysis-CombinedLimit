@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../regularisation/">
+        <link rel="prev" href="../model_and_likelihood/">
       
       
-        <link rel="next" href="../debugging/">
+        <link rel="next" href="../statistical_tests/">
       
       
       <link rel="icon" href="../../logo.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Validating datacards - Combine</title>
+        <title>Fitting Concepts - Combine</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#validating-datacards" class="md-skip">
+        <a href="#likelihood-based-fitting" class="md-skip">
           Skip to content
         </a>
       
@@ -99,7 +99,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Validating datacards
+              Fitting Concepts
             
           </span>
         </div>
@@ -191,11 +191,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../introduction/" class="md-tabs__link">
           
   
     
@@ -231,13 +233,11 @@
         
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../runningthetool/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
           
   
     
@@ -361,8 +361,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -377,19 +379,20 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -400,7 +403,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             What Combine Does
@@ -414,7 +417,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+      <a href="../introduction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -435,7 +438,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+      <a href="../model_and_likelihood/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -453,10 +456,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -465,6 +488,158 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fitting-frameworks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fitting Frameworks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fitting Frameworks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#maximum-likelihood-fits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Maximum Likelihood fits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bayesian-posterior-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bayesian Posterior Calculation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods-for-considering-subsets-of-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Methods for considering subsets of models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods for considering subsets of models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conditioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conditioning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profiling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#marginalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Marginalization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameter-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter Uncertainties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameter Uncertainties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#frequentist-confidence-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frequentist Confidence Regions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frequentist Confidence Regions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-minos-method-for-estimating-confidence-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Minos method for estimating confidence regions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-hessian-method-for-estimating-confidence-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Hessian method for estimating confidence regions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bayesian-credibility-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bayesian Credibility Regions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -477,7 +652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+      <a href="../statistical_tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -620,10 +795,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -644,20 +817,19 @@
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -668,7 +840,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Running combine
@@ -682,7 +854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../runningthetool/" class="md-nav__link">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -703,7 +875,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commonstatsmethods/" class="md-nav__link">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -724,7 +896,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../nonstandard/" class="md-nav__link">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -745,7 +917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../simplifiedlikelihood/" class="md-nav__link">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -766,7 +938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../regularisation/" class="md-nav__link">
+      <a href="../../part3/regularisation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -784,30 +956,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Validating datacards
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -816,131 +968,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-use-the-tool" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to use the tool
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#details-on-checks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Details on checks
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Details on checks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#uncertainties-with-large-normalization-effect" class="md-nav__link">
-    <span class="md-ellipsis">
-      Uncertainties with large normalization effect
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#at-least-one-of-the-updown-systematic-templates-is-empty" class="md-nav__link">
-    <span class="md-ellipsis">
-      At least one of the Up/Down systematic templates is empty
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#identical-updown-templates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Identical Up/Down templates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#up-and-down-templates-vary-the-yield-in-the-same-direction" class="md-nav__link">
-    <span class="md-ellipsis">
-      Up and Down templates vary the yield in the same direction
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#uncertainty-probably-has-no-genuine-shape-effect" class="md-nav__link">
-    <span class="md-ellipsis">
-      Uncertainty probably has no genuine shape effect
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#empty-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      Empty process
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#bins-that-have-signal-but-no-background" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bins that have signal but no background
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#small-signal-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      Small signal process
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-to-do-in-case-of-a-warning" class="md-nav__link">
-    <span class="md-ellipsis">
-      What to do in case of a warning
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -953,7 +980,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../debugging/" class="md-nav__link">
+      <a href="../../part3/debugging/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1237,91 +1264,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-to-use-the-tool" class="md-nav__link">
+  <a href="#fitting-frameworks" class="md-nav__link">
     <span class="md-ellipsis">
-      How to use the tool
+      Fitting Frameworks
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#details-on-checks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Details on checks
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Details on checks">
+    <nav class="md-nav" aria-label="Fitting Frameworks">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#uncertainties-with-large-normalization-effect" class="md-nav__link">
+  <a href="#maximum-likelihood-fits" class="md-nav__link">
     <span class="md-ellipsis">
-      Uncertainties with large normalization effect
+      Maximum Likelihood fits
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#at-least-one-of-the-updown-systematic-templates-is-empty" class="md-nav__link">
+  <a href="#bayesian-posterior-calculation" class="md-nav__link">
     <span class="md-ellipsis">
-      At least one of the Up/Down systematic templates is empty
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#identical-updown-templates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Identical Up/Down templates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#up-and-down-templates-vary-the-yield-in-the-same-direction" class="md-nav__link">
-    <span class="md-ellipsis">
-      Up and Down templates vary the yield in the same direction
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#uncertainty-probably-has-no-genuine-shape-effect" class="md-nav__link">
-    <span class="md-ellipsis">
-      Uncertainty probably has no genuine shape effect
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#empty-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      Empty process
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#bins-that-have-signal-but-no-background" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bins that have signal but no background
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#small-signal-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      Small signal process
+      Bayesian Posterior Calculation
     </span>
   </a>
   
@@ -1333,11 +1297,101 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-to-do-in-case-of-a-warning" class="md-nav__link">
+  <a href="#methods-for-considering-subsets-of-models" class="md-nav__link">
     <span class="md-ellipsis">
-      What to do in case of a warning
+      Methods for considering subsets of models
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Methods for considering subsets of models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conditioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conditioning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profiling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#marginalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Marginalization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameter-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter Uncertainties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameter Uncertainties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#frequentist-confidence-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frequentist Confidence Regions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frequentist Confidence Regions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-minos-method-for-estimating-confidence-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Minos method for estimating confidence regions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-hessian-method-for-estimating-confidence-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Hessian method for estimating confidence regions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bayesian-credibility-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bayesian Credibility Regions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1359,188 +1413,95 @@
   
 
 
-<h1 id="validating-datacards">Validating datacards</h1>
-<p>This section covers the main features of the datacard validation tool that helps you spot potential problems with your datacards at an early stage. The tool is implemented
-in the <a href="https://github.com/cms-analysis/CombineHarvester/blob/113x/CombineTools"><code>CombineHarvester/CombineTools</code></a> subpackage. See the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool"><code>combineTool</code></a> 
-section of the documentation for checkout instructions.</p>
-<p>The datacard validation tool contains a number of checks. It is possible to call subsets of these checks when creating datacards within <code>CombineHarvester</code>. However, for now we will only
-describe the usage of the validation tool on already existing datacards. If you create your datacards with <code>CombineHarvester</code> and would like to include the checks at the datacard creation
-stage, please contact us via <a href="https://cms-talk.web.cern.ch/c/physics/cat/cat-stats/279">https://cms-talk.web.cern.ch/c/physics/cat/cat-stats/279</a>.</p>
-<h2 id="how-to-use-the-tool">How to use the tool</h2>
-<p>The basic syntax is:</p>
-<pre><code class="language-sh">ValidateDatacards.py datacard.txt
-</code></pre>
-<p>This will write the results of the checks to a json file (default: <code>validation.json</code>), and will print a summary to the screen, for example:</p>
-<pre><code class="language-nohighlight">================================
-=======Validation results=======
-================================
-&gt;&gt;&gt;There were  7800 warnings of type  'up/down templates vary the yield in the same direction'
-&gt;&gt;&gt;There were  5323 warnings of type  'up/down templates are identical'
-&gt;&gt;&gt;There were no warnings of type  'At least one of the up/down systematic uncertainty templates is empty'
-&gt;&gt;&gt;There were  4406 warnings of type  'Uncertainty has normalisation effect of more than 10.0%'
-&gt;&gt;&gt;There were  8371 warnings of type  'Uncertainty probably has no genuine shape effect'
-&gt;&gt;&gt;There were no warnings of type 'Empty process'
-&gt;&gt;&gt;There were no warnings of type 'Bins of the template empty in background'
-&gt;&gt;&gt;INFO: there were  169  alerts of type  'Small signal process'
-</code></pre>
-<p>The meaning of each of these warnings/alerts is discussed <a href="#details-on-checks">below</a>.</p>
-<p>The following arguments are possible:</p>
-<pre><code class="language-nohighlight">usage: ValidateDatacards.py [-h] [--printLevel PRINTLEVEL] [--readOnly]
-                            [--checkUncertOver CHECKUNCERTOVER]
-                            [--reportSigUnder REPORTSIGUNDER]
-                            [--jsonFile JSONFILE] [--mass MASS]
-                            cards
-
-positional arguments:
-  cards                 Specifies the full path to the datacards to check
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --printLevel PRINTLEVEL, -p PRINTLEVEL
-                        Specify the level of info printing (0-3, default:1)
-  --readOnly            If this is enabled, skip validation and only read the
-                        output json
-  --checkUncertOver CHECKUNCERTOVER, -c CHECKUNCERTOVER
-                        Report uncertainties which have a normalization effect
-                        larger than this fraction (default:0.1)
-  --reportSigUnder REPORTSIGUNDER, -s REPORTSIGUNDER
-                        Report signals contributing less than this fraction of
-                        the total in a channel (default:0.001)
-  --jsonFile JSONFILE   Path to the json file to read/write results from
-                        (default:validation.json)
-  --mass MASS           Signal mass to use (default:*)
-</code></pre>
-<p><code>printLevel</code> adjusts how much information is printed to the screen. When set to 0, the results are only written to the json file, but not to the screen. When set to 1 (default), the number of warnings/alerts
-of a given type is printed to the screen. Setting this option to 2 prints the same information as level 1, and additionally prints which uncertainties are affected (if the check is related to uncertainties) or which processes are affected (if the check is related only to processes). When <code>printLevel</code> is set to 3, the information from level 2 is printed, and additionaly for checks related to uncertainties it prints which processes are affected.</p>
-<p>To print information to screen, the script parses the json file that contains the results of the validation checks. Therefore, if you have already run the validation tool and produced this json file, you can simply change the <code>printLevel</code> by re-running the tool with <code>printLevel</code> set to a different value, and enabling the <code>--readOnly</code> option.</p>
-<p>The options <code>--checkUncertOver</code> and <code>--reportSigUnder</code> will be described in more detail in the section that discusses the checks for which they are relevant.</p>
-<p>Note: the <code>--mass</code> argument should only be set if you normally use it when running <span style="font-variant:small-caps;">Combine</span>, otherwise you can leave it at the default.</p>
-<p>The datacard validation tool is primarily intended for shape (histogram) based analyses. However, when running on a parametric model or counting experiment the checks for small signal processes, empty processes, and uncertainties with large normalization effects can still be performed. </p>
-<h2 id="details-on-checks">Details on checks</h2>
-<h3 id="uncertainties-with-large-normalization-effect">Uncertainties with large normalization effect</h3>
-<p>This check highlights nuisance parameters that have a normalization effect larger than the fraction set by the option <code>--checkUncertOver</code>. The default value is 0.1, meaning that any uncertainties with a normalization
-effect larger than 10% are flagged up.</p>
-<p>The output file contains the following information for this check:</p>
-<pre><code class="language-nohighlight">largeNormEff: {
-  &lt;Uncertainty name&gt;: {
-    &lt;analysis category&gt;: {
-      &lt;process&gt;: {
-        &quot;value_d&quot;:&lt;value&gt;
-        &quot;value_u&quot;:&lt;value&gt;
-      } 
-    }
-  }
-}
-</code></pre>
-<p>Where <code>value_u</code> and <code>value_d</code> are the values of the 'up' and 'down' normalization effects.</p>
-<h3 id="at-least-one-of-the-updown-systematic-templates-is-empty">At least one of the Up/Down systematic templates is empty</h3>
-<p>For shape uncertainties, this check reports all cases where the up and/or down template(s) are empty, when the nominal template is not.</p>
-<p>The output file contains the following information for this check:</p>
-<pre><code class="language-nohighlight">emptySystematicShape: {
-  &lt;Uncertainty name&gt;: {
-    &lt;analysis category&gt;: {
-      &lt;process&gt;: {
-        &quot;value_d&quot;:&lt;value&gt;
-        &quot;value_u&quot;:&lt;value&gt;
-      } 
-    }
-  }
-}
-</code></pre>
-<p>Where <code>value_u</code> and <code>value_d</code> are the values of the 'up' and 'down' normalization effects.</p>
-<h3 id="identical-updown-templates">Identical Up/Down templates</h3>
-<p>This check applies to shape uncertainties only, and will highlight cases where the shape uncertainties have identical Up and Down templates (identical in shape and in normalization).</p>
-<p>The information given in the output file for this check is:</p>
-<pre><code class="language-nohighlight">uncertTemplSame: {
-  &lt;Uncertainty name&gt;: {
-    &lt;analysis category&gt;: {
-      &lt;process&gt;: {
-        &quot;value_d&quot;:&lt;value&gt;
-        &quot;value_u&quot;:&lt;value&gt;
-      } 
-    }
-  }
-}
-</code></pre>
-<p>Where <code>value_u</code> and <code>value_d</code> are the values of the 'up' and 'down' normalization effects.</p>
-<h3 id="up-and-down-templates-vary-the-yield-in-the-same-direction">Up and Down templates vary the yield in the same direction</h3>
-<p>Again, this check only applies to shape uncertainties - it highlights cases where the 'Up' template and the 'Down' template both have the effect of increasing or decreasing the normalization of a process.</p>
-<p>The information given in the output file for this check is:</p>
-<pre><code class="language-nohighlight">uncertVarySameDirect: {
-  &lt;Uncertainty name&gt;: {
-    &lt;analysis category&gt;: {
-      &lt;process&gt;: {
-        &quot;value_d&quot;:&lt;value&gt;
-        &quot;value_u&quot;:&lt;value&gt;
-      } 
-    }
-  }
-}
-</code></pre>
-<p>Where <code>value_u</code> and <code>value_d</code> are the values of the 'up' and 'down' normalization effects.</p>
-<h3 id="uncertainty-probably-has-no-genuine-shape-effect">Uncertainty probably has no genuine shape effect</h3>
-<p>In this check, applying only to shape uncertainties, the normalized nominal templates are compared with the normalized templates for the 'up' and 'down' systematic variations. The script calculates
-$$ \Sigma_i \frac{2|\text{up}(i) - \text{nominal}(i)|}{|\text{up}(i)| + |\text{nominal}(i)|}$$ and $$ \Sigma_i \frac{2|\text{down}(i) - \text{nominal}(i)|}{|\text{down}(i)| + |\text{nominal}(i)|} $$</p>
-<p>where the sums run over all bins in the histograms, and 'nominal', 'up', and 'down' are the central template and up and down varied templates, all normalized.</p>
-<p>If both sums are smaller than 0.001, the uncertainty is flagged up as probably not having a genuine shape effect. This means a 0.1% variation in one bin is enough to avoid being reported, but many smaller variations can also sum to be large enough to pass the threshold.
-It should be noted that the chosen threshold is somewhat arbitrary: if an uncertainty is flagged up as probably having no genuine shape effect you should take this as a starting point to investigate. </p>
-<p>The information given in the output file for this check is:</p>
-<pre><code class="language-nohighlight">smallShapeEff: {
-  &lt;Uncertainty name&gt;: {
-    &lt;analysis category&gt;: {
-      &lt;process&gt;: {
-        &quot;diff_d&quot;:&lt;value&gt;
-        &quot;diff_u&quot;:&lt;value&gt;
-      } 
-    }
-  }
-}
-</code></pre>
-<p>Where <code>diff_d</code> and <code>diff_u</code> are the values of the sums described above for the 'down' variation and the 'up' variation.</p>
-<h3 id="empty-process">Empty process</h3>
-<p>If a process is listed in the datacard, but the yield is 0, it is flagged up by this check. </p>
-<p>The information given in the output file for this check is:</p>
-<pre><code class="language-nohighlight">emptyProcessShape: {
-  &lt;analysis category&gt;: {
-    &lt;process1&gt;,
-    &lt;process2&gt;,
-    &lt;process3&gt;
-  }
-}
-</code></pre>
-<h3 id="bins-that-have-signal-but-no-background">Bins that have signal but no background</h3>
-<p>For shape-based analyses, this checks whether there are any bins in the nominal templates that have signal contributions, but no background contributions. </p>
-<p>The information given in the output file for this check is:</p>
-<pre><code class="language-nohighlight">emptyBkgBin: {
-  &lt;analysis category&gt;: {
-    &lt;bin_nr1&gt;,
-    &lt;bin_nr2&gt;,
-    &lt;bin_nr3&gt;
-  }
-}
-</code></pre>
-<h3 id="small-signal-process">Small signal process</h3>
-<p>This reports signal processes that contribute less than the fraction specified by <code>--reportSigUnder</code> (default 0.001 = 0.1%) of the total signal in a given category. This produces an alert, not a warning, as it does not hint at a potential problem.
-However, in analyses with many signal contributions and with long fitting times, it can be helpful to remove signals from a category in which they do not contribute a significant amount.</p>
-<p>The information given in the output file for this check is:</p>
-<pre><code class="language-nohighlight">smallSignalProc: {
-  &lt;analysis category&gt;: {
-    &lt;process&gt;: {
-      &quot;sigrate_tot&quot;:&lt;value&gt;
-      &quot;procrate&quot;:&lt;value&gt;
-    } 
-  }
-}
-</code></pre>
-<p>Where <code>sigrate_tot</code> is the total signal yield in the analysis category and <code>procrate</code> is the yield of signal process <code>&lt;process&gt;</code>.</p>
-<h2 id="what-to-do-in-case-of-a-warning">What to do in case of a warning</h2>
-<p>These checks are mostly a tool to help you investigate your datacards: a warning does not necessarily mean there is a mistake in your datacard, but you should use it as a starting point to investigate. Empty processes and emtpy shape uncertainties connected to nonempty processes will most likely be unintended. The same holds for cases where the 'up' and 'down' shape templates are identical. If there are bins that contain signal but no background contributions, this should be corrected. See the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq">FAQ</a> for more information on that point.</p>
-<p>For other checks it depends on the situation whether there is a problem or not. Some examples:</p>
-<ul>
-<li>An analysis-specific nonclosure uncertainty could be larger than 10%. A theoretical uncertainty in the ttbar normalization probably not.</li>
-<li>In an analysis with a selection that requires the presence of exactly 1 jet, 'up' and 'down' variations in the jet energy uncertainty <em>could</em> both change the process normalization in the same direction. (But they do not have to!)</li>
-</ul>
-<p>As always: think about whether you expect a check to yield a warning in case of your analysis, and if not, investigate to make sure there are no issues.</p>
+<h1 id="likelihood-based-fitting">Likelihood based fitting</h1>
+<p>"Fitting" simply means estimating some parameters of a model (or really a <a href="../../what_combine_does/model_and_likelihood/#sets-of-observation-models">set of models</a>) based on data.
+Likelihood-based fitting does this through the <a href="../../what_combine_does/model_and_likelihood/#the-likelihood">likelihood function</a>.</p>
+<p>In frequentist frameworks, this typically means doing <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2">maximum likelihood estimation</a>.
+In bayesian frameworks, usually <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6">posterior distributions</a> of the parameters are calculated from the likelihood.</p>
+<h2 id="fitting-frameworks">Fitting Frameworks</h2>
+<p>Likelihood fits typically either follow a frequentist framework of maximum likelihood estimation, or a bayesian framework of updating estimates to find posterior distributions given the data.</p>
+<h3 id="maximum-likelihood-fits">Maximum Likelihood fits</h3>
+<p>A <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.2">maximum likelihood fit</a> means finding the values of the model parameters <span class="arithmatex">\((\vec{\mu}, \vec{\nu})\)</span> which maximize the likelihood, <span class="arithmatex">\(\mathcal{L}(\vec{\mu},\vec{\nu})\)</span>
+The values which maximize the likelihood, are the parameter estimates, denoted with a "hat" (<span class="arithmatex">\(\hat{}\)</span>):</p>
+<div class="arithmatex">\[(\vec{\hat{\mu}}, \vec{\hat{\nu}}) \equiv \underset{\vec{\mu},\vec{\nu}}{\operatorname{argmax}} \mathcal{L}(\vec{\mu}, \vec{\nu})\]</div>
+<p>These values provide <strong>point estimates</strong> for the parameter values.</p>
+<p>Because the likelihood is equal to the probability of observing the data given the model, the maximum likelihood estimate finds the parameter values for which the data is most probable.</p>
+<h3 id="bayesian-posterior-calculation">Bayesian Posterior Calculation</h3>
+<p>In a bayesian framework, the likelihood represents the probability of observing the data given the model and some prior probability distribution over the model parameters.</p>
+<p>The prior probability of the parameters, <span class="arithmatex">\(\pi(\vec{\Phi})\)</span>, are updated based on the data to provide a <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsection.40.2.6">posterior distributions</a></p>
+<div class="arithmatex">\[ p(\vec{\Phi};\mathrm{data}) = \frac{ p(\mathrm{data};\vec{\Phi}) \pi(\vec{\Phi}) }{\int p(\mathrm{data};\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' } = \frac{ \mathcal{L}(\vec{\Phi}) \pi(\vec{\Phi}) }{ \int \mathcal{L}(\vec{\Phi}') \pi(\vec{\Phi}') \mathrm{d}\vec{\Phi}' }\]</div>
+<p>The posterior distribution <span class="arithmatex">\(p(\vec{\Phi};\mathrm{data})\)</span> defines the updated belief about the parameters <span class="arithmatex">\(\vec{\Phi}\)</span>.</p>
+<h2 id="methods-for-considering-subsets-of-models">Methods for considering subsets of models</h2>
+<p>Often, one is interested in some particular aspect of a model.
+This may be for example information related to the parameters of interest, but not the nuisance parameters.
+In this case, one needs a method for specifying precisely what is meant by a model considering only those parameters of interest.</p>
+<p>There are several methods for considering sub models which each have their own interpretations and use cases.</p>
+<h3 id="conditioning">Conditioning</h3>
+<p>Conditional Sub-models can be made by simply restricting the values of some parameters.
+The conditional likelihood of the parameters <span class="arithmatex">\(\vec{\mu}\)</span> conditioned on particular values of the parameters <span class="arithmatex">\(\vec{\nu}\)</span> is:</p>
+<div class="arithmatex">\[ \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{conditioned\ on\ } \vec{\nu} = \vec{\nu}_0} \mathcal{L}(\vec{\mu}) = \mathcal{L}(\vec{\mu},\vec{\nu}_0) \]</div>
+<h3 id="profiling">Profiling</h3>
+<p>The profiled likelihood <span class="arithmatex">\(\mathcal{L}(\vec{\mu})\)</span> is defined from the full likelihood, <span class="arithmatex">\(\mathcal{L}(\vec{\mu},\vec{\nu})\)</span>, such that for every point <span class="arithmatex">\(\vec{\mu}\)</span> it is equal to the full likelihood at <span class="arithmatex">\(\vec{\mu}\)</span> maximized over <span class="arithmatex">\(\vec{\nu}\)</span>.</p>
+<div class="arithmatex">\[ \mathcal{L}(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{profiling\ } \vec{\nu}} \mathcal{L}({\vec{\mu}}) = \max_{\vec{\nu}} \mathcal{L}(\vec{\mu},\vec{\nu})\]</div>
+<p>In some sense, the profiled likelihood is the best estimate of the likelihood at every point <span class="arithmatex">\(\vec{\mu}\)</span>, it is sometimes also denoted with a double hat notation <span class="arithmatex">\(\mathcal{L}(\vec{\mu},\vec{\hat{\hat{\nu}}}(\vec{\mu}))\)</span>.</p>
+<h3 id="marginalization">Marginalization</h3>
+<p>Marginalization is a procedure for producing a probability distribution <span class="arithmatex">\(p(\vec{\mu};\mathrm{data})\)</span> for a set of parameters <span class="arithmatex">\(\vec{\mu}\)</span>, which are only a subset of the parameters in the full distribution <span class="arithmatex">\(p(\vec{\mu},\vec{\nu};\mathrm{data})\)</span>.
+The marginal probability density <span class="arithmatex">\(p(\vec{\mu})\)</span> is defined such that for every point <span class="arithmatex">\(\vec{\mu}\)</span> it is equal to the probability at <span class="arithmatex">\(\vec{\mu}\)</span> integrated over <span class="arithmatex">\(\vec{\nu}\)</span>.</p>
+<div class="arithmatex">\[ p(\vec{\mu},\vec{\nu}) \xrightarrow{\mathrm{marginalizing\ } \vec{\nu}} p({\vec{\mu}}) = \int_{\vec{\nu}} p(\vec{\mu},\vec{\nu})\]</div>
+<p>The marginalized probability <span class="arithmatex">\(p(\vec{\mu})\)</span> is the probability for the parameter values <span class="arithmatex">\(\vec{\mu}\)</span> taking into account all possible values of <span class="arithmatex">\(\vec{\nu}\)</span>.</p>
+<p>Marginalized likelihoods can also be defined, by their relationship to the probability distributions.</p>
+<h2 id="parameter-uncertainties">Parameter Uncertainties</h2>
+<p>Parameter uncertainties describe regions of parameter values which are considered reasonable parameter values, rather than single estimates.
+These can be defined either in terms of frequentist <strong>confidence regions</strong> or bayesian <strong>credibility regions</strong>.</p>
+<p>In both cases the region is defined by a confidence or credibility level <span class="arithmatex">\(CL\)</span>, which quantifies the meaning of the region.
+For frequentist confidence regions, the confidence level <span class="arithmatex">\(CL\)</span> describes how often the confidence region will contain the true parameter values if the model is a sufficiently accurate approximation of the truth.
+For bayesian credibility regions, the credibility level <span class="arithmatex">\(CL\)</span> describes the bayesian probability that the true parameter value is in that region for under the given model.</p>
+<p>The confidence or credibility regions are described by a set of points <span class="arithmatex">\(\{ \vec{\mu} \}_{\mathrm{CL}}\)</span> which meet some criteria.
+In most situations of interest, the credibility region or confidence region for a single parameter, <span class="arithmatex">\(\mu\)</span>, is effectively described by an interval:</p>
+<div class="arithmatex">\[ \{ \mu \}_{\mathrm{CL}} = [ \mu^{-}_{\mathrm{CL}}, \mu^{+}_{\mathrm{CL}} ] \]</div>
+<p>Typically indicated as:</p>
+<div class="arithmatex">\[ \mu = X^{+\mathrm{up}}_{-\mathrm{down}} \]</div>
+<p>or, if symmetric intervals are used:</p>
+<div class="arithmatex">\[ \mu = X \pm \mathrm{unc.} \]</div>
+<h3 id="frequentist-confidence-regions">Frequentist Confidence Regions</h3>
+<p>Frequentist confidence regions are random variables of the observed data.
+These are very often the construction used to define the uncertainties reported on a parameter.</p>
+<p>If the same experiment is repeated multiple times, different data will be osbserved each time and a different confidence set <span class="arithmatex">\(\{ \vec{\mu}\}_{\mathrm{CL}}^{i}\)</span> will be found for each experiment.
+If the data are generated by the model with some set of values <span class="arithmatex">\(\vec{\mu}_{\mathrm{gen}}\)</span>, then the fraction of the regions <span class="arithmatex">\(\{ \vec{\mu}\}_{\mathrm{CL}}^{i}\)</span> which contain the values <span class="arithmatex">\(\vec{\mu}_{\mathrm{gen}}\)</span> will be equal to the confidence level <span class="arithmatex">\({\mathrm{CL}}\)</span>.
+The fraction of intervals which contain the generating parameter value is referred to as the "coverage".</p>
+<p>From first principles, the intervals can be constructed using the <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#subsubsection.40.4.2.1">Neyman construction</a>.</p>
+<p>In practice, the likelihood can be used to construct confidence regions for a set of parameters <span class="arithmatex">\(\vec{\mu}\)</span> by using the profile likelikhood ratio:</p>
+<div class="arithmatex">\[ \Lambda \equiv \frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})} \]</div>
+<p>i.e. the ratio of the profile likelihood at point <span class="arithmatex">\(\vec{\mu}\)</span> to the maxmimum likelihood. For technical reasons, the negative logarithm of this quantity is typically used in practice.</p>
+<p>Each point <span class="arithmatex">\(\vec{\mu}\)</span> can be tested to see if it is in the confidence region, by checking the value of the likelihood ratio at that point and comparing it to the expected distribution if that point were the true generating value of the data.</p>
+<div class="arithmatex">\[ \{ \vec{\mu} \}_{\mathrm{CL}} = \{ \vec{\mu} : -\log(\Lambda) \lt  \gamma_{\mathrm{CL}}(\vec{\mu}) \} \]</div>
+<p>The cutoff value <span class="arithmatex">\(\gamma_{\mathrm{CL}}\)</span> must be chosen to match this desired coverage of the confidence set.</p>
+<p>Under some conditions, the value of <span class="arithmatex">\(\gamma_{\mathrm{CL}}\)</span> is known analytically for any desired confidence level, and is independent of <span class="arithmatex">\(\vec{\mu}\)</span>, which greatly simplifies estimating confidence regions.</p>
+<details>
+<summary><strong>Constructing Frequentist Confidence Regions in Practice</strong></summary>
+<p>When a single fit is performed by some numerical minimization program and parameter values are reported along with some uncertainty values, they are usually reported as frequentist intervals.
+The <a href="https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf">MINUIT minimizer</a> which evaluates likelihood functions has two methods for <a href="https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#section.2.5">estimating parameter uncertainties</a>.</p>
+<p>These two methods are the most commonly used methods for estimating confidence regions in a fit; they are the <a href="https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#subsection.2.5.3"><strong>minos</strong> method</a>, and the <a href="https://root.cern/root/htmldoc/guides/minuit2/Minuit2.pdf#subsection.2.5.2"><strong>hessian</strong> method</a>.
+In both cases, Wilk's theorem is assumed to hold at all points in parameter space, such that <span class="arithmatex">\(\gamma_{\mathrm{CL}}\)</span> is independent of <span class="arithmatex">\(\vec{\mu}\)</span>.</p>
+<p>When <span class="arithmatex">\(\gamma_{\mathrm{CL}}\)</span> is independent of <span class="arithmatex">\(\vec{\mu}\)</span> the problem simplifies to finding the boundaries where <span class="arithmatex">\(-\log(\Lambda) = \gamma_{\mathrm{CL}}\)</span>.
+This boundary point is referred to as the "crossing", i.e. where <span class="arithmatex">\(-\log(\Lambda)\)</span> crosses the threshold value.</p>
+<h4 id="the-minos-method-for-estimating-confidence-regions">The Minos method for estimating confidence regions</h4>
+<p>In the minos method, once the best fit point <span class="arithmatex">\(\vec{\hat{\mu}}\)</span> is determined, the confidence region for any parameter <span class="arithmatex">\(\mu_i\)</span> can be found by moving away from its best fit value <span class="arithmatex">\(\hat{\mu}_i\)</span>.
+At each value of <span class="arithmatex">\(\mu_i\)</span>, the other parameters are profiled, and <span class="arithmatex">\(-\log{\Lambda}\)</span> is calculated.</p>
+<p>Following this procedure, <span class="arithmatex">\(\mu_i\)</span> is searched for the boundary of the confidence regions, where <span class="arithmatex">\(-\log{\Lambda} = \gamma_{\mathrm{CL}}\)</span>.</p>
+<p>The search is performed in both directions, away from the best fit value of the parameter and the two crossings are taken as the borders of the confidence region.</p>
+<p>This procedure has to be followed sepately for each parameter <span class="arithmatex">\(\mu_i\)</span> for which a confidence interval is calculated.</p>
+<h4 id="the-hessian-method-for-estimating-confidence-regions">The Hessian method for estimating confidence regions</h4>
+<p>The Hessian method relies on the second derivatives (i.e. the <a href="https://en.wikipedia.org/wiki/Hessian_matrix">hessian</a>) of the likelihood at the best fit point.</p>
+<p>By assuming that the shape of the likelihood function is well described by its second-order approximation, the values at which <span class="arithmatex">\(-\log(\Lambda) = \gamma_{\mathrm{CL}}\)</span> can be calculated analytically without the need for a seach</p>
+<div class="arithmatex">\[ \mu_i^{\mathrm{crossing}} - \hat{\mu} \propto \left(\frac{\partial^2{\mathcal{L}(\vec{\hat{\mu}})}}{\partial\mu_i^2}\right)^{-2} \]</div>
+<p>By computing and then inverting the full hessian matrix, all individual confidence regions and the full covariance matrix are determined.
+By construction, this method always reports symmetric confidence intervals, as it assumes that the likelihood is well described by a second order expansion.</p>
+</details>
+<h3 id="bayesian-credibility-regions">Bayesian Credibility Regions</h3>
+<p>Often the full posterior probability distribution is summarized in terms of some <strong>credible region</strong> which contains some specified portion of the posterior probability of the parameter.</p>
+<div class="arithmatex">\[ \{ \vec{\mu} \}_{\mathrm{CL}} =  \{ \vec{\mu} : \vec{\mu} \in \Omega, \int_{\Omega} p(\vec{\mu};\mathrm{data}) = \mathrm{CL}  \}\]</div>
+<p>The credible region represents a region in which the bayesian probability of the parameter being in that region is equal to the chosen Credibility Level.</p>
 
 
 
@@ -1576,7 +1537,7 @@ However, in analyses with many signal contributions and with long fitting times,
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../regularisation/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Unfolding &amp; regularization">
+          <a href="../model_and_likelihood/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Model and Likelihood">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -1586,20 +1547,20 @@ However, in analyses with many signal contributions and with long fitting times,
                 Previous
               </span>
               <div class="md-ellipsis">
-                Unfolding & regularization
+                Model and Likelihood
               </div>
             </div>
           </a>
         
         
           
-          <a href="../debugging/" class="md-footer__link md-footer__link--next" aria-label="Next: Debugging fit failures">
+          <a href="../statistical_tests/" class="md-footer__link md-footer__link--next" aria-label="Next: Statistical Tests">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Debugging fit failures
+                Statistical Tests
               </div>
             </div>
             <div class="md-footer__button md-icon">
