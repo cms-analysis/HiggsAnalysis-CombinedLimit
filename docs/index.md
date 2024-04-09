@@ -48,12 +48,12 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a recommended tag - currently the recommended tag is **v9.1.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.1.0)
+Update to a recommended tag - currently the recommended tag is **v9.2.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.0)
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v9.1.0
+git checkout v9.2.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
@@ -105,11 +105,12 @@ scramv1 b clean; scramv1 b # always make a clean build
 
 ### Oustide of CMSSW (recommended for non-CMS users)
 
-Pre-compiled versions of the tool are available as container images from the [CMS cloud](https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/). If you have docker running you can pull and run the *latest* image using, 
+Pre-compiled versions of the tool are available as container images from the [CMS cloud](https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/). If you have docker running you can pull and run the image using, 
 
 ```sh
-docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:latest
+docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:<tag>
 ```
+where you must replace `<tag>` with a particular version of the tool - eg - `v9.2.0`. See the top of this page for the latest recommended versions. 
 
 You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
 The container can be re-started using `docker start -i combine`. 
@@ -133,6 +134,22 @@ make -j 4
 ```
 
 You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login environment.
+
+##### Compilation on lxplus9
+
+For slc9 architectures, you will need to do the compilation in an slc7 environment using apptainer. You can then source the standalone script outside of the apptainer.
+On lxplus this can be done as follows:
+
+```
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit/ 
+# git checkout <some release>
+cmssw-el7
+. env_standalone.sh
+make -j 4
+exit
+source . env_standalone.sh
+```
 
 ##### Standalone compilation with LCG
 For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102, which contains ROOT 6.26:

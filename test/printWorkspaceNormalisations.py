@@ -4,6 +4,8 @@ import datetime
 from collections import OrderedDict as od
 from optparse import OptionParser
 from sys import argv, exit, stderr, stdout
+import io
+import sys
 
 from six.moves import range
 
@@ -59,6 +61,7 @@ parser.add_option(
     "",
     "--procFilter",
     dest="process_filter_list",
+    default="",
     type="string",
     help="Filter (keep) only processes containing these names. Enter option as comma separated string",
 )
@@ -70,7 +73,20 @@ parser.add_option(
     type=float,
     help="Set mass value in workspace (default=125).",
 )
-parser.add_option("", "--output-json", dest="output_json", default="", help="Output norms in json. Note, filters/thresholds are ignored for this output")
+parser.add_option(
+    "-f",
+    "--format",
+    dest="format",
+    default="text",
+    help="Choose output format [text,html]",
+)
+parser.add_option(
+    "",
+    "--output-json",
+    dest="output_json",
+    default="",
+    help="Also output norms in json file with provided name. Note, filters/thresholds are ignored for this output",
+)
 
 
 (options, args) = parser.parse_args()
@@ -78,13 +94,17 @@ if len(args) == 0:
     parser.print_usage()
     exit(1)
 
+if options.format not in ["text", "html"]:
+    exit("Error, --format must be either 'text' or 'html'")
+if options.output_json != "" and options.output_html != "":
+    exit("Error, only provide one output option (JSON or HTML)")
+
 if options.max_threshold < options.min_threshold:
     exit("Error - require that --max_threshold is larger than --min_threshold!")
 
 file_in = ROOT.TFile(args[0])
 ws = file_in.Get("w")
 ws.var("MH").setVal(options.massVal)
-print("Normalisation Values Evaluated at MH=", options.massVal)
 
 
 def find_chan_proc(name):
@@ -162,69 +182,177 @@ if options.use_cms_histsum:
 
 
 def checkFilter(proc):
+    if not options.process_filter_list:
+        return True
     for pc in process_filter_list:
         if pc in proc:
             return True
     return False
 
 
+def printExpand(proc):
+    # print("""<button type="button" class="collapsible">+</button>""")
+    # print("""<div class="content">""")
+    print('<details><summary style="font-size: 14px; color: blue;">expand %s</summary><p>' % proc)
+    print("<pre><code>")
+
+
+def printEndExpand():
+    print("</code></pre>")
+    print("</p></details>")
+
+
 # Now print out information
 default_norms = od()
 
-for chan in chan_procs.keys():
-    default_norms[chan] = od()
-    print("---------------------------------------------------------------------------")
-    print("---------------------------------------------------------------------------")
-    print("Channel - %s " % chan)
-    chanInfo = chan_procs[chan]
-    for proc in chanInfo:
-        skipProc = False
-        if not checkFilter(proc):
-            skipProc = True
-        if options.min_threshold > 0:
-            skipProc = proc[1].getVal() < options.min_threshold
-        if options.max_threshold > 0:
-            skipProc = proc[1].getVal() > options.max_threshold
-        if skipProc:
-            continue
-        print("---------------------------------------------------------------------------")
-        print("  Top-level normalization for process %s -> %s" % (proc[0], proc[1].GetName()))
-        print("  -------------------------------------------------------------------------")
-        if options.use_cms_histsum:
-            if chan in chan_CMSHistSum_norms:
-                default_val = chan_CMSHistSum_norms[chan][proc[1].GetName()]
+# Save to html formal
+if options.format == "html":
+    print(
+        """
+    <html>
+    <body>
+    <style type="text/css">
+    body { font-family: 'Consolas', 'Courier New', courier, monospace; font-size: normal; }
+    td, th { border-bottom: 1px solid black; padding: 1px 1em; vertical-align: top; }
+    td.channDetails { font-size: x-small; }
+    </style>
+    <title>Process Normalizations</title>
+    </head><body>
+    <h1>Process Normalizations</h1>
+    """
+    )
+
+    print("Normalisation Values Evaluated at MH =", options.massVal)
+    for chan in chan_procs.keys():
+        default_norms[chan] = od()
+        print("<hr>")
+        print("<hr>")
+        print("<h2>Channel - {chan}</h2>".format(chan=chan))
+        chanInfo = chan_procs[chan]
+        for proc in chanInfo:
+            skipProc = False
+            if not checkFilter(proc):
+                skipProc = True
+            if options.min_threshold > 0:
+                skipProc = proc[1].getVal() < options.min_threshold
+            if options.max_threshold > 0:
+                skipProc = proc[1].getVal() > options.max_threshold
+            if skipProc:
+                continue
+            print("<hr>")
+            print("Top-level normalization for process {proc0} -> {proc1_name}<br>".format(proc0=proc[0], proc1_name=proc[1].GetName()))
+            if options.use_cms_histsum:
+                if chan in chan_CMSHistSum_norms:
+                    default_val = chan_CMSHistSum_norms[chan][proc[1].GetName()]
+                else:
+                    default_val = proc[1].getVal()
             else:
                 default_val = proc[1].getVal()
-        else:
-            default_val = proc[1].getVal()
-        default_norms[chan][proc[1].GetName()] = default_val
+            default_norms[chan][proc[1].GetName()] = default_val
 
-        if options.printValueOnly:
-            print("  default value = ", default_val)
-        # if options.printValueOnly: print " --xcp %s:%s "%(chan,proc[0]),
-        else:
-            if proc[2]:
-                proc_norm_var = ws.function("n_exp_bin%s_proc_%s" % (chan, proc[0]))
-                proc[1].Print()
-                if proc_norm_var.Class().GetName() == ROOT.ProcessNormalization().Class().GetName():
-                    print(" ... is a product, which contains ", proc_norm_var.GetName())
-                    proc_norm_var.dump()
-                else:
-                    print(" ... is a product, which contains ", proc_norm_var.GetName())
-                    # proc_norm_var = ws.var("n_exp_bin%s_proc_%s"%(chan,proc[0]))
-                    proc_norm_var.Print()
+            if options.printValueOnly:
+                print("default value = {default_val}<br>".format(default_val=default_val))
             else:
-                if proc[3]:
-                    if proc[1].Class().GetName() == ROOT.ProcessNormalization().Class().GetName():
-                        proc[1].dump()
+                if proc[2]:
+                    proc_norm_var = ws.function("n_exp_bin%s_proc_%s" % (chan, proc[0]))
+                    printExpand(proc[1].GetName())
+                    proc[1].Print()
+                    printEndExpand()
+                    if proc_norm_var.Class().GetName() == ROOT.ProcessNormalization().Class().GetName():
+                        print("... is a product, which contains {proc_norm_var_name}<br>".format(proc_norm_var_name=proc_norm_var.GetName()))
+                        printExpand(proc_norm_var.GetName())
+                        proc_norm_var.dump()
+                        printEndExpand()
+                    else:
+                        print("... is a product, which contains {proc_norm_var_name}<br>".format(proc_norm_var_name=proc_norm_var.GetName()))
+                        printExpand(proc_norm_var.GetName())
+                        proc_norm_var.Print()
+                        printExpand()
+                else:
+                    if proc[3]:
+                        if proc[1].Class().GetName() == ROOT.ProcessNormalization().Class().GetName():
+                            printExpand(proc[1].GetName())
+                            proc[1].dump()
+                            printEndExpand()
+
+                        else:
+                            printExpand(proc[1].GetName())
+                            proc[1].Print()
+                            print(" ... is a constant (formula)")
+                            printEndExpand()
+
+                    else:
+                        printExpand(proc[1].GetName())
+                        proc[1].Print()
+                        print(" ... is a constant (RooRealVar)")
+                        printEndExpand()
+
+            print("  default value = ", default_val, "<br>")
+            print("</tr>")
+
+    print(
+        """
+    </body>
+    </html>
+    """
+    )
+
+if options.format == "text":
+    print("Normalisation Values Evaluated at MH =", options.massVal)
+    for chan in chan_procs.keys():
+        default_norms[chan] = od()
+        print("---------------------------------------------------------------------------")
+        print("---------------------------------------------------------------------------")
+        print("Channel - %s " % chan)
+        chanInfo = chan_procs[chan]
+        for proc in chanInfo:
+            skipProc = False
+            if not checkFilter(proc):
+                skipProc = True
+            if options.min_threshold > 0:
+                skipProc = proc[1].getVal() < options.min_threshold
+            if options.max_threshold > 0:
+                skipProc = proc[1].getVal() > options.max_threshold
+            if skipProc:
+                continue
+            print("---------------------------------------------------------------------------")
+            print("  Top-level normalization for process %s -> %s" % (proc[0], proc[1].GetName()))
+            print("---------------------------------------------------------------------------")
+            if options.use_cms_histsum:
+                if chan in chan_CMSHistSum_norms:
+                    default_val = chan_CMSHistSum_norms[chan][proc[1].GetName()]
+                else:
+                    default_val = proc[1].getVal()
+            else:
+                default_val = proc[1].getVal()
+            default_norms[chan][proc[1].GetName()] = default_val
+
+            if options.printValueOnly:
+                print("  default value = ", default_val)
+            # if options.printValueOnly: print " --xcp %s:%s "%(chan,proc[0]),
+            else:
+                if proc[2]:
+                    proc_norm_var = ws.function("n_exp_bin%s_proc_%s" % (chan, proc[0]))
+                    proc[1].Print()
+                    if proc_norm_var.Class().GetName() == ROOT.ProcessNormalization().Class().GetName():
+                        print(" ... is a product, which contains ", proc_norm_var.GetName())
+                        proc_norm_var.dump()
+                    else:
+                        print(" ... is a product, which contains ", proc_norm_var.GetName())
+                        # proc_norm_var = ws.var("n_exp_bin%s_proc_%s"%(chan,proc[0]))
+                        proc_norm_var.Print()
+                else:
+                    if proc[3]:
+                        if proc[1].Class().GetName() == ROOT.ProcessNormalization().Class().GetName():
+                            proc[1].dump()
+                        else:
+                            proc[1].Print()
+                            print(" ... is a constant (formula)")
                     else:
                         proc[1].Print()
-                        print(" ... is a constant (formula)")
-                else:
-                    proc[1].Print()
-                    print(" ... is a constant (RooRealVar)")
-            print("  -------------------------------------------------------------------------")
-            print("  default value = ", default_val)
+                        print(" ... is a constant (RooRealVar)")
+                print("  -------------------------------------------------------------------------")
+                print("  default value = ", default_val)
 
 # Save norms to json file
 if options.output_json != "":

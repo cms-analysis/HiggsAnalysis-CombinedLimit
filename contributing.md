@@ -82,10 +82,10 @@ The documentation files are all under the `docs/` folder.
 Which pages get included in the site, and other configuration details are set in the `mkdocs.yml` file.
 
 In order to check the documentation rendering (features such as latex math rendering, etc) locally, you can generate the site on your local computer and check it in your browser.
-To do so, after [installing mkdocs](https://www.mkdocs.org/getting-started/) and [pymdown extensions](https://facelessuser.github.io/pymdown-extensions/installation/) and the [cinder theme](https://sourcefoundry.org/cinder/) via:
+To do so, after [installing mkdocs](https://www.mkdocs.org/getting-started/), [pymdown extensions](https://facelessuser.github.io/pymdown-extensions/installation/), the [material theme](https://squidfunk.github.io/mkdocs-material/), and [mike](https://github.com/jimporter/mike) (for versioning) via:
 
 ```
-python -m pip install mkdocs pymdown-extensions mkdocs-cinder
+python -m pip install mkdocs pymdown-extensions mkdocs-cinder mike
 ```
 
  you can do:
@@ -96,6 +96,14 @@ mkdocs serve
 ```
 
 from the main repository directory. mkdocs will then print a link you can open to check the page generated in your browser.
+
+This will serve the current version of the documentation. For the versioned documentation, where the documentation corresponds to a certain tag of the code, mike is used. Mike performs pushes to the `gh-pages` branch of the repository, and sets up certain commits to be accessible as the tagged version of the docs. For adding a new tagged version to the documentation you need to do:
+
+```
+mike deploy <version> <alias>
+```
+
+Note that this will only affect your *local* copy of the gh-pages documentation. In order to view the pages locally you can use `mike serve` instead of `mkdocs serve`.
 
 **NOTE:** mkdocs builds that use internal links (or images, etc.) with absolute paths will work for local deployment, but will break when deployed to the public documentations pages. 
 Please ensure you use relative paths. Currently, this is the only known feature where the behvaiour differs between local mkdocs and public page deployment. 

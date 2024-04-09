@@ -1,33 +1,12 @@
 # Parametric Models in Combine
 
 ## Getting started
-By now you should have a working setup of Combine v9 from the pre-tutorial exercise. If so then move onto the cloning of the parametric fitting exercise gitlab repo below. If not then you need to set up a CMSSW area and checkout the combine package:
-```shell   
-cmsrel CMSSW_11_3_4
-cd CMSSW_11_3_4/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
 
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v9.0.0
-```
-We will also make use of another package, `CombineHarvester`, which contains some high-level tools for working with combine. The following command will download the repository and checkout just the parts of it we need for this exercise:
+To get started, you should have a working setup of `Combine` and `CombineHarvester`, please follow the instructions from the [home page](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users), to setup `CombineHarvester` checkout necessary scripts as described [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#combineharvestercombinetools). Make sure to use the latest recommended releases for both packages.
+
+Now let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:
 ```shell
-cd $CMSSW_BASE/src/
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
-```
-Now let's compile the CMSSW area:
-```shell
-scramv1 b clean; scramv1 b
-cmsenv
-```
-Finally, let's clone the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:
-```shell
-cd $CMSSW_BASE/src/
-git clone https://gitlab.cern.ch/jlangfor/combinetutorial-2023-parametric.git
-cd combinetutorial-2023-parametric
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/parametric_exercise
 ```
 
 ## Session structure
@@ -82,14 +61,14 @@ In this exercise we will look at one of the most famous parametric fitting analy
 In the analysis, we construct parametric models (analytic functions) of both signal and background events to fit the $m_{\gamma\gamma}$ spectrum in data. From the fit we can extract measurements of Higgs boson properties including its rate of production, its mass ($m_H$), its coupling behaviour, to name a few. This exercise will show how to construct parametric models using RooFit, and subsequently how to use combine to extract the results.
 
 ## Part 1: Parametric model building
-As with any fitting exercise, the first step is to understand the format of the input data, explore its contents and construct a model. The python script which performs the model construction is `construct_models_part1.py`. This section will explain what the various lines of code are doing.
+As with any fitting exercise, the first step is to understand the format of the input data, explore its contents and construct a model. The python script which performs the model construction is `construct_models_part1.py`. This section will explain what the various lines of code are doing. If you are not very familiar with `RooFit`, you may want to refer to our `RooFit` Basics tutorial  [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part5/roofit/).
 
 ### Signal modelling
 Firstly, we will construct a model to fit the signal (H $\rightarrow\gamma\gamma$) mass peak using a Monte Carlo simulation sample of gluon-gluon fusion production (ggH) events with $m_H=125$ GeV. This production mode has the largest cross section in the SM, and the LO Feynman diagram is shown below.
 
 ![](plots/part1_feynman.png)
 
-There has already been a dedicated selection performed on the events to increase the signal-to-background ratio (e.g. using some ML event classifier). Events passing this selection enter the analysis category, Tag0. Events entering Tag0 are used for the parametric fitting of the $m_{\gamma\gamma}$ spectrum. 
+There has already been a dedicated selection performed on the events to increase the signal-to-background ratio (e.g. using some ML event classifier). Events passing this selection enter the analysis category, Tag0. Events entering Tag0 are used for the parametric fitting of the $m_{\gamma\gamma}$ spectrum.
 
 The events are stored in a ROOT `TTree`, where the diphoton mass, `CMS_hgg_mass`, and the event weight, `weight`, are saved. Let's begin by loading the MC, and converting the `TTree` data into `RooDataSet`:
 ```python
@@ -119,7 +98,6 @@ can.SaveAs("part1_signal_mass.png")
 ![](plots/part1_signal_mass.png)
 
 
-
 The plot shows a peak centred on the Higgs mass at 125 GeV. Let's use a simple Gaussian to model the peak.
 ```python
 # Introduce a RooRealVar into the workspace for the Higgs mass
@@ -130,7 +108,7 @@ MH.setConstant(True)
 sigma = ROOT.RooRealVar("sigma_ggH_Tag0", "sigma_ggH_Tag0", 2, 1, 5)
 
 # Define the Gaussian with mean=MH and width=sigma
-model = ROOT.RooGaussian( "model_ggH_Tag0", "model_ggH_Tag0", mass, MH, sigma ) 
+model = ROOT.RooGaussian( "model_ggH_Tag0", "model_ggH_Tag0", mass, MH, sigma )
 
 # Fit Gaussian to MC events and plot
 model.fitTo(mc,ROOT.RooFit.SumW2Error(True))
@@ -147,10 +125,12 @@ can.SaveAs("part1_signal_model_v0.png")
 
 ![](plots/part1_signal_model_v0.png)
 
+It looks like a good fit!
 
-It looks like a good fit! 
+**Tasks and questions:**
 
-* Do you understand the output from the `fitTo` command (i.e the mimimization)? From now on we will add the option `ROOT.RooFit.PrintLevel(-1)` when fitting the models to surpress the minimizer output. 
+  -   Run the code above for yourself (or uncomment the relevant sections in `python3 construct_models_part1.py`) to produce the plots of the signal mass distribution and the signal model.
+  -   Do you understand the output from the `fitTo` command (i.e the mimimization)? From now on we will add the option `ROOT.RooFit.PrintLevel(-1)` when fitting the models to surpress the minimizer output.
 
 But what if the mean of the model does not correspond directly to the Higgs boson mass i.e. there are some reconstruction effects. Let's instead define the mean of the model as:
 
@@ -182,9 +162,11 @@ can.SaveAs("part1_signal_model_v1.png")
 ![](plots/part1_signal_model_v1.png)
 
 
-Let's now save the model inside a `RooWorkspace`. Combine will load this model when performing the fits. Crucially, we need to freeze the fit parameters of the signal model, otherwise they will be freely floating in the final results extraction. 
+**Tasks and questions:**
 
-* This choice of setting the shape parameters to constant means we believe our MC will perfectly model the Higgs boson events in data. Is this the case? How could we account for the MC mis-modelling in the fit? (See part 3).
+  -   Run the code above (or uncomment the relevant sections in the script) to produce the plots.
+  -   This choice of setting the shape parameters to constant means we believe our MC will perfectly model the Higgs boson events in data. Is this the case? How could we account for the MC mis-modelling in the fit? (See part 3).
+  -   Let's now save the model inside a `RooWorkspace`. Combine will load this model when performing the fits. Crucially, we need to freeze the fit parameters of the signal model, otherwise they will be freely floating in the final results extraction. Run the code below to save the model to a workspace.
 
 ```python
 MH.setVal(125)
@@ -256,8 +238,13 @@ can.SaveAs("part1_data_sidebands.png")
 
 ![](plots/part1_data_sidebands.png)
 
+By eye, it looks like an exponential function would fit the data sidebands well.
 
-By eye, it looks like an exponential function would fit the data sidebands well. Let's construct the background model using a `RooExponential` and fit the data sidebands:
+**Tasks and questions:**
+
+  -   Run the code above to produce the plot.
+  -   Construct the background model using a `RooExponential` and fit the data sidebands. You can use something like the code below to do this (or uncomment the relevant section of the script.)
+
 ```python
 alpha = ROOT.RooRealVar("alpha", "alpha", -0.05, -0.2, 0 )
 model_bkg = ROOT.RooExponential("model_bkg_Tag0", "model_bkg_Tag0", mass, alpha )
@@ -281,8 +268,10 @@ can.SaveAs("part1_bkg_model.png")
 
 ![](plots/part1_bkg_model.png)
 
+**Tasks and questions:**
 
-As the background model is extracted from data, we want to introduce a freely floating normalisation term. We use the total number of data events (including in the signal region) as the initial prefit value of this normalisation object i.e. assuming no signal in the data. The syntax to name this normalisation object is `{model}_norm` which will the be picked up automatically by combine. Note we also allow the shape parameter to float in the final fit to data (by not setting to constant).
+  -   As the background model is extracted from data, we want to introduce a freely floating normalisation term in the fit that enters the likelihood as an additional Poisson term (this is known as performing an extended maximum likelihood fit). We use the total number of data events (including in the signal region) as the initial prefit value of this normalisation object i.e. assuming no signal in the data. The syntax to name this normalisation object is `{model}_norm` which will the be picked up automatically by combine. Note we also allow the shape parameter to float in the final fit to data (by not setting to constant). Include the code below to include this parameter in the workspace.
+
 ```python
 norm = ROOT.RooRealVar("model_bkg_Tag0_norm", "Number of background events in Tag0", data.numEntries(), 0, 3*data.numEntries() )
 alpha.setConstant(False)
@@ -299,11 +288,14 @@ w_bkg.Write()
 f_out.Close()
 ```
 
+
 ### Datacard
 The model workspaces have now been constructed. But before we can run any fits in combine we need to build the so-called **datacard**. This is a text file which defines the different processes entering the fit and their expected yields, and maps these processes to the corresponding (parametric) models. We also store information on the systematic uncertainties in the datacard (see part 3). Given the low complexity of this example, the datacard is reasonably short. The datacard for this section is titled `datacard_part1.txt`. Take some time to understand the different lines. In particular, the values for the process normalisations:
 
-* Where does the signal (ggH) normalisation come from?
-* Why do we use a value of 1.0 for the background model normalisation in this analysis?
+**Tasks and questions:**
+
+  -   Where does the signal (ggH) normalisation come from?
+  -   Why do we use a value of 1.0 for the background model normalisation in this analysis?
 
 ```shell
 # Datacard example for combine tutorial 2023 (part 1)
@@ -331,15 +323,12 @@ To compile the datacard we run the following command, using a value of the Higgs
 ```shell
 text2workspace.py datacard_part1.txt -m 125
 ```
-* This compiles the datacard into a RooWorkspace, effectively building the likelihood function. Try opening the compiled workspace (`root datacard_part1.root`) and print the contents.
-```shell
-w->Print()
-```
 
-* Do you understand what all the different objects are? What does the variable `r` correspond to? Try (verbose) printing with: 
-```shell
-w->var("r")->Print("v")
-```
+**Tasks and questions:**
+
+  -   Run the command above. his compiles the datacard into a RooWorkspace, effectively building the likelihood function. Try opening the compiled workspace (`root datacard_part1.root`) and print the contents (use `w->Print()`).
+  -   Do you understand what all the different objects are? What does the variable `r` correspond to? Try (verbose) printing with `w->var("r")->Print("v")`.
+
 ### Extension: signal normalisation object
 In the example above, the signal model normalisation is input by hand in the datacard. We can instead define the signal normalisation components in the model in a similar fashion to the background model normalisation object. Let's build the cross section (ggH), branching fraction (H->gamgam), and efficiency variables. It's important to set these terms to be constant for the final fit to data:
 ```python
@@ -356,7 +345,7 @@ The normalisation component is then defined as the product of these three variab
 norm_sig = ROOT.RooProduct("model_ggH_Tag0_norm", "Normalisation term for ggH in Tag 0", ROOT.RooArgList(xs_ggH,br_gamgam,eff_ggH_Tag0))
 ```
 
-Again the syntax `{model}_norm` has been used so that combine will automatically assign this object as the normalisation for the model (`model_ggH_Tag0`). Firstly we need to save a new version of the signal model workspace with the normalisation term included. 
+Again the syntax `{model}_norm` has been used so that combine will automatically assign this object as the normalisation for the model (`model_ggH_Tag0`). Firstly we need to save a new version of the signal model workspace with the normalisation term included.
 ```python
 f_out = ROOT.TFile("workspace_sig_with_norm.root", "RECREATE")
 w_sig = ROOT.RooWorkspace("workspace_sig","workspace_sig")
@@ -366,14 +355,21 @@ w_sig.Print()
 w_sig.Write()
 f_out.Close()
 ```
-We then need to modify the datacard to account for this normalisation term. Importantly, the `{model}_norm` term in our updated signal model workspace does not contain the integrated luminosity. Therefore, the `rate` term in the datacard must be set equal to the integrated luminosity in [pb^-1] (as the cross section was defined in [pb]). The total normalisation for the signal model is then the product of the `{model}_norm` and the `rate` value. 
+We then need to modify the datacard to account for this normalisation term. Importantly, the `{model}_norm` term in our updated signal model workspace does not contain the integrated luminosity. Therefore, the `rate` term in the datacard must be set equal to the integrated luminosity in [pb^-1] (as the cross section was defined in [pb]). The total normalisation for the signal model is then the product of the `{model}_norm` and the `rate` value.
 
-* You can find the example datacard here: `datacard_part1_with_norm.txt` with the signal normalisation object included. Check if it compiles successfully using `text2workspace`? If so, try printing out the contents of the workspace. Can you see the normalisation component?
+**Tasks and questions:**
+
+  -   You can find the example datacard here: `datacard_part1_with_norm.txt` with the signal normalisation object included. Check if it compiles successfully using `text2workspace`? If so, try printing out the contents of the workspace. Can you see the normalisation component?
 
 ### Extension: unbinned vs binned
 In a parametric analysis, the fit can be performed using a binned or unbinned likelihood function. The consequences of binned vs unbinned likelihoods were discussed in the [morning session](https://indico.cern.ch/event/1227742/contributions/5240048/). In combine, we can simply toggle between binned and unbinned fits by changing how the data set is stored in the workspace. In the example above, the data was saved as a `RooDataSet`. This means that an unbinned maximum likelihood function would be used.
 
-To switch to a **binned** maximum likelihood fit, we need to store the data set in the workspace as a `RooDataHist`. Let's first load the data as a `RooDataSet` as before:
+To switch to a **binned** maximum likelihood fit, we need to store the data set in the workspace as a `RooDataHist`.
+
+**Tasks and questions:**
+
+  -   First load the data as a `RooDataSet` as before:
+
 ```python
 f = ROOT.TFile("data_part1.root","r")
 t = f.Get("data_Tag0")
@@ -381,7 +377,8 @@ t = f.Get("data_Tag0")
 # Convert TTree to a RooDataSet
 data = ROOT.RooDataSet("data_Tag0", "data_Tag0", t, ROOT.RooArgSet(mass, weight), "", "weight")
 ```
-We then need to set the number of bins in the observable and convert the data to a `RooDataHist`. In this example we will use 320 bins over the full mass range (0.25 GeV per bin). It is important that the binning is sufficiently granular so that we do not lose information in the data by switching to a binned likelihood fit. When fitting a signal peak over a background we want the bin width to be sufficiently smaller than the signal model mass resolution.
+  -   Now set the number of bins in the observable and convert the data to a `RooDataHist` (as below). In the example below we will use 320 bins over the full mass range (0.25 GeV per bin). It is important that the binning is sufficiently granular so that we do not lose information in the data by switching to a binned likelihood fit. When fitting a signal peak over a background we want the bin width to be sufficiently smaller than the signal model mass resolution. Try changing the number of bins (reducing them) at what point do you start to see diffeeences in the fit results?
+
 ```python
 # Set bin number for mass variables
 mass.setBins(320)
@@ -398,10 +395,12 @@ w_bkg.Write()
 f_out.Close()
 ```
 
-## Part 2: Simple fits 
-Now the parametric models have been constructed and the datacard has been compiled, we are ready to start using combine for running fits. In CMS analyses we begin by blinding ourselves to the data in the signal region, and looking only at the expected results based off toys datasets (asimov or pseudo-experiments). In this exercise, we will look straight away at the observed results. Note, the python commands in this section are taken from `simple_fits.py`.
+## Part 2: Simple fits
+Now the parametric models have been constructed and the datacard has been compiled, we are ready to start using combine for running fits. In CMS analyses we begin by blinding ourselves to the data in the signal region, and looking only at the expected results based off toys datasets (asimov or pseudo-experiments). In this exercise, we will look straight away at the observed results. Note, the python commands in this section are taken from the script called `simple_fits.py`.
 
-To run a simple best-fit for the signal strength, `r`, fixing the Higgs mass to 125 GeV, you can run the command in the terminal:
+**Tasks and questions:**
+
+  -   Run a simple best-fit for the signal strength, `r`, fixing the Higgs mass to 125 GeV, you can run the command in the terminal:
 ```shell
 combine -M MultiDimFit datacard_part1_with_norm.root -m 125 --freezeParameters MH --saveWorkspace -n .bestfit
 ```
@@ -454,9 +453,11 @@ We not only want to find the best-fit value of the signal strength, r, but also 
 ```shell
 combine -M MultiDimFit datacard_part1_with_norm.root -m 125 --freezeParameters MH -n .singles --algo singles
 ```
-To perform a likelihood scan (i.e. calculate 2NLL at fixed values of the signal strength, profiling the other parameters), we use the `grid` algorithm. We can control the number of points in the scan using the `--points` option. Also, it is important to set a suitable range for the signal strength parameter. The `singles` algorithm has shown us that the 1 stdev interval on r is around +/-0.2. 
+To perform a likelihood scan (i.e. calculate 2NLL at fixed values of the signal strength, profiling the other parameters), we use the `grid` algorithm. We can control the number of points in the scan using the `--points` option. Also, it is important to set a suitable range for the signal strength parameter. The `singles` algorithm has shown us that the 1 stdev interval on r is around +/-0.2.
 
-* Use these intervals to define a suitable range for the scan, and change `lo,hi` in the following options accordingly: `--setParameterRanges r=lo,hi`.
+**Tasks and questions:**
+
+  -   Use these intervals to define a suitable range for the scan, and change `lo,hi` in the following options accordingly: `--setParameterRanges r=lo,hi`.
 
 ```shell
 combine -M MultiDimFit datacard_part1_with_norm.root -m 125 --freezeParameters MH -n .scan --algo grid --points 20 --setParameterRanges r=lo,hi
@@ -465,29 +466,29 @@ We can use the `plot1DScan.py` function from combineTools to plot the likelihood
 ```shell
 plot1DScan.py higgsCombine.scan.MultiDimFit.mH125.root -o part2_scan
 ```
-
-
 ![](plots/part2_scan.png)
 
-
-* Do you understand what the plot is showing? What information about the signal strength parameter can be inferred from the plot?
+  -   Do you understand what the plot is showing? What information about the signal strength parameter can be inferred from the plot?
 
 ### Extension: expected fits
-To run *expected* fits we simply add `-t N` to the combine command. For `N>0`, this will generate N random toys from the model and fit each one independently. For `N=-1`, this will generate an asimov toy in which all statistical fluctuations from the model are suppressed. 
+To run *expected* fits we simply add `-t N` to the combine command. For `N>0`, this will generate N random toys from the model and fit each one independently. For `N=-1`, this will generate an asimov toy in which all statistical fluctuations from the model are suppressed.
 
 You can use the `--expectSignal 1` option to set the signal strength parameter to 1 when generating the toy. Alternatively, `--expectSignal 0` will generate a toy from the background-only model. For multiple parameter models you can set the initial values when generating the toy(s) using the `--setParameters` option of combine. For example, if you want to throw a toy where the Higgs mass is at 124 GeV and the background slope parameter `alpha` is equal to -0.05, you would add `--setParameters MH=124.0,alpha=-0.05`.
 
-* Try running the asimov likelihood scan for `r=1` and `r=0`, and plotting them using the `plot1DScan.py` script.
+**Tasks and questions:**
+
+  -   Try running the asimov likelihood scan for `r=1` and `r=0`, and plotting them using the `plot1DScan.py` script.
 
 ### Extension: goodness-of-fit tests
-The goodness-of-fit tests available in combine are only well-defined for binned maximum likelihood fits. Therefore, to perform a goodness-of-fit test with a parametric datacard, make sure to save the data object as a `RooDataHist`, as in `workspace_bkg_binned.root`. 
+The goodness-of-fit tests available in combine are only well-defined for binned maximum likelihood fits. Therefore, to perform a goodness-of-fit test with a parametric datacard, make sure to save the data object as a `RooDataHist`, as in `workspace_bkg_binned.root`.
 
-* Try editing the `datacard_part1_with_norm.txt` file to pick up the correct binned workspace file, and the `RooDataHist`. The goodness-of-fit method requires at-least one nuisance parameter in the model to run successfully. Append the following line to the end of the datacard:
+**Tasks and questions:**
+
+  -   Try editing the `datacard_part1_with_norm.txt` file to pick up the correct binned workspace file, and the `RooDataHist`. The goodness-of-fit method requires at-least one nuisance parameter in the model to run successfully. Append the following line to the end of the datacard:
 ```shell
 lumi_13TeV      lnN          1.01         -
 ```
-
-* Does the datacard compile with the `text2workspace.py` command?
+  -   Does the datacard compile with the `text2workspace.py` command?
 
 We use the `GoodnessOfFit` method in combine to evaluate how compatible the observed data are with the model pdf. There are three types of GoF algorithm within combine, this example will use the `saturated` algorithm. You can find more information about the other algorithms [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#goodness-of-fit-tests).
 
@@ -510,11 +511,10 @@ plotGof.py gof.json --statistic saturated --mass 125.0 -o part2_gof
 
 ![](plots/part2_gof.png)
 
-
-* What does the plot tell us? Does the model fit the data well? You can refer back to the discussion [here](https://indico.cern.ch/event/1227742/contributions/5240056/)
+  -   What does the plot tell us? Does the model fit the data well?
 
 ## Part 3: Systematic uncertainties
-In this section, we will learn how to add systematic uncertainties to a parametric fit analysis. The python commands are taken from the `systematics.py` script. 
+In this section, we will learn how to add systematic uncertainties to a parametric fit analysis. The python commands are taken from the `systematics.py` script.
 
 For uncertainties which only affect the process normalisation, we can simply implement these as `lnN` uncertainties in the datacard. The file `mc_part3.root` contains the systematic-varied trees i.e. Monte-Carlo events where some systematic uncertainty source `{photonID,JEC,scale,smear}` has been varied up and down by $1\sigma$.
 ```python
@@ -525,8 +525,8 @@ f.ls()
 ```
 Gives the output:
 ```shell
-TFile**		mc_part3.root	
- TFile*		mc_part3.root	
+TFile**		mc_part3.root
+ TFile*		mc_part3.root
   KEY: TTree	ggH_Tag0;1	ggH_Tag0
   KEY: TTree	ggH_Tag0_photonIDUp01Sigma;1	ggH_Tag0_photonIDUp01Sigma
   KEY: TTree	ggH_Tag0_photonIDDown01Sigma;1	ggH_Tag0_photonIDDown01Sigma
@@ -538,6 +538,11 @@ TFile**		mc_part3.root
   KEY: TTree	ggH_Tag0_JECDown01Sigma;1	ggH_Tag0_JECDown01Sigma
 ```
 Let's first load the systematic-varied trees as RooDataSets and store them in a python dictionary, `mc`:
+
+**Tasks and questions:**
+
+  -   Run the code below (or uncomment the relevant section of the script for this part).
+
 ```python
 # Define mass and weight variables
 mass = ROOT.RooRealVar("CMS_hgg_mass", "CMS_hgg_mass", 125, 100, 180)
@@ -574,10 +579,13 @@ Systematic varied yield (photonID,Down): 0.950
 We can write these yield variations in the datacard with the lines:
 ```shell
 CMS_scale_j           lnN      0.951/1.056      -
-CMS_hgg_phoIdMva      lnN      1.05             -   
+CMS_hgg_phoIdMva      lnN      1.05             -
 ```
 
-* Why is the photonID uncertainty expressed as one number, whereas the JEC uncertainty is defined by two?
+**Tasks and questions:**
+
+  -   Run the code (or uncomment the relevant lines of code in the script) to produce the systematic variations in the workspace and add the datacard lines above to the datacard.
+  -   Why is the photonID uncertainty expressed as one number, whereas the JEC uncertainty is defined by two?
 
 Note in this analysis there are no systematic uncertainties affecting the background estimate (` - ` in the datacard), as the background model has been derived directly from data.
 
@@ -601,7 +609,7 @@ Gives the output:
 ```shell
 Mean = 125.370 +- 0.009 GeV, Sigma = 2.011 +- 0.006 GeV
 ```
-Now let's compare the values to the nominal fit for all systematic-varied trees. We observe a significant variation in the mean for the **scale** uncertainty, and a significant variation in sigma for the **smear** uncertainty. 
+Now let's compare the values to the nominal fit for all systematic-varied trees. We observe a significant variation in the mean for the **scale** uncertainty, and a significant variation in sigma for the **smear** uncertainty.
 ```python
 # First fit the nominal dataset
 gaus.fitTo(mc['nominal'], ROOT.RooFit.SumW2Error(True), ROOT.RooFit.PrintLevel(-1) )
@@ -632,7 +640,7 @@ scaleDown01Sigma: mean = 124.609 +- 0.009 GeV, sigma = 2.005 +- 0.006 GeV
 smearUp01Sigma: mean = 125.005 +- 0.009 GeV, sigma = 2.097 +- 0.007 GeV
 smearDown01Sigma: mean = 125.007 +- 0.009 GeV, sigma = 1.912 +- 0.006 GeV
 ```
-The values tell us that the scale uncertainty (at $\pm 1 \sigma$) varies the signal peak mean by around 0.3%, and the smear uncertainty (at $\pm 1 \sigma$) varies the signal width (sigma) by around 4.5% (average of up and down variations). 
+The values tell us that the scale uncertainty (at $\pm 1 \sigma$) varies the signal peak mean by around 0.3%, and the smear uncertainty (at $\pm 1 \sigma$) varies the signal width (sigma) by around 4.5% (average of up and down variations).
 
 Now we need to bake these effects into the parametric signal model. The mean of the Gaussian was previously defined as:
 
@@ -655,9 +663,12 @@ eta.setConstant(True)
 mean_formula = ROOT.RooFormulaVar("mean_ggH_Tag0", "mean_ggH_Tag0", "(@0+@1)*(1+0.003*@2)", ROOT.RooArgList(MH,dMH,eta))
 ```
 
-* Why do we set the nuisance parameter to constant at this stage?
+**Tasks and questions:**
 
-Similar for the width introducing a nuisance parameter, $\chi$:
+  -   Update the workspace with the new mean formula variable (using the code above, or uncomment in the script)
+  -   Why do we set the nuisance parameter to constant at this stage?
+
+Similarly for the width introducing a nuisance parameter, $\chi$:
 
 $$ \sigma = \sigma \cdot (1+0.045\chi)$$
 
@@ -691,7 +702,7 @@ norm_sig = ROOT.RooProduct("model_ggH_Tag0_norm", "Normalisation term for ggH in
 dMH.setConstant(True)
 sigma.setConstant(True)
 
-# Build new signal model workspace with signal normalisation term. 
+# Build new signal model workspace with signal normalisation term.
 f_out = ROOT.TFile("workspace_sig_with_syst.root", "RECREATE")
 w_sig = ROOT.RooWorkspace("workspace_sig","workspace_sig")
 getattr(w_sig, "import")(model)
@@ -706,61 +717,70 @@ nuisance_scale        param    0.0    1.0
 nuisance_smear        param    0.0    1.0
 ```
 
-* Try adding these lines to `datacard_part1_with_norm.txt`, along with the lines for the JEC and photonID yield uncertainties above, and compiling with the `text2workspace` command. Open the workspace and look at its contents. You will need to change the signal process workspace file name in the datacard to point to the new workspace (`workspace_sig_with_syst.root`).
-* Can you see the new objects in the compiled datacard that have been created for the systematic uncertainties? What do they correspond to?
+**Tasks and questions:**
 
-We can now run a fit with the systematic uncertainties included. The option `--saveSpecifiedNuis` can be called to save the postfit nuisance parameter values in the combine output limit tree. 
+  -   Run the python code above to include the smearing uncertainty too.
+  -   Try adding these lines to `datacard_part1_with_norm.txt`, along with the lines for the JEC and photonID yield uncertainties above, and compiling with the `text2workspace` command. Open the workspace and look at its contents. You will need to change the signal process workspace file name in the datacard to point to the new workspace (`workspace_sig_with_syst.root`).
+  -   Can you see the new objects in the compiled datacard that have been created for the systematic uncertainties? What do they correspond to?
+
+We can now run a fit with the systematic uncertainties included. The option `--saveSpecifiedNuis` can be called to save the postfit nuisance parameter values in the combine output limit tree.
 ```shell
 combine -M MultiDimFit datacard_part1_with_norm.root -m 125 --freezeParameters MH --saveWorkspace -n .bestfit.with_syst --saveSpecifiedNuis CMS_scale_j,CMS_hgg_phoIdMva,nuisance_scale,nuisance_smear
 ```
 
-* What do the postfit values of the nuisances tell us here? You can check them by opening the output file (`root higgsCombine.bestfit.with_syst.MultiDimFit.mH125.root`) and running `limit->Show(0)`.
-* Try plotting the postfit mass distribution (as detailed in part 2). Do you notice any difference?
+**Tasks and questions:**
+
+  -   What do the postfit values of the nuisances tell us here? You can check them by opening the output file (`root higgsCombine.bestfit.with_syst.MultiDimFit.mH125.root`) and running `limit->Show(0)`.
+  -   Try plotting the postfit mass distribution (as detailed in part 2). Do you notice any difference?
 
 ### Uncertainty breakdown
 A more complete datacard with additional nuisance parameters is stored in `datacard_part3.txt`. We will use this datacard for the rest of part 3. Open the text file and have a look at the contents.
+
 
 The following line has been appended to the end of the datacard to define the set of theory nuisance parameters. This will come in handy when calculating the uncertainty breakdown.
 ```shell
 theory group = BR_hgg QCDscale_ggH pdf_Higgs_ggH alphaS_ggH UnderlyingEvent PartonShower
 ```
-Compile the datacard and run an observed `MultiDimFit` likelihood scan over the signal strength, r:
+
+**Tasks and questions:**
+
+  -   Compile the datacard and run an observed `MultiDimFit` likelihood scan over the signal strength, r:
 ```shell
 text2workspace.py datacard_part3.txt -m 125
 
 combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH -n .scan.with_syst --algo grid --points 20 --setParameterRanges r=0.5,2.5
 ```
-Our aim is to break down the total uncertainty into the systematic and statistical components. To get the statistical-uncertainty-only scan it should be as simple as freezing the nuisance parameters in the fit... right? 
 
-Try it by adding `,allConstrainedNuisances` to the `--freezeParameters` option. This will freeze all (constrained) nuisance parameters in the fit. You can also feed in regular expressions with wildcards using `rgx{.*}`. For instance to freeze only the `nuisance_scale` and `nuisance_smear` you could run with `--freezeParameters MH,rgx{nuisance_.*}`.
+  -   Our aim is to break down the total uncertainty into the systematic and statistical components. To get the statistical-uncertainty-only scan it should be as simple as freezing the nuisance parameters in the fit... right? Try it by adding `,allConstrainedNuisances` to the `--freezeParameters` option. This will freeze all (constrained) nuisance parameters in the fit. You can also feed in regular expressions with wildcards using `rgx{.*}`. For instance to freeze only the `nuisance_scale` and `nuisance_smear` you could run with `--freezeParameters MH,rgx{nuisance_.*}`.
+
 ```shell
 combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH,allConstrainedNuisances -n .scan.with_syst.statonly --algo grid --points 20 --setParameterRanges r=0.5,2.5
 ```
-You can plot the two likelihood scans on the same axis with the command:
+  -   Plot the two likelihood scans on the same axis. You can use the plotting script provided or write your own.
 ```shell
 plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label "With systematics" --main-color 1 --others higgsCombine.scan.with_syst.statonly.MultiDimFit.mH125.root:"Stat-only":2 -o part3_scan_v0
 ```
 
 ![](plots/part3_scan_v0.png)
 
+  -   Can you spot the problem?
 
-* Can you spot the problem? 
+The nuisance parameters introduced into the model have pulled the best-fit signal strength point! Therefore we cannot simply subtract the uncertainties in quadrature to get an estimate for the systematic/statistical uncertainty breakdown.
 
-The nuisance parameters introduced into the model have pulled the best-fit signal strength point! Therefore we cannot simply subtract the uncertainties in quadrature to get an estimate for the systematic/statistical uncertainty breakdown. 
+The correct approach is to freeze the nuisance parameters to their respective best-fit values in the stat-only scan.
 
-The correct approach is to freeze the nuisance parameters to their respective best-fit values in the stat-only scan. We can do this by first saving a postfit workspace with all nuisance parameters profiled in the fit. Then we load the postfit snapshot values of the nuisance parameters (with the option `--snapshotName MultiDimFit`) from the combine output of the previous step, and then freeze the nuisance parameters for the stat-only scan.
+  -   We can do this by first saving a postfit workspace with all nuisance parameters profiled in the fit. Then we load the postfit snapshot values of the nuisance parameters (with the option `--snapshotName MultiDimFit`) from the combine output of the previous step, and then freeze the nuisance parameters for the stat-only scan.
 ```shell
 combine -M MultiDimFit datacard_part3.root -m 125 --freezeParameters MH -n .bestfit.with_syst --setParameterRanges r=0.5,2.5 --saveWorkspace
 
 combine -M MultiDimFit higgsCombine.bestfit.with_syst.MultiDimFit.mH125.root -m 125 --freezeParameters MH,allConstrainedNuisances -n .scan.with_syst.statonly_correct --algo grid --points 20 --setParameterRanges r=0.5,2.5 --snapshotName MultiDimFit
 ```
-Adding the option `--breakdown syst,stat` to the `plot1DScan.py` command will automatically calculate the uncertainty breakdown for you.
+  -   Adding the option `--breakdown syst,stat` to the `plot1DScan.py` command will automatically calculate the uncertainty breakdown for you.
 ```shell
 plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label "With systematics" --main-color 1 --others higgsCombine.scan.with_syst.statonly_correct.MultiDimFit.mH125.root:"Stat-only":2 -o part3_scan_v1 --breakdown syst,stat
 ```
 
 ![](plots/part3_scan_v1.png)
-
 
 We can also freeze groups of nuisance parameters defined in the datacard with the option `--freezeNuisanceGroups`. Let's run a scan freezing only the theory uncertainties (using the nuisance group we defined in the datacard):
 ```shell
@@ -773,10 +793,11 @@ plot1DScan.py higgsCombine.scan.with_syst.MultiDimFit.mH125.root --main-label To
 
 ![](plots/part3_scan_v2.png)
 
+These methods are not limited to this particular grouping of systematics. We can use the above procedure to assess the impact of any nuisance parameter(s) on the signal strength confidence interval.
 
-These methods are not limited to this particular grouping of systematics. We can use the above procedure to assess the impact of any nuisance parameter(s) on the signal strength confidence interval. 
+**Tasks and questions:**
 
-* Try and calculate the contribution to the total uncertainty from the luminosity estimate using this approach.
+  -   Try and calculate the contribution to the total uncertainty from the luminosity estimate using this approach.
 
 ### Impacts
 It is often useful/required to check the impacts of the nuisance parameters (NP) on the parameter of interest, r. The impact of a NP is defined as the shift $\Delta r$ induced as the NP, $\theta$, is fixed to its $\pm1\sigma$ values, with all other parameters profiled as normal. More information can be found in the combine documentation via this [link](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#nuisance-parameter-impacts).
@@ -787,8 +808,6 @@ Let's calculate the impacts for our analysis. We can use the `combineTool.py` fr
 ```shell
 combineTool.py -M Impacts -d datacard_part3.root -m 125 --freezeParameters MH -n .impacts --setParameterRanges r=0.5,2.5 --doInitialFit --robustFit 1
 ```
-
-* What does the option `--robustFit 1` do? 
 
 2) Next perform a similar scan for each NP with the `--doFits` option. This may take a few minutes:
 ```shell
@@ -807,20 +826,20 @@ plotImpacts.py -i impacts_part3.json -o impacts_part3
 
 ![](plots/part3_impacts.png)
 
+**Tasks and questions:**
 
-There is a lot of information in these plots, which can be of invaluable use to analysers in understanding the fit. Do you understand everything that the plot is showing?
-
-* Which NP has the highest impact on the signal strength measurement?
-* Which NP is pulled the most in the fit to data? What does this information imply about the signal model mean in relation to the data?
-* Which NP is the most constrained in the fit to the data? What does it mean for a nuisance parameter to be constrained?
-* Try adding the option `--summary` to the impacts plotting command. This is a nice new feature in combine!
+  -   Run the commands 1-4 above. There is a lot of information in these plots, which can be of invaluable use to analysers in understanding the fit. Do you understand everything that the plot is showing?
+  -   Which NP has the highest impact on the signal strength measurement?
+  -   Which NP is pulled the most in the fit to data? What does this information imply about the signal model mean in relation to the data?
+  -   Which NP is the most constrained in the fit to the data? What does it mean for a nuisance parameter to be constrained?
+  -   Try adding the option `--summary` to the impacts plotting command. This is a nice new feature in combine!
 
 ## Part 4: Toy generation and bias studies
 With combine we can generate toy datasets from the compiled datacard workspace. Please read [this section](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#toy-data-generation) in the combine manual before proceeding.
 
 An interesting use case of toy generation is when performing bias studies. In the Higgs to two photon (Hgg) analysis, the background is fit with some functional form. However (due to the complexities of QCD) the exact form of this function is unknown. Therefore, we need to understand how our choice of background function may impact the fitted signal strength. This is performed using a bias study, which will indicate how much potential bias is present given a certain choice of functional form.
 
-In the classical bias studies we begin by building a set of workspaces which correspond to different background function choices. In addition to the `RooExponential` constructed in Section 1, let's also try a (4th order) `RooChebychev` polynomial and a simple power law function to fit the background $m_{\gamma\gamma}$ distribution. 
+In the classical bias studies we begin by building a set of workspaces which correspond to different background function choices. In addition to the `RooExponential` constructed in Section 1, let's also try a (4th order) `RooChebychev` polynomial and a simple power law function to fit the background $m_{\gamma\gamma}$ distribution.
 
 The script used to fit the different functions and build the workspaces is `construct_models_bias_study_part4.py`. Take some time to look at the script and understand what the code is doing. In particular notice how we have saved the data as a `RooDataHist` in the workspace. This means we are now performing **binned** maximum likelihood fits (this is useful for part 4 to speed up fitting the many toys). If the binning is sufficiently granular, then there will be no noticeable difference in the results to the **unbinned** likelihood fits. Run the script with:
 ```shell
@@ -845,9 +864,11 @@ $$ P = (r_{truth}-r_{fit})/\sigma_{fit}$$
 
 By repeating the process for many toys we can build up a pull distribution. If there is no bias present then we would expect to obtain a normal distribution centred at 0, with a standard deviation of 1. Let's calculate the bias for our analysis.
 
-Firstly,  we generate N=1000 toys from each of the background function choices and save them in a ROOT file. For this we use the `GenerateOnly` method of combine. We will inject signal in the toys by setting `r=1` using the `--expectSignal 1` option. 
+Firstly,  we generate N=1000 toys from each of the background function choices and save them in a ROOT file. For this we use the `GenerateOnly` method of combine. We will inject signal in the toys by setting `r=1` using the `--expectSignal 1` option.
 
-* If time allows, repeat the bias studies with `--expectSignal 0`. This will inform us of the potential bias in the signal strength measurement given that there is no true signal.
+**Tasks and questions:**
+
+  -   Repeat the bias studies as outlined above with `--expectSignal 0`. This will inform us of the potential bias in the signal strength measurement given that there is no true signal.
 
 The following commands show the example of throwing 1000 toys from the exponential function, and then fitting back with the 4th-order Chebychev polynomial. We use the `singles` algorithm to obtain a value for $r_{fit}$ and $\sigma_{fit}$ simultaneously.
 ```shell
@@ -862,19 +883,20 @@ python3 plot_bias_pull.py
 
 ![](plots/part4_pull_truth_exp_fit_poly.png)
 
+The potential bias is defined as the (fitted) mean of the pull distribution.
 
-The potential bias is defined as the (fitted) mean of the pull distribution. 
+**Tasks and questions:**
 
-* What is our bias value? Have we generated enough toys to be confident of the bias value? You could try generating more toys if not.
-* What threshold do we use to define "acceptable" bias? 
+  -   What is our bias value? Have we generated enough toys to be confident of the bias value? You could try generating more toys if not.
+  -   What threshold do we use to define "acceptable" bias?
 
 From the pull definition, we see the bias value is defined relative to the total uncertainty in the signal strength (denominator of $\sigma_{fit}$). Some analyses use 0.14 as the threshold because a bias below this value would change the total uncertainty (when added in quadrature) by less than 1% (see equation below). Other analyses use 0.2 as this will change the total uncertainty by less than 2%. We should define the threshold before performing the bias study.
 
 $$ \sqrt{ 1^2 + 0.14^2} = 1.0098 $$
 
-* How does our bias value compare to the thresholds? If we the bias is outside the acceptable region we should account for this using a **spurious signal** method (see advanced exercises TBA). 
-* Repeat the bias study for each possible truth and fitted background function combinations. Do the bias values induced by the choice of background function merit adding a spurious signal component into the fit?
-* What would you expect the bias value to be for a background function that does not fit the data well? Should we be worried about such functions? What test could we use to reject such functions from the study beforehand?
+  -   How does our bias value compare to the thresholds? If we the bias is outside the acceptable region we should account for this using a **spurious signal** method (see advanced exercises TBA).
+  -   Repeat the bias study for each possible truth and fitted background function combinations. Do the bias values induced by the choice of background function merit adding a spurious signal component into the fit?
+  -   What would you expect the bias value to be for a background function that does not fit the data well? Should we be worried about such functions? What test could we use to reject such functions from the study beforehand?
 
 ## Part 5: Discrete-profiling
 If multiple pdfs exist to fit some distribution, we can store all pdfs in a single workspace by using a `RooMultiPdf` object. The script `construct_models_multipdf_part5.py` shows how to store the exponential, (4th order) Chebychev polynomial and the power law function from the previous section in a `RooMultiPdf` object. This requires a `RooCategory` index, which controls the pdf which is active at any one time. Look at the contents of the script and then run with:
@@ -890,11 +912,13 @@ Compile the datacard with:
 text2workspace.py datacard_part5.txt -m 125
 ```
 
-The `RooMultiPdf` is a handy object for performing bias studies as all functions can be stored in a single workspace. You can then set which function is used for generating the toys with the `--setParameters pdfindex_Tag0=i` option, and which function is used for fitting with `--setParameters pdfindex_Tag0=j --freezeParameters pdfindex_Tag0` options. 
+The `RooMultiPdf` is a handy object for performing bias studies as all functions can be stored in a single workspace. You can then set which function is used for generating the toys with the `--setParameters pdfindex_Tag0=i` option, and which function is used for fitting with `--setParameters pdfindex_Tag0=j --freezeParameters pdfindex_Tag0` options.
 
-* It would be a useful exercise to repeat the bias studies from part 4 but using the RooMultiPdf workspace. What happens when you do not freeze the index in the fitting step?
+**Tasks and questions:**
 
-But simpler bias studies are not the only benefit of using the `RooMultiPdf`! It also allows us to apply the [discrete profiling method](https://arxiv.org/pdf/1408.6865.pdf) in our analysis. In this method, the index labelling which pdf is active (a discrete nuisance parameter) is left floating in the fit, and will be profiled by looping through all the possible index values and finding the pdf which gives the best fit. In this manner, we are able to account for the **uncertainty in the choice of the background function**. 
+  -   It would be a useful exercise to repeat the bias studies from part 4 but using the RooMultiPdf workspace. What happens when you do not freeze the index in the fitting step?
+
+But simpler bias studies are not the only benefit of using the `RooMultiPdf`! It also allows us to apply the [discrete profiling method](https://arxiv.org/pdf/1408.6865.pdf) in our analysis. In this method, the index labelling which pdf is active (a discrete nuisance parameter) is left floating in the fit, and will be profiled by looping through all the possible index values and finding the pdf which gives the best fit. In this manner, we are able to account for the **uncertainty in the choice of the background function**.
 
 Note, by default, the multipdf will tell combine to add 0.5 to the NLL for each parameter in the pdf. This is known as the penalty term (or correction factor) for the discrete profiling method. You can toggle this term when building the workspace with the command `multipdf.setCorrectionFactor(0.5)`. You may need to change the value of this term to obtain an acceptable bias in your fit!
 
@@ -924,7 +948,7 @@ plot1DScan.py higgsCombine.scan.multidimfit.MultiDimFit.mH125.root --main-label 
 ![](plots/part5_scan.png)
 
 
-The impact on the likelihood scan is evident at the lower edge, where the scan in which the index is floating flattens out. In this example, neither the $1\sigma$ or $2\sigma$ intervals are affected. But this is not always the case! Ultimately, this method allows us to account for the uncertainty in the choice of background function in the signal strength measurement. 
+The impact on the likelihood scan is evident at the lower edge, where the scan in which the index is floating flattens out. In this example, neither the $1\sigma$ or $2\sigma$ intervals are affected. But this is not always the case! Ultimately, this method allows us to account for the uncertainty in the choice of background function in the signal strength measurement.
 
 Coming back to the bias studies. Do you now understand what you are testing if you do not freeze the index in the fitting stage? In this case you are fitting the toys back with the discrete profiling method. This is the standard approach for the bias studies when we use the discrete-profiling method in an analysis.
 
@@ -946,25 +970,29 @@ $$ N_{ij} = \sigma_i \cdot \mathcal{B}^{\gamma\gamma} \cdot \epsilon_{ij} \cdot 
 
 2) A background model is constructed for each analysis category by fitting the mass sidebands in data. The input data is stored in the `data_part6.root` file. The models are `RooMultiPdfs` which contain an exponential, a 4th-order Chebychev polynomial and a power law function. The shape parameters and normalisation terms of the background models are freely floating in the final fit.
 
-* Have a look through the `construct_models_part6.py` script and try to understand all parts of the model construction. When you are happy, go ahead and construct the models with:
+**Tasks and questions:**
+
+  -   Have a look through the `construct_models_part6.py` script and try to understand all parts of the model construction. When you are happy, go ahead and construct the models with:
 ```shell
 python3 construct_models_part6.py
 ```
 
-The datacards for the two analysis categories are saved separately as `datacard_part6_Tag0.txt` and `datacard_part6_Tag1.txt`. 
+The datacards for the two analysis categories are saved separately as `datacard_part6_Tag0.txt` and `datacard_part6_Tag1.txt`.
 
-* Do you understand the changes made to include multiple signal processes in the datacard? What value in the `process` line is used to label VBF as a signal?
-* Try compiling the individual datacards. What are the prefit ggH and VBF yields in each analysis category? You can find these by opening the workspace and printing the contents.
-* Run the best fits and plot the prefit and postfit S+B models along with the data (see code in part 2). How does the absolute number of data events in Tag1 compare to Tag0? What about the signal-to-background ratio, S/B? 
+  -   Do you understand the changes made to include multiple signal processes in the datacard? What value in the `process` line is used to label VBF as a signal?
+  -   Try compiling the individual datacards. What are the prefit ggH and VBF yields in each analysis category? You can find these by opening the workspace and printing the contents.
+  -   Run the best fits and plot the prefit and postfit S+B models along with the data (see code in part 2). How does the absolute number of data events in Tag1 compare to Tag0? What about the signal-to-background ratio, S/B?
 
 In order to combine the two categories into a single datacard, we make use of the `combineCards.py` script:
 ```shell
 combineCards.py datacard_part6_Tag0.txt datacard_part6_Tag1.txt > datacard_part6_combined.txt
 ```
 ### Running the fits
-If we use the default `text2workspace` command on the combined datacard, then this will introduce a single signal strength modifer which modifies the rate of all signal processes (ggH and VBF) by the same factor. 
+If we use the default `text2workspace` command on the combined datacard, then this will introduce a single signal strength modifer which modifies the rate of all signal processes (ggH and VBF) by the same factor.
 
-* Try compiling the combined datacard and running a likelihood scan. Does the sensitivity to the global signal strength improve by adding the additional analysis category "Tag1"?
+**Tasks and questions:**
+
+  -   Try compiling the combined datacard and running a likelihood scan. Does the sensitivity to the global signal strength improve by adding the additional analysis category "Tag1"?
 
 If we want to measure the independent rates of both processes simultaneously, then we need to introduce a separate signal strength for ggH and VBF. To do this we use the `multiSignalModel` physics model in combine by adding the following options to the `text2workspace` command:
 ```shell
@@ -992,8 +1020,10 @@ To run a 1D "profiled" likelihood scan for ggH we use the following command:
 combine -M MultiDimFit datacard_part6_combined_multiSignalModel.root -m 125 --freezeParameters MH -n .scan.part6_multiSignalModel_ggH --algo grid --points 20 --cminDefaultMinimizerStrategy 0 --saveInactivePOI 1 -P r_ggH --floatOtherPOIs 1
 ```
 
-* "Profiled" here means we are profiling over the other parameter of interest, `r_VBF` in the fit. In other words, we are treating `r_VBF` as an additional nuisance parameter. The option `--saveInactivePOI 1` stores the value of `r_VBF` in the combine output. Take a look at the fit output. Does the value of `r_VBF` depend on `r_ggH`? Are the two parameters of interest correlated? Remember, to look at the contents of the TTree you can use `limit->Show(i)`, where i is an integer labelling the point in the likelihood scan.
-* Run the profiled scan for the VBF signal strength. Plot the `r_ggH` and `r_VBF` likelihood scans using the `plot1DScan.py` script. You will need to change some of the input options, in particular the `--POI` option. You can list the full set of options by running:
+**Tasks and questions:**
+
+  -   "Profiled" here means we are profiling over the other parameter of interest, `r_VBF` in the fit. In other words, we are treating `r_VBF` as an additional nuisance parameter. The option `--saveInactivePOI 1` stores the value of `r_VBF` in the combine output. Take a look at the fit output. Does the value of `r_VBF` depend on `r_ggH`? Are the two parameters of interest correlated? Remember, to look at the contents of the TTree you can use `limit->Show(i)`, where i is an integer labelling the point in the likelihood scan.
+  -   Run the profiled scan for the VBF signal strength. Plot the `r_ggH` and `r_VBF` likelihood scans using the `plot1DScan.py` script. You will need to change some of the input options, in particular the `--POI` option. You can list the full set of options by running:
 ```shell
 plot1DScan.py --help
 ```
@@ -1012,13 +1042,14 @@ This script interpolates the 2NLL value between the points ran in the scan so th
 
 ![](plots/part6_scan2D_r_ggH_vs_r_VBF.png)
 
+**Tasks and questions:**
 
-* The plot shows that the data is in agreement with the SM within the $2\sigma$ CL. Here, the $1\sigma$ and $2\sigma$ confidence interval contours corresponds to 2NLL values of 2.3 and 5.99, respectively. Do you understand why this? Think about Wilk's theorem.
-* Does the plot show any correlation between the ggH and VBF signal strengths? Are the two positively or negatively correlated? Does this make sense for this pair of parameters given the analysis setup? Try repeating the 2D likelihood scan using the "Tag0" only datacard. How does the correlation behaviour change?
-* How can we read off the "profiled" 1D likelihood scan constraints from this plot?
+  -   The plot shows that the data is in agreement with the SM within the $2\sigma$ CL. Here, the $1\sigma$ and $2\sigma$ confidence interval contours corresponds to 2NLL values of 2.3 and 5.99, respectively. Do you understand why this? Think about Wilk's theorem.
+  -   Does the plot show any correlation between the ggH and VBF signal strengths? Are the two positively or negatively correlated? Does this make sense for this pair of parameters given the analysis setup? Try repeating the 2D likelihood scan using the "Tag0" only datacard. How does the correlation behaviour change?
+  -   How can we read off the "profiled" 1D likelihood scan constraints from this plot?
 
 ### Correlations between parameters
-For template-based analyses we can use the `FitDiagnostics` method in combine to extract the covariance matrix for the fit parameters. Unfortunately, this method is not compatible when using discrete nuisance parameters (`RooMultiPdf`). Instead, we can use the `robustHesse` method to find the Hessian matrix by finite difference methods. The matrix is then inverted to get the covariance. Subsequently, we can use the covariance to extract the correlations between fit parameters. 
+For template-based analyses we can use the `FitDiagnostics` method in combine to extract the covariance matrix for the fit parameters. Unfortunately, this method is not compatible when using discrete nuisance parameters (`RooMultiPdf`). Instead, we can use the `robustHesse` method to find the Hessian matrix by finite difference methods. The matrix is then inverted to get the covariance. Subsequently, we can use the covariance to extract the correlations between fit parameters.
 ```shell
 combine -M MultiDimFit datacard_part6_combined_multiSignalModel.root -m 125 --freezeParameters MH -n .robustHesse.part6_multiSignalModel --cminDefaultMinimizerStrategy 0 -P r_ggH -P r_VBF --setParameterRanges r_ggH=0.5,2.5:r_VBF=-1,2 --robustHesse 1 --robustHesseSave 1 --saveFitResult
 ```
@@ -1034,7 +1065,9 @@ root [3] h_correlation->GetBinContent(19,20)
 (double) -0.19822058
 ```
 
-* The two parameters of interest have a correlation coefficient of -0.198. This means the two parameters are somewhat anti-correlated. Does this match what we see in the 2D likelihood scan?
+**Tasks and questions:**
+
+  -   The two parameters of interest have a correlation coefficient of -0.198. This means the two parameters are somewhat anti-correlated. Does this match what we see in the 2D likelihood scan?
 
 ### Impacts
 We extract the impacts for each parameter of interest using the following commands:
@@ -1049,13 +1082,15 @@ plotImpacts.py -i impacts_part6.json -o impacts_part6_r_ggH --POI r_ggH
 plotImpacts.py -i impacts_part6.json -o impacts_part6_r_VBF --POI r_VBF
 ```
 
-* Look at the output PDF files. How does the ranking of the nuisance parameters change for the different signal strengths? 
+**Tasks and questions:**
+
+  -   Look at the output PDF files. How does the ranking of the nuisance parameters change for the different signal strengths?
 
 ## Advanced exercises (to be added)
 The combine experts will include additional exercises here in due course. These will include:
 
-* Convolution of model pdfs: `RooAddPdf`
-* Application of the spurious signal method
-* Advanced physics models including parametrised signal strengths e.g. SMEFT
-* Mass fits
-* Two-dimensional parametric models 
+  -   Convolution of model pdfs: `RooAddPdf`
+  -   Application of the spurious signal method
+  -   Advanced physics models including parametrised signal strengths e.g. SMEFT
+  -   Mass fits
+  -   Two-dimensional parametric models
