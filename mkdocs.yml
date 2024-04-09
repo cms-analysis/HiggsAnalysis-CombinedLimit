@@ -12,7 +12,10 @@ nav:
             - Statistical Tests: what_combine_does/statistical_tests.md
         - Setting up the analysis:
           - "Preparing the datacard": part2/settinguptheanalysis.md
-          - "Physics models": part2/physicsmodels.md
+          - "Physics models":
+              - "Introduction": part2/physicsmodels.md
+              - "SM Higgs coupling models": part2/higgscouplings.md
+              - "BSM Higgs models": part2/bsm-higgs-models.md
           - "Automatic MC statistical uncertainties": part2/bin-wise-stats.md
         - Running combine:
           - "Running the tool":           part3/runningthetool.md
@@ -24,7 +27,7 @@ nav:
           - "Debugging fit failures":     part3/debugging.md
         - Tutorials:
           - "RooFit Basics":              part5/roofit.md
-          - "Main Features":                
+          - "Main Features":
             - "Exercises":                part5/longexercise.md
             - "Solutions":                part5/longexerciseanswers.md
           - "Parametric Models":          tutorial2023/parametric_exercise.md
@@ -36,7 +39,7 @@ theme:
         logo: logo.png
         favicon: logo.png
         custom_dir: docs/overrides
-        features: 
+        features:
             - content.code.copy
             - navigation.footer
             - navigation.indexes
