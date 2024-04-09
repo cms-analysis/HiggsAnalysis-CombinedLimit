@@ -14,6 +14,7 @@ nav:
           - "Preparing the datacard": part2/settinguptheanalysis.md
           - "Physics models":
               - "Introduction": part2/physicsmodels.md
+              - "SM Higgs coupling models": part2/higgscouplings.md
               - "BSM Higgs models": part2/bsm-higgs-models.md
           - "Automatic MC statistical uncertainties": part2/bin-wise-stats.md
         - Running combine:
@@ -38,7 +39,7 @@ theme:
         logo: logo.png
         favicon: logo.png
         custom_dir: docs/overrides
-        features: 
+        features:
             - content.code.copy
             - navigation.footer
             - navigation.indexes

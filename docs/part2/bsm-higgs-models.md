@@ -12,7 +12,7 @@ You can produce the model by including the  following option in the `text2worksp
 -P HiggsAnalysis.CombinedLimit.TwoHiggsModels:model
 ```
 
-| |`model`|`--PO`|POIs|<div style="width:590px">Description</div>|
+| |`model`|<div style="width:160px">`--PO`</div>|<div style="width:160px">POIs</div>|<div style="width:590px">Description</div>|
 | --- | ------------ | -------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------- |
 | Two Higgs bosons  | `twoHiggsUnconstrained`    |   N/A       | `r`, `r_SM`                   | The SM-like Higgs boson signal strength will be `r_SM` and its mass will be assumed to be `MH_SM` (default value 125.8), while the additional Higgs boson signal strength will be scaled by `r` and assumed to have mass `MH`. |
 | Singlet Mixing Model | `singletMixing` |  `--PO BSMDecays`,`--PO UseVisibleMu` | `r`,`BR_BSM` | Without any options, the SM like Higgs boson will have signal strength `r`, while the additional Higgs boson is scaled by `1-r` and `BR_BSM` will not be a POI. If the option `BSMDecays` is included, the additional boson's signal strength will be `r(1-BR_BSM)` and the SM like Higgs boson will have signal strength of `1-r`. If the option `UseVisibleMu` is included too, then instead, the additional Higgs boson will get a signal strength `r` while the SM one will have `1-r(1-BR_BSM)`. |
@@ -29,7 +29,7 @@ You can produce the model by including the  following option in the `text2worksp
 -P HiggsAnalysis.CombinedLimit.AdditionalModels:model_name
 ```
 
-| |`model`|`--PO`|POIs|<div style="width:590px">Description</div>|
+| |`model`|<div style="width:160px">`--PO`</div>|<div style="width:160px">POIs</div>|<div style="width:590px">Description</div>|
 | --- | ------------ | -------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------- |
 | 2HDM Type-1 | `twohdm` |    `--PO thdmtype=1`    | `cosbma`,`tanbeta` | The couplings of the Higgs boson to fermions and vector bosons are modified by the parameters `cosbma` ($\cos(\beta-\alpha)$) and `tanbeta` ($\tan\beta$). The couplings dependencies are $\kappa_V = \sqrt(1-\cos^{2}(\beta-\alpha))$, $\kappa_{u}=\kappa_{d}=\cos(\alpha)/\sin(\beta)$. |
 | 2HDM Type-2 | `twohdm` |    `--PO thdmtype=2`    | `cosbma`,`tanbeta` | The couplings of the Higgs boson to fermions and vector bosons are modified by the parameters `cosbma` ($\cos(\beta-\alpha)$) and `tanbeta` ($\tan\beta$). The couplings dependencies are $\kappa_V = \sqrt(1-\cos^{2}(\beta-\alpha))$, $\kappa_{u}=\cos(\alpha)/\sin(\beta)$, $\kappa_{d}=-\sin(\alpha)/\cos(\beta)$. |
@@ -46,6 +46,6 @@ You can produce the model by including the  following option in the `text2worksp
 -P HiggsAnalysis.CombinedLimit.HiggsFermiophobic:model_name
 ```
 
-| |`model`|`--PO`|POIs|<div style="width:590px">Description</div>|
+| |`model`|<div style="width:160px">`--PO`</div>|<div style="width:160px">POIs</div>|<div style="width:590px">Description</div>|
 | --- | ------------ | -------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------- |
 | Fermiophobic Higgs  | `fp`    |   N/A       | `r`                   | The Higgs boson signal strength will be `r` for any production/decay that involves vector boson couplints only. The branching ratios are recalculated assuming no Higgs boson couplings to fermions.|
